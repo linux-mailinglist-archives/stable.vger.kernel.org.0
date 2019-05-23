@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2826A288AD
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:41:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA57528756
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:25:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391683AbfEWT16 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:27:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40328 "EHLO mail.kernel.org"
+        id S2388770AbfEWTSS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:18:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391002AbfEWT15 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:27:57 -0400
+        id S2388250AbfEWTSS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:18:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E505C2054F;
-        Thu, 23 May 2019 19:27:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 740CA20863;
+        Thu, 23 May 2019 19:18:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639675;
-        bh=n/tMZ4cNVoAA1oHzG4CdFylVAUsgOpQAWjMKe/YoFaM=;
+        s=default; t=1558639096;
+        bh=r0YV2d7Kb4ORO5KhwBeQugIwHS3gDCFSoFs1q5XHlPg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qoT74m1AhJXl2+vCATt68E7fDGbEvsdW5LLjsJ2tDBjKtbSNBz71H25N8Z3HajKSe
-         lzw2KIwBdMfX9uD9Cc2jJlc5dDL2qxVMHmvKGk23pVye76fuEeviWk/TZwEK8V9Kxb
-         E8C6lEv7kClSpUi4snExZR99vgvC2JDswFLAnzJU=
+        b=olEzaOoLSuCh6mPUtwZTFyMr7uwpu/k5V0iuLxUAwq0bJB6OqNAv2+wlv+L9ddnMc
+         6whIiGYxycGvGqBh/frWiH0h77l/3v+HeVioe5T8YA30E4iThJW1AdsspZ6wCoHfsI
+         krdnqbXApBynhzZV2E0tMw4CsLmBp1c5VhY6GJac=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steve Longerbeam <slongerbeam@gmail.com>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 5.1 053/122] media: imx: Rename functions that add IPU-internal subdevs
+        stable@vger.kernel.org,
+        =?UTF-8?q?Stefan=20M=C3=A4tje?= <stefan.maetje@esd.eu>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 4.19 076/114] PCI: Work around Pericom PCIe-to-PCI bridge Retrain Link erratum
 Date:   Thu, 23 May 2019 21:06:15 +0200
-Message-Id: <20190523181711.730366129@linuxfoundation.org>
+Message-Id: <20190523181738.630668446@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
-References: <20190523181705.091418060@linuxfoundation.org>
+In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
+References: <20190523181731.372074275@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,160 +45,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve Longerbeam <slongerbeam@gmail.com>
+From: Stefan Mätje <stefan.maetje@esd.eu>
 
-commit 085b26da62211cb77622008082adff56aefa771d upstream.
+commit 4ec73791a64bab25cabf16a6067ee478692e506d upstream.
 
-For the functions that add and remove the internal IPU subdevice
-descriptors, rename them to make clear they are the subdevs internal
-to the IPU. Also rename the platform data structure for the internal
-IPU subdevices. No functional changes.
+Due to an erratum in some Pericom PCIe-to-PCI bridges in reverse mode
+(conventional PCI on primary side, PCIe on downstream side), the Retrain
+Link bit needs to be cleared manually to allow the link training to
+complete successfully.
 
-Signed-off-by: Steve Longerbeam <slongerbeam@gmail.com>
-Acked-by: Philipp Zabel <p.zabel@pengutronix.de>
-Cc: stable@vger.kernel.org
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+If it is not cleared manually, the link training is continuously restarted
+and no devices below the PCI-to-PCIe bridge can be accessed.  That means
+drivers for devices below the bridge will be loaded but won't work and may
+even crash because the driver is only reading 0xffff.
+
+See the Pericom Errata Sheet PI7C9X111SLB_errata_rev1.2_102711.pdf for
+details.  Devices known as affected so far are: PI7C9X110, PI7C9X111SL,
+PI7C9X130.
+
+Add a new flag, clear_retrain_link, in struct pci_dev.  Quirks for affected
+devices set this bit.
+
+Note that pcie_retrain_link() lives in aspm.c because that's currently the
+only place we use it, but this erratum is not specific to ASPM, and we may
+retrain links for other reasons in the future.
+
+Signed-off-by: Stefan Mätje <stefan.maetje@esd.eu>
+[bhelgaas: apply regardless of CONFIG_PCIEASPM]
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+CC: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/staging/media/imx/imx-ic-common.c         |    2 +-
- drivers/staging/media/imx/imx-media-dev.c         |    8 ++++----
- drivers/staging/media/imx/imx-media-internal-sd.c |   12 ++++++------
- drivers/staging/media/imx/imx-media-vdic.c        |    2 +-
- drivers/staging/media/imx/imx-media.h             |    6 +++---
- 5 files changed, 15 insertions(+), 15 deletions(-)
+ drivers/pci/pcie/aspm.c |    9 +++++++++
+ drivers/pci/quirks.c    |   17 +++++++++++++++++
+ include/linux/pci.h     |    2 ++
+ 3 files changed, 28 insertions(+)
 
---- a/drivers/staging/media/imx/imx-ic-common.c
-+++ b/drivers/staging/media/imx/imx-ic-common.c
-@@ -26,7 +26,7 @@ static struct imx_ic_ops *ic_ops[IC_NUM_
+--- a/drivers/pci/pcie/aspm.c
++++ b/drivers/pci/pcie/aspm.c
+@@ -207,6 +207,15 @@ static bool pcie_retrain_link(struct pci
+ 	pcie_capability_read_word(parent, PCI_EXP_LNKCTL, &reg16);
+ 	reg16 |= PCI_EXP_LNKCTL_RL;
+ 	pcie_capability_write_word(parent, PCI_EXP_LNKCTL, reg16);
++	if (parent->clear_retrain_link) {
++		/*
++		 * Due to an erratum in some devices the Retrain Link bit
++		 * needs to be cleared again manually to allow the link
++		 * training to succeed.
++		 */
++		reg16 &= ~PCI_EXP_LNKCTL_RL;
++		pcie_capability_write_word(parent, PCI_EXP_LNKCTL, reg16);
++	}
  
- static int imx_ic_probe(struct platform_device *pdev)
+ 	/* Wait for link training end. Break out after waiting for timeout */
+ 	start_jiffies = jiffies;
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -2220,6 +2220,23 @@ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_IN
+ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL, 0x10f4, quirk_disable_aspm_l0s);
+ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL, 0x1508, quirk_disable_aspm_l0s);
+ 
++/*
++ * Some Pericom PCIe-to-PCI bridges in reverse mode need the PCIe Retrain
++ * Link bit cleared after starting the link retrain process to allow this
++ * process to finish.
++ *
++ * Affected devices: PI7C9X110, PI7C9X111SL, PI7C9X130.  See also the
++ * Pericom Errata Sheet PI7C9X111SLB_errata_rev1.2_102711.pdf.
++ */
++static void quirk_enable_clear_retrain_link(struct pci_dev *dev)
++{
++	dev->clear_retrain_link = 1;
++	pci_info(dev, "Enable PCIe Retrain Link quirk\n");
++}
++DECLARE_PCI_FIXUP_HEADER(0x12d8, 0xe110, quirk_enable_clear_retrain_link);
++DECLARE_PCI_FIXUP_HEADER(0x12d8, 0xe111, quirk_enable_clear_retrain_link);
++DECLARE_PCI_FIXUP_HEADER(0x12d8, 0xe130, quirk_enable_clear_retrain_link);
++
+ static void fixup_rev1_53c810(struct pci_dev *dev)
  {
--	struct imx_media_internal_sd_platformdata *pdata;
-+	struct imx_media_ipu_internal_sd_pdata *pdata;
- 	struct imx_ic_priv *priv;
- 	int ret;
+ 	u32 class = dev->class;
+--- a/include/linux/pci.h
++++ b/include/linux/pci.h
+@@ -346,6 +346,8 @@ struct pci_dev {
+ 	unsigned int	hotplug_user_indicators:1; /* SlotCtl indicators
+ 						      controlled exclusively by
+ 						      user sysfs */
++	unsigned int	clear_retrain_link:1;	/* Need to clear Retrain Link
++						   bit manually */
+ 	unsigned int	d3_delay;	/* D3->D0 transition time in ms */
+ 	unsigned int	d3cold_delay;	/* D3cold->D0 transition time in ms */
  
---- a/drivers/staging/media/imx/imx-media-dev.c
-+++ b/drivers/staging/media/imx/imx-media-dev.c
-@@ -477,10 +477,10 @@ static int imx_media_probe(struct platfo
- 		goto cleanup;
- 	}
- 
--	ret = imx_media_add_internal_subdevs(imxmd);
-+	ret = imx_media_add_ipu_internal_subdevs(imxmd);
- 	if (ret) {
- 		v4l2_err(&imxmd->v4l2_dev,
--			 "add_internal_subdevs failed with %d\n", ret);
-+			 "add_ipu_internal_subdevs failed with %d\n", ret);
- 		goto cleanup;
- 	}
- 
-@@ -491,7 +491,7 @@ static int imx_media_probe(struct platfo
- 	return 0;
- 
- del_int:
--	imx_media_remove_internal_subdevs(imxmd);
-+	imx_media_remove_ipu_internal_subdevs(imxmd);
- cleanup:
- 	v4l2_async_notifier_cleanup(&imxmd->notifier);
- 	v4l2_device_unregister(&imxmd->v4l2_dev);
-@@ -508,7 +508,7 @@ static int imx_media_remove(struct platf
- 	v4l2_info(&imxmd->v4l2_dev, "Removing imx-media\n");
- 
- 	v4l2_async_notifier_unregister(&imxmd->notifier);
--	imx_media_remove_internal_subdevs(imxmd);
-+	imx_media_remove_ipu_internal_subdevs(imxmd);
- 	v4l2_async_notifier_cleanup(&imxmd->notifier);
- 	media_device_unregister(&imxmd->md);
- 	v4l2_device_unregister(&imxmd->v4l2_dev);
---- a/drivers/staging/media/imx/imx-media-internal-sd.c
-+++ b/drivers/staging/media/imx/imx-media-internal-sd.c
-@@ -1,7 +1,7 @@
- /*
-  * Media driver for Freescale i.MX5/6 SOC
-  *
-- * Adds the internal subdevices and the media links between them.
-+ * Adds the IPU internal subdevices and the media links between them.
-  *
-  * Copyright (c) 2016 Mentor Graphics Inc.
-  *
-@@ -192,7 +192,7 @@ static struct v4l2_subdev *find_sink(str
- 
- 	/*
- 	 * retrieve IPU id from subdev name, note: can't get this from
--	 * struct imx_media_internal_sd_platformdata because if src is
-+	 * struct imx_media_ipu_internal_sd_pdata because if src is
- 	 * a CSI, it has different struct ipu_client_platformdata which
- 	 * does not contain IPU id.
- 	 */
-@@ -270,7 +270,7 @@ static int add_internal_subdev(struct im
- 			       const struct internal_subdev *isd,
- 			       int ipu_id)
- {
--	struct imx_media_internal_sd_platformdata pdata;
-+	struct imx_media_ipu_internal_sd_pdata pdata;
- 	struct platform_device_info pdevinfo = {};
- 	struct platform_device *pdev;
- 
-@@ -328,7 +328,7 @@ static int add_ipu_internal_subdevs(stru
- 	return 0;
- }
- 
--int imx_media_add_internal_subdevs(struct imx_media_dev *imxmd)
-+int imx_media_add_ipu_internal_subdevs(struct imx_media_dev *imxmd)
- {
- 	int ret;
- 
-@@ -343,11 +343,11 @@ int imx_media_add_internal_subdevs(struc
- 	return 0;
- 
- remove:
--	imx_media_remove_internal_subdevs(imxmd);
-+	imx_media_remove_ipu_internal_subdevs(imxmd);
- 	return ret;
- }
- 
--void imx_media_remove_internal_subdevs(struct imx_media_dev *imxmd)
-+void imx_media_remove_ipu_internal_subdevs(struct imx_media_dev *imxmd)
- {
- 	struct imx_media_async_subdev *imxasd;
- 	struct v4l2_async_subdev *asd;
---- a/drivers/staging/media/imx/imx-media-vdic.c
-+++ b/drivers/staging/media/imx/imx-media-vdic.c
-@@ -934,7 +934,7 @@ static const struct v4l2_subdev_internal
- 
- static int imx_vdic_probe(struct platform_device *pdev)
- {
--	struct imx_media_internal_sd_platformdata *pdata;
-+	struct imx_media_ipu_internal_sd_pdata *pdata;
- 	struct vdic_priv *priv;
- 	int ret;
- 
---- a/drivers/staging/media/imx/imx-media.h
-+++ b/drivers/staging/media/imx/imx-media.h
-@@ -115,7 +115,7 @@ struct imx_media_pad_vdev {
- 	struct list_head list;
- };
- 
--struct imx_media_internal_sd_platformdata {
-+struct imx_media_ipu_internal_sd_pdata {
- 	char sd_name[V4L2_SUBDEV_NAME_SIZE];
- 	u32 grp_id;
- 	int ipu_id;
-@@ -252,10 +252,10 @@ struct imx_media_fim *imx_media_fim_init
- void imx_media_fim_free(struct imx_media_fim *fim);
- 
- /* imx-media-internal-sd.c */
--int imx_media_add_internal_subdevs(struct imx_media_dev *imxmd);
-+int imx_media_add_ipu_internal_subdevs(struct imx_media_dev *imxmd);
- int imx_media_create_ipu_internal_links(struct imx_media_dev *imxmd,
- 					struct v4l2_subdev *sd);
--void imx_media_remove_internal_subdevs(struct imx_media_dev *imxmd);
-+void imx_media_remove_ipu_internal_subdevs(struct imx_media_dev *imxmd);
- 
- /* imx-media-of.c */
- int imx_media_add_of_subdevs(struct imx_media_dev *dev,
 
 
