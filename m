@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CCAC288A1
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:41:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8772828AA0
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:58:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390968AbfEWT1l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:27:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39976 "EHLO mail.kernel.org"
+        id S2389350AbfEWTRN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:17:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391266AbfEWT1j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:27:39 -0400
+        id S2389356AbfEWTRM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:17:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B67882054F;
-        Thu, 23 May 2019 19:27:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D232C2184E;
+        Thu, 23 May 2019 19:17:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639659;
-        bh=2C2QQ3bMoLYNqfonrJ8jPSLJoDzjfVJiXseepizVle8=;
+        s=default; t=1558639032;
+        bh=kiG2Z147l4GuJ/myFhrqydpFyu3ZbV9OGO+gjWFZCQk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XeQ+JpKAFuk6XoL1OrR/+ylGCKAgk+Fhh96Xx70e/37UnvZd637Y7JnX2BY/4q4jb
-         20njbi7qypjlFLBg9vHL8zfVBwupX102envTD1VwLTeixiPukGcRcI5bDKhXJGexBR
-         X2Xk3Rfs14QZ/gFCzIQ76jYFO5Ub8Gfp6YrwjYCE=
+        b=OoJwn0an7qwDmbl6Hl3cnnnIjbwXR/55alXN/7R8TlAyTPaz5I1mMwyQ6lRX/vE6R
+         jTEHj4Q7wwp00dbASka7vbe9hi+e1PLtXRS5UOd91aifgthDeeIjZV1o6kjFDrS7vo
+         fdmE9TKI3M9ezM0PO8MqwI2+B/qpRhQc7Vtzw9dE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.1 031/122] parisc: Use PA_ASM_LEVEL in boot code
+        stable@vger.kernel.org, Orit Wasserman <orit.was@gmail.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Elazar Leibovich <elazar@lightbitslabs.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 4.19 054/114] tracing: Fix partial reading of trace events id file
 Date:   Thu, 23 May 2019 21:05:53 +0200
-Message-Id: <20190523181708.990957374@linuxfoundation.org>
+Message-Id: <20190523181736.547255660@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
-References: <20190523181705.091418060@linuxfoundation.org>
+In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
+References: <20190523181731.372074275@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,49 +46,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Elazar Leibovich <elazar@lightbitslabs.com>
 
-commit bdca5d64ee92abeacd6dada0bc6f6f8e6350dd67 upstream.
+commit cbe08bcbbe787315c425dde284dcb715cfbf3f39 upstream.
 
-The LEVEL define clashed with the DRBD code.
+When reading only part of the id file, the ppos isn't tracked correctly.
+This is taken care by simple_read_from_buffer.
 
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: <stable@vger.kernel.org> # v4.14+
+Reading a single byte, and then the next byte would result EOF.
+
+While this seems like not a big deal, this breaks abstractions that
+reads information from files unbuffered. See for example
+https://github.com/golang/go/issues/29399
+
+This code was mentioned as problematic in
+commit cd458ba9d5a5
+("tracing: Do not (ab)use trace_seq in event_id_read()")
+
+An example C code that show this bug is:
+
+  #include <stdio.h>
+  #include <stdint.h>
+
+  #include <sys/types.h>
+  #include <sys/stat.h>
+  #include <fcntl.h>
+  #include <unistd.h>
+
+  int main(int argc, char **argv) {
+    if (argc < 2)
+      return 1;
+    int fd = open(argv[1], O_RDONLY);
+    char c;
+    read(fd, &c, 1);
+    printf("First  %c\n", c);
+    read(fd, &c, 1);
+    printf("Second %c\n", c);
+  }
+
+Then run with, e.g.
+
+  sudo ./a.out /sys/kernel/debug/tracing/events/tcp/tcp_set_state/id
+
+You'll notice you're getting the first character twice, instead of the
+first two characters in the id file.
+
+Link: http://lkml.kernel.org/r/20181231115837.4932-1-elazar@lightbitslabs.com
+
+Cc: Orit Wasserman <orit.was@gmail.com>
+Cc: Oleg Nesterov <oleg@redhat.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: stable@vger.kernel.org
+Fixes: 23725aeeab10b ("ftrace: provide an id file for each event")
+Signed-off-by: Elazar Leibovich <elazar@lightbitslabs.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/parisc/boot/compressed/head.S |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ kernel/trace/trace_events.c |    3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/arch/parisc/boot/compressed/head.S
-+++ b/arch/parisc/boot/compressed/head.S
-@@ -22,7 +22,7 @@
- 	__HEAD
+--- a/kernel/trace/trace_events.c
++++ b/kernel/trace/trace_events.c
+@@ -1318,9 +1318,6 @@ event_id_read(struct file *filp, char __
+ 	char buf[32];
+ 	int len;
  
- ENTRY(startup)
--	 .level LEVEL
-+	 .level PA_ASM_LEVEL
- 
- #define PSW_W_SM	0x200
- #define PSW_W_BIT       36
-@@ -63,7 +63,7 @@ $bss_loop:
- 	load32	BOOTADDR(decompress_kernel),%r3
- 
- #ifdef CONFIG_64BIT
--	.level LEVEL
-+	.level PA_ASM_LEVEL
- 	ssm	PSW_W_SM, %r0		/* set W-bit */
- 	depdi	0, 31, 32, %r3
- #endif
-@@ -72,7 +72,7 @@ $bss_loop:
- 
- startup_continue:
- #ifdef CONFIG_64BIT
--	.level LEVEL
-+	.level PA_ASM_LEVEL
- 	rsm	PSW_W_SM, %r0		/* clear W-bit */
- #endif
+-	if (*ppos)
+-		return 0;
+-
+ 	if (unlikely(!id))
+ 		return -ENODEV;
  
 
 
