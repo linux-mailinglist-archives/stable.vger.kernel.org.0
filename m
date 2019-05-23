@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5207128A30
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:57:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E704A286CD
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:15:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387824AbfEWTK1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:10:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43766 "EHLO mail.kernel.org"
+        id S2388488AbfEWTNE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:13:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387821AbfEWTK1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:10:27 -0400
+        id S2387921AbfEWTND (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:13:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 87DEB217D9;
-        Thu, 23 May 2019 19:10:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 78F6B2133D;
+        Thu, 23 May 2019 19:13:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558638627;
-        bh=97IRIs3gLrfSnPdxUy1ZyEwZGxnbK110X/WNgklQPk8=;
+        s=default; t=1558638783;
+        bh=I6u1nRkixkWgd4+KBmT8cNxNPupYXx8ksFuELRXsnq4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gs1CpTqXRMX1S4yZuGSQBHHoVi4tfgeyiti6V5+2/Jk4GmKvel3TQ+PrC522SxXIt
-         m2PqoYyDc3DHhUlyINbCNRNm0b5yerdoHPmbz+8ctd8jZrYRq5/HvQa9N/MRHxiRdt
-         T2HJiAIOFtGYp7Qc0tPpub/v109GUAtaMBdJosTg=
+        b=1i5FjDXtv/EzKgDD7H+mss6epe0SW2i+JxEFOlD1wglXi8Zly2u5UqF0iRWHJcGbV
+         unNv6wPmOUbOMCOI/yzmKOc9VExJR8BQnE7ztVk6yXlk7zHSO8NdMNu0nPe2yytZ+3
+         TeJy8twIHWvCiuqe0GiCz0OhHghvO1Mj4QOjWO4c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 49/53] ufs: fix braino in ufs_get_inode_gid() for solaris UFS flavour
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 4.14 55/77] dm delay: fix a crash when invalid device is specified
 Date:   Thu, 23 May 2019 21:06:13 +0200
-Message-Id: <20190523181718.718899106@linuxfoundation.org>
+Message-Id: <20190523181727.590080797@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181710.981455400@linuxfoundation.org>
-References: <20190523181710.981455400@linuxfoundation.org>
+In-Reply-To: <20190523181719.982121681@linuxfoundation.org>
+References: <20190523181719.982121681@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,35 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 4e9036042fedaffcd868d7f7aa948756c48c637d ]
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-To choose whether to pick the GID from the old (16bit) or new (32bit)
-field, we should check if the old gid field is set to 0xffff.  Mainline
-checks the old *UID* field instead - cut'n'paste from the corresponding
-code in ufs_get_inode_uid().
+commit 81bc6d150ace6250503b825d9d0c10f7bbd24095 upstream.
 
-Fixes: 252e211e90ce
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+When the target line contains an invalid device, delay_ctr() will call
+delay_dtr() with NULL workqueue.  Attempting to destroy the NULL
+workqueue causes a crash.
+
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/ufs/util.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/md/dm-delay.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ufs/util.h b/fs/ufs/util.h
-index 398019fb14481..9c4fb1fc0822a 100644
---- a/fs/ufs/util.h
-+++ b/fs/ufs/util.h
-@@ -228,7 +228,7 @@ ufs_get_inode_gid(struct super_block *sb, struct ufs_inode *inode)
- 	case UFS_UID_44BSD:
- 		return fs32_to_cpu(sb, inode->ui_u3.ui_44.ui_gid);
- 	case UFS_UID_EFT:
--		if (inode->ui_u1.oldids.ui_suid == 0xFFFF)
-+		if (inode->ui_u1.oldids.ui_sgid == 0xFFFF)
- 			return fs32_to_cpu(sb, inode->ui_u3.ui_sun.ui_gid);
- 		/* Fall through */
- 	default:
--- 
-2.20.1
-
+--- a/drivers/md/dm-delay.c
++++ b/drivers/md/dm-delay.c
+@@ -222,7 +222,8 @@ static void delay_dtr(struct dm_target *
+ {
+ 	struct delay_c *dc = ti->private;
+ 
+-	destroy_workqueue(dc->kdelayd_wq);
++	if (dc->kdelayd_wq)
++		destroy_workqueue(dc->kdelayd_wq);
+ 
+ 	dm_put_device(ti, dc->dev_read);
+ 
 
 
