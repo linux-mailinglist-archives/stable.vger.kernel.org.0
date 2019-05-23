@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 57403288EB
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:41:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9022528771
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:25:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391449AbfEWT3g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:29:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42724 "EHLO mail.kernel.org"
+        id S2389041AbfEWTTc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:19:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391447AbfEWT3d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:29:33 -0400
+        id S2389828AbfEWTTa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:19:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B6E332054F;
-        Thu, 23 May 2019 19:29:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 35035205ED;
+        Thu, 23 May 2019 19:19:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639772;
-        bh=wKOlZSx4CfiKezSLe4RjSocThAM1H9tuHQ8Ho95X1wE=;
+        s=default; t=1558639169;
+        bh=EhYtP/rpvE8jWFvUYVqzJ7BQ2mvQOotty2PPRp7l7Lw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kkWcrTPIelTPdOGmlw0z4Lxd615/Cfafy4dOzZro8oXpwpxPex4C/z947bKVPnIUq
-         P+nN+prB6Y4KYks4ogL4o6SNCL498t/57gzCU4W0eM+vsFVbo8p8CisWJpoesfMuTT
-         GBRMM8Oap34tZ1e+GwaAq0QwZd/yPdYO0E4FmzQY=
+        b=IooAF2xcGjpdlMVWCVLqyGNkeb6s4E8E98mBU2qsv7+LNks/ylkEwt+wx86X4ZkAU
+         bAh2bOXXN7VhUXW7l3tJB4nZ6Xk9Jp8ASLVdFl0iuOoxyqtnKxwkU044SUxLwuG7JR
+         hDQpHvBEEYigtwqRxyYkjySVlVZbzXkZsggHrf78=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yifeng Li <tomli@tomli.me>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        Teddy Wang <teddy.wang@siliconmotion.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Subject: [PATCH 5.1 089/122] fbdev: sm712fb: fix boot screen glitch when sm712fb replaces VGA
+        stable@vger.kernel.org, Chenbo Feng <fengc@google.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>
+Subject: [PATCH 4.19 112/114] bpf: relax inode permission check for retrieving bpf program
 Date:   Thu, 23 May 2019 21:06:51 +0200
-Message-Id: <20190523181716.740616378@linuxfoundation.org>
+Message-Id: <20190523181740.846294896@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
-References: <20190523181705.091418060@linuxfoundation.org>
+In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
+References: <20190523181731.372074275@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yifeng Li <tomli@tomli.me>
+From: Chenbo Feng <fengc@google.com>
 
-commit ec1587d5073f29820e358f3a383850d61601d981 upstream.
+commit e547ff3f803e779a3898f1f48447b29f43c54085 upstream.
 
-When the machine is booted in VGA mode, loading sm712fb would cause
-a glitch of random pixels shown on the screen. To prevent it from
-happening, we first clear the entire framebuffer, and we also need
-to stop calling smtcfb_setmode() during initialization, the fbdev
-layer will call it for us later when it's ready.
+For iptable module to load a bpf program from a pinned location, it
+only retrieve a loaded program and cannot change the program content so
+requiring a write permission for it might not be necessary.
+Also when adding or removing an unrelated iptable rule, it might need to
+flush and reload the xt_bpf related rules as well and triggers the inode
+permission check. It might be better to remove the write premission
+check for the inode so we won't need to grant write access to all the
+processes that flush and restore iptables rules.
 
-Signed-off-by: Yifeng Li <tomli@tomli.me>
-Tested-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Cc: Teddy Wang <teddy.wang@siliconmotion.com>
-Cc: <stable@vger.kernel.org>  # v4.4+
-Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Signed-off-by: Chenbo Feng <fengc@google.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/video/fbdev/sm712fb.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ kernel/bpf/inode.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/video/fbdev/sm712fb.c
-+++ b/drivers/video/fbdev/sm712fb.c
-@@ -1493,7 +1493,11 @@ static int smtcfb_pci_probe(struct pci_d
- 	if (err)
- 		goto failed;
+--- a/kernel/bpf/inode.c
++++ b/kernel/bpf/inode.c
+@@ -518,7 +518,7 @@ out:
+ static struct bpf_prog *__get_prog_inode(struct inode *inode, enum bpf_prog_type type)
+ {
+ 	struct bpf_prog *prog;
+-	int ret = inode_permission(inode, MAY_READ | MAY_WRITE);
++	int ret = inode_permission(inode, MAY_READ);
+ 	if (ret)
+ 		return ERR_PTR(ret);
  
--	smtcfb_setmode(sfb);
-+	/*
-+	 * The screen would be temporarily garbled when sm712fb takes over
-+	 * vesafb or VGA text mode. Zero the framebuffer.
-+	 */
-+	memset_io(sfb->lfb, 0, sfb->fb->fix.smem_len);
- 
- 	err = register_framebuffer(info);
- 	if (err < 0)
 
 
