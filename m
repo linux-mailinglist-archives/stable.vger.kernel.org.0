@@ -2,53 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B09F279AF
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 11:50:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CAAB6279B2
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 11:50:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726846AbfEWJuQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 05:50:16 -0400
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:43997 "EHLO
-        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726429AbfEWJuQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 May 2019 05:50:16 -0400
+        id S1730028AbfEWJu2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 05:50:28 -0400
+Received: from new1-smtp.messagingengine.com ([66.111.4.221]:53565 "EHLO
+        new1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1729966AbfEWJu2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 May 2019 05:50:28 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 175A23594B;
-        Thu, 23 May 2019 05:50:15 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Thu, 23 May 2019 05:50:15 -0400
+        by mailnew.nyi.internal (Postfix) with ESMTP id 8CD313597E;
+        Thu, 23 May 2019 05:50:25 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Thu, 23 May 2019 05:50:25 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=4JdEy/
-        99KatAvN4+rviKsK22r6hnid2gx05eyK930K4=; b=ufdA6NJ8h3k+Ge1Wjnr50j
-        BELyb+LmrmddvNH1HjIWJWlMojn9iPSKxtOn11QGvsnDheh6ge5J5EIYLtVmt27W
-        v7yIY4AmAge1Ndf8C2wvk2wh+A2rAOBkK/R0pvhxPWfFYexPoT/ZeRdpOyHOV1ei
-        0REw7vCgJcc01CmQIPbjd29JQdqwOHurE2eco/AE0TbNpg8SMF+H2DZn9jS22DHg
-        TehX4mzvagEfOGH4/mSKHl7YM0nplQGJ5bDUGOPSo3vBa7/jU2GiOfhjR3+sxOET
-        l1TfMoEktTcIyqw1FuEiYJIBU+Smy0sm0CrBO5IckXFvhXmiZY1zjWkJxKJRfCDg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=cSudYt
+        J5zztz5jsNkMgzWScv4iDncmtyA0S8L/aqOOw=; b=nrlpuG1VvG3K2xefeb9smA
+        wbtbo4T1p1Tu+ffDIK2Eo1vep8a/2wX9JjVDAaRVWFQxaS5WePCCl57OBkuWCbMN
+        OLgBxX/entWbsmVkwqITNpmXr3AOuouBdJfJ02Sao7guBCj2UmpgI5ETBm3ZJkYl
+        6kp+MBXIdkO+v0cv5iBE8ljaZQ0RHwOh97AZj//MxnVh9eCbpaQtDoOgE//5jGUf
+        k4uijs7wZRKsdpcLwcTOAKO37XoEPkm4sFkSlRWGWqN3gchtoew/4w8LBSzu4i0V
+        7kKazi1rsZnvL4DKJQWJDqhT3y4zGfnLwGOsjzWfFTM4pFlW0X79k0l8pSzmVvAA
         ==
-X-ME-Sender: <xms:1mzmXIrGvF9NBk8IFouOBD9-4s9wqx4-tzKYh5eaTxPORYRiYFfivg>
+X-ME-Sender: <xms:3GzmXBoyXdTTrahpm7GjEci0WQQco20fF1RUF3Zecp_SHpTHRg1Jaw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddruddugedgvdduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghdpieegrdhssgenucfkphepkeefrd
-    ekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgr
-    hhdrtghomhenucevlhhushhtvghrufhiiigvpedu
-X-ME-Proxy: <xmx:1mzmXC56HbKongshV-Ri8pn9WrP_lBA6dDU0rdfCU9TDcNMHgPQEnQ>
-    <xmx:1mzmXINGZZqhKzCwRD5msYofQ2_orfdqVaAuJ0LTYb17zuyV-4PdsA>
-    <xmx:1mzmXEPBO2SknY8q1UkO6iIpPDSo-NbJe8WmGHxZbNhsqJeoi2bm6w>
-    <xmx:12zmXKKA6PEmhhRf7tDLOgwOwHwYT1nmWDnUXuqg3TwAAT75-FOjMA>
+    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:3GzmXPTnyt8LQp8P8o5vDRP2EDwJyJjPOR0PJKhSH8jg7nBXPvK6iA>
+    <xmx:3GzmXIpxnJ2QB4S6jpTS1y_VE6D1AyjvSAygPXvelMF6o00p1yCIBQ>
+    <xmx:3GzmXKxsRWSm543njrVyGSTVFGB5KHkvFvGgsSq7DD-mqEhGzY8QGw>
+    <xmx:4WzmXPDADh3c9T2Crk9bfrtmfphb82wKWBDb54KDiRTrnjI9JG4N2A>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 6DEA980059;
-        Thu, 23 May 2019 05:50:14 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] x86_64: Add gap to int3 to allow for call emulation" failed to apply to 4.4-stable tree
-To:     jpoimboe@redhat.com, mhiramat@kernel.org, nstange@suse.de,
-        rostedt@goodmis.org
+        by mail.messagingengine.com (Postfix) with ESMTPA id 49B17380083;
+        Thu, 23 May 2019 05:50:20 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] x86_64: Allow breakpoints to emulate call instructions" failed to apply to 4.9-stable tree
+To:     peterz@infradead.org, bigeasy@linutronix.de, bp@alien8.de,
+        hpa@zytor.com, jgross@suse.com, jikos@kernel.org,
+        joe.lawrence@redhat.com, jpoimboe@redhat.com, jroedel@suse.de,
+        konrad.wilk@oracle.com, linux-kselftest@vger.kernel.org,
+        luto@kernel.org, mbenes@suse.cz, mhiramat@kernel.org,
+        mingo@redhat.com, nayna@linux.ibm.com, ndesaulniers@google.com,
+        nstange@suse.de, pmladek@suse.com, rostedt@goodmis.org,
+        shuah@kernel.org, tglx@linutronix.de, tim.c.chen@linux.intel.com,
+        x86@kernel.org, yamada.masahiro@socionext.com, zohar@linux.ibm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 23 May 2019 11:50:05 +0200
-Message-ID: <15586050051395@kroah.com>
+Date:   Thu, 23 May 2019 11:50:18 +0200
+Message-ID: <15586050184156@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +64,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -69,73 +75,91 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 2700fefdb2d9751c416ad56897e27d41e409324a Mon Sep 17 00:00:00 2001
-From: Josh Poimboeuf <jpoimboe@redhat.com>
-Date: Fri, 30 Nov 2018 12:39:17 -0600
-Subject: [PATCH] x86_64: Add gap to int3 to allow for call emulation
+From 4b33dadf37666c0860b88f9e52a16d07bf6d0b03 Mon Sep 17 00:00:00 2001
+From: Peter Zijlstra <peterz@infradead.org>
+Date: Wed, 1 May 2019 15:11:17 +0200
+Subject: [PATCH] x86_64: Allow breakpoints to emulate call instructions
 
-To allow an int3 handler to emulate a call instruction, it must be able to
-push a return address onto the stack. Add a gap to the stack to allow the
-int3 handler to push the return address and change the return from int3 to
-jump straight to the emulated called function target.
+In order to allow breakpoints to emulate call instructions, they need to push
+the return address onto the stack. The x86_64 int3 handler adds a small gap
+to allow the stack to grow some. Use this gap to add the return address to
+be able to emulate a call instruction at the breakpoint location.
 
-Link: http://lkml.kernel.org/r/20181130183917.hxmti5josgq4clti@treble
-Link: http://lkml.kernel.org/r/20190502162133.GX2623@hirez.programming.kicks-ass.net
+These helper functions are added:
 
-[
-  Note, this is needed to allow Live Kernel Patching to not miss calling a
-  patched function when tracing is enabled. -- Steven Rostedt
-]
+  int3_emulate_jmp(): changes the location of the regs->ip to return there.
 
+ (The next two are only for x86_64)
+  int3_emulate_push(): to push the address onto the gap in the stack
+  int3_emulate_call(): push the return address and change regs->ip
+
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Nicolai Stange <nstange@suse.de>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: the arch/x86 maintainers <x86@kernel.org>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: Miroslav Benes <mbenes@suse.cz>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Joe Lawrence <joe.lawrence@redhat.com>
+Cc: Shuah Khan <shuah@kernel.org>
+Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: Tim Chen <tim.c.chen@linux.intel.com>
+Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: Mimi Zohar <zohar@linux.ibm.com>
+Cc: Juergen Gross <jgross@suse.com>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Cc: Nayna Jain <nayna@linux.ibm.com>
+Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
+Cc: Joerg Roedel <jroedel@suse.de>
+Cc: "open list:KERNEL SELFTEST FRAMEWORK" <linux-kselftest@vger.kernel.org>
 Cc: stable@vger.kernel.org
 Fixes: b700e7f03df5 ("livepatch: kernel: add support for live patching")
 Tested-by: Nicolai Stange <nstange@suse.de>
 Reviewed-by: Nicolai Stange <nstange@suse.de>
 Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+[ Modified to only work for x86_64 and added comment to int3_emulate_push() ]
 Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-diff --git a/arch/x86/entry/entry_64.S b/arch/x86/entry/entry_64.S
-index 1f0efdb7b629..27fcc6fbdd52 100644
---- a/arch/x86/entry/entry_64.S
-+++ b/arch/x86/entry/entry_64.S
-@@ -879,7 +879,7 @@ apicinterrupt IRQ_WORK_VECTOR			irq_work_interrupt		smp_irq_work_interrupt
-  * @paranoid == 2 is special: the stub will never switch stacks.  This is for
-  * #DF: if the thread stack is somehow unusable, we'll still get a useful OOPS.
-  */
--.macro idtentry sym do_sym has_error_code:req paranoid=0 shift_ist=-1
-+.macro idtentry sym do_sym has_error_code:req paranoid=0 shift_ist=-1 create_gap=0
- ENTRY(\sym)
- 	UNWIND_HINT_IRET_REGS offset=\has_error_code*8
+diff --git a/arch/x86/include/asm/text-patching.h b/arch/x86/include/asm/text-patching.h
+index e85ff65c43c3..05861cc08787 100644
+--- a/arch/x86/include/asm/text-patching.h
++++ b/arch/x86/include/asm/text-patching.h
+@@ -39,4 +39,32 @@ extern int poke_int3_handler(struct pt_regs *regs);
+ extern void *text_poke_bp(void *addr, const void *opcode, size_t len, void *handler);
+ extern int after_bootmem;
  
-@@ -899,6 +899,20 @@ ENTRY(\sym)
- 	jnz	.Lfrom_usermode_switch_stack_\@
- 	.endif
- 
-+	.if \create_gap == 1
-+	/*
-+	 * If coming from kernel space, create a 6-word gap to allow the
-+	 * int3 handler to emulate a call instruction.
-+	 */
-+	testb	$3, CS-ORIG_RAX(%rsp)
-+	jnz	.Lfrom_usermode_no_gap_\@
-+	.rept	6
-+	pushq	5*8(%rsp)
-+	.endr
-+	UNWIND_HINT_IRET_REGS offset=8
-+.Lfrom_usermode_no_gap_\@:
-+	.endif
++static inline void int3_emulate_jmp(struct pt_regs *regs, unsigned long ip)
++{
++	regs->ip = ip;
++}
 +
- 	.if \paranoid
- 	call	paranoid_entry
- 	.else
-@@ -1130,7 +1144,7 @@ apicinterrupt3 HYPERV_STIMER0_VECTOR \
- #endif /* CONFIG_HYPERV */
- 
- idtentry debug			do_debug		has_error_code=0	paranoid=1 shift_ist=DEBUG_STACK
--idtentry int3			do_int3			has_error_code=0
-+idtentry int3			do_int3			has_error_code=0	create_gap=1
- idtentry stack_segment		do_stack_segment	has_error_code=1
- 
- #ifdef CONFIG_XEN_PV
++#define INT3_INSN_SIZE 1
++#define CALL_INSN_SIZE 5
++
++#ifdef CONFIG_X86_64
++static inline void int3_emulate_push(struct pt_regs *regs, unsigned long val)
++{
++	/*
++	 * The int3 handler in entry_64.S adds a gap between the
++	 * stack where the break point happened, and the saving of
++	 * pt_regs. We can extend the original stack because of
++	 * this gap. See the idtentry macro's create_gap option.
++	 */
++	regs->sp -= sizeof(unsigned long);
++	*(unsigned long *)regs->sp = val;
++}
++
++static inline void int3_emulate_call(struct pt_regs *regs, unsigned long func)
++{
++	int3_emulate_push(regs, regs->ip - INT3_INSN_SIZE + CALL_INSN_SIZE);
++	int3_emulate_jmp(regs, func);
++}
++#endif
++
+ #endif /* _ASM_X86_TEXT_PATCHING_H */
 
