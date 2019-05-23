@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 28AC92884E
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:40:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49E6A289CB
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:43:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390937AbfEWTYh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:24:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35636 "EHLO mail.kernel.org"
+        id S2389187AbfEWTTY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:19:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390933AbfEWTYg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:24:36 -0400
+        id S2389799AbfEWTTW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:19:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9A10820868;
-        Thu, 23 May 2019 19:24:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0CF032186A;
+        Thu, 23 May 2019 19:19:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639476;
-        bh=ynpK6vOq3ylr4Y2UYS7s2xllcFjZWtS8zw4ic0tmoJQ=;
+        s=default; t=1558639161;
+        bh=pxM08Jm7nV5u+7Rp/rbVJR/+mOVGbPaQ4aZ/2Yp105I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nXX5IxoivxFHM0i6oxqruGYHuu/xKLqS7acujf8ZtWPcKiQqraEANEJOOBJpWx8Ri
-         EHQIx7w4C8eoDLP9cV2xLj0rlMOcgydkcmmHt5QkyvcCfu0jkBC8DG3cDSW+MQ3W/Q
-         TzGkNj0TkXhazjgAQg4NoziXoNzHn/fH+uDcuwT4=
+        b=xF+Ba1EtPNW7Yp9dZtR+EJlic3Q+s19PU5pS0JNHmhhRBcMnG2FUIChA32B9syHpR
+         NU7HItqGk6ViNDW9Hf2mgq01nmzdGPZtaEanrimovFgfGDulGRiXJZxTCrs1ccFh8f
+         CX4ORf7dWCeM2g6NWPWRjL0wUznWaRlIupk1yRTs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Jones <drjones@redhat.com>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 119/139] KVM: arm/arm64: Ensure vcpu target is unset on reset failure
-Date:   Thu, 23 May 2019 21:06:47 +0200
-Message-Id: <20190523181735.150659444@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>,
+        Nigel Croxon <ncroxon@redhat.com>,
+        Song Liu <songliubraving@fb.com>
+Subject: [PATCH 4.19 109/114] md/raid: raid5 preserve the writeback action after the parity check
+Date:   Thu, 23 May 2019 21:06:48 +0200
+Message-Id: <20190523181740.700886331@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
-References: <20190523181720.120897565@linuxfoundation.org>
+In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
+References: <20190523181731.372074275@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,55 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 811328fc3222f7b55846de0cd0404339e2e1e6d7 ]
+From: Nigel Croxon <ncroxon@redhat.com>
 
-A failed KVM_ARM_VCPU_INIT should not set the vcpu target,
-as the vcpu target is used by kvm_vcpu_initialized() to
-determine if other vcpu ioctls may proceed. We need to set
-the target before calling kvm_reset_vcpu(), but if that call
-fails, we should then unset it and clear the feature bitmap
-while we're at it.
+commit b2176a1dfb518d870ee073445d27055fea64dfb8 upstream.
 
-Signed-off-by: Andrew Jones <drjones@redhat.com>
-[maz: Simplified patch, completed commit message]
-Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The problem is that any 'uptodate' vs 'disks' check is not precise
+in this path. Put a "WARN_ON(!test_bit(R5_UPTODATE, &dev->flags)" on the
+device that might try to kick off writes and then skip the action.
+Better to prevent the raid driver from taking unexpected action *and* keep
+the system alive vs killing the machine with BUG_ON.
+
+Note: fixed warning reported by kbuild test robot <lkp@intel.com>
+
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Nigel Croxon <ncroxon@redhat.com>
+Signed-off-by: Song Liu <songliubraving@fb.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- virt/kvm/arm/arm.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/md/raid5.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/virt/kvm/arm/arm.c b/virt/kvm/arm/arm.c
-index 9c486fad3f9f8..6202b4f718cea 100644
---- a/virt/kvm/arm/arm.c
-+++ b/virt/kvm/arm/arm.c
-@@ -949,7 +949,7 @@ int kvm_vm_ioctl_irq_line(struct kvm *kvm, struct kvm_irq_level *irq_level,
- static int kvm_vcpu_set_target(struct kvm_vcpu *vcpu,
- 			       const struct kvm_vcpu_init *init)
- {
--	unsigned int i;
-+	unsigned int i, ret;
- 	int phys_target = kvm_target_cpu();
+--- a/drivers/md/raid5.c
++++ b/drivers/md/raid5.c
+@@ -4185,7 +4185,7 @@ static void handle_parity_checks6(struct
+ 		/* now write out any block on a failed drive,
+ 		 * or P or Q if they were recomputed
+ 		 */
+-		BUG_ON(s->uptodate < disks - 1); /* We don't need Q to recover */
++		dev = NULL;
+ 		if (s->failed == 2) {
+ 			dev = &sh->dev[s->failed_num[1]];
+ 			s->locked++;
+@@ -4210,6 +4210,14 @@ static void handle_parity_checks6(struct
+ 			set_bit(R5_LOCKED, &dev->flags);
+ 			set_bit(R5_Wantwrite, &dev->flags);
+ 		}
++		if (WARN_ONCE(dev && !test_bit(R5_UPTODATE, &dev->flags),
++			      "%s: disk%td not up to date\n",
++			      mdname(conf->mddev),
++			      dev - (struct r5dev *) &sh->dev)) {
++			clear_bit(R5_LOCKED, &dev->flags);
++			clear_bit(R5_Wantwrite, &dev->flags);
++			s->locked--;
++		}
+ 		clear_bit(STRIPE_DEGRADED, &sh->state);
  
- 	if (init->target != phys_target)
-@@ -984,9 +984,14 @@ static int kvm_vcpu_set_target(struct kvm_vcpu *vcpu,
- 	vcpu->arch.target = phys_target;
- 
- 	/* Now we know what it is, we can reset it. */
--	return kvm_reset_vcpu(vcpu);
--}
-+	ret = kvm_reset_vcpu(vcpu);
-+	if (ret) {
-+		vcpu->arch.target = -1;
-+		bitmap_zero(vcpu->arch.features, KVM_VCPU_MAX_FEATURES);
-+	}
- 
-+	return ret;
-+}
- 
- static int kvm_arch_vcpu_ioctl_vcpu_init(struct kvm_vcpu *vcpu,
- 					 struct kvm_vcpu_init *init)
--- 
-2.20.1
-
+ 		set_bit(STRIPE_INSYNC, &sh->state);
 
 
