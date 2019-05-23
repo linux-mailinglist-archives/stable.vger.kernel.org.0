@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C4F2E28929
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:42:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB8152892B
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:42:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403801AbfEWTbP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:31:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44992 "EHLO mail.kernel.org"
+        id S2403816AbfEWTbS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:31:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403757AbfEWTbP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:31:15 -0400
+        id S2403811AbfEWTbR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:31:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 01AD8217D9;
-        Thu, 23 May 2019 19:31:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ABC13206BA;
+        Thu, 23 May 2019 19:31:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639874;
-        bh=EhYtP/rpvE8jWFvUYVqzJ7BQ2mvQOotty2PPRp7l7Lw=;
+        s=default; t=1558639877;
+        bh=4LSiMGims+OsxiTMkToI2njYq4F0Tah+eeKCZeVa3Nk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E4aQBnao+9liy8uvVpCI3u7Giyw7oHlvtqGnFVZJuSYqoIEbIvq8c2fxJEnrThow9
-         oW0/9BmPkHtmLaktH8r3dIWGidnLwFVnaldvQ7g1xnqWw/EdhgPPspsHtlGVWaDLdc
-         gVz+VfpmwUv2bLOjaCb12ZKOv5OEyguVDcOiQdOc=
+        b=rkr3arT1rIlXELxa8M93Xr4rRoOSbTbxTLEw47ahYwsyJgtvqR8I9H7tGa7GCpcPc
+         YprXKkGf6TOTxgDil808uWUt1lpyV0YlVO4aQcHi7VqUKcfqNurf9JyvIpu+4TmiH6
+         LEvEMI761C90MY2TMwisVOcp4aFbKpRMFzG/2mTc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chenbo Feng <fengc@google.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>
-Subject: [PATCH 5.1 116/122] bpf: relax inode permission check for retrieving bpf program
-Date:   Thu, 23 May 2019 21:07:18 +0200
-Message-Id: <20190523181720.917555214@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 5.1 117/122] bpf: add map_lookup_elem_sys_only for lookups from syscall side
+Date:   Thu, 23 May 2019 21:07:19 +0200
+Message-Id: <20190523181721.047758128@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
 References: <20190523181705.091418060@linuxfoundation.org>
@@ -44,38 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chenbo Feng <fengc@google.com>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-commit e547ff3f803e779a3898f1f48447b29f43c54085 upstream.
+commit c6110222c6f49ea68169f353565eb865488a8619 upstream.
 
-For iptable module to load a bpf program from a pinned location, it
-only retrieve a loaded program and cannot change the program content so
-requiring a write permission for it might not be necessary.
-Also when adding or removing an unrelated iptable rule, it might need to
-flush and reload the xt_bpf related rules as well and triggers the inode
-permission check. It might be better to remove the write premission
-check for the inode so we won't need to grant write access to all the
-processes that flush and restore iptables rules.
+Add a callback map_lookup_elem_sys_only() that map implementations
+could use over map_lookup_elem() from system call side in case the
+map implementation needs to handle the latter differently than from
+the BPF data path. If map_lookup_elem_sys_only() is set, this will
+be preferred pick for map lookups out of user space. This hook is
+used in a follow-up fix for LRU map, but once development window
+opens, we can convert other map types from map_lookup_elem() (here,
+the one called upon BPF_MAP_LOOKUP_ELEM cmd is meant) over to use
+the callback to simplify and clean up the latter.
 
-Signed-off-by: Chenbo Feng <fengc@google.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Martin KaFai Lau <kafai@fb.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/bpf/inode.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/bpf.h  |    1 +
+ kernel/bpf/syscall.c |    5 ++++-
+ 2 files changed, 5 insertions(+), 1 deletion(-)
 
---- a/kernel/bpf/inode.c
-+++ b/kernel/bpf/inode.c
-@@ -518,7 +518,7 @@ out:
- static struct bpf_prog *__get_prog_inode(struct inode *inode, enum bpf_prog_type type)
- {
- 	struct bpf_prog *prog;
--	int ret = inode_permission(inode, MAY_READ | MAY_WRITE);
-+	int ret = inode_permission(inode, MAY_READ);
- 	if (ret)
- 		return ERR_PTR(ret);
+--- a/include/linux/bpf.h
++++ b/include/linux/bpf.h
+@@ -36,6 +36,7 @@ struct bpf_map_ops {
+ 	void (*map_free)(struct bpf_map *map);
+ 	int (*map_get_next_key)(struct bpf_map *map, void *key, void *next_key);
+ 	void (*map_release_uref)(struct bpf_map *map);
++	void *(*map_lookup_elem_sys_only)(struct bpf_map *map, void *key);
  
+ 	/* funcs callable from userspace and from eBPF programs */
+ 	void *(*map_lookup_elem)(struct bpf_map *map, void *key);
+--- a/kernel/bpf/syscall.c
++++ b/kernel/bpf/syscall.c
+@@ -773,7 +773,10 @@ static int map_lookup_elem(union bpf_att
+ 		err = map->ops->map_peek_elem(map, value);
+ 	} else {
+ 		rcu_read_lock();
+-		ptr = map->ops->map_lookup_elem(map, key);
++		if (map->ops->map_lookup_elem_sys_only)
++			ptr = map->ops->map_lookup_elem_sys_only(map, key);
++		else
++			ptr = map->ops->map_lookup_elem(map, key);
+ 		if (IS_ERR(ptr)) {
+ 			err = PTR_ERR(ptr);
+ 		} else if (!ptr) {
 
 
