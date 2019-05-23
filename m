@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A39C28A56
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:57:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 413F528837
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:40:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388479AbfEWTM3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:12:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46258 "EHLO mail.kernel.org"
+        id S2390377AbfEWTXj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:23:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388474AbfEWTM2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:12:28 -0400
+        id S2390106AbfEWTXe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:23:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D3D0720863;
-        Thu, 23 May 2019 19:12:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ACD162054F;
+        Thu, 23 May 2019 19:23:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558638748;
-        bh=GfdQrzFnILVL/cZ7o1nFes1sgizpbXYSspF2anDWiXg=;
+        s=default; t=1558639414;
+        bh=wKOlZSx4CfiKezSLe4RjSocThAM1H9tuHQ8Ho95X1wE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pNah54MoBLFcq+fF+XzGOmz6VbTKzz5f1mG4Q5cxzslvW2RacOijBAYDen/wxQu70
-         COmUqPa3/VEtOnM/5nJKMtblqBNjmaUM6Vg80j2oFvAho9kcM9GWxcbPXSWzi7NUgR
-         kYO4gcewqjYDWw6vFDP6s/w80vvFThP+T9oNqTC8=
+        b=TTlPWhquBLMR51Zb4dnI74oMwxRZ0e+5rE5rInra8T/vZkvivPblQPOn/N+BnKG1B
+         JLqcJfvUXYZXnJPvmxLnMR8LhFc+whFxDJ8YMIuMlawg8UWoMGw5WmRf3WFINGO37M
+         Yslc051ULpS9Mn8j9Wo2kEXQmqwZXx5HG+27uybk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        James Prestwood <james.prestwood@linux.intel.com>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 4.14 50/77] PCI: Mark Atheros AR9462 to avoid bus reset
+        stable@vger.kernel.org, Yifeng Li <tomli@tomli.me>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        Teddy Wang <teddy.wang@siliconmotion.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Subject: [PATCH 5.0 080/139] fbdev: sm712fb: fix boot screen glitch when sm712fb replaces VGA
 Date:   Thu, 23 May 2019 21:06:08 +0200
-Message-Id: <20190523181726.950315112@linuxfoundation.org>
+Message-Id: <20190523181731.278156118@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181719.982121681@linuxfoundation.org>
-References: <20190523181719.982121681@linuxfoundation.org>
+In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
+References: <20190523181720.120897565@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,34 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Prestwood <james.prestwood@linux.intel.com>
+From: Yifeng Li <tomli@tomli.me>
 
-commit 6afb7e26978da5e86e57e540fdce65c8b04f398a upstream.
+commit ec1587d5073f29820e358f3a383850d61601d981 upstream.
 
-When using PCI passthrough with this device, the host machine locks up
-completely when starting the VM, requiring a hard reboot.  Add a quirk to
-avoid bus resets on this device.
+When the machine is booted in VGA mode, loading sm712fb would cause
+a glitch of random pixels shown on the screen. To prevent it from
+happening, we first clear the entire framebuffer, and we also need
+to stop calling smtcfb_setmode() during initialization, the fbdev
+layer will call it for us later when it's ready.
 
-Fixes: c3e59ee4e766 ("PCI: Mark Atheros AR93xx to avoid bus reset")
-Link: https://lore.kernel.org/linux-pci/20190107213248.3034-1-james.prestwood@linux.intel.com
-Signed-off-by: James Prestwood <james.prestwood@linux.intel.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-CC: stable@vger.kernel.org	# v3.14+
+Signed-off-by: Yifeng Li <tomli@tomli.me>
+Tested-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Cc: Teddy Wang <teddy.wang@siliconmotion.com>
+Cc: <stable@vger.kernel.org>  # v4.4+
+Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pci/quirks.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/video/fbdev/sm712fb.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/pci/quirks.c
-+++ b/drivers/pci/quirks.c
-@@ -3369,6 +3369,7 @@ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_A
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_ATHEROS, 0x0032, quirk_no_bus_reset);
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_ATHEROS, 0x003c, quirk_no_bus_reset);
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_ATHEROS, 0x0033, quirk_no_bus_reset);
-+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_ATHEROS, 0x0034, quirk_no_bus_reset);
+--- a/drivers/video/fbdev/sm712fb.c
++++ b/drivers/video/fbdev/sm712fb.c
+@@ -1493,7 +1493,11 @@ static int smtcfb_pci_probe(struct pci_d
+ 	if (err)
+ 		goto failed;
  
- static void quirk_no_pm_reset(struct pci_dev *dev)
- {
+-	smtcfb_setmode(sfb);
++	/*
++	 * The screen would be temporarily garbled when sm712fb takes over
++	 * vesafb or VGA text mode. Zero the framebuffer.
++	 */
++	memset_io(sfb->lfb, 0, sfb->fb->fix.smem_len);
+ 
+ 	err = register_framebuffer(info);
+ 	if (err < 0)
 
 
