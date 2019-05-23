@@ -2,91 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 018902803D
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 16:53:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1BD12805F
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 17:00:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730751AbfEWOxK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 10:53:10 -0400
-Received: from mail-oi1-f194.google.com ([209.85.167.194]:39347 "EHLO
-        mail-oi1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730672AbfEWOxK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 May 2019 10:53:10 -0400
-Received: by mail-oi1-f194.google.com with SMTP id v2so4572965oie.6;
-        Thu, 23 May 2019 07:53:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=O0uMxTnfP+/hXCIQ74nquohFY3NHJwYjI26x2LR70Ak=;
-        b=BRHvzn19h6XsCYeXK2+Hm/earZgXCKqh2N+cMhHkzUUXjOr4bvlgcM7cS24sm+3fX6
-         c2IYYOpSiKLaXSmd3oOaeUdw4c8uBS1nvNlZapWxM/Gi0frS2ESpejabL/II9CrInDg/
-         ufkR0hZkSgGt2ljA1G/r+JOBV9s4rxm+fntnNtgszJjoI5R2cQ5i/fNCWp5MBvUB/1rs
-         GwV5E6lmOJGYEhDzfjpM84QENK1jn486uB9X5nWHeL7igPdQBLNbDZCsbfLCtzKIV1v2
-         K1ZVytKnFlrSuDFy6nIMoe5VfFn4WZ2vHhJmrDYUz+iiEmXVLXKNEqMzqvQ67dZPmJF4
-         ZL6g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=O0uMxTnfP+/hXCIQ74nquohFY3NHJwYjI26x2LR70Ak=;
-        b=qFN6BCFrQdM0w/Ip8GExf4wP1M2mnEXmKvAjuTyNGMBiJiUKzhSk97X7c6dDXQYdwg
-         Re/a+eavmJMor2W/COGDsI8TWLJ+tNNU5yvcngAX3LrIM5KLwDSefssGAus8FLlcZ80G
-         ma3JChMqstWH3VIz69yGkLncR/MUj9yZZUJgLpBjuUM61yEq4uGNSowUsIRZ3sJXl4c2
-         w6j4eCdKn967CE2HFfxSwPqtBgqQdan0F5BNoEaC6Zfi46YLh2aXi45/8O7wkpMRWd9Z
-         QJjDkv/PrLBvzdwAOVa6hYaw0dDMYgzFW0hGvrh9Kz2JutL0d5ux1IJsz1HziJuIHHOv
-         Wl9g==
-X-Gm-Message-State: APjAAAW7X3EoqY5nDKiO7lRDCs4VdUmsr5Vjr3OdjafqFTUFBvwbhVeN
-        4Bu41besxhVp3n79yYca/M81In1/nDrU071RKjM=
-X-Google-Smtp-Source: APXvYqyzXzvZ6yPDb95ZsCQV9OIWIjHaIxtlrVTQrzcdpGSR/hUJcheMvHFjq5q3jn+oK5EXFvNa6tEZz7x32gv3Iuk=
-X-Received: by 2002:aca:efc6:: with SMTP id n189mr3048044oih.34.1558623189175;
- Thu, 23 May 2019 07:53:09 -0700 (PDT)
+        id S1730947AbfEWO77 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 10:59:59 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:57502 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730796AbfEWO77 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 10:59:59 -0400
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id D5BD88110C;
+        Thu, 23 May 2019 14:59:53 +0000 (UTC)
+Received: from dhcp-27-174.brq.redhat.com (unknown [10.43.17.159])
+        by smtp.corp.redhat.com (Postfix) with SMTP id 84FC0438A;
+        Thu, 23 May 2019 14:59:48 +0000 (UTC)
+Received: by dhcp-27-174.brq.redhat.com (nbSMTP-1.00) for uid 1000
+        oleg@redhat.com; Thu, 23 May 2019 16:59:51 +0200 (CEST)
+Date:   Thu, 23 May 2019 16:59:45 +0200
+From:   Oleg Nesterov <oleg@redhat.com>
+To:     David Laight <David.Laight@ACULAB.COM>
+Cc:     'Deepa Dinamani' <deepa.kernel@gmail.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "dbueso@suse.de" <dbueso@suse.de>,
+        "axboe@kernel.dk" <axboe@kernel.dk>,
+        Davidlohr Bueso <dave@stgolabs.net>, Eric Wong <e@80x24.org>,
+        Jason Baron <jbaron@akamai.com>,
+        Linux FS-devel Mailing List <linux-fsdevel@vger.kernel.org>,
+        linux-aio <linux-aio@kvack.org>,
+        Omar Kilani <omar.kilani@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH v2] signal: Adjust error codes according to
+ restore_user_sigmask()
+Message-ID: <20190523145944.GB23070@redhat.com>
+References: <20190522032144.10995-1-deepa.kernel@gmail.com>
+ <20190522150505.GA4915@redhat.com>
+ <CABeXuvrPM5xvzqUydbREapvwgy6deYreHp0aaMoSHyLB6+HGRg@mail.gmail.com>
+ <20190522161407.GB4915@redhat.com>
+ <CABeXuvpjrW5Gt95JC-_rYkOA=6RCD5OtkEQdwZVVqGCE3GkQOQ@mail.gmail.com>
+ <4f7b6dbeab1d424baaebd7a5df116349@AcuMS.aculab.com>
 MIME-Version: 1.0
-References: <20190522052002.10411-1-anarsoul@gmail.com> <6BD1D3F7-E2F2-4B2D-9479-06E27049133C@holtmann.org>
- <7B7F362B-6C8B-4112-8772-FB6BC708ABF5@holtmann.org>
-In-Reply-To: <7B7F362B-6C8B-4112-8772-FB6BC708ABF5@holtmann.org>
-From:   Vasily Khoruzhick <anarsoul@gmail.com>
-Date:   Thu, 23 May 2019 07:52:43 -0700
-Message-ID: <CA+E=qVfopSA90vG2Kkh+XzdYdNn=M-hJN_AptW=R+B5v3HB9eA@mail.gmail.com>
-Subject: Re: [PATCH] Revert "Bluetooth: Align minimum encryption key size for
- LE and BR/EDR connections"
-To:     Marcel Holtmann <marcel@holtmann.org>
-Cc:     Johan Hedberg <johan.hedberg@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        "open list:BLUETOOTH DRIVERS" <linux-bluetooth@vger.kernel.org>,
-        netdev <netdev@vger.kernel.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4f7b6dbeab1d424baaebd7a5df116349@AcuMS.aculab.com>
+User-Agent: Mutt/1.5.24 (2015-08-30)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.28]); Thu, 23 May 2019 14:59:59 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 22, 2019 at 12:08 AM Marcel Holtmann <marcel@holtmann.org> wrote:
+On 05/23, David Laight wrote:
 >
-> Hi Vasily,
->
-> >> This reverts commit d5bb334a8e171b262e48f378bd2096c0ea458265.
-> >>
-> >> This commit breaks some HID devices, see [1] for details
-> >>
-> >> https://bugzilla.kernel.org/show_bug.cgi?id=203643
-> >>
-> >> Signed-off-by: Vasily Khoruzhick <anarsoul@gmail.com>
-> >> Cc: stable@vger.kernel.org
-> >
-> > let me have a look at this. Maybe there is a missing initialization for older HID devices that we need to handle. Do you happen to have the full btmon binary trace from controller initialization to connection attempt for me?
-> >
-> > Are both devices Bluetooth 2.1 or later device that are supporting Secure Simple Pairing? Or is one of them a Bluetooth 2.0 or earlier device?
->
-> I am almost certain that you have a Bluetooth 2.0 mouse. I made a really stupid mistake in the key size check logic and forgot to bind it to SSP support. Can you please check the patch that I just send you.
->
-> https://lore.kernel.org/linux-bluetooth/20190522070540.48895-1-marcel@holtmann.org/T/#u
+> I'm confused...
 
-This patch fixes the issue for me. Thanks!
+Me too. To clarify, the current code is obviously buggy, pselect/whatever
+shouldn't return 0 (or anything else) if it was interrupted and we are going
+to deliver the signal.
 
->
-> Regards
->
-> Marcel
->
+But it seems that Deepa has other concerns which I do not understand at all.
+
+In any case, the signal_pending() check _inside_ restore_user_sigmask() can't
+be right, with or without this patch. If nothing else, a signal can come right
+after the check.
+
+> So epoll() can return 'success' or 'timeout' (etc) and the handler for SIG_URG
+> should still be called.
+
+Not sure I understand... OK, suppose that you do
+
+	block-all-signals;
+	ret = pselect(..., sigmask(SIG_URG));
+
+if it returns success/timeout then the handler for SIG_URG should not be called?
+
+or I am totally confused...
+
+Oleg.
+
