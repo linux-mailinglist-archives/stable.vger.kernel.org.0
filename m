@@ -2,93 +2,158 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D579B27A81
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 12:28:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFFA827B07
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 12:48:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730028AbfEWK2U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 06:28:20 -0400
-Received: from foss.arm.com ([217.140.101.70]:42882 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729972AbfEWK2U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 06:28:20 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.72.51.249])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 0A688341;
-        Thu, 23 May 2019 03:28:20 -0700 (PDT)
-Received: from lakrids.cambridge.arm.com (usa-sjc-imap-foss1.foss.arm.com [10.72.51.249])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id E1AA03F718;
-        Thu, 23 May 2019 03:28:15 -0700 (PDT)
-Date:   Thu, 23 May 2019 11:28:13 +0100
-From:   Mark Rutland <mark.rutland@arm.com>
-To:     Arnd Bergmann <arnd@arndb.de>
-Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Will Deacon <will.deacon@arm.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Borislav Petkov <bp@alien8.de>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        David Miller <davem@davemloft.net>,
-        Fenghua Yu <fenghua.yu@intel.com>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-        James Hogan <jhogan@kernel.org>,
-        Russell King - ARM Linux <linux@armlinux.org.uk>,
-        Matt Turner <mattst88@gmail.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Palmer Dabbelt <palmer@sifive.com>,
-        Paul Burton <paul.burton@mips.com>,
-        Paul Mackerras <paulus@samba.org>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Richard Henderson <rth@twiddle.net>,
-        "# 3.4.x" <stable@vger.kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Tony Luck <tony.luck@intel.com>,
-        Vineet Gupta <vgupta@synopsys.com>
-Subject: Re: [PATCH 00/18] locking/atomic: atomic64 type cleanup
-Message-ID: <20190523102813.GC3370@lakrids.cambridge.arm.com>
-References: <20190522132250.26499-1-mark.rutland@arm.com>
- <CAK8P3a3X-7Yq9W+wEMRf3QvoEhrPHYmYukLaAr_39iKhJLC-bA@mail.gmail.com>
+        id S1727434AbfEWKs1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 06:48:27 -0400
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:52649 "EHLO
+        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726310AbfEWKs0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 May 2019 06:48:26 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id B2A9E37380;
+        Thu, 23 May 2019 06:48:25 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Thu, 23 May 2019 06:48:25 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=G4rKGU
+        xPDvHXm0G976FZEL5+sKXuxCRt1PJwVzuQ4oQ=; b=Pppdx97JbQAuWVduBaP1iO
+        PD39zy3UklYqiWBOD3pNswRdlvJSLtns/g3hLaBhZlaS57l3M4kF3/pipOCRlWk3
+        +mLRkrnvZAE9vUn8JGC2es+NSYp4daAVJpRzTLbLiJA4xmLP3Yvb5J+5EbMzp2hZ
+        AA3ZDxOsf841vOcn6nUMrOfdF7JJAXMHC3kMWndaRoVM0yo3wScC08tyzmlwJ7/m
+        i+IcBqLR7K0abhsNRZ/bs5m2x8dWFdDA6hNPUPkXcpy4jS5EsedMWEHM+vTEMSm/
+        jpGMHcKNleAgigQ57ONbw0txQCDw2Ed9wm9F/r/qlBqoOZX2tJdHjj5jhTlDb55g
+        ==
+X-ME-Sender: <xms:d3rmXOBZwPK8aAChK8SvwDnUn4D7SisPz17TFJUKWpKmkT7uIxWRLg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddruddugedgfeegucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:d3rmXPNVYck09YI514_SBaZ3UCwXIUwjoGkZrDBoOVq8t0qR3RqNsg>
+    <xmx:d3rmXGA_XAl0hG9zY4N5M40c15_ArYbKuaKIqcvX3f_seswjfl_gqw>
+    <xmx:d3rmXK-K97wYGTVm7GW6EQ6w4ZCSLIrIuMehl6JEqQZopEIm0h0RNg>
+    <xmx:eXrmXJtWz_oCUAJHTV8iCdQyis6ABnw5xD_4M8cczeFSnWhdBbQotA>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id D1832380083;
+        Thu, 23 May 2019 06:48:22 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] PCI: rcar: Add the initialization of PCIe link in" failed to apply to 4.14-stable tree
+To:     kaz-ikeda@xc.jp.nec.com, gaku.inami.xw@bp.renesas.com,
+        geert+renesas@glider.be, horms+renesas@verge.net.au,
+        lorenzo.pieralisi@arm.com, marek.vasut+renesas@gmail.com,
+        phil.edworthy@renesas.com, wsa+renesas@sang-engineering.com,
+        wsa@the-dreams.de
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 23 May 2019 12:48:20 +0200
+Message-ID: <155860850020184@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAK8P3a3X-7Yq9W+wEMRf3QvoEhrPHYmYukLaAr_39iKhJLC-bA@mail.gmail.com>
-User-Agent: Mutt/1.11.1+11 (2f07cb52) (2018-12-01)
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 22, 2019 at 11:18:59PM +0200, Arnd Bergmann wrote:
-> On Wed, May 22, 2019 at 3:23 PM Mark Rutland <mark.rutland@arm.com> wrote:
-> >
-> > Currently architectures return inconsistent types for atomic64 ops. Some return
-> > long (e..g. powerpc), some return long long (e.g. arc), and some return s64
-> > (e.g. x86).
-> >
-> > This is a bit messy, and causes unnecessary pain (e.g. as values must be cast
-> > before they can be printed [1]).
-> >
-> > This series reworks all the atomic64 implementations to use s64 as the base
-> > type for atomic64_t (as discussed [2]), and to ensure that this type is
-> > consistently used for parameters and return values in the API, avoiding further
-> > problems in this area.
-> >
-> > This series (based on v5.1-rc1) can also be found in my atomics/type-cleanup
-> > branch [3] on kernel.org.
-> 
-> Nice cleanup!
-> 
-> I've provided an explicit Ack for the asm-generic patch if someone wants
-> to pick up the entire series, but I can also put it all into my asm-generic
-> tree if you want, after more people have had a chance to take a look.
 
-Thanks!
+The patch below does not apply to the 4.14-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-I had assumed that this would go through the tip tree, as previous
-atomic rework had, but I have no preference as to how this gets merged.
+thanks,
 
-I'm not sure what the policy is, so I'll leave it to Peter and Will to
-say.
+greg k-h
 
-Mark.
+------------------ original commit in Linus's tree ------------------
+
+From be20bbcb0a8cb5597cc62b3e28d275919f3431df Mon Sep 17 00:00:00 2001
+From: Kazufumi Ikeda <kaz-ikeda@xc.jp.nec.com>
+Date: Mon, 25 Mar 2019 20:43:19 +0100
+Subject: [PATCH] PCI: rcar: Add the initialization of PCIe link in
+ resume_noirq()
+
+Reestablish the PCIe link very early in the resume process in case it
+went down to prevent PCI accesses from hanging the bus. Such accesses
+can happen early in the PCI resume process, as early as the
+SUSPEND_RESUME_NOIRQ step, thus the link must be reestablished in the
+driver resume_noirq() callback.
+
+Fixes: e015f88c368d ("PCI: rcar: Add support for R-Car H3 to pcie-rcar")
+Signed-off-by: Kazufumi Ikeda <kaz-ikeda@xc.jp.nec.com>
+Signed-off-by: Gaku Inami <gaku.inami.xw@bp.renesas.com>
+Signed-off-by: Marek Vasut <marek.vasut+renesas@gmail.com>
+[lorenzo.pieralisi@arm.com: reformatted commit log]
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Acked-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Cc: stable@vger.kernel.org
+Cc: Geert Uytterhoeven <geert+renesas@glider.be>
+Cc: Phil Edworthy <phil.edworthy@renesas.com>
+Cc: Simon Horman <horms+renesas@verge.net.au>
+Cc: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-renesas-soc@vger.kernel.org
+
+diff --git a/drivers/pci/controller/pcie-rcar.c b/drivers/pci/controller/pcie-rcar.c
+index c8febb009454..6a4e435bd35f 100644
+--- a/drivers/pci/controller/pcie-rcar.c
++++ b/drivers/pci/controller/pcie-rcar.c
+@@ -46,6 +46,7 @@
+ 
+ /* Transfer control */
+ #define PCIETCTLR		0x02000
++#define  DL_DOWN		BIT(3)
+ #define  CFINIT			1
+ #define PCIETSTR		0x02004
+ #define  DATA_LINK_ACTIVE	1
+@@ -94,6 +95,7 @@
+ #define MACCTLR			0x011058
+ #define  SPEED_CHANGE		BIT(24)
+ #define  SCRAMBLE_DISABLE	BIT(27)
++#define PMSR			0x01105c
+ #define MACS2R			0x011078
+ #define MACCGSPSETR		0x011084
+ #define  SPCNGRSN		BIT(31)
+@@ -1130,6 +1132,7 @@ static int rcar_pcie_probe(struct platform_device *pdev)
+ 	pcie = pci_host_bridge_priv(bridge);
+ 
+ 	pcie->dev = dev;
++	platform_set_drvdata(pdev, pcie);
+ 
+ 	err = pci_parse_request_of_pci_ranges(dev, &pcie->resources, NULL);
+ 	if (err)
+@@ -1221,10 +1224,28 @@ static int rcar_pcie_probe(struct platform_device *pdev)
+ 	return err;
+ }
+ 
++static int rcar_pcie_resume_noirq(struct device *dev)
++{
++	struct rcar_pcie *pcie = dev_get_drvdata(dev);
++
++	if (rcar_pci_read_reg(pcie, PMSR) &&
++	    !(rcar_pci_read_reg(pcie, PCIETCTLR) & DL_DOWN))
++		return 0;
++
++	/* Re-establish the PCIe link */
++	rcar_pci_write_reg(pcie, CFINIT, PCIETCTLR);
++	return rcar_pcie_wait_for_dl(pcie);
++}
++
++static const struct dev_pm_ops rcar_pcie_pm_ops = {
++	.resume_noirq = rcar_pcie_resume_noirq,
++};
++
+ static struct platform_driver rcar_pcie_driver = {
+ 	.driver = {
+ 		.name = "rcar-pcie",
+ 		.of_match_table = rcar_pcie_of_match,
++		.pm = &rcar_pcie_pm_ops,
+ 		.suppress_bind_attrs = true,
+ 	},
+ 	.probe = rcar_pcie_probe,
+
