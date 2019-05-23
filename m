@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A270628A89
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:57:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9ECB28A13
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:56:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389133AbfEWTQL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:16:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50804 "EHLO mail.kernel.org"
+        id S1731921AbfEWTIy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:08:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389128AbfEWTQL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:16:11 -0400
+        id S1731943AbfEWTIx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:08:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 13A3D21851;
-        Thu, 23 May 2019 19:16:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F0D5821873;
+        Thu, 23 May 2019 19:08:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558638970;
-        bh=w/eKGppXN3s6rEHVW5dIcZisZ+GXQs1ZH/NWkrAohcs=;
+        s=default; t=1558638533;
+        bh=xdvvcA62MbAZMW3ffzFO2CIubH9bOSXjrHE8RuAPcdA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BDk1aZFkFfTG2CBCwuPQrEh/XOARpG9bW4FUD/8hc8nTnJBg3vwFw5KsNIuI0lbci
-         32zSBPJdYVsPIw5sj3UFAZcgvUzIgKj1h7C6arY0v0SN7IFVhQ3+ggROoRRfHoJ12L
-         1dk69p6PQNyOhN2iNRQVyPL6fwdC5ojmuqUhXp/A=
+        b=qyWN49ItFulXuYchPkR3ChLvsaZMIlntWnZvGYMiXQnj15dl9YZgz65F1jXCqLKIj
+         7chZgbY6Tta6a+SDQrdJIT3Va1pHCIIDZ5esJTD8yt6vMWscs1F1q+GG+b13yfzi4L
+         6kffotn9b8pQfi8wVLLljzMnd8IJNRD6zatbJBCU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phong Tran <tranmanphong@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        David Laight <David.Laight@ACULAB.COM>,
-        Rob Herring <robh@kernel.org>
-Subject: [PATCH 4.19 031/114] of: fix clang -Wunsequenced for be32_to_cpu()
+        stable@vger.kernel.org, Junwei Hu <hujunwei4@huawei.com>,
+        Wang Wang <wangwang2@huawei.com>,
+        Kang Zhou <zhoukang7@huawei.com>,
+        Suanming Mou <mousuanming@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 06/53] tipc: fix modprobe tipc failed after switch order of device registration
 Date:   Thu, 23 May 2019 21:05:30 +0200
-Message-Id: <20190523181734.642536873@linuxfoundation.org>
+Message-Id: <20190523181711.874540085@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
-References: <20190523181731.372074275@linuxfoundation.org>
+In-Reply-To: <20190523181710.981455400@linuxfoundation.org>
+References: <20190523181710.981455400@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,56 +46,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phong Tran <tranmanphong@gmail.com>
+From: Junwei Hu <hujunwei4@huawei.com>
 
-commit 440868661f36071886ed360d91de83bd67c73b4f upstream.
+[ Upstream commit 532b0f7ece4cb2ffd24dc723ddf55242d1188e5e ]
 
-Now, make the loop explicit to avoid clang warning.
+Error message printed:
+modprobe: ERROR: could not insert 'tipc': Address family not
+supported by protocol.
+when modprobe tipc after the following patch: switch order of
+device registration, commit 7e27e8d6130c
+("tipc: switch order of device registration to fix a crash")
 
-./include/linux/of.h:238:37: warning: multiple unsequenced modifications
-to 'cell' [-Wunsequenced]
-                r = (r << 32) | be32_to_cpu(*(cell++));
-                                                  ^~
-./include/linux/byteorder/generic.h:95:21: note: expanded from macro
-'be32_to_cpu'
-                    ^
-./include/uapi/linux/byteorder/little_endian.h:40:59: note: expanded
-from macro '__be32_to_cpu'
-                                                          ^
-./include/uapi/linux/swab.h:118:21: note: expanded from macro '__swab32'
-        ___constant_swab32(x) :                 \
-                           ^
-./include/uapi/linux/swab.h:18:12: note: expanded from macro
-'___constant_swab32'
-        (((__u32)(x) & (__u32)0x000000ffUL) << 24) |            \
-                  ^
+Because sock_create_kern(net, AF_TIPC, ...) is called by
+tipc_topsrv_create_listener() in the initialization process
+of tipc_net_ops, tipc_socket_init() must be execute before that.
 
-Signed-off-by: Phong Tran <tranmanphong@gmail.com>
-Reported-by: Nick Desaulniers <ndesaulniers@google.com>
-Link: https://github.com/ClangBuiltLinux/linux/issues/460
-Suggested-by: David Laight <David.Laight@ACULAB.COM>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Cc: stable@vger.kernel.org
-[robh: fix up whitespace]
-Signed-off-by: Rob Herring <robh@kernel.org>
+I move tipc_socket_init() into function tipc_init_net().
+
+Fixes: 7e27e8d6130c
+("tipc: switch order of device registration to fix a crash")
+Signed-off-by: Junwei Hu <hujunwei4@huawei.com>
+Reported-by: Wang Wang <wangwang2@huawei.com>
+Reviewed-by: Kang Zhou <zhoukang7@huawei.com>
+Reviewed-by: Suanming Mou <mousuanming@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- include/linux/of.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/tipc/core.c |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
---- a/include/linux/of.h
-+++ b/include/linux/of.h
-@@ -236,8 +236,8 @@ extern struct device_node *of_find_all_n
- static inline u64 of_read_number(const __be32 *cell, int size)
- {
- 	u64 r = 0;
--	while (size--)
--		r = (r << 32) | be32_to_cpu(*(cell++));
-+	for (; size--; cell++)
-+		r = (r << 32) | be32_to_cpu(*cell);
- 	return r;
+--- a/net/tipc/core.c
++++ b/net/tipc/core.c
+@@ -62,6 +62,10 @@ static int __net_init tipc_init_net(stru
+ 	INIT_LIST_HEAD(&tn->node_list);
+ 	spin_lock_init(&tn->node_list_lock);
+ 
++	err = tipc_socket_init();
++	if (err)
++		goto out_socket;
++
+ 	err = tipc_sk_rht_init(net);
+ 	if (err)
+ 		goto out_sk_rht;
+@@ -88,6 +92,8 @@ out_subscr:
+ out_nametbl:
+ 	tipc_sk_rht_destroy(net);
+ out_sk_rht:
++	tipc_socket_stop();
++out_socket:
+ 	return err;
  }
  
+@@ -98,6 +104,7 @@ static void __net_exit tipc_exit_net(str
+ 	tipc_bcast_stop(net);
+ 	tipc_nametbl_stop(net);
+ 	tipc_sk_rht_destroy(net);
++	tipc_socket_stop();
+ }
+ 
+ static struct pernet_operations tipc_net_ops = {
+@@ -133,10 +140,6 @@ static int __init tipc_init(void)
+ 	if (err)
+ 		goto out_pernet;
+ 
+-	err = tipc_socket_init();
+-	if (err)
+-		goto out_socket;
+-
+ 	err = tipc_bearer_setup();
+ 	if (err)
+ 		goto out_bearer;
+@@ -144,8 +147,6 @@ static int __init tipc_init(void)
+ 	pr_info("Started in single node mode\n");
+ 	return 0;
+ out_bearer:
+-	tipc_socket_stop();
+-out_socket:
+ 	unregister_pernet_subsys(&tipc_net_ops);
+ out_pernet:
+ 	tipc_unregister_sysctl();
+@@ -161,7 +162,6 @@ out_netlink:
+ static void __exit tipc_exit(void)
+ {
+ 	tipc_bearer_cleanup();
+-	tipc_socket_stop();
+ 	unregister_pernet_subsys(&tipc_net_ops);
+ 	tipc_netlink_stop();
+ 	tipc_netlink_compat_stop();
 
 
