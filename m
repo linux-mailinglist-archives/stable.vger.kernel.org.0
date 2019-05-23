@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3533728A6B
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:57:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 820DA28840
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:40:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388689AbfEWTOL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:14:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48134 "EHLO mail.kernel.org"
+        id S2390814AbfEWTYF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:24:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388459AbfEWTOK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:14:10 -0400
+        id S2390455AbfEWTYC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:24:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0C79D2133D;
-        Thu, 23 May 2019 19:14:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D80CE20868;
+        Thu, 23 May 2019 19:24:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558638849;
-        bh=3HPlDIKoNiW5KkLhHXh369P9nPblupMd2QgOesjxNKM=;
+        s=default; t=1558639441;
+        bh=3LCnykdvczOHiMlWD1ftBlEW8L15TV0zrYb9NTJ2fds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hwfscTuF/L6/3V1BWU9LC5E2Xe78Q5REQG3laWHav3eQAKama1woIAf41uwJ18IwG
-         53VaPo5r4tHpamelsW5+TjMKfo/e/YOulO1RxalUVQQqCvK7pYtI/3JLyV7eJLYeVj
-         VpSfgWqqCNt8w4Ixg0j1d69BNRwmMC1SvwpVHZGc=
+        b=DUD80yJxNKC/K3Zy03aU80WrAddJi/ezLVsf40NvM3skYWL1F5kHoIJdacdqcA6DR
+         Fr2I84lYH+A0V3VRnAVmO7/5EefzROaUuHHZb7zcETakGuUW+10U1l67kMsqncLd8a
+         sw/v5dCPTN29S3IUpFAWQYGGq5PEJfK3JZBVWJV4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 4.14 76/77] bpf, lru: avoid messing with eviction heuristics upon syscall lookup
+        stable@vger.kernel.org, Martin Willi <martin@strongswan.org>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 106/139] xfrm: Honor original L3 slave device in xfrmi policy lookup
 Date:   Thu, 23 May 2019 21:06:34 +0200
-Message-Id: <20190523181730.447456891@linuxfoundation.org>
+Message-Id: <20190523181734.066870227@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181719.982121681@linuxfoundation.org>
-References: <20190523181719.982121681@linuxfoundation.org>
+In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
+References: <20190523181720.120897565@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,106 +44,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+[ Upstream commit 025c65e119bf58b610549ca359c9ecc5dee6a8d2 ]
 
-commit 50b045a8c0ccf44f76640ac3eea8d80ca53979a3 upstream.
+If an xfrmi is associated to a vrf layer 3 master device,
+xfrm_policy_check() fails after traffic decapsulation. The input
+interface is replaced by the layer 3 master device, and hence
+xfrmi_decode_session() can't match the xfrmi anymore to satisfy
+policy checking.
 
-One of the biggest issues we face right now with picking LRU map over
-regular hash table is that a map walk out of user space, for example,
-to just dump the existing entries or to remove certain ones, will
-completely mess up LRU eviction heuristics and wrong entries such
-as just created ones will get evicted instead. The reason for this
-is that we mark an entry as "in use" via bpf_lru_node_set_ref() from
-system call lookup side as well. Thus upon walk, all entries are
-being marked, so information of actual least recently used ones
-are "lost".
+Extend ingress xfrmi lookup to honor the original layer 3 slave
+device, allowing xfrm interfaces to operate within a vrf domain.
 
-In case of Cilium where it can be used (besides others) as a BPF
-based connection tracker, this current behavior causes disruption
-upon control plane changes that need to walk the map from user space
-to evict certain entries. Discussion result from bpfconf [0] was that
-we should simply just remove marking from system call side as no
-good use case could be found where it's actually needed there.
-Therefore this patch removes marking for regular LRU and per-CPU
-flavor. If there ever should be a need in future, the behavior could
-be selected via map creation flag, but due to mentioned reason we
-avoid this here.
-
-  [0] http://vger.kernel.org/bpfconf.html
-
-Fixes: 29ba732acbee ("bpf: Add BPF_MAP_TYPE_LRU_HASH")
-Fixes: 8f8449384ec3 ("bpf: Add BPF_MAP_TYPE_LRU_PERCPU_HASH")
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Martin KaFai Lau <kafai@fb.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: f203b76d7809 ("xfrm: Add virtual xfrm interfaces")
+Signed-off-by: Martin Willi <martin@strongswan.org>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/hashtab.c |   23 ++++++++++++++++++-----
- 1 file changed, 18 insertions(+), 5 deletions(-)
+ include/net/xfrm.h        |  3 ++-
+ net/xfrm/xfrm_interface.c | 17 ++++++++++++++---
+ net/xfrm/xfrm_policy.c    |  2 +-
+ 3 files changed, 17 insertions(+), 5 deletions(-)
 
---- a/kernel/bpf/hashtab.c
-+++ b/kernel/bpf/hashtab.c
-@@ -498,18 +498,30 @@ static u32 htab_map_gen_lookup(struct bp
- 	return insn - insn_buf;
- }
+diff --git a/include/net/xfrm.h b/include/net/xfrm.h
+index 902437dfbce77..c9b0b2b5d672f 100644
+--- a/include/net/xfrm.h
++++ b/include/net/xfrm.h
+@@ -295,7 +295,8 @@ struct xfrm_replay {
+ };
  
--static void *htab_lru_map_lookup_elem(struct bpf_map *map, void *key)
-+static __always_inline void *__htab_lru_map_lookup_elem(struct bpf_map *map,
-+							void *key, const bool mark)
- {
- 	struct htab_elem *l = __htab_map_lookup_elem(map, key);
+ struct xfrm_if_cb {
+-	struct xfrm_if	*(*decode_session)(struct sk_buff *skb);
++	struct xfrm_if	*(*decode_session)(struct sk_buff *skb,
++					   unsigned short family);
+ };
  
- 	if (l) {
--		bpf_lru_node_set_ref(&l->lru_node);
-+		if (mark)
-+			bpf_lru_node_set_ref(&l->lru_node);
- 		return l->key + round_up(map->key_size, 8);
- 	}
- 
+ void xfrm_if_register_cb(const struct xfrm_if_cb *ifcb);
+diff --git a/net/xfrm/xfrm_interface.c b/net/xfrm/xfrm_interface.c
+index dbb3c1945b5c9..85fec98676d34 100644
+--- a/net/xfrm/xfrm_interface.c
++++ b/net/xfrm/xfrm_interface.c
+@@ -70,17 +70,28 @@ static struct xfrm_if *xfrmi_lookup(struct net *net, struct xfrm_state *x)
  	return NULL;
  }
  
-+static void *htab_lru_map_lookup_elem(struct bpf_map *map, void *key)
-+{
-+	return __htab_lru_map_lookup_elem(map, key, true);
-+}
-+
-+static void *htab_lru_map_lookup_elem_sys(struct bpf_map *map, void *key)
-+{
-+	return __htab_lru_map_lookup_elem(map, key, false);
-+}
-+
- static u32 htab_lru_map_gen_lookup(struct bpf_map *map,
- 				   struct bpf_insn *insn_buf)
+-static struct xfrm_if *xfrmi_decode_session(struct sk_buff *skb)
++static struct xfrm_if *xfrmi_decode_session(struct sk_buff *skb,
++					    unsigned short family)
  {
-@@ -1160,6 +1172,7 @@ const struct bpf_map_ops htab_lru_map_op
- 	.map_free = htab_map_free,
- 	.map_get_next_key = htab_map_get_next_key,
- 	.map_lookup_elem = htab_lru_map_lookup_elem,
-+	.map_lookup_elem_sys_only = htab_lru_map_lookup_elem_sys,
- 	.map_update_elem = htab_lru_map_update_elem,
- 	.map_delete_elem = htab_lru_map_delete_elem,
- 	.map_gen_lookup = htab_lru_map_gen_lookup,
-@@ -1190,7 +1203,6 @@ static void *htab_lru_percpu_map_lookup_
+ 	struct xfrmi_net *xfrmn;
+-	int ifindex;
+ 	struct xfrm_if *xi;
++	int ifindex = 0;
  
- int bpf_percpu_hash_copy(struct bpf_map *map, void *key, void *value)
- {
--	struct bpf_htab *htab = container_of(map, struct bpf_htab, map);
- 	struct htab_elem *l;
- 	void __percpu *pptr;
- 	int ret = -ENOENT;
-@@ -1206,8 +1218,9 @@ int bpf_percpu_hash_copy(struct bpf_map
- 	l = __htab_map_lookup_elem(map, key);
- 	if (!l)
- 		goto out;
--	if (htab_is_lru(htab))
--		bpf_lru_node_set_ref(&l->lru_node);
-+	/* We do not mark LRU map element here in order to not mess up
-+	 * eviction heuristics when user space does a map walk.
-+	 */
- 	pptr = htab_elem_get_ptr(l, map->key_size);
- 	for_each_possible_cpu(cpu) {
- 		bpf_long_memcpy(value + off,
+ 	if (!secpath_exists(skb) || !skb->dev)
+ 		return NULL;
+ 
++	switch (family) {
++	case AF_INET6:
++		ifindex = inet6_sdif(skb);
++		break;
++	case AF_INET:
++		ifindex = inet_sdif(skb);
++		break;
++	}
++	if (!ifindex)
++		ifindex = skb->dev->ifindex;
++
+ 	xfrmn = net_generic(xs_net(xfrm_input_state(skb)), xfrmi_net_id);
+-	ifindex = skb->dev->ifindex;
+ 
+ 	for_each_xfrmi_rcu(xfrmn->xfrmi[0], xi) {
+ 		if (ifindex == xi->dev->ifindex &&
+diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
+index 8d1a898d0ba56..a6b58df7a70f6 100644
+--- a/net/xfrm/xfrm_policy.c
++++ b/net/xfrm/xfrm_policy.c
+@@ -3313,7 +3313,7 @@ int __xfrm_policy_check(struct sock *sk, int dir, struct sk_buff *skb,
+ 	ifcb = xfrm_if_get_cb();
+ 
+ 	if (ifcb) {
+-		xi = ifcb->decode_session(skb);
++		xi = ifcb->decode_session(skb, family);
+ 		if (xi) {
+ 			if_id = xi->p.if_id;
+ 			net = xi->net;
+-- 
+2.20.1
+
 
 
