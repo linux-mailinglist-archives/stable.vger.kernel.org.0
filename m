@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 752D728922
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:42:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFD9A28867
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:40:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391769AbfEWTbB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:31:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44654 "EHLO mail.kernel.org"
+        id S2390546AbfEWTZz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:25:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37582 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392212AbfEWTa7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:30:59 -0400
+        id S2391198AbfEWTZw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:25:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F2AA9217D9;
-        Thu, 23 May 2019 19:30:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ED55220868;
+        Thu, 23 May 2019 19:25:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639858;
-        bh=/lZTweBW81hb+YjBSmF1dONvupQjZjJDzP6SgXt1RdQ=;
+        s=default; t=1558639551;
+        bh=EhYtP/rpvE8jWFvUYVqzJ7BQ2mvQOotty2PPRp7l7Lw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tCKG9ZcxD28pZrhNl8x85PhhBrUyAGXSF2TVmESnP7t/HaKnf64LNqCmLz1T7hHUJ
-         Sa9jIIKo4fodUXwqVOYGUKwNAlu3PWFQsm4ofBpACOTB42PIsYaDqKt0XigMj5bL+m
-         LoDOgBx0GSA5AsRT9n9YqE7tARPmLnxREjegjtGI=
+        b=0jBV/gwhQSLDUhetVhJWEmQwXJH5mUSqc6GXUlFVVtOrVVWEM+qN1y6hdiuHiOLlr
+         O77B3PaDPTxEGRpx5rmEbaI0MiXE/eeQNUN0FH8EQBB1sTv2rzZjUuT1FM24u6tS+G
+         6IoUtPYG14Zn1sS2oxpOXavgE4Lw366vaoLhvq7E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikos Tsironis <ntsironis@arrikto.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.1 102/122] dm cache metadata: Fix loading discard bitset
-Date:   Thu, 23 May 2019 21:07:04 +0200
-Message-Id: <20190523181718.801467912@linuxfoundation.org>
+        stable@vger.kernel.org, Chenbo Feng <fengc@google.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>
+Subject: [PATCH 5.0 137/139] bpf: relax inode permission check for retrieving bpf program
+Date:   Thu, 23 May 2019 21:07:05 +0200
+Message-Id: <20190523181736.640635204@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
-References: <20190523181705.091418060@linuxfoundation.org>
+In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
+References: <20190523181720.120897565@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,47 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikos Tsironis <ntsironis@arrikto.com>
+From: Chenbo Feng <fengc@google.com>
 
-commit e28adc3bf34e434b30e8d063df4823ba0f3e0529 upstream.
+commit e547ff3f803e779a3898f1f48447b29f43c54085 upstream.
 
-Add missing dm_bitset_cursor_next() to properly advance the bitset
-cursor.
+For iptable module to load a bpf program from a pinned location, it
+only retrieve a loaded program and cannot change the program content so
+requiring a write permission for it might not be necessary.
+Also when adding or removing an unrelated iptable rule, it might need to
+flush and reload the xt_bpf related rules as well and triggers the inode
+permission check. It might be better to remove the write premission
+check for the inode so we won't need to grant write access to all the
+processes that flush and restore iptables rules.
 
-Otherwise, the discarded state of all blocks is set according to the
-discarded state of the first block.
-
-Fixes: ae4a46a1f6 ("dm cache metadata: use bitset cursor api to load discard bitset")
-Cc: stable@vger.kernel.org
-Signed-off-by: Nikos Tsironis <ntsironis@arrikto.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Chenbo Feng <fengc@google.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm-cache-metadata.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ kernel/bpf/inode.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/md/dm-cache-metadata.c
-+++ b/drivers/md/dm-cache-metadata.c
-@@ -1167,11 +1167,18 @@ static int __load_discards(struct dm_cac
- 		if (r)
- 			return r;
+--- a/kernel/bpf/inode.c
++++ b/kernel/bpf/inode.c
+@@ -518,7 +518,7 @@ out:
+ static struct bpf_prog *__get_prog_inode(struct inode *inode, enum bpf_prog_type type)
+ {
+ 	struct bpf_prog *prog;
+-	int ret = inode_permission(inode, MAY_READ | MAY_WRITE);
++	int ret = inode_permission(inode, MAY_READ);
+ 	if (ret)
+ 		return ERR_PTR(ret);
  
--		for (b = 0; b < from_dblock(cmd->discard_nr_blocks); b++) {
-+		for (b = 0; ; b++) {
- 			r = fn(context, cmd->discard_block_size, to_dblock(b),
- 			       dm_bitset_cursor_get_value(&c));
- 			if (r)
- 				break;
-+
-+			if (b >= (from_dblock(cmd->discard_nr_blocks) - 1))
-+				break;
-+
-+			r = dm_bitset_cursor_next(&c);
-+			if (r)
-+				break;
- 		}
- 
- 		dm_bitset_cursor_end(&c);
 
 
