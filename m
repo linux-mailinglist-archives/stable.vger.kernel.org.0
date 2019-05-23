@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EA2B9286DD
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:15:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF54F288B3
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:41:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388130AbfEWTNu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:13:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47734 "EHLO mail.kernel.org"
+        id S2391700AbfEWT2H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:28:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40582 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387801AbfEWTNn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:13:43 -0400
+        id S2391212AbfEWT2G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:28:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 73F2A20863;
-        Thu, 23 May 2019 19:13:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 89DA621880;
+        Thu, 23 May 2019 19:28:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558638822;
-        bh=wDrD/fDJJ7TXM+EKX2yzv/zboJ9hPm4L6LJm/+znrbU=;
+        s=default; t=1558639686;
+        bh=MW32hsEj+bBsxFl2lvUcnJoAOxMKjk7PbtOnPJNOI0M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=itieRdrFlN6ySInUNR32hEdiJ1H0iu9wCljAnYdiM3FeBYTA8IL63EfH8y9QZU84u
-         SsRbLbff5uAM4yuD4S2vDr0xF0v4CQ1a/MVoJEIs/mLbOVBIpuot1HnhpSWap/UjO8
-         NaLw+3Euvl8zyMYinM+oKBCA+Z8nBylgzThA0m/0=
+        b=VDfm542c1d31jJ6CVj8bEltPkHnS4l4977cW1uMVGUM2ixxdCNQMWQ1fUFYxKWMPf
+         w1GLMmGIvSW1vh0yF3jJ5hUpNryB+bhza/8+A6IE7yODxm3rJ2a1vFg8G5mqedDEFp
+         j6fB3AAvI4VxGx3j7+mDvOKpc7oZsX8afsjL8SNo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
-        Pavel Machek <pavel@ucw.cz>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 61/77] power: supply: cpcap-battery: Fix division by zero
+        stable@vger.kernel.org, ZhangXiaoxu <zhangxiaoxu5@huawei.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>
+Subject: [PATCH 5.1 057/122] NFS4: Fix v4.0 client state corruption when mount
 Date:   Thu, 23 May 2019 21:06:19 +0200
-Message-Id: <20190523181728.409484885@linuxfoundation.org>
+Message-Id: <20190523181712.316173633@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181719.982121681@linuxfoundation.org>
-References: <20190523181719.982121681@linuxfoundation.org>
+In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
+References: <20190523181705.091418060@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,44 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit dbe7208c6c4aec083571f2ec742870a0d0edbea3 ]
+From: ZhangXiaoxu <zhangxiaoxu5@huawei.com>
 
-If called fast enough so samples do not increment, we can get
-division by zero in kernel:
+commit f02f3755dbd14fb935d24b14650fff9ba92243b8 upstream.
 
-__div0
-cpcap_battery_cc_raw_div
-cpcap_battery_get_property
-power_supply_get_property.part.1
-power_supply_get_property
-power_supply_show_property
-power_supply_uevent
+stat command with soft mount never return after server is stopped.
 
-Fixes: 874b2adbed12 ("power: supply: cpcap-battery: Add a battery driver")
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Acked-by: Pavel Machek <pavel@ucw.cz>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+When alloc a new client, the state of the client will be set to
+NFS4CLNT_LEASE_EXPIRED.
+
+When the server is stopped, the state manager will work, and accord
+the state to recover. But the state is NFS4CLNT_LEASE_EXPIRED, it
+will drain the slot table and lead other task to wait queue, until
+the client recovered. Then the stat command is hung.
+
+When discover server trunking, the client will renew the lease,
+but check the client state, it lead the client state corruption.
+
+So, we need to call state manager to recover it when detect server
+ip trunking.
+
+Signed-off-by: ZhangXiaoxu <zhangxiaoxu5@huawei.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/power/supply/cpcap-battery.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/nfs/nfs4state.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/power/supply/cpcap-battery.c b/drivers/power/supply/cpcap-battery.c
-index ee71a2b37b12c..fe7fcf3a2ad03 100644
---- a/drivers/power/supply/cpcap-battery.c
-+++ b/drivers/power/supply/cpcap-battery.c
-@@ -221,6 +221,9 @@ static int cpcap_battery_cc_raw_div(struct cpcap_battery_ddata *ddata,
- 	int avg_current;
- 	u32 cc_lsb;
- 
-+	if (!divider)
-+		return 0;
+--- a/fs/nfs/nfs4state.c
++++ b/fs/nfs/nfs4state.c
+@@ -159,6 +159,10 @@ int nfs40_discover_server_trunking(struc
+ 		/* Sustain the lease, even if it's empty.  If the clientid4
+ 		 * goes stale it's of no use for trunking discovery. */
+ 		nfs4_schedule_state_renewal(*result);
 +
- 	sample &= 0xffffff;		/* 24-bits, unsigned */
- 	offset &= 0x7ff;		/* 10-bits, signed */
- 
--- 
-2.20.1
-
++		/* If the client state need to recover, do it. */
++		if (clp->cl_state)
++			nfs4_schedule_state_manager(clp);
+ 	}
+ out:
+ 	return status;
 
 
