@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 820DA28840
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:40:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41DCD288CB
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:41:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390814AbfEWTYF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:24:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34788 "EHLO mail.kernel.org"
+        id S2391307AbfEWT2v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:28:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41568 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390455AbfEWTYC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:24:02 -0400
+        id S2391826AbfEWT2t (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:28:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D80CE20868;
-        Thu, 23 May 2019 19:24:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 95CF120879;
+        Thu, 23 May 2019 19:28:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639441;
-        bh=3LCnykdvczOHiMlWD1ftBlEW8L15TV0zrYb9NTJ2fds=;
+        s=default; t=1558639729;
+        bh=Q/5OzBM4VQEOBvCfeonOdIK9aQC1KWHPkJclcmFLRO4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DUD80yJxNKC/K3Zy03aU80WrAddJi/ezLVsf40NvM3skYWL1F5kHoIJdacdqcA6DR
-         Fr2I84lYH+A0V3VRnAVmO7/5EefzROaUuHHZb7zcETakGuUW+10U1l67kMsqncLd8a
-         sw/v5dCPTN29S3IUpFAWQYGGq5PEJfK3JZBVWJV4=
+        b=y9DGbpD1XXp2QnDG9WWp26CI8inIc59H9vziPEOTE6o8HJ8Z0FIVroH4Pnd7WMW07
+         7rdxniBEEiOnxuT4BvsF4z7JrQ5hWbj0tM5gcYLT1qrbIRd7DfGmIvWi91Nfq489Eo
+         tpF3bKxUV0RzRQx2m+kRMkAc6TfLIkZwwlj9OAlU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Willi <martin@strongswan.org>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 106/139] xfrm: Honor original L3 slave device in xfrmi policy lookup
-Date:   Thu, 23 May 2019 21:06:34 +0200
-Message-Id: <20190523181734.066870227@linuxfoundation.org>
+        stable@vger.kernel.org, Nicolai Stange <nstange@suse.de>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.1 073/122] x86_64: Add gap to int3 to allow for call emulation
+Date:   Thu, 23 May 2019 21:06:35 +0200
+Message-Id: <20190523181714.436949335@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
-References: <20190523181720.120897565@linuxfoundation.org>
+In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
+References: <20190523181705.091418060@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,92 +45,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 025c65e119bf58b610549ca359c9ecc5dee6a8d2 ]
+From: Josh Poimboeuf <jpoimboe@redhat.com>
 
-If an xfrmi is associated to a vrf layer 3 master device,
-xfrm_policy_check() fails after traffic decapsulation. The input
-interface is replaced by the layer 3 master device, and hence
-xfrmi_decode_session() can't match the xfrmi anymore to satisfy
-policy checking.
+commit 2700fefdb2d9751c416ad56897e27d41e409324a upstream.
 
-Extend ingress xfrmi lookup to honor the original layer 3 slave
-device, allowing xfrm interfaces to operate within a vrf domain.
+To allow an int3 handler to emulate a call instruction, it must be able to
+push a return address onto the stack. Add a gap to the stack to allow the
+int3 handler to push the return address and change the return from int3 to
+jump straight to the emulated called function target.
 
-Fixes: f203b76d7809 ("xfrm: Add virtual xfrm interfaces")
-Signed-off-by: Martin Willi <martin@strongswan.org>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: http://lkml.kernel.org/r/20181130183917.hxmti5josgq4clti@treble
+Link: http://lkml.kernel.org/r/20190502162133.GX2623@hirez.programming.kicks-ass.net
+
+[
+  Note, this is needed to allow Live Kernel Patching to not miss calling a
+  patched function when tracing is enabled. -- Steven Rostedt
+]
+
+Cc: stable@vger.kernel.org
+Fixes: b700e7f03df5 ("livepatch: kernel: add support for live patching")
+Tested-by: Nicolai Stange <nstange@suse.de>
+Reviewed-by: Nicolai Stange <nstange@suse.de>
+Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- include/net/xfrm.h        |  3 ++-
- net/xfrm/xfrm_interface.c | 17 ++++++++++++++---
- net/xfrm/xfrm_policy.c    |  2 +-
- 3 files changed, 17 insertions(+), 5 deletions(-)
+ arch/x86/entry/entry_64.S |   18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
 
-diff --git a/include/net/xfrm.h b/include/net/xfrm.h
-index 902437dfbce77..c9b0b2b5d672f 100644
---- a/include/net/xfrm.h
-+++ b/include/net/xfrm.h
-@@ -295,7 +295,8 @@ struct xfrm_replay {
- };
+--- a/arch/x86/entry/entry_64.S
++++ b/arch/x86/entry/entry_64.S
+@@ -881,7 +881,7 @@ apicinterrupt IRQ_WORK_VECTOR			irq_work
+  * @paranoid == 2 is special: the stub will never switch stacks.  This is for
+  * #DF: if the thread stack is somehow unusable, we'll still get a useful OOPS.
+  */
+-.macro idtentry sym do_sym has_error_code:req paranoid=0 shift_ist=-1
++.macro idtentry sym do_sym has_error_code:req paranoid=0 shift_ist=-1 create_gap=0
+ ENTRY(\sym)
+ 	UNWIND_HINT_IRET_REGS offset=\has_error_code*8
  
- struct xfrm_if_cb {
--	struct xfrm_if	*(*decode_session)(struct sk_buff *skb);
-+	struct xfrm_if	*(*decode_session)(struct sk_buff *skb,
-+					   unsigned short family);
- };
+@@ -901,6 +901,20 @@ ENTRY(\sym)
+ 	jnz	.Lfrom_usermode_switch_stack_\@
+ 	.endif
  
- void xfrm_if_register_cb(const struct xfrm_if_cb *ifcb);
-diff --git a/net/xfrm/xfrm_interface.c b/net/xfrm/xfrm_interface.c
-index dbb3c1945b5c9..85fec98676d34 100644
---- a/net/xfrm/xfrm_interface.c
-+++ b/net/xfrm/xfrm_interface.c
-@@ -70,17 +70,28 @@ static struct xfrm_if *xfrmi_lookup(struct net *net, struct xfrm_state *x)
- 	return NULL;
- }
- 
--static struct xfrm_if *xfrmi_decode_session(struct sk_buff *skb)
-+static struct xfrm_if *xfrmi_decode_session(struct sk_buff *skb,
-+					    unsigned short family)
- {
- 	struct xfrmi_net *xfrmn;
--	int ifindex;
- 	struct xfrm_if *xi;
-+	int ifindex = 0;
- 
- 	if (!secpath_exists(skb) || !skb->dev)
- 		return NULL;
- 
-+	switch (family) {
-+	case AF_INET6:
-+		ifindex = inet6_sdif(skb);
-+		break;
-+	case AF_INET:
-+		ifindex = inet_sdif(skb);
-+		break;
-+	}
-+	if (!ifindex)
-+		ifindex = skb->dev->ifindex;
++	.if \create_gap == 1
++	/*
++	 * If coming from kernel space, create a 6-word gap to allow the
++	 * int3 handler to emulate a call instruction.
++	 */
++	testb	$3, CS-ORIG_RAX(%rsp)
++	jnz	.Lfrom_usermode_no_gap_\@
++	.rept	6
++	pushq	5*8(%rsp)
++	.endr
++	UNWIND_HINT_IRET_REGS offset=8
++.Lfrom_usermode_no_gap_\@:
++	.endif
 +
- 	xfrmn = net_generic(xs_net(xfrm_input_state(skb)), xfrmi_net_id);
--	ifindex = skb->dev->ifindex;
+ 	.if \paranoid
+ 	call	paranoid_entry
+ 	.else
+@@ -1132,7 +1146,7 @@ apicinterrupt3 HYPERV_STIMER0_VECTOR \
+ #endif /* CONFIG_HYPERV */
  
- 	for_each_xfrmi_rcu(xfrmn->xfrmi[0], xi) {
- 		if (ifindex == xi->dev->ifindex &&
-diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
-index 8d1a898d0ba56..a6b58df7a70f6 100644
---- a/net/xfrm/xfrm_policy.c
-+++ b/net/xfrm/xfrm_policy.c
-@@ -3313,7 +3313,7 @@ int __xfrm_policy_check(struct sock *sk, int dir, struct sk_buff *skb,
- 	ifcb = xfrm_if_get_cb();
+ idtentry debug			do_debug		has_error_code=0	paranoid=1 shift_ist=DEBUG_STACK
+-idtentry int3			do_int3			has_error_code=0
++idtentry int3			do_int3			has_error_code=0	create_gap=1
+ idtentry stack_segment		do_stack_segment	has_error_code=1
  
- 	if (ifcb) {
--		xi = ifcb->decode_session(skb);
-+		xi = ifcb->decode_session(skb, family);
- 		if (xi) {
- 			if_id = xi->p.if_id;
- 			net = xi->net;
--- 
-2.20.1
-
+ #ifdef CONFIG_XEN_PV
 
 
