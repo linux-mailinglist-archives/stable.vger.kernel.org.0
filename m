@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0552A28698
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:15:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48E502895E
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:42:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387987AbfEWTKz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:10:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44192 "EHLO mail.kernel.org"
+        id S2387758AbfEWTf0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:35:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38680 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387984AbfEWTKv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:10:51 -0400
+        id S2390681AbfEWT0q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:26:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A29402133D;
-        Thu, 23 May 2019 19:10:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 36410206BA;
+        Thu, 23 May 2019 19:26:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558638651;
-        bh=X82DCfnwJygqNt/nKZWX1ft7kNfJxTjDL6mOycoRrSs=;
+        s=default; t=1558639605;
+        bh=Jm4gOeMZDy0CWa0ohmtarmH9iyQ6p78f9xr7urk7Y3k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PkpBqKqlr8uUWho5j4ZsPTY7sA3G2ue37geOP9Rxwc+BQtjx6Buza0k5+8a7ydXZF
-         577K7zpLCmjztpbv6j5i5+31/5nqHTI98y7rn/H9+2QwqunEYG8N6al+DlkXgYdcSd
-         t664Q63AphIbAIeRK8xC5XhHfHg608enlPGkSse0=
+        b=jeH8OGKJZ0FvkYBChRfK13LPIlpD3YMAnqLAlYXGE2tBXB6OgBZi4T7IxD95cw/5+
+         YhigK3QNUfu9rk71QqoONiwJidZxoPNgQ0W0UmdZCdWDTvS0MTdYXpVIXt7XNuZ1HU
+         WvwPn3o7fZFJMfH29JQIOw+Oz4x3+nLKcygw23aU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 4.14 14/77] parisc: Rename LEVEL to PA_ASM_LEVEL to avoid name clash with DRBD code
+        stable@vger.kernel.org, Sabrina Dubroca <sd@queasysnail.net>,
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Dan Winship <danw@redhat.com>
+Subject: [PATCH 5.1 010/122] rtnetlink: always put IFLA_LINK for links with a link-netnsid
 Date:   Thu, 23 May 2019 21:05:32 +0200
-Message-Id: <20190523181722.193119109@linuxfoundation.org>
+Message-Id: <20190523181706.363871384@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181719.982121681@linuxfoundation.org>
-References: <20190523181719.982121681@linuxfoundation.org>
+In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
+References: <20190523181705.091418060@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,75 +45,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Sabrina Dubroca <sd@queasysnail.net>
 
-commit 1829dda0e87f4462782ca81be474c7890efe31ce upstream.
+[ Upstream commit feadc4b6cf42a53a8a93c918a569a0b7e62bd350 ]
 
-LEVEL is a very common word, and now after many years it suddenly
-clashed with another LEVEL define in the DRBD code.
-Rename it to PA_ASM_LEVEL instead.
+Currently, nla_put_iflink() doesn't put the IFLA_LINK attribute when
+iflink == ifindex.
 
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: <stable@vger.kernel.org>
+In some cases, a device can be created in a different netns with the
+same ifindex as its parent. That device will not dump its IFLA_LINK
+attribute, which can confuse some userspace software that expects it.
+For example, if the last ifindex created in init_net and foo are both
+8, these commands will trigger the issue:
+
+    ip link add parent type dummy                   # ifindex 9
+    ip link add link parent netns foo type macvlan  # ifindex 9 in ns foo
+
+So, in case a device puts the IFLA_LINK_NETNSID attribute in a dump,
+always put the IFLA_LINK attribute as well.
+
+Thanks to Dan Winship for analyzing the original OpenShift bug down to
+the missing netlink attribute.
+
+v2: change Fixes tag, it's been here forever, as Nicolas Dichtel said
+    add Nicolas' ack
+v3: change Fixes tag
+    fix subject typo, spotted by Edward Cree
+
+Analyzed-by: Dan Winship <danw@redhat.com>
+Fixes: d8a5ec672768 ("[NET]: netlink support for moving devices between network namespaces.")
+Signed-off-by: Sabrina Dubroca <sd@queasysnail.net>
+Acked-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/parisc/include/asm/assembly.h |    6 +++---
- arch/parisc/kernel/head.S          |    4 ++--
- arch/parisc/kernel/syscall.S       |    2 +-
- 3 files changed, 6 insertions(+), 6 deletions(-)
+ net/core/rtnetlink.c |   16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
---- a/arch/parisc/include/asm/assembly.h
-+++ b/arch/parisc/include/asm/assembly.h
-@@ -59,14 +59,14 @@
- #define LDCW		ldcw,co
- #define BL		b,l
- # ifdef CONFIG_64BIT
--#  define LEVEL		2.0w
-+#  define PA_ASM_LEVEL	2.0w
- # else
--#  define LEVEL		2.0
-+#  define PA_ASM_LEVEL	2.0
- # endif
- #else
- #define LDCW		ldcw
- #define BL		bl
--#define LEVEL		1.1
-+#define PA_ASM_LEVEL	1.1
+--- a/net/core/rtnetlink.c
++++ b/net/core/rtnetlink.c
+@@ -1496,14 +1496,15 @@ static int put_master_ifindex(struct sk_
+ 	return ret;
+ }
+ 
+-static int nla_put_iflink(struct sk_buff *skb, const struct net_device *dev)
++static int nla_put_iflink(struct sk_buff *skb, const struct net_device *dev,
++			  bool force)
+ {
+ 	int ifindex = dev_get_iflink(dev);
+ 
+-	if (dev->ifindex == ifindex)
+-		return 0;
++	if (force || dev->ifindex != ifindex)
++		return nla_put_u32(skb, IFLA_LINK, ifindex);
+ 
+-	return nla_put_u32(skb, IFLA_LINK, ifindex);
++	return 0;
+ }
+ 
+ static noinline_for_stack int nla_put_ifalias(struct sk_buff *skb,
+@@ -1520,6 +1521,8 @@ static int rtnl_fill_link_netnsid(struct
+ 				  const struct net_device *dev,
+ 				  struct net *src_net)
+ {
++	bool put_iflink = false;
++
+ 	if (dev->rtnl_link_ops && dev->rtnl_link_ops->get_link_net) {
+ 		struct net *link_net = dev->rtnl_link_ops->get_link_net(dev);
+ 
+@@ -1528,10 +1531,12 @@ static int rtnl_fill_link_netnsid(struct
+ 
+ 			if (nla_put_s32(skb, IFLA_LINK_NETNSID, id))
+ 				return -EMSGSIZE;
++
++			put_iflink = true;
+ 		}
+ 	}
+ 
+-	return 0;
++	return nla_put_iflink(skb, dev, put_iflink);
+ }
+ 
+ static int rtnl_fill_link_af(struct sk_buff *skb,
+@@ -1617,7 +1622,6 @@ static int rtnl_fill_ifinfo(struct sk_bu
+ #ifdef CONFIG_RPS
+ 	    nla_put_u32(skb, IFLA_NUM_RX_QUEUES, dev->num_rx_queues) ||
  #endif
- 
- #ifdef __ASSEMBLY__
---- a/arch/parisc/kernel/head.S
-+++ b/arch/parisc/kernel/head.S
-@@ -22,7 +22,7 @@
- #include <linux/linkage.h>
- #include <linux/init.h>
- 
--	.level	LEVEL
-+	.level	PA_ASM_LEVEL
- 
- 	__INITDATA
- ENTRY(boot_args)
-@@ -254,7 +254,7 @@ stext_pdc_ret:
- 	ldo		R%PA(fault_vector_11)(%r10),%r10
- 
- $is_pa20:
--	.level		LEVEL /* restore 1.1 || 2.0w */
-+	.level		PA_ASM_LEVEL /* restore 1.1 || 2.0w */
- #endif /*!CONFIG_64BIT*/
- 	load32		PA(fault_vector_20),%r10
- 
---- a/arch/parisc/kernel/syscall.S
-+++ b/arch/parisc/kernel/syscall.S
-@@ -48,7 +48,7 @@ registers).
- 	 */
- #define KILL_INSN	break	0,0
- 
--	.level          LEVEL
-+	.level          PA_ASM_LEVEL
- 
- 	.text
- 
+-	    nla_put_iflink(skb, dev) ||
+ 	    put_master_ifindex(skb, dev) ||
+ 	    nla_put_u8(skb, IFLA_CARRIER, netif_carrier_ok(dev)) ||
+ 	    (dev->qdisc &&
 
 
