@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CD6B27788
+	by mail.lfdr.de (Postfix) with ESMTP id D6E7627789
 	for <lists+stable@lfdr.de>; Thu, 23 May 2019 09:57:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726070AbfEWH5H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 03:57:07 -0400
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:46661 "EHLO
+        id S1726081AbfEWH5I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 03:57:08 -0400
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:42493 "EHLO
         out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725814AbfEWH5H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 May 2019 03:57:07 -0400
+        by vger.kernel.org with ESMTP id S1725814AbfEWH5I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 May 2019 03:57:08 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id DF7642B328;
-        Thu, 23 May 2019 03:57:05 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id 262E02C723;
+        Thu, 23 May 2019 03:57:07 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Thu, 23 May 2019 03:57:05 -0400
+  by compute6.internal (MEProxy); Thu, 23 May 2019 03:57:07 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=1aVPIa
-        223i2MeSN+ZBfxJ58k6MOndntBBrmV8ByKftQ=; b=6Ow9GjtykUEn8iwDMu8E3o
-        one6ZXmKJjD8u3ltxVYLLE6tXqPypm3PRfzRSxYoXYSGXpLIUVFWoMAd4wCY4gip
-        wacSYzM4WMg/l+OB3cKb1oO/Wnw6sKuVeN2bVoWQasXerryDK2Dvawu6VfyQchxH
-        Oj/DCSGixsDVC7kgVV8erCr2dS8cYgIXuHuqGVXCQTQ80s0jNzQRuBRM78bRNa/S
-        PwT1oYmzj02CX/LGqPyWWwECeVNLyHAW6InqdQWckketKGC7A1JJHTK+v8GY1VGN
-        6F3Rcl5dOG0om+UOxxSNWrhAM8WKh7yj84Hfhk8keFe8Tymvqo9w6tLaBkII+nXQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=zZXV54
+        2A3yJhY8nmAL3AG8ed61zYX0Mwq65PP2GJMw8=; b=F4F1XbTPKGcDL72cFO1s1b
+        EA9Sgp5vqjrWchv259ZBC5lqEdgy43392DMhoxDYUwTJ2Yk4Jdeq4wn5XmawPylU
+        7+3a9HlaDaZGDWXdXe+0Fkm4jHxfIN/iHpItvNlZyLcBsR/QVLgJ5wGaOWJLCJjp
+        TYyIImzOUvxr3KsMuHyY2Pbl31Riuh23/AkTUBtLsqy+nHM2tG0V1I1VzlRgYiW2
+        YFhjZ/IhCPU8Sy5vIwahrbhQqHX1NcGnBiWFVNpHzGMI9Um8/0z/zqEhHmOqSysQ
+        u1vMEUYdKS1YZsKBAzIGJrygo4e3D6ChJHmJvofQyGvibKZTFM/OLj0GYuZ67i5g
         ==
-X-ME-Sender: <xms:UFLmXCa839hhQRVVFsD1FrVeKAI8snDhkfidMfXtQ89VzmC-CQbmyw>
+X-ME-Sender: <xms:U1LmXI3i04C0SnYzzdwBPqxpnKvpS33ulG1jjyKyX0GF_N9C0mx3vw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddruddufedguddvlecutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
@@ -35,22 +35,22 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddruddufedguddvlecutefuodetgg
     rhhgqeenucffohhmrghinhepmhgrrhgtrdhinhhfohenucfkphepkeefrdekiedrkeelrd
     dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
     ucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:UFLmXKU2lwmnrSjB-pkI41lc6dVRxuwWtN3K9iIA60FB0NTqc7gAvA>
-    <xmx:UFLmXHvFj2sNwcrOlMu4FUSiWaY0F7qeGgdDjCYRsGagd0jWNg3mZQ>
-    <xmx:UFLmXPVcTVn9csWnImW6sOUFypg7DzGvv0POE8t3P8mK_9LBu9Wlzw>
-    <xmx:UVLmXAgik8XLorxoOZaCE27G431BS9gHEURhWfgFaI142X2J-HNBlw>
+X-ME-Proxy: <xmx:U1LmXOMUpc5LlZtZr66qWGYYHgJuLJOzJmaaLE2aleTEMSVCIr4kYw>
+    <xmx:U1LmXLMGxj-ci4bQ4xxztUunAwfOP7AK8HV9LG-4dk1oq21WuUQgdQ>
+    <xmx:U1LmXOajIhdPY1QzOUMT_Jas5D8L_bDwomIcyNg1LXdCz0piVUtaWQ>
+    <xmx:U1LmXIfsz4aNOmsxcK-jFXP-EWZYymy5XDTwYKHoTx09BjaYcjmUkw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 6061A8005C;
-        Thu, 23 May 2019 03:57:04 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] blk-mq: free hw queue's resource in hctx's release handler" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 93E428005A;
+        Thu, 23 May 2019 03:57:06 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] blk-mq: free hw queue's resource in hctx's release handler" failed to apply to 4.14-stable tree
 To:     ming.lei@redhat.com, axboe@kernel.dk, bart.vanassche@wdc.com,
         dongli.zhang@oracle.com, hare@suse.com, hch@lst.de,
         james.smart@broadcom.com, jejb@linux.vnet.ibm.com,
         martin.petersen@oracle.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 23 May 2019 09:57:02 +0200
-Message-ID: <1558598222167227@kroah.com>
+Date:   Thu, 23 May 2019 09:57:03 +0200
+Message-ID: <155859822320845@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
