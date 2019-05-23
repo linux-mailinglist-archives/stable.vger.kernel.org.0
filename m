@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CAE1289D0
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:43:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3533728A6B
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:57:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388670AbfEWTmU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:42:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54962 "EHLO mail.kernel.org"
+        id S2388689AbfEWTOL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:14:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389747AbfEWTTI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:19:08 -0400
+        id S2388459AbfEWTOK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:14:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B15A0205ED;
-        Thu, 23 May 2019 19:19:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0C79D2133D;
+        Thu, 23 May 2019 19:14:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639148;
-        bh=zo4BNT2y5vGThUf1YBTI4tm47+GcKrXMdYgr+k3oHic=;
+        s=default; t=1558638849;
+        bh=3HPlDIKoNiW5KkLhHXh369P9nPblupMd2QgOesjxNKM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KUHS9hsMhTSISoqAsSQ1IhyM1ZB2UeGuvb93Veqcn9cLtHVCmM3FqBLWitkTTc/I3
-         CJBYb8rJ9fptANOclPCCm9lcmOLgyiHmE3ihtG6itMq+HvXDbcFLCEqAPGltXcGj60
-         nYtGuHJb7zCBVymaeiT55WQS/Q4S/aJgS3p3DDZI=
+        b=hwfscTuF/L6/3V1BWU9LC5E2Xe78Q5REQG3laWHav3eQAKama1woIAf41uwJ18IwG
+         53VaPo5r4tHpamelsW5+TjMKfo/e/YOulO1RxalUVQQqCvK7pYtI/3JLyV7eJLYeVj
+         VpSfgWqqCNt8w4Ixg0j1d69BNRwmMC1SvwpVHZGc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 095/114] x86: kvm: hyper-v: deal with buggy TLB flush requests from WS2012
+        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 4.14 76/77] bpf, lru: avoid messing with eviction heuristics upon syscall lookup
 Date:   Thu, 23 May 2019 21:06:34 +0200
-Message-Id: <20190523181739.956056404@linuxfoundation.org>
+Message-Id: <20190523181730.447456891@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
-References: <20190523181731.372074275@linuxfoundation.org>
+In-Reply-To: <20190523181719.982121681@linuxfoundation.org>
+References: <20190523181719.982121681@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,60 +44,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit da66761c2d93a46270d69001abb5692717495a68 ]
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-It was reported that with some special Multi Processor Group configuration,
-e.g:
- bcdedit.exe /set groupsize 1
- bcdedit.exe /set maxgroup on
- bcdedit.exe /set groupaware on
-for a 16-vCPU guest WS2012 shows BSOD on boot when PV TLB flush mechanism
-is in use.
+commit 50b045a8c0ccf44f76640ac3eea8d80ca53979a3 upstream.
 
-Tracing kvm_hv_flush_tlb immediately reveals the issue:
+One of the biggest issues we face right now with picking LRU map over
+regular hash table is that a map walk out of user space, for example,
+to just dump the existing entries or to remove certain ones, will
+completely mess up LRU eviction heuristics and wrong entries such
+as just created ones will get evicted instead. The reason for this
+is that we mark an entry as "in use" via bpf_lru_node_set_ref() from
+system call lookup side as well. Thus upon walk, all entries are
+being marked, so information of actual least recently used ones
+are "lost".
 
- kvm_hv_flush_tlb: processor_mask 0x0 address_space 0x0 flags 0x2
+In case of Cilium where it can be used (besides others) as a BPF
+based connection tracker, this current behavior causes disruption
+upon control plane changes that need to walk the map from user space
+to evict certain entries. Discussion result from bpfconf [0] was that
+we should simply just remove marking from system call side as no
+good use case could be found where it's actually needed there.
+Therefore this patch removes marking for regular LRU and per-CPU
+flavor. If there ever should be a need in future, the behavior could
+be selected via map creation flag, but due to mentioned reason we
+avoid this here.
 
-The only flag set in this request is HV_FLUSH_ALL_VIRTUAL_ADDRESS_SPACES,
-however, processor_mask is 0x0 and no HV_FLUSH_ALL_PROCESSORS is specified.
-We don't flush anything and apparently it's not what Windows expects.
+  [0] http://vger.kernel.org/bpfconf.html
 
-TLFS doesn't say anything about such requests and newer Windows versions
-seem to be unaffected. This all feels like a WS2012 bug, which is, however,
-easy to workaround in KVM: let's flush everything when we see an empty
-flush request, over-flushing doesn't hurt.
+Fixes: 29ba732acbee ("bpf: Add BPF_MAP_TYPE_LRU_HASH")
+Fixes: 8f8449384ec3 ("bpf: Add BPF_MAP_TYPE_LRU_PERCPU_HASH")
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Martin KaFai Lau <kafai@fb.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/hyperv.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ kernel/bpf/hashtab.c |   23 ++++++++++++++++++-----
+ 1 file changed, 18 insertions(+), 5 deletions(-)
 
-diff --git a/arch/x86/kvm/hyperv.c b/arch/x86/kvm/hyperv.c
-index 01d209ab5481b..229d996051653 100644
---- a/arch/x86/kvm/hyperv.c
-+++ b/arch/x86/kvm/hyperv.c
-@@ -1291,7 +1291,16 @@ static u64 kvm_hv_flush_tlb(struct kvm_vcpu *current_vcpu, u64 ingpa,
- 				       flush.address_space, flush.flags);
+--- a/kernel/bpf/hashtab.c
++++ b/kernel/bpf/hashtab.c
+@@ -498,18 +498,30 @@ static u32 htab_map_gen_lookup(struct bp
+ 	return insn - insn_buf;
+ }
  
- 		sparse_banks[0] = flush.processor_mask;
--		all_cpus = flush.flags & HV_FLUSH_ALL_PROCESSORS;
+-static void *htab_lru_map_lookup_elem(struct bpf_map *map, void *key)
++static __always_inline void *__htab_lru_map_lookup_elem(struct bpf_map *map,
++							void *key, const bool mark)
+ {
+ 	struct htab_elem *l = __htab_map_lookup_elem(map, key);
+ 
+ 	if (l) {
+-		bpf_lru_node_set_ref(&l->lru_node);
++		if (mark)
++			bpf_lru_node_set_ref(&l->lru_node);
+ 		return l->key + round_up(map->key_size, 8);
+ 	}
+ 
+ 	return NULL;
+ }
+ 
++static void *htab_lru_map_lookup_elem(struct bpf_map *map, void *key)
++{
++	return __htab_lru_map_lookup_elem(map, key, true);
++}
 +
-+		/*
-+		 * Work around possible WS2012 bug: it sends hypercalls
-+		 * with processor_mask = 0x0 and HV_FLUSH_ALL_PROCESSORS clear,
-+		 * while also expecting us to flush something and crashing if
-+		 * we don't. Let's treat processor_mask == 0 same as
-+		 * HV_FLUSH_ALL_PROCESSORS.
-+		 */
-+		all_cpus = (flush.flags & HV_FLUSH_ALL_PROCESSORS) ||
-+			flush.processor_mask == 0;
- 	} else {
- 		if (unlikely(kvm_read_guest(kvm, ingpa, &flush_ex,
- 					    sizeof(flush_ex))))
--- 
-2.20.1
-
++static void *htab_lru_map_lookup_elem_sys(struct bpf_map *map, void *key)
++{
++	return __htab_lru_map_lookup_elem(map, key, false);
++}
++
+ static u32 htab_lru_map_gen_lookup(struct bpf_map *map,
+ 				   struct bpf_insn *insn_buf)
+ {
+@@ -1160,6 +1172,7 @@ const struct bpf_map_ops htab_lru_map_op
+ 	.map_free = htab_map_free,
+ 	.map_get_next_key = htab_map_get_next_key,
+ 	.map_lookup_elem = htab_lru_map_lookup_elem,
++	.map_lookup_elem_sys_only = htab_lru_map_lookup_elem_sys,
+ 	.map_update_elem = htab_lru_map_update_elem,
+ 	.map_delete_elem = htab_lru_map_delete_elem,
+ 	.map_gen_lookup = htab_lru_map_gen_lookup,
+@@ -1190,7 +1203,6 @@ static void *htab_lru_percpu_map_lookup_
+ 
+ int bpf_percpu_hash_copy(struct bpf_map *map, void *key, void *value)
+ {
+-	struct bpf_htab *htab = container_of(map, struct bpf_htab, map);
+ 	struct htab_elem *l;
+ 	void __percpu *pptr;
+ 	int ret = -ENOENT;
+@@ -1206,8 +1218,9 @@ int bpf_percpu_hash_copy(struct bpf_map
+ 	l = __htab_map_lookup_elem(map, key);
+ 	if (!l)
+ 		goto out;
+-	if (htab_is_lru(htab))
+-		bpf_lru_node_set_ref(&l->lru_node);
++	/* We do not mark LRU map element here in order to not mess up
++	 * eviction heuristics when user space does a map walk.
++	 */
+ 	pptr = htab_elem_get_ptr(l, map->key_size);
+ 	for_each_possible_cpu(cpu) {
+ 		bpf_long_memcpy(value + off,
 
 
