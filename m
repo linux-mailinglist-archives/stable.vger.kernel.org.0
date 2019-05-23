@@ -2,39 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D849128823
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:40:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C84428AA8
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:58:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389242AbfEWTW0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:22:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60366 "EHLO mail.kernel.org"
+        id S2389117AbfEWToV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:44:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390045AbfEWTWY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:22:24 -0400
+        id S2389230AbfEWTQl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:16:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8ED072054F;
-        Thu, 23 May 2019 19:22:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BF23C217D7;
+        Thu, 23 May 2019 19:16:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639344;
-        bh=+athbFoOd2Xxcsmu54xtO7qi37LKpNoQwFHL9MONUjo=;
+        s=default; t=1558639000;
+        bh=PBtTUBAOYf3seKE7fedPr1UQ96MftwcjzEdHhxafmvk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xJB8dH3Jqi0iNjJgfR3v12W0N/WetcnNw7B6JqvmmVWwC7JQ8LIvy5DAEbJBqti0C
-         BubKUPcxksdCfcfX5CyhorawWNXiGnKl1ov7Y9tx4HGExi7jbW+2bKThiDqnZpA4cJ
-         bsiTIn54qE3xG3xaO2oi2kDLG1gvOM6Oe090+3KQ=
+        b=0O2AuLJqXEXReWe2wfsd0SBTEaLoN/vXe4O5RlsridP6U5/NU2H7QZisRmAngC/EE
+         T3E/N0JggthMUhfuiIccH/RK6pBP6PXNj2uGgq9sVs5yKoluAmJZ3KDPQLA0axQbw/
+         BxPJs6yDAa99dzlQQMAAQLmfIB+/AYxPv0DEqR0w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Paul Burton <paul.burton@mips.com>, linux-mips@linux-mips.org,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
         Jiri Olsa <jolsa@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.0 070/139] perf intel-pt: Fix instructions sampling rate
+        Namhyung Kim <namhyung@kernel.org>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        James Hogan <jhogan@kernel.org>, linux-mips@vger.kernel.org
+Subject: [PATCH 4.19 059/114] MIPS: perf: Fix build with CONFIG_CPU_BMIPS5000 enabled
 Date:   Thu, 23 May 2019 21:05:58 +0200
-Message-Id: <20190523181729.929796504@linuxfoundation.org>
+Message-Id: <20190523181736.942250445@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
-References: <20190523181720.120897565@linuxfoundation.org>
+In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
+References: <20190523181731.372074275@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,91 +51,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-commit 7ba8fa20e26eb3c0c04d747f7fd2223694eac4d5 upstream.
+commit 1b1f01b653b408ebe58fec78c566d1075d285c64 upstream.
 
-The timestamp used to determine if an instruction sample is made, is an
-estimate based on the number of instructions since the last known
-timestamp. A consequence is that it might go backwards, which results in
-extra samples. Change it so that a sample is only made when the
-timestamp goes forwards.
+arch/mips/kernel/perf_event_mipsxx.c: In function 'mipsxx_pmu_enable_event':
+arch/mips/kernel/perf_event_mipsxx.c:326:21: error: unused variable 'event' [-Werror=unused-variable]
+  struct perf_event *event = container_of(evt, struct perf_event, hw);
+                     ^~~~~
 
-Note this does not affect a sampling period of 0 or sampling periods
-specified as a count of instructions.
+Fix this by making use of IS_ENABLED() to simplify the code and avoid
+unnecessary ifdefery.
 
-Example:
-
- Before:
-
- $ perf script --itrace=i10us
- ls 13812 [003] 2167315.222583:       3270 instructions:u:      7fac71e2e494 __GI___tunables_init+0xf4 (/lib/x86_64-linux-gnu/ld-2.28.so)
- ls 13812 [003] 2167315.222667:      30902 instructions:u:      7fac71e2da0f _dl_cache_libcmp+0x2f (/lib/x86_64-linux-gnu/ld-2.28.so)
- ls 13812 [003] 2167315.222667:         10 instructions:u:      7fac71e2d9ff _dl_cache_libcmp+0x1f (/lib/x86_64-linux-gnu/ld-2.28.so)
- ls 13812 [003] 2167315.222667:          8 instructions:u:      7fac71e2d9ea _dl_cache_libcmp+0xa (/lib/x86_64-linux-gnu/ld-2.28.so)
- ls 13812 [003] 2167315.222667:         14 instructions:u:      7fac71e2d9ea _dl_cache_libcmp+0xa (/lib/x86_64-linux-gnu/ld-2.28.so)
- ls 13812 [003] 2167315.222667:          6 instructions:u:      7fac71e2d9ff _dl_cache_libcmp+0x1f (/lib/x86_64-linux-gnu/ld-2.28.so)
- ls 13812 [003] 2167315.222667:         14 instructions:u:      7fac71e2d9ff _dl_cache_libcmp+0x1f (/lib/x86_64-linux-gnu/ld-2.28.so)
- ls 13812 [003] 2167315.222667:          4 instructions:u:      7fac71e2dab2 _dl_cache_libcmp+0xd2 (/lib/x86_64-linux-gnu/ld-2.28.so)
- ls 13812 [003] 2167315.222728:      16423 instructions:u:      7fac71e2477a _dl_map_object_deps+0x1ba (/lib/x86_64-linux-gnu/ld-2.28.so)
- ls 13812 [003] 2167315.222734:      12731 instructions:u:      7fac71e27938 _dl_name_match_p+0x68 (/lib/x86_64-linux-gnu/ld-2.28.so)
- ...
-
- After:
- $ perf script --itrace=i10us
- ls 13812 [003] 2167315.222583:       3270 instructions:u:      7fac71e2e494 __GI___tunables_init+0xf4 (/lib/x86_64-linux-gnu/ld-2.28.so)
- ls 13812 [003] 2167315.222667:      30902 instructions:u:      7fac71e2da0f _dl_cache_libcmp+0x2f (/lib/x86_64-linux-gnu/ld-2.28.so)
- ls 13812 [003] 2167315.222728:      16479 instructions:u:      7fac71e2477a _dl_map_object_deps+0x1ba (/lib/x86_64-linux-gnu/ld-2.28.so)
- ...
-
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Fixes: 84002c88599d ("MIPS: perf: Fix perf with MT counting other threads")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Paul Burton <paul.burton@mips.com>
+Cc: linux-mips@linux-mips.org
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
 Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: stable@vger.kernel.org
-Fixes: f4aa081949e7b ("perf tools: Add Intel PT decoder")
-Link: http://lkml.kernel.org/r/20190510124143.27054-2-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: James Hogan <jhogan@kernel.org>
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-mips@vger.kernel.org
+Cc: stable@vger.kernel.org # v4.18+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/perf/util/intel-pt-decoder/intel-pt-decoder.c |   13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ arch/mips/kernel/perf_event_mipsxx.c |   21 +++------------------
+ 1 file changed, 3 insertions(+), 18 deletions(-)
 
---- a/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
-+++ b/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
-@@ -888,16 +888,20 @@ static uint64_t intel_pt_next_period(str
- 	timestamp = decoder->timestamp + decoder->timestamp_insn_cnt;
- 	masked_timestamp = timestamp & decoder->period_mask;
- 	if (decoder->continuous_period) {
--		if (masked_timestamp != decoder->last_masked_timestamp)
-+		if (masked_timestamp > decoder->last_masked_timestamp)
- 			return 1;
- 	} else {
- 		timestamp += 1;
- 		masked_timestamp = timestamp & decoder->period_mask;
--		if (masked_timestamp != decoder->last_masked_timestamp) {
-+		if (masked_timestamp > decoder->last_masked_timestamp) {
- 			decoder->last_masked_timestamp = masked_timestamp;
- 			decoder->continuous_period = true;
- 		}
- 	}
-+
-+	if (masked_timestamp < decoder->last_masked_timestamp)
-+		return decoder->period_ticks;
-+
- 	return decoder->period_ticks - (timestamp - masked_timestamp);
- }
+--- a/arch/mips/kernel/perf_event_mipsxx.c
++++ b/arch/mips/kernel/perf_event_mipsxx.c
+@@ -64,17 +64,11 @@ struct mips_perf_event {
+ 	#define CNTR_EVEN	0x55555555
+ 	#define CNTR_ODD	0xaaaaaaaa
+ 	#define CNTR_ALL	0xffffffff
+-#ifdef CONFIG_MIPS_MT_SMP
+ 	enum {
+ 		T  = 0,
+ 		V  = 1,
+ 		P  = 2,
+ 	} range;
+-#else
+-	#define T
+-	#define V
+-	#define P
+-#endif
+ };
  
-@@ -926,7 +930,10 @@ static void intel_pt_sample_insn(struct
- 	case INTEL_PT_PERIOD_TICKS:
- 		timestamp = decoder->timestamp + decoder->timestamp_insn_cnt;
- 		masked_timestamp = timestamp & decoder->period_mask;
--		decoder->last_masked_timestamp = masked_timestamp;
-+		if (masked_timestamp > decoder->last_masked_timestamp)
-+			decoder->last_masked_timestamp = masked_timestamp;
-+		else
-+			decoder->last_masked_timestamp += decoder->period_ticks;
- 		break;
- 	case INTEL_PT_PERIOD_NONE:
- 	case INTEL_PT_PERIOD_MTC:
+ static struct mips_perf_event raw_event;
+@@ -325,9 +319,7 @@ static void mipsxx_pmu_enable_event(stru
+ {
+ 	struct perf_event *event = container_of(evt, struct perf_event, hw);
+ 	struct cpu_hw_events *cpuc = this_cpu_ptr(&cpu_hw_events);
+-#ifdef CONFIG_MIPS_MT_SMP
+ 	unsigned int range = evt->event_base >> 24;
+-#endif /* CONFIG_MIPS_MT_SMP */
+ 
+ 	WARN_ON(idx < 0 || idx >= mipspmu.num_counters);
+ 
+@@ -336,21 +328,15 @@ static void mipsxx_pmu_enable_event(stru
+ 		/* Make sure interrupt enabled. */
+ 		MIPS_PERFCTRL_IE;
+ 
+-#ifdef CONFIG_CPU_BMIPS5000
+-	{
++	if (IS_ENABLED(CONFIG_CPU_BMIPS5000)) {
+ 		/* enable the counter for the calling thread */
+ 		cpuc->saved_ctrl[idx] |=
+ 			(1 << (12 + vpe_id())) | BRCM_PERFCTRL_TC;
+-	}
+-#else
+-#ifdef CONFIG_MIPS_MT_SMP
+-	if (range > V) {
++	} else if (IS_ENABLED(CONFIG_MIPS_MT_SMP) && range > V) {
+ 		/* The counter is processor wide. Set it up to count all TCs. */
+ 		pr_debug("Enabling perf counter for all TCs\n");
+ 		cpuc->saved_ctrl[idx] |= M_TC_EN_ALL;
+-	} else
+-#endif /* CONFIG_MIPS_MT_SMP */
+-	{
++	} else {
+ 		unsigned int cpu, ctrl;
+ 
+ 		/*
+@@ -365,7 +351,6 @@ static void mipsxx_pmu_enable_event(stru
+ 		cpuc->saved_ctrl[idx] |= ctrl;
+ 		pr_debug("Enabling perf counter for CPU%d\n", cpu);
+ 	}
+-#endif /* CONFIG_CPU_BMIPS5000 */
+ 	/*
+ 	 * We do not actually let the counter run. Leave it until start().
+ 	 */
 
 
