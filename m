@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8772828AA0
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:58:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79DDA28A4E
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:57:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389350AbfEWTRN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:17:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52268 "EHLO mail.kernel.org"
+        id S2387720AbfEWTMM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:12:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389356AbfEWTRM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:17:12 -0400
+        id S2387571AbfEWTMM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:12:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D232C2184E;
-        Thu, 23 May 2019 19:17:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B5E62217D7;
+        Thu, 23 May 2019 19:12:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639032;
-        bh=kiG2Z147l4GuJ/myFhrqydpFyu3ZbV9OGO+gjWFZCQk=;
+        s=default; t=1558638732;
+        bh=Wpgw0TDUGZYsGHzCIymzJWbj9GHxVRPuswZba+0s04s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OoJwn0an7qwDmbl6Hl3cnnnIjbwXR/55alXN/7R8TlAyTPaz5I1mMwyQ6lRX/vE6R
-         jTEHj4Q7wwp00dbASka7vbe9hi+e1PLtXRS5UOd91aifgthDeeIjZV1o6kjFDrS7vo
-         fdmE9TKI3M9ezM0PO8MqwI2+B/qpRhQc7Vtzw9dE=
+        b=cZg4LqKic+UsNQOa83Cx/kDP79PN7UR+xj4ZaWEknjwAlsF3FsawVw5ZZTp8mx4Je
+         9+BZpQTsEdUgxChaX+ErQjFp+kKhA9SZbDEAlCMnP34yHPWTC7D8PlHHCnGvRypjDT
+         yS3TmWTBUAzEJEvaHe2M+ZLPrCQHoI9+l3fLO/FQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Orit Wasserman <orit.was@gmail.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Elazar Leibovich <elazar@lightbitslabs.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.19 054/114] tracing: Fix partial reading of trace events id file
-Date:   Thu, 23 May 2019 21:05:53 +0200
-Message-Id: <20190523181736.547255660@linuxfoundation.org>
+        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
+        Thierry Reding <treding@nvidia.com>
+Subject: [PATCH 4.14 36/77] memory: tegra: Fix integer overflow on tick value calculation
+Date:   Thu, 23 May 2019 21:05:54 +0200
+Message-Id: <20190523181725.198933109@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
-References: <20190523181731.372074275@linuxfoundation.org>
+In-Reply-To: <20190523181719.982121681@linuxfoundation.org>
+References: <20190523181719.982121681@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,77 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Elazar Leibovich <elazar@lightbitslabs.com>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-commit cbe08bcbbe787315c425dde284dcb715cfbf3f39 upstream.
+commit b906c056b6023c390f18347169071193fda57dde upstream.
 
-When reading only part of the id file, the ppos isn't tracked correctly.
-This is taken care by simple_read_from_buffer.
+Multiplying the Memory Controller clock rate by the tick count results
+in an integer overflow and in result the truncated tick value is being
+programmed into hardware, such that the GR3D memory client performance is
+reduced by two times.
 
-Reading a single byte, and then the next byte would result EOF.
-
-While this seems like not a big deal, this breaks abstractions that
-reads information from files unbuffered. See for example
-https://github.com/golang/go/issues/29399
-
-This code was mentioned as problematic in
-commit cd458ba9d5a5
-("tracing: Do not (ab)use trace_seq in event_id_read()")
-
-An example C code that show this bug is:
-
-  #include <stdio.h>
-  #include <stdint.h>
-
-  #include <sys/types.h>
-  #include <sys/stat.h>
-  #include <fcntl.h>
-  #include <unistd.h>
-
-  int main(int argc, char **argv) {
-    if (argc < 2)
-      return 1;
-    int fd = open(argv[1], O_RDONLY);
-    char c;
-    read(fd, &c, 1);
-    printf("First  %c\n", c);
-    read(fd, &c, 1);
-    printf("Second %c\n", c);
-  }
-
-Then run with, e.g.
-
-  sudo ./a.out /sys/kernel/debug/tracing/events/tcp/tcp_set_state/id
-
-You'll notice you're getting the first character twice, instead of the
-first two characters in the id file.
-
-Link: http://lkml.kernel.org/r/20181231115837.4932-1-elazar@lightbitslabs.com
-
-Cc: Orit Wasserman <orit.was@gmail.com>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: stable@vger.kernel.org
-Fixes: 23725aeeab10b ("ftrace: provide an id file for each event")
-Signed-off-by: Elazar Leibovich <elazar@lightbitslabs.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/trace/trace_events.c |    3 ---
- 1 file changed, 3 deletions(-)
+ drivers/memory/tegra/mc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/trace/trace_events.c
-+++ b/kernel/trace/trace_events.c
-@@ -1318,9 +1318,6 @@ event_id_read(struct file *filp, char __
- 	char buf[32];
- 	int len;
+--- a/drivers/memory/tegra/mc.c
++++ b/drivers/memory/tegra/mc.c
+@@ -72,7 +72,7 @@ static int tegra_mc_setup_latency_allowa
+ 	u32 value;
  
--	if (*ppos)
--		return 0;
--
- 	if (unlikely(!id))
- 		return -ENODEV;
+ 	/* compute the number of MC clock cycles per tick */
+-	tick = mc->tick * clk_get_rate(mc->clk);
++	tick = (unsigned long long)mc->tick * clk_get_rate(mc->clk);
+ 	do_div(tick, NSEC_PER_SEC);
  
+ 	value = readl(mc->regs + MC_EMEM_ARB_CFG);
 
 
