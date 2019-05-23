@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ABDA62889B
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:41:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C56A28A28
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:57:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391174AbfEWT13 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:27:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39752 "EHLO mail.kernel.org"
+        id S2387526AbfEWTJm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:09:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42866 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391596AbfEWT12 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:27:28 -0400
+        id S2387521AbfEWTJm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:09:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CD599217D9;
-        Thu, 23 May 2019 19:27:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0722C217D9;
+        Thu, 23 May 2019 19:09:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639648;
-        bh=Eck07YnScN80rAFi0HLkukX6wfzOilhLgDStDYeWIPY=;
+        s=default; t=1558638581;
+        bh=Wpgw0TDUGZYsGHzCIymzJWbj9GHxVRPuswZba+0s04s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JdMrLK0lpSYnoTWbjNyST0lkCqnZvWJ+yuaWhyWqEnGnwE9+l26/cikC+Tpnxn6uw
-         D4yfw304EPta8KZYbAGFfn1rKCuLzjSra+E5SgE/HLJuiSb5jULATmk1fYf6/qh6F1
-         3lSZXTnhMXqJTTvgyttalbsC7klmave/CLmZga8A=
+        b=phxBvPoCjy9/GTurLbdULgHtz6qp/Z2sv94X5Rgqxy4HElktAppPm0BpN6ujTVvM8
+         l8Gg7eksVMoyKVrWYr+ptghHjw7Vxp6PkuHjPa/AIqaTeqvIMQAF6lMWHalD3Falhm
+         fOS3/nlKsEAdyWTMtwKOExFcPGfnj1jEaGp9kPSU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John David Anglin <dave.anglin@bell.net>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.1 027/122] parisc: Add memory clobber to TLB purges
+        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
+        Thierry Reding <treding@nvidia.com>
+Subject: [PATCH 4.9 25/53] memory: tegra: Fix integer overflow on tick value calculation
 Date:   Thu, 23 May 2019 21:05:49 +0200
-Message-Id: <20190523181708.418387609@linuxfoundation.org>
+Message-Id: <20190523181714.850863580@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
-References: <20190523181705.091418060@linuxfoundation.org>
+In-Reply-To: <20190523181710.981455400@linuxfoundation.org>
+References: <20190523181710.981455400@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,43 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John David Anglin <dave.anglin@bell.net>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-commit 44224bdb99150ad17cf394973b25736cb92c246a upstream.
+commit b906c056b6023c390f18347169071193fda57dde upstream.
 
-The pdtlb and pitlb instructions are strongly ordered. The asms invoking
-these instructions should be compiler memory barriers to ensure the
-compiler doesn't reorder memory operations around these instructions.
+Multiplying the Memory Controller clock rate by the tick count results
+in an integer overflow and in result the truncated tick value is being
+programmed into hardware, such that the GR3D memory client performance is
+reduced by two times.
 
-Signed-off-by: John David Anglin <dave.anglin@bell.net>
-CC: stable@vger.kernel.org # v4.20+
-Fixes: 3847dab77421 ("parisc: Add alternative coding infrastructure")
-Signed-off-by: Helge Deller <deller@gmx.de>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/parisc/include/asm/cache.h |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/memory/tegra/mc.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/parisc/include/asm/cache.h
-+++ b/arch/parisc/include/asm/cache.h
-@@ -44,14 +44,14 @@ void parisc_setup_cache_timing(void);
+--- a/drivers/memory/tegra/mc.c
++++ b/drivers/memory/tegra/mc.c
+@@ -72,7 +72,7 @@ static int tegra_mc_setup_latency_allowa
+ 	u32 value;
  
- #define pdtlb(addr)	asm volatile("pdtlb 0(%%sr1,%0)" \
- 			ALTERNATIVE(ALT_COND_NO_SMP, INSN_PxTLB) \
--			: : "r" (addr))
-+			: : "r" (addr) : "memory")
- #define pitlb(addr)	asm volatile("pitlb 0(%%sr1,%0)" \
- 			ALTERNATIVE(ALT_COND_NO_SMP, INSN_PxTLB) \
- 			ALTERNATIVE(ALT_COND_NO_SPLIT_TLB, INSN_NOP) \
--			: : "r" (addr))
-+			: : "r" (addr) : "memory")
- #define pdtlb_kernel(addr)  asm volatile("pdtlb 0(%0)"   \
- 			ALTERNATIVE(ALT_COND_NO_SMP, INSN_PxTLB) \
--			: : "r" (addr))
-+			: : "r" (addr) : "memory")
+ 	/* compute the number of MC clock cycles per tick */
+-	tick = mc->tick * clk_get_rate(mc->clk);
++	tick = (unsigned long long)mc->tick * clk_get_rate(mc->clk);
+ 	do_div(tick, NSEC_PER_SEC);
  
- #define asm_io_fdc(addr) asm volatile("fdc %%r0(%0)" \
- 			ALTERNATIVE(ALT_COND_NO_DCACHE, INSN_NOP) \
+ 	value = readl(mc->regs + MC_EMEM_ARB_CFG);
 
 
