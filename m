@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B9922867A
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:10:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EEE4F288A2
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:41:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387612AbfEWTJ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:09:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43174 "EHLO mail.kernel.org"
+        id S2391636AbfEWT1n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:27:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387604AbfEWTJz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:09:55 -0400
+        id S2391251AbfEWT1m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:27:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 61D882186A;
-        Thu, 23 May 2019 19:09:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 73CB820879;
+        Thu, 23 May 2019 19:27:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558638594;
-        bh=8G87I6+bRkUxbApeia6mB4Dt8Rsuu8aFBBZL7mVii/4=;
+        s=default; t=1558639661;
+        bh=uK2l6iJbIsZEh6rp+uQugI8F0dbT2f9ZUREWDTQJb4Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nUYHrRt0T6EspPAFvOTLG5+cznB75WNR+3fQRIFCaoLrB8w/43x6gY4lvUPEX3PRV
-         0Hph0pNfakKcj0hdm7SFagT4Wu2C8opBFAQO+92R00M7ziYpdRdJapBtnmoohAsKVI
-         kek9xwhwGZ30fGSV2J4HnDYVYKs3j43pOFaevDts=
+        b=PMgtO1uZupqiRuJIk1dzRVIXbJgwuGcdxsl7Pb6ytYSfJlGebpLcvss0r21jfz5OB
+         1+Iev5ujdZfyTjg+4tRS3DulTIsCdKNc1pIMO82LZOWcm1493cqqZNW0AQVBKiHuAZ
+         4OLvQuZqm0DfS92Vsvj+neaKXc8ljn9LXrsV8KEo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yifeng Li <tomli@tomli.me>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        Teddy Wang <teddy.wang@siliconmotion.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Subject: [PATCH 4.9 30/53] fbdev: sm712fb: fix brightness control on reboot, dont set SR30
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        Helge Deller <deller@gmx.de>
+Subject: [PATCH 5.1 032/122] parisc: Rename LEVEL to PA_ASM_LEVEL to avoid name clash with DRBD code
 Date:   Thu, 23 May 2019 21:05:54 +0200
-Message-Id: <20190523181715.578592764@linuxfoundation.org>
+Message-Id: <20190523181709.137298315@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181710.981455400@linuxfoundation.org>
-References: <20190523181710.981455400@linuxfoundation.org>
+In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
+References: <20190523181705.091418060@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,46 +43,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yifeng Li <tomli@tomli.me>
+From: Helge Deller <deller@gmx.de>
 
-commit 5481115e25e42b9215f2619452aa99c95f08492f upstream.
+commit 1829dda0e87f4462782ca81be474c7890efe31ce upstream.
 
-On a Thinkpad s30 (Pentium III / i440MX, Lynx3DM), rebooting with
-sm712fb framebuffer driver would cause the role of brightness up/down
-button to swap.
+LEVEL is a very common word, and now after many years it suddenly
+clashed with another LEVEL define in the DRBD code.
+Rename it to PA_ASM_LEVEL instead.
 
-Experiments showed the FPR30 register caused this behavior. Moreover,
-even if this register don't have side-effect on other systems, over-
-writing it is also highly questionable, since it was originally
-configurated by the motherboard manufacturer by hardwiring pull-down
-resistors to indicate the type of LCD panel. We should not mess with
-it.
-
-Stop writing to the SR30 (a.k.a FPR30) register.
-
-Signed-off-by: Yifeng Li <tomli@tomli.me>
-Tested-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Cc: Teddy Wang <teddy.wang@siliconmotion.com>
-Cc: <stable@vger.kernel.org>  # v4.4+
-Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/video/fbdev/sm712fb.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/parisc/include/asm/assembly.h |    6 +++---
+ arch/parisc/kernel/head.S          |    4 ++--
+ arch/parisc/kernel/syscall.S       |    2 +-
+ 3 files changed, 6 insertions(+), 6 deletions(-)
 
---- a/drivers/video/fbdev/sm712fb.c
-+++ b/drivers/video/fbdev/sm712fb.c
-@@ -1144,8 +1144,8 @@ static void sm7xx_set_timing(struct smtc
+--- a/arch/parisc/include/asm/assembly.h
++++ b/arch/parisc/include/asm/assembly.h
+@@ -61,14 +61,14 @@
+ #define LDCW		ldcw,co
+ #define BL		b,l
+ # ifdef CONFIG_64BIT
+-#  define LEVEL		2.0w
++#  define PA_ASM_LEVEL	2.0w
+ # else
+-#  define LEVEL		2.0
++#  define PA_ASM_LEVEL	2.0
+ # endif
+ #else
+ #define LDCW		ldcw
+ #define BL		bl
+-#define LEVEL		1.1
++#define PA_ASM_LEVEL	1.1
+ #endif
  
- 		/* init SEQ register SR30 - SR75 */
- 		for (i = 0; i < SIZE_SR30_SR75; i++)
--			if ((i + 0x30) != 0x62 && (i + 0x30) != 0x6a &&
--			    (i + 0x30) != 0x6b)
-+			if ((i + 0x30) != 0x30 && (i + 0x30) != 0x62 &&
-+			    (i + 0x30) != 0x6a && (i + 0x30) != 0x6b)
- 				smtc_seqw(i + 0x30,
- 					  vgamode[j].init_sr30_sr75[i]);
+ #ifdef __ASSEMBLY__
+--- a/arch/parisc/kernel/head.S
++++ b/arch/parisc/kernel/head.S
+@@ -22,7 +22,7 @@
+ #include <linux/linkage.h>
+ #include <linux/init.h>
+ 
+-	.level	LEVEL
++	.level	PA_ASM_LEVEL
+ 
+ 	__INITDATA
+ ENTRY(boot_args)
+@@ -258,7 +258,7 @@ stext_pdc_ret:
+ 	ldo		R%PA(fault_vector_11)(%r10),%r10
+ 
+ $is_pa20:
+-	.level		LEVEL /* restore 1.1 || 2.0w */
++	.level		PA_ASM_LEVEL /* restore 1.1 || 2.0w */
+ #endif /*!CONFIG_64BIT*/
+ 	load32		PA(fault_vector_20),%r10
+ 
+--- a/arch/parisc/kernel/syscall.S
++++ b/arch/parisc/kernel/syscall.S
+@@ -48,7 +48,7 @@ registers).
+ 	 */
+ #define KILL_INSN	break	0,0
+ 
+-	.level          LEVEL
++	.level          PA_ASM_LEVEL
+ 
+ 	.text
  
 
 
