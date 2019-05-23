@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 60F9E28683
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:10:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B429E28838
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:40:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387760AbfEWTKT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:10:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43600 "EHLO mail.kernel.org"
+        id S2390048AbfEWTXj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:23:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387758AbfEWTKR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:10:17 -0400
+        id S2390712AbfEWTXh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:23:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B7EA2217D9;
-        Thu, 23 May 2019 19:10:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 81DC4217D7;
+        Thu, 23 May 2019 19:23:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558638616;
-        bh=pmBBXIbYx9wCoD61HcVaYTtByq2Ucu7mp3cgX6Lf/mA=;
+        s=default; t=1558639417;
+        bh=AxJsAR8dpjeA9qCIvZZYVwgDd+oYyxFSMJaIX6clBMk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eR45xY4cjtk2Xpq0/3pMyWlivdlT5fBhwMyoB18360gB+Jk09wJsUOgAsoaL+FUHh
-         OE9lTb/rx+I39KUaDK0C7+npOxxfaWFrwod9R30JnHFhqlMnyLretoC6j+uJOLkAUL
-         /gGyFV7CfBirqhe7MBm7YjtuFvNNHKZu66WcvRM8=
+        b=cZzV2QsMUzKdcwZQUIRQzrfAEThs+gk+R7CbjJ31yRPeYWkzT5PHR7Z1JERvKkenS
+         S9tt7LOE28nUpEZWC9NNl0GsOgBHc6SctJ3+Z3B4de974HMSOSdKexZDccxqY8ykVv
+         RztT2lriTjsklic5p3DbYz758S1s/tCpz1ytNO9U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 45/53] xfrm4: Fix uninitialized memory read in _decode_session4
+        stable@vger.kernel.org, Yifeng Li <tomli@tomli.me>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        Teddy Wang <teddy.wang@siliconmotion.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Subject: [PATCH 5.0 081/139] fbdev: sm712fb: fix crashes during framebuffer writes by correctly mapping VRAM
 Date:   Thu, 23 May 2019 21:06:09 +0200
-Message-Id: <20190523181718.097234570@linuxfoundation.org>
+Message-Id: <20190523181731.428368952@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181710.981455400@linuxfoundation.org>
-References: <20190523181710.981455400@linuxfoundation.org>
+In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
+References: <20190523181720.120897565@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,115 +45,147 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 8742dc86d0c7a9628117a989c11f04a9b6b898f3 ]
+From: Yifeng Li <tomli@tomli.me>
 
-We currently don't reload pointers pointing into skb header
-after doing pskb_may_pull() in _decode_session4(). So in case
-pskb_may_pull() changed the pointers, we read from random
-memory. Fix this by putting all the needed infos on the
-stack, so that we don't need to access the header pointers
-after doing pskb_may_pull().
+commit 9e0e59993df0601cddb95c4f6c61aa3d5e753c00 upstream.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+On a Thinkpad s30 (Pentium III / i440MX, Lynx3DM), running fbtest or X
+will crash the machine instantly, because the VRAM/framebuffer is not
+mapped correctly.
+
+On SM712, the framebuffer starts at the beginning of address space, but
+SM720's framebuffer starts at the 1 MiB offset from the beginning. However,
+sm712fb fails to take this into account, as a result, writing to the
+framebuffer will destroy all the registers and kill the system immediately.
+Another problem is the driver assumes 8 MiB of VRAM for SM720, but some
+SM720 system, such as this IBM Thinkpad, only has 4 MiB of VRAM.
+
+Fix this problem by removing the hardcoded VRAM size, adding a function to
+query the amount of VRAM from register MCR76 on SM720, and adding proper
+framebuffer offset.
+
+Please note that the memory map may have additional problems on Big-Endian
+system, which is not available for testing by myself. But I highly suspect
+that the original code is also broken on Big-Endian machines for SM720, so
+at least we are not making the problem worse. More, the driver also assumed
+SM710/SM712 has 4 MiB of VRAM, but it has a 2 MiB version as well, and used
+in earlier laptops, such as IBM Thinkpad 240X, the driver would probably
+crash on them. I've never seen one of those machines and cannot fix it, but
+I have documented these problems in the comments.
+
+Signed-off-by: Yifeng Li <tomli@tomli.me>
+Tested-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Cc: Teddy Wang <teddy.wang@siliconmotion.com>
+Cc: <stable@vger.kernel.org>  # v4.4+
+Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/ipv4/xfrm4_policy.c | 24 +++++++++++++-----------
- 1 file changed, 13 insertions(+), 11 deletions(-)
+ drivers/video/fbdev/sm712.h   |    5 ----
+ drivers/video/fbdev/sm712fb.c |   48 ++++++++++++++++++++++++++++++++++++++----
+ 2 files changed, 44 insertions(+), 9 deletions(-)
 
-diff --git a/net/ipv4/xfrm4_policy.c b/net/ipv4/xfrm4_policy.c
-index 622e158a6fc40..1805413cd2251 100644
---- a/net/ipv4/xfrm4_policy.c
-+++ b/net/ipv4/xfrm4_policy.c
-@@ -108,7 +108,8 @@ static void
- _decode_session4(struct sk_buff *skb, struct flowi *fl, int reverse)
+--- a/drivers/video/fbdev/sm712.h
++++ b/drivers/video/fbdev/sm712.h
+@@ -19,11 +19,6 @@
+ #define SCREEN_Y_RES      600
+ #define SCREEN_BPP        16
+ 
+-/*Assume SM712 graphics chip has 4MB VRAM */
+-#define SM712_VIDEOMEMORYSIZE	  0x00400000
+-/*Assume SM722 graphics chip has 8MB VRAM */
+-#define SM722_VIDEOMEMORYSIZE	  0x00800000
+-
+ #define dac_reg	(0x3c8)
+ #define dac_val	(0x3c9)
+ 
+--- a/drivers/video/fbdev/sm712fb.c
++++ b/drivers/video/fbdev/sm712fb.c
+@@ -1329,6 +1329,11 @@ static int smtc_map_smem(struct smtcfb_i
  {
- 	const struct iphdr *iph = ip_hdr(skb);
--	u8 *xprth = skb_network_header(skb) + iph->ihl * 4;
-+	int ihl = iph->ihl;
-+	u8 *xprth = skb_network_header(skb) + ihl * 4;
- 	struct flowi4 *fl4 = &fl->u.ip4;
- 	int oif = 0;
+ 	sfb->fb->fix.smem_start = pci_resource_start(pdev, 0);
  
-@@ -119,6 +120,11 @@ _decode_session4(struct sk_buff *skb, struct flowi *fl, int reverse)
- 	fl4->flowi4_mark = skb->mark;
- 	fl4->flowi4_oif = reverse ? skb->skb_iif : oif;
- 
-+	fl4->flowi4_proto = iph->protocol;
-+	fl4->daddr = reverse ? iph->saddr : iph->daddr;
-+	fl4->saddr = reverse ? iph->daddr : iph->saddr;
-+	fl4->flowi4_tos = iph->tos;
++	if (sfb->chip_id == 0x720)
++		/* on SM720, the framebuffer starts at the 1 MB offset */
++		sfb->fb->fix.smem_start += 0x00200000;
 +
- 	if (!ip_is_fragment(iph)) {
- 		switch (iph->protocol) {
- 		case IPPROTO_UDP:
-@@ -130,7 +136,7 @@ _decode_session4(struct sk_buff *skb, struct flowi *fl, int reverse)
- 			    pskb_may_pull(skb, xprth + 4 - skb->data)) {
- 				__be16 *ports;
++	/* XXX: is it safe for SM720 on Big-Endian? */
+ 	if (sfb->fb->var.bits_per_pixel == 32)
+ 		sfb->fb->fix.smem_start += big_addr;
  
--				xprth = skb_network_header(skb) + iph->ihl * 4;
-+				xprth = skb_network_header(skb) + ihl * 4;
- 				ports = (__be16 *)xprth;
- 
- 				fl4->fl4_sport = ports[!!reverse];
-@@ -143,7 +149,7 @@ _decode_session4(struct sk_buff *skb, struct flowi *fl, int reverse)
- 			    pskb_may_pull(skb, xprth + 2 - skb->data)) {
- 				u8 *icmp;
- 
--				xprth = skb_network_header(skb) + iph->ihl * 4;
-+				xprth = skb_network_header(skb) + ihl * 4;
- 				icmp = xprth;
- 
- 				fl4->fl4_icmp_type = icmp[0];
-@@ -156,7 +162,7 @@ _decode_session4(struct sk_buff *skb, struct flowi *fl, int reverse)
- 			    pskb_may_pull(skb, xprth + 4 - skb->data)) {
- 				__be32 *ehdr;
- 
--				xprth = skb_network_header(skb) + iph->ihl * 4;
-+				xprth = skb_network_header(skb) + ihl * 4;
- 				ehdr = (__be32 *)xprth;
- 
- 				fl4->fl4_ipsec_spi = ehdr[0];
-@@ -168,7 +174,7 @@ _decode_session4(struct sk_buff *skb, struct flowi *fl, int reverse)
- 			    pskb_may_pull(skb, xprth + 8 - skb->data)) {
- 				__be32 *ah_hdr;
- 
--				xprth = skb_network_header(skb) + iph->ihl * 4;
-+				xprth = skb_network_header(skb) + ihl * 4;
- 				ah_hdr = (__be32 *)xprth;
- 
- 				fl4->fl4_ipsec_spi = ah_hdr[1];
-@@ -180,7 +186,7 @@ _decode_session4(struct sk_buff *skb, struct flowi *fl, int reverse)
- 			    pskb_may_pull(skb, xprth + 4 - skb->data)) {
- 				__be16 *ipcomp_hdr;
- 
--				xprth = skb_network_header(skb) + iph->ihl * 4;
-+				xprth = skb_network_header(skb) + ihl * 4;
- 				ipcomp_hdr = (__be16 *)xprth;
- 
- 				fl4->fl4_ipsec_spi = htonl(ntohs(ipcomp_hdr[1]));
-@@ -193,7 +199,7 @@ _decode_session4(struct sk_buff *skb, struct flowi *fl, int reverse)
- 				__be16 *greflags;
- 				__be32 *gre_hdr;
- 
--				xprth = skb_network_header(skb) + iph->ihl * 4;
-+				xprth = skb_network_header(skb) + ihl * 4;
- 				greflags = (__be16 *)xprth;
- 				gre_hdr = (__be32 *)xprth;
- 
-@@ -210,10 +216,6 @@ _decode_session4(struct sk_buff *skb, struct flowi *fl, int reverse)
- 			break;
- 		}
- 	}
--	fl4->flowi4_proto = iph->protocol;
--	fl4->daddr = reverse ? iph->saddr : iph->daddr;
--	fl4->saddr = reverse ? iph->daddr : iph->saddr;
--	fl4->flowi4_tos = iph->tos;
+@@ -1366,12 +1371,45 @@ static inline void sm7xx_init_hw(void)
+ 	outb_p(0x11, 0x3c5);
  }
  
- static inline int xfrm4_garbage_collect(struct dst_ops *ops)
--- 
-2.20.1
-
++static u_long sm7xx_vram_probe(struct smtcfb_info *sfb)
++{
++	u8 vram;
++
++	switch (sfb->chip_id) {
++	case 0x710:
++	case 0x712:
++		/*
++		 * Assume SM712 graphics chip has 4MB VRAM.
++		 *
++		 * FIXME: SM712 can have 2MB VRAM, which is used on earlier
++		 * laptops, such as IBM Thinkpad 240X. This driver would
++		 * probably crash on those machines. If anyone gets one of
++		 * those and is willing to help, run "git blame" and send me
++		 * an E-mail.
++		 */
++		return 0x00400000;
++	case 0x720:
++		outb_p(0x76, 0x3c4);
++		vram = inb_p(0x3c5) >> 6;
++
++		if (vram == 0x00)
++			return 0x00800000;  /* 8 MB */
++		else if (vram == 0x01)
++			return 0x01000000;  /* 16 MB */
++		else if (vram == 0x02)
++			return 0x00400000;  /* illegal, fallback to 4 MB */
++		else if (vram == 0x03)
++			return 0x00400000;  /* 4 MB */
++	}
++	return 0;  /* unknown hardware */
++}
++
+ static int smtcfb_pci_probe(struct pci_dev *pdev,
+ 			    const struct pci_device_id *ent)
+ {
+ 	struct smtcfb_info *sfb;
+ 	struct fb_info *info;
+-	u_long smem_size = 0x00800000;	/* default 8MB */
++	u_long smem_size;
+ 	int err;
+ 	unsigned long mmio_base;
+ 
+@@ -1428,12 +1466,15 @@ static int smtcfb_pci_probe(struct pci_d
+ 	mmio_base = pci_resource_start(pdev, 0);
+ 	pci_read_config_byte(pdev, PCI_REVISION_ID, &sfb->chip_rev_id);
+ 
++	smem_size = sm7xx_vram_probe(sfb);
++	dev_info(&pdev->dev, "%lu MiB of VRAM detected.\n",
++					smem_size / 1048576);
++
+ 	switch (sfb->chip_id) {
+ 	case 0x710:
+ 	case 0x712:
+ 		sfb->fb->fix.mmio_start = mmio_base + 0x00400000;
+ 		sfb->fb->fix.mmio_len = 0x00400000;
+-		smem_size = SM712_VIDEOMEMORYSIZE;
+ 		sfb->lfb = ioremap(mmio_base, mmio_addr);
+ 		if (!sfb->lfb) {
+ 			dev_err(&pdev->dev,
+@@ -1465,8 +1506,7 @@ static int smtcfb_pci_probe(struct pci_d
+ 	case 0x720:
+ 		sfb->fb->fix.mmio_start = mmio_base;
+ 		sfb->fb->fix.mmio_len = 0x00200000;
+-		smem_size = SM722_VIDEOMEMORYSIZE;
+-		sfb->dp_regs = ioremap(mmio_base, 0x00a00000);
++		sfb->dp_regs = ioremap(mmio_base, 0x00200000 + smem_size);
+ 		sfb->lfb = sfb->dp_regs + 0x00200000;
+ 		sfb->mmio = (smtc_regbaseaddress =
+ 		    sfb->dp_regs + 0x000c0000);
 
 
