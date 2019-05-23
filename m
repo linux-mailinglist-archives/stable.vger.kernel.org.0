@@ -2,274 +2,216 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 07B2E2783E
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 10:41:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2649C27856
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 10:45:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729820AbfEWIlF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 04:41:05 -0400
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:37083 "EHLO
-        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727232AbfEWIlF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 May 2019 04:41:05 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id A4C6C2F121;
-        Thu, 23 May 2019 04:41:03 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Thu, 23 May 2019 04:41:03 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=juavBV
-        TrIkwiTBLk2iWMNPnQepCmrBCOjZ17uaAJiBQ=; b=RPXPgk1qjvmVavddKd4qVA
-        6+4DS5OSz6OwF1XynggesVsfEFtI5+RaczrUrl1c8n8hOe8h5e8BJCVXSyhT17cK
-        7ZgRIN88K8dsm1z5EkYsKmmaXmD/sRNBrDl2TJta+RuxNfV27t/lNbBiB2TWCuIE
-        t4p6U2Wk9tDJn2YPtff/LcGpO6KJcCi1L2OQ/WXBKuhvrHzJ7E+Oy5NWECTdDZyp
-        gltt2gD+xtgKYs5z92CyMksd4aj+22vXbcpA6yQUyQ23VFbthIFCVsF+z87PK+6T
-        2rXr/pWPkeTzbIadH6jWZm0GDy0Aof905dlZSCdkM9BJOzQsmdiu1a6sgqNNYvpA
-        ==
-X-ME-Sender: <xms:n1zmXGOODoKzulbTIDcdk7vCh6E1IA-Zyv7WkTP1JGQbvybZOPUlpA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddruddugedgtdekucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepud
-X-ME-Proxy: <xmx:n1zmXLgWeelsY-XMMNP1F_il51Er9inv8vcT5E_5q3hBQXifo4Yzhg>
-    <xmx:n1zmXKuFtFuWkea2vvEm9_YGiPer65fS45RPXDAJGPWxEULo7BfGCg>
-    <xmx:n1zmXG5vvPKBPuiV2cOcUbKf8YlbDx3fkQCoi2ZimWg6_DQa_LDfsA>
-    <xmx:n1zmXFl_bCwEK6bmDYNrYKC_DyWLMkTfX34LCK9b3NZJKkjcOTxhNg>
+        id S1728277AbfEWIpy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 04:45:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60464 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725814AbfEWIpy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 04:45:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 0C955380084;
-        Thu, 23 May 2019 04:41:02 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] media: imx: Don't register IPU subdevs/links if CSI port" failed to apply to 4.14-stable tree
-To:     slongerbeam@gmail.com, hverkuil-cisco@xs4all.nl,
-        mchehab+samsung@kernel.org, p.zabel@pengutronix.de
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 23 May 2019 10:40:59 +0200
-Message-ID: <155860085916912@kroah.com>
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 47E0A20881;
+        Thu, 23 May 2019 08:45:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1558601151;
+        bh=7GHUIi6ELKMItFVqI1HiIEd+63yI9IuHQ0hoTD1S1tU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=KDsKKpifKxQ3fvBtWIFLv+dYK2q80WDwVcszVx0ydbK//GhWC67tyocqfK/qfCe7Q
+         s4bc6Ehaa+E9SQsLCT1eYjqwTs7M7xk4MJoq+SBAvDFVetzdRN9EwIq4uuFXYqWI+P
+         M9z+Dg43GW8CC5SDK6vYhAW4iBlgFma07ryJw1ZM=
+Date:   Thu, 23 May 2019 10:45:49 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Lars Persson <lists@bofh.nu>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Ronnie Sahlberg <lsahlber@redhat.com>,
+        Pavel Shilovsky <pshilov@microsoft.com>,
+        Steve French <stfrench@microsoft.com>,
+        Sasha Levin <alexander.levin@microsoft.com>
+Subject: Re: [PATCH 4.14 082/115] cifs: fix memory leak in SMB2_read
+Message-ID: <20190523084549.GC6670@kroah.com>
+References: <20190515090659.123121100@linuxfoundation.org>
+ <20190515090705.305124547@linuxfoundation.org>
+ <CADnJP=v8Zn7dr11_KXFSWPwMtEc-rPTgFcRsbRy1mnBL5uDHvg@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CADnJP=v8Zn7dr11_KXFSWPwMtEc-rPTgFcRsbRy1mnBL5uDHvg@mail.gmail.com>
+User-Agent: Mutt/1.11.4 (2019-03-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, May 23, 2019 at 09:53:31AM +0200, Lars Persson wrote:
+> On Wed, May 15, 2019 at 1:19 PM Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > [ Upstream commit 05fd5c2c61732152a6bddc318aae62d7e436629b ]
+> >
+> > Commit 088aaf17aa79300cab14dbee2569c58cfafd7d6e introduced a leak where
+> > if SMB2_read() returned an error we would return without freeing the
+> > request buffer.
+> >
+> > Cc: Stable <stable@vger.kernel.org>
+> > Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
+> > Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
+> > Signed-off-by: Steve French <stfrench@microsoft.com>
+> > Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
+> > ---
+> >  fs/cifs/smb2pdu.c | 1 +
+> >  1 file changed, 1 insertion(+)
+> >
+> > diff --git a/fs/cifs/smb2pdu.c b/fs/cifs/smb2pdu.c
+> > index fd2d199dd413e..7936eac5a38a2 100644
+> > --- a/fs/cifs/smb2pdu.c
+> > +++ b/fs/cifs/smb2pdu.c
+> > @@ -2699,6 +2699,7 @@ SMB2_read(const unsigned int xid, struct cifs_io_parms *io_parms,
+> >                         cifs_dbg(VFS, "Send error in read = %d\n", rc);
+> >                 }
+> >                 free_rsp_buf(resp_buftype, rsp_iov.iov_base);
+> > +               cifs_small_buf_release(req);
+> >                 return rc == -ENODATA ? 0 : rc;
+> >         }
+> >
+> > --
+> > 2.20.1
+> >
+> 
+> This patch should not be in 4.14-stable because
+> 088aaf17aa79300cab14dbee2569c58cfafd7d6e was for 4.18+.
+> 
+> Now we have a double-free crash in SMB2_read because there are 2 calls
+> to cifs_small_buf_release in the error path.
+> 
+> =============================================================================
+> BUG cifs_small_rq (Tainted: G    B      O   ): Object already free
+> -----------------------------------------------------------------------------
+> 
+> INFO: Allocated in mempool_alloc+0x35/0xe4 age=1 cpu=0 pid=21107
+> kmem_cache_alloc+0x131/0x218
+> mempool_alloc+0x35/0xe4
+> cifs_small_buf_get+0x1d/0x3c [cifs]
+> smb2_new_read_req.constprop.2+0x29/0xd0 [cifs]
+> SMB2_read+0x39/0x17c [cifs]
+> cifs_readpage_worker+0x13f/0x470 [cifs]
+> cifs_readpage+0x67/0x1b8 [cifs]
+> generic_file_read_iter+0x269/0x904
+> cifs_strict_readv+0xa3/0xc8 [cifs]
+> __vfs_read+0x97/0xbc
+> vfs_read+0x61/0xc8
+> SyS_pread64+0x4d/0x6c
+> ret_fast_syscall+0x1/0x64
+> INFO: Freed in cifs_small_buf_release+0x19/0x90 [cifs] age=0 cpu=0 pid=21107
+> cifs_small_buf_release+0x19/0x90 [cifs]
+> SMB2_read+0x83/0x17c [cifs]
+> cifs_readpage_worker+0x13f/0x470 [cifs]
+> cifs_readpage+0x67/0x1b8 [cifs]
+> generic_file_read_iter+0x269/0x904
+> cifs_strict_readv+0xa3/0xc8 [cifs]
+> __vfs_read+0x97/0xbc
+> vfs_read+0x61/0xc8
+> SyS_pread64+0x4d/0x6c
+> ret_fast_syscall+0x1/0x64
+> INFO: Slab 0xbf6fe800 objects=12 used=1 fp=0x8cf00d40 flags=0x8101
+> INFO: Object 0x8cf01d00 @offset=7424 fp=0x8cf002c0
+> 
+> Redzone 8cf01ce0: bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb
+> ................
+> Redzone 8cf01cf0: bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb
+> ................
+> Object 8cf01d00: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+> kkkkkkkkkkkkkkkk
+> Object 8cf01d10: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+> kkkkkkkkkkkkkkkk
+> Object 8cf01d20: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+> kkkkkkkkkkkkkkkk
+> Object 8cf01d30: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+> kkkkkkkkkkkkkkkk
+> Object 8cf01d40: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+> kkkkkkkkkkkkkkkk
+> Object 8cf01d50: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+> kkkkkkkkkkkkkkkk
+> Object 8cf01d60: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+> kkkkkkkkkkkkkkkk
+> Object 8cf01d70: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+> kkkkkkkkkkkkkkkk
+> Object 8cf01d80: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+> kkkkkkkkkkkkkkkk
+> Object 8cf01d90: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+> kkkkkkkkkkkkkkkk
+> Object 8cf01da0: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+> kkkkkkkkkkkkkkkk
+> Object 8cf01db0: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+> kkkkkkkkkkkkkkkk
+> Object 8cf01dc0: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+> kkkkkkkkkkkkkkkk
+> Object 8cf01dd0: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+> kkkkkkkkkkkkkkkk
+> Object 8cf01de0: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+> kkkkkkkkkkkkkkkk
+> Object 8cf01df0: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+> kkkkkkkkkkkkkkkk
+> Object 8cf01e00: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+> kkkkkkkkkkkkkkkk
+> Object 8cf01e10: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+> kkkkkkkkkkkkkkkk
+> Object 8cf01e20: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+> kkkkkkkkkkkkkkkk
+> Object 8cf01e30: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+> kkkkkkkkkkkkkkkk
+> Object 8cf01e40: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+> kkkkkkkkkkkkkkkk
+> Object 8cf01e50: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+> kkkkkkkkkkkkkkkk
+> Object 8cf01e60: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+> kkkkkkkkkkkkkkkk
+> Object 8cf01e70: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+> kkkkkkkkkkkkkkkk
+> Object 8cf01e80: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+> kkkkkkkkkkkkkkkk
+> Object 8cf01e90: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+> kkkkkkkkkkkkkkkk
+> Object 8cf01ea0: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+> kkkkkkkkkkkkkkkk
+> Object 8cf01eb0: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b a5
+> kkkkkkkkkkkkkkk.
+> Redzone 8cf01ec0: bb bb bb bb                                      ....
+> Padding 8cf01f68: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a
+> ZZZZZZZZZZZZZZZZ
+> Padding 8cf01f78: 5a 5a 5a 5a 5a 5a 5a 5a                          ZZZZZZZZ
+> CPU: 0 PID: 21107 Comm: pool-indexer Tainted: G    B      O
+> 4.14.120-axis5-devel #1
+> Hardware name: Axis ARTPEC-7 Platform
+> [<8010d031>] (unwind_backtrace) from [<80109f21>] (show_stack+0x11/0x14)
+> [<80109f21>] (show_stack) from [<8051e1d1>] (dump_stack+0x69/0x78)
+> [<8051e1d1>] (dump_stack) from [<802179cd>] (free_debug_processing+0x289/0x2b4)
+> [<802179cd>] (free_debug_processing) from [<80217b81>] (__slab_free+0x189/0x26c)
+> [<80217b81>] (__slab_free) from [<80217dc5>] (kmem_cache_free+0x161/0x1ec)
+> [<80217dc5>] (kmem_cache_free) from [<7fad04c1>]
+> (cifs_small_buf_release+0x19/0x90 [cifs])
+> [<7fad04c1>] (cifs_small_buf_release [cifs]) from [<7fae1e43>]
+> (SMB2_read+0xd3/0x17c [cifs])
+> [<7fae1e43>] (SMB2_read [cifs]) from [<7fac5aeb>]
+> (cifs_readpage_worker+0x13f/0x470 [cifs])
+> [<7fac5aeb>] (cifs_readpage_worker [cifs]) from [<7fac6127>]
+> (cifs_readpage+0x67/0x1b8 [cifs])
+> [<7fac6127>] (cifs_readpage [cifs]) from [<801dc855>]
+> (generic_file_read_iter+0x269/0x904)
+> [<801dc855>] (generic_file_read_iter) from [<7facb193>]
+> (cifs_strict_readv+0xa3/0xc8 [cifs])
+> [<7facb193>] (cifs_strict_readv [cifs]) from [<8022855f>] (__vfs_read+0x97/0xbc)
+> [<8022855f>] (__vfs_read) from [<802285e5>] (vfs_read+0x61/0xc8)
+> [<802285e5>] (vfs_read) from [<80228a4d>] (SyS_pread64+0x4d/0x6c)
+> [<80228a4d>] (SyS_pread64) from [<80106d81>] (ret_fast_syscall+0x1/0x64)
+> FIX cifs_small_rq: Object at 0x8cf01d00 not freed
 
-The patch below does not apply to the 4.14-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Ah, my fault, thanks for letting me know.  I'll go revert this right
+now.
 
 thanks,
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From dee747f88167124884a918855c1f438e2f7f39e2 Mon Sep 17 00:00:00 2001
-From: Steve Longerbeam <slongerbeam@gmail.com>
-Date: Wed, 20 Feb 2019 18:53:32 -0500
-Subject: [PATCH] media: imx: Don't register IPU subdevs/links if CSI port
- missing
-
-The second IPU internal sub-devices were being registered and links
-to them created even when the second IPU is not present. This is wrong
-for i.MX6 S/DL and i.MX53 which have only a single IPU.
-
-Fixes: e130291212df5 ("[media] media: Add i.MX media core driver")
-
-Signed-off-by: Steve Longerbeam <slongerbeam@gmail.com>
-Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
-Cc: stable@vger.kernel.org
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-
-diff --git a/drivers/staging/media/imx/imx-media-dev.c b/drivers/staging/media/imx/imx-media-dev.c
-index fc35508d9396..10a63a4fa90b 100644
---- a/drivers/staging/media/imx/imx-media-dev.c
-+++ b/drivers/staging/media/imx/imx-media-dev.c
-@@ -477,13 +477,6 @@ static int imx_media_probe(struct platform_device *pdev)
- 		goto cleanup;
- 	}
- 
--	ret = imx_media_add_ipu_internal_subdevs(imxmd);
--	if (ret) {
--		v4l2_err(&imxmd->v4l2_dev,
--			 "add_ipu_internal_subdevs failed with %d\n", ret);
--		goto cleanup;
--	}
--
- 	ret = imx_media_dev_notifier_register(imxmd);
- 	if (ret)
- 		goto del_int;
-diff --git a/drivers/staging/media/imx/imx-media-internal-sd.c b/drivers/staging/media/imx/imx-media-internal-sd.c
-index e620f4adb755..dc510dcfe160 100644
---- a/drivers/staging/media/imx/imx-media-internal-sd.c
-+++ b/drivers/staging/media/imx/imx-media-internal-sd.c
-@@ -298,13 +298,14 @@ static int add_internal_subdev(struct imx_media_dev *imxmd,
- }
- 
- /* adds the internal subdevs in one ipu */
--static int add_ipu_internal_subdevs(struct imx_media_dev *imxmd, int ipu_id)
-+int imx_media_add_ipu_internal_subdevs(struct imx_media_dev *imxmd,
-+				       int ipu_id)
- {
- 	enum isd_enum i;
-+	int ret;
- 
- 	for (i = 0; i < num_isd; i++) {
- 		const struct internal_subdev *isd = &int_subdev[i];
--		int ret;
- 
- 		/*
- 		 * the CSIs are represented in the device-tree, so those
-@@ -322,25 +323,10 @@ static int add_ipu_internal_subdevs(struct imx_media_dev *imxmd, int ipu_id)
- 		}
- 
- 		if (ret)
--			return ret;
-+			goto remove;
- 	}
- 
- 	return 0;
--}
--
--int imx_media_add_ipu_internal_subdevs(struct imx_media_dev *imxmd)
--{
--	int ret;
--
--	ret = add_ipu_internal_subdevs(imxmd, 0);
--	if (ret)
--		goto remove;
--
--	ret = add_ipu_internal_subdevs(imxmd, 1);
--	if (ret)
--		goto remove;
--
--	return 0;
- 
- remove:
- 	imx_media_remove_ipu_internal_subdevs(imxmd);
-diff --git a/drivers/staging/media/imx/imx-media-of.c b/drivers/staging/media/imx/imx-media-of.c
-index a26bdeb1af34..12383f4785ad 100644
---- a/drivers/staging/media/imx/imx-media-of.c
-+++ b/drivers/staging/media/imx/imx-media-of.c
-@@ -23,36 +23,25 @@
- int imx_media_of_add_csi(struct imx_media_dev *imxmd,
- 			 struct device_node *csi_np)
- {
--	int ret;
--
- 	if (!of_device_is_available(csi_np)) {
- 		dev_dbg(imxmd->md.dev, "%s: %pOFn not enabled\n", __func__,
- 			csi_np);
--		/* unavailable is not an error */
--		return 0;
-+		return -ENODEV;
- 	}
- 
- 	/* add CSI fwnode to async notifier */
--	ret = imx_media_add_async_subdev(imxmd, of_fwnode_handle(csi_np), NULL);
--	if (ret) {
--		if (ret == -EEXIST) {
--			/* already added, everything is fine */
--			return 0;
--		}
--
--		/* other error, can't continue */
--		return ret;
--	}
--
--	return 0;
-+	return imx_media_add_async_subdev(imxmd, of_fwnode_handle(csi_np),
-+					  NULL);
- }
- EXPORT_SYMBOL_GPL(imx_media_of_add_csi);
- 
- int imx_media_add_of_subdevs(struct imx_media_dev *imxmd,
- 			     struct device_node *np)
- {
-+	bool ipu_found[2] = {false, false};
- 	struct device_node *csi_np;
- 	int i, ret;
-+	u32 ipu_id;
- 
- 	for (i = 0; ; i++) {
- 		csi_np = of_parse_phandle(np, "ports", i);
-@@ -60,12 +49,43 @@ int imx_media_add_of_subdevs(struct imx_media_dev *imxmd,
- 			break;
- 
- 		ret = imx_media_of_add_csi(imxmd, csi_np);
--		of_node_put(csi_np);
--		if (ret)
--			return ret;
-+		if (ret) {
-+			/* unavailable or already added is not an error */
-+			if (ret == -ENODEV || ret == -EEXIST) {
-+				of_node_put(csi_np);
-+				continue;
-+			}
-+
-+			/* other error, can't continue */
-+			goto err_out;
-+		}
-+
-+		ret = of_alias_get_id(csi_np->parent, "ipu");
-+		if (ret < 0)
-+			goto err_out;
-+		if (ret > 1) {
-+			ret = -EINVAL;
-+			goto err_out;
-+		}
-+
-+		ipu_id = ret;
-+
-+		if (!ipu_found[ipu_id]) {
-+			ret = imx_media_add_ipu_internal_subdevs(imxmd,
-+								 ipu_id);
-+			if (ret)
-+				goto err_out;
-+		}
-+
-+		ipu_found[ipu_id] = true;
- 	}
- 
- 	return 0;
-+
-+err_out:
-+	imx_media_remove_ipu_internal_subdevs(imxmd);
-+	of_node_put(csi_np);
-+	return ret;
- }
- 
- /*
-diff --git a/drivers/staging/media/imx/imx-media.h b/drivers/staging/media/imx/imx-media.h
-index ccbfc4438c85..dd603a6b3a70 100644
---- a/drivers/staging/media/imx/imx-media.h
-+++ b/drivers/staging/media/imx/imx-media.h
-@@ -252,7 +252,8 @@ struct imx_media_fim *imx_media_fim_init(struct v4l2_subdev *sd);
- void imx_media_fim_free(struct imx_media_fim *fim);
- 
- /* imx-media-internal-sd.c */
--int imx_media_add_ipu_internal_subdevs(struct imx_media_dev *imxmd);
-+int imx_media_add_ipu_internal_subdevs(struct imx_media_dev *imxmd,
-+				       int ipu_id);
- int imx_media_create_ipu_internal_links(struct imx_media_dev *imxmd,
- 					struct v4l2_subdev *sd);
- void imx_media_remove_ipu_internal_subdevs(struct imx_media_dev *imxmd);
-diff --git a/drivers/staging/media/imx/imx7-media-csi.c b/drivers/staging/media/imx/imx7-media-csi.c
-index 3fba7c27c0ec..1ba62fcdcae8 100644
---- a/drivers/staging/media/imx/imx7-media-csi.c
-+++ b/drivers/staging/media/imx/imx7-media-csi.c
-@@ -1271,7 +1271,7 @@ static int imx7_csi_probe(struct platform_device *pdev)
- 	platform_set_drvdata(pdev, &csi->sd);
- 
- 	ret = imx_media_of_add_csi(imxmd, node);
--	if (ret < 0)
-+	if (ret < 0 && ret != -ENODEV && ret != -EEXIST)
- 		goto cleanup;
- 
- 	ret = imx_media_dev_notifier_register(imxmd);
-
