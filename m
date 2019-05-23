@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E2F13279AE
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 11:50:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B09F279AF
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 11:50:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729797AbfEWJuH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 05:50:07 -0400
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:53613 "EHLO
+        id S1726846AbfEWJuQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 05:50:16 -0400
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:43997 "EHLO
         out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728109AbfEWJuG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 May 2019 05:50:06 -0400
+        by vger.kernel.org with ESMTP id S1726429AbfEWJuQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 May 2019 05:50:16 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 305F33551F;
-        Thu, 23 May 2019 05:50:06 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id 175A23594B;
+        Thu, 23 May 2019 05:50:15 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Thu, 23 May 2019 05:50:06 -0400
+  by compute6.internal (MEProxy); Thu, 23 May 2019 05:50:15 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=mL1GU5
-        rTq/7RYs6Kp+TmJT6j1LYqwmpRPl/cPZdXPQ0=; b=rEr6KzHWZrnj8AiALMNTfw
-        NP4LoyJDkOCH8Cq6nLoz6uapdzwdmucFiPACcirY4FsIiWy7sUM9BZHl6/BlSVu8
-        WqDm4T4FFMEMcQvlOkkBqiR9KaM+Y6ghqBdsURUZR7sPVsl5sv/faMjKpfvw90ca
-        gWUtSo1NLOF30SvZowSHv7QBw3h55FxH6miKoX9C+ZOCs2FvH+bRnAX2kEjaHESi
-        DR8CFEuq3hXX8470hgAt7oXl4bOl+rGgRiG73ZipdgD1CWgJxHZxwKaA/tNMLeRY
-        lrTvU2bFueHcc+8UJwmVANrO2sl0JW8xUMVewaFzJOUf6i4m9XqnveAKv3Qnm9EQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=4JdEy/
+        99KatAvN4+rviKsK22r6hnid2gx05eyK930K4=; b=ufdA6NJ8h3k+Ge1Wjnr50j
+        BELyb+LmrmddvNH1HjIWJWlMojn9iPSKxtOn11QGvsnDheh6ge5J5EIYLtVmt27W
+        v7yIY4AmAge1Ndf8C2wvk2wh+A2rAOBkK/R0pvhxPWfFYexPoT/ZeRdpOyHOV1ei
+        0REw7vCgJcc01CmQIPbjd29JQdqwOHurE2eco/AE0TbNpg8SMF+H2DZn9jS22DHg
+        TehX4mzvagEfOGH4/mSKHl7YM0nplQGJ5bDUGOPSo3vBa7/jU2GiOfhjR3+sxOET
+        l1TfMoEktTcIyqw1FuEiYJIBU+Smy0sm0CrBO5IckXFvhXmiZY1zjWkJxKJRfCDg
         ==
-X-ME-Sender: <xms:zWzmXAfdJMJDww_R5CYlpSu0A961bIG2-tt21Uz_ZNGDSXzHFx3EXA>
+X-ME-Sender: <xms:1mzmXIrGvF9NBk8IFouOBD9-4s9wqx4-tzKYh5eaTxPORYRiYFfivg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddruddugedgvdduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghdpieegrdhssgenucfkphepkeefrd
     ekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgr
-    hhdrtghomhenucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:zWzmXMc4i0Y0WrXlzvWHtSv0oQi8wD3jF05fVZeNdXz96at3kSQOkg>
-    <xmx:zWzmXOWv1UeN4Vog9uyKnNcyPYv8Uz87AaG0z-0J7BC8eHcTUKTLIw>
-    <xmx:zWzmXNyvwpseHwh8lY7Y6hK08e9JmmGlZhDoa8injpqOF0dm_BcKPA>
-    <xmx:zmzmXGbKvW5wJTBzu0vanbftPC2Z4cDQziuPYTO80IqxrvfJYpVtLw>
+    hhdrtghomhenucevlhhushhtvghrufhiiigvpedu
+X-ME-Proxy: <xmx:1mzmXC56HbKongshV-Ri8pn9WrP_lBA6dDU0rdfCU9TDcNMHgPQEnQ>
+    <xmx:1mzmXINGZZqhKzCwRD5msYofQ2_orfdqVaAuJ0LTYb17zuyV-4PdsA>
+    <xmx:1mzmXEPBO2SknY8q1UkO6iIpPDSo-NbJe8WmGHxZbNhsqJeoi2bm6w>
+    <xmx:12zmXKKA6PEmhhRf7tDLOgwOwHwYT1nmWDnUXuqg3TwAAT75-FOjMA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 19F458005C;
-        Thu, 23 May 2019 05:50:04 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] x86_64: Add gap to int3 to allow for call emulation" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 6DEA980059;
+        Thu, 23 May 2019 05:50:14 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] x86_64: Add gap to int3 to allow for call emulation" failed to apply to 4.4-stable tree
 To:     jpoimboe@redhat.com, mhiramat@kernel.org, nstange@suse.de,
         rostedt@goodmis.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 23 May 2019 11:50:02 +0200
-Message-ID: <1558605002251172@kroah.com>
+Date:   Thu, 23 May 2019 11:50:05 +0200
+Message-ID: <15586050051395@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
