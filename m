@@ -2,221 +2,199 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 52D182777D
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 09:53:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CD6B27788
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 09:57:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726363AbfEWHxp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 03:53:45 -0400
-Received: from mail-wm1-f65.google.com ([209.85.128.65]:52256 "EHLO
-        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726309AbfEWHxp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 May 2019 03:53:45 -0400
-Received: by mail-wm1-f65.google.com with SMTP id y3so4717526wmm.2
-        for <stable@vger.kernel.org>; Thu, 23 May 2019 00:53:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bofh-nu.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=zD/GCfFy3KEF6n+Sjktcq8mDi8VzZPrm8gqgABY6uSI=;
-        b=svnrBqWh8OxI3mEIf6EoRMgxVrD2MtiofcSJUA8Q5xE2/JfxAtRQjTupHFu8KliEVw
-         jKsHiiVmXcje+wjj3kYTof2a6oHkBwRaHYgqeYEPDpiA/47luPbcYqnYcipc5PW5Xl02
-         BeSsSGHazNf97HW7TwPOH7ThV26XTyoJPQSUtZHo3Ltg/YiYnCYKKXUkXgqPVJ9d6dH9
-         Q+I93kXOI0nVJfIsRLp81asaV6dS6vHwFGyxHJkZwgplxFMU8ij0fFRjmkKzA4fdH9Vm
-         xC6e/oFIRx65QwqSUNy0r4rCHQ321owaLNv0KZ6IQ/Pj8yP8UrwmeibKwQuq8hHgsBzy
-         HRTw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=zD/GCfFy3KEF6n+Sjktcq8mDi8VzZPrm8gqgABY6uSI=;
-        b=pBrS/E1S+FUU69FDXSXhZXaFE6BOXHfi0obRV/rf1H2jC68ZV/vq0Jzxcz0puJnTE2
-         Ixhla4BsXSOOoA5pRJwPItGpIsgmfbk5EWczVioAfc0lmgiRXOz/1rZQ1Ui9F77mmC02
-         fFiuPFlGW2G38BQShAViN/dArozHMSyLyo0zwnM0r1FrmmPi4CAW2LQJS+DsTyhP1Ba5
-         srJmQgfgEHcLURAxgnMWqTPqUNv8itEv8u283POvoynKOCTHOjCh+FUc9LOa3t8ssXfv
-         KO4FgEtN/v+P6sZ6xtgN4qQWu0CANesXMlEF57t3BoOSVEHy03LSBOtpAyIgwj4Ci7C+
-         Htkw==
-X-Gm-Message-State: APjAAAWxjTE8TcHwmIJl6FJvVoK39exS4bAbs10BB5kpzTUBaZv12b5l
-        mvyQeE/ig/EzyCHrpNPIdOEP96GuSlSVLNbirWmVaw==
-X-Google-Smtp-Source: APXvYqztHHue+zVeZh26munVgEOjivv6QwpfJAZz+VlaWaXuY+VYHheE5Xb0YJmE6oQ8Swv+gRcFI3vK/cFGBkyJ8gw=
-X-Received: by 2002:a1c:701a:: with SMTP id l26mr5342560wmc.32.1558598022177;
- Thu, 23 May 2019 00:53:42 -0700 (PDT)
+        id S1726070AbfEWH5H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 03:57:07 -0400
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:46661 "EHLO
+        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725814AbfEWH5H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 May 2019 03:57:07 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id DF7642B328;
+        Thu, 23 May 2019 03:57:05 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Thu, 23 May 2019 03:57:05 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=1aVPIa
+        223i2MeSN+ZBfxJ58k6MOndntBBrmV8ByKftQ=; b=6Ow9GjtykUEn8iwDMu8E3o
+        one6ZXmKJjD8u3ltxVYLLE6tXqPypm3PRfzRSxYoXYSGXpLIUVFWoMAd4wCY4gip
+        wacSYzM4WMg/l+OB3cKb1oO/Wnw6sKuVeN2bVoWQasXerryDK2Dvawu6VfyQchxH
+        Oj/DCSGixsDVC7kgVV8erCr2dS8cYgIXuHuqGVXCQTQ80s0jNzQRuBRM78bRNa/S
+        PwT1oYmzj02CX/LGqPyWWwECeVNLyHAW6InqdQWckketKGC7A1JJHTK+v8GY1VGN
+        6F3Rcl5dOG0om+UOxxSNWrhAM8WKh7yj84Hfhk8keFe8Tymvqo9w6tLaBkII+nXQ
+        ==
+X-ME-Sender: <xms:UFLmXCa839hhQRVVFsD1FrVeKAI8snDhkfidMfXtQ89VzmC-CQbmyw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddruddufedguddvlecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
+    dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
+    rhhgqeenucffohhmrghinhepmhgrrhgtrdhinhhfohenucfkphepkeefrdekiedrkeelrd
+    dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
+    ucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:UFLmXKU2lwmnrSjB-pkI41lc6dVRxuwWtN3K9iIA60FB0NTqc7gAvA>
+    <xmx:UFLmXHvFj2sNwcrOlMu4FUSiWaY0F7qeGgdDjCYRsGagd0jWNg3mZQ>
+    <xmx:UFLmXPVcTVn9csWnImW6sOUFypg7DzGvv0POE8t3P8mK_9LBu9Wlzw>
+    <xmx:UVLmXAgik8XLorxoOZaCE27G431BS9gHEURhWfgFaI142X2J-HNBlw>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 6061A8005C;
+        Thu, 23 May 2019 03:57:04 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] blk-mq: free hw queue's resource in hctx's release handler" failed to apply to 4.19-stable tree
+To:     ming.lei@redhat.com, axboe@kernel.dk, bart.vanassche@wdc.com,
+        dongli.zhang@oracle.com, hare@suse.com, hch@lst.de,
+        james.smart@broadcom.com, jejb@linux.vnet.ibm.com,
+        martin.petersen@oracle.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 23 May 2019 09:57:02 +0200
+Message-ID: <1558598222167227@kroah.com>
 MIME-Version: 1.0
-References: <20190515090659.123121100@linuxfoundation.org> <20190515090705.305124547@linuxfoundation.org>
-In-Reply-To: <20190515090705.305124547@linuxfoundation.org>
-From:   Lars Persson <lists@bofh.nu>
-Date:   Thu, 23 May 2019 09:53:31 +0200
-Message-ID: <CADnJP=v8Zn7dr11_KXFSWPwMtEc-rPTgFcRsbRy1mnBL5uDHvg@mail.gmail.com>
-Subject: Re: [PATCH 4.14 082/115] cifs: fix memory leak in SMB2_read
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Pavel Shilovsky <pshilov@microsoft.com>,
-        Steve French <stfrench@microsoft.com>,
-        Sasha Levin <alexander.levin@microsoft.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 15, 2019 at 1:19 PM Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> [ Upstream commit 05fd5c2c61732152a6bddc318aae62d7e436629b ]
->
-> Commit 088aaf17aa79300cab14dbee2569c58cfafd7d6e introduced a leak where
-> if SMB2_read() returned an error we would return without freeing the
-> request buffer.
->
-> Cc: Stable <stable@vger.kernel.org>
-> Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
-> Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
-> Signed-off-by: Steve French <stfrench@microsoft.com>
-> Signed-off-by: Sasha Levin <alexander.levin@microsoft.com>
-> ---
->  fs/cifs/smb2pdu.c | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/fs/cifs/smb2pdu.c b/fs/cifs/smb2pdu.c
-> index fd2d199dd413e..7936eac5a38a2 100644
-> --- a/fs/cifs/smb2pdu.c
-> +++ b/fs/cifs/smb2pdu.c
-> @@ -2699,6 +2699,7 @@ SMB2_read(const unsigned int xid, struct cifs_io_parms *io_parms,
->                         cifs_dbg(VFS, "Send error in read = %d\n", rc);
->                 }
->                 free_rsp_buf(resp_buftype, rsp_iov.iov_base);
-> +               cifs_small_buf_release(req);
->                 return rc == -ENODATA ? 0 : rc;
->         }
->
-> --
-> 2.20.1
->
 
-This patch should not be in 4.14-stable because
-088aaf17aa79300cab14dbee2569c58cfafd7d6e was for 4.18+.
+The patch below does not apply to the 4.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Now we have a double-free crash in SMB2_read because there are 2 calls
-to cifs_small_buf_release in the error path.
+thanks,
 
-=============================================================================
-BUG cifs_small_rq (Tainted: G    B      O   ): Object already free
------------------------------------------------------------------------------
+greg k-h
 
-INFO: Allocated in mempool_alloc+0x35/0xe4 age=1 cpu=0 pid=21107
-kmem_cache_alloc+0x131/0x218
-mempool_alloc+0x35/0xe4
-cifs_small_buf_get+0x1d/0x3c [cifs]
-smb2_new_read_req.constprop.2+0x29/0xd0 [cifs]
-SMB2_read+0x39/0x17c [cifs]
-cifs_readpage_worker+0x13f/0x470 [cifs]
-cifs_readpage+0x67/0x1b8 [cifs]
-generic_file_read_iter+0x269/0x904
-cifs_strict_readv+0xa3/0xc8 [cifs]
-__vfs_read+0x97/0xbc
-vfs_read+0x61/0xc8
-SyS_pread64+0x4d/0x6c
-ret_fast_syscall+0x1/0x64
-INFO: Freed in cifs_small_buf_release+0x19/0x90 [cifs] age=0 cpu=0 pid=21107
-cifs_small_buf_release+0x19/0x90 [cifs]
-SMB2_read+0x83/0x17c [cifs]
-cifs_readpage_worker+0x13f/0x470 [cifs]
-cifs_readpage+0x67/0x1b8 [cifs]
-generic_file_read_iter+0x269/0x904
-cifs_strict_readv+0xa3/0xc8 [cifs]
-__vfs_read+0x97/0xbc
-vfs_read+0x61/0xc8
-SyS_pread64+0x4d/0x6c
-ret_fast_syscall+0x1/0x64
-INFO: Slab 0xbf6fe800 objects=12 used=1 fp=0x8cf00d40 flags=0x8101
-INFO: Object 0x8cf01d00 @offset=7424 fp=0x8cf002c0
+------------------ original commit in Linus's tree ------------------
 
-Redzone 8cf01ce0: bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb
-................
-Redzone 8cf01cf0: bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb bb
-................
-Object 8cf01d00: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-kkkkkkkkkkkkkkkk
-Object 8cf01d10: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-kkkkkkkkkkkkkkkk
-Object 8cf01d20: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-kkkkkkkkkkkkkkkk
-Object 8cf01d30: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-kkkkkkkkkkkkkkkk
-Object 8cf01d40: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-kkkkkkkkkkkkkkkk
-Object 8cf01d50: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-kkkkkkkkkkkkkkkk
-Object 8cf01d60: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-kkkkkkkkkkkkkkkk
-Object 8cf01d70: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-kkkkkkkkkkkkkkkk
-Object 8cf01d80: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-kkkkkkkkkkkkkkkk
-Object 8cf01d90: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-kkkkkkkkkkkkkkkk
-Object 8cf01da0: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-kkkkkkkkkkkkkkkk
-Object 8cf01db0: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-kkkkkkkkkkkkkkkk
-Object 8cf01dc0: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-kkkkkkkkkkkkkkkk
-Object 8cf01dd0: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-kkkkkkkkkkkkkkkk
-Object 8cf01de0: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-kkkkkkkkkkkkkkkk
-Object 8cf01df0: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-kkkkkkkkkkkkkkkk
-Object 8cf01e00: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-kkkkkkkkkkkkkkkk
-Object 8cf01e10: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-kkkkkkkkkkkkkkkk
-Object 8cf01e20: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-kkkkkkkkkkkkkkkk
-Object 8cf01e30: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-kkkkkkkkkkkkkkkk
-Object 8cf01e40: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-kkkkkkkkkkkkkkkk
-Object 8cf01e50: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-kkkkkkkkkkkkkkkk
-Object 8cf01e60: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-kkkkkkkkkkkkkkkk
-Object 8cf01e70: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-kkkkkkkkkkkkkkkk
-Object 8cf01e80: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-kkkkkkkkkkkkkkkk
-Object 8cf01e90: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-kkkkkkkkkkkkkkkk
-Object 8cf01ea0: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-kkkkkkkkkkkkkkkk
-Object 8cf01eb0: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b a5
-kkkkkkkkkkkkkkk.
-Redzone 8cf01ec0: bb bb bb bb                                      ....
-Padding 8cf01f68: 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a 5a
-ZZZZZZZZZZZZZZZZ
-Padding 8cf01f78: 5a 5a 5a 5a 5a 5a 5a 5a                          ZZZZZZZZ
-CPU: 0 PID: 21107 Comm: pool-indexer Tainted: G    B      O
-4.14.120-axis5-devel #1
-Hardware name: Axis ARTPEC-7 Platform
-[<8010d031>] (unwind_backtrace) from [<80109f21>] (show_stack+0x11/0x14)
-[<80109f21>] (show_stack) from [<8051e1d1>] (dump_stack+0x69/0x78)
-[<8051e1d1>] (dump_stack) from [<802179cd>] (free_debug_processing+0x289/0x2b4)
-[<802179cd>] (free_debug_processing) from [<80217b81>] (__slab_free+0x189/0x26c)
-[<80217b81>] (__slab_free) from [<80217dc5>] (kmem_cache_free+0x161/0x1ec)
-[<80217dc5>] (kmem_cache_free) from [<7fad04c1>]
-(cifs_small_buf_release+0x19/0x90 [cifs])
-[<7fad04c1>] (cifs_small_buf_release [cifs]) from [<7fae1e43>]
-(SMB2_read+0xd3/0x17c [cifs])
-[<7fae1e43>] (SMB2_read [cifs]) from [<7fac5aeb>]
-(cifs_readpage_worker+0x13f/0x470 [cifs])
-[<7fac5aeb>] (cifs_readpage_worker [cifs]) from [<7fac6127>]
-(cifs_readpage+0x67/0x1b8 [cifs])
-[<7fac6127>] (cifs_readpage [cifs]) from [<801dc855>]
-(generic_file_read_iter+0x269/0x904)
-[<801dc855>] (generic_file_read_iter) from [<7facb193>]
-(cifs_strict_readv+0xa3/0xc8 [cifs])
-[<7facb193>] (cifs_strict_readv [cifs]) from [<8022855f>] (__vfs_read+0x97/0xbc)
-[<8022855f>] (__vfs_read) from [<802285e5>] (vfs_read+0x61/0xc8)
-[<802285e5>] (vfs_read) from [<80228a4d>] (SyS_pread64+0x4d/0x6c)
-[<80228a4d>] (SyS_pread64) from [<80106d81>] (ret_fast_syscall+0x1/0x64)
-FIX cifs_small_rq: Object at 0x8cf01d00 not freed
+From c7e2d94b3d1634988a95ac4d77a72dc7487ece06 Mon Sep 17 00:00:00 2001
+From: Ming Lei <ming.lei@redhat.com>
+Date: Tue, 30 Apr 2019 09:52:25 +0800
+Subject: [PATCH] blk-mq: free hw queue's resource in hctx's release handler
+
+Once blk_cleanup_queue() returns, tags shouldn't be used any more,
+because blk_mq_free_tag_set() may be called. Commit 45a9c9d909b2
+("blk-mq: Fix a use-after-free") fixes this issue exactly.
+
+However, that commit introduces another issue. Before 45a9c9d909b2,
+we are allowed to run queue during cleaning up queue if the queue's
+kobj refcount is held. After that commit, queue can't be run during
+queue cleaning up, otherwise oops can be triggered easily because
+some fields of hctx are freed by blk_mq_free_queue() in blk_cleanup_queue().
+
+We have invented ways for addressing this kind of issue before, such as:
+
+	8dc765d438f1 ("SCSI: fix queue cleanup race before queue initialization is done")
+	c2856ae2f315 ("blk-mq: quiesce queue before freeing queue")
+
+But still can't cover all cases, recently James reports another such
+kind of issue:
+
+	https://marc.info/?l=linux-scsi&m=155389088124782&w=2
+
+This issue can be quite hard to address by previous way, given
+scsi_run_queue() may run requeues for other LUNs.
+
+Fixes the above issue by freeing hctx's resources in its release handler, and this
+way is safe becasue tags isn't needed for freeing such hctx resource.
+
+This approach follows typical design pattern wrt. kobject's release handler.
+
+Cc: Dongli Zhang <dongli.zhang@oracle.com>
+Cc: James Smart <james.smart@broadcom.com>
+Cc: Bart Van Assche <bart.vanassche@wdc.com>
+Cc: linux-scsi@vger.kernel.org,
+Cc: Martin K . Petersen <martin.petersen@oracle.com>,
+Cc: Christoph Hellwig <hch@lst.de>,
+Cc: James E . J . Bottomley <jejb@linux.vnet.ibm.com>,
+Reported-by: James Smart <james.smart@broadcom.com>
+Fixes: 45a9c9d909b2 ("blk-mq: Fix a use-after-free")
+Cc: stable@vger.kernel.org
+Reviewed-by: Hannes Reinecke <hare@suse.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Tested-by: James Smart <james.smart@broadcom.com>
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+
+diff --git a/block/blk-core.c b/block/blk-core.c
+index 2af1040b2fa6..81d209568a26 100644
+--- a/block/blk-core.c
++++ b/block/blk-core.c
+@@ -375,7 +375,7 @@ void blk_cleanup_queue(struct request_queue *q)
+ 	blk_exit_queue(q);
+ 
+ 	if (queue_is_mq(q))
+-		blk_mq_free_queue(q);
++		blk_mq_exit_queue(q);
+ 
+ 	percpu_ref_exit(&q->q_usage_counter);
+ 
+diff --git a/block/blk-mq-sysfs.c b/block/blk-mq-sysfs.c
+index 61efc2a29e58..7593c4c78975 100644
+--- a/block/blk-mq-sysfs.c
++++ b/block/blk-mq-sysfs.c
+@@ -11,6 +11,7 @@
+ #include <linux/smp.h>
+ 
+ #include <linux/blk-mq.h>
++#include "blk.h"
+ #include "blk-mq.h"
+ #include "blk-mq-tag.h"
+ 
+@@ -34,6 +35,11 @@ static void blk_mq_hw_sysfs_release(struct kobject *kobj)
+ {
+ 	struct blk_mq_hw_ctx *hctx = container_of(kobj, struct blk_mq_hw_ctx,
+ 						  kobj);
++
++	if (hctx->flags & BLK_MQ_F_BLOCKING)
++		cleanup_srcu_struct(hctx->srcu);
++	blk_free_flush_queue(hctx->fq);
++	sbitmap_free(&hctx->ctx_map);
+ 	free_cpumask_var(hctx->cpumask);
+ 	kfree(hctx->ctxs);
+ 	kfree(hctx);
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index 741cf8d55e9c..1fdb8de92a10 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -2268,12 +2268,7 @@ static void blk_mq_exit_hctx(struct request_queue *q,
+ 	if (set->ops->exit_hctx)
+ 		set->ops->exit_hctx(hctx, hctx_idx);
+ 
+-	if (hctx->flags & BLK_MQ_F_BLOCKING)
+-		cleanup_srcu_struct(hctx->srcu);
+-
+ 	blk_mq_remove_cpuhp(hctx);
+-	blk_free_flush_queue(hctx->fq);
+-	sbitmap_free(&hctx->ctx_map);
+ }
+ 
+ static void blk_mq_exit_hw_queues(struct request_queue *q,
+@@ -2908,7 +2903,8 @@ struct request_queue *blk_mq_init_allocated_queue(struct blk_mq_tag_set *set,
+ }
+ EXPORT_SYMBOL(blk_mq_init_allocated_queue);
+ 
+-void blk_mq_free_queue(struct request_queue *q)
++/* tags can _not_ be used after returning from blk_mq_exit_queue */
++void blk_mq_exit_queue(struct request_queue *q)
+ {
+ 	struct blk_mq_tag_set	*set = q->tag_set;
+ 
+diff --git a/block/blk-mq.h b/block/blk-mq.h
+index 423ea88ab6fb..633a5a77ee8b 100644
+--- a/block/blk-mq.h
++++ b/block/blk-mq.h
+@@ -37,7 +37,7 @@ struct blk_mq_ctx {
+ 	struct kobject		kobj;
+ } ____cacheline_aligned_in_smp;
+ 
+-void blk_mq_free_queue(struct request_queue *q);
++void blk_mq_exit_queue(struct request_queue *q);
+ int blk_mq_update_nr_requests(struct request_queue *q, unsigned int nr);
+ void blk_mq_wake_waiters(struct request_queue *q);
+ bool blk_mq_dispatch_rq_list(struct request_queue *, struct list_head *, bool);
+
