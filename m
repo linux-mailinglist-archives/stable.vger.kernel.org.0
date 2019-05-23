@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 41DCD288CB
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:41:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D3BB289E5
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:43:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391307AbfEWT2v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:28:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41568 "EHLO mail.kernel.org"
+        id S2389609AbfEWTS3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:18:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391826AbfEWT2t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:28:49 -0400
+        id S2388931AbfEWTSZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:18:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 95CF120879;
-        Thu, 23 May 2019 19:28:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 863192133D;
+        Thu, 23 May 2019 19:18:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639729;
-        bh=Q/5OzBM4VQEOBvCfeonOdIK9aQC1KWHPkJclcmFLRO4=;
+        s=default; t=1558639105;
+        bh=Wq/dhTIFr8I9tCX70Ml/hc4MHjBci8SJownoaMbCc6Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y9DGbpD1XXp2QnDG9WWp26CI8inIc59H9vziPEOTE6o8HJ8Z0FIVroH4Pnd7WMW07
-         7rdxniBEEiOnxuT4BvsF4z7JrQ5hWbj0tM5gcYLT1qrbIRd7DfGmIvWi91Nfq489Eo
-         tpF3bKxUV0RzRQx2m+kRMkAc6TfLIkZwwlj9OAlU=
+        b=D2gaZYqQSGXUwtZLJxjPJaBedmS3y5JjXUv3bLvo06ojO+sr1bTdPN5ak56La25ZY
+         zW+X+PYeQxlAJvxnqCRhQZlGfBL2gLRjOO692ViyvZfQ/jhBjL9DxcFiV1wFN4CqLX
+         zWM7Z8JrEs4A+RFG/Gwt3qKTGH+0QDvdxOB7Gmf4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolai Stange <nstange@suse.de>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.1 073/122] x86_64: Add gap to int3 to allow for call emulation
+        stable@vger.kernel.org,
+        Bhagavathi Perumal S <bperumal@codeaurora.org>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 096/114] mac80211: Fix kernel panic due to use of txq after free
 Date:   Thu, 23 May 2019 21:06:35 +0200
-Message-Id: <20190523181714.436949335@linuxfoundation.org>
+Message-Id: <20190523181740.017307678@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
-References: <20190523181705.091418060@linuxfoundation.org>
+In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
+References: <20190523181731.372074275@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,76 +46,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+[ Upstream commit f1267cf3c01b12e0f843fb6a7450a7f0b2efab8a ]
 
-commit 2700fefdb2d9751c416ad56897e27d41e409324a upstream.
+The txq of vif is added to active_txqs list for ATF TXQ scheduling
+in the function ieee80211_queue_skb(), but it was not properly removed
+before freeing the txq object. It was causing use after free of the txq
+objects from the active_txqs list, result was kernel panic
+due to invalid memory access.
 
-To allow an int3 handler to emulate a call instruction, it must be able to
-push a return address onto the stack. Add a gap to the stack to allow the
-int3 handler to push the return address and change the return from int3 to
-jump straight to the emulated called function target.
+Fix kernel invalid memory access by properly removing txq object
+from active_txqs list before free the object.
 
-Link: http://lkml.kernel.org/r/20181130183917.hxmti5josgq4clti@treble
-Link: http://lkml.kernel.org/r/20190502162133.GX2623@hirez.programming.kicks-ass.net
-
-[
-  Note, this is needed to allow Live Kernel Patching to not miss calling a
-  patched function when tracing is enabled. -- Steven Rostedt
-]
-
-Cc: stable@vger.kernel.org
-Fixes: b700e7f03df5 ("livepatch: kernel: add support for live patching")
-Tested-by: Nicolai Stange <nstange@suse.de>
-Reviewed-by: Nicolai Stange <nstange@suse.de>
-Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Bhagavathi Perumal S <bperumal@codeaurora.org>
+Acked-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/entry/entry_64.S |   18 ++++++++++++++++--
- 1 file changed, 16 insertions(+), 2 deletions(-)
+ net/mac80211/iface.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/arch/x86/entry/entry_64.S
-+++ b/arch/x86/entry/entry_64.S
-@@ -881,7 +881,7 @@ apicinterrupt IRQ_WORK_VECTOR			irq_work
-  * @paranoid == 2 is special: the stub will never switch stacks.  This is for
-  * #DF: if the thread stack is somehow unusable, we'll still get a useful OOPS.
-  */
--.macro idtentry sym do_sym has_error_code:req paranoid=0 shift_ist=-1
-+.macro idtentry sym do_sym has_error_code:req paranoid=0 shift_ist=-1 create_gap=0
- ENTRY(\sym)
- 	UNWIND_HINT_IRET_REGS offset=\has_error_code*8
+diff --git a/net/mac80211/iface.c b/net/mac80211/iface.c
+index 3a0171a65db32..152d4365f9616 100644
+--- a/net/mac80211/iface.c
++++ b/net/mac80211/iface.c
+@@ -1910,6 +1910,9 @@ void ieee80211_if_remove(struct ieee80211_sub_if_data *sdata)
+ 	list_del_rcu(&sdata->list);
+ 	mutex_unlock(&sdata->local->iflist_mtx);
  
-@@ -901,6 +901,20 @@ ENTRY(\sym)
- 	jnz	.Lfrom_usermode_switch_stack_\@
- 	.endif
- 
-+	.if \create_gap == 1
-+	/*
-+	 * If coming from kernel space, create a 6-word gap to allow the
-+	 * int3 handler to emulate a call instruction.
-+	 */
-+	testb	$3, CS-ORIG_RAX(%rsp)
-+	jnz	.Lfrom_usermode_no_gap_\@
-+	.rept	6
-+	pushq	5*8(%rsp)
-+	.endr
-+	UNWIND_HINT_IRET_REGS offset=8
-+.Lfrom_usermode_no_gap_\@:
-+	.endif
++	if (sdata->vif.txq)
++		ieee80211_txq_purge(sdata->local, to_txq_info(sdata->vif.txq));
 +
- 	.if \paranoid
- 	call	paranoid_entry
- 	.else
-@@ -1132,7 +1146,7 @@ apicinterrupt3 HYPERV_STIMER0_VECTOR \
- #endif /* CONFIG_HYPERV */
+ 	synchronize_rcu();
  
- idtentry debug			do_debug		has_error_code=0	paranoid=1 shift_ist=DEBUG_STACK
--idtentry int3			do_int3			has_error_code=0
-+idtentry int3			do_int3			has_error_code=0	create_gap=1
- idtentry stack_segment		do_stack_segment	has_error_code=1
- 
- #ifdef CONFIG_XEN_PV
+ 	if (sdata->dev) {
+-- 
+2.20.1
+
 
 
