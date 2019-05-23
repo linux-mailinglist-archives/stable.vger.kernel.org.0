@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B957928747
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:25:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFAEA288B5
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:41:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388801AbfEWTRi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:17:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52824 "EHLO mail.kernel.org"
+        id S2391734AbfEWT2K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:28:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389460AbfEWTRh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:17:37 -0400
+        id S2391727AbfEWT2J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:28:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 306A02133D;
-        Thu, 23 May 2019 19:17:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 38499206BA;
+        Thu, 23 May 2019 19:28:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639056;
-        bh=EjlE2ovGcgePIpb0P9J+WLinGF9krRSoTGEpCVh9Smc=;
+        s=default; t=1558639688;
+        bh=ZKAWL+TfWyCxI4eR1wQK7z52Plma/GdthdPmEGtd6Z0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vzhu/n4wmViVeSKgzDVZG3lf/j/3AHvmWFX2jbhAlNlb9n/3NBo78DiRosAIGijja
-         nXJljYzTa6X+p46WZ7aNvj+tA3pUhZjobMxh3kUKKpUXBgkpREU+2oBV/DMREOaIsb
-         dSnVKI8WzkucWM9pqPyC6lpd5HfFivsxaNnleGbA=
+        b=QWnIUEEP7+z8+fj8jCbybQpQqEysyFm0wsDIuqSvr8xkDXIH43luv98vrvzEtP3f0
+         273knjPXjoVnvwc/JDAYvthhR7LMUE3h29Mek2NwwZp/xpD6Mqt9Y+kkVbnKxUspix
+         UOr8qGHM2BLsAeN3TZOCGFCMvcd3Ax6N9Mj5GBV8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.19 080/114] dm integrity: correctly calculate the size of metadata area
-Date:   Thu, 23 May 2019 21:06:19 +0200
-Message-Id: <20190523181738.973182902@linuxfoundation.org>
+        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>
+Subject: [PATCH 5.1 058/122] PNFS fallback to MDS if no deviceid found
+Date:   Thu, 23 May 2019 21:06:20 +0200
+Message-Id: <20190523181712.487406914@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
-References: <20190523181731.372074275@linuxfoundation.org>
+In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
+References: <20190523181705.091418060@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,48 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Olga Kornievskaia <kolga@netapp.com>
 
-commit 30bba430ddf737978e40561198693ba91386dac1 upstream.
+commit b1029c9bc078a6f1515f55dd993b507dcc7e3440 upstream.
 
-When we use separate devices for data and metadata, dm-integrity would
-incorrectly calculate the size of the metadata device as if it had
-512-byte block size - and it would refuse activation with larger block
-size and smaller metadata device.
+If we fail to find a good deviceid while trying to pnfs instead of
+propogating an error back fallback to doing IO to the MDS. Currently,
+code with fals the IO with EINVAL.
 
-Fix this so that it takes actual block size into account, which fixes
-the following reported issue:
-https://gitlab.com/cryptsetup/cryptsetup/issues/450
-
-Fixes: 356d9d52e122 ("dm integrity: allow separate metadata device")
-Cc: stable@vger.kernel.org # v4.19+
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
+Fixes: 8d40b0f14846f ("NFS filelayout:call GETDEVICEINFO after pnfs_layout_process completes"
+Cc: stable@vger.kernel.org # v4.11+
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm-integrity.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/nfs/filelayout/filelayout.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/md/dm-integrity.c
-+++ b/drivers/md/dm-integrity.c
-@@ -2557,7 +2557,7 @@ static int calculate_device_limits(struc
- 		if (last_sector < ic->start || last_sector >= ic->meta_device_sectors)
- 			return -EINVAL;
- 	} else {
--		__u64 meta_size = ic->provided_data_sectors * ic->tag_size;
-+		__u64 meta_size = (ic->provided_data_sectors >> ic->sb->log2_sectors_per_block) * ic->tag_size;
- 		meta_size = (meta_size + ((1U << (ic->log2_buffer_sectors + SECTOR_SHIFT)) - 1))
- 				>> (ic->log2_buffer_sectors + SECTOR_SHIFT);
- 		meta_size <<= ic->log2_buffer_sectors;
-@@ -3428,7 +3428,7 @@ try_smaller_buffer:
- 	DEBUG_print("	journal_sections %u\n", (unsigned)le32_to_cpu(ic->sb->journal_sections));
- 	DEBUG_print("	journal_entries %u\n", ic->journal_entries);
- 	DEBUG_print("	log2_interleave_sectors %d\n", ic->sb->log2_interleave_sectors);
--	DEBUG_print("	device_sectors 0x%llx\n", (unsigned long long)ic->device_sectors);
-+	DEBUG_print("	data_device_sectors 0x%llx\n", (unsigned long long)ic->data_device_sectors);
- 	DEBUG_print("	initial_sectors 0x%x\n", ic->initial_sectors);
- 	DEBUG_print("	metadata_run 0x%x\n", ic->metadata_run);
- 	DEBUG_print("	log2_metadata_run %d\n", ic->log2_metadata_run);
+--- a/fs/nfs/filelayout/filelayout.c
++++ b/fs/nfs/filelayout/filelayout.c
+@@ -904,7 +904,7 @@ fl_pnfs_update_layout(struct inode *ino,
+ 	status = filelayout_check_deviceid(lo, fl, gfp_flags);
+ 	if (status) {
+ 		pnfs_put_lseg(lseg);
+-		lseg = ERR_PTR(status);
++		lseg = NULL;
+ 	}
+ out:
+ 	return lseg;
 
 
