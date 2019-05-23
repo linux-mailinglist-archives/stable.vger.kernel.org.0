@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 64CF028913
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:41:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DEA0528947
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:42:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403773AbfEWTah (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:30:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44146 "EHLO mail.kernel.org"
+        id S2391559AbfEWTcg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:32:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403764AbfEWTae (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:30:34 -0400
+        id S2403772AbfEWTah (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:30:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B7CDE2133D;
-        Thu, 23 May 2019 19:30:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 68DCA21851;
+        Thu, 23 May 2019 19:30:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639834;
-        bh=r0zyQ/B7KH52Fb9qpYaua23yoj2J/TXEHxufZ/7v2fs=;
+        s=default; t=1558639836;
+        bh=O/q34PUgSB/3SJ3kr25zIaftIpvty8Zo4bMPrl8SX74=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XrpGWd0vzsnJwcNNJH+LVDx3FFMO05BvI3AVjkDcYXhl2v/93FDu6qq8beP8vSXjd
-         IBVW0g8q9nA4iLPWWbBM/dJBZENEHtT0sXDav+FCLCYxkqhcAsNOXq/rj5A2Y/CKOh
-         5AqWtx67zdsNfHsDcIrpKFSmT+SbJ3Jc8xFGMSY8=
+        b=LipBo7U9mk7bzan5XylkPu1VhzziWBJGnyJtieVnE66549I2AbwuEJMON41081tX3
+         4Qebz7TlQpDH5l9JuQovPYAuKle81gFi5/1JfPACrBTJSThOXqXomYj86hwxy9rzhI
+         N3qUtao7TAlbjKGoU2m6L2hVCJJL71KYc7iNtAaA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yufen Yu <yuyufen@huawei.com>,
-        Martin Wilck <mwilck@suse.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.1 109/122] dm mpath: always free attached_handler_name in parse_path()
-Date:   Thu, 23 May 2019 21:07:11 +0200
-Message-Id: <20190523181719.848604177@linuxfoundation.org>
+        stable@vger.kernel.org, Kirill Smelkov <kirr@nexedi.com>,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 5.1 110/122] fuse: Add FOPEN_STREAM to use stream_open()
+Date:   Thu, 23 May 2019 21:07:12 +0200
+Message-Id: <20190523181720.013770818@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
 References: <20190523181705.091418060@linuxfoundation.org>
@@ -44,46 +43,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin Wilck <mwilck@suse.com>
+From: Kirill Smelkov <kirr@nexedi.com>
 
-commit 940bc471780b004a5277c1931f52af363c2fc9da upstream.
+commit bbd84f33652f852ce5992d65db4d020aba21f882 upstream.
 
-Commit b592211c33f7 ("dm mpath: fix attached_handler_name leak and
-dangling hw_handler_name pointer") fixed a memory leak for the case
-where setup_scsi_dh() returns failure. But setup_scsi_dh may return
-success and not "use" attached_handler_name if the
-retain_attached_hwhandler flag is not set on the map. As setup_scsi_sh
-properly "steals" the pointer by nullifying it, freeing it
-unconditionally in parse_path() is safe.
+Starting from commit 9c225f2655e3 ("vfs: atomic f_pos accesses as per
+POSIX") files opened even via nonseekable_open gate read and write via lock
+and do not allow them to be run simultaneously. This can create read vs
+write deadlock if a filesystem is trying to implement a socket-like file
+which is intended to be simultaneously used for both read and write from
+filesystem client.  See commit 10dce8af3422 ("fs: stream_open - opener for
+stream-like files so that read and write can run simultaneously without
+deadlock") for details and e.g. commit 581d21a2d02a ("xenbus: fix deadlock
+on writes to /proc/xen/xenbus") for a similar deadlock example on
+/proc/xen/xenbus.
 
-Fixes: b592211c33f7 ("dm mpath: fix attached_handler_name leak and dangling hw_handler_name pointer")
-Cc: stable@vger.kernel.org
-Reported-by: Yufen Yu <yuyufen@huawei.com>
-Signed-off-by: Martin Wilck <mwilck@suse.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+To avoid such deadlock it was tempting to adjust fuse_finish_open to use
+stream_open instead of nonseekable_open on just FOPEN_NONSEEKABLE flags,
+but grepping through Debian codesearch shows users of FOPEN_NONSEEKABLE,
+and in particular GVFS which actually uses offset in its read and write
+handlers
+
+	https://codesearch.debian.net/search?q=-%3Enonseekable+%3D
+	https://gitlab.gnome.org/GNOME/gvfs/blob/1.40.0-6-gcbc54396/client/gvfsfusedaemon.c#L1080
+	https://gitlab.gnome.org/GNOME/gvfs/blob/1.40.0-6-gcbc54396/client/gvfsfusedaemon.c#L1247-1346
+	https://gitlab.gnome.org/GNOME/gvfs/blob/1.40.0-6-gcbc54396/client/gvfsfusedaemon.c#L1399-1481
+
+so if we would do such a change it will break a real user.
+
+Add another flag (FOPEN_STREAM) for filesystem servers to indicate that the
+opened handler is having stream-like semantics; does not use file position
+and thus the kernel is free to issue simultaneous read and write request on
+opened file handle.
+
+This patch together with stream_open() should be added to stable kernels
+starting from v3.14+. This will allow to patch OSSPD and other FUSE
+filesystems that provide stream-like files to return FOPEN_STREAM |
+FOPEN_NONSEEKABLE in open handler and this way avoid the deadlock on all
+kernel versions. This should work because fuse_finish_open ignores unknown
+open flags returned from a filesystem and so passing FOPEN_STREAM to a
+kernel that is not aware of this flag cannot hurt. In turn the kernel that
+is not aware of FOPEN_STREAM will be < v3.14 where just FOPEN_NONSEEKABLE
+is sufficient to implement streams without read vs write deadlock.
+
+Cc: stable@vger.kernel.org # v3.14+
+Signed-off-by: Kirill Smelkov <kirr@nexedi.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm-mpath.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/fuse/file.c            |    4 +++-
+ include/uapi/linux/fuse.h |    2 ++
+ 2 files changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/md/dm-mpath.c
-+++ b/drivers/md/dm-mpath.c
-@@ -882,6 +882,7 @@ static struct pgpath *parse_path(struct
- 	if (attached_handler_name || m->hw_handler_name) {
- 		INIT_DELAYED_WORK(&p->activate_path, activate_path_work);
- 		r = setup_scsi_dh(p->path.dev->bdev, m, &attached_handler_name, &ti->error);
-+		kfree(attached_handler_name);
- 		if (r) {
- 			dm_put_device(ti, p->path.dev);
- 			goto bad;
-@@ -896,7 +897,6 @@ static struct pgpath *parse_path(struct
+--- a/fs/fuse/file.c
++++ b/fs/fuse/file.c
+@@ -178,7 +178,9 @@ void fuse_finish_open(struct inode *inod
  
- 	return p;
-  bad:
--	kfree(attached_handler_name);
- 	free_pgpath(p);
- 	return ERR_PTR(r);
- }
+ 	if (!(ff->open_flags & FOPEN_KEEP_CACHE))
+ 		invalidate_inode_pages2(inode->i_mapping);
+-	if (ff->open_flags & FOPEN_NONSEEKABLE)
++	if (ff->open_flags & FOPEN_STREAM)
++		stream_open(inode, file);
++	else if (ff->open_flags & FOPEN_NONSEEKABLE)
+ 		nonseekable_open(inode, file);
+ 	if (fc->atomic_o_trunc && (file->f_flags & O_TRUNC)) {
+ 		struct fuse_inode *fi = get_fuse_inode(inode);
+--- a/include/uapi/linux/fuse.h
++++ b/include/uapi/linux/fuse.h
+@@ -229,11 +229,13 @@ struct fuse_file_lock {
+  * FOPEN_KEEP_CACHE: don't invalidate the data cache on open
+  * FOPEN_NONSEEKABLE: the file is not seekable
+  * FOPEN_CACHE_DIR: allow caching this directory
++ * FOPEN_STREAM: the file is stream-like (no file position at all)
+  */
+ #define FOPEN_DIRECT_IO		(1 << 0)
+ #define FOPEN_KEEP_CACHE	(1 << 1)
+ #define FOPEN_NONSEEKABLE	(1 << 2)
+ #define FOPEN_CACHE_DIR		(1 << 3)
++#define FOPEN_STREAM		(1 << 4)
+ 
+ /**
+  * INIT request/reply flags
 
 
