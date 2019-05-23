@@ -2,144 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 78A17284DF
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 19:25:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95C642852B
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 19:43:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731073AbfEWRZu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 13:25:50 -0400
-Received: from mail-qk1-f193.google.com ([209.85.222.193]:44347 "EHLO
-        mail-qk1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730752AbfEWRZu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 May 2019 13:25:50 -0400
-Received: by mail-qk1-f193.google.com with SMTP id w25so4275588qkj.11;
-        Thu, 23 May 2019 10:25:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=yJjCNrzpdOy2l1ZRnxp5Zju+1qm4InPBw3rALhmp2wE=;
-        b=I+ArrbouMwviOeqikqtIY4LwfQW5BzQKpawINI5YM9MibAzceL9zbWOOy/FqoHa+mZ
-         vfYGNEDCnVfnXGITC0QWv4ypadR1GtrNaHZOWgg6xu+PvgY/U/Lf2eLSZ7H/aJdOrxV6
-         2DtGxVWfDbr2KJlprdLB3bT5tnhrXh1iLqr+TH8e6tOLwUwKXrdwFxeYIYJx0NC8Hvg+
-         InTauCuLovrQSQWXUS7lkRaIBe2xSFHaToHzflyzIK32gXMA/b9E0/8GuveymNyEWXEM
-         y3+GrLuwC9DG58N+RPZ6VWHCV1yBNj6le7a0023+BooxjSLHMc1EtwggV2E1h3fX4r+b
-         t+0A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=yJjCNrzpdOy2l1ZRnxp5Zju+1qm4InPBw3rALhmp2wE=;
-        b=UWdXilRRhI8+DC19sPL1DQcYD2dKrs9vz8v6VnwxNjELpwYFQ3dSJt1ELV35pl58f+
-         d2D9UXh7BpCQAk1SDY4EUU9jLfIJnRDRUtrUuGptHT4GSvRwl5H1q3/d1e1iFYDH/RLH
-         wi150jBISCU3Js5IvkCbrzPIKBkWmtKi16p+r7U3EzzBTmd3/7FSVXuL5/IgsuqUo288
-         qrtMYcg7RsHuTjL1AGRlCj4B1m2jJO7PsIZuZNSpsrVeIYPWGVjb8Wh4R8Y1Ys/1YZ8W
-         c5elBYV7uXXzQ5Xk8Ep3Vo39bwuAqYANhJ8Od/2D1UEHKA9250wKbYvlibE/xwya3Y1/
-         TUvg==
-X-Gm-Message-State: APjAAAWwubJv4d4pq1NWK74/fb/YxbN9uOApiAcuq434ND1gZ0iD6ppn
-        0lHZ79cS77rn36fMh1XLxGIAsHlJOM81rDflJoQ=
-X-Google-Smtp-Source: APXvYqx1xpcC6eCRsOTU8awQq81G7bpo2fPzWcTU7zNqwJnm2to3nxz2E5a+GkueerIHWCH91vk2qplj3DBDYpbolac=
-X-Received: by 2002:a37:680c:: with SMTP id d12mr75395903qkc.202.1558632349824;
- Thu, 23 May 2019 10:25:49 -0700 (PDT)
+        id S1731269AbfEWRnJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 13:43:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51734 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1731217AbfEWRnJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 13:43:09 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id BB3062177E;
+        Thu, 23 May 2019 17:43:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1558633388;
+        bh=e7KUMd6Qz9b5eaPnojS2yc1tJKWJ/Q91VqcSA/cXHbo=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=EFW+THozn8RPDBpmFqkirP1+YtrxfcU3nMWjgImo7ALDSTxvfs1qv9Ns4N+pmcRoh
+         7B8D5cTb5JkSljOsN39N0PQRwzPPaUDbRmVnUxiBL6w8D/m9VgTRchTx2U+Z68bvjP
+         FRv6ueL0a74+JkjGX/yk8rff3o2juOumjqcwRZbI=
+Date:   Thu, 23 May 2019 19:43:05 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Suren Baghdasaryan <surenb@google.com>
+Cc:     perex@perex.cz, tiwai@suse.de, mathias.payer@nebelwelt.net,
+        benquike@gmail.com, kdeus@google.com, alsa-devel@alsa-project.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 1/1] ALSA: usb-audio: Fix UAF decrement if card has no
+ live interfaces in card.c
+Message-ID: <20190523174305.GA29438@kroah.com>
+References: <20190522172655.183977-1-surenb@google.com>
 MIME-Version: 1.0
-References: <20190523172345.1861077-1-songliubraving@fb.com>
-In-Reply-To: <20190523172345.1861077-1-songliubraving@fb.com>
-From:   Song Liu <liu.song.a23@gmail.com>
-Date:   Thu, 23 May 2019 10:25:38 -0700
-Message-ID: <CAPhsuW5GghbT5XOJgNx0AM+HCD0kLcDdFV1YRRg3rHo+iU4gyQ@mail.gmail.com>
-Subject: Re: [PATCH 1/2] block: Fix a NULL pointer dereference in generic_make_request()
-To:     Song Liu <songliubraving@fb.com>
-Cc:     linux-raid <linux-raid@vger.kernel.org>, stable@vger.kernel.org,
-        Jens Axboe <axboe@kernel.dk>,
-        "Guilherme G. Piccoli" <gpiccoli@canonical.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190522172655.183977-1-surenb@google.com>
+User-Agent: Mutt/1.11.4 (2019-03-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, May 23, 2019 at 10:24 AM Song Liu <songliubraving@fb.com> wrote:
->
-> From: "Guilherme G. Piccoli" <gpiccoli@canonical.com>
->
-> Commit 37f9579f4c31 ("blk-mq: Avoid that submitting a bio concurrently
-> with device removal triggers a crash") introduced a NULL pointer
-> dereference in generic_make_request(). The patch sets q to NULL and
-> enter_succeeded to false; right after, there's an 'if (enter_succeeded)'
-> which is not taken, and then the 'else' will dereference q in
-> blk_queue_dying(q).
->
-> This patch just moves the 'q = NULL' to a point in which it won't trigger
-> the oops, although the semantics of this NULLification remains untouched.
->
-> A simple test case/reproducer is as follows:
-> a) Build kernel v5.2-rc1 with CONFIG_BLK_CGROUP=n.
->
-> b) Create a raid0 md array with 2 NVMe devices as members, and mount it
-> with an ext4 filesystem.
->
-> c) Run the following oneliner (supposing the raid0 is mounted in /mnt):
-> (dd of=/mnt/tmp if=/dev/zero bs=1M count=999 &); sleep 0.3;
-> echo 1 > /sys/block/nvme0n1/device/device/remove
-> (whereas nvme0n1 is the 2nd array member)
->
-> This will trigger the following oops:
->
-> BUG: unable to handle kernel NULL pointer dereference at 0000000000000078
-> PGD 0 P4D 0
-> Oops: 0000 [#1] SMP PTI
-> RIP: 0010:generic_make_request+0x32b/0x400
-> Call Trace:
->  submit_bio+0x73/0x140
->  ext4_io_submit+0x4d/0x60
->  ext4_writepages+0x626/0xe90
->  do_writepages+0x4b/0xe0
-> [...]
->
-> This patch has no functional changes and preserves the md/raid0 behavior
-> when a member is removed before kernel v4.17.
->
-> Cc: stable@vger.kernel.org # v4.17
-> Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-> Reviewed-by: Ming Lei <ming.lei@redhat.com>
-> Reviewed-by: Christoph Hellwig <hch@lst.de>
-> Tested-by: Eric Ren <renzhengeek@gmail.com>
-> Fixes: 37f9579f4c31 ("blk-mq: Avoid that submitting a bio concurrently with device removal triggers a crash")
-> Signed-off-by: Guilherme G. Piccoli <gpiccoli@canonical.com>
-> Signed-off-by: Song Liu <songliubraving@fb.com>
-
-Please note this patchset is only for stable.
-
-Thanks,
-Song
-
+On Wed, May 22, 2019 at 10:26:55AM -0700, Suren Baghdasaryan wrote:
+> Commit 5f8cf712582617d523120df67d392059eaf2fc4b upstream.
+> 
+> This is a backport to stable 3.18.y. Implementation in 3.18 differs using
+> chip->probing flag instead of chip->active atomic but it still has the UAF
+> issue.
+> 
+> If a USB sound card reports 0 interfaces, an error condition is triggered
+> and the function usb_audio_probe errors out. In the error path, there was a
+> use-after-free vulnerability where the memory object of the card was first
+> freed, followed by a decrement of the number of active chips. Moving the
+> decrement above the atomic_dec fixes the UAF.
+> 
+> [ The original problem was introduced in 3.1 kernel, while it was
+>   developed in a different form.  The Fixes tag below indicates the
+>   original commit but it doesn't mean that the patch is applicable
+>   cleanly. -- tiwai ]
+> 
+> Fixes: 362e4e49abe5 ("ALSA: usb-audio - clear chip->probing on error exit")
+> Reported-by: Hui Peng <benquike@gmail.com>
+> Reported-by: Mathias Payer <mathias.payer@nebelwelt.net>
+> Signed-off-by: Hui Peng <benquike@gmail.com>
+> Signed-off-by: Mathias Payer <mathias.payer@nebelwelt.net>
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Takashi Iwai <tiwai@suse.de>
+> [surenb@google.com: resolve 3.18 differences]
+> Signed-off-by: Suren Baghdasaryan <surenb@google.com>
 > ---
->  block/blk-core.c | 5 ++---
->  1 file changed, 2 insertions(+), 3 deletions(-)
->
-> diff --git a/block/blk-core.c b/block/blk-core.c
-> index a55389ba8779..d24a29244cb8 100644
-> --- a/block/blk-core.c
-> +++ b/block/blk-core.c
-> @@ -1074,10 +1074,8 @@ blk_qc_t generic_make_request(struct bio *bio)
->                         flags = 0;
->                         if (bio->bi_opf & REQ_NOWAIT)
->                                 flags = BLK_MQ_REQ_NOWAIT;
-> -                       if (blk_queue_enter(q, flags) < 0) {
-> +                       if (blk_queue_enter(q, flags) < 0)
->                                 enter_succeeded = false;
-> -                               q = NULL;
-> -                       }
->                 }
->
->                 if (enter_succeeded) {
-> @@ -1108,6 +1106,7 @@ blk_qc_t generic_make_request(struct bio *bio)
->                                 bio_wouldblock_error(bio);
->                         else
->                                 bio_io_error(bio);
-> +                       q = NULL;
->                 }
->                 bio = bio_list_pop(&bio_list_on_stack[0]);
->         } while (bio);
-> --
-> 2.17.1
->
+> Analysis for 3.18 codebase:
+> snd_usb_audio_create() sets card->device_data = chip
+> snd_usb_audio_probe() calls snd_card_free() and then resets chip->probing
+> snd_card_free() results in the following call chain:
+>  snd_card_free_when_closed() which waits on release_completion
+>  snd_card_do_free() calls snd_device_free_all() and signals release_completion
+>  snd_card_do_free() calls __snd_device_free()
+>  __snd_device_free() calls dev->ops->dev_free() == snd_usb_audio_dev_free()
+>  snd_usb_audio_dev_free() calls snd_usb_audio_free(chip) and frees "chip"
+> chip->probing = 0 results in UAF
+
+Thanks for the backport.  I've added it to my "internal" 3.18 queue.  As
+there is not going to be any more public kernel.org 3.18.y releases,
+I'll just be doing updates in the android-common tree over time every
+few weeks.  This will end up in the next batch that gets merged into
+there, thanks!
+
+greg k-h
