@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D6B06279E7
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 11:58:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 564DB279E8
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 11:58:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729966AbfEWJ6R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 05:58:17 -0400
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:60145 "EHLO
+        id S1726299AbfEWJ6S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 05:58:18 -0400
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:59269 "EHLO
         out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729762AbfEWJ6Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 May 2019 05:58:16 -0400
+        by vger.kernel.org with ESMTP id S1730484AbfEWJ6S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 May 2019 05:58:18 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 02E04354F2;
-        Thu, 23 May 2019 05:58:16 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Thu, 23 May 2019 05:58:16 -0400
+        by mailout.nyi.internal (Postfix) with ESMTP id 8B7BD355E0;
+        Thu, 23 May 2019 05:58:17 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Thu, 23 May 2019 05:58:17 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=rBIEyl
-        /8iLHBH3hF00HUp5y/tAyl7MlZxfrpXM86rUw=; b=aTJePot5KYNrJQt9CPbaI/
-        bj4EfAZ8OqSYfpPKn4Vck4vQ9JK2d5VH43MMhk1oI7H6HS5YdCoGUsxVxx7fghiz
-        Uzngz3b01dmOycAC3e2RY5f4uW3erS8WVY2gKE2CAVZaIr56eYHAk9hRpROHb2d9
-        SxVauftVsHts5TtGDWEm3mC0Z12ckl4RncKxiRofGe7n0Dzbep4QVW/F9cZJtnf7
-        BWG6ZleEjGgxyA9LBOPHsEQ3qkYVekCqt5rdgSOA5cWdC2IITblyRg0wnAq1LDmS
-        gVqMdF3eAY5OI/oCW+Vwo8VIuHIud0zMJ8H5OqiRIbN8Ojpq3S0UhND4oT0wTEZg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=xtdFKt
+        A16CLWavUcFne6heeYegXkUNCwrhp1wuXM3Js=; b=JPwTr/FTgrrDEJn2pNmI1Z
+        O21FDdL1fFwa3kvhyPe/l7U3coDbGhYIL0rwdP3ZCc+tmIsQeuPre2ufz8WzFaPJ
+        a2JMTzZrvZothjii4TbO2MlZNduX1NbmklAoEEIR+j3hn+Tjh7eGJWCSC9fpq/h1
+        sH5HnDJtrLhfDBnkF0b0dqewL/uca9gYpBHP2vOwDtFYWA43jMPz6eR5azhTzf81
+        QaZP7OobZO+g2arzI/nXeGJUlKFj2M6TBwX/VXqUT+ViIDq2U9voK4Lhdd1uOIM3
+        532s+jME3ag6NKD9b7JoJkiNwkJCn+cZPc5eLb70kqKFj+53PA6tH7cALgSk90Bw
         ==
-X-ME-Sender: <xms:t27mXE7rPUJOV5AF8tqXj4bD0qSSHihvZ9bR8959urjrVn0rkFu9oQ>
+X-ME-Sender: <xms:uW7mXIgTCYqdjJmYljWBEma8OhRtRxTCiaytaMz4DgCRm_2oC5-MMg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddruddugedgvdefucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
     epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepud
-X-ME-Proxy: <xmx:t27mXMbjGsu6x3yVOHA3ad_2n3sYtup30qrb2NrWhAg41dZORKLM7A>
-    <xmx:t27mXBfqiOq-ArC-1K_QqTX0RSBTYd9EafwQJbxYI67-B9IWBI6dQA>
-    <xmx:t27mXL6heqtn8cXJr6s8L_780-7XaGPvcBpn9_8as4Kok5wa1xcUoQ>
-    <xmx:t27mXK5GRY6vUI1WrUYQ4PVRE14nQV8GNcKb8lo0Tmr0xOjEcCj_GQ>
+X-ME-Proxy: <xmx:uW7mXESodAvMEWYILLA01fjl30dv8iG_2gW4_x6K5gmbhBuetqHJZQ>
+    <xmx:uW7mXEIpGNBrajcB1oa3CkJJSGfXbs3OkDGPnURm4cXcOmiCTGNBug>
+    <xmx:uW7mXDQYvlzXxqfp8eHHvKrSi6B2oS6W-M-MZg16Pd-YEKlqJuTKrQ>
+    <xmx:uW7mXE3GlIqM9KPjTEXiQ6NRDWT6X1wt_egrkNE5pF3YJeBB3yiSOQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 65A8380062;
-        Thu, 23 May 2019 05:58:15 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] stm class: Fix channel bitmap on 32-bit systems" failed to apply to 4.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 0FBE2380073;
+        Thu, 23 May 2019 05:58:16 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] stm class: Fix channel bitmap on 32-bit systems" failed to apply to 4.9-stable tree
 To:     alexander.shishkin@linux.intel.com, gregkh@linuxfoundation.org,
         muluhe@codeaurora.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Thu, 23 May 2019 11:58:06 +0200
-Message-ID: <1558605486248167@kroah.com>
+Message-ID: <155860548656193@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
