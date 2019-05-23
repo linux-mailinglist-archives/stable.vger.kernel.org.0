@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7492528A61
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:57:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C50D28948
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:42:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387684AbfEWTNP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:13:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47114 "EHLO mail.kernel.org"
+        id S2387760AbfEWTdZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:33:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388535AbfEWTNO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:13:14 -0400
+        id S2391408AbfEWT3G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:29:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 26AEF2133D;
-        Thu, 23 May 2019 19:13:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E41C82184E;
+        Thu, 23 May 2019 19:29:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558638793;
-        bh=f9nW3eW/JZUhDP1mC9CGGowAK0xI9bgaliSg1tvtH0U=;
+        s=default; t=1558639745;
+        bh=bRt5aQ02+ZCB3U16y6YlI6tuHQ0IH4I6lTxjjEgaPq4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DCt9xHLSJ0drjz9h+mY4bY88whBoEvLSi6ZaeL8VKuOqxl/Hj3lJIuQ+qaaTyNzhW
-         pIs2n6HPR+AwH0nZ/HbqFgeMyUiyaRscyQX2VOZRqU95MCz8tviJU4zdI5oYZJjjuL
-         SviLVU7IyfLVFgvHpBMFDoZA8IJk9AXTZrmi2LHE=
+        b=NoMxG6UC8womYl9YzkGgo1eo5vDKqw1lhjpHbI1pvMNYnbsP9AE47zKWANueRaUEf
+         iGBiFlIAjKCiVx7oKNduBoKbDOlDd3yVmAqkSIz2lBD0baV5MKOC2WfpeO20MXIjge
+         UVq5RW/8avBaTdbj/yor3dYXX8AU2dGf5yGOLkt4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luca Coelho <luciano.coelho@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 67/77] iwlwifi: mvm: check for length correctness in iwl_mvm_create_skb()
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Bernie Thompson <bernie@plugable.com>,
+        Ladislav Michl <ladis@linux-mips.org>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Subject: [PATCH 5.1 063/122] udlfb: delete the unused parameter for dlfb_handle_damage
 Date:   Thu, 23 May 2019 21:06:25 +0200
-Message-Id: <20190523181729.245577514@linuxfoundation.org>
+Message-Id: <20190523181713.064908535@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181719.982121681@linuxfoundation.org>
-References: <20190523181719.982121681@linuxfoundation.org>
+In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
+References: <20190523181705.091418060@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,114 +45,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit de1887c064b9996ac03120d90d0a909a3f678f98 ]
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-We don't check for the validity of the lengths in the packet received
-from the firmware.  If the MPDU length received in the rx descriptor
-is too short to contain the header length and the crypt length
-together, we may end up trying to copy a negative number of bytes
-(headlen - hdrlen < 0) which will underflow and cause us to try to
-copy a huge amount of data.  This causes oopses such as this one:
+commit bd86b6c5c60711dbd4fa21bdb497a188ecb6cf63 upstream.
 
-BUG: unable to handle kernel paging request at ffff896be2970000
-PGD 5e201067 P4D 5e201067 PUD 5e205067 PMD 16110d063 PTE 8000000162970161
-Oops: 0003 [#1] PREEMPT SMP NOPTI
-CPU: 2 PID: 1824 Comm: irq/134-iwlwifi Not tainted 4.19.33-04308-geea41cf4930f #1
-Hardware name: [...]
-RIP: 0010:memcpy_erms+0x6/0x10
-Code: 90 90 90 90 eb 1e 0f 1f 00 48 89 f8 48 89 d1 48 c1 e9 03 83 e2 07 f3 48 a5 89 d1 f3 a4 c3 66 0f 1f 44 00 00 48 89 f8 48 89 d1 <f3> a4 c3
- 0f 1f 80 00 00 00 00 48 89 f8 48 83 fa 20 72 7e 40 38 fe
-RSP: 0018:ffffa4630196fc60 EFLAGS: 00010287
-RAX: ffff896be2924618 RBX: ffff896bc8ecc600 RCX: 00000000fffb4610
-RDX: 00000000fffffff8 RSI: ffff896a835e2a38 RDI: ffff896be2970000
-RBP: ffffa4630196fd30 R08: ffff896bc8ecc600 R09: ffff896a83597000
-R10: ffff896bd6998400 R11: 000000000200407f R12: ffff896a83597050
-R13: 00000000fffffff8 R14: 0000000000000010 R15: ffff896a83597038
-FS:  0000000000000000(0000) GS:ffff896be8280000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: ffff896be2970000 CR3: 000000005dc12002 CR4: 00000000003606e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- iwl_mvm_rx_mpdu_mq+0xb51/0x121b [iwlmvm]
- iwl_pcie_rx_handle+0x58c/0xa89 [iwlwifi]
- iwl_pcie_irq_rx_msix_handler+0xd9/0x12a [iwlwifi]
- irq_thread_fn+0x24/0x49
- irq_thread+0xb0/0x122
- kthread+0x138/0x140
- ret_from_fork+0x1f/0x40
+Remove the unused parameter "data" and unused variable "ret".
 
-Fix that by checking the lengths for correctness and trigger a warning
-to show that we have received wrong data.
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Cc: Bernie Thompson <bernie@plugable.com>
+Cc: Ladislav Michl <ladis@linux-mips.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c | 28 ++++++++++++++++---
- 1 file changed, 24 insertions(+), 4 deletions(-)
+ drivers/video/fbdev/udlfb.c |   21 +++++++++------------
+ 1 file changed, 9 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c b/drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c
-index 8ba8c70571fb7..7fb8bbaf21420 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c
-@@ -141,9 +141,9 @@ static inline int iwl_mvm_check_pn(struct iwl_mvm *mvm, struct sk_buff *skb,
+--- a/drivers/video/fbdev/udlfb.c
++++ b/drivers/video/fbdev/udlfb.c
+@@ -594,10 +594,9 @@ static int dlfb_render_hline(struct dlfb
+ 	return 0;
  }
  
- /* iwl_mvm_create_skb Adds the rxb to a new skb */
--static void iwl_mvm_create_skb(struct sk_buff *skb, struct ieee80211_hdr *hdr,
--			       u16 len, u8 crypt_len,
--			       struct iwl_rx_cmd_buffer *rxb)
-+static int iwl_mvm_create_skb(struct iwl_mvm *mvm, struct sk_buff *skb,
-+			      struct ieee80211_hdr *hdr, u16 len, u8 crypt_len,
-+			      struct iwl_rx_cmd_buffer *rxb)
+-static int dlfb_handle_damage(struct dlfb_data *dlfb, int x, int y,
+-	       int width, int height, char *data)
++static int dlfb_handle_damage(struct dlfb_data *dlfb, int x, int y, int width, int height)
  {
- 	struct iwl_rx_packet *pkt = rxb_addr(rxb);
- 	struct iwl_rx_mpdu_desc *desc = (void *)pkt->data;
-@@ -184,6 +184,20 @@ static void iwl_mvm_create_skb(struct sk_buff *skb, struct ieee80211_hdr *hdr,
- 	 * present before copying packet data.
- 	 */
- 	hdrlen += crypt_len;
-+
-+	if (WARN_ONCE(headlen < hdrlen,
-+		      "invalid packet lengths (hdrlen=%d, len=%d, crypt_len=%d)\n",
-+		      hdrlen, len, crypt_len)) {
-+		/*
-+		 * We warn and trace because we want to be able to see
-+		 * it in trace-cmd as well.
-+		 */
-+		IWL_DEBUG_RX(mvm,
-+			     "invalid packet lengths (hdrlen=%d, len=%d, crypt_len=%d)\n",
-+			     hdrlen, len, crypt_len);
-+		return -EINVAL;
-+	}
-+
- 	skb_put_data(skb, hdr, hdrlen);
- 	skb_put_data(skb, (u8 *)hdr + hdrlen + pad_len, headlen - hdrlen);
+-	int i, ret;
++	int i;
+ 	char *cmd;
+ 	cycles_t start_cycles, end_cycles;
+ 	int bytes_sent = 0;
+@@ -641,7 +640,7 @@ static int dlfb_handle_damage(struct dlf
+ 			*cmd++ = 0xAF;
+ 		/* Send partial buffer remaining before exiting */
+ 		len = cmd - (char *) urb->transfer_buffer;
+-		ret = dlfb_submit_urb(dlfb, urb, len);
++		dlfb_submit_urb(dlfb, urb, len);
+ 		bytes_sent += len;
+ 	} else
+ 		dlfb_urb_completion(urb);
+@@ -679,7 +678,7 @@ static ssize_t dlfb_ops_write(struct fb_
+ 				(u32)info->var.yres);
  
-@@ -196,6 +210,8 @@ static void iwl_mvm_create_skb(struct sk_buff *skb, struct ieee80211_hdr *hdr,
- 		skb_add_rx_frag(skb, 0, rxb_steal_page(rxb), offset,
- 				fraglen, rxb->truesize);
+ 		dlfb_handle_damage(dlfb, 0, start, info->var.xres,
+-			lines, info->screen_base);
++			lines);
  	}
-+
-+	return 0;
+ 
+ 	return result;
+@@ -695,7 +694,7 @@ static void dlfb_ops_copyarea(struct fb_
+ 	sys_copyarea(info, area);
+ 
+ 	dlfb_handle_damage(dlfb, area->dx, area->dy,
+-			area->width, area->height, info->screen_base);
++			area->width, area->height);
  }
  
- /* iwl_mvm_pass_packet_to_mac80211 - passes the packet for mac80211 */
-@@ -1033,7 +1049,11 @@ void iwl_mvm_rx_mpdu_mq(struct iwl_mvm *mvm, struct napi_struct *napi,
- 			rx_status->boottime_ns = ktime_get_boot_ns();
+ static void dlfb_ops_imageblit(struct fb_info *info,
+@@ -706,7 +705,7 @@ static void dlfb_ops_imageblit(struct fb
+ 	sys_imageblit(info, image);
+ 
+ 	dlfb_handle_damage(dlfb, image->dx, image->dy,
+-			image->width, image->height, info->screen_base);
++			image->width, image->height);
+ }
+ 
+ static void dlfb_ops_fillrect(struct fb_info *info,
+@@ -717,7 +716,7 @@ static void dlfb_ops_fillrect(struct fb_
+ 	sys_fillrect(info, rect);
+ 
+ 	dlfb_handle_damage(dlfb, rect->dx, rect->dy, rect->width,
+-			      rect->height, info->screen_base);
++			      rect->height);
+ }
+ 
+ /*
+@@ -859,8 +858,7 @@ static int dlfb_ops_ioctl(struct fb_info
+ 		if (area.y > info->var.yres)
+ 			area.y = info->var.yres;
+ 
+-		dlfb_handle_damage(dlfb, area.x, area.y, area.w, area.h,
+-			   info->screen_base);
++		dlfb_handle_damage(dlfb, area.x, area.y, area.w, area.h);
  	}
  
--	iwl_mvm_create_skb(skb, hdr, len, crypt_len, rxb);
-+	if (iwl_mvm_create_skb(mvm, skb, hdr, len, crypt_len, rxb)) {
-+		kfree_skb(skb);
-+		goto out;
-+	}
-+
- 	if (!iwl_mvm_reorder(mvm, napi, queue, sta, skb, desc))
- 		iwl_mvm_pass_packet_to_mac80211(mvm, napi, skb, queue, sta);
- out:
--- 
-2.20.1
-
+ 	return 0;
+@@ -1065,8 +1063,7 @@ static int dlfb_ops_set_par(struct fb_in
+ 			pix_framebuffer[i] = 0x37e6;
+ 	}
+ 
+-	dlfb_handle_damage(dlfb, 0, 0, info->var.xres, info->var.yres,
+-			   info->screen_base);
++	dlfb_handle_damage(dlfb, 0, 0, info->var.xres, info->var.yres);
+ 
+ 	return 0;
+ }
 
 
