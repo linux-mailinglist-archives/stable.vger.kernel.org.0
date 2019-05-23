@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C50D28948
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:42:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 448AE28769
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:25:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387760AbfEWTdZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:33:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42068 "EHLO mail.kernel.org"
+        id S2389224AbfEWTTM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:19:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391408AbfEWT3G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:29:06 -0400
+        id S2389753AbfEWTTM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:19:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E41C82184E;
-        Thu, 23 May 2019 19:29:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5CDB22133D;
+        Thu, 23 May 2019 19:19:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639745;
-        bh=bRt5aQ02+ZCB3U16y6YlI6tuHQ0IH4I6lTxjjEgaPq4=;
+        s=default; t=1558639150;
+        bh=HNGLaFlvxUey+wgNM8bSXPpa0u4wbFLvqAw5Xwmpc7w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NoMxG6UC8womYl9YzkGgo1eo5vDKqw1lhjpHbI1pvMNYnbsP9AE47zKWANueRaUEf
-         iGBiFlIAjKCiVx7oKNduBoKbDOlDd3yVmAqkSIz2lBD0baV5MKOC2WfpeO20MXIjge
-         UVq5RW/8avBaTdbj/yor3dYXX8AU2dGf5yGOLkt4=
+        b=EyPNH0+JMEDAE6BMmw76nmg9meqJYxYIl8uq1WxwRS71RnOzcpsQmgsXZODRUCfZx
+         Xt80vi2VToSo1SLdWxjOzztfN9wI/kE97Tr/N9Uge/5A9Gzwx1Lj/Z7RF/gPmAcHDA
+         KxPG3ATOaw5O29odX+Nnf3EmydA9gN/yyDH5eVPc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Bernie Thompson <bernie@plugable.com>,
-        Ladislav Michl <ladis@linux-mips.org>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Subject: [PATCH 5.1 063/122] udlfb: delete the unused parameter for dlfb_handle_damage
+        stable@vger.kernel.org,
+        syzbot+0bf0519d6e0de15914fe@syzkaller.appspotmail.com,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 086/114] xfrm: clean up xfrm protocol checks
 Date:   Thu, 23 May 2019 21:06:25 +0200
-Message-Id: <20190523181713.064908535@linuxfoundation.org>
+Message-Id: <20190523181739.411590584@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
-References: <20190523181705.091418060@linuxfoundation.org>
+In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
+References: <20190523181731.372074275@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,102 +47,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+[ Upstream commit dbb2483b2a46fbaf833cfb5deb5ed9cace9c7399 ]
 
-commit bd86b6c5c60711dbd4fa21bdb497a188ecb6cf63 upstream.
+In commit 6a53b7593233 ("xfrm: check id proto in validate_tmpl()")
+I introduced a check for xfrm protocol, but according to Herbert
+IPSEC_PROTO_ANY should only be used as a wildcard for lookup, so
+it should be removed from validate_tmpl().
 
-Remove the unused parameter "data" and unused variable "ret".
+And, IPSEC_PROTO_ANY is expected to only match 3 IPSec-specific
+protocols, this is why xfrm_state_flush() could still miss
+IPPROTO_ROUTING, which leads that those entries are left in
+net->xfrm.state_all before exit net. Fix this by replacing
+IPSEC_PROTO_ANY with zero.
 
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Cc: Bernie Thompson <bernie@plugable.com>
-Cc: Ladislav Michl <ladis@linux-mips.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This patch also extracts the check from validate_tmpl() to
+xfrm_id_proto_valid() and uses it in parse_ipsecrequest().
+With this, no other protocols should be added into xfrm.
 
+Fixes: 6a53b7593233 ("xfrm: check id proto in validate_tmpl()")
+Reported-by: syzbot+0bf0519d6e0de15914fe@syzkaller.appspotmail.com
+Cc: Steffen Klassert <steffen.klassert@secunet.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Cong Wang <xiyou.wangcong@gmail.com>
+Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/udlfb.c |   21 +++++++++------------
- 1 file changed, 9 insertions(+), 12 deletions(-)
+ include/net/xfrm.h      | 17 +++++++++++++++++
+ net/ipv6/xfrm6_tunnel.c |  2 +-
+ net/key/af_key.c        |  4 +++-
+ net/xfrm/xfrm_state.c   |  2 +-
+ net/xfrm/xfrm_user.c    | 14 +-------------
+ 5 files changed, 23 insertions(+), 16 deletions(-)
 
---- a/drivers/video/fbdev/udlfb.c
-+++ b/drivers/video/fbdev/udlfb.c
-@@ -594,10 +594,9 @@ static int dlfb_render_hline(struct dlfb
- 	return 0;
+diff --git a/include/net/xfrm.h b/include/net/xfrm.h
+index 5e3daf53b3d1e..3e966c632f3b2 100644
+--- a/include/net/xfrm.h
++++ b/include/net/xfrm.h
+@@ -1430,6 +1430,23 @@ static inline int xfrm_state_kern(const struct xfrm_state *x)
+ 	return atomic_read(&x->tunnel_users);
  }
  
--static int dlfb_handle_damage(struct dlfb_data *dlfb, int x, int y,
--	       int width, int height, char *data)
-+static int dlfb_handle_damage(struct dlfb_data *dlfb, int x, int y, int width, int height)
++static inline bool xfrm_id_proto_valid(u8 proto)
++{
++	switch (proto) {
++	case IPPROTO_AH:
++	case IPPROTO_ESP:
++	case IPPROTO_COMP:
++#if IS_ENABLED(CONFIG_IPV6)
++	case IPPROTO_ROUTING:
++	case IPPROTO_DSTOPTS:
++#endif
++		return true;
++	default:
++		return false;
++	}
++}
++
++/* IPSEC_PROTO_ANY only matches 3 IPsec protocols, 0 could match all. */
+ static inline int xfrm_id_proto_match(u8 proto, u8 userproto)
  {
--	int i, ret;
-+	int i;
- 	char *cmd;
- 	cycles_t start_cycles, end_cycles;
- 	int bytes_sent = 0;
-@@ -641,7 +640,7 @@ static int dlfb_handle_damage(struct dlf
- 			*cmd++ = 0xAF;
- 		/* Send partial buffer remaining before exiting */
- 		len = cmd - (char *) urb->transfer_buffer;
--		ret = dlfb_submit_urb(dlfb, urb, len);
-+		dlfb_submit_urb(dlfb, urb, len);
- 		bytes_sent += len;
- 	} else
- 		dlfb_urb_completion(urb);
-@@ -679,7 +678,7 @@ static ssize_t dlfb_ops_write(struct fb_
- 				(u32)info->var.yres);
+ 	return (!userproto || proto == userproto ||
+diff --git a/net/ipv6/xfrm6_tunnel.c b/net/ipv6/xfrm6_tunnel.c
+index 12cb3aa990af4..d9e5f6808811a 100644
+--- a/net/ipv6/xfrm6_tunnel.c
++++ b/net/ipv6/xfrm6_tunnel.c
+@@ -345,7 +345,7 @@ static void __net_exit xfrm6_tunnel_net_exit(struct net *net)
+ 	unsigned int i;
  
- 		dlfb_handle_damage(dlfb, 0, start, info->var.xres,
--			lines, info->screen_base);
-+			lines);
- 	}
+ 	xfrm_flush_gc();
+-	xfrm_state_flush(net, IPSEC_PROTO_ANY, false, true);
++	xfrm_state_flush(net, 0, false, true);
  
- 	return result;
-@@ -695,7 +694,7 @@ static void dlfb_ops_copyarea(struct fb_
- 	sys_copyarea(info, area);
+ 	for (i = 0; i < XFRM6_TUNNEL_SPI_BYADDR_HSIZE; i++)
+ 		WARN_ON_ONCE(!hlist_empty(&xfrm6_tn->spi_byaddr[i]));
+diff --git a/net/key/af_key.c b/net/key/af_key.c
+index 7d4bed9550605..0b79c9aa8eb1f 100644
+--- a/net/key/af_key.c
++++ b/net/key/af_key.c
+@@ -1951,8 +1951,10 @@ parse_ipsecrequest(struct xfrm_policy *xp, struct sadb_x_ipsecrequest *rq)
  
- 	dlfb_handle_damage(dlfb, area->dx, area->dy,
--			area->width, area->height, info->screen_base);
-+			area->width, area->height);
- }
+ 	if (rq->sadb_x_ipsecrequest_mode == 0)
+ 		return -EINVAL;
++	if (!xfrm_id_proto_valid(rq->sadb_x_ipsecrequest_proto))
++		return -EINVAL;
  
- static void dlfb_ops_imageblit(struct fb_info *info,
-@@ -706,7 +705,7 @@ static void dlfb_ops_imageblit(struct fb
- 	sys_imageblit(info, image);
+-	t->id.proto = rq->sadb_x_ipsecrequest_proto; /* XXX check proto */
++	t->id.proto = rq->sadb_x_ipsecrequest_proto;
+ 	if ((mode = pfkey_mode_to_xfrm(rq->sadb_x_ipsecrequest_mode)) < 0)
+ 		return -EINVAL;
+ 	t->mode = mode;
+diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
+index 3f729cd512aff..11e09eb138d60 100644
+--- a/net/xfrm/xfrm_state.c
++++ b/net/xfrm/xfrm_state.c
+@@ -2386,7 +2386,7 @@ void xfrm_state_fini(struct net *net)
  
- 	dlfb_handle_damage(dlfb, image->dx, image->dy,
--			image->width, image->height, info->screen_base);
-+			image->width, image->height);
- }
+ 	flush_work(&net->xfrm.state_hash_work);
+ 	flush_work(&xfrm_state_gc_work);
+-	xfrm_state_flush(net, IPSEC_PROTO_ANY, false, true);
++	xfrm_state_flush(net, 0, false, true);
  
- static void dlfb_ops_fillrect(struct fb_info *info,
-@@ -717,7 +716,7 @@ static void dlfb_ops_fillrect(struct fb_
- 	sys_fillrect(info, rect);
+ 	WARN_ON(!list_empty(&net->xfrm.state_all));
  
- 	dlfb_handle_damage(dlfb, rect->dx, rect->dy, rect->width,
--			      rect->height, info->screen_base);
-+			      rect->height);
- }
+diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
+index 060afc4ffd958..2122f89f61555 100644
+--- a/net/xfrm/xfrm_user.c
++++ b/net/xfrm/xfrm_user.c
+@@ -1513,20 +1513,8 @@ static int validate_tmpl(int nr, struct xfrm_user_tmpl *ut, u16 family)
+ 			return -EINVAL;
+ 		}
  
- /*
-@@ -859,8 +858,7 @@ static int dlfb_ops_ioctl(struct fb_info
- 		if (area.y > info->var.yres)
- 			area.y = info->var.yres;
- 
--		dlfb_handle_damage(dlfb, area.x, area.y, area.w, area.h,
--			   info->screen_base);
-+		dlfb_handle_damage(dlfb, area.x, area.y, area.w, area.h);
+-		switch (ut[i].id.proto) {
+-		case IPPROTO_AH:
+-		case IPPROTO_ESP:
+-		case IPPROTO_COMP:
+-#if IS_ENABLED(CONFIG_IPV6)
+-		case IPPROTO_ROUTING:
+-		case IPPROTO_DSTOPTS:
+-#endif
+-		case IPSEC_PROTO_ANY:
+-			break;
+-		default:
++		if (!xfrm_id_proto_valid(ut[i].id.proto))
+ 			return -EINVAL;
+-		}
+-
  	}
  
  	return 0;
-@@ -1065,8 +1063,7 @@ static int dlfb_ops_set_par(struct fb_in
- 			pix_framebuffer[i] = 0x37e6;
- 	}
- 
--	dlfb_handle_damage(dlfb, 0, 0, info->var.xres, info->var.yres,
--			   info->screen_base);
-+	dlfb_handle_damage(dlfb, 0, 0, info->var.xres, info->var.yres);
- 
- 	return 0;
- }
+-- 
+2.20.1
+
 
 
