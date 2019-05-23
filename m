@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B230E28879
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:40:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A270628A89
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:57:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391394AbfEWT0l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:26:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38596 "EHLO mail.kernel.org"
+        id S2389133AbfEWTQL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:16:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391389AbfEWT0l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:26:41 -0400
+        id S2389128AbfEWTQL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:16:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C3647206BA;
-        Thu, 23 May 2019 19:26:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 13A3D21851;
+        Thu, 23 May 2019 19:16:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639600;
-        bh=dXu6vL91nMy3bz87zBqHyFSpPCE7kSEJxLm1GK61tzQ=;
+        s=default; t=1558638970;
+        bh=w/eKGppXN3s6rEHVW5dIcZisZ+GXQs1ZH/NWkrAohcs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y/TgycbV5sxEqwIOCc7RdEkPGzIN+96gCm62A2x7S1iHsyMVoEYa39DfgmmLZ19MA
-         W2za+wjR2xUBkQtvbgwMBDZhOOCtkhYWKZLh2nPv3KEWx9AKAmSfm7XXuHxhHqqhrW
-         JM8bgTIH8PPC2J4p3J/eDj4/YoE7luH7DKU91z3g=
+        b=BDk1aZFkFfTG2CBCwuPQrEh/XOARpG9bW4FUD/8hc8nTnJBg3vwFw5KsNIuI0lbci
+         32zSBPJdYVsPIw5sj3UFAZcgvUzIgKj1h7C6arY0v0SN7IFVhQ3+ggROoRRfHoJ12L
+         1dk69p6PQNyOhN2iNRQVyPL6fwdC5ojmuqUhXp/A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pieter Jansen van Vuuren 
-        <pieter.jansenvanvuuren@netronome.com>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
-        John Hurley <john.hurley@netronome.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.1 008/122] nfp: flower: add rcu locks when accessing netdev for tunnels
+        stable@vger.kernel.org, Phong Tran <tranmanphong@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        David Laight <David.Laight@ACULAB.COM>,
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH 4.19 031/114] of: fix clang -Wunsequenced for be32_to_cpu()
 Date:   Thu, 23 May 2019 21:05:30 +0200
-Message-Id: <20190523181706.119321601@linuxfoundation.org>
+Message-Id: <20190523181734.642536873@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
-References: <20190523181705.091418060@linuxfoundation.org>
+In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
+References: <20190523181731.372074275@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,81 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pieter Jansen van Vuuren <pieter.jansenvanvuuren@netronome.com>
+From: Phong Tran <tranmanphong@gmail.com>
 
-[ Upstream commit cb07d915bf278a7a3938b983bbcb4921366b5eff ]
+commit 440868661f36071886ed360d91de83bd67c73b4f upstream.
 
-Add rcu locks when accessing netdev when processing route request
-and tunnel keep alive messages received from hardware.
+Now, make the loop explicit to avoid clang warning.
 
-Fixes: 8e6a9046b66a ("nfp: flower vxlan neighbour offload")
-Fixes: 856f5b135758 ("nfp: flower vxlan neighbour keep-alive")
-Signed-off-by: Pieter Jansen van Vuuren <pieter.jansenvanvuuren@netronome.com>
-Reviewed-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Reviewed-by: John Hurley <john.hurley@netronome.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+./include/linux/of.h:238:37: warning: multiple unsequenced modifications
+to 'cell' [-Wunsequenced]
+                r = (r << 32) | be32_to_cpu(*(cell++));
+                                                  ^~
+./include/linux/byteorder/generic.h:95:21: note: expanded from macro
+'be32_to_cpu'
+                    ^
+./include/uapi/linux/byteorder/little_endian.h:40:59: note: expanded
+from macro '__be32_to_cpu'
+                                                          ^
+./include/uapi/linux/swab.h:118:21: note: expanded from macro '__swab32'
+        ___constant_swab32(x) :                 \
+                           ^
+./include/uapi/linux/swab.h:18:12: note: expanded from macro
+'___constant_swab32'
+        (((__u32)(x) & (__u32)0x000000ffUL) << 24) |            \
+                  ^
+
+Signed-off-by: Phong Tran <tranmanphong@gmail.com>
+Reported-by: Nick Desaulniers <ndesaulniers@google.com>
+Link: https://github.com/ClangBuiltLinux/linux/issues/460
+Suggested-by: David Laight <David.Laight@ACULAB.COM>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Cc: stable@vger.kernel.org
+[robh: fix up whitespace]
+Signed-off-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/netronome/nfp/flower/tunnel_conf.c |   17 ++++++++++------
- 1 file changed, 11 insertions(+), 6 deletions(-)
 
---- a/drivers/net/ethernet/netronome/nfp/flower/tunnel_conf.c
-+++ b/drivers/net/ethernet/netronome/nfp/flower/tunnel_conf.c
-@@ -168,6 +168,7 @@ void nfp_tunnel_keep_alive(struct nfp_ap
- 		return;
- 	}
- 
-+	rcu_read_lock();
- 	for (i = 0; i < count; i++) {
- 		ipv4_addr = payload->tun_info[i].ipv4;
- 		port = be32_to_cpu(payload->tun_info[i].egress_port);
-@@ -183,6 +184,7 @@ void nfp_tunnel_keep_alive(struct nfp_ap
- 		neigh_event_send(n, NULL);
- 		neigh_release(n);
- 	}
-+	rcu_read_unlock();
- }
- 
- static int
-@@ -366,9 +368,10 @@ void nfp_tunnel_request_route(struct nfp
- 
- 	payload = nfp_flower_cmsg_get_data(skb);
- 
-+	rcu_read_lock();
- 	netdev = nfp_app_repr_get(app, be32_to_cpu(payload->ingress_port));
- 	if (!netdev)
--		goto route_fail_warning;
-+		goto fail_rcu_unlock;
- 
- 	flow.daddr = payload->ipv4_addr;
- 	flow.flowi4_proto = IPPROTO_UDP;
-@@ -378,21 +381,23 @@ void nfp_tunnel_request_route(struct nfp
- 	rt = ip_route_output_key(dev_net(netdev), &flow);
- 	err = PTR_ERR_OR_ZERO(rt);
- 	if (err)
--		goto route_fail_warning;
-+		goto fail_rcu_unlock;
- #else
--	goto route_fail_warning;
-+	goto fail_rcu_unlock;
- #endif
- 
- 	/* Get the neighbour entry for the lookup */
- 	n = dst_neigh_lookup(&rt->dst, &flow.daddr);
- 	ip_rt_put(rt);
- 	if (!n)
--		goto route_fail_warning;
--	nfp_tun_write_neigh(n->dev, app, &flow, n, GFP_KERNEL);
-+		goto fail_rcu_unlock;
-+	nfp_tun_write_neigh(n->dev, app, &flow, n, GFP_ATOMIC);
- 	neigh_release(n);
-+	rcu_read_unlock();
- 	return;
- 
--route_fail_warning:
-+fail_rcu_unlock:
-+	rcu_read_unlock();
- 	nfp_flower_cmsg_warn(app, "Requested route not found.\n");
+---
+ include/linux/of.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- a/include/linux/of.h
++++ b/include/linux/of.h
+@@ -236,8 +236,8 @@ extern struct device_node *of_find_all_n
+ static inline u64 of_read_number(const __be32 *cell, int size)
+ {
+ 	u64 r = 0;
+-	while (size--)
+-		r = (r << 32) | be32_to_cpu(*(cell++));
++	for (; size--; cell++)
++		r = (r << 32) | be32_to_cpu(*cell);
+ 	return r;
  }
  
 
