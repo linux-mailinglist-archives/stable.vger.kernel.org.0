@@ -2,189 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 48B4628B1E
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:59:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05B3028B27
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 22:01:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387429AbfEWT5p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:57:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35356 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387408AbfEWT5p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:57:45 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 84B2720856;
-        Thu, 23 May 2019 19:57:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558641464;
-        bh=xs5QhlJyUpS9m47SKKZyS/Cye4NdlUAIytXOtL+6qgQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=qBSvyKR9Jsv9aWUhfUcvQToNmVOICEH9ehtiNMpVgs4iGN9EX1JNwM6I+hn2yzK1I
-         Cw6JKBuSqytaRx7vtqnA+7flJXIoBOHGJzcWvMRpseYd5dm+m0USIvXwY0BQX6Q0LN
-         ppixdufBl+jbD/eMPYK2rGPhTnznltbIGfZYaZWA=
-Date:   Thu, 23 May 2019 21:57:41 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Amir Goldstein <amir73il@gmail.com>
-Cc:     Miklos Szeredi <mszeredi@redhat.com>,
-        Vivek Goyal <vgoyal@redhat.com>,
-        stable <stable@vger.kernel.org>
-Subject: Re: Patch "ovl: fix missing upper fs freeze protection on copy up
- for ioctl" has been added to the 4.19-stable tree
-Message-ID: <20190523195741.GA4436@kroah.com>
-References: <1558603746191117@kroah.com>
- <CAOQ4uxip8H45S-UmWhNowv9sQUTYzcDMVCZxw=6AvFN-4c1Uvw@mail.gmail.com>
+        id S1731522AbfEWT7Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:59:16 -0400
+Received: from mail-pl1-f196.google.com ([209.85.214.196]:33785 "EHLO
+        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726451AbfEWT7Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 May 2019 15:59:16 -0400
+Received: by mail-pl1-f196.google.com with SMTP id g21so3189045plq.0;
+        Thu, 23 May 2019 12:59:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=FXeIpaG8QnYlsSvuBQzheROLRc/6og0gZQUNXCzHPnk=;
+        b=Qq/CotHfAPTLaqNYoNEM5nBi1kWmhBbet+h8+zbYI46Ur6+z78dgVzQhii8rnPUhN8
+         W2GOA0p+4iYAScMo723GXFTwetRwemzSpBZuVs8DZjnkCLQJGV0MADAvmP93MoJFJ0mn
+         tCU+MZ1f0GGj8P3uIYzQuI0CSIRrllM/iqgjF7KhbLybinPua8ZZk1eJRT3p693fUrfG
+         dw3u89Lmhl0A9pCqotCXB4Qf5R5l+gmobgqyGKQKRL+nsxbDXhVUvvBde1sFStbv0dym
+         YOWHz00RiedElnYrPhFNukcf+IL9lrFW58RGB23cqXQL9yJHoy00X7zRAQjs5NVWnzSm
+         QnFA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=FXeIpaG8QnYlsSvuBQzheROLRc/6og0gZQUNXCzHPnk=;
+        b=TmbRK16zaUaoIToH1laetDQHKBPKDZEy/ZCbEbf4+zG2MJZ5VJNZOFCkFQGDwcCeCG
+         VzRymEc4+BoEtWDOHMAjf83743c+W/qvZYTxbaM5VN3gY2FrdhvdUFSGiHcePnNeWBJb
+         Qs6tFBEt593xFDn5XwqsGrhk4Ufk4WGp1z8CtRJOp3kAFBB4Fyowl3VFs6BXJmAuJYK5
+         tcOgt4qZaxT4OmhIKnsTHcsw859OtI4c6M+/oy7vYglLW7W6RV/1WsPgSxA29xLYvcz+
+         r4MWrcFtB/POF3azS6SqyKzeyqE5aoQlqP6zm6dVDUbD0scnqyTMbIUEKUC4MSQ3Hq9Z
+         DTFg==
+X-Gm-Message-State: APjAAAU8LCVF611VXPTIskYX7bgY3NKNBTmBsp3wEkvekv3DUkXMut+j
+        TZuH9rP8AQ5ySTjwXXoEZoE=
+X-Google-Smtp-Source: APXvYqxdnt94P55UH/jYCSg1yplsBpHn60EwfHrpsiXriEm/8u63ix04lQplJk5iK8HBMK6U1zd7nA==
+X-Received: by 2002:a17:902:4283:: with SMTP id h3mr78509603pld.214.1558641554938;
+        Thu, 23 May 2019 12:59:14 -0700 (PDT)
+Received: from dtor-ws ([2620:15c:202:201:3adc:b08c:7acc:b325])
+        by smtp.gmail.com with ESMTPSA id x16sm260695pff.30.2019.05.23.12.59.14
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Thu, 23 May 2019 12:59:14 -0700 (PDT)
+Date:   Thu, 23 May 2019 12:59:12 -0700
+From:   Dmitry Torokhov <dmitry.torokhov@gmail.com>
+To:     Andrey Smirnov <andrew.smirnov@gmail.com>
+Cc:     linux-input@vger.kernel.org,
+        "Pierre-Loup A . Griffais" <pgriffais@valvesoftware.com>,
+        stable@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Input: uinput - add compat ioctl number translation for
+ UI_*_FF_UPLOAD
+Message-ID: <20190523195912.GB176265@dtor-ws>
+References: <20190522013922.25538-1-andrew.smirnov@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAOQ4uxip8H45S-UmWhNowv9sQUTYzcDMVCZxw=6AvFN-4c1Uvw@mail.gmail.com>
-User-Agent: Mutt/1.11.4 (2019-03-13)
+In-Reply-To: <20190522013922.25538-1-andrew.smirnov@gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, May 23, 2019 at 10:51:58PM +0300, Amir Goldstein wrote:
-> On Thu, May 23, 2019 at 12:30 PM <gregkh@linuxfoundation.org> wrote:
-> >
-> >
-> > This is a note to let you know that I've just added the patch titled
-> >
-> >     ovl: fix missing upper fs freeze protection on copy up for ioctl
-> >
-> > to the 4.19-stable tree which can be found at:
-> >     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
-> >
-> > The filename of the patch is:
-> >      ovl-fix-missing-upper-fs-freeze-protection-on-copy-up-for-ioctl.patch
-> > and it can be found in the queue-4.19 subdirectory.
-> >
-> > If you, or anyone else, feels it should not be added to the stable tree,
-> > please let <stable@vger.kernel.org> know about it.
-> >
-> >
-> > From 3428030da004a1128cbdcf93dc03e16f184d845b Mon Sep 17 00:00:00 2001
-> > From: Amir Goldstein <amir73il@gmail.com>
-> > Date: Tue, 22 Jan 2019 07:01:39 +0200
-> > Subject: ovl: fix missing upper fs freeze protection on copy up for ioctl
-> >
-> > From: Amir Goldstein <amir73il@gmail.com>
-> >
-> > commit 3428030da004a1128cbdcf93dc03e16f184d845b upstream.
-> >
-> > Generalize the helper ovl_open_maybe_copy_up() and use it to copy up file
-> > with data before FS_IOC_SETFLAGS ioctl.
-> >
-> > The FS_IOC_SETFLAGS ioctl is a bit of an odd ball in vfs, which probably
-> > caused the confusion.  File may be open O_RDONLY, but ioctl modifies the
-> > file.  VFS does not call mnt_want_write_file() nor lock inode mutex, but
-> > fs-specific code for FS_IOC_SETFLAGS does.  So ovl_ioctl() calls
-> > mnt_want_write_file() for the overlay file, and fs-specific code calls
-> > mnt_want_write_file() for upper fs file, but there was no call for
-> > ovl_want_write() for copy up duration which prevents overlayfs from copying
-> > up on a frozen upper fs.
-> >
-> > Fixes: dab5ca8fd9dd ("ovl: add lsattr/chattr support")
-> > Cc: <stable@vger.kernel.org> # v4.19
-> > Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-> > Acked-by: Vivek Goyal <vgoyal@redhat.com>
-> > Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> >
-> > ---
-> >  fs/overlayfs/copy_up.c   |    6 +++---
-> >  fs/overlayfs/file.c      |    5 ++---
-> >  fs/overlayfs/overlayfs.h |    2 +-
-> >  3 files changed, 6 insertions(+), 7 deletions(-)
-> >
-> > --- a/fs/overlayfs/copy_up.c
-> > +++ b/fs/overlayfs/copy_up.c
-> > @@ -878,14 +878,14 @@ static bool ovl_open_need_copy_up(struct
-> >         return true;
-> >  }
-> >
-> > -int ovl_open_maybe_copy_up(struct dentry *dentry, unsigned int file_flags)
-> > +int ovl_maybe_copy_up(struct dentry *dentry, int flags)
-> >  {
-> >         int err = 0;
-> >
-> > -       if (ovl_open_need_copy_up(dentry, file_flags)) {
-> > +       if (ovl_open_need_copy_up(dentry, flags)) {
-> >                 err = ovl_want_write(dentry);
-> >                 if (!err) {
-> > -                       err = ovl_copy_up_flags(dentry, file_flags);
-> > +                       err = ovl_copy_up_flags(dentry, flags);
-> >                         ovl_drop_write(dentry);
-> >                 }
-> >         }
-> > --- a/fs/overlayfs/file.c
-> > +++ b/fs/overlayfs/file.c
-> > @@ -116,11 +116,10 @@ static int ovl_real_fdget(const struct f
-> >
-> >  static int ovl_open(struct inode *inode, struct file *file)
-> >  {
-> > -       struct dentry *dentry = file_dentry(file);
-> >         struct file *realfile;
-> >         int err;
-> >
-> > -       err = ovl_open_maybe_copy_up(dentry, file->f_flags);
-> > +       err = ovl_maybe_copy_up(file_dentry(file), file->f_flags);
-> >         if (err)
-> >                 return err;
-> >
-> > @@ -390,7 +389,7 @@ static long ovl_ioctl(struct file *file,
-> >                 if (ret)
-> >                         return ret;
-> >
-> > -               ret = ovl_copy_up_with_data(file_dentry(file));
-> > +               ret = ovl_maybe_copy_up(file_dentry(file), O_WRONLY);
-> >                 if (!ret) {
-> >                         ret = ovl_real_ioctl(file, cmd, arg);
-> >
-> > --- a/fs/overlayfs/overlayfs.h
-> > +++ b/fs/overlayfs/overlayfs.h
-> > @@ -411,7 +411,7 @@ extern const struct file_operations ovl_
-> >  int ovl_copy_up(struct dentry *dentry);
-> >  int ovl_copy_up_with_data(struct dentry *dentry);
-> >  int ovl_copy_up_flags(struct dentry *dentry, int flags);
-> > -int ovl_open_maybe_copy_up(struct dentry *dentry, unsigned int file_flags);
-> > +int ovl_maybe_copy_up(struct dentry *dentry, int flags);
-> >  int ovl_copy_xattr(struct dentry *old, struct dentry *new);
-> >  int ovl_set_attr(struct dentry *upper, struct kstat *stat);
-> >  struct ovl_fh *ovl_encode_real_fh(struct dentry *real, bool is_upper);
-> >
-> >
-> > Patches currently in stable-queue which might be from amir73il@gmail.com are
-> >
-> > queue-4.19/ovl-fix-missing-upper-fs-freeze-protection-on-copy-up-for-ioctl.patch
+On Tue, May 21, 2019 at 06:39:22PM -0700, Andrey Smirnov wrote:
+> In the case of compat syscall ioctl numbers for UI_BEGIN_FF_UPLOAD and
+> UI_END_FF_UPLOAD need to be adjusted before being passed on
+> uinput_ioctl_handler() since code built with -m32 will be passing
+> slightly different values. Extend the code already covering
+> UI_SET_PHYS to cover UI_BEGIN_FF_UPLOAD and UI_END_FF_UPLOAD as well.
 > 
-> This patch is fine for stable, but I have a process question.
-> All these patches from overlayfs 5.2-rc1 are also v4.9 stable candidates:
+> Reported-by: Pierre-Loup A. Griffais <pgriffais@valvesoftware.com>
+> Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
+> Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+> Cc: linux-input@vger.kernel.org
+> Cc: stable@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
+
+Applied, thank you.
+
+> ---
+>  drivers/input/misc/uinput.c | 15 +++++++++++++--
+>  1 file changed, 13 insertions(+), 2 deletions(-)
 > 
-> 1. acf3062a7e1c - ovl: relax WARN_ON() for overlapping layers use case
-> 2. 98487de318a6 - ovl: check the capability before cred overridden
-> 3. d989903058a8 - ovl: do not generate duplicate fsnotify events for "fake" path
-> 4. 9e46b840c705 - ovl: support stacked SEEK_HOLE/SEEK_DATA
+> diff --git a/drivers/input/misc/uinput.c b/drivers/input/misc/uinput.c
+> index 1a6762fc38f9..1116d4cd5695 100644
+> --- a/drivers/input/misc/uinput.c
+> +++ b/drivers/input/misc/uinput.c
+> @@ -1051,13 +1051,24 @@ static long uinput_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+>  
+>  #ifdef CONFIG_COMPAT
+>  
+> -#define UI_SET_PHYS_COMPAT	_IOW(UINPUT_IOCTL_BASE, 108, compat_uptr_t)
+> +#define UI_SET_PHYS_COMPAT		_IOW(UINPUT_IOCTL_BASE, 108, compat_uptr_t)
+> +#define UI_BEGIN_FF_UPLOAD_COMPAT	_IOWR(UINPUT_IOCTL_BASE, 200, struct uinput_ff_upload_compat)
+> +#define UI_END_FF_UPLOAD_COMPAT		_IOW(UINPUT_IOCTL_BASE, 201, struct uinput_ff_upload_compat)
+>  
+>  static long uinput_compat_ioctl(struct file *file,
+>  				unsigned int cmd, unsigned long arg)
+>  {
+> -	if (cmd == UI_SET_PHYS_COMPAT)
+> +	switch (cmd) {
+> +	case UI_SET_PHYS_COMPAT:
+>  		cmd = UI_SET_PHYS;
+> +		break;
+> +	case UI_BEGIN_FF_UPLOAD_COMPAT:
+> +		cmd = UI_BEGIN_FF_UPLOAD;
+> +		break;
+> +	case UI_END_FF_UPLOAD_COMPAT:
+> +		cmd = UI_END_FF_UPLOAD;
+> +		break;
+> +	}
+>  
+>  	return uinput_ioctl_handler(file, cmd, arg, compat_ptr(arg));
+>  }
+> -- 
+> 2.21.0
 > 
-> #2 wasn't properly marked for stable, but the other are marked with
-> Fixes: and Reported-by:
-> 
-> Are those marks not sufficient to get selected for stable trees these days?
 
-Not by default, no.  Sometimes they might get picked up if we get bored,
-or the auto-bot notices them.
-
-> I must admit that #1 in borderline stable. Not sure if eliminating an unjust
-> WARN_ON qualified, but syzbot did report a bug..
-
-syzbot things are good to fix in stable kernels, so that syzbot can
-continue to find real things in stable kernels.  So yes, that is fine to
-backport.
-
-> Just asking in order to improve the process, but in any case,
-> please pick those patches for v4.9+ (unless anyone objects?)
-> They all already have LTP/xfstests/syzkaller tests that cover them.
-
-I'll queue them up for the next round after this, thanks.
-
-greg k-h
+-- 
+Dmitry
