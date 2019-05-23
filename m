@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EB18728936
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:42:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47F1B2893B
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:42:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403851AbfEWTbf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:31:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45406 "EHLO mail.kernel.org"
+        id S2390356AbfEWTb6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:31:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392244AbfEWTbe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:31:34 -0400
+        id S2391242AbfEWTbJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:31:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DA87B20879;
-        Thu, 23 May 2019 19:31:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A86802184E;
+        Thu, 23 May 2019 19:31:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639893;
-        bh=2H4WkPeaT7GbdER8vV0gdNQzX/x+46HZ+8L6I0jfARU=;
+        s=default; t=1558639869;
+        bh=bieoZxUuM0eYUMgkc97RF8clTu3pxaHE+SnDROpgHX4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fGj2UHfluQBDptAmwQ5ldKS1EnqJMwgd4eIYRlbvQ8+uAd6jlWzZ0Z7Qfs6ZOBbjB
-         xFM+sTlNSzDFpqRsa7ALQfQMb8mk+XPjXg206eZp2aZIKc05Azdybm/Fiht7eyuKJc
-         RYGjWoXFCVq/df34Lvevb4VilaJLqZ4tYHn9NHlc=
+        b=IAzSiODjBwELXeUVdWH14KY93rT+s3fbhNKB+CVW3javjVT2Xb4z2I8HmLzLyJ3F3
+         CQB3nZn4caRWqxEmR5yMApCsHN3Qb4DyX8jBhrA5jgy6UVlWDH+1dNS+7hfM4HRddx
+         qXe4+PWI85LZ3fb1xSID36ZZ1GcPDvnKl0ZGRVPI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>,
-        Nigel Croxon <ncroxon@redhat.com>,
-        Song Liu <songliubraving@fb.com>
-Subject: [PATCH 5.1 113/122] md/raid: raid5 preserve the writeback action after the parity check
-Date:   Thu, 23 May 2019 21:07:15 +0200
-Message-Id: <20190523181720.440484774@linuxfoundation.org>
+        stable@vger.kernel.org, "Angus Ainslie (Purism)" <angus@akkea.ca>,
+        Robin Gong <yibin.gong@nxp.com>, Vinod Koul <vkoul@kernel.org>,
+        Richard Leitner <richard.leitner@skidata.com>
+Subject: [PATCH 5.1 114/122] dmaengine: imx-sdma: Only check ratio on parts that support 1:1
+Date:   Thu, 23 May 2019 21:07:16 +0200
+Message-Id: <20190523181720.626436939@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
 References: <20190523181705.091418060@linuxfoundation.org>
@@ -44,52 +44,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nigel Croxon <ncroxon@redhat.com>
+From: Angus Ainslie (Purism) <angus@akkea.ca>
 
-commit b2176a1dfb518d870ee073445d27055fea64dfb8 upstream.
+commit 941acd566b1807b291bbdca31cc5158e26ffcf83 upstream.
 
-The problem is that any 'uptodate' vs 'disks' check is not precise
-in this path. Put a "WARN_ON(!test_bit(R5_UPTODATE, &dev->flags)" on the
-device that might try to kick off writes and then skip the action.
-Better to prevent the raid driver from taking unexpected action *and* keep
-the system alive vs killing the machine with BUG_ON.
+On imx8mq B0 chip, AHB/SDMA clock ratio 2:1 can't be supported,
+since SDMA clock ratio has to be increased to 250Mhz, AHB can't reach
+to 500Mhz, so use 1:1 instead.
 
-Note: fixed warning reported by kbuild test robot <lkp@intel.com>
+To limit this change to the imx8mq for now this patch also adds an
+im8mq-sdma compatible string.
 
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Signed-off-by: Nigel Croxon <ncroxon@redhat.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
+Signed-off-by: Angus Ainslie (Purism) <angus@akkea.ca>
+Acked-by: Robin Gong <yibin.gong@nxp.com>
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Cc: Richard Leitner <richard.leitner@skidata.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/raid5.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/dma/imx-sdma.c |   15 ++++++++++++++-
+ 1 file changed, 14 insertions(+), 1 deletion(-)
 
---- a/drivers/md/raid5.c
-+++ b/drivers/md/raid5.c
-@@ -4187,7 +4187,7 @@ static void handle_parity_checks6(struct
- 		/* now write out any block on a failed drive,
- 		 * or P or Q if they were recomputed
- 		 */
--		BUG_ON(s->uptodate < disks - 1); /* We don't need Q to recover */
-+		dev = NULL;
- 		if (s->failed == 2) {
- 			dev = &sh->dev[s->failed_num[1]];
- 			s->locked++;
-@@ -4212,6 +4212,14 @@ static void handle_parity_checks6(struct
- 			set_bit(R5_LOCKED, &dev->flags);
- 			set_bit(R5_Wantwrite, &dev->flags);
- 		}
-+		if (WARN_ONCE(dev && !test_bit(R5_UPTODATE, &dev->flags),
-+			      "%s: disk%td not up to date\n",
-+			      mdname(conf->mddev),
-+			      dev - (struct r5dev *) &sh->dev)) {
-+			clear_bit(R5_LOCKED, &dev->flags);
-+			clear_bit(R5_Wantwrite, &dev->flags);
-+			s->locked--;
-+		}
- 		clear_bit(STRIPE_DEGRADED, &sh->state);
+--- a/drivers/dma/imx-sdma.c
++++ b/drivers/dma/imx-sdma.c
+@@ -419,6 +419,7 @@ struct sdma_driver_data {
+ 	int chnenbl0;
+ 	int num_events;
+ 	struct sdma_script_start_addrs	*script_addrs;
++	bool check_ratio;
+ };
  
- 		set_bit(STRIPE_INSYNC, &sh->state);
+ struct sdma_engine {
+@@ -557,6 +558,13 @@ static struct sdma_driver_data sdma_imx7
+ 	.script_addrs = &sdma_script_imx7d,
+ };
+ 
++static struct sdma_driver_data sdma_imx8mq = {
++	.chnenbl0 = SDMA_CHNENBL0_IMX35,
++	.num_events = 48,
++	.script_addrs = &sdma_script_imx7d,
++	.check_ratio = 1,
++};
++
+ static const struct platform_device_id sdma_devtypes[] = {
+ 	{
+ 		.name = "imx25-sdma",
+@@ -580,6 +588,9 @@ static const struct platform_device_id s
+ 		.name = "imx7d-sdma",
+ 		.driver_data = (unsigned long)&sdma_imx7d,
+ 	}, {
++		.name = "imx8mq-sdma",
++		.driver_data = (unsigned long)&sdma_imx8mq,
++	}, {
+ 		/* sentinel */
+ 	}
+ };
+@@ -593,6 +604,7 @@ static const struct of_device_id sdma_dt
+ 	{ .compatible = "fsl,imx31-sdma", .data = &sdma_imx31, },
+ 	{ .compatible = "fsl,imx25-sdma", .data = &sdma_imx25, },
+ 	{ .compatible = "fsl,imx7d-sdma", .data = &sdma_imx7d, },
++	{ .compatible = "fsl,imx8mq-sdma", .data = &sdma_imx8mq, },
+ 	{ /* sentinel */ }
+ };
+ MODULE_DEVICE_TABLE(of, sdma_dt_ids);
+@@ -1852,7 +1864,8 @@ static int sdma_init(struct sdma_engine
+ 	if (ret)
+ 		goto disable_clk_ipg;
+ 
+-	if (clk_get_rate(sdma->clk_ahb) == clk_get_rate(sdma->clk_ipg))
++	if (sdma->drvdata->check_ratio &&
++	    (clk_get_rate(sdma->clk_ahb) == clk_get_rate(sdma->clk_ipg)))
+ 		sdma->clk_ratio = 1;
+ 
+ 	/* Be sure SDMA has not started yet */
 
 
