@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 49E6A289CB
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:43:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCBFB2896E
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:42:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389187AbfEWTTY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:19:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55340 "EHLO mail.kernel.org"
+        id S2390533AbfEWThP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:37:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389799AbfEWTTW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:19:22 -0400
+        id S2390942AbfEWTYj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:24:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0CF032186A;
-        Thu, 23 May 2019 19:19:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3885F2133D;
+        Thu, 23 May 2019 19:24:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639161;
-        bh=pxM08Jm7nV5u+7Rp/rbVJR/+mOVGbPaQ4aZ/2Yp105I=;
+        s=default; t=1558639478;
+        bh=VZ/qY7gzPf8BKoH4JDs2wBXDuVtj0bdbFzN0l2GOsww=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xF+Ba1EtPNW7Yp9dZtR+EJlic3Q+s19PU5pS0JNHmhhRBcMnG2FUIChA32B9syHpR
-         NU7HItqGk6ViNDW9Hf2mgq01nmzdGPZtaEanrimovFgfGDulGRiXJZxTCrs1ccFh8f
-         CX4ORf7dWCeM2g6NWPWRjL0wUznWaRlIupk1yRTs=
+        b=ALagHLDuXcXD4IDgsc8KvWdkRDt7UJsqNYVbD74us2kJ0jA66IpXD4trqw/LDCaTD
+         I6Z3HhNtp9Ks8rb/eJCqyvg06rWnpDOFs2MYdoDwjQp/HmYbzx3N1XxTZ+ZBzwI0/r
+         eJL4+qD8yEpRZhXWERLjNwzJWOGO4U9ggn46X0QE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>,
-        Nigel Croxon <ncroxon@redhat.com>,
-        Song Liu <songliubraving@fb.com>
-Subject: [PATCH 4.19 109/114] md/raid: raid5 preserve the writeback action after the parity check
+        stable@vger.kernel.org, Andrey Smirnov <andrew.smirnov@gmail.com>,
+        Chris Healy <cphealy@gmail.com>, linux-pm@vger.kernel.org,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 120/139] power: supply: sysfs: prevent endless uevent loop with CONFIG_POWER_SUPPLY_DEBUG
 Date:   Thu, 23 May 2019 21:06:48 +0200
-Message-Id: <20190523181740.700886331@linuxfoundation.org>
+Message-Id: <20190523181735.241791265@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
-References: <20190523181731.372074275@linuxfoundation.org>
+In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
+References: <20190523181720.120897565@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +45,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nigel Croxon <ncroxon@redhat.com>
+[ Upstream commit 349ced9984ff540ce74ca8a0b2e9b03dc434b9dd ]
 
-commit b2176a1dfb518d870ee073445d27055fea64dfb8 upstream.
+Fix a similar endless event loop as was done in commit
+8dcf32175b4e ("i2c: prevent endless uevent loop with
+CONFIG_I2C_DEBUG_CORE"):
 
-The problem is that any 'uptodate' vs 'disks' check is not precise
-in this path. Put a "WARN_ON(!test_bit(R5_UPTODATE, &dev->flags)" on the
-device that might try to kick off writes and then skip the action.
-Better to prevent the raid driver from taking unexpected action *and* keep
-the system alive vs killing the machine with BUG_ON.
+  The culprit is the dev_dbg printk in the i2c uevent handler. If
+  this is activated (for instance by CONFIG_I2C_DEBUG_CORE) it results
+  in an endless loop with systemd-journald.
 
-Note: fixed warning reported by kbuild test robot <lkp@intel.com>
+  This happens if user-space scans the system log and reads the uevent
+  file to get information about a newly created device, which seems
+  fair use to me. Unfortunately reading the "uevent" file uses the
+  same function that runs for creating the uevent for a new device,
+  generating the next syslog entry
 
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Signed-off-by: Nigel Croxon <ncroxon@redhat.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Both CONFIG_I2C_DEBUG_CORE and CONFIG_POWER_SUPPLY_DEBUG were reported
+in https://bugs.freedesktop.org/show_bug.cgi?id=76886 but only former
+seems to have been fixed. Drop debug prints as it was done in I2C
+subsystem to resolve the issue.
 
+Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
+Cc: Chris Healy <cphealy@gmail.com>
+Cc: linux-pm@vger.kernel.org
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/raid5.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/power/supply/power_supply_sysfs.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
---- a/drivers/md/raid5.c
-+++ b/drivers/md/raid5.c
-@@ -4185,7 +4185,7 @@ static void handle_parity_checks6(struct
- 		/* now write out any block on a failed drive,
- 		 * or P or Q if they were recomputed
- 		 */
--		BUG_ON(s->uptodate < disks - 1); /* We don't need Q to recover */
-+		dev = NULL;
- 		if (s->failed == 2) {
- 			dev = &sh->dev[s->failed_num[1]];
- 			s->locked++;
-@@ -4210,6 +4210,14 @@ static void handle_parity_checks6(struct
- 			set_bit(R5_LOCKED, &dev->flags);
- 			set_bit(R5_Wantwrite, &dev->flags);
- 		}
-+		if (WARN_ONCE(dev && !test_bit(R5_UPTODATE, &dev->flags),
-+			      "%s: disk%td not up to date\n",
-+			      mdname(conf->mddev),
-+			      dev - (struct r5dev *) &sh->dev)) {
-+			clear_bit(R5_LOCKED, &dev->flags);
-+			clear_bit(R5_Wantwrite, &dev->flags);
-+			s->locked--;
-+		}
- 		clear_bit(STRIPE_DEGRADED, &sh->state);
+diff --git a/drivers/power/supply/power_supply_sysfs.c b/drivers/power/supply/power_supply_sysfs.c
+index dce24f5961609..5358a80d854f9 100644
+--- a/drivers/power/supply/power_supply_sysfs.c
++++ b/drivers/power/supply/power_supply_sysfs.c
+@@ -383,15 +383,11 @@ int power_supply_uevent(struct device *dev, struct kobj_uevent_env *env)
+ 	char *prop_buf;
+ 	char *attrname;
  
- 		set_bit(STRIPE_INSYNC, &sh->state);
+-	dev_dbg(dev, "uevent\n");
+-
+ 	if (!psy || !psy->desc) {
+ 		dev_dbg(dev, "No power supply yet\n");
+ 		return ret;
+ 	}
+ 
+-	dev_dbg(dev, "POWER_SUPPLY_NAME=%s\n", psy->desc->name);
+-
+ 	ret = add_uevent_var(env, "POWER_SUPPLY_NAME=%s", psy->desc->name);
+ 	if (ret)
+ 		return ret;
+@@ -427,8 +423,6 @@ int power_supply_uevent(struct device *dev, struct kobj_uevent_env *env)
+ 			goto out;
+ 		}
+ 
+-		dev_dbg(dev, "prop %s=%s\n", attrname, prop_buf);
+-
+ 		ret = add_uevent_var(env, "POWER_SUPPLY_%s=%s", attrname, prop_buf);
+ 		kfree(attrname);
+ 		if (ret)
+-- 
+2.20.1
+
 
 
