@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E4AA628843
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:40:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DC61289E3
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:43:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388807AbfEWTYK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:24:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34912 "EHLO mail.kernel.org"
+        id S2389635AbfEWTSb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:18:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390829AbfEWTYH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:24:07 -0400
+        id S2388847AbfEWTSb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:18:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 35EB22054F;
-        Thu, 23 May 2019 19:24:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F2601217D9;
+        Thu, 23 May 2019 19:18:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639446;
-        bh=wdvLYU0V9kXOEHMPxIsAKDlMGadyS9R76RveS7XoumM=;
+        s=default; t=1558639110;
+        bh=DuOmr3PJqdUA6uHfS2m2GxoEp90IkVIbIqMtz+phuZ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GTV9Qg/glsSBklvyRerpm1qvzQ4HDF03DzccUd5jvCRVehryHUVkVUdS0GGMNqWgI
-         xTnKNVi67cmG9UBYCcn7x9J9sQa/NMEZJGqij1GNPX+HPP1WjTo9kY90P0FgxIl/Qs
-         b+UYCvgqlu0AHciuPIjFrJNRD8VjooqpVd96Ehfk=
+        b=DVCcuP0A+ANHnmJM2klLocThgdzpphID5w1UpRYqywDKmwhGgz79CTEpydDRM7une
+         1y2j7Mjsb44buAJmN4log93QHcQAjfsiFiSNXmJOYGJh+Hx6W+zmLUN/3qSrdHNdv5
+         3vZrRauR7fW+urGHxwrd1DMmT8tIcY5CJqfyJni8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vineet Gupta <vgupta@synopsys.com>,
+        stable@vger.kernel.org, Andrew Jones <drjones@redhat.com>,
+        Marc Zyngier <marc.zyngier@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 108/139] ARC: PAE40: dont panic and instead turn off hw ioc
-Date:   Thu, 23 May 2019 21:06:36 +0200
-Message-Id: <20190523181734.230904246@linuxfoundation.org>
+Subject: [PATCH 4.19 098/114] KVM: arm/arm64: Ensure vcpu target is unset on reset failure
+Date:   Thu, 23 May 2019 21:06:37 +0200
+Message-Id: <20190523181740.125067227@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
-References: <20190523181720.120897565@linuxfoundation.org>
+In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
+References: <20190523181731.372074275@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,72 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 99bd5fcc505d65ea9c60619202f0b2d926eabbe9 ]
+[ Upstream commit 811328fc3222f7b55846de0cd0404339e2e1e6d7 ]
 
-HSDK currently panics when built for HIGHMEM/ARC_HAS_PAE40 because ioc
-is enabled with default which doesn't work for the 2 non contiguous
-memory nodes. So get PAE working by disabling ioc instead.
+A failed KVM_ARM_VCPU_INIT should not set the vcpu target,
+as the vcpu target is used by kvm_vcpu_initialized() to
+determine if other vcpu ioctls may proceed. We need to set
+the target before calling kvm_reset_vcpu(), but if that call
+fails, we should then unset it and clear the feature bitmap
+while we're at it.
 
-Tested with !PAE40 by forcing @ioc_enable=0 and running the glibc
-testsuite over ssh
-
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+Signed-off-by: Andrew Jones <drjones@redhat.com>
+[maz: Simplified patch, completed commit message]
+Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arc/mm/cache.c | 31 ++++++++++++++++---------------
- 1 file changed, 16 insertions(+), 15 deletions(-)
+ virt/kvm/arm/arm.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arc/mm/cache.c b/arch/arc/mm/cache.c
-index 4135abec3fb09..63e6e65046992 100644
---- a/arch/arc/mm/cache.c
-+++ b/arch/arc/mm/cache.c
-@@ -113,10 +113,24 @@ static void read_decode_cache_bcr_arcv2(int cpu)
- 	}
+diff --git a/virt/kvm/arm/arm.c b/virt/kvm/arm/arm.c
+index 1415e36fed3db..fef3527af3bd7 100644
+--- a/virt/kvm/arm/arm.c
++++ b/virt/kvm/arm/arm.c
+@@ -949,7 +949,7 @@ int kvm_vm_ioctl_irq_line(struct kvm *kvm, struct kvm_irq_level *irq_level,
+ static int kvm_vcpu_set_target(struct kvm_vcpu *vcpu,
+ 			       const struct kvm_vcpu_init *init)
+ {
+-	unsigned int i;
++	unsigned int i, ret;
+ 	int phys_target = kvm_target_cpu();
  
- 	READ_BCR(ARC_REG_CLUSTER_BCR, cbcr);
--	if (cbcr.c)
-+	if (cbcr.c) {
- 		ioc_exists = 1;
--	else
-+
-+		/*
-+		 * As for today we don't support both IOC and ZONE_HIGHMEM enabled
-+		 * simultaneously. This happens because as of today IOC aperture covers
-+		 * only ZONE_NORMAL (low mem) and any dma transactions outside this
-+		 * region won't be HW coherent.
-+		 * If we want to use both IOC and ZONE_HIGHMEM we can use
-+		 * bounce_buffer to handle dma transactions to HIGHMEM.
-+		 * Also it is possible to modify dma_direct cache ops or increase IOC
-+		 * aperture size if we are planning to use HIGHMEM without PAE.
-+		 */
-+		if (IS_ENABLED(CONFIG_HIGHMEM) || is_pae40_enabled())
-+			ioc_enable = 0;
-+	} else {
- 		ioc_enable = 0;
+ 	if (init->target != phys_target)
+@@ -984,9 +984,14 @@ static int kvm_vcpu_set_target(struct kvm_vcpu *vcpu,
+ 	vcpu->arch.target = phys_target;
+ 
+ 	/* Now we know what it is, we can reset it. */
+-	return kvm_reset_vcpu(vcpu);
+-}
++	ret = kvm_reset_vcpu(vcpu);
++	if (ret) {
++		vcpu->arch.target = -1;
++		bitmap_zero(vcpu->arch.features, KVM_VCPU_MAX_FEATURES);
 +	}
  
- 	/* HS 2.0 didn't have AUX_VOL */
- 	if (cpuinfo_arc700[cpu].core.family > 0x51) {
-@@ -1158,19 +1172,6 @@ noinline void __init arc_ioc_setup(void)
- 	if (!ioc_enable)
- 		return;
++	return ret;
++}
  
--	/*
--	 * As for today we don't support both IOC and ZONE_HIGHMEM enabled
--	 * simultaneously. This happens because as of today IOC aperture covers
--	 * only ZONE_NORMAL (low mem) and any dma transactions outside this
--	 * region won't be HW coherent.
--	 * If we want to use both IOC and ZONE_HIGHMEM we can use
--	 * bounce_buffer to handle dma transactions to HIGHMEM.
--	 * Also it is possible to modify dma_direct cache ops or increase IOC
--	 * aperture size if we are planning to use HIGHMEM without PAE.
--	 */
--	if (IS_ENABLED(CONFIG_HIGHMEM))
--		panic("IOC and HIGHMEM can't be used simultaneously");
--
- 	/* Flush + invalidate + disable L1 dcache */
- 	__dc_disable();
- 
+ static int kvm_arch_vcpu_ioctl_vcpu_init(struct kvm_vcpu *vcpu,
+ 					 struct kvm_vcpu_init *init)
 -- 
 2.20.1
 
