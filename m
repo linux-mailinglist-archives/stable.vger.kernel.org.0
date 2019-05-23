@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C86F52877A
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:25:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17A0928A6F
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:57:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389288AbfEWTTy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:19:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56224 "EHLO mail.kernel.org"
+        id S2387395AbfEWTOX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:14:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389928AbfEWTTw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:19:52 -0400
+        id S2388739AbfEWTOU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:14:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D617820863;
-        Thu, 23 May 2019 19:19:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A509421871;
+        Thu, 23 May 2019 19:14:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639191;
-        bh=7CsxQZnR9OEYV73h7mR3bBrUUkWb0cqJ/BNieI70RKk=;
+        s=default; t=1558638860;
+        bh=01lHJtyrNYUH5+bN6f4WufV/9CfiWbCoRN2sq+yGHVs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GjY8TMe28vwbY7YaMkN+LvChKkMQxfdU61d4cS9a29O73JL+Ve48Lo0FxcXBW81cB
-         kiLh1tefbIVASP5XbchL2iVuKPykYxccaBtpJdBDuHzQCI2viOURd77SHc7Rmn1TfQ
-         EpjL1JrzhJHsGz1+kwZL7AYTZG9SSjqmdkzHa5AQ=
+        b=F2TQ97IqHX+6nA1TOPNJ8NB5AIn1pkyuWW/Ka4qCKO05QLPBLcBd97qFVjbZRSu2H
+         PTV2ymf3+Kn6WtvgrP8mGOLINdcVTcM5wOTjgEM/CJQqiLfVAlb2/sCRZ40bimpSMr
+         XSv6FSD7l2mK8mZesRnb8i+5vgmf++e3Z4adQ9qE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Junwei Hu <hujunwei4@huawei.com>,
-        Wang Wang <wangwang2@huawei.com>,
-        Kang Zhou <zhoukang7@huawei.com>,
-        Suanming Mou <mousuanming@huawei.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Wei Wang <weiwan@google.com>, David Ahern <dsahern@gmail.com>,
+        Martin Lau <kafai@fb.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.0 013/139] tipc: fix modprobe tipc failed after switch order of device registration
+Subject: [PATCH 4.19 002/114] ipv6: prevent possible fib6 leaks
 Date:   Thu, 23 May 2019 21:05:01 +0200
-Message-Id: <20190523181722.193050896@linuxfoundation.org>
+Message-Id: <20190523181731.671123685@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
-References: <20190523181720.120897565@linuxfoundation.org>
+In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
+References: <20190523181731.372074275@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,92 +46,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Junwei Hu <hujunwei4@huawei.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 532b0f7ece4cb2ffd24dc723ddf55242d1188e5e ]
+[ Upstream commit 61fb0d01680771f72cc9d39783fb2c122aaad51e ]
 
-Error message printed:
-modprobe: ERROR: could not insert 'tipc': Address family not
-supported by protocol.
-when modprobe tipc after the following patch: switch order of
-device registration, commit 7e27e8d6130c
-("tipc: switch order of device registration to fix a crash")
+At ipv6 route dismantle, fib6_drop_pcpu_from() is responsible
+for finding all percpu routes and set their ->from pointer
+to NULL, so that fib6_ref can reach its expected value (1).
 
-Because sock_create_kern(net, AF_TIPC, ...) is called by
-tipc_topsrv_create_listener() in the initialization process
-of tipc_net_ops, tipc_socket_init() must be execute before that.
+The problem right now is that other cpus can still catch the
+route being deleted, since there is no rcu grace period
+between the route deletion and call to fib6_drop_pcpu_from()
 
-I move tipc_socket_init() into function tipc_init_net().
+This can leak the fib6 and associated resources, since no
+notifier will take care of removing the last reference(s).
 
-Fixes: 7e27e8d6130c
-("tipc: switch order of device registration to fix a crash")
-Signed-off-by: Junwei Hu <hujunwei4@huawei.com>
-Reported-by: Wang Wang <wangwang2@huawei.com>
-Reviewed-by: Kang Zhou <zhoukang7@huawei.com>
-Reviewed-by: Suanming Mou <mousuanming@huawei.com>
+I decided to add another boolean (fib6_destroying) instead
+of reusing/renaming exception_bucket_flushed to ease stable backports,
+and properly document the memory barriers used to implement this fix.
+
+This patch has been co-developped with Wei Wang.
+
+Fixes: 93531c674315 ("net/ipv6: separate handling of FIB entries from dst based routes")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Cc: Wei Wang <weiwan@google.com>
+Cc: David Ahern <dsahern@gmail.com>
+Cc: Martin Lau <kafai@fb.com>
+Acked-by: Wei Wang <weiwan@google.com>
+Acked-by: Martin KaFai Lau <kafai@fb.com>
+Reviewed-by: David Ahern <dsahern@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/tipc/core.c |   14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ include/net/ip6_fib.h |    3 ++-
+ net/ipv6/ip6_fib.c    |   12 +++++++++---
+ net/ipv6/route.c      |    7 +++++++
+ 3 files changed, 18 insertions(+), 4 deletions(-)
 
---- a/net/tipc/core.c
-+++ b/net/tipc/core.c
-@@ -66,6 +66,10 @@ static int __net_init tipc_init_net(stru
- 	INIT_LIST_HEAD(&tn->node_list);
- 	spin_lock_init(&tn->node_list_lock);
+--- a/include/net/ip6_fib.h
++++ b/include/net/ip6_fib.h
+@@ -171,7 +171,8 @@ struct fib6_info {
+ 					dst_nocount:1,
+ 					dst_nopolicy:1,
+ 					dst_host:1,
+-					unused:3;
++					fib6_destroying:1,
++					unused:2;
  
-+	err = tipc_socket_init();
-+	if (err)
-+		goto out_socket;
-+
- 	err = tipc_sk_rht_init(net);
- 	if (err)
- 		goto out_sk_rht;
-@@ -92,6 +96,8 @@ out_subscr:
- out_nametbl:
- 	tipc_sk_rht_destroy(net);
- out_sk_rht:
-+	tipc_socket_stop();
-+out_socket:
- 	return err;
- }
- 
-@@ -102,6 +108,7 @@ static void __net_exit tipc_exit_net(str
- 	tipc_bcast_stop(net);
- 	tipc_nametbl_stop(net);
- 	tipc_sk_rht_destroy(net);
-+	tipc_socket_stop();
- }
- 
- static struct pernet_operations tipc_net_ops = {
-@@ -137,10 +144,6 @@ static int __init tipc_init(void)
- 	if (err)
- 		goto out_pernet;
- 
--	err = tipc_socket_init();
--	if (err)
--		goto out_socket;
--
- 	err = tipc_bearer_setup();
- 	if (err)
- 		goto out_bearer;
-@@ -148,8 +151,6 @@ static int __init tipc_init(void)
- 	pr_info("Started in single node mode\n");
- 	return 0;
- out_bearer:
--	tipc_socket_stop();
--out_socket:
- 	unregister_pernet_subsys(&tipc_net_ops);
- out_pernet:
- 	tipc_unregister_sysctl();
-@@ -165,7 +166,6 @@ out_netlink:
- static void __exit tipc_exit(void)
+ 	struct fib6_nh			fib6_nh;
+ 	struct rcu_head			rcu;
+--- a/net/ipv6/ip6_fib.c
++++ b/net/ipv6/ip6_fib.c
+@@ -877,6 +877,12 @@ static void fib6_drop_pcpu_from(struct f
  {
- 	tipc_bearer_cleanup();
--	tipc_socket_stop();
- 	unregister_pernet_subsys(&tipc_net_ops);
- 	tipc_netlink_stop();
- 	tipc_netlink_compat_stop();
+ 	int cpu;
+ 
++	/* Make sure rt6_make_pcpu_route() wont add other percpu routes
++	 * while we are cleaning them here.
++	 */
++	f6i->fib6_destroying = 1;
++	mb(); /* paired with the cmpxchg() in rt6_make_pcpu_route() */
++
+ 	/* release the reference to this fib entry from
+ 	 * all of its cached pcpu routes
+ 	 */
+@@ -900,6 +906,9 @@ static void fib6_purge_rt(struct fib6_in
+ {
+ 	struct fib6_table *table = rt->fib6_table;
+ 
++	if (rt->rt6i_pcpu)
++		fib6_drop_pcpu_from(rt, table);
++
+ 	if (atomic_read(&rt->fib6_ref) != 1) {
+ 		/* This route is used as dummy address holder in some split
+ 		 * nodes. It is not leaked, but it still holds other resources,
+@@ -921,9 +930,6 @@ static void fib6_purge_rt(struct fib6_in
+ 			fn = rcu_dereference_protected(fn->parent,
+ 				    lockdep_is_held(&table->tb6_lock));
+ 		}
+-
+-		if (rt->rt6i_pcpu)
+-			fib6_drop_pcpu_from(rt, table);
+ 	}
+ }
+ 
+--- a/net/ipv6/route.c
++++ b/net/ipv6/route.c
+@@ -1268,6 +1268,13 @@ static struct rt6_info *rt6_make_pcpu_ro
+ 	prev = cmpxchg(p, NULL, pcpu_rt);
+ 	BUG_ON(prev);
+ 
++	if (rt->fib6_destroying) {
++		struct fib6_info *from;
++
++		from = xchg((__force struct fib6_info **)&pcpu_rt->from, NULL);
++		fib6_info_release(from);
++	}
++
+ 	return pcpu_rt;
+ }
+ 
 
 
