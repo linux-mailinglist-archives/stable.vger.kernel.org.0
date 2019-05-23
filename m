@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BD5112880C
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:26:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0375228A8E
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:57:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390790AbfEWT0i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:26:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38472 "EHLO mail.kernel.org"
+        id S2389206AbfEWTQd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:16:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391018AbfEWT0f (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:26:35 -0400
+        id S2389204AbfEWTQc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:16:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1D5542054F;
-        Thu, 23 May 2019 19:26:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 85EAA2133D;
+        Thu, 23 May 2019 19:16:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639594;
-        bh=xiHFEhuKAhDe7yRHFzhu6xZ4kSRtH6LVk5ab6mrIEPg=;
+        s=default; t=1558638992;
+        bh=RiW2IQDV7rzyoBS0G8Gn9wdxSFA5At/oRHCRjO2mdbA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qvApkFuJN9rpoCtuAMz9keQXkVDlVM+BnJmqsHd8KxA5GqtAFrvbT4Ysd9zLihGnR
-         qp8CtyKz0PkXghyX5DoLO/f8HDD+/8haNxtUNz/1YJc0I8D6nHY51y+a6T1Fg8FJKo
-         LV7srY/kD/QThaS0GtjHLT82DPuXEk+Viry6DIvo=
+        b=qwAh5nsuSqTePULHJ6lceVTiKJ5MMfV1FY6USDsQ1LL9IdpnKGgVedhhUCKAF7Hyd
+         4DdN++UthbtaEd3wRoDb6oRNbJ0BR0Kz8l7rz/uUhQ+DGdBJkYVouJ/noT9iKJE+dA
+         b0BvEBS6mcY/mnfx499VcqFg/d282rycnI2yXREk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Willem de Bruijn <willemb@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.1 006/122] net: test nouarg before dereferencing zerocopy pointers
+        stable@vger.kernel.org,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Subject: [PATCH 4.19 029/114] intel_th: msu: Fix single mode with IOMMU
 Date:   Thu, 23 May 2019 21:05:28 +0200
-Message-Id: <20190523181705.892932071@linuxfoundation.org>
+Message-Id: <20190523181734.488829904@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
-References: <20190523181705.091418060@linuxfoundation.org>
+In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
+References: <20190523181731.372074275@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,56 +43,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willem de Bruijn <willemb@google.com>
+From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
 
-[ Upstream commit 185ce5c38ea76f29b6bd9c7c8c7a5e5408834920 ]
+commit 4e0eaf239fb33ebc671303e2b736fa043462e2f4 upstream.
 
-Zerocopy skbs without completion notification were added for packet
-sockets with PACKET_TX_RING user buffers. Those signal completion
-through the TP_STATUS_USER bit in the ring. Zerocopy annotation was
-added only to avoid premature notification after clone or orphan, by
-triggering a copy on these paths for these packets.
+Currently, the pages that are allocated for the single mode of MSC are not
+mapped into the device's dma space and the code is incorrectly using
+*_to_phys() in place of a dma address. This fails with IOMMU enabled and
+is otherwise bad practice.
 
-The mechanism had to define a special "no-uarg" mode because packet
-sockets already use skb_uarg(skb) == skb_shinfo(skb)->destructor_arg
-for a different pointer.
+Fix the single mode buffer allocation to map the pages into the device's
+DMA space.
 
-Before deferencing skb_uarg(skb), verify that it is a real pointer.
-
-Fixes: 5cd8d46ea1562 ("packet: copy user buffers before orphan or clone")
-Signed-off-by: Willem de Bruijn <willemb@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Fixes: ba82664c134e ("intel_th: Add Memory Storage Unit driver")
+Cc: stable@vger.kernel.org # v4.4+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- include/linux/skbuff.h |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/include/linux/skbuff.h
-+++ b/include/linux/skbuff.h
-@@ -1425,10 +1425,12 @@ static inline void skb_zcopy_clear(struc
- 	struct ubuf_info *uarg = skb_zcopy(skb);
+---
+ drivers/hwtracing/intel_th/msu.c |   35 ++++++++++++++++++++++++++++++++---
+ 1 file changed, 32 insertions(+), 3 deletions(-)
+
+--- a/drivers/hwtracing/intel_th/msu.c
++++ b/drivers/hwtracing/intel_th/msu.c
+@@ -84,6 +84,7 @@ struct msc_iter {
+  * @reg_base:		register window base address
+  * @thdev:		intel_th_device pointer
+  * @win_list:		list of windows in multiblock mode
++ * @single_sgt:		single mode buffer
+  * @nr_pages:		total number of pages allocated for this buffer
+  * @single_sz:		amount of data in single mode
+  * @single_wrap:	single mode wrap occurred
+@@ -104,6 +105,7 @@ struct msc {
+ 	struct intel_th_device	*thdev;
  
- 	if (uarg) {
--		if (uarg->callback == sock_zerocopy_callback) {
-+		if (skb_zcopy_is_nouarg(skb)) {
-+			/* no notification callback */
-+		} else if (uarg->callback == sock_zerocopy_callback) {
- 			uarg->zerocopy = uarg->zerocopy && zerocopy;
- 			sock_zerocopy_put(uarg);
--		} else if (!skb_zcopy_is_nouarg(skb)) {
-+		} else {
- 			uarg->callback(uarg, zerocopy);
- 		}
- 
-@@ -2683,7 +2685,8 @@ static inline int skb_orphan_frags(struc
+ 	struct list_head	win_list;
++	struct sg_table		single_sgt;
+ 	unsigned long		nr_pages;
+ 	unsigned long		single_sz;
+ 	unsigned int		single_wrap : 1;
+@@ -617,22 +619,45 @@ static void intel_th_msc_deactivate(stru
+  */
+ static int msc_buffer_contig_alloc(struct msc *msc, unsigned long size)
  {
- 	if (likely(!skb_zcopy(skb)))
++	unsigned long nr_pages = size >> PAGE_SHIFT;
+ 	unsigned int order = get_order(size);
+ 	struct page *page;
++	int ret;
+ 
+ 	if (!size)
  		return 0;
--	if (skb_uarg(skb)->callback == sock_zerocopy_callback)
-+	if (!skb_zcopy_is_nouarg(skb) &&
-+	    skb_uarg(skb)->callback == sock_zerocopy_callback)
- 		return 0;
- 	return skb_copy_ubufs(skb, gfp_mask);
+ 
++	ret = sg_alloc_table(&msc->single_sgt, 1, GFP_KERNEL);
++	if (ret)
++		goto err_out;
++
++	ret = -ENOMEM;
+ 	page = alloc_pages(GFP_KERNEL | __GFP_ZERO, order);
+ 	if (!page)
+-		return -ENOMEM;
++		goto err_free_sgt;
+ 
+ 	split_page(page, order);
+-	msc->nr_pages = size >> PAGE_SHIFT;
++	sg_set_buf(msc->single_sgt.sgl, page_address(page), size);
++
++	ret = dma_map_sg(msc_dev(msc)->parent->parent, msc->single_sgt.sgl, 1,
++			 DMA_FROM_DEVICE);
++	if (ret < 0)
++		goto err_free_pages;
++
++	msc->nr_pages = nr_pages;
+ 	msc->base = page_address(page);
+-	msc->base_addr = page_to_phys(page);
++	msc->base_addr = sg_dma_address(msc->single_sgt.sgl);
+ 
+ 	return 0;
++
++err_free_pages:
++	__free_pages(page, order);
++
++err_free_sgt:
++	sg_free_table(&msc->single_sgt);
++
++err_out:
++	return ret;
  }
+ 
+ /**
+@@ -643,6 +668,10 @@ static void msc_buffer_contig_free(struc
+ {
+ 	unsigned long off;
+ 
++	dma_unmap_sg(msc_dev(msc)->parent->parent, msc->single_sgt.sgl,
++		     1, DMA_FROM_DEVICE);
++	sg_free_table(&msc->single_sgt);
++
+ 	for (off = 0; off < msc->nr_pages << PAGE_SHIFT; off += PAGE_SIZE) {
+ 		struct page *page = virt_to_page(msc->base + off);
+ 
 
 
