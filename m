@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 63B6528777
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:25:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D26FA289B9
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:43:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389872AbfEWTTm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:19:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55892 "EHLO mail.kernel.org"
+        id S2389834AbfEWTl3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:41:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388715AbfEWTTl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:19:41 -0400
+        id S2389233AbfEWTTy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:19:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F2D1D205ED;
-        Thu, 23 May 2019 19:19:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9A7802133D;
+        Thu, 23 May 2019 19:19:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639180;
-        bh=6iyfwPKAbzU3TmzNWS+7v0/dlkiVwbpQX5lTsHKyZ7Y=;
+        s=default; t=1558639194;
+        bh=nZGcgFc2z8V4eaNeBmEJckrEFcB5RsTgV1d1vKVSKko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ug0UfAVpOqEqkZ4iaHlpJ5NYMyklyvwQYNETfOcQataiZUXANVo6K2o7RhbW8MGVm
-         GXCweDH6+YZax6b2n75qn56Lh2/iAuqlRBmM3l6/lfTWzB7T5vlre6tIVwJmfHjOoA
-         WCK2c2FErLTK/GN42RP92195y8kq79LzRUQ+iS54=
+        b=QzTbwweZKLyGstodRi1KDDU6LVul3fqBbVh4ZydsoYkah9+tmPkDt7txd5z5Qb+rP
+         h9nqvvSm7CTASY0LWAccXOoC27CUuKxtJb1r61/nZi00U2DNX/Ts6LIfcUq7aIf0ZP
+         2ubh/wb6gPl4Prx3PdvmHcb4lw+1B8thHCFNC6Ho=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mikael Magnusson <mikael.kernel@lists.m7n.se>,
-        Wei Wang <weiwan@google.com>, Martin Lau <kafai@fb.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        David Ahern <dsahern@gmail.com>
-Subject: [PATCH 5.0 001/139] ipv6: fix src addr routing with the exception table
-Date:   Thu, 23 May 2019 21:04:49 +0200
-Message-Id: <20190523181720.358465447@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Wei Wang <weiwan@google.com>, David Ahern <dsahern@gmail.com>,
+        Martin Lau <kafai@fb.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.0 002/139] ipv6: prevent possible fib6 leaks
+Date:   Thu, 23 May 2019 21:04:50 +0200
+Message-Id: <20190523181720.502832383@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
 References: <20190523181720.120897565@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -49,137 +46,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Wang <weiwan@google.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 510e2ceda031eed97a7a0f9aad65d271a58b460d ]
+[ Upstream commit 61fb0d01680771f72cc9d39783fb2c122aaad51e ]
 
-When inserting route cache into the exception table, the key is
-generated with both src_addr and dest_addr with src addr routing.
-However, current logic always assumes the src_addr used to generate the
-key is a /128 host address. This is not true in the following scenarios:
-1. When the route is a gateway route or does not have next hop.
-   (rt6_is_gw_or_nonexthop() == false)
-2. When calling ip6_rt_cache_alloc(), saddr is passed in as NULL.
-This means, when looking for a route cache in the exception table, we
-have to do the lookup twice: first time with the passed in /128 host
-address, second time with the src_addr stored in fib6_info.
+At ipv6 route dismantle, fib6_drop_pcpu_from() is responsible
+for finding all percpu routes and set their ->from pointer
+to NULL, so that fib6_ref can reach its expected value (1).
 
-This solves the pmtu discovery issue reported by Mikael Magnusson where
-a route cache with a lower mtu info is created for a gateway route with
-src addr. However, the lookup code is not able to find this route cache.
+The problem right now is that other cpus can still catch the
+route being deleted, since there is no rcu grace period
+between the route deletion and call to fib6_drop_pcpu_from()
 
-Fixes: 2b760fcf5cfb ("ipv6: hook up exception table to store dst cache")
-Reported-by: Mikael Magnusson <mikael.kernel@lists.m7n.se>
-Bisected-by: David Ahern <dsahern@gmail.com>
-Signed-off-by: Wei Wang <weiwan@google.com>
+This can leak the fib6 and associated resources, since no
+notifier will take care of removing the last reference(s).
+
+I decided to add another boolean (fib6_destroying) instead
+of reusing/renaming exception_bucket_flushed to ease stable backports,
+and properly document the memory barriers used to implement this fix.
+
+This patch has been co-developped with Wei Wang.
+
+Fixes: 93531c674315 ("net/ipv6: separate handling of FIB entries from dst based routes")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Cc: Wei Wang <weiwan@google.com>
+Cc: David Ahern <dsahern@gmail.com>
 Cc: Martin Lau <kafai@fb.com>
-Cc: Eric Dumazet <edumazet@google.com>
+Acked-by: Wei Wang <weiwan@google.com>
 Acked-by: Martin KaFai Lau <kafai@fb.com>
+Reviewed-by: David Ahern <dsahern@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/route.c |   51 +++++++++++++++++++++++++++------------------------
- 1 file changed, 27 insertions(+), 24 deletions(-)
+ include/net/ip6_fib.h |    3 ++-
+ net/ipv6/ip6_fib.c    |   12 +++++++++---
+ net/ipv6/route.c      |    7 +++++++
+ 3 files changed, 18 insertions(+), 4 deletions(-)
 
---- a/net/ipv6/route.c
-+++ b/net/ipv6/route.c
-@@ -110,8 +110,8 @@ static int rt6_fill_node(struct net *net
- 			 int iif, int type, u32 portid, u32 seq,
- 			 unsigned int flags);
- static struct rt6_info *rt6_find_cached_rt(struct fib6_info *rt,
--					   struct in6_addr *daddr,
--					   struct in6_addr *saddr);
-+					   const struct in6_addr *daddr,
-+					   const struct in6_addr *saddr);
+--- a/include/net/ip6_fib.h
++++ b/include/net/ip6_fib.h
+@@ -171,7 +171,8 @@ struct fib6_info {
+ 					dst_nocount:1,
+ 					dst_nopolicy:1,
+ 					dst_host:1,
+-					unused:3;
++					fib6_destroying:1,
++					unused:2;
  
- #ifdef CONFIG_IPV6_ROUTE_INFO
- static struct fib6_info *rt6_add_route_info(struct net *net,
-@@ -1529,31 +1529,44 @@ out:
-  * Caller has to hold rcu_read_lock()
-  */
- static struct rt6_info *rt6_find_cached_rt(struct fib6_info *rt,
--					   struct in6_addr *daddr,
--					   struct in6_addr *saddr)
-+					   const struct in6_addr *daddr,
-+					   const struct in6_addr *saddr)
+ 	struct fib6_nh			fib6_nh;
+ 	struct rcu_head			rcu;
+--- a/net/ipv6/ip6_fib.c
++++ b/net/ipv6/ip6_fib.c
+@@ -909,6 +909,12 @@ static void fib6_drop_pcpu_from(struct f
  {
-+	const struct in6_addr *src_key = NULL;
- 	struct rt6_exception_bucket *bucket;
--	struct in6_addr *src_key = NULL;
- 	struct rt6_exception *rt6_ex;
- 	struct rt6_info *res = NULL;
+ 	int cpu;
  
--	bucket = rcu_dereference(rt->rt6i_exception_bucket);
--
- #ifdef CONFIG_IPV6_SUBTREES
- 	/* rt6i_src.plen != 0 indicates rt is in subtree
- 	 * and exception table is indexed by a hash of
- 	 * both rt6i_dst and rt6i_src.
--	 * Otherwise, the exception table is indexed by
--	 * a hash of only rt6i_dst.
-+	 * However, the src addr used to create the hash
-+	 * might not be exactly the passed in saddr which
-+	 * is a /128 addr from the flow.
-+	 * So we need to use f6i->fib6_src to redo lookup
-+	 * if the passed in saddr does not find anything.
-+	 * (See the logic in ip6_rt_cache_alloc() on how
-+	 * rt->rt6i_src is updated.)
- 	 */
- 	if (rt->fib6_src.plen)
- 		src_key = saddr;
-+find_ex:
- #endif
-+	bucket = rcu_dereference(rt->rt6i_exception_bucket);
- 	rt6_ex = __rt6_find_exception_rcu(&bucket, daddr, src_key);
- 
- 	if (rt6_ex && !rt6_check_expired(rt6_ex->rt6i))
- 		res = rt6_ex->rt6i;
- 
-+#ifdef CONFIG_IPV6_SUBTREES
-+	/* Use fib6_src as src_key and redo lookup */
-+	if (!res && src_key && src_key != &rt->fib6_src.addr) {
-+		src_key = &rt->fib6_src.addr;
-+		goto find_ex;
-+	}
-+#endif
++	/* Make sure rt6_make_pcpu_route() wont add other percpu routes
++	 * while we are cleaning them here.
++	 */
++	f6i->fib6_destroying = 1;
++	mb(); /* paired with the cmpxchg() in rt6_make_pcpu_route() */
 +
- 	return res;
+ 	/* release the reference to this fib entry from
+ 	 * all of its cached pcpu routes
+ 	 */
+@@ -932,6 +938,9 @@ static void fib6_purge_rt(struct fib6_in
+ {
+ 	struct fib6_table *table = rt->fib6_table;
+ 
++	if (rt->rt6i_pcpu)
++		fib6_drop_pcpu_from(rt, table);
++
+ 	if (atomic_read(&rt->fib6_ref) != 1) {
+ 		/* This route is used as dummy address holder in some split
+ 		 * nodes. It is not leaked, but it still holds other resources,
+@@ -953,9 +962,6 @@ static void fib6_purge_rt(struct fib6_in
+ 			fn = rcu_dereference_protected(fn->parent,
+ 				    lockdep_is_held(&table->tb6_lock));
+ 		}
+-
+-		if (rt->rt6i_pcpu)
+-			fib6_drop_pcpu_from(rt, table);
+ 	}
  }
  
-@@ -2614,10 +2627,8 @@ out:
- u32 ip6_mtu_from_fib6(struct fib6_info *f6i, struct in6_addr *daddr,
- 		      struct in6_addr *saddr)
- {
--	struct rt6_exception_bucket *bucket;
--	struct rt6_exception *rt6_ex;
--	struct in6_addr *src_key;
- 	struct inet6_dev *idev;
-+	struct rt6_info *rt;
- 	u32 mtu = 0;
+--- a/net/ipv6/route.c
++++ b/net/ipv6/route.c
+@@ -1260,6 +1260,13 @@ static struct rt6_info *rt6_make_pcpu_ro
+ 	prev = cmpxchg(p, NULL, pcpu_rt);
+ 	BUG_ON(prev);
  
- 	if (unlikely(fib6_metric_locked(f6i, RTAX_MTU))) {
-@@ -2626,18 +2637,10 @@ u32 ip6_mtu_from_fib6(struct fib6_info *
- 			goto out;
- 	}
++	if (rt->fib6_destroying) {
++		struct fib6_info *from;
++
++		from = xchg((__force struct fib6_info **)&pcpu_rt->from, NULL);
++		fib6_info_release(from);
++	}
++
+ 	return pcpu_rt;
+ }
  
--	src_key = NULL;
--#ifdef CONFIG_IPV6_SUBTREES
--	if (f6i->fib6_src.plen)
--		src_key = saddr;
--#endif
--
--	bucket = rcu_dereference(f6i->rt6i_exception_bucket);
--	rt6_ex = __rt6_find_exception_rcu(&bucket, daddr, src_key);
--	if (rt6_ex && !rt6_check_expired(rt6_ex->rt6i))
--		mtu = dst_metric_raw(&rt6_ex->rt6i->dst, RTAX_MTU);
--
--	if (likely(!mtu)) {
-+	rt = rt6_find_cached_rt(f6i, daddr, saddr);
-+	if (unlikely(rt)) {
-+		mtu = dst_metric_raw(&rt->dst, RTAX_MTU);
-+	} else {
- 		struct net_device *dev = fib6_info_nh_dev(f6i);
- 
- 		mtu = IPV6_MIN_MTU;
 
 
