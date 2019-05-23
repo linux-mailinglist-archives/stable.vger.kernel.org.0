@@ -2,79 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 68325275A3
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 07:41:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F2D6275A6
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 07:42:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726081AbfEWFl2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 01:41:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41286 "EHLO mail.kernel.org"
+        id S1726309AbfEWFms (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 01:42:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41488 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725806AbfEWFl2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 01:41:28 -0400
+        id S1725806AbfEWFms (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 01:42:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7F7F821019;
-        Thu, 23 May 2019 05:41:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 01DE821019;
+        Thu, 23 May 2019 05:42:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558590088;
-        bh=rTm2QtayXzOcfjOZGDcaeMQ6Xk5vWjYR34rnIomr6hQ=;
+        s=default; t=1558590167;
+        bh=iRBENfq5cCIi6tnQrISWDMi8NREnthCfNU7aYUgd9D0=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=2C2YpKVT+7vclYNs9eGQ+yTBkPooawhkUsGQ9g8TxIwc43XcRJX1idnfMXNvD3im3
-         jLg6fzuA5eQ0OpYvfWbUWXdUxaiDJYDTLg2iXURniZA+ZuPUoZjmpKw7T42RJSNQ/k
-         dipRY2xmKM43FAG7LusZe2RuZXIzvm5cfsl3q6u8=
-Date:   Thu, 23 May 2019 07:41:25 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Justin Forbes <jmforbes@linuxtx.org>
-Cc:     LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>
-Subject: Re: [PATCH 5.0 119/123] s390/mm: convert to the generic
- get_user_pages_fast code
-Message-ID: <20190523054125.GB16130@kroah.com>
-References: <20190520115245.439864225@linuxfoundation.org>
- <20190520115253.074303494@linuxfoundation.org>
- <CAFxkdArho59CHxZi9K6oOm2NTDp0DL2XNv1TERfbJKqkXAiNVA@mail.gmail.com>
+        b=Ylg0LMxpImduI8VrzdKMRI+HIgfdsMBjv5Cc/ynRSxNyOjTxlTxinBQ9jIVuWgg4C
+         v5dB7o+iIIoGoyM8Sk4ncoQGfyApoY/tky8K7rjDCN/DIHvMrLhMobimieNcZQN8dj
+         UnzLFiUKZdDko9yDYeJDy+LAAdhN5kKSD4eNEwWo=
+Date:   Thu, 23 May 2019 07:42:45 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     David Ahern <dsahern@gmail.com>
+Cc:     edumazet@google.com, davem@davemloft.net, kafai@fb.com,
+        syzkaller@googlegroups.com, weiwan@google.com,
+        stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] ipv6: prevent possible fib6 leaks" failed
+ to apply to 4.14-stable tree
+Message-ID: <20190523054244.GC16130@kroah.com>
+References: <155854389617965@kroah.com>
+ <84edd412-c07d-28be-1723-a4727ae2ea56@gmail.com>
+ <20190522172945.GA25977@kroah.com>
+ <6081e160-5d74-0ec7-59cc-56cdecbaad41@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAFxkdArho59CHxZi9K6oOm2NTDp0DL2XNv1TERfbJKqkXAiNVA@mail.gmail.com>
+In-Reply-To: <6081e160-5d74-0ec7-59cc-56cdecbaad41@gmail.com>
 User-Agent: Mutt/1.11.4 (2019-03-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 22, 2019 at 04:46:16PM -0500, Justin Forbes wrote:
-> On Mon, May 20, 2019 at 7:30 AM Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-> >
-> > commit 1a42010cdc26bb7e5912984f3c91b8c6d55f089a upstream.
-> >
-> > Define the gup_fast_permitted to check against the asce_limit of the
-> > mm attached to the current task, then replace the s390 specific gup
-> > code with the generic implementation in mm/gup.c.
-> >
-> > Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+On Wed, May 22, 2019 at 11:36:45AM -0600, David Ahern wrote:
+> On 5/22/19 11:29 AM, Greg KH wrote:
+> > Thanks, but someone backported the commit mentioned in the Fixes line:
+> > 	Fixes: 93531c674315 ("net/ipv6: separate handling of FIB entries from dst based routes")
+> > 
+> > to 4.14.y.  If it's really not relevant there, not a big deal, now
+> > dropped.
 > 
-> While this code seems to work fine upstream, when backported to 5.0 it
-> fails to build:
 > 
-> BUILDSTDERR: In file included from ./include/linux/mm.h:98,
-> BUILDSTDERR:                  from mm/gup.c:6:
-> BUILDSTDERR: mm/gup.c: In function '__get_user_pages_fast':
-> BUILDSTDERR: ./arch/s390/include/asm/pgtable.h:1277:28: error: too
-> many arguments to function 'gup_fast_permitted'
-> BUILDSTDERR:  #define gup_fast_permitted gup_fast_permitted
-> BUILDSTDERR:                             ^~~~~~~~~~~~~~~~~~
-> BUILDSTDERR: mm/gup.c:1856:6: note: in expansion of macro 'gup_fast_permitted'
-> BUILDSTDERR:   if (gup_fast_permitted(start, nr_pages, write)) {
+> Just checked and that commit is not in 4.14 line.
 > 
-> It is missing upstream commit ad8cfb9c42ef83ecf4079bc7d77e6557648e952b
-> mm/gup: Remove the 'write' parameter from gup_fast_permitted()
+> It is one of like 90 other patches that actually depend on other changes
+> in 4.15, 4.16. I can not imagine some poor soul backporting all of that
+> to 4.14.
 
-Oops, thanks for catching this.  I'll go queue this patch up now.
+Argh, my scripts caught that the string "93531c674315" was included in
+the changelog for 4.14.72, but the context of that was:
+	- fib6_info_release was introduced upstream in 93531c674315
+	  ("net/ipv6: separate handling of FIB entries from dst based
+	  routes"), but is not present in stable kernels; 4.14.y relies
+	  on dst_release/ ip6_rt_put/dst_release_immediate.
+
+So this was my mistake, thanks for pointing it out.
 
 greg k-h
