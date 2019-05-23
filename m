@@ -2,39 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A8D802891A
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:42:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 189D528861
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:40:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392186AbfEWTas (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:30:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44402 "EHLO mail.kernel.org"
+        id S2391137AbfEWTZk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:25:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392184AbfEWTas (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:30:48 -0400
+        id S2391130AbfEWTZi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:25:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2E462217D7;
-        Thu, 23 May 2019 19:30:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 434EA21851;
+        Thu, 23 May 2019 19:25:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639847;
-        bh=ld43xxN+ALfqwSMcS5c7IYDBke35KTl7y2i8iFVunyg=;
+        s=default; t=1558639537;
+        bh=gOg6ApEAJe4wnqGZX/rysUCWcIgdXxexgYaNqQLTak4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ud5wjYWDihcYpOFlIB8lHrmVnKnslCa2qvbC/9FPY+pxuONox2AeCXKDA4Z/lpycZ
-         tDEsCfawcLt1CWcUPFDW4i4Dh+i47ldjq8iN8VBNLVTTj6sDV2bJdyhUBsncmFR/ad
-         zol1LbPhBntxrcesVo7G7VQU9xXzUK8ksowhGX2E=
+        b=rVDBcA8hGHsLNvwrshD5xU2p9VJHjP3O+wvM5WR4HfU2lW4k1IxYPQiZJK6hluY0T
+         nXimx8HO9QTv63M1NscoSjt4cEgt1MyLiRFvOJDLunrWDTt24yJXUBfJSDLedq4VFj
+         KHcKhid0FHQbWiZXo3JzIMXdhK4ZTL8mMKqmVrpM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jisheng Zhang <Jisheng.Zhang@synaptics.com>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 5.1 098/122] PCI/AER: Change pci_aer_init() stub to return void
+        stable@vger.kernel.org, Robert Walker <robert.walker@arm.com>,
+        Leo Yan <leo.yan@linaro.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Mike Leach <mike.leach@linaro.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Suzuki K Poulouse <suzuki.poulose@arm.com>,
+        linux-arm-kernel@lists.infradead.org,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 132/139] perf cs-etm: Always allocate memory for cs_etm_queue::prev_packet
 Date:   Thu, 23 May 2019 21:07:00 +0200
-Message-Id: <20190523181718.195270718@linuxfoundation.org>
+Message-Id: <20190523181736.244509976@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
-References: <20190523181705.091418060@linuxfoundation.org>
+In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
+References: <20190523181720.120897565@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,35 +52,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
+[ Upstream commit 35bb59c10a6d0578806dd500477dae9cb4be344e ]
 
-commit 31f996efbd5a7825f4d30150469e9d110aea00e8 upstream.
+Robert Walker reported a segmentation fault is observed when process
+CoreSight trace data; this issue can be easily reproduced by the command
+'perf report --itrace=i1000i' for decoding tracing data.
 
-Commit 60ed982a4e78 ("PCI/AER: Move internal declarations to
-drivers/pci/pci.h") changed pci_aer_init() to return "void", but didn't
-change the stub for when CONFIG_PCIEAER isn't enabled.  Change the stub to
-match.
+If neither the 'b' flag (synthesize branches events) nor 'l' flag
+(synthesize last branch entries) are specified to option '--itrace',
+cs_etm_queue::prev_packet will not been initialised.  After merging the
+code to support exception packets and sample flags, there introduced a
+number of uses of cs_etm_queue::prev_packet without checking whether it
+is valid, for these cases any accessing to uninitialised prev_packet
+will cause crash.
 
-Fixes: 60ed982a4e78 ("PCI/AER: Move internal declarations to drivers/pci/pci.h")
-Signed-off-by: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-CC: stable@vger.kernel.org	# v4.19+
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+As cs_etm_queue::prev_packet is used more widely now and it's already
+hard to follow which functions have been called in a context where the
+validity of cs_etm_queue::prev_packet has been checked, this patch
+always allocates memory for cs_etm_queue::prev_packet.
 
+Reported-by: Robert Walker <robert.walker@arm.com>
+Suggested-by: Robert Walker <robert.walker@arm.com>
+Signed-off-by: Leo Yan <leo.yan@linaro.org>
+Tested-by: Robert Walker <robert.walker@arm.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
+Cc: Mike Leach <mike.leach@linaro.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Suzuki K Poulouse <suzuki.poulose@arm.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Fixes: 7100b12cf474 ("perf cs-etm: Generate branch sample for exception packet")
+Fixes: 24fff5eb2b93 ("perf cs-etm: Avoid stale branch samples when flush packet")
+Link: http://lkml.kernel.org/r/20190428083228.20246-1-leo.yan@linaro.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pci.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/perf/util/cs-etm.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
---- a/drivers/pci/pci.h
-+++ b/drivers/pci/pci.h
-@@ -597,7 +597,7 @@ void pci_aer_clear_fatal_status(struct p
- void pci_aer_clear_device_status(struct pci_dev *dev);
- #else
- static inline void pci_no_aer(void) { }
--static inline int pci_aer_init(struct pci_dev *d) { return -ENODEV; }
-+static inline void pci_aer_init(struct pci_dev *d) { }
- static inline void pci_aer_exit(struct pci_dev *d) { }
- static inline void pci_aer_clear_fatal_status(struct pci_dev *dev) { }
- static inline void pci_aer_clear_device_status(struct pci_dev *dev) { }
+diff --git a/tools/perf/util/cs-etm.c b/tools/perf/util/cs-etm.c
+index 27a374ddf6615..947f1bb2fbdfb 100644
+--- a/tools/perf/util/cs-etm.c
++++ b/tools/perf/util/cs-etm.c
+@@ -345,11 +345,9 @@ static struct cs_etm_queue *cs_etm__alloc_queue(struct cs_etm_auxtrace *etm,
+ 	if (!etmq->packet)
+ 		goto out_free;
+ 
+-	if (etm->synth_opts.last_branch || etm->sample_branches) {
+-		etmq->prev_packet = zalloc(szp);
+-		if (!etmq->prev_packet)
+-			goto out_free;
+-	}
++	etmq->prev_packet = zalloc(szp);
++	if (!etmq->prev_packet)
++		goto out_free;
+ 
+ 	if (etm->synth_opts.last_branch) {
+ 		size_t sz = sizeof(struct branch_stack);
+-- 
+2.20.1
+
 
 
