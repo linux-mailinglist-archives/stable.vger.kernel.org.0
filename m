@@ -2,171 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 425F227B0D
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 12:49:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2696227B8F
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 13:20:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729698AbfEWKtJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 06:49:09 -0400
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:51025 "EHLO
-        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726310AbfEWKtJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 May 2019 06:49:09 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 5CB9230B10;
-        Thu, 23 May 2019 06:49:08 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Thu, 23 May 2019 06:49:08 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=FmMcJN
-        eWKqIh5h873/JFI8iwrk6veqB5HX09Izc+JUg=; b=d0vU9kxJx3ufWpslDQGwJk
-        bHvQJaR4sH5awnUIoDY7z8gBPtkldJxRcSksK/Fv81Otn+qzvtxj0RyBDL4uv75/
-        yaelzpA3xSxrAlw2vhQS+nSj7OJW+83ZD0wpJwSpXqj2FyxL19WnQOAZiLJDntMg
-        LRfwfulQfA6NbByHpjFSSIYh26het1q5wQqfHzLrj/3BtHx+rSrN8trYlEl4/nnj
-        627uzhM2rOmP/4vE5IS0UkuX/3Bg3RTKXehABr6umzyWyoB6oYHPaL676q+TxRQA
-        jTV8i5lr8Pl+/2iDzRCi4iL8d6XvlfBg8QNSDnCWKELkoX3m/0lqVM4JmpYMEutQ
-        ==
-X-ME-Sender: <xms:pHrmXNn5jg0IhYUwf1dmP1f2gyquI0NgEXZXB0inN-vDfhfjs04WYw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddruddugedgfeegucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgephe
-X-ME-Proxy: <xmx:pHrmXOXt7wKZ49rb-vgGK8FjLgEHBz8ld7Y-Usw3c8K4sF3iekRgVQ>
-    <xmx:pHrmXCva_t-y5WG_GRuUjsF0Um2XvaVSE1AK2Po5z2s5hWdKMgqZCw>
-    <xmx:pHrmXB6UwoorlbGQxhzMpg0mxLZC_AJVQLhnfmPBkHlbVfjM_mH0tw>
-    <xmx:pHrmXC6oMN44M_PndU3FBk4IIVziyVUPMYfWs5RIfMAzfQBrOAzFIQ>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id BE010380085;
-        Thu, 23 May 2019 06:49:07 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] PCI: dwc: Use devm_pci_alloc_host_bridge() to simplify code" failed to apply to 5.0-stable tree
-To:     Jisheng.Zhang@synaptics.com, bhelgaas@google.com,
-        gustavo.pimentel@synopsys.com, lorenzo.pieralisi@arm.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 23 May 2019 12:48:55 +0200
-Message-ID: <1558608535199168@kroah.com>
+        id S1730444AbfEWLUW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 07:20:22 -0400
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:34830 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730461AbfEWLUW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 May 2019 07:20:22 -0400
+Received: by mail-wm1-f68.google.com with SMTP id q15so5373057wmj.0
+        for <stable@vger.kernel.org>; Thu, 23 May 2019 04:20:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=amarulasolutions.com; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=TSU8XlJEMK+KpQjqT+wKCWosXAXefjk73b4VzzoBmws=;
+        b=DOyuxxCqspOt3cSWF1wpAKD57vDkx064yFDRmD+HdF5x1UUC8AMynQLy3b8yeJzxTU
+         t3GKAaiBkG03shVf7En4dFXk2OJZN/jzJV/07Jm9mRiRqydU23p/IsIcNghogpPnWstI
+         tB9I9j8TUMhhRM2qaxs77EVMXjQ2dkDzDjET0=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=TSU8XlJEMK+KpQjqT+wKCWosXAXefjk73b4VzzoBmws=;
+        b=UGR0HJWynCWjcmF/TvWhUQ60KZb9qUfe78aUN863wjRgxlvWd3eQkKaBW17O4k8IXX
+         7SgsYRdLzE0AUh/XxTQy+c0UbCTNSpICOELa//y5g5T8dh6C2GVEnyZ3Usj52OsGWwYI
+         u1FsR/q/w/zLVmA4Fr805Aj4XaJ19MmQmOgBdThkKXT9gZnU2Cu4H2saO8FPkKlhtyfP
+         BSjb6g1tPZLss/njDyIlkhLHwopjwHiEwhOCkUlVbUx5+0+5O1VZFIosKCEXMYkHiEGe
+         SfOVmACEOWJa94Z23OJhc1k5/2WYTaC7mVGLTp400JR+7djsNUq2bFP0aZNcKMp+8DfE
+         z1eQ==
+X-Gm-Message-State: APjAAAWomLWsRtx0pJ5p5Rr+7F2HxRK9qXvE7sA1833ySkRQ87eAU87T
+        7nqWoJmo87AofIeNamVywNtB3Q==
+X-Google-Smtp-Source: APXvYqxx/e7d1yyDuR1wKw7Y6+trebNMbp76KzUBRwegvbG3ftEtbeB1AhBBf7UCuxakMuTqVLWx7A==
+X-Received: by 2002:a1c:3cc2:: with SMTP id j185mr10979151wma.26.1558610420174;
+        Thu, 23 May 2019 04:20:20 -0700 (PDT)
+Received: from andrea (86.100.broadband17.iol.cz. [109.80.100.86])
+        by smtp.gmail.com with ESMTPSA id d20sm5195243wra.68.2019.05.23.04.20.18
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 23 May 2019 04:20:19 -0700 (PDT)
+Date:   Thu, 23 May 2019 13:20:13 +0200
+From:   Andrea Parri <andrea.parri@amarulasolutions.com>
+To:     Mark Rutland <mark.rutland@arm.com>
+Cc:     linux-kernel@vger.kernel.org, peterz@infradead.org,
+        will.deacon@arm.com, aou@eecs.berkeley.edu, arnd@arndb.de,
+        bp@alien8.de, catalin.marinas@arm.com, davem@davemloft.net,
+        fenghua.yu@intel.com, heiko.carstens@de.ibm.com,
+        herbert@gondor.apana.org.au, ink@jurassic.park.msu.ru,
+        jhogan@kernel.org, linux@armlinux.org.uk, mattst88@gmail.com,
+        mingo@kernel.org, mpe@ellerman.id.au, palmer@sifive.com,
+        paul.burton@mips.com, paulus@samba.org, ralf@linux-mips.org,
+        rth@twiddle.net, stable@vger.kernel.org, tglx@linutronix.de,
+        tony.luck@intel.com, vgupta@synopsys.com
+Subject: Re: [PATCH 00/18] locking/atomic: atomic64 type cleanup
+Message-ID: <20190523112013.GA14035@andrea>
+References: <20190522132250.26499-1-mark.rutland@arm.com>
+ <20190523083013.GA4616@andrea>
+ <20190523101926.GA3370@lakrids.cambridge.arm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190523101926.GA3370@lakrids.cambridge.arm.com>
+User-Agent: Mutt/1.5.24 (2015-08-30)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+> > While reading the series, I realized that the following expression:
+> > 
+> > 	atomic64_t v;
+> >         ...
+> > 	typeof(v.counter) my_val = atomic64_set(&v, VAL);
+> > 
+> > is a valid expression on some architectures (in part., on architectures
+> > which #define atomic64_set() to WRITE_ONCE()) but is invalid on others.
+> > (This is due to the fact that WRITE_ONCE() can be used as an rvalue in
+> > the above assignment; TBH, I ignore the reasons for having such rvalue?)
+> > 
+> > IIUC, similar considerations hold for atomic_set().
+> > 
+> > The question is whether this is a known/"expected" inconsistency in the
+> > implementation of atomic64_set() or if this would also need to be fixed
+> > /addressed (say in a different patchset)?
+> 
+> In either case, I don't think the intent is that they should be used that way,
+> and from a quick scan, I can only fine a single relevant instance today:
+> 
+> [mark@lakrids:~/src/linux]% git grep '\(return\|=\)\s\+atomic\(64\)\?_set'
+> include/linux/vmw_vmci_defs.h:  return atomic_set((atomic_t *)var, (u32)new_val);
+> include/linux/vmw_vmci_defs.h:  return atomic64_set(var, new_val);
+> 
+> 
+> [mark@lakrids:~/src/linux]% git grep '=\s+atomic_set' | wc -l
+> 0
+> [mark@lakrids:~/src/linux]% git grep '=\s+atomic64_set' | wc -l
+> 0
+> 
+> Any architectures implementing arch_atomic_* will have both of these functions
+> returning void. Currently that's x86 and arm64, but (time permitting) I intend
+> to migrate other architectures, so I guess we'll have to fix the above up as
+> required.
+> 
+> I think it's best to avoid the construct above.
 
-The patch below does not apply to the 5.0-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Thank you for the clarification, Mark.  I agree with you that it'd be
+better to avoid such constructs.  (FWIW, it is not currently possible
+to use them in litmus tests for the LKMM...)
 
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From e6fdd3bf5aecd8615f31a5128775b9abcf3e0d86 Mon Sep 17 00:00:00 2001
-From: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
-Date: Fri, 29 Mar 2019 11:58:53 +0000
-Subject: [PATCH] PCI: dwc: Use devm_pci_alloc_host_bridge() to simplify code
-
-Use devm_pci_alloc_host_bridge() to simplify the error code path.  This
-also fixes a leak in the dw_pcie_host_init() error path.
-
-Signed-off-by: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Acked-by: Gustavo Pimentel <gustavo.pimentel@synopsys.com>
-CC: stable@vger.kernel.org	# v4.13+
-
-diff --git a/drivers/pci/controller/dwc/pcie-designware-host.c b/drivers/pci/controller/dwc/pcie-designware-host.c
-index acc9be5cf34a..dcc7405aff9a 100644
---- a/drivers/pci/controller/dwc/pcie-designware-host.c
-+++ b/drivers/pci/controller/dwc/pcie-designware-host.c
-@@ -358,7 +358,7 @@ int dw_pcie_host_init(struct pcie_port *pp)
- 		dev_err(dev, "Missing *config* reg space\n");
- 	}
- 
--	bridge = pci_alloc_host_bridge(0);
-+	bridge = devm_pci_alloc_host_bridge(dev, 0);
- 	if (!bridge)
- 		return -ENOMEM;
- 
-@@ -369,7 +369,7 @@ int dw_pcie_host_init(struct pcie_port *pp)
- 
- 	ret = devm_request_pci_bus_resources(dev, &bridge->windows);
- 	if (ret)
--		goto error;
-+		return ret;
- 
- 	/* Get the I/O and memory ranges from DT */
- 	resource_list_for_each_entry_safe(win, tmp, &bridge->windows) {
-@@ -413,8 +413,7 @@ int dw_pcie_host_init(struct pcie_port *pp)
- 						resource_size(pp->cfg));
- 		if (!pci->dbi_base) {
- 			dev_err(dev, "Error with ioremap\n");
--			ret = -ENOMEM;
--			goto error;
-+			return -ENOMEM;
- 		}
- 	}
- 
-@@ -425,8 +424,7 @@ int dw_pcie_host_init(struct pcie_port *pp)
- 					pp->cfg0_base, pp->cfg0_size);
- 		if (!pp->va_cfg0_base) {
- 			dev_err(dev, "Error with ioremap in function\n");
--			ret = -ENOMEM;
--			goto error;
-+			return -ENOMEM;
- 		}
- 	}
- 
-@@ -436,8 +434,7 @@ int dw_pcie_host_init(struct pcie_port *pp)
- 						pp->cfg1_size);
- 		if (!pp->va_cfg1_base) {
- 			dev_err(dev, "Error with ioremap\n");
--			ret = -ENOMEM;
--			goto error;
-+			return -ENOMEM;
- 		}
- 	}
- 
-@@ -460,14 +457,14 @@ int dw_pcie_host_init(struct pcie_port *pp)
- 			    pp->num_vectors == 0) {
- 				dev_err(dev,
- 					"Invalid number of vectors\n");
--				goto error;
-+				return -EINVAL;
- 			}
- 		}
- 
- 		if (!pp->ops->msi_host_init) {
- 			ret = dw_pcie_allocate_domains(pp);
- 			if (ret)
--				goto error;
-+				return ret;
- 
- 			if (pp->msi_irq)
- 				irq_set_chained_handler_and_data(pp->msi_irq,
-@@ -476,7 +473,7 @@ int dw_pcie_host_init(struct pcie_port *pp)
- 		} else {
- 			ret = pp->ops->msi_host_init(pp);
- 			if (ret < 0)
--				goto error;
-+				return ret;
- 		}
- 	}
- 
-@@ -516,8 +513,6 @@ int dw_pcie_host_init(struct pcie_port *pp)
- err_free_msi:
- 	if (pci_msi_enabled() && !pp->ops->msi_host_init)
- 		dw_pcie_free_msi(pp);
--error:
--	pci_free_host_bridge(bridge);
- 	return ret;
- }
- 
-
+Thanks,
+  Andrea
