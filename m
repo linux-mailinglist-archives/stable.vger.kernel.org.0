@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 80E032874F
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:25:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22806287DD
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:26:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389490AbfEWTR7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:17:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53168 "EHLO mail.kernel.org"
+        id S2390864AbfEWTYT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:24:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388242AbfEWTRx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:17:53 -0400
+        id S2389827AbfEWTYR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:24:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F604217D7;
-        Thu, 23 May 2019 19:17:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC5C02184E;
+        Thu, 23 May 2019 19:24:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639072;
-        bh=uxPr8ykJ/Zl6QN+mxD8fJr+dtsoS0g8hBhrj1U7skoM=;
+        s=default; t=1558639457;
+        bh=tYOK5UjmDOen6D4s1GWJrMLr3jUVp3wk9PRppDv5W7Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jUzDeuzmH2eyk20+Fkv4y3Z943SeIz5IfySF7YoQPk76Cx8OhFr6qpB0hclaJxPZt
-         0i42pDXVgrys2K+3aq8nV2Kmk9Kn255pnwJkefo7OXO2arMd3FXF5Ogzr1i3thUCim
-         4pniMw2DXZKrm+odN1GgYtY3gNCl5FelggAUR5Vw=
+        b=h0nmkJKePFW96EyhPG0PgTWSi4UzeC0+e3EM5mBQt9Dp6i+JYJp2IbKtxJJLPVfMr
+         zJ4XTjbr+Y1H2WZtDRzQUkrCiqKsv6UOf9c5a1TtokC3dnbbw4m7KQwy5EotqHCKtg
+         u+sPRwRZOiqY1NJ3TeApQGUztB+xSDZnkqLLligI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Su Yanjun <suyj.fnst@cn.fujitsu.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 084/114] xfrm6_tunnel: Fix potential panic when unloading xfrm6_tunnel module
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.0 095/139] dm delay: fix a crash when invalid device is specified
 Date:   Thu, 23 May 2019 21:06:23 +0200
-Message-Id: <20190523181739.279581814@linuxfoundation.org>
+Message-Id: <20190523181732.964946960@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
-References: <20190523181731.372074275@linuxfoundation.org>
+In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
+References: <20190523181720.120897565@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,38 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 6ee02a54ef990a71bf542b6f0a4e3321de9d9c66 ]
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-When unloading xfrm6_tunnel module, xfrm6_tunnel_fini directly
-frees the xfrm6_tunnel_spi_kmem. Maybe someone has gotten the
-xfrm6_tunnel_spi, so need to wait it.
+commit 81bc6d150ace6250503b825d9d0c10f7bbd24095 upstream.
 
-Fixes: 91cc3bb0b04ff("xfrm6_tunnel: RCU conversion")
-Signed-off-by: Su Yanjun <suyj.fnst@cn.fujitsu.com>
-Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+When the target line contains an invalid device, delay_ctr() will call
+delay_dtr() with NULL workqueue.  Attempting to destroy the NULL
+workqueue causes a crash.
+
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- net/ipv6/xfrm6_tunnel.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/md/dm-delay.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/ipv6/xfrm6_tunnel.c b/net/ipv6/xfrm6_tunnel.c
-index bc65db782bfb1..12cb3aa990af4 100644
---- a/net/ipv6/xfrm6_tunnel.c
-+++ b/net/ipv6/xfrm6_tunnel.c
-@@ -402,6 +402,10 @@ static void __exit xfrm6_tunnel_fini(void)
- 	xfrm6_tunnel_deregister(&xfrm6_tunnel_handler, AF_INET6);
- 	xfrm_unregister_type(&xfrm6_tunnel_type, AF_INET6);
- 	unregister_pernet_subsys(&xfrm6_tunnel_net_ops);
-+	/* Someone maybe has gotten the xfrm6_tunnel_spi.
-+	 * So need to wait it.
-+	 */
-+	rcu_barrier();
- 	kmem_cache_destroy(xfrm6_tunnel_spi_kmem);
- }
+--- a/drivers/md/dm-delay.c
++++ b/drivers/md/dm-delay.c
+@@ -121,7 +121,8 @@ static void delay_dtr(struct dm_target *
+ {
+ 	struct delay_c *dc = ti->private;
  
--- 
-2.20.1
-
+-	destroy_workqueue(dc->kdelayd_wq);
++	if (dc->kdelayd_wq)
++		destroy_workqueue(dc->kdelayd_wq);
+ 
+ 	if (dc->read.dev)
+ 		dm_put_device(ti, dc->read.dev);
 
 
