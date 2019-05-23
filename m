@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0375228A8E
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:57:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4160728A08
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:56:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389206AbfEWTQd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:16:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51236 "EHLO mail.kernel.org"
+        id S1731697AbfEWTIW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:08:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389204AbfEWTQc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:16:32 -0400
+        id S1731464AbfEWTIW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:08:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 85EAA2133D;
-        Thu, 23 May 2019 19:16:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0E8912133D;
+        Thu, 23 May 2019 19:08:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558638992;
-        bh=RiW2IQDV7rzyoBS0G8Gn9wdxSFA5At/oRHCRjO2mdbA=;
+        s=default; t=1558638501;
+        bh=x6thWel1AU0LQgl9B8M1qfwthnSUJktIQxfj+isHwWE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qwAh5nsuSqTePULHJ6lceVTiKJ5MMfV1FY6USDsQ1LL9IdpnKGgVedhhUCKAF7Hyd
-         4DdN++UthbtaEd3wRoDb6oRNbJ0BR0Kz8l7rz/uUhQ+DGdBJkYVouJ/noT9iKJE+dA
-         b0BvEBS6mcY/mnfx499VcqFg/d282rycnI2yXREk=
+        b=e606Oz+Bm9QxXHD8rBP4f03tAEgf99bvIxKb4MhOaKdIKdrs8OPD0UmbEZITbIBt7
+         4TVnf2GcpA6xRO7zomL929H1orPHS//vNNSTexUSmlMryviA0OGeEtC/8CnBFCCbHD
+         Of3M8mnDTv5Y2PwW4FDd6DkKMsFUVkQS4XQUWBsc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Subject: [PATCH 4.19 029/114] intel_th: msu: Fix single mode with IOMMU
+        stable@vger.kernel.org, Junwei Hu <hujunwei4@huawei.com>,
+        Wang Wang <wangwang2@huawei.com>,
+        Xiaogang Wang <wangxiaogang3@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 04/53] tipc: switch order of device registration to fix a crash
 Date:   Thu, 23 May 2019 21:05:28 +0200
-Message-Id: <20190523181734.488829904@linuxfoundation.org>
+Message-Id: <20190523181711.595272715@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
-References: <20190523181731.372074275@linuxfoundation.org>
+In-Reply-To: <20190523181710.981455400@linuxfoundation.org>
+References: <20190523181710.981455400@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,104 +45,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+From: Junwei Hu <hujunwei4@huawei.com>
 
-commit 4e0eaf239fb33ebc671303e2b736fa043462e2f4 upstream.
+[ Upstream commit 7e27e8d6130c5e88fac9ddec4249f7f2337fe7f8 ]
 
-Currently, the pages that are allocated for the single mode of MSC are not
-mapped into the device's dma space and the code is incorrectly using
-*_to_phys() in place of a dma address. This fails with IOMMU enabled and
-is otherwise bad practice.
+When tipc is loaded while many processes try to create a TIPC socket,
+a crash occurs:
+ PANIC: Unable to handle kernel paging request at virtual
+ address "dfff20000000021d"
+ pc : tipc_sk_create+0x374/0x1180 [tipc]
+ lr : tipc_sk_create+0x374/0x1180 [tipc]
+   Exception class = DABT (current EL), IL = 32 bits
+ Call trace:
+  tipc_sk_create+0x374/0x1180 [tipc]
+  __sock_create+0x1cc/0x408
+  __sys_socket+0xec/0x1f0
+  __arm64_sys_socket+0x74/0xa8
+ ...
 
-Fix the single mode buffer allocation to map the pages into the device's
-DMA space.
+This is due to race between sock_create and unfinished
+register_pernet_device. tipc_sk_insert tries to do
+"net_generic(net, tipc_net_id)".
+but tipc_net_id is not initialized yet.
 
-Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Fixes: ba82664c134e ("intel_th: Add Memory Storage Unit driver")
-Cc: stable@vger.kernel.org # v4.4+
+So switch the order of the two to close the race.
+
+This can be reproduced with multiple processes doing socket(AF_TIPC, ...)
+and one process doing module removal.
+
+Fixes: a62fbccecd62 ("tipc: make subscriber server support net namespace")
+Signed-off-by: Junwei Hu <hujunwei4@huawei.com>
+Reported-by: Wang Wang <wangwang2@huawei.com>
+Reviewed-by: Xiaogang Wang <wangxiaogang3@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/hwtracing/intel_th/msu.c |   35 ++++++++++++++++++++++++++++++++---
- 1 file changed, 32 insertions(+), 3 deletions(-)
+ net/tipc/core.c |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
---- a/drivers/hwtracing/intel_th/msu.c
-+++ b/drivers/hwtracing/intel_th/msu.c
-@@ -84,6 +84,7 @@ struct msc_iter {
-  * @reg_base:		register window base address
-  * @thdev:		intel_th_device pointer
-  * @win_list:		list of windows in multiblock mode
-+ * @single_sgt:		single mode buffer
-  * @nr_pages:		total number of pages allocated for this buffer
-  * @single_sz:		amount of data in single mode
-  * @single_wrap:	single mode wrap occurred
-@@ -104,6 +105,7 @@ struct msc {
- 	struct intel_th_device	*thdev;
+--- a/net/tipc/core.c
++++ b/net/tipc/core.c
+@@ -125,10 +125,6 @@ static int __init tipc_init(void)
+ 	if (err)
+ 		goto out_netlink_compat;
  
- 	struct list_head	win_list;
-+	struct sg_table		single_sgt;
- 	unsigned long		nr_pages;
- 	unsigned long		single_sz;
- 	unsigned int		single_wrap : 1;
-@@ -617,22 +619,45 @@ static void intel_th_msc_deactivate(stru
-  */
- static int msc_buffer_contig_alloc(struct msc *msc, unsigned long size)
- {
-+	unsigned long nr_pages = size >> PAGE_SHIFT;
- 	unsigned int order = get_order(size);
- 	struct page *page;
-+	int ret;
+-	err = tipc_socket_init();
+-	if (err)
+-		goto out_socket;
+-
+ 	err = tipc_register_sysctl();
+ 	if (err)
+ 		goto out_sysctl;
+@@ -137,6 +133,10 @@ static int __init tipc_init(void)
+ 	if (err)
+ 		goto out_pernet;
  
- 	if (!size)
- 		return 0;
- 
-+	ret = sg_alloc_table(&msc->single_sgt, 1, GFP_KERNEL);
-+	if (ret)
-+		goto err_out;
++	err = tipc_socket_init();
++	if (err)
++		goto out_socket;
 +
-+	ret = -ENOMEM;
- 	page = alloc_pages(GFP_KERNEL | __GFP_ZERO, order);
- 	if (!page)
--		return -ENOMEM;
-+		goto err_free_sgt;
- 
- 	split_page(page, order);
--	msc->nr_pages = size >> PAGE_SHIFT;
-+	sg_set_buf(msc->single_sgt.sgl, page_address(page), size);
-+
-+	ret = dma_map_sg(msc_dev(msc)->parent->parent, msc->single_sgt.sgl, 1,
-+			 DMA_FROM_DEVICE);
-+	if (ret < 0)
-+		goto err_free_pages;
-+
-+	msc->nr_pages = nr_pages;
- 	msc->base = page_address(page);
--	msc->base_addr = page_to_phys(page);
-+	msc->base_addr = sg_dma_address(msc->single_sgt.sgl);
- 
+ 	err = tipc_bearer_setup();
+ 	if (err)
+ 		goto out_bearer;
+@@ -144,12 +144,12 @@ static int __init tipc_init(void)
+ 	pr_info("Started in single node mode\n");
  	return 0;
-+
-+err_free_pages:
-+	__free_pages(page, order);
-+
-+err_free_sgt:
-+	sg_free_table(&msc->single_sgt);
-+
-+err_out:
-+	return ret;
- }
- 
- /**
-@@ -643,6 +668,10 @@ static void msc_buffer_contig_free(struc
+ out_bearer:
++	tipc_socket_stop();
++out_socket:
+ 	unregister_pernet_subsys(&tipc_net_ops);
+ out_pernet:
+ 	tipc_unregister_sysctl();
+ out_sysctl:
+-	tipc_socket_stop();
+-out_socket:
+ 	tipc_netlink_compat_stop();
+ out_netlink_compat:
+ 	tipc_netlink_stop();
+@@ -161,10 +161,10 @@ out_netlink:
+ static void __exit tipc_exit(void)
  {
- 	unsigned long off;
+ 	tipc_bearer_cleanup();
++	tipc_socket_stop();
+ 	unregister_pernet_subsys(&tipc_net_ops);
+ 	tipc_netlink_stop();
+ 	tipc_netlink_compat_stop();
+-	tipc_socket_stop();
+ 	tipc_unregister_sysctl();
  
-+	dma_unmap_sg(msc_dev(msc)->parent->parent, msc->single_sgt.sgl,
-+		     1, DMA_FROM_DEVICE);
-+	sg_free_table(&msc->single_sgt);
-+
- 	for (off = 0; off < msc->nr_pages << PAGE_SHIFT; off += PAGE_SIZE) {
- 		struct page *page = virt_to_page(msc->base + off);
- 
+ 	pr_info("Deactivated\n");
 
 
