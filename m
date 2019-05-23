@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FB5828AC9
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:58:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B16D2874C
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:25:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387396AbfEWTq4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:46:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47938 "EHLO mail.kernel.org"
+        id S2388169AbfEWTRs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:17:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387867AbfEWTN7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:13:59 -0400
+        id S2388790AbfEWTRs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:17:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 278C6217D9;
-        Thu, 23 May 2019 19:13:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E235420863;
+        Thu, 23 May 2019 19:17:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558638838;
-        bh=Yt3FjdJeDqmwJIX+H6jtdQ7dkyINtBL76TztmOZ5O+s=;
+        s=default; t=1558639067;
+        bh=BLX5G35cxlrNnJA6vomteX9aMzUjS8JM9fQH8dsdSzs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fz+3yuiPf3VBr+g51dusjIKpNWv0FPLeXpaaX1/kE2jUkrJnmSpallH3Qne3jAheg
-         OIiFc5HOk8ldI1JfoY/uXrimLEiL4fYx8lfyE3ZzAsCp89V/ce07eBKBsXFlkpAh5r
-         DtnQZmWmjbSWRVGj6roR7YaZLKlhJrxbUXjCw1/k=
+        b=WcjJWZKTreiI2DPINFhFefBmZGAzUr9VTtgA47OXLwn1kF4BN1y3YCXpyL47gptVh
+         F4SUbZRRU1weNHArLhPa4ClJQAIRIfl6DYFvTu2x+AvN3U0ugdyhMXXcQdWW7lO902
+         16yJoPlpAw4hlpKg285yz3tD41uSS2lTM2GyZq/k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 63/77] apparmorfs: fix use-after-free on symlink traversal
+        stable@vger.kernel.org, Kirill Smelkov <kirr@nexedi.com>,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 4.19 082/114] fuse: Add FOPEN_STREAM to use stream_open()
 Date:   Thu, 23 May 2019 21:06:21 +0200
-Message-Id: <20190523181728.674674667@linuxfoundation.org>
+Message-Id: <20190523181739.135794147@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181719.982121681@linuxfoundation.org>
-References: <20190523181719.982121681@linuxfoundation.org>
+In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
+References: <20190523181731.372074275@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,51 +43,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f51dcd0f621caac5380ce90fbbeafc32ce4517ae ]
+From: Kirill Smelkov <kirr@nexedi.com>
 
-symlink body shouldn't be freed without an RCU delay.  Switch apparmorfs
-to ->destroy_inode() and use of call_rcu(); free both the inode and symlink
-body in the callback.
+commit bbd84f33652f852ce5992d65db4d020aba21f882 upstream.
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Starting from commit 9c225f2655e3 ("vfs: atomic f_pos accesses as per
+POSIX") files opened even via nonseekable_open gate read and write via lock
+and do not allow them to be run simultaneously. This can create read vs
+write deadlock if a filesystem is trying to implement a socket-like file
+which is intended to be simultaneously used for both read and write from
+filesystem client.  See commit 10dce8af3422 ("fs: stream_open - opener for
+stream-like files so that read and write can run simultaneously without
+deadlock") for details and e.g. commit 581d21a2d02a ("xenbus: fix deadlock
+on writes to /proc/xen/xenbus") for a similar deadlock example on
+/proc/xen/xenbus.
+
+To avoid such deadlock it was tempting to adjust fuse_finish_open to use
+stream_open instead of nonseekable_open on just FOPEN_NONSEEKABLE flags,
+but grepping through Debian codesearch shows users of FOPEN_NONSEEKABLE,
+and in particular GVFS which actually uses offset in its read and write
+handlers
+
+	https://codesearch.debian.net/search?q=-%3Enonseekable+%3D
+	https://gitlab.gnome.org/GNOME/gvfs/blob/1.40.0-6-gcbc54396/client/gvfsfusedaemon.c#L1080
+	https://gitlab.gnome.org/GNOME/gvfs/blob/1.40.0-6-gcbc54396/client/gvfsfusedaemon.c#L1247-1346
+	https://gitlab.gnome.org/GNOME/gvfs/blob/1.40.0-6-gcbc54396/client/gvfsfusedaemon.c#L1399-1481
+
+so if we would do such a change it will break a real user.
+
+Add another flag (FOPEN_STREAM) for filesystem servers to indicate that the
+opened handler is having stream-like semantics; does not use file position
+and thus the kernel is free to issue simultaneous read and write request on
+opened file handle.
+
+This patch together with stream_open() should be added to stable kernels
+starting from v3.14+. This will allow to patch OSSPD and other FUSE
+filesystems that provide stream-like files to return FOPEN_STREAM |
+FOPEN_NONSEEKABLE in open handler and this way avoid the deadlock on all
+kernel versions. This should work because fuse_finish_open ignores unknown
+open flags returned from a filesystem and so passing FOPEN_STREAM to a
+kernel that is not aware of this flag cannot hurt. In turn the kernel that
+is not aware of FOPEN_STREAM will be < v3.14 where just FOPEN_NONSEEKABLE
+is sufficient to implement streams without read vs write deadlock.
+
+Cc: stable@vger.kernel.org # v3.14+
+Signed-off-by: Kirill Smelkov <kirr@nexedi.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- security/apparmor/apparmorfs.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ fs/fuse/file.c            |    4 +++-
+ include/uapi/linux/fuse.h |    2 ++
+ 2 files changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/security/apparmor/apparmorfs.c b/security/apparmor/apparmorfs.c
-index 0e03377bb83ea..dd746bd69a9b2 100644
---- a/security/apparmor/apparmorfs.c
-+++ b/security/apparmor/apparmorfs.c
-@@ -126,17 +126,22 @@ static int aafs_show_path(struct seq_file *seq, struct dentry *dentry)
- 	return 0;
- }
+--- a/fs/fuse/file.c
++++ b/fs/fuse/file.c
+@@ -179,7 +179,9 @@ void fuse_finish_open(struct inode *inod
+ 		file->f_op = &fuse_direct_io_file_operations;
+ 	if (!(ff->open_flags & FOPEN_KEEP_CACHE))
+ 		invalidate_inode_pages2(inode->i_mapping);
+-	if (ff->open_flags & FOPEN_NONSEEKABLE)
++	if (ff->open_flags & FOPEN_STREAM)
++		stream_open(inode, file);
++	else if (ff->open_flags & FOPEN_NONSEEKABLE)
+ 		nonseekable_open(inode, file);
+ 	if (fc->atomic_o_trunc && (file->f_flags & O_TRUNC)) {
+ 		struct fuse_inode *fi = get_fuse_inode(inode);
+--- a/include/uapi/linux/fuse.h
++++ b/include/uapi/linux/fuse.h
+@@ -219,10 +219,12 @@ struct fuse_file_lock {
+  * FOPEN_DIRECT_IO: bypass page cache for this open file
+  * FOPEN_KEEP_CACHE: don't invalidate the data cache on open
+  * FOPEN_NONSEEKABLE: the file is not seekable
++ * FOPEN_STREAM: the file is stream-like (no file position at all)
+  */
+ #define FOPEN_DIRECT_IO		(1 << 0)
+ #define FOPEN_KEEP_CACHE	(1 << 1)
+ #define FOPEN_NONSEEKABLE	(1 << 2)
++#define FOPEN_STREAM		(1 << 4)
  
--static void aafs_evict_inode(struct inode *inode)
-+static void aafs_i_callback(struct rcu_head *head)
- {
--	truncate_inode_pages_final(&inode->i_data);
--	clear_inode(inode);
-+	struct inode *inode = container_of(head, struct inode, i_rcu);
- 	if (S_ISLNK(inode->i_mode))
- 		kfree(inode->i_link);
-+	free_inode_nonrcu(inode);
-+}
-+
-+static void aafs_destroy_inode(struct inode *inode)
-+{
-+	call_rcu(&inode->i_rcu, aafs_i_callback);
- }
- 
- static const struct super_operations aafs_super_ops = {
- 	.statfs = simple_statfs,
--	.evict_inode = aafs_evict_inode,
-+	.destroy_inode = aafs_destroy_inode,
- 	.show_path = aafs_show_path,
- };
- 
--- 
-2.20.1
-
+ /**
+  * INIT request/reply flags
 
 
