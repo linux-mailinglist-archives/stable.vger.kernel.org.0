@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DEA0528947
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:42:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5580528915
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:42:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391559AbfEWTcg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:32:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44190 "EHLO mail.kernel.org"
+        id S2403764AbfEWTak (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:30:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403772AbfEWTah (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:30:37 -0400
+        id S2403787AbfEWTak (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:30:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 68DCA21851;
-        Thu, 23 May 2019 19:30:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 19BD821855;
+        Thu, 23 May 2019 19:30:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639836;
-        bh=O/q34PUgSB/3SJ3kr25zIaftIpvty8Zo4bMPrl8SX74=;
+        s=default; t=1558639839;
+        bh=GS0tX16/BUOw5pgwhsBCxb0NVNf2p/tJmSBmNjtGIHo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LipBo7U9mk7bzan5XylkPu1VhzziWBJGnyJtieVnE66549I2AbwuEJMON41081tX3
-         4Qebz7TlQpDH5l9JuQovPYAuKle81gFi5/1JfPACrBTJSThOXqXomYj86hwxy9rzhI
-         N3qUtao7TAlbjKGoU2m6L2hVCJJL71KYc7iNtAaA=
+        b=nP9QjqrVImWFczYj1Nr5iV5e9hbLSJzdKoRq8cxtnV+c/uhULrSsC1dM2UvLfoV1I
+         dJISPueTFllDb3sJwLQdhEGhZM0B7NfW5Ppr4hPn6wKXjfvN0Z1QpsQiW2fTfnaHip
+         6RsnaxZP6dQ2vmVyhJuYsfV4lp6himkskkHWo2uY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kirill Smelkov <kirr@nexedi.com>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 5.1 110/122] fuse: Add FOPEN_STREAM to use stream_open()
-Date:   Thu, 23 May 2019 21:07:12 +0200
-Message-Id: <20190523181720.013770818@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Lass <bevan@bi-co.net>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 5.1 111/122] dm: make sure to obey max_io_len_target_boundary
+Date:   Thu, 23 May 2019 21:07:13 +0200
+Message-Id: <20190523181720.134658446@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
 References: <20190523181705.091418060@linuxfoundation.org>
@@ -43,87 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kirill Smelkov <kirr@nexedi.com>
+From: Michael Lass <bevan@bi-co.net>
 
-commit bbd84f33652f852ce5992d65db4d020aba21f882 upstream.
+commit 51b86f9a8d1c4bb4e3862ee4b4c5f46072f7520d upstream.
 
-Starting from commit 9c225f2655e3 ("vfs: atomic f_pos accesses as per
-POSIX") files opened even via nonseekable_open gate read and write via lock
-and do not allow them to be run simultaneously. This can create read vs
-write deadlock if a filesystem is trying to implement a socket-like file
-which is intended to be simultaneously used for both read and write from
-filesystem client.  See commit 10dce8af3422 ("fs: stream_open - opener for
-stream-like files so that read and write can run simultaneously without
-deadlock") for details and e.g. commit 581d21a2d02a ("xenbus: fix deadlock
-on writes to /proc/xen/xenbus") for a similar deadlock example on
-/proc/xen/xenbus.
+Commit 61697a6abd24 ("dm: eliminate 'split_discard_bios' flag from DM
+target interface") incorrectly removed code from
+__send_changing_extent_only() that is required to impose a per-target IO
+boundary on IO that exceeds max_io_len_target_boundary().  Otherwise
+"special" IO (e.g. DISCARD, WRITE SAME, WRITE ZEROES) can write beyond
+where allowed.
 
-To avoid such deadlock it was tempting to adjust fuse_finish_open to use
-stream_open instead of nonseekable_open on just FOPEN_NONSEEKABLE flags,
-but grepping through Debian codesearch shows users of FOPEN_NONSEEKABLE,
-and in particular GVFS which actually uses offset in its read and write
-handlers
+Fix this by restoring the max_io_len_target_boundary() limit in
+__send_changing_extent_only()
 
-	https://codesearch.debian.net/search?q=-%3Enonseekable+%3D
-	https://gitlab.gnome.org/GNOME/gvfs/blob/1.40.0-6-gcbc54396/client/gvfsfusedaemon.c#L1080
-	https://gitlab.gnome.org/GNOME/gvfs/blob/1.40.0-6-gcbc54396/client/gvfsfusedaemon.c#L1247-1346
-	https://gitlab.gnome.org/GNOME/gvfs/blob/1.40.0-6-gcbc54396/client/gvfsfusedaemon.c#L1399-1481
-
-so if we would do such a change it will break a real user.
-
-Add another flag (FOPEN_STREAM) for filesystem servers to indicate that the
-opened handler is having stream-like semantics; does not use file position
-and thus the kernel is free to issue simultaneous read and write request on
-opened file handle.
-
-This patch together with stream_open() should be added to stable kernels
-starting from v3.14+. This will allow to patch OSSPD and other FUSE
-filesystems that provide stream-like files to return FOPEN_STREAM |
-FOPEN_NONSEEKABLE in open handler and this way avoid the deadlock on all
-kernel versions. This should work because fuse_finish_open ignores unknown
-open flags returned from a filesystem and so passing FOPEN_STREAM to a
-kernel that is not aware of this flag cannot hurt. In turn the kernel that
-is not aware of FOPEN_STREAM will be < v3.14 where just FOPEN_NONSEEKABLE
-is sufficient to implement streams without read vs write deadlock.
-
-Cc: stable@vger.kernel.org # v3.14+
-Signed-off-by: Kirill Smelkov <kirr@nexedi.com>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Fixes: 61697a6abd24 ("dm: eliminate 'split_discard_bios' flag from DM target interface")
+Cc: stable@vger.kernel.org # 5.1+
+Signed-off-by: Michael Lass <bevan@bi-co.net>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/fuse/file.c            |    4 +++-
- include/uapi/linux/fuse.h |    2 ++
- 2 files changed, 5 insertions(+), 1 deletion(-)
+ drivers/md/dm.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/fs/fuse/file.c
-+++ b/fs/fuse/file.c
-@@ -178,7 +178,9 @@ void fuse_finish_open(struct inode *inod
+--- a/drivers/md/dm.c
++++ b/drivers/md/dm.c
+@@ -1467,7 +1467,7 @@ static unsigned get_num_write_zeroes_bio
+ static int __send_changing_extent_only(struct clone_info *ci, struct dm_target *ti,
+ 				       unsigned num_bios)
+ {
+-	unsigned len = ci->sector_count;
++	unsigned len;
  
- 	if (!(ff->open_flags & FOPEN_KEEP_CACHE))
- 		invalidate_inode_pages2(inode->i_mapping);
--	if (ff->open_flags & FOPEN_NONSEEKABLE)
-+	if (ff->open_flags & FOPEN_STREAM)
-+		stream_open(inode, file);
-+	else if (ff->open_flags & FOPEN_NONSEEKABLE)
- 		nonseekable_open(inode, file);
- 	if (fc->atomic_o_trunc && (file->f_flags & O_TRUNC)) {
- 		struct fuse_inode *fi = get_fuse_inode(inode);
---- a/include/uapi/linux/fuse.h
-+++ b/include/uapi/linux/fuse.h
-@@ -229,11 +229,13 @@ struct fuse_file_lock {
-  * FOPEN_KEEP_CACHE: don't invalidate the data cache on open
-  * FOPEN_NONSEEKABLE: the file is not seekable
-  * FOPEN_CACHE_DIR: allow caching this directory
-+ * FOPEN_STREAM: the file is stream-like (no file position at all)
-  */
- #define FOPEN_DIRECT_IO		(1 << 0)
- #define FOPEN_KEEP_CACHE	(1 << 1)
- #define FOPEN_NONSEEKABLE	(1 << 2)
- #define FOPEN_CACHE_DIR		(1 << 3)
-+#define FOPEN_STREAM		(1 << 4)
+ 	/*
+ 	 * Even though the device advertised support for this type of
+@@ -1478,6 +1478,8 @@ static int __send_changing_extent_only(s
+ 	if (!num_bios)
+ 		return -EOPNOTSUPP;
  
- /**
-  * INIT request/reply flags
++	len = min((sector_t)ci->sector_count, max_io_len_target_boundary(ci->sector, ti));
++
+ 	__send_duplicate_bios(ci, ti, num_bios, &len);
+ 
+ 	ci->sector += len;
 
 
