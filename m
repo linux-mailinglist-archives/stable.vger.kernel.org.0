@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 56585288A7
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:41:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2751728A25
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:57:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391658AbfEWT1t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:27:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40138 "EHLO mail.kernel.org"
+        id S2387485AbfEWTJi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:09:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391655AbfEWT1t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:27:49 -0400
+        id S2387473AbfEWTJh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:09:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D01A2206BA;
-        Thu, 23 May 2019 19:27:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A5EAE2184B;
+        Thu, 23 May 2019 19:09:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639667;
-        bh=RiW2IQDV7rzyoBS0G8Gn9wdxSFA5At/oRHCRjO2mdbA=;
+        s=default; t=1558638576;
+        bh=ZZzvkUQ0LQJswjIIVfRIy4x7ofU2zUnNSUKDes/YpJE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XMDzOePo39I14V2S5Q3+X4sOt+LQ31UVuJzM6Wbe01zaUWcWVLMsSspzxKStyBG9m
-         gmKbyQcV+NRv6yCATmuj7Xo10dHOzS7hN+y+cTS1zLxh6WIWnn6+bBeTe/LNUxr4Tl
-         LCokjapn9/bw+oiwrWdQCya6V1fV88WjGuxvEtPE=
+        b=STbgecT2vFSuqJA7ZuLhfkxobr6o9TcZIVJUivbVTRSfOwLaNOge5m9M85XeRfHiv
+         JFg7Ov/C/eeUjAMMvnwHSHXsYRXLCQJLZ/i/ch1YjvinxfFfSCiDvDNvy8SmxrqRAx
+         OGk1HXu4bTdQDLHiCc8WRNXOXdwJmnTTm8vgGAkA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Subject: [PATCH 5.1 042/122] intel_th: msu: Fix single mode with IOMMU
+        =?UTF-8?q?Stefan=20M=C3=A4tje?= <stefan.maetje@esd.eu>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 4.9 40/53] PCI: Work around Pericom PCIe-to-PCI bridge Retrain Link erratum
 Date:   Thu, 23 May 2019 21:06:04 +0200
-Message-Id: <20190523181710.315492098@linuxfoundation.org>
+Message-Id: <20190523181717.257997954@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
-References: <20190523181705.091418060@linuxfoundation.org>
+In-Reply-To: <20190523181710.981455400@linuxfoundation.org>
+References: <20190523181710.981455400@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,104 +45,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+From: Stefan Mätje <stefan.maetje@esd.eu>
 
-commit 4e0eaf239fb33ebc671303e2b736fa043462e2f4 upstream.
+commit 4ec73791a64bab25cabf16a6067ee478692e506d upstream.
 
-Currently, the pages that are allocated for the single mode of MSC are not
-mapped into the device's dma space and the code is incorrectly using
-*_to_phys() in place of a dma address. This fails with IOMMU enabled and
-is otherwise bad practice.
+Due to an erratum in some Pericom PCIe-to-PCI bridges in reverse mode
+(conventional PCI on primary side, PCIe on downstream side), the Retrain
+Link bit needs to be cleared manually to allow the link training to
+complete successfully.
 
-Fix the single mode buffer allocation to map the pages into the device's
-DMA space.
+If it is not cleared manually, the link training is continuously restarted
+and no devices below the PCI-to-PCIe bridge can be accessed.  That means
+drivers for devices below the bridge will be loaded but won't work and may
+even crash because the driver is only reading 0xffff.
 
-Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Fixes: ba82664c134e ("intel_th: Add Memory Storage Unit driver")
-Cc: stable@vger.kernel.org # v4.4+
+See the Pericom Errata Sheet PI7C9X111SLB_errata_rev1.2_102711.pdf for
+details.  Devices known as affected so far are: PI7C9X110, PI7C9X111SL,
+PI7C9X130.
+
+Add a new flag, clear_retrain_link, in struct pci_dev.  Quirks for affected
+devices set this bit.
+
+Note that pcie_retrain_link() lives in aspm.c because that's currently the
+only place we use it, but this erratum is not specific to ASPM, and we may
+retrain links for other reasons in the future.
+
+Signed-off-by: Stefan Mätje <stefan.maetje@esd.eu>
+[bhelgaas: apply regardless of CONFIG_PCIEASPM]
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+CC: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hwtracing/intel_th/msu.c |   35 ++++++++++++++++++++++++++++++++---
- 1 file changed, 32 insertions(+), 3 deletions(-)
+ drivers/pci/pcie/aspm.c |    9 +++++++++
+ drivers/pci/quirks.c    |   17 +++++++++++++++++
+ include/linux/pci.h     |    2 ++
+ 3 files changed, 28 insertions(+)
 
---- a/drivers/hwtracing/intel_th/msu.c
-+++ b/drivers/hwtracing/intel_th/msu.c
-@@ -84,6 +84,7 @@ struct msc_iter {
-  * @reg_base:		register window base address
-  * @thdev:		intel_th_device pointer
-  * @win_list:		list of windows in multiblock mode
-+ * @single_sgt:		single mode buffer
-  * @nr_pages:		total number of pages allocated for this buffer
-  * @single_sz:		amount of data in single mode
-  * @single_wrap:	single mode wrap occurred
-@@ -104,6 +105,7 @@ struct msc {
- 	struct intel_th_device	*thdev;
+--- a/drivers/pci/pcie/aspm.c
++++ b/drivers/pci/pcie/aspm.c
+@@ -181,6 +181,15 @@ static bool pcie_retrain_link(struct pci
+ 	pcie_capability_read_word(parent, PCI_EXP_LNKCTL, &reg16);
+ 	reg16 |= PCI_EXP_LNKCTL_RL;
+ 	pcie_capability_write_word(parent, PCI_EXP_LNKCTL, reg16);
++	if (parent->clear_retrain_link) {
++		/*
++		 * Due to an erratum in some devices the Retrain Link bit
++		 * needs to be cleared again manually to allow the link
++		 * training to succeed.
++		 */
++		reg16 &= ~PCI_EXP_LNKCTL_RL;
++		pcie_capability_write_word(parent, PCI_EXP_LNKCTL, reg16);
++	}
  
- 	struct list_head	win_list;
-+	struct sg_table		single_sgt;
- 	unsigned long		nr_pages;
- 	unsigned long		single_sz;
- 	unsigned int		single_wrap : 1;
-@@ -617,22 +619,45 @@ static void intel_th_msc_deactivate(stru
-  */
- static int msc_buffer_contig_alloc(struct msc *msc, unsigned long size)
+ 	/* Wait for link training end. Break out after waiting for timeout */
+ 	start_jiffies = jiffies;
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -2046,6 +2046,23 @@ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_IN
+ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL, 0x10f4, quirk_disable_aspm_l0s);
+ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL, 0x1508, quirk_disable_aspm_l0s);
+ 
++/*
++ * Some Pericom PCIe-to-PCI bridges in reverse mode need the PCIe Retrain
++ * Link bit cleared after starting the link retrain process to allow this
++ * process to finish.
++ *
++ * Affected devices: PI7C9X110, PI7C9X111SL, PI7C9X130.  See also the
++ * Pericom Errata Sheet PI7C9X111SLB_errata_rev1.2_102711.pdf.
++ */
++static void quirk_enable_clear_retrain_link(struct pci_dev *dev)
++{
++	dev->clear_retrain_link = 1;
++	pci_info(dev, "Enable PCIe Retrain Link quirk\n");
++}
++DECLARE_PCI_FIXUP_HEADER(0x12d8, 0xe110, quirk_enable_clear_retrain_link);
++DECLARE_PCI_FIXUP_HEADER(0x12d8, 0xe111, quirk_enable_clear_retrain_link);
++DECLARE_PCI_FIXUP_HEADER(0x12d8, 0xe130, quirk_enable_clear_retrain_link);
++
+ static void fixup_rev1_53c810(struct pci_dev *dev)
  {
-+	unsigned long nr_pages = size >> PAGE_SHIFT;
- 	unsigned int order = get_order(size);
- 	struct page *page;
-+	int ret;
- 
- 	if (!size)
- 		return 0;
- 
-+	ret = sg_alloc_table(&msc->single_sgt, 1, GFP_KERNEL);
-+	if (ret)
-+		goto err_out;
-+
-+	ret = -ENOMEM;
- 	page = alloc_pages(GFP_KERNEL | __GFP_ZERO, order);
- 	if (!page)
--		return -ENOMEM;
-+		goto err_free_sgt;
- 
- 	split_page(page, order);
--	msc->nr_pages = size >> PAGE_SHIFT;
-+	sg_set_buf(msc->single_sgt.sgl, page_address(page), size);
-+
-+	ret = dma_map_sg(msc_dev(msc)->parent->parent, msc->single_sgt.sgl, 1,
-+			 DMA_FROM_DEVICE);
-+	if (ret < 0)
-+		goto err_free_pages;
-+
-+	msc->nr_pages = nr_pages;
- 	msc->base = page_address(page);
--	msc->base_addr = page_to_phys(page);
-+	msc->base_addr = sg_dma_address(msc->single_sgt.sgl);
- 
- 	return 0;
-+
-+err_free_pages:
-+	__free_pages(page, order);
-+
-+err_free_sgt:
-+	sg_free_table(&msc->single_sgt);
-+
-+err_out:
-+	return ret;
- }
- 
- /**
-@@ -643,6 +668,10 @@ static void msc_buffer_contig_free(struc
- {
- 	unsigned long off;
- 
-+	dma_unmap_sg(msc_dev(msc)->parent->parent, msc->single_sgt.sgl,
-+		     1, DMA_FROM_DEVICE);
-+	sg_free_table(&msc->single_sgt);
-+
- 	for (off = 0; off < msc->nr_pages << PAGE_SHIFT; off += PAGE_SIZE) {
- 		struct page *page = virt_to_page(msc->base + off);
+ 	u32 class = dev->class;
+--- a/include/linux/pci.h
++++ b/include/linux/pci.h
+@@ -320,6 +320,8 @@ struct pci_dev {
+ 	unsigned int	hotplug_user_indicators:1; /* SlotCtl indicators
+ 						      controlled exclusively by
+ 						      user sysfs */
++	unsigned int	clear_retrain_link:1;	/* Need to clear Retrain Link
++						   bit manually */
+ 	unsigned int	d3_delay;	/* D3->D0 transition time in ms */
+ 	unsigned int	d3cold_delay;	/* D3cold->D0 transition time in ms */
  
 
 
