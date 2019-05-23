@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CAAB6279B2
+	by mail.lfdr.de (Postfix) with ESMTP id E7DE0279B3
 	for <lists+stable@lfdr.de>; Thu, 23 May 2019 11:50:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730028AbfEWJu2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 05:50:28 -0400
-Received: from new1-smtp.messagingengine.com ([66.111.4.221]:53565 "EHLO
+        id S1729966AbfEWJu3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 05:50:29 -0400
+Received: from new1-smtp.messagingengine.com ([66.111.4.221]:47325 "EHLO
         new1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729966AbfEWJu2 (ORCPT
+        by vger.kernel.org with ESMTP id S1729972AbfEWJu2 (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 23 May 2019 05:50:28 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailnew.nyi.internal (Postfix) with ESMTP id 8CD313597E;
+        by mailnew.nyi.internal (Postfix) with ESMTP id 8A7FA350B8;
         Thu, 23 May 2019 05:50:25 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
+Received: from mailfrontend1 ([10.202.2.162])
   by compute6.internal (MEProxy); Thu, 23 May 2019 05:50:25 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=cSudYt
-        J5zztz5jsNkMgzWScv4iDncmtyA0S8L/aqOOw=; b=nrlpuG1VvG3K2xefeb9smA
-        wbtbo4T1p1Tu+ffDIK2Eo1vep8a/2wX9JjVDAaRVWFQxaS5WePCCl57OBkuWCbMN
-        OLgBxX/entWbsmVkwqITNpmXr3AOuouBdJfJ02Sao7guBCj2UmpgI5ETBm3ZJkYl
-        6kp+MBXIdkO+v0cv5iBE8ljaZQ0RHwOh97AZj//MxnVh9eCbpaQtDoOgE//5jGUf
-        k4uijs7wZRKsdpcLwcTOAKO37XoEPkm4sFkSlRWGWqN3gchtoew/4w8LBSzu4i0V
-        7kKazi1rsZnvL4DKJQWJDqhT3y4zGfnLwGOsjzWfFTM4pFlW0X79k0l8pSzmVvAA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=vPXYb+
+        dQPu1PmLAsppSBBCsxX99YN2sLe8ibkLaPLj4=; b=WmhWP7S8StsnpVd7A31Sp4
+        aZOvHNr0ephz4kN8DlHv66HX4Mz2dRSJ/WEt4ncDqYKLLtibH6pNcrbXWFIXXb9+
+        phWa5qd39aDDuyYizw0XUBBbcu2QVbakK6p73FO6B0Vjqfi9FEIFlx7N44/kOIyP
+        Bp4k0o1Xp9fZBzf3lzPkAowGNnOtAAlectWM2ofw6guJxy6YBTx01Cui+9/9ayMq
+        strX8+Da3XSzIY6JSk4/2p/uEYP/WT4Rtw4f+TJSK6AwrdPrWMfRLgOWo5Hz+J/r
+        WITwkWjd0NhcPNfeGhjDe7slVAIdGsw6sKLEQfq/jvMAQUta7FWbMzKb29hoxuVQ
         ==
-X-ME-Sender: <xms:3GzmXBoyXdTTrahpm7GjEci0WQQco20fF1RUF3Zecp_SHpTHRg1Jaw>
+X-ME-Sender: <xms:4WzmXKwvf4TcCW94yH3y4tqZNf7h5fuw98T51F56xfoiwHXQlXMcOQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddruddugedgvdduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:3GzmXPTnyt8LQp8P8o5vDRP2EDwJyJjPOR0PJKhSH8jg7nBXPvK6iA>
-    <xmx:3GzmXIpxnJ2QB4S6jpTS1y_VE6D1AyjvSAygPXvelMF6o00p1yCIBQ>
-    <xmx:3GzmXKxsRWSm543njrVyGSTVFGB5KHkvFvGgsSq7DD-mqEhGzY8QGw>
-    <xmx:4WzmXPDADh3c9T2Crk9bfrtmfphb82wKWBDb54KDiRTrnjI9JG4N2A>
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepud
+X-ME-Proxy: <xmx:4WzmXNVq54lXViQ-fkYoMeLkzE8ET00QDUXR8n1EuLEeAMEIlaWGQQ>
+    <xmx:4WzmXED8qd3eYqwjFzIpjgxrV69ETcyWviFGD9ArYUuxqfz_W2PFvg>
+    <xmx:4WzmXG6bEO9pt6_-HXdMD337I4K3qGXVmcJuvJ-sWLtPerj22AYaew>
+    <xmx:4WzmXO5OX6IChRnVWXvaDs1WzsXksBfPQGIKoYfUOG6JBoZH0zmuHw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 49B17380083;
-        Thu, 23 May 2019 05:50:20 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] x86_64: Allow breakpoints to emulate call instructions" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 51BB480061;
+        Thu, 23 May 2019 05:50:24 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] x86_64: Allow breakpoints to emulate call instructions" failed to apply to 4.4-stable tree
 To:     peterz@infradead.org, bigeasy@linutronix.de, bp@alien8.de,
         hpa@zytor.com, jgross@suse.com, jikos@kernel.org,
         joe.lawrence@redhat.com, jpoimboe@redhat.com, jroedel@suse.de,
@@ -53,8 +53,8 @@ To:     peterz@infradead.org, bigeasy@linutronix.de, bp@alien8.de,
         x86@kernel.org, yamada.masahiro@socionext.com, zohar@linux.ibm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 23 May 2019 11:50:18 +0200
-Message-ID: <15586050184156@kroah.com>
+Date:   Thu, 23 May 2019 11:50:22 +0200
+Message-ID: <1558605022149172@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -64,7 +64,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
