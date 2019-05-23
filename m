@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 73C99289C5
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:43:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 287CE2893F
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:42:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389848AbfEWTTg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:19:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55740 "EHLO mail.kernel.org"
+        id S2391967AbfEWTcD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:32:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388715AbfEWTTg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:19:36 -0400
+        id S2391945AbfEWTcD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:32:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8B4992133D;
-        Thu, 23 May 2019 19:19:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2345B21881;
+        Thu, 23 May 2019 19:32:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639175;
-        bh=kesfgwBqgVXPkLx/zEwnlJg4dQOQm0nNiBwMUCHiobU=;
+        s=default; t=1558639921;
+        bh=9tqMZWqEHULiuOWDI2seNvJ1xyybwcMj/Ewo4lbLsvc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WIc318X0NXF4+RmWoXQXCsDnvhK1MqSAwcgODxbros/QeaxFCJ0CZfyTnoddHGb7L
-         dGoAIBrU78sQ4jOfaCQyTBFZx32jX8iZaTjBFkLAIr67pqrHZpQEr5HSkXWC5K1voX
-         XTfHqSsyySSaxUNpaxYVy7FpskUAi00DSqCkNXXA=
+        b=TkPtJD7J6OzuNymBw+KpEimKMm42fmkrHghKQX04XFdmZhB41EfAgiAaYrXsi90RB
+         bLDF5i+TiOKS0GISv+LZc3YhHxgk6XHGsrkREXmhNRLmvhrs2DoZ8ywEvQaV+owOr/
+         Q0Q3X0yetCCgnNB/3NsUtY2SadDHMbZ47pXwsH68=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 4.19 114/114] bpf, lru: avoid messing with eviction heuristics upon syscall lookup
-Date:   Thu, 23 May 2019 21:06:53 +0200
-Message-Id: <20190523181740.955032364@linuxfoundation.org>
+        stable@vger.kernel.org, Yifeng Li <tomli@tomli.me>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        Teddy Wang <teddy.wang@siliconmotion.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Subject: [PATCH 5.1 092/122] fbdev: sm712fb: use 1024x768 by default on non-MIPS, fix garbled display
+Date:   Thu, 23 May 2019 21:06:54 +0200
+Message-Id: <20190523181717.258003900@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
-References: <20190523181731.372074275@linuxfoundation.org>
+In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
+References: <20190523181705.091418060@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,106 +45,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: Yifeng Li <tomli@tomli.me>
 
-commit 50b045a8c0ccf44f76640ac3eea8d80ca53979a3 upstream.
+commit 4ed7d2ccb7684510ec5f7a8f7ef534bc6a3d55b2 upstream.
 
-One of the biggest issues we face right now with picking LRU map over
-regular hash table is that a map walk out of user space, for example,
-to just dump the existing entries or to remove certain ones, will
-completely mess up LRU eviction heuristics and wrong entries such
-as just created ones will get evicted instead. The reason for this
-is that we mark an entry as "in use" via bpf_lru_node_set_ref() from
-system call lookup side as well. Thus upon walk, all entries are
-being marked, so information of actual least recently used ones
-are "lost".
+Loongson MIPS netbooks use 1024x600 LCD panels, which is the original
+target platform of this driver, but nearly all old x86 laptops have
+1024x768. Lighting 768 panels using 600's timings would partially
+garble the display. Since it's not possible to distinguish them reliably,
+we change the default to 768, but keep 600 as-is on MIPS.
 
-In case of Cilium where it can be used (besides others) as a BPF
-based connection tracker, this current behavior causes disruption
-upon control plane changes that need to walk the map from user space
-to evict certain entries. Discussion result from bpfconf [0] was that
-we should simply just remove marking from system call side as no
-good use case could be found where it's actually needed there.
-Therefore this patch removes marking for regular LRU and per-CPU
-flavor. If there ever should be a need in future, the behavior could
-be selected via map creation flag, but due to mentioned reason we
-avoid this here.
+Further, earlier laptops, such as IBM Thinkpad 240X, has a 800x600 LCD
+panel, this driver would probably garbled those display. As we don't
+have one for testing, the original behavior of the driver is kept as-is,
+but the problem has been documented is the comments.
 
-  [0] http://vger.kernel.org/bpfconf.html
-
-Fixes: 29ba732acbee ("bpf: Add BPF_MAP_TYPE_LRU_HASH")
-Fixes: 8f8449384ec3 ("bpf: Add BPF_MAP_TYPE_LRU_PERCPU_HASH")
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Martin KaFai Lau <kafai@fb.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Yifeng Li <tomli@tomli.me>
+Tested-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Cc: Teddy Wang <teddy.wang@siliconmotion.com>
+Cc: <stable@vger.kernel.org>  # v4.4+
+Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/bpf/hashtab.c |   23 ++++++++++++++++++-----
- 1 file changed, 18 insertions(+), 5 deletions(-)
+ drivers/video/fbdev/sm712.h   |    7 +++--
+ drivers/video/fbdev/sm712fb.c |   53 +++++++++++++++++++++++++++++++-----------
+ 2 files changed, 44 insertions(+), 16 deletions(-)
 
---- a/kernel/bpf/hashtab.c
-+++ b/kernel/bpf/hashtab.c
-@@ -518,18 +518,30 @@ static u32 htab_map_gen_lookup(struct bp
- 	return insn - insn_buf;
+--- a/drivers/video/fbdev/sm712.h
++++ b/drivers/video/fbdev/sm712.h
+@@ -15,9 +15,10 @@
+ 
+ #define FB_ACCEL_SMI_LYNX 88
+ 
+-#define SCREEN_X_RES      1024
+-#define SCREEN_Y_RES      600
+-#define SCREEN_BPP        16
++#define SCREEN_X_RES          1024
++#define SCREEN_Y_RES_PC       768
++#define SCREEN_Y_RES_NETBOOK  600
++#define SCREEN_BPP            16
+ 
+ #define dac_reg	(0x3c8)
+ #define dac_val	(0x3c9)
+--- a/drivers/video/fbdev/sm712fb.c
++++ b/drivers/video/fbdev/sm712fb.c
+@@ -1463,6 +1463,43 @@ static u_long sm7xx_vram_probe(struct sm
+ 	return 0;  /* unknown hardware */
  }
  
--static void *htab_lru_map_lookup_elem(struct bpf_map *map, void *key)
-+static __always_inline void *__htab_lru_map_lookup_elem(struct bpf_map *map,
-+							void *key, const bool mark)
++static void sm7xx_resolution_probe(struct smtcfb_info *sfb)
++{
++	/* get mode parameter from smtc_scr_info */
++	if (smtc_scr_info.lfb_width != 0) {
++		sfb->fb->var.xres = smtc_scr_info.lfb_width;
++		sfb->fb->var.yres = smtc_scr_info.lfb_height;
++		sfb->fb->var.bits_per_pixel = smtc_scr_info.lfb_depth;
++		goto final;
++	}
++
++	/*
++	 * No parameter, default resolution is 1024x768-16.
++	 *
++	 * FIXME: earlier laptops, such as IBM Thinkpad 240X, has a 800x600
++	 * panel, also see the comments about Thinkpad 240X above.
++	 */
++	sfb->fb->var.xres = SCREEN_X_RES;
++	sfb->fb->var.yres = SCREEN_Y_RES_PC;
++	sfb->fb->var.bits_per_pixel = SCREEN_BPP;
++
++#ifdef CONFIG_MIPS
++	/*
++	 * Loongson MIPS netbooks use 1024x600 LCD panels, which is the original
++	 * target platform of this driver, but nearly all old x86 laptops have
++	 * 1024x768. Lighting 768 panels using 600's timings would partially
++	 * garble the display, so we don't want that. But it's not possible to
++	 * distinguish them reliably.
++	 *
++	 * So we change the default to 768, but keep 600 as-is on MIPS.
++	 */
++	sfb->fb->var.yres = SCREEN_Y_RES_NETBOOK;
++#endif
++
++final:
++	big_pixel_depth(sfb->fb->var.bits_per_pixel, smtc_scr_info.lfb_depth);
++}
++
+ static int smtcfb_pci_probe(struct pci_dev *pdev,
+ 			    const struct pci_device_id *ent)
  {
- 	struct htab_elem *l = __htab_map_lookup_elem(map, key);
+@@ -1508,19 +1545,6 @@ static int smtcfb_pci_probe(struct pci_d
  
- 	if (l) {
--		bpf_lru_node_set_ref(&l->lru_node);
-+		if (mark)
-+			bpf_lru_node_set_ref(&l->lru_node);
- 		return l->key + round_up(map->key_size, 8);
+ 	sm7xx_init_hw();
+ 
+-	/* get mode parameter from smtc_scr_info */
+-	if (smtc_scr_info.lfb_width != 0) {
+-		sfb->fb->var.xres = smtc_scr_info.lfb_width;
+-		sfb->fb->var.yres = smtc_scr_info.lfb_height;
+-		sfb->fb->var.bits_per_pixel = smtc_scr_info.lfb_depth;
+-	} else {
+-		/* default resolution 1024x600 16bit mode */
+-		sfb->fb->var.xres = SCREEN_X_RES;
+-		sfb->fb->var.yres = SCREEN_Y_RES;
+-		sfb->fb->var.bits_per_pixel = SCREEN_BPP;
+-	}
+-
+-	big_pixel_depth(sfb->fb->var.bits_per_pixel, smtc_scr_info.lfb_depth);
+ 	/* Map address and memory detection */
+ 	mmio_base = pci_resource_start(pdev, 0);
+ 	pci_read_config_byte(pdev, PCI_REVISION_ID, &sfb->chip_rev_id);
+@@ -1582,6 +1606,9 @@ static int smtcfb_pci_probe(struct pci_d
+ 		goto failed_fb;
  	}
  
- 	return NULL;
- }
- 
-+static void *htab_lru_map_lookup_elem(struct bpf_map *map, void *key)
-+{
-+	return __htab_lru_map_lookup_elem(map, key, true);
-+}
++	/* probe and decide resolution */
++	sm7xx_resolution_probe(sfb);
 +
-+static void *htab_lru_map_lookup_elem_sys(struct bpf_map *map, void *key)
-+{
-+	return __htab_lru_map_lookup_elem(map, key, false);
-+}
-+
- static u32 htab_lru_map_gen_lookup(struct bpf_map *map,
- 				   struct bpf_insn *insn_buf)
- {
-@@ -1206,6 +1218,7 @@ const struct bpf_map_ops htab_lru_map_op
- 	.map_free = htab_map_free,
- 	.map_get_next_key = htab_map_get_next_key,
- 	.map_lookup_elem = htab_lru_map_lookup_elem,
-+	.map_lookup_elem_sys_only = htab_lru_map_lookup_elem_sys,
- 	.map_update_elem = htab_lru_map_update_elem,
- 	.map_delete_elem = htab_lru_map_delete_elem,
- 	.map_gen_lookup = htab_lru_map_gen_lookup,
-@@ -1237,7 +1250,6 @@ static void *htab_lru_percpu_map_lookup_
- 
- int bpf_percpu_hash_copy(struct bpf_map *map, void *key, void *value)
- {
--	struct bpf_htab *htab = container_of(map, struct bpf_htab, map);
- 	struct htab_elem *l;
- 	void __percpu *pptr;
- 	int ret = -ENOENT;
-@@ -1253,8 +1265,9 @@ int bpf_percpu_hash_copy(struct bpf_map
- 	l = __htab_map_lookup_elem(map, key);
- 	if (!l)
- 		goto out;
--	if (htab_is_lru(htab))
--		bpf_lru_node_set_ref(&l->lru_node);
-+	/* We do not mark LRU map element here in order to not mess up
-+	 * eviction heuristics when user space does a map walk.
-+	 */
- 	pptr = htab_elem_get_ptr(l, map->key_size);
- 	for_each_possible_cpu(cpu) {
- 		bpf_long_memcpy(value + off,
+ 	/* can support 32 bpp */
+ 	if (sfb->fb->var.bits_per_pixel == 15)
+ 		sfb->fb->var.bits_per_pixel = 16;
 
 
