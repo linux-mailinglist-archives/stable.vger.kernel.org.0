@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D6B4288B6
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:41:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B8F328A26
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:57:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391741AbfEWT2M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:28:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40716 "EHLO mail.kernel.org"
+        id S2387473AbfEWTJk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:09:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391738AbfEWT2L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:28:11 -0400
+        id S2387506AbfEWTJj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:09:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E60DB206BA;
-        Thu, 23 May 2019 19:28:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 60A3721841;
+        Thu, 23 May 2019 19:09:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639691;
-        bh=FtYbvIv3gOl5LAcrN+tt1XTYQKijAsSZSVhpgmTQNSA=;
+        s=default; t=1558638578;
+        bh=I6u1nRkixkWgd4+KBmT8cNxNPupYXx8ksFuELRXsnq4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mYXEA8vLOjLTs7xGRq599zpvoBm5hgMNfZgak9iiqSKrezEUHGoxe9EjeqWe49ZOD
-         m5IWYKwhyc14oyM2F21QnAI6sSANOIy29wi7hJQjntjjIL3+cquHDAuWVHHk81jMbQ
-         apcy5HRaUGsHZaNXCCNRMic0tMijwdJu3XQEihxE=
+        b=zB0x3h2X4UAYAel4L9fjfndDH01/fqQdMZ9QSXpB+0xJBU3qrUHG3SbwxTob3oOC8
+         8KWxyhlla9u+5gbeuR+k84+5LSYVwzPvWJguOyybZmNrrffBycBHxwoWZidft2PWgD
+         zXfsBUIDK1XOuRqD3f6LbbFPbeFP7+Ss7IrxY+LA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pan Bian <bianpan2016@163.com>,
-        Christian Lamparter <chunkeey@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.1 043/122] p54: drop device reference count if fails to enable device
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 4.9 41/53] dm delay: fix a crash when invalid device is specified
 Date:   Thu, 23 May 2019 21:06:05 +0200
-Message-Id: <20190523181710.431226435@linuxfoundation.org>
+Message-Id: <20190523181717.451057517@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
-References: <20190523181705.091418060@linuxfoundation.org>
+In-Reply-To: <20190523181710.981455400@linuxfoundation.org>
+References: <20190523181710.981455400@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pan Bian <bianpan2016@163.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit 8149069db81853570a665f5e5648c0e526dc0e43 upstream.
+commit 81bc6d150ace6250503b825d9d0c10f7bbd24095 upstream.
 
-The function p54p_probe takes an extra reference count of the PCI
-device. However, the extra reference count is not dropped when it fails
-to enable the PCI device. This patch fixes the bug.
+When the target line contains an invalid device, delay_ctr() will call
+delay_dtr() with NULL workqueue.  Attempting to destroy the NULL
+workqueue causes a crash.
 
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Pan Bian <bianpan2016@163.com>
-Acked-by: Christian Lamparter <chunkeey@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/net/wireless/intersil/p54/p54pci.c |    3 ++-
+ drivers/md/dm-delay.c |    3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/wireless/intersil/p54/p54pci.c
-+++ b/drivers/net/wireless/intersil/p54/p54pci.c
-@@ -554,7 +554,7 @@ static int p54p_probe(struct pci_dev *pd
- 	err = pci_enable_device(pdev);
- 	if (err) {
- 		dev_err(&pdev->dev, "Cannot enable new PCI device\n");
--		return err;
-+		goto err_put;
- 	}
+--- a/drivers/md/dm-delay.c
++++ b/drivers/md/dm-delay.c
+@@ -222,7 +222,8 @@ static void delay_dtr(struct dm_target *
+ {
+ 	struct delay_c *dc = ti->private;
  
- 	mem_addr = pci_resource_start(pdev, 0);
-@@ -639,6 +639,7 @@ static int p54p_probe(struct pci_dev *pd
- 	pci_release_regions(pdev);
-  err_disable_dev:
- 	pci_disable_device(pdev);
-+err_put:
- 	pci_dev_put(pdev);
- 	return err;
- }
+-	destroy_workqueue(dc->kdelayd_wq);
++	if (dc->kdelayd_wq)
++		destroy_workqueue(dc->kdelayd_wq);
+ 
+ 	dm_put_device(ti, dc->dev_read);
+ 
 
 
