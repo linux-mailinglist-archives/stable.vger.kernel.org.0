@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B9B9C2884B
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:40:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DC022875C
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:25:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390928AbfEWTYf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:24:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35586 "EHLO mail.kernel.org"
+        id S2388931AbfEWTSf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:18:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390926AbfEWTYe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:24:34 -0400
+        id S2388869AbfEWTSd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:18:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DBE5F217D9;
-        Thu, 23 May 2019 19:24:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B08EA20863;
+        Thu, 23 May 2019 19:18:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639473;
-        bh=GyjR03mRx2uHGsBoqy5JZU2GuWAvJ8HEefr05o0g4lw=;
+        s=default; t=1558639113;
+        bh=1hgkY4yzVrjXOqqlqgdnjXR95zAPc8GnS0AZuzrKBkk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZwbFMcWHnKmnSLYTX/QZtfwW3JU7lkKFDOtzr7OJDJCBAYGs7Ld++MFkPqhOqKjzi
-         JQuwEcYBF8GOlNDr37Gwb0JRGBkTI83zcpDB3dilhojxVLtbJ7D16gN9+Oc2FjWa6Z
-         CvbNHoOIfwVAQYEGkEHo4XJ4XxkWyHDMDnnneuwo=
+        b=D24piMQSwPcJtbRtaHpTYHisjXpLq9e1adNNGaAYZQY4xyZXxnJ6FCgkj/Fe3sHsl
+         Jr2lscWPiTjSxvhty+5cuY/OeVL6RgDAU5cOsicTtfQKxsVjJainDU9isVdmZKFlS1
+         wbGebgt6Lb+DmgHue5tNOduXuXju0VWLZrDZhIQU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Suraj Jitindar Singh <sjitindarsingh@gmail.com>,
-        Paul Mackerras <paulus@ozlabs.org>,
+        stable@vger.kernel.org, Andrey Smirnov <andrew.smirnov@gmail.com>,
+        Chris Healy <cphealy@gmail.com>, linux-pm@vger.kernel.org,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 110/139] KVM: PPC: Book3S HV: Perserve PSSCR FAKE_SUSPEND bit on guest exit
+Subject: [PATCH 4.19 099/114] power: supply: sysfs: prevent endless uevent loop with CONFIG_POWER_SUPPLY_DEBUG
 Date:   Thu, 23 May 2019 21:06:38 +0200
-Message-Id: <20190523181734.418749537@linuxfoundation.org>
+Message-Id: <20190523181740.177176921@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
-References: <20190523181720.120897565@linuxfoundation.org>
+In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
+References: <20190523181731.372074275@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,91 +45,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 7cb9eb106d7a4efab6bcf30ec9503f1d703c77f5 ]
+[ Upstream commit 349ced9984ff540ce74ca8a0b2e9b03dc434b9dd ]
 
-There is a hardware bug in some POWER9 processors where a treclaim in
-fake suspend mode can cause an inconsistency in the XER[SO] bit across
-the threads of a core, the workaround being to force the core into SMT4
-when doing the treclaim.
+Fix a similar endless event loop as was done in commit
+8dcf32175b4e ("i2c: prevent endless uevent loop with
+CONFIG_I2C_DEBUG_CORE"):
 
-The FAKE_SUSPEND bit (bit 10) in the PSSCR is used to control whether a
-thread is in fake suspend or real suspend. The important difference here
-being that thread reconfiguration is blocked in real suspend but not
-fake suspend mode.
+  The culprit is the dev_dbg printk in the i2c uevent handler. If
+  this is activated (for instance by CONFIG_I2C_DEBUG_CORE) it results
+  in an endless loop with systemd-journald.
 
-When we exit a guest which was in fake suspend mode, we force the core
-into SMT4 while we do the treclaim in kvmppc_save_tm_hv().
-However on the new exit path introduced with the function
-kvmhv_run_single_vcpu() we restore the host PSSCR before calling
-kvmppc_save_tm_hv() which means that if we were in fake suspend mode we
-put the thread into real suspend mode when we clear the
-PSSCR[FAKE_SUSPEND] bit. This means that we block thread reconfiguration
-and the thread which is trying to get the core into SMT4 before it can
-do the treclaim spins forever since it itself is blocking thread
-reconfiguration. The result is that that core is essentially lost.
+  This happens if user-space scans the system log and reads the uevent
+  file to get information about a newly created device, which seems
+  fair use to me. Unfortunately reading the "uevent" file uses the
+  same function that runs for creating the uevent for a new device,
+  generating the next syslog entry
 
-This results in a trace such as:
-[   93.512904] CPU: 7 PID: 13352 Comm: qemu-system-ppc Not tainted 5.0.0 #4
-[   93.512905] NIP:  c000000000098a04 LR: c0000000000cc59c CTR: 0000000000000000
-[   93.512908] REGS: c000003fffd2bd70 TRAP: 0100   Not tainted  (5.0.0)
-[   93.512908] MSR:  9000000302883033 <SF,HV,VEC,VSX,FP,ME,IR,DR,RI,LE,TM[SE]>  CR: 22222444  XER: 00000000
-[   93.512914] CFAR: c000000000098a5c IRQMASK: 3
-[   93.512915] PACATMSCRATCH: 0000000000000001
-[   93.512916] GPR00: 0000000000000001 c000003f6cc1b830 c000000001033100 0000000000000004
-[   93.512928] GPR04: 0000000000000004 0000000000000002 0000000000000004 0000000000000007
-[   93.512930] GPR08: 0000000000000000 0000000000000004 0000000000000000 0000000000000004
-[   93.512932] GPR12: c000203fff7fc000 c000003fffff9500 0000000000000000 0000000000000000
-[   93.512935] GPR16: 2000000000300375 000000000000059f 0000000000000000 0000000000000000
-[   93.512951] GPR20: 0000000000000000 0000000000080053 004000000256f41f c000003f6aa88ef0
-[   93.512953] GPR24: c000003f6aa89100 0000000000000010 0000000000000000 0000000000000000
-[   93.512956] GPR28: c000003f9e9a0800 0000000000000000 0000000000000001 c000203fff7fc000
-[   93.512959] NIP [c000000000098a04] pnv_power9_force_smt4_catch+0x1b4/0x2c0
-[   93.512960] LR [c0000000000cc59c] kvmppc_save_tm_hv+0x40/0x88
-[   93.512960] Call Trace:
-[   93.512961] [c000003f6cc1b830] [0000000000080053] 0x80053 (unreliable)
-[   93.512965] [c000003f6cc1b8a0] [c00800001e9cb030] kvmhv_p9_guest_entry+0x508/0x6b0 [kvm_hv]
-[   93.512967] [c000003f6cc1b940] [c00800001e9cba44] kvmhv_run_single_vcpu+0x2dc/0xb90 [kvm_hv]
-[   93.512968] [c000003f6cc1ba10] [c00800001e9cc948] kvmppc_vcpu_run_hv+0x650/0xb90 [kvm_hv]
-[   93.512969] [c000003f6cc1bae0] [c00800001e8f620c] kvmppc_vcpu_run+0x34/0x48 [kvm]
-[   93.512971] [c000003f6cc1bb00] [c00800001e8f2d4c] kvm_arch_vcpu_ioctl_run+0x2f4/0x400 [kvm]
-[   93.512972] [c000003f6cc1bb90] [c00800001e8e3918] kvm_vcpu_ioctl+0x460/0x7d0 [kvm]
-[   93.512974] [c000003f6cc1bd00] [c0000000003ae2c0] do_vfs_ioctl+0xe0/0x8e0
-[   93.512975] [c000003f6cc1bdb0] [c0000000003aeb24] ksys_ioctl+0x64/0xe0
-[   93.512978] [c000003f6cc1be00] [c0000000003aebc8] sys_ioctl+0x28/0x80
-[   93.512981] [c000003f6cc1be20] [c00000000000b3a4] system_call+0x5c/0x70
-[   93.512983] Instruction dump:
-[   93.512986] 419dffbc e98c0000 2e8b0000 38000001 60000000 60000000 60000000 40950068
-[   93.512993] 392bffff 39400000 79290020 39290001 <7d2903a6> 60000000 60000000 7d235214
+Both CONFIG_I2C_DEBUG_CORE and CONFIG_POWER_SUPPLY_DEBUG were reported
+in https://bugs.freedesktop.org/show_bug.cgi?id=76886 but only former
+seems to have been fixed. Drop debug prints as it was done in I2C
+subsystem to resolve the issue.
 
-To fix this we preserve the PSSCR[FAKE_SUSPEND] bit until we call
-kvmppc_save_tm_hv() which will mean the core can get into SMT4 and
-perform the treclaim. Note kvmppc_save_tm_hv() clears the
-PSSCR[FAKE_SUSPEND] bit again so there is no need to explicitly do that.
-
-Fixes: 95a6432ce9038 ("KVM: PPC: Book3S HV: Streamlined guest entry/exit path on P9 for radix guests")
-
-Signed-off-by: Suraj Jitindar Singh <sjitindarsingh@gmail.com>
-Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
+Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
+Cc: Chris Healy <cphealy@gmail.com>
+Cc: linux-pm@vger.kernel.org
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kvm/book3s_hv.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/power/supply/power_supply_sysfs.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
-diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
-index 5a066fc299e17..f17065f2c962f 100644
---- a/arch/powerpc/kvm/book3s_hv.c
-+++ b/arch/powerpc/kvm/book3s_hv.c
-@@ -3407,7 +3407,9 @@ static int kvmhv_load_hv_regs_and_go(struct kvm_vcpu *vcpu, u64 time_limit,
- 	vcpu->arch.shregs.sprg2 = mfspr(SPRN_SPRG2);
- 	vcpu->arch.shregs.sprg3 = mfspr(SPRN_SPRG3);
+diff --git a/drivers/power/supply/power_supply_sysfs.c b/drivers/power/supply/power_supply_sysfs.c
+index 6170ed8b6854b..5a2757a7f4088 100644
+--- a/drivers/power/supply/power_supply_sysfs.c
++++ b/drivers/power/supply/power_supply_sysfs.c
+@@ -382,15 +382,11 @@ int power_supply_uevent(struct device *dev, struct kobj_uevent_env *env)
+ 	char *prop_buf;
+ 	char *attrname;
  
--	mtspr(SPRN_PSSCR, host_psscr);
-+	/* Preserve PSSCR[FAKE_SUSPEND] until we've called kvmppc_save_tm_hv */
-+	mtspr(SPRN_PSSCR, host_psscr |
-+	      (local_paca->kvm_hstate.fake_suspend << PSSCR_FAKE_SUSPEND_LG));
- 	mtspr(SPRN_HFSCR, host_hfscr);
- 	mtspr(SPRN_CIABR, host_ciabr);
- 	mtspr(SPRN_DAWR, host_dawr);
+-	dev_dbg(dev, "uevent\n");
+-
+ 	if (!psy || !psy->desc) {
+ 		dev_dbg(dev, "No power supply yet\n");
+ 		return ret;
+ 	}
+ 
+-	dev_dbg(dev, "POWER_SUPPLY_NAME=%s\n", psy->desc->name);
+-
+ 	ret = add_uevent_var(env, "POWER_SUPPLY_NAME=%s", psy->desc->name);
+ 	if (ret)
+ 		return ret;
+@@ -426,8 +422,6 @@ int power_supply_uevent(struct device *dev, struct kobj_uevent_env *env)
+ 			goto out;
+ 		}
+ 
+-		dev_dbg(dev, "prop %s=%s\n", attrname, prop_buf);
+-
+ 		ret = add_uevent_var(env, "POWER_SUPPLY_%s=%s", attrname, prop_buf);
+ 		kfree(attrname);
+ 		if (ret)
 -- 
 2.20.1
 
