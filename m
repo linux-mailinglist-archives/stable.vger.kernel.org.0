@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1384E28667
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:10:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDA1B28990
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:42:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732061AbfEWTJK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:09:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42158 "EHLO mail.kernel.org"
+        id S2390251AbfEWTV0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:21:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732039AbfEWTJJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:09:09 -0400
+        id S2390262AbfEWTVZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:21:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CCC6B217D7;
-        Thu, 23 May 2019 19:09:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB6DD205ED;
+        Thu, 23 May 2019 19:21:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558638549;
-        bh=HAcD3m/JIFM/cfdQ3vbpGqvXZmV1Dd5atFkadOTgNs4=;
+        s=default; t=1558639285;
+        bh=uu3IdUy+7dfGB7tzNOlP2lRoWgO/DVyjNyZ5vA0JBLo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FlJrUpy5co1MaJjFW7D75VKuDJvGZk+tjjCztwA0sYUE8w0+OG1kuDXxniC9QSMIo
-         MevIKjOiV4CI/WTOWk609RNxGZbyKAyF/pSHN+xwPNhA8u1xAhTmdXB9xfuVhq3IeA
-         9VSGe1/1e3LqIb+ZHM9BuT0FdE07oavwseXoC3Y8=
+        b=wHR2U2ucf04Jh4Ltg9qX48MX6W1jTn5qjmsmn7rF25buweOidy5w7czBsXQHjJYJO
+         VPKWQ1fEdSLGmQpYCuwpxUDkv7phbwbTFC1uK9uRrDW6rHvKmsaq180PGx7rISXSX1
+         hLtd5EHiB5c5jYv97yhWNGBptc3oDmDhKBy4MV4I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiao Ni <xni@redhat.com>,
-        NeilBrown <neilb@suse.com>, Yufen Yu <yuyufen@huawei.com>,
-        Song Liu <songliubraving@fb.com>
-Subject: [PATCH 4.9 12/53] md: add mddev->pers to avoid potential NULL pointer dereference
+        stable@vger.kernel.org, Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>
+Subject: [PATCH 5.0 048/139] RDMA/ipoib: Allow user space differentiate between valid dev_port
 Date:   Thu, 23 May 2019 21:05:36 +0200
-Message-Id: <20190523181712.857372461@linuxfoundation.org>
+Message-Id: <20190523181726.931270270@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181710.981455400@linuxfoundation.org>
-References: <20190523181710.981455400@linuxfoundation.org>
+In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
+References: <20190523181720.120897565@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,41 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yufen Yu <yuyufen@huawei.com>
+From: Leon Romanovsky <leonro@mellanox.com>
 
-commit ee37e62191a59d253fc916b9fc763deb777211e2 upstream.
+commit b79656ed44c6865e17bcd93472ec39488bcc4984 upstream.
 
-When doing re-add, we need to ensure rdev->mddev->pers is not NULL,
-which can avoid potential NULL pointer derefence in fallowing
-add_bound_rdev().
+Systemd triggers the following warning during IPoIB device load:
 
-Fixes: a6da4ef85cef ("md: re-add a failed disk")
-Cc: Xiao Ni <xni@redhat.com>
-Cc: NeilBrown <neilb@suse.com>
-Cc: <stable@vger.kernel.org> # 4.4+
-Reviewed-by: NeilBrown <neilb@suse.com>
-Signed-off-by: Yufen Yu <yuyufen@huawei.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
+ mlx5_core 0000:00:0c.0 ib0: "systemd-udevd" wants to know my dev_id.
+        Should it look at dev_port instead?
+        See Documentation/ABI/testing/sysfs-class-net for more info.
+
+This is caused due to user space attempt to differentiate old systems
+without dev_port and new systems with dev_port. In case dev_port will be
+zero, the systemd will try to read dev_id instead.
+
+There is no need to print a warning in such case, because it is valid
+situation and it is needed to ensure systemd compatibility with old
+kernels.
+
+Link: https://github.com/systemd/systemd/blob/master/src/udev/udev-builtin-net_id.c#L358
+Cc: <stable@vger.kernel.org> # 4.19
+Fixes: f6350da41dc7 ("IB/ipoib: Log sysfs 'dev_id' accesses from userspace")
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/md.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/infiniband/ulp/ipoib/ipoib_main.c |   13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -2694,8 +2694,10 @@ state_store(struct md_rdev *rdev, const
- 			err = 0;
- 		}
- 	} else if (cmd_match(buf, "re-add")) {
--		if (test_bit(Faulty, &rdev->flags) && (rdev->raid_disk == -1) &&
--			rdev->saved_raid_disk >= 0) {
-+		if (!rdev->mddev->pers)
-+			err = -EINVAL;
-+		else if (test_bit(Faulty, &rdev->flags) && (rdev->raid_disk == -1) &&
-+				rdev->saved_raid_disk >= 0) {
- 			/* clear_bit is performed _after_ all the devices
- 			 * have their local Faulty bit cleared. If any writes
- 			 * happen in the meantime in the local node, they
+--- a/drivers/infiniband/ulp/ipoib/ipoib_main.c
++++ b/drivers/infiniband/ulp/ipoib/ipoib_main.c
+@@ -2402,7 +2402,18 @@ static ssize_t dev_id_show(struct device
+ {
+ 	struct net_device *ndev = to_net_dev(dev);
+ 
+-	if (ndev->dev_id == ndev->dev_port)
++	/*
++	 * ndev->dev_port will be equal to 0 in old kernel prior to commit
++	 * 9b8b2a323008 ("IB/ipoib: Use dev_port to expose network interface
++	 * port numbers") Zero was chosen as special case for user space
++	 * applications to fallback and query dev_id to check if it has
++	 * different value or not.
++	 *
++	 * Don't print warning in such scenario.
++	 *
++	 * https://github.com/systemd/systemd/blob/master/src/udev/udev-builtin-net_id.c#L358
++	 */
++	if (ndev->dev_port && ndev->dev_id == ndev->dev_port)
+ 		netdev_info_once(ndev,
+ 			"\"%s\" wants to know my dev_id. Should it look at dev_port instead? See Documentation/ABI/testing/sysfs-class-net for more info.\n",
+ 			current->comm);
 
 
