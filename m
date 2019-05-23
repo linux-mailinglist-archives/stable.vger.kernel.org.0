@@ -2,120 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C784C28C2C
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 23:15:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3883628C47
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 23:21:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730544AbfEWVP3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 17:15:29 -0400
-Received: from mail-wr1-f45.google.com ([209.85.221.45]:45098 "EHLO
-        mail-wr1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726222AbfEWVP3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 May 2019 17:15:29 -0400
-Received: by mail-wr1-f45.google.com with SMTP id b18so7733868wrq.12
-        for <stable@vger.kernel.org>; Thu, 23 May 2019 14:15:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=9L0Wpl84GG8xfE3p0sH8/hSrpm7Fw1aE4cVu9AIso0w=;
-        b=QFnu7YfEuArua1hz1QZfhlZ1e/EJ9s+JSiyWxfYoKNBHpsRINOrDxsGgHwENZzI5bk
-         nn7djnDECPXdCk4dc1+CHO5Re2HZTD+roZYH5tfLpo6vSl8HD95ryLGE8isH9MI7gRFP
-         zIkkl7nkzH1tlHdZ/0Hv3aVb9kC0RdqSAd0KLvdpkkBd9aogD/DrZXPUC+HLkRV5f+q0
-         u4wvMzdkpOmfFKPyn/ht8ViTU8lsxR1a7tZhJ9H8vsik3ljMVmyhnwtru8aim7vaSR/E
-         jSgsGLr8fgZO6SYzqrmZZxR0PcenIwUoAbJwzt29rl/bYtlm5pdyJPAXafussyf8TIQU
-         5y9A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=9L0Wpl84GG8xfE3p0sH8/hSrpm7Fw1aE4cVu9AIso0w=;
-        b=ScFpVytd7VveT0hJN8bgPx0fp0xQ46QQi8zsu6hQm2zNx71gZMNL4v4onsphQhF4zT
-         WYi2TdxEzs+HuZnAwm220M+7UcVIfR/X4gpB+eSWSDuF96ycugF/WZLRZHWf1FAy/GPF
-         N56Z/11yamwcP2KNGYwoaCMg7cKJf0qK5+CMqi+7aeuFKX+pAr+u6f2NpxKvOl6ySyLL
-         rgjnfXoLOKDHKzGatyTQAgJKunAHLkOEhJl9xh8lsOcmbpkUjyZuh1CMrGk5MDyIBM0I
-         4Ig2nXR/kdz0pNfFuBg88GdJS2umqYMudPbRwfVq2kuLtjcvxOFpVic4d+yf3Jt6tOh8
-         f4Ww==
-X-Gm-Message-State: APjAAAXhl3liHSHTQcV6eTnObIQm7obkuw+kj5n1KpznMszAKmpXNk7j
-        rfSnh3xWajL3CsGJ1y8kLKaiB+jnO7KD0A==
-X-Google-Smtp-Source: APXvYqxIE39zAlBtOLnwoQLvlFnDbL/8J/jVwyItl3tmpNLBZGHI2ELHNeRRj0/In1jSsHyHzu+hDw==
-X-Received: by 2002:adf:f250:: with SMTP id b16mr28991427wrp.24.1558646127084;
-        Thu, 23 May 2019 14:15:27 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id x4sm307214wrn.41.2019.05.23.14.15.26
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 23 May 2019 14:15:26 -0700 (PDT)
-Message-ID: <5ce70d6e.1c69fb81.ab061.1cb5@mx.google.com>
-Date:   Thu, 23 May 2019 14:15:26 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.0.y
-X-Kernelci-Kernel: v5.0.18
-Subject: stable-rc/linux-5.0.y boot: 139 boots: 0 failed,
- 124 passed with 14 offline, 1 untried/unknown (v5.0.18)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S1731556AbfEWVVm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 17:21:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33582 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729797AbfEWVVm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 17:21:42 -0400
+Received: from akpm3.svl.corp.google.com (unknown [104.133.8.65])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id CD9E72175B;
+        Thu, 23 May 2019 21:21:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1558646501;
+        bh=uyavDHmqTevQwrr+GcExVnWNt9UpoGzQLLv7s2VynSI=;
+        h=Date:From:To:Subject:From;
+        b=roFkfVptw9Y3Rq53Dl8nIt1HN9XzA0mwTQgw+U2WW7XC41o09cVjAih0kHpfsElTh
+         lGt7XSVCqNJjOmLuE8433sH8Ou012XuqCGlkNtUkEfC7OjGzw2vlVPp6BstKxTV2D0
+         4GYoNtXGJjh/ZgY10IoqOanPlplJ+SdEwedzX17Q=
+Date:   Thu, 23 May 2019 14:21:40 -0700
+From:   akpm@linux-foundation.org
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        ndesaulniers@google.com, glider@google.com, dvyukov@google.com,
+        aryabinin@virtuozzo.com, andreyknvl@google.com,
+        natechancellor@gmail.com
+Subject:  + kasan-initialize-tag-to-0xff-in-__kasan_kmalloc.patch
+ added to -mm tree
+Message-ID: <20190523212140.PQKKT%akpm@linux-foundation.org>
+User-Agent: s-nail v14.9.10
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.0.y boot: 139 boots: 0 failed, 124 passed with 14 offline=
-, 1 untried/unknown (v5.0.18)
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.0.y/kernel/v5.0.18/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.0.y=
-/kernel/v5.0.18/
+The patch titled
+     Subject: kasan: initialize tag to 0xff in __kasan_kmalloc
+has been added to the -mm tree.  Its filename is
+     kasan-initialize-tag-to-0xff-in-__kasan_kmalloc.patch
 
-Tree: stable-rc
-Branch: linux-5.0.y
-Git Describe: v5.0.18
-Git Commit: 8614793dbb41ccf8699ac1aa328702b47efb3b8d
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 76 unique boards, 24 SoC families, 14 builds out of 208
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/kasan-initialize-tag-to-0xff-in-__kasan_kmalloc.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/kasan-initialize-tag-to-0xff-in-__kasan_kmalloc.patch
 
-Offline Platforms:
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-arm:
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-    sama5_defconfig:
-        gcc-8
-            at91-sama5d4_xplained: 1 offline lab
-            at91-sama5d4ek: 1 offline lab
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
-    multi_v7_defconfig:
-        gcc-8
-            alpine-db: 1 offline lab
-            at91-sama5d4_xplained: 1 offline lab
-            at91-sama5d4ek: 1 offline lab
-            stih410-b2120: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
-            tegra124-jetson-tk1: 1 offline lab
+------------------------------------------------------
+From: Nathan Chancellor <natechancellor@gmail.com>
+Subject: kasan: initialize tag to 0xff in __kasan_kmalloc
 
-    tegra_defconfig:
-        gcc-8
-            tegra124-jetson-tk1: 1 offline lab
+When building with -Wuninitialized and CONFIG_KASAN_SW_TAGS unset, Clang
+warns:
 
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
+mm/kasan/common.c:484:40: warning: variable 'tag' is uninitialized when
+used here [-Wuninitialized]
+        kasan_unpoison_shadow(set_tag(object, tag), size);
+                                              ^~~
 
-    bcm2835_defconfig:
-        gcc-8
-            bcm2835-rpi-b: 1 offline lab
+set_tag ignores tag in this configuration but clang doesn't realize it at
+this point in its pipeline, as it points to arch_kasan_set_tag as being
+the point where it is used, which will later be expanded to (void
+*)(object) without a use of tag.  Initialize tag to 0xff, as it removes
+this warning and doesn't change the meaning of the code.
 
-arm64:
-
-    defconfig:
-        gcc-8
-            apq8016-sbc: 1 offline lab
-            juno-r2: 1 offline lab
-            mt7622-rfb1: 1 offline lab
-
+Link: https://github.com/ClangBuiltLinux/linux/issues/465
+Link: http://lkml.kernel.org/r/20190502163057.6603-1-natechancellor@gmail.com
+Fixes: 7f94ffbc4c6a ("kasan: add hooks implementation for tag-based mode")
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Andrey Konovalov <andreyknvl@google.com>
+Reviewed-by: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Cc: Alexander Potapenko <glider@google.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
-For more info write to <info@kernelci.org>
+
+ mm/kasan/common.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/mm/kasan/common.c~kasan-initialize-tag-to-0xff-in-__kasan_kmalloc
++++ a/mm/kasan/common.c
+@@ -464,7 +464,7 @@ static void *__kasan_kmalloc(struct kmem
+ {
+ 	unsigned long redzone_start;
+ 	unsigned long redzone_end;
+-	u8 tag;
++	u8 tag = 0xff;
+ 
+ 	if (gfpflags_allow_blocking(flags))
+ 		quarantine_reduce();
+_
+
+Patches currently in -mm which might be from natechancellor@gmail.com are
+
+kasan-initialize-tag-to-0xff-in-__kasan_kmalloc.patch
+
