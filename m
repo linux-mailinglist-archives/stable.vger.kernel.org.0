@@ -2,45 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 995AB28A6E
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:57:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5194C289BA
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:43:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388698AbfEWTOT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:14:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48266 "EHLO mail.kernel.org"
+        id S2389920AbfEWTTu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:19:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388726AbfEWTOS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:14:18 -0400
+        id S2389233AbfEWTTt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:19:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F2A092184B;
-        Thu, 23 May 2019 19:14:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1CA01205ED;
+        Thu, 23 May 2019 19:19:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558638857;
-        bh=uiMZxNZb9jvTsvm1Z471D7qsO+eJO02Umt6u34YKsQ0=;
+        s=default; t=1558639188;
+        bh=tQ4EPmHa88YeE+lsAVf8RF8bcxRpc2MVqWookuBRWD0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gqc8z12ztD9lmKSP9MbuXlU6Fb+HfQhDgEaLN+ESZmqyjIjGmvOa1ivQQN6LGpP6j
-         USxr4nVU9+fAfMbB2MsQITPGhTtmbShFznnxuy1qYwrxb4kh6Jul0olN495+elnJBd
-         m9P6p1NPb1FusjkwRrX210sQ+NG1GFaTzVYKHx3A=
+        b=n3bSM28gipAc1w2aHSsmX1Ozl7JHRjPTx7+znS757DYVmAnzgm5q4uB6974uzO10S
+         qGIGhoRGiVW1RircNsJqcAIdmxDjQknz2wnSj/1ecJiuGAnhkAXC7AynDGlyer+M53
+         SnXXgzf5xBMZabxG/sNc6uhclUOpvo//XeFiXn1k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mikael Magnusson <mikael.kernel@lists.m7n.se>,
-        Wei Wang <weiwan@google.com>, Martin Lau <kafai@fb.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        David Ahern <dsahern@gmail.com>
-Subject: [PATCH 4.19 001/114] ipv6: fix src addr routing with the exception table
+        stable@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.0 012/139] vsock/virtio: free packets during the socket release
 Date:   Thu, 23 May 2019 21:05:00 +0200
-Message-Id: <20190523181731.560730892@linuxfoundation.org>
+Message-Id: <20190523181722.000324612@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
-References: <20190523181731.372074275@linuxfoundation.org>
+In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
+References: <20190523181720.120897565@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -49,137 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Wang <weiwan@google.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
 
-[ Upstream commit 510e2ceda031eed97a7a0f9aad65d271a58b460d ]
+[ Upstream commit ac03046ece2b158ebd204dfc4896fd9f39f0e6c8 ]
 
-When inserting route cache into the exception table, the key is
-generated with both src_addr and dest_addr with src addr routing.
-However, current logic always assumes the src_addr used to generate the
-key is a /128 host address. This is not true in the following scenarios:
-1. When the route is a gateway route or does not have next hop.
-   (rt6_is_gw_or_nonexthop() == false)
-2. When calling ip6_rt_cache_alloc(), saddr is passed in as NULL.
-This means, when looking for a route cache in the exception table, we
-have to do the lookup twice: first time with the passed in /128 host
-address, second time with the src_addr stored in fib6_info.
+When the socket is released, we should free all packets
+queued in the per-socket list in order to avoid a memory
+leak.
 
-This solves the pmtu discovery issue reported by Mikael Magnusson where
-a route cache with a lower mtu info is created for a gateway route with
-src addr. However, the lookup code is not able to find this route cache.
-
-Fixes: 2b760fcf5cfb ("ipv6: hook up exception table to store dst cache")
-Reported-by: Mikael Magnusson <mikael.kernel@lists.m7n.se>
-Bisected-by: David Ahern <dsahern@gmail.com>
-Signed-off-by: Wei Wang <weiwan@google.com>
-Cc: Martin Lau <kafai@fb.com>
-Cc: Eric Dumazet <edumazet@google.com>
-Acked-by: Martin KaFai Lau <kafai@fb.com>
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/route.c |   51 +++++++++++++++++++++++++++------------------------
- 1 file changed, 27 insertions(+), 24 deletions(-)
+ net/vmw_vsock/virtio_transport_common.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/net/ipv6/route.c
-+++ b/net/ipv6/route.c
-@@ -110,8 +110,8 @@ static int rt6_fill_node(struct net *net
- 			 int iif, int type, u32 portid, u32 seq,
- 			 unsigned int flags);
- static struct rt6_info *rt6_find_cached_rt(struct fib6_info *rt,
--					   struct in6_addr *daddr,
--					   struct in6_addr *saddr);
-+					   const struct in6_addr *daddr,
-+					   const struct in6_addr *saddr);
+--- a/net/vmw_vsock/virtio_transport_common.c
++++ b/net/vmw_vsock/virtio_transport_common.c
+@@ -786,12 +786,19 @@ static bool virtio_transport_close(struc
  
- #ifdef CONFIG_IPV6_ROUTE_INFO
- static struct fib6_info *rt6_add_route_info(struct net *net,
-@@ -1542,31 +1542,44 @@ out:
-  * Caller has to hold rcu_read_lock()
-  */
- static struct rt6_info *rt6_find_cached_rt(struct fib6_info *rt,
--					   struct in6_addr *daddr,
--					   struct in6_addr *saddr)
-+					   const struct in6_addr *daddr,
-+					   const struct in6_addr *saddr)
+ void virtio_transport_release(struct vsock_sock *vsk)
  {
-+	const struct in6_addr *src_key = NULL;
- 	struct rt6_exception_bucket *bucket;
--	struct in6_addr *src_key = NULL;
- 	struct rt6_exception *rt6_ex;
- 	struct rt6_info *res = NULL;
++	struct virtio_vsock_sock *vvs = vsk->trans;
++	struct virtio_vsock_pkt *pkt, *tmp;
+ 	struct sock *sk = &vsk->sk;
+ 	bool remove_sock = true;
  
--	bucket = rcu_dereference(rt->rt6i_exception_bucket);
--
- #ifdef CONFIG_IPV6_SUBTREES
- 	/* rt6i_src.plen != 0 indicates rt is in subtree
- 	 * and exception table is indexed by a hash of
- 	 * both rt6i_dst and rt6i_src.
--	 * Otherwise, the exception table is indexed by
--	 * a hash of only rt6i_dst.
-+	 * However, the src addr used to create the hash
-+	 * might not be exactly the passed in saddr which
-+	 * is a /128 addr from the flow.
-+	 * So we need to use f6i->fib6_src to redo lookup
-+	 * if the passed in saddr does not find anything.
-+	 * (See the logic in ip6_rt_cache_alloc() on how
-+	 * rt->rt6i_src is updated.)
- 	 */
- 	if (rt->fib6_src.plen)
- 		src_key = saddr;
-+find_ex:
- #endif
-+	bucket = rcu_dereference(rt->rt6i_exception_bucket);
- 	rt6_ex = __rt6_find_exception_rcu(&bucket, daddr, src_key);
- 
- 	if (rt6_ex && !rt6_check_expired(rt6_ex->rt6i))
- 		res = rt6_ex->rt6i;
- 
-+#ifdef CONFIG_IPV6_SUBTREES
-+	/* Use fib6_src as src_key and redo lookup */
-+	if (!res && src_key && src_key != &rt->fib6_src.addr) {
-+		src_key = &rt->fib6_src.addr;
-+		goto find_ex;
-+	}
-+#endif
+ 	lock_sock(sk);
+ 	if (sk->sk_type == SOCK_STREAM)
+ 		remove_sock = virtio_transport_close(vsk);
 +
- 	return res;
- }
++	list_for_each_entry_safe(pkt, tmp, &vvs->rx_queue, list) {
++		list_del(&pkt->list);
++		virtio_transport_free_pkt(pkt);
++	}
+ 	release_sock(sk);
  
-@@ -2650,10 +2663,8 @@ out:
- u32 ip6_mtu_from_fib6(struct fib6_info *f6i, struct in6_addr *daddr,
- 		      struct in6_addr *saddr)
- {
--	struct rt6_exception_bucket *bucket;
--	struct rt6_exception *rt6_ex;
--	struct in6_addr *src_key;
- 	struct inet6_dev *idev;
-+	struct rt6_info *rt;
- 	u32 mtu = 0;
- 
- 	if (unlikely(fib6_metric_locked(f6i, RTAX_MTU))) {
-@@ -2662,18 +2673,10 @@ u32 ip6_mtu_from_fib6(struct fib6_info *
- 			goto out;
- 	}
- 
--	src_key = NULL;
--#ifdef CONFIG_IPV6_SUBTREES
--	if (f6i->fib6_src.plen)
--		src_key = saddr;
--#endif
--
--	bucket = rcu_dereference(f6i->rt6i_exception_bucket);
--	rt6_ex = __rt6_find_exception_rcu(&bucket, daddr, src_key);
--	if (rt6_ex && !rt6_check_expired(rt6_ex->rt6i))
--		mtu = dst_metric_raw(&rt6_ex->rt6i->dst, RTAX_MTU);
--
--	if (likely(!mtu)) {
-+	rt = rt6_find_cached_rt(f6i, daddr, saddr);
-+	if (unlikely(rt)) {
-+		mtu = dst_metric_raw(&rt->dst, RTAX_MTU);
-+	} else {
- 		struct net_device *dev = fib6_info_nh_dev(f6i);
- 
- 		mtu = IPV6_MIN_MTU;
+ 	if (remove_sock)
 
 
