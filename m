@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E7DE0279B3
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 11:50:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5EB4279BD
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 11:52:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729966AbfEWJu3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 05:50:29 -0400
-Received: from new1-smtp.messagingengine.com ([66.111.4.221]:47325 "EHLO
+        id S1730272AbfEWJwE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 05:52:04 -0400
+Received: from new1-smtp.messagingengine.com ([66.111.4.221]:39189 "EHLO
         new1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1729972AbfEWJu2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 May 2019 05:50:28 -0400
+        by vger.kernel.org with ESMTP id S1728277AbfEWJwE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 May 2019 05:52:04 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailnew.nyi.internal (Postfix) with ESMTP id 8A7FA350B8;
-        Thu, 23 May 2019 05:50:25 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Thu, 23 May 2019 05:50:25 -0400
+        by mailnew.nyi.internal (Postfix) with ESMTP id BCBED3489F;
+        Thu, 23 May 2019 05:52:02 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Thu, 23 May 2019 05:52:02 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=vPXYb+
-        dQPu1PmLAsppSBBCsxX99YN2sLe8ibkLaPLj4=; b=WmhWP7S8StsnpVd7A31Sp4
-        aZOvHNr0ephz4kN8DlHv66HX4Mz2dRSJ/WEt4ncDqYKLLtibH6pNcrbXWFIXXb9+
-        phWa5qd39aDDuyYizw0XUBBbcu2QVbakK6p73FO6B0Vjqfi9FEIFlx7N44/kOIyP
-        Bp4k0o1Xp9fZBzf3lzPkAowGNnOtAAlectWM2ofw6guJxy6YBTx01Cui+9/9ayMq
-        strX8+Da3XSzIY6JSk4/2p/uEYP/WT4Rtw4f+TJSK6AwrdPrWMfRLgOWo5Hz+J/r
-        WITwkWjd0NhcPNfeGhjDe7slVAIdGsw6sKLEQfq/jvMAQUta7FWbMzKb29hoxuVQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=iuGWWd
+        txzYLyR42j3h191SP4rNqTlpMjuZC7Sjrrods=; b=rQSmMDy7umZX0wkqcWmqnu
+        aKs7oVoTDMgl3amWFudICPrxV+Uimru3gIZRGxPeFEC+pLV9R1fVyr7AkDVOrZof
+        iRdPIYt5lDbEpJYnwWp7PlsDIEge3oX+LmTA3y2x3FTpGn8iw9Fm4JwDDqoVwyhE
+        bi6bt3K7COZVrwb3KiDwfElpUCzXGuX+lJ0fsoKoXj/HAiyWT3AMkRcoSBHXLgXu
+        4WlkCSaFjgL9Sk1fuycZ0VZZIc4+mxzkIzjjKRnnkbRJaXVaKgj6chiJtqYjPT93
+        i8o+XEdA7v4CXsvlpDxOdqDjs88g+KO/j0Va4OutNnVdOHoYVG0ZMBocsHWqYXkw
         ==
-X-ME-Sender: <xms:4WzmXKwvf4TcCW94yH3y4tqZNf7h5fuw98T51F56xfoiwHXQlXMcOQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddruddugedgvdduucetufdoteggodetrfdotf
+X-ME-Sender: <xms:PW3mXDFWiz6xqG7VmcviTBWpZjX5SjOBoSB3GvVpXAWPBRue_utlZA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddruddugedgvddvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepud
-X-ME-Proxy: <xmx:4WzmXNVq54lXViQ-fkYoMeLkzE8ET00QDUXR8n1EuLEeAMEIlaWGQQ>
-    <xmx:4WzmXED8qd3eYqwjFzIpjgxrV69ETcyWviFGD9ArYUuxqfz_W2PFvg>
-    <xmx:4WzmXG6bEO9pt6_-HXdMD337I4K3qGXVmcJuvJ-sWLtPerj22AYaew>
-    <xmx:4WzmXO5OX6IChRnVWXvaDs1WzsXksBfPQGIKoYfUOG6JBoZH0zmuHw>
+    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
+    dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
+    ucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:PW3mXB3VtoWegW4erzsXlCHMTmtDUf8d4OuEZOMY6BZo_vi6_aRa3Q>
+    <xmx:PW3mXNxZJYROTPpzlX5kQquZt5VjeZnCkJZ50tJBY3P_ntOx2xov3g>
+    <xmx:PW3mXDH9y7Y53C96EqKWvmBPpOOPQxavPjPbTG7QFHT193RVNS4tUg>
+    <xmx:Qm3mXB0vdPiNER97JRHIvH7v-QWe130AOudcNMWZVmLOPqnA42Gj6w>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 51BB480061;
-        Thu, 23 May 2019 05:50:24 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] x86_64: Allow breakpoints to emulate call instructions" failed to apply to 4.4-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 2226A380089;
+        Thu, 23 May 2019 05:51:57 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] ftrace/x86_64: Emulate call function while updating in" failed to apply to 4.9-stable tree
 To:     peterz@infradead.org, bigeasy@linutronix.de, bp@alien8.de,
         hpa@zytor.com, jgross@suse.com, jikos@kernel.org,
         joe.lawrence@redhat.com, jpoimboe@redhat.com, jroedel@suse.de,
@@ -53,8 +54,8 @@ To:     peterz@infradead.org, bigeasy@linutronix.de, bp@alien8.de,
         x86@kernel.org, yamada.masahiro@socionext.com, zohar@linux.ibm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 23 May 2019 11:50:22 +0200
-Message-ID: <1558605022149172@kroah.com>
+Date:   Thu, 23 May 2019 11:51:55 +0200
+Message-ID: <1558605115220151@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -64,7 +65,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -75,23 +76,39 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 4b33dadf37666c0860b88f9e52a16d07bf6d0b03 Mon Sep 17 00:00:00 2001
+From 9e298e8604088a600d8100a111a532a9d342af09 Mon Sep 17 00:00:00 2001
 From: Peter Zijlstra <peterz@infradead.org>
 Date: Wed, 1 May 2019 15:11:17 +0200
-Subject: [PATCH] x86_64: Allow breakpoints to emulate call instructions
+Subject: [PATCH] ftrace/x86_64: Emulate call function while updating in
+ breakpoint handler
 
-In order to allow breakpoints to emulate call instructions, they need to push
-the return address onto the stack. The x86_64 int3 handler adds a small gap
-to allow the stack to grow some. Use this gap to add the return address to
-be able to emulate a call instruction at the breakpoint location.
+Nicolai Stange discovered[1] that if live kernel patching is enabled, and the
+function tracer started tracing the same function that was patched, the
+conversion of the fentry call site during the translation of going from
+calling the live kernel patch trampoline to the iterator trampoline, would
+have as slight window where it didn't call anything.
 
-These helper functions are added:
+As live kernel patching depends on ftrace to always call its code (to
+prevent the function being traced from being called, as it will redirect
+it). This small window would allow the old buggy function to be called, and
+this can cause undesirable results.
 
-  int3_emulate_jmp(): changes the location of the regs->ip to return there.
+Nicolai submitted new patches[2] but these were controversial. As this is
+similar to the static call emulation issues that came up a while ago[3].
+But after some debate[4][5] adding a gap in the stack when entering the
+breakpoint handler allows for pushing the return address onto the stack to
+easily emulate a call.
 
- (The next two are only for x86_64)
-  int3_emulate_push(): to push the address onto the gap in the stack
-  int3_emulate_call(): push the return address and change regs->ip
+[1] http://lkml.kernel.org/r/20180726104029.7736-1-nstange@suse.de
+[2] http://lkml.kernel.org/r/20190427100639.15074-1-nstange@suse.de
+[3] http://lkml.kernel.org/r/3cf04e113d71c9f8e4be95fb84a510f085aa4afa.1541711457.git.jpoimboe@redhat.com
+[4] http://lkml.kernel.org/r/CAHk-=wh5OpheSU8Em_Q3Hg8qw_JtoijxOdPtHru6d+5K8TWM=A@mail.gmail.com
+[5] http://lkml.kernel.org/r/CAHk-=wjvQxY4DvPrJ6haPgAa6b906h=MwZXO6G8OtiTGe=N7_w@mail.gmail.com
+
+[
+  Live kernel patching is not implemented on x86_32, thus the emulate
+  calls are only for x86_64.
+]
 
 Cc: Andy Lutomirski <luto@kernel.org>
 Cc: Nicolai Stange <nstange@suse.de>
@@ -122,44 +139,87 @@ Tested-by: Nicolai Stange <nstange@suse.de>
 Reviewed-by: Nicolai Stange <nstange@suse.de>
 Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-[ Modified to only work for x86_64 and added comment to int3_emulate_push() ]
+[ Changed to only implement emulated calls for x86_64 ]
 Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-diff --git a/arch/x86/include/asm/text-patching.h b/arch/x86/include/asm/text-patching.h
-index e85ff65c43c3..05861cc08787 100644
---- a/arch/x86/include/asm/text-patching.h
-+++ b/arch/x86/include/asm/text-patching.h
-@@ -39,4 +39,32 @@ extern int poke_int3_handler(struct pt_regs *regs);
- extern void *text_poke_bp(void *addr, const void *opcode, size_t len, void *handler);
- extern int after_bootmem;
+diff --git a/arch/x86/kernel/ftrace.c b/arch/x86/kernel/ftrace.c
+index ef49517f6bb2..bd553b3af22e 100644
+--- a/arch/x86/kernel/ftrace.c
++++ b/arch/x86/kernel/ftrace.c
+@@ -29,6 +29,7 @@
+ #include <asm/kprobes.h>
+ #include <asm/ftrace.h>
+ #include <asm/nops.h>
++#include <asm/text-patching.h>
  
-+static inline void int3_emulate_jmp(struct pt_regs *regs, unsigned long ip)
-+{
-+	regs->ip = ip;
-+}
+ #ifdef CONFIG_DYNAMIC_FTRACE
+ 
+@@ -231,6 +232,7 @@ int ftrace_modify_call(struct dyn_ftrace *rec, unsigned long old_addr,
+ }
+ 
+ static unsigned long ftrace_update_func;
++static unsigned long ftrace_update_func_call;
+ 
+ static int update_ftrace_func(unsigned long ip, void *new)
+ {
+@@ -259,6 +261,8 @@ int ftrace_update_ftrace_func(ftrace_func_t func)
+ 	unsigned char *new;
+ 	int ret;
+ 
++	ftrace_update_func_call = (unsigned long)func;
 +
-+#define INT3_INSN_SIZE 1
-+#define CALL_INSN_SIZE 5
-+
+ 	new = ftrace_call_replace(ip, (unsigned long)func);
+ 	ret = update_ftrace_func(ip, new);
+ 
+@@ -294,13 +298,28 @@ int ftrace_int3_handler(struct pt_regs *regs)
+ 	if (WARN_ON_ONCE(!regs))
+ 		return 0;
+ 
+-	ip = regs->ip - 1;
+-	if (!ftrace_location(ip) && !is_ftrace_caller(ip))
+-		return 0;
++	ip = regs->ip - INT3_INSN_SIZE;
+ 
+-	regs->ip += MCOUNT_INSN_SIZE - 1;
 +#ifdef CONFIG_X86_64
-+static inline void int3_emulate_push(struct pt_regs *regs, unsigned long val)
-+{
-+	/*
-+	 * The int3 handler in entry_64.S adds a gap between the
-+	 * stack where the break point happened, and the saving of
-+	 * pt_regs. We can extend the original stack because of
-+	 * this gap. See the idtentry macro's create_gap option.
-+	 */
-+	regs->sp -= sizeof(unsigned long);
-+	*(unsigned long *)regs->sp = val;
-+}
-+
-+static inline void int3_emulate_call(struct pt_regs *regs, unsigned long func)
-+{
-+	int3_emulate_push(regs, regs->ip - INT3_INSN_SIZE + CALL_INSN_SIZE);
-+	int3_emulate_jmp(regs, func);
-+}
++	if (ftrace_location(ip)) {
++		int3_emulate_call(regs, (unsigned long)ftrace_regs_caller);
++		return 1;
++	} else if (is_ftrace_caller(ip)) {
++		if (!ftrace_update_func_call) {
++			int3_emulate_jmp(regs, ip + CALL_INSN_SIZE);
++			return 1;
++		}
++		int3_emulate_call(regs, ftrace_update_func_call);
++		return 1;
++	}
++#else
++	if (ftrace_location(ip) || is_ftrace_caller(ip)) {
++		int3_emulate_jmp(regs, ip + CALL_INSN_SIZE);
++		return 1;
++	}
 +#endif
+ 
+-	return 1;
++	return 0;
+ }
+ NOKPROBE_SYMBOL(ftrace_int3_handler);
+ 
+@@ -859,6 +878,8 @@ void arch_ftrace_update_trampoline(struct ftrace_ops *ops)
+ 
+ 	func = ftrace_ops_get_func(ops);
+ 
++	ftrace_update_func_call = (unsigned long)func;
 +
- #endif /* _ASM_X86_TEXT_PATCHING_H */
+ 	/* Do a safe modify in case the trampoline is executing */
+ 	new = ftrace_call_replace(ip, (unsigned long)func);
+ 	ret = update_ftrace_func(ip, new);
+@@ -960,6 +981,7 @@ static int ftrace_mod_jmp(unsigned long ip, void *func)
+ {
+ 	unsigned char *new;
+ 
++	ftrace_update_func_call = 0UL;
+ 	new = ftrace_jmp_replace(ip, (unsigned long)func);
+ 
+ 	return update_ftrace_func(ip, new);
 
