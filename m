@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ED4AA28891
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:40:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAEAE2866D
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:10:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391544AbfEWT1N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:27:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39352 "EHLO mail.kernel.org"
+        id S1732156AbfEWTJY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:09:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391536AbfEWT1N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:27:13 -0400
+        id S1732150AbfEWTJX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:09:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B3794217D7;
-        Thu, 23 May 2019 19:27:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 65BC8217D7;
+        Thu, 23 May 2019 19:09:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639632;
-        bh=8l4D+WFnyXpTPjvsnJlDjaFIkM88mPFUfvP9FRcVmt8=;
+        s=default; t=1558638562;
+        bh=YBMr8ol5ddUzuPtejLpdxwDOqyjzDxIYdtVrFGBFFaU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N6mPTusME8OGN7aQA/F2ils4QPEog/raB5HZWM1yqJu0iLQEtomPwhuUjo5Uq/sgi
-         ZuINl8ukvOwyK8GevPviqFcEAJc1D/wughDUTGv23C4A5uC/OATRIYC/YEFLSKcQpS
-         q7RrNiZnqOkAzF3grPeXODkHlCExBrxSDcD9EVqQ=
+        b=vpGFrMWPFsd2CRUU0SDe2dkmWnvP8AcvvmNru7+Mx59Us7GVaQowUZw1Ax0XLBMdd
+         VMsiGp2DiGNXxS+NsduZbparnpYi2dBpa6WhymoS67BXzwK6nTF/BU5zBrPl0+e5fr
+         9tBzOc1/2HwDM9YA/RWzvDvbRxC4s+WNwaqdtlhE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiao Ni <xni@redhat.com>,
-        NeilBrown <neilb@suse.com>, Song Liu <songliubraving@fb.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.1 037/122] Revert "MD: fix lock contention for flush bios"
+        stable@vger.kernel.org, Yifeng Li <tomli@tomli.me>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        Teddy Wang <teddy.wang@siliconmotion.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Subject: [PATCH 4.9 35/53] fbdev: sm712fb: fix support for 1024x768-16 mode
 Date:   Thu, 23 May 2019 21:05:59 +0200
-Message-Id: <20190523181709.722186272@linuxfoundation.org>
+Message-Id: <20190523181716.386871805@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
-References: <20190523181705.091418060@linuxfoundation.org>
+In-Reply-To: <20190523181710.981455400@linuxfoundation.org>
+References: <20190523181710.981455400@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,312 +45,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: NeilBrown <neilb@suse.com>
+From: Yifeng Li <tomli@tomli.me>
 
-commit 4bc034d35377196c854236133b07730a777c4aba upstream.
+commit 6053d3a4793e5bde6299ac5388e76a3bf679ff65 upstream.
 
-This reverts commit 5a409b4f56d50b212334f338cb8465d65550cd85.
+In order to support the 1024x600 panel on Yeeloong Loongson MIPS
+laptop, the original 1024x768-16 table was modified to 1024x600-16,
+without leaving the original. It causes problem on x86 laptop as
+the 1024x768-16 support was still claimed but not working.
 
-This patch has two problems.
+Fix it by introducing the 1024x768-16 mode.
 
-1/ it make multiple calls to submit_bio() from inside a make_request_fn.
- The bios thus submitted will be queued on current->bio_list and not
- submitted immediately.  As the bios are allocated from a mempool,
- this can theoretically result in a deadlock - all the pool of requests
- could be in various ->bio_list queues and a subsequent mempool_alloc
- could block waiting for one of them to be released.
-
-2/ It aims to handle a case when there are many concurrent flush requests.
-  It handles this by submitting many requests in parallel - all of which
-  are identical and so most of which do nothing useful.
-  It would be more efficient to just send one lower-level request, but
-  allow that to satisfy multiple upper-level requests.
-
-Fixes: 5a409b4f56d5 ("MD: fix lock contention for flush bios")
-Cc: <stable@vger.kernel.org> # v4.19+
-Tested-by: Xiao Ni <xni@redhat.com>
-Signed-off-by: NeilBrown <neilb@suse.com>
-Signed-off-by: Song Liu <songliubraving@fb.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Yifeng Li <tomli@tomli.me>
+Tested-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Cc: Teddy Wang <teddy.wang@siliconmotion.com>
+Cc: <stable@vger.kernel.org>  # v4.4+
+Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/md.c |  159 +++++++++++++++++++-------------------------------------
- drivers/md/md.h |   22 ++-----
- 2 files changed, 62 insertions(+), 119 deletions(-)
+ drivers/video/fbdev/sm712fb.c |   59 ++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 59 insertions(+)
 
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -132,24 +132,6 @@ static inline int speed_max(struct mddev
- 		mddev->sync_speed_max : sysctl_speed_limit_max;
- }
- 
--static void * flush_info_alloc(gfp_t gfp_flags, void *data)
--{
--        return kzalloc(sizeof(struct flush_info), gfp_flags);
--}
--static void flush_info_free(void *flush_info, void *data)
--{
--        kfree(flush_info);
--}
--
--static void * flush_bio_alloc(gfp_t gfp_flags, void *data)
--{
--	return kzalloc(sizeof(struct flush_bio), gfp_flags);
--}
--static void flush_bio_free(void *flush_bio, void *data)
--{
--	kfree(flush_bio);
--}
--
- static struct ctl_table_header *raid_table_header;
- 
- static struct ctl_table raid_table[] = {
-@@ -423,54 +405,30 @@ static int md_congested(void *data, int
- /*
-  * Generic flush handling for md
-  */
--static void submit_flushes(struct work_struct *ws)
--{
--	struct flush_info *fi = container_of(ws, struct flush_info, flush_work);
--	struct mddev *mddev = fi->mddev;
--	struct bio *bio = fi->bio;
--
--	bio->bi_opf &= ~REQ_PREFLUSH;
--	md_handle_request(mddev, bio);
--
--	mempool_free(fi, mddev->flush_pool);
--}
- 
--static void md_end_flush(struct bio *fbio)
-+static void md_end_flush(struct bio *bio)
- {
--	struct flush_bio *fb = fbio->bi_private;
--	struct md_rdev *rdev = fb->rdev;
--	struct flush_info *fi = fb->fi;
--	struct bio *bio = fi->bio;
--	struct mddev *mddev = fi->mddev;
-+	struct md_rdev *rdev = bio->bi_private;
-+	struct mddev *mddev = rdev->mddev;
- 
- 	rdev_dec_pending(rdev, mddev);
- 
--	if (atomic_dec_and_test(&fi->flush_pending)) {
--		if (bio->bi_iter.bi_size == 0) {
--			/* an empty barrier - all done */
--			bio_endio(bio);
--			mempool_free(fi, mddev->flush_pool);
--		} else {
--			INIT_WORK(&fi->flush_work, submit_flushes);
--			queue_work(md_wq, &fi->flush_work);
--		}
-+	if (atomic_dec_and_test(&mddev->flush_pending)) {
-+		/* The pre-request flush has finished */
-+		queue_work(md_wq, &mddev->flush_work);
- 	}
--
--	mempool_free(fb, mddev->flush_bio_pool);
--	bio_put(fbio);
-+	bio_put(bio);
- }
- 
--void md_flush_request(struct mddev *mddev, struct bio *bio)
-+static void md_submit_flush_data(struct work_struct *ws);
-+
-+static void submit_flushes(struct work_struct *ws)
- {
-+	struct mddev *mddev = container_of(ws, struct mddev, flush_work);
- 	struct md_rdev *rdev;
--	struct flush_info *fi;
--
--	fi = mempool_alloc(mddev->flush_pool, GFP_NOIO);
--
--	fi->bio = bio;
--	fi->mddev = mddev;
--	atomic_set(&fi->flush_pending, 1);
- 
-+	INIT_WORK(&mddev->flush_work, md_submit_flush_data);
-+	atomic_set(&mddev->flush_pending, 1);
- 	rcu_read_lock();
- 	rdev_for_each_rcu(rdev, mddev)
- 		if (rdev->raid_disk >= 0 &&
-@@ -480,40 +438,59 @@ void md_flush_request(struct mddev *mdde
- 			 * we reclaim rcu_read_lock
- 			 */
- 			struct bio *bi;
--			struct flush_bio *fb;
- 			atomic_inc(&rdev->nr_pending);
- 			atomic_inc(&rdev->nr_pending);
- 			rcu_read_unlock();
--
--			fb = mempool_alloc(mddev->flush_bio_pool, GFP_NOIO);
--			fb->fi = fi;
--			fb->rdev = rdev;
--
- 			bi = bio_alloc_mddev(GFP_NOIO, 0, mddev);
--			bio_set_dev(bi, rdev->bdev);
- 			bi->bi_end_io = md_end_flush;
--			bi->bi_private = fb;
-+			bi->bi_private = rdev;
-+			bio_set_dev(bi, rdev->bdev);
- 			bi->bi_opf = REQ_OP_WRITE | REQ_PREFLUSH;
--
--			atomic_inc(&fi->flush_pending);
-+			atomic_inc(&mddev->flush_pending);
- 			submit_bio(bi);
--
- 			rcu_read_lock();
- 			rdev_dec_pending(rdev, mddev);
- 		}
- 	rcu_read_unlock();
-+	if (atomic_dec_and_test(&mddev->flush_pending))
-+		queue_work(md_wq, &mddev->flush_work);
-+}
- 
--	if (atomic_dec_and_test(&fi->flush_pending)) {
--		if (bio->bi_iter.bi_size == 0) {
--			/* an empty barrier - all done */
--			bio_endio(bio);
--			mempool_free(fi, mddev->flush_pool);
--		} else {
--			INIT_WORK(&fi->flush_work, submit_flushes);
--			queue_work(md_wq, &fi->flush_work);
--		}
-+static void md_submit_flush_data(struct work_struct *ws)
-+{
-+	struct mddev *mddev = container_of(ws, struct mddev, flush_work);
-+	struct bio *bio = mddev->flush_bio;
-+
-+	/*
-+	 * must reset flush_bio before calling into md_handle_request to avoid a
-+	 * deadlock, because other bios passed md_handle_request suspend check
-+	 * could wait for this and below md_handle_request could wait for those
-+	 * bios because of suspend check
-+	 */
-+	mddev->flush_bio = NULL;
-+	wake_up(&mddev->sb_wait);
-+
-+	if (bio->bi_iter.bi_size == 0) {
-+		/* an empty barrier - all done */
-+		bio_endio(bio);
-+	} else {
-+		bio->bi_opf &= ~REQ_PREFLUSH;
-+		md_handle_request(mddev, bio);
- 	}
- }
-+
-+void md_flush_request(struct mddev *mddev, struct bio *bio)
-+{
-+	spin_lock_irq(&mddev->lock);
-+	wait_event_lock_irq(mddev->sb_wait,
-+			    !mddev->flush_bio,
-+			    mddev->lock);
-+	mddev->flush_bio = bio;
-+	spin_unlock_irq(&mddev->lock);
-+
-+	INIT_WORK(&mddev->flush_work, submit_flushes);
-+	queue_work(md_wq, &mddev->flush_work);
-+}
- EXPORT_SYMBOL(md_flush_request);
- 
- static inline struct mddev *mddev_get(struct mddev *mddev)
-@@ -560,6 +537,7 @@ void mddev_init(struct mddev *mddev)
- 	atomic_set(&mddev->openers, 0);
- 	atomic_set(&mddev->active_io, 0);
- 	spin_lock_init(&mddev->lock);
-+	atomic_set(&mddev->flush_pending, 0);
- 	init_waitqueue_head(&mddev->sb_wait);
- 	init_waitqueue_head(&mddev->recovery_wait);
- 	mddev->reshape_position = MaxSector;
-@@ -5511,22 +5489,6 @@ int md_run(struct mddev *mddev)
- 		if (err)
- 			return err;
- 	}
--	if (mddev->flush_pool == NULL) {
--		mddev->flush_pool = mempool_create(NR_FLUSH_INFOS, flush_info_alloc,
--						flush_info_free, mddev);
--		if (!mddev->flush_pool) {
--			err = -ENOMEM;
--			goto abort;
--		}
--	}
--	if (mddev->flush_bio_pool == NULL) {
--		mddev->flush_bio_pool = mempool_create(NR_FLUSH_BIOS, flush_bio_alloc,
--						flush_bio_free, mddev);
--		if (!mddev->flush_bio_pool) {
--			err = -ENOMEM;
--			goto abort;
--		}
--	}
- 
- 	spin_lock(&pers_lock);
- 	pers = find_pers(mddev->level, mddev->clevel);
-@@ -5686,11 +5648,8 @@ int md_run(struct mddev *mddev)
- 	return 0;
- 
- abort:
--	mempool_destroy(mddev->flush_bio_pool);
--	mddev->flush_bio_pool = NULL;
--	mempool_destroy(mddev->flush_pool);
--	mddev->flush_pool = NULL;
--
-+	bioset_exit(&mddev->bio_set);
-+	bioset_exit(&mddev->sync_set);
- 	return err;
- }
- EXPORT_SYMBOL_GPL(md_run);
-@@ -5894,14 +5853,6 @@ static void __md_stop(struct mddev *mdde
- 		mddev->to_remove = &md_redundancy_group;
- 	module_put(pers->owner);
- 	clear_bit(MD_RECOVERY_FROZEN, &mddev->recovery);
--	if (mddev->flush_bio_pool) {
--		mempool_destroy(mddev->flush_bio_pool);
--		mddev->flush_bio_pool = NULL;
--	}
--	if (mddev->flush_pool) {
--		mempool_destroy(mddev->flush_pool);
--		mddev->flush_pool = NULL;
--	}
- }
- 
- void md_stop(struct mddev *mddev)
---- a/drivers/md/md.h
-+++ b/drivers/md/md.h
-@@ -252,19 +252,6 @@ enum mddev_sb_flags {
- 	MD_SB_NEED_REWRITE,	/* metadata write needs to be repeated */
- };
- 
--#define NR_FLUSH_INFOS 8
--#define NR_FLUSH_BIOS 64
--struct flush_info {
--	struct bio			*bio;
--	struct mddev			*mddev;
--	struct work_struct		flush_work;
--	atomic_t			flush_pending;
--};
--struct flush_bio {
--	struct flush_info *fi;
--	struct md_rdev *rdev;
--};
--
- struct mddev {
- 	void				*private;
- 	struct md_personality		*pers;
-@@ -470,8 +457,13 @@ struct mddev {
- 						   * metadata and bitmap writes
- 						   */
- 
--	mempool_t			*flush_pool;
--	mempool_t			*flush_bio_pool;
-+	/* Generic flush handling.
-+	 * The last to finish preflush schedules a worker to submit
-+	 * the rest of the request (without the REQ_PREFLUSH flag).
-+	 */
-+	struct bio *flush_bio;
-+	atomic_t flush_pending;
-+	struct work_struct flush_work;
- 	struct work_struct event_work;	/* used by dm to report failure event */
- 	void (*sync_super)(struct mddev *mddev, struct md_rdev *rdev);
- 	struct md_cluster_info		*cluster_info;
+--- a/drivers/video/fbdev/sm712fb.c
++++ b/drivers/video/fbdev/sm712fb.c
+@@ -530,6 +530,65 @@ static const struct modeinit vgamode[] =
+ 			0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x15, 0x03,
+ 		},
+ 	},
++	{	/*  1024 x 768  16Bpp  60Hz */
++		1024, 768, 16, 60,
++		/*  Init_MISC */
++		0xEB,
++		{	/*  Init_SR0_SR4 */
++			0x03, 0x01, 0x0F, 0x03, 0x0E,
++		},
++		{	/*  Init_SR10_SR24 */
++			0xF3, 0xB6, 0xC0, 0xDD, 0x00, 0x0E, 0x17, 0x2C,
++			0x99, 0x02, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00,
++			0xC4, 0x30, 0x02, 0x01, 0x01,
++		},
++		{	/*  Init_SR30_SR75 */
++			0x38, 0x03, 0x20, 0x09, 0xC0, 0x3A, 0x3A, 0x3A,
++			0x3A, 0x3A, 0x3A, 0x3A, 0x00, 0x00, 0x03, 0xFF,
++			0x00, 0xFC, 0x00, 0x00, 0x20, 0x18, 0x00, 0xFC,
++			0x20, 0x0C, 0x44, 0x20, 0x00, 0x00, 0x00, 0x3A,
++			0x06, 0x68, 0xA7, 0x7F, 0x83, 0x24, 0xFF, 0x03,
++			0x0F, 0x60, 0x59, 0x3A, 0x3A, 0x00, 0x00, 0x3A,
++			0x01, 0x80, 0x7E, 0x1A, 0x1A, 0x00, 0x00, 0x00,
++			0x50, 0x03, 0x74, 0x14, 0x3B, 0x0D, 0x09, 0x02,
++			0x04, 0x45, 0x30, 0x30, 0x40, 0x20,
++		},
++		{	/*  Init_SR80_SR93 */
++			0xFF, 0x07, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x3A,
++			0xF7, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0x3A, 0x3A,
++			0x00, 0x00, 0x00, 0x00,
++		},
++		{	/*  Init_SRA0_SRAF */
++			0x00, 0xFB, 0x9F, 0x01, 0x00, 0xED, 0xED, 0xED,
++			0x7B, 0xFB, 0xFF, 0xFF, 0x97, 0xEF, 0xBF, 0xDF,
++		},
++		{	/*  Init_GR00_GR08 */
++			0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0x05, 0x0F,
++			0xFF,
++		},
++		{	/*  Init_AR00_AR14 */
++			0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
++			0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
++			0x41, 0x00, 0x0F, 0x00, 0x00,
++		},
++		{	/*  Init_CR00_CR18 */
++			0xA3, 0x7F, 0x7F, 0x00, 0x85, 0x16, 0x24, 0xF5,
++			0x00, 0x60, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++			0x03, 0x09, 0xFF, 0x80, 0x40, 0xFF, 0x00, 0xE3,
++			0xFF,
++		},
++		{	/*  Init_CR30_CR4D */
++			0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0x02, 0x20,
++			0x00, 0x00, 0x00, 0x40, 0x00, 0xFF, 0xBF, 0xFF,
++			0xA3, 0x7F, 0x00, 0x86, 0x15, 0x24, 0xFF, 0x00,
++			0x01, 0x07, 0xE5, 0x20, 0x7F, 0xFF,
++		},
++		{	/*  Init_CR90_CRA7 */
++			0x55, 0xD9, 0x5D, 0xE1, 0x86, 0x1B, 0x8E, 0x26,
++			0xDA, 0x8D, 0xDE, 0x94, 0x00, 0x00, 0x18, 0x00,
++			0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x15, 0x03,
++		},
++	},
+ 	{	/*  mode#5: 1024 x 768  24Bpp  60Hz */
+ 		1024, 768, 24, 60,
+ 		/*  Init_MISC */
 
 
