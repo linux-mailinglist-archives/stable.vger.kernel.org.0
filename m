@@ -2,46 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F2E2A288FB
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:41:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E54C028776
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:25:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391553AbfEWTaF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:30:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43366 "EHLO mail.kernel.org"
+        id S2389055AbfEWTTl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:19:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391787AbfEWTaE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:30:04 -0400
+        id S2389859AbfEWTTi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:19:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB2A8206BA;
-        Thu, 23 May 2019 19:30:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3BA59217D7;
+        Thu, 23 May 2019 19:19:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639804;
-        bh=PBtTUBAOYf3seKE7fedPr1UQ96MftwcjzEdHhxafmvk=;
+        s=default; t=1558639177;
+        bh=dmdkHKAlomDeyTm+9zna1RJf7joT+IgtoQOEjI8u2SU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k6AZjSvGELd0cPox94KdfsyDHHd7FF4zWvV+pH1ccJj8FkACXXkzUGIeDAJ55CTu7
-         jRRRjNtG01Q9d7NWMSbXNNXGArFABC3dLm1j8C7Wk8fmTNlLTihN2Yl4AKuFQi77/A
-         EGOLSb/Ou9jSPT6ngy6U6QPb7pZyvP5TeKl4Gqpo=
+        b=x2OJHfRARJBMWXBfcXVXu76po3SzK0/PYM3bJVfCmBHbk8N/qqMypIUjfwksFff+p
+         6Ut81reVKGPakotmctakFxt+5rqTDwG776l2wXt1N/gtnRzOEQ6rRZnLZ1IDbIRJ0s
+         3JpWKYmBlvsSjBgi+hB88AoDqkNTMIb/rN9D6/VQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
-        Paul Burton <paul.burton@mips.com>, linux-mips@linux-mips.org,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        James Hogan <jhogan@kernel.org>, linux-mips@vger.kernel.org
-Subject: [PATCH 5.1 082/122] MIPS: perf: Fix build with CONFIG_CPU_BMIPS5000 enabled
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 105/114] ufs: fix braino in ufs_get_inode_gid() for solaris UFS flavour
 Date:   Thu, 23 May 2019 21:06:44 +0200
-Message-Id: <20190523181715.727675622@linuxfoundation.org>
+Message-Id: <20190523181740.484025455@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
-References: <20190523181705.091418060@linuxfoundation.org>
+In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
+References: <20190523181731.372074275@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,101 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+[ Upstream commit 4e9036042fedaffcd868d7f7aa948756c48c637d ]
 
-commit 1b1f01b653b408ebe58fec78c566d1075d285c64 upstream.
+To choose whether to pick the GID from the old (16bit) or new (32bit)
+field, we should check if the old gid field is set to 0xffff.  Mainline
+checks the old *UID* field instead - cut'n'paste from the corresponding
+code in ufs_get_inode_uid().
 
-arch/mips/kernel/perf_event_mipsxx.c: In function 'mipsxx_pmu_enable_event':
-arch/mips/kernel/perf_event_mipsxx.c:326:21: error: unused variable 'event' [-Werror=unused-variable]
-  struct perf_event *event = container_of(evt, struct perf_event, hw);
-                     ^~~~~
-
-Fix this by making use of IS_ENABLED() to simplify the code and avoid
-unnecessary ifdefery.
-
-Fixes: 84002c88599d ("MIPS: perf: Fix perf with MT counting other threads")
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Paul Burton <paul.burton@mips.com>
-Cc: linux-mips@linux-mips.org
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: James Hogan <jhogan@kernel.org>
-Cc: linux-kernel@vger.kernel.org
-Cc: linux-mips@vger.kernel.org
-Cc: stable@vger.kernel.org # v4.18+
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 252e211e90ce
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/kernel/perf_event_mipsxx.c |   21 +++------------------
- 1 file changed, 3 insertions(+), 18 deletions(-)
+ fs/ufs/util.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/mips/kernel/perf_event_mipsxx.c
-+++ b/arch/mips/kernel/perf_event_mipsxx.c
-@@ -64,17 +64,11 @@ struct mips_perf_event {
- 	#define CNTR_EVEN	0x55555555
- 	#define CNTR_ODD	0xaaaaaaaa
- 	#define CNTR_ALL	0xffffffff
--#ifdef CONFIG_MIPS_MT_SMP
- 	enum {
- 		T  = 0,
- 		V  = 1,
- 		P  = 2,
- 	} range;
--#else
--	#define T
--	#define V
--	#define P
--#endif
- };
- 
- static struct mips_perf_event raw_event;
-@@ -325,9 +319,7 @@ static void mipsxx_pmu_enable_event(stru
- {
- 	struct perf_event *event = container_of(evt, struct perf_event, hw);
- 	struct cpu_hw_events *cpuc = this_cpu_ptr(&cpu_hw_events);
--#ifdef CONFIG_MIPS_MT_SMP
- 	unsigned int range = evt->event_base >> 24;
--#endif /* CONFIG_MIPS_MT_SMP */
- 
- 	WARN_ON(idx < 0 || idx >= mipspmu.num_counters);
- 
-@@ -336,21 +328,15 @@ static void mipsxx_pmu_enable_event(stru
- 		/* Make sure interrupt enabled. */
- 		MIPS_PERFCTRL_IE;
- 
--#ifdef CONFIG_CPU_BMIPS5000
--	{
-+	if (IS_ENABLED(CONFIG_CPU_BMIPS5000)) {
- 		/* enable the counter for the calling thread */
- 		cpuc->saved_ctrl[idx] |=
- 			(1 << (12 + vpe_id())) | BRCM_PERFCTRL_TC;
--	}
--#else
--#ifdef CONFIG_MIPS_MT_SMP
--	if (range > V) {
-+	} else if (IS_ENABLED(CONFIG_MIPS_MT_SMP) && range > V) {
- 		/* The counter is processor wide. Set it up to count all TCs. */
- 		pr_debug("Enabling perf counter for all TCs\n");
- 		cpuc->saved_ctrl[idx] |= M_TC_EN_ALL;
--	} else
--#endif /* CONFIG_MIPS_MT_SMP */
--	{
-+	} else {
- 		unsigned int cpu, ctrl;
- 
- 		/*
-@@ -365,7 +351,6 @@ static void mipsxx_pmu_enable_event(stru
- 		cpuc->saved_ctrl[idx] |= ctrl;
- 		pr_debug("Enabling perf counter for CPU%d\n", cpu);
- 	}
--#endif /* CONFIG_CPU_BMIPS5000 */
- 	/*
- 	 * We do not actually let the counter run. Leave it until start().
- 	 */
+diff --git a/fs/ufs/util.h b/fs/ufs/util.h
+index 1fd3011ea6236..7fd4802222b8c 100644
+--- a/fs/ufs/util.h
++++ b/fs/ufs/util.h
+@@ -229,7 +229,7 @@ ufs_get_inode_gid(struct super_block *sb, struct ufs_inode *inode)
+ 	case UFS_UID_44BSD:
+ 		return fs32_to_cpu(sb, inode->ui_u3.ui_44.ui_gid);
+ 	case UFS_UID_EFT:
+-		if (inode->ui_u1.oldids.ui_suid == 0xFFFF)
++		if (inode->ui_u1.oldids.ui_sgid == 0xFFFF)
+ 			return fs32_to_cpu(sb, inode->ui_u3.ui_sun.ui_gid);
+ 		/* Fall through */
+ 	default:
+-- 
+2.20.1
+
 
 
