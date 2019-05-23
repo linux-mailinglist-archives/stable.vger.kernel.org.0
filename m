@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AD5B62894D
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:42:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CAE1289D0
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:43:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390656AbfEWTdn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:33:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41508 "EHLO mail.kernel.org"
+        id S2388670AbfEWTmU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:42:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391222AbfEWT2q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:28:46 -0400
+        id S2389747AbfEWTTI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:19:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C9CA62054F;
-        Thu, 23 May 2019 19:28:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B15A0205ED;
+        Thu, 23 May 2019 19:19:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639726;
-        bh=SYtLHW5PN2kaTLi0hvmfSGvW2uL/0c+YVmjsMHL4+To=;
+        s=default; t=1558639148;
+        bh=zo4BNT2y5vGThUf1YBTI4tm47+GcKrXMdYgr+k3oHic=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B6nVKPvVTA74rF8sTb8i+Exx2JvvA18yMCEi8gG37dfEgqeb1i6KmIA8vVyWA563F
-         xkPD9yQ8+MF2cKHk+XHXSyYAG6dWQq7zCMBCpTp7fDoIAiR0lJ9uoXUi9iQZ6sjEFp
-         XQQnFP9FDhsUo/Cros93aim1cPKp3SaTafhPoybw=
+        b=KUHS9hsMhTSISoqAsSQ1IhyM1ZB2UeGuvb93Veqcn9cLtHVCmM3FqBLWitkTTc/I3
+         CJBYb8rJ9fptANOclPCCm9lcmOLgyiHmE3ihtG6itMq+HvXDbcFLCEqAPGltXcGj60
+         nYtGuHJb7zCBVymaeiT55WQS/Q4S/aJgS3p3DDZI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeff Layton <jlayton@kernel.org>,
-        "Yan, Zheng" <zyan@redhat.com>, Ilya Dryomov <idryomov@gmail.com>
-Subject: [PATCH 5.1 072/122] ceph: flush dirty inodes before proceeding with remount
+        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 095/114] x86: kvm: hyper-v: deal with buggy TLB flush requests from WS2012
 Date:   Thu, 23 May 2019 21:06:34 +0200
-Message-Id: <20190523181714.274118885@linuxfoundation.org>
+Message-Id: <20190523181739.956056404@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
-References: <20190523181705.091418060@linuxfoundation.org>
+In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
+References: <20190523181731.372074275@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,48 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Layton <jlayton@kernel.org>
+[ Upstream commit da66761c2d93a46270d69001abb5692717495a68 ]
 
-commit 00abf69dd24f4444d185982379c5cc3bb7b6d1fc upstream.
+It was reported that with some special Multi Processor Group configuration,
+e.g:
+ bcdedit.exe /set groupsize 1
+ bcdedit.exe /set maxgroup on
+ bcdedit.exe /set groupaware on
+for a 16-vCPU guest WS2012 shows BSOD on boot when PV TLB flush mechanism
+is in use.
 
-xfstest generic/452 was triggering a "Busy inodes after umount" warning.
-ceph was allowing the mount to go read-only without first flushing out
-dirty inodes in the cache. Ensure we sync out the filesystem before
-allowing a remount to proceed.
+Tracing kvm_hv_flush_tlb immediately reveals the issue:
 
-Cc: stable@vger.kernel.org
-Link: http://tracker.ceph.com/issues/39571
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Reviewed-by: "Yan, Zheng" <zyan@redhat.com>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+ kvm_hv_flush_tlb: processor_mask 0x0 address_space 0x0 flags 0x2
 
+The only flag set in this request is HV_FLUSH_ALL_VIRTUAL_ADDRESS_SPACES,
+however, processor_mask is 0x0 and no HV_FLUSH_ALL_PROCESSORS is specified.
+We don't flush anything and apparently it's not what Windows expects.
+
+TLFS doesn't say anything about such requests and newer Windows versions
+seem to be unaffected. This all feels like a WS2012 bug, which is, however,
+easy to workaround in KVM: let's flush everything when we see an empty
+flush request, over-flushing doesn't hurt.
+
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ceph/super.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/x86/kvm/hyperv.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
---- a/fs/ceph/super.c
-+++ b/fs/ceph/super.c
-@@ -845,6 +845,12 @@ static void ceph_umount_begin(struct sup
- 	return;
- }
+diff --git a/arch/x86/kvm/hyperv.c b/arch/x86/kvm/hyperv.c
+index 01d209ab5481b..229d996051653 100644
+--- a/arch/x86/kvm/hyperv.c
++++ b/arch/x86/kvm/hyperv.c
+@@ -1291,7 +1291,16 @@ static u64 kvm_hv_flush_tlb(struct kvm_vcpu *current_vcpu, u64 ingpa,
+ 				       flush.address_space, flush.flags);
  
-+static int ceph_remount(struct super_block *sb, int *flags, char *data)
-+{
-+	sync_filesystem(sb);
-+	return 0;
-+}
+ 		sparse_banks[0] = flush.processor_mask;
+-		all_cpus = flush.flags & HV_FLUSH_ALL_PROCESSORS;
 +
- static const struct super_operations ceph_super_ops = {
- 	.alloc_inode	= ceph_alloc_inode,
- 	.destroy_inode	= ceph_destroy_inode,
-@@ -852,6 +858,7 @@ static const struct super_operations cep
- 	.drop_inode	= ceph_drop_inode,
- 	.sync_fs        = ceph_sync_fs,
- 	.put_super	= ceph_put_super,
-+	.remount_fs	= ceph_remount,
- 	.show_options   = ceph_show_options,
- 	.statfs		= ceph_statfs,
- 	.umount_begin   = ceph_umount_begin,
++		/*
++		 * Work around possible WS2012 bug: it sends hypercalls
++		 * with processor_mask = 0x0 and HV_FLUSH_ALL_PROCESSORS clear,
++		 * while also expecting us to flush something and crashing if
++		 * we don't. Let's treat processor_mask == 0 same as
++		 * HV_FLUSH_ALL_PROCESSORS.
++		 */
++		all_cpus = (flush.flags & HV_FLUSH_ALL_PROCESSORS) ||
++			flush.processor_mask == 0;
+ 	} else {
+ 		if (unlikely(kvm_read_guest(kvm, ingpa, &flush_ex,
+ 					    sizeof(flush_ex))))
+-- 
+2.20.1
+
 
 
