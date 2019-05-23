@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F1B49287F7
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:26:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B90FD28918
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:42:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391140AbfEWTZh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:25:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37142 "EHLO mail.kernel.org"
+        id S2391852AbfEWTap (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:30:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391134AbfEWTZf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:25:35 -0400
+        id S2391695AbfEWTap (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:30:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BDA2020868;
-        Thu, 23 May 2019 19:25:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5A54020879;
+        Thu, 23 May 2019 19:30:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639535;
-        bh=q86KOwhOagZeZ7tD6NY2jFgZ6s+ArKqafjIKr0GqakM=;
+        s=default; t=1558639844;
+        bh=ffYAePsAYSLY2PZJ5lNAa7ZiztMb4ESID2IlEHjN8yc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HZ9SysgSO4ECyh04l7inclYnyZf4UMl+J6dz3fa6EcQZytqdCMlunxusjRF1JJTm1
-         wSkvBB+QB2uwjm3OVh20l/EoSh+Gso0mIVFNfVdCXN0b8rJi/mjI8h2ekwRJ4TW6Pn
-         /bbYvFu3VFfIxjNUxC68hYoMQD9/iLh7SoLLmprc=
+        b=d8pL2XpUpwlgUGKurncKehxHjQYf22Rw/PvdZ9Zw17clB7KnPnCmNVpJg4Oodyj/t
+         vnbORAJupnygvuA7ku+T6WJFOABYiZ77Ti4QgIlD/7Ih4OTeA65ck8vFamoPYKCXX4
+         u0YIAlN3zRepASt/O8Abqd4xyn+iarWA4EXFpBKw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Jiri Olsa <jolsa@kernel.org>,
-        linux-snps-arc@lists.infradead.org,
-        Namhyung Kim <namhyung@kernel.org>,
-        Vineet Gupta <Vineet.Gupta1@synopsys.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 131/139] perf bench numa: Add define for RUSAGE_THREAD if not present
+        stable@vger.kernel.org,
+        Jean-Philippe Brucker <jean-philippe.brucker@arm.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 5.1 097/122] PCI: Init PCIe feature bits for managed host bridge alloc
 Date:   Thu, 23 May 2019 21:06:59 +0200
-Message-Id: <20190523181736.167614424@linuxfoundation.org>
+Message-Id: <20190523181718.056998161@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
-References: <20190523181720.120897565@linuxfoundation.org>
+In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
+References: <20190523181705.091418060@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,66 +44,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit bf561d3c13423fc54daa19b5d49dc15fafdb7acc ]
+From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
 
-While cross building perf to the ARC architecture on a fedora 30 host,
-we were failing with:
+commit 6302bf3ef78dd210b5ff4a922afcb7d8eff8a211 upstream.
 
-      CC       /tmp/build/perf/bench/numa.o
-  bench/numa.c: In function ‘worker_thread’:
-  bench/numa.c:1261:12: error: ‘RUSAGE_THREAD’ undeclared (first use in this function); did you mean ‘SIGEV_THREAD’?
-    getrusage(RUSAGE_THREAD, &rusage);
-              ^~~~~~~~~~~~~
-              SIGEV_THREAD
-  bench/numa.c:1261:12: note: each undeclared identifier is reported only once for each function it appears in
+Two functions allocate a host bridge: devm_pci_alloc_host_bridge() and
+pci_alloc_host_bridge().  At the moment, only the unmanaged one initializes
+the PCIe feature bits, which prevents from using features such as hotplug
+or AER on some systems, when booting with device tree.  Make the
+initialization code common.
 
-[perfbuilder@60d5802468f6 perf]$ /arc_gnu_2019.03-rc1_prebuilt_uclibc_le_archs_linux_install/bin/arc-linux-gcc --version | head -1
-arc-linux-gcc (ARCv2 ISA Linux uClibc toolchain 2019.03-rc1) 8.3.1 20190225
-[perfbuilder@60d5802468f6 perf]$
+Fixes: 02bfeb484230 ("PCI/portdrv: Simplify PCIe feature permission checking")
+Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+CC: stable@vger.kernel.org	# v4.17+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Trying to reproduce a report by Vineet, I noticed that, with just
-cross-built zlib and numactl libraries, I ended up with the above
-failure.
-
-So, since RUSAGE_THREAD is available as a define, check for that and
-numactl libraries, I ended up with the above failure.
-
-So, since RUSAGE_THREAD is available as a define in the system headers,
-check if it is defined in the 'perf bench numa' sources and define it if
-not.
-
-Now it builds and I have to figure out if the problem reported by Vineet
-only takes place if we have libelf or some other library available.
-
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: linux-snps-arc@lists.infradead.org
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Vineet Gupta <Vineet.Gupta1@synopsys.com>
-Link: https://lkml.kernel.org/n/tip-2wb4r1gir9xrevbpq7qp0amk@git.kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/bench/numa.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/pci/probe.c |   23 ++++++++++++++---------
+ 1 file changed, 14 insertions(+), 9 deletions(-)
 
-diff --git a/tools/perf/bench/numa.c b/tools/perf/bench/numa.c
-index 44195514b19e6..fa56fde6e8d80 100644
---- a/tools/perf/bench/numa.c
-+++ b/tools/perf/bench/numa.c
-@@ -38,6 +38,10 @@
- #include <numa.h>
- #include <numaif.h>
+--- a/drivers/pci/probe.c
++++ b/drivers/pci/probe.c
+@@ -586,16 +586,9 @@ static void pci_release_host_bridge_dev(
+ 	kfree(to_pci_host_bridge(dev));
+ }
  
-+#ifndef RUSAGE_THREAD
-+# define RUSAGE_THREAD 1
-+#endif
+-struct pci_host_bridge *pci_alloc_host_bridge(size_t priv)
++static void pci_init_host_bridge(struct pci_host_bridge *bridge)
+ {
+-	struct pci_host_bridge *bridge;
+-
+-	bridge = kzalloc(sizeof(*bridge) + priv, GFP_KERNEL);
+-	if (!bridge)
+-		return NULL;
+-
+ 	INIT_LIST_HEAD(&bridge->windows);
+-	bridge->dev.release = pci_release_host_bridge_dev;
+ 
+ 	/*
+ 	 * We assume we can manage these PCIe features.  Some systems may
+@@ -608,6 +601,18 @@ struct pci_host_bridge *pci_alloc_host_b
+ 	bridge->native_shpc_hotplug = 1;
+ 	bridge->native_pme = 1;
+ 	bridge->native_ltr = 1;
++}
 +
- /*
-  * Regular printout to the terminal, supressed if -q is specified:
-  */
--- 
-2.20.1
-
++struct pci_host_bridge *pci_alloc_host_bridge(size_t priv)
++{
++	struct pci_host_bridge *bridge;
++
++	bridge = kzalloc(sizeof(*bridge) + priv, GFP_KERNEL);
++	if (!bridge)
++		return NULL;
++
++	pci_init_host_bridge(bridge);
++	bridge->dev.release = pci_release_host_bridge_dev;
+ 
+ 	return bridge;
+ }
+@@ -622,7 +627,7 @@ struct pci_host_bridge *devm_pci_alloc_h
+ 	if (!bridge)
+ 		return NULL;
+ 
+-	INIT_LIST_HEAD(&bridge->windows);
++	pci_init_host_bridge(bridge);
+ 	bridge->dev.release = devm_pci_release_host_bridge_dev;
+ 
+ 	return bridge;
 
 
