@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BC98B28674
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:10:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38E6328828
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:40:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387521AbfEWTJp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:09:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42918 "EHLO mail.kernel.org"
+        id S2389762AbfEWTWt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:22:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387539AbfEWTJp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:09:45 -0400
+        id S2389471AbfEWTWt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:22:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A095A2184E;
-        Thu, 23 May 2019 19:09:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2D9762133D;
+        Thu, 23 May 2019 19:22:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558638584;
-        bh=CK7uNw6cGr+PboncQ27aZZZs686BRP3y9afh6mcuGDQ=;
+        s=default; t=1558639368;
+        bh=HouLTLqIqjRCwjXfcBrJZTlxNRJEi9ykC66tBSDO8QI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NfEvNckTqVPizVuKGLKfFQMXh1DIaYFzkJiWNttbpEUWdkTNF9NN7ZoU9u7yldd4z
-         i+n6GAVKTooTZaiVjVjsL2Fs0WoSvtLjY8Frchl7NbjkOHVa2KHch8qkD+7MXtxZc4
-         XNwY8D2E7ZQKlK6AiBRDTgXa7NEOx1f3gI7PaixY=
+        b=0wlVdDEYsNU26t8PqitKukA/JXR/Ep+GWCFURk7eSZQenMv4Z3RZdDpStWT/E/l8o
+         ZhPqjkoKX4DmTwhK+PFaQvytNKC41RFJ8nRVDb6ZJcFnuspYNszw9Xu/TiHg/N37uu
+         c37LnWcxw3HdelBCZvkr7mHq1/NoAoACKQ8AjgAE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 4.9 26/53] perf intel-pt: Fix instructions sampling rate
+        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
+        Thierry Reding <treding@nvidia.com>,
+        Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 5.0 062/139] iommu/tegra-smmu: Fix invalid ASID bits on Tegra30/114
 Date:   Thu, 23 May 2019 21:05:50 +0200
-Message-Id: <20190523181714.974483494@linuxfoundation.org>
+Message-Id: <20190523181728.813043955@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181710.981455400@linuxfoundation.org>
-References: <20190523181710.981455400@linuxfoundation.org>
+In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
+References: <20190523181720.120897565@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,91 +44,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-commit 7ba8fa20e26eb3c0c04d747f7fd2223694eac4d5 upstream.
+commit 43a0541e312f7136e081e6bf58f6c8a2e9672688 upstream.
 
-The timestamp used to determine if an instruction sample is made, is an
-estimate based on the number of instructions since the last known
-timestamp. A consequence is that it might go backwards, which results in
-extra samples. Change it so that a sample is only made when the
-timestamp goes forwards.
+Both Tegra30 and Tegra114 have 4 ASID's and the corresponding bitfield of
+the TLB_FLUSH register differs from later Tegra generations that have 128
+ASID's.
 
-Note this does not affect a sampling period of 0 or sampling periods
-specified as a count of instructions.
+In a result the PTE's are now flushed correctly from TLB and this fixes
+problems with graphics (randomly failing tests) on Tegra30.
 
-Example:
-
- Before:
-
- $ perf script --itrace=i10us
- ls 13812 [003] 2167315.222583:       3270 instructions:u:      7fac71e2e494 __GI___tunables_init+0xf4 (/lib/x86_64-linux-gnu/ld-2.28.so)
- ls 13812 [003] 2167315.222667:      30902 instructions:u:      7fac71e2da0f _dl_cache_libcmp+0x2f (/lib/x86_64-linux-gnu/ld-2.28.so)
- ls 13812 [003] 2167315.222667:         10 instructions:u:      7fac71e2d9ff _dl_cache_libcmp+0x1f (/lib/x86_64-linux-gnu/ld-2.28.so)
- ls 13812 [003] 2167315.222667:          8 instructions:u:      7fac71e2d9ea _dl_cache_libcmp+0xa (/lib/x86_64-linux-gnu/ld-2.28.so)
- ls 13812 [003] 2167315.222667:         14 instructions:u:      7fac71e2d9ea _dl_cache_libcmp+0xa (/lib/x86_64-linux-gnu/ld-2.28.so)
- ls 13812 [003] 2167315.222667:          6 instructions:u:      7fac71e2d9ff _dl_cache_libcmp+0x1f (/lib/x86_64-linux-gnu/ld-2.28.so)
- ls 13812 [003] 2167315.222667:         14 instructions:u:      7fac71e2d9ff _dl_cache_libcmp+0x1f (/lib/x86_64-linux-gnu/ld-2.28.so)
- ls 13812 [003] 2167315.222667:          4 instructions:u:      7fac71e2dab2 _dl_cache_libcmp+0xd2 (/lib/x86_64-linux-gnu/ld-2.28.so)
- ls 13812 [003] 2167315.222728:      16423 instructions:u:      7fac71e2477a _dl_map_object_deps+0x1ba (/lib/x86_64-linux-gnu/ld-2.28.so)
- ls 13812 [003] 2167315.222734:      12731 instructions:u:      7fac71e27938 _dl_name_match_p+0x68 (/lib/x86_64-linux-gnu/ld-2.28.so)
- ...
-
- After:
- $ perf script --itrace=i10us
- ls 13812 [003] 2167315.222583:       3270 instructions:u:      7fac71e2e494 __GI___tunables_init+0xf4 (/lib/x86_64-linux-gnu/ld-2.28.so)
- ls 13812 [003] 2167315.222667:      30902 instructions:u:      7fac71e2da0f _dl_cache_libcmp+0x2f (/lib/x86_64-linux-gnu/ld-2.28.so)
- ls 13812 [003] 2167315.222728:      16479 instructions:u:      7fac71e2477a _dl_map_object_deps+0x1ba (/lib/x86_64-linux-gnu/ld-2.28.so)
- ...
-
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: stable@vger.kernel.org
-Fixes: f4aa081949e7b ("perf tools: Add Intel PT decoder")
-Link: http://lkml.kernel.org/r/20190510124143.27054-2-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Acked-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- tools/perf/util/intel-pt-decoder/intel-pt-decoder.c |   13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ drivers/iommu/tegra-smmu.c |   25 ++++++++++++++++++-------
+ 1 file changed, 18 insertions(+), 7 deletions(-)
 
---- a/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
-+++ b/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
-@@ -856,16 +856,20 @@ static uint64_t intel_pt_next_period(str
- 	timestamp = decoder->timestamp + decoder->timestamp_insn_cnt;
- 	masked_timestamp = timestamp & decoder->period_mask;
- 	if (decoder->continuous_period) {
--		if (masked_timestamp != decoder->last_masked_timestamp)
-+		if (masked_timestamp > decoder->last_masked_timestamp)
- 			return 1;
- 	} else {
- 		timestamp += 1;
- 		masked_timestamp = timestamp & decoder->period_mask;
--		if (masked_timestamp != decoder->last_masked_timestamp) {
-+		if (masked_timestamp > decoder->last_masked_timestamp) {
- 			decoder->last_masked_timestamp = masked_timestamp;
- 			decoder->continuous_period = true;
- 		}
- 	}
+--- a/drivers/iommu/tegra-smmu.c
++++ b/drivers/iommu/tegra-smmu.c
+@@ -102,7 +102,6 @@ static inline u32 smmu_readl(struct tegr
+ #define  SMMU_TLB_FLUSH_VA_MATCH_ALL     (0 << 0)
+ #define  SMMU_TLB_FLUSH_VA_MATCH_SECTION (2 << 0)
+ #define  SMMU_TLB_FLUSH_VA_MATCH_GROUP   (3 << 0)
+-#define  SMMU_TLB_FLUSH_ASID(x)          (((x) & 0x7f) << 24)
+ #define  SMMU_TLB_FLUSH_VA_SECTION(addr) ((((addr) & 0xffc00000) >> 12) | \
+ 					  SMMU_TLB_FLUSH_VA_MATCH_SECTION)
+ #define  SMMU_TLB_FLUSH_VA_GROUP(addr)   ((((addr) & 0xffffc000) >> 12) | \
+@@ -205,8 +204,12 @@ static inline void smmu_flush_tlb_asid(s
+ {
+ 	u32 value;
+ 
+-	value = SMMU_TLB_FLUSH_ASID_MATCH | SMMU_TLB_FLUSH_ASID(asid) |
+-		SMMU_TLB_FLUSH_VA_MATCH_ALL;
++	if (smmu->soc->num_asids == 4)
++		value = (asid & 0x3) << 29;
++	else
++		value = (asid & 0x7f) << 24;
 +
-+	if (masked_timestamp < decoder->last_masked_timestamp)
-+		return decoder->period_ticks;
-+
- 	return decoder->period_ticks - (timestamp - masked_timestamp);
++	value |= SMMU_TLB_FLUSH_ASID_MATCH | SMMU_TLB_FLUSH_VA_MATCH_ALL;
+ 	smmu_writel(smmu, value, SMMU_TLB_FLUSH);
  }
  
-@@ -894,7 +898,10 @@ static void intel_pt_sample_insn(struct
- 	case INTEL_PT_PERIOD_TICKS:
- 		timestamp = decoder->timestamp + decoder->timestamp_insn_cnt;
- 		masked_timestamp = timestamp & decoder->period_mask;
--		decoder->last_masked_timestamp = masked_timestamp;
-+		if (masked_timestamp > decoder->last_masked_timestamp)
-+			decoder->last_masked_timestamp = masked_timestamp;
-+		else
-+			decoder->last_masked_timestamp += decoder->period_ticks;
- 		break;
- 	case INTEL_PT_PERIOD_NONE:
- 	case INTEL_PT_PERIOD_MTC:
+@@ -216,8 +219,12 @@ static inline void smmu_flush_tlb_sectio
+ {
+ 	u32 value;
+ 
+-	value = SMMU_TLB_FLUSH_ASID_MATCH | SMMU_TLB_FLUSH_ASID(asid) |
+-		SMMU_TLB_FLUSH_VA_SECTION(iova);
++	if (smmu->soc->num_asids == 4)
++		value = (asid & 0x3) << 29;
++	else
++		value = (asid & 0x7f) << 24;
++
++	value |= SMMU_TLB_FLUSH_ASID_MATCH | SMMU_TLB_FLUSH_VA_SECTION(iova);
+ 	smmu_writel(smmu, value, SMMU_TLB_FLUSH);
+ }
+ 
+@@ -227,8 +234,12 @@ static inline void smmu_flush_tlb_group(
+ {
+ 	u32 value;
+ 
+-	value = SMMU_TLB_FLUSH_ASID_MATCH | SMMU_TLB_FLUSH_ASID(asid) |
+-		SMMU_TLB_FLUSH_VA_GROUP(iova);
++	if (smmu->soc->num_asids == 4)
++		value = (asid & 0x3) << 29;
++	else
++		value = (asid & 0x7f) << 24;
++
++	value |= SMMU_TLB_FLUSH_ASID_MATCH | SMMU_TLB_FLUSH_VA_GROUP(iova);
+ 	smmu_writel(smmu, value, SMMU_TLB_FLUSH);
+ }
+ 
 
 
