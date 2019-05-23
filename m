@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B927E28AE3
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:58:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A420C286F7
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:16:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731876AbfEWTt1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:49:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44296 "EHLO mail.kernel.org"
+        id S2387519AbfEWTO5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:14:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48988 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388010AbfEWTK5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:10:57 -0400
+        id S2388821AbfEWTOu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:14:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 110AB217D9;
-        Thu, 23 May 2019 19:10:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 59F3F217D7;
+        Thu, 23 May 2019 19:14:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558638656;
-        bh=12OvtLJ+C7mV68x8yhIzFoFCz/QlQ+RzX5Rhw8VAU6Y=;
+        s=default; t=1558638889;
+        bh=W0f3EHcVEBs8UfuFtMj60PbcCvQ0hwXJbGh92iFhmzQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xhnyFM1fD0e7YUvqj6k+3Yy9POlb8JjYuRk7HXRC2ELhxAs05ix7DaOcPyduBvAYx
-         WGOAHrbPJZIwAXJYZUNlZdeUvxkI/RZblSDhEY0d/9A476QCRpcoGgXiML2axu2Cpj
-         JrUxzUERVAgnZhQkq8tAwlVmxLot5UdVPq7T5ilw=
+        b=yegrH1i8TNjmSIkjYrGte9k7ddeMJ8o9kMZXq+ZybymY8tGW+oUm5OrKkyrRiGEuw
+         4whPDOeQDT/w08ywuG6rQEg5spsJi7VTUg5ynLqDZkR4uMo5rYoNLf8eN2M5kaKZQi
+         vZ7Ya70zHCnbyR84RydWjsJ83PJcW95nFggEgYUo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yunjian Wang <wangyunjian@huawei.com>,
-        Tariq Toukan <tariqt@mellanox.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 02/77] net/mlx4_core: Change the error print to info print
+        stable@vger.kernel.org, Tingwei Zhang <tingwei@codeaurora.org>,
+        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Subject: [PATCH 4.19 021/114] stm class: Fix channel free in stm output free path
 Date:   Thu, 23 May 2019 21:05:20 +0200
-Message-Id: <20190523181720.327324775@linuxfoundation.org>
+Message-Id: <20190523181733.804061229@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181719.982121681@linuxfoundation.org>
-References: <20190523181719.982121681@linuxfoundation.org>
+In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
+References: <20190523181731.372074275@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,32 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunjian Wang <wangyunjian@huawei.com>
+From: Tingwei Zhang <tingwei@codeaurora.org>
 
-[ Upstream commit 00f9fec48157f3734e52130a119846e67a12314b ]
+commit ee496da4c3915de3232b5f5cd20e21ae3e46fe8d upstream.
 
-The error print within mlx4_flow_steer_promisc_add() should
-be a info print.
+Number of free masters is not set correctly in stm
+free path. Fix this by properly adding the number
+of output channels before setting them to 0 in
+stm_output_disclaim().
 
-Fixes: 592e49dda812 ('net/mlx4: Implement promiscuous mode with device managed flow-steering')
-Signed-off-by: Yunjian Wang <wangyunjian@huawei.com>
-Reviewed-by: Tariq Toukan <tariqt@mellanox.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Currently it is equivalent to doing nothing since
+master->nr_free is incremented by 0.
+
+Fixes: 7bd1d4093c2f ("stm class: Introduce an abstraction for System Trace Module devices")
+Signed-off-by: Tingwei Zhang <tingwei@codeaurora.org>
+Signed-off-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
+Cc: stable@vger.kernel.org # v4.4
+Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/mellanox/mlx4/mcg.c |    2 +-
+ drivers/hwtracing/stm/core.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/mellanox/mlx4/mcg.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/mcg.c
-@@ -1490,7 +1490,7 @@ int mlx4_flow_steer_promisc_add(struct m
- 	rule.port = port;
- 	rule.qpn = qpn;
- 	INIT_LIST_HEAD(&rule.list);
--	mlx4_err(dev, "going promisc on %x\n", port);
-+	mlx4_info(dev, "going promisc on %x\n", port);
+--- a/drivers/hwtracing/stm/core.c
++++ b/drivers/hwtracing/stm/core.c
+@@ -218,8 +218,8 @@ stm_output_disclaim(struct stm_device *s
+ 	bitmap_release_region(&master->chan_map[0], output->channel,
+ 			      ilog2(output->nr_chans));
  
- 	return  mlx4_flow_attach(dev, &rule, regid_p);
+-	output->nr_chans = 0;
+ 	master->nr_free += output->nr_chans;
++	output->nr_chans = 0;
  }
+ 
+ /*
 
 
