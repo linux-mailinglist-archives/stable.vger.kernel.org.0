@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C5DA28A18
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:56:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2F5928AAD
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:58:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732012AbfEWTJH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:09:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42112 "EHLO mail.kernel.org"
+        id S2388898AbfEWTon (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:44:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732039AbfEWTJH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:09:07 -0400
+        id S2389178AbfEWTQY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:16:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2B52621841;
-        Thu, 23 May 2019 19:09:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6D56521850;
+        Thu, 23 May 2019 19:16:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558638546;
-        bh=4Iku/FjekZcjWFXaDe6eZYD6gS+UBEqFJtU66m3sppg=;
+        s=default; t=1558638983;
+        bh=jKqYAai376E/cIp343dxY9uOP9xaIB/uyNzS8yztJP8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SzVi5vP8DJE5ZUf3DjDae4+KgFXJwnYzghbykCRzxbOhEsULzXl/XvHp4auPGpTQ7
-         PVH0Fdgh7SnOLbhVC+xRqf454CKsBXOGn9QXOW7uDXzjVIWaDD0l9kpYnQb6zevZyX
-         +OXB9rE0ERXWY5PG/bSCC6h4BppyF7kDfcMK4Jrg=
+        b=ZnnXk/HIcnKqpGfIgYIZ0rwuqTUQjGG1oD2/ZUhS3TT+Zz5PHgupNW1mSAvq/b06a
+         tgozMJpGLGZQsN7CRDVkDipH1ppCXT9hv3W6NdYGmtoBA6UctVzCLVGlQvu6NZGYza
+         Je8vga5J5qrWKz3l0uh+SxsXc0cwkI32PCw/wQe8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tingwei Zhang <tingwei@codeaurora.org>,
-        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Subject: [PATCH 4.9 11/53] stm class: Fix channel free in stm output free path
+        stable@vger.kernel.org, Steve Longerbeam <slongerbeam@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Subject: [PATCH 4.19 036/114] media: imx: Clear fwnode link struct for each endpoint iteration
 Date:   Thu, 23 May 2019 21:05:35 +0200
-Message-Id: <20190523181712.685624475@linuxfoundation.org>
+Message-Id: <20190523181735.057210188@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181710.981455400@linuxfoundation.org>
-References: <20190523181710.981455400@linuxfoundation.org>
+In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
+References: <20190523181731.372074275@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tingwei Zhang <tingwei@codeaurora.org>
+From: Steve Longerbeam <slongerbeam@gmail.com>
 
-commit ee496da4c3915de3232b5f5cd20e21ae3e46fe8d upstream.
+commit 107927fa597c99eaeee4f51865ca0956ec71b6a2 upstream.
 
-Number of free masters is not set correctly in stm
-free path. Fix this by properly adding the number
-of output channels before setting them to 0 in
-stm_output_disclaim().
+In imx_media_create_csi_of_links(), the 'struct v4l2_fwnode_link' must
+be cleared for each endpoint iteration, otherwise if the remote port
+has no "reg" property, link.remote_port will not be reset to zero.
+This was discovered on the i.MX53 SMD board, since the OV5642 connects
+directly to ipu1_csi0 and has a single source port with no "reg"
+property.
 
-Currently it is equivalent to doing nothing since
-master->nr_free is incremented by 0.
+Fixes: 621b08eabcddb ("media: staging/imx: remove static media link arrays")
 
-Fixes: 7bd1d4093c2f ("stm class: Introduce an abstraction for System Trace Module devices")
-Signed-off-by: Tingwei Zhang <tingwei@codeaurora.org>
-Signed-off-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
-Cc: stable@vger.kernel.org # v4.4
-Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Signed-off-by: Steve Longerbeam <slongerbeam@gmail.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hwtracing/stm/core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/staging/media/imx/imx-media-of.c |   15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
---- a/drivers/hwtracing/stm/core.c
-+++ b/drivers/hwtracing/stm/core.c
-@@ -226,8 +226,8 @@ stm_output_disclaim(struct stm_device *s
- 	bitmap_release_region(&master->chan_map[0], output->channel,
- 			      ilog2(output->nr_chans));
+--- a/drivers/staging/media/imx/imx-media-of.c
++++ b/drivers/staging/media/imx/imx-media-of.c
+@@ -233,15 +233,18 @@ int imx_media_create_csi_of_links(struct
+ 				  struct v4l2_subdev *csi)
+ {
+ 	struct device_node *csi_np = csi->dev->of_node;
+-	struct fwnode_handle *fwnode, *csi_ep;
+-	struct v4l2_fwnode_link link;
+ 	struct device_node *ep;
+-	int ret;
+-
+-	link.local_node = of_fwnode_handle(csi_np);
+-	link.local_port = CSI_SINK_PAD;
  
--	output->nr_chans = 0;
- 	master->nr_free += output->nr_chans;
-+	output->nr_chans = 0;
- }
+ 	for_each_child_of_node(csi_np, ep) {
++		struct fwnode_handle *fwnode, *csi_ep;
++		struct v4l2_fwnode_link link;
++		int ret;
++
++		memset(&link, 0, sizeof(link));
++
++		link.local_node = of_fwnode_handle(csi_np);
++		link.local_port = CSI_SINK_PAD;
++
+ 		csi_ep = of_fwnode_handle(ep);
  
- /*
+ 		fwnode = fwnode_graph_get_remote_endpoint(csi_ep);
 
 
