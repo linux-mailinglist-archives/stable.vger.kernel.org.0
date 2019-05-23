@@ -2,99 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 62B3027DFD
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 15:23:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B7B227E06
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 15:24:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729934AbfEWNXf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 09:23:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42216 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726310AbfEWNXf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 09:23:35 -0400
-Received: from dragon (98.142.130.235.16clouds.com [98.142.130.235])
-        (using TLSv1.2 with cipher DHE-RSA-AES128-SHA (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 95C4020862;
-        Thu, 23 May 2019 13:23:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558617814;
-        bh=i6pp3RLEvBeIhKApRemRE1F31C6IrTnEG9M9+DpDJn4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=chW2ZjX0prGsWVbRZdCwgBBN+jw6IfEK4cW9UlglzX5ZZ/dqZNjDFZVsBKGZ312WA
-         3PggHOz/MiNwqdeehm4F3+DgAnXJGS2dMPnOw/Go1EpTLh7erdRW44acDpPEE5dum1
-         pOLLKliv0SHG5DhD1UcgQOc5crWVFnEvNvFeodlI=
-Date:   Thu, 23 May 2019 21:22:36 +0800
-From:   Shawn Guo <shawnguo@kernel.org>
-To:     Peng Fan <peng.fan@nxp.com>
-Cc:     "mturquette@baylibre.com" <mturquette@baylibre.com>,
-        "sboyd@kernel.org" <sboyd@kernel.org>,
-        "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>,
-        "kernel@pengutronix.de" <kernel@pengutronix.de>,
-        "festevam@gmail.com" <festevam@gmail.com>,
-        dl-linux-imx <linux-imx@nxp.com>,
-        "linux-clk@vger.kernel.org" <linux-clk@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH] clk: imx: imx8mm: correct audio_pll2_clk to
- audio_pll2_out
-Message-ID: <20190523132235.GZ9261@dragon>
-References: <20190522014832.29485-1-peng.fan@nxp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190522014832.29485-1-peng.fan@nxp.com>
-User-Agent: Mutt/1.5.21 (2010-09-15)
+        id S1730752AbfEWNYT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 09:24:19 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:59900 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1730369AbfEWNYT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 May 2019 09:24:19 -0400
+Received: from pps.filterd (m0098396.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x4ND35Ca019067
+        for <stable@vger.kernel.org>; Thu, 23 May 2019 09:24:17 -0400
+Received: from e06smtp02.uk.ibm.com (e06smtp02.uk.ibm.com [195.75.94.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 2snub23cbr-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <stable@vger.kernel.org>; Thu, 23 May 2019 09:24:17 -0400
+Received: from localhost
+        by e06smtp02.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <stable@vger.kernel.org> from <maier@linux.ibm.com>;
+        Thu, 23 May 2019 14:24:13 +0100
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (9.149.109.198)
+        by e06smtp02.uk.ibm.com (192.168.101.132) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Thu, 23 May 2019 14:24:11 +0100
+Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id x4NDO9wm47513724
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 23 May 2019 13:24:09 GMT
+Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BB7B25204F;
+        Thu, 23 May 2019 13:24:09 +0000 (GMT)
+Received: from oc4120165700.ibm.com (unknown [9.152.97.204])
+        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTPS id 796B852067;
+        Thu, 23 May 2019 13:24:09 +0000 (GMT)
+From:   Steffen Maier <maier@linux.ibm.com>
+To:     "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Cc:     linux-scsi@vger.kernel.org, linux-s390@vger.kernel.org,
+        Benjamin Block <bblock@linux.ibm.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Steffen Maier <maier@linux.ibm.com>, <stable@vger.kernel.org>
+Subject: [PATCH 1/2] zfcp: fix missing zfcp_port reference put on -EBUSY from port_remove
+Date:   Thu, 23 May 2019 15:23:45 +0200
+X-Mailer: git-send-email 1.8.3.1
+In-Reply-To: <1558617826-30129-1-git-send-email-maier@linux.ibm.com>
+References: <1558617826-30129-1-git-send-email-maier@linux.ibm.com>
+X-TM-AS-GCONF: 00
+x-cbid: 19052313-0008-0000-0000-000002E9AAF2
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 19052313-0009-0000-0000-0000225669CF
+Message-Id: <1558617826-30129-2-git-send-email-maier@linux.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-05-23_11:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1810050000 definitions=main-1905230092
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 22, 2019 at 01:34:46AM +0000, Peng Fan wrote:
-> There is no audio_pll2_clk registered, it should be audio_pll2_out.
-> 
-> Cc: <stable@vger.kernel.org>
-> Fixes: ba5625c3e27 ("clk: imx: Add clock driver support for imx8mm")
-> Signed-off-by: Peng Fan <peng.fan@nxp.com>
+With this early return due to zfcp_unit child(ren), we don't use the
+zfcp_port reference from the earlier zfcp_get_port_by_wwpn()any more
+and need to put it.
 
-Stephen,
+Signed-off-by: Steffen Maier <maier@linux.ibm.com>
+Fixes: d99b601b6338 ("[SCSI] zfcp: restore refcount check on port_remove")
+Cc: <stable@vger.kernel.org> #3.7+
+Reviewed-by: Jens Remus <jremus@linux.ibm.com>
+Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
+---
+ drivers/s390/scsi/zfcp_sysfs.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-I leave this to you, since it's a fix.
+diff --git a/drivers/s390/scsi/zfcp_sysfs.c b/drivers/s390/scsi/zfcp_sysfs.c
+index b277be6f7611..2d78732b270b 100644
+--- a/drivers/s390/scsi/zfcp_sysfs.c
++++ b/drivers/s390/scsi/zfcp_sysfs.c
+@@ -261,6 +261,7 @@ static ssize_t zfcp_sysfs_port_remove_store(struct device *dev,
+ 	if (atomic_read(&port->units) > 0) {
+ 		retval = -EBUSY;
+ 		mutex_unlock(&zfcp_sysfs_port_units_mutex);
++		put_device(&port->dev); /* undo zfcp_get_port_by_wwpn() */
+ 		goto out;
+ 	}
+ 	/* port is about to be removed, so no more unit_add */
+-- 
+2.17.1
 
-Shawn
-
-> ---
->  drivers/clk/imx/clk-imx8mm.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/clk/imx/clk-imx8mm.c b/drivers/clk/imx/clk-imx8mm.c
-> index 1ef8438e3d6d..3a889846a05c 100644
-> --- a/drivers/clk/imx/clk-imx8mm.c
-> +++ b/drivers/clk/imx/clk-imx8mm.c
-> @@ -325,7 +325,7 @@ static const char *imx8mm_dsi_dbi_sels[] = {"osc_24m", "sys_pll1_266m", "sys_pll
->  					    "sys_pll2_1000m", "sys_pll3_out", "audio_pll2_out", "video_pll1_out", };
->  
->  static const char *imx8mm_usdhc3_sels[] = {"osc_24m", "sys_pll1_400m", "sys_pll1_800m", "sys_pll2_500m",
-> -					   "sys_pll3_out", "sys_pll1_266m", "audio_pll2_clk", "sys_pll1_100m", };
-> +					   "sys_pll3_out", "sys_pll1_266m", "audio_pll2_out", "sys_pll1_100m", };
->  
->  static const char *imx8mm_csi1_core_sels[] = {"osc_24m", "sys_pll1_266m", "sys_pll2_250m", "sys_pll1_800m",
->  					      "sys_pll2_1000m", "sys_pll3_out", "audio_pll2_out", "video_pll1_out", };
-> @@ -361,11 +361,11 @@ static const char *imx8mm_pdm_sels[] = {"osc_24m", "sys_pll2_100m", "audio_pll1_
->  					"sys_pll2_1000m", "sys_pll3_out", "clk_ext3", "audio_pll2_out", };
->  
->  static const char *imx8mm_vpu_h1_sels[] = {"osc_24m", "vpu_pll_out", "sys_pll1_800m", "sys_pll2_1000m",
-> -					   "audio_pll2_clk", "sys_pll2_125m", "sys_pll3_clk", "audio_pll1_out", };
-> +					   "audio_pll2_out", "sys_pll2_125m", "sys_pll3_clk", "audio_pll1_out", };
->  
->  static const char *imx8mm_dram_core_sels[] = {"dram_pll_out", "dram_alt_root", };
->  
-> -static const char *imx8mm_clko1_sels[] = {"osc_24m", "sys_pll1_800m", "osc_27m", "sys_pll1_200m", "audio_pll2_clk",
-> +static const char *imx8mm_clko1_sels[] = {"osc_24m", "sys_pll1_800m", "osc_27m", "sys_pll1_200m", "audio_pll2_out",
->  					 "vpu_pll", "sys_pll1_80m", };
->  
->  static struct clk *clks[IMX8MM_CLK_END];
-> -- 
-> 2.16.4
-> 
