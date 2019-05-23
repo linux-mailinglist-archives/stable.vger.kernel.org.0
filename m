@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B621228A6A
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:57:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 519C4288C9
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:41:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387876AbfEWTOJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:14:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48082 "EHLO mail.kernel.org"
+        id S2391256AbfEWT2s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:28:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388678AbfEWTOH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:14:07 -0400
+        id S2391810AbfEWT2o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:28:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5275A217D9;
-        Thu, 23 May 2019 19:14:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3AC63206BA;
+        Thu, 23 May 2019 19:28:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558638846;
-        bh=Re8T2yTHXK5XAfnVq2GhyXnFobK1U4GrBjodwoG3V1I=;
+        s=default; t=1558639723;
+        bh=HouLTLqIqjRCwjXfcBrJZTlxNRJEi9ykC66tBSDO8QI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GsAqwifSIJAPc5rAw+7Skji10ACv3hllz6uenmSmtMqHFBp+rPS/f0wEZ2EaipxYS
-         cMBFQt22nxIfHywe0ETUZgPCv4+1er+KNV4ZpfvMkpAUa/z06LjvpVI8bkXHWy/WmF
-         KZP8gFo26uQoSjq9HM/Nkdit1f2khRtcYvVjXcqU=
+        b=UUKkSCsgq/v5chWw/k1acTKEP+v4lPx64jgsbi2Zpqvr+DLwL5TcmkNpWyIKztz21
+         24maJhlA4sQ+rzNPTgj7/hH3o+tySpAX2vfC6etvZE6w4OAgjbMVxQXT4ZVYBPatCV
+         5bfvhVI5WCreARiMbrmGtumaP6TCpXzc+9nCJyMY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 4.14 75/77] bpf: add map_lookup_elem_sys_only for lookups from syscall side
+        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
+        Thierry Reding <treding@nvidia.com>,
+        Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 5.1 071/122] iommu/tegra-smmu: Fix invalid ASID bits on Tegra30/114
 Date:   Thu, 23 May 2019 21:06:33 +0200
-Message-Id: <20190523181730.307329542@linuxfoundation.org>
+Message-Id: <20190523181714.112401613@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181719.982121681@linuxfoundation.org>
-References: <20190523181719.982121681@linuxfoundation.org>
+In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
+References: <20190523181705.091418060@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,54 +44,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-commit c6110222c6f49ea68169f353565eb865488a8619 upstream.
+commit 43a0541e312f7136e081e6bf58f6c8a2e9672688 upstream.
 
-Add a callback map_lookup_elem_sys_only() that map implementations
-could use over map_lookup_elem() from system call side in case the
-map implementation needs to handle the latter differently than from
-the BPF data path. If map_lookup_elem_sys_only() is set, this will
-be preferred pick for map lookups out of user space. This hook is
-used in a follow-up fix for LRU map, but once development window
-opens, we can convert other map types from map_lookup_elem() (here,
-the one called upon BPF_MAP_LOOKUP_ELEM cmd is meant) over to use
-the callback to simplify and clean up the latter.
+Both Tegra30 and Tegra114 have 4 ASID's and the corresponding bitfield of
+the TLB_FLUSH register differs from later Tegra generations that have 128
+ASID's.
 
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Martin KaFai Lau <kafai@fb.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+In a result the PTE's are now flushed correctly from TLB and this fixes
+problems with graphics (randomly failing tests) on Tegra30.
+
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Acked-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-
 ---
- include/linux/bpf.h  |    1 +
- kernel/bpf/syscall.c |    5 ++++-
- 2 files changed, 5 insertions(+), 1 deletion(-)
+ drivers/iommu/tegra-smmu.c |   25 ++++++++++++++++++-------
+ 1 file changed, 18 insertions(+), 7 deletions(-)
 
---- a/include/linux/bpf.h
-+++ b/include/linux/bpf.h
-@@ -28,6 +28,7 @@ struct bpf_map_ops {
- 	void (*map_free)(struct bpf_map *map);
- 	int (*map_get_next_key)(struct bpf_map *map, void *key, void *next_key);
- 	void (*map_release_uref)(struct bpf_map *map);
-+	void *(*map_lookup_elem_sys_only)(struct bpf_map *map, void *key);
+--- a/drivers/iommu/tegra-smmu.c
++++ b/drivers/iommu/tegra-smmu.c
+@@ -102,7 +102,6 @@ static inline u32 smmu_readl(struct tegr
+ #define  SMMU_TLB_FLUSH_VA_MATCH_ALL     (0 << 0)
+ #define  SMMU_TLB_FLUSH_VA_MATCH_SECTION (2 << 0)
+ #define  SMMU_TLB_FLUSH_VA_MATCH_GROUP   (3 << 0)
+-#define  SMMU_TLB_FLUSH_ASID(x)          (((x) & 0x7f) << 24)
+ #define  SMMU_TLB_FLUSH_VA_SECTION(addr) ((((addr) & 0xffc00000) >> 12) | \
+ 					  SMMU_TLB_FLUSH_VA_MATCH_SECTION)
+ #define  SMMU_TLB_FLUSH_VA_GROUP(addr)   ((((addr) & 0xffffc000) >> 12) | \
+@@ -205,8 +204,12 @@ static inline void smmu_flush_tlb_asid(s
+ {
+ 	u32 value;
  
- 	/* funcs callable from userspace and from eBPF programs */
- 	void *(*map_lookup_elem)(struct bpf_map *map, void *key);
---- a/kernel/bpf/syscall.c
-+++ b/kernel/bpf/syscall.c
-@@ -493,7 +493,10 @@ static int map_lookup_elem(union bpf_att
- 		err = bpf_fd_htab_map_lookup_elem(map, key, value);
- 	} else {
- 		rcu_read_lock();
--		ptr = map->ops->map_lookup_elem(map, key);
-+		if (map->ops->map_lookup_elem_sys_only)
-+			ptr = map->ops->map_lookup_elem_sys_only(map, key);
-+		else
-+			ptr = map->ops->map_lookup_elem(map, key);
- 		if (ptr)
- 			memcpy(value, ptr, value_size);
- 		rcu_read_unlock();
+-	value = SMMU_TLB_FLUSH_ASID_MATCH | SMMU_TLB_FLUSH_ASID(asid) |
+-		SMMU_TLB_FLUSH_VA_MATCH_ALL;
++	if (smmu->soc->num_asids == 4)
++		value = (asid & 0x3) << 29;
++	else
++		value = (asid & 0x7f) << 24;
++
++	value |= SMMU_TLB_FLUSH_ASID_MATCH | SMMU_TLB_FLUSH_VA_MATCH_ALL;
+ 	smmu_writel(smmu, value, SMMU_TLB_FLUSH);
+ }
+ 
+@@ -216,8 +219,12 @@ static inline void smmu_flush_tlb_sectio
+ {
+ 	u32 value;
+ 
+-	value = SMMU_TLB_FLUSH_ASID_MATCH | SMMU_TLB_FLUSH_ASID(asid) |
+-		SMMU_TLB_FLUSH_VA_SECTION(iova);
++	if (smmu->soc->num_asids == 4)
++		value = (asid & 0x3) << 29;
++	else
++		value = (asid & 0x7f) << 24;
++
++	value |= SMMU_TLB_FLUSH_ASID_MATCH | SMMU_TLB_FLUSH_VA_SECTION(iova);
+ 	smmu_writel(smmu, value, SMMU_TLB_FLUSH);
+ }
+ 
+@@ -227,8 +234,12 @@ static inline void smmu_flush_tlb_group(
+ {
+ 	u32 value;
+ 
+-	value = SMMU_TLB_FLUSH_ASID_MATCH | SMMU_TLB_FLUSH_ASID(asid) |
+-		SMMU_TLB_FLUSH_VA_GROUP(iova);
++	if (smmu->soc->num_asids == 4)
++		value = (asid & 0x3) << 29;
++	else
++		value = (asid & 0x7f) << 24;
++
++	value |= SMMU_TLB_FLUSH_ASID_MATCH | SMMU_TLB_FLUSH_VA_GROUP(iova);
+ 	smmu_writel(smmu, value, SMMU_TLB_FLUSH);
+ }
+ 
 
 
