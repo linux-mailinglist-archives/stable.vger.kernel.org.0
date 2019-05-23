@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 199AA28977
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:42:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B4655289FB
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:43:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388049AbfEWTiN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:38:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33886 "EHLO mail.kernel.org"
+        id S2389405AbfEWTR1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:17:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390336AbfEWTX3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:23:29 -0400
+        id S2389375AbfEWTR0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:17:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6162D21841;
-        Thu, 23 May 2019 19:23:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6DFC821873;
+        Thu, 23 May 2019 19:17:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639408;
-        bh=3rxfAX4mLHvVaXl+hX9hwHnq3HJQHQSfrnr68pxQPQk=;
+        s=default; t=1558639045;
+        bh=9tqMZWqEHULiuOWDI2seNvJ1xyybwcMj/Ewo4lbLsvc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pqjin1Rol+xuWfgTleSKUhjvGLc3NxcvqvbKgiCYAqXPlepyiMhlP8FwiFTQdmHNT
-         oZZ0XYmi6orDgGX6K6RgABQbW2xNsJdXT4NNMReiEe6V0GqIJORE1m+LHjylY2AXRl
-         /6K1yKpAv18hs6Y5zDdHwGLTTjK6Vd8rEaysHZxU=
+        b=Ql+fD55rBfT0bBVgVxEL7wgKl1SqwWmnNPFotA+b8PumRP2y0H86k3cV5chZOsgyf
+         qvgL3v5oilfksgB5+i+11h7WpYfyqIr9Mi6MCRCVvs7wJlCwaNQGLV+gcvwpCA3EdK
+         ahHpqRj7A8WbHflzN8JNY5vH8uPX5J/9Essk+qFI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
         Teddy Wang <teddy.wang@siliconmotion.com>,
         Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Subject: [PATCH 5.0 078/139] fbdev: sm712fb: fix VRAM detection, dont set SR70/71/74/75
-Date:   Thu, 23 May 2019 21:06:06 +0200
-Message-Id: <20190523181731.017644887@linuxfoundation.org>
+Subject: [PATCH 4.19 068/114] fbdev: sm712fb: use 1024x768 by default on non-MIPS, fix garbled display
+Date:   Thu, 23 May 2019 21:06:07 +0200
+Message-Id: <20190523181737.860337090@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
-References: <20190523181720.120897565@linuxfoundation.org>
+In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
+References: <20190523181731.372074275@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,18 +47,18 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yifeng Li <tomli@tomli.me>
 
-commit dcf9070595e100942c539e229dde4770aaeaa4e9 upstream.
+commit 4ed7d2ccb7684510ec5f7a8f7ef534bc6a3d55b2 upstream.
 
-On a Thinkpad s30 (Pentium III / i440MX, Lynx3DM), the amount of Video
-RAM is not detected correctly by the xf86-video-siliconmotion driver.
-This is because sm712fb overwrites the GPR71 Scratch Pad Register, which
-is set by BIOS on x86 and used to indicate amount of VRAM.
+Loongson MIPS netbooks use 1024x600 LCD panels, which is the original
+target platform of this driver, but nearly all old x86 laptops have
+1024x768. Lighting 768 panels using 600's timings would partially
+garble the display. Since it's not possible to distinguish them reliably,
+we change the default to 768, but keep 600 as-is on MIPS.
 
-Other Scratch Pad Registers, including GPR70/74/75, don't have the same
-side-effect, but overwriting to them is still questionable, as they are
-not related to modesetting.
-
-Stop writing to SR70/71/74/75 (a.k.a GPR70/71/74/75).
+Further, earlier laptops, such as IBM Thinkpad 240X, has a 800x600 LCD
+panel, this driver would probably garbled those display. As we don't
+have one for testing, the original behavior of the driver is kept as-is,
+but the problem has been documented is the comments.
 
 Signed-off-by: Yifeng Li <tomli@tomli.me>
 Tested-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
@@ -68,21 +68,101 @@ Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/video/fbdev/sm712fb.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/video/fbdev/sm712.h   |    7 +++--
+ drivers/video/fbdev/sm712fb.c |   53 +++++++++++++++++++++++++++++++-----------
+ 2 files changed, 44 insertions(+), 16 deletions(-)
 
+--- a/drivers/video/fbdev/sm712.h
++++ b/drivers/video/fbdev/sm712.h
+@@ -15,9 +15,10 @@
+ 
+ #define FB_ACCEL_SMI_LYNX 88
+ 
+-#define SCREEN_X_RES      1024
+-#define SCREEN_Y_RES      600
+-#define SCREEN_BPP        16
++#define SCREEN_X_RES          1024
++#define SCREEN_Y_RES_PC       768
++#define SCREEN_Y_RES_NETBOOK  600
++#define SCREEN_BPP            16
+ 
+ #define dac_reg	(0x3c8)
+ #define dac_val	(0x3c9)
 --- a/drivers/video/fbdev/sm712fb.c
 +++ b/drivers/video/fbdev/sm712fb.c
-@@ -1146,7 +1146,9 @@ static void sm7xx_set_timing(struct smtc
- 		/* init SEQ register SR30 - SR75 */
- 		for (i = 0; i < SIZE_SR30_SR75; i++)
- 			if ((i + 0x30) != 0x30 && (i + 0x30) != 0x62 &&
--			    (i + 0x30) != 0x6a && (i + 0x30) != 0x6b)
-+			    (i + 0x30) != 0x6a && (i + 0x30) != 0x6b &&
-+			    (i + 0x30) != 0x70 && (i + 0x30) != 0x71 &&
-+			    (i + 0x30) != 0x74 && (i + 0x30) != 0x75)
- 				smtc_seqw(i + 0x30,
- 					  vgamode[j].init_sr30_sr75[i]);
+@@ -1463,6 +1463,43 @@ static u_long sm7xx_vram_probe(struct sm
+ 	return 0;  /* unknown hardware */
+ }
  
++static void sm7xx_resolution_probe(struct smtcfb_info *sfb)
++{
++	/* get mode parameter from smtc_scr_info */
++	if (smtc_scr_info.lfb_width != 0) {
++		sfb->fb->var.xres = smtc_scr_info.lfb_width;
++		sfb->fb->var.yres = smtc_scr_info.lfb_height;
++		sfb->fb->var.bits_per_pixel = smtc_scr_info.lfb_depth;
++		goto final;
++	}
++
++	/*
++	 * No parameter, default resolution is 1024x768-16.
++	 *
++	 * FIXME: earlier laptops, such as IBM Thinkpad 240X, has a 800x600
++	 * panel, also see the comments about Thinkpad 240X above.
++	 */
++	sfb->fb->var.xres = SCREEN_X_RES;
++	sfb->fb->var.yres = SCREEN_Y_RES_PC;
++	sfb->fb->var.bits_per_pixel = SCREEN_BPP;
++
++#ifdef CONFIG_MIPS
++	/*
++	 * Loongson MIPS netbooks use 1024x600 LCD panels, which is the original
++	 * target platform of this driver, but nearly all old x86 laptops have
++	 * 1024x768. Lighting 768 panels using 600's timings would partially
++	 * garble the display, so we don't want that. But it's not possible to
++	 * distinguish them reliably.
++	 *
++	 * So we change the default to 768, but keep 600 as-is on MIPS.
++	 */
++	sfb->fb->var.yres = SCREEN_Y_RES_NETBOOK;
++#endif
++
++final:
++	big_pixel_depth(sfb->fb->var.bits_per_pixel, smtc_scr_info.lfb_depth);
++}
++
+ static int smtcfb_pci_probe(struct pci_dev *pdev,
+ 			    const struct pci_device_id *ent)
+ {
+@@ -1508,19 +1545,6 @@ static int smtcfb_pci_probe(struct pci_d
+ 
+ 	sm7xx_init_hw();
+ 
+-	/* get mode parameter from smtc_scr_info */
+-	if (smtc_scr_info.lfb_width != 0) {
+-		sfb->fb->var.xres = smtc_scr_info.lfb_width;
+-		sfb->fb->var.yres = smtc_scr_info.lfb_height;
+-		sfb->fb->var.bits_per_pixel = smtc_scr_info.lfb_depth;
+-	} else {
+-		/* default resolution 1024x600 16bit mode */
+-		sfb->fb->var.xres = SCREEN_X_RES;
+-		sfb->fb->var.yres = SCREEN_Y_RES;
+-		sfb->fb->var.bits_per_pixel = SCREEN_BPP;
+-	}
+-
+-	big_pixel_depth(sfb->fb->var.bits_per_pixel, smtc_scr_info.lfb_depth);
+ 	/* Map address and memory detection */
+ 	mmio_base = pci_resource_start(pdev, 0);
+ 	pci_read_config_byte(pdev, PCI_REVISION_ID, &sfb->chip_rev_id);
+@@ -1582,6 +1606,9 @@ static int smtcfb_pci_probe(struct pci_d
+ 		goto failed_fb;
+ 	}
+ 
++	/* probe and decide resolution */
++	sm7xx_resolution_probe(sfb);
++
+ 	/* can support 32 bpp */
+ 	if (sfb->fb->var.bits_per_pixel == 15)
+ 		sfb->fb->var.bits_per_pixel = 16;
 
 
