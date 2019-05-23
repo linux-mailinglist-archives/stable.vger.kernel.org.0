@@ -2,199 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BA4A32778B
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 09:57:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 97E13277F7
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 10:30:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726309AbfEWH5M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 03:57:12 -0400
-Received: from out3-smtp.messagingengine.com ([66.111.4.27]:56679 "EHLO
-        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725814AbfEWH5M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 May 2019 03:57:12 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id F3E2A2D018;
-        Thu, 23 May 2019 03:57:10 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Thu, 23 May 2019 03:57:11 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=kRjp0y
-        kSXABwlXEAjOROPsNgpmqVGFPzuSoF68zVhIg=; b=kVGFdY4dCZm/kPBqe4ch01
-        A1AqPyCG+mRZwVc1/qOQvkN0/uWNhe2N5zdgS6a3xNUbk6TcSVrqphPRJyd9p9c0
-        fdeSGVGZeuP7Rbsi8JYVvjz5zEhJYuj8DJkpuDQsi0WiliQstZF/UVUqkjj6uPHa
-        xRcNzy5kCEYLGM9Lrz1/Ubvpt32vwFD+6xkCU9zLMTPOx5qpsPlmDScII4H0qNtN
-        HGgc5egClEgwQ4Z816L1JxvQKMf6GR/nQId8CDvjLKzU4T9p2HJhgAaeWrlBJ0N8
-        walyp0zoyxubI5G0nIw3/8g/IR9KrMchBXLxlzFkOAI8FD7WLgBmN7zzEWLGCOQA
-        ==
-X-ME-Sender: <xms:VlLmXMi2sxrSwpNiC8R77z2Q3_BADiCd1Ef4mywcgVcKGXwCGCqm6Q>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddruddufedguddvlecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
-    dttdflnecuhfhrohhmpeeoghhrvghgkhhhsehlihhnuhigfhhouhhnuggrthhiohhnrdho
-    rhhgqeenucffohhmrghinhepmhgrrhgtrdhinhhfohenucfkphepkeefrdekiedrkeelrd
-    dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpedv
-X-ME-Proxy: <xmx:VlLmXPaXUUwmJC7HlyaB2mHKqEVAdZFxJt2LzoeBD2cIHhUkqReV3A>
-    <xmx:VlLmXKNX0-QyV6FmTpdiDdXMC_tncPsL-mE8cm8C23gQ_zWnIWnhcw>
-    <xmx:VlLmXIbmY47rMBKrNPb4Pprf0NvNiTfmQYs0o2gR-YkwOr7pj89G6A>
-    <xmx:VlLmXLQn43lQWlVbiWaAeRtZnKMWVXbkLuW2GPC2zrv0kqLHMSMIWA>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 58EFC380084;
-        Thu, 23 May 2019 03:57:10 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] blk-mq: free hw queue's resource in hctx's release handler" failed to apply to 4.4-stable tree
-To:     ming.lei@redhat.com, axboe@kernel.dk, bart.vanassche@wdc.com,
-        dongli.zhang@oracle.com, hare@suse.com, hch@lst.de,
-        james.smart@broadcom.com, jejb@linux.vnet.ibm.com,
-        martin.petersen@oracle.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 23 May 2019 09:57:05 +0200
-Message-ID: <155859822512255@kroah.com>
+        id S1729511AbfEWIaY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 04:30:24 -0400
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:45554 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726385AbfEWIaY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 May 2019 04:30:24 -0400
+Received: by mail-wr1-f65.google.com with SMTP id b18so5192819wrq.12
+        for <stable@vger.kernel.org>; Thu, 23 May 2019 01:30:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=amarulasolutions.com; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=CWRQ0EYJjfxMbJnmKcTI7ZG0fOWBb9XCDQzcnCHm0dk=;
+        b=ab15QBgCx0Q1cdYfe/azNEfujud37wvKO/QjSgnTFVRKW8FQCv4j3HFI6ob+hKLDsu
+         dKiIHDHhQBPT/N3J44Eesz9o9jfESxiznCGA4rzGg1FQX7UTouFMJ7Ca45N/QCYCAfMc
+         ImnuUxTy+ZuY6lXykGMoA9Zi0XYGG7QCApeh0=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=CWRQ0EYJjfxMbJnmKcTI7ZG0fOWBb9XCDQzcnCHm0dk=;
+        b=MqpDGiEjwh9Ik5T2yQTc1wAUAVtkc8x/5o4sW1mwbiQKjRP8bjLtRQ/dwTxyuH4p+K
+         xmBSUmFpaiBsneARF9ScCiGmtkrwq0zrpFMie+EIubs9dPvDmkvx8D75glTZ6aHqD4MV
+         iIAHbr8CHWm3bseDyk55nDFR1p9is+LiniZt123UgSg+j5QjHtTr5hFJhyKQJP9EKddy
+         HEOuiJLy8hkVpy6VV0qZQbRh0QxLvQG2TnKhEJ6f520bMa9NEynM+8Jr1lGuX+4kpGua
+         NFlpxgXvTIYpPol868mwPMGG9IUCLU5N7LimD1Tn1UqeMU/+wgpOa7dlMIDBtP1zmmBn
+         ifCg==
+X-Gm-Message-State: APjAAAXr83Cpy8aDW8vIrEH7EzGjLVkHynopjMny6pATv3fqvbng1k1k
+        k+Xsj3X+nLWUEIak4IHs5Cqc+w==
+X-Google-Smtp-Source: APXvYqwek6Tl0tiKwDs0xQJs11UWCKfT0GBtpbpuH2Rtwvb8IKmaXLyamsDRFPj5dEubkjO1mx22Qw==
+X-Received: by 2002:adf:f7d1:: with SMTP id a17mr110557wrq.64.1558600222084;
+        Thu, 23 May 2019 01:30:22 -0700 (PDT)
+Received: from andrea (86.100.broadband17.iol.cz. [109.80.100.86])
+        by smtp.gmail.com with ESMTPSA id m10sm9287874wmf.40.2019.05.23.01.30.20
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 23 May 2019 01:30:21 -0700 (PDT)
+Date:   Thu, 23 May 2019 10:30:13 +0200
+From:   Andrea Parri <andrea.parri@amarulasolutions.com>
+To:     Mark Rutland <mark.rutland@arm.com>
+Cc:     linux-kernel@vger.kernel.org, peterz@infradead.org,
+        will.deacon@arm.com, aou@eecs.berkeley.edu, arnd@arndb.de,
+        bp@alien8.de, catalin.marinas@arm.com, davem@davemloft.net,
+        fenghua.yu@intel.com, heiko.carstens@de.ibm.com,
+        herbert@gondor.apana.org.au, ink@jurassic.park.msu.ru,
+        jhogan@kernel.org, linux@armlinux.org.uk, mattst88@gmail.com,
+        mingo@kernel.org, mpe@ellerman.id.au, palmer@sifive.com,
+        paul.burton@mips.com, paulus@samba.org, ralf@linux-mips.org,
+        rth@twiddle.net, stable@vger.kernel.org, tglx@linutronix.de,
+        tony.luck@intel.com, vgupta@synopsys.com
+Subject: Re: [PATCH 00/18] locking/atomic: atomic64 type cleanup
+Message-ID: <20190523083013.GA4616@andrea>
+References: <20190522132250.26499-1-mark.rutland@arm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190522132250.26499-1-mark.rutland@arm.com>
+User-Agent: Mutt/1.5.24 (2015-08-30)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Mark,
 
-The patch below does not apply to the 4.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+On Wed, May 22, 2019 at 02:22:32PM +0100, Mark Rutland wrote:
+> Currently architectures return inconsistent types for atomic64 ops. Some return
+> long (e..g. powerpc), some return long long (e.g. arc), and some return s64
+> (e.g. x86).
 
-thanks,
+(only partially related, but probably worth asking:)
 
-greg k-h
+While reading the series, I realized that the following expression:
 
------------------- original commit in Linus's tree ------------------
+	atomic64_t v;
+        ...
+	typeof(v.counter) my_val = atomic64_set(&v, VAL);
 
-From c7e2d94b3d1634988a95ac4d77a72dc7487ece06 Mon Sep 17 00:00:00 2001
-From: Ming Lei <ming.lei@redhat.com>
-Date: Tue, 30 Apr 2019 09:52:25 +0800
-Subject: [PATCH] blk-mq: free hw queue's resource in hctx's release handler
+is a valid expression on some architectures (in part., on architectures
+which #define atomic64_set() to WRITE_ONCE()) but is invalid on others.
+(This is due to the fact that WRITE_ONCE() can be used as an rvalue in
+the above assignment; TBH, I ignore the reasons for having such rvalue?)
 
-Once blk_cleanup_queue() returns, tags shouldn't be used any more,
-because blk_mq_free_tag_set() may be called. Commit 45a9c9d909b2
-("blk-mq: Fix a use-after-free") fixes this issue exactly.
+IIUC, similar considerations hold for atomic_set().
 
-However, that commit introduces another issue. Before 45a9c9d909b2,
-we are allowed to run queue during cleaning up queue if the queue's
-kobj refcount is held. After that commit, queue can't be run during
-queue cleaning up, otherwise oops can be triggered easily because
-some fields of hctx are freed by blk_mq_free_queue() in blk_cleanup_queue().
+The question is whether this is a known/"expected" inconsistency in the
+implementation of atomic64_set() or if this would also need to be fixed
+/addressed (say in a different patchset)?
 
-We have invented ways for addressing this kind of issue before, such as:
-
-	8dc765d438f1 ("SCSI: fix queue cleanup race before queue initialization is done")
-	c2856ae2f315 ("blk-mq: quiesce queue before freeing queue")
-
-But still can't cover all cases, recently James reports another such
-kind of issue:
-
-	https://marc.info/?l=linux-scsi&m=155389088124782&w=2
-
-This issue can be quite hard to address by previous way, given
-scsi_run_queue() may run requeues for other LUNs.
-
-Fixes the above issue by freeing hctx's resources in its release handler, and this
-way is safe becasue tags isn't needed for freeing such hctx resource.
-
-This approach follows typical design pattern wrt. kobject's release handler.
-
-Cc: Dongli Zhang <dongli.zhang@oracle.com>
-Cc: James Smart <james.smart@broadcom.com>
-Cc: Bart Van Assche <bart.vanassche@wdc.com>
-Cc: linux-scsi@vger.kernel.org,
-Cc: Martin K . Petersen <martin.petersen@oracle.com>,
-Cc: Christoph Hellwig <hch@lst.de>,
-Cc: James E . J . Bottomley <jejb@linux.vnet.ibm.com>,
-Reported-by: James Smart <james.smart@broadcom.com>
-Fixes: 45a9c9d909b2 ("blk-mq: Fix a use-after-free")
-Cc: stable@vger.kernel.org
-Reviewed-by: Hannes Reinecke <hare@suse.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Tested-by: James Smart <james.smart@broadcom.com>
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-
-diff --git a/block/blk-core.c b/block/blk-core.c
-index 2af1040b2fa6..81d209568a26 100644
---- a/block/blk-core.c
-+++ b/block/blk-core.c
-@@ -375,7 +375,7 @@ void blk_cleanup_queue(struct request_queue *q)
- 	blk_exit_queue(q);
- 
- 	if (queue_is_mq(q))
--		blk_mq_free_queue(q);
-+		blk_mq_exit_queue(q);
- 
- 	percpu_ref_exit(&q->q_usage_counter);
- 
-diff --git a/block/blk-mq-sysfs.c b/block/blk-mq-sysfs.c
-index 61efc2a29e58..7593c4c78975 100644
---- a/block/blk-mq-sysfs.c
-+++ b/block/blk-mq-sysfs.c
-@@ -11,6 +11,7 @@
- #include <linux/smp.h>
- 
- #include <linux/blk-mq.h>
-+#include "blk.h"
- #include "blk-mq.h"
- #include "blk-mq-tag.h"
- 
-@@ -34,6 +35,11 @@ static void blk_mq_hw_sysfs_release(struct kobject *kobj)
- {
- 	struct blk_mq_hw_ctx *hctx = container_of(kobj, struct blk_mq_hw_ctx,
- 						  kobj);
-+
-+	if (hctx->flags & BLK_MQ_F_BLOCKING)
-+		cleanup_srcu_struct(hctx->srcu);
-+	blk_free_flush_queue(hctx->fq);
-+	sbitmap_free(&hctx->ctx_map);
- 	free_cpumask_var(hctx->cpumask);
- 	kfree(hctx->ctxs);
- 	kfree(hctx);
-diff --git a/block/blk-mq.c b/block/blk-mq.c
-index 741cf8d55e9c..1fdb8de92a10 100644
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -2268,12 +2268,7 @@ static void blk_mq_exit_hctx(struct request_queue *q,
- 	if (set->ops->exit_hctx)
- 		set->ops->exit_hctx(hctx, hctx_idx);
- 
--	if (hctx->flags & BLK_MQ_F_BLOCKING)
--		cleanup_srcu_struct(hctx->srcu);
--
- 	blk_mq_remove_cpuhp(hctx);
--	blk_free_flush_queue(hctx->fq);
--	sbitmap_free(&hctx->ctx_map);
- }
- 
- static void blk_mq_exit_hw_queues(struct request_queue *q,
-@@ -2908,7 +2903,8 @@ struct request_queue *blk_mq_init_allocated_queue(struct blk_mq_tag_set *set,
- }
- EXPORT_SYMBOL(blk_mq_init_allocated_queue);
- 
--void blk_mq_free_queue(struct request_queue *q)
-+/* tags can _not_ be used after returning from blk_mq_exit_queue */
-+void blk_mq_exit_queue(struct request_queue *q)
- {
- 	struct blk_mq_tag_set	*set = q->tag_set;
- 
-diff --git a/block/blk-mq.h b/block/blk-mq.h
-index 423ea88ab6fb..633a5a77ee8b 100644
---- a/block/blk-mq.h
-+++ b/block/blk-mq.h
-@@ -37,7 +37,7 @@ struct blk_mq_ctx {
- 	struct kobject		kobj;
- } ____cacheline_aligned_in_smp;
- 
--void blk_mq_free_queue(struct request_queue *q);
-+void blk_mq_exit_queue(struct request_queue *q);
- int blk_mq_update_nr_requests(struct request_queue *q, unsigned int nr);
- void blk_mq_wake_waiters(struct request_queue *q);
- bool blk_mq_dispatch_rq_list(struct request_queue *, struct list_head *, bool);
-
+Thanks,
+  Andrea
