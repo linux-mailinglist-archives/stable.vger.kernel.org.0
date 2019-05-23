@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D1F9828958
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:42:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 546D328ACD
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:58:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390326AbfEWTen (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:34:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39930 "EHLO mail.kernel.org"
+        id S2387867AbfEWTr0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:47:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46852 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391614AbfEWT1g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:27:36 -0400
+        id S2387603AbfEWTNB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:13:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E412D2054F;
-        Thu, 23 May 2019 19:27:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D262120863;
+        Thu, 23 May 2019 19:12:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639656;
-        bh=wo0rAbH0ZJ53UEuPAxfUCnXzx11Ia4RZgA1x+PQCU40=;
+        s=default; t=1558638780;
+        bh=DSUmzvgjUNMwYATk24t7LKBls8lxxLoyxNRXEDvqXbI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KJJoOyW5XXHLHThoHtl8YOfbhwpzJenei1aFI027b8jtjRmWx+LkXkxWbYjXXFY9o
-         YoXnFoLOBRS7Mvrx+98nWhzE0V4ecA1C3v6CEYbP0vyxskQipkxKFVqTyvmecT6TLn
-         wrCn9gUX1bp5M2JyNRaWwdDwKELFEGsEl906I27o=
+        b=mlZTEyTSVldJQS99Ptu9rwpYeg6XcoMOJaJz3EctBqOjB4j0YewR9XrjtaxiKd/5m
+         +FY6sVidGSrRR3anI7zXzXF9CV1Bh53xLZxEkeXyfE0SfcbFPlGFHFg2OTaEBBleaO
+         Pxom5eS2kFVyGGVjxyb71QTqWYb3ntR0jBRrWUf4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.1 030/122] parisc: Allow live-patching of __meminit functions
-Date:   Thu, 23 May 2019 21:05:52 +0200
-Message-Id: <20190523181708.832938862@linuxfoundation.org>
+        stable@vger.kernel.org, Orit Wasserman <orit.was@gmail.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Elazar Leibovich <elazar@lightbitslabs.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 4.14 35/77] tracing: Fix partial reading of trace events id file
+Date:   Thu, 23 May 2019 21:05:53 +0200
+Message-Id: <20190523181725.069959999@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
-References: <20190523181705.091418060@linuxfoundation.org>
+In-Reply-To: <20190523181719.982121681@linuxfoundation.org>
+References: <20190523181719.982121681@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,32 +46,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Elazar Leibovich <elazar@lightbitslabs.com>
 
-commit d19a12906e5e558c0f6b6cfece7b7caf1012ef95 upstream.
+commit cbe08bcbbe787315c425dde284dcb715cfbf3f39 upstream.
 
-When making the text sections writeable with set_kernel_text_rw(1),
-include all text sections including those in the __init section.
-Otherwise functions marked with __meminit will stay read-only.
+When reading only part of the id file, the ppos isn't tracked correctly.
+This is taken care by simple_read_from_buffer.
 
-Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: <stable@vger.kernel.org>	# 4.20+
+Reading a single byte, and then the next byte would result EOF.
+
+While this seems like not a big deal, this breaks abstractions that
+reads information from files unbuffered. See for example
+https://github.com/golang/go/issues/29399
+
+This code was mentioned as problematic in
+commit cd458ba9d5a5
+("tracing: Do not (ab)use trace_seq in event_id_read()")
+
+An example C code that show this bug is:
+
+  #include <stdio.h>
+  #include <stdint.h>
+
+  #include <sys/types.h>
+  #include <sys/stat.h>
+  #include <fcntl.h>
+  #include <unistd.h>
+
+  int main(int argc, char **argv) {
+    if (argc < 2)
+      return 1;
+    int fd = open(argv[1], O_RDONLY);
+    char c;
+    read(fd, &c, 1);
+    printf("First  %c\n", c);
+    read(fd, &c, 1);
+    printf("Second %c\n", c);
+  }
+
+Then run with, e.g.
+
+  sudo ./a.out /sys/kernel/debug/tracing/events/tcp/tcp_set_state/id
+
+You'll notice you're getting the first character twice, instead of the
+first two characters in the id file.
+
+Link: http://lkml.kernel.org/r/20181231115837.4932-1-elazar@lightbitslabs.com
+
+Cc: Orit Wasserman <orit.was@gmail.com>
+Cc: Oleg Nesterov <oleg@redhat.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: stable@vger.kernel.org
+Fixes: 23725aeeab10b ("ftrace: provide an id file for each event")
+Signed-off-by: Elazar Leibovich <elazar@lightbitslabs.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/parisc/mm/init.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/trace/trace_events.c |    3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/arch/parisc/mm/init.c
-+++ b/arch/parisc/mm/init.c
-@@ -495,7 +495,7 @@ static void __init map_pages(unsigned lo
+--- a/kernel/trace/trace_events.c
++++ b/kernel/trace/trace_events.c
+@@ -1319,9 +1319,6 @@ event_id_read(struct file *filp, char __
+ 	char buf[32];
+ 	int len;
  
- void __init set_kernel_text_rw(int enable_read_write)
- {
--	unsigned long start = (unsigned long) _text;
-+	unsigned long start = (unsigned long) __init_begin;
- 	unsigned long end   = (unsigned long) &data_start;
+-	if (*ppos)
+-		return 0;
+-
+ 	if (unlikely(!id))
+ 		return -ENODEV;
  
- 	map_pages(start, __pa(start), end-start,
 
 
