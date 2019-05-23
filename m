@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0FB7128A5E
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:57:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 855D9288D4
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:41:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387921AbfEWTNJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:13:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47000 "EHLO mail.kernel.org"
+        id S2391560AbfEWT3B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:29:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388510AbfEWTNJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:13:09 -0400
+        id S2391843AbfEWT3A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:29:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CA32E217D9;
-        Thu, 23 May 2019 19:13:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6C85D217D7;
+        Thu, 23 May 2019 19:28:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558638788;
-        bh=UY8SQeHd7FCBBneJtTyKQp5Ic9+zcQhEBd8HXBbyPCc=;
+        s=default; t=1558639739;
+        bh=sn+dZ/PchoWhDRxZdzF7nRF8NliCSnp7Ebv9+XJ/kfU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=atfqW5YD0D2Hn7lgl1kEIi7Ne9S5O5pW8uDSTyf21ah68r3nzSQqB8G6sB7TYB4I4
-         lqtTp6FvjYmDyhPwAoJLVfSVyvtF3rJkXjiuHfrpH4cv3yXKx2/gTW83fGqILolPsM
-         ksQyGVNojG28h1Hp5rk6yV29weU1meAg0Afj6Zck=
+        b=MiMrSAmgda2xPsAhU0hUXzoCuh4qnVjU+EhHif6JR9PQIi5PiokWjWBlcW6etFFvR
+         3vIs4C0WEx/fEbys+ditmmEOtv8gKs5dZzAcME+ltw58r/GtGNEtDw3jUHnrucanyk
+         g31pSzFSnYaFMAgvfy/q9K0xBsSzaEqg/wHVDvIY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrew Jones <drjones@redhat.com>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 65/77] KVM: arm/arm64: Ensure vcpu target is unset on reset failure
+        stable@vger.kernel.org, Owen Chen <owen.chen@mediatek.com>,
+        Weiyi Lu <weiyi.lu@mediatek.com>,
+        James Liao <jamesjj.liao@mediatek.com>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Stephen Boyd <sboyd@kernel.org>
+Subject: [PATCH 5.1 061/122] clk: mediatek: Disable tuner_en before change PLL rate
 Date:   Thu, 23 May 2019 21:06:23 +0200
-Message-Id: <20190523181728.972641334@linuxfoundation.org>
+Message-Id: <20190523181712.840483563@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181719.982121681@linuxfoundation.org>
-References: <20190523181719.982121681@linuxfoundation.org>
+In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
+References: <20190523181705.091418060@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,55 +46,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 811328fc3222f7b55846de0cd0404339e2e1e6d7 ]
+From: Owen Chen <owen.chen@mediatek.com>
 
-A failed KVM_ARM_VCPU_INIT should not set the vcpu target,
-as the vcpu target is used by kvm_vcpu_initialized() to
-determine if other vcpu ioctls may proceed. We need to set
-the target before calling kvm_reset_vcpu(), but if that call
-fails, we should then unset it and clear the feature bitmap
-while we're at it.
+commit be17ca6ac76a5cfd07cc3a0397dd05d6929fcbbb upstream.
 
-Signed-off-by: Andrew Jones <drjones@redhat.com>
-[maz: Simplified patch, completed commit message]
-Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+PLLs with tuner_en bit, such as APLL1, need to disable
+tuner_en before apply new frequency settings, or the new frequency
+settings (pcw) will not be applied.
+The tuner_en bit will be disabled during changing PLL rate
+and be restored after new settings applied.
+
+Fixes: e2f744a82d725 (clk: mediatek: Add MT2712 clock support)
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Owen Chen <owen.chen@mediatek.com>
+Signed-off-by: Weiyi Lu <weiyi.lu@mediatek.com>
+Reviewed-by: James Liao <jamesjj.liao@mediatek.com>
+Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- virt/kvm/arm/arm.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/clk/mediatek/clk-pll.c |   48 +++++++++++++++++++++++++++++------------
+ 1 file changed, 34 insertions(+), 14 deletions(-)
 
-diff --git a/virt/kvm/arm/arm.c b/virt/kvm/arm/arm.c
-index 32aa88c19b8d5..4154f98b337c5 100644
---- a/virt/kvm/arm/arm.c
-+++ b/virt/kvm/arm/arm.c
-@@ -856,7 +856,7 @@ int kvm_vm_ioctl_irq_line(struct kvm *kvm, struct kvm_irq_level *irq_level,
- static int kvm_vcpu_set_target(struct kvm_vcpu *vcpu,
- 			       const struct kvm_vcpu_init *init)
- {
--	unsigned int i;
-+	unsigned int i, ret;
- 	int phys_target = kvm_target_cpu();
+--- a/drivers/clk/mediatek/clk-pll.c
++++ b/drivers/clk/mediatek/clk-pll.c
+@@ -88,6 +88,32 @@ static unsigned long __mtk_pll_recalc_ra
+ 	return ((unsigned long)vco + postdiv - 1) / postdiv;
+ }
  
- 	if (init->target != phys_target)
-@@ -891,9 +891,14 @@ static int kvm_vcpu_set_target(struct kvm_vcpu *vcpu,
- 	vcpu->arch.target = phys_target;
- 
- 	/* Now we know what it is, we can reset it. */
--	return kvm_reset_vcpu(vcpu);
--}
-+	ret = kvm_reset_vcpu(vcpu);
-+	if (ret) {
-+		vcpu->arch.target = -1;
-+		bitmap_zero(vcpu->arch.features, KVM_VCPU_MAX_FEATURES);
++static void __mtk_pll_tuner_enable(struct mtk_clk_pll *pll)
++{
++	u32 r;
++
++	if (pll->tuner_en_addr) {
++		r = readl(pll->tuner_en_addr) | BIT(pll->data->tuner_en_bit);
++		writel(r, pll->tuner_en_addr);
++	} else if (pll->tuner_addr) {
++		r = readl(pll->tuner_addr) | AUDPLL_TUNER_EN;
++		writel(r, pll->tuner_addr);
 +	}
- 
-+	return ret;
 +}
++
++static void __mtk_pll_tuner_disable(struct mtk_clk_pll *pll)
++{
++	u32 r;
++
++	if (pll->tuner_en_addr) {
++		r = readl(pll->tuner_en_addr) & ~BIT(pll->data->tuner_en_bit);
++		writel(r, pll->tuner_en_addr);
++	} else if (pll->tuner_addr) {
++		r = readl(pll->tuner_addr) & ~AUDPLL_TUNER_EN;
++		writel(r, pll->tuner_addr);
++	}
++}
++
+ static void mtk_pll_set_rate_regs(struct mtk_clk_pll *pll, u32 pcw,
+ 		int postdiv)
+ {
+@@ -96,6 +122,9 @@ static void mtk_pll_set_rate_regs(struct
  
- static int kvm_arch_vcpu_ioctl_vcpu_init(struct kvm_vcpu *vcpu,
- 					 struct kvm_vcpu_init *init)
--- 
-2.20.1
-
+ 	pll_en = readl(pll->base_addr + REG_CON0) & CON0_BASE_EN;
+ 
++	/* disable tuner */
++	__mtk_pll_tuner_disable(pll);
++
+ 	/* set postdiv */
+ 	val = readl(pll->pd_addr);
+ 	val &= ~(POSTDIV_MASK << pll->data->pd_shift);
+@@ -122,6 +151,9 @@ static void mtk_pll_set_rate_regs(struct
+ 	if (pll->tuner_addr)
+ 		writel(con1 + 1, pll->tuner_addr);
+ 
++	/* restore tuner_en */
++	__mtk_pll_tuner_enable(pll);
++
+ 	if (pll_en)
+ 		udelay(20);
+ }
+@@ -228,13 +260,7 @@ static int mtk_pll_prepare(struct clk_hw
+ 	r |= pll->data->en_mask;
+ 	writel(r, pll->base_addr + REG_CON0);
+ 
+-	if (pll->tuner_en_addr) {
+-		r = readl(pll->tuner_en_addr) | BIT(pll->data->tuner_en_bit);
+-		writel(r, pll->tuner_en_addr);
+-	} else if (pll->tuner_addr) {
+-		r = readl(pll->tuner_addr) | AUDPLL_TUNER_EN;
+-		writel(r, pll->tuner_addr);
+-	}
++	__mtk_pll_tuner_enable(pll);
+ 
+ 	udelay(20);
+ 
+@@ -258,13 +284,7 @@ static void mtk_pll_unprepare(struct clk
+ 		writel(r, pll->base_addr + REG_CON0);
+ 	}
+ 
+-	if (pll->tuner_en_addr) {
+-		r = readl(pll->tuner_en_addr) & ~BIT(pll->data->tuner_en_bit);
+-		writel(r, pll->tuner_en_addr);
+-	} else if (pll->tuner_addr) {
+-		r = readl(pll->tuner_addr) & ~AUDPLL_TUNER_EN;
+-		writel(r, pll->tuner_addr);
+-	}
++	__mtk_pll_tuner_disable(pll);
+ 
+ 	r = readl(pll->base_addr + REG_CON0);
+ 	r &= ~CON0_BASE_EN;
 
 
