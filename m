@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 855D9288D4
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:41:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80E032874F
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:25:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391560AbfEWT3B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:29:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41914 "EHLO mail.kernel.org"
+        id S2389490AbfEWTR7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:17:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391843AbfEWT3A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:29:00 -0400
+        id S2388242AbfEWTRx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:17:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6C85D217D7;
-        Thu, 23 May 2019 19:28:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F604217D7;
+        Thu, 23 May 2019 19:17:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639739;
-        bh=sn+dZ/PchoWhDRxZdzF7nRF8NliCSnp7Ebv9+XJ/kfU=;
+        s=default; t=1558639072;
+        bh=uxPr8ykJ/Zl6QN+mxD8fJr+dtsoS0g8hBhrj1U7skoM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MiMrSAmgda2xPsAhU0hUXzoCuh4qnVjU+EhHif6JR9PQIi5PiokWjWBlcW6etFFvR
-         3vIs4C0WEx/fEbys+ditmmEOtv8gKs5dZzAcME+ltw58r/GtGNEtDw3jUHnrucanyk
-         g31pSzFSnYaFMAgvfy/q9K0xBsSzaEqg/wHVDvIY=
+        b=jUzDeuzmH2eyk20+Fkv4y3Z943SeIz5IfySF7YoQPk76Cx8OhFr6qpB0hclaJxPZt
+         0i42pDXVgrys2K+3aq8nV2Kmk9Kn255pnwJkefo7OXO2arMd3FXF5Ogzr1i3thUCim
+         4pniMw2DXZKrm+odN1GgYtY3gNCl5FelggAUR5Vw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Owen Chen <owen.chen@mediatek.com>,
-        Weiyi Lu <weiyi.lu@mediatek.com>,
-        James Liao <jamesjj.liao@mediatek.com>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Stephen Boyd <sboyd@kernel.org>
-Subject: [PATCH 5.1 061/122] clk: mediatek: Disable tuner_en before change PLL rate
+        stable@vger.kernel.org, Su Yanjun <suyj.fnst@cn.fujitsu.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 084/114] xfrm6_tunnel: Fix potential panic when unloading xfrm6_tunnel module
 Date:   Thu, 23 May 2019 21:06:23 +0200
-Message-Id: <20190523181712.840483563@linuxfoundation.org>
+Message-Id: <20190523181739.279581814@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
-References: <20190523181705.091418060@linuxfoundation.org>
+In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
+References: <20190523181731.372074275@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,113 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Owen Chen <owen.chen@mediatek.com>
+[ Upstream commit 6ee02a54ef990a71bf542b6f0a4e3321de9d9c66 ]
 
-commit be17ca6ac76a5cfd07cc3a0397dd05d6929fcbbb upstream.
+When unloading xfrm6_tunnel module, xfrm6_tunnel_fini directly
+frees the xfrm6_tunnel_spi_kmem. Maybe someone has gotten the
+xfrm6_tunnel_spi, so need to wait it.
 
-PLLs with tuner_en bit, such as APLL1, need to disable
-tuner_en before apply new frequency settings, or the new frequency
-settings (pcw) will not be applied.
-The tuner_en bit will be disabled during changing PLL rate
-and be restored after new settings applied.
-
-Fixes: e2f744a82d725 (clk: mediatek: Add MT2712 clock support)
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Owen Chen <owen.chen@mediatek.com>
-Signed-off-by: Weiyi Lu <weiyi.lu@mediatek.com>
-Reviewed-by: James Liao <jamesjj.liao@mediatek.com>
-Reviewed-by: Matthias Brugger <matthias.bgg@gmail.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 91cc3bb0b04ff("xfrm6_tunnel: RCU conversion")
+Signed-off-by: Su Yanjun <suyj.fnst@cn.fujitsu.com>
+Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/mediatek/clk-pll.c |   48 +++++++++++++++++++++++++++++------------
- 1 file changed, 34 insertions(+), 14 deletions(-)
+ net/ipv6/xfrm6_tunnel.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/clk/mediatek/clk-pll.c
-+++ b/drivers/clk/mediatek/clk-pll.c
-@@ -88,6 +88,32 @@ static unsigned long __mtk_pll_recalc_ra
- 	return ((unsigned long)vco + postdiv - 1) / postdiv;
+diff --git a/net/ipv6/xfrm6_tunnel.c b/net/ipv6/xfrm6_tunnel.c
+index bc65db782bfb1..12cb3aa990af4 100644
+--- a/net/ipv6/xfrm6_tunnel.c
++++ b/net/ipv6/xfrm6_tunnel.c
+@@ -402,6 +402,10 @@ static void __exit xfrm6_tunnel_fini(void)
+ 	xfrm6_tunnel_deregister(&xfrm6_tunnel_handler, AF_INET6);
+ 	xfrm_unregister_type(&xfrm6_tunnel_type, AF_INET6);
+ 	unregister_pernet_subsys(&xfrm6_tunnel_net_ops);
++	/* Someone maybe has gotten the xfrm6_tunnel_spi.
++	 * So need to wait it.
++	 */
++	rcu_barrier();
+ 	kmem_cache_destroy(xfrm6_tunnel_spi_kmem);
  }
  
-+static void __mtk_pll_tuner_enable(struct mtk_clk_pll *pll)
-+{
-+	u32 r;
-+
-+	if (pll->tuner_en_addr) {
-+		r = readl(pll->tuner_en_addr) | BIT(pll->data->tuner_en_bit);
-+		writel(r, pll->tuner_en_addr);
-+	} else if (pll->tuner_addr) {
-+		r = readl(pll->tuner_addr) | AUDPLL_TUNER_EN;
-+		writel(r, pll->tuner_addr);
-+	}
-+}
-+
-+static void __mtk_pll_tuner_disable(struct mtk_clk_pll *pll)
-+{
-+	u32 r;
-+
-+	if (pll->tuner_en_addr) {
-+		r = readl(pll->tuner_en_addr) & ~BIT(pll->data->tuner_en_bit);
-+		writel(r, pll->tuner_en_addr);
-+	} else if (pll->tuner_addr) {
-+		r = readl(pll->tuner_addr) & ~AUDPLL_TUNER_EN;
-+		writel(r, pll->tuner_addr);
-+	}
-+}
-+
- static void mtk_pll_set_rate_regs(struct mtk_clk_pll *pll, u32 pcw,
- 		int postdiv)
- {
-@@ -96,6 +122,9 @@ static void mtk_pll_set_rate_regs(struct
- 
- 	pll_en = readl(pll->base_addr + REG_CON0) & CON0_BASE_EN;
- 
-+	/* disable tuner */
-+	__mtk_pll_tuner_disable(pll);
-+
- 	/* set postdiv */
- 	val = readl(pll->pd_addr);
- 	val &= ~(POSTDIV_MASK << pll->data->pd_shift);
-@@ -122,6 +151,9 @@ static void mtk_pll_set_rate_regs(struct
- 	if (pll->tuner_addr)
- 		writel(con1 + 1, pll->tuner_addr);
- 
-+	/* restore tuner_en */
-+	__mtk_pll_tuner_enable(pll);
-+
- 	if (pll_en)
- 		udelay(20);
- }
-@@ -228,13 +260,7 @@ static int mtk_pll_prepare(struct clk_hw
- 	r |= pll->data->en_mask;
- 	writel(r, pll->base_addr + REG_CON0);
- 
--	if (pll->tuner_en_addr) {
--		r = readl(pll->tuner_en_addr) | BIT(pll->data->tuner_en_bit);
--		writel(r, pll->tuner_en_addr);
--	} else if (pll->tuner_addr) {
--		r = readl(pll->tuner_addr) | AUDPLL_TUNER_EN;
--		writel(r, pll->tuner_addr);
--	}
-+	__mtk_pll_tuner_enable(pll);
- 
- 	udelay(20);
- 
-@@ -258,13 +284,7 @@ static void mtk_pll_unprepare(struct clk
- 		writel(r, pll->base_addr + REG_CON0);
- 	}
- 
--	if (pll->tuner_en_addr) {
--		r = readl(pll->tuner_en_addr) & ~BIT(pll->data->tuner_en_bit);
--		writel(r, pll->tuner_en_addr);
--	} else if (pll->tuner_addr) {
--		r = readl(pll->tuner_addr) & ~AUDPLL_TUNER_EN;
--		writel(r, pll->tuner_addr);
--	}
-+	__mtk_pll_tuner_disable(pll);
- 
- 	r = readl(pll->base_addr + REG_CON0);
- 	r &= ~CON0_BASE_EN;
+-- 
+2.20.1
+
 
 
