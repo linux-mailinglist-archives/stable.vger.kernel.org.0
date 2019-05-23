@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BAD622783D
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 10:41:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07B2E2783E
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 10:41:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728109AbfEWIlD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 04:41:03 -0400
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:42119 "EHLO
+        id S1729820AbfEWIlF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 04:41:05 -0400
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:37083 "EHLO
         out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727232AbfEWIlD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 May 2019 04:41:03 -0400
+        by vger.kernel.org with ESMTP id S1727232AbfEWIlF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 May 2019 04:41:05 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 08D002F150;
-        Thu, 23 May 2019 04:41:02 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id A4C6C2F121;
+        Thu, 23 May 2019 04:41:03 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Thu, 23 May 2019 04:41:02 -0400
+  by compute6.internal (MEProxy); Thu, 23 May 2019 04:41:03 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=GhblZG
-        DnxXSqkHH2YFhHhn07VrHy+QEyd8o65YYvY1U=; b=VJa4q2k6J7P8CdSMiX0VEH
-        RFZqOCB2KydbIQy2JMxGR+zTW2vY+yJpNFiHetHG9ArPUienSWFkT7e+BnzAziVo
-        eNw2kOp2ND7Aljdt4LpGqm4XH6tbutHWfypDzfzL6tW6k87Ogn53qBQDRw1jG/Xb
-        H+N/3UeA5xs7wWjZ+RUnP1UaYu6iHvlHktZ+KlzYz9ucFP2iMMxssyMb6pL9QaEs
-        TRgqsBM1RU9x/KOUbBbwpP5IylTbNDB9uuH8uO1E2euDp7Cc5NFHTIoIM22P0mYU
-        8zcYffXFFiby8f111MYX9CuwSw/1xrWUh3AXtvLRheHwPh9phufEOsAJOljIlchA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=juavBV
+        TrIkwiTBLk2iWMNPnQepCmrBCOjZ17uaAJiBQ=; b=RPXPgk1qjvmVavddKd4qVA
+        6+4DS5OSz6OwF1XynggesVsfEFtI5+RaczrUrl1c8n8hOe8h5e8BJCVXSyhT17cK
+        7ZgRIN88K8dsm1z5EkYsKmmaXmD/sRNBrDl2TJta+RuxNfV27t/lNbBiB2TWCuIE
+        t4p6U2Wk9tDJn2YPtff/LcGpO6KJcCi1L2OQ/WXBKuhvrHzJ7E+Oy5NWECTdDZyp
+        gltt2gD+xtgKYs5z92CyMksd4aj+22vXbcpA6yQUyQ23VFbthIFCVsF+z87PK+6T
+        2rXr/pWPkeTzbIadH6jWZm0GDy0Aof905dlZSCdkM9BJOzQsmdiu1a6sgqNNYvpA
         ==
-X-ME-Sender: <xms:nVzmXAf9eVvQf33D2dtmF0mtDNr71d4v60Dehsb2FCOKYWN5Sg6bng>
+X-ME-Sender: <xms:n1zmXGOODoKzulbTIDcdk7vCh6E1IA-Zyv7WkTP1JGQbvybZOPUlpA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddruddugedgtdekucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
     epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepud
-X-ME-Proxy: <xmx:nVzmXKDBCf9j2bo-qIbFBsR1iXoet5dhVNn_R3qzagM-lgQnikaUgg>
-    <xmx:nVzmXM7J4QQVVoJ2G1JD_L-Rx4aXCDcuwGLmoF9j9wBdUJ3m1rOoNg>
-    <xmx:nVzmXPxYHsgrmS_wkhx6Qw-ZcXXop5YKsRDC5RwEVKZbRNLOwdzHdQ>
-    <xmx:nVzmXNZOC20bukKd_xmpJv3miiYiCgffZTm6Uqcojwlf2CyF0zTCrg>
+X-ME-Proxy: <xmx:n1zmXLgWeelsY-XMMNP1F_il51Er9inv8vcT5E_5q3hBQXifo4Yzhg>
+    <xmx:n1zmXKuFtFuWkea2vvEm9_YGiPer65fS45RPXDAJGPWxEULo7BfGCg>
+    <xmx:n1zmXG5vvPKBPuiV2cOcUbKf8YlbDx3fkQCoi2ZimWg6_DQa_LDfsA>
+    <xmx:n1zmXFl_bCwEK6bmDYNrYKC_DyWLMkTfX34LCK9b3NZJKkjcOTxhNg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 59D1D380084;
-        Thu, 23 May 2019 04:41:01 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] media: imx: Don't register IPU subdevs/links if CSI port" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 0C955380084;
+        Thu, 23 May 2019 04:41:02 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] media: imx: Don't register IPU subdevs/links if CSI port" failed to apply to 4.14-stable tree
 To:     slongerbeam@gmail.com, hverkuil-cisco@xs4all.nl,
         mchehab+samsung@kernel.org, p.zabel@pengutronix.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 23 May 2019 10:40:58 +0200
-Message-ID: <15586008588123@kroah.com>
+Date:   Thu, 23 May 2019 10:40:59 +0200
+Message-ID: <155860085916912@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
