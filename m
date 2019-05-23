@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D449128845
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:40:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70A40288C5
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:41:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390486AbfEWTYP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:24:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35124 "EHLO mail.kernel.org"
+        id S2391172AbfEWT2k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:28:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389827AbfEWTYP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:24:15 -0400
+        id S2389904AbfEWT2g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:28:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 32E8120868;
-        Thu, 23 May 2019 19:24:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2EB852133D;
+        Thu, 23 May 2019 19:28:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639454;
-        bh=2ptE7vIvQyhsyXR24RemViMRC03B+p8ztYdpEcbI6Q8=;
+        s=default; t=1558639715;
+        bh=rNM3h89SpW2iukfDeGZnIjgHVwvRx6j+RvmtjaOtG8Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KZW7JzyUpX8YWzjLbzRxYjre6U1u54rIALoI1odX33yXD+O/8432qArjXX610Ty/0
-         1UyzWZKkEWiwqn8PmH6quY3SyY9Cr/ihpd4aTsuaF2JIjbyAupuU6zCkVbhK3DR7JU
-         kWlpdtk9xVTYhBZpFw2cLGMzjT4MUqJ9G1VrYdwU=
+        b=MsthiD6idqSmrjcWEXH9UfT1IBB3O8sTqrIiINZfu6XgGqggbnF8o3EYB6VnFlsRX
+         GJsFCEt2LHT+b75RKrcU9gpkGAA/rH+z3lfHbhmPXGjiRGa78t3TqvlhOdBn/hAa6w
+         56LGVlKycjNgLlmiO8Ljb9s98lDKxqJegc4G33UQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Damien Le Moal <damien.lemoal@wdc.com>,
-        Shaun Tancheff <shaun@tancheff.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.0 094/139] dm zoned: Fix zone report handling
+        stable@vger.kernel.org, Steev Klimaszewski <steev@kali.org>,
+        Dmitry Osipenko <digetx@gmail.com>,
+        Peter De Schrijver <pdeschrijver@nvidia.com>,
+        Stephen Boyd <sboyd@kernel.org>
+Subject: [PATCH 5.1 060/122] clk: tegra: Fix PLLM programming on Tegra124+ when PMC overrides divider
 Date:   Thu, 23 May 2019 21:06:22 +0200
-Message-Id: <20190523181732.836411863@linuxfoundation.org>
+Message-Id: <20190523181712.697237417@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
-References: <20190523181720.120897565@linuxfoundation.org>
+In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
+References: <20190523181705.091418060@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,57 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@wdc.com>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-commit 7aedf75ff740a98f3683439449cd91c8662d03b2 upstream.
+commit 40db569d6769ffa3864fd1b89616b1a7323568a8 upstream.
 
-The function blkdev_report_zones() returns success even if no zone
-information is reported (empty report). Empty zone reports can only
-happen if the report start sector passed exceeds the device capacity.
-The conditions for this to happen are either a bug in the caller code,
-or, a change in the device that forced the low level driver to change
-the device capacity to a value that is lower than the report start
-sector. This situation includes a failed disk revalidation resulting in
-the disk capacity being changed to 0.
+There are wrongly set parenthesis in the code that are resulting in a
+wrong configuration being programmed for PLLM. The original fix was made
+by Danny Huang in the downstream kernel. The patch was tested on Nyan Big
+Tegra124 chromebook, PLLM rate changing works correctly now and system
+doesn't lock up after changing the PLLM rate due to EMC scaling.
 
-If this change happens while dm-zoned is in its initialization phase
-executing dmz_init_zones(), this function may enter an infinite loop
-and hang the system. To avoid this, add a check to disallow empty zone
-reports and bail out early. Also fix the function dmz_update_zone() to
-make sure that the report for the requested zone was correctly obtained.
-
-Fixes: 3b1a94c88b79 ("dm zoned: drive-managed zoned block device target")
-Cc: stable@vger.kernel.org
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
-Reviewed-by: Shaun Tancheff <shaun@tancheff.com>
-Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Cc: <stable@vger.kernel.org>
+Tested-by: Steev Klimaszewski <steev@kali.org>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Acked-By: Peter De Schrijver <pdeschrijver@nvidia.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm-zoned-metadata.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/clk/tegra/clk-pll.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/md/dm-zoned-metadata.c
-+++ b/drivers/md/dm-zoned-metadata.c
-@@ -1169,6 +1169,9 @@ static int dmz_init_zones(struct dmz_met
- 			goto out;
- 		}
+--- a/drivers/clk/tegra/clk-pll.c
++++ b/drivers/clk/tegra/clk-pll.c
+@@ -663,8 +663,8 @@ static void _update_pll_mnp(struct tegra
+ 		pll_override_writel(val, params->pmc_divp_reg, pll);
  
-+		if (!nr_blkz)
-+			break;
-+
- 		/* Process report */
- 		for (i = 0; i < nr_blkz; i++) {
- 			ret = dmz_init_zone(zmd, zone, &blkz[i]);
-@@ -1204,6 +1207,8 @@ static int dmz_update_zone(struct dmz_me
- 	/* Get zone information from disk */
- 	ret = blkdev_report_zones(zmd->dev->bdev, dmz_start_sect(zmd, zone),
- 				  &blkz, &nr_blkz, GFP_NOIO);
-+	if (!nr_blkz)
-+		ret = -EIO;
- 	if (ret) {
- 		dmz_dev_err(zmd->dev, "Get zone %u report failed",
- 			    dmz_id(zmd, zone));
+ 		val = pll_override_readl(params->pmc_divnm_reg, pll);
+-		val &= ~(divm_mask(pll) << div_nmp->override_divm_shift) |
+-			~(divn_mask(pll) << div_nmp->override_divn_shift);
++		val &= ~((divm_mask(pll) << div_nmp->override_divm_shift) |
++			(divn_mask(pll) << div_nmp->override_divn_shift));
+ 		val |= (cfg->m << div_nmp->override_divm_shift) |
+ 			(cfg->n << div_nmp->override_divn_shift);
+ 		pll_override_writel(val, params->pmc_divnm_reg, pll);
 
 
