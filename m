@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EF54F288B3
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:41:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EFF828975
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:42:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391700AbfEWT2H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:28:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40582 "EHLO mail.kernel.org"
+        id S2389800AbfEWTiD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:38:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391212AbfEWT2G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:28:06 -0400
+        id S2390136AbfEWTXn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:23:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 89DA621880;
-        Thu, 23 May 2019 19:28:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E5E1E2133D;
+        Thu, 23 May 2019 19:23:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639686;
-        bh=MW32hsEj+bBsxFl2lvUcnJoAOxMKjk7PbtOnPJNOI0M=;
+        s=default; t=1558639422;
+        bh=UzqSZtW2KajiKLccwmz24NY1Imd9fAY7yZ/3SJfDf2M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VDfm542c1d31jJ6CVj8bEltPkHnS4l4977cW1uMVGUM2ixxdCNQMWQ1fUFYxKWMPf
-         w1GLMmGIvSW1vh0yF3jJ5hUpNryB+bhza/8+A6IE7yODxm3rJ2a1vFg8G5mqedDEFp
-         j6fB3AAvI4VxGx3j7+mDvOKpc7oZsX8afsjL8SNo=
+        b=e+WbKBg1xqIkDQZIh7kQ1u5wMRsdWBEsPzyIMx/kpMvnEjIoNQG/dyFTcbsdH7+bU
+         KDEq9OMIvKLYn3YxHeN70KuQT61dOpoV0/D/nVqORn6jj8zKL8FO/HAOArMfF1aRvv
+         KE8ilCqFbliAQfVZffvee1u2yvDrNFZEZujyOPbw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, ZhangXiaoxu <zhangxiaoxu5@huawei.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>
-Subject: [PATCH 5.1 057/122] NFS4: Fix v4.0 client state corruption when mount
+        stable@vger.kernel.org,
+        =?UTF-8?q?Stefan=20M=C3=A4tje?= <stefan.maetje@esd.eu>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Subject: [PATCH 5.0 091/139] PCI: Factor out pcie_retrain_link() function
 Date:   Thu, 23 May 2019 21:06:19 +0200
-Message-Id: <20190523181712.316173633@linuxfoundation.org>
+Message-Id: <20190523181732.449095988@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
-References: <20190523181705.091418060@linuxfoundation.org>
+In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
+References: <20190523181720.120897565@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,47 +45,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ZhangXiaoxu <zhangxiaoxu5@huawei.com>
+From: Stefan Mätje <stefan.maetje@esd.eu>
 
-commit f02f3755dbd14fb935d24b14650fff9ba92243b8 upstream.
+commit 86fa6a344209d9414ea962b1f1ac6ade9dd7563a upstream.
 
-stat command with soft mount never return after server is stopped.
+Factor out pcie_retrain_link() to use for Pericom Retrain Link quirk.  No
+functional change intended.
 
-When alloc a new client, the state of the client will be set to
-NFS4CLNT_LEASE_EXPIRED.
-
-When the server is stopped, the state manager will work, and accord
-the state to recover. But the state is NFS4CLNT_LEASE_EXPIRED, it
-will drain the slot table and lead other task to wait queue, until
-the client recovered. Then the stat command is hung.
-
-When discover server trunking, the client will renew the lease,
-but check the client state, it lead the client state corruption.
-
-So, we need to call state manager to recover it when detect server
-ip trunking.
-
-Signed-off-by: ZhangXiaoxu <zhangxiaoxu5@huawei.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Stefan Mätje <stefan.maetje@esd.eu>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+CC: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/nfs/nfs4state.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/pci/pcie/aspm.c |   40 ++++++++++++++++++++++++----------------
+ 1 file changed, 24 insertions(+), 16 deletions(-)
 
---- a/fs/nfs/nfs4state.c
-+++ b/fs/nfs/nfs4state.c
-@@ -159,6 +159,10 @@ int nfs40_discover_server_trunking(struc
- 		/* Sustain the lease, even if it's empty.  If the clientid4
- 		 * goes stale it's of no use for trunking discovery. */
- 		nfs4_schedule_state_renewal(*result);
+--- a/drivers/pci/pcie/aspm.c
++++ b/drivers/pci/pcie/aspm.c
+@@ -196,6 +196,29 @@ static void pcie_clkpm_cap_init(struct p
+ 	link->clkpm_capable = (blacklist) ? 0 : capable;
+ }
+ 
++static bool pcie_retrain_link(struct pcie_link_state *link)
++{
++	struct pci_dev *parent = link->pdev;
++	unsigned long start_jiffies;
++	u16 reg16;
 +
-+		/* If the client state need to recover, do it. */
-+		if (clp->cl_state)
-+			nfs4_schedule_state_manager(clp);
- 	}
- out:
- 	return status;
++	pcie_capability_read_word(parent, PCI_EXP_LNKCTL, &reg16);
++	reg16 |= PCI_EXP_LNKCTL_RL;
++	pcie_capability_write_word(parent, PCI_EXP_LNKCTL, reg16);
++
++	/* Wait for link training end. Break out after waiting for timeout */
++	start_jiffies = jiffies;
++	for (;;) {
++		pcie_capability_read_word(parent, PCI_EXP_LNKSTA, &reg16);
++		if (!(reg16 & PCI_EXP_LNKSTA_LT))
++			break;
++		if (time_after(jiffies, start_jiffies + LINK_RETRAIN_TIMEOUT))
++			break;
++		msleep(1);
++	}
++	return !(reg16 & PCI_EXP_LNKSTA_LT);
++}
++
+ /*
+  * pcie_aspm_configure_common_clock: check if the 2 ends of a link
+  *   could use common clock. If they are, configure them to use the
+@@ -205,7 +228,6 @@ static void pcie_aspm_configure_common_c
+ {
+ 	int same_clock = 1;
+ 	u16 reg16, parent_reg, child_reg[8];
+-	unsigned long start_jiffies;
+ 	struct pci_dev *child, *parent = link->pdev;
+ 	struct pci_bus *linkbus = parent->subordinate;
+ 	/*
+@@ -263,21 +285,7 @@ static void pcie_aspm_configure_common_c
+ 		reg16 &= ~PCI_EXP_LNKCTL_CCC;
+ 	pcie_capability_write_word(parent, PCI_EXP_LNKCTL, reg16);
+ 
+-	/* Retrain link */
+-	reg16 |= PCI_EXP_LNKCTL_RL;
+-	pcie_capability_write_word(parent, PCI_EXP_LNKCTL, reg16);
+-
+-	/* Wait for link training end. Break out after waiting for timeout */
+-	start_jiffies = jiffies;
+-	for (;;) {
+-		pcie_capability_read_word(parent, PCI_EXP_LNKSTA, &reg16);
+-		if (!(reg16 & PCI_EXP_LNKSTA_LT))
+-			break;
+-		if (time_after(jiffies, start_jiffies + LINK_RETRAIN_TIMEOUT))
+-			break;
+-		msleep(1);
+-	}
+-	if (!(reg16 & PCI_EXP_LNKSTA_LT))
++	if (pcie_retrain_link(link))
+ 		return;
+ 
+ 	/* Training failed. Restore common clock configurations */
 
 
