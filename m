@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BE94128A85
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:57:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06AAD28AB2
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:58:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388352AbfEWTP6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:15:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50488 "EHLO mail.kernel.org"
+        id S2389131AbfEWTpF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:45:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388263AbfEWTP5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:15:57 -0400
+        id S2389097AbfEWTQA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:16:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8BAAC21841;
-        Thu, 23 May 2019 19:15:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3CCC321850;
+        Thu, 23 May 2019 19:15:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558638957;
-        bh=bRt5aQ02+ZCB3U16y6YlI6tuHQ0IH4I6lTxjjEgaPq4=;
+        s=default; t=1558638959;
+        bh=eGjSZCeMlhs3mCdvp+rkNdXCGOMD6kWJsci1m1TlAcw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QzfysmAmyrv+IZfw9xHpUFaBhEexVVp/evcTrXfK97KOOyVt/mplry8hZRODCSIPu
-         9ymSImcH9OhwIBhQ4TJ6F7V6JK5BoDefABF+RBnvr8VmnUhJGEpXAjofQWiXyyiSpi
-         tlqtmycV3GJW6KRKICwEO4LhA5EUrZXpnYkI7Fb4=
+        b=FAhgIwUMMXNYo9Howy+H7+uKdHzf8HysPPmZnu3dLdubeBaGZjJtsLGdptzhgt8tS
+         MBG+8s/l0xT/W+uQWS2TFGv3Nx2czN2aa4fw8GEJ82NRSlaLHrWX2KUfrfTVxAcRDB
+         BYcxGlYOLlEiKgSYFQQ6BP0L2PMfiTrPAeIsc0Mg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Bernie Thompson <bernie@plugable.com>,
         Ladislav Michl <ladis@linux-mips.org>,
         Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Subject: [PATCH 4.19 043/114] udlfb: delete the unused parameter for dlfb_handle_damage
-Date:   Thu, 23 May 2019 21:05:42 +0200
-Message-Id: <20190523181735.643133184@linuxfoundation.org>
+Subject: [PATCH 4.19 044/114] udlfb: fix sleeping inside spinlock
+Date:   Thu, 23 May 2019 21:05:43 +0200
+Message-Id: <20190523181735.722351597@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
 References: <20190523181731.372074275@linuxfoundation.org>
@@ -47,9 +47,18 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit bd86b6c5c60711dbd4fa21bdb497a188ecb6cf63 upstream.
+commit 6b11f9d8433b471fdd3ebed232b43a4b723be6ff upstream.
 
-Remove the unused parameter "data" and unused variable "ret".
+If a framebuffer device is used as a console, the rendering calls
+(copyarea, fillrect, imageblit) may be done with the console spinlock
+held. On udlfb, these function call dlfb_handle_damage that takes a
+blocking semaphore before acquiring an URB.
+
+In order to fix the bug, this patch changes the calls copyarea, fillrect
+and imageblit to offload USB work to a workqueue.
+
+A side effect of this patch is 3x improvement in console scrolling speed
+because the device doesn't have to be updated after each copyarea call.
 
 Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
 Cc: Bernie Thompson <bernie@plugable.com>
@@ -59,88 +68,124 @@ Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/video/fbdev/udlfb.c |   21 +++++++++------------
- 1 file changed, 9 insertions(+), 12 deletions(-)
+ drivers/video/fbdev/udlfb.c |   56 +++++++++++++++++++++++++++++++++++++++++---
+ include/video/udlfb.h       |    6 ++++
+ 2 files changed, 59 insertions(+), 3 deletions(-)
 
 --- a/drivers/video/fbdev/udlfb.c
 +++ b/drivers/video/fbdev/udlfb.c
-@@ -594,10 +594,9 @@ static int dlfb_render_hline(struct dlfb
+@@ -657,6 +657,50 @@ error:
  	return 0;
  }
  
--static int dlfb_handle_damage(struct dlfb_data *dlfb, int x, int y,
--	       int width, int height, char *data)
-+static int dlfb_handle_damage(struct dlfb_data *dlfb, int x, int y, int width, int height)
- {
--	int i, ret;
-+	int i;
- 	char *cmd;
- 	cycles_t start_cycles, end_cycles;
- 	int bytes_sent = 0;
-@@ -641,7 +640,7 @@ static int dlfb_handle_damage(struct dlf
- 			*cmd++ = 0xAF;
- 		/* Send partial buffer remaining before exiting */
- 		len = cmd - (char *) urb->transfer_buffer;
--		ret = dlfb_submit_urb(dlfb, urb, len);
-+		dlfb_submit_urb(dlfb, urb, len);
- 		bytes_sent += len;
- 	} else
- 		dlfb_urb_completion(urb);
-@@ -679,7 +678,7 @@ static ssize_t dlfb_ops_write(struct fb_
- 				(u32)info->var.yres);
++static void dlfb_init_damage(struct dlfb_data *dlfb)
++{
++	dlfb->damage_x = INT_MAX;
++	dlfb->damage_x2 = 0;
++	dlfb->damage_y = INT_MAX;
++	dlfb->damage_y2 = 0;
++}
++
++static void dlfb_damage_work(struct work_struct *w)
++{
++	struct dlfb_data *dlfb = container_of(w, struct dlfb_data, damage_work);
++	int x, x2, y, y2;
++
++	spin_lock_irq(&dlfb->damage_lock);
++	x = dlfb->damage_x;
++	x2 = dlfb->damage_x2;
++	y = dlfb->damage_y;
++	y2 = dlfb->damage_y2;
++	dlfb_init_damage(dlfb);
++	spin_unlock_irq(&dlfb->damage_lock);
++
++	if (x < x2 && y < y2)
++		dlfb_handle_damage(dlfb, x, y, x2 - x, y2 - y);
++}
++
++static void dlfb_offload_damage(struct dlfb_data *dlfb, int x, int y, int width, int height)
++{
++	unsigned long flags;
++	int x2 = x + width;
++	int y2 = y + height;
++
++	if (x >= x2 || y >= y2)
++		return;
++
++	spin_lock_irqsave(&dlfb->damage_lock, flags);
++	dlfb->damage_x = min(x, dlfb->damage_x);
++	dlfb->damage_x2 = max(x2, dlfb->damage_x2);
++	dlfb->damage_y = min(y, dlfb->damage_y);
++	dlfb->damage_y2 = max(y2, dlfb->damage_y2);
++	spin_unlock_irqrestore(&dlfb->damage_lock, flags);
++
++	schedule_work(&dlfb->damage_work);
++}
++
+ /*
+  * Path triggered by usermode clients who write to filesystem
+  * e.g. cat filename > /dev/fb1
+@@ -693,7 +737,7 @@ static void dlfb_ops_copyarea(struct fb_
  
- 		dlfb_handle_damage(dlfb, 0, start, info->var.xres,
--			lines, info->screen_base);
-+			lines);
- 	}
- 
- 	return result;
-@@ -695,7 +694,7 @@ static void dlfb_ops_copyarea(struct fb_
  	sys_copyarea(info, area);
  
- 	dlfb_handle_damage(dlfb, area->dx, area->dy,
--			area->width, area->height, info->screen_base);
-+			area->width, area->height);
+-	dlfb_handle_damage(dlfb, area->dx, area->dy,
++	dlfb_offload_damage(dlfb, area->dx, area->dy,
+ 			area->width, area->height);
  }
  
- static void dlfb_ops_imageblit(struct fb_info *info,
-@@ -706,7 +705,7 @@ static void dlfb_ops_imageblit(struct fb
+@@ -704,7 +748,7 @@ static void dlfb_ops_imageblit(struct fb
+ 
  	sys_imageblit(info, image);
  
- 	dlfb_handle_damage(dlfb, image->dx, image->dy,
--			image->width, image->height, info->screen_base);
-+			image->width, image->height);
+-	dlfb_handle_damage(dlfb, image->dx, image->dy,
++	dlfb_offload_damage(dlfb, image->dx, image->dy,
+ 			image->width, image->height);
  }
  
- static void dlfb_ops_fillrect(struct fb_info *info,
-@@ -717,7 +716,7 @@ static void dlfb_ops_fillrect(struct fb_
+@@ -715,7 +759,7 @@ static void dlfb_ops_fillrect(struct fb_
+ 
  	sys_fillrect(info, rect);
  
- 	dlfb_handle_damage(dlfb, rect->dx, rect->dy, rect->width,
--			      rect->height, info->screen_base);
-+			      rect->height);
+-	dlfb_handle_damage(dlfb, rect->dx, rect->dy, rect->width,
++	dlfb_offload_damage(dlfb, rect->dx, rect->dy, rect->width,
+ 			      rect->height);
  }
  
- /*
-@@ -859,8 +858,7 @@ static int dlfb_ops_ioctl(struct fb_info
- 		if (area.y > info->var.yres)
- 			area.y = info->var.yres;
+@@ -940,6 +984,8 @@ static void dlfb_ops_destroy(struct fb_i
+ {
+ 	struct dlfb_data *dlfb = info->par;
  
--		dlfb_handle_damage(dlfb, area.x, area.y, area.w, area.h,
--			   info->screen_base);
-+		dlfb_handle_damage(dlfb, area.x, area.y, area.w, area.h);
- 	}
++	cancel_work_sync(&dlfb->damage_work);
++
+ 	if (info->cmap.len != 0)
+ 		fb_dealloc_cmap(&info->cmap);
+ 	if (info->monspecs.modedb)
+@@ -1636,6 +1682,10 @@ static int dlfb_usb_probe(struct usb_int
+ 	dlfb->ops = dlfb_ops;
+ 	info->fbops = &dlfb->ops;
  
- 	return 0;
-@@ -1065,8 +1063,7 @@ static int dlfb_ops_set_par(struct fb_in
- 			pix_framebuffer[i] = 0x37e6;
- 	}
++	dlfb_init_damage(dlfb);
++	spin_lock_init(&dlfb->damage_lock);
++	INIT_WORK(&dlfb->damage_work, dlfb_damage_work);
++
+ 	INIT_LIST_HEAD(&info->modelist);
  
--	dlfb_handle_damage(dlfb, 0, 0, info->var.xres, info->var.yres,
--			   info->screen_base);
-+	dlfb_handle_damage(dlfb, 0, 0, info->var.xres, info->var.yres);
- 
- 	return 0;
- }
+ 	if (!dlfb_alloc_urb_list(dlfb, WRITES_IN_FLIGHT, MAX_TRANSFER)) {
+--- a/include/video/udlfb.h
++++ b/include/video/udlfb.h
+@@ -48,6 +48,12 @@ struct dlfb_data {
+ 	int base8;
+ 	u32 pseudo_palette[256];
+ 	int blank_mode; /*one of FB_BLANK_ */
++	int damage_x;
++	int damage_y;
++	int damage_x2;
++	int damage_y2;
++	spinlock_t damage_lock;
++	struct work_struct damage_work;
+ 	struct fb_ops ops;
+ 	/* blit-only rendering path metrics, exposed through sysfs */
+ 	atomic_t bytes_rendered; /* raw pixel-bytes driver asked to render */
 
 
