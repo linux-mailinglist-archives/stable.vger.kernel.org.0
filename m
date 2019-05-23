@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EDA2927B0B
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 12:49:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 425F227B0D
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 12:49:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727466AbfEWKtG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 06:49:06 -0400
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:43423 "EHLO
+        id S1729698AbfEWKtJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 06:49:09 -0400
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:51025 "EHLO
         out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726310AbfEWKtG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 May 2019 06:49:06 -0400
+        by vger.kernel.org with ESMTP id S1726310AbfEWKtJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 May 2019 06:49:09 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 1837537531;
-        Thu, 23 May 2019 06:49:05 -0400 (EDT)
+        by mailout.nyi.internal (Postfix) with ESMTP id 5CB9230B10;
+        Thu, 23 May 2019 06:49:08 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Thu, 23 May 2019 06:49:05 -0400
+  by compute6.internal (MEProxy); Thu, 23 May 2019 06:49:08 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=ufVWph
-        7qoohbSmNuEiI8CBtU9F14O5V7/W+ue6LmTVM=; b=dSslBjHu06PkGcJUQoG0PL
-        izwPt4nPub2bD7HJ9WCzXu4lCA/oxU/PA2PmeThk1XUkl1/nVXiRtKl8MnA2iylH
-        KkJx662LsqONh1HCr7pQf3Zqu3mLRI2vH2NodMhDmG3roWpuMUU2zIcSxDSPANLf
-        HMdTGsPkH6w5JMeIAPz+hOWHfSFGkXybXo0VqMJsc7ddi96wQweLMAXKzMnHWEbO
-        ISYa/a+BAiSr5fObimu/AXZkFEj1P9eQwyZxXE4OpBmVNpr3pdAwzw0ItLkmQ8Gs
-        /RKwoZmGrCINSwDABvo0D8c/VuGP3xv3i2VzgtNy/JJiJ+eG6k/pFj0kOuFQAvNg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=FmMcJN
+        eWKqIh5h873/JFI8iwrk6veqB5HX09Izc+JUg=; b=d0vU9kxJx3ufWpslDQGwJk
+        bHvQJaR4sH5awnUIoDY7z8gBPtkldJxRcSksK/Fv81Otn+qzvtxj0RyBDL4uv75/
+        yaelzpA3xSxrAlw2vhQS+nSj7OJW+83ZD0wpJwSpXqj2FyxL19WnQOAZiLJDntMg
+        LRfwfulQfA6NbByHpjFSSIYh26het1q5wQqfHzLrj/3BtHx+rSrN8trYlEl4/nnj
+        627uzhM2rOmP/4vE5IS0UkuX/3Bg3RTKXehABr6umzyWyoB6oYHPaL676q+TxRQA
+        jTV8i5lr8Pl+/2iDzRCi4iL8d6XvlfBg8QNSDnCWKELkoX3m/0lqVM4JmpYMEutQ
         ==
-X-ME-Sender: <xms:oHrmXPRER6B8E4MPBChSTcmb9zMEZ3LTPMk6J6Ylr1CeoGkrQ7o3mg>
+X-ME-Sender: <xms:pHrmXNn5jg0IhYUwf1dmP1f2gyquI0NgEXZXB0inN-vDfhfjs04WYw>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddruddugedgfeegucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepfe
-X-ME-Proxy: <xmx:oHrmXG5wDg0usxLI1KVaIl_Wztzcrbxq3qVr73ONl3AnbwnXFzOiTg>
-    <xmx:oHrmXBli3nY_RAmgg4Jn529wdKDfmUBJnYcVe8_TI2v4JD5nbSkN6A>
-    <xmx:oHrmXE7gaPUCRNrumKtFySAk8NhYVNcjnTnU0ZbbG2b0NTC9Z2EF2w>
-    <xmx:oXrmXDqHXWrZgYo_X9FupAa97M4FVnc05hXmPTAgh2UgD_P6qyZBqQ>
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgephe
+X-ME-Proxy: <xmx:pHrmXOXt7wKZ49rb-vgGK8FjLgEHBz8ld7Y-Usw3c8K4sF3iekRgVQ>
+    <xmx:pHrmXCva_t-y5WG_GRuUjsF0Um2XvaVSE1AK2Po5z2s5hWdKMgqZCw>
+    <xmx:pHrmXB6UwoorlbGQxhzMpg0mxLZC_AJVQLhnfmPBkHlbVfjM_mH0tw>
+    <xmx:pHrmXC6oMN44M_PndU3FBk4IIVziyVUPMYfWs5RIfMAzfQBrOAzFIQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 6C5B3380088;
-        Thu, 23 May 2019 06:49:04 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] PCI: dwc: Use devm_pci_alloc_host_bridge() to simplify code" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id BE010380085;
+        Thu, 23 May 2019 06:49:07 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] PCI: dwc: Use devm_pci_alloc_host_bridge() to simplify code" failed to apply to 5.0-stable tree
 To:     Jisheng.Zhang@synaptics.com, bhelgaas@google.com,
         gustavo.pimentel@synopsys.com, lorenzo.pieralisi@arm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Thu, 23 May 2019 12:48:55 +0200
-Message-ID: <155860853518214@kroah.com>
+Message-ID: <1558608535199168@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.0-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
