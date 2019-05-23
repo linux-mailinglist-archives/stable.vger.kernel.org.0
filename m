@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B8C6A28A11
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:56:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F12228A88
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:57:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731841AbfEWTIr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:08:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41672 "EHLO mail.kernel.org"
+        id S2388494AbfEWTQJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:16:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731881AbfEWTIp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:08:45 -0400
+        id S2387579AbfEWTQI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:16:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EB97B2133D;
-        Thu, 23 May 2019 19:08:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4B73E20863;
+        Thu, 23 May 2019 19:16:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558638525;
-        bh=LBaIhUwmWULRCU0HZBDSpu5bpRck7bODU6pdkuMq7rU=;
+        s=default; t=1558638967;
+        bh=IoKpUfohM1tePM/64BXsiJUSHeovw9D5HJOR0CqCOj0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oByEzlfJ/dCHi/cl7zf7Vy0rCZR+GkT/lkuLRG2Iq4kGG7IOzVLFllzcwPafvlgkR
-         UMUT6klEzZLC7rWzMk6MHitEP0Az+wKYk3HTNFM6SQgkIfosWnss00UoQYimTcE5VG
-         0ed2EVxLH0vBrL3PKqzy+blTBtffgiqV5dFLXymI=
+        b=M4BzG+Aj06ewLHMUiDgL7ND8yGiOnp0GLD7sfRLiUGGmLuhQUNet19J1YzRFHkajn
+         NU6//ix97BHnIKIlCX4QcR2N/mebotAMPAb2cSwqfAwObOkwOUzQN4YgoC3OdgXMz4
+         cu9tgxf4DYxAxy/tCVnpd2cuXrr9g/Iz2tm4iNbU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Liu Bo <bo.liu@linux.alibaba.com>,
         Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 4.9 21/53] fuse: honor RLIMIT_FSIZE in fuse_file_fallocate
-Date:   Thu, 23 May 2019 21:05:45 +0200
-Message-Id: <20190523181714.216443850@linuxfoundation.org>
+Subject: [PATCH 4.19 047/114] fuse: honor RLIMIT_FSIZE in fuse_file_fallocate
+Date:   Thu, 23 May 2019 21:05:46 +0200
+Message-Id: <20190523181735.980642690@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181710.981455400@linuxfoundation.org>
-References: <20190523181710.981455400@linuxfoundation.org>
+In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
+References: <20190523181731.372074275@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -64,7 +64,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/fs/fuse/file.c
 +++ b/fs/fuse/file.c
-@@ -2961,6 +2961,13 @@ static long fuse_file_fallocate(struct f
+@@ -2975,6 +2975,13 @@ static long fuse_file_fallocate(struct f
  		}
  	}
  
