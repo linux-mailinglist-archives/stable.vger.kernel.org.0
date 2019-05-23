@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F1D5928A1A
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:56:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFFD6287BD
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:26:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732094AbfEWTJP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:09:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42280 "EHLO mail.kernel.org"
+        id S2389761AbfEWTWp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:22:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732039AbfEWTJP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:09:15 -0400
+        id S2389471AbfEWTWo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:22:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 254CD217D9;
-        Thu, 23 May 2019 19:09:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A8BEA20868;
+        Thu, 23 May 2019 19:22:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558638554;
-        bh=7SF0+dsHk+mgt4zb+zuAEaQtQeE459Z9Q27HuScuU+o=;
+        s=default; t=1558639363;
+        bh=6w0XLcK3kA/Yt7EYerfmqZO1sv5gIWUrf5GK4rnJhIk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D7FIhNt8AXKNCyYa+iDSlKiABmMrMBc2yhaeiU7SmoY153kFNGhSlgEHE9zsWRkjK
-         RkIOVrwOnhzGRNWrSZE/I9aNQuHCeCiJKze+zOsEz0s3wJdXHm05lOzy422NzGMxfK
-         o64R7iVOb6EhDQ/MBYLpM2ePKBd5l0bar09hw4es=
+        b=qXsZ78qZPgFF6CKvXReBFAfqk15LuG5P0Z99nMyksOeJkupVpXb7AVIEo0my9TVhA
+         GhEZezaVHP6fYguMaXmxBmbBqRsskXMY5byqT9e67uSvxBD+N7YZNIx71Ld2c7V0jl
+         jdNyQqwPL8sShZ5VaoIRvaFNI6B/IR+WKfoQLekk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Orit Wasserman <orit.was@gmail.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Elazar Leibovich <elazar@lightbitslabs.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.9 24/53] tracing: Fix partial reading of trace events id file
+        stable@vger.kernel.org, Amir Goldstein <amir73il@gmail.com>,
+        Vivek Goyal <vgoyal@redhat.com>,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 5.0 060/139] ovl: fix missing upper fs freeze protection on copy up for ioctl
 Date:   Thu, 23 May 2019 21:05:48 +0200
-Message-Id: <20190523181714.682253388@linuxfoundation.org>
+Message-Id: <20190523181728.514620443@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181710.981455400@linuxfoundation.org>
-References: <20190523181710.981455400@linuxfoundation.org>
+In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
+References: <20190523181720.120897565@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,77 +44,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Elazar Leibovich <elazar@lightbitslabs.com>
+From: Amir Goldstein <amir73il@gmail.com>
 
-commit cbe08bcbbe787315c425dde284dcb715cfbf3f39 upstream.
+commit 3428030da004a1128cbdcf93dc03e16f184d845b upstream.
 
-When reading only part of the id file, the ppos isn't tracked correctly.
-This is taken care by simple_read_from_buffer.
+Generalize the helper ovl_open_maybe_copy_up() and use it to copy up file
+with data before FS_IOC_SETFLAGS ioctl.
 
-Reading a single byte, and then the next byte would result EOF.
+The FS_IOC_SETFLAGS ioctl is a bit of an odd ball in vfs, which probably
+caused the confusion.  File may be open O_RDONLY, but ioctl modifies the
+file.  VFS does not call mnt_want_write_file() nor lock inode mutex, but
+fs-specific code for FS_IOC_SETFLAGS does.  So ovl_ioctl() calls
+mnt_want_write_file() for the overlay file, and fs-specific code calls
+mnt_want_write_file() for upper fs file, but there was no call for
+ovl_want_write() for copy up duration which prevents overlayfs from copying
+up on a frozen upper fs.
 
-While this seems like not a big deal, this breaks abstractions that
-reads information from files unbuffered. See for example
-https://github.com/golang/go/issues/29399
-
-This code was mentioned as problematic in
-commit cd458ba9d5a5
-("tracing: Do not (ab)use trace_seq in event_id_read()")
-
-An example C code that show this bug is:
-
-  #include <stdio.h>
-  #include <stdint.h>
-
-  #include <sys/types.h>
-  #include <sys/stat.h>
-  #include <fcntl.h>
-  #include <unistd.h>
-
-  int main(int argc, char **argv) {
-    if (argc < 2)
-      return 1;
-    int fd = open(argv[1], O_RDONLY);
-    char c;
-    read(fd, &c, 1);
-    printf("First  %c\n", c);
-    read(fd, &c, 1);
-    printf("Second %c\n", c);
-  }
-
-Then run with, e.g.
-
-  sudo ./a.out /sys/kernel/debug/tracing/events/tcp/tcp_set_state/id
-
-You'll notice you're getting the first character twice, instead of the
-first two characters in the id file.
-
-Link: http://lkml.kernel.org/r/20181231115837.4932-1-elazar@lightbitslabs.com
-
-Cc: Orit Wasserman <orit.was@gmail.com>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: stable@vger.kernel.org
-Fixes: 23725aeeab10b ("ftrace: provide an id file for each event")
-Signed-off-by: Elazar Leibovich <elazar@lightbitslabs.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Fixes: dab5ca8fd9dd ("ovl: add lsattr/chattr support")
+Cc: <stable@vger.kernel.org> # v4.19
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Acked-by: Vivek Goyal <vgoyal@redhat.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/trace/trace_events.c |    3 ---
- 1 file changed, 3 deletions(-)
+ fs/overlayfs/copy_up.c   |    6 +++---
+ fs/overlayfs/file.c      |    5 ++---
+ fs/overlayfs/overlayfs.h |    2 +-
+ 3 files changed, 6 insertions(+), 7 deletions(-)
 
---- a/kernel/trace/trace_events.c
-+++ b/kernel/trace/trace_events.c
-@@ -1310,9 +1310,6 @@ event_id_read(struct file *filp, char __
- 	char buf[32];
- 	int len;
+--- a/fs/overlayfs/copy_up.c
++++ b/fs/overlayfs/copy_up.c
+@@ -909,14 +909,14 @@ static bool ovl_open_need_copy_up(struct
+ 	return true;
+ }
  
--	if (*ppos)
--		return 0;
--
- 	if (unlikely(!id))
- 		return -ENODEV;
+-int ovl_open_maybe_copy_up(struct dentry *dentry, unsigned int file_flags)
++int ovl_maybe_copy_up(struct dentry *dentry, int flags)
+ {
+ 	int err = 0;
  
+-	if (ovl_open_need_copy_up(dentry, file_flags)) {
++	if (ovl_open_need_copy_up(dentry, flags)) {
+ 		err = ovl_want_write(dentry);
+ 		if (!err) {
+-			err = ovl_copy_up_flags(dentry, file_flags);
++			err = ovl_copy_up_flags(dentry, flags);
+ 			ovl_drop_write(dentry);
+ 		}
+ 	}
+--- a/fs/overlayfs/file.c
++++ b/fs/overlayfs/file.c
+@@ -116,11 +116,10 @@ static int ovl_real_fdget(const struct f
+ 
+ static int ovl_open(struct inode *inode, struct file *file)
+ {
+-	struct dentry *dentry = file_dentry(file);
+ 	struct file *realfile;
+ 	int err;
+ 
+-	err = ovl_open_maybe_copy_up(dentry, file->f_flags);
++	err = ovl_maybe_copy_up(file_dentry(file), file->f_flags);
+ 	if (err)
+ 		return err;
+ 
+@@ -390,7 +389,7 @@ static long ovl_ioctl(struct file *file,
+ 		if (ret)
+ 			return ret;
+ 
+-		ret = ovl_copy_up_with_data(file_dentry(file));
++		ret = ovl_maybe_copy_up(file_dentry(file), O_WRONLY);
+ 		if (!ret) {
+ 			ret = ovl_real_ioctl(file, cmd, arg);
+ 
+--- a/fs/overlayfs/overlayfs.h
++++ b/fs/overlayfs/overlayfs.h
+@@ -421,7 +421,7 @@ extern const struct file_operations ovl_
+ int ovl_copy_up(struct dentry *dentry);
+ int ovl_copy_up_with_data(struct dentry *dentry);
+ int ovl_copy_up_flags(struct dentry *dentry, int flags);
+-int ovl_open_maybe_copy_up(struct dentry *dentry, unsigned int file_flags);
++int ovl_maybe_copy_up(struct dentry *dentry, int flags);
+ int ovl_copy_xattr(struct dentry *old, struct dentry *new);
+ int ovl_set_attr(struct dentry *upper, struct kstat *stat);
+ struct ovl_fh *ovl_encode_real_fh(struct dentry *real, bool is_upper);
 
 
