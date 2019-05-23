@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2976D28962
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:42:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8838E28A4C
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:57:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390918AbfEWTfq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:35:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38298 "EHLO mail.kernel.org"
+        id S2388363AbfEWTMG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:12:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45722 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391334AbfEWT00 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:26:26 -0400
+        id S2388347AbfEWTME (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:12:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ECC712054F;
-        Thu, 23 May 2019 19:26:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5BABC217F9;
+        Thu, 23 May 2019 19:12:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639586;
-        bh=ohi96GrQJW1etsYjYNksG5b5OIcpsBj69l3XFpp8G7M=;
+        s=default; t=1558638723;
+        bh=ZKAWL+TfWyCxI4eR1wQK7z52Plma/GdthdPmEGtd6Z0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S5AkAkV9sjiubOeQVkwB7WECxxoBC5skOBY5R9LJnnjR06D5v0KgtQrAm01wQfPbe
-         abM7St27vtnPCSI6/E04Yb4cdsIEamnDG9N8cQb/fOgfocWIECcTswYD+fGSCT4xG1
-         MdIVHFhwTuipI5CGR881mzZLBCwfvvNU5uZREY1c=
+        b=fLTpRq8VmarsvbzOEHH1xBRcuskk2QqWWeAod0cBD3I8fJIbamdG5gojF4FPEe5tQ
+         eaqXn+fgELBTFMvvZFHJuhF1g24G9yxP8lnHxwyi7YS26wenFMdrt2MqJkPs9PEhlH
+         eom+ofBCPtoYKcP7A+YGfJ2eBH9V6dJdTndfUi0s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmytro Linkin <dmitrolin@mellanox.com>,
-        Gavi Teitz <gavi@mellanox.com>, Roi Dayan <roid@mellanox.com>,
-        Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 5.1 020/122] net/mlx5e: Add missing ethtool driver info for representors
+        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>
+Subject: [PATCH 4.14 24/77] PNFS fallback to MDS if no deviceid found
 Date:   Thu, 23 May 2019 21:05:42 +0200
-Message-Id: <20190523181707.480253543@linuxfoundation.org>
+Message-Id: <20190523181723.657210808@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
-References: <20190523181705.091418060@linuxfoundation.org>
+In-Reply-To: <20190523181719.982121681@linuxfoundation.org>
+References: <20190523181719.982121681@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,62 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmytro Linkin <dmitrolin@mellanox.com>
+From: Olga Kornievskaia <kolga@netapp.com>
 
-[ Upstream commit cf83c8fdcd4756644595521f48748ec22f7efede ]
+commit b1029c9bc078a6f1515f55dd993b507dcc7e3440 upstream.
 
-For all representors added firmware version info to show in
-ethtool driver info.
-For uplink representor, because only it is tied to the pci device
-sysfs, added pci bus info.
+If we fail to find a good deviceid while trying to pnfs instead of
+propogating an error back fallback to doing IO to the MDS. Currently,
+code with fals the IO with EINVAL.
 
-Fixes: ff9b85de5d5d ("net/mlx5e: Add some ethtool port control entries to the uplink rep netdev")
-Signed-off-by: Dmytro Linkin <dmitrolin@mellanox.com>
-Reviewed-by: Gavi Teitz <gavi@mellanox.com>
-Reviewed-by: Roi Dayan <roid@mellanox.com>
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
+Fixes: 8d40b0f14846f ("NFS filelayout:call GETDEVICEINFO after pnfs_layout_process completes"
+Cc: stable@vger.kernel.org # v4.11+
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/mellanox/mlx5/core/en_rep.c |   19 ++++++++++++++++++-
- 1 file changed, 18 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_rep.c
-@@ -65,9 +65,26 @@ static void mlx5e_rep_indr_unregister_bl
- static void mlx5e_rep_get_drvinfo(struct net_device *dev,
- 				  struct ethtool_drvinfo *drvinfo)
- {
-+	struct mlx5e_priv *priv = netdev_priv(dev);
-+	struct mlx5_core_dev *mdev = priv->mdev;
-+
- 	strlcpy(drvinfo->driver, mlx5e_rep_driver_name,
- 		sizeof(drvinfo->driver));
- 	strlcpy(drvinfo->version, UTS_RELEASE, sizeof(drvinfo->version));
-+	snprintf(drvinfo->fw_version, sizeof(drvinfo->fw_version),
-+		 "%d.%d.%04d (%.16s)",
-+		 fw_rev_maj(mdev), fw_rev_min(mdev),
-+		 fw_rev_sub(mdev), mdev->board_id);
-+}
-+
-+static void mlx5e_uplink_rep_get_drvinfo(struct net_device *dev,
-+					 struct ethtool_drvinfo *drvinfo)
-+{
-+	struct mlx5e_priv *priv = netdev_priv(dev);
-+
-+	mlx5e_rep_get_drvinfo(dev, drvinfo);
-+	strlcpy(drvinfo->bus_info, pci_name(priv->mdev->pdev),
-+		sizeof(drvinfo->bus_info));
- }
- 
- static const struct counter_desc sw_rep_stats_desc[] = {
-@@ -363,7 +380,7 @@ static const struct ethtool_ops mlx5e_vf
- };
- 
- static const struct ethtool_ops mlx5e_uplink_rep_ethtool_ops = {
--	.get_drvinfo	   = mlx5e_rep_get_drvinfo,
-+	.get_drvinfo	   = mlx5e_uplink_rep_get_drvinfo,
- 	.get_link	   = ethtool_op_get_link,
- 	.get_strings       = mlx5e_rep_get_strings,
- 	.get_sset_count    = mlx5e_rep_get_sset_count,
+---
+ fs/nfs/filelayout/filelayout.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/fs/nfs/filelayout/filelayout.c
++++ b/fs/nfs/filelayout/filelayout.c
+@@ -904,7 +904,7 @@ fl_pnfs_update_layout(struct inode *ino,
+ 	status = filelayout_check_deviceid(lo, fl, gfp_flags);
+ 	if (status) {
+ 		pnfs_put_lseg(lseg);
+-		lseg = ERR_PTR(status);
++		lseg = NULL;
+ 	}
+ out:
+ 	return lseg;
 
 
