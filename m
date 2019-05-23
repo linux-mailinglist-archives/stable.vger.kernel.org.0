@@ -2,46 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BF185289EA
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:43:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81BEC2882F
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:40:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389552AbfEWTSP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:18:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53580 "EHLO mail.kernel.org"
+        id S2390616AbfEWTXG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:23:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33248 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389124AbfEWTSM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:18:12 -0400
+        id S2389955AbfEWTXF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:23:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 05928217D7;
-        Thu, 23 May 2019 19:18:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4CCFB2133D;
+        Thu, 23 May 2019 19:23:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639091;
-        bh=+t0u5GOucS63bRMTYhnfoDgwbCZ7hpJlC0pSSCGnqdA=;
+        s=default; t=1558639384;
+        bh=+gSUc8TwWNAwQLukvXm3GPxyLpYfOqCW/bughUUflyA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HTVMFP7sc+56JRgcNRLMLzJVrka+nyVwDIiZ1Xbq6Na3JK1CpprEd9+W/ERRolTa0
-         OoKtKiXva8oKSAOiKGQLt/AEHsGzVG7NEKXhzxYQv4mj9Bw8UsX3ZtcMk9mBJ4qOiL
-         K7qSnNqktT48gVRWa6iVYIyMBqBG/VIZ278ruagM=
+        b=qCDv8y4q7BU+4XolM0t0Ptoyftpa3Uhavh6IKjMLaYlPi0RbzaMf3e+puK8vmuKQ/
+         GJKSdQH/MxtTrReV8GBTWvy+TEYEXwjjpSqP5cPKeWh/Rst1jS//97ej9uBYIlAXEl
+         VBuZPgAqJdHIvj76FZ2OHTtlyK0U+mvXh/kMp24o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kazufumi Ikeda <kaz-ikeda@xc.jp.nec.com>,
-        Gaku Inami <gaku.inami.xw@bp.renesas.com>,
-        Marek Vasut <marek.vasut+renesas@gmail.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Simon Horman <horms+renesas@verge.net.au>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Phil Edworthy <phil.edworthy@renesas.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        linux-renesas-soc@vger.kernel.org
-Subject: [PATCH 4.19 074/114] PCI: rcar: Add the initialization of PCIe link in resume_noirq()
+        stable@vger.kernel.org, Nikolai Kostrigin <nickel@altlinux.org>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 5.0 085/139] PCI: Mark AMD Stoney Radeon R7 GPU ATS as broken
 Date:   Thu, 23 May 2019 21:06:13 +0200
-Message-Id: <20190523181738.447719138@linuxfoundation.org>
+Message-Id: <20190523181731.829795495@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
-References: <20190523181731.372074275@linuxfoundation.org>
+In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
+References: <20190523181720.120897565@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,91 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kazufumi Ikeda <kaz-ikeda@xc.jp.nec.com>
+From: Nikolai Kostrigin <nickel@altlinux.org>
 
-commit be20bbcb0a8cb5597cc62b3e28d275919f3431df upstream.
+commit d28ca864c493637f3c957f4ed9348a94fca6de60 upstream.
 
-Reestablish the PCIe link very early in the resume process in case it
-went down to prevent PCI accesses from hanging the bus. Such accesses
-can happen early in the PCI resume process, as early as the
-SUSPEND_RESUME_NOIRQ step, thus the link must be reestablished in the
-driver resume_noirq() callback.
+ATS is broken on the Radeon R7 GPU (at least for Stoney Ridge based laptop)
+and causes IOMMU stalls and system failure.  Disable ATS on these devices
+to make them usable again with IOMMU enabled.
 
-Fixes: e015f88c368d ("PCI: rcar: Add support for R-Car H3 to pcie-rcar")
-Signed-off-by: Kazufumi Ikeda <kaz-ikeda@xc.jp.nec.com>
-Signed-off-by: Gaku Inami <gaku.inami.xw@bp.renesas.com>
-Signed-off-by: Marek Vasut <marek.vasut+renesas@gmail.com>
-[lorenzo.pieralisi@arm.com: reformatted commit log]
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Acked-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: stable@vger.kernel.org
-Cc: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: Phil Edworthy <phil.edworthy@renesas.com>
-Cc: Simon Horman <horms+renesas@verge.net.au>
-Cc: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-renesas-soc@vger.kernel.org
+Thanks to Joerg Roedel <jroedel@suse.de> for help.
+
+[bhelgaas: In the email thread mentioned below, Alex suspects the real
+problem is in sbios or iommu, so it may affect only certain systems, and it
+may affect other devices in those systems as well.  However, per Joerg we
+lack the ability to debug further, so this quirk is the best we can do for
+now.]
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=194521
+Link: https://lore.kernel.org/lkml/20190408103725.30426-1-nickel@altlinux.org
+Fixes: 9b44b0b09dec ("PCI: Mark AMD Stoney GPU ATS as broken")
+Signed-off-by: Nikolai Kostrigin <nickel@altlinux.org>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Acked-by: Joerg Roedel <jroedel@suse.de>
+CC: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/pci/controller/pcie-rcar.c |   21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ drivers/pci/quirks.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/pci/controller/pcie-rcar.c
-+++ b/drivers/pci/controller/pcie-rcar.c
-@@ -46,6 +46,7 @@
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -4903,6 +4903,7 @@ static void quirk_no_ats(struct pci_dev
  
- /* Transfer control */
- #define PCIETCTLR		0x02000
-+#define  DL_DOWN		BIT(3)
- #define  CFINIT			1
- #define PCIETSTR		0x02004
- #define  DATA_LINK_ACTIVE	1
-@@ -94,6 +95,7 @@
- #define MACCTLR			0x011058
- #define  SPEED_CHANGE		BIT(24)
- #define  SCRAMBLE_DISABLE	BIT(27)
-+#define PMSR			0x01105c
- #define MACS2R			0x011078
- #define MACCGSPSETR		0x011084
- #define  SPCNGRSN		BIT(31)
-@@ -1130,6 +1132,7 @@ static int rcar_pcie_probe(struct platfo
- 	pcie = pci_host_bridge_priv(bridge);
+ /* AMD Stoney platform GPU */
+ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATI, 0x98e4, quirk_no_ats);
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_ATI, 0x6900, quirk_no_ats);
+ #endif /* CONFIG_PCI_ATS */
  
- 	pcie->dev = dev;
-+	platform_set_drvdata(pdev, pcie);
- 
- 	err = pci_parse_request_of_pci_ranges(dev, &pcie->resources, NULL);
- 	if (err)
-@@ -1221,10 +1224,28 @@ err_free_bridge:
- 	return err;
- }
- 
-+static int rcar_pcie_resume_noirq(struct device *dev)
-+{
-+	struct rcar_pcie *pcie = dev_get_drvdata(dev);
-+
-+	if (rcar_pci_read_reg(pcie, PMSR) &&
-+	    !(rcar_pci_read_reg(pcie, PCIETCTLR) & DL_DOWN))
-+		return 0;
-+
-+	/* Re-establish the PCIe link */
-+	rcar_pci_write_reg(pcie, CFINIT, PCIETCTLR);
-+	return rcar_pcie_wait_for_dl(pcie);
-+}
-+
-+static const struct dev_pm_ops rcar_pcie_pm_ops = {
-+	.resume_noirq = rcar_pcie_resume_noirq,
-+};
-+
- static struct platform_driver rcar_pcie_driver = {
- 	.driver = {
- 		.name = "rcar-pcie",
- 		.of_match_table = rcar_pcie_of_match,
-+		.pm = &rcar_pcie_pm_ops,
- 		.suppress_bind_attrs = true,
- 	},
- 	.probe = rcar_pcie_probe,
+ /* Freescale PCIe doesn't support MSI in RC mode */
 
 
