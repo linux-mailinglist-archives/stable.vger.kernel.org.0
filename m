@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A420C286F7
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:16:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA4DB2869C
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:15:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387519AbfEWTO5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:14:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48988 "EHLO mail.kernel.org"
+        id S2388031AbfEWTLB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:11:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388821AbfEWTOu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:14:50 -0400
+        id S2388028AbfEWTK7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:10:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 59F3F217D7;
-        Thu, 23 May 2019 19:14:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B2EC1217D7;
+        Thu, 23 May 2019 19:10:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558638889;
-        bh=W0f3EHcVEBs8UfuFtMj60PbcCvQ0hwXJbGh92iFhmzQ=;
+        s=default; t=1558638659;
+        bh=njElPnaRJo7QnNe5tpGga1zWZ+5KlMYoj1hGS/wQWmY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yegrH1i8TNjmSIkjYrGte9k7ddeMJ8o9kMZXq+ZybymY8tGW+oUm5OrKkyrRiGEuw
-         4whPDOeQDT/w08ywuG6rQEg5spsJi7VTUg5ynLqDZkR4uMo5rYoNLf8eN2M5kaKZQi
-         vZ7Ya70zHCnbyR84RydWjsJ83PJcW95nFggEgYUo=
+        b=URUcBBPY5P49/ke6iAN/4XXeKof1XDdxBGwFnhN3azWndszDQUS1RNMalveeDNAwN
+         aX18JAZY11Rt/Q2JTe7dYmklnJQLZythB1WdMa2uzi4XKeozZs26N6UZayYqR7MU7w
+         KV836WoQzD7eiIRT1K7Z0aSGTbwQqN8z9GH5aB9A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tingwei Zhang <tingwei@codeaurora.org>,
-        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Subject: [PATCH 4.19 021/114] stm class: Fix channel free in stm output free path
-Date:   Thu, 23 May 2019 21:05:20 +0200
-Message-Id: <20190523181733.804061229@linuxfoundation.org>
+        stable@vger.kernel.org, Willem de Bruijn <willemb@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 03/77] net: test nouarg before dereferencing zerocopy pointers
+Date:   Thu, 23 May 2019 21:05:21 +0200
+Message-Id: <20190523181720.483106584@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
-References: <20190523181731.372074275@linuxfoundation.org>
+In-Reply-To: <20190523181719.982121681@linuxfoundation.org>
+References: <20190523181719.982121681@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tingwei Zhang <tingwei@codeaurora.org>
+From: Willem de Bruijn <willemb@google.com>
 
-commit ee496da4c3915de3232b5f5cd20e21ae3e46fe8d upstream.
+[ Upstream commit 185ce5c38ea76f29b6bd9c7c8c7a5e5408834920 ]
 
-Number of free masters is not set correctly in stm
-free path. Fix this by properly adding the number
-of output channels before setting them to 0 in
-stm_output_disclaim().
+Zerocopy skbs without completion notification were added for packet
+sockets with PACKET_TX_RING user buffers. Those signal completion
+through the TP_STATUS_USER bit in the ring. Zerocopy annotation was
+added only to avoid premature notification after clone or orphan, by
+triggering a copy on these paths for these packets.
 
-Currently it is equivalent to doing nothing since
-master->nr_free is incremented by 0.
+The mechanism had to define a special "no-uarg" mode because packet
+sockets already use skb_uarg(skb) == skb_shinfo(skb)->destructor_arg
+for a different pointer.
 
-Fixes: 7bd1d4093c2f ("stm class: Introduce an abstraction for System Trace Module devices")
-Signed-off-by: Tingwei Zhang <tingwei@codeaurora.org>
-Signed-off-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
-Cc: stable@vger.kernel.org # v4.4
-Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Before deferencing skb_uarg(skb), verify that it is a real pointer.
+
+Fixes: 5cd8d46ea1562 ("packet: copy user buffers before orphan or clone")
+Signed-off-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/hwtracing/stm/core.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/skbuff.h |    9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/drivers/hwtracing/stm/core.c
-+++ b/drivers/hwtracing/stm/core.c
-@@ -218,8 +218,8 @@ stm_output_disclaim(struct stm_device *s
- 	bitmap_release_region(&master->chan_map[0], output->channel,
- 			      ilog2(output->nr_chans));
+--- a/include/linux/skbuff.h
++++ b/include/linux/skbuff.h
+@@ -1310,10 +1310,12 @@ static inline void skb_zcopy_clear(struc
+ 	struct ubuf_info *uarg = skb_zcopy(skb);
  
--	output->nr_chans = 0;
- 	master->nr_free += output->nr_chans;
-+	output->nr_chans = 0;
+ 	if (uarg) {
+-		if (uarg->callback == sock_zerocopy_callback) {
++		if (skb_zcopy_is_nouarg(skb)) {
++			/* no notification callback */
++		} else if (uarg->callback == sock_zerocopy_callback) {
+ 			uarg->zerocopy = uarg->zerocopy && zerocopy;
+ 			sock_zerocopy_put(uarg);
+-		} else if (!skb_zcopy_is_nouarg(skb)) {
++		} else {
+ 			uarg->callback(uarg, zerocopy);
+ 		}
+ 
+@@ -2572,7 +2574,8 @@ static inline int skb_orphan_frags(struc
+ {
+ 	if (likely(!skb_zcopy(skb)))
+ 		return 0;
+-	if (skb_uarg(skb)->callback == sock_zerocopy_callback)
++	if (!skb_zcopy_is_nouarg(skb) &&
++	    skb_uarg(skb)->callback == sock_zerocopy_callback)
+ 		return 0;
+ 	return skb_copy_ubufs(skb, gfp_mask);
  }
- 
- /*
 
 
