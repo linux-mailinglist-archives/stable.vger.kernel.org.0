@@ -2,40 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 287CE2893F
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:42:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D761D28858
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:40:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391967AbfEWTcD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:32:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45842 "EHLO mail.kernel.org"
+        id S2390259AbfEWTY5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:24:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391945AbfEWTcD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:32:03 -0400
+        id S2391016AbfEWTYz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:24:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2345B21881;
-        Thu, 23 May 2019 19:32:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4009920868;
+        Thu, 23 May 2019 19:24:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639921;
-        bh=9tqMZWqEHULiuOWDI2seNvJ1xyybwcMj/Ewo4lbLsvc=;
+        s=default; t=1558639494;
+        bh=cLLt/rInlk/yS1RnHy6KiOCgBywX0s/xE3MlAWS9mKY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TkPtJD7J6OzuNymBw+KpEimKMm42fmkrHghKQX04XFdmZhB41EfAgiAaYrXsi90RB
-         bLDF5i+TiOKS0GISv+LZc3YhHxgk6XHGsrkREXmhNRLmvhrs2DoZ8ywEvQaV+owOr/
-         Q0Q3X0yetCCgnNB/3NsUtY2SadDHMbZ47pXwsH68=
+        b=NoE6keBiJuXJbGi9nwr5kuWZ4EtHODzPOAr+sKn+01X8m9Nh/dOg1nlAFplZ3B5oP
+         9+1g+jL3WtXWfc5sK4Jrym0jINW/b94Rz7eSdI2KS6maQqQUe+nqiBM3odWSebYft8
+         v+r/YMRC3ThbRs5H4+Ev+LSJZIAtfvg5yb2FX2QY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yifeng Li <tomli@tomli.me>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        Teddy Wang <teddy.wang@siliconmotion.com>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Subject: [PATCH 5.1 092/122] fbdev: sm712fb: use 1024x768 by default on non-MIPS, fix garbled display
+        stable@vger.kernel.org, Li RongQing <lirongqing@baidu.com>,
+        Gary R Hook <gary.hook@amd.com>,
+        Borislav Petkov <bp@suse.de>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Boris Brezillon <bbrezillon@kernel.org>,
+        Coly Li <colyli@suse.de>,
+        "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Kees Cook <keescook@chromium.org>,
+        Kent Overstreet <kent.overstreet@gmail.com>,
+        "luto@kernel.org" <luto@kernel.org>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        "peterz@infradead.org" <peterz@infradead.org>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Thomas Gleixner <tglx@linutronix.de>, x86-ml <x86@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 126/139] x86/mm/mem_encrypt: Disable all instrumentation for early SME setup
 Date:   Thu, 23 May 2019 21:06:54 +0200
-Message-Id: <20190523181717.258003900@linuxfoundation.org>
+Message-Id: <20190523181735.737390919@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
-References: <20190523181705.091418060@linuxfoundation.org>
+In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
+References: <20190523181720.120897565@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,124 +60,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yifeng Li <tomli@tomli.me>
+[ Upstream commit b51ce3744f115850166f3d6c292b9c8cb849ad4f ]
 
-commit 4ed7d2ccb7684510ec5f7a8f7ef534bc6a3d55b2 upstream.
+Enablement of AMD's Secure Memory Encryption feature is determined very
+early after start_kernel() is entered. Part of this procedure involves
+scanning the command line for the parameter 'mem_encrypt'.
 
-Loongson MIPS netbooks use 1024x600 LCD panels, which is the original
-target platform of this driver, but nearly all old x86 laptops have
-1024x768. Lighting 768 panels using 600's timings would partially
-garble the display. Since it's not possible to distinguish them reliably,
-we change the default to 768, but keep 600 as-is on MIPS.
+To determine intended state, the function sme_enable() uses library
+functions cmdline_find_option() and strncmp(). Their use occurs early
+enough such that it cannot be assumed that any instrumentation subsystem
+is initialized.
 
-Further, earlier laptops, such as IBM Thinkpad 240X, has a 800x600 LCD
-panel, this driver would probably garbled those display. As we don't
-have one for testing, the original behavior of the driver is kept as-is,
-but the problem has been documented is the comments.
+For example, making calls to a KASAN-instrumented function before KASAN
+is set up will result in the use of uninitialized memory and a boot
+failure.
 
-Signed-off-by: Yifeng Li <tomli@tomli.me>
-Tested-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Cc: Teddy Wang <teddy.wang@siliconmotion.com>
-Cc: <stable@vger.kernel.org>  # v4.4+
-Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+When AMD's SME support is enabled, conditionally disable instrumentation
+of these dependent functions in lib/string.c and arch/x86/lib/cmdline.c.
 
+ [ bp: Get rid of intermediary nostackp var and cleanup whitespace. ]
+
+Fixes: aca20d546214 ("x86/mm: Add support to make use of Secure Memory Encryption")
+Reported-by: Li RongQing <lirongqing@baidu.com>
+Signed-off-by: Gary R Hook <gary.hook@amd.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Boris Brezillon <bbrezillon@kernel.org>
+Cc: Coly Li <colyli@suse.de>
+Cc: "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Kent Overstreet <kent.overstreet@gmail.com>
+Cc: "luto@kernel.org" <luto@kernel.org>
+Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: "mingo@redhat.com" <mingo@redhat.com>
+Cc: "peterz@infradead.org" <peterz@infradead.org>
+Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: x86-ml <x86@kernel.org>
+Link: https://lkml.kernel.org/r/155657657552.7116.18363762932464011367.stgit@sosrh3.amd.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/sm712.h   |    7 +++--
- drivers/video/fbdev/sm712fb.c |   53 +++++++++++++++++++++++++++++++-----------
- 2 files changed, 44 insertions(+), 16 deletions(-)
+ arch/x86/lib/Makefile | 12 ++++++++++++
+ lib/Makefile          | 11 +++++++++++
+ 2 files changed, 23 insertions(+)
 
---- a/drivers/video/fbdev/sm712.h
-+++ b/drivers/video/fbdev/sm712.h
-@@ -15,9 +15,10 @@
+diff --git a/arch/x86/lib/Makefile b/arch/x86/lib/Makefile
+index 140e61843a079..3cb3af51ec897 100644
+--- a/arch/x86/lib/Makefile
++++ b/arch/x86/lib/Makefile
+@@ -6,6 +6,18 @@
+ # Produces uninteresting flaky coverage.
+ KCOV_INSTRUMENT_delay.o	:= n
  
- #define FB_ACCEL_SMI_LYNX 88
- 
--#define SCREEN_X_RES      1024
--#define SCREEN_Y_RES      600
--#define SCREEN_BPP        16
-+#define SCREEN_X_RES          1024
-+#define SCREEN_Y_RES_PC       768
-+#define SCREEN_Y_RES_NETBOOK  600
-+#define SCREEN_BPP            16
- 
- #define dac_reg	(0x3c8)
- #define dac_val	(0x3c9)
---- a/drivers/video/fbdev/sm712fb.c
-+++ b/drivers/video/fbdev/sm712fb.c
-@@ -1463,6 +1463,43 @@ static u_long sm7xx_vram_probe(struct sm
- 	return 0;  /* unknown hardware */
- }
- 
-+static void sm7xx_resolution_probe(struct smtcfb_info *sfb)
-+{
-+	/* get mode parameter from smtc_scr_info */
-+	if (smtc_scr_info.lfb_width != 0) {
-+		sfb->fb->var.xres = smtc_scr_info.lfb_width;
-+		sfb->fb->var.yres = smtc_scr_info.lfb_height;
-+		sfb->fb->var.bits_per_pixel = smtc_scr_info.lfb_depth;
-+		goto final;
-+	}
++# Early boot use of cmdline; don't instrument it
++ifdef CONFIG_AMD_MEM_ENCRYPT
++KCOV_INSTRUMENT_cmdline.o := n
++KASAN_SANITIZE_cmdline.o  := n
 +
-+	/*
-+	 * No parameter, default resolution is 1024x768-16.
-+	 *
-+	 * FIXME: earlier laptops, such as IBM Thinkpad 240X, has a 800x600
-+	 * panel, also see the comments about Thinkpad 240X above.
-+	 */
-+	sfb->fb->var.xres = SCREEN_X_RES;
-+	sfb->fb->var.yres = SCREEN_Y_RES_PC;
-+	sfb->fb->var.bits_per_pixel = SCREEN_BPP;
++ifdef CONFIG_FUNCTION_TRACER
++CFLAGS_REMOVE_cmdline.o = -pg
++endif
 +
-+#ifdef CONFIG_MIPS
-+	/*
-+	 * Loongson MIPS netbooks use 1024x600 LCD panels, which is the original
-+	 * target platform of this driver, but nearly all old x86 laptops have
-+	 * 1024x768. Lighting 768 panels using 600's timings would partially
-+	 * garble the display, so we don't want that. But it's not possible to
-+	 * distinguish them reliably.
-+	 *
-+	 * So we change the default to 768, but keep 600 as-is on MIPS.
-+	 */
-+	sfb->fb->var.yres = SCREEN_Y_RES_NETBOOK;
-+#endif
++CFLAGS_cmdline.o := $(call cc-option, -fno-stack-protector)
++endif
 +
-+final:
-+	big_pixel_depth(sfb->fb->var.bits_per_pixel, smtc_scr_info.lfb_depth);
-+}
-+
- static int smtcfb_pci_probe(struct pci_dev *pdev,
- 			    const struct pci_device_id *ent)
- {
-@@ -1508,19 +1545,6 @@ static int smtcfb_pci_probe(struct pci_d
+ inat_tables_script = $(srctree)/arch/x86/tools/gen-insn-attr-x86.awk
+ inat_tables_maps = $(srctree)/arch/x86/lib/x86-opcode-map.txt
+ quiet_cmd_inat_tables = GEN     $@
+diff --git a/lib/Makefile b/lib/Makefile
+index e1b59da714186..d1f312096bec5 100644
+--- a/lib/Makefile
++++ b/lib/Makefile
+@@ -17,6 +17,17 @@ KCOV_INSTRUMENT_list_debug.o := n
+ KCOV_INSTRUMENT_debugobjects.o := n
+ KCOV_INSTRUMENT_dynamic_debug.o := n
  
- 	sm7xx_init_hw();
- 
--	/* get mode parameter from smtc_scr_info */
--	if (smtc_scr_info.lfb_width != 0) {
--		sfb->fb->var.xres = smtc_scr_info.lfb_width;
--		sfb->fb->var.yres = smtc_scr_info.lfb_height;
--		sfb->fb->var.bits_per_pixel = smtc_scr_info.lfb_depth;
--	} else {
--		/* default resolution 1024x600 16bit mode */
--		sfb->fb->var.xres = SCREEN_X_RES;
--		sfb->fb->var.yres = SCREEN_Y_RES;
--		sfb->fb->var.bits_per_pixel = SCREEN_BPP;
--	}
--
--	big_pixel_depth(sfb->fb->var.bits_per_pixel, smtc_scr_info.lfb_depth);
- 	/* Map address and memory detection */
- 	mmio_base = pci_resource_start(pdev, 0);
- 	pci_read_config_byte(pdev, PCI_REVISION_ID, &sfb->chip_rev_id);
-@@ -1582,6 +1606,9 @@ static int smtcfb_pci_probe(struct pci_d
- 		goto failed_fb;
- 	}
- 
-+	/* probe and decide resolution */
-+	sm7xx_resolution_probe(sfb);
++# Early boot use of cmdline, don't instrument it
++ifdef CONFIG_AMD_MEM_ENCRYPT
++KASAN_SANITIZE_string.o := n
 +
- 	/* can support 32 bpp */
- 	if (sfb->fb->var.bits_per_pixel == 15)
- 		sfb->fb->var.bits_per_pixel = 16;
++ifdef CONFIG_FUNCTION_TRACER
++CFLAGS_REMOVE_string.o = -pg
++endif
++
++CFLAGS_string.o := $(call cc-option, -fno-stack-protector)
++endif
++
+ lib-y := ctype.o string.o vsprintf.o cmdline.o \
+ 	 rbtree.o radix-tree.o timerqueue.o xarray.o \
+ 	 idr.o int_sqrt.o extable.o \
+-- 
+2.20.1
+
 
 
