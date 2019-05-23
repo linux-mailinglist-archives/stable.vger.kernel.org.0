@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E0842891D
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:42:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B10428862
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:40:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392197AbfEWTay (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:30:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44450 "EHLO mail.kernel.org"
+        id S2391157AbfEWTZm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:25:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392192AbfEWTav (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:30:51 -0400
+        id S2390547AbfEWTZl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:25:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A808020879;
-        Thu, 23 May 2019 19:30:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 11A9E2054F;
+        Thu, 23 May 2019 19:25:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639850;
-        bh=+t0u5GOucS63bRMTYhnfoDgwbCZ7hpJlC0pSSCGnqdA=;
+        s=default; t=1558639540;
+        bh=N069KkrJN/K73Tmv59aJ/wsZIlzLIjYjKRrDN1GeDiI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dZGsfRO2rRI0hBylfHkvqO43wy2ApuhZlRAajdyMR67ZpTbeuCPEGL3qZS5QK8yyM
-         eOTOFxMKEHcHT9NkqsCOsJdmx+S3S9Rh5F6y9++uBMW5GubfVEMFwD9/RjaxsSN+gE
-         RAyUjOPbDyoPd6lBDB5R7qrdpFyBoA73OS77TAUY=
+        b=EzxqTTLVBvoPoVa7Bfl28jdgK7n2FdzIZ6HiXYVOBWLIUQKzpVmCBYgHcwJ1U310f
+         GxiSqh55K8KubRA4X4uWq9Eq0RSov2fyRLaPlcUGPHDDaoB+650J1JXS7m6uW77ZkU
+         RGwNuDTL0LO+3Mr57rlRiN04oGCv+u+CJPmkWC1U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kazufumi Ikeda <kaz-ikeda@xc.jp.nec.com>,
-        Gaku Inami <gaku.inami.xw@bp.renesas.com>,
-        Marek Vasut <marek.vasut+renesas@gmail.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Simon Horman <horms+renesas@verge.net.au>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Phil Edworthy <phil.edworthy@renesas.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        linux-renesas-soc@vger.kernel.org
-Subject: [PATCH 5.1 099/122] PCI: rcar: Add the initialization of PCIe link in resume_noirq()
+        stable@vger.kernel.org, Jiri Olsa <jolsa@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        David Arcari <darcari@redhat.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Lendacky Thomas <Thomas.Lendacky@amd.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Stephane Eranian <eranian@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vince Weaver <vincent.weaver@maine.edu>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 133/139] perf/x86/intel: Fix race in intel_pmu_disable_event()
 Date:   Thu, 23 May 2019 21:07:01 +0200
-Message-Id: <20190523181718.354018681@linuxfoundation.org>
+Message-Id: <20190523181736.344949625@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
-References: <20190523181705.091418060@linuxfoundation.org>
+In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
+References: <20190523181720.120897565@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,91 +53,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kazufumi Ikeda <kaz-ikeda@xc.jp.nec.com>
+[ Upstream commit 6f55967ad9d9752813e36de6d5fdbd19741adfc7 ]
 
-commit be20bbcb0a8cb5597cc62b3e28d275919f3431df upstream.
+New race in x86_pmu_stop() was introduced by replacing the
+atomic __test_and_clear_bit() of cpuc->active_mask by separate
+test_bit() and __clear_bit() calls in the following commit:
 
-Reestablish the PCIe link very early in the resume process in case it
-went down to prevent PCI accesses from hanging the bus. Such accesses
-can happen early in the PCI resume process, as early as the
-SUSPEND_RESUME_NOIRQ step, thus the link must be reestablished in the
-driver resume_noirq() callback.
+  3966c3feca3f ("x86/perf/amd: Remove need to check "running" bit in NMI handler")
 
-Fixes: e015f88c368d ("PCI: rcar: Add support for R-Car H3 to pcie-rcar")
-Signed-off-by: Kazufumi Ikeda <kaz-ikeda@xc.jp.nec.com>
-Signed-off-by: Gaku Inami <gaku.inami.xw@bp.renesas.com>
-Signed-off-by: Marek Vasut <marek.vasut+renesas@gmail.com>
-[lorenzo.pieralisi@arm.com: reformatted commit log]
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Acked-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Cc: stable@vger.kernel.org
-Cc: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: Phil Edworthy <phil.edworthy@renesas.com>
-Cc: Simon Horman <horms+renesas@verge.net.au>
-Cc: Wolfram Sang <wsa@the-dreams.de>
-Cc: linux-renesas-soc@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The race causes panic for PEBS events with enabled callchains:
 
+  BUG: unable to handle kernel NULL pointer dereference at 0000000000000000
+  ...
+  RIP: 0010:perf_prepare_sample+0x8c/0x530
+  Call Trace:
+   <NMI>
+   perf_event_output_forward+0x2a/0x80
+   __perf_event_overflow+0x51/0xe0
+   handle_pmi_common+0x19e/0x240
+   intel_pmu_handle_irq+0xad/0x170
+   perf_event_nmi_handler+0x2e/0x50
+   nmi_handle+0x69/0x110
+   default_do_nmi+0x3e/0x100
+   do_nmi+0x11a/0x180
+   end_repeat_nmi+0x16/0x1a
+  RIP: 0010:native_write_msr+0x6/0x20
+  ...
+   </NMI>
+   intel_pmu_disable_event+0x98/0xf0
+   x86_pmu_stop+0x6e/0xb0
+   x86_pmu_del+0x46/0x140
+   event_sched_out.isra.97+0x7e/0x160
+  ...
+
+The event is configured to make samples from PEBS drain code,
+but when it's disabled, we'll go through NMI path instead,
+where data->callchain will not get allocated and we'll crash:
+
+          x86_pmu_stop
+            test_bit(hwc->idx, cpuc->active_mask)
+            intel_pmu_disable_event(event)
+            {
+              ...
+              intel_pmu_pebs_disable(event);
+              ...
+
+EVENT OVERFLOW ->  <NMI>
+                     intel_pmu_handle_irq
+                       handle_pmi_common
+   TEST PASSES ->        test_bit(bit, cpuc->active_mask))
+                           perf_event_overflow
+                             perf_prepare_sample
+                             {
+                               ...
+                               if (!(sample_type & __PERF_SAMPLE_CALLCHAIN_EARLY))
+                                     data->callchain = perf_callchain(event, regs);
+
+         CRASH ->              size += data->callchain->nr;
+                             }
+                   </NMI>
+              ...
+              x86_pmu_disable_event(event)
+            }
+
+            __clear_bit(hwc->idx, cpuc->active_mask);
+
+Fixing this by disabling the event itself before setting
+off the PEBS bit.
+
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: David Arcari <darcari@redhat.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Lendacky Thomas <Thomas.Lendacky@amd.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Vince Weaver <vincent.weaver@maine.edu>
+Fixes: 3966c3feca3f ("x86/perf/amd: Remove need to check "running" bit in NMI handler")
+Link: http://lkml.kernel.org/r/20190504151556.31031-1-jolsa@kernel.org
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pcie-rcar.c |   21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ arch/x86/events/intel/core.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/drivers/pci/controller/pcie-rcar.c
-+++ b/drivers/pci/controller/pcie-rcar.c
-@@ -46,6 +46,7 @@
+diff --git a/arch/x86/events/intel/core.c b/arch/x86/events/intel/core.c
+index 71fb8b7b29545..c87b06ad9f860 100644
+--- a/arch/x86/events/intel/core.c
++++ b/arch/x86/events/intel/core.c
+@@ -2090,15 +2090,19 @@ static void intel_pmu_disable_event(struct perf_event *event)
+ 	cpuc->intel_ctrl_host_mask &= ~(1ull << hwc->idx);
+ 	cpuc->intel_cp_status &= ~(1ull << hwc->idx);
  
- /* Transfer control */
- #define PCIETCTLR		0x02000
-+#define  DL_DOWN		BIT(3)
- #define  CFINIT			1
- #define PCIETSTR		0x02004
- #define  DATA_LINK_ACTIVE	1
-@@ -94,6 +95,7 @@
- #define MACCTLR			0x011058
- #define  SPEED_CHANGE		BIT(24)
- #define  SCRAMBLE_DISABLE	BIT(27)
-+#define PMSR			0x01105c
- #define MACS2R			0x011078
- #define MACCGSPSETR		0x011084
- #define  SPCNGRSN		BIT(31)
-@@ -1130,6 +1132,7 @@ static int rcar_pcie_probe(struct platfo
- 	pcie = pci_host_bridge_priv(bridge);
+-	if (unlikely(event->attr.precise_ip))
+-		intel_pmu_pebs_disable(event);
+-
+ 	if (unlikely(hwc->config_base == MSR_ARCH_PERFMON_FIXED_CTR_CTRL)) {
+ 		intel_pmu_disable_fixed(hwc);
+ 		return;
+ 	}
  
- 	pcie->dev = dev;
-+	platform_set_drvdata(pdev, pcie);
- 
- 	err = pci_parse_request_of_pci_ranges(dev, &pcie->resources, NULL);
- 	if (err)
-@@ -1221,10 +1224,28 @@ err_free_bridge:
- 	return err;
+ 	x86_pmu_disable_event(event);
++
++	/*
++	 * Needs to be called after x86_pmu_disable_event,
++	 * so we don't trigger the event without PEBS bit set.
++	 */
++	if (unlikely(event->attr.precise_ip))
++		intel_pmu_pebs_disable(event);
  }
  
-+static int rcar_pcie_resume_noirq(struct device *dev)
-+{
-+	struct rcar_pcie *pcie = dev_get_drvdata(dev);
-+
-+	if (rcar_pci_read_reg(pcie, PMSR) &&
-+	    !(rcar_pci_read_reg(pcie, PCIETCTLR) & DL_DOWN))
-+		return 0;
-+
-+	/* Re-establish the PCIe link */
-+	rcar_pci_write_reg(pcie, CFINIT, PCIETCTLR);
-+	return rcar_pcie_wait_for_dl(pcie);
-+}
-+
-+static const struct dev_pm_ops rcar_pcie_pm_ops = {
-+	.resume_noirq = rcar_pcie_resume_noirq,
-+};
-+
- static struct platform_driver rcar_pcie_driver = {
- 	.driver = {
- 		.name = "rcar-pcie",
- 		.of_match_table = rcar_pcie_of_match,
-+		.pm = &rcar_pcie_pm_ops,
- 		.suppress_bind_attrs = true,
- 	},
- 	.probe = rcar_pcie_probe,
+ static void intel_pmu_del_event(struct perf_event *event)
+-- 
+2.20.1
+
 
 
