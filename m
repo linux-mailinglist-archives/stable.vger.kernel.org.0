@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 88D3E288C1
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:41:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4561287C5
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:26:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391497AbfEWT2b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:28:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41156 "EHLO mail.kernel.org"
+        id S2390609AbfEWTXD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:23:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403755AbfEWT2b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:28:31 -0400
+        id S2390601AbfEWTXC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:23:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DD10121841;
-        Thu, 23 May 2019 19:28:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6DDD82054F;
+        Thu, 23 May 2019 19:23:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639710;
-        bh=UMvC08lni5aLyINag6W8qHVq+hf79X6rzLlABvFa1xc=;
+        s=default; t=1558639381;
+        bh=9oY+pI8ykV1BKLM3bhcwgDCHMon/QrsSj3NZSK0i6N4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JSEJ65Lx6sjLmlEhZTKmYxzciKcC/2es1fQK5YrMX85KGn2IMxJjYDIGzK8j9gm6D
-         kYukHYlJF/O2VldNmJHWaIbCGw+mY9deWEARZB3s6W/9cHMoS9UnLv5Tz8p6OFY1w0
-         fMRxiZ9LShg1/LoWSx6WGd8RTitubGxTNsFG2ARY=
+        b=saaRW452dFT9jd16z5as6Ar8xD2tvwKzCMN1BzF2fyqWaAFOeTZtlDYy4uhBGDRCw
+         i6Mg6X8HME9gN0aTUukMfwx+YR+veVZccPWv81v8EShM8IbeMBbCFHL0FKypQPfJt3
+         jqyaW67pwt8KAsrUzP9NUpFX/QhwOqoXUr/nTzuQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 5.1 050/122] media: seco-cec: fix building with RC_CORE=m
+        stable@vger.kernel.org, Yifeng Li <tomli@tomli.me>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        Teddy Wang <teddy.wang@siliconmotion.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Subject: [PATCH 5.0 084/139] fbdev: sm712fb: fix crashes and garbled display during DPMS modesetting
 Date:   Thu, 23 May 2019 21:06:12 +0200
-Message-Id: <20190523181711.322318490@linuxfoundation.org>
+Message-Id: <20190523181731.731038702@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
-References: <20190523181705.091418060@linuxfoundation.org>
+In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
+References: <20190523181720.120897565@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +45,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Yifeng Li <tomli@tomli.me>
 
-commit 63604a143fe168094fbbccba56f6e3241683e399 upstream.
+commit f627caf55b8e735dcec8fa6538e9668632b55276 upstream.
 
-I previously added an RC_CORE dependency here, but missed the corner
-case of CONFIG_VIDEO_SECO_CEC=y with CONFIG_RC_CORE=m, which still
-causes a link error:
+On a Thinkpad s30 (Pentium III / i440MX, Lynx3DM), blanking the display
+or starting the X server will crash and freeze the system, or garble the
+display.
 
-drivers/media/platform/seco-cec/seco-cec.o: In function `secocec_probe':
-seco-cec.c:(.text+0x1b8): undefined reference to `devm_rc_allocate_device'
-seco-cec.c:(.text+0x2e8): undefined reference to `devm_rc_register_device'
-drivers/media/platform/seco-cec/seco-cec.o: In function `secocec_irq_handler':
-seco-cec.c:(.text+0xa2c): undefined reference to `rc_keydown'
+Experiments showed this problem can mostly be solved by adjusting the
+order of register writes. Also, sm712fb failed to consider the difference
+of clock frequency when unblanking the display, and programs the clock for
+SM712 to SM720.
 
-Refine the dependency to disallow building the RC subdriver in this case.
-This is the same logic we apply in other drivers like it.
+Fix them by adjusting the order of register writes, and adding an
+additional check for SM720 for programming the clock frequency.
 
-Fixes: f27dd0ad6885 ("media: seco-cec: fix RC_CORE dependency")
-
-Cc: <stable@vger.kernel.org> # 5.1
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Yifeng Li <tomli@tomli.me>
+Tested-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Cc: Teddy Wang <teddy.wang@siliconmotion.com>
+Cc: <stable@vger.kernel.org>  # v4.4+
+Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/platform/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/video/fbdev/sm712fb.c |   64 ++++++++++++++++++++++++------------------
+ 1 file changed, 38 insertions(+), 26 deletions(-)
 
---- a/drivers/media/platform/Kconfig
-+++ b/drivers/media/platform/Kconfig
-@@ -649,7 +649,7 @@ config VIDEO_SECO_CEC
- config VIDEO_SECO_RC
- 	bool "SECO Boards IR RC5 support"
- 	depends on VIDEO_SECO_CEC
--	depends on RC_CORE
-+	depends on RC_CORE=y || RC_CORE = VIDEO_SECO_CEC
- 	help
- 	  If you say yes here you will get support for the
- 	  SECO Boards Consumer-IR in seco-cec driver.
+--- a/drivers/video/fbdev/sm712fb.c
++++ b/drivers/video/fbdev/sm712fb.c
+@@ -886,67 +886,79 @@ static inline unsigned int chan_to_field
+ 
+ static int smtc_blank(int blank_mode, struct fb_info *info)
+ {
++	struct smtcfb_info *sfb = info->par;
++
+ 	/* clear DPMS setting */
+ 	switch (blank_mode) {
+ 	case FB_BLANK_UNBLANK:
+ 		/* Screen On: HSync: On, VSync : On */
++
++		switch (sfb->chip_id) {
++		case 0x710:
++		case 0x712:
++			smtc_seqw(0x6a, 0x16);
++			smtc_seqw(0x6b, 0x02);
++		case 0x720:
++			smtc_seqw(0x6a, 0x0d);
++			smtc_seqw(0x6b, 0x02);
++			break;
++		}
++
++		smtc_seqw(0x23, (smtc_seqr(0x23) & (~0xc0)));
+ 		smtc_seqw(0x01, (smtc_seqr(0x01) & (~0x20)));
+-		smtc_seqw(0x6a, 0x16);
+-		smtc_seqw(0x6b, 0x02);
+ 		smtc_seqw(0x21, (smtc_seqr(0x21) & 0x77));
+ 		smtc_seqw(0x22, (smtc_seqr(0x22) & (~0x30)));
+-		smtc_seqw(0x23, (smtc_seqr(0x23) & (~0xc0)));
+-		smtc_seqw(0x24, (smtc_seqr(0x24) | 0x01));
+ 		smtc_seqw(0x31, (smtc_seqr(0x31) | 0x03));
++		smtc_seqw(0x24, (smtc_seqr(0x24) | 0x01));
+ 		break;
+ 	case FB_BLANK_NORMAL:
+ 		/* Screen Off: HSync: On, VSync : On   Soft blank */
++		smtc_seqw(0x24, (smtc_seqr(0x24) | 0x01));
++		smtc_seqw(0x31, ((smtc_seqr(0x31) & (~0x07)) | 0x00));
++		smtc_seqw(0x23, (smtc_seqr(0x23) & (~0xc0)));
+ 		smtc_seqw(0x01, (smtc_seqr(0x01) & (~0x20)));
++		smtc_seqw(0x22, (smtc_seqr(0x22) & (~0x30)));
+ 		smtc_seqw(0x6a, 0x16);
+ 		smtc_seqw(0x6b, 0x02);
+-		smtc_seqw(0x22, (smtc_seqr(0x22) & (~0x30)));
+-		smtc_seqw(0x23, (smtc_seqr(0x23) & (~0xc0)));
+-		smtc_seqw(0x24, (smtc_seqr(0x24) | 0x01));
+-		smtc_seqw(0x31, ((smtc_seqr(0x31) & (~0x07)) | 0x00));
+ 		break;
+ 	case FB_BLANK_VSYNC_SUSPEND:
+ 		/* Screen On: HSync: On, VSync : Off */
++		smtc_seqw(0x24, (smtc_seqr(0x24) & (~0x01)));
++		smtc_seqw(0x31, ((smtc_seqr(0x31) & (~0x07)) | 0x00));
++		smtc_seqw(0x23, ((smtc_seqr(0x23) & (~0xc0)) | 0x20));
+ 		smtc_seqw(0x01, (smtc_seqr(0x01) | 0x20));
+-		smtc_seqw(0x20, (smtc_seqr(0x20) & (~0xB0)));
+-		smtc_seqw(0x6a, 0x0c);
+-		smtc_seqw(0x6b, 0x02);
+ 		smtc_seqw(0x21, (smtc_seqr(0x21) | 0x88));
++		smtc_seqw(0x20, (smtc_seqr(0x20) & (~0xB0)));
+ 		smtc_seqw(0x22, ((smtc_seqr(0x22) & (~0x30)) | 0x20));
+-		smtc_seqw(0x23, ((smtc_seqr(0x23) & (~0xc0)) | 0x20));
+-		smtc_seqw(0x24, (smtc_seqr(0x24) & (~0x01)));
+-		smtc_seqw(0x31, ((smtc_seqr(0x31) & (~0x07)) | 0x00));
+ 		smtc_seqw(0x34, (smtc_seqr(0x34) | 0x80));
++		smtc_seqw(0x6a, 0x0c);
++		smtc_seqw(0x6b, 0x02);
+ 		break;
+ 	case FB_BLANK_HSYNC_SUSPEND:
+ 		/* Screen On: HSync: Off, VSync : On */
++		smtc_seqw(0x24, (smtc_seqr(0x24) & (~0x01)));
++		smtc_seqw(0x31, ((smtc_seqr(0x31) & (~0x07)) | 0x00));
++		smtc_seqw(0x23, ((smtc_seqr(0x23) & (~0xc0)) | 0xD8));
+ 		smtc_seqw(0x01, (smtc_seqr(0x01) | 0x20));
+-		smtc_seqw(0x20, (smtc_seqr(0x20) & (~0xB0)));
+-		smtc_seqw(0x6a, 0x0c);
+-		smtc_seqw(0x6b, 0x02);
+ 		smtc_seqw(0x21, (smtc_seqr(0x21) | 0x88));
++		smtc_seqw(0x20, (smtc_seqr(0x20) & (~0xB0)));
+ 		smtc_seqw(0x22, ((smtc_seqr(0x22) & (~0x30)) | 0x10));
+-		smtc_seqw(0x23, ((smtc_seqr(0x23) & (~0xc0)) | 0xD8));
+-		smtc_seqw(0x24, (smtc_seqr(0x24) & (~0x01)));
+-		smtc_seqw(0x31, ((smtc_seqr(0x31) & (~0x07)) | 0x00));
+ 		smtc_seqw(0x34, (smtc_seqr(0x34) | 0x80));
++		smtc_seqw(0x6a, 0x0c);
++		smtc_seqw(0x6b, 0x02);
+ 		break;
+ 	case FB_BLANK_POWERDOWN:
+ 		/* Screen On: HSync: Off, VSync : Off */
++		smtc_seqw(0x24, (smtc_seqr(0x24) & (~0x01)));
++		smtc_seqw(0x31, ((smtc_seqr(0x31) & (~0x07)) | 0x00));
++		smtc_seqw(0x23, ((smtc_seqr(0x23) & (~0xc0)) | 0xD8));
+ 		smtc_seqw(0x01, (smtc_seqr(0x01) | 0x20));
+-		smtc_seqw(0x20, (smtc_seqr(0x20) & (~0xB0)));
+-		smtc_seqw(0x6a, 0x0c);
+-		smtc_seqw(0x6b, 0x02);
+ 		smtc_seqw(0x21, (smtc_seqr(0x21) | 0x88));
++		smtc_seqw(0x20, (smtc_seqr(0x20) & (~0xB0)));
+ 		smtc_seqw(0x22, ((smtc_seqr(0x22) & (~0x30)) | 0x30));
+-		smtc_seqw(0x23, ((smtc_seqr(0x23) & (~0xc0)) | 0xD8));
+-		smtc_seqw(0x24, (smtc_seqr(0x24) & (~0x01)));
+-		smtc_seqw(0x31, ((smtc_seqr(0x31) & (~0x07)) | 0x00));
+ 		smtc_seqw(0x34, (smtc_seqr(0x34) | 0x80));
++		smtc_seqw(0x6a, 0x0c);
++		smtc_seqw(0x6b, 0x02);
+ 		break;
+ 	default:
+ 		return -EINVAL;
 
 
