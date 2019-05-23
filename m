@@ -2,41 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 546D328ACD
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:58:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F6B82881C
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:40:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387867AbfEWTr0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:47:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46852 "EHLO mail.kernel.org"
+        id S2390419AbfEWTWM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:22:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387603AbfEWTNB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:13:01 -0400
+        id S2390415AbfEWTWM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:22:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D262120863;
-        Thu, 23 May 2019 19:12:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 250352184E;
+        Thu, 23 May 2019 19:22:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558638780;
-        bh=DSUmzvgjUNMwYATk24t7LKBls8lxxLoyxNRXEDvqXbI=;
+        s=default; t=1558639330;
+        bh=plf5khnwnrG7TJd0YaGiq3aILycf1dI/vg/fJhtd+SY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mlZTEyTSVldJQS99Ptu9rwpYeg6XcoMOJaJz3EctBqOjB4j0YewR9XrjtaxiKd/5m
-         +FY6sVidGSrRR3anI7zXzXF9CV1Bh53xLZxEkeXyfE0SfcbFPlGFHFg2OTaEBBleaO
-         Pxom5eS2kFVyGGVjxyb71QTqWYb3ntR0jBRrWUf4=
+        b=jJKI+t2YYMNHHkvveqK5D9cUEAzfbz65VMrmJxu6S3uwSh+mU8qZpOJ89iaoj+xDZ
+         v3jhMUG7nsq51NSDiKZ+l8mhQpMUoOhTO4rQDyzzC3M32WM+db7jifm2PTGk1mSL5P
+         dfNfA9E76RNYCe/Y0f0rnN82QkmCobbNazeYq6ko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Orit Wasserman <orit.was@gmail.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Elazar Leibovich <elazar@lightbitslabs.com>,
+        stable@vger.kernel.org, Andy Lutomirski <luto@kernel.org>,
+        Nicolai Stange <nstange@suse.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        the arch/x86 maintainers <x86@kernel.org>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Jiri Kosina <jikos@kernel.org>,
+        Miroslav Benes <mbenes@suse.cz>,
+        Petr Mladek <pmladek@suse.com>,
+        Joe Lawrence <joe.lawrence@redhat.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        Tim Chen <tim.c.chen@linux.intel.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Mimi Zohar <zohar@linux.ibm.com>,
+        Juergen Gross <jgross@suse.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nayna Jain <nayna@linux.ibm.com>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        "open list:KERNEL SELFTEST FRAMEWORK" 
+        <linux-kselftest@vger.kernel.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.14 35/77] tracing: Fix partial reading of trace events id file
+Subject: [PATCH 5.0 065/139] x86_64: Allow breakpoints to emulate call instructions
 Date:   Thu, 23 May 2019 21:05:53 +0200
-Message-Id: <20190523181725.069959999@linuxfoundation.org>
+Message-Id: <20190523181729.225177033@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181719.982121681@linuxfoundation.org>
-References: <20190523181719.982121681@linuxfoundation.org>
+In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
+References: <20190523181720.120897565@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,77 +67,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Elazar Leibovich <elazar@lightbitslabs.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit cbe08bcbbe787315c425dde284dcb715cfbf3f39 upstream.
+commit 4b33dadf37666c0860b88f9e52a16d07bf6d0b03 upstream.
 
-When reading only part of the id file, the ppos isn't tracked correctly.
-This is taken care by simple_read_from_buffer.
+In order to allow breakpoints to emulate call instructions, they need to push
+the return address onto the stack. The x86_64 int3 handler adds a small gap
+to allow the stack to grow some. Use this gap to add the return address to
+be able to emulate a call instruction at the breakpoint location.
 
-Reading a single byte, and then the next byte would result EOF.
+These helper functions are added:
 
-While this seems like not a big deal, this breaks abstractions that
-reads information from files unbuffered. See for example
-https://github.com/golang/go/issues/29399
+  int3_emulate_jmp(): changes the location of the regs->ip to return there.
 
-This code was mentioned as problematic in
-commit cd458ba9d5a5
-("tracing: Do not (ab)use trace_seq in event_id_read()")
+ (The next two are only for x86_64)
+  int3_emulate_push(): to push the address onto the gap in the stack
+  int3_emulate_call(): push the return address and change regs->ip
 
-An example C code that show this bug is:
-
-  #include <stdio.h>
-  #include <stdint.h>
-
-  #include <sys/types.h>
-  #include <sys/stat.h>
-  #include <fcntl.h>
-  #include <unistd.h>
-
-  int main(int argc, char **argv) {
-    if (argc < 2)
-      return 1;
-    int fd = open(argv[1], O_RDONLY);
-    char c;
-    read(fd, &c, 1);
-    printf("First  %c\n", c);
-    read(fd, &c, 1);
-    printf("Second %c\n", c);
-  }
-
-Then run with, e.g.
-
-  sudo ./a.out /sys/kernel/debug/tracing/events/tcp/tcp_set_state/id
-
-You'll notice you're getting the first character twice, instead of the
-first two characters in the id file.
-
-Link: http://lkml.kernel.org/r/20181231115837.4932-1-elazar@lightbitslabs.com
-
-Cc: Orit Wasserman <orit.was@gmail.com>
-Cc: Oleg Nesterov <oleg@redhat.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Nicolai Stange <nstange@suse.de>
+Cc: Thomas Gleixner <tglx@linutronix.de>
 Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: the arch/x86 maintainers <x86@kernel.org>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Jiri Kosina <jikos@kernel.org>
+Cc: Miroslav Benes <mbenes@suse.cz>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Joe Lawrence <joe.lawrence@redhat.com>
+Cc: Shuah Khan <shuah@kernel.org>
+Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: Tim Chen <tim.c.chen@linux.intel.com>
+Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: Mimi Zohar <zohar@linux.ibm.com>
+Cc: Juergen Gross <jgross@suse.com>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Cc: Nayna Jain <nayna@linux.ibm.com>
+Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
+Cc: Joerg Roedel <jroedel@suse.de>
+Cc: "open list:KERNEL SELFTEST FRAMEWORK" <linux-kselftest@vger.kernel.org>
 Cc: stable@vger.kernel.org
-Fixes: 23725aeeab10b ("ftrace: provide an id file for each event")
-Signed-off-by: Elazar Leibovich <elazar@lightbitslabs.com>
+Fixes: b700e7f03df5 ("livepatch: kernel: add support for live patching")
+Tested-by: Nicolai Stange <nstange@suse.de>
+Reviewed-by: Nicolai Stange <nstange@suse.de>
+Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+[ Modified to only work for x86_64 and added comment to int3_emulate_push() ]
 Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/trace/trace_events.c |    3 ---
- 1 file changed, 3 deletions(-)
+ arch/x86/include/asm/text-patching.h |   28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
 
---- a/kernel/trace/trace_events.c
-+++ b/kernel/trace/trace_events.c
-@@ -1319,9 +1319,6 @@ event_id_read(struct file *filp, char __
- 	char buf[32];
- 	int len;
+--- a/arch/x86/include/asm/text-patching.h
++++ b/arch/x86/include/asm/text-patching.h
+@@ -39,4 +39,32 @@ extern int poke_int3_handler(struct pt_r
+ extern void *text_poke_bp(void *addr, const void *opcode, size_t len, void *handler);
+ extern int after_bootmem;
  
--	if (*ppos)
--		return 0;
--
- 	if (unlikely(!id))
- 		return -ENODEV;
- 
++static inline void int3_emulate_jmp(struct pt_regs *regs, unsigned long ip)
++{
++	regs->ip = ip;
++}
++
++#define INT3_INSN_SIZE 1
++#define CALL_INSN_SIZE 5
++
++#ifdef CONFIG_X86_64
++static inline void int3_emulate_push(struct pt_regs *regs, unsigned long val)
++{
++	/*
++	 * The int3 handler in entry_64.S adds a gap between the
++	 * stack where the break point happened, and the saving of
++	 * pt_regs. We can extend the original stack because of
++	 * this gap. See the idtentry macro's create_gap option.
++	 */
++	regs->sp -= sizeof(unsigned long);
++	*(unsigned long *)regs->sp = val;
++}
++
++static inline void int3_emulate_call(struct pt_regs *regs, unsigned long func)
++{
++	int3_emulate_push(regs, regs->ip - INT3_INSN_SIZE + CALL_INSN_SIZE);
++	int3_emulate_jmp(regs, func);
++}
++#endif
++
+ #endif /* _ASM_X86_TEXT_PATCHING_H */
 
 
