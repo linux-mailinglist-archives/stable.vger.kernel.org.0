@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 293DC2892E
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:42:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA74D28938
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:42:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391781AbfEWTbW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:31:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45122 "EHLO mail.kernel.org"
+        id S2391847AbfEWTbr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:31:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403826AbfEWTbV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:31:21 -0400
+        id S2403841AbfEWTbW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:31:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5BAB22184E;
-        Thu, 23 May 2019 19:31:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F2B642186A;
+        Thu, 23 May 2019 19:31:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639879;
-        bh=pMobA3DszLasSCXS9Xz1Yb6nbXZihZY5geDFb+L77uQ=;
+        s=default; t=1558639882;
+        bh=bazesv1zlSbhV7hBl7cRwPHNDrdniWGCiApnCNuxURc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aQtMwYJ+gbs4S3IUTZRv8VmQoCuZNvG1jtdulDmZFzZ0icushprInYExWTVXOWe55
-         GUXzusi28SeoCsKIcFJYJSljS0vjIiZ6QRiFcTtNikjqPEd8HA0k65aB1xLWHEdSQY
-         jtLhUL2fIKMTatNHJ6uKvh0mm9B2qNRbBJpJqH8E=
+        b=fAepko/joRL5VIrpsCpIZqZ37DhZdU/80iezQtMendrw9IrxfVDYkUt/pJiRdBfHB
+         JJDYPpNz3uYcuo0XNNUszrbVMD+ax0scZIMugW07uTiLd/dSbeIYJP7cv3Bpddf2EI
+         JUxdi+NuPIZ+iwNceiFU3nAIlkDXp/W60ThZLJjg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.1 118/122] bpf, lru: avoid messing with eviction heuristics upon syscall lookup
-Date:   Thu, 23 May 2019 21:07:20 +0200
-Message-Id: <20190523181721.217449539@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Joseph Myers <joseph@codesourcery.com>,
+        libc-alpha@sourceware.org, linux-api@vger.kernel.org,
+        Deepa Dinamani <deepa.kernel@gmail.com>,
+        Lukasz Majewski <lukma@denx.de>,
+        Stepan Golosunov <stepan@golosunov.pp.ru>
+Subject: [PATCH 5.1 119/122] y2038: Make CONFIG_64BIT_TIME unconditional
+Date:   Thu, 23 May 2019 21:07:21 +0200
+Message-Id: <20190523181721.342941070@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
 References: <20190523181705.091418060@linuxfoundation.org>
@@ -44,106 +48,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 50b045a8c0ccf44f76640ac3eea8d80ca53979a3 upstream.
+commit f3d964673b2f1c5d5c68c77273efcf7103eed03b upstream.
 
-One of the biggest issues we face right now with picking LRU map over
-regular hash table is that a map walk out of user space, for example,
-to just dump the existing entries or to remove certain ones, will
-completely mess up LRU eviction heuristics and wrong entries such
-as just created ones will get evicted instead. The reason for this
-is that we mark an entry as "in use" via bpf_lru_node_set_ref() from
-system call lookup side as well. Thus upon walk, all entries are
-being marked, so information of actual least recently used ones
-are "lost".
+As Stepan Golosunov points out, there is a small mistake in the
+get_timespec64() function in the kernel. It was originally added under the
+assumption that CONFIG_64BIT_TIME would get enabled on all 32-bit and
+64-bit architectures, but when the conversion was done, it was only turned
+on for 32-bit ones.
 
-In case of Cilium where it can be used (besides others) as a BPF
-based connection tracker, this current behavior causes disruption
-upon control plane changes that need to walk the map from user space
-to evict certain entries. Discussion result from bpfconf [0] was that
-we should simply just remove marking from system call side as no
-good use case could be found where it's actually needed there.
-Therefore this patch removes marking for regular LRU and per-CPU
-flavor. If there ever should be a need in future, the behavior could
-be selected via map creation flag, but due to mentioned reason we
-avoid this here.
+The effect is that the get_timespec64() function never clears the upper
+half of the tv_nsec field for 32-bit tasks in compat mode. Clearing this is
+required for POSIX compliant behavior of functions that pass a 'timespec'
+structure with a 64-bit tv_sec and a 32-bit tv_nsec, plus uninitialized
+padding.
 
-  [0] http://vger.kernel.org/bpfconf.html
+The easiest fix for linux-5.1 is to just make the Kconfig symbol
+unconditional, as it was originally intended. As a follow-up, the #ifdef
+CONFIG_64BIT_TIME can be removed completely..
 
-Fixes: 29ba732acbee ("bpf: Add BPF_MAP_TYPE_LRU_HASH")
-Fixes: 8f8449384ec3 ("bpf: Add BPF_MAP_TYPE_LRU_PERCPU_HASH")
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Martin KaFai Lau <kafai@fb.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Note: for native 32-bit mode, no change is needed, this works as
+designed and user space should never need to clear the upper 32
+bits of the tv_nsec field, in or out of the kernel.
+
+Fixes: 00bf25d693e7 ("y2038: use time32 syscall names on 32-bit")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Joseph Myers <joseph@codesourcery.com>
+Cc: libc-alpha@sourceware.org
+Cc: linux-api@vger.kernel.org
+Cc: Deepa Dinamani <deepa.kernel@gmail.com>
+Cc: Lukasz Majewski <lukma@denx.de>
+Cc: Stepan Golosunov <stepan@golosunov.pp.ru>
+Link: https://lore.kernel.org/lkml/20190422090710.bmxdhhankurhafxq@sghpc.golosunov.pp.ru/
+Link: https://lkml.kernel.org/r/20190429131951.471701-1-arnd@arndb.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/bpf/hashtab.c |   23 ++++++++++++++++++-----
- 1 file changed, 18 insertions(+), 5 deletions(-)
+ arch/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/bpf/hashtab.c
-+++ b/kernel/bpf/hashtab.c
-@@ -527,18 +527,30 @@ static u32 htab_map_gen_lookup(struct bp
- 	return insn - insn_buf;
- }
+--- a/arch/Kconfig
++++ b/arch/Kconfig
+@@ -764,7 +764,7 @@ config COMPAT_OLD_SIGACTION
+ 	bool
  
--static void *htab_lru_map_lookup_elem(struct bpf_map *map, void *key)
-+static __always_inline void *__htab_lru_map_lookup_elem(struct bpf_map *map,
-+							void *key, const bool mark)
- {
- 	struct htab_elem *l = __htab_map_lookup_elem(map, key);
- 
- 	if (l) {
--		bpf_lru_node_set_ref(&l->lru_node);
-+		if (mark)
-+			bpf_lru_node_set_ref(&l->lru_node);
- 		return l->key + round_up(map->key_size, 8);
- 	}
- 
- 	return NULL;
- }
- 
-+static void *htab_lru_map_lookup_elem(struct bpf_map *map, void *key)
-+{
-+	return __htab_lru_map_lookup_elem(map, key, true);
-+}
-+
-+static void *htab_lru_map_lookup_elem_sys(struct bpf_map *map, void *key)
-+{
-+	return __htab_lru_map_lookup_elem(map, key, false);
-+}
-+
- static u32 htab_lru_map_gen_lookup(struct bpf_map *map,
- 				   struct bpf_insn *insn_buf)
- {
-@@ -1250,6 +1262,7 @@ const struct bpf_map_ops htab_lru_map_op
- 	.map_free = htab_map_free,
- 	.map_get_next_key = htab_map_get_next_key,
- 	.map_lookup_elem = htab_lru_map_lookup_elem,
-+	.map_lookup_elem_sys_only = htab_lru_map_lookup_elem_sys,
- 	.map_update_elem = htab_lru_map_update_elem,
- 	.map_delete_elem = htab_lru_map_delete_elem,
- 	.map_gen_lookup = htab_lru_map_gen_lookup,
-@@ -1281,7 +1294,6 @@ static void *htab_lru_percpu_map_lookup_
- 
- int bpf_percpu_hash_copy(struct bpf_map *map, void *key, void *value)
- {
--	struct bpf_htab *htab = container_of(map, struct bpf_htab, map);
- 	struct htab_elem *l;
- 	void __percpu *pptr;
- 	int ret = -ENOENT;
-@@ -1297,8 +1309,9 @@ int bpf_percpu_hash_copy(struct bpf_map
- 	l = __htab_map_lookup_elem(map, key);
- 	if (!l)
- 		goto out;
--	if (htab_is_lru(htab))
--		bpf_lru_node_set_ref(&l->lru_node);
-+	/* We do not mark LRU map element here in order to not mess up
-+	 * eviction heuristics when user space does a map walk.
-+	 */
- 	pptr = htab_elem_get_ptr(l, map->key_size);
- 	for_each_possible_cpu(cpu) {
- 		bpf_long_memcpy(value + off,
+ config 64BIT_TIME
+-	def_bool ARCH_HAS_64BIT_TIME
++	def_bool y
+ 	help
+ 	  This should be selected by all architectures that need to support
+ 	  new system calls with a 64-bit time_t. This is relevant on all 32-bit
 
 
