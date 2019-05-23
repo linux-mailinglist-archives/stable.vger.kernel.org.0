@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B3B32873A
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:25:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C852E286BE
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:15:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388830AbfEWTRA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:17:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51904 "EHLO mail.kernel.org"
+        id S2388441AbfEWTMW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:12:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46096 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389297AbfEWTRA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:17:00 -0400
+        id S2388436AbfEWTMV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:12:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AFD77217D9;
-        Thu, 23 May 2019 19:16:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C5FA921855;
+        Thu, 23 May 2019 19:12:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639019;
-        bh=AxJsAR8dpjeA9qCIvZZYVwgDd+oYyxFSMJaIX6clBMk=;
+        s=default; t=1558638740;
+        bh=9tqMZWqEHULiuOWDI2seNvJ1xyybwcMj/Ewo4lbLsvc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jAJYDyqVI23k+jY9AYv/Cw4WWulEzi5tYZjl3UkBXDPckVXDhEXiBdICGmwPXkyLq
-         YMo8RLRDgzT11O81KaIJZ9oMWStx+46eYQFGgMuV9dni2ANaqhrvezgzsXrvp+uiqX
-         Bj6LWcvSC1iEiaBM/4HIuhh75ZCeagIB+acIxJGc=
+        b=Gh556ev1DXvHa9eAEGLdY+uGOVVzOwjxsN8xsw12qccUBR/ER3ikjCXHCtC3LT0h/
+         94pIhyUH0if0/Icfhl8FqqYVROusHXS1mf1NNAeHa6Wkpr0m5B3nx7Kzb/kKMF94CY
+         8W75alejmisQL4fsjn375Kc0mI7EGGIpqQrRa9fc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,12 +30,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
         Teddy Wang <teddy.wang@siliconmotion.com>,
         Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Subject: [PATCH 4.19 066/114] fbdev: sm712fb: fix crashes during framebuffer writes by correctly mapping VRAM
+Subject: [PATCH 4.14 47/77] fbdev: sm712fb: use 1024x768 by default on non-MIPS, fix garbled display
 Date:   Thu, 23 May 2019 21:06:05 +0200
-Message-Id: <20190523181737.630249629@linuxfoundation.org>
+Message-Id: <20190523181726.555788038@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
-References: <20190523181731.372074275@linuxfoundation.org>
+In-Reply-To: <20190523181719.982121681@linuxfoundation.org>
+References: <20190523181719.982121681@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,31 +47,18 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yifeng Li <tomli@tomli.me>
 
-commit 9e0e59993df0601cddb95c4f6c61aa3d5e753c00 upstream.
+commit 4ed7d2ccb7684510ec5f7a8f7ef534bc6a3d55b2 upstream.
 
-On a Thinkpad s30 (Pentium III / i440MX, Lynx3DM), running fbtest or X
-will crash the machine instantly, because the VRAM/framebuffer is not
-mapped correctly.
+Loongson MIPS netbooks use 1024x600 LCD panels, which is the original
+target platform of this driver, but nearly all old x86 laptops have
+1024x768. Lighting 768 panels using 600's timings would partially
+garble the display. Since it's not possible to distinguish them reliably,
+we change the default to 768, but keep 600 as-is on MIPS.
 
-On SM712, the framebuffer starts at the beginning of address space, but
-SM720's framebuffer starts at the 1 MiB offset from the beginning. However,
-sm712fb fails to take this into account, as a result, writing to the
-framebuffer will destroy all the registers and kill the system immediately.
-Another problem is the driver assumes 8 MiB of VRAM for SM720, but some
-SM720 system, such as this IBM Thinkpad, only has 4 MiB of VRAM.
-
-Fix this problem by removing the hardcoded VRAM size, adding a function to
-query the amount of VRAM from register MCR76 on SM720, and adding proper
-framebuffer offset.
-
-Please note that the memory map may have additional problems on Big-Endian
-system, which is not available for testing by myself. But I highly suspect
-that the original code is also broken on Big-Endian machines for SM720, so
-at least we are not making the problem worse. More, the driver also assumed
-SM710/SM712 has 4 MiB of VRAM, but it has a 2 MiB version as well, and used
-in earlier laptops, such as IBM Thinkpad 240X, the driver would probably
-crash on them. I've never seen one of those machines and cannot fix it, but
-I have documented these problems in the comments.
+Further, earlier laptops, such as IBM Thinkpad 240X, has a 800x600 LCD
+panel, this driver would probably garbled those display. As we don't
+have one for testing, the original behavior of the driver is kept as-is,
+but the problem has been documented is the comments.
 
 Signed-off-by: Yifeng Li <tomli@tomli.me>
 Tested-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
@@ -81,111 +68,101 @@ Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/video/fbdev/sm712.h   |    5 ----
- drivers/video/fbdev/sm712fb.c |   48 ++++++++++++++++++++++++++++++++++++++----
- 2 files changed, 44 insertions(+), 9 deletions(-)
+ drivers/video/fbdev/sm712.h   |    7 +++--
+ drivers/video/fbdev/sm712fb.c |   53 +++++++++++++++++++++++++++++++-----------
+ 2 files changed, 44 insertions(+), 16 deletions(-)
 
 --- a/drivers/video/fbdev/sm712.h
 +++ b/drivers/video/fbdev/sm712.h
-@@ -19,11 +19,6 @@
- #define SCREEN_Y_RES      600
- #define SCREEN_BPP        16
+@@ -15,9 +15,10 @@
  
--/*Assume SM712 graphics chip has 4MB VRAM */
--#define SM712_VIDEOMEMORYSIZE	  0x00400000
--/*Assume SM722 graphics chip has 8MB VRAM */
--#define SM722_VIDEOMEMORYSIZE	  0x00800000
--
+ #define FB_ACCEL_SMI_LYNX 88
+ 
+-#define SCREEN_X_RES      1024
+-#define SCREEN_Y_RES      600
+-#define SCREEN_BPP        16
++#define SCREEN_X_RES          1024
++#define SCREEN_Y_RES_PC       768
++#define SCREEN_Y_RES_NETBOOK  600
++#define SCREEN_BPP            16
+ 
  #define dac_reg	(0x3c8)
  #define dac_val	(0x3c9)
- 
 --- a/drivers/video/fbdev/sm712fb.c
 +++ b/drivers/video/fbdev/sm712fb.c
-@@ -1329,6 +1329,11 @@ static int smtc_map_smem(struct smtcfb_i
- {
- 	sfb->fb->fix.smem_start = pci_resource_start(pdev, 0);
- 
-+	if (sfb->chip_id == 0x720)
-+		/* on SM720, the framebuffer starts at the 1 MB offset */
-+		sfb->fb->fix.smem_start += 0x00200000;
-+
-+	/* XXX: is it safe for SM720 on Big-Endian? */
- 	if (sfb->fb->var.bits_per_pixel == 32)
- 		sfb->fb->fix.smem_start += big_addr;
- 
-@@ -1366,12 +1371,45 @@ static inline void sm7xx_init_hw(void)
- 	outb_p(0x11, 0x3c5);
+@@ -1463,6 +1463,43 @@ static u_long sm7xx_vram_probe(struct sm
+ 	return 0;  /* unknown hardware */
  }
  
-+static u_long sm7xx_vram_probe(struct smtcfb_info *sfb)
++static void sm7xx_resolution_probe(struct smtcfb_info *sfb)
 +{
-+	u8 vram;
-+
-+	switch (sfb->chip_id) {
-+	case 0x710:
-+	case 0x712:
-+		/*
-+		 * Assume SM712 graphics chip has 4MB VRAM.
-+		 *
-+		 * FIXME: SM712 can have 2MB VRAM, which is used on earlier
-+		 * laptops, such as IBM Thinkpad 240X. This driver would
-+		 * probably crash on those machines. If anyone gets one of
-+		 * those and is willing to help, run "git blame" and send me
-+		 * an E-mail.
-+		 */
-+		return 0x00400000;
-+	case 0x720:
-+		outb_p(0x76, 0x3c4);
-+		vram = inb_p(0x3c5) >> 6;
-+
-+		if (vram == 0x00)
-+			return 0x00800000;  /* 8 MB */
-+		else if (vram == 0x01)
-+			return 0x01000000;  /* 16 MB */
-+		else if (vram == 0x02)
-+			return 0x00400000;  /* illegal, fallback to 4 MB */
-+		else if (vram == 0x03)
-+			return 0x00400000;  /* 4 MB */
++	/* get mode parameter from smtc_scr_info */
++	if (smtc_scr_info.lfb_width != 0) {
++		sfb->fb->var.xres = smtc_scr_info.lfb_width;
++		sfb->fb->var.yres = smtc_scr_info.lfb_height;
++		sfb->fb->var.bits_per_pixel = smtc_scr_info.lfb_depth;
++		goto final;
 +	}
-+	return 0;  /* unknown hardware */
++
++	/*
++	 * No parameter, default resolution is 1024x768-16.
++	 *
++	 * FIXME: earlier laptops, such as IBM Thinkpad 240X, has a 800x600
++	 * panel, also see the comments about Thinkpad 240X above.
++	 */
++	sfb->fb->var.xres = SCREEN_X_RES;
++	sfb->fb->var.yres = SCREEN_Y_RES_PC;
++	sfb->fb->var.bits_per_pixel = SCREEN_BPP;
++
++#ifdef CONFIG_MIPS
++	/*
++	 * Loongson MIPS netbooks use 1024x600 LCD panels, which is the original
++	 * target platform of this driver, but nearly all old x86 laptops have
++	 * 1024x768. Lighting 768 panels using 600's timings would partially
++	 * garble the display, so we don't want that. But it's not possible to
++	 * distinguish them reliably.
++	 *
++	 * So we change the default to 768, but keep 600 as-is on MIPS.
++	 */
++	sfb->fb->var.yres = SCREEN_Y_RES_NETBOOK;
++#endif
++
++final:
++	big_pixel_depth(sfb->fb->var.bits_per_pixel, smtc_scr_info.lfb_depth);
 +}
 +
  static int smtcfb_pci_probe(struct pci_dev *pdev,
  			    const struct pci_device_id *ent)
  {
- 	struct smtcfb_info *sfb;
- 	struct fb_info *info;
--	u_long smem_size = 0x00800000;	/* default 8MB */
-+	u_long smem_size;
- 	int err;
- 	unsigned long mmio_base;
+@@ -1508,19 +1545,6 @@ static int smtcfb_pci_probe(struct pci_d
  
-@@ -1428,12 +1466,15 @@ static int smtcfb_pci_probe(struct pci_d
+ 	sm7xx_init_hw();
+ 
+-	/* get mode parameter from smtc_scr_info */
+-	if (smtc_scr_info.lfb_width != 0) {
+-		sfb->fb->var.xres = smtc_scr_info.lfb_width;
+-		sfb->fb->var.yres = smtc_scr_info.lfb_height;
+-		sfb->fb->var.bits_per_pixel = smtc_scr_info.lfb_depth;
+-	} else {
+-		/* default resolution 1024x600 16bit mode */
+-		sfb->fb->var.xres = SCREEN_X_RES;
+-		sfb->fb->var.yres = SCREEN_Y_RES;
+-		sfb->fb->var.bits_per_pixel = SCREEN_BPP;
+-	}
+-
+-	big_pixel_depth(sfb->fb->var.bits_per_pixel, smtc_scr_info.lfb_depth);
+ 	/* Map address and memory detection */
  	mmio_base = pci_resource_start(pdev, 0);
  	pci_read_config_byte(pdev, PCI_REVISION_ID, &sfb->chip_rev_id);
+@@ -1582,6 +1606,9 @@ static int smtcfb_pci_probe(struct pci_d
+ 		goto failed_fb;
+ 	}
  
-+	smem_size = sm7xx_vram_probe(sfb);
-+	dev_info(&pdev->dev, "%lu MiB of VRAM detected.\n",
-+					smem_size / 1048576);
++	/* probe and decide resolution */
++	sm7xx_resolution_probe(sfb);
 +
- 	switch (sfb->chip_id) {
- 	case 0x710:
- 	case 0x712:
- 		sfb->fb->fix.mmio_start = mmio_base + 0x00400000;
- 		sfb->fb->fix.mmio_len = 0x00400000;
--		smem_size = SM712_VIDEOMEMORYSIZE;
- 		sfb->lfb = ioremap(mmio_base, mmio_addr);
- 		if (!sfb->lfb) {
- 			dev_err(&pdev->dev,
-@@ -1465,8 +1506,7 @@ static int smtcfb_pci_probe(struct pci_d
- 	case 0x720:
- 		sfb->fb->fix.mmio_start = mmio_base;
- 		sfb->fb->fix.mmio_len = 0x00200000;
--		smem_size = SM722_VIDEOMEMORYSIZE;
--		sfb->dp_regs = ioremap(mmio_base, 0x00a00000);
-+		sfb->dp_regs = ioremap(mmio_base, 0x00200000 + smem_size);
- 		sfb->lfb = sfb->dp_regs + 0x00200000;
- 		sfb->mmio = (smtc_regbaseaddress =
- 		    sfb->dp_regs + 0x000c0000);
+ 	/* can support 32 bpp */
+ 	if (sfb->fb->var.bits_per_pixel == 15)
+ 		sfb->fb->var.bits_per_pixel = 16;
 
 
