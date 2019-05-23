@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 077042898C
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:42:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C32282886D
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:40:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390310AbfEWTVj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:21:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59104 "EHLO mail.kernel.org"
+        id S2390915AbfEWT0D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:26:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37806 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388956AbfEWTVj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:21:39 -0400
+        id S2391251AbfEWT0C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:26:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6DFC720863;
-        Thu, 23 May 2019 19:21:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B69742133D;
+        Thu, 23 May 2019 19:26:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639298;
-        bh=4wgxF1YFp5FyaQGTZ3L+A80LKvSHjmr7i8d7XrTzsD0=;
+        s=default; t=1558639562;
+        bh=erWqDX8SpUwJR1ygf9C0eCHvcngG2wRO1gFt5XSuHpg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0vwJHiECtrfPUoDNYk7mhBFpmEa71Uin+4NMkpw6TA1FbtIbGstUy4Bg1r3/OZ9mw
-         mcjT9DdQkXCITooN9gVVd/L+z55EZhNn6dejZU30ncq90gulNaE0X1sb/beFPPTlbM
-         RzROnuet3frLJxqXekKSlUlYYipGDv58pYMwDv3U=
+        b=sb/hsSJ+LEJfQvh05d8QhtZzB98VE5eHHViIGrIKDgVc7FM5FvmfhiLOF3HjLRfos
+         lD03zt1CI3KRxUkubfGwM3Cf6gqEHmemXmSoPrgn4GVz8wx8RQ0TH3DRo2XpVtBtIk
+         9XzgEbOcvPvSiPJOMP2AuUGvSkc2ZeUTmPE127jQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guoqing Jiang <gqjiang@suse.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Song Liu <songliubraving@fb.com>
-Subject: [PATCH 5.0 036/139] md: add a missing endianness conversion in check_sb_changes
-Date:   Thu, 23 May 2019 21:05:24 +0200
-Message-Id: <20190523181725.475254789@linuxfoundation.org>
+        stable@vger.kernel.org, Jiri Pirko <jiri@resnulli.us>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Vivien Didelot <vivien.didelot@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.1 003/122] net: Always descend into dsa/
+Date:   Thu, 23 May 2019 21:05:25 +0200
+Message-Id: <20190523181705.491688046@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
-References: <20190523181720.120897565@linuxfoundation.org>
+In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
+References: <20190523181705.091418060@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,34 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-commit ed4d0a4ea11e19863952ac6a7cea3bbb27ccd452 upstream.
+[ Upstream commit 0fe9f173d6cda95874edeb413b1fa9907b5ae830 ]
 
-The on-disk value is little endian and we need to convert it to
-native endian before storing the value in the in-core structure.
+Jiri reported that with a kernel built with CONFIG_FIXED_PHY=y,
+CONFIG_NET_DSA=m and CONFIG_NET_DSA_LOOP=m, we would not get to a
+functional state where the mock-up driver is registered. Turns out that
+we are not descending into drivers/net/dsa/ unconditionally, and we
+won't be able to link-in dsa_loop_bdinfo.o which does the actual mock-up
+mdio device registration.
 
-Fixes: 7564beda19b36 ("md-cluster/raid10: support add disk under grow mode")
-Cc: <stable@vger.kernel.org> # 4.20+
-Acked-by: Guoqing Jiang <gqjiang@suse.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Song Liu <songliubraving@fb.com>
+Reported-by: Jiri Pirko <jiri@resnulli.us>
+Fixes: 40013ff20b1b ("net: dsa: Fix functional dsa-loop dependency on FIXED_PHY")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Vivien Didelot <vivien.didelot@gmail.com>
+Tested-by: Jiri Pirko <jiri@resnulli.us>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/md/md.c |    2 +-
+ drivers/net/Makefile |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -9229,7 +9229,7 @@ static void check_sb_changes(struct mdde
- 		 * reshape is happening in the remote node, we need to
- 		 * update reshape_position and call start_reshape.
- 		 */
--		mddev->reshape_position = sb->reshape_position;
-+		mddev->reshape_position = le64_to_cpu(sb->reshape_position);
- 		if (mddev->pers->update_reshape_pos)
- 			mddev->pers->update_reshape_pos(mddev);
- 		if (mddev->pers->start_reshape)
+--- a/drivers/net/Makefile
++++ b/drivers/net/Makefile
+@@ -40,7 +40,7 @@ obj-$(CONFIG_ARCNET) += arcnet/
+ obj-$(CONFIG_DEV_APPLETALK) += appletalk/
+ obj-$(CONFIG_CAIF) += caif/
+ obj-$(CONFIG_CAN) += can/
+-obj-$(CONFIG_NET_DSA) += dsa/
++obj-y += dsa/
+ obj-$(CONFIG_ETHERNET) += ethernet/
+ obj-$(CONFIG_FDDI) += fddi/
+ obj-$(CONFIG_HIPPI) += hippi/
 
 
