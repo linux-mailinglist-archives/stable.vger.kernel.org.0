@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CD78028992
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:42:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79F6E28A3D
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:57:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389644AbfEWTVX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:21:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58684 "EHLO mail.kernel.org"
+        id S2388156AbfEWTLZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:11:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44796 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390251AbfEWTVX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:21:23 -0400
+        id S2388149AbfEWTLW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:11:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0E0AF21841;
-        Thu, 23 May 2019 19:21:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2A7042133D;
+        Thu, 23 May 2019 19:11:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639282;
-        bh=6N8fhzPrYRvSgTF2+kpthjURSoMeS6rdVqEgNaWNgpQ=;
+        s=default; t=1558638680;
+        bh=vzhfTJ97BGxVjMM+ATRbKdyXND1DRBOzdjpRgC+cRmc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RRPJQb4y38+2WUuYuOjQfSOGZiCn36iQ9nMga8P47mStOuf4ZxhQfL490MzZyFJOt
-         I9oqn+sr8bJrsEHBT5eJIzGnIPGZNd3NwQpaeMW1ijlmvB+UlZ2InnSOenvvq095kE
-         +Vygw06J9edLt9LhIwcsTL6VzrdSdJW3bGAA8ngk=
+        b=GBDnZRpZjOOYCaFLCfbWD3Sux+COdaTUe+X28IrMZo8GwEfyAkKeSzOa6sWyX1MEj
+         ldHLuZkP+RXcxKuyUezT1d8/DeEMHkfaRrLLy1jReoiR1L084nJHna5VfaQoWttEMU
+         ZkBVqd7qVYDmsBL0VIx08VZFqKhsyHOgUom/Yp44=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Gunthorpe <jgg@mellanox.com>,
-        Haggai Eran <haggaie@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>
-Subject: [PATCH 5.0 047/139] RDMA/mlx5: Use get_zeroed_page() for clock_info
+        stable@vger.kernel.org,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Subject: [PATCH 4.14 17/77] intel_th: msu: Fix single mode with IOMMU
 Date:   Thu, 23 May 2019 21:05:35 +0200
-Message-Id: <20190523181726.804257772@linuxfoundation.org>
+Message-Id: <20190523181722.621903839@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
-References: <20190523181720.120897565@linuxfoundation.org>
+In-Reply-To: <20190523181719.982121681@linuxfoundation.org>
+References: <20190523181719.982121681@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,98 +43,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gunthorpe <jgg@mellanox.com>
+From: Alexander Shishkin <alexander.shishkin@linux.intel.com>
 
-commit ddcdc368b1033e19fd3a5f750752e10e28a87826 upstream.
+commit 4e0eaf239fb33ebc671303e2b736fa043462e2f4 upstream.
 
-get_zeroed_page() returns a virtual address for the page which is better
-than allocating a struct page and doing a permanent kmap on it.
+Currently, the pages that are allocated for the single mode of MSC are not
+mapped into the device's dma space and the code is incorrectly using
+*_to_phys() in place of a dma address. This fails with IOMMU enabled and
+is otherwise bad practice.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
-Reviewed-by: Haggai Eran <haggaie@mellanox.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Fix the single mode buffer allocation to map the pages into the device's
+DMA space.
+
+Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Fixes: ba82664c134e ("intel_th: Add Memory Storage Unit driver")
+Cc: stable@vger.kernel.org # v4.4+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/infiniband/hw/mlx5/main.c                   |    5 ++-
- drivers/net/ethernet/mellanox/mlx5/core/lib/clock.c |   30 +++++++-------------
- include/linux/mlx5/driver.h                         |    1 
- 3 files changed, 14 insertions(+), 22 deletions(-)
+ drivers/hwtracing/intel_th/msu.c |   35 ++++++++++++++++++++++++++++++++---
+ 1 file changed, 32 insertions(+), 3 deletions(-)
 
---- a/drivers/infiniband/hw/mlx5/main.c
-+++ b/drivers/infiniband/hw/mlx5/main.c
-@@ -1986,11 +1986,12 @@ static int mlx5_ib_mmap_clock_info_page(
- 		return -EPERM;
- 	vma->vm_flags &= ~VM_MAYWRITE;
+--- a/drivers/hwtracing/intel_th/msu.c
++++ b/drivers/hwtracing/intel_th/msu.c
+@@ -92,6 +92,7 @@ struct msc_iter {
+  * @reg_base:		register window base address
+  * @thdev:		intel_th_device pointer
+  * @win_list:		list of windows in multiblock mode
++ * @single_sgt:		single mode buffer
+  * @nr_pages:		total number of pages allocated for this buffer
+  * @single_sz:		amount of data in single mode
+  * @single_wrap:	single mode wrap occurred
+@@ -112,6 +113,7 @@ struct msc {
+ 	struct intel_th_device	*thdev;
  
--	if (!dev->mdev->clock_info_page)
-+	if (!dev->mdev->clock_info)
- 		return -EOPNOTSUPP;
+ 	struct list_head	win_list;
++	struct sg_table		single_sgt;
+ 	unsigned long		nr_pages;
+ 	unsigned long		single_sz;
+ 	unsigned int		single_wrap : 1;
+@@ -625,22 +627,45 @@ static void intel_th_msc_deactivate(stru
+  */
+ static int msc_buffer_contig_alloc(struct msc *msc, unsigned long size)
+ {
++	unsigned long nr_pages = size >> PAGE_SHIFT;
+ 	unsigned int order = get_order(size);
+ 	struct page *page;
++	int ret;
  
- 	return rdma_user_mmap_page(&context->ibucontext, vma,
--				   dev->mdev->clock_info_page, PAGE_SIZE);
-+				   virt_to_page(dev->mdev->clock_info),
-+				   PAGE_SIZE);
+ 	if (!size)
+ 		return 0;
+ 
++	ret = sg_alloc_table(&msc->single_sgt, 1, GFP_KERNEL);
++	if (ret)
++		goto err_out;
++
++	ret = -ENOMEM;
+ 	page = alloc_pages(GFP_KERNEL | __GFP_ZERO, order);
+ 	if (!page)
+-		return -ENOMEM;
++		goto err_free_sgt;
+ 
+ 	split_page(page, order);
+-	msc->nr_pages = size >> PAGE_SHIFT;
++	sg_set_buf(msc->single_sgt.sgl, page_address(page), size);
++
++	ret = dma_map_sg(msc_dev(msc)->parent->parent, msc->single_sgt.sgl, 1,
++			 DMA_FROM_DEVICE);
++	if (ret < 0)
++		goto err_free_pages;
++
++	msc->nr_pages = nr_pages;
+ 	msc->base = page_address(page);
+-	msc->base_addr = page_to_phys(page);
++	msc->base_addr = sg_dma_address(msc->single_sgt.sgl);
+ 
+ 	return 0;
++
++err_free_pages:
++	__free_pages(page, order);
++
++err_free_sgt:
++	sg_free_table(&msc->single_sgt);
++
++err_out:
++	return ret;
  }
  
- static int uar_mmap(struct mlx5_ib_dev *dev, enum mlx5_ib_mmap_cmd cmd,
---- a/drivers/net/ethernet/mellanox/mlx5/core/lib/clock.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/lib/clock.c
-@@ -535,23 +535,16 @@ void mlx5_init_clock(struct mlx5_core_de
- 	do_div(ns, NSEC_PER_SEC / HZ);
- 	clock->overflow_period = ns;
+ /**
+@@ -651,6 +676,10 @@ static void msc_buffer_contig_free(struc
+ {
+ 	unsigned long off;
  
--	mdev->clock_info_page = alloc_page(GFP_KERNEL);
--	if (mdev->clock_info_page) {
--		mdev->clock_info = kmap(mdev->clock_info_page);
--		if (!mdev->clock_info) {
--			__free_page(mdev->clock_info_page);
--			mlx5_core_warn(mdev, "failed to map clock page\n");
--		} else {
--			mdev->clock_info->sign   = 0;
--			mdev->clock_info->nsec   = clock->tc.nsec;
--			mdev->clock_info->cycles = clock->tc.cycle_last;
--			mdev->clock_info->mask   = clock->cycles.mask;
--			mdev->clock_info->mult   = clock->nominal_c_mult;
--			mdev->clock_info->shift  = clock->cycles.shift;
--			mdev->clock_info->frac   = clock->tc.frac;
--			mdev->clock_info->overflow_period =
--						clock->overflow_period;
--		}
-+	mdev->clock_info =
-+		(struct mlx5_ib_clock_info *)get_zeroed_page(GFP_KERNEL);
-+	if (mdev->clock_info) {
-+		mdev->clock_info->nsec = clock->tc.nsec;
-+		mdev->clock_info->cycles = clock->tc.cycle_last;
-+		mdev->clock_info->mask = clock->cycles.mask;
-+		mdev->clock_info->mult = clock->nominal_c_mult;
-+		mdev->clock_info->shift = clock->cycles.shift;
-+		mdev->clock_info->frac = clock->tc.frac;
-+		mdev->clock_info->overflow_period = clock->overflow_period;
- 	}
- 
- 	INIT_WORK(&clock->pps_info.out_work, mlx5_pps_out);
-@@ -599,8 +592,7 @@ void mlx5_cleanup_clock(struct mlx5_core
- 	cancel_delayed_work_sync(&clock->overflow_work);
- 
- 	if (mdev->clock_info) {
--		kunmap(mdev->clock_info_page);
--		__free_page(mdev->clock_info_page);
-+		free_page((unsigned long)mdev->clock_info);
- 		mdev->clock_info = NULL;
- 	}
- 
---- a/include/linux/mlx5/driver.h
-+++ b/include/linux/mlx5/driver.h
-@@ -677,7 +677,6 @@ struct mlx5_core_dev {
- #endif
- 	struct mlx5_clock        clock;
- 	struct mlx5_ib_clock_info  *clock_info;
--	struct page             *clock_info_page;
- 	struct mlx5_fw_tracer   *tracer;
- };
++	dma_unmap_sg(msc_dev(msc)->parent->parent, msc->single_sgt.sgl,
++		     1, DMA_FROM_DEVICE);
++	sg_free_table(&msc->single_sgt);
++
+ 	for (off = 0; off < msc->nr_pages << PAGE_SHIFT; off += PAGE_SIZE) {
+ 		struct page *page = virt_to_page(msc->base + off);
  
 
 
