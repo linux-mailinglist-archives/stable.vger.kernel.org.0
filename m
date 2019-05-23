@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E910288BD
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:41:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60F9E28683
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:10:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391776AbfEWT2X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:28:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40968 "EHLO mail.kernel.org"
+        id S2387760AbfEWTKT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:10:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391775AbfEWT2W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:28:22 -0400
+        id S2387758AbfEWTKR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:10:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B0162217D7;
-        Thu, 23 May 2019 19:28:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B7EA2217D9;
+        Thu, 23 May 2019 19:10:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639702;
-        bh=6/sov5HppODJictdLfb0HMtNQOYTNB4XKlV/pHVD8so=;
+        s=default; t=1558638616;
+        bh=pmBBXIbYx9wCoD61HcVaYTtByq2Ucu7mp3cgX6Lf/mA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N4HT4s68ulZ4oHBb8xA1xDSfUZfAUESZCDewGpw+eN1B8iojp/UNRliMLMqbVtvCI
-         qA8qYyXcZgLqe+G2bktOOalJ5Z1M40kPTGh4nC8xMuU43hEv6gz1QZpP11tcHbGOJ+
-         bomxF9eEnezMADwA1DuO+FREVgyON/flfyWz15Ys=
+        b=eR45xY4cjtk2Xpq0/3pMyWlivdlT5fBhwMyoB18360gB+Jk09wJsUOgAsoaL+FUHh
+         OE9lTb/rx+I39KUaDK0C7+npOxxfaWFrwod9R30JnHFhqlMnyLretoC6j+uJOLkAUL
+         /gGyFV7CfBirqhe7MBm7YjtuFvNNHKZu66WcvRM8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Probst <kernel@probst.it>,
-        Pavel Shilovsky <pshilov@microsoft.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.1 047/122] cifs: fix strcat buffer overflow and reduce raciness in smb21_set_oplock_level()
+        stable@vger.kernel.org,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 45/53] xfrm4: Fix uninitialized memory read in _decode_session4
 Date:   Thu, 23 May 2019 21:06:09 +0200
-Message-Id: <20190523181710.926746164@linuxfoundation.org>
+Message-Id: <20190523181718.097234570@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
-References: <20190523181705.091418060@linuxfoundation.org>
+In-Reply-To: <20190523181710.981455400@linuxfoundation.org>
+References: <20190523181710.981455400@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,62 +44,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Probst <kernel@probst.it>
+[ Upstream commit 8742dc86d0c7a9628117a989c11f04a9b6b898f3 ]
 
-commit 6a54b2e002c9d00b398d35724c79f9fe0d9b38fb upstream.
+We currently don't reload pointers pointing into skb header
+after doing pskb_may_pull() in _decode_session4(). So in case
+pskb_may_pull() changed the pointers, we read from random
+memory. Fix this by putting all the needed infos on the
+stack, so that we don't need to access the header pointers
+after doing pskb_may_pull().
 
-Change strcat to strncpy in the "None" case to fix a buffer overflow
-when cinode->oplock is reset to 0 by another thread accessing the same
-cinode. It is never valid to append "None" to any other message.
-
-Consolidate multiple writes to cinode->oplock to reduce raciness.
-
-Signed-off-by: Christoph Probst <kernel@probst.it>
-Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-CC: Stable <stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/smb2ops.c |   14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ net/ipv4/xfrm4_policy.c | 24 +++++++++++++-----------
+ 1 file changed, 13 insertions(+), 11 deletions(-)
 
---- a/fs/cifs/smb2ops.c
-+++ b/fs/cifs/smb2ops.c
-@@ -2917,26 +2917,28 @@ smb21_set_oplock_level(struct cifsInodeI
- 		       unsigned int epoch, bool *purge_cache)
+diff --git a/net/ipv4/xfrm4_policy.c b/net/ipv4/xfrm4_policy.c
+index 622e158a6fc40..1805413cd2251 100644
+--- a/net/ipv4/xfrm4_policy.c
++++ b/net/ipv4/xfrm4_policy.c
+@@ -108,7 +108,8 @@ static void
+ _decode_session4(struct sk_buff *skb, struct flowi *fl, int reverse)
  {
- 	char message[5] = {0};
-+	unsigned int new_oplock = 0;
+ 	const struct iphdr *iph = ip_hdr(skb);
+-	u8 *xprth = skb_network_header(skb) + iph->ihl * 4;
++	int ihl = iph->ihl;
++	u8 *xprth = skb_network_header(skb) + ihl * 4;
+ 	struct flowi4 *fl4 = &fl->u.ip4;
+ 	int oif = 0;
  
- 	oplock &= 0xFF;
- 	if (oplock == SMB2_OPLOCK_LEVEL_NOCHANGE)
- 		return;
+@@ -119,6 +120,11 @@ _decode_session4(struct sk_buff *skb, struct flowi *fl, int reverse)
+ 	fl4->flowi4_mark = skb->mark;
+ 	fl4->flowi4_oif = reverse ? skb->skb_iif : oif;
  
--	cinode->oplock = 0;
- 	if (oplock & SMB2_LEASE_READ_CACHING_HE) {
--		cinode->oplock |= CIFS_CACHE_READ_FLG;
-+		new_oplock |= CIFS_CACHE_READ_FLG;
- 		strcat(message, "R");
- 	}
- 	if (oplock & SMB2_LEASE_HANDLE_CACHING_HE) {
--		cinode->oplock |= CIFS_CACHE_HANDLE_FLG;
-+		new_oplock |= CIFS_CACHE_HANDLE_FLG;
- 		strcat(message, "H");
- 	}
- 	if (oplock & SMB2_LEASE_WRITE_CACHING_HE) {
--		cinode->oplock |= CIFS_CACHE_WRITE_FLG;
-+		new_oplock |= CIFS_CACHE_WRITE_FLG;
- 		strcat(message, "W");
- 	}
--	if (!cinode->oplock)
--		strcat(message, "None");
-+	if (!new_oplock)
-+		strncpy(message, "None", sizeof(message));
++	fl4->flowi4_proto = iph->protocol;
++	fl4->daddr = reverse ? iph->saddr : iph->daddr;
++	fl4->saddr = reverse ? iph->daddr : iph->saddr;
++	fl4->flowi4_tos = iph->tos;
 +
-+	cinode->oplock = new_oplock;
- 	cifs_dbg(FYI, "%s Lease granted on inode %p\n", message,
- 		 &cinode->vfs_inode);
+ 	if (!ip_is_fragment(iph)) {
+ 		switch (iph->protocol) {
+ 		case IPPROTO_UDP:
+@@ -130,7 +136,7 @@ _decode_session4(struct sk_buff *skb, struct flowi *fl, int reverse)
+ 			    pskb_may_pull(skb, xprth + 4 - skb->data)) {
+ 				__be16 *ports;
+ 
+-				xprth = skb_network_header(skb) + iph->ihl * 4;
++				xprth = skb_network_header(skb) + ihl * 4;
+ 				ports = (__be16 *)xprth;
+ 
+ 				fl4->fl4_sport = ports[!!reverse];
+@@ -143,7 +149,7 @@ _decode_session4(struct sk_buff *skb, struct flowi *fl, int reverse)
+ 			    pskb_may_pull(skb, xprth + 2 - skb->data)) {
+ 				u8 *icmp;
+ 
+-				xprth = skb_network_header(skb) + iph->ihl * 4;
++				xprth = skb_network_header(skb) + ihl * 4;
+ 				icmp = xprth;
+ 
+ 				fl4->fl4_icmp_type = icmp[0];
+@@ -156,7 +162,7 @@ _decode_session4(struct sk_buff *skb, struct flowi *fl, int reverse)
+ 			    pskb_may_pull(skb, xprth + 4 - skb->data)) {
+ 				__be32 *ehdr;
+ 
+-				xprth = skb_network_header(skb) + iph->ihl * 4;
++				xprth = skb_network_header(skb) + ihl * 4;
+ 				ehdr = (__be32 *)xprth;
+ 
+ 				fl4->fl4_ipsec_spi = ehdr[0];
+@@ -168,7 +174,7 @@ _decode_session4(struct sk_buff *skb, struct flowi *fl, int reverse)
+ 			    pskb_may_pull(skb, xprth + 8 - skb->data)) {
+ 				__be32 *ah_hdr;
+ 
+-				xprth = skb_network_header(skb) + iph->ihl * 4;
++				xprth = skb_network_header(skb) + ihl * 4;
+ 				ah_hdr = (__be32 *)xprth;
+ 
+ 				fl4->fl4_ipsec_spi = ah_hdr[1];
+@@ -180,7 +186,7 @@ _decode_session4(struct sk_buff *skb, struct flowi *fl, int reverse)
+ 			    pskb_may_pull(skb, xprth + 4 - skb->data)) {
+ 				__be16 *ipcomp_hdr;
+ 
+-				xprth = skb_network_header(skb) + iph->ihl * 4;
++				xprth = skb_network_header(skb) + ihl * 4;
+ 				ipcomp_hdr = (__be16 *)xprth;
+ 
+ 				fl4->fl4_ipsec_spi = htonl(ntohs(ipcomp_hdr[1]));
+@@ -193,7 +199,7 @@ _decode_session4(struct sk_buff *skb, struct flowi *fl, int reverse)
+ 				__be16 *greflags;
+ 				__be32 *gre_hdr;
+ 
+-				xprth = skb_network_header(skb) + iph->ihl * 4;
++				xprth = skb_network_header(skb) + ihl * 4;
+ 				greflags = (__be16 *)xprth;
+ 				gre_hdr = (__be32 *)xprth;
+ 
+@@ -210,10 +216,6 @@ _decode_session4(struct sk_buff *skb, struct flowi *fl, int reverse)
+ 			break;
+ 		}
+ 	}
+-	fl4->flowi4_proto = iph->protocol;
+-	fl4->daddr = reverse ? iph->saddr : iph->daddr;
+-	fl4->saddr = reverse ? iph->daddr : iph->saddr;
+-	fl4->flowi4_tos = iph->tos;
  }
+ 
+ static inline int xfrm4_garbage_collect(struct dst_ops *ops)
+-- 
+2.20.1
+
 
 
