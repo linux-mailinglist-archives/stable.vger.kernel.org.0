@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 84D692890F
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:41:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74F0C28911
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:41:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391631AbfEWTaa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:30:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44050 "EHLO mail.kernel.org"
+        id S2392158AbfEWTac (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:30:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44114 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2392158AbfEWTa3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:30:29 -0400
+        id S2392143AbfEWTac (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:30:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3D40A21850;
-        Thu, 23 May 2019 19:30:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 05E8520879;
+        Thu, 23 May 2019 19:30:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639828;
-        bh=FnalDg18hBi6kHR+z/J9Vm5QcBsPty/hXYq3rg0fMHQ=;
+        s=default; t=1558639831;
+        bh=OXAKRAzjo2jHwrzZdwTydx34Rw0Yt7nFcc573flfAXg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ug5BfHbpVloD5WCpIIDw5vf+u+NjON+OT2oMa8aoqMJuzcOpzg9LJ/Htvhw8RSxwp
-         5Qu8J6661cDEu2dK99D8HXeTE8rVz1VevHU97Pv7ixVvGPDOgIyx3cpC4kqLRxwAus
-         XRj4soXahH7NuALICUeMuUSYNWnIpfY6rpg+2XKg=
+        b=PLFDIjIj9Ly86NwcuPcz5w4dMFAhWXGUdXKNVL2uh2jiwmOxF2LmXCLaOUXOZJ4Pn
+         pkXL8ihreI+/aRHVVYVn+j9lgTI7xGMv9mBpqpC+GYf4tw20jRxNkleqfObTAINDX2
+         v+bF2DqGvN5PEfdAAmuyvLi1QhhQIcFi9qsLWeNY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        stable@vger.kernel.org, Helen Koike <helen.koike@collabora.com>,
         Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.1 107/122] dm integrity: correctly calculate the size of metadata area
-Date:   Thu, 23 May 2019 21:07:09 +0200
-Message-Id: <20190523181719.547624425@linuxfoundation.org>
+Subject: [PATCH 5.1 108/122] dm ioctl: fix hang in early create error condition
+Date:   Thu, 23 May 2019 21:07:10 +0200
+Message-Id: <20190523181719.695301559@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
 References: <20190523181705.091418060@linuxfoundation.org>
@@ -43,48 +43,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Helen Koike <helen.koike@collabora.com>
 
-commit 30bba430ddf737978e40561198693ba91386dac1 upstream.
+commit 0f41fcf78849c902ddca564f99a8e23ccfc80333 upstream.
 
-When we use separate devices for data and metadata, dm-integrity would
-incorrectly calculate the size of the metadata device as if it had
-512-byte block size - and it would refuse activation with larger block
-size and smaller metadata device.
+The dm_early_create() function (which deals with "dm-mod.create=" kernel
+command line option) calls dm_hash_insert() who gets an extra reference
+to the md object.
 
-Fix this so that it takes actual block size into account, which fixes
-the following reported issue:
-https://gitlab.com/cryptsetup/cryptsetup/issues/450
+In case of failure, this reference wasn't being released, causing
+dm_destroy() to hang, thus hanging the whole boot process.
 
-Fixes: 356d9d52e122 ("dm integrity: allow separate metadata device")
-Cc: stable@vger.kernel.org # v4.19+
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Fix this by calling __hash_remove() in the error path.
+
+Fixes: 6bbc923dfcf57d ("dm: add support to directly boot to a mapped device")
+Cc: stable@vger.kernel.org
+Signed-off-by: Helen Koike <helen.koike@collabora.com>
 Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/dm-integrity.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/md/dm-ioctl.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/md/dm-integrity.c
-+++ b/drivers/md/dm-integrity.c
-@@ -2568,7 +2568,7 @@ static int calculate_device_limits(struc
- 		if (last_sector < ic->start || last_sector >= ic->meta_device_sectors)
- 			return -EINVAL;
- 	} else {
--		__u64 meta_size = ic->provided_data_sectors * ic->tag_size;
-+		__u64 meta_size = (ic->provided_data_sectors >> ic->sb->log2_sectors_per_block) * ic->tag_size;
- 		meta_size = (meta_size + ((1U << (ic->log2_buffer_sectors + SECTOR_SHIFT)) - 1))
- 				>> (ic->log2_buffer_sectors + SECTOR_SHIFT);
- 		meta_size <<= ic->log2_buffer_sectors;
-@@ -3439,7 +3439,7 @@ try_smaller_buffer:
- 	DEBUG_print("	journal_sections %u\n", (unsigned)le32_to_cpu(ic->sb->journal_sections));
- 	DEBUG_print("	journal_entries %u\n", ic->journal_entries);
- 	DEBUG_print("	log2_interleave_sectors %d\n", ic->sb->log2_interleave_sectors);
--	DEBUG_print("	device_sectors 0x%llx\n", (unsigned long long)ic->device_sectors);
-+	DEBUG_print("	data_device_sectors 0x%llx\n", (unsigned long long)ic->data_device_sectors);
- 	DEBUG_print("	initial_sectors 0x%x\n", ic->initial_sectors);
- 	DEBUG_print("	metadata_run 0x%x\n", ic->metadata_run);
- 	DEBUG_print("	log2_metadata_run %d\n", ic->log2_metadata_run);
+--- a/drivers/md/dm-ioctl.c
++++ b/drivers/md/dm-ioctl.c
+@@ -2069,7 +2069,7 @@ int __init dm_early_create(struct dm_ioc
+ 	/* alloc table */
+ 	r = dm_table_create(&t, get_mode(dmi), dmi->target_count, md);
+ 	if (r)
+-		goto err_destroy_dm;
++		goto err_hash_remove;
+ 
+ 	/* add targets */
+ 	for (i = 0; i < dmi->target_count; i++) {
+@@ -2116,6 +2116,10 @@ int __init dm_early_create(struct dm_ioc
+ 
+ err_destroy_table:
+ 	dm_table_destroy(t);
++err_hash_remove:
++	(void) __hash_remove(__get_name_cell(dmi->name));
++	/* release reference from __get_name_cell */
++	dm_put(md);
+ err_destroy_dm:
+ 	dm_put(md);
+ 	dm_destroy(md);
 
 
