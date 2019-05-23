@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6ADC428AB5
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:58:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AF55C28A0B
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:56:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389097AbfEWTpP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:45:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50304 "EHLO mail.kernel.org"
+        id S1731736AbfEWTIa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:08:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41256 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389077AbfEWTPt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:15:49 -0400
+        id S1731464AbfEWTIa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:08:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8B58A217D7;
-        Thu, 23 May 2019 19:15:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0FDD9217D7;
+        Thu, 23 May 2019 19:08:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558638949;
-        bh=2yOBiJ/ADzN5mUmjQMi39EZs/vsECzak1Apuewu9mss=;
+        s=default; t=1558638509;
+        bh=Pmc3z1L86Cevr7eX4dPYJmCdKqbcycR3yMf88zhOwFg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aUzT0gL2VIzgEXWClu4uWM8yqwib7QTtLix+0lqNq2ubPMqXWVuBrnqQxFMl8plkk
-         N/AH7YjkE5i/0NvlRfTjRSr47jMiW6IXbx3Jiurju5sGv4H+BYqohRIanOJ5HrSG+J
-         X1N5bzfpfyWwQiZOkkL+fzG1QBF0VDvcPrVy9Wmg=
+        b=KzGMkYBcpBpscVqc1m186lSMWQ/mEEzrMgMi3C9ZPqgWadYwL8+1vyDhj0oJexD+R
+         cCmvWzSNcIFdjdOoFHhBcm2489FLJ65CpNMba06cZ46XeXdNzk7GQ5ZX91L1pJAMfO
+         Dm0aSQ8Xi5ThMgH4cB+rEH4TNU6XdRHgJcBd58VE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steev Klimaszewski <steev@kali.org>,
-        Dmitry Osipenko <digetx@gmail.com>,
-        Peter De Schrijver <pdeschrijver@nvidia.com>,
-        Stephen Boyd <sboyd@kernel.org>
-Subject: [PATCH 4.19 040/114] clk: tegra: Fix PLLM programming on Tegra124+ when PMC overrides divider
+        stable@vger.kernel.org, Phong Tran <tranmanphong@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        David Laight <David.Laight@ACULAB.COM>,
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH 4.9 15/53] of: fix clang -Wunsequenced for be32_to_cpu()
 Date:   Thu, 23 May 2019 21:05:39 +0200
-Message-Id: <20190523181735.397285171@linuxfoundation.org>
+Message-Id: <20190523181713.300765233@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
-References: <20190523181731.372074275@linuxfoundation.org>
+In-Reply-To: <20190523181710.981455400@linuxfoundation.org>
+References: <20190523181710.981455400@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,39 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Phong Tran <tranmanphong@gmail.com>
 
-commit 40db569d6769ffa3864fd1b89616b1a7323568a8 upstream.
+commit 440868661f36071886ed360d91de83bd67c73b4f upstream.
 
-There are wrongly set parenthesis in the code that are resulting in a
-wrong configuration being programmed for PLLM. The original fix was made
-by Danny Huang in the downstream kernel. The patch was tested on Nyan Big
-Tegra124 chromebook, PLLM rate changing works correctly now and system
-doesn't lock up after changing the PLLM rate due to EMC scaling.
+Now, make the loop explicit to avoid clang warning.
 
-Cc: <stable@vger.kernel.org>
-Tested-by: Steev Klimaszewski <steev@kali.org>
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Acked-By: Peter De Schrijver <pdeschrijver@nvidia.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+./include/linux/of.h:238:37: warning: multiple unsequenced modifications
+to 'cell' [-Wunsequenced]
+                r = (r << 32) | be32_to_cpu(*(cell++));
+                                                  ^~
+./include/linux/byteorder/generic.h:95:21: note: expanded from macro
+'be32_to_cpu'
+                    ^
+./include/uapi/linux/byteorder/little_endian.h:40:59: note: expanded
+from macro '__be32_to_cpu'
+                                                          ^
+./include/uapi/linux/swab.h:118:21: note: expanded from macro '__swab32'
+        ___constant_swab32(x) :                 \
+                           ^
+./include/uapi/linux/swab.h:18:12: note: expanded from macro
+'___constant_swab32'
+        (((__u32)(x) & (__u32)0x000000ffUL) << 24) |            \
+                  ^
+
+Signed-off-by: Phong Tran <tranmanphong@gmail.com>
+Reported-by: Nick Desaulniers <ndesaulniers@google.com>
+Link: https://github.com/ClangBuiltLinux/linux/issues/460
+Suggested-by: David Laight <David.Laight@ACULAB.COM>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Cc: stable@vger.kernel.org
+[robh: fix up whitespace]
+Signed-off-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/clk/tegra/clk-pll.c |    4 ++--
+ include/linux/of.h |    4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/clk/tegra/clk-pll.c
-+++ b/drivers/clk/tegra/clk-pll.c
-@@ -662,8 +662,8 @@ static void _update_pll_mnp(struct tegra
- 		pll_override_writel(val, params->pmc_divp_reg, pll);
+--- a/include/linux/of.h
++++ b/include/linux/of.h
+@@ -220,8 +220,8 @@ extern struct device_node *of_find_all_n
+ static inline u64 of_read_number(const __be32 *cell, int size)
+ {
+ 	u64 r = 0;
+-	while (size--)
+-		r = (r << 32) | be32_to_cpu(*(cell++));
++	for (; size--; cell++)
++		r = (r << 32) | be32_to_cpu(*cell);
+ 	return r;
+ }
  
- 		val = pll_override_readl(params->pmc_divnm_reg, pll);
--		val &= ~(divm_mask(pll) << div_nmp->override_divm_shift) |
--			~(divn_mask(pll) << div_nmp->override_divn_shift);
-+		val &= ~((divm_mask(pll) << div_nmp->override_divm_shift) |
-+			(divn_mask(pll) << div_nmp->override_divn_shift));
- 		val |= (cfg->m << div_nmp->override_divm_shift) |
- 			(cfg->n << div_nmp->override_divn_shift);
- 		pll_override_writel(val, params->pmc_divnm_reg, pll);
 
 
