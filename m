@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 72AD428804
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:26:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A4D828A0C
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:56:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390978AbfEWT0T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:26:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38124 "EHLO mail.kernel.org"
+        id S1731778AbfEWTId (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:08:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390636AbfEWT0T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:26:19 -0400
+        id S1731464AbfEWTIc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:08:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F14C920868;
-        Thu, 23 May 2019 19:26:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BDAC02133D;
+        Thu, 23 May 2019 19:08:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639578;
-        bh=J41EuJLG+sXz2i4AKh/xVoeOsnYj33XSb3EDyOR4SOo=;
+        s=default; t=1558638512;
+        bh=it0I7Gz7nzbyQOCIAFGPR1F82AQBs2kZZi/28FjGoPo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pjS7/piVzC6JoSPF4MeteIaG4LZWgT2nci9aXRLzPfieAgWwe5qsrFzl4CLoM40ac
-         JvZElRO5Vvmg2VGQN3EtnIYLpIhK8Z8TmGq+VTLILBR6Up9ftkELcH8A2RaxBqFHkM
-         edoTNwW7CVEH5LFFxWi0qUyoA/2Pr+W1bfNnZqo0=
+        b=tliJiYIIN+4B/nGkV+CN8X3sx7nHbNEQxe21OuJmRFyDaiNtzdx4fvMt9yWz8lS51
+         MS0tmXtCiv+r781iGzUVel1SZ5d+rDUrSMJHje6jl5PLdclY4nlWm3GD8aN3hXLaGO
+         8VVJFXNHAucSUY7yFlYIlDd4JPRJLnh0npBKGLjs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianbo Liu <jianbol@mellanox.com>,
-        Edward Cree <ecree@solarflare.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.1 017/122] net/mlx5e: Fix calling wrong function to get inner vlan key and mask
-Date:   Thu, 23 May 2019 21:05:39 +0200
-Message-Id: <20190523181707.134169459@linuxfoundation.org>
+        stable@vger.kernel.org, Christoph Probst <kernel@probst.it>,
+        Pavel Shilovsky <pshilov@microsoft.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 4.9 16/53] cifs: fix strcat buffer overflow and reduce raciness in smb21_set_oplock_level()
+Date:   Thu, 23 May 2019 21:05:40 +0200
+Message-Id: <20190523181713.476317191@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
-References: <20190523181705.091418060@linuxfoundation.org>
+In-Reply-To: <20190523181710.981455400@linuxfoundation.org>
+References: <20190523181710.981455400@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,39 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jianbo Liu <jianbol@mellanox.com>
+From: Christoph Probst <kernel@probst.it>
 
-[ Upstream commit 12d5cbf89a6599f6bbd7b373dba0e74b5bd9c505 ]
+commit 6a54b2e002c9d00b398d35724c79f9fe0d9b38fb upstream.
 
-When flow_rule_match_XYZ() functions were first introduced,
-flow_rule_match_cvlan() for inner vlan is missing.
+Change strcat to strncpy in the "None" case to fix a buffer overflow
+when cinode->oplock is reset to 0 by another thread accessing the same
+cinode. It is never valid to append "None" to any other message.
 
-In mlx5_core driver, to get inner vlan key and mask, flow_rule_match_vlan()
-is just called, which is wrong because it obtains outer vlan information by
-FLOW_DISSECTOR_KEY_VLAN.
+Consolidate multiple writes to cinode->oplock to reduce raciness.
 
-This commit fixes this by changing to call flow_rule_match_cvlan() after
-it's added.
-
-Fixes: 8f2566225ae2 ("flow_offload: add flow_rule and flow_match structures and use them")
-Signed-off-by: Jianbo Liu <jianbol@mellanox.com>
-Signed-off-by: Edward Cree <ecree@solarflare.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Christoph Probst <kernel@probst.it>
+Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+CC: Stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/mellanox/mlx5/core/en_tc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-@@ -1561,7 +1561,7 @@ static int __parse_cls_flower(struct mlx
- 	if (flow_rule_match_key(rule, FLOW_DISSECTOR_KEY_CVLAN)) {
- 		struct flow_match_vlan match;
+---
+ fs/cifs/smb2ops.c |   14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
+
+--- a/fs/cifs/smb2ops.c
++++ b/fs/cifs/smb2ops.c
+@@ -1413,26 +1413,28 @@ smb21_set_oplock_level(struct cifsInodeI
+ 		       unsigned int epoch, bool *purge_cache)
+ {
+ 	char message[5] = {0};
++	unsigned int new_oplock = 0;
  
--		flow_rule_match_vlan(rule, &match);
-+		flow_rule_match_cvlan(rule, &match);
- 		if (match.mask->vlan_id ||
- 		    match.mask->vlan_priority ||
- 		    match.mask->vlan_tpid) {
+ 	oplock &= 0xFF;
+ 	if (oplock == SMB2_OPLOCK_LEVEL_NOCHANGE)
+ 		return;
+ 
+-	cinode->oplock = 0;
+ 	if (oplock & SMB2_LEASE_READ_CACHING_HE) {
+-		cinode->oplock |= CIFS_CACHE_READ_FLG;
++		new_oplock |= CIFS_CACHE_READ_FLG;
+ 		strcat(message, "R");
+ 	}
+ 	if (oplock & SMB2_LEASE_HANDLE_CACHING_HE) {
+-		cinode->oplock |= CIFS_CACHE_HANDLE_FLG;
++		new_oplock |= CIFS_CACHE_HANDLE_FLG;
+ 		strcat(message, "H");
+ 	}
+ 	if (oplock & SMB2_LEASE_WRITE_CACHING_HE) {
+-		cinode->oplock |= CIFS_CACHE_WRITE_FLG;
++		new_oplock |= CIFS_CACHE_WRITE_FLG;
+ 		strcat(message, "W");
+ 	}
+-	if (!cinode->oplock)
+-		strcat(message, "None");
++	if (!new_oplock)
++		strncpy(message, "None", sizeof(message));
++
++	cinode->oplock = new_oplock;
+ 	cifs_dbg(FYI, "%s Lease granted on inode %p\n", message,
+ 		 &cinode->vfs_inode);
+ }
 
 
