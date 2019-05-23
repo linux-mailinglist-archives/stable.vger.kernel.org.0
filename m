@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C312C2895A
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:42:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A19428AA4
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:58:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388129AbfEWTe5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:34:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39550 "EHLO mail.kernel.org"
+        id S2388768AbfEWToJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:44:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2391153AbfEWT1U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:27:20 -0400
+        id S2389268AbfEWTQv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:16:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BF84F2186A;
-        Thu, 23 May 2019 19:27:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 827B82184E;
+        Thu, 23 May 2019 19:16:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558639640;
-        bh=4wgxF1YFp5FyaQGTZ3L+A80LKvSHjmr7i8d7XrTzsD0=;
+        s=default; t=1558639011;
+        bh=3rxfAX4mLHvVaXl+hX9hwHnq3HJQHQSfrnr68pxQPQk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wyZFv3yTRbZKX+TwM+fC9Qx4A+nQS08R77wgGBvGPdy8INBiy377o0IWPlFOWqBmi
-         k3/jKZC+tYmVgul2wKR4XHiUBi2V4kR2Q9OwJeiYGudlvnWs7KRuBD4x8X8Sk6RabC
-         a33WdY3hyV+Rk3Xjwpw+neIBiWAJwGBXZyX4HD54=
+        b=JbkGZCx4GKZwj5mfdZz7T3vKPsoIQrXDTP71rnlkKzayoiDwvh+5NFHHvtUT3LHBv
+         /G4bjZgS2nsvErfXrCesqO0AkGSK93BnyB2FSESDqE1wMIsEZD7wr56gTpeoD4nv6e
+         PDaYYiJYM9CJNho4EsvDq7ZhGJpYPTn+QocNObUQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guoqing Jiang <gqjiang@suse.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Song Liu <songliubraving@fb.com>
-Subject: [PATCH 5.1 040/122] md: add a missing endianness conversion in check_sb_changes
+        stable@vger.kernel.org, Yifeng Li <tomli@tomli.me>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
+        Teddy Wang <teddy.wang@siliconmotion.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Subject: [PATCH 4.19 063/114] fbdev: sm712fb: fix VRAM detection, dont set SR70/71/74/75
 Date:   Thu, 23 May 2019 21:06:02 +0200
-Message-Id: <20190523181710.068992771@linuxfoundation.org>
+Message-Id: <20190523181737.301482231@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181705.091418060@linuxfoundation.org>
-References: <20190523181705.091418060@linuxfoundation.org>
+In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
+References: <20190523181731.372074275@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,34 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Yifeng Li <tomli@tomli.me>
 
-commit ed4d0a4ea11e19863952ac6a7cea3bbb27ccd452 upstream.
+commit dcf9070595e100942c539e229dde4770aaeaa4e9 upstream.
 
-The on-disk value is little endian and we need to convert it to
-native endian before storing the value in the in-core structure.
+On a Thinkpad s30 (Pentium III / i440MX, Lynx3DM), the amount of Video
+RAM is not detected correctly by the xf86-video-siliconmotion driver.
+This is because sm712fb overwrites the GPR71 Scratch Pad Register, which
+is set by BIOS on x86 and used to indicate amount of VRAM.
 
-Fixes: 7564beda19b36 ("md-cluster/raid10: support add disk under grow mode")
-Cc: <stable@vger.kernel.org> # 4.20+
-Acked-by: Guoqing Jiang <gqjiang@suse.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Song Liu <songliubraving@fb.com>
+Other Scratch Pad Registers, including GPR70/74/75, don't have the same
+side-effect, but overwriting to them is still questionable, as they are
+not related to modesetting.
+
+Stop writing to SR70/71/74/75 (a.k.a GPR70/71/74/75).
+
+Signed-off-by: Yifeng Li <tomli@tomli.me>
+Tested-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Cc: Teddy Wang <teddy.wang@siliconmotion.com>
+Cc: <stable@vger.kernel.org>  # v4.4+
+Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/md.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/video/fbdev/sm712fb.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -9229,7 +9229,7 @@ static void check_sb_changes(struct mdde
- 		 * reshape is happening in the remote node, we need to
- 		 * update reshape_position and call start_reshape.
- 		 */
--		mddev->reshape_position = sb->reshape_position;
-+		mddev->reshape_position = le64_to_cpu(sb->reshape_position);
- 		if (mddev->pers->update_reshape_pos)
- 			mddev->pers->update_reshape_pos(mddev);
- 		if (mddev->pers->start_reshape)
+--- a/drivers/video/fbdev/sm712fb.c
++++ b/drivers/video/fbdev/sm712fb.c
+@@ -1146,7 +1146,9 @@ static void sm7xx_set_timing(struct smtc
+ 		/* init SEQ register SR30 - SR75 */
+ 		for (i = 0; i < SIZE_SR30_SR75; i++)
+ 			if ((i + 0x30) != 0x30 && (i + 0x30) != 0x62 &&
+-			    (i + 0x30) != 0x6a && (i + 0x30) != 0x6b)
++			    (i + 0x30) != 0x6a && (i + 0x30) != 0x6b &&
++			    (i + 0x30) != 0x70 && (i + 0x30) != 0x71 &&
++			    (i + 0x30) != 0x74 && (i + 0x30) != 0x75)
+ 				smtc_seqw(i + 0x30,
+ 					  vgamode[j].init_sr30_sr75[i]);
+ 
 
 
