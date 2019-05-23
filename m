@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 65471286B4
-	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:15:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A6706287A3
+	for <lists+stable@lfdr.de>; Thu, 23 May 2019 21:25:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387621AbfEWTL4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 15:11:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45520 "EHLO mail.kernel.org"
+        id S2389923AbfEWTVg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 15:21:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388313AbfEWTL4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 15:11:56 -0400
+        id S2390290AbfEWTVd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 23 May 2019 15:21:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3B11E2133D;
-        Thu, 23 May 2019 19:11:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ACACF20863;
+        Thu, 23 May 2019 19:21:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558638715;
-        bh=fcau2Na3AHGRaU+BsHdcB5iV/QDvQxU4OX8p2siQh4k=;
+        s=default; t=1558639293;
+        bh=HiFtAIKrl+Yj/b7btEiQx9X+/cf8POcNBsL9C668gKc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u8XXd5MflP/e0E1gA1J9PjgnCLhcShoWFG0xcWlKCEY5CYdkvwsfHiY2ufaCbag45
-         bOHeCOfKBCLTZZEQv+ZZzIluP6szRVQaorowX/0BC20xFIMhGMoS72O/rHeW095CLE
-         jh1YTk4l9V13kvxnohj2TMKXL0Un7uQ+tbJjRnqo=
+        b=vRqZ8KPIOWKOwGzI8nAWoepsHZ+j/K4g9QIdG5Lx4wR8uQwxLxPd3Ao+J7UAsJHfg
+         keJ0xBQ5NSt0lEfm23EyYfR1qWOfXDsTd/xns9stDwawjNAJEe/suZmQk3NYjbmtiB
+         F7uzGUTx7Vcrhju0E4DI/KwR7BvEU89K1xBt/xX8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Janusz Krzysztofik <jmkrzyszt@gmail.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 4.14 21/77] media: ov6650: Fix sensor possibly not detected on probe
+        stable@vger.kernel.org, Zhong Kaihua <zhongkaihua@huawei.com>,
+        John Stultz <john.stultz@linaro.org>,
+        Zhangfei Gao <zhangfei.gao@linaro.org>,
+        Dong Zhang <zhangdong46@hisilicon.com>,
+        Leo Yan <leo.yan@linaro.org>, Stephen Boyd <sboyd@kernel.org>
+Subject: [PATCH 5.0 051/139] clk: hi3660: Mark clk_gate_ufs_subsys as critical
 Date:   Thu, 23 May 2019 21:05:39 +0200
-Message-Id: <20190523181723.252123464@linuxfoundation.org>
+Message-Id: <20190523181727.303517530@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190523181719.982121681@linuxfoundation.org>
-References: <20190523181719.982121681@linuxfoundation.org>
+In-Reply-To: <20190523181720.120897565@linuxfoundation.org>
+References: <20190523181720.120897565@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +46,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+From: Leo Yan <leo.yan@linaro.org>
 
-commit 933c1320847f5ed6b61a7d10f0a948aa98ccd7b0 upstream.
+commit 9f77a60669d13ed4ddfa6cd7374c9d88da378ffa upstream.
 
-After removal of clock_start() from before soc_camera_init_i2c() in
-soc_camera_probe() by commit 9aea470b399d ("[media] soc-camera: switch
-I2C subdevice drivers to use v4l2-clk") introduced in v3.11, the ov6650
-driver could no longer probe the sensor successfully because its clock
-was no longer turned on in advance.  The issue was initially worked
-around by adding that missing clock_start() equivalent to OMAP1 camera
-interface driver - the only user of this sensor - but a propoer fix
-should be rather implemented in the sensor driver code itself.
+clk_gate_ufs_subsys is a system bus clock, turning off it will
+introduce lockup issue during system suspend flow.  Let's mark
+clk_gate_ufs_subsys as critical clock, thus keeps it on during
+system suspend and resume.
 
-Fix the issue by inserting a delay between the clock is turned on and
-the sensor I2C registers are read for the first time.
-
-Tested on Amstrad Delta with now out of tree but still locally
-maintained omap1_camera host driver.
-
-Fixes: 9aea470b399d ("[media] soc-camera: switch I2C subdevice drivers to use v4l2-clk")
-
-Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+Fixes: d374e6fd5088 ("clk: hisilicon: Add clock driver for hi3660 SoC")
 Cc: stable@vger.kernel.org
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Cc: Zhong Kaihua <zhongkaihua@huawei.com>
+Cc: John Stultz <john.stultz@linaro.org>
+Cc: Zhangfei Gao <zhangfei.gao@linaro.org>
+Suggested-by: Dong Zhang <zhangdong46@hisilicon.com>
+Signed-off-by: Leo Yan <leo.yan@linaro.org>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/i2c/ov6650.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/clk/hisilicon/clk-hi3660.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/media/i2c/ov6650.c
-+++ b/drivers/media/i2c/ov6650.c
-@@ -826,6 +826,8 @@ static int ov6650_video_probe(struct i2c
- 	if (ret < 0)
- 		return ret;
- 
-+	msleep(20);
-+
- 	/*
- 	 * check and show product ID and manufacturer ID
- 	 */
+--- a/drivers/clk/hisilicon/clk-hi3660.c
++++ b/drivers/clk/hisilicon/clk-hi3660.c
+@@ -163,8 +163,12 @@ static const struct hisi_gate_clock hi36
+ 	  "clk_isp_snclk_mux", CLK_SET_RATE_PARENT, 0x50, 17, 0, },
+ 	{ HI3660_CLK_GATE_ISP_SNCLK2, "clk_gate_isp_snclk2",
+ 	  "clk_isp_snclk_mux", CLK_SET_RATE_PARENT, 0x50, 18, 0, },
++	/*
++	 * clk_gate_ufs_subsys is a system bus clock, mark it as critical
++	 * clock and keep it on for system suspend and resume.
++	 */
+ 	{ HI3660_CLK_GATE_UFS_SUBSYS, "clk_gate_ufs_subsys", "clk_div_sysbus",
+-	  CLK_SET_RATE_PARENT, 0x50, 21, 0, },
++	  CLK_SET_RATE_PARENT | CLK_IS_CRITICAL, 0x50, 21, 0, },
+ 	{ HI3660_PCLK_GATE_DSI0, "pclk_gate_dsi0", "clk_div_cfgbus",
+ 	  CLK_SET_RATE_PARENT, 0x50, 28, 0, },
+ 	{ HI3660_PCLK_GATE_DSI1, "pclk_gate_dsi1", "clk_div_cfgbus",
 
 
