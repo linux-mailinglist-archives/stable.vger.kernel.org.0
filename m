@@ -2,128 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8208E29062
-	for <lists+stable@lfdr.de>; Fri, 24 May 2019 07:28:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A6DA29079
+	for <lists+stable@lfdr.de>; Fri, 24 May 2019 07:43:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388445AbfEXF2j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 May 2019 01:28:39 -0400
-Received: from mail-wm1-f67.google.com ([209.85.128.67]:50815 "EHLO
-        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388051AbfEXF2f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 May 2019 01:28:35 -0400
-Received: by mail-wm1-f67.google.com with SMTP id f204so7954618wme.0
-        for <stable@vger.kernel.org>; Thu, 23 May 2019 22:28:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:in-reply-to
-         :references:subject:to:from:cc;
-        bh=RFTpgKRph5hKN4zTxKUj6Kr/SwTVEIL9u2TwViKkFZk=;
-        b=vAvXIxPjSSPQJ/jwSn2ql0sbGOYI+N9VsW1Ov6qe4KCrNHZL+o9rxlzGT+/kO/9vv8
-         fxT5wSHIue1K8T9gju+d306IKXguLY6K/oHFG2hOZ4YTyvM5KLKetDw38ifnvIXPeY00
-         E7vh6XelLoC7w0/PepM6VagNMQWUmgm6hZtrvaFxeleMIueJycikrA3Inp30/sbsTdil
-         MgAUPo4EQIQfhZFmR47yw9QFlE0TTwOuNZ6UUTWXuMddKUa3Nc+/Zr0K8K2r0n2oGPfR
-         vAwpnZmiuDkKt2XNPTpezDxjn/B/ZRQM3GEJQ5APBE6NxvLrjPyjg7ZAY5PIqZHGikWI
-         SYgA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:in-reply-to:references:subject:to:from:cc;
-        bh=RFTpgKRph5hKN4zTxKUj6Kr/SwTVEIL9u2TwViKkFZk=;
-        b=qurNhFb5jKXWUwV+xtom4H6VBJ+U60GtpS34FYG5vJpkSaG/m0BXDUXYOY+fE4lhH1
-         4xkvdjFerXf3wGyMXcQLx8OcN0JAK4Bh7fLQCrd8NXRkOaYha4jXDByfRYFjEP//pIKV
-         Wdw4cJihU7Gwbs3CpBzHLiaDOycTIgwfS0OsEV0Bs8fZYMDnaOck8DtpSNm3UNwjHet3
-         +d00EC7gHymzL4ubsv/JNZlKdpk+zEHrG9EQYJjK/qdvvV3oVJjrvXoYYrE6FqjUic9f
-         T/5got2/TPoOJ0C7WoxdtgqHmD20w7oEyYZ+eRwbxCZyPGSUp+cVYr07kwVr628Z59bi
-         XiaQ==
-X-Gm-Message-State: APjAAAUJqa1oPtV57Sa7N0KrtRMazbq6Oa0ZDWvzIS8Xi8l+5fk7YgbR
-        47k1Rdekq0MP+IOTz5Rms4xnfg==
-X-Google-Smtp-Source: APXvYqzwao2EN7hiFW+Tv6d4/ftSGcUlI1GVkPFKcrwoS6nS6JeY/tv8y/IfU//6RKQQsqjoAAQqmg==
-X-Received: by 2002:a1c:80c3:: with SMTP id b186mr14376002wmd.43.1558675713578;
-        Thu, 23 May 2019 22:28:33 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id a5sm1058730wrt.10.2019.05.23.22.28.32
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 23 May 2019 22:28:33 -0700 (PDT)
-Message-ID: <5ce78101.1c69fb81.69b72.5337@mx.google.com>
-Date:   Thu, 23 May 2019 22:28:33 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.9.y
-X-Kernelci-Kernel: v4.9.178-54-gf6bc31d8c3be
-In-Reply-To: <20190523181710.981455400@linuxfoundation.org>
-References: <20190523181710.981455400@linuxfoundation.org>
-Subject: Re: [PATCH 4.9 00/53] 4.9.179-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
+        id S1731824AbfEXFno (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 May 2019 01:43:44 -0400
+Received: from mx2.suse.de ([195.135.220.15]:50776 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725890AbfEXFno (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 May 2019 01:43:44 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id 06D74AEA1;
+        Fri, 24 May 2019 05:43:42 +0000 (UTC)
+Date:   Fri, 24 May 2019 07:43:42 +0200
+Message-ID: <s5h7eagflv5.wl-tiwai@suse.de>
+From:   Takashi Iwai <tiwai@suse.de>
+To:     Jian-Hong Pan <jian-hong@endlessm.com>
+Cc:     stable@vger.kernel.org, linux@endlessm.com
+Subject: Re: [PATCH] Revert "ALSA: hda - Enforces runtime_resume after S3 and S4 for each codec"
+In-Reply-To: <20190524051015.4680-1-jian-hong@endlessm.com>
+References: <20190524051015.4680-1-jian-hong@endlessm.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI/1.14.6 (Maruoka)
+ FLIM/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL/10.8 Emacs/25.3
+ (x86_64-suse-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI 1.14.6 - "Maruoka")
+Content-Type: text/plain; charset=US-ASCII
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y boot: 107 boots: 0 failed, 94 passed with 13 offline =
-(v4.9.178-54-gf6bc31d8c3be)
+On Fri, 24 May 2019 07:10:17 +0200,
+Jian-Hong Pan wrote:
+> 
+> We have an ASUS E406MA laptop equipped with Intel N5000 CPU.  After
+> system suspend & resume, the audio playback does not work anymore. The
+> device for sound output is listed as a headphone device.  Plugging in
+> headphones no sound is audible neither.
+> 
+> Here are the error messages after resume:
+> 
+> [  184.525681] snd_hda_intel 0000:00:0e.0: azx_get_response timeout, switching to polling mode: last cmd=0x20bf8100
+> [  185.528682] snd_hda_intel 0000:00:0e.0: No response from codec, disabling MSI: last cmd=0x20bf8100
+> [  186.532683] snd_hda_intel 0000:00:0e.0: azx_get_response timeout, switching to single_cmd mode: last cmd=0x20bf8100
+> [  186.736838] snd_hda_codec_realtek hdaudioC0D0: Unable to sync register 0x2b8000. -5
+> [  186.738742] snd_hda_codec_realtek hdaudioC0D0: Unable to sync register 0x2b8000. -5
+> [  186.767080] snd_hda_codec_hdmi hdaudioC0D2: Unable to sync register 0x2f0d00. -5
+> 
+> After bisect, we found reverting the commit b5a236c175b0 "ALSA: hda -
+> Enforces runtime_resume after S3 and S4 for each codec" can solve this
+> issue on Linux stable 5.0.x series.
+> 
+> This reverts commit a57af6d07512716b78f1a32d9426bcdf6aafc50c.
+> 
+> Buglink: https://bugzilla.kernel.org/show_bug.cgi?id=203623
+> Fixes: a57af6d07512 ("ALSA: hda - Enforces runtime_resume after S3 and S4 for each codec")
+> Cc: <stable@vger.kernel.org> # 5.0.x
+> Signed-off-by: Jian-Hong Pan <jian-hong@endlessm.com>
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.9.y/kernel/v4.9.178-54-gf6bc31d8c3be/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
-/kernel/v4.9.178-54-gf6bc31d8c3be/
+I thought this revert isn't needed if the i915 GLK fix is applied?
 
-Tree: stable-rc
-Branch: linux-4.9.y
-Git Describe: v4.9.178-54-gf6bc31d8c3be
-Git Commit: f6bc31d8c3be3e5ab957341b3f99f8b45fcc646e
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 52 unique boards, 22 SoC families, 15 builds out of 197
+You must hit the very same problem even after reverting this when the
+machine goes to suspend while playing a stream.  So the revert is no
+proper fix at all.
 
-Offline Platforms:
 
-arm:
+thanks,
 
-    bcm2835_defconfig:
-        gcc-8
-            bcm2835-rpi-b: 1 offline lab
-
-    tegra_defconfig:
-        gcc-8
-            tegra124-jetson-tk1: 1 offline lab
-
-    sama5_defconfig:
-        gcc-8
-            at91-sama5d4_xplained: 1 offline lab
-
-    socfpga_defconfig:
-        gcc-8
-            socfpga_cyclone5_de0_sockit: 1 offline lab
-
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            alpine-db: 1 offline lab
-            at91-sama5d4_xplained: 1 offline lab
-            socfpga_cyclone5_de0_sockit: 1 offline lab
-            stih410-b2120: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
-            tegra124-jetson-tk1: 1 offline lab
-
-arm64:
-
-    defconfig:
-        gcc-8
-            apq8016-sbc: 1 offline lab
-            juno-r2: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+Takashi
