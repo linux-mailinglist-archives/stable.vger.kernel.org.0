@@ -2,127 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F380297A9
-	for <lists+stable@lfdr.de>; Fri, 24 May 2019 13:56:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 173522987C
+	for <lists+stable@lfdr.de>; Fri, 24 May 2019 15:06:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391381AbfEXLyF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 May 2019 07:54:05 -0400
-Received: from merlin.infradead.org ([205.233.59.134]:49178 "EHLO
-        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2391378AbfEXLyF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 May 2019 07:54:05 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=merlin.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=vVkD+yS+6mY3ND8nY872UeMHSULOVyjDtscm+0lgvtc=; b=Dy0aSOZbCrVtrIo8dC0PzlUHX
-        uFjvE/MFtcTUu5HIH7+jBtdgszhIPRaXs1lCTo3Bk8K784xoTIXK0SpZuzRHKaTidrLbfA9kASK2h
-        YOYRaERfDnMZVsM1gw582GINE4uLOMLbwVub24179V+GnxUelKob/P3Pq4B2pr6szy7k0O56XVa5r
-        2QecVZ8IzRq4rzgnJd/ywlC51c3JBP53P3kp/2EgJVQmOjCqOjA/p8FL1Mr4g4nLPNMnYz/J6Cm2p
-        gJ323St9pi8uoLuX6aipNMh8SKXqD4ptdPWllpqyo2L18brt0NaDiH/HU2IakAidNo36uECiVaKEC
-        xPtBx64og==;
-Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=hirez.programming.kicks-ass.net)
-        by merlin.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
-        id 1hU8kU-0008N3-D0; Fri, 24 May 2019 11:52:34 +0000
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
-        id AC0A620670583; Fri, 24 May 2019 13:52:31 +0200 (CEST)
-Date:   Fri, 24 May 2019 13:52:31 +0200
-From:   Peter Zijlstra <peterz@infradead.org>
-To:     Will Deacon <will.deacon@arm.com>
-Cc:     Mark Rutland <mark.rutland@arm.com>,
-        Andrea Parri <andrea.parri@amarulasolutions.com>,
-        linux-kernel@vger.kernel.org, aou@eecs.berkeley.edu, arnd@arndb.de,
-        bp@alien8.de, catalin.marinas@arm.com, davem@davemloft.net,
-        fenghua.yu@intel.com, heiko.carstens@de.ibm.com,
-        herbert@gondor.apana.org.au, ink@jurassic.park.msu.ru,
-        jhogan@kernel.org, linux@armlinux.org.uk, mattst88@gmail.com,
-        mingo@kernel.org, mpe@ellerman.id.au, palmer@sifive.com,
-        paul.burton@mips.com, paulus@samba.org, ralf@linux-mips.org,
-        rth@twiddle.net, stable@vger.kernel.org, tglx@linutronix.de,
-        tony.luck@intel.com, vgupta@synopsys.com,
-        gregkh@linuxfoundation.org, jhansen@vmware.com, vdasa@vmware.com,
-        aditr@vmware.com, Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [PATCH 00/18] locking/atomic: atomic64 type cleanup
-Message-ID: <20190524115231.GN2623@hirez.programming.kicks-ass.net>
-References: <20190522132250.26499-1-mark.rutland@arm.com>
- <20190523083013.GA4616@andrea>
- <20190523101926.GA3370@lakrids.cambridge.arm.com>
- <20190524103731.GN2606@hirez.programming.kicks-ass.net>
- <20190524111807.GS2650@hirez.programming.kicks-ass.net>
- <20190524114220.GA4260@fuggles.cambridge.arm.com>
+        id S2391422AbfEXNGM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 May 2019 09:06:12 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:50552 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2391193AbfEXNGM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 May 2019 09:06:12 -0400
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 1A2DDC4EC4;
+        Fri, 24 May 2019 13:06:12 +0000 (UTC)
+Received: from localhost.localdomain.com (ovpn-112-47.ams2.redhat.com [10.36.112.47])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 81B1E19748;
+        Fri, 24 May 2019 13:06:09 +0000 (UTC)
+From:   Hans de Goede <hdegoede@redhat.com>
+To:     Daniel Vetter <daniel.vetter@intel.com>,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        intel-gfx <intel-gfx@lists.freedesktop.org>,
+        dri-devel@lists.freedesktop.org, stable@vger.kernel.org
+Subject: [PATCH] drm/i915/dsi: Use a fuzzy check for burst mode clock check
+Date:   Fri, 24 May 2019 15:06:07 +0200
+Message-Id: <20190524130607.4021-1-hdegoede@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190524114220.GA4260@fuggles.cambridge.arm.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.38]); Fri, 24 May 2019 13:06:12 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, May 24, 2019 at 12:42:20PM +0100, Will Deacon wrote:
+Prior to this commit we fail to init the DSI panel on the GPD MicroPC:
+https://www.indiegogo.com/projects/gpd-micropc-6-inch-handheld-industry-laptop#/
 
-> > diff --git a/Documentation/atomic_t.txt b/Documentation/atomic_t.txt
-> > index dca3fb0554db..125c95ddbbc0 100644
-> > --- a/Documentation/atomic_t.txt
-> > +++ b/Documentation/atomic_t.txt
-> > @@ -83,6 +83,9 @@ The non-RMW ops are (typically) regular LOADs and STOREs and are canonically
-> >  implemented using READ_ONCE(), WRITE_ONCE(), smp_load_acquire() and
-> >  smp_store_release() respectively.
-> >  
-> 
-> Not sure you need a new paragraph here.
-> 
-> > +Therefore, if you find yourself only using the Non-RMW operations of atomic_t,
-> > +you do not in fact need atomic_t at all and are doing it wrong.
-> > +
-> 
-> That makes sense to me, although I now find that the sentence below is a bit
-> confusing because it sounds like it's a caveat relating to only using
-> Non-RMW ops.
-> 
-> >  The one detail to this is that atomic_set{}() should be observable to the RMW
-> >  ops. That is:
-> 
-> How about changing this to be:
-> 
->   "A subtle detail of atomic_set{}() is that it should be observable..."
+The problem is intel_dsi_vbt_init() failing with the following error:
+*ERROR* Burst mode freq is less than computed
 
-Done, find below.
+The pclk in the VBT panel modeline is 70000, together with 24 bpp and
+4 lines this results in a bitrate value of 70000 * 24 / 4 = 420000.
+But the target_burst_mode_freq in the VBT is 418000.
 
+This commit works around this problem by adding an intel_fuzzy_clock_check
+when target_burst_mode_freq < bitrate and setting target_burst_mode_freq to
+bitrate when that checks succeeds, fixing the panel not working.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 ---
-Subject: Documentation/atomic_t.txt: Clarify pure non-rmw usage
+ drivers/gpu/drm/i915/intel_dsi_vbt.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-Clarify that pure non-RMW usage of atomic_t is pointless, there is
-nothing 'magical' about atomic_set() / atomic_read().
-
-This is something that seems to confuse people, because I happen upon it
-semi-regularly.
-
-Acked-by: Will Deacon <will.deacon@arm.com>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
----
- Documentation/atomic_t.txt | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
-
-diff --git a/Documentation/atomic_t.txt b/Documentation/atomic_t.txt
-index dca3fb0554db..89eae7f6b360 100644
---- a/Documentation/atomic_t.txt
-+++ b/Documentation/atomic_t.txt
-@@ -81,9 +81,11 @@ SEMANTICS
+diff --git a/drivers/gpu/drm/i915/intel_dsi_vbt.c b/drivers/gpu/drm/i915/intel_dsi_vbt.c
+index 022bf59418df..a2a9b9d0eeaa 100644
+--- a/drivers/gpu/drm/i915/intel_dsi_vbt.c
++++ b/drivers/gpu/drm/i915/intel_dsi_vbt.c
+@@ -895,6 +895,17 @@ bool intel_dsi_vbt_init(struct intel_dsi *intel_dsi, u16 panel_id)
+ 		if (mipi_config->target_burst_mode_freq) {
+ 			u32 bitrate = intel_dsi_bitrate(intel_dsi);
  
- The non-RMW ops are (typically) regular LOADs and STOREs and are canonically
- implemented using READ_ONCE(), WRITE_ONCE(), smp_load_acquire() and
--smp_store_release() respectively.
-+smp_store_release() respectively. Therefore, if you find yourself only using
-+the Non-RMW operations of atomic_t, you do not in fact need atomic_t at all
-+and are doing it wrong.
- 
--The one detail to this is that atomic_set{}() should be observable to the RMW
-+A subtle detail of atomic_set{}() is that it should be observable to the RMW
- ops. That is:
- 
-   C atomic-set
++			/*
++			 * Sometimes the VBT contains a slightly lower clock,
++			 * then the bitrate we have calculated, in this case
++			 * just replace it with the calculated bitrate.
++			 */
++			if (mipi_config->target_burst_mode_freq < bitrate &&
++			    intel_fuzzy_clock_check(
++					mipi_config->target_burst_mode_freq,
++					bitrate))
++				mipi_config->target_burst_mode_freq = bitrate;
++
+ 			if (mipi_config->target_burst_mode_freq < bitrate) {
+ 				DRM_ERROR("Burst mode freq is less than computed\n");
+ 				return false;
+-- 
+2.21.0
+
