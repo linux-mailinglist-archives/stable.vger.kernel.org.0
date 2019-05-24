@@ -2,118 +2,159 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CAD2129C70
-	for <lists+stable@lfdr.de>; Fri, 24 May 2019 18:40:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89B0429C82
+	for <lists+stable@lfdr.de>; Fri, 24 May 2019 18:49:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390448AbfEXQkT convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 24 May 2019 12:40:19 -0400
-Received: from eu-smtp-delivery-151.mimecast.com ([207.82.80.151]:50238 "EHLO
-        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2390210AbfEXQkT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 May 2019 12:40:19 -0400
-Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
- TLS) by relay.mimecast.com with ESMTP id
- uk-mta-12-a1PWNyhNM0qf5VNOe2DpTg-1; Fri, 24 May 2019 17:40:16 +0100
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b::d117) by AcuMS.aculab.com
- (fd9f:af1c:a25b::d117) with Microsoft SMTP Server (TLS) id 15.0.1347.2; Fri,
- 24 May 2019 17:40:15 +0100
-Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
- AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
- Fri, 24 May 2019 17:40:15 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Oleg Nesterov' <oleg@redhat.com>
-CC:     'Deepa Dinamani' <deepa.kernel@gmail.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "dbueso@suse.de" <dbueso@suse.de>,
-        "axboe@kernel.dk" <axboe@kernel.dk>,
-        Davidlohr Bueso <dave@stgolabs.net>, Eric Wong <e@80x24.org>,
-        Jason Baron <jbaron@akamai.com>,
-        Linux FS-devel Mailing List <linux-fsdevel@vger.kernel.org>,
-        linux-aio <linux-aio@kvack.org>,
-        Omar Kilani <omar.kilani@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH v2] signal: Adjust error codes according to
- restore_user_sigmask()
-Thread-Topic: [PATCH v2] signal: Adjust error codes according to
- restore_user_sigmask()
-Thread-Index: AQHVELwtsgR+BAQFXk2JV68Wk/7LjKZ4aINAgABVkoCAAB2x0P///TgAgAARdkCAAUypAIAAGykAgAAKnoCAAB1BUA==
-Date:   Fri, 24 May 2019 16:40:15 +0000
-Message-ID: <658d30b3606f40159570c0e83bb69e37@AcuMS.aculab.com>
-References: <CABeXuvrPM5xvzqUydbREapvwgy6deYreHp0aaMoSHyLB6+HGRg@mail.gmail.com>
- <20190522161407.GB4915@redhat.com>
- <CABeXuvpjrW5Gt95JC-_rYkOA=6RCD5OtkEQdwZVVqGCE3GkQOQ@mail.gmail.com>
- <4f7b6dbeab1d424baaebd7a5df116349@AcuMS.aculab.com>
- <20190523145944.GB23070@redhat.com>
- <345cfba5edde470f9a68d913f44fa342@AcuMS.aculab.com>
- <20190523163604.GE23070@redhat.com>
- <f0eced5677c144debfc5a69d0d327bc1@AcuMS.aculab.com>
- <20190524132911.GA2655@redhat.com>
- <766510cbbec640b18fd99f3946b37475@AcuMS.aculab.com>
- <20190524154425.GE2655@redhat.com>
-In-Reply-To: <20190524154425.GE2655@redhat.com>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        id S2391041AbfEXQtl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 May 2019 12:49:41 -0400
+Received: from mail-wr1-f68.google.com ([209.85.221.68]:33791 "EHLO
+        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2390346AbfEXQtl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 May 2019 12:49:41 -0400
+Received: by mail-wr1-f68.google.com with SMTP id d9so10705101wrx.0
+        for <stable@vger.kernel.org>; Fri, 24 May 2019 09:49:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=Sad9UpfHJ5sdXzTlwQdywQcHgqAyjq3tv2YnvpOkuAU=;
+        b=Zuagl5Op4aTTiGFH4ijpjh5xhLnvU10ZjZST3gg+CW5fzknUbGDlfMQ0SynMNvGBtd
+         RneXrFfLxqGY3LalCqUN4loZBm2JI3I22IFg20e4Wlj7c0cDQOpubtlacf41I3Ro4pqL
+         ehLeIfHCFqv/ZAWKoSCjikLe0gmqgIztpCgXh85cgn+O7X+Qxq2aAdpfDb9tjs8qHw9h
+         63Ji+wfZIrG3zq2we4eF+kS5Pv/bHiY+MwcXqBv/jjKmrS/A2cSrJGp6Zt9huePKpA+n
+         GPqgtqMM1iqXKIHwnadqtAl3hTrOwk6al4i8ti6A8NnU7xp9KEQXCafqWO7TcKphLj1o
+         O5IA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Sad9UpfHJ5sdXzTlwQdywQcHgqAyjq3tv2YnvpOkuAU=;
+        b=Hx0s6cYq3kV3q8/bZ7q1XVpD5UQ+kJgWJ3iDvpY+8FYgP6Ue5NGp4OSUPAEqPVDH+E
+         pK00ogq+UzCAbrbWvYuBJrspCxUmhxFZhtT1o6tNuySz9yqQgsPRLxFZaUMPpzvpp0/R
+         jm2ZYtNWibIKSKd5EVO+mqvp/BcCgSvn6AeafkMaM32NupHDw5DVmal52Q0cr3sPyxXI
+         dbx2sfqduCeiu7ywbjZwbfTm0XTZlD7VHkVH2wZqEg3HuVa/nupar5iRktNuK0bwN8Et
+         lRyZ1Qx3UXDCyWndnGJ4awh7wRGzrgqMSPiau8G/CF9sb/hghDm/UT4ixSWU55JV+0It
+         uNOA==
+X-Gm-Message-State: APjAAAXZGPZEiqDBXkIfP51X+vKKPg5Hp3kxJ6UxQ7TBcVqcTylLgtn6
+        nOLgDmp13f9pSE3mJiDTe0LglDMe6OJjL3+rvvw=
+X-Google-Smtp-Source: APXvYqwZ1Jupf4nzh4giK/K7tUXKf4/KkODs0l91yOUoyoodzJg/m4oK4AGkqJuUW+t/tPN/1tXUuebiAlP1rX9peu8=
+X-Received: by 2002:adf:b6a5:: with SMTP id j37mr60560521wre.4.1558716579769;
+ Fri, 24 May 2019 09:49:39 -0700 (PDT)
 MIME-Version: 1.0
-X-MC-Unique: a1PWNyhNM0qf5VNOe2DpTg-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+References: <20190524153410.19402-1-alexander.deucher@amd.com>
+ <CAHbf0-FPr8EZoZeDJKpGp3=wF38JeG7fY-Ayq96jSqq3hMNM+g@mail.gmail.com>
+ <CADnq5_OGKUHGCSyFFQhmk5w1j+x5LQahh6KPbDfR2xnREdR3EA@mail.gmail.com> <CAHbf0-EYvnaVmqB068CA9hi3Wt7U2a387n6SCUdw8sUjouayZQ@mail.gmail.com>
+In-Reply-To: <CAHbf0-EYvnaVmqB068CA9hi3Wt7U2a387n6SCUdw8sUjouayZQ@mail.gmail.com>
+From:   Alex Deucher <alexdeucher@gmail.com>
+Date:   Fri, 24 May 2019 12:49:27 -0400
+Message-ID: <CADnq5_N48x5Zas_HWTN1JdEgUUmFadsSiu5_1uZmRgaDw+qraw@mail.gmail.com>
+Subject: Re: [PATCH] drm/amd/display: Don't load DMCU for Raven 1 (v2)
+To:     Mike Lothian <mike@fireburn.co.uk>
+Cc:     amd-gfx list <amd-gfx@lists.freedesktop.org>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Harry Wentland <harry.wentland@amd.com>,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        "for 3.8" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleg Nesterov
-> Sent: 24 May 2019 16:44
-> > To my mind changing the signal mask should be enough to get a masked
-> > signal handler called - even if the mask is reset before the syscall exits.
-> 
-> well, the kernel doesn't do this, and on purpose.
-> 
-> > There shouldn't be any need for an interruptible wait to be interrupted.
-> 
-> can't parse ;)
-> 
-> > I suspect that if you send a signal to a process that is looping
-> > in userspace (on a different) the signal handler is called on the next
-> > exit to userspace regardless as to whether the kernel blocks.
+On Fri, May 24, 2019 at 12:32 PM Mike Lothian <mike@fireburn.co.uk> wrote:
+>
+> I realise you don't want to enable this as it's breaking some people's
+> systems, but could we add a new boot parameter to force it for working
+> systems? Or check against a black list maybe?
+
+We could probably add a whitelist.  I'm not sure what the best way to
+id the working systems are though.
+
+Alex
+
+>
+> On Fri, 24 May 2019 at 17:20, Alex Deucher <alexdeucher@gmail.com> wrote:
 > >
-> > epoll and pselect shouldn't be any different.
-> 
-> They differ exactly because they manipulate the blocked mask,
-> 
-> > Having the signal unmasked at any time should be enough to get it called.
-> 
-> No. The sigmask passed to pselect() tells the kernel which signals should
-> interrupt the syscall if it blocks. The fact that pselect() actually unblocks
-> a signal is just the internal implementation detail.
-
-If you take that line of reasoning the signal handler shouldn't be called
-at all.
-
-For pselect() (which ought to work the same way as epoll_pwait()) the
-man page states that the current signal mask is replaced by the specified
-one for the duration of the call - so you'd expect signal handlers to run
-even if pselect() returns >= 0.
-
-Consider a program that disables all signals at the top of main()
-then has a processing loop with epoll_pwait() (or pselect()) at the
-top) that enables a variety of signals.
-
-It would be reasonable to expect that a signal handler would run
-even if one of the fds was always 'ready'.
-
-	David
-
--
-Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-Registration No: 1397386 (Wales)
-
+> > On Fri, May 24, 2019 at 12:09 PM Mike Lothian <mike@fireburn.co.uk> wrote:
+> > >
+> > > Hi
+> > >
+> > > Curious to know what this means for folk that have newer Raven1 boards
+> > > that didn't have issues loading the firmware
+> >
+> > You won't get ABM I think.  ABM is the automatic backlight management.
+> >
+> > Alex
+> >
+> > >
+> > > Cheers
+> > >
+> > > Mike
+> > >
+> > > On Fri, 24 May 2019 at 16:34, Alex Deucher <alexdeucher@gmail.com> wrote:
+> > > >
+> > > > From: Harry Wentland <harry.wentland@amd.com>
+> > > >
+> > > > [WHY]
+> > > > Some early Raven boards had a bad SBIOS that doesn't play nicely with
+> > > > the DMCU FW. We thought the issues were fixed by ignoring errors on DMCU
+> > > > load but that doesn't seem to be the case. We've still seen reports of
+> > > > users unable to boot their systems at all.
+> > > >
+> > > > [HOW]
+> > > > Disable DMCU load on Raven 1. Only load it for Raven 2 and Picasso.
+> > > >
+> > > > v2: Fix ifdef (Alex)
+> > > >
+> > > > Signed-off-by: Harry Wentland <harry.wentland@amd.com>
+> > > > Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+> > > > Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+> > > > Cc: stable@vger.kernel.org
+> > > > ---
+> > > >  drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 12 ++++++++++--
+> > > >  1 file changed, 10 insertions(+), 2 deletions(-)
+> > > >
+> > > > diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+> > > > index 995f9df66142..bcb1a93c0b4c 100644
+> > > > --- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+> > > > +++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+> > > > @@ -29,6 +29,7 @@
+> > > >  #include "dm_services_types.h"
+> > > >  #include "dc.h"
+> > > >  #include "dc/inc/core_types.h"
+> > > > +#include "dal_asic_id.h"
+> > > >
+> > > >  #include "vid.h"
+> > > >  #include "amdgpu.h"
+> > > > @@ -640,7 +641,7 @@ static void amdgpu_dm_fini(struct amdgpu_device *adev)
+> > > >
+> > > >  static int load_dmcu_fw(struct amdgpu_device *adev)
+> > > >  {
+> > > > -       const char *fw_name_dmcu;
+> > > > +       const char *fw_name_dmcu = NULL;
+> > > >         int r;
+> > > >         const struct dmcu_firmware_header_v1_0 *hdr;
+> > > >
+> > > > @@ -663,7 +664,14 @@ static int load_dmcu_fw(struct amdgpu_device *adev)
+> > > >         case CHIP_VEGA20:
+> > > >                 return 0;
+> > > >         case CHIP_RAVEN:
+> > > > -               fw_name_dmcu = FIRMWARE_RAVEN_DMCU;
+> > > > +#if defined(CONFIG_DRM_AMD_DC_DCN1_01)
+> > > > +               if (ASICREV_IS_PICASSO(adev->external_rev_id))
+> > > > +                       fw_name_dmcu = FIRMWARE_RAVEN_DMCU;
+> > > > +               else if (ASICREV_IS_RAVEN2(adev->external_rev_id))
+> > > > +                       fw_name_dmcu = FIRMWARE_RAVEN_DMCU;
+> > > > +               else
+> > > > +#endif
+> > > > +                       return 0;
+> > > >                 break;
+> > > >         default:
+> > > >                 DRM_ERROR("Unsupported ASIC type: 0x%X\n", adev->asic_type);
+> > > > --
+> > > > 2.20.1
+> > > >
+> > > > _______________________________________________
+> > > > amd-gfx mailing list
+> > > > amd-gfx@lists.freedesktop.org
+> > > > https://lists.freedesktop.org/mailman/listinfo/amd-gfx
