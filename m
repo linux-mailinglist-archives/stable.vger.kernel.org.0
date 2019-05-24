@@ -2,111 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 79B3D28F59
-	for <lists+stable@lfdr.de>; Fri, 24 May 2019 05:01:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C977B28F67
+	for <lists+stable@lfdr.de>; Fri, 24 May 2019 05:06:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387560AbfEXDBA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 23:01:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37950 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387408AbfEXDBA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 23 May 2019 23:01:00 -0400
-Received: from localhost.localdomain (c-73-223-200-170.hsd1.ca.comcast.net [73.223.200.170])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D204E2177E;
-        Fri, 24 May 2019 03:00:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558666859;
-        bh=CfmXMmkfaezAvwsN9zlEs/DSNdAtIguy5Elf/Wz2cIk=;
-        h=Date:From:To:Subject:From;
-        b=sE18acCm0uWyOrfS4M13p+bBGhSoylB5t2YQWD7spZILdmaTIK+lpJuY7xcx6UQL3
-         bgCQamoHtYur2NgmXtfjxRAFM+kV9Q/GntbLYz+41k8tCuW0gTgmIe/7qmww8qEjGV
-         FxC1flhyMI63ajcYCaPTbFsu+F/f7H7MDhJ32oUY=
-Date:   Thu, 23 May 2019 20:00:58 -0700
-From:   akpm@linux-foundation.org
-To:     arnd@arndb.de, christian@brauner.io, colona@arista.com,
-        deepa.kernel@gmail.com, ebiederm@xmission.com,
-        gregkh@linuxfoundation.org, mm-commits@vger.kernel.org,
-        oleg@redhat.com, stable@vger.kernel.org, tglx@linutronix.de,
-        weizhenliang@huawei.com
-Subject:  +
- signal-trace_signal_deliver-when-signal_group_exit.patch added to -mm tree
-Message-ID: <20190524030058.hmdBvXpsG%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S2387622AbfEXDF7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 May 2019 23:05:59 -0400
+Received: from mail-wr1-f44.google.com ([209.85.221.44]:37154 "EHLO
+        mail-wr1-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387434AbfEXDF7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 May 2019 23:05:59 -0400
+Received: by mail-wr1-f44.google.com with SMTP id e15so8343270wrs.4
+        for <stable@vger.kernel.org>; Thu, 23 May 2019 20:05:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=FrWVceI3LtR5FXxB8VcRvYsptOYTyMCHoGS31s3o9rQ=;
+        b=JdKGBp+zq2PttV7t1y7nFnDxrS9VJ7Y0okkSEnwusqSsLw34+acafSSKvMrIVFcYMP
+         ysshPDobaqu0bJJFS7V/P26EMxjT8h29QryDvDtFZz+R5OYxI+XZgCkS0leeMREm0XOi
+         9YCHBgQFqGO5TsV8wxn21CIRPuiBPyqu9mt9W0zmYNl/rGoVjrnwzzGv7XAodYPgNjmP
+         bNbslwzfCK0azxslG8refNN4eSsMrvmDoH00XQlme45Ps5AafQRUCeXFOlDUAhtwgGqN
+         +xf5mW6VXqCMFCrMUp6QsJVO+ZVo1umJ0kNf3KHhs3cXYo1782tlg5vCLtMQABigw+LR
+         FVJA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=FrWVceI3LtR5FXxB8VcRvYsptOYTyMCHoGS31s3o9rQ=;
+        b=QvT7xMUbOMSZTXgvgKFxDtvl2WsQviH7Sl8J4QRCqUmFb8yJEN8NS/eM/N+qcppd3b
+         DBwnp4vpJ/VK3+4QmOTzy9FpoJZgoRrlOOOLxlPhujkwuDXkE4Rl8k7J+O94TNUmYEds
+         Kk+I2PEa5nblmvNRCzW28ttOzIuUlBv+U97S6ttx+Lv3V97Tr9tgwCF8BEFDGYbwkL7c
+         U39bQPzWafpW3CqgIis4O85knbRaDcGc/+xAJ5i3/NpkTWRjxSKZhZBFrH2fVM37pW3f
+         d3MHkOoytGsHJXZzoL2646zP59mP9XxlQ98yvnwUXLT3Yu9YweE9nnkdeqCXEEtNB6P3
+         jCtA==
+X-Gm-Message-State: APjAAAUK1aMkfaoZwMcPaTzP1CliFw+csyKpoukO9ySL495RQ6QbOYz2
+        rd00mBrQYrDslAEO1+MuCzVtEapbJyShXA==
+X-Google-Smtp-Source: APXvYqyux+OcbUd1boa7BywY/UToaXBT7ctPV5Ad1EAMdtFLDDm10KeOeao9Fwx3G1sQnryCg1fEKQ==
+X-Received: by 2002:a5d:6408:: with SMTP id z8mr3025666wru.238.1558667157914;
+        Thu, 23 May 2019 20:05:57 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id l6sm1024688wmi.24.2019.05.23.20.05.56
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 23 May 2019 20:05:57 -0700 (PDT)
+Message-ID: <5ce75f95.1c69fb81.f6056.56c0@mx.google.com>
+Date:   Thu, 23 May 2019 20:05:57 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Kernel: v4.14.121-78-g64cb9b0bb7de
+Subject: stable-rc/linux-4.14.y boot: 125 boots: 2 failed,
+ 108 passed with 15 offline (v4.14.121-78-g64cb9b0bb7de)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-4.14.y boot: 125 boots: 2 failed, 108 passed with 15 offlin=
+e (v4.14.121-78-g64cb9b0bb7de)
 
-The patch titled
-     Subject: kernel/signal.c: trace_signal_deliver when signal_group_exit
-has been added to the -mm tree.  Its filename is
-     signal-trace_signal_deliver-when-signal_group_exit.patch
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.14.y/kernel/v4.14.121-78-g64cb9b0bb7de/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.121-78-g64cb9b0bb7de/
 
-This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/signal-trace_signal_deliver-when-signal_group_exit.patch
-and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/signal-trace_signal_deliver-when-signal_group_exit.patch
+Tree: stable-rc
+Branch: linux-4.14.y
+Git Describe: v4.14.121-78-g64cb9b0bb7de
+Git Commit: 64cb9b0bb7de34fd893ee96ecf613039130de9a6
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 66 unique boards, 24 SoC families, 14 builds out of 201
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+Boot Regressions Detected:
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+arm:
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
+    omap2plus_defconfig:
+        gcc-8:
+          omap3-beagle-xm:
+              lab-baylibre: new failure (last pass: v4.14.121)
 
-------------------------------------------------------
-From: Zhenliang Wei <weizhenliang@huawei.com>
-Subject: kernel/signal.c: trace_signal_deliver when signal_group_exit
+Boot Failures Detected:
 
-In the fixes commit, removing SIGKILL from each thread signal mask and
-executing "goto fatal" directly will skip the call to
-"trace_signal_deliver".  At this point, the delivery tracking of the
-SIGKILL signal will be inaccurate.
+arm:
+    omap2plus_defconfig:
+        gcc-8:
+            omap3-beagle-xm: 1 failed lab
 
-Therefore, we need to add trace_signal_deliver before "goto fatal" after
-executing sigdelset.
+arm64:
+    defconfig:
+        gcc-8:
+            rk3399-firefly: 1 failed lab
 
-Note: SEND_SIG_NOINFO matches the fact that SIGKILL doesn't have any info.
+Offline Platforms:
 
-Link: http://lkml.kernel.org/r/20190425025812.91424-1-weizhenliang@huawei.com
-Fixes: cf43a757fd4944 ("signal: Restore the stop PTRACE_EVENT_EXIT")
-Signed-off-by: Zhenliang Wei <weizhenliang@huawei.com>
-Reviewed-by: Christian Brauner <christian@brauner.io>
-Reviewed-by: Oleg Nesterov <oleg@redhat.com>
-Cc: Eric W. Biederman <ebiederm@xmission.com>
-Cc: Ivan Delalande <colona@arista.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Deepa Dinamani <deepa.kernel@gmail.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+arm:
+
+    sama5_defconfig:
+        gcc-8
+            at91-sama5d4_xplained: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            alpine-db: 1 offline lab
+            at91-sama5d4_xplained: 1 offline lab
+            socfpga_cyclone5_de0_sockit: 1 offline lab
+            stih410-b2120: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+            tegra124-jetson-tk1: 1 offline lab
+            tegra20-iris-512: 1 offline lab
+
+    tegra_defconfig:
+        gcc-8
+            tegra124-jetson-tk1: 1 offline lab
+            tegra20-iris-512: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+
+    bcm2835_defconfig:
+        gcc-8
+            bcm2835-rpi-b: 1 offline lab
+
+arm64:
+
+    defconfig:
+        gcc-8
+            apq8016-sbc: 1 offline lab
+            juno-r2: 1 offline lab
+            mt7622-rfb1: 1 offline lab
+
 ---
-
- kernel/signal.c |    2 ++
- 1 file changed, 2 insertions(+)
-
---- a/kernel/signal.c~signal-trace_signal_deliver-when-signal_group_exit
-+++ a/kernel/signal.c
-@@ -2485,6 +2485,8 @@ relock:
- 	if (signal_group_exit(signal)) {
- 		ksig->info.si_signo = signr = SIGKILL;
- 		sigdelset(&current->pending.signal, SIGKILL);
-+		trace_signal_deliver(SIGKILL, SEND_SIG_NOINFO,
-+				&sighand->action[SIGKILL - 1]);
- 		recalc_sigpending();
- 		goto fatal;
- 	}
-_
-
-Patches currently in -mm which might be from weizhenliang@huawei.com are
-
-signal-trace_signal_deliver-when-signal_group_exit.patch
-
+For more info write to <info@kernelci.org>
