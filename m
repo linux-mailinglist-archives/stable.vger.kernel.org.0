@@ -2,159 +2,203 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 89B0429C82
-	for <lists+stable@lfdr.de>; Fri, 24 May 2019 18:49:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B6B129C9F
+	for <lists+stable@lfdr.de>; Fri, 24 May 2019 19:01:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391041AbfEXQtl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 May 2019 12:49:41 -0400
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:33791 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2390346AbfEXQtl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 May 2019 12:49:41 -0400
-Received: by mail-wr1-f68.google.com with SMTP id d9so10705101wrx.0
-        for <stable@vger.kernel.org>; Fri, 24 May 2019 09:49:40 -0700 (PDT)
+        id S2390210AbfEXRBs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 May 2019 13:01:48 -0400
+Received: from mail-io1-f68.google.com ([209.85.166.68]:39808 "EHLO
+        mail-io1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2390532AbfEXRBs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 May 2019 13:01:48 -0400
+Received: by mail-io1-f68.google.com with SMTP id r185so3410116iod.6;
+        Fri, 24 May 2019 10:01:47 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc;
-        bh=Sad9UpfHJ5sdXzTlwQdywQcHgqAyjq3tv2YnvpOkuAU=;
-        b=Zuagl5Op4aTTiGFH4ijpjh5xhLnvU10ZjZST3gg+CW5fzknUbGDlfMQ0SynMNvGBtd
-         RneXrFfLxqGY3LalCqUN4loZBm2JI3I22IFg20e4Wlj7c0cDQOpubtlacf41I3Ro4pqL
-         ehLeIfHCFqv/ZAWKoSCjikLe0gmqgIztpCgXh85cgn+O7X+Qxq2aAdpfDb9tjs8qHw9h
-         63Ji+wfZIrG3zq2we4eF+kS5Pv/bHiY+MwcXqBv/jjKmrS/A2cSrJGp6Zt9huePKpA+n
-         GPqgtqMM1iqXKIHwnadqtAl3hTrOwk6al4i8ti6A8NnU7xp9KEQXCafqWO7TcKphLj1o
-         O5IA==
+        bh=wi5iXQAuQRuJb87dDlNdyPBw5MwH0ZxO9RU+lAP+m88=;
+        b=n+9qKethpxgvbN01CCm/ntTwbzKvY57e+2N0itpKvqNUR0BkF8REmtX3MrkOwN1ZVg
+         N5AGM26ZiMuM8yq9VldaVCE0ESFpPQfAISsdaZTelCfIxn91pnTgKHDzvHnhMWfa02FW
+         NbL9J6VfYPLR/voilyW4uAF4/ocTAFKYaExFYsXTa2RP7nVRgRd8wHpqPRd7KQi+S2qe
+         PyJ5fwvGNrTUyInLe7LYQ0gUbw7R7evl3LONcks+3tOjzNPoZqQ+BEuxiLChW+A/nLyb
+         eaUfrBsO/uaswiZ8oZpjR7Ur9R6y1QIjYEjoyLbokCey+HCgD96FXob1NO4eFJsmvjgX
+         QFPA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc;
-        bh=Sad9UpfHJ5sdXzTlwQdywQcHgqAyjq3tv2YnvpOkuAU=;
-        b=Hx0s6cYq3kV3q8/bZ7q1XVpD5UQ+kJgWJ3iDvpY+8FYgP6Ue5NGp4OSUPAEqPVDH+E
-         pK00ogq+UzCAbrbWvYuBJrspCxUmhxFZhtT1o6tNuySz9yqQgsPRLxFZaUMPpzvpp0/R
-         jm2ZYtNWibIKSKd5EVO+mqvp/BcCgSvn6AeafkMaM32NupHDw5DVmal52Q0cr3sPyxXI
-         dbx2sfqduCeiu7ywbjZwbfTm0XTZlD7VHkVH2wZqEg3HuVa/nupar5iRktNuK0bwN8Et
-         lRyZ1Qx3UXDCyWndnGJ4awh7wRGzrgqMSPiau8G/CF9sb/hghDm/UT4ixSWU55JV+0It
-         uNOA==
-X-Gm-Message-State: APjAAAXZGPZEiqDBXkIfP51X+vKKPg5Hp3kxJ6UxQ7TBcVqcTylLgtn6
-        nOLgDmp13f9pSE3mJiDTe0LglDMe6OJjL3+rvvw=
-X-Google-Smtp-Source: APXvYqwZ1Jupf4nzh4giK/K7tUXKf4/KkODs0l91yOUoyoodzJg/m4oK4AGkqJuUW+t/tPN/1tXUuebiAlP1rX9peu8=
-X-Received: by 2002:adf:b6a5:: with SMTP id j37mr60560521wre.4.1558716579769;
- Fri, 24 May 2019 09:49:39 -0700 (PDT)
+        bh=wi5iXQAuQRuJb87dDlNdyPBw5MwH0ZxO9RU+lAP+m88=;
+        b=dqxsy76Xxab/zo0qV8+ilOlXINuBrxZK06c4JS9VfOFttNC7Me7jiAoaPGGOK1roXo
+         jaN09WRWCRZ1oNvvrDAKuCrXmWTRUeVwVPM5wyhxt8OqBlzHcpVaWvSrEliNGYp0hig+
+         mXA4wOYnQVqF8UXA2hZNl8eO18IF4sZJgJwvLt3c9UDlIdNMBWMmuWavfJD4iw5Wdgho
+         UDRvR9+c7sno4lEd3T9BS67D4zH4r71q2GA08quR4COGyWf4JkD2LnAITefx/5/b3c8Y
+         bxbFJiqRSEzZvEuwpztt0cNmcHZ5JDmoHdY+Q8G8pG0ISxZ/C6nnF1bpeUaSTjjU40yI
+         PFqA==
+X-Gm-Message-State: APjAAAXGhdQZSDj2H4q9iHEi4acqU4QVqjbGyj61zKetfMhFfg3jK+Lt
+        DNOfh/D8KIofChEerz9iaqiWLfPXS9E/V7TM+q0=
+X-Google-Smtp-Source: APXvYqx1kYvKHTOKnp8yYdox48+3r2bIuMfvOK2BV3xJgnIWA+AVqzhi6xBBSa8FqgGcBWUg8NSomAy0gHvMDZrq5Es=
+X-Received: by 2002:a6b:c411:: with SMTP id y17mr3164801ioa.265.1558717307374;
+ Fri, 24 May 2019 10:01:47 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190524153410.19402-1-alexander.deucher@amd.com>
- <CAHbf0-FPr8EZoZeDJKpGp3=wF38JeG7fY-Ayq96jSqq3hMNM+g@mail.gmail.com>
- <CADnq5_OGKUHGCSyFFQhmk5w1j+x5LQahh6KPbDfR2xnREdR3EA@mail.gmail.com> <CAHbf0-EYvnaVmqB068CA9hi3Wt7U2a387n6SCUdw8sUjouayZQ@mail.gmail.com>
-In-Reply-To: <CAHbf0-EYvnaVmqB068CA9hi3Wt7U2a387n6SCUdw8sUjouayZQ@mail.gmail.com>
-From:   Alex Deucher <alexdeucher@gmail.com>
-Date:   Fri, 24 May 2019 12:49:27 -0400
-Message-ID: <CADnq5_N48x5Zas_HWTN1JdEgUUmFadsSiu5_1uZmRgaDw+qraw@mail.gmail.com>
-Subject: Re: [PATCH] drm/amd/display: Don't load DMCU for Raven 1 (v2)
-To:     Mike Lothian <mike@fireburn.co.uk>
-Cc:     amd-gfx list <amd-gfx@lists.freedesktop.org>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Harry Wentland <harry.wentland@amd.com>,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        "for 3.8" <stable@vger.kernel.org>
+References: <20190522161407.GB4915@redhat.com> <CABeXuvpjrW5Gt95JC-_rYkOA=6RCD5OtkEQdwZVVqGCE3GkQOQ@mail.gmail.com>
+ <4f7b6dbeab1d424baaebd7a5df116349@AcuMS.aculab.com> <20190523145944.GB23070@redhat.com>
+ <345cfba5edde470f9a68d913f44fa342@AcuMS.aculab.com> <20190523163604.GE23070@redhat.com>
+ <f0eced5677c144debfc5a69d0d327bc1@AcuMS.aculab.com> <CABeXuvo-wey+NHWb4gi=FSRrjJOKkVcLPQ-J+dchJeHEbhGQ6g@mail.gmail.com>
+ <20190524141054.GB2655@redhat.com> <CABeXuvqSzy+v=3Y5NnMmfob7bvuNkafmdDqoex8BVENN3atqZA@mail.gmail.com>
+ <20190524163310.GG2655@redhat.com>
+In-Reply-To: <20190524163310.GG2655@redhat.com>
+From:   Deepa Dinamani <deepa.kernel@gmail.com>
+Date:   Fri, 24 May 2019 10:01:32 -0700
+Message-ID: <CABeXuvrUKZnECj+NgLdpe5uhKBEmSynrakD-3q9XHqk8Aef5UQ@mail.gmail.com>
+Subject: Re: [PATCH v2] signal: Adjust error codes according to restore_user_sigmask()
+To:     Oleg Nesterov <oleg@redhat.com>
+Cc:     David Laight <David.Laight@aculab.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "dbueso@suse.de" <dbueso@suse.de>,
+        "axboe@kernel.dk" <axboe@kernel.dk>,
+        Davidlohr Bueso <dave@stgolabs.net>, Eric Wong <e@80x24.org>,
+        Jason Baron <jbaron@akamai.com>,
+        Linux FS-devel Mailing List <linux-fsdevel@vger.kernel.org>,
+        linux-aio <linux-aio@kvack.org>,
+        Omar Kilani <omar.kilani@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, May 24, 2019 at 12:32 PM Mike Lothian <mike@fireburn.co.uk> wrote:
+On Fri, May 24, 2019 at 9:33 AM Oleg Nesterov <oleg@redhat.com> wrote:
 >
-> I realise you don't want to enable this as it's breaking some people's
-> systems, but could we add a new boot parameter to force it for working
-> systems? Or check against a black list maybe?
-
-We could probably add a whitelist.  I'm not sure what the best way to
-id the working systems are though.
-
-Alex
-
+> On 05/24, Deepa Dinamani wrote:
+> >
+> > On Fri, May 24, 2019 at 7:11 AM Oleg Nesterov <oleg@redhat.com> wrote:
+> > >
+> > > On 05/23, Deepa Dinamani wrote:
+> > > >
+> > > > Ok, since there has been quite a bit of argument here, I will
+> > > > backtrack a little bit and maybe it will help us understand what's
+> > > > happening here.
+> > > > There are many scenarios being discussed on this thread:
+> > > > a. State of code before 854a6ed56839a
+> > >
+> > > I think everything was correct,
+> >
+> > There were 2 things that were wrong:
+> >
+> > 1. If an unblocked signal was received, after the ep_poll(), then the
+> > return status did not indicate that.
 >
-> On Fri, 24 May 2019 at 17:20, Alex Deucher <alexdeucher@gmail.com> wrote:
+> Yes,
+>
+> > This is expected behavior
+> > according to man page. If this is indeed what is expected then the man
+> > page should note that signal will be delivered in this case and return
+> > code will still be 0.
 > >
-> > On Fri, May 24, 2019 at 12:09 PM Mike Lothian <mike@fireburn.co.uk> wrote:
+> > "EINTR
+> > The call was interrupted by a signal handler before either any of the
+> > requested events occurred or the timeout expired; see signal(7)."
+>
+> and what do you think the man page could say?
+
+Maybe clarify that a signal handler can be invoked even if the syscall
+return indicates a success.
+
+Maybe a crude userspace application could do something like this:
+
+sig_handler()
+{
+  set global abort = 1
+}
+
+poll_the_fds()
+{
+           ret = epoll_pwait()
+           if (ret)
+              return ret
+          if (abort)              # but this abort should be ignored
+if ret was 0.
+            return try_again
+
+}
+
+> This is obviously possible for any syscall, and we can't avoid this. A signal
+> can come right after syscall insn completes. The signal handler will be called
+> but this won't change $rax, user-space can see return code == 0 or anything else.
+>
+> And this doesn't differ from the case when the signal comes before syscall returns.
+
+But, these syscalls are depending on there signals. I would assume for
+the purpose of these syscalls that the execution is done when we
+updated the saved_sigmask. We can pick a different point per syscall
+like ep_poll() also, but then we need to probably make it clear for
+each such syscall.
+
+> > 2. The restoring of the sigmask is done right in the syscall part and
+> > not while exiting the syscall and if you get a blocked signal here,
+> > you will deliver this to userspace.
+>
+> So I assume that this time you are talking about epoll_pwait() and not epoll_wait()...
+
+Yes.
+
+> And I simply can't understand you. But yes, if the original mask doesn't include
+> the pending signal it will be delivered while the syscall can return success/timout
+> or -EFAULT or anything.
+>
+> This is correct, see above.
+
+Look at the code before 854a6ed56839a:
+
+  /*
+        * If we changed the signal mask, we need to restore the original one.
+        * In case we've got a signal while waiting, we do not restore the
+        * signal mask yet, and we allow do_signal() to deliver the signal on
+        * the way back to userspace, before the signal mask is restored.
+        */
+       if (sigmask) {
+              ####### This err has not been changed since ep_poll()
+              ####### So if there is a signal before this point, but
+err = 0, then we goto else.
+               if (err == -EINTR) {
+                       memcpy(&current->saved_sigmask, &sigsaved,
+                              sizeof(sigsaved));
+                       set_restore_sigmask();
+               } else
+                     ############ This is a problem if there is signal
+pending that is sigmask should block.
+                     ########### This is the whole reason we have
+current->saved_sigmask?
+                       set_current_blocked(&sigsaved);
+       }
+
+> > > > b. State after 854a6ed56839a
 > > >
-> > > Hi
-> > >
-> > > Curious to know what this means for folk that have newer Raven1 boards
-> > > that didn't have issues loading the firmware
+> > > obviously buggy,
 > >
-> > You won't get ABM I think.  ABM is the automatic backlight management.
-> >
-> > Alex
-> >
-> > >
-> > > Cheers
-> > >
-> > > Mike
-> > >
-> > > On Fri, 24 May 2019 at 16:34, Alex Deucher <alexdeucher@gmail.com> wrote:
-> > > >
-> > > > From: Harry Wentland <harry.wentland@amd.com>
-> > > >
-> > > > [WHY]
-> > > > Some early Raven boards had a bad SBIOS that doesn't play nicely with
-> > > > the DMCU FW. We thought the issues were fixed by ignoring errors on DMCU
-> > > > load but that doesn't seem to be the case. We've still seen reports of
-> > > > users unable to boot their systems at all.
-> > > >
-> > > > [HOW]
-> > > > Disable DMCU load on Raven 1. Only load it for Raven 2 and Picasso.
-> > > >
-> > > > v2: Fix ifdef (Alex)
-> > > >
-> > > > Signed-off-by: Harry Wentland <harry.wentland@amd.com>
-> > > > Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-> > > > Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-> > > > Cc: stable@vger.kernel.org
-> > > > ---
-> > > >  drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 12 ++++++++++--
-> > > >  1 file changed, 10 insertions(+), 2 deletions(-)
-> > > >
-> > > > diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-> > > > index 995f9df66142..bcb1a93c0b4c 100644
-> > > > --- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-> > > > +++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-> > > > @@ -29,6 +29,7 @@
-> > > >  #include "dm_services_types.h"
-> > > >  #include "dc.h"
-> > > >  #include "dc/inc/core_types.h"
-> > > > +#include "dal_asic_id.h"
-> > > >
-> > > >  #include "vid.h"
-> > > >  #include "amdgpu.h"
-> > > > @@ -640,7 +641,7 @@ static void amdgpu_dm_fini(struct amdgpu_device *adev)
-> > > >
-> > > >  static int load_dmcu_fw(struct amdgpu_device *adev)
-> > > >  {
-> > > > -       const char *fw_name_dmcu;
-> > > > +       const char *fw_name_dmcu = NULL;
-> > > >         int r;
-> > > >         const struct dmcu_firmware_header_v1_0 *hdr;
-> > > >
-> > > > @@ -663,7 +664,14 @@ static int load_dmcu_fw(struct amdgpu_device *adev)
-> > > >         case CHIP_VEGA20:
-> > > >                 return 0;
-> > > >         case CHIP_RAVEN:
-> > > > -               fw_name_dmcu = FIRMWARE_RAVEN_DMCU;
-> > > > +#if defined(CONFIG_DRM_AMD_DC_DCN1_01)
-> > > > +               if (ASICREV_IS_PICASSO(adev->external_rev_id))
-> > > > +                       fw_name_dmcu = FIRMWARE_RAVEN_DMCU;
-> > > > +               else if (ASICREV_IS_RAVEN2(adev->external_rev_id))
-> > > > +                       fw_name_dmcu = FIRMWARE_RAVEN_DMCU;
-> > > > +               else
-> > > > +#endif
-> > > > +                       return 0;
-> > > >                 break;
-> > > >         default:
-> > > >                 DRM_ERROR("Unsupported ASIC type: 0x%X\n", adev->asic_type);
-> > > > --
-> > > > 2.20.1
-> > > >
-> > > > _______________________________________________
-> > > > amd-gfx mailing list
-> > > > amd-gfx@lists.freedesktop.org
-> > > > https://lists.freedesktop.org/mailman/listinfo/amd-gfx
+> > Ok, then can you point out what specifically was wrong with
+> > 854a6ed56839a?
+>
+> Cough. If nothing else the lost -EINTR?
+
+This was my theory. My basis behind the theory was [1](the issue with
+return value not being updated) above. And, you are saying this is ok.
+
+854a6ed56839a also has timing differences compared to the original
+code. So unless we are sure what was uncovered because of
+854a6ed56839a, we might just be masking a pre-existing problem by
+reverting it. So I think we should code review 854a6ed56839a and
+figure out what is wrong programatically before just reverting it.
+
+> > And, not how it could be more simple?
+
+Oh, I was not asking here. I was saying let's please discuss what's
+wrong before simplifying the code.
+
+-Deepa
