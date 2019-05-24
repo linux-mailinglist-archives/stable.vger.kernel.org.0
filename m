@@ -2,108 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F4CB29A5E
-	for <lists+stable@lfdr.de>; Fri, 24 May 2019 16:51:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC5ED29A6E
+	for <lists+stable@lfdr.de>; Fri, 24 May 2019 16:57:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404162AbfEXOvR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 May 2019 10:51:17 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:35976 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404154AbfEXOvR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 May 2019 10:51:17 -0400
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 604EB30B1B84;
-        Fri, 24 May 2019 14:51:11 +0000 (UTC)
-Received: from dhcp-27-174.brq.redhat.com (unknown [10.43.17.159])
-        by smtp.corp.redhat.com (Postfix) with SMTP id 41FB02CFD6;
-        Fri, 24 May 2019 14:51:07 +0000 (UTC)
-Received: by dhcp-27-174.brq.redhat.com (nbSMTP-1.00) for uid 1000
-        oleg@redhat.com; Fri, 24 May 2019 16:51:11 +0200 (CEST)
-Date:   Fri, 24 May 2019 16:51:06 +0200
-From:   Oleg Nesterov <oleg@redhat.com>
-To:     Deepa Dinamani <deepa.kernel@gmail.com>
-Cc:     David Laight <David.Laight@aculab.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "dbueso@suse.de" <dbueso@suse.de>,
-        "axboe@kernel.dk" <axboe@kernel.dk>,
-        Davidlohr Bueso <dave@stgolabs.net>, Eric Wong <e@80x24.org>,
-        Jason Baron <jbaron@akamai.com>,
-        Linux FS-devel Mailing List <linux-fsdevel@vger.kernel.org>,
-        linux-aio <linux-aio@kvack.org>,
-        Omar Kilani <omar.kilani@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH v2] signal: Adjust error codes according to
- restore_user_sigmask()
-Message-ID: <20190524145105.GD2655@redhat.com>
-References: <20190522161407.GB4915@redhat.com>
- <CABeXuvpjrW5Gt95JC-_rYkOA=6RCD5OtkEQdwZVVqGCE3GkQOQ@mail.gmail.com>
- <4f7b6dbeab1d424baaebd7a5df116349@AcuMS.aculab.com>
- <20190523145944.GB23070@redhat.com>
- <345cfba5edde470f9a68d913f44fa342@AcuMS.aculab.com>
- <20190523163604.GE23070@redhat.com>
- <f0eced5677c144debfc5a69d0d327bc1@AcuMS.aculab.com>
- <CABeXuvo-wey+NHWb4gi=FSRrjJOKkVcLPQ-J+dchJeHEbhGQ6g@mail.gmail.com>
- <20190524141947.GC2655@redhat.com>
- <CABeXuvqx9fZGiGSAQEE=7wechoGE0E8YW7icBWoTtXPkWPROUw@mail.gmail.com>
+        id S2404040AbfEXO5s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 May 2019 10:57:48 -0400
+Received: from mail-pf1-f195.google.com ([209.85.210.195]:42719 "EHLO
+        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2404010AbfEXO5r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 May 2019 10:57:47 -0400
+Received: by mail-pf1-f195.google.com with SMTP id r22so2610240pfh.9
+        for <stable@vger.kernel.org>; Fri, 24 May 2019 07:57:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=v+S3YCrUZFmOe/FN9AODMBHfQEI3VfpRdwaIUKLxLLY=;
+        b=szHo3/OXEubNO758TfF9vxsod8WV4tGjXo4xMaSv0izoNB0xSYW7SXIBz9QZmPh/by
+         tKt8w0tBB9xbGj0fy9kHM4ER0CH3z7SABR2XPLyjZt0neH2nvlO0ikbQS5sImbMycfFu
+         G+P+LlE9KH+c8HzXJfO6CxVM+FSPQ+YSjk/fPIvY9kCkwfit3H9NPV/DmxlO0u8MWdbK
+         OLpc9TKutosrPxJft47pGle9N3/Fuau8A05Ak3L7UgmGbTkH+Hp6tZm7N3LLI4W3Tt5M
+         ifKDg6/u501Gltw4veV0i6xWDFUjivPt9VCoQtdGLrN8ndtZPL6JhwXt1o7q2LrlTCAb
+         EKLg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=v+S3YCrUZFmOe/FN9AODMBHfQEI3VfpRdwaIUKLxLLY=;
+        b=EMxEYpRD+VOCqeWv83Fgpy0o7nLPxDDU1Vs/UvI9XZu9YembZLB4NKdmSRt9k0BAcj
+         /h6SXmOGs7EHh25UzPg/EluRs5fak6vsdM1AyIpP4q6C19MyPRBQYzHmWEnD7VBEr+9M
+         aNKa8vdjl1N8sGUh82cRObrJJ5CoFwtFTl0LTDTfW01NmCtIz9pvn5K0q/YcESe2fN5L
+         ELfcmUfQ3kw8t5jddeFjw616y+ZWhuBQ7eDecwBpL7Y0MdeOhx3w1GjRtqqDH9Pm87mx
+         303FLZBi7oV2E7VWd300N6mdDq1aaacfvroy60KvKIE0u+8R89oM3zmYYU7+YAit5oql
+         4lUA==
+X-Gm-Message-State: APjAAAWwQBrW7f5XhaEjy3BbAvYwrdUdXMJlxz/f2OgZia3Pc9pE3tty
+        vQha50rv1vwHcArzGLhHwpAusj4YKVX9VsDbbCY=
+X-Google-Smtp-Source: APXvYqxelZRblLLIwE5GyONqTmdDdiJoxWnMucaE+qj3EzYjHrFM713H2/oVBwzZyUbbNYmaOEXDKmiuJR6eSn/Z2dQ=
+X-Received: by 2002:a62:cdc6:: with SMTP id o189mr86519559pfg.74.1558709867343;
+ Fri, 24 May 2019 07:57:47 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CABeXuvqx9fZGiGSAQEE=7wechoGE0E8YW7icBWoTtXPkWPROUw@mail.gmail.com>
-User-Agent: Mutt/1.5.24 (2015-08-30)
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.41]); Fri, 24 May 2019 14:51:16 +0000 (UTC)
+Received: by 2002:a17:90a:2225:0:0:0:0 with HTTP; Fri, 24 May 2019 07:57:46
+ -0700 (PDT)
+Reply-To: michellegoodman45@gmail.com
+From:   Shayma <shaymamarwan02@gmail.com>
+Date:   Fri, 24 May 2019 14:57:46 +0000
+Message-ID: <CAPmjDROqgFtyCyASPKNdn-Z8wFzHzvnUXRPRRSwaVbRi7=dYNw@mail.gmail.com>
+Subject: From Michelle
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 05/24, Deepa Dinamani wrote:
->
-> I think you are misunderstanding what I said.
-
-probably. Everything was very confusing to me from the very beginning.
-And yes, I can hardly understand your emails, sorry. This one too :/
-
-> You are taking things
-> out of context. I was saying here what I did was inspired by why the
-> syscall was designed to begin with.
-
-which syscall?
-
-> The syscall below refers to
-> epoll_wait and not epoll_pwait.
-
-So you tried to explain why epoll_pwait() was designed? Or what?
-
-Either way, everything I said below still looks right to me. This probably
-means that I still can't understand you.
-
-But this is irrelevant. My main point is that the kernel was correct before
-854a6ed568 ("signal: Add restore_user_sigmask()"), the (incomplete) patch I sent
-tries to a) restore the correct behaviour and b) simplify/cleanup the code.
-
-> On Fri, May 24, 2019 at 7:19 AM Oleg Nesterov <oleg@redhat.com> wrote:
-> >
-> > On 05/23, Deepa Dinamani wrote:
-> > >
-> > > 1. block the signals you don't care about.
-> > > 2. syscall()
-> > > 3. unblock the signals blocked in 1.
-> >
-> > and even this part of your email is very confusing. because in this case
-> > we can never miss a signal. I'd say
-> >
-> >         1. block the signals you don't care about
-> >         2. unblock the signals which should interrupt the syscall below
-> >         3. syscall()
-> >         4. block the signals unblocked in 2.
-> >
-> > Oleg.
-> >
-
+Ahoj drah=C3=BD, jak se m=C3=A1=C5=A1 dnes?
+Pokud dostanete mou zpr=C3=A1vu, pot=C5=99ebuji, abyste na ni neodkladn=C4=
+=9B odpov=C4=9Bd=C4=9Bli.
+d=C3=ADky
+tv=C5=AFj
+Michelle
