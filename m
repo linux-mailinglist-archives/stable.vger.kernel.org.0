@@ -2,125 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 13F4828FB4
-	for <lists+stable@lfdr.de>; Fri, 24 May 2019 05:48:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C36A29052
+	for <lists+stable@lfdr.de>; Fri, 24 May 2019 07:21:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387714AbfEXDsf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 May 2019 23:48:35 -0400
-Received: from mail-wm1-f65.google.com ([209.85.128.65]:52925 "EHLO
-        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387703AbfEXDsf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 May 2019 23:48:35 -0400
-Received: by mail-wm1-f65.google.com with SMTP id y3so7819267wmm.2
-        for <stable@vger.kernel.org>; Thu, 23 May 2019 20:48:33 -0700 (PDT)
+        id S1731464AbfEXFVQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 May 2019 01:21:16 -0400
+Received: from mail-pg1-f195.google.com ([209.85.215.195]:32983 "EHLO
+        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726601AbfEXFVQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 May 2019 01:21:16 -0400
+Received: by mail-pg1-f195.google.com with SMTP id h17so4386142pgv.0
+        for <stable@vger.kernel.org>; Thu, 23 May 2019 22:21:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:in-reply-to
-         :references:subject:to:from:cc;
-        bh=v34blGR1BOyMj6mXuwgkwlptJtpxjWKG4dytKI5nL7Y=;
-        b=qSkxOpDnzNaN5Txt6l2nZBuG9L0SIjfowxHHxRLtPgAxq5mJTJAiqoLy4wv6ELdz2D
-         vdmDx8fRQoP68c08RNMlWIucGQpkXJNm5oShk1ykp0I/37HIb6EStrc70G1i/N928GZe
-         ei7F2/AUKX7lQyPuwf+/21fLnCByVKQl8aF7G8THupEIrnVEnPUkmSO5Wdr9Ffjs/YGs
-         L1V9eNIwSwdkcutpR/p1ZuH2MTfXFIP5fQn3OlnSOfJrCKKMi8ZgaQBGuKh/9Q0YcPLQ
-         jGqNbA2/ZpS9vb/ulkX6uQ5bpZIjHCUefmaf28u4xlR/Z/LQu7YACK3bmyQVAGQOujWI
-         jJ8A==
+        d=endlessm-com.20150623.gappssmtp.com; s=20150623;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=dZw2XLRnf4iZ+8HINOmAiZ2bSPbP/ZDgrl/m4RkW9o0=;
+        b=RugBw5tvj4/uBNxAvP8f7PN7PVQzJufeVQ9QjC33vKALJdMow+m2QDGzdX5THRTs2p
+         aT6PkQP7291JSfmEoTi8cGleZWJ0hdg0P9C8rFKKtpY1ufSBWWBAiKi0GKqcTMyqT74Z
+         pdF8C2pmRJICIN62SKlRNZr9rB8BBv83Y42nbcp4YVrXFg5UeP7UOMqdRXMHhlRkM+ml
+         +aUExL/Jz2xbh+wPR4OHDdW1uDj+719+QCjDRWnvsfofXyF1DrZo1/EgRoY0VuHwY3E1
+         F6K4X1KdN8fJ7wY6VXb3a8kn861pigeaSZbQpwcafzsnI0epXqUHwocVLIws4gU26Dzx
+         hASw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:in-reply-to:references:subject:to:from:cc;
-        bh=v34blGR1BOyMj6mXuwgkwlptJtpxjWKG4dytKI5nL7Y=;
-        b=CEt6uybgJisLTPOSd4W0+XoWJD7Psaau6Mz0OUHBQqLcNVqjKR0aKB3Ze+bmUGJffV
-         0xAXX7oE9eCWJXHYWuE1CAvEAumuau8gaHuVlnxAqyrCSglufHiLPaCD9FMF7F/LUV5f
-         Zs4ZEVeS9HiAuaBwvmgoz+CyNdPCOagCLI0LWUgp+aNwZsAP6YSxP+vLKB8SB2UfdahQ
-         ygE6bviHN8THocMyTXkbbw6OTnk1bJKvSuZUbQHPFNC+bfwb243DMG+J/iDiDtMLIFLv
-         wYd6ul+0M83z420AsMxe9/gqplVVTqOj//nsSyRESqvoXPXpwHLw3C0H2zHF83JBAXdY
-         OktA==
-X-Gm-Message-State: APjAAAWRCMTUdOHir61rDiSS2ODuTLXVNmPzPzd69MJ2cantsBBVUd28
-        21sBdDiyZd8Um3Azt0CAwWNJxQ==
-X-Google-Smtp-Source: APXvYqxG4ZsNU/Eh3hsaRQusLj6+eGT7GlYIFrpKh/1q3mMdeeLE5/ucFTpIpIbkzu6SAql8zIjshA==
-X-Received: by 2002:a05:600c:2116:: with SMTP id u22mr13830470wml.58.1558669712978;
-        Thu, 23 May 2019 20:48:32 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id y12sm696389wrh.40.2019.05.23.20.48.32
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=dZw2XLRnf4iZ+8HINOmAiZ2bSPbP/ZDgrl/m4RkW9o0=;
+        b=rw1rhUICBT5A/iHlvCuLwkMRvSkdhI7DS/ObUH2dKyQLrSAIgGQDmnXjTAzfSLfmHX
+         XW9YBDp0K2OeN/yCoCc8Ee1iB7fcCZgQZK5xYSXx0qpWNQRmcf519OkWKTI20JW5j9ee
+         m/H1D0SoxWjQRN6q2gGu/vEv1tnhMXOmPWdUlIPNme7EA/lLNe5xokYflXSetIltBK+x
+         N5HWywZ7nCNSnk79rV3pWF2Sg3VyZAlO+Z2xalaZhHT4RNtEKYcB2zrgvo2saevk1UlK
+         v/3tpcIQltm2/TSymNVSda787zWBMXvYEHAimU4zDyS8D1+7p+M1FjQe4p2ysM+pYUhd
+         Q1gQ==
+X-Gm-Message-State: APjAAAXW5baTryoApYxJ/0d9nxbqODKW87IUJg3R8/lWHnImHYQKYtQG
+        +QX4/w1Rf6VZaaYIsfXCYSGuyQQHMr+4K6YaZSCYypJ4XrahQqoB0EPmMZbkpvJw9oMXZhPXbpQ
+        TEIiHxUo2bPunMMCWAy0m4ytFlGPajePPAMZkrVKe7xcEmwHHqpeZP/ZvdwObm559mUxh9GxO6A
+        ==
+X-Google-Smtp-Source: APXvYqzqcgqwQ0GEc7AuQBZpH68LGX306PqD5RvbDDdBN9bYf8vn6B1uG9ZNHEiaPvMPlJaXeMK4HQ==
+X-Received: by 2002:a17:90a:ac18:: with SMTP id o24mr6783104pjq.116.1558675274744;
+        Thu, 23 May 2019 22:21:14 -0700 (PDT)
+Received: from localhost.localdomain (123-204-46-122.static.seed.net.tw. [123.204.46.122])
+        by smtp.gmail.com with ESMTPSA id x7sm1147224pfm.82.2019.05.23.22.21.12
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 23 May 2019 20:48:32 -0700 (PDT)
-Message-ID: <5ce76990.1c69fb81.2d6ca.3775@mx.google.com>
-Date:   Thu, 23 May 2019 20:48:32 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Thu, 23 May 2019 22:21:14 -0700 (PDT)
+From:   Jian-Hong Pan <jian-hong@endlessm.com>
+To:     stable@vger.kernel.org
+Cc:     linux@endlessm.com, tiwai@suse.de,
+        Jian-Hong Pan <jian-hong@endlessm.com>
+Subject: [PATCH] Revert "ALSA: hda - Enforces runtime_resume after S3 and S4 for each codec"
+Date:   Fri, 24 May 2019 13:10:17 +0800
+Message-Id: <20190524051015.4680-1-jian-hong@endlessm.com>
+X-Mailer: git-send-email 2.21.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Kernel: v4.19.45-115-g071ff9cc9849
-In-Reply-To: <20190523181731.372074275@linuxfoundation.org>
-References: <20190523181731.372074275@linuxfoundation.org>
-Subject: Re: [PATCH 4.19 000/114] 4.19.46-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y boot: 125 boots: 0 failed, 112 passed with 13 offlin=
-e (v4.19.45-115-g071ff9cc9849)
+We have an ASUS E406MA laptop equipped with Intel N5000 CPU.  After
+system suspend & resume, the audio playback does not work anymore. The
+device for sound output is listed as a headphone device.  Plugging in
+headphones no sound is audible neither.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.19.y/kernel/v4.19.45-115-g071ff9cc9849/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.45-115-g071ff9cc9849/
+Here are the error messages after resume:
 
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.45-115-g071ff9cc9849
-Git Commit: 071ff9cc98498f489abc097471549b19933ba3e2
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 68 unique boards, 24 SoC families, 14 builds out of 206
+[  184.525681] snd_hda_intel 0000:00:0e.0: azx_get_response timeout, switching to polling mode: last cmd=0x20bf8100
+[  185.528682] snd_hda_intel 0000:00:0e.0: No response from codec, disabling MSI: last cmd=0x20bf8100
+[  186.532683] snd_hda_intel 0000:00:0e.0: azx_get_response timeout, switching to single_cmd mode: last cmd=0x20bf8100
+[  186.736838] snd_hda_codec_realtek hdaudioC0D0: Unable to sync register 0x2b8000. -5
+[  186.738742] snd_hda_codec_realtek hdaudioC0D0: Unable to sync register 0x2b8000. -5
+[  186.767080] snd_hda_codec_hdmi hdaudioC0D2: Unable to sync register 0x2f0d00. -5
 
-Offline Platforms:
+After bisect, we found reverting the commit b5a236c175b0 "ALSA: hda -
+Enforces runtime_resume after S3 and S4 for each codec" can solve this
+issue on Linux stable 5.0.x series.
 
-arm:
+This reverts commit a57af6d07512716b78f1a32d9426bcdf6aafc50c.
 
-    sama5_defconfig:
-        gcc-8
-            at91-sama5d4_xplained: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            alpine-db: 1 offline lab
-            at91-sama5d4_xplained: 1 offline lab
-            socfpga_cyclone5_de0_sockit: 1 offline lab
-            stih410-b2120: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
-            tegra124-jetson-tk1: 1 offline lab
-
-    tegra_defconfig:
-        gcc-8
-            tegra124-jetson-tk1: 1 offline lab
-
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
-
-    bcm2835_defconfig:
-        gcc-8
-            bcm2835-rpi-b: 1 offline lab
-
-arm64:
-
-    defconfig:
-        gcc-8
-            apq8016-sbc: 1 offline lab
-            juno-r2: 1 offline lab
-            mt7622-rfb1: 1 offline lab
-
+Buglink: https://bugzilla.kernel.org/show_bug.cgi?id=203623
+Fixes: a57af6d07512 ("ALSA: hda - Enforces runtime_resume after S3 and S4 for each codec")
+Cc: <stable@vger.kernel.org> # 5.0.x
+Signed-off-by: Jian-Hong Pan <jian-hong@endlessm.com>
 ---
-For more info write to <info@kernelci.org>
+ sound/pci/hda/hda_codec.c | 20 +++-----------------
+ 1 file changed, 3 insertions(+), 17 deletions(-)
+
+diff --git a/sound/pci/hda/hda_codec.c b/sound/pci/hda/hda_codec.c
+index b238e903b9d7..dbc9eaa81358 100644
+--- a/sound/pci/hda/hda_codec.c
++++ b/sound/pci/hda/hda_codec.c
+@@ -2952,20 +2952,6 @@ static int hda_codec_runtime_resume(struct device *dev)
+ #endif /* CONFIG_PM */
+ 
+ #ifdef CONFIG_PM_SLEEP
+-static int hda_codec_force_resume(struct device *dev)
+-{
+-	int ret;
+-
+-	/* The get/put pair below enforces the runtime resume even if the
+-	 * device hasn't been used at suspend time.  This trick is needed to
+-	 * update the jack state change during the sleep.
+-	 */
+-	pm_runtime_get_noresume(dev);
+-	ret = pm_runtime_force_resume(dev);
+-	pm_runtime_put(dev);
+-	return ret;
+-}
+-
+ static int hda_codec_pm_suspend(struct device *dev)
+ {
+ 	dev->power.power_state = PMSG_SUSPEND;
+@@ -2975,7 +2961,7 @@ static int hda_codec_pm_suspend(struct device *dev)
+ static int hda_codec_pm_resume(struct device *dev)
+ {
+ 	dev->power.power_state = PMSG_RESUME;
+-	return hda_codec_force_resume(dev);
++	return pm_runtime_force_resume(dev);
+ }
+ 
+ static int hda_codec_pm_freeze(struct device *dev)
+@@ -2987,13 +2973,13 @@ static int hda_codec_pm_freeze(struct device *dev)
+ static int hda_codec_pm_thaw(struct device *dev)
+ {
+ 	dev->power.power_state = PMSG_THAW;
+-	return hda_codec_force_resume(dev);
++	return pm_runtime_force_resume(dev);
+ }
+ 
+ static int hda_codec_pm_restore(struct device *dev)
+ {
+ 	dev->power.power_state = PMSG_RESTORE;
+-	return hda_codec_force_resume(dev);
++	return pm_runtime_force_resume(dev);
+ }
+ #endif /* CONFIG_PM_SLEEP */
+ 
+-- 
+2.21.0
+
