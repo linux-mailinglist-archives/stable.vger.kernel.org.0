@@ -2,161 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E647C298F0
-	for <lists+stable@lfdr.de>; Fri, 24 May 2019 15:29:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70C2729922
+	for <lists+stable@lfdr.de>; Fri, 24 May 2019 15:39:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403801AbfEXN3c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 May 2019 09:29:32 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:39764 "EHLO mx1.redhat.com"
+        id S2403791AbfEXNjF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 May 2019 09:39:05 -0400
+Received: from foss.arm.com ([217.140.101.70]:43310 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403799AbfEXN3c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 24 May 2019 09:29:32 -0400
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 7482930ADC75;
-        Fri, 24 May 2019 13:29:21 +0000 (UTC)
-Received: from dhcp-27-174.brq.redhat.com (unknown [10.43.17.159])
-        by smtp.corp.redhat.com (Postfix) with SMTP id 2A8382E024;
-        Fri, 24 May 2019 13:29:12 +0000 (UTC)
-Received: by dhcp-27-174.brq.redhat.com (nbSMTP-1.00) for uid 1000
-        oleg@redhat.com; Fri, 24 May 2019 15:29:21 +0200 (CEST)
-Date:   Fri, 24 May 2019 15:29:12 +0200
-From:   Oleg Nesterov <oleg@redhat.com>
-To:     David Laight <David.Laight@ACULAB.COM>
-Cc:     'Deepa Dinamani' <deepa.kernel@gmail.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Arnd Bergmann <arnd@arndb.de>,
-        "dbueso@suse.de" <dbueso@suse.de>,
-        "axboe@kernel.dk" <axboe@kernel.dk>,
-        Davidlohr Bueso <dave@stgolabs.net>, Eric Wong <e@80x24.org>,
-        Jason Baron <jbaron@akamai.com>,
-        Linux FS-devel Mailing List <linux-fsdevel@vger.kernel.org>,
-        linux-aio <linux-aio@kvack.org>,
-        Omar Kilani <omar.kilani@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH v2] signal: Adjust error codes according to
- restore_user_sigmask()
-Message-ID: <20190524132911.GA2655@redhat.com>
-References: <20190522032144.10995-1-deepa.kernel@gmail.com>
- <20190522150505.GA4915@redhat.com>
- <CABeXuvrPM5xvzqUydbREapvwgy6deYreHp0aaMoSHyLB6+HGRg@mail.gmail.com>
- <20190522161407.GB4915@redhat.com>
- <CABeXuvpjrW5Gt95JC-_rYkOA=6RCD5OtkEQdwZVVqGCE3GkQOQ@mail.gmail.com>
- <4f7b6dbeab1d424baaebd7a5df116349@AcuMS.aculab.com>
- <20190523145944.GB23070@redhat.com>
- <345cfba5edde470f9a68d913f44fa342@AcuMS.aculab.com>
- <20190523163604.GE23070@redhat.com>
- <f0eced5677c144debfc5a69d0d327bc1@AcuMS.aculab.com>
+        id S2391124AbfEXNjE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 24 May 2019 09:39:04 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.72.51.249])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 37B74A78;
+        Fri, 24 May 2019 06:39:04 -0700 (PDT)
+Received: from [10.1.197.61] (usa-sjc-imap-foss1.foss.arm.com [10.72.51.249])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 65D183F5AF;
+        Fri, 24 May 2019 06:38:59 -0700 (PDT)
+Subject: Re: [PATCH] arm64: Kconfig: Make ARM64_PSEUDO_NMI depend on BROKEN
+ for now
+To:     Will Deacon <will.deacon@arm.com>,
+        linux-arm-kernel@lists.infradead.org
+Cc:     catalin.marinas@arm.com, "# 5 . 1" <stable@vger.kernel.org>,
+        Julien Thierry <julien.thierry@arm.com>
+References: <20190524132735.6592-1-will.deacon@arm.com>
+From:   Marc Zyngier <marc.zyngier@arm.com>
+Openpgp: preference=signencrypt
+Autocrypt: addr=marc.zyngier@arm.com; prefer-encrypt=mutual; keydata=
+ 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
+Organization: ARM Ltd
+Message-ID: <8f853543-b692-cb47-ada3-e5996029fd1f@arm.com>
+Date:   Fri, 24 May 2019 14:38:56 +0100
+User-Agent: Mozilla/5.0 (X11; Linux aarch64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <f0eced5677c144debfc5a69d0d327bc1@AcuMS.aculab.com>
-User-Agent: Mutt/1.5.24 (2015-08-30)
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.47]); Fri, 24 May 2019 13:29:31 +0000 (UTC)
+In-Reply-To: <20190524132735.6592-1-will.deacon@arm.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-It seems that we all are just trying to confuse each other. I got lost.
+On 24/05/2019 14:27, Will Deacon wrote:
+> Although we merged support for pseudo-nmi using interrupt priority
+> masking in 5.1, we've since uncovered a number of non-trivial issues
+> with the implementation. Although there are patches pending to address
+> these problems, we're facing issues that prevent us from merging them at
+> this current time:
+> 
+>   https://lkml.kernel.org/r/1556553607-46531-1-git-send-email-julien.thierry@arm.com
+> 
+> For now, simply mark this optional feature as BROKEN in the hope that we
+> can fix things properly in the near future.
+> 
+> Cc: <stable@vger.kernel.org> # 5.1
+> Cc: Marc Zyngier <marc.zyngier@arm.com>
+> Cc: Julien Thierry <julien.thierry@arm.com>
+> Signed-off-by: Will Deacon <will.deacon@arm.com>
+> ---
+>  arch/arm64/Kconfig | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+> index 6a9544606da3..f6275c265d41 100644
+> --- a/arch/arm64/Kconfig
+> +++ b/arch/arm64/Kconfig
+> @@ -1422,6 +1422,7 @@ config ARM64_MODULE_PLTS
+>  
+>  config ARM64_PSEUDO_NMI
+>  	bool "Support for NMI-like interrupts"
+> +	depends on BROKEN # 1556553607-46531-1-git-send-email-julien.thierry@arm.com
+>  	select CONFIG_ARM_GIC_V3
+>  	help
+>  	  Adds support for mimicking Non-Maskable Interrupts through the use of
+> 
 
-On 05/23, David Laight wrote:
->
-> From: Oleg Nesterov
-> > Sent: 23 May 2019 17:36
-> > On 05/23, David Laight wrote:
-> > >
-> > > From: Oleg Nesterov
-> > > > On 05/23, David Laight wrote:
-> ...
-> > > > Not sure I understand... OK, suppose that you do
-> > > >
-> > > > 	block-all-signals;
-> > > > 	ret = pselect(..., sigmask(SIG_URG));
-> > > >
-> > > > if it returns success/timeout then the handler for SIG_URG should not be called?
-> > >
-> > > Ugg...
-> > > Posix probably allows the signal handler be called at the point the event
-> > > happens rather than being deferred until the system call completes.
-> > > Queueing up the signal handler to be run at a later time (syscall exit)
-> > > certainly makes sense.
-> > > Definitely safest to call the signal handler even if success/timeout
-> > > is returned.
-> >
-> > Why?
-> >
-> > > pselect() exists to stop the entry race, not the exit one.
-> >
-> > pselect() has to block SIG_URG again before it returns to user-mode, right?
->
-> Yep.
-> So the signal handler can't be called for a signal that happens after
-> pselect() returns.
+Acked-by: Marc Zyngier <marc.zyngier@arm.com>
 
-Yes. And "after pselect() returns" actually means "after pselect() restores
-the old sigmask while it returns to user mode".
-
-> > Suppose pselect() finds a ready fd, and this races with SIG_URG.
->
-> You mean if SIG_URG is raised after a ready fd is found (or even timeout)?
-> So the return value isn't EINTR.
-
-Yes.
-
-> (If an fd is readable on entry, the SIG_URG could have happened much earlier.)
-
-Why not? See the pseudo code above. It was blocked before pselect() was called.
-So SIG_URG can be already pending when pselect() is called but since an fd is
-already ready on entry pselect() restores the old sigmask (and thus blocks SIG_URG
-again) and returns success. The handler is not called.
-
-However, if there is no a ready fd, pselect won't block. It will notice SIG_URG,
-deliver this signal, and return -EINTR.
-
-
-> > Why do you think the handler should run?
->
-> Think of the application code loop.
-> Consider what happens if the signal is SIG_INT - to request the program
-> stop.
-
-SIG_INT or SIG_URG ? Again, please look at the pseudo code above. SIG_INT is
-blocked and never unblocked.
-
-> After every pselect() call the application looks to see if the handler
-> has been called.
-> If one of the fds is always readable pselect() will never return EINTR
-> but you want the SIG_INT handler run so that the loop gets terminated.
-> If you only call the signal handler when EINTR is returned the process
-> will never stop.
-> So you need to call the handler even when pselect() succeeds/time out.
-
-Then do not block SIG_INT ?
-
-	block-all-signals-except-SIG_INT;
-	ret = pselect(..., sigmask{SIG_URG, SIG_INT});
-
-
-> > What if SIG_URG comes right after pselect() blocks SIG_URG again? I mean,
-> > how this differs the case when it comes before, but a ready fd was already
-> > found?
->
-> I suspect you need to defer the re-instatement of the original mask
-> to the code that calls the signal handlers (which probably should
-> be called with the programs signal mask).
-
-This is what the kernel does when the signal is delivered, the original mask
-is restored after the signal handler runs.
-
-> So that particular window doesn't exist.
-
-Which window???
-
-Oleg.
-
+	M.
+-- 
+Jazz is not dead. It just smells funny...
