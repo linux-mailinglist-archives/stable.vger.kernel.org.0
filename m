@@ -2,114 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BC0222A169
-	for <lists+stable@lfdr.de>; Sat, 25 May 2019 00:55:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6068B2A338
+	for <lists+stable@lfdr.de>; Sat, 25 May 2019 08:56:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730112AbfEXWzJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 May 2019 18:55:09 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:55125 "EHLO
-        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727091AbfEXWzJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 May 2019 18:55:09 -0400
-Received: by atrey.karlin.mff.cuni.cz (Postfix, from userid 512)
-        id 7914E802FB; Sat, 25 May 2019 00:54:56 +0200 (CEST)
-Date:   Sat, 25 May 2019 00:55:05 +0200
-From:   Pavel Machek <pavel@ucw.cz>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Jacek Anaszewski <jacek.anaszewski@gmail.com>,
-        linux-leds@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.1 033/375] leds: avoid races with workqueue
-Message-ID: <20190524225505.GA16076@amd>
-References: <20190522192115.22666-1-sashal@kernel.org>
- <20190522192115.22666-33-sashal@kernel.org>
+        id S1726598AbfEYG41 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 25 May 2019 02:56:27 -0400
+Received: from asavdk3.altibox.net ([109.247.116.14]:49398 "EHLO
+        asavdk3.altibox.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726145AbfEYG41 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 25 May 2019 02:56:27 -0400
+Received: from ravnborg.org (unknown [158.248.194.18])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by asavdk3.altibox.net (Postfix) with ESMTPS id 3D13420096;
+        Sat, 25 May 2019 08:56:23 +0200 (CEST)
+Date:   Sat, 25 May 2019 08:56:21 +0200
+From:   Sam Ravnborg <sam@ravnborg.org>
+To:     =?iso-8859-1?Q?S=E9bastien?= Szymanski 
+        <sebastien.szymanski@armadeus.com>
+Cc:     linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
+        dri-devel@lists.freedesktop.org,
+        linux-arm-kernel@lists.infradead.org,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        David Airlie <airlied@linux.ie>, stable@vger.kernel.org,
+        Rob Herring <robh+dt@kernel.org>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>
+Subject: Re: [PATCH RE-RESEND 1/2] drm/panel: Add support for Armadeus ST0700
+ Adapt
+Message-ID: <20190525065621.GC9586@ravnborg.org>
+References: <20190507152713.27494-1-sebastien.szymanski@armadeus.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="zYM0uCDKw75PZbzx"
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20190522192115.22666-33-sashal@kernel.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190507152713.27494-1-sebastien.szymanski@armadeus.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-CMAE-Score: 0
+X-CMAE-Analysis: v=2.3 cv=dqr19Wo4 c=1 sm=1 tr=0
+        a=UWs3HLbX/2nnQ3s7vZ42gw==:117 a=UWs3HLbX/2nnQ3s7vZ42gw==:17
+        a=jpOVt7BSZ2e4Z31A5e1TngXxSK0=:19 a=8nJEP1OIZ-IA:10 a=VwQbUJbxAAAA:8
+        a=k4gcJ1N8AAAA:8 a=rQ_wcCec06wBi9E7-2gA:9 a=wPNLvfGTeEIA:10
+        a=AjGcO6oz07-iQ99wixmX:22 a=0EuUHwVWM4Mljrm1lpjw:22
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, May 07, 2019 at 05:27:12PM +0200, Sébastien Szymanski wrote:
+> This patch adds support for the Armadeus ST0700 Adapt. It comes with a
+> Santek ST0700I5Y-RBSLW 7.0" WVGA (800x480) TFT and an adapter board so
+> that it can be connected on the TFT header of Armadeus Dev boards.
+> 
+> Cc: stable@vger.kernel.org # v4.19
+> Reviewed-by: Rob Herring <robh@kernel.org>
+> Signed-off-by: Sébastien Szymanski <sebastien.szymanski@armadeus.com>
 
---zYM0uCDKw75PZbzx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Thanks, applied.
+Only patch 1/2 applied, as patch 2/2 is missing review.
 
-Hi!
-
-Could we hold this patch for now?
-
-> From: Pavel Machek <pavel@ucw.cz>
->=20
-> [ Upstream commit 0db37915d912e8dc6588f25da76d3ed36718d92f ]
->=20
-> There are races between "main" thread and workqueue. They manifest
-> themselves on Thinkpad X60:
->=20
-> This should result in LED blinking, but it turns it off instead:
->=20
->     root@amd:/data/pavel# cd /sys/class/leds/tpacpi\:\:power
->     root@amd:/sys/class/leds/tpacpi::power# echo timer > trigger
->     root@amd:/sys/class/leds/tpacpi::power# echo timer > trigger
->=20
-> It should be possible to transition from blinking to solid on by echo
-> 0 > brightness; echo 1 > brightness... but that does not work, either,
-> if done too quickly.
->=20
-> Synchronization of the workqueue fixes both.
->=20
-> Fixes: 1afcadfcd184 ("leds: core: Use set_brightness_work for the blockin=
-g op")
-> Signed-off-by: Pavel Machek <pavel@ucw.cz>
-> Signed-off-by: Jacek Anaszewski <jacek.anaszewski@gmail.com>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/leds/led-class.c | 1 +
->  drivers/leds/led-core.c  | 5 +++++
->  2 files changed, 6 insertions(+)
-
-> index e3da7c03da1b5..e9ae7f87ab900 100644
-> --- a/drivers/leds/led-core.c
-> +++ b/drivers/leds/led-core.c
-> @@ -164,6 +164,11 @@ static void led_blink_setup(struct led_classdev *led=
-_cdev,
->  		     unsigned long *delay_on,
->  		     unsigned long *delay_off)
->  {
-> +	/*
-> +	 * If "set brightness to 0" is pending in workqueue, we don't
-> +	 * want that to be reordered after blink_set()
-> +	 */
-> +	flush_work(&led_cdev->set_brightness_work);
->  	if (!test_bit(LED_BLINK_ONESHOT, &led_cdev->work_flags) &&
->  	    led_cdev->blink_set &&
->  	    !led_cdev->blink_set(led_cdev, delay_on, delay_off))
-
-This part is likely buggy. It seems triggers are using this from
-atomic context... ledtrig-disk for example.
-
-
-									Pavel
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---zYM0uCDKw75PZbzx
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAlzodkkACgkQMOfwapXb+vI2uwCcDhcBUedPuemmTJH8HBfplj3n
-Am0An36r7SaUBERnD+oeUjpUQZCYLV3s
-=RkIY
------END PGP SIGNATURE-----
-
---zYM0uCDKw75PZbzx--
+	Sam
