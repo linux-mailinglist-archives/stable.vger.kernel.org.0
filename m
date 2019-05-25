@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 54D802A736
-	for <lists+stable@lfdr.de>; Sun, 26 May 2019 00:20:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4B2B2A737
+	for <lists+stable@lfdr.de>; Sun, 26 May 2019 00:33:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726877AbfEYWUs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 25 May 2019 18:20:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49598 "EHLO mail.kernel.org"
+        id S1726678AbfEYWdx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 25 May 2019 18:33:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726739AbfEYWUs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 25 May 2019 18:20:48 -0400
+        id S1726187AbfEYWdx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 25 May 2019 18:33:53 -0400
 Received: from localhost.localdomain (c-73-223-200-170.hsd1.ca.comcast.net [73.223.200.170])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 33F3E20815;
-        Sat, 25 May 2019 22:20:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1DBEB2075E;
+        Sat, 25 May 2019 22:33:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558822847;
-        bh=edXt8ADSrQmorOhenXIeKK305+HETN7cDe7i9eH7VhU=;
+        s=default; t=1558823632;
+        bh=a9qaFqo6a1+4ITp57tFGiIEih7LUrzDxyNpYgikhHmY=;
         h=Date:From:To:Subject:From;
-        b=bJGE2JMJsAz3n00/L9dOZDkWU9zX4gZN9YNj/fxkojB8ccw9KMD6MpT6MfkMHTcle
-         IODLJXChqaiU6bBan2FghCOhGEyE/VtSHAFwNa5QCCOg1lDWR8M8DD4cFDHBrwG2qM
-         95XPCMzs89P3fQYu1IoBaWcrYoGBWTqiDl/E7z8Q=
-Date:   Sat, 25 May 2019 15:20:46 -0700
+        b=S8jIREnFQWMdED55Qj+rl9hweiSYY9U7SdfjbLpHp2WBttaTK/+Q/yFThJDR9y8+J
+         VCvuSnjz6bc5l2a0Co3jwrT82t26fcAxGwzhrGIn1VW8nhx8s+xmiVbVYEvZsnSgJh
+         AnDtk6wWNeH4nNJuaPpnBIRXV34WkCEKIZMR8mYk=
+Date:   Sat, 25 May 2019 15:33:51 -0700
 From:   akpm@linux-foundation.org
-To:     arnd@arndb.de, axboe@kernel.dk, dave@stgolabs.net,
-        deepa.kernel@gmail.com, e@80x24.org, jbaron@akamai.com,
-        mm-commits@vger.kernel.org, oleg@redhat.com,
-        stable@vger.kernel.org, tglx@linutronix.de, viro@zeniv.linux.org.uk
-Subject:  [to-be-updated]
- signal-adjust-error-codes-according-to-restore_user_sigmask.patch removed
- from -mm tree
-Message-ID: <20190525222046.S7yuY6bvW%akpm@linux-foundation.org>
+To:     cai@lca.pw, marc.zyngier@arm.com, mgorman@techsingularity.net,
+        mhocko@suse.com, mm-commits@vger.kernel.org,
+        stable@vger.kernel.org, suzuki.poulose@arm.com
+Subject:  + mm-compaction-make-sure-we-isolate-a-valid-pfn.patch
+ added to -mm tree
+Message-ID: <20190525223351.KFfmkXMIp%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -41,400 +39,127 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: signal: adjust error codes according to restore_user_sigmask()
-has been removed from the -mm tree.  Its filename was
-     signal-adjust-error-codes-according-to-restore_user_sigmask.patch
+     Subject: mm, compaction: make sure we isolate a valid PFN
+has been added to the -mm tree.  Its filename is
+     mm-compaction-make-sure-we-isolate-a-valid-pfn.patch
 
-This patch was dropped because an updated version will be merged
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/mm-compaction-make-sure-we-isolate-a-valid-pfn.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/mm-compaction-make-sure-we-isolate-a-valid-pfn.patch
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
 ------------------------------------------------------
-From: Deepa Dinamani <deepa.kernel@gmail.com>
-Subject: signal: adjust error codes according to restore_user_sigmask()
+From: Suzuki K Poulose <suzuki.poulose@arm.com>
+Subject: mm, compaction: make sure we isolate a valid PFN
 
-A regression caused by 854a6ed56839 ("signal: Add restore_user_sigmask()")
-caused users of epoll_pwait, io_pgetevents, and ppoll to notice a latent
-problem in signal handling during these syscalls.
+When we have holes in a normal memory zone, we could endup having
+cached_migrate_pfns which may not necessarily be valid, under heavy memory
+pressure with swapping enabled ( via __reset_isolation_suitable(),
+triggered by kswapd).
 
-That patch (854a6ed56839) moved the signal_pending() check closer to
-restoring of the user sigmask.  But, it failed to update the error code
-accordingly.  From the userspace perspective, the patch increased the time
-window for the signal discovery and subsequent delivery to the userspace,
-but did not always adjust the errno afterwards.  The behavior before
-854a6ed56839a was that the signals were dropped after the error code was
-decided.  This resulted in lost signals but the userspace did not notice
-it as the syscalls had finished executing the core functionality and the
-error codes returned notified success.
+Later if we fail to find a page via fast_isolate_freepages(), we may end
+up using the migrate_pfn we started the search with, as valid page.  This
+could lead to accessing NULL pointer derefernces like below, due to an
+invalid mem_section pointer.
 
-For all the syscalls that receive a sigmask from the userland, the user
-sigmask is to be in effect through the syscall execution.  At the end of
-syscall, sigmask of the current process is restored to what it was before
-the switch over to user sigmask.  But, for this to be true in practice,
-the sigmask should be restored only at the the point we change the
-saved_sigmask.  Anything before that loses signals.  And, anything after
-is just pointless as the signal is already lost by restoring the sigmask.
+Unable to handle kernel NULL pointer dereference at virtual address 0000000000000008 [47/1825]
+ Mem abort info:
+   ESR = 0x96000004
+   Exception class = DABT (current EL), IL = 32 bits
+   SET = 0, FnV = 0
+   EA = 0, S1PTW = 0
+ Data abort info:
+   ISV = 0, ISS = 0x00000004
+   CM = 0, WnR = 0
+ user pgtable: 4k pages, 48-bit VAs, pgdp = 0000000082f94ae9
+ [0000000000000008] pgd=0000000000000000
+ Internal error: Oops: 96000004 [#1] SMP
+ ...
+ CPU: 10 PID: 6080 Comm: qemu-system-aar Not tainted 510-rc1+ #6
+ Hardware name: AmpereComputing(R) OSPREY EV-883832-X3-0001/OSPREY, BIOS 4819 09/25/2018
+ pstate: 60000005 (nZCv daif -PAN -UAO)
+ pc : set_pfnblock_flags_mask+0x58/0xe8
+ lr : compaction_alloc+0x300/0x950
+ [...]
+ Process qemu-system-aar (pid: 6080, stack limit = 0x0000000095070da5)
+ Call trace:
+  set_pfnblock_flags_mask+0x58/0xe8
+  compaction_alloc+0x300/0x950
+  migrate_pages+0x1a4/0xbb0
+  compact_zone+0x750/0xde8
+  compact_zone_order+0xd8/0x118
+  try_to_compact_pages+0xb4/0x290
+  __alloc_pages_direct_compact+0x84/0x1e0
+  __alloc_pages_nodemask+0x5e0/0xe18
+  alloc_pages_vma+0x1cc/0x210
+  do_huge_pmd_anonymous_page+0x108/0x7c8
+  __handle_mm_fault+0xdd4/0x1190
+  handle_mm_fault+0x114/0x1c0
+  __get_user_pages+0x198/0x3c0
+  get_user_pages_unlocked+0xb4/0x1d8
+  __gfn_to_pfn_memslot+0x12c/0x3b8
+  gfn_to_pfn_prot+0x4c/0x60
+  kvm_handle_guest_abort+0x4b0/0xcd8
+  handle_exit+0x140/0x1b8
+  kvm_arch_vcpu_ioctl_run+0x260/0x768
+  kvm_vcpu_ioctl+0x490/0x898
+  do_vfs_ioctl+0xc4/0x898
+  ksys_ioctl+0x8c/0xa0
+  __arm64_sys_ioctl+0x28/0x38
+  el0_svc_common+0x74/0x118
+  el0_svc_handler+0x38/0x78
+  el0_svc+0x8/0xc
+ Code: f8607840 f100001f 8b011401 9a801020 (f9400400)
+ ---[ end trace af6a35219325a9b6 ]---
 
-Detailed issue discussion permalink:
-https://lore.kernel.org/linux-fsdevel/20190427093319.sgicqik2oqkez3wk@dcvr/
+The issue was reported on an arm64 server with 128GB with holes in the
+zone (e.g, [32GB@4GB, 96GB@544GB]), with a swap device enabled, while
+running 100 KVM guest instances.
 
-Note that this patch returns interrupted errors (EINTR, ERESTARTNOHAND,
-etc) only when there is no other error.  If there is a signal and an error
-like EINVAL, the syscalls return -EINVAL rather than the interrupted error
-codes.
+This patch fixes the issue by ensuring that the page belongs to a valid
+PFN when we fallback to using the lower limit of the scan range upon
+failure in fast_isolate_freepages().
 
-[deepa.kernel@gmail.com: restore accidentally removed local]
-  Link: http://lkml.kernel.org/r/20190522144103.17733-1-deepa.kernel@gmail.com
-Link: http://lkml.kernel.org/r/20190522032144.10995-1-deepa.kernel@gmail.com
-Fixes: 854a6ed56839a40f ("signal: Add restore_user_sigmask()")
-Signed-off-by: Deepa Dinamani <deepa.kernel@gmail.com>
-Reported-by: Eric Wong <e@80x24.org>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
-Cc: Jason Baron <jbaron@akamai.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Oleg Nesterov <oleg@redhat.com>
+Link: http://lkml.kernel.org/r/1558711908-15688-1-git-send-email-suzuki.poulose@arm.com
+Fixes: 5a811889de10f1eb ("mm, compaction: use free lists to quickly locate a migration target")
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Reported-by: Marc Zyngier <marc.zyngier@arm.com>
+Reviewed-by: Mel Gorman <mgorman@techsingularity.net>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Qian Cai <cai@lca.pw>
+Cc: Marc Zyngier <marc.zyngier@arm.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- fs/aio.c               |   24 ++++++++++++------------
- fs/eventpoll.c         |   14 ++++++++++----
- fs/io_uring.c          |    7 +++++--
- fs/select.c            |   37 +++++++++++++++++++++----------------
- include/linux/signal.h |    2 +-
- kernel/signal.c        |   13 ++++++++++---
- 6 files changed, 59 insertions(+), 38 deletions(-)
+ mm/compaction.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/aio.c~signal-adjust-error-codes-according-to-restore_user_sigmask
-+++ a/fs/aio.c
-@@ -2095,7 +2095,7 @@ SYSCALL_DEFINE6(io_pgetevents,
- 	struct __aio_sigset	ksig = { NULL, };
- 	sigset_t		ksigmask, sigsaved;
- 	struct timespec64	ts;
--	int ret;
-+	int ret, signal_detected;
- 
- 	if (timeout && unlikely(get_timespec64(&ts, timeout)))
- 		return -EFAULT;
-@@ -2108,8 +2108,8 @@ SYSCALL_DEFINE6(io_pgetevents,
- 		return ret;
- 
- 	ret = do_io_getevents(ctx_id, min_nr, nr, events, timeout ? &ts : NULL);
--	restore_user_sigmask(ksig.sigmask, &sigsaved);
--	if (signal_pending(current) && !ret)
-+	signal_detected = restore_user_sigmask(ksig.sigmask, &sigsaved);
-+	if (signal_detected && !ret)
- 		ret = -ERESTARTNOHAND;
- 
- 	return ret;
-@@ -2128,7 +2128,7 @@ SYSCALL_DEFINE6(io_pgetevents_time32,
- 	struct __aio_sigset	ksig = { NULL, };
- 	sigset_t		ksigmask, sigsaved;
- 	struct timespec64	ts;
--	int ret;
-+	int ret, signal_detected;
- 
- 	if (timeout && unlikely(get_old_timespec32(&ts, timeout)))
- 		return -EFAULT;
-@@ -2142,8 +2142,8 @@ SYSCALL_DEFINE6(io_pgetevents_time32,
- 		return ret;
- 
- 	ret = do_io_getevents(ctx_id, min_nr, nr, events, timeout ? &ts : NULL);
--	restore_user_sigmask(ksig.sigmask, &sigsaved);
--	if (signal_pending(current) && !ret)
-+	signal_detected = restore_user_sigmask(ksig.sigmask, &sigsaved);
-+	if (signal_detected && !ret)
- 		ret = -ERESTARTNOHAND;
- 
- 	return ret;
-@@ -2193,7 +2193,7 @@ COMPAT_SYSCALL_DEFINE6(io_pgetevents,
- 	struct __compat_aio_sigset ksig = { NULL, };
- 	sigset_t ksigmask, sigsaved;
- 	struct timespec64 t;
--	int ret;
-+	int ret, signal_detected;
- 
- 	if (timeout && get_old_timespec32(&t, timeout))
- 		return -EFAULT;
-@@ -2206,8 +2206,8 @@ COMPAT_SYSCALL_DEFINE6(io_pgetevents,
- 		return ret;
- 
- 	ret = do_io_getevents(ctx_id, min_nr, nr, events, timeout ? &t : NULL);
--	restore_user_sigmask(ksig.sigmask, &sigsaved);
--	if (signal_pending(current) && !ret)
-+	signal_detected = restore_user_sigmask(ksig.sigmask, &sigsaved);
-+	if (signal_detected && !ret)
- 		ret = -ERESTARTNOHAND;
- 
- 	return ret;
-@@ -2226,7 +2226,7 @@ COMPAT_SYSCALL_DEFINE6(io_pgetevents_tim
- 	struct __compat_aio_sigset ksig = { NULL, };
- 	sigset_t ksigmask, sigsaved;
- 	struct timespec64 t;
--	int ret;
-+	int ret, signal_detected;
- 
- 	if (timeout && get_timespec64(&t, timeout))
- 		return -EFAULT;
-@@ -2239,8 +2239,8 @@ COMPAT_SYSCALL_DEFINE6(io_pgetevents_tim
- 		return ret;
- 
- 	ret = do_io_getevents(ctx_id, min_nr, nr, events, timeout ? &t : NULL);
--	restore_user_sigmask(ksig.sigmask, &sigsaved);
--	if (signal_pending(current) && !ret)
-+	signal_detected = restore_user_sigmask(ksig.sigmask, &sigsaved);
-+	if (signal_detected && !ret)
- 		ret = -ERESTARTNOHAND;
- 
- 	return ret;
---- a/fs/eventpoll.c~signal-adjust-error-codes-according-to-restore_user_sigmask
-+++ a/fs/eventpoll.c
-@@ -2317,7 +2317,7 @@ SYSCALL_DEFINE6(epoll_pwait, int, epfd,
- 		int, maxevents, int, timeout, const sigset_t __user *, sigmask,
- 		size_t, sigsetsize)
- {
--	int error;
-+	int error, signal_detected;
- 	sigset_t ksigmask, sigsaved;
- 
- 	/*
-@@ -2330,7 +2330,10 @@ SYSCALL_DEFINE6(epoll_pwait, int, epfd,
- 
- 	error = do_epoll_wait(epfd, events, maxevents, timeout);
- 
--	restore_user_sigmask(sigmask, &sigsaved);
-+	signal_detected = restore_user_sigmask(sigmask, &sigsaved);
-+
-+	if (signal_detected && !error)
-+		error = -EINTR;
- 
- 	return error;
- }
-@@ -2342,7 +2345,7 @@ COMPAT_SYSCALL_DEFINE6(epoll_pwait, int,
- 			const compat_sigset_t __user *, sigmask,
- 			compat_size_t, sigsetsize)
- {
--	long err;
-+	long err, signal_detected;
- 	sigset_t ksigmask, sigsaved;
- 
- 	/*
-@@ -2355,7 +2358,10 @@ COMPAT_SYSCALL_DEFINE6(epoll_pwait, int,
- 
- 	err = do_epoll_wait(epfd, events, maxevents, timeout);
- 
--	restore_user_sigmask(sigmask, &sigsaved);
-+	signal_detected = restore_user_sigmask(sigmask, &sigsaved);
-+
-+	if (signal_detected && !err)
-+		err = -EINTR;
- 
- 	return err;
- }
---- a/fs/io_uring.c~signal-adjust-error-codes-according-to-restore_user_sigmask
-+++ a/fs/io_uring.c
-@@ -2204,8 +2204,11 @@ static int io_cqring_wait(struct io_ring
- 	if (ret == -ERESTARTSYS)
- 		ret = -EINTR;
- 
--	if (sig)
--		restore_user_sigmask(sig, &sigsaved);
-+	if (sig) {
-+		int signal_detected = restore_user_sigmask(sig, &sigsaved);
-+		if (signal_detected && !ret)
-+			ret  = -EINTR;
-+	}
- 
- 	return READ_ONCE(ring->r.head) == READ_ONCE(ring->r.tail) ? ret : 0;
- }
---- a/fs/select.c~signal-adjust-error-codes-according-to-restore_user_sigmask
-+++ a/fs/select.c
-@@ -732,7 +732,7 @@ static long do_pselect(int n, fd_set __u
- {
- 	sigset_t ksigmask, sigsaved;
- 	struct timespec64 ts, end_time, *to = NULL;
--	int ret;
-+	int ret, signal_detected;
- 
- 	if (tsp) {
- 		switch (type) {
-@@ -760,7 +760,9 @@ static long do_pselect(int n, fd_set __u
- 	ret = core_sys_select(n, inp, outp, exp, to);
- 	ret = poll_select_copy_remaining(&end_time, tsp, type, ret);
- 
--	restore_user_sigmask(sigmask, &sigsaved);
-+	signal_detected = restore_user_sigmask(sigmask, &sigsaved);
-+	if (signal_detected && !ret)
-+		ret = -EINTR;
- 
- 	return ret;
- }
-@@ -1089,7 +1091,7 @@ SYSCALL_DEFINE5(ppoll, struct pollfd __u
- {
- 	sigset_t ksigmask, sigsaved;
- 	struct timespec64 ts, end_time, *to = NULL;
--	int ret;
-+	int ret, signal_detected;
- 
- 	if (tsp) {
- 		if (get_timespec64(&ts, tsp))
-@@ -1106,10 +1108,10 @@ SYSCALL_DEFINE5(ppoll, struct pollfd __u
- 
- 	ret = do_sys_poll(ufds, nfds, to);
- 
--	restore_user_sigmask(sigmask, &sigsaved);
-+	signal_detected = restore_user_sigmask(sigmask, &sigsaved);
- 
- 	/* We can restart this syscall, usually */
--	if (ret == -EINTR)
-+	if (ret == -EINTR || (signal_detected && !ret))
- 		ret = -ERESTARTNOHAND;
- 
- 	ret = poll_select_copy_remaining(&end_time, tsp, PT_TIMESPEC, ret);
-@@ -1125,7 +1127,7 @@ SYSCALL_DEFINE5(ppoll_time32, struct pol
- {
- 	sigset_t ksigmask, sigsaved;
- 	struct timespec64 ts, end_time, *to = NULL;
--	int ret;
-+	int ret, signal_detected;
- 
- 	if (tsp) {
- 		if (get_old_timespec32(&ts, tsp))
-@@ -1142,10 +1144,10 @@ SYSCALL_DEFINE5(ppoll_time32, struct pol
- 
- 	ret = do_sys_poll(ufds, nfds, to);
- 
--	restore_user_sigmask(sigmask, &sigsaved);
-+	signal_detected = restore_user_sigmask(sigmask, &sigsaved);
- 
- 	/* We can restart this syscall, usually */
--	if (ret == -EINTR)
-+	if (ret == -EINTR || (signal_detected && !ret))
- 		ret = -ERESTARTNOHAND;
- 
- 	ret = poll_select_copy_remaining(&end_time, tsp, PT_OLD_TIMESPEC, ret);
-@@ -1324,7 +1326,7 @@ static long do_compat_pselect(int n, com
- {
- 	sigset_t ksigmask, sigsaved;
- 	struct timespec64 ts, end_time, *to = NULL;
--	int ret;
-+	int ret, signal_detected;
- 
- 	if (tsp) {
- 		switch (type) {
-@@ -1352,7 +1354,10 @@ static long do_compat_pselect(int n, com
- 	ret = compat_core_sys_select(n, inp, outp, exp, to);
- 	ret = poll_select_copy_remaining(&end_time, tsp, type, ret);
- 
--	restore_user_sigmask(sigmask, &sigsaved);
-+	signal_detected = restore_user_sigmask(sigmask, &sigsaved);
-+
-+	if (signal_detected && !ret)
-+		ret = -EINTR;
- 
- 	return ret;
- }
-@@ -1408,7 +1413,7 @@ COMPAT_SYSCALL_DEFINE5(ppoll_time32, str
- {
- 	sigset_t ksigmask, sigsaved;
- 	struct timespec64 ts, end_time, *to = NULL;
--	int ret;
-+	int ret, signal_detected;
- 
- 	if (tsp) {
- 		if (get_old_timespec32(&ts, tsp))
-@@ -1425,10 +1430,10 @@ COMPAT_SYSCALL_DEFINE5(ppoll_time32, str
- 
- 	ret = do_sys_poll(ufds, nfds, to);
- 
--	restore_user_sigmask(sigmask, &sigsaved);
-+	signal_detected = restore_user_sigmask(sigmask, &sigsaved);
- 
- 	/* We can restart this syscall, usually */
--	if (ret == -EINTR)
-+	if (ret == -EINTR || (signal_detected && !ret))
- 		ret = -ERESTARTNOHAND;
- 
- 	ret = poll_select_copy_remaining(&end_time, tsp, PT_OLD_TIMESPEC, ret);
-@@ -1444,7 +1449,7 @@ COMPAT_SYSCALL_DEFINE5(ppoll_time64, str
- {
- 	sigset_t ksigmask, sigsaved;
- 	struct timespec64 ts, end_time, *to = NULL;
--	int ret;
-+	int ret, signal_detected;
- 
- 	if (tsp) {
- 		if (get_timespec64(&ts, tsp))
-@@ -1461,10 +1466,10 @@ COMPAT_SYSCALL_DEFINE5(ppoll_time64, str
- 
- 	ret = do_sys_poll(ufds, nfds, to);
- 
--	restore_user_sigmask(sigmask, &sigsaved);
-+	signal_detected = restore_user_sigmask(sigmask, &sigsaved);
- 
- 	/* We can restart this syscall, usually */
--	if (ret == -EINTR)
-+	if (ret == -EINTR || (signal_detected && !ret))
- 		ret = -ERESTARTNOHAND;
- 
- 	ret = poll_select_copy_remaining(&end_time, tsp, PT_TIMESPEC, ret);
---- a/include/linux/signal.h~signal-adjust-error-codes-according-to-restore_user_sigmask
-+++ a/include/linux/signal.h
-@@ -275,7 +275,7 @@ extern int __group_send_sig_info(int, st
- extern int sigprocmask(int, sigset_t *, sigset_t *);
- extern int set_user_sigmask(const sigset_t __user *usigmask, sigset_t *set,
- 	sigset_t *oldset, size_t sigsetsize);
--extern void restore_user_sigmask(const void __user *usigmask,
-+extern int restore_user_sigmask(const void __user *usigmask,
- 				 sigset_t *sigsaved);
- extern void set_current_blocked(sigset_t *);
- extern void __set_current_blocked(const sigset_t *);
---- a/kernel/signal.c~signal-adjust-error-codes-according-to-restore_user_sigmask
-+++ a/kernel/signal.c
-@@ -2906,15 +2906,21 @@ EXPORT_SYMBOL(set_compat_user_sigmask);
-  * usigmask: sigmask passed in from userland.
-  * sigsaved: saved sigmask when the syscall started and changed the sigmask to
-  *           usigmask.
-+ * returns 1 in case a pending signal is detected.
-+ *
-+ * Users of the api need to adjust their return values based on whether the
-+ * signal was detected here. If a signal is detected, it is delivered to the
-+ * userspace. So without an error like -ETINR, userspace might fail to
-+ * adjust the flow of execution.
-  *
-  * This is useful for syscalls such as ppoll, pselect, io_pgetevents and
-  * epoll_pwait where a new sigmask is passed in from userland for the syscalls.
-  */
--void restore_user_sigmask(const void __user *usigmask, sigset_t *sigsaved)
-+int restore_user_sigmask(const void __user *usigmask, sigset_t *sigsaved)
- {
- 
- 	if (!usigmask)
--		return;
-+		return 0;
- 	/*
- 	 * When signals are pending, do not restore them here.
- 	 * Restoring sigmask here can lead to delivering signals that the above
-@@ -2923,7 +2929,7 @@ void restore_user_sigmask(const void __u
- 	if (signal_pending(current)) {
- 		current->saved_sigmask = *sigsaved;
- 		set_restore_sigmask();
--		return;
-+		return 1;
- 	}
- 
- 	/*
-@@ -2931,6 +2937,7 @@ void restore_user_sigmask(const void __u
- 	 * saved_sigmask when signals are not pending.
- 	 */
- 	set_current_blocked(sigsaved);
-+	return 0;
- }
- EXPORT_SYMBOL(restore_user_sigmask);
- 
+--- a/mm/compaction.c~mm-compaction-make-sure-we-isolate-a-valid-pfn
++++ a/mm/compaction.c
+@@ -1399,7 +1399,7 @@ fast_isolate_freepages(struct compact_co
+ 				page = pfn_to_page(highest);
+ 				cc->free_pfn = highest;
+ 			} else {
+-				if (cc->direct_compaction) {
++				if (cc->direct_compaction && pfn_valid(min_pfn)) {
+ 					page = pfn_to_page(min_pfn);
+ 					cc->free_pfn = min_pfn;
+ 				}
 _
 
-Patches currently in -mm which might be from deepa.kernel@gmail.com are
+Patches currently in -mm which might be from suzuki.poulose@arm.com are
 
+mm-compaction-make-sure-we-isolate-a-valid-pfn.patch
 
