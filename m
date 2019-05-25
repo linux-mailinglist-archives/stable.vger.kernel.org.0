@@ -2,98 +2,192 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C3A012A743
-	for <lists+stable@lfdr.de>; Sun, 26 May 2019 00:42:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E758A2A75C
+	for <lists+stable@lfdr.de>; Sun, 26 May 2019 01:16:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727286AbfEYWmH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 25 May 2019 18:42:07 -0400
-Received: from mail-wr1-f48.google.com ([209.85.221.48]:44986 "EHLO
-        mail-wr1-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726985AbfEYWmH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 25 May 2019 18:42:07 -0400
-Received: by mail-wr1-f48.google.com with SMTP id w13so4902494wru.11
-        for <stable@vger.kernel.org>; Sat, 25 May 2019 15:42:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=TExgID4iEssrHvFExOtOBhfY9wq/7MEd+uaZmp2Hu3c=;
-        b=fcQcLejUlBCSaAX+KEY2qB8l5osjgwDS5Ly1yf5csL9Gbz6dDYNEHSvxFWflbGVONR
-         yssBfB7QbnK9/GLudNbcwN/NB3yP5AN6vYqUKvVxXwEuJg9cwVRjddWesUAGNGp0HcKT
-         LYfgrEuARRyeaQMtfjL3CPeF246pAWucfV+qZqhqdTFzH4Hgd+2h/Ep/o+ITKIRLCuMS
-         xl9bSQty76fSPBjOw8ub4ES5IBzaZGon755JQ4tqVUlty12EUpwqVw43MQUT+4uV7NCw
-         ommnfor1gr2cjgCNv7ET8A1/WufzNKaeQHhorubMJE0QRiiSv2LeFbI+8aEWHrBqpiMc
-         jgfg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=TExgID4iEssrHvFExOtOBhfY9wq/7MEd+uaZmp2Hu3c=;
-        b=D8/f2ngQqlWxv6PknhQl0ijrGUNsrcAm3gDT41rdpBPUwpq0cC8smOVgwUEgB/0HEK
-         NZ+LmtuDDMK05CVuuCJBJsx2Ox3gnnGjWSUR60FztTESz6iefgmFS/XR+SJx6LJJiioX
-         HvXnHjK01nC0Se39TveVrm13XRqLQ+hlXWy/S+Pnr+0MzQuTPvf4sr8C2VVcqmy9lnBw
-         K7GxDiF5/TjyZaHExQtJVnRZA29N5N2wwE0VWJIcc86HIze9TCKCZbj47RcGg+jWwbET
-         idH4O/vGZLtOc++X9DIsJyF97M7/HKjsB14MIgKlafPDV1Q9ZkkLoLrLOJFo1wCMXxcf
-         L0HA==
-X-Gm-Message-State: APjAAAU1oNe4FyvHEgGVLeAWj7J/Jt6OH/yZ5OayAcf23QfpLUv5x2GR
-        k+TnpNwsIE005nE+96N7oJ+K5I75euQ=
-X-Google-Smtp-Source: APXvYqwmP1PKkhA4CSI4mFS0+k5lm6zCrL2kXDP5KR6aTkudQONotyjemolXgLx8VLkTI1Jqd23sKw==
-X-Received: by 2002:a5d:6a8c:: with SMTP id s12mr3951246wru.326.1558824125990;
-        Sat, 25 May 2019 15:42:05 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id f7sm4698424wmc.26.2019.05.25.15.42.05
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 25 May 2019 15:42:05 -0700 (PDT)
-Message-ID: <5ce9c4bd.1c69fb81.25208.8b5c@mx.google.com>
-Date:   Sat, 25 May 2019 15:42:05 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-5.1.y
-X-Kernelci-Kernel: v5.1.5
-Subject: stable/linux-5.1.y boot: 59 boots: 1 failed,
- 57 passed with 1 untried/unknown (v5.1.5)
+        id S1727456AbfEYXQi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 25 May 2019 19:16:38 -0400
+Received: from mga03.intel.com ([134.134.136.65]:31911 "EHLO mga03.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727455AbfEYXQh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 25 May 2019 19:16:37 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by orsmga103.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 25 May 2019 16:16:36 -0700
+X-ExtLoop1: 1
+Received: from dwillia2-desk3.jf.intel.com (HELO dwillia2-desk3.amr.corp.intel.com) ([10.54.39.16])
+  by fmsmga005.fm.intel.com with ESMTP; 25 May 2019 16:16:36 -0700
+Subject: [for-4.9.y PATCH] libnvdimm/namespace: Fix label tracking error
+From:   Dan Williams <dan.j.williams@intel.com>
 To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Cc:     Jane Chu <jane.chu@oracle.com>, Jeff Moyer <jmoyer@redhat.com>,
+        Erwin Tsaur <erwin.tsaur@oracle.com>,
+        Johannes Thumshirn <jthumshirn@suse.de>,
+        linux-nvdimm@lists.01.org
+Date:   Sat, 25 May 2019 16:02:49 -0700
+Message-ID: <155882536896.2470998.15501697202623097741.stgit@dwillia2-desk3.amr.corp.intel.com>
+User-Agent: StGit/0.18-2-gc94f
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.1.y boot: 59 boots: 1 failed, 57 passed with 1 untried/unkno=
-wn (v5.1.5)
+commit c4703ce11c23423d4b46e3d59aef7979814fd608 upstream.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-5.=
-1.y/kernel/v5.1.5/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-5.1.y/ke=
-rnel/v5.1.5/
+Users have reported intermittent occurrences of DIMM initialization
+failures due to duplicate allocations of address capacity detected in
+the labels, or errors of the form below, both have the same root cause.
 
-Tree: stable
-Branch: linux-5.1.y
-Git Describe: v5.1.5
-Git Commit: 835365932f0dc25468840753e071c05ad6abc76f
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 32 unique boards, 16 SoC families, 11 builds out of 209
+    nd namespace1.4: failed to track label: 0
+    WARNING: CPU: 17 PID: 1381 at drivers/nvdimm/label.c:863
 
-Boot Regressions Detected:
+    RIP: 0010:__pmem_label_update+0x56c/0x590 [libnvdimm]
+    Call Trace:
+     ? nd_pmem_namespace_label_update+0xd6/0x160 [libnvdimm]
+     nd_pmem_namespace_label_update+0xd6/0x160 [libnvdimm]
+     uuid_store+0x17e/0x190 [libnvdimm]
+     kernfs_fop_write+0xf0/0x1a0
+     vfs_write+0xb7/0x1b0
+     ksys_write+0x57/0xd0
+     do_syscall_64+0x60/0x210
 
-arm64:
+Unfortunately those reports were typically with a busy parallel
+namespace creation / destruction loop making it difficult to see the
+components of the bug. However, Jane provided a simple reproducer using
+the work-in-progress sub-section implementation.
 
-    defconfig:
-        gcc-8:
-          meson-g12a-x96-max:
-              lab-baylibre: new failure (last pass: v5.1.3)
+When ndctl is reconfiguring a namespace it may take an existing defunct
+/ disabled namespace and reconfigure it with a new uuid and other
+parameters. Critically namespace_update_uuid() takes existing address
+resources and renames them for the new namespace to use / reconfigure as
+it sees fit. The bug is that this rename only happens in the resource
+tracking tree. Existing labels with the old uuid are not reaped leading
+to a scenario where multiple active labels reference the same span of
+address range.
 
-Boot Failure Detected:
+Teach namespace_update_uuid() to flag any references to the old uuid for
+reaping at the next label update attempt.
 
-arm64:
-    defconfig:
-        gcc-8:
-            meson-g12a-x96-max: 1 failed lab
-
+Cc: <stable@vger.kernel.org>
+Fixes: bf9bccc14c05 ("libnvdimm: pmem label sets and namespace instantiation")
+Link: https://github.com/pmem/ndctl/issues/91
+Reported-by: Jane Chu <jane.chu@oracle.com>
+Reported-by: Jeff Moyer <jmoyer@redhat.com>
+Reported-by: Erwin Tsaur <erwin.tsaur@oracle.com>
+Cc: Johannes Thumshirn <jthumshirn@suse.de>
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 ---
-For more info write to <info@kernelci.org>
+ drivers/nvdimm/label.c          |   29 ++++++++++++++++-------------
+ drivers/nvdimm/namespace_devs.c |   15 +++++++++++++++
+ drivers/nvdimm/nd.h             |    4 ++++
+ 3 files changed, 35 insertions(+), 13 deletions(-)
+
+diff --git a/drivers/nvdimm/label.c b/drivers/nvdimm/label.c
+index 66a089d561cf..9108004a0d9b 100644
+--- a/drivers/nvdimm/label.c
++++ b/drivers/nvdimm/label.c
+@@ -490,15 +490,26 @@ static unsigned long nd_label_offset(struct nvdimm_drvdata *ndd,
+ 		- (unsigned long) to_namespace_index(ndd, 0);
+ }
+ 
++static void reap_victim(struct nd_mapping *nd_mapping,
++		struct nd_label_ent *victim)
++{
++	struct nvdimm_drvdata *ndd = to_ndd(nd_mapping);
++	u32 slot = to_slot(ndd, victim->label);
++
++	dev_dbg(ndd->dev, "free: %d\n", slot);
++	nd_label_free_slot(ndd, slot);
++	victim->label = NULL;
++}
++
+ static int __pmem_label_update(struct nd_region *nd_region,
+ 		struct nd_mapping *nd_mapping, struct nd_namespace_pmem *nspm,
+ 		int pos, unsigned long flags)
+ {
+ 	u64 cookie = nd_region_interleave_set_cookie(nd_region);
+ 	struct nvdimm_drvdata *ndd = to_ndd(nd_mapping);
+-	struct nd_label_ent *label_ent, *victim = NULL;
+ 	struct nd_namespace_label *nd_label;
+ 	struct nd_namespace_index *nsindex;
++	struct nd_label_ent *label_ent;
+ 	struct nd_label_id label_id;
+ 	struct resource *res;
+ 	unsigned long *free;
+@@ -551,18 +562,10 @@ static int __pmem_label_update(struct nd_region *nd_region,
+ 	list_for_each_entry(label_ent, &nd_mapping->labels, list) {
+ 		if (!label_ent->label)
+ 			continue;
+-		if (memcmp(nspm->uuid, label_ent->label->uuid,
+-					NSLABEL_UUID_LEN) != 0)
+-			continue;
+-		victim = label_ent;
+-		list_move_tail(&victim->list, &nd_mapping->labels);
+-		break;
+-	}
+-	if (victim) {
+-		dev_dbg(ndd->dev, "%s: free: %d\n", __func__, slot);
+-		slot = to_slot(ndd, victim->label);
+-		nd_label_free_slot(ndd, slot);
+-		victim->label = NULL;
++		if (test_and_clear_bit(ND_LABEL_REAP, &label_ent->flags)
++				|| memcmp(nspm->uuid, label_ent->label->uuid,
++					NSLABEL_UUID_LEN) == 0)
++			reap_victim(nd_mapping, label_ent);
+ 	}
+ 
+ 	/* update index */
+diff --git a/drivers/nvdimm/namespace_devs.c b/drivers/nvdimm/namespace_devs.c
+index cf4a90b50f8b..e83453e1b308 100644
+--- a/drivers/nvdimm/namespace_devs.c
++++ b/drivers/nvdimm/namespace_devs.c
+@@ -1210,12 +1210,27 @@ static int namespace_update_uuid(struct nd_region *nd_region,
+ 	for (i = 0; i < nd_region->ndr_mappings; i++) {
+ 		struct nd_mapping *nd_mapping = &nd_region->mapping[i];
+ 		struct nvdimm_drvdata *ndd = to_ndd(nd_mapping);
++		struct nd_label_ent *label_ent;
+ 		struct resource *res;
+ 
+ 		for_each_dpa_resource(ndd, res)
+ 			if (strcmp(res->name, old_label_id.id) == 0)
+ 				sprintf((void *) res->name, "%s",
+ 						new_label_id.id);
++
++		mutex_lock(&nd_mapping->lock);
++		list_for_each_entry(label_ent, &nd_mapping->labels, list) {
++			struct nd_namespace_label *nd_label = label_ent->label;
++			struct nd_label_id label_id;
++
++			if (!nd_label)
++				continue;
++			nd_label_gen_id(&label_id, nd_label->uuid,
++					__le32_to_cpu(nd_label->flags));
++			if (strcmp(old_label_id.id, label_id.id) == 0)
++				set_bit(ND_LABEL_REAP, &label_ent->flags);
++		}
++		mutex_unlock(&nd_mapping->lock);
+ 	}
+ 	kfree(*old_uuid);
+  out:
+diff --git a/drivers/nvdimm/nd.h b/drivers/nvdimm/nd.h
+index d869236b474f..bd29e598bac1 100644
+--- a/drivers/nvdimm/nd.h
++++ b/drivers/nvdimm/nd.h
+@@ -113,8 +113,12 @@ struct nd_percpu_lane {
+ 	spinlock_t lock;
+ };
+ 
++enum nd_label_flags {
++	ND_LABEL_REAP,
++};
+ struct nd_label_ent {
+ 	struct list_head list;
++	unsigned long flags;
+ 	struct nd_namespace_label *label;
+ };
+ 
+
