@@ -2,145 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BF5402A720
-	for <lists+stable@lfdr.de>; Sat, 25 May 2019 23:43:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C77152A722
+	for <lists+stable@lfdr.de>; Sat, 25 May 2019 23:46:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727544AbfEYVnQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 25 May 2019 17:43:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59870 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727431AbfEYVnQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 25 May 2019 17:43:16 -0400
-Received: from localhost.localdomain (c-73-223-200-170.hsd1.ca.comcast.net [73.223.200.170])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1976A20856;
-        Sat, 25 May 2019 21:43:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558820595;
-        bh=ZMezQ1LU1w7Q98XJnBelSToQ2Ab95XvMeM9H5S6qDZY=;
-        h=Date:From:To:Subject:From;
-        b=eGgCLIJnM5A+assQzeh+pox50Qot6xOAwzLXhBQ2bDkHjK+tEMupAVAyt4JCKPB0n
-         gKFqYL4RBA90hG6gy2zcPNsjEZ/n3SFjzL4qdYnJFEGF604AyNZy9+R6xTiWx8NWAW
-         pgvtaz+F3T9iJgaAPFKA/6qFuWONyW5GsZt01UAk=
-Date:   Sat, 25 May 2019 14:43:14 -0700
-From:   akpm@linux-foundation.org
-To:     arnd@arndb.de, geert@linux-m68k.org, jannh@google.com,
-        keescook@chromium.org, linux@armlinux.org.uk,
-        mm-commits@vger.kernel.org, nicolas.pitre@linaro.org,
-        stable@vger.kernel.org, viro@zeniv.linux.org.uk
-Subject:  + binfmt_flat-make-load_flat_shared_library-work.patch
- added to -mm tree
-Message-ID: <20190525214314.U95hphCxp%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1726739AbfEYVqM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 25 May 2019 17:46:12 -0400
+Received: from mail-wm1-f43.google.com ([209.85.128.43]:35668 "EHLO
+        mail-wm1-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726169AbfEYVqM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 25 May 2019 17:46:12 -0400
+Received: by mail-wm1-f43.google.com with SMTP id w9so6190238wmi.0
+        for <stable@vger.kernel.org>; Sat, 25 May 2019 14:46:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=tgXxgSvKOd+5V9foFjjG014cydyNAwfylD77oDfEdWk=;
+        b=xwstiC9OE6tdDRFFfcRN12dpJcQVuFEsvn/knilrYiPe93uSpDEfWttXhGp3cJR7gu
+         Y72SF+5NbYwvHrGwYmVYwDkcfg9ALWfSVRLZJnjqTg9YBc0hmQuUJMG+o2pR98FwFWii
+         ssC8DPDkUe1vrps8qw+6La5N5Kze2UqSD024pqtiIFJnsJqMkNvPlPbgs5Iu6Xy/A58p
+         zZLUviuPpaOP9SUwBRok0v9zN1t0dJibBc34bVgiuV4msHq9qgL9VD6ICSICLJpkJWu6
+         GrizFJKCkws1vRXlNQ/3I+YVhCbEaXaLFHdBysgYbY7saYHADq2uw7zZzsihtHfg4yOk
+         XxpA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=tgXxgSvKOd+5V9foFjjG014cydyNAwfylD77oDfEdWk=;
+        b=Xs2LVim0oR2K6brVn8/y1ndtBEMwkDriFwJLT5+NfBsOR7SX+a+nSbaH0dePasp3eK
+         uiS3aSetQjJ2IHxz4EKCQZF1NsMdZ/NY1BVfHm8GVuaodTJlAvuMt4udAJrbsCR4G8OO
+         y/95XNFevKdSFM590cCS/OAs4nnbr8GR5U5yUQuaYqf5XGPIxyROql0zJBgkk+kYq/Pc
+         Jogf5o0+TlHTRva/E1EobDbRF9u35e7PqWz1YT2tzgOEx7iXU+ykNmUl3rVxA3GGrUh2
+         lgqeYBfZeuwuAev44gnWHoNXLfdTd/V2LgbU414PCUJ9MbMdG3nRl1f5azHAlo1E/1pp
+         CstA==
+X-Gm-Message-State: APjAAAXcjqxHUZ4bwa70KioA7F3LMFOerY3UXnPv0nizBaH/2zeT8ftC
+        e3e65jBw7fhgv+xtBlxyykv5SK76UQY=
+X-Google-Smtp-Source: APXvYqwLdT93oVOXn8qjjj7ZmwRPj6eyvZ99ogom24b9ru+vEWEMossGkabOCdFoLH6zSCNGNWgGbA==
+X-Received: by 2002:a1c:f60d:: with SMTP id w13mr4440994wmc.40.1558820770591;
+        Sat, 25 May 2019 14:46:10 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id v184sm9358705wma.6.2019.05.25.14.46.10
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 25 May 2019 14:46:10 -0700 (PDT)
+Message-ID: <5ce9b7a2.1c69fb81.d9af7.52b7@mx.google.com>
+Date:   Sat, 25 May 2019 14:46:10 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Kernel: v4.14.122
+Subject: stable/linux-4.14.y boot: 55 boots: 0 failed, 55 passed (v4.14.122)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable/linux-4.14.y boot: 55 boots: 0 failed, 55 passed (v4.14.122)
 
-The patch titled
-     Subject: fs/binfmt_flat.c: make load_flat_shared_library() work
-has been added to the -mm tree.  Its filename is
-     binfmt_flat-make-load_flat_shared_library-work.patch
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
+14.y/kernel/v4.14.122/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.14.y/k=
+ernel/v4.14.122/
 
-This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/binfmt_flat-make-load_flat_shared_library-work.patch
-and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/binfmt_flat-make-load_flat_shared_library-work.patch
+Tree: stable
+Branch: linux-4.14.y
+Git Describe: v4.14.122
+Git Commit: 44a05cd896d97a3cd4f0c2ddb29a221ab2fdf43d
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 28 unique boards, 16 SoC families, 11 builds out of 201
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
-
-------------------------------------------------------
-From: Jann Horn <jannh@google.com>
-Subject: fs/binfmt_flat.c: make load_flat_shared_library() work
-
-load_flat_shared_library() is broken: It only calls load_flat_file() if
-prepare_binprm() returns zero, but prepare_binprm() returns the number of
-bytes read - so this only happens if the file is empty.
-
-Instead, call into load_flat_file() if the number of bytes read is
-non-negative. (Even if the number of bytes is zero - in that case,
-load_flat_file() will see nullbytes and return a nice -ENOEXEC.)
-
-In addition, remove the code related to bprm creds and stop using
-prepare_binprm() - this code is loading a library, not a main executable,
-and it only actually uses the members "buf", "file" and "filename" of the
-linux_binprm struct. Instead, call kernel_read() directly.
-
-Link: http://lkml.kernel.org/r/20190524201817.16509-1-jannh@google.com
-Fixes: 287980e49ffc ("remove lots of IS_ERR_VALUE abuses")
-Signed-off-by: Jann Horn <jannh@google.com>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Nicolas Pitre <nicolas.pitre@linaro.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
-
- fs/binfmt_flat.c |   23 +++++++----------------
- 1 file changed, 7 insertions(+), 16 deletions(-)
-
---- a/fs/binfmt_flat.c~binfmt_flat-make-load_flat_shared_library-work
-+++ a/fs/binfmt_flat.c
-@@ -856,9 +856,14 @@ err:
- 
- static int load_flat_shared_library(int id, struct lib_info *libs)
- {
-+	/*
-+	 * This is a fake bprm struct; only the members "buf", "file" and
-+	 * "filename" are actually used.
-+	 */
- 	struct linux_binprm bprm;
- 	int res;
- 	char buf[16];
-+	loff_t pos = 0;
- 
- 	memset(&bprm, 0, sizeof(bprm));
- 
-@@ -872,25 +877,11 @@ static int load_flat_shared_library(int
- 	if (IS_ERR(bprm.file))
- 		return res;
- 
--	bprm.cred = prepare_exec_creds();
--	res = -ENOMEM;
--	if (!bprm.cred)
--		goto out;
--
--	/* We don't really care about recalculating credentials at this point
--	 * as we're past the point of no return and are dealing with shared
--	 * libraries.
--	 */
--	bprm.called_set_creds = 1;
--
--	res = prepare_binprm(&bprm);
-+	res = kernel_read(bprm.file, bprm.buf, BINPRM_BUF_SIZE, &pos);
- 
--	if (!res)
-+	if (res >= 0)
- 		res = load_flat_file(&bprm, libs, id, NULL);
- 
--	abort_creds(bprm.cred);
--
--out:
- 	allow_write_access(bprm.file);
- 	fput(bprm.file);
- 
-_
-
-Patches currently in -mm which might be from jannh@google.com are
-
-binfmt_flat-make-load_flat_shared_library-work.patch
-
+For more info write to <info@kernelci.org>
