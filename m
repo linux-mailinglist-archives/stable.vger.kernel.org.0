@@ -2,164 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C4B2B2A737
-	for <lists+stable@lfdr.de>; Sun, 26 May 2019 00:33:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3A012A743
+	for <lists+stable@lfdr.de>; Sun, 26 May 2019 00:42:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726678AbfEYWdx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 25 May 2019 18:33:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51402 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726187AbfEYWdx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 25 May 2019 18:33:53 -0400
-Received: from localhost.localdomain (c-73-223-200-170.hsd1.ca.comcast.net [73.223.200.170])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1DBEB2075E;
-        Sat, 25 May 2019 22:33:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558823632;
-        bh=a9qaFqo6a1+4ITp57tFGiIEih7LUrzDxyNpYgikhHmY=;
-        h=Date:From:To:Subject:From;
-        b=S8jIREnFQWMdED55Qj+rl9hweiSYY9U7SdfjbLpHp2WBttaTK/+Q/yFThJDR9y8+J
-         VCvuSnjz6bc5l2a0Co3jwrT82t26fcAxGwzhrGIn1VW8nhx8s+xmiVbVYEvZsnSgJh
-         AnDtk6wWNeH4nNJuaPpnBIRXV34WkCEKIZMR8mYk=
-Date:   Sat, 25 May 2019 15:33:51 -0700
-From:   akpm@linux-foundation.org
-To:     cai@lca.pw, marc.zyngier@arm.com, mgorman@techsingularity.net,
-        mhocko@suse.com, mm-commits@vger.kernel.org,
-        stable@vger.kernel.org, suzuki.poulose@arm.com
-Subject:  + mm-compaction-make-sure-we-isolate-a-valid-pfn.patch
- added to -mm tree
-Message-ID: <20190525223351.KFfmkXMIp%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1727286AbfEYWmH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 25 May 2019 18:42:07 -0400
+Received: from mail-wr1-f48.google.com ([209.85.221.48]:44986 "EHLO
+        mail-wr1-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726985AbfEYWmH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 25 May 2019 18:42:07 -0400
+Received: by mail-wr1-f48.google.com with SMTP id w13so4902494wru.11
+        for <stable@vger.kernel.org>; Sat, 25 May 2019 15:42:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=TExgID4iEssrHvFExOtOBhfY9wq/7MEd+uaZmp2Hu3c=;
+        b=fcQcLejUlBCSaAX+KEY2qB8l5osjgwDS5Ly1yf5csL9Gbz6dDYNEHSvxFWflbGVONR
+         yssBfB7QbnK9/GLudNbcwN/NB3yP5AN6vYqUKvVxXwEuJg9cwVRjddWesUAGNGp0HcKT
+         LYfgrEuARRyeaQMtfjL3CPeF246pAWucfV+qZqhqdTFzH4Hgd+2h/Ep/o+ITKIRLCuMS
+         xl9bSQty76fSPBjOw8ub4ES5IBzaZGon755JQ4tqVUlty12EUpwqVw43MQUT+4uV7NCw
+         ommnfor1gr2cjgCNv7ET8A1/WufzNKaeQHhorubMJE0QRiiSv2LeFbI+8aEWHrBqpiMc
+         jgfg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=TExgID4iEssrHvFExOtOBhfY9wq/7MEd+uaZmp2Hu3c=;
+        b=D8/f2ngQqlWxv6PknhQl0ijrGUNsrcAm3gDT41rdpBPUwpq0cC8smOVgwUEgB/0HEK
+         NZ+LmtuDDMK05CVuuCJBJsx2Ox3gnnGjWSUR60FztTESz6iefgmFS/XR+SJx6LJJiioX
+         HvXnHjK01nC0Se39TveVrm13XRqLQ+hlXWy/S+Pnr+0MzQuTPvf4sr8C2VVcqmy9lnBw
+         K7GxDiF5/TjyZaHExQtJVnRZA29N5N2wwE0VWJIcc86HIze9TCKCZbj47RcGg+jWwbET
+         idH4O/vGZLtOc++X9DIsJyF97M7/HKjsB14MIgKlafPDV1Q9ZkkLoLrLOJFo1wCMXxcf
+         L0HA==
+X-Gm-Message-State: APjAAAU1oNe4FyvHEgGVLeAWj7J/Jt6OH/yZ5OayAcf23QfpLUv5x2GR
+        k+TnpNwsIE005nE+96N7oJ+K5I75euQ=
+X-Google-Smtp-Source: APXvYqwmP1PKkhA4CSI4mFS0+k5lm6zCrL2kXDP5KR6aTkudQONotyjemolXgLx8VLkTI1Jqd23sKw==
+X-Received: by 2002:a5d:6a8c:: with SMTP id s12mr3951246wru.326.1558824125990;
+        Sat, 25 May 2019 15:42:05 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id f7sm4698424wmc.26.2019.05.25.15.42.05
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 25 May 2019 15:42:05 -0700 (PDT)
+Message-ID: <5ce9c4bd.1c69fb81.25208.8b5c@mx.google.com>
+Date:   Sat, 25 May 2019 15:42:05 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable
+X-Kernelci-Branch: linux-5.1.y
+X-Kernelci-Kernel: v5.1.5
+Subject: stable/linux-5.1.y boot: 59 boots: 1 failed,
+ 57 passed with 1 untried/unknown (v5.1.5)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable/linux-5.1.y boot: 59 boots: 1 failed, 57 passed with 1 untried/unkno=
+wn (v5.1.5)
 
-The patch titled
-     Subject: mm, compaction: make sure we isolate a valid PFN
-has been added to the -mm tree.  Its filename is
-     mm-compaction-make-sure-we-isolate-a-valid-pfn.patch
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-5.=
+1.y/kernel/v5.1.5/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-5.1.y/ke=
+rnel/v5.1.5/
 
-This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/mm-compaction-make-sure-we-isolate-a-valid-pfn.patch
-and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/mm-compaction-make-sure-we-isolate-a-valid-pfn.patch
+Tree: stable
+Branch: linux-5.1.y
+Git Describe: v5.1.5
+Git Commit: 835365932f0dc25468840753e071c05ad6abc76f
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 32 unique boards, 16 SoC families, 11 builds out of 209
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+Boot Regressions Detected:
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+arm64:
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
+    defconfig:
+        gcc-8:
+          meson-g12a-x96-max:
+              lab-baylibre: new failure (last pass: v5.1.3)
 
-------------------------------------------------------
-From: Suzuki K Poulose <suzuki.poulose@arm.com>
-Subject: mm, compaction: make sure we isolate a valid PFN
+Boot Failure Detected:
 
-When we have holes in a normal memory zone, we could endup having
-cached_migrate_pfns which may not necessarily be valid, under heavy memory
-pressure with swapping enabled ( via __reset_isolation_suitable(),
-triggered by kswapd).
+arm64:
+    defconfig:
+        gcc-8:
+            meson-g12a-x96-max: 1 failed lab
 
-Later if we fail to find a page via fast_isolate_freepages(), we may end
-up using the migrate_pfn we started the search with, as valid page.  This
-could lead to accessing NULL pointer derefernces like below, due to an
-invalid mem_section pointer.
-
-Unable to handle kernel NULL pointer dereference at virtual address 0000000000000008 [47/1825]
- Mem abort info:
-   ESR = 0x96000004
-   Exception class = DABT (current EL), IL = 32 bits
-   SET = 0, FnV = 0
-   EA = 0, S1PTW = 0
- Data abort info:
-   ISV = 0, ISS = 0x00000004
-   CM = 0, WnR = 0
- user pgtable: 4k pages, 48-bit VAs, pgdp = 0000000082f94ae9
- [0000000000000008] pgd=0000000000000000
- Internal error: Oops: 96000004 [#1] SMP
- ...
- CPU: 10 PID: 6080 Comm: qemu-system-aar Not tainted 510-rc1+ #6
- Hardware name: AmpereComputing(R) OSPREY EV-883832-X3-0001/OSPREY, BIOS 4819 09/25/2018
- pstate: 60000005 (nZCv daif -PAN -UAO)
- pc : set_pfnblock_flags_mask+0x58/0xe8
- lr : compaction_alloc+0x300/0x950
- [...]
- Process qemu-system-aar (pid: 6080, stack limit = 0x0000000095070da5)
- Call trace:
-  set_pfnblock_flags_mask+0x58/0xe8
-  compaction_alloc+0x300/0x950
-  migrate_pages+0x1a4/0xbb0
-  compact_zone+0x750/0xde8
-  compact_zone_order+0xd8/0x118
-  try_to_compact_pages+0xb4/0x290
-  __alloc_pages_direct_compact+0x84/0x1e0
-  __alloc_pages_nodemask+0x5e0/0xe18
-  alloc_pages_vma+0x1cc/0x210
-  do_huge_pmd_anonymous_page+0x108/0x7c8
-  __handle_mm_fault+0xdd4/0x1190
-  handle_mm_fault+0x114/0x1c0
-  __get_user_pages+0x198/0x3c0
-  get_user_pages_unlocked+0xb4/0x1d8
-  __gfn_to_pfn_memslot+0x12c/0x3b8
-  gfn_to_pfn_prot+0x4c/0x60
-  kvm_handle_guest_abort+0x4b0/0xcd8
-  handle_exit+0x140/0x1b8
-  kvm_arch_vcpu_ioctl_run+0x260/0x768
-  kvm_vcpu_ioctl+0x490/0x898
-  do_vfs_ioctl+0xc4/0x898
-  ksys_ioctl+0x8c/0xa0
-  __arm64_sys_ioctl+0x28/0x38
-  el0_svc_common+0x74/0x118
-  el0_svc_handler+0x38/0x78
-  el0_svc+0x8/0xc
- Code: f8607840 f100001f 8b011401 9a801020 (f9400400)
- ---[ end trace af6a35219325a9b6 ]---
-
-The issue was reported on an arm64 server with 128GB with holes in the
-zone (e.g, [32GB@4GB, 96GB@544GB]), with a swap device enabled, while
-running 100 KVM guest instances.
-
-This patch fixes the issue by ensuring that the page belongs to a valid
-PFN when we fallback to using the lower limit of the scan range upon
-failure in fast_isolate_freepages().
-
-Link: http://lkml.kernel.org/r/1558711908-15688-1-git-send-email-suzuki.poulose@arm.com
-Fixes: 5a811889de10f1eb ("mm, compaction: use free lists to quickly locate a migration target")
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Reported-by: Marc Zyngier <marc.zyngier@arm.com>
-Reviewed-by: Mel Gorman <mgorman@techsingularity.net>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Qian Cai <cai@lca.pw>
-Cc: Marc Zyngier <marc.zyngier@arm.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
-
- mm/compaction.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- a/mm/compaction.c~mm-compaction-make-sure-we-isolate-a-valid-pfn
-+++ a/mm/compaction.c
-@@ -1399,7 +1399,7 @@ fast_isolate_freepages(struct compact_co
- 				page = pfn_to_page(highest);
- 				cc->free_pfn = highest;
- 			} else {
--				if (cc->direct_compaction) {
-+				if (cc->direct_compaction && pfn_valid(min_pfn)) {
- 					page = pfn_to_page(min_pfn);
- 					cc->free_pfn = min_pfn;
- 				}
-_
-
-Patches currently in -mm which might be from suzuki.poulose@arm.com are
-
-mm-compaction-make-sure-we-isolate-a-valid-pfn.patch
-
+For more info write to <info@kernelci.org>
