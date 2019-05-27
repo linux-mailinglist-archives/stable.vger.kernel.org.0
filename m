@@ -2,174 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B18A32B4D5
-	for <lists+stable@lfdr.de>; Mon, 27 May 2019 14:19:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8806E2B481
+	for <lists+stable@lfdr.de>; Mon, 27 May 2019 14:12:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726458AbfE0MSu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 May 2019 08:18:50 -0400
-Received: from esa5.hc3370-68.iphmx.com ([216.71.155.168]:25814 "EHLO
-        esa5.hc3370-68.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726438AbfE0MSu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 May 2019 08:18:50 -0400
-X-Greylist: delayed 426 seconds by postgrey-1.27 at vger.kernel.org; Mon, 27 May 2019 08:18:49 EDT
-Authentication-Results: esa5.hc3370-68.iphmx.com; dkim=none (message not signed) header.i=none; spf=None smtp.pra=roger.pau@citrix.com; spf=Pass smtp.mailfrom=roger.pau@citrix.com; spf=None smtp.helo=postmaster@MIAPEX02MSOL01.citrite.net
-Received-SPF: None (esa5.hc3370-68.iphmx.com: no sender
-  authenticity information available from domain of
-  roger.pau@citrix.com) identity=pra; client-ip=23.29.105.83;
-  receiver=esa5.hc3370-68.iphmx.com;
-  envelope-from="roger.pau@citrix.com";
-  x-sender="roger.pau@citrix.com";
-  x-conformance=sidf_compatible
-Received-SPF: Pass (esa5.hc3370-68.iphmx.com: domain of
-  roger.pau@citrix.com designates 23.29.105.83 as permitted
-  sender) identity=mailfrom; client-ip=23.29.105.83;
-  receiver=esa5.hc3370-68.iphmx.com;
-  envelope-from="roger.pau@citrix.com";
-  x-sender="roger.pau@citrix.com";
-  x-conformance=sidf_compatible; x-record-type="v=spf1";
-  x-record-text="v=spf1 ip4:209.167.231.154 ip4:178.63.86.133
-  ip4:195.66.111.40/30 ip4:85.115.9.32/28 ip4:199.102.83.4
-  ip4:192.28.146.160 ip4:192.28.146.107 ip4:216.52.6.88
-  ip4:216.52.6.188 ip4:23.29.105.83 ip4:162.221.156.50 ~all"
-Received-SPF: None (esa5.hc3370-68.iphmx.com: no sender
-  authenticity information available from domain of
-  postmaster@MIAPEX02MSOL01.citrite.net) identity=helo;
-  client-ip=23.29.105.83; receiver=esa5.hc3370-68.iphmx.com;
-  envelope-from="roger.pau@citrix.com";
-  x-sender="postmaster@MIAPEX02MSOL01.citrite.net";
-  x-conformance=sidf_compatible
-IronPort-SDR: Gh2BTVmagKlnF8VKfwPAidsBsJ+V4TbsKvEggIXqipM0pBgr0u2Hy1UGK/AOhjyyW7F0eWEwFS
- l1NuwauKMCtOsPNepbG2tpqHjN0RKpDD+Rt+g/dI1XwCbflEBwBNljW8MPqj8onsUsv2sQIOJL
- 6La4M4L8lllQGzYlTg6pfLn/axfSic+lbQNmP1nlqWye/H63rTAsuuZ9hDhbIPCacPevGpgSYa
- XMnM2B3ZdjvSAf2Z4aWOjJKH8WC38iL7vDrxqv4JNR70rMlGRSSVD+f5MBIt2g4PdNAIIv2iK6
- gOY=
-X-SBRS: 2.7
-X-MesageID: 925016
-X-Ironport-Server: esa5.hc3370-68.iphmx.com
-X-Remote-IP: 23.29.105.83
-X-Policy: $RELAYED
-X-IronPort-AV: E=Sophos;i="5.60,519,1549947600"; 
-   d="scan'208";a="925016"
-From:   Roger Pau Monne <roger.pau@citrix.com>
-To:     <xen-devel@lists.xenproject.org>
-CC:     Roger Pau Monne <roger.pau@citrix.com>,
-        PGNet Dev <pgnet.dev@gmail.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        <stable@vger.kernel.org>
-Subject: [BACKPORT] xen/pvh: correctly setup the PV EFI interface for dom0
-Date:   Mon, 27 May 2019 14:11:38 +0200
-Message-ID: <20190527121138.41800-1-roger.pau@citrix.com>
-X-Mailer: git-send-email 2.20.1 (Apple Git-117)
+        id S1726236AbfE0MMC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 May 2019 08:12:02 -0400
+Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:60167 "EHLO
+        wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725943AbfE0MMB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 May 2019 08:12:01 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id 73DC44B6;
+        Mon, 27 May 2019 08:12:00 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Mon, 27 May 2019 08:12:00 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm3; bh=igi5jOHudzHsQVB/gHrGY+DJZkT
+        HuwbK/g/xsUuW8c4=; b=qn5vE6Zh3xBrGS8gJeCef7vw05IjMyT9QhOsIeyBhDZ
+        qCbSGZeN0ZN8vngM/lla4ETs8Lp2Va24bCroP0Y8brZUY4d+0LBR/MU6B4KSKIz+
+        Sr7+Ls+Rm5D+R2asW3GWC4Uh783OHiTjcTcf2fwId8o0uXOGhQSqEN9EF+0a71EC
+        RoOiWhLSyyRjW7B4q1JeY4YinIPmm17K6iNnmYwr4xBgo3GcHzBTLU3+FgiDri3c
+        TCqSAvBTL86Q7u6kcxaclQiVW1mQXXB4sqehGNBNyzQE+1MFP4S03gwfP113s8f1
+        37h5dt8Zuj6Hjd82xlxXnto4keSjjpw10X4IyZZtROg==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=igi5jO
+        HudzHsQVB/gHrGY+DJZkTHuwbK/g/xsUuW8c4=; b=NyKw+nuprS/y+nR+K7OUIu
+        U0Gtd2afSJPYbNPIe+ZERXy/sgX8zNYS+bkS2b6vGTXOAGnuzb04YDE2O3tZyFH3
+        T7EnEjZHvPA+4fi3PmyNO9voRbwMIH73z+A756gaJ96grfhHWk40tr7DDQCxTfEj
+        gbvguG502pjPC4nIzpYwW/zFIuIkycaJp0ck2YzJoUaRg6VB97wY2XFiFnRITaLo
+        bGl1f0kkV6j6RqcdcHy9QsVMCNjWhrVC3E0WYyA3z1kkwMVCy/SjZIAVbwBdlVMY
+        5EaR3ZhpRc+mWx7uh8F3M97HBLtOzAbFtUBYKxsl7DrO0gPdIZK+a2fVR4NT5PNQ
+        ==
+X-ME-Sender: <xms:DtTrXI7yrP9u7SMKxrA2V8vQaBC9Gk1IHJ2x2Ik5ujwbJ5oT0R5q4w>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddruddvvddghedtucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjfgesthdtredttdervdenucfhrhhomhepifhrvghg
+    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecukfhppeekfedrkeeirdekledrud
+    dtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecu
+    vehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:DtTrXPLtU7TrWPfT_SRie-hHJ4MChgB7YIYOYmsgriObDtgnve9ioA>
+    <xmx:DtTrXKEL6IrIfht1sFEDebRNp9alK-SsqRBpfb9SMl19_Y-kErA3yA>
+    <xmx:DtTrXM21cre86uyxsMi496seUvt0az7z30O6BpvqzEz5ijoWryoWEQ>
+    <xmx:ENTrXFtHSp8O-4GiV18Qde_EWszXUc7dcZnUb5KJ8-tMIKnKUZyvNw>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 758DE80059;
+        Mon, 27 May 2019 08:11:58 -0400 (EDT)
+Date:   Mon, 27 May 2019 14:11:56 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Dan Williams <dan.j.williams@intel.com>
+Cc:     stable@vger.kernel.org, Jane Chu <jane.chu@oracle.com>,
+        Jeff Moyer <jmoyer@redhat.com>,
+        Erwin Tsaur <erwin.tsaur@oracle.com>,
+        Johannes Thumshirn <jthumshirn@suse.de>,
+        linux-nvdimm@lists.01.org
+Subject: Re: [for-4.14.y PATCH] libnvdimm/namespace: Fix label tracking error
+Message-ID: <20190527121156.GB607@kroah.com>
+References: <155882542900.2471091.11258089584930875450.stgit@dwillia2-desk3.amr.corp.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <155882542900.2471091.11258089584930875450.stgit@dwillia2-desk3.amr.corp.intel.com>
+User-Agent: Mutt/1.12.0 (2019-05-25)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 72813bfbf0276a97c82af038efb5f02dcdd9e310 upstream
+On Sat, May 25, 2019 at 04:03:49PM -0700, Dan Williams wrote:
+> commit c4703ce11c23423d4b46e3d59aef7979814fd608 upstream.
+> 
 
-This involves initializing the boot params EFI related fields and the
-efi global variable.
+Thanks for both of these, now queued up.
 
-Without this fix a PVH dom0 doesn't detect when booted from EFI, and
-thus doesn't support accessing any of the EFI related data.
-
-Reported-by: PGNet Dev <pgnet.dev@gmail.com>
-Signed-off-by: Roger Pau Monné <roger.pau@citrix.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Cc: stable@vger.kernel.org # 4.19+
----
- arch/x86/xen/efi.c           | 12 ++++++------
- arch/x86/xen/enlighten_pv.c  |  2 +-
- arch/x86/xen/enlighten_pvh.c |  4 ++++
- arch/x86/xen/xen-ops.h       |  4 ++--
- 4 files changed, 13 insertions(+), 9 deletions(-)
-
-diff --git a/arch/x86/xen/efi.c b/arch/x86/xen/efi.c
-index 1804b27f9632..30edb9bc58e2 100644
---- a/arch/x86/xen/efi.c
-+++ b/arch/x86/xen/efi.c
-@@ -170,7 +170,7 @@ static enum efi_secureboot_mode xen_efi_get_secureboot(void)
- 	return efi_secureboot_mode_unknown;
- }
- 
--void __init xen_efi_init(void)
-+void __init xen_efi_init(struct boot_params *boot_params)
- {
- 	efi_system_table_t *efi_systab_xen;
- 
-@@ -179,12 +179,12 @@ void __init xen_efi_init(void)
- 	if (efi_systab_xen == NULL)
- 		return;
- 
--	strncpy((char *)&boot_params.efi_info.efi_loader_signature, "Xen",
--			sizeof(boot_params.efi_info.efi_loader_signature));
--	boot_params.efi_info.efi_systab = (__u32)__pa(efi_systab_xen);
--	boot_params.efi_info.efi_systab_hi = (__u32)(__pa(efi_systab_xen) >> 32);
-+	strncpy((char *)&boot_params->efi_info.efi_loader_signature, "Xen",
-+			sizeof(boot_params->efi_info.efi_loader_signature));
-+	boot_params->efi_info.efi_systab = (__u32)__pa(efi_systab_xen);
-+	boot_params->efi_info.efi_systab_hi = (__u32)(__pa(efi_systab_xen) >> 32);
- 
--	boot_params.secure_boot = xen_efi_get_secureboot();
-+	boot_params->secure_boot = xen_efi_get_secureboot();
- 
- 	set_bit(EFI_BOOT, &efi.flags);
- 	set_bit(EFI_PARAVIRT, &efi.flags);
-diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
-index 782f98b332f0..0f8da4aebe7b 100644
---- a/arch/x86/xen/enlighten_pv.c
-+++ b/arch/x86/xen/enlighten_pv.c
-@@ -1399,7 +1399,7 @@ asmlinkage __visible void __init xen_start_kernel(void)
- 	/* We need this for printk timestamps */
- 	xen_setup_runstate_info(0);
- 
--	xen_efi_init();
-+	xen_efi_init(&boot_params);
- 
- 	/* Start the world */
- #ifdef CONFIG_X86_32
-diff --git a/arch/x86/xen/enlighten_pvh.c b/arch/x86/xen/enlighten_pvh.c
-index dab07827d25e..f04d22bcf08d 100644
---- a/arch/x86/xen/enlighten_pvh.c
-+++ b/arch/x86/xen/enlighten_pvh.c
-@@ -14,6 +14,8 @@
- #include <xen/interface/memory.h>
- #include <xen/interface/hvm/start_info.h>
- 
-+#include "xen-ops.h"
-+
- /*
-  * PVH variables.
-  *
-@@ -79,6 +81,8 @@ static void __init init_pvh_bootparams(void)
- 	pvh_bootparams.hdr.type_of_loader = (9 << 4) | 0; /* Xen loader */
- 
- 	x86_init.acpi.get_root_pointer = pvh_get_root_pointer;
-+
-+	xen_efi_init(&pvh_bootparams);
- }
- 
- /*
-diff --git a/arch/x86/xen/xen-ops.h b/arch/x86/xen/xen-ops.h
-index 0e60bd918695..2f111f47ba98 100644
---- a/arch/x86/xen/xen-ops.h
-+++ b/arch/x86/xen/xen-ops.h
-@@ -122,9 +122,9 @@ static inline void __init xen_init_vga(const struct dom0_vga_console_info *info,
- void __init xen_init_apic(void);
- 
- #ifdef CONFIG_XEN_EFI
--extern void xen_efi_init(void);
-+extern void xen_efi_init(struct boot_params *boot_params);
- #else
--static inline void __init xen_efi_init(void)
-+static inline void __init xen_efi_init(struct boot_params *boot_params)
- {
- }
- #endif
--- 
-2.20.1 (Apple Git-117)
-
+greg k-h
