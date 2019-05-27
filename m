@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 31E322B455
-	for <lists+stable@lfdr.de>; Mon, 27 May 2019 14:06:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 944222B457
+	for <lists+stable@lfdr.de>; Mon, 27 May 2019 14:06:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726115AbfE0MGB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 May 2019 08:06:01 -0400
-Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:38641 "EHLO
+        id S1726150AbfE0MGE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 May 2019 08:06:04 -0400
+Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:56729 "EHLO
         wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726071AbfE0MGB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 May 2019 08:06:01 -0400
+        by vger.kernel.org with ESMTP id S1726071AbfE0MGE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 May 2019 08:06:04 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 1866054D;
-        Mon, 27 May 2019 08:06:00 -0400 (EDT)
+        by mailout.west.internal (Postfix) with ESMTP id E3AD7425;
+        Mon, 27 May 2019 08:06:02 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 27 May 2019 08:06:00 -0400
+  by compute6.internal (MEProxy); Mon, 27 May 2019 08:06:03 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=ymo+PA
-        QDcu0tPZoiWemFOB428JcrJykLk62aOwOMkPM=; b=qJpya/a/hnaq5aVQa4cMvk
-        bEz5WF+prosuG1IM/sQGTkCDCqcuIxv9ray5k76Xxf8Xu8G6lzAIolSvw1RKZMWh
-        f/Bw6PX25aqwmgNyWOIQdvSPKoNHoDlFpxMaGoexwEda1ro2k/ZNbary8dQMVDSW
-        DIurJlsK/Vv2OyO9wQeRXdGLJWd8w8vAnjYSA1YHigukLdThzUUGKXLwumIfrbvK
-        AwoE56AeWfLqH0bguU3JjJRfUg2pyuV6AE0vex4CROmGDk845WkD67AyqUoT3wVE
-        iONRg9qr1MUid5ttT5N4OgzVijW2c0MWKF6fYNyIUiPH5cnF2J8bre55uQCcd8cg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=yoyLp5
+        /LFG5oYS/v01tdG2eUyMCM5lNCGrSjr6XJsL4=; b=lhNxzUdWrkywXiwS3rtTp+
+        Ur6FHk6WVljtSRMHkQUD6OuomY3CsPpiNUJlsHdpHRVGhHa03i/u7QZeXBixpzpz
+        LNVlSgPxFI3wQJb6+uZ43NgasKM4Ejocf3fh1A5qmhn68Ai9yEGS2lZ0MvLuglkq
+        oJr73JnVnoh59YTAFNi8/tZWKXkjy2yLLl5oJa0t6b/G24Gg+qGkIlhuU44AuDze
+        owZQ9Tj+AWpTMdLtxpLfZYpcFgHrsSQtl1UB0xAfDJ+8bbcbnwCQKPxq3kycdT7R
+        +UqAoC2EB61LdK9EgSmmRmUZJBeNWwD3Oq6NyL8YEE+i1aS2XpoCok8M9zh9R6IQ
         ==
-X-ME-Sender: <xms:p9LrXHmXlYYqINt7V60jXwLy1BNZm39_bdmvAv3Ei6tTUoH2stmWlA>
+X-ME-Sender: <xms:qtLrXKOEMQKUx54SwMpn3wA2uWKtQcjx6TwnyNTTdrVuAobYkPWdSg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddruddvvddggeelucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
     dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpedu
-X-ME-Proxy: <xmx:p9LrXPfVgroenVxo6hOT5lij3Fi0O7AZ-fXOHaeF27TGAHaghJEOiw>
-    <xmx:p9LrXFybNSOHIsYwUYym31_mQLW9un8oTA725_vD1oTj6EtQVRZ1kg>
-    <xmx:p9LrXJvcFHzj0i4WK68AmKWomlUWfk2DXsEKqkB_77JsuV01MGoetA>
-    <xmx:p9LrXOg6PsDD0-QLGbk9PiRrvDRt-xJo-dxHF0ykx21iWM6t7yEyIA>
+    ucevlhhushhtvghrufhiiigvpedv
+X-ME-Proxy: <xmx:qtLrXCmeGOgvwbNellAT5c5WTEQP0N5NhbK7L5U602M7c0ufKZs8pg>
+    <xmx:qtLrXBQlMv4GgysoF2uAHjKMmCECilBesxLuDwaRKo2IPn0m6sSdGw>
+    <xmx:qtLrXODJlwPZML7Za0Y0_3YlRr5d5kXOm4XZ6XAOH4z4o2xbVvZnWw>
+    <xmx:qtLrXBQlJxLArucaeWeKdFtuv8BWqiKJEHgrqyOL5vj2odUDJ1-mTA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 145D68005B;
-        Mon, 27 May 2019 08:05:58 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] tracing: Check keys for variable references in expressions" failed to apply to 5.0-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id DF4578005C;
+        Mon, 27 May 2019 08:06:01 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] tracing: Check keys for variable references in expressions" failed to apply to 4.19-stable tree
 To:     tom.zanussi@linux.intel.com, rostedt@goodmis.org, vincent@bernat.ch
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 27 May 2019 14:05:49 +0200
-Message-ID: <155895874910192@kroah.com>
+Date:   Mon, 27 May 2019 14:05:50 +0200
+Message-ID: <155895875018690@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -57,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.0-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
