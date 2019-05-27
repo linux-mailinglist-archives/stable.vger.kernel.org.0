@@ -2,54 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0395A2AE72
-	for <lists+stable@lfdr.de>; Mon, 27 May 2019 08:17:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13E472AE73
+	for <lists+stable@lfdr.de>; Mon, 27 May 2019 08:17:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726097AbfE0GRU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 May 2019 02:17:20 -0400
+        id S1726063AbfE0GRW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 May 2019 02:17:22 -0400
 Received: from esa5.hgst.iphmx.com ([216.71.153.144]:44059 "EHLO
         esa5.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726063AbfE0GRU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 May 2019 02:17:20 -0400
+        with ESMTP id S1726072AbfE0GRW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 May 2019 02:17:22 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
   d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1558937840; x=1590473840;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=pOJ3/T0shzbdDbuIZNzFVwGe9sMZ7wyJYAi2Lv5hTNg=;
-  b=DjhqDsfvIzbL57wYTYLo9g2zEU4EBnmGgJMhEL1jjvxOPF/61Blo20aY
-   Fm9R3e2RW9IKxMFjLk2f9yJ3QCoy8/1Zl21z03HdRMPvxfvAw0bHPGx23
-   enwynclzratbVLtFaSK9WMPtkb6j+2A2SF9tlQTFtBnSSQgeogHoWwRzg
-   TtEwA/Ipyi2BHex+zj49U9xUOSbgYU8maJ09WPKohupZ10aLBf5Q6ZwbU
-   u6RqXU6tO7dTviulLQAuCtrYmwL++Sa6e3OGNfbJgACvhIbEkWmezlgP/
-   HYwTBwzLxvRTTCYDVqnnBoziKfiUJF8mFfjtH6BC3tGKMcY9TZfjqZj3d
+  t=1558937841; x=1590473841;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=ZzSN2HIMSca6VJJJUG4uK2ZRsPC6qI4+fgOlkBqk7eE=;
+  b=ePNZiIZIs50MzQLn8xhptJ8QVgrQ/0acu0Ot9OiPdONi1s3zrdPyccf7
+   +iuDByA7zlwBtH0BYjIBXAinWBAT7mST7HMWz2O2jrTOOEzO9NcO/XOhN
+   9let2R9sLXQ/26c2YvDqP7jhDZcrgl4Gf97V79XbZtAIAxfolzf0NVLrp
+   BFcRslD6+OXz4eMNDXjupYz6SNtx05lpE70k+6bxx/oo1JrmOJ856OUA1
+   u92Yo5vtLFC/EZ5wOErk1L8K+cvpiTcC50rfd2OrIsMaDbDffPWOfjXdx
+   6EwajTcaNiAUCa7k7lsuqOct78osBFph39UNFnuMTOW/B/zKjj9bAwDyu
    A==;
 X-IronPort-AV: E=Sophos;i="5.60,518,1549900800"; 
-   d="scan'208";a="110392730"
+   d="scan'208";a="110392731"
 Received: from h199-255-45-15.hgst.com (HELO uls-op-cesaep02.wdc.com) ([199.255.45.15])
   by ob1.hgst.iphmx.com with ESMTP; 27 May 2019 14:17:20 +0800
-IronPort-SDR: 75RUH1PDQXHKLoYIMYsIbH0nPM0vYXo/wYZV81NcrUtvy9QX07u+DrTYRWANWj4jaXdHkiI8j1
- PTh0ECBtcbl4Rp8lC/ypPYQWelFQrNrI1cT40vP1WApXbfVxdts1upuZlxRrhmZPlDEjaTRGA/
- 4I3pIDACLYCx/3jh0dhh+j1t22m2PfhPzK1RSj2TAKGuL4sCUKs7v5uT1P6Tq5CPachj++Gegb
- kg8eduFLr0PLzEiGLZFCp+Gk9TRCiMe8ddfEzsdWK3GO2bbbdSqvdRcx4wv6l3ebycrbXkw5AQ
- chUxcwvm7KbMEhPZzTjnEacE
+IronPort-SDR: jFASC0S91ejaLWCAiADrFE0gFTDDfqS3PSa9Jdg/uNuXJtybZsxouNvqNBZQGV77pZ8VySsHL2
+ mhcdkCVCUX5c/tppolZAz/Ho0BATrYi0Yt1+RF2VOBjSxv+59SuFbM0uxhbMnaesuislmcJy1b
+ eE5165xa0/dN53GL3yAv3oLdNEZwZjJWs7q6v+l5kDW1INCBahh+2gA9N+EBYJlHK5gLWBICze
+ vEXcM3d9bxx2W6hLeIBbbSLPBpvpMnEOUdu6eN4J0u9Qwr2suXKTC0yvRxODJo1J2s3gR+RyaL
+ qa/zg+j4rW4W5euTiYrmyRQb
 Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
-  by uls-op-cesaep02.wdc.com with ESMTP; 26 May 2019 22:54:55 -0700
-IronPort-SDR: du80PQdqlSNJ99MK0jzERJs6d3j6a9ezktha5dlv2kXSAYYUNeNvy9E+VobLgHX0avK+lzXdu1
- 4KoDBcnuJYprS56zYYkdqOXlWrjGEPLa+FFCb7TQQ9TvLKN0T82IkCBIpUhoiTPwAg3jO2Neh4
- jqkEvJH6XUNT1/4EIcnlw4IBqTDYaTAwAU+JANonkJQIvT+ZMyvZA7iI/taynQdVpJ1Wc4rcmf
- Dsi+DdwU0AKMjYIyreHkV8BvXbp56WLaiOEJX/njfQedEbCN+vmhVaplsHIhUuAm2ISzqGdf0g
- 5bE=
+  by uls-op-cesaep02.wdc.com with ESMTP; 26 May 2019 22:54:56 -0700
+IronPort-SDR: yRMD6J/IlxIoNYsjMI7fuPBlq7/RntnZb05JwWd7hWqWV99Rv9wR5h7BBi+8MdRKOU8KzVcN2H
+ ayzq6YK4cdc32DByUtxL5EHvEL8IFNTQBWgEvKAU+Kpu4XI2OZ9SKteca/Kv66j8Iz5Vaptx3k
+ 5G891upsYsF/VYYuxDOGaVCNx3MWaxybfkJw21saMxZhGfwCN6Ay7NBJSeqlXDXSD2Nt9ps+kY
+ sEw6rX/O+VhhKRQ1CF0drAcRl95e69vpQQf05kKG7rghrWqjqmfnIaXE6+sDfUUalUIrBABDH4
+ 9oI=
 Received: from washi.fujisawa.hgst.com ([10.149.53.254])
-  by uls-op-cesaip02.wdc.com with ESMTP; 26 May 2019 23:17:19 -0700
+  by uls-op-cesaip02.wdc.com with ESMTP; 26 May 2019 23:17:20 -0700
 From:   Damien Le Moal <damien.lemoal@wdc.com>
 To:     stable@vger.kernel.org,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     Jaegeuk Kim <jaegeuk@kernel.org>
 Subject: [PATCH] f2fs: Fix use of number of devices
-Date:   Mon, 27 May 2019 15:17:16 +0900
-Message-Id: <20190527061717.3202-1-damien.lemoal@wdc.com>
+Date:   Mon, 27 May 2019 15:17:17 +0900
+Message-Id: <20190527061717.3202-2-damien.lemoal@wdc.com>
 X-Mailer: git-send-email 2.21.0
+In-Reply-To: <20190527061717.3202-1-damien.lemoal@wdc.com>
+References: <20190527061717.3202-1-damien.lemoal@wdc.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -58,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 commit 0916878da355650d7e77104a7ac0fa1784eca852 upstream.
-Backport for 4.14.y stable tree.
+Backport for 4.19.y stable tree.
 
 For a single device mount using a zoned block device, the zone
 information for the device is stored in the sbi->devs single entry
@@ -82,23 +84,23 @@ helper function f2fs_is_multi_device() and using this helper in place
 of direct tests of sbi->s_ndevs value, improving code readability.
 
 Fixes: 7bb3a371d199 ("f2fs: Fix zoned block device support")
-Cc: <stable@vger.kernel.org> #4.14.y
+Cc: <stable@vger.kernel.org> #4.19.y
 Signed-off-by: Damien Le Moal <damien.lemoal@wdc.com>
 Reviewed-by: Chao Yu <yuchao0@huawei.com>
 Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 ---
  fs/f2fs/data.c    | 17 +++++++++++------
- fs/f2fs/f2fs.h    | 11 +++++++++++
+ fs/f2fs/f2fs.h    | 13 ++++++++++++-
  fs/f2fs/file.c    |  2 +-
  fs/f2fs/gc.c      |  2 +-
- fs/f2fs/segment.c |  6 +++---
- 5 files changed, 27 insertions(+), 11 deletions(-)
+ fs/f2fs/segment.c | 13 +++++++------
+ 5 files changed, 32 insertions(+), 15 deletions(-)
 
 diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
-index 3d37124eb63e..113d1cd55119 100644
+index 08314fb42652..4d02e76b648a 100644
 --- a/fs/f2fs/data.c
 +++ b/fs/f2fs/data.c
-@@ -133,12 +133,14 @@ struct block_device *f2fs_target_device(struct f2fs_sb_info *sbi,
+@@ -197,12 +197,14 @@ struct block_device *f2fs_target_device(struct f2fs_sb_info *sbi,
  	struct block_device *bdev = sbi->sb->s_bdev;
  	int i;
  
@@ -119,7 +121,7 @@ index 3d37124eb63e..113d1cd55119 100644
  		}
  	}
  	if (bio) {
-@@ -152,6 +154,9 @@ int f2fs_target_device_index(struct f2fs_sb_info *sbi, block_t blkaddr)
+@@ -216,6 +218,9 @@ int f2fs_target_device_index(struct f2fs_sb_info *sbi, block_t blkaddr)
  {
  	int i;
  
@@ -130,10 +132,10 @@ index 3d37124eb63e..113d1cd55119 100644
  		if (FDEV(i).start_blk <= blkaddr && FDEV(i).end_blk >= blkaddr)
  			return i;
 diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
-index 634165fb64f1..406d93b51a0b 100644
+index 1f5d5f62bb77..a4b6eacf22ea 100644
 --- a/fs/f2fs/f2fs.h
 +++ b/fs/f2fs/f2fs.h
-@@ -1167,6 +1167,17 @@ static inline bool time_to_inject(struct f2fs_sb_info *sbi, int type)
+@@ -1336,6 +1336,17 @@ static inline bool time_to_inject(struct f2fs_sb_info *sbi, int type)
  }
  #endif
  
@@ -151,11 +153,20 @@ index 634165fb64f1..406d93b51a0b 100644
  /* For write statistics. Suppose sector size is 512 bytes,
   * and the return value is in kbytes. s is of struct f2fs_sb_info.
   */
+@@ -3455,7 +3466,7 @@ static inline bool f2fs_force_buffered_io(struct inode *inode, int rw)
+ {
+ 	return (f2fs_post_read_required(inode) ||
+ 			(rw == WRITE && test_opt(F2FS_I_SB(inode), LFS)) ||
+-			F2FS_I_SB(inode)->s_ndevs);
++			f2fs_is_multi_device(F2FS_I_SB(inode)));
+ }
+ 
+ #ifdef CONFIG_F2FS_FAULT_INJECTION
 diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
-index 5f549bc4e097..1b1792199445 100644
+index b3f46e3bec17..8d1eb8dec605 100644
 --- a/fs/f2fs/file.c
 +++ b/fs/f2fs/file.c
-@@ -2407,7 +2407,7 @@ static int f2fs_ioc_flush_device(struct file *filp, unsigned long arg)
+@@ -2539,7 +2539,7 @@ static int f2fs_ioc_flush_device(struct file *filp, unsigned long arg)
  							sizeof(range)))
  		return -EFAULT;
  
@@ -165,11 +176,11 @@ index 5f549bc4e097..1b1792199445 100644
  		f2fs_msg(sbi->sb, KERN_WARNING,
  			"Can't flush %u in %d for segs_per_sec %u != 1\n",
 diff --git a/fs/f2fs/gc.c b/fs/f2fs/gc.c
-index f22884418e92..ceb6023786bd 100644
+index 5c8d00422237..d44b57a363ff 100644
 --- a/fs/f2fs/gc.c
 +++ b/fs/f2fs/gc.c
-@@ -1111,7 +1111,7 @@ void build_gc_manager(struct f2fs_sb_info *sbi)
- 				BLKS_PER_SEC(sbi), (main_count - resv_count));
+@@ -1256,7 +1256,7 @@ void f2fs_build_gc_manager(struct f2fs_sb_info *sbi)
+ 	sbi->gc_pin_file_threshold = DEF_GC_FAILED_PINNED_FILES;
  
  	/* give warm/cold data area from slower device */
 -	if (sbi->s_ndevs && sbi->segs_per_sec == 1)
@@ -178,19 +189,38 @@ index f22884418e92..ceb6023786bd 100644
  				GET_SEGNO(sbi, FDEV(0).end_blk) + 1;
  }
 diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
-index 5c698757e116..70bd15cadb44 100644
+index ac038563273d..03fa2c4d3d79 100644
 --- a/fs/f2fs/segment.c
 +++ b/fs/f2fs/segment.c
-@@ -495,7 +495,7 @@ static int submit_flush_wait(struct f2fs_sb_info *sbi)
- 	int ret = __submit_flush_wait(sbi, sbi->sb->s_bdev);
+@@ -574,7 +574,7 @@ static int submit_flush_wait(struct f2fs_sb_info *sbi, nid_t ino)
+ 	int ret = 0;
  	int i;
  
--	if (!sbi->s_ndevs || ret)
-+	if (!f2fs_is_multi_device(sbi) || ret)
+-	if (!sbi->s_ndevs)
++	if (!f2fs_is_multi_device(sbi))
+ 		return __submit_flush_wait(sbi, sbi->sb->s_bdev);
+ 
+ 	for (i = 0; i < sbi->s_ndevs; i++) {
+@@ -640,7 +640,8 @@ int f2fs_issue_flush(struct f2fs_sb_info *sbi, nid_t ino)
  		return ret;
+ 	}
+ 
+-	if (atomic_inc_return(&fcc->issing_flush) == 1 || sbi->s_ndevs > 1) {
++	if (atomic_inc_return(&fcc->issing_flush) == 1 ||
++	    f2fs_is_multi_device(sbi)) {
+ 		ret = submit_flush_wait(sbi, ino);
+ 		atomic_dec(&fcc->issing_flush);
+ 
+@@ -746,7 +747,7 @@ int f2fs_flush_device_cache(struct f2fs_sb_info *sbi)
+ {
+ 	int ret = 0, i;
+ 
+-	if (!sbi->s_ndevs)
++	if (!f2fs_is_multi_device(sbi))
+ 		return 0;
  
  	for (i = 1; i < sbi->s_ndevs; i++) {
-@@ -1050,7 +1050,7 @@ static int __queue_discard_cmd(struct f2fs_sb_info *sbi,
+@@ -1289,7 +1290,7 @@ static int __queue_discard_cmd(struct f2fs_sb_info *sbi,
  
  	trace_f2fs_queue_discard(bdev, blkstart, blklen);
  
@@ -199,7 +229,7 @@ index 5c698757e116..70bd15cadb44 100644
  		int devi = f2fs_target_device_index(sbi, blkstart);
  
  		blkstart -= FDEV(devi).start_blk;
-@@ -1283,7 +1283,7 @@ static int __f2fs_issue_discard_zone(struct f2fs_sb_info *sbi,
+@@ -1638,7 +1639,7 @@ static int __f2fs_issue_discard_zone(struct f2fs_sb_info *sbi,
  	block_t lblkstart = blkstart;
  	int devi = 0;
  
@@ -208,6 +238,15 @@ index 5c698757e116..70bd15cadb44 100644
  		devi = f2fs_target_device_index(sbi, blkstart);
  		blkstart -= FDEV(devi).start_blk;
  	}
+@@ -2971,7 +2972,7 @@ static void update_device_state(struct f2fs_io_info *fio)
+ 	struct f2fs_sb_info *sbi = fio->sbi;
+ 	unsigned int devidx;
+ 
+-	if (!sbi->s_ndevs)
++	if (!f2fs_is_multi_device(sbi))
+ 		return;
+ 
+ 	devidx = f2fs_target_device_index(sbi, fio->new_blkaddr);
 -- 
 2.21.0
 
