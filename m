@@ -2,150 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5ED952B757
-	for <lists+stable@lfdr.de>; Mon, 27 May 2019 16:12:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BA782B77B
+	for <lists+stable@lfdr.de>; Mon, 27 May 2019 16:26:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726843AbfE0OMa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 May 2019 10:12:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46806 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726175AbfE0OM3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 27 May 2019 10:12:29 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9560C2184E;
-        Mon, 27 May 2019 14:12:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1558966349;
-        bh=WnV1TRooHjYgaOaThTWOyj0EiWdGjr+IfVGymFWCYZk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=P2V9c6Ct1uHuH1L7UUsVV2/qo+s4gcXNPoa/GNOu3XCieoJDu8i7prMkI/e5tWRM4
-         mfBMk1kPdlRh/WWS9/bz2525AC7o24JIBm0G36nRbs/sifcFa7VSBaoE4FU9s9PyKy
-         cTTeRJWRYPNaven26VcCx8uAY33ldJV5DrkY3KQA=
-Date:   Mon, 27 May 2019 16:12:09 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Mike Kravetz <mike.kravetz@oracle.com>
-Cc:     akpm@linux-foundation.org, dbueso@suse.de, iamjoonsoo.kim@lge.com,
-        kirill.shutemov@linux.intel.com, mhocko@kernel.org,
-        n-horiguchi@ah.jp.nec.com, stable@vger.kernel.org,
-        torvalds@linux-foundation.org
-Subject: Re: FAILED: patch "[PATCH] hugetlb: use same fault hash key for
- shared and private" failed to apply to 4.4-stable tree
-Message-ID: <20190527141209.GA23196@kroah.com>
-References: <1558105205227215@kroah.com>
- <d7d4ab79-bb4a-224f-9614-225070f3b78e@oracle.com>
+        id S1726353AbfE0O0a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 May 2019 10:26:30 -0400
+Received: from merlin.infradead.org ([205.233.59.134]:40814 "EHLO
+        merlin.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726115AbfE0O0a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 May 2019 10:26:30 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=merlin.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=Zf4zZpvy/xTl70Rm1FC7H7RijdVFnvjWCKduu7VXTMM=; b=3GxWGUUTwYZB3O2QHOdCLFzNC
+        Robq0IEeU8Z38j8JCWuHeVHEXJZryJEDn2GbSR4cheLLTaYrUaEqXfRIS2ukkAaN0lT4lsyDGtdVY
+        bg4R03igJ278yPq8mZBEXwMHRLn4xWY4RjKRmye5det91Sp+bvKB53VoNAWqGWfJTrkxJKJlZXz/u
+        T1EZBWZkb34Alojxmue8Tp8cFkZ8INmmlQPIVgLOOZZZrmzoXW+9bZclIz4NNDVdI3YaYaBnZtwha
+        DbmyLpVAGAui4OptfuC6y0Excr6Eq+wDRgaGAQdP+QOU3+OnIG2Yc01rRJQff1+dM2K6ocQNggDsT
+        R3Y1gYrdA==;
+Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=hirez.programming.kicks-ass.net)
+        by merlin.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
+        id 1hVGZX-00043S-8r; Mon, 27 May 2019 14:25:55 +0000
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id 823F7202BF3E0; Mon, 27 May 2019 16:25:52 +0200 (CEST)
+Date:   Mon, 27 May 2019 16:25:52 +0200
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+Cc:     akpm@linux-foundation.org, mm-commits@vger.kernel.org,
+        will.deacon@arm.com, stable@vger.kernel.org, npiggin@gmail.com,
+        namit@vmware.com, minchan@kernel.org, mgorman@suse.de,
+        jstancek@redhat.com, yang.shi@linux.alibaba.com
+Subject: Re: + mm-mmu_gather-remove-__tlb_reset_range-for-force-flush.patch
+ added to -mm tree
+Message-ID: <20190527142552.GD2623@hirez.programming.kicks-ass.net>
+References: <20190521231833.P5ThR%akpm@linux-foundation.org>
+ <20190527110158.GB2623@hirez.programming.kicks-ass.net>
+ <335de44e-02f5-ce92-c026-e8ac4a34a766@linux.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <d7d4ab79-bb4a-224f-9614-225070f3b78e@oracle.com>
-User-Agent: Mutt/1.12.0 (2019-05-25)
+In-Reply-To: <335de44e-02f5-ce92-c026-e8ac4a34a766@linux.ibm.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, May 23, 2019 at 04:41:24PM -0700, Mike Kravetz wrote:
-> On 5/17/19 8:00 AM, gregkh@linuxfoundation.org wrote:
+On Mon, May 27, 2019 at 06:59:08PM +0530, Aneesh Kumar K.V wrote:
+> On 5/27/19 4:31 PM, Peter Zijlstra wrote:
+> > On Tue, May 21, 2019 at 04:18:33PM -0700, akpm@linux-foundation.org wrote:
+> > > --- a/mm/mmu_gather.c~mm-mmu_gather-remove-__tlb_reset_range-for-force-flush
+> > > +++ a/mm/mmu_gather.c
+> > > @@ -245,14 +245,28 @@ void tlb_finish_mmu(struct mmu_gather *t
+> > >   {
+> > >   	/*
+> > >   	 * If there are parallel threads are doing PTE changes on same range
+> > > -	 * under non-exclusive lock(e.g., mmap_sem read-side) but defer TLB
+> > > -	 * flush by batching, a thread has stable TLB entry can fail to flush
+> > > -	 * the TLB by observing pte_none|!pte_dirty, for example so flush TLB
+> > > -	 * forcefully if we detect parallel PTE batching threads.
+> > > +	 * under non-exclusive lock (e.g., mmap_sem read-side) but defer TLB
+> > > +	 * flush by batching, one thread may end up seeing inconsistent PTEs
+> > > +	 * and result in having stale TLB entries.  So flush TLB forcefully
+> > > +	 * if we detect parallel PTE batching threads.
+> > > +	 *
+> > > +	 * However, some syscalls, e.g. munmap(), may free page tables, this
+> > > +	 * needs force flush everything in the given range. Otherwise this
+> > > +	 * may result in having stale TLB entries for some architectures,
+> > > +	 * e.g. aarch64, that could specify flush what level TLB.
+> > >   	 */
+> > >   	if (mm_tlb_flush_nested(tlb->mm)) {
+> > > +		/*
+> > > +		 * The aarch64 yields better performance with fullmm by
+> > > +		 * avoiding multiple CPUs spamming TLBI messages at the
+> > > +		 * same time.
+> > > +		 *
+> > > +		 * On x86 non-fullmm doesn't yield significant difference
+> > > +		 * against fullmm.
+> > > +		 */
+> > > +		tlb->fullmm = 1;
+> > >   		__tlb_reset_range(tlb);
+> > > -		__tlb_adjust_range(tlb, start, end - start);
+> > > +		tlb->freed_tables = 1;
+> > >   	}
+> > >   	tlb_flush_mmu(tlb);
 > > 
-> > The patch below does not apply to the 4.4-stable tree.
-> > If someone wants it applied there, or to any other stable or longterm
-> > tree, then please email the backport, including the original git commit
-> > id to <stable@vger.kernel.org>.
+> > Nick, Aneesh, can we now do this?
+> > 
+> > ---
+> > 
+> > diff --git a/arch/powerpc/mm/book3s64/radix_tlb.c b/arch/powerpc/mm/book3s64/radix_tlb.c
+> > index 4d841369399f..8d28b83914cb 100644
+> > --- a/arch/powerpc/mm/book3s64/radix_tlb.c
+> > +++ b/arch/powerpc/mm/book3s64/radix_tlb.c
+> > @@ -881,39 +881,6 @@ void radix__tlb_flush(struct mmu_gather *tlb)
+> >   	 */
+> >   	if (tlb->fullmm) {
+> >   		__flush_all_mm(mm, true);
+> > -#if defined(CONFIG_TRANSPARENT_HUGEPAGE) || defined(CONFIG_HUGETLB_PAGE)
+> > -	} else if (mm_tlb_flush_nested(mm)) {
+> > -		/*
+> > -		 * If there is a concurrent invalidation that is clearing ptes,
+> > -		 * then it's possible this invalidation will miss one of those
+> > -		 * cleared ptes and miss flushing the TLB. If this invalidate
+> > -		 * returns before the other one flushes TLBs, that can result
+> > -		 * in it returning while there are still valid TLBs inside the
+> > -		 * range to be invalidated.
+> > -		 *
+> > -		 * See mm/memory.c:tlb_finish_mmu() for more details.
+> > -		 *
+> > -		 * The solution to this is ensure the entire range is always
+> > -		 * flushed here. The problem for powerpc is that the flushes
+> > -		 * are page size specific, so this "forced flush" would not
+> > -		 * do the right thing if there are a mix of page sizes in
+> > -		 * the range to be invalidated. So use __flush_tlb_range
+> > -		 * which invalidates all possible page sizes in the range.
+> > -		 *
+> > -		 * PWC flush probably is not be required because the core code
+> > -		 * shouldn't free page tables in this path, but accounting
+> > -		 * for the possibility makes us a bit more robust.
+> > -		 *
+> > -		 * need_flush_all is an uncommon case because page table
+> > -		 * teardown should be done with exclusive locks held (but
+> > -		 * after locks are dropped another invalidate could come
+> > -		 * in), it could be optimized further if necessary.
+> > -		 */
+> > -		if (!tlb->need_flush_all)
+> > -			__radix__flush_tlb_range(mm, start, end, true);
+> > -		else
+> > -			radix__flush_all_mm(mm);
+> > -#endif
+> >   	} else if ( (psize = radix_get_mmu_psize(page_size)) == -1) {
+> >   		if (!tlb->need_flush_all)
+> >   			radix__flush_tlb_mm(mm);
+> > 
 > 
-> From: Mike Kravetz <mike.kravetz@oracle.com>
-> Date: Thu, 23 May 2019 13:52:15 -0700
-> Subject: [PATCH] hugetlb: use same fault hash key for shared and private
->  mappings
 > 
-> commit 1b426bac66e6cc83c9f2d92b96e4e72acf43419a upstream.
-> 
-> hugetlb uses a fault mutex hash table to prevent page faults of the
-> same pages concurrently.  The key for shared and private mappings is
-> different.  Shared keys off address_space and file index.  Private
-> keys off mm and virtual address.  Consider a private mappings of a
-> populated hugetlbfs file.  A fault will map the page from the file
-> and if needed do a COW to map a writable page.
-> 
-> Hugetlbfs hole punch uses the fault mutex to prevent mappings of file
-> pages.  It uses the address_space file index key.  However, private
-> mappings will use a different key and could race with this code to map
-> the file page.  This causes problems (BUG) for the page cache remove
-> code as it expects the page to be unmapped.  A sample stack is:
-> 
-> page dumped because: VM_BUG_ON_PAGE(page_mapped(page))
-> kernel BUG at mm/filemap.c:169!
-> ...
-> RIP: 0010:unaccount_page_cache_page+0x1b8/0x200
-> ...
-> Call Trace:
-> __delete_from_page_cache+0x39/0x220
-> delete_from_page_cache+0x45/0x70
-> remove_inode_hugepages+0x13c/0x380
-> ? __add_to_page_cache_locked+0x162/0x380
-> hugetlbfs_fallocate+0x403/0x540
-> ? _cond_resched+0x15/0x30
-> ? __inode_security_revalidate+0x5d/0x70
-> ? selinux_file_permission+0x100/0x130
-> vfs_fallocate+0x13f/0x270
-> ksys_fallocate+0x3c/0x80
-> __x64_sys_fallocate+0x1a/0x20
-> do_syscall_64+0x5b/0x180
-> entry_SYSCALL_64_after_hwframe+0x44/0xa9
-> 
-> There seems to be another potential COW issue/race with this approach
-> of different private and shared keys as noted in commit 8382d914ebf7
-> ("mm, hugetlb: improve page-fault scalability").
-> 
-> Since every hugetlb mapping (even anon and private) is actually a file
-> mapping, just use the address_space index key for all mappings.  This
-> results in potentially more hash collisions.  However, this should not
-> be the common case.
-> 
-> Link: http://lkml.kernel.org/r/20190328234704.27083-3-mike.kravetz@oracle.com
-> Link: http://lkml.kernel.org/r/20190412165235.t4sscoujczfhuiyt@linux-r8p5
-> Fixes: b5cec28d36f5 ("hugetlbfs: truncate_hugepages() takes a range of pages")
-> Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-> ---
->  fs/hugetlbfs/inode.c    |  7 ++-----
->  include/linux/hugetlb.h |  4 +---
->  mm/hugetlb.c            | 19 +++++--------------
->  3 files changed, 8 insertions(+), 22 deletions(-)
-> 
-> diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
-> index 27c4e2ac39a9..c9f288dbe734 100644
-> --- a/fs/hugetlbfs/inode.c
-> +++ b/fs/hugetlbfs/inode.c
-> @@ -414,9 +414,7 @@ static void remove_inode_hugepages(struct inode *inode, loff_t lstart,
->  			if (next >= end)
->  				break;
->  
-> -			hash = hugetlb_fault_mutex_hash(h, current->mm,
-> -							&pseudo_vma,
-> -							mapping, next, 0);
-> +			hash = hugetlb_fault_mutex_hash(h, mapping, next, 0);
->  			mutex_lock(&hugetlb_fault_mutex_table[hash]);
->  
->  			lock_page(page);
-> @@ -633,8 +631,7 @@ static long hugetlbfs_fallocate(struct file *file, int mode, loff_t offset,
->  		addr = index * hpage_size;
->  
->  		/* mutex taken here, fault path and hole punch */
-> -		hash = hugetlb_fault_mutex_hash(h, mm, &pseudo_vma, mapping,
-> -						index, addr);
-> +		hash = hugetlb_fault_mutex_hash(h, mapping, index, addr);
->  		mutex_lock(&hugetlb_fault_mutex_table[hash]);
->  
->  		/* See if already present in mapping to avoid alloc/free */
+> I guess we can revert most of the commit
+> 02390f66bd2362df114a0a0770d80ec33061f6d1. That is the only place we flush
+> multiple page sizes? . But should we evaluate the performance impact of that
+> fullmm flush on ppc64?
 
-Note, this backport causes this warning:
-fs/hugetlbfs/inode.c: In function hugetlbfs_fallocate:
-fs/hugetlbfs/inode.c:570:20: warning: unused variable mm [-Wunused-variable]
-  struct mm_struct *mm = current->mm;
-                    ^~
+Maybe, but given the patch that went into -mm, PPC will never hit that
+branch I killed anymore -- and that really shouldn't be in architecture
+code anyway.
 
-So I'll go delete that line as well.
-
-thanks,
-
-greg k-h
+Also; as I noted last time: __radix___flush_tlb_range() and
+__radix__flush_tlb_range_psize() look similar enough that they might
+want to be a single function (and instead of @flush_all_sizes, have it
+take @gflush, @hflush, @flush and @pwc).
