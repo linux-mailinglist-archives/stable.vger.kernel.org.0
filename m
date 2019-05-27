@@ -2,149 +2,183 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 68D7D2B37C
-	for <lists+stable@lfdr.de>; Mon, 27 May 2019 13:50:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E07F2B385
+	for <lists+stable@lfdr.de>; Mon, 27 May 2019 13:52:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726140AbfE0LuV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 May 2019 07:50:21 -0400
-Received: from mail-lf1-f68.google.com ([209.85.167.68]:43756 "EHLO
-        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725991AbfE0LuV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 May 2019 07:50:21 -0400
-Received: by mail-lf1-f68.google.com with SMTP id u27so11848609lfg.10
-        for <stable@vger.kernel.org>; Mon, 27 May 2019 04:50:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=cogentembedded-com.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=pp1HOfS6OCew4hOY4gEFNb0Q8jF2KOJSncUe3LIsm+E=;
-        b=f47GmnwIjwZrqaU7ErzymLfrdqvyrdyCmixvkkYF3dzWPX66Bb+EjcyzmV5wdPTAPv
-         C6S6wWFK6qYi1olY4pjCb4KR6WE/vFlSleCYArbDO7XtAodmS2iV7+Oye5h86ES/AaWH
-         7EFgUsE3f/L/s6qc0zPlSszcq6iaU+9hOOOnW08tB3pyOWvAGSZPsIDgrPqoPGUReUdX
-         eQNZ3OxdC6i8Uep+ZPWgdpN7f9XNSiMybIoj1SWvYx7Qyfqg7sULEPDRZUQ5Kjsvl0nB
-         DqXh6zrrAWjNc0wbsgcOs1yynW/ArR0BEofc23odR0fYDb+5ai3Dkp2ySEBfSt3RNm9R
-         4TVQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=pp1HOfS6OCew4hOY4gEFNb0Q8jF2KOJSncUe3LIsm+E=;
-        b=EGJmvhYQ7n+aoWJ936giHmXMW6rPMONoH1wo2FUmdu350iJUlUNxC96OxXPir0h6LD
-         eusRRCsXFgtnDujgVK4o6Jn87L3sTXf4Ml83MJdVjboP1sHdD/pi6fuwAUlrZgl8EAgm
-         EnLnV28oaNBk7YsUbvRJOimHIMHSfOJ9j267NNWY6GlbXkT1NAm4KyNm3xSZbFnAmI27
-         ccjEjlS2IfrTq2ScPhjSs6ItDto8hTSrTsFQ8srhaLEqGSR/8Da1VAEO0ANe+uKPo+jQ
-         PK0a6DGW980Kk816pPfGPwS7HhEoMRJvndowR70pv16dh5DCEk0eO1tWtKSiTMkqFdQS
-         tZCA==
-X-Gm-Message-State: APjAAAXa+YfE7Jlg9ZqKfkNAyMAG5upoCczFJf65eX1jCjXpCte37l9B
-        D+xzt6ZRp5Grsiq/NkQ47jT5Fg==
-X-Google-Smtp-Source: APXvYqyeghVw7Hlqyc73MevUBLPu49ZgfVRkkFi1ISP4HjS790w/5OwT2liWW8VlG9UnUuwgJce1kw==
-X-Received: by 2002:ac2:59c8:: with SMTP id x8mr8006293lfn.189.1558957818849;
-        Mon, 27 May 2019 04:50:18 -0700 (PDT)
-Received: from [192.168.0.199] ([31.173.80.152])
-        by smtp.gmail.com with ESMTPSA id y14sm2239532ljh.60.2019.05.27.04.50.15
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 27 May 2019 04:50:17 -0700 (PDT)
-Subject: Re: [PATCH 1/1] usb: chipidea: udc: workaround for endpoint conflict
- issue
-To:     Peter Chen <hzpeterchen@gmail.com>
-Cc:     Peter Chen <peter.chen@nxp.com>, linux-usb@vger.kernel.org,
-        linux-imx@nxp.com, stable@vger.kernel.org, Jun Li <jun.li@nxp.com>
-References: <20190527074222.42970-1-peter.chen@nxp.com>
- <64ff033b-7f7e-ad91-ac06-73ebd8565286@cogentembedded.com>
- <CAL411-ouY92Yk2TGqdx9KuhT71p=qEcSC426JwmerBmFAXd+=A@mail.gmail.com>
-From:   Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
-Message-ID: <1ddc434b-5771-6af1-e63a-581ef11a21b5@cogentembedded.com>
-Date:   Mon, 27 May 2019 14:49:56 +0300
-User-Agent: Mozilla/5.0 (Windows NT 6.3; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.0
+        id S1725991AbfE0LwQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 May 2019 07:52:16 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:47722 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726063AbfE0LwQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 27 May 2019 07:52:16 -0400
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 025483082211;
+        Mon, 27 May 2019 11:52:15 +0000 (UTC)
+Received: from colo-mx.corp.redhat.com (colo-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.21])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 1C2F95D707;
+        Mon, 27 May 2019 11:52:14 +0000 (UTC)
+Received: from zmail19.collab.prod.int.phx2.redhat.com (zmail19.collab.prod.int.phx2.redhat.com [10.5.83.22])
+        by colo-mx.corp.redhat.com (Postfix) with ESMTP id ED068206D1;
+        Mon, 27 May 2019 11:52:13 +0000 (UTC)
+Date:   Mon, 27 May 2019 07:52:13 -0400 (EDT)
+From:   Veronika Kabatova <vkabatov@redhat.com>
+To:     Tim Bird <Tim.Bird@sony.com>
+Cc:     automated-testing@yoctoproject.org, info@kernelci.org,
+        syzkaller@googlegroups.com, lkp@lists.01.org,
+        stable@vger.kernel.org, labbott@redhat.com, eslobodo@redhat.com,
+        cki-project@redhat.com
+Message-ID: <1442701383.22077553.1558957933273.JavaMail.zimbra@redhat.com>
+In-Reply-To: <ECADFF3FD767C149AD96A924E7EA6EAF9772760D@USCULXMSG01.am.sony.com>
+References: <1204558561.21265703.1558449611621.JavaMail.zimbra@redhat.com> <1667759567.21267950.1558450452057.JavaMail.zimbra@redhat.com> <ECADFF3FD767C149AD96A924E7EA6EAF9772760D@USCULXMSG01.am.sony.com>
+Subject: Re: CKI hackfest @Plumbers invite
 MIME-Version: 1.0
-In-Reply-To: <CAL411-ouY92Yk2TGqdx9KuhT71p=qEcSC426JwmerBmFAXd+=A@mail.gmail.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.40.205.210, 10.4.195.9]
+Thread-Topic: CKI hackfest @Plumbers invite
+Thread-Index: AdUSbaN1oGVEoc2FRCGELn9GsI4Q09FwgasV
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.47]); Mon, 27 May 2019 11:52:15 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 27.05.2019 12:44, Peter Chen wrote:
 
->>> An endpoint conflict occurs when the USB is working in device mode
->>> during an isochronous communication. When the endpointA IN direction
->>> is an isochronous IN endpoint, and the host sends an IN token to
->>> endpointA on another device, then the OUT transaction may be missed
->>> regardless the OUT endpoint number. Generally, this occurs when the
->>> device is connected to the host through a hub and other devices are
->>> connected to the same hub.
->>>
->>> The affected OUT endpoint can be either control, bulk, isochronous, or
->>> an interrupt endpoint. After the OUT endpoint is primed, if an IN token
->>> to the same endpoint number on another device is received, then the OUT
->>> endpoint may be unprimed (cannot be detected by software), which causes
->>> this endpoint to no longer respond to the host OUT token, and thus, no
->>> corresponding interrupt occurs.
->>>
->>> There is no good workaround for this issue, the only thing the software
->>> could do is numbering isochronous IN from the highest endpoint since we
->>> have observed most of device number endpoint from the lowest.
->>>
->>> Cc: <stable@vger.kernel.org> #v3.14+
->>> Cc: Jun Li <jun.li@nxp.com>
->>> Signed-off-by: Peter Chen <peter.chen@nxp.com>
->>> ---
->>>    drivers/usb/chipidea/udc.c | 24 ++++++++++++++++++++++++
->>>    1 file changed, 24 insertions(+)
->>>
->>> diff --git a/drivers/usb/chipidea/udc.c b/drivers/usb/chipidea/udc.c
->>> index 829e947cabf5..411d387a45c9 100644
->>> --- a/drivers/usb/chipidea/udc.c
->>> +++ b/drivers/usb/chipidea/udc.c
->>> @@ -1622,6 +1622,29 @@ static int ci_udc_pullup(struct usb_gadget *_gadget, int is_on)
->>>    static int ci_udc_start(struct usb_gadget *gadget,
->>>                         struct usb_gadget_driver *driver);
->>>    static int ci_udc_stop(struct usb_gadget *gadget);
->>> +
->>> +
->>> +/* Match ISOC IN from the highest endpoint */
->>> +static struct
->>
->>      Um, please break the line before the function's type is fully described.
 
-    Mm, I meant to type "after". :-)
-
->>
->>> +usb_ep *ci_udc_match_ep(struct usb_gadget *gadget,
->>> +                           struct usb_endpoint_descriptor *desc,
->>> +                           struct usb_ss_ep_comp_descriptor *comp_desc)
->>> +{
->>> +     struct ci_hdrc *ci = container_of(gadget, struct ci_hdrc, gadget);
->>> +     struct usb_ep *ep;
->>> +     u8 type = desc->bmAttributes & USB_ENDPOINT_XFERTYPE_MASK;
->>> +
->>> +     if ((type == USB_ENDPOINT_XFER_ISOC) &&
->>> +             (desc->bEndpointAddress & USB_DIR_IN)) {
->>
->>      Please add 1 more tab here, so that this line doesn't blend with the
->> following statement.
->>
->>> +             list_for_each_entry_reverse(ep, &ci->gadget.ep_list, ep_list) {
->>> +                     if (ep->caps.dir_in && !ep->claimed)
->>> +                             return ep;
->>> +             }
->>> +     }
->>> +
->>> +     return NULL;
->>> +}
->>> +
->>>    /**
->>>     * Device operations part of the API to the USB controller hardware,
->>>     * which don't involve endpoints (or i/o)
+----- Original Message -----
+> From: "Tim Bird" <Tim.Bird@sony.com>
+> To: vkabatov@redhat.com, automated-testing@yoctoproject.org, info@kernelci.org, khilamn@baylibre.org,
+> syzkaller@googlegroups.com, lkp@lists.01.org, stable@vger.kernel.org, labbott@redhat.com
+> Cc: eslobodo@redhat.com, cki-project@redhat.com
+> Sent: Friday, May 24, 2019 10:17:04 PM
+> Subject: RE: CKI hackfest @Plumbers invite
 > 
-> Will change both comments, thanks.
+> 
+> 
+> > -----Original Message-----
+> > From: Veronika Kabatova
+> > 
+> > Hi,
+> > 
+> > as some of you have heard, CKI Project is planning hackfest CI meetings
+> > after
+> > Plumbers conference this year (Sept. 12-13). We would like to invite
+> > everyone
+> > who has interest in CI for kernel to come and join us.
+> > 
+> > The early agenda with summary is at the end of the email. If you think
+> > there's
+> > something important missing let us know! Also let us know in case you'd
+> > want to
+> > lead any of the sessions, we'd be happy to delegate out some work :)
+> > 
+> > 
+> > Please send us an email as soon as you decide to come and feel free to
+> > invite
+> > other people who should be present. We are not planning to cap the
+> > attendance
+> > right now but need to solve the logistics based on the interest. The event
+> > is
+> > free to attend, no additional registration except letting us know is
+> > needed.
+> > 
+> > Feel free to contact us if you have any questions,
+> 
+> I plan to come to the event.
+> 
+> > -----------------------------------------------------------
+> > Here is an early agenda we put together:
+> > - Introductions
+> > - Common place for upstream results, result publishing in general
+> >   - The discussion on the mailing list is going strong so we might be able
+> >   to
+> >     substitute this session for a different one in case everything is
+> >     solved by
+> >     September.
+> > - Test result interpretation and bug detection
+> >   - How to autodetect infrastructure failures, regressions/new bugs and
+> >   test
+> >     bugs? How to handle continuous failures due to known bugs in both tests
+> > and
+> >     kernel? What's your solution? Can people always trust the results they
+> >     receive?
+> > - Getting results to developers/maintainers
+> >   - Aimed at kernel developers and maintainers, share your feedback and
+> >     expectations.
+> >   - How much data should be sent in the initial communication vs. a click
+> >   away
+> >     in a dashboard? Do you want incremental emails with new results as they
+> > come
+> >     in?
+> >   - What about adding checks to tested patches in Patchwork when patch
+> > series
+> >     are being tested?
+> >   - Providing enough data/script to reproduce the failure. What if special
+> >   HW
+> >     is needed?
+> > - Onboarding new kernel trees to test
+> >   - Aimed at kernel developers and maintainers.
+> >   - Which trees are most prone to bring in new problems? Which are the most
+> >     critical ones? Do you want them to be tested? Which tests do you feel
+> >     are
+> >     most beneficial for specific trees or in general?
+> > - Security when testing untrusted patches
+> >   - How do we merge, compile, and test patches that have untrusted code in
+> > them
+> >     and have not yet been reviewed? How do we avoid abuse of systems,
+> >     information theft, or other damage?
+> >   - Check out the original patch that sparked the discussion at
+> >     https://patchwork.ozlabs.org/patch/862123/
+> > - Avoiding effort duplication
+> >   - Food for thought by GregKH
+> >   - X different CI systems running ${TEST} on latest stable kernel on
+> >   x86_64
+> >     might look useless on the first look but is it? AMD/Intel CPUs,
+> >     different
+> >     network cards, different graphic drivers, compilers, kernel
+> >     configuration...
+> >     How do we distribute the workload to avoid doing the same thing all
+> >     over
+> >     again while still running in enough different environments to get the
+> >     most
+> >     coverage?
+> > - Common hardware pools
+> >   - Is this something people are interested in? Would be helpful especially
+> >   for
+> >     HW that's hard to access, eg. ppc64le or s390x systems. Companies could
+> > also
+> >     sing up to share their HW for testing to ensure kernel works with their
+> >     products.
+> 
+> I have strong opinions on some of these, but maybe only useful experience
+> in a few areas.  Fuego has 2 separate notions, which we call "skiplists"
+> and "pass criteria", which have to do with this bullet:
+> 
+> - How to autodetect infrastructure failures, regressions/new bugs and test
+>      bugs? How to handle continuous failures due to known bugs in both
+>      tests and kernel? What's your solution? Can people always trust the
+>      results they
+>      receive?
+> 
+> I'd be happy to discuss this, if it's desired.
+> 
+> Otherwise, I've recently been working on standards for "test definition",
+> which defines the data and meta-data associated with a test.   I could talk
+> about where I'm at with that, if people are interested.
+> 
 
-    TIA.
+Sounds great! I added both your points to the agenda as I do think they have
+a place here. The list of items is growing so I hope we can still fit
+everything into the two days we planned :)
 
-> Peter
 
-MBR, Sergei
+See you there!
+Veronika
+
+> Let me know what you think.
+>  -- Tim
+> 
+> 
