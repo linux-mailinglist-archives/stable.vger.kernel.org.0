@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CCD72B71D
-	for <lists+stable@lfdr.de>; Mon, 27 May 2019 16:00:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F163E2B730
+	for <lists+stable@lfdr.de>; Mon, 27 May 2019 16:02:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726511AbfE0OAA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 May 2019 10:00:00 -0400
-Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:57897 "EHLO
+        id S1726388AbfE0OCz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 May 2019 10:02:55 -0400
+Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:48639 "EHLO
         wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726185AbfE0N77 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 May 2019 09:59:59 -0400
+        by vger.kernel.org with ESMTP id S1726144AbfE0OCz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 May 2019 10:02:55 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 72D4657C;
-        Mon, 27 May 2019 09:59:58 -0400 (EDT)
+        by mailout.west.internal (Postfix) with ESMTP id C3E824FF;
+        Mon, 27 May 2019 10:02:53 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 27 May 2019 09:59:58 -0400
+  by compute6.internal (MEProxy); Mon, 27 May 2019 10:02:54 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=/1t7dd
-        x9YDUpJDc3NXBXthhRYG/J7R1gs85J8j8IAMM=; b=rIwF6oT1l02B7nGOfTxfgs
-        jfyxVEjrlIMgTU935IW3n3O6SZntGh43OlE0G/AjPeHfNVM8J9AeGGUnANar5lNJ
-        hAiqtWU4xdyfDfuCyiBr46bYsA3vtscaLHMG3PotAdSFOtOysVz/+zBJGRpt/C1y
-        JlVcW1J+EXPY1DVtgYPY7XvI4uLjUIN5tb951ec2Z0dCc0X4qeRO5GfBqmAlZPz3
-        6lHlSbOmWfyMuSFxjfTdcdIFQtp17uzmTgvnAvm3phaukS0Ly9ObB6aJQzrt3chU
-        dMAldGcIuL8QgACe5+95LbLlrKb9nd1FA7gclQcBj2K/4cFBafruIEd139CaMKNA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=8fCfOa
+        Ead/+I53qT12vIoubNrHdD6sRg6+ajfEyOcuk=; b=tI29OX1s9S1nO2nrxEDtYK
+        xRNlz+iH/Ya4/gObyoKrRFe8f6oQHmGr4KmhS1ixEj2KyLGabnjOPznVGWRq8XeA
+        GntMx1T69E4/wRrO4iQfZTFhiKVOEJwX9az0KhBmADtPSB518Ln7YnF6d5+8c9lu
+        ePZzEaiJE/zH9bv2Wb0aASk3Kc/4L7fTsfBzbRxTq8Fk4LbeP/4MBN9IjHlnBQyu
+        KefuxrPpG813kpxG06w/d1elKK/4MUq91G70wc2fWpWMsJ6/4CvI/7Q4WWi1s/NG
+        1NV007YEL37gKACqPTdqG7oqXBEt/2LHccDAMhdkhlNV6rKR5SewxCjE9s/4fdOw
         ==
-X-ME-Sender: <xms:Xe3rXF1HNZRQ63wOdNcOyZO9dIBJ1XI-Y6_Yz-40rLallfksODlT5g>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddruddvvddgjedvucetufdoteggodetrfdotf
+X-ME-Sender: <xms:DO7rXAj50s1hLEUbtJc8KSFCwG4vl6u_TzhHfike8IftZ_dOBh-Kqg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddruddvvddgjeefucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphepkeefrdekiedrkeelrd
-    dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:Xe3rXC5WqQz6FhRAuSRi4pPImKFBEhPKLuDnDgeExd6VNyJeHUXlIQ>
-    <xmx:Xe3rXO2bfLvXgU9d5tfWgQuXOjE7hOU2cutgOwt6M2N0nCKbAjN8jw>
-    <xmx:Xe3rXFodoyTfmTaBTXqXZdu4lht1Iewm2R1zB78jnLYtoNoGrNBXVA>
-    <xmx:Xu3rXA0qtUv9TJEEVdlsY-OyFzMSDdjj6PWRTH6xHL3GbCSTTlfvUg>
+    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:DO7rXMGrph-WX0PgKtnBg45ZztSV-KW5I-0zhm63PpszJ9RpLNshSw>
+    <xmx:DO7rXAR74DWk_Z0h1tiabt359RfzfCDtb4A0sCyQRhKabQzSu1F_Cw>
+    <xmx:DO7rXFHJj2DLwtd6OvmtIp5fuVGIjiswA7Gc8xZB6Bs5ygDuwT1E4g>
+    <xmx:De7rXHGbKbbCIzN2RvKn0Z38Qwjb9Y4f4WU4icxytH3McMqE0UUpcQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 55712380086;
-        Mon, 27 May 2019 09:59:57 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] Btrfs: do not abort transaction at btrfs_update_root() after" failed to apply to 4.4-stable tree
-To:     fdmanana@suse.com, anand.jain@oracle.com, dsterba@suse.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 72785380083;
+        Mon, 27 May 2019 10:02:52 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] btrfs: sysfs: Fix error path kobject memory leak" failed to apply to 4.4-stable tree
+To:     tobin@kernel.org, dsterba@suse.com, gregkh@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 27 May 2019 15:59:55 +0200
-Message-ID: <155896559561238@kroah.com>
+Date:   Mon, 27 May 2019 16:02:50 +0200
+Message-ID: <1558965770160137@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -68,52 +67,39 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 72bd2323ec87722c115a5906bc6a1b31d11e8f54 Mon Sep 17 00:00:00 2001
-From: Filipe Manana <fdmanana@suse.com>
-Date: Mon, 29 Apr 2019 13:08:14 +0100
-Subject: [PATCH] Btrfs: do not abort transaction at btrfs_update_root() after
- failure to COW path
+From 450ff8348808a89cc27436771aa05c2b90c0eef1 Mon Sep 17 00:00:00 2001
+From: "Tobin C. Harding" <tobin@kernel.org>
+Date: Mon, 13 May 2019 13:39:11 +1000
+Subject: [PATCH] btrfs: sysfs: Fix error path kobject memory leak
 
-Currently when we fail to COW a path at btrfs_update_root() we end up
-always aborting the transaction. However all the current callers of
-btrfs_update_root() are able to deal with errors returned from it, many do
-end up aborting the transaction themselves (directly or not, such as the
-transaction commit path), other BUG_ON() or just gracefully cancel whatever
-they were doing.
+If a call to kobject_init_and_add() fails we must call kobject_put()
+otherwise we leak memory.
 
-When syncing the fsync log, we call btrfs_update_root() through
-tree-log.c:update_log_root(), and if it returns an -ENOSPC error, the log
-sync code does not abort the transaction, instead it gracefully handles
-the error and returns -EAGAIN to the fsync handler, so that it falls back
-to a transaction commit. Any other error different from -ENOSPC, makes the
-log sync code abort the transaction.
+Calling kobject_put() when kobject_init_and_add() fails drops the
+refcount back to 0 and calls the ktype release method (which in turn
+calls the percpu destroy and kfree).
 
-So remove the transaction abort from btrfs_update_log() when we fail to
-COW a path to update the root item, so that if an -ENOSPC failure happens
-we avoid aborting the current transaction and have a chance of the fsync
-succeeding after falling back to a transaction commit.
+Add call to kobject_put() in the error path of call to
+kobject_init_and_add().
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=203413
-Fixes: 79787eaab46121 ("btrfs: replace many BUG_ONs with proper error handling")
-Cc: stable@vger.kernel.org # 4.4+
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: Anand Jain <anand.jain@oracle.com>
+Cc: stable@vger.kernel.org # v4.4+
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Tobin C. Harding <tobin@kernel.org>
+Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/root-tree.c b/fs/btrfs/root-tree.c
-index 1b9a5d0de139..22124122728c 100644
---- a/fs/btrfs/root-tree.c
-+++ b/fs/btrfs/root-tree.c
-@@ -132,10 +132,8 @@ int btrfs_update_root(struct btrfs_trans_handle *trans, struct btrfs_root
- 		return -ENOMEM;
+diff --git a/fs/btrfs/extent-tree.c b/fs/btrfs/extent-tree.c
+index f79e477a378e..9bcb3570750e 100644
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -3882,8 +3882,7 @@ static int create_space_info(struct btrfs_fs_info *info, u64 flags)
+ 				    info->space_info_kobj, "%s",
+ 				    alloc_name(space_info->flags));
+ 	if (ret) {
+-		percpu_counter_destroy(&space_info->total_bytes_pinned);
+-		kfree(space_info);
++		kobject_put(&space_info->kobj);
+ 		return ret;
+ 	}
  
- 	ret = btrfs_search_slot(trans, root, key, path, 0, 1);
--	if (ret < 0) {
--		btrfs_abort_transaction(trans, ret);
-+	if (ret < 0)
- 		goto out;
--	}
- 
- 	if (ret > 0) {
- 		btrfs_crit(fs_info,
 
