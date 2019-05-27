@@ -2,177 +2,290 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 432392B66B
-	for <lists+stable@lfdr.de>; Mon, 27 May 2019 15:29:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE61B2B70E
+	for <lists+stable@lfdr.de>; Mon, 27 May 2019 15:54:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726614AbfE0N3V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 May 2019 09:29:21 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:37810 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726063AbfE0N3V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 May 2019 09:29:21 -0400
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x4RDQpeZ091797
-        for <stable@vger.kernel.org>; Mon, 27 May 2019 09:29:20 -0400
-Received: from e34.co.us.ibm.com (e34.co.us.ibm.com [32.97.110.152])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2srf6nnd7c-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <stable@vger.kernel.org>; Mon, 27 May 2019 09:29:19 -0400
-Received: from localhost
-        by e34.co.us.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <stable@vger.kernel.org> from <aneesh.kumar@linux.ibm.com>;
-        Mon, 27 May 2019 14:29:19 +0100
-Received: from b03cxnp08027.gho.boulder.ibm.com (9.17.130.19)
-        by e34.co.us.ibm.com (192.168.1.134) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
-        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
-        Mon, 27 May 2019 14:29:14 +0100
-Received: from b03ledav003.gho.boulder.ibm.com (b03ledav003.gho.boulder.ibm.com [9.17.130.234])
-        by b03cxnp08027.gho.boulder.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id x4RDTDmC26280250
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 27 May 2019 13:29:13 GMT
-Received: from b03ledav003.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id A13FC6A054;
-        Mon, 27 May 2019 13:29:13 +0000 (GMT)
-Received: from b03ledav003.gho.boulder.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 504106A04D;
-        Mon, 27 May 2019 13:29:10 +0000 (GMT)
-Received: from [9.102.28.6] (unknown [9.102.28.6])
-        by b03ledav003.gho.boulder.ibm.com (Postfix) with ESMTP;
-        Mon, 27 May 2019 13:29:09 +0000 (GMT)
-Subject: Re: + mm-mmu_gather-remove-__tlb_reset_range-for-force-flush.patch
- added to -mm tree
-To:     Peter Zijlstra <peterz@infradead.org>, akpm@linux-foundation.org
-Cc:     mm-commits@vger.kernel.org, will.deacon@arm.com,
-        stable@vger.kernel.org, npiggin@gmail.com, namit@vmware.com,
-        minchan@kernel.org, mgorman@suse.de, jstancek@redhat.com,
-        yang.shi@linux.alibaba.com
-References: <20190521231833.P5ThR%akpm@linux-foundation.org>
- <20190527110158.GB2623@hirez.programming.kicks-ass.net>
-From:   "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
-Date:   Mon, 27 May 2019 18:59:08 +0530
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.0
+        id S1726476AbfE0Nyw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 May 2019 09:54:52 -0400
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:43309 "EHLO
+        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726418AbfE0Nyw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 May 2019 09:54:52 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id 728C022220;
+        Mon, 27 May 2019 09:54:50 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Mon, 27 May 2019 09:54:50 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=uwuaT0
+        QpoE3xlBAH3iqM9NYII/px9bl0RbGj8Kfgu8Q=; b=Wp61U6Vggl/uyPmxEcZnuN
+        Cz8d956IVCrYFj0QamHCBPFtwNJbUin1arEeDltbS9kuIqxQoeoBHjC+NGuwUIjw
+        vnTSNGdcV0xuPofnQWWkeugWUXL5YmeU9xqfZ/rJuYkHxgEw6I+YWgbswJT+3KTv
+        0/WekI9Wb8xd6tkxbRsjJt4yRjqxG7bLqbi8YZTIGZL9wXmEctZTIOj37E9G7qwV
+        nWkrECCJEOfNxoXUsFoJ0RGE/qaS7g58iYnoMCvEV7IjNa0vk/t8hNSL8BXvwE0F
+        PcvRkMp6f2BjuDWCP2oL8VmiWI5yOHr3Q8UMZUULqeNCiiQiutS7Feax30rzOgDA
+        ==
+X-ME-Sender: <xms:KuzrXDVfXN8XLHb5Mtpuz_m8vMyb82aI3EzVTGyWx_iuxxuovLxZ7Q>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddruddvvddgjeduucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepud
+X-ME-Proxy: <xmx:KuzrXGWdcxyk5bvVMI5dOz_7lwkgDqV4BapbYCIk4_SMXqeeCsNJFQ>
+    <xmx:KuzrXIus8zfzrwY7ecpPsuzuYJK46mE5_uJ6G8__Wgm1ddEYCSTpCg>
+    <xmx:KuzrXNGpRFSHLjBe9GlqwrEvo5qTx23WSQBGCZOpMYrnAyUcPEvMBA>
+    <xmx:KuzrXGJEAwhV55Cz7Gsdc4kKUX12HSJ3YnS3UZ0j6qN43lb93TURCQ>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id CE29B80061;
+        Mon, 27 May 2019 09:54:49 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] arm64: errata: Add workaround for Cortex-A76 erratum #1463225" failed to apply to 5.0-stable tree
+To:     will.deacon@arm.com, catalin.marinas@arm.com, marc.zyngier@arm.com,
+        stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 27 May 2019 15:54:39 +0200
+Message-ID: <1558965279121227@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <20190527110158.GB2623@hirez.programming.kicks-ass.net>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-x-cbid: 19052713-0016-0000-0000-000009BA5D22
-X-IBM-SpamModules-Scores: 
-X-IBM-SpamModules-Versions: BY=3.00011172; HX=3.00000242; KW=3.00000007;
- PH=3.00000004; SC=3.00000286; SDB=6.01209325; UDB=6.00635276; IPR=6.00990351;
- MB=3.00027072; MTD=3.00000008; XFM=3.00000015; UTC=2019-05-27 13:29:18
-X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
-x-cbparentid: 19052713-0017-0000-0000-000043631B7A
-Message-Id: <335de44e-02f5-ce92-c026-e8ac4a34a766@linux.ibm.com>
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-05-27_07:,,
- signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- malwarescore=0 suspectscore=2 phishscore=0 bulkscore=0 spamscore=0
- clxscore=1011 lowpriorityscore=0 mlxscore=0 impostorscore=0
- mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.0.1-1810050000 definitions=main-1905270095
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 5/27/19 4:31 PM, Peter Zijlstra wrote:
-> On Tue, May 21, 2019 at 04:18:33PM -0700, akpm@linux-foundation.org wrote:
->> --- a/mm/mmu_gather.c~mm-mmu_gather-remove-__tlb_reset_range-for-force-flush
->> +++ a/mm/mmu_gather.c
->> @@ -245,14 +245,28 @@ void tlb_finish_mmu(struct mmu_gather *t
->>   {
->>   	/*
->>   	 * If there are parallel threads are doing PTE changes on same range
->> -	 * under non-exclusive lock(e.g., mmap_sem read-side) but defer TLB
->> -	 * flush by batching, a thread has stable TLB entry can fail to flush
->> -	 * the TLB by observing pte_none|!pte_dirty, for example so flush TLB
->> -	 * forcefully if we detect parallel PTE batching threads.
->> +	 * under non-exclusive lock (e.g., mmap_sem read-side) but defer TLB
->> +	 * flush by batching, one thread may end up seeing inconsistent PTEs
->> +	 * and result in having stale TLB entries.  So flush TLB forcefully
->> +	 * if we detect parallel PTE batching threads.
->> +	 *
->> +	 * However, some syscalls, e.g. munmap(), may free page tables, this
->> +	 * needs force flush everything in the given range. Otherwise this
->> +	 * may result in having stale TLB entries for some architectures,
->> +	 * e.g. aarch64, that could specify flush what level TLB.
->>   	 */
->>   	if (mm_tlb_flush_nested(tlb->mm)) {
->> +		/*
->> +		 * The aarch64 yields better performance with fullmm by
->> +		 * avoiding multiple CPUs spamming TLBI messages at the
->> +		 * same time.
->> +		 *
->> +		 * On x86 non-fullmm doesn't yield significant difference
->> +		 * against fullmm.
->> +		 */
->> +		tlb->fullmm = 1;
->>   		__tlb_reset_range(tlb);
->> -		__tlb_adjust_range(tlb, start, end - start);
->> +		tlb->freed_tables = 1;
->>   	}
->>   
->>   	tlb_flush_mmu(tlb);
-> 
-> Nick, Aneesh, can we now do this?
-> 
-> ---
-> 
-> diff --git a/arch/powerpc/mm/book3s64/radix_tlb.c b/arch/powerpc/mm/book3s64/radix_tlb.c
-> index 4d841369399f..8d28b83914cb 100644
-> --- a/arch/powerpc/mm/book3s64/radix_tlb.c
-> +++ b/arch/powerpc/mm/book3s64/radix_tlb.c
-> @@ -881,39 +881,6 @@ void radix__tlb_flush(struct mmu_gather *tlb)
->   	 */
->   	if (tlb->fullmm) {
->   		__flush_all_mm(mm, true);
-> -#if defined(CONFIG_TRANSPARENT_HUGEPAGE) || defined(CONFIG_HUGETLB_PAGE)
-> -	} else if (mm_tlb_flush_nested(mm)) {
-> -		/*
-> -		 * If there is a concurrent invalidation that is clearing ptes,
-> -		 * then it's possible this invalidation will miss one of those
-> -		 * cleared ptes and miss flushing the TLB. If this invalidate
-> -		 * returns before the other one flushes TLBs, that can result
-> -		 * in it returning while there are still valid TLBs inside the
-> -		 * range to be invalidated.
-> -		 *
-> -		 * See mm/memory.c:tlb_finish_mmu() for more details.
-> -		 *
-> -		 * The solution to this is ensure the entire range is always
-> -		 * flushed here. The problem for powerpc is that the flushes
-> -		 * are page size specific, so this "forced flush" would not
-> -		 * do the right thing if there are a mix of page sizes in
-> -		 * the range to be invalidated. So use __flush_tlb_range
-> -		 * which invalidates all possible page sizes in the range.
-> -		 *
-> -		 * PWC flush probably is not be required because the core code
-> -		 * shouldn't free page tables in this path, but accounting
-> -		 * for the possibility makes us a bit more robust.
-> -		 *
-> -		 * need_flush_all is an uncommon case because page table
-> -		 * teardown should be done with exclusive locks held (but
-> -		 * after locks are dropped another invalidate could come
-> -		 * in), it could be optimized further if necessary.
-> -		 */
-> -		if (!tlb->need_flush_all)
-> -			__radix__flush_tlb_range(mm, start, end, true);
-> -		else
-> -			radix__flush_all_mm(mm);
-> -#endif
->   	} else if ( (psize = radix_get_mmu_psize(page_size)) == -1) {
->   		if (!tlb->need_flush_all)
->   			radix__flush_tlb_mm(mm);
-> 
 
+The patch below does not apply to the 5.0-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-I guess we can revert most of the commit
-02390f66bd2362df114a0a0770d80ec33061f6d1. That is the only place we 
-flush multiple page sizes? . But should we evaluate the performance 
-impact of that fullmm flush on ppc64?
+thanks,
 
+greg k-h
 
--aneesh
+------------------ original commit in Linus's tree ------------------
+
+From 969f5ea627570e91c9d54403287ee3ed657f58fe Mon Sep 17 00:00:00 2001
+From: Will Deacon <will.deacon@arm.com>
+Date: Mon, 29 Apr 2019 13:03:57 +0100
+Subject: [PATCH] arm64: errata: Add workaround for Cortex-A76 erratum #1463225
+
+Revisions of the Cortex-A76 CPU prior to r4p0 are affected by an erratum
+that can prevent interrupts from being taken when single-stepping.
+
+This patch implements a software workaround to prevent userspace from
+effectively being able to disable interrupts.
+
+Cc: <stable@vger.kernel.org>
+Cc: Marc Zyngier <marc.zyngier@arm.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
+
+diff --git a/Documentation/arm64/silicon-errata.txt b/Documentation/arm64/silicon-errata.txt
+index 68d9b74fd751..b29a32805ad0 100644
+--- a/Documentation/arm64/silicon-errata.txt
++++ b/Documentation/arm64/silicon-errata.txt
+@@ -62,6 +62,7 @@ stable kernels.
+ | ARM            | Cortex-A76      | #1165522        | ARM64_ERRATUM_1165522       |
+ | ARM            | Cortex-A76      | #1286807        | ARM64_ERRATUM_1286807       |
+ | ARM            | Neoverse-N1     | #1188873        | ARM64_ERRATUM_1188873       |
++| ARM            | Cortex-A76      | #1463225        | ARM64_ERRATUM_1463225       |
+ | ARM            | MMU-500         | #841119,#826419 | N/A                         |
+ |                |                 |                 |                             |
+ | Cavium         | ThunderX ITS    | #22375, #24313  | CAVIUM_ERRATUM_22375        |
+diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+index 4780eb7af842..5d99f492869b 100644
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -520,6 +520,24 @@ config ARM64_ERRATUM_1286807
+ 
+ 	  If unsure, say Y.
+ 
++config ARM64_ERRATUM_1463225
++	bool "Cortex-A76: Software Step might prevent interrupt recognition"
++	default y
++	help
++	  This option adds a workaround for Arm Cortex-A76 erratum 1463225.
++
++	  On the affected Cortex-A76 cores (r0p0 to r3p1), software stepping
++	  of a system call instruction (SVC) can prevent recognition of
++	  subsequent interrupts when software stepping is disabled in the
++	  exception handler of the system call and either kernel debugging
++	  is enabled or VHE is in use.
++
++	  Work around the erratum by triggering a dummy step exception
++	  when handling a system call from a task that is being stepped
++	  in a VHE configuration of the kernel.
++
++	  If unsure, say Y.
++
+ config CAVIUM_ERRATUM_22375
+ 	bool "Cavium erratum 22375, 24313"
+ 	default y
+diff --git a/arch/arm64/include/asm/cpucaps.h b/arch/arm64/include/asm/cpucaps.h
+index defdc67d9ab4..73faee64e498 100644
+--- a/arch/arm64/include/asm/cpucaps.h
++++ b/arch/arm64/include/asm/cpucaps.h
+@@ -62,7 +62,8 @@
+ #define ARM64_HAS_GENERIC_AUTH_IMP_DEF		41
+ #define ARM64_HAS_IRQ_PRIO_MASKING		42
+ #define ARM64_HAS_DCPODP			43
++#define ARM64_WORKAROUND_1463225		44
+ 
+-#define ARM64_NCAPS				44
++#define ARM64_NCAPS				45
+ 
+ #endif /* __ASM_CPUCAPS_H */
+diff --git a/arch/arm64/kernel/cpu_errata.c b/arch/arm64/kernel/cpu_errata.c
+index e88d4e7bdfc7..ac6432bfc1e4 100644
+--- a/arch/arm64/kernel/cpu_errata.c
++++ b/arch/arm64/kernel/cpu_errata.c
+@@ -502,6 +502,22 @@ static const struct midr_range arm64_ssb_cpus[] = {
+ 	{},
+ };
+ 
++#ifdef CONFIG_ARM64_ERRATUM_1463225
++DEFINE_PER_CPU(int, __in_cortex_a76_erratum_1463225_wa);
++
++static bool
++has_cortex_a76_erratum_1463225(const struct arm64_cpu_capabilities *entry,
++			       int scope)
++{
++	u32 midr = read_cpuid_id();
++	/* Cortex-A76 r0p0 - r3p1 */
++	struct midr_range range = MIDR_RANGE(MIDR_CORTEX_A76, 0, 0, 3, 1);
++
++	WARN_ON(scope != SCOPE_LOCAL_CPU || preemptible());
++	return is_midr_in_range(midr, &range) && is_kernel_in_hyp_mode();
++}
++#endif
++
+ static void __maybe_unused
+ cpu_enable_cache_maint_trap(const struct arm64_cpu_capabilities *__unused)
+ {
+@@ -823,6 +839,14 @@ const struct arm64_cpu_capabilities arm64_errata[] = {
+ 		.capability = ARM64_WORKAROUND_1165522,
+ 		ERRATA_MIDR_RANGE(MIDR_CORTEX_A76, 0, 0, 2, 0),
+ 	},
++#endif
++#ifdef CONFIG_ARM64_ERRATUM_1463225
++	{
++		.desc = "ARM erratum 1463225",
++		.capability = ARM64_WORKAROUND_1463225,
++		.type = ARM64_CPUCAP_LOCAL_CPU_ERRATUM,
++		.matches = has_cortex_a76_erratum_1463225,
++	},
+ #endif
+ 	{
+ 	}
+diff --git a/arch/arm64/kernel/syscall.c b/arch/arm64/kernel/syscall.c
+index 5610ac01c1ec..871c739f060a 100644
+--- a/arch/arm64/kernel/syscall.c
++++ b/arch/arm64/kernel/syscall.c
+@@ -8,6 +8,7 @@
+ #include <linux/syscalls.h>
+ 
+ #include <asm/daifflags.h>
++#include <asm/debug-monitors.h>
+ #include <asm/fpsimd.h>
+ #include <asm/syscall.h>
+ #include <asm/thread_info.h>
+@@ -60,6 +61,35 @@ static inline bool has_syscall_work(unsigned long flags)
+ int syscall_trace_enter(struct pt_regs *regs);
+ void syscall_trace_exit(struct pt_regs *regs);
+ 
++#ifdef CONFIG_ARM64_ERRATUM_1463225
++DECLARE_PER_CPU(int, __in_cortex_a76_erratum_1463225_wa);
++
++static void cortex_a76_erratum_1463225_svc_handler(void)
++{
++	u32 reg, val;
++
++	if (!unlikely(test_thread_flag(TIF_SINGLESTEP)))
++		return;
++
++	if (!unlikely(this_cpu_has_cap(ARM64_WORKAROUND_1463225)))
++		return;
++
++	__this_cpu_write(__in_cortex_a76_erratum_1463225_wa, 1);
++	reg = read_sysreg(mdscr_el1);
++	val = reg | DBG_MDSCR_SS | DBG_MDSCR_KDE;
++	write_sysreg(val, mdscr_el1);
++	asm volatile("msr daifclr, #8");
++	isb();
++
++	/* We will have taken a single-step exception by this point */
++
++	write_sysreg(reg, mdscr_el1);
++	__this_cpu_write(__in_cortex_a76_erratum_1463225_wa, 0);
++}
++#else
++static void cortex_a76_erratum_1463225_svc_handler(void) { }
++#endif /* CONFIG_ARM64_ERRATUM_1463225 */
++
+ static void el0_svc_common(struct pt_regs *regs, int scno, int sc_nr,
+ 			   const syscall_fn_t syscall_table[])
+ {
+@@ -68,6 +98,7 @@ static void el0_svc_common(struct pt_regs *regs, int scno, int sc_nr,
+ 	regs->orig_x0 = regs->regs[0];
+ 	regs->syscallno = scno;
+ 
++	cortex_a76_erratum_1463225_svc_handler();
+ 	local_daif_restore(DAIF_PROCCTX);
+ 	user_exit();
+ 
+diff --git a/arch/arm64/mm/fault.c b/arch/arm64/mm/fault.c
+index 0cb0e09995e1..9a84a4071561 100644
+--- a/arch/arm64/mm/fault.c
++++ b/arch/arm64/mm/fault.c
+@@ -810,6 +810,36 @@ void __init hook_debug_fault_code(int nr,
+ 	debug_fault_info[nr].name	= name;
+ }
+ 
++#ifdef CONFIG_ARM64_ERRATUM_1463225
++DECLARE_PER_CPU(int, __in_cortex_a76_erratum_1463225_wa);
++
++static int __exception
++cortex_a76_erratum_1463225_debug_handler(struct pt_regs *regs)
++{
++	if (user_mode(regs))
++		return 0;
++
++	if (!__this_cpu_read(__in_cortex_a76_erratum_1463225_wa))
++		return 0;
++
++	/*
++	 * We've taken a dummy step exception from the kernel to ensure
++	 * that interrupts are re-enabled on the syscall path. Return back
++	 * to cortex_a76_erratum_1463225_svc_handler() with debug exceptions
++	 * masked so that we can safely restore the mdscr and get on with
++	 * handling the syscall.
++	 */
++	regs->pstate |= PSR_D_BIT;
++	return 1;
++}
++#else
++static int __exception
++cortex_a76_erratum_1463225_debug_handler(struct pt_regs *regs)
++{
++	return 0;
++}
++#endif /* CONFIG_ARM64_ERRATUM_1463225 */
++
+ asmlinkage void __exception do_debug_exception(unsigned long addr_if_watchpoint,
+ 					       unsigned int esr,
+ 					       struct pt_regs *regs)
+@@ -817,6 +847,9 @@ asmlinkage void __exception do_debug_exception(unsigned long addr_if_watchpoint,
+ 	const struct fault_info *inf = esr_to_debug_fault_info(esr);
+ 	unsigned long pc = instruction_pointer(regs);
+ 
++	if (cortex_a76_erratum_1463225_debug_handler(regs))
++		return;
++
+ 	/*
+ 	 * Tell lockdep we disabled irqs in entry.S. Do nothing if they were
+ 	 * already disabled to preserve the last enabled/disabled addresses.
 
