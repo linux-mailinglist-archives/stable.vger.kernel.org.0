@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F0392B406
-	for <lists+stable@lfdr.de>; Mon, 27 May 2019 14:04:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFF042B437
+	for <lists+stable@lfdr.de>; Mon, 27 May 2019 14:05:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726579AbfE0MEN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 May 2019 08:04:13 -0400
-Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:57823 "EHLO
+        id S1726716AbfE0ME6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 May 2019 08:04:58 -0400
+Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:60657 "EHLO
         wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726522AbfE0MEN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 May 2019 08:04:13 -0400
+        by vger.kernel.org with ESMTP id S1726724AbfE0MEP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 May 2019 08:04:15 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 5CCEC425;
-        Mon, 27 May 2019 08:04:12 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 27 May 2019 08:04:12 -0400
+        by mailout.west.internal (Postfix) with ESMTP id A36BD571;
+        Mon, 27 May 2019 08:04:14 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Mon, 27 May 2019 08:04:14 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=D1G5cn
-        lKfzQsfcTFD/SaomEO1yj2eK58OptlRuQ/JSI=; b=nxoBM5BHL18x7RWpm6eAaQ
-        XwLq6N4/sMgoA2+oPK3ZeUHw8rbwSj3DkM1FfyBQil8wqbvU8iepaJgMRftFtbC1
-        3QB5N5TmcML0jjmq+1UArg7QK0IJkNESyt7OxfIBFemY7KPpyYg/6Ha2MjmLM/nw
-        CH8FOFz1yupQ+7wded1DOHRhjj96ebUI01tBc7+2cXhfD/A+1x6RTAjlsM3MROvj
-        ba3aYsc7RDO+kMxdCpcWaCOPfUAL2xo3L9Zne0gGYNNtCemhLI3xroC9LJZq/io6
-        b2o6V6MwvZCpvVhRwdpRRyA36in1TY8BaDO4y4AjAwv7L3TPj1qvLuBgvmNMbQrA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=xi5ehs
+        +ghYk0vf8y5ui7ECFw0nKsIw6Tv6T/mnIqg0k=; b=ZnrREfCXPzsIhzsAmF6mqz
+        CX6pCzRBIhlQ6MwKFSi/IwwVG40xWJmCeOIJU+aBfIH83ZJsv1Fo017dZiYmApqr
+        K8e+lgoj6uRerYnCs/mENGRpPYhBqqynQ536+wy+qhagbyjdZop3XP109ODuwXJN
+        A+QAzPl1fUGdsF9i5FwWpSle6qCYFHT2rCcXzYIKfmEkx6RUF8Dg6Px2sY9HxXn2
+        s2TzzaUOiwYUpggBKtOIZradyda/W136zzH2XeC0yk3VAIF+kCjQHoNsF06yazx4
+        uSVxu7uFcQrd2WysM7QTlOnk37UM+IWQ6LOtAt2qIlKgbQHqaTTuwbNZplIvz/Bg
         ==
-X-ME-Sender: <xms:O9LrXDSyz8TKMJB_gSqFI3pbbVgr_RLaRvGpdm80xPADq-ewetMZ0w>
+X-ME-Sender: <xms:PtLrXBSVU8MpJt-SUVyF_3m1nlMPMw9KZGeEXxgCgefpnP6oZrbCFQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddruddvvddggeekucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepje
-X-ME-Proxy: <xmx:O9LrXGtb4nCdb4G6VNkTOwCOSByVdTo90VFv0Pie6tQj03XJJdABRA>
-    <xmx:O9LrXM06uQOTmjlCpfFjgPOZpGr82NgRGx9GN83NxZroQ3J8uVaMyA>
-    <xmx:O9LrXHPduI5g7dQmh7gCjT8jh4OPLkTWKPKczfedG554figRfeOyEQ>
-    <xmx:PNLrXF0EgkOsRXf4HFZ07PojRgl1XEWm5tnAdMgSlIeMOHe2rqkCXg>
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepke
+X-ME-Proxy: <xmx:PtLrXOeyZwAsOrSrW66O7dVqakMcRLapwctooe3Wz9w0FrLzy0n4PQ>
+    <xmx:PtLrXAoRmt4G_9_LrGgClJML1-OG_or_0Gu-armAol_u79GF4ZDaBA>
+    <xmx:PtLrXP-sDXiKLd5QQoi8XUDqqwEtwvaB8su7MED1uDvPd8O8QmfzgQ>
+    <xmx:PtLrXInJf2nFd65IDC2DA38ZTnmbyVzWvEg-I8nyRDmqXtzn767Ydg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 7374C80064;
-        Mon, 27 May 2019 08:04:11 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] selinux: do not report error on connect(AF_UNSPEC)" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id BB656380085;
+        Mon, 27 May 2019 08:04:13 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] selinux: do not report error on connect(AF_UNSPEC)" failed to apply to 5.0-stable tree
 To:     pabeni@redhat.com, paul@paul-moore.com, tdeseyn@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 27 May 2019 14:04:02 +0200
-Message-ID: <155895864215568@kroah.com>
+Message-ID: <1558958642101119@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.0-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
