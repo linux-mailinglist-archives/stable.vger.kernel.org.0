@@ -2,66 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 40F3B2C5D0
-	for <lists+stable@lfdr.de>; Tue, 28 May 2019 13:52:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C3A92C5FC
+	for <lists+stable@lfdr.de>; Tue, 28 May 2019 13:58:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726799AbfE1Lvo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 May 2019 07:51:44 -0400
-Received: from foss.arm.com ([217.140.101.70]:55854 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726793AbfE1Lvo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 May 2019 07:51:44 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.72.51.249])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id D58B8341;
-        Tue, 28 May 2019 04:51:43 -0700 (PDT)
-Received: from fuggles.cambridge.arm.com (usa-sjc-imap-foss1.foss.arm.com [10.72.51.249])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id E856E3F59C;
-        Tue, 28 May 2019 04:51:42 -0700 (PDT)
-Date:   Tue, 28 May 2019 12:51:40 +0100
-From:   Will Deacon <will.deacon@arm.com>
-To:     Catalin Marinas <catalin.marinas@arm.com>
-Cc:     linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org,
-        Mark Rutland <mark.rutland@arm.com>
-Subject: Re: [PATCH] arm64: Fix the arm64_personality() syscall wrapper
- redirection
-Message-ID: <20190528115140.GG20809@fuggles.cambridge.arm.com>
-References: <20190528113934.55295-1-catalin.marinas@arm.com>
+        id S1726972AbfE1L55 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 May 2019 07:57:57 -0400
+Received: from mail-wm1-f49.google.com ([209.85.128.49]:50332 "EHLO
+        mail-wm1-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726592AbfE1L54 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 May 2019 07:57:56 -0400
+Received: by mail-wm1-f49.google.com with SMTP id f204so2608943wme.0
+        for <stable@vger.kernel.org>; Tue, 28 May 2019 04:57:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=OhA0VsTLH2It0jNOE/nb01dNbyql9i7Dp+A0wQl0W3I=;
+        b=RthN3kwsBm3PAebrM2TUb2r6yOAYMj+CLvHJMYXuSYVZISwv0Zgs+R3jPbfLUM9ez1
+         ShrhRJJhSp+648s56ztip2XF4jz7zLp+okDkV69V2nub4q2NOplRcUle5xhSDklgd0aL
+         c7d1aLF9Fj9RCczEY4E4gMYNvfNZ+8g2hwEdj+O/lr/Wgl4XU86OS9tRE8p3OSGhU4QH
+         VNKoMOp0r1IzhtvBp0Ck4AvFDvufE4SSQoLqqKRzJ2q3pGSQVzEdfExYrHHKlAKr7hEJ
+         xeoQUMLfLK0VBmI7Iu7G8eRaK3njvGcF5yVVnYHKxDjVOSDnXuqwX9lOOUGRd0nDRQLm
+         RBdA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=OhA0VsTLH2It0jNOE/nb01dNbyql9i7Dp+A0wQl0W3I=;
+        b=QAW8TDruDTs6x6+eusVIHE4RPkz7q2hDTPtyfOaq471q05cjIMIJJjOWt99Bat5py7
+         qEco0tCULaiTwqCxEhVsT0GSI/QczNvBvHB464dBJcjrjTJW/Wm+rkNrCS5r0AQw3ngv
+         wps6pLmbeC3LWCo3+zk1Im3AfJsHSIY48TFqdTexFoqum1THKxq719L71MzREkKXzIfn
+         4CBQZzCVPFHHYiVAP+hIXffX80WnzLLKjcZWmO/piblzJS4famnjAyvnwAKHH+NT0HvG
+         SFVal4xKDzIXawNXESdH75KFVVaWlZX0WPmhxpDTXT0YMo42fYF5vNigNOcLuadJ9ajJ
+         3IbA==
+X-Gm-Message-State: APjAAAWleB2UOJgKhPjN1VbLY8MteuJLbcbyjh8ZrYCQG4k/XPvPs/F0
+        cXL2RYscZYmTdp0yAedibtIONueNvuJ9HQ==
+X-Google-Smtp-Source: APXvYqyMeQlaJ7wR23lEoCyHcxtcdHAhEI2NkikXQj8BklHHzRfnv8EuYPRiy1JSP7oNiUWA1fkM0A==
+X-Received: by 2002:a1c:e386:: with SMTP id a128mr2810330wmh.69.1559044674759;
+        Tue, 28 May 2019 04:57:54 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id v13sm2270121wmj.46.2019.05.28.04.57.53
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 28 May 2019 04:57:53 -0700 (PDT)
+Message-ID: <5ced2241.1c69fb81.9888f.be52@mx.google.com>
+Date:   Tue, 28 May 2019 04:57:53 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190528113934.55295-1-catalin.marinas@arm.com>
-User-Agent: Mutt/1.11.1+86 (6f28e57d73f2) ()
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Kernel: v4.19.46-30-g8b97ee9b1690
+Subject: stable-rc/linux-4.19.y boot: 122 boots: 0 failed,
+ 107 passed with 13 offline, 2 untried/unknown (v4.19.46-30-g8b97ee9b1690)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 28, 2019 at 12:39:34PM +0100, Catalin Marinas wrote:
-> Following commit 4378a7d4be30 ("arm64: implement syscall wrappers"), the
-> syscall function names gained the '__arm64_' prefix. Ensure that we
-> have the correct #define for redirecting a default syscall through a
-> wrapper.
-> 
-> Fixes: 4378a7d4be30 ("arm64: implement syscall wrappers")
-> Cc: <stable@vger.kernel.org> # 4.19.x-
-> Cc: Mark Rutland <mark.rutland@arm.com>
-> Cc: Will Deacon <will.deacon@arm.com>
-> Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-> ---
->  arch/arm64/kernel/sys.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/arch/arm64/kernel/sys.c b/arch/arm64/kernel/sys.c
-> index 6f91e8116514..162a95ed0881 100644
-> --- a/arch/arm64/kernel/sys.c
-> +++ b/arch/arm64/kernel/sys.c
-> @@ -50,7 +50,7 @@ SYSCALL_DEFINE1(arm64_personality, unsigned int, personality)
->  /*
->   * Wrappers to pass the pt_regs argument.
->   */
-> -#define sys_personality		sys_arm64_personality
-> +#define __arm64_sys_personality		__arm64_sys_arm64_personality
+stable-rc/linux-4.19.y boot: 122 boots: 0 failed, 107 passed with 13 offlin=
+e, 2 untried/unknown (v4.19.46-30-g8b97ee9b1690)
 
-Cheers, I've picked this up as a fix for -rc3.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.46-30-g8b97ee9b1690/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.46-30-g8b97ee9b1690/
 
-Will
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.46-30-g8b97ee9b1690
+Git Commit: 8b97ee9b16909126f3e032928ce8d124a6680faf
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 67 unique boards, 24 SoC families, 14 builds out of 206
+
+Offline Platforms:
+
+arm:
+
+    sama5_defconfig:
+        gcc-8
+            at91-sama5d4_xplained: 1 offline lab
+
+    multi_v7_defconfig:
+        gcc-8
+            alpine-db: 1 offline lab
+            at91-sama5d4_xplained: 1 offline lab
+            socfpga_cyclone5_de0_sockit: 1 offline lab
+            stih410-b2120: 1 offline lab
+            sun5i-r8-chip: 1 offline lab
+            tegra124-jetson-tk1: 1 offline lab
+
+    tegra_defconfig:
+        gcc-8
+            tegra124-jetson-tk1: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+
+    bcm2835_defconfig:
+        gcc-8
+            bcm2835-rpi-b: 1 offline lab
+
+arm64:
+
+    defconfig:
+        gcc-8
+            apq8016-sbc: 1 offline lab
+            juno-r2: 1 offline lab
+            mt7622-rfb1: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
