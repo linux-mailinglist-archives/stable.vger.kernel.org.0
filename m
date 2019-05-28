@@ -2,97 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E9B5B2D025
-	for <lists+stable@lfdr.de>; Tue, 28 May 2019 22:16:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB6752D0A7
+	for <lists+stable@lfdr.de>; Tue, 28 May 2019 22:48:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727374AbfE1UQS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 May 2019 16:16:18 -0400
-Received: from mail-wr1-f52.google.com ([209.85.221.52]:43790 "EHLO
-        mail-wr1-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726619AbfE1UQR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 May 2019 16:16:17 -0400
-Received: by mail-wr1-f52.google.com with SMTP id l17so29191wrm.10
-        for <stable@vger.kernel.org>; Tue, 28 May 2019 13:16:17 -0700 (PDT)
+        id S1726878AbfE1UsC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 May 2019 16:48:02 -0400
+Received: from mail-it1-f196.google.com ([209.85.166.196]:40233 "EHLO
+        mail-it1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726481AbfE1UsC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 May 2019 16:48:02 -0400
+Received: by mail-it1-f196.google.com with SMTP id h11so6208193itf.5;
+        Tue, 28 May 2019 13:48:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=n+eYYE3Frv/+gKQLU14/4/8y4Q8ZrR0YYhE3KjrSGZM=;
-        b=b8DEFsmVFn6UL9KclmTXXrKJtxnQOi8iBKGSwRxVzOVuBP6say2zIZwrnq3nWE3LXa
-         gpTH0v+29N5s1zVHQY1bWH9oW79qyNWYDF1FsarXSSfpUPTyaMY4gio3smabjasvCXjc
-         nTMwzhBpfeEJ6pmmSZvDhUrktWGdOZFemFnWZDVgdL1++CJgE2nByjBVumvkT1UfOM9P
-         Oeny4uP2dsdbruPtlT/Be0AFDIr5LGXEUFkCIDO31UDgzzZHDMqvRzOtegY/1VJVnGnl
-         qbtzmUifmYw/ZNkqrrQeE3tyMQAasrQBgSxL3Oe3QeNufr/ZuJVEMnIvzdswY5ik+ypR
-         /d1Q==
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=LFTmISDOpToJAYI9xiYodY0/ymmT3aFnC+eXeyWSay0=;
+        b=m+ijoieuI2Q5AoznyEWu7Ah+4dfaAshTJOVihWAKBwpkDxbw3Np5wBgBGNN1TqSNhP
+         v8dmA2qSIOm3pkPK920nRHvFOvF+xAUaq6D/TP1qqICC2mFGnDevbuseJhui0woW80bZ
+         qgnbi2YBfPdokAAFdDMA1f9eN9T3CY3OBDnSO4vy6cZc/EVVrcTMjtyYTULGHVIXc3x2
+         tCcBoozlZJWLoKUzz+WrRLBNyjlSFfsPeYSmuptqufdR4eiKjA6Ejkn5mXut97vUyaq7
+         GcF/lYLbdYW2RGpYFVwDTyNuXXO6zgRF1mmWC8aUvszugl/d2tk/ShyKCMObLsOpq8sh
+         oYSg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=n+eYYE3Frv/+gKQLU14/4/8y4Q8ZrR0YYhE3KjrSGZM=;
-        b=spPfgmYeNRVKbtKaYX5s1v1TtXVDFi3t4NR3uJEOot9GWcO51UcCBgwAbt/yAGHZ+L
-         hJpMRnuoo85+Ow9a7tTdY86Va9KBBlnYEDkgb9rZWIOgTtXHtOdMEVPq0fZnU0Iqqvc2
-         G7+bptAFoimX6XV5JqQdkZSQcNm5xNHEjFfOo36H0V7kA5bQlz6L5RXmGzGA42W55UpJ
-         PJ8br4eOekaXDEI2rLwxNGsarxHwbdsSSpYH2+7R+lKkvh/HWaA8OaxaKh8aAS8h6DHA
-         LxGo37xC8k/aPC5nKR8CHWFjpc9NDuv5mDQ7G/f4NSpg/qq+IdlP28s+VK6aQ18ephTN
-         +hmg==
-X-Gm-Message-State: APjAAAUkAsAJpBCJHVdlL+zZ5cnJmg5YLaFcOaJNiF3czdMfpGJKOYR+
-        g45cLK/DqsfO/8GYR3MNCuv2WX6Uw2Dgeg==
-X-Google-Smtp-Source: APXvYqz+Hw7FErK6yyu8tm5aNY05Ps/idxUKoYaVv+F4bb6OvnaMwoPRoXfCfyQ00qMM4tMO7dzrwQ==
-X-Received: by 2002:a5d:6108:: with SMTP id v8mr23888091wrt.150.1559074576177;
-        Tue, 28 May 2019 13:16:16 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id i32sm9216102wri.23.2019.05.28.13.16.14
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 28 May 2019 13:16:15 -0700 (PDT)
-Message-ID: <5ced970f.1c69fb81.fee0f.3a29@mx.google.com>
-Date:   Tue, 28 May 2019 13:16:15 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=LFTmISDOpToJAYI9xiYodY0/ymmT3aFnC+eXeyWSay0=;
+        b=DO2pszPn359/Fu5/pQunQSTR2CBw/zjnysiz39elDxZ1TVKp8jGKPavmxp5yt0kaUq
+         rJfkku8gnB9jRDki8TNxuE2bVBcvGyJyv8Lh99zALQ49CNi4lQgAhlNFcagEf31SG7X0
+         ZOj8ulk9Oiw8RjVhsgLD8JN5oBkQ+fDP++ojIuctnDBRk0aEAxvH+ScwgEuB8G41GKEd
+         HVhYCoJ+kd3WppUQ/lp1cexNnkqCw8QulB371kyW3C5W8ZO9saM9sCNiYIscJgZNoYxR
+         jiLOw4ERChjXIra8RBviiSnF+UgOiODp2azJhtal3wPppDXZcTsw/290GTijfa5/iUrM
+         ZCJw==
+X-Gm-Message-State: APjAAAWH9Ri3ZPrISxUwu2JoX8226VQb3VfoBLNf7/oX9DZC0MdjTUXQ
+        JddGIGWENpbu9CbCxCplvGNgFUwVxNvKUaw84oM=
+X-Google-Smtp-Source: APXvYqwCstUVHiNHKuq+B8xRc5Ddii2BYUzoNbtcVsxHyYISvQQtSxAjQvX9Y0VQICv+bOsXrBQCwl3alKglk8D5b+c=
+X-Received: by 2002:a24:e084:: with SMTP id c126mr4522175ith.124.1559076481674;
+ Tue, 28 May 2019 13:48:01 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Kernel: v4.14.122-26-g12045d2235c0
-Subject: stable-rc/linux-4.14.y boot: 120 boots: 0 failed,
- 115 passed with 5 offline (v4.14.122-26-g12045d2235c0)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <4f7b6dbeab1d424baaebd7a5df116349@AcuMS.aculab.com>
+ <20190523145944.GB23070@redhat.com> <345cfba5edde470f9a68d913f44fa342@AcuMS.aculab.com>
+ <20190523163604.GE23070@redhat.com> <f0eced5677c144debfc5a69d0d327bc1@AcuMS.aculab.com>
+ <CABeXuvo-wey+NHWb4gi=FSRrjJOKkVcLPQ-J+dchJeHEbhGQ6g@mail.gmail.com>
+ <20190524141054.GB2655@redhat.com> <CABeXuvqSzy+v=3Y5NnMmfob7bvuNkafmdDqoex8BVENN3atqZA@mail.gmail.com>
+ <20190524163310.GG2655@redhat.com> <CABeXuvrUKZnECj+NgLdpe5uhKBEmSynrakD-3q9XHqk8Aef5UQ@mail.gmail.com>
+ <20190527150409.GA8961@redhat.com>
+In-Reply-To: <20190527150409.GA8961@redhat.com>
+From:   Deepa Dinamani <deepa.kernel@gmail.com>
+Date:   Tue, 28 May 2019 13:47:28 -0700
+Message-ID: <CABeXuvouBzZuNarmNcd9JgZgvonL1N_p21gat=O_x0-1hMx=6A@mail.gmail.com>
+Subject: Re: [PATCH v2] signal: Adjust error codes according to restore_user_sigmask()
+To:     Oleg Nesterov <oleg@redhat.com>
+Cc:     David Laight <David.Laight@aculab.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "dbueso@suse.de" <dbueso@suse.de>,
+        "axboe@kernel.dk" <axboe@kernel.dk>,
+        Davidlohr Bueso <dave@stgolabs.net>, Eric Wong <e@80x24.org>,
+        Jason Baron <jbaron@akamai.com>,
+        Linux FS-devel Mailing List <linux-fsdevel@vger.kernel.org>,
+        linux-aio <linux-aio@kvack.org>,
+        Omar Kilani <omar.kilani@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y boot: 120 boots: 0 failed, 115 passed with 5 offline=
- (v4.14.122-26-g12045d2235c0)
+On Mon, May 27, 2019 at 8:04 AM Oleg Nesterov <oleg@redhat.com> wrote:
+>
+> Deepa,
+>
+> it seems that we both are saying the same things again and again, and we
+> simply can't understand each other.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.14.y/kernel/v4.14.122-26-g12045d2235c0/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.122-26-g12045d2235c0/
+Oleg, I'm sorry for the confusion.  Maybe I should point out what I
+agree with also.
 
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.122-26-g12045d2235c0
-Git Commit: 12045d2235c089e819b8cf113176afabdd39e61d
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 64 unique boards, 24 SoC families, 14 builds out of 201
+I agree that signal handller being called and return value not being
+altered is an issue with other syscalls also. I was just wondering if
+some userspace code assumption would be assuming this. This is not a
+kernel bug.
 
-Offline Platforms:
+But, I do not think we have an understanding of what was wrong in
+854a6ed56839a anymore since you pointed out that my assumption was not
+correct that the signal handler being called without errno being set
+is wrong.
 
-arm:
+One open question: this part of epoll_pwait was already broken before
+854a6ed56839a. Do you agree?
 
-    tegra_defconfig:
-        gcc-8
-            tegra124-jetson-tk1: 1 offline lab
-            tegra20-iris-512: 1 offline lab
+if (err == -EINTR) {
+                   memcpy(&current->saved_sigmask, &sigsaved,
+                          sizeof(sigsaved));
+                    set_restore_sigmask();
+  } else
+                   set_current_blocked(&sigsaved);
 
-    multi_v7_defconfig:
-        gcc-8
-            stih410-b2120: 1 offline lab
-            tegra124-jetson-tk1: 1 offline lab
-            tegra20-iris-512: 1 offline lab
+What to do next?
+We could just see if your optimization patch resolves Eric's issue.
+Or, I could revert the signal_pending() check and provide a fix
+something like below(not a complete patch) since mainline has this
+regression. Eric had tested something like this works also. And, I can
+continue to look at what was wrong with 854a6ed56839a in the first
+place. Let me know what you prefer:
 
----
-For more info write to <info@kernelci.org>
+-void restore_user_sigmask(const void __user *usigmask, sigset_t *sigsaved)
++int restore_user_sigmask(const void __user *usigmask, sigset_t
+*sigsaved, int sig_pending)
+ {
+
+        if (!usigmask)
+               return;
+
+        /*
+         * When signals are pending, do not restore them here.
+         * Restoring sigmask here can lead to delivering signals that the above
+         * syscalls are intended to block because of the sigmask passed in.
+         */
++       if (sig_pending) {
+                current->saved_sigmask = *sigsaved;
+                set_restore_sigmask();
+               return;
+           }
+
+@@ -2330,7 +2330,8 @@ SYSCALL_DEFINE6(epoll_pwait, int, epfd, struct
+epoll_event __user *, events,
+
+        error = do_epoll_wait(epfd, events, maxevents, timeout);
+
+-       restore_user_sigmask(sigmask, &sigsaved);
++       signal_detected = restore_user_sigmask(sigmask, &sigsaved,
+error == -EINTR);
+
+-Deepa
