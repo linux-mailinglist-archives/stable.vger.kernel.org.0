@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DDCD2C590
-	for <lists+stable@lfdr.de>; Tue, 28 May 2019 13:40:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E13612C592
+	for <lists+stable@lfdr.de>; Tue, 28 May 2019 13:40:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726682AbfE1LkI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 May 2019 07:40:08 -0400
-Received: from usa-sjc-mx-foss1.foss.arm.com ([217.140.101.70]:55660 "EHLO
-        foss.arm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726553AbfE1LkI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 May 2019 07:40:08 -0400
+        id S1726654AbfE1Lkx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 May 2019 07:40:53 -0400
+Received: from foss.arm.com ([217.140.101.70]:55670 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726553AbfE1Lkw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 May 2019 07:40:52 -0400
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.72.51.249])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id BB1C1341;
-        Tue, 28 May 2019 04:40:07 -0700 (PDT)
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 17C07341;
+        Tue, 28 May 2019 04:40:52 -0700 (PDT)
 Received: from fuggles.cambridge.arm.com (usa-sjc-imap-foss1.foss.arm.com [10.72.51.249])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id CE6EE3F59C;
-        Tue, 28 May 2019 04:40:06 -0700 (PDT)
-Date:   Tue, 28 May 2019 12:40:04 +0100
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 2BD073F59C;
+        Tue, 28 May 2019 04:40:51 -0700 (PDT)
+Date:   Tue, 28 May 2019 12:40:48 +0100
 From:   Will Deacon <will.deacon@arm.com>
 To:     gregkh@linuxfoundation.org
 Cc:     catalin.marinas@arm.com, marc.zyngier@arm.com,
         stable@vger.kernel.org
 Subject: Re: FAILED: patch "[PATCH] arm64: errata: Add workaround for
- Cortex-A76 erratum #1463225" failed to apply to 5.1-stable tree
-Message-ID: <20190528114004.GC20809@fuggles.cambridge.arm.com>
-References: <155896527990145@kroah.com>
+ Cortex-A76 erratum #1463225" failed to apply to 5.0-stable tree
+Message-ID: <20190528114048.GD20809@fuggles.cambridge.arm.com>
+References: <1558965279121227@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <155896527990145@kroah.com>
+In-Reply-To: <1558965279121227@kroah.com>
 User-Agent: Mutt/1.11.1+86 (6f28e57d73f2) ()
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -37,18 +37,18 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 On Mon, May 27, 2019 at 03:54:39PM +0200, gregkh@linuxfoundation.org wrote:
-> The patch below does not apply to the 5.1-stable tree.
+> The patch below does not apply to the 5.0-stable tree.
 > If someone wants it applied there, or to any other stable or longterm
 > tree, then please email the backport, including the original git commit
 > id to <stable@vger.kernel.org>.
 
-Backport for 5.1 *only* below.
+Backport for 5.0 *only* below.
 
 Will
 
 --->8
 
-From df1198c9fba6ecb786c8ae3e2ce85c4d8c12b67c Mon Sep 17 00:00:00 2001
+From c50ad79d7cbaaebe9a4253de289307142e7a3dbb Mon Sep 17 00:00:00 2001
 From: Will Deacon <will.deacon@arm.com>
 Date: Mon, 29 Apr 2019 13:03:57 +0100
 Subject: [PATCH] arm64: errata: Add workaround for Cortex-A76 erratum #1463225
@@ -61,7 +61,7 @@ that can prevent interrupts from being taken when single-stepping.
 This patch implements a software workaround to prevent userspace from
 effectively being able to disable interrupts.
 
-Cc: <stable@vger.kernel.org> # 5.1
+Cc: <stable@vger.kernel.org> # 5.0
 Cc: Marc Zyngier <marc.zyngier@arm.com>
 Cc: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Will Deacon <will.deacon@arm.com>
@@ -75,7 +75,7 @@ Signed-off-by: Will Deacon <will.deacon@arm.com>
  6 files changed, 111 insertions(+), 3 deletions(-)
 
 diff --git a/Documentation/arm64/silicon-errata.txt b/Documentation/arm64/silicon-errata.txt
-index d1e2bb801e1b..6e97a3f771ef 100644
+index ddb8ce5333ba..7a7e271be3f1 100644
 --- a/Documentation/arm64/silicon-errata.txt
 +++ b/Documentation/arm64/silicon-errata.txt
 @@ -61,6 +61,7 @@ stable kernels.
@@ -87,10 +87,10 @@ index d1e2bb801e1b..6e97a3f771ef 100644
  |                |                 |                 |                             |
  | Cavium         | ThunderX ITS    | #22375, #24313  | CAVIUM_ERRATUM_22375        |
 diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
-index 7e34b9eba5de..d645dc693cae 100644
+index a4168d366127..4535b2b48fd9 100644
 --- a/arch/arm64/Kconfig
 +++ b/arch/arm64/Kconfig
-@@ -517,6 +517,24 @@ config ARM64_ERRATUM_1286807
+@@ -518,6 +518,24 @@ config ARM64_ERRATUM_1286807
  
  	  If unsure, say Y.
  
@@ -116,17 +116,17 @@ index 7e34b9eba5de..d645dc693cae 100644
  	bool "Cavium erratum 22375, 24313"
  	default y
 diff --git a/arch/arm64/include/asm/cpucaps.h b/arch/arm64/include/asm/cpucaps.h
-index f6a76e43f39e..4389d5d0ca0f 100644
+index 82e9099834ae..99db8de83734 100644
 --- a/arch/arm64/include/asm/cpucaps.h
 +++ b/arch/arm64/include/asm/cpucaps.h
-@@ -61,7 +61,8 @@
+@@ -60,7 +60,8 @@
+ #define ARM64_HAS_ADDRESS_AUTH_IMP_DEF		39
  #define ARM64_HAS_GENERIC_AUTH_ARCH		40
  #define ARM64_HAS_GENERIC_AUTH_IMP_DEF		41
- #define ARM64_HAS_IRQ_PRIO_MASKING		42
-+#define ARM64_WORKAROUND_1463225		43
++#define ARM64_WORKAROUND_1463225		42
  
--#define ARM64_NCAPS				43
-+#define ARM64_NCAPS				44
+-#define ARM64_NCAPS				42
++#define ARM64_NCAPS				43
  
  #endif /* __ASM_CPUCAPS_H */
 diff --git a/arch/arm64/kernel/cpu_errata.c b/arch/arm64/kernel/cpu_errata.c
@@ -228,10 +228,10 @@ index 5610ac01c1ec..871c739f060a 100644
  	user_exit();
  
 diff --git a/arch/arm64/mm/fault.c b/arch/arm64/mm/fault.c
-index 1a7e92ab69eb..9a6099a2c633 100644
+index ef46925096f0..d3bdef0b2f60 100644
 --- a/arch/arm64/mm/fault.c
 +++ b/arch/arm64/mm/fault.c
-@@ -810,14 +810,47 @@ void __init hook_debug_fault_code(int nr,
+@@ -824,14 +824,47 @@ void __init hook_debug_fault_code(int nr,
  	debug_fault_info[nr].name	= name;
  }
  
