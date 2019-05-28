@@ -2,60 +2,285 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 460C02C58E
-	for <lists+stable@lfdr.de>; Tue, 28 May 2019 13:39:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DDCD2C590
+	for <lists+stable@lfdr.de>; Tue, 28 May 2019 13:40:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726604AbfE1Ljl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 May 2019 07:39:41 -0400
-Received: from usa-sjc-mx-foss1.foss.arm.com ([217.140.101.70]:55638 "EHLO
+        id S1726682AbfE1LkI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 May 2019 07:40:08 -0400
+Received: from usa-sjc-mx-foss1.foss.arm.com ([217.140.101.70]:55660 "EHLO
         foss.arm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726553AbfE1Ljl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 May 2019 07:39:41 -0400
+        id S1726553AbfE1LkI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 May 2019 07:40:08 -0400
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.72.51.249])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 51336341;
-        Tue, 28 May 2019 04:39:41 -0700 (PDT)
-Received: from arrakis.cambridge.arm.com (usa-sjc-imap-foss1.foss.arm.com [10.72.51.249])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 36C8E3F59C;
-        Tue, 28 May 2019 04:39:40 -0700 (PDT)
-From:   Catalin Marinas <catalin.marinas@arm.com>
-To:     linux-arm-kernel@lists.infradead.org
-Cc:     stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Will Deacon <will.deacon@arm.com>
-Subject: [PATCH] arm64: Fix the arm64_personality() syscall wrapper redirection
-Date:   Tue, 28 May 2019 12:39:34 +0100
-Message-Id: <20190528113934.55295-1-catalin.marinas@arm.com>
-X-Mailer: git-send-email 2.20.1
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id BB1C1341;
+        Tue, 28 May 2019 04:40:07 -0700 (PDT)
+Received: from fuggles.cambridge.arm.com (usa-sjc-imap-foss1.foss.arm.com [10.72.51.249])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id CE6EE3F59C;
+        Tue, 28 May 2019 04:40:06 -0700 (PDT)
+Date:   Tue, 28 May 2019 12:40:04 +0100
+From:   Will Deacon <will.deacon@arm.com>
+To:     gregkh@linuxfoundation.org
+Cc:     catalin.marinas@arm.com, marc.zyngier@arm.com,
+        stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] arm64: errata: Add workaround for
+ Cortex-A76 erratum #1463225" failed to apply to 5.1-stable tree
+Message-ID: <20190528114004.GC20809@fuggles.cambridge.arm.com>
+References: <155896527990145@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <155896527990145@kroah.com>
+User-Agent: Mutt/1.11.1+86 (6f28e57d73f2) ()
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Following commit 4378a7d4be30 ("arm64: implement syscall wrappers"), the
-syscall function names gained the '__arm64_' prefix. Ensure that we
-have the correct #define for redirecting a default syscall through a
-wrapper.
+On Mon, May 27, 2019 at 03:54:39PM +0200, gregkh@linuxfoundation.org wrote:
+> The patch below does not apply to the 5.1-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 
-Fixes: 4378a7d4be30 ("arm64: implement syscall wrappers")
-Cc: <stable@vger.kernel.org> # 4.19.x-
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Backport for 5.1 *only* below.
+
+Will
+
+--->8
+
+From df1198c9fba6ecb786c8ae3e2ce85c4d8c12b67c Mon Sep 17 00:00:00 2001
+From: Will Deacon <will.deacon@arm.com>
+Date: Mon, 29 Apr 2019 13:03:57 +0100
+Subject: [PATCH] arm64: errata: Add workaround for Cortex-A76 erratum #1463225
+
+Commit 969f5ea627570e91c9d54403287ee3ed657f58fe upstream.
+
+Revisions of the Cortex-A76 CPU prior to r4p0 are affected by an erratum
+that can prevent interrupts from being taken when single-stepping.
+
+This patch implements a software workaround to prevent userspace from
+effectively being able to disable interrupts.
+
+Cc: <stable@vger.kernel.org> # 5.1
+Cc: Marc Zyngier <marc.zyngier@arm.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
 ---
- arch/arm64/kernel/sys.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Documentation/arm64/silicon-errata.txt |  1 +
+ arch/arm64/Kconfig                     | 18 +++++++++++++++++
+ arch/arm64/include/asm/cpucaps.h       |  3 ++-
+ arch/arm64/kernel/cpu_errata.c         | 24 ++++++++++++++++++++++
+ arch/arm64/kernel/syscall.c            | 31 ++++++++++++++++++++++++++++
+ arch/arm64/mm/fault.c                  | 37 ++++++++++++++++++++++++++++++++--
+ 6 files changed, 111 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm64/kernel/sys.c b/arch/arm64/kernel/sys.c
-index 6f91e8116514..162a95ed0881 100644
---- a/arch/arm64/kernel/sys.c
-+++ b/arch/arm64/kernel/sys.c
-@@ -50,7 +50,7 @@ SYSCALL_DEFINE1(arm64_personality, unsigned int, personality)
- /*
-  * Wrappers to pass the pt_regs argument.
-  */
--#define sys_personality		sys_arm64_personality
-+#define __arm64_sys_personality		__arm64_sys_arm64_personality
+diff --git a/Documentation/arm64/silicon-errata.txt b/Documentation/arm64/silicon-errata.txt
+index d1e2bb801e1b..6e97a3f771ef 100644
+--- a/Documentation/arm64/silicon-errata.txt
++++ b/Documentation/arm64/silicon-errata.txt
+@@ -61,6 +61,7 @@ stable kernels.
+ | ARM            | Cortex-A76      | #1188873        | ARM64_ERRATUM_1188873       |
+ | ARM            | Cortex-A76      | #1165522        | ARM64_ERRATUM_1165522       |
+ | ARM            | Cortex-A76      | #1286807        | ARM64_ERRATUM_1286807       |
++| ARM            | Cortex-A76      | #1463225        | ARM64_ERRATUM_1463225       |
+ | ARM            | MMU-500         | #841119,#826419 | N/A                         |
+ |                |                 |                 |                             |
+ | Cavium         | ThunderX ITS    | #22375, #24313  | CAVIUM_ERRATUM_22375        |
+diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+index 7e34b9eba5de..d645dc693cae 100644
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -517,6 +517,24 @@ config ARM64_ERRATUM_1286807
  
- asmlinkage long sys_ni_syscall(const struct pt_regs *);
- #define __arm64_sys_ni_syscall	sys_ni_syscall
+ 	  If unsure, say Y.
+ 
++config ARM64_ERRATUM_1463225
++	bool "Cortex-A76: Software Step might prevent interrupt recognition"
++	default y
++	help
++	  This option adds a workaround for Arm Cortex-A76 erratum 1463225.
++
++	  On the affected Cortex-A76 cores (r0p0 to r3p1), software stepping
++	  of a system call instruction (SVC) can prevent recognition of
++	  subsequent interrupts when software stepping is disabled in the
++	  exception handler of the system call and either kernel debugging
++	  is enabled or VHE is in use.
++
++	  Work around the erratum by triggering a dummy step exception
++	  when handling a system call from a task that is being stepped
++	  in a VHE configuration of the kernel.
++
++	  If unsure, say Y.
++
+ config CAVIUM_ERRATUM_22375
+ 	bool "Cavium erratum 22375, 24313"
+ 	default y
+diff --git a/arch/arm64/include/asm/cpucaps.h b/arch/arm64/include/asm/cpucaps.h
+index f6a76e43f39e..4389d5d0ca0f 100644
+--- a/arch/arm64/include/asm/cpucaps.h
++++ b/arch/arm64/include/asm/cpucaps.h
+@@ -61,7 +61,8 @@
+ #define ARM64_HAS_GENERIC_AUTH_ARCH		40
+ #define ARM64_HAS_GENERIC_AUTH_IMP_DEF		41
+ #define ARM64_HAS_IRQ_PRIO_MASKING		42
++#define ARM64_WORKAROUND_1463225		43
+ 
+-#define ARM64_NCAPS				43
++#define ARM64_NCAPS				44
+ 
+ #endif /* __ASM_CPUCAPS_H */
+diff --git a/arch/arm64/kernel/cpu_errata.c b/arch/arm64/kernel/cpu_errata.c
+index 9950bb0cbd52..87019cd73f22 100644
+--- a/arch/arm64/kernel/cpu_errata.c
++++ b/arch/arm64/kernel/cpu_errata.c
+@@ -464,6 +464,22 @@ static bool has_ssbd_mitigation(const struct arm64_cpu_capabilities *entry,
+ }
+ #endif	/* CONFIG_ARM64_SSBD */
+ 
++#ifdef CONFIG_ARM64_ERRATUM_1463225
++DEFINE_PER_CPU(int, __in_cortex_a76_erratum_1463225_wa);
++
++static bool
++has_cortex_a76_erratum_1463225(const struct arm64_cpu_capabilities *entry,
++			       int scope)
++{
++	u32 midr = read_cpuid_id();
++	/* Cortex-A76 r0p0 - r3p1 */
++	struct midr_range range = MIDR_RANGE(MIDR_CORTEX_A76, 0, 0, 3, 1);
++
++	WARN_ON(scope != SCOPE_LOCAL_CPU || preemptible());
++	return is_midr_in_range(midr, &range) && is_kernel_in_hyp_mode();
++}
++#endif
++
+ static void __maybe_unused
+ cpu_enable_cache_maint_trap(const struct arm64_cpu_capabilities *__unused)
+ {
+@@ -739,6 +755,14 @@ const struct arm64_cpu_capabilities arm64_errata[] = {
+ 		ERRATA_MIDR_RANGE(MIDR_CORTEX_A76, 0, 0, 2, 0),
+ 	},
+ #endif
++#ifdef CONFIG_ARM64_ERRATUM_1463225
++	{
++		.desc = "ARM erratum 1463225",
++		.capability = ARM64_WORKAROUND_1463225,
++		.type = ARM64_CPUCAP_LOCAL_CPU_ERRATUM,
++		.matches = has_cortex_a76_erratum_1463225,
++	},
++#endif
+ 	{
+ 	}
+ };
+diff --git a/arch/arm64/kernel/syscall.c b/arch/arm64/kernel/syscall.c
+index 5610ac01c1ec..871c739f060a 100644
+--- a/arch/arm64/kernel/syscall.c
++++ b/arch/arm64/kernel/syscall.c
+@@ -8,6 +8,7 @@
+ #include <linux/syscalls.h>
+ 
+ #include <asm/daifflags.h>
++#include <asm/debug-monitors.h>
+ #include <asm/fpsimd.h>
+ #include <asm/syscall.h>
+ #include <asm/thread_info.h>
+@@ -60,6 +61,35 @@ static inline bool has_syscall_work(unsigned long flags)
+ int syscall_trace_enter(struct pt_regs *regs);
+ void syscall_trace_exit(struct pt_regs *regs);
+ 
++#ifdef CONFIG_ARM64_ERRATUM_1463225
++DECLARE_PER_CPU(int, __in_cortex_a76_erratum_1463225_wa);
++
++static void cortex_a76_erratum_1463225_svc_handler(void)
++{
++	u32 reg, val;
++
++	if (!unlikely(test_thread_flag(TIF_SINGLESTEP)))
++		return;
++
++	if (!unlikely(this_cpu_has_cap(ARM64_WORKAROUND_1463225)))
++		return;
++
++	__this_cpu_write(__in_cortex_a76_erratum_1463225_wa, 1);
++	reg = read_sysreg(mdscr_el1);
++	val = reg | DBG_MDSCR_SS | DBG_MDSCR_KDE;
++	write_sysreg(val, mdscr_el1);
++	asm volatile("msr daifclr, #8");
++	isb();
++
++	/* We will have taken a single-step exception by this point */
++
++	write_sysreg(reg, mdscr_el1);
++	__this_cpu_write(__in_cortex_a76_erratum_1463225_wa, 0);
++}
++#else
++static void cortex_a76_erratum_1463225_svc_handler(void) { }
++#endif /* CONFIG_ARM64_ERRATUM_1463225 */
++
+ static void el0_svc_common(struct pt_regs *regs, int scno, int sc_nr,
+ 			   const syscall_fn_t syscall_table[])
+ {
+@@ -68,6 +98,7 @@ static void el0_svc_common(struct pt_regs *regs, int scno, int sc_nr,
+ 	regs->orig_x0 = regs->regs[0];
+ 	regs->syscallno = scno;
+ 
++	cortex_a76_erratum_1463225_svc_handler();
+ 	local_daif_restore(DAIF_PROCCTX);
+ 	user_exit();
+ 
+diff --git a/arch/arm64/mm/fault.c b/arch/arm64/mm/fault.c
+index 1a7e92ab69eb..9a6099a2c633 100644
+--- a/arch/arm64/mm/fault.c
++++ b/arch/arm64/mm/fault.c
+@@ -810,14 +810,47 @@ void __init hook_debug_fault_code(int nr,
+ 	debug_fault_info[nr].name	= name;
+ }
+ 
++#ifdef CONFIG_ARM64_ERRATUM_1463225
++DECLARE_PER_CPU(int, __in_cortex_a76_erratum_1463225_wa);
++
++static int __exception
++cortex_a76_erratum_1463225_debug_handler(struct pt_regs *regs)
++{
++	if (user_mode(regs))
++		return 0;
++
++	if (!__this_cpu_read(__in_cortex_a76_erratum_1463225_wa))
++		return 0;
++
++	/*
++	 * We've taken a dummy step exception from the kernel to ensure
++	 * that interrupts are re-enabled on the syscall path. Return back
++	 * to cortex_a76_erratum_1463225_svc_handler() with debug exceptions
++	 * masked so that we can safely restore the mdscr and get on with
++	 * handling the syscall.
++	 */
++	regs->pstate |= PSR_D_BIT;
++	return 1;
++}
++#else
++static int __exception
++cortex_a76_erratum_1463225_debug_handler(struct pt_regs *regs)
++{
++	return 0;
++}
++#endif /* CONFIG_ARM64_ERRATUM_1463225 */
++
+ asmlinkage int __exception do_debug_exception(unsigned long addr_if_watchpoint,
+-					      unsigned int esr,
+-					      struct pt_regs *regs)
++					       unsigned int esr,
++					       struct pt_regs *regs)
+ {
+ 	const struct fault_info *inf = esr_to_debug_fault_info(esr);
+ 	unsigned long pc = instruction_pointer(regs);
+ 	int rv;
+ 
++	if (cortex_a76_erratum_1463225_debug_handler(regs))
++		return 0;
++
+ 	/*
+ 	 * Tell lockdep we disabled irqs in entry.S. Do nothing if they were
+ 	 * already disabled to preserve the last enabled/disabled addresses.
+-- 
+2.11.0
+
