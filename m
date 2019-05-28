@@ -2,126 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 77F052C7A0
-	for <lists+stable@lfdr.de>; Tue, 28 May 2019 15:17:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C5AE2C832
+	for <lists+stable@lfdr.de>; Tue, 28 May 2019 15:57:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727557AbfE1NRV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 May 2019 09:17:21 -0400
-Received: from mail-wm1-f50.google.com ([209.85.128.50]:36816 "EHLO
-        mail-wm1-f50.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726925AbfE1NRU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 May 2019 09:17:20 -0400
-Received: by mail-wm1-f50.google.com with SMTP id v22so2832418wml.1
-        for <stable@vger.kernel.org>; Tue, 28 May 2019 06:17:19 -0700 (PDT)
+        id S1727582AbfE1N5m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 May 2019 09:57:42 -0400
+Received: from mail-wr1-f65.google.com ([209.85.221.65]:42781 "EHLO
+        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727559AbfE1N5m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 May 2019 09:57:42 -0400
+Received: by mail-wr1-f65.google.com with SMTP id l2so20356008wrb.9
+        for <stable@vger.kernel.org>; Tue, 28 May 2019 06:57:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=SB+pWO+jbnrZBCJoNl+6ckvaMTxlfy/Z9jYrdl6f2ew=;
-        b=fXqFEGDs3/h4xrhY+jRbvAE74T8xyex/IPciQ5GFYPgjEiELkxMuJLNvSuW0qq6AOO
-         cc2eYPQayy6Rm/ROVy5ShM4a/ejGHON6sop/HMbMJsbiMmzg670yLZgQGvl/gyGS5Q8r
-         sXHAg5hnx9yYOxHg7EflbUW0MvK/cU/xe/JCMLjL0DlP4rBBWJFLuvSumD2BjV9wAVpz
-         dze9OSBIO4Eg1bgjpYF9MO/tE02Ikw/VBDk/hr1Bsgk8VwoyowqdTmVuiwo3EsrKshAV
-         0R7tpJI7rhfq93s/LQRKQvycBvIfCN2y9eXs8LLlCXyIdwB2s8WUPdaU2qovl6Qwlv+K
-         lEDw==
+        d=6wind.com; s=google;
+        h=reply-to:subject:to:cc:references:from:organization:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=RDHAz/uNRTlAuvbMTky/K+5WAqU95asj2GuckNTPrPw=;
+        b=O0gwBRLE2bvLTTBgVqV1t6bfn+gpJBngDtl+jkFjACXdyByR9CYsKsTs0CAlRupFvj
+         nttTyi6t/YyF4vDKCPEl7IQ1zD6uJwNfcehXxhaYFqwVJ1q55KTyEO0gaZmYv34b9vfx
+         Tr9f3h9ysbRZphO/W83Xmcj0upIXOHrd71r+dnEYtV75ZXTDhTh6zFIcfUNtW7yq2tUP
+         BDdLGXTFKA8voqgPy0iFH6JhSU88eCV/xHpeP1bD7+LmJwClUBX3VkerJweI2gN+q8tp
+         fctvEG/dur8IP3xU3bN4xo5Blz7SimoEz8Go0pIN1HFE8CSrxhz0f8pQVfr6wF+bw+Oq
+         QAqg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=SB+pWO+jbnrZBCJoNl+6ckvaMTxlfy/Z9jYrdl6f2ew=;
-        b=qf7DR0BdD/SLu02ZOCyBZ0QsK4vrky8ef5fWuWvk3QxvxUxtwYT1w2t2dF1jemohVU
-         l4MdKY7jFVfjJFY6e7hEJC8Gf3iw4rPQBrkiTOEdeoerVNJCAdQv+MpJ6iEUfpwH2nFz
-         UmZGb4J0TO1DgOEz02HiVQWL7rfKgt2HqRr4ZJLa7LPhQHXmOIZZdljgHNjVgpFpEGL6
-         cBZsVgo/tQAxljLZp1jM/QYG8In9xsu4Ff1WKpD+DzgyaYgKfLxH+UWG7hHcglpfzVVY
-         5uiWRTwhg07HIALRnRUQnz2Ft+gMQ66pKSdsAsUppvnxWL9woA/gir6zCVveSUrcyD/4
-         Rupw==
-X-Gm-Message-State: APjAAAXTws8fUNj69Tu2urzwLs8H/boGuqIa+S4EOym07z9+eeExFhtZ
-        c9PzFRbbTplwmBZcyknsRCcqXhV6kIb1/A==
-X-Google-Smtp-Source: APXvYqxdeMgU9f4tjl82acpH/Plg8Q9X/muQUyeIAy3xdIuy+C18Utbu1LETz5i8rIVmVwO6K1xEHA==
-X-Received: by 2002:a1c:c8:: with SMTP id 191mr3292298wma.6.1559049438135;
-        Tue, 28 May 2019 06:17:18 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id d17sm19326176wrw.18.2019.05.28.06.17.16
-        for <stable@vger.kernel.org>
+        h=x-gm-message-state:reply-to:subject:to:cc:references:from
+         :organization:message-id:date:user-agent:mime-version:in-reply-to
+         :content-language:content-transfer-encoding;
+        bh=RDHAz/uNRTlAuvbMTky/K+5WAqU95asj2GuckNTPrPw=;
+        b=M9otGvMqX4yNWC38XUWgNhujeJOPrhJGJE1DktRDdHRMuqDj3AvcMGp1PB/x7eM4qA
+         /P7BbvFYgX6gK6o/NDglWBzUkUslkz2XGwgjqZRXmEaoSP4wPExbV/ll1DN4k2aMe7S6
+         fuqSNAKxQR+5TjB5qI9WXr/ZdJ/9NhlV90W9fqoaTJ/SMnUYfK126RSBn3vgVD4dNCip
+         rAqcorP+w7BA7L/A/IHdjFhgcKktjaHv7UND2PepJWNpB9Nr6yKBz4yJ7Ji64cFzV0IO
+         WQXVpCO3ko6wBmNS4LEXvm8CfRF1g6QeEycx2UFOt1zBxgDJW9pVBufBtUpGzqqlhz7g
+         kpvg==
+X-Gm-Message-State: APjAAAWr21KGzTmeWPODNID3pCON9mOhqzv38sQIGgWp9maHhmJt88dc
+        7iHyKd/P5qQ+akKVELg1e4nTUw==
+X-Google-Smtp-Source: APXvYqzCRfQOGvbLesnlwSBxQtBXBVcya0Sa9gKp2gOr2HzpoKcdhNtfsct3zZ/Vfwq/Pxu7K+3PkA==
+X-Received: by 2002:adf:c601:: with SMTP id n1mr73203219wrg.49.1559051859805;
+        Tue, 28 May 2019 06:57:39 -0700 (PDT)
+Received: from ?IPv6:2a01:e35:8b63:dc30:d562:72eb:4113:d5e7? ([2a01:e35:8b63:dc30:d562:72eb:4113:d5e7])
+        by smtp.gmail.com with ESMTPSA id a124sm4034922wmh.3.2019.05.28.06.57.38
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 28 May 2019 06:17:17 -0700 (PDT)
-Message-ID: <5ced34dd.1c69fb81.911d6.b5a6@mx.google.com>
-Date:   Tue, 28 May 2019 06:17:17 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Tue, 28 May 2019 06:57:38 -0700 (PDT)
+Reply-To: nicolas.dichtel@6wind.com
+Subject: Re: [PATCH] netfilter: ctnetlink: Resolve conntrack L3-protocol flush
+ regression
+To:     stable <stable@vger.kernel.org>
+Cc:     Pablo Neira Ayuso <pablo@netfilter.org>,
+        Kristian Evensen <kristian.evensen@gmail.com>,
+        netdev@vger.kernel.org, netfilter-devel@vger.kernel.org
+References: <20190503154007.32495-1-kristian.evensen@gmail.com>
+ <20190505223229.3ujqpwmuefd3wh7b@salvia>
+ <4ecbebbb-0a7f-6d45-c2c0-00dee746e573@6wind.com>
+ <20190506131605.kapyns6gkyphbea2@salvia>
+ <6dea0101-9267-ae20-d317-649f1f550089@6wind.com>
+ <20190524092249.7gatc643noc27qzp@salvia>
+From:   Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Organization: 6WIND
+Message-ID: <6ad87483-711a-f205-8986-2217dab828d0@6wind.com>
+Date:   Tue, 28 May 2019 15:57:37 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.4.y
-X-Kernelci-Kernel: v4.4.180-86-g993d4176cdcf
-Subject: stable-rc/linux-4.4.y boot: 94 boots: 1 failed,
- 80 passed with 13 offline (v4.4.180-86-g993d4176cdcf)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <20190524092249.7gatc643noc27qzp@salvia>
+Content-Type: text/plain; charset=utf-8
+Content-Language: fr
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y boot: 94 boots: 1 failed, 80 passed with 13 offline (=
-v4.4.180-86-g993d4176cdcf)
+Le 24/05/2019 à 11:22, Pablo Neira Ayuso a écrit :
+> On Mon, May 20, 2019 at 10:35:07AM +0200, Nicolas Dichtel wrote:
+>> Le 06/05/2019 à 15:16, Pablo Neira Ayuso a écrit :
+>>> On Mon, May 06, 2019 at 10:49:52AM +0200, Nicolas Dichtel wrote:
+>> [snip]
+>>>> Is it possible to queue this for stable?
+>>>
+>>> Sure, as soon as this hits Linus' tree.
+>>>
+>> FYI, it's now in Linus tree:
+>> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=f8e608982022
+> 
+> Please, send an email requesting this to stable@vger.kernel.org and
+> keep me on CC.
+This is a request to backport the upstream commit f8e608982022 ("netfilter:
+ctnetlink: Resolve conntrack L3-protocol flush regression") in stable trees.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.4.y/kernel/v4.4.180-86-g993d4176cdcf/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.180-86-g993d4176cdcf/
 
-Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.180-86-g993d4176cdcf
-Git Commit: 993d4176cdcf5d9a8307c0a111a7b769e7dbfc0c
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 44 unique boards, 21 SoC families, 14 builds out of 190
+Thank you,
+Nicolas
 
-Boot Failure Detected:
-
-arm64:
-    defconfig:
-        gcc-8:
-            qcom-qdf2400: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    sama5_defconfig:
-        gcc-8
-            at91-sama5d4_xplained: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            alpine-db: 1 offline lab
-            at91-sama5d4_xplained: 1 offline lab
-            socfpga_cyclone5_de0_sockit: 1 offline lab
-            stih410-b2120: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
-            tegra124-jetson-tk1: 1 offline lab
-            tegra20-iris-512: 1 offline lab
-
-    tegra_defconfig:
-        gcc-8
-            tegra124-jetson-tk1: 1 offline lab
-            tegra20-iris-512: 1 offline lab
-
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
-
-    bcm2835_defconfig:
-        gcc-8
-            bcm2835-rpi-b: 1 offline lab
-
-arm64:
-
-    defconfig:
-        gcc-8
-            apq8016-sbc: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+> 
+> I'll ACK it.
+> 
+> Thanks.
+> 
