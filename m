@@ -2,120 +2,185 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EF4212CE10
-	for <lists+stable@lfdr.de>; Tue, 28 May 2019 19:55:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED6972CE12
+	for <lists+stable@lfdr.de>; Tue, 28 May 2019 19:58:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727628AbfE1RzQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 May 2019 13:55:16 -0400
-Received: from mail-wr1-f43.google.com ([209.85.221.43]:45920 "EHLO
-        mail-wr1-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726969AbfE1RzQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 May 2019 13:55:16 -0400
-Received: by mail-wr1-f43.google.com with SMTP id b18so21189585wrq.12
-        for <stable@vger.kernel.org>; Tue, 28 May 2019 10:55:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=da1BD6cLbR4Nx5UU9CNQ2gYA/bPZPr1DKQ15choVGZs=;
-        b=D8ZwmaGNPycQ2AJXY5j0pzdRUtDKcMpV/LW/HwbJbUhpSi61nsCdRMl2CfS9TKLac5
-         OFlkuWvCRaobMZGAj/V7tzeiRrxzaIIBEoqxOGGTHJmtp6UXGxKdNlwhi9WxJZ87D1Rp
-         2bCb4Uc5ClnTTX0i1fTekiII8k4sFBMjXKdKVMEyhqYbqiRj30NjrlLy/yzt1X63QQuz
-         FVQIscJalYCiouyPOHYhSTQTM/tlCvnHzoDuGztxlZNBeVYlN8Wb4wR0DKjz5IJuV/8l
-         0V950HKEAYCu5KNVQ1mAtzb3f8h9d5mmu2JfHmv5zDtLTmINs0Tye7e5J7HvyIEwnTIm
-         KDKw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=da1BD6cLbR4Nx5UU9CNQ2gYA/bPZPr1DKQ15choVGZs=;
-        b=BOhdJkSVPw7+cV5oRV1jaEWhiGveA+XraU/GV26qDYvz7LP9qd9bEbKeU7czm4LTlY
-         fp/nvhySTVfAnMsAGgv9a8BenM6Z62QEyJUyjf003isaubYUTh2i+RfnzjhLXBqbe/aj
-         MssJiul/E51OQeIyAWtZ6v3mp/irkpulvuo/n6+rX3zydpNaIBd4Z9iXg3BodUC1DTnX
-         P20FullgAEKSKh90BHud/OVz4uVg4hMTPUtKeQUwQIovmqAH9/8ddZOt3cLLvac9ols4
-         ksne/GCJWi04bcRmX+SPGbHza+Q7SZdujLsjWQ6UQvaxwdE09C3X4/UQL4a3iJBXyIv3
-         u06g==
-X-Gm-Message-State: APjAAAVzyD9hpKSWUWFNO1lInOByp1Ob6FjrvjW40VE3RW8KNbT+IHIF
-        lwRDpj4nFr3mcsTdceRjC/5wVip/4iDf3A==
-X-Google-Smtp-Source: APXvYqymMDkdLA0zOUFVkKcKgzXK/6Fc7SSyejILLr9XCQwb/pbSfCW0Tv/ndVyLZbYkHaGi1w3gGg==
-X-Received: by 2002:a5d:6108:: with SMTP id v8mr23517355wrt.150.1559066114243;
-        Tue, 28 May 2019 10:55:14 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id u19sm8894979wmu.41.2019.05.28.10.55.13
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 28 May 2019 10:55:13 -0700 (PDT)
-Message-ID: <5ced7601.1c69fb81.a10fb.d43c@mx.google.com>
-Date:   Tue, 28 May 2019 10:55:13 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726969AbfE1R6o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 May 2019 13:58:44 -0400
+Received: from aserp2130.oracle.com ([141.146.126.79]:58312 "EHLO
+        aserp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726827AbfE1R6o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 May 2019 13:58:44 -0400
+Received: from pps.filterd (aserp2130.oracle.com [127.0.0.1])
+        by aserp2130.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x4SHnLGL058175;
+        Tue, 28 May 2019 17:58:21 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=corp-2018-07-02;
+ bh=ou8pHd25DSmId6+ckVYxzi+4l+GQHj+svSkEv0+Uhi0=;
+ b=UDi89pDJGhNxOvfS0oS3/YeUmM5LRQkdHNjVHjrPgUHWbAExaEUiwM4wLJpVIYIu6sMu
+ P91LbJ3Yq6CIvfDoKWitFXcOdzcKcaRk6QBF6Z5P6mRupmvaw4lsXW0zZvFXtxfEJ+JN
+ eDRQjFKOXJWEfg9TekxfZsO2zQv2yluCC//19l5PvIlpGCMaxz2wfi9xUuKD8B7m8HsU
+ 2r8x2artb0x84KDfvJizcCr7WTLlwP7M6Wa5Im+yTPstp4Ei1UwDOZj24pANFUgX9dpl
+ SW1i5cbh7ddtiBzztVG460ImyvtipaIgi1jE2UyNyvTznXMl2Ybu2N5riIhOo+Cnk/mh lQ== 
+Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
+        by aserp2130.oracle.com with ESMTP id 2spu7dd4uq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 28 May 2019 17:58:21 +0000
+Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
+        by aserp3030.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x4SHvxH6151076;
+        Tue, 28 May 2019 17:58:20 GMT
+Received: from userv0122.oracle.com (userv0122.oracle.com [156.151.31.75])
+        by aserp3030.oracle.com with ESMTP id 2srbdwxcnc-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 28 May 2019 17:58:20 +0000
+Received: from abhmp0016.oracle.com (abhmp0016.oracle.com [141.146.116.22])
+        by userv0122.oracle.com (8.14.4/8.14.4) with ESMTP id x4SHwGoS007854;
+        Tue, 28 May 2019 17:58:16 GMT
+Received: from [192.168.1.222] (/71.63.128.209)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Tue, 28 May 2019 10:58:16 -0700
+Subject: Re: FAILED: patch "[PATCH] hugetlb: use same fault hash key for
+ shared and private" failed to apply to 4.4-stable tree
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     akpm@linux-foundation.org, dbueso@suse.de, iamjoonsoo.kim@lge.com,
+        kirill.shutemov@linux.intel.com, mhocko@kernel.org,
+        n-horiguchi@ah.jp.nec.com, stable@vger.kernel.org,
+        torvalds@linux-foundation.org
+References: <1558105205227215@kroah.com>
+ <d7d4ab79-bb4a-224f-9614-225070f3b78e@oracle.com>
+ <20190527141209.GA23196@kroah.com>
+From:   Mike Kravetz <mike.kravetz@oracle.com>
+Message-ID: <f8eedf81-e395-9493-46e2-9ae007fbafde@oracle.com>
+Date:   Tue, 28 May 2019 10:58:14 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.0.y
-X-Kernelci-Kernel: v5.0.19-29-g62f77c62dd4e
-Subject: stable-rc/linux-5.0.y boot: 128 boots: 0 failed,
- 114 passed with 14 offline (v5.0.19-29-g62f77c62dd4e)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <20190527141209.GA23196@kroah.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9271 signatures=668687
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=2 malwarescore=0
+ phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.0.1-1810050000 definitions=main-1905280114
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9271 signatures=668687
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
+ suspectscore=2 phishscore=0 bulkscore=0 spamscore=0 clxscore=1015
+ lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=999 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1810050000
+ definitions=main-1905280113
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.0.y boot: 128 boots: 0 failed, 114 passed with 14 offline=
- (v5.0.19-29-g62f77c62dd4e)
+On 5/27/19 7:12 AM, Greg KH wrote:
+> On Thu, May 23, 2019 at 04:41:24PM -0700, Mike Kravetz wrote:
+>> On 5/17/19 8:00 AM, gregkh@linuxfoundation.org wrote:
+>>>
+>>> The patch below does not apply to the 4.4-stable tree.
+>>> If someone wants it applied there, or to any other stable or longterm
+>>> tree, then please email the backport, including the original git commit
+>>> id to <stable@vger.kernel.org>.
+>>
+>> From: Mike Kravetz <mike.kravetz@oracle.com>
+>> Date: Thu, 23 May 2019 13:52:15 -0700
+>> Subject: [PATCH] hugetlb: use same fault hash key for shared and private
+>>  mappings
+>>
+>> commit 1b426bac66e6cc83c9f2d92b96e4e72acf43419a upstream.
+>>
+>> hugetlb uses a fault mutex hash table to prevent page faults of the
+>> same pages concurrently.  The key for shared and private mappings is
+>> different.  Shared keys off address_space and file index.  Private
+>> keys off mm and virtual address.  Consider a private mappings of a
+>> populated hugetlbfs file.  A fault will map the page from the file
+>> and if needed do a COW to map a writable page.
+>>
+>> Hugetlbfs hole punch uses the fault mutex to prevent mappings of file
+>> pages.  It uses the address_space file index key.  However, private
+>> mappings will use a different key and could race with this code to map
+>> the file page.  This causes problems (BUG) for the page cache remove
+>> code as it expects the page to be unmapped.  A sample stack is:
+>>
+>> page dumped because: VM_BUG_ON_PAGE(page_mapped(page))
+>> kernel BUG at mm/filemap.c:169!
+>> ...
+>> RIP: 0010:unaccount_page_cache_page+0x1b8/0x200
+>> ...
+>> Call Trace:
+>> __delete_from_page_cache+0x39/0x220
+>> delete_from_page_cache+0x45/0x70
+>> remove_inode_hugepages+0x13c/0x380
+>> ? __add_to_page_cache_locked+0x162/0x380
+>> hugetlbfs_fallocate+0x403/0x540
+>> ? _cond_resched+0x15/0x30
+>> ? __inode_security_revalidate+0x5d/0x70
+>> ? selinux_file_permission+0x100/0x130
+>> vfs_fallocate+0x13f/0x270
+>> ksys_fallocate+0x3c/0x80
+>> __x64_sys_fallocate+0x1a/0x20
+>> do_syscall_64+0x5b/0x180
+>> entry_SYSCALL_64_after_hwframe+0x44/0xa9
+>>
+>> There seems to be another potential COW issue/race with this approach
+>> of different private and shared keys as noted in commit 8382d914ebf7
+>> ("mm, hugetlb: improve page-fault scalability").
+>>
+>> Since every hugetlb mapping (even anon and private) is actually a file
+>> mapping, just use the address_space index key for all mappings.  This
+>> results in potentially more hash collisions.  However, this should not
+>> be the common case.
+>>
+>> Link: http://lkml.kernel.org/r/20190328234704.27083-3-mike.kravetz@oracle.com
+>> Link: http://lkml.kernel.org/r/20190412165235.t4sscoujczfhuiyt@linux-r8p5
+>> Fixes: b5cec28d36f5 ("hugetlbfs: truncate_hugepages() takes a range of pages")
+>> Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+>> ---
+>>  fs/hugetlbfs/inode.c    |  7 ++-----
+>>  include/linux/hugetlb.h |  4 +---
+>>  mm/hugetlb.c            | 19 +++++--------------
+>>  3 files changed, 8 insertions(+), 22 deletions(-)
+>>
+>> diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
+>> index 27c4e2ac39a9..c9f288dbe734 100644
+>> --- a/fs/hugetlbfs/inode.c
+>> +++ b/fs/hugetlbfs/inode.c
+>> @@ -414,9 +414,7 @@ static void remove_inode_hugepages(struct inode *inode, loff_t lstart,
+>>  			if (next >= end)
+>>  				break;
+>>  
+>> -			hash = hugetlb_fault_mutex_hash(h, current->mm,
+>> -							&pseudo_vma,
+>> -							mapping, next, 0);
+>> +			hash = hugetlb_fault_mutex_hash(h, mapping, next, 0);
+>>  			mutex_lock(&hugetlb_fault_mutex_table[hash]);
+>>  
+>>  			lock_page(page);
+>> @@ -633,8 +631,7 @@ static long hugetlbfs_fallocate(struct file *file, int mode, loff_t offset,
+>>  		addr = index * hpage_size;
+>>  
+>>  		/* mutex taken here, fault path and hole punch */
+>> -		hash = hugetlb_fault_mutex_hash(h, mm, &pseudo_vma, mapping,
+>> -						index, addr);
+>> +		hash = hugetlb_fault_mutex_hash(h, mapping, index, addr);
+>>  		mutex_lock(&hugetlb_fault_mutex_table[hash]);
+>>  
+>>  		/* See if already present in mapping to avoid alloc/free */
+> 
+> Note, this backport causes this warning:
+> fs/hugetlbfs/inode.c: In function hugetlbfs_fallocate:
+> fs/hugetlbfs/inode.c:570:20: warning: unused variable mm [-Wunused-variable]
+>   struct mm_struct *mm = current->mm;
+>                     ^~
+> 
+> So I'll go delete that line as well.
+> 
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.0.y/kernel/v5.0.19-29-g62f77c62dd4e/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.0.y=
-/kernel/v5.0.19-29-g62f77c62dd4e/
+Please do.
 
-Tree: stable-rc
-Branch: linux-5.0.y
-Git Describe: v5.0.19-29-g62f77c62dd4e
-Git Commit: 62f77c62dd4efebb90fe6c7d2d975f75b25eb0d2
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 72 unique boards, 24 SoC families, 14 builds out of 208
-
-Offline Platforms:
-
-arm:
-
-    sama5_defconfig:
-        gcc-8
-            at91-sama5d4_xplained: 1 offline lab
-            at91-sama5d4ek: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            alpine-db: 1 offline lab
-            at91-sama5d4_xplained: 1 offline lab
-            at91-sama5d4ek: 1 offline lab
-            stih410-b2120: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
-            tegra124-jetson-tk1: 1 offline lab
-
-    tegra_defconfig:
-        gcc-8
-            tegra124-jetson-tk1: 1 offline lab
-
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
-
-    bcm2835_defconfig:
-        gcc-8
-            bcm2835-rpi-b: 1 offline lab
-
-arm64:
-
-    defconfig:
-        gcc-8
-            apq8016-sbc: 1 offline lab
-            juno-r2: 1 offline lab
-            mt7622-rfb1: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+Sorry I missed that.
+-- 
+Mike Kravetz
