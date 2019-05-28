@@ -2,273 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 24AC72C53A
-	for <lists+stable@lfdr.de>; Tue, 28 May 2019 13:16:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 536122C586
+	for <lists+stable@lfdr.de>; Tue, 28 May 2019 13:37:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726417AbfE1LQ3 convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 28 May 2019 07:16:29 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:56412 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726345AbfE1LQ3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 May 2019 07:16:29 -0400
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id EE3BA30024DD
-        for <stable@vger.kernel.org>; Tue, 28 May 2019 11:16:28 +0000 (UTC)
-Received: from [172.54.186.227] (cpt-0031.paas.prod.upshift.rdu2.redhat.com [10.0.18.113])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 227695D9CD;
-        Tue, 28 May 2019 11:16:26 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.1.6-rc1-593c86f.cki
- (stable)
-CC:     Xiumei Mu <xmu@redhat.com>, Hangbin Liu <haliu@redhat.com>
-Message-ID: <cki.DA05186D12.DO801XJE2T@redhat.com>
-X-Gitlab-Pipeline-ID: 10931
-X-Gitlab-Pipeline: =?utf-8?q?https=3A//xci32=2Elab=2Eeng=2Erdu2=2Eredhat=2Ec?=
- =?utf-8?q?om/cki-project/cki-pipeline/pipelines/10931?=
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.40]); Tue, 28 May 2019 11:16:28 +0000 (UTC)
-Date:   Tue, 28 May 2019 07:16:29 -0400
+        id S1726591AbfE1Lht (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 May 2019 07:37:49 -0400
+Received: from mail-pg1-f193.google.com ([209.85.215.193]:42115 "EHLO
+        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726580AbfE1Lht (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 May 2019 07:37:49 -0400
+Received: by mail-pg1-f193.google.com with SMTP id 33so7868816pgv.9;
+        Tue, 28 May 2019 04:37:48 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:subject:from:in-reply-to:date:cc
+         :content-transfer-encoding:message-id:references:to;
+        bh=Mje4Sqm+Ror3it0+HkeEWilvUO3xfODnH6D7IlgYARg=;
+        b=leTTuzrol5cXVn4UToRdkhDMCU1N1h/DSCdgBsc6Gypt7PCMxf1rb6oUc2MEm02j/j
+         a0P4UluWuPi1mTg5gFDKg2ssKVD2bFzgD4qfjQKGmjcX+TN/9OBhfmPwtojC8hQwGubu
+         Se+O40//DHhIu4Bxqb4i29E0rjnEqxmhWNAIiN6URjejoY8WlInN/I4PfgF4UvY6gXDf
+         H4s8+B7KBc+SwY6EbRsJLKEoKYhJI+XQVHpYA5K+jo47SsxPwoUrGpPH4lH0mydQ5TFW
+         1gAbzV5B9vT1UFVBYBAspEbwKfhuqs+lNzJfCjcKcKrtoUyUwFT+tz7TWMwCbFU7K7cd
+         aSYQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:subject:from:in-reply-to:date:cc
+         :content-transfer-encoding:message-id:references:to;
+        bh=Mje4Sqm+Ror3it0+HkeEWilvUO3xfODnH6D7IlgYARg=;
+        b=a90SG42aaBXBpEXfyF5Ygom8CcPJ7dtupA5sAwWl4UE9IjJeA+ez88Bsxu0+uqGqNX
+         YVflVOAbr8o/V6UlWsXdssEZxEJH2o1KkFENAsB/03WGcRJjE31Iocgb/dm+z18sZJXo
+         mIA0OFvuFSsP0KH1RcDsYhPrcguThCmcEDh25/6KFpdGWhrhYKpxXlUf9gsXEbspEzgG
+         IVHpxzI2hlt/WMK/R/DkV5iLBBxmOwBtlky549+TrUy2v3bROC+eIyhiFupSPW9KtdIq
+         5/aT/35/tT6X+RvBmfxaOQegNT+Q4wkVvC7+frrPNK64F+v2Xen7N+lC9iUOSx6owoY9
+         1A/A==
+X-Gm-Message-State: APjAAAUiYXCrNOf0O1gaerMzXD0p/2xWOwIS0/PoA6hJpz7RNueYENsK
+        hsGPwQsazUaTg0sK88u6lFc=
+X-Google-Smtp-Source: APXvYqxJlpHL893t/ouhL8/krnA1DNT9TqKiSJUsi7IgE1NHIFH8jbwf1puz7oIy1c2loyTD9kUbvg==
+X-Received: by 2002:a65:42ca:: with SMTP id l10mr77858165pgp.181.1559043468390;
+        Tue, 28 May 2019 04:37:48 -0700 (PDT)
+Received: from [192.168.86.32] (c-98-234-52-230.hsd1.ca.comcast.net. [98.234.52.230])
+        by smtp.gmail.com with ESMTPSA id h11sm14470578pfn.170.2019.05.28.04.37.47
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 28 May 2019 04:37:47 -0700 (PDT)
+Content-Type: text/plain;
+        charset=utf-8
+Mime-Version: 1.0 (1.0)
+Subject: Re: [PATCH v2] signal: Adjust error codes according to restore_user_sigmask()
+From:   Deepa Dinamani <deepa.kernel@gmail.com>
+X-Mailer: iPhone Mail (16F203)
+In-Reply-To: <ea7a1808990a4c319faa38d5d08d8f19@AcuMS.aculab.com>
+Date:   Tue, 28 May 2019 04:37:46 -0700
+Cc:     Oleg Nesterov <oleg@redhat.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "dbueso@suse.de" <dbueso@suse.de>,
+        "axboe@kernel.dk" <axboe@kernel.dk>,
+        Davidlohr Bueso <dave@stgolabs.net>, Eric Wong <e@80x24.org>,
+        Jason Baron <jbaron@akamai.com>,
+        Linux FS-devel Mailing List <linux-fsdevel@vger.kernel.org>,
+        linux-aio <linux-aio@kvack.org>,
+        Omar Kilani <omar.kilani@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Content-Transfer-Encoding: quoted-printable
+Message-Id: <B9F0F146-C687-4D1D-8BFF-1236564631F6@gmail.com>
+References: <20190522161407.GB4915@redhat.com> <CABeXuvpjrW5Gt95JC-_rYkOA=6RCD5OtkEQdwZVVqGCE3GkQOQ@mail.gmail.com> <4f7b6dbeab1d424baaebd7a5df116349@AcuMS.aculab.com> <20190523145944.GB23070@redhat.com> <345cfba5edde470f9a68d913f44fa342@AcuMS.aculab.com> <20190523163604.GE23070@redhat.com> <f0eced5677c144debfc5a69d0d327bc1@AcuMS.aculab.com> <CABeXuvo-wey+NHWb4gi=FSRrjJOKkVcLPQ-J+dchJeHEbhGQ6g@mail.gmail.com> <20190524141054.GB2655@redhat.com> <CABeXuvqSzy+v=3Y5NnMmfob7bvuNkafmdDqoex8BVENN3atqZA@mail.gmail.com> <20190524163310.GG2655@redhat.com> <CABeXuvrUKZnECj+NgLdpe5uhKBEmSynrakD-3q9XHqk8Aef5UQ@mail.gmail.com> <ea7a1808990a4c319faa38d5d08d8f19@AcuMS.aculab.com>
+To:     David Laight <David.Laight@aculab.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
-
-We ran automated tests on a recent commit from this kernel tree:
-
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-            Commit: 3cf575246410 - Linux 5.1.6-rc1
-
-The results of these automated tests are provided below.
-
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-  aarch64:
-    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable-aarch64-3cf5752464105c48cd67f0bc8c6ac881341a9bf6.config
-    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable-aarch64-3cf5752464105c48cd67f0bc8c6ac881341a9bf6.tar.gz
-
-  ppc64le:
-    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable-ppc64le-3cf5752464105c48cd67f0bc8c6ac881341a9bf6.config
-    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable-ppc64le-3cf5752464105c48cd67f0bc8c6ac881341a9bf6.tar.gz
-
-  s390x:
-    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable-s390x-3cf5752464105c48cd67f0bc8c6ac881341a9bf6.config
-    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable-s390x-3cf5752464105c48cd67f0bc8c6ac881341a9bf6.tar.gz
-
-  x86_64:
-    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable-x86_64-3cf5752464105c48cd67f0bc8c6ac881341a9bf6.config
-    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable-x86_64-3cf5752464105c48cd67f0bc8c6ac881341a9bf6.tar.gz
 
 
-Hardware testing
-----------------
+> On May 28, 2019, at 2:12 AM, David Laight <David.Laight@aculab.com> wrote:=
 
-We booted each kernel and ran the following tests:
+>=20
+> From: Deepa Dinamani
+>> Sent: 24 May 2019 18:02
+> ...
+>> Look at the code before 854a6ed56839a:
+>>=20
+>> /*
+>>       * If we changed the signal mask, we need to restore the original on=
+e.
+>>       * In case we've got a signal while waiting, we do not restore the
+>>       * signal mask yet, and we allow do_signal() to deliver the signal o=
+n
+>>       * the way back to userspace, before the signal mask is restored.
+>>       */
+>>      if (sigmask) {
+>>             ####### This err has not been changed since ep_poll()
+>>             ####### So if there is a signal before this point, but
+>> err =3D 0, then we goto else.
+>>              if (err =3D=3D -EINTR) {
+>>                      memcpy(&current->saved_sigmask, &sigsaved,
+>>                             sizeof(sigsaved));
+>>                      set_restore_sigmask();
+>>              } else
+>>                    ############ This is a problem if there is signal
+>> pending that is sigmask should block.
+>>                    ########### This is the whole reason we have
+>> current->saved_sigmask?
+>>                      set_current_blocked(&sigsaved);
+>>      }
+>=20
+> What happens if all that crap is just deleted (I presume from the
+> bottom of ep_wait()) ?
 
-  aarch64:
-     ✅ Boot test [0]
-     ✅ LTP lite [1]
-     ✅ Loopdev Sanity [2]
-     ✅ Memory function: memfd_create [3]
-     ✅ AMTU (Abstract Machine Test Utility) [4]
-     ✅ Ethernet drivers sanity [5]
-     ✅ audit: audit testsuite test [6]
-     ✅ httpd: mod_ssl smoke sanity [7]
-     ✅ iotop: sanity [8]
-     ✅ redhat-rpm-config: detect-kabi-provides sanity [9]
-     ✅ redhat-rpm-config: kabi-whitelist-not-found sanity [10]
-     ✅ tuned: tune-processes-through-perf [11]
-     ✅ Usex - version 1.9-29 [12]
-     ✅ lvm thinp sanity [13]
-     ✅ stress: stress-ng [14]
-     ✅ Boot test [0]
-     ✅ xfstests: ext4 [15]
-     ✅ xfstests: xfs [15]
-     ✅ selinux-policy: serge-testsuite [16]
-     🚧 ✅ Networking socket: fuzz [17]
-     🚧 ✅ /kernel/networking/ipv6/Fujitsu-socketapi-test
-     🚧 ✅ Networking sctp-auth: sockopts test [18]
-     🚧 ✅ Networking: igmp conformance test [19]
-     🚧 ✅ Networking route: pmtu [20]
-     🚧 ✅ Networking route_func: local [21]
-     🚧 ✅ Networking route_func: forward [21]
-     🚧 ✅ Networking TCP: keepalive test [22]
-     🚧 ✅ Networking UDP: socket [23]
-     🚧 ✅ Networking tunnel: vxlan basic [24]
-     🚧 ✅ Networking tunnel: geneve basic test [25]
-     🚧 ✅ Networking ipsec: basic netns transport [26]
-     🚧 ✅ Networking ipsec: basic netns tunnel [26]
-     🚧 ✅ Storage blktests [27]
+Hmm, you have to update the saved_sigmask or the sigmask.
 
-  ppc64le:
-     ✅ Boot test [0]
-     ✅ LTP lite [1]
-     ✅ Loopdev Sanity [2]
-     ✅ Memory function: memfd_create [3]
-     ✅ AMTU (Abstract Machine Test Utility) [4]
-     ✅ Ethernet drivers sanity [5]
-     ✅ audit: audit testsuite test [6]
-     ✅ httpd: mod_ssl smoke sanity [7]
-     ✅ iotop: sanity [8]
-     ✅ redhat-rpm-config: detect-kabi-provides sanity [9]
-     ✅ redhat-rpm-config: kabi-whitelist-not-found sanity [10]
-     ✅ tuned: tune-processes-through-perf [11]
-     ✅ Usex - version 1.9-29 [12]
-     ✅ lvm thinp sanity [13]
-     ✅ stress: stress-ng [14]
-     ✅ Boot test [0]
-     ✅ xfstests: ext4 [15]
-     ✅ xfstests: xfs [15]
-     ✅ selinux-policy: serge-testsuite [16]
-     🚧 ✅ Networking socket: fuzz [17]
-     🚧 ✅ /kernel/networking/ipv6/Fujitsu-socketapi-test
-     🚧 ✅ Networking sctp-auth: sockopts test [18]
-     🚧 ✅ Networking route: pmtu [20]
-     🚧 ✅ Networking route_func: local [21]
-     🚧 ✅ Networking route_func: forward [21]
-     🚧 ✅ Networking TCP: keepalive test [22]
-     🚧 ✅ Networking UDP: socket [23]
-     🚧 ✅ Networking tunnel: vxlan basic [24]
-     🚧 ✅ Networking tunnel: geneve basic test [25]
-     🚧 ❎ Networking ipsec: basic netns tunnel [26]
-     🚧 ✅ Storage blktests [27]
+> I'm guessing that on the way back to userspace signal handlers for
+> signals enabled in the process's current mask (the one specified
+> to epoll_pwait) get called.
+> Then the signal mask is loaded from current->saved_sigmask and
+> and enabled signal handlers are called again.
 
-  s390x:
-     ✅ Boot test [0]
-     ✅ LTP lite [1]
-     ✅ Loopdev Sanity [2]
-     ✅ Memory function: memfd_create [3]
-     ✅ Ethernet drivers sanity [5]
-     ✅ audit: audit testsuite test [6]
-     ✅ httpd: mod_ssl smoke sanity [7]
-     ✅ iotop: sanity [8]
-     ✅ redhat-rpm-config: detect-kabi-provides sanity [9]
-     ✅ redhat-rpm-config: kabi-whitelist-not-found sanity [10]
-     ✅ tuned: tune-processes-through-perf [11]
-     ✅ Usex - version 1.9-29 [12]
-     ✅ lvm thinp sanity [13]
-     ✅ stress: stress-ng [14]
-     ✅ Boot test [0]
-     ✅ selinux-policy: serge-testsuite [16]
-     ✅ Boot test [0]
-     ✅ kdump: sysrq-c [28]
-     🚧 ✅ Networking socket: fuzz [17]
-     🚧 ✅ /kernel/networking/ipv6/Fujitsu-socketapi-test
-     🚧 ✅ Networking sctp-auth: sockopts test [18]
-     🚧 ✅ Networking: igmp conformance test [19]
-     🚧 ✅ Networking route: pmtu [20]
-     🚧 ✅ Networking route_func: local [21]
-     🚧 ✅ Networking route_func: forward [21]
-     🚧 ✅ Networking TCP: keepalive test [22]
-     🚧 ✅ Networking UDP: socket [23]
-     🚧 ✅ Networking tunnel: vxlan basic [24]
-     🚧 ✅ Networking tunnel: geneve basic test [25]
-     🚧 ✅ Networking ipsec: basic netns transport [26]
-     🚧 ✅ Networking ipsec: basic netns tunnel [26]
-     🚧 ✅ Storage blktests [27]
+Who is saving this saved_sigmask that is being restored on the way back?
 
-  x86_64:
-     ✅ Boot test [0]
-     ✅ kdump: sysrq-c - megaraid_sas [28]
-     ✅ Boot test [0]
-     ✅ xfstests: ext4 [15]
-     ✅ xfstests: xfs [15]
-     ✅ selinux-policy: serge-testsuite [16]
-     ✅ Boot test [0]
-     ✅ kdump: sysrq-c [28]
-     ✅ Boot test [0]
-     ✅ LTP lite [1]
-     ✅ Loopdev Sanity [2]
-     ✅ Memory function: memfd_create [3]
-     ✅ AMTU (Abstract Machine Test Utility) [4]
-     ✅ Ethernet drivers sanity [5]
-     ✅ audit: audit testsuite test [6]
-     ✅ httpd: mod_ssl smoke sanity [7]
-     ✅ iotop: sanity [8]
-     ✅ redhat-rpm-config: detect-kabi-provides sanity [9]
-     ✅ redhat-rpm-config: kabi-whitelist-not-found sanity [10]
-     ✅ tuned: tune-processes-through-perf [11]
-     ✅ Usex - version 1.9-29 [12]
-     ✅ lvm thinp sanity [13]
-     ✅ stress: stress-ng [14]
-     🚧 ✅ Networking socket: fuzz [17]
-     🚧 ✅ /kernel/networking/ipv6/Fujitsu-socketapi-test
-     🚧 ✅ Networking sctp-auth: sockopts test [18]
-     🚧 ✅ Networking: igmp conformance test [19]
-     🚧 ✅ Networking route: pmtu [20]
-     🚧 ✅ Networking route_func: local [21]
-     🚧 ✅ Networking route_func: forward [21]
-     🚧 ✅ Networking TCP: keepalive test [22]
-     🚧 ✅ Networking UDP: socket [23]
-     🚧 ✅ Networking tunnel: vxlan basic [24]
-     🚧 ✅ Networking tunnel: geneve basic test [25]
-     🚧 ✅ Networking ipsec: basic netns transport [26]
-     🚧 ✅ Networking ipsec: basic netns tunnel [26]
-     🚧 ✅ Storage blktests [27]
+> No special code there that depends on the syscall result, errno
+> of the syscall number.
 
-  Test source:
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/memory/function/memfd_create
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/redhat-rpm-config/detect-kabi-provides
-    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/redhat-rpm-config/kabi-whitelist-not-found
-    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-    [13]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/lvm/thinp/sanity
-    [14]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
-    [15]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/filesystems/xfs/xfstests
-    [16]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-    [17]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
-    [18]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/sctp/auth/sockopts
-    [19]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/igmp/conformance
-    [20]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/route/pmtu
-    [21]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/route/route_func
-    [22]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/tcp/tcp_keepalive
-    [23]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/udp/udp_socket
-    [24]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/tunnel/vxlan/basic
-    [25]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/tunnel/geneve/basic
-    [26]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/ipsec/ipsec_basic/ipsec_basic_netns
-    [27]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/blk
-    [28]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/kdump/kdump-sysrq-c
+I didn=E2=80=99t say this has anything to do with errno.
 
-Waived tests (marked with 🚧)
------------------------------
-This test run included waived tests. Such tests are executed but their results
-are not taken into account. Tests are waived when their results are not
-reliable enough, e.g. when they're just introduced or are being fixed.
+-Deepa=20
+
