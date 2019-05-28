@@ -2,135 +2,273 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AD7902C537
-	for <lists+stable@lfdr.de>; Tue, 28 May 2019 13:16:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B76E2C539
+	for <lists+stable@lfdr.de>; Tue, 28 May 2019 13:16:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726418AbfE1LQI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 May 2019 07:16:08 -0400
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:36273 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726371AbfE1LQI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 May 2019 07:16:08 -0400
-Received: by mail-wr1-f65.google.com with SMTP id s17so19774554wru.3
-        for <stable@vger.kernel.org>; Tue, 28 May 2019 04:16:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=amarulasolutions.com; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=m2nsIiu2xmXeWsYUgRHVpMlsXmoMPRxeUORAALMIKSI=;
-        b=F8AFn2T8q0YuEbe8O1YmusdB4KKX4+W7+bSwB31soLQqW7nM+xmlU7TAZMFkFdHJLB
-         Jy1WVb8qw8KkVqWiofCzb5Ey2TiQlhTVZFu8lRZeL0GtHBtn4yicUcWTdye2K+uayqkC
-         jqFubNh1Hl8MPRKXzBgIS8CoL7co65suY5UoU=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=m2nsIiu2xmXeWsYUgRHVpMlsXmoMPRxeUORAALMIKSI=;
-        b=RoAuv0boBYTu0Qa6fHXJ0gOyUWQX2hKyhNKbAFS6LY47qX/4yvIhUdNQytiyHGluAS
-         4ndFIdRpv9bR01A/5k2gx5t5VcX13iAALUz1l6wKTiQXhWMYocGEMJeT99QD8aBAfrlv
-         RoLyDuhl+CB7ZMOSqr+cog7bcOV0Lpg+czwD+YAXHVIXMWwUWN8bMoBE4cwn2FezVgVW
-         df3OAHBgCqJhfGRP0GRZGF6dyVRugp88b6NrSl1sdtMKIYKeMTk+oYR17Jh3zgfyOsRv
-         V37j5C/y/SNLWEeE/NJU3t9jWtPI1i56QkUTvVH3j+uha8+ABdFGbc/MJUS3K0lMv4uK
-         +bWA==
-X-Gm-Message-State: APjAAAW5RNytgTCrzlS8l1qAC6qcSqxo4B3TUsJrSNBWTbc7RH4kkNWJ
-        mNe0LUXRICQp7Sl8TfNC9360lA==
-X-Google-Smtp-Source: APXvYqz5nIcFjokXYBk+792MqQz8LkCQtBXoFpS+E23Bk9wHZ1kkRwZndDs817gSoTcwICsJyRkaDQ==
-X-Received: by 2002:adf:9bd2:: with SMTP id e18mr27122695wrc.210.1559042166403;
-        Tue, 28 May 2019 04:16:06 -0700 (PDT)
-Received: from andrea (86.100.broadband17.iol.cz. [109.80.100.86])
-        by smtp.gmail.com with ESMTPSA id h17sm16048029wrq.79.2019.05.28.04.16.04
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 28 May 2019 04:16:05 -0700 (PDT)
-Date:   Tue, 28 May 2019 13:15:58 +0200
-From:   Andrea Parri <andrea.parri@amarulasolutions.com>
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     Will Deacon <will.deacon@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        linux-kernel@vger.kernel.org, aou@eecs.berkeley.edu, arnd@arndb.de,
-        bp@alien8.de, catalin.marinas@arm.com, davem@davemloft.net,
-        fenghua.yu@intel.com, heiko.carstens@de.ibm.com,
-        herbert@gondor.apana.org.au, ink@jurassic.park.msu.ru,
-        jhogan@kernel.org, linux@armlinux.org.uk, mattst88@gmail.com,
-        mingo@kernel.org, mpe@ellerman.id.au, palmer@sifive.com,
-        paul.burton@mips.com, paulus@samba.org, ralf@linux-mips.org,
-        rth@twiddle.net, stable@vger.kernel.org, tglx@linutronix.de,
-        tony.luck@intel.com, vgupta@synopsys.com,
-        gregkh@linuxfoundation.org, jhansen@vmware.com, vdasa@vmware.com,
-        aditr@vmware.com, Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [PATCH 00/18] locking/atomic: atomic64 type cleanup
-Message-ID: <20190528111558.GA9106@andrea>
-References: <20190522132250.26499-1-mark.rutland@arm.com>
- <20190523083013.GA4616@andrea>
- <20190523101926.GA3370@lakrids.cambridge.arm.com>
- <20190524103731.GN2606@hirez.programming.kicks-ass.net>
- <20190524111807.GS2650@hirez.programming.kicks-ass.net>
- <20190524114220.GA4260@fuggles.cambridge.arm.com>
- <20190524115231.GN2623@hirez.programming.kicks-ass.net>
- <20190524224340.GA3792@andrea>
- <20190528104719.GN2623@hirez.programming.kicks-ass.net>
+        id S1726400AbfE1LQL convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 28 May 2019 07:16:11 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:35842 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726345AbfE1LQL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 May 2019 07:16:11 -0400
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 95C98301988B
+        for <stable@vger.kernel.org>; Tue, 28 May 2019 11:16:10 +0000 (UTC)
+Received: from [172.54.186.227] (cpt-0031.paas.prod.upshift.rdu2.redhat.com [10.0.18.113])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 15CC11001E80;
+        Tue, 28 May 2019 11:16:08 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190528104719.GN2623@hirez.programming.kicks-ass.net>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 4.19.47-rc1-82624f2.cki
+ (stable)
+CC:     Xiumei Mu <xmu@redhat.com>, Hangbin Liu <haliu@redhat.com>
+Message-ID: <cki.B64E81F9C1.EOYLZETZ67@redhat.com>
+X-Gitlab-Pipeline-ID: 10932
+X-Gitlab-Pipeline: =?utf-8?q?https=3A//xci32=2Elab=2Eeng=2Erdu2=2Eredhat=2Ec?=
+ =?utf-8?q?om/cki-project/cki-pipeline/pipelines/10932?=
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.47]); Tue, 28 May 2019 11:16:10 +0000 (UTC)
+Date:   Tue, 28 May 2019 07:16:11 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 28, 2019 at 12:47:19PM +0200, Peter Zijlstra wrote:
-> On Sat, May 25, 2019 at 12:43:40AM +0200, Andrea Parri wrote:
-> > > ---
-> > > Subject: Documentation/atomic_t.txt: Clarify pure non-rmw usage
-> > > 
-> > > Clarify that pure non-RMW usage of atomic_t is pointless, there is
-> > > nothing 'magical' about atomic_set() / atomic_read().
-> > > 
-> > > This is something that seems to confuse people, because I happen upon it
-> > > semi-regularly.
-> > > 
-> > > Acked-by: Will Deacon <will.deacon@arm.com>
-> > > Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-> > > ---
-> > >  Documentation/atomic_t.txt | 6 ++++--
-> > >  1 file changed, 4 insertions(+), 2 deletions(-)
-> > > 
-> > > diff --git a/Documentation/atomic_t.txt b/Documentation/atomic_t.txt
-> > > index dca3fb0554db..89eae7f6b360 100644
-> > > --- a/Documentation/atomic_t.txt
-> > > +++ b/Documentation/atomic_t.txt
-> > > @@ -81,9 +81,11 @@ SEMANTICS
-> > >  
-> > >  The non-RMW ops are (typically) regular LOADs and STOREs and are canonically
-> > >  implemented using READ_ONCE(), WRITE_ONCE(), smp_load_acquire() and
-> > > -smp_store_release() respectively.
-> > > +smp_store_release() respectively. Therefore, if you find yourself only using
-> > > +the Non-RMW operations of atomic_t, you do not in fact need atomic_t at all
-> > > +and are doing it wrong.
-> > 
-> > The counterargument (not so theoretic, just look around in the kernel!) is:
-> > we all 'forget' to use READ_ONCE() and WRITE_ONCE(), it should be difficult
-> > or more difficult to forget to use atomic_read() and atomic_set()...   IAC,
-> > I wouldn't call any of them 'wrong'.
-> 
-> I'm thinking you mean that the type system isn't helping us with
-> READ/WRITE_ONCE() like it does with atomic_t ?
+Hello,
 
-Yep.
+We ran automated tests on a recent commit from this kernel tree:
 
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+            Commit: 8b97ee9b1690 - Linux 4.19.47-rc1
 
-> And while I agree that
-> there is room for improvement there, that doesn't mean we should start
-> using atomic*_t all over the place for that.
+The results of these automated tests are provided below.
 
-Agreed.  But this still doesn't explain that "and are doing it wrong",
-AFAICT; maybe just remove that part?
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
 
-  Andrea
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Compile testing
+---------------
+
+We compiled the kernel for 4 architectures:
+
+  aarch64:
+    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable-aarch64-8b97ee9b16909126f3e032928ce8d124a6680faf.config
+    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable-aarch64-8b97ee9b16909126f3e032928ce8d124a6680faf.tar.gz
+
+  ppc64le:
+    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable-ppc64le-8b97ee9b16909126f3e032928ce8d124a6680faf.config
+    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable-ppc64le-8b97ee9b16909126f3e032928ce8d124a6680faf.tar.gz
+
+  s390x:
+    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable-s390x-8b97ee9b16909126f3e032928ce8d124a6680faf.config
+    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable-s390x-8b97ee9b16909126f3e032928ce8d124a6680faf.tar.gz
+
+  x86_64:
+    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable-x86_64-8b97ee9b16909126f3e032928ce8d124a6680faf.config
+    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable-x86_64-8b97ee9b16909126f3e032928ce8d124a6680faf.tar.gz
 
 
-> 
-> Part of the problem with READ/WRITE_ONCE() is that it serves a dual
-> purpose; we've tried to untangle that at some point, but Linus wasn't
-> having it.
+Hardware testing
+----------------
+
+We booted each kernel and ran the following tests:
+
+  aarch64:
+     ✅ Boot test [0]
+     ✅ LTP lite [1]
+     ✅ Loopdev Sanity [2]
+     ✅ Memory function: memfd_create [3]
+     ✅ AMTU (Abstract Machine Test Utility) [4]
+     ✅ Ethernet drivers sanity [5]
+     ✅ audit: audit testsuite test [6]
+     ✅ httpd: mod_ssl smoke sanity [7]
+     ✅ iotop: sanity [8]
+     ✅ redhat-rpm-config: detect-kabi-provides sanity [9]
+     ✅ redhat-rpm-config: kabi-whitelist-not-found sanity [10]
+     ✅ tuned: tune-processes-through-perf [11]
+     ✅ Usex - version 1.9-29 [12]
+     ✅ lvm thinp sanity [13]
+     ✅ stress: stress-ng [14]
+     ✅ Boot test [0]
+     ✅ xfstests: ext4 [15]
+     ✅ xfstests: xfs [15]
+     ✅ selinux-policy: serge-testsuite [16]
+     🚧 ✅ Networking socket: fuzz [17]
+     🚧 ✅ /kernel/networking/ipv6/Fujitsu-socketapi-test
+     🚧 ✅ Networking sctp-auth: sockopts test [18]
+     🚧 ✅ Networking: igmp conformance test [19]
+     🚧 ✅ Networking route: pmtu [20]
+     🚧 ✅ Networking route_func: local [21]
+     🚧 ✅ Networking route_func: forward [21]
+     🚧 ✅ Networking TCP: keepalive test [22]
+     🚧 ✅ Networking UDP: socket [23]
+     🚧 ✅ Networking tunnel: vxlan basic [24]
+     🚧 ✅ Networking tunnel: geneve basic test [25]
+     🚧 ✅ Networking ipsec: basic netns transport [26]
+     🚧 ✅ Networking ipsec: basic netns tunnel [26]
+     🚧 ✅ Storage blktests [27]
+
+  ppc64le:
+     ✅ Boot test [0]
+     ✅ xfstests: ext4 [15]
+     ✅ xfstests: xfs [15]
+     ✅ selinux-policy: serge-testsuite [16]
+     ✅ Boot test [0]
+     ✅ LTP lite [1]
+     ✅ Loopdev Sanity [2]
+     ✅ Memory function: memfd_create [3]
+     ✅ AMTU (Abstract Machine Test Utility) [4]
+     ✅ Ethernet drivers sanity [5]
+     ✅ audit: audit testsuite test [6]
+     ✅ httpd: mod_ssl smoke sanity [7]
+     ✅ iotop: sanity [8]
+     ✅ redhat-rpm-config: detect-kabi-provides sanity [9]
+     ✅ redhat-rpm-config: kabi-whitelist-not-found sanity [10]
+     ✅ tuned: tune-processes-through-perf [11]
+     ✅ Usex - version 1.9-29 [12]
+     ✅ lvm thinp sanity [13]
+     ✅ stress: stress-ng [14]
+     🚧 ✅ Networking socket: fuzz [17]
+     🚧 ✅ /kernel/networking/ipv6/Fujitsu-socketapi-test
+     🚧 ✅ Networking sctp-auth: sockopts test [18]
+     🚧 ✅ Networking route: pmtu [20]
+     🚧 ✅ Networking route_func: local [21]
+     🚧 ✅ Networking route_func: forward [21]
+     🚧 ✅ Networking TCP: keepalive test [22]
+     🚧 ✅ Networking UDP: socket [23]
+     🚧 ✅ Networking tunnel: vxlan basic [24]
+     🚧 ✅ Networking tunnel: geneve basic test [25]
+     🚧 ✅ Networking ipsec: basic netns tunnel [26]
+     🚧 ✅ Storage blktests [27]
+
+  s390x:
+     ✅ Boot test [0]
+     ✅ selinux-policy: serge-testsuite [16]
+     ✅ Boot test [0]
+     ✅ kdump: sysrq-c [28]
+     ✅ Boot test [0]
+     ✅ LTP lite [1]
+     ✅ Loopdev Sanity [2]
+     ✅ Memory function: memfd_create [3]
+     ✅ Ethernet drivers sanity [5]
+     ✅ audit: audit testsuite test [6]
+     ✅ httpd: mod_ssl smoke sanity [7]
+     ✅ iotop: sanity [8]
+     ✅ redhat-rpm-config: detect-kabi-provides sanity [9]
+     ✅ redhat-rpm-config: kabi-whitelist-not-found sanity [10]
+     ✅ tuned: tune-processes-through-perf [11]
+     ✅ Usex - version 1.9-29 [12]
+     ✅ lvm thinp sanity [13]
+     ✅ stress: stress-ng [14]
+     🚧 ✅ Networking socket: fuzz [17]
+     🚧 ✅ /kernel/networking/ipv6/Fujitsu-socketapi-test
+     🚧 ✅ Networking sctp-auth: sockopts test [18]
+     🚧 ✅ Networking: igmp conformance test [19]
+     🚧 ✅ Networking route: pmtu [20]
+     🚧 ✅ Networking route_func: local [21]
+     🚧 ✅ Networking route_func: forward [21]
+     🚧 ✅ Networking TCP: keepalive test [22]
+     🚧 ✅ Networking UDP: socket [23]
+     🚧 ✅ Networking tunnel: vxlan basic [24]
+     🚧 ✅ Networking tunnel: geneve basic test [25]
+     🚧 ✅ Networking ipsec: basic netns transport [26]
+     🚧 ✅ Networking ipsec: basic netns tunnel [26]
+     🚧 ✅ Storage blktests [27]
+
+  x86_64:
+     ✅ Boot test [0]
+     ✅ kdump: sysrq-c - megaraid_sas [28]
+     ✅ Boot test [0]
+     ✅ LTP lite [1]
+     ✅ Loopdev Sanity [2]
+     ✅ Memory function: memfd_create [3]
+     ✅ AMTU (Abstract Machine Test Utility) [4]
+     ✅ Ethernet drivers sanity [5]
+     ✅ audit: audit testsuite test [6]
+     ✅ httpd: mod_ssl smoke sanity [7]
+     ✅ iotop: sanity [8]
+     ✅ redhat-rpm-config: detect-kabi-provides sanity [9]
+     ✅ redhat-rpm-config: kabi-whitelist-not-found sanity [10]
+     ✅ tuned: tune-processes-through-perf [11]
+     ✅ Usex - version 1.9-29 [12]
+     ✅ lvm thinp sanity [13]
+     ✅ stress: stress-ng [14]
+     ✅ Boot test [0]
+     ✅ xfstests: ext4 [15]
+     ✅ xfstests: xfs [15]
+     ✅ selinux-policy: serge-testsuite [16]
+     ✅ Boot test [0]
+     ✅ kdump: sysrq-c [28]
+     🚧 ✅ Networking socket: fuzz [17]
+     🚧 ✅ /kernel/networking/ipv6/Fujitsu-socketapi-test
+     🚧 ✅ Networking sctp-auth: sockopts test [18]
+     🚧 ✅ Networking: igmp conformance test [19]
+     🚧 ✅ Networking route: pmtu [20]
+     🚧 ✅ Networking route_func: local [21]
+     🚧 ✅ Networking route_func: forward [21]
+     🚧 ✅ Networking TCP: keepalive test [22]
+     🚧 ✅ Networking UDP: socket [23]
+     🚧 ✅ Networking tunnel: vxlan basic [24]
+     🚧 ✅ Networking tunnel: geneve basic test [25]
+     🚧 ✅ Networking ipsec: basic netns transport [26]
+     🚧 ❎ Networking ipsec: basic netns tunnel [26]
+     🚧 ✅ Storage blktests [27]
+
+  Test source:
+    💚 Pull requests are welcome for new tests or improvements to existing tests!
+    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
+    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
+    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
+    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/memory/function/memfd_create
+    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
+    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
+    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
+    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
+    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
+    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/redhat-rpm-config/detect-kabi-provides
+    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/redhat-rpm-config/kabi-whitelist-not-found
+    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
+    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
+    [13]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/lvm/thinp/sanity
+    [14]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
+    [15]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/filesystems/xfs/xfstests
+    [16]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
+    [17]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
+    [18]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/sctp/auth/sockopts
+    [19]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/igmp/conformance
+    [20]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/route/pmtu
+    [21]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/route/route_func
+    [22]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/tcp/tcp_keepalive
+    [23]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/udp/udp_socket
+    [24]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/tunnel/vxlan/basic
+    [25]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/tunnel/geneve/basic
+    [26]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/ipsec/ipsec_basic/ipsec_basic_netns
+    [27]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/blk
+    [28]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/kdump/kdump-sysrq-c
+
+Waived tests (marked with 🚧)
+-----------------------------
+This test run included waived tests. Such tests are executed but their results
+are not taken into account. Tests are waived when their results are not
+reliable enough, e.g. when they're just introduced or are being fixed.
