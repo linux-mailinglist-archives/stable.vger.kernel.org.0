@@ -2,147 +2,236 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BC95A2C98F
-	for <lists+stable@lfdr.de>; Tue, 28 May 2019 17:07:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85CFC2CA62
+	for <lists+stable@lfdr.de>; Tue, 28 May 2019 17:34:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726845AbfE1PHO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 May 2019 11:07:14 -0400
-Received: from heliosphere.sirena.org.uk ([172.104.155.198]:43040 "EHLO
-        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726984AbfE1PHM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 May 2019 11:07:12 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=sirena.org.uk; s=20170815-heliosphere; h=Date:Message-Id:In-Reply-To:
-        Subject:Cc:To:From:Sender:Reply-To:MIME-Version:Content-Type:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:References:
-        List-Id:List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:
-        List-Archive; bh=IpVKaU6OqUQC83ZhAoqSepQlrtSSCT9MXgLEr0fYWds=; b=MKQgZZgzzaKy
-        O8kZQBEPHCI0F1GUMDUNfz4K89mF9dYT8pZyIo9ecj3HBJeBVs54vIa65n5BuojSpZIf65BSFEggF
-        YP+z4FLrEPOcliWmwmofo63BOHygcTGEuKdOv5hISA89WX/FP+T8gSgJOxEjL9cz3lzPtmYINklSK
-        SrjcY=;
-Received: from cpc102320-sgyl38-2-0-cust46.18-2.cable.virginm.net ([82.37.168.47] helo=finisterre.sirena.org.uk)
-        by heliosphere.sirena.org.uk with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.89)
-        (envelope-from <broonie@sirena.org.uk>)
-        id 1hVdgx-0002ps-IJ; Tue, 28 May 2019 15:07:07 +0000
-Received: by finisterre.sirena.org.uk (Postfix, from userid 1000)
-        id EEE96440046; Tue, 28 May 2019 16:07:06 +0100 (BST)
-From:   Mark Brown <broonie@kernel.org>
-To:     Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Cc:     alsa-devel@alsa-project.org,
-        Linux-ALSA <alsa-devel@alsa-project.org>,
-        Mark Brown <broonie@kernel.org>, stable@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Applied "ASoC: soc-core: fixup references at soc_cleanup_card_resources()" to the asoc tree
-In-Reply-To: <87zhn8s60h.wl-kuninori.morimoto.gx@renesas.com>
-X-Patchwork-Hint: ignore
-Message-Id: <20190528150706.EEE96440046@finisterre.sirena.org.uk>
-Date:   Tue, 28 May 2019 16:07:06 +0100 (BST)
+        id S1726523AbfE1Peq convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 28 May 2019 11:34:46 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:20667 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726522AbfE1Peq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 May 2019 11:34:46 -0400
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 3906B772EE
+        for <stable@vger.kernel.org>; Tue, 28 May 2019 15:34:46 +0000 (UTC)
+Received: from [172.54.240.42] (cpt-med-0003.paas.prod.upshift.rdu2.redhat.com [10.0.18.31])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id A452FDEFFA;
+        Tue, 28 May 2019 15:34:43 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+MIME-Version: 1.0
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-4.19
+Message-ID: <cki.A0A625EB1B.21MZ9WIAJI@redhat.com>
+X-Gitlab-Pipeline-ID: 10943
+X-Gitlab-Pipeline: =?utf-8?q?https=3A//xci32=2Elab=2Eeng=2Erdu2=2Eredhat=2Ec?=
+ =?utf-8?q?om/cki-project/cki-pipeline/pipelines/10943?=
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.26]); Tue, 28 May 2019 15:34:46 +0000 (UTC)
+Date:   Tue, 28 May 2019 11:34:46 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The patch
+Hello,
 
-   ASoC: soc-core: fixup references at soc_cleanup_card_resources()
+We ran automated tests on a patchset that was proposed for merging into this
+kernel tree. The patches were applied to:
 
-has been applied to the asoc tree at
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+            Commit: 8b2fc0058255 - Linux 4.19.46
 
-   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/sound.git for-5.2
+The results of these automated tests are provided below.
 
-All being well this means that it will be integrated into the linux-next
-tree (usually sometime in the next 24 hours) and sent to Linus during
-the next merge window (or sooner if it is a bug fix), however if
-problems are discovered then the patch may be dropped or reverted.  
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
 
-You may get further e-mails resulting from automated or manual testing
-and review of the tree, please engage with people reporting problems and
-send followup patches addressing any issues that are reported if needed.
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
 
-If any updates are required or you are submitting further changes they
-should be sent as incremental updates against current git, existing
-patches will not be replaced.
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
 
-Please add any relevant lists and maintainers to the CCs when replying
-to this mail.
+Merge testing
+-------------
 
-Thanks,
-Mark
+We cloned this repository and checked out the following commit:
 
-From 29040d1ac569606fece70966179de272cfc0d4db Mon Sep 17 00:00:00 2001
-From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Date: Mon, 27 May 2019 16:51:34 +0900
-Subject: [PATCH] ASoC: soc-core: fixup references at
- soc_cleanup_card_resources()
+  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: 8b2fc0058255 - Linux 4.19.46
 
-commit 53e947a0e1f7 ("ASoC: soc-core: merge card resources cleanup
-method") merged cleanup method of snd_soc_instantiate_card() and
-soc_cleanup_card_resources().
 
-But, after this commit, if user uses unbind/bind to Component factor
-drivers, Kernel might indicates refcount error at
-soc_cleanup_card_resources().
+We then merged the patchset with `git am`:
 
-The 1st reason is card->snd_card is still exist even though
-snd_card_free() was called, but it is already cleaned.
-We need to set NULL to it.
+  x86-hide-the-int3_emulate_call-jmp-functions-from-uml.patch
+  ext4-do-not-delete-unlinked-inode-from-orphan-list-on-failed-truncate.patch
+  ext4-wait-for-outstanding-dio-during-truncate-in-nojournal-mode.patch
+  f2fs-fix-use-of-number-of-devices.patch
+  kvm-x86-fix-return-value-for-reserved-efer.patch
+  bio-fix-improper-use-of-smp_mb__before_atomic.patch
+  sbitmap-fix-improper-use-of-smp_mb__before_atomic.patch
+  revert-scsi-sd-keep-disk-read-only-when-re-reading-partition.patch
+  crypto-vmx-ctr-always-increment-iv-as-quadword.patch
+  mmc-sdhci-iproc-cygnus-set-no_hispd-bit-to-fix-hs50-data-hold-time-problem.patch
+  mmc-sdhci-iproc-set-no_hispd-bit-to-fix-hs50-data-hold-time-problem.patch
+  kvm-svm-avic-fix-off-by-one-in-checking-host-apic-id.patch
+  libnvdimm-pmem-bypass-config_hardened_usercopy-overhead.patch
+  arm64-kernel-kaslr-reduce-module-randomization-range-to-2-gb.patch
+  arm64-iommu-handle-non-remapped-addresses-in-mmap-and-get_sgtable.patch
+  gfs2-fix-sign-extension-bug-in-gfs2_update_stats.patch
+  btrfs-don-t-double-unlock-on-error-in-btrfs_punch_hole.patch
+  btrfs-do-not-abort-transaction-at-btrfs_update_root-after-failure-to-cow-path.patch
+  btrfs-avoid-fallback-to-transaction-commit-during-fsync-of-files-with-holes.patch
+  btrfs-fix-race-between-ranged-fsync-and-writeback-of-adjacent-ranges.patch
+  btrfs-sysfs-fix-error-path-kobject-memory-leak.patch
+  btrfs-sysfs-don-t-leak-memory-when-failing-add-fsid.patch
+  udlfb-fix-some-inconsistent-null-checking.patch
+  fbdev-fix-divide-error-in-fb_var_to_videomode.patch
+  nfsv4.2-fix-unnecessary-retry-in-nfs4_copy_file_range.patch
+  nfsv4.1-fix-incorrect-return-value-in-copy_file_range.patch
+  bpf-add-bpf_jit_limit-knob-to-restrict-unpriv-allocations.patch
+  brcmfmac-assure-ssid-length-from-firmware-is-limited.patch
+  brcmfmac-add-subtype-check-for-event-handling-in-data-path.patch
+  arm64-errata-add-workaround-for-cortex-a76-erratum-1463225.patch
+  btrfs-honor-path-skip_locking-in-backref-code.patch
 
-2nd is card->dapm and card create debugfs, but its dentry is still
-exist even though it was removed. We need to set NULL to it.
+Compile testing
+---------------
 
-Fixes: 53e947a0e1f7 ("ASoC: soc-core: merge card resources cleanup method")
-Cc: stable@vger.kernel.org # for v5.1
-Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
----
- sound/soc/soc-core.c | 7 ++++++-
- sound/soc/soc-dapm.c | 3 +++
- 2 files changed, 9 insertions(+), 1 deletion(-)
+We compiled the kernel for 4 architectures:
 
-diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
-index 7c9415987ac7..46042d41b79b 100644
---- a/sound/soc/soc-core.c
-+++ b/sound/soc/soc-core.c
-@@ -228,7 +228,10 @@ static void soc_init_card_debugfs(struct snd_soc_card *card)
- 
- static void soc_cleanup_card_debugfs(struct snd_soc_card *card)
- {
-+	if (!card->debugfs_card_root)
-+		return;
- 	debugfs_remove_recursive(card->debugfs_card_root);
-+	card->debugfs_card_root = NULL;
- }
- 
- static void snd_soc_debugfs_init(void)
-@@ -2039,8 +2042,10 @@ static void soc_check_tplg_fes(struct snd_soc_card *card)
- static int soc_cleanup_card_resources(struct snd_soc_card *card)
- {
- 	/* free the ALSA card at first; this syncs with pending operations */
--	if (card->snd_card)
-+	if (card->snd_card) {
- 		snd_card_free(card->snd_card);
-+		card->snd_card = NULL;
-+	}
- 
- 	/* remove and free each DAI */
- 	soc_remove_dai_links(card);
-diff --git a/sound/soc/soc-dapm.c b/sound/soc/soc-dapm.c
-index 62e27defce56..5fc57af9cb6f 100644
---- a/sound/soc/soc-dapm.c
-+++ b/sound/soc/soc-dapm.c
-@@ -2192,7 +2192,10 @@ static void dapm_debugfs_add_widget(struct snd_soc_dapm_widget *w)
- 
- static void dapm_debugfs_cleanup(struct snd_soc_dapm_context *dapm)
- {
-+	if (!dapm->debugfs_dapm)
-+		return;
- 	debugfs_remove_recursive(dapm->debugfs_dapm);
-+	dapm->debugfs_dapm = NULL;
- }
- 
- #else
--- 
-2.20.1
+  aarch64:
+    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-5876f548ac27180669115a5f5aef8ecc57c51e04.config
+    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-5876f548ac27180669115a5f5aef8ecc57c51e04.tar.gz
 
+  ppc64le:
+    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-5876f548ac27180669115a5f5aef8ecc57c51e04.config
+    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-5876f548ac27180669115a5f5aef8ecc57c51e04.tar.gz
+
+  s390x:
+    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-5876f548ac27180669115a5f5aef8ecc57c51e04.config
+    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-5876f548ac27180669115a5f5aef8ecc57c51e04.tar.gz
+
+  x86_64:
+    build options: -j25 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-5876f548ac27180669115a5f5aef8ecc57c51e04.config
+    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-5876f548ac27180669115a5f5aef8ecc57c51e04.tar.gz
+
+
+Hardware testing
+----------------
+
+We booted each kernel and ran the following tests:
+
+  aarch64:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ xfstests: ext4 [1]
+       ✅ selinux-policy: serge-testsuite [2]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ LTP lite [3]
+       ✅ Loopdev Sanity [4]
+       ✅ AMTU (Abstract Machine Test Utility) [5]
+       ✅ audit: audit testsuite test [6]
+       ✅ httpd: mod_ssl smoke sanity [7]
+       ✅ iotop: sanity [8]
+       ✅ tuned: tune-processes-through-perf [9]
+       ✅ Usex - version 1.9-29 [10]
+       ✅ stress: stress-ng [11]
+       🚧 ✅ Networking socket: fuzz [12]
+
+
+  ppc64le:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ xfstests: ext4 [1]
+       ✅ selinux-policy: serge-testsuite [2]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ LTP lite [3]
+       ✅ Loopdev Sanity [4]
+       ✅ AMTU (Abstract Machine Test Utility) [5]
+       ✅ audit: audit testsuite test [6]
+       ✅ httpd: mod_ssl smoke sanity [7]
+       ✅ iotop: sanity [8]
+       ✅ tuned: tune-processes-through-perf [9]
+       ✅ Usex - version 1.9-29 [10]
+       ✅ stress: stress-ng [11]
+       🚧 ✅ Networking socket: fuzz [12]
+
+
+  s390x:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [2]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ LTP lite [3]
+       ✅ Loopdev Sanity [4]
+       ✅ audit: audit testsuite test [6]
+       ✅ httpd: mod_ssl smoke sanity [7]
+       ✅ iotop: sanity [8]
+       ✅ tuned: tune-processes-through-perf [9]
+       ✅ Usex - version 1.9-29 [10]
+       ✅ stress: stress-ng [11]
+       🚧 ✅ Networking socket: fuzz [12]
+
+
+  x86_64:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ xfstests: ext4 [1]
+       ✅ selinux-policy: serge-testsuite [2]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ LTP lite [3]
+       ✅ Loopdev Sanity [4]
+       ✅ AMTU (Abstract Machine Test Utility) [5]
+       ✅ audit: audit testsuite test [6]
+       ✅ httpd: mod_ssl smoke sanity [7]
+       ✅ iotop: sanity [8]
+       ✅ tuned: tune-processes-through-perf [9]
+       ✅ Usex - version 1.9-29 [10]
+       ✅ stress: stress-ng [11]
+       🚧 ✅ Networking socket: fuzz [12]
+
+
+  Test source:
+    💚 Pull requests are welcome for new tests or improvements to existing tests!
+    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
+    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/filesystems/xfs/xfstests
+    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
+    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
+    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
+    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
+    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
+    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
+    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
+    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
+    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
+    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
+    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
+
+Waived tests (marked with 🚧)
+-----------------------------
+This test run included waived tests. Such tests are executed but their results
+are not taken into account. Tests are waived when their results are not
+reliable enough, e.g. when they're just introduced or are being fixed.
