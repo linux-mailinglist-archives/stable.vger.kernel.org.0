@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 704932C416
-	for <lists+stable@lfdr.de>; Tue, 28 May 2019 12:16:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B12B2C41B
+	for <lists+stable@lfdr.de>; Tue, 28 May 2019 12:18:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726638AbfE1KQC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 May 2019 06:16:02 -0400
-Received: from mx2.suse.de ([195.135.220.15]:60086 "EHLO mx1.suse.de"
+        id S1726320AbfE1KSr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 May 2019 06:18:47 -0400
+Received: from mx2.suse.de ([195.135.220.15]:32826 "EHLO mx1.suse.de"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726512AbfE1KQB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 May 2019 06:16:01 -0400
+        id S1726236AbfE1KSr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 May 2019 06:18:47 -0400
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 61A2AABF3;
-        Tue, 28 May 2019 10:15:59 +0000 (UTC)
+        by mx1.suse.de (Postfix) with ESMTP id F2CD6AC66;
+        Tue, 28 May 2019 10:18:44 +0000 (UTC)
 From:   Qu Wenruo <wqu@suse.com>
 To:     linux-btrfs@vger.kernel.org
 Cc:     Josef Bacik <josef@toxicpanda.com>, stable@vger.kernel.org,
         David Sterba <dsterba@suse.com>,
         Filipe Manana <fdmanana@suse.com>
 Subject: [PATCH] btrfs: honor path->skip_locking in backref code
-Date:   Tue, 28 May 2019 18:15:52 +0800
-Message-Id: <20190528101552.14798-1-wqu@suse.com>
+Date:   Tue, 28 May 2019 18:18:35 +0800
+Message-Id: <20190528101835.20377-1-wqu@suse.com>
 X-Mailer: git-send-email 2.21.0
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -110,13 +110,14 @@ walk, even only happens on commit trees, is breaking the normal top-down
 locking order, makes it deadlock prone.
 
 Fixes: fb235dc06fac ("btrfs: qgroup: Move half of the qgroup accounting time out of commit trans")
-CC: stable@vger.kernel.org # 4.14
+CC: stable@vger.kernel.org # 4.19
 Reported-and-tested-by: David Sterba <dsterba@suse.com>
 Reported-by: Filipe Manana <fdmanana@suse.com>
 Reviewed-by: Qu Wenruo <wqu@suse.com>
 Signed-off-by: Josef Bacik <josef@toxicpanda.com>
 Reviewed-by: Filipe Manana <fdmanana@suse.com>
 [ rebase to latest branch and fix lock assert bug in btrfs/007 ]
+[ backport to linux-4.19.y branch, solve minor conflicts ]
 Signed-off-by: Qu Wenruo <wqu@suse.com>
 [ copy logs and deadlock analysis from Qu's patch ]
 Signed-off-by: David Sterba <dsterba@suse.com>
@@ -125,10 +126,10 @@ Signed-off-by: David Sterba <dsterba@suse.com>
  1 file changed, 12 insertions(+), 7 deletions(-)
 
 diff --git a/fs/btrfs/backref.c b/fs/btrfs/backref.c
-index 196503d8c993..e4d5e6eae409 100644
+index 2a4f52c7be22..ac6c383d6314 100644
 --- a/fs/btrfs/backref.c
 +++ b/fs/btrfs/backref.c
-@@ -718,7 +718,7 @@ static int resolve_indirect_refs(struct btrfs_fs_info *fs_info,
+@@ -710,7 +710,7 @@ static int resolve_indirect_refs(struct btrfs_fs_info *fs_info,
   * read tree blocks and add keys where required.
   */
  static int add_missing_keys(struct btrfs_fs_info *fs_info,
@@ -137,7 +138,7 @@ index 196503d8c993..e4d5e6eae409 100644
  {
  	struct prelim_ref *ref;
  	struct extent_buffer *eb;
-@@ -742,12 +742,14 @@ static int add_missing_keys(struct btrfs_fs_info *fs_info,
+@@ -735,12 +735,14 @@ static int add_missing_keys(struct btrfs_fs_info *fs_info,
  			free_extent_buffer(eb);
  			return -EIO;
  		}
@@ -154,7 +155,7 @@ index 196503d8c993..e4d5e6eae409 100644
  		free_extent_buffer(eb);
  		prelim_ref_insert(fs_info, &preftrees->indirect, ref, NULL);
  		cond_resched();
-@@ -1228,7 +1230,7 @@ static int find_parent_nodes(struct btrfs_trans_handle *trans,
+@@ -1225,7 +1227,7 @@ static int find_parent_nodes(struct btrfs_trans_handle *trans,
  
  	btrfs_release_path(path);
  
@@ -163,7 +164,7 @@ index 196503d8c993..e4d5e6eae409 100644
  	if (ret)
  		goto out;
  
-@@ -1288,11 +1290,14 @@ static int find_parent_nodes(struct btrfs_trans_handle *trans,
+@@ -1286,11 +1288,14 @@ static int find_parent_nodes(struct btrfs_trans_handle *trans,
  					ret = -EIO;
  					goto out;
  				}
@@ -174,7 +175,7 @@ index 196503d8c993..e4d5e6eae409 100644
 +					btrfs_set_lock_blocking_rw(eb, BTRFS_READ_LOCK);
 +				}
  				ret = find_extent_in_eb(eb, bytenr,
- 							*extent_item_pos, &eie);
+ 							*extent_item_pos, &eie, ignore_offset);
 -				btrfs_tree_read_unlock_blocking(eb);
 +				if (!path->skip_locking)
 +					btrfs_tree_read_unlock_blocking(eb);
