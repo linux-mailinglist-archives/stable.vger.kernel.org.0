@@ -2,186 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D36362C42D
-	for <lists+stable@lfdr.de>; Tue, 28 May 2019 12:24:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A3472C4B6
+	for <lists+stable@lfdr.de>; Tue, 28 May 2019 12:48:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726463AbfE1KYL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 May 2019 06:24:11 -0400
-Received: from mx2.suse.de ([195.135.220.15]:35026 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726203AbfE1KYK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 May 2019 06:24:10 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id E2DDAABF3;
-        Tue, 28 May 2019 10:24:08 +0000 (UTC)
-From:   Qu Wenruo <wqu@suse.com>
-To:     linux-btrfs@vger.kernel.org
-Cc:     Josef Bacik <josef@toxicpanda.com>, stable@vger.kernel.org,
-        David Sterba <dsterba@suse.com>,
-        Filipe Manana <fdmanana@suse.com>
-Subject: [PATCH for v5.0.x] btrfs: honor path->skip_locking in backref code
-Date:   Tue, 28 May 2019 18:23:53 +0800
-Message-Id: <20190528102353.23714-1-wqu@suse.com>
-X-Mailer: git-send-email 2.21.0
+        id S1726666AbfE1KsM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 May 2019 06:48:12 -0400
+Received: from bombadil.infradead.org ([198.137.202.133]:47004 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726547AbfE1KsL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 May 2019 06:48:11 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20170209; h=In-Reply-To:Content-Type:MIME-Version
+        :References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=RkNAaQnFGQavYiriTPKlPs3zV7ehPx3Q5wBuIkfcSyQ=; b=N5gqwYZkhKw5xd3HaXD+oKNxk
+        7cRQ/oGaV9aX3rkUf1/5FQZvH0tG0X10+CakLOYduKuyAweNgLDRjVZLuAfR5zF78tlCFV5cG12O0
+        Kax9nSIj/coHdRxD34yq9onu0e9K1Mr44je4DrL6JDwx+4oh3fcA5VVZ2wGvbCMPvYbc1Z4XwoHiq
+        r0zY0HFL8GBkP5HgiyfQeWSWB4sXQF1YADcr9jy16IyVumfhGZf9hEbfNJ5B2KMXjC06XUQ0WBf4S
+        vqzvEOhRbrWwZPUwjlviUQEOuppvCpbmPhtc1XdKrYnD7mPn7Pf6/Oko6DmCTy8yR5tZDMyTjyQKe
+        ygubRKysA==;
+Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=hirez.programming.kicks-ass.net)
+        by bombadil.infradead.org with esmtpsa (Exim 4.90_1 #2 (Red Hat Linux))
+        id 1hVZda-00033A-HC; Tue, 28 May 2019 10:47:22 +0000
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id 0AB552072908C; Tue, 28 May 2019 12:47:20 +0200 (CEST)
+Date:   Tue, 28 May 2019 12:47:19 +0200
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Andrea Parri <andrea.parri@amarulasolutions.com>
+Cc:     Will Deacon <will.deacon@arm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        linux-kernel@vger.kernel.org, aou@eecs.berkeley.edu, arnd@arndb.de,
+        bp@alien8.de, catalin.marinas@arm.com, davem@davemloft.net,
+        fenghua.yu@intel.com, heiko.carstens@de.ibm.com,
+        herbert@gondor.apana.org.au, ink@jurassic.park.msu.ru,
+        jhogan@kernel.org, linux@armlinux.org.uk, mattst88@gmail.com,
+        mingo@kernel.org, mpe@ellerman.id.au, palmer@sifive.com,
+        paul.burton@mips.com, paulus@samba.org, ralf@linux-mips.org,
+        rth@twiddle.net, stable@vger.kernel.org, tglx@linutronix.de,
+        tony.luck@intel.com, vgupta@synopsys.com,
+        gregkh@linuxfoundation.org, jhansen@vmware.com, vdasa@vmware.com,
+        aditr@vmware.com, Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: [PATCH 00/18] locking/atomic: atomic64 type cleanup
+Message-ID: <20190528104719.GN2623@hirez.programming.kicks-ass.net>
+References: <20190522132250.26499-1-mark.rutland@arm.com>
+ <20190523083013.GA4616@andrea>
+ <20190523101926.GA3370@lakrids.cambridge.arm.com>
+ <20190524103731.GN2606@hirez.programming.kicks-ass.net>
+ <20190524111807.GS2650@hirez.programming.kicks-ass.net>
+ <20190524114220.GA4260@fuggles.cambridge.arm.com>
+ <20190524115231.GN2623@hirez.programming.kicks-ass.net>
+ <20190524224340.GA3792@andrea>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190524224340.GA3792@andrea>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+On Sat, May 25, 2019 at 12:43:40AM +0200, Andrea Parri wrote:
+> > ---
+> > Subject: Documentation/atomic_t.txt: Clarify pure non-rmw usage
+> > 
+> > Clarify that pure non-RMW usage of atomic_t is pointless, there is
+> > nothing 'magical' about atomic_set() / atomic_read().
+> > 
+> > This is something that seems to confuse people, because I happen upon it
+> > semi-regularly.
+> > 
+> > Acked-by: Will Deacon <will.deacon@arm.com>
+> > Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+> > ---
+> >  Documentation/atomic_t.txt | 6 ++++--
+> >  1 file changed, 4 insertions(+), 2 deletions(-)
+> > 
+> > diff --git a/Documentation/atomic_t.txt b/Documentation/atomic_t.txt
+> > index dca3fb0554db..89eae7f6b360 100644
+> > --- a/Documentation/atomic_t.txt
+> > +++ b/Documentation/atomic_t.txt
+> > @@ -81,9 +81,11 @@ SEMANTICS
+> >  
+> >  The non-RMW ops are (typically) regular LOADs and STOREs and are canonically
+> >  implemented using READ_ONCE(), WRITE_ONCE(), smp_load_acquire() and
+> > -smp_store_release() respectively.
+> > +smp_store_release() respectively. Therefore, if you find yourself only using
+> > +the Non-RMW operations of atomic_t, you do not in fact need atomic_t at all
+> > +and are doing it wrong.
+> 
+> The counterargument (not so theoretic, just look around in the kernel!) is:
+> we all 'forget' to use READ_ONCE() and WRITE_ONCE(), it should be difficult
+> or more difficult to forget to use atomic_read() and atomic_set()...   IAC,
+> I wouldn't call any of them 'wrong'.
 
-Commit 38e3eebff643db725633657d1d87a3be019d1018.
+I'm thinking you mean that the type system isn't helping us with
+READ/WRITE_ONCE() like it does with atomic_t ? And while I agree that
+there is room for improvement there, that doesn't mean we should start
+using atomic*_t all over the place for that.
 
-Qgroups will do the old roots lookup at delayed ref time, which could be
-while walking down the extent root while running a delayed ref.  This
-should be fine, except we specifically lock eb's in the backref walking
-code irrespective of path->skip_locking, which deadlocks the system.
-Fix up the backref code to honor path->skip_locking, nobody will be
-modifying the commit_root when we're searching so it's completely safe
-to do.
-
-This happens since fb235dc06fac ("btrfs: qgroup: Move half of the qgroup
-accounting time out of commit trans"), kernel may lockup with quota
-enabled.
-
-There is one backref trace triggered by snapshot dropping along with
-write operation in the source subvolume.  The example can be reliably
-reproduced:
-
-  btrfs-cleaner   D    0  4062      2 0x80000000
-  Call Trace:
-   schedule+0x32/0x90
-   btrfs_tree_read_lock+0x93/0x130 [btrfs]
-   find_parent_nodes+0x29b/0x1170 [btrfs]
-   btrfs_find_all_roots_safe+0xa8/0x120 [btrfs]
-   btrfs_find_all_roots+0x57/0x70 [btrfs]
-   btrfs_qgroup_trace_extent_post+0x37/0x70 [btrfs]
-   btrfs_qgroup_trace_leaf_items+0x10b/0x140 [btrfs]
-   btrfs_qgroup_trace_subtree+0xc8/0xe0 [btrfs]
-   do_walk_down+0x541/0x5e3 [btrfs]
-   walk_down_tree+0xab/0xe7 [btrfs]
-   btrfs_drop_snapshot+0x356/0x71a [btrfs]
-   btrfs_clean_one_deleted_snapshot+0xb8/0xf0 [btrfs]
-   cleaner_kthread+0x12b/0x160 [btrfs]
-   kthread+0x112/0x130
-   ret_from_fork+0x27/0x50
-
-When dropping snapshots with qgroup enabled, we will trigger backref
-walk.
-
-However such backref walk at that timing is pretty dangerous, as if one
-of the parent nodes get WRITE locked by other thread, we could cause a
-dead lock.
-
-For example:
-
-           FS 260     FS 261 (Dropped)
-            node A        node B
-           /      \      /      \
-       node C      node D      node E
-      /   \         /  \        /     \
-  leaf F|leaf G|leaf H|leaf I|leaf J|leaf K
-
-The lock sequence would be:
-
-      Thread A (cleaner)             |       Thread B (other writer)
------------------------------------------------------------------------
-write_lock(B)                        |
-write_lock(D)                        |
-^^^ called by walk_down_tree()       |
-                                     |       write_lock(A)
-                                     |       write_lock(D) << Stall
-read_lock(H) << for backref walk     |
-read_lock(D) << lock owner is        |
-                the same thread A    |
-                so read lock is OK   |
-read_lock(A) << Stall                |
-
-So thread A hold write lock D, and needs read lock A to unlock.
-While thread B holds write lock A, while needs lock D to unlock.
-
-This will cause a deadlock.
-
-This is not only limited to snapshot dropping case.  As the backref
-walk, even only happens on commit trees, is breaking the normal top-down
-locking order, makes it deadlock prone.
-
-Fixes: fb235dc06fac ("btrfs: qgroup: Move half of the qgroup accounting time out of commit trans")
-CC: stable@vger.kernel.org # 5.0
-Reported-and-tested-by: David Sterba <dsterba@suse.com>
-Reported-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-[ rebase to latest branch and fix lock assert bug in btrfs/007 ]
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-[ copy logs and deadlock analysis from Qu's patch ]
-[ solve conflicts and backport to linux-5.0.y ]
-Signed-off-by: David Sterba <dsterba@suse.com>
----
- fs/btrfs/backref.c | 19 ++++++++++++-------
- 1 file changed, 12 insertions(+), 7 deletions(-)
-
-diff --git a/fs/btrfs/backref.c b/fs/btrfs/backref.c
-index ef66db38cedb..efe4d4080a21 100644
---- a/fs/btrfs/backref.c
-+++ b/fs/btrfs/backref.c
-@@ -712,7 +712,7 @@ static int resolve_indirect_refs(struct btrfs_fs_info *fs_info,
-  * read tree blocks and add keys where required.
-  */
- static int add_missing_keys(struct btrfs_fs_info *fs_info,
--			    struct preftrees *preftrees)
-+			    struct preftrees *preftrees, bool lock)
- {
- 	struct prelim_ref *ref;
- 	struct extent_buffer *eb;
-@@ -737,12 +737,14 @@ static int add_missing_keys(struct btrfs_fs_info *fs_info,
- 			free_extent_buffer(eb);
- 			return -EIO;
- 		}
--		btrfs_tree_read_lock(eb);
-+		if (lock)
-+			btrfs_tree_read_lock(eb);
- 		if (btrfs_header_level(eb) == 0)
- 			btrfs_item_key_to_cpu(eb, &ref->key_for_search, 0);
- 		else
- 			btrfs_node_key_to_cpu(eb, &ref->key_for_search, 0);
--		btrfs_tree_read_unlock(eb);
-+		if (lock)
-+			btrfs_tree_read_unlock(eb);
- 		free_extent_buffer(eb);
- 		prelim_ref_insert(fs_info, &preftrees->indirect, ref, NULL);
- 		cond_resched();
-@@ -1227,7 +1229,7 @@ static int find_parent_nodes(struct btrfs_trans_handle *trans,
- 
- 	btrfs_release_path(path);
- 
--	ret = add_missing_keys(fs_info, &preftrees);
-+	ret = add_missing_keys(fs_info, &preftrees, path->skip_locking == 0);
- 	if (ret)
- 		goto out;
- 
-@@ -1288,11 +1290,14 @@ static int find_parent_nodes(struct btrfs_trans_handle *trans,
- 					ret = -EIO;
- 					goto out;
- 				}
--				btrfs_tree_read_lock(eb);
--				btrfs_set_lock_blocking_rw(eb, BTRFS_READ_LOCK);
-+				if (!path->skip_locking) {
-+					btrfs_tree_read_lock(eb);
-+					btrfs_set_lock_blocking_rw(eb, BTRFS_READ_LOCK);
-+				}
- 				ret = find_extent_in_eb(eb, bytenr,
- 							*extent_item_pos, &eie, ignore_offset);
--				btrfs_tree_read_unlock_blocking(eb);
-+				if (!path->skip_locking)
-+					btrfs_tree_read_unlock_blocking(eb);
- 				free_extent_buffer(eb);
- 				if (ret < 0)
- 					goto out;
--- 
-2.21.0
-
+Part of the problem with READ/WRITE_ONCE() is that it serves a dual
+purpose; we've tried to untangle that at some point, but Linus wasn't
+having it.
