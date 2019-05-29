@@ -2,105 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BFD0D2E21B
-	for <lists+stable@lfdr.de>; Wed, 29 May 2019 18:13:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA3BA2E25E
+	for <lists+stable@lfdr.de>; Wed, 29 May 2019 18:38:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726408AbfE2QNb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 12:13:31 -0400
-Received: from wnew2-smtp.messagingengine.com ([64.147.123.27]:44065 "EHLO
-        wnew2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726140AbfE2QNb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 May 2019 12:13:31 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailnew.west.internal (Postfix) with ESMTP id E222961E;
-        Wed, 29 May 2019 12:13:29 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Wed, 29 May 2019 12:13:30 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm3; bh=EiBk9WgT5jhapte0zGFwRA6Svwh
-        jQL4faQV9mcE4mek=; b=s+gOKNptth2H04QNemaVWBfU+qTqjTFzEpiOpdGq7ty
-        nd/PZXK1NzyBjfremVcHN2ngxyzJgPz858MKEZJ2IWWjPs9KpIbl/5yq0T/O/2rv
-        ezs3vFSH6IAbZzWgjNYBllBEHVdJef3gww3l3RWS6Y8GaTBgCjzprWDPLbOdarGm
-        fpZWUuONx2IG91Y1yn4pqToeMo84ZFcJ8b/naPO0KbWecUhswZitG7LuZyBJexr+
-        KK49gjb93dPCmU885P5LEN0470OO5UkepqEerjdqzg1VOI6u7SBZlVdmKGz2xooi
-        SVS5se94xyUrhevQGat/ZlT0yHGc2UNfRwfDPLKGa0Q==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=EiBk9W
-        gT5jhapte0zGFwRA6SvwhjQL4faQV9mcE4mek=; b=KM/Z2GBBCSzCqUuPbApAAv
-        lJAb67kqcTDpwZz1RiGvY2zNUCNwZr9dCJxJo+R1tsOGyh18UAOHJY4J4qjGmY+z
-        i6iga2n3xBLs5TjXqtRO3vEGepfOVY9rkUYYQtvj2GxSsxkRmbNwBP5Kn6gDLWfa
-        fwWirfsSwaCIZ0gu8FW6/bRQIUnIu7CXH5BwlT3/fGrYt8GcR5q/OCXMIEhrbzB2
-        qG0UOns2NyOVcRwTwJ7uSsKG51M5cOt6E1gfIYfd2Vu/rVj9OpcpTJ9VWjNuuTFQ
-        EPgMj276bG/COzyiwXaXYEf2QqZl82GKo0YKpuyjDjeXq7+s2pz5hnHcKli3MAdQ
-        ==
-X-ME-Sender: <xms:qK_uXNuZgz46WLK6JzCxhI2Z6sOCgIk4F7hCvC1baOFnS8w2qPku0Q>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddruddvjedguddttdcutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
-    enucfjughrpeffhffvuffkfhggtggujggfsehttdertddtredvnecuhfhrohhmpefirhgv
-    ghcumffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucffohhmrghinhepkhgvrhhnvg
-    hlrdhorhhgnecukfhppedvtdejrddvvdehrdeiledrudduheenucfrrghrrghmpehmrghi
-    lhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:qK_uXKs5TDtr6m1beB4ua8bo07yONvLeBRjRCBBNIIojXLniWxHvLA>
-    <xmx:qK_uXLwck_CqfKQZw2ADz6MHIw1iMZdRh-NilBd7pfTkwfWuTjMeZw>
-    <xmx:qK_uXIgtwy4j2yxCEB1edcNIilEo1DIUZlU-xWMnBf22l58Mbltrew>
-    <xmx:qa_uXFofdbpmCBtU0Ufpc_KzWJxB6z2Qu870gOEgye3htJpQAcEIxEudC00>
-Received: from localhost (unknown [207.225.69.115])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 60001380084;
-        Wed, 29 May 2019 12:13:28 -0400 (EDT)
-Date:   Wed, 29 May 2019 09:13:27 -0700
-From:   Greg KH <greg@kroah.com>
-To:     Jan Beulich <JBeulich@suse.com>
-Cc:     Ian Jackson <ian.jackson@citrix.com>,
-        Lars Kurth <lars.kurth@citrix.com>,
-        Paul Durrant <paul.durrant@citrix.com>,
-        Wei Liu <wei.liu2@citrix.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        xen-devel <xen-devel@lists.xenproject.org>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
-        Juergen Gross <jgross@suse.com>, stable@vger.kernel.org
-Subject: Re: Linux 3.18 no longer boots under Xen, Xen CI dropping it
-Message-ID: <20190529161327.GA16496@kroah.com>
-References: <E1hSRQF-0006xk-BS@osstest.test-lab.xenproject.org>
- <23778.34168.78221.110803@mariner.uk.xensource.com>
- <20190520114147.GU2798@zion.uk.xensource.com>
- <5CE2B0DA0200007800230A08@prv1-mh.provo.novell.com>
- <23790.44034.186393.25330@mariner.uk.xensource.com>
- <5CEEADE80200007800233811@prv1-mh.provo.novell.com>
+        id S1727003AbfE2Qip (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 12:38:45 -0400
+Received: from mail-pg1-f196.google.com ([209.85.215.196]:44597 "EHLO
+        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726162AbfE2Qip (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 May 2019 12:38:45 -0400
+Received: by mail-pg1-f196.google.com with SMTP id n2so200834pgp.11;
+        Wed, 29 May 2019 09:38:45 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=Md0Md0Gh/CU86kMW6YbhAT59kB2A6OWx7FClQOVFvtM=;
+        b=Qsali9D+TffSYLFQ2imuiwlyLcK0M4JOEkU5SJpTgUjrlbg0cUCWktjp9pOFbvAXbS
+         qRl/ydiAFEI/jT6vB5a6fIuBjFVpoyxvsk9KTYiHvTgjLrLtzoGHjB4ET7HfQrJ4zamX
+         A90bh4OHfRfIGoUPe0r6RP8JNZoiv+ua88fyfhOY8CoMLIkakpyE8lGjs3Xbgzs04GaT
+         uXF9VWGKBatymmEBU49WgNG5dtBrZDTCZ5+pdYd8bDT4evONe1aw+mSWtAXDcRlv4loX
+         T8KvVhgTxobWN53I72I4cQQw2XvkoeMW/7Ytot2cn0mUqe+0+KBmYNDPaqU1ce9lY7ue
+         ZwcA==
+X-Gm-Message-State: APjAAAWA0i3jlYNR6BS4+3Qdg4YWwtCu7dAKve/R/sW5fuQF8lsNbcEO
+        7K2pu9jLAFmweWdkLKld/ao=
+X-Google-Smtp-Source: APXvYqwJuDpY32lXK+AajkeL/hf57btq1bSomACItiCccwmMewSej6T9bejwCIsffagTqOUXLYNbVw==
+X-Received: by 2002:a62:e217:: with SMTP id a23mr106414568pfi.128.1559147919993;
+        Wed, 29 May 2019 09:38:39 -0700 (PDT)
+Received: from desktop-bart.svl.corp.google.com ([2620:15c:2cd:202:4308:52a3:24b6:2c60])
+        by smtp.gmail.com with ESMTPSA id i101sm166450pje.9.2019.05.29.09.38.38
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 29 May 2019 09:38:39 -0700 (PDT)
+From:   Bart Van Assche <bvanassche@acm.org>
+To:     Jason Gunthorpe <jgg@ziepe.ca>
+Cc:     Leon Romanovsky <leonro@mellanox.com>,
+        Doug Ledford <dledford@redhat.com>, linux-rdma@vger.kernel.org,
+        Bart Van Assche <bvanassche@acm.org>,
+        Laurence Oberman <loberman@redhat.com>, stable@vger.kernel.org
+Subject: [PATCH, RESEND] RDMA/srp: Accept again source addresses that do not have a port number
+Date:   Wed, 29 May 2019 09:38:31 -0700
+Message-Id: <20190529163831.138926-1-bvanassche@acm.org>
+X-Mailer: git-send-email 2.20.GIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5CEEADE80200007800233811@prv1-mh.provo.novell.com>
-User-Agent: Mutt/1.12.0 (2019-05-25)
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 29, 2019 at 10:06:00AM -0600, Jan Beulich wrote:
-> >>> On 29.05.19 at 17:57, <ian.jackson@citrix.com> wrote:
-> > Linux 3.18 no longer boots under Xen.
-> > 
-> > This has been true for over half a year.  The Xen project CI has been
-> > sending automatic mails including bisection reports (see below).
-> > I emailed Xen kernel folks and got no takers for fixing this.
-> > 
-> > Unless this is fixed soon, or at least someone shows some inclination
-> > to investigate this regression, I intend to drop all testing of this
-> > "stable" branch.  It has rotted and no-one is fixing it.
-> 
-> Afaics 3.18 has been marked EOL upstream.
+The function srp_parse_in() is used both for parsing source address
+specifications and for target address specifications. Target addresses
+must have a port number. Having to specify a port number for source
+addresses is inconvenient. Make sure that srp_parse_in() supports again
+parsing addresses with no port number.
 
-Yes, there will not be any more 3.18.y releases on kernel.org anymore.
+Cc: Laurence Oberman <loberman@redhat.com>
+Cc: <stable@vger.kernel.org>
+Fixes: c62adb7def71 ("IB/srp: Fix IPv6 address parsing") # v4.17.
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+---
+ drivers/infiniband/ulp/srp/ib_srp.c | 21 +++++++++++++++------
+ 1 file changed, 15 insertions(+), 6 deletions(-)
 
-I don't think I recall any people complaining about 3.18 breaking on
-Xen as the only users that I know of for that kernel are some SoC-based
-devices, and they do not use Xen.
+diff --git a/drivers/infiniband/ulp/srp/ib_srp.c b/drivers/infiniband/ulp/srp/ib_srp.c
+index be9ddcad8f28..87848faa7502 100644
+--- a/drivers/infiniband/ulp/srp/ib_srp.c
++++ b/drivers/infiniband/ulp/srp/ib_srp.c
+@@ -3481,13 +3481,14 @@ static const match_table_t srp_opt_tokens = {
+  * @net:	   [in]  Network namespace.
+  * @sa:		   [out] Address family, IP address and port number.
+  * @addr_port_str: [in]  IP address and port number.
++ * @has_port:	   [out] Whether or not @addr_port_str includes a port number.
+  *
+  * Parse the following address formats:
+  * - IPv4: <ip_address>:<port>, e.g. 1.2.3.4:5.
+  * - IPv6: \[<ipv6_address>\]:<port>, e.g. [1::2:3%4]:5.
+  */
+ static int srp_parse_in(struct net *net, struct sockaddr_storage *sa,
+-			const char *addr_port_str)
++			const char *addr_port_str, bool *has_port)
+ {
+ 	char *addr_end, *addr = kstrdup(addr_port_str, GFP_KERNEL);
+ 	char *port_str;
+@@ -3496,9 +3497,12 @@ static int srp_parse_in(struct net *net, struct sockaddr_storage *sa,
+ 	if (!addr)
+ 		return -ENOMEM;
+ 	port_str = strrchr(addr, ':');
+-	if (!port_str)
+-		return -EINVAL;
+-	*port_str++ = '\0';
++	if (port_str && strchr(port_str, ']'))
++		port_str = NULL;
++	if (port_str)
++		*port_str++ = '\0';
++	if (has_port)
++		*has_port = port_str != NULL;
+ 	ret = inet_pton_with_scope(net, AF_INET, addr, port_str, sa);
+ 	if (ret && addr[0]) {
+ 		addr_end = addr + strlen(addr) - 1;
+@@ -3520,6 +3524,7 @@ static int srp_parse_options(struct net *net, const char *buf,
+ 	char *p;
+ 	substring_t args[MAX_OPT_ARGS];
+ 	unsigned long long ull;
++	bool has_port;
+ 	int opt_mask = 0;
+ 	int token;
+ 	int ret = -EINVAL;
+@@ -3618,7 +3623,8 @@ static int srp_parse_options(struct net *net, const char *buf,
+ 				ret = -ENOMEM;
+ 				goto out;
+ 			}
+-			ret = srp_parse_in(net, &target->rdma_cm.src.ss, p);
++			ret = srp_parse_in(net, &target->rdma_cm.src.ss, p,
++					   NULL);
+ 			if (ret < 0) {
+ 				pr_warn("bad source parameter '%s'\n", p);
+ 				kfree(p);
+@@ -3634,7 +3640,10 @@ static int srp_parse_options(struct net *net, const char *buf,
+ 				ret = -ENOMEM;
+ 				goto out;
+ 			}
+-			ret = srp_parse_in(net, &target->rdma_cm.dst.ss, p);
++			ret = srp_parse_in(net, &target->rdma_cm.dst.ss, p,
++					   &has_port);
++			if (!has_port)
++				ret = -EINVAL;
+ 			if (ret < 0) {
+ 				pr_warn("bad dest parameter '%s'\n", p);
+ 				kfree(p);
+-- 
+2.22.0.rc1
 
-thanks,
-
-greg k-h
