@@ -2,251 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E8A42E794
-	for <lists+stable@lfdr.de>; Wed, 29 May 2019 23:45:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F12FC2E7A9
+	for <lists+stable@lfdr.de>; Wed, 29 May 2019 23:52:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726250AbfE2VpH convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Wed, 29 May 2019 17:45:07 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:44672 "EHLO mx1.redhat.com"
+        id S1726311AbfE2Vwp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 17:52:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36708 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726018AbfE2VpH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 17:45:07 -0400
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1726018AbfE2Vwp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 17:52:45 -0400
+Received: from akpm3.svl.corp.google.com (unknown [104.133.8.65])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 8DD57302451A
-        for <stable@vger.kernel.org>; Wed, 29 May 2019 21:45:06 +0000 (UTC)
-Received: from [172.54.208.215] (cpt-0038.paas.prod.upshift.rdu2.redhat.com [10.0.18.103])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id A6A311001E71;
-        Wed, 29 May 2019 21:45:01 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.1
-Message-ID: <cki.A97E252471.ZFGIO0S4CV@redhat.com>
-X-Gitlab-Pipeline-ID: 11079
-X-Gitlab-Pipeline: =?utf-8?q?https=3A//xci32=2Elab=2Eeng=2Erdu2=2Eredhat=2Ec?=
- =?utf-8?q?om/cki-project/cki-pipeline/pipelines/11079?=
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.49]); Wed, 29 May 2019 21:45:06 +0000 (UTC)
-Date:   Wed, 29 May 2019 17:45:07 -0400
+        by mail.kernel.org (Postfix) with ESMTPSA id 9D2702423A;
+        Wed, 29 May 2019 21:52:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1559166763;
+        bh=WSBRk8GSHPX6RtEC4hXv5PLnhgIBE4wPSX0Up59JeHg=;
+        h=Date:From:To:Subject:From;
+        b=m6b6YU3OjiZQfs9q7vReq71eMgKj5d3RN876EfU1kd61P8K6UI+QC4gKww3YabXRn
+         odbdbeTxi2TlSHW0UCWfZSosGbDT1KQdy9SVSa8RFbh/t6PADzb++OJSCbLuXoL8bm
+         9wPXYkj9qAdN5e7XtaVxEVE1tVt5Wk5wAh5nZgd4=
+Date:   Wed, 29 May 2019 14:52:43 -0700
+From:   akpm@linux-foundation.org
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        luto@kernel.org, john.ogness@linutronix.de, adobriyan@gmail.com,
+        jlu@pengutronix.de
+Subject:  [to-be-updated]
+ proc-report-eip-and-esp-for-all-threads-when-coredumping.patch removed from
+ -mm tree
+Message-ID: <20190529215243.MDRh5%akpm@linux-foundation.org>
+User-Agent: s-nail v14.9.10
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
 
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
+The patch titled
+     Subject: proc: report eip and esp for all threads when coredumping
+has been removed from the -mm tree.  Its filename was
+     proc-report-eip-and-esp-for-all-threads-when-coredumping.patch
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: 835365932f0d - Linux 5.1.5
+This patch was dropped because an updated version will be merged
 
-The results of these automated tests are provided below.
+------------------------------------------------------
+From: Jan Luebbe <jlu@pengutronix.de>
+Subject: proc: report eip and esp for all threads when coredumping
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
+0a1eb2d474ed ("fs/proc: Stop reporting eip and esp in /proc/PID/stat")
+stopped reporting eip/esp and fd7d56270b52 ("fs/proc: Report eip/esp in
+/prod/PID/stat for coredumping") reintroduced the feature to fix a
+regression with userspace core dump handlers (such as minicoredumper).
 
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
+Because PF_DUMPCORE is only set for the primary thread, this didn't fix
+the original problem for secondary threads.  This commit checks
+mm->core_state instead, as already done for /proc/<pid>/status in
+task_core_dumping().  As we have a mm_struct available here anyway, this
+seems to be a clean solution.
 
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
+In current mainline, all threads except the main have the
+/proc/[pid]/stat fields 'kstkesp' (29, current stack pointer) and
+'kstkeip' (30, current instruction pointer) show as 0 even during
+coredumping when read by the core dump handler.
 
-Merge testing
--------------
+minicoredumper for example tries to use this value to find each
+thread's stack and tries to dump it, which fails as there is nothing
+mapped at 0.  The result is that the thread's stack data is missing
+from the generated core dump.
 
-We cloned this repository and checked out the following commit:
+With this patch, kstkesp and kstkeip are visible again to the core dump
+handler, so the minified core dump contains all stacks again.  For a
+process running normally, the values are still reported as 0 (as
+intended).
 
-  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: 835365932f0d - Linux 5.1.5
+[akpm@linux-foundation.org: cleanup, per Alexey]
+[john.ogness@linutronix.de: close race window]
+  Link: http://lkml.kernel.org/r/875zpzif8v.fsf@linutronix.de
+Link: http://lkml.kernel.org/r/20190522161614.628-1-jlu@pengutronix.de
+Fixes: fd7d56270b526ca3 ("fs/proc: Report eip/esp in /prod/PID/stat for coredumping")
+Signed-off-by: Jan Luebbe <jlu@pengutronix.de>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: John Ogness <john.ogness@linutronix.de>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
 
+ fs/coredump.c   |    2 +-
+ fs/proc/array.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-We then merged the patchset with `git am`:
+--- a/fs/proc/array.c~proc-report-eip-and-esp-for-all-threads-when-coredumping
++++ a/fs/proc/array.c
+@@ -462,7 +462,7 @@ static int do_task_stat(struct seq_file
+ 		 * a program is not able to use ptrace(2) in that case. It is
+ 		 * safe because the task has stopped executing permanently.
+ 		 */
+-		if (permitted && (task->flags & PF_DUMPCORE)) {
++		if (permitted && mm->core_state) {
+ 			if (try_get_task_stack(task)) {
+ 				eip = KSTK_EIP(task);
+ 				esp = KSTK_ESP(task);
+--- a/fs/coredump.c~proc-report-eip-and-esp-for-all-threads-when-coredumping
++++ a/fs/coredump.c
+@@ -340,10 +340,10 @@ static int zap_threads(struct task_struc
+ 
+ 	spin_lock_irq(&tsk->sighand->siglock);
+ 	if (!signal_group_exit(tsk->signal)) {
+-		mm->core_state = core_state;
+ 		tsk->signal->group_exit_task = tsk;
+ 		nr = zap_process(tsk, exit_code, 0);
+ 		clear_tsk_thread_flag(tsk, TIF_SIGPENDING);
++		mm->core_state = core_state;
+ 	}
+ 	spin_unlock_irq(&tsk->sighand->siglock);
+ 	if (unlikely(nr < 0))
+_
 
-  x86-hide-the-int3_emulate_call-jmp-functions-from-uml.patch
-  ext4-do-not-delete-unlinked-inode-from-orphan-list-on-failed-truncate.patch
-  ext4-wait-for-outstanding-dio-during-truncate-in-nojournal-mode.patch
-  kvm-x86-fix-return-value-for-reserved-efer.patch
-  x86-kvm-pmu-set-amd-s-virt-pmu-version-to-1.patch
-  bio-fix-improper-use-of-smp_mb__before_atomic.patch
-  sbitmap-fix-improper-use-of-smp_mb__before_atomic.patch
-  revert-scsi-sd-keep-disk-read-only-when-re-reading-partition.patch
-  crypto-hash-fix-incorrect-hash_max_descsize.patch
-  crypto-vmx-ctr-always-increment-iv-as-quadword.patch
-  mmc-sdhci-iproc-cygnus-set-no_hispd-bit-to-fix-hs50-data-hold-time-problem.patch
-  mmc-sdhci-iproc-set-no_hispd-bit-to-fix-hs50-data-hold-time-problem.patch
-  tracing-add-a-check_val-check-before-updating-cond_snapshot-track_val.patch
-  dax-arrange-for-dax_supported-check-to-span-multiple-devices.patch
-  kvm-check-irqchip-mode-before-assign-irqfd.patch
-  kvm-svm-avic-fix-off-by-one-in-checking-host-apic-id.patch
-  kvm-nvmx-fix-using-__this_cpu_read-in-preemptible-context.patch
-  libnvdimm-pmem-bypass-config_hardened_usercopy-overhead.patch
-  arm64-kernel-kaslr-reduce-module-randomization-range-to-2-gb.patch
-  arm64-kconfig-make-arm64_pseudo_nmi-depend-on-broken-for-now.patch
-  arm64-iommu-handle-non-remapped-addresses-in-mmap-and-get_sgtable.patch
-  gfs2-fix-sign-extension-bug-in-gfs2_update_stats.patch
-  btrfs-don-t-double-unlock-on-error-in-btrfs_punch_hole.patch
-  btrfs-check-the-compression-level-before-getting-a-workspace.patch
-  btrfs-do-not-abort-transaction-at-btrfs_update_root-after-failure-to-cow-path.patch
-  btrfs-avoid-fallback-to-transaction-commit-during-fsync-of-files-with-holes.patch
-  btrfs-fix-race-between-ranged-fsync-and-writeback-of-adjacent-ranges.patch
-  btrfs-sysfs-fix-error-path-kobject-memory-leak.patch
-  btrfs-sysfs-don-t-leak-memory-when-failing-add-fsid.patch
-  fbdev-fix-divide-error-in-fb_var_to_videomode.patch
-  arm64-errata-add-workaround-for-cortex-a76-erratum-1463225.patch
-  ovl-relax-warn_on-for-overlapping-layers-use-case.patch
-  fbdev-fix-warning-in-__alloc_pages_nodemask-bug.patch
-  media-cpia2-fix-use-after-free-in-cpia2_exit.patch
-  media-serial_ir-fix-use-after-free-in-serial_ir_init_module.patch
-  media-vb2-add-waiting_in_dqbuf-flag.patch
-  media-vivid-use-vfree-instead-of-kfree-for-dev-bitmap_cap.patch
-  ssb-fix-possible-null-pointer-dereference-in-ssb_host_pcmcia_exit.patch
-  bpf-devmap-fix-use-after-free-read-in-__dev_map_entry_free.patch
-  batman-adv-mcast-fix-multicast-tt-tvlv-worker-locking.patch
-  at76c50x-usb-don-t-register-led_trigger-if-usb_register_driver-failed.patch
-  acct_on-don-t-mess-with-freeze-protection.patch
-  netfilter-ctnetlink-resolve-conntrack-l3-protocol-flush-regression.patch
-  revert-btrfs-honour-fitrim-range-constraints-during-free-space-trim.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-  aarch64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-cedbf8bf21ca65c1069fb462c3f36ac8548eafb9.config
-    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-cedbf8bf21ca65c1069fb462c3f36ac8548eafb9.tar.gz
-
-  ppc64le:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-cedbf8bf21ca65c1069fb462c3f36ac8548eafb9.config
-    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-cedbf8bf21ca65c1069fb462c3f36ac8548eafb9.tar.gz
-
-  s390x:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-cedbf8bf21ca65c1069fb462c3f36ac8548eafb9.config
-    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-cedbf8bf21ca65c1069fb462c3f36ac8548eafb9.tar.gz
-
-  x86_64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-cedbf8bf21ca65c1069fb462c3f36ac8548eafb9.config
-    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-cedbf8bf21ca65c1069fb462c3f36ac8548eafb9.tar.gz
+Patches currently in -mm which might be from jlu@pengutronix.de are
 
 
-Hardware testing
-----------------
-
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ audit: audit testsuite test [4]
-       ✅ httpd: mod_ssl smoke sanity [5]
-       ✅ iotop: sanity [6]
-       ✅ tuned: tune-processes-through-perf [7]
-       ✅ Usex - version 1.9-29 [8]
-       ✅ stress: stress-ng [9]
-       🚧 ✅ Networking socket: fuzz [10]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ xfstests: ext4 [11]
-       ✅ xfstests: xfs [11]
-       ✅ selinux-policy: serge-testsuite [12]
-
-
-  ppc64le:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ audit: audit testsuite test [4]
-       ✅ httpd: mod_ssl smoke sanity [5]
-       ✅ iotop: sanity [6]
-       ✅ tuned: tune-processes-through-perf [7]
-       ✅ Usex - version 1.9-29 [8]
-       ✅ stress: stress-ng [9]
-       🚧 ✅ Networking socket: fuzz [10]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ xfstests: ext4 [11]
-       ✅ xfstests: xfs [11]
-       ✅ selinux-policy: serge-testsuite [12]
-
-
-  s390x:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [12]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ audit: audit testsuite test [4]
-       ✅ httpd: mod_ssl smoke sanity [5]
-       ✅ iotop: sanity [6]
-       ✅ tuned: tune-processes-through-perf [7]
-       ✅ stress: stress-ng [9]
-       🚧 ✅ Networking socket: fuzz [10]
-
-
-  x86_64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ audit: audit testsuite test [4]
-       ✅ httpd: mod_ssl smoke sanity [5]
-       ✅ iotop: sanity [6]
-       ✅ tuned: tune-processes-through-perf [7]
-       ✅ Usex - version 1.9-29 [8]
-       ✅ stress: stress-ng [9]
-       🚧 ✅ Networking socket: fuzz [10]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ xfstests: ext4 [11]
-       ✅ xfstests: xfs [11]
-       ✅ selinux-policy: serge-testsuite [12]
-
-
-  Test source:
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
-    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
-    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/filesystems/xfs/xfstests
-    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-
-Waived tests (marked with 🚧)
------------------------------
-This test run included waived tests. Such tests are executed but their results
-are not taken into account. Tests are waived when their results are not
-reliable enough, e.g. when they're just introduced or are being fixed.
