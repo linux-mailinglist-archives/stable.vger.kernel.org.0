@@ -2,166 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 20B572D56E
-	for <lists+stable@lfdr.de>; Wed, 29 May 2019 08:22:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 325872E0B3
+	for <lists+stable@lfdr.de>; Wed, 29 May 2019 17:12:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726062AbfE2GWc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 02:22:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57100 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725879AbfE2GWc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 02:22:32 -0400
-Received: from localhost.localdomain (c-73-223-200-170.hsd1.ca.comcast.net [73.223.200.170])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7E3DE20657;
-        Wed, 29 May 2019 06:22:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559110951;
-        bh=iskw882tsSUixkMiTSryEhIUHAGAE1h2Sju1oylRluo=;
-        h=Date:From:To:Subject:From;
-        b=JHuX3G/i5yr9OPeG+F16g7wVMO7wydlz9jXv1ubpXfYccHlI715Z1V3h1Y6GUerLN
-         +LUJspUUl1n+S/rgy0Yh9BX8iJg2WTtcYJsiq/RoXNGmjrfBfOYIaOeJgk59YZxs6h
-         Ss1rnL24uuzGY/blRe+q8XS2xovdJm0pj17yZNSk=
-Date:   Tue, 28 May 2019 23:22:31 -0700
-From:   akpm@linux-foundation.org
-To:     jerry.t.chen@intel.com, mhocko@kernel.org, mike.kravetz@oracle.com,
-        mm-commits@vger.kernel.org, n-horiguchi@ah.jp.nec.com,
-        qiuxu.zhuo@intel.com, stable@vger.kernel.org
-Subject:  [to-be-updated]
- mm-hugetlb-soft-offline-fix-wrong-return-value-of-soft-offline.patch
- removed from -mm tree
-Message-ID: <20190529062231.qyprvrMWA%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1726652AbfE2PMj convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 29 May 2019 11:12:39 -0400
+Received: from mail.csu.ru ([195.54.14.68]:57171 "HELO mail.csu.ru"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+        id S1725936AbfE2PMj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 11:12:39 -0400
+Received: from webmail.csu.ru (webmail.csu.ru [195.54.14.80])
+        (Authenticated sender: ryzhkovainna)
+        by mail.csu.ru (Postfix) with ESMTPA id 8AEF5144A07;
+        Wed, 29 May 2019 12:32:17 +0500 (+05)
+Received: from 41.203.78.160
+        (SquirrelMail authenticated user ryzhkovainna)
+        by webmail.csu.ru with HTTP;
+        Wed, 29 May 2019 12:32:06 +0500
+Message-ID: <b9c581792104f57e1e2e3584fcbf2ede.squirrel@webmail.csu.ru>
+Date:   Wed, 29 May 2019 12:32:06 +0500
+From:   "PATRICIA" <patriciachandler411@gmail.com>
+User-Agent: SquirrelMail/1.4.22
+MIME-Version: 1.0
+Content-Type: text/plain;charset=utf-8
+X-Priority: 3 (Normal)
+Importance: Normal
+X-KLMS-Rule-ID: 1
+X-KLMS-Message-Action: skipped, AntiSpam
+X-KLMS-AntiSpam-Lua-Profiles: 140277 [May 29 2019]
+X-KLMS-AntiSpam-Version: 5.8.6.0
+X-KLMS-AntiSpam-Envelope-From: patriciachandler411@gmail.com
+X-KLMS-AntiSpam-Rate: 100
+X-KLMS-AntiSpam-Status: blacklisted
+X-KLMS-AntiSpam-Method: DNSBL
+X-KLMS-AntiSpam-Info: LuaCore: 272 272 3851567572586a7f07cb2d4cbc96d1a010770c84, {rep_avail}, {reputation received: black}, {black address: 41.203.78.160}, {Prob_to_header_missing}, {Found in DNSBL: 41.203.78.160 in (user) dnsbl-2.uceprotect.net}, {User DNSBL Rate: high}, 195.54.14.80:7.1.2;webmail.csu.ru:7.1.1;d41d8cd98f00b204e9800998ecf8427e.com:7.1.1;127.0.0.199:7.1.2;gmail.com:7.1.1, ApMailHostAddress: 195.54.14.80
+X-MS-Exchange-Organization-SCL: -1
+X-KLMS-AntiSpam-Interceptor-Info: scan successful
+X-KLMS-AntiPhishing: Clean, bases: 2019/05/29 07:15:00
+X-KLMS-AntiVirus: Kaspersky Security for Linux Mail Server, version 8.0.3.30, bases: 2019/05/29 03:52:00 #13325081
+X-KLMS-AntiVirus-Status: Clean, skipped
+Subject: [Blacklisted]
+Content-Transfer-Encoding: 8BIT
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch titled
-     Subject: mm: hugetlb: soft-offline: fix wrong return value of soft offline
-has been removed from the -mm tree.  Its filename was
-     mm-hugetlb-soft-offline-fix-wrong-return-value-of-soft-offline.patch
 
-This patch was dropped because an updated version will be merged
 
-------------------------------------------------------
-From: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
-Subject: mm: hugetlb: soft-offline: fix wrong return value of soft offline
+You have a charity donation of $1.200.000.00 from Patricia for full
+details contact her now
 
-Soft offline events for hugetlb pages return -EBUSY when page migration
-succeeded and dissolve_free_huge_page() failed, which can happen when
-there're surplus hugepages.  We should judge pass/fail of soft offline by
-checking whether the raw error page was finally contained or not (i.e. 
-the result of set_hwpoison_free_buddy_page()), so this behavior is wrong.
-
-This problem was introduced by the following change of commit 6bc9b56433b76
-("mm: fix race on soft-offlining"):
-
-                    if (ret > 0)
-                            ret = -EIO;
-            } else {
-    -               if (PageHuge(page))
-    -                       dissolve_free_huge_page(page);
-    +               /*
-    +                * We set PG_hwpoison only when the migration source hugepage
-    +                * was successfully dissolved, because otherwise hwpoisoned
-    +                * hugepage remains on free hugepage list, then userspace will
-    +                * find it as SIGBUS by allocation failure. That's not expected
-    +                * in soft-offlining.
-    +                */
-    +               ret = dissolve_free_huge_page(page);
-    +               if (!ret) {
-    +                       if (set_hwpoison_free_buddy_page(page))
-    +                               num_poisoned_pages_inc();
-    +               }
-            }
-            return ret;
-     }
-
-so a simple fix is to restore the PageHuge precheck, but my code reading
-shows that we already have PageHuge check in dissolve_free_huge_page()
-with hugetlb_lock, which is better place to check it.  And currently
-dissolve_free_huge_page() returns -EBUSY for !PageHuge but that's simply
-wrong because that that case should be considered as success (meaning that
-"the given hugetlb was already dissolved.")
-
-This change affects other callers of dissolve_free_huge_page(), which are
-also cleaned up by this patch.
-
-Link: http://lkml.kernel.org/r/1558937200-18544-1-git-send-email-n-horiguchi@ah.jp.nec.com
-Fixes: 6bc9b56433b76 ("mm: fix race on soft-offlining")
-Signed-off-by: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
-Reported-by: Chen, Jerry T <jerry.t.chen@intel.com>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: "Zhuo, Qiuxu" <qiuxu.zhuo@intel.com>
-Cc: <stable@vger.kernel.org>	[4.19+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/hugetlb.c        |   15 +++++++++------
- mm/memory-failure.c |    7 +++----
- 2 files changed, 12 insertions(+), 10 deletions(-)
-
---- a/mm/hugetlb.c~mm-hugetlb-soft-offline-fix-wrong-return-value-of-soft-offline
-+++ a/mm/hugetlb.c
-@@ -1519,7 +1519,12 @@ int dissolve_free_huge_page(struct page
- 	int rc = -EBUSY;
- 
- 	spin_lock(&hugetlb_lock);
--	if (PageHuge(page) && !page_count(page)) {
-+	if (!PageHuge(page)) {
-+		rc = 0;
-+		goto out;
-+	}
-+
-+	if (!page_count(page)) {
- 		struct page *head = compound_head(page);
- 		struct hstate *h = page_hstate(head);
- 		int nid = page_to_nid(head);
-@@ -1564,11 +1569,9 @@ int dissolve_free_huge_pages(unsigned lo
- 
- 	for (pfn = start_pfn; pfn < end_pfn; pfn += 1 << minimum_order) {
- 		page = pfn_to_page(pfn);
--		if (PageHuge(page) && !page_count(page)) {
--			rc = dissolve_free_huge_page(page);
--			if (rc)
--				break;
--		}
-+		rc = dissolve_free_huge_page(page);
-+		if (rc)
-+			break;
- 	}
- 
- 	return rc;
---- a/mm/memory-failure.c~mm-hugetlb-soft-offline-fix-wrong-return-value-of-soft-offline
-+++ a/mm/memory-failure.c
-@@ -1733,6 +1733,8 @@ static int soft_offline_huge_page(struct
- 		if (!ret) {
- 			if (set_hwpoison_free_buddy_page(page))
- 				num_poisoned_pages_inc();
-+			else
-+				ret = -EBUSY;
- 		}
- 	}
- 	return ret;
-@@ -1857,11 +1859,8 @@ static int soft_offline_in_use_page(stru
- 
- static int soft_offline_free_page(struct page *page)
- {
--	int rc = 0;
--	struct page *head = compound_head(page);
-+	int rc = dissolve_free_huge_page(page);
- 
--	if (PageHuge(head))
--		rc = dissolve_free_huge_page(page);
- 	if (!rc) {
- 		if (set_hwpoison_free_buddy_page(page))
- 			num_poisoned_pages_inc();
-_
-
-Patches currently in -mm which might be from n-horiguchi@ah.jp.nec.com are
 
 
