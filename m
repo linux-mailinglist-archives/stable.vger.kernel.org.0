@@ -2,103 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 467F12DD80
-	for <lists+stable@lfdr.de>; Wed, 29 May 2019 14:52:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E4252DDD3
+	for <lists+stable@lfdr.de>; Wed, 29 May 2019 15:14:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726029AbfE2Mwe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 08:52:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53450 "EHLO mail.kernel.org"
+        id S1726881AbfE2NOx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 09:14:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725936AbfE2Mwe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 08:52:34 -0400
-Received: from localhost (173-25-83-245.client.mchsi.com [173.25.83.245])
+        id S1726029AbfE2NOx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 09:14:53 -0400
+Received: from localhost (unknown [23.100.24.84])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E027320673;
-        Wed, 29 May 2019 12:52:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 43F372081C;
+        Wed, 29 May 2019 13:14:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559134354;
-        bh=dGdCcGynEuU84CpifoTXESNk2YEk11Q/jGdnwOs+Z6w=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=u4ogjzOkqZR5Nbh3+cYMWEKxFsnKlIh67NoDnsZy7gFqj1L/7JUMH6XqIwXwDn6xz
-         KMuQSOnWj9hHsqvf6Je8Jyx30JyREdjGCk42fa/ZDKy5vtlpolOQ3wsKvHXefAjzyB
-         hNrXgkjUHo3CUGXe/TArH2W1n6B5xtyjl3oa4q64=
-Date:   Wed, 29 May 2019 07:52:32 -0500
-From:   Bjorn Helgaas <helgaas@kernel.org>
-To:     Niklas Cassel <niklas.cassel@linaro.org>
-Cc:     Stanimir Varbanov <svarbanov@mm-sol.com>,
-        Andy Gross <agross@kernel.org>,
-        David Brown <david.brown@linaro.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        stable@vger.kernel.org, linux-pci@vger.kernel.org,
-        linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v2] PCI: qcom: Ensure that PERST is asserted for at least
- 100 ms
-Message-ID: <20190529125232.GA28250@google.com>
-References: <20190529094352.5961-1-niklas.cassel@linaro.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190529094352.5961-1-niklas.cassel@linaro.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+        s=default; t=1559135692;
+        bh=xKlA2g0wIi0S7QT1ghsj/kNXtl6yCp86bG8AATUDAzk=;
+        h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
+        b=AVJjj8POoTrQ4M7YeIyqLpk553l1+dSgSikMjhX+vYUMNAKXNliKLQQGPNBYstW1w
+         XZ4o/uG+HMJljqzFV5GehPQSqkLoa0zd+dKCy0bWBzv0W6KDjCogzb6hg8X4rWbCyc
+         nfDQzzou7D2nvunV+KUtGTpA/cXDRyO+nSg72EL0=
+Date:   Wed, 29 May 2019 13:14:51 +0000
+From:   Sasha Levin <sashal@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
+To:     "Yan, Zheng" <zyan@redhat.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     idryomov@redhat.com, jlayton@redhat.com
+Cc:     stable@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Subject: Re: [PATCH 8/8] ceph: hold i_ceph_lock when removing caps for freeing inode
+In-Reply-To: <20190523080646.19632-8-zyan@redhat.com>
+References: <20190523080646.19632-8-zyan@redhat.com>
+Message-Id: <20190529131452.43F372081C@mail.kernel.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 29, 2019 at 11:43:52AM +0200, Niklas Cassel wrote:
-> Currently, there is only a 1 ms sleep after asserting PERST.
-> 
-> Reading the datasheets for different endpoints, some require PERST to be
-> asserted for 10 ms in order for the endpoint to perform a reset, others
-> require it to be asserted for 50 ms.
-> 
-> Several SoCs using this driver uses PCIe Mini Card, where we don't know
-> what endpoint will be plugged in.
+Hi,
 
-I think this patch is absolutely the right thing to do.  We don't know
-what might be plugged in, so we should support arbitrary endpoints.
+[This is an automated email]
 
-One could imagine some sort of DT property to identify closed
-environments where there is no need to support arbitrary endpoints and
-it might be desirable to reduce the delay.  But that should wait
-until there's a need for it and if the need *does* arise, hopefully
-the definition of such a property could be generic across all SoCs.
+This commit has been processed because it contains a -stable tag.
+The stable tag indicates that it's relevant for the following trees: all
 
-> The PCI Express Card Electromechanical Specification specifies:
-> "On power up, the deassertion of PERST# is delayed 100 ms (TPVPERL) from
-> the power rails achieving specified operating limits."
+The bot has tested the following trees: v5.1.4, v5.0.18, v4.19.45, v4.14.121, v4.9.178, v4.4.180, v3.18.140.
 
-It'd be nice to include the complete citation, i.e., "PCI Express Card
-Electromechanical Specification r2.0, sec 2.2"
+v5.1.4: Build OK!
+v5.0.18: Failed to apply! Possible dependencies:
+    e3ec8d6898f71 ("ceph: send cap releases more aggressively")
 
-> Add a sleep of 100 ms before deasserting PERST, in order to ensure that
-> we are compliant with the spec.
-> 
-> Fixes: 82a823833f4e ("PCI: qcom: Add Qualcomm PCIe controller driver")
-> Signed-off-by: Niklas Cassel <niklas.cassel@linaro.org>
-> Acked-by: Stanimir Varbanov <svarbanov@mm-sol.com>
-> Cc: stable@vger.kernel.org # 4.5+
-> ---
-> Changes since v1:
-> Move the sleep into qcom_ep_reset_deassert()
-> 
->  drivers/pci/controller/dwc/pcie-qcom.c | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/drivers/pci/controller/dwc/pcie-qcom.c b/drivers/pci/controller/dwc/pcie-qcom.c
-> index 0ed235d560e3..5d1713069d14 100644
-> --- a/drivers/pci/controller/dwc/pcie-qcom.c
-> +++ b/drivers/pci/controller/dwc/pcie-qcom.c
-> @@ -178,6 +178,8 @@ static void qcom_ep_reset_assert(struct qcom_pcie *pcie)
->  
->  static void qcom_ep_reset_deassert(struct qcom_pcie *pcie)
->  {
-> +	/* Ensure that PERST has been asserted for at least 100 ms */
-> +	msleep(100);
->  	gpiod_set_value_cansleep(pcie->reset, 0);
->  	usleep_range(PERST_DELAY_US, PERST_DELAY_US + 500);
->  }
-> -- 
-> 2.21.0
-> 
+v4.19.45: Failed to apply! Possible dependencies:
+    e3ec8d6898f71 ("ceph: send cap releases more aggressively")
+
+v4.14.121: Failed to apply! Possible dependencies:
+    a1c6b8358171c ("ceph: define argument structure for handle_cap_grant")
+    a57d9064e4ee4 ("ceph: flush pending works before shutdown super")
+    e3ec8d6898f71 ("ceph: send cap releases more aggressively")
+
+v4.9.178: Failed to apply! Possible dependencies:
+    a1c6b8358171c ("ceph: define argument structure for handle_cap_grant")
+    a57d9064e4ee4 ("ceph: flush pending works before shutdown super")
+    e3ec8d6898f71 ("ceph: send cap releases more aggressively")
+
+v4.4.180: Failed to apply! Possible dependencies:
+    13d1ad16d05ee ("libceph: move message allocation out of ceph_osdc_alloc_request()")
+    34b759b4a22b0 ("ceph: kill ceph_empty_snapc")
+    3f1af42ad0fad ("libceph: enable large, variable-sized OSD requests")
+    5be0389dac662 ("ceph: re-send AIO write request when getting -EOLDSNAP error")
+    7627151ea30bc ("libceph: define new ceph_file_layout structure")
+    779fe0fb8e188 ("ceph: rados pool namespace support")
+    922dab6134178 ("libceph, rbd: ceph_osd_linger_request, watch/notify v2")
+    a1c6b8358171c ("ceph: define argument structure for handle_cap_grant")
+    ae458f5a171ba ("libceph: make r_request msg_size calculation clearer")
+    c41d13a31fefe ("rbd: use header_oid instead of header_name")
+    c8fe9b17d055f ("ceph: Asynchronous IO support")
+    d30291b985d18 ("libceph: variable-sized ceph_object_id")
+    e3ec8d6898f71 ("ceph: send cap releases more aggressively")
+
+v3.18.140: Failed to apply! Possible dependencies:
+    10183a69551f7 ("ceph: check OSD caps before read/write")
+    28127bdd2f843 ("ceph: convert inline data to normal data before data write")
+    31c542a199d79 ("ceph: add inline data to pagecache")
+    5be0389dac662 ("ceph: re-send AIO write request when getting -EOLDSNAP error")
+    70db4f3629b34 ("ceph: introduce a new inode flag indicating if cached dentries are ordered")
+    745a8e3bccbc6 ("ceph: don't pre-allocate space for cap release messages")
+    7627151ea30bc ("libceph: define new ceph_file_layout structure")
+    779fe0fb8e188 ("ceph: rados pool namespace support")
+    83701246aee8f ("ceph: sync read inline data")
+    a1c6b8358171c ("ceph: define argument structure for handle_cap_grant")
+    affbc19a68f99 ("ceph: make sure syncfs flushes all cap snaps")
+    c8fe9b17d055f ("ceph: Asynchronous IO support")
+    d30291b985d18 ("libceph: variable-sized ceph_object_id")
+    d3383a8e37f80 ("ceph: avoid block operation when !TASK_RUNNING (ceph_mdsc_sync)")
+    e3ec8d6898f71 ("ceph: send cap releases more aggressively")
+    e96a650a8174e ("ceph, rbd: delete unnecessary checks before two function calls")
+
+
+How should we proceed with this patch?
+
+--
+Thanks,
+Sasha
