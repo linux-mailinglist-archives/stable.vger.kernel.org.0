@@ -2,69 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AB3A42DC5C
-	for <lists+stable@lfdr.de>; Wed, 29 May 2019 14:03:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B3652DC46
+	for <lists+stable@lfdr.de>; Wed, 29 May 2019 13:57:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726780AbfE2MDU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 08:03:20 -0400
-Received: from smtp02-new-4.daemonmail.net ([216.104.163.149]:51256 "EHLO
-        smtp02-new-4.daemonmail.net" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725894AbfE2MDT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 May 2019 08:03:19 -0400
-Received: from mxw-out01.daemonmail.net (mxw-out01.daemonmail.net [216.104.161.15])
-        by smtp02-new-4.daemonmail.net (Postfix) with ESMTP id 8863AC4662;
-        Wed, 29 May 2019 04:37:33 -0700 (PDT)
-X-Best-Tracker: royalhome@dsteinshomes.com
-Received: from localhost (localhost [127.0.0.1])
-        by mxw-out01.daemonmail.net (Postfix) with ESMTP id 565AA459B8;
-        Wed, 29 May 2019 04:37:33 -0700 (PDT)
-X-Virus-Scanned: Debian amavisd-new at mxw-out01.daemonmail.net
-X-Spam-Flag: NO
-X-Spam-Score: 0.837
-X-Spam-Level: 
-X-Spam-Status: No, score=0.837 tagged_above=-999 required=6.31
-        tests=[ALL_TRUSTED=-1, BAYES_00=-1.9, FREEMAIL_FORGED_REPLYTO=2.095,
-        FREEMAIL_REPLYTO_END_DIGIT=0.25, PYZOR_CHECK=1.392]
-        autolearn=no autolearn_force=no
-Received: from mxw-out01.daemonmail.net ([127.0.0.1])
-        by localhost (mxw-out01.daemonmail.net [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id L0JDpJbYQjOQ; Wed, 29 May 2019 04:37:31 -0700 (PDT)
-Received: from wmw02.tierra.net (wmw02.tierra.net [10.1.0.62])
-        by mxw-out01.daemonmail.net (Postfix) with ESMTP id 64EA6459F2;
-        Wed, 29 May 2019 04:37:28 -0700 (PDT)
-Received: from webmail.tierra.net (localhost [127.0.0.1])
-        by wmw02.tierra.net (Postfix) with ESMTP id 9E1933EA7B;
-        Wed, 29 May 2019 04:37:27 -0700 (PDT)
+        id S1726780AbfE2L47 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 07:56:59 -0400
+Received: from mx2.suse.de ([195.135.220.15]:49290 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726101AbfE2L47 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 07:56:59 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id 7A8D2AC4D;
+        Wed, 29 May 2019 11:56:58 +0000 (UTC)
+Received: by ds.suse.cz (Postfix, from userid 10065)
+        id EB104DA85E; Wed, 29 May 2019 13:57:52 +0200 (CEST)
+Date:   Wed, 29 May 2019 13:57:52 +0200
+From:   David Sterba <dsterba@suse.cz>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org
+Subject: Re: Please revert "btrfs: Honour FITRIM range constraints during
+ free space trim" from all stable trees
+Message-ID: <20190529115752.GZ15290@suse.cz>
+Reply-To: dsterba@suse.cz
+References: <20190529112314.GY15290@suse.cz>
+ <20190529113300.GB11952@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Date:   Wed, 29 May 2019 07:37:27 -0400
-From:   George Kwame <royalhome@dsteinshomes.com>
-To:     undisclosed-recipients:;
-Subject: Gold Bars Purchase/Investment
-Reply-To: georgekwame4559@gmail.com
-Mail-Reply-To: georgekwame4559@gmail.com
-Message-ID: <ee55ee91d6d52917b3d9c3a9093e10d1@dsteinshomes.com>
-X-Sender: royalhome@dsteinshomes.com
-User-Agent: Roundcube Webmail/1.2.9
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190529113300.GB11952@kroah.com>
+User-Agent: Mutt/1.5.23.1 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Greetings
+On Wed, May 29, 2019 at 04:33:00AM -0700, Greg Kroah-Hartman wrote:
+> On Wed, May 29, 2019 at 01:23:14PM +0200, David Sterba wrote:
+> > Hi,
+> > 
+> > upon closer inspection we found a problem with the patch
+> > 
+> > "btrfs: Honour FITRIM range constraints during free space trim"
+> > 
+> > that has been merged to 5.1.4. This could happen with ranged FITRIM
+> > where the range is not 'honoured' as it was supposed to.
+> > 
+> > Please revert it and push in the next stable release so the buggy
+> > version is not in the wild for too long.
+> > 
+> > Affected trees:
+> > 
+> > 5.0.18
+> > 5.1.4
+> > 4.9.179
+> > 4.19.45
+> > 4.14.122
+> > 
+> > Master branch will have the revert too. Thanks.
+> 
+> What is the git commit id of the revert in Linus's tree?
 
-My name is Mr. George Kwame from Odikro Royal Family Upper East Region 
-Northern, Ghana. We are a group of local gold Miners and end sellers we 
-are looking for a direct buyer or an agent who will help us look for 
-buyer on Commission basis.
+The commit is not there yet, I'm going to send it with the next update
+in a few days for 5.2-rc2.
 
-The Purity of our gold is 93% and 22Carats Plus and our price per kilo 
-is affordable. We have 350 Kilos in Stock and we are looking for a buyer 
-or an investor who will partner with us to invest in other of our 2 
-Concessions. Kindly contact me for me details if you are interested to 
-work with us. Hoping to hear from you.
-
-Regards
-George
+To shorthen the delay I hope it's possible to revert the patches without
+the corresponding master commit but if you insist on that I'll send the
+pull request today and will let you know the commit id.
