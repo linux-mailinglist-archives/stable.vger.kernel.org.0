@@ -2,124 +2,294 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F7E22E328
-	for <lists+stable@lfdr.de>; Wed, 29 May 2019 19:25:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D6342E35E
+	for <lists+stable@lfdr.de>; Wed, 29 May 2019 19:37:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726937AbfE2RZI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 13:25:08 -0400
-Received: from mx2.suse.de ([195.135.220.15]:51386 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726102AbfE2RZI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 13:25:08 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 449E6ACAA
-        for <stable@vger.kernel.org>; Wed, 29 May 2019 17:25:07 +0000 (UTC)
-Received: by ds.suse.cz (Postfix, from userid 10065)
-        id C77A1DA85E; Wed, 29 May 2019 19:26:01 +0200 (CEST)
-From:   David Sterba <dsterba@suse.com>
-To:     stable@vger.kernel.org
-Cc:     David Sterba <dsterba@suse.com>
-Subject: [PATCH for 5.1.x] Revert "btrfs: Honour FITRIM range constraints during free space trim"
-Date:   Wed, 29 May 2019 19:25:47 +0200
-Message-Id: <20190529172547.30563-5-dsterba@suse.com>
+        id S1726018AbfE2Rho (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 13:37:44 -0400
+Received: from aserp2130.oracle.com ([141.146.126.79]:52044 "EHLO
+        aserp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726033AbfE2Rho (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 May 2019 13:37:44 -0400
+Received: from pps.filterd (aserp2130.oracle.com [127.0.0.1])
+        by aserp2130.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x4THSx1c014020;
+        Wed, 29 May 2019 17:37:15 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : date : message-id : mime-version : content-transfer-encoding;
+ s=corp-2018-07-02; bh=8AVfKr/gATg+03UGlOTOyR2BRCMT7VwSn3nR5jJ9Wyk=;
+ b=aE73SB/RkfAAF9flO6PLqdp1J1y+gQcO3BtDHbD/eJTnDObqOv9u+Yaeu10avpX/nLHj
+ KbgNEUg9W51uhHGt+ZvVApO5r5euX+MZ8drrkX4o3kbkHqHvx0nOGn2G/4CU4JGCsk+S
+ wiQ4lGWkiDW9YJ2rLRub5WVU0B2obO5YH8eCXaLlYIDvYEC1uKBpZk1fM3N1kgnZgXMU
+ +quzqVcaQYZLOixDPM3m56xAaUZEpNWQJy0+DymhJLVul75lGo7L0xoGxhHDulQJxFnB
+ EehvT7uupYeEM2ADN88JlglHNAQlb++OBkdFuHtJe1LJJYPDHpgpPTPa65TKrRt/o3Ga eA== 
+Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
+        by aserp2130.oracle.com with ESMTP id 2spu7dkpnk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 29 May 2019 17:37:15 +0000
+Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
+        by aserp3020.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x4THYNfM096594;
+        Wed, 29 May 2019 17:35:15 GMT
+Received: from aserv0121.oracle.com (aserv0121.oracle.com [141.146.126.235])
+        by aserp3020.oracle.com with ESMTP id 2sqh73up71-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 29 May 2019 17:35:14 +0000
+Received: from abhmp0006.oracle.com (abhmp0006.oracle.com [141.146.116.12])
+        by aserv0121.oracle.com (8.14.4/8.13.8) with ESMTP id x4THZEvD028197;
+        Wed, 29 May 2019 17:35:14 GMT
+Received: from ca-mkp.ca.oracle.com (/10.156.108.201)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Wed, 29 May 2019 10:35:13 -0700
+From:   "Martin K. Petersen" <martin.petersen@oracle.com>
+To:     linux-block@vger.kernel.org
+Cc:     "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Jeremy Cline <jeremy@jcline.org>,
+        "Ewan D . Milne" <emilne@redhat.com>,
+        Oleksii Kurochko <olkuroch@cisco.com>
+Subject: [PATCH] block: Fix read-only block device setting after revalidate
+Date:   Wed, 29 May 2019 13:35:12 -0400
+Message-Id: <20190529173512.9587-1-martin.petersen@oracle.com>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190529112314.GY15290@suse.cz>
-References: <20190529112314.GY15290@suse.cz>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9272 signatures=668687
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
+ phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.0.1-1810050000 definitions=main-1905290114
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9272 signatures=668687
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
+ suspectscore=0 phishscore=0 bulkscore=0 spamscore=0 clxscore=1011
+ lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=999 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1810050000
+ definitions=main-1905290114
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This reverts commit eb432217d775a90c061681c0dfa3c7abfba75123.
+Commit 20bd1d026aac ("scsi: sd: Keep disk read-only when re-reading
+partition") addressed a long-standing problem with user read-only
+policy being overridden as a result of a device-initiated revalidate.
+The commit has since been reverted due to a regression that left some
+USB devices read-only indefinitely.
 
-There is currently no corresponding patch in master due to additional
-changes that would be significantly different from plain revert in the
-respective stable branch.
+To fix the underlying problems with revalidate we need to keep track
+of hardware state and user policy separately. Every time the state is
+changed, either via a hardware event or the BLKROSET ioctl, the
+per-partition read-only state is updated based on the combination of
+device state and policy. The resulting active state is stored in a
+separate hd_struct flag to avoid introducing additional lookups in the
+I/O hot path.
 
-The range argument was not handled correctly and could cause trim to
-overlap allocated areas or reach beyond the end of the device. The
-address space that fitrim normally operates on is in logical
-coordinates, while the discards are done on the physical device extents.
-This distinction cannot be made with the current ioctl interface and
-caused the confusion.
+The gendisk has been updated to reflect the current hardware state set
+by the device driver. This is done to allow returning the device to
+the hardware state once the user clears the BLKROSET flag.
 
-The bug depends on the layout of block groups and does not always
-happen. The whole-fs trim (run by default by the fstrim tool) is not
-affected.
+For partitions, the existing hd_struct 'policy' flag is split into
+two:
 
-Signed-off-by: David Sterba <dsterba@suse.com>
+ - 'read_only' indicates the currently active read-only state of a
+   whole disk device or partition.
+
+ - 'ro_policy' indicates the whether the user has administratively set
+   the whole disk or partition read-only via the BLKROSET ioctl.
+
+The resulting semantics are as follows:
+
+ - If BLKROSET is used to set a whole-disk device read-only, any
+   partitions will end up in a read-only state until the user
+   explicitly clears the flag.
+
+ - If BLKROSET sets a given partition read-only, that partition will
+   remain read-only even if the underlying storage stack initiates a
+   revalidate. However, the BLKRRPART ioctl will cause the partition
+   table to be dropped and any user policy on partitions will be lost.
+
+ - If BLKROSET has not been set, both the whole disk device and any
+   partitions will reflect the current write-protect state of the
+   underlying device.
+
+Cc: <stable@vger.kernel.org>
+Cc: Jeremy Cline <jeremy@jcline.org>
+Cc: Ewan D. Milne <emilne@redhat.com>
+Reported-by: Oleksii Kurochko <olkuroch@cisco.com>
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=201221
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 ---
- fs/btrfs/extent-tree.c | 25 ++++++-------------------
- 1 file changed, 6 insertions(+), 19 deletions(-)
+ block/blk-core.c          |  2 +-
+ block/genhd.c             | 69 +++++++++++++++++++++++++++++----------
+ block/partition-generic.c |  4 +--
+ include/linux/genhd.h     | 10 +++---
+ 4 files changed, 61 insertions(+), 24 deletions(-)
 
-diff --git a/fs/btrfs/extent-tree.c b/fs/btrfs/extent-tree.c
-index d789542edc5a..c5880329ae37 100644
---- a/fs/btrfs/extent-tree.c
-+++ b/fs/btrfs/extent-tree.c
-@@ -11315,9 +11315,9 @@ int btrfs_error_unpin_extent_range(struct btrfs_fs_info *fs_info,
-  * held back allocations.
-  */
- static int btrfs_trim_free_extents(struct btrfs_device *device,
--				   struct fstrim_range *range, u64 *trimmed)
-+				   u64 minlen, u64 *trimmed)
+diff --git a/block/blk-core.c b/block/blk-core.c
+index 4673ebe42255..932f179a9095 100644
+--- a/block/blk-core.c
++++ b/block/blk-core.c
+@@ -792,7 +792,7 @@ static inline bool bio_check_ro(struct bio *bio, struct hd_struct *part)
  {
--	u64 start = range->start, len = 0;
-+	u64 start = 0, len = 0;
- 	int ret;
+ 	const int op = bio_op(bio);
  
- 	*trimmed = 0;
-@@ -11360,8 +11360,8 @@ static int btrfs_trim_free_extents(struct btrfs_device *device,
- 		if (!trans)
- 			up_read(&fs_info->commit_root_sem);
+-	if (part->policy && op_is_write(op)) {
++	if (part->read_only && op_is_write(op)) {
+ 		char b[BDEVNAME_SIZE];
  
--		ret = find_free_dev_extent_start(trans, device, range->minlen,
--						 start, &start, &len);
-+		ret = find_free_dev_extent_start(trans, device, minlen, start,
-+						 &start, &len);
- 		if (trans) {
- 			up_read(&fs_info->commit_root_sem);
- 			btrfs_put_transaction(trans);
-@@ -11374,16 +11374,6 @@ static int btrfs_trim_free_extents(struct btrfs_device *device,
- 			break;
- 		}
+ 		if (op_is_flush(bio->bi_opf) && !bio_sectors(bio))
+diff --git a/block/genhd.c b/block/genhd.c
+index 703267865f14..75138cf5540d 100644
+--- a/block/genhd.c
++++ b/block/genhd.c
+@@ -1539,38 +1539,73 @@ static void set_disk_ro_uevent(struct gendisk *gd, int ro)
+ 	kobject_uevent_env(&disk_to_dev(gd)->kobj, KOBJ_CHANGE, envp);
+ }
  
--		/* If we are out of the passed range break */
--		if (start > range->start + range->len - 1) {
--			mutex_unlock(&fs_info->chunk_mutex);
--			ret = 0;
--			break;
--		}
+-void set_device_ro(struct block_device *bdev, int flag)
+-{
+-	bdev->bd_part->policy = flag;
+-}
 -
--		start = max(range->start, start);
--		len = min(range->len, len);
+-EXPORT_SYMBOL(set_device_ro);
 -
- 		ret = btrfs_issue_discard(device->bdev, start, len, &bytes);
- 		mutex_unlock(&fs_info->chunk_mutex);
+-void set_disk_ro(struct gendisk *disk, int flag)
++/**
++ * update_part_ro_state - iterate over partitions to update read-only state
++ * @disk:	The disk device
++ *
++ * This function updates the read-only state for all partitions on a
++ * given disk device. This is required every time a hardware event
++ * signals that the device write-protect state has changed. It is also
++ * necessary when the user sets or clears the read-only flag on the
++ * whole-disk device.
++ */
++static void update_part_ro_state(struct gendisk *disk)
+ {
+ 	struct disk_part_iter piter;
+ 	struct hd_struct *part;
  
-@@ -11393,10 +11383,6 @@ static int btrfs_trim_free_extents(struct btrfs_device *device,
- 		start += len;
- 		*trimmed += bytes;
- 
--		/* We've trimmed enough */
--		if (*trimmed >= range->len)
--			break;
+-	if (disk->part0.policy != flag) {
+-		set_disk_ro_uevent(disk, flag);
+-		disk->part0.policy = flag;
+-	}
 -
- 		if (fatal_signal_pending(current)) {
- 			ret = -ERESTARTSYS;
- 			break;
-@@ -11480,7 +11466,8 @@ int btrfs_trim_fs(struct btrfs_fs_info *fs_info, struct fstrim_range *range)
- 	mutex_lock(&fs_info->fs_devices->device_list_mutex);
- 	devices = &fs_info->fs_devices->devices;
- 	list_for_each_entry(device, devices, dev_list) {
--		ret = btrfs_trim_free_extents(device, range, &group_trimmed);
-+		ret = btrfs_trim_free_extents(device, range->minlen,
-+					      &group_trimmed);
- 		if (ret) {
- 			dev_failed++;
- 			dev_ret = ret;
+-	disk_part_iter_init(&piter, disk, DISK_PITER_INCL_EMPTY);
++	disk_part_iter_init(&piter, disk, DISK_PITER_INCL_EMPTY_PART0);
+ 	while ((part = disk_part_iter_next(&piter)))
+-		part->policy = flag;
++		if (disk->read_only || disk->part0.ro_policy || part->ro_policy)
++			part->read_only = true;
++		else
++			part->read_only = false;
+ 	disk_part_iter_exit(&piter);
+ }
+ 
++/**
++ * set_device_ro - set a block device read-only
++ * @bdev:	The block device (whole disk or partition)
++ * @state:	true or false
++ *
++ * This function is used to specify the read-only policy for a
++ * block_device (whole disk or partition). set_device_ro() is called
++ * by the BLKROSET ioctl.
++ */
++void set_device_ro(struct block_device *bdev, bool state)
++{
++	bdev->bd_part->read_only = bdev->bd_part->ro_policy = state;
++	if (bdev->bd_part->partno == 0)
++		update_part_ro_state(bdev->bd_disk);
++}
++EXPORT_SYMBOL(set_device_ro);
++
++/**
++ * set_disk_ro - set a gendisk read-only
++ * @disk:	The disk device
++ * @state:	true or false
++ *
++ * This function is used to indicate whether a given disk device
++ * should have its read-only flag set. set_disk_ro() is typically used
++ * by device drivers to indicate whether the underlying physical
++ * device is write-protected.
++ */
++void set_disk_ro(struct gendisk *disk, bool state)
++{
++	if (disk->read_only == state)
++		return;
++	set_disk_ro_uevent(disk, state);
++	disk->read_only = state;
++	update_part_ro_state(disk);
++}
+ EXPORT_SYMBOL(set_disk_ro);
+ 
+ int bdev_read_only(struct block_device *bdev)
+ {
+ 	if (!bdev)
+ 		return 0;
+-	return bdev->bd_part->policy;
++	return bdev->bd_part->read_only;
+ }
+-
+ EXPORT_SYMBOL(bdev_read_only);
+ 
+ int invalidate_partition(struct gendisk *disk, int partno)
+diff --git a/block/partition-generic.c b/block/partition-generic.c
+index 8e596a8dff32..8c55b90c918d 100644
+--- a/block/partition-generic.c
++++ b/block/partition-generic.c
+@@ -98,7 +98,7 @@ static ssize_t part_ro_show(struct device *dev,
+ 			    struct device_attribute *attr, char *buf)
+ {
+ 	struct hd_struct *p = dev_to_part(dev);
+-	return sprintf(buf, "%d\n", p->policy ? 1 : 0);
++	return sprintf(buf, "%u\n", p->read_only ? 1 : 0);
+ }
+ 
+ static ssize_t part_alignment_offset_show(struct device *dev,
+@@ -338,7 +338,7 @@ struct hd_struct *add_partition(struct gendisk *disk, int partno,
+ 		queue_limit_discard_alignment(&disk->queue->limits, start);
+ 	p->nr_sects = len;
+ 	p->partno = partno;
+-	p->policy = get_disk_ro(disk);
++	p->read_only = get_disk_ro(disk);
+ 
+ 	if (info) {
+ 		struct partition_meta_info *pinfo = alloc_part_info(disk);
+diff --git a/include/linux/genhd.h b/include/linux/genhd.h
+index 06c0fd594097..3ebd94f520cc 100644
+--- a/include/linux/genhd.h
++++ b/include/linux/genhd.h
+@@ -118,7 +118,8 @@ struct hd_struct {
+ 	unsigned int discard_alignment;
+ 	struct device __dev;
+ 	struct kobject *holder_dir;
+-	int policy, partno;
++	bool read_only, ro_policy;
++	int partno;
+ 	struct partition_meta_info *info;
+ #ifdef CONFIG_FAIL_MAKE_REQUEST
+ 	int make_it_fail;
+@@ -183,6 +184,7 @@ struct gendisk {
+ 
+ 	char disk_name[DISK_NAME_LEN];	/* name of major driver */
+ 	char *(*devnode)(struct gendisk *gd, umode_t *mode);
++	bool read_only;			/* device read-only state */
+ 
+ 	unsigned int events;		/* supported events */
+ 	unsigned int async_events;	/* async events, subset of all */
+@@ -431,12 +433,12 @@ extern void del_gendisk(struct gendisk *gp);
+ extern struct gendisk *get_gendisk(dev_t dev, int *partno);
+ extern struct block_device *bdget_disk(struct gendisk *disk, int partno);
+ 
+-extern void set_device_ro(struct block_device *bdev, int flag);
+-extern void set_disk_ro(struct gendisk *disk, int flag);
++extern void set_device_ro(struct block_device *bdev, bool state);
++extern void set_disk_ro(struct gendisk *disk, bool state);
+ 
+ static inline int get_disk_ro(struct gendisk *disk)
+ {
+-	return disk->part0.policy;
++	return disk->part0.read_only;
+ }
+ 
+ extern void disk_block_events(struct gendisk *disk);
 -- 
 2.21.0
 
