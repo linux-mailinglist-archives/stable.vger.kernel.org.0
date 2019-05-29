@@ -2,98 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B64122DE5F
-	for <lists+stable@lfdr.de>; Wed, 29 May 2019 15:36:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D1E02DF51
+	for <lists+stable@lfdr.de>; Wed, 29 May 2019 16:09:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727053AbfE2Nge (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 09:36:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51478 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726612AbfE2Nge (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 09:36:34 -0400
-Received: from quaco.ghostprotocols.net (unknown [177.195.211.85])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 44F1D218DA;
-        Wed, 29 May 2019 13:36:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559136993;
-        bh=prJoLJpZvpsZ7UJpa2S3f+0ldYisIx7ao2Qz6rGLRPY=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HN5hEzUTCGI5CbQvvtijWtU3iC/sD50QQGQw/fPE7bCkLBM0z+846kNRMqnnNTGVP
-         gldpr+h12lgYxO57+W/K1u/BeUJOt1YnoPsWLu0J4H73im0273qsVb7Q67mXVY3vW3
-         Uol8R0UiWRt7lJL6/sfhOw7LQHMIuclII0HWtBDk=
-From:   Arnaldo Carvalho de Melo <acme@kernel.org>
-To:     Ingo Molnar <mingo@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>
-Cc:     Jiri Olsa <jolsa@kernel.org>, Namhyung Kim <namhyung@kernel.org>,
-        Clark Williams <williams@redhat.com>,
-        linux-kernel@vger.kernel.org, linux-perf-users@vger.kernel.org,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Jiri Olsa <jolsa@redhat.com>, stable@vger.kernel.org,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 04/41] perf intel-pt: Fix itrace defaults for perf script intel-pt documentation
-Date:   Wed, 29 May 2019 10:35:28 -0300
-Message-Id: <20190529133605.21118-5-acme@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190529133605.21118-1-acme@kernel.org>
-References: <20190529133605.21118-1-acme@kernel.org>
+        id S1727081AbfE2OJn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 10:09:43 -0400
+Received: from mail-ot1-f65.google.com ([209.85.210.65]:34260 "EHLO
+        mail-ot1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726897AbfE2OJn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 May 2019 10:09:43 -0400
+Received: by mail-ot1-f65.google.com with SMTP id l17so2170157otq.1
+        for <stable@vger.kernel.org>; Wed, 29 May 2019 07:09:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=EvVRdR1pAhDuZWorE20R2dEwxPVelW5AqaNeJeFQTrY=;
+        b=ev5Y28CI1Gj1w5WljmD+qjolXhHluDJZGNf9aYE2TOiCFwHkodM5lCcVSOfVB1hGiM
+         6pIU7XDZL7fDdolzPnKC+N/MZdwuGfsgUMqMlPCKACj/ONIM6c79727y35rfCs4iiFxQ
+         nK8bFymxIKc4AgsAVOJwQKlTP4mkk+kutvOxuLqSqsBM5S/TZ4OJoNFgwzsuVqkHYZ3L
+         gspyOGpEwWJ9+Oacs7ROUf5uGLMQKZYkHhmPlXolIKiWkAnYsW5G3SLFg7MfTEuJB/BU
+         kvzOcutYxL/bEHqXEp8OYTVt3JsBMF3YYX6loE5jQ7uaHIEjjpX9zscWgbty2F7Dkcnv
+         EqBQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=EvVRdR1pAhDuZWorE20R2dEwxPVelW5AqaNeJeFQTrY=;
+        b=FpvX/lORvhKVRuGOWjmOUBZnwl5Ve7Q1vWwu4MOBFsbQa91qoDkpWF+3IbqtlsvGxt
+         VouBpYeEHMEuWdU4her4Hj8You6aKpbRRtqH6tgryvwlxoPykPjos0quPrCiG1SzLo0b
+         Aro1Jg/BVkSkVx4yywPBY67cXWwwoabtpH4D1UI5a4zhf0oIfB410LYK/98udJpv2eOZ
+         L80BtQzzTgBRafigzrZrQ1MlZSPTyCkxy2+lsT5Zu8hr2nZlnNbeO8p1K/F8tA0lL/IW
+         TC7Prf83cjapIDJLPTaAtOzZa9rXudcor6q19qUyDcCwat298fvlAttzhV5UE6Puj+op
+         prpg==
+X-Gm-Message-State: APjAAAUs+JfSGmR/0FdlQWT5t8EXT5Ycs/sY2U50xtOat8ss01W1poig
+        BiGImeZZKQjxqbb0GDAaiQdvJDtXq/i+s8sdO+mC/A==
+X-Google-Smtp-Source: APXvYqygGmkMLJ/EF3edaii5aPpVIlyxTToDUyM4xfgakdClLUfCNKF73fKCsRtPYXpZUZk3tyVxu3Ci25IlZCXdtMY=
+X-Received: by 2002:a9d:7347:: with SMTP id l7mr1090523otk.183.1559138982044;
+ Wed, 29 May 2019 07:09:42 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20190524201817.16509-1-jannh@google.com> <20190529131501.A44162183F@mail.kernel.org>
+In-Reply-To: <20190529131501.A44162183F@mail.kernel.org>
+From:   Jann Horn <jannh@google.com>
+Date:   Wed, 29 May 2019 16:09:14 +0200
+Message-ID: <CAG48ez0Rca6PF2kF=ecsD=X4LOxvZLqAE6HHf_QcKopzhB9opw@mail.gmail.com>
+Subject: Re: [PATCH] binfmt_flat: make load_flat_shared_library() work
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+On Wed, May 29, 2019 at 3:15 PM Sasha Levin <sashal@kernel.org> wrote:
+> [This is an automated email]
+>
+> This commit has been processed because it contains a "Fixes:" tag,
+> fixing commit: 287980e49ffc0 remove lots of IS_ERR_VALUE abuses.
+>
+> The bot has tested the following trees: v5.1.4, v5.0.18, v4.19.45, v4.14.121, v4.9.178.
+>
+> v5.1.4: Build OK!
+> v5.0.18: Build OK!
+> v4.19.45: Build OK!
+> v4.14.121: Build OK!
+> v4.9.178: Failed to apply! Possible dependencies:
+[...]
+>     ddb4a1442def2 ("exec: Rename bprm->cred_prepared to called_set_creds")
+[...]
+> How should we proceed with this patch?
 
-Fix intel-pt documentation to reflect the change of itrace defaults for
-perf script.
-
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: stable@vger.kernel.org
-Fixes: 4eb068157121 ("perf script: Make itrace script default to all calls")
-Link: http://lkml.kernel.org/r/20190520113728.14389-4-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
----
- tools/perf/Documentation/intel-pt.txt | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
-
-diff --git a/tools/perf/Documentation/intel-pt.txt b/tools/perf/Documentation/intel-pt.txt
-index 115eaacc455f..60d99e5e7921 100644
---- a/tools/perf/Documentation/intel-pt.txt
-+++ b/tools/perf/Documentation/intel-pt.txt
-@@ -88,16 +88,16 @@ smaller.
- 
- To represent software control flow, "branches" samples are produced.  By default
- a branch sample is synthesized for every single branch.  To get an idea what
--data is available you can use the 'perf script' tool with no parameters, which
--will list all the samples.
-+data is available you can use the 'perf script' tool with all itrace sampling
-+options, which will list all the samples.
- 
- 	perf record -e intel_pt//u ls
--	perf script
-+	perf script --itrace=ibxwpe
- 
- An interesting field that is not printed by default is 'flags' which can be
- displayed as follows:
- 
--	perf script -Fcomm,tid,pid,time,cpu,event,trace,ip,sym,dso,addr,symoff,flags
-+	perf script --itrace=ibxwpe -F+flags
- 
- The flags are "bcrosyiABEx" which stand for branch, call, return, conditional,
- system, asynchronous, interrupt, transaction abort, trace begin, trace end, and
-@@ -713,7 +713,7 @@ Having no option is the same as
- 
- which, in turn, is the same as
- 
--	--itrace=ibxwpe
-+	--itrace=cepwx
- 
- The letters are:
- 
--- 
-2.20.1
-
+I think the dependency is on ddb4a1442def2; but the simplest way is
+probably to manually adjust the fix, it's basically the same in 4.9.
