@@ -2,72 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B1D02D86D
-	for <lists+stable@lfdr.de>; Wed, 29 May 2019 11:04:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B2B72DDC4
+	for <lists+stable@lfdr.de>; Wed, 29 May 2019 15:12:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726131AbfE2JEM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 05:04:12 -0400
-Received: from mx2.suse.de ([195.135.220.15]:46170 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726106AbfE2JEL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 05:04:11 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 8C518AD5E;
-        Wed, 29 May 2019 09:04:10 +0000 (UTC)
-From:   Juergen Gross <jgross@suse.com>
-To:     linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org
-Cc:     Juergen Gross <jgross@suse.com>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        xen-devel@lists.xenproject.org, stable@vger.kernel.org
-Subject: [PATCH v2 1/3] xen/swiotlb: fix condition for calling xen_destroy_contiguous_region()
-Date:   Wed, 29 May 2019 11:04:05 +0200
-Message-Id: <20190529090407.1225-2-jgross@suse.com>
-X-Mailer: git-send-email 2.16.4
-In-Reply-To: <20190529090407.1225-1-jgross@suse.com>
-References: <20190529090407.1225-1-jgross@suse.com>
+        id S1726613AbfE2NME convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 29 May 2019 09:12:04 -0400
+Received: from mail.csu.ru ([195.54.14.68]:52782 "HELO mail.csu.ru"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+        id S1726612AbfE2NME (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 09:12:04 -0400
+X-Greylist: delayed 10315 seconds by postgrey-1.27 at vger.kernel.org; Wed, 29 May 2019 09:11:54 EDT
+Received: from webmail.csu.ru (webmail.csu.ru [195.54.14.80])
+        (Authenticated sender: ryzhkovainna)
+        by mail.csu.ru (Postfix) with ESMTPA id DAFA9144B3F;
+        Wed, 29 May 2019 14:10:07 +0500 (+05)
+Received: from 41.203.78.160
+        (SquirrelMail authenticated user ryzhkovainna)
+        by webmail.csu.ru with HTTP;
+        Wed, 29 May 2019 14:09:56 +0500
+Message-ID: <3f75f5497ada62c8569d294ffc429832.squirrel@webmail.csu.ru>
+Date:   Wed, 29 May 2019 14:09:56 +0500
+From:   "PATRICIA" <patriciachandler411@gmail.com>
+User-Agent: SquirrelMail/1.4.22
+MIME-Version: 1.0
+Content-Type: text/plain;charset=utf-8
+X-Priority: 3 (Normal)
+Importance: Normal
+X-KLMS-Rule-ID: 1
+X-KLMS-Message-Action: skipped, AntiSpam
+X-KLMS-AntiSpam-Lua-Profiles: 140279 [May 29 2019]
+X-KLMS-AntiSpam-Version: 5.8.6.0
+X-KLMS-AntiSpam-Envelope-From: patriciachandler411@gmail.com
+X-KLMS-AntiSpam-Rate: 100
+X-KLMS-AntiSpam-Status: blacklisted
+X-KLMS-AntiSpam-Method: DNSBL
+X-KLMS-AntiSpam-Info: LuaCore: 272 272 3851567572586a7f07cb2d4cbc96d1a010770c84, {rep_avail}, {reputation received: black}, {black address: 41.203.78.160}, {Prob_to_header_missing}, {Found in DNSBL: 41.203.78.160 in (user) dnsbl-2.uceprotect.net}, {User DNSBL Rate: high}, 195.54.14.80:7.1.2;webmail.csu.ru:7.1.1;gmail.com:7.1.1;127.0.0.199:7.1.2;d41d8cd98f00b204e9800998ecf8427e.com:7.1.1, ApMailHostAddress: 195.54.14.80
+X-MS-Exchange-Organization-SCL: -1
+X-KLMS-AntiSpam-Interceptor-Info: scan successful
+X-KLMS-AntiPhishing: Clean, bases: 2019/05/29 07:16:00
+X-KLMS-AntiVirus: Kaspersky Security for Linux Mail Server, version 8.0.3.30, bases: 2019/05/29 03:52:00 #13325081
+X-KLMS-AntiVirus-Status: Clean, skipped
+Subject: [Blacklisted]
+Content-Transfer-Encoding: 8BIT
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The condition in xen_swiotlb_free_coherent() for deciding whether to
-call xen_destroy_contiguous_region() is wrong: in case the region to
-be freed is not contiguous calling xen_destroy_contiguous_region() is
-the wrong thing to do: it would result in inconsistent mappings of
-multiple PFNs to the same MFN. This will lead to various strange
-crashes or data corruption.
 
-Instead of calling xen_destroy_contiguous_region() in that case a
-warning should be issued as that situation should never occur.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
----
-V2: always issue a warning in case xen_destroy_contiguous_region()
-    isn't called (Jan Beulich)
----
- drivers/xen/swiotlb-xen.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/xen/swiotlb-xen.c b/drivers/xen/swiotlb-xen.c
-index 5dcb06fe9667..1caadca124b3 100644
---- a/drivers/xen/swiotlb-xen.c
-+++ b/drivers/xen/swiotlb-xen.c
-@@ -360,8 +360,8 @@ xen_swiotlb_free_coherent(struct device *hwdev, size_t size, void *vaddr,
- 	/* Convert the size to actually allocated. */
- 	size = 1UL << (order + XEN_PAGE_SHIFT);
- 
--	if (((dev_addr + size - 1 <= dma_mask)) ||
--	    range_straddles_page_boundary(phys, size))
-+	if (!WARN_ON((dev_addr + size - 1 > dma_mask) ||
-+		     range_straddles_page_boundary(phys, size)))
- 		xen_destroy_contiguous_region(phys, order);
- 
- 	xen_free_coherent_pages(hwdev, size, vaddr, (dma_addr_t)phys, attrs);
--- 
-2.16.4
+You have a charity donation of $1.200.000.00 from Patricia for full
+details contact her now
+
+
 
