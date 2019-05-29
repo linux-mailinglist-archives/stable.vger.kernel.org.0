@@ -2,108 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DE5A02E7B6
-	for <lists+stable@lfdr.de>; Wed, 29 May 2019 23:55:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20A6F2E84C
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 00:32:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726508AbfE2Vz2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 17:55:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38980 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726054AbfE2Vz2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 17:55:28 -0400
-Received: from akpm3.svl.corp.google.com (unknown [104.133.8.65])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B0FA42424E;
-        Wed, 29 May 2019 21:55:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559166927;
-        bh=fdneiKOZnULccpcFdKgeHbXdd4KEOHpKScKB5sS8mgo=;
-        h=Date:From:To:Subject:From;
-        b=IdHv0T95vLCmkmzuQv/9Kc4Zlps/ztVE4gi1BW+OwPvgtA7RTeZSYuvi8mgYBzYnO
-         hooMi/S0Jkx3hTTD+aUgng0VHXDUYeu82e4x31VF3WWSaHR3p3sS4UQIiQCXYqfCRg
-         LC5wAPZ8EFzEsoDedkyMjlix1MLlmsrodfKyiLU0=
-Date:   Wed, 29 May 2019 14:55:27 -0700
-From:   akpm@linux-foundation.org
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        luto@kernel.org, jlu@pengutronix.de, adobriyan@gmail.com,
-        john.ogness@linutronix.de
-Subject:  +
- fs-proc-allow-reporting-eip-esp-for-all-coredumping-threads.patch added to
- -mm tree
-Message-ID: <20190529215527.9PxGs%akpm@linux-foundation.org>
-User-Agent: s-nail v14.9.10
+        id S1726054AbfE2Wcu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 18:32:50 -0400
+Received: from mail-qt1-f193.google.com ([209.85.160.193]:34381 "EHLO
+        mail-qt1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726018AbfE2Wcu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 May 2019 18:32:50 -0400
+Received: by mail-qt1-f193.google.com with SMTP id h1so4692369qtp.1;
+        Wed, 29 May 2019 15:32:50 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=bhcaQuR9YSEQybP2ekpRZxM00TsWewuQkxFdS2ijASs=;
+        b=o5JTyJbmqM4zgeEKLd+Ztdf2hwDDFFfWl+ndu71PPdrdakz2WUuhhLWCs5up4D+qv6
+         XLQO2IQDV0Lz+nWTRzRd7TwVDNFigTYLfzTdBGFpsYzKj2Z8Tm3tquv/r+X+Ci0cLNTY
+         6S49Jz4mHZFeHGG8bkguon5NlI1AOU5Q/FRGwgXAHyCCR+4INKoozDvAShGMO8K1UjqA
+         36baRRJjzn5N52ytOoOtIdbG86rpTsGLoVBEbrkq98tWbT5K+B1/xxobdp3H9k9jLg27
+         ApbAgGhbTg9Wdbq7dK9FJaQhLCOEheSG6jmVnBeRRcNSl/wdCJ7xvp7PxSxNrA8dpgTB
+         gCSQ==
+X-Gm-Message-State: APjAAAU41JjFRz0dPER56lLDIYn/5ROdXnIH63vRBttEfCEHmnaUGZdG
+        r3sTvh2Lq0lbsU8rhp5y9UFxTQyLm/VOWTeeT88=
+X-Google-Smtp-Source: APXvYqzjWc05T9BIUjfMN8/lfoIoLNUkz68qr+FmtCCk7e/p0sSEAdKNYq5z9uqUmaxIhN8RqRHwL2xJ+hWqCzO3yr8=
+X-Received: by 2002:ac8:6750:: with SMTP id n16mr414503qtp.142.1559169169422;
+ Wed, 29 May 2019 15:32:49 -0700 (PDT)
+MIME-Version: 1.0
+References: <20190522032144.10995-1-deepa.kernel@gmail.com> <20190529161157.GA27659@redhat.com>
+In-Reply-To: <20190529161157.GA27659@redhat.com>
+From:   Arnd Bergmann <arnd@arndb.de>
+Date:   Thu, 30 May 2019 00:32:32 +0200
+Message-ID: <CAK8P3a1fsrz6kAB1z-mqcaNvXL4Hf3XMiN=Q5rzAJ3rLGPK_Yg@mail.gmail.com>
+Subject: Re: pselect/etc semantics (Was: [PATCH v2] signal: Adjust error codes
+ according to restore_user_sigmask())
+To:     Oleg Nesterov <oleg@redhat.com>
+Cc:     Deepa Dinamani <deepa.kernel@gmail.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>, dbueso@suse.de,
+        Jens Axboe <axboe@kernel.dk>,
+        Davidlohr Bueso <dave@stgolabs.net>, e@80x24.org,
+        Jason Baron <jbaron@akamai.com>,
+        Linux FS-devel Mailing List <linux-fsdevel@vger.kernel.org>,
+        linux-aio <linux-aio@kvack.org>, omar.kilani@gmail.com,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "# 3.4.x" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, May 29, 2019 at 6:12 PM Oleg Nesterov <oleg@redhat.com> wrote:
+>
+> Al, Linus, Eric, please help.
+>
+> The previous discussion was very confusing, we simply can not understand each
+> other.
+>
+> To me everything looks very simple and clear, but perhaps I missed something
+> obvious? Please correct me.
 
-The patch titled
-     Subject: fs/proc/array.c: allow reporting eip/esp for all coredumping threads
-has been added to the -mm tree.  Its filename is
-     fs-proc-allow-reporting-eip-esp-for-all-coredumping-threads.patch
+Thanks for the elaborate explanation in this patch, it all starts making sense
+to me now. I also looked at your patch in detail and thought I had found
+a few mistakes at first but those all turned out to be mistakes in my reading.
 
-This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/fs-proc-allow-reporting-eip-esp-for-all-coredumping-threads.patch
-and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/fs-proc-allow-reporting-eip-esp-for-all-coredumping-threads.patch
+> See the compile-tested patch at the end. Of course, the new _xxx() helpers
+> should be renamed somehow. fs/aio.c doesn't look right with or without this
+> patch, but iiuc this is what it did before 854a6ed56839a.
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+I think this is a nice simplification, but it would help not to mix up the
+minimal regression fix with the rewrite of those functions. For the stable
+kernels, I think we want just the addition of the 'bool interrupted' argument
+to restore_user_sigmask() to close the race that was introduced
+854a6ed56839a. Following up on that for future kernels, your patch
+improves the readability, but we can probably take it even further.
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+> -       ret = set_user_sigmask(ksig.sigmask, &ksigmask, &sigsaved, ksig.sigsetsize);
+> +       ret = set_xxx(ksig.sigmask, ksig.sigsetsize);
+>         if (ret)
+>                 return ret;
+>
+>         ret = do_io_getevents(ctx_id, min_nr, nr, events, timeout ? &ts : NULL);
+> -       restore_user_sigmask(ksig.sigmask, &sigsaved);
+> -       if (signal_pending(current) && !ret)
+> +
+> +       interrupted = signal_pending(current);
+> +       update_xxx(interrupted);
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
+Maybe name this
 
-------------------------------------------------------
-From: John Ogness <john.ogness@linutronix.de>
-Subject: fs/proc/array.c: allow reporting eip/esp for all coredumping threads
+           restore_saved_sigmask_if(!interrupted);
 
-0a1eb2d474ed ("fs/proc: Stop reporting eip and esp in /proc/PID/stat")
-stopped reporting eip/esp and fd7d56270b52 ("fs/proc: Report eip/esp in
-/prod/PID/stat for coredumping") reintroduced the feature to fix a
-regression with userspace core dump handlers (such as minicoredumper).
+and make restore_saved_sigmask_if() an inline function
+next to restore_saved_sigmask()?
 
-Because PF_DUMPCORE is only set for the primary thread, this didn't fix
-the original problem for secondary threads.  Allow reporting the eip/esp
-for all threads by checking for PF_EXITING as well.  This is set for all
-the other threads when they are killed.  coredump_wait() waits for all the
-tasks to become inactive before proceeding to invoke the core the core
-dumper.
+> @@ -2201,13 +2205,15 @@ COMPAT_SYSCALL_DEFINE6(io_pgetevents,
+>         if (usig && copy_from_user(&ksig, usig, sizeof(ksig)))
+>                 return -EFAULT;
+>
+> -       ret = set_compat_user_sigmask(ksig.sigmask, &ksigmask, &sigsaved, ksig.sigsetsize);
+> +       ret = set_compat_xxx(ksig.sigmask, ksig.sigsetsize);
+>         if (ret)
+>                 return ret;
 
-Link: http://lkml.kernel.org/r/87y32p7i7a.fsf@linutronix.de
-Link: http://lkml.kernel.org/r/20190522161614.628-1-jlu@pengutronix.de
-Fixes: fd7d56270b526ca3 ("fs/proc: Report eip/esp in /prod/PID/stat for coredumping")
-Signed-off-by: John Ogness <john.ogness@linutronix.de>
-Reported-by: Jan Luebbe <jlu@pengutronix.de>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
+With some of the recent discussions about compat syscall handling,
+I now think that we want to just fold set_compat_user_sigmask()
+into set_user_sigmask() (whatever they get called in the end)
+with an in_compat_syscall() conditional inside it, and completely get
+rid of the COMPAT_SYSCALL_DEFINEx() definitions for those
+system calls for which this is the only difference.
 
- fs/proc/array.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Unfortunately we still need the time32/time64 distinction, but removing
+syscall handlers is a significant cleanup here already, and we can
+move most of the function body of sys_io_pgetevents() into
+do_io_getevents() in the process. Same for some of the other calls.
 
---- a/fs/proc/array.c~fs-proc-allow-reporting-eip-esp-for-all-coredumping-threads
-+++ a/fs/proc/array.c
-@@ -462,7 +462,7 @@ static int do_task_stat(struct seq_file
- 		 * a program is not able to use ptrace(2) in that case. It is
- 		 * safe because the task has stopped executing permanently.
- 		 */
--		if (permitted && (task->flags & PF_DUMPCORE)) {
-+		if (permitted && (task->flags & (PF_EXITING|PF_DUMPCORE))) {
- 			if (try_get_task_stack(task)) {
- 				eip = KSTK_EIP(task);
- 				esp = KSTK_ESP(task);
-_
+Not sure about the order of the cleanups, but probably something like
+this would work:
 
-Patches currently in -mm which might be from john.ogness@linutronix.de are
+1. fix the race (to be backported)
+2. unify set_compat_user_sigmask/set_user_sigmask
+3. remove unneeded compat handlers
+4. replace restore_user_sigmask with restore_saved_sigmask_if()
+5. also unify compat_get_fd_set()/get_fd_set() and kill off
+    compat select() variants.
 
-fs-proc-allow-reporting-eip-esp-for-all-coredumping-threads.patch
-
+       Arnd
