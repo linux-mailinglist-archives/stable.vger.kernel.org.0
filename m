@@ -2,127 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A33FC2E46F
-	for <lists+stable@lfdr.de>; Wed, 29 May 2019 20:26:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 801F52E495
+	for <lists+stable@lfdr.de>; Wed, 29 May 2019 20:36:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726947AbfE2S0O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 14:26:14 -0400
-Received: from mail-it1-f194.google.com ([209.85.166.194]:38460 "EHLO
-        mail-it1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725917AbfE2S0O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 May 2019 14:26:14 -0400
-Received: by mail-it1-f194.google.com with SMTP id i63so898763ita.3;
-        Wed, 29 May 2019 11:26:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=TPw4eflGaKI/OKKxvlJQ22C2ftNP7pXq0GeN7f/mbOQ=;
-        b=AH62/ckYQ4jBdFzIhVm6Y9tX+W+XJ8LN+DSBwBYxk7Bm9tdpsUtfMOXWZrdZa23+N1
-         u52GCBTu11nt5boSjHA+BOio3ozjlwTYumDqAnoM/cr8AxTxvzxvvaCvKnYlSH8h8uvt
-         8Wmn/eEVEosthorZkMwvgqH5oelyyuwoLIc/9mKcqnd5MNYls7F3IPlPdwh3pD0gysxe
-         Kfu1ovDYlRu6LKMs6HeAy3oIlVcwzFFzgd1N7lHIWyNfomtNweNbdWNwSgiR1z9qSHjp
-         Y+8edTj7EW2rS1Bksua0OTS9fhE4BuUGvgAcC7WLnFps5AMZCypbpRQ29+6AvMSnBbPl
-         +Trg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=TPw4eflGaKI/OKKxvlJQ22C2ftNP7pXq0GeN7f/mbOQ=;
-        b=lHhSgSNkcQ49bkv0GZujWBxlBiWn4QRkrCnSkAAdl04PjgifrmcADqlYKc2K9hHGim
-         Ydabg82Pfgi+NV8zih0UU4700i45kC3NsyQqWDIceSLPKiEd3HhAcb/t638WO/EH5LJp
-         Ii8eiybUCu4Pp0ejJkJjqCvMQ4WYlSSp4QwPLu7GsDC0IMBHpxYkefpNhScUti4G3GRm
-         Kur6sEuU6GRrkYVYp4VmsyHkCrjlkOURndaDFv15boog71C+mJ+EBGqu/NwcArKlkviW
-         314eJVnuELAbfrClBsYR5H4xJPcqZvBbnOC3ucVnVU7p1jPmfALd0lq9JpUajeaZEyT7
-         yQBw==
-X-Gm-Message-State: APjAAAXZaCxNBfQEOUbTo5dQ0nN4JbRDbFvhWWdZAmZPQfAHFtg+xHw2
-        vE9Lk/mUkSwfuoSiFPQZmfIz+ti4+4eNTpwefMc=
-X-Google-Smtp-Source: APXvYqx8sMU5apXzIWkFBSnAKL1oaiM1V8pYGkVXuq937bPfxzmSeuyTclm131eEYdgapPgXhjvxc6wWp+f8woEXtKc=
-X-Received: by 2002:a02:bb83:: with SMTP id g3mr11149521jan.139.1559154373608;
- Wed, 29 May 2019 11:26:13 -0700 (PDT)
+        id S1726225AbfE2SgR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 14:36:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33410 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725956AbfE2SgR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 14:36:17 -0400
+Received: from localhost (unknown [207.225.69.115])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id D8C7A2407A;
+        Wed, 29 May 2019 18:36:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1559154976;
+        bh=ZSeg4OjbfMq2wx1BLT4EqlDxwDjSEzNgc/igmTCCwgk=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=RsLzwjtOs6nWEmuKj5ArWepKW/mJclw0kLPSRFVtwaO5bRo3PPlcU9Fd1v5rbByTO
+         hrkgaRP4pU+WLizdmmppB7RYVPwnqy1O7nE2Dz532QruQpQwmy8fKLaypifzt0GQpi
+         UBGYzRMtmK/NYwSk7XBpx+Er/6lfmDrMOuXe2fMQ=
+Date:   Wed, 29 May 2019 11:36:16 -0700
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     David Sterba <dsterba@suse.cz>
+Cc:     stable@vger.kernel.org
+Subject: Re: Please revert "btrfs: Honour FITRIM range constraints during
+ free space trim" from all stable trees
+Message-ID: <20190529183616.GA9680@kroah.com>
+References: <20190529112314.GY15290@suse.cz>
+ <20190529113300.GB11952@kroah.com>
+ <20190529165743.GA15290@suse.cz>
 MIME-Version: 1.0
-References: <20190522032144.10995-1-deepa.kernel@gmail.com> <20190529161157.GA27659@redhat.com>
-In-Reply-To: <20190529161157.GA27659@redhat.com>
-From:   Deepa Dinamani <deepa.kernel@gmail.com>
-Date:   Wed, 29 May 2019 11:26:02 -0700
-Message-ID: <CABeXuvpUQ8rDZYOi8bzq_yAy8Nt4RLwSEGwpk_Pbwd90Q0u7sg@mail.gmail.com>
-Subject: Re: pselect/etc semantics (Was: [PATCH v2] signal: Adjust error codes
- according to restore_user_sigmask())
-To:     Oleg Nesterov <oleg@redhat.com>
-Cc:     Al Viro <viro@zeniv.linux.org.uk>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Arnd Bergmann <arnd@arndb.de>, dbueso@suse.de, axboe@kernel.dk,
-        Davidlohr Bueso <dave@stgolabs.net>, Eric Wong <e@80x24.org>,
-        Jason Baron <jbaron@akamai.com>,
-        Linux FS-devel Mailing List <linux-fsdevel@vger.kernel.org>,
-        linux-aio <linux-aio@kvack.org>,
-        Omar Kilani <omar.kilani@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190529165743.GA15290@suse.cz>
+User-Agent: Mutt/1.12.0 (2019-05-25)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 29, 2019 at 9:12 AM Oleg Nesterov <oleg@redhat.com> wrote:
->
-> Al, Linus, Eric, please help.
->
-> The previous discussion was very confusing, we simply can not understand each
-> other.
->
-> To me everything looks very simple and clear, but perhaps I missed something
-> obvious? Please correct me.
->
-> I think that the following code is correct
->
->         int interrupted = 0;
->
->         void sigint_handler(int sig)
->         {
->                 interrupted = 1;
->         }
->
->         int main(void)
->         {
->                 sigset_t sigint, empty;
->
->                 sigemptyset(&sigint);
->                 sigaddset(&sigint, SIGINT);
->                 sigprocmask(SIG_BLOCK, &sigint, NULL);
->
->                 signal(SIGINT, sigint_handler);
->
->                 sigemptyset(&empty);    // so pselect() unblocks SIGINT
->
->                 ret = pselect(..., &empty);
->
->                 if (ret >= 0)           // sucess or timeout
->                         assert(!interrupted);
->
->                 if (interrupted)
->                         assert(ret == -EINTR);
->         }
->
-> IOW, if pselect(sigmask) temporary unblocks SIGINT according to sigmask, this
-> signal should not be delivered if a ready fd was found or timeout. The signal
-> handle should only run if ret == -EINTR.
+On Wed, May 29, 2019 at 06:57:43PM +0200, David Sterba wrote:
+> On Wed, May 29, 2019 at 04:33:00AM -0700, Greg Kroah-Hartman wrote:
+> > On Wed, May 29, 2019 at 01:23:14PM +0200, David Sterba wrote:
+> > > Hi,
+> > > 
+> > > upon closer inspection we found a problem with the patch
+> > > 
+> > > "btrfs: Honour FITRIM range constraints during free space trim"
+> > > 
+> > > that has been merged to 5.1.4. This could happen with ranged FITRIM
+> > > where the range is not 'honoured' as it was supposed to.
+> > > 
+> > > Please revert it and push in the next stable release so the buggy
+> > > version is not in the wild for too long.
+> > > 
+> > > Affected trees:
+> > > 
+> > > 5.0.18
+> > > 5.1.4
+> > > 4.9.179
+> > > 4.19.45
+> > > 4.14.122
+> > > 
+> > > Master branch will have the revert too. Thanks.
+> > 
+> > What is the git commit id of the revert in Linus's tree?
+> 
+> Due to further changes in the code, a revert that will be in Linus'
+> branch can't be backported and stable-specific patches would have to be
+> provided anyway. There's a slight change in logic and handling of the
+> trimmed ranges, the upstream revert removes code and updates calls to
+> functions that are not in the stable branches.
+> 
+> So I'm going to send you patches for all the affected branches.
+> 
+> After analyzing the situation, the conclusion is that the patch should
+> have never been tagged for stable.  The patch is in 5.2-rc ie. an
+> unreleased kernel and the bug would be handled as a regression before
+> 5.20 final.
+> 
+> The backport to stable happened before we knew that so the reverts are
+> IMO the best solution we have now. I hope you understand that and sorry
+> for the trouble.
 
-I do not think we discussed this part earlier. But, if this is true
-then this is what is wrong as part of 854a6ed56839a. I missed that
-before.
+No problem, reverts are all now queued up, thanks for doing them.
 
-> (pselect() can be interrupted by any other signal which has a handler. In this
->  case the handler can be called even if ret >= 0. This is correct, I fail to
->  understand why some people think this is wrong, and in any case we simply can't
->  avoid this).
-
-This patch is wrong because I did not know that it was ok to deliver a
-signal and not set the errno before. I also admitted to this. And
-proposed another way to revert the patch.:
-https://lore.kernel.org/lkml/CABeXuvouBzZuNarmNcd9JgZgvonL1N_p21gat=O_x0-1hMx=6A@mail.gmail.com/
-
--Deepa
+greg k-h
