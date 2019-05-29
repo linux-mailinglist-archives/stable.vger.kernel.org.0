@@ -2,106 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E4252DDD3
-	for <lists+stable@lfdr.de>; Wed, 29 May 2019 15:14:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F06872DE49
+	for <lists+stable@lfdr.de>; Wed, 29 May 2019 15:35:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726881AbfE2NOx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 09:14:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40366 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726029AbfE2NOx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 09:14:53 -0400
-Received: from localhost (unknown [23.100.24.84])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 43F372081C;
-        Wed, 29 May 2019 13:14:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559135692;
-        bh=xKlA2g0wIi0S7QT1ghsj/kNXtl6yCp86bG8AATUDAzk=;
-        h=Date:From:To:To:To:Cc:Cc:Cc:Subject:In-Reply-To:References:From;
-        b=AVJjj8POoTrQ4M7YeIyqLpk553l1+dSgSikMjhX+vYUMNAKXNliKLQQGPNBYstW1w
-         XZ4o/uG+HMJljqzFV5GehPQSqkLoa0zd+dKCy0bWBzv0W6KDjCogzb6hg8X4rWbCyc
-         nfDQzzou7D2nvunV+KUtGTpA/cXDRyO+nSg72EL0=
-Date:   Wed, 29 May 2019 13:14:51 +0000
-From:   Sasha Levin <sashal@kernel.org>
-To:     Sasha Levin <sashal@kernel.org>
-To:     "Yan, Zheng" <zyan@redhat.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     idryomov@redhat.com, jlayton@redhat.com
-Cc:     stable@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH 8/8] ceph: hold i_ceph_lock when removing caps for freeing inode
-In-Reply-To: <20190523080646.19632-8-zyan@redhat.com>
-References: <20190523080646.19632-8-zyan@redhat.com>
-Message-Id: <20190529131452.43F372081C@mail.kernel.org>
+        id S1727100AbfE2NfH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 09:35:07 -0400
+Received: from lhrrgout.huawei.com ([185.176.76.210]:32972 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726104AbfE2NfG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 09:35:06 -0400
+Received: from lhreml709-cah.china.huawei.com (unknown [172.18.7.107])
+        by Forcepoint Email with ESMTP id 2D59B29D317FA73B2E71;
+        Wed, 29 May 2019 14:35:05 +0100 (IST)
+Received: from roberto-HP-EliteDesk-800-G2-DM-65W.huawei.com (10.204.65.154)
+ by smtpsuk.huawei.com (10.201.108.32) with Microsoft SMTP Server (TLS) id
+ 14.3.408.0; Wed, 29 May 2019 14:34:58 +0100
+From:   Roberto Sassu <roberto.sassu@huawei.com>
+To:     <zohar@linux.ibm.com>, <dmitry.kasatkin@huawei.com>,
+        <mjg59@google.com>
+CC:     <linux-integrity@vger.kernel.org>,
+        <linux-security-module@vger.kernel.org>,
+        <linux-doc@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <silviu.vlasceanu@huawei.com>,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        <stable@vger.kernel.org>
+Subject: [PATCH v2 1/3] evm: check hash algorithm passed to init_desc()
+Date:   Wed, 29 May 2019 15:30:33 +0200
+Message-ID: <20190529133035.28724-2-roberto.sassu@huawei.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20190529133035.28724-1-roberto.sassu@huawei.com>
+References: <20190529133035.28724-1-roberto.sassu@huawei.com>
+MIME-Version: 1.0
+Content-Type: text/plain
+X-Originating-IP: [10.204.65.154]
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+This patch prevents memory access beyond the evm_tfm array by checking the
+validity of the index (hash algorithm) passed to init_desc(). The hash
+algorithm can be arbitrarily set if the security.ima xattr type is not
+EVM_XATTR_HMAC.
 
-[This is an automated email]
+Fixes: 5feeb61183dde ("evm: Allow non-SHA1 digital signatures")
+Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+Cc: stable@vger.kernel.org
+---
+ security/integrity/evm/evm_crypto.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-This commit has been processed because it contains a -stable tag.
-The stable tag indicates that it's relevant for the following trees: all
+diff --git a/security/integrity/evm/evm_crypto.c b/security/integrity/evm/evm_crypto.c
+index e11564eb645b..82a38e801ee4 100644
+--- a/security/integrity/evm/evm_crypto.c
++++ b/security/integrity/evm/evm_crypto.c
+@@ -89,6 +89,9 @@ static struct shash_desc *init_desc(char type, uint8_t hash_algo)
+ 		tfm = &hmac_tfm;
+ 		algo = evm_hmac;
+ 	} else {
++		if (hash_algo >= HASH_ALGO__LAST)
++			return ERR_PTR(-EINVAL);
++
+ 		tfm = &evm_tfm[hash_algo];
+ 		algo = hash_algo_name[hash_algo];
+ 	}
+-- 
+2.17.1
 
-The bot has tested the following trees: v5.1.4, v5.0.18, v4.19.45, v4.14.121, v4.9.178, v4.4.180, v3.18.140.
-
-v5.1.4: Build OK!
-v5.0.18: Failed to apply! Possible dependencies:
-    e3ec8d6898f71 ("ceph: send cap releases more aggressively")
-
-v4.19.45: Failed to apply! Possible dependencies:
-    e3ec8d6898f71 ("ceph: send cap releases more aggressively")
-
-v4.14.121: Failed to apply! Possible dependencies:
-    a1c6b8358171c ("ceph: define argument structure for handle_cap_grant")
-    a57d9064e4ee4 ("ceph: flush pending works before shutdown super")
-    e3ec8d6898f71 ("ceph: send cap releases more aggressively")
-
-v4.9.178: Failed to apply! Possible dependencies:
-    a1c6b8358171c ("ceph: define argument structure for handle_cap_grant")
-    a57d9064e4ee4 ("ceph: flush pending works before shutdown super")
-    e3ec8d6898f71 ("ceph: send cap releases more aggressively")
-
-v4.4.180: Failed to apply! Possible dependencies:
-    13d1ad16d05ee ("libceph: move message allocation out of ceph_osdc_alloc_request()")
-    34b759b4a22b0 ("ceph: kill ceph_empty_snapc")
-    3f1af42ad0fad ("libceph: enable large, variable-sized OSD requests")
-    5be0389dac662 ("ceph: re-send AIO write request when getting -EOLDSNAP error")
-    7627151ea30bc ("libceph: define new ceph_file_layout structure")
-    779fe0fb8e188 ("ceph: rados pool namespace support")
-    922dab6134178 ("libceph, rbd: ceph_osd_linger_request, watch/notify v2")
-    a1c6b8358171c ("ceph: define argument structure for handle_cap_grant")
-    ae458f5a171ba ("libceph: make r_request msg_size calculation clearer")
-    c41d13a31fefe ("rbd: use header_oid instead of header_name")
-    c8fe9b17d055f ("ceph: Asynchronous IO support")
-    d30291b985d18 ("libceph: variable-sized ceph_object_id")
-    e3ec8d6898f71 ("ceph: send cap releases more aggressively")
-
-v3.18.140: Failed to apply! Possible dependencies:
-    10183a69551f7 ("ceph: check OSD caps before read/write")
-    28127bdd2f843 ("ceph: convert inline data to normal data before data write")
-    31c542a199d79 ("ceph: add inline data to pagecache")
-    5be0389dac662 ("ceph: re-send AIO write request when getting -EOLDSNAP error")
-    70db4f3629b34 ("ceph: introduce a new inode flag indicating if cached dentries are ordered")
-    745a8e3bccbc6 ("ceph: don't pre-allocate space for cap release messages")
-    7627151ea30bc ("libceph: define new ceph_file_layout structure")
-    779fe0fb8e188 ("ceph: rados pool namespace support")
-    83701246aee8f ("ceph: sync read inline data")
-    a1c6b8358171c ("ceph: define argument structure for handle_cap_grant")
-    affbc19a68f99 ("ceph: make sure syncfs flushes all cap snaps")
-    c8fe9b17d055f ("ceph: Asynchronous IO support")
-    d30291b985d18 ("libceph: variable-sized ceph_object_id")
-    d3383a8e37f80 ("ceph: avoid block operation when !TASK_RUNNING (ceph_mdsc_sync)")
-    e3ec8d6898f71 ("ceph: send cap releases more aggressively")
-    e96a650a8174e ("ceph, rbd: delete unnecessary checks before two function calls")
-
-
-How should we proceed with this patch?
-
---
-Thanks,
-Sasha
