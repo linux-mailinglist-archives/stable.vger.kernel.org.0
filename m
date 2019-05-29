@@ -2,251 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DD2B2D346
-	for <lists+stable@lfdr.de>; Wed, 29 May 2019 03:26:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 370962D3D8
+	for <lists+stable@lfdr.de>; Wed, 29 May 2019 04:35:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725832AbfE2B0N convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 28 May 2019 21:26:13 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:44236 "EHLO mx1.redhat.com"
+        id S1725816AbfE2Cfu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 May 2019 22:35:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725816AbfE2B0N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 28 May 2019 21:26:13 -0400
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1726087AbfE2Cfu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 28 May 2019 22:35:50 -0400
+Received: from localhost.localdomain (c-73-223-200-170.hsd1.ca.comcast.net [73.223.200.170])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 83686308A9E2
-        for <stable@vger.kernel.org>; Wed, 29 May 2019 01:26:12 +0000 (UTC)
-Received: from [172.54.187.96] (cpt-0031.paas.prod.upshift.rdu2.redhat.com [10.0.18.113])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 3899660BDF;
-        Wed, 29 May 2019 01:26:10 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.1
-Message-ID: <cki.4820A2354D.405ATVWXQH@redhat.com>
-X-Gitlab-Pipeline-ID: 11008
-X-Gitlab-Pipeline: =?utf-8?q?https=3A//xci32=2Elab=2Eeng=2Erdu2=2Eredhat=2Ec?=
- =?utf-8?q?om/cki-project/cki-pipeline/pipelines/11008?=
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.41]); Wed, 29 May 2019 01:26:12 +0000 (UTC)
-Date:   Tue, 28 May 2019 21:26:13 -0400
+        by mail.kernel.org (Postfix) with ESMTPSA id E39F821721;
+        Wed, 29 May 2019 02:35:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1559097349;
+        bh=SqC8hbyq0ZadepsIwE8FU0P6LzRnWRsPHtUlJD3QiM4=;
+        h=Date:From:To:Subject:From;
+        b=oRQYRdsq24Y7QhmZmmTdYR1CcVqAP9laExRUhpJaA5CflKWDL5P6w0tJ4orDsHgVy
+         rDO9PCeLVVvUabBhrFERKq+nC4HRkMVRRttM/NA68JTSqL9EObS6n6Pnx0gfvjWqmS
+         pGsdaPDZvNZKsnj8m8d3PUTR2KHJ8HXYEUbX7HKA=
+Date:   Tue, 28 May 2019 19:35:48 -0700
+From:   akpm@linux-foundation.org
+To:     ktkhai@virtuozzo.com, mhocko@suse.com, mm-commits@vger.kernel.org,
+        shakeelb@google.com, stable@vger.kernel.org
+Subject:  +
+ list_lru-fix-memory-leak-in-__memcg_init_list_lru_node.patch added to -mm
+ tree
+Message-ID: <20190529023548.CVpC3Zpnq%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
 
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
+The patch titled
+     Subject: mm/list_lru.c: fix memory leak in __memcg_init_list_lru_node
+has been added to the -mm tree.  Its filename is
+     list_lru-fix-memory-leak-in-__memcg_init_list_lru_node.patch
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: 835365932f0d - Linux 5.1.5
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/list_lru-fix-memory-leak-in-__memcg_init_list_lru_node.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/list_lru-fix-memory-leak-in-__memcg_init_list_lru_node.patch
 
-The results of these automated tests are provided below.
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
+------------------------------------------------------
+From: Shakeel Butt <shakeelb@google.com>
+Subject: mm/list_lru.c: fix memory leak in __memcg_init_list_lru_node
 
-Merge testing
--------------
+Syzbot reported following memory leak:
 
-We cloned this repository and checked out the following commit:
+ffffffffda RBX: 0000000000000003 RCX: 0000000000441f79
+BUG: memory leak
+unreferenced object 0xffff888114f26040 (size 32):
+  comm "syz-executor626", pid 7056, jiffies 4294948701 (age 39.410s)
+  hex dump (first 32 bytes):
+    40 60 f2 14 81 88 ff ff 40 60 f2 14 81 88 ff ff  @`......@`......
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<0000000018f36b56>] kmemleak_alloc_recursive include/linux/kmemleak.h:55 [inline]
+    [<0000000018f36b56>] slab_post_alloc_hook mm/slab.h:439 [inline]
+    [<0000000018f36b56>] slab_alloc mm/slab.c:3326 [inline]
+    [<0000000018f36b56>] kmem_cache_alloc_trace+0x13d/0x280 mm/slab.c:3553
+    [<0000000055b9a1a5>] kmalloc include/linux/slab.h:547 [inline]
+    [<0000000055b9a1a5>] __memcg_init_list_lru_node+0x58/0xf0 mm/list_lru.c:352
+    [<000000001356631d>] memcg_init_list_lru_node mm/list_lru.c:375 [inline]
+    [<000000001356631d>] memcg_init_list_lru mm/list_lru.c:459 [inline]
+    [<000000001356631d>] __list_lru_init+0x193/0x2a0 mm/list_lru.c:626
+    [<00000000ce062da3>] alloc_super+0x2e0/0x310 fs/super.c:269
+    [<000000009023adcf>] sget_userns+0x94/0x2a0 fs/super.c:609
+    [<0000000052182cd8>] sget+0x8d/0xb0 fs/super.c:660
+    [<0000000006c24238>] mount_nodev+0x31/0xb0 fs/super.c:1387
+    [<0000000006016a76>] fuse_mount+0x2d/0x40 fs/fuse/inode.c:1236
+    [<000000009a61ec1d>] legacy_get_tree+0x27/0x80 fs/fs_context.c:661
+    [<0000000096cd9ef8>] vfs_get_tree+0x2e/0x120 fs/super.c:1476
+    [<000000005b8f472d>] do_new_mount fs/namespace.c:2790 [inline]
+    [<000000005b8f472d>] do_mount+0x932/0xc50 fs/namespace.c:3110
+    [<00000000afb009b4>] ksys_mount+0xab/0x120 fs/namespace.c:3319
+    [<0000000018f8c8ee>] __do_sys_mount fs/namespace.c:3333 [inline]
+    [<0000000018f8c8ee>] __se_sys_mount fs/namespace.c:3330 [inline]
+    [<0000000018f8c8ee>] __x64_sys_mount+0x26/0x30 fs/namespace.c:3330
+    [<00000000f42066da>] do_syscall_64+0x76/0x1a0 arch/x86/entry/common.c:301
+    [<0000000043d74ca0>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: 835365932f0d - Linux 5.1.5
+This is a simple off by one bug on the error path.
 
+Link: http://lkml.kernel.org/r/20190528043202.99980-1-shakeelb@google.com
+Fixes: 60d3fd32a7a9 ("list_lru: introduce per-memcg lists")
+Reported-by: syzbot+f90a420dfe2b1b03cb2c@syzkaller.appspotmail.com
+Signed-off-by: Shakeel Butt <shakeelb@google.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Reviewed-by: Kirill Tkhai <ktkhai@virtuozzo.com>
+Cc: <stable@vger.kernel.org>	[4.0+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
 
-We then merged the patchset with `git am`:
+ mm/list_lru.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-  x86-hide-the-int3_emulate_call-jmp-functions-from-uml.patch
-  ext4-do-not-delete-unlinked-inode-from-orphan-list-on-failed-truncate.patch
-  ext4-wait-for-outstanding-dio-during-truncate-in-nojournal-mode.patch
-  kvm-x86-fix-return-value-for-reserved-efer.patch
-  x86-kvm-pmu-set-amd-s-virt-pmu-version-to-1.patch
-  bio-fix-improper-use-of-smp_mb__before_atomic.patch
-  sbitmap-fix-improper-use-of-smp_mb__before_atomic.patch
-  revert-scsi-sd-keep-disk-read-only-when-re-reading-partition.patch
-  crypto-hash-fix-incorrect-hash_max_descsize.patch
-  crypto-vmx-ctr-always-increment-iv-as-quadword.patch
-  mmc-sdhci-iproc-cygnus-set-no_hispd-bit-to-fix-hs50-data-hold-time-problem.patch
-  mmc-sdhci-iproc-set-no_hispd-bit-to-fix-hs50-data-hold-time-problem.patch
-  tracing-add-a-check_val-check-before-updating-cond_snapshot-track_val.patch
-  dax-arrange-for-dax_supported-check-to-span-multiple-devices.patch
-  kvm-check-irqchip-mode-before-assign-irqfd.patch
-  kvm-svm-avic-fix-off-by-one-in-checking-host-apic-id.patch
-  kvm-nvmx-fix-using-__this_cpu_read-in-preemptible-context.patch
-  libnvdimm-pmem-bypass-config_hardened_usercopy-overhead.patch
-  arm64-kernel-kaslr-reduce-module-randomization-range-to-2-gb.patch
-  arm64-kconfig-make-arm64_pseudo_nmi-depend-on-broken-for-now.patch
-  arm64-iommu-handle-non-remapped-addresses-in-mmap-and-get_sgtable.patch
-  gfs2-fix-sign-extension-bug-in-gfs2_update_stats.patch
-  btrfs-don-t-double-unlock-on-error-in-btrfs_punch_hole.patch
-  btrfs-check-the-compression-level-before-getting-a-workspace.patch
-  btrfs-do-not-abort-transaction-at-btrfs_update_root-after-failure-to-cow-path.patch
-  btrfs-avoid-fallback-to-transaction-commit-during-fsync-of-files-with-holes.patch
-  btrfs-fix-race-between-ranged-fsync-and-writeback-of-adjacent-ranges.patch
-  btrfs-sysfs-fix-error-path-kobject-memory-leak.patch
-  btrfs-sysfs-don-t-leak-memory-when-failing-add-fsid.patch
-  fbdev-fix-divide-error-in-fb_var_to_videomode.patch
-  arm64-errata-add-workaround-for-cortex-a76-erratum-1463225.patch
-  ovl-relax-warn_on-for-overlapping-layers-use-case.patch
-  fbdev-fix-warning-in-__alloc_pages_nodemask-bug.patch
-  media-cpia2-fix-use-after-free-in-cpia2_exit.patch
-  media-serial_ir-fix-use-after-free-in-serial_ir_init_module.patch
-  media-vb2-add-waiting_in_dqbuf-flag.patch
-  media-vivid-use-vfree-instead-of-kfree-for-dev-bitmap_cap.patch
-  ssb-fix-possible-null-pointer-dereference-in-ssb_host_pcmcia_exit.patch
-  bpf-devmap-fix-use-after-free-read-in-__dev_map_entry_free.patch
-  batman-adv-mcast-fix-multicast-tt-tvlv-worker-locking.patch
-  at76c50x-usb-don-t-register-led_trigger-if-usb_register_driver-failed.patch
-  acct_on-don-t-mess-with-freeze-protection.patch
-  netfilter-ctnetlink-resolve-conntrack-l3-protocol-flush-regression.patch
+--- a/mm/list_lru.c~list_lru-fix-memory-leak-in-__memcg_init_list_lru_node
++++ a/mm/list_lru.c
+@@ -354,7 +354,7 @@ static int __memcg_init_list_lru_node(st
+ 	}
+ 	return 0;
+ fail:
+-	__memcg_destroy_list_lru_node(memcg_lrus, begin, i - 1);
++	__memcg_destroy_list_lru_node(memcg_lrus, begin, i);
+ 	return -ENOMEM;
+ }
+ 
+_
 
-Compile testing
----------------
+Patches currently in -mm which might be from shakeelb@google.com are
 
-We compiled the kernel for 4 architectures:
+list_lru-fix-memory-leak-in-__memcg_init_list_lru_node.patch
+memcg-oom-no-oom-kill-for-__gfp_retry_mayfail.patch
+memcg-fsnotify-no-oom-kill-for-remote-memcg-charging.patch
 
-  aarch64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-d9ca91edd42e0287c0c1f4d962d1b821c4ef1acd.config
-    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-d9ca91edd42e0287c0c1f4d962d1b821c4ef1acd.tar.gz
-
-  ppc64le:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-d9ca91edd42e0287c0c1f4d962d1b821c4ef1acd.config
-    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-d9ca91edd42e0287c0c1f4d962d1b821c4ef1acd.tar.gz
-
-  s390x:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-d9ca91edd42e0287c0c1f4d962d1b821c4ef1acd.config
-    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-d9ca91edd42e0287c0c1f4d962d1b821c4ef1acd.tar.gz
-
-  x86_64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-d9ca91edd42e0287c0c1f4d962d1b821c4ef1acd.config
-    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-d9ca91edd42e0287c0c1f4d962d1b821c4ef1acd.tar.gz
-
-
-Hardware testing
-----------------
-
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ audit: audit testsuite test [4]
-       ✅ httpd: mod_ssl smoke sanity [5]
-       ✅ iotop: sanity [6]
-       ✅ tuned: tune-processes-through-perf [7]
-       ✅ Usex - version 1.9-29 [8]
-       ✅ stress: stress-ng [9]
-       🚧 ✅ Networking socket: fuzz [10]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ xfstests: ext4 [11]
-       ✅ xfstests: xfs [11]
-       ✅ selinux-policy: serge-testsuite [12]
-
-
-  ppc64le:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ xfstests: ext4 [11]
-       ✅ xfstests: xfs [11]
-       ✅ selinux-policy: serge-testsuite [12]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ audit: audit testsuite test [4]
-       ✅ httpd: mod_ssl smoke sanity [5]
-       ✅ iotop: sanity [6]
-       ✅ tuned: tune-processes-through-perf [7]
-       ✅ Usex - version 1.9-29 [8]
-       ✅ stress: stress-ng [9]
-       🚧 ✅ Networking socket: fuzz [10]
-
-
-  s390x:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ audit: audit testsuite test [4]
-       ✅ httpd: mod_ssl smoke sanity [5]
-       ✅ iotop: sanity [6]
-       ✅ tuned: tune-processes-through-perf [7]
-       ✅ Usex - version 1.9-29 [8]
-       ✅ stress: stress-ng [9]
-       🚧 ✅ Networking socket: fuzz [10]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [12]
-
-
-  x86_64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ xfstests: ext4 [11]
-       ✅ xfstests: xfs [11]
-       ✅ selinux-policy: serge-testsuite [12]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ audit: audit testsuite test [4]
-       ✅ httpd: mod_ssl smoke sanity [5]
-       ✅ iotop: sanity [6]
-       ✅ tuned: tune-processes-through-perf [7]
-       ✅ Usex - version 1.9-29 [8]
-       ✅ stress: stress-ng [9]
-       🚧 ✅ Networking socket: fuzz [10]
-
-
-  Test source:
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
-    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
-    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/filesystems/xfs/xfstests
-    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-
-Waived tests (marked with 🚧)
------------------------------
-This test run included waived tests. Such tests are executed but their results
-are not taken into account. Tests are waived when their results are not
-reliable enough, e.g. when they're just introduced or are being fixed.
