@@ -2,134 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 20A6F2E84C
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 00:32:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16F3A2E871
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 00:45:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726054AbfE2Wcu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 18:32:50 -0400
-Received: from mail-qt1-f193.google.com ([209.85.160.193]:34381 "EHLO
-        mail-qt1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726018AbfE2Wcu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 29 May 2019 18:32:50 -0400
-Received: by mail-qt1-f193.google.com with SMTP id h1so4692369qtp.1;
-        Wed, 29 May 2019 15:32:50 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=bhcaQuR9YSEQybP2ekpRZxM00TsWewuQkxFdS2ijASs=;
-        b=o5JTyJbmqM4zgeEKLd+Ztdf2hwDDFFfWl+ndu71PPdrdakz2WUuhhLWCs5up4D+qv6
-         XLQO2IQDV0Lz+nWTRzRd7TwVDNFigTYLfzTdBGFpsYzKj2Z8Tm3tquv/r+X+Ci0cLNTY
-         6S49Jz4mHZFeHGG8bkguon5NlI1AOU5Q/FRGwgXAHyCCR+4INKoozDvAShGMO8K1UjqA
-         36baRRJjzn5N52ytOoOtIdbG86rpTsGLoVBEbrkq98tWbT5K+B1/xxobdp3H9k9jLg27
-         ApbAgGhbTg9Wdbq7dK9FJaQhLCOEheSG6jmVnBeRRcNSl/wdCJ7xvp7PxSxNrA8dpgTB
-         gCSQ==
-X-Gm-Message-State: APjAAAU41JjFRz0dPER56lLDIYn/5ROdXnIH63vRBttEfCEHmnaUGZdG
-        r3sTvh2Lq0lbsU8rhp5y9UFxTQyLm/VOWTeeT88=
-X-Google-Smtp-Source: APXvYqzjWc05T9BIUjfMN8/lfoIoLNUkz68qr+FmtCCk7e/p0sSEAdKNYq5z9uqUmaxIhN8RqRHwL2xJ+hWqCzO3yr8=
-X-Received: by 2002:ac8:6750:: with SMTP id n16mr414503qtp.142.1559169169422;
- Wed, 29 May 2019 15:32:49 -0700 (PDT)
-MIME-Version: 1.0
-References: <20190522032144.10995-1-deepa.kernel@gmail.com> <20190529161157.GA27659@redhat.com>
-In-Reply-To: <20190529161157.GA27659@redhat.com>
-From:   Arnd Bergmann <arnd@arndb.de>
-Date:   Thu, 30 May 2019 00:32:32 +0200
-Message-ID: <CAK8P3a1fsrz6kAB1z-mqcaNvXL4Hf3XMiN=Q5rzAJ3rLGPK_Yg@mail.gmail.com>
-Subject: Re: pselect/etc semantics (Was: [PATCH v2] signal: Adjust error codes
- according to restore_user_sigmask())
-To:     Oleg Nesterov <oleg@redhat.com>
-Cc:     Deepa Dinamani <deepa.kernel@gmail.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>, dbueso@suse.de,
-        Jens Axboe <axboe@kernel.dk>,
-        Davidlohr Bueso <dave@stgolabs.net>, e@80x24.org,
-        Jason Baron <jbaron@akamai.com>,
-        Linux FS-devel Mailing List <linux-fsdevel@vger.kernel.org>,
-        linux-aio <linux-aio@kvack.org>, omar.kilani@gmail.com,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "# 3.4.x" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        id S1726225AbfE2Wpm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 18:45:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48430 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726099AbfE2Wpm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 18:45:42 -0400
+Received: from akpm3.svl.corp.google.com (unknown [104.133.8.65])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id D886B242AC;
+        Wed, 29 May 2019 22:45:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1559169941;
+        bh=kHqOJImnqpdpCUI+iQlew1PvNxmv43AkjNiEJ40EiSI=;
+        h=Date:From:To:Subject:From;
+        b=eaCdcswvS8sBqT/5iuLVqmkvDwM0IhAsAvrhWktGvMYsubYDsqtGleSlIeN2vsBMW
+         xhfYtJAS/xsmKPXoQ7kTkM8IXxFjN65zc5fYFpGHXFe083VrujdlkCLJFWUa0fizty
+         fOtSMWfIU2Lu5mKSlR0OKPyZ+xb/QumeJnDyTRdE=
+Date:   Wed, 29 May 2019 15:45:40 -0700
+From:   akpm@linux-foundation.org
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        peterz@infradead.org, oleg@redhat.com, hch@lst.de, axboe@kernel.dk,
+        akpm@linux-foundation.org, cai@lca.pw
+Subject:  + mm-page_io-fix-a-crash-in-do_task_dead.patch added to -mm
+ tree
+Message-ID: <20190529224540.R3KdG%akpm@linux-foundation.org>
+User-Agent: s-nail v14.9.10
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 29, 2019 at 6:12 PM Oleg Nesterov <oleg@redhat.com> wrote:
->
-> Al, Linus, Eric, please help.
->
-> The previous discussion was very confusing, we simply can not understand each
-> other.
->
-> To me everything looks very simple and clear, but perhaps I missed something
-> obvious? Please correct me.
 
-Thanks for the elaborate explanation in this patch, it all starts making sense
-to me now. I also looked at your patch in detail and thought I had found
-a few mistakes at first but those all turned out to be mistakes in my reading.
+The patch titled
+     Subject: mm/page_io.c: fix a crash in do_task_dead()
+has been added to the -mm tree.  Its filename is
+     mm-page_io-fix-a-crash-in-do_task_dead.patch
 
-> See the compile-tested patch at the end. Of course, the new _xxx() helpers
-> should be renamed somehow. fs/aio.c doesn't look right with or without this
-> patch, but iiuc this is what it did before 854a6ed56839a.
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/mm-page_io-fix-a-crash-in-do_task_dead.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/mm-page_io-fix-a-crash-in-do_task_dead.patch
 
-I think this is a nice simplification, but it would help not to mix up the
-minimal regression fix with the rewrite of those functions. For the stable
-kernels, I think we want just the addition of the 'bool interrupted' argument
-to restore_user_sigmask() to close the race that was introduced
-854a6ed56839a. Following up on that for future kernels, your patch
-improves the readability, but we can probably take it even further.
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-> -       ret = set_user_sigmask(ksig.sigmask, &ksigmask, &sigsaved, ksig.sigsetsize);
-> +       ret = set_xxx(ksig.sigmask, ksig.sigsetsize);
->         if (ret)
->                 return ret;
->
->         ret = do_io_getevents(ctx_id, min_nr, nr, events, timeout ? &ts : NULL);
-> -       restore_user_sigmask(ksig.sigmask, &sigsaved);
-> -       if (signal_pending(current) && !ret)
-> +
-> +       interrupted = signal_pending(current);
-> +       update_xxx(interrupted);
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-Maybe name this
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
-           restore_saved_sigmask_if(!interrupted);
+------------------------------------------------------
+From: Qian Cai <cai@lca.pw>
+Subject: mm/page_io.c: fix a crash in do_task_dead()
 
-and make restore_saved_sigmask_if() an inline function
-next to restore_saved_sigmask()?
+0619317ff8ba ("block: add polled wakeup task helper") replaced
+wake_up_process() with blk_wake_io_task() in end_swap_bio_read() which
+triggers a crash when running heavy swapping workloads.
 
-> @@ -2201,13 +2205,15 @@ COMPAT_SYSCALL_DEFINE6(io_pgetevents,
->         if (usig && copy_from_user(&ksig, usig, sizeof(ksig)))
->                 return -EFAULT;
->
-> -       ret = set_compat_user_sigmask(ksig.sigmask, &ksigmask, &sigsaved, ksig.sigsetsize);
-> +       ret = set_compat_xxx(ksig.sigmask, ksig.sigsetsize);
->         if (ret)
->                 return ret;
+[T114538] kernel BUG at kernel/sched/core.c:3462!
+[T114538] Process oom01 (pid: 114538, stack limit = 0x000000004f40e0c1)
+[T114538] Call trace:
+[T114538]  do_task_dead+0xf0/0xf8
+[T114538]  do_exit+0xd5c/0x10fc
+[T114538]  do_group_exit+0xf4/0x110
+[T114538]  get_signal+0x280/0xdd8
+[T114538]  do_notify_resume+0x720/0x968
+[T114538]  work_pending+0x8/0x10
 
-With some of the recent discussions about compat syscall handling,
-I now think that we want to just fold set_compat_user_sigmask()
-into set_user_sigmask() (whatever they get called in the end)
-with an in_compat_syscall() conditional inside it, and completely get
-rid of the COMPAT_SYSCALL_DEFINEx() definitions for those
-system calls for which this is the only difference.
+This is because shortly after set_special_state(TASK_DEAD),
+end_swap_bio_read() is called from an interrupt handler that revive the
+task state to TASK_RUNNING causes __schedule() to return and trip the
+BUG() later.
 
-Unfortunately we still need the time32/time64 distinction, but removing
-syscall handlers is a significant cleanup here already, and we can
-move most of the function body of sys_io_pgetevents() into
-do_io_getevents() in the process. Same for some of the other calls.
+[  C206] Call trace:
+[  C206]  dump_backtrace+0x0/0x268
+[  C206]  show_stack+0x20/0x2c
+[  C206]  dump_stack+0xb4/0x108
+[  C206]  blk_wake_io_task+0x7c/0x80
+[  C206]  end_swap_bio_read+0x22c/0x31c
+[  C206]  bio_endio+0x3d8/0x414
+[  C206]  dec_pending+0x280/0x378 [dm_mod]
+[  C206]  clone_endio+0x128/0x2ac [dm_mod]
+[  C206]  bio_endio+0x3d8/0x414
+[  C206]  blk_update_request+0x3ac/0x924
+[  C206]  scsi_end_request+0x54/0x350
+[  C206]  scsi_io_completion+0xf0/0x6f4
+[  C206]  scsi_finish_command+0x214/0x228
+[  C206]  scsi_softirq_done+0x170/0x1a4
+[  C206]  blk_done_softirq+0x100/0x194
+[  C206]  __do_softirq+0x350/0x790
+[  C206]  irq_exit+0x200/0x26c
+[  C206]  handle_IPI+0x2e8/0x514
+[  C206]  gic_handle_irq+0x224/0x228
+[  C206]  el1_irq+0xb8/0x140
+[  C206]  _raw_spin_unlock_irqrestore+0x3c/0x74
+[  C206]  do_task_dead+0x88/0xf8
+[  C206]  do_exit+0xd5c/0x10fc
+[  C206]  do_group_exit+0xf4/0x110
+[  C206]  get_signal+0x280/0xdd8
+[  C206]  do_notify_resume+0x720/0x968
+[  C206]  work_pending+0x8/0x10
 
-Not sure about the order of the cleanups, but probably something like
-this would work:
+Before the offensive commit, wake_up_process() will prevent this from
+happening by taking the pi_lock and bail out immediately if TASK_DEAD is
+set.
 
-1. fix the race (to be backported)
-2. unify set_compat_user_sigmask/set_user_sigmask
-3. remove unneeded compat handlers
-4. replace restore_user_sigmask with restore_saved_sigmask_if()
-5. also unify compat_get_fd_set()/get_fd_set() and kill off
-    compat select() variants.
+if (!(p->state & TASK_NORMAL))
+	goto out;
 
-       Arnd
+Link: http://lkml.kernel.org/r/1559156813-30681-1-git-send-email-cai@lca.pw
+Fixes: 0619317ff8ba ("block: add polled wakeup task helper")
+Signed-off-by: Qian Cai <cai@lca.pw>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Oleg Nesterov <oleg@redhat.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/page_io.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+--- a/mm/page_io.c~mm-page_io-fix-a-crash-in-do_task_dead
++++ a/mm/page_io.c
+@@ -140,7 +140,8 @@ out:
+ 	unlock_page(page);
+ 	WRITE_ONCE(bio->bi_private, NULL);
+ 	bio_put(bio);
+-	blk_wake_io_task(waiter);
++	/* end_swap_bio_read() could be called from an interrupt handler. */
++	wake_up_process(waiter);
+ 	put_task_struct(waiter);
+ }
+ 
+_
+
+Patches currently in -mm which might be from cai@lca.pw are
+
+iommu-intel-fix-variable-iommu-set-but-not-used.patch
+mm-page_io-fix-a-crash-in-do_task_dead.patch
+
