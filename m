@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FABE2EC16
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:18:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA3CB2EEDD
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:50:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731505AbfE3DSS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:18:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50626 "EHLO mail.kernel.org"
+        id S1729812AbfE3DTy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:19:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56998 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731497AbfE3DSR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:18:17 -0400
+        id S1731229AbfE3DTx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:19:53 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B67282479C;
-        Thu, 30 May 2019 03:18:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BFDDA248DE;
+        Thu, 30 May 2019 03:19:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186296;
-        bh=3UP0FFFWZDARpnNLGfXOHDI/BlZiCOPye2tYjL/MbkU=;
+        s=default; t=1559186391;
+        bh=G07YqjmcwnMdmuyaPQLQY6OURpY6A5BM4VT9U3TF1iI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S5AXBFW2etrCo0IIT1RdwyQXVBcu74wRWt76p0V3MpL9xiVCiXtIBDTnptJeovYLK
-         e3HmhDFrggGS5biO0QOv4edhV5n5ibeJru1MD3AmYy/asQpUvcIFyCnE09/q1QwA8E
-         2sOY1WGhAxKgSogJdsuXeg4APHYmLVYP1/lQASME=
+        b=hEuR2zP6pBUjue1dXSCzPEITCDEeud6qbPzLl036ZMkD7kGJSbbHhy/wueqoSXhpi
+         tHiOUIo+MHX8ocUVBK0K97BKmJ91KQoO0Fks/+sbhEx9v1vMPk2yyn5AaYaaEDRqLB
+         /pqsDbABUBDHgvdiHPTZk2kuLOqnDRj/Lwz9k2LE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 259/276] media: vimc: zero the media_device on probe
+        stable@vger.kernel.org,
+        syzbot <syzbot+f648cfb7e0b52bf7ae32@syzkaller.appspotmail.com>,
+        Kay Sievers <kay@vrfy.org>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Sasha Levin <sashal@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 4.14 163/193] kobject: Dont trigger kobject_uevent(KOBJ_REMOVE) twice.
 Date:   Wed, 29 May 2019 20:06:57 -0700
-Message-Id: <20190530030541.379975194@linuxfoundation.org>
+Message-Id: <20190530030510.715672847@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
+References: <20190530030446.953835040@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,36 +47,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f74267b51cb36321f777807b2e04ca02167ecc08 ]
+[ Upstream commit c03a0fd0b609e2f5c669c2b7f27c8e1928e9196e ]
 
-The media_device is part of a static global vimc_device struct.
-The media framework expects this to be zeroed before it is
-used, however, since this is a global this is not the case if
-vimc is unbound and then bound again.
+syzbot is hitting use-after-free bug in uinput module [1]. This is because
+kobject_uevent(KOBJ_REMOVE) is called again due to commit 0f4dafc0563c6c49
+("Kobject: auto-cleanup on final unref") after memory allocation fault
+injection made kobject_uevent(KOBJ_REMOVE) from device_del() from
+input_unregister_device() fail, while uinput_destroy_device() is expecting
+that kobject_uevent(KOBJ_REMOVE) is not called after device_del() from
+input_unregister_device() completed.
 
-So call memset to ensure any left-over values are cleared.
+That commit intended to catch cases where nobody even attempted to send
+"remove" uevents. But there is no guarantee that an event will ultimately
+be sent. We are at the point of no return as far as the rest of the kernel
+is concerned; there are no repeats or do-overs.
 
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Also, it is not clear whether some subsystem depends on that commit.
+If no subsystem depends on that commit, it will be better to remove
+the state_{add,remove}_uevent_sent logic. But we don't want to risk
+a regression (in a patch which will be backported) by trying to remove
+that logic. Therefore, as a first step, let's avoid the use-after-free bug
+by making sure that kobject_uevent(KOBJ_REMOVE) won't be triggered twice.
+
+[1] https://syzkaller.appspot.com/bug?id=8b17c134fe938bbddd75a45afaa9e68af43a362d
+
+Reported-by: syzbot <syzbot+f648cfb7e0b52bf7ae32@syzkaller.appspotmail.com>
+Analyzed-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Fixes: 0f4dafc0563c6c49 ("Kobject: auto-cleanup on final unref")
+Cc: Kay Sievers <kay@vrfy.org>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/vimc/vimc-core.c | 2 ++
- 1 file changed, 2 insertions(+)
+ lib/kobject_uevent.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/media/platform/vimc/vimc-core.c b/drivers/media/platform/vimc/vimc-core.c
-index 9246f265de31b..27db8835c2410 100644
---- a/drivers/media/platform/vimc/vimc-core.c
-+++ b/drivers/media/platform/vimc/vimc-core.c
-@@ -303,6 +303,8 @@ static int vimc_probe(struct platform_device *pdev)
+diff --git a/lib/kobject_uevent.c b/lib/kobject_uevent.c
+index f237a09a58627..3916cf0e2f0ae 100644
+--- a/lib/kobject_uevent.c
++++ b/lib/kobject_uevent.c
+@@ -340,6 +340,13 @@ int kobject_uevent_env(struct kobject *kobj, enum kobject_action action,
+ 	struct uevent_sock *ue_sk;
+ #endif
  
- 	dev_dbg(&pdev->dev, "probe");
- 
-+	memset(&vimc->mdev, 0, sizeof(vimc->mdev));
++	/*
++	 * Mark "remove" event done regardless of result, for some subsystems
++	 * do not want to re-trigger "remove" event via automatic cleanup.
++	 */
++	if (action == KOBJ_REMOVE)
++		kobj->state_remove_uevent_sent = 1;
 +
- 	/* Create platform_device for each entity in the topology*/
- 	vimc->subdevs = devm_kcalloc(&vimc->pdev.dev, vimc->pipe_cfg->num_ents,
- 				     sizeof(*vimc->subdevs), GFP_KERNEL);
+ 	pr_debug("kobject: '%s' (%p): %s\n",
+ 		 kobject_name(kobj), kobj, __func__);
+ 
+@@ -441,10 +448,6 @@ int kobject_uevent_env(struct kobject *kobj, enum kobject_action action,
+ 		kobj->state_add_uevent_sent = 1;
+ 		break;
+ 
+-	case KOBJ_REMOVE:
+-		kobj->state_remove_uevent_sent = 1;
+-		break;
+-
+ 	case KOBJ_UNBIND:
+ 		zap_modalias_env(env);
+ 		break;
 -- 
 2.20.1
 
