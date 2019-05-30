@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B0ED82EF08
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:52:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 493AF2F042
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:03:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731974AbfE3DTi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:19:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56022 "EHLO mail.kernel.org"
+        id S1730754AbfE3ECG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:02:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731969AbfE3DTi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:19:38 -0400
+        id S1731398AbfE3DSD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:18:03 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C61ED248B9;
-        Thu, 30 May 2019 03:19:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AD15E2475D;
+        Thu, 30 May 2019 03:18:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186377;
-        bh=WCQ0qdII5u/nvb+83Q3aJnzkfoHfMFOFeGzr5nrotuc=;
+        s=default; t=1559186282;
+        bh=yIgeGhkdPB5M6GuadWfHBcGZhxxwD9M3hoixq8qO45I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rA+mjaj/1JRmp/ILHqpZkwpZUNYH7vUPCrVXXq8S3pGVHjrOIeIHGYLpX78N1GE9D
-         u3laJFibEYDGB8ZM6WS1WE6J3ZrVuL2iNsee8j0dHvRbKTl1V4OgYSILOOawxNKM3+
-         kKAHHQWwTeVrlH/63COxM9eeCJKyCc37/Zucmirw=
+        b=ztT2CE1lt5mrvtfjGS8oMZcj1kCK7JMAXajH0qFegEg3mbyrYqxmgDCAxBAxL6T4Z
+         w7k+kvzRYNZjcx4t+ejvBmLQVHaY4mGdbzJIY6GgV89y5YZ7yzEGk2fhjBiqk0OoN1
+         FmzFYsWT/yTPk668C7BXzwbzSjxS2rMrMEUpE+hM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
+        Alan Stern <stern@rowland.harvard.edu>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 139/193] rtlwifi: fix a potential NULL pointer dereference
+Subject: [PATCH 4.19 235/276] usb: core: Add PM runtime calls to usb_hcd_platform_shutdown
 Date:   Wed, 29 May 2019 20:06:33 -0700
-Message-Id: <20190530030507.777553829@linuxfoundation.org>
+Message-Id: <20190530030539.824340594@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,34 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 765976285a8c8db3f0eb7f033829a899d0c2786e ]
+[ Upstream commit 8ead7e817224d7832fe51a19783cb8fcadc79467 ]
 
-In case alloc_workqueue fails, the fix reports the error and
-returns to avoid NULL pointer dereference.
+If ohci-platform is runtime suspended, we can currently get an "imprecise
+external abort" on reboot with ohci-platform loaded when PM runtime
+is implemented for the SoC.
 
-Signed-off-by: Kangjie Lu <kjlu@umn.edu>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Let's fix this by adding PM runtime support to usb_hcd_platform_shutdown.
+
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtlwifi/base.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/usb/core/hcd.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/wireless/realtek/rtlwifi/base.c b/drivers/net/wireless/realtek/rtlwifi/base.c
-index ec82c1c3f12e4..4a3c713ad3247 100644
---- a/drivers/net/wireless/realtek/rtlwifi/base.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/base.c
-@@ -468,6 +468,11 @@ static void _rtl_init_deferred_work(struct ieee80211_hw *hw)
- 	/* <2> work queue */
- 	rtlpriv->works.hw = hw;
- 	rtlpriv->works.rtl_wq = alloc_workqueue("%s", 0, 0, rtlpriv->cfg->name);
-+	if (unlikely(!rtlpriv->works.rtl_wq)) {
-+		pr_err("Failed to allocate work queue\n");
-+		return;
-+	}
+diff --git a/drivers/usb/core/hcd.c b/drivers/usb/core/hcd.c
+index 1c21955fe7c00..b82a7d787add8 100644
+--- a/drivers/usb/core/hcd.c
++++ b/drivers/usb/core/hcd.c
+@@ -3017,6 +3017,9 @@ usb_hcd_platform_shutdown(struct platform_device *dev)
+ {
+ 	struct usb_hcd *hcd = platform_get_drvdata(dev);
+ 
++	/* No need for pm_runtime_put(), we're shutting down */
++	pm_runtime_get_sync(&dev->dev);
 +
- 	INIT_DELAYED_WORK(&rtlpriv->works.watchdog_wq,
- 			  (void *)rtl_watchdog_wq_callback);
- 	INIT_DELAYED_WORK(&rtlpriv->works.ips_nic_off_wq,
+ 	if (hcd->driver->shutdown)
+ 		hcd->driver->shutdown(hcd);
+ }
 -- 
 2.20.1
 
