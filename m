@@ -2,117 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EBB902FE0A
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 16:41:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 715D02FEA3
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 16:56:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727147AbfE3Ok6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 10:40:58 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:38970 "EHLO mx1.redhat.com"
+        id S1726418AbfE3Oza (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 10:55:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33892 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725961AbfE3Ok6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 May 2019 10:40:58 -0400
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1727100AbfE3Oza (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 30 May 2019 10:55:30 -0400
+Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id AF0D5C04FFF6;
-        Thu, 30 May 2019 14:40:51 +0000 (UTC)
-Received: from dhcp-27-174.brq.redhat.com (unknown [10.43.17.159])
-        by smtp.corp.redhat.com (Postfix) with SMTP id 655AE611A1;
-        Thu, 30 May 2019 14:40:46 +0000 (UTC)
-Received: by dhcp-27-174.brq.redhat.com (nbSMTP-1.00) for uid 1000
-        oleg@redhat.com; Thu, 30 May 2019 16:40:51 +0200 (CEST)
-Date:   Thu, 30 May 2019 16:40:45 +0200
-From:   Oleg Nesterov <oleg@redhat.com>
-To:     Arnd Bergmann <arnd@arndb.de>
-Cc:     Deepa Dinamani <deepa.kernel@gmail.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>, dbueso@suse.de,
-        Jens Axboe <axboe@kernel.dk>,
-        Davidlohr Bueso <dave@stgolabs.net>, e@80x24.org,
-        Jason Baron <jbaron@akamai.com>,
-        Linux FS-devel Mailing List <linux-fsdevel@vger.kernel.org>,
-        linux-aio <linux-aio@kvack.org>, omar.kilani@gmail.com,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "# 3.4.x" <stable@vger.kernel.org>
-Subject: Re: pselect/etc semantics (Was: [PATCH v2] signal: Adjust error
- codes according to restore_user_sigmask())
-Message-ID: <20190530144044.GG22536@redhat.com>
-References: <20190522032144.10995-1-deepa.kernel@gmail.com>
- <20190529161157.GA27659@redhat.com>
- <CAK8P3a1fsrz6kAB1z-mqcaNvXL4Hf3XMiN=Q5rzAJ3rLGPK_Yg@mail.gmail.com>
+        by mail.kernel.org (Postfix) with ESMTPSA id C934C25BC5;
+        Thu, 30 May 2019 14:55:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1559228129;
+        bh=TS9d5DJNY8xbptivYe8XCLfmw2NQ5yz/UxTnwmTfuwM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=1X5lAJ0vayXqpK7ep/vTQNr/OeBXy2XAz4u7qYZKRJVIGzKzG0gpXAu3co10v6G4o
+         vbD1XdviICM/IoRoFQZFjO4WA68dqlcEYBDFjyiIpg/LKcjNK8l72b5kD0cnd24UB5
+         uqpYxjLXJM/Fv4sjvx2q1cT906jbHXYIPS38JLVk=
+Date:   Thu, 30 May 2019 07:55:29 -0700
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     CKI Project <cki-project@redhat.com>
+Cc:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: Re: =?utf-8?B?4p2OIEZBSUw=?= =?utf-8?Q?=3A?= Test report for kernel
+ 4.19.47-rc1-011862f.cki (stable)
+Message-ID: <20190530145529.GA28396@kroah.com>
+References: <cki.7068F1D41D.IXWVR9HG1P@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <CAK8P3a1fsrz6kAB1z-mqcaNvXL4Hf3XMiN=Q5rzAJ3rLGPK_Yg@mail.gmail.com>
-User-Agent: Mutt/1.5.24 (2015-08-30)
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.31]); Thu, 30 May 2019 14:40:57 +0000 (UTC)
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <cki.7068F1D41D.IXWVR9HG1P@redhat.com>
+User-Agent: Mutt/1.12.0 (2019-05-25)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 05/30, Arnd Bergmann wrote:
->
-> I think this is a nice simplification, but it would help not to mix up the
-> minimal regression fix with the rewrite of those functions.
+On Thu, May 30, 2019 at 12:08:51AM -0400, CKI Project wrote:
+> Hello,
+> 
+> We ran automated tests on a recent commit from this kernel tree:
+> 
+>        Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+>             Commit: 9c8c1a222a6b - Linux 4.19.47-rc1
+> 
+> The results of these automated tests are provided below.
+> 
+>     Overall result: FAILED (see details below)
+>              Merge: OK
+>            Compile: OK
+>              Tests: FAILED
+> 
+> 
+> One or more kernel tests failed:
+> 
+>   aarch64:
+>     ❎ Boot test
 
-Yes, yes, agreed.
+Is this something to worry about?
 
-Plus every file touched by this patch asks for more cleanups. Say, do_poll()
-should return -ERESTARTNOHAND, not -EINTR, after that we can remove the ugly
-EINTR->ERESTARTNOHAND in its callers. And more.
+thanks,
 
-> For the stable
-> kernels, I think we want just the addition of the 'bool interrupted' argument
-> to restore_user_sigmask()
-
-or simply revert this patch. I will check if this is possible today... At first
-glance 854a6ed56839a40f6 fixed another bug by accident, do_pselect() did
-"ret == -ERESTARTNOHAND" after "ret = poll_select_copy_remaining()" which can
-turn ERESTARTNOHAND into EINTR, but this is simple. I'll check tomorrow.
-
-
-> > -       ret = set_user_sigmask(ksig.sigmask, &ksigmask, &sigsaved, ksig.sigsetsize);
-> > +       ret = set_xxx(ksig.sigmask, ksig.sigsetsize);
-> >         if (ret)
-> >                 return ret;
-> >
-> >         ret = do_io_getevents(ctx_id, min_nr, nr, events, timeout ? &ts : NULL);
-> > -       restore_user_sigmask(ksig.sigmask, &sigsaved);
-> > -       if (signal_pending(current) && !ret)
-> > +
-> > +       interrupted = signal_pending(current);
-> > +       update_xxx(interrupted);
->
-> Maybe name this
->
->            restore_saved_sigmask_if(!interrupted);
-
-Yes, I thought about restore_if(), but to me
-
-		restore_saved_sigmask_if(ret != -EINTR);
-
-doesn't look readable... May be
-
-		restore_saved_sigmask_unless(ret == -EINTR);
-
-? but actually I agree with any naming.
-
-> and make restore_saved_sigmask_if() an inline function
-> next to restore_saved_sigmask()?
-
-agreed,
-
-> With some of the recent discussions about compat syscall handling,
-> I now think that we want to just fold set_compat_user_sigmask()
-> into set_user_sigmask()
-
-agreed, and I thought about this too. But again, I'd prefer to do this
-and other cleanups later, on top of this patch.
-
-Oleg.
-
+greg k-h
