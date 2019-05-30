@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7366E2F0E3
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:08:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 683E82EB5A
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:12:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727323AbfE3EIO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:08:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46034 "EHLO mail.kernel.org"
+        id S1728820AbfE3DME (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:12:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729621AbfE3DRU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:17:20 -0400
+        id S1728807AbfE3DME (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:12:04 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AF3412469E;
-        Thu, 30 May 2019 03:17:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A229F24519;
+        Thu, 30 May 2019 03:12:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186239;
-        bh=UFh/zJ1gijS7gMSPqAyLNEYVNc/ARSAND5iI9zLBZgw=;
+        s=default; t=1559185922;
+        bh=SUFJuD+RDYPxBfqqjk3NPnFPFwKFjx2pBoPwu0iY4Bc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=scksEpJys201TQbs9qjEokUF8Qmaui57+AwZNnCIafcLNqBxbXq4oldrESc1azD28
-         P6J+3VkFFf3ef6kK6hrP2AU1531zgo0YV0acmiD3sA42tLoTIbBk9yKUitbzzy33Ey
-         rDBCp9OXOg9rJy903Af/hjuLkyvYRsHQkAp5ZwVI=
+        b=sR+5ylZeZmDO2LZtdqnlTlsPPDUOaBXc5AxGHKO5emnY8PT3JzTc9IcTRZ0YNG+tv
+         Q4TOeTJgz28Kjzmc5y0PRddigmXGnARHv0Y9EOtUPwC6gq/iC0s+xOgnxWK7Bim0Md
+         vVkXQcNPEQ2emeFEPt4EQkZ18zTUXOEqLmfkbtOc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Will Deacon <will.deacon@arm.com>,
+        stable@vger.kernel.org, Parav Pandit <parav@mellanox.com>,
+        Zhu Yanjun <yanjun.zhu@oracle.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 151/276] ACPI/IORT: Reject platform device creation on NUMA node mapping failure
+Subject: [PATCH 5.1 311/405] RDMA/rxe: Fix slab-out-bounds access which lead to kernel crash later
 Date:   Wed, 29 May 2019 20:05:09 -0700
-Message-Id: <20190530030535.028955066@linuxfoundation.org>
+Message-Id: <20190530030556.534697522@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,121 +46,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 36a2ba07757df790b4a874efb1a105b9330a9ae7 ]
+[ Upstream commit a4b7013db23e93824ac53083eeb3e4efdef4b5b0 ]
 
-In a system where, through IORT firmware mappings, the SMMU device is
-mapped to a NUMA node that is not online, the kernel bootstrap results
-in the following crash:
+BUG: KASAN: slab-out-of-bounds in rxe_mem_init_user+0x6c1/0x740 [rdma_rxe]
+Read of size 8 at addr ffff88805c01a608 by task ib_send_bw/573
 
-  Unable to handle kernel paging request at virtual address 0000000000001388
-  Mem abort info:
-    ESR = 0x96000004
-    Exception class = DABT (current EL), IL = 32 bits
-    SET = 0, FnV = 0
-    EA = 0, S1PTW = 0
-  Data abort info:
-    ISV = 0, ISS = 0x00000004
-    CM = 0, WnR = 0
-  [0000000000001388] user address but active_mm is swapper
-  Internal error: Oops: 96000004 [#1] SMP
-  Modules linked in:
-  CPU: 5 PID: 1 Comm: swapper/0 Not tainted 5.0.0 #15
-  pstate: 80c00009 (Nzcv daif +PAN +UAO)
-  pc : __alloc_pages_nodemask+0x13c/0x1068
-  lr : __alloc_pages_nodemask+0xdc/0x1068
-  ...
-  Process swapper/0 (pid: 1, stack limit = 0x(____ptrval____))
-  Call trace:
-   __alloc_pages_nodemask+0x13c/0x1068
-   new_slab+0xec/0x570
-   ___slab_alloc+0x3e0/0x4f8
-   __slab_alloc+0x60/0x80
-   __kmalloc_node_track_caller+0x10c/0x478
-   devm_kmalloc+0x44/0xb0
-   pinctrl_bind_pins+0x4c/0x188
-   really_probe+0x78/0x2b8
-   driver_probe_device+0x64/0x110
-   device_driver_attach+0x74/0x98
-   __driver_attach+0x9c/0xe8
-   bus_for_each_dev+0x84/0xd8
-   driver_attach+0x30/0x40
-   bus_add_driver+0x170/0x218
-   driver_register+0x64/0x118
-   __platform_driver_register+0x54/0x60
-   arm_smmu_driver_init+0x24/0x2c
-   do_one_initcall+0xbc/0x328
-   kernel_init_freeable+0x304/0x3ac
-   kernel_init+0x18/0x110
-   ret_from_fork+0x10/0x1c
-  Code: f90013b5 b9410fa1 1a9f0694 b50014c2 (b9400804)
-  ---[ end trace dfeaed4c373a32da ]--
+CPU: 24 PID: 573 Comm: ib_send_bw Not tainted 5.0.0-rc5+ #189
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.11.0-0-g63451fca13-prebuilt.qemu-project.org 04/01/2014
+Call Trace:
+ rxe_mem_init_user+0x6c1/0x740 [rdma_rxe]
+ rxe_reg_user_mr+0x9b/0x110 [rdma_rxe]
+ ib_uverbs_reg_mr+0x428/0x9c0 [ib_uverbs]
+ ib_uverbs_handler_UVERBS_METHOD_INVOKE_WRITE+0x2b0/0x410 [ib_uverbs]
+ ib_uverbs_run_method+0x79c/0x1da0 [ib_uverbs]
+ rxe_mem_init_user+0x6c1/0x740 [rdma_rxe]
+ rxe_reg_user_mr+0x9b/0x110 [rdma_rxe]
+ ib_uverbs_reg_mr+0x428/0x9c0 [ib_uverbs]
+ ib_uverbs_handler_UVERBS_METHOD_INVOKE_WRITE+0x2b0/0x410 [ib_uverbs]
+ ib_uverbs_run_method+0x79c/0x1da0 [ib_uverbs]
+ ib_uverbs_cmd_verbs+0x5f2/0xf20 [ib_uverbs]
+ ib_uverbs_ioctl+0x202/0x310 [ib_uverbs]
+ do_vfs_ioctl+0x193/0x1440
+ ksys_ioctl+0x3a/0x70
+ __x64_sys_ioctl+0x6f/0xb0
+ do_syscall_64+0x13f/0x570
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-Change the dev_set_proximity() hook prototype so that it returns a
-value and make it return failure if the PXM->NUMA-node mapping
-corresponds to an offline node, fixing the crash.
+Allocated by task 573:
+ __kasan_kmalloc.constprop.5+0xc1/0xd0
+ __kmalloc+0x161/0x310
+ rxe_mem_alloc+0x52/0x470 [rdma_rxe]
+ rxe_mem_init_user+0x113/0x740 [rdma_rxe]
+ rxe_reg_user_mr+0x9b/0x110 [rdma_rxe]
+ ib_uverbs_reg_mr+0x428/0x9c0 [ib_uverbs]
+ ib_uverbs_handler_UVERBS_METHOD_INVOKE_WRITE+0x2b0/0x410 [ib_uverbs]
+ ib_uverbs_run_method+0x79c/0x1da0 [ib_uverbs]
+ ib_uverbs_cmd_verbs+0x5f2/0xf20 [ib_uverbs]
+ ib_uverbs_ioctl+0x202/0x310 [ib_uverbs]
+ do_vfs_ioctl+0x193/0x1440
+ ksys_ioctl+0x3a/0x70
+ __x64_sys_ioctl+0x6f/0xb0
+ do_syscall_64+0x13f/0x570
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-Acked-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Link: https://lore.kernel.org/linux-arm-kernel/20190315021940.86905-1-wangkefeng.wang@huawei.com/
-Signed-off-by: Will Deacon <will.deacon@arm.com>
+Freed by task 0:
+ __kasan_slab_free+0x12e/0x180
+ kfree+0x10a/0x2c0
+ rcu_process_callbacks+0xa77/0x1260
+ __do_softirq+0x2ad/0xacb
+
+Test scenario:
+ ib_send_bw -x 1 -d rxe0 -a &
+ ib_send_bw -x 1 -d rxe0 -a localhost
+
+Fixes: 8700e3e7c485 ("Soft RoCE driver")
+Reported-by: Parav Pandit <parav@mellanox.com>
+Reviewed-by: Zhu Yanjun <yanjun.zhu@oracle.com>
+Tested-by: Zhu Yanjun <yanjun.zhu@oracle.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/arm64/iort.c | 19 ++++++++++++++-----
- 1 file changed, 14 insertions(+), 5 deletions(-)
+ drivers/infiniband/sw/rxe/rxe_mr.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/acpi/arm64/iort.c b/drivers/acpi/arm64/iort.c
-index e48eebc27b81b..43c2615434b48 100644
---- a/drivers/acpi/arm64/iort.c
-+++ b/drivers/acpi/arm64/iort.c
-@@ -1231,18 +1231,24 @@ static bool __init arm_smmu_v3_is_coherent(struct acpi_iort_node *node)
- /*
-  * set numa proximity domain for smmuv3 device
-  */
--static void  __init arm_smmu_v3_set_proximity(struct device *dev,
-+static int  __init arm_smmu_v3_set_proximity(struct device *dev,
- 					      struct acpi_iort_node *node)
- {
- 	struct acpi_iort_smmu_v3 *smmu;
+diff --git a/drivers/infiniband/sw/rxe/rxe_mr.c b/drivers/infiniband/sw/rxe/rxe_mr.c
+index 42f0f25e396c3..ec89fbd06c53c 100644
+--- a/drivers/infiniband/sw/rxe/rxe_mr.c
++++ b/drivers/infiniband/sw/rxe/rxe_mr.c
+@@ -199,6 +199,12 @@ int rxe_mem_init_user(struct rxe_pd *pd, u64 start,
+ 		buf = map[0]->buf;
  
- 	smmu = (struct acpi_iort_smmu_v3 *)node->node_data;
- 	if (smmu->flags & ACPI_IORT_SMMU_V3_PXM_VALID) {
--		set_dev_node(dev, acpi_map_pxm_to_node(smmu->pxm));
-+		int node = acpi_map_pxm_to_node(smmu->pxm);
+ 		for_each_sg_page(umem->sg_head.sgl, &sg_iter, umem->nmap, 0) {
++			if (num_buf >= RXE_BUF_PER_MAP) {
++				map++;
++				buf = map[0]->buf;
++				num_buf = 0;
++			}
 +
-+		if (node != NUMA_NO_NODE && !node_online(node))
-+			return -EINVAL;
-+
-+		set_dev_node(dev, node);
- 		pr_info("SMMU-v3[%llx] Mapped to Proximity domain %d\n",
- 			smmu->base_address,
- 			smmu->pxm);
+ 			vaddr = page_address(sg_page_iter_page(&sg_iter));
+ 			if (!vaddr) {
+ 				pr_warn("null vaddr\n");
+@@ -211,11 +217,6 @@ int rxe_mem_init_user(struct rxe_pd *pd, u64 start,
+ 			num_buf++;
+ 			buf++;
+ 
+-			if (num_buf >= RXE_BUF_PER_MAP) {
+-				map++;
+-				buf = map[0]->buf;
+-				num_buf = 0;
+-			}
+ 		}
  	}
-+	return 0;
- }
- #else
- #define arm_smmu_v3_set_proximity NULL
-@@ -1317,7 +1323,7 @@ struct iort_dev_config {
- 	int (*dev_count_resources)(struct acpi_iort_node *node);
- 	void (*dev_init_resources)(struct resource *res,
- 				     struct acpi_iort_node *node);
--	void (*dev_set_proximity)(struct device *dev,
-+	int (*dev_set_proximity)(struct device *dev,
- 				    struct acpi_iort_node *node);
- };
- 
-@@ -1368,8 +1374,11 @@ static int __init iort_add_platform_device(struct acpi_iort_node *node,
- 	if (!pdev)
- 		return -ENOMEM;
- 
--	if (ops->dev_set_proximity)
--		ops->dev_set_proximity(&pdev->dev, node);
-+	if (ops->dev_set_proximity) {
-+		ret = ops->dev_set_proximity(&pdev->dev, node);
-+		if (ret)
-+			goto dev_put;
-+	}
- 
- 	count = ops->dev_count_resources(node);
  
 -- 
 2.20.1
