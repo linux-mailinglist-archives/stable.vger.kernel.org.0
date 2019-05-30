@@ -2,37 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A0F962F41B
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:36:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51D012F649
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:54:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729565AbfE3EfM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:35:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57836 "EHLO mail.kernel.org"
+        id S1728291AbfE3Eyi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:54:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729384AbfE3DNQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:13:16 -0400
+        id S1728042AbfE3DKV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:10:21 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0075221BE2;
-        Thu, 30 May 2019 03:13:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 258EB24493;
+        Thu, 30 May 2019 03:10:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185995;
-        bh=5cIoNPrYoOfe6SHmkc6fk808rFkjGP3Hjmm2cmWKvu8=;
+        s=default; t=1559185820;
+        bh=3RCxgWEyXcSUgOh3L8bO5IkpkOryQ3Q4vhOf9zYAuZA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gp7tqwgTeqPLAW0w4R5RWloce3JH8LeSQLfxvbOeaYT2I0l75DHKcNB+n+SvcA9zU
-         OBI/BlbjNnycy+SaPL1BnLcm1ET27Dxq5ZgcoVC2v1LS02KfVPsaYQK+tQ2TyLuZ6r
-         AD3/RaV9pwPl4X0zPrrLcjKTUVgW8XrYpIj+A/ps=
+        b=eWUiY/8Eg1WJPe/knam2yaEdyJ3MmDatUps7OnuYwpZ9bHk4HQWBFJGdfhpMw4cBc
+         mk5Oo2tt8WLxTqre0jZ0xsQaJyfhuKWz0dw1i1S+HadNYCnyC6IjLYIwvzkd+My9gd
+         lpEKn/PezjRQBRjmEueDyvCiE3EbmyE8mfOOK5+I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.0 041/346] Revert "btrfs: Honour FITRIM range constraints during free space trim"
+        stable@vger.kernel.org,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        "James Qian Wang (Arm Technology China)" <james.qian.wang@arm.com>,
+        Liviu Dudau <liviu.dudau@arm.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 116/405] drm: prefix header search paths with $(srctree)/
 Date:   Wed, 29 May 2019 20:01:54 -0700
-Message-Id: <20190530030542.936701328@linuxfoundation.org>
+Message-Id: <20190530030546.869328633@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,93 +48,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Sterba <dsterba@suse.com>
+[ Upstream commit 43068cb7ba1f6ceb1523e947c84002b2a61fd6d4 ]
 
-This reverts commit b9ee627187491547791aacf96d4dd8f4d9afbf1c.
+Currently, the Kbuild core manipulates header search paths in a crazy
+way [1].
 
-There is currently no corresponding patch in master due to additional
-changes that would be significantly different from plain revert in the
-respective stable branch.
+To fix this mess, I want all Makefiles to add explicit $(srctree)/ to
+the search paths in the srctree. Some Makefiles are already written in
+that way, but not all. The goal of this work is to make the notation
+consistent, and finally get rid of the gross hacks.
 
-The range argument was not handled correctly and could cause trim to
-overlap allocated areas or reach beyond the end of the device. The
-address space that fitrim normally operates on is in logical
-coordinates, while the discards are done on the physical device extents.
-This distinction cannot be made with the current ioctl interface and
-caused the confusion.
+Having whitespaces after -I does not matter since commit 48f6e3cf5bc6
+("kbuild: do not drop -I without parameter").
 
-The bug depends on the layout of block groups and does not always
-happen. The whole-fs trim (run by default by the fstrim tool) is not
-affected.
+[1]: https://patchwork.kernel.org/patch/9632347/
 
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
+Reviewed-by: James Qian Wang (Arm Technology China) <james.qian.wang@arm.com>
+Acked-by: Liviu Dudau <liviu.dudau@arm.com>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/1553859161-2628-1-git-send-email-yamada.masahiro@socionext.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/extent-tree.c |   25 ++++++-------------------
- 1 file changed, 6 insertions(+), 19 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/Makefile         | 2 +-
+ drivers/gpu/drm/arm/display/komeda/Makefile | 4 ++--
+ drivers/gpu/drm/i915/gvt/Makefile           | 2 +-
+ drivers/gpu/drm/msm/Makefile                | 6 +++---
+ drivers/gpu/drm/nouveau/Kbuild              | 8 ++++----
+ 5 files changed, 11 insertions(+), 11 deletions(-)
 
---- a/fs/btrfs/extent-tree.c
-+++ b/fs/btrfs/extent-tree.c
-@@ -11191,9 +11191,9 @@ int btrfs_error_unpin_extent_range(struc
-  * held back allocations.
-  */
- static int btrfs_trim_free_extents(struct btrfs_device *device,
--				   struct fstrim_range *range, u64 *trimmed)
-+				   u64 minlen, u64 *trimmed)
- {
--	u64 start = range->start, len = 0;
-+	u64 start = 0, len = 0;
- 	int ret;
+diff --git a/drivers/gpu/drm/amd/amdgpu/Makefile b/drivers/gpu/drm/amd/amdgpu/Makefile
+index 466da5954a682..62bf9da25e4b3 100644
+--- a/drivers/gpu/drm/amd/amdgpu/Makefile
++++ b/drivers/gpu/drm/amd/amdgpu/Makefile
+@@ -23,7 +23,7 @@
+ # Makefile for the drm device driver.  This driver provides support for the
+ # Direct Rendering Infrastructure (DRI) in XFree86 4.1.0 and higher.
  
- 	*trimmed = 0;
-@@ -11236,8 +11236,8 @@ static int btrfs_trim_free_extents(struc
- 		if (!trans)
- 			up_read(&fs_info->commit_root_sem);
+-FULL_AMD_PATH=$(src)/..
++FULL_AMD_PATH=$(srctree)/$(src)/..
+ DISPLAY_FOLDER_NAME=display
+ FULL_AMD_DISPLAY_PATH = $(FULL_AMD_PATH)/$(DISPLAY_FOLDER_NAME)
  
--		ret = find_free_dev_extent_start(trans, device, range->minlen,
--						 start, &start, &len);
-+		ret = find_free_dev_extent_start(trans, device, minlen, start,
-+						 &start, &len);
- 		if (trans) {
- 			up_read(&fs_info->commit_root_sem);
- 			btrfs_put_transaction(trans);
-@@ -11250,16 +11250,6 @@ static int btrfs_trim_free_extents(struc
- 			break;
- 		}
+diff --git a/drivers/gpu/drm/arm/display/komeda/Makefile b/drivers/gpu/drm/arm/display/komeda/Makefile
+index 1b875e5dc0f6f..a72e30c0e03d3 100644
+--- a/drivers/gpu/drm/arm/display/komeda/Makefile
++++ b/drivers/gpu/drm/arm/display/komeda/Makefile
+@@ -1,8 +1,8 @@
+ # SPDX-License-Identifier: GPL-2.0
  
--		/* If we are out of the passed range break */
--		if (start > range->start + range->len - 1) {
--			mutex_unlock(&fs_info->chunk_mutex);
--			ret = 0;
--			break;
--		}
--
--		start = max(range->start, start);
--		len = min(range->len, len);
--
- 		ret = btrfs_issue_discard(device->bdev, start, len, &bytes);
- 		mutex_unlock(&fs_info->chunk_mutex);
+ ccflags-y := \
+-	-I$(src)/../include \
+-	-I$(src)
++	-I $(srctree)/$(src)/../include \
++	-I $(srctree)/$(src)
  
-@@ -11269,10 +11259,6 @@ static int btrfs_trim_free_extents(struc
- 		start += len;
- 		*trimmed += bytes;
+ komeda-y := \
+ 	komeda_drv.o \
+diff --git a/drivers/gpu/drm/i915/gvt/Makefile b/drivers/gpu/drm/i915/gvt/Makefile
+index 271fb46d4dd0d..ea8324abc784a 100644
+--- a/drivers/gpu/drm/i915/gvt/Makefile
++++ b/drivers/gpu/drm/i915/gvt/Makefile
+@@ -5,5 +5,5 @@ GVT_SOURCE := gvt.o aperture_gm.o handlers.o vgpu.o trace_points.o firmware.o \
+ 	execlist.o scheduler.o sched_policy.o mmio_context.o cmd_parser.o debugfs.o \
+ 	fb_decoder.o dmabuf.o page_track.o
  
--		/* We've trimmed enough */
--		if (*trimmed >= range->len)
--			break;
--
- 		if (fatal_signal_pending(current)) {
- 			ret = -ERESTARTSYS;
- 			break;
-@@ -11356,7 +11342,8 @@ int btrfs_trim_fs(struct btrfs_fs_info *
- 	mutex_lock(&fs_info->fs_devices->device_list_mutex);
- 	devices = &fs_info->fs_devices->devices;
- 	list_for_each_entry(device, devices, dev_list) {
--		ret = btrfs_trim_free_extents(device, range, &group_trimmed);
-+		ret = btrfs_trim_free_extents(device, range->minlen,
-+					      &group_trimmed);
- 		if (ret) {
- 			dev_failed++;
- 			dev_ret = ret;
+-ccflags-y				+= -I$(src) -I$(src)/$(GVT_DIR)
++ccflags-y				+= -I $(srctree)/$(src) -I $(srctree)/$(src)/$(GVT_DIR)/
+ i915-y					+= $(addprefix $(GVT_DIR)/, $(GVT_SOURCE))
+diff --git a/drivers/gpu/drm/msm/Makefile b/drivers/gpu/drm/msm/Makefile
+index 56a70c74af4ed..b7b1ebdc81902 100644
+--- a/drivers/gpu/drm/msm/Makefile
++++ b/drivers/gpu/drm/msm/Makefile
+@@ -1,7 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
+-ccflags-y := -Idrivers/gpu/drm/msm
+-ccflags-y += -Idrivers/gpu/drm/msm/disp/dpu1
+-ccflags-$(CONFIG_DRM_MSM_DSI) += -Idrivers/gpu/drm/msm/dsi
++ccflags-y := -I $(srctree)/$(src)
++ccflags-y += -I $(srctree)/$(src)/disp/dpu1
++ccflags-$(CONFIG_DRM_MSM_DSI) += -I $(srctree)/$(src)/dsi
+ 
+ msm-y := \
+ 	adreno/adreno_device.o \
+diff --git a/drivers/gpu/drm/nouveau/Kbuild b/drivers/gpu/drm/nouveau/Kbuild
+index 581404e6544d4..378c5dd692b0b 100644
+--- a/drivers/gpu/drm/nouveau/Kbuild
++++ b/drivers/gpu/drm/nouveau/Kbuild
+@@ -1,7 +1,7 @@
+-ccflags-y += -I$(src)/include
+-ccflags-y += -I$(src)/include/nvkm
+-ccflags-y += -I$(src)/nvkm
+-ccflags-y += -I$(src)
++ccflags-y += -I $(srctree)/$(src)/include
++ccflags-y += -I $(srctree)/$(src)/include/nvkm
++ccflags-y += -I $(srctree)/$(src)/nvkm
++ccflags-y += -I $(srctree)/$(src)
+ 
+ # NVKM - HW resource manager
+ #- code also used by various userspace tools/tests
+-- 
+2.20.1
+
 
 
