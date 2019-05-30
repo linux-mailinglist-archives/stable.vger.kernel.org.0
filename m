@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 271EA2F61E
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:53:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B84FB2F3CE
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:33:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728181AbfE3ExR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:53:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47954 "EHLO mail.kernel.org"
+        id S1728585AbfE3Ec3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:32:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728176AbfE3DKj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:10:39 -0400
+        id S1726736AbfE3DNg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:13:36 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 33EAA24476;
-        Thu, 30 May 2019 03:10:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4150F2454B;
+        Thu, 30 May 2019 03:13:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185839;
-        bh=UmEJHAfWIK7VkVI/uteN4bC2ybQ8chuCJEsEv4rU13A=;
+        s=default; t=1559186015;
+        bh=g9GXAV1aYrM2IeSdlcdt9+gSGt7PsEwDcONjUrPnz7M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eHCtpbgXPSfoumZgH32U7ahvgv4hzRNyaMYAIiD/3Zh5xZPhqEIj+uC/XXw5F3Tga
-         UKJ2z+tkbkucLqwpbSQNYKv7zwsHkalBT0nXhHifZX7oJfMgP3MN9Id7TVbi6Qv5c5
-         IasyRSkIW9foB7xPUSxTw6cI27l3jg8JSlWJm0ZI=
+        b=FEMS6jUiCkAlcAvGzfQNB2m2Yeh5VFVGdtnmaWZofUztXPK+K/E1DpFCJ7ZyQA+W6
+         ddP+RGlx2rEEPhpAUucXqEeHBj0yEZ0lxJBo3O6aa3XYai1cB+09d3IwpuxszEdtcu
+         X/+gCLA/F0JWn6IMKyExNM294CtaqFnnnvgAO64Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Janusz Krzysztofik <jmkrzyszt@gmail.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org,
+        "Gautham R. Shenoy" <ego@linux.vnet.ibm.com>,
+        Ravikumar Bangoria <ravi.bangoria@in.ibm.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Ravi Bangoria <ravi.bangoria@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 154/405] media: ov6650: Move v4l2_clk_get() to ov6650_video_probe() helper
-Date:   Wed, 29 May 2019 20:02:32 -0700
-Message-Id: <20190530030548.941784142@linuxfoundation.org>
+Subject: [PATCH 5.0 080/346] powerpc/watchdog: Use hrtimers for per-CPU heartbeat
+Date:   Wed, 29 May 2019 20:02:33 -0700
+Message-Id: <20190530030545.186237471@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,77 +48,194 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ccdd85d518d8b9320ace1d87271f0ba2175f21fa ]
+[ Upstream commit 7ae3f6e130e8dc6188b59e3b4ebc2f16e9c8d053 ]
 
-In preparation for adding asynchronous subdevice support to the driver,
-don't acquire v4l2_clk from the driver .probe() callback as that may
-fail if the clock is provided by a bridge driver which may be not yet
-initialized.  Move the v4l2_clk_get() to ov6650_video_probe() helper
-which is going to be converted to v4l2_subdev_internal_ops.registered()
-callback, executed only when the bridge driver is ready.
+Using a jiffies timer creates a dependency on the tick_do_timer_cpu
+incrementing jiffies. If that CPU has locked up and jiffies is not
+incrementing, the watchdog heartbeat timer for all CPUs stops and
+creates false positives and confusing warnings on local CPUs, and
+also causes the SMP detector to stop, so the root cause is never
+detected.
 
-Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Fix this by using hrtimer based timers for the watchdog heartbeat,
+like the generic kernel hardlockup detector.
+
+Cc: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
+Reported-by: Ravikumar Bangoria <ravi.bangoria@in.ibm.com>
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Tested-by: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
+Reported-by: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
+Reviewed-by: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/ov6650.c | 25 ++++++++++++++-----------
- 1 file changed, 14 insertions(+), 11 deletions(-)
+ arch/powerpc/kernel/watchdog.c | 81 +++++++++++++++++-----------------
+ 1 file changed, 40 insertions(+), 41 deletions(-)
 
-diff --git a/drivers/media/i2c/ov6650.c b/drivers/media/i2c/ov6650.c
-index f9359b11fa5cb..de7d9790f0542 100644
---- a/drivers/media/i2c/ov6650.c
-+++ b/drivers/media/i2c/ov6650.c
-@@ -810,9 +810,16 @@ static int ov6650_video_probe(struct i2c_client *client)
- 	u8		pidh, pidl, midh, midl;
- 	int		ret;
+diff --git a/arch/powerpc/kernel/watchdog.c b/arch/powerpc/kernel/watchdog.c
+index 3c6ab22a0c4e3..af3c15a1d41eb 100644
+--- a/arch/powerpc/kernel/watchdog.c
++++ b/arch/powerpc/kernel/watchdog.c
+@@ -77,7 +77,7 @@ static u64 wd_smp_panic_timeout_tb __read_mostly; /* panic other CPUs */
  
-+	priv->clk = v4l2_clk_get(&client->dev, NULL);
-+	if (IS_ERR(priv->clk)) {
-+		ret = PTR_ERR(priv->clk);
-+		dev_err(&client->dev, "v4l2_clk request err: %d\n", ret);
-+		return ret;
-+	}
-+
- 	ret = ov6650_s_power(&priv->subdev, 1);
- 	if (ret < 0)
--		return ret;
-+		goto eclkput;
+ static u64 wd_timer_period_ms __read_mostly;  /* interval between heartbeat */
  
- 	msleep(20);
+-static DEFINE_PER_CPU(struct timer_list, wd_timer);
++static DEFINE_PER_CPU(struct hrtimer, wd_hrtimer);
+ static DEFINE_PER_CPU(u64, wd_timer_tb);
  
-@@ -849,6 +856,11 @@ static int ov6650_video_probe(struct i2c_client *client)
- 
- done:
- 	ov6650_s_power(&priv->subdev, 0);
-+	if (!ret)
-+		return 0;
-+eclkput:
-+	v4l2_clk_put(priv->clk);
-+
- 	return ret;
+ /* SMP checker bits */
+@@ -293,21 +293,21 @@ void soft_nmi_interrupt(struct pt_regs *regs)
+ 	nmi_exit();
  }
  
-@@ -991,18 +1003,9 @@ static int ov6650_probe(struct i2c_client *client,
- 	priv->code	  = MEDIA_BUS_FMT_YUYV8_2X8;
- 	priv->colorspace  = V4L2_COLORSPACE_JPEG;
- 
--	priv->clk = v4l2_clk_get(&client->dev, NULL);
--	if (IS_ERR(priv->clk)) {
--		ret = PTR_ERR(priv->clk);
--		goto eclkget;
--	}
+-static void wd_timer_reset(unsigned int cpu, struct timer_list *t)
+-{
+-	t->expires = jiffies + msecs_to_jiffies(wd_timer_period_ms);
+-	if (wd_timer_period_ms > 1000)
+-		t->expires = __round_jiffies_up(t->expires, cpu);
+-	add_timer_on(t, cpu);
+-}
 -
- 	ret = ov6650_video_probe(client);
--	if (ret) {
--		v4l2_clk_put(priv->clk);
--eclkget:
-+	if (ret)
- 		v4l2_ctrl_handler_free(&priv->hdl);
--	}
+-static void wd_timer_fn(struct timer_list *t)
++static enum hrtimer_restart watchdog_timer_fn(struct hrtimer *hrtimer)
+ {
+ 	int cpu = smp_processor_id();
  
- 	return ret;
++	if (!(watchdog_enabled & NMI_WATCHDOG_ENABLED))
++		return HRTIMER_NORESTART;
++
++	if (!cpumask_test_cpu(cpu, &watchdog_cpumask))
++		return HRTIMER_NORESTART;
++
+ 	watchdog_timer_interrupt(cpu);
+ 
+-	wd_timer_reset(cpu, t);
++	hrtimer_forward_now(hrtimer, ms_to_ktime(wd_timer_period_ms));
++
++	return HRTIMER_RESTART;
  }
+ 
+ void arch_touch_nmi_watchdog(void)
+@@ -323,37 +323,22 @@ void arch_touch_nmi_watchdog(void)
+ }
+ EXPORT_SYMBOL(arch_touch_nmi_watchdog);
+ 
+-static void start_watchdog_timer_on(unsigned int cpu)
+-{
+-	struct timer_list *t = per_cpu_ptr(&wd_timer, cpu);
+-
+-	per_cpu(wd_timer_tb, cpu) = get_tb();
+-
+-	timer_setup(t, wd_timer_fn, TIMER_PINNED);
+-	wd_timer_reset(cpu, t);
+-}
+-
+-static void stop_watchdog_timer_on(unsigned int cpu)
+-{
+-	struct timer_list *t = per_cpu_ptr(&wd_timer, cpu);
+-
+-	del_timer_sync(t);
+-}
+-
+-static int start_wd_on_cpu(unsigned int cpu)
++static void start_watchdog(void *arg)
+ {
++	struct hrtimer *hrtimer = this_cpu_ptr(&wd_hrtimer);
++	int cpu = smp_processor_id();
+ 	unsigned long flags;
+ 
+ 	if (cpumask_test_cpu(cpu, &wd_cpus_enabled)) {
+ 		WARN_ON(1);
+-		return 0;
++		return;
+ 	}
+ 
+ 	if (!(watchdog_enabled & NMI_WATCHDOG_ENABLED))
+-		return 0;
++		return;
+ 
+ 	if (!cpumask_test_cpu(cpu, &watchdog_cpumask))
+-		return 0;
++		return;
+ 
+ 	wd_smp_lock(&flags);
+ 	cpumask_set_cpu(cpu, &wd_cpus_enabled);
+@@ -363,27 +348,40 @@ static int start_wd_on_cpu(unsigned int cpu)
+ 	}
+ 	wd_smp_unlock(&flags);
+ 
+-	start_watchdog_timer_on(cpu);
++	*this_cpu_ptr(&wd_timer_tb) = get_tb();
+ 
+-	return 0;
++	hrtimer_init(hrtimer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
++	hrtimer->function = watchdog_timer_fn;
++	hrtimer_start(hrtimer, ms_to_ktime(wd_timer_period_ms),
++		      HRTIMER_MODE_REL_PINNED);
+ }
+ 
+-static int stop_wd_on_cpu(unsigned int cpu)
++static int start_watchdog_on_cpu(unsigned int cpu)
+ {
++	return smp_call_function_single(cpu, start_watchdog, NULL, true);
++}
++
++static void stop_watchdog(void *arg)
++{
++	struct hrtimer *hrtimer = this_cpu_ptr(&wd_hrtimer);
++	int cpu = smp_processor_id();
+ 	unsigned long flags;
+ 
+ 	if (!cpumask_test_cpu(cpu, &wd_cpus_enabled))
+-		return 0; /* Can happen in CPU unplug case */
++		return; /* Can happen in CPU unplug case */
+ 
+-	stop_watchdog_timer_on(cpu);
++	hrtimer_cancel(hrtimer);
+ 
+ 	wd_smp_lock(&flags);
+ 	cpumask_clear_cpu(cpu, &wd_cpus_enabled);
+ 	wd_smp_unlock(&flags);
+ 
+ 	wd_smp_clear_cpu_pending(cpu, get_tb());
++}
+ 
+-	return 0;
++static int stop_watchdog_on_cpu(unsigned int cpu)
++{
++	return smp_call_function_single(cpu, stop_watchdog, NULL, true);
+ }
+ 
+ static void watchdog_calc_timeouts(void)
+@@ -402,7 +400,7 @@ void watchdog_nmi_stop(void)
+ 	int cpu;
+ 
+ 	for_each_cpu(cpu, &wd_cpus_enabled)
+-		stop_wd_on_cpu(cpu);
++		stop_watchdog_on_cpu(cpu);
+ }
+ 
+ void watchdog_nmi_start(void)
+@@ -411,7 +409,7 @@ void watchdog_nmi_start(void)
+ 
+ 	watchdog_calc_timeouts();
+ 	for_each_cpu_and(cpu, cpu_online_mask, &watchdog_cpumask)
+-		start_wd_on_cpu(cpu);
++		start_watchdog_on_cpu(cpu);
+ }
+ 
+ /*
+@@ -423,7 +421,8 @@ int __init watchdog_nmi_probe(void)
+ 
+ 	err = cpuhp_setup_state_nocalls(CPUHP_AP_ONLINE_DYN,
+ 					"powerpc/watchdog:online",
+-					start_wd_on_cpu, stop_wd_on_cpu);
++					start_watchdog_on_cpu,
++					stop_watchdog_on_cpu);
+ 	if (err < 0) {
+ 		pr_warn("could not be initialized");
+ 		return err;
 -- 
 2.20.1
 
