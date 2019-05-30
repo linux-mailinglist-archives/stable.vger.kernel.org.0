@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 90E8F2F44E
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:38:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFD8A2F1DE
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:16:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729273AbfE3DMv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:12:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56518 "EHLO mail.kernel.org"
+        id S1727199AbfE3EQa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:16:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729263AbfE3DMv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:12:51 -0400
+        id S1729507AbfE3DPr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:15:47 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DBC7E244E8;
-        Thu, 30 May 2019 03:12:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AB82A245C3;
+        Thu, 30 May 2019 03:15:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185971;
-        bh=pBp0MadGZ6iq4Rn25Lwz6Ox1cKj7Tsg+bto5JUfxHtg=;
+        s=default; t=1559186146;
+        bh=BJ39WeU6Gz7O+UFcSfdaXtCV0vuqbjEefStskKc/mqo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nK5dPtAK2GhZMz0I+TaPDw4DsliUuBH3BSXe8SkJf3Sk6QBRMIcG3migqLbCYG1LS
-         kNP9o/QgnfpM9xdIZVNZUyRiwAf5uuWudZ48y11S+pAt0Y0A4JZT/YA37coH5NhCkK
-         cM109w/fB0JU7LbTh6IWbB0svTCcx7Q7WVzo7s/s=
+        b=xxSomah17lXHUBvRvQAx7LYgfEvcgtHctcQiwhdkqYUoLs7Vh+OUTmR1L+l9cRB9w
+         1Nx1Dzc6+831iLFMcxB2a3Hx8a912a392BQgJT3rWokAloONZZB+hofqrfh0oJWj0n
+         f9E2ZsRla5mN0P10C8Hz/mW5dzI0S9EZnXD8govI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        YueHaibing <yuehaibing@huawei.com>,
-        Mukesh Ojha <mojha@codeaurora.org>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
+        stable@vger.kernel.org, Jiada Wang <jiada_wang@mentor.com>,
+        Fabio Estevam <festevam@gmail.com>,
+        Stefan Agner <stefan@agner.ch>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Trent Piepho <tpiepho@impinj.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 402/405] extcon: axp288: Add a depends on ACPI to the Kconfig entry
+Subject: [PATCH 5.0 327/346] spi: imx: stop buffer overflow in RX FIFO flush
 Date:   Wed, 29 May 2019 20:06:40 -0700
-Message-Id: <20190530030600.887026935@linuxfoundation.org>
+Message-Id: <20190530030557.344692655@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,41 +48,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit fa3c098c2d52a268f6372fa053932e11f50cecb1 ]
+[ Upstream commit c842749ea1d32513f9e603c074d60d7aa07cb2ef ]
 
-As Hans de Goede pointed, using this driver without ACPI
-makes little sense, so add ACPI dependency to Kconfig entry
-to fix a build error while CONFIG_ACPI is not set.
+Commit 71abd29057cb ("spi: imx: Add support for SPI Slave mode") added
+an RX FIFO flush before start of a transfer.  In slave mode, the master
+may have sent more data than expected and this data will still be in the
+RX FIFO at the start of the next transfer, and so needs to be flushed.
 
-drivers/extcon/extcon-axp288.c: In function 'axp288_extcon_probe':
-drivers/extcon/extcon-axp288.c:363:20: error: dereferencing pointer to incomplete type
-    put_device(&adev->dev);
+However, the code to do the flush was accidentally saving this data into
+the previous transfer's RX buffer, clobbering the contents of whatever
+followed that buffer.
 
-Fixes: 0cf064db948a ("extcon: axp288: Convert to use acpi_dev_get_first_match_dev()")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Suggested-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
-Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+Change it to empty the FIFO and throw away the data.  Every one of the
+RX functions for the different eCSPI versions and modes reads the RX
+FIFO data using the same readl() call, so just use that, rather than
+using the spi_imx->rx function pointer and making sure all the different
+rx functions have a working "throw away" mode.
+
+There is another issue, which affects master mode when switching from
+DMA to PIO.  There can be extra data in the RX FIFO which triggers this
+flush code, causing memory corruption in the same manner.  I don't know
+why this data is unexpectedly in the FIFO.  It's likely there is a
+different bug or erratum responsible for that.  But regardless of that,
+I think this is proper fix the for bug at hand here.
+
+Fixes: 71abd29057cb ("spi: imx: Add support for SPI Slave mode")
+Cc: Jiada Wang <jiada_wang@mentor.com>
+Cc: Fabio Estevam <festevam@gmail.com>
+Cc: Stefan Agner <stefan@agner.ch>
+Cc: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Trent Piepho <tpiepho@impinj.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/extcon/Kconfig | 2 +-
+ drivers/spi/spi-imx.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/extcon/Kconfig b/drivers/extcon/Kconfig
-index 540e8cd16ee6e..db3bcf96b98fb 100644
---- a/drivers/extcon/Kconfig
-+++ b/drivers/extcon/Kconfig
-@@ -30,7 +30,7 @@ config EXTCON_ARIZONA
+diff --git a/drivers/spi/spi-imx.c b/drivers/spi/spi-imx.c
+index 6ec647bbba772..a81ae29aa68a9 100644
+--- a/drivers/spi/spi-imx.c
++++ b/drivers/spi/spi-imx.c
+@@ -1494,7 +1494,7 @@ static int spi_imx_transfer(struct spi_device *spi,
  
- config EXTCON_AXP288
- 	tristate "X-Power AXP288 EXTCON support"
--	depends on MFD_AXP20X && USB_SUPPORT && X86
-+	depends on MFD_AXP20X && USB_SUPPORT && X86 && ACPI
- 	select USB_ROLE_SWITCH
- 	help
- 	  Say Y here to enable support for USB peripheral detection
+ 	/* flush rxfifo before transfer */
+ 	while (spi_imx->devtype_data->rx_available(spi_imx))
+-		spi_imx->rx(spi_imx);
++		readl(spi_imx->base + MXC_CSPIRXDATA);
+ 
+ 	if (spi_imx->slave_mode)
+ 		return spi_imx_pio_transfer_slave(spi, transfer);
 -- 
 2.20.1
 
