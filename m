@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 27A122F491
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:39:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7DA62F211
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:18:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729130AbfE3Ejo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:39:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55772 "EHLO mail.kernel.org"
+        id S1729056AbfE3DPf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:15:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728239AbfE3DMh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:12:37 -0400
+        id S1730362AbfE3DPe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:15:34 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ADFE923C5A;
-        Thu, 30 May 2019 03:12:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BF02024569;
+        Thu, 30 May 2019 03:15:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185956;
-        bh=r4n9B0Nzlwy+WTd/3TjJMZizJyy4JvP92WwFbRE+sXY=;
+        s=default; t=1559186133;
+        bh=2YrukC3cEquubOCbw1IuRKiQl5aoHpT/7i1Fh9AHkO8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MQBYa2peTvOp9qBk8W78Kcsa1yb42wxDhMVtBlhavxTQrC6rM/7haJsrfKJ3+/PMj
-         b4pqZyV4ARYIO8sWkip4Wd+hMp3p2o2WAA9GUVUZXrPmpNXQCpWhlFGv4wbFyS9ta5
-         XKSU7r2Mm4PEZ1hK2TvfQFvtynAr03ynPq+JS4eA=
+        b=gJkkS/wFITPWgP38JbiVNmg4nEAkLI1IjY6htcHpNog+iPuDnXrIYAfZDwh9xdUYO
+         swsLPRG4G4Ctgi6LYhIrlJriiYz2Tk/XgR6840H2FwJEOKuA1Z6VjB5X1K/en61b9d
+         Pc2w5xIWS6Be8KaZW9mYZ9ly7dcHg2iG1rnd8X0I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
-        Brian Starkey <brian.starkey@arm.com>,
-        Liviu Dudau <liviu.dudau@arm.com>,
+        =?UTF-8?q?Stefan=20Br=C3=BCns?= <stefan.bruens@rwth-aachen.de>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 373/405] drm: writeback: Fix leak of writeback job
+Subject: [PATCH 5.0 298/346] media: dvbsky: Avoid leaking dvb frontend
 Date:   Wed, 29 May 2019 20:06:11 -0700
-Message-Id: <20190530030559.595289366@linuxfoundation.org>
+Message-Id: <20190530030555.955572319@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,88 +46,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit e482ae9b5fdc01a343f22f52930e85a6cfdf85eb ]
+[ Upstream commit fdfa59cd63b184e1e96d51ff170fcac739bc6f6f ]
 
-Writeback jobs are allocated when the WRITEBACK_FB_ID is set, and
-deleted when the jobs complete. This results in both a memory leak of
-the job and a leak of the framebuffer if the atomic commit returns
-before the job is queued for processing, for instance if the atomic
-check fails or if the commit runs in test-only mode.
+Commit 14f4eaeddabc ("media: dvbsky: fix driver unregister logic") fixed
+a use-after-free by removing the reference to the frontend after deleting
+the backing i2c device.
 
-Fix this by implementing the drm_writeback_cleanup_job() function and
-calling it from __drm_atomic_helper_connector_destroy_state(). As
-writeback jobs are removed from the state when they're queued for
-processing, any job left in the state when the state gets destroyed
-needs to be cleaned up.
+This has the unfortunate side effect the frontend device is never freed
+in the dvb core leaving a dangling device, leading to errors when the
+dvb core tries to register the frontend after e.g. a replug as reported
+here: https://www.spinics.net/lists/linux-media/msg138181.html
 
-The existing declaration of the drm_writeback_cleanup_job() function
-without an implementation hints that this problem was considered, but
-never addressed.
+media: dvbsky: issues with DVBSky T680CI
 
-Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
-Reviewed-by: Brian Starkey <brian.starkey@arm.com>
-Acked-by: Liviu Dudau <liviu.dudau@arm.com>
+===
+[  561.119145] sp2 8-0040: CIMaX SP2 successfully attached
+[  561.119161] usb 2-3: DVB: registering adapter 0 frontend 0 (Silicon Labs
+Si2168)...
+[  561.119174] sysfs: cannot create duplicate filename '/class/dvb/
+dvb0.frontend0'
+===
+
+The use after free happened as dvb_usbv2_disconnect calls in this order:
+- dvb_usb_device::props->exit(...)
+- dvb_usbv2_adapter_frontend_exit(...)
+  + if (fe) dvb_unregister_frontend(fe)
+  + dvb_usb_device::props->frontend_detach(...)
+
+Moving the release of the i2c device from exit() to frontend_detach()
+avoids the dangling pointer access and allows the core to unregister
+the frontend.
+
+This was originally reported for a DVBSky T680CI, but it also affects
+the MyGica T230C. As all supported devices structure the registration/
+unregistration identically, apply the change for all device types.
+
+Signed-off-by: Stefan Brüns <stefan.bruens@rwth-aachen.de>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_atomic_state_helper.c |  4 ++++
- drivers/gpu/drm/drm_writeback.c           | 14 +++++++++++---
- 2 files changed, 15 insertions(+), 3 deletions(-)
+ drivers/media/usb/dvb-usb-v2/dvbsky.c | 18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_atomic_state_helper.c b/drivers/gpu/drm/drm_atomic_state_helper.c
-index 4985384e51f6e..59ffb6b9c7453 100644
---- a/drivers/gpu/drm/drm_atomic_state_helper.c
-+++ b/drivers/gpu/drm/drm_atomic_state_helper.c
-@@ -30,6 +30,7 @@
- #include <drm/drm_connector.h>
- #include <drm/drm_atomic.h>
- #include <drm/drm_device.h>
-+#include <drm/drm_writeback.h>
- 
- #include <linux/slab.h>
- #include <linux/dma-fence.h>
-@@ -412,6 +413,9 @@ __drm_atomic_helper_connector_destroy_state(struct drm_connector_state *state)
- 
- 	if (state->commit)
- 		drm_crtc_commit_put(state->commit);
-+
-+	if (state->writeback_job)
-+		drm_writeback_cleanup_job(state->writeback_job);
+diff --git a/drivers/media/usb/dvb-usb-v2/dvbsky.c b/drivers/media/usb/dvb-usb-v2/dvbsky.c
+index e28bd8836751e..ae0814dd202a6 100644
+--- a/drivers/media/usb/dvb-usb-v2/dvbsky.c
++++ b/drivers/media/usb/dvb-usb-v2/dvbsky.c
+@@ -615,16 +615,18 @@ static int dvbsky_init(struct dvb_usb_device *d)
+ 	return 0;
  }
- EXPORT_SYMBOL(__drm_atomic_helper_connector_destroy_state);
  
-diff --git a/drivers/gpu/drm/drm_writeback.c b/drivers/gpu/drm/drm_writeback.c
-index c20e6fe00cb38..2d75032f81591 100644
---- a/drivers/gpu/drm/drm_writeback.c
-+++ b/drivers/gpu/drm/drm_writeback.c
-@@ -268,6 +268,15 @@ void drm_writeback_queue_job(struct drm_writeback_connector *wb_connector,
+-static void dvbsky_exit(struct dvb_usb_device *d)
++static int dvbsky_frontend_detach(struct dvb_usb_adapter *adap)
+ {
++	struct dvb_usb_device *d = adap_to_d(adap);
+ 	struct dvbsky_state *state = d_to_priv(d);
+-	struct dvb_usb_adapter *adap = &d->adapter[0];
++
++	dev_dbg(&d->udev->dev, "%s: adap=%d\n", __func__, adap->id);
+ 
+ 	dvb_module_release(state->i2c_client_tuner);
+ 	dvb_module_release(state->i2c_client_demod);
+ 	dvb_module_release(state->i2c_client_ci);
+ 
+-	adap->fe[0] = NULL;
++	return 0;
  }
- EXPORT_SYMBOL(drm_writeback_queue_job);
  
-+void drm_writeback_cleanup_job(struct drm_writeback_job *job)
-+{
-+	if (job->fb)
-+		drm_framebuffer_put(job->fb);
-+
-+	kfree(job);
-+}
-+EXPORT_SYMBOL(drm_writeback_cleanup_job);
-+
- /*
-  * @cleanup_work: deferred cleanup of a writeback job
-  *
-@@ -280,10 +289,9 @@ static void cleanup_work(struct work_struct *work)
- 	struct drm_writeback_job *job = container_of(work,
- 						     struct drm_writeback_job,
- 						     cleanup_work);
--	drm_framebuffer_put(job->fb);
--	kfree(job);
--}
+ /* DVB USB Driver stuff */
+@@ -640,11 +642,11 @@ static struct dvb_usb_device_properties dvbsky_s960_props = {
  
-+	drm_writeback_cleanup_job(job);
-+}
+ 	.i2c_algo         = &dvbsky_i2c_algo,
+ 	.frontend_attach  = dvbsky_s960_attach,
++	.frontend_detach  = dvbsky_frontend_detach,
+ 	.init             = dvbsky_init,
+ 	.get_rc_config    = dvbsky_get_rc_config,
+ 	.streaming_ctrl   = dvbsky_streaming_ctrl,
+ 	.identify_state	  = dvbsky_identify_state,
+-	.exit             = dvbsky_exit,
+ 	.read_mac_address = dvbsky_read_mac_addr,
  
- /**
-  * drm_writeback_signal_completion - Signal the completion of a writeback job
+ 	.num_adapters = 1,
+@@ -667,11 +669,11 @@ static struct dvb_usb_device_properties dvbsky_s960c_props = {
+ 
+ 	.i2c_algo         = &dvbsky_i2c_algo,
+ 	.frontend_attach  = dvbsky_s960c_attach,
++	.frontend_detach  = dvbsky_frontend_detach,
+ 	.init             = dvbsky_init,
+ 	.get_rc_config    = dvbsky_get_rc_config,
+ 	.streaming_ctrl   = dvbsky_streaming_ctrl,
+ 	.identify_state	  = dvbsky_identify_state,
+-	.exit             = dvbsky_exit,
+ 	.read_mac_address = dvbsky_read_mac_addr,
+ 
+ 	.num_adapters = 1,
+@@ -694,11 +696,11 @@ static struct dvb_usb_device_properties dvbsky_t680c_props = {
+ 
+ 	.i2c_algo         = &dvbsky_i2c_algo,
+ 	.frontend_attach  = dvbsky_t680c_attach,
++	.frontend_detach  = dvbsky_frontend_detach,
+ 	.init             = dvbsky_init,
+ 	.get_rc_config    = dvbsky_get_rc_config,
+ 	.streaming_ctrl   = dvbsky_streaming_ctrl,
+ 	.identify_state	  = dvbsky_identify_state,
+-	.exit             = dvbsky_exit,
+ 	.read_mac_address = dvbsky_read_mac_addr,
+ 
+ 	.num_adapters = 1,
+@@ -721,11 +723,11 @@ static struct dvb_usb_device_properties dvbsky_t330_props = {
+ 
+ 	.i2c_algo         = &dvbsky_i2c_algo,
+ 	.frontend_attach  = dvbsky_t330_attach,
++	.frontend_detach  = dvbsky_frontend_detach,
+ 	.init             = dvbsky_init,
+ 	.get_rc_config    = dvbsky_get_rc_config,
+ 	.streaming_ctrl   = dvbsky_streaming_ctrl,
+ 	.identify_state	  = dvbsky_identify_state,
+-	.exit             = dvbsky_exit,
+ 	.read_mac_address = dvbsky_read_mac_addr,
+ 
+ 	.num_adapters = 1,
+@@ -748,11 +750,11 @@ static struct dvb_usb_device_properties mygica_t230c_props = {
+ 
+ 	.i2c_algo         = &dvbsky_i2c_algo,
+ 	.frontend_attach  = dvbsky_mygica_t230c_attach,
++	.frontend_detach  = dvbsky_frontend_detach,
+ 	.init             = dvbsky_init,
+ 	.get_rc_config    = dvbsky_get_rc_config,
+ 	.streaming_ctrl   = dvbsky_streaming_ctrl,
+ 	.identify_state	  = dvbsky_identify_state,
+-	.exit             = dvbsky_exit,
+ 
+ 	.num_adapters = 1,
+ 	.adapter = {
 -- 
 2.20.1
 
