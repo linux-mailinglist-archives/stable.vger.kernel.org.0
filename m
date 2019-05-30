@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E4C342F0DC
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:08:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 498CE2F284
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:22:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727019AbfE3EH4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:07:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46480 "EHLO mail.kernel.org"
+        id S1730169AbfE3EWw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:22:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731094AbfE3DRY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:17:24 -0400
+        id S1730086AbfE3DPE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:15:04 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 46C4624469;
-        Thu, 30 May 2019 03:17:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6FB9C2456F;
+        Thu, 30 May 2019 03:15:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186244;
-        bh=CLNvXd+bHDw5o9XKvwpl1iSa3ZtiTufxn3+Q/WLnUZE=;
+        s=default; t=1559186103;
+        bh=dCVDXips007izB5sZEkFSjcUty+mk+m6uZJDYn5+XbQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F7whppBHKKiY7S0mOt61/cK3ODGQbxTud6ntwq0EbEUb0BtHTaAJdUZ8SQruvEsYa
-         50FMCuwvclDtTBGh/sIliBazkKZoFRwINTjWS0LH9Mm061FmMS8a4k9WNGn4x7f0Hd
-         53Wjiej4ufLIpFpj9STZLsy9S0deJAfdCMUrVZ4U=
+        b=UPGifUcY5Wjymn70p98zbRy9hQ4f/O5ZjmteeuIyN114XU7Lhfczc/0zaiFz65IZ3
+         uJB+1Iav1Zb1Ykk606k49guyQrkads7hUcQw9akiMwT92LgxB4Gm9YBlVZ5Onv48nQ
+         CJUwtIojvFF99hBwsVMVFDWwjD3eyWXSYZ76NUqw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kefeng Wang <wangkefeng.wang@huawei.com>,
-        John Garry <john.garry@huawei.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 158/276] hwmon: (smsc47m1) Use request_muxed_region for Super-IO accesses
+        stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 243/346] x86/uaccess: Fix up the fixup
 Date:   Wed, 29 May 2019 20:05:16 -0700
-Message-Id: <20190530030535.394945616@linuxfoundation.org>
+Message-Id: <20190530030553.322995002@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,91 +48,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d6410408ad2a798c4cc685252c1baa713be0ad69 ]
+[ Upstream commit b69656fa7ea2f75e47d7bd5b9430359fa46488af ]
 
-Super-IO accesses may fail on a system with no or unmapped LPC bus.
+New tooling got confused about this:
 
-Also, other drivers may attempt to access the LPC bus at the same time,
-resulting in undefined behavior.
+  arch/x86/lib/memcpy_64.o: warning: objtool: .fixup+0x7: return with UACCESS enabled
 
-Use request_muxed_region() to ensure that IO access on the requested
-address space is supported, and to ensure that access by multiple drivers
-is synchronized.
+While the code isn't wrong, it is tedious (if at all possible) to
+figure out what function a particular chunk of .fixup belongs to.
 
-Fixes: 8d5d45fb1468 ("I2C: Move hwmon drivers (2/3)")
-Reported-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Reported-by: John Garry <john.garry@huawei.com>
-Cc: John Garry <john.garry@huawei.com>
-Acked-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+This then confuses the objtool uaccess validation. Instead of
+returning directly from the .fixup, jump back into the right function.
+
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/smsc47m1.c | 28 +++++++++++++++++++---------
- 1 file changed, 19 insertions(+), 9 deletions(-)
+ arch/x86/lib/memcpy_64.S | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hwmon/smsc47m1.c b/drivers/hwmon/smsc47m1.c
-index c7b6a425e2c02..5eeac9853d0ae 100644
---- a/drivers/hwmon/smsc47m1.c
-+++ b/drivers/hwmon/smsc47m1.c
-@@ -73,16 +73,21 @@ superio_inb(int reg)
- /* logical device for fans is 0x0A */
- #define superio_select() superio_outb(0x07, 0x0A)
- 
--static inline void
-+static inline int
- superio_enter(void)
- {
-+	if (!request_muxed_region(REG, 2, DRVNAME))
-+		return -EBUSY;
-+
- 	outb(0x55, REG);
-+	return 0;
- }
- 
- static inline void
- superio_exit(void)
- {
- 	outb(0xAA, REG);
-+	release_region(REG, 2);
- }
- 
- #define SUPERIO_REG_ACT		0x30
-@@ -531,8 +536,12 @@ static int __init smsc47m1_find(struct smsc47m1_sio_data *sio_data)
- {
- 	u8 val;
- 	unsigned short addr;
-+	int err;
-+
-+	err = superio_enter();
-+	if (err)
-+		return err;
- 
--	superio_enter();
- 	val = force_id ? force_id : superio_inb(SUPERIO_REG_DEVID);
+diff --git a/arch/x86/lib/memcpy_64.S b/arch/x86/lib/memcpy_64.S
+index 3b24dc05251c7..9d05572370edc 100644
+--- a/arch/x86/lib/memcpy_64.S
++++ b/arch/x86/lib/memcpy_64.S
+@@ -257,6 +257,7 @@ ENTRY(__memcpy_mcsafe)
+ 	/* Copy successful. Return zero */
+ .L_done_memcpy_trap:
+ 	xorl %eax, %eax
++.L_done:
+ 	ret
+ ENDPROC(__memcpy_mcsafe)
+ EXPORT_SYMBOL_GPL(__memcpy_mcsafe)
+@@ -273,7 +274,7 @@ EXPORT_SYMBOL_GPL(__memcpy_mcsafe)
+ 	addl	%edx, %ecx
+ .E_trailing_bytes:
+ 	mov	%ecx, %eax
+-	ret
++	jmp	.L_done
  
  	/*
-@@ -608,13 +617,14 @@ static int __init smsc47m1_find(struct smsc47m1_sio_data *sio_data)
- static void smsc47m1_restore(const struct smsc47m1_sio_data *sio_data)
- {
- 	if ((sio_data->activate & 0x01) == 0) {
--		superio_enter();
--		superio_select();
--
--		pr_info("Disabling device\n");
--		superio_outb(SUPERIO_REG_ACT, sio_data->activate);
--
--		superio_exit();
-+		if (!superio_enter()) {
-+			superio_select();
-+			pr_info("Disabling device\n");
-+			superio_outb(SUPERIO_REG_ACT, sio_data->activate);
-+			superio_exit();
-+		} else {
-+			pr_warn("Failed to disable device\n");
-+		}
- 	}
- }
- 
+ 	 * For write fault handling, given the destination is unaligned,
 -- 
 2.20.1
 
