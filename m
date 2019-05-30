@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 261992EFFF
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:01:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C51D2EF13
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:52:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731555AbfE3DS1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:18:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51226 "EHLO mail.kernel.org"
+        id S1731948AbfE3Dwh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:52:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730078AbfE3DS0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:18:26 -0400
+        id S1731942AbfE3DTf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:19:35 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B3C5C247C2;
-        Thu, 30 May 2019 03:18:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C61DA248AB;
+        Thu, 30 May 2019 03:19:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186305;
-        bh=i1++ugkGFy9cTN8Pw+YwfRoCFDrSB4l8XHeSdcQnPQ4=;
+        s=default; t=1559186374;
+        bh=s6FEYyvu1TbYUCnhqVfPKx0CXV4TC8zXgKIEs96uMy8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rg9YKHunu036IWBb0qgJSb3zg2aiOJDghrSQot/TXAaD0tg0PgPgvGQ+6zf4puISp
-         94ZanE0aJ38vUc//g4bI8d5dcFJqH9bZBIksG0rqMqfl6hNDB5wyECbhwC8YLghH6J
-         CyAv51R84fEShfsPhuGkMc7unf5sKM+mf4WvpHR0=
+        b=HP00cNMbwwhN7sOibAqJUybGwSDy1BiTL7Y1k0EMwc9porAV1lVmppBdLo1+UVP1s
+         absKv86rFbo8u4PRuxvpOK7t2wdxCemVXhYEEkQbXqJ47ZSZwS7dHn2GM9y3/Dv/t3
+         LQZ4UxBEAreOfiRcaRcgCoIq3U0b8GCz+lAMKvOg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
-        Kees Cook <keescook@chromium.org>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 230/276] overflow: Fix -Wtype-limits compilation warnings
+        stable@vger.kernel.org, Jon Derrick <jonathan.derrick@intel.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Scott Bauer <sbauer@plzdonthack.me>,
+        David Kozub <zub@linux.fjfi.cvut.cz>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 134/193] block: sed-opal: fix IOC_OPAL_ENABLE_DISABLE_MBR
 Date:   Wed, 29 May 2019 20:06:28 -0700
-Message-Id: <20190530030539.509570163@linuxfoundation.org>
+Message-Id: <20190530030507.068785313@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
+References: <20190530030446.953835040@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,74 +46,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit dc7fe518b0493faa0af0568d6d8c2a33c00f58d0 ]
+[ Upstream commit 78bf47353b0041865564deeed257a54f047c2fdc ]
 
-Attempt to use check_shl_overflow() with inputs of unsigned type
-produces the following compilation warnings.
+The implementation of IOC_OPAL_ENABLE_DISABLE_MBR handled the value
+opal_mbr_data.enable_disable incorrectly: enable_disable is expected
+to be one of OPAL_MBR_ENABLE(0) or OPAL_MBR_DISABLE(1). enable_disable
+was passed directly to set_mbr_done and set_mbr_enable_disable where
+is was interpreted as either OPAL_TRUE(1) or OPAL_FALSE(0). The end
+result was that calling IOC_OPAL_ENABLE_DISABLE_MBR with OPAL_MBR_ENABLE
+actually disabled the shadow MBR and vice versa.
 
-drivers/infiniband/hw/mlx5/qp.c: In function _set_user_rq_size_:
-./include/linux/overflow.h:230:6: warning: comparison of unsigned
-expression >= 0 is always true [-Wtype-limits]
-   _s >= 0 && _s < 8 * sizeof(*d) ? _s : 0;  \
-      ^~
-drivers/infiniband/hw/mlx5/qp.c:5820:6: note: in expansion of macro _check_shl_overflow_
-  if (check_shl_overflow(rwq->wqe_count, rwq->wqe_shift,
-&rwq->buf_size))
-      ^~~~~~~~~~~~~~~~~~
-./include/linux/overflow.h:232:26: warning: comparison of unsigned expression < 0 is always false [-Wtype-limits]
-  (_to_shift != _s || *_d < 0 || _a < 0 ||   \
-                          ^
-drivers/infiniband/hw/mlx5/qp.c:5820:6: note: in expansion of macro _check_shl_overflow_
-  if (check_shl_overflow(rwq->wqe_count, rwq->wqe_shift, &rwq->buf_size))
-      ^~~~~~~~~~~~~~~~~~
-./include/linux/overflow.h:232:36: warning: comparison of unsigned expression < 0 is always false [-Wtype-limits]
-  (_to_shift != _s || *_d < 0 || _a < 0 ||   \
-                                    ^
-drivers/infiniband/hw/mlx5/qp.c:5820:6: note: in expansion of macro _check_shl_overflow_
-  if (check_shl_overflow(rwq->wqe_count, rwq->wqe_shift,&rwq->buf_size))
-      ^~~~~~~~~~~~~~~~~~
+This patch adds correct conversion from OPAL_MBR_DISABLE/ENABLE to
+OPAL_FALSE/TRUE. The change affects existing programs using
+IOC_OPAL_ENABLE_DISABLE_MBR but this is typically used only once when
+setting up an Opal drive.
 
-Fixes: 0c66847793d1 ("overflow.h: Add arithmetic shift helper")
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Acked-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Acked-by: Jon Derrick <jonathan.derrick@intel.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Scott Bauer <sbauer@plzdonthack.me>
+Signed-off-by: David Kozub <zub@linux.fjfi.cvut.cz>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/overflow.h | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ block/sed-opal.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/include/linux/overflow.h b/include/linux/overflow.h
-index 40b48e2133cb8..15eb85de92269 100644
---- a/include/linux/overflow.h
-+++ b/include/linux/overflow.h
-@@ -36,6 +36,12 @@
- #define type_max(T) ((T)((__type_half_max(T) - 1) + __type_half_max(T)))
- #define type_min(T) ((T)((T)-type_max(T)-(T)1))
+diff --git a/block/sed-opal.c b/block/sed-opal.c
+index 4f5e70d4abc3c..c64011cda9fcc 100644
+--- a/block/sed-opal.c
++++ b/block/sed-opal.c
+@@ -2078,13 +2078,16 @@ static int opal_erase_locking_range(struct opal_dev *dev,
+ static int opal_enable_disable_shadow_mbr(struct opal_dev *dev,
+ 					  struct opal_mbr_data *opal_mbr)
+ {
++	u8 enable_disable = opal_mbr->enable_disable == OPAL_MBR_ENABLE ?
++		OPAL_TRUE : OPAL_FALSE;
++
+ 	const struct opal_step mbr_steps[] = {
+ 		{ opal_discovery0, },
+ 		{ start_admin1LSP_opal_session, &opal_mbr->key },
+-		{ set_mbr_done, &opal_mbr->enable_disable },
++		{ set_mbr_done, &enable_disable },
+ 		{ end_opal_session, },
+ 		{ start_admin1LSP_opal_session, &opal_mbr->key },
+-		{ set_mbr_enable_disable, &opal_mbr->enable_disable },
++		{ set_mbr_enable_disable, &enable_disable },
+ 		{ end_opal_session, },
+ 		{ NULL, }
+ 	};
+@@ -2204,7 +2207,7 @@ static int __opal_lock_unlock(struct opal_dev *dev,
  
-+/*
-+ * Avoids triggering -Wtype-limits compilation warning,
-+ * while using unsigned data types to check a < 0.
-+ */
-+#define is_non_negative(a) ((a) > 0 || (a) == 0)
-+#define is_negative(a) (!(is_non_negative(a)))
- 
- #ifdef COMPILER_HAS_GENERIC_BUILTIN_OVERFLOW
- /*
-@@ -227,10 +233,10 @@
- 	typeof(d) _d = d;						\
- 	u64 _a_full = _a;						\
- 	unsigned int _to_shift =					\
--		_s >= 0 && _s < 8 * sizeof(*d) ? _s : 0;		\
-+		is_non_negative(_s) && _s < 8 * sizeof(*d) ? _s : 0;	\
- 	*_d = (_a_full << _to_shift);					\
--	(_to_shift != _s || *_d < 0 || _a < 0 ||			\
--		(*_d >> _to_shift) != _a);				\
-+	(_to_shift != _s || is_negative(*_d) || is_negative(_a) ||	\
-+	(*_d >> _to_shift) != _a);					\
- })
- 
- /**
+ static int __opal_set_mbr_done(struct opal_dev *dev, struct opal_key *key)
+ {
+-	u8 mbr_done_tf = 1;
++	u8 mbr_done_tf = OPAL_TRUE;
+ 	const struct opal_step mbrdone_step [] = {
+ 		{ opal_discovery0, },
+ 		{ start_admin1LSP_opal_session, key },
 -- 
 2.20.1
 
