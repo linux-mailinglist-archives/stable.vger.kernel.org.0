@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A4CB2F23E
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:20:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 824022EF5E
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:55:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730382AbfE3EUE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:20:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38384 "EHLO mail.kernel.org"
+        id S1731850AbfE3DTP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:19:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730241AbfE3DPW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:15:22 -0400
+        id S1731842AbfE3DTP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:19:15 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5CFD7245BD;
-        Thu, 30 May 2019 03:15:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F5812485B;
+        Thu, 30 May 2019 03:19:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186121;
-        bh=zUokycjIj3e95iE3BsdeuW5rOOv1PjK6A4ulbsLKQZM=;
+        s=default; t=1559186354;
+        bh=NMR8XkAYPWsJ/K5GhX9u+yDhCHUQdXQsKDfAjWrPucM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AM+CImuicyQSSbk76i8ysGp5u+C//e9LTwdPJ5tBFeJ0B9WQv6o8vlQyq8Th3/RsW
-         y4pnIl/3kow4wa6QrnTa2+io9GoEJe7M9X4XBJ+s2vU6ZOdh09AJCpRrXTOAbGIpAA
-         pktHEiX7pEE5pa+yLpaBicO5isE/4qgxWst240JI=
+        b=W4P64UudyFe8+svA7zhl4nqGKfRcusnXEqxmcmbrCtLioq9UsO+5Bi8GOebajRKTG
+         91R2FZCkEq1OU81kKQdlVZ7wKTbwjcyHpmbySM4x2dZ1dbTLnNOGoPYWfMsGY2aZqD
+         9Ocz4voPbCcS6iYi0U4K8A8Lmxn8j6MclcxHSoDU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Nathan Lynch <nathanl@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 277/346] scsi: qla4xxx: avoid freeing unallocated dma memory
+Subject: [PATCH 4.14 096/193] powerpc/numa: improve control of topology updates
 Date:   Wed, 29 May 2019 20:05:50 -0700
-Message-Id: <20190530030554.969402729@linuxfoundation.org>
+Message-Id: <20190530030502.378465760@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
+References: <20190530030446.953835040@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,50 +44,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 608f729c31d4caf52216ea00d20092a80959256d ]
+[ Upstream commit 2d4d9b308f8f8dec68f6dbbff18c68ec7c6bd26f ]
 
-Clang -Wuninitialized notices that on is_qla40XX we never allocate any DMA
-memory in get_fw_boot_info() but attempt to free it anyway:
+When booted with "topology_updates=no", or when "off" is written to
+/proc/powerpc/topology_updates, NUMA reassignments are inhibited for
+PRRN and VPHN events. However, migration and suspend unconditionally
+re-enable reassignments via start_topology_update(). This is
+incoherent.
 
-drivers/scsi/qla4xxx/ql4_os.c:5915:7: error: variable 'buf_dma' is used uninitialized whenever 'if' condition is false
-      [-Werror,-Wsometimes-uninitialized]
-                if (!(val & 0x07)) {
-                    ^~~~~~~~~~~~~
-drivers/scsi/qla4xxx/ql4_os.c:5985:47: note: uninitialized use occurs here
-        dma_free_coherent(&ha->pdev->dev, size, buf, buf_dma);
-                                                     ^~~~~~~
-drivers/scsi/qla4xxx/ql4_os.c:5915:3: note: remove the 'if' if its condition is always true
-                if (!(val & 0x07)) {
-                ^~~~~~~~~~~~~~~~~~~
-drivers/scsi/qla4xxx/ql4_os.c:5885:20: note: initialize the variable 'buf_dma' to silence this warning
-        dma_addr_t buf_dma;
-                          ^
-                           = 0
+Check the topology_updates_enabled flag in
+start/stop_topology_update() so that callers of those APIs need not be
+aware of whether reassignments are enabled. This allows the
+administrative decision on reassignments to remain in force across
+migrations and suspensions.
 
-Skip the call to dma_free_coherent() here.
-
-Fixes: 2a991c215978 ("[SCSI] qla4xxx: Boot from SAN support for open-iscsi")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla4xxx/ql4_os.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/mm/numa.c | 18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/scsi/qla4xxx/ql4_os.c b/drivers/scsi/qla4xxx/ql4_os.c
-index 80289c885c07b..9edec8e27b7c1 100644
---- a/drivers/scsi/qla4xxx/ql4_os.c
-+++ b/drivers/scsi/qla4xxx/ql4_os.c
-@@ -5930,7 +5930,7 @@ static int get_fw_boot_info(struct scsi_qla_host *ha, uint16_t ddb_index[])
- 		val = rd_nvram_byte(ha, sec_addr);
- 		if (val & BIT_7)
- 			ddb_index[1] = (val & 0x7f);
--
-+		goto exit_boot_info;
- 	} else if (is_qla80XX(ha)) {
- 		buf = dma_alloc_coherent(&ha->pdev->dev, size,
- 					 &buf_dma, GFP_KERNEL);
+diff --git a/arch/powerpc/mm/numa.c b/arch/powerpc/mm/numa.c
+index 0a02c73a27b3c..417ea6db7b1d2 100644
+--- a/arch/powerpc/mm/numa.c
++++ b/arch/powerpc/mm/numa.c
+@@ -1561,6 +1561,9 @@ int start_topology_update(void)
+ {
+ 	int rc = 0;
+ 
++	if (!topology_updates_enabled)
++		return 0;
++
+ 	if (firmware_has_feature(FW_FEATURE_PRRN)) {
+ 		if (!prrn_enabled) {
+ 			prrn_enabled = 1;
+@@ -1590,6 +1593,9 @@ int stop_topology_update(void)
+ {
+ 	int rc = 0;
+ 
++	if (!topology_updates_enabled)
++		return 0;
++
+ 	if (prrn_enabled) {
+ 		prrn_enabled = 0;
+ #ifdef CONFIG_SMP
+@@ -1635,11 +1641,13 @@ static ssize_t topology_write(struct file *file, const char __user *buf,
+ 
+ 	kbuf[read_len] = '\0';
+ 
+-	if (!strncmp(kbuf, "on", 2))
++	if (!strncmp(kbuf, "on", 2)) {
++		topology_updates_enabled = true;
+ 		start_topology_update();
+-	else if (!strncmp(kbuf, "off", 3))
++	} else if (!strncmp(kbuf, "off", 3)) {
+ 		stop_topology_update();
+-	else
++		topology_updates_enabled = false;
++	} else
+ 		return -EINVAL;
+ 
+ 	return count;
+@@ -1654,9 +1662,7 @@ static const struct file_operations topology_ops = {
+ 
+ static int topology_update_init(void)
+ {
+-	/* Do not poll for changes if disabled at boot */
+-	if (topology_updates_enabled)
+-		start_topology_update();
++	start_topology_update();
+ 
+ 	if (!proc_create("powerpc/topology_updates", 0644, NULL, &topology_ops))
+ 		return -ENOMEM;
 -- 
 2.20.1
 
