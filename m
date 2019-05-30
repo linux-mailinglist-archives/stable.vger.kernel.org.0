@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F331E2F2EE
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:25:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49EC12F555
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:47:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728507AbfE3DOp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:14:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35654 "EHLO mail.kernel.org"
+        id S1729097AbfE3EqJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:46:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729968AbfE3DOp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:14:45 -0400
+        id S1728657AbfE3DLo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:11:44 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 938FC24585;
-        Thu, 30 May 2019 03:14:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0FA98244C4;
+        Thu, 30 May 2019 03:11:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186084;
-        bh=C/p0y0jppIEGiBaHSxMEGSZjx9jQaK1YdEp7rBzeljc=;
+        s=default; t=1559185904;
+        bh=GZUqsTk4DRyMhsW1KtZI2tC5X5LSHWq2AHH1vJ4K+oM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PQvS4OkgH0vQodizcgu83US4nEsBnxLYDr9u7lZGHpV8hjeRPAwVIrtoGDwj5j4hJ
-         VxakCJmdVsGOynK/hTBJBljfNMgxIocCtLdlCEHI4J1HF15mtHQB4aF3rwctraF1Ui
-         rWyxT5717HJw0UJnH89OVOh33S0ulOXySU77XGWQ=
+        b=XDq+ijSknErqK8+23pyCh04VQSURpX2Y8oEBR29tsWEgjAEcTnAsFIIU4xktW93cM
+         p8niY5HmFqVrr5grz7vP/zZwlcQEOOnDeGKgGL3Cox0nDNMx4qRLrdbnpLs4aPq6ns
+         JvUPcii+CCvnYlZ1bNbMDaN49vptAZ2z8bRSR1ds=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Kento Kobayashi <Kento.A.Kobayashi@sony.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Jacky Cao <Jacky.Cao@sony.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 164/346] USB: core: Dont unbind interfaces following device reset failure
+        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
+        dri-devel@lists.freedesktop.org ("open list:DRM DRIVERS"),
+        Eric Anholt <eric@anholt.net>, Sasha Levin <sashal@kernel.org>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>
+Subject: [PATCH 5.1 239/405] drm/pl111: fix possible object reference leak
 Date:   Wed, 29 May 2019 20:03:57 -0700
-Message-Id: <20190530030549.474783185@linuxfoundation.org>
+Message-Id: <20190530030553.101349333@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,69 +46,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 381419fa720060ba48b7bbc483be787d5b1dca6f ]
+[ Upstream commit bc29d3a69d4c1bd1a103e8b3c1ed81b807c1870b ]
 
-The SCSI core does not like to have devices or hosts unregistered
-while error recovery is in progress.  Trying to do so can lead to
-self-deadlock: Part of the removal code tries to obtain a lock already
-held by the error handler.
+The call to of_find_matching_node_and_match returns a node pointer with
+refcount incremented thus it must be explicitly decremented after the
+last usage.
 
-This can cause problems for the usb-storage and uas drivers, because
-their error handler routines perform a USB reset, and if the reset
-fails then the USB core automatically goes on to unbind all drivers
-from the device's interfaces -- all while still in the context of the
-SCSI error handler.
+Detected by coccinelle with the following warnings:
+drivers/gpu/drm/pl111/pl111_versatile.c:333:3-9: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 317, but without a corresponding object release within this function.
+drivers/gpu/drm/pl111/pl111_versatile.c:340:3-9: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 317, but without a corresponding object release within this function.
+drivers/gpu/drm/pl111/pl111_versatile.c:346:3-9: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 317, but without a corresponding object release within this function.
+drivers/gpu/drm/pl111/pl111_versatile.c:354:2-8: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 317, but without a corresponding object release within this function.
+drivers/gpu/drm/pl111/pl111_versatile.c:395:3-9: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 317, but without a corresponding object release within this function.
+drivers/gpu/drm/pl111/pl111_versatile.c:402:1-7: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 317, but without a corresponding object release within this function.
 
-As it turns out, practically all the scenarios leading to a USB reset
-failure end up causing a device disconnect (the main error pathway in
-usb_reset_and_verify_device(), at the end of the routine, calls
-hub_port_logical_disconnect() before returning).  As a result, the
-hub_wq thread will soon become aware of the problem and will unbind
-all the device's drivers in its own context, not in the
-error-handler's context.
-
-This means that usb_reset_device() does not need to call
-usb_unbind_and_rebind_marked_interfaces() in cases where
-usb_reset_and_verify_device() has returned an error, because hub_wq
-will take care of everything anyway.
-
-This particular problem was observed in somewhat artificial
-circumstances, by using usbfs to tell a hub to power-down a port
-connected to a USB-3 mass storage device using the UAS protocol.  With
-the port turned off, the currently executing command timed out and the
-error handler started running.  The USB reset naturally failed,
-because the hub port was off, and the error handler deadlocked as
-described above.  Not carrying out the call to
-usb_unbind_and_rebind_marked_interfaces() fixes this issue.
-
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Reported-by: Kento Kobayashi <Kento.A.Kobayashi@sony.com>
-Tested-by: Kento Kobayashi <Kento.A.Kobayashi@sony.com>
-CC: Bart Van Assche <bvanassche@acm.org>
-CC: Martin K. Petersen <martin.petersen@oracle.com>
-CC: Jacky Cao <Jacky.Cao@sony.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
+Cc: Eric Anholt <eric@anholt.net> (supporter:DRM DRIVER FOR ARM PL111 CLCD)
+Cc: David Airlie <airlied@linux.ie> (maintainer:DRM DRIVERS)
+Cc: Daniel Vetter <daniel@ffwll.ch> (maintainer:DRM DRIVERS)
+Cc: dri-devel@lists.freedesktop.org (open list:DRM DRIVERS)
+Cc: linux-kernel@vger.kernel.org (open list)
+Signed-off-by: Eric Anholt <eric@anholt.net>
+Link: https://patchwork.freedesktop.org/patch/msgid/1554307455-40361-6-git-send-email-wen.yang99@zte.com.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/core/hub.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/pl111/pl111_versatile.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
-index 55c87be5764c6..d325dd66f10e1 100644
---- a/drivers/usb/core/hub.c
-+++ b/drivers/usb/core/hub.c
-@@ -5864,7 +5864,10 @@ int usb_reset_device(struct usb_device *udev)
- 					cintf->needs_binding = 1;
- 			}
+diff --git a/drivers/gpu/drm/pl111/pl111_versatile.c b/drivers/gpu/drm/pl111/pl111_versatile.c
+index b9baefdba38a1..1c318ad32a8cd 100644
+--- a/drivers/gpu/drm/pl111/pl111_versatile.c
++++ b/drivers/gpu/drm/pl111/pl111_versatile.c
+@@ -330,6 +330,7 @@ int pl111_versatile_init(struct device *dev, struct pl111_drm_dev_private *priv)
+ 		ret = vexpress_muxfpga_init();
+ 		if (ret) {
+ 			dev_err(dev, "unable to initialize muxfpga driver\n");
++			of_node_put(np);
+ 			return ret;
  		}
--		usb_unbind_and_rebind_marked_interfaces(udev);
-+
-+		/* If the reset failed, hub_wq will unbind drivers later */
-+		if (ret == 0)
-+			usb_unbind_and_rebind_marked_interfaces(udev);
- 	}
  
- 	usb_autosuspend_device(udev);
+@@ -337,17 +338,20 @@ int pl111_versatile_init(struct device *dev, struct pl111_drm_dev_private *priv)
+ 		pdev = of_find_device_by_node(np);
+ 		if (!pdev) {
+ 			dev_err(dev, "can't find the sysreg device, deferring\n");
++			of_node_put(np);
+ 			return -EPROBE_DEFER;
+ 		}
+ 		map = dev_get_drvdata(&pdev->dev);
+ 		if (!map) {
+ 			dev_err(dev, "sysreg has not yet probed\n");
+ 			platform_device_put(pdev);
++			of_node_put(np);
+ 			return -EPROBE_DEFER;
+ 		}
+ 	} else {
+ 		map = syscon_node_to_regmap(np);
+ 	}
++	of_node_put(np);
+ 
+ 	if (IS_ERR(map)) {
+ 		dev_err(dev, "no Versatile syscon regmap\n");
 -- 
 2.20.1
 
