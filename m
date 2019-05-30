@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 34FF32F04A
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:03:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A9B82F1E6
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:17:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726695AbfE3ECe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:02:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49640 "EHLO mail.kernel.org"
+        id S1730453AbfE3DPm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:15:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730465AbfE3DSB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:18:01 -0400
+        id S1730446AbfE3DPm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:15:42 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 186F624760;
-        Thu, 30 May 2019 03:18:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8F2F524585;
+        Thu, 30 May 2019 03:15:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186281;
-        bh=rUom6fya4qpqz8Hi67+pvk/A3ZVJMOFfbtAwZZ1KJUE=;
+        s=default; t=1559186141;
+        bh=5zpwOjDO1fpQzwqoXZLpNd3AB+Dz2aPEnFSCm18DBbw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EmVAV1cMlDWU6q/wzOCu1Ee9lRtTlSi6YORCrEL9bLDNXhEnzZ48F9V+XIATexTxe
-         6NT6mMwx8y4A/0Rk2jP5E5KBE8h+s3evebrd5Rfh89gQiMq8VC4A60O1Fg7+b27fcW
-         sCewo2WUtKb9Uy3bFr6thx5errvtBSvFd/Zm1SjI=
+        b=nweUEK2UNPm0hgH4Ul449Lk2fmxrP86pUg9JO6v8vwXR8WHKYbjhZ+nWlZJseUYNH
+         QfhRHBxZS8bQd5IpqPNPQJ1pG8BmjDap/WxNxqmExO/ek9aK8I78KG6iZM3v9MCNJu
+         H5tZq7DdBSkQMwx+nnOFlJeV/DO3GbzKZrs3Z0X8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <rong.a.chen@intel.com>,
-        "Paul E. McKenney" <paulmck@linux.ibm.com>,
+        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 232/276] rcutorture: Fix cleanup path for invalid torture_type strings
+Subject: [PATCH 5.0 317/346] spi : spi-topcliff-pch: Fix to handle empty DMA buffers
 Date:   Wed, 29 May 2019 20:06:30 -0700
-Message-Id: <20190530030539.640331172@linuxfoundation.org>
+Message-Id: <20190530030556.868566279@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,51 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit b813afae7ab6a5e91b4e16cc567331d9c2ae1f04 ]
+[ Upstream commit f37d8e67f39e6d3eaf4cc5471e8a3d21209843c6 ]
 
-If the specified rcutorture.torture_type is not in the rcu_torture_init()
-function's torture_ops[] array, rcutorture prints some console messages
-and then invokes rcu_torture_cleanup() to set state so that a future
-torture test can run.  However, rcu_torture_cleanup() also attempts to
-end the test that didn't actually start, and in doing so relies on the
-value of cur_ops, a value that is not particularly relevant in this case.
-This can result in confusing output or even follow-on failures due to
-attempts to use facilities that have not been properly initialized.
+pch_alloc_dma_buf allocated tx, rx DMA buffers which can fail. Further,
+these buffers are used without a check. The patch checks for these
+failures and sends the error upstream.
 
-This commit therefore sets the value of cur_ops to NULL in this case
-and inserts a check near the beginning of rcu_torture_cleanup(),
-thus avoiding relying on an irrelevant cur_ops value.
-
-Reported-by: kernel test robot <rong.a.chen@intel.com>
-Signed-off-by: Paul E. McKenney <paulmck@linux.ibm.com>
+Signed-off-by: Aditya Pakki <pakki001@umn.edu>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/rcutorture.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/spi/spi-topcliff-pch.c | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/rcu/rcutorture.c b/kernel/rcu/rcutorture.c
-index c596c6f1e4571..0b7af7e2bcbb1 100644
---- a/kernel/rcu/rcutorture.c
-+++ b/kernel/rcu/rcutorture.c
-@@ -1826,6 +1826,10 @@ rcu_torture_cleanup(void)
- 			cur_ops->cb_barrier();
- 		return;
- 	}
-+	if (!cur_ops) {
-+		torture_cleanup_end();
-+		return;
-+	}
+diff --git a/drivers/spi/spi-topcliff-pch.c b/drivers/spi/spi-topcliff-pch.c
+index 97d137591b18d..4389ab80c23e6 100644
+--- a/drivers/spi/spi-topcliff-pch.c
++++ b/drivers/spi/spi-topcliff-pch.c
+@@ -1294,18 +1294,27 @@ static void pch_free_dma_buf(struct pch_spi_board_data *board_dat,
+ 				  dma->rx_buf_virt, dma->rx_buf_dma);
+ }
  
- 	rcu_torture_barrier_cleanup();
- 	torture_stop_kthread(rcu_torture_stall, stall_task);
-@@ -1964,6 +1968,7 @@ rcu_torture_init(void)
- 			pr_cont(" %s", torture_ops[i]->name);
- 		pr_cont("\n");
- 		firsterr = -EINVAL;
-+		cur_ops = NULL;
- 		goto unwind;
+-static void pch_alloc_dma_buf(struct pch_spi_board_data *board_dat,
++static int pch_alloc_dma_buf(struct pch_spi_board_data *board_dat,
+ 			      struct pch_spi_data *data)
+ {
+ 	struct pch_spi_dma_ctrl *dma;
++	int ret;
+ 
+ 	dma = &data->dma;
++	ret = 0;
+ 	/* Get Consistent memory for Tx DMA */
+ 	dma->tx_buf_virt = dma_alloc_coherent(&board_dat->pdev->dev,
+ 				PCH_BUF_SIZE, &dma->tx_buf_dma, GFP_KERNEL);
++	if (!dma->tx_buf_virt)
++		ret = -ENOMEM;
++
+ 	/* Get Consistent memory for Rx DMA */
+ 	dma->rx_buf_virt = dma_alloc_coherent(&board_dat->pdev->dev,
+ 				PCH_BUF_SIZE, &dma->rx_buf_dma, GFP_KERNEL);
++	if (!dma->rx_buf_virt)
++		ret = -ENOMEM;
++
++	return ret;
+ }
+ 
+ static int pch_spi_pd_probe(struct platform_device *plat_dev)
+@@ -1382,7 +1391,9 @@ static int pch_spi_pd_probe(struct platform_device *plat_dev)
+ 
+ 	if (use_dma) {
+ 		dev_info(&plat_dev->dev, "Use DMA for data transfers\n");
+-		pch_alloc_dma_buf(board_dat, data);
++		ret = pch_alloc_dma_buf(board_dat, data);
++		if (ret)
++			goto err_spi_register_master;
  	}
- 	if (cur_ops->fqs == NULL && fqs_duration != 0) {
+ 
+ 	ret = spi_register_master(master);
 -- 
 2.20.1
 
