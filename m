@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 810D92F551
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:47:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A967C2EFE1
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:59:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728627AbfE3DLi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:11:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51620 "EHLO mail.kernel.org"
+        id S1732242AbfE3D7D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:59:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728616AbfE3DLh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:11:37 -0400
+        id S1731608AbfE3DSi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:18:38 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 45558244A6;
-        Thu, 30 May 2019 03:11:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B6617247E0;
+        Thu, 30 May 2019 03:18:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185896;
-        bh=FnfeHTWJDsY+DyhRxNTtnG8qAasfhPaw1DVptajiCys=;
+        s=default; t=1559186317;
+        bh=fE5W26MB4HIaeJulwsC7U/DAYoJJZt3tEwRMvBgYWmg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oaKPQLTzQNKQjisBHjJTKJdm/k3TZl1/Gxk6euG0wolgRh7TeNgr7zHTmK9VG46dy
-         2VsislFKLZoDDMbIwSn7CgPwkkBOlXhKyNHhzN/Rbon2LrlaLQI2un4TUxr76uMSWT
-         9IAHL3ssz3wK1kpsdtxuLjzzSp6OST1g/tqlHhCQ=
+        b=OPs3U9sQV0NSmxK73bRJazKSsTCRl7hB8UZuc6GefcGjgPe4f+duCzXsdKNd1ytD8
+         VUA6Lwi3P3jRbFjExcGMYjg1yEaz3G4KizM3llcTXZCuDU6G6gQLAqXN188cvRRqS+
+         YOx8PBmTJT/QI1NvjftIzZH30MKHOznVo24d29wk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Sun peng Li <Sunpeng.Li@amd.com>,
-        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 261/405] drm/amd/display: Prevent cursor hotspot overflow for RV overlay planes
+        stable@vger.kernel.org, "Paul E. McKenney" <paulmck@linux.ibm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Andrea Parri <andrea.parri@amarulasolutions.com>,
+        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+        linux-block@vger.kernel.org
+Subject: [PATCH 4.14 005/193] bio: fix improper use of smp_mb__before_atomic()
 Date:   Wed, 29 May 2019 20:04:19 -0700
-Message-Id: <20190530030554.154110575@linuxfoundation.org>
+Message-Id: <20190530030447.783978314@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
+References: <20190530030446.953835040@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,80 +46,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 6752bea8b03e77c98be7d8d25b0a9d86a00b3cf7 ]
+From: Andrea Parri <andrea.parri@amarulasolutions.com>
 
-[Why]
-The actual position for the cursor on the screen is essentially:
+commit f381c6a4bd0ae0fde2d6340f1b9bb0f58d915de6 upstream.
 
-x_out = x - x_plane - x_hotspot
-y_out = y - y_plane - y_hotspot
+This barrier only applies to the read-modify-write operations; in
+particular, it does not apply to the atomic_set() primitive.
 
-The register values for cursor position and cursor hotspot need to be
-greater than zero when programmed, but we also need to subtract off
-the plane position to display the cursor at the correct position.
+Replace the barrier with an smp_mb().
 
-Since we don't want x or y to be less than zero, we add the plane
-position as a positive value to x_hotspot or y_hotspot. However, what
-this doesn't take into account is that the hotspot registers are limited
-by the maximum cursor size.
+Fixes: dac56212e8127 ("bio: skip atomic inc/dec of ->bi_cnt for most use cases")
+Cc: stable@vger.kernel.org
+Reported-by: "Paul E. McKenney" <paulmck@linux.ibm.com>
+Reported-by: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Andrea Parri <andrea.parri@amarulasolutions.com>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: Ming Lei <ming.lei@redhat.com>
+Cc: linux-block@vger.kernel.org
+Cc: "Paul E. McKenney" <paulmck@linux.ibm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-On DCN10 the cursor hotspot regitsers are masked to 0xFF, so they have
-a maximum value of 0-255. Values greater this will wrap, causing the
-cursor to display in the wrong position.
-
-In practice this means that for sufficiently large plane positions, the
-cursor will be drawn twice on the screen, and can cause screen flashes
-or p-state WARNS depending on what the wrapped value is.
-
-So we need a way to remove the value from x_plane and y_plane without
-exceeding the maximum cursor size.
-
-[How]
-Subtract as much as x_plane/y_plane as possible from x and y and place
-the remainder in the cursor hotspot register.
-
-The value for x_hotspot and y_hotspot can still wrap around but it
-won't happen in a case where the cursor is actually enabled.
-
-The cursor plane needs to intersect at least one pixel of the plane's
-rectangle to be enabled, so the cursor position + hotspot provided by
-userspace must always be strictly less than the maximum cursor size for
-the cursor to actually be enabled.
-
-Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Reviewed-by: Sun peng Li <Sunpeng.Li@amd.com>
-Acked-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c    | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ include/linux/bio.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
-index d1a8f1c302a96..401ea9561618e 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
-@@ -2692,9 +2692,15 @@ static void dcn10_set_cursor_position(struct pipe_ctx *pipe_ctx)
- 		.rotation = pipe_ctx->plane_state->rotation,
- 		.mirror = pipe_ctx->plane_state->horizontal_mirror
- 	};
--
--	pos_cpy.x_hotspot += pipe_ctx->plane_state->dst_rect.x;
--	pos_cpy.y_hotspot += pipe_ctx->plane_state->dst_rect.y;
-+	uint32_t x_plane = pipe_ctx->plane_state->dst_rect.x;
-+	uint32_t y_plane = pipe_ctx->plane_state->dst_rect.y;
-+	uint32_t x_offset = min(x_plane, pos_cpy.x);
-+	uint32_t y_offset = min(y_plane, pos_cpy.y);
-+
-+	pos_cpy.x -= x_offset;
-+	pos_cpy.y -= y_offset;
-+	pos_cpy.x_hotspot += (x_plane - x_offset);
-+	pos_cpy.y_hotspot += (y_plane - y_offset);
- 
- 	if (pipe_ctx->plane_state->address.type
- 			== PLN_ADDR_TYPE_VIDEO_PROGRESSIVE)
--- 
-2.20.1
-
+--- a/include/linux/bio.h
++++ b/include/linux/bio.h
+@@ -260,7 +260,7 @@ static inline void bio_cnt_set(struct bi
+ {
+ 	if (count != 1) {
+ 		bio->bi_flags |= (1 << BIO_REFFED);
+-		smp_mb__before_atomic();
++		smp_mb();
+ 	}
+ 	atomic_set(&bio->__bi_cnt, count);
+ }
 
 
