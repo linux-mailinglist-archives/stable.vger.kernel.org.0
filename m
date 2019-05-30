@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CD67C2EBCF
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:16:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFE7C2F3BC
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:33:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730636AbfE3DQP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:16:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41638 "EHLO mail.kernel.org"
+        id S1729912AbfE3Ebn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:31:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730633AbfE3DQO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:16:14 -0400
+        id S1728601AbfE3DNn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:13:43 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 54909245AF;
-        Thu, 30 May 2019 03:16:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA70A24561;
+        Thu, 30 May 2019 03:13:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186174;
-        bh=uX0O8fFyjqjn47LlhwbHs8LWWpB51mG9r7AbkqwtLpI=;
+        s=default; t=1559186022;
+        bh=BVFPEq2252lRkspmWfxez9TenSlGcURuz34/DoGJY80=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WTrI3gLg0W2bYMtNWWNYmW639dTP76Qpcy3OVfwIByoGdybP3O8Vid6qZAXuGbCRl
-         6tSXAV5B1BysXn8KiH3wa6Fsy+pq7soN8bmAqerFfb/ePXnvBHjaXReyY9cR2HW36T
-         yRfhv+1EsZiaOH5+afY7ZLYrHK5GGSCpHUubgx4w=
+        b=ulS2DtnnCE9n7Y2XjhEbJeXp7S1aOi1s8ISdNkG/PWiXmZ3T8MelInMm0bO6twyp2
+         H7py1rmMgaSmUq/QaOFy8frDerahAdYoVQTqSLEqnnHn2bXvOPCPgvJSfPCKnTFKCT
+         Q+Alw+7CpZaKuElUPtQ66iQL71F4W6m64xtE2ngQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.19 008/276] Revert "scsi: sd: Keep disk read-only when re-reading partition"
+        stable@vger.kernel.org, Manish Rangankar <mrangankar@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 093/346] scsi: qedi: Abort ep termination if offload not scheduled
 Date:   Wed, 29 May 2019 20:02:46 -0700
-Message-Id: <20190530030524.061242852@linuxfoundation.org>
+Message-Id: <20190530030545.875442703@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,51 +44,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin K. Petersen <martin.petersen@oracle.com>
+[ Upstream commit f848bfd8e167210a29374e8a678892bed591684f ]
 
-commit 8acf608e602f6ec38b7cc37b04c80f1ce9a1a6cc upstream.
+Sometimes during connection recovery when there is a failure to resolve
+ARP, and offload connection was not issued, driver tries to flush pending
+offload connection work which was not queued up.
 
-This reverts commit 20bd1d026aacc5399464f8328f305985c493cde3.
+kernel: WARNING: CPU: 19 PID: 10110 at kernel/workqueue.c:3030 __flush_work.isra.34+0x19c/0x1b0
+kernel: CPU: 19 PID: 10110 Comm: iscsid Tainted: G W 5.1.0-rc4 #11
+kernel: Hardware name: Dell Inc. PowerEdge R730/0599V5, BIOS 2.9.1 12/04/2018
+kernel: RIP: 0010:__flush_work.isra.34+0x19c/0x1b0
+kernel: Code: 8b fb 66 0f 1f 44 00 00 31 c0 eb ab 48 89 ef c6 07 00 0f 1f 40 00 fb 66 0f 1f 44 00 00 31 c0 eb 96 e8 08 16 fe ff 0f 0b eb 8d <0f> 0b 31 c0 eb 87 0f 1f 40 00 66 2e 0f 1
+f 84 00 00 00 00 00 0f 1f
+kernel: RSP: 0018:ffffa6b4054dba68 EFLAGS: 00010246
+kernel: RAX: 0000000000000000 RBX: ffff91df21c36fc0 RCX: 0000000000000000
+kernel: RDX: 0000000000000001 RSI: 0000000000000000 RDI: ffff91df21c36fc0
+kernel: RBP: ffff91df21c36ef0 R08: 0000000000000000 R09: 0000000000000000
+kernel: R10: 0000000000000038 R11: ffffa6b4054dbd60 R12: ffffffffc05e72c0
+kernel: R13: ffff91db10280820 R14: 0000000000000048 R15: 0000000000000000
+kernel: FS:  00007f5d83cc1740(0000) GS:ffff91df2f840000(0000) knlGS:0000000000000000
+kernel: CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+kernel: CR2: 0000000001cc5000 CR3: 0000000465450002 CR4: 00000000001606e0
+kernel: Call Trace:
+kernel: ? try_to_del_timer_sync+0x4d/0x80
+kernel: qedi_ep_disconnect+0x3b/0x410 [qedi]
+kernel: ? 0xffffffffc083c000
+kernel: ? klist_iter_exit+0x14/0x20
+kernel: ? class_find_device+0x93/0xf0
+kernel: iscsi_if_ep_disconnect.isra.18+0x58/0x70 [scsi_transport_iscsi]
+kernel: iscsi_if_recv_msg+0x10e2/0x1510 [scsi_transport_iscsi]
+kernel: ? copyout+0x22/0x30
+kernel: ? _copy_to_iter+0xa0/0x430
+kernel: ? _cond_resched+0x15/0x30
+kernel: ? __kmalloc_node_track_caller+0x1f9/0x270
+kernel: iscsi_if_rx+0xa5/0x1e0 [scsi_transport_iscsi]
+kernel: netlink_unicast+0x17f/0x230
+kernel: netlink_sendmsg+0x2d2/0x3d0
+kernel: sock_sendmsg+0x36/0x50
+kernel: ___sys_sendmsg+0x280/0x2a0
+kernel: ? timerqueue_add+0x54/0x80
+kernel: ? enqueue_hrtimer+0x38/0x90
+kernel: ? hrtimer_start_range_ns+0x19f/0x2c0
+kernel: __sys_sendmsg+0x58/0xa0
+kernel: do_syscall_64+0x5b/0x180
+kernel: entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-This patch introduced regressions for devices that come online in
-read-only state and subsequently switch to read-write.
-
-Given how the partition code is currently implemented it is not
-possible to persist the read-only flag across a device revalidate
-call. This may need to get addressed in the future since it is common
-for user applications to proactively call BLKRRPART.
-
-Reverting this commit will re-introduce a regression where a
-device-initiated revalidate event will cause the admin state to be
-forgotten. A separate patch will address this issue.
-
-Fixes: 20bd1d026aac ("scsi: sd: Keep disk read-only when re-reading partition")
-Cc: <stable@vger.kernel.org>
+Signed-off-by: Manish Rangankar <mrangankar@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/sd.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/scsi/qedi/qedi_iscsi.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/scsi/sd.c
-+++ b/drivers/scsi/sd.c
-@@ -2605,7 +2605,6 @@ sd_read_write_protect_flag(struct scsi_d
- 	int res;
- 	struct scsi_device *sdp = sdkp->device;
- 	struct scsi_mode_data data;
--	int disk_ro = get_disk_ro(sdkp->disk);
- 	int old_wp = sdkp->write_prot;
+diff --git a/drivers/scsi/qedi/qedi_iscsi.c b/drivers/scsi/qedi/qedi_iscsi.c
+index 6d6d6013e35b8..bf371e7b957d0 100644
+--- a/drivers/scsi/qedi/qedi_iscsi.c
++++ b/drivers/scsi/qedi/qedi_iscsi.c
+@@ -1000,6 +1000,9 @@ static void qedi_ep_disconnect(struct iscsi_endpoint *ep)
+ 	qedi_ep = ep->dd_data;
+ 	qedi = qedi_ep->qedi;
  
- 	set_disk_ro(sdkp->disk, 0);
-@@ -2646,7 +2645,7 @@ sd_read_write_protect_flag(struct scsi_d
- 			  "Test WP failed, assume Write Enabled\n");
- 	} else {
- 		sdkp->write_prot = ((data.device_specific & 0x80) != 0);
--		set_disk_ro(sdkp->disk, sdkp->write_prot || disk_ro);
-+		set_disk_ro(sdkp->disk, sdkp->write_prot);
- 		if (sdkp->first_scan || old_wp != sdkp->write_prot) {
- 			sd_printk(KERN_NOTICE, sdkp, "Write Protect is %s\n",
- 				  sdkp->write_prot ? "on" : "off");
++	if (qedi_ep->state == EP_STATE_OFLDCONN_START)
++		goto ep_exit_recover;
++
+ 	flush_work(&qedi_ep->offload_work);
+ 
+ 	if (qedi_ep->conn) {
+-- 
+2.20.1
+
 
 
