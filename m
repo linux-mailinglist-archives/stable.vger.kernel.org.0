@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E73582F143
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:11:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73C8D2F002
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:01:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728986AbfE3DQs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:16:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43788 "EHLO mail.kernel.org"
+        id S1731577AbfE3DSb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:18:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730813AbfE3DQr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:16:47 -0400
+        id S1731570AbfE3DSa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:18:30 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 54016245DE;
-        Thu, 30 May 2019 03:16:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 23CAF247DB;
+        Thu, 30 May 2019 03:18:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186207;
-        bh=Ubb5xTQFXzgqC/dG4CE0HeMY8paSJZCVReWkm8znYPg=;
+        s=default; t=1559186310;
+        bh=LAJXpkRKKZdaqI33F52nGjF/SAynE/Sw/WCxWOSgagw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PRjPZ5GFiQ/IgXNyJ9W2U3KkDp7WnvP1mPDIwQ+jOsVh74MSfZeISK5fUvDQ3oQGu
-         mgEVG84nATkQ7h6Le7fEWJ0NSQ59MlssWdr/hPpd6sJkcJ9g2ZTDShrJvdE/zN9uSU
-         Dq31Z7Lo9Bda6BDi8xU3gYkq2g2eqapdKhzEm27I=
+        b=FkYyUDFQ77wtdX9aAz6vtYMYqn3youYGvf571OQeWuM5BWGIkbnJiip0W6NORZoH4
+         hs6f0itKcAxnqEZQP4aF7YEEAMbFJ5oQURS1y7Iv6tzXLy1YzADI4rkRoBDexbSPB7
+         eroUetU9qopdtJbYr77HQJaYysJp8CasTh/xRbbY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 096/276] mwifiex: prevent an array overflow
-Date:   Wed, 29 May 2019 20:04:14 -0700
-Message-Id: <20190530030532.159849561@linuxfoundation.org>
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 4.14 001/193] x86: Hide the int3_emulate_call/jmp functions from UML
+Date:   Wed, 29 May 2019 20:04:15 -0700
+Message-Id: <20190530030447.114638092@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
+References: <20190530030446.953835040@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -44,38 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit b4c35c17227fe437ded17ce683a6927845f8c4a4 ]
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-The "rate_index" is only used as an index into the phist_data->rx_rate[]
-array in the mwifiex_hist_data_set() function.  That array has
-MWIFIEX_MAX_AC_RX_RATES (74) elements and it's used to generate some
-debugfs information.  The "rate_index" variable comes from the network
-skb->data[] and it is a u8 so it's in the 0-255 range.  We need to cap
-it to prevent an array overflow.
+commit 693713cbdb3a4bda5a8a678c31f06560bbb14657 upstream.
 
-Fixes: cbf6e05527a7 ("mwifiex: add rx histogram statistics support")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+User Mode Linux does not have access to the ip or sp fields of the pt_regs,
+and accessing them causes UML to fail to build. Hide the int3_emulate_jmp()
+and int3_emulate_call() instructions from UML, as it doesn't need them
+anyway.
+
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/wireless/marvell/mwifiex/cfp.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/x86/include/asm/text-patching.h |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/marvell/mwifiex/cfp.c b/drivers/net/wireless/marvell/mwifiex/cfp.c
-index bfe84e55df776..f1522fb1c1e87 100644
---- a/drivers/net/wireless/marvell/mwifiex/cfp.c
-+++ b/drivers/net/wireless/marvell/mwifiex/cfp.c
-@@ -531,5 +531,8 @@ u8 mwifiex_adjust_data_rate(struct mwifiex_private *priv,
- 		rate_index = (rx_rate > MWIFIEX_RATE_INDEX_OFDM0) ?
- 			      rx_rate - 1 : rx_rate;
+--- a/arch/x86/include/asm/text-patching.h
++++ b/arch/x86/include/asm/text-patching.h
+@@ -38,6 +38,7 @@ extern void *text_poke(void *addr, const
+ extern int poke_int3_handler(struct pt_regs *regs);
+ extern void *text_poke_bp(void *addr, const void *opcode, size_t len, void *handler);
  
-+	if (rate_index >= MWIFIEX_MAX_AC_RX_RATES)
-+		rate_index = MWIFIEX_MAX_AC_RX_RATES - 1;
-+
- 	return rate_index;
++#ifndef CONFIG_UML_X86
+ static inline void int3_emulate_jmp(struct pt_regs *regs, unsigned long ip)
+ {
+ 	regs->ip = ip;
+@@ -64,6 +65,7 @@ static inline void int3_emulate_call(str
+ 	int3_emulate_push(regs, regs->ip - INT3_INSN_SIZE + CALL_INSN_SIZE);
+ 	int3_emulate_jmp(regs, func);
  }
--- 
-2.20.1
-
+-#endif
++#endif /* CONFIG_X86_64 */
++#endif /* !CONFIG_UML_X86 */
+ 
+ #endif /* _ASM_X86_TEXT_PATCHING_H */
 
 
