@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F1432F1A5
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:14:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E19BA2EB39
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:11:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727922AbfE3EOz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:14:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41316 "EHLO mail.kernel.org"
+        id S1728275AbfE3DKy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:10:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49144 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730588AbfE3DQG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:16:06 -0400
+        id S1728267AbfE3DKx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:10:53 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F15C82458A;
-        Thu, 30 May 2019 03:16:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 87192244A6;
+        Thu, 30 May 2019 03:10:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186166;
-        bh=IMvOMrwfmvlEvp9BbnZTOcWW0xU9lq/DlMKMHRjOHos=;
+        s=default; t=1559185852;
+        bh=u8DTJcCxboMwaCpnCA+BRD1412Fvgn3zc28Z0ceiVQw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eQC4kKmgllhC5LnVhEhoD0Px4lST3TH1EpstctPUnFrIlL+7UsGtovUmPNiCUk0ij
-         XzY8Fpl9qksqHynf2pJEEaVqeo5gESof/yBEteFRuB5YOo2mRlytTlkzRxEMiGBBGX
-         5UTyMTMqdx4OaTrlIZ72kW2rLB1C6BcYimMPUmBc=
+        b=P/tcl29THtS/FLl8aHnrcdtmqIkgUx26yxmT1UKU/3Mh1moWZcEyK7a0niGbWlXXM
+         vjoGcGr1aXnhH3G6cziFYzvRNS01Nx7ywmNsfUfg1bycl9bhwUMnZ0KrneAoYcr/ch
+         Xel03zGMtTvS9alw9HHcfPvmdPXIBeTKGmY11NdU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Anand Jain <anand.jain@oracle.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.19 018/276] Btrfs: do not abort transaction at btrfs_update_root() after failure to COW path
+        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 178/405] s390/qeth: handle error from qeth_update_from_chp_desc()
 Date:   Wed, 29 May 2019 20:02:56 -0700
-Message-Id: <20190530030525.139495426@linuxfoundation.org>
+Message-Id: <20190530030550.098999881@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,54 +44,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+[ Upstream commit a4cdc9baee0740748f16e50cd70c2607510df492 ]
 
-commit 72bd2323ec87722c115a5906bc6a1b31d11e8f54 upstream.
+Subsequent code relies on the values that qeth_update_from_chp_desc()
+reads from the CHP descriptor. Rather than dealing with weird errors
+later on, just handle it properly here.
 
-Currently when we fail to COW a path at btrfs_update_root() we end up
-always aborting the transaction. However all the current callers of
-btrfs_update_root() are able to deal with errors returned from it, many do
-end up aborting the transaction themselves (directly or not, such as the
-transaction commit path), other BUG_ON() or just gracefully cancel whatever
-they were doing.
-
-When syncing the fsync log, we call btrfs_update_root() through
-tree-log.c:update_log_root(), and if it returns an -ENOSPC error, the log
-sync code does not abort the transaction, instead it gracefully handles
-the error and returns -EAGAIN to the fsync handler, so that it falls back
-to a transaction commit. Any other error different from -ENOSPC, makes the
-log sync code abort the transaction.
-
-So remove the transaction abort from btrfs_update_log() when we fail to
-COW a path to update the root item, so that if an -ENOSPC failure happens
-we avoid aborting the current transaction and have a chance of the fsync
-succeeding after falling back to a transaction commit.
-
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=203413
-Fixes: 79787eaab46121 ("btrfs: replace many BUG_ONs with proper error handling")
-Cc: stable@vger.kernel.org # 4.4+
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/root-tree.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/s390/net/qeth_core_main.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
---- a/fs/btrfs/root-tree.c
-+++ b/fs/btrfs/root-tree.c
-@@ -132,10 +132,8 @@ int btrfs_update_root(struct btrfs_trans
- 		return -ENOMEM;
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 44bd6f04c145d..8c73a99daff3e 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -1308,7 +1308,7 @@ static void qeth_set_multiple_write_queues(struct qeth_card *card)
+ 	card->qdio.no_out_queues = 4;
+ }
  
- 	ret = btrfs_search_slot(trans, root, key, path, 0, 1);
--	if (ret < 0) {
--		btrfs_abort_transaction(trans, ret);
-+	if (ret < 0)
- 		goto out;
--	}
+-static void qeth_update_from_chp_desc(struct qeth_card *card)
++static int qeth_update_from_chp_desc(struct qeth_card *card)
+ {
+ 	struct ccw_device *ccwdev;
+ 	struct channel_path_desc_fmt0 *chp_dsc;
+@@ -1318,7 +1318,7 @@ static void qeth_update_from_chp_desc(struct qeth_card *card)
+ 	ccwdev = card->data.ccwdev;
+ 	chp_dsc = ccw_device_get_chp_desc(ccwdev, 0);
+ 	if (!chp_dsc)
+-		goto out;
++		return -ENOMEM;
  
- 	if (ret != 0) {
- 		btrfs_print_leaf(path->nodes[0]);
+ 	card->info.func_level = 0x4100 + chp_dsc->desc;
+ 	if (card->info.type == QETH_CARD_TYPE_IQD)
+@@ -1333,6 +1333,7 @@ static void qeth_update_from_chp_desc(struct qeth_card *card)
+ 	kfree(chp_dsc);
+ 	QETH_DBF_TEXT_(SETUP, 2, "nr:%x", card->qdio.no_out_queues);
+ 	QETH_DBF_TEXT_(SETUP, 2, "lvl:%02x", card->info.func_level);
++	return 0;
+ }
+ 
+ static void qeth_init_qdio_info(struct qeth_card *card)
+@@ -4986,7 +4987,9 @@ int qeth_core_hardsetup_card(struct qeth_card *card, bool *carrier_ok)
+ 
+ 	QETH_DBF_TEXT(SETUP, 2, "hrdsetup");
+ 	atomic_set(&card->force_alloc_skb, 0);
+-	qeth_update_from_chp_desc(card);
++	rc = qeth_update_from_chp_desc(card);
++	if (rc)
++		return rc;
+ retry:
+ 	if (retries < 3)
+ 		QETH_DBF_MESSAGE(2, "Retrying to do IDX activates on device %x.\n",
+@@ -5641,7 +5644,9 @@ static int qeth_core_probe_device(struct ccwgroup_device *gdev)
+ 	}
+ 
+ 	qeth_setup_card(card);
+-	qeth_update_from_chp_desc(card);
++	rc = qeth_update_from_chp_desc(card);
++	if (rc)
++		goto err_chp_desc;
+ 
+ 	card->dev = qeth_alloc_netdev(card);
+ 	if (!card->dev) {
+@@ -5676,6 +5681,7 @@ static int qeth_core_probe_device(struct ccwgroup_device *gdev)
+ 	qeth_core_free_discipline(card);
+ err_load:
+ 	free_netdev(card->dev);
++err_chp_desc:
+ err_card:
+ 	qeth_core_free_card(card);
+ err_dev:
+-- 
+2.20.1
+
 
 
