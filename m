@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 15CCC2F15B
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:12:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA3D12F349
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:28:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729036AbfE3EMY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:12:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43252 "EHLO mail.kernel.org"
+        id S1729801AbfE3DOR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:14:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730735AbfE3DQh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:16:37 -0400
+        id S1729795AbfE3DOR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:14:17 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E228B245AB;
-        Thu, 30 May 2019 03:16:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 890A324547;
+        Thu, 30 May 2019 03:14:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186197;
-        bh=oDp3VEB09fC7B/D5QmrWyIiX/u6HdGaoyP3JsUBBgxw=;
+        s=default; t=1559186056;
+        bh=s0wBWtgYE318EaqqrCjsUgJ0uwxKN+S1DPkUv/m9A20=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xx+BoNI3kZoOwmBOj/2IiThfWed0w+lsbTejKzSO34nYwWg0fvUcJB7z9fds3E44Y
-         UtKDWfIpkT4/x1gdrnGGDD/wzEkh6FqFuBqKpok3+FPRDGZRuPAITBwRy7yOcLI7Np
-         oZikbinxCEVpIfx2uOOCawt0ppouc9Dz8LRhSQgs=
+        b=s9nscrYNBlkoVCxQbmJAm6sOdHp0yNf6KPJZ2gafuUK3OQR8jGk1V412phahyV8IS
+         IF0StEmOet6ceYKkTiqPiAJjLhED5X13DQK56INDrB90x94Vs95nUs0lONSGlU2nng
+         U+dZt100x+70jgpfQFhZW7kPFZz0zjA1LIOperhk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
+        stable@vger.kernel.org, Nicholas Mc Guire <hofrat@osadl.org>,
+        kbuild test robot <lkp@intel.com>,
+        Stefan Wahren <stefan.wahren@i2se.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 071/276] ARM: vdso: Remove dependency with the arch_timer driver internals
+Subject: [PATCH 5.0 156/346] staging: vc04_services: handle kzalloc failure
 Date:   Wed, 29 May 2019 20:03:49 -0700
-Message-Id: <20190530030530.679202176@linuxfoundation.org>
+Message-Id: <20190530030549.082533376@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,63 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 1f5b62f09f6b314c8d70b9de5182dae4de1f94da ]
+[ Upstream commit a5112277872a56017b777770e2fd4324d4a6c866 ]
 
-The VDSO code uses the kernel helper that was originally designed
-to abstract the access between 32 and 64bit systems. It worked so
-far because this function is declared as 'inline'.
+The kzalloc here was being used without checking the return - if the
+kzalloc fails return VCHIQ_ERROR. The call-site of
+vchiq_platform_init_state() vchiq_init_state() was not responding
+to an allocation failure so checks for != VCHIQ_SUCCESS
+and pass VCHIQ_ERROR up to vchiq_platform_init() which then
+will fail with -EINVAL.
 
-As we're about to revamp that part of the code, the VDSO would
-break. Let's fix it by doing what should have been done from
-the start, a proper system register access.
-
-Reviewed-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Nicholas Mc Guire <hofrat@osadl.org>
+Reported-by: kbuild test robot <lkp@intel.com>
+Acked-By: Stefan Wahren <stefan.wahren@i2se.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/include/asm/cp15.h   | 2 ++
- arch/arm/vdso/vgettimeofday.c | 5 +++--
- 2 files changed, 5 insertions(+), 2 deletions(-)
+ .../staging/vc04_services/interface/vchiq_arm/vchiq_2835_arm.c | 3 +++
+ drivers/staging/vc04_services/interface/vchiq_arm/vchiq_core.c | 2 ++
+ 2 files changed, 5 insertions(+)
 
-diff --git a/arch/arm/include/asm/cp15.h b/arch/arm/include/asm/cp15.h
-index 07e27f212dc75..d2453e2d3f1f3 100644
---- a/arch/arm/include/asm/cp15.h
-+++ b/arch/arm/include/asm/cp15.h
-@@ -68,6 +68,8 @@
- #define BPIALL				__ACCESS_CP15(c7, 0, c5, 6)
- #define ICIALLU				__ACCESS_CP15(c7, 0, c5, 0)
+diff --git a/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_2835_arm.c b/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_2835_arm.c
+index dd4898861b833..eb1e5dcb0d529 100644
+--- a/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_2835_arm.c
++++ b/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_2835_arm.c
+@@ -209,6 +209,9 @@ vchiq_platform_init_state(struct vchiq_state *state)
+ 	struct vchiq_2835_state *platform_state;
  
-+#define CNTVCT				__ACCESS_CP15_64(1, c14)
+ 	state->platform_state = kzalloc(sizeof(*platform_state), GFP_KERNEL);
++	if (!state->platform_state)
++		return VCHIQ_ERROR;
 +
- extern unsigned long cr_alignment;	/* defined in entry-armv.S */
+ 	platform_state = (struct vchiq_2835_state *)state->platform_state;
  
- static inline unsigned long get_cr(void)
-diff --git a/arch/arm/vdso/vgettimeofday.c b/arch/arm/vdso/vgettimeofday.c
-index a9dd619c6c290..7bdbf5d5c47d3 100644
---- a/arch/arm/vdso/vgettimeofday.c
-+++ b/arch/arm/vdso/vgettimeofday.c
-@@ -18,9 +18,9 @@
- #include <linux/compiler.h>
- #include <linux/hrtimer.h>
- #include <linux/time.h>
--#include <asm/arch_timer.h>
- #include <asm/barrier.h>
- #include <asm/bug.h>
-+#include <asm/cp15.h>
- #include <asm/page.h>
- #include <asm/unistd.h>
- #include <asm/vdso_datapage.h>
-@@ -123,7 +123,8 @@ static notrace u64 get_ns(struct vdso_data *vdata)
- 	u64 cycle_now;
- 	u64 nsec;
+ 	platform_state->inited = 1;
+diff --git a/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_core.c b/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_core.c
+index 53f5a1cb4636e..819813e742d8a 100644
+--- a/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_core.c
++++ b/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_core.c
+@@ -2239,6 +2239,8 @@ vchiq_init_state(struct vchiq_state *state, struct vchiq_slot_zero *slot_zero)
+ 	local->debug[DEBUG_ENTRIES] = DEBUG_MAX;
  
--	cycle_now = arch_counter_get_cntvct();
-+	isb();
-+	cycle_now = read_sysreg(CNTVCT);
+ 	status = vchiq_platform_init_state(state);
++	if (status != VCHIQ_SUCCESS)
++		return VCHIQ_ERROR;
  
- 	cycle_delta = (cycle_now - vdata->cs_cycle_last) & vdata->cs_mask;
- 
+ 	/*
+ 		bring up slot handler thread
 -- 
 2.20.1
 
