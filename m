@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A998A2F4E6
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:44:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E4C342F0DC
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:08:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728842AbfE3DMI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:12:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53554 "EHLO mail.kernel.org"
+        id S1727019AbfE3EH4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:07:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728831AbfE3DMH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:12:07 -0400
+        id S1731094AbfE3DRY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:17:24 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6F60C2452D;
-        Thu, 30 May 2019 03:12:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 46C4624469;
+        Thu, 30 May 2019 03:17:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185926;
-        bh=b2FfiIFLax+t5DBMjGWUhK/t6nTUndNyCzFPq8pAh8k=;
+        s=default; t=1559186244;
+        bh=CLNvXd+bHDw5o9XKvwpl1iSa3ZtiTufxn3+Q/WLnUZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kPDCBH0t5twEe4nZA0KPryhE/FKZOJifOpG1Z4npBhLjurXJGGDllcck/nUnljZ82
-         Tw7fW53KIiHrLPF6mFu833Z9jUcSxIFwrBIyKU+ditsxl2jplvirImaebLEbA4gGTO
-         fuS1COsIizC2G0+9S4/2ZqwJ9MXxvYeVeOC1sOAE=
+        b=F7whppBHKKiY7S0mOt61/cK3ODGQbxTud6ntwq0EbEUb0BtHTaAJdUZ8SQruvEsYa
+         50FMCuwvclDtTBGh/sIliBazkKZoFRwINTjWS0LH9Mm061FmMS8a4k9WNGn4x7f0Hd
+         53Wjiej4ufLIpFpj9STZLsy9S0deJAfdCMUrVZ4U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dafna Hirschfeld <dafna3@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Kefeng Wang <wangkefeng.wang@huawei.com>,
+        John Garry <john.garry@huawei.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 317/405] media: vicodec: bugfix - call v4l2_m2m_buf_copy_metadata also if decoding fails
-Date:   Wed, 29 May 2019 20:05:15 -0700
-Message-Id: <20190530030556.815667530@linuxfoundation.org>
+Subject: [PATCH 4.19 158/276] hwmon: (smsc47m1) Use request_muxed_region for Super-IO accesses
+Date:   Wed, 29 May 2019 20:05:16 -0700
+Message-Id: <20190530030535.394945616@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,85 +45,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 8eead25cbdf911e17cff321903bd3397bc6ea22c ]
+[ Upstream commit d6410408ad2a798c4cc685252c1baa713be0ad69 ]
 
-The function 'v4l2_m2m_buf_copy_metadata' should
-be called even if decoding/encoding ends with
-status VB2_BUF_STATE_ERROR, so that the metadata
-is copied from the source buffer to the dest buffer.
+Super-IO accesses may fail on a system with no or unmapped LPC bus.
 
-Signed-off-by: Dafna Hirschfeld <dafna3@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Also, other drivers may attempt to access the LPC bus at the same time,
+resulting in undefined behavior.
+
+Use request_muxed_region() to ensure that IO access on the requested
+address space is supported, and to ensure that access by multiple drivers
+is synchronized.
+
+Fixes: 8d5d45fb1468 ("I2C: Move hwmon drivers (2/3)")
+Reported-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Reported-by: John Garry <john.garry@huawei.com>
+Cc: John Garry <john.garry@huawei.com>
+Acked-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/vicodec/vicodec-core.c | 17 +++++++++--------
- 1 file changed, 9 insertions(+), 8 deletions(-)
+ drivers/hwmon/smsc47m1.c | 28 +++++++++++++++++++---------
+ 1 file changed, 19 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/media/platform/vicodec/vicodec-core.c b/drivers/media/platform/vicodec/vicodec-core.c
-index d7636fe9e1749..6b618452700c4 100644
---- a/drivers/media/platform/vicodec/vicodec-core.c
-+++ b/drivers/media/platform/vicodec/vicodec-core.c
-@@ -159,12 +159,10 @@ static int device_process(struct vicodec_ctx *ctx,
- 			  struct vb2_v4l2_buffer *dst_vb)
+diff --git a/drivers/hwmon/smsc47m1.c b/drivers/hwmon/smsc47m1.c
+index c7b6a425e2c02..5eeac9853d0ae 100644
+--- a/drivers/hwmon/smsc47m1.c
++++ b/drivers/hwmon/smsc47m1.c
+@@ -73,16 +73,21 @@ superio_inb(int reg)
+ /* logical device for fans is 0x0A */
+ #define superio_select() superio_outb(0x07, 0x0A)
+ 
+-static inline void
++static inline int
+ superio_enter(void)
  {
- 	struct vicodec_dev *dev = ctx->dev;
--	struct vicodec_q_data *q_dst;
- 	struct v4l2_fwht_state *state = &ctx->state;
- 	u8 *p_src, *p_dst;
- 	int ret;
- 
--	q_dst = get_q_data(ctx, V4L2_BUF_TYPE_VIDEO_CAPTURE);
- 	if (ctx->is_enc)
- 		p_src = vb2_plane_vaddr(&src_vb->vb2_buf, 0);
- 	else
-@@ -186,8 +184,10 @@ static int device_process(struct vicodec_ctx *ctx,
- 			return ret;
- 		vb2_set_plane_payload(&dst_vb->vb2_buf, 0, ret);
- 	} else {
-+		struct vicodec_q_data *q_dst;
- 		unsigned int comp_frame_size = ntohl(ctx->state.header.size);
- 
-+		q_dst = get_q_data(ctx, V4L2_BUF_TYPE_VIDEO_CAPTURE);
- 		if (comp_frame_size > ctx->comp_max_size)
- 			return -EINVAL;
- 		state->info = q_dst->info;
-@@ -196,11 +196,6 @@ static int device_process(struct vicodec_ctx *ctx,
- 			return ret;
- 		vb2_set_plane_payload(&dst_vb->vb2_buf, 0, q_dst->sizeimage);
- 	}
--
--	dst_vb->sequence = q_dst->sequence++;
--	dst_vb->flags &= ~V4L2_BUF_FLAG_LAST;
--	v4l2_m2m_buf_copy_metadata(src_vb, dst_vb, !ctx->is_enc);
--
- 	return 0;
++	if (!request_muxed_region(REG, 2, DRVNAME))
++		return -EBUSY;
++
+ 	outb(0x55, REG);
++	return 0;
  }
  
-@@ -274,16 +269,22 @@ static void device_run(void *priv)
- 	struct vicodec_ctx *ctx = priv;
- 	struct vicodec_dev *dev = ctx->dev;
- 	struct vb2_v4l2_buffer *src_buf, *dst_buf;
--	struct vicodec_q_data *q_src;
-+	struct vicodec_q_data *q_src, *q_dst;
- 	u32 state;
+ static inline void
+ superio_exit(void)
+ {
+ 	outb(0xAA, REG);
++	release_region(REG, 2);
+ }
  
- 	src_buf = v4l2_m2m_next_src_buf(ctx->fh.m2m_ctx);
- 	dst_buf = v4l2_m2m_dst_buf_remove(ctx->fh.m2m_ctx);
- 	q_src = get_q_data(ctx, V4L2_BUF_TYPE_VIDEO_OUTPUT);
-+	q_dst = get_q_data(ctx, V4L2_BUF_TYPE_VIDEO_CAPTURE);
- 
- 	state = VB2_BUF_STATE_DONE;
- 	if (device_process(ctx, src_buf, dst_buf))
- 		state = VB2_BUF_STATE_ERROR;
-+	else
-+		dst_buf->sequence = q_dst->sequence++;
-+	dst_buf->flags &= ~V4L2_BUF_FLAG_LAST;
-+	v4l2_m2m_buf_copy_metadata(src_buf, dst_buf, !ctx->is_enc);
+ #define SUPERIO_REG_ACT		0x30
+@@ -531,8 +536,12 @@ static int __init smsc47m1_find(struct smsc47m1_sio_data *sio_data)
+ {
+ 	u8 val;
+ 	unsigned short addr;
++	int err;
 +
- 	ctx->last_dst_buf = dst_buf;
++	err = superio_enter();
++	if (err)
++		return err;
  
- 	spin_lock(ctx->lock);
+-	superio_enter();
+ 	val = force_id ? force_id : superio_inb(SUPERIO_REG_DEVID);
+ 
+ 	/*
+@@ -608,13 +617,14 @@ static int __init smsc47m1_find(struct smsc47m1_sio_data *sio_data)
+ static void smsc47m1_restore(const struct smsc47m1_sio_data *sio_data)
+ {
+ 	if ((sio_data->activate & 0x01) == 0) {
+-		superio_enter();
+-		superio_select();
+-
+-		pr_info("Disabling device\n");
+-		superio_outb(SUPERIO_REG_ACT, sio_data->activate);
+-
+-		superio_exit();
++		if (!superio_enter()) {
++			superio_select();
++			pr_info("Disabling device\n");
++			superio_outb(SUPERIO_REG_ACT, sio_data->activate);
++			superio_exit();
++		} else {
++			pr_warn("Failed to disable device\n");
++		}
+ 	}
+ }
+ 
 -- 
 2.20.1
 
