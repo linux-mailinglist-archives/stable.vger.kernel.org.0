@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BCBB22EC7B
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:22:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 455C82EEE9
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:51:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732498AbfE3DVP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:21:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33432 "EHLO mail.kernel.org"
+        id S1728419AbfE3Du6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:50:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732487AbfE3DVM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:21:12 -0400
+        id S1730656AbfE3DTv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:19:51 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3FB9D249C6;
-        Thu, 30 May 2019 03:21:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 249C224849;
+        Thu, 30 May 2019 03:19:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186472;
-        bh=FFQlB1KNWWlylkGTfnI8jnt3hAUyqywfrEzgW1hv83M=;
+        s=default; t=1559186391;
+        bh=+r2YI0Q+g0xBv+6BwQnG273incqihmmMR/lkbQEqO7M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WfSMJitGJ8bWQz2uC71EzyigVsn6o/AyPs02TRhMLVLefgXVuM5gsVCp2iNhuUJM5
-         +/nvAPJdD/e/j1isnDvavs//2E9BrcjoToruQHTHKJLNz0ksWZpATBsjkZML0Hdt9P
-         pANNtj+aTB+5TNOb9918jWhyVaJbgdBVax2VfCNo=
+        b=Wy+m1CJsaHLHiqoVbxrW6trCMWb5o+SaY1QHNGqwdLya3FlxstOwLt3ReVGwfSbfL
+         9HMr3YUQCjnbmni03xmbRaR94HiNYUq8mXV+m9cIurVsriftE7H62Ao41PjiC08/aY
+         yCAWtzXJjD5rmjCrcCObvpwmu6s/ryvdNJ8ODVFM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Sebastian Ott <sebott@linux.ibm.com>,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        stable@vger.kernel.org,
+        Sowjanya Komatineni <skomatineni@nvidia.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 084/128] s390: cio: fix cio_irb declaration
+Subject: [PATCH 4.14 162/193] spi: tegra114: reset controller on probe
 Date:   Wed, 29 May 2019 20:06:56 -0700
-Message-Id: <20190530030449.840099800@linuxfoundation.org>
+Message-Id: <20190530030510.624005517@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
-References: <20190530030432.977908967@linuxfoundation.org>
+In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
+References: <20190530030446.953835040@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,59 +45,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit e91012ee855ad9f5ef2ab106a3de51db93fe4d0c ]
+[ Upstream commit 019194933339b3e9b486639c8cb3692020844d65 ]
 
-clang points out that the declaration of cio_irb does not match the
-definition exactly, it is missing the alignment attribute:
+Fixes: SPI driver can be built as module so perform SPI controller reset
+on probe to make sure it is in valid state before initiating transfer.
 
-../drivers/s390/cio/cio.c:50:1: warning: section does not match previous declaration [-Wsection]
-DEFINE_PER_CPU_ALIGNED(struct irb, cio_irb);
-^
-../include/linux/percpu-defs.h:150:2: note: expanded from macro 'DEFINE_PER_CPU_ALIGNED'
-        DEFINE_PER_CPU_SECTION(type, name, PER_CPU_ALIGNED_SECTION)     \
-        ^
-../include/linux/percpu-defs.h:93:9: note: expanded from macro 'DEFINE_PER_CPU_SECTION'
-        extern __PCPU_ATTRS(sec) __typeof__(type) name;                 \
-               ^
-../include/linux/percpu-defs.h:49:26: note: expanded from macro '__PCPU_ATTRS'
-        __percpu __attribute__((section(PER_CPU_BASE_SECTION sec)))     \
-                                ^
-../drivers/s390/cio/cio.h:118:1: note: previous attribute is here
-DECLARE_PER_CPU(struct irb, cio_irb);
-^
-../include/linux/percpu-defs.h:111:2: note: expanded from macro 'DECLARE_PER_CPU'
-        DECLARE_PER_CPU_SECTION(type, name, "")
-        ^
-../include/linux/percpu-defs.h:87:9: note: expanded from macro 'DECLARE_PER_CPU_SECTION'
-        extern __PCPU_ATTRS(sec) __typeof__(type) name
-               ^
-../include/linux/percpu-defs.h:49:26: note: expanded from macro '__PCPU_ATTRS'
-        __percpu __attribute__((section(PER_CPU_BASE_SECTION sec)))     \
-                                ^
-Use DECLARE_PER_CPU_ALIGNED() here, to make the two match.
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Sebastian Ott <sebott@linux.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/cio/cio.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/spi/spi-tegra114.c | 32 ++++++++++++++++++--------------
+ 1 file changed, 18 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/s390/cio/cio.h b/drivers/s390/cio/cio.h
-index f0e57aefb5f29..d167652a6a23d 100644
---- a/drivers/s390/cio/cio.h
-+++ b/drivers/s390/cio/cio.h
-@@ -114,7 +114,7 @@ struct subchannel {
- 	struct schib_config config;
- } __attribute__ ((aligned(8)));
+diff --git a/drivers/spi/spi-tegra114.c b/drivers/spi/spi-tegra114.c
+index 44550182a4a36..2ad04796ef298 100644
+--- a/drivers/spi/spi-tegra114.c
++++ b/drivers/spi/spi-tegra114.c
+@@ -1067,27 +1067,19 @@ static int tegra_spi_probe(struct platform_device *pdev)
  
--DECLARE_PER_CPU(struct irb, cio_irb);
-+DECLARE_PER_CPU_ALIGNED(struct irb, cio_irb);
+ 	spi_irq = platform_get_irq(pdev, 0);
+ 	tspi->irq = spi_irq;
+-	ret = request_threaded_irq(tspi->irq, tegra_spi_isr,
+-			tegra_spi_isr_thread, IRQF_ONESHOT,
+-			dev_name(&pdev->dev), tspi);
+-	if (ret < 0) {
+-		dev_err(&pdev->dev, "Failed to register ISR for IRQ %d\n",
+-					tspi->irq);
+-		goto exit_free_master;
+-	}
  
- #define to_subchannel(n) container_of(n, struct subchannel, dev)
+ 	tspi->clk = devm_clk_get(&pdev->dev, "spi");
+ 	if (IS_ERR(tspi->clk)) {
+ 		dev_err(&pdev->dev, "can not get clock\n");
+ 		ret = PTR_ERR(tspi->clk);
+-		goto exit_free_irq;
++		goto exit_free_master;
+ 	}
  
+ 	tspi->rst = devm_reset_control_get_exclusive(&pdev->dev, "spi");
+ 	if (IS_ERR(tspi->rst)) {
+ 		dev_err(&pdev->dev, "can not get reset\n");
+ 		ret = PTR_ERR(tspi->rst);
+-		goto exit_free_irq;
++		goto exit_free_master;
+ 	}
+ 
+ 	tspi->max_buf_size = SPI_FIFO_DEPTH << 2;
+@@ -1095,7 +1087,7 @@ static int tegra_spi_probe(struct platform_device *pdev)
+ 
+ 	ret = tegra_spi_init_dma_param(tspi, true);
+ 	if (ret < 0)
+-		goto exit_free_irq;
++		goto exit_free_master;
+ 	ret = tegra_spi_init_dma_param(tspi, false);
+ 	if (ret < 0)
+ 		goto exit_rx_dma_free;
+@@ -1117,18 +1109,32 @@ static int tegra_spi_probe(struct platform_device *pdev)
+ 		dev_err(&pdev->dev, "pm runtime get failed, e = %d\n", ret);
+ 		goto exit_pm_disable;
+ 	}
++
++	reset_control_assert(tspi->rst);
++	udelay(2);
++	reset_control_deassert(tspi->rst);
+ 	tspi->def_command1_reg  = SPI_M_S;
+ 	tegra_spi_writel(tspi, tspi->def_command1_reg, SPI_COMMAND1);
+ 	pm_runtime_put(&pdev->dev);
++	ret = request_threaded_irq(tspi->irq, tegra_spi_isr,
++				   tegra_spi_isr_thread, IRQF_ONESHOT,
++				   dev_name(&pdev->dev), tspi);
++	if (ret < 0) {
++		dev_err(&pdev->dev, "Failed to register ISR for IRQ %d\n",
++			tspi->irq);
++		goto exit_pm_disable;
++	}
+ 
+ 	master->dev.of_node = pdev->dev.of_node;
+ 	ret = devm_spi_register_master(&pdev->dev, master);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "can not register to master err %d\n", ret);
+-		goto exit_pm_disable;
++		goto exit_free_irq;
+ 	}
+ 	return ret;
+ 
++exit_free_irq:
++	free_irq(spi_irq, tspi);
+ exit_pm_disable:
+ 	pm_runtime_disable(&pdev->dev);
+ 	if (!pm_runtime_status_suspended(&pdev->dev))
+@@ -1136,8 +1142,6 @@ static int tegra_spi_probe(struct platform_device *pdev)
+ 	tegra_spi_deinit_dma_param(tspi, false);
+ exit_rx_dma_free:
+ 	tegra_spi_deinit_dma_param(tspi, true);
+-exit_free_irq:
+-	free_irq(spi_irq, tspi);
+ exit_free_master:
+ 	spi_master_put(master);
+ 	return ret;
 -- 
 2.20.1
 
