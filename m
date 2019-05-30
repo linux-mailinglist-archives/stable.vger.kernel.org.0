@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EC3852F489
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:39:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 437C92EF01
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:52:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388533AbfE3EjS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:39:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56518 "EHLO mail.kernel.org"
+        id S1732971AbfE3Dvv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:51:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56354 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729275AbfE3DMw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:12:52 -0400
+        id S1731154AbfE3DTo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:19:44 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BFE8C23E29;
-        Thu, 30 May 2019 03:12:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 18C51248AF;
+        Thu, 30 May 2019 03:19:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185971;
-        bh=bMiDibBi+bYCSvDNfDBkXb09Y2c9HQUcLe6JxwHH02k=;
+        s=default; t=1559186383;
+        bh=Y9lPU3L8zA0DceM1YnCttU89Tt0QEsaiw8do7PnkNS4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xTnvGP7kCIw/6QK79U++LntjlS/jMazXETOkKh1PCuI+7M6mPJsSp+3Y4kwdJAJZH
-         lbcWDnjX6pqQ3CrRxxnmH/0F7WzMUldw5y3hWDEPPi9vE8DazjvcDXY+hORmoprHwc
-         b9EyNWeE5jXzbwBo3U7epCQKgp2Ab5IIwsdXqIhY=
+        b=nQ0zOo5ITcCycGQA9gMwvEOB4xQugZoiNAkdBIpUYfKFL+53v0FdqLqBvtneALrN1
+         2W83nSprmT7bs/KCiwgKDEPWx9TmCZJhY7X1PQBCdM3H0ydHVvAepMwjBatKQZoT2y
+         wP9mfA6dLslKRV6VqlrlUEyoa+h+KK4t6wNzVV7o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Ripard <maxime.ripard@bootlin.com>,
-        Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
+        stable@vger.kernel.org, Ping-Ke Shih <pkshih@realtek.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 404/405] drm/sun4i: dsi: Enforce boundaries on the start delay
+Subject: [PATCH 4.14 148/193] rtlwifi: fix potential NULL pointer dereference
 Date:   Wed, 29 May 2019 20:06:42 -0700
-Message-Id: <20190530030600.979431936@linuxfoundation.org>
+Message-Id: <20190530030508.892951983@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
+References: <20190530030446.953835040@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +44,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit efa31801203ac2f5c6a82a28cb991c7163ee0f1d ]
+[ Upstream commit 60209d482b97743915883d293c8b85226d230c19 ]
 
-The Allwinner BSP makes sure that we don't end up with a null start delay
-or with a delay larger than vtotal.
+In case dev_alloc_skb fails, the fix safely returns to avoid
+potential NULL pointer dereference.
 
-The former condition is likely to happen now with the reworked start delay,
-so make sure we enforce the same boundaries.
-
-Signed-off-by: Maxime Ripard <maxime.ripard@bootlin.com>
-Reviewed-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/c9889cf5f7a3d101ef380905900b45a182596f56.1549896081.git-series.maxime.ripard@bootlin.com
+Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/wireless/realtek/rtlwifi/rtl8188ee/fw.c       | 2 ++
+ drivers/net/wireless/realtek/rtlwifi/rtl8192c/fw_common.c | 2 ++
+ drivers/net/wireless/realtek/rtlwifi/rtl8192ee/fw.c       | 2 ++
+ drivers/net/wireless/realtek/rtlwifi/rtl8723ae/fw.c       | 2 ++
+ drivers/net/wireless/realtek/rtlwifi/rtl8723be/fw.c       | 2 ++
+ drivers/net/wireless/realtek/rtlwifi/rtl8821ae/fw.c       | 4 ++++
+ 6 files changed, 14 insertions(+)
 
-diff --git a/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c b/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c
-index 25d8cb9f92661..869e0aedf3434 100644
---- a/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c
-+++ b/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c
-@@ -359,8 +359,12 @@ static u16 sun6i_dsi_get_video_start_delay(struct sun6i_dsi *dsi,
- 					   struct drm_display_mode *mode)
- {
- 	u16 start = clamp(mode->vtotal - mode->vdisplay - 10, 8, 100);
-+	u16 delay = mode->vtotal - (mode->vsync_end - mode->vdisplay) + start;
+diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8188ee/fw.c b/drivers/net/wireless/realtek/rtlwifi/rtl8188ee/fw.c
+index a2eca669873b6..726d3d5fa2ef9 100644
+--- a/drivers/net/wireless/realtek/rtlwifi/rtl8188ee/fw.c
++++ b/drivers/net/wireless/realtek/rtlwifi/rtl8188ee/fw.c
+@@ -620,6 +620,8 @@ void rtl88e_set_fw_rsvdpagepkt(struct ieee80211_hw *hw, bool b_dl_finished)
+ 		      u1rsvdpageloc, 3);
  
--	return mode->vtotal - (mode->vsync_end - mode->vdisplay) + start;
-+	if (delay > mode->vtotal)
-+		delay = delay % mode->vtotal;
-+
-+	return max_t(u16, delay, 1);
- }
+ 	skb = dev_alloc_skb(totalpacketlen);
++	if (!skb)
++		return;
+ 	skb_put_data(skb, &reserved_page_packet, totalpacketlen);
  
- static void sun6i_dsi_setup_burst(struct sun6i_dsi *dsi,
+ 	rtstatus = rtl_cmd_send_packet(hw, skb);
+diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8192c/fw_common.c b/drivers/net/wireless/realtek/rtlwifi/rtl8192c/fw_common.c
+index 015476e3f7e54..b7c1d7cc4f459 100644
+--- a/drivers/net/wireless/realtek/rtlwifi/rtl8192c/fw_common.c
++++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192c/fw_common.c
+@@ -647,6 +647,8 @@ void rtl92c_set_fw_rsvdpagepkt(struct ieee80211_hw *hw,
+ 
+ 
+ 	skb = dev_alloc_skb(totalpacketlen);
++	if (!skb)
++		return;
+ 	skb_put_data(skb, &reserved_page_packet, totalpacketlen);
+ 
+ 	if (cmd_send_packet)
+diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8192ee/fw.c b/drivers/net/wireless/realtek/rtlwifi/rtl8192ee/fw.c
+index f9563ae301ad2..45808ab025d1e 100644
+--- a/drivers/net/wireless/realtek/rtlwifi/rtl8192ee/fw.c
++++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192ee/fw.c
+@@ -766,6 +766,8 @@ void rtl92ee_set_fw_rsvdpagepkt(struct ieee80211_hw *hw, bool b_dl_finished)
+ 		      u1rsvdpageloc, 3);
+ 
+ 	skb = dev_alloc_skb(totalpacketlen);
++	if (!skb)
++		return;
+ 	skb_put_data(skb, &reserved_page_packet, totalpacketlen);
+ 
+ 	rtstatus = rtl_cmd_send_packet(hw, skb);
+diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8723ae/fw.c b/drivers/net/wireless/realtek/rtlwifi/rtl8723ae/fw.c
+index bf9859f74b6f5..52f108744e969 100644
+--- a/drivers/net/wireless/realtek/rtlwifi/rtl8723ae/fw.c
++++ b/drivers/net/wireless/realtek/rtlwifi/rtl8723ae/fw.c
+@@ -470,6 +470,8 @@ void rtl8723e_set_fw_rsvdpagepkt(struct ieee80211_hw *hw, bool b_dl_finished)
+ 		      u1rsvdpageloc, 3);
+ 
+ 	skb = dev_alloc_skb(totalpacketlen);
++	if (!skb)
++		return;
+ 	skb_put_data(skb, &reserved_page_packet, totalpacketlen);
+ 
+ 	rtstatus = rtl_cmd_send_packet(hw, skb);
+diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8723be/fw.c b/drivers/net/wireless/realtek/rtlwifi/rtl8723be/fw.c
+index 4b963fd27d646..b444b27263c32 100644
+--- a/drivers/net/wireless/realtek/rtlwifi/rtl8723be/fw.c
++++ b/drivers/net/wireless/realtek/rtlwifi/rtl8723be/fw.c
+@@ -584,6 +584,8 @@ void rtl8723be_set_fw_rsvdpagepkt(struct ieee80211_hw *hw,
+ 		      u1rsvdpageloc, sizeof(u1rsvdpageloc));
+ 
+ 	skb = dev_alloc_skb(totalpacketlen);
++	if (!skb)
++		return;
+ 	skb_put_data(skb, &reserved_page_packet, totalpacketlen);
+ 
+ 	rtstatus = rtl_cmd_send_packet(hw, skb);
+diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8821ae/fw.c b/drivers/net/wireless/realtek/rtlwifi/rtl8821ae/fw.c
+index f2b2c549e5b27..53a7ef29fce61 100644
+--- a/drivers/net/wireless/realtek/rtlwifi/rtl8821ae/fw.c
++++ b/drivers/net/wireless/realtek/rtlwifi/rtl8821ae/fw.c
+@@ -1645,6 +1645,8 @@ void rtl8812ae_set_fw_rsvdpagepkt(struct ieee80211_hw *hw,
+ 		      &reserved_page_packet_8812[0], totalpacketlen);
+ 
+ 	skb = dev_alloc_skb(totalpacketlen);
++	if (!skb)
++		return;
+ 	skb_put_data(skb, &reserved_page_packet_8812, totalpacketlen);
+ 
+ 	rtstatus = rtl_cmd_send_packet(hw, skb);
+@@ -1781,6 +1783,8 @@ void rtl8821ae_set_fw_rsvdpagepkt(struct ieee80211_hw *hw,
+ 		      &reserved_page_packet_8821[0], totalpacketlen);
+ 
+ 	skb = dev_alloc_skb(totalpacketlen);
++	if (!skb)
++		return;
+ 	skb_put_data(skb, &reserved_page_packet_8821, totalpacketlen);
+ 
+ 	rtstatus = rtl_cmd_send_packet(hw, skb);
 -- 
 2.20.1
 
