@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 080752EBDD
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:16:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90D1F2F5A5
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:49:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730711AbfE3DQc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:16:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42842 "EHLO mail.kernel.org"
+        id S1728460AbfE3Esz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:48:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730700AbfE3DQa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:16:30 -0400
+        id S1728443AbfE3DLP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:11:15 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2ED56245E2;
-        Thu, 30 May 2019 03:16:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0FDC9244D2;
+        Thu, 30 May 2019 03:11:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186190;
-        bh=3QVzWclzo9H5FqhP9I14efu6cVzIX/VK2e7Ulx5gLJk=;
+        s=default; t=1559185875;
+        bh=qRHnp9nqTswN4JVSMHBDW2hFGYgk1GdYEVio7lq2UaM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hiNF2Eqamx76WtdK+a5q6cq3hmh70tJsaTSbZauaELf9sXvqz9Dvxu+eneNu/Fqlj
-         TRLNMh59lXVImrNFV8QH7k6KmZuSdb89/s7722o5HhT0kf2THzyFaVM1nsq1PEAtGU
-         4ZDN8xjrXBhTwDLCuFz+bjYgp9c9x+5aW3WRaFWE=
+        b=RgIoub8s0oGZxe/BOFPjFgraqrdLMsq0tWC3YzLk+7P1Jf7mhMNGYbxyCUY2RwAi9
+         SrltfJpSuIXEXETsZIXAbf7dRx3vDkPGFFyEuxnSSjTHNBT+kp291iXO5z0/VFWNVz
+         hSM93ffKWWanJUdw04F6EUBM9v7uMX6pbsXVOfJQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Minas Harutyunyan <hminas@synopsys.com>,
-        Felipe Balbi <felipe.balbi@linux.intel.com>,
+        stable@vger.kernel.org, Wenjing Liu <Wenjing.Liu@amd.com>,
+        Jun Lei <Jun.Lei@amd.com>, Leo Li <sunpeng.li@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 059/276] usb: dwc2: gadget: Increase descriptors count for ISOCs
-Date:   Wed, 29 May 2019 20:03:37 -0700
-Message-Id: <20190530030529.237507288@linuxfoundation.org>
+Subject: [PATCH 5.1 220/405] drm/amd/display: use proper formula to calculate bandwidth from timing
+Date:   Wed, 29 May 2019 20:03:38 -0700
+Message-Id: <20190530030552.200039222@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,104 +45,177 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 54f37f56631747075f1f9a2f0edf6ba405e3e66c ]
+[ Upstream commit e49f69363adf8920883fff7e8ffecb802d897c6b ]
 
-Some function drivers queueing more than 128 ISOC requests at a time.
-To avoid "descriptor chain full" cases, increasing descriptors count
-from MAX_DMA_DESC_NUM_GENERIC to MAX_DMA_DESC_NUM_HS_ISOC for ISOC's
-only.
+[why]
+The existing calculation uses a wrong formula to
+calculate bandwidth from timing.
 
-Signed-off-by: Minas Harutyunyan <hminas@synopsys.com>
-Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+[how]
+Expose the existing proper function that calculates the bandwidth,
+so dc_link can use it to calculate timing bandwidth correctly.
+
+Signed-off-by: Wenjing Liu <Wenjing.Liu@amd.com>
+Reviewed-by: Jun Lei <Jun.Lei@amd.com>
+Acked-by: Leo Li <sunpeng.li@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc2/gadget.c | 27 +++++++++++++++------------
- 1 file changed, 15 insertions(+), 12 deletions(-)
+ drivers/gpu/drm/amd/display/dc/core/dc_link.c | 48 ++++++++++++++++-
+ .../gpu/drm/amd/display/dc/core/dc_link_dp.c  | 51 +------------------
+ drivers/gpu/drm/amd/display/dc/dc_link.h      |  2 +
+ 3 files changed, 51 insertions(+), 50 deletions(-)
 
-diff --git a/drivers/usb/dwc2/gadget.c b/drivers/usb/dwc2/gadget.c
-index 220c0f9b89b0b..03614ef64ca47 100644
---- a/drivers/usb/dwc2/gadget.c
-+++ b/drivers/usb/dwc2/gadget.c
-@@ -675,13 +675,11 @@ static unsigned int dwc2_gadget_get_chain_limit(struct dwc2_hsotg_ep *hs_ep)
- 	unsigned int maxsize;
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link.c b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
+index ea18e9c2d8cea..ea2f271e234bd 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_link.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
+@@ -2316,7 +2316,7 @@ static struct fixed31_32 get_pbn_from_timing(struct pipe_ctx *pipe_ctx)
+ 	uint32_t denominator;
  
- 	if (is_isoc)
--		maxsize = hs_ep->dir_in ? DEV_DMA_ISOC_TX_NBYTES_LIMIT :
--					   DEV_DMA_ISOC_RX_NBYTES_LIMIT;
-+		maxsize = (hs_ep->dir_in ? DEV_DMA_ISOC_TX_NBYTES_LIMIT :
-+					   DEV_DMA_ISOC_RX_NBYTES_LIMIT) *
-+					   MAX_DMA_DESC_NUM_HS_ISOC;
- 	else
--		maxsize = DEV_DMA_NBYTES_LIMIT;
--
--	/* Above size of one descriptor was chosen, multiple it */
--	maxsize *= MAX_DMA_DESC_NUM_GENERIC;
-+		maxsize = DEV_DMA_NBYTES_LIMIT * MAX_DMA_DESC_NUM_GENERIC;
+ 	bpc = get_color_depth(pipe_ctx->stream_res.pix_clk_params.color_depth);
+-	kbps = pipe_ctx->stream_res.pix_clk_params.requested_pix_clk_100hz / 10 * bpc * 3;
++	kbps = dc_bandwidth_in_kbps_from_timing(&pipe_ctx->stream->timing);
  
- 	return maxsize;
+ 	/*
+ 	 * margin 5300ppm + 300ppm ~ 0.6% as per spec, factor is 1.006
+@@ -2736,3 +2736,49 @@ void dc_link_enable_hpd_filter(struct dc_link *link, bool enable)
+ 	}
  }
-@@ -864,7 +862,7 @@ static int dwc2_gadget_fill_isoc_desc(struct dwc2_hsotg_ep *hs_ep,
  
- 	/* Update index of last configured entry in the chain */
- 	hs_ep->next_desc++;
--	if (hs_ep->next_desc >= MAX_DMA_DESC_NUM_GENERIC)
-+	if (hs_ep->next_desc >= MAX_DMA_DESC_NUM_HS_ISOC)
- 		hs_ep->next_desc = 0;
- 
- 	return 0;
-@@ -896,7 +894,7 @@ static void dwc2_gadget_start_isoc_ddma(struct dwc2_hsotg_ep *hs_ep)
- 	}
- 
- 	/* Initialize descriptor chain by Host Busy status */
--	for (i = 0; i < MAX_DMA_DESC_NUM_GENERIC; i++) {
-+	for (i = 0; i < MAX_DMA_DESC_NUM_HS_ISOC; i++) {
- 		desc = &hs_ep->desc_list[i];
- 		desc->status = 0;
- 		desc->status |= (DEV_DMA_BUFF_STS_HBUSY
-@@ -2083,7 +2081,7 @@ static void dwc2_gadget_complete_isoc_request_ddma(struct dwc2_hsotg_ep *hs_ep)
- 		dwc2_hsotg_complete_request(hsotg, hs_ep, hs_req, 0);
- 
- 		hs_ep->compl_desc++;
--		if (hs_ep->compl_desc > (MAX_DMA_DESC_NUM_GENERIC - 1))
-+		if (hs_ep->compl_desc > (MAX_DMA_DESC_NUM_HS_ISOC - 1))
- 			hs_ep->compl_desc = 0;
- 		desc_sts = hs_ep->desc_list[hs_ep->compl_desc].status;
- 	}
-@@ -3779,6 +3777,7 @@ static int dwc2_hsotg_ep_enable(struct usb_ep *ep,
- 	unsigned int i, val, size;
- 	int ret = 0;
- 	unsigned char ep_type;
-+	int desc_num;
- 
- 	dev_dbg(hsotg->dev,
- 		"%s: ep %s: a 0x%02x, attr 0x%02x, mps 0x%04x, intr %d\n",
-@@ -3825,11 +3824,15 @@ static int dwc2_hsotg_ep_enable(struct usb_ep *ep,
- 	dev_dbg(hsotg->dev, "%s: read DxEPCTL=0x%08x from 0x%08x\n",
- 		__func__, epctrl, epctrl_reg);
- 
-+	if (using_desc_dma(hsotg) && ep_type == USB_ENDPOINT_XFER_ISOC)
-+		desc_num = MAX_DMA_DESC_NUM_HS_ISOC;
-+	else
-+		desc_num = MAX_DMA_DESC_NUM_GENERIC;
++uint32_t dc_bandwidth_in_kbps_from_timing(
++	const struct dc_crtc_timing *timing)
++{
++	uint32_t bits_per_channel = 0;
++	uint32_t kbps;
 +
- 	/* Allocate DMA descriptor chain for non-ctrl endpoints */
- 	if (using_desc_dma(hsotg) && !hs_ep->desc_list) {
- 		hs_ep->desc_list = dmam_alloc_coherent(hsotg->dev,
--			MAX_DMA_DESC_NUM_GENERIC *
--			sizeof(struct dwc2_dma_desc),
-+			desc_num * sizeof(struct dwc2_dma_desc),
- 			&hs_ep->desc_list_dma, GFP_ATOMIC);
- 		if (!hs_ep->desc_list) {
- 			ret = -ENOMEM;
-@@ -3971,7 +3974,7 @@ static int dwc2_hsotg_ep_enable(struct usb_ep *ep,
++	switch (timing->display_color_depth) {
++	case COLOR_DEPTH_666:
++		bits_per_channel = 6;
++		break;
++	case COLOR_DEPTH_888:
++		bits_per_channel = 8;
++		break;
++	case COLOR_DEPTH_101010:
++		bits_per_channel = 10;
++		break;
++	case COLOR_DEPTH_121212:
++		bits_per_channel = 12;
++		break;
++	case COLOR_DEPTH_141414:
++		bits_per_channel = 14;
++		break;
++	case COLOR_DEPTH_161616:
++		bits_per_channel = 16;
++		break;
++	default:
++		break;
++	}
++
++	ASSERT(bits_per_channel != 0);
++
++	kbps = timing->pix_clk_100hz / 10;
++	kbps *= bits_per_channel;
++
++	if (timing->flags.Y_ONLY != 1) {
++		/*Only YOnly make reduce bandwidth by 1/3 compares to RGB*/
++		kbps *= 3;
++		if (timing->pixel_encoding == PIXEL_ENCODING_YCBCR420)
++			kbps /= 2;
++		else if (timing->pixel_encoding == PIXEL_ENCODING_YCBCR422)
++			kbps = kbps * 2 / 3;
++	}
++
++	return kbps;
++
++}
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
+index 09d3012160763..6809932e80bec 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
+@@ -1520,53 +1520,6 @@ static bool decide_fallback_link_setting(
+ 	return true;
+ }
  
- error2:
- 	if (ret && using_desc_dma(hsotg) && hs_ep->desc_list) {
--		dmam_free_coherent(hsotg->dev, MAX_DMA_DESC_NUM_GENERIC *
-+		dmam_free_coherent(hsotg->dev, desc_num *
- 			sizeof(struct dwc2_dma_desc),
- 			hs_ep->desc_list, hs_ep->desc_list_dma);
- 		hs_ep->desc_list = NULL;
+-static uint32_t bandwidth_in_kbps_from_timing(
+-	const struct dc_crtc_timing *timing)
+-{
+-	uint32_t bits_per_channel = 0;
+-	uint32_t kbps;
+-
+-	switch (timing->display_color_depth) {
+-	case COLOR_DEPTH_666:
+-		bits_per_channel = 6;
+-		break;
+-	case COLOR_DEPTH_888:
+-		bits_per_channel = 8;
+-		break;
+-	case COLOR_DEPTH_101010:
+-		bits_per_channel = 10;
+-		break;
+-	case COLOR_DEPTH_121212:
+-		bits_per_channel = 12;
+-		break;
+-	case COLOR_DEPTH_141414:
+-		bits_per_channel = 14;
+-		break;
+-	case COLOR_DEPTH_161616:
+-		bits_per_channel = 16;
+-		break;
+-	default:
+-		break;
+-	}
+-
+-	ASSERT(bits_per_channel != 0);
+-
+-	kbps = timing->pix_clk_100hz / 10;
+-	kbps *= bits_per_channel;
+-
+-	if (timing->flags.Y_ONLY != 1) {
+-		/*Only YOnly make reduce bandwidth by 1/3 compares to RGB*/
+-		kbps *= 3;
+-		if (timing->pixel_encoding == PIXEL_ENCODING_YCBCR420)
+-			kbps /= 2;
+-		else if (timing->pixel_encoding == PIXEL_ENCODING_YCBCR422)
+-			kbps = kbps * 2 / 3;
+-	}
+-
+-	return kbps;
+-
+-}
+-
+ static uint32_t bandwidth_in_kbps_from_link_settings(
+ 	const struct dc_link_settings *link_setting)
+ {
+@@ -1607,7 +1560,7 @@ bool dp_validate_mode_timing(
+ 		link_setting = &link->verified_link_cap;
+ 	*/
+ 
+-	req_bw = bandwidth_in_kbps_from_timing(timing);
++	req_bw = dc_bandwidth_in_kbps_from_timing(timing);
+ 	max_bw = bandwidth_in_kbps_from_link_settings(link_setting);
+ 
+ 	if (req_bw <= max_bw) {
+@@ -1641,7 +1594,7 @@ void decide_link_settings(struct dc_stream_state *stream,
+ 	uint32_t req_bw;
+ 	uint32_t link_bw;
+ 
+-	req_bw = bandwidth_in_kbps_from_timing(&stream->timing);
++	req_bw = dc_bandwidth_in_kbps_from_timing(&stream->timing);
+ 
+ 	link = stream->link;
+ 
+diff --git a/drivers/gpu/drm/amd/display/dc/dc_link.h b/drivers/gpu/drm/amd/display/dc/dc_link.h
+index 8fc223defed4a..a83e1c60f9db2 100644
+--- a/drivers/gpu/drm/amd/display/dc/dc_link.h
++++ b/drivers/gpu/drm/amd/display/dc/dc_link.h
+@@ -252,4 +252,6 @@ bool dc_submit_i2c(
+ 		uint32_t link_index,
+ 		struct i2c_command *cmd);
+ 
++uint32_t dc_bandwidth_in_kbps_from_timing(
++	const struct dc_crtc_timing *timing);
+ #endif /* DC_LINK_H_ */
 -- 
 2.20.1
 
