@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AC90C2EDFF
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:43:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E75012EC1C
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:18:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732702AbfE3DnS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:43:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33432 "EHLO mail.kernel.org"
+        id S1731564AbfE3DS3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:18:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729849AbfE3DVL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:21:11 -0400
+        id S1731562AbfE3DS2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:18:28 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 24705249D2;
-        Thu, 30 May 2019 03:21:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4A73A247CF;
+        Thu, 30 May 2019 03:18:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186471;
-        bh=ySYL4sbIizg+Ief6OvDuTlZg0OnJU4Uya54J22FAqHw=;
+        s=default; t=1559186308;
+        bh=U7oWFLa6HNlYuQfr8/qAu4JkFtkS0PlMnRCeytKEJq8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ewytRsRkUJKKZHd5Y+5B3pOhmlF69i0SU7lgG7U9gGvD4AcuX41ZjHUcE6BKaskxE
-         1b7BF6wdExOAV1avXxhCOipqy1jiE/g6jqB0cDbDoOuAs8RKHmJrEpYSX5FKTdzcgE
-         CNEbuDKeAoKbZKDGhgqQNjv56HlJTtGIrVAFFEvE=
+        b=BkcHYf2f0I2/f27i9Do4XHZA2qdW98aDDpPxwGVy+EhVXwcWahs3zWES4pJnOIhpR
+         1SiT1kWl3qxaAiyHc/BKJw3gmknch1Jre59LSec8k8lY3c1ZPYzbE/nz27nqIgcSdO
+         5ZruABRyzlAWHvwuiBfMCr4o2I3P/4m+wHI/QGA8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stanley Chu <stanley.chu@mediatek.com>,
-        Avri Altman <avri.altman@wdc.com>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Eric Farman <farman@linux.ibm.com>,
+        Farhan Ali <alifm@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 100/128] scsi: ufs: Avoid configuring regulator with undefined voltage range
+Subject: [PATCH 4.19 274/276] vfio-ccw: Prevent quiesce function going into an infinite loop
 Date:   Wed, 29 May 2019 20:07:12 -0700
-Message-Id: <20190530030452.519233138@linuxfoundation.org>
+Message-Id: <20190530030542.325522714@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
-References: <20190530030432.977908967@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,57 +46,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 3b141e8cfd54ba3e5c610717295b2a02aab26a05 ]
+[ Upstream commit d1ffa760d22aa1d8190478e5ef555c59a771db27 ]
 
-For regulators used by UFS, vcc, vccq and vccq2 will have voltage range
-initialized by ufshcd_populate_vreg(), however other regulators may have
-undefined voltage range if dt-bindings have no such definition.
+The quiesce function calls cio_cancel_halt_clear() and if we
+get an -EBUSY we go into a loop where we:
+	- wait for any interrupts
+	- flush all I/O in the workqueue
+	- retry cio_cancel_halt_clear
 
-In above undefined case, both "min_uV" and "max_uV" fields in ufs_vreg
-struct will be zero values and these values will be configured on
-regulators in different power modes.
+During the period where we are waiting for interrupts or
+flushing all I/O, the channel subsystem could have completed
+a halt/clear action and turned off the corresponding activity
+control bits in the subchannel status word. This means the next
+time we call cio_cancel_halt_clear(), we will again start by
+calling cancel subchannel and so we can be stuck between calling
+cancel and halt forever.
 
-Currently this may have no harm if both "min_uV" and "max_uV" always keep
-"zero values" because regulator_set_voltage() will always bypass such
-invalid values and return "good" results.
+Rather than calling cio_cancel_halt_clear() immediately after
+waiting, let's try to disable the subchannel. If we succeed in
+disabling the subchannel then we know nothing else can happen
+with the device.
 
-However improper values shall be fixed to avoid potential bugs.  Simply
-bypass voltage configuration if voltage range is not defined.
-
-Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
-Reviewed-by: Avri Altman <avri.altman@wdc.com>
-Acked-by: Alim Akhtar <alim.akhtar@samsung.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Suggested-by: Eric Farman <farman@linux.ibm.com>
+Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+Message-Id: <4d5a4b98ab1b41ac6131b5c36de18b76c5d66898.1555449329.git.alifm@linux.ibm.com>
+Reviewed-by: Eric Farman <farman@linux.ibm.com>
+Acked-by: Halil Pasic <pasic@linux.ibm.com>
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/s390/cio/vfio_ccw_drv.c | 32 ++++++++++++++++++--------------
+ 1 file changed, 18 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 8869c666d458c..0fe4f8e8c8c91 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -5504,12 +5504,15 @@ static int ufshcd_config_vreg(struct device *dev,
- 	name = vreg->name;
+diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+index 0e0a743aeaf69..7a06cdff6572d 100644
+--- a/drivers/s390/cio/vfio_ccw_drv.c
++++ b/drivers/s390/cio/vfio_ccw_drv.c
+@@ -40,26 +40,30 @@ int vfio_ccw_sch_quiesce(struct subchannel *sch)
+ 	if (ret != -EBUSY)
+ 		goto out_unlock;
  
- 	if (regulator_count_voltages(reg) > 0) {
--		min_uV = on ? vreg->min_uV : 0;
--		ret = regulator_set_voltage(reg, min_uV, vreg->max_uV);
--		if (ret) {
--			dev_err(dev, "%s: %s set voltage failed, err=%d\n",
-+		if (vreg->min_uV && vreg->max_uV) {
-+			min_uV = on ? vreg->min_uV : 0;
-+			ret = regulator_set_voltage(reg, min_uV, vreg->max_uV);
-+			if (ret) {
-+				dev_err(dev,
-+					"%s: %s set voltage failed, err=%d\n",
- 					__func__, name, ret);
--			goto out;
-+				goto out;
-+			}
- 		}
++	iretry = 255;
+ 	do {
+-		iretry = 255;
  
- 		uA_load = on ? vreg->max_uA : 0;
+ 		ret = cio_cancel_halt_clear(sch, &iretry);
+-		while (ret == -EBUSY) {
+-			/*
+-			 * Flush all I/O and wait for
+-			 * cancel/halt/clear completion.
+-			 */
+-			private->completion = &completion;
+-			spin_unlock_irq(sch->lock);
+ 
+-			wait_for_completion_timeout(&completion, 3*HZ);
++		if (ret == -EIO) {
++			pr_err("vfio_ccw: could not quiesce subchannel 0.%x.%04x!\n",
++			       sch->schid.ssid, sch->schid.sch_no);
++			break;
++		}
++
++		/*
++		 * Flush all I/O and wait for
++		 * cancel/halt/clear completion.
++		 */
++		private->completion = &completion;
++		spin_unlock_irq(sch->lock);
+ 
+-			private->completion = NULL;
+-			flush_workqueue(vfio_ccw_work_q);
+-			spin_lock_irq(sch->lock);
+-			ret = cio_cancel_halt_clear(sch, &iretry);
+-		};
++		if (ret == -EBUSY)
++			wait_for_completion_timeout(&completion, 3*HZ);
+ 
++		private->completion = NULL;
++		flush_workqueue(vfio_ccw_work_q);
++		spin_lock_irq(sch->lock);
+ 		ret = cio_disable_subchannel(sch);
+ 	} while (ret == -EBUSY);
+ out_unlock:
 -- 
 2.20.1
 
