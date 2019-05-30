@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A03962EC15
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:18:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86CE62EFF5
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:01:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731496AbfE3DSQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:18:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50012 "EHLO mail.kernel.org"
+        id S1731498AbfE3DSR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:18:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731487AbfE3DSQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:18:16 -0400
+        id S1731494AbfE3DSR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:18:17 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DECD624797;
-        Thu, 30 May 2019 03:18:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5749924713;
+        Thu, 30 May 2019 03:18:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1559186296;
-        bh=HlqsrYSyKxnRC0lH59ph0ZTOGikuu4WjthtcOBJPZ1M=;
+        bh=bDXiMGFvmldpxTxfhq4JdbAQvsgjlZNGG0/Vu9YG5q8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t9NfTeQ/54mOte8RUTFP7uyOh83EemTXw5j6+vfV3zd+8pjYfKG9Pr9gI5WYFBGHF
-         WRfNike8/J90Z8WElRG/VvF5RZD8AoNAwrN3tNTWCoSAqgNNw4IpH7XOUe9miRIn2k
-         pYdYYWAAqj9AarlnktLjgq7AEiR++eMeSpHUa4RI=
+        b=yS4T/bzJ/4FCUHyG8VFiFjao0eY4ltyEvzpfAvsV7rj+6Xqk7l46V/nXKKRju2MIJ
+         M5vxmf/aD9MpU0xWHQ+Wq7SHAEV/xOoCcpB/ZSiJjd8IY7hFQE27l3INwbA9W7+HjP
+         BXh8vD2BHC0v6kk6eVyPaOxkqklQeN+GrWLUmPDY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 257/276] media: gspca: do not resubmit URBs when streaming has stopped
-Date:   Wed, 29 May 2019 20:06:55 -0700
-Message-Id: <20190530030541.254790523@linuxfoundation.org>
+Subject: [PATCH 4.19 258/276] media: go7007: avoid clang frame overflow warning with KASAN
+Date:   Wed, 29 May 2019 20:06:56 -0700
+Message-Id: <20190530030541.314372170@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
 References: <20190530030523.133519668@linuxfoundation.org>
@@ -44,67 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit e6f8bd59c28f758feea403a70d6c3ef28c50959f ]
+[ Upstream commit ed713a4a1367aca5c0f2f329579465db00c17995 ]
 
-When streaming is stopped all URBs are killed, but in fill_frame and in
-bulk_irq this results in an attempt to resubmit the killed URB. That is
-not what you want and causes spurious kernel messages.
+clang-8 warns about one function here when KASAN is enabled, even
+without the 'asan-stack' option:
 
-So check if streaming has stopped before resubmitting.
+drivers/media/usb/go7007/go7007-fw.c:1551:5: warning: stack frame size of 2656 bytes in function
 
-Also check against gspca_dev->streaming rather than vb2_start_streaming_called()
-since vb2_start_streaming_called() will return true when in stop_streaming,
-but gspca_dev->streaming is set to false when stop_streaming is called.
+I have reported this issue in the llvm bugzilla, but to make
+it work with the clang-8 release, a small annotation is still
+needed.
 
-Fixes: 6992effe5344 ("gspca: Kill all URBs before releasing any of them")
+Link: https://bugs.llvm.org/show_bug.cgi?id=38809
 
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+[hverkuil-cisco@xs4all.nl: fix checkpatch warning]
 Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/gspca/gspca.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/media/usb/go7007/go7007-fw.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/usb/gspca/gspca.c b/drivers/media/usb/gspca/gspca.c
-index fd4a1456b6ca2..b12356c533a65 100644
---- a/drivers/media/usb/gspca/gspca.c
-+++ b/drivers/media/usb/gspca/gspca.c
-@@ -314,6 +314,8 @@ static void fill_frame(struct gspca_dev *gspca_dev,
- 	}
- 
- resubmit:
-+	if (!gspca_dev->streaming)
-+		return;
- 	/* resubmit the URB */
- 	st = usb_submit_urb(urb, GFP_ATOMIC);
- 	if (st < 0)
-@@ -330,7 +332,7 @@ static void isoc_irq(struct urb *urb)
- 	struct gspca_dev *gspca_dev = (struct gspca_dev *) urb->context;
- 
- 	gspca_dbg(gspca_dev, D_PACK, "isoc irq\n");
--	if (!vb2_start_streaming_called(&gspca_dev->queue))
-+	if (!gspca_dev->streaming)
- 		return;
- 	fill_frame(gspca_dev, urb);
+diff --git a/drivers/media/usb/go7007/go7007-fw.c b/drivers/media/usb/go7007/go7007-fw.c
+index 24f5b615dc7af..dfa9f899d0c25 100644
+--- a/drivers/media/usb/go7007/go7007-fw.c
++++ b/drivers/media/usb/go7007/go7007-fw.c
+@@ -1499,8 +1499,8 @@ static int modet_to_package(struct go7007 *go, __le16 *code, int space)
+ 	return cnt;
  }
-@@ -344,7 +346,7 @@ static void bulk_irq(struct urb *urb)
- 	int st;
  
- 	gspca_dbg(gspca_dev, D_PACK, "bulk irq\n");
--	if (!vb2_start_streaming_called(&gspca_dev->queue))
-+	if (!gspca_dev->streaming)
- 		return;
- 	switch (urb->status) {
- 	case 0:
-@@ -367,6 +369,8 @@ static void bulk_irq(struct urb *urb)
- 				urb->actual_length);
- 
- resubmit:
-+	if (!gspca_dev->streaming)
-+		return;
- 	/* resubmit the URB */
- 	if (gspca_dev->cam.bulk_nurbs != 0) {
- 		st = usb_submit_urb(urb, GFP_ATOMIC);
+-static int do_special(struct go7007 *go, u16 type, __le16 *code, int space,
+-			int *framelen)
++static noinline_for_stack int do_special(struct go7007 *go, u16 type,
++					 __le16 *code, int space, int *framelen)
+ {
+ 	switch (type) {
+ 	case SPECIAL_FRM_HEAD:
 -- 
 2.20.1
 
