@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 61DDA2F41F
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:36:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E89012F650
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:55:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729967AbfE3EfV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:35:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57816 "EHLO mail.kernel.org"
+        id S1728278AbfE3Eyz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:54:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729370AbfE3DNO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:13:14 -0400
+        id S1728031AbfE3DKT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:10:19 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DA568244B0;
-        Thu, 30 May 2019 03:13:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A9D6E244BF;
+        Thu, 30 May 2019 03:10:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185993;
-        bh=TowusqZkdbphibd65Bc4guMeYN9nvPInafHrQJQPyqQ=;
+        s=default; t=1559185818;
+        bh=WDK5eOGnzlU+rY7LHnbKwB3mxhm5pC32ymVzPXusi+8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jPT7KKrQLRCz7xWnGkNRO5PlCNbcdt1NNo2HTrElZuPMnDlOfljKcBmQe0K9nzclU
-         /XIxHQXqmtyZokrBfU+WhO4BTO9MBlBmb/cOYEyuhCgnfncTXpOM2j/j9KemVpSbj1
-         Pn7Od1U6Fwy2+jYeYKI/IktLhKNJ3Wffvt1moJ8w=
+        b=eN4xqeZeJpofABdgjmKUA+nHvY9WJAxXkotEelUNL/zVuvETZ5qEd1XBFT/+YKJ7g
+         BixykcjFCV3bD2BQGSHPXIP0fUPqLP9kzrCBTM1+YumUWQMP+PDmUnqX5NELvtLfFE
+         pEhrA4Zl0e3S+HtP1vjM2zH1mB/rQGllE22VjEXQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+83f2d54ec6b7e417e13f@syzkaller.appspotmail.com,
-        syzbot+050927a651272b145a5d@syzkaller.appspotmail.com,
-        syzbot+979ffc89b87309b1b94b@syzkaller.appspotmail.com,
-        syzbot+f9f3f388440283da2965@syzkaller.appspotmail.com,
-        =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>,
-        Sven Eckelmann <sven@narfation.org>,
-        Simon Wunderlich <sw@simonwunderlich.de>
-Subject: [PATCH 5.0 037/346] batman-adv: mcast: fix multicast tt/tvlv worker locking
-Date:   Wed, 29 May 2019 20:01:50 -0700
-Message-Id: <20190530030542.717727452@linuxfoundation.org>
+        stable@vger.kernel.org, Huazhong Tan <tanhuazhong@huawei.com>,
+        Peng Li <lipeng321@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 113/405] net: hns3: use atomic_t replace u32 for arqs count
+Date:   Wed, 29 May 2019 20:01:51 -0700
+Message-Id: <20190530030546.721646057@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,108 +45,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Lüssing <linus.luessing@c0d3.blue>
+[ Upstream commit 30780a8b1677e7409b32ae52a9a84f7d41ae6b43 ]
 
-commit a3c7cd0cdf1107f891aff847ad481e34df727055 upstream.
+Since irq handler and mailbox task will both update arq's count,
+so arq's count should use atomic_t instead of u32, otherwise
+its value may go wrong finally.
 
-Syzbot has reported some issues with the locking assumptions made for
-the multicast tt/tvlv worker: It was able to trigger the WARN_ON() in
-batadv_mcast_mla_tt_retract() and batadv_mcast_mla_tt_add().
-While hard/not reproduceable for us so far it seems that the
-delayed_work_pending() we use might not be quite safe from reordering.
-
-Therefore this patch adds an explicit, new spinlock to protect the
-update of the mla_list and flags in bat_priv and then removes the
-WARN_ON(delayed_work_pending()).
-
-Reported-by: syzbot+83f2d54ec6b7e417e13f@syzkaller.appspotmail.com
-Reported-by: syzbot+050927a651272b145a5d@syzkaller.appspotmail.com
-Reported-by: syzbot+979ffc89b87309b1b94b@syzkaller.appspotmail.com
-Reported-by: syzbot+f9f3f388440283da2965@syzkaller.appspotmail.com
-Fixes: cbebd363b2e9 ("batman-adv: Use own timer for multicast TT and TVLV updates")
-Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 07a0556a3a73 ("net: hns3: Changes to support ARQ(Asynchronous Receive Queue)")
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: Peng Li <lipeng321@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/batman-adv/main.c      |    1 +
- net/batman-adv/multicast.c |   11 +++--------
- net/batman-adv/types.h     |    5 +++++
- 3 files changed, 9 insertions(+), 8 deletions(-)
+ drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h          | 2 +-
+ drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_cmd.c | 2 +-
+ drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_mbx.c | 7 ++++---
+ 3 files changed, 6 insertions(+), 5 deletions(-)
 
---- a/net/batman-adv/main.c
-+++ b/net/batman-adv/main.c
-@@ -161,6 +161,7 @@ int batadv_mesh_init(struct net_device *
- 	spin_lock_init(&bat_priv->tt.commit_lock);
- 	spin_lock_init(&bat_priv->gw.list_lock);
- #ifdef CONFIG_BATMAN_ADV_MCAST
-+	spin_lock_init(&bat_priv->mcast.mla_lock);
- 	spin_lock_init(&bat_priv->mcast.want_lists_lock);
- #endif
- 	spin_lock_init(&bat_priv->tvlv.container_list_lock);
---- a/net/batman-adv/multicast.c
-+++ b/net/batman-adv/multicast.c
-@@ -325,8 +325,6 @@ static void batadv_mcast_mla_list_free(s
-  * translation table except the ones listed in the given mcast_list.
-  *
-  * If mcast_list is NULL then all are retracted.
-- *
-- * Do not call outside of the mcast worker! (or cancel mcast worker first)
-  */
- static void batadv_mcast_mla_tt_retract(struct batadv_priv *bat_priv,
- 					struct hlist_head *mcast_list)
-@@ -334,8 +332,6 @@ static void batadv_mcast_mla_tt_retract(
- 	struct batadv_hw_addr *mcast_entry;
- 	struct hlist_node *tmp;
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h b/drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h
+index 299b277bc7ae9..589b7ee32bff8 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hclge_mbx.h
+@@ -107,7 +107,7 @@ struct hclgevf_mbx_arq_ring {
+ 	struct hclgevf_dev *hdev;
+ 	u32 head;
+ 	u32 tail;
+-	u32 count;
++	atomic_t count;
+ 	u16 msg_q[HCLGE_MBX_MAX_ARQ_MSG_NUM][HCLGE_MBX_MAX_ARQ_MSG_SIZE];
+ };
  
--	WARN_ON(delayed_work_pending(&bat_priv->mcast.work));
--
- 	hlist_for_each_entry_safe(mcast_entry, tmp, &bat_priv->mcast.mla_list,
- 				  list) {
- 		if (mcast_list &&
-@@ -359,8 +355,6 @@ static void batadv_mcast_mla_tt_retract(
-  *
-  * Adds multicast listener announcements from the given mcast_list to the
-  * translation table if they have not been added yet.
-- *
-- * Do not call outside of the mcast worker! (or cancel mcast worker first)
-  */
- static void batadv_mcast_mla_tt_add(struct batadv_priv *bat_priv,
- 				    struct hlist_head *mcast_list)
-@@ -368,8 +362,6 @@ static void batadv_mcast_mla_tt_add(stru
- 	struct batadv_hw_addr *mcast_entry;
- 	struct hlist_node *tmp;
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_cmd.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_cmd.c
+index 9441b453d38df..9a0a501908aec 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_cmd.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_cmd.c
+@@ -327,7 +327,7 @@ int hclgevf_cmd_init(struct hclgevf_dev *hdev)
+ 	hdev->arq.hdev = hdev;
+ 	hdev->arq.head = 0;
+ 	hdev->arq.tail = 0;
+-	hdev->arq.count = 0;
++	atomic_set(&hdev->arq.count, 0);
+ 	hdev->hw.cmq.csq.next_to_clean = 0;
+ 	hdev->hw.cmq.csq.next_to_use = 0;
+ 	hdev->hw.cmq.crq.next_to_clean = 0;
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_mbx.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_mbx.c
+index 7dc3c9f79169f..4f2c77283cb43 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_mbx.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_mbx.c
+@@ -208,7 +208,8 @@ void hclgevf_mbx_handler(struct hclgevf_dev *hdev)
+ 			/* we will drop the async msg if we find ARQ as full
+ 			 * and continue with next message
+ 			 */
+-			if (hdev->arq.count >= HCLGE_MBX_MAX_ARQ_MSG_NUM) {
++			if (atomic_read(&hdev->arq.count) >=
++			    HCLGE_MBX_MAX_ARQ_MSG_NUM) {
+ 				dev_warn(&hdev->pdev->dev,
+ 					 "Async Q full, dropping msg(%d)\n",
+ 					 req->msg[1]);
+@@ -220,7 +221,7 @@ void hclgevf_mbx_handler(struct hclgevf_dev *hdev)
+ 			memcpy(&msg_q[0], req->msg,
+ 			       HCLGE_MBX_MAX_ARQ_MSG_SIZE * sizeof(u16));
+ 			hclge_mbx_tail_ptr_move_arq(hdev->arq);
+-			hdev->arq.count++;
++			atomic_inc(&hdev->arq.count);
  
--	WARN_ON(delayed_work_pending(&bat_priv->mcast.work));
--
- 	if (!mcast_list)
- 		return;
+ 			hclgevf_mbx_task_schedule(hdev);
  
-@@ -658,7 +650,10 @@ static void batadv_mcast_mla_update(stru
- 	priv_mcast = container_of(delayed_work, struct batadv_priv_mcast, work);
- 	bat_priv = container_of(priv_mcast, struct batadv_priv, mcast);
+@@ -308,7 +309,7 @@ void hclgevf_mbx_async_handler(struct hclgevf_dev *hdev)
+ 		}
  
-+	spin_lock(&bat_priv->mcast.mla_lock);
- 	__batadv_mcast_mla_update(bat_priv);
-+	spin_unlock(&bat_priv->mcast.mla_lock);
-+
- 	batadv_mcast_start_timer(bat_priv);
+ 		hclge_mbx_head_ptr_move_arq(hdev->arq);
+-		hdev->arq.count--;
++		atomic_dec(&hdev->arq.count);
+ 		msg_q = hdev->arq.msg_q[hdev->arq.head];
+ 	}
  }
- 
---- a/net/batman-adv/types.h
-+++ b/net/batman-adv/types.h
-@@ -1224,6 +1224,11 @@ struct batadv_priv_mcast {
- 	unsigned char bridged:1;
- 
- 	/**
-+	 * @mla_lock: a lock protecting mla_list and mla_flags
-+	 */
-+	spinlock_t mla_lock;
-+
-+	/**
- 	 * @num_want_all_unsnoopables: number of nodes wanting unsnoopable IP
- 	 *  traffic
- 	 */
+-- 
+2.20.1
+
 
 
