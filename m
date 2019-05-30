@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B55542EEFB
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:51:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D4782EC14
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:18:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726688AbfE3Dvm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:51:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56638 "EHLO mail.kernel.org"
+        id S1731475AbfE3DSO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:18:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732019AbfE3DTq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:19:46 -0400
+        id S1731469AbfE3DSN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:18:13 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 201EE24725;
-        Thu, 30 May 2019 03:19:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0D06824789;
+        Thu, 30 May 2019 03:18:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186386;
-        bh=dCp0h2DdH+O+tnf+wAbxxMstflMLuTau8QyZNyzbPqU=;
+        s=default; t=1559186293;
+        bh=9IM83kU3WNfz0QfBh+pLawTB58Dclw0rzHSXeY6vPLk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EI78iex/x1+TRcE0rn9QvJfHbVP+ShPusUnFqa+uw90X6R7f17xCL5qhHAHoDqZNo
-         jJeUqQ26xO8NLCNthYx9VMm6lYnkDXPZCBkavEZO4jpI63aVfGrmA/GQZfngb/UEIC
-         piMejwD5PXE7ezgry3RrCGRl6uymMQLLMMmWp8qE=
+        b=YZFNpbTrzv+msJiRdWF513oBMKvAe/7QEFgrqzZXQkIcPhKEXCmcvBgbOB8tBMA3J
+         +1swqqYeOwdGRZROX6m+WHMJ/N1+z+5jBhagVCaysgoLNCk8w49XNTZMRAom6fSMCK
+         G4xHfnQIoTw/peu1luXH+iBprhAAg/X05YoXpB1c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 154/193] x86/ia32: Fix ia32_restore_sigcontext() AC leak
-Date:   Wed, 29 May 2019 20:06:48 -0700
-Message-Id: <20190530030509.806039767@linuxfoundation.org>
+        James Hutchinson <jahutchinson99@googlemail.com>,
+        Antti Palosaari <crope@iki.fi>, Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 251/276] media: m88ds3103: serialize reset messages in m88ds3103_set_frontend
+Date:   Wed, 29 May 2019 20:06:49 -0700
+Message-Id: <20190530030540.838285379@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,85 +46,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 67a0514afdbb8b2fc70b771b8c77661a9cb9d3a9 ]
+[ Upstream commit 981fbe3da20a6f35f17977453bce7dfc1664d74f ]
 
-Objtool spotted that we call native_load_gs_index() with AC set.
-Re-arrange the code to avoid that.
+Ref: https://bugzilla.kernel.org/show_bug.cgi?id=199323
 
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Users are experiencing problems with the DVBSky S960/S960C USB devices
+since the following commit:
+
+9d659ae: ("locking/mutex: Add lock handoff to avoid starvation")
+
+The device malfunctions after running for an indeterminable period of
+time, and the problem can only be cleared by rebooting the machine.
+
+It is possible to encourage the problem to surface by blocking the
+signal to the LNB.
+
+Further debugging revealed the cause of the problem.
+
+In the following capture:
+- thread #1325 is running m88ds3103_set_frontend
+- thread #42 is running ts2020_stat_work
+
+a> [1325] usb 1-1: dvb_usb_v2_generic_io: >>> 08 68 02 07 80
+   [1325] usb 1-1: dvb_usb_v2_generic_io: <<< 08
+   [42] usb 1-1: dvb_usb_v2_generic_io: >>> 09 01 01 68 3f
+   [42] usb 1-1: dvb_usb_v2_generic_io: <<< 08 ff
+   [42] usb 1-1: dvb_usb_v2_generic_io: >>> 08 68 02 03 11
+   [42] usb 1-1: dvb_usb_v2_generic_io: <<< 07
+   [42] usb 1-1: dvb_usb_v2_generic_io: >>> 09 01 01 60 3d
+   [42] usb 1-1: dvb_usb_v2_generic_io: <<< 07 ff
+b> [1325] usb 1-1: dvb_usb_v2_generic_io: >>> 08 68 02 07 00
+   [1325] usb 1-1: dvb_usb_v2_generic_io: <<< 07
+   [42] usb 1-1: dvb_usb_v2_generic_io: >>> 08 68 02 03 11
+   [42] usb 1-1: dvb_usb_v2_generic_io: <<< 07
+   [42] usb 1-1: dvb_usb_v2_generic_io: >>> 09 01 01 60 21
+   [42] usb 1-1: dvb_usb_v2_generic_io: <<< 07 ff
+   [42] usb 1-1: dvb_usb_v2_generic_io: >>> 08 68 02 03 11
+   [42] usb 1-1: dvb_usb_v2_generic_io: <<< 07
+   [42] usb 1-1: dvb_usb_v2_generic_io: >>> 09 01 01 60 66
+   [42] usb 1-1: dvb_usb_v2_generic_io: <<< 07 ff
+   [1325] usb 1-1: dvb_usb_v2_generic_io: >>> 08 68 02 03 11
+   [1325] usb 1-1: dvb_usb_v2_generic_io: <<< 07
+   [1325] usb 1-1: dvb_usb_v2_generic_io: >>> 08 60 02 10 0b
+   [1325] usb 1-1: dvb_usb_v2_generic_io: <<< 07
+
+Two i2c messages are sent to perform a reset in m88ds3103_set_frontend:
+
+  a. 0x07, 0x80
+  b. 0x07, 0x00
+
+However, as shown in the capture, the regmap mutex is being handed over
+to another thread (ts2020_stat_work) in between these two messages.
+
+>From here, the device responds to every i2c message with an 07 message,
+and will only return to normal operation following a power cycle.
+
+Use regmap_multi_reg_write to group the two reset messages, ensuring
+both are processed before the regmap mutex is unlocked.
+
+Signed-off-by: James Hutchinson <jahutchinson99@googlemail.com>
+Reviewed-by: Antti Palosaari <crope@iki.fi>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/ia32/ia32_signal.c | 29 +++++++++++++++++------------
- 1 file changed, 17 insertions(+), 12 deletions(-)
+ drivers/media/dvb-frontends/m88ds3103.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/arch/x86/ia32/ia32_signal.c b/arch/x86/ia32/ia32_signal.c
-index 41c671854642f..789284d19b558 100644
---- a/arch/x86/ia32/ia32_signal.c
-+++ b/arch/x86/ia32/ia32_signal.c
-@@ -62,9 +62,8 @@
- } while (0)
+diff --git a/drivers/media/dvb-frontends/m88ds3103.c b/drivers/media/dvb-frontends/m88ds3103.c
+index dffd2d4bf1c8b..c25c927974089 100644
+--- a/drivers/media/dvb-frontends/m88ds3103.c
++++ b/drivers/media/dvb-frontends/m88ds3103.c
+@@ -309,6 +309,9 @@ static int m88ds3103_set_frontend(struct dvb_frontend *fe)
+ 	u16 u16tmp;
+ 	u32 tuner_frequency_khz, target_mclk;
+ 	s32 s32tmp;
++	static const struct reg_sequence reset_buf[] = {
++		{0x07, 0x80}, {0x07, 0x00}
++	};
  
- #define RELOAD_SEG(seg)		{		\
--	unsigned int pre = GET_SEG(seg);	\
-+	unsigned int pre = (seg) | 3;		\
- 	unsigned int cur = get_user_seg(seg);	\
--	pre |= 3;				\
- 	if (pre != cur)				\
- 		set_user_seg(seg, pre);		\
- }
-@@ -73,6 +72,7 @@ static int ia32_restore_sigcontext(struct pt_regs *regs,
- 				   struct sigcontext_32 __user *sc)
- {
- 	unsigned int tmpflags, err = 0;
-+	u16 gs, fs, es, ds;
- 	void __user *buf;
- 	u32 tmp;
+ 	dev_dbg(&client->dev,
+ 		"delivery_system=%d modulation=%d frequency=%u symbol_rate=%d inversion=%d pilot=%d rolloff=%d\n",
+@@ -321,11 +324,7 @@ static int m88ds3103_set_frontend(struct dvb_frontend *fe)
+ 	}
  
-@@ -80,16 +80,10 @@ static int ia32_restore_sigcontext(struct pt_regs *regs,
- 	current->restart_block.fn = do_no_restart_syscall;
+ 	/* reset */
+-	ret = regmap_write(dev->regmap, 0x07, 0x80);
+-	if (ret)
+-		goto err;
+-
+-	ret = regmap_write(dev->regmap, 0x07, 0x00);
++	ret = regmap_multi_reg_write(dev->regmap, reset_buf, 2);
+ 	if (ret)
+ 		goto err;
  
- 	get_user_try {
--		/*
--		 * Reload fs and gs if they have changed in the signal
--		 * handler.  This does not handle long fs/gs base changes in
--		 * the handler, but does not clobber them at least in the
--		 * normal case.
--		 */
--		RELOAD_SEG(gs);
--		RELOAD_SEG(fs);
--		RELOAD_SEG(ds);
--		RELOAD_SEG(es);
-+		gs = GET_SEG(gs);
-+		fs = GET_SEG(fs);
-+		ds = GET_SEG(ds);
-+		es = GET_SEG(es);
- 
- 		COPY(di); COPY(si); COPY(bp); COPY(sp); COPY(bx);
- 		COPY(dx); COPY(cx); COPY(ip); COPY(ax);
-@@ -107,6 +101,17 @@ static int ia32_restore_sigcontext(struct pt_regs *regs,
- 		buf = compat_ptr(tmp);
- 	} get_user_catch(err);
- 
-+	/*
-+	 * Reload fs and gs if they have changed in the signal
-+	 * handler.  This does not handle long fs/gs base changes in
-+	 * the handler, but does not clobber them at least in the
-+	 * normal case.
-+	 */
-+	RELOAD_SEG(gs);
-+	RELOAD_SEG(fs);
-+	RELOAD_SEG(ds);
-+	RELOAD_SEG(es);
-+
- 	err |= fpu__restore_sig(buf, 1);
- 
- 	force_iret();
 -- 
 2.20.1
 
