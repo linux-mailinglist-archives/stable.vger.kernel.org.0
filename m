@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 287102F6F5
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 07:01:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 355892EB05
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:09:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727602AbfE3FAr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 01:00:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44028 "EHLO mail.kernel.org"
+        id S1727599AbfE3DJb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:09:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44120 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727577AbfE3DJ3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:09:29 -0400
+        id S1727591AbfE3DJa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:09:30 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B89F32447E;
-        Thu, 30 May 2019 03:09:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9712C24481;
+        Thu, 30 May 2019 03:09:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185768;
-        bh=SbTFFUuSRSP005lrWiHb6QE2jPtSQRfWODw8nUneGEI=;
+        s=default; t=1559185769;
+        bh=Q5lSDWobAriHZ4bBwYsgrm/31AWgdhRGttYgtiQ26tg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2AjFhBt6E9tX4Z/cERk+zEPnpSY7dRTraalO1ywGYS/bQ5lbeCKUt7rUSXC0e2zcm
-         7T7A16ZPMUMcnrFNmfcTs/dbiHnkEEWlCF+1xmr7y1GHbIAKO0eWMlGvSggPTqN16k
-         wR9brZ5bpIWZbX/arW/U1ti0ACnMkiNRL2gnbqeg=
+        b=BwlmT0FyhpfD+0fA1kPYP6lKUJzfCBfizg9Lg+Eyutew3OS+w92wTiSivVdsdRKbY
+         kTTaLuX7DyBK10lK0cvnBUcgy6f9bJLNzQkNfmXZfWwRHlueKkWhZzSebEHDqEdh0U
+         ZdFdWmeDccna/YmsGT86DTa4Yr0tIZcC+mAwx58s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ard.biesheuvel@arm.com>,
+        stable@vger.kernel.org, Julien Thierry <julien.thierry@arm.com>,
+        Marc Zyngier <marc.zyngier@arm.com>,
         Will Deacon <will.deacon@arm.com>
-Subject: [PATCH 5.1 019/405] arm64/kernel: kaslr: reduce module randomization range to 2 GB
-Date:   Wed, 29 May 2019 20:00:17 -0700
-Message-Id: <20190530030541.544807094@linuxfoundation.org>
+Subject: [PATCH 5.1 020/405] arm64: Kconfig: Make ARM64_PSEUDO_NMI depend on BROKEN for now
+Date:   Wed, 29 May 2019 20:00:18 -0700
+Message-Id: <20190530030541.616585036@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
 References: <20190530030540.291644921@linuxfoundation.org>
@@ -43,85 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ard.biesheuvel@arm.com>
+From: Will Deacon <will.deacon@arm.com>
 
-commit b2eed9b58811283d00fa861944cb75797d4e52a7 upstream.
+commit 96a13f57b946be7a6c10405e4bd780c0b6b6fe63 upstream.
 
-The following commit
+Although we merged support for pseudo-nmi using interrupt priority
+masking in 5.1, we've since uncovered a number of non-trivial issues
+with the implementation. Although there are patches pending to address
+these problems, we're facing issues that prevent us from merging them at
+this current time:
 
-  7290d5809571 ("module: use relative references for __ksymtab entries")
+  https://lkml.kernel.org/r/1556553607-46531-1-git-send-email-julien.thierry@arm.com
 
-updated the ksymtab handling of some KASLR capable architectures
-so that ksymtab entries are emitted as pairs of 32-bit relative
-references. This reduces the size of the entries, but more
-importantly, it gets rid of statically assigned absolute
-addresses, which require fixing up at boot time if the kernel
-is self relocating (which takes a 24 byte RELA entry for each
-member of the ksymtab struct).
+For now, simply mark this optional feature as BROKEN in the hope that we
+can fix things properly in the near future.
 
-Since ksymtab entries are always part of the same module as the
-symbol they export, it was assumed at the time that a 32-bit
-relative reference is always sufficient to capture the offset
-between a ksymtab entry and its target symbol.
-
-Unfortunately, this is not always true: in the case of per-CPU
-variables, a per-CPU variable's base address (which usually differs
-from the actual address of any of its per-CPU copies) is allocated
-in the vicinity of the ..data.percpu section in the core kernel
-(i.e., in the per-CPU reserved region which follows the section
-containing the core kernel's statically allocated per-CPU variables).
-
-Since we randomize the module space over a 4 GB window covering
-the core kernel (based on the -/+ 4 GB range of an ADRP/ADD pair),
-we may end up putting the core kernel out of the -/+ 2 GB range of
-32-bit relative references of module ksymtab entries that refer to
-per-CPU variables.
-
-So reduce the module randomization range a bit further. We lose
-1 bit of randomization this way, but this is something we can
-tolerate.
-
-Cc: <stable@vger.kernel.org> # v4.19+
-Signed-off-by: Ard Biesheuvel <ard.biesheuvel@arm.com>
+Cc: <stable@vger.kernel.org> # 5.1
+Cc: Julien Thierry <julien.thierry@arm.com>
+Acked-by: Marc Zyngier <marc.zyngier@arm.com>
 Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/kernel/kaslr.c  |    6 +++---
- arch/arm64/kernel/module.c |    2 +-
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ arch/arm64/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/arm64/kernel/kaslr.c
-+++ b/arch/arm64/kernel/kaslr.c
-@@ -145,15 +145,15 @@ u64 __init kaslr_early_init(u64 dt_phys)
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -1347,6 +1347,7 @@ config ARM64_MODULE_PLTS
  
- 	if (IS_ENABLED(CONFIG_RANDOMIZE_MODULE_REGION_FULL)) {
- 		/*
--		 * Randomize the module region over a 4 GB window covering the
-+		 * Randomize the module region over a 2 GB window covering the
- 		 * kernel. This reduces the risk of modules leaking information
- 		 * about the address of the kernel itself, but results in
- 		 * branches between modules and the core kernel that are
- 		 * resolved via PLTs. (Branches between modules will be
- 		 * resolved normally.)
- 		 */
--		module_range = SZ_4G - (u64)(_end - _stext);
--		module_alloc_base = max((u64)_end + offset - SZ_4G,
-+		module_range = SZ_2G - (u64)(_end - _stext);
-+		module_alloc_base = max((u64)_end + offset - SZ_2G,
- 					(u64)MODULES_VADDR);
- 	} else {
- 		/*
---- a/arch/arm64/kernel/module.c
-+++ b/arch/arm64/kernel/module.c
-@@ -56,7 +56,7 @@ void *module_alloc(unsigned long size)
- 		 * can simply omit this fallback in that case.
- 		 */
- 		p = __vmalloc_node_range(size, MODULE_ALIGN, module_alloc_base,
--				module_alloc_base + SZ_4G, GFP_KERNEL,
-+				module_alloc_base + SZ_2G, GFP_KERNEL,
- 				PAGE_KERNEL_EXEC, 0, NUMA_NO_NODE,
- 				__builtin_return_address(0));
- 
+ config ARM64_PSEUDO_NMI
+ 	bool "Support for NMI-like interrupts"
++	depends on BROKEN # 1556553607-46531-1-git-send-email-julien.thierry@arm.com
+ 	select CONFIG_ARM_GIC_V3
+ 	help
+ 	  Adds support for mimicking Non-Maskable Interrupts through the use of
 
 
