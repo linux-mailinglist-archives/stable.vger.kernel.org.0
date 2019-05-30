@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B81752F593
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:48:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35EA92F356
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:28:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728459AbfE3DLR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:11:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50420 "EHLO mail.kernel.org"
+        id S1729763AbfE3DON (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:14:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728452AbfE3DLQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:11:16 -0400
+        id S1729750AbfE3DOM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:14:12 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 18A9F244A0;
-        Thu, 30 May 2019 03:11:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C382F24562;
+        Thu, 30 May 2019 03:14:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185876;
-        bh=DVm8cUoM2GUEV1LjUHxjwniAIsCCEkp6fyjE0tp7TLo=;
+        s=default; t=1559186050;
+        bh=c1tsIp4+0Sx+h/zMntok1F2nhraqv5sSU4X2SMmCONw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ru+9ylJly3vUL9bEBnrMUNVDtOfPPvw5NqAiAH8vfVG8fxoUfkym3vHH5TFE97H0A
-         bnn0jLS1YVTsX7++2g9vGK6Uc1xBY/Os7n71nsK2Z17uQQ0o00dWvQj0nZrxFAmXug
-         adrkB31ADt0VTRNx1e7XlbRVee6kq/g3YZAmliZA=
+        b=YW4kPD8yFyShSJ3O4InQm2yJK5yl4IaMbY7y+MUSm3H4nAL9r9Vir4JJTidSMKrQu
+         HKFHZ+7gLxEyncDqwn5aFX8xF9bIAg8GrZ7U6z/1jrTD1RQcEYZUQ9VvqfRPw+bu6Y
+         GdreqpV5xpMNzBU0YJQAsHo/CX8p+N4zyE6OcWyE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Huazhong Tan <tanhuazhong@huawei.com>,
-        Peng Li <lipeng321@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Keith Busch <keith.busch@intel.com>, Jan Kara <jack@suse.cz>,
+        Yufen Yu <yuyufen@huawei.com>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 222/405] net: hns3: fix keep_alive_timer not stop problem
+Subject: [PATCH 5.0 147/346] block: fix use-after-free on gendisk
 Date:   Wed, 29 May 2019 20:03:40 -0700
-Message-Id: <20190530030552.290139794@linuxfoundation.org>
+Message-Id: <20190530030548.616666575@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,54 +46,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit e233516e6a92baeec20aa40fa5b63be6b94f1627 ]
+[ Upstream commit 2c88e3c7ec32d7a40cc7c9b4a487cf90e4671bdd ]
 
-When hclgevf_client_start() fails or VF driver unloaded, there is
-nobody to disable keep_alive_timer.
+commit 2da78092dda "block: Fix dev_t minor allocation lifetime"
+specifically moved blk_free_devt(dev->devt) call to part_release()
+to avoid reallocating device number before the device is fully
+shutdown.
 
-So this patch fixes them.
+However, it can cause use-after-free on gendisk in get_gendisk().
+We use md device as example to show the race scenes:
 
-Fixes: a6d818e31d08 ("net: hns3: Add vport alive state checking support")
-Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
-Signed-off-by: Peng Li <lipeng321@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Process1		Worker			Process2
+md_free
+						blkdev_open
+del_gendisk
+  add delete_partition_work_fn() to wq
+  						__blkdev_get
+						get_gendisk
+put_disk
+  disk_release
+    kfree(disk)
+    						find part from ext_devt_idr
+						get_disk_and_module(disk)
+    					  	cause use after free
+
+    			delete_partition_work_fn
+			put_device(part)
+    		  	part_release
+		    	remove part from ext_devt_idr
+
+Before <devt, hd_struct pointer> is removed from ext_devt_idr by
+delete_partition_work_fn(), we can find the devt and then access
+gendisk by hd_struct pointer. But, if we access the gendisk after
+it have been freed, it can cause in use-after-freeon gendisk in
+get_gendisk().
+
+We fix this by adding a new helper blk_invalidate_devt() in
+delete_partition() and del_gendisk(). It replaces hd_struct
+pointer in idr with value 'NULL', and deletes the entry from
+idr in part_release() as we do now.
+
+Thanks to Jan Kara for providing the solution and more clear comments
+for the code.
+
+Fixes: 2da78092dda1 ("block: Fix dev_t minor allocation lifetime")
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: Keith Busch <keith.busch@intel.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Suggested-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Yufen Yu <yuyufen@huawei.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c    | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ block/genhd.c             | 19 +++++++++++++++++++
+ block/partition-generic.c |  7 +++++++
+ include/linux/genhd.h     |  1 +
+ 3 files changed, 27 insertions(+)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
-index 8bc28e6f465f1..8dd7fef863f68 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
-@@ -2007,9 +2007,15 @@ static int hclgevf_set_alive(struct hnae3_handle *handle, bool alive)
- static int hclgevf_client_start(struct hnae3_handle *handle)
- {
- 	struct hclgevf_dev *hdev = hclgevf_ae_get_hdev(handle);
-+	int ret;
-+
-+	ret = hclgevf_set_alive(handle, true);
-+	if (ret)
-+		return ret;
- 
- 	mod_timer(&hdev->keep_alive_timer, jiffies + 2 * HZ);
--	return hclgevf_set_alive(handle, true);
-+
-+	return 0;
+diff --git a/block/genhd.c b/block/genhd.c
+index 1dd8fd6613b8d..ef28a5126d218 100644
+--- a/block/genhd.c
++++ b/block/genhd.c
+@@ -531,6 +531,18 @@ void blk_free_devt(dev_t devt)
+ 	}
  }
  
- static void hclgevf_client_stop(struct hnae3_handle *handle)
-@@ -2051,6 +2057,10 @@ static void hclgevf_state_uninit(struct hclgevf_dev *hdev)
++/**
++ *	We invalidate devt by assigning NULL pointer for devt in idr.
++ */
++void blk_invalidate_devt(dev_t devt)
++{
++	if (MAJOR(devt) == BLOCK_EXT_MAJOR) {
++		spin_lock_bh(&ext_devt_lock);
++		idr_replace(&ext_devt_idr, NULL, blk_mangle_minor(MINOR(devt)));
++		spin_unlock_bh(&ext_devt_lock);
++	}
++}
++
+ static char *bdevt_str(dev_t devt, char *buf)
  {
- 	set_bit(HCLGEVF_STATE_DOWN, &hdev->state);
+ 	if (MAJOR(devt) <= 0xff && MINOR(devt) <= 0xff) {
+@@ -791,6 +803,13 @@ void del_gendisk(struct gendisk *disk)
  
-+	if (hdev->keep_alive_timer.function)
-+		del_timer_sync(&hdev->keep_alive_timer);
-+	if (hdev->keep_alive_task.func)
-+		cancel_work_sync(&hdev->keep_alive_task);
- 	if (hdev->service_timer.function)
- 		del_timer_sync(&hdev->service_timer);
- 	if (hdev->service_task.func)
+ 	if (!(disk->flags & GENHD_FL_HIDDEN))
+ 		blk_unregister_region(disk_devt(disk), disk->minors);
++	/*
++	 * Remove gendisk pointer from idr so that it cannot be looked up
++	 * while RCU period before freeing gendisk is running to prevent
++	 * use-after-free issues. Note that the device number stays
++	 * "in-use" until we really free the gendisk.
++	 */
++	blk_invalidate_devt(disk_devt(disk));
+ 
+ 	kobject_put(disk->part0.holder_dir);
+ 	kobject_put(disk->slave_dir);
+diff --git a/block/partition-generic.c b/block/partition-generic.c
+index 8e596a8dff321..aee643ce13d15 100644
+--- a/block/partition-generic.c
++++ b/block/partition-generic.c
+@@ -285,6 +285,13 @@ void delete_partition(struct gendisk *disk, int partno)
+ 	kobject_put(part->holder_dir);
+ 	device_del(part_to_dev(part));
+ 
++	/*
++	 * Remove gendisk pointer from idr so that it cannot be looked up
++	 * while RCU period before freeing gendisk is running to prevent
++	 * use-after-free issues. Note that the device number stays
++	 * "in-use" until we really free the gendisk.
++	 */
++	blk_invalidate_devt(part_devt(part));
+ 	hd_struct_kill(part);
+ }
+ 
+diff --git a/include/linux/genhd.h b/include/linux/genhd.h
+index 06c0fd594097d..69db1affedb0b 100644
+--- a/include/linux/genhd.h
++++ b/include/linux/genhd.h
+@@ -610,6 +610,7 @@ struct unixware_disklabel {
+ 
+ extern int blk_alloc_devt(struct hd_struct *part, dev_t *devt);
+ extern void blk_free_devt(dev_t devt);
++extern void blk_invalidate_devt(dev_t devt);
+ extern dev_t blk_lookup_devt(const char *name, int partno);
+ extern char *disk_name (struct gendisk *hd, int partno, char *buf);
+ 
 -- 
 2.20.1
 
