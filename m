@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 08AF52EED9
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:50:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EF422F460
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:38:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732081AbfE3DT4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:19:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57126 "EHLO mail.kernel.org"
+        id S1729486AbfE3Ehu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:37:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731332AbfE3DT4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:19:56 -0400
+        id S1727459AbfE3DMu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:12:50 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F1EB248ED;
-        Thu, 30 May 2019 03:19:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6B16C24532;
+        Thu, 30 May 2019 03:12:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186395;
-        bh=4qFf+ReEGAlxmB+u/dhYnW1b0I/eQL6fC26LheLmXMg=;
+        s=default; t=1559185969;
+        bh=BJ39WeU6Gz7O+UFcSfdaXtCV0vuqbjEefStskKc/mqo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=quch1U7DmT5Le3JIkUPV6steBia4OQNSlWwCZN2nEDaB5mZTAxLbG3cojcwRSseBz
-         Ge+9iGVkpAOenmIliE2R+ZDu3YaDOANNvKFf28S+UYrTJIuOBesRxpk5m8QrkFBVkF
-         XUG9PHMbVM4oDnQIS1l0/4alnUBp12Nj+eGWeRDQ=
+        b=GEHJfF5FttDMxuPAIUEOZGv8nHpQAvUCpU4rnwTzQBA5fg17T0KdT5Sohl21muIXM
+         v3k3LLEbwyaigDiK0yB/2BYhv36IeeEs9gIlXNysHrtTNEA2PDngUSQ4lMRu6s5Oc9
+         dtItXFyglqOegmFPK8tRLr9twR2ymiMfFZXexbiA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Heiko Stuebner <heiko@sntech.de>,
+        stable@vger.kernel.org, Jiada Wang <jiada_wang@mentor.com>,
+        Fabio Estevam <festevam@gmail.com>,
+        Stefan Agner <stefan@agner.ch>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Trent Piepho <tpiepho@impinj.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 126/193] clk: rockchip: Make rkpwm a critical clock on rk3288
+Subject: [PATCH 5.1 382/405] spi: imx: stop buffer overflow in RX FIFO flush
 Date:   Wed, 29 May 2019 20:06:20 -0700
-Message-Id: <20190530030506.055879300@linuxfoundation.org>
+Message-Id: <20190530030600.062448385@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +48,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit dfe7fb21cd9e730230d55a79bc72cf2ece67cdd5 ]
+[ Upstream commit c842749ea1d32513f9e603c074d60d7aa07cb2ef ]
 
-Most rk3288-based boards are derived from the EVB and thus use a PWM
-regulator for the logic rail.  However, most rk3288-based boards don't
-specify the PWM regulator in their device tree.  We'll deal with that
-by making it critical.
+Commit 71abd29057cb ("spi: imx: Add support for SPI Slave mode") added
+an RX FIFO flush before start of a transfer.  In slave mode, the master
+may have sent more data than expected and this data will still be in the
+RX FIFO at the start of the next transfer, and so needs to be flushed.
 
-NOTE: it's important to make it critical and not just IGNORE_UNUSED
-because all PWMs in the system share the same clock.  We don't want
-another PWM user to turn the clock on and off and kill the logic rail.
+However, the code to do the flush was accidentally saving this data into
+the previous transfer's RX buffer, clobbering the contents of whatever
+followed that buffer.
 
-This change is in preparation for actually having the PWMs in the
-rk3288 device tree actually point to the proper PWM clock.  Up until
-now they've all pointed to the clock for the old IP block and they've
-all worked due to the fact that rkpwm was IGNORE_UNUSED and that the
-clock rates for both clocks were the same.
+Change it to empty the FIFO and throw away the data.  Every one of the
+RX functions for the different eCSPI versions and modes reads the RX
+FIFO data using the same readl() call, so just use that, rather than
+using the spi_imx->rx function pointer and making sure all the different
+rx functions have a working "throw away" mode.
 
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+There is another issue, which affects master mode when switching from
+DMA to PIO.  There can be extra data in the RX FIFO which triggers this
+flush code, causing memory corruption in the same manner.  I don't know
+why this data is unexpectedly in the FIFO.  It's likely there is a
+different bug or erratum responsible for that.  But regardless of that,
+I think this is proper fix the for bug at hand here.
+
+Fixes: 71abd29057cb ("spi: imx: Add support for SPI Slave mode")
+Cc: Jiada Wang <jiada_wang@mentor.com>
+Cc: Fabio Estevam <festevam@gmail.com>
+Cc: Stefan Agner <stefan@agner.ch>
+Cc: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Trent Piepho <tpiepho@impinj.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/rockchip/clk-rk3288.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/spi/spi-imx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clk/rockchip/clk-rk3288.c b/drivers/clk/rockchip/clk-rk3288.c
-index c6cd6d28af56f..64191694ff6e9 100644
---- a/drivers/clk/rockchip/clk-rk3288.c
-+++ b/drivers/clk/rockchip/clk-rk3288.c
-@@ -676,7 +676,7 @@ static struct rockchip_clk_branch rk3288_clk_branches[] __initdata = {
- 	GATE(PCLK_TZPC, "pclk_tzpc", "pclk_cpu", 0, RK3288_CLKGATE_CON(11), 3, GFLAGS),
- 	GATE(PCLK_UART2, "pclk_uart2", "pclk_cpu", 0, RK3288_CLKGATE_CON(11), 9, GFLAGS),
- 	GATE(PCLK_EFUSE256, "pclk_efuse_256", "pclk_cpu", 0, RK3288_CLKGATE_CON(11), 10, GFLAGS),
--	GATE(PCLK_RKPWM, "pclk_rkpwm", "pclk_cpu", CLK_IGNORE_UNUSED, RK3288_CLKGATE_CON(11), 11, GFLAGS),
-+	GATE(PCLK_RKPWM, "pclk_rkpwm", "pclk_cpu", 0, RK3288_CLKGATE_CON(11), 11, GFLAGS),
+diff --git a/drivers/spi/spi-imx.c b/drivers/spi/spi-imx.c
+index 6ec647bbba772..a81ae29aa68a9 100644
+--- a/drivers/spi/spi-imx.c
++++ b/drivers/spi/spi-imx.c
+@@ -1494,7 +1494,7 @@ static int spi_imx_transfer(struct spi_device *spi,
  
- 	/* ddrctrl [DDR Controller PHY clock] gates */
- 	GATE(0, "nclk_ddrupctl0", "ddrphy", CLK_IGNORE_UNUSED, RK3288_CLKGATE_CON(11), 4, GFLAGS),
-@@ -817,6 +817,8 @@ static const char *const rk3288_critical_clocks[] __initconst = {
- 	"pclk_pd_pmu",
- 	"pclk_pmu_niu",
- 	"pmu_hclk_otg0",
-+	/* pwm-regulators on some boards, so handoff-critical later */
-+	"pclk_rkpwm",
- };
+ 	/* flush rxfifo before transfer */
+ 	while (spi_imx->devtype_data->rx_available(spi_imx))
+-		spi_imx->rx(spi_imx);
++		readl(spi_imx->base + MXC_CSPIRXDATA);
  
- static void __iomem *rk3288_cru_base;
+ 	if (spi_imx->slave_mode)
+ 		return spi_imx_pio_transfer_slave(spi, transfer);
 -- 
 2.20.1
 
