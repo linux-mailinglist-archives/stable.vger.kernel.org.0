@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C39FD2F183
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:13:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 628992F5C4
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:50:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726587AbfE3ENj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:13:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41614 "EHLO mail.kernel.org"
+        id S1729151AbfE3EuB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:50:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729294AbfE3DQV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:16:21 -0400
+        id S1728362AbfE3DLH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:11:07 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6E9B6245CA;
-        Thu, 30 May 2019 03:16:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 670FC244EF;
+        Thu, 30 May 2019 03:11:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186181;
-        bh=GsArPxxXUNMTSolPrYNzpqOWlGbn7QMpvOKGuFK/054=;
+        s=default; t=1559185866;
+        bh=25pFTBoD6N4oU3ZGvpFp9ZGtLP/CfMK1rvuyWPEpq8Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WNvtgElKhoM31BCVv1/ZWs1awmmFGU9aD3D0dlf+F4KGf9Lx8HW6Ih0Lj69XPiyLO
-         eLivoWJsULYwZP64+MLGlJ1HsHrF698zBGg8TSuh68/Qi0zVuuYKgDqcRLWDtwBGls
-         xnHQQsKqFUbz5QlZqbqmc/90LbM7TPCJ/QCLgy5c=
+        b=Ik9KGqKPeGp0/QtPZNiP4AjUnHazjfHmecN9FzUI3fWEwxJyrnODaX26UpVfIokpL
+         ci/uCZksjwdAciHzGYVmNdllK9aNUag+p/mco+CRLm76ozLsstoQ9sAvYBdaCu/4Cx
+         zrPBsJbsx+eFk059LloB8RsgkFsi2xRJ54dwrb6Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Roberto Bergantinos Corpas <rbergant@redhat.com>,
-        Benjamin Coddington <bcodding@redhat.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        stable@vger.kernel.org, Yinbo Zhu <yinbo.zhu@nxp.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 046/276] NFS: make nfs_match_client killable
+Subject: [PATCH 5.1 206/405] mmc: sdhci-of-esdhc: add erratum A-009204 support
 Date:   Wed, 29 May 2019 20:03:24 -0700
-Message-Id: <20190530030527.549336028@linuxfoundation.org>
+Message-Id: <20190530030551.556401385@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,57 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 950a578c6128c2886e295b9c7ecb0b6b22fcc92b ]
+[ Upstream commit 5dd195522562542bc6ebe6e7bd47890d8b7ca93c ]
 
-    Actually we don't do anything with return value from
-    nfs_wait_client_init_complete in nfs_match_client, as a
-    consequence if we get a fatal signal and client is not
-    fully initialised, we'll loop to "again" label
+In the event of that any data error (like, IRQSTAT[DCE]) occurs
+during an eSDHC data transaction where DMA is used for data
+transfer to/from the system memory, setting the SYSCTL[RSTD]
+register may cause a system hang. If software sets the register
+SYSCTL[RSTD] to 1 for error recovery while DMA transferring is
+not complete, eSDHC may hang the system bus. This happens because
+the software register SYSCTL[RSTD] resets the DMA engine without
+waiting for the completion of pending system transactions. This
+erratum is to fix this issue.
 
-    This has been proven to cause soft lockups on some scenarios
-    (no-carrier but configured network interfaces)
-
-Signed-off-by: Roberto Bergantinos Corpas <rbergant@redhat.com>
-Reviewed-by: Benjamin Coddington <bcodding@redhat.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Yinbo Zhu <yinbo.zhu@nxp.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/client.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/mmc/host/sdhci-of-esdhc.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/nfs/client.c b/fs/nfs/client.c
-index 751ca65da8a35..846d45cb1a3c8 100644
---- a/fs/nfs/client.c
-+++ b/fs/nfs/client.c
-@@ -290,6 +290,7 @@ static struct nfs_client *nfs_match_client(const struct nfs_client_initdata *dat
- 	struct nfs_client *clp;
- 	const struct sockaddr *sap = data->addr;
- 	struct nfs_net *nn = net_generic(data->net, nfs_net_id);
-+	int error;
+diff --git a/drivers/mmc/host/sdhci-of-esdhc.c b/drivers/mmc/host/sdhci-of-esdhc.c
+index 9da53e548691b..4fc4d2c7643c5 100644
+--- a/drivers/mmc/host/sdhci-of-esdhc.c
++++ b/drivers/mmc/host/sdhci-of-esdhc.c
+@@ -694,6 +694,9 @@ static void esdhc_reset(struct sdhci_host *host, u8 mask)
+ 	sdhci_writel(host, host->ier, SDHCI_INT_ENABLE);
+ 	sdhci_writel(host, host->ier, SDHCI_SIGNAL_ENABLE);
  
- again:
- 	list_for_each_entry(clp, &nn->nfs_client_list, cl_share_link) {
-@@ -302,8 +303,10 @@ static struct nfs_client *nfs_match_client(const struct nfs_client_initdata *dat
- 		if (clp->cl_cons_state > NFS_CS_READY) {
- 			refcount_inc(&clp->cl_count);
- 			spin_unlock(&nn->nfs_client_lock);
--			nfs_wait_client_init_complete(clp);
-+			error = nfs_wait_client_init_complete(clp);
- 			nfs_put_client(clp);
-+			if (error < 0)
-+				return ERR_PTR(error);
- 			spin_lock(&nn->nfs_client_lock);
- 			goto again;
- 		}
-@@ -413,6 +416,8 @@ struct nfs_client *nfs_get_client(const struct nfs_client_initdata *cl_init)
- 		clp = nfs_match_client(cl_init);
- 		if (clp) {
- 			spin_unlock(&nn->nfs_client_lock);
-+			if (IS_ERR(clp))
-+				return clp;
- 			if (new)
- 				new->rpc_ops->free_client(new);
- 			return nfs_found_client(cl_init, clp);
++	if (of_find_compatible_node(NULL, NULL, "fsl,p2020-esdhc"))
++		mdelay(5);
++
+ 	if (mask & SDHCI_RESET_ALL) {
+ 		val = sdhci_readl(host, ESDHC_TBCTL);
+ 		val &= ~ESDHC_TB_EN;
 -- 
 2.20.1
 
