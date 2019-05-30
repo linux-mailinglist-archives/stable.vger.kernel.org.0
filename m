@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F6822EC2B
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:20:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52A2A2F527
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:46:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731731AbfE3DSu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:18:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52696 "EHLO mail.kernel.org"
+        id S1728769AbfE3DL6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:11:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731729AbfE3DSt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:18:49 -0400
+        id S1728154AbfE3DL6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:11:58 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3B7B324713;
-        Thu, 30 May 2019 03:18:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A296224496;
+        Thu, 30 May 2019 03:11:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186329;
-        bh=mj3NLwoyomYSM+hcO9K+n0XKllV0m5YM8lDNJf4s3LM=;
+        s=default; t=1559185917;
+        bh=jP6U941xMJ/pMv0W8Qfpa6TpUNeBvAA7kHsdYd6KMp0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mQGbucqk4WH1YGMuYjjbQBVIw9T9uNsx9whQIZXq6009mSURMr1L2hf3KY5q/18R/
-         7uaXuzAhtMqr8hZTIvaewYEcJLqIXPz8ptRoj+NRxJpbtScJieAXKYf2U+STeT583q
-         9wDKgk0T7duPfj+g+qmROMX5tF0oSB6p1aQFMXxk=
+        b=zOSSdgOCdYhiG4/V8P9LB0YYLfRCW+EDCwDsdMgN7T7q5TAqG32VgTBVrEetcLJHd
+         ObrECoF9oPoniZ+kXnaq1N7o31ZqKum0oG7B5JGNQlecqKWWJKzsxuNleFC43FVlz7
+         oyGlCMb7L8xN2CqhacyIunCVxMLFxQEhwdzxGhfw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jerome Brunet <jbrunet@baylibre.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 046/193] ASoC: hdmi-codec: unlock the device on startup errors
+Subject: [PATCH 5.1 302/405] tty: ipwireless: fix missing checks for ioremap
 Date:   Wed, 29 May 2019 20:05:00 -0700
-Message-Id: <20190530030456.034354001@linuxfoundation.org>
+Message-Id: <20190530030556.096928382@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,39 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 30180e8436046344b12813dc954b2e01dfdcd22d ]
+[ Upstream commit 1bbb1c318cd8a3a39e8c3e2e83d5e90542d6c3e3 ]
 
-If the hdmi codec startup fails, it should clear the current_substream
-pointer to free the device. This is properly done for the audio_startup()
-callback but for snd_pcm_hw_constraint_eld().
+ipw->attr_memory and ipw->common_memory are assigned with the
+return value of ioremap. ioremap may fail, but no checks
+are enforced. The fix inserts the checks to avoid potential
+NULL pointer dereferences.
 
-Make sure the pointer cleared if an error is reported.
-
-Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Kangjie Lu <kjlu@umn.edu>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/hdmi-codec.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/tty/ipwireless/main.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/sound/soc/codecs/hdmi-codec.c b/sound/soc/codecs/hdmi-codec.c
-index 7406695ee5dc2..e00f5f49f21d1 100644
---- a/sound/soc/codecs/hdmi-codec.c
-+++ b/sound/soc/codecs/hdmi-codec.c
-@@ -446,8 +446,12 @@ static int hdmi_codec_startup(struct snd_pcm_substream *substream,
- 		if (!ret) {
- 			ret = snd_pcm_hw_constraint_eld(substream->runtime,
- 							hcp->eld);
--			if (ret)
-+			if (ret) {
-+				mutex_lock(&hcp->current_stream_lock);
-+				hcp->current_stream = NULL;
-+				mutex_unlock(&hcp->current_stream_lock);
- 				return ret;
-+			}
- 		}
- 		/* Select chmap supported */
- 		hdmi_codec_eld_chmap(hcp);
+diff --git a/drivers/tty/ipwireless/main.c b/drivers/tty/ipwireless/main.c
+index 3475e841ef5c1..4c18bbfe1a92e 100644
+--- a/drivers/tty/ipwireless/main.c
++++ b/drivers/tty/ipwireless/main.c
+@@ -114,6 +114,10 @@ static int ipwireless_probe(struct pcmcia_device *p_dev, void *priv_data)
+ 
+ 	ipw->common_memory = ioremap(p_dev->resource[2]->start,
+ 				resource_size(p_dev->resource[2]));
++	if (!ipw->common_memory) {
++		ret = -ENOMEM;
++		goto exit1;
++	}
+ 	if (!request_mem_region(p_dev->resource[2]->start,
+ 				resource_size(p_dev->resource[2]),
+ 				IPWIRELESS_PCCARD_NAME)) {
+@@ -134,6 +138,10 @@ static int ipwireless_probe(struct pcmcia_device *p_dev, void *priv_data)
+ 
+ 	ipw->attr_memory = ioremap(p_dev->resource[3]->start,
+ 				resource_size(p_dev->resource[3]));
++	if (!ipw->attr_memory) {
++		ret = -ENOMEM;
++		goto exit3;
++	}
+ 	if (!request_mem_region(p_dev->resource[3]->start,
+ 				resource_size(p_dev->resource[3]),
+ 				IPWIRELESS_PCCARD_NAME)) {
 -- 
 2.20.1
 
