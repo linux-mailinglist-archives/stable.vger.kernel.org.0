@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D6D262F438
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:36:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D041D2F67F
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:56:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388505AbfE3EgM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:36:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57148 "EHLO mail.kernel.org"
+        id S1728033AbfE3E4r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:56:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729320AbfE3DNB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:13:01 -0400
+        id S1727897AbfE3DKB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:10:01 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F035823D83;
-        Thu, 30 May 2019 03:13:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 07F572449A;
+        Thu, 30 May 2019 03:10:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185981;
-        bh=2W0LCAp+js594ct7JLGSdDfTbTh5tQVJFIJpPYJMW8k=;
+        s=default; t=1559185801;
+        bh=GuZVLvd2ftXKMDnPVfu5+Z+fVCvqVucmujxOBuTQXHg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2l75gPO0s28p7c8MenKFYRzUz1x6rSXpyEmQmQXnwDRMmPsqzdZ56HOFHvNDKuU6M
-         J6jzo3JLW8lXjOYDFMgPKynnrh30zW7jCwcs3jtQjm0rr70zrMJVWNVBildwe5uIfr
-         +q298usc9M6jGiBxTojIdHV/r8oF2xhV5pocm+Hg=
+        b=TP+SipxGIGBsWOJT208i7jIVe0SEVYhrlLwyogs0cpuAAbf629eTCqJ2NQ2RRIhp1
+         KOxUXQU1HaQBL4uPdskP5fU8N3YdZRMvzkGxWhK8g2LK/p+chjR6dDaucaW0mGZXqW
+         xATHxmyUbgG3HeQJpygfYM5MJQFDWvirqoiQhZZA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Machek <pavel@denx.de>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.0 004/346] KVM: x86: fix return value for reserved EFER
+        stable@vger.kernel.org, Flavio Suligoi <f.suligoi@asem.it>,
+        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 079/405] spi: pxa2xx: fix SCR (divisor) calculation
 Date:   Wed, 29 May 2019 20:01:17 -0700
-Message-Id: <20190530030540.651104022@linuxfoundation.org>
+Message-Id: <20190530030544.975474423@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+[ Upstream commit 29f2133717c527f492933b0622a4aafe0b3cbe9e ]
 
-commit 66f61c92889ff3ca365161fb29dd36d6354682ba upstream.
+Calculate the divisor for the SCR (Serial Clock Rate), avoiding
+that the SSP transmission rate can be greater than the device rate.
 
-Commit 11988499e62b ("KVM: x86: Skip EFER vs. guest CPUID checks for
-host-initiated writes", 2019-04-02) introduced a "return false" in a
-function returning int, and anyway set_efer has a "nonzero on error"
-conventon so it should be returning 1.
+When the division between the SSP clock and the device rate generates
+a reminder, we have to increment by one the divisor.
+In this way the resulting SSP clock will never be greater than the
+device SPI max frequency.
 
-Reported-by: Pavel Machek <pavel@denx.de>
-Fixes: 11988499e62b ("KVM: x86: Skip EFER vs. guest CPUID checks for host-initiated writes")
-Cc: Sean Christopherson <sean.j.christopherson@intel.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+For example, with:
 
+ - ssp_clk  = 50 MHz
+ - dev freq = 15 MHz
+
+without this patch the SSP clock will be greater than 15 MHz:
+
+ - 25 MHz for PXA25x_SSP and CE4100_SSP
+ - 16,56 MHz for the others
+
+Instead, with this patch, we have in both case an SSP clock of 12.5MHz,
+so the max rate of the SPI device clock is respected.
+
+Signed-off-by: Flavio Suligoi <f.suligoi@asem.it>
+Reviewed-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Reviewed-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/x86.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/spi/spi-pxa2xx.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -1288,7 +1288,7 @@ static int set_efer(struct kvm_vcpu *vcp
- 	u64 efer = msr_info->data;
+diff --git a/drivers/spi/spi-pxa2xx.c b/drivers/spi/spi-pxa2xx.c
+index b6ddba833d021..d2076f2f468f0 100644
+--- a/drivers/spi/spi-pxa2xx.c
++++ b/drivers/spi/spi-pxa2xx.c
+@@ -884,10 +884,14 @@ static unsigned int ssp_get_clk_div(struct driver_data *drv_data, int rate)
  
- 	if (efer & efer_reserved_bits)
--		return false;
-+		return 1;
+ 	rate = min_t(int, ssp_clk, rate);
  
- 	if (!msr_info->host_initiated) {
- 		if (!__kvm_valid_efer(vcpu, efer))
++	/*
++	 * Calculate the divisor for the SCR (Serial Clock Rate), avoiding
++	 * that the SSP transmission rate can be greater than the device rate
++	 */
+ 	if (ssp->type == PXA25x_SSP || ssp->type == CE4100_SSP)
+-		return (ssp_clk / (2 * rate) - 1) & 0xff;
++		return (DIV_ROUND_UP(ssp_clk, 2 * rate) - 1) & 0xff;
+ 	else
+-		return (ssp_clk / rate - 1) & 0xfff;
++		return (DIV_ROUND_UP(ssp_clk, rate) - 1)  & 0xfff;
+ }
+ 
+ static unsigned int pxa2xx_ssp_get_clk_div(struct driver_data *drv_data,
+-- 
+2.20.1
+
 
 
