@@ -2,45 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 04CE12F208
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:18:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46F272F4A5
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:42:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728077AbfE3ERx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:17:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39358 "EHLO mail.kernel.org"
+        id S1729120AbfE3EkC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:40:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729443AbfE3DPh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:15:37 -0400
+        id S1729110AbfE3DMf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:12:35 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EDED12449A;
-        Thu, 30 May 2019 03:15:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E9D5A23DE3;
+        Thu, 30 May 2019 03:12:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186137;
-        bh=dfEg2HOpaul2hogvunM38ZcGW3iNqFcO1GoCYEy8P4Q=;
+        s=default; t=1559185955;
+        bh=BozWObVCFZUojhexPYO13Npvr6qSsLfQWmqS7IskZjU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lXCgC0qpqaGlWdUqT0r+Y2HWiouWj4JjD3dS0n3La9DnPxYP9pflWqHy8G36A+ocQ
-         xY8QP5NXbqNMw3URAtkWR1JjKQLiozGROKJzEaFXzmpGCYGJdgbIjl2ZRNsXz6stnj
-         0TpEzXa8pYgU7KAbUhllS8nlCmC6Orj78xy/2h6Q=
+        b=TeqMRbeeV2gO2v6vv9sRSUyy5iq/g+aAJFWmUL4saQoVdWWPoMcZ3rAKn1duYoR9t
+         lhAyXo4IlUaoXVNJt0Cx+JM0pRDlVrnoH6v48L8egAzg37HwHXM8jEThtZ4Ozv98Wj
+         TI/sFfpNO5RU5GN0fz5J874a5OQlFMnrbgRbgnFE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Matt Fleming <matt@codeblueprint.co.uk>,
-        Peter Jones <pjones@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linux-efi@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
+        stable@vger.kernel.org,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 260/346] efifb: Omit memory map check on legacy boot
+Subject: [PATCH 5.1 335/405] media: v4l2-fwnode: The first default data lane is 0 on C-PHY
 Date:   Wed, 29 May 2019 20:05:33 -0700
-Message-Id: <20190530030554.145227123@linuxfoundation.org>
+Message-Id: <20190530030557.660144630@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,54 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c2999c281ea2d2ebbdfce96cecc7b52e2ae7c406 ]
+[ Upstream commit fff35d45e16fae125c6000cb87e254cb634ac7fb ]
 
-Since the following commit:
+C-PHY has no clock lanes. Therefore the first data lane is 0 by default.
 
-  38ac0287b7f4 ("fbdev/efifb: Honour UEFI memory map attributes when mapping the FB")
+Fixes: edc6d56c2e7e ("media: v4l: fwnode: Support parsing of CSI-2 C-PHY endpoints")
 
-efifb_probe() checks its memory range via efi_mem_desc_lookup(),
-and this leads to a spurious error message:
-
-   EFI_MEMMAP is not enabled
-
-at every boot on KVM.  This is quite annoying since the error message
-appears even if you set "quiet" boot option.
-
-Since this happens on legacy boot, which strangely enough exposes
-a EFI framebuffer via screen_info, let's double check that we are
-doing an EFI boot before attempting to access the EFI memory map.
-
-Reported-by: Takashi Iwai <tiwai@suse.de>
-Tested-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Matt Fleming <matt@codeblueprint.co.uk>
-Cc: Peter Jones <pjones@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: linux-efi@vger.kernel.org
-Link: http://lkml.kernel.org/r/20190328193429.21373-3-ard.biesheuvel@linaro.org
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/efifb.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/media/v4l2-core/v4l2-fwnode.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/video/fbdev/efifb.c b/drivers/video/fbdev/efifb.c
-index fd02e8a4841d6..9f39f0c360e0c 100644
---- a/drivers/video/fbdev/efifb.c
-+++ b/drivers/video/fbdev/efifb.c
-@@ -464,7 +464,8 @@ static int efifb_probe(struct platform_device *dev)
- 	info->apertures->ranges[0].base = efifb_fix.smem_start;
- 	info->apertures->ranges[0].size = size_remap;
- 
--	if (!efi_mem_desc_lookup(efifb_fix.smem_start, &md)) {
-+	if (efi_enabled(EFI_BOOT) &&
-+	    !efi_mem_desc_lookup(efifb_fix.smem_start, &md)) {
- 		if ((efifb_fix.smem_start + efifb_fix.smem_len) >
- 		    (md.phys_addr + (md.num_pages << EFI_PAGE_SHIFT))) {
- 			pr_err("efifb: video memory @ 0x%lx spans multiple EFI memory regions\n",
+diff --git a/drivers/media/v4l2-core/v4l2-fwnode.c b/drivers/media/v4l2-core/v4l2-fwnode.c
+index 20571846e6367..7495f83231479 100644
+--- a/drivers/media/v4l2-core/v4l2-fwnode.c
++++ b/drivers/media/v4l2-core/v4l2-fwnode.c
+@@ -225,6 +225,10 @@ static int v4l2_fwnode_endpoint_parse_csi2_bus(struct fwnode_handle *fwnode,
+ 	if (bus_type == V4L2_MBUS_CSI2_DPHY ||
+ 	    bus_type == V4L2_MBUS_CSI2_CPHY || lanes_used ||
+ 	    have_clk_lane || (flags & ~V4L2_MBUS_CSI2_CONTINUOUS_CLOCK)) {
++		/* Only D-PHY has a clock lane. */
++		unsigned int dfl_data_lane_index =
++			bus_type == V4L2_MBUS_CSI2_DPHY;
++
+ 		bus->flags = flags;
+ 		if (bus_type == V4L2_MBUS_UNKNOWN)
+ 			vep->bus_type = V4L2_MBUS_CSI2_DPHY;
+@@ -233,7 +237,7 @@ static int v4l2_fwnode_endpoint_parse_csi2_bus(struct fwnode_handle *fwnode,
+ 		if (use_default_lane_mapping) {
+ 			bus->clock_lane = 0;
+ 			for (i = 0; i < num_data_lanes; i++)
+-				bus->data_lanes[i] = 1 + i;
++				bus->data_lanes[i] = dfl_data_lane_index + i;
+ 		} else {
+ 			bus->clock_lane = clock_lane;
+ 			for (i = 0; i < num_data_lanes; i++)
 -- 
 2.20.1
 
