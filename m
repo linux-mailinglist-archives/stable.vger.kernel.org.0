@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4069A2EC5A
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:20:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 146312EDD4
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:42:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732146AbfE3DUR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:20:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57984 "EHLO mail.kernel.org"
+        id S1727934AbfE3Dlh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:41:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730532AbfE3DUQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:20:16 -0400
+        id S1732508AbfE3DVS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:21:18 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 205DD24918;
-        Thu, 30 May 2019 03:20:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 54457249E3;
+        Thu, 30 May 2019 03:21:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186416;
-        bh=+AqCDIM5UC3xb9nQVemPcQpfm/wHfY8NsDn9rFRZ2h0=;
+        s=default; t=1559186477;
+        bh=e+kUFCX3TPPIVo7MEN61WyBvBtEUivqq4E0reAInshM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uu/LPoSu0p6tUpZBm4+cVXEMnOwRcaYYA2ZHn28a9w2RPUTJDxDlsf5Yopr6ZqBDG
-         ZS/IDKdluHxjh/GS2EbizHPebxb7xa6bCRyskyY36hYCGE0LcZIUSgckGEYhmmXllD
-         sVW5DG8mitWd3E83QtfAgYImGI7uO3L+2jlwo3sE=
+        b=zO4KPBGHDqwyioukLwpiPEMM1rNJUJXk07ybC9NfOBSVBi4Yh8QdjQqbUsjyPEQUL
+         jjsewuRpYBaCPnLqBic7bndWsEjrPEgZFXC8HrtlFRl+PZcQSLWUsMz+RsoULyph3k
+         UWaN6TFQfkwhfw/QiU0PpX3KZraS6qyHMISXQGUc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Peter Ujfalusi <peter.ujfalusi@ti.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, siliu@redhat.com,
+        Pankaj Gupta <pagupta@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 189/193] ASoC: davinci-mcasp: Fix clang warning without CONFIG_PM
+Subject: [PATCH 4.9 111/128] virtio_console: initialize vtermno value for ports
 Date:   Wed, 29 May 2019 20:07:23 -0700
-Message-Id: <20190530030513.204147560@linuxfoundation.org>
+Message-Id: <20190530030454.634077792@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
+References: <20190530030432.977908967@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,47 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 8ca5104715cfd14254ea5aecc390ae583b707607 ]
+[ Upstream commit 4b0a2c5ff7215206ea6135a405f17c5f6fca7d00 ]
 
-Building with clang shows a variable that is only used by the
-suspend/resume functions but defined outside of their #ifdef block:
+For regular serial ports we do not initialize value of vtermno
+variable. A garbage value is assigned for non console ports.
+The value can be observed as a random integer with [1].
 
-sound/soc/ti/davinci-mcasp.c:48:12: error: variable 'context_regs' is not needed and will not be emitted
+[1] vim /sys/kernel/debug/virtio-ports/vport*p*
 
-We commonly fix these by marking the PM functions as __maybe_unused,
-but here that would grow the davinci_mcasp structure, so instead
-add another #ifdef here.
+This patch initialize the value of vtermno for console serial
+ports to '1' and regular serial ports are initiaized to '0'.
 
-Fixes: 1cc0c054f380 ("ASoC: davinci-mcasp: Convert the context save/restore to use array")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-by: siliu@redhat.com
+Signed-off-by: Pankaj Gupta <pagupta@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/davinci/davinci-mcasp.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/char/virtio_console.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/davinci/davinci-mcasp.c b/sound/soc/davinci/davinci-mcasp.c
-index f395bbc7c3545..9aa741d272798 100644
---- a/sound/soc/davinci/davinci-mcasp.c
-+++ b/sound/soc/davinci/davinci-mcasp.c
-@@ -43,6 +43,7 @@
- 
- #define MCASP_MAX_AFIFO_DEPTH	64
- 
-+#ifdef CONFIG_PM
- static u32 context_regs[] = {
- 	DAVINCI_MCASP_TXFMCTL_REG,
- 	DAVINCI_MCASP_RXFMCTL_REG,
-@@ -65,6 +66,7 @@ struct davinci_mcasp_context {
- 	u32	*xrsr_regs; /* for serializer configuration */
- 	bool	pm_state;
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index 8c0017d485717..800ced0a5a247 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -75,7 +75,7 @@ struct ports_driver_data {
+ 	/* All the console devices handled by this driver */
+ 	struct list_head consoles;
  };
-+#endif
+-static struct ports_driver_data pdrvdata;
++static struct ports_driver_data pdrvdata = { .next_vtermno = 1};
  
- struct davinci_mcasp_ruledata {
- 	struct davinci_mcasp *mcasp;
+ static DEFINE_SPINLOCK(pdrvdata_lock);
+ static DECLARE_COMPLETION(early_console_added);
+@@ -1425,6 +1425,7 @@ static int add_port(struct ports_device *portdev, u32 id)
+ 	port->async_queue = NULL;
+ 
+ 	port->cons.ws.ws_row = port->cons.ws.ws_col = 0;
++	port->cons.vtermno = 0;
+ 
+ 	port->host_connected = port->guest_connected = false;
+ 	port->stats = (struct port_stats) { 0 };
 -- 
 2.20.1
 
