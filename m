@@ -2,46 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1789E2F550
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:47:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6827D2F12F
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:11:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728629AbfE3DLi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:11:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51652 "EHLO mail.kernel.org"
+        id S1727038AbfE3EK7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:10:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728621AbfE3DLh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:11:37 -0400
+        id S1730866AbfE3DQ4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:16:56 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4F85B244D2;
-        Thu, 30 May 2019 03:11:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E5D742463F;
+        Thu, 30 May 2019 03:16:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185897;
-        bh=P3JTk7xVOJNuPEoVcNeajWlhbZPMJjIyXv67yz0Vxn8=;
+        s=default; t=1559186216;
+        bh=51h9W7jm+N2K/Rbbz/PlPliMaIU8cxTjg5mDJa6/Bno=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GimkMwz3G180jpbG+QHyPyvCDMhyLwDS8fjMw2EjJa7cU1US2DLSZW79ptf9RHPqq
-         JitgTZ0RtdI0PiLsS5z3u466/qM5QLMwZ9EVeO3cEk/kPglo9nWWvKPwDrGoFbpEye
-         v9ym+UY5ETYy/ExF6EnXBTEFAMb0raxHDQwhEF3M=
+        b=K+X23mkUoy8tF5IPVnyVxy4+ReZJDtDQOHInjYLGLVEkTz+YBSOeVk2u/z34eVt3+
+         Co9FfifWJMT3xbgUwl0y1zfC2mYVhmMRe+CBhSGnViKMlZb+nfM12g4vCEoEPDzXUY
+         3O+Vp9M4XRVjxxXh31BSDdtC8D0vWU5Kxkh7Gjb4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Will Deacon <will.deacon@arm.com>, ard.biesheuvel@linaro.org,
-        oss-drivers@netronome.com, pbonzini@redhat.com,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 263/405] locking/static_key: Fix false positive warnings on concurrent dec/inc
+        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
+        Hannes Reinecke <hare@suse.com>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 103/276] bcache: return error immediately in bch_journal_replay()
 Date:   Wed, 29 May 2019 20:04:21 -0700
-Message-Id: <20190530030554.247311160@linuxfoundation.org>
+Message-Id: <20190530030532.508804458@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,89 +44,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a1247d06d01045d7ab2882a9c074fbf21137c690 ]
+[ Upstream commit 68d10e6979a3b59e3cd2e90bfcafed79c4cf180a ]
 
-Even though the atomic_dec_and_mutex_lock() in
-__static_key_slow_dec_cpuslocked() can never see a negative value in
-key->enabled the subsequent sanity check is re-reading key->enabled, which may
-have been set to -1 in the meantime by static_key_slow_inc_cpuslocked().
+When failure happens inside bch_journal_replay(), calling
+cache_set_err_on() and handling the failure in async way is not a good
+idea. Because after bch_journal_replay() returns, registering code will
+continue to execute following steps, and unregistering code triggered
+by cache_set_err_on() is running in same time. First it is unnecessary
+to handle failure and unregister cache set in an async way, second there
+might be potential race condition to run register and unregister code
+for same cache set.
 
-                CPU  A                               CPU B
+So in this patch, if failure happens in bch_journal_replay(), we don't
+call cache_set_err_on(), and just print out the same error message to
+kernel message buffer, then return -EIO immediately caller. Then caller
+can detect such failure and handle it in synchrnozied way.
 
- __static_key_slow_dec_cpuslocked():          static_key_slow_inc_cpuslocked():
-                               # enabled = 1
-   atomic_dec_and_mutex_lock()
-                               # enabled = 0
-                                              atomic_read() == 0
-                                              atomic_set(-1)
-                               # enabled = -1
-   val = atomic_read()
-   # Oops - val == -1!
-
-The test case is TCP's clean_acked_data_enable() / clean_acked_data_disable()
-as tickled by KTLS (net/ktls).
-
-Suggested-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Reported-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Tested-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: ard.biesheuvel@linaro.org
-Cc: oss-drivers@netronome.com
-Cc: pbonzini@redhat.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Coly Li <colyli@suse.de>
+Reviewed-by: Hannes Reinecke <hare@suse.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/jump_label.c | 21 +++++++++++++--------
- 1 file changed, 13 insertions(+), 8 deletions(-)
+ drivers/md/bcache/journal.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/jump_label.c b/kernel/jump_label.c
-index bad96b476eb6e..a799b1ac6b2fe 100644
---- a/kernel/jump_label.c
-+++ b/kernel/jump_label.c
-@@ -206,6 +206,8 @@ static void __static_key_slow_dec_cpuslocked(struct static_key *key,
- 					   unsigned long rate_limit,
- 					   struct delayed_work *work)
- {
-+	int val;
-+
- 	lockdep_assert_cpus_held();
+diff --git a/drivers/md/bcache/journal.c b/drivers/md/bcache/journal.c
+index 772258ee1f517..07da39ac2d110 100644
+--- a/drivers/md/bcache/journal.c
++++ b/drivers/md/bcache/journal.c
+@@ -330,9 +330,12 @@ int bch_journal_replay(struct cache_set *s, struct list_head *list)
+ 	list_for_each_entry(i, list, list) {
+ 		BUG_ON(i->pin && atomic_read(i->pin) != 1);
  
- 	/*
-@@ -215,17 +217,20 @@ static void __static_key_slow_dec_cpuslocked(struct static_key *key,
- 	 * returns is unbalanced, because all other static_key_slow_inc()
- 	 * instances block while the update is in progress.
- 	 */
--	if (!atomic_dec_and_mutex_lock(&key->enabled, &jump_label_mutex)) {
--		WARN(atomic_read(&key->enabled) < 0,
--		     "jump label: negative count!\n");
-+	val = atomic_fetch_add_unless(&key->enabled, -1, 1);
-+	if (val != 1) {
-+		WARN(val < 0, "jump label: negative count!\n");
- 		return;
- 	}
- 
--	if (rate_limit) {
--		atomic_inc(&key->enabled);
--		schedule_delayed_work(work, rate_limit);
--	} else {
--		jump_label_update(key);
-+	jump_label_lock();
-+	if (atomic_dec_and_test(&key->enabled)) {
-+		if (rate_limit) {
-+			atomic_inc(&key->enabled);
-+			schedule_delayed_work(work, rate_limit);
-+		} else {
-+			jump_label_update(key);
+-		cache_set_err_on(n != i->j.seq, s,
+-"bcache: journal entries %llu-%llu missing! (replaying %llu-%llu)",
+-				 n, i->j.seq - 1, start, end);
++		if (n != i->j.seq) {
++			pr_err("bcache: journal entries %llu-%llu missing! (replaying %llu-%llu)",
++			n, i->j.seq - 1, start, end);
++			ret = -EIO;
++			goto err;
 +		}
- 	}
- 	jump_label_unlock();
- }
+ 
+ 		for (k = i->j.start;
+ 		     k < bset_bkey_last(&i->j);
 -- 
 2.20.1
 
