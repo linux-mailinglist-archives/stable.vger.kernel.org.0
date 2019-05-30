@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6334C2EE2B
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:44:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 717DA2F1F2
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:17:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732368AbfE3DUw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:20:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60252 "EHLO mail.kernel.org"
+        id S1727339AbfE3EQ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:16:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729807AbfE3DUv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:20:51 -0400
+        id S1730455AbfE3DPn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:15:43 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 085662497E;
-        Thu, 30 May 2019 03:20:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F8E9245A7;
+        Thu, 30 May 2019 03:15:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186451;
-        bh=uhWnmlcoF64u9MNy02zFBaoTIoSFXPkx4megjZ25jHc=;
+        s=default; t=1559186143;
+        bh=CV2FYDZFlYCSHZvxts4hl/IhgpK9JziH36pg8vtydAk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kh1WaY8zfph02blH5dlBkPc7aZn2WPu4ORw/CyfT2z98dHShUgv2iJUFcC+kCwq9D
-         r77j/Gfpz3lSCCiH3+PdANw6S8lI+M3gEpHALl8prnBgEul//8jXdIlImhAdHeGQlT
-         fbZacUVrAae8SK2YOA25z89WsYyreLjoTvT6hTtA=
+        b=IRavbDQrez9+Yf32WPdcmA6ynuHUuHL3dify6R5Tg1fUPcv8p1o8CXbqe3tTZMoth
+         MT+FhK2aTkTIq61Oq5HW8RyTl97dEdRE10vHdbbUjpn1uzwVda409mh0GcW//tzODt
+         RDKOgJCC8DKnrMeitYRqjjMGKmwnSt6ZfzW0Adok=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenwen Wang <wang6495@umn.edu>,
-        Richard Guy Briggs <rgb@redhat.com>,
-        Paul Moore <paul@paul-moore.com>,
+        stable@vger.kernel.org,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        Tomi Valkeinen <tomi.valkeinen@ti.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 061/128] audit: fix a memory leak bug
+Subject: [PATCH 5.0 320/346] drm/omap: Notify all devices in the pipeline of output disconnection
 Date:   Wed, 29 May 2019 20:06:33 -0700
-Message-Id: <20190530030445.709897200@linuxfoundation.org>
+Message-Id: <20190530030556.999978965@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
-References: <20190530030432.977908967@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,64 +46,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 70c4cf17e445264453bc5323db3e50aa0ac9e81f ]
+[ Upstream commit 27a7e3e18419869cdcc414a404f3fe66f1b4e644 ]
 
-In audit_rule_change(), audit_data_to_entry() is firstly invoked to
-translate the payload data to the kernel's rule representation. In
-audit_data_to_entry(), depending on the audit field type, an audit tree may
-be created in audit_make_tree(), which eventually invokes kmalloc() to
-allocate the tree.  Since this tree is a temporary tree, it will be then
-freed in the following execution, e.g., audit_add_rule() if the message
-type is AUDIT_ADD_RULE or audit_del_rule() if the message type is
-AUDIT_DEL_RULE. However, if the message type is neither AUDIT_ADD_RULE nor
-AUDIT_DEL_RULE, i.e., the default case of the switch statement, this
-temporary tree is not freed.
+For HDMI pipelines, when the output gets disconnected the device
+handling CEC needs to be notified. Instead of guessing which device that
+would be (and sometimes getting it wrong), notify all devices in the
+pipeline.
 
-To fix this issue, only allocate the tree when the type is AUDIT_ADD_RULE
-or AUDIT_DEL_RULE.
-
-Signed-off-by: Wenwen Wang <wang6495@umn.edu>
-Reviewed-by: Richard Guy Briggs <rgb@redhat.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Tested-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/auditfilter.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/omapdrm/omap_connector.c | 28 ++++++++++++++----------
+ 1 file changed, 16 insertions(+), 12 deletions(-)
 
-diff --git a/kernel/auditfilter.c b/kernel/auditfilter.c
-index cd4f41397c7e8..42b7251c597fb 100644
---- a/kernel/auditfilter.c
-+++ b/kernel/auditfilter.c
-@@ -1095,22 +1095,24 @@ int audit_rule_change(int type, __u32 portid, int seq, void *data,
- 	int err = 0;
- 	struct audit_entry *entry;
+diff --git a/drivers/gpu/drm/omapdrm/omap_connector.c b/drivers/gpu/drm/omapdrm/omap_connector.c
+index b81302c4bf9e6..a45f925cb19a9 100644
+--- a/drivers/gpu/drm/omapdrm/omap_connector.c
++++ b/drivers/gpu/drm/omapdrm/omap_connector.c
+@@ -36,18 +36,22 @@ struct omap_connector {
+ };
  
--	entry = audit_data_to_entry(data, datasz);
--	if (IS_ERR(entry))
--		return PTR_ERR(entry);
--
- 	switch (type) {
- 	case AUDIT_ADD_RULE:
-+		entry = audit_data_to_entry(data, datasz);
-+		if (IS_ERR(entry))
-+			return PTR_ERR(entry);
- 		err = audit_add_rule(entry);
- 		audit_log_rule_change("add_rule", &entry->rule, !err);
- 		break;
- 	case AUDIT_DEL_RULE:
-+		entry = audit_data_to_entry(data, datasz);
-+		if (IS_ERR(entry))
-+			return PTR_ERR(entry);
- 		err = audit_del_rule(entry);
- 		audit_log_rule_change("remove_rule", &entry->rule, !err);
- 		break;
- 	default:
--		err = -EINVAL;
- 		WARN_ON(1);
-+		return -EINVAL;
+ static void omap_connector_hpd_notify(struct drm_connector *connector,
+-				      struct omap_dss_device *src,
+ 				      enum drm_connector_status status)
+ {
+-	if (status == connector_status_disconnected) {
+-		/*
+-		 * If the source is an HDMI encoder, notify it of disconnection.
+-		 * This is required to let the HDMI encoder reset any internal
+-		 * state related to connection status, such as the CEC address.
+-		 */
+-		if (src && src->type == OMAP_DISPLAY_TYPE_HDMI &&
+-		    src->ops->hdmi.lost_hotplug)
+-			src->ops->hdmi.lost_hotplug(src);
++	struct omap_connector *omap_connector = to_omap_connector(connector);
++	struct omap_dss_device *dssdev;
++
++	if (status != connector_status_disconnected)
++		return;
++
++	/*
++	 * Notify all devics in the pipeline of disconnection. This is required
++	 * to let the HDMI encoders reset their internal state related to
++	 * connection status, such as the CEC address.
++	 */
++	for (dssdev = omap_connector->output; dssdev; dssdev = dssdev->next) {
++		if (dssdev->ops && dssdev->ops->hdmi.lost_hotplug)
++			dssdev->ops->hdmi.lost_hotplug(dssdev);
  	}
+ }
  
- 	if (err || type == AUDIT_DEL_RULE) {
+@@ -67,7 +71,7 @@ static void omap_connector_hpd_cb(void *cb_data,
+ 	if (old_status == status)
+ 		return;
+ 
+-	omap_connector_hpd_notify(connector, omap_connector->hpd, status);
++	omap_connector_hpd_notify(connector, status);
+ 
+ 	drm_kms_helper_hotplug_event(dev);
+ }
+@@ -128,7 +132,7 @@ static enum drm_connector_status omap_connector_detect(
+ 		       ? connector_status_connected
+ 		       : connector_status_disconnected;
+ 
+-		omap_connector_hpd_notify(connector, dssdev->src, status);
++		omap_connector_hpd_notify(connector, status);
+ 	} else {
+ 		switch (omap_connector->display->type) {
+ 		case OMAP_DISPLAY_TYPE_DPI:
 -- 
 2.20.1
 
