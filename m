@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AE7D2F3DB
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:34:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D458B2F5CE
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:50:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729796AbfE3EdF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:33:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58950 "EHLO mail.kernel.org"
+        id S1728330AbfE3DLD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:11:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729491AbfE3DNc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:13:32 -0400
+        id S1728314AbfE3DLB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:11:01 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 688CF24526;
-        Thu, 30 May 2019 03:13:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1EC46244D4;
+        Thu, 30 May 2019 03:11:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186011;
-        bh=w3IVtbtJNkqRBo+VDM/Lw8cnn4ALV8HzJvwSy/aYl6k=;
+        s=default; t=1559185860;
+        bh=YVSsXPhSV/AB32E936YZFOqFqKBy8o2/bd5r9JlQOZ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hreetgwAffaJ7YkxYLJSYI2CRGruBbk5smvi0ccUKYBV0fkFXseBUEtB9mhSaSh/l
-         adOCy8U5sv9DVmalRV5fg6tj0IpvRJnVDRH5beVjk8Dar7MriW6TocBWbRe/gceiyF
-         Z45mkXEsCvRG/RlDHGRPUQ/+yiKUBppy5SefbUvA=
+        b=o1lMVS7Y10R1sCfZoL0FxImRbHLJK3uhC1dzsB5s4ZJLR8qWCLgjLVnafHzFdkZcK
+         U7F/3+/1dHTFp9+Rq1tlspAaVYONM75nGc0NcgQPiBny5PVz5VwbuVk3ll2idxVrLs
+         mTMSPefOrpjKUtY8WYKR6Pok9IfwusUSPY/HcD7g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 073/346] brcm80211: potential NULL dereference in brcmf_cfg80211_vndr_cmds_dcmd_handler()
+        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
+        Patrice Chotard <patrice.chotard@st.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        linux-gpio@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 148/405] pinctrl: st: fix leaked of_node references
 Date:   Wed, 29 May 2019 20:02:26 -0700
-Message-Id: <20190530030544.780551237@linuxfoundation.org>
+Message-Id: <20190530030548.613760858@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,55 +45,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit e025da3d7aa4770bb1d1b3b0aa7cc4da1744852d ]
+[ Upstream commit 483d70d73beaecab55882fcd2a357af72674e24c ]
 
-If "ret_len" is negative then it could lead to a NULL dereference.
+The call to of_get_child_by_name returns a node pointer with refcount
+incremented thus it must be explicitly decremented after the last
+usage.
 
-The "ret_len" value comes from nl80211_vendor_cmd(), if it's negative
-then we don't allocate the "dcmd_buf" buffer.  Then we pass "ret_len" to
-brcmf_fil_cmd_data_set() where it is cast to a very high u32 value.
-Most of the functions in that call tree check whether the buffer we pass
-is NULL but there are at least a couple places which don't such as
-brcmf_dbg_hex_dump() and brcmf_msgbuf_query_dcmd().  We memcpy() to and
-from the buffer so it would result in a NULL dereference.
+Detected by coccinelle with the following warnings:
+./drivers/pinctrl/pinctrl-st.c:1188:3-9: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 1175, but without a corresponding object release within this function.
+./drivers/pinctrl/pinctrl-st.c:1188:3-9: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 1175, but without a corresponding object release within this function.
+./drivers/pinctrl/pinctrl-st.c:1199:2-8: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 1175, but without a corresponding object release within this function.
+./drivers/pinctrl/pinctrl-st.c:1199:2-8: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 1175, but without a corresponding object release within this function.
 
-The fix is to change the types so that "ret_len" can't be negative.  (If
-we memcpy() zero bytes to NULL, that's a no-op and doesn't cause an
-issue).
-
-Fixes: 1bacb0487d0e ("brcmfmac: replace cfg80211 testmode with vendor command")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
+Cc: Patrice Chotard <patrice.chotard@st.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Cc: linux-gpio@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org (open list)
+Reviewed-by: Patrice Chotard <patrice.chotard@st.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/vendor.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/pinctrl/pinctrl-st.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/vendor.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/vendor.c
-index 8eff2753abade..d493021f60318 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/vendor.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/vendor.c
-@@ -35,9 +35,10 @@ static int brcmf_cfg80211_vndr_cmds_dcmd_handler(struct wiphy *wiphy,
- 	struct brcmf_if *ifp;
- 	const struct brcmf_vndr_dcmd_hdr *cmdhdr = data;
- 	struct sk_buff *reply;
--	int ret, payload, ret_len;
-+	unsigned int payload, ret_len;
- 	void *dcmd_buf = NULL, *wr_pointer;
- 	u16 msglen, maxmsglen = PAGE_SIZE - 0x100;
-+	int ret;
+diff --git a/drivers/pinctrl/pinctrl-st.c b/drivers/pinctrl/pinctrl-st.c
+index e66af93f2cbf8..195b442a23434 100644
+--- a/drivers/pinctrl/pinctrl-st.c
++++ b/drivers/pinctrl/pinctrl-st.c
+@@ -1170,7 +1170,7 @@ static int st_pctl_dt_parse_groups(struct device_node *np,
+ 	struct property *pp;
+ 	struct st_pinconf *conf;
+ 	struct device_node *pins;
+-	int i = 0, npins = 0, nr_props;
++	int i = 0, npins = 0, nr_props, ret = 0;
  
- 	if (len < sizeof(*cmdhdr)) {
- 		brcmf_err("vendor command too short: %d\n", len);
-@@ -65,7 +66,7 @@ static int brcmf_cfg80211_vndr_cmds_dcmd_handler(struct wiphy *wiphy,
- 			brcmf_err("oversize return buffer %d\n", ret_len);
- 			ret_len = BRCMF_DCMD_MAXLEN;
+ 	pins = of_get_child_by_name(np, "st,pins");
+ 	if (!pins)
+@@ -1185,7 +1185,8 @@ static int st_pctl_dt_parse_groups(struct device_node *np,
+ 			npins++;
+ 		} else {
+ 			pr_warn("Invalid st,pins in %pOFn node\n", np);
+-			return -EINVAL;
++			ret = -EINVAL;
++			goto out_put_node;
  		}
--		payload = max(ret_len, len) + 1;
-+		payload = max_t(unsigned int, ret_len, len) + 1;
- 		dcmd_buf = vzalloc(payload);
- 		if (NULL == dcmd_buf)
- 			return -ENOMEM;
+ 	}
+ 
+@@ -1195,8 +1196,10 @@ static int st_pctl_dt_parse_groups(struct device_node *np,
+ 	grp->pin_conf = devm_kcalloc(info->dev,
+ 					npins, sizeof(*conf), GFP_KERNEL);
+ 
+-	if (!grp->pins || !grp->pin_conf)
+-		return -ENOMEM;
++	if (!grp->pins || !grp->pin_conf) {
++		ret = -ENOMEM;
++		goto out_put_node;
++	}
+ 
+ 	/* <bank offset mux direction rt_type rt_delay rt_clk> */
+ 	for_each_property_of_node(pins, pp) {
+@@ -1229,9 +1232,11 @@ static int st_pctl_dt_parse_groups(struct device_node *np,
+ 		}
+ 		i++;
+ 	}
++
++out_put_node:
+ 	of_node_put(pins);
+ 
+-	return 0;
++	return ret;
+ }
+ 
+ static int st_pctl_parse_functions(struct device_node *np,
 -- 
 2.20.1
 
