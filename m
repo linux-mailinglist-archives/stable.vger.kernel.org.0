@@ -2,40 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ED1E02EE74
+	by mail.lfdr.de (Postfix) with ESMTP id 0DFA62EE72
 	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:47:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732219AbfE3DUb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1732226AbfE3DUb (ORCPT <rfc822;lists+stable@lfdr.de>);
         Wed, 29 May 2019 23:20:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58858 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:58896 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732214AbfE3DUa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:20:30 -0400
+        id S1731049AbfE3DUb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:20:31 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D7DE824935;
-        Thu, 30 May 2019 03:20:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 44CCA2493A;
+        Thu, 30 May 2019 03:20:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186429;
-        bh=xRLPPDSOe5R0WdoMpGbvWI9zCEHuQCC+K78pPPWM44k=;
+        s=default; t=1559186430;
+        bh=WSxZ+l1zBLcw8xp+9tZaF07YU4YOYkgUrHg+LBoNN3A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JrSQJo5skfXDWl+gB/xPl2Bm5YIVLWpvpJWBCT4eaFJSxdhW6hlPc89EtvtAhmjno
-         JrZHfmzy/2LZuVQ/hgFkQkSvAs7dqOsmr3tnNu29b0kTFy0FMEQLj7PX5Mm36jFwKV
-         L4kBm8gt79l941pvGfMUQPQq3OWideEijf5DUcaY=
+        b=pVmNO/UijO9E+3FXlabeEEndPck3SBpHT+2/fR5hWH8jgHAvWbYXxbpGGBGgtXP4t
+         Npu17+Dmu2ja58SVJ6u52yX/ZwzSiaGnC3hzkSTGiN9jenSHH2gRor3AfJRsatxPsv
+         mPa6u0qQUsqrk2l7LtPAgSPQBxqU25xFEznjZ7+w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Alexander Sverdlin <alexander.sverdlin@nokia.com>,
-        David Ahern <dsahern@gmail.com>, Jiri Olsa <jolsa@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Wang Nan <wangnan0@huawei.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.9 021/128] tools include: Adopt linux/bits.h
-Date:   Wed, 29 May 2019 20:05:53 -0700
-Message-Id: <20190530030438.742658224@linuxfoundation.org>
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.9 022/128] Revert "btrfs: Honour FITRIM range constraints during free space trim"
+Date:   Wed, 29 May 2019 20:05:54 -0700
+Message-Id: <20190530030438.866703877@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
 References: <20190530030432.977908967@linuxfoundation.org>
@@ -48,101 +42,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaldo Carvalho de Melo <acme@redhat.com>
+From: David Sterba <dsterba@suse.com>
 
-commit ba4aa02b417f08a0bee5e7b8ed70cac788a7c854 upstream.
+This reverts commit 038ec2c13e0d1f7b9d45a081786f18f75b65f11b.
 
-So that we reduce the difference of tools/include/linux/bitops.h to the
-original kernel file, include/linux/bitops.h, trying to remove the need
-to define BITS_PER_LONG, to avoid clashes with asm/bitsperlong.h.
+There is currently no corresponding patch in master due to additional
+changes that would be significantly different from plain revert in the
+respective stable branch.
 
-And the things removed from tools/include/linux/bitops.h are really in
-linux/bits.h, so that we can have a copy and then
-tools/perf/check_headers.sh will tell us when new stuff gets added to
-linux/bits.h so that we can check if it is useful and if any adjustment
-needs to be done to the tools/{include,arch}/ copies.
+The range argument was not handled correctly and could cause trim to
+overlap allocated areas or reach beyond the end of the device. The
+address space that fitrim normally operates on is in logical
+coordinates, while the discards are done on the physical device extents.
+This distinction cannot be made with the current ioctl interface and
+caused the confusion.
 
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Alexander Sverdlin <alexander.sverdlin@nokia.com>
-Cc: David Ahern <dsahern@gmail.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Wang Nan <wangnan0@huawei.com>
-Link: https://lkml.kernel.org/n/tip-y1sqyydvfzo0bjjoj4zsl562@git.kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-[bwh: Backported to 4.9 as dependency of "x86/msr-index: Cleanup bit defines";
- adjusted context]
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+The bug depends on the layout of block groups and does not always
+happen. The whole-fs trim (run by default by the fstrim tool) is not
+affected.
+
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/include/linux/bitops.h |    7 ++-----
- tools/include/linux/bits.h   |   26 ++++++++++++++++++++++++++
- tools/perf/check-headers.sh  |    1 +
- 3 files changed, 29 insertions(+), 5 deletions(-)
- create mode 100644 tools/include/linux/bits.h
+ fs/btrfs/extent-tree.c |   25 ++++++-------------------
+ 1 file changed, 6 insertions(+), 19 deletions(-)
 
---- a/tools/include/linux/bitops.h
-+++ b/tools/include/linux/bitops.h
-@@ -3,8 +3,6 @@
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -11150,9 +11150,9 @@ int btrfs_error_unpin_extent_range(struc
+  * transaction.
+  */
+ static int btrfs_trim_free_extents(struct btrfs_device *device,
+-				   struct fstrim_range *range, u64 *trimmed)
++				   u64 minlen, u64 *trimmed)
+ {
+-	u64 start = range->start, len = 0;
++	u64 start = 0, len = 0;
+ 	int ret;
  
- #include <asm/types.h>
- #include <linux/kernel.h>
--#include <linux/compiler.h>
+ 	*trimmed = 0;
+@@ -11188,8 +11188,8 @@ static int btrfs_trim_free_extents(struc
+ 			atomic_inc(&trans->use_count);
+ 		spin_unlock(&fs_info->trans_lock);
+ 
+-		ret = find_free_dev_extent_start(trans, device, range->minlen,
+-						 start, &start, &len);
++		ret = find_free_dev_extent_start(trans, device, minlen, start,
++						 &start, &len);
+ 		if (trans)
+ 			btrfs_put_transaction(trans);
+ 
+@@ -11201,16 +11201,6 @@ static int btrfs_trim_free_extents(struc
+ 			break;
+ 		}
+ 
+-		/* If we are out of the passed range break */
+-		if (start > range->start + range->len - 1) {
+-			mutex_unlock(&fs_info->chunk_mutex);
+-			ret = 0;
+-			break;
+-		}
 -
- #ifndef __WORDSIZE
- #define __WORDSIZE (__SIZEOF_LONG__ * 8)
- #endif
-@@ -12,10 +10,9 @@
- #ifndef BITS_PER_LONG
- # define BITS_PER_LONG __WORDSIZE
- #endif
-+#include <linux/bits.h>
-+#include <linux/compiler.h>
+-		start = max(range->start, start);
+-		len = min(range->len, len);
+-
+ 		ret = btrfs_issue_discard(device->bdev, start, len, &bytes);
+ 		up_read(&fs_info->commit_root_sem);
+ 		mutex_unlock(&fs_info->chunk_mutex);
+@@ -11221,10 +11211,6 @@ static int btrfs_trim_free_extents(struc
+ 		start += len;
+ 		*trimmed += bytes;
  
--#define BIT_MASK(nr)		(1UL << ((nr) % BITS_PER_LONG))
--#define BIT_WORD(nr)		((nr) / BITS_PER_LONG)
--#define BITS_PER_BYTE		8
- #define BITS_TO_LONGS(nr)	DIV_ROUND_UP(nr, BITS_PER_BYTE * sizeof(long))
- #define BITS_TO_U64(nr)		DIV_ROUND_UP(nr, BITS_PER_BYTE * sizeof(u64))
- #define BITS_TO_U32(nr)		DIV_ROUND_UP(nr, BITS_PER_BYTE * sizeof(u32))
---- /dev/null
-+++ b/tools/include/linux/bits.h
-@@ -0,0 +1,26 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef __LINUX_BITS_H
-+#define __LINUX_BITS_H
-+#include <asm/bitsperlong.h>
-+
-+#define BIT(nr)			(1UL << (nr))
-+#define BIT_ULL(nr)		(1ULL << (nr))
-+#define BIT_MASK(nr)		(1UL << ((nr) % BITS_PER_LONG))
-+#define BIT_WORD(nr)		((nr) / BITS_PER_LONG)
-+#define BIT_ULL_MASK(nr)	(1ULL << ((nr) % BITS_PER_LONG_LONG))
-+#define BIT_ULL_WORD(nr)	((nr) / BITS_PER_LONG_LONG)
-+#define BITS_PER_BYTE		8
-+
-+/*
-+ * Create a contiguous bitmask starting at bit position @l and ending at
-+ * position @h. For example
-+ * GENMASK_ULL(39, 21) gives us the 64bit vector 0x000000ffffe00000.
-+ */
-+#define GENMASK(h, l) \
-+	(((~0UL) - (1UL << (l)) + 1) & (~0UL >> (BITS_PER_LONG - 1 - (h))))
-+
-+#define GENMASK_ULL(h, l) \
-+	(((~0ULL) - (1ULL << (l)) + 1) & \
-+	 (~0ULL >> (BITS_PER_LONG_LONG - 1 - (h))))
-+
-+#endif	/* __LINUX_BITS_H */
---- a/tools/perf/check-headers.sh
-+++ b/tools/perf/check-headers.sh
-@@ -4,6 +4,7 @@ HEADERS='
- include/uapi/linux/fcntl.h
- include/uapi/linux/perf_event.h
- include/uapi/linux/stat.h
-+include/linux/bits.h
- include/linux/hash.h
- include/uapi/linux/hw_breakpoint.h
- arch/x86/include/asm/disabled-features.h
+-		/* We've trimmed enough */
+-		if (*trimmed >= range->len)
+-			break;
+-
+ 		if (fatal_signal_pending(current)) {
+ 			ret = -ERESTARTSYS;
+ 			break;
+@@ -11309,7 +11295,8 @@ int btrfs_trim_fs(struct btrfs_root *roo
+ 	mutex_lock(&fs_info->fs_devices->device_list_mutex);
+ 	devices = &fs_info->fs_devices->devices;
+ 	list_for_each_entry(device, devices, dev_list) {
+-		ret = btrfs_trim_free_extents(device, range, &group_trimmed);
++		ret = btrfs_trim_free_extents(device, range->minlen,
++					      &group_trimmed);
+ 		if (ret) {
+ 			dev_failed++;
+ 			dev_ret = ret;
 
 
