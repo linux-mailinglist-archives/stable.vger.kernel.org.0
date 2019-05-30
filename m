@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C11B82F17D
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:13:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4896D2F5BE
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:50:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727289AbfE3ENI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:13:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41614 "EHLO mail.kernel.org"
+        id S1728184AbfE3Ett (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:49:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730665AbfE3DQY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:16:24 -0400
+        id S1728392AbfE3DLK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:11:10 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9CC482458C;
-        Thu, 30 May 2019 03:16:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 556E3244E6;
+        Thu, 30 May 2019 03:11:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186183;
-        bh=xLK+GB7522f2QXrf/TUYNcfRXdrfcjqNLXPFEZK22mE=;
+        s=default; t=1559185869;
+        bh=wAoKdH08sGvXUO6NMdS4L0VCg3tFUqAm5C0tAAGgYXQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KnYLYhKgdBZ8dE7tlWrzhlFfVn4yeQDjv+JuqwGFsv17INrVZfrRx6nU5c+e7OLbl
-         OzjzIoy5r8TbxQBjYFUjsMUJ2Qlwt2TFSOwxMqQfKo/2qcArj51nLci3/7KHZH3CFy
-         6aJPJtXyfXX7CCYytcxCV016WZy8/g7ql5oMYGmo=
+        b=vMn8CuwzGNI+IFTO3bgEKdi0QIWrcbKakDZsqqb+DEE8sEr8p8U/ufxafO5q6Zu4O
+         anThEJtqGr0SyYVSWi7zWZNzEGUgg7znkmvi8J8ciQoGTqkoJXSl+spFU7Ov2SGVNU
+         aozIF7HKrL1xogCHdtD4+a/cbrfSjXZmxUxQUzHQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Avri Altman <avri.altman@wdc.com>,
-        Raul E Rangel <rrangel@chromium.org>,
+        stable@vger.kernel.org, Loic Pallardy <loic.pallardy@st.com>,
         Ulf Hansson <ulf.hansson@linaro.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 049/276] mmc: core: Verify SD bus width
-Date:   Wed, 29 May 2019 20:03:27 -0700
-Message-Id: <20190530030527.953816859@linuxfoundation.org>
+Subject: [PATCH 5.1 210/405] PM / core: Propagate dev->power.wakeup_path when no callbacks
+Date:   Wed, 29 May 2019 20:03:28 -0700
+Message-Id: <20190530030551.739793139@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,53 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 9e4be8d03f50d1b25c38e2b59e73b194c130df7d ]
+[ Upstream commit dc351d4c5f4fe4d0f274d6d660227be0c3a03317 ]
 
-The SD Physical Layer Spec says the following: Since the SD Memory Card
-shall support at least the two bus modes 1-bit or 4-bit width, then any SD
-Card shall set at least bits 0 and 2 (SD_BUS_WIDTH="0101").
+The dev->power.direct_complete flag may become set in device_prepare() in
+case the device don't have any PM callbacks (dev->power.no_pm_callbacks is
+set). This leads to a broken behaviour, when there is child having wakeup
+enabled and relies on its parent to be used in the wakeup path.
 
-This change verifies the card has specified a bus width.
+More precisely, when the direct complete path becomes selected for the
+child in __device_suspend(), the propagation of the dev->power.wakeup_path
+becomes skipped as well.
 
-AMD SDHC Device 7806 can get into a bad state after a card disconnect
-where anything transferred via the DATA lines will always result in a
-zero filled buffer. Currently the driver will continue without error if
-the HC is in this condition. A block device will be created, but reading
-from it will result in a zero buffer. This makes it seem like the SD
-device has been erased, when in actuality the data is never getting
-copied from the DATA lines to the data buffer.
+Let's address this problem, by checking if the device is a part the wakeup
+path or has wakeup enabled, then prevent the direct complete path from
+being used.
 
-SCR is the first command in the SD initialization sequence that uses the
-DATA lines. By checking that the response was invalid, we can abort
-mounting the card.
-
-Reviewed-by: Avri Altman <avri.altman@wdc.com>
-Signed-off-by: Raul E Rangel <rrangel@chromium.org>
+Reported-by: Loic Pallardy <loic.pallardy@st.com>
 Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+[ rjw: Comment cleanup ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/core/sd.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/base/power/main.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/mmc/core/sd.c b/drivers/mmc/core/sd.c
-index d0d9f90e7cdfb..cfb8ee24eaba1 100644
---- a/drivers/mmc/core/sd.c
-+++ b/drivers/mmc/core/sd.c
-@@ -216,6 +216,14 @@ static int mmc_decode_scr(struct mmc_card *card)
+diff --git a/drivers/base/power/main.c b/drivers/base/power/main.c
+index f80d298de3fa4..8ad20ed0cb7c3 100644
+--- a/drivers/base/power/main.c
++++ b/drivers/base/power/main.c
+@@ -1747,6 +1747,10 @@ static int __device_suspend(struct device *dev, pm_message_t state, bool async)
+ 	if (dev->power.syscore)
+ 		goto Complete;
  
- 	if (scr->sda_spec3)
- 		scr->cmds = UNSTUFF_BITS(resp, 32, 2);
++	/* Avoid direct_complete to let wakeup_path propagate. */
++	if (device_may_wakeup(dev) || dev->power.wakeup_path)
++		dev->power.direct_complete = false;
 +
-+	/* SD Spec says: any SD Card shall set at least bits 0 and 2 */
-+	if (!(scr->bus_widths & SD_SCR_BUS_WIDTH_1) ||
-+	    !(scr->bus_widths & SD_SCR_BUS_WIDTH_4)) {
-+		pr_err("%s: invalid bus width\n", mmc_hostname(card->host));
-+		return -EINVAL;
-+	}
-+
- 	return 0;
- }
- 
+ 	if (dev->power.direct_complete) {
+ 		if (pm_runtime_status_suspended(dev)) {
+ 			pm_runtime_disable(dev);
 -- 
 2.20.1
 
