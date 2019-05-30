@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E8B9E2F09F
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:05:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED1E02EE74
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:47:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726557AbfE3EFl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:05:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48276 "EHLO mail.kernel.org"
+        id S1732219AbfE3DUb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:20:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58858 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730850AbfE3DRm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:17:42 -0400
+        id S1732214AbfE3DUa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:20:30 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B93A82470B;
-        Thu, 30 May 2019 03:17:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D7DE824935;
+        Thu, 30 May 2019 03:20:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186261;
-        bh=ywf1nuG7kMfD5ctTdkXYQCTqMgoIsl1j0TPUzIGUXX4=;
+        s=default; t=1559186429;
+        bh=xRLPPDSOe5R0WdoMpGbvWI9zCEHuQCC+K78pPPWM44k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WbDNGVIVohH5hXLGJeODdO+dNH2HCyPa4EChLVDusWgy+82vOdqNVHknsX9RLDYHq
-         MGJSdN2kAi+Iv0yxOrX0hS2luU08ZsQAkTAGBLjgQh+PD3RggWlNN8Ff92fwpR58GV
-         lLlRUw+Y4a+N+sscrbNyscaNJA/XVdPN9fI8AwN4=
+        b=JrSQJo5skfXDWl+gB/xPl2Bm5YIVLWpvpJWBCT4eaFJSxdhW6hlPc89EtvtAhmjno
+         JrZHfmzy/2LZuVQ/hgFkQkSvAs7dqOsmr3tnNu29b0kTFy0FMEQLj7PX5Mm36jFwKV
+         L4kBm8gt79l941pvGfMUQPQq3OWideEijf5DUcaY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Piotr Figiel <p.figiel@camlintechnologies.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 195/276] brcmfmac: convert dev_init_lock mutex to completion
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Alexander Sverdlin <alexander.sverdlin@nokia.com>,
+        David Ahern <dsahern@gmail.com>, Jiri Olsa <jolsa@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Wang Nan <wangnan0@huawei.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.9 021/128] tools include: Adopt linux/bits.h
 Date:   Wed, 29 May 2019 20:05:53 -0700
-Message-Id: <20190530030537.321732327@linuxfoundation.org>
+Message-Id: <20190530030438.742658224@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
+References: <20190530030432.977908967@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,190 +48,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a9fd0953fa4a62887306be28641b4b0809f3b2fd ]
+From: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-Leaving dev_init_lock mutex locked in probe causes BUG and a WARNING when
-kernel is compiled with CONFIG_PROVE_LOCKING. Convert mutex to completion
-which silences those warnings and improves code readability.
+commit ba4aa02b417f08a0bee5e7b8ed70cac788a7c854 upstream.
 
-Fix below errors when connecting the USB WiFi dongle:
+So that we reduce the difference of tools/include/linux/bitops.h to the
+original kernel file, include/linux/bitops.h, trying to remove the need
+to define BITS_PER_LONG, to avoid clashes with asm/bitsperlong.h.
 
-brcmfmac: brcmf_fw_alloc_request: using brcm/brcmfmac43143 for chip BCM43143/2
-BUG: workqueue leaked lock or atomic: kworker/0:2/0x00000000/434
-     last function: hub_event
-1 lock held by kworker/0:2/434:
- #0: 18d5dcdf (&devinfo->dev_init_lock){+.+.}, at: brcmf_usb_probe+0x78/0x550 [brcmfmac]
-CPU: 0 PID: 434 Comm: kworker/0:2 Not tainted 4.19.23-00084-g454a789-dirty #123
-Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
-Workqueue: usb_hub_wq hub_event
-[<8011237c>] (unwind_backtrace) from [<8010d74c>] (show_stack+0x10/0x14)
-[<8010d74c>] (show_stack) from [<809c4324>] (dump_stack+0xa8/0xd4)
-[<809c4324>] (dump_stack) from [<8014195c>] (process_one_work+0x710/0x808)
-[<8014195c>] (process_one_work) from [<80141a80>] (worker_thread+0x2c/0x564)
-[<80141a80>] (worker_thread) from [<80147bcc>] (kthread+0x13c/0x16c)
-[<80147bcc>] (kthread) from [<801010b4>] (ret_from_fork+0x14/0x20)
-Exception stack(0xed1d9fb0 to 0xed1d9ff8)
-9fa0:                                     00000000 00000000 00000000 00000000
-9fc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
-9fe0: 00000000 00000000 00000000 00000000 00000013 00000000
+And the things removed from tools/include/linux/bitops.h are really in
+linux/bits.h, so that we can have a copy and then
+tools/perf/check_headers.sh will tell us when new stuff gets added to
+linux/bits.h so that we can check if it is useful and if any adjustment
+needs to be done to the tools/{include,arch}/ copies.
 
-======================================================
-WARNING: possible circular locking dependency detected
-4.19.23-00084-g454a789-dirty #123 Not tainted
-------------------------------------------------------
-kworker/0:2/434 is trying to acquire lock:
-e29cf799 ((wq_completion)"events"){+.+.}, at: process_one_work+0x174/0x808
-
-but task is already holding lock:
-18d5dcdf (&devinfo->dev_init_lock){+.+.}, at: brcmf_usb_probe+0x78/0x550 [brcmfmac]
-
-which lock already depends on the new lock.
-
-the existing dependency chain (in reverse order) is:
-
--> #2 (&devinfo->dev_init_lock){+.+.}:
-       mutex_lock_nested+0x1c/0x24
-       brcmf_usb_probe+0x78/0x550 [brcmfmac]
-       usb_probe_interface+0xc0/0x1bc
-       really_probe+0x228/0x2c0
-       __driver_attach+0xe4/0xe8
-       bus_for_each_dev+0x68/0xb4
-       bus_add_driver+0x19c/0x214
-       driver_register+0x78/0x110
-       usb_register_driver+0x84/0x148
-       process_one_work+0x228/0x808
-       worker_thread+0x2c/0x564
-       kthread+0x13c/0x16c
-       ret_from_fork+0x14/0x20
-         (null)
-
--> #1 (brcmf_driver_work){+.+.}:
-       worker_thread+0x2c/0x564
-       kthread+0x13c/0x16c
-       ret_from_fork+0x14/0x20
-         (null)
-
--> #0 ((wq_completion)"events"){+.+.}:
-       process_one_work+0x1b8/0x808
-       worker_thread+0x2c/0x564
-       kthread+0x13c/0x16c
-       ret_from_fork+0x14/0x20
-         (null)
-
-other info that might help us debug this:
-
-Chain exists of:
-  (wq_completion)"events" --> brcmf_driver_work --> &devinfo->dev_init_lock
-
- Possible unsafe locking scenario:
-
-       CPU0                    CPU1
-       ----                    ----
-  lock(&devinfo->dev_init_lock);
-                               lock(brcmf_driver_work);
-                               lock(&devinfo->dev_init_lock);
-  lock((wq_completion)"events");
-
- *** DEADLOCK ***
-
-1 lock held by kworker/0:2/434:
- #0: 18d5dcdf (&devinfo->dev_init_lock){+.+.}, at: brcmf_usb_probe+0x78/0x550 [brcmfmac]
-
-stack backtrace:
-CPU: 0 PID: 434 Comm: kworker/0:2 Not tainted 4.19.23-00084-g454a789-dirty #123
-Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
-Workqueue: events request_firmware_work_func
-[<8011237c>] (unwind_backtrace) from [<8010d74c>] (show_stack+0x10/0x14)
-[<8010d74c>] (show_stack) from [<809c4324>] (dump_stack+0xa8/0xd4)
-[<809c4324>] (dump_stack) from [<80172838>] (print_circular_bug+0x210/0x330)
-[<80172838>] (print_circular_bug) from [<80175940>] (__lock_acquire+0x160c/0x1a30)
-[<80175940>] (__lock_acquire) from [<8017671c>] (lock_acquire+0xe0/0x268)
-[<8017671c>] (lock_acquire) from [<80141404>] (process_one_work+0x1b8/0x808)
-[<80141404>] (process_one_work) from [<80141a80>] (worker_thread+0x2c/0x564)
-[<80141a80>] (worker_thread) from [<80147bcc>] (kthread+0x13c/0x16c)
-[<80147bcc>] (kthread) from [<801010b4>] (ret_from_fork+0x14/0x20)
-Exception stack(0xed1d9fb0 to 0xed1d9ff8)
-9fa0:                                     00000000 00000000 00000000 00000000
-9fc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
-9fe0: 00000000 00000000 00000000 00000000 00000013 00000000
-
-Signed-off-by: Piotr Figiel <p.figiel@camlintechnologies.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Alexander Sverdlin <alexander.sverdlin@nokia.com>
+Cc: David Ahern <dsahern@gmail.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Wang Nan <wangnan0@huawei.com>
+Link: https://lkml.kernel.org/n/tip-y1sqyydvfzo0bjjoj4zsl562@git.kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+[bwh: Backported to 4.9 as dependency of "x86/msr-index: Cleanup bit defines";
+ adjusted context]
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../wireless/broadcom/brcm80211/brcmfmac/usb.c  | 17 ++++++++---------
- 1 file changed, 8 insertions(+), 9 deletions(-)
+ tools/include/linux/bitops.h |    7 ++-----
+ tools/include/linux/bits.h   |   26 ++++++++++++++++++++++++++
+ tools/perf/check-headers.sh  |    1 +
+ 3 files changed, 29 insertions(+), 5 deletions(-)
+ create mode 100644 tools/include/linux/bits.h
 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c
-index a4308c6e72d79..5aeb401d9a024 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c
-@@ -160,7 +160,7 @@ struct brcmf_usbdev_info {
+--- a/tools/include/linux/bitops.h
++++ b/tools/include/linux/bitops.h
+@@ -3,8 +3,6 @@
  
- 	struct usb_device *usbdev;
- 	struct device *dev;
--	struct mutex dev_init_lock;
-+	struct completion dev_init_done;
+ #include <asm/types.h>
+ #include <linux/kernel.h>
+-#include <linux/compiler.h>
+-
+ #ifndef __WORDSIZE
+ #define __WORDSIZE (__SIZEOF_LONG__ * 8)
+ #endif
+@@ -12,10 +10,9 @@
+ #ifndef BITS_PER_LONG
+ # define BITS_PER_LONG __WORDSIZE
+ #endif
++#include <linux/bits.h>
++#include <linux/compiler.h>
  
- 	int ctl_in_pipe, ctl_out_pipe;
- 	struct urb *ctl_urb; /* URB for control endpoint */
-@@ -1195,11 +1195,11 @@ static void brcmf_usb_probe_phase2(struct device *dev, int ret,
- 	if (ret)
- 		goto error;
- 
--	mutex_unlock(&devinfo->dev_init_lock);
-+	complete(&devinfo->dev_init_done);
- 	return;
- error:
- 	brcmf_dbg(TRACE, "failed: dev=%s, err=%d\n", dev_name(dev), ret);
--	mutex_unlock(&devinfo->dev_init_lock);
-+	complete(&devinfo->dev_init_done);
- 	device_release_driver(dev);
- }
- 
-@@ -1267,7 +1267,7 @@ static int brcmf_usb_probe_cb(struct brcmf_usbdev_info *devinfo)
- 		if (ret)
- 			goto fail;
- 		/* we are done */
--		mutex_unlock(&devinfo->dev_init_lock);
-+		complete(&devinfo->dev_init_done);
- 		return 0;
- 	}
- 	bus->chip = bus_pub->devid;
-@@ -1327,11 +1327,10 @@ brcmf_usb_probe(struct usb_interface *intf, const struct usb_device_id *id)
- 
- 	devinfo->usbdev = usb;
- 	devinfo->dev = &usb->dev;
--	/* Take an init lock, to protect for disconnect while still loading.
-+	/* Init completion, to protect for disconnect while still loading.
- 	 * Necessary because of the asynchronous firmware load construction
- 	 */
--	mutex_init(&devinfo->dev_init_lock);
--	mutex_lock(&devinfo->dev_init_lock);
-+	init_completion(&devinfo->dev_init_done);
- 
- 	usb_set_intfdata(intf, devinfo);
- 
-@@ -1409,7 +1408,7 @@ brcmf_usb_probe(struct usb_interface *intf, const struct usb_device_id *id)
- 	return 0;
- 
- fail:
--	mutex_unlock(&devinfo->dev_init_lock);
-+	complete(&devinfo->dev_init_done);
- 	kfree(devinfo);
- 	usb_set_intfdata(intf, NULL);
- 	return ret;
-@@ -1424,7 +1423,7 @@ brcmf_usb_disconnect(struct usb_interface *intf)
- 	devinfo = (struct brcmf_usbdev_info *)usb_get_intfdata(intf);
- 
- 	if (devinfo) {
--		mutex_lock(&devinfo->dev_init_lock);
-+		wait_for_completion(&devinfo->dev_init_done);
- 		/* Make sure that devinfo still exists. Firmware probe routines
- 		 * may have released the device and cleared the intfdata.
- 		 */
--- 
-2.20.1
-
+-#define BIT_MASK(nr)		(1UL << ((nr) % BITS_PER_LONG))
+-#define BIT_WORD(nr)		((nr) / BITS_PER_LONG)
+-#define BITS_PER_BYTE		8
+ #define BITS_TO_LONGS(nr)	DIV_ROUND_UP(nr, BITS_PER_BYTE * sizeof(long))
+ #define BITS_TO_U64(nr)		DIV_ROUND_UP(nr, BITS_PER_BYTE * sizeof(u64))
+ #define BITS_TO_U32(nr)		DIV_ROUND_UP(nr, BITS_PER_BYTE * sizeof(u32))
+--- /dev/null
++++ b/tools/include/linux/bits.h
+@@ -0,0 +1,26 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef __LINUX_BITS_H
++#define __LINUX_BITS_H
++#include <asm/bitsperlong.h>
++
++#define BIT(nr)			(1UL << (nr))
++#define BIT_ULL(nr)		(1ULL << (nr))
++#define BIT_MASK(nr)		(1UL << ((nr) % BITS_PER_LONG))
++#define BIT_WORD(nr)		((nr) / BITS_PER_LONG)
++#define BIT_ULL_MASK(nr)	(1ULL << ((nr) % BITS_PER_LONG_LONG))
++#define BIT_ULL_WORD(nr)	((nr) / BITS_PER_LONG_LONG)
++#define BITS_PER_BYTE		8
++
++/*
++ * Create a contiguous bitmask starting at bit position @l and ending at
++ * position @h. For example
++ * GENMASK_ULL(39, 21) gives us the 64bit vector 0x000000ffffe00000.
++ */
++#define GENMASK(h, l) \
++	(((~0UL) - (1UL << (l)) + 1) & (~0UL >> (BITS_PER_LONG - 1 - (h))))
++
++#define GENMASK_ULL(h, l) \
++	(((~0ULL) - (1ULL << (l)) + 1) & \
++	 (~0ULL >> (BITS_PER_LONG_LONG - 1 - (h))))
++
++#endif	/* __LINUX_BITS_H */
+--- a/tools/perf/check-headers.sh
++++ b/tools/perf/check-headers.sh
+@@ -4,6 +4,7 @@ HEADERS='
+ include/uapi/linux/fcntl.h
+ include/uapi/linux/perf_event.h
+ include/uapi/linux/stat.h
++include/linux/bits.h
+ include/linux/hash.h
+ include/uapi/linux/hw_breakpoint.h
+ arch/x86/include/asm/disabled-features.h
 
 
