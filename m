@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A77312F31E
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:27:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1ABC42F570
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:47:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729881AbfE3DOa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:14:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33692 "EHLO mail.kernel.org"
+        id S1729164AbfE3ErY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:47:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51314 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729872AbfE3DO2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:14:28 -0400
+        id S1728593AbfE3DLd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:11:33 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5719024570;
-        Thu, 30 May 2019 03:14:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DAEB82449A;
+        Thu, 30 May 2019 03:11:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186068;
-        bh=J4uwusvLtrICANSHTWdP5KgOtyuG4ox8q63z/IbzCHk=;
+        s=default; t=1559185893;
+        bh=fNIicfzKqgNknvOL8kafg05oEuWLA66QXO1DUGfYGHg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QaP+mXnJNNo3EE05xKYpKBTMRjzSzrL+RuOi6GDGw14kv+6MK6BSoMXZt4UDDmBcc
-         G3Qk4EIBflL3k+GAOC+648NNhIBAJpUsGcDr1RmuOJUO+0aG9CdGbuiT9M7WeSoYQV
-         2dKTURh39OqOMdeNTf903cmYSGAlyoPpReigMUyo=
+        b=O+JD9dI+MZI7FextB6lsqaqRMA5joo51f/d9tL37qRcF5e8dcy8Rhfkbbu+8AjWAQ
+         WHp1bjwZjBftr35Nz//wZZQ2KHxe53dAg/H4TUXieeTfh33Q1HNEp5DxaSzhJSz984
+         8/kD1ectpqbi0XiM6uKuuDlYxZwbWj/gQQI/4KBI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        stable@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 180/346] hwmon: (vt1211) Use request_muxed_region for Super-IO accesses
+Subject: [PATCH 5.1 255/405] rtc: xgene: fix possible race condition
 Date:   Wed, 29 May 2019 20:04:13 -0700
-Message-Id: <20190530030550.241980611@linuxfoundation.org>
+Message-Id: <20190530030553.877766892@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,68 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 14b97ba5c20056102b3dd22696bf17b057e60976 ]
+[ Upstream commit a652e00ee1233e251a337c28e18a1da59224e5ce ]
 
-Super-IO accesses may fail on a system with no or unmapped LPC bus.
+The IRQ is requested before the struct rtc is allocated and registered, but
+this struct is used in the IRQ handler. This may lead to a NULL pointer
+dereference.
 
-Also, other drivers may attempt to access the LPC bus at the same time,
-resulting in undefined behavior.
+Switch to devm_rtc_allocate_device/rtc_register_device to allocate the rtc
+struct before requesting the IRQ.
 
-Use request_muxed_region() to ensure that IO access on the requested
-address space is supported, and to ensure that access by multiple drivers
-is synchronized.
-
-Fixes: 2219cd81a6cd ("hwmon/vt1211: Add probing of alternate config index port")
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/vt1211.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ drivers/rtc/rtc-xgene.c | 18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/hwmon/vt1211.c b/drivers/hwmon/vt1211.c
-index 3a6bfa51cb94f..95d5e8ec8b7fc 100644
---- a/drivers/hwmon/vt1211.c
-+++ b/drivers/hwmon/vt1211.c
-@@ -226,15 +226,21 @@ static inline void superio_select(int sio_cip, int ldn)
- 	outb(ldn, sio_cip + 1);
- }
+diff --git a/drivers/rtc/rtc-xgene.c b/drivers/rtc/rtc-xgene.c
+index 153820876a820..2f741f455c30a 100644
+--- a/drivers/rtc/rtc-xgene.c
++++ b/drivers/rtc/rtc-xgene.c
+@@ -168,6 +168,10 @@ static int xgene_rtc_probe(struct platform_device *pdev)
+ 	if (IS_ERR(pdata->csr_base))
+ 		return PTR_ERR(pdata->csr_base);
  
--static inline void superio_enter(int sio_cip)
-+static inline int superio_enter(int sio_cip)
- {
-+	if (!request_muxed_region(sio_cip, 2, DRVNAME))
-+		return -EBUSY;
++	pdata->rtc = devm_rtc_allocate_device(&pdev->dev);
++	if (IS_ERR(pdata->rtc))
++		return PTR_ERR(pdata->rtc);
 +
- 	outb(0x87, sio_cip);
- 	outb(0x87, sio_cip);
+ 	irq = platform_get_irq(pdev, 0);
+ 	if (irq < 0) {
+ 		dev_err(&pdev->dev, "No IRQ resource\n");
+@@ -198,15 +202,15 @@ static int xgene_rtc_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
+-	pdata->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
+-					 &xgene_rtc_ops, THIS_MODULE);
+-	if (IS_ERR(pdata->rtc)) {
+-		clk_disable_unprepare(pdata->clk);
+-		return PTR_ERR(pdata->rtc);
+-	}
+-
+ 	/* HW does not support update faster than 1 seconds */
+ 	pdata->rtc->uie_unsupported = 1;
++	pdata->rtc->ops = &xgene_rtc_ops;
 +
-+	return 0;
++	ret = rtc_register_device(pdata->rtc);
++	if (ret) {
++		clk_disable_unprepare(pdata->clk);
++		return ret;
++	}
+ 
+ 	return 0;
  }
- 
- static inline void superio_exit(int sio_cip)
- {
- 	outb(0xaa, sio_cip);
-+	release_region(sio_cip, 2);
- }
- 
- /* ---------------------------------------------------------------------
-@@ -1282,11 +1288,14 @@ static int __init vt1211_device_add(unsigned short address)
- 
- static int __init vt1211_find(int sio_cip, unsigned short *address)
- {
--	int err = -ENODEV;
-+	int err;
- 	int devid;
- 
--	superio_enter(sio_cip);
-+	err = superio_enter(sio_cip);
-+	if (err)
-+		return err;
- 
-+	err = -ENODEV;
- 	devid = force_id ? force_id : superio_inb(sio_cip, SIO_VT1211_DEVID);
- 	if (devid != SIO_VT1211_ID)
- 		goto EXIT;
 -- 
 2.20.1
 
