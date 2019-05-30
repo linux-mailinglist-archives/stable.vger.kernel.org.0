@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B02C2EE82
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:49:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CF332F242
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:20:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732205AbfE3DU2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:20:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58674 "EHLO mail.kernel.org"
+        id S1730241AbfE3EUR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:20:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38342 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732199AbfE3DU1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:20:27 -0400
+        id S1730238AbfE3DPV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:15:21 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B290A24937;
-        Thu, 30 May 2019 03:20:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E41DA2457F;
+        Thu, 30 May 2019 03:15:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186426;
-        bh=VPQvvo3SHXkAvfMTpOO34xbhbXNiy6XSCXnSvFBY4f4=;
+        s=default; t=1559186121;
+        bh=vHy8K4F2oTSkh+ABuNuxbpfb4iNAIVVsMFIVUOqjbdo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hT60qDdmq+bsePlh16gfK2aB58oHV3LcgOrIAedBmtgzCgFqpcu+dN0cAi9hNsmVg
-         YVfDcf1oafHL6Qgr3eRyIpSnVLfc/8L0S8FgbUEjfYTp+bxzJgbg6vhhhV51Jaj5Er
-         n+RggXBpUss9cPMF5xnGLyddQH010lwnihhWScPc=
+        b=EuqvCobHQ5KY/cA8HK1S0Pu/c07FDW5n4fXo/cThdDdPM1PqD394+/b/B2ELc6zQ3
+         Rppmq1A8V2+rW/z5Lu583QBjpKM5ZaKFCL3hPmFgJh+P9nQoRR1BaZ0RizxcCipsTU
+         QIuhLshmTZy0zd0rJqMNxx+CgZJgyPX0x/RGrom4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Potapenko <glider@google.com>,
-        Syzbot <syzbot+6c0effb5877f6b0344e2@syzkaller.appspotmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 4.9 017/128] media: vivid: use vfree() instead of kfree() for dev->bitmap_cap
+        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 276/346] usb: core: Add PM runtime calls to usb_hcd_platform_shutdown
 Date:   Wed, 29 May 2019 20:05:49 -0700
-Message-Id: <20190530030437.846627438@linuxfoundation.org>
+Message-Id: <20190530030554.922808419@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
-References: <20190530030432.977908967@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Potapenko <glider@google.com>
+[ Upstream commit 8ead7e817224d7832fe51a19783cb8fcadc79467 ]
 
-commit dad7e270ba712ba1c99cd2d91018af6044447a06 upstream.
+If ohci-platform is runtime suspended, we can currently get an "imprecise
+external abort" on reboot with ohci-platform loaded when PM runtime
+is implemented for the SoC.
 
-syzkaller reported crashes on kfree() called from
-vivid_vid_cap_s_selection(). This looks like a simple typo, as
-dev->bitmap_cap is allocated with vzalloc() throughout the file.
+Let's fix this by adding PM runtime support to usb_hcd_platform_shutdown.
 
-Fixes: ef834f7836ec0 ("[media] vivid: add the video capture and output
-parts")
-
-Signed-off-by: Alexander Potapenko <glider@google.com>
-Reported-by: Syzbot <syzbot+6c0effb5877f6b0344e2@syzkaller.appspotmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/vivid/vivid-vid-cap.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/core/hcd.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/media/platform/vivid/vivid-vid-cap.c
-+++ b/drivers/media/platform/vivid/vivid-vid-cap.c
-@@ -984,7 +984,7 @@ int vivid_vid_cap_s_selection(struct fil
- 		v4l2_rect_map_inside(&s->r, &dev->fmt_cap_rect);
- 		if (dev->bitmap_cap && (compose->width != s->r.width ||
- 					compose->height != s->r.height)) {
--			kfree(dev->bitmap_cap);
-+			vfree(dev->bitmap_cap);
- 			dev->bitmap_cap = NULL;
- 		}
- 		*compose = s->r;
+diff --git a/drivers/usb/core/hcd.c b/drivers/usb/core/hcd.c
+index 015b126ce4555..a5c8bcb7723b4 100644
+--- a/drivers/usb/core/hcd.c
++++ b/drivers/usb/core/hcd.c
+@@ -3001,6 +3001,9 @@ usb_hcd_platform_shutdown(struct platform_device *dev)
+ {
+ 	struct usb_hcd *hcd = platform_get_drvdata(dev);
+ 
++	/* No need for pm_runtime_put(), we're shutting down */
++	pm_runtime_get_sync(&dev->dev);
++
+ 	if (hcd->driver->shutdown)
+ 		hcd->driver->shutdown(hcd);
+ }
+-- 
+2.20.1
+
 
 
