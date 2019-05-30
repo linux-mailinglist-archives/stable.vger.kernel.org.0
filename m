@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 695252F21B
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:18:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70E3A2F07E
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:04:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730332AbfE3DPb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:15:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38924 "EHLO mail.kernel.org"
+        id S1731285AbfE3DRu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:17:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730324AbfE3DPa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:15:30 -0400
+        id S1731266AbfE3DRu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:17:50 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 174E524547;
-        Thu, 30 May 2019 03:15:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 343CB246A8;
+        Thu, 30 May 2019 03:17:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186130;
-        bh=Zj5rtlTKEDo9wx0Ppc+i/QuIy0p67H/+gPJBTzb4wzY=;
+        s=default; t=1559186269;
+        bh=YiRpyNlzCzcEpWtS4gydfZ8A3XMZuET072msQe/H26k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A7xsk0rCFsQDX4Q0ySi54wmxgLMlVv5PMaHmTw67CTuBgrVbTkekGosgmEYjwh9NB
-         jhd/qqED9aHFMh+942+SpFpjGuJHb5LNkYZ8RNbgPpD9TvY4RMCxemVk7+kyZTMEw1
-         PfdjVDBX3E5BZDi7HsVqlr8+6jNreD6+Et9s+Xow=
+        b=tqiETahoJ7EKM9Xy7WxchgSOYVudwACG2D8UWsnC45xKLJXUMgTu6UE+xrC5tFXt7
+         ViPf39ac55tWM4jVSaXh6rCOfycVUkD235fpOI3fuxCX0vWGOUuqEfB4V05lfAWbPl
+         wzWilGVPdhrc/TP8rdGseMGaMuxOnqisi8w/Ifas=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 292/346] media: v4l2-fwnode: The first default data lane is 0 on C-PHY
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 207/276] x86/uaccess, signal: Fix AC=1 bloat
 Date:   Wed, 29 May 2019 20:06:05 -0700
-Message-Id: <20190530030555.663573280@linuxfoundation.org>
+Message-Id: <20190530030538.076039362@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,43 +49,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit fff35d45e16fae125c6000cb87e254cb634ac7fb ]
+[ Upstream commit 88e4718275c1bddca6f61f300688b4553dc8584b ]
 
-C-PHY has no clock lanes. Therefore the first data lane is 0 by default.
+Occasionally GCC is less agressive with inlining and the following is
+observed:
 
-Fixes: edc6d56c2e7e ("media: v4l: fwnode: Support parsing of CSI-2 C-PHY endpoints")
+  arch/x86/kernel/signal.o: warning: objtool: restore_sigcontext()+0x3cc: call to force_valid_ss.isra.5() with UACCESS enabled
+  arch/x86/kernel/signal.o: warning: objtool: do_signal()+0x384: call to frame_uc_flags.isra.0() with UACCESS enabled
 
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Cure this by moving this code out of the AC=1 region, since it really
+isn't needed for the user access.
+
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Andy Lutomirski <luto@kernel.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/v4l2-core/v4l2-fwnode.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ arch/x86/kernel/signal.c | 29 +++++++++++++++++------------
+ 1 file changed, 17 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/media/v4l2-core/v4l2-fwnode.c b/drivers/media/v4l2-core/v4l2-fwnode.c
-index 9bfedd7596a1a..a398b7885399c 100644
---- a/drivers/media/v4l2-core/v4l2-fwnode.c
-+++ b/drivers/media/v4l2-core/v4l2-fwnode.c
-@@ -225,6 +225,10 @@ static int v4l2_fwnode_endpoint_parse_csi2_bus(struct fwnode_handle *fwnode,
- 	if (bus_type == V4L2_MBUS_CSI2_DPHY ||
- 	    bus_type == V4L2_MBUS_CSI2_CPHY || lanes_used ||
- 	    have_clk_lane || (flags & ~V4L2_MBUS_CSI2_CONTINUOUS_CLOCK)) {
-+		/* Only D-PHY has a clock lane. */
-+		unsigned int dfl_data_lane_index =
-+			bus_type == V4L2_MBUS_CSI2_DPHY;
+diff --git a/arch/x86/kernel/signal.c b/arch/x86/kernel/signal.c
+index 92a3b312a53c4..44e647a65de88 100644
+--- a/arch/x86/kernel/signal.c
++++ b/arch/x86/kernel/signal.c
+@@ -132,16 +132,6 @@ static int restore_sigcontext(struct pt_regs *regs,
+ 		COPY_SEG_CPL3(cs);
+ 		COPY_SEG_CPL3(ss);
+ 
+-#ifdef CONFIG_X86_64
+-		/*
+-		 * Fix up SS if needed for the benefit of old DOSEMU and
+-		 * CRIU.
+-		 */
+-		if (unlikely(!(uc_flags & UC_STRICT_RESTORE_SS) &&
+-			     user_64bit_mode(regs)))
+-			force_valid_ss(regs);
+-#endif
+-
+ 		get_user_ex(tmpflags, &sc->flags);
+ 		regs->flags = (regs->flags & ~FIX_EFLAGS) | (tmpflags & FIX_EFLAGS);
+ 		regs->orig_ax = -1;		/* disable syscall checks */
+@@ -150,6 +140,15 @@ static int restore_sigcontext(struct pt_regs *regs,
+ 		buf = (void __user *)buf_val;
+ 	} get_user_catch(err);
+ 
++#ifdef CONFIG_X86_64
++	/*
++	 * Fix up SS if needed for the benefit of old DOSEMU and
++	 * CRIU.
++	 */
++	if (unlikely(!(uc_flags & UC_STRICT_RESTORE_SS) && user_64bit_mode(regs)))
++		force_valid_ss(regs);
++#endif
 +
- 		bus->flags = flags;
- 		if (bus_type == V4L2_MBUS_UNKNOWN)
- 			vep->bus_type = V4L2_MBUS_CSI2_DPHY;
-@@ -233,7 +237,7 @@ static int v4l2_fwnode_endpoint_parse_csi2_bus(struct fwnode_handle *fwnode,
- 		if (use_default_lane_mapping) {
- 			bus->clock_lane = 0;
- 			for (i = 0; i < num_data_lanes; i++)
--				bus->data_lanes[i] = 1 + i;
-+				bus->data_lanes[i] = dfl_data_lane_index + i;
- 		} else {
- 			bus->clock_lane = clock_lane;
- 			for (i = 0; i < num_data_lanes; i++)
+ 	err |= fpu__restore_sig(buf, IS_ENABLED(CONFIG_X86_32));
+ 
+ 	force_iret();
+@@ -461,6 +460,7 @@ static int __setup_rt_frame(int sig, struct ksignal *ksig,
+ {
+ 	struct rt_sigframe __user *frame;
+ 	void __user *fp = NULL;
++	unsigned long uc_flags;
+ 	int err = 0;
+ 
+ 	frame = get_sigframe(&ksig->ka, regs, sizeof(struct rt_sigframe), &fp);
+@@ -473,9 +473,11 @@ static int __setup_rt_frame(int sig, struct ksignal *ksig,
+ 			return -EFAULT;
+ 	}
+ 
++	uc_flags = frame_uc_flags(regs);
++
+ 	put_user_try {
+ 		/* Create the ucontext.  */
+-		put_user_ex(frame_uc_flags(regs), &frame->uc.uc_flags);
++		put_user_ex(uc_flags, &frame->uc.uc_flags);
+ 		put_user_ex(0, &frame->uc.uc_link);
+ 		save_altstack_ex(&frame->uc.uc_stack, regs->sp);
+ 
+@@ -541,6 +543,7 @@ static int x32_setup_rt_frame(struct ksignal *ksig,
+ {
+ #ifdef CONFIG_X86_X32_ABI
+ 	struct rt_sigframe_x32 __user *frame;
++	unsigned long uc_flags;
+ 	void __user *restorer;
+ 	int err = 0;
+ 	void __user *fpstate = NULL;
+@@ -555,9 +558,11 @@ static int x32_setup_rt_frame(struct ksignal *ksig,
+ 			return -EFAULT;
+ 	}
+ 
++	uc_flags = frame_uc_flags(regs);
++
+ 	put_user_try {
+ 		/* Create the ucontext.  */
+-		put_user_ex(frame_uc_flags(regs), &frame->uc.uc_flags);
++		put_user_ex(uc_flags, &frame->uc.uc_flags);
+ 		put_user_ex(0, &frame->uc.uc_link);
+ 		compat_save_altstack_ex(&frame->uc.uc_stack, regs->sp);
+ 		put_user_ex(0, &frame->uc.uc__pad0);
 -- 
 2.20.1
 
