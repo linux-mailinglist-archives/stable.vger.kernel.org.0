@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B9472EBF1
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:17:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E49402EFEA
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:59:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730913AbfE3DRF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:17:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44798 "EHLO mail.kernel.org"
+        id S1730552AbfE3D7V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:59:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729570AbfE3DRD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:17:03 -0400
+        id S1731593AbfE3DSe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:18:34 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C9DB24659;
-        Thu, 30 May 2019 03:17:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 978872474A;
+        Thu, 30 May 2019 03:18:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186222;
-        bh=Jreunv7bFqYQlkJmwWSbG9zeX9kycS4RnC4UXcnC4Qc=;
+        s=default; t=1559186314;
+        bh=BOuD20Cs+xpQNiqRVIO2ShzOeYbhYTuuYaW53N0unTg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yWvQf0uGxHadgqTeYyhLR8lyvRXbd2n+ma0fnQAZ1wm2yAO17OPS0iorRdVjXyGkP
-         x/XgZmzhSqNBBkS9SPlYzAslIVbSeVYxHhctL0XqEJNDS2bj6WbtaFGnhrDoBpYh4g
-         UB2iKpFyjW1Coxwl1vObGB6Se1QkljnpxRX+3rr4=
+        b=UplGC7PgQHds43LEzo4e82aEC5L7KTKGOD7NF3K1BkvNIt+4owgrw/Ah2xQW7d9u3
+         9Dy3Nk6gXD5xR5CufVLatVhBfS8vX/Do9rgbML2zbCYiL2+f3wiGMpTTbeBdHs9yaO
+         aqqjzBwhdKSmyxFxp5jrFhpPinRrKmP03QpaZJF4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 115/276] HID: logitech-hidpp: use RAP instead of FAP to get the protocol version
+        stable@vger.kernel.org, "Tobin C. Harding" <tobin@kernel.org>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.14 019/193] btrfs: sysfs: Fix error path kobject memory leak
 Date:   Wed, 29 May 2019 20:04:33 -0700
-Message-Id: <20190530030533.121068301@linuxfoundation.org>
+Message-Id: <20190530030451.201347550@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
+References: <20190530030446.953835040@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,76 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 096377525cdb8251e4656085efc988bdf733fb4c ]
+From: Tobin C. Harding <tobin@kernel.org>
 
-According to the logitech_hidpp_2.0_specification_draft_2012-06-04.pdf doc:
-https://lekensteyn.nl/files/logitech/logitech_hidpp_2.0_specification_draft_2012-06-04.pdf
+commit 450ff8348808a89cc27436771aa05c2b90c0eef1 upstream.
 
-We should use a register-access-protocol request using the short input /
-output report ids. This is necessary because 27MHz HID++ receivers have
-a max-packetsize on their HIP++ endpoint of 8, so they cannot support
-long reports. Using a feature-access-protocol request (which is always
-long or very-long) with these will cause a timeout error, followed by
-the hidpp driver treating the device as not being HID++ capable.
+If a call to kobject_init_and_add() fails we must call kobject_put()
+otherwise we leak memory.
 
-This commit fixes this by switching to using a rap request to get the
-protocol version.
+Calling kobject_put() when kobject_init_and_add() fails drops the
+refcount back to 0 and calls the ktype release method (which in turn
+calls the percpu destroy and kfree).
 
-Besides being tested with a (046d:c517) 27MHz receiver with various
-27MHz keyboards and mice, this has also been tested to not cause
-regressions on a non-unifying dual-HID++ nano receiver (046d:c534) with
-k270 and m185 HID++-2.0 devices connected and on a unifying/dj receiver
-(046d:c52b) with a HID++-2.0 Logitech Rechargeable Touchpad T650.
+Add call to kobject_put() in the error path of call to
+kobject_init_and_add().
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org # v4.4+
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Tobin C. Harding <tobin@kernel.org>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/hid/hid-logitech-hidpp.c | 17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ fs/btrfs/extent-tree.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 8425d3548a414..edf224ad13369 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -725,13 +725,16 @@ static int hidpp_root_get_feature(struct hidpp_device *hidpp, u16 feature,
- 
- static int hidpp_root_get_protocol_version(struct hidpp_device *hidpp)
- {
-+	const u8 ping_byte = 0x5a;
-+	u8 ping_data[3] = { 0, 0, ping_byte };
- 	struct hidpp_report response;
- 	int ret;
- 
--	ret = hidpp_send_fap_command_sync(hidpp,
-+	ret = hidpp_send_rap_command_sync(hidpp,
-+			REPORT_ID_HIDPP_SHORT,
- 			HIDPP_PAGE_ROOT_IDX,
- 			CMD_ROOT_GET_PROTOCOL_VERSION,
--			NULL, 0, &response);
-+			ping_data, sizeof(ping_data), &response);
- 
- 	if (ret == HIDPP_ERROR_INVALID_SUBID) {
- 		hidpp->protocol_major = 1;
-@@ -751,8 +754,14 @@ static int hidpp_root_get_protocol_version(struct hidpp_device *hidpp)
- 	if (ret)
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -4087,8 +4087,7 @@ static int create_space_info(struct btrf
+ 				    info->space_info_kobj, "%s",
+ 				    alloc_name(space_info->flags));
+ 	if (ret) {
+-		percpu_counter_destroy(&space_info->total_bytes_pinned);
+-		kfree(space_info);
++		kobject_put(&space_info->kobj);
  		return ret;
+ 	}
  
--	hidpp->protocol_major = response.fap.params[0];
--	hidpp->protocol_minor = response.fap.params[1];
-+	if (response.rap.params[2] != ping_byte) {
-+		hid_err(hidpp->hid_dev, "%s: ping mismatch 0x%02x != 0x%02x\n",
-+			__func__, response.rap.params[2], ping_byte);
-+		return -EPROTO;
-+	}
-+
-+	hidpp->protocol_major = response.rap.params[0];
-+	hidpp->protocol_minor = response.rap.params[1];
- 
- 	return ret;
- }
--- 
-2.20.1
-
 
 
