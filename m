@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B8F82EE65
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:47:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C53A12F08C
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:05:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731095AbfE3Dqy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:46:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59196 "EHLO mail.kernel.org"
+        id S1730006AbfE3EFD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:05:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732261AbfE3DUg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:20:36 -0400
+        id S1731257AbfE3DRs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:17:48 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8D73F2494A;
-        Thu, 30 May 2019 03:20:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F92024479;
+        Thu, 30 May 2019 03:17:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186435;
-        bh=gPq7/Es2MUJDAPUJFUxdqzEFrIWAU7SZEDLJAutsj6o=;
+        s=default; t=1559186268;
+        bh=wL6SzCRMp/GYdzn4Dq2l7ulTOCe8csBtTh8exIgd8Os=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=omM6IKw1jm/lZUXBVXtMfr7c+45wsVfPrRwZ1CXwIVJwfNU3SJGifC4pLjv54Bylk
-         DHks3lcR6AjxUxn5bqrfS924aqZLIbIyoiCSvrrV+UomzejBxGZvN1H37xXkC3/Tbn
-         C3W+0SGxum+Dn7mMFVHTur1ldDsMdGNwoZviNI7k=
+        b=ZufvDXatyt8VZSZ9q6Cw27L1WEPUA/H4swC0CJIL5ExeuVppBZNdO2hnwvpI5tvdY
+         Tko8rK1xvgZmlgaeEGzb1iHxScA95yvtDQUCTzHHQyANCV8yXIx5DUXrx6Ihqpq6bV
+         m1Nxb2icyElBrC/H4vQufhpweiIoDQTzPJNHAK5o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Flavio Suligoi <f.suligoi@asem.it>,
-        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Lior David <liord@codeaurora.org>,
+        Maya Erez <merez@codeaurora.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 031/128] spi: pxa2xx: fix SCR (divisor) calculation
+Subject: [PATCH 4.19 205/276] wil6210: fix return code of wmi_mgmt_tx and wmi_mgmt_tx_ext
 Date:   Wed, 29 May 2019 20:06:03 -0700
-Message-Id: <20190530030440.229574563@linuxfoundation.org>
+Message-Id: <20190530030537.950857448@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
-References: <20190530030432.977908967@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,59 +45,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 29f2133717c527f492933b0622a4aafe0b3cbe9e ]
+[ Upstream commit 49122ec42634f73babb1dc96f170023e5228d080 ]
 
-Calculate the divisor for the SCR (Serial Clock Rate), avoiding
-that the SSP transmission rate can be greater than the device rate.
+The functions that send management TX frame have 3 possible
+results: success and other side acknowledged receive (ACK=1),
+success and other side did not acknowledge receive(ACK=0) and
+failure to send the frame. The current implementation
+incorrectly reports the ACK=0 case as failure.
 
-When the division between the SSP clock and the device rate generates
-a reminder, we have to increment by one the divisor.
-In this way the resulting SSP clock will never be greater than the
-device SPI max frequency.
-
-For example, with:
-
- - ssp_clk  = 50 MHz
- - dev freq = 15 MHz
-
-without this patch the SSP clock will be greater than 15 MHz:
-
- - 25 MHz for PXA25x_SSP and CE4100_SSP
- - 16,56 MHz for the others
-
-Instead, with this patch, we have in both case an SSP clock of 12.5MHz,
-so the max rate of the SPI device clock is respected.
-
-Signed-off-by: Flavio Suligoi <f.suligoi@asem.it>
-Reviewed-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Reviewed-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Lior David <liord@codeaurora.org>
+Signed-off-by: Maya Erez <merez@codeaurora.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-pxa2xx.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/net/wireless/ath/wil6210/cfg80211.c |  5 +++++
+ drivers/net/wireless/ath/wil6210/wmi.c      | 11 ++++++-----
+ 2 files changed, 11 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/spi/spi-pxa2xx.c b/drivers/spi/spi-pxa2xx.c
-index f2209ec4cb68d..8b618f0fa459f 100644
---- a/drivers/spi/spi-pxa2xx.c
-+++ b/drivers/spi/spi-pxa2xx.c
-@@ -921,10 +921,14 @@ static unsigned int ssp_get_clk_div(struct driver_data *drv_data, int rate)
+diff --git a/drivers/net/wireless/ath/wil6210/cfg80211.c b/drivers/net/wireless/ath/wil6210/cfg80211.c
+index 2daf33342b23d..1fc2bf66845c7 100644
+--- a/drivers/net/wireless/ath/wil6210/cfg80211.c
++++ b/drivers/net/wireless/ath/wil6210/cfg80211.c
+@@ -1131,7 +1131,12 @@ int wil_cfg80211_mgmt_tx(struct wiphy *wiphy, struct wireless_dev *wdev,
+ 			     params->wait);
  
- 	rate = min_t(int, ssp_clk, rate);
- 
-+	/*
-+	 * Calculate the divisor for the SCR (Serial Clock Rate), avoiding
-+	 * that the SSP transmission rate can be greater than the device rate
+ out:
++	/* when the sent packet was not acked by receiver(ACK=0), rc will
++	 * be -EAGAIN. In this case this function needs to return success,
++	 * the ACK=0 will be reflected in tx_status.
 +	 */
- 	if (ssp->type == PXA25x_SSP || ssp->type == CE4100_SSP)
--		return (ssp_clk / (2 * rate) - 1) & 0xff;
-+		return (DIV_ROUND_UP(ssp_clk, 2 * rate) - 1) & 0xff;
- 	else
--		return (ssp_clk / rate - 1) & 0xfff;
-+		return (DIV_ROUND_UP(ssp_clk, rate) - 1)  & 0xfff;
- }
+ 	tx_status = (rc == 0);
++	rc = (rc == -EAGAIN) ? 0 : rc;
+ 	cfg80211_mgmt_tx_status(wdev, cookie ? *cookie : 0, buf, len,
+ 				tx_status, GFP_KERNEL);
  
- static unsigned int pxa2xx_ssp_get_clk_div(struct driver_data *drv_data,
+diff --git a/drivers/net/wireless/ath/wil6210/wmi.c b/drivers/net/wireless/ath/wil6210/wmi.c
+index 42c02a20ec97c..6e3b3031f29bd 100644
+--- a/drivers/net/wireless/ath/wil6210/wmi.c
++++ b/drivers/net/wireless/ath/wil6210/wmi.c
+@@ -3107,8 +3107,9 @@ int wmi_mgmt_tx(struct wil6210_vif *vif, const u8 *buf, size_t len)
+ 	rc = wmi_call(wil, WMI_SW_TX_REQ_CMDID, vif->mid, cmd, total,
+ 		      WMI_SW_TX_COMPLETE_EVENTID, &evt, sizeof(evt), 2000);
+ 	if (!rc && evt.evt.status != WMI_FW_STATUS_SUCCESS) {
+-		wil_err(wil, "mgmt_tx failed with status %d\n", evt.evt.status);
+-		rc = -EINVAL;
++		wil_dbg_wmi(wil, "mgmt_tx failed with status %d\n",
++			    evt.evt.status);
++		rc = -EAGAIN;
+ 	}
+ 
+ 	kfree(cmd);
+@@ -3160,9 +3161,9 @@ int wmi_mgmt_tx_ext(struct wil6210_vif *vif, const u8 *buf, size_t len,
+ 	rc = wmi_call(wil, WMI_SW_TX_REQ_EXT_CMDID, vif->mid, cmd, total,
+ 		      WMI_SW_TX_COMPLETE_EVENTID, &evt, sizeof(evt), 2000);
+ 	if (!rc && evt.evt.status != WMI_FW_STATUS_SUCCESS) {
+-		wil_err(wil, "mgmt_tx_ext failed with status %d\n",
+-			evt.evt.status);
+-		rc = -EINVAL;
++		wil_dbg_wmi(wil, "mgmt_tx_ext failed with status %d\n",
++			    evt.evt.status);
++		rc = -EAGAIN;
+ 	}
+ 
+ 	kfree(cmd);
 -- 
 2.20.1
 
