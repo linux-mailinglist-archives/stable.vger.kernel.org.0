@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 663F82F4A3
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:42:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52B652EF2E
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:53:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388422AbfE3Eju (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:39:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55746 "EHLO mail.kernel.org"
+        id S1731907AbfE3DT3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:19:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729120AbfE3DMg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:12:36 -0400
+        id S1731900AbfE3DT1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:19:27 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 23AEB21BE2;
-        Thu, 30 May 2019 03:12:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CD2DF24881;
+        Thu, 30 May 2019 03:19:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185956;
-        bh=jQeLfbc24WqIqBDon1czJa4L8rIcHQyFNvuEV7UatyI=;
+        s=default; t=1559186366;
+        bh=h97OPWBF9XxIPNtl9ralEyhxEfrSQ5x9/KsPwIKj3qA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ImRkrb3nPwdFAdyX9KwLizZI1+RmSk86hVd4XoP05dVD7MQWbbBFLiKyvXd1dMMII
-         dHONF58Vh1khXso24IkhjhwClqkb017vm139zVt9htEpIiF0jCkecTbPXnbkQ/RmYW
-         Dns9urN//p8+mI9i9cRdo47Ig31PVpXASmxBLVhs=
+        b=xk/RyBxv6+BNJjQsUC7sJspD3Seb+2RxIh5JIcHKSmBBLRbaB1Q7Un6NExSNok61t
+         CoeQu8OpawkCoxDTtcgsWL5dJ03BuBHyBLbfxz1JiyJvVhDw6tK6eNCBoRhemhBB66
+         4cChmDHbrBUvTT4AS/Nqw1cDcd2/wWTfTpplspnA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 372/405] spi : spi-topcliff-pch: Fix to handle empty DMA buffers
+Subject: [PATCH 4.14 116/193] scsi: libsas: Do discovery on empty PHY to update PHY info
 Date:   Wed, 29 May 2019 20:06:10 -0700
-Message-Id: <20190530030559.549780257@linuxfoundation.org>
+Message-Id: <20190530030504.949052152@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
+References: <20190530030446.953835040@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,63 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f37d8e67f39e6d3eaf4cc5471e8a3d21209843c6 ]
+[ Upstream commit d8649fc1c5e40e691d589ed825998c36a947491c ]
 
-pch_alloc_dma_buf allocated tx, rx DMA buffers which can fail. Further,
-these buffers are used without a check. The patch checks for these
-failures and sends the error upstream.
+When we discover the PHY is empty in sas_rediscover_dev(), the PHY
+information (like negotiated linkrate) is not updated.
 
-Signed-off-by: Aditya Pakki <pakki001@umn.edu>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+As such, for a user examining sysfs for that PHY, they would see
+incorrect values:
+
+root@(none)$ cd /sys/class/sas_phy/phy-0:0:20
+root@(none)$ more negotiated_linkrate
+3.0 Gbit
+root@(none)$ echo 0 > enable
+root@(none)$ more negotiated_linkrate
+3.0 Gbit
+
+So fix this, simply discover the PHY again, even though we know it's empty;
+in the above example, this gives us:
+
+root@(none)$ more negotiated_linkrate
+Phy disabled
+
+We must do this after unregistering the device associated with the PHY
+(in sas_unregister_devs_sas_addr()).
+
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-topcliff-pch.c | 15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+ drivers/scsi/libsas/sas_expander.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/spi/spi-topcliff-pch.c b/drivers/spi/spi-topcliff-pch.c
-index fba3f180f233b..8a5966963834c 100644
---- a/drivers/spi/spi-topcliff-pch.c
-+++ b/drivers/spi/spi-topcliff-pch.c
-@@ -1299,18 +1299,27 @@ static void pch_free_dma_buf(struct pch_spi_board_data *board_dat,
- 				  dma->rx_buf_virt, dma->rx_buf_dma);
- }
- 
--static void pch_alloc_dma_buf(struct pch_spi_board_data *board_dat,
-+static int pch_alloc_dma_buf(struct pch_spi_board_data *board_dat,
- 			      struct pch_spi_data *data)
- {
- 	struct pch_spi_dma_ctrl *dma;
-+	int ret;
- 
- 	dma = &data->dma;
-+	ret = 0;
- 	/* Get Consistent memory for Tx DMA */
- 	dma->tx_buf_virt = dma_alloc_coherent(&board_dat->pdev->dev,
- 				PCH_BUF_SIZE, &dma->tx_buf_dma, GFP_KERNEL);
-+	if (!dma->tx_buf_virt)
-+		ret = -ENOMEM;
-+
- 	/* Get Consistent memory for Rx DMA */
- 	dma->rx_buf_virt = dma_alloc_coherent(&board_dat->pdev->dev,
- 				PCH_BUF_SIZE, &dma->rx_buf_dma, GFP_KERNEL);
-+	if (!dma->rx_buf_virt)
-+		ret = -ENOMEM;
-+
-+	return ret;
- }
- 
- static int pch_spi_pd_probe(struct platform_device *plat_dev)
-@@ -1387,7 +1396,9 @@ static int pch_spi_pd_probe(struct platform_device *plat_dev)
- 
- 	if (use_dma) {
- 		dev_info(&plat_dev->dev, "Use DMA for data transfers\n");
--		pch_alloc_dma_buf(board_dat, data);
-+		ret = pch_alloc_dma_buf(board_dat, data);
-+		if (ret)
-+			goto err_spi_register_master;
- 	}
- 
- 	ret = spi_register_master(master);
+diff --git a/drivers/scsi/libsas/sas_expander.c b/drivers/scsi/libsas/sas_expander.c
+index 1c0d2784574aa..ffea620a147d4 100644
+--- a/drivers/scsi/libsas/sas_expander.c
++++ b/drivers/scsi/libsas/sas_expander.c
+@@ -2038,6 +2038,11 @@ static int sas_rediscover_dev(struct domain_device *dev, int phy_id, bool last)
+ 	if ((SAS_ADDR(sas_addr) == 0) || (res == -ECOMM)) {
+ 		phy->phy_state = PHY_EMPTY;
+ 		sas_unregister_devs_sas_addr(dev, phy_id, last);
++		/*
++		 * Even though the PHY is empty, for convenience we discover
++		 * the PHY to update the PHY info, like negotiated linkrate.
++		 */
++		sas_ex_phy_discover(dev, phy_id);
+ 		return res;
+ 	} else if (SAS_ADDR(sas_addr) == SAS_ADDR(phy->attached_sas_addr) &&
+ 		   dev_type_flutter(type, phy->attached_dev_type)) {
 -- 
 2.20.1
 
