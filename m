@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 76D4D2EDFA
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:43:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 153172EED7
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:50:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731846AbfE3DnF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:43:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32860 "EHLO mail.kernel.org"
+        id S1732627AbfE3DuR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:50:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732428AbfE3DVE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:21:04 -0400
+        id S1732077AbfE3DT4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:19:56 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8C8EE249A9;
-        Thu, 30 May 2019 03:21:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 53D8C248F6;
+        Thu, 30 May 2019 03:19:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186463;
-        bh=v9XJ29b5tKnUk9rdvKeSBT6JEfjRVGu9UHGCP8FJ8vY=;
+        s=default; t=1559186396;
+        bh=TidmviLasrXwEKeg9q8yiiOaA0/c+twSVlsSQWk3Ed4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HakpDD68HMPx3N6bt2afpdNnchPhoSzE9DhFqUN8SrsDgTjc49fl2wpD2Ko49xUm2
-         mrJxru7Usnsp/uX4C9Dz4ZC+k/nlC5b1jA6bPFVdoAJyEHlk5dtnCISmfs7u83ZGlx
-         aQrNqmhpKM4XYi7mCDszmfqEIpe4TuefnzcWzTHI=
+        b=Xy/LyLeT1QmRT4FGPANr+OEAkl90US1PlY5belCmDP8+fXR4EAm0M9yfqbX6ZrvkM
+         nfjcTDV71u3WJFV6fvVbmVVUMNiX9V/42zqPBnNjdJtnzBpIptrSNtu6wrdP5K9Jtk
+         dd0TYVUvvpd0bojBU8aVGyENyuJHnhOOdQhSjfdE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sugar Zhang <sugar.zhang@rock-chips.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 040/128] dmaengine: pl330: _stop: clear interrupt status
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 118/193] mmc_spi: add a status check for spi_sync_locked
 Date:   Wed, 29 May 2019 20:06:12 -0700
-Message-Id: <20190530030441.263421795@linuxfoundation.org>
+Message-Id: <20190530030505.059100811@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
-References: <20190530030432.977908967@linuxfoundation.org>
+In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
+References: <20190530030446.953835040@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,90 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2da254cc7908105a60a6bb219d18e8dced03dcb9 ]
+[ Upstream commit 611025983b7976df0183390a63a2166411d177f1 ]
 
-This patch kill instructs the DMAC to immediately terminate
-execution of a thread. and then clear the interrupt status,
-at last, stop generating interrupts for DMA_SEV. to guarantee
-the next dma start is clean. otherwise, one interrupt maybe leave
-to next start and make some mistake.
+In case spi_sync_locked fails, the fix reports the error and
+returns the error code upstream.
 
-we can reporduce the problem as follows:
-
-DMASEV: modify the event-interrupt resource, and if the INTEN sets
-function as interrupt, the DMAC will set irq<event_num> HIGH to
-generate interrupt. write INTCLR to clear interrupt.
-
-	DMA EXECUTING INSTRUCTS		DMA TERMINATE
-		|				|
-		|				|
-	       ...			      _stop
-		|				|
-		|			spin_lock_irqsave
-	     DMASEV				|
-		|				|
-		|			    mask INTEN
-		|				|
-		|			     DMAKILL
-		|				|
-		|			spin_unlock_irqrestore
-
-in above case, a interrupt was left, and if we unmask INTEN, the DMAC
-will set irq<event_num> HIGH to generate interrupt.
-
-to fix this, do as follows:
-
-	DMA EXECUTING INSTRUCTS		DMA TERMINATE
-		|				|
-		|				|
-	       ...			      _stop
-		|				|
-		|			spin_lock_irqsave
-	     DMASEV				|
-		|				|
-		|			     DMAKILL
-		|				|
-		|			   clear INTCLR
-		|			    mask INTEN
-		|				|
-		|			spin_unlock_irqrestore
-
-Signed-off-by: Sugar Zhang <sugar.zhang@rock-chips.com>
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Kangjie Lu <kjlu@umn.edu>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/pl330.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/mmc/host/mmc_spi.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/dma/pl330.c b/drivers/dma/pl330.c
-index 6d7e3cd4aba4c..57b375d0de292 100644
---- a/drivers/dma/pl330.c
-+++ b/drivers/dma/pl330.c
-@@ -1020,6 +1020,7 @@ static void _stop(struct pl330_thread *thrd)
- {
- 	void __iomem *regs = thrd->dmac->base;
- 	u8 insn[6] = {0, 0, 0, 0, 0, 0};
-+	u32 inten = readl(regs + INTEN);
+diff --git a/drivers/mmc/host/mmc_spi.c b/drivers/mmc/host/mmc_spi.c
+index 67f6bd24a9d0c..ea254d00541f1 100644
+--- a/drivers/mmc/host/mmc_spi.c
++++ b/drivers/mmc/host/mmc_spi.c
+@@ -819,6 +819,10 @@ mmc_spi_readblock(struct mmc_spi_host *host, struct spi_transfer *t,
+ 	}
  
- 	if (_state(thrd) == PL330_STATE_FAULT_COMPLETING)
- 		UNTIL(thrd, PL330_STATE_FAULTING | PL330_STATE_KILLING);
-@@ -1032,10 +1033,13 @@ static void _stop(struct pl330_thread *thrd)
+ 	status = spi_sync_locked(spi, &host->m);
++	if (status < 0) {
++		dev_dbg(&spi->dev, "read error %d\n", status);
++		return status;
++	}
  
- 	_emit_KILL(0, insn);
- 
--	/* Stop generating interrupts for SEV */
--	writel(readl(regs + INTEN) & ~(1 << thrd->ev), regs + INTEN);
--
- 	_execute_DBGINSN(thrd, insn, is_manager(thrd));
-+
-+	/* clear the event */
-+	if (inten & (1 << thrd->ev))
-+		writel(1 << thrd->ev, regs + INTCLR);
-+	/* Stop generating interrupts for SEV */
-+	writel(inten & ~(1 << thrd->ev), regs + INTEN);
- }
- 
- /* Start doing req 'idx' of thread 'thrd' */
+ 	if (host->dma_dev) {
+ 		dma_sync_single_for_cpu(host->dma_dev,
 -- 
 2.20.1
 
