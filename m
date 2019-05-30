@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 449D22F333
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:27:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D27A52F31A
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:27:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729945AbfE3E1M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:27:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34142 "EHLO mail.kernel.org"
+        id S1729855AbfE3DOZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:14:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34174 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729846AbfE3DOW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:14:22 -0400
+        id S1729847AbfE3DOX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:14:23 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 540FB24555;
+        by mail.kernel.org (Postfix) with ESMTPSA id C254924547;
         Thu, 30 May 2019 03:14:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1559186062;
-        bh=BPAmBvRdrM0+9Hrl/sZmbLqwysejDtJbo/57DQcGMrU=;
+        bh=ezxrnQ1NzkHpQFx72zDTFDyGqdmHZoV15V176/RZO2E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u2MhViauFmjMeBOMPxM32wiadDHHNvXuLo20f0F9T9KCPzD85S2HHT/YuaRSFicvt
-         U4ZMt/FMrrbmAHdU2s0C6AHlBDeXToPvlrduXp9NN3g6CIWR5xuW+gA5mNcmK3rIH4
-         mCD5mTPeKr9C4bPJEM7aERznm8lXnLaJ8zpHvu3M=
+        b=utVwj4zpLuHMVM7owQxiXVysSpe6yOQyL6dP7JrMdunvzUJY3AoP//gmclaTxbwYO
+         Pg75Kk4pRuG1E2fGhfgRczUzjc/30HCF+GHp07SyOUuPPLKqPBaGtT/9wgR6e9o2P+
+         r6bxvNfmsxOP6SgeXEQQ3mwKawADNYe1OOlJFMaY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Ioana Radulescu <ruxandra.radulescu@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        Adam Ludkiewicz <adam.ludkiewicz@intel.com>,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 170/346] dpaa2-eth: Fix Rx classification status
-Date:   Wed, 29 May 2019 20:04:03 -0700
-Message-Id: <20190530030549.769816752@linuxfoundation.org>
+Subject: [PATCH 5.0 171/346] i40e: Able to add up to 16 MAC filters on an untrusted VF
+Date:   Wed, 29 May 2019 20:04:04 -0700
+Message-Id: <20190530030549.819725947@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
 References: <20190530030540.363386121@linuxfoundation.org>
@@ -45,47 +46,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit df8e249be866e2f762be11b14a9e7a94752614d4 ]
+[ Upstream commit 06b6e2a2333eb3581567a7ac43ca465ef45f4daa ]
 
-Set the Rx flow classification enable flag only if key config
-operation is successful.
+This patch fixes the problem with the driver being able to add only 7
+multicast MAC address filters instead of 16. The problem is fixed by
+changing the maximum number of MAC address filters to 16+1+1 (two extra
+are needed because the driver uses 1 for unicast MAC address and 1 for
+broadcast).
 
-Fixes 3f9b5c9 ("dpaa2-eth: Configure Rx flow classification key")
-
-Signed-off-by: Ioana Radulescu <ruxandra.radulescu@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Adam Ludkiewicz <adam.ludkiewicz@intel.com>
+Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c b/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
-index 1ca9a18139ec5..0982fb4f131db 100644
---- a/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
-+++ b/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
-@@ -2604,6 +2604,7 @@ int dpaa2_eth_set_hash(struct net_device *net_dev, u64 flags)
- static int dpaa2_eth_set_cls(struct dpaa2_eth_priv *priv)
- {
- 	struct device *dev = priv->net_dev->dev.parent;
-+	int err;
- 
- 	/* Check if we actually support Rx flow classification */
- 	if (dpaa2_eth_has_legacy_dist(priv)) {
-@@ -2622,9 +2623,13 @@ static int dpaa2_eth_set_cls(struct dpaa2_eth_priv *priv)
- 		return -EOPNOTSUPP;
- 	}
- 
-+	err = dpaa2_eth_set_dist_key(priv->net_dev, DPAA2_ETH_RX_DIST_CLS, 0);
-+	if (err)
-+		return err;
-+
- 	priv->rx_cls_enabled = 1;
- 
--	return dpaa2_eth_set_dist_key(priv->net_dev, DPAA2_ETH_RX_DIST_CLS, 0);
-+	return 0;
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+index 2ac23ebfbf31b..715c6a9f30f9f 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+@@ -2449,8 +2449,10 @@ static int i40e_vc_get_stats_msg(struct i40e_vf *vf, u8 *msg)
+ 				      (u8 *)&stats, sizeof(stats));
  }
  
- /* Bind the DPNI to its needed objects and resources: buffer pool, DPIOs,
+-/* If the VF is not trusted restrict the number of MAC/VLAN it can program */
+-#define I40E_VC_MAX_MAC_ADDR_PER_VF 12
++/* If the VF is not trusted restrict the number of MAC/VLAN it can program
++ * MAC filters: 16 for multicast, 1 for MAC, 1 for broadcast
++ */
++#define I40E_VC_MAX_MAC_ADDR_PER_VF (16 + 1 + 1)
+ #define I40E_VC_MAX_VLAN_PER_VF 8
+ 
+ /**
 -- 
 2.20.1
 
