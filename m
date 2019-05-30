@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 11E0C2EE60
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:47:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6258D2EF46
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:54:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732358AbfE3Dqo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:46:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59298 "EHLO mail.kernel.org"
+        id S1730357AbfE3DyM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:54:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732268AbfE3DUh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:20:37 -0400
+        id S1731883AbfE3DTY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:19:24 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 29B2E24934;
-        Thu, 30 May 2019 03:20:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 65B9B247F7;
+        Thu, 30 May 2019 03:19:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186437;
-        bh=KnTVExqNKtl5Xl8ksL32IR1ybhO8+AKU6IU8voJuysE=;
+        s=default; t=1559186364;
+        bh=CLNvXd+bHDw5o9XKvwpl1iSa3ZtiTufxn3+Q/WLnUZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dNYLMMLIfGpQClsXSAIXC+yFZde+v2MK1gnHRyVTBhnUlvUi+gCrFJHTRhmFLPPdX
-         R18DM5HZeWtHMKDbJ9oEG3jxbxXDqMh7QyKzU3XnJCGuGmyq7lJ1dcSVBNXkbwayd3
-         gKbmqsVFfrEp95bejfMERlOsHzaEqhOF6OnoEnWg=
+        b=H0WCMu3YJguVXsP+oJyGEWHuMsUvLbXbJxT0pAhPsiznS87sRiiJNFjoEtRzpRSKd
+         81gv44otu+uBltMAzRiCr4ayRcB6dgSzFsZQfhqBfsgLBaKCnp66YUS0LUErcFtZSD
+         93+VfPfG5k5FLS7Vkm6hOjmWQF6JEV3dwqBSTsYw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        Will Deacon <will.deacon@arm.com>,
+        stable@vger.kernel.org, Kefeng Wang <wangkefeng.wang@huawei.com>,
+        John Garry <john.garry@huawei.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 034/128] arm64: Fix compiler warning from pte_unmap() with -Wunused-but-set-variable
+Subject: [PATCH 4.14 112/193] hwmon: (smsc47m1) Use request_muxed_region for Super-IO accesses
 Date:   Wed, 29 May 2019 20:06:06 -0700
-Message-Id: <20190530030440.503603979@linuxfoundation.org>
+Message-Id: <20190530030504.389851432@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
-References: <20190530030432.977908967@linuxfoundation.org>
+In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
+References: <20190530030446.953835040@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,59 +45,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 74dd022f9e6260c3b5b8d15901d27ebcc5f21eda ]
+[ Upstream commit d6410408ad2a798c4cc685252c1baa713be0ad69 ]
 
-When building with -Wunused-but-set-variable, the compiler shouts about
-a number of pte_unmap() users, since this expands to an empty macro on
-arm64:
+Super-IO accesses may fail on a system with no or unmapped LPC bus.
 
-  | mm/gup.c: In function 'gup_pte_range':
-  | mm/gup.c:1727:16: warning: variable 'ptem' set but not used
-  | [-Wunused-but-set-variable]
-  | mm/gup.c: At top level:
-  | mm/memory.c: In function 'copy_pte_range':
-  | mm/memory.c:821:24: warning: variable 'orig_dst_pte' set but not used
-  | [-Wunused-but-set-variable]
-  | mm/memory.c:821:9: warning: variable 'orig_src_pte' set but not used
-  | [-Wunused-but-set-variable]
-  | mm/swap_state.c: In function 'swap_ra_info':
-  | mm/swap_state.c:641:15: warning: variable 'orig_pte' set but not used
-  | [-Wunused-but-set-variable]
-  | mm/madvise.c: In function 'madvise_free_pte_range':
-  | mm/madvise.c:318:9: warning: variable 'orig_pte' set but not used
-  | [-Wunused-but-set-variable]
+Also, other drivers may attempt to access the LPC bus at the same time,
+resulting in undefined behavior.
 
-Rewrite pte_unmap() as a static inline function, which silences the
-warnings.
+Use request_muxed_region() to ensure that IO access on the requested
+address space is supported, and to ensure that access by multiple drivers
+is synchronized.
 
-Signed-off-by: Qian Cai <cai@lca.pw>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
+Fixes: 8d5d45fb1468 ("I2C: Move hwmon drivers (2/3)")
+Reported-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Reported-by: John Garry <john.garry@huawei.com>
+Cc: John Garry <john.garry@huawei.com>
+Acked-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/pgtable.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/hwmon/smsc47m1.c | 28 +++++++++++++++++++---------
+ 1 file changed, 19 insertions(+), 9 deletions(-)
 
-diff --git a/arch/arm64/include/asm/pgtable.h b/arch/arm64/include/asm/pgtable.h
-index 3a30a3994e4a2..73e3718356b05 100644
---- a/arch/arm64/include/asm/pgtable.h
-+++ b/arch/arm64/include/asm/pgtable.h
-@@ -413,6 +413,8 @@ static inline phys_addr_t pmd_page_paddr(pmd_t pmd)
- 	return pmd_val(pmd) & PHYS_MASK & (s32)PAGE_MASK;
+diff --git a/drivers/hwmon/smsc47m1.c b/drivers/hwmon/smsc47m1.c
+index c7b6a425e2c02..5eeac9853d0ae 100644
+--- a/drivers/hwmon/smsc47m1.c
++++ b/drivers/hwmon/smsc47m1.c
+@@ -73,16 +73,21 @@ superio_inb(int reg)
+ /* logical device for fans is 0x0A */
+ #define superio_select() superio_outb(0x07, 0x0A)
+ 
+-static inline void
++static inline int
+ superio_enter(void)
+ {
++	if (!request_muxed_region(REG, 2, DRVNAME))
++		return -EBUSY;
++
+ 	outb(0x55, REG);
++	return 0;
  }
  
-+static inline void pte_unmap(pte_t *pte) { }
+ static inline void
+ superio_exit(void)
+ {
+ 	outb(0xAA, REG);
++	release_region(REG, 2);
+ }
+ 
+ #define SUPERIO_REG_ACT		0x30
+@@ -531,8 +536,12 @@ static int __init smsc47m1_find(struct smsc47m1_sio_data *sio_data)
+ {
+ 	u8 val;
+ 	unsigned short addr;
++	int err;
 +
- /* Find an entry in the third-level page table. */
- #define pte_index(addr)		(((addr) >> PAGE_SHIFT) & (PTRS_PER_PTE - 1))
++	err = superio_enter();
++	if (err)
++		return err;
  
-@@ -421,7 +423,6 @@ static inline phys_addr_t pmd_page_paddr(pmd_t pmd)
+-	superio_enter();
+ 	val = force_id ? force_id : superio_inb(SUPERIO_REG_DEVID);
  
- #define pte_offset_map(dir,addr)	pte_offset_kernel((dir), (addr))
- #define pte_offset_map_nested(dir,addr)	pte_offset_kernel((dir), (addr))
--#define pte_unmap(pte)			do { } while (0)
- #define pte_unmap_nested(pte)		do { } while (0)
+ 	/*
+@@ -608,13 +617,14 @@ static int __init smsc47m1_find(struct smsc47m1_sio_data *sio_data)
+ static void smsc47m1_restore(const struct smsc47m1_sio_data *sio_data)
+ {
+ 	if ((sio_data->activate & 0x01) == 0) {
+-		superio_enter();
+-		superio_select();
+-
+-		pr_info("Disabling device\n");
+-		superio_outb(SUPERIO_REG_ACT, sio_data->activate);
+-
+-		superio_exit();
++		if (!superio_enter()) {
++			superio_select();
++			pr_info("Disabling device\n");
++			superio_outb(SUPERIO_REG_ACT, sio_data->activate);
++			superio_exit();
++		} else {
++			pr_warn("Failed to disable device\n");
++		}
+ 	}
+ }
  
- #define pte_set_fixmap(addr)		((pte_t *)set_fixmap_offset(FIX_PTE, addr))
 -- 
 2.20.1
 
