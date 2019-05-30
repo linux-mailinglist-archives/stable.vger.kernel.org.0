@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 12A6A2F51A
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:44:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE6232F2AA
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:24:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388594AbfE3Eoj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:44:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52834 "EHLO mail.kernel.org"
+        id S1730265AbfE3EX4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:23:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36290 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728781AbfE3DMA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:12:00 -0400
+        id S1729251AbfE3DO5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:14:57 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D2DBD244B0;
-        Thu, 30 May 2019 03:11:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1B94C24555;
+        Thu, 30 May 2019 03:14:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185919;
-        bh=PVPVlU2mJhGWN977JM1V2+R3IFbSesKHyzzRBu0vZeM=;
+        s=default; t=1559186097;
+        bh=fNIicfzKqgNknvOL8kafg05oEuWLA66QXO1DUGfYGHg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pRUZ9yhf7Ky/GdcRC9jp0JTi8J0yUVDi4U1n4itfveJCHq/LXztIPj5SXy8Z//tTA
-         Y58b+/eQWhwcbhuc9MFg7UMZgiH0HNdBvkyMk/ZON/uFGBtp2Pa2a6E8eebgzpXHws
-         AmamwyPy9OtwiS/zK6cCjWc68Uq0DWMwiygQpxAY=
+        b=nuRTFfMcEbm6G31ZhH5XRtWpLLwSJYunTIr0ymgv9uaqeVCab94KYDK1Tqym7nFPS
+         0LiNUOAJmyKTbueUuqANGvfDYmOfGqum5XUO+Sxr679V+dj3EWC7x/l58oO3hno4V9
+         BZlpcwi1dqU3TmbjsX13fRSxOie5qEjDcTCm80bk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <rong.a.chen@intel.com>,
-        "Paul E. McKenney" <paulmck@linux.ibm.com>,
+        stable@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 306/405] rcutorture: Fix cleanup path for invalid torture_type strings
+Subject: [PATCH 5.0 231/346] rtc: xgene: fix possible race condition
 Date:   Wed, 29 May 2019 20:05:04 -0700
-Message-Id: <20190530030556.302242343@linuxfoundation.org>
+Message-Id: <20190530030552.758686128@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,51 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit b813afae7ab6a5e91b4e16cc567331d9c2ae1f04 ]
+[ Upstream commit a652e00ee1233e251a337c28e18a1da59224e5ce ]
 
-If the specified rcutorture.torture_type is not in the rcu_torture_init()
-function's torture_ops[] array, rcutorture prints some console messages
-and then invokes rcu_torture_cleanup() to set state so that a future
-torture test can run.  However, rcu_torture_cleanup() also attempts to
-end the test that didn't actually start, and in doing so relies on the
-value of cur_ops, a value that is not particularly relevant in this case.
-This can result in confusing output or even follow-on failures due to
-attempts to use facilities that have not been properly initialized.
+The IRQ is requested before the struct rtc is allocated and registered, but
+this struct is used in the IRQ handler. This may lead to a NULL pointer
+dereference.
 
-This commit therefore sets the value of cur_ops to NULL in this case
-and inserts a check near the beginning of rcu_torture_cleanup(),
-thus avoiding relying on an irrelevant cur_ops value.
+Switch to devm_rtc_allocate_device/rtc_register_device to allocate the rtc
+struct before requesting the IRQ.
 
-Reported-by: kernel test robot <rong.a.chen@intel.com>
-Signed-off-by: Paul E. McKenney <paulmck@linux.ibm.com>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/rcutorture.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/rtc/rtc-xgene.c | 18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
 
-diff --git a/kernel/rcu/rcutorture.c b/kernel/rcu/rcutorture.c
-index f14d1b18a74fc..a2efe27317bef 100644
---- a/kernel/rcu/rcutorture.c
-+++ b/kernel/rcu/rcutorture.c
-@@ -2094,6 +2094,10 @@ rcu_torture_cleanup(void)
- 			cur_ops->cb_barrier();
- 		return;
+diff --git a/drivers/rtc/rtc-xgene.c b/drivers/rtc/rtc-xgene.c
+index 153820876a820..2f741f455c30a 100644
+--- a/drivers/rtc/rtc-xgene.c
++++ b/drivers/rtc/rtc-xgene.c
+@@ -168,6 +168,10 @@ static int xgene_rtc_probe(struct platform_device *pdev)
+ 	if (IS_ERR(pdata->csr_base))
+ 		return PTR_ERR(pdata->csr_base);
+ 
++	pdata->rtc = devm_rtc_allocate_device(&pdev->dev);
++	if (IS_ERR(pdata->rtc))
++		return PTR_ERR(pdata->rtc);
++
+ 	irq = platform_get_irq(pdev, 0);
+ 	if (irq < 0) {
+ 		dev_err(&pdev->dev, "No IRQ resource\n");
+@@ -198,15 +202,15 @@ static int xgene_rtc_probe(struct platform_device *pdev)
+ 		return ret;
  	}
-+	if (!cur_ops) {
-+		torture_cleanup_end();
-+		return;
+ 
+-	pdata->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
+-					 &xgene_rtc_ops, THIS_MODULE);
+-	if (IS_ERR(pdata->rtc)) {
+-		clk_disable_unprepare(pdata->clk);
+-		return PTR_ERR(pdata->rtc);
+-	}
+-
+ 	/* HW does not support update faster than 1 seconds */
+ 	pdata->rtc->uie_unsupported = 1;
++	pdata->rtc->ops = &xgene_rtc_ops;
++
++	ret = rtc_register_device(pdata->rtc);
++	if (ret) {
++		clk_disable_unprepare(pdata->clk);
++		return ret;
 +	}
  
- 	rcu_torture_barrier_cleanup();
- 	torture_stop_kthread(rcu_torture_fwd_prog, fwd_prog_task);
-@@ -2267,6 +2271,7 @@ rcu_torture_init(void)
- 		pr_cont("\n");
- 		WARN_ON(!IS_MODULE(CONFIG_RCU_TORTURE_TEST));
- 		firsterr = -EINVAL;
-+		cur_ops = NULL;
- 		goto unwind;
- 	}
- 	if (cur_ops->fqs == NULL && fqs_duration != 0) {
+ 	return 0;
+ }
 -- 
 2.20.1
 
