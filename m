@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 68CE02EBE2
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:16:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A3AB2F34A
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:28:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728548AbfE3DQg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:16:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43188 "EHLO mail.kernel.org"
+        id S1729793AbfE3DOQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:14:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729778AbfE3DQg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:16:36 -0400
+        id S1729788AbfE3DOQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:14:16 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CF835245AB;
-        Thu, 30 May 2019 03:16:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9F5DA2455A;
+        Thu, 30 May 2019 03:14:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186195;
-        bh=PDQKFwTZ+4tb8UFV3uA4gFWymgWjmywDPoUt7qwHpMU=;
+        s=default; t=1559186055;
+        bh=u1s5sbbe8SbdEzD6ad36pwC7gu2d/mbwywkYgxHnK8A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dtFoOS+XO3LZ3F2U+uWcKGPohqQaZhPOKUADy/J2eWRPoByhhi9Ui57z5byKpPrdQ
-         pvSO1qeAyPbDJeKJTbOHNjV9AwZ4YQXWgRPfhymwpDWTxI/BddaSFvt6ucdF1xXqNP
-         tKahl17ZGbbbpV8oQmNdEPJn8kt1Pttl57mDSIAw=
+        b=iOiRXo3GIyHgDNA8i6oa2IcOv5D3yelwW8Ex7Y6TOFdxAQsPMfwnsWV50Ui+lcptV
+         vXUDgFfe9jNva8qTQpqVflD0uFqWFPfiTnGFTXrOSNUbMFijv/Alb6I4H6E2P8EvDF
+         JrRm9PZTyGaFuJ1koUeAHkErF5RD5K2cGnOMrK9Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Derrick <jonathan.derrick@intel.com>,
-        Ben Skeggs <bskeggs@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 069/276] drm/nouveau/bar/nv50: ensure BAR is mapped
+        stable@vger.kernel.org,
+        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
+        Peter Zijlstra <a.p.zijlstra@chello.nl>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 154/346] sched/rt: Check integer overflow at usec to nsec conversion
 Date:   Wed, 29 May 2019 20:03:47 -0700
-Message-Id: <20190530030530.477145842@linuxfoundation.org>
+Message-Id: <20190530030548.982293722@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,56 +48,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f10b83de1fd49216a4c657816f48001437e4bdd5 ]
+[ Upstream commit 1a010e29cfa00fee2888fd2fd4983f848cbafb58 ]
 
-If the BAR is zero size, it indicates it was never successfully mapped.
-Ensure that the BAR is valid during initialization before attempting to
-use it.
+Example of unhandled overflows:
 
-Signed-off-by: Jon Derrick <jonathan.derrick@intel.com>
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+ # echo 18446744073709651 > cpu.rt_runtime_us
+ # cat cpu.rt_runtime_us
+ 99
+
+ # echo 18446744073709900 > cpu.rt_period_us
+ # cat cpu.rt_period_us
+ 348
+
+After this patch they will fail with -EINVAL.
+
+Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+Acked-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: http://lkml.kernel.org/r/155125501739.293431.5252197504404771496.stgit@buzz
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nvkm/subdev/bar/nv50.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ kernel/sched/rt.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/bar/nv50.c b/drivers/gpu/drm/nouveau/nvkm/subdev/bar/nv50.c
-index 157b076a12723..38c9c086754b6 100644
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/bar/nv50.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/bar/nv50.c
-@@ -109,7 +109,7 @@ nv50_bar_oneinit(struct nvkm_bar *base)
- 	struct nvkm_device *device = bar->base.subdev.device;
- 	static struct lock_class_key bar1_lock;
- 	static struct lock_class_key bar2_lock;
--	u64 start, limit;
-+	u64 start, limit, size;
- 	int ret;
+diff --git a/kernel/sched/rt.c b/kernel/sched/rt.c
+index e4f398ad9e73b..aa7ee3a0bf906 100644
+--- a/kernel/sched/rt.c
++++ b/kernel/sched/rt.c
+@@ -2555,6 +2555,8 @@ int sched_group_set_rt_runtime(struct task_group *tg, long rt_runtime_us)
+ 	rt_runtime = (u64)rt_runtime_us * NSEC_PER_USEC;
+ 	if (rt_runtime_us < 0)
+ 		rt_runtime = RUNTIME_INF;
++	else if ((u64)rt_runtime_us > U64_MAX / NSEC_PER_USEC)
++		return -EINVAL;
  
- 	ret = nvkm_gpuobj_new(device, 0x20000, 0, false, NULL, &bar->mem);
-@@ -127,7 +127,10 @@ nv50_bar_oneinit(struct nvkm_bar *base)
+ 	return tg_set_rt_bandwidth(tg, rt_period, rt_runtime);
+ }
+@@ -2575,6 +2577,9 @@ int sched_group_set_rt_period(struct task_group *tg, u64 rt_period_us)
+ {
+ 	u64 rt_runtime, rt_period;
  
- 	/* BAR2 */
- 	start = 0x0100000000ULL;
--	limit = start + device->func->resource_size(device, 3);
-+	size = device->func->resource_size(device, 3);
-+	if (!size)
-+		return -ENOMEM;
-+	limit = start + size;
++	if (rt_period_us > U64_MAX / NSEC_PER_USEC)
++		return -EINVAL;
++
+ 	rt_period = rt_period_us * NSEC_PER_USEC;
+ 	rt_runtime = tg->rt_bandwidth.rt_runtime;
  
- 	ret = nvkm_vmm_new(device, start, limit-- - start, NULL, 0,
- 			   &bar2_lock, "bar2", &bar->bar2_vmm);
-@@ -164,7 +167,10 @@ nv50_bar_oneinit(struct nvkm_bar *base)
- 
- 	/* BAR1 */
- 	start = 0x0000000000ULL;
--	limit = start + device->func->resource_size(device, 1);
-+	size = device->func->resource_size(device, 1);
-+	if (!size)
-+		return -ENOMEM;
-+	limit = start + size;
- 
- 	ret = nvkm_vmm_new(device, start, limit-- - start, NULL, 0,
- 			   &bar1_lock, "bar1", &bar->bar1_vmm);
 -- 
 2.20.1
 
