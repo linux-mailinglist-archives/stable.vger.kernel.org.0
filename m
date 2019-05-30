@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 864E82EE6A
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:47:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B6DEA2F08E
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:05:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730035AbfE3DrK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:47:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58956 "EHLO mail.kernel.org"
+        id S1731617AbfE3EFI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:05:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732255AbfE3DUf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:20:35 -0400
+        id S1731252AbfE3DRs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:17:48 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2B92524923;
-        Thu, 30 May 2019 03:20:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B1AC824725;
+        Thu, 30 May 2019 03:17:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186435;
-        bh=kB/h9OSGZn7xh4Eb8ehn9ecumyzZ8ps3aIb2htEVavY=;
+        s=default; t=1559186267;
+        bh=UJiPpQOR8Dhm936UzxmqRdc9QwzhXyAeIt40ybzJZ4E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sdY0VFoj8f1lqnk2jPd6PuwaM4CdRR7acoHQUXrciX5KqegRmUg4Lcd487bem1PPA
-         Z9A/IvJ++wQ2f336GSbd2eEv4Nf12EybCHMojVIUBhJwsXgCWNTy5dQsrLVPG/kxaM
-         OtoP8ns3XniwdKGcr4L1Nkal/fy1VoIs5BspeBuE=
+        b=0LKpMCeGDvyyGVWBzoVbciG3u4dWMuxt0J3awRe4XbjaS4rVrVGsEaHj5m5Twyn9l
+         3Kdzs6BGaCPKbI2HnQNr1kIYLoU4D5/shIca0qnywLQnB0aGldFSKC0k9Rw2/Z3CTZ
+         3RkZDATVrXyVgvZYlzsuu/Diz5j8ak9RbFwfN+z4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        linux-arm-kernel@lists.infradead.org,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 030/128] ASoC: imx: fix fiq dependencies
+Subject: [PATCH 4.19 204/276] arm64: cpu_ops: fix a leaked reference by adding missing of_node_put
 Date:   Wed, 29 May 2019 20:06:02 -0700
-Message-Id: <20190530030440.030167336@linuxfoundation.org>
+Message-Id: <20190530030537.889697689@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
-References: <20190530030432.977908967@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,65 +47,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ea751227c813ab833609afecfeedaf0aa26f327e ]
+[ Upstream commit 92606ec9285fb84cd9b5943df23f07d741384bfc ]
 
-During randconfig builds, I occasionally run into an invalid configuration
-of the freescale FIQ sound support:
+The call to of_get_next_child returns a node pointer with refcount
+incremented thus it must be explicitly decremented after the last
+usage.
 
-WARNING: unmet direct dependencies detected for SND_SOC_IMX_PCM_FIQ
-  Depends on [m]: SOUND [=y] && !UML && SND [=y] && SND_SOC [=y] && SND_IMX_SOC [=m]
-  Selected by [y]:
-  - SND_SOC_FSL_SPDIF [=y] && SOUND [=y] && !UML && SND [=y] && SND_SOC [=y] && SND_IMX_SOC [=m]!=n && (MXC_TZIC [=n] || MXC_AVIC [=y])
+Detected by coccinelle with the following warnings:
+  ./arch/arm64/kernel/cpu_ops.c:102:1-7: ERROR: missing of_node_put;
+  acquired a node pointer with refcount incremented on line 69, but
+  without a corresponding object release within this function.
 
-sound/soc/fsl/imx-ssi.o: In function `imx_ssi_remove':
-imx-ssi.c:(.text+0x28): undefined reference to `imx_pcm_fiq_exit'
-sound/soc/fsl/imx-ssi.o: In function `imx_ssi_probe':
-imx-ssi.c:(.text+0xa64): undefined reference to `imx_pcm_fiq_init'
-
-The Kconfig warning is a result of the symbol being defined inside of
-the "if SND_IMX_SOC" block, and is otherwise harmless. The link error
-is more tricky and happens with SND_SOC_IMX_SSI=y, which may or may not
-imply FIQ support. However, if SND_SOC_FSL_SSI is set to =m at the same
-time, that selects SND_SOC_IMX_PCM_FIQ as a loadable module dependency,
-which then causes a link failure from imx-ssi.
-
-The solution here is to make SND_SOC_IMX_PCM_FIQ built-in whenever
-one of its potential users is built-in.
-
-Fixes: ff40260f79dc ("ASoC: fsl: refine DMA/FIQ dependencies")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/fsl/Kconfig | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ arch/arm64/kernel/cpu_ops.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/fsl/Kconfig b/sound/soc/fsl/Kconfig
-index a732b3a065c92..8a2873a7899a7 100644
---- a/sound/soc/fsl/Kconfig
-+++ b/sound/soc/fsl/Kconfig
-@@ -172,16 +172,17 @@ config SND_MPC52xx_SOC_EFIKA
- 
- endif # SND_POWERPC_SOC
- 
-+config SND_SOC_IMX_PCM_FIQ
-+	tristate
-+	default y if SND_SOC_IMX_SSI=y && (SND_SOC_FSL_SSI=m || SND_SOC_FSL_SPDIF=m) && (MXC_TZIC || MXC_AVIC)
-+	select FIQ
-+
- if SND_IMX_SOC
- 
- config SND_SOC_IMX_SSI
- 	tristate
- 	select SND_SOC_FSL_UTILS
- 
--config SND_SOC_IMX_PCM_FIQ
--	tristate
--	select FIQ
--
- comment "SoC Audio support for Freescale i.MX boards:"
- 
- config SND_MXC_SOC_WM1133_EV1
+diff --git a/arch/arm64/kernel/cpu_ops.c b/arch/arm64/kernel/cpu_ops.c
+index ea001241bdd47..00f8b8612b69f 100644
+--- a/arch/arm64/kernel/cpu_ops.c
++++ b/arch/arm64/kernel/cpu_ops.c
+@@ -85,6 +85,7 @@ static const char *__init cpu_read_enable_method(int cpu)
+ 				pr_err("%pOF: missing enable-method property\n",
+ 					dn);
+ 		}
++		of_node_put(dn);
+ 	} else {
+ 		enable_method = acpi_get_enable_method(cpu);
+ 		if (!enable_method) {
 -- 
 2.20.1
 
