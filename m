@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B257A2F476
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:38:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17FB32F0B7
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:07:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729192AbfE3Eii (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:38:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56100 "EHLO mail.kernel.org"
+        id S1731149AbfE3DRc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:17:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727641AbfE3DMn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:12:43 -0400
+        id S1730278AbfE3DRc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:17:32 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5A3A121BE2;
-        Thu, 30 May 2019 03:12:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 47E682469D;
+        Thu, 30 May 2019 03:17:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185963;
-        bh=X+M34Of9+XS9yLB9PcXbJYs5GWQNKdBWPGagIpDaQ/I=;
+        s=default; t=1559186251;
+        bh=W6hhyP4Sz0xsqJqXoWMUMQRgHBcyX134EWeoywxxvPQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z7ETZwkEn3+uvsdQ/vGYAuSIgbbAB4vvZs3SMS6r0eOZoUjpkWuty/JBV8OCf1fS2
-         OUzie5cbs2GkUifRilCs9L2fO2sV/ytXu05WIII3BV+fUI6hdBoB7Pn5NNnjaKLzU1
-         kXFiWt03oWJYR5rjPbsaQx5N8U4PRqJqk/w81N/g=
+        b=zhNaxbB9pP/nVyNmA7ZxbjhqUcKgFS/ciAe2cU2Tr7E3apO3MM2SuGZeEv6mGcgMf
+         rILnS13bMizxi7yuvu2CTSpKl1nkcCeHEx3eGBmSJ1yhsNINVi8I4rfyVbIGF/M6Hd
+         508wuh/nAoj5peOPy51iuY00cWzU3EvcwouUSYSY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Samson Tam <Samson.Tam@amd.com>,
-        Aric Cyr <Aric.Cyr@amd.com>, Anthony Koo <Anthony.Koo@amd.com>,
-        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 331/405] drm/amd/display: Link train only when link is DP and backend is enabled
+Subject: [PATCH 4.19 171/276] extcon: arizona: Disable mic detect if running when driver is removed
 Date:   Wed, 29 May 2019 20:05:29 -0700
-Message-Id: <20190530030557.480084620@linuxfoundation.org>
+Message-Id: <20190530030536.069725414@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,56 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 66acd4418d7de131ef3831e52a8af3d2480e5b15 ]
+[ Upstream commit 00053de52231117ddc154042549f2256183ffb86 ]
 
-[Why]
-In certain cases we do link training when we don't have a backend.
+Microphone detection provides the button detection features on the
+Arizona CODECs as such it will be running if the jack is currently
+inserted. If the driver is unbound whilst the jack is still inserted
+this will cause warnings from the regulator framework as the MICVDD
+regulator is put but was never disabled.
 
-[How]
-In dc_link_set_preferred_link_settings(), store preferred link settings
-first and then verify that the link is DP and the link stream's backend is
-enabled.  If either is false, then we will not do any link retraining.
+Correct this by disabling microphone detection on driver removal and if
+the microphone detection was running disable the regulator and put the
+runtime reference that was currently held.
 
-Signed-off-by: Samson Tam <Samson.Tam@amd.com>
-Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
-Acked-by: Anthony Koo <Anthony.Koo@amd.com>
-Acked-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc.c | 13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ drivers/extcon/extcon-arizona.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc.c b/drivers/gpu/drm/amd/display/dc/core/dc.c
-index a6cda201c964c..c1a308c1dcbea 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc.c
-@@ -524,6 +524,14 @@ void dc_link_set_preferred_link_settings(struct dc *dc,
- 	struct dc_stream_state *link_stream;
- 	struct dc_link_settings store_settings = *link_setting;
- 
-+	link->preferred_link_setting = store_settings;
+diff --git a/drivers/extcon/extcon-arizona.c b/drivers/extcon/extcon-arizona.c
+index da0e9bc4262fa..9327479c719c2 100644
+--- a/drivers/extcon/extcon-arizona.c
++++ b/drivers/extcon/extcon-arizona.c
+@@ -1726,6 +1726,16 @@ static int arizona_extcon_remove(struct platform_device *pdev)
+ 	struct arizona_extcon_info *info = platform_get_drvdata(pdev);
+ 	struct arizona *arizona = info->arizona;
+ 	int jack_irq_rise, jack_irq_fall;
++	bool change;
 +
-+	/* Retrain with preferred link settings only relevant for
-+	 * DP signal type
-+	 */
-+	if (!dc_is_dp_signal(link->connector_signal))
-+		return;
++	regmap_update_bits_check(arizona->regmap, ARIZONA_MIC_DETECT_1,
++				 ARIZONA_MICD_ENA, 0,
++				 &change);
 +
- 	for (i = 0; i < MAX_PIPES; i++) {
- 		pipe = &dc->current_state->res_ctx.pipe_ctx[i];
- 		if (pipe->stream && pipe->stream->link) {
-@@ -538,7 +546,10 @@ void dc_link_set_preferred_link_settings(struct dc *dc,
++	if (change) {
++		regulator_disable(info->micvdd);
++		pm_runtime_put(info->dev);
++	}
  
- 	link_stream = link->dc->current_state->res_ctx.pipe_ctx[i].stream;
- 
--	link->preferred_link_setting = store_settings;
-+	/* Cannot retrain link if backend is off */
-+	if (link_stream->dpms_off)
-+		return;
-+
- 	if (link_stream)
- 		decide_link_settings(link_stream, &store_settings);
+ 	gpiod_put(info->micd_pol_gpio);
  
 -- 
 2.20.1
