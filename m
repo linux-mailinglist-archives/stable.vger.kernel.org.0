@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 632CC2F167
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:13:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2F9C2F343
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:28:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730702AbfE3DQb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:16:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42744 "EHLO mail.kernel.org"
+        id S1730005AbfE3E1u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:27:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730689AbfE3DQa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:16:30 -0400
+        id S1728932AbfE3DOS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:14:18 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D545D24598;
-        Thu, 30 May 2019 03:16:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EFE2724569;
+        Thu, 30 May 2019 03:14:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186189;
-        bh=tAgy56GAZeKXoQye7Cl73ptMrxp8/LSuliqo4RLdHi4=;
+        s=default; t=1559186058;
+        bh=Kk169pAbbcX7z6Btstk81E+FvhtTvb7zc2UpRbJBs74=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ax9lve9Drp1DwLlmPMOzwB57IfkuzdM4GYB3wSxbq+ljAt3NfJTgMoDA71GUt/9Gx
-         +hY/CzLkvtfHYxXGru/cBVyAz7BWyA/3MIsqEltMyxhPoHirgzxnGP4DSbhUIkx1Gt
-         3CkV1ekv53nzGZ4IgHWkOaDbinoe2R38XgAf8wHo=
+        b=mg49cbPKrk5fN66IT79Sf7/Fzm8rWNcxpaTtfOVMSUk6eX/uI/4Sl9bNQnlDyZ1yh
+         5MwnkEb9gOE6ISVN+Xs0ibAhFyDEsjHE2G9IZnkemi+/tzzfwKOVCXNkiyXjc5dpV+
+         ChwuMtq9hDy3sfLaehLrYynQclXXOQ2ojcZqR4ik=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Qu Wenruo <wqu@suse.com>, Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.19 031/276] btrfs: honor path->skip_locking in backref code
+        stable@vger.kernel.org, Shenghui Wang <shhuiw@foxmail.com>,
+        Coly Li <colyli@suse.de>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 116/346] bcache: avoid potential memleak of list of journal_replay(s) in the CACHE_SYNC branch of run_cache_set
 Date:   Wed, 29 May 2019 20:03:09 -0700
-Message-Id: <20190530030526.154567229@linuxfoundation.org>
+Message-Id: <20190530030546.959592924@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,156 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+[ Upstream commit 95f18c9d1310730d075499a75aaf13bcd60405a7 ]
 
-commit 38e3eebff643db725633657d1d87a3be019d1018 upstream.
+In the CACHE_SYNC branch of run_cache_set(), LIST_HEAD(journal) is used
+to collect journal_replay(s) and filled by bch_journal_read().
 
-Qgroups will do the old roots lookup at delayed ref time, which could be
-while walking down the extent root while running a delayed ref.  This
-should be fine, except we specifically lock eb's in the backref walking
-code irrespective of path->skip_locking, which deadlocks the system.
-Fix up the backref code to honor path->skip_locking, nobody will be
-modifying the commit_root when we're searching so it's completely safe
-to do.
+If all goes well, bch_journal_replay() will release the list of
+jounal_replay(s) at the end of the branch.
 
-This happens since fb235dc06fac ("btrfs: qgroup: Move half of the qgroup
-accounting time out of commit trans"), kernel may lockup with quota
-enabled.
+If something goes wrong, code flow will jump to the label "err:" and leave
+the list unreleased.
 
-There is one backref trace triggered by snapshot dropping along with
-write operation in the source subvolume.  The example can be reliably
-reproduced:
+This patch will release the list of journal_replay(s) in the case of
+error detected.
 
-  btrfs-cleaner   D    0  4062      2 0x80000000
-  Call Trace:
-   schedule+0x32/0x90
-   btrfs_tree_read_lock+0x93/0x130 [btrfs]
-   find_parent_nodes+0x29b/0x1170 [btrfs]
-   btrfs_find_all_roots_safe+0xa8/0x120 [btrfs]
-   btrfs_find_all_roots+0x57/0x70 [btrfs]
-   btrfs_qgroup_trace_extent_post+0x37/0x70 [btrfs]
-   btrfs_qgroup_trace_leaf_items+0x10b/0x140 [btrfs]
-   btrfs_qgroup_trace_subtree+0xc8/0xe0 [btrfs]
-   do_walk_down+0x541/0x5e3 [btrfs]
-   walk_down_tree+0xab/0xe7 [btrfs]
-   btrfs_drop_snapshot+0x356/0x71a [btrfs]
-   btrfs_clean_one_deleted_snapshot+0xb8/0xf0 [btrfs]
-   cleaner_kthread+0x12b/0x160 [btrfs]
-   kthread+0x112/0x130
-   ret_from_fork+0x27/0x50
+v1 -> v2:
+* Move the release code to the location after label 'err:' to
+  simply the change.
 
-When dropping snapshots with qgroup enabled, we will trigger backref
-walk.
-
-However such backref walk at that timing is pretty dangerous, as if one
-of the parent nodes get WRITE locked by other thread, we could cause a
-dead lock.
-
-For example:
-
-           FS 260     FS 261 (Dropped)
-            node A        node B
-           /      \      /      \
-       node C      node D      node E
-      /   \         /  \        /     \
-  leaf F|leaf G|leaf H|leaf I|leaf J|leaf K
-
-The lock sequence would be:
-
-      Thread A (cleaner)             |       Thread B (other writer)
------------------------------------------------------------------------
-write_lock(B)                        |
-write_lock(D)                        |
-^^^ called by walk_down_tree()       |
-                                     |       write_lock(A)
-                                     |       write_lock(D) << Stall
-read_lock(H) << for backref walk     |
-read_lock(D) << lock owner is        |
-                the same thread A    |
-                so read lock is OK   |
-read_lock(A) << Stall                |
-
-So thread A hold write lock D, and needs read lock A to unlock.
-While thread B holds write lock A, while needs lock D to unlock.
-
-This will cause a deadlock.
-
-This is not only limited to snapshot dropping case.  As the backref
-walk, even only happens on commit trees, is breaking the normal top-down
-locking order, makes it deadlock prone.
-
-Fixes: fb235dc06fac ("btrfs: qgroup: Move half of the qgroup accounting time out of commit trans")
-CC: stable@vger.kernel.org # 4.14+
-Reported-and-tested-by: David Sterba <dsterba@suse.com>
-Reported-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-[ rebase to latest branch and fix lock assert bug in btrfs/007 ]
-[ backport to linux-4.19.y branch, solve minor conflicts ]
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-[ copy logs and deadlock analysis from Qu's patch ]
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Shenghui Wang <shhuiw@foxmail.com>
+Signed-off-by: Coly Li <colyli@suse.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/backref.c |   19 ++++++++++++-------
- 1 file changed, 12 insertions(+), 7 deletions(-)
+ drivers/md/bcache/super.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/fs/btrfs/backref.c
-+++ b/fs/btrfs/backref.c
-@@ -710,7 +710,7 @@ out:
-  * read tree blocks and add keys where required.
-  */
- static int add_missing_keys(struct btrfs_fs_info *fs_info,
--			    struct preftrees *preftrees)
-+			    struct preftrees *preftrees, bool lock)
- {
- 	struct prelim_ref *ref;
- 	struct extent_buffer *eb;
-@@ -735,12 +735,14 @@ static int add_missing_keys(struct btrfs
- 			free_extent_buffer(eb);
- 			return -EIO;
- 		}
--		btrfs_tree_read_lock(eb);
-+		if (lock)
-+			btrfs_tree_read_lock(eb);
- 		if (btrfs_header_level(eb) == 0)
- 			btrfs_item_key_to_cpu(eb, &ref->key_for_search, 0);
- 		else
- 			btrfs_node_key_to_cpu(eb, &ref->key_for_search, 0);
--		btrfs_tree_read_unlock(eb);
-+		if (lock)
-+			btrfs_tree_read_unlock(eb);
- 		free_extent_buffer(eb);
- 		prelim_ref_insert(fs_info, &preftrees->indirect, ref, NULL);
- 		cond_resched();
-@@ -1225,7 +1227,7 @@ again:
+diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
+index ee36e6b3bcad3..acf8e2e3890c7 100644
+--- a/drivers/md/bcache/super.c
++++ b/drivers/md/bcache/super.c
+@@ -1782,6 +1782,8 @@ static void run_cache_set(struct cache_set *c)
+ 	struct cache *ca;
+ 	struct closure cl;
+ 	unsigned int i;
++	LIST_HEAD(journal);
++	struct journal_replay *l;
  
- 	btrfs_release_path(path);
+ 	closure_init_stack(&cl);
  
--	ret = add_missing_keys(fs_info, &preftrees);
-+	ret = add_missing_keys(fs_info, &preftrees, path->skip_locking == 0);
- 	if (ret)
- 		goto out;
- 
-@@ -1286,11 +1288,14 @@ again:
- 					ret = -EIO;
- 					goto out;
- 				}
--				btrfs_tree_read_lock(eb);
--				btrfs_set_lock_blocking_rw(eb, BTRFS_READ_LOCK);
-+				if (!path->skip_locking) {
-+					btrfs_tree_read_lock(eb);
-+					btrfs_set_lock_blocking_rw(eb, BTRFS_READ_LOCK);
-+				}
- 				ret = find_extent_in_eb(eb, bytenr,
- 							*extent_item_pos, &eie, ignore_offset);
--				btrfs_tree_read_unlock_blocking(eb);
-+				if (!path->skip_locking)
-+					btrfs_tree_read_unlock_blocking(eb);
- 				free_extent_buffer(eb);
- 				if (ret < 0)
- 					goto out;
+@@ -1939,6 +1941,12 @@ static void run_cache_set(struct cache_set *c)
+ 	set_bit(CACHE_SET_RUNNING, &c->flags);
+ 	return;
+ err:
++	while (!list_empty(&journal)) {
++		l = list_first_entry(&journal, struct journal_replay, list);
++		list_del(&l->list);
++		kfree(l);
++	}
++
+ 	closure_sync(&cl);
+ 	/* XXX: test this, it's broken */
+ 	bch_cache_set_error(c, "%s", err);
+-- 
+2.20.1
+
 
 
