@@ -2,171 +2,165 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E60F2EA57
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 03:46:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 320412EA65
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 03:54:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727327AbfE3Bql (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 21:46:41 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:56366 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726527AbfE3Bql (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 21:46:41 -0400
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 67627309264D;
-        Thu, 30 May 2019 01:46:40 +0000 (UTC)
-Received: from [10.72.12.105] (ovpn-12-105.pek2.redhat.com [10.72.12.105])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 7ECC519C70;
-        Thu, 30 May 2019 01:46:37 +0000 (UTC)
-Subject: Re: [PATCH 8/8] ceph: hold i_ceph_lock when removing caps for freeing
- inode
-To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org
-Cc:     idryomov@redhat.com, jlayton@redhat.com, stable@vger.kernel.org
-References: <20190523080646.19632-8-zyan@redhat.com>
- <20190529131452.43F372081C@mail.kernel.org>
-From:   "Yan, Zheng" <zyan@redhat.com>
-Message-ID: <1fb32a0f-545c-2ace-3dcd-8df6ca9d32e6@redhat.com>
-Date:   Thu, 30 May 2019 09:46:35 +0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.0
+        id S1727346AbfE3ByU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 21:54:20 -0400
+Received: from out01.mta.xmission.com ([166.70.13.231]:54155 "EHLO
+        out01.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726527AbfE3ByU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 29 May 2019 21:54:20 -0400
+Received: from in01.mta.xmission.com ([166.70.13.51])
+        by out01.mta.xmission.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.87)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1hWAGm-0003tx-S1; Wed, 29 May 2019 19:54:16 -0600
+Received: from ip72-206-97-68.om.om.cox.net ([72.206.97.68] helo=x220.xmission.com)
+        by in01.mta.xmission.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.87)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1hWAGl-0003zx-2c; Wed, 29 May 2019 19:54:16 -0600
+From:   ebiederm@xmission.com (Eric W. Biederman)
+To:     Arnd Bergmann <arnd@arndb.de>
+Cc:     Oleg Nesterov <oleg@redhat.com>,
+        Deepa Dinamani <deepa.kernel@gmail.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>, dbueso@suse.de,
+        Jens Axboe <axboe@kernel.dk>,
+        Davidlohr Bueso <dave@stgolabs.net>, e@80x24.org,
+        Jason Baron <jbaron@akamai.com>,
+        Linux FS-devel Mailing List <linux-fsdevel@vger.kernel.org>,
+        linux-aio <linux-aio@kvack.org>, omar.kilani@gmail.com,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "# 3.4.x" <stable@vger.kernel.org>
+References: <20190522032144.10995-1-deepa.kernel@gmail.com>
+        <20190529161157.GA27659@redhat.com>
+        <CAK8P3a1fsrz6kAB1z-mqcaNvXL4Hf3XMiN=Q5rzAJ3rLGPK_Yg@mail.gmail.com>
+Date:   Wed, 29 May 2019 20:54:09 -0500
+In-Reply-To: <CAK8P3a1fsrz6kAB1z-mqcaNvXL4Hf3XMiN=Q5rzAJ3rLGPK_Yg@mail.gmail.com>
+        (Arnd Bergmann's message of "Thu, 30 May 2019 00:32:32 +0200")
+Message-ID: <874l5czozi.fsf@xmission.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/25.1 (gnu/linux)
 MIME-Version: 1.0
-In-Reply-To: <20190529131452.43F372081C@mail.kernel.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.43]); Thu, 30 May 2019 01:46:40 +0000 (UTC)
+Content-Type: text/plain
+X-XM-SPF: eid=1hWAGl-0003zx-2c;;;mid=<874l5czozi.fsf@xmission.com>;;;hst=in01.mta.xmission.com;;;ip=72.206.97.68;;;frm=ebiederm@xmission.com;;;spf=neutral
+X-XM-AID: U2FsdGVkX1+sYXiM8eraUyZMQcF4BEIK0Zqv4Ek0euE=
+X-SA-Exim-Connect-IP: 72.206.97.68
+X-SA-Exim-Mail-From: ebiederm@xmission.com
+X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on sa08.xmission.com
+X-Spam-Level: 
+X-Spam-Status: No, score=-0.2 required=8.0 tests=ALL_TRUSTED,BAYES_50,
+        DCC_CHECK_NEGATIVE,T_TM2_M_HEADER_IN_MSG autolearn=disabled
+        version=3.4.2
+X-Spam-Report: * -1.0 ALL_TRUSTED Passed through trusted hosts only via SMTP
+        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+        *      [score: 0.5000]
+        *  0.0 T_TM2_M_HEADER_IN_MSG BODY: No description available.
+        * -0.0 DCC_CHECK_NEGATIVE Not listed in DCC
+        *      [sa08 1397; Body=1 Fuz1=1 Fuz2=1]
+X-Spam-DCC: XMission; sa08 1397; Body=1 Fuz1=1 Fuz2=1 
+X-Spam-Combo: ;Arnd Bergmann <arnd@arndb.de>
+X-Spam-Relay-Country: 
+X-Spam-Timing: total 1387 ms - load_scoreonly_sql: 0.05 (0.0%),
+        signal_user_changed: 5 (0.4%), b_tie_ro: 3.9 (0.3%), parse: 1.35
+        (0.1%), extract_message_metadata: 12 (0.9%), get_uri_detail_list: 2.1
+        (0.1%), tests_pri_-1000: 9 (0.7%), tests_pri_-950: 1.37 (0.1%),
+        tests_pri_-900: 1.18 (0.1%), tests_pri_-90: 32 (2.3%), check_bayes: 30
+        (2.2%), b_tokenize: 7 (0.5%), b_tok_get_all: 11 (0.8%), b_comp_prob:
+        3.4 (0.2%), b_tok_touch_all: 4.5 (0.3%), b_finish: 1.03 (0.1%),
+        tests_pri_0: 1307 (94.2%), check_dkim_signature: 0.49 (0.0%),
+        check_dkim_adsp: 4.9 (0.4%), poll_dns_idle: 0.36 (0.0%), tests_pri_10:
+        4.2 (0.3%), tests_pri_500: 9 (0.7%), rewrite_mail: 0.00 (0.0%)
+Subject: Re: pselect/etc semantics
+X-Spam-Flag: No
+X-SA-Exim-Version: 4.2.1 (built Thu, 05 May 2016 13:38:54 -0600)
+X-SA-Exim-Scanned: Yes (on in01.mta.xmission.com)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 5/29/19 9:14 PM, Sasha Levin wrote:
-> Hi,
-> 
-> [This is an automated email]
-> 
-> This commit has been processed because it contains a -stable tag.
-> The stable tag indicates that it's relevant for the following trees: all
-> 
-> The bot has tested the following trees: v5.1.4, v5.0.18, v4.19.45, v4.14.121, v4.9.178, v4.4.180, v3.18.140.
-> 
-> v5.1.4: Build OK!
-> v5.0.18: Failed to apply! Possible dependencies:
->      e3ec8d6898f71 ("ceph: send cap releases more aggressively")
-> 
-> v4.19.45: Failed to apply! Possible dependencies:
->      e3ec8d6898f71 ("ceph: send cap releases more aggressively")
-> 
-> v4.14.121: Failed to apply! Possible dependencies:
->      a1c6b8358171c ("ceph: define argument structure for handle_cap_grant")
->      a57d9064e4ee4 ("ceph: flush pending works before shutdown super")
->      e3ec8d6898f71 ("ceph: send cap releases more aggressively")
-> 
-> v4.9.178: Failed to apply! Possible dependencies:
->      a1c6b8358171c ("ceph: define argument structure for handle_cap_grant")
->      a57d9064e4ee4 ("ceph: flush pending works before shutdown super")
->      e3ec8d6898f71 ("ceph: send cap releases more aggressively")
-> 
-> v4.4.180: Failed to apply! Possible dependencies:
->      13d1ad16d05ee ("libceph: move message allocation out of ceph_osdc_alloc_request()")
->      34b759b4a22b0 ("ceph: kill ceph_empty_snapc")
->      3f1af42ad0fad ("libceph: enable large, variable-sized OSD requests")
->      5be0389dac662 ("ceph: re-send AIO write request when getting -EOLDSNAP error")
->      7627151ea30bc ("libceph: define new ceph_file_layout structure")
->      779fe0fb8e188 ("ceph: rados pool namespace support")
->      922dab6134178 ("libceph, rbd: ceph_osd_linger_request, watch/notify v2")
->      a1c6b8358171c ("ceph: define argument structure for handle_cap_grant")
->      ae458f5a171ba ("libceph: make r_request msg_size calculation clearer")
->      c41d13a31fefe ("rbd: use header_oid instead of header_name")
->      c8fe9b17d055f ("ceph: Asynchronous IO support")
->      d30291b985d18 ("libceph: variable-sized ceph_object_id")
->      e3ec8d6898f71 ("ceph: send cap releases more aggressively")
-> 
-> v3.18.140: Failed to apply! Possible dependencies:
->      10183a69551f7 ("ceph: check OSD caps before read/write")
->      28127bdd2f843 ("ceph: convert inline data to normal data before data write")
->      31c542a199d79 ("ceph: add inline data to pagecache")
->      5be0389dac662 ("ceph: re-send AIO write request when getting -EOLDSNAP error")
->      70db4f3629b34 ("ceph: introduce a new inode flag indicating if cached dentries are ordered")
->      745a8e3bccbc6 ("ceph: don't pre-allocate space for cap release messages")
->      7627151ea30bc ("libceph: define new ceph_file_layout structure")
->      779fe0fb8e188 ("ceph: rados pool namespace support")
->      83701246aee8f ("ceph: sync read inline data")
->      a1c6b8358171c ("ceph: define argument structure for handle_cap_grant")
->      affbc19a68f99 ("ceph: make sure syncfs flushes all cap snaps")
->      c8fe9b17d055f ("ceph: Asynchronous IO support")
->      d30291b985d18 ("libceph: variable-sized ceph_object_id")
->      d3383a8e37f80 ("ceph: avoid block operation when !TASK_RUNNING (ceph_mdsc_sync)")
->      e3ec8d6898f71 ("ceph: send cap releases more aggressively")
->      e96a650a8174e ("ceph, rbd: delete unnecessary checks before two function calls")
-> 
-> 
-> How should we proceed with this patch?
-> 
+Arnd Bergmann <arnd@arndb.de> writes:
 
-please use following patch for old kernels
+> On Wed, May 29, 2019 at 6:12 PM Oleg Nesterov <oleg@redhat.com> wrote:
+>>
+>> Al, Linus, Eric, please help.
+>>
+>> The previous discussion was very confusing, we simply can not understand each
+>> other.
+>>
+>> To me everything looks very simple and clear, but perhaps I missed something
+>> obvious? Please correct me.
+>
+> Thanks for the elaborate explanation in this patch, it all starts making sense
+> to me now. I also looked at your patch in detail and thought I had found
+> a few mistakes at first but those all turned out to be mistakes in my reading.
+>
+>> See the compile-tested patch at the end. Of course, the new _xxx() helpers
+>> should be renamed somehow. fs/aio.c doesn't look right with or without this
+>> patch, but iiuc this is what it did before 854a6ed56839a.
+>
+> I think this is a nice simplification, but it would help not to mix up the
+> minimal regression fix with the rewrite of those functions. For the stable
+> kernels, I think we want just the addition of the 'bool interrupted' argument
+> to restore_user_sigmask() to close the race that was introduced
+> 854a6ed56839a. Following up on that for future kernels, your patch
+> improves the readability, but we can probably take it even further.
+>
+>> -       ret = set_user_sigmask(ksig.sigmask, &ksigmask, &sigsaved, ksig.sigsetsize);
+>> +       ret = set_xxx(ksig.sigmask, ksig.sigsetsize);
+>>         if (ret)
+>>                 return ret;
+>>
+>>         ret = do_io_getevents(ctx_id, min_nr, nr, events, timeout ? &ts : NULL);
+>> -       restore_user_sigmask(ksig.sigmask, &sigsaved);
+>> -       if (signal_pending(current) && !ret)
+>> +
+>> +       interrupted = signal_pending(current);
+>> +       update_xxx(interrupted);
+>
+> Maybe name this
+>
+>            restore_saved_sigmask_if(!interrupted);
+>
+> and make restore_saved_sigmask_if() an inline function
+> next to restore_saved_sigmask()?
+>
+>> @@ -2201,13 +2205,15 @@ COMPAT_SYSCALL_DEFINE6(io_pgetevents,
+>>         if (usig && copy_from_user(&ksig, usig, sizeof(ksig)))
+>>                 return -EFAULT;
+>>
+>> -       ret = set_compat_user_sigmask(ksig.sigmask, &ksigmask, &sigsaved, ksig.sigsetsize);
+>> +       ret = set_compat_xxx(ksig.sigmask, ksig.sigsetsize);
+>>         if (ret)
+>>                 return ret;
+>
+> With some of the recent discussions about compat syscall handling,
+> I now think that we want to just fold set_compat_user_sigmask()
+> into set_user_sigmask() (whatever they get called in the end)
+> with an in_compat_syscall() conditional inside it, and completely get
+> rid of the COMPAT_SYSCALL_DEFINEx() definitions for those
+> system calls for which this is the only difference.
+>
+> Unfortunately we still need the time32/time64 distinction, but removing
+> syscall handlers is a significant cleanup here already, and we can
+> move most of the function body of sys_io_pgetevents() into
+> do_io_getevents() in the process. Same for some of the other calls.
+>
+> Not sure about the order of the cleanups, but probably something like
+> this would work:
+>
+> 1. fix the race (to be backported)
+> 2. unify set_compat_user_sigmask/set_user_sigmask
+> 3. remove unneeded compat handlers
+> 4. replace restore_user_sigmask with restore_saved_sigmask_if()
+> 5. also unify compat_get_fd_set()/get_fd_set() and kill off
+>     compat select() variants.
 
-Regards
-Yan, Zheng
+Are new system calls added preventing a revert of the patch in question
+for stable kernels?
 
----
- From 55937416f12e096621b06ada7554cacb89d06e97 Mon Sep 17 00:00:00 2001
-From: "Yan, Zheng" <zyan@redhat.com>
-Date: Thu, 23 May 2019 11:01:37 +0800
-Subject: [PATCH] ceph: hold i_ceph_lock when removing caps for freeing inode
-
-ceph_d_revalidate(, LOOKUP_RCU) may call __ceph_caps_issued_mask()
-on a freeing inode.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: "Yan, Zheng" <zyan@redhat.com>
-Reviewed-by: Jeff Layton <jlayton@redhat.com>
----
-  fs/ceph/caps.c | 7 +++++--
-  1 file changed, 5 insertions(+), 2 deletions(-)
-
-diff --git a/fs/ceph/caps.c b/fs/ceph/caps.c
-index ff5d32cf9578..0fb4e919cdce 100644
---- a/fs/ceph/caps.c
-+++ b/fs/ceph/caps.c
-@@ -1119,20 +1119,23 @@ static int send_cap_msg(struct cap_msg_args *arg)
-  }
-
-  /*
-- * Queue cap releases when an inode is dropped from our cache.  Since
-- * inode is about to be destroyed, there is no need for i_ceph_lock.
-+ * Queue cap releases when an inode is dropped from our cache.
-   */
-  void ceph_queue_caps_release(struct inode *inode)
-  {
-  	struct ceph_inode_info *ci = ceph_inode(inode);
-  	struct rb_node *p;
-
-+	/* lock i_ceph_lock, because ceph_d_revalidate(..., LOOKUP_RCU)
-+	 * may call __ceph_caps_issued_mask() on a freeing inode. */
-+	spin_lock(&ci->i_ceph_lock);
-  	p = rb_first(&ci->i_caps);
-  	while (p) {
-  		struct ceph_cap *cap = rb_entry(p, struct ceph_cap, ci_node);
-  		p = rb_next(p);
-  		__ceph_remove_cap(cap, true);
-  	}
-+	spin_unlock(&ci->i_ceph_lock);
-  }
-
-  /*
--- 
-2.17.2
-
-
-
-
-
-> --
-> Thanks,
-> Sasha
-> 
-
-
+Eric
