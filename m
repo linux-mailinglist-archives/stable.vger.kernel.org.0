@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C8FE32F009
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:01:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE9F92F122
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:10:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728281AbfE3D7q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:59:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51694 "EHLO mail.kernel.org"
+        id S1726972AbfE3EKZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:10:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731581AbfE3DSc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:18:32 -0400
+        id S1730881AbfE3DRA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:17:00 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DEDB9247D8;
-        Thu, 30 May 2019 03:18:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 56D482464B;
+        Thu, 30 May 2019 03:16:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186311;
-        bh=m7mleQE6RR3bBkxcDg1SSBGWVQ95hMKFP/PrqYHWZSs=;
+        s=default; t=1559186219;
+        bh=bZizr1t6BzbjwN0yJ7fX+f7uZ1SGbNSRud942rvWzQM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=werwtqaKHZRd0s/ZzhfvRgbJEhO0jSBgP7I2UzFzxPwGssUux4mQw2nfzRI9+zkwL
-         ZjLC8zaAGUitvYn2llXbJe+SH+B++P8WXUV3LGumukfdaFQexXEuoiHm/EEO4S/OhD
-         hRU2mMm2za0NqSCkCHbSO7Xcg+CPFNcOc4NWFhU0=
+        b=tMPLDs0qC9HUSgVtyQHMLc9uud80kn8tSMy6TLIGXPyUl3Tiz59zyxBmVlmricGgh
+         rBP2Kth/F8DboXhRfPdenjQ5x/zemG/pLJNQCNM/Q/WUnucpRGbI5UxAokwbv2Q3Mc
+         B5CUlNj58nBqGR1WFYDo2vDwfMqK6wmta2QMgZww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jane Chu <jane.chu@oracle.com>,
-        Jeff Moyer <jmoyer@redhat.com>,
-        Erwin Tsaur <erwin.tsaur@oracle.com>,
-        Johannes Thumshirn <jthumshirn@suse.de>,
-        Dan Williams <dan.j.williams@intel.com>
-Subject: [PATCH 4.14 013/193] libnvdimm/namespace: Fix label tracking error
+        stable@vger.kernel.org, Farhan Ali <alifm@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 109/276] vfio-ccw: Release any channel program when releasing/removing vfio-ccw mdev
 Date:   Wed, 29 May 2019 20:04:27 -0700
-Message-Id: <20190530030449.694671104@linuxfoundation.org>
+Message-Id: <20190530030532.829145465@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,159 +45,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Williams <dan.j.williams@intel.com>
+[ Upstream commit b49bdc8602b7c9c7a977758bee4125683f73e59f ]
 
-commit c4703ce11c23423d4b46e3d59aef7979814fd608 upstream.
+When releasing the vfio-ccw mdev, we currently do not release
+any existing channel program and its pinned pages. This can
+lead to the following warning:
 
-Users have reported intermittent occurrences of DIMM initialization
-failures due to duplicate allocations of address capacity detected in
-the labels, or errors of the form below, both have the same root cause.
+[1038876.561565] WARNING: CPU: 2 PID: 144727 at drivers/vfio/vfio_iommu_type1.c:1494 vfio_sanity_check_pfn_list+0x40/0x70 [vfio_iommu_type1]
 
-    nd namespace1.4: failed to track label: 0
-    WARNING: CPU: 17 PID: 1381 at drivers/nvdimm/label.c:863
+....
 
-    RIP: 0010:__pmem_label_update+0x56c/0x590 [libnvdimm]
-    Call Trace:
-     ? nd_pmem_namespace_label_update+0xd6/0x160 [libnvdimm]
-     nd_pmem_namespace_label_update+0xd6/0x160 [libnvdimm]
-     uuid_store+0x17e/0x190 [libnvdimm]
-     kernfs_fop_write+0xf0/0x1a0
-     vfs_write+0xb7/0x1b0
-     ksys_write+0x57/0xd0
-     do_syscall_64+0x60/0x210
+1038876.561921] Call Trace:
+[1038876.561935] ([<00000009897fb870>] 0x9897fb870)
+[1038876.561949]  [<000003ff8013bf62>] vfio_iommu_type1_detach_group+0xda/0x2f0 [vfio_iommu_type1]
+[1038876.561965]  [<000003ff8007b634>] __vfio_group_unset_container+0x64/0x190 [vfio]
+[1038876.561978]  [<000003ff8007b87e>] vfio_group_put_external_user+0x26/0x38 [vfio]
+[1038876.562024]  [<000003ff806fc608>] kvm_vfio_group_put_external_user+0x40/0x60 [kvm]
+[1038876.562045]  [<000003ff806fcb9e>] kvm_vfio_destroy+0x5e/0xd0 [kvm]
+[1038876.562065]  [<000003ff806f63fc>] kvm_put_kvm+0x2a4/0x3d0 [kvm]
+[1038876.562083]  [<000003ff806f655e>] kvm_vm_release+0x36/0x48 [kvm]
+[1038876.562098]  [<00000000003c2dc4>] __fput+0x144/0x228
+[1038876.562113]  [<000000000016ee82>] task_work_run+0x8a/0xd8
+[1038876.562125]  [<000000000014c7a8>] do_exit+0x5d8/0xd90
+[1038876.562140]  [<000000000014d084>] do_group_exit+0xc4/0xc8
+[1038876.562155]  [<000000000015c046>] get_signal+0x9ae/0xa68
+[1038876.562169]  [<0000000000108d66>] do_signal+0x66/0x768
+[1038876.562185]  [<0000000000b9e37e>] system_call+0x1ea/0x2d8
+[1038876.562195] 2 locks held by qemu-system-s39/144727:
+[1038876.562205]  #0: 00000000537abaf9 (&container->group_lock){++++}, at: __vfio_group_unset_container+0x3c/0x190 [vfio]
+[1038876.562230]  #1: 00000000670008b5 (&iommu->lock){+.+.}, at: vfio_iommu_type1_detach_group+0x36/0x2f0 [vfio_iommu_type1]
+[1038876.562250] Last Breaking-Event-Address:
+[1038876.562262]  [<000003ff8013aa24>] vfio_sanity_check_pfn_list+0x3c/0x70 [vfio_iommu_type1]
+[1038876.562272] irq event stamp: 4236481
+[1038876.562287] hardirqs last  enabled at (4236489): [<00000000001cee7a>] console_unlock+0x6d2/0x740
+[1038876.562299] hardirqs last disabled at (4236496): [<00000000001ce87e>] console_unlock+0xd6/0x740
+[1038876.562311] softirqs last  enabled at (4234162): [<0000000000b9fa1e>] __do_softirq+0x556/0x598
+[1038876.562325] softirqs last disabled at (4234153): [<000000000014e4cc>] irq_exit+0xac/0x108
+[1038876.562337] ---[ end trace 6c96d467b1c3ca06 ]---
 
-Unfortunately those reports were typically with a busy parallel
-namespace creation / destruction loop making it difficult to see the
-components of the bug. However, Jane provided a simple reproducer using
-the work-in-progress sub-section implementation.
+Similarly we do not free the channel program when we are removing
+the vfio-ccw device. Let's fix this by resetting the device and freeing
+the channel program and pinned pages in the release path. For the remove
+path we can just quiesce the device, since in the remove path the mediated
+device is going away for good and so we don't need to do a full reset.
 
-When ndctl is reconfiguring a namespace it may take an existing defunct
-/ disabled namespace and reconfigure it with a new uuid and other
-parameters. Critically namespace_update_uuid() takes existing address
-resources and renames them for the new namespace to use / reconfigure as
-it sees fit. The bug is that this rename only happens in the resource
-tracking tree. Existing labels with the old uuid are not reaped leading
-to a scenario where multiple active labels reference the same span of
-address range.
-
-Teach namespace_update_uuid() to flag any references to the old uuid for
-reaping at the next label update attempt.
-
-Cc: <stable@vger.kernel.org>
-Fixes: bf9bccc14c05 ("libnvdimm: pmem label sets and namespace instantiation")
-Link: https://github.com/pmem/ndctl/issues/91
-Reported-by: Jane Chu <jane.chu@oracle.com>
-Reported-by: Jeff Moyer <jmoyer@redhat.com>
-Reported-by: Erwin Tsaur <erwin.tsaur@oracle.com>
-Cc: Johannes Thumshirn <jthumshirn@suse.de>
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-
+Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+Message-Id: <ae9f20dc8873f2027f7b3c5d2aaa0bdfe06850b8.1554756534.git.alifm@linux.ibm.com>
+Acked-by: Eric Farman <farman@linux.ibm.com>
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvdimm/label.c          |   29 ++++++++++++++++-------------
- drivers/nvdimm/namespace_devs.c |   15 +++++++++++++++
- drivers/nvdimm/nd.h             |    4 ++++
- 3 files changed, 35 insertions(+), 13 deletions(-)
+ drivers/s390/cio/vfio_ccw_ops.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
---- a/drivers/nvdimm/label.c
-+++ b/drivers/nvdimm/label.c
-@@ -614,6 +614,17 @@ static const guid_t *to_abstraction_guid
- 		return &guid_null;
+diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
+index f673e106c0415..dc5ff47de3fee 100644
+--- a/drivers/s390/cio/vfio_ccw_ops.c
++++ b/drivers/s390/cio/vfio_ccw_ops.c
+@@ -130,11 +130,12 @@ static int vfio_ccw_mdev_remove(struct mdev_device *mdev)
+ 
+ 	if ((private->state != VFIO_CCW_STATE_NOT_OPER) &&
+ 	    (private->state != VFIO_CCW_STATE_STANDBY)) {
+-		if (!vfio_ccw_mdev_reset(mdev))
++		if (!vfio_ccw_sch_quiesce(private->sch))
+ 			private->state = VFIO_CCW_STATE_STANDBY;
+ 		/* The state will be NOT_OPER on error. */
+ 	}
+ 
++	cp_free(&private->cp);
+ 	private->mdev = NULL;
+ 	atomic_inc(&private->avail);
+ 
+@@ -158,6 +159,14 @@ static void vfio_ccw_mdev_release(struct mdev_device *mdev)
+ 	struct vfio_ccw_private *private =
+ 		dev_get_drvdata(mdev_parent_dev(mdev));
+ 
++	if ((private->state != VFIO_CCW_STATE_NOT_OPER) &&
++	    (private->state != VFIO_CCW_STATE_STANDBY)) {
++		if (!vfio_ccw_mdev_reset(mdev))
++			private->state = VFIO_CCW_STATE_STANDBY;
++		/* The state will be NOT_OPER on error. */
++	}
++
++	cp_free(&private->cp);
+ 	vfio_unregister_notifier(mdev_dev(mdev), VFIO_IOMMU_NOTIFY,
+ 				 &private->nb);
  }
- 
-+static void reap_victim(struct nd_mapping *nd_mapping,
-+		struct nd_label_ent *victim)
-+{
-+	struct nvdimm_drvdata *ndd = to_ndd(nd_mapping);
-+	u32 slot = to_slot(ndd, victim->label);
-+
-+	dev_dbg(ndd->dev, "free: %d\n", slot);
-+	nd_label_free_slot(ndd, slot);
-+	victim->label = NULL;
-+}
-+
- static int __pmem_label_update(struct nd_region *nd_region,
- 		struct nd_mapping *nd_mapping, struct nd_namespace_pmem *nspm,
- 		int pos, unsigned long flags)
-@@ -621,9 +632,9 @@ static int __pmem_label_update(struct nd
- 	struct nd_namespace_common *ndns = &nspm->nsio.common;
- 	struct nd_interleave_set *nd_set = nd_region->nd_set;
- 	struct nvdimm_drvdata *ndd = to_ndd(nd_mapping);
--	struct nd_label_ent *label_ent, *victim = NULL;
- 	struct nd_namespace_label *nd_label;
- 	struct nd_namespace_index *nsindex;
-+	struct nd_label_ent *label_ent;
- 	struct nd_label_id label_id;
- 	struct resource *res;
- 	unsigned long *free;
-@@ -692,18 +703,10 @@ static int __pmem_label_update(struct nd
- 	list_for_each_entry(label_ent, &nd_mapping->labels, list) {
- 		if (!label_ent->label)
- 			continue;
--		if (memcmp(nspm->uuid, label_ent->label->uuid,
--					NSLABEL_UUID_LEN) != 0)
--			continue;
--		victim = label_ent;
--		list_move_tail(&victim->list, &nd_mapping->labels);
--		break;
--	}
--	if (victim) {
--		dev_dbg(ndd->dev, "%s: free: %d\n", __func__, slot);
--		slot = to_slot(ndd, victim->label);
--		nd_label_free_slot(ndd, slot);
--		victim->label = NULL;
-+		if (test_and_clear_bit(ND_LABEL_REAP, &label_ent->flags)
-+				|| memcmp(nspm->uuid, label_ent->label->uuid,
-+					NSLABEL_UUID_LEN) == 0)
-+			reap_victim(nd_mapping, label_ent);
- 	}
- 
- 	/* update index */
---- a/drivers/nvdimm/namespace_devs.c
-+++ b/drivers/nvdimm/namespace_devs.c
-@@ -1229,12 +1229,27 @@ static int namespace_update_uuid(struct
- 	for (i = 0; i < nd_region->ndr_mappings; i++) {
- 		struct nd_mapping *nd_mapping = &nd_region->mapping[i];
- 		struct nvdimm_drvdata *ndd = to_ndd(nd_mapping);
-+		struct nd_label_ent *label_ent;
- 		struct resource *res;
- 
- 		for_each_dpa_resource(ndd, res)
- 			if (strcmp(res->name, old_label_id.id) == 0)
- 				sprintf((void *) res->name, "%s",
- 						new_label_id.id);
-+
-+		mutex_lock(&nd_mapping->lock);
-+		list_for_each_entry(label_ent, &nd_mapping->labels, list) {
-+			struct nd_namespace_label *nd_label = label_ent->label;
-+			struct nd_label_id label_id;
-+
-+			if (!nd_label)
-+				continue;
-+			nd_label_gen_id(&label_id, nd_label->uuid,
-+					__le32_to_cpu(nd_label->flags));
-+			if (strcmp(old_label_id.id, label_id.id) == 0)
-+				set_bit(ND_LABEL_REAP, &label_ent->flags);
-+		}
-+		mutex_unlock(&nd_mapping->lock);
- 	}
- 	kfree(*old_uuid);
-  out:
---- a/drivers/nvdimm/nd.h
-+++ b/drivers/nvdimm/nd.h
-@@ -120,8 +120,12 @@ struct nd_percpu_lane {
- 	spinlock_t lock;
- };
- 
-+enum nd_label_flags {
-+	ND_LABEL_REAP,
-+};
- struct nd_label_ent {
- 	struct list_head list;
-+	unsigned long flags;
- 	struct nd_namespace_label *label;
- };
- 
+-- 
+2.20.1
+
 
 
