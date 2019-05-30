@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 102B32F015
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:01:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 958FA2F452
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:38:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727131AbfE3EAY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:00:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50888 "EHLO mail.kernel.org"
+        id S1727991AbfE3EhD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:37:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731531AbfE3DSY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:18:24 -0400
+        id S1727834AbfE3DMz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:12:55 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C2A1624725;
-        Thu, 30 May 2019 03:18:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5253F2449A;
+        Thu, 30 May 2019 03:12:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186303;
-        bh=x2/QNGx8nirwxcagObMIBp3v/Rk1Pl5OmQJ2gEngKL4=;
+        s=default; t=1559185975;
+        bh=LGWTRqgfYW/xkeHNJhr1bcN3eshbTj/EqbogxacKHOQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J46v4nXRWVBFu696ASjUIY+8FGrKMIe3Lm7YItGJvYXhDaZErJ0KWT5aJc1OZR1X6
-         YJ30SXi1qlMGgosT5DIIVuCh1QZROCRtrVZuJQWBP3HcejTK5+xTZKsDoZ9Jw9BWJQ
-         BpdbYWf/2oFRK3r3C5RZfXhcVtfdntvnW9uqh+Z4=
+        b=h+WhtiQ9j+yELZY0wV6oKbp+7ZLhuVV+xqVhmAQkTUYS5TzU6VQndjczjU5CIAIVc
+         pZW7HJq2YEF2ABHunVeEKR+PTMIOhtEk5YoNfYCcio1VcMwtBL7XIugtnn3uM8sK7h
+         KO3Niu44uW5ZP68apc0FYkDOfEcDtPtwfcqKaIGM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chad Dupuis <cdupuis@marvell.com>,
-        Saurav Kashyap <skashyap@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        Adam Thomson <Adam.Thomson.Opensource@diasemi.com>,
+        Steve Twiss <stwiss.opensource@diasemi.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 227/276] scsi: qedf: Add missing return in qedf_post_io_req() in the fcport offload check
-Date:   Wed, 29 May 2019 20:06:25 -0700
-Message-Id: <20190530030539.304527381@linuxfoundation.org>
+Subject: [PATCH 5.1 388/405] regulator: pv88090: Fix notifier mutex lock warning
+Date:   Wed, 29 May 2019 20:06:26 -0700
+Message-Id: <20190530030600.295255384@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,77 +46,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c5e06ba2f76809ad1492fdad312e81335df46bc5 ]
+[ Upstream commit 275513b7695a61b75b2546406ecd0f8e3d9fc8be ]
 
-Fixes the following crash as the return was missing from the check if an
-fcport is offloaded. If we hit this code we continue to try to post an
-invalid task which can lead to the crash:
+The mutex for the regulator_dev must be controlled by the caller of
+the regulator_notifier_call_chain(), as described in the comment
+for that function.
 
-[30259.616411] [0000:61:00.3]:[qedf_post_io_req:989]:3: Session not offloaded yet.
-[30259.616413] [0000:61:00.3]:[qedf_upload_connection:1340]:3: Uploading connection port_id=490020.
-[30259.623769] BUG: unable to handle kernel NULL pointer dereference at 0000000000000198
-[30259.631645] IP: [<ffffffffc035b1ed>] qedf_init_task.isra.16+0x3d/0x450 [qedf]
-[30259.638816] PGD 0
-[30259.640841] Oops: 0000 [#1] SMP
-[30259.644098] Modules linked in: fuse xt_CHECKSUM iptable_mangle ipt_MASQUERADE nf_nat_masquerade_ipv4 iptable_nat nf_nat_ipv4 nf_nat nf_conntrack_ipv4 nf_defrag_ipv4 xt_conntrack nf_conntrack ipt_REJECT nf_reject_ipv4 tun bridge stp llc ebtable_filter ebtables devlink ip6table_filter ip6_tables iptable_filter vfat fat ib_isert iscsi_target_mod ib_srpt target_core_mod ib_srp scsi_transport_srp ib_ipoib ib_ucm ib_umad dm_service_time skx_edac intel_powerclamp coretemp intel_rapl iosf_mbi kvm_intel kvm irqbypass crc32_pclmul ghash_clmulni_intel aesni_intel rpcrdma sunrpc rdma_ucm ib_uverbs lrw gf128mul ib_iser rdma_cm iw_cm ib_cm libiscsi scsi_transport_iscsi qedr(OE) glue_helper ablk_helper cryptd ib_core dm_round_robin joydev pcspkr ipmi_ssif ses enclosure ipmi_si ipmi_devintf ipmi_msghandler mei_me
-[30259.715529]  mei sg hpilo hpwdt shpchp wmi lpc_ich acpi_power_meter dm_multipath ip_tables xfs libcrc32c sd_mod crc_t10dif crct10dif_generic uas usb_storage mgag200 qedf(OE) i2c_algo_bit libfcoe drm_kms_helper libfc syscopyarea sysfillrect scsi_transport_fc qede(OE) sysimgblt fb_sys_fops ptp ttm pps_core drm qed(OE) smartpqi crct10dif_pclmul crct10dif_common crc32c_intel i2c_core scsi_transport_sas scsi_tgt dm_mirror dm_region_hash dm_log dm_mod
-[30259.754237] CPU: 9 PID: 977 Comm: kdmwork-253:7 Kdump: loaded Tainted: G        W  OE  ------------   3.10.0-862.el7.x86_64 #1
-[30259.765664] Hardware name: HPE Synergy 480 Gen10/Synergy 480 Gen10 Compute Module, BIOS I42 04/04/2018
-[30259.775000] task: ffff8c801efd0000 ti: ffff8c801efd8000 task.ti: ffff8c801efd8000
-[30259.782505] RIP: 0010:[<ffffffffc035b1ed>]  [<ffffffffc035b1ed>] qedf_init_task.isra.16+0x3d/0x450 [qedf]
-[30259.792116] RSP: 0018:ffff8c801efdbbb0  EFLAGS: 00010046
-[30259.797444] RAX: 0000000000000000 RBX: ffffa7f1450948d8 RCX: ffff8c7fe5bc40c8
-[30259.804600] RDX: ffff8c800715b300 RSI: ffffa7f1450948d8 RDI: ffff8c80169c2480
-[30259.811755] RBP: ffff8c801efdbc30 R08: 00000000000000ae R09: ffff8c800a314540
-[30259.818911] R10: ffff8c7fe5bc40c8 R11: ffff8c801efdb8ae R12: 0000000000000000
-[30259.826068] R13: ffff8c800715b300 R14: ffff8c80169c2480 R15: ffff8c8005da28e0
-[30259.833223] FS:  0000000000000000(0000) GS:ffff8c803f840000(0000) knlGS:0000000000000000
-[30259.841338] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[30259.847100] CR2: 0000000000000198 CR3: 000000081242e000 CR4: 00000000007607e0
-[30259.854256] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[30259.861412] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[30259.868568] PKRU: 00000000
-[30259.871278] Call Trace:
-[30259.873737]  [<ffffffffc035c948>] qedf_post_io_req+0x148/0x680 [qedf]
-[30259.880201]  [<ffffffffc035d070>] qedf_queuecommand+0x1f0/0x240 [qedf]
-[30259.886749]  [<ffffffffa329b050>] scsi_dispatch_cmd+0xb0/0x240
-[30259.892600]  [<ffffffffa32a45bc>] scsi_request_fn+0x4cc/0x680
-[30259.898364]  [<ffffffffa3118ad9>] __blk_run_queue+0x39/0x50
-[30259.903954]  [<ffffffffa3114393>] __elv_add_request+0xd3/0x260
-[30259.909805]  [<ffffffffa311baf0>] blk_insert_cloned_request+0xf0/0x1b0
-[30259.916358]  [<ffffffffc010b622>] map_request+0x142/0x220 [dm_mod]
-[30259.922560]  [<ffffffffc010b716>] map_tio_request+0x16/0x40 [dm_mod]
-[30259.928932]  [<ffffffffa2ebb1f5>] kthread_worker_fn+0x85/0x180
-[30259.934782]  [<ffffffffa2ebb170>] ? kthread_stop+0xf0/0xf0
-[30259.940284]  [<ffffffffa2ebae31>] kthread+0xd1/0xe0
-[30259.945176]  [<ffffffffa2ebad60>] ? insert_kthread_work+0x40/0x40
-[30259.951290]  [<ffffffffa351f61d>] ret_from_fork_nospec_begin+0x7/0x21
-[30259.957750]  [<ffffffffa2ebad60>] ? insert_kthread_work+0x40/0x40
-[30259.963860] Code: fe 41 55 49 89 d5 41 54 53 48 89 f3 48 83 ec 58 4c 8b 67 28 4c 8b 4e 18 65 48 8b 04 25 28 00 00 00 48 89 45 d0 31 c0 4c 8b 7e 58 <49> 8b 84 24 98 01 00 00 48 8b 00 f6 80 31 01 00 00 10 0f 85 0b
-[30259.983372] RIP  [<ffffffffc035b1ed>] qedf_init_task.isra.16+0x3d/0x450 [qedf]
-[30259.990630]  RSP <ffff8c801efdbbb0>
-[30259.994127] CR2: 0000000000000198
+Failure to mutex lock and unlock surrounding the notifier call results
+in a kernel WARN_ON_ONCE() which will dump a backtrace for the
+regulator_notifier_call_chain() when that function call is first made.
+The mutex can be controlled using the regulator_lock/unlock() API.
 
-Signed-off-by: Chad Dupuis <cdupuis@marvell.com>
-Signed-off-by: Saurav Kashyap <skashyap@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: c90456e36d9c ("regulator: pv88090: new regulator driver")
+Suggested-by: Adam Thomson <Adam.Thomson.Opensource@diasemi.com>
+Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qedf/qedf_io.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/regulator/pv88090-regulator.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/scsi/qedf/qedf_io.c b/drivers/scsi/qedf/qedf_io.c
-index 6bbc38b1b4654..a17c13846d1eb 100644
---- a/drivers/scsi/qedf/qedf_io.c
-+++ b/drivers/scsi/qedf/qedf_io.c
-@@ -902,6 +902,7 @@ int qedf_post_io_req(struct qedf_rport *fcport, struct qedf_ioreq *io_req)
- 	if (!test_bit(QEDF_RPORT_SESSION_READY, &fcport->flags)) {
- 		QEDF_ERR(&(qedf->dbg_ctx), "Session not offloaded yet.\n");
- 		kref_put(&io_req->refcount, qedf_release_cmd);
-+		return -EINVAL;
- 	}
+diff --git a/drivers/regulator/pv88090-regulator.c b/drivers/regulator/pv88090-regulator.c
+index 6e97cc6df2eec..90f4f907fb3fb 100644
+--- a/drivers/regulator/pv88090-regulator.c
++++ b/drivers/regulator/pv88090-regulator.c
+@@ -237,9 +237,11 @@ static irqreturn_t pv88090_irq_handler(int irq, void *data)
+ 	if (reg_val & PV88090_E_VDD_FLT) {
+ 		for (i = 0; i < PV88090_MAX_REGULATORS; i++) {
+ 			if (chip->rdev[i] != NULL) {
++			        regulator_lock(chip->rdev[i]);
+ 				regulator_notifier_call_chain(chip->rdev[i],
+ 					REGULATOR_EVENT_UNDER_VOLTAGE,
+ 					NULL);
++			        regulator_unlock(chip->rdev[i]);
+ 			}
+ 		}
  
- 	/* Obtain free SQE */
+@@ -254,9 +256,11 @@ static irqreturn_t pv88090_irq_handler(int irq, void *data)
+ 	if (reg_val & PV88090_E_OVER_TEMP) {
+ 		for (i = 0; i < PV88090_MAX_REGULATORS; i++) {
+ 			if (chip->rdev[i] != NULL) {
++			        regulator_lock(chip->rdev[i]);
+ 				regulator_notifier_call_chain(chip->rdev[i],
+ 					REGULATOR_EVENT_OVER_TEMP,
+ 					NULL);
++			        regulator_unlock(chip->rdev[i]);
+ 			}
+ 		}
+ 
 -- 
 2.20.1
 
