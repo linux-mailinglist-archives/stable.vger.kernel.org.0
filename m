@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8473E2F10C
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:09:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 864EA2F110
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:09:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730942AbfE3DRK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:17:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45222 "EHLO mail.kernel.org"
+        id S1726125AbfE3EJp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:09:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45256 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729965AbfE3DRJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730112AbfE3DRJ (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 29 May 2019 23:17:09 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CCF1124673;
-        Thu, 30 May 2019 03:17:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4767324667;
+        Thu, 30 May 2019 03:17:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186228;
-        bh=i1Vi4hGrEFyWzIxeGsWxePBBNB1HBqFssvmMcgk/xcg=;
+        s=default; t=1559186229;
+        bh=Yr1NWBa2ygGEK+iU7YFpXLjJuhvl7ZvsAVvfPbvqE5A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X4mw2Yr14/g2jm1YKPtjxoJtYfXjAwfwyKkvHNkqI0bNLCG+moKIFlQq7xnFn62Z1
-         zHHybq7fDWxUKAQEzRpplr4g0RhxKJ95FRA2WpP5PCbts/DArgw9J7IetwxITb4T9h
-         MWdWQJdpuB7y44Yq1zz8Ei9O5RS4dg7ZkQmjgmoI=
+        b=dr8uvFunzE59QWXJHthjh6W9cy50Dtqxt47jE/AMt8HQYbwrguRo5m8Tct1AbRdEh
+         E0PnLjgUP+Scr6tqcHiqMBWvB/o/vGXlWZTazgo/1U2NmaiTjRlr1Szbg11Z3W2vjg
+         FQ0GC+oo+J3hxz4Uj1OpaVB8+x8KZ9tQb3kJeZqE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Van Asbroeck <TheSven73@gmail.com>,
+        stable@vger.kernel.org, Fabien Dessenne <fabien.dessenne@st.com>,
+        Amelie Delaunay <amelie.delaunay@st.com>,
         Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 084/276] rtc: 88pm860x: prevent use-after-free on device remove
-Date:   Wed, 29 May 2019 20:04:02 -0700
-Message-Id: <20190530030531.555933764@linuxfoundation.org>
+Subject: [PATCH 4.19 085/276] rtc: stm32: manage the get_irq probe defer case
+Date:   Wed, 29 May 2019 20:04:03 -0700
+Message-Id: <20190530030531.603323909@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
 References: <20190530030523.133519668@linuxfoundation.org>
@@ -44,42 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f22b1ba15ee5785aa028384ebf77dd39e8e47b70 ]
+[ Upstream commit cf612c5949aca2bd81a1e28688957c8149ea2693 ]
 
-The device's remove() attempts to shut down the delayed_work scheduled
-on the kernel-global workqueue by calling flush_scheduled_work().
+Manage the -EPROBE_DEFER error case for the wake IRQ.
 
-Unfortunately, flush_scheduled_work() does not prevent the delayed_work
-from re-scheduling itself. The delayed_work might run after the device
-has been removed, and touch the already de-allocated info structure.
-This is a potential use-after-free.
-
-Fix by calling cancel_delayed_work_sync() during remove(): this ensures
-that the delayed work is properly cancelled, is no longer running, and
-is not able to re-schedule itself.
-
-This issue was detected with the help of Coccinelle.
-
-Signed-off-by: Sven Van Asbroeck <TheSven73@gmail.com>
+Signed-off-by: Fabien Dessenne <fabien.dessenne@st.com>
+Acked-by: Amelie Delaunay <amelie.delaunay@st.com>
 Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-88pm860x.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rtc/rtc-stm32.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/rtc/rtc-88pm860x.c b/drivers/rtc/rtc-88pm860x.c
-index 01ffc0ef8033f..fbcf13bbbd8d1 100644
---- a/drivers/rtc/rtc-88pm860x.c
-+++ b/drivers/rtc/rtc-88pm860x.c
-@@ -414,7 +414,7 @@ static int pm860x_rtc_remove(struct platform_device *pdev)
- 	struct pm860x_rtc_info *info = platform_get_drvdata(pdev);
- 
- #ifdef VRTC_CALIBRATION
--	flush_scheduled_work();
-+	cancel_delayed_work_sync(&info->calib_work);
- 	/* disable measurement */
- 	pm860x_set_bits(info->i2c, PM8607_MEAS_EN2, MEAS2_VRTC, 0);
- #endif	/* VRTC_CALIBRATION */
+diff --git a/drivers/rtc/rtc-stm32.c b/drivers/rtc/rtc-stm32.c
+index c5908cfea2340..8e6c9b3bcc29a 100644
+--- a/drivers/rtc/rtc-stm32.c
++++ b/drivers/rtc/rtc-stm32.c
+@@ -788,11 +788,14 @@ static int stm32_rtc_probe(struct platform_device *pdev)
+ 	ret = device_init_wakeup(&pdev->dev, true);
+ 	if (rtc->data->has_wakeirq) {
+ 		rtc->wakeirq_alarm = platform_get_irq(pdev, 1);
+-		if (rtc->wakeirq_alarm <= 0)
+-			ret = rtc->wakeirq_alarm;
+-		else
++		if (rtc->wakeirq_alarm > 0) {
+ 			ret = dev_pm_set_dedicated_wake_irq(&pdev->dev,
+ 							    rtc->wakeirq_alarm);
++		} else {
++			ret = rtc->wakeirq_alarm;
++			if (rtc->wakeirq_alarm == -EPROBE_DEFER)
++				goto err;
++		}
+ 	}
+ 	if (ret)
+ 		dev_warn(&pdev->dev, "alarm can't wake up the system: %d", ret);
 -- 
 2.20.1
 
