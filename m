@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 27DF82EFE2
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:59:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EAE822F552
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:47:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730532AbfE3D7D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:59:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52132 "EHLO mail.kernel.org"
+        id S1728637AbfE3DLj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:11:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731611AbfE3DSj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:18:39 -0400
+        id S1728626AbfE3DLi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:11:38 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 35BD62474D;
-        Thu, 30 May 2019 03:18:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DD05C24481;
+        Thu, 30 May 2019 03:11:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186319;
-        bh=JcgCuUVI0KmRJ06DvIXV4qPc+VcdQWGfunt/RgHyQ7Y=;
+        s=default; t=1559185898;
+        bh=xSpoQjODxqZdFGO2ced1WiqABYFP4VZxw/aswlJFmcA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZKn9cpX5KnRqaovSwX8fA8YzvpQt7i28ue1AMTl8Nb/Z3kbfTeUvks2N+ReMG5NWR
-         l0+arjrKucNRyHWOEDTcpMl2dDML1c6NIv4FvxzV8flf+bF/9siUpeMipsNR05a4qx
-         hu43oj8s4W4AdyLniTzjdwdtvaFktIrnUUA/gcD4=
+        b=sl1aIRNtdEPwwkJXyTdmakpWvIu73eC2FD5C1amfImy4sRIM5nAxemWSotXSDmAQD
+         q61dLleG1FjQv/AgNWy1//hAMR7mVMiMLxs/NyeUlHfhqnZe/GOSay99U3bm5eLs9C
+         nmiyTZSLCoPlIZJ+G0N1HQkhbprDPaDIvJrtKtBE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Axtens <dja@axtens.net>,
-        Nayna Jain <nayna@linux.ibm.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.14 008/193] crypto: vmx - CTR: always increment IV as quadword
+        stable@vger.kernel.org, Lior David <liord@codeaurora.org>,
+        Maya Erez <merez@codeaurora.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 264/405] wil6210: fix return code of wmi_mgmt_tx and wmi_mgmt_tx_ext
 Date:   Wed, 29 May 2019 20:04:22 -0700
-Message-Id: <20190530030448.316614404@linuxfoundation.org>
+Message-Id: <20190530030554.299325891@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,57 +45,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Axtens <dja@axtens.net>
+[ Upstream commit 49122ec42634f73babb1dc96f170023e5228d080 ]
 
-commit 009b30ac7444c17fae34c4f435ebce8e8e2b3250 upstream.
+The functions that send management TX frame have 3 possible
+results: success and other side acknowledged receive (ACK=1),
+success and other side did not acknowledge receive(ACK=0) and
+failure to send the frame. The current implementation
+incorrectly reports the ACK=0 case as failure.
 
-The kernel self-tests picked up an issue with CTR mode:
-alg: skcipher: p8_aes_ctr encryption test failed (wrong result) on test vector 3, cfg="uneven misaligned splits, may sleep"
-
-Test vector 3 has an IV of FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFD, so
-after 3 increments it should wrap around to 0.
-
-In the aesp8-ppc code from OpenSSL, there are two paths that
-increment IVs: the bulk (8 at a time) path, and the individual
-path which is used when there are fewer than 8 AES blocks to
-process.
-
-In the bulk path, the IV is incremented with vadduqm: "Vector
-Add Unsigned Quadword Modulo", which does 128-bit addition.
-
-In the individual path, however, the IV is incremented with
-vadduwm: "Vector Add Unsigned Word Modulo", which instead
-does 4 32-bit additions. Thus the IV would instead become
-FFFFFFFFFFFFFFFFFFFFFFFF00000000, throwing off the result.
-
-Use vadduqm.
-
-This was probably a typo originally, what with q and w being
-adjacent. It is a pretty narrow edge case: I am really
-impressed by the quality of the kernel self-tests!
-
-Fixes: 5c380d623ed3 ("crypto: vmx - Add support for VMS instructions by ASM")
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Axtens <dja@axtens.net>
-Acked-by: Nayna Jain <nayna@linux.ibm.com>
-Tested-by: Nayna Jain <nayna@linux.ibm.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Lior David <liord@codeaurora.org>
+Signed-off-by: Maya Erez <merez@codeaurora.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/vmx/aesp8-ppc.pl |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/ath/wil6210/cfg80211.c |  5 +++++
+ drivers/net/wireless/ath/wil6210/wmi.c      | 11 ++++++-----
+ 2 files changed, 11 insertions(+), 5 deletions(-)
 
---- a/drivers/crypto/vmx/aesp8-ppc.pl
-+++ b/drivers/crypto/vmx/aesp8-ppc.pl
-@@ -1318,7 +1318,7 @@ Loop_ctr32_enc:
- 	addi		$idx,$idx,16
- 	bdnz		Loop_ctr32_enc
+diff --git a/drivers/net/wireless/ath/wil6210/cfg80211.c b/drivers/net/wireless/ath/wil6210/cfg80211.c
+index a1e226652b4ab..692730415d781 100644
+--- a/drivers/net/wireless/ath/wil6210/cfg80211.c
++++ b/drivers/net/wireless/ath/wil6210/cfg80211.c
+@@ -1274,7 +1274,12 @@ int wil_cfg80211_mgmt_tx(struct wiphy *wiphy, struct wireless_dev *wdev,
+ 			     params->wait);
  
--	vadduwm		$ivec,$ivec,$one
-+	vadduqm		$ivec,$ivec,$one
- 	 vmr		$dat,$inptail
- 	 lvx		$inptail,0,$inp
- 	 addi		$inp,$inp,16
+ out:
++	/* when the sent packet was not acked by receiver(ACK=0), rc will
++	 * be -EAGAIN. In this case this function needs to return success,
++	 * the ACK=0 will be reflected in tx_status.
++	 */
+ 	tx_status = (rc == 0);
++	rc = (rc == -EAGAIN) ? 0 : rc;
+ 	cfg80211_mgmt_tx_status(wdev, cookie ? *cookie : 0, buf, len,
+ 				tx_status, GFP_KERNEL);
+ 
+diff --git a/drivers/net/wireless/ath/wil6210/wmi.c b/drivers/net/wireless/ath/wil6210/wmi.c
+index bda4a9712f91f..63116f4b62c7f 100644
+--- a/drivers/net/wireless/ath/wil6210/wmi.c
++++ b/drivers/net/wireless/ath/wil6210/wmi.c
+@@ -3502,8 +3502,9 @@ int wmi_mgmt_tx(struct wil6210_vif *vif, const u8 *buf, size_t len)
+ 	rc = wmi_call(wil, WMI_SW_TX_REQ_CMDID, vif->mid, cmd, total,
+ 		      WMI_SW_TX_COMPLETE_EVENTID, &evt, sizeof(evt), 2000);
+ 	if (!rc && evt.evt.status != WMI_FW_STATUS_SUCCESS) {
+-		wil_err(wil, "mgmt_tx failed with status %d\n", evt.evt.status);
+-		rc = -EINVAL;
++		wil_dbg_wmi(wil, "mgmt_tx failed with status %d\n",
++			    evt.evt.status);
++		rc = -EAGAIN;
+ 	}
+ 
+ 	kfree(cmd);
+@@ -3555,9 +3556,9 @@ int wmi_mgmt_tx_ext(struct wil6210_vif *vif, const u8 *buf, size_t len,
+ 	rc = wmi_call(wil, WMI_SW_TX_REQ_EXT_CMDID, vif->mid, cmd, total,
+ 		      WMI_SW_TX_COMPLETE_EVENTID, &evt, sizeof(evt), 2000);
+ 	if (!rc && evt.evt.status != WMI_FW_STATUS_SUCCESS) {
+-		wil_err(wil, "mgmt_tx_ext failed with status %d\n",
+-			evt.evt.status);
+-		rc = -EINVAL;
++		wil_dbg_wmi(wil, "mgmt_tx_ext failed with status %d\n",
++			    evt.evt.status);
++		rc = -EAGAIN;
+ 	}
+ 
+ 	kfree(cmd);
+-- 
+2.20.1
+
 
 
