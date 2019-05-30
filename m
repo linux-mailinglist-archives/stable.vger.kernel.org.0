@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 51CCC2F0C4
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:07:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C87542EBB0
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:16:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729644AbfE3DR1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:17:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46964 "EHLO mail.kernel.org"
+        id S1730114AbfE3DPG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:15:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731104AbfE3DR0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:17:26 -0400
+        id S1730108AbfE3DPG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:15:06 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE885244CC;
-        Thu, 30 May 2019 03:17:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B7BD824598;
+        Thu, 30 May 2019 03:15:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186245;
-        bh=KP7lvIFijuAn26mjaA5TFZqQkhkHwDao4ZgML5cbYZg=;
+        s=default; t=1559186105;
+        bh=JiKLfGdF1GBvxS/NHn/yixWD70lJRE3tN76wzctWgYo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vUD+svUTntoACBzcIz9YztmuFtOFqHh6/6Uksd8S6znC3dICpvPrq9w5BgR+WMcbd
-         qSk4opV4eNkhZVeSYe5EJ3Mf+6LBwFpeL6dMdsXducU4pu3GlqmHXT4hxGPf3td+QZ
-         C5JR2+ULQWU7/IG4xgaqE0ewDeh/4EemFMliEH9U=
+        b=JXPuWqiLtD2+4wv5fZErVOiJNosnlYFCF1kjzFUR3PsPRgzxnkyUc07rr/rrzbO4p
+         e/OICiSLn61AA3zDNpyM2oH9usTTqBlR5L2gHZnH0KDrLL7PS3ueeMIUcHWOACsqUf
+         uJKqBxMmi3nvC+FVxQXly0nWGJfLMjWO/Fd8ztsM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kefeng Wang <wangkefeng.wang@huawei.com>,
-        John Garry <john.garry@huawei.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Simon Horman <horms+renesas@verge.net.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 161/276] hwmon: (f71805f) Use request_muxed_region for Super-IO accesses
+Subject: [PATCH 5.0 246/346] sh: sh7786: Add explicit I/O cast to sh7786_mm_sel()
 Date:   Wed, 29 May 2019 20:05:19 -0700
-Message-Id: <20190530030535.551337511@linuxfoundation.org>
+Message-Id: <20190530030553.484917608@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,89 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 73e6ff71a7ea924fb7121d576a2d41e3be3fc6b5 ]
+[ Upstream commit 8440bb9b944c02222c7a840d406141ed42e945cd ]
 
-Super-IO accesses may fail on a system with no or unmapped LPC bus.
+When compile-testing on arm:
 
-Unable to handle kernel paging request at virtual address ffffffbffee0002e
-pgd = ffffffc1d68d4000
-[ffffffbffee0002e] *pgd=0000000000000000, *pud=0000000000000000
-Internal error: Oops: 94000046 [#1] PREEMPT SMP
-Modules linked in: f71805f(+) hwmon
-CPU: 3 PID: 1659 Comm: insmod Not tainted 4.5.0+ #88
-Hardware name: linux,dummy-virt (DT)
-task: ffffffc1f6665400 ti: ffffffc1d6418000 task.ti: ffffffc1d6418000
-PC is at f71805f_find+0x6c/0x358 [f71805f]
+    arch/sh/include/cpu-sh4/cpu/sh7786.h: In function ‘sh7786_mm_sel’:
+    arch/sh/include/cpu-sh4/cpu/sh7786.h:135:21: warning: passing argument 1 of ‘__raw_readl’ makes pointer from integer without a cast [-Wint-conversion]
+      return __raw_readl(0xFC400020) & 0x7;
+			 ^~~~~~~~~~
+    In file included from include/linux/io.h:25:0,
+		     from arch/sh/include/cpu-sh4/cpu/sh7786.h:14,
+		     from drivers/pinctrl/sh-pfc/pfc-sh7786.c:15:
+    arch/arm/include/asm/io.h:113:21: note: expected ‘const volatile void *’ but argument is of type ‘unsigned int’
+     #define __raw_readl __raw_readl
+			 ^
+    arch/arm/include/asm/io.h:114:19: note: in expansion of macro ‘__raw_readl’
+     static inline u32 __raw_readl(const volatile void __iomem *addr)
+		       ^~~~~~~~~~~
 
-Also, other drivers may attempt to access the LPC bus at the same time,
-resulting in undefined behavior.
+__raw_readl() on SuperH is a macro that casts the passed I/O address to
+the correct type, while the implementations on most other architectures
+expect to be passed the correct pointer type.
 
-Use request_muxed_region() to ensure that IO access on the requested
-address space is supported, and to ensure that access by multiple
-drivers is synchronized.
+Add an explicit cast to fix this.
 
-Fixes: e53004e20a58e ("hwmon: New f71805f driver")
-Reported-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Reported-by: John Garry <john.garry@huawei.com>
-Cc: John Garry <john.garry@huawei.com>
-Acked-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Note that this also gets rid of a sparse warning on SuperH:
+
+    arch/sh/include/cpu-sh4/cpu/sh7786.h:135:16: warning: incorrect type in argument 1 (different base types)
+    arch/sh/include/cpu-sh4/cpu/sh7786.h:135:16:    expected void const volatile [noderef] <asn:2>*<noident>
+    arch/sh/include/cpu-sh4/cpu/sh7786.h:135:16:    got unsigned int
+
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/f71805f.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ arch/sh/include/cpu-sh4/cpu/sh7786.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hwmon/f71805f.c b/drivers/hwmon/f71805f.c
-index 73c681162653b..623736d2a7c1d 100644
---- a/drivers/hwmon/f71805f.c
-+++ b/drivers/hwmon/f71805f.c
-@@ -96,17 +96,23 @@ superio_select(int base, int ld)
- 	outb(ld, base + 1);
+diff --git a/arch/sh/include/cpu-sh4/cpu/sh7786.h b/arch/sh/include/cpu-sh4/cpu/sh7786.h
+index 8f9bfbf3cdb10..d6cce65b48713 100644
+--- a/arch/sh/include/cpu-sh4/cpu/sh7786.h
++++ b/arch/sh/include/cpu-sh4/cpu/sh7786.h
+@@ -132,7 +132,7 @@ enum {
+ 
+ static inline u32 sh7786_mm_sel(void)
+ {
+-	return __raw_readl(0xFC400020) & 0x7;
++	return __raw_readl((const volatile void __iomem *)0xFC400020) & 0x7;
  }
  
--static inline void
-+static inline int
- superio_enter(int base)
- {
-+	if (!request_muxed_region(base, 2, DRVNAME))
-+		return -EBUSY;
-+
- 	outb(0x87, base);
- 	outb(0x87, base);
-+
-+	return 0;
- }
- 
- static inline void
- superio_exit(int base)
- {
- 	outb(0xaa, base);
-+	release_region(base, 2);
- }
- 
- /*
-@@ -1561,7 +1567,7 @@ static int __init f71805f_device_add(unsigned short address,
- static int __init f71805f_find(int sioaddr, unsigned short *address,
- 			       struct f71805f_sio_data *sio_data)
- {
--	int err = -ENODEV;
-+	int err;
- 	u16 devid;
- 
- 	static const char * const names[] = {
-@@ -1569,8 +1575,11 @@ static int __init f71805f_find(int sioaddr, unsigned short *address,
- 		"F71872F/FG or F71806F/FG",
- 	};
- 
--	superio_enter(sioaddr);
-+	err = superio_enter(sioaddr);
-+	if (err)
-+		return err;
- 
-+	err = -ENODEV;
- 	devid = superio_inw(sioaddr, SIO_REG_MANID);
- 	if (devid != SIO_FINTEK_ID)
- 		goto exit;
+ #endif /* __CPU_SH7786_H__ */
 -- 
 2.20.1
 
