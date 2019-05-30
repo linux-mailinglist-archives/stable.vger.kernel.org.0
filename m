@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B84FB2F3CE
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:33:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A30742F617
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:53:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728585AbfE3Ec3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:32:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59212 "EHLO mail.kernel.org"
+        id S1728428AbfE3ExF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:53:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48176 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726736AbfE3DNg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:13:36 -0400
+        id S1728181AbfE3DKk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:10:40 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4150F2454B;
-        Thu, 30 May 2019 03:13:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A0FBA2446F;
+        Thu, 30 May 2019 03:10:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186015;
-        bh=g9GXAV1aYrM2IeSdlcdt9+gSGt7PsEwDcONjUrPnz7M=;
+        s=default; t=1559185839;
+        bh=TafnwVeoyIB5+u24332Q6fviaSBWjMIlnE3OTxLsJO0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FEMS6jUiCkAlcAvGzfQNB2m2Yeh5VFVGdtnmaWZofUztXPK+K/E1DpFCJ7ZyQA+W6
-         ddP+RGlx2rEEPhpAUucXqEeHBj0yEZ0lxJBo3O6aa3XYai1cB+09d3IwpuxszEdtcu
-         X/+gCLA/F0JWn6IMKyExNM294CtaqFnnnvgAO64Y=
+        b=bnkMHkFTi1E2Sy2Uc25UBFNSjtl/JO1OY9gPtfLd6eByhw+jZ/H2rtawSoDDJibzg
+         Uw+TBWoIasWpeChsFg/ImrnPWczkzUoGuCfIwwtYTIW7KztuWFEIpBUD14O7rSOH/6
+         KPg7JGSzdePdlkljFE0I5v+aEvovRzdjd+SSl2NA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Gautham R. Shenoy" <ego@linux.vnet.ibm.com>,
-        Ravikumar Bangoria <ravi.bangoria@in.ibm.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Ravi Bangoria <ravi.bangoria@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Shuah Khan <shuah@kernel.org>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 080/346] powerpc/watchdog: Use hrtimers for per-CPU heartbeat
+Subject: [PATCH 5.1 155/405] media: au0828: stop video streaming only when last user stops
 Date:   Wed, 29 May 2019 20:02:33 -0700
-Message-Id: <20190530030545.186237471@linuxfoundation.org>
+Message-Id: <20190530030548.985796924@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,194 +45,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 7ae3f6e130e8dc6188b59e3b4ebc2f16e9c8d053 ]
+[ Upstream commit f604f0f5afb88045944567f604409951b5eb6af8 ]
 
-Using a jiffies timer creates a dependency on the tick_do_timer_cpu
-incrementing jiffies. If that CPU has locked up and jiffies is not
-incrementing, the watchdog heartbeat timer for all CPUs stops and
-creates false positives and confusing warnings on local CPUs, and
-also causes the SMP detector to stop, so the root cause is never
-detected.
+If the application was streaming from both videoX and vbiX, and streaming
+from videoX was stopped, then the vbi streaming also stopped.
 
-Fix this by using hrtimer based timers for the watchdog heartbeat,
-like the generic kernel hardlockup detector.
+The cause being that stop_streaming for video stopped the subdevs as well,
+instead of only doing that if dev->streaming_users reached 0.
 
-Cc: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
-Reported-by: Ravikumar Bangoria <ravi.bangoria@in.ibm.com>
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Tested-by: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
-Reported-by: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
-Reviewed-by: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+au0828_stop_vbi_streaming was also wrong since it didn't stop the subdevs
+at all when dev->streaming_users reached 0.
+
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Tested-by: Shuah Khan <shuah@kernel.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/watchdog.c | 81 +++++++++++++++++-----------------
- 1 file changed, 40 insertions(+), 41 deletions(-)
+ drivers/media/usb/au0828/au0828-video.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/arch/powerpc/kernel/watchdog.c b/arch/powerpc/kernel/watchdog.c
-index 3c6ab22a0c4e3..af3c15a1d41eb 100644
---- a/arch/powerpc/kernel/watchdog.c
-+++ b/arch/powerpc/kernel/watchdog.c
-@@ -77,7 +77,7 @@ static u64 wd_smp_panic_timeout_tb __read_mostly; /* panic other CPUs */
+diff --git a/drivers/media/usb/au0828/au0828-video.c b/drivers/media/usb/au0828/au0828-video.c
+index 7876c897cc1d6..ad2b1b7ecea4d 100644
+--- a/drivers/media/usb/au0828/au0828-video.c
++++ b/drivers/media/usb/au0828/au0828-video.c
+@@ -839,9 +839,9 @@ int au0828_start_analog_streaming(struct vb2_queue *vq, unsigned int count)
+ 			return rc;
+ 		}
  
- static u64 wd_timer_period_ms __read_mostly;  /* interval between heartbeat */
- 
--static DEFINE_PER_CPU(struct timer_list, wd_timer);
-+static DEFINE_PER_CPU(struct hrtimer, wd_hrtimer);
- static DEFINE_PER_CPU(u64, wd_timer_tb);
- 
- /* SMP checker bits */
-@@ -293,21 +293,21 @@ void soft_nmi_interrupt(struct pt_regs *regs)
- 	nmi_exit();
- }
- 
--static void wd_timer_reset(unsigned int cpu, struct timer_list *t)
--{
--	t->expires = jiffies + msecs_to_jiffies(wd_timer_period_ms);
--	if (wd_timer_period_ms > 1000)
--		t->expires = __round_jiffies_up(t->expires, cpu);
--	add_timer_on(t, cpu);
--}
--
--static void wd_timer_fn(struct timer_list *t)
-+static enum hrtimer_restart watchdog_timer_fn(struct hrtimer *hrtimer)
- {
- 	int cpu = smp_processor_id();
- 
-+	if (!(watchdog_enabled & NMI_WATCHDOG_ENABLED))
-+		return HRTIMER_NORESTART;
++		v4l2_device_call_all(&dev->v4l2_dev, 0, video, s_stream, 1);
 +
-+	if (!cpumask_test_cpu(cpu, &watchdog_cpumask))
-+		return HRTIMER_NORESTART;
-+
- 	watchdog_timer_interrupt(cpu);
+ 		if (vq->type == V4L2_BUF_TYPE_VIDEO_CAPTURE) {
+-			v4l2_device_call_all(&dev->v4l2_dev, 0, video,
+-						s_stream, 1);
+ 			dev->vid_timeout_running = 1;
+ 			mod_timer(&dev->vid_timeout, jiffies + (HZ / 10));
+ 		} else if (vq->type == V4L2_BUF_TYPE_VBI_CAPTURE) {
+@@ -861,10 +861,11 @@ static void au0828_stop_streaming(struct vb2_queue *vq)
  
--	wd_timer_reset(cpu, t);
-+	hrtimer_forward_now(hrtimer, ms_to_ktime(wd_timer_period_ms));
-+
-+	return HRTIMER_RESTART;
- }
+ 	dprintk(1, "au0828_stop_streaming called %d\n", dev->streaming_users);
  
- void arch_touch_nmi_watchdog(void)
-@@ -323,37 +323,22 @@ void arch_touch_nmi_watchdog(void)
- }
- EXPORT_SYMBOL(arch_touch_nmi_watchdog);
+-	if (dev->streaming_users-- == 1)
++	if (dev->streaming_users-- == 1) {
+ 		au0828_uninit_isoc(dev);
++		v4l2_device_call_all(&dev->v4l2_dev, 0, video, s_stream, 0);
++	}
  
--static void start_watchdog_timer_on(unsigned int cpu)
--{
--	struct timer_list *t = per_cpu_ptr(&wd_timer, cpu);
--
--	per_cpu(wd_timer_tb, cpu) = get_tb();
--
--	timer_setup(t, wd_timer_fn, TIMER_PINNED);
--	wd_timer_reset(cpu, t);
--}
--
--static void stop_watchdog_timer_on(unsigned int cpu)
--{
--	struct timer_list *t = per_cpu_ptr(&wd_timer, cpu);
--
--	del_timer_sync(t);
--}
--
--static int start_wd_on_cpu(unsigned int cpu)
-+static void start_watchdog(void *arg)
- {
-+	struct hrtimer *hrtimer = this_cpu_ptr(&wd_hrtimer);
-+	int cpu = smp_processor_id();
- 	unsigned long flags;
+-	v4l2_device_call_all(&dev->v4l2_dev, 0, video, s_stream, 0);
+ 	dev->vid_timeout_running = 0;
+ 	del_timer_sync(&dev->vid_timeout);
  
- 	if (cpumask_test_cpu(cpu, &wd_cpus_enabled)) {
- 		WARN_ON(1);
--		return 0;
-+		return;
- 	}
+@@ -893,8 +894,10 @@ void au0828_stop_vbi_streaming(struct vb2_queue *vq)
+ 	dprintk(1, "au0828_stop_vbi_streaming called %d\n",
+ 		dev->streaming_users);
  
- 	if (!(watchdog_enabled & NMI_WATCHDOG_ENABLED))
--		return 0;
-+		return;
+-	if (dev->streaming_users-- == 1)
++	if (dev->streaming_users-- == 1) {
+ 		au0828_uninit_isoc(dev);
++		v4l2_device_call_all(&dev->v4l2_dev, 0, video, s_stream, 0);
++	}
  
- 	if (!cpumask_test_cpu(cpu, &watchdog_cpumask))
--		return 0;
-+		return;
- 
- 	wd_smp_lock(&flags);
- 	cpumask_set_cpu(cpu, &wd_cpus_enabled);
-@@ -363,27 +348,40 @@ static int start_wd_on_cpu(unsigned int cpu)
- 	}
- 	wd_smp_unlock(&flags);
- 
--	start_watchdog_timer_on(cpu);
-+	*this_cpu_ptr(&wd_timer_tb) = get_tb();
- 
--	return 0;
-+	hrtimer_init(hrtimer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-+	hrtimer->function = watchdog_timer_fn;
-+	hrtimer_start(hrtimer, ms_to_ktime(wd_timer_period_ms),
-+		      HRTIMER_MODE_REL_PINNED);
- }
- 
--static int stop_wd_on_cpu(unsigned int cpu)
-+static int start_watchdog_on_cpu(unsigned int cpu)
- {
-+	return smp_call_function_single(cpu, start_watchdog, NULL, true);
-+}
-+
-+static void stop_watchdog(void *arg)
-+{
-+	struct hrtimer *hrtimer = this_cpu_ptr(&wd_hrtimer);
-+	int cpu = smp_processor_id();
- 	unsigned long flags;
- 
- 	if (!cpumask_test_cpu(cpu, &wd_cpus_enabled))
--		return 0; /* Can happen in CPU unplug case */
-+		return; /* Can happen in CPU unplug case */
- 
--	stop_watchdog_timer_on(cpu);
-+	hrtimer_cancel(hrtimer);
- 
- 	wd_smp_lock(&flags);
- 	cpumask_clear_cpu(cpu, &wd_cpus_enabled);
- 	wd_smp_unlock(&flags);
- 
- 	wd_smp_clear_cpu_pending(cpu, get_tb());
-+}
- 
--	return 0;
-+static int stop_watchdog_on_cpu(unsigned int cpu)
-+{
-+	return smp_call_function_single(cpu, stop_watchdog, NULL, true);
- }
- 
- static void watchdog_calc_timeouts(void)
-@@ -402,7 +400,7 @@ void watchdog_nmi_stop(void)
- 	int cpu;
- 
- 	for_each_cpu(cpu, &wd_cpus_enabled)
--		stop_wd_on_cpu(cpu);
-+		stop_watchdog_on_cpu(cpu);
- }
- 
- void watchdog_nmi_start(void)
-@@ -411,7 +409,7 @@ void watchdog_nmi_start(void)
- 
- 	watchdog_calc_timeouts();
- 	for_each_cpu_and(cpu, cpu_online_mask, &watchdog_cpumask)
--		start_wd_on_cpu(cpu);
-+		start_watchdog_on_cpu(cpu);
- }
- 
- /*
-@@ -423,7 +421,8 @@ int __init watchdog_nmi_probe(void)
- 
- 	err = cpuhp_setup_state_nocalls(CPUHP_AP_ONLINE_DYN,
- 					"powerpc/watchdog:online",
--					start_wd_on_cpu, stop_wd_on_cpu);
-+					start_watchdog_on_cpu,
-+					stop_watchdog_on_cpu);
- 	if (err < 0) {
- 		pr_warn("could not be initialized");
- 		return err;
+ 	spin_lock_irqsave(&dev->slock, flags);
+ 	if (dev->isoc_ctl.vbi_buf != NULL) {
 -- 
 2.20.1
 
