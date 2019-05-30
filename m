@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 42EFB2F29D
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:23:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3753E2F0ED
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:08:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728105AbfE3EXp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:23:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36560 "EHLO mail.kernel.org"
+        id S1726566AbfE3EIi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:08:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730047AbfE3DO7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:14:59 -0400
+        id S1731069AbfE3DRS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:17:18 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AF9B22449A;
-        Thu, 30 May 2019 03:14:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9BEB2246A2;
+        Thu, 30 May 2019 03:17:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186097;
-        bh=6QpzbCYWRPZJFeldcE3ktARIpqyvLNnqWXqDwDhS1JI=;
+        s=default; t=1559186237;
+        bh=5lqbSiFsCzajkB4FyK61e1Rl1EHlse2aMLHD0Ua8Zf0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JcWf582VgSDNzBwBPu3BJaPdJGHGLMtf9iMdEBuW2GInR+R9Ee3JaZlJXSW7D+oaH
-         YfEMS5/jpBDCWGOgArwsyWJuXB28eWwurc/o78hY14nq8clhFMtCB61m29AZsrudXs
-         3gySdPwdI1ywlUOz4V88a3EcnWxaX/tHYnDhHKaY=
+        b=X19UE1MITgMojc+wdzxN4OPmLva/R23ieQsO85X0b3hHcPiDjEwNRE4yUnYu7TXyj
+         dubWyi/JWeHE5SpuZvXe6ZiyloY5kqMkDQz6rH5VU8zYmnuZZCmnsdTrJwVApiPkxo
+         GXEukqXdobnS7xIu/WSxYc5MlP7s9Tdbvd6kbpbI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ping-Ke Shih <pkshih@realtek.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org,
+        Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
+        Kishon Vijay Abraham I <kishon@ti.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 232/346] rtlwifi: fix potential NULL pointer dereference
+Subject: [PATCH 4.19 147/276] phy: sun4i-usb: Make sure to disable PHY0 passby for peripheral mode
 Date:   Wed, 29 May 2019 20:05:05 -0700
-Message-Id: <20190530030552.801978939@linuxfoundation.org>
+Message-Id: <20190530030534.820598616@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,110 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 60209d482b97743915883d293c8b85226d230c19 ]
+[ Upstream commit e6f32efb1b128344a2c7df9875bc1a1abaa1d395 ]
 
-In case dev_alloc_skb fails, the fix safely returns to avoid
-potential NULL pointer dereference.
+On platforms where the MUSB and HCI controllers share PHY0, PHY passby
+is required when using the HCI controller with the PHY, but it must be
+disabled when the MUSB controller is used instead.
 
-Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Without this, PHY0 passby is always enabled, which results in broken
+peripheral mode on such platforms (e.g. H3/H5).
+
+Fixes: ba4bdc9e1dc0 ("PHY: sunxi: Add driver for sunxi usb phy")
+
+Signed-off-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtlwifi/rtl8188ee/fw.c       | 2 ++
- drivers/net/wireless/realtek/rtlwifi/rtl8192c/fw_common.c | 2 ++
- drivers/net/wireless/realtek/rtlwifi/rtl8192ee/fw.c       | 2 ++
- drivers/net/wireless/realtek/rtlwifi/rtl8723ae/fw.c       | 2 ++
- drivers/net/wireless/realtek/rtlwifi/rtl8723be/fw.c       | 2 ++
- drivers/net/wireless/realtek/rtlwifi/rtl8821ae/fw.c       | 4 ++++
- 6 files changed, 14 insertions(+)
+ drivers/phy/allwinner/phy-sun4i-usb.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8188ee/fw.c b/drivers/net/wireless/realtek/rtlwifi/rtl8188ee/fw.c
-index 63874512598bb..b5f91c994c798 100644
---- a/drivers/net/wireless/realtek/rtlwifi/rtl8188ee/fw.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/rtl8188ee/fw.c
-@@ -622,6 +622,8 @@ void rtl88e_set_fw_rsvdpagepkt(struct ieee80211_hw *hw, bool b_dl_finished)
- 		      u1rsvdpageloc, 3);
+diff --git a/drivers/phy/allwinner/phy-sun4i-usb.c b/drivers/phy/allwinner/phy-sun4i-usb.c
+index 15c8fc2abf01f..1f8809bab002c 100644
+--- a/drivers/phy/allwinner/phy-sun4i-usb.c
++++ b/drivers/phy/allwinner/phy-sun4i-usb.c
+@@ -550,6 +550,7 @@ static void sun4i_usb_phy0_id_vbus_det_scan(struct work_struct *work)
+ 	struct sun4i_usb_phy_data *data =
+ 		container_of(work, struct sun4i_usb_phy_data, detect.work);
+ 	struct phy *phy0 = data->phys[0].phy;
++	struct sun4i_usb_phy *phy = phy_get_drvdata(phy0);
+ 	bool force_session_end, id_notify = false, vbus_notify = false;
+ 	int id_det, vbus_det;
  
- 	skb = dev_alloc_skb(totalpacketlen);
-+	if (!skb)
-+		return;
- 	skb_put_data(skb, &reserved_page_packet, totalpacketlen);
+@@ -606,6 +607,9 @@ static void sun4i_usb_phy0_id_vbus_det_scan(struct work_struct *work)
+ 			mutex_unlock(&phy0->mutex);
+ 		}
  
- 	rtstatus = rtl_cmd_send_packet(hw, skb);
-diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8192c/fw_common.c b/drivers/net/wireless/realtek/rtlwifi/rtl8192c/fw_common.c
-index f3bff66e85d0c..81ec0e6e07c1f 100644
---- a/drivers/net/wireless/realtek/rtlwifi/rtl8192c/fw_common.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192c/fw_common.c
-@@ -646,6 +646,8 @@ void rtl92c_set_fw_rsvdpagepkt(struct ieee80211_hw *hw,
- 
- 
- 	skb = dev_alloc_skb(totalpacketlen);
-+	if (!skb)
-+		return;
- 	skb_put_data(skb, &reserved_page_packet, totalpacketlen);
- 
- 	if (cmd_send_packet)
-diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8192ee/fw.c b/drivers/net/wireless/realtek/rtlwifi/rtl8192ee/fw.c
-index 84a0d0eb72e1e..a933490928ba9 100644
---- a/drivers/net/wireless/realtek/rtlwifi/rtl8192ee/fw.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192ee/fw.c
-@@ -766,6 +766,8 @@ void rtl92ee_set_fw_rsvdpagepkt(struct ieee80211_hw *hw, bool b_dl_finished)
- 		      u1rsvdpageloc, 3);
- 
- 	skb = dev_alloc_skb(totalpacketlen);
-+	if (!skb)
-+		return;
- 	skb_put_data(skb, &reserved_page_packet, totalpacketlen);
- 
- 	rtstatus = rtl_cmd_send_packet(hw, skb);
-diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8723ae/fw.c b/drivers/net/wireless/realtek/rtlwifi/rtl8723ae/fw.c
-index bf9859f74b6f5..52f108744e969 100644
---- a/drivers/net/wireless/realtek/rtlwifi/rtl8723ae/fw.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/rtl8723ae/fw.c
-@@ -470,6 +470,8 @@ void rtl8723e_set_fw_rsvdpagepkt(struct ieee80211_hw *hw, bool b_dl_finished)
- 		      u1rsvdpageloc, 3);
- 
- 	skb = dev_alloc_skb(totalpacketlen);
-+	if (!skb)
-+		return;
- 	skb_put_data(skb, &reserved_page_packet, totalpacketlen);
- 
- 	rtstatus = rtl_cmd_send_packet(hw, skb);
-diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8723be/fw.c b/drivers/net/wireless/realtek/rtlwifi/rtl8723be/fw.c
-index f2441fbb92f1e..307c2bd77f060 100644
---- a/drivers/net/wireless/realtek/rtlwifi/rtl8723be/fw.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/rtl8723be/fw.c
-@@ -584,6 +584,8 @@ void rtl8723be_set_fw_rsvdpagepkt(struct ieee80211_hw *hw,
- 		      u1rsvdpageloc, sizeof(u1rsvdpageloc));
- 
- 	skb = dev_alloc_skb(totalpacketlen);
-+	if (!skb)
-+		return;
- 	skb_put_data(skb, &reserved_page_packet, totalpacketlen);
- 
- 	rtstatus = rtl_cmd_send_packet(hw, skb);
-diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8821ae/fw.c b/drivers/net/wireless/realtek/rtlwifi/rtl8821ae/fw.c
-index d868a034659fb..d7235f6165fdf 100644
---- a/drivers/net/wireless/realtek/rtlwifi/rtl8821ae/fw.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/rtl8821ae/fw.c
-@@ -1645,6 +1645,8 @@ void rtl8812ae_set_fw_rsvdpagepkt(struct ieee80211_hw *hw,
- 		      &reserved_page_packet_8812[0], totalpacketlen);
- 
- 	skb = dev_alloc_skb(totalpacketlen);
-+	if (!skb)
-+		return;
- 	skb_put_data(skb, &reserved_page_packet_8812, totalpacketlen);
- 
- 	rtstatus = rtl_cmd_send_packet(hw, skb);
-@@ -1781,6 +1783,8 @@ void rtl8821ae_set_fw_rsvdpagepkt(struct ieee80211_hw *hw,
- 		      &reserved_page_packet_8821[0], totalpacketlen);
- 
- 	skb = dev_alloc_skb(totalpacketlen);
-+	if (!skb)
-+		return;
- 	skb_put_data(skb, &reserved_page_packet_8821, totalpacketlen);
- 
- 	rtstatus = rtl_cmd_send_packet(hw, skb);
++		/* Enable PHY0 passby for host mode only. */
++		sun4i_usb_phy_passby(phy, !id_det);
++
+ 		/* Re-route PHY0 if necessary */
+ 		if (data->cfg->phy0_dual_route)
+ 			sun4i_usb_phy0_reroute(data, id_det);
 -- 
 2.20.1
 
