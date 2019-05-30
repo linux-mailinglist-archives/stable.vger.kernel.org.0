@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EF3382F136
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:11:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 810D92F551
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:47:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727389AbfE3ELO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:11:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44202 "EHLO mail.kernel.org"
+        id S1728627AbfE3DLi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:11:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51620 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730834AbfE3DQu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:16:50 -0400
+        id S1728616AbfE3DLh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:11:37 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 13D1F2463E;
-        Thu, 30 May 2019 03:16:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 45558244A6;
+        Thu, 30 May 2019 03:11:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186210;
-        bh=MebKhiyvJ7riAHzHPq/RqDHrA7XgxeH37Lqj5HQRhYU=;
+        s=default; t=1559185896;
+        bh=FnfeHTWJDsY+DyhRxNTtnG8qAasfhPaw1DVptajiCys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=doPU2SrBSKbpU1GOxtOUnXA3duZP7hNoos/QWfoabN3Z5Uo5kOslCSSwB6EyB1VGq
-         15YzOJMQvKBJD5OFba8AGKpcu1x8gualbCfz3w3MguS2EJhd1Ut1Lrx1+dciU/3siz
-         nvbv3yR84ypxu5qqt2Oq31TmSEXA+8YPXY1h2Ecc=
+        b=oaKPQLTzQNKQjisBHjJTKJdm/k3TZl1/Gxk6euG0wolgRh7TeNgr7zHTmK9VG46dy
+         2VsislFKLZoDDMbIwSn7CgPwkkBOlXhKyNHhzN/Rbon2LrlaLQI2un4TUxr76uMSWT
+         9IAHL3ssz3wK1kpsdtxuLjzzSp6OST1g/tqlHhCQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Corentin Labbe <clabbe.montjoie@gmail.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Sun peng Li <Sunpeng.Li@amd.com>,
+        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 101/276] crypto: sun4i-ss - Fix invalid calculation of hash end
+Subject: [PATCH 5.1 261/405] drm/amd/display: Prevent cursor hotspot overflow for RV overlay planes
 Date:   Wed, 29 May 2019 20:04:19 -0700
-Message-Id: <20190530030532.410028712@linuxfoundation.org>
+Message-Id: <20190530030554.154110575@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +47,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f87391558acf816b48f325a493d81d45dec40da0 ]
+[ Upstream commit 6752bea8b03e77c98be7d8d25b0a9d86a00b3cf7 ]
 
-When nbytes < 4, end is wronlgy set to a negative value which, due to
-uint, is then interpreted to a large value leading to a deadlock in the
-following code.
+[Why]
+The actual position for the cursor on the screen is essentially:
 
-This patch fix this problem.
+x_out = x - x_plane - x_hotspot
+y_out = y - y_plane - y_hotspot
 
-Fixes: 6298e948215f ("crypto: sunxi-ss - Add Allwinner Security System crypto accelerator")
-Signed-off-by: Corentin Labbe <clabbe.montjoie@gmail.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+The register values for cursor position and cursor hotspot need to be
+greater than zero when programmed, but we also need to subtract off
+the plane position to display the cursor at the correct position.
+
+Since we don't want x or y to be less than zero, we add the plane
+position as a positive value to x_hotspot or y_hotspot. However, what
+this doesn't take into account is that the hotspot registers are limited
+by the maximum cursor size.
+
+On DCN10 the cursor hotspot regitsers are masked to 0xFF, so they have
+a maximum value of 0-255. Values greater this will wrap, causing the
+cursor to display in the wrong position.
+
+In practice this means that for sufficiently large plane positions, the
+cursor will be drawn twice on the screen, and can cause screen flashes
+or p-state WARNS depending on what the wrapped value is.
+
+So we need a way to remove the value from x_plane and y_plane without
+exceeding the maximum cursor size.
+
+[How]
+Subtract as much as x_plane/y_plane as possible from x and y and place
+the remainder in the cursor hotspot register.
+
+The value for x_hotspot and y_hotspot can still wrap around but it
+won't happen in a case where the cursor is actually enabled.
+
+The cursor plane needs to intersect at least one pixel of the plane's
+rectangle to be enabled, so the cursor position + hotspot provided by
+userspace must always be strictly less than the maximum cursor size for
+the cursor to actually be enabled.
+
+Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Reviewed-by: Sun peng Li <Sunpeng.Li@amd.com>
+Acked-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/sunxi-ss/sun4i-ss-hash.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ .../drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c    | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/crypto/sunxi-ss/sun4i-ss-hash.c b/drivers/crypto/sunxi-ss/sun4i-ss-hash.c
-index a4b5ff2b72f87..f6936bb3b7be4 100644
---- a/drivers/crypto/sunxi-ss/sun4i-ss-hash.c
-+++ b/drivers/crypto/sunxi-ss/sun4i-ss-hash.c
-@@ -240,7 +240,10 @@ static int sun4i_hash(struct ahash_request *areq)
- 		}
- 	} else {
- 		/* Since we have the flag final, we can go up to modulo 4 */
--		end = ((areq->nbytes + op->len) / 4) * 4 - op->len;
-+		if (areq->nbytes < 4)
-+			end = 0;
-+		else
-+			end = ((areq->nbytes + op->len) / 4) * 4 - op->len;
- 	}
+diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
+index d1a8f1c302a96..401ea9561618e 100644
+--- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
+@@ -2692,9 +2692,15 @@ static void dcn10_set_cursor_position(struct pipe_ctx *pipe_ctx)
+ 		.rotation = pipe_ctx->plane_state->rotation,
+ 		.mirror = pipe_ctx->plane_state->horizontal_mirror
+ 	};
+-
+-	pos_cpy.x_hotspot += pipe_ctx->plane_state->dst_rect.x;
+-	pos_cpy.y_hotspot += pipe_ctx->plane_state->dst_rect.y;
++	uint32_t x_plane = pipe_ctx->plane_state->dst_rect.x;
++	uint32_t y_plane = pipe_ctx->plane_state->dst_rect.y;
++	uint32_t x_offset = min(x_plane, pos_cpy.x);
++	uint32_t y_offset = min(y_plane, pos_cpy.y);
++
++	pos_cpy.x -= x_offset;
++	pos_cpy.y -= y_offset;
++	pos_cpy.x_hotspot += (x_plane - x_offset);
++	pos_cpy.y_hotspot += (y_plane - y_offset);
  
- 	/* TODO if SGlen % 4 and !op->len then DMA */
+ 	if (pipe_ctx->plane_state->address.type
+ 			== PLN_ADDR_TYPE_VIDEO_PROGRESSIVE)
 -- 
 2.20.1
 
