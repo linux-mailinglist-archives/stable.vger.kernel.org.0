@@ -2,98 +2,171 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 998472EA31
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 03:23:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E60F2EA57
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 03:46:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727312AbfE3BXB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 21:23:01 -0400
-Received: from mail-eopbgr40046.outbound.protection.outlook.com ([40.107.4.46]:3844
-        "EHLO EUR03-DB5-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726867AbfE3BXB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 21:23:01 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=JXNqwIC2b9bEE9RPSsmlQy1hX2NkCqvOJCJuqqYnoIo=;
- b=hV1VOhHUicDnjAD3zz6nOCjIJfDi4gJVxSey8lgU8wWZ72Iirx7/hGMgs2aQLw3NSNQ6Ne/mBOXzLmRmprTZ0PP0ObsiFBfUPABMBAaHVzPWKJk0qHk4BgmAPijLMowpIZ/Ec2lF7EDdwdZwochisqotxLKTjr7I3Q/I68LksWo=
-Received: from AM0PR04MB4481.eurprd04.prod.outlook.com (52.135.147.15) by
- AM0PR04MB4145.eurprd04.prod.outlook.com (52.134.90.138) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.1922.22; Thu, 30 May 2019 01:22:58 +0000
-Received: from AM0PR04MB4481.eurprd04.prod.outlook.com
- ([fe80::3173:24:d401:2378]) by AM0PR04MB4481.eurprd04.prod.outlook.com
- ([fe80::3173:24:d401:2378%6]) with mapi id 15.20.1922.021; Thu, 30 May 2019
- 01:22:58 +0000
-From:   Peng Fan <peng.fan@nxp.com>
-To:     Stephen Boyd <sboyd@kernel.org>, Shawn Guo <shawnguo@kernel.org>
-CC:     "mturquette@baylibre.com" <mturquette@baylibre.com>,
-        "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>,
-        "kernel@pengutronix.de" <kernel@pengutronix.de>,
-        "festevam@gmail.com" <festevam@gmail.com>,
-        dl-linux-imx <linux-imx@nxp.com>,
-        "linux-clk@vger.kernel.org" <linux-clk@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH] clk: imx: imx8mm: correct audio_pll2_clk to
- audio_pll2_out
-Thread-Topic: [PATCH] clk: imx: imx8mm: correct audio_pll2_clk to
- audio_pll2_out
-Thread-Index: AQHVED6JGbhPMl1ASUycBcbN9uhZiqZ4tK8AgAoZTgCAAB1qcA==
-Date:   Thu, 30 May 2019 01:22:57 +0000
-Message-ID: <AM0PR04MB4481A7FF28A9AB9A1584423888180@AM0PR04MB4481.eurprd04.prod.outlook.com>
-References: <20190522014832.29485-1-peng.fan@nxp.com>
- <20190523132235.GZ9261@dragon> <20190529233547.B7F6F2435D@mail.kernel.org>
-In-Reply-To: <20190529233547.B7F6F2435D@mail.kernel.org>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=peng.fan@nxp.com; 
-x-originating-ip: [119.31.174.71]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 48fbac38-aaff-4ac7-8dff-08d6e49d597d
-x-ms-office365-filtering-ht: Tenant
-x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600148)(711020)(4605104)(1401327)(4618075)(2017052603328)(7193020);SRVR:AM0PR04MB4145;
-x-ms-traffictypediagnostic: AM0PR04MB4145:
-x-microsoft-antispam-prvs: <AM0PR04MB4145EA9A552E94996523BB2C88180@AM0PR04MB4145.eurprd04.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:6108;
-x-forefront-prvs: 00531FAC2C
-x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(39860400002)(136003)(396003)(366004)(346002)(376002)(199004)(189003)(33656002)(7416002)(86362001)(25786009)(74316002)(316002)(6436002)(44832011)(52536014)(68736007)(305945005)(7736002)(73956011)(76176011)(76116006)(64756008)(66556008)(9686003)(66446008)(81156014)(66946007)(55016002)(110136005)(54906003)(66476007)(99286004)(71200400001)(14454004)(2906002)(3846002)(7696005)(66066001)(256004)(5660300002)(229853002)(486006)(6116002)(6246003)(8676002)(446003)(8936002)(53936002)(71190400001)(6506007)(186003)(4326008)(11346002)(478600001)(4744005)(102836004)(81166006)(26005)(476003)(32563001);DIR:OUT;SFP:1101;SCL:1;SRVR:AM0PR04MB4145;H:AM0PR04MB4481.eurprd04.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
-received-spf: None (protection.outlook.com: nxp.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam-message-info: 94ycI5JvLjVuYqo9FeQ4xsNJ+VxOKEozwWIKa9DZyr68UbGkuMklDHtDDdoO8gX022ux6A3wBM/9/1Yd8MrWKsDTh9eMgatSctfP93B0KU8eq2fw2BUsLUC3MYE7so56uu7o0O8eJ3KvqYo0q0daYja3GmyqXWSlxXD04/eoWNUulCP1p4DbvtJf/D205MT9VGmoxTH7vvrLM3YmDUguRc/WAaXp7/vwx8AwJCh2qnx4fDWqVLrnoevAVpxp4Z+EpS/YTZyW2wlw0xSPDQ3ktUq5/woKPKSgmDem/SLt3sLp2w0OI73lMvzB/90NGeEW02BGpIFSmnILgevwAAyl+GMRqDiCo2LJiUv2fyMsMVkoXZ0v/uVPpCBaHHBrmha+fNYZfKhY3bUS2tjdqoDrmHGB9ZdOV9FOg5nSqrNUYqU=
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+        id S1727327AbfE3Bql (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 21:46:41 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:56366 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726527AbfE3Bql (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 21:46:41 -0400
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 67627309264D;
+        Thu, 30 May 2019 01:46:40 +0000 (UTC)
+Received: from [10.72.12.105] (ovpn-12-105.pek2.redhat.com [10.72.12.105])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 7ECC519C70;
+        Thu, 30 May 2019 01:46:37 +0000 (UTC)
+Subject: Re: [PATCH 8/8] ceph: hold i_ceph_lock when removing caps for freeing
+ inode
+To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org
+Cc:     idryomov@redhat.com, jlayton@redhat.com, stable@vger.kernel.org
+References: <20190523080646.19632-8-zyan@redhat.com>
+ <20190529131452.43F372081C@mail.kernel.org>
+From:   "Yan, Zheng" <zyan@redhat.com>
+Message-ID: <1fb32a0f-545c-2ace-3dcd-8df6ca9d32e6@redhat.com>
+Date:   Thu, 30 May 2019 09:46:35 +0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.0
 MIME-Version: 1.0
-X-OriginatorOrg: nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 48fbac38-aaff-4ac7-8dff-08d6e49d597d
-X-MS-Exchange-CrossTenant-originalarrivaltime: 30 May 2019 01:22:58.0223
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: peng.fan@nxp.com
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM0PR04MB4145
+In-Reply-To: <20190529131452.43F372081C@mail.kernel.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.43]); Thu, 30 May 2019 01:46:40 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-SGkgU3RlcGhlbiwNCg0KPiBTdWJqZWN0OiBSZTogW1BBVENIXSBjbGs6IGlteDogaW14OG1tOiBj
-b3JyZWN0IGF1ZGlvX3BsbDJfY2xrIHRvDQo+IGF1ZGlvX3BsbDJfb3V0DQo+IA0KPiBRdW90aW5n
-IFNoYXduIEd1byAoMjAxOS0wNS0yMyAwNjoyMjozNikNCj4gPiBPbiBXZWQsIE1heSAyMiwgMjAx
-OSBhdCAwMTozNDo0NkFNICswMDAwLCBQZW5nIEZhbiB3cm90ZToNCj4gPiA+IFRoZXJlIGlzIG5v
-IGF1ZGlvX3BsbDJfY2xrIHJlZ2lzdGVyZWQsIGl0IHNob3VsZCBiZSBhdWRpb19wbGwyX291dC4N
-Cj4gPiA+DQo+ID4gPiBDYzogPHN0YWJsZUB2Z2VyLmtlcm5lbC5vcmc+DQo+ID4gPiBGaXhlczog
-YmE1NjI1YzNlMjcgKCJjbGs6IGlteDogQWRkIGNsb2NrIGRyaXZlciBzdXBwb3J0IGZvciBpbXg4
-bW0iKQ0KPiA+ID4gU2lnbmVkLW9mZi1ieTogUGVuZyBGYW4gPHBlbmcuZmFuQG54cC5jb20+DQo+
-ID4NCj4gPiBTdGVwaGVuLA0KPiA+DQo+ID4gSSBsZWF2ZSB0aGlzIHRvIHlvdSwgc2luY2UgaXQn
-cyBhIGZpeC4NCj4gPg0KPiANCj4gSXMgaXQgYSBjcml0aWNhbCBmaXg/IE9yIGlzIGl0IGFuIGFu
-bm95YW5jZSB0aGF0IGNhbiB3YWl0IGluIC1uZXh0IHVudGlsIHRoZSBuZXh0DQo+IG1lcmdlIHdp
-bmRvdz8NCg0KSSBkaWQgbm90IHJ1biBpbnRvIGlzc3VlIHdpdGhvdXQgdGhpcyBmaXggY3VycmVu
-dGx5LCBzbyBpdCBzaG91bGQgYmUgZmluZSB0byB3YWl0DQppbiAtbmV4dCB1bnRpbCB0aGUgbmV4
-dCBtZXJnZSB3aW5kb3cuDQoNClRoYW5rcywNClBlbmcuDQoNCg==
+On 5/29/19 9:14 PM, Sasha Levin wrote:
+> Hi,
+> 
+> [This is an automated email]
+> 
+> This commit has been processed because it contains a -stable tag.
+> The stable tag indicates that it's relevant for the following trees: all
+> 
+> The bot has tested the following trees: v5.1.4, v5.0.18, v4.19.45, v4.14.121, v4.9.178, v4.4.180, v3.18.140.
+> 
+> v5.1.4: Build OK!
+> v5.0.18: Failed to apply! Possible dependencies:
+>      e3ec8d6898f71 ("ceph: send cap releases more aggressively")
+> 
+> v4.19.45: Failed to apply! Possible dependencies:
+>      e3ec8d6898f71 ("ceph: send cap releases more aggressively")
+> 
+> v4.14.121: Failed to apply! Possible dependencies:
+>      a1c6b8358171c ("ceph: define argument structure for handle_cap_grant")
+>      a57d9064e4ee4 ("ceph: flush pending works before shutdown super")
+>      e3ec8d6898f71 ("ceph: send cap releases more aggressively")
+> 
+> v4.9.178: Failed to apply! Possible dependencies:
+>      a1c6b8358171c ("ceph: define argument structure for handle_cap_grant")
+>      a57d9064e4ee4 ("ceph: flush pending works before shutdown super")
+>      e3ec8d6898f71 ("ceph: send cap releases more aggressively")
+> 
+> v4.4.180: Failed to apply! Possible dependencies:
+>      13d1ad16d05ee ("libceph: move message allocation out of ceph_osdc_alloc_request()")
+>      34b759b4a22b0 ("ceph: kill ceph_empty_snapc")
+>      3f1af42ad0fad ("libceph: enable large, variable-sized OSD requests")
+>      5be0389dac662 ("ceph: re-send AIO write request when getting -EOLDSNAP error")
+>      7627151ea30bc ("libceph: define new ceph_file_layout structure")
+>      779fe0fb8e188 ("ceph: rados pool namespace support")
+>      922dab6134178 ("libceph, rbd: ceph_osd_linger_request, watch/notify v2")
+>      a1c6b8358171c ("ceph: define argument structure for handle_cap_grant")
+>      ae458f5a171ba ("libceph: make r_request msg_size calculation clearer")
+>      c41d13a31fefe ("rbd: use header_oid instead of header_name")
+>      c8fe9b17d055f ("ceph: Asynchronous IO support")
+>      d30291b985d18 ("libceph: variable-sized ceph_object_id")
+>      e3ec8d6898f71 ("ceph: send cap releases more aggressively")
+> 
+> v3.18.140: Failed to apply! Possible dependencies:
+>      10183a69551f7 ("ceph: check OSD caps before read/write")
+>      28127bdd2f843 ("ceph: convert inline data to normal data before data write")
+>      31c542a199d79 ("ceph: add inline data to pagecache")
+>      5be0389dac662 ("ceph: re-send AIO write request when getting -EOLDSNAP error")
+>      70db4f3629b34 ("ceph: introduce a new inode flag indicating if cached dentries are ordered")
+>      745a8e3bccbc6 ("ceph: don't pre-allocate space for cap release messages")
+>      7627151ea30bc ("libceph: define new ceph_file_layout structure")
+>      779fe0fb8e188 ("ceph: rados pool namespace support")
+>      83701246aee8f ("ceph: sync read inline data")
+>      a1c6b8358171c ("ceph: define argument structure for handle_cap_grant")
+>      affbc19a68f99 ("ceph: make sure syncfs flushes all cap snaps")
+>      c8fe9b17d055f ("ceph: Asynchronous IO support")
+>      d30291b985d18 ("libceph: variable-sized ceph_object_id")
+>      d3383a8e37f80 ("ceph: avoid block operation when !TASK_RUNNING (ceph_mdsc_sync)")
+>      e3ec8d6898f71 ("ceph: send cap releases more aggressively")
+>      e96a650a8174e ("ceph, rbd: delete unnecessary checks before two function calls")
+> 
+> 
+> How should we proceed with this patch?
+> 
+
+please use following patch for old kernels
+
+Regards
+Yan, Zheng
+
+---
+ From 55937416f12e096621b06ada7554cacb89d06e97 Mon Sep 17 00:00:00 2001
+From: "Yan, Zheng" <zyan@redhat.com>
+Date: Thu, 23 May 2019 11:01:37 +0800
+Subject: [PATCH] ceph: hold i_ceph_lock when removing caps for freeing inode
+
+ceph_d_revalidate(, LOOKUP_RCU) may call __ceph_caps_issued_mask()
+on a freeing inode.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: "Yan, Zheng" <zyan@redhat.com>
+Reviewed-by: Jeff Layton <jlayton@redhat.com>
+---
+  fs/ceph/caps.c | 7 +++++--
+  1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/fs/ceph/caps.c b/fs/ceph/caps.c
+index ff5d32cf9578..0fb4e919cdce 100644
+--- a/fs/ceph/caps.c
++++ b/fs/ceph/caps.c
+@@ -1119,20 +1119,23 @@ static int send_cap_msg(struct cap_msg_args *arg)
+  }
+
+  /*
+- * Queue cap releases when an inode is dropped from our cache.  Since
+- * inode is about to be destroyed, there is no need for i_ceph_lock.
++ * Queue cap releases when an inode is dropped from our cache.
+   */
+  void ceph_queue_caps_release(struct inode *inode)
+  {
+  	struct ceph_inode_info *ci = ceph_inode(inode);
+  	struct rb_node *p;
+
++	/* lock i_ceph_lock, because ceph_d_revalidate(..., LOOKUP_RCU)
++	 * may call __ceph_caps_issued_mask() on a freeing inode. */
++	spin_lock(&ci->i_ceph_lock);
+  	p = rb_first(&ci->i_caps);
+  	while (p) {
+  		struct ceph_cap *cap = rb_entry(p, struct ceph_cap, ci_node);
+  		p = rb_next(p);
+  		__ceph_remove_cap(cap, true);
+  	}
++	spin_unlock(&ci->i_ceph_lock);
+  }
+
+  /*
+-- 
+2.17.2
+
+
+
+
+
+> --
+> Thanks,
+> Sasha
+> 
+
+
