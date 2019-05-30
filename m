@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 88B552F454
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:38:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EEF962F1BF
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:15:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729749AbfE3EhE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:37:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56518 "EHLO mail.kernel.org"
+        id S1727261AbfE3EPb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:15:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729290AbfE3DMy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:12:54 -0400
+        id S1729553AbfE3DQA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:16:00 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9F90221BE2;
-        Thu, 30 May 2019 03:12:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E32DD2458C;
+        Thu, 30 May 2019 03:15:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185973;
-        bh=WOOrXOO/ZZElyoOFfQnb966ikiq3jXd6AlTIvyUJrzo=;
+        s=default; t=1559186160;
+        bh=TYEXwey+GGV3MRpFcJH6spduaDj96IktnHJR5rZj4G4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HOkTjFrobELqSifYOK/IqQzaKFMYHiB2f3JfW7X4bCJWV9xYMhDWlwBstdHXd/knQ
-         ZJShaPP7EQoyi7t1wMaSUOBBskWZQvZaruPOTBg+96hDD8VKo+kNHm2vIB2+azACMR
-         gIXfqJgvXhArafn3bV+iheAzLW64iTqvuck4XHng=
+        b=if9KBDSrcK+ls0goEu1qhQkXf9Y6Hr4dwLqLCymN6DkjsyPMkSTIPvLL4k041jQwb
+         iEhXG0zyLIu7jAza67vEob+maOklWxIOJ2/XEFxEt78wPmBXqhnVT0wlazlFzTIV1J
+         ajF4kq+MNb+dCQ9hDa6rLZD+fx1PM7r9ejB32lzg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Adam Thomson <Adam.Thomson.Opensource@diasemi.com>,
-        Steve Twiss <stwiss.opensource@diasemi.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Jernej Skrabec <jernej.skrabec@siol.net>,
+        Maxime Ripard <maxime.ripard@bootlin.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 385/405] regulator: da9063: Fix notifier mutex lock warning
+Subject: [PATCH 5.0 310/346] media: cedrus: Add a quirk for not setting DMA offset
 Date:   Wed, 29 May 2019 20:06:23 -0700
-Message-Id: <20190530030600.182478900@linuxfoundation.org>
+Message-Id: <20190530030556.534980417@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,44 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 29d40b4a5776ec4727c9f0e00a884423dd5e3366 ]
+[ Upstream commit 70a4f5cda82f7197c350099b66fd23506620810e ]
 
-The mutex for the regulator_dev must be controlled by the caller of
-the regulator_notifier_call_chain(), as described in the comment
-for that function.
+H6 VPU doesn't work if DMA offset is set.
 
-Failure to mutex lock and unlock surrounding the notifier call results
-in a kernel WARN_ON_ONCE() which will dump a backtrace for the
-regulator_notifier_call_chain() when that function call is first made.
-The mutex can be controlled using the regulator_lock/unlock() API.
+Add a quirk for it.
 
-Fixes: 69ca3e58d178 ("regulator: da9063: Add Dialog DA9063 voltage regulators support.")
-Suggested-by: Adam Thomson <Adam.Thomson.Opensource@diasemi.com>
-Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Jernej Skrabec <jernej.skrabec@siol.net>
+Acked-by: Maxime Ripard <maxime.ripard@bootlin.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/da9063-regulator.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/staging/media/sunxi/cedrus/cedrus.h    | 3 +++
+ drivers/staging/media/sunxi/cedrus/cedrus_hw.c | 3 ++-
+ 2 files changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/regulator/da9063-regulator.c b/drivers/regulator/da9063-regulator.c
-index 2b0c7a85306ab..d7bdb95b7602e 100644
---- a/drivers/regulator/da9063-regulator.c
-+++ b/drivers/regulator/da9063-regulator.c
-@@ -615,9 +615,12 @@ static irqreturn_t da9063_ldo_lim_event(int irq, void *data)
- 		if (regl->info->oc_event.reg != DA9063_REG_STATUS_D)
- 			continue;
+diff --git a/drivers/staging/media/sunxi/cedrus/cedrus.h b/drivers/staging/media/sunxi/cedrus/cedrus.h
+index 3acfdcf836912..726bef649ba6e 100644
+--- a/drivers/staging/media/sunxi/cedrus/cedrus.h
++++ b/drivers/staging/media/sunxi/cedrus/cedrus.h
+@@ -28,6 +28,8 @@
  
--		if (BIT(regl->info->oc_event.lsb) & bits)
-+		if (BIT(regl->info->oc_event.lsb) & bits) {
-+		        regulator_lock(regl->rdev);
- 			regulator_notifier_call_chain(regl->rdev,
- 					REGULATOR_EVENT_OVER_CURRENT, NULL);
-+		        regulator_unlock(regl->rdev);
-+		}
- 	}
+ #define CEDRUS_CAPABILITY_UNTILED	BIT(0)
  
- 	return IRQ_HANDLED;
++#define CEDRUS_QUIRK_NO_DMA_OFFSET	BIT(0)
++
+ enum cedrus_codec {
+ 	CEDRUS_CODEC_MPEG2,
+ 
+@@ -91,6 +93,7 @@ struct cedrus_dec_ops {
+ 
+ struct cedrus_variant {
+ 	unsigned int	capabilities;
++	unsigned int	quirks;
+ };
+ 
+ struct cedrus_dev {
+diff --git a/drivers/staging/media/sunxi/cedrus/cedrus_hw.c b/drivers/staging/media/sunxi/cedrus/cedrus_hw.c
+index 300339fee1bc6..24a06a1260f0a 100644
+--- a/drivers/staging/media/sunxi/cedrus/cedrus_hw.c
++++ b/drivers/staging/media/sunxi/cedrus/cedrus_hw.c
+@@ -177,7 +177,8 @@ int cedrus_hw_probe(struct cedrus_dev *dev)
+ 	 */
+ 
+ #ifdef PHYS_PFN_OFFSET
+-	dev->dev->dma_pfn_offset = PHYS_PFN_OFFSET;
++	if (!(variant->quirks & CEDRUS_QUIRK_NO_DMA_OFFSET))
++		dev->dev->dma_pfn_offset = PHYS_PFN_OFFSET;
+ #endif
+ 
+ 	ret = of_reserved_mem_device_init(dev->dev);
 -- 
 2.20.1
 
