@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C4442F3C9
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:33:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BE992F1A3
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:14:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729783AbfE3EcU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:32:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59570 "EHLO mail.kernel.org"
+        id S1730598AbfE3DQH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:16:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729540AbfE3DNj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:13:39 -0400
+        id S1730595AbfE3DQH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:16:07 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 409732455A;
-        Thu, 30 May 2019 03:13:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 032A6245C1;
+        Thu, 30 May 2019 03:16:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186019;
-        bh=3Elnot2lwNaYAlunu3Em5A3sFbosURBUBeaxd2sUk6Y=;
+        s=default; t=1559186167;
+        bh=cGfEHtuiOHzUiQbwxipjkkL7KlbpjcCT+PcwOTXyAto=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fXa7buRwQ6onAZ5nZfoL3+EP3M0Gt2G0I9XAkY1VW6DVXad9ugw+hqT7RsucULXDu
-         gPSaNOygHU8mKcmlcQa+cIne0dPy63bAuHJMkW8nn9qHeq3yv5nt3eKoMg4On9RHdg
-         tmTS/iM53a6RHXa/3U/iSZLsoDfq9EOclr8Il7Gc=
+        b=JAk7M9vg0XESI/v+sfYpRGaUp8ORHEv3PUVbJa1ztND3ZYJ/baSyku4ZXTtC34v9E
+         ZCr8yCZN6aSLzbMw1REhOhCgUhk1CHO7HFMhU1I8xjgNlk4AsWfqa3Fs7CgTAKMINu
+         erKH9KYow5/NtaW7Ykm6h+eURHuxTOIbTe9zRPZs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Robbie Ko <robbieko@synology.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 087/346] Btrfs: fix data bytes_may_use underflow with fallocate due to failed quota reserve
+        stable@vger.kernel.org, Ira Weiny <ira.weiny@intel.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
+        stable@kernel.org
+Subject: [PATCH 4.19 002/276] ext4: do not delete unlinked inode from orphan list on failed truncate
 Date:   Wed, 29 May 2019 20:02:40 -0700
-Message-Id: <20190530030545.573891276@linuxfoundation.org>
+Message-Id: <20190530030523.367094213@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,59 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 39ad317315887c2cb9a4347a93a8859326ddf136 ]
+From: Jan Kara <jack@suse.cz>
 
-When doing fallocate, we first add the range to the reserve_list and
-then reserve the quota.  If quota reservation fails, we'll release all
-reserved parts of reserve_list.
+commit ee0ed02ca93ef1ecf8963ad96638795d55af2c14 upstream.
 
-However, cur_offset is not updated to indicate that this range is
-already been inserted into the list.  Therefore, the same range is freed
-twice.  Once at list_for_each_entry loop, and once at the end of the
-function.  This will result in WARN_ON on bytes_may_use when we free the
-remaining space.
+It is possible that unlinked inode enters ext4_setattr() (e.g. if
+somebody calls ftruncate(2) on unlinked but still open file). In such
+case we should not delete the inode from the orphan list if truncate
+fails. Note that this is mostly a theoretical concern as filesystem is
+corrupted if we reach this path anyway but let's be consistent in our
+orphan handling.
 
-At the end, under the 'out' label we have a call to:
+Reviewed-by: Ira Weiny <ira.weiny@intel.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-   btrfs_free_reserved_data_space(inode, data_reserved, alloc_start, alloc_end - cur_offset);
-
-The start offset, third argument, should be cur_offset.
-
-Everything from alloc_start to cur_offset was freed by the
-list_for_each_entry_safe_loop.
-
-Fixes: 18513091af94 ("btrfs: update btrfs_space_info's bytes_may_use timely")
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Robbie Ko <robbieko@synology.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/file.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/ext4/inode.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/btrfs/file.c b/fs/btrfs/file.c
-index 5681c667a098f..7f082b019766c 100644
---- a/fs/btrfs/file.c
-+++ b/fs/btrfs/file.c
-@@ -3142,6 +3142,7 @@ static long btrfs_fallocate(struct file *file, int mode,
- 			ret = btrfs_qgroup_reserve_data(inode, &data_reserved,
- 					cur_offset, last_byte - cur_offset);
- 			if (ret < 0) {
-+				cur_offset = last_byte;
- 				free_extent_map(em);
- 				break;
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -5596,7 +5596,7 @@ int ext4_setattr(struct dentry *dentry,
+ 			up_write(&EXT4_I(inode)->i_data_sem);
+ 			ext4_journal_stop(handle);
+ 			if (error) {
+-				if (orphan)
++				if (orphan && inode->i_nlink)
+ 					ext4_orphan_del(NULL, inode);
+ 				goto err_out;
  			}
-@@ -3191,7 +3192,7 @@ static long btrfs_fallocate(struct file *file, int mode,
- 	/* Let go of our reservation. */
- 	if (ret != 0 && !(mode & FALLOC_FL_ZERO_RANGE))
- 		btrfs_free_reserved_data_space(inode, data_reserved,
--				alloc_start, alloc_end - cur_offset);
-+				cur_offset, alloc_end - cur_offset);
- 	extent_changeset_free(data_reserved);
- 	return ret;
- }
--- 
-2.20.1
-
 
 
