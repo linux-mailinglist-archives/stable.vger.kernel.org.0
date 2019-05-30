@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F7F82F1BB
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:15:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DD992F1C6
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:15:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730544AbfE3DP5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:15:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40694 "EHLO mail.kernel.org"
+        id S1726841AbfE3EPr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:15:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730539AbfE3DP5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730542AbfE3DP5 (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 29 May 2019 23:15:57 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6609424585;
+        by mail.kernel.org (Postfix) with ESMTPSA id CDE7724590;
         Thu, 30 May 2019 03:15:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1559186156;
-        bh=g7WW4hCAqoz9YrVrGwYWvImdBx87C0/YOTv7ftVL5F0=;
+        bh=txu5ml5e8wsR91hAxef7653W3qboAitQk1dj//Hsdek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2vJka0/UIKeWIqcwMLJIg7i+mNoU8Pm1M5TEBRVXeB+06BTGmwq3WveuWsn8neLrT
-         KXqxqaZ0gYiP+OrLqBiw8e1h/0kLadWlA/o1FfSUcrSel4hfahP2oBX30ub3+omZQC
-         xMZ/GP6NsNofh6IB2zDake4LU7PSpWC3kHbkp4is=
+        b=yr/x8Hzo/VlZrXVt7L9ZruTYiGJjInfS8SGEUu1aanW1WRwnT0J1dsanvuBtgKH+Z
+         Zn9KsLrUQ3NdOmsdoDf6O6/8dHdLZaMxO32fZVbxw3s5GAiOJWbgILW0bLsNmCrv+/
+         Lv/HGK2qEomdPAWHSBYYUX4py62uDLIVLHf5Vzxg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Farman <farman@linux.ibm.com>,
-        Farhan Ali <alifm@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
+        stable@vger.kernel.org, Brett Creeley <brett.creeley@intel.com>,
+        Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 343/346] vfio-ccw: Prevent quiesce function going into an infinite loop
-Date:   Wed, 29 May 2019 20:06:56 -0700
-Message-Id: <20190530030558.107327907@linuxfoundation.org>
+Subject: [PATCH 5.0 344/346] ice: Put __ICE_PREPARED_FOR_RESET check in ice_prepare_for_reset
+Date:   Wed, 29 May 2019 20:06:57 -0700
+Message-Id: <20190530030558.150540246@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
 References: <20190530030540.363386121@linuxfoundation.org>
@@ -46,87 +46,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d1ffa760d22aa1d8190478e5ef555c59a771db27 ]
+[ Upstream commit 5abac9d7e1bb9a373673811154774d4c89a7f85e ]
 
-The quiesce function calls cio_cancel_halt_clear() and if we
-get an -EBUSY we go into a loop where we:
-	- wait for any interrupts
-	- flush all I/O in the workqueue
-	- retry cio_cancel_halt_clear
+Currently we check if the __ICE_PREPARED_FOR_RESET bit is set prior to
+calling ice_prepare_for_reset in ice_reset_subtask(), but we aren't
+checking that bit in ice_do_reset() before calling
+ice_prepare_for_reset(). This is not consistent and can cause issues if
+ice_prepare_for_reset() is called prior to ice_do_reset(). Fix this by
+checking if the __ICE_PREPARED_FOR_RESET bit is set internal to
+ice_prepare_for_reset().
 
-During the period where we are waiting for interrupts or
-flushing all I/O, the channel subsystem could have completed
-a halt/clear action and turned off the corresponding activity
-control bits in the subchannel status word. This means the next
-time we call cio_cancel_halt_clear(), we will again start by
-calling cancel subchannel and so we can be stuck between calling
-cancel and halt forever.
-
-Rather than calling cio_cancel_halt_clear() immediately after
-waiting, let's try to disable the subchannel. If we succeed in
-disabling the subchannel then we know nothing else can happen
-with the device.
-
-Suggested-by: Eric Farman <farman@linux.ibm.com>
-Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
-Message-Id: <4d5a4b98ab1b41ac6131b5c36de18b76c5d66898.1555449329.git.alifm@linux.ibm.com>
-Reviewed-by: Eric Farman <farman@linux.ibm.com>
-Acked-by: Halil Pasic <pasic@linux.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Brett Creeley <brett.creeley@intel.com>
+Signed-off-by: Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>
+Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/cio/vfio_ccw_drv.c | 32 ++++++++++++++++++--------------
- 1 file changed, 18 insertions(+), 14 deletions(-)
+ drivers/net/ethernet/intel/ice/ice_main.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index 64bb121ba5987..9e84d8a971ad9 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -40,26 +40,30 @@ int vfio_ccw_sch_quiesce(struct subchannel *sch)
- 	if (ret != -EBUSY)
- 		goto out_unlock;
+diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
+index 43064b4176d38..f8801267502af 100644
+--- a/drivers/net/ethernet/intel/ice/ice_main.c
++++ b/drivers/net/ethernet/intel/ice/ice_main.c
+@@ -342,6 +342,10 @@ ice_prepare_for_reset(struct ice_pf *pf)
+ {
+ 	struct ice_hw *hw = &pf->hw;
  
-+	iretry = 255;
- 	do {
--		iretry = 255;
- 
- 		ret = cio_cancel_halt_clear(sch, &iretry);
--		while (ret == -EBUSY) {
--			/*
--			 * Flush all I/O and wait for
--			 * cancel/halt/clear completion.
--			 */
--			private->completion = &completion;
--			spin_unlock_irq(sch->lock);
- 
--			wait_for_completion_timeout(&completion, 3*HZ);
-+		if (ret == -EIO) {
-+			pr_err("vfio_ccw: could not quiesce subchannel 0.%x.%04x!\n",
-+			       sch->schid.ssid, sch->schid.sch_no);
-+			break;
-+		}
++	/* already prepared for reset */
++	if (test_bit(__ICE_PREPARED_FOR_RESET, pf->state))
++		return;
 +
-+		/*
-+		 * Flush all I/O and wait for
-+		 * cancel/halt/clear completion.
-+		 */
-+		private->completion = &completion;
-+		spin_unlock_irq(sch->lock);
+ 	/* Notify VFs of impending reset */
+ 	if (ice_check_sq_alive(hw, &hw->mailboxq))
+ 		ice_vc_notify_reset(pf);
+@@ -424,8 +428,7 @@ static void ice_reset_subtask(struct ice_pf *pf)
+ 		/* return if no valid reset type requested */
+ 		if (reset_type == ICE_RESET_INVAL)
+ 			return;
+-		if (!test_bit(__ICE_PREPARED_FOR_RESET, pf->state))
+-			ice_prepare_for_reset(pf);
++		ice_prepare_for_reset(pf);
  
--			private->completion = NULL;
--			flush_workqueue(vfio_ccw_work_q);
--			spin_lock_irq(sch->lock);
--			ret = cio_cancel_halt_clear(sch, &iretry);
--		};
-+		if (ret == -EBUSY)
-+			wait_for_completion_timeout(&completion, 3*HZ);
- 
-+		private->completion = NULL;
-+		flush_workqueue(vfio_ccw_work_q);
-+		spin_lock_irq(sch->lock);
- 		ret = cio_disable_subchannel(sch);
- 	} while (ret == -EBUSY);
- out_unlock:
+ 		/* make sure we are ready to rebuild */
+ 		if (ice_check_reset(&pf->hw)) {
 -- 
 2.20.1
 
