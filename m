@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 221102F2E8
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:25:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFACA2EFB6
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:57:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730017AbfE3EYr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:24:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36078 "EHLO mail.kernel.org"
+        id S1727923AbfE3D5u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:57:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730012AbfE3DOu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:14:50 -0400
+        id S1731698AbfE3DSr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:18:47 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 48FE024563;
-        Thu, 30 May 2019 03:14:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 17BCE247D8;
+        Thu, 30 May 2019 03:18:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186090;
-        bh=Cdd8ZuPR7dL03IVKm9Fx91+2UqBDbrqTk3hy+I1JM8c=;
+        s=default; t=1559186326;
+        bh=g3m7bodQ6vo14Ps6d5WWyAcDcR3EOLYJj6Uq2u3ZAMI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g/dQcZ/I7PFePBMyna6K/u9/06Kn/h0VmpGCUZktvuzKifkcOiliSbYZxuYh3jidy
-         PlnCsXOiZK4pwU39XcACdP4ou99ZUNPkWaGXcQ5w9cxP+HwUUrGpH7AaNlfxRVMRVs
-         YxnLMzdiTPfrgHm+UHmLipUw5fRtqlL3lLOuMS7s=
+        b=nFvRTuS343x1N3T5IyYl91Gt2gfE0XrZ4Jgxbh8HavEi4HZC+01La4al2howbkMu7
+         fvXWxw44rrEyTwS/REPZXtfRfXMpWRd6QhOJu4Zs8AekaCrQHgwG/08htP8oMr4KCP
+         iLvJ/kOXyTR16ZkxEAyb8LfCzCN89iFDb+rJ+dq4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Huazhong Tan <tanhuazhong@huawei.com>,
-        Peng Li <lipeng321@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Ross Lagerwall <ross.lagerwall@citrix.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>,
+        Bob Peterson <rpeterso@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 220/346] net: hns3: check resetting status in hns3_get_stats()
-Date:   Wed, 29 May 2019 20:04:53 -0700
-Message-Id: <20190530030552.233467630@linuxfoundation.org>
+Subject: [PATCH 4.14 040/193] gfs2: Fix occasional glock use-after-free
+Date:   Wed, 29 May 2019 20:04:54 -0700
+Message-Id: <20190530030455.027656488@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
+References: <20190530030446.953835040@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +45,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c4e401e5a934bb0798ebbba98e08dab129695eff ]
+[ Upstream commit 9287c6452d2b1f24ea8e84bd3cf6f3c6f267f712 ]
 
-hns3_get_stats() should check the resetting status firstly,
-since the device will be reinitialized when resetting. If the
-reset has not completed, the hns3_get_stats() may access
-invalid memory.
+This patch has to do with the life cycle of glocks and buffers.  When
+gfs2 metadata or journaled data is queued to be written, a gfs2_bufdata
+object is assigned to track the buffer, and that is queued to various
+lists, including the glock's gl_ail_list to indicate it's on the active
+items list.  Once the page associated with the buffer has been written,
+it is removed from the ail list, but its life isn't over until a revoke
+has been successfully written.
 
-Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
-Signed-off-by: Peng Li <lipeng321@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+So after the block is written, its bufdata object is moved from the
+glock's gl_ail_list to a file-system-wide list of pending revokes,
+sd_log_le_revoke.  At that point the glock still needs to track how many
+revokes it contributed to that list (in gl_revokes) so that things like
+glock go_sync can ensure all the metadata has been not only written, but
+also revoked before the glock is granted to a different node.  This is
+to guarantee journal replay doesn't replay the block once the glock has
+been granted to another node.
+
+Ross Lagerwall recently discovered a race in which an inode could be
+evicted, and its glock freed after its ail list had been synced, but
+while it still had unwritten revokes on the sd_log_le_revoke list.  The
+evict decremented the glock reference count to zero, which allowed the
+glock to be freed.  After the revoke was written, function
+revoke_lo_after_commit tried to adjust the glock's gl_revokes counter
+and clear its GLF_LFLUSH flag, at which time it referenced the freed
+glock.
+
+This patch fixes the problem by incrementing the glock reference count
+in gfs2_add_revoke when the glock's first bufdata object is moved from
+the glock to the global revokes list. Later, when the glock's last such
+bufdata object is freed, the reference count is decremented. This
+guarantees that whichever process finishes last (the revoke writing or
+the evict) will properly free the glock, and neither will reference the
+glock after it has been freed.
+
+Reported-by: Ross Lagerwall <ross.lagerwall@citrix.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ fs/gfs2/glock.c | 1 +
+ fs/gfs2/log.c   | 3 ++-
+ fs/gfs2/lops.c  | 6 ++++--
+ 3 files changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c b/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
-index e678b6939da39..36b35c58304b5 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
-@@ -482,6 +482,11 @@ static void hns3_get_stats(struct net_device *netdev,
- 	struct hnae3_handle *h = hns3_get_handle(netdev);
- 	u64 *p = data;
+diff --git a/fs/gfs2/glock.c b/fs/gfs2/glock.c
+index cd6a64478a026..aea1ed0aebd0f 100644
+--- a/fs/gfs2/glock.c
++++ b/fs/gfs2/glock.c
+@@ -140,6 +140,7 @@ void gfs2_glock_free(struct gfs2_glock *gl)
+ {
+ 	struct gfs2_sbd *sdp = gl->gl_name.ln_sbd;
  
-+	if (hns3_nic_resetting(netdev)) {
-+		netdev_err(netdev, "dev resetting, could not get stats\n");
-+		return;
-+	}
-+
- 	if (!h->ae_algo->ops->get_stats || !h->ae_algo->ops->update_stats) {
- 		netdev_err(netdev, "could not get any statistics\n");
- 		return;
++	BUG_ON(atomic_read(&gl->gl_revokes));
+ 	rhashtable_remove_fast(&gl_hash_table, &gl->gl_node, ht_parms);
+ 	smp_mb();
+ 	wake_up_glock(gl);
+diff --git a/fs/gfs2/log.c b/fs/gfs2/log.c
+index f72c442314062..483b82e2be923 100644
+--- a/fs/gfs2/log.c
++++ b/fs/gfs2/log.c
+@@ -588,7 +588,8 @@ void gfs2_add_revoke(struct gfs2_sbd *sdp, struct gfs2_bufdata *bd)
+ 	bd->bd_bh = NULL;
+ 	bd->bd_ops = &gfs2_revoke_lops;
+ 	sdp->sd_log_num_revoke++;
+-	atomic_inc(&gl->gl_revokes);
++	if (atomic_inc_return(&gl->gl_revokes) == 1)
++		gfs2_glock_hold(gl);
+ 	set_bit(GLF_LFLUSH, &gl->gl_flags);
+ 	list_add(&bd->bd_list, &sdp->sd_log_le_revoke);
+ }
+diff --git a/fs/gfs2/lops.c b/fs/gfs2/lops.c
+index c8ff7b7954f05..049f8c6721b4a 100644
+--- a/fs/gfs2/lops.c
++++ b/fs/gfs2/lops.c
+@@ -660,8 +660,10 @@ static void revoke_lo_after_commit(struct gfs2_sbd *sdp, struct gfs2_trans *tr)
+ 		bd = list_entry(head->next, struct gfs2_bufdata, bd_list);
+ 		list_del_init(&bd->bd_list);
+ 		gl = bd->bd_gl;
+-		atomic_dec(&gl->gl_revokes);
+-		clear_bit(GLF_LFLUSH, &gl->gl_flags);
++		if (atomic_dec_return(&gl->gl_revokes) == 0) {
++			clear_bit(GLF_LFLUSH, &gl->gl_flags);
++			gfs2_glock_queue_put(gl);
++		}
+ 		kmem_cache_free(gfs2_bufdata_cachep, bd);
+ 	}
+ }
 -- 
 2.20.1
 
