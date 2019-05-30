@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C9A362EE0D
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:44:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADDAA2EFF1
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:01:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732481AbfE3Dnv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:43:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60964 "EHLO mail.kernel.org"
+        id S1731480AbfE3DSP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:18:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732415AbfE3DVC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:21:02 -0400
+        id S1731474AbfE3DSP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:18:15 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D208A2496D;
-        Thu, 30 May 2019 03:21:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5318624763;
+        Thu, 30 May 2019 03:18:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186461;
-        bh=XctbAn9oKco3ZTcpPr0FOraHUuXoaFY+/vmce3lj+MI=;
+        s=default; t=1559186294;
+        bh=RzkQDFObNYcIiIPGLQTQZaZDCTqXgUmZqo1AGSEvEqQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=untOUEDnIO+Ktwl4SW10irpWm075nn0PRQOs/zrqG1+pKlU1hGoH9/dhHH+BMiAGf
-         X447XV1HvAH5XOZ/Tazvsg+TehwxZwn3N5q7m9+0keSPDsnB4anWn3nUzQcYXH1fIb
-         dO++jC9Lque4RHgG/I8/t1j3mB4CBzc5jVMCILo4=
+        b=m8C1QCqV6sBXb5MKflp2HSQ6PetrV9DKLANQe3MCYpOK4JRll8t0APx74nC+HYJdB
+         ydF5RsYUWrmHcZClPuZUiTLjpyWk1JkaedLOHzKIRh/DNTJ6WEMIt6/E24f4AzEJyC
+         UuoMVOHQv43X6TtWwEPiAe8Dn0yayaxjPOOYfpFM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Sun peng Li <Sunpeng.Li@amd.com>,
+        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 079/128] mmc_spi: add a status check for spi_sync_locked
-Date:   Wed, 29 May 2019 20:06:51 -0700
-Message-Id: <20190530030448.876467781@linuxfoundation.org>
+Subject: [PATCH 4.19 254/276] drm/amd/display: Set stream->mode_changed when connectors change
+Date:   Wed, 29 May 2019 20:06:52 -0700
+Message-Id: <20190530030541.032695304@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
-References: <20190530030432.977908967@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,34 +47,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 611025983b7976df0183390a63a2166411d177f1 ]
+[ Upstream commit b9952f93cd2cf5fca82b06a8179c0f5f7b769e83 ]
 
-In case spi_sync_locked fails, the fix reports the error and
-returns the error code upstream.
+[Why]
+The kms_plane@plane-position-covered-pipe-*-planes subtests can produce
+a sequence of atomic commits such that neither active_changed nor
+mode_changed but connectors_changed.
 
-Signed-off-by: Kangjie Lu <kjlu@umn.edu>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+When this happens we remove the old stream from the context and add
+a new stream but the new stream doesn't have mode_changed=true set.
+
+This incorrect programming sequence causes CRC mismatches to occur in
+the test.
+
+The stream->mode_changed value should be set whenever a new stream
+is created.
+
+[How]
+A new stream is created whenever drm_atomic_crtc_needs_modeset is true.
+We previously covered the active_changed and mode_changed conditions
+for the CRTC but connectors_changed is also checked within
+drm_atomic_crtc_needs_modeset.
+
+So just use drm_atomic_crtc_needs_modeset directly to determine the
+mode_changed flag.
+
+Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Reviewed-by: Sun peng Li <Sunpeng.Li@amd.com>
+Acked-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/mmc_spi.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/mmc/host/mmc_spi.c b/drivers/mmc/host/mmc_spi.c
-index 6224ad37fd80b..c2df68e958b33 100644
---- a/drivers/mmc/host/mmc_spi.c
-+++ b/drivers/mmc/host/mmc_spi.c
-@@ -819,6 +819,10 @@ mmc_spi_readblock(struct mmc_spi_host *host, struct spi_transfer *t,
- 	}
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index 76ee2de43ea66..dac7978f5ee1f 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -4369,8 +4369,7 @@ static void amdgpu_dm_commit_planes(struct drm_atomic_state *state,
+ static void amdgpu_dm_crtc_copy_transient_flags(struct drm_crtc_state *crtc_state,
+ 						struct dc_stream_state *stream_state)
+ {
+-	stream_state->mode_changed =
+-		crtc_state->mode_changed || crtc_state->active_changed;
++	stream_state->mode_changed = drm_atomic_crtc_needs_modeset(crtc_state);
+ }
  
- 	status = spi_sync_locked(spi, &host->m);
-+	if (status < 0) {
-+		dev_dbg(&spi->dev, "read error %d\n", status);
-+		return status;
-+	}
- 
- 	if (host->dma_dev) {
- 		dma_sync_single_for_cpu(host->dma_dev,
+ static int amdgpu_dm_atomic_commit(struct drm_device *dev,
 -- 
 2.20.1
 
