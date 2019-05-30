@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BDA292F6CB
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 07:00:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8207F2F6FA
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 07:01:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727580AbfE3DJ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:09:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44120 "EHLO mail.kernel.org"
+        id S1732736AbfE3FAy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 01:00:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727563AbfE3DJ2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:09:28 -0400
+        id S1727569AbfE3DJ3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:09:29 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CC14124480;
-        Thu, 30 May 2019 03:09:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 309E52447C;
+        Thu, 30 May 2019 03:09:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185767;
-        bh=JPsMg2qdVebugYbJg/LHRwLUiu4TwnK5mJDChYZwLVc=;
+        s=default; t=1559185768;
+        bh=7RcEOH/HE3JXRnzDunkFCAZCXEfpzCP3ZZnCtC8r6qM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0MdrbZCNIg3zBAr/rJ3+8luS3K3s8F9+QAI8bXg7dOIAoR5IXo92NTlD6bfPH3CVk
-         pW1WeuQs3rVj170paeEmYXeAbnR7QdFo63vsQLgmi8NgVZ4pXQ+jD5LerNvDTiSgtr
-         hAOTxOul0yAt1yPtCU0xFtGE8dp25mEmgQLMsJCM=
+        b=aL6PhUti42dh5gm4Ia7Lt8NHzIrnCkAlW2xsxV3heEsfb4eBoeOz2RdYRjvPUVaiG
+         xsn1+oleFtw6c73FhrVlzTqaTRCjZf6OvwRbtW5CsR7qGLF6JDFJ2BUQV8mb/xD7DQ
+         dT2cBXFXDn4816IVozG7Rk43RTdJGpHLl3UNIv40=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>,
-        =?UTF-8?q?Radim=20Kr=C4=8Dm=C3=A1=C5=99?= <rkrcmar@redhat.com>,
-        Wanpeng Li <wanpengli@tencent.com>,
-        Sean Christopherson <sean.j.christopherson@intel.com>
-Subject: [PATCH 5.1 017/405] KVM: nVMX: Fix using __this_cpu_read() in preemptible context
-Date:   Wed, 29 May 2019 20:00:15 -0700
-Message-Id: <20190530030541.409293451@linuxfoundation.org>
+        stable@vger.kernel.org, Jeff Moyer <jmoyer@redhat.com>,
+        Ingo Molnar <mingo@redhat.com>, Christoph Hellwig <hch@lst.de>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Matthew Wilcox <willy@infradead.org>,
+        Kees Cook <keescook@chromium.org>, Jan Kara <jack@suse.cz>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Jeff Smits <jeff.smits@intel.com>
+Subject: [PATCH 5.1 018/405] libnvdimm/pmem: Bypass CONFIG_HARDENED_USERCOPY overhead
+Date:   Wed, 29 May 2019 20:00:16 -0700
+Message-Id: <20190530030541.480359183@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
 References: <20190530030540.291644921@linuxfoundation.org>
@@ -45,69 +49,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wanpeng Li <wanpengli@tencent.com>
+From: Dan Williams <dan.j.williams@intel.com>
 
-commit 541e886f7972cc647804dbb4909189e67987a945 upstream.
+commit 52f476a323f9efc959be1c890d0cdcf12e1582e0 upstream.
 
- BUG: using __this_cpu_read() in preemptible [00000000] code: qemu-system-x86/4590
-  caller is nested_vmx_enter_non_root_mode+0xebd/0x1790 [kvm_intel]
-  CPU: 4 PID: 4590 Comm: qemu-system-x86 Tainted: G           OE     5.1.0-rc4+ #1
-  Call Trace:
-   dump_stack+0x67/0x95
-   __this_cpu_preempt_check+0xd2/0xe0
-   nested_vmx_enter_non_root_mode+0xebd/0x1790 [kvm_intel]
-   nested_vmx_run+0xda/0x2b0 [kvm_intel]
-   handle_vmlaunch+0x13/0x20 [kvm_intel]
-   vmx_handle_exit+0xbd/0x660 [kvm_intel]
-   kvm_arch_vcpu_ioctl_run+0xa2c/0x1e50 [kvm]
-   kvm_vcpu_ioctl+0x3ad/0x6d0 [kvm]
-   do_vfs_ioctl+0xa5/0x6e0
-   ksys_ioctl+0x6d/0x80
-   __x64_sys_ioctl+0x1a/0x20
-   do_syscall_64+0x6f/0x6c0
-   entry_SYSCALL_64_after_hwframe+0x49/0xbe
+Jeff discovered that performance improves from ~375K iops to ~519K iops
+on a simple psync-write fio workload when moving the location of 'struct
+page' from the default PMEM location to DRAM. This result is surprising
+because the expectation is that 'struct page' for dax is only needed for
+third party references to dax mappings. For example, a dax-mapped buffer
+passed to another system call for direct-I/O requires 'struct page' for
+sending the request down the driver stack and pinning the page. There is
+no usage of 'struct page' for first party access to a file via
+read(2)/write(2) and friends.
 
-Accessing per-cpu variable should disable preemption, this patch extends the
-preemption disable region for __this_cpu_read().
+However, this "no page needed" expectation is violated by
+CONFIG_HARDENED_USERCOPY and the check_copy_size() performed in
+copy_from_iter_full_nocache() and copy_to_iter_mcsafe(). The
+check_heap_object() helper routine assumes the buffer is backed by a
+slab allocator (DRAM) page and applies some checks.  Those checks are
+invalid, dax pages do not originate from the slab, and redundant,
+dax_iomap_actor() has already validated that the I/O is within bounds.
+Specifically that routine validates that the logical file offset is
+within bounds of the file, then it does a sector-to-pfn translation
+which validates that the physical mapping is within bounds of the block
+device.
 
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Radim Krčmář <rkrcmar@redhat.com>
-Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
-Fixes: 52017608da33 ("KVM: nVMX: add option to perform early consistency checks via H/W")
-Cc: stable@vger.kernel.org
-Reviewed-by: Sean Christopherson <sean.j.christopherson@intel.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Bypass additional hardened usercopy overhead and call the 'no check'
+versions of the copy_{to,from}_iter operations directly.
+
+Fixes: 0aed55af8834 ("x86, uaccess: introduce copy_from_iter_flushcache...")
+Cc: <stable@vger.kernel.org>
+Cc: Jeff Moyer <jmoyer@redhat.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Matthew Wilcox <willy@infradead.org>
+Reported-and-tested-by: Jeff Smits <jeff.smits@intel.com>
+Acked-by: Kees Cook <keescook@chromium.org>
+Acked-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/x86/kvm/vmx/nested.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/nvdimm/pmem.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -2792,14 +2792,13 @@ static int nested_vmx_check_vmentry_hw(s
- 	      : "cc", "memory"
- 	);
+--- a/drivers/nvdimm/pmem.c
++++ b/drivers/nvdimm/pmem.c
+@@ -281,16 +281,22 @@ static long pmem_dax_direct_access(struc
+ 	return __pmem_direct_access(pmem, pgoff, nr_pages, kaddr, pfn);
+ }
  
--	preempt_enable();
--
- 	if (vmx->msr_autoload.host.nr)
- 		vmcs_write32(VM_EXIT_MSR_LOAD_COUNT, vmx->msr_autoload.host.nr);
- 	if (vmx->msr_autoload.guest.nr)
- 		vmcs_write32(VM_ENTRY_MSR_LOAD_COUNT, vmx->msr_autoload.guest.nr);
++/*
++ * Use the 'no check' versions of copy_from_iter_flushcache() and
++ * copy_to_iter_mcsafe() to bypass HARDENED_USERCOPY overhead. Bounds
++ * checking, both file offset and device offset, is handled by
++ * dax_iomap_actor()
++ */
+ static size_t pmem_copy_from_iter(struct dax_device *dax_dev, pgoff_t pgoff,
+ 		void *addr, size_t bytes, struct iov_iter *i)
+ {
+-	return copy_from_iter_flushcache(addr, bytes, i);
++	return _copy_from_iter_flushcache(addr, bytes, i);
+ }
  
- 	if (vm_fail) {
-+		preempt_enable();
- 		WARN_ON_ONCE(vmcs_read32(VM_INSTRUCTION_ERROR) !=
- 			     VMXERR_ENTRY_INVALID_CONTROL_FIELD);
- 		return 1;
-@@ -2811,6 +2810,7 @@ static int nested_vmx_check_vmentry_hw(s
- 	local_irq_enable();
- 	if (hw_breakpoint_active())
- 		set_debugreg(__this_cpu_read(cpu_dr7), 7);
-+	preempt_enable();
+ static size_t pmem_copy_to_iter(struct dax_device *dax_dev, pgoff_t pgoff,
+ 		void *addr, size_t bytes, struct iov_iter *i)
+ {
+-	return copy_to_iter_mcsafe(addr, bytes, i);
++	return _copy_to_iter_mcsafe(addr, bytes, i);
+ }
  
- 	/*
- 	 * A non-failing VMEntry means we somehow entered guest mode with
+ static const struct dax_operations pmem_dax_ops = {
 
 
