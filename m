@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 500DE2F182
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:13:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C09B12EB3F
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:11:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727119AbfE3ENj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:13:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41638 "EHLO mail.kernel.org"
+        id S1728361AbfE3DLG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:11:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730653AbfE3DQU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:16:20 -0400
+        id S1727977AbfE3DLG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:11:06 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C23BF245D8;
-        Thu, 30 May 2019 03:16:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 17641244EE;
+        Thu, 30 May 2019 03:11:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186179;
-        bh=SsyLdrVu3g1kfXDJ3CVlT1l7yvhaQ2LxfJLp6ZCpiok=;
+        s=default; t=1559185865;
+        bh=TIFyNDY9FzGlyx5lxUxH4rwVPK55GjuPa0XuZBHjypo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=is+vb4n++RIssMOO6CEMXfM2+vmnmjbZDKIS7NjF2c/Yg1JG0O6xgwOzGNw7mp3ne
-         6AKaSDPM3GfYAF+zjbk8wGRklNayJYR/bQpWG7sICKlURNz4C/8wFgPxXWPX+j+5g/
-         zDWxxdyZtBSALJjoH/QirNu+uK6cXFa9VYrOloAg=
+        b=JchXSAsdQfdl8OArrVSFMELjKYLOZql/j4EPrutzLkT9MyPJGbfbrSvFbWUW2dCXB
+         chqgeaD19Rlu4s5lNfJIaKcfqdkGYHWyAqFRZz0a/wgDOzCVQYo+jEwg9LQ/pORKhl
+         ecJOYUAfRVI0tR/9NCUka+uw0QBkEyG8g/oucOSc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.19 043/276] Revert "btrfs: Honour FITRIM range constraints during free space trim"
+        stable@vger.kernel.org, Andrea Merello <andrea.merello@gmail.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 203/405] mmc: core: make pwrseq_emmc (partially) support sleepy GPIO controllers
 Date:   Wed, 29 May 2019 20:03:21 -0700
-Message-Id: <20190530030527.261513597@linuxfoundation.org>
+Message-Id: <20190530030551.432064473@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,93 +44,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Sterba <dsterba@suse.com>
+[ Upstream commit 002ee28e8b322d4d4b7b83234b5d0f4ebd428eda ]
 
-This reverts commit 8b13bb911f0c0c77d41e5ddc41ad3c127c356b8a.
+pwrseq_emmc.c implements a HW reset procedure for eMMC chip by driving a
+GPIO line.
 
-There is currently no corresponding patch in master due to additional
-changes that would be significantly different from plain revert in the
-respective stable branch.
+It registers the .reset() cb on mmc_pwrseq_ops and it registers a system
+restart notification handler; both of them perform reset by unconditionally
+calling gpiod_set_value().
 
-The range argument was not handled correctly and could cause trim to
-overlap allocated areas or reach beyond the end of the device. The
-address space that fitrim normally operates on is in logical
-coordinates, while the discards are done on the physical device extents.
-This distinction cannot be made with the current ioctl interface and
-caused the confusion.
+If the eMMC reset line is tied to a GPIO controller whose driver can sleep
+(i.e. I2C GPIO controller), then the kernel would spit warnings when trying
+to reset the eMMC chip by means of .reset() mmc_pwrseq_ops cb (that is
+exactly what I'm seeing during boot).
 
-The bug depends on the layout of block groups and does not always
-happen. The whole-fs trim (run by default by the fstrim tool) is not
-affected.
+Furthermore, on system reset we would gets to the system restart
+notification handler with disabled interrupts - local_irq_disable() is
+called in machine_restart() at least on ARM/ARM64 - and we would be in
+trouble when the GPIO driver tries to sleep (which indeed doesn't happen
+here, likely because in my case the machine specific code doesn't call
+do_kernel_restart(), I guess..).
 
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This patch fixes the .reset() cb to make use of gpiod_set_value_cansleep(),
+so that the eMMC gets reset on boot without complaints, while, since there
+isn't that much we can do, we avoid register the restart handler if the
+GPIO controller has a sleepy driver (and we spit a dev_notice() message to
+let people know)..
+
+This had been tested on a downstream 4.9 kernel with backported
+commit 83f37ee7ba33 ("mmc: pwrseq: Add reset callback to the struct
+mmc_pwrseq_ops") and commit ae60fb031cf2 ("mmc: core: Don't do eMMC HW
+reset when resuming the eMMC card"), because I couldn't boot my board
+otherwise. Maybe worth to RFT.
+
+Signed-off-by: Andrea Merello <andrea.merello@gmail.com>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/extent-tree.c |   25 ++++++-------------------
- 1 file changed, 6 insertions(+), 19 deletions(-)
+ drivers/mmc/core/pwrseq_emmc.c | 38 ++++++++++++++++++----------------
+ 1 file changed, 20 insertions(+), 18 deletions(-)
 
---- a/fs/btrfs/extent-tree.c
-+++ b/fs/btrfs/extent-tree.c
-@@ -10788,9 +10788,9 @@ int btrfs_error_unpin_extent_range(struc
-  * held back allocations.
-  */
- static int btrfs_trim_free_extents(struct btrfs_device *device,
--				   struct fstrim_range *range, u64 *trimmed)
-+				   u64 minlen, u64 *trimmed)
+diff --git a/drivers/mmc/core/pwrseq_emmc.c b/drivers/mmc/core/pwrseq_emmc.c
+index efb8a7965dd4a..154f4204d58cb 100644
+--- a/drivers/mmc/core/pwrseq_emmc.c
++++ b/drivers/mmc/core/pwrseq_emmc.c
+@@ -30,19 +30,14 @@ struct mmc_pwrseq_emmc {
+ 
+ #define to_pwrseq_emmc(p) container_of(p, struct mmc_pwrseq_emmc, pwrseq)
+ 
+-static void __mmc_pwrseq_emmc_reset(struct mmc_pwrseq_emmc *pwrseq)
+-{
+-	gpiod_set_value(pwrseq->reset_gpio, 1);
+-	udelay(1);
+-	gpiod_set_value(pwrseq->reset_gpio, 0);
+-	udelay(200);
+-}
+-
+ static void mmc_pwrseq_emmc_reset(struct mmc_host *host)
  {
--	u64 start = range->start, len = 0;
-+	u64 start = 0, len = 0;
- 	int ret;
+ 	struct mmc_pwrseq_emmc *pwrseq =  to_pwrseq_emmc(host->pwrseq);
  
- 	*trimmed = 0;
-@@ -10833,8 +10833,8 @@ static int btrfs_trim_free_extents(struc
- 		if (!trans)
- 			up_read(&fs_info->commit_root_sem);
+-	__mmc_pwrseq_emmc_reset(pwrseq);
++	gpiod_set_value_cansleep(pwrseq->reset_gpio, 1);
++	udelay(1);
++	gpiod_set_value_cansleep(pwrseq->reset_gpio, 0);
++	udelay(200);
+ }
  
--		ret = find_free_dev_extent_start(trans, device, range->minlen,
--						 start, &start, &len);
-+		ret = find_free_dev_extent_start(trans, device, minlen, start,
-+						 &start, &len);
- 		if (trans) {
- 			up_read(&fs_info->commit_root_sem);
- 			btrfs_put_transaction(trans);
-@@ -10847,16 +10847,6 @@ static int btrfs_trim_free_extents(struc
- 			break;
- 		}
+ static int mmc_pwrseq_emmc_reset_nb(struct notifier_block *this,
+@@ -50,8 +45,11 @@ static int mmc_pwrseq_emmc_reset_nb(struct notifier_block *this,
+ {
+ 	struct mmc_pwrseq_emmc *pwrseq = container_of(this,
+ 					struct mmc_pwrseq_emmc, reset_nb);
++	gpiod_set_value(pwrseq->reset_gpio, 1);
++	udelay(1);
++	gpiod_set_value(pwrseq->reset_gpio, 0);
++	udelay(200);
  
--		/* If we are out of the passed range break */
--		if (start > range->start + range->len - 1) {
--			mutex_unlock(&fs_info->chunk_mutex);
--			ret = 0;
--			break;
--		}
--
--		start = max(range->start, start);
--		len = min(range->len, len);
--
- 		ret = btrfs_issue_discard(device->bdev, start, len, &bytes);
- 		mutex_unlock(&fs_info->chunk_mutex);
+-	__mmc_pwrseq_emmc_reset(pwrseq);
+ 	return NOTIFY_DONE;
+ }
  
-@@ -10866,10 +10856,6 @@ static int btrfs_trim_free_extents(struc
- 		start += len;
- 		*trimmed += bytes;
+@@ -72,14 +70,18 @@ static int mmc_pwrseq_emmc_probe(struct platform_device *pdev)
+ 	if (IS_ERR(pwrseq->reset_gpio))
+ 		return PTR_ERR(pwrseq->reset_gpio);
  
--		/* We've trimmed enough */
--		if (*trimmed >= range->len)
--			break;
--
- 		if (fatal_signal_pending(current)) {
- 			ret = -ERESTARTSYS;
- 			break;
-@@ -10953,7 +10939,8 @@ int btrfs_trim_fs(struct btrfs_fs_info *
- 	mutex_lock(&fs_info->fs_devices->device_list_mutex);
- 	devices = &fs_info->fs_devices->devices;
- 	list_for_each_entry(device, devices, dev_list) {
--		ret = btrfs_trim_free_extents(device, range, &group_trimmed);
-+		ret = btrfs_trim_free_extents(device, range->minlen,
-+					      &group_trimmed);
- 		if (ret) {
- 			dev_failed++;
- 			dev_ret = ret;
+-	/*
+-	 * register reset handler to ensure emmc reset also from
+-	 * emergency_reboot(), priority 255 is the highest priority
+-	 * so it will be executed before any system reboot handler.
+-	 */
+-	pwrseq->reset_nb.notifier_call = mmc_pwrseq_emmc_reset_nb;
+-	pwrseq->reset_nb.priority = 255;
+-	register_restart_handler(&pwrseq->reset_nb);
++	if (!gpiod_cansleep(pwrseq->reset_gpio)) {
++		/*
++		 * register reset handler to ensure emmc reset also from
++		 * emergency_reboot(), priority 255 is the highest priority
++		 * so it will be executed before any system reboot handler.
++		 */
++		pwrseq->reset_nb.notifier_call = mmc_pwrseq_emmc_reset_nb;
++		pwrseq->reset_nb.priority = 255;
++		register_restart_handler(&pwrseq->reset_nb);
++	} else {
++		dev_notice(dev, "EMMC reset pin tied to a sleepy GPIO driver; reset on emergency-reboot disabled\n");
++	}
+ 
+ 	pwrseq->pwrseq.ops = &mmc_pwrseq_emmc_ops;
+ 	pwrseq->pwrseq.dev = dev;
+-- 
+2.20.1
+
 
 
