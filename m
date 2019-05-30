@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D4DD2F641
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:54:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B46A2F3E9
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:34:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728076AbfE3DKY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:10:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47320 "EHLO mail.kernel.org"
+        id S1728125AbfE3Edk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:33:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58674 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728065AbfE3DKY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:10:24 -0400
+        id S1729454AbfE3DN2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:13:28 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F1C6D24481;
-        Thu, 30 May 2019 03:10:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2514A24523;
+        Thu, 30 May 2019 03:13:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185823;
-        bh=hShBY8eZoPwS4ewD4ELtwRXsaMv76j8JRZ8LBXJKHyg=;
+        s=default; t=1559186007;
+        bh=HQ47/W/TexHVx9+J4QWQwLtC/wbwDwbWg6IttAznL7M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fTF8FeWSw3xXPgUzDRnzs66kRGpdp3wDM/sLI3oTKWGIsDVkdYBDnuqFaTFf4u9F7
-         iHsFtirfokZvjEdy5PTv04nACvnCWxkjUc1rV9TFoBmKq8xPHWMw3pOx1XUxDW4Pxm
-         IrmXT3gkZB4YO/N+ovpzP6Xv0eLQTcVW+lPOWae0=
+        b=e/yhCWNV/PW6Fvs75Qdhx0Wn2utltYbJ1SqMN8VhSjBBhnqc1XFfeoScfNiQzFhwU
+         CPoj0JigKLcD2hzlrk5qXYVCbzLPSBM/H195NN0pLJuQGjPLGWurumq5bRw/8sqx62
+         wP4AmEhtZEfBMPUySQ34vRCM91gt9/SbLEPk57G8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Himanshu Madhani <hmadhani@marvell.com>,
-        Giridhar Malavali <gmalavali@marvell.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 094/405] scsi: qla2xxx: Fix hardirq-unsafe locking
-Date:   Wed, 29 May 2019 20:01:32 -0700
-Message-Id: <20190530030545.775546803@linuxfoundation.org>
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.0 020/346] Btrfs: fix race between ranged fsync and writeback of adjacent ranges
+Date:   Wed, 29 May 2019 20:01:33 -0700
+Message-Id: <20190530030541.720112246@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,370 +44,243 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 300ec7415c1fed5c73660f50c8e14a67e236dc0a ]
+From: Filipe Manana <fdmanana@suse.com>
 
-Since fc_remote_port_delete() must be called with interrupts enabled, do
-not disable interrupts when calling that function. Remove the lockin calls
-from around the put_sess() call. This is safe because the function that is
-called when the final reference is dropped, qlt_unreg_sess(), grabs the
-proper locks. This patch avoids that lockdep reports the following:
+commit 0c713cbab6200b0ab6473b50435e450a6e1de85d upstream.
 
-WARNING: HARDIRQ-safe -> HARDIRQ-unsafe lock order detected
-kworker/2:1/62 [HC0[0]:SC0[0]:HE0:SE1] is trying to acquire:
-0000000009e679b3 (&(&k->k_lock)->rlock){+.+.}, at: klist_next+0x43/0x1d0
+When we do a full fsync (the bit BTRFS_INODE_NEEDS_FULL_SYNC is set in the
+inode) that happens to be ranged, which happens during a msync() or writes
+for files opened with O_SYNC for example, we can end up with a corrupt log,
+due to different file extent items representing ranges that overlap with
+each other, or hit some assertion failures.
 
-and this task is already holding:
-00000000a033b71c (&(&ha->tgt.sess_lock)->rlock){-...}, at: qla24xx_delete_sess_fn+0x55/0xf0 [qla2xxx_scst]
-which would create a new lock dependency:
- (&(&ha->tgt.sess_lock)->rlock){-...} -> (&(&k->k_lock)->rlock){+.+.}
+When doing a ranged fsync we only flush delalloc and wait for ordered
+exents within that range. If while we are logging items from our inode
+ordered extents for adjacent ranges complete, we end up in a race that can
+make us insert the file extent items that overlap with others we logged
+previously and the assertion failures.
 
-but this new dependency connects a HARDIRQ-irq-safe lock:
- (&(&ha->tgt.sess_lock)->rlock){-...}
+For example, if tree-log.c:copy_items() receives a leaf that has the
+following file extents items, all with a length of 4K and therefore there
+is an implicit hole in the range 68K to 72K - 1:
 
-... which became HARDIRQ-irq-safe at:
-  lock_acquire+0xe3/0x200
-  _raw_spin_lock_irqsave+0x3d/0x60
-  qla24xx_report_id_acquisition+0xa69/0xe30 [qla2xxx_scst]
-  qla24xx_process_response_queue+0x69e/0x1270 [qla2xxx_scst]
-  qla24xx_msix_rsp_q+0x79/0xf0 [qla2xxx_scst]
-  __handle_irq_event_percpu+0x79/0x3c0
-  handle_irq_event_percpu+0x70/0xf0
-  handle_irq_event+0x5a/0x8b
-  handle_edge_irq+0x12c/0x310
-  handle_irq+0x192/0x20a
-  do_IRQ+0x73/0x160
-  ret_from_intr+0x0/0x1d
-  default_idle+0x23/0x1f0
-  arch_cpu_idle+0x15/0x20
-  default_idle_call+0x35/0x40
-  do_idle+0x2bb/0x2e0
-  cpu_startup_entry+0x1d/0x20
-  start_secondary+0x2a8/0x320
-  secondary_startup_64+0xa4/0xb0
+  (257 EXTENT_ITEM 64K), (257 EXTENT_ITEM 72K), (257 EXTENT_ITEM 76K), ...
 
-to a HARDIRQ-irq-unsafe lock:
- (&(&k->k_lock)->rlock){+.+.}
+It copies them to the log tree. However due to the need to detect implicit
+holes, it may release the path, in order to look at the previous leaf to
+detect an implicit hole, and then later it will search again in the tree
+for the first file extent item key, with the goal of locking again the
+leaf (which might have changed due to concurrent changes to other inodes).
 
-... which became HARDIRQ-irq-unsafe at:
-...
-  lock_acquire+0xe3/0x200
-  _raw_spin_lock+0x32/0x50
-  klist_add_tail+0x33/0xb0
-  device_add+0x7e1/0xb50
-  device_create_groups_vargs+0x11c/0x150
-  device_create_with_groups+0x89/0xb0
-  vtconsole_class_init+0xb2/0x124
-  do_one_initcall+0xc5/0x3ce
-  kernel_init_freeable+0x295/0x32e
-  kernel_init+0x11/0x11b
-  ret_from_fork+0x3a/0x50
+However when it locks again the leaf containing the first key, the key
+corresponding to the extent at offset 72K may not be there anymore since
+there is an ordered extent for that range that is finishing (that is,
+somewhere in the middle of btrfs_finish_ordered_io()), and it just
+removed the file extent item but has not yet replaced it with a new file
+extent item, so the part of copy_items() that does hole detection will
+decide that there is a hole in the range starting from 68K to 76K - 1,
+and therefore insert a file extent item to represent that hole, having
+a key offset of 68K. After that we now have a log tree with 2 different
+extent items that have overlapping ranges:
 
-other info that might help us debug this:
+ 1) The file extent item copied before copy_items() released the path,
+    which has a key offset of 72K and a length of 4K, representing the
+    file range 72K to 76K - 1.
 
- Possible interrupt unsafe locking scenario:
+ 2) And a file extent item representing a hole that has a key offset of
+    68K and a length of 8K, representing the range 68K to 76K - 1. This
+    item was inserted after releasing the path, and overlaps with the
+    extent item inserted before.
 
-       CPU0                    CPU1
-       ----                    ----
-  lock(&(&k->k_lock)->rlock);
-                               local_irq_disable();
-                               lock(&(&ha->tgt.sess_lock)->rlock);
-                               lock(&(&k->k_lock)->rlock);
-  <Interrupt>
-    lock(&(&ha->tgt.sess_lock)->rlock);
+The overlapping extent items can cause all sorts of unpredictable and
+incorrect behaviour, either when replayed or if a fast (non full) fsync
+happens later, which can trigger a BUG_ON() when calling
+btrfs_set_item_key_safe() through __btrfs_drop_extents(), producing a
+trace like the following:
 
- *** DEADLOCK ***
+  [61666.783269] ------------[ cut here ]------------
+  [61666.783943] kernel BUG at fs/btrfs/ctree.c:3182!
+  [61666.784644] invalid opcode: 0000 [#1] PREEMPT SMP
+  (...)
+  [61666.786253] task: ffff880117b88c40 task.stack: ffffc90008168000
+  [61666.786253] RIP: 0010:btrfs_set_item_key_safe+0x7c/0xd2 [btrfs]
+  [61666.786253] RSP: 0018:ffffc9000816b958 EFLAGS: 00010246
+  [61666.786253] RAX: 0000000000000000 RBX: 000000000000000f RCX: 0000000000030000
+  [61666.786253] RDX: 0000000000000000 RSI: ffffc9000816ba4f RDI: ffffc9000816b937
+  [61666.786253] RBP: ffffc9000816b998 R08: ffff88011dae2428 R09: 0000000000001000
+  [61666.786253] R10: 0000160000000000 R11: 6db6db6db6db6db7 R12: ffff88011dae2418
+  [61666.786253] R13: ffffc9000816ba4f R14: ffff8801e10c4118 R15: ffff8801e715c000
+  [61666.786253] FS:  00007f6060a18700(0000) GS:ffff88023f5c0000(0000) knlGS:0000000000000000
+  [61666.786253] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  [61666.786253] CR2: 00007f6060a28000 CR3: 0000000213e69000 CR4: 00000000000006e0
+  [61666.786253] Call Trace:
+  [61666.786253]  __btrfs_drop_extents+0x5e3/0xaad [btrfs]
+  [61666.786253]  ? time_hardirqs_on+0x9/0x14
+  [61666.786253]  btrfs_log_changed_extents+0x294/0x4e0 [btrfs]
+  [61666.786253]  ? release_extent_buffer+0x38/0xb4 [btrfs]
+  [61666.786253]  btrfs_log_inode+0xb6e/0xcdc [btrfs]
+  [61666.786253]  ? lock_acquire+0x131/0x1c5
+  [61666.786253]  ? btrfs_log_inode_parent+0xee/0x659 [btrfs]
+  [61666.786253]  ? arch_local_irq_save+0x9/0xc
+  [61666.786253]  ? btrfs_log_inode_parent+0x1f5/0x659 [btrfs]
+  [61666.786253]  btrfs_log_inode_parent+0x223/0x659 [btrfs]
+  [61666.786253]  ? arch_local_irq_save+0x9/0xc
+  [61666.786253]  ? lockref_get_not_zero+0x2c/0x34
+  [61666.786253]  ? rcu_read_unlock+0x3e/0x5d
+  [61666.786253]  btrfs_log_dentry_safe+0x60/0x7b [btrfs]
+  [61666.786253]  btrfs_sync_file+0x317/0x42c [btrfs]
+  [61666.786253]  vfs_fsync_range+0x8c/0x9e
+  [61666.786253]  SyS_msync+0x13c/0x1c9
+  [61666.786253]  entry_SYSCALL_64_fastpath+0x18/0xad
 
-3 locks held by kworker/2:1/62:
- #0: 00000000a4319c16 ((wq_completion)"qla2xxx_wq"){+.+.}, at: process_one_work+0x437/0xa80
- #1: 00000000ffa34c42 ((work_completion)(&sess->del_work)){+.+.}, at: process_one_work+0x437/0xa80
- #2: 00000000a033b71c (&(&ha->tgt.sess_lock)->rlock){-...}, at: qla24xx_delete_sess_fn+0x55/0xf0 [qla2xxx_scst]
+A sample of a corrupt log tree leaf with overlapping extents I got from
+running btrfs/072:
 
-the dependencies between HARDIRQ-irq-safe lock and the holding lock:
--> (&(&ha->tgt.sess_lock)->rlock){-...} ops: 8 {
-   IN-HARDIRQ-W at:
-                    lock_acquire+0xe3/0x200
-                    _raw_spin_lock_irqsave+0x3d/0x60
-                    qla24xx_report_id_acquisition+0xa69/0xe30 [qla2xxx_scst]
-                    qla24xx_process_response_queue+0x69e/0x1270 [qla2xxx_scst]
-                    qla24xx_msix_rsp_q+0x79/0xf0 [qla2xxx_scst]
-                    __handle_irq_event_percpu+0x79/0x3c0
-                    handle_irq_event_percpu+0x70/0xf0
-                    handle_irq_event+0x5a/0x8b
-                    handle_edge_irq+0x12c/0x310
-                    handle_irq+0x192/0x20a
-                    do_IRQ+0x73/0x160
-                    ret_from_intr+0x0/0x1d
-                    default_idle+0x23/0x1f0
-                    arch_cpu_idle+0x15/0x20
-                    default_idle_call+0x35/0x40
-                    do_idle+0x2bb/0x2e0
-                    cpu_startup_entry+0x1d/0x20
-                    start_secondary+0x2a8/0x320
-                    secondary_startup_64+0xa4/0xb0
-   INITIAL USE at:
-                   lock_acquire+0xe3/0x200
-                   _raw_spin_lock_irqsave+0x3d/0x60
-                   qla24xx_report_id_acquisition+0xa69/0xe30 [qla2xxx_scst]
-                   qla24xx_process_response_queue+0x69e/0x1270 [qla2xxx_scst]
-                   qla24xx_msix_rsp_q+0x79/0xf0 [qla2xxx_scst]
-                   __handle_irq_event_percpu+0x79/0x3c0
-                   handle_irq_event_percpu+0x70/0xf0
-                   handle_irq_event+0x5a/0x8b
-                   handle_edge_irq+0x12c/0x310
-                   handle_irq+0x192/0x20a
-                   do_IRQ+0x73/0x160
-                   ret_from_intr+0x0/0x1d
-                   default_idle+0x23/0x1f0
-                   arch_cpu_idle+0x15/0x20
-                   default_idle_call+0x35/0x40
-                   do_idle+0x2bb/0x2e0
-                   cpu_startup_entry+0x1d/0x20
-                   start_secondary+0x2a8/0x320
-                   secondary_startup_64+0xa4/0xb0
- }
- ... key      at: [<ffffffffa0c0d080>] __key.85462+0x0/0xfffffffffff7df80 [qla2xxx_scst]
- ... acquired at:
-   lock_acquire+0xe3/0x200
-   _raw_spin_lock_irqsave+0x3d/0x60
-   klist_next+0x43/0x1d0
-   device_for_each_child+0x96/0x110
-   scsi_target_block+0x3c/0x40 [scsi_mod]
-   fc_remote_port_delete+0xe7/0x1c0 [scsi_transport_fc]
-   qla2x00_mark_device_lost+0xa0b/0xa30 [qla2xxx_scst]
-   qlt_unreg_sess+0x1c6/0x380 [qla2xxx_scst]
-   qla24xx_delete_sess_fn+0xe6/0xf0 [qla2xxx_scst]
-   process_one_work+0x511/0xa80
-   worker_thread+0x67/0x5b0
-   kthread+0x1d2/0x1f0
-   ret_from_fork+0x3a/0x50
+      item 14 key (295 108 200704) itemoff 2599 itemsize 53
+              extent data disk bytenr 0 nr 0
+              extent data offset 0 nr 458752 ram 458752
+      item 15 key (295 108 659456) itemoff 2546 itemsize 53
+              extent data disk bytenr 4343541760 nr 770048
+              extent data offset 606208 nr 163840 ram 770048
+      item 16 key (295 108 663552) itemoff 2493 itemsize 53
+              extent data disk bytenr 4343541760 nr 770048
+              extent data offset 610304 nr 155648 ram 770048
+      item 17 key (295 108 819200) itemoff 2440 itemsize 53
+              extent data disk bytenr 4334788608 nr 4096
+              extent data offset 0 nr 4096 ram 4096
 
-the dependencies between the lock to be acquired
- and HARDIRQ-irq-unsafe lock:
--> (&(&k->k_lock)->rlock){+.+.} ops: 13831 {
-   HARDIRQ-ON-W at:
-                    lock_acquire+0xe3/0x200
-                    _raw_spin_lock+0x32/0x50
-                    klist_add_tail+0x33/0xb0
-                    device_add+0x7e1/0xb50
-                    device_create_groups_vargs+0x11c/0x150
-                    device_create_with_groups+0x89/0xb0
-                    vtconsole_class_init+0xb2/0x124
-                    do_one_initcall+0xc5/0x3ce
-                    kernel_init_freeable+0x295/0x32e
-                    kernel_init+0x11/0x11b
-                    ret_from_fork+0x3a/0x50
-   SOFTIRQ-ON-W at:
-                    lock_acquire+0xe3/0x200
-                    _raw_spin_lock+0x32/0x50
-                    klist_add_tail+0x33/0xb0
-                    device_add+0x7e1/0xb50
-                    device_create_groups_vargs+0x11c/0x150
-                    device_create_with_groups+0x89/0xb0
-                    vtconsole_class_init+0xb2/0x124
-                    do_one_initcall+0xc5/0x3ce
-                    kernel_init_freeable+0x295/0x32e
-                    kernel_init+0x11/0x11b
-                    ret_from_fork+0x3a/0x50
-   INITIAL USE at:
-                   lock_acquire+0xe3/0x200
-                   _raw_spin_lock+0x32/0x50
-                   klist_add_tail+0x33/0xb0
-                   device_add+0x7e1/0xb50
-                   device_create_groups_vargs+0x11c/0x150
-                   device_create_with_groups+0x89/0xb0
-                   vtconsole_class_init+0xb2/0x124
-                   do_one_initcall+0xc5/0x3ce
-                   kernel_init_freeable+0x295/0x32e
-                   kernel_init+0x11/0x11b
-                   ret_from_fork+0x3a/0x50
- }
- ... key      at: [<ffffffff83ed8780>] __key.15491+0x0/0x40
- ... acquired at:
-   lock_acquire+0xe3/0x200
-   _raw_spin_lock_irqsave+0x3d/0x60
-   klist_next+0x43/0x1d0
-   device_for_each_child+0x96/0x110
-   scsi_target_block+0x3c/0x40 [scsi_mod]
-   fc_remote_port_delete+0xe7/0x1c0 [scsi_transport_fc]
-   qla2x00_mark_device_lost+0xa0b/0xa30 [qla2xxx_scst]
-   qlt_unreg_sess+0x1c6/0x380 [qla2xxx_scst]
-   qla24xx_delete_sess_fn+0xe6/0xf0 [qla2xxx_scst]
-   process_one_work+0x511/0xa80
-   worker_thread+0x67/0x5b0
-   kthread+0x1d2/0x1f0
-   ret_from_fork+0x3a/0x50
+The file extent item at offset 659456 (item 15) ends at offset 823296
+(659456 + 163840) while the next file extent item (item 16) starts at
+offset 663552.
 
-stack backtrace:
-CPU: 2 PID: 62 Comm: kworker/2:1 Tainted: G           O      5.0.7-dbg+ #8
-Hardware name: Bochs Bochs, BIOS Bochs 01/01/2011
-Workqueue: qla2xxx_wq qla24xx_delete_sess_fn [qla2xxx_scst]
-Call Trace:
- dump_stack+0x86/0xca
- check_usage.cold.52+0x473/0x563
- __lock_acquire+0x11c0/0x23e0
- lock_acquire+0xe3/0x200
- _raw_spin_lock_irqsave+0x3d/0x60
- klist_next+0x43/0x1d0
- device_for_each_child+0x96/0x110
- scsi_target_block+0x3c/0x40 [scsi_mod]
- fc_remote_port_delete+0xe7/0x1c0 [scsi_transport_fc]
- qla2x00_mark_device_lost+0xa0b/0xa30 [qla2xxx_scst]
- qlt_unreg_sess+0x1c6/0x380 [qla2xxx_scst]
- qla24xx_delete_sess_fn+0xe6/0xf0 [qla2xxx_scst]
- process_one_work+0x511/0xa80
- worker_thread+0x67/0x5b0
- kthread+0x1d2/0x1f0
- ret_from_fork+0x3a/0x50
+Another different problem that the race can trigger is a failure in the
+assertions at tree-log.c:copy_items(), which expect that the first file
+extent item key we found before releasing the path exists after we have
+released path and that the last key we found before releasing the path
+also exists after releasing the path:
 
-Cc: Himanshu Madhani <hmadhani@marvell.com>
-Cc: Giridhar Malavali <gmalavali@marvell.com>
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Acked-by: Himanshu Madhani <hmadhani@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  $ cat -n fs/btrfs/tree-log.c
+  4080          if (need_find_last_extent) {
+  4081                  /* btrfs_prev_leaf could return 1 without releasing the path */
+  4082                  btrfs_release_path(src_path);
+  4083                  ret = btrfs_search_slot(NULL, inode->root, &first_key,
+  4084                                  src_path, 0, 0);
+  4085                  if (ret < 0)
+  4086                          return ret;
+  4087                  ASSERT(ret == 0);
+  (...)
+  4103                  if (i >= btrfs_header_nritems(src_path->nodes[0])) {
+  4104                          ret = btrfs_next_leaf(inode->root, src_path);
+  4105                          if (ret < 0)
+  4106                                  return ret;
+  4107                          ASSERT(ret == 0);
+  4108                          src = src_path->nodes[0];
+  4109                          i = 0;
+  4110                          need_find_last_extent = true;
+  4111                  }
+  (...)
+
+The second assertion implicitly expects that the last key before the path
+release still exists, because the surrounding while loop only stops after
+we have found that key. When this assertion fails it produces a stack like
+this:
+
+  [139590.037075] assertion failed: ret == 0, file: fs/btrfs/tree-log.c, line: 4107
+  [139590.037406] ------------[ cut here ]------------
+  [139590.037707] kernel BUG at fs/btrfs/ctree.h:3546!
+  [139590.038034] invalid opcode: 0000 [#1] SMP DEBUG_PAGEALLOC PTI
+  [139590.038340] CPU: 1 PID: 31841 Comm: fsstress Tainted: G        W         5.0.0-btrfs-next-46 #1
+  (...)
+  [139590.039354] RIP: 0010:assfail.constprop.24+0x18/0x1a [btrfs]
+  (...)
+  [139590.040397] RSP: 0018:ffffa27f48f2b9b0 EFLAGS: 00010282
+  [139590.040730] RAX: 0000000000000041 RBX: ffff897c635d92c8 RCX: 0000000000000000
+  [139590.041105] RDX: 0000000000000000 RSI: ffff897d36a96868 RDI: ffff897d36a96868
+  [139590.041470] RBP: ffff897d1b9a0708 R08: 0000000000000000 R09: 0000000000000000
+  [139590.041815] R10: 0000000000000008 R11: 0000000000000000 R12: 0000000000000013
+  [139590.042159] R13: 0000000000000227 R14: ffff897cffcbba88 R15: 0000000000000001
+  [139590.042501] FS:  00007f2efc8dee80(0000) GS:ffff897d36a80000(0000) knlGS:0000000000000000
+  [139590.042847] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  [139590.043199] CR2: 00007f8c064935e0 CR3: 0000000232252002 CR4: 00000000003606e0
+  [139590.043547] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  [139590.043899] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+  [139590.044250] Call Trace:
+  [139590.044631]  copy_items+0xa3f/0x1000 [btrfs]
+  [139590.045009]  ? generic_bin_search.constprop.32+0x61/0x200 [btrfs]
+  [139590.045396]  btrfs_log_inode+0x7b3/0xd70 [btrfs]
+  [139590.045773]  btrfs_log_inode_parent+0x2b3/0xce0 [btrfs]
+  [139590.046143]  ? do_raw_spin_unlock+0x49/0xc0
+  [139590.046510]  btrfs_log_dentry_safe+0x4a/0x70 [btrfs]
+  [139590.046872]  btrfs_sync_file+0x3b6/0x440 [btrfs]
+  [139590.047243]  btrfs_file_write_iter+0x45b/0x5c0 [btrfs]
+  [139590.047592]  __vfs_write+0x129/0x1c0
+  [139590.047932]  vfs_write+0xc2/0x1b0
+  [139590.048270]  ksys_write+0x55/0xc0
+  [139590.048608]  do_syscall_64+0x60/0x1b0
+  [139590.048946]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+  [139590.049287] RIP: 0033:0x7f2efc4be190
+  (...)
+  [139590.050342] RSP: 002b:00007ffe743243a8 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
+  [139590.050701] RAX: ffffffffffffffda RBX: 0000000000008d58 RCX: 00007f2efc4be190
+  [139590.051067] RDX: 0000000000008d58 RSI: 00005567eca0f370 RDI: 0000000000000003
+  [139590.051459] RBP: 0000000000000024 R08: 0000000000000003 R09: 0000000000008d60
+  [139590.051863] R10: 0000000000000078 R11: 0000000000000246 R12: 0000000000000003
+  [139590.052252] R13: 00000000003d3507 R14: 00005567eca0f370 R15: 0000000000000000
+  (...)
+  [139590.055128] ---[ end trace 193f35d0215cdeeb ]---
+
+So fix this race between a full ranged fsync and writeback of adjacent
+ranges by flushing all delalloc and waiting for all ordered extents to
+complete before logging the inode. This is the simplest way to solve the
+problem because currently the full fsync path does not deal with ranges
+at all (it assumes a full range from 0 to LLONG_MAX) and it always needs
+to look at adjacent ranges for hole detection. For use cases of ranged
+fsyncs this can make a few fsyncs slower but on the other hand it can
+make some following fsyncs to other ranges do less work or no need to do
+anything at all. A full fsync is rare anyway and happens only once after
+loading/creating an inode and once after less common operations such as a
+shrinking truncate.
+
+This is an issue that exists for a long time, and was often triggered by
+generic/127, because it does mmap'ed writes and msync (which triggers a
+ranged fsync). Adding support for the tree checker to detect overlapping
+extents (next patch in the series) and trigger a WARN() when such cases
+are found, and then calling btrfs_check_leaf_full() at the end of
+btrfs_insert_file_extent() made the issue much easier to detect. Running
+btrfs/072 with that change to the tree checker and making fsstress open
+files always with O_SYNC made it much easier to trigger the issue (as
+triggering it with generic/127 is very rare).
+
+CC: stable@vger.kernel.org # 3.16+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/scsi/qla2xxx/qla_target.c  | 25 ++++++++-----------------
- drivers/scsi/qla2xxx/tcm_qla2xxx.c |  2 --
- 2 files changed, 8 insertions(+), 19 deletions(-)
+ fs/btrfs/file.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/scsi/qla2xxx/qla_target.c b/drivers/scsi/qla2xxx/qla_target.c
-index 697eee1d88474..b210a8296c275 100644
---- a/drivers/scsi/qla2xxx/qla_target.c
-+++ b/drivers/scsi/qla2xxx/qla_target.c
-@@ -680,7 +680,6 @@ int qla24xx_async_notify_ack(scsi_qla_host_t *vha, fc_port_t *fcport,
- void qla24xx_do_nack_work(struct scsi_qla_host *vha, struct qla_work_evt *e)
- {
- 	fc_port_t *t;
--	unsigned long flags;
+--- a/fs/btrfs/file.c
++++ b/fs/btrfs/file.c
+@@ -2059,6 +2059,18 @@ int btrfs_sync_file(struct file *file, l
+ 	u64 len;
  
- 	switch (e->u.nack.type) {
- 	case SRB_NACK_PRLI:
-@@ -693,10 +692,8 @@ void qla24xx_do_nack_work(struct scsi_qla_host *vha, struct qla_work_evt *e)
- 		if (t) {
- 			ql_log(ql_log_info, vha, 0xd034,
- 			    "%s create sess success %p", __func__, t);
--			spin_lock_irqsave(&vha->hw->tgt.sess_lock, flags);
- 			/* create sess has an extra kref */
- 			vha->hw->tgt.tgt_ops->put_sess(e->u.nack.fcport);
--			spin_unlock_irqrestore(&vha->hw->tgt.sess_lock, flags);
- 		}
- 		break;
- 	}
-@@ -708,9 +705,6 @@ void qla24xx_delete_sess_fn(struct work_struct *work)
- {
- 	fc_port_t *fcport = container_of(work, struct fc_port, del_work);
- 	struct qla_hw_data *ha = fcport->vha->hw;
--	unsigned long flags;
--
--	spin_lock_irqsave(&ha->tgt.sess_lock, flags);
- 
- 	if (fcport->se_sess) {
- 		ha->tgt.tgt_ops->shutdown_sess(fcport);
-@@ -718,7 +712,6 @@ void qla24xx_delete_sess_fn(struct work_struct *work)
- 	} else {
- 		qlt_unreg_sess(fcport);
- 	}
--	spin_unlock_irqrestore(&ha->tgt.sess_lock, flags);
- }
- 
- /*
-@@ -787,8 +780,9 @@ void qlt_fc_port_added(struct scsi_qla_host *vha, fc_port_t *fcport)
- 		    fcport->port_name, sess->loop_id);
- 		sess->local = 0;
- 	}
--	ha->tgt.tgt_ops->put_sess(sess);
- 	spin_unlock_irqrestore(&ha->tgt.sess_lock, flags);
-+
-+	ha->tgt.tgt_ops->put_sess(sess);
- }
- 
- /*
-@@ -4242,9 +4236,7 @@ static void __qlt_do_work(struct qla_tgt_cmd *cmd)
  	/*
- 	 * Drop extra session reference from qla_tgt_handle_cmd_for_atio*(
++	 * If the inode needs a full sync, make sure we use a full range to
++	 * avoid log tree corruption, due to hole detection racing with ordered
++	 * extent completion for adjacent ranges, and assertion failures during
++	 * hole detection.
++	 */
++	if (test_bit(BTRFS_INODE_NEEDS_FULL_SYNC,
++		     &BTRFS_I(inode)->runtime_flags)) {
++		start = 0;
++		end = LLONG_MAX;
++	}
++
++	/*
+ 	 * The range length can be represented by u64, we have to do the typecasts
+ 	 * to avoid signed overflow if it's [0, LLONG_MAX] eg. from fsync()
  	 */
--	spin_lock_irqsave(&ha->tgt.sess_lock, flags);
- 	ha->tgt.tgt_ops->put_sess(sess);
--	spin_unlock_irqrestore(&ha->tgt.sess_lock, flags);
- 	return;
- 
- out_term:
-@@ -4261,9 +4253,7 @@ static void __qlt_do_work(struct qla_tgt_cmd *cmd)
- 	target_free_tag(sess->se_sess, &cmd->se_cmd);
- 	spin_unlock_irqrestore(qpair->qp_lock_ptr, flags);
- 
--	spin_lock_irqsave(&ha->tgt.sess_lock, flags);
- 	ha->tgt.tgt_ops->put_sess(sess);
--	spin_unlock_irqrestore(&ha->tgt.sess_lock, flags);
- }
- 
- static void qlt_do_work(struct work_struct *work)
-@@ -4472,9 +4462,7 @@ static int qlt_handle_cmd_for_atio(struct scsi_qla_host *vha,
- 	if (!cmd) {
- 		ql_dbg(ql_dbg_io, vha, 0x3062,
- 		    "qla_target(%d): Allocation of cmd failed\n", vha->vp_idx);
--		spin_lock_irqsave(&ha->tgt.sess_lock, flags);
- 		ha->tgt.tgt_ops->put_sess(sess);
--		spin_unlock_irqrestore(&ha->tgt.sess_lock, flags);
- 		return -EBUSY;
- 	}
- 
-@@ -6318,17 +6306,19 @@ static void qlt_abort_work(struct qla_tgt *tgt,
- 	}
- 
- 	rc = __qlt_24xx_handle_abts(vha, &prm->abts, sess);
--	ha->tgt.tgt_ops->put_sess(sess);
- 	spin_unlock_irqrestore(&ha->tgt.sess_lock, flags2);
- 
-+	ha->tgt.tgt_ops->put_sess(sess);
-+
- 	if (rc != 0)
- 		goto out_term;
- 	return;
- 
- out_term2:
-+	spin_unlock_irqrestore(&ha->tgt.sess_lock, flags2);
-+
- 	if (sess)
- 		ha->tgt.tgt_ops->put_sess(sess);
--	spin_unlock_irqrestore(&ha->tgt.sess_lock, flags2);
- 
- out_term:
- 	spin_lock_irqsave(&ha->hardware_lock, flags);
-@@ -6386,9 +6376,10 @@ static void qlt_tmr_work(struct qla_tgt *tgt,
- 	    scsilun_to_int((struct scsi_lun *)&a->u.isp24.fcp_cmnd.lun);
- 
- 	rc = qlt_issue_task_mgmt(sess, unpacked_lun, fn, iocb, 0);
--	ha->tgt.tgt_ops->put_sess(sess);
- 	spin_unlock_irqrestore(&ha->tgt.sess_lock, flags);
- 
-+	ha->tgt.tgt_ops->put_sess(sess);
-+
- 	if (rc != 0)
- 		goto out_term;
- 	return;
-diff --git a/drivers/scsi/qla2xxx/tcm_qla2xxx.c b/drivers/scsi/qla2xxx/tcm_qla2xxx.c
-index d6104f23f697f..e58becb790fa3 100644
---- a/drivers/scsi/qla2xxx/tcm_qla2xxx.c
-+++ b/drivers/scsi/qla2xxx/tcm_qla2xxx.c
-@@ -359,7 +359,6 @@ static void tcm_qla2xxx_put_sess(struct fc_port *sess)
- 	if (!sess)
- 		return;
- 
--	assert_spin_locked(&sess->vha->hw->tgt.sess_lock);
- 	kref_put(&sess->sess_kref, tcm_qla2xxx_release_session);
- }
- 
-@@ -832,7 +831,6 @@ static void tcm_qla2xxx_clear_nacl_from_fcport_map(struct fc_port *sess)
- 
- static void tcm_qla2xxx_shutdown_sess(struct fc_port *sess)
- {
--	assert_spin_locked(&sess->vha->hw->tgt.sess_lock);
- 	target_sess_cmd_list_set_waiting(sess->se_sess);
- }
- 
--- 
-2.20.1
-
 
 
