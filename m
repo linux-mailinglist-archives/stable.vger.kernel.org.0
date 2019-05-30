@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AF8E42ED09
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:30:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EEC292EC64
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:22:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388634AbfE3Dae (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:30:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48910 "EHLO mail.kernel.org"
+        id S1728162AbfE3DU0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:20:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58550 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388631AbfE3Dad (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:30:33 -0400
+        id S1732190AbfE3DUZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:20:25 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2F40A24AFC;
-        Thu, 30 May 2019 03:30:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DCE6C248C3;
+        Thu, 30 May 2019 03:20:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559187033;
-        bh=ak71Aucl9FyBhLKERAW+kEL4RcM/O7VdZR2gd6LUDIY=;
+        s=default; t=1559186424;
+        bh=po6PrqAoVpGPWqDdgcC6f5pnQsj2Uf8VLIkfxgVObCw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nMwLBQPFPZXor6vGER+iKokikuiCPyfXzE9a1v0Xu3KPQMcKM3Q7BLFk5GV9Sm4+F
-         JgYxhVqwDci2xp14rK8oyERQcbP+NgHwtF7cyUFxeQbplfaSsOKyiCK3dQlL6updre
-         f+ZGVmrjErYzr63MdEUfrUM4lL3NV5jehR/kgmCs=
+        b=AGuG2fN7i0sG8Y1NLArLW6jxfBaVSEKFpJa+jh+padYEnNNVKRpRjLa6Uw1yqC93G
+         P1HIRgJPSAZhfCBWWCS4oCFJKvSf5Dx90lD7Bj2PNy5Jij7Yet/ldtHl2FnDbPDRi/
+         LugVvWyCmMpP5kByHdSa2PeJllBIY+cnD6v96j3Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Lad, Prabhakar" <prabhakar.csengg@gmail.com>,
-        Akinobu Mita <akinobu.mita@gmail.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 091/193] media: ov2659: make S_FMT succeed even if requested format doesnt match
+        Shile Zhang <shile.zhang@linux.alibaba.com>,
+        Fredrik Noring <noring@nocrew.org>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Mukesh Ojha <mojha@codeaurora.org>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Subject: [PATCH 4.9 013/128] fbdev: fix divide error in fb_var_to_videomode
 Date:   Wed, 29 May 2019 20:05:45 -0700
-Message-Id: <20190530030501.728903646@linuxfoundation.org>
+Message-Id: <20190530030436.853914496@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
+References: <20190530030432.977908967@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,50 +47,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit bccb89cf9cd07a0690d519696a00c00a973b3fe4 ]
+From: Shile Zhang <shile.zhang@linux.alibaba.com>
 
-This driver returns an error if unsupported media bus pixel code is
-requested by VIDIOC_SUBDEV_S_FMT.
+commit cf84807f6dd0be5214378e66460cfc9187f532f9 upstream.
 
-But according to Documentation/media/uapi/v4l/vidioc-subdev-g-fmt.rst,
+To fix following divide-by-zero error found by Syzkaller:
 
-Drivers must not return an error solely because the requested format
-doesn't match the device capabilities. They must instead modify the
-format to match what the hardware can provide.
+  divide error: 0000 [#1] SMP PTI
+  CPU: 7 PID: 8447 Comm: test Kdump: loaded Not tainted 4.19.24-8.al7.x86_64 #1
+  Hardware name: Alibaba Cloud Alibaba Cloud ECS, BIOS rel-1.12.0-0-ga698c8995f-prebuilt.qemu.org 04/01/2014
+  RIP: 0010:fb_var_to_videomode+0xae/0xc0
+  Code: 04 44 03 46 78 03 4e 7c 44 03 46 68 03 4e 70 89 ce d1 ee 69 c0 e8 03 00 00 f6 c2 01 0f 45 ce 83 e2 02 8d 34 09 0f 45 ce 31 d2 <41> f7 f0 31 d2 f7 f1 89 47 08 f3 c3 66 0f 1f 44 00 00 0f 1f 44 00
+  RSP: 0018:ffffb7e189347bf0 EFLAGS: 00010246
+  RAX: 00000000e1692410 RBX: ffffb7e189347d60 RCX: 0000000000000000
+  RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffffb7e189347c10
+  RBP: ffff99972a091c00 R08: 0000000000000000 R09: 0000000000000000
+  R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000100
+  R13: 0000000000010000 R14: 00007ffd66baf6d0 R15: 0000000000000000
+  FS:  00007f2054d11740(0000) GS:ffff99972fbc0000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 00007f205481fd20 CR3: 00000004288a0001 CR4: 00000000001606a0
+  Call Trace:
+   fb_set_var+0x257/0x390
+   ? lookup_fast+0xbb/0x2b0
+   ? fb_open+0xc0/0x140
+   ? chrdev_open+0xa6/0x1a0
+   do_fb_ioctl+0x445/0x5a0
+   do_vfs_ioctl+0x92/0x5f0
+   ? __alloc_fd+0x3d/0x160
+   ksys_ioctl+0x60/0x90
+   __x64_sys_ioctl+0x16/0x20
+   do_syscall_64+0x5b/0x190
+   entry_SYSCALL_64_after_hwframe+0x44/0xa9
+  RIP: 0033:0x7f20548258d7
+  Code: 44 00 00 48 8b 05 b9 15 2d 00 64 c7 00 26 00 00 00 48 c7 c0 ff ff ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 b8 10 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 89 15 2d 00 f7 d8 64 89 01 48
 
-So select default format code and return success in that case.
+It can be triggered easily with following test code:
 
-This is detected by v4l2-compliance.
+  #include <linux/fb.h>
+  #include <fcntl.h>
+  #include <sys/ioctl.h>
+  int main(void)
+  {
+          struct fb_var_screeninfo var = {.activate = 0x100, .pixclock = 60};
+          int fd = open("/dev/fb0", O_RDWR);
+          if (fd < 0)
+                  return 1;
 
-Cc: "Lad, Prabhakar" <prabhakar.csengg@gmail.com>
-Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
-Acked-by: Lad, Prabhakar <prabhakar.csengg@gmail.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+          if (ioctl(fd, FBIOPUT_VSCREENINFO, &var))
+                  return 1;
+
+          return 0;
+  }
+
+Signed-off-by: Shile Zhang <shile.zhang@linux.alibaba.com>
+Cc: Fredrik Noring <noring@nocrew.org>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
+Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/media/i2c/ov2659.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/video/fbdev/core/modedb.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/media/i2c/ov2659.c b/drivers/media/i2c/ov2659.c
-index 122dd6c5eb389..ce23f436e130d 100644
---- a/drivers/media/i2c/ov2659.c
-+++ b/drivers/media/i2c/ov2659.c
-@@ -1117,8 +1117,10 @@ static int ov2659_set_fmt(struct v4l2_subdev *sd,
- 		if (ov2659_formats[index].code == mf->code)
- 			break;
+--- a/drivers/video/fbdev/core/modedb.c
++++ b/drivers/video/fbdev/core/modedb.c
+@@ -933,6 +933,9 @@ void fb_var_to_videomode(struct fb_video
+ 	if (var->vmode & FB_VMODE_DOUBLE)
+ 		vtotal *= 2;
  
--	if (index < 0)
--		return -EINVAL;
-+	if (index < 0) {
-+		index = 0;
-+		mf->code = ov2659_formats[index].code;
-+	}
- 
- 	mf->colorspace = V4L2_COLORSPACE_SRGB;
- 	mf->field = V4L2_FIELD_NONE;
--- 
-2.20.1
-
++	if (!htotal || !vtotal)
++		return;
++
+ 	hfreq = pixclock/htotal;
+ 	mode->refresh = hfreq/vtotal;
+ }
 
 
