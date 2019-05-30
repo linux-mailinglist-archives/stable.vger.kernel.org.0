@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DF3B2EBC1
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:16:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC6252EE13
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:44:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730516AbfE3DPw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:15:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40358 "EHLO mail.kernel.org"
+        id S1729720AbfE3DoC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:44:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730512AbfE3DPv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:15:51 -0400
+        id S1732401AbfE3DVA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:21:00 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 444CD24559;
-        Thu, 30 May 2019 03:15:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B493248FC;
+        Thu, 30 May 2019 03:20:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186151;
-        bh=zXBT3MGxgwPuZn7f4wKcOXvF+MuMgwG9Fd/Zs7Ewpk4=;
+        s=default; t=1559186459;
+        bh=wo7KJCLYN64lUMeRiuI5l/Ol11RFSGVvd64QwJiY/4o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dfc+/TjMKktkOU8072WdrMFuGPoS+gWfjI2FkdB5o4+4P7VhbGdAPEe0CxI/dyaJE
-         wCsclu5TK22MXPY2QK8QSq28f0+oAmgvwVRL4QAIV6I2KiB0f2YWwIWe0TUkC1rqrB
-         RJI++grexpiflNNdFPqPyWJut8IFDJDMcvOp8QFk=
+        b=I817d4i0ti8EEro01hUbKhCpONkYU91h2Eseeyuidfo1Dq0STA1YZuYHL+L7izoLP
+         0iT9NXPV47ybR7ttSpl+W1ePvRYDnWMNA2nB5rnYc3eJr5umrlDQbKAGgcr8LCMPNy
+         E9C0EpolMRUCkoQxjskSDEOFTqE5DeMEfv6Y3dZg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Adam Thomson <Adam.Thomson.Opensource@diasemi.com>,
-        Steve Twiss <stwiss.opensource@diasemi.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Kefeng Wang <wangkefeng.wang@huawei.com>,
+        John Garry <john.garry@huawei.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 334/346] regulator: da9062: Fix notifier mutex lock warning
+Subject: [PATCH 4.9 075/128] hwmon: (pc87427) Use request_muxed_region for Super-IO accesses
 Date:   Wed, 29 May 2019 20:06:47 -0700
-Message-Id: <20190530030557.666152416@linuxfoundation.org>
+Message-Id: <20190530030448.157699409@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
+References: <20190530030432.977908967@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,41 +45,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 978995def0f6030aa6b3b494682f673aca13881b ]
+[ Upstream commit 755a9b0f8aaa5639ba5671ca50080852babb89ce ]
 
-The mutex for the regulator_dev must be controlled by the caller of
-the regulator_notifier_call_chain(), as described in the comment
-for that function.
+Super-IO accesses may fail on a system with no or unmapped LPC bus.
 
-Failure to mutex lock and unlock surrounding the notifier call results
-in a kernel WARN_ON_ONCE() which will dump a backtrace for the
-regulator_notifier_call_chain() when that function call is first made.
-The mutex can be controlled using the regulator_lock/unlock() API.
+Also, other drivers may attempt to access the LPC bus at the same time,
+resulting in undefined behavior.
 
-Fixes: 4068e5182ada ("regulator: da9062: DA9062 regulator driver")
-Suggested-by: Adam Thomson <Adam.Thomson.Opensource@diasemi.com>
-Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Use request_muxed_region() to ensure that IO access on the requested
+address space is supported, and to ensure that access by multiple drivers
+is synchronized.
+
+Fixes: ba224e2c4f0a7 ("hwmon: New PC87427 hardware monitoring driver")
+Reported-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Reported-by: John Garry <john.garry@huawei.com>
+Cc: John Garry <john.garry@huawei.com>
+Acked-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/da9062-regulator.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/hwmon/pc87427.c | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/regulator/da9062-regulator.c b/drivers/regulator/da9062-regulator.c
-index 34a70d9dc450e..5224304c10b3f 100644
---- a/drivers/regulator/da9062-regulator.c
-+++ b/drivers/regulator/da9062-regulator.c
-@@ -974,8 +974,10 @@ static irqreturn_t da9062_ldo_lim_event(int irq, void *data)
- 			continue;
+diff --git a/drivers/hwmon/pc87427.c b/drivers/hwmon/pc87427.c
+index cb9fdd37bd0d9..2b5b8c3de8fce 100644
+--- a/drivers/hwmon/pc87427.c
++++ b/drivers/hwmon/pc87427.c
+@@ -106,6 +106,13 @@ static const char *logdev_str[2] = { DRVNAME " FMC", DRVNAME " HMC" };
+ #define LD_IN		1
+ #define LD_TEMP		1
  
- 		if (BIT(regl->info->oc_event.lsb) & bits) {
-+			regulator_lock(regl->rdev);
- 			regulator_notifier_call_chain(regl->rdev,
- 					REGULATOR_EVENT_OVER_CURRENT, NULL);
-+			regulator_unlock(regl->rdev);
- 			handled = IRQ_HANDLED;
- 		}
- 	}
++static inline int superio_enter(int sioaddr)
++{
++	if (!request_muxed_region(sioaddr, 2, DRVNAME))
++		return -EBUSY;
++	return 0;
++}
++
+ static inline void superio_outb(int sioaddr, int reg, int val)
+ {
+ 	outb(reg, sioaddr);
+@@ -122,6 +129,7 @@ static inline void superio_exit(int sioaddr)
+ {
+ 	outb(0x02, sioaddr);
+ 	outb(0x02, sioaddr + 1);
++	release_region(sioaddr, 2);
+ }
+ 
+ /*
+@@ -1220,7 +1228,11 @@ static int __init pc87427_find(int sioaddr, struct pc87427_sio_data *sio_data)
+ {
+ 	u16 val;
+ 	u8 cfg, cfg_b;
+-	int i, err = 0;
++	int i, err;
++
++	err = superio_enter(sioaddr);
++	if (err)
++		return err;
+ 
+ 	/* Identify device */
+ 	val = force_id ? force_id : superio_inb(sioaddr, SIOREG_DEVID);
 -- 
 2.20.1
 
