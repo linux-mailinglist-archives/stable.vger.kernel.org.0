@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EC332F37E
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:29:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EA022F19D
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:14:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729669AbfE3DOA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:14:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60604 "EHLO mail.kernel.org"
+        id S1730618AbfE3EOb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:14:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729661AbfE3DOA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:14:00 -0400
+        id S1730611AbfE3DQL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:16:11 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BAEE72455E;
-        Thu, 30 May 2019 03:13:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 16F472458C;
+        Thu, 30 May 2019 03:16:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186039;
-        bh=2CHFQ1yD2ZdQPUiiceM3lTdpPGv4jFPq8lmnLRRah/I=;
+        s=default; t=1559186171;
+        bh=XCn1ELRMA+ToIVfC3c3fQspKTX4PZzGqmlCyR9tStvI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jB0lmsLx4aPnWNufuc0e2YD8Zhbkv2nWLM5Rq1TUEHWMJk8mxvq+W93dLZM+FflF9
-         tf0cRdO7uVKecp5U0bJoJV06FwgwJULHAbWunFFX+fsjhPlT2XvzQEH0Uw439YkyJS
-         vfNpKbWXGWsZLY763Ploej0Y7cki18fusOc54sAc=
+        b=Ak7QNxT60uxrTEKxqKOthoAIwuQ5cBdp+XnxB3I7TLp4Vrkfp4rZ4SZehAM30kIUB
+         nKI7Tr0PNlFOZuTFvwZYqlfAI6YXJ+8NcPgnEVyQmUBKT8qEqIXqbNPRUwNzKdRXjW
+         SSnGYnVBeDGdvEOAeX7V4mOtT3tFb0H3KI36ot98=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 111/346] net: cw1200: fix a NULL pointer dereference
+        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Yu Xu <xuyu@linux.alibaba.com>
+Subject: [PATCH 4.19 026/276] NFSv4.1 fix incorrect return value in copy_file_range
 Date:   Wed, 29 May 2019 20:03:04 -0700
-Message-Id: <20190530030546.718580107@linuxfoundation.org>
+Message-Id: <20190530030525.828612417@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 0ed2a005347400500a39ea7c7318f1fea57fb3ca ]
+From: Olga Kornievskaia <kolga@netapp.com>
 
-In case create_singlethread_workqueue fails, the fix free the
-hardware and returns NULL to avoid NULL pointer dereference.
+commit 0769663b4f580566ef6cdf366f3073dbe8022c39 upstream.
 
-Signed-off-by: Kangjie Lu <kjlu@umn.edu>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+According to the NFSv4.2 spec if the input and output file is the
+same file, operation should fail with EINVAL. However, linux
+copy_file_range() system call has no such restrictions. Therefore,
+in such case let's return EOPNOTSUPP and allow VFS to fallback
+to doing do_splice_direct(). Also when copy_file_range is called
+on an NFSv4.0 or 4.1 mount (ie., a server that doesn't support
+COPY functionality), we also need to return EOPNOTSUPP and
+fallback to a regular copy.
+
+Fixes xfstest generic/075, generic/091, generic/112, generic/263
+for all NFSv4.x versions.
+
+Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Cc: Yu Xu <xuyu@linux.alibaba.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/wireless/st/cw1200/main.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ fs/nfs/nfs42proc.c |    3 ---
+ fs/nfs/nfs4file.c  |    4 +++-
+ 2 files changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/wireless/st/cw1200/main.c b/drivers/net/wireless/st/cw1200/main.c
-index 90dc979f260b6..c1608f0bf6d01 100644
---- a/drivers/net/wireless/st/cw1200/main.c
-+++ b/drivers/net/wireless/st/cw1200/main.c
-@@ -345,6 +345,11 @@ static struct ieee80211_hw *cw1200_init_common(const u8 *macaddr,
- 	mutex_init(&priv->wsm_cmd_mux);
- 	mutex_init(&priv->conf_mutex);
- 	priv->workqueue = create_singlethread_workqueue("cw1200_wq");
-+	if (!priv->workqueue) {
-+		ieee80211_free_hw(hw);
-+		return NULL;
-+	}
-+
- 	sema_init(&priv->scan.lock, 1);
- 	INIT_WORK(&priv->scan.work, cw1200_scan_work);
- 	INIT_DELAYED_WORK(&priv->scan.probe_work, cw1200_probe_work);
--- 
-2.20.1
-
+--- a/fs/nfs/nfs42proc.c
++++ b/fs/nfs/nfs42proc.c
+@@ -329,9 +329,6 @@ ssize_t nfs42_proc_copy(struct file *src
+ 	};
+ 	ssize_t err, err2;
+ 
+-	if (!nfs_server_capable(file_inode(dst), NFS_CAP_COPY))
+-		return -EOPNOTSUPP;
+-
+ 	src_lock = nfs_get_lock_context(nfs_file_open_context(src));
+ 	if (IS_ERR(src_lock))
+ 		return PTR_ERR(src_lock);
+--- a/fs/nfs/nfs4file.c
++++ b/fs/nfs/nfs4file.c
+@@ -133,8 +133,10 @@ static ssize_t nfs4_copy_file_range(stru
+ 				    struct file *file_out, loff_t pos_out,
+ 				    size_t count, unsigned int flags)
+ {
++	if (!nfs_server_capable(file_inode(file_out), NFS_CAP_COPY))
++		return -EOPNOTSUPP;
+ 	if (file_inode(file_in) == file_inode(file_out))
+-		return -EINVAL;
++		return -EOPNOTSUPP;
+ 	return nfs42_proc_copy(file_in, pos_in, file_out, pos_out, count);
+ }
+ 
 
 
