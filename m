@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 63E792EFDA
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:59:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B0302F0BB
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:07:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729968AbfE3D6l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:58:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52258 "EHLO mail.kernel.org"
+        id S1726757AbfE3EGq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:06:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730213AbfE3DSn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:18:43 -0400
+        id S1731150AbfE3DRd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:17:33 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 959DF2475F;
-        Thu, 30 May 2019 03:18:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5684C24529;
+        Thu, 30 May 2019 03:17:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186322;
-        bh=tDB5YY0NPcT0l/Ix8REcVlx+WJ/4cDK4koo2CQwZI9s=;
+        s=default; t=1559186252;
+        bh=caT+T2CitUocF0Jn+HuJkazZXKeZpQsFfml6fIoB5wA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DXj1mQfxDKKIQnSK4NIcYqTfb483F9S64qhmmmVPi2NTJZX2THFEchOsYDKS5iP1A
-         83kYDZpgKpmsvVkikVious7Up2N3L48sSFCTziD7FW21iR/1Kc/lQJ/lLI8qRdpE6p
-         OBVM6rVx2tLBG9mmwsxoj88e6aP2n12m+uVOa5Qk=
+        b=rHZ0wLxX7Xv5/r7wZzLPEUTUXCZjt7pAsSzAn30hsPkF84eCk3z10MF6QsgyNr6Vh
+         +7inHSNGXj/BO3CJUJ3fzf9kHwtA/5sva778Ao0DHvHbTTh9aXYvJhtoD0Iuf3ED+N
+         Syyw1LxrjrwHUgKCHFpgPNfAmqQeEimiE2vxHSI4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+9723f2d288e49b492cf0@syzkaller.appspotmail.com,
-        syzbot+f0ddeb2b032a8e1d9098@syzkaller.appspotmail.com,
-        syzbot+f14b3703cd8d7670203f@syzkaller.appspotmail.com,
-        syzbot+eefa384efad8d7997f20@syzkaller.appspotmail.com,
-        William Tu <u9012063@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Christoph Paasch <cpaasch@apple.com>
-Subject: [PATCH 4.14 034/193] net: erspan: fix use-after-free
+        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Keith Busch <keith.busch@intel.com>, Jan Kara <jack@suse.cz>,
+        Yufen Yu <yuyufen@huawei.com>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 130/276] block: fix use-after-free on gendisk
 Date:   Wed, 29 May 2019 20:04:48 -0700
-Message-Id: <20190530030454.006155866@linuxfoundation.org>
+Message-Id: <20190530030533.910471797@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,76 +46,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: William Tu <u9012063@gmail.com>
+[ Upstream commit 2c88e3c7ec32d7a40cc7c9b4a487cf90e4671bdd ]
 
-commit b423d13c08a656c719fa56324a8f4279c835d90c upstream.
+commit 2da78092dda "block: Fix dev_t minor allocation lifetime"
+specifically moved blk_free_devt(dev->devt) call to part_release()
+to avoid reallocating device number before the device is fully
+shutdown.
 
-When building the erspan header for either v1 or v2, the eth_hdr()
-does not point to the right inner packet's eth_hdr,
-causing kasan report use-after-free and slab-out-of-bouds read.
+However, it can cause use-after-free on gendisk in get_gendisk().
+We use md device as example to show the race scenes:
 
-The patch fixes the following syzkaller issues:
-[1] BUG: KASAN: slab-out-of-bounds in erspan_xmit+0x22d4/0x2430 net/ipv4/ip_gre.c:735
-[2] BUG: KASAN: slab-out-of-bounds in erspan_build_header+0x3bf/0x3d0 net/ipv4/ip_gre.c:698
-[3] BUG: KASAN: use-after-free in erspan_xmit+0x22d4/0x2430 net/ipv4/ip_gre.c:735
-[4] BUG: KASAN: use-after-free in erspan_build_header+0x3bf/0x3d0 net/ipv4/ip_gre.c:698
+Process1		Worker			Process2
+md_free
+						blkdev_open
+del_gendisk
+  add delete_partition_work_fn() to wq
+  						__blkdev_get
+						get_gendisk
+put_disk
+  disk_release
+    kfree(disk)
+    						find part from ext_devt_idr
+						get_disk_and_module(disk)
+    					  	cause use after free
 
-[2] CPU: 0 PID: 3654 Comm: syzkaller377964 Not tainted 4.15.0-rc9+ #185
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:17 [inline]
- dump_stack+0x194/0x257 lib/dump_stack.c:53
- print_address_description+0x73/0x250 mm/kasan/report.c:252
- kasan_report_error mm/kasan/report.c:351 [inline]
- kasan_report+0x25b/0x340 mm/kasan/report.c:409
- __asan_report_load_n_noabort+0xf/0x20 mm/kasan/report.c:440
- erspan_build_header+0x3bf/0x3d0 net/ipv4/ip_gre.c:698
- erspan_xmit+0x3b8/0x13b0 net/ipv4/ip_gre.c:740
- __netdev_start_xmit include/linux/netdevice.h:4042 [inline]
- netdev_start_xmit include/linux/netdevice.h:4051 [inline]
- packet_direct_xmit+0x315/0x6b0 net/packet/af_packet.c:266
- packet_snd net/packet/af_packet.c:2943 [inline]
- packet_sendmsg+0x3aed/0x60b0 net/packet/af_packet.c:2968
- sock_sendmsg_nosec net/socket.c:638 [inline]
- sock_sendmsg+0xca/0x110 net/socket.c:648
- SYSC_sendto+0x361/0x5c0 net/socket.c:1729
- SyS_sendto+0x40/0x50 net/socket.c:1697
- do_syscall_32_irqs_on arch/x86/entry/common.c:327 [inline]
- do_fast_syscall_32+0x3ee/0xf9d arch/x86/entry/common.c:389
- entry_SYSENTER_compat+0x54/0x63 arch/x86/entry/entry_64_compat.S:129
-RIP: 0023:0xf7fcfc79
-RSP: 002b:00000000ffc6976c EFLAGS: 00000286 ORIG_RAX: 0000000000000171
-RAX: ffffffffffffffda RBX: 0000000000000004 RCX: 0000000020011000
-RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000020008000
-RBP: 000000000000001c R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
-R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000000
+    			delete_partition_work_fn
+			put_device(part)
+    		  	part_release
+		    	remove part from ext_devt_idr
 
-Fixes: f551c91de262 ("net: erspan: introduce erspan v2 for ip_gre")
-Fixes: 84e54fe0a5ea ("gre: introduce native tunnel support for ERSPAN")
-Reported-by: syzbot+9723f2d288e49b492cf0@syzkaller.appspotmail.com
-Reported-by: syzbot+f0ddeb2b032a8e1d9098@syzkaller.appspotmail.com
-Reported-by: syzbot+f14b3703cd8d7670203f@syzkaller.appspotmail.com
-Reported-by: syzbot+eefa384efad8d7997f20@syzkaller.appspotmail.com
-Signed-off-by: William Tu <u9012063@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Christoph Paasch <cpaasch@apple.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Before <devt, hd_struct pointer> is removed from ext_devt_idr by
+delete_partition_work_fn(), we can find the devt and then access
+gendisk by hd_struct pointer. But, if we access the gendisk after
+it have been freed, it can cause in use-after-freeon gendisk in
+get_gendisk().
 
+We fix this by adding a new helper blk_invalidate_devt() in
+delete_partition() and del_gendisk(). It replaces hd_struct
+pointer in idr with value 'NULL', and deletes the entry from
+idr in part_release() as we do now.
+
+Thanks to Jan Kara for providing the solution and more clear comments
+for the code.
+
+Fixes: 2da78092dda1 ("block: Fix dev_t minor allocation lifetime")
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: Keith Busch <keith.busch@intel.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Suggested-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Yufen Yu <yuyufen@huawei.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/ip_gre.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ block/genhd.c             | 19 +++++++++++++++++++
+ block/partition-generic.c |  7 +++++++
+ include/linux/genhd.h     |  1 +
+ 3 files changed, 27 insertions(+)
 
---- a/net/ipv4/ip_gre.c
-+++ b/net/ipv4/ip_gre.c
-@@ -689,7 +689,7 @@ static void erspan_build_header(struct s
- 				__be32 id, u32 index, bool truncate)
+diff --git a/block/genhd.c b/block/genhd.c
+index be5bab20b2abf..2b2a936cf8480 100644
+--- a/block/genhd.c
++++ b/block/genhd.c
+@@ -518,6 +518,18 @@ void blk_free_devt(dev_t devt)
+ 	}
+ }
+ 
++/**
++ *	We invalidate devt by assigning NULL pointer for devt in idr.
++ */
++void blk_invalidate_devt(dev_t devt)
++{
++	if (MAJOR(devt) == BLOCK_EXT_MAJOR) {
++		spin_lock_bh(&ext_devt_lock);
++		idr_replace(&ext_devt_idr, NULL, blk_mangle_minor(MINOR(devt)));
++		spin_unlock_bh(&ext_devt_lock);
++	}
++}
++
+ static char *bdevt_str(dev_t devt, char *buf)
  {
- 	struct iphdr *iphdr = ip_hdr(skb);
--	struct ethhdr *eth = eth_hdr(skb);
-+	struct ethhdr *eth = (struct ethhdr *)skb->data;
- 	enum erspan_encap_type enc_type;
- 	struct erspanhdr *ershdr;
- 	struct qtag_prefix {
+ 	if (MAJOR(devt) <= 0xff && MINOR(devt) <= 0xff) {
+@@ -769,6 +781,13 @@ void del_gendisk(struct gendisk *disk)
+ 
+ 	if (!(disk->flags & GENHD_FL_HIDDEN))
+ 		blk_unregister_region(disk_devt(disk), disk->minors);
++	/*
++	 * Remove gendisk pointer from idr so that it cannot be looked up
++	 * while RCU period before freeing gendisk is running to prevent
++	 * use-after-free issues. Note that the device number stays
++	 * "in-use" until we really free the gendisk.
++	 */
++	blk_invalidate_devt(disk_devt(disk));
+ 
+ 	kobject_put(disk->part0.holder_dir);
+ 	kobject_put(disk->slave_dir);
+diff --git a/block/partition-generic.c b/block/partition-generic.c
+index 5f8db5c5140f4..98d60a59b843c 100644
+--- a/block/partition-generic.c
++++ b/block/partition-generic.c
+@@ -289,6 +289,13 @@ void delete_partition(struct gendisk *disk, int partno)
+ 	kobject_put(part->holder_dir);
+ 	device_del(part_to_dev(part));
+ 
++	/*
++	 * Remove gendisk pointer from idr so that it cannot be looked up
++	 * while RCU period before freeing gendisk is running to prevent
++	 * use-after-free issues. Note that the device number stays
++	 * "in-use" until we really free the gendisk.
++	 */
++	blk_invalidate_devt(part_devt(part));
+ 	hd_struct_kill(part);
+ }
+ 
+diff --git a/include/linux/genhd.h b/include/linux/genhd.h
+index f767293b00e66..f13272d843320 100644
+--- a/include/linux/genhd.h
++++ b/include/linux/genhd.h
+@@ -596,6 +596,7 @@ struct unixware_disklabel {
+ 
+ extern int blk_alloc_devt(struct hd_struct *part, dev_t *devt);
+ extern void blk_free_devt(dev_t devt);
++extern void blk_invalidate_devt(dev_t devt);
+ extern dev_t blk_lookup_devt(const char *name, int partno);
+ extern char *disk_name (struct gendisk *hd, int partno, char *buf);
+ 
+-- 
+2.20.1
+
 
 
