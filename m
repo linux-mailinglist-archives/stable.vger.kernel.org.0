@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 493AF2F042
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:03:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A899C2F465
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:38:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730754AbfE3ECG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:02:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49736 "EHLO mail.kernel.org"
+        id S1729290AbfE3EiE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:38:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731398AbfE3DSD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:18:03 -0400
+        id S1729219AbfE3DMq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:12:46 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AD15E2475D;
-        Thu, 30 May 2019 03:18:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7675A23E29;
+        Thu, 30 May 2019 03:12:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186282;
-        bh=yIgeGhkdPB5M6GuadWfHBcGZhxxwD9M3hoixq8qO45I=;
+        s=default; t=1559185966;
+        bh=ZeohyddH6FkTCMAWCFJ5ZMUegBhCJh5LZK63ycK1bl0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ztT2CE1lt5mrvtfjGS8oMZcj1kCK7JMAXajH0qFegEg3mbyrYqxmgDCAxBAxL6T4Z
-         w7k+kvzRYNZjcx4t+ejvBmLQVHaY4mGdbzJIY6GgV89y5YZ7yzEGk2fhjBiqk0OoN1
-         FmzFYsWT/yTPk668C7BXzwbzSjxS2rMrMEUpE+hM=
+        b=t64I0aytXrtW+6o10G7iKf12VY/ftyaJvGsieZYFyE27WYe6JlYPMd3r7Ff4kF8hV
+         M4Tb57pHXsHDfN6Fh+zF21n4UMrz45ubB8U27DDsQkWIPpZRywmKwAAALgirP4poVm
+         RYKFGlpEn6HQy2mDg4Qg6Y3urIjvmyiWrRJzwUJE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
-        Alan Stern <stern@rowland.harvard.edu>,
+        stable@vger.kernel.org, Anthony Koo <Anthony.Koo@amd.com>,
+        Aric Cyr <Aric.Cyr@amd.com>, Leo Li <sunpeng.li@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 235/276] usb: core: Add PM runtime calls to usb_hcd_platform_shutdown
+Subject: [PATCH 5.1 395/405] drm/amd/display: Fix exception from AUX acquire failure
 Date:   Wed, 29 May 2019 20:06:33 -0700
-Message-Id: <20190530030539.824340594@linuxfoundation.org>
+Message-Id: <20190530030600.578945165@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 8ead7e817224d7832fe51a19783cb8fcadc79467 ]
+[ Upstream commit dcf1a988678e2e39ce2b4115b8ce14d208c8c481 ]
 
-If ohci-platform is runtime suspended, we can currently get an "imprecise
-external abort" on reboot with ohci-platform loaded when PM runtime
-is implemented for the SoC.
+[Why]
+AUX arbitration occurs between SW and FW components.
+When AUX acquire fails, it causes engine->ddc to be NULL,
+which leads to an exception when we try to release the AUX
+engine.
 
-Let's fix this by adding PM runtime support to usb_hcd_platform_shutdown.
+[How]
+When AUX engine acquire fails, it should return from the
+function without trying to continue the operation.
+The upper level will determine if it wants to retry.
+i.e. dce_aux_transfer_with_retries will be used and retry.
 
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Anthony Koo <Anthony.Koo@amd.com>
+Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
+Acked-by: Leo Li <sunpeng.li@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/core/hcd.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/amd/display/dc/dce/dce_aux.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/core/hcd.c b/drivers/usb/core/hcd.c
-index 1c21955fe7c00..b82a7d787add8 100644
---- a/drivers/usb/core/hcd.c
-+++ b/drivers/usb/core/hcd.c
-@@ -3017,6 +3017,9 @@ usb_hcd_platform_shutdown(struct platform_device *dev)
+diff --git a/drivers/gpu/drm/amd/display/dc/dce/dce_aux.c b/drivers/gpu/drm/amd/display/dc/dce/dce_aux.c
+index 4fe3664fb4950..5ecfcb9ee8a0c 100644
+--- a/drivers/gpu/drm/amd/display/dc/dce/dce_aux.c
++++ b/drivers/gpu/drm/amd/display/dc/dce/dce_aux.c
+@@ -377,7 +377,6 @@ static bool acquire(
+ 	struct dce_aux *engine,
+ 	struct ddc *ddc)
  {
- 	struct usb_hcd *hcd = platform_get_drvdata(dev);
+-
+ 	enum gpio_result result;
  
-+	/* No need for pm_runtime_put(), we're shutting down */
-+	pm_runtime_get_sync(&dev->dev);
-+
- 	if (hcd->driver->shutdown)
- 		hcd->driver->shutdown(hcd);
- }
+ 	if (!is_engine_available(engine))
+@@ -458,7 +457,8 @@ int dce_aux_transfer(struct ddc_service *ddc,
+ 	memset(&aux_rep, 0, sizeof(aux_rep));
+ 
+ 	aux_engine = ddc->ctx->dc->res_pool->engines[ddc_pin->pin_data->en];
+-	acquire(aux_engine, ddc_pin);
++	if (!acquire(aux_engine, ddc_pin))
++		return -1;
+ 
+ 	if (payload->i2c_over_aux)
+ 		aux_req.type = AUX_TRANSACTION_TYPE_I2C;
 -- 
 2.20.1
 
