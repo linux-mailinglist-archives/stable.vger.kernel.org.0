@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CCDFF2F1EC
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:17:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9F332EC70
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:22:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728137AbfE3EQk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:16:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40008 "EHLO mail.kernel.org"
+        id S1732378AbfE3DUz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:20:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730480AbfE3DPq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:15:46 -0400
+        id S1731196AbfE3DUy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:20:54 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D84DE245A7;
-        Thu, 30 May 2019 03:15:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 31C082497C;
+        Thu, 30 May 2019 03:20:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186145;
-        bh=nQZYqrwWCpdbUbQ16wM+a+UtsLY3q9D6MPb3TEL2vLM=;
+        s=default; t=1559186454;
+        bh=x7O6KTT0FirLGwU3C2fSs6asJYzlStlvS11JObgv65M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qHv4iU1KNsGGqS3GaDRJIAWD2iALfOVXTXmt6vD8xQqnffde4sWZWbdzGNgfTcjCy
-         Y+Z95BQnA9aQxpmi3gagR0hYmhg3v70bC5TaOe3xoxBCjEVXvH62MlocEt1w8kEOzR
-         JYyOVUlNrAjUqR9WyfB5N1JHoFtO01k8QZMAYvfo=
+        b=QDT8rs/ewb3erzbF+YTTKUJTAMpXl719dEp4qSgd7jkdAoSUAhnLRStF2TUfJQmXM
+         pMo3TLyDPr/xqEhujhPKcNiv8z/qdoXW/1jZJ761xSGhIzioAqQJmzaN4crOBbXMDv
+         i/iWH0aCd800NNVZK1/1RKdLnYUqSDEI4ludo0vs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Adam Thomson <Adam.Thomson.Opensource@diasemi.com>,
-        Steve Twiss <stwiss.opensource@diasemi.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 325/346] regulator: ltc3589: Fix notifier mutex lock warning
+        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
+        Peter Zijlstra <a.p.zijlstra@chello.nl>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 066/128] sched/core: Handle overflow in cpu_shares_write_u64
 Date:   Wed, 29 May 2019 20:06:38 -0700
-Message-Id: <20190530030557.244463807@linuxfoundation.org>
+Message-Id: <20190530030446.697768355@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
+References: <20190530030432.977908967@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,55 +48,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f132da2534ec6599c78c4adcef15340cff2e9dd9 ]
+[ Upstream commit 5b61d50ab4ef590f5e1d4df15cd2cea5f5715308 ]
 
-The mutex for the regulator_dev must be controlled by the caller of
-the regulator_notifier_call_chain(), as described in the comment
-for that function.
+Bit shift in scale_load() could overflow shares. This patch saturates
+it to MAX_SHARES like following sched_group_set_shares().
 
-Failure to mutex lock and unlock surrounding the notifier call results
-in a kernel WARN_ON_ONCE() which will dump a backtrace for the
-regulator_notifier_call_chain() when that function call is first made.
-The mutex can be controlled using the regulator_lock/unlock() API.
+Example:
 
-Fixes: 3eb2c7ecb7ea ("regulator: Add LTC3589 support")
-Suggested-by: Adam Thomson <Adam.Thomson.Opensource@diasemi.com>
-Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+ # echo 9223372036854776832 > cpu.shares
+ # cat cpu.shares
+
+Before patch: 1024
+After pattch: 262144
+
+Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+Acked-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: http://lkml.kernel.org/r/155125501891.293431.3345233332801109696.stgit@buzz
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/ltc3589.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ kernel/sched/core.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/regulator/ltc3589.c b/drivers/regulator/ltc3589.c
-index 63f724f260ef7..75089b037b723 100644
---- a/drivers/regulator/ltc3589.c
-+++ b/drivers/regulator/ltc3589.c
-@@ -419,16 +419,22 @@ static irqreturn_t ltc3589_isr(int irq, void *dev_id)
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 4617ede80f020..3861dd6da91e7 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -8512,6 +8512,8 @@ static void cpu_cgroup_attach(struct cgroup_taskset *tset)
+ static int cpu_shares_write_u64(struct cgroup_subsys_state *css,
+ 				struct cftype *cftype, u64 shareval)
+ {
++	if (shareval > scale_load_down(ULONG_MAX))
++		shareval = MAX_SHARES;
+ 	return sched_group_set_shares(css_tg(css), scale_load(shareval));
+ }
  
- 	if (irqstat & LTC3589_IRQSTAT_THERMAL_WARN) {
- 		event = REGULATOR_EVENT_OVER_TEMP;
--		for (i = 0; i < LTC3589_NUM_REGULATORS; i++)
-+		for (i = 0; i < LTC3589_NUM_REGULATORS; i++) {
-+		        regulator_lock(ltc3589->regulators[i]);
- 			regulator_notifier_call_chain(ltc3589->regulators[i],
- 						      event, NULL);
-+		        regulator_unlock(ltc3589->regulators[i]);
-+		}
- 	}
- 
- 	if (irqstat & LTC3589_IRQSTAT_UNDERVOLT_WARN) {
- 		event = REGULATOR_EVENT_UNDER_VOLTAGE;
--		for (i = 0; i < LTC3589_NUM_REGULATORS; i++)
-+		for (i = 0; i < LTC3589_NUM_REGULATORS; i++) {
-+		        regulator_lock(ltc3589->regulators[i]);
- 			regulator_notifier_call_chain(ltc3589->regulators[i],
- 						      event, NULL);
-+		        regulator_unlock(ltc3589->regulators[i]);
-+		}
- 	}
- 
- 	/* Clear warning condition */
 -- 
 2.20.1
 
