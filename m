@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 733512F0FF
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:09:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDECC2F536
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:46:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726543AbfE3EJS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:09:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45502 "EHLO mail.kernel.org"
+        id S1728746AbfE3EpN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:45:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730963AbfE3DRN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:17:13 -0400
+        id S1728743AbfE3DL4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:11:56 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8934824667;
-        Thu, 30 May 2019 03:17:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C8B8324481;
+        Thu, 30 May 2019 03:11:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186232;
-        bh=Sggf7DE/dWqdGOyyTn7HrVZ2bSeYDvsNmoVhtkxp1Tw=;
+        s=default; t=1559185915;
+        bh=61rT1CV4mXZHJmbRbNi/SAhsPS3Jn7ms7XsvZb6geZ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ybYMDG7pNuUiujDHnVoCG0mHWhOIKNW5+JarrZStXJ2L9AcwX4/6oNP0Z9H1iR896
-         kGT0uYedBmkpAuAZHhIqkAyra0vjPw0szrax90W5SoPv0mPdp3U6i/t3NP0N5yXjW5
-         4N0HqrUHKlDrxwc74IOx+EgZwCQsxdLlQV0UGqRs=
+        b=hyftvF3F82i7gqfv1ipENU2boQ/O6DURI0rCJTpxhEAAbMB/oir7B08rSkCtnQIcV
+         quDmBgwzGNBXDlP7qZrusXFcsgeLNy2pv8GaeAnlvchTpCLhEtAMTNBOtgeyY9e9bh
+         MzxzMXN/qQ5DIshv6ilyHt3MHcqtANQe4HhZl8uA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
-        Peter Zijlstra <a.p.zijlstra@chello.nl>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 138/276] sched/core: Handle overflow in cpu_shares_write_u64
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 298/405] misc: fastrpc: consider address offset before sending to DSP
 Date:   Wed, 29 May 2019 20:04:56 -0700
-Message-Id: <20190530030534.341055704@linuxfoundation.org>
+Message-Id: <20190530030555.917034721@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,44 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 5b61d50ab4ef590f5e1d4df15cd2cea5f5715308 ]
+[ Upstream commit 80f3afd72bd4149c57daf852905476b43bb47647 ]
 
-Bit shift in scale_load() could overflow shares. This patch saturates
-it to MAX_SHARES like following sched_group_set_shares().
+While passing address phy address to DSP, take care of the offset
+calculated from virtual address vma.
 
-Example:
-
- # echo 9223372036854776832 > cpu.shares
- # cat cpu.shares
-
-Before patch: 1024
-After pattch: 262144
-
-Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-Acked-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: http://lkml.kernel.org/r/155125501891.293431.3345233332801109696.stgit@buzz
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Fixes: c68cfb718c8f ("misc: fastrpc: Add support for context Invoke method")
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/core.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/misc/fastrpc.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index bd5ae34c20c0b..6138754e5030f 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -6491,6 +6491,8 @@ static void cpu_cgroup_attach(struct cgroup_taskset *tset)
- static int cpu_shares_write_u64(struct cgroup_subsys_state *css,
- 				struct cftype *cftype, u64 shareval)
- {
-+	if (shareval > scale_load_down(ULONG_MAX))
-+		shareval = MAX_SHARES;
- 	return sched_group_set_shares(css_tg(css), scale_load(shareval));
- }
+diff --git a/drivers/misc/fastrpc.c b/drivers/misc/fastrpc.c
+index 36d0d5c9cfbad..9996c83ba5cb9 100644
+--- a/drivers/misc/fastrpc.c
++++ b/drivers/misc/fastrpc.c
+@@ -667,8 +667,16 @@ static int fastrpc_get_args(u32 kernel, struct fastrpc_invoke_ctx *ctx)
+ 		pages[i].size = roundup(len, PAGE_SIZE);
  
+ 		if (ctx->maps[i]) {
++			struct vm_area_struct *vma = NULL;
++
+ 			rpra[i].pv = (u64) ctx->args[i].ptr;
+ 			pages[i].addr = ctx->maps[i]->phys;
++
++			vma = find_vma(current->mm, ctx->args[i].ptr);
++			if (vma)
++				pages[i].addr += ctx->args[i].ptr -
++						 vma->vm_start;
++
+ 		} else {
+ 			rlen -= ALIGN(args, FASTRPC_ALIGN) - args;
+ 			args = ALIGN(args, FASTRPC_ALIGN);
 -- 
 2.20.1
 
