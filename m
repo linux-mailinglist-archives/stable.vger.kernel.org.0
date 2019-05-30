@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AB5762F1E5
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:17:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 261992EFFF
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:01:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730429AbfE3DPl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:15:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39062 "EHLO mail.kernel.org"
+        id S1731555AbfE3DS1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:18:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51226 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727468AbfE3DPk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:15:40 -0400
+        id S1730078AbfE3DS0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:18:26 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3348224569;
-        Thu, 30 May 2019 03:15:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B3C5C247C2;
+        Thu, 30 May 2019 03:18:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186140;
-        bh=FA5x3kuiue+iqQvjVPE4HnFvX+ce1cZiDIa80zsU3KI=;
+        s=default; t=1559186305;
+        bh=i1++ugkGFy9cTN8Pw+YwfRoCFDrSB4l8XHeSdcQnPQ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MvLqM2yK1nHwIAVmD4BPf0NXsZbQ20chmmWmlrEMmgaCUVYhCrSvVUOAKRYMTjDvJ
-         DIiW7Z+Z6UXypKle/CM4DBOCxXizTsVk0PrFTZAC0SolLA4Raox5q9zsTw06NvFGlu
-         JirlPcBF3r/MFfOLDn4jc8HvZ1m+2hEX0YHmsA7o=
+        b=rg9YKHunu036IWBb0qgJSb3zg2aiOJDghrSQot/TXAaD0tg0PgPgvGQ+6zf4puISp
+         94ZanE0aJ38vUc//g4bI8d5dcFJqH9bZBIksG0rqMqfl6hNDB5wyECbhwC8YLghH6J
+         CyAv51R84fEShfsPhuGkMc7unf5sKM+mf4WvpHR0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dick Kennedy <dick.kennedy@broadcom.com>,
-        James Smart <jsmart2021@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
+        Kees Cook <keescook@chromium.org>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 314/346] scsi: lpfc: Fix SLI3 commands being issued on SLI4 devices
-Date:   Wed, 29 May 2019 20:06:27 -0700
-Message-Id: <20190530030556.739757080@linuxfoundation.org>
+Subject: [PATCH 4.19 230/276] overflow: Fix -Wtype-limits compilation warnings
+Date:   Wed, 29 May 2019 20:06:28 -0700
+Message-Id: <20190530030539.509570163@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,58 +46,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c95a3b4b0fb8d351e2329a96f87c4fc96a149505 ]
+[ Upstream commit dc7fe518b0493faa0af0568d6d8c2a33c00f58d0 ]
 
-During debug, it was seen that the driver is issuing commands specific to
-SLI3 on SLI4 devices. Although the adapter correctly rejected the command,
-this should not be done.
+Attempt to use check_shl_overflow() with inputs of unsigned type
+produces the following compilation warnings.
 
-Revise the code to stop sending these commands on a SLI4 adapter.
+drivers/infiniband/hw/mlx5/qp.c: In function _set_user_rq_size_:
+./include/linux/overflow.h:230:6: warning: comparison of unsigned
+expression >= 0 is always true [-Wtype-limits]
+   _s >= 0 && _s < 8 * sizeof(*d) ? _s : 0;  \
+      ^~
+drivers/infiniband/hw/mlx5/qp.c:5820:6: note: in expansion of macro _check_shl_overflow_
+  if (check_shl_overflow(rwq->wqe_count, rwq->wqe_shift,
+&rwq->buf_size))
+      ^~~~~~~~~~~~~~~~~~
+./include/linux/overflow.h:232:26: warning: comparison of unsigned expression < 0 is always false [-Wtype-limits]
+  (_to_shift != _s || *_d < 0 || _a < 0 ||   \
+                          ^
+drivers/infiniband/hw/mlx5/qp.c:5820:6: note: in expansion of macro _check_shl_overflow_
+  if (check_shl_overflow(rwq->wqe_count, rwq->wqe_shift, &rwq->buf_size))
+      ^~~~~~~~~~~~~~~~~~
+./include/linux/overflow.h:232:36: warning: comparison of unsigned expression < 0 is always false [-Wtype-limits]
+  (_to_shift != _s || *_d < 0 || _a < 0 ||   \
+                                    ^
+drivers/infiniband/hw/mlx5/qp.c:5820:6: note: in expansion of macro _check_shl_overflow_
+  if (check_shl_overflow(rwq->wqe_count, rwq->wqe_shift,&rwq->buf_size))
+      ^~~~~~~~~~~~~~~~~~
 
-Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 0c66847793d1 ("overflow.h: Add arithmetic shift helper")
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Acked-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_hbadisc.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ include/linux/overflow.h | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_hbadisc.c b/drivers/scsi/lpfc/lpfc_hbadisc.c
-index b183b882d5067..2f01e5397a11d 100644
---- a/drivers/scsi/lpfc/lpfc_hbadisc.c
-+++ b/drivers/scsi/lpfc/lpfc_hbadisc.c
-@@ -935,7 +935,11 @@ lpfc_linkdown(struct lpfc_hba *phba)
- 		}
- 	}
- 	lpfc_destroy_vport_work_array(phba, vports);
--	/* Clean up any firmware default rpi's */
-+
-+	/* Clean up any SLI3 firmware default rpi's */
-+	if (phba->sli_rev > LPFC_SLI_REV3)
-+		goto skip_unreg_did;
-+
- 	mb = mempool_alloc(phba->mbox_mem_pool, GFP_KERNEL);
- 	if (mb) {
- 		lpfc_unreg_did(phba, 0xffff, LPFC_UNREG_ALL_DFLT_RPIS, mb);
-@@ -947,6 +951,7 @@ lpfc_linkdown(struct lpfc_hba *phba)
- 		}
- 	}
+diff --git a/include/linux/overflow.h b/include/linux/overflow.h
+index 40b48e2133cb8..15eb85de92269 100644
+--- a/include/linux/overflow.h
++++ b/include/linux/overflow.h
+@@ -36,6 +36,12 @@
+ #define type_max(T) ((T)((__type_half_max(T) - 1) + __type_half_max(T)))
+ #define type_min(T) ((T)((T)-type_max(T)-(T)1))
  
-+ skip_unreg_did:
- 	/* Setup myDID for link up if we are in pt2pt mode */
- 	if (phba->pport->fc_flag & FC_PT2PT) {
- 		mb = mempool_alloc(phba->mbox_mem_pool, GFP_KERNEL);
-@@ -4985,6 +4990,10 @@ lpfc_unreg_default_rpis(struct lpfc_vport *vport)
- 	LPFC_MBOXQ_t     *mbox;
- 	int rc;
++/*
++ * Avoids triggering -Wtype-limits compilation warning,
++ * while using unsigned data types to check a < 0.
++ */
++#define is_non_negative(a) ((a) > 0 || (a) == 0)
++#define is_negative(a) (!(is_non_negative(a)))
  
-+	/* Unreg DID is an SLI3 operation. */
-+	if (phba->sli_rev > LPFC_SLI_REV3)
-+		return;
-+
- 	mbox = mempool_alloc(phba->mbox_mem_pool, GFP_KERNEL);
- 	if (mbox) {
- 		lpfc_unreg_did(phba, vport->vpi, LPFC_UNREG_ALL_DFLT_RPIS,
+ #ifdef COMPILER_HAS_GENERIC_BUILTIN_OVERFLOW
+ /*
+@@ -227,10 +233,10 @@
+ 	typeof(d) _d = d;						\
+ 	u64 _a_full = _a;						\
+ 	unsigned int _to_shift =					\
+-		_s >= 0 && _s < 8 * sizeof(*d) ? _s : 0;		\
++		is_non_negative(_s) && _s < 8 * sizeof(*d) ? _s : 0;	\
+ 	*_d = (_a_full << _to_shift);					\
+-	(_to_shift != _s || *_d < 0 || _a < 0 ||			\
+-		(*_d >> _to_shift) != _a);				\
++	(_to_shift != _s || is_negative(*_d) || is_negative(_a) ||	\
++	(*_d >> _to_shift) != _a);					\
+ })
+ 
+ /**
 -- 
 2.20.1
 
