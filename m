@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F09602F2EC
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:25:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 727452EFD8
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:59:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728832AbfE3EZA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:25:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35142 "EHLO mail.kernel.org"
+        id S1728846AbfE3D6e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:58:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729993AbfE3DOs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:14:48 -0400
+        id S1729968AbfE3DSo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:18:44 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4D05424557;
-        Thu, 30 May 2019 03:14:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3082E24779;
+        Thu, 30 May 2019 03:18:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186087;
-        bh=GZUqsTk4DRyMhsW1KtZI2tC5X5LSHWq2AHH1vJ4K+oM=;
+        s=default; t=1559186323;
+        bh=ycQ2WHH2xNsssHbMyy4jABS/gcIb3YQqerQeBf5PbcM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LnbXVTSaKnOD1zJn5CSxnOZD4LdwVB2rZQNk6hWfGUQH29NVPO4r3Nb3tSHEDLmP4
-         cpEbOCNLjF8jgZlJBGe9JqxnP82JEVq99B/GIHTdwrsz518ALBxIY7FQLQJhrbu681
-         BOo/x2T9tXrbvr+0dAnBatwUvg9zY8vMfbUyWGWA=
+        b=LE7qvSQ9syFLac8m/qdAK/Bb8XGfVjT8XtQIAuyYKMZ/+AXsKic9a/VML3VOZgxiB
+         JWWYFu8H76uAEQJtaIBF7IyvDVSCk04oRPf3INhSyvKpebuSqJXWcyeFtDk8l1wD24
+         wd8H9EC9du5MUn5OjfWQ2nxkbiuhaYRInEz3JxyI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
-        dri-devel@lists.freedesktop.org ("open list:DRM DRIVERS"),
-        Eric Anholt <eric@anholt.net>, Sasha Levin <sashal@kernel.org>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>
-Subject: [PATCH 5.0 215/346] drm/pl111: fix possible object reference leak
-Date:   Wed, 29 May 2019 20:04:48 -0700
-Message-Id: <20190530030551.988267471@linuxfoundation.org>
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.14 035/193] Revert "btrfs: Honour FITRIM range constraints during free space trim"
+Date:   Wed, 29 May 2019 20:04:49 -0700
+Message-Id: <20190530030454.199169279@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
+References: <20190530030446.953835040@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,68 +42,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit bc29d3a69d4c1bd1a103e8b3c1ed81b807c1870b ]
+From: David Sterba <dsterba@suse.com>
 
-The call to of_find_matching_node_and_match returns a node pointer with
-refcount incremented thus it must be explicitly decremented after the
-last usage.
+This reverts commit b327ff8a9b5767ce39db650d468fb124b48974a5.
 
-Detected by coccinelle with the following warnings:
-drivers/gpu/drm/pl111/pl111_versatile.c:333:3-9: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 317, but without a corresponding object release within this function.
-drivers/gpu/drm/pl111/pl111_versatile.c:340:3-9: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 317, but without a corresponding object release within this function.
-drivers/gpu/drm/pl111/pl111_versatile.c:346:3-9: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 317, but without a corresponding object release within this function.
-drivers/gpu/drm/pl111/pl111_versatile.c:354:2-8: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 317, but without a corresponding object release within this function.
-drivers/gpu/drm/pl111/pl111_versatile.c:395:3-9: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 317, but without a corresponding object release within this function.
-drivers/gpu/drm/pl111/pl111_versatile.c:402:1-7: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 317, but without a corresponding object release within this function.
+There is currently no corresponding patch in master due to additional
+changes that would be significantly different from plain revert in the
+respective stable branch.
 
-Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
-Cc: Eric Anholt <eric@anholt.net> (supporter:DRM DRIVER FOR ARM PL111 CLCD)
-Cc: David Airlie <airlied@linux.ie> (maintainer:DRM DRIVERS)
-Cc: Daniel Vetter <daniel@ffwll.ch> (maintainer:DRM DRIVERS)
-Cc: dri-devel@lists.freedesktop.org (open list:DRM DRIVERS)
-Cc: linux-kernel@vger.kernel.org (open list)
-Signed-off-by: Eric Anholt <eric@anholt.net>
-Link: https://patchwork.freedesktop.org/patch/msgid/1554307455-40361-6-git-send-email-wen.yang99@zte.com.cn
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The range argument was not handled correctly and could cause trim to
+overlap allocated areas or reach beyond the end of the device. The
+address space that fitrim normally operates on is in logical
+coordinates, while the discards are done on the physical device extents.
+This distinction cannot be made with the current ioctl interface and
+caused the confusion.
+
+The bug depends on the layout of block groups and does not always
+happen. The whole-fs trim (run by default by the fstrim tool) is not
+affected.
+
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/pl111/pl111_versatile.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ fs/btrfs/extent-tree.c |   25 ++++++-------------------
+ 1 file changed, 6 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/gpu/drm/pl111/pl111_versatile.c b/drivers/gpu/drm/pl111/pl111_versatile.c
-index b9baefdba38a1..1c318ad32a8cd 100644
---- a/drivers/gpu/drm/pl111/pl111_versatile.c
-+++ b/drivers/gpu/drm/pl111/pl111_versatile.c
-@@ -330,6 +330,7 @@ int pl111_versatile_init(struct device *dev, struct pl111_drm_dev_private *priv)
- 		ret = vexpress_muxfpga_init();
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -11057,9 +11057,9 @@ int btrfs_error_unpin_extent_range(struc
+  * transaction.
+  */
+ static int btrfs_trim_free_extents(struct btrfs_device *device,
+-				   struct fstrim_range *range, u64 *trimmed)
++				   u64 minlen, u64 *trimmed)
+ {
+-	u64 start = range->start, len = 0;
++	u64 start = 0, len = 0;
+ 	int ret;
+ 
+ 	*trimmed = 0;
+@@ -11095,8 +11095,8 @@ static int btrfs_trim_free_extents(struc
+ 			refcount_inc(&trans->use_count);
+ 		spin_unlock(&fs_info->trans_lock);
+ 
+-		ret = find_free_dev_extent_start(trans, device, range->minlen,
+-						 start, &start, &len);
++		ret = find_free_dev_extent_start(trans, device, minlen, start,
++						 &start, &len);
+ 		if (trans)
+ 			btrfs_put_transaction(trans);
+ 
+@@ -11108,16 +11108,6 @@ static int btrfs_trim_free_extents(struc
+ 			break;
+ 		}
+ 
+-		/* If we are out of the passed range break */
+-		if (start > range->start + range->len - 1) {
+-			mutex_unlock(&fs_info->chunk_mutex);
+-			ret = 0;
+-			break;
+-		}
+-
+-		start = max(range->start, start);
+-		len = min(range->len, len);
+-
+ 		ret = btrfs_issue_discard(device->bdev, start, len, &bytes);
+ 		up_read(&fs_info->commit_root_sem);
+ 		mutex_unlock(&fs_info->chunk_mutex);
+@@ -11128,10 +11118,6 @@ static int btrfs_trim_free_extents(struc
+ 		start += len;
+ 		*trimmed += bytes;
+ 
+-		/* We've trimmed enough */
+-		if (*trimmed >= range->len)
+-			break;
+-
+ 		if (fatal_signal_pending(current)) {
+ 			ret = -ERESTARTSYS;
+ 			break;
+@@ -11215,7 +11201,8 @@ int btrfs_trim_fs(struct btrfs_fs_info *
+ 	mutex_lock(&fs_info->fs_devices->device_list_mutex);
+ 	devices = &fs_info->fs_devices->devices;
+ 	list_for_each_entry(device, devices, dev_list) {
+-		ret = btrfs_trim_free_extents(device, range, &group_trimmed);
++		ret = btrfs_trim_free_extents(device, range->minlen,
++					      &group_trimmed);
  		if (ret) {
- 			dev_err(dev, "unable to initialize muxfpga driver\n");
-+			of_node_put(np);
- 			return ret;
- 		}
- 
-@@ -337,17 +338,20 @@ int pl111_versatile_init(struct device *dev, struct pl111_drm_dev_private *priv)
- 		pdev = of_find_device_by_node(np);
- 		if (!pdev) {
- 			dev_err(dev, "can't find the sysreg device, deferring\n");
-+			of_node_put(np);
- 			return -EPROBE_DEFER;
- 		}
- 		map = dev_get_drvdata(&pdev->dev);
- 		if (!map) {
- 			dev_err(dev, "sysreg has not yet probed\n");
- 			platform_device_put(pdev);
-+			of_node_put(np);
- 			return -EPROBE_DEFER;
- 		}
- 	} else {
- 		map = syscon_node_to_regmap(np);
- 	}
-+	of_node_put(np);
- 
- 	if (IS_ERR(map)) {
- 		dev_err(dev, "no Versatile syscon regmap\n");
--- 
-2.20.1
-
+ 			dev_failed++;
+ 			dev_ret = ret;
 
 
