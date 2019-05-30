@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 215292F0FA
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:09:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A94652F2A3
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:24:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726538AbfE3EI5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:08:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45724 "EHLO mail.kernel.org"
+        id S1730148AbfE3EXz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:23:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729604AbfE3DRQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:17:16 -0400
+        id S1730044AbfE3DO5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:14:57 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E91072469A;
-        Thu, 30 May 2019 03:17:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0A74C2457B;
+        Thu, 30 May 2019 03:14:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186236;
-        bh=hxuXXHTvzgUj7YqUKc0PqJtHCFmn+Jx2bJpcqbbrPys=;
+        s=default; t=1559186096;
+        bh=dls/P3crLuJWs0pBybzZw2BlVJdJ0xY47HhhRswb3LI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tt7ICHx/sj8OLG4uNWzDecOiH1Vzoc4UUEsLEN3viYMZeQ6HaRAx+gaBzlcIrFMD9
-         plnz2Z6wem5nahJWsv2BW2/9FAvku0/1cMSfo8TaF+sXMrn6WMTHIuu60uAZp7NM58
-         vIJJXsTAmD7Wqrpsx4vG9dLxKjQILJ8TycmXI1Pk=
+        b=0yWgBda0bKp0tHwqc4Z26Q8mcLHFt1WdGCyCqByXoO1AOG2l36IT3SyMxWav1H0NQ
+         yHQoS51soyxJJpaIbU1cUjG/XFqq0/z7E7DRxJudOqMy1ecaPKHQNZpRAE05it6SwE
+         aGqtPffYQNBCqJkb+Cv2OJRy7wVUnLoUKcyDO5Ng=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Kento Kobayashi <Kento.A.Kobayashi@sony.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Jacky Cao <Jacky.Cao@sony.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 144/276] USB: core: Dont unbind interfaces following device reset failure
+        stable@vger.kernel.org,
+        Piotr Figiel <p.figiel@camlintechnologies.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 229/346] brcmfmac: fix race during disconnect when USB completion is in progress
 Date:   Wed, 29 May 2019 20:05:02 -0700
-Message-Id: <20190530030534.660095891@linuxfoundation.org>
+Message-Id: <20190530030552.650129368@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,69 +45,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 381419fa720060ba48b7bbc483be787d5b1dca6f ]
+[ Upstream commit db3b9e2e1d58080d0754bdf9293dabf8c6491b67 ]
 
-The SCSI core does not like to have devices or hosts unregistered
-while error recovery is in progress.  Trying to do so can lead to
-self-deadlock: Part of the removal code tries to obtain a lock already
-held by the error handler.
+It was observed that rarely during USB disconnect happening shortly after
+connect (before full initialization completes) usb_hub_wq would wait
+forever for the dev_init_lock to be unlocked. dev_init_lock would remain
+locked though because of infinite wait during usb_kill_urb:
 
-This can cause problems for the usb-storage and uas drivers, because
-their error handler routines perform a USB reset, and if the reset
-fails then the USB core automatically goes on to unbind all drivers
-from the device's interfaces -- all while still in the context of the
-SCSI error handler.
+[ 2730.656472] kworker/0:2     D    0   260      2 0x00000000
+[ 2730.660700] Workqueue: events request_firmware_work_func
+[ 2730.664807] [<809dca20>] (__schedule) from [<809dd164>] (schedule+0x4c/0xac)
+[ 2730.670587] [<809dd164>] (schedule) from [<8069af44>] (usb_kill_urb+0xdc/0x114)
+[ 2730.676815] [<8069af44>] (usb_kill_urb) from [<7f258b50>] (brcmf_usb_free_q+0x34/0xa8 [brcmfmac])
+[ 2730.684833] [<7f258b50>] (brcmf_usb_free_q [brcmfmac]) from [<7f2517d4>] (brcmf_detach+0xa0/0xb8 [brcmfmac])
+[ 2730.693557] [<7f2517d4>] (brcmf_detach [brcmfmac]) from [<7f251a34>] (brcmf_attach+0xac/0x3d8 [brcmfmac])
+[ 2730.702094] [<7f251a34>] (brcmf_attach [brcmfmac]) from [<7f2587ac>] (brcmf_usb_probe_phase2+0x468/0x4a0 [brcmfmac])
+[ 2730.711601] [<7f2587ac>] (brcmf_usb_probe_phase2 [brcmfmac]) from [<7f252888>] (brcmf_fw_request_done+0x194/0x220 [brcmfmac])
+[ 2730.721795] [<7f252888>] (brcmf_fw_request_done [brcmfmac]) from [<805748e4>] (request_firmware_work_func+0x4c/0x88)
+[ 2730.731125] [<805748e4>] (request_firmware_work_func) from [<80141474>] (process_one_work+0x228/0x808)
+[ 2730.739223] [<80141474>] (process_one_work) from [<80141a80>] (worker_thread+0x2c/0x564)
+[ 2730.746105] [<80141a80>] (worker_thread) from [<80147bcc>] (kthread+0x13c/0x16c)
+[ 2730.752227] [<80147bcc>] (kthread) from [<801010b4>] (ret_from_fork+0x14/0x20)
 
-As it turns out, practically all the scenarios leading to a USB reset
-failure end up causing a device disconnect (the main error pathway in
-usb_reset_and_verify_device(), at the end of the routine, calls
-hub_port_logical_disconnect() before returning).  As a result, the
-hub_wq thread will soon become aware of the problem and will unbind
-all the device's drivers in its own context, not in the
-error-handler's context.
+[ 2733.099695] kworker/0:3     D    0  1065      2 0x00000000
+[ 2733.103926] Workqueue: usb_hub_wq hub_event
+[ 2733.106914] [<809dca20>] (__schedule) from [<809dd164>] (schedule+0x4c/0xac)
+[ 2733.112693] [<809dd164>] (schedule) from [<809e2a8c>] (schedule_timeout+0x214/0x3e4)
+[ 2733.119621] [<809e2a8c>] (schedule_timeout) from [<809dde2c>] (wait_for_common+0xc4/0x1c0)
+[ 2733.126810] [<809dde2c>] (wait_for_common) from [<7f258d00>] (brcmf_usb_disconnect+0x1c/0x4c [brcmfmac])
+[ 2733.135206] [<7f258d00>] (brcmf_usb_disconnect [brcmfmac]) from [<8069e0c8>] (usb_unbind_interface+0x5c/0x1e4)
+[ 2733.143943] [<8069e0c8>] (usb_unbind_interface) from [<8056d3e8>] (device_release_driver_internal+0x164/0x1fc)
+[ 2733.152769] [<8056d3e8>] (device_release_driver_internal) from [<8056c078>] (bus_remove_device+0xd0/0xfc)
+[ 2733.161138] [<8056c078>] (bus_remove_device) from [<8056977c>] (device_del+0x11c/0x310)
+[ 2733.167939] [<8056977c>] (device_del) from [<8069cba8>] (usb_disable_device+0xa0/0x1cc)
+[ 2733.174743] [<8069cba8>] (usb_disable_device) from [<8069507c>] (usb_disconnect+0x74/0x1dc)
+[ 2733.181823] [<8069507c>] (usb_disconnect) from [<80695e88>] (hub_event+0x478/0xf88)
+[ 2733.188278] [<80695e88>] (hub_event) from [<80141474>] (process_one_work+0x228/0x808)
+[ 2733.194905] [<80141474>] (process_one_work) from [<80141a80>] (worker_thread+0x2c/0x564)
+[ 2733.201724] [<80141a80>] (worker_thread) from [<80147bcc>] (kthread+0x13c/0x16c)
+[ 2733.207913] [<80147bcc>] (kthread) from [<801010b4>] (ret_from_fork+0x14/0x20)
 
-This means that usb_reset_device() does not need to call
-usb_unbind_and_rebind_marked_interfaces() in cases where
-usb_reset_and_verify_device() has returned an error, because hub_wq
-will take care of everything anyway.
+It was traced down to a case where usb_kill_urb would be called on an URB
+structure containing more or less random data, including large number in
+its use_count. During the debugging it appeared that in brcmf_usb_free_q()
+the traversal over URBs' lists is not synchronized with operations on those
+lists in brcmf_usb_rx_complete() leading to handling
+brcmf_usbdev_info structure (holding lists' head) as lists' element and in
+result causing above problem.
 
-This particular problem was observed in somewhat artificial
-circumstances, by using usbfs to tell a hub to power-down a port
-connected to a USB-3 mass storage device using the UAS protocol.  With
-the port turned off, the currently executing command timed out and the
-error handler started running.  The USB reset naturally failed,
-because the hub port was off, and the error handler deadlocked as
-described above.  Not carrying out the call to
-usb_unbind_and_rebind_marked_interfaces() fixes this issue.
+Fix it by walking through all URBs during brcmf_cancel_all_urbs using the
+arrays of requests instead of linked lists.
 
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Reported-by: Kento Kobayashi <Kento.A.Kobayashi@sony.com>
-Tested-by: Kento Kobayashi <Kento.A.Kobayashi@sony.com>
-CC: Bart Van Assche <bvanassche@acm.org>
-CC: Martin K. Petersen <martin.petersen@oracle.com>
-CC: Jacky Cao <Jacky.Cao@sony.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Piotr Figiel <p.figiel@camlintechnologies.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/core/hub.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
-index bbcfa63d0233b..eb24ec0e160d4 100644
---- a/drivers/usb/core/hub.c
-+++ b/drivers/usb/core/hub.c
-@@ -5823,7 +5823,10 @@ int usb_reset_device(struct usb_device *udev)
- 					cintf->needs_binding = 1;
- 			}
- 		}
--		usb_unbind_and_rebind_marked_interfaces(udev);
-+
-+		/* If the reset failed, hub_wq will unbind drivers later */
-+		if (ret == 0)
-+			usb_unbind_and_rebind_marked_interfaces(udev);
- 	}
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c
+index 5aeb401d9a024..44ead0fea7c61 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c
+@@ -684,12 +684,18 @@ static int brcmf_usb_up(struct device *dev)
  
- 	usb_autosuspend_device(udev);
+ static void brcmf_cancel_all_urbs(struct brcmf_usbdev_info *devinfo)
+ {
++	int i;
++
+ 	if (devinfo->ctl_urb)
+ 		usb_kill_urb(devinfo->ctl_urb);
+ 	if (devinfo->bulk_urb)
+ 		usb_kill_urb(devinfo->bulk_urb);
+-	brcmf_usb_free_q(&devinfo->tx_postq, true);
+-	brcmf_usb_free_q(&devinfo->rx_postq, true);
++	if (devinfo->tx_reqs)
++		for (i = 0; i < devinfo->bus_pub.ntxq; i++)
++			usb_kill_urb(devinfo->tx_reqs[i].urb);
++	if (devinfo->rx_reqs)
++		for (i = 0; i < devinfo->bus_pub.nrxq; i++)
++			usb_kill_urb(devinfo->rx_reqs[i].urb);
+ }
+ 
+ static void brcmf_usb_down(struct device *dev)
 -- 
 2.20.1
 
