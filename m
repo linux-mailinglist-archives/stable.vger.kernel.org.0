@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C16F32EDAD
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:42:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16C002EE97
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:49:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732528AbfE3DVV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:21:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34192 "EHLO mail.kernel.org"
+        id S1728924AbfE3Dsm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:48:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732516AbfE3DVU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:21:20 -0400
+        id S1732147AbfE3DUS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:20:18 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 569DF24A03;
-        Thu, 30 May 2019 03:21:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9C3362490A;
+        Thu, 30 May 2019 03:20:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186479;
-        bh=V+BBz4ewor3VDGhV2wJZv25VePeUO9pa0pnTOtYQyO8=;
+        s=default; t=1559186417;
+        bh=qpIVF3Cx9pKmLiimFB7271ld1ODQuXJahy+4CSBYWh0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e88SioLV11IBmJ6zW1cChHBfa+/jsFgrQUryJFNUaKRjViBtD8DKxGWMIAhaehrgX
-         cppMGuXHZSPLcY9CJML7TAIvovtP2GPwV9gMDvxDMjsTiZfxb+QVY7qIHADnRTPk+9
-         rqjUEQMMBOHXLIDNgum6+xOeAY4xxkeUlGqB0cMo=
+        b=Tp8a7dRkQRCgUE4oTArpY0OX4pLoaFNbsk4KqiVXExl4n9U+feELHrLWRzi1yIQVJ
+         AnNFPtmC32cXsdhdrrGyUXl3TnT9xsyyJeycqaH31lhxTan4NMgUNMvL7+qzGlstu6
+         MQ6UegWZp5jrFGhSKQAvVZALl4WhMIKFf+7QPZgw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <rong.a.chen@intel.com>,
-        "Paul E. McKenney" <paulmck@linux.ibm.com>,
+        stable@vger.kernel.org, Eric Farman <farman@linux.ibm.com>,
+        Farhan Ali <alifm@linux.ibm.com>,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 114/128] rcutorture: Fix cleanup path for invalid torture_type strings
+Subject: [PATCH 4.14 192/193] vfio-ccw: Prevent quiesce function going into an infinite loop
 Date:   Wed, 29 May 2019 20:07:26 -0700
-Message-Id: <20190530030454.951960906@linuxfoundation.org>
+Message-Id: <20190530030513.378820673@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
-References: <20190530030432.977908967@linuxfoundation.org>
+In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
+References: <20190530030446.953835040@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,51 +46,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit b813afae7ab6a5e91b4e16cc567331d9c2ae1f04 ]
+[ Upstream commit d1ffa760d22aa1d8190478e5ef555c59a771db27 ]
 
-If the specified rcutorture.torture_type is not in the rcu_torture_init()
-function's torture_ops[] array, rcutorture prints some console messages
-and then invokes rcu_torture_cleanup() to set state so that a future
-torture test can run.  However, rcu_torture_cleanup() also attempts to
-end the test that didn't actually start, and in doing so relies on the
-value of cur_ops, a value that is not particularly relevant in this case.
-This can result in confusing output or even follow-on failures due to
-attempts to use facilities that have not been properly initialized.
+The quiesce function calls cio_cancel_halt_clear() and if we
+get an -EBUSY we go into a loop where we:
+	- wait for any interrupts
+	- flush all I/O in the workqueue
+	- retry cio_cancel_halt_clear
 
-This commit therefore sets the value of cur_ops to NULL in this case
-and inserts a check near the beginning of rcu_torture_cleanup(),
-thus avoiding relying on an irrelevant cur_ops value.
+During the period where we are waiting for interrupts or
+flushing all I/O, the channel subsystem could have completed
+a halt/clear action and turned off the corresponding activity
+control bits in the subchannel status word. This means the next
+time we call cio_cancel_halt_clear(), we will again start by
+calling cancel subchannel and so we can be stuck between calling
+cancel and halt forever.
 
-Reported-by: kernel test robot <rong.a.chen@intel.com>
-Signed-off-by: Paul E. McKenney <paulmck@linux.ibm.com>
+Rather than calling cio_cancel_halt_clear() immediately after
+waiting, let's try to disable the subchannel. If we succeed in
+disabling the subchannel then we know nothing else can happen
+with the device.
+
+Suggested-by: Eric Farman <farman@linux.ibm.com>
+Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+Message-Id: <4d5a4b98ab1b41ac6131b5c36de18b76c5d66898.1555449329.git.alifm@linux.ibm.com>
+Reviewed-by: Eric Farman <farman@linux.ibm.com>
+Acked-by: Halil Pasic <pasic@linux.ibm.com>
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/rcutorture.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/s390/cio/vfio_ccw_drv.c | 32 ++++++++++++++++++--------------
+ 1 file changed, 18 insertions(+), 14 deletions(-)
 
-diff --git a/kernel/rcu/rcutorture.c b/kernel/rcu/rcutorture.c
-index bf08fee53dc75..5393bbcf3c1ad 100644
---- a/kernel/rcu/rcutorture.c
-+++ b/kernel/rcu/rcutorture.c
-@@ -1595,6 +1595,10 @@ rcu_torture_cleanup(void)
- 			cur_ops->cb_barrier();
- 		return;
- 	}
-+	if (!cur_ops) {
-+		torture_cleanup_end();
-+		return;
-+	}
+diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+index 59eb5e6d9c79d..6cd41086f23e4 100644
+--- a/drivers/s390/cio/vfio_ccw_drv.c
++++ b/drivers/s390/cio/vfio_ccw_drv.c
+@@ -38,26 +38,30 @@ int vfio_ccw_sch_quiesce(struct subchannel *sch)
+ 	if (ret != -EBUSY)
+ 		goto out_unlock;
  
- 	rcu_torture_barrier_cleanup();
- 	torture_stop_kthread(rcu_torture_stall, stall_task);
-@@ -1730,6 +1734,7 @@ rcu_torture_init(void)
- 			pr_alert(" %s", torture_ops[i]->name);
- 		pr_alert("\n");
- 		firsterr = -EINVAL;
-+		cur_ops = NULL;
- 		goto unwind;
- 	}
- 	if (cur_ops->fqs == NULL && fqs_duration != 0) {
++	iretry = 255;
+ 	do {
+-		iretry = 255;
+ 
+ 		ret = cio_cancel_halt_clear(sch, &iretry);
+-		while (ret == -EBUSY) {
+-			/*
+-			 * Flush all I/O and wait for
+-			 * cancel/halt/clear completion.
+-			 */
+-			private->completion = &completion;
+-			spin_unlock_irq(sch->lock);
+ 
+-			wait_for_completion_timeout(&completion, 3*HZ);
++		if (ret == -EIO) {
++			pr_err("vfio_ccw: could not quiesce subchannel 0.%x.%04x!\n",
++			       sch->schid.ssid, sch->schid.sch_no);
++			break;
++		}
++
++		/*
++		 * Flush all I/O and wait for
++		 * cancel/halt/clear completion.
++		 */
++		private->completion = &completion;
++		spin_unlock_irq(sch->lock);
+ 
+-			private->completion = NULL;
+-			flush_workqueue(vfio_ccw_work_q);
+-			spin_lock_irq(sch->lock);
+-			ret = cio_cancel_halt_clear(sch, &iretry);
+-		};
++		if (ret == -EBUSY)
++			wait_for_completion_timeout(&completion, 3*HZ);
+ 
++		private->completion = NULL;
++		flush_workqueue(vfio_ccw_work_q);
++		spin_lock_irq(sch->lock);
+ 		ret = cio_disable_subchannel(sch);
+ 	} while (ret == -EBUSY);
+ out_unlock:
 -- 
 2.20.1
 
