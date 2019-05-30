@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 47D612F5C5
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:50:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 500DE2F182
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:13:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727622AbfE3DLF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:11:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49808 "EHLO mail.kernel.org"
+        id S1727119AbfE3ENj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:13:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728349AbfE3DLF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:11:05 -0400
+        id S1730653AbfE3DQU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:16:20 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 755B1244E5;
-        Thu, 30 May 2019 03:11:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C23BF245D8;
+        Thu, 30 May 2019 03:16:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185864;
-        bh=KZyKSxQ5KrdEIWBcqojCwCgX/h/V1zXxE97Z7mqPKlE=;
+        s=default; t=1559186179;
+        bh=SsyLdrVu3g1kfXDJ3CVlT1l7yvhaQ2LxfJLp6ZCpiok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SAe+sMjadhayEmeVXo3KSixE6crZbIMjkf9VxKB/kuyJqPjibNIY84fUe/P8IBDvg
-         foCCBtcDkV6VGyHxqOZm9ud+CwLySANgZAmHRSHzxa9FR8YL/D3GjD8jEboGf4/3/s
-         ik4WziL/gnqoFJNOz11/Vc/K7B5PY+29kJ1SqlAM=
+        b=is+vb4n++RIssMOO6CEMXfM2+vmnmjbZDKIS7NjF2c/Yg1JG0O6xgwOzGNw7mp3ne
+         6AKaSDPM3GfYAF+zjbk8wGRklNayJYR/bQpWG7sICKlURNz4C/8wFgPxXWPX+j+5g/
+         zDWxxdyZtBSALJjoH/QirNu+uK6cXFa9VYrOloAg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 202/405] scsi: libsas: Do discovery on empty PHY to update PHY info
-Date:   Wed, 29 May 2019 20:03:20 -0700
-Message-Id: <20190530030551.392430763@linuxfoundation.org>
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.19 043/276] Revert "btrfs: Honour FITRIM range constraints during free space trim"
+Date:   Wed, 29 May 2019 20:03:21 -0700
+Message-Id: <20190530030527.261513597@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,55 +42,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d8649fc1c5e40e691d589ed825998c36a947491c ]
+From: David Sterba <dsterba@suse.com>
 
-When we discover the PHY is empty in sas_rediscover_dev(), the PHY
-information (like negotiated linkrate) is not updated.
+This reverts commit 8b13bb911f0c0c77d41e5ddc41ad3c127c356b8a.
 
-As such, for a user examining sysfs for that PHY, they would see
-incorrect values:
+There is currently no corresponding patch in master due to additional
+changes that would be significantly different from plain revert in the
+respective stable branch.
 
-root@(none)$ cd /sys/class/sas_phy/phy-0:0:20
-root@(none)$ more negotiated_linkrate
-3.0 Gbit
-root@(none)$ echo 0 > enable
-root@(none)$ more negotiated_linkrate
-3.0 Gbit
+The range argument was not handled correctly and could cause trim to
+overlap allocated areas or reach beyond the end of the device. The
+address space that fitrim normally operates on is in logical
+coordinates, while the discards are done on the physical device extents.
+This distinction cannot be made with the current ioctl interface and
+caused the confusion.
 
-So fix this, simply discover the PHY again, even though we know it's empty;
-in the above example, this gives us:
+The bug depends on the layout of block groups and does not always
+happen. The whole-fs trim (run by default by the fstrim tool) is not
+affected.
 
-root@(none)$ more negotiated_linkrate
-Phy disabled
-
-We must do this after unregistering the device associated with the PHY
-(in sas_unregister_devs_sas_addr()).
-
-Signed-off-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/libsas/sas_expander.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ fs/btrfs/extent-tree.c |   25 ++++++-------------------
+ 1 file changed, 6 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/scsi/libsas/sas_expander.c b/drivers/scsi/libsas/sas_expander.c
-index 17b45a0c7bc38..3611a4ef0d150 100644
---- a/drivers/scsi/libsas/sas_expander.c
-+++ b/drivers/scsi/libsas/sas_expander.c
-@@ -2052,6 +2052,11 @@ static int sas_rediscover_dev(struct domain_device *dev, int phy_id, bool last)
- 	if ((SAS_ADDR(sas_addr) == 0) || (res == -ECOMM)) {
- 		phy->phy_state = PHY_EMPTY;
- 		sas_unregister_devs_sas_addr(dev, phy_id, last);
-+		/*
-+		 * Even though the PHY is empty, for convenience we discover
-+		 * the PHY to update the PHY info, like negotiated linkrate.
-+		 */
-+		sas_ex_phy_discover(dev, phy_id);
- 		return res;
- 	} else if (SAS_ADDR(sas_addr) == SAS_ADDR(phy->attached_sas_addr) &&
- 		   dev_type_flutter(type, phy->attached_dev_type)) {
--- 
-2.20.1
-
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -10788,9 +10788,9 @@ int btrfs_error_unpin_extent_range(struc
+  * held back allocations.
+  */
+ static int btrfs_trim_free_extents(struct btrfs_device *device,
+-				   struct fstrim_range *range, u64 *trimmed)
++				   u64 minlen, u64 *trimmed)
+ {
+-	u64 start = range->start, len = 0;
++	u64 start = 0, len = 0;
+ 	int ret;
+ 
+ 	*trimmed = 0;
+@@ -10833,8 +10833,8 @@ static int btrfs_trim_free_extents(struc
+ 		if (!trans)
+ 			up_read(&fs_info->commit_root_sem);
+ 
+-		ret = find_free_dev_extent_start(trans, device, range->minlen,
+-						 start, &start, &len);
++		ret = find_free_dev_extent_start(trans, device, minlen, start,
++						 &start, &len);
+ 		if (trans) {
+ 			up_read(&fs_info->commit_root_sem);
+ 			btrfs_put_transaction(trans);
+@@ -10847,16 +10847,6 @@ static int btrfs_trim_free_extents(struc
+ 			break;
+ 		}
+ 
+-		/* If we are out of the passed range break */
+-		if (start > range->start + range->len - 1) {
+-			mutex_unlock(&fs_info->chunk_mutex);
+-			ret = 0;
+-			break;
+-		}
+-
+-		start = max(range->start, start);
+-		len = min(range->len, len);
+-
+ 		ret = btrfs_issue_discard(device->bdev, start, len, &bytes);
+ 		mutex_unlock(&fs_info->chunk_mutex);
+ 
+@@ -10866,10 +10856,6 @@ static int btrfs_trim_free_extents(struc
+ 		start += len;
+ 		*trimmed += bytes;
+ 
+-		/* We've trimmed enough */
+-		if (*trimmed >= range->len)
+-			break;
+-
+ 		if (fatal_signal_pending(current)) {
+ 			ret = -ERESTARTSYS;
+ 			break;
+@@ -10953,7 +10939,8 @@ int btrfs_trim_fs(struct btrfs_fs_info *
+ 	mutex_lock(&fs_info->fs_devices->device_list_mutex);
+ 	devices = &fs_info->fs_devices->devices;
+ 	list_for_each_entry(device, devices, dev_list) {
+-		ret = btrfs_trim_free_extents(device, range, &group_trimmed);
++		ret = btrfs_trim_free_extents(device, range->minlen,
++					      &group_trimmed);
+ 		if (ret) {
+ 			dev_failed++;
+ 			dev_ret = ret;
 
 
