@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AF4512F51F
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:46:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0CE22F36C
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:29:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728713AbfE3DLv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:11:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52596 "EHLO mail.kernel.org"
+        id S1728720AbfE3E3P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:29:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33990 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728708AbfE3DLv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:11:51 -0400
+        id S1729837AbfE3DOW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:14:22 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D232E24502;
-        Thu, 30 May 2019 03:11:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B9D1A24569;
+        Thu, 30 May 2019 03:14:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185910;
-        bh=5BI3W/bQ/bJ1/zNpqUcHSObyJKPLH/lygxDPR5rIJEo=;
+        s=default; t=1559186061;
+        bh=35T0qHW0GoLyTvKSX60pYUseUsylkpZKu7B/BgGYgcY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rZG9B/7y5NXjNOYBENxZZnlAVlqq6pq9zjE6Dh5AHiX+A6UzbUbq/LJFP6QhbVVNV
-         cowHDjXCWrGpziXfeJX7ceeqTk/SgswfgdlNICTomZlUVVvRR01pcFM6eRyJ4FL3FA
-         yAFT1mM24ioomv/xJnYpU5RZqbRG0tiCZ93fcYt4=
+        b=YhYJVZ5qNzDQJkrbJw2dFj6D/QHUf5x9Az41w4YCSvPPhDqnu5HmOZ9x6wdWmgyIy
+         AGWIeDh8R5s92OptFgLlUyNmEDX7nvhdtKRtbIlvg0y//IG2TDQVqYi2IOQDsQR1P5
+         TfMc8ob0HVWcf0jXfmtl/12KjD3O/+OGCCXmJ5pQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Huazhong Tan <tanhuazhong@huawei.com>,
-        Peng Li <lipeng321@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Tony Lindgren <tony@atomide.com>,
+        Kishon Vijay Abraham I <kishon@ti.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 244/405] net: hns3: check resetting status in hns3_get_stats()
+Subject: [PATCH 5.0 169/346] phy: mapphone-mdm6600: add gpiolib dependency
 Date:   Wed, 29 May 2019 20:04:02 -0700
-Message-Id: <20190530030553.324991156@linuxfoundation.org>
+Message-Id: <20190530030549.721391884@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c4e401e5a934bb0798ebbba98e08dab129695eff ]
+[ Upstream commit 208d3423ee463ab257908456f6bbca4024ab63f7 ]
 
-hns3_get_stats() should check the resetting status firstly,
-since the device will be reinitialized when resetting. If the
-reset has not completed, the hns3_get_stats() may access
-invalid memory.
+gcc points out that when CONFIG_GPIOLIB is disabled,
+gpiod_get_array_value_cansleep() returns 0 but fails to set its output:
 
-Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
-Signed-off-by: Peng Li <lipeng321@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+drivers/phy/motorola/phy-mapphone-mdm6600.c: In function 'phy_mdm6600_status':
+drivers/phy/motorola/phy-mapphone-mdm6600.c:220:24: error: 'values[0]' is used uninitialized in this function [-Werror=uninitialized]
+
+This could be fixed more generally in gpiolib by returning a failure
+code, but for this specific case, the easier workaround is to add a
+gpiolib dependency.
+
+Fixes: 5d1ebbda0318 ("phy: mapphone-mdm6600: Add USB PHY driver for MDM6600 on Droid 4")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/phy/motorola/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c b/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
-index 359d4731fb2db..ea94b5152963f 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
-@@ -483,6 +483,11 @@ static void hns3_get_stats(struct net_device *netdev,
- 	struct hnae3_handle *h = hns3_get_handle(netdev);
- 	u64 *p = data;
+diff --git a/drivers/phy/motorola/Kconfig b/drivers/phy/motorola/Kconfig
+index 82651524ffb9c..718f8729701df 100644
+--- a/drivers/phy/motorola/Kconfig
++++ b/drivers/phy/motorola/Kconfig
+@@ -13,7 +13,7 @@ config PHY_CPCAP_USB
  
-+	if (hns3_nic_resetting(netdev)) {
-+		netdev_err(netdev, "dev resetting, could not get stats\n");
-+		return;
-+	}
-+
- 	if (!h->ae_algo->ops->get_stats || !h->ae_algo->ops->update_stats) {
- 		netdev_err(netdev, "could not get any statistics\n");
- 		return;
+ config PHY_MAPPHONE_MDM6600
+ 	tristate "Motorola Mapphone MDM6600 modem USB PHY driver"
+-	depends on OF && USB_SUPPORT
++	depends on OF && USB_SUPPORT && GPIOLIB
+ 	select GENERIC_PHY
+ 	help
+ 	  Enable this for MDM6600 USB modem to work on Motorola phones
 -- 
 2.20.1
 
