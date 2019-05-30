@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 556902F418
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:36:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09A2F2F640
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:54:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729390AbfE3EfH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:35:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57816 "EHLO mail.kernel.org"
+        id S1728057AbfE3DKW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:10:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727715AbfE3DNQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:13:16 -0400
+        id S1728052AbfE3DKW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:10:22 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A26BD2449A;
-        Thu, 30 May 2019 03:13:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 410B42447C;
+        Thu, 30 May 2019 03:10:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185995;
-        bh=Y3bVksjnQh7k/rJJ4G1pwP/+ZO+2G9N/Aan3epLQxaQ=;
+        s=default; t=1559185821;
+        bh=/xgXLdIZmQ6E5ax/uAchCoFzvE9UX2jP7h3ZiscHh/E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mD+kEz26h+Hc11r8xNUDCTv/Qg3dIkK7cI4PukoIKPwi/pplhfzL216ZrGzuAB8jb
-         ppYgl9QiCaPn+WFPHDxxOy6mT+dJFGst/853cexjDHcW0Vc6c6nqWRaI3B02PEsL5r
-         nwm04XXIKeYbGrAoIm4C5R351Q/huUFtJa7VI57o=
+        b=WYCL0zGyEgFkAMUoACnhwZdBJ0MJ7bI12uLJofNtK1J/wbi2BP/rAsOBzSurck46G
+         2HiVjWPmDfMCgnX7Y4pRcUkHU4DrgrdLEXoXtusFgbw7cBEdw4QF27sPVQ7Pul9epq
+         UIeekQ7lpZWNeIkAGRj1mD7sB8bytF/rD6aDpqbQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ross Lagerwall <ross.lagerwall@citrix.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>,
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 042/346] gfs2: Fix lru_count going negative
-Date:   Wed, 29 May 2019 20:01:55 -0700
-Message-Id: <20190530030542.990551051@linuxfoundation.org>
+Subject: [PATCH 5.1 118/405] slimbus: fix a potential NULL pointer dereference in of_qcom_slim_ngd_register
+Date:   Wed, 29 May 2019 20:01:56 -0700
+Message-Id: <20190530030546.971483555@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,109 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 7881ef3f33bb80f459ea6020d1e021fc524a6348 ]
+[ Upstream commit 06d5d6b7f9948a89543e1160ef852d57892c750d ]
 
-Under certain conditions, lru_count may drop below zero resulting in
-a large amount of log spam like this:
+In case platform_device_alloc fails, the fix returns an error
+code to avoid the NULL pointer dereference.
 
-vmscan: shrink_slab: gfs2_dump_glock+0x3b0/0x630 [gfs2] \
-    negative objects to delete nr=-1
-
-This happens as follows:
-1) A glock is moved from lru_list to the dispose list and lru_count is
-   decremented.
-2) The dispose function calls cond_resched() and drops the lru lock.
-3) Another thread takes the lru lock and tries to add the same glock to
-   lru_list, checking if the glock is on an lru list.
-4) It is on a list (actually the dispose list) and so it avoids
-   incrementing lru_count.
-5) The glock is moved to lru_list.
-5) The original thread doesn't dispose it because it has been re-added
-   to the lru list but the lru_count has still decreased by one.
-
-Fix by checking if the LRU flag is set on the glock rather than checking
-if the glock is on some list and rearrange the code so that the LRU flag
-is added/removed precisely when the glock is added/removed from lru_list.
-
-Signed-off-by: Ross Lagerwall <ross.lagerwall@citrix.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Kangjie Lu <kjlu@umn.edu>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/glock.c | 22 +++++++++++++---------
- 1 file changed, 13 insertions(+), 9 deletions(-)
+ drivers/slimbus/qcom-ngd-ctrl.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/fs/gfs2/glock.c b/fs/gfs2/glock.c
-index 4b038f25f2564..2d25d89e77f9b 100644
---- a/fs/gfs2/glock.c
-+++ b/fs/gfs2/glock.c
-@@ -183,15 +183,19 @@ static int demote_ok(const struct gfs2_glock *gl)
+diff --git a/drivers/slimbus/qcom-ngd-ctrl.c b/drivers/slimbus/qcom-ngd-ctrl.c
+index 71f094c9ec684..f3585777324cf 100644
+--- a/drivers/slimbus/qcom-ngd-ctrl.c
++++ b/drivers/slimbus/qcom-ngd-ctrl.c
+@@ -1342,6 +1342,10 @@ static int of_qcom_slim_ngd_register(struct device *parent,
+ 			return -ENOMEM;
  
- void gfs2_glock_add_to_lru(struct gfs2_glock *gl)
- {
-+	if (!(gl->gl_ops->go_flags & GLOF_LRU))
-+		return;
-+
- 	spin_lock(&lru_lock);
- 
--	if (!list_empty(&gl->gl_lru))
--		list_del_init(&gl->gl_lru);
--	else
-+	list_del(&gl->gl_lru);
-+	list_add_tail(&gl->gl_lru, &lru_list);
-+
-+	if (!test_bit(GLF_LRU, &gl->gl_flags)) {
-+		set_bit(GLF_LRU, &gl->gl_flags);
- 		atomic_inc(&lru_count);
-+	}
- 
--	list_add_tail(&gl->gl_lru, &lru_list);
--	set_bit(GLF_LRU, &gl->gl_flags);
- 	spin_unlock(&lru_lock);
- }
- 
-@@ -201,7 +205,7 @@ static void gfs2_glock_remove_from_lru(struct gfs2_glock *gl)
- 		return;
- 
- 	spin_lock(&lru_lock);
--	if (!list_empty(&gl->gl_lru)) {
-+	if (test_bit(GLF_LRU, &gl->gl_flags)) {
- 		list_del_init(&gl->gl_lru);
- 		atomic_dec(&lru_count);
- 		clear_bit(GLF_LRU, &gl->gl_flags);
-@@ -1159,8 +1163,7 @@ void gfs2_glock_dq(struct gfs2_holder *gh)
- 		    !test_bit(GLF_DEMOTE, &gl->gl_flags))
- 			fast_path = 1;
- 	}
--	if (!test_bit(GLF_LFLUSH, &gl->gl_flags) && demote_ok(gl) &&
--	    (glops->go_flags & GLOF_LRU))
-+	if (!test_bit(GLF_LFLUSH, &gl->gl_flags) && demote_ok(gl))
- 		gfs2_glock_add_to_lru(gl);
- 
- 	trace_gfs2_glock_queue(gh, 0);
-@@ -1456,6 +1459,7 @@ __acquires(&lru_lock)
- 		if (!spin_trylock(&gl->gl_lockref.lock)) {
- add_back_to_lru:
- 			list_add(&gl->gl_lru, &lru_list);
-+			set_bit(GLF_LRU, &gl->gl_flags);
- 			atomic_inc(&lru_count);
- 			continue;
- 		}
-@@ -1463,7 +1467,6 @@ __acquires(&lru_lock)
- 			spin_unlock(&gl->gl_lockref.lock);
- 			goto add_back_to_lru;
- 		}
--		clear_bit(GLF_LRU, &gl->gl_flags);
- 		gl->gl_lockref.count++;
- 		if (demote_ok(gl))
- 			handle_callback(gl, LM_ST_UNLOCKED, 0, false);
-@@ -1498,6 +1501,7 @@ static long gfs2_scan_glock_lru(int nr)
- 		if (!test_bit(GLF_LOCK, &gl->gl_flags)) {
- 			list_move(&gl->gl_lru, &dispose);
- 			atomic_dec(&lru_count);
-+			clear_bit(GLF_LRU, &gl->gl_flags);
- 			freed++;
- 			continue;
- 		}
+ 		ngd->pdev = platform_device_alloc(QCOM_SLIM_NGD_DRV_NAME, id);
++		if (!ngd->pdev) {
++			kfree(ngd);
++			return -ENOMEM;
++		}
+ 		ngd->id = id;
+ 		ngd->pdev->dev.parent = parent;
+ 		ngd->pdev->driver_override = QCOM_SLIM_NGD_DRV_NAME;
 -- 
 2.20.1
 
