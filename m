@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BE3AD2F30C
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:26:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6ABC42EC23
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:18:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729932AbfE3E0D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:26:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35142 "EHLO mail.kernel.org"
+        id S1731595AbfE3DSf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:18:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51796 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729150AbfE3DOj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:14:39 -0400
+        id S1731587AbfE3DSe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:18:34 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF0062455C;
-        Thu, 30 May 2019 03:14:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5DD2A247CF;
+        Thu, 30 May 2019 03:18:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186079;
-        bh=9mXslimkPMmlanAaQNdynl1vDE9sPKhg5fOEZZEViIs=;
+        s=default; t=1559186313;
+        bh=WEkxGOTOrldUFzewf8WLDqXHSWnnWqn7UaLHQjhoE0o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X3+bvubkGrnjXYcCGadaz1y4bur+YTBMe14+fjmwt6FrSWLiXt+0mZ6GMgazgZzxN
-         ha3Fm9TIZAPWiJuesCZhVmBt92ohsd4RMD7N+jP7Tfr356d0GeyqZB8yAAnkOOaEGB
-         AAqXsIH1bKpl0uSc5VrQDRHTdgwWsD5x5di0xc6c=
+        b=hIKsAqTwo1BbOpmFENLd+2yInOV8ZLDAIlNiVtO12b8rB5UIF+Z1IDmO1mvMjnhjT
+         fZCFCs6xCWm1OVc9jJHB7/TGSLmNYi+MtwiMy2Uj/z/wDL7eOaS3hXbfiTZevtOqzp
+         /DBbZ2Og3lHIsy6KiXnPQdrofenmaB2RXWpDrKXk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Tretter <m.tretter@pengutronix.de>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 197/346] clk: zynqmp: fix check for fractional clock
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        Anand Jain <anand.jain@oracle.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.14 016/193] Btrfs: do not abort transaction at btrfs_update_root() after failure to COW path
 Date:   Wed, 29 May 2019 20:04:30 -0700
-Message-Id: <20190530030551.237135170@linuxfoundation.org>
+Message-Id: <20190530030450.301586277@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
+References: <20190530030446.953835040@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,73 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c06e64407e031e71c67f45f07981510ca4c880a1 ]
+From: Filipe Manana <fdmanana@suse.com>
 
-The firmware sets BIT(13) in clkflag to mark a divider as fractional
-divider. The clock driver copies the clkflag straight to the flags of
-the common clock framework. In the common clk framework flags, BIT(13)
-is defined as CLK_DUTY_CYCLE_PARENT.
+commit 72bd2323ec87722c115a5906bc6a1b31d11e8f54 upstream.
 
-Add a new field to the zynqmp_clk_divider to specify if a divider is a
-fractional devider. Set this field based on the clkflag when registering
-a divider.
+Currently when we fail to COW a path at btrfs_update_root() we end up
+always aborting the transaction. However all the current callers of
+btrfs_update_root() are able to deal with errors returned from it, many do
+end up aborting the transaction themselves (directly or not, such as the
+transaction commit path), other BUG_ON() or just gracefully cancel whatever
+they were doing.
 
-At the same time, unset BIT(13) from clkflag when copying the flags to
-the common clk framework flags.
+When syncing the fsync log, we call btrfs_update_root() through
+tree-log.c:update_log_root(), and if it returns an -ENOSPC error, the log
+sync code does not abort the transaction, instead it gracefully handles
+the error and returns -EAGAIN to the fsync handler, so that it falls back
+to a transaction commit. Any other error different from -ENOSPC, makes the
+log sync code abort the transaction.
 
-Signed-off-by: Michael Tretter <m.tretter@pengutronix.de>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+So remove the transaction abort from btrfs_update_log() when we fail to
+COW a path to update the root item, so that if an -ENOSPC failure happens
+we avoid aborting the current transaction and have a chance of the fsync
+succeeding after falling back to a transaction commit.
+
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=203413
+Fixes: 79787eaab46121 ("btrfs: replace many BUG_ONs with proper error handling")
+Cc: stable@vger.kernel.org # 4.4+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: Anand Jain <anand.jain@oracle.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/clk/zynqmp/divider.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ fs/btrfs/root-tree.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/clk/zynqmp/divider.c b/drivers/clk/zynqmp/divider.c
-index a371c66e72ef6..bd9b5fbc443b3 100644
---- a/drivers/clk/zynqmp/divider.c
-+++ b/drivers/clk/zynqmp/divider.c
-@@ -31,12 +31,14 @@
-  * struct zynqmp_clk_divider - adjustable divider clock
-  * @hw:		handle between common and hardware-specific interfaces
-  * @flags:	Hardware specific flags
-+ * @is_frac:	The divider is a fractional divider
-  * @clk_id:	Id of clock
-  * @div_type:	divisor type (TYPE_DIV1 or TYPE_DIV2)
-  */
- struct zynqmp_clk_divider {
- 	struct clk_hw hw;
- 	u8 flags;
-+	bool is_frac;
- 	u32 clk_id;
- 	u32 div_type;
- };
-@@ -116,8 +118,7 @@ static long zynqmp_clk_divider_round_rate(struct clk_hw *hw,
+--- a/fs/btrfs/root-tree.c
++++ b/fs/btrfs/root-tree.c
+@@ -145,10 +145,8 @@ int btrfs_update_root(struct btrfs_trans
+ 		return -ENOMEM;
  
- 	bestdiv = zynqmp_divider_get_val(*prate, rate);
+ 	ret = btrfs_search_slot(trans, root, key, path, 0, 1);
+-	if (ret < 0) {
+-		btrfs_abort_transaction(trans, ret);
++	if (ret < 0)
+ 		goto out;
+-	}
  
--	if ((clk_hw_get_flags(hw) & CLK_SET_RATE_PARENT) &&
--	    (divider->flags & CLK_FRAC))
-+	if ((clk_hw_get_flags(hw) & CLK_SET_RATE_PARENT) && divider->is_frac)
- 		bestdiv = rate % *prate ? 1 : bestdiv;
- 	*prate = rate * bestdiv;
- 
-@@ -195,11 +196,13 @@ struct clk_hw *zynqmp_clk_register_divider(const char *name,
- 
- 	init.name = name;
- 	init.ops = &zynqmp_clk_divider_ops;
--	init.flags = nodes->flag;
-+	/* CLK_FRAC is not defined in the common clk framework */
-+	init.flags = nodes->flag & ~CLK_FRAC;
- 	init.parent_names = parents;
- 	init.num_parents = 1;
- 
- 	/* struct clk_divider assignments */
-+	div->is_frac = !!(nodes->flag & CLK_FRAC);
- 	div->flags = nodes->type_flag;
- 	div->hw.init = &init;
- 	div->clk_id = clk_id;
--- 
-2.20.1
-
+ 	if (ret != 0) {
+ 		btrfs_print_leaf(path->nodes[0]);
 
 
