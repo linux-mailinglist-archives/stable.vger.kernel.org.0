@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 86C142F6DF
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 07:01:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F1992F6D0
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 07:00:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389005AbfE3E7k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:59:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44720 "EHLO mail.kernel.org"
+        id S1727678AbfE3DJi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:09:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727668AbfE3DJh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:09:37 -0400
+        id S1727670AbfE3DJi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:09:38 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA31A24496;
-        Thu, 30 May 2019 03:09:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2F62A24499;
+        Thu, 30 May 2019 03:09:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185776;
-        bh=nGAUJRbLvnG4RZXmH6VU4fSaW9467h2MfLvkpldJnBI=;
+        s=default; t=1559185777;
+        bh=zgiv+qFIzyKL+BVY8zd+kxmbe99pwOeqQq748lSnyHU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t6R3NKDT2QlX2VIUuzSS2LvELbqjutJjfbHc6itXj1ecAUGvVvVOAzPH0kTalTeHF
-         4/GYapLYrhlbJIiNX8OjVg9jmGBZnxFVIkexY27tafLqGqOJtSr4jNgPolQ2wTxqmE
-         HauN2W+eK7stZnT+ISw5SG+nfZ69OmDikmojg9SI=
+        b=KxkYWPH1XnRdYv6dv2TP1X3P5yrX+RTyMSW1FRvk/yYdiEg4oscZDVTIX/IEZTgpS
+         7bYGsawzR5sMUm25AYpdj3OUN6uFdz1CIcmBbh+xYA910n9E05wkIptE3TBsbnpVOY
+         W1wq5qx03bPk7boxkQs6fGSw1dBqcWDQH2T9mCG4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+9c69c282adc4edd2b540@syzkaller.appspotmail.com,
-        Amir Goldstein <amir73il@gmail.com>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 5.1 032/405] ovl: relax WARN_ON() for overlapping layers use case
-Date:   Wed, 29 May 2019 20:00:30 -0700
-Message-Id: <20190530030542.349418095@linuxfoundation.org>
+        stable@vger.kernel.org, Jiufei Xue <jiufei.xue@linux.alibaba.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Subject: [PATCH 5.1 033/405] fbdev: fix WARNING in __alloc_pages_nodemask bug
+Date:   Wed, 29 May 2019 20:00:31 -0700
+Message-Id: <20190530030542.416410721@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
 References: <20190530030540.291644921@linuxfoundation.org>
@@ -45,85 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amir Goldstein <amir73il@gmail.com>
+From: Jiufei Xue <jiufei.xue@linux.alibaba.com>
 
-commit acf3062a7e1ccf67c6f7e7c28671a6708fde63b0 upstream.
+commit 8c40292be9169a9cbe19aadd1a6fc60cbd1af82f upstream.
 
-This nasty little syzbot repro:
-https://syzkaller.appspot.com/x/repro.syz?x=12c7a94f400000
+Syzkaller hit 'WARNING in __alloc_pages_nodemask' bug.
 
-Creates overlay mounts where the same directory is both in upper and lower
-layers. Simplified example:
+WARNING: CPU: 1 PID: 1473 at mm/page_alloc.c:4377
+__alloc_pages_nodemask+0x4da/0x2130
+Kernel panic - not syncing: panic_on_warn set ...
 
-  mkdir foo work
-  mount -t overlay none foo -o"lowerdir=.,upperdir=foo,workdir=work"
+Call Trace:
+ alloc_pages_current+0xb1/0x1e0
+ kmalloc_order+0x1f/0x60
+ kmalloc_order_trace+0x1d/0x120
+ fb_alloc_cmap_gfp+0x85/0x2b0
+ fb_set_user_cmap+0xff/0x370
+ do_fb_ioctl+0x949/0xa20
+ fb_ioctl+0xdd/0x120
+ do_vfs_ioctl+0x186/0x1070
+ ksys_ioctl+0x89/0xa0
+ __x64_sys_ioctl+0x74/0xb0
+ do_syscall_64+0xc8/0x550
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-The repro runs several threads in parallel that attempt to chdir into foo
-and attempt to symlink/rename/exec/mkdir the file bar.
+This is a warning about order >= MAX_ORDER and the order is from
+userspace ioctl. Add flag __NOWARN to silence this warning.
 
-The repro hits a WARN_ON() I placed in ovl_instantiate(), which suggests
-that an overlay inode already exists in cache and is hashed by the pointer
-of the real upper dentry that ovl_create_real() has just created. At the
-point of the WARN_ON(), for overlay dir inode lock is held and upper dir
-inode lock, so at first, I did not see how this was possible.
-
-On a closer look, I see that after ovl_create_real(), because of the
-overlapping upper and lower layers, a lookup by another thread can find the
-file foo/bar that was just created in upper layer, at overlay path
-foo/foo/bar and hash the an overlay inode with the new real dentry as lower
-dentry. This is possible because the overlay directory foo/foo is not
-locked and the upper dentry foo/bar is in dcache, so ovl_lookup() can find
-it without taking upper dir inode shared lock.
-
-Overlapping layers is considered a wrong setup which would result in
-unexpected behavior, but it shouldn't crash the kernel and it shouldn't
-trigger WARN_ON() either, so relax this WARN_ON() and leave a pr_warn()
-instead to cover all cases of failure to get an overlay inode.
-
-The error returned from failure to insert new inode to cache with
-inode_insert5() was changed to -EEXIST, to distinguish from the error
--ENOMEM returned on failure to get/allocate inode with iget5_locked().
-
-Reported-by: syzbot+9c69c282adc4edd2b540@syzkaller.appspotmail.com
-Fixes: 01b39dcc9568 ("ovl: use inode_insert5() to hash a newly...")
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Signed-off-by: Jiufei Xue <jiufei.xue@linux.alibaba.com>
+Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/overlayfs/dir.c   |    2 +-
- fs/overlayfs/inode.c |    3 ++-
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ drivers/video/fbdev/core/fbcmap.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/overlayfs/dir.c
-+++ b/fs/overlayfs/dir.c
-@@ -260,7 +260,7 @@ static int ovl_instantiate(struct dentry
- 		 * hashed directory inode aliases.
- 		 */
- 		inode = ovl_get_inode(dentry->d_sb, &oip);
--		if (WARN_ON(IS_ERR(inode)))
-+		if (IS_ERR(inode))
- 			return PTR_ERR(inode);
- 	} else {
- 		WARN_ON(ovl_inode_real(inode) != d_inode(newdentry));
---- a/fs/overlayfs/inode.c
-+++ b/fs/overlayfs/inode.c
-@@ -832,7 +832,7 @@ struct inode *ovl_get_inode(struct super
- 	int fsid = bylower ? oip->lowerpath->layer->fsid : 0;
- 	bool is_dir, metacopy = false;
- 	unsigned long ino = 0;
--	int err = -ENOMEM;
-+	int err = oip->newinode ? -EEXIST : -ENOMEM;
+--- a/drivers/video/fbdev/core/fbcmap.c
++++ b/drivers/video/fbdev/core/fbcmap.c
+@@ -94,6 +94,8 @@ int fb_alloc_cmap_gfp(struct fb_cmap *cm
+ 	int size = len * sizeof(u16);
+ 	int ret = -ENOMEM;
  
- 	if (!realinode)
- 		realinode = d_inode(lowerdentry);
-@@ -917,6 +917,7 @@ out:
- 	return inode;
- 
- out_err:
-+	pr_warn_ratelimited("overlayfs: failed to get inode (%i)\n", err);
- 	inode = ERR_PTR(err);
- 	goto out;
- }
++	flags |= __GFP_NOWARN;
++
+ 	if (cmap->len != len) {
+ 		fb_dealloc_cmap(cmap);
+ 		if (!len)
 
 
