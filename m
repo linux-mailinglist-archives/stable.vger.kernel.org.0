@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A5C12EFE6
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:59:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DC4A2F304
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:26:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728594AbfE3D7P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:59:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51920 "EHLO mail.kernel.org"
+        id S1730280AbfE3EZn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:25:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730552AbfE3DSg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:18:36 -0400
+        id S1728195AbfE3DOl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:14:41 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C79102471D;
-        Thu, 30 May 2019 03:18:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0651A24557;
+        Thu, 30 May 2019 03:14:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186315;
-        bh=nyfPIe0u8n8KIQrrASxE206fImnENFxIy8VAiZmQtcA=;
+        s=default; t=1559186081;
+        bh=Mslr04vKCV+c1HCoGRdDiyNkQPaY5BPKy2YaXll0TQI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rZ3R7BzRgO59XWEofAyzhKJE6bngPyWE0U9ooxMnUbgyyR7Z7zZAPNjy4BQrTmJUA
-         nwuh2y6iGPps3OuPKSSfzO42G0tBpxmGqvV2GJtHk4c/YhDTmMSAZ7QFYIfgk8SqhT
-         KQSNfov1PkIrLB1+SamRRNf4Mp+MXxis8KTvhUSA=
+        b=0SCMVEaBh4Sexdn7YWxXXL7dlRVZSO/u2lCEN4cIMeFnZvqpIa3q3npsssOU1k4CX
+         6yzzD6v1Igry6KH7GRdPPsiVphhGTMkY9irwDEYaUj95Ewn/6apJSvfiLfAuF38Zhs
+         hWfb37AnGNQYBEhCAOAFGFNGIuGKEnwUR0oO0KHY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Tobin C. Harding" <tobin@kernel.org>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.14 020/193] btrfs: sysfs: dont leak memory when failing add fsid
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Sebastian Ott <sebott@linux.ibm.com>,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 201/346] s390: cio: fix cio_irb declaration
 Date:   Wed, 29 May 2019 20:04:34 -0700
-Message-Id: <20190530030451.543837359@linuxfoundation.org>
+Message-Id: <20190530030551.386002744@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,53 +46,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tobin C. Harding <tobin@kernel.org>
+[ Upstream commit e91012ee855ad9f5ef2ab106a3de51db93fe4d0c ]
 
-commit e32773357d5cc271b1d23550b3ed026eb5c2a468 upstream.
+clang points out that the declaration of cio_irb does not match the
+definition exactly, it is missing the alignment attribute:
 
-A failed call to kobject_init_and_add() must be followed by a call to
-kobject_put().  Currently in the error path when adding fs_devices we
-are missing this call.  This could be fixed by calling
-btrfs_sysfs_remove_fsid() if btrfs_sysfs_add_fsid() returns an error or
-by adding a call to kobject_put() directly in btrfs_sysfs_add_fsid().
-Here we choose the second option because it prevents the slightly
-unusual error path handling requirements of kobject from leaking out
-into btrfs functions.
+../drivers/s390/cio/cio.c:50:1: warning: section does not match previous declaration [-Wsection]
+DEFINE_PER_CPU_ALIGNED(struct irb, cio_irb);
+^
+../include/linux/percpu-defs.h:150:2: note: expanded from macro 'DEFINE_PER_CPU_ALIGNED'
+        DEFINE_PER_CPU_SECTION(type, name, PER_CPU_ALIGNED_SECTION)     \
+        ^
+../include/linux/percpu-defs.h:93:9: note: expanded from macro 'DEFINE_PER_CPU_SECTION'
+        extern __PCPU_ATTRS(sec) __typeof__(type) name;                 \
+               ^
+../include/linux/percpu-defs.h:49:26: note: expanded from macro '__PCPU_ATTRS'
+        __percpu __attribute__((section(PER_CPU_BASE_SECTION sec)))     \
+                                ^
+../drivers/s390/cio/cio.h:118:1: note: previous attribute is here
+DECLARE_PER_CPU(struct irb, cio_irb);
+^
+../include/linux/percpu-defs.h:111:2: note: expanded from macro 'DECLARE_PER_CPU'
+        DECLARE_PER_CPU_SECTION(type, name, "")
+        ^
+../include/linux/percpu-defs.h:87:9: note: expanded from macro 'DECLARE_PER_CPU_SECTION'
+        extern __PCPU_ATTRS(sec) __typeof__(type) name
+               ^
+../include/linux/percpu-defs.h:49:26: note: expanded from macro '__PCPU_ATTRS'
+        __percpu __attribute__((section(PER_CPU_BASE_SECTION sec)))     \
+                                ^
+Use DECLARE_PER_CPU_ALIGNED() here, to make the two match.
 
-Add a call to kobject_put() in the error path of kobject_add_and_init().
-This causes the release method to be called if kobject_init_and_add()
-fails.  open_tree() is the function that calls btrfs_sysfs_add_fsid()
-and the error code in this function is already written with the
-assumption that the release method is called during the error path of
-open_tree() (as seen by the call to btrfs_sysfs_remove_fsid() under the
-fail_fsdev_sysfs label).
-
-Cc: stable@vger.kernel.org # v4.4+
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Tobin C. Harding <tobin@kernel.org>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Sebastian Ott <sebott@linux.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/sysfs.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/s390/cio/cio.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/btrfs/sysfs.c
-+++ b/fs/btrfs/sysfs.c
-@@ -794,7 +794,12 @@ int btrfs_sysfs_add_fsid(struct btrfs_fs
- 	fs_devs->fsid_kobj.kset = btrfs_kset;
- 	error = kobject_init_and_add(&fs_devs->fsid_kobj,
- 				&btrfs_ktype, parent, "%pU", fs_devs->fsid);
--	return error;
-+	if (error) {
-+		kobject_put(&fs_devs->fsid_kobj);
-+		return error;
-+	}
-+
-+	return 0;
- }
+diff --git a/drivers/s390/cio/cio.h b/drivers/s390/cio/cio.h
+index 9811fd8a0c731..92eabbb5f18d4 100644
+--- a/drivers/s390/cio/cio.h
++++ b/drivers/s390/cio/cio.h
+@@ -115,7 +115,7 @@ struct subchannel {
+ 	struct schib_config config;
+ } __attribute__ ((aligned(8)));
  
- int btrfs_sysfs_add_mounted(struct btrfs_fs_info *fs_info)
+-DECLARE_PER_CPU(struct irb, cio_irb);
++DECLARE_PER_CPU_ALIGNED(struct irb, cio_irb);
+ 
+ #define to_subchannel(n) container_of(n, struct subchannel, dev)
+ 
+-- 
+2.20.1
+
 
 
