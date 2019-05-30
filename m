@@ -2,47 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AB7D2F120
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:10:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE3AD2F30C
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:26:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726892AbfE3EKS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:10:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44696 "EHLO mail.kernel.org"
+        id S1729932AbfE3E0D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:26:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730888AbfE3DRB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:17:01 -0400
+        id S1729150AbfE3DOj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:14:39 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B887924656;
-        Thu, 30 May 2019 03:17:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DF0062455C;
+        Thu, 30 May 2019 03:14:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186220;
-        bh=fftdQk/7amfLgc7ki+wpqJ+JdSTVNsCzjgwyklgGKRA=;
+        s=default; t=1559186079;
+        bh=9mXslimkPMmlanAaQNdynl1vDE9sPKhg5fOEZZEViIs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vv0NMyj7RTM0yPtglW/Z6mrNXfRVxJNluW8NVXamKUH9k84UVJQgrEcZ5BcFOhCga
-         K2z1d5V3dTliHDLSfdXVKiEZWIwQg1TmeIyWabkRLxNGA8J60pM3iV6iOn9zR1Y92g
-         Bx2VhF3x2YmE+oFL7jJ8NRNG2IVUug1WJanJLLPM=
+        b=X3+bvubkGrnjXYcCGadaz1y4bur+YTBMe14+fjmwt6FrSWLiXt+0mZ6GMgazgZzxN
+         ha3Fm9TIZAPWiJuesCZhVmBt92ohsd4RMD7N+jP7Tfr356d0GeyqZB8yAAnkOOaEGB
+         AAqXsIH1bKpl0uSc5VrQDRHTdgwWsD5x5di0xc6c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolai Stange <nstange@suse.de>,
-        Jiri Kosina <jkosina@suse.cz>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Frederic Weisbecker <fweisbec@gmail.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 112/276] x86/mm: Remove in_nmi() warning from 64-bit implementation of vmalloc_fault()
+        stable@vger.kernel.org, Michael Tretter <m.tretter@pengutronix.de>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 197/346] clk: zynqmp: fix check for fractional clock
 Date:   Wed, 29 May 2019 20:04:30 -0700
-Message-Id: <20190530030532.968779573@linuxfoundation.org>
+Message-Id: <20190530030551.237135170@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,59 +44,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a65c88e16f32aa9ef2e8caa68ea5c29bd5eb0ff0 ]
+[ Upstream commit c06e64407e031e71c67f45f07981510ca4c880a1 ]
 
-In-NMI warnings have been added to vmalloc_fault() via:
+The firmware sets BIT(13) in clkflag to mark a divider as fractional
+divider. The clock driver copies the clkflag straight to the flags of
+the common clock framework. In the common clk framework flags, BIT(13)
+is defined as CLK_DUTY_CYCLE_PARENT.
 
-  ebc8827f75 ("x86: Barf when vmalloc and kmemcheck faults happen in NMI")
+Add a new field to the zynqmp_clk_divider to specify if a divider is a
+fractional devider. Set this field based on the clkflag when registering
+a divider.
 
-back in the time when our NMI entry code could not cope with nested NMIs.
+At the same time, unset BIT(13) from clkflag when copying the flags to
+the common clk framework flags.
 
-These days, it's perfectly fine to take a fault in NMI context and we
-don't have to care about the fact that IRET from the fault handler might
-cause NMI nesting.
-
-This warning has already been removed from 32-bit implementation of
-vmalloc_fault() in:
-
-  6863ea0cda8 ("x86/mm: Remove in_nmi() warning from vmalloc_fault()")
-
-but the 64-bit version was omitted.
-
-Remove the bogus warning also from 64-bit implementation of vmalloc_fault().
-
-Reported-by: Nicolai Stange <nstange@suse.de>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Frederic Weisbecker <fweisbec@gmail.com>
-Cc: Joerg Roedel <jroedel@suse.de>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Fixes: 6863ea0cda8 ("x86/mm: Remove in_nmi() warning from vmalloc_fault()")
-Link: http://lkml.kernel.org/r/nycvar.YFH.7.76.1904240902280.9803@cbobk.fhfr.pm
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Michael Tretter <m.tretter@pengutronix.de>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/mm/fault.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/clk/zynqmp/divider.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/mm/fault.c b/arch/x86/mm/fault.c
-index 47bebfe6efa70..9d9765e4d1ef1 100644
---- a/arch/x86/mm/fault.c
-+++ b/arch/x86/mm/fault.c
-@@ -427,8 +427,6 @@ static noinline int vmalloc_fault(unsigned long address)
- 	if (!(address >= VMALLOC_START && address < VMALLOC_END))
- 		return -1;
+diff --git a/drivers/clk/zynqmp/divider.c b/drivers/clk/zynqmp/divider.c
+index a371c66e72ef6..bd9b5fbc443b3 100644
+--- a/drivers/clk/zynqmp/divider.c
++++ b/drivers/clk/zynqmp/divider.c
+@@ -31,12 +31,14 @@
+  * struct zynqmp_clk_divider - adjustable divider clock
+  * @hw:		handle between common and hardware-specific interfaces
+  * @flags:	Hardware specific flags
++ * @is_frac:	The divider is a fractional divider
+  * @clk_id:	Id of clock
+  * @div_type:	divisor type (TYPE_DIV1 or TYPE_DIV2)
+  */
+ struct zynqmp_clk_divider {
+ 	struct clk_hw hw;
+ 	u8 flags;
++	bool is_frac;
+ 	u32 clk_id;
+ 	u32 div_type;
+ };
+@@ -116,8 +118,7 @@ static long zynqmp_clk_divider_round_rate(struct clk_hw *hw,
  
--	WARN_ON_ONCE(in_nmi());
--
- 	/*
- 	 * Copy kernel mappings over when needed. This can also
- 	 * happen within a race in page table update. In the later
+ 	bestdiv = zynqmp_divider_get_val(*prate, rate);
+ 
+-	if ((clk_hw_get_flags(hw) & CLK_SET_RATE_PARENT) &&
+-	    (divider->flags & CLK_FRAC))
++	if ((clk_hw_get_flags(hw) & CLK_SET_RATE_PARENT) && divider->is_frac)
+ 		bestdiv = rate % *prate ? 1 : bestdiv;
+ 	*prate = rate * bestdiv;
+ 
+@@ -195,11 +196,13 @@ struct clk_hw *zynqmp_clk_register_divider(const char *name,
+ 
+ 	init.name = name;
+ 	init.ops = &zynqmp_clk_divider_ops;
+-	init.flags = nodes->flag;
++	/* CLK_FRAC is not defined in the common clk framework */
++	init.flags = nodes->flag & ~CLK_FRAC;
+ 	init.parent_names = parents;
+ 	init.num_parents = 1;
+ 
+ 	/* struct clk_divider assignments */
++	div->is_frac = !!(nodes->flag & CLK_FRAC);
+ 	div->flags = nodes->type_flag;
+ 	div->hw.init = &init;
+ 	div->clk_id = clk_id;
 -- 
 2.20.1
 
