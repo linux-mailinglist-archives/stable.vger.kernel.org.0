@@ -2,43 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C6162F293
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:23:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 491F02F291
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:23:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729345AbfE3EXX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:23:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36290 "EHLO mail.kernel.org"
+        id S1730150AbfE3EXK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:23:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728935AbfE3DPC (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730062AbfE3DPC (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 29 May 2019 23:15:02 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 33608244EF;
+        by mail.kernel.org (Postfix) with ESMTPSA id 96F5724555;
         Thu, 30 May 2019 03:15:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1559186101;
-        bh=P3JTk7xVOJNuPEoVcNeajWlhbZPMJjIyXv67yz0Vxn8=;
+        bh=tJgKCQQ4e+hKu6kHOlcUTPcrbDVhyOcD4y2tBCRwQuA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PKnfivbfpdYz8zLlG2jMVyqJn+GeFRoCP+Cg5h2ThZvXub3F2nG0Uihz2CfEe801f
-         i88N8cGdCay/58mFAWuvC3QwMTq3+LCrsRVcKQBsLsMLzsPFtGQl/rv7uozt4I+TUO
-         w+s6l7ddrCq8gi9wsURtnQ5DBUOZA42Pu/0/Af2o=
+        b=pibrLhr3aY2sZEzDIAEz672kgM5rp2v6i6eny0Idl6kWHN2C6I4sfLR8KoeFYXauq
+         3phiuhWIwtvoyC6k0TsbRHve5aTX/0kgR7mHvZMY+XS0hswaedwvfGnKyeffaoXDgB
+         ZPoQfs7OZ1sSOzm2TnPlZTp9O2H6asYpWeW7oho0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Will Deacon <will.deacon@arm.com>, ard.biesheuvel@linaro.org,
-        oss-drivers@netronome.com, pbonzini@redhat.com,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 238/346] locking/static_key: Fix false positive warnings on concurrent dec/inc
-Date:   Wed, 29 May 2019 20:05:11 -0700
-Message-Id: <20190530030553.094255091@linuxfoundation.org>
+        stable@vger.kernel.org, Lior David <liord@codeaurora.org>,
+        Maya Erez <merez@codeaurora.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 239/346] wil6210: fix return code of wmi_mgmt_tx and wmi_mgmt_tx_ext
+Date:   Wed, 29 May 2019 20:05:12 -0700
+Message-Id: <20190530030553.141076483@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
 References: <20190530030540.363386121@linuxfoundation.org>
@@ -51,89 +45,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a1247d06d01045d7ab2882a9c074fbf21137c690 ]
+[ Upstream commit 49122ec42634f73babb1dc96f170023e5228d080 ]
 
-Even though the atomic_dec_and_mutex_lock() in
-__static_key_slow_dec_cpuslocked() can never see a negative value in
-key->enabled the subsequent sanity check is re-reading key->enabled, which may
-have been set to -1 in the meantime by static_key_slow_inc_cpuslocked().
+The functions that send management TX frame have 3 possible
+results: success and other side acknowledged receive (ACK=1),
+success and other side did not acknowledge receive(ACK=0) and
+failure to send the frame. The current implementation
+incorrectly reports the ACK=0 case as failure.
 
-                CPU  A                               CPU B
-
- __static_key_slow_dec_cpuslocked():          static_key_slow_inc_cpuslocked():
-                               # enabled = 1
-   atomic_dec_and_mutex_lock()
-                               # enabled = 0
-                                              atomic_read() == 0
-                                              atomic_set(-1)
-                               # enabled = -1
-   val = atomic_read()
-   # Oops - val == -1!
-
-The test case is TCP's clean_acked_data_enable() / clean_acked_data_disable()
-as tickled by KTLS (net/ktls).
-
-Suggested-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Reported-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Tested-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: ard.biesheuvel@linaro.org
-Cc: oss-drivers@netronome.com
-Cc: pbonzini@redhat.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Lior David <liord@codeaurora.org>
+Signed-off-by: Maya Erez <merez@codeaurora.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/jump_label.c | 21 +++++++++++++--------
- 1 file changed, 13 insertions(+), 8 deletions(-)
+ drivers/net/wireless/ath/wil6210/cfg80211.c |  5 +++++
+ drivers/net/wireless/ath/wil6210/wmi.c      | 11 ++++++-----
+ 2 files changed, 11 insertions(+), 5 deletions(-)
 
-diff --git a/kernel/jump_label.c b/kernel/jump_label.c
-index bad96b476eb6e..a799b1ac6b2fe 100644
---- a/kernel/jump_label.c
-+++ b/kernel/jump_label.c
-@@ -206,6 +206,8 @@ static void __static_key_slow_dec_cpuslocked(struct static_key *key,
- 					   unsigned long rate_limit,
- 					   struct delayed_work *work)
- {
-+	int val;
-+
- 	lockdep_assert_cpus_held();
+diff --git a/drivers/net/wireless/ath/wil6210/cfg80211.c b/drivers/net/wireless/ath/wil6210/cfg80211.c
+index 5a44f9d0ff029..c7b5a7786e38d 100644
+--- a/drivers/net/wireless/ath/wil6210/cfg80211.c
++++ b/drivers/net/wireless/ath/wil6210/cfg80211.c
+@@ -1274,7 +1274,12 @@ int wil_cfg80211_mgmt_tx(struct wiphy *wiphy, struct wireless_dev *wdev,
+ 			     params->wait);
  
- 	/*
-@@ -215,17 +217,20 @@ static void __static_key_slow_dec_cpuslocked(struct static_key *key,
- 	 * returns is unbalanced, because all other static_key_slow_inc()
- 	 * instances block while the update is in progress.
- 	 */
--	if (!atomic_dec_and_mutex_lock(&key->enabled, &jump_label_mutex)) {
--		WARN(atomic_read(&key->enabled) < 0,
--		     "jump label: negative count!\n");
-+	val = atomic_fetch_add_unless(&key->enabled, -1, 1);
-+	if (val != 1) {
-+		WARN(val < 0, "jump label: negative count!\n");
- 		return;
+ out:
++	/* when the sent packet was not acked by receiver(ACK=0), rc will
++	 * be -EAGAIN. In this case this function needs to return success,
++	 * the ACK=0 will be reflected in tx_status.
++	 */
+ 	tx_status = (rc == 0);
++	rc = (rc == -EAGAIN) ? 0 : rc;
+ 	cfg80211_mgmt_tx_status(wdev, cookie ? *cookie : 0, buf, len,
+ 				tx_status, GFP_KERNEL);
+ 
+diff --git a/drivers/net/wireless/ath/wil6210/wmi.c b/drivers/net/wireless/ath/wil6210/wmi.c
+index 345f059691900..fc1b4b897cb83 100644
+--- a/drivers/net/wireless/ath/wil6210/wmi.c
++++ b/drivers/net/wireless/ath/wil6210/wmi.c
+@@ -3455,8 +3455,9 @@ int wmi_mgmt_tx(struct wil6210_vif *vif, const u8 *buf, size_t len)
+ 	rc = wmi_call(wil, WMI_SW_TX_REQ_CMDID, vif->mid, cmd, total,
+ 		      WMI_SW_TX_COMPLETE_EVENTID, &evt, sizeof(evt), 2000);
+ 	if (!rc && evt.evt.status != WMI_FW_STATUS_SUCCESS) {
+-		wil_err(wil, "mgmt_tx failed with status %d\n", evt.evt.status);
+-		rc = -EINVAL;
++		wil_dbg_wmi(wil, "mgmt_tx failed with status %d\n",
++			    evt.evt.status);
++		rc = -EAGAIN;
  	}
  
--	if (rate_limit) {
--		atomic_inc(&key->enabled);
--		schedule_delayed_work(work, rate_limit);
--	} else {
--		jump_label_update(key);
-+	jump_label_lock();
-+	if (atomic_dec_and_test(&key->enabled)) {
-+		if (rate_limit) {
-+			atomic_inc(&key->enabled);
-+			schedule_delayed_work(work, rate_limit);
-+		} else {
-+			jump_label_update(key);
-+		}
+ 	kfree(cmd);
+@@ -3508,9 +3509,9 @@ int wmi_mgmt_tx_ext(struct wil6210_vif *vif, const u8 *buf, size_t len,
+ 	rc = wmi_call(wil, WMI_SW_TX_REQ_EXT_CMDID, vif->mid, cmd, total,
+ 		      WMI_SW_TX_COMPLETE_EVENTID, &evt, sizeof(evt), 2000);
+ 	if (!rc && evt.evt.status != WMI_FW_STATUS_SUCCESS) {
+-		wil_err(wil, "mgmt_tx_ext failed with status %d\n",
+-			evt.evt.status);
+-		rc = -EINVAL;
++		wil_dbg_wmi(wil, "mgmt_tx_ext failed with status %d\n",
++			    evt.evt.status);
++		rc = -EAGAIN;
  	}
- 	jump_label_unlock();
- }
+ 
+ 	kfree(cmd);
 -- 
 2.20.1
 
