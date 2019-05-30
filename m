@@ -2,71 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 35251302F7
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 21:44:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57D25302FB
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 21:49:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726574AbfE3Tou (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 15:44:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45258 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725897AbfE3Tot (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 May 2019 15:44:49 -0400
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 209C92610E;
-        Thu, 30 May 2019 19:44:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559245489;
-        bh=uHgJtIQUwDZzgBzTZLl/NcwOh42F8eSUaOsgj4kmz5s=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=HXRv+t3fmPj22C+4ah8Opfw8GJJDoPkawWRTGWu15o3r1SWpAbrdZQXD56SDyFKwP
-         Tl448RghlF5RQO6KzxQSloUErZwdtYXbfBu7/714u6cPFYYBUSzyg3v6deOYIcvmt9
-         53zrk8ffEyXVF9Iit1q/eB3fiQez+OR3uE+2fj8g=
-Subject: Re: [PATCH 4.9 000/128] 4.9.180-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org, shuah <shuah@kernel.org>
-References: <20190530030432.977908967@linuxfoundation.org>
-From:   shuah <shuah@kernel.org>
-Message-ID: <7727fe5f-fcd6-0c7a-607d-106cac4d16ac@kernel.org>
-Date:   Thu, 30 May 2019 13:44:45 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.0
-MIME-Version: 1.0
-In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        id S1726029AbfE3TtA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 15:49:00 -0400
+Received: from imap1.codethink.co.uk ([176.9.8.82]:33763 "EHLO
+        imap1.codethink.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725897AbfE3TtA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 May 2019 15:49:00 -0400
+Received: from shadbolt.e.decadent.org.uk ([88.96.1.126] helo=xylophone)
+        by imap1.codethink.co.uk with esmtpsa (Exim 4.84_2 #1 (Debian))
+        id 1hWR2n-0005UK-Dh; Thu, 30 May 2019 20:48:57 +0100
+Message-ID: <1559245735.24330.6.camel@codethink.co.uk>
+Subject: Re: [stable] bpf: add bpf_jit_limit knob to restrict unpriv
+ allocations
+From:   Ben Hutchings <ben.hutchings@codethink.co.uk>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Sasha Levin <Alexander.Levin@microsoft.com>,
+        stable <stable@vger.kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>, bpf@vger.kernel.org
+Date:   Thu, 30 May 2019 20:48:55 +0100
+In-Reply-To: <20190530173100.GA23688@kroah.com>
+References: <1558994144.2631.14.camel@codethink.co.uk>
+         <1559236680.24330.5.camel@codethink.co.uk>
+         <20190530173100.GA23688@kroah.com>
+Organization: Codethink Ltd.
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.22.6-1+deb9u1 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 5/29/19 9:05 PM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.9.180 release.
-> There are 128 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Thu, 2019-05-30 at 10:31 -0700, Greg Kroah-Hartman wrote:
+> On Thu, May 30, 2019 at 06:18:00PM +0100, Ben Hutchings wrote:
+> > On Mon, 2019-05-27 at 22:55 +0100, Ben Hutchings wrote:
+> > > Please consider backporting this commit to 4.19-stable:
+> > > 
+> > > commit ede95a63b5e84ddeea6b0c473b36ab8bfd8c6ce3
+> > > Author: Daniel Borkmann <daniel@iogearbox.net>
+> > > Date:   Tue Oct 23 01:11:04 2018 +0200
+> > > 
+> > >     bpf: add bpf_jit_limit knob to restrict unpriv allocations
+> > > 
+> > > No other stable branches are affected by the issue.
+> > 
+> > Actually that's wrong; the commit introducing this was backported to
+> > 4.4, 4.9, and 4.14.  I haven't yet checked whether this fix applies
+> > cleanly to them.
 > 
-> Responses should be made by Sat 01 Jun 2019 03:02:06 AM UTC.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.180-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+> It doesn't apply cleanly to those trees :(
 
-Compiled and booted on my test system. No dmesg regressions.
+OK, then I'll try backporting it at some point.
 
-thanks,
--- Shuah
+Ben.
+
+-- 
+Ben Hutchings, Software Developer                         Codethink Ltd
+https://www.codethink.co.uk/                 Dale House, 35 Dale Street
+                                     Manchester, M1 2HF, United Kingdom
