@@ -2,88 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 50B892F8FF
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 11:09:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56C4B2FA05
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 12:13:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727053AbfE3JJI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 05:09:08 -0400
-Received: from mail-wm1-f65.google.com ([209.85.128.65]:34841 "EHLO
-        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726442AbfE3JJI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 May 2019 05:09:08 -0400
-Received: by mail-wm1-f65.google.com with SMTP id c6so405806wml.0
-        for <stable@vger.kernel.org>; Thu, 30 May 2019 02:09:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:in-reply-to
-         :references:subject:to:from:cc;
-        bh=KwLKUN8slvjd04RjjPvWvOTD/dy+wDNN+lQ29SfJmq4=;
-        b=L3vsTD4glvbgj+ev/qNkSGIHk38D/C0vapNjbxrqQqhWTtevSyBB7sezZi+YFslVPb
-         Z+TdCTChr6AkL0LY0EE1YtcIdq9NqNwNTDRIPh3orJzdDhMhuELqabzftd8KndtwMtCR
-         xtk78PyeTXV+gD4WhL/8qbrCfJzRxw+WKkSpA00yTX2Mc32dQf+PzXckLi02AsK1+i+7
-         04cU2H5SMFUDIueO4cERLqRS0G07TnWunrUljpfoOaH09C8dtWEQ0UexORZzw5GxvNf0
-         pqTfY9vcrL314KxOLBamiUl+008zAyBrUEmN6LPegxce0Rz7xwomjVyHK6KPY7MgcwH+
-         /bsA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:in-reply-to:references:subject:to:from:cc;
-        bh=KwLKUN8slvjd04RjjPvWvOTD/dy+wDNN+lQ29SfJmq4=;
-        b=qastCr64fgc42GxIG6+K+167sui+v7cQ7jH4iO2qDkWs7+6RnidDLgSBUcKCSYDVRB
-         ELtXgSEulOMTu875A4pV0kEDcInhKBHb54C136RLO0JQFzS3YV7shMs39Zt/xTgxzojt
-         1Isudrz6+nbXJZxwKl8SZZtePm4BrznqQXygWhGa4wrazWYkIobgi0KMdsUyNa/9uHZP
-         91jYDBK3NtQsURC7ROqx3FnBjD/2+VkfoCHh0Ilf7YYZGznLRnp1lZPNsHwnwcDsOsPa
-         haaZz7zcoL9dbFYcBjJdzPHXLh0BlY664YqL/9c1ScwwtchVIpy6e2h+Jr1Q3sXUMVhT
-         oMoQ==
-X-Gm-Message-State: APjAAAVwA/+5LOghOT/YPXqGt+N+FZJuPpMNxWhTjosOxiCXTrTgW8ll
-        sbEtB/r3Gja99zDe/kaUWXoWzjKXMeEJAg==
-X-Google-Smtp-Source: APXvYqyvjde5WbkcI/hQFOanzLzO4AKbZ9BWC5gqEJdyP/xXB7rVQgkQzXOsdGOrF2ETwAW2uxXwRg==
-X-Received: by 2002:a1c:6154:: with SMTP id v81mr1445550wmb.92.1559207346390;
-        Thu, 30 May 2019 02:09:06 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id h90sm6699497wrh.15.2019.05.30.02.09.05
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 30 May 2019 02:09:05 -0700 (PDT)
-Message-ID: <5cef9db1.1c69fb81.12cc6.0ca6@mx.google.com>
-Date:   Thu, 30 May 2019 02:09:05 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726530AbfE3KNJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 06:13:09 -0400
+Received: from ZXSHCAS1.zhaoxin.com ([203.148.12.81]:15394 "EHLO
+        ZXSHCAS1.zhaoxin.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1726515AbfE3KNJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 May 2019 06:13:09 -0400
+Received: from ZXBJCAS.zhaoxin.com (10.29.252.3) by ZXSHCAS1.zhaoxin.com
+ (10.28.252.161) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.1261.35; Thu, 30 May
+ 2019 18:10:27 +0800
+Received: from zxbjmbx1.zhaoxin.com (10.29.252.163) by ZXBJCAS.zhaoxin.com
+ (10.29.252.3) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.1261.35; Thu, 30 May
+ 2019 17:13:39 +0800
+Received: from zxbjmbx1.zhaoxin.com (10.29.252.163) by zxbjmbx1.zhaoxin.com
+ (10.29.252.163) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.1261.35; Thu, 30 May
+ 2019 17:13:39 +0800
+Received: from zxbjmbx1.zhaoxin.com ([fe80::b41a:737:a784:b70d]) by
+ zxbjmbx1.zhaoxin.com ([fe80::b41a:737:a784:b70d%16]) with mapi id
+ 15.01.1261.035; Thu, 30 May 2019 17:13:39 +0800
+From:   Tony W Wang-oc <TonyWWang-oc@zhaoxin.com>
+To:     "tipbot@zytor.com" <tipbot@zytor.com>,
+        "ashok.raj@intel.com" <ashok.raj@intel.com>
+CC:     "bp@suse.de" <bp@suse.de>, "hpa@zytor.com" <hpa@zytor.com>,
+        "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-tip-commits@vger.kernel.org" 
+        <linux-tip-commits@vger.kernel.org>,
+        "mingo@kernel.org" <mingo@kernel.org>,
+        "peterz@infradead.org" <peterz@infradead.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "tglx@linutronix.de" <tglx@linutronix.de>,
+        "tony.luck@intel.com" <tony.luck@intel.com>,
+        "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>,
+        David Wang <DavidWang@zhaoxin.com>
+Subject: =?gb2312?B?tPC4tDogUmU6IFt0aXA6eDg2L3VyZ2VudF0geDg2L21jZTogRW5zdXJlIG9m?=
+ =?gb2312?B?ZmxpbmUgQ1BVcyBkb24nIHQgcGFydGljaXBhdGUgaW4gcmVuZGV6dm91cyBw?=
+ =?gb2312?Q?rocess?=
+Thread-Topic: Re: [tip:x86/urgent] x86/mce: Ensure offline CPUs don' t
+ participate in rendezvous process
+Thread-Index: AdUWlGl+Ivql5y3zT0ybuVHbqcI6gAAJtEFg
+Date:   Thu, 30 May 2019 09:13:39 +0000
+Message-ID: <985acf114ab245fbab52caabf03bd280@zhaoxin.com>
+Accept-Language: en-US, zh-CN
+Content-Language: zh-CN
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [10.32.64.23]
+Content-Type: text/plain; charset="gb2312"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.9.y
-X-Kernelci-Kernel: v4.9.179-129-g545b59ea794c
-In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
-References: <20190530030432.977908967@linuxfoundation.org>
-Subject: Re: [PATCH 4.9 000/128] 4.9.180-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y boot: 103 boots: 0 failed, 103 passed (v4.9.179-129-g=
-545b59ea794c)
-
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.9.y/kernel/v4.9.179-129-g545b59ea794c/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
-/kernel/v4.9.179-129-g545b59ea794c/
-
-Tree: stable-rc
-Branch: linux-4.9.y
-Git Describe: v4.9.179-129-g545b59ea794c
-Git Commit: 545b59ea794cfbac3646ccfab4a34c9f7753621e
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 49 unique boards, 21 SoC families, 15 builds out of 197
-
----
-For more info write to <info@kernelci.org>
+T24gVGh1LCBNYXkgMzAsIDIwMTksIFRvbnkgVyBXYW5nLW9jIHdyb3RlOg0KPiBIaSBBc2hvaywN
+Cj4gSSBoYXZlIHR3byBxdWVzdGlvbnMgYWJvdXQgdGhpcyBwYXRjaCwgY291bGQgeW91IGhlbHAg
+dG8gY2hlY2s6DQo+IA0KPiAxLCBmb3IgYnJvYWRjYXN0ICNNQyBleGNlcHRpb25zLCB0aGlzIHBh
+dGNoIHNlZW1zIHJlcXVpcmUgI01DIGV4Y2VwdGlvbg0KPiBlcnJvcnMNCj4gc2V0IE1DR19TVEFU
+VVNfUklQViA9IDEuDQo+IEJ1dCBmb3IgSW50ZWwgQ1BVLCBzb21lICNNQyBleGNlcHRpb24gZXJy
+b3JzIHNldCBNQ0dfU1RBVFVTX1JJUFYgPSAwDQo+IChsaWtlICJSZWNvdmVyYWJsZS1ub3QtY29u
+dGludWFibGUgU1JBUiBUeXBlIiBFcnJvcnMpLCBmb3IgdGhlc2UgZXJyb3JzDQo+IHRoZSBwYXRj
+aCBkb2Vzbid0IHNlZW0gdG8gd29yaywgaXMgdGhhdCBva2F5Pw0KPiANCj4gMiwgZm9yIExNQ0Ug
+ZXhjZXB0aW9ucywgdGhpcyBwYXRjaCBzZWVtcyByZXF1aXJlICNNQyBleGNlcHRpb24gZXJyb3Jz
+DQo+IHNldCBNQ0dfU1RBVFVTX1JJUFYgPSAwIHRvIG1ha2Ugc3VyZSBMTUNFIGJlIGhhbmRsZWQg
+bm9ybWFsbHkgZXZlbg0KPiBvbiBvZmZsaW5lIENQVS4NCj4gRm9yIExNQ0UgZXJyb3JzIHNldCBN
+Q0dfU1RBVVNfUklQViA9IDEsIHRoZSBwYXRjaCBwcmV2ZW50cyBvZmZsaW5lIENQVQ0KPiBoYW5k
+bGUgdGhlc2UgTE1DRSBlcnJvcnMsIGlzIHRoYXQgb2theT8NCj4gDQoNCk1vcmUgc3BlY2lmaWNh
+bGx5LCB0aGlzIHBhdGNoIHNlZW1zIHJlcXVpcmUgI01DIGV4Y2VwdGlvbnMgbWVldCB0aGUgY29u
+ZGl0aW9uDQoiTUNHX1NUQVRVU19SSVBWIF4gTUNHX1NUQVRVU19MTUNFUyA9PSAxIjsgQnV0IG9u
+IGEgWGVvbiBYNTY1MCBtYWNoaW5lIChTTVApLCANCiJEYXRhIENBQ0hFIExldmVsLTIgR2VuZXJp
+YyBFcnJvciIgZG9lcyBub3QgbWVldCB0aGlzIGNvbmRpdGlvbi4NCg0KSSBnb3QgYmVsb3cgbWVz
+c2FnZSBmcm9tOiBodHRwczovL3d3dy5jZW50b3Mub3JnL2ZvcnVtcy92aWV3dG9waWMucGhwP3A9
+MjkyNzQyDQoNCkhhcmR3YXJlIGV2ZW50LiBUaGlzIGlzIG5vdCBhIHNvZnR3YXJlIGVycm9yLg0K
+TUNFIDANCkNQVSA0IEJBTksgNiBUU0MgYjcwNjVlZWFhMThiMCANClRJTUUgMTU0NTY0MzYwMyBN
+b24gRGVjIDI0IDEwOjI2OjQzIDIwMTgNCk1DRyBzdGF0dXM6TUNJUCANCk1DaSBzdGF0dXM6DQpV
+bmNvcnJlY3RlZCBlcnJvcg0KRXJyb3IgZW5hYmxlZA0KUHJvY2Vzc29yIGNvbnRleHQgY29ycnVw
+dA0KTUNBOiBEYXRhIENBQ0hFIExldmVsLTIgR2VuZXJpYyBFcnJvcg0KU1RBVFVTIGIyMDAwMDAw
+ODAwMDAxMDYgTUNHU1RBVFVTIDQNCk1DR0NBUCAxYzA5IEFQSUNJRCA0IFNPQ0tFVElEIDAgDQpD
+UFVJRCBWZW5kb3IgSW50ZWwgRmFtaWx5IDYgTW9kZWwgNDQNCg0KPiBUaGFua3MNCj4gVG9ueSBX
+IFdhbmctb2MNCg==
