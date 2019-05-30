@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6258D2EF46
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:54:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F5242F082
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:04:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730357AbfE3DyM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:54:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55080 "EHLO mail.kernel.org"
+        id S1731475AbfE3EEs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:04:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731883AbfE3DTY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:19:24 -0400
+        id S1731272AbfE3DRu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:17:50 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 65B9B247F7;
-        Thu, 30 May 2019 03:19:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 97AE82472A;
+        Thu, 30 May 2019 03:17:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186364;
-        bh=CLNvXd+bHDw5o9XKvwpl1iSa3ZtiTufxn3+Q/WLnUZE=;
+        s=default; t=1559186269;
+        bh=6GuArfTvBzCsb8xZnBZRozVOoVR8LndQKkMUmS0qzpw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H0WCMu3YJguVXsP+oJyGEWHuMsUvLbXbJxT0pAhPsiznS87sRiiJNFjoEtRzpRSKd
-         81gv44otu+uBltMAzRiCr4ayRcB6dgSzFsZQfhqBfsgLBaKCnp66YUS0LUErcFtZSD
-         93+VfPfG5k5FLS7Vkm6hOjmWQF6JEV3dwqBSTsYw=
+        b=JB6ozZAOaUb5LmfUHltjC65g9oakIIwHOZBiLuCYd1JD58o7uTEvyIqDPEkTqjlbs
+         ZPgwhVwx7sj/u98kVAY7cUgMdk9AC1vN5t+n5BWGHKK8K0tzlB/p0BnPhUYvLpvNg5
+         eLst2LdzQ4ordlLyB0hVKRkLjimmW0UKVQeXXxao=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kefeng Wang <wangkefeng.wang@huawei.com>,
-        John Garry <john.garry@huawei.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 112/193] hwmon: (smsc47m1) Use request_muxed_region for Super-IO accesses
+        stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 208/276] x86/ia32: Fix ia32_restore_sigcontext() AC leak
 Date:   Wed, 29 May 2019 20:06:06 -0700
-Message-Id: <20190530030504.389851432@linuxfoundation.org>
+Message-Id: <20190530030538.134917754@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,91 +48,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d6410408ad2a798c4cc685252c1baa713be0ad69 ]
+[ Upstream commit 67a0514afdbb8b2fc70b771b8c77661a9cb9d3a9 ]
 
-Super-IO accesses may fail on a system with no or unmapped LPC bus.
+Objtool spotted that we call native_load_gs_index() with AC set.
+Re-arrange the code to avoid that.
 
-Also, other drivers may attempt to access the LPC bus at the same time,
-resulting in undefined behavior.
-
-Use request_muxed_region() to ensure that IO access on the requested
-address space is supported, and to ensure that access by multiple drivers
-is synchronized.
-
-Fixes: 8d5d45fb1468 ("I2C: Move hwmon drivers (2/3)")
-Reported-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Reported-by: John Garry <john.garry@huawei.com>
-Cc: John Garry <john.garry@huawei.com>
-Acked-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/smsc47m1.c | 28 +++++++++++++++++++---------
- 1 file changed, 19 insertions(+), 9 deletions(-)
+ arch/x86/ia32/ia32_signal.c | 29 +++++++++++++++++------------
+ 1 file changed, 17 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/hwmon/smsc47m1.c b/drivers/hwmon/smsc47m1.c
-index c7b6a425e2c02..5eeac9853d0ae 100644
---- a/drivers/hwmon/smsc47m1.c
-+++ b/drivers/hwmon/smsc47m1.c
-@@ -73,16 +73,21 @@ superio_inb(int reg)
- /* logical device for fans is 0x0A */
- #define superio_select() superio_outb(0x07, 0x0A)
+diff --git a/arch/x86/ia32/ia32_signal.c b/arch/x86/ia32/ia32_signal.c
+index 86b1341cba9ac..513ba49c204fe 100644
+--- a/arch/x86/ia32/ia32_signal.c
++++ b/arch/x86/ia32/ia32_signal.c
+@@ -61,9 +61,8 @@
+ } while (0)
  
--static inline void
-+static inline int
- superio_enter(void)
+ #define RELOAD_SEG(seg)		{		\
+-	unsigned int pre = GET_SEG(seg);	\
++	unsigned int pre = (seg) | 3;		\
+ 	unsigned int cur = get_user_seg(seg);	\
+-	pre |= 3;				\
+ 	if (pre != cur)				\
+ 		set_user_seg(seg, pre);		\
+ }
+@@ -72,6 +71,7 @@ static int ia32_restore_sigcontext(struct pt_regs *regs,
+ 				   struct sigcontext_32 __user *sc)
  {
-+	if (!request_muxed_region(REG, 2, DRVNAME))
-+		return -EBUSY;
+ 	unsigned int tmpflags, err = 0;
++	u16 gs, fs, es, ds;
+ 	void __user *buf;
+ 	u32 tmp;
+ 
+@@ -79,16 +79,10 @@ static int ia32_restore_sigcontext(struct pt_regs *regs,
+ 	current->restart_block.fn = do_no_restart_syscall;
+ 
+ 	get_user_try {
+-		/*
+-		 * Reload fs and gs if they have changed in the signal
+-		 * handler.  This does not handle long fs/gs base changes in
+-		 * the handler, but does not clobber them at least in the
+-		 * normal case.
+-		 */
+-		RELOAD_SEG(gs);
+-		RELOAD_SEG(fs);
+-		RELOAD_SEG(ds);
+-		RELOAD_SEG(es);
++		gs = GET_SEG(gs);
++		fs = GET_SEG(fs);
++		ds = GET_SEG(ds);
++		es = GET_SEG(es);
+ 
+ 		COPY(di); COPY(si); COPY(bp); COPY(sp); COPY(bx);
+ 		COPY(dx); COPY(cx); COPY(ip); COPY(ax);
+@@ -106,6 +100,17 @@ static int ia32_restore_sigcontext(struct pt_regs *regs,
+ 		buf = compat_ptr(tmp);
+ 	} get_user_catch(err);
+ 
++	/*
++	 * Reload fs and gs if they have changed in the signal
++	 * handler.  This does not handle long fs/gs base changes in
++	 * the handler, but does not clobber them at least in the
++	 * normal case.
++	 */
++	RELOAD_SEG(gs);
++	RELOAD_SEG(fs);
++	RELOAD_SEG(ds);
++	RELOAD_SEG(es);
 +
- 	outb(0x55, REG);
-+	return 0;
- }
+ 	err |= fpu__restore_sig(buf, 1);
  
- static inline void
- superio_exit(void)
- {
- 	outb(0xAA, REG);
-+	release_region(REG, 2);
- }
- 
- #define SUPERIO_REG_ACT		0x30
-@@ -531,8 +536,12 @@ static int __init smsc47m1_find(struct smsc47m1_sio_data *sio_data)
- {
- 	u8 val;
- 	unsigned short addr;
-+	int err;
-+
-+	err = superio_enter();
-+	if (err)
-+		return err;
- 
--	superio_enter();
- 	val = force_id ? force_id : superio_inb(SUPERIO_REG_DEVID);
- 
- 	/*
-@@ -608,13 +617,14 @@ static int __init smsc47m1_find(struct smsc47m1_sio_data *sio_data)
- static void smsc47m1_restore(const struct smsc47m1_sio_data *sio_data)
- {
- 	if ((sio_data->activate & 0x01) == 0) {
--		superio_enter();
--		superio_select();
--
--		pr_info("Disabling device\n");
--		superio_outb(SUPERIO_REG_ACT, sio_data->activate);
--
--		superio_exit();
-+		if (!superio_enter()) {
-+			superio_select();
-+			pr_info("Disabling device\n");
-+			superio_outb(SUPERIO_REG_ACT, sio_data->activate);
-+			superio_exit();
-+		} else {
-+			pr_warn("Failed to disable device\n");
-+		}
- 	}
- }
- 
+ 	force_iret();
 -- 
 2.20.1
 
