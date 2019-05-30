@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EB5532EF9D
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:57:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7C7D2F4E4
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:44:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728449AbfE3D4y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:56:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53108 "EHLO mail.kernel.org"
+        id S1728817AbfE3DME (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:12:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730380AbfE3DSz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:18:55 -0400
+        id S1728811AbfE3DME (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:12:04 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0F98324807;
-        Thu, 30 May 2019 03:18:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3AECC24481;
+        Thu, 30 May 2019 03:12:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186335;
-        bh=d3APMd7TTVqTkW4j5fr550un6EOSjUWvgOA518wW/2I=;
+        s=default; t=1559185923;
+        bh=+n9P5jighs7ry8zd1sXze259asg1PsT25vC4Zi044LI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nmUhwVsAxE+1bM/JnyQCRJEg1Xnyt9366Dv/gzoadoH+jFKiNkeQERonowgtsxZ0/
-         yJHKpKxKy5PVLs+QJN3noDuTHWLrKQdgeZLXC5gBAvgntSaBlIH3JWRVIxq3g+tXBs
-         S4lp00wQFxsOBTKFuB5b7+pdLgj9b9lEtdb3WWqg=
+        b=CeqzIPI0l++P7b5AU1Pso/lPL0gHkx9iqWw9cR0Y7GZOSJF5ajVzd0SXjWid+ilBx
+         R62+kkBXdRwON+6RjnHfzAZI7X+Fkd5r7LAc3U4BPCgpp1F55CkHN4MCTijy7zCQKr
+         dcBz6LhKuVkLaX/uuYAE8gpg8WnZDsJ1+klm/XT0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Himanshu Madhani <hmadhani@marvell.com>,
-        Giridhar Malavali <gmalavali@marvell.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Ludovic Barre <ludovic.barre@st.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 056/193] scsi: qla2xxx: Fix a qla24xx_enable_msix() error path
+Subject: [PATCH 5.1 312/405] spi: stm32-qspi: add spi_master_put in release function
 Date:   Wed, 29 May 2019 20:05:10 -0700
-Message-Id: <20190530030457.316700634@linuxfoundation.org>
+Message-Id: <20190530030556.583338115@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,45 +44,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 24afabdbd0b3553963a2bbf465895492b14d1107 ]
+[ Upstream commit a88eceb17ac7e8dc4ad9995681af61c8371668f4 ]
 
-Make sure that the allocated interrupts are freed if allocating memory for
-the msix_entries array fails.
+This patch adds spi_master_put in release function
+to drop the controller's refcount.
 
-Cc: Himanshu Madhani <hmadhani@marvell.com>
-Cc: Giridhar Malavali <gmalavali@marvell.com>
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Acked-by: Himanshu Madhani <hmadhani@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Ludovic Barre <ludovic.barre@st.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_isr.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/spi/spi-stm32-qspi.c | 46 ++++++++++++++++++++++--------------
+ 1 file changed, 28 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_isr.c b/drivers/scsi/qla2xxx/qla_isr.c
-index e073eb16f8a4a..df94ef816826b 100644
---- a/drivers/scsi/qla2xxx/qla_isr.c
-+++ b/drivers/scsi/qla2xxx/qla_isr.c
-@@ -3395,7 +3395,7 @@ qla24xx_enable_msix(struct qla_hw_data *ha, struct rsp_que *rsp)
- 		ql_log(ql_log_fatal, vha, 0x00c8,
- 		    "Failed to allocate memory for ha->msix_entries.\n");
- 		ret = -ENOMEM;
--		goto msix_out;
-+		goto free_irqs;
- 	}
- 	ha->flags.msix_enabled = 1;
+diff --git a/drivers/spi/spi-stm32-qspi.c b/drivers/spi/spi-stm32-qspi.c
+index 3b2a9a6b990da..0b9a8bddb939d 100644
+--- a/drivers/spi/spi-stm32-qspi.c
++++ b/drivers/spi/spi-stm32-qspi.c
+@@ -93,6 +93,7 @@ struct stm32_qspi_flash {
  
-@@ -3477,6 +3477,10 @@ qla24xx_enable_msix(struct qla_hw_data *ha, struct rsp_que *rsp)
- 
- msix_out:
- 	return ret;
-+
-+free_irqs:
-+	pci_free_irq_vectors(ha->pdev);
-+	goto msix_out;
+ struct stm32_qspi {
+ 	struct device *dev;
++	struct spi_controller *ctrl;
+ 	void __iomem *io_base;
+ 	void __iomem *mm_base;
+ 	resource_size_t mm_size;
+@@ -397,6 +398,7 @@ static void stm32_qspi_release(struct stm32_qspi *qspi)
+ 	writel_relaxed(0, qspi->io_base + QSPI_CR);
+ 	mutex_destroy(&qspi->lock);
+ 	clk_disable_unprepare(qspi->clk);
++	spi_master_put(qspi->ctrl);
  }
  
- int
+ static int stm32_qspi_probe(struct platform_device *pdev)
+@@ -413,43 +415,54 @@ static int stm32_qspi_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 
+ 	qspi = spi_controller_get_devdata(ctrl);
++	qspi->ctrl = ctrl;
+ 
+ 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "qspi");
+ 	qspi->io_base = devm_ioremap_resource(dev, res);
+-	if (IS_ERR(qspi->io_base))
+-		return PTR_ERR(qspi->io_base);
++	if (IS_ERR(qspi->io_base)) {
++		ret = PTR_ERR(qspi->io_base);
++		goto err;
++	}
+ 
+ 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "qspi_mm");
+ 	qspi->mm_base = devm_ioremap_resource(dev, res);
+-	if (IS_ERR(qspi->mm_base))
+-		return PTR_ERR(qspi->mm_base);
++	if (IS_ERR(qspi->mm_base)) {
++		ret = PTR_ERR(qspi->mm_base);
++		goto err;
++	}
+ 
+ 	qspi->mm_size = resource_size(res);
+-	if (qspi->mm_size > STM32_QSPI_MAX_MMAP_SZ)
+-		return -EINVAL;
++	if (qspi->mm_size > STM32_QSPI_MAX_MMAP_SZ) {
++		ret = -EINVAL;
++		goto err;
++	}
+ 
+ 	irq = platform_get_irq(pdev, 0);
+ 	ret = devm_request_irq(dev, irq, stm32_qspi_irq, 0,
+ 			       dev_name(dev), qspi);
+ 	if (ret) {
+ 		dev_err(dev, "failed to request irq\n");
+-		return ret;
++		goto err;
+ 	}
+ 
+ 	init_completion(&qspi->data_completion);
+ 
+ 	qspi->clk = devm_clk_get(dev, NULL);
+-	if (IS_ERR(qspi->clk))
+-		return PTR_ERR(qspi->clk);
++	if (IS_ERR(qspi->clk)) {
++		ret = PTR_ERR(qspi->clk);
++		goto err;
++	}
+ 
+ 	qspi->clk_rate = clk_get_rate(qspi->clk);
+-	if (!qspi->clk_rate)
+-		return -EINVAL;
++	if (!qspi->clk_rate) {
++		ret = -EINVAL;
++		goto err;
++	}
+ 
+ 	ret = clk_prepare_enable(qspi->clk);
+ 	if (ret) {
+ 		dev_err(dev, "can not enable the clock\n");
+-		return ret;
++		goto err;
+ 	}
+ 
+ 	rstc = devm_reset_control_get_exclusive(dev, NULL);
+@@ -472,14 +485,11 @@ static int stm32_qspi_probe(struct platform_device *pdev)
+ 	ctrl->dev.of_node = dev->of_node;
+ 
+ 	ret = devm_spi_register_master(dev, ctrl);
+-	if (ret)
+-		goto err_spi_register;
+-
+-	return 0;
++	if (!ret)
++		return 0;
+ 
+-err_spi_register:
++err:
+ 	stm32_qspi_release(qspi);
+-
+ 	return ret;
+ }
+ 
 -- 
 2.20.1
 
