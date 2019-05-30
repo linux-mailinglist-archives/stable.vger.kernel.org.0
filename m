@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 47CCF2EFA0
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:57:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42EFB2F29D
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:23:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731738AbfE3D5G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:57:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52696 "EHLO mail.kernel.org"
+        id S1728105AbfE3EXp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:23:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731736AbfE3DSw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:18:52 -0400
+        id S1730047AbfE3DO7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:14:59 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E7B324806;
-        Thu, 30 May 2019 03:18:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AF9B22449A;
+        Thu, 30 May 2019 03:14:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186332;
-        bh=w3IVtbtJNkqRBo+VDM/Lw8cnn4ALV8HzJvwSy/aYl6k=;
+        s=default; t=1559186097;
+        bh=6QpzbCYWRPZJFeldcE3ktARIpqyvLNnqWXqDwDhS1JI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=myJP0LnnJXldYcKqi8FCqnONVTelJGNu6nSigVUTfMf2A0KVPXsnHBBm5lSv2iXn8
-         0x3LjZf7rFpnKrXFtkw9gQLIDIPkM+mV07lmemFt1PU01yLtdY6FQVPXCWDxRizXWY
-         Y+wxYT3DstCDE9Et3sY+i52vv2EIRIrxFnhCs3dA=
+        b=JcWf582VgSDNzBwBPu3BJaPdJGHGLMtf9iMdEBuW2GInR+R9Ee3JaZlJXSW7D+oaH
+         YfEMS5/jpBDCWGOgArwsyWJuXB28eWwurc/o78hY14nq8clhFMtCB61m29AZsrudXs
+         3gySdPwdI1ywlUOz4V88a3EcnWxaX/tHYnDhHKaY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org, Ping-Ke Shih <pkshih@realtek.com>,
         Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 051/193] brcm80211: potential NULL dereference in brcmf_cfg80211_vndr_cmds_dcmd_handler()
+Subject: [PATCH 5.0 232/346] rtlwifi: fix potential NULL pointer dereference
 Date:   Wed, 29 May 2019 20:05:05 -0700
-Message-Id: <20190530030456.765896314@linuxfoundation.org>
+Message-Id: <20190530030552.801978939@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,55 +44,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit e025da3d7aa4770bb1d1b3b0aa7cc4da1744852d ]
+[ Upstream commit 60209d482b97743915883d293c8b85226d230c19 ]
 
-If "ret_len" is negative then it could lead to a NULL dereference.
+In case dev_alloc_skb fails, the fix safely returns to avoid
+potential NULL pointer dereference.
 
-The "ret_len" value comes from nl80211_vendor_cmd(), if it's negative
-then we don't allocate the "dcmd_buf" buffer.  Then we pass "ret_len" to
-brcmf_fil_cmd_data_set() where it is cast to a very high u32 value.
-Most of the functions in that call tree check whether the buffer we pass
-is NULL but there are at least a couple places which don't such as
-brcmf_dbg_hex_dump() and brcmf_msgbuf_query_dcmd().  We memcpy() to and
-from the buffer so it would result in a NULL dereference.
-
-The fix is to change the types so that "ret_len" can't be negative.  (If
-we memcpy() zero bytes to NULL, that's a no-op and doesn't cause an
-issue).
-
-Fixes: 1bacb0487d0e ("brcmfmac: replace cfg80211 testmode with vendor command")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/vendor.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/wireless/realtek/rtlwifi/rtl8188ee/fw.c       | 2 ++
+ drivers/net/wireless/realtek/rtlwifi/rtl8192c/fw_common.c | 2 ++
+ drivers/net/wireless/realtek/rtlwifi/rtl8192ee/fw.c       | 2 ++
+ drivers/net/wireless/realtek/rtlwifi/rtl8723ae/fw.c       | 2 ++
+ drivers/net/wireless/realtek/rtlwifi/rtl8723be/fw.c       | 2 ++
+ drivers/net/wireless/realtek/rtlwifi/rtl8821ae/fw.c       | 4 ++++
+ 6 files changed, 14 insertions(+)
 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/vendor.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/vendor.c
-index 8eff2753abade..d493021f60318 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/vendor.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/vendor.c
-@@ -35,9 +35,10 @@ static int brcmf_cfg80211_vndr_cmds_dcmd_handler(struct wiphy *wiphy,
- 	struct brcmf_if *ifp;
- 	const struct brcmf_vndr_dcmd_hdr *cmdhdr = data;
- 	struct sk_buff *reply;
--	int ret, payload, ret_len;
-+	unsigned int payload, ret_len;
- 	void *dcmd_buf = NULL, *wr_pointer;
- 	u16 msglen, maxmsglen = PAGE_SIZE - 0x100;
-+	int ret;
+diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8188ee/fw.c b/drivers/net/wireless/realtek/rtlwifi/rtl8188ee/fw.c
+index 63874512598bb..b5f91c994c798 100644
+--- a/drivers/net/wireless/realtek/rtlwifi/rtl8188ee/fw.c
++++ b/drivers/net/wireless/realtek/rtlwifi/rtl8188ee/fw.c
+@@ -622,6 +622,8 @@ void rtl88e_set_fw_rsvdpagepkt(struct ieee80211_hw *hw, bool b_dl_finished)
+ 		      u1rsvdpageloc, 3);
  
- 	if (len < sizeof(*cmdhdr)) {
- 		brcmf_err("vendor command too short: %d\n", len);
-@@ -65,7 +66,7 @@ static int brcmf_cfg80211_vndr_cmds_dcmd_handler(struct wiphy *wiphy,
- 			brcmf_err("oversize return buffer %d\n", ret_len);
- 			ret_len = BRCMF_DCMD_MAXLEN;
- 		}
--		payload = max(ret_len, len) + 1;
-+		payload = max_t(unsigned int, ret_len, len) + 1;
- 		dcmd_buf = vzalloc(payload);
- 		if (NULL == dcmd_buf)
- 			return -ENOMEM;
+ 	skb = dev_alloc_skb(totalpacketlen);
++	if (!skb)
++		return;
+ 	skb_put_data(skb, &reserved_page_packet, totalpacketlen);
+ 
+ 	rtstatus = rtl_cmd_send_packet(hw, skb);
+diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8192c/fw_common.c b/drivers/net/wireless/realtek/rtlwifi/rtl8192c/fw_common.c
+index f3bff66e85d0c..81ec0e6e07c1f 100644
+--- a/drivers/net/wireless/realtek/rtlwifi/rtl8192c/fw_common.c
++++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192c/fw_common.c
+@@ -646,6 +646,8 @@ void rtl92c_set_fw_rsvdpagepkt(struct ieee80211_hw *hw,
+ 
+ 
+ 	skb = dev_alloc_skb(totalpacketlen);
++	if (!skb)
++		return;
+ 	skb_put_data(skb, &reserved_page_packet, totalpacketlen);
+ 
+ 	if (cmd_send_packet)
+diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8192ee/fw.c b/drivers/net/wireless/realtek/rtlwifi/rtl8192ee/fw.c
+index 84a0d0eb72e1e..a933490928ba9 100644
+--- a/drivers/net/wireless/realtek/rtlwifi/rtl8192ee/fw.c
++++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192ee/fw.c
+@@ -766,6 +766,8 @@ void rtl92ee_set_fw_rsvdpagepkt(struct ieee80211_hw *hw, bool b_dl_finished)
+ 		      u1rsvdpageloc, 3);
+ 
+ 	skb = dev_alloc_skb(totalpacketlen);
++	if (!skb)
++		return;
+ 	skb_put_data(skb, &reserved_page_packet, totalpacketlen);
+ 
+ 	rtstatus = rtl_cmd_send_packet(hw, skb);
+diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8723ae/fw.c b/drivers/net/wireless/realtek/rtlwifi/rtl8723ae/fw.c
+index bf9859f74b6f5..52f108744e969 100644
+--- a/drivers/net/wireless/realtek/rtlwifi/rtl8723ae/fw.c
++++ b/drivers/net/wireless/realtek/rtlwifi/rtl8723ae/fw.c
+@@ -470,6 +470,8 @@ void rtl8723e_set_fw_rsvdpagepkt(struct ieee80211_hw *hw, bool b_dl_finished)
+ 		      u1rsvdpageloc, 3);
+ 
+ 	skb = dev_alloc_skb(totalpacketlen);
++	if (!skb)
++		return;
+ 	skb_put_data(skb, &reserved_page_packet, totalpacketlen);
+ 
+ 	rtstatus = rtl_cmd_send_packet(hw, skb);
+diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8723be/fw.c b/drivers/net/wireless/realtek/rtlwifi/rtl8723be/fw.c
+index f2441fbb92f1e..307c2bd77f060 100644
+--- a/drivers/net/wireless/realtek/rtlwifi/rtl8723be/fw.c
++++ b/drivers/net/wireless/realtek/rtlwifi/rtl8723be/fw.c
+@@ -584,6 +584,8 @@ void rtl8723be_set_fw_rsvdpagepkt(struct ieee80211_hw *hw,
+ 		      u1rsvdpageloc, sizeof(u1rsvdpageloc));
+ 
+ 	skb = dev_alloc_skb(totalpacketlen);
++	if (!skb)
++		return;
+ 	skb_put_data(skb, &reserved_page_packet, totalpacketlen);
+ 
+ 	rtstatus = rtl_cmd_send_packet(hw, skb);
+diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8821ae/fw.c b/drivers/net/wireless/realtek/rtlwifi/rtl8821ae/fw.c
+index d868a034659fb..d7235f6165fdf 100644
+--- a/drivers/net/wireless/realtek/rtlwifi/rtl8821ae/fw.c
++++ b/drivers/net/wireless/realtek/rtlwifi/rtl8821ae/fw.c
+@@ -1645,6 +1645,8 @@ void rtl8812ae_set_fw_rsvdpagepkt(struct ieee80211_hw *hw,
+ 		      &reserved_page_packet_8812[0], totalpacketlen);
+ 
+ 	skb = dev_alloc_skb(totalpacketlen);
++	if (!skb)
++		return;
+ 	skb_put_data(skb, &reserved_page_packet_8812, totalpacketlen);
+ 
+ 	rtstatus = rtl_cmd_send_packet(hw, skb);
+@@ -1781,6 +1783,8 @@ void rtl8821ae_set_fw_rsvdpagepkt(struct ieee80211_hw *hw,
+ 		      &reserved_page_packet_8821[0], totalpacketlen);
+ 
+ 	skb = dev_alloc_skb(totalpacketlen);
++	if (!skb)
++		return;
+ 	skb_put_data(skb, &reserved_page_packet_8821, totalpacketlen);
+ 
+ 	rtstatus = rtl_cmd_send_packet(hw, skb);
 -- 
 2.20.1
 
