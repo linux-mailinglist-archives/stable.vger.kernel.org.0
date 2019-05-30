@@ -2,47 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 17E222F380
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:29:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 366E02F186
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:14:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729662AbfE3DOA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:14:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60512 "EHLO mail.kernel.org"
+        id S1727411AbfE3ENv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:13:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729644AbfE3DN7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:13:59 -0400
+        id S1730651AbfE3DQT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:16:19 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B9B1C24547;
-        Thu, 30 May 2019 03:13:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 550D2245E4;
+        Thu, 30 May 2019 03:16:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186038;
-        bh=pM1kv8vnaDOl1N/LUuTf4DaiXw4vOEWZ891Shpbm7lE=;
+        s=default; t=1559186179;
+        bh=DDAiTRqEGOZMR5wKbJ4tM+vT0aH2qQvHbBxCDs12tLQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k+PDcT1f6w7gjrhHbSJ1v8DzoTLRCYJNhoqNpCO0/OocAU1KhfYgNs+20RK7NxMFz
-         rLVFRCZl81gqWsLwCbIJv+avdahHoc9l/cgZhlmUH+jF+d79UyFxtas9YdNBCljVPe
-         7FZTznlJ/g7BI7tTfbjw5ONAAa6fiPXa+/s3k8hg=
+        b=QeYT+3GXKPX8yDQjxW/657gWtYqckr2gxEJVbKq/DQN/52LqS5zuOtNk957L8Yu6Z
+         GVYWULsdwR0Mi2TBgwRU46XxDkN1BW3vhGmqcz89FpUYPmgzgg90UqNdh8BAfeFSb5
+         1ReOgx4zy/d1lSsQnOXGxHIz2PEt1WM+z85UcK5g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolai Stange <nstange@suse.de>,
-        Jiri Kosina <jkosina@suse.cz>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Frederic Weisbecker <fweisbec@gmail.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 127/346] x86/mm: Remove in_nmi() warning from 64-bit implementation of vmalloc_fault()
+        stable@vger.kernel.org, Amir Goldstein <amir73il@gmail.com>,
+        syzbot+2a73a6ea9507b7112141@syzkaller.appspotmail.com,
+        Al Viro <viro@zeniv.linux.org.uk>
+Subject: [PATCH 4.19 042/276] acct_on(): dont mess with freeze protection
 Date:   Wed, 29 May 2019 20:03:20 -0700
-Message-Id: <20190530030547.546028339@linuxfoundation.org>
+Message-Id: <20190530030527.049164563@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,61 +44,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a65c88e16f32aa9ef2e8caa68ea5c29bd5eb0ff0 ]
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-In-NMI warnings have been added to vmalloc_fault() via:
+commit 9419a3191dcb27f24478d288abaab697228d28e6 upstream.
 
-  ebc8827f75 ("x86: Barf when vmalloc and kmemcheck faults happen in NMI")
+What happens there is that we are replacing file->path.mnt of
+a file we'd just opened with a clone and we need the write
+count contribution to be transferred from original mount to
+new one.  That's it.  We do *NOT* want any kind of freeze
+protection for the duration of switchover.
 
-back in the time when our NMI entry code could not cope with nested NMIs.
+IOW, we should just use __mnt_{want,drop}_write() for that
+switchover; no need to bother with mnt_{want,drop}_write()
+there.
 
-These days, it's perfectly fine to take a fault in NMI context and we
-don't have to care about the fact that IRET from the fault handler might
-cause NMI nesting.
+Tested-by: Amir Goldstein <amir73il@gmail.com>
+Reported-by: syzbot+2a73a6ea9507b7112141@syzkaller.appspotmail.com
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-This warning has already been removed from 32-bit implementation of
-vmalloc_fault() in:
-
-  6863ea0cda8 ("x86/mm: Remove in_nmi() warning from vmalloc_fault()")
-
-but the 64-bit version was omitted.
-
-Remove the bogus warning also from 64-bit implementation of vmalloc_fault().
-
-Reported-by: Nicolai Stange <nstange@suse.de>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Frederic Weisbecker <fweisbec@gmail.com>
-Cc: Joerg Roedel <jroedel@suse.de>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Fixes: 6863ea0cda8 ("x86/mm: Remove in_nmi() warning from vmalloc_fault()")
-Link: http://lkml.kernel.org/r/nycvar.YFH.7.76.1904240902280.9803@cbobk.fhfr.pm
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/mm/fault.c | 2 --
- 1 file changed, 2 deletions(-)
+ fs/internal.h         |    2 --
+ include/linux/mount.h |    2 ++
+ kernel/acct.c         |    4 ++--
+ 3 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/x86/mm/fault.c b/arch/x86/mm/fault.c
-index 9d5c75f022956..55233dec5ff4a 100644
---- a/arch/x86/mm/fault.c
-+++ b/arch/x86/mm/fault.c
-@@ -359,8 +359,6 @@ static noinline int vmalloc_fault(unsigned long address)
- 	if (!(address >= VMALLOC_START && address < VMALLOC_END))
- 		return -1;
+--- a/fs/internal.h
++++ b/fs/internal.h
+@@ -80,9 +80,7 @@ extern int sb_prepare_remount_readonly(s
  
--	WARN_ON_ONCE(in_nmi());
--
- 	/*
- 	 * Copy kernel mappings over when needed. This can also
- 	 * happen within a race in page table update. In the later
--- 
-2.20.1
-
+ extern void __init mnt_init(void);
+ 
+-extern int __mnt_want_write(struct vfsmount *);
+ extern int __mnt_want_write_file(struct file *);
+-extern void __mnt_drop_write(struct vfsmount *);
+ extern void __mnt_drop_write_file(struct file *);
+ 
+ /*
+--- a/include/linux/mount.h
++++ b/include/linux/mount.h
+@@ -86,6 +86,8 @@ extern bool mnt_may_suid(struct vfsmount
+ 
+ struct path;
+ extern struct vfsmount *clone_private_mount(const struct path *path);
++extern int __mnt_want_write(struct vfsmount *);
++extern void __mnt_drop_write(struct vfsmount *);
+ 
+ struct file_system_type;
+ extern struct vfsmount *vfs_kern_mount(struct file_system_type *type,
+--- a/kernel/acct.c
++++ b/kernel/acct.c
+@@ -227,7 +227,7 @@ static int acct_on(struct filename *path
+ 		filp_close(file, NULL);
+ 		return PTR_ERR(internal);
+ 	}
+-	err = mnt_want_write(internal);
++	err = __mnt_want_write(internal);
+ 	if (err) {
+ 		mntput(internal);
+ 		kfree(acct);
+@@ -252,7 +252,7 @@ static int acct_on(struct filename *path
+ 	old = xchg(&ns->bacct, &acct->pin);
+ 	mutex_unlock(&acct->lock);
+ 	pin_kill(old);
+-	mnt_drop_write(mnt);
++	__mnt_drop_write(mnt);
+ 	mntput(mnt);
+ 	return 0;
+ }
 
 
