@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 981392EF84
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:56:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32A3F2F276
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:22:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731794AbfE3DTE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:19:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53532 "EHLO mail.kernel.org"
+        id S1728520AbfE3EWU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:22:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730383AbfE3DTC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:19:02 -0400
+        id S1730123AbfE3DPI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:15:08 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D46B024725;
-        Thu, 30 May 2019 03:19:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A92C12457F;
+        Thu, 30 May 2019 03:15:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186341;
-        bh=Nmf83k/tJU31KQN/PoLuiZHPJEcaxrZfzZ6Fw9uzICY=;
+        s=default; t=1559186107;
+        bh=DVF2BsjhTgYxFfpTkGy6e03bpwNSrsgVjaDEudMpCwE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rqZldkN1xDSTt7kBBl4gei4A4VUwXG7wD6ZaDCnvC3mN3QCTgUWAIsscbyjpM51y9
-         B0lHKRUFp5TvYb2WmogdR1+L24oTPky2278q0BJ91+QmQe6NKJdEkVTDWsAlmPpVzj
-         sRnwYrrsXdshIy0qBVp7vffC1C67p7BArH4MRi+0=
+        b=YPmrHlFvCFO++ZRdWsx99t5KhHkjncMV7/rrYfq+t0GOhvjWD24ho02zCsgYCEQ1l
+         KiyCuAE4L59J0t2E3s1KErbejRnNJyhnbdOk/7VRkAZR1r+69uT6N/rI1EAVF5hUaJ
+         Qnhkec/pw1QNY+eRiyTcmNfve9KgddeBS3dUFrYA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Daniel T. Lee" <danieltimlee@gmail.com>,
-        Yonghong Song <yhs@fb.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org,
+        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 068/193] libbpf: fix samples/bpf build failure due to undefined UINT32_MAX
-Date:   Wed, 29 May 2019 20:05:22 -0700
-Message-Id: <20190530030458.820580739@linuxfoundation.org>
+Subject: [PATCH 5.0 250/346] cxgb3/l2t: Fix undefined behaviour
+Date:   Wed, 29 May 2019 20:05:23 -0700
+Message-Id: <20190530030553.681016538@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,61 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 32e621e55496a0009f44fe4914cd4a23cade4984 ]
+[ Upstream commit 76497732932f15e7323dc805e8ea8dc11bb587cf ]
 
-Currently, building bpf samples will cause the following error.
+The use of zero-sized array causes undefined behaviour when it is not
+the last member in a structure. As it happens to be in this case.
 
-    ./tools/lib/bpf/bpf.h:132:27: error: 'UINT32_MAX' undeclared here (not in a function) ..
-     #define BPF_LOG_BUF_SIZE (UINT32_MAX >> 8) /* verifier maximum in kernels <= 5.1 */
-                               ^
-    ./samples/bpf/bpf_load.h:31:25: note: in expansion of macro 'BPF_LOG_BUF_SIZE'
-     extern char bpf_log_buf[BPF_LOG_BUF_SIZE];
-                             ^~~~~~~~~~~~~~~~
+Also, the current code makes use of a language extension to the C90
+standard, but the preferred mechanism to declare variable-length
+types such as this one is a flexible array member, introduced in
+C99:
 
-Due to commit 4519efa6f8ea ("libbpf: fix BPF_LOG_BUF_SIZE off-by-one error")
-hard-coded size of BPF_LOG_BUF_SIZE has been replaced with UINT32_MAX which is
-defined in <stdint.h> header.
+struct foo {
+        int stuff;
+        struct boo array[];
+};
 
-Even with this change, bpf selftests are running fine since these are built
-with clang and it includes header(-idirafter) from clang/6.0.0/include.
-(it has <stdint.h>)
+By making use of the mechanism above, we will get a compiler warning
+in case the flexible array does not occur last. Which is beneficial
+to cultivate a high-quality code.
 
-    clang -I. -I./include/uapi -I../../../include/uapi -idirafter /usr/local/include -idirafter /usr/include \
-    -idirafter /usr/lib/llvm-6.0/lib/clang/6.0.0/include -idirafter /usr/include/x86_64-linux-gnu \
-    -Wno-compare-distinct-pointer-types -O2 -target bpf -emit-llvm -c progs/test_sysctl_prog.c -o - | \
-    llc -march=bpf -mcpu=generic  -filetype=obj -o /linux/tools/testing/selftests/bpf/test_sysctl_prog.o
-
-But bpf samples are compiled with GCC, and it only searches and includes
-headers declared at the target file. As '#include <stdint.h>' hasn't been
-declared in tools/lib/bpf/bpf.h, it causes build failure of bpf samples.
-
-    gcc -Wp,-MD,./samples/bpf/.sockex3_user.o.d -Wall -Wmissing-prototypes -Wstrict-prototypes \
-    -O2 -fomit-frame-pointer -std=gnu89 -I./usr/include -I./tools/lib/ -I./tools/testing/selftests/bpf/ \
-    -I./tools/  lib/ -I./tools/include -I./tools/perf -c -o ./samples/bpf/sockex3_user.o ./samples/bpf/sockex3_user.c;
-
-This commit add declaration of '#include <stdint.h>' to tools/lib/bpf/bpf.h
-to fix this problem.
-
-Signed-off-by: Daniel T. Lee <danieltimlee@gmail.com>
-Acked-by: Yonghong Song <yhs@fb.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Fixes: e48f129c2f20 ("[SCSI] cxgb3i: convert cdev->l2opt to use rcu to prevent NULL dereference")
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/bpf.h | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/chelsio/cxgb3/l2t.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/lib/bpf/bpf.h b/tools/lib/bpf/bpf.h
-index b8ea5843c39ee..e9423d6af9332 100644
---- a/tools/lib/bpf/bpf.h
-+++ b/tools/lib/bpf/bpf.h
-@@ -23,6 +23,7 @@
+diff --git a/drivers/net/ethernet/chelsio/cxgb3/l2t.h b/drivers/net/ethernet/chelsio/cxgb3/l2t.h
+index c2fd323c40782..ea75f275023ff 100644
+--- a/drivers/net/ethernet/chelsio/cxgb3/l2t.h
++++ b/drivers/net/ethernet/chelsio/cxgb3/l2t.h
+@@ -75,8 +75,8 @@ struct l2t_data {
+ 	struct l2t_entry *rover;	/* starting point for next allocation */
+ 	atomic_t nfree;		/* number of free entries */
+ 	rwlock_t lock;
+-	struct l2t_entry l2tab[0];
+ 	struct rcu_head rcu_head;	/* to handle rcu cleanup */
++	struct l2t_entry l2tab[];
+ };
  
- #include <linux/bpf.h>
- #include <stddef.h>
-+#include <stdint.h>
- 
- int bpf_create_map_node(enum bpf_map_type map_type, int key_size,
- 			int value_size, int max_entries, __u32 map_flags,
+ typedef void (*arp_failure_handler_func)(struct t3cdev * dev,
 -- 
 2.20.1
 
