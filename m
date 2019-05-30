@@ -2,39 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 873FD2EB58
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:12:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3687F2F0F4
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:09:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728764AbfE3DL6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:11:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52812 "EHLO mail.kernel.org"
+        id S1730147AbfE3DRQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:17:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728754AbfE3DL5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:11:57 -0400
+        id S1731002AbfE3DRP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:17:15 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0AC3E24481;
-        Thu, 30 May 2019 03:11:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 038F224688;
+        Thu, 30 May 2019 03:17:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185917;
-        bh=dJfhr74dfhlzBQ06oDacfJP3wgeQgcEy2cx2MN0M1ss=;
+        s=default; t=1559186234;
+        bh=lZqlFI5rRdNdBUUDFTiQ61znwPK0+JBPzKezX7TVJFQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sl4g/6+xedYkBKuswD0PXGD19t5nEzArP613mqDqMLNjqRiloTwtKfoL3nvmaZN81
-         3gmO9FHl6NS8VrGNs7zlOuFVTJBr98Isgl53UIGRPKOtWZqQx7BfCkcsxiJVDB3Zm/
-         NdawRLmoycDknb8ArS9CeZcYcjLvd0WD2P9K5kPs=
+        b=lJR8+yoS3Xss3HyUyY7RiAYGZPXihnef/kQ4sY9UmqqHjTxB4dwt3rgtkhvHVLAkT
+         bmNbZHfYlEwCQ83ujapPD8zuFevrX+lvqXqeRuzDPdTvEVg0Jkdeb0PnPJBEE8IlEc
+         ZiO3YCso/eZ97OoBtW3+yz6J7CV9PZLXbapYi7KY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, siliu@redhat.com,
-        Pankaj Gupta <pagupta@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 301/405] virtio_console: initialize vtermno value for ports
+        stable@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Suraj Jitindar Singh <sjitindarsingh@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 141/276] irq_work: Do not raise an IPI when queueing work on the local CPU
 Date:   Wed, 29 May 2019 20:04:59 -0700
-Message-Id: <20190530030556.048247301@linuxfoundation.org>
+Message-Id: <20190530030534.501329077@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +52,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 4b0a2c5ff7215206ea6135a405f17c5f6fca7d00 ]
+[ Upstream commit 471ba0e686cb13752bc1ff3216c54b69a2d250ea ]
 
-For regular serial ports we do not initialize value of vtermno
-variable. A garbage value is assigned for non console ports.
-The value can be observed as a random integer with [1].
+The QEMU PowerPC/PSeries machine model was not expecting a self-IPI,
+and it may be a bit surprising thing to do, so have irq_work_queue_on
+do local queueing when target is the current CPU.
 
-[1] vim /sys/kernel/debug/virtio-ports/vport*p*
-
-This patch initialize the value of vtermno for console serial
-ports to '1' and regular serial ports are initiaized to '0'.
-
-Reported-by: siliu@redhat.com
-Signed-off-by: Pankaj Gupta <pagupta@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Suggested-by: Steven Rostedt <rostedt@goodmis.org>
+Reported-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Tested-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Suraj Jitindar Singh <sjitindarsingh@gmail.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/20190409093403.20994-1-npiggin@gmail.com
+[ Simplified the preprocessor comments.
+  Fixed unbalanced curly brackets pointed out by Thomas. ]
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/virtio_console.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ kernel/irq_work.c | 75 ++++++++++++++++++++++++++---------------------
+ 1 file changed, 42 insertions(+), 33 deletions(-)
 
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index fbeb71953526a..05dbfdb9f4aff 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -75,7 +75,7 @@ struct ports_driver_data {
- 	/* All the console devices handled by this driver */
- 	struct list_head consoles;
- };
--static struct ports_driver_data pdrvdata;
-+static struct ports_driver_data pdrvdata = { .next_vtermno = 1};
+diff --git a/kernel/irq_work.c b/kernel/irq_work.c
+index 6b7cdf17ccf89..73288914ed5e7 100644
+--- a/kernel/irq_work.c
++++ b/kernel/irq_work.c
+@@ -56,61 +56,70 @@ void __weak arch_irq_work_raise(void)
+ 	 */
+ }
  
- static DEFINE_SPINLOCK(pdrvdata_lock);
- static DECLARE_COMPLETION(early_console_added);
-@@ -1394,6 +1394,7 @@ static int add_port(struct ports_device *portdev, u32 id)
- 	port->async_queue = NULL;
+-/*
+- * Enqueue the irq_work @work on @cpu unless it's already pending
+- * somewhere.
+- *
+- * Can be re-enqueued while the callback is still in progress.
+- */
+-bool irq_work_queue_on(struct irq_work *work, int cpu)
++/* Enqueue on current CPU, work must already be claimed and preempt disabled */
++static void __irq_work_queue_local(struct irq_work *work)
+ {
+-	/* All work should have been flushed before going offline */
+-	WARN_ON_ONCE(cpu_is_offline(cpu));
+-
+-#ifdef CONFIG_SMP
+-
+-	/* Arch remote IPI send/receive backend aren't NMI safe */
+-	WARN_ON_ONCE(in_nmi());
++	/* If the work is "lazy", handle it from next tick if any */
++	if (work->flags & IRQ_WORK_LAZY) {
++		if (llist_add(&work->llnode, this_cpu_ptr(&lazy_list)) &&
++		    tick_nohz_tick_stopped())
++			arch_irq_work_raise();
++	} else {
++		if (llist_add(&work->llnode, this_cpu_ptr(&raised_list)))
++			arch_irq_work_raise();
++	}
++}
  
- 	port->cons.ws.ws_row = port->cons.ws.ws_col = 0;
-+	port->cons.vtermno = 0;
++/* Enqueue the irq work @work on the current CPU */
++bool irq_work_queue(struct irq_work *work)
++{
+ 	/* Only queue if not already pending */
+ 	if (!irq_work_claim(work))
+ 		return false;
  
- 	port->host_connected = port->guest_connected = false;
- 	port->stats = (struct port_stats) { 0 };
+-	if (llist_add(&work->llnode, &per_cpu(raised_list, cpu)))
+-		arch_send_call_function_single_ipi(cpu);
+-
+-#else /* #ifdef CONFIG_SMP */
+-	irq_work_queue(work);
+-#endif /* #else #ifdef CONFIG_SMP */
++	/* Queue the entry and raise the IPI if needed. */
++	preempt_disable();
++	__irq_work_queue_local(work);
++	preempt_enable();
+ 
+ 	return true;
+ }
++EXPORT_SYMBOL_GPL(irq_work_queue);
+ 
+-/* Enqueue the irq work @work on the current CPU */
+-bool irq_work_queue(struct irq_work *work)
++/*
++ * Enqueue the irq_work @work on @cpu unless it's already pending
++ * somewhere.
++ *
++ * Can be re-enqueued while the callback is still in progress.
++ */
++bool irq_work_queue_on(struct irq_work *work, int cpu)
+ {
++#ifndef CONFIG_SMP
++	return irq_work_queue(work);
++
++#else /* CONFIG_SMP: */
++	/* All work should have been flushed before going offline */
++	WARN_ON_ONCE(cpu_is_offline(cpu));
++
+ 	/* Only queue if not already pending */
+ 	if (!irq_work_claim(work))
+ 		return false;
+ 
+-	/* Queue the entry and raise the IPI if needed. */
+ 	preempt_disable();
+-
+-	/* If the work is "lazy", handle it from next tick if any */
+-	if (work->flags & IRQ_WORK_LAZY) {
+-		if (llist_add(&work->llnode, this_cpu_ptr(&lazy_list)) &&
+-		    tick_nohz_tick_stopped())
+-			arch_irq_work_raise();
++	if (cpu != smp_processor_id()) {
++		/* Arch remote IPI send/receive backend aren't NMI safe */
++		WARN_ON_ONCE(in_nmi());
++		if (llist_add(&work->llnode, &per_cpu(raised_list, cpu)))
++			arch_send_call_function_single_ipi(cpu);
+ 	} else {
+-		if (llist_add(&work->llnode, this_cpu_ptr(&raised_list)))
+-			arch_irq_work_raise();
++		__irq_work_queue_local(work);
+ 	}
+-
+ 	preempt_enable();
+ 
+ 	return true;
++#endif /* CONFIG_SMP */
+ }
+-EXPORT_SYMBOL_GPL(irq_work_queue);
++
+ 
+ bool irq_work_needs_cpu(void)
+ {
 -- 
 2.20.1
 
