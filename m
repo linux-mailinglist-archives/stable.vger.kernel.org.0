@@ -2,40 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B5042EB8C
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:14:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 809642F606
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:53:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729576AbfE3DNp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:13:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59634 "EHLO mail.kernel.org"
+        id S1728652AbfE3EwH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:52:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729570AbfE3DNp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:13:45 -0400
+        id S1728247AbfE3DKv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:10:51 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AF8F124556;
-        Thu, 30 May 2019 03:13:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E0576244BE;
+        Thu, 30 May 2019 03:10:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186024;
-        bh=BVZeyU1/iVIaE/V2LIymSSwYBEsq99mennyrdoguKtQ=;
+        s=default; t=1559185849;
+        bh=BCc15NeOx4Irdj+ofRsABC8wNfwE3dbtR0v/5IB/peg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pypddQQT9YHE7wdrxrf58/ID0duChRgcpuVFJbljI9S4CsqKQazG5OBXPgMH/9VOi
-         76QLdqTalBNo/St8EUYLtYOScLRqmsLB+VFAkujxlSGSX02sdAz0Z79kQtCQOjPt4/
-         v/Qr9L/diy1EriFtnqxW0+frnUN1cCWgbr4Tul6s=
+        b=KB5JZSVBQo2XTHxckMIuR4EZbwtczB6bwCQw06Id74W4dFnAfWIgssi2Bd2GgtAOo
+         3RovPNRNIeCZXiDEC72nog11URoAkZMIgvFz206Je9mztvbLq+aA0MiQhtaF+sAo8A
+         RhZR7fzWDTnNfaDwl5XpG9Q7uZtabyh8ujWk4lxk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
+        Rob Clark <robdclark@gmail.com>, Sean Paul <sean@poorly.run>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Jordan Crouse <jcrouse@codeaurora.org>,
+        Mamta Shukla <mamtashukla555@gmail.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>,
+        Sharat Masetty <smasetty@codeaurora.org>,
+        linux-arm-msm@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        freedreno@lists.freedesktop.org,
+        Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 097/346] net: ethernet: ti: cpsw: fix allmulti cfg in dual_mac mode
-Date:   Wed, 29 May 2019 20:02:50 -0700
-Message-Id: <20190530030546.082055133@linuxfoundation.org>
+Subject: [PATCH 5.1 173/405] drm/msm: a5xx: fix possible object reference leak
+Date:   Wed, 29 May 2019 20:02:51 -0700
+Message-Id: <20190530030549.873012064@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,121 +53,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 06095f34f8a0a2c4c83a19514c272699edd5f80b ]
+[ Upstream commit 6cd5235c3135ea84b32469ea51b2aae384eda8af ]
 
-Now CPSW ALE will set/clean Host port bit in Unregistered Multicast Flood
-Mask (UNREG_MCAST_FLOOD_MASK) for every VLAN without checking if this port
-belongs to VLAN or not when ALLMULTI mode flag is set for nedev. This is
-working in non dual_mac mode, but in dual_mac - it causes
-enabling/disabling ALLMULTI flag for both ports.
+The call to of_get_child_by_name returns a node pointer with refcount
+incremented thus it must be explicitly decremented after the last
+usage.
 
-Hence fix it by adding additional parameter to cpsw_ale_set_allmulti() to
-specify ALE port number for which ALLMULTI has to be enabled and check if
-port belongs to VLAN before modifying UNREG_MCAST_FLOOD_MASK.
+Detected by coccinelle with the following warnings:
+drivers/gpu/drm/msm/adreno/a5xx_gpu.c:57:2-8: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 47, but without a corresponding object release within this function.
+drivers/gpu/drm/msm/adreno/a5xx_gpu.c:66:2-8: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 47, but without a corresponding object release within this function.
+drivers/gpu/drm/msm/adreno/a5xx_gpu.c:118:1-7: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 47, but without a corresponding object release within this function.
+drivers/gpu/drm/msm/adreno/a5xx_gpu.c:57:2-8: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 51, but without a corresponding object release within this function.
+drivers/gpu/drm/msm/adreno/a5xx_gpu.c:66:2-8: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 51, but without a corresponding object release within this function.
+drivers/gpu/drm/msm/adreno/a5xx_gpu.c:118:1-7: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 51, but without a corresponding object release within this function.
 
-Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
+Cc: Rob Clark <robdclark@gmail.com>
+Cc: Sean Paul <sean@poorly.run>
+Cc: David Airlie <airlied@linux.ie>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: Jordan Crouse <jcrouse@codeaurora.org>
+Cc: Mamta Shukla <mamtashukla555@gmail.com>
+Cc: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: Sharat Masetty <smasetty@codeaurora.org>
+Cc: linux-arm-msm@vger.kernel.org
+Cc: dri-devel@lists.freedesktop.org
+Cc: freedreno@lists.freedesktop.org
+Cc: linux-kernel@vger.kernel.org (open list)
+Reviewed-by: Jordan Crouse <jcrouse@codeaurora.org>
+Signed-off-by: Rob Clark <robdclark@gmail.com>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ti/cpsw.c     | 12 +++++++++---
- drivers/net/ethernet/ti/cpsw_ale.c | 19 ++++++++++---------
- drivers/net/ethernet/ti/cpsw_ale.h |  3 +--
- 3 files changed, 20 insertions(+), 14 deletions(-)
+ drivers/gpu/drm/msm/adreno/a5xx_gpu.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/ti/cpsw.c b/drivers/net/ethernet/ti/cpsw.c
-index a591583d120e1..dd12b73a88530 100644
---- a/drivers/net/ethernet/ti/cpsw.c
-+++ b/drivers/net/ethernet/ti/cpsw.c
-@@ -800,12 +800,17 @@ static int cpsw_purge_all_mc(struct net_device *ndev, const u8 *addr, int num)
- 
- static void cpsw_ndo_set_rx_mode(struct net_device *ndev)
+diff --git a/drivers/gpu/drm/msm/adreno/a5xx_gpu.c b/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
+index d5f5e56422f57..270da14cba673 100644
+--- a/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
++++ b/drivers/gpu/drm/msm/adreno/a5xx_gpu.c
+@@ -34,7 +34,7 @@ static int zap_shader_load_mdt(struct msm_gpu *gpu, const char *fwname)
  {
--	struct cpsw_common *cpsw = ndev_to_cpsw(ndev);
-+	struct cpsw_priv *priv = netdev_priv(ndev);
-+	struct cpsw_common *cpsw = priv->cpsw;
-+	int slave_port = -1;
-+
-+	if (cpsw->data.dual_emac)
-+		slave_port = priv->emac_port + 1;
+ 	struct device *dev = &gpu->pdev->dev;
+ 	const struct firmware *fw;
+-	struct device_node *np;
++	struct device_node *np, *mem_np;
+ 	struct resource r;
+ 	phys_addr_t mem_phys;
+ 	ssize_t mem_size;
+@@ -48,11 +48,13 @@ static int zap_shader_load_mdt(struct msm_gpu *gpu, const char *fwname)
+ 	if (!np)
+ 		return -ENODEV;
  
- 	if (ndev->flags & IFF_PROMISC) {
- 		/* Enable promiscuous mode */
- 		cpsw_set_promiscious(ndev, true);
--		cpsw_ale_set_allmulti(cpsw->ale, IFF_ALLMULTI);
-+		cpsw_ale_set_allmulti(cpsw->ale, IFF_ALLMULTI, slave_port);
- 		return;
- 	} else {
- 		/* Disable promiscuous mode */
-@@ -813,7 +818,8 @@ static void cpsw_ndo_set_rx_mode(struct net_device *ndev)
- 	}
+-	np = of_parse_phandle(np, "memory-region", 0);
+-	if (!np)
++	mem_np = of_parse_phandle(np, "memory-region", 0);
++	of_node_put(np);
++	if (!mem_np)
+ 		return -EINVAL;
  
- 	/* Restore allmulti on vlans if necessary */
--	cpsw_ale_set_allmulti(cpsw->ale, ndev->flags & IFF_ALLMULTI);
-+	cpsw_ale_set_allmulti(cpsw->ale,
-+			      ndev->flags & IFF_ALLMULTI, slave_port);
+-	ret = of_address_to_resource(np, 0, &r);
++	ret = of_address_to_resource(mem_np, 0, &r);
++	of_node_put(mem_np);
+ 	if (ret)
+ 		return ret;
  
- 	/* add/remove mcast address either for real netdev or for vlan */
- 	__hw_addr_ref_sync_dev(&ndev->mc, ndev, cpsw_add_mc_addr,
-diff --git a/drivers/net/ethernet/ti/cpsw_ale.c b/drivers/net/ethernet/ti/cpsw_ale.c
-index 798c989d5d934..b3d9591b4824a 100644
---- a/drivers/net/ethernet/ti/cpsw_ale.c
-+++ b/drivers/net/ethernet/ti/cpsw_ale.c
-@@ -482,24 +482,25 @@ int cpsw_ale_del_vlan(struct cpsw_ale *ale, u16 vid, int port_mask)
- }
- EXPORT_SYMBOL_GPL(cpsw_ale_del_vlan);
- 
--void cpsw_ale_set_allmulti(struct cpsw_ale *ale, int allmulti)
-+void cpsw_ale_set_allmulti(struct cpsw_ale *ale, int allmulti, int port)
- {
- 	u32 ale_entry[ALE_ENTRY_WORDS];
--	int type, idx;
- 	int unreg_mcast = 0;
--
--	/* Only bother doing the work if the setting is actually changing */
--	if (ale->allmulti == allmulti)
--		return;
--
--	/* Remember the new setting to check against next time */
--	ale->allmulti = allmulti;
-+	int type, idx;
- 
- 	for (idx = 0; idx < ale->params.ale_entries; idx++) {
-+		int vlan_members;
-+
- 		cpsw_ale_read(ale, idx, ale_entry);
- 		type = cpsw_ale_get_entry_type(ale_entry);
- 		if (type != ALE_TYPE_VLAN)
- 			continue;
-+		vlan_members =
-+			cpsw_ale_get_vlan_member_list(ale_entry,
-+						      ale->vlan_field_bits);
-+
-+		if (port != -1 && !(vlan_members & BIT(port)))
-+			continue;
- 
- 		unreg_mcast =
- 			cpsw_ale_get_vlan_unreg_mcast(ale_entry,
-diff --git a/drivers/net/ethernet/ti/cpsw_ale.h b/drivers/net/ethernet/ti/cpsw_ale.h
-index cd07a3e96d576..1fe196d8a5e42 100644
---- a/drivers/net/ethernet/ti/cpsw_ale.h
-+++ b/drivers/net/ethernet/ti/cpsw_ale.h
-@@ -37,7 +37,6 @@ struct cpsw_ale {
- 	struct cpsw_ale_params	params;
- 	struct timer_list	timer;
- 	unsigned long		ageout;
--	int			allmulti;
- 	u32			version;
- 	/* These bits are different on NetCP NU Switch ALE */
- 	u32			port_mask_bits;
-@@ -116,7 +115,7 @@ int cpsw_ale_del_mcast(struct cpsw_ale *ale, const u8 *addr, int port_mask,
- int cpsw_ale_add_vlan(struct cpsw_ale *ale, u16 vid, int port, int untag,
- 			int reg_mcast, int unreg_mcast);
- int cpsw_ale_del_vlan(struct cpsw_ale *ale, u16 vid, int port);
--void cpsw_ale_set_allmulti(struct cpsw_ale *ale, int allmulti);
-+void cpsw_ale_set_allmulti(struct cpsw_ale *ale, int allmulti, int port);
- 
- int cpsw_ale_control_get(struct cpsw_ale *ale, int port, int control);
- int cpsw_ale_control_set(struct cpsw_ale *ale, int port,
 -- 
 2.20.1
 
