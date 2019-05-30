@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BDC062F538
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:46:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 773CD2ED0F
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:30:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728179AbfE3EpV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:45:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52678 "EHLO mail.kernel.org"
+        id S1733079AbfE3Daq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:30:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49084 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728717AbfE3DLw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:11:52 -0400
+        id S1733053AbfE3Dal (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:30:41 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 107B124503;
-        Thu, 30 May 2019 03:11:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C379424AF6;
+        Thu, 30 May 2019 03:30:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185912;
-        bh=kSDMB93qouo8XN377zhespyfUO9e7dXJqdZ0dU7pCV4=;
+        s=default; t=1559187040;
+        bh=kMmh6iBL9NQyeey8nZVsGYVS5PhyCz7yCWD11jJUAMI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B747tFAMcIwJszqD6SM7cZR/qKAIS07in9JS3YaqV6MXDxfZJMvChZuCXaUeW71ar
-         l6j4M/jgn6PfIf97F91uQzf5OnHdnyMYcDE46lAwdew8D0Q5mFGjrNAaNXz7px1i3K
-         qdSnF178Nq+zi+Z1eTX5WTk/T2XJ236kPspVHfV4=
+        b=Y9C3LZOeoVLsOZnMZzKJ/Te6TlmlFd9kRUtqIr6QdkEWULuyX2yBF/PNpM+Z0jkAn
+         sqB0NeW7wHZNeTlucd7eOXov2pFrDd4d38aHACn5aiwxCQN+0JeCkJ4v5QoxRC4KBR
+         9ninUbr9W1yTc6PaWuxExo1W/2gZDJh3ia1dkeTs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oded Gabbay <oded.gabbay@gmail.com>,
+        stable@vger.kernel.org,
+        "Lad, Prabhakar" <prabhakar.csengg@gmail.com>,
+        Akinobu Mita <akinobu.mita@gmail.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 284/405] habanalabs: prevent CPU soft lockup on Palladium
+Subject: [PATCH 4.19 124/276] media: ov2659: make S_FMT succeed even if requested format doesnt match
 Date:   Wed, 29 May 2019 20:04:42 -0700
-Message-Id: <20190530030555.249995994@linuxfoundation.org>
+Message-Id: <20190530030533.584869940@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,44 +47,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit e850b89f50d2c1439f58d547b888ee6e43312dea ]
+[ Upstream commit bccb89cf9cd07a0690d519696a00c00a973b3fe4 ]
 
-Unmapping ptes in the device MMU on Palladium can take a long time, which
-can cause a kernel BUG of CPU soft lockup.
+This driver returns an error if unsupported media bus pixel code is
+requested by VIDIOC_SUBDEV_S_FMT.
 
-This patch minimize the chances for this bug by sleeping a little between
-unmapping ptes.
+But according to Documentation/media/uapi/v4l/vidioc-subdev-g-fmt.rst,
 
-Signed-off-by: Oded Gabbay <oded.gabbay@gmail.com>
+Drivers must not return an error solely because the requested format
+doesn't match the device capabilities. They must instead modify the
+format to match what the hardware can provide.
+
+So select default format code and return success in that case.
+
+This is detected by v4l2-compliance.
+
+Cc: "Lad, Prabhakar" <prabhakar.csengg@gmail.com>
+Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+Acked-by: Lad, Prabhakar <prabhakar.csengg@gmail.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/habanalabs/memory.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/media/i2c/ov2659.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/misc/habanalabs/memory.c b/drivers/misc/habanalabs/memory.c
-index ce1fda40a8b81..fadaf557603f5 100644
---- a/drivers/misc/habanalabs/memory.c
-+++ b/drivers/misc/habanalabs/memory.c
-@@ -1046,10 +1046,17 @@ static int unmap_device_va(struct hl_ctx *ctx, u64 vaddr)
+diff --git a/drivers/media/i2c/ov2659.c b/drivers/media/i2c/ov2659.c
+index 4715edc8ca33e..e6a8b5669b9cc 100644
+--- a/drivers/media/i2c/ov2659.c
++++ b/drivers/media/i2c/ov2659.c
+@@ -1117,8 +1117,10 @@ static int ov2659_set_fmt(struct v4l2_subdev *sd,
+ 		if (ov2659_formats[index].code == mf->code)
+ 			break;
  
- 	mutex_lock(&ctx->mmu_lock);
- 
--	for (i = 0 ; i < phys_pg_pack->npages ; i++, next_vaddr += page_size)
-+	for (i = 0 ; i < phys_pg_pack->npages ; i++, next_vaddr += page_size) {
- 		if (hl_mmu_unmap(ctx, next_vaddr, page_size))
- 			dev_warn_ratelimited(hdev->dev,
--				"unmap failed for vaddr: 0x%llx\n", next_vaddr);
-+			"unmap failed for vaddr: 0x%llx\n", next_vaddr);
-+
-+		/* unmapping on Palladium can be really long, so avoid a CPU
-+		 * soft lockup bug by sleeping a little between unmapping pages
-+		 */
-+		if (hdev->pldm)
-+			usleep_range(500, 1000);
+-	if (index < 0)
+-		return -EINVAL;
++	if (index < 0) {
++		index = 0;
++		mf->code = ov2659_formats[index].code;
 +	}
  
- 	hdev->asic_funcs->mmu_invalidate_cache(hdev, true);
- 
+ 	mf->colorspace = V4L2_COLORSPACE_SRGB;
+ 	mf->field = V4L2_FIELD_NONE;
 -- 
 2.20.1
 
