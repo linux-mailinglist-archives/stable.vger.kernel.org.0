@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 20F1F2F596
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:48:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 632CC2F167
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:13:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388613AbfE3EsY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:48:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50232 "EHLO mail.kernel.org"
+        id S1730702AbfE3DQb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:16:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727697AbfE3DLT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:11:19 -0400
+        id S1730689AbfE3DQa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:16:30 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AA456244E6;
-        Thu, 30 May 2019 03:11:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D545D24598;
+        Thu, 30 May 2019 03:16:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185878;
-        bh=omCfLSJT/bcAzC95PyXPqGhXkRgBnfZz+kJGLpqGPss=;
+        s=default; t=1559186189;
+        bh=tAgy56GAZeKXoQye7Cl73ptMrxp8/LSuliqo4RLdHi4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EQa7aMjej3jZGeg61GSggJomq3PAVSvc6xO7OB9JnLHk/80TKMwbVLkrDBtAEiavj
-         Z+4o5w1YpQM66MrXK4TS/u+tObsdDZpeaTYgJTUL1Adx9R0Sp/2WuDJdTOBq8geKgW
-         puY6FF0KBAhuWt8HQsIT9VVYrQxoeAfW4cHDD514=
+        b=ax9lve9Drp1DwLlmPMOzwB57IfkuzdM4GYB3wSxbq+ljAt3NfJTgMoDA71GUt/9Gx
+         +hY/CzLkvtfHYxXGru/cBVyAz7BWyA/3MIsqEltMyxhPoHirgzxnGP4DSbhUIkx1Gt
+         3CkV1ekv53nzGZ4IgHWkOaDbinoe2R38XgAf8wHo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Potnuri Bharat Teja <bharat@chelsio.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 191/405] RDMA/cxgb4: Fix null pointer dereference on alloc_skb failure
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        Qu Wenruo <wqu@suse.com>, Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.19 031/276] btrfs: honor path->skip_locking in backref code
 Date:   Wed, 29 May 2019 20:03:09 -0700
-Message-Id: <20190530030550.672920659@linuxfoundation.org>
+Message-Id: <20190530030526.154567229@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,38 +44,156 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a6d2a5a92e67d151c98886babdc86d530d27111c ]
+From: Josef Bacik <josef@toxicpanda.com>
 
-Currently if alloc_skb fails to allocate the skb a null skb is passed to
-t4_set_arp_err_handler and this ends up dereferencing the null skb.  Avoid
-the NULL pointer dereference by checking for a NULL skb and returning
-early.
+commit 38e3eebff643db725633657d1d87a3be019d1018 upstream.
 
-Addresses-Coverity: ("Dereference null return")
-Fixes: b38a0ad8ec11 ("RDMA/cxgb4: Set arp error handler for PASS_ACCEPT_RPL messages")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Acked-by: Potnuri Bharat Teja <bharat@chelsio.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Qgroups will do the old roots lookup at delayed ref time, which could be
+while walking down the extent root while running a delayed ref.  This
+should be fine, except we specifically lock eb's in the backref walking
+code irrespective of path->skip_locking, which deadlocks the system.
+Fix up the backref code to honor path->skip_locking, nobody will be
+modifying the commit_root when we're searching so it's completely safe
+to do.
+
+This happens since fb235dc06fac ("btrfs: qgroup: Move half of the qgroup
+accounting time out of commit trans"), kernel may lockup with quota
+enabled.
+
+There is one backref trace triggered by snapshot dropping along with
+write operation in the source subvolume.  The example can be reliably
+reproduced:
+
+  btrfs-cleaner   D    0  4062      2 0x80000000
+  Call Trace:
+   schedule+0x32/0x90
+   btrfs_tree_read_lock+0x93/0x130 [btrfs]
+   find_parent_nodes+0x29b/0x1170 [btrfs]
+   btrfs_find_all_roots_safe+0xa8/0x120 [btrfs]
+   btrfs_find_all_roots+0x57/0x70 [btrfs]
+   btrfs_qgroup_trace_extent_post+0x37/0x70 [btrfs]
+   btrfs_qgroup_trace_leaf_items+0x10b/0x140 [btrfs]
+   btrfs_qgroup_trace_subtree+0xc8/0xe0 [btrfs]
+   do_walk_down+0x541/0x5e3 [btrfs]
+   walk_down_tree+0xab/0xe7 [btrfs]
+   btrfs_drop_snapshot+0x356/0x71a [btrfs]
+   btrfs_clean_one_deleted_snapshot+0xb8/0xf0 [btrfs]
+   cleaner_kthread+0x12b/0x160 [btrfs]
+   kthread+0x112/0x130
+   ret_from_fork+0x27/0x50
+
+When dropping snapshots with qgroup enabled, we will trigger backref
+walk.
+
+However such backref walk at that timing is pretty dangerous, as if one
+of the parent nodes get WRITE locked by other thread, we could cause a
+dead lock.
+
+For example:
+
+           FS 260     FS 261 (Dropped)
+            node A        node B
+           /      \      /      \
+       node C      node D      node E
+      /   \         /  \        /     \
+  leaf F|leaf G|leaf H|leaf I|leaf J|leaf K
+
+The lock sequence would be:
+
+      Thread A (cleaner)             |       Thread B (other writer)
+-----------------------------------------------------------------------
+write_lock(B)                        |
+write_lock(D)                        |
+^^^ called by walk_down_tree()       |
+                                     |       write_lock(A)
+                                     |       write_lock(D) << Stall
+read_lock(H) << for backref walk     |
+read_lock(D) << lock owner is        |
+                the same thread A    |
+                so read lock is OK   |
+read_lock(A) << Stall                |
+
+So thread A hold write lock D, and needs read lock A to unlock.
+While thread B holds write lock A, while needs lock D to unlock.
+
+This will cause a deadlock.
+
+This is not only limited to snapshot dropping case.  As the backref
+walk, even only happens on commit trees, is breaking the normal top-down
+locking order, makes it deadlock prone.
+
+Fixes: fb235dc06fac ("btrfs: qgroup: Move half of the qgroup accounting time out of commit trans")
+CC: stable@vger.kernel.org # 4.14+
+Reported-and-tested-by: David Sterba <dsterba@suse.com>
+Reported-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+[ rebase to latest branch and fix lock assert bug in btrfs/007 ]
+[ backport to linux-4.19.y branch, solve minor conflicts ]
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+[ copy logs and deadlock analysis from Qu's patch ]
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/infiniband/hw/cxgb4/cm.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/btrfs/backref.c |   19 ++++++++++++-------
+ 1 file changed, 12 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/infiniband/hw/cxgb4/cm.c b/drivers/infiniband/hw/cxgb4/cm.c
-index 4d232bdf9e976..689ba6bc2ca9c 100644
---- a/drivers/infiniband/hw/cxgb4/cm.c
-+++ b/drivers/infiniband/hw/cxgb4/cm.c
-@@ -457,6 +457,8 @@ static struct sk_buff *get_skb(struct sk_buff *skb, int len, gfp_t gfp)
- 		skb_reset_transport_header(skb);
- 	} else {
- 		skb = alloc_skb(len, gfp);
-+		if (!skb)
-+			return NULL;
- 	}
- 	t4_set_arp_err_handler(skb, NULL, NULL);
- 	return skb;
--- 
-2.20.1
-
+--- a/fs/btrfs/backref.c
++++ b/fs/btrfs/backref.c
+@@ -710,7 +710,7 @@ out:
+  * read tree blocks and add keys where required.
+  */
+ static int add_missing_keys(struct btrfs_fs_info *fs_info,
+-			    struct preftrees *preftrees)
++			    struct preftrees *preftrees, bool lock)
+ {
+ 	struct prelim_ref *ref;
+ 	struct extent_buffer *eb;
+@@ -735,12 +735,14 @@ static int add_missing_keys(struct btrfs
+ 			free_extent_buffer(eb);
+ 			return -EIO;
+ 		}
+-		btrfs_tree_read_lock(eb);
++		if (lock)
++			btrfs_tree_read_lock(eb);
+ 		if (btrfs_header_level(eb) == 0)
+ 			btrfs_item_key_to_cpu(eb, &ref->key_for_search, 0);
+ 		else
+ 			btrfs_node_key_to_cpu(eb, &ref->key_for_search, 0);
+-		btrfs_tree_read_unlock(eb);
++		if (lock)
++			btrfs_tree_read_unlock(eb);
+ 		free_extent_buffer(eb);
+ 		prelim_ref_insert(fs_info, &preftrees->indirect, ref, NULL);
+ 		cond_resched();
+@@ -1225,7 +1227,7 @@ again:
+ 
+ 	btrfs_release_path(path);
+ 
+-	ret = add_missing_keys(fs_info, &preftrees);
++	ret = add_missing_keys(fs_info, &preftrees, path->skip_locking == 0);
+ 	if (ret)
+ 		goto out;
+ 
+@@ -1286,11 +1288,14 @@ again:
+ 					ret = -EIO;
+ 					goto out;
+ 				}
+-				btrfs_tree_read_lock(eb);
+-				btrfs_set_lock_blocking_rw(eb, BTRFS_READ_LOCK);
++				if (!path->skip_locking) {
++					btrfs_tree_read_lock(eb);
++					btrfs_set_lock_blocking_rw(eb, BTRFS_READ_LOCK);
++				}
+ 				ret = find_extent_in_eb(eb, bytenr,
+ 							*extent_item_pos, &eie, ignore_offset);
+-				btrfs_tree_read_unlock_blocking(eb);
++				if (!path->skip_locking)
++					btrfs_tree_read_unlock_blocking(eb);
+ 				free_extent_buffer(eb);
+ 				if (ret < 0)
+ 					goto out;
 
 
