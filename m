@@ -2,46 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F31732F58F
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:48:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68CE02EBE2
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:16:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728490AbfE3DLV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:11:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50672 "EHLO mail.kernel.org"
+        id S1728548AbfE3DQg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:16:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728482AbfE3DLU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:11:20 -0400
+        id S1729778AbfE3DQg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:16:36 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 20ED6244FA;
-        Thu, 30 May 2019 03:11:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CF835245AB;
+        Thu, 30 May 2019 03:16:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185880;
-        bh=xD8BCILq0qaxWL0pZybmxB4YVqjMc1p4hd14D/e0VZU=;
+        s=default; t=1559186195;
+        bh=PDQKFwTZ+4tb8UFV3uA4gFWymgWjmywDPoUt7qwHpMU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SzQjMJWCNZn8J8ShGCujh2tP2P79RrjOsrDe+HCt+EsAlSnHqDGR7LXPCyuFVDvem
-         xUg0lXBKAt7EDglS0mnBVq4mvkQTZ+hTGuuL+MV02FHpeRUUY2mrLArGiNEZAwUEaV
-         v2n2QEYdUaslN0rtYQvUJWT6QkoqYElIi7UlJJqg=
+        b=dtFoOS+XO3LZ3F2U+uWcKGPohqQaZhPOKUADy/J2eWRPoByhhi9Ui57z5byKpPrdQ
+         pvSO1qeAyPbDJeKJTbOHNjV9AwZ4YQXWgRPfhymwpDWTxI/BddaSFvt6ucdF1xXqNP
+         tKahl17ZGbbbpV8oQmNdEPJn8kt1Pttl57mDSIAw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Fabio Estevam <festevam@gmail.com>,
-        NXP Linux Team <linux-imx@nxp.com>, linux-pm@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
+        stable@vger.kernel.org, Jon Derrick <jonathan.derrick@intel.com>,
+        Ben Skeggs <bskeggs@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 229/405] cpufreq: imx6q: fix possible object reference leak
+Subject: [PATCH 4.19 069/276] drm/nouveau/bar/nv50: ensure BAR is mapped
 Date:   Wed, 29 May 2019 20:03:47 -0700
-Message-Id: <20190530030552.617460274@linuxfoundation.org>
+Message-Id: <20190530030530.477145842@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,51 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ddb64c5db3cc8fb9c1242214d5798b2c2865681c ]
+[ Upstream commit f10b83de1fd49216a4c657816f48001437e4bdd5 ]
 
-The call to of_node_get returns a node pointer with refcount
-incremented thus it must be explicitly decremented after the last
-usage.
+If the BAR is zero size, it indicates it was never successfully mapped.
+Ensure that the BAR is valid during initialization before attempting to
+use it.
 
-Detected by coccinelle with the following warnings:
-./drivers/cpufreq/imx6q-cpufreq.c:391:4-10: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 348, but without a corresponding object release within this function.
-./drivers/cpufreq/imx6q-cpufreq.c:395:3-9: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 348, but without a corresponding object release within this function.
-
-Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Viresh Kumar <viresh.kumar@linaro.org>
-Cc: Shawn Guo <shawnguo@kernel.org>
-Cc: Sascha Hauer <s.hauer@pengutronix.de>
-Cc: Pengutronix Kernel Team <kernel@pengutronix.de>
-Cc: Fabio Estevam <festevam@gmail.com>
-Cc: NXP Linux Team <linux-imx@nxp.com>
-Cc: linux-pm@vger.kernel.org
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Jon Derrick <jonathan.derrick@intel.com>
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/imx6q-cpufreq.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/nouveau/nvkm/subdev/bar/nv50.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/cpufreq/imx6q-cpufreq.c b/drivers/cpufreq/imx6q-cpufreq.c
-index a4ff09f91c8f8..3e17560b1efe3 100644
---- a/drivers/cpufreq/imx6q-cpufreq.c
-+++ b/drivers/cpufreq/imx6q-cpufreq.c
-@@ -388,11 +388,11 @@ static int imx6q_cpufreq_probe(struct platform_device *pdev)
- 		ret = imx6ul_opp_check_speed_grading(cpu_dev);
- 		if (ret) {
- 			if (ret == -EPROBE_DEFER)
--				return ret;
-+				goto put_node;
+diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/bar/nv50.c b/drivers/gpu/drm/nouveau/nvkm/subdev/bar/nv50.c
+index 157b076a12723..38c9c086754b6 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/bar/nv50.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/bar/nv50.c
+@@ -109,7 +109,7 @@ nv50_bar_oneinit(struct nvkm_bar *base)
+ 	struct nvkm_device *device = bar->base.subdev.device;
+ 	static struct lock_class_key bar1_lock;
+ 	static struct lock_class_key bar2_lock;
+-	u64 start, limit;
++	u64 start, limit, size;
+ 	int ret;
  
- 			dev_err(cpu_dev, "failed to read ocotp: %d\n",
- 				ret);
--			return ret;
-+			goto put_node;
- 		}
- 	} else {
- 		imx6q_opp_check_speed_grading(cpu_dev);
+ 	ret = nvkm_gpuobj_new(device, 0x20000, 0, false, NULL, &bar->mem);
+@@ -127,7 +127,10 @@ nv50_bar_oneinit(struct nvkm_bar *base)
+ 
+ 	/* BAR2 */
+ 	start = 0x0100000000ULL;
+-	limit = start + device->func->resource_size(device, 3);
++	size = device->func->resource_size(device, 3);
++	if (!size)
++		return -ENOMEM;
++	limit = start + size;
+ 
+ 	ret = nvkm_vmm_new(device, start, limit-- - start, NULL, 0,
+ 			   &bar2_lock, "bar2", &bar->bar2_vmm);
+@@ -164,7 +167,10 @@ nv50_bar_oneinit(struct nvkm_bar *base)
+ 
+ 	/* BAR1 */
+ 	start = 0x0000000000ULL;
+-	limit = start + device->func->resource_size(device, 1);
++	size = device->func->resource_size(device, 1);
++	if (!size)
++		return -ENOMEM;
++	limit = start + size;
+ 
+ 	ret = nvkm_vmm_new(device, start, limit-- - start, NULL, 0,
+ 			   &bar1_lock, "bar1", &bar->bar1_vmm);
 -- 
 2.20.1
 
