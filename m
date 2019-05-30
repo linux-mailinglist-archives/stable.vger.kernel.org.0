@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE0152F3FE
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:36:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ECE4C2EB74
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:13:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729362AbfE3DNM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:13:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57360 "EHLO mail.kernel.org"
+        id S1729400AbfE3DNS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:13:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729353AbfE3DNL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:13:11 -0400
+        id S1729393AbfE3DNR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:13:17 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 799A3244B0;
-        Thu, 30 May 2019 03:13:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1414C21BE2;
+        Thu, 30 May 2019 03:13:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185990;
-        bh=oQi+LBWQl62U/gK8w8KtJLAKDAtJ6dbUAVFw0YbHPF8=;
+        s=default; t=1559185997;
+        bh=IMvOMrwfmvlEvp9BbnZTOcWW0xU9lq/DlMKMHRjOHos=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ln5XVbmamUcWLXJAzvv1AZ2UKrkuWm/zr6eqT1FBvlrdxhxqogaKvpkMaJkaqoFY6
-         p2iGq9asZnA18KBuMYPg6RRfcZpNDWp2RN9GkQ3sVMM4AiHP15QxF5LUW/gdmgu0zw
-         n1NYGPDr1tFFX/7BprawBiVJfoYEtXJABnbKi+lE=
+        b=HhVXd39S1nZpMtIeTR6Ta6YcA+Cr0CI2kRJqmoYMuIXofQR7LdK74JgKvLjexg09L
+         PWNylbmT110l5mSMLfFqtkdulij+UHJf5bRlh79pSrysyj39H7rXqZkcODBNhjP+n6
+         bfzdQTb9ywRbLLghDI8I+uHTo/kRZgJqdKUSKBW8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Josef Bacik <josef@toxicpanda.com>,
+        Anand Jain <anand.jain@oracle.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.0 017/346] btrfs: dont double unlock on error in btrfs_punch_hole
-Date:   Wed, 29 May 2019 20:01:30 -0700
-Message-Id: <20190530030541.523261725@linuxfoundation.org>
+Subject: [PATCH 5.0 018/346] Btrfs: do not abort transaction at btrfs_update_root() after failure to COW path
+Date:   Wed, 29 May 2019 20:01:31 -0700
+Message-Id: <20190530030541.593786823@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
 References: <20190530030540.363386121@linuxfoundation.org>
@@ -44,40 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 8fca955057b9c58467d1b231e43f19c4cf26ae8c upstream.
+commit 72bd2323ec87722c115a5906bc6a1b31d11e8f54 upstream.
 
-If we have an error writing out a delalloc range in
-btrfs_punch_hole_lock_range we'll unlock the inode and then goto
-out_only_mutex, where we will again unlock the inode.  This is bad,
-don't do this.
+Currently when we fail to COW a path at btrfs_update_root() we end up
+always aborting the transaction. However all the current callers of
+btrfs_update_root() are able to deal with errors returned from it, many do
+end up aborting the transaction themselves (directly or not, such as the
+transaction commit path), other BUG_ON() or just gracefully cancel whatever
+they were doing.
 
-Fixes: f27451f22996 ("Btrfs: add support for fallocate's zero range operation")
-CC: stable@vger.kernel.org # 4.19+
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
+When syncing the fsync log, we call btrfs_update_root() through
+tree-log.c:update_log_root(), and if it returns an -ENOSPC error, the log
+sync code does not abort the transaction, instead it gracefully handles
+the error and returns -EAGAIN to the fsync handler, so that it falls back
+to a transaction commit. Any other error different from -ENOSPC, makes the
+log sync code abort the transaction.
+
+So remove the transaction abort from btrfs_update_log() when we fail to
+COW a path to update the root item, so that if an -ENOSPC failure happens
+we avoid aborting the current transaction and have a chance of the fsync
+succeeding after falling back to a transaction commit.
+
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=203413
+Fixes: 79787eaab46121 ("btrfs: replace many BUG_ONs with proper error handling")
+Cc: stable@vger.kernel.org # 4.4+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: Anand Jain <anand.jain@oracle.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/file.c |    4 +---
+ fs/btrfs/root-tree.c |    4 +---
  1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/fs/btrfs/file.c
-+++ b/fs/btrfs/file.c
-@@ -2546,10 +2546,8 @@ static int btrfs_punch_hole(struct inode
+--- a/fs/btrfs/root-tree.c
++++ b/fs/btrfs/root-tree.c
+@@ -132,10 +132,8 @@ int btrfs_update_root(struct btrfs_trans
+ 		return -ENOMEM;
  
- 	ret = btrfs_punch_hole_lock_range(inode, lockstart, lockend,
- 					  &cached_state);
--	if (ret) {
--		inode_unlock(inode);
-+	if (ret)
- 		goto out_only_mutex;
+ 	ret = btrfs_search_slot(trans, root, key, path, 0, 1);
+-	if (ret < 0) {
+-		btrfs_abort_transaction(trans, ret);
++	if (ret < 0)
+ 		goto out;
 -	}
  
- 	path = btrfs_alloc_path();
- 	if (!path) {
+ 	if (ret != 0) {
+ 		btrfs_print_leaf(path->nodes[0]);
 
 
