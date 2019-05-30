@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 621842F139
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:11:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E63A62F56B
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:47:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727448AbfE3ELY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:11:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43788 "EHLO mail.kernel.org"
+        id S1729047AbfE3ErK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:47:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729878AbfE3DQt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:16:49 -0400
+        id S1728600AbfE3DLe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:11:34 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0F72324636;
-        Thu, 30 May 2019 03:16:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 278C6244FC;
+        Thu, 30 May 2019 03:11:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186208;
-        bh=m1S/o7bBWJfYKmlK40ba7fNUGV6C3viDPdMO7iZvriU=;
+        s=default; t=1559185894;
+        bh=BqZZIOycs8gGcPlEI9PbI3jL2AyLpyzb+4LwIR0Nejw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oCxRkyKqQiqDircj7LsyrjllqLBjif5t9BqxAUeGyu+EctIWr1Imvzdck56EzjNNM
-         YMakhqw6RVI2XBJAlVbR2HUh/G4fCYnLn5nUTTWD5ampLLWjatotXmNFsXSmTfGnEb
-         28huTibOkXUFxHXvsvmrhyrhaExHdmG5Przq3b8E=
+        b=Prff8fS6DEMPnHnXaVYKkBX3XOfzMx4kQfIJoWQfdTKc25PT22srVYlQF7zYS6xYe
+         PH1LbmUeI0YUdZXi5vkV/NKrv4CKYIYO/ndoT75lMgPU95zNnkHdCvuH/+pfkmhYKS
+         eaMCLClYu1aTLJoNcaPybfXTSgJU7QSh+0JbHyRw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
+        stable@vger.kernel.org, Ping-Ke Shih <pkshih@realtek.com>,
         Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 097/276] rsi: Fix NULL pointer dereference in kmalloc
+Subject: [PATCH 5.1 257/405] rtlwifi: fix potential NULL pointer dereference
 Date:   Wed, 29 May 2019 20:04:15 -0700
-Message-Id: <20190530030532.206413780@linuxfoundation.org>
+Message-Id: <20190530030553.975429029@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,88 +44,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d5414c2355b20ea8201156d2e874265f1cb0d775 ]
+[ Upstream commit 60209d482b97743915883d293c8b85226d230c19 ]
 
-kmalloc can fail in rsi_register_rates_channels but memcpy still attempts
-to write to channels. The patch replaces these calls with kmemdup and
-passes the error upstream.
+In case dev_alloc_skb fails, the fix safely returns to avoid
+potential NULL pointer dereference.
 
-Signed-off-by: Aditya Pakki <pakki001@umn.edu>
+Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/rsi/rsi_91x_mac80211.c | 30 ++++++++++++---------
- 1 file changed, 18 insertions(+), 12 deletions(-)
+ drivers/net/wireless/realtek/rtlwifi/rtl8188ee/fw.c       | 2 ++
+ drivers/net/wireless/realtek/rtlwifi/rtl8192c/fw_common.c | 2 ++
+ drivers/net/wireless/realtek/rtlwifi/rtl8192ee/fw.c       | 2 ++
+ drivers/net/wireless/realtek/rtlwifi/rtl8723ae/fw.c       | 2 ++
+ drivers/net/wireless/realtek/rtlwifi/rtl8723be/fw.c       | 2 ++
+ drivers/net/wireless/realtek/rtlwifi/rtl8821ae/fw.c       | 4 ++++
+ 6 files changed, 14 insertions(+)
 
-diff --git a/drivers/net/wireless/rsi/rsi_91x_mac80211.c b/drivers/net/wireless/rsi/rsi_91x_mac80211.c
-index 4e510cbe0a89f..be59d66585d6d 100644
---- a/drivers/net/wireless/rsi/rsi_91x_mac80211.c
-+++ b/drivers/net/wireless/rsi/rsi_91x_mac80211.c
-@@ -188,27 +188,27 @@ bool rsi_is_cipher_wep(struct rsi_common *common)
-  * @adapter: Pointer to the adapter structure.
-  * @band: Operating band to be set.
-  *
-- * Return: None.
-+ * Return: int - 0 on success, negative error on failure.
-  */
--static void rsi_register_rates_channels(struct rsi_hw *adapter, int band)
-+static int rsi_register_rates_channels(struct rsi_hw *adapter, int band)
- {
- 	struct ieee80211_supported_band *sbands = &adapter->sbands[band];
- 	void *channels = NULL;
+diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8188ee/fw.c b/drivers/net/wireless/realtek/rtlwifi/rtl8188ee/fw.c
+index 203e7b574e845..e2e0bfbc24fe2 100644
+--- a/drivers/net/wireless/realtek/rtlwifi/rtl8188ee/fw.c
++++ b/drivers/net/wireless/realtek/rtlwifi/rtl8188ee/fw.c
+@@ -600,6 +600,8 @@ void rtl88e_set_fw_rsvdpagepkt(struct ieee80211_hw *hw, bool b_dl_finished)
+ 		      u1rsvdpageloc, 3);
  
- 	if (band == NL80211_BAND_2GHZ) {
--		channels = kmalloc(sizeof(rsi_2ghz_channels), GFP_KERNEL);
--		memcpy(channels,
--		       rsi_2ghz_channels,
--		       sizeof(rsi_2ghz_channels));
-+		channels = kmemdup(rsi_2ghz_channels, sizeof(rsi_2ghz_channels),
-+				   GFP_KERNEL);
-+		if (!channels)
-+			return -ENOMEM;
- 		sbands->band = NL80211_BAND_2GHZ;
- 		sbands->n_channels = ARRAY_SIZE(rsi_2ghz_channels);
- 		sbands->bitrates = rsi_rates;
- 		sbands->n_bitrates = ARRAY_SIZE(rsi_rates);
- 	} else {
--		channels = kmalloc(sizeof(rsi_5ghz_channels), GFP_KERNEL);
--		memcpy(channels,
--		       rsi_5ghz_channels,
--		       sizeof(rsi_5ghz_channels));
-+		channels = kmemdup(rsi_5ghz_channels, sizeof(rsi_5ghz_channels),
-+				   GFP_KERNEL);
-+		if (!channels)
-+			return -ENOMEM;
- 		sbands->band = NL80211_BAND_5GHZ;
- 		sbands->n_channels = ARRAY_SIZE(rsi_5ghz_channels);
- 		sbands->bitrates = &rsi_rates[4];
-@@ -227,6 +227,7 @@ static void rsi_register_rates_channels(struct rsi_hw *adapter, int band)
- 	sbands->ht_cap.mcs.rx_mask[0] = 0xff;
- 	sbands->ht_cap.mcs.tx_params = IEEE80211_HT_MCS_TX_DEFINED;
- 	/* sbands->ht_cap.mcs.rx_highest = 0x82; */
-+	return 0;
- }
+ 	skb = dev_alloc_skb(totalpacketlen);
++	if (!skb)
++		return;
+ 	skb_put_data(skb, &reserved_page_packet, totalpacketlen);
  
- /**
-@@ -1985,11 +1986,16 @@ int rsi_mac80211_attach(struct rsi_common *common)
- 	wiphy->available_antennas_rx = 1;
- 	wiphy->available_antennas_tx = 1;
+ 	rtstatus = rtl_cmd_send_packet(hw, skb);
+diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8192c/fw_common.c b/drivers/net/wireless/realtek/rtlwifi/rtl8192c/fw_common.c
+index 18c76990a0898..86b1b88cc4ed8 100644
+--- a/drivers/net/wireless/realtek/rtlwifi/rtl8192c/fw_common.c
++++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192c/fw_common.c
+@@ -623,6 +623,8 @@ void rtl92c_set_fw_rsvdpagepkt(struct ieee80211_hw *hw,
+ 		      u1rsvdpageloc, 3);
  
--	rsi_register_rates_channels(adapter, NL80211_BAND_2GHZ);
-+	status = rsi_register_rates_channels(adapter, NL80211_BAND_2GHZ);
-+	if (status)
-+		return status;
- 	wiphy->bands[NL80211_BAND_2GHZ] =
- 		&adapter->sbands[NL80211_BAND_2GHZ];
- 	if (common->num_supp_bands > 1) {
--		rsi_register_rates_channels(adapter, NL80211_BAND_5GHZ);
-+		status = rsi_register_rates_channels(adapter,
-+						     NL80211_BAND_5GHZ);
-+		if (status)
-+			return status;
- 		wiphy->bands[NL80211_BAND_5GHZ] =
- 			&adapter->sbands[NL80211_BAND_5GHZ];
- 	}
+ 	skb = dev_alloc_skb(totalpacketlen);
++	if (!skb)
++		return;
+ 	skb_put_data(skb, &reserved_page_packet, totalpacketlen);
+ 
+ 	if (cmd_send_packet)
+diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8192ee/fw.c b/drivers/net/wireless/realtek/rtlwifi/rtl8192ee/fw.c
+index 7c5b54b71a92f..67305ce915ec4 100644
+--- a/drivers/net/wireless/realtek/rtlwifi/rtl8192ee/fw.c
++++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192ee/fw.c
+@@ -744,6 +744,8 @@ void rtl92ee_set_fw_rsvdpagepkt(struct ieee80211_hw *hw, bool b_dl_finished)
+ 		      u1rsvdpageloc, 3);
+ 
+ 	skb = dev_alloc_skb(totalpacketlen);
++	if (!skb)
++		return;
+ 	skb_put_data(skb, &reserved_page_packet, totalpacketlen);
+ 
+ 	rtstatus = rtl_cmd_send_packet(hw, skb);
+diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8723ae/fw.c b/drivers/net/wireless/realtek/rtlwifi/rtl8723ae/fw.c
+index be451a6f7dbe5..33481232fad01 100644
+--- a/drivers/net/wireless/realtek/rtlwifi/rtl8723ae/fw.c
++++ b/drivers/net/wireless/realtek/rtlwifi/rtl8723ae/fw.c
+@@ -448,6 +448,8 @@ void rtl8723e_set_fw_rsvdpagepkt(struct ieee80211_hw *hw, bool b_dl_finished)
+ 		      u1rsvdpageloc, 3);
+ 
+ 	skb = dev_alloc_skb(totalpacketlen);
++	if (!skb)
++		return;
+ 	skb_put_data(skb, &reserved_page_packet, totalpacketlen);
+ 
+ 	rtstatus = rtl_cmd_send_packet(hw, skb);
+diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8723be/fw.c b/drivers/net/wireless/realtek/rtlwifi/rtl8723be/fw.c
+index 4d7fa27f55caa..aa56058af56ef 100644
+--- a/drivers/net/wireless/realtek/rtlwifi/rtl8723be/fw.c
++++ b/drivers/net/wireless/realtek/rtlwifi/rtl8723be/fw.c
+@@ -562,6 +562,8 @@ void rtl8723be_set_fw_rsvdpagepkt(struct ieee80211_hw *hw,
+ 		      u1rsvdpageloc, sizeof(u1rsvdpageloc));
+ 
+ 	skb = dev_alloc_skb(totalpacketlen);
++	if (!skb)
++		return;
+ 	skb_put_data(skb, &reserved_page_packet, totalpacketlen);
+ 
+ 	rtstatus = rtl_cmd_send_packet(hw, skb);
+diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8821ae/fw.c b/drivers/net/wireless/realtek/rtlwifi/rtl8821ae/fw.c
+index dc0eb692088f6..fe32d397d2875 100644
+--- a/drivers/net/wireless/realtek/rtlwifi/rtl8821ae/fw.c
++++ b/drivers/net/wireless/realtek/rtlwifi/rtl8821ae/fw.c
+@@ -1623,6 +1623,8 @@ void rtl8812ae_set_fw_rsvdpagepkt(struct ieee80211_hw *hw,
+ 		      &reserved_page_packet_8812[0], totalpacketlen);
+ 
+ 	skb = dev_alloc_skb(totalpacketlen);
++	if (!skb)
++		return;
+ 	skb_put_data(skb, &reserved_page_packet_8812, totalpacketlen);
+ 
+ 	rtstatus = rtl_cmd_send_packet(hw, skb);
+@@ -1759,6 +1761,8 @@ void rtl8821ae_set_fw_rsvdpagepkt(struct ieee80211_hw *hw,
+ 		      &reserved_page_packet_8821[0], totalpacketlen);
+ 
+ 	skb = dev_alloc_skb(totalpacketlen);
++	if (!skb)
++		return;
+ 	skb_put_data(skb, &reserved_page_packet_8821, totalpacketlen);
+ 
+ 	rtstatus = rtl_cmd_send_packet(hw, skb);
 -- 
 2.20.1
 
