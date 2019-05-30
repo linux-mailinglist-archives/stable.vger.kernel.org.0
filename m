@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 85B052F038
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:02:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9574B2EF04
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:52:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727203AbfE3EB7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:01:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49856 "EHLO mail.kernel.org"
+        id S1728107AbfE3DwD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:52:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56150 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729885AbfE3DSF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:18:05 -0400
+        id S1731987AbfE3DTl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:19:41 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0F3EE24692;
-        Thu, 30 May 2019 03:18:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F05F5248BA;
+        Thu, 30 May 2019 03:19:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186285;
-        bh=MaBLhtL6E6bUVr5rhOE4B8vqyi8z5Rle9ZtDG1taMb0=;
+        s=default; t=1559186380;
+        bh=IJXDKlfnr9qQDmVN4oIdOTfuIqwwVs2SIw5sO4hk4Zc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tZiyAVZzW9KjOmeshYVcWbe4bGKXbhx1uJ5tAHcpjgX80Xze8wMWG+WrcvqSYUQba
-         cOeCPovUkbxaRvfhmPaTcnlq4ZLOp4edDQhRJt+P3vUUDfvKd26hrpzGbvgpFp98y8
-         5prt2bfG6ex/XNzDF03Zzo+ySeU8ZWgIpPxKwcZM=
+        b=OE4MeCh9qbpy1AHF/TtrFAw69yQoQzCTneYMPPZqwMolTJKfzwC4o9QAnFENhKe4U
+         vCuVLtp00JeO4RoXHBGbNLbs2H8Y6ON7GYCrdArM4FGIk/CxVDAfhrK5+mBzw/0HY4
+         YdNt3MFvcs1F77QHKuwVsCFKfrLTWzd3s1FXo60w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>,
-        Antonio Quartulli <a@unstable.cc>,
-        Sven Eckelmann <sven@narfation.org>,
-        Simon Wunderlich <sw@simonwunderlich.de>,
+        Piotr Figiel <p.figiel@camlintechnologies.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 239/276] batman-adv: allow updating DAT entry timeouts on incoming ARP Replies
+Subject: [PATCH 4.14 143/193] brcmfmac: convert dev_init_lock mutex to completion
 Date:   Wed, 29 May 2019 20:06:37 -0700
-Message-Id: <20190530030540.077757453@linuxfoundation.org>
+Message-Id: <20190530030508.294993038@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
+References: <20190530030446.953835040@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,55 +45,188 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 099e6cc1582dc2903fecb898bbeae8f7cf4262c7 ]
+[ Upstream commit a9fd0953fa4a62887306be28641b4b0809f3b2fd ]
 
-Currently incoming ARP Replies, for example via a DHT-PUT message, do
-not update the timeout for an already existing DAT entry. These ARP
-Replies are dropped instead.
+Leaving dev_init_lock mutex locked in probe causes BUG and a WARNING when
+kernel is compiled with CONFIG_PROVE_LOCKING. Convert mutex to completion
+which silences those warnings and improves code readability.
 
-This however defeats the purpose of the DHCPACK snooping, for instance.
-Right now, a DAT entry in the DHT will be purged every five minutes,
-likely leading to a mesh-wide ARP Request broadcast after this timeout.
-Which then recreates the entry. The idea of the DHCPACK snooping is to
-be able to update an entry before a timeout happens, to avoid ARP Request
-flooding.
+Fix below errors when connecting the USB WiFi dongle:
 
-This patch fixes this issue by updating a DAT entry on incoming
-ARP Replies even if a matching DAT entry already exists. While still
-filtering the ARP Reply towards the soft-interface, to avoid duplicate
-messages on the client device side.
+brcmfmac: brcmf_fw_alloc_request: using brcm/brcmfmac43143 for chip BCM43143/2
+BUG: workqueue leaked lock or atomic: kworker/0:2/0x00000000/434
+     last function: hub_event
+1 lock held by kworker/0:2/434:
+ #0: 18d5dcdf (&devinfo->dev_init_lock){+.+.}, at: brcmf_usb_probe+0x78/0x550 [brcmfmac]
+CPU: 0 PID: 434 Comm: kworker/0:2 Not tainted 4.19.23-00084-g454a789-dirty #123
+Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
+Workqueue: usb_hub_wq hub_event
+[<8011237c>] (unwind_backtrace) from [<8010d74c>] (show_stack+0x10/0x14)
+[<8010d74c>] (show_stack) from [<809c4324>] (dump_stack+0xa8/0xd4)
+[<809c4324>] (dump_stack) from [<8014195c>] (process_one_work+0x710/0x808)
+[<8014195c>] (process_one_work) from [<80141a80>] (worker_thread+0x2c/0x564)
+[<80141a80>] (worker_thread) from [<80147bcc>] (kthread+0x13c/0x16c)
+[<80147bcc>] (kthread) from [<801010b4>] (ret_from_fork+0x14/0x20)
+Exception stack(0xed1d9fb0 to 0xed1d9ff8)
+9fa0:                                     00000000 00000000 00000000 00000000
+9fc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+9fe0: 00000000 00000000 00000000 00000000 00000013 00000000
 
-Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
-Acked-by: Antonio Quartulli <a@unstable.cc>
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+======================================================
+WARNING: possible circular locking dependency detected
+4.19.23-00084-g454a789-dirty #123 Not tainted
+------------------------------------------------------
+kworker/0:2/434 is trying to acquire lock:
+e29cf799 ((wq_completion)"events"){+.+.}, at: process_one_work+0x174/0x808
+
+but task is already holding lock:
+18d5dcdf (&devinfo->dev_init_lock){+.+.}, at: brcmf_usb_probe+0x78/0x550 [brcmfmac]
+
+which lock already depends on the new lock.
+
+the existing dependency chain (in reverse order) is:
+
+-> #2 (&devinfo->dev_init_lock){+.+.}:
+       mutex_lock_nested+0x1c/0x24
+       brcmf_usb_probe+0x78/0x550 [brcmfmac]
+       usb_probe_interface+0xc0/0x1bc
+       really_probe+0x228/0x2c0
+       __driver_attach+0xe4/0xe8
+       bus_for_each_dev+0x68/0xb4
+       bus_add_driver+0x19c/0x214
+       driver_register+0x78/0x110
+       usb_register_driver+0x84/0x148
+       process_one_work+0x228/0x808
+       worker_thread+0x2c/0x564
+       kthread+0x13c/0x16c
+       ret_from_fork+0x14/0x20
+         (null)
+
+-> #1 (brcmf_driver_work){+.+.}:
+       worker_thread+0x2c/0x564
+       kthread+0x13c/0x16c
+       ret_from_fork+0x14/0x20
+         (null)
+
+-> #0 ((wq_completion)"events"){+.+.}:
+       process_one_work+0x1b8/0x808
+       worker_thread+0x2c/0x564
+       kthread+0x13c/0x16c
+       ret_from_fork+0x14/0x20
+         (null)
+
+other info that might help us debug this:
+
+Chain exists of:
+  (wq_completion)"events" --> brcmf_driver_work --> &devinfo->dev_init_lock
+
+ Possible unsafe locking scenario:
+
+       CPU0                    CPU1
+       ----                    ----
+  lock(&devinfo->dev_init_lock);
+                               lock(brcmf_driver_work);
+                               lock(&devinfo->dev_init_lock);
+  lock((wq_completion)"events");
+
+ *** DEADLOCK ***
+
+1 lock held by kworker/0:2/434:
+ #0: 18d5dcdf (&devinfo->dev_init_lock){+.+.}, at: brcmf_usb_probe+0x78/0x550 [brcmfmac]
+
+stack backtrace:
+CPU: 0 PID: 434 Comm: kworker/0:2 Not tainted 4.19.23-00084-g454a789-dirty #123
+Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
+Workqueue: events request_firmware_work_func
+[<8011237c>] (unwind_backtrace) from [<8010d74c>] (show_stack+0x10/0x14)
+[<8010d74c>] (show_stack) from [<809c4324>] (dump_stack+0xa8/0xd4)
+[<809c4324>] (dump_stack) from [<80172838>] (print_circular_bug+0x210/0x330)
+[<80172838>] (print_circular_bug) from [<80175940>] (__lock_acquire+0x160c/0x1a30)
+[<80175940>] (__lock_acquire) from [<8017671c>] (lock_acquire+0xe0/0x268)
+[<8017671c>] (lock_acquire) from [<80141404>] (process_one_work+0x1b8/0x808)
+[<80141404>] (process_one_work) from [<80141a80>] (worker_thread+0x2c/0x564)
+[<80141a80>] (worker_thread) from [<80147bcc>] (kthread+0x13c/0x16c)
+[<80147bcc>] (kthread) from [<801010b4>] (ret_from_fork+0x14/0x20)
+Exception stack(0xed1d9fb0 to 0xed1d9ff8)
+9fa0:                                     00000000 00000000 00000000 00000000
+9fc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+9fe0: 00000000 00000000 00000000 00000000 00000013 00000000
+
+Signed-off-by: Piotr Figiel <p.figiel@camlintechnologies.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/batman-adv/distributed-arp-table.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ .../wireless/broadcom/brcm80211/brcmfmac/usb.c  | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
 
-diff --git a/net/batman-adv/distributed-arp-table.c b/net/batman-adv/distributed-arp-table.c
-index a60bacf7120be..2895e3b26e930 100644
---- a/net/batman-adv/distributed-arp-table.c
-+++ b/net/batman-adv/distributed-arp-table.c
-@@ -1394,7 +1394,6 @@ bool batadv_dat_snoop_incoming_arp_reply(struct batadv_priv *bat_priv,
- 			   hw_src, &ip_src, hw_dst, &ip_dst,
- 			   dat_entry->mac_addr,	&dat_entry->ip);
- 		dropped = true;
--		goto out;
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c
+index 11ffaa01599eb..267dcefdacb29 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c
+@@ -160,7 +160,7 @@ struct brcmf_usbdev_info {
+ 
+ 	struct usb_device *usbdev;
+ 	struct device *dev;
+-	struct mutex dev_init_lock;
++	struct completion dev_init_done;
+ 
+ 	int ctl_in_pipe, ctl_out_pipe;
+ 	struct urb *ctl_urb; /* URB for control endpoint */
+@@ -1192,11 +1192,11 @@ static void brcmf_usb_probe_phase2(struct device *dev, int ret,
+ 	if (ret)
+ 		goto error;
+ 
+-	mutex_unlock(&devinfo->dev_init_lock);
++	complete(&devinfo->dev_init_done);
+ 	return;
+ error:
+ 	brcmf_dbg(TRACE, "failed: dev=%s, err=%d\n", dev_name(dev), ret);
+-	mutex_unlock(&devinfo->dev_init_lock);
++	complete(&devinfo->dev_init_done);
+ 	device_release_driver(dev);
+ }
+ 
+@@ -1242,7 +1242,7 @@ static int brcmf_usb_probe_cb(struct brcmf_usbdev_info *devinfo)
+ 		if (ret)
+ 			goto fail;
+ 		/* we are done */
+-		mutex_unlock(&devinfo->dev_init_lock);
++		complete(&devinfo->dev_init_done);
+ 		return 0;
  	}
+ 	bus->chip = bus_pub->devid;
+@@ -1303,11 +1303,10 @@ brcmf_usb_probe(struct usb_interface *intf, const struct usb_device_id *id)
  
- 	/* Update our internal cache with both the IP addresses the node got
-@@ -1403,6 +1402,9 @@ bool batadv_dat_snoop_incoming_arp_reply(struct batadv_priv *bat_priv,
- 	batadv_dat_entry_add(bat_priv, ip_src, hw_src, vid);
- 	batadv_dat_entry_add(bat_priv, ip_dst, hw_dst, vid);
+ 	devinfo->usbdev = usb;
+ 	devinfo->dev = &usb->dev;
+-	/* Take an init lock, to protect for disconnect while still loading.
++	/* Init completion, to protect for disconnect while still loading.
+ 	 * Necessary because of the asynchronous firmware load construction
+ 	 */
+-	mutex_init(&devinfo->dev_init_lock);
+-	mutex_lock(&devinfo->dev_init_lock);
++	init_completion(&devinfo->dev_init_done);
  
-+	if (dropped)
-+		goto out;
-+
- 	/* If BLA is enabled, only forward ARP replies if we have claimed the
- 	 * source of the ARP reply or if no one else of the same backbone has
- 	 * already claimed that client. This prevents that different gateways
+ 	usb_set_intfdata(intf, devinfo);
+ 
+@@ -1385,7 +1384,7 @@ brcmf_usb_probe(struct usb_interface *intf, const struct usb_device_id *id)
+ 	return 0;
+ 
+ fail:
+-	mutex_unlock(&devinfo->dev_init_lock);
++	complete(&devinfo->dev_init_done);
+ 	kfree(devinfo);
+ 	usb_set_intfdata(intf, NULL);
+ 	return ret;
+@@ -1400,7 +1399,7 @@ brcmf_usb_disconnect(struct usb_interface *intf)
+ 	devinfo = (struct brcmf_usbdev_info *)usb_get_intfdata(intf);
+ 
+ 	if (devinfo) {
+-		mutex_lock(&devinfo->dev_init_lock);
++		wait_for_completion(&devinfo->dev_init_done);
+ 		/* Make sure that devinfo still exists. Firmware probe routines
+ 		 * may have released the device and cleared the intfdata.
+ 		 */
 -- 
 2.20.1
 
