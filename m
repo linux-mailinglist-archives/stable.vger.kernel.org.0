@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D871B2F546
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:46:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 475332F2FC
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:25:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728677AbfE3DLq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:11:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52106 "EHLO mail.kernel.org"
+        id S1729955AbfE3DOm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:14:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728670AbfE3DLq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:11:46 -0400
+        id S1729949AbfE3DOm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:14:42 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A9B7424496;
-        Thu, 30 May 2019 03:11:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 97A1024585;
+        Thu, 30 May 2019 03:14:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185905;
-        bh=DVF2BsjhTgYxFfpTkGy6e03bpwNSrsgVjaDEudMpCwE=;
+        s=default; t=1559186081;
+        bh=iGxECOeYoMheEdkjkj36hyuYRAMoQSKnz47vNcgJL9g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WKppSilaMNMP6rNJW3pB6IE1Li3ESZcPwOY0V6e6aX8JTdU+4ri6HYML3TwWZFnJW
-         eAv0WEjrHEgr60mkN0fGmv1GVeh8iB4A7GsV63lY8nyk1Tt3Jpt/BB4zpSuHDA8361
-         oL9AvTr5Hj+EosLRx/sUCZtVQI9flC1Xe6W6NKKY=
+        b=0Zea+2cc0MwqMnt4pcEfiaqgotPTKjXVPOwszXfNsmpEcBzehTlCtGNvKbB7CKhPH
+         BGE+Y3ppKIjKaJpXvCU3LHm1bSbPO/GmVBdjEtCNFk5iQSqyaULdJbJ/UopqMVgyAB
+         UMHUDWN1DFxLF2u8hsM/7tluGXLTUC5uOpxl1d1A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Roman Gushchin <guro@fb.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        "Shuah Khan (Samsung OSG)" <shuah@kernel.org>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 277/405] cxgb3/l2t: Fix undefined behaviour
+Subject: [PATCH 5.0 202/346] selftests: cgroup: fix cleanup path in test_memcg_subtree_control()
 Date:   Wed, 29 May 2019 20:04:35 -0700
-Message-Id: <20190530030554.904397002@linuxfoundation.org>
+Message-Id: <20190530030551.424054947@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,47 +46,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 76497732932f15e7323dc805e8ea8dc11bb587cf ]
+[ Upstream commit e14d314c7a489f060d6d691866fef5f131281718 ]
 
-The use of zero-sized array causes undefined behaviour when it is not
-the last member in a structure. As it happens to be in this case.
+Dan reported, that cleanup path in test_memcg_subtree_control()
+triggers a static checker warning:
+  ./tools/testing/selftests/cgroup/test_memcontrol.c:76 \
+  test_memcg_subtree_control()
+  error: uninitialized symbol 'child2'.
 
-Also, the current code makes use of a language extension to the C90
-standard, but the preferred mechanism to declare variable-length
-types such as this one is a flexible array member, introduced in
-C99:
+Fix this by initializing child2 and parent2 variables and
+split the cleanup path into few stages.
 
-struct foo {
-        int stuff;
-        struct boo array[];
-};
-
-By making use of the mechanism above, we will get a compiler warning
-in case the flexible array does not occur last. Which is beneficial
-to cultivate a high-quality code.
-
-Fixes: e48f129c2f20 ("[SCSI] cxgb3i: convert cdev->l2opt to use rcu to prevent NULL dereference")
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Roman Gushchin <guro@fb.com>
+Fixes: 84092dbcf901 ("selftests: cgroup: add memory controller self-tests")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Shuah Khan (Samsung OSG) <shuah@kernel.org>
+Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
+Signed-off-by: Shuah Khan <shuah@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/chelsio/cxgb3/l2t.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../selftests/cgroup/test_memcontrol.c        | 38 ++++++++++---------
+ 1 file changed, 21 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb3/l2t.h b/drivers/net/ethernet/chelsio/cxgb3/l2t.h
-index c2fd323c40782..ea75f275023ff 100644
---- a/drivers/net/ethernet/chelsio/cxgb3/l2t.h
-+++ b/drivers/net/ethernet/chelsio/cxgb3/l2t.h
-@@ -75,8 +75,8 @@ struct l2t_data {
- 	struct l2t_entry *rover;	/* starting point for next allocation */
- 	atomic_t nfree;		/* number of free entries */
- 	rwlock_t lock;
--	struct l2t_entry l2tab[0];
- 	struct rcu_head rcu_head;	/* to handle rcu cleanup */
-+	struct l2t_entry l2tab[];
- };
+diff --git a/tools/testing/selftests/cgroup/test_memcontrol.c b/tools/testing/selftests/cgroup/test_memcontrol.c
+index 28d321ba311b4..6f339882a6ca1 100644
+--- a/tools/testing/selftests/cgroup/test_memcontrol.c
++++ b/tools/testing/selftests/cgroup/test_memcontrol.c
+@@ -26,7 +26,7 @@
+  */
+ static int test_memcg_subtree_control(const char *root)
+ {
+-	char *parent, *child, *parent2, *child2;
++	char *parent, *child, *parent2 = NULL, *child2 = NULL;
+ 	int ret = KSFT_FAIL;
+ 	char buf[PAGE_SIZE];
  
- typedef void (*arp_failure_handler_func)(struct t3cdev * dev,
+@@ -34,50 +34,54 @@ static int test_memcg_subtree_control(const char *root)
+ 	parent = cg_name(root, "memcg_test_0");
+ 	child = cg_name(root, "memcg_test_0/memcg_test_1");
+ 	if (!parent || !child)
+-		goto cleanup;
++		goto cleanup_free;
+ 
+ 	if (cg_create(parent))
+-		goto cleanup;
++		goto cleanup_free;
+ 
+ 	if (cg_write(parent, "cgroup.subtree_control", "+memory"))
+-		goto cleanup;
++		goto cleanup_parent;
+ 
+ 	if (cg_create(child))
+-		goto cleanup;
++		goto cleanup_parent;
+ 
+ 	if (cg_read_strstr(child, "cgroup.controllers", "memory"))
+-		goto cleanup;
++		goto cleanup_child;
+ 
+ 	/* Create two nested cgroups without enabling memory controller */
+ 	parent2 = cg_name(root, "memcg_test_1");
+ 	child2 = cg_name(root, "memcg_test_1/memcg_test_1");
+ 	if (!parent2 || !child2)
+-		goto cleanup;
++		goto cleanup_free2;
+ 
+ 	if (cg_create(parent2))
+-		goto cleanup;
++		goto cleanup_free2;
+ 
+ 	if (cg_create(child2))
+-		goto cleanup;
++		goto cleanup_parent2;
+ 
+ 	if (cg_read(child2, "cgroup.controllers", buf, sizeof(buf)))
+-		goto cleanup;
++		goto cleanup_all;
+ 
+ 	if (!cg_read_strstr(child2, "cgroup.controllers", "memory"))
+-		goto cleanup;
++		goto cleanup_all;
+ 
+ 	ret = KSFT_PASS;
+ 
+-cleanup:
+-	cg_destroy(child);
+-	cg_destroy(parent);
+-	free(parent);
+-	free(child);
+-
++cleanup_all:
+ 	cg_destroy(child2);
++cleanup_parent2:
+ 	cg_destroy(parent2);
++cleanup_free2:
+ 	free(parent2);
+ 	free(child2);
++cleanup_child:
++	cg_destroy(child);
++cleanup_parent:
++	cg_destroy(parent);
++cleanup_free:
++	free(parent);
++	free(child);
+ 
+ 	return ret;
+ }
 -- 
 2.20.1
 
