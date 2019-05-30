@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CFD8A2F1DE
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:16:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94AF82EE20
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:44:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727199AbfE3EQa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:16:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39808 "EHLO mail.kernel.org"
+        id S1732424AbfE3Doh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:44:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729507AbfE3DPr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:15:47 -0400
+        id S1732380AbfE3DU4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:20:56 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB82A245C3;
-        Thu, 30 May 2019 03:15:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 582EC2498D;
+        Thu, 30 May 2019 03:20:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186146;
-        bh=BJ39WeU6Gz7O+UFcSfdaXtCV0vuqbjEefStskKc/mqo=;
+        s=default; t=1559186455;
+        bh=Ff4fiUhKF78asIqhF4O+7RlfmrvJnhFpQLyghkBMiuQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xxSomah17lXHUBvRvQAx7LYgfEvcgtHctcQiwhdkqYUoLs7Vh+OUTmR1L+l9cRB9w
-         1Nx1Dzc6+831iLFMcxB2a3Hx8a912a392BQgJT3rWokAloONZZB+hofqrfh0oJWj0n
-         f9E2ZsRla5mN0P10C8Hz/mW5dzI0S9EZnXD8govI=
+        b=K6PNh9Jnt+FmxYuQqUhP/vs14ff2m3AJ7RJUc3pfwJoJirYNjR9jI7C55G9bN2u42
+         yY0whLGJ1gMF6XMGc4GQfNylBFEumLt0H1qba53zh2Uq+ZHrse+4oB/I4t6A9r2UuW
+         iPjrpXBCS8RInF3oqYGdSBCWDk8IpKtE857Z0zzA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiada Wang <jiada_wang@mentor.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        Stefan Agner <stefan@agner.ch>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Trent Piepho <tpiepho@impinj.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 327/346] spi: imx: stop buffer overflow in RX FIFO flush
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Borislav Petkov <bp@suse.de>,
+        Andy Lutomirski <luto@kernel.org>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Mitsuo Hayasaka <mitsuo.hayasaka.hu@hitachi.com>,
+        Nicolai Stange <nstange@suse.de>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        x86-ml <x86@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 068/128] x86/irq/64: Limit IST stack overflow check to #DB stack
 Date:   Wed, 29 May 2019 20:06:40 -0700
-Message-Id: <20190530030557.344692655@linuxfoundation.org>
+Message-Id: <20190530030446.997261154@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
+References: <20190530030432.977908967@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,55 +50,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c842749ea1d32513f9e603c074d60d7aa07cb2ef ]
+[ Upstream commit 7dbcf2b0b770eeb803a416ee8dcbef78e6389d40 ]
 
-Commit 71abd29057cb ("spi: imx: Add support for SPI Slave mode") added
-an RX FIFO flush before start of a transfer.  In slave mode, the master
-may have sent more data than expected and this data will still be in the
-RX FIFO at the start of the next transfer, and so needs to be flushed.
+Commit
 
-However, the code to do the flush was accidentally saving this data into
-the previous transfer's RX buffer, clobbering the contents of whatever
-followed that buffer.
+  37fe6a42b343 ("x86: Check stack overflow in detail")
 
-Change it to empty the FIFO and throw away the data.  Every one of the
-RX functions for the different eCSPI versions and modes reads the RX
-FIFO data using the same readl() call, so just use that, rather than
-using the spi_imx->rx function pointer and making sure all the different
-rx functions have a working "throw away" mode.
+added a broad check for the full exception stack area, i.e. it considers
+the full exception stack area as valid.
 
-There is another issue, which affects master mode when switching from
-DMA to PIO.  There can be extra data in the RX FIFO which triggers this
-flush code, causing memory corruption in the same manner.  I don't know
-why this data is unexpectedly in the FIFO.  It's likely there is a
-different bug or erratum responsible for that.  But regardless of that,
-I think this is proper fix the for bug at hand here.
+That's wrong in two aspects:
 
-Fixes: 71abd29057cb ("spi: imx: Add support for SPI Slave mode")
-Cc: Jiada Wang <jiada_wang@mentor.com>
-Cc: Fabio Estevam <festevam@gmail.com>
-Cc: Stefan Agner <stefan@agner.ch>
-Cc: Shawn Guo <shawnguo@kernel.org>
-Signed-off-by: Trent Piepho <tpiepho@impinj.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+ 1) It does not check the individual areas one by one
+
+ 2) #DF, NMI and #MCE are not enabling interrupts which means that a
+    regular device interrupt cannot happen in their context. In fact if a
+    device interrupt hits one of those IST stacks that's a bug because some
+    code path enabled interrupts while handling the exception.
+
+Limit the check to the #DB stack and consider all other IST stacks as
+'overflow' or invalid.
+
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Mitsuo Hayasaka <mitsuo.hayasaka.hu@hitachi.com>
+Cc: Nicolai Stange <nstange@suse.de>
+Cc: Sean Christopherson <sean.j.christopherson@intel.com>
+Cc: x86-ml <x86@kernel.org>
+Link: https://lkml.kernel.org/r/20190414160143.682135110@linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-imx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/irq_64.c | 19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/spi/spi-imx.c b/drivers/spi/spi-imx.c
-index 6ec647bbba772..a81ae29aa68a9 100644
---- a/drivers/spi/spi-imx.c
-+++ b/drivers/spi/spi-imx.c
-@@ -1494,7 +1494,7 @@ static int spi_imx_transfer(struct spi_device *spi,
+diff --git a/arch/x86/kernel/irq_64.c b/arch/x86/kernel/irq_64.c
+index bcd1b82c86e81..005e9a77a664e 100644
+--- a/arch/x86/kernel/irq_64.c
++++ b/arch/x86/kernel/irq_64.c
+@@ -25,9 +25,18 @@ int sysctl_panic_on_stackoverflow;
+ /*
+  * Probabilistic stack overflow check:
+  *
+- * Only check the stack in process context, because everything else
+- * runs on the big interrupt stacks. Checking reliably is too expensive,
+- * so we just check from interrupts.
++ * Regular device interrupts can enter on the following stacks:
++ *
++ * - User stack
++ *
++ * - Kernel task stack
++ *
++ * - Interrupt stack if a device driver reenables interrupts
++ *   which should only happen in really old drivers.
++ *
++ * - Debug IST stack
++ *
++ * All other contexts are invalid.
+  */
+ static inline void stack_overflow_check(struct pt_regs *regs)
+ {
+@@ -52,8 +61,8 @@ static inline void stack_overflow_check(struct pt_regs *regs)
+ 		return;
  
- 	/* flush rxfifo before transfer */
- 	while (spi_imx->devtype_data->rx_available(spi_imx))
--		spi_imx->rx(spi_imx);
-+		readl(spi_imx->base + MXC_CSPIRXDATA);
+ 	oist = this_cpu_ptr(&orig_ist);
+-	estack_top = (u64)oist->ist[0] - EXCEPTION_STKSZ + STACK_TOP_MARGIN;
+-	estack_bottom = (u64)oist->ist[N_EXCEPTION_STACKS - 1];
++	estack_bottom = (u64)oist->ist[DEBUG_STACK];
++	estack_top = estack_bottom - DEBUG_STKSZ + STACK_TOP_MARGIN;
+ 	if (regs->sp >= estack_top && regs->sp <= estack_bottom)
+ 		return;
  
- 	if (spi_imx->slave_mode)
- 		return spi_imx_pio_transfer_slave(spi, transfer);
 -- 
 2.20.1
 
