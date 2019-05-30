@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 33B872EDAC
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:42:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 638B52EEB2
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:50:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731858AbfE3DVP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:21:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33390 "EHLO mail.kernel.org"
+        id S1732111AbfE3DUB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:20:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731334AbfE3DVP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:21:15 -0400
+        id S1732109AbfE3DUB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:20:01 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 14E29249DE;
-        Thu, 30 May 2019 03:21:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9438B2490A;
+        Thu, 30 May 2019 03:20:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186474;
-        bh=QxmXPB/OVVlcaVi3NnQoldDaqOW7u/rn7JLO0Jh6XrQ=;
+        s=default; t=1559186400;
+        bh=Nw1S3ljB75XOEqY4ile3e0I008mEEAwfaIm2KJFl3dk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tbREkdn0UUmTPkRN2corsIPleeiyEM1FPmGiNIA/48B+3+oz4BDok1nK9AjKUWTyI
-         jb7du+TWm7ZYO/HhMYoBsXRA9HWYQxnovqHejnxmcgpjD7Dtgnq7HKjptE1J0JNeLX
-         jAK6V6Fy04j8jWX7oXlA41UL5Jk32lMv8FjywwvE=
+        b=p1tJUMe5MkRyqSKa8yPR9Wewt88tpRMiMUieBHzhdAOrwtpHx/Z4N57QUXknpToWX
+         woAZHu1ASiL1uYhPgzbt/C0TRA5vrV0meLcJOhmmp/G2KSqNlzGMgTGxyfXBx2AM98
+         1b1C9b2gCuftwpRqLlK76nCpSzWw6jc2lP46fFgA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
-        Terry Junge <terry.junge@poly.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        stable@vger.kernel.org, Dick Kennedy <dick.kennedy@broadcom.com>,
+        James Smart <jsmart2021@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 105/128] HID: core: move Usage Page concatenation to Main item
+Subject: [PATCH 4.14 183/193] scsi: lpfc: Fix fc4type information for FDMI
 Date:   Wed, 29 May 2019 20:07:17 -0700
-Message-Id: <20190530030453.456154649@linuxfoundation.org>
+Message-Id: <20190530030512.869029471@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
-References: <20190530030432.977908967@linuxfoundation.org>
+In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
+References: <20190530030446.953835040@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,146 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 58e75155009cc800005629955d3482f36a1e0eec ]
+[ Upstream commit 32a80c093b524a0682f1c6166c910387b116ffce ]
 
-As seen on some USB wireless keyboards manufactured by Primax, the HID
-parser was using some assumptions that are not always true. In this case
-it's s the fact that, inside the scope of a main item, an Usage Page
-will always precede an Usage.
+The driver is reporting support for NVME even when not configured for NVME
+operation.
 
-The spec is not pretty clear as 6.2.2.7 states "Any usage that follows
-is interpreted as a Usage ID and concatenated with the Usage Page".
-While 6.2.2.8 states "When the parser encounters a main item it
-concatenates the last declared Usage Page with a Usage to form a
-complete usage value." Being somewhat contradictory it was decided to
-match Window's implementation, which follows 6.2.2.8.
+Fix (and make more readable) when NVME protocol support is indicated.
 
-In summary, the patch moves the Usage Page concatenation from the local
-item parsing function to the main item parsing function.
-
-Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Reviewed-by: Terry Junge <terry.junge@poly.com>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-core.c | 36 ++++++++++++++++++++++++------------
- include/linux/hid.h    |  1 +
- 2 files changed, 25 insertions(+), 12 deletions(-)
+ drivers/scsi/lpfc/lpfc_ct.c | 17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 70597854397fc..ceb4df96e0d55 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -200,13 +200,14 @@ static unsigned hid_lookup_collection(struct hid_parser *parser, unsigned type)
-  * Add a usage to the temporary parser table.
-  */
+diff --git a/drivers/scsi/lpfc/lpfc_ct.c b/drivers/scsi/lpfc/lpfc_ct.c
+index 54664a07d92ec..601a4ee60de85 100644
+--- a/drivers/scsi/lpfc/lpfc_ct.c
++++ b/drivers/scsi/lpfc/lpfc_ct.c
+@@ -2092,10 +2092,11 @@ lpfc_fdmi_port_attr_fc4type(struct lpfc_vport *vport,
+ 	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
+ 	memset(ae, 0, 32);
  
--static int hid_add_usage(struct hid_parser *parser, unsigned usage)
-+static int hid_add_usage(struct hid_parser *parser, unsigned usage, u8 size)
- {
- 	if (parser->local.usage_index >= HID_MAX_USAGES) {
- 		hid_err(parser->device, "usage index exceeded\n");
- 		return -1;
- 	}
- 	parser->local.usage[parser->local.usage_index] = usage;
-+	parser->local.usage_size[parser->local.usage_index] = size;
- 	parser->local.collection_index[parser->local.usage_index] =
- 		parser->collection_stack_ptr ?
- 		parser->collection_stack[parser->collection_stack_ptr - 1] : 0;
-@@ -463,10 +464,7 @@ static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
- 			return 0;
- 		}
+-	ae->un.AttrTypes[3] = 0x02; /* Type 1 - ELS */
+-	ae->un.AttrTypes[2] = 0x01; /* Type 8 - FCP */
+-	ae->un.AttrTypes[6] = 0x01; /* Type 40 - NVME */
+-	ae->un.AttrTypes[7] = 0x01; /* Type 32 - CT */
++	ae->un.AttrTypes[3] = 0x02; /* Type 0x1 - ELS */
++	ae->un.AttrTypes[2] = 0x01; /* Type 0x8 - FCP */
++	if (vport->nvmei_support || vport->phba->nvmet_support)
++		ae->un.AttrTypes[6] = 0x01; /* Type 0x28 - NVME */
++	ae->un.AttrTypes[7] = 0x01; /* Type 0x20 - CT */
+ 	size = FOURBYTES + 32;
+ 	ad->AttrLen = cpu_to_be16(size);
+ 	ad->AttrType = cpu_to_be16(RPRT_SUPPORTED_FC4_TYPES);
+@@ -2395,9 +2396,11 @@ lpfc_fdmi_port_attr_active_fc4type(struct lpfc_vport *vport,
+ 	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
+ 	memset(ae, 0, 32);
  
--		if (item->size <= 2)
--			data = (parser->global.usage_page << 16) + data;
--
--		return hid_add_usage(parser, data);
-+		return hid_add_usage(parser, data, item->size);
- 
- 	case HID_LOCAL_ITEM_TAG_USAGE_MINIMUM:
- 
-@@ -475,9 +473,6 @@ static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
- 			return 0;
- 		}
- 
--		if (item->size <= 2)
--			data = (parser->global.usage_page << 16) + data;
--
- 		parser->local.usage_minimum = data;
- 		return 0;
- 
-@@ -488,9 +483,6 @@ static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
- 			return 0;
- 		}
- 
--		if (item->size <= 2)
--			data = (parser->global.usage_page << 16) + data;
--
- 		count = data - parser->local.usage_minimum;
- 		if (count + parser->local.usage_index >= HID_MAX_USAGES) {
- 			/*
-@@ -510,7 +502,7 @@ static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
- 		}
- 
- 		for (n = parser->local.usage_minimum; n <= data; n++)
--			if (hid_add_usage(parser, n)) {
-+			if (hid_add_usage(parser, n, item->size)) {
- 				dbg_hid("hid_add_usage failed\n");
- 				return -1;
- 			}
-@@ -524,6 +516,22 @@ static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
- 	return 0;
- }
- 
-+/*
-+ * Concatenate Usage Pages into Usages where relevant:
-+ * As per specification, 6.2.2.8: "When the parser encounters a main item it
-+ * concatenates the last declared Usage Page with a Usage to form a complete
-+ * usage value."
-+ */
-+
-+static void hid_concatenate_usage_page(struct hid_parser *parser)
-+{
-+	int i;
-+
-+	for (i = 0; i < parser->local.usage_index; i++)
-+		if (parser->local.usage_size[i] <= 2)
-+			parser->local.usage[i] += parser->global.usage_page << 16;
-+}
-+
- /*
-  * Process a main item.
-  */
-@@ -533,6 +541,8 @@ static int hid_parser_main(struct hid_parser *parser, struct hid_item *item)
- 	__u32 data;
- 	int ret;
- 
-+	hid_concatenate_usage_page(parser);
-+
- 	data = item_udata(item);
- 
- 	switch (item->tag) {
-@@ -746,6 +756,8 @@ static int hid_scan_main(struct hid_parser *parser, struct hid_item *item)
- 	__u32 data;
- 	int i;
- 
-+	hid_concatenate_usage_page(parser);
-+
- 	data = item_udata(item);
- 
- 	switch (item->tag) {
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index fab65b61d6d4e..04bdf5477ec51 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -374,6 +374,7 @@ struct hid_global {
- 
- struct hid_local {
- 	unsigned usage[HID_MAX_USAGES]; /* usage array */
-+	u8 usage_size[HID_MAX_USAGES]; /* usage size array */
- 	unsigned collection_index[HID_MAX_USAGES]; /* collection index array */
- 	unsigned usage_index;
- 	unsigned usage_minimum;
+-	ae->un.AttrTypes[3] = 0x02; /* Type 1 - ELS */
+-	ae->un.AttrTypes[2] = 0x01; /* Type 8 - FCP */
+-	ae->un.AttrTypes[7] = 0x01; /* Type 32 - CT */
++	ae->un.AttrTypes[3] = 0x02; /* Type 0x1 - ELS */
++	ae->un.AttrTypes[2] = 0x01; /* Type 0x8 - FCP */
++	if (vport->phba->cfg_enable_fc4_type & LPFC_ENABLE_NVME)
++		ae->un.AttrTypes[6] = 0x1; /* Type 0x28 - NVME */
++	ae->un.AttrTypes[7] = 0x01; /* Type 0x20 - CT */
+ 	size = FOURBYTES + 32;
+ 	ad->AttrLen = cpu_to_be16(size);
+ 	ad->AttrType = cpu_to_be16(RPRT_ACTIVE_FC4_TYPES);
 -- 
 2.20.1
 
