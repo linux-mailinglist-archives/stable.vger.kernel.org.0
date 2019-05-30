@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A85002EEE0
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:51:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 533542F1CD
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:16:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732045AbfE3DTt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:19:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56488 "EHLO mail.kernel.org"
+        id S1729375AbfE3DPz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:15:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732040AbfE3DTt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:19:49 -0400
+        id S1730521AbfE3DPy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:15:54 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D8611248CF;
-        Thu, 30 May 2019 03:19:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B76B5245C1;
+        Thu, 30 May 2019 03:15:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186389;
-        bh=QHHJzmGmENwLd9+4/6BGh0e0DWoeRUnT3nr0VX28p8E=;
+        s=default; t=1559186153;
+        bh=ojEFXvjefIoyv3AvjbQfjXEc+C206xsOTm/uDxaKWLA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pvROQc4hPQcTFqy0ajb1SeIvavvwLnTLKy/K7foUKO9JflFeITnKN+zwSb6v4eeeS
-         yZ5C3unv0CjSZI1HY1aoSP7Y29FbwJeL6zb4l3GbzVJ9uJ0QvfQz767+BWlLFct1O+
-         +aMm1tFvQBlFDJVLFoh5wug7SVT+RLP7JnskoYLE=
+        b=xG/KZe7dKpgztvIcJ6LbfneNdEt6FR7wJIzbYSlPA+sRUjfcPzr12xBhMXbzUlq67
+         FONYvmeIB2c/f/teRdlQARcG4IN+x6n3DafFQtM075XSQMkQ1/a17ykcuH8/BMZB9E
+         3kpoUxts5ZwaXmXsekqL3SkQ6Afe/YpIxCS7TaQU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.com>, alsa-devel@alsa-project.org,
+        stable@vger.kernel.org, Eric Anholt <eric@anholt.net>,
+        Dave Emett <david.emett@broadcom.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 158/193] ASoC: eukrea-tlv320: fix a leaked reference by adding missing of_node_put
+Subject: [PATCH 5.0 339/346] drm/v3d: Handle errors from IRQ setup.
 Date:   Wed, 29 May 2019 20:06:52 -0700
-Message-Id: <20190530030510.126576297@linuxfoundation.org>
+Message-Id: <20190530030557.905333311@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,49 +44,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit b820d52e7eed7b30b2dfef5f4213a2bc3cbea6f3 ]
+[ Upstream commit fc22771547e7e8a63679f0218e943d72b107de65 ]
 
-The call to of_parse_phandle returns a node pointer with refcount
-incremented thus it must be explicitly decremented after the last
-usage.
+Noted in review by Dave Emett for V3D 4.2 support.
 
-Detected by coccinelle with the following warnings:
-./sound/soc/fsl/eukrea-tlv320.c:121:3-9: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 102, but without a correspo    nding object release within this function.
-./sound/soc/fsl/eukrea-tlv320.c:127:3-9: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 102, but without a correspo    nding object release within this function.
-
-Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
-Cc: Liam Girdwood <lgirdwood@gmail.com>
-Cc: Mark Brown <broonie@kernel.org>
-Cc: Jaroslav Kysela <perex@perex.cz>
-Cc: Takashi Iwai <tiwai@suse.com>
-Cc: alsa-devel@alsa-project.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Eric Anholt <eric@anholt.net>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190308174336.7866-1-eric@anholt.net
+Reviewed-by: Dave Emett <david.emett@broadcom.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/fsl/eukrea-tlv320.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/v3d/v3d_drv.c |  8 ++++++--
+ drivers/gpu/drm/v3d/v3d_drv.h |  2 +-
+ drivers/gpu/drm/v3d/v3d_irq.c | 13 +++++++++++--
+ 3 files changed, 18 insertions(+), 5 deletions(-)
 
-diff --git a/sound/soc/fsl/eukrea-tlv320.c b/sound/soc/fsl/eukrea-tlv320.c
-index 84ef6385736cd..4c6f19ef98b25 100644
---- a/sound/soc/fsl/eukrea-tlv320.c
-+++ b/sound/soc/fsl/eukrea-tlv320.c
-@@ -119,13 +119,13 @@ static int eukrea_tlv320_probe(struct platform_device *pdev)
- 		if (ret) {
- 			dev_err(&pdev->dev,
- 				"fsl,mux-int-port node missing or invalid.\n");
--			return ret;
-+			goto err;
- 		}
- 		ret = of_property_read_u32(np, "fsl,mux-ext-port", &ext_port);
- 		if (ret) {
- 			dev_err(&pdev->dev,
- 				"fsl,mux-ext-port node missing or invalid.\n");
--			return ret;
-+			goto err;
- 		}
+diff --git a/drivers/gpu/drm/v3d/v3d_drv.c b/drivers/gpu/drm/v3d/v3d_drv.c
+index f0afcec72c348..30ae1c74edaa8 100644
+--- a/drivers/gpu/drm/v3d/v3d_drv.c
++++ b/drivers/gpu/drm/v3d/v3d_drv.c
+@@ -312,14 +312,18 @@ static int v3d_platform_drm_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		goto dev_destroy;
  
- 		/*
+-	v3d_irq_init(v3d);
++	ret = v3d_irq_init(v3d);
++	if (ret)
++		goto gem_destroy;
+ 
+ 	ret = drm_dev_register(drm, 0);
+ 	if (ret)
+-		goto gem_destroy;
++		goto irq_disable;
+ 
+ 	return 0;
+ 
++irq_disable:
++	v3d_irq_disable(v3d);
+ gem_destroy:
+ 	v3d_gem_destroy(drm);
+ dev_destroy:
+diff --git a/drivers/gpu/drm/v3d/v3d_drv.h b/drivers/gpu/drm/v3d/v3d_drv.h
+index dcb772a191919..f2937a1da5814 100644
+--- a/drivers/gpu/drm/v3d/v3d_drv.h
++++ b/drivers/gpu/drm/v3d/v3d_drv.h
+@@ -311,7 +311,7 @@ void v3d_invalidate_caches(struct v3d_dev *v3d);
+ void v3d_flush_caches(struct v3d_dev *v3d);
+ 
+ /* v3d_irq.c */
+-void v3d_irq_init(struct v3d_dev *v3d);
++int v3d_irq_init(struct v3d_dev *v3d);
+ void v3d_irq_enable(struct v3d_dev *v3d);
+ void v3d_irq_disable(struct v3d_dev *v3d);
+ void v3d_irq_reset(struct v3d_dev *v3d);
+diff --git a/drivers/gpu/drm/v3d/v3d_irq.c b/drivers/gpu/drm/v3d/v3d_irq.c
+index 69338da70ddce..29d746cfce572 100644
+--- a/drivers/gpu/drm/v3d/v3d_irq.c
++++ b/drivers/gpu/drm/v3d/v3d_irq.c
+@@ -156,7 +156,7 @@ v3d_hub_irq(int irq, void *arg)
+ 	return status;
+ }
+ 
+-void
++int
+ v3d_irq_init(struct v3d_dev *v3d)
+ {
+ 	int ret, core;
+@@ -173,13 +173,22 @@ v3d_irq_init(struct v3d_dev *v3d)
+ 	ret = devm_request_irq(v3d->dev, platform_get_irq(v3d->pdev, 0),
+ 			       v3d_hub_irq, IRQF_SHARED,
+ 			       "v3d_hub", v3d);
++	if (ret)
++		goto fail;
++
+ 	ret = devm_request_irq(v3d->dev, platform_get_irq(v3d->pdev, 1),
+ 			       v3d_irq, IRQF_SHARED,
+ 			       "v3d_core0", v3d);
+ 	if (ret)
+-		dev_err(v3d->dev, "IRQ setup failed: %d\n", ret);
++		goto fail;
+ 
+ 	v3d_irq_enable(v3d);
++	return 0;
++
++fail:
++	if (ret != -EPROBE_DEFER)
++		dev_err(v3d->dev, "IRQ setup failed: %d\n", ret);
++	return ret;
+ }
+ 
+ void
 -- 
 2.20.1
 
