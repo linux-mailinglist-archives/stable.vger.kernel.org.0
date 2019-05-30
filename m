@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D4252EC34
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:20:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E689D2EC00
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:17:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731792AbfE3DTE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:19:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53556 "EHLO mail.kernel.org"
+        id S1731132AbfE3DR3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:17:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731782AbfE3DTD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:19:03 -0400
+        id S1731125AbfE3DR3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:17:29 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 75940247F0;
-        Thu, 30 May 2019 03:19:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 404742464B;
+        Thu, 30 May 2019 03:17:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186342;
-        bh=nPvomvPQq5adWu3ARBRN8eWC1pZmBx/+VxfUKkmkx04=;
+        s=default; t=1559186248;
+        bh=MFuOwopmUXbAwpiLYlO/N3fbmfGOTPXUDbJEuT5tAu0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L+Ve/SOUYpWXSMan6j9ocsNuMHLK4ngHa3iI5x9CaT96ygAasWiLFpL/0DFHPpvUv
-         J9IPmFwMijfzSjDCM1J8ud7Dx6kc+l3/W1jUm6iJ7w5/RBxeN6AuN/ubL8IpwpP31/
-         N+SeAXB5ZNBr8z54nb6sWVJ4slquhsvwO/psXpZU=
+        b=MUvAHyXTvDabfwcA6sw0d5JEWnN4rhhmBqCtAULLrnYvTb7//zjvf6HxZHfqGgaJ5
+         YfgIk0b7VkoaezTey5ADYkHq+dH9qUDXyOp6VZ6MiKztRZ/XtjqAAmz0QbIpcPEwcO
+         iiLFFLe3mWjaHTqrMAHiwOrAG2HgrKCs/b5OQ1cY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Baluta <daniel.baluta@nxp.com>,
-        Nicolin Chen <nicoleotsuka@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Yinbo Zhu <yinbo.zhu@nxp.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 069/193] ASoC: fsl_sai: Update is_slave_mode with correct value
+Subject: [PATCH 4.19 165/276] mmc: sdhci-of-esdhc: add erratum eSDHC5 support
 Date:   Wed, 29 May 2019 20:05:23 -0700
-Message-Id: <20190530030458.901771595@linuxfoundation.org>
+Message-Id: <20190530030535.753114499@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,45 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ddb351145a967ee791a0fb0156852ec2fcb746ba ]
+[ Upstream commit a46e42712596b51874f04c73f1cdf1017f88df52 ]
 
-is_slave_mode defaults to false because sai structure
-that contains it is kzalloc'ed.
+Software writing to the Transfer Type configuration register
+(system clock domain) can cause a setup/hold violation in the
+CRC flops (card clock domain), which can cause write accesses
+to be sent with corrupt CRC values. This issue occurs only for
+write preceded by read. this erratum is to fix this issue.
 
-Anyhow, if we decide to set the following configuration
-SAI slave -> SAI master, is_slave_mode will remain set on true
-although SAI being master it should be set to false.
-
-Fix this by updating is_slave_mode for each call of
-fsl_sai_set_dai_fmt.
-
-Signed-off-by: Daniel Baluta <daniel.baluta@nxp.com>
-Acked-by: Nicolin Chen <nicoleotsuka@gmail.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Yinbo Zhu <yinbo.zhu@nxp.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/fsl/fsl_sai.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/mmc/host/sdhci-of-esdhc.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/sound/soc/fsl/fsl_sai.c b/sound/soc/fsl/fsl_sai.c
-index 18e5ce81527d2..c1c733b573a7f 100644
---- a/sound/soc/fsl/fsl_sai.c
-+++ b/sound/soc/fsl/fsl_sai.c
-@@ -274,12 +274,14 @@ static int fsl_sai_set_dai_fmt_tr(struct snd_soc_dai *cpu_dai,
- 	case SND_SOC_DAIFMT_CBS_CFS:
- 		val_cr2 |= FSL_SAI_CR2_BCD_MSTR;
- 		val_cr4 |= FSL_SAI_CR4_FSD_MSTR;
-+		sai->is_slave_mode = false;
- 		break;
- 	case SND_SOC_DAIFMT_CBM_CFM:
- 		sai->is_slave_mode = true;
- 		break;
- 	case SND_SOC_DAIFMT_CBS_CFM:
- 		val_cr2 |= FSL_SAI_CR2_BCD_MSTR;
-+		sai->is_slave_mode = false;
- 		break;
- 	case SND_SOC_DAIFMT_CBM_CFS:
- 		val_cr4 |= FSL_SAI_CR4_FSD_MSTR;
+diff --git a/drivers/mmc/host/sdhci-of-esdhc.c b/drivers/mmc/host/sdhci-of-esdhc.c
+index a7bf8515116fd..b2199d621b8c5 100644
+--- a/drivers/mmc/host/sdhci-of-esdhc.c
++++ b/drivers/mmc/host/sdhci-of-esdhc.c
+@@ -917,6 +917,9 @@ static int sdhci_esdhc_probe(struct platform_device *pdev)
+ 	if (esdhc->vendor_ver > VENDOR_V_22)
+ 		host->quirks &= ~SDHCI_QUIRK_NO_BUSY_IRQ;
+ 
++	if (of_find_compatible_node(NULL, NULL, "fsl,p2020-esdhc"))
++		host->quirks2 |= SDHCI_QUIRK_RESET_AFTER_REQUEST;
++
+ 	if (of_device_is_compatible(np, "fsl,p5040-esdhc") ||
+ 	    of_device_is_compatible(np, "fsl,p5020-esdhc") ||
+ 	    of_device_is_compatible(np, "fsl,p4080-esdhc") ||
 -- 
 2.20.1
 
