@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C16D12EBD1
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:16:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C95D62F5BB
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:49:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730639AbfE3DQR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:16:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41638 "EHLO mail.kernel.org"
+        id S1728387AbfE3DLJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:11:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728034AbfE3DQQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:16:16 -0400
+        id S1728374AbfE3DLI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:11:08 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4034E245D7;
-        Thu, 30 May 2019 03:16:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0523124476;
+        Thu, 30 May 2019 03:11:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186176;
-        bh=SHD36+BY1QvaEGUkOypXBRfC8ohz3yaLFqEMSfO4UWU=;
+        s=default; t=1559185867;
+        bh=eh6h31HQ7VhWfJe/YCSWiRRtJiJ7KBMSnVVSP8weWXQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V37Zz8wa1tzTCiWI5RH2ugAdK96UGS0OUpU00x/v5NFt6PTB6oQJjcVu3qXRQc0RG
-         AIt82ZEW7wplkOQz9pU+tzTEL88PEV16hbShxBddro0tbpK7bq2Wk7l0MkPG+7ka2Z
-         DkDSKtUdCfvEZT1CW899BUFN7//x+1b7lPi+qbSI=
+        b=0yigU2cyWm8G/da5ZtkJNlYHXMmtqQuRt7BoW8bAGPMzXGiSJgEZfOMAgmFoeV0rW
+         YP4AJRg9rXXb5ixgA9h2HHhm3dyVX8u/apCyyGOKYsxrvP1/T/96OeXPptDvtdzlmg
+         QbHdVvRdTKKTpzgX8dQvBtfsrjuZ0j6/e0W/6s8g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Hante Meuleman <hante.meuleman@broadcom.com>,
-        Pieter-Paul Giesberts <pieter-paul.giesberts@broadcom.com>,
-        Franky Lin <franky.lin@broadcom.com>,
-        Arend van Spriel <arend.vanspriel@broadcom.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>
-Subject: [PATCH 4.19 029/276] brcmfmac: add subtype check for event handling in data path
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 189/405] ACPI/IORT: Reject platform device creation on NUMA node mapping failure
 Date:   Wed, 29 May 2019 20:03:07 -0700
-Message-Id: <20190530030525.996904578@linuxfoundation.org>
+Message-Id: <20190530030550.586483052@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,103 +46,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arend van Spriel <arend.vanspriel@broadcom.com>
+[ Upstream commit 36a2ba07757df790b4a874efb1a105b9330a9ae7 ]
 
-commit a4176ec356c73a46c07c181c6d04039fafa34a9f upstream.
+In a system where, through IORT firmware mappings, the SMMU device is
+mapped to a NUMA node that is not online, the kernel bootstrap results
+in the following crash:
 
-For USB there is no separate channel being used to pass events
-from firmware to the host driver and as such are passed over the
-data path. In order to detect mock event messages an additional
-check is needed on event subtype. This check is added conditionally
-using unlikely() keyword.
+  Unable to handle kernel paging request at virtual address 0000000000001388
+  Mem abort info:
+    ESR = 0x96000004
+    Exception class = DABT (current EL), IL = 32 bits
+    SET = 0, FnV = 0
+    EA = 0, S1PTW = 0
+  Data abort info:
+    ISV = 0, ISS = 0x00000004
+    CM = 0, WnR = 0
+  [0000000000001388] user address but active_mm is swapper
+  Internal error: Oops: 96000004 [#1] SMP
+  Modules linked in:
+  CPU: 5 PID: 1 Comm: swapper/0 Not tainted 5.0.0 #15
+  pstate: 80c00009 (Nzcv daif +PAN +UAO)
+  pc : __alloc_pages_nodemask+0x13c/0x1068
+  lr : __alloc_pages_nodemask+0xdc/0x1068
+  ...
+  Process swapper/0 (pid: 1, stack limit = 0x(____ptrval____))
+  Call trace:
+   __alloc_pages_nodemask+0x13c/0x1068
+   new_slab+0xec/0x570
+   ___slab_alloc+0x3e0/0x4f8
+   __slab_alloc+0x60/0x80
+   __kmalloc_node_track_caller+0x10c/0x478
+   devm_kmalloc+0x44/0xb0
+   pinctrl_bind_pins+0x4c/0x188
+   really_probe+0x78/0x2b8
+   driver_probe_device+0x64/0x110
+   device_driver_attach+0x74/0x98
+   __driver_attach+0x9c/0xe8
+   bus_for_each_dev+0x84/0xd8
+   driver_attach+0x30/0x40
+   bus_add_driver+0x170/0x218
+   driver_register+0x64/0x118
+   __platform_driver_register+0x54/0x60
+   arm_smmu_driver_init+0x24/0x2c
+   do_one_initcall+0xbc/0x328
+   kernel_init_freeable+0x304/0x3ac
+   kernel_init+0x18/0x110
+   ret_from_fork+0x10/0x1c
+  Code: f90013b5 b9410fa1 1a9f0694 b50014c2 (b9400804)
+  ---[ end trace dfeaed4c373a32da ]--
 
-Reviewed-by: Hante Meuleman <hante.meuleman@broadcom.com>
-Reviewed-by: Pieter-Paul Giesberts <pieter-paul.giesberts@broadcom.com>
-Reviewed-by: Franky Lin <franky.lin@broadcom.com>
-Signed-off-by: Arend van Spriel <arend.vanspriel@broadcom.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Cc: Ben Hutchings <ben.hutchings@codethink.co.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Change the dev_set_proximity() hook prototype so that it returns a
+value and make it return failure if the PXM->NUMA-node mapping
+corresponds to an offline node, fixing the crash.
 
+Acked-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Link: https://lore.kernel.org/linux-arm-kernel/20190315021940.86905-1-wangkefeng.wang@huawei.com/
+Signed-off-by: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c   |    5 ++--
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/fweh.h   |   16 ++++++++++----
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/msgbuf.c |    2 -
- 3 files changed, 16 insertions(+), 7 deletions(-)
+ drivers/acpi/arm64/iort.c | 19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
-@@ -464,7 +464,8 @@ void brcmf_rx_frame(struct device *dev,
- 	} else {
- 		/* Process special event packets */
- 		if (handle_event)
--			brcmf_fweh_process_skb(ifp->drvr, skb);
-+			brcmf_fweh_process_skb(ifp->drvr, skb,
-+					       BCMILCP_SUBTYPE_VENDOR_LONG);
- 
- 		brcmf_netif_rx(ifp, skb);
- 	}
-@@ -481,7 +482,7 @@ void brcmf_rx_event(struct device *dev,
- 	if (brcmf_rx_hdrpull(drvr, skb, &ifp))
- 		return;
- 
--	brcmf_fweh_process_skb(ifp->drvr, skb);
-+	brcmf_fweh_process_skb(ifp->drvr, skb, 0);
- 	brcmu_pkt_buf_free_skb(skb);
- }
- 
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fweh.h
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fweh.h
-@@ -211,7 +211,7 @@ enum brcmf_fweh_event_code {
+diff --git a/drivers/acpi/arm64/iort.c b/drivers/acpi/arm64/iort.c
+index e48894e002ba8..a46c2c162c03e 100644
+--- a/drivers/acpi/arm64/iort.c
++++ b/drivers/acpi/arm64/iort.c
+@@ -1232,18 +1232,24 @@ static bool __init arm_smmu_v3_is_coherent(struct acpi_iort_node *node)
+ /*
+  * set numa proximity domain for smmuv3 device
   */
- #define BRCM_OUI				"\x00\x10\x18"
- #define BCMILCP_BCM_SUBTYPE_EVENT		1
--
-+#define BCMILCP_SUBTYPE_VENDOR_LONG		32769
- 
- /**
-  * struct brcm_ethhdr - broadcom specific ether header.
-@@ -334,10 +334,10 @@ void brcmf_fweh_process_event(struct brc
- void brcmf_fweh_p2pdev_setup(struct brcmf_if *ifp, bool ongoing);
- 
- static inline void brcmf_fweh_process_skb(struct brcmf_pub *drvr,
--					  struct sk_buff *skb)
-+					  struct sk_buff *skb, u16 stype)
+-static void  __init arm_smmu_v3_set_proximity(struct device *dev,
++static int  __init arm_smmu_v3_set_proximity(struct device *dev,
+ 					      struct acpi_iort_node *node)
  {
- 	struct brcmf_event *event_packet;
--	u16 usr_stype;
-+	u16 subtype, usr_stype;
+ 	struct acpi_iort_smmu_v3 *smmu;
  
- 	/* only process events when protocol matches */
- 	if (skb->protocol != cpu_to_be16(ETH_P_LINK_CTL))
-@@ -346,8 +346,16 @@ static inline void brcmf_fweh_process_sk
- 	if ((skb->len + ETH_HLEN) < sizeof(*event_packet))
- 		return;
- 
--	/* check for BRCM oui match */
- 	event_packet = (struct brcmf_event *)skb_mac_header(skb);
+ 	smmu = (struct acpi_iort_smmu_v3 *)node->node_data;
+ 	if (smmu->flags & ACPI_IORT_SMMU_V3_PXM_VALID) {
+-		set_dev_node(dev, acpi_map_pxm_to_node(smmu->pxm));
++		int node = acpi_map_pxm_to_node(smmu->pxm);
 +
-+	/* check subtype if needed */
-+	if (unlikely(stype)) {
-+		subtype = get_unaligned_be16(&event_packet->hdr.subtype);
-+		if (subtype != stype)
-+			return;
++		if (node != NUMA_NO_NODE && !node_online(node))
++			return -EINVAL;
++
++		set_dev_node(dev, node);
+ 		pr_info("SMMU-v3[%llx] Mapped to Proximity domain %d\n",
+ 			smmu->base_address,
+ 			smmu->pxm);
+ 	}
++	return 0;
+ }
+ #else
+ #define arm_smmu_v3_set_proximity NULL
+@@ -1318,7 +1324,7 @@ struct iort_dev_config {
+ 	int (*dev_count_resources)(struct acpi_iort_node *node);
+ 	void (*dev_init_resources)(struct resource *res,
+ 				     struct acpi_iort_node *node);
+-	void (*dev_set_proximity)(struct device *dev,
++	int (*dev_set_proximity)(struct device *dev,
+ 				    struct acpi_iort_node *node);
+ };
+ 
+@@ -1369,8 +1375,11 @@ static int __init iort_add_platform_device(struct acpi_iort_node *node,
+ 	if (!pdev)
+ 		return -ENOMEM;
+ 
+-	if (ops->dev_set_proximity)
+-		ops->dev_set_proximity(&pdev->dev, node);
++	if (ops->dev_set_proximity) {
++		ret = ops->dev_set_proximity(&pdev->dev, node);
++		if (ret)
++			goto dev_put;
 +	}
-+
-+	/* check for BRCM oui match */
- 	if (memcmp(BRCM_OUI, &event_packet->hdr.oui[0],
- 		   sizeof(event_packet->hdr.oui)))
- 		return;
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/msgbuf.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/msgbuf.c
-@@ -1116,7 +1116,7 @@ static void brcmf_msgbuf_process_event(s
  
- 	skb->protocol = eth_type_trans(skb, ifp->ndev);
+ 	count = ops->dev_count_resources(node);
  
--	brcmf_fweh_process_skb(ifp->drvr, skb);
-+	brcmf_fweh_process_skb(ifp->drvr, skb, 0);
- 
- exit:
- 	brcmu_pkt_buf_free_skb(skb);
+-- 
+2.20.1
+
 
 
