@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B7F002F513
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:44:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 417022F2A0
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:24:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728810AbfE3DMD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:12:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53248 "EHLO mail.kernel.org"
+        id S1730049AbfE3EXp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:23:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728799AbfE3DMC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:12:02 -0400
+        id S1729237AbfE3DO7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:14:59 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8EDCF24481;
-        Thu, 30 May 2019 03:12:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B887924569;
+        Thu, 30 May 2019 03:14:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185921;
-        bh=IhqzS5kn9D2++obbCuqop4TPzQXIpOqdjVY8mQvNTfo=;
+        s=default; t=1559186098;
+        bh=gSI9psuYD1xCKfYVsfhwSr3FUrN4RZvPlcIQLpg1+4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IG/VHiQ9+rXZmTveYnsP6kuGQMe8e812fQ5NEGJ25Y9EHLrQRTeUVtRvtCFXH7b22
-         EK9uMGWV1NGebv19Dhj9A4dpYWTuNSgyw44Y9+n2qfQR84aPUyUlU3c9Bp3r7wvkhp
-         xg55KOV/bcWhSV1b1N6Hulyu2m2G9cpXRNc0cJvo=
+        b=KQzgoSWQG/XnxYIRfwlLBGCQrt9DShNhbRSdzlhQ/qSufflSQ0dteDDyWOS6+EQFZ
+         fk2poLNh4OHEHy0otZahYI4PdrG3BIWxBEgSlOvrQQdXtAjlAKv9fRPZ/lAjtRHrkn
+         dAMoliBJ1msOeFcHAsx6W7AgJ766qshzzx9l6g78=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Neeraj Upadhyay <neeraju@codeaurora.org>,
-        "Paul E. McKenney" <paulmck@linux.ibm.com>,
+        stable@vger.kernel.org, Stanley Chu <stanley.chu@mediatek.com>,
+        Avri Altman <avri.altman@wdc.com>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 309/405] rcu: Do a single rhp->func read in rcu_head_after_call_rcu()
+Subject: [PATCH 5.0 234/346] scsi: ufs: Avoid configuring regulator with undefined voltage range
 Date:   Wed, 29 May 2019 20:05:07 -0700
-Message-Id: <20190530030556.439992073@linuxfoundation.org>
+Message-Id: <20190530030552.898014194@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit b699cce1604e828f19c39845252626eb78cdf38a ]
+[ Upstream commit 3b141e8cfd54ba3e5c610717295b2a02aab26a05 ]
 
-The rcu_head_after_call_rcu() function reads the rhp->func pointer twice,
-which can result in a false-positive WARN_ON_ONCE() if the callback
-were passed to call_rcu() between the two reads.  Although racing
-rcu_head_after_call_rcu() with call_rcu() is to be a dubious use case
-(the return value is not reliable in that case), intermittent and
-irreproducible warnings are also quite dubious.  This commit therefore
-uses a single READ_ONCE() to pick up the value of rhp->func once, then
-tests that value twice, thus guaranteeing consistent processing within
-rcu_head_after_call_rcu()().
+For regulators used by UFS, vcc, vccq and vccq2 will have voltage range
+initialized by ufshcd_populate_vreg(), however other regulators may have
+undefined voltage range if dt-bindings have no such definition.
 
-Neverthless, racing rcu_head_after_call_rcu() with call_rcu() is still
-a dubious use case.
+In above undefined case, both "min_uV" and "max_uV" fields in ufs_vreg
+struct will be zero values and these values will be configured on
+regulators in different power modes.
 
-Signed-off-by: Neeraj Upadhyay <neeraju@codeaurora.org>
-[ paulmck: Add blank line after declaration per checkpatch.pl. ]
-Signed-off-by: Paul E. McKenney <paulmck@linux.ibm.com>
+Currently this may have no harm if both "min_uV" and "max_uV" always keep
+"zero values" because regulator_set_voltage() will always bypass such
+invalid values and return "good" results.
+
+However improper values shall be fixed to avoid potential bugs.  Simply
+bypass voltage configuration if voltage range is not defined.
+
+Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
+Reviewed-by: Avri Altman <avri.altman@wdc.com>
+Acked-by: Alim Akhtar <alim.akhtar@samsung.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/rcupdate.h | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/scsi/ufs/ufshcd.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/include/linux/rcupdate.h b/include/linux/rcupdate.h
-index 6cdb1db776cf9..922bb68488133 100644
---- a/include/linux/rcupdate.h
-+++ b/include/linux/rcupdate.h
-@@ -878,9 +878,11 @@ static inline void rcu_head_init(struct rcu_head *rhp)
- static inline bool
- rcu_head_after_call_rcu(struct rcu_head *rhp, rcu_callback_t f)
- {
--	if (READ_ONCE(rhp->func) == f)
-+	rcu_callback_t func = READ_ONCE(rhp->func);
-+
-+	if (func == f)
- 		return true;
--	WARN_ON_ONCE(READ_ONCE(rhp->func) != (rcu_callback_t)~0L);
-+	WARN_ON_ONCE(func != (rcu_callback_t)~0L);
- 	return false;
- }
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index 75d7267b73879..c02e704287110 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -7056,12 +7056,15 @@ static int ufshcd_config_vreg(struct device *dev,
+ 	name = vreg->name;
  
+ 	if (regulator_count_voltages(reg) > 0) {
+-		min_uV = on ? vreg->min_uV : 0;
+-		ret = regulator_set_voltage(reg, min_uV, vreg->max_uV);
+-		if (ret) {
+-			dev_err(dev, "%s: %s set voltage failed, err=%d\n",
++		if (vreg->min_uV && vreg->max_uV) {
++			min_uV = on ? vreg->min_uV : 0;
++			ret = regulator_set_voltage(reg, min_uV, vreg->max_uV);
++			if (ret) {
++				dev_err(dev,
++					"%s: %s set voltage failed, err=%d\n",
+ 					__func__, name, ret);
+-			goto out;
++				goto out;
++			}
+ 		}
+ 
+ 		uA_load = on ? vreg->max_uA : 0;
 -- 
 2.20.1
 
