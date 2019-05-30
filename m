@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C9D12F439
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:36:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E88102F67B
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:56:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388161AbfE3EgM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:36:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57192 "EHLO mail.kernel.org"
+        id S1727513AbfE3E4h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:56:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46114 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729322AbfE3DNC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:13:02 -0400
+        id S1727903AbfE3DKC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:10:02 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9CFB1244EF;
-        Thu, 30 May 2019 03:13:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7057A24479;
+        Thu, 30 May 2019 03:10:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185981;
-        bh=YbQkvgE0bIn5q8xDKH9ta8yAnvS0lPi4rnC4B/s7Su8=;
+        s=default; t=1559185801;
+        bh=pyLVT5jjSMOmdf9KYk85VVQ1ALZ3fRp8H02+QUiro8k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NwNGo48+kUd6B+0s4e4rfuy0jpR1vlTNfaQm0mpiASXIQf3E0UpqtC5xaajXvCNTW
-         nLjpbknbdRqzT3Q65gNaCfv8imS5sxgEYHmm8FnR2gjcyLOgg1W+AIQxeU2Es2ozF7
-         QuTK9VZBK+x4JVsBZ62heu/Ls2eaz5iGa9Le0Kfk=
+        b=ocuDJZaCD2bkn/mly6MJtPOwvaOFSFiaoe5ENqg+w0zpg+NNOBhB7E4zUk684UFoE
+         Fjz+eorDOocHoDfoGQDxfeQwkAQY5nRK3w7nGKbiGmw8AN2jN0PeiRZlrfSThf/PcV
+         IlK2DplCHBYH6vJxuiGkzwPVM97tEsBvGF/dOx6g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Paul E. McKenney" <paulmck@linux.ibm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Andrea Parri <andrea.parri@amarulasolutions.com>,
-        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
-        linux-block@vger.kernel.org
-Subject: [PATCH 5.0 005/346] bio: fix improper use of smp_mb__before_atomic()
+        stable@vger.kernel.org, Bodong Wang <bodong@mellanox.com>,
+        Parav Pandit <parav@mellanox.com>,
+        Vu Pham <vuhuong@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 080/405] net/mlx5: E-Switch, Use atomic rep state to serialize state change
 Date:   Wed, 29 May 2019 20:01:18 -0700
-Message-Id: <20190530030540.714953042@linuxfoundation.org>
+Message-Id: <20190530030545.043409309@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,43 +46,151 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrea Parri <andrea.parri@amarulasolutions.com>
+[ Upstream commit 6f4e02193c9a9ea54dd3151cf97489fa787cd0e6 ]
 
-commit f381c6a4bd0ae0fde2d6340f1b9bb0f58d915de6 upstream.
+When the state of rep was introduced, it was also designed to prevent
+duplicate unloading of the same rep. Considering the following two
+flows when an eswitch manager is at switchdev mode with n VF reps loaded.
 
-This barrier only applies to the read-modify-write operations; in
-particular, it does not apply to the atomic_set() primitive.
++--------------------------------------+--------------------------------+
+| cpu-0                                | cpu-1                          |
+| --------                             | --------                       |
+| mlx5_ib_remove                       | mlx5_eswitch_disable_sriov     |
+|  mlx5_ib_unregister_vport_reps       |  esw_offloads_cleanup          |
+|   mlx5_eswitch_unregister_vport_reps |   esw_offloads_unload_all_reps |
+|    __unload_reps_all_vport           |    __unload_reps_all_vport     |
++--------------------------------------+--------------------------------+
 
-Replace the barrier with an smp_mb().
+These two flows will try to unload the same rep. Per original design,
+once one flow unloads the rep, the state moves to REGISTERED. The 2nd
+flow will no longer needs to do the unload and bails out. However, as
+read and write of the state is not atomic, when 1st flow is doing the
+unload, the state is still LOADED, 2nd flow is able to do the same
+unload action. Kernel crash will happen.
 
-Fixes: dac56212e8127 ("bio: skip atomic inc/dec of ->bi_cnt for most use cases")
-Cc: stable@vger.kernel.org
-Reported-by: "Paul E. McKenney" <paulmck@linux.ibm.com>
-Reported-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Andrea Parri <andrea.parri@amarulasolutions.com>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Ming Lei <ming.lei@redhat.com>
-Cc: linux-block@vger.kernel.org
-Cc: "Paul E. McKenney" <paulmck@linux.ibm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To solve this, driver should do atomic test-and-set for the state. So
+that only one flow can change the rep state from LOADED to REGISTERED,
+and proceed to do the actual unloading.
 
+Since the state is changing to atomic type, all other read/write should
+be atomic action as well.
+
+Fixes: f121e0ea9586 (net/mlx5: E-Switch, Add state to eswitch vport representors)
+Signed-off-by: Bodong Wang <bodong@mellanox.com>
+Reviewed-by: Parav Pandit <parav@mellanox.com>
+Reviewed-by: Vu Pham <vuhuong@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/bio.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../mellanox/mlx5/core/eswitch_offloads.c     | 36 +++++++++----------
+ include/linux/mlx5/eswitch.h                  |  2 +-
+ 2 files changed, 18 insertions(+), 20 deletions(-)
 
---- a/include/linux/bio.h
-+++ b/include/linux/bio.h
-@@ -211,7 +211,7 @@ static inline void bio_cnt_set(struct bi
- {
- 	if (count != 1) {
- 		bio->bi_flags |= (1 << BIO_REFFED);
--		smp_mb__before_atomic();
-+		smp_mb();
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
+index 9b2d78ee22b88..d2d8da133082c 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
+@@ -363,7 +363,7 @@ static int esw_set_global_vlan_pop(struct mlx5_eswitch *esw, u8 val)
+ 	esw_debug(esw->dev, "%s applying global %s policy\n", __func__, val ? "pop" : "none");
+ 	for (vf_vport = 1; vf_vport < esw->enabled_vports; vf_vport++) {
+ 		rep = &esw->offloads.vport_reps[vf_vport];
+-		if (rep->rep_if[REP_ETH].state != REP_LOADED)
++		if (atomic_read(&rep->rep_if[REP_ETH].state) != REP_LOADED)
+ 			continue;
+ 
+ 		err = __mlx5_eswitch_set_vport_vlan(esw, rep->vport, 0, 0, val);
+@@ -1306,7 +1306,8 @@ int esw_offloads_init_reps(struct mlx5_eswitch *esw)
+ 		ether_addr_copy(rep->hw_id, hw_id);
+ 
+ 		for (rep_type = 0; rep_type < NUM_REP_TYPES; rep_type++)
+-			rep->rep_if[rep_type].state = REP_UNREGISTERED;
++			atomic_set(&rep->rep_if[rep_type].state,
++				   REP_UNREGISTERED);
  	}
- 	atomic_set(&bio->__bi_cnt, count);
+ 
+ 	return 0;
+@@ -1315,11 +1316,9 @@ int esw_offloads_init_reps(struct mlx5_eswitch *esw)
+ static void __esw_offloads_unload_rep(struct mlx5_eswitch *esw,
+ 				      struct mlx5_eswitch_rep *rep, u8 rep_type)
+ {
+-	if (rep->rep_if[rep_type].state != REP_LOADED)
+-		return;
+-
+-	rep->rep_if[rep_type].unload(rep);
+-	rep->rep_if[rep_type].state = REP_REGISTERED;
++	if (atomic_cmpxchg(&rep->rep_if[rep_type].state,
++			   REP_LOADED, REP_REGISTERED) == REP_LOADED)
++		rep->rep_if[rep_type].unload(rep);
  }
+ 
+ static void __unload_reps_special_vport(struct mlx5_eswitch *esw, u8 rep_type)
+@@ -1380,16 +1379,15 @@ static int __esw_offloads_load_rep(struct mlx5_eswitch *esw,
+ {
+ 	int err = 0;
+ 
+-	if (rep->rep_if[rep_type].state != REP_REGISTERED)
+-		return 0;
+-
+-	err = rep->rep_if[rep_type].load(esw->dev, rep);
+-	if (err)
+-		return err;
+-
+-	rep->rep_if[rep_type].state = REP_LOADED;
++	if (atomic_cmpxchg(&rep->rep_if[rep_type].state,
++			   REP_REGISTERED, REP_LOADED) == REP_REGISTERED) {
++		err = rep->rep_if[rep_type].load(esw->dev, rep);
++		if (err)
++			atomic_set(&rep->rep_if[rep_type].state,
++				   REP_REGISTERED);
++	}
+ 
+-	return 0;
++	return err;
+ }
+ 
+ static int __load_reps_special_vport(struct mlx5_eswitch *esw, u8 rep_type)
+@@ -2076,7 +2074,7 @@ void mlx5_eswitch_register_vport_reps(struct mlx5_eswitch *esw,
+ 		rep_if->get_proto_dev = __rep_if->get_proto_dev;
+ 		rep_if->priv = __rep_if->priv;
+ 
+-		rep_if->state = REP_REGISTERED;
++		atomic_set(&rep_if->state, REP_REGISTERED);
+ 	}
+ }
+ EXPORT_SYMBOL(mlx5_eswitch_register_vport_reps);
+@@ -2091,7 +2089,7 @@ void mlx5_eswitch_unregister_vport_reps(struct mlx5_eswitch *esw, u8 rep_type)
+ 		__unload_reps_all_vport(esw, max_vf, rep_type);
+ 
+ 	mlx5_esw_for_all_reps(esw, i, rep)
+-		rep->rep_if[rep_type].state = REP_UNREGISTERED;
++		atomic_set(&rep->rep_if[rep_type].state, REP_UNREGISTERED);
+ }
+ EXPORT_SYMBOL(mlx5_eswitch_unregister_vport_reps);
+ 
+@@ -2111,7 +2109,7 @@ void *mlx5_eswitch_get_proto_dev(struct mlx5_eswitch *esw,
+ 
+ 	rep = mlx5_eswitch_get_rep(esw, vport);
+ 
+-	if (rep->rep_if[rep_type].state == REP_LOADED &&
++	if (atomic_read(&rep->rep_if[rep_type].state) == REP_LOADED &&
+ 	    rep->rep_if[rep_type].get_proto_dev)
+ 		return rep->rep_if[rep_type].get_proto_dev(rep);
+ 	return NULL;
+diff --git a/include/linux/mlx5/eswitch.h b/include/linux/mlx5/eswitch.h
+index 96d8435421de8..0ca77dd1429c0 100644
+--- a/include/linux/mlx5/eswitch.h
++++ b/include/linux/mlx5/eswitch.h
+@@ -35,7 +35,7 @@ struct mlx5_eswitch_rep_if {
+ 	void		       (*unload)(struct mlx5_eswitch_rep *rep);
+ 	void		       *(*get_proto_dev)(struct mlx5_eswitch_rep *rep);
+ 	void			*priv;
+-	u8			state;
++	atomic_t		state;
+ };
+ 
+ struct mlx5_eswitch_rep {
+-- 
+2.20.1
+
 
 
