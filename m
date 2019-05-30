@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A1C732F2E7
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:25:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55FDC2EFCB
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:59:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730014AbfE3DOu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:14:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35986 "EHLO mail.kernel.org"
+        id S1731692AbfE3DSq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:18:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730007AbfE3DOt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:14:49 -0400
+        id S1730327AbfE3DSp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:18:45 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 15E0524502;
-        Thu, 30 May 2019 03:14:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D6262247EF;
+        Thu, 30 May 2019 03:18:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186089;
-        bh=2wpiB4zzn6wBHIQlOWQviFupKUmKgjTIpgGgSQWBWKQ=;
+        s=default; t=1559186325;
+        bh=IlB1S4Tay3XsNKO9BgkUIFJkZjRYXTnPP85jayngyYc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A3iJ7M2VvwbHGIyDosWIJrPtiXBD0Sielo6firpGLSfPd0UXtQeGLA9fu2iJXT2G4
-         /yIoqlpfDUBcbAnpZRbSGojje5qxiPgJeYrlxHG2lEieSIGpYt7hpwMhdolHI0/RXp
-         hi9V1WHgR/lotAHGl7XvF15c/bu1bPsxePqX/SFo=
+        b=h8EKs3VtQh9oRLI/R66MYlSdyUfyPjOODjBCSv6n0Mit36k8p+Au7ZLSK5+E+c1xS
+         AGa3d0GlFepP+pzSWO1xOX31aVF5pDVvi2D6525EKqdQzW+mtqRUoS9bLa+tsc9F9p
+         abvKPUJ0dyVONZJcX0wNwckAhljsDNNEiz/m9o68=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Roberto Bergantinos Corpas <rbergant@redhat.com>,
+        Benjamin Coddington <bcodding@redhat.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 218/346] iio: common: ssp_sensors: Initialize calculated_time in ssp_common_process_data
-Date:   Wed, 29 May 2019 20:04:51 -0700
-Message-Id: <20190530030552.139410938@linuxfoundation.org>
+Subject: [PATCH 4.14 038/193] NFS: make nfs_match_client killable
+Date:   Wed, 29 May 2019 20:04:52 -0700
+Message-Id: <20190530030454.763133741@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
+References: <20190530030446.953835040@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,46 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 6f9ca1d3eb74b81f811a87002de2d51640d135b1 ]
+[ Upstream commit 950a578c6128c2886e295b9c7ecb0b6b22fcc92b ]
 
-When building with -Wsometimes-uninitialized, Clang warns:
+    Actually we don't do anything with return value from
+    nfs_wait_client_init_complete in nfs_match_client, as a
+    consequence if we get a fatal signal and client is not
+    fully initialised, we'll loop to "again" label
 
-drivers/iio/common/ssp_sensors/ssp_iio.c:95:6: warning: variable
-'calculated_time' is used uninitialized whenever 'if' condition is false
-[-Wsometimes-uninitialized]
+    This has been proven to cause soft lockups on some scenarios
+    (no-carrier but configured network interfaces)
 
-While it isn't wrong, this will never be a problem because
-iio_push_to_buffers_with_timestamp only uses calculated_time
-on the same condition that it is assigned (when scan_timestamp
-is not zero). While iio_push_to_buffers_with_timestamp is marked
-as inline, Clang does inlining in the optimization stage, which
-happens after the semantic analysis phase (plus inline is merely
-a hint to the compiler).
-
-Fix this by just zero initializing calculated_time.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/394
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Roberto Bergantinos Corpas <rbergant@redhat.com>
+Reviewed-by: Benjamin Coddington <bcodding@redhat.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/common/ssp_sensors/ssp_iio.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfs/client.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iio/common/ssp_sensors/ssp_iio.c b/drivers/iio/common/ssp_sensors/ssp_iio.c
-index 645f2e3975db4..e38f704d88b7e 100644
---- a/drivers/iio/common/ssp_sensors/ssp_iio.c
-+++ b/drivers/iio/common/ssp_sensors/ssp_iio.c
-@@ -81,7 +81,7 @@ int ssp_common_process_data(struct iio_dev *indio_dev, void *buf,
- 			    unsigned int len, int64_t timestamp)
- {
- 	__le32 time;
--	int64_t calculated_time;
-+	int64_t calculated_time = 0;
- 	struct ssp_sensor_data *spd = iio_priv(indio_dev);
+diff --git a/fs/nfs/client.c b/fs/nfs/client.c
+index a98d64a6eda5c..65da2c105f434 100644
+--- a/fs/nfs/client.c
++++ b/fs/nfs/client.c
+@@ -290,6 +290,7 @@ static struct nfs_client *nfs_match_client(const struct nfs_client_initdata *dat
+ 	struct nfs_client *clp;
+ 	const struct sockaddr *sap = data->addr;
+ 	struct nfs_net *nn = net_generic(data->net, nfs_net_id);
++	int error;
  
- 	if (indio_dev->scan_bytes == 0)
+ again:
+ 	list_for_each_entry(clp, &nn->nfs_client_list, cl_share_link) {
+@@ -302,8 +303,10 @@ static struct nfs_client *nfs_match_client(const struct nfs_client_initdata *dat
+ 		if (clp->cl_cons_state > NFS_CS_READY) {
+ 			atomic_inc(&clp->cl_count);
+ 			spin_unlock(&nn->nfs_client_lock);
+-			nfs_wait_client_init_complete(clp);
++			error = nfs_wait_client_init_complete(clp);
+ 			nfs_put_client(clp);
++			if (error < 0)
++				return ERR_PTR(error);
+ 			spin_lock(&nn->nfs_client_lock);
+ 			goto again;
+ 		}
+@@ -413,6 +416,8 @@ struct nfs_client *nfs_get_client(const struct nfs_client_initdata *cl_init)
+ 		clp = nfs_match_client(cl_init);
+ 		if (clp) {
+ 			spin_unlock(&nn->nfs_client_lock);
++			if (IS_ERR(clp))
++				return clp;
+ 			if (new)
+ 				new->rpc_ops->free_client(new);
+ 			return nfs_found_client(cl_init, clp);
 -- 
 2.20.1
 
