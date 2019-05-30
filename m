@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C4382F5B1
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:49:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 589712ED11
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:30:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728425AbfE3Et0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:49:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49964 "EHLO mail.kernel.org"
+        id S2388621AbfE3Dac (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:30:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728417AbfE3DLM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:11:12 -0400
+        id S2388433AbfE3Dac (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:30:32 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1D2D5244D2;
-        Thu, 30 May 2019 03:11:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA9AD24AE5;
+        Thu, 30 May 2019 03:30:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185872;
-        bh=2r2AVMBcDo2NVf7ZljylpUx4Chpoy5HgvQ9SSUgJUCs=;
+        s=default; t=1559187031;
+        bh=isVdUuJxKtBQUgI9I1O0cRqwWtG/45uK+TmIrw2pIXQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uMVk1343aHB/e9ZQIKPUr8FcnFnGj6uFvpTeaJHmJwMDm/lYNPD9gqabLNc004t9B
-         HP0AxX/+46d8kFkdc0mHtIEM9Cw5nmroPvOG75tHYzzR+6BiihTqss86VCR0dRbjK2
-         XrJQm2uEKBts1dxEAx+z0Pl1A6iT13A4hL5LbinM=
+        b=Yza782x1LlE/LI1HJ5jB1IEG5KYek5WRWTyCEwO+7OIQbBzPc1YY+J8Qqz4GFb38Z
+         XMJnn266OfeONJBVV/TSrgA12YHiHTEAchKiHq2Fb8HWfvtYZEe+M9UoLeDVk2u3uK
+         4gxKUjR19dJ8DcvS9CS9T1fhMk8Q1acikChCbav0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        stable@vger.kernel.org,
+        "Lad, Prabhakar" <prabhakar.csengg@gmail.com>,
+        Akinobu Mita <akinobu.mita@gmail.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 215/405] s390: zcrypt: initialize variables before_use
-Date:   Wed, 29 May 2019 20:03:33 -0700
-Message-Id: <20190530030551.968108708@linuxfoundation.org>
+Subject: [PATCH 5.0 141/346] media: ov2659: make S_FMT succeed even if requested format doesnt match
+Date:   Wed, 29 May 2019 20:03:34 -0700
+Message-Id: <20190530030548.271476272@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,72 +47,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 913140e221567b3ecd21b4242257a7e3fa279026 ]
+[ Upstream commit bccb89cf9cd07a0690d519696a00c00a973b3fe4 ]
 
-The 'func_code' variable gets printed in debug statements without
-a prior initialization in multiple functions, as reported when building
-with clang:
+This driver returns an error if unsupported media bus pixel code is
+requested by VIDIOC_SUBDEV_S_FMT.
 
-drivers/s390/crypto/zcrypt_api.c:659:6: warning: variable 'func_code' is used uninitialized whenever 'if' condition is true
-      [-Wsometimes-uninitialized]
-        if (mex->outputdatalength < mex->inputdatalength) {
-            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-drivers/s390/crypto/zcrypt_api.c:725:29: note: uninitialized use occurs here
-        trace_s390_zcrypt_rep(mex, func_code, rc,
-                                   ^~~~~~~~~
-drivers/s390/crypto/zcrypt_api.c:659:2: note: remove the 'if' if its condition is always false
-        if (mex->outputdatalength < mex->inputdatalength) {
-        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-drivers/s390/crypto/zcrypt_api.c:654:24: note: initialize the variable 'func_code' to silence this warning
-        unsigned int func_code;
-                              ^
+But according to Documentation/media/uapi/v4l/vidioc-subdev-g-fmt.rst,
 
-Add initializations to all affected code paths to shut up the warning
-and make the warning output consistent.
+Drivers must not return an error solely because the requested format
+doesn't match the device capabilities. They must instead modify the
+format to match what the hardware can provide.
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+So select default format code and return success in that case.
+
+This is detected by v4l2-compliance.
+
+Cc: "Lad, Prabhakar" <prabhakar.csengg@gmail.com>
+Signed-off-by: Akinobu Mita <akinobu.mita@gmail.com>
+Acked-by: Lad, Prabhakar <prabhakar.csengg@gmail.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/crypto/zcrypt_api.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/media/i2c/ov2659.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/s390/crypto/zcrypt_api.c b/drivers/s390/crypto/zcrypt_api.c
-index 689c2af7026a3..c31b2d31cd832 100644
---- a/drivers/s390/crypto/zcrypt_api.c
-+++ b/drivers/s390/crypto/zcrypt_api.c
-@@ -659,6 +659,7 @@ static long zcrypt_rsa_modexpo(struct ap_perms *perms,
- 	trace_s390_zcrypt_req(mex, TP_ICARSAMODEXPO);
+diff --git a/drivers/media/i2c/ov2659.c b/drivers/media/i2c/ov2659.c
+index 799acce803fe5..a1e9a980a4459 100644
+--- a/drivers/media/i2c/ov2659.c
++++ b/drivers/media/i2c/ov2659.c
+@@ -1117,8 +1117,10 @@ static int ov2659_set_fmt(struct v4l2_subdev *sd,
+ 		if (ov2659_formats[index].code == mf->code)
+ 			break;
  
- 	if (mex->outputdatalength < mex->inputdatalength) {
-+		func_code = 0;
- 		rc = -EINVAL;
- 		goto out;
- 	}
-@@ -742,6 +743,7 @@ static long zcrypt_rsa_crt(struct ap_perms *perms,
- 	trace_s390_zcrypt_req(crt, TP_ICARSACRT);
+-	if (index < 0)
+-		return -EINVAL;
++	if (index < 0) {
++		index = 0;
++		mf->code = ov2659_formats[index].code;
++	}
  
- 	if (crt->outputdatalength < crt->inputdatalength) {
-+		func_code = 0;
- 		rc = -EINVAL;
- 		goto out;
- 	}
-@@ -951,6 +953,7 @@ static long zcrypt_send_ep11_cprb(struct ap_perms *perms,
- 
- 		targets = kcalloc(target_num, sizeof(*targets), GFP_KERNEL);
- 		if (!targets) {
-+			func_code = 0;
- 			rc = -ENOMEM;
- 			goto out;
- 		}
-@@ -958,6 +961,7 @@ static long zcrypt_send_ep11_cprb(struct ap_perms *perms,
- 		uptr = (struct ep11_target_dev __force __user *) xcrb->targets;
- 		if (copy_from_user(targets, uptr,
- 				   target_num * sizeof(*targets))) {
-+			func_code = 0;
- 			rc = -EFAULT;
- 			goto out_free;
- 		}
+ 	mf->colorspace = V4L2_COLORSPACE_SRGB;
+ 	mf->field = V4L2_FIELD_NONE;
 -- 
 2.20.1
 
