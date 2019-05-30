@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B6612EC08
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:17:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48B372EE6E
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:47:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731240AbfE3DRo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:17:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48276 "EHLO mail.kernel.org"
+        id S1729974AbfE3Dr1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:47:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731232AbfE3DRo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:17:44 -0400
+        id S1732225AbfE3DUc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:20:32 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 77C0524718;
-        Thu, 30 May 2019 03:17:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 82A4724923;
+        Thu, 30 May 2019 03:20:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186263;
-        bh=h6RD0XrIUGUFlXCbqTq82P9JrHx74Vu8RSZ0eccIifc=;
+        s=default; t=1559186431;
+        bh=+PtwMYjRY5kxwt8B2xbSM9suEv28wE8SBO9UdnqszsQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sBWqDKvr0gBXhBEGMFpC7pNTe1BrbAD8PxByIOlkuZzgDFDwe9F2gtLGDHf/k1spz
-         JSpVj2wM2Cgf85aw26RK8Em4Cx9MEz/qvh9hS4UEgQJA3fFjDVETMxpurypSP49rm5
-         W9uDTdxSjOrgZW6L3MjMp0L57B/p172BPTUlQYd0=
+        b=oQPrSsn0njT6xwiDCvtZaWbj/ltDTw8LElnqf4DD+oDzV403/vGle+bvwmK/WnEUu
+         IciuPc56Yr21BcOfeIXBkfeFJB5rK941Xu812iqZy6Sy33iiPp2+pD6dA6bywBqw3v
+         8n34/3VzXVOBIV91AI096rRC6eRIKt9nAUTDjzMw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Piotr Figiel <p.figiel@camlintechnologies.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 198/276] brcmfmac: fix Oops when bringing up interface during USB disconnect
+Subject: [PATCH 4.9 024/128] cxgb4: Fix error path in cxgb4_init_module
 Date:   Wed, 29 May 2019 20:05:56 -0700
-Message-Id: <20190530030537.497757144@linuxfoundation.org>
+Message-Id: <20190530030439.126379476@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
+References: <20190530030432.977908967@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,128 +44,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 24d413a31afaee9bbbf79226052c386b01780ce2 ]
+[ Upstream commit a3147770bea76c8dbad73eca3a24c2118da5e719 ]
 
-Fix a race which leads to an Oops with NULL pointer dereference.  The
-dereference is in brcmf_config_dongle() when cfg_to_ndev() attempts to get
-net_device structure of interface with index 0 via if2bss mapping. This
-shouldn't fail because of check for bus being ready in brcmf_netdev_open(),
-but it's not synchronised with USB disconnect and there is a race: after
-the check the bus can be marked down and the mapping for interface 0 may be
-gone.
+BUG: unable to handle kernel paging request at ffffffffa016a270
+PGD 3270067 P4D 3270067 PUD 3271063 PMD 230bbd067 PTE 0
+Oops: 0000 [#1
+CPU: 0 PID: 6134 Comm: modprobe Not tainted 5.1.0+ #33
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.9.3-0-ge2fc41e-prebuilt.qemu-project.org 04/01/2014
+RIP: 0010:atomic_notifier_chain_register+0x24/0x60
+Code: 1f 80 00 00 00 00 55 48 89 e5 41 54 49 89 f4 53 48 89 fb e8 ae b4 38 01 48 8b 53 38 48 8d 4b 38 48 85 d2 74 20 45 8b 44 24 10 <44> 3b 42 10 7e 08 eb 13 44 39 42 10 7c 0d 48 8d 4a 08 48 8b 52 08
+RSP: 0018:ffffc90000e2bc60 EFLAGS: 00010086
+RAX: 0000000000000292 RBX: ffffffff83467240 RCX: ffffffff83467278
+RDX: ffffffffa016a260 RSI: ffffffff83752140 RDI: ffffffff83467240
+RBP: ffffc90000e2bc70 R08: 0000000000000000 R09: 0000000000000001
+R10: 0000000000000000 R11: 00000000014fa61f R12: ffffffffa01c8260
+R13: ffff888231091e00 R14: 0000000000000000 R15: ffffc90000e2be78
+FS:  00007fbd8d7cd540(0000) GS:ffff888237a00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: ffffffffa016a270 CR3: 000000022c7e3000 CR4: 00000000000006f0
+Call Trace:
+ register_inet6addr_notifier+0x13/0x20
+ cxgb4_init_module+0x6c/0x1000 [cxgb4
+ ? 0xffffffffa01d7000
+ do_one_initcall+0x6c/0x3cc
+ ? do_init_module+0x22/0x1f1
+ ? rcu_read_lock_sched_held+0x97/0xb0
+ ? kmem_cache_alloc_trace+0x325/0x3b0
+ do_init_module+0x5b/0x1f1
+ load_module+0x1db1/0x2690
+ ? m_show+0x1d0/0x1d0
+ __do_sys_finit_module+0xc5/0xd0
+ __x64_sys_finit_module+0x15/0x20
+ do_syscall_64+0x6b/0x1d0
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-Solve this by modifying disconnect handling so that the removal of mapping
-of ifidx to brcmf_if structure happens after netdev removal (which is
-synchronous with brcmf_netdev_open() thanks to rtln being locked in
-devinet_ioctl()). This assures brcmf_netdev_open() returns before the
-mapping is removed during disconnect.
+If pci_register_driver fails, register inet6addr_notifier is
+pointless. This patch fix the error path in cxgb4_init_module.
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000008
-pgd = bcae2612
-[00000008] *pgd=8be73831
-Internal error: Oops: 17 [#1] PREEMPT SMP ARM
-Modules linked in: brcmfmac brcmutil nf_log_ipv4 nf_log_common xt_LOG xt_limit
-iptable_mangle xt_connmark xt_tcpudp xt_conntrack nf_conntrack nf_defrag_ipv6
-nf_defrag_ipv4 iptable_filter ip_tables x_tables usb_f_mass_storage usb_f_rndis
-u_ether usb_serial_simple usbserial cdc_acm smsc95xx usbnet ci_hdrc_imx ci_hdrc
-usbmisc_imx ulpi 8250_exar 8250_pci 8250 8250_base libcomposite configfs
-udc_core [last unloaded: brcmutil]
-CPU: 2 PID: 24478 Comm: ifconfig Not tainted 4.19.23-00078-ga62866d-dirty #115
-Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
-PC is at brcmf_cfg80211_up+0x94/0x29c [brcmfmac]
-LR is at brcmf_cfg80211_up+0x8c/0x29c [brcmfmac]
-pc : [<7f26a91c>]    lr : [<7f26a914>]    psr: a0070013
-sp : eca99d28  ip : 00000000  fp : ee9c6c00
-r10: 00000036  r9 : 00000000  r8 : ece4002c
-r7 : edb5b800  r6 : 00000000  r5 : 80f08448  r4 : edb5b968
-r3 : ffffffff  r2 : 00000000  r1 : 00000002  r0 : 00000000
-Flags: NzCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
-Control: 10c5387d  Table: 7ca0c04a  DAC: 00000051
-Process ifconfig (pid: 24478, stack limit = 0xd9e85a0e)
-Stack: (0xeca99d28 to 0xeca9a000)
-9d20:                   00000000 80f873b0 0000000d 80f08448 eca99d68 50d45f32
-9d40: 7f27de94 ece40000 80f08448 80f08448 7f27de94 ece4002c 00000000 00000036
-9d60: ee9c6c00 7f27262c 00001002 50d45f32 ece40000 00000000 80f08448 80772008
-9d80: 00000001 00001043 00001002 ece40000 00000000 50d45f32 ece40000 00000001
-9da0: 80f08448 00001043 00001002 807723d0 00000000 50d45f32 80f08448 eca99e58
-9dc0: 80f87113 50d45f32 80f08448 ece40000 ece40138 00001002 80f08448 00000000
-9de0: 00000000 80772434 edbd5380 eca99e58 edbd5380 80f08448 ee9c6c0c 80805f70
-9e00: 00000000 ede08e00 00008914 ece40000 00000014 ee9c6c0c 600c0013 00001043
-9e20: 0208a8c0 ffffffff 00000000 50d45f32 eca98000 80f08448 7ee9fc38 00008914
-9e40: 80f68e40 00000051 eca98000 00000036 00000003 80808b9c 6e616c77 00000030
-9e60: 00000000 00000000 00001043 0208a8c0 ffffffff 00000000 80f08448 00000000
-9e80: 00000000 816d8b20 600c0013 00000001 ede09320 801763d4 00000000 50d45f32
-9ea0: eca98000 80f08448 7ee9fc38 50d45f32 00008914 80f08448 7ee9fc38 80f68e40
-9ec0: ed531540 8074721c 00000800 00000001 00000000 6e616c77 00000030 00000000
-9ee0: 00000000 00001002 0208a8c0 ffffffff 00000000 50d45f32 80f08448 7ee9fc38
-9f00: ed531560 ec8fc900 80285a6c 80285138 edb910c0 00000000 ecd91008 ede08e00
-9f20: 80f08448 00000000 00000000 816d8b20 600c0013 00000001 ede09320 801763d4
-9f40: 00000000 50d45f32 00021000 edb91118 edb910c0 80f08448 01b29000 edb91118
-9f60: eca99f7c 50d45f32 00021000 ec8fc900 00000003 ec8fc900 00008914 7ee9fc38
-9f80: eca98000 00000036 00000003 80285a6c 00086364 7ee9fe1c 000000c3 00000036
-9fa0: 801011c4 80101000 00086364 7ee9fe1c 00000003 00008914 7ee9fc38 00086364
-9fc0: 00086364 7ee9fe1c 000000c3 00000036 0008630c 7ee9fe1c 7ee9fc38 00000003
-9fe0: 000a42b8 7ee9fbd4 00019914 76e09acc 600c0010 00000003 00000000 00000000
-[<7f26a91c>] (brcmf_cfg80211_up [brcmfmac]) from [<7f27262c>] (brcmf_netdev_open+0x74/0xe8 [brcmfmac])
-[<7f27262c>] (brcmf_netdev_open [brcmfmac]) from [<80772008>] (__dev_open+0xcc/0x150)
-[<80772008>] (__dev_open) from [<807723d0>] (__dev_change_flags+0x168/0x1b4)
-[<807723d0>] (__dev_change_flags) from [<80772434>] (dev_change_flags+0x18/0x48)
-[<80772434>] (dev_change_flags) from [<80805f70>] (devinet_ioctl+0x67c/0x79c)
-[<80805f70>] (devinet_ioctl) from [<80808b9c>] (inet_ioctl+0x210/0x3d4)
-[<80808b9c>] (inet_ioctl) from [<8074721c>] (sock_ioctl+0x350/0x524)
-[<8074721c>] (sock_ioctl) from [<80285138>] (do_vfs_ioctl+0xb0/0x9b0)
-[<80285138>] (do_vfs_ioctl) from [<80285a6c>] (ksys_ioctl+0x34/0x5c)
-[<80285a6c>] (ksys_ioctl) from [<80101000>] (ret_fast_syscall+0x0/0x28)
-Exception stack(0xeca99fa8 to 0xeca99ff0)
-9fa0:                   00086364 7ee9fe1c 00000003 00008914 7ee9fc38 00086364
-9fc0: 00086364 7ee9fe1c 000000c3 00000036 0008630c 7ee9fe1c 7ee9fc38 00000003
-9fe0: 000a42b8 7ee9fbd4 00019914 76e09acc
-Code: e5970328 eb002021 e1a02006 e3a01002 (e5909008)
----[ end trace 5cbac2333f3ac5df ]---
-
-Signed-off-by: Piotr Figiel <p.figiel@camlintechnologies.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Fixes: b5a02f503caa ("cxgb4 : Update ipv6 address handling api")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/wireless/broadcom/brcm80211/brcmfmac/core.c    | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
-index 09c5f67f4089e..36a04c1144e5d 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
-@@ -784,17 +784,17 @@ static void brcmf_del_if(struct brcmf_pub *drvr, s32 bsscfgidx,
- 			 bool rtnl_locked)
- {
- 	struct brcmf_if *ifp;
-+	int ifidx;
+diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
+index c71a52a2f8017..5478a2ab45c4c 100644
+--- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
+@@ -5203,15 +5203,24 @@ static int __init cxgb4_init_module(void)
  
- 	ifp = drvr->iflist[bsscfgidx];
--	drvr->iflist[bsscfgidx] = NULL;
- 	if (!ifp) {
- 		brcmf_err("Null interface, bsscfgidx=%d\n", bsscfgidx);
- 		return;
+ 	ret = pci_register_driver(&cxgb4_driver);
+ 	if (ret < 0)
+-		debugfs_remove(cxgb4_debugfs_root);
++		goto err_pci;
+ 
+ #if IS_ENABLED(CONFIG_IPV6)
+ 	if (!inet6addr_registered) {
+-		register_inet6addr_notifier(&cxgb4_inet6addr_notifier);
+-		inet6addr_registered = true;
++		ret = register_inet6addr_notifier(&cxgb4_inet6addr_notifier);
++		if (ret)
++			pci_unregister_driver(&cxgb4_driver);
++		else
++			inet6addr_registered = true;
  	}
- 	brcmf_dbg(TRACE, "Enter, bsscfgidx=%d, ifidx=%d\n", bsscfgidx,
- 		  ifp->ifidx);
--	if (drvr->if2bss[ifp->ifidx] == bsscfgidx)
--		drvr->if2bss[ifp->ifidx] = BRCMF_BSSIDX_INVALID;
-+	ifidx = ifp->ifidx;
+ #endif
+ 
++	if (ret == 0)
++		return ret;
 +
- 	if (ifp->ndev) {
- 		if (bsscfgidx == 0) {
- 			if (ifp->ndev->netdev_ops == &brcmf_netdev_ops_pri) {
-@@ -822,6 +822,10 @@ static void brcmf_del_if(struct brcmf_pub *drvr, s32 bsscfgidx,
- 		brcmf_p2p_ifp_removed(ifp, rtnl_locked);
- 		kfree(ifp);
- 	}
++err_pci:
++	debugfs_remove(cxgb4_debugfs_root);
 +
-+	drvr->iflist[bsscfgidx] = NULL;
-+	if (drvr->if2bss[ifidx] == bsscfgidx)
-+		drvr->if2bss[ifidx] = BRCMF_BSSIDX_INVALID;
+ 	return ret;
  }
  
- void brcmf_remove_interface(struct brcmf_if *ifp, bool rtnl_locked)
 -- 
 2.20.1
 
