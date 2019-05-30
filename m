@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DDECC2F536
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:46:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39F172F2B6
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:24:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728746AbfE3EpN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:45:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52834 "EHLO mail.kernel.org"
+        id S1730082AbfE3EYX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:24:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728743AbfE3DL4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:11:56 -0400
+        id S1729222AbfE3DOw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:14:52 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C8B8324481;
-        Thu, 30 May 2019 03:11:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B476B2457B;
+        Thu, 30 May 2019 03:14:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185915;
-        bh=61rT1CV4mXZHJmbRbNi/SAhsPS3Jn7ms7XsvZb6geZ8=;
+        s=default; t=1559186091;
+        bh=5fioCsNuVKfp+dVL/Jb9n4sQ/DuqOvenb4BPghvFY1o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hyftvF3F82i7gqfv1ipENU2boQ/O6DURI0rCJTpxhEAAbMB/oir7B08rSkCtnQIcV
-         quDmBgwzGNBXDlP7qZrusXFcsgeLNy2pv8GaeAnlvchTpCLhEtAMTNBOtgeyY9e9bh
-         MzxzMXN/qQ5DIshv6ilyHt3MHcqtANQe4HhZl8uA=
+        b=QphgkamgMg1Y7cnMGizKGI1s4jWPL/qIXX58mAdCigXUP8ULavmyQyNs4drYS1iWN
+         eIultUkcexW6O/x/yqBiD5z5ZvrYKeBHaUb52g0yrnKvdlEIEkfnuaZh3XIg4WzgW0
+         xiAmnGfJwTkXBBZur/ohCdKBOphDaToeQeYqI05g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 298/405] misc: fastrpc: consider address offset before sending to DSP
+Subject: [PATCH 5.0 223/346] rtlwifi: fix a potential NULL pointer dereference
 Date:   Wed, 29 May 2019 20:04:56 -0700
-Message-Id: <20190530030555.917034721@linuxfoundation.org>
+Message-Id: <20190530030552.374046738@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 80f3afd72bd4149c57daf852905476b43bb47647 ]
+[ Upstream commit 765976285a8c8db3f0eb7f033829a899d0c2786e ]
 
-While passing address phy address to DSP, take care of the offset
-calculated from virtual address vma.
+In case alloc_workqueue fails, the fix reports the error and
+returns to avoid NULL pointer dereference.
 
-Fixes: c68cfb718c8f ("misc: fastrpc: Add support for context Invoke method")
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Kangjie Lu <kjlu@umn.edu>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/fastrpc.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/net/wireless/realtek/rtlwifi/base.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/misc/fastrpc.c b/drivers/misc/fastrpc.c
-index 36d0d5c9cfbad..9996c83ba5cb9 100644
---- a/drivers/misc/fastrpc.c
-+++ b/drivers/misc/fastrpc.c
-@@ -667,8 +667,16 @@ static int fastrpc_get_args(u32 kernel, struct fastrpc_invoke_ctx *ctx)
- 		pages[i].size = roundup(len, PAGE_SIZE);
- 
- 		if (ctx->maps[i]) {
-+			struct vm_area_struct *vma = NULL;
+diff --git a/drivers/net/wireless/realtek/rtlwifi/base.c b/drivers/net/wireless/realtek/rtlwifi/base.c
+index ef9b502ce576b..a3189294ecb80 100644
+--- a/drivers/net/wireless/realtek/rtlwifi/base.c
++++ b/drivers/net/wireless/realtek/rtlwifi/base.c
+@@ -469,6 +469,11 @@ static void _rtl_init_deferred_work(struct ieee80211_hw *hw)
+ 	/* <2> work queue */
+ 	rtlpriv->works.hw = hw;
+ 	rtlpriv->works.rtl_wq = alloc_workqueue("%s", 0, 0, rtlpriv->cfg->name);
++	if (unlikely(!rtlpriv->works.rtl_wq)) {
++		pr_err("Failed to allocate work queue\n");
++		return;
++	}
 +
- 			rpra[i].pv = (u64) ctx->args[i].ptr;
- 			pages[i].addr = ctx->maps[i]->phys;
-+
-+			vma = find_vma(current->mm, ctx->args[i].ptr);
-+			if (vma)
-+				pages[i].addr += ctx->args[i].ptr -
-+						 vma->vm_start;
-+
- 		} else {
- 			rlen -= ALIGN(args, FASTRPC_ALIGN) - args;
- 			args = ALIGN(args, FASTRPC_ALIGN);
+ 	INIT_DELAYED_WORK(&rtlpriv->works.watchdog_wq,
+ 			  (void *)rtl_watchdog_wq_callback);
+ 	INIT_DELAYED_WORK(&rtlpriv->works.ips_nic_off_wq,
 -- 
 2.20.1
 
