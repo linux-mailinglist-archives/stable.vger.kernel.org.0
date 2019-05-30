@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 764812EC38
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:20:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 141982F251
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:21:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731829AbfE3DTL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:19:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53966 "EHLO mail.kernel.org"
+        id S1726820AbfE3EUk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:20:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731817AbfE3DTK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:19:10 -0400
+        id S1730204AbfE3DPS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:15:18 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1875624843;
-        Thu, 30 May 2019 03:19:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1EBE52456F;
+        Thu, 30 May 2019 03:15:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186350;
-        bh=1+NEvxVg+VyEhWUudJCfJo8Fp+MEJmWFP1uRG3tBdow=;
+        s=default; t=1559186117;
+        bh=P0OgvO6kvj4Bw0/nhCGmIl7BjnU0aqdrFCMdjycaGWI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zVRHlatf7MqDhwykTLOXcVnkUkrEAhVGtH3pV80RkA5T3JPyAxfcK/SpcmH/V5eVq
-         KqfBdtoIA2AFh0704JhJWlPHVfe+bIxHqkEEiOA+zzb1h8SpebdgSG2mNgBVYM+FzG
-         B/IgSnGX5pYniWJbV5HguaEp3rCnMgrzO9UhnI58=
+        b=EIAAKGy1jFJv/4efnHjmhlTzvY7Tbyd85LmsE7egw1qazkGz4IwAC16m8GueS3YGV
+         s/PomG3KhlDOtskSCQpeOVJDKAjNUTK3x6/QL0Xyfcmxl8bYVZCFXdhjYJDc86ecgz
+         eWtGolizMRJkcL/NCUoziLNd2tElJ+bokawB17M8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Philipp Zabel <p.zabel@pengutronix.de>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Ashok Raj <ashok.raj@intel.com>,
+        Tony Luck <tony.luck@intel.com>, Borislav Petkov <bp@suse.de>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        linux-edac <linux-edac@vger.kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>, x86-ml <x86@kernel.org>,
+        Yazen Ghannam <Yazen.Ghannam@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 088/193] media: coda: clear error return value before picture run
-Date:   Wed, 29 May 2019 20:05:42 -0700
-Message-Id: <20190530030501.238922281@linuxfoundation.org>
+Subject: [PATCH 5.0 270/346] x86/mce: Fix machine_check_poll() tests for error types
+Date:   Wed, 29 May 2019 20:05:43 -0700
+Message-Id: <20190530030554.641092514@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,35 +48,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit bbeefa7357a648afe70e7183914c87c3878d528d ]
+[ Upstream commit f19501aa07f18268ab14f458b51c1c6b7f72a134 ]
 
-The error return value is not written by some firmware codecs, such as
-MPEG-2 decode on CodaHx4. Clear the error return value before starting
-the picture run to avoid misinterpreting unrelated values returned by
-sequence initialization as error return value.
+There has been a lurking "TBD" in the machine check poll routine ever
+since it was first split out from the machine check handler. The
+potential issue is that the poll routine may have just begun a read from
+the STATUS register in a machine check bank when the hardware logs an
+error in that bank and signals a machine check.
 
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+That race used to be pretty small back when machine checks were
+broadcast, but the addition of local machine check means that the poll
+code could continue running and clear the error from the bank before the
+local machine check handler on another CPU gets around to reading it.
+
+Fix the code to be sure to only process errors that need to be processed
+in the poll code, leaving other logged errors alone for the machine
+check handler to find and process.
+
+ [ bp: Massage a bit and flip the "== 0" check to the usual !(..) test. ]
+
+Fixes: b79109c3bbcf ("x86, mce: separate correct machine check poller and fatal exception handler")
+Fixes: ed7290d0ee8f ("x86, mce: implement new status bits")
+Reported-by: Ashok Raj <ashok.raj@intel.com>
+Signed-off-by: Tony Luck <tony.luck@intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: Ashok Raj <ashok.raj@intel.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: linux-edac <linux-edac@vger.kernel.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: x86-ml <x86@kernel.org>
+Cc: Yazen Ghannam <Yazen.Ghannam@amd.com>
+Link: https://lkml.kernel.org/r/20190312170938.GA23035@agluck-desk
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/coda/coda-bit.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/x86/kernel/cpu/mce/core.c | 44 ++++++++++++++++++++++++++++------
+ 1 file changed, 37 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/media/platform/coda/coda-bit.c b/drivers/media/platform/coda/coda-bit.c
-index 3457a5f1c8a8e..6eee55430d46a 100644
---- a/drivers/media/platform/coda/coda-bit.c
-+++ b/drivers/media/platform/coda/coda-bit.c
-@@ -1948,6 +1948,9 @@ static int coda_prepare_decode(struct coda_ctx *ctx)
- 	/* Clear decode success flag */
- 	coda_write(dev, 0, CODA_RET_DEC_PIC_SUCCESS);
+diff --git a/arch/x86/kernel/cpu/mce/core.c b/arch/x86/kernel/cpu/mce/core.c
+index 1a7084ba9a3b6..0d47306cec7ae 100644
+--- a/arch/x86/kernel/cpu/mce/core.c
++++ b/arch/x86/kernel/cpu/mce/core.c
+@@ -712,19 +712,49 @@ bool machine_check_poll(enum mcp_flags flags, mce_banks_t *b)
  
-+	/* Clear error return value */
-+	coda_write(dev, 0, CODA_RET_DEC_PIC_ERR_MB);
+ 		barrier();
+ 		m.status = mce_rdmsrl(msr_ops.status(i));
 +
- 	trace_coda_dec_pic_run(ctx, meta);
++		/* If this entry is not valid, ignore it */
+ 		if (!(m.status & MCI_STATUS_VAL))
+ 			continue;
  
- 	coda_command_async(ctx, CODA_COMMAND_PIC_RUN);
+ 		/*
+-		 * Uncorrected or signalled events are handled by the exception
+-		 * handler when it is enabled, so don't process those here.
+-		 *
+-		 * TBD do the same check for MCI_STATUS_EN here?
++		 * If we are logging everything (at CPU online) or this
++		 * is a corrected error, then we must log it.
+ 		 */
+-		if (!(flags & MCP_UC) &&
+-		    (m.status & (mca_cfg.ser ? MCI_STATUS_S : MCI_STATUS_UC)))
+-			continue;
++		if ((flags & MCP_UC) || !(m.status & MCI_STATUS_UC))
++			goto log_it;
++
++		/*
++		 * Newer Intel systems that support software error
++		 * recovery need to make additional checks. Other
++		 * CPUs should skip over uncorrected errors, but log
++		 * everything else.
++		 */
++		if (!mca_cfg.ser) {
++			if (m.status & MCI_STATUS_UC)
++				continue;
++			goto log_it;
++		}
++
++		/* Log "not enabled" (speculative) errors */
++		if (!(m.status & MCI_STATUS_EN))
++			goto log_it;
++
++		/*
++		 * Log UCNA (SDM: 15.6.3 "UCR Error Classification")
++		 * UC == 1 && PCC == 0 && S == 0
++		 */
++		if (!(m.status & MCI_STATUS_PCC) && !(m.status & MCI_STATUS_S))
++			goto log_it;
++
++		/*
++		 * Skip anything else. Presumption is that our read of this
++		 * bank is racing with a machine check. Leave the log alone
++		 * for do_machine_check() to deal with it.
++		 */
++		continue;
+ 
++log_it:
+ 		error_seen = true;
+ 
+ 		mce_read_aux(&m, i);
 -- 
 2.20.1
 
