@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9ACD72F3FB
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:36:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 225BB2F423
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:36:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729350AbfE3DNK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:13:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57358 "EHLO mail.kernel.org"
+        id S1729370AbfE3Efc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:35:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729342AbfE3DNJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:13:09 -0400
+        id S1727909AbfE3DNK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:13:10 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4468624526;
+        by mail.kernel.org (Postfix) with ESMTPSA id ACF3A2454D;
         Thu, 30 May 2019 03:13:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1559185989;
-        bh=SJxAlDVuFAv8bWtusgdrlGlrI8X7tedSS3c/ZX5tGcc=;
+        bh=FG0jL5+rD8oinBF3d0IvCIWcpVZPSVgTH/kRbxm0j+w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VyY4fvG1jSSS23qlMWrYkyxs8VHZKzNT+S9Rlvv6QpUmx+hPXw3yVaaQKSb8YgJAO
-         wix59hven8uwxdobHph47QUQDs5FOqn0l1fnUB1GnPGeUO5x4KLlGG63TVnHSy2Bf6
-         lmW7StbJZ1p6QsmVVySGUeeYBScGrbcC4zRohDNE=
+        b=2qXG02KsBNADXHVvvCDCzI+RDoBWzRGmeNMPVkBRBlExyaJsG4Z3yJPettgsMvWCO
+         /8gL8sH7j11kD7NMTAhlZwZBQKYq529csdxJPhkj5nAns6/LRysbmWKy4EMAjDMb/F
+         bgJSJqutLt1xDgrpt1knHYgy81cveAekHdMjWhI4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        YueHaibing <yuehaibing@huawei.com>, Sean Young <sean@mess.org>,
+        stable@vger.kernel.org, Hans Verkuil <hverkuil@xs4all.nl>,
+        Syzbot <syzbot+4180ff9ca6810b06c1e9@syzkaller.appspotmail.com>,
+        Tomasz Figa <tfiga@chromium.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 5.0 032/346] media: serial_ir: Fix use-after-free in serial_ir_init_module
-Date:   Wed, 29 May 2019 20:01:45 -0700
-Message-Id: <20190530030542.424031872@linuxfoundation.org>
+Subject: [PATCH 5.0 033/346] media: vb2: add waiting_in_dqbuf flag
+Date:   Wed, 29 May 2019 20:01:46 -0700
+Message-Id: <20190530030542.483709505@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
 References: <20190530030540.363386121@linuxfoundation.org>
@@ -44,140 +46,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Hans Verkuil <hverkuil@xs4all.nl>
 
-commit 56cd26b618855c9af48c8301aa6754ced8dd0beb upstream.
+commit d65842f7126aa1a87fb44b7c9980c12630ed4f33 upstream.
 
-Syzkaller report this:
+Calling VIDIOC_DQBUF can release the core serialization lock pointed to
+by vb2_queue->lock if it has to wait for a new buffer to arrive.
 
-BUG: KASAN: use-after-free in sysfs_remove_file_ns+0x5f/0x70 fs/sysfs/file.c:468
-Read of size 8 at addr ffff8881dc7ae030 by task syz-executor.0/6249
+However, if userspace dup()ped the video device filehandle, then it is
+possible to read or call DQBUF from two filehandles at the same time.
 
-CPU: 1 PID: 6249 Comm: syz-executor.0 Not tainted 5.0.0-rc8+ #3
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0xfa/0x1ce lib/dump_stack.c:113
- print_address_description+0x65/0x270 mm/kasan/report.c:187
- kasan_report+0x149/0x18d mm/kasan/report.c:317
- ? 0xffffffffc1728000
- sysfs_remove_file_ns+0x5f/0x70 fs/sysfs/file.c:468
- sysfs_remove_file include/linux/sysfs.h:519 [inline]
- driver_remove_file+0x40/0x50 drivers/base/driver.c:122
- remove_bind_files drivers/base/bus.c:585 [inline]
- bus_remove_driver+0x186/0x220 drivers/base/bus.c:725
- driver_unregister+0x6c/0xa0 drivers/base/driver.c:197
- serial_ir_init_module+0x169/0x1000 [serial_ir]
- do_one_initcall+0xfa/0x5ca init/main.c:887
- do_init_module+0x204/0x5f6 kernel/module.c:3460
- load_module+0x66b2/0x8570 kernel/module.c:3808
- __do_sys_finit_module+0x238/0x2a0 kernel/module.c:3902
- do_syscall_64+0x147/0x600 arch/x86/entry/common.c:290
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x462e99
-Code: f7 d8 64 89 02 b8 ff ff ff ff c3 66 0f 1f 44 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 bc ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007f9450132c58 EFLAGS: 00000246 ORIG_RAX: 0000000000000139
-RAX: ffffffffffffffda RBX: 000000000073bf00 RCX: 0000000000462e99
-RDX: 0000000000000000 RSI: 0000000020000100 RDI: 0000000000000003
-RBP: 00007f9450132c70 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 00007f94501336bc
-R13: 00000000004bcefa R14: 00000000006f6fb0 R15: 0000000000000004
+It is also possible to call REQBUFS from one filehandle while the other
+is waiting for a buffer. This will remove all the buffers and reallocate
+new ones. Removing all the buffers isn't the problem here (that's already
+handled correctly by DQBUF), but the reallocating part is: DQBUF isn't
+aware that the buffers have changed.
 
-Allocated by task 6249:
- set_track mm/kasan/common.c:85 [inline]
- __kasan_kmalloc.constprop.3+0xa0/0xd0 mm/kasan/common.c:495
- kmalloc include/linux/slab.h:545 [inline]
- kzalloc include/linux/slab.h:740 [inline]
- bus_add_driver+0xc0/0x610 drivers/base/bus.c:651
- driver_register+0x1bb/0x3f0 drivers/base/driver.c:170
- serial_ir_init_module+0xe8/0x1000 [serial_ir]
- do_one_initcall+0xfa/0x5ca init/main.c:887
- do_init_module+0x204/0x5f6 kernel/module.c:3460
- load_module+0x66b2/0x8570 kernel/module.c:3808
- __do_sys_finit_module+0x238/0x2a0 kernel/module.c:3902
- do_syscall_64+0x147/0x600 arch/x86/entry/common.c:290
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
+This is fixed by setting a flag whenever the lock is released while waiting
+for a buffer to arrive. And checking the flag where needed so we can return
+-EBUSY.
 
-Freed by task 6249:
- set_track mm/kasan/common.c:85 [inline]
- __kasan_slab_free+0x130/0x180 mm/kasan/common.c:457
- slab_free_hook mm/slub.c:1430 [inline]
- slab_free_freelist_hook mm/slub.c:1457 [inline]
- slab_free mm/slub.c:3005 [inline]
- kfree+0xe1/0x270 mm/slub.c:3957
- kobject_cleanup lib/kobject.c:662 [inline]
- kobject_release lib/kobject.c:691 [inline]
- kref_put include/linux/kref.h:67 [inline]
- kobject_put+0x146/0x240 lib/kobject.c:708
- bus_remove_driver+0x10e/0x220 drivers/base/bus.c:732
- driver_unregister+0x6c/0xa0 drivers/base/driver.c:197
- serial_ir_init_module+0x14c/0x1000 [serial_ir]
- do_one_initcall+0xfa/0x5ca init/main.c:887
- do_init_module+0x204/0x5f6 kernel/module.c:3460
- load_module+0x66b2/0x8570 kernel/module.c:3808
- __do_sys_finit_module+0x238/0x2a0 kernel/module.c:3902
- do_syscall_64+0x147/0x600 arch/x86/entry/common.c:290
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-The buggy address belongs to the object at ffff8881dc7ae000
- which belongs to the cache kmalloc-256 of size 256
-The buggy address is located 48 bytes inside of
- 256-byte region [ffff8881dc7ae000, ffff8881dc7ae100)
-The buggy address belongs to the page:
-page:ffffea000771eb80 count:1 mapcount:0 mapping:ffff8881f6c02e00 index:0x0
-flags: 0x2fffc0000000200(slab)
-raw: 02fffc0000000200 ffffea0007d14800 0000000400000002 ffff8881f6c02e00
-raw: 0000000000000000 00000000800c000c 00000001ffffffff 0000000000000000
-page dumped because: kasan: bad access detected
-
-Memory state around the buggy address:
- ffff8881dc7adf00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
- ffff8881dc7adf80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
->ffff8881dc7ae000: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-                                     ^
- ffff8881dc7ae080: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
- ffff8881dc7ae100: fc fc fc fc fc fc fc fc 00 00 00 00 00 00 00 00
-
-There are already cleanup handlings in serial_ir_init error path,
-no need to call serial_ir_exit do it again in serial_ir_init_module,
-otherwise will trigger a use-after-free issue.
-
-Fixes: fa5dc29c1fcc ("[media] lirc_serial: move out of staging and rename to serial_ir")
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Hans Verkuil <hverkuil@xs4all.nl>
+Reported-by: Syzbot <syzbot+4180ff9ca6810b06c1e9@syzkaller.appspotmail.com>
+Reviewed-by: Tomasz Figa <tfiga@chromium.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/rc/serial_ir.c |    9 +--------
- 1 file changed, 1 insertion(+), 8 deletions(-)
+ drivers/media/common/videobuf2/videobuf2-core.c |   22 ++++++++++++++++++++++
+ include/media/videobuf2-core.h                  |    1 +
+ 2 files changed, 23 insertions(+)
 
---- a/drivers/media/rc/serial_ir.c
-+++ b/drivers/media/rc/serial_ir.c
-@@ -773,8 +773,6 @@ static void serial_ir_exit(void)
+--- a/drivers/media/common/videobuf2/videobuf2-core.c
++++ b/drivers/media/common/videobuf2/videobuf2-core.c
+@@ -672,6 +672,11 @@ int vb2_core_reqbufs(struct vb2_queue *q
+ 		return -EBUSY;
+ 	}
  
- static int __init serial_ir_init_module(void)
- {
--	int result;
--
- 	switch (type) {
- 	case IR_HOMEBREW:
- 	case IR_IRDEO:
-@@ -802,12 +800,7 @@ static int __init serial_ir_init_module(
- 	if (sense != -1)
- 		sense = !!sense;
++	if (q->waiting_in_dqbuf && *count) {
++		dprintk(1, "another dup()ped fd is waiting for a buffer\n");
++		return -EBUSY;
++	}
++
+ 	if (*count == 0 || q->num_buffers != 0 ||
+ 	    (q->memory != VB2_MEMORY_UNKNOWN && q->memory != memory)) {
+ 		/*
+@@ -807,6 +812,10 @@ int vb2_core_create_bufs(struct vb2_queu
+ 	}
  
--	result = serial_ir_init();
--	if (!result)
--		return 0;
--
--	serial_ir_exit();
--	return result;
-+	return serial_ir_init();
- }
+ 	if (!q->num_buffers) {
++		if (q->waiting_in_dqbuf && *count) {
++			dprintk(1, "another dup()ped fd is waiting for a buffer\n");
++			return -EBUSY;
++		}
+ 		memset(q->alloc_devs, 0, sizeof(q->alloc_devs));
+ 		q->memory = memory;
+ 		q->waiting_for_buffers = !q->is_output;
+@@ -1638,6 +1647,11 @@ static int __vb2_wait_for_done_vb(struct
+ 	for (;;) {
+ 		int ret;
  
- static void __exit serial_ir_exit_module(void)
++		if (q->waiting_in_dqbuf) {
++			dprintk(1, "another dup()ped fd is waiting for a buffer\n");
++			return -EBUSY;
++		}
++
+ 		if (!q->streaming) {
+ 			dprintk(1, "streaming off, will not wait for buffers\n");
+ 			return -EINVAL;
+@@ -1665,6 +1679,7 @@ static int __vb2_wait_for_done_vb(struct
+ 			return -EAGAIN;
+ 		}
+ 
++		q->waiting_in_dqbuf = 1;
+ 		/*
+ 		 * We are streaming and blocking, wait for another buffer to
+ 		 * become ready or for streamoff. Driver's lock is released to
+@@ -1685,6 +1700,7 @@ static int __vb2_wait_for_done_vb(struct
+ 		 * the locks or return an error if one occurred.
+ 		 */
+ 		call_void_qop(q, wait_finish, q);
++		q->waiting_in_dqbuf = 0;
+ 		if (ret) {
+ 			dprintk(1, "sleep was interrupted\n");
+ 			return ret;
+@@ -2572,6 +2588,12 @@ static size_t __vb2_perform_fileio(struc
+ 	if (!data)
+ 		return -EINVAL;
+ 
++	if (q->waiting_in_dqbuf) {
++		dprintk(3, "another dup()ped fd is %s\n",
++			read ? "reading" : "writing");
++		return -EBUSY;
++	}
++
+ 	/*
+ 	 * Initialize emulator on first call.
+ 	 */
+--- a/include/media/videobuf2-core.h
++++ b/include/media/videobuf2-core.h
+@@ -586,6 +586,7 @@ struct vb2_queue {
+ 	unsigned int			start_streaming_called:1;
+ 	unsigned int			error:1;
+ 	unsigned int			waiting_for_buffers:1;
++	unsigned int			waiting_in_dqbuf:1;
+ 	unsigned int			is_multiplanar:1;
+ 	unsigned int			is_output:1;
+ 	unsigned int			copy_timestamp:1;
 
 
