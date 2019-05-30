@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E689D2EC00
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:17:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E8D42EF2A
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:53:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731132AbfE3DR3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:17:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47328 "EHLO mail.kernel.org"
+        id S1728170AbfE3DxV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:53:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731125AbfE3DR3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:17:29 -0400
+        id S1731916AbfE3DTb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:19:31 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 404742464B;
-        Thu, 30 May 2019 03:17:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 528DE24881;
+        Thu, 30 May 2019 03:19:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186248;
-        bh=MFuOwopmUXbAwpiLYlO/N3fbmfGOTPXUDbJEuT5tAu0=;
+        s=default; t=1559186370;
+        bh=Ubb5xTQFXzgqC/dG4CE0HeMY8paSJZCVReWkm8znYPg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MUvAHyXTvDabfwcA6sw0d5JEWnN4rhhmBqCtAULLrnYvTb7//zjvf6HxZHfqGgaJ5
-         YfgIk0b7VkoaezTey5ADYkHq+dH9qUDXyOp6VZ6MiKztRZ/XtjqAAmz0QbIpcPEwcO
-         iiLFFLe3mWjaHTqrMAHiwOrAG2HgrKCs/b5OQ1cY=
+        b=JrIxfa/qXB0Gr+5S2vBPwyk1kuAt603Ymnj0dJmh+n+SGd0vwVYUUW73peFoTVX92
+         F5b96kJ+k/PYZefO7Ya87FaNM+FAJeVsAFEYS/G33cN7aKArFrTwf6SdapOLu+Rp28
+         /tb0cKTVxRMuEKUuF5UQ5FYynQ6p1OLrPD+XU1jo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yinbo Zhu <yinbo.zhu@nxp.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 165/276] mmc: sdhci-of-esdhc: add erratum eSDHC5 support
-Date:   Wed, 29 May 2019 20:05:23 -0700
-Message-Id: <20190530030535.753114499@linuxfoundation.org>
+Subject: [PATCH 4.14 070/193] mwifiex: prevent an array overflow
+Date:   Wed, 29 May 2019 20:05:24 -0700
+Message-Id: <20190530030459.017144110@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
+References: <20190530030446.953835040@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,36 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a46e42712596b51874f04c73f1cdf1017f88df52 ]
+[ Upstream commit b4c35c17227fe437ded17ce683a6927845f8c4a4 ]
 
-Software writing to the Transfer Type configuration register
-(system clock domain) can cause a setup/hold violation in the
-CRC flops (card clock domain), which can cause write accesses
-to be sent with corrupt CRC values. This issue occurs only for
-write preceded by read. this erratum is to fix this issue.
+The "rate_index" is only used as an index into the phist_data->rx_rate[]
+array in the mwifiex_hist_data_set() function.  That array has
+MWIFIEX_MAX_AC_RX_RATES (74) elements and it's used to generate some
+debugfs information.  The "rate_index" variable comes from the network
+skb->data[] and it is a u8 so it's in the 0-255 range.  We need to cap
+it to prevent an array overflow.
 
-Signed-off-by: Yinbo Zhu <yinbo.zhu@nxp.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: cbf6e05527a7 ("mwifiex: add rx histogram statistics support")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/sdhci-of-esdhc.c | 3 +++
+ drivers/net/wireless/marvell/mwifiex/cfp.c | 3 +++
  1 file changed, 3 insertions(+)
 
-diff --git a/drivers/mmc/host/sdhci-of-esdhc.c b/drivers/mmc/host/sdhci-of-esdhc.c
-index a7bf8515116fd..b2199d621b8c5 100644
---- a/drivers/mmc/host/sdhci-of-esdhc.c
-+++ b/drivers/mmc/host/sdhci-of-esdhc.c
-@@ -917,6 +917,9 @@ static int sdhci_esdhc_probe(struct platform_device *pdev)
- 	if (esdhc->vendor_ver > VENDOR_V_22)
- 		host->quirks &= ~SDHCI_QUIRK_NO_BUSY_IRQ;
+diff --git a/drivers/net/wireless/marvell/mwifiex/cfp.c b/drivers/net/wireless/marvell/mwifiex/cfp.c
+index bfe84e55df776..f1522fb1c1e87 100644
+--- a/drivers/net/wireless/marvell/mwifiex/cfp.c
++++ b/drivers/net/wireless/marvell/mwifiex/cfp.c
+@@ -531,5 +531,8 @@ u8 mwifiex_adjust_data_rate(struct mwifiex_private *priv,
+ 		rate_index = (rx_rate > MWIFIEX_RATE_INDEX_OFDM0) ?
+ 			      rx_rate - 1 : rx_rate;
  
-+	if (of_find_compatible_node(NULL, NULL, "fsl,p2020-esdhc"))
-+		host->quirks2 |= SDHCI_QUIRK_RESET_AFTER_REQUEST;
++	if (rate_index >= MWIFIEX_MAX_AC_RX_RATES)
++		rate_index = MWIFIEX_MAX_AC_RX_RATES - 1;
 +
- 	if (of_device_is_compatible(np, "fsl,p5040-esdhc") ||
- 	    of_device_is_compatible(np, "fsl,p5020-esdhc") ||
- 	    of_device_is_compatible(np, "fsl,p4080-esdhc") ||
+ 	return rate_index;
+ }
 -- 
 2.20.1
 
