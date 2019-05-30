@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D0882F4E8
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:44:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 568452F282
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:22:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728839AbfE3DMI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:12:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53606 "EHLO mail.kernel.org"
+        id S1730100AbfE3EWq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:22:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728835AbfE3DMH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:12:07 -0400
+        id S1730089AbfE3DPE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:15:04 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0D13124481;
-        Thu, 30 May 2019 03:12:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D3B892457B;
+        Thu, 30 May 2019 03:15:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185927;
-        bh=KcYU3017Pfj0zJ3/1ozBROPqeL6TleTPQN8FGt/U3Lg=;
+        s=default; t=1559186103;
+        bh=bGWh8woQtXz5m+43YaRhu03gvWUMuFyE+qLFTPAiZ50=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tsVRsgXZH+j+yn2XEcnyoZPGSEQK3u8xLJF5lBqWvJ4Gk0icNu+RZwBwO4ayIp19d
-         1XmIkyJ7QkKDA7vGA3SnUNAUBaMGl1HRq7bwEdk0ylg7GykSKV36YgS6k2dlvzStX5
-         hxxsY5erfIrnz7iDjrG1fiuWJhQc9wRZp51FnJdw=
+        b=bJq2LPSahOZVIkPuPqXwv30AtT+Qe0JD6+N8P35TR929JEwaBuZJj9eF+eaY7nQ7d
+         1cxw/7GBQCRH9yd2InX3t0K+5gTEei99UPHudzG9N5Cwuca1E82/f7w6P8uXJDlqkh
+         vfF+16TjkMJPDibkrcy8uCDMMuZGF/I4+aBLhK/E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Ertman <david.m.ertman@intel.com>,
-        Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>,
-        Andrew Bowers <andrewx.bowers@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        stable@vger.kernel.org, Chengguang Xu <cgxu519@gmx.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 318/405] ice: Prevent unintended multiple chain resets
-Date:   Wed, 29 May 2019 20:05:16 -0700
-Message-Id: <20190530030556.862559289@linuxfoundation.org>
+Subject: [PATCH 5.0 244/346] chardev: add additional check for minor range overlap
+Date:   Wed, 29 May 2019 20:05:17 -0700
+Message-Id: <20190530030553.382956498@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,48 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2ebd4428d93a2f6ce0c813b10a1a43b6a8241fe5 ]
+[ Upstream commit de36e16d1557a0b6eb328bc3516359a12ba5c25c ]
 
-In the current implementation of ice_reset_subtask, if multiple reset
-types are set in the pf->state, the most intrusive one is meant to be
-performed only, but the bits requesting the other types are not being
-cleared. This would lead to another reset being performed the next time
-the service task is scheduled.
+Current overlap checking cannot correctly handle
+a case which is baseminor < existing baseminor &&
+baseminor + minorct > existing baseminor + minorct.
 
-Change the flow of ice_reset_subtask so that all reset request bits in
-pf->state are cleared, and we still perform the most intrusive of the
-resets requested.
-
-Signed-off-by: Dave Ertman <david.m.ertman@intel.com>
-Signed-off-by: Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>
-Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Signed-off-by: Chengguang Xu <cgxu519@gmx.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_main.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ fs/char_dev.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
-index ac30288720f71..ba9f88cd138de 100644
---- a/drivers/net/ethernet/intel/ice/ice_main.c
-+++ b/drivers/net/ethernet/intel/ice/ice_main.c
-@@ -416,8 +416,14 @@ static void ice_reset_subtask(struct ice_pf *pf)
- 	 * for the reset now), poll for reset done, rebuild and return.
- 	 */
- 	if (test_bit(__ICE_RESET_OICR_RECV, pf->state)) {
--		clear_bit(__ICE_GLOBR_RECV, pf->state);
--		clear_bit(__ICE_CORER_RECV, pf->state);
-+		/* Perform the largest reset requested */
-+		if (test_and_clear_bit(__ICE_CORER_RECV, pf->state))
-+			reset_type = ICE_RESET_CORER;
-+		if (test_and_clear_bit(__ICE_GLOBR_RECV, pf->state))
-+			reset_type = ICE_RESET_GLOBR;
-+		/* return if no valid reset type requested */
-+		if (reset_type == ICE_RESET_INVAL)
-+			return;
- 		if (!test_bit(__ICE_PREPARED_FOR_RESET, pf->state))
- 			ice_prepare_for_reset(pf);
+diff --git a/fs/char_dev.c b/fs/char_dev.c
+index a279c58fe3606..8a63cfa290053 100644
+--- a/fs/char_dev.c
++++ b/fs/char_dev.c
+@@ -159,6 +159,12 @@ __register_chrdev_region(unsigned int major, unsigned int baseminor,
+ 			ret = -EBUSY;
+ 			goto out;
+ 		}
++
++		if (new_min < old_min && new_max > old_max) {
++			ret = -EBUSY;
++			goto out;
++		}
++
+ 	}
  
+ 	cd->next = *cp;
 -- 
 2.20.1
 
