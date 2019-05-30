@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AA97B2F327
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:27:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AE892EFE3
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:59:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729883AbfE3E0p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:26:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33692 "EHLO mail.kernel.org"
+        id S1731599AbfE3DSg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:18:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729875AbfE3DO3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:14:29 -0400
+        id S1731597AbfE3DSf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:18:35 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5CC5B2455E;
-        Thu, 30 May 2019 03:14:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 325A92479B;
+        Thu, 30 May 2019 03:18:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186069;
-        bh=zabL5YfqfgkOhrTRcXafw5T08OQA8mRkWoJ70DYQGDc=;
+        s=default; t=1559186315;
+        bh=G4Ukji/71z2u2uhgTzoL7dunEcMO79AC69J39W+kNTo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0YT7oZBVFszm5EBJpsSJDc4YlzSpr+pcM+uo1wM2EOj5HKpNsHBmaZfnNPIwl/TP/
-         1s9PoZWUCWa98c+OpXYLqfbKT0YQ6RcBux5eFQfDMbv+u25j5fkPLDfrcYxtnplzw7
-         5RHg+6KBqL7um/SxzfDbzGQ/b4D7LHphNsV535o8=
+        b=i6c1JL97jjngTKztym5OVskBXWURho6FvCiSFMFQi3AbIi9j0Z0bzgez2AuKlWYMY
+         ooODeCpzbavvhTIW7VtdXpVpk8QlhmHP7joYDQAAtUfHU2gnMupcxMDokj15vtszMh
+         AGEVgFCl70oSI6Bu0nqj8Bs1nWaw+A6aCjO0RJ/s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kefeng Wang <wangkefeng.wang@huawei.com>,
-        John Garry <john.garry@huawei.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 182/346] hwmon: (smsc47b397) Use request_muxed_region for Super-IO accesses
-Date:   Wed, 29 May 2019 20:04:15 -0700
-Message-Id: <20190530030550.332532730@linuxfoundation.org>
+        stable@vger.kernel.org, Ira Weiny <ira.weiny@intel.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
+        stable@kernel.org
+Subject: [PATCH 4.14 002/193] ext4: do not delete unlinked inode from orphan list on failed truncate
+Date:   Wed, 29 May 2019 20:04:16 -0700
+Message-Id: <20190530030447.267370009@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
+References: <20190530030446.953835040@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,69 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 8c0826756744c0ac1df600a5e4cca1a341b13101 ]
+From: Jan Kara <jack@suse.cz>
 
-Super-IO accesses may fail on a system with no or unmapped LPC bus.
+commit ee0ed02ca93ef1ecf8963ad96638795d55af2c14 upstream.
 
-Also, other drivers may attempt to access the LPC bus at the same time,
-resulting in undefined behavior.
+It is possible that unlinked inode enters ext4_setattr() (e.g. if
+somebody calls ftruncate(2) on unlinked but still open file). In such
+case we should not delete the inode from the orphan list if truncate
+fails. Note that this is mostly a theoretical concern as filesystem is
+corrupted if we reach this path anyway but let's be consistent in our
+orphan handling.
 
-Use request_muxed_region() to ensure that IO access on the requested
-address space is supported, and to ensure that access by multiple drivers
-is synchronized.
+Reviewed-by: Ira Weiny <ira.weiny@intel.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: 8d5d45fb1468 ("I2C: Move hwmon drivers (2/3)")
-Reported-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Reported-by: John Garry <john.garry@huawei.com>
-Cc: John Garry <john.garry@huawei.com>
-Acked-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/smsc47b397.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ fs/ext4/inode.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hwmon/smsc47b397.c b/drivers/hwmon/smsc47b397.c
-index 6bd2007565603..cbdb5c4991ae3 100644
---- a/drivers/hwmon/smsc47b397.c
-+++ b/drivers/hwmon/smsc47b397.c
-@@ -72,14 +72,19 @@ static inline void superio_select(int ld)
- 	superio_outb(0x07, ld);
- }
- 
--static inline void superio_enter(void)
-+static inline int superio_enter(void)
- {
-+	if (!request_muxed_region(REG, 2, DRVNAME))
-+		return -EBUSY;
-+
- 	outb(0x55, REG);
-+	return 0;
- }
- 
- static inline void superio_exit(void)
- {
- 	outb(0xAA, REG);
-+	release_region(REG, 2);
- }
- 
- #define SUPERIO_REG_DEVID	0x20
-@@ -300,8 +305,12 @@ static int __init smsc47b397_find(void)
- 	u8 id, rev;
- 	char *name;
- 	unsigned short addr;
-+	int err;
-+
-+	err = superio_enter();
-+	if (err)
-+		return err;
- 
--	superio_enter();
- 	id = force_id ? force_id : superio_inb(SUPERIO_REG_DEVID);
- 
- 	switch (id) {
--- 
-2.20.1
-
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -5450,7 +5450,7 @@ int ext4_setattr(struct dentry *dentry,
+ 			up_write(&EXT4_I(inode)->i_data_sem);
+ 			ext4_journal_stop(handle);
+ 			if (error) {
+-				if (orphan)
++				if (orphan && inode->i_nlink)
+ 					ext4_orphan_del(NULL, inode);
+ 				goto err_out;
+ 			}
 
 
