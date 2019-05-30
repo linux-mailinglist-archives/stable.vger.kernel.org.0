@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B2B42EB27
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:10:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DE562F411
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:36:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728104AbfE3DK2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:10:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47572 "EHLO mail.kernel.org"
+        id S1729609AbfE3Een (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:34:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728101AbfE3DK2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:10:28 -0400
+        id S1729417AbfE3DNW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:13:22 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9F588244A6;
-        Thu, 30 May 2019 03:10:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AC77B23D14;
+        Thu, 30 May 2019 03:13:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185827;
-        bh=MebKhiyvJ7riAHzHPq/RqDHrA7XgxeH37Lqj5HQRhYU=;
+        s=default; t=1559186001;
+        bh=VBaBHb8eC3MVMoqFn8qJTCXx3lwPrT6NybJ+ftDwyz8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FAhFXAVjR+lfQ2JI+yC1j1zSimmTrwGQvzdDqGc5k3mBxvLXPKue/lKsDwQJMxjqb
-         7/URvMkc6d4qxjwIVXoP/jGWcvl4YqZy20FKGXI1o5/p+3Gek1xBC1dcA5HQEWkNMg
-         kXHyhadh1HNGXmaFRN4UYsnSiUwNk6Z+W4J3TGDU=
+        b=v6V0rz/+4b/XSUi5qr2PjLcF9Yu/TyEllQQ89CdPIdRI6KRYweSYNst9j0lTETiN/
+         10SaF/IvRmJR00w89EEo4cBnr7LnDP6iG3odHCk6ckEHQL0YtHLTNj8+8Dc9scwl00
+         8P1HGJk87dzs1vLfYigAFiTgcYaWqg/1C2vO4iPc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Corentin Labbe <clabbe.montjoie@gmail.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 128/405] crypto: sun4i-ss - Fix invalid calculation of hash end
+Subject: [PATCH 5.0 053/346] ice: Separate if conditions for ice_set_features()
 Date:   Wed, 29 May 2019 20:02:06 -0700
-Message-Id: <20190530030547.530195937@linuxfoundation.org>
+Message-Id: <20190530030543.622387258@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +46,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f87391558acf816b48f325a493d81d45dec40da0 ]
+[ Upstream commit 8f529ff912073f778e3cd74e87fb69a36499fc2f ]
 
-When nbytes < 4, end is wronlgy set to a negative value which, due to
-uint, is then interpreted to a large value leading to a deadlock in the
-following code.
+Set features can have multiple features turned on|off in a single
+call.  Grouping these all in an if/else means after one condition
+is met, other conditions/features will not be evaluated.  Break
+the if/else statements by feature to ensure all features will be
+handled properly.
 
-This patch fix this problem.
-
-Fixes: 6298e948215f ("crypto: sunxi-ss - Add Allwinner Security System crypto accelerator")
-Signed-off-by: Corentin Labbe <clabbe.montjoie@gmail.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>
+Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/sunxi-ss/sun4i-ss-hash.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/ice/ice_main.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/crypto/sunxi-ss/sun4i-ss-hash.c b/drivers/crypto/sunxi-ss/sun4i-ss-hash.c
-index a4b5ff2b72f87..f6936bb3b7be4 100644
---- a/drivers/crypto/sunxi-ss/sun4i-ss-hash.c
-+++ b/drivers/crypto/sunxi-ss/sun4i-ss-hash.c
-@@ -240,7 +240,10 @@ static int sun4i_hash(struct ahash_request *areq)
- 		}
- 	} else {
- 		/* Since we have the flag final, we can go up to modulo 4 */
--		end = ((areq->nbytes + op->len) / 4) * 4 - op->len;
-+		if (areq->nbytes < 4)
-+			end = 0;
-+		else
-+			end = ((areq->nbytes + op->len) / 4) * 4 - op->len;
- 	}
+diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
+index 8725569d11f0a..d083979acc22c 100644
+--- a/drivers/net/ethernet/intel/ice/ice_main.c
++++ b/drivers/net/ethernet/intel/ice/ice_main.c
+@@ -2490,6 +2490,9 @@ static int ice_set_features(struct net_device *netdev,
+ 	struct ice_vsi *vsi = np->vsi;
+ 	int ret = 0;
  
- 	/* TODO if SGlen % 4 and !op->len then DMA */
++	/* Multiple features can be changed in one call so keep features in
++	 * separate if/else statements to guarantee each feature is checked
++	 */
+ 	if (features & NETIF_F_RXHASH && !(netdev->features & NETIF_F_RXHASH))
+ 		ret = ice_vsi_manage_rss_lut(vsi, true);
+ 	else if (!(features & NETIF_F_RXHASH) &&
+@@ -2502,8 +2505,9 @@ static int ice_set_features(struct net_device *netdev,
+ 	else if (!(features & NETIF_F_HW_VLAN_CTAG_RX) &&
+ 		 (netdev->features & NETIF_F_HW_VLAN_CTAG_RX))
+ 		ret = ice_vsi_manage_vlan_stripping(vsi, false);
+-	else if ((features & NETIF_F_HW_VLAN_CTAG_TX) &&
+-		 !(netdev->features & NETIF_F_HW_VLAN_CTAG_TX))
++
++	if ((features & NETIF_F_HW_VLAN_CTAG_TX) &&
++	    !(netdev->features & NETIF_F_HW_VLAN_CTAG_TX))
+ 		ret = ice_vsi_manage_vlan_insertion(vsi);
+ 	else if (!(features & NETIF_F_HW_VLAN_CTAG_TX) &&
+ 		 (netdev->features & NETIF_F_HW_VLAN_CTAG_TX))
 -- 
 2.20.1
 
