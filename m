@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 994A32F0C9
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:07:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60E3C2F4F6
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:44:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726859AbfE3EHI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:07:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47466 "EHLO mail.kernel.org"
+        id S1729456AbfE3EnD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:43:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731137AbfE3DRa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:17:30 -0400
+        id S1727527AbfE3DMN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:12:13 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 49E032464B;
-        Thu, 30 May 2019 03:17:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA59E2446F;
+        Thu, 30 May 2019 03:12:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186250;
-        bh=AqjRXvAowMkD8Xr9ZMA3vBOBovKcSxEwvdYWHoscRq8=;
+        s=default; t=1559185933;
+        bh=ZeRxG86R+FVc7/S6lyEeqTu71EyFgNs7/FMQs5SVgZI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xBD21zjLfFnAHRbuLJaoCCvlKBipZiSUGBLL3DwR9lhwFTWf9Ob0xGFloqD7NJCi+
-         F5csTMvZYsks437xp4EITcTsdG8YGClU7TnK3Obj/S27zf13heT9qKXqAGpFz5nXhM
-         CFQimDFEqsIZQXBTCGx+X6H8+ONVeXPpQ3n9vFYU=
+        b=sqPUmvdpPeslw+ROWE7+wy0At+kdn4LjA5FOEZX4oXSwpEj1jL6UySPFcZV48l+E6
+         x1zpmTytGQNn6q3H9rblByy/EbaxaenTL19zgfBZFUmdfu0pUFcqSmollgFjtYH72M
+         hbM5TmvIk6PbzIPlOZaK0GwUItl08W+x9KAkE+60=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Loic Pallardy <loic.pallardy@st.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 169/276] PM / core: Propagate dev->power.wakeup_path when no callbacks
+Subject: [PATCH 5.1 329/405] regulator: add regulator_get_linear_step() stub helper
 Date:   Wed, 29 May 2019 20:05:27 -0700
-Message-Id: <20190530030535.965554437@linuxfoundation.org>
+Message-Id: <20190530030557.387558374@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,45 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit dc351d4c5f4fe4d0f274d6d660227be0c3a03317 ]
+[ Upstream commit 7287275b4301e230be9e4569431c7dacb67ebc13 ]
 
-The dev->power.direct_complete flag may become set in device_prepare() in
-case the device don't have any PM callbacks (dev->power.no_pm_callbacks is
-set). This leads to a broken behaviour, when there is child having wakeup
-enabled and relies on its parent to be used in the wakeup path.
+The regulator header has empty inline functions for most interfaces,
+but not regulator_get_linear_step(), which has just grown a user
+that does not depend on regulators otherwise:
 
-More precisely, when the direct complete path becomes selected for the
-child in __device_suspend(), the propagation of the dev->power.wakeup_path
-becomes skipped as well.
+drivers/clk/tegra/clk-tegra124-dfll-fcpu.c: In function 'get_alignment_from_regulator':
+drivers/clk/tegra/clk-tegra124-dfll-fcpu.c:555:19: error: implicit declaration of function 'regulator_get_linear_step'; did you mean 'regulator_get_drvdata'? [-Werror=implicit-function-declaration]
+  align->step_uv = regulator_get_linear_step(reg);
+                   ^~~~~~~~~~~~~~~~~~~~~~~~~
+                   regulator_get_drvdata
+cc1: all warnings being treated as errors
+scripts/Makefile.build:278: recipe for target 'drivers/clk/tegra/clk-tegra124-dfll-fcpu.o' failed
 
-Let's address this problem, by checking if the device is a part the wakeup
-path or has wakeup enabled, then prevent the direct complete path from
-being used.
+Add the missing stub along the others.
 
-Reported-by: Loic Pallardy <loic.pallardy@st.com>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-[ rjw: Comment cleanup ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: b3cf8d069505 ("clk: tegra: dfll: CVB calculation alignment with the regulator")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/power/main.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ include/linux/regulator/consumer.h | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/base/power/main.c b/drivers/base/power/main.c
-index a690fd4002605..4abd7c6531d9d 100644
---- a/drivers/base/power/main.c
-+++ b/drivers/base/power/main.c
-@@ -1736,6 +1736,10 @@ static int __device_suspend(struct device *dev, pm_message_t state, bool async)
- 	if (dev->power.syscore)
- 		goto Complete;
+diff --git a/include/linux/regulator/consumer.h b/include/linux/regulator/consumer.h
+index f3f76051e8b00..aaf3cee704397 100644
+--- a/include/linux/regulator/consumer.h
++++ b/include/linux/regulator/consumer.h
+@@ -478,6 +478,11 @@ static inline int regulator_is_supported_voltage(struct regulator *regulator,
+ 	return 0;
+ }
  
-+	/* Avoid direct_complete to let wakeup_path propagate. */
-+	if (device_may_wakeup(dev) || dev->power.wakeup_path)
-+		dev->power.direct_complete = false;
++static inline unsigned int regulator_get_linear_step(struct regulator *regulator)
++{
++	return 0;
++}
 +
- 	if (dev->power.direct_complete) {
- 		if (pm_runtime_status_suspended(dev)) {
- 			pm_runtime_disable(dev);
+ static inline int regulator_set_current_limit(struct regulator *regulator,
+ 					     int min_uA, int max_uA)
+ {
 -- 
 2.20.1
 
