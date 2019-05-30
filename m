@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CD74E2F60D
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:53:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D3D12EBD0
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:16:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732998AbfE3Ewb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:52:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48818 "EHLO mail.kernel.org"
+        id S1729620AbfE3DQQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:16:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728232AbfE3DKt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:10:49 -0400
+        id S1727592AbfE3DQP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:16:15 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1403F2447F;
-        Thu, 30 May 2019 03:10:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E0CE7245DF;
+        Thu, 30 May 2019 03:16:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185848;
-        bh=QVNWfYZwzxl9bw2yAAO6T7NG2zjG5e8grcLVRUtlrrI=;
+        s=default; t=1559186175;
+        bh=t6bx2D04IYoytuycVZr10En/w9fgx4z/f8hlVwcsreI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WuQ6PRafi1LkXoxtMN+K+c7/FtxUZZJsSvKNKLBCfO+Nvxx2NTCQn3+l8bF1niqc7
-         TEWzvUCH4FFf6KqURqavp5d40stiTv/du8HGsGGDeTrTH9ZI68N7k+SaoNq/abcprQ
-         8VCBPym+4q/5XBrwDZTiXVQkR3HC1S9gJMpH1AiY=
+        b=BIew0IZ6ecBvv5VYs+x4tFbKGz2bfNuWDJpCxQgQbdWsmGd2YCPjqScWOJKZAoEnh
+         CAk6CoGwC6isrgBUhnIF0nt1M/r/4UtdyRp0Mk7ZLST+1ddlA+4yIK+YMzT+f+jEBK
+         QMBUXjVBIV0d2qC2Cgs12X5/E0Ht9Tn0B4JxDmGU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
-        Peter Zijlstra <a.p.zijlstra@chello.nl>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 169/405] sched/rt: Check integer overflow at usec to nsec conversion
+        stable@vger.kernel.org, Daniel Axtens <dja@axtens.net>,
+        Nayna Jain <nayna@linux.ibm.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.19 009/276] crypto: vmx - CTR: always increment IV as quadword
 Date:   Wed, 29 May 2019 20:02:47 -0700
-Message-Id: <20190530030549.678437762@linuxfoundation.org>
+Message-Id: <20190530030524.161880676@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,57 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 1a010e29cfa00fee2888fd2fd4983f848cbafb58 ]
+From: Daniel Axtens <dja@axtens.net>
 
-Example of unhandled overflows:
+commit 009b30ac7444c17fae34c4f435ebce8e8e2b3250 upstream.
 
- # echo 18446744073709651 > cpu.rt_runtime_us
- # cat cpu.rt_runtime_us
- 99
+The kernel self-tests picked up an issue with CTR mode:
+alg: skcipher: p8_aes_ctr encryption test failed (wrong result) on test vector 3, cfg="uneven misaligned splits, may sleep"
 
- # echo 18446744073709900 > cpu.rt_period_us
- # cat cpu.rt_period_us
- 348
+Test vector 3 has an IV of FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFD, so
+after 3 increments it should wrap around to 0.
 
-After this patch they will fail with -EINVAL.
+In the aesp8-ppc code from OpenSSL, there are two paths that
+increment IVs: the bulk (8 at a time) path, and the individual
+path which is used when there are fewer than 8 AES blocks to
+process.
 
-Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-Acked-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: http://lkml.kernel.org/r/155125501739.293431.5252197504404771496.stgit@buzz
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+In the bulk path, the IV is incremented with vadduqm: "Vector
+Add Unsigned Quadword Modulo", which does 128-bit addition.
+
+In the individual path, however, the IV is incremented with
+vadduwm: "Vector Add Unsigned Word Modulo", which instead
+does 4 32-bit additions. Thus the IV would instead become
+FFFFFFFFFFFFFFFFFFFFFFFF00000000, throwing off the result.
+
+Use vadduqm.
+
+This was probably a typo originally, what with q and w being
+adjacent. It is a pretty narrow edge case: I am really
+impressed by the quality of the kernel self-tests!
+
+Fixes: 5c380d623ed3 ("crypto: vmx - Add support for VMS instructions by ASM")
+Cc: stable@vger.kernel.org
+Signed-off-by: Daniel Axtens <dja@axtens.net>
+Acked-by: Nayna Jain <nayna@linux.ibm.com>
+Tested-by: Nayna Jain <nayna@linux.ibm.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- kernel/sched/rt.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/crypto/vmx/aesp8-ppc.pl |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/sched/rt.c b/kernel/sched/rt.c
-index 90fa23d36565d..1e6b909dca367 100644
---- a/kernel/sched/rt.c
-+++ b/kernel/sched/rt.c
-@@ -2555,6 +2555,8 @@ int sched_group_set_rt_runtime(struct task_group *tg, long rt_runtime_us)
- 	rt_runtime = (u64)rt_runtime_us * NSEC_PER_USEC;
- 	if (rt_runtime_us < 0)
- 		rt_runtime = RUNTIME_INF;
-+	else if ((u64)rt_runtime_us > U64_MAX / NSEC_PER_USEC)
-+		return -EINVAL;
+--- a/drivers/crypto/vmx/aesp8-ppc.pl
++++ b/drivers/crypto/vmx/aesp8-ppc.pl
+@@ -1357,7 +1357,7 @@ Loop_ctr32_enc:
+ 	addi		$idx,$idx,16
+ 	bdnz		Loop_ctr32_enc
  
- 	return tg_set_rt_bandwidth(tg, rt_period, rt_runtime);
- }
-@@ -2575,6 +2577,9 @@ int sched_group_set_rt_period(struct task_group *tg, u64 rt_period_us)
- {
- 	u64 rt_runtime, rt_period;
- 
-+	if (rt_period_us > U64_MAX / NSEC_PER_USEC)
-+		return -EINVAL;
-+
- 	rt_period = rt_period_us * NSEC_PER_USEC;
- 	rt_runtime = tg->rt_bandwidth.rt_runtime;
- 
--- 
-2.20.1
-
+-	vadduwm		$ivec,$ivec,$one
++	vadduqm		$ivec,$ivec,$one
+ 	 vmr		$dat,$inptail
+ 	 lvx		$inptail,0,$inp
+ 	 addi		$inp,$inp,16
 
 
