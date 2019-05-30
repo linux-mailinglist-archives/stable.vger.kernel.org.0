@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BF4CD2F622
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:54:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98B5E2F3F3
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:34:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728135AbfE3DKc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:10:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47594 "EHLO mail.kernel.org"
+        id S1729667AbfE3EeF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:34:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728130AbfE3DKb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:10:31 -0400
+        id S1729449AbfE3DN0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:13:26 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 476C7244CB;
-        Thu, 30 May 2019 03:10:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E269E23D83;
+        Thu, 30 May 2019 03:13:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185831;
-        bh=c3ylOG23e2uaO1Qyo4knJrORs0BfMvOcAjDmTCaefMI=;
+        s=default; t=1559186006;
+        bh=nYfAnsHdSsbiudxhqGRTeUXvDrYgCLXbkbi9Pet7MSE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yAA1gX0Dnl+OIc9B7PZ15wvWgbCj+JOR634zdPPoQiFVZ/U1H1cGQIwaqlPjgZNUG
-         w7M+Azv60Wpx78QCjC715nU3VUkWpiWDeVi2Vb4LBrXZHzdS8raoyxGdZFgATA1l9/
-         hsQTUocQ3tT8F1K3eB8l0yS4LxXTWUmF0sF/ENXE=
+        b=JB8pGLyO2nmDI7QojoZP41PFihKl5MqCJNmpSf1GHeor96zy/YgxYidcqQroRZktj
+         2znjlpqL5yo5wNd/l77gxwQuWofBw8F/xJmJOXgGS7O2XlUmh6pwb6b8YM26cixAtj
+         aOHaSGL/UK35qiSw/muuSGQadl4pTEHVDIcF0NP8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Farhan Ali <alifm@linux.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jo=C3=A3o=20Paulo=20Rechi=20Vita?= <jprvita@endlessm.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 135/405] vfio-ccw: Do not call flush_workqueue while holding the spinlock
+Subject: [PATCH 5.0 060/346] Bluetooth: Ignore CC events not matching the last HCI command
 Date:   Wed, 29 May 2019 20:02:13 -0700
-Message-Id: <20190530030547.926029974@linuxfoundation.org>
+Message-Id: <20190530030544.103046474@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,67 +45,190 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit cea5dde42a83b5f0a039da672f8686455936b8d8 ]
+[ Upstream commit f80c5dad7b6467b884c445ffea45985793b4b2d0 ]
 
-Currently we call flush_workqueue while holding the subchannel
-spinlock. But flush_workqueue function can go to sleep, so
-do not call the function while holding the spinlock.
+This commit makes the kernel not send the next queued HCI command until
+a command complete arrives for the last HCI command sent to the
+controller. This change avoids a problem with some buggy controllers
+(seen on two SKUs of QCA9377) that send an extra command complete event
+for the previous command after the kernel had already sent a new HCI
+command to the controller.
 
-Fixes the following bug:
+The problem was reproduced when starting an active scanning procedure,
+where an extra command complete event arrives for the LE_SET_RANDOM_ADDR
+command. When this happends the kernel ends up not processing the
+command complete for the following commmand, LE_SET_SCAN_PARAM, and
+ultimately behaving as if a passive scanning procedure was being
+performed, when in fact controller is performing an active scanning
+procedure. This makes it impossible to discover BLE devices as no device
+found events are sent to userspace.
 
-[  285.203430] BUG: scheduling while atomic: bash/14193/0x00000002
-[  285.203434] INFO: lockdep is turned off.
-....
-[  285.203485] Preemption disabled at:
-[  285.203488] [<000003ff80243e5c>] vfio_ccw_sch_quiesce+0xbc/0x120 [vfio_ccw]
-[  285.203496] CPU: 7 PID: 14193 Comm: bash Tainted: G        W
-....
-[  285.203504] Call Trace:
-[  285.203510] ([<0000000000113772>] show_stack+0x82/0xd0)
-[  285.203514]  [<0000000000b7a102>] dump_stack+0x92/0xd0
-[  285.203518]  [<000000000017b8be>] __schedule_bug+0xde/0xf8
-[  285.203524]  [<0000000000b95b5a>] __schedule+0x7a/0xc38
-[  285.203528]  [<0000000000b9678a>] schedule+0x72/0xb0
-[  285.203533]  [<0000000000b9bfbc>] schedule_timeout+0x34/0x528
-[  285.203538]  [<0000000000b97608>] wait_for_common+0x118/0x1b0
-[  285.203544]  [<0000000000166d6a>] flush_workqueue+0x182/0x548
-[  285.203550]  [<000003ff80243e6e>] vfio_ccw_sch_quiesce+0xce/0x120 [vfio_ccw]
-[  285.203556]  [<000003ff80245278>] vfio_ccw_mdev_reset+0x38/0x70 [vfio_ccw]
-[  285.203562]  [<000003ff802458b0>] vfio_ccw_mdev_remove+0x40/0x78 [vfio_ccw]
-[  285.203567]  [<000003ff801a499c>] mdev_device_remove_ops+0x3c/0x80 [mdev]
-[  285.203573]  [<000003ff801a4d5c>] mdev_device_remove+0xc4/0x130 [mdev]
-[  285.203578]  [<000003ff801a5074>] remove_store+0x6c/0xa8 [mdev]
-[  285.203582]  [<000000000046f494>] kernfs_fop_write+0x14c/0x1f8
-[  285.203588]  [<00000000003c1530>] __vfs_write+0x38/0x1a8
-[  285.203593]  [<00000000003c187c>] vfs_write+0xb4/0x198
-[  285.203597]  [<00000000003c1af2>] ksys_write+0x5a/0xb0
-[  285.203601]  [<0000000000b9e270>] system_call+0xdc/0x2d8
+This problem is reproducible on 100% of the attempts on the affected
+controllers. The extra command complete event can be seen at timestamp
+27.420131 on the btmon logs bellow.
 
-Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
-Reviewed-by: Eric Farman <farman@linux.ibm.com>
-Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
-Message-Id: <626bab8bb2958ae132452e1ddaf1b20882ad5a9d.1554756534.git.alifm@linux.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+Bluetooth monitor ver 5.50
+= Note: Linux version 5.0.0+ (x86_64)                                  0.352340
+= Note: Bluetooth subsystem version 2.22                               0.352343
+= New Index: 80:C5:F2:8F:87:84 (Primary,USB,hci0)               [hci0] 0.352344
+= Open Index: 80:C5:F2:8F:87:84                                 [hci0] 0.352345
+= Index Info: 80:C5:F2:8F:87:84 (Qualcomm)                      [hci0] 0.352346
+@ MGMT Open: bluetoothd (privileged) version 1.14             {0x0001} 0.352347
+@ MGMT Open: btmon (privileged) version 1.14                  {0x0002} 0.352366
+@ MGMT Open: btmgmt (privileged) version 1.14                {0x0003} 27.302164
+@ MGMT Command: Start Discovery (0x0023) plen 1       {0x0003} [hci0] 27.302310
+        Address type: 0x06
+          LE Public
+          LE Random
+< HCI Command: LE Set Random Address (0x08|0x0005) plen 6   #1 [hci0] 27.302496
+        Address: 15:60:F2:91:B2:24 (Non-Resolvable)
+> HCI Event: Command Complete (0x0e) plen 4                 #2 [hci0] 27.419117
+      LE Set Random Address (0x08|0x0005) ncmd 1
+        Status: Success (0x00)
+< HCI Command: LE Set Scan Parameters (0x08|0x000b) plen 7  #3 [hci0] 27.419244
+        Type: Active (0x01)
+        Interval: 11.250 msec (0x0012)
+        Window: 11.250 msec (0x0012)
+        Own address type: Random (0x01)
+        Filter policy: Accept all advertisement (0x00)
+> HCI Event: Command Complete (0x0e) plen 4                 #4 [hci0] 27.420131
+      LE Set Random Address (0x08|0x0005) ncmd 1
+        Status: Success (0x00)
+< HCI Command: LE Set Scan Enable (0x08|0x000c) plen 2      #5 [hci0] 27.420259
+        Scanning: Enabled (0x01)
+        Filter duplicates: Enabled (0x01)
+> HCI Event: Command Complete (0x0e) plen 4                 #6 [hci0] 27.420969
+      LE Set Scan Parameters (0x08|0x000b) ncmd 1
+        Status: Success (0x00)
+> HCI Event: Command Complete (0x0e) plen 4                 #7 [hci0] 27.421983
+      LE Set Scan Enable (0x08|0x000c) ncmd 1
+        Status: Success (0x00)
+@ MGMT Event: Command Complete (0x0001) plen 4        {0x0003} [hci0] 27.422059
+      Start Discovery (0x0023) plen 1
+        Status: Success (0x00)
+        Address type: 0x06
+          LE Public
+          LE Random
+@ MGMT Event: Discovering (0x0013) plen 2             {0x0003} [hci0] 27.422067
+        Address type: 0x06
+          LE Public
+          LE Random
+        Discovery: Enabled (0x01)
+@ MGMT Event: Discovering (0x0013) plen 2             {0x0002} [hci0] 27.422067
+        Address type: 0x06
+          LE Public
+          LE Random
+        Discovery: Enabled (0x01)
+@ MGMT Event: Discovering (0x0013) plen 2             {0x0001} [hci0] 27.422067
+        Address type: 0x06
+          LE Public
+          LE Random
+        Discovery: Enabled (0x01)
+
+Signed-off-by: João Paulo Rechi Vita <jprvita@endlessm.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/cio/vfio_ccw_drv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/net/bluetooth/hci.h |  1 +
+ net/bluetooth/hci_core.c    |  5 +++++
+ net/bluetooth/hci_event.c   | 12 ++++++++++++
+ net/bluetooth/hci_request.c |  5 +++++
+ net/bluetooth/hci_request.h |  1 +
+ 5 files changed, 24 insertions(+)
 
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index 0b3b9de45c602..64bb121ba5987 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -54,9 +54,9 @@ int vfio_ccw_sch_quiesce(struct subchannel *sch)
+diff --git a/include/net/bluetooth/hci.h b/include/net/bluetooth/hci.h
+index c36dc1e20556a..60b7cbc0a6cb4 100644
+--- a/include/net/bluetooth/hci.h
++++ b/include/net/bluetooth/hci.h
+@@ -270,6 +270,7 @@ enum {
+ 	HCI_FORCE_BREDR_SMP,
+ 	HCI_FORCE_STATIC_ADDR,
+ 	HCI_LL_RPA_RESOLUTION,
++	HCI_CMD_PENDING,
  
- 			wait_for_completion_timeout(&completion, 3*HZ);
+ 	__HCI_NUM_FLAGS,
+ };
+diff --git a/net/bluetooth/hci_core.c b/net/bluetooth/hci_core.c
+index 7352fe85674be..c25c664a25040 100644
+--- a/net/bluetooth/hci_core.c
++++ b/net/bluetooth/hci_core.c
+@@ -4337,6 +4337,9 @@ void hci_req_cmd_complete(struct hci_dev *hdev, u16 opcode, u8 status,
+ 		return;
+ 	}
  
--			spin_lock_irq(sch->lock);
- 			private->completion = NULL;
- 			flush_workqueue(vfio_ccw_work_q);
-+			spin_lock_irq(sch->lock);
- 			ret = cio_cancel_halt_clear(sch, &iretry);
- 		};
++	/* If we reach this point this event matches the last command sent */
++	hci_dev_clear_flag(hdev, HCI_CMD_PENDING);
++
+ 	/* If the command succeeded and there's still more commands in
+ 	 * this request the request is not yet complete.
+ 	 */
+@@ -4447,6 +4450,8 @@ static void hci_cmd_work(struct work_struct *work)
  
+ 		hdev->sent_cmd = skb_clone(skb, GFP_KERNEL);
+ 		if (hdev->sent_cmd) {
++			if (hci_req_status_pend(hdev))
++				hci_dev_set_flag(hdev, HCI_CMD_PENDING);
+ 			atomic_dec(&hdev->cmd_cnt);
+ 			hci_send_frame(hdev, skb);
+ 			if (test_bit(HCI_RESET, &hdev->flags))
+diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
+index ac2826ce162b9..ef5ae4c7e286b 100644
+--- a/net/bluetooth/hci_event.c
++++ b/net/bluetooth/hci_event.c
+@@ -3404,6 +3404,12 @@ static void hci_cmd_complete_evt(struct hci_dev *hdev, struct sk_buff *skb,
+ 	hci_req_cmd_complete(hdev, *opcode, *status, req_complete,
+ 			     req_complete_skb);
+ 
++	if (hci_dev_test_flag(hdev, HCI_CMD_PENDING)) {
++		bt_dev_err(hdev,
++			   "unexpected event for opcode 0x%4.4x", *opcode);
++		return;
++	}
++
+ 	if (atomic_read(&hdev->cmd_cnt) && !skb_queue_empty(&hdev->cmd_q))
+ 		queue_work(hdev->workqueue, &hdev->cmd_work);
+ }
+@@ -3511,6 +3517,12 @@ static void hci_cmd_status_evt(struct hci_dev *hdev, struct sk_buff *skb,
+ 		hci_req_cmd_complete(hdev, *opcode, ev->status, req_complete,
+ 				     req_complete_skb);
+ 
++	if (hci_dev_test_flag(hdev, HCI_CMD_PENDING)) {
++		bt_dev_err(hdev,
++			   "unexpected event for opcode 0x%4.4x", *opcode);
++		return;
++	}
++
+ 	if (atomic_read(&hdev->cmd_cnt) && !skb_queue_empty(&hdev->cmd_q))
+ 		queue_work(hdev->workqueue, &hdev->cmd_work);
+ }
+diff --git a/net/bluetooth/hci_request.c b/net/bluetooth/hci_request.c
+index ca73d36cc1494..e9a95ed654915 100644
+--- a/net/bluetooth/hci_request.c
++++ b/net/bluetooth/hci_request.c
+@@ -46,6 +46,11 @@ void hci_req_purge(struct hci_request *req)
+ 	skb_queue_purge(&req->cmd_q);
+ }
+ 
++bool hci_req_status_pend(struct hci_dev *hdev)
++{
++	return hdev->req_status == HCI_REQ_PEND;
++}
++
+ static int req_run(struct hci_request *req, hci_req_complete_t complete,
+ 		   hci_req_complete_skb_t complete_skb)
+ {
+diff --git a/net/bluetooth/hci_request.h b/net/bluetooth/hci_request.h
+index 692cc8b133682..55b2050cc9ff0 100644
+--- a/net/bluetooth/hci_request.h
++++ b/net/bluetooth/hci_request.h
+@@ -37,6 +37,7 @@ struct hci_request {
+ 
+ void hci_req_init(struct hci_request *req, struct hci_dev *hdev);
+ void hci_req_purge(struct hci_request *req);
++bool hci_req_status_pend(struct hci_dev *hdev);
+ int hci_req_run(struct hci_request *req, hci_req_complete_t complete);
+ int hci_req_run_skb(struct hci_request *req, hci_req_complete_skb_t complete);
+ void hci_req_add(struct hci_request *req, u16 opcode, u32 plen,
 -- 
 2.20.1
 
