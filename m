@@ -2,39 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C93AC2F652
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:55:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 61DDA2F41F
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:36:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728031AbfE3EzD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:55:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47042 "EHLO mail.kernel.org"
+        id S1729967AbfE3EfV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:35:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728029AbfE3DKS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:10:18 -0400
+        id S1729370AbfE3DNO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:13:14 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4B54A2447C;
-        Thu, 30 May 2019 03:10:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA568244B0;
+        Thu, 30 May 2019 03:13:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185818;
-        bh=5vbN2sGhXvL584Ap53AdED5tHV36JbXlhLfe11zdrjw=;
+        s=default; t=1559185993;
+        bh=TowusqZkdbphibd65Bc4guMeYN9nvPInafHrQJQPyqQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qHbAsayC+iA9TS7rgREItVBHdVIGMHP9/kENFYp+NUysFbKKlojMWtXgibPQrHBuF
-         w7w4eF5/PjIBYp1cDy/+fQBONlMUU7MwM/Kg6bPZY3W0IaWdr7dfBUqz+DDkWaT4IC
-         cY8GszVs2XrPZliYiNdUYRpzWSdQHw773edChhKg=
+        b=jPT7KKrQLRCz7xWnGkNRO5PlCNbcdt1NNo2HTrElZuPMnDlOfljKcBmQe0K9nzclU
+         /XIxHQXqmtyZokrBfU+WhO4BTO9MBlBmb/cOYEyuhCgnfncTXpOM2j/j9KemVpSbj1
+         Pn7Od1U6Fwy2+jYeYKI/IktLhKNJ3Wffvt1moJ8w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Will Deacon <will.deacon@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 112/405] arm64: futex: Fix FUTEX_WAKE_OP atomic ops with non-zero result value
+        stable@vger.kernel.org,
+        syzbot+83f2d54ec6b7e417e13f@syzkaller.appspotmail.com,
+        syzbot+050927a651272b145a5d@syzkaller.appspotmail.com,
+        syzbot+979ffc89b87309b1b94b@syzkaller.appspotmail.com,
+        syzbot+f9f3f388440283da2965@syzkaller.appspotmail.com,
+        =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>,
+        Sven Eckelmann <sven@narfation.org>,
+        Simon Wunderlich <sw@simonwunderlich.de>
+Subject: [PATCH 5.0 037/346] batman-adv: mcast: fix multicast tt/tvlv worker locking
 Date:   Wed, 29 May 2019 20:01:50 -0700
-Message-Id: <20190530030546.667811321@linuxfoundation.org>
+Message-Id: <20190530030542.717727452@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,55 +49,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 84ff7a09c371bc7417eabfda19bf7f113ec917b6 ]
+From: Linus Lüssing <linus.luessing@c0d3.blue>
 
-Rather embarrassingly, our futex() FUTEX_WAKE_OP implementation doesn't
-explicitly set the return value on the non-faulting path and instead
-leaves it holding the result of the underlying atomic operation. This
-means that any FUTEX_WAKE_OP atomic operation which computes a non-zero
-value will be reported as having failed. Regrettably, I wrote the buggy
-code back in 2011 and it was upstreamed as part of the initial arm64
-support in 2012.
+commit a3c7cd0cdf1107f891aff847ad481e34df727055 upstream.
 
-The reasons we appear to get away with this are:
+Syzbot has reported some issues with the locking assumptions made for
+the multicast tt/tvlv worker: It was able to trigger the WARN_ON() in
+batadv_mcast_mla_tt_retract() and batadv_mcast_mla_tt_add().
+While hard/not reproduceable for us so far it seems that the
+delayed_work_pending() we use might not be quite safe from reordering.
 
-  1. FUTEX_WAKE_OP is rarely used and therefore doesn't appear to get
-     exercised by futex() test applications
+Therefore this patch adds an explicit, new spinlock to protect the
+update of the mla_list and flags in bat_priv and then removes the
+WARN_ON(delayed_work_pending()).
 
-  2. If the result of the atomic operation is zero, the system call
-     behaves correctly
+Reported-by: syzbot+83f2d54ec6b7e417e13f@syzkaller.appspotmail.com
+Reported-by: syzbot+050927a651272b145a5d@syzkaller.appspotmail.com
+Reported-by: syzbot+979ffc89b87309b1b94b@syzkaller.appspotmail.com
+Reported-by: syzbot+f9f3f388440283da2965@syzkaller.appspotmail.com
+Fixes: cbebd363b2e9 ("batman-adv: Use own timer for multicast TT and TVLV updates")
+Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-  3. Prior to version 2.25, the only operation used by GLIBC set the
-     futex to zero, and therefore worked as expected. From 2.25 onwards,
-     FUTEX_WAKE_OP is not used by GLIBC at all.
-
-Fix the implementation by ensuring that the return value is either 0
-to indicate that the atomic operation completed successfully, or -EFAULT
-if we encountered a fault when accessing the user mapping.
-
-Cc: <stable@kernel.org>
-Fixes: 6170a97460db ("arm64: Atomic operations")
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/futex.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/batman-adv/main.c      |    1 +
+ net/batman-adv/multicast.c |   11 +++--------
+ net/batman-adv/types.h     |    5 +++++
+ 3 files changed, 9 insertions(+), 8 deletions(-)
 
-diff --git a/arch/arm64/include/asm/futex.h b/arch/arm64/include/asm/futex.h
-index 6fb2214333a24..2d78ea6932b7b 100644
---- a/arch/arm64/include/asm/futex.h
-+++ b/arch/arm64/include/asm/futex.h
-@@ -58,7 +58,7 @@ do {									\
- static inline int
- arch_futex_atomic_op_inuser(int op, int oparg, int *oval, u32 __user *_uaddr)
- {
--	int oldval = 0, ret, tmp;
-+	int oldval, ret, tmp;
- 	u32 __user *uaddr = __uaccess_mask_ptr(_uaddr);
+--- a/net/batman-adv/main.c
++++ b/net/batman-adv/main.c
+@@ -161,6 +161,7 @@ int batadv_mesh_init(struct net_device *
+ 	spin_lock_init(&bat_priv->tt.commit_lock);
+ 	spin_lock_init(&bat_priv->gw.list_lock);
+ #ifdef CONFIG_BATMAN_ADV_MCAST
++	spin_lock_init(&bat_priv->mcast.mla_lock);
+ 	spin_lock_init(&bat_priv->mcast.want_lists_lock);
+ #endif
+ 	spin_lock_init(&bat_priv->tvlv.container_list_lock);
+--- a/net/batman-adv/multicast.c
++++ b/net/batman-adv/multicast.c
+@@ -325,8 +325,6 @@ static void batadv_mcast_mla_list_free(s
+  * translation table except the ones listed in the given mcast_list.
+  *
+  * If mcast_list is NULL then all are retracted.
+- *
+- * Do not call outside of the mcast worker! (or cancel mcast worker first)
+  */
+ static void batadv_mcast_mla_tt_retract(struct batadv_priv *bat_priv,
+ 					struct hlist_head *mcast_list)
+@@ -334,8 +332,6 @@ static void batadv_mcast_mla_tt_retract(
+ 	struct batadv_hw_addr *mcast_entry;
+ 	struct hlist_node *tmp;
  
- 	pagefault_disable();
--- 
-2.20.1
-
+-	WARN_ON(delayed_work_pending(&bat_priv->mcast.work));
+-
+ 	hlist_for_each_entry_safe(mcast_entry, tmp, &bat_priv->mcast.mla_list,
+ 				  list) {
+ 		if (mcast_list &&
+@@ -359,8 +355,6 @@ static void batadv_mcast_mla_tt_retract(
+  *
+  * Adds multicast listener announcements from the given mcast_list to the
+  * translation table if they have not been added yet.
+- *
+- * Do not call outside of the mcast worker! (or cancel mcast worker first)
+  */
+ static void batadv_mcast_mla_tt_add(struct batadv_priv *bat_priv,
+ 				    struct hlist_head *mcast_list)
+@@ -368,8 +362,6 @@ static void batadv_mcast_mla_tt_add(stru
+ 	struct batadv_hw_addr *mcast_entry;
+ 	struct hlist_node *tmp;
+ 
+-	WARN_ON(delayed_work_pending(&bat_priv->mcast.work));
+-
+ 	if (!mcast_list)
+ 		return;
+ 
+@@ -658,7 +650,10 @@ static void batadv_mcast_mla_update(stru
+ 	priv_mcast = container_of(delayed_work, struct batadv_priv_mcast, work);
+ 	bat_priv = container_of(priv_mcast, struct batadv_priv, mcast);
+ 
++	spin_lock(&bat_priv->mcast.mla_lock);
+ 	__batadv_mcast_mla_update(bat_priv);
++	spin_unlock(&bat_priv->mcast.mla_lock);
++
+ 	batadv_mcast_start_timer(bat_priv);
+ }
+ 
+--- a/net/batman-adv/types.h
++++ b/net/batman-adv/types.h
+@@ -1224,6 +1224,11 @@ struct batadv_priv_mcast {
+ 	unsigned char bridged:1;
+ 
+ 	/**
++	 * @mla_lock: a lock protecting mla_list and mla_flags
++	 */
++	spinlock_t mla_lock;
++
++	/**
+ 	 * @num_want_all_unsnoopables: number of nodes wanting unsnoopable IP
+ 	 *  traffic
+ 	 */
 
 
