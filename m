@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 416F62F68D
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:57:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A128E2F443
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:36:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728027AbfE3E5E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:57:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45216 "EHLO mail.kernel.org"
+        id S2388120AbfE3Egn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:36:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727875AbfE3DJ7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:09:59 -0400
+        id S1729301AbfE3DM5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:12:57 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BD7EB24493;
-        Thu, 30 May 2019 03:09:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DAF9A244E8;
+        Thu, 30 May 2019 03:12:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185798;
-        bh=UT5ptIzvBWmArzRHvLDDWZswCaWyxEW9/R4B4KcsSDk=;
+        s=default; t=1559185976;
+        bh=oi8lKQ5r/i49dFb9dykc0Y0t9E2sFOuG489GbRWGmc4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M0TuE1mVhYHNTGga2n7vWuTrsewZs//CPnM1FP8MTRGPo78BYUCU8ZVsKx74x2TEs
-         q6PAIHgr18Vw7ApoEF2xiwJOf9c+WuEF7egvh8mOWlNfy+p2viasHtloIxcYG9RUGK
-         RXxwJFdnyxfu71h6yEDuHFVdkq3IbIWRHZZreryA=
+        b=kevY+k94O/zBFhLGYTF4ou4qsWGS9cw6sJ0oEbRqLRzdsBvTVoApvQJQE9UpBaZUG
+         7SuoRXZl8mMBjsrhDkARTcVKO6zS0WaDnidXbRgw5xDNju1PDae7rfvaJZuujkXHvj
+         O40niDGv9rYlc5Dca4J9i2Z4HjKAYCMaasmdjIB0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bo YU <tsu.yubo@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 075/405] powerpc/boot: Fix missing check of lseek() return value
-Date:   Wed, 29 May 2019 20:01:13 -0700
-Message-Id: <20190530030544.744962607@linuxfoundation.org>
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Subject: [PATCH 5.0 001/346] x86: Hide the int3_emulate_call/jmp functions from UML
+Date:   Wed, 29 May 2019 20:01:14 -0700
+Message-Id: <20190530030540.450712739@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -44,36 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 5d085ec04a000fefb5182d3b03ee46ca96d8389b ]
+From: Steven Rostedt (VMware) <rostedt@goodmis.org>
 
-This is detected by Coverity scan: CID: 1440481
+commit 693713cbdb3a4bda5a8a678c31f06560bbb14657 upstream.
 
-Signed-off-by: Bo YU <tsu.yubo@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+User Mode Linux does not have access to the ip or sp fields of the pt_regs,
+and accessing them causes UML to fail to build. Hide the int3_emulate_jmp()
+and int3_emulate_call() instructions from UML, as it doesn't need them
+anyway.
+
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/powerpc/boot/addnote.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ arch/x86/include/asm/text-patching.h |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/boot/addnote.c b/arch/powerpc/boot/addnote.c
-index 9d9f6f334d3cc..3da3e2b1b51bc 100644
---- a/arch/powerpc/boot/addnote.c
-+++ b/arch/powerpc/boot/addnote.c
-@@ -223,7 +223,11 @@ main(int ac, char **av)
- 	PUT_16(E_PHNUM, np + 2);
+--- a/arch/x86/include/asm/text-patching.h
++++ b/arch/x86/include/asm/text-patching.h
+@@ -39,6 +39,7 @@ extern int poke_int3_handler(struct pt_r
+ extern void *text_poke_bp(void *addr, const void *opcode, size_t len, void *handler);
+ extern int after_bootmem;
  
- 	/* write back */
--	lseek(fd, (long) 0, SEEK_SET);
-+	i = lseek(fd, (long) 0, SEEK_SET);
-+	if (i < 0) {
-+		perror("lseek");
-+		exit(1);
-+	}
- 	i = write(fd, buf, n);
- 	if (i < 0) {
- 		perror("write");
--- 
-2.20.1
-
++#ifndef CONFIG_UML_X86
+ static inline void int3_emulate_jmp(struct pt_regs *regs, unsigned long ip)
+ {
+ 	regs->ip = ip;
+@@ -65,6 +66,7 @@ static inline void int3_emulate_call(str
+ 	int3_emulate_push(regs, regs->ip - INT3_INSN_SIZE + CALL_INSN_SIZE);
+ 	int3_emulate_jmp(regs, func);
+ }
+-#endif
++#endif /* CONFIG_X86_64 */
++#endif /* !CONFIG_UML_X86 */
+ 
+ #endif /* _ASM_X86_TEXT_PATCHING_H */
 
 
