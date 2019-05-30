@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 83FB52F381
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:29:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 296092EBD5
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:16:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729659AbfE3E3y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:29:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60758 "EHLO mail.kernel.org"
+        id S1729346AbfE3DQV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:16:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729652AbfE3DOA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:14:00 -0400
+        id S1729638AbfE3DQV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:16:21 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2D5982455A;
-        Thu, 30 May 2019 03:13:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5CC472449A;
+        Thu, 30 May 2019 03:16:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186039;
-        bh=u+nUiTKKKXyldh9p4wc93XIBYk6vNLNZaGRrS5m1MzU=;
+        s=default; t=1559186180;
+        bh=Fp+7aUbF1D0lC5iS9T91xccEwGSLKcrbLj5HiBvAS/M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LI7FODCjVCgJD0HJNZ6AN8bG/wtB3YKsvgmBG5XF2boy/3WDBSblzAGGCvzCcy42R
-         IXIS0v5yOZXfXTt1zyRhW9lktnkdcavwlmEh03zo4r6muOKYtXo/gZ0L01sgbaavUM
-         /L6EuZDXa18BK9+zgf1m4BGI1JnH//OUbqnApeLE=
+        b=SQqw7nmoC0IXFxCxrD51zZNIY1Z0bY6lX8ZGJWvRcaiC1wW0JFoub5u8ciB9RgTcO
+         AqAc9BSadOYQc9ldylNyfVtKsKs+diL+LJPm6wCgLHkXDelPXcPDHzMX0q3FPiSTiE
+         cZZpuFbwL/8BzBHy8E/stCDTfLUP8X2BFcogHHoU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>, luto@kernel.org,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 128/346] mm/uaccess: Use unsigned long to placate UBSAN warnings on older GCC versions
-Date:   Wed, 29 May 2019 20:03:21 -0700
-Message-Id: <20190530030547.598146383@linuxfoundation.org>
+        stable@vger.kernel.org, Ross Lagerwall <ross.lagerwall@citrix.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 044/276] gfs2: Fix lru_count going negative
+Date:   Wed, 29 May 2019 20:03:22 -0700
+Message-Id: <20190530030527.354324148@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,74 +44,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 29da93fea3ea39ab9b12270cc6be1b70ef201c9e ]
+[ Upstream commit 7881ef3f33bb80f459ea6020d1e021fc524a6348 ]
 
-Randy reported objtool triggered on his (GCC-7.4) build:
+Under certain conditions, lru_count may drop below zero resulting in
+a large amount of log spam like this:
 
-  lib/strncpy_from_user.o: warning: objtool: strncpy_from_user()+0x315: call to __ubsan_handle_add_overflow() with UACCESS enabled
-  lib/strnlen_user.o: warning: objtool: strnlen_user()+0x337: call to __ubsan_handle_sub_overflow() with UACCESS enabled
+vmscan: shrink_slab: gfs2_dump_glock+0x3b0/0x630 [gfs2] \
+    negative objects to delete nr=-1
 
-This is due to UBSAN generating signed-overflow-UB warnings where it
-should not. Prior to GCC-8 UBSAN ignored -fwrapv (which the kernel
-uses through -fno-strict-overflow).
+This happens as follows:
+1) A glock is moved from lru_list to the dispose list and lru_count is
+   decremented.
+2) The dispose function calls cond_resched() and drops the lru lock.
+3) Another thread takes the lru lock and tries to add the same glock to
+   lru_list, checking if the glock is on an lru list.
+4) It is on a list (actually the dispose list) and so it avoids
+   incrementing lru_count.
+5) The glock is moved to lru_list.
+5) The original thread doesn't dispose it because it has been re-added
+   to the lru list but the lru_count has still decreased by one.
 
-Make the functions use 'unsigned long' throughout.
+Fix by checking if the LRU flag is set on the glock rather than checking
+if the glock is on some list and rearrange the code so that the LRU flag
+is added/removed precisely when the glock is added/removed from lru_list.
 
-Reported-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Randy Dunlap <rdunlap@infradead.org> # build-tested
-Acked-by: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: luto@kernel.org
-Link: http://lkml.kernel.org/r/20190424072208.754094071@infradead.org
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Ross Lagerwall <ross.lagerwall@citrix.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/strncpy_from_user.c | 5 +++--
- lib/strnlen_user.c      | 4 ++--
- 2 files changed, 5 insertions(+), 4 deletions(-)
+ fs/gfs2/glock.c | 22 +++++++++++++---------
+ 1 file changed, 13 insertions(+), 9 deletions(-)
 
-diff --git a/lib/strncpy_from_user.c b/lib/strncpy_from_user.c
-index 58eacd41526c5..023ba9f3b99f0 100644
---- a/lib/strncpy_from_user.c
-+++ b/lib/strncpy_from_user.c
-@@ -23,10 +23,11 @@
-  * hit it), 'max' is the address space maximum (and we return
-  * -EFAULT if we hit it).
-  */
--static inline long do_strncpy_from_user(char *dst, const char __user *src, long count, unsigned long max)
-+static inline long do_strncpy_from_user(char *dst, const char __user *src,
-+					unsigned long count, unsigned long max)
+diff --git a/fs/gfs2/glock.c b/fs/gfs2/glock.c
+index 9d566e62684c2..775256141e9fb 100644
+--- a/fs/gfs2/glock.c
++++ b/fs/gfs2/glock.c
+@@ -183,15 +183,19 @@ static int demote_ok(const struct gfs2_glock *gl)
+ 
+ void gfs2_glock_add_to_lru(struct gfs2_glock *gl)
  {
- 	const struct word_at_a_time constants = WORD_AT_A_TIME_CONSTANTS;
--	long res = 0;
-+	unsigned long res = 0;
++	if (!(gl->gl_ops->go_flags & GLOF_LRU))
++		return;
++
+ 	spin_lock(&lru_lock);
  
- 	/*
- 	 * Truncate 'max' to the user-specified limit, so that
-diff --git a/lib/strnlen_user.c b/lib/strnlen_user.c
-index 1c1a1b0e38a5f..7f2db3fe311fd 100644
---- a/lib/strnlen_user.c
-+++ b/lib/strnlen_user.c
-@@ -28,7 +28,7 @@
- static inline long do_strnlen_user(const char __user *src, unsigned long count, unsigned long max)
- {
- 	const struct word_at_a_time constants = WORD_AT_A_TIME_CONSTANTS;
--	long align, res = 0;
-+	unsigned long align, res = 0;
- 	unsigned long c;
+-	if (!list_empty(&gl->gl_lru))
+-		list_del_init(&gl->gl_lru);
+-	else
++	list_del(&gl->gl_lru);
++	list_add_tail(&gl->gl_lru, &lru_list);
++
++	if (!test_bit(GLF_LRU, &gl->gl_flags)) {
++		set_bit(GLF_LRU, &gl->gl_flags);
+ 		atomic_inc(&lru_count);
++	}
  
- 	/*
-@@ -42,7 +42,7 @@ static inline long do_strnlen_user(const char __user *src, unsigned long count,
- 	 * Do everything aligned. But that means that we
- 	 * need to also expand the maximum..
- 	 */
--	align = (sizeof(long) - 1) & (unsigned long)src;
-+	align = (sizeof(unsigned long) - 1) & (unsigned long)src;
- 	src -= align;
- 	max += align;
+-	list_add_tail(&gl->gl_lru, &lru_list);
+-	set_bit(GLF_LRU, &gl->gl_flags);
+ 	spin_unlock(&lru_lock);
+ }
  
+@@ -201,7 +205,7 @@ static void gfs2_glock_remove_from_lru(struct gfs2_glock *gl)
+ 		return;
+ 
+ 	spin_lock(&lru_lock);
+-	if (!list_empty(&gl->gl_lru)) {
++	if (test_bit(GLF_LRU, &gl->gl_flags)) {
+ 		list_del_init(&gl->gl_lru);
+ 		atomic_dec(&lru_count);
+ 		clear_bit(GLF_LRU, &gl->gl_flags);
+@@ -1158,8 +1162,7 @@ void gfs2_glock_dq(struct gfs2_holder *gh)
+ 		    !test_bit(GLF_DEMOTE, &gl->gl_flags))
+ 			fast_path = 1;
+ 	}
+-	if (!test_bit(GLF_LFLUSH, &gl->gl_flags) && demote_ok(gl) &&
+-	    (glops->go_flags & GLOF_LRU))
++	if (!test_bit(GLF_LFLUSH, &gl->gl_flags) && demote_ok(gl))
+ 		gfs2_glock_add_to_lru(gl);
+ 
+ 	trace_gfs2_glock_queue(gh, 0);
+@@ -1455,6 +1458,7 @@ __acquires(&lru_lock)
+ 		if (!spin_trylock(&gl->gl_lockref.lock)) {
+ add_back_to_lru:
+ 			list_add(&gl->gl_lru, &lru_list);
++			set_bit(GLF_LRU, &gl->gl_flags);
+ 			atomic_inc(&lru_count);
+ 			continue;
+ 		}
+@@ -1462,7 +1466,6 @@ __acquires(&lru_lock)
+ 			spin_unlock(&gl->gl_lockref.lock);
+ 			goto add_back_to_lru;
+ 		}
+-		clear_bit(GLF_LRU, &gl->gl_flags);
+ 		gl->gl_lockref.count++;
+ 		if (demote_ok(gl))
+ 			handle_callback(gl, LM_ST_UNLOCKED, 0, false);
+@@ -1497,6 +1500,7 @@ static long gfs2_scan_glock_lru(int nr)
+ 		if (!test_bit(GLF_LOCK, &gl->gl_flags)) {
+ 			list_move(&gl->gl_lru, &dispose);
+ 			atomic_dec(&lru_count);
++			clear_bit(GLF_LRU, &gl->gl_flags);
+ 			freed++;
+ 			continue;
+ 		}
 -- 
 2.20.1
 
