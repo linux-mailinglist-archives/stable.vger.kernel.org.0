@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 72BAE2F48C
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:39:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C8522F063
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:03:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729139AbfE3EjN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:39:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55808 "EHLO mail.kernel.org"
+        id S1727873AbfE3EDa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:03:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729142AbfE3DMj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:12:39 -0400
+        id S1731345AbfE3DR5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:17:57 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 85F08244B0;
-        Thu, 30 May 2019 03:12:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E7D0924745;
+        Thu, 30 May 2019 03:17:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185959;
-        bh=veMxMigceTlUS8pLalrLar0Xh3MhnseaAOb7bVHQTNM=;
+        s=default; t=1559186276;
+        bh=LzKJXOeiQ17vHM3+ckSUF66amKUIRGoN2NeYO7IoEGU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z0eOFodjQSLUphLSyU9Z9+/+Huam3ndez+uV+T23L53be9h1pf93kQcfUmVlUh6aH
-         oQrmj/s3Wahl7t1YUidqOhk7srRJXHUe97sWAD0Aw4Gg01bKtaFHd/WDCu0Oof6hLx
-         yPjFUbEmNkuDCZVMG/HNwqi3Ph3Sj2klG6RyWiPM=
+        b=v8CkNfM7+8d7l8hhBw0dDUrC404EwLqzfRs1FRr+vsn78EHQb9i6HU2OLf3/a1j2r
+         NGZfoXAJ3ax1t6dP0mwxqsmYgw6cozLIV6s6Y6TGYoL4m4O1rDIOwJCikyOmfYXCKT
+         x4i5h6jrmBA21f1G8ZcF0vRvVb8IOeTOHyTZ+EmE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Adam Thomson <Adam.Thomson.Opensource@diasemi.com>,
-        Steve Twiss <stwiss.opensource@diasemi.com>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Sowjanya Komatineni <skomatineni@nvidia.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 378/405] regulator: wm831x isink: Fix notifier mutex lock warning
+Subject: [PATCH 4.19 218/276] spi: tegra114: reset controller on probe
 Date:   Wed, 29 May 2019 20:06:16 -0700
-Message-Id: <20190530030559.860216375@linuxfoundation.org>
+Message-Id: <20190530030538.756988156@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,43 +45,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f7a621728a6a23bfd2c6ac4d3e42e1303aefde0f ]
+[ Upstream commit 019194933339b3e9b486639c8cb3692020844d65 ]
 
-The mutex for the regulator_dev must be controlled by the caller of
-the regulator_notifier_call_chain(), as described in the comment
-for that function.
+Fixes: SPI driver can be built as module so perform SPI controller reset
+on probe to make sure it is in valid state before initiating transfer.
 
-Failure to mutex lock and unlock surrounding the notifier call results
-in a kernel WARN_ON_ONCE() which will dump a backtrace for the
-regulator_notifier_call_chain() when that function call is first made.
-The mutex can be controlled using the regulator_lock/unlock() API.
-
-Fixes: d4d6b722e780 ("regulator: Add WM831x ISINK support")
-Suggested-by: Adam Thomson <Adam.Thomson.Opensource@diasemi.com>
-Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
-Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/wm831x-isink.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/spi/spi-tegra114.c | 32 ++++++++++++++++++--------------
+ 1 file changed, 18 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/regulator/wm831x-isink.c b/drivers/regulator/wm831x-isink.c
-index 6dd891d7eee3b..11f351191dba9 100644
---- a/drivers/regulator/wm831x-isink.c
-+++ b/drivers/regulator/wm831x-isink.c
-@@ -140,9 +140,11 @@ static irqreturn_t wm831x_isink_irq(int irq, void *data)
- {
- 	struct wm831x_isink *isink = data;
+diff --git a/drivers/spi/spi-tegra114.c b/drivers/spi/spi-tegra114.c
+index a76acedd7e2f4..a1888dc6a938a 100644
+--- a/drivers/spi/spi-tegra114.c
++++ b/drivers/spi/spi-tegra114.c
+@@ -1067,27 +1067,19 @@ static int tegra_spi_probe(struct platform_device *pdev)
  
-+	regulator_lock(isink->regulator);
- 	regulator_notifier_call_chain(isink->regulator,
- 				      REGULATOR_EVENT_OVER_CURRENT,
- 				      NULL);
-+	regulator_unlock(isink->regulator);
+ 	spi_irq = platform_get_irq(pdev, 0);
+ 	tspi->irq = spi_irq;
+-	ret = request_threaded_irq(tspi->irq, tegra_spi_isr,
+-			tegra_spi_isr_thread, IRQF_ONESHOT,
+-			dev_name(&pdev->dev), tspi);
+-	if (ret < 0) {
+-		dev_err(&pdev->dev, "Failed to register ISR for IRQ %d\n",
+-					tspi->irq);
+-		goto exit_free_master;
+-	}
  
- 	return IRQ_HANDLED;
- }
+ 	tspi->clk = devm_clk_get(&pdev->dev, "spi");
+ 	if (IS_ERR(tspi->clk)) {
+ 		dev_err(&pdev->dev, "can not get clock\n");
+ 		ret = PTR_ERR(tspi->clk);
+-		goto exit_free_irq;
++		goto exit_free_master;
+ 	}
+ 
+ 	tspi->rst = devm_reset_control_get_exclusive(&pdev->dev, "spi");
+ 	if (IS_ERR(tspi->rst)) {
+ 		dev_err(&pdev->dev, "can not get reset\n");
+ 		ret = PTR_ERR(tspi->rst);
+-		goto exit_free_irq;
++		goto exit_free_master;
+ 	}
+ 
+ 	tspi->max_buf_size = SPI_FIFO_DEPTH << 2;
+@@ -1095,7 +1087,7 @@ static int tegra_spi_probe(struct platform_device *pdev)
+ 
+ 	ret = tegra_spi_init_dma_param(tspi, true);
+ 	if (ret < 0)
+-		goto exit_free_irq;
++		goto exit_free_master;
+ 	ret = tegra_spi_init_dma_param(tspi, false);
+ 	if (ret < 0)
+ 		goto exit_rx_dma_free;
+@@ -1117,18 +1109,32 @@ static int tegra_spi_probe(struct platform_device *pdev)
+ 		dev_err(&pdev->dev, "pm runtime get failed, e = %d\n", ret);
+ 		goto exit_pm_disable;
+ 	}
++
++	reset_control_assert(tspi->rst);
++	udelay(2);
++	reset_control_deassert(tspi->rst);
+ 	tspi->def_command1_reg  = SPI_M_S;
+ 	tegra_spi_writel(tspi, tspi->def_command1_reg, SPI_COMMAND1);
+ 	pm_runtime_put(&pdev->dev);
++	ret = request_threaded_irq(tspi->irq, tegra_spi_isr,
++				   tegra_spi_isr_thread, IRQF_ONESHOT,
++				   dev_name(&pdev->dev), tspi);
++	if (ret < 0) {
++		dev_err(&pdev->dev, "Failed to register ISR for IRQ %d\n",
++			tspi->irq);
++		goto exit_pm_disable;
++	}
+ 
+ 	master->dev.of_node = pdev->dev.of_node;
+ 	ret = devm_spi_register_master(&pdev->dev, master);
+ 	if (ret < 0) {
+ 		dev_err(&pdev->dev, "can not register to master err %d\n", ret);
+-		goto exit_pm_disable;
++		goto exit_free_irq;
+ 	}
+ 	return ret;
+ 
++exit_free_irq:
++	free_irq(spi_irq, tspi);
+ exit_pm_disable:
+ 	pm_runtime_disable(&pdev->dev);
+ 	if (!pm_runtime_status_suspended(&pdev->dev))
+@@ -1136,8 +1142,6 @@ static int tegra_spi_probe(struct platform_device *pdev)
+ 	tegra_spi_deinit_dma_param(tspi, false);
+ exit_rx_dma_free:
+ 	tegra_spi_deinit_dma_param(tspi, true);
+-exit_free_irq:
+-	free_irq(spi_irq, tspi);
+ exit_free_master:
+ 	spi_master_put(master);
+ 	return ret;
 -- 
 2.20.1
 
