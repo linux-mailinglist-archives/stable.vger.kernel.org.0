@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 741EA2EE19
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:44:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 642782EEF6
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:51:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729820AbfE3DoS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:44:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60788 "EHLO mail.kernel.org"
+        id S1732177AbfE3Dvd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:51:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732397AbfE3DU7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:20:59 -0400
+        id S1728130AbfE3DTq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:19:46 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9D12C249A0;
-        Thu, 30 May 2019 03:20:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 50A38248AF;
+        Thu, 30 May 2019 03:19:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186458;
-        bh=zabL5YfqfgkOhrTRcXafw5T08OQA8mRkWoJ70DYQGDc=;
+        s=default; t=1559186385;
+        bh=N70H1+R5SeViVNqndvuL3AyU8G493F/y+Q0HGRBG2lk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t4TvQxcKwdQALmGRJM+koAToXob8SHAn6wYH54WVAaqJCJtx4fOJ0pwx4vzsKjLy0
-         XRiLJz24iZB4D7ApGgmAZAU0BkLbmm3TWI4HcIOK7G0Z7WRxCmX59URP5KbsFWSZ2b
-         1XZLXI0XHWhobzl8LXkMyNOYXKip4VVH4g45EWwM=
+        b=odhoDSHIijj1FfMxRccGUcThlgtPBJc2Mt2OJj2Iygq1rmiIvvf+MHuDhygnRC8wf
+         DcwFiQZca8C8f3YnC8AzAza+WcYzb9gMLlgwTUn7+Y//qlPNHURY+Tbx8XO2bD8wz3
+         Z47at8YiRdXIQNLtZE32vFYCm5mgbe4P2U1fqp90=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kefeng Wang <wangkefeng.wang@huawei.com>,
-        John Garry <john.garry@huawei.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 074/128] hwmon: (smsc47b397) Use request_muxed_region for Super-IO accesses
+        stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 152/193] x86/uaccess, ftrace: Fix ftrace_likely_update() vs. SMAP
 Date:   Wed, 29 May 2019 20:06:46 -0700
-Message-Id: <20190530030447.969984888@linuxfoundation.org>
+Message-Id: <20190530030509.374491243@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
-References: <20190530030432.977908967@linuxfoundation.org>
+In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
+References: <20190530030446.953835040@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,67 +49,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 8c0826756744c0ac1df600a5e4cca1a341b13101 ]
+[ Upstream commit 4a6c91fbdef846ec7250b82f2eeeb87ac5f18cf9 ]
 
-Super-IO accesses may fail on a system with no or unmapped LPC bus.
+For CONFIG_TRACE_BRANCH_PROFILING=y the likely/unlikely things get
+overloaded and generate callouts to this code, and thus also when
+AC=1.
 
-Also, other drivers may attempt to access the LPC bus at the same time,
-resulting in undefined behavior.
+Make it safe.
 
-Use request_muxed_region() to ensure that IO access on the requested
-address space is supported, and to ensure that access by multiple drivers
-is synchronized.
-
-Fixes: 8d5d45fb1468 ("I2C: Move hwmon drivers (2/3)")
-Reported-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Reported-by: John Garry <john.garry@huawei.com>
-Cc: John Garry <john.garry@huawei.com>
-Acked-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/smsc47b397.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ kernel/trace/trace_branch.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/hwmon/smsc47b397.c b/drivers/hwmon/smsc47b397.c
-index 6bd2007565603..cbdb5c4991ae3 100644
---- a/drivers/hwmon/smsc47b397.c
-+++ b/drivers/hwmon/smsc47b397.c
-@@ -72,14 +72,19 @@ static inline void superio_select(int ld)
- 	superio_outb(0x07, ld);
- }
- 
--static inline void superio_enter(void)
-+static inline int superio_enter(void)
+diff --git a/kernel/trace/trace_branch.c b/kernel/trace/trace_branch.c
+index 4ad967453b6fb..3ea65cdff30d5 100644
+--- a/kernel/trace/trace_branch.c
++++ b/kernel/trace/trace_branch.c
+@@ -205,6 +205,8 @@ void trace_likely_condition(struct ftrace_likely_data *f, int val, int expect)
+ void ftrace_likely_update(struct ftrace_likely_data *f, int val,
+ 			  int expect, int is_constant)
  {
-+	if (!request_muxed_region(REG, 2, DRVNAME))
-+		return -EBUSY;
++	unsigned long flags = user_access_save();
 +
- 	outb(0x55, REG);
-+	return 0;
- }
- 
- static inline void superio_exit(void)
- {
- 	outb(0xAA, REG);
-+	release_region(REG, 2);
- }
- 
- #define SUPERIO_REG_DEVID	0x20
-@@ -300,8 +305,12 @@ static int __init smsc47b397_find(void)
- 	u8 id, rev;
- 	char *name;
- 	unsigned short addr;
-+	int err;
+ 	/* A constant is always correct */
+ 	if (is_constant) {
+ 		f->constant++;
+@@ -223,6 +225,8 @@ void ftrace_likely_update(struct ftrace_likely_data *f, int val,
+ 		f->data.correct++;
+ 	else
+ 		f->data.incorrect++;
 +
-+	err = superio_enter();
-+	if (err)
-+		return err;
++	user_access_restore(flags);
+ }
+ EXPORT_SYMBOL(ftrace_likely_update);
  
--	superio_enter();
- 	id = force_id ? force_id : superio_inb(SUPERIO_REG_DEVID);
- 
- 	switch (id) {
 -- 
 2.20.1
 
