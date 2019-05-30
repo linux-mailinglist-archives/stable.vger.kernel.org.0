@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 943A12EC76
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:22:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 222272EC1D
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:18:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727394AbfE3DVL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:21:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33224 "EHLO mail.kernel.org"
+        id S1729899AbfE3DSY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:18:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732475AbfE3DVK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:21:10 -0400
+        id S1731524AbfE3DSX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:18:23 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D8A2B249C2;
-        Thu, 30 May 2019 03:21:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 965EF247B7;
+        Thu, 30 May 2019 03:18:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186469;
-        bh=dFVTRMQShWSKyV+DNlr1H0V44BM6jzEICjqpG4UeNmU=;
+        s=default; t=1559186302;
+        bh=SUtdxd2XvZEpCCTWuOGbP1NoKjrxUrq5fr2HHhTeWUs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sb3FusQ9EiQfb+8ljlP4ZfbI5bRXrplpDi2OgL7M+MF8qJFJjfTVZ41MDm+x3fG5W
-         rWTCx1HaG2ltpTNgulSo0fp9zC5PgXVMHf1JIfct7wqBplPeoX/eyu27lQZhz03UdN
-         Uf15IjYb19eXG8fopU5L06Ik7yzrrOMAvWHmJcXo=
+        b=tZsl1iWwBYoSpIOK4RHGnJWa8W1ufHgqQHz9CQ+Otp3MRg49ANApwtJAgmmXmrm0F
+         vnP8Xr3gwX1lLDxiWuUrK28yQsIuW4T5gFB/HBuN1H8gmKgnqIZpJ3mYOg7UOXxe7g
+         BG92zig1+DnOA1wCDJJIiqY50ivuUOZdkFzLbVtw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Larry Finger <Larry.Finger@lwfinger.net>,
+        Peter Ujfalusi <peter.ujfalusi@ti.com>,
         Nathan Chancellor <natechancellor@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 095/128] b43: shut up clang -Wuninitialized variable warning
+Subject: [PATCH 4.19 269/276] ASoC: davinci-mcasp: Fix clang warning without CONFIG_PM
 Date:   Wed, 29 May 2019 20:07:07 -0700
-Message-Id: <20190530030451.719097680@linuxfoundation.org>
+Message-Id: <20190530030542.030155180@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
-References: <20190530030432.977908967@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,67 +46,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d825db346270dbceef83b7b750dbc29f1d7dcc0e ]
+[ Upstream commit 8ca5104715cfd14254ea5aecc390ae583b707607 ]
 
-Clang warns about what is clearly a case of passing an uninitalized
-variable into a static function:
+Building with clang shows a variable that is only used by the
+suspend/resume functions but defined outside of their #ifdef block:
 
-drivers/net/wireless/broadcom/b43/phy_lp.c:1852:23: error: variable 'gains' is uninitialized when used here
-      [-Werror,-Wuninitialized]
-                lpphy_papd_cal(dev, gains, 0, 1, 30);
-                                    ^~~~~
-drivers/net/wireless/broadcom/b43/phy_lp.c:1838:2: note: variable 'gains' is declared here
-        struct lpphy_tx_gains gains, oldgains;
-        ^
-1 error generated.
+sound/soc/ti/davinci-mcasp.c:48:12: error: variable 'context_regs' is not needed and will not be emitted
 
-However, this function is empty, and its arguments are never evaluated,
-so gcc in contrast does not warn here. Both compilers behave in a
-reasonable way as far as I can tell, so we should change the code
-to avoid the warning everywhere.
+We commonly fix these by marking the PM functions as __maybe_unused,
+but here that would grow the davinci_mcasp structure, so instead
+add another #ifdef here.
 
-We could just eliminate the lpphy_papd_cal() function entirely,
-given that it has had the TODO comment in it for 10 years now
-and is rather unlikely to ever get done. I'm doing a simpler
-change here, and just pass the 'oldgains' variable in that has
-been initialized, based on the guess that this is what was
-originally meant.
-
-Fixes: 2c0d6100da3e ("b43: LP-PHY: Begin implementing calibration & software RFKILL support")
+Fixes: 1cc0c054f380 ("ASoC: davinci-mcasp: Convert the context save/restore to use array")
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Larry Finger <Larry.Finger@lwfinger.net>
+Acked-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
 Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/broadcom/b43/phy_lp.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ sound/soc/davinci/davinci-mcasp.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/wireless/broadcom/b43/phy_lp.c b/drivers/net/wireless/broadcom/b43/phy_lp.c
-index 6922cbb99a044..5a0699fb4b9ab 100644
---- a/drivers/net/wireless/broadcom/b43/phy_lp.c
-+++ b/drivers/net/wireless/broadcom/b43/phy_lp.c
-@@ -1834,7 +1834,7 @@ static void lpphy_papd_cal(struct b43_wldev *dev, struct lpphy_tx_gains gains,
- static void lpphy_papd_cal_txpwr(struct b43_wldev *dev)
- {
- 	struct b43_phy_lp *lpphy = dev->phy.lp;
--	struct lpphy_tx_gains gains, oldgains;
-+	struct lpphy_tx_gains oldgains;
- 	int old_txpctl, old_afe_ovr, old_rf, old_bbmult;
+diff --git a/sound/soc/davinci/davinci-mcasp.c b/sound/soc/davinci/davinci-mcasp.c
+index f70db8412c7cc..160b2764b2ad8 100644
+--- a/sound/soc/davinci/davinci-mcasp.c
++++ b/sound/soc/davinci/davinci-mcasp.c
+@@ -43,6 +43,7 @@
  
- 	lpphy_read_tx_pctl_mode_from_hardware(dev);
-@@ -1848,9 +1848,9 @@ static void lpphy_papd_cal_txpwr(struct b43_wldev *dev)
- 	lpphy_set_tx_power_control(dev, B43_LPPHY_TXPCTL_OFF);
+ #define MCASP_MAX_AFIFO_DEPTH	64
  
- 	if (dev->dev->chip_id == 0x4325 && dev->dev->chip_rev == 0)
--		lpphy_papd_cal(dev, gains, 0, 1, 30);
-+		lpphy_papd_cal(dev, oldgains, 0, 1, 30);
- 	else
--		lpphy_papd_cal(dev, gains, 0, 1, 65);
-+		lpphy_papd_cal(dev, oldgains, 0, 1, 65);
++#ifdef CONFIG_PM
+ static u32 context_regs[] = {
+ 	DAVINCI_MCASP_TXFMCTL_REG,
+ 	DAVINCI_MCASP_RXFMCTL_REG,
+@@ -65,6 +66,7 @@ struct davinci_mcasp_context {
+ 	u32	*xrsr_regs; /* for serializer configuration */
+ 	bool	pm_state;
+ };
++#endif
  
- 	if (old_afe_ovr)
- 		lpphy_set_tx_gains(dev, oldgains);
+ struct davinci_mcasp_ruledata {
+ 	struct davinci_mcasp *mcasp;
 -- 
 2.20.1
 
