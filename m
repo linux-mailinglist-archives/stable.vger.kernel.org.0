@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C38832EE4E
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:46:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C1672F0A6
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:06:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732292AbfE3DUl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:20:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59350 "EHLO mail.kernel.org"
+        id S1728760AbfE3DRh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:17:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47824 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732279AbfE3DUl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:20:41 -0400
+        id S1731179AbfE3DRg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:17:36 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5978224934;
-        Thu, 30 May 2019 03:20:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6A293246F3;
+        Thu, 30 May 2019 03:17:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186440;
-        bh=IjFoK8ZdpvU3DOtmGug9aWyvX1orNxR6b+IkPJBg1OU=;
+        s=default; t=1559186255;
+        bh=1rPMMUnAEw/PbwAbQkw+rWsgCAavxUsZNbw2R/Ydn20=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AtB4UXwjkqoQdd3vZyAxkQ2t2dW/+mOOI9zaua7Dcg3EcLH44WZTgj+NO0+rDUHKy
-         T8vJUFYazLp2TYHY6oTBhrBTKptzxDCEhDeQWiaM+U6QsbGFXwOjVRqcRJ1bHmHOdx
-         qTLNmGvzaxQRrSLoLtvvo0T8E1NUJq6n8FPzLi3w=
+        b=BSqxhwakXTWiZqIXYaEpqM5CTOjelr14ujZkT/qxgOFgLA75NuLJ8VFS50lDptaJw
+         i0Flq0pz0dPaIIjIyy+fJQ6uGWoXbvlQu+mIJxtQhGw9bvR3/xuIIOTiQAmWc6CKxv
+         hG95xKyj3PmIEs2lyvif+vSyLWjwPxzADzdIsEYE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andreas Gruenbacher <agruenba@redhat.com>
-Subject: [PATCH 4.9 009/128] gfs2: Fix sign extension bug in gfs2_update_stats
+        stable@vger.kernel.org, Jon Derrick <jonathan.derrick@intel.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Scott Bauer <sbauer@plzdonthack.me>,
+        David Kozub <zub@linux.fjfi.cvut.cz>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 183/276] block: sed-opal: fix IOC_OPAL_ENABLE_DISABLE_MBR
 Date:   Wed, 29 May 2019 20:05:41 -0700
-Message-Id: <20190530030435.201038082@linuxfoundation.org>
+Message-Id: <20190530030536.703908741@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
-References: <20190530030432.977908967@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,49 +46,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Gruenbacher <agruenba@redhat.com>
+[ Upstream commit 78bf47353b0041865564deeed257a54f047c2fdc ]
 
-commit 5a5ec83d6ac974b12085cd99b196795f14079037 upstream.
+The implementation of IOC_OPAL_ENABLE_DISABLE_MBR handled the value
+opal_mbr_data.enable_disable incorrectly: enable_disable is expected
+to be one of OPAL_MBR_ENABLE(0) or OPAL_MBR_DISABLE(1). enable_disable
+was passed directly to set_mbr_done and set_mbr_enable_disable where
+is was interpreted as either OPAL_TRUE(1) or OPAL_FALSE(0). The end
+result was that calling IOC_OPAL_ENABLE_DISABLE_MBR with OPAL_MBR_ENABLE
+actually disabled the shadow MBR and vice versa.
 
-Commit 4d207133e9c3 changed the types of the statistic values in struct
-gfs2_lkstats from s64 to u64.  Because of that, what should be a signed
-value in gfs2_update_stats turned into an unsigned value.  When shifted
-right, we end up with a large positive value instead of a small negative
-value, which results in an incorrect variance estimate.
+This patch adds correct conversion from OPAL_MBR_DISABLE/ENABLE to
+OPAL_FALSE/TRUE. The change affects existing programs using
+IOC_OPAL_ENABLE_DISABLE_MBR but this is typically used only once when
+setting up an Opal drive.
 
-Fixes: 4d207133e9c3 ("gfs2: Make statistics unsigned, suitable for use with do_div()")
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
-Cc: stable@vger.kernel.org # v4.4+
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Acked-by: Jon Derrick <jonathan.derrick@intel.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Scott Bauer <sbauer@plzdonthack.me>
+Signed-off-by: David Kozub <zub@linux.fjfi.cvut.cz>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/lock_dlm.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ block/sed-opal.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/fs/gfs2/lock_dlm.c
-+++ b/fs/gfs2/lock_dlm.c
-@@ -32,9 +32,10 @@ extern struct workqueue_struct *gfs2_con
-  * @delta is the difference between the current rtt sample and the
-  * running average srtt. We add 1/8 of that to the srtt in order to
-  * update the current srtt estimate. The variance estimate is a bit
-- * more complicated. We subtract the abs value of the @delta from
-- * the current variance estimate and add 1/4 of that to the running
-- * total.
-+ * more complicated. We subtract the current variance estimate from
-+ * the abs value of the @delta and add 1/4 of that to the running
-+ * total.  That's equivalent to 3/4 of the current variance
-+ * estimate plus 1/4 of the abs of @delta.
-  *
-  * Note that the index points at the array entry containing the smoothed
-  * mean value, and the variance is always in the following entry
-@@ -50,7 +51,7 @@ static inline void gfs2_update_stats(str
- 	s64 delta = sample - s->stats[index];
- 	s->stats[index] += (delta >> 3);
- 	index++;
--	s->stats[index] += ((abs(delta) - s->stats[index]) >> 2);
-+	s->stats[index] += (s64)(abs(delta) - s->stats[index]) >> 2;
- }
+diff --git a/block/sed-opal.c b/block/sed-opal.c
+index e0de4dd448b3c..1196408972937 100644
+--- a/block/sed-opal.c
++++ b/block/sed-opal.c
+@@ -2095,13 +2095,16 @@ static int opal_erase_locking_range(struct opal_dev *dev,
+ static int opal_enable_disable_shadow_mbr(struct opal_dev *dev,
+ 					  struct opal_mbr_data *opal_mbr)
+ {
++	u8 enable_disable = opal_mbr->enable_disable == OPAL_MBR_ENABLE ?
++		OPAL_TRUE : OPAL_FALSE;
++
+ 	const struct opal_step mbr_steps[] = {
+ 		{ opal_discovery0, },
+ 		{ start_admin1LSP_opal_session, &opal_mbr->key },
+-		{ set_mbr_done, &opal_mbr->enable_disable },
++		{ set_mbr_done, &enable_disable },
+ 		{ end_opal_session, },
+ 		{ start_admin1LSP_opal_session, &opal_mbr->key },
+-		{ set_mbr_enable_disable, &opal_mbr->enable_disable },
++		{ set_mbr_enable_disable, &enable_disable },
+ 		{ end_opal_session, },
+ 		{ NULL, }
+ 	};
+@@ -2221,7 +2224,7 @@ static int __opal_lock_unlock(struct opal_dev *dev,
  
- /**
+ static int __opal_set_mbr_done(struct opal_dev *dev, struct opal_key *key)
+ {
+-	u8 mbr_done_tf = 1;
++	u8 mbr_done_tf = OPAL_TRUE;
+ 	const struct opal_step mbrdone_step [] = {
+ 		{ opal_discovery0, },
+ 		{ start_admin1LSP_opal_session, key },
+-- 
+2.20.1
+
 
 
