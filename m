@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E4D92F4D8
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:42:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32BCC2EF75
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:55:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728671AbfE3EmN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:42:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54138 "EHLO mail.kernel.org"
+        id S1730007AbfE3Dzj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:55:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728950AbfE3DMT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:12:19 -0400
+        id S1731811AbfE3DTK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:19:10 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA96E244D4;
-        Thu, 30 May 2019 03:12:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AA007247E9;
+        Thu, 30 May 2019 03:19:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185938;
-        bh=wNIIGNdY+3Ff5ByT6wZINYkqc6SV4Xy+MelFjAUT/GE=;
+        s=default; t=1559186349;
+        bh=h4rRgPtEKLxZdUtpQREGEX9ktlgSjKxE8SifMds7t+M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c0tK6tw0EcrceHvcPZRrEC+cJyh4y1AqoX/jSvX2RMuuxLbXzcA0cpcojjjiJMMNa
-         Qg3ZHFqffzqBCgsflfiATyoFGy2bQ8+X0UWnI3vl1xzKuOU08Wy7QbhEX930fg9kRM
-         8TheRN+Tm7MDWDCavs76xhGBcwAExQNLTgAWVaJM=
+        b=06LH/rVds2bOgCjlpUTFs63tT6nwEcQCAX9MD2EHetQU4Pt5E4XVAADXWvARpXA60
+         VvXoPK5v8+HWRWWoO4mmGXrdKjthunP51qNJdW9PPkYS8UmdQzmCsg5iQxH0nYsQEn
+         6gFQmdLpJMIi3iue0Kci/v5ixL8EUllnJ0XDLlbo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Matthias Schwarzott <zzam@gentoo.org>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 343/405] media: si2165: fix a missing check of return value
+        stable@vger.kernel.org,
+        Nicolas Ferre <nicolas.ferre@microchip.com>,
+        Ludovic Desroches <ludovic.desroches@microchip.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 087/193] dmaengine: at_xdmac: remove BUG_ON macro in tasklet
 Date:   Wed, 29 May 2019 20:05:41 -0700
-Message-Id: <20190530030558.047162427@linuxfoundation.org>
+Message-Id: <20190530030501.110950077@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
+References: <20190530030446.953835040@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,53 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 0ab34a08812a3334350dbaf69a018ee0ab3d2ddd ]
+[ Upstream commit e2c114c06da2d9ffad5b16690abf008d6696f689 ]
 
-si2165_readreg8() may fail. Looking into si2165_readreg8(), we will find
-that "val_tmp" will be an uninitialized value when regmap_read() fails.
-"val_tmp" is then assigned to "val". So if si2165_readreg8() fails,
-"val" will be a random value. Further use will lead to undefined
-behaviors. The fix checks if si2165_readreg8() fails, and if so, returns
-its error code upstream.
+Even if this case shouldn't happen when controller is properly programmed,
+it's still better to avoid dumping a kernel Oops for this.
+As the sequence may happen only for debugging purposes, log the error and
+just finish the tasklet call.
 
-Signed-off-by: Kangjie Lu <kjlu@umn.edu>
-Reviewed-by: Matthias Schwarzott <zzam@gentoo.org>
-Tested-by: Matthias Schwarzott <zzam@gentoo.org>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Nicolas Ferre <nicolas.ferre@microchip.com>
+Acked-by: Ludovic Desroches <ludovic.desroches@microchip.com>
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/dvb-frontends/si2165.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/dma/at_xdmac.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/dvb-frontends/si2165.c b/drivers/media/dvb-frontends/si2165.c
-index feacd8da421da..d55d8f169dca6 100644
---- a/drivers/media/dvb-frontends/si2165.c
-+++ b/drivers/media/dvb-frontends/si2165.c
-@@ -275,18 +275,20 @@ static u32 si2165_get_fe_clk(struct si2165_state *state)
+diff --git a/drivers/dma/at_xdmac.c b/drivers/dma/at_xdmac.c
+index 4db2cd1c611de..22764cd30cc39 100644
+--- a/drivers/dma/at_xdmac.c
++++ b/drivers/dma/at_xdmac.c
+@@ -1606,7 +1606,11 @@ static void at_xdmac_tasklet(unsigned long data)
+ 					struct at_xdmac_desc,
+ 					xfer_node);
+ 		dev_vdbg(chan2dev(&atchan->chan), "%s: desc 0x%p\n", __func__, desc);
+-		BUG_ON(!desc->active_xfer);
++		if (!desc->active_xfer) {
++			dev_err(chan2dev(&atchan->chan), "Xfer not active: exiting");
++			spin_unlock_bh(&atchan->lock);
++			return;
++		}
  
- static int si2165_wait_init_done(struct si2165_state *state)
- {
--	int ret = -EINVAL;
-+	int ret;
- 	u8 val = 0;
- 	int i;
+ 		txd = &desc->tx_dma_desc;
  
- 	for (i = 0; i < 3; ++i) {
--		si2165_readreg8(state, REG_INIT_DONE, &val);
-+		ret = si2165_readreg8(state, REG_INIT_DONE, &val);
-+		if (ret < 0)
-+			return ret;
- 		if (val == 0x01)
- 			return 0;
- 		usleep_range(1000, 50000);
- 	}
- 	dev_err(&state->client->dev, "init_done was not set\n");
--	return ret;
-+	return -EINVAL;
- }
- 
- static int si2165_upload_firmware_block(struct si2165_state *state,
 -- 
 2.20.1
 
