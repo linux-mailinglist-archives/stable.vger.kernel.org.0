@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AF2A2EEFF
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:52:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E75912F1D5
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:16:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727841AbfE3Dvo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:51:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56488 "EHLO mail.kernel.org"
+        id S1730375AbfE3EQM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:16:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730397AbfE3DTp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:19:45 -0400
+        id S1729539AbfE3DPu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:15:50 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CDF97248C3;
-        Thu, 30 May 2019 03:19:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F264524580;
+        Thu, 30 May 2019 03:15:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186384;
-        bh=l9B/OIDn8cuAVE8HO0aG3+J5d3MKu0EY/omgxsB3MUE=;
+        s=default; t=1559186150;
+        bh=d4nY/VhsQDHC+8KC5BHkFPOCTt/TPbxIy52XXQEdmIg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DX+sfQTjKtQxzoAr0eZRDCGnj/8vhP/Z+qZ/pJNQP8xt0Z3Ud8bFT5O9fXOhtXIDa
-         TQFR/y0Asl3RUh2s9A0GvYl4vFM9dcViySqnHU9Y+n/s8zkT9P4S3uWBQ6a0QJxv3S
-         +K8BrLiNJcgsVBASGXcHBc4w9e/9wYRKzxqvXQzs=
+        b=dLFOLPeU4hLUlZmFon8jubV69Gnc4BebUybhhHozC405p9HU577idGAhPYLxImtcV
+         7sMvoRg3B5bHklFemyj4RKE0kkxn2D/OsEljm1kbYL1TBQymU7TdkucsTrPD2HSgWs
+         urjxQhgpsD8FBbloiSK1KexdBp0Uf0Vj0+Qyy9Jc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        linux-arm-kernel@lists.infradead.org,
+        stable@vger.kernel.org,
+        Adam Thomson <Adam.Thomson.Opensource@diasemi.com>,
+        Steve Twiss <stwiss.opensource@diasemi.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 151/193] arm64: cpu_ops: fix a leaked reference by adding missing of_node_put
+Subject: [PATCH 5.0 332/346] regulator: wm831x: Fix notifier mutex lock warning
 Date:   Wed, 29 May 2019 20:06:45 -0700
-Message-Id: <20190530030509.250581004@linuxfoundation.org>
+Message-Id: <20190530030557.576059664@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,41 +47,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 92606ec9285fb84cd9b5943df23f07d741384bfc ]
+[ Upstream commit 119c4f5085c45b60cb23c5595e45d06135b89518 ]
 
-The call to of_get_next_child returns a node pointer with refcount
-incremented thus it must be explicitly decremented after the last
-usage.
+The mutex for the regulator_dev must be controlled by the caller of
+the regulator_notifier_call_chain(), as described in the comment
+for that function.
 
-Detected by coccinelle with the following warnings:
-  ./arch/arm64/kernel/cpu_ops.c:102:1-7: ERROR: missing of_node_put;
-  acquired a node pointer with refcount incremented on line 69, but
-  without a corresponding object release within this function.
+Failure to mutex lock and unlock surrounding the notifier call results
+in a kernel WARN_ON_ONCE() which will dump a backtrace for the
+regulator_notifier_call_chain() when that function call is first made.
+The mutex can be controlled using the regulator_lock/unlock() API.
 
-Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Will Deacon <will.deacon@arm.com>
+Fixes: e4ee831f949a ("regulator: Add WM831x DC-DC buck convertor support")
+Suggested-by: Adam Thomson <Adam.Thomson.Opensource@diasemi.com>
+Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/cpu_ops.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/regulator/wm831x-dcdc.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/arm64/kernel/cpu_ops.c b/arch/arm64/kernel/cpu_ops.c
-index d16978213c5b3..e2a9d04d05175 100644
---- a/arch/arm64/kernel/cpu_ops.c
-+++ b/arch/arm64/kernel/cpu_ops.c
-@@ -85,6 +85,7 @@ static const char *__init cpu_read_enable_method(int cpu)
- 				pr_err("%pOF: missing enable-method property\n",
- 					dn);
- 		}
-+		of_node_put(dn);
- 	} else {
- 		enable_method = acpi_get_enable_method(cpu);
- 		if (!enable_method) {
+diff --git a/drivers/regulator/wm831x-dcdc.c b/drivers/regulator/wm831x-dcdc.c
+index 5a5bc4bb08d26..4f5461ad7b629 100644
+--- a/drivers/regulator/wm831x-dcdc.c
++++ b/drivers/regulator/wm831x-dcdc.c
+@@ -183,9 +183,11 @@ static irqreturn_t wm831x_dcdc_uv_irq(int irq, void *data)
+ {
+ 	struct wm831x_dcdc *dcdc = data;
+ 
++	regulator_lock(dcdc->regulator);
+ 	regulator_notifier_call_chain(dcdc->regulator,
+ 				      REGULATOR_EVENT_UNDER_VOLTAGE,
+ 				      NULL);
++	regulator_unlock(dcdc->regulator);
+ 
+ 	return IRQ_HANDLED;
+ }
+@@ -194,9 +196,11 @@ static irqreturn_t wm831x_dcdc_oc_irq(int irq, void *data)
+ {
+ 	struct wm831x_dcdc *dcdc = data;
+ 
++	regulator_lock(dcdc->regulator);
+ 	regulator_notifier_call_chain(dcdc->regulator,
+ 				      REGULATOR_EVENT_OVER_CURRENT,
+ 				      NULL);
++	regulator_unlock(dcdc->regulator);
+ 
+ 	return IRQ_HANDLED;
+ }
 -- 
 2.20.1
 
