@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A2A02EE3D
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:45:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF0FC2EB6D
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:12:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732949AbfE3Dpd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:45:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60030 "EHLO mail.kernel.org"
+        id S1729300AbfE3DM4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:12:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732331AbfE3DUs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:20:48 -0400
+        id S1728360AbfE3DM4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:12:56 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8CF8224905;
-        Thu, 30 May 2019 03:20:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CB9D323D83;
+        Thu, 30 May 2019 03:12:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186447;
-        bh=n0EU5+leGe+lJAsvMkP5CTo0DLy0+7c5xiTlKmyNsX0=;
+        s=default; t=1559185975;
+        bh=qzX+KFInt22eoOmpRc5otvECGGKHg+IPdDsI+izr9SI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bAPmCv5mbuieZYXuKzcxp2Bkm6xk2hidovMwlHRiltrwY6hspciOXZfHn/CjyMPx2
-         EKe3uq1293ebDFpZhkMkgOZhc1U4KJam9MYhH6HDskP7suU933PZPUo4HbVI1KJVWs
-         EmhHCP1KuE9qNry8cVByF4X7EjjxvEqoEs4DYK5A=
+        b=GL+bFAVgrSYkFplXdBfcF8Q8oDwKieCvdr8bud2erV/wrZMLcZ9YH76FbprxMbxr5
+         Om6zbhlujqRXQIolU3RvXzTzLXpiumxl9KBvHOzZwytsrtOFQvY3S7mpgpxj31C0Vf
+         nrm5Fo3yU1vt/q2Yej02a0jTtN+DqT0DY2TaTVsU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        linux-gpio@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 055/128] pinctrl: pistachio: fix leaked of_node references
+        stable@vger.kernel.org,
+        Adam Thomson <Adam.Thomson.Opensource@diasemi.com>,
+        Steve Twiss <stwiss.opensource@diasemi.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 389/405] regulator: da9062: Fix notifier mutex lock warning
 Date:   Wed, 29 May 2019 20:06:27 -0700
-Message-Id: <20190530030444.827117887@linuxfoundation.org>
+Message-Id: <20190530030600.332701688@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
-References: <20190530030432.977908967@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +46,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 44a4455ac2c6b0981eace683a2b6eccf47689022 ]
+[ Upstream commit 978995def0f6030aa6b3b494682f673aca13881b ]
 
-The call to of_get_child_by_name returns a node pointer with refcount
-incremented thus it must be explicitly decremented after the last
-usage.
+The mutex for the regulator_dev must be controlled by the caller of
+the regulator_notifier_call_chain(), as described in the comment
+for that function.
 
-Detected by coccinelle with the following warnings:
-./drivers/pinctrl/pinctrl-pistachio.c:1422:1-7: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 1360, but without a corresponding object release within this function.
+Failure to mutex lock and unlock surrounding the notifier call results
+in a kernel WARN_ON_ONCE() which will dump a backtrace for the
+regulator_notifier_call_chain() when that function call is first made.
+The mutex can be controlled using the regulator_lock/unlock() API.
 
-Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Cc: linux-gpio@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: 4068e5182ada ("regulator: da9062: DA9062 regulator driver")
+Suggested-by: Adam Thomson <Adam.Thomson.Opensource@diasemi.com>
+Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-pistachio.c | 2 ++
+ drivers/regulator/da9062-regulator.c | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/drivers/pinctrl/pinctrl-pistachio.c b/drivers/pinctrl/pinctrl-pistachio.c
-index 55375b1b3cc81..b2b7e238bda97 100644
---- a/drivers/pinctrl/pinctrl-pistachio.c
-+++ b/drivers/pinctrl/pinctrl-pistachio.c
-@@ -1368,6 +1368,7 @@ static int pistachio_gpio_register(struct pistachio_pinctrl *pctl)
- 		if (!of_find_property(child, "gpio-controller", NULL)) {
- 			dev_err(pctl->dev,
- 				"No gpio-controller property for bank %u\n", i);
-+			of_node_put(child);
- 			ret = -ENODEV;
- 			goto err;
+diff --git a/drivers/regulator/da9062-regulator.c b/drivers/regulator/da9062-regulator.c
+index b064d8a19d4ce..bab88ddfc5098 100644
+--- a/drivers/regulator/da9062-regulator.c
++++ b/drivers/regulator/da9062-regulator.c
+@@ -974,8 +974,10 @@ static irqreturn_t da9062_ldo_lim_event(int irq, void *data)
+ 			continue;
+ 
+ 		if (BIT(regl->info->oc_event.lsb) & bits) {
++			regulator_lock(regl->rdev);
+ 			regulator_notifier_call_chain(regl->rdev,
+ 					REGULATOR_EVENT_OVER_CURRENT, NULL);
++			regulator_unlock(regl->rdev);
+ 			handled = IRQ_HANDLED;
  		}
-@@ -1375,6 +1376,7 @@ static int pistachio_gpio_register(struct pistachio_pinctrl *pctl)
- 		irq = irq_of_parse_and_map(child, 0);
- 		if (irq < 0) {
- 			dev_err(pctl->dev, "No IRQ for bank %u: %d\n", i, irq);
-+			of_node_put(child);
- 			ret = irq;
- 			goto err;
- 		}
+ 	}
 -- 
 2.20.1
 
