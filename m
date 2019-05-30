@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BD4E92F090
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:05:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D746B2EEB3
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:50:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732066AbfE3EFQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:05:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48276 "EHLO mail.kernel.org"
+        id S1732256AbfE3DtT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:49:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731243AbfE3DRq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:17:46 -0400
+        id S1732241AbfE3DUd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:20:33 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 52CB124715;
-        Thu, 30 May 2019 03:17:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1371F24941;
+        Thu, 30 May 2019 03:20:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186265;
-        bh=6pM+PNif8JYGgG7H6zUEqqTadsP929Buviyt5KO/yAw=;
+        s=default; t=1559186433;
+        bh=XTYT+Zjx4efHvomWboiyx+5cbYpMYlvQgDuWNjWDh9M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pH598TkbBT4SZzJoQbqKMJeKfv6VlgyQnQL4609whNDPuzbPONdpnyix6rnGkS0sI
-         PgKPZDDc1l+G4IhGKbKtOmsbKf5BGgoZVHRt8wOOZNcdOe+yG3YnJgQdFMrpfsSb6f
-         DJLBPsXgFwN3fQI/Jfm45iZhqWxYVuEYiR5No7J4=
+        b=nUUSunvmkLycvPZLn+4eiGpN0kVzq66nb0GaURUESQS6x/a6bbw0fOeY/7GdHtRa0
+         bkjPoKmBm1vth/LzYQiTr+l6+W+jZZ+d9dWgKnEIqeTz77KN9ndmJRRsi7FRIVPhvG
+         eWT8BzyuoG15N0bfq5jzGHB8s8nYe5ojsU6gTX8s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stanley Chu <stanley.chu@mediatek.com>,
-        Avri Altman <avri.altman@wdc.com>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Sameeh Jubran <sameehj@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 201/276] scsi: ufs: Fix regulator load and icc-level configuration
+Subject: [PATCH 4.9 027/128] net: ena: gcc 8: fix compilation warning
 Date:   Wed, 29 May 2019 20:05:59 -0700
-Message-Id: <20190530030537.691588710@linuxfoundation.org>
+Message-Id: <20190530030439.578007972@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
+References: <20190530030432.977908967@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,74 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 0487fff76632ec023d394a05b82e87a971db8c03 ]
+[ Upstream commit f913308879bc6ae437ce64d878c7b05643ddea44 ]
 
-Currently if a regulator has "<name>-fixed-regulator" property in device
-tree, it will skip current limit initialization.  This lead to a zero
-"max_uA" value in struct ufs_vreg.
+GCC 8 contains a number of new warnings as well as enhancements to existing
+checkers. The warning - Wstringop-truncation - warns for calls to bounded
+string manipulation functions such as strncat, strncpy, and stpncpy that
+may either truncate the copied string or leave the destination unchanged.
 
-However, "regulator_set_load" operation shall be required on regulators
-which have valid current limits, otherwise a zero "max_uA" set by
-"regulator_set_load" may cause unexpected behavior when this regulator is
-enabled or set as high power mode.
+In our case the destination string length (32 bytes) is much shorter than
+the source string (64 bytes) which causes this warning to show up. In
+general the destination has to be at least a byte larger than the length
+of the source string with strncpy for this warning not to showup.
 
-Similarly, in device's icc_level configuration flow, the target icc_level
-shall be updated if regulator also has valid current limit, otherwise a
-wrong icc_level will be calculated by zero "max_uA" and thus causes
-unexpected results after it is written to device.
+This can be easily fixed by using strlcpy instead which already does the
+truncation to the string. Documentation for this function can be
+found here:
 
-Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
-Reviewed-by: Avri Altman <avri.altman@wdc.com>
-Acked-by: Alim Akhtar <alim.akhtar@samsung.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+https://elixir.bootlin.com/linux/latest/source/lib/string.c#L141
+
+Fixes: 1738cd3ed342 ("net: ena: Add a driver for Amazon Elastic Network Adapters (ENA)")
+Signed-off-by: Sameeh Jubran <sameehj@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/amazon/ena/ena_netdev.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 6e80dfe4fa979..73156579e9885 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -6130,19 +6130,19 @@ static u32 ufshcd_find_max_sup_active_icc_level(struct ufs_hba *hba,
- 		goto out;
- 	}
+diff --git a/drivers/net/ethernet/amazon/ena/ena_netdev.c b/drivers/net/ethernet/amazon/ena/ena_netdev.c
+index 0c298878bf46f..0780900b37c72 100644
+--- a/drivers/net/ethernet/amazon/ena/ena_netdev.c
++++ b/drivers/net/ethernet/amazon/ena/ena_netdev.c
+@@ -2116,7 +2116,7 @@ static void ena_config_host_info(struct ena_com_dev *ena_dev)
  
--	if (hba->vreg_info.vcc)
-+	if (hba->vreg_info.vcc && hba->vreg_info.vcc->max_uA)
- 		icc_level = ufshcd_get_max_icc_level(
- 				hba->vreg_info.vcc->max_uA,
- 				POWER_DESC_MAX_ACTV_ICC_LVLS - 1,
- 				&desc_buf[PWR_DESC_ACTIVE_LVLS_VCC_0]);
- 
--	if (hba->vreg_info.vccq)
-+	if (hba->vreg_info.vccq && hba->vreg_info.vccq->max_uA)
- 		icc_level = ufshcd_get_max_icc_level(
- 				hba->vreg_info.vccq->max_uA,
- 				icc_level,
- 				&desc_buf[PWR_DESC_ACTIVE_LVLS_VCCQ_0]);
- 
--	if (hba->vreg_info.vccq2)
-+	if (hba->vreg_info.vccq2 && hba->vreg_info.vccq2->max_uA)
- 		icc_level = ufshcd_get_max_icc_level(
- 				hba->vreg_info.vccq2->max_uA,
- 				icc_level,
-@@ -6767,6 +6767,15 @@ static int ufshcd_config_vreg_load(struct device *dev, struct ufs_vreg *vreg,
- 	if (!vreg)
- 		return 0;
- 
-+	/*
-+	 * "set_load" operation shall be required on those regulators
-+	 * which specifically configured current limitation. Otherwise
-+	 * zero max_uA may cause unexpected behavior when regulator is
-+	 * enabled or set as high power mode.
-+	 */
-+	if (!vreg->max_uA)
-+		return 0;
-+
- 	ret = regulator_set_load(vreg->reg, ua);
- 	if (ret < 0) {
- 		dev_err(dev, "%s: %s set load (ua=%d) failed, err=%d\n",
+ 	host_info->os_type = ENA_ADMIN_OS_LINUX;
+ 	host_info->kernel_ver = LINUX_VERSION_CODE;
+-	strncpy(host_info->kernel_ver_str, utsname()->version,
++	strlcpy(host_info->kernel_ver_str, utsname()->version,
+ 		sizeof(host_info->kernel_ver_str) - 1);
+ 	host_info->os_dist = 0;
+ 	strncpy(host_info->os_dist_str, utsname()->release,
 -- 
 2.20.1
 
