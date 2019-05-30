@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BC6202F42A
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:36:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C8CC2EB71
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:13:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729331AbfE3Eft (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:35:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57360 "EHLO mail.kernel.org"
+        id S1729340AbfE3DNJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:13:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57370 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727566AbfE3DNH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:13:07 -0400
+        id S1727563AbfE3DNI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:13:08 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1CED124526;
+        by mail.kernel.org (Postfix) with ESMTPSA id B83E4244EA;
         Thu, 30 May 2019 03:13:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1559185987;
-        bh=iYBZAM86OS7sJphh+w2os+mRE+9+QibDBnFo8TrVdMY=;
+        bh=nGAUJRbLvnG4RZXmH6VU4fSaW9467h2MfLvkpldJnBI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QhlHcRilnvNhJT63UKgbDoQG8AwawMPXzut1V6x1G4GLP82O6S69ejXt2UZRHbgh/
-         jJlneMWPfm1plCkJcYtESzxe25zKFOlmkv5ttpL5swV69o4pQTj1kwFuDf1lwJNnqf
-         CNhq00lfq28yzROFzfX29h6K9DV/Mo4eBDTRI4aM=
+        b=u3KPifvDIPdZCSgoBOL8zuUqBHtHhmz5w4fP53T7XAZw7KH/YqVLHEBB8OiNVEG0+
+         onnF0u2UIDYDH5hWyqM2jQm4F7whcfszu9YhQFo8sx0gpQgQko2Xui9DGCll1gcG8V
+         ntXgk7tJnY0LcDLVHhuuBWVZBf3O/XBDzkA61AuI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Qu Wenruo <wqu@suse.com>, Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.0 028/346] btrfs: honor path->skip_locking in backref code
-Date:   Wed, 29 May 2019 20:01:41 -0700
-Message-Id: <20190530030542.182651394@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+9c69c282adc4edd2b540@syzkaller.appspotmail.com,
+        Amir Goldstein <amir73il@gmail.com>,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 5.0 029/346] ovl: relax WARN_ON() for overlapping layers use case
+Date:   Wed, 29 May 2019 20:01:42 -0700
+Message-Id: <20190530030542.244955863@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
 References: <20190530030540.363386121@linuxfoundation.org>
@@ -44,156 +45,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Amir Goldstein <amir73il@gmail.com>
 
-commit 38e3eebff643db725633657d1d87a3be019d1018 upstream.
+commit acf3062a7e1ccf67c6f7e7c28671a6708fde63b0 upstream.
 
-Qgroups will do the old roots lookup at delayed ref time, which could be
-while walking down the extent root while running a delayed ref.  This
-should be fine, except we specifically lock eb's in the backref walking
-code irrespective of path->skip_locking, which deadlocks the system.
-Fix up the backref code to honor path->skip_locking, nobody will be
-modifying the commit_root when we're searching so it's completely safe
-to do.
+This nasty little syzbot repro:
+https://syzkaller.appspot.com/x/repro.syz?x=12c7a94f400000
 
-This happens since fb235dc06fac ("btrfs: qgroup: Move half of the qgroup
-accounting time out of commit trans"), kernel may lockup with quota
-enabled.
+Creates overlay mounts where the same directory is both in upper and lower
+layers. Simplified example:
 
-There is one backref trace triggered by snapshot dropping along with
-write operation in the source subvolume.  The example can be reliably
-reproduced:
+  mkdir foo work
+  mount -t overlay none foo -o"lowerdir=.,upperdir=foo,workdir=work"
 
-  btrfs-cleaner   D    0  4062      2 0x80000000
-  Call Trace:
-   schedule+0x32/0x90
-   btrfs_tree_read_lock+0x93/0x130 [btrfs]
-   find_parent_nodes+0x29b/0x1170 [btrfs]
-   btrfs_find_all_roots_safe+0xa8/0x120 [btrfs]
-   btrfs_find_all_roots+0x57/0x70 [btrfs]
-   btrfs_qgroup_trace_extent_post+0x37/0x70 [btrfs]
-   btrfs_qgroup_trace_leaf_items+0x10b/0x140 [btrfs]
-   btrfs_qgroup_trace_subtree+0xc8/0xe0 [btrfs]
-   do_walk_down+0x541/0x5e3 [btrfs]
-   walk_down_tree+0xab/0xe7 [btrfs]
-   btrfs_drop_snapshot+0x356/0x71a [btrfs]
-   btrfs_clean_one_deleted_snapshot+0xb8/0xf0 [btrfs]
-   cleaner_kthread+0x12b/0x160 [btrfs]
-   kthread+0x112/0x130
-   ret_from_fork+0x27/0x50
+The repro runs several threads in parallel that attempt to chdir into foo
+and attempt to symlink/rename/exec/mkdir the file bar.
 
-When dropping snapshots with qgroup enabled, we will trigger backref
-walk.
+The repro hits a WARN_ON() I placed in ovl_instantiate(), which suggests
+that an overlay inode already exists in cache and is hashed by the pointer
+of the real upper dentry that ovl_create_real() has just created. At the
+point of the WARN_ON(), for overlay dir inode lock is held and upper dir
+inode lock, so at first, I did not see how this was possible.
 
-However such backref walk at that timing is pretty dangerous, as if one
-of the parent nodes get WRITE locked by other thread, we could cause a
-dead lock.
+On a closer look, I see that after ovl_create_real(), because of the
+overlapping upper and lower layers, a lookup by another thread can find the
+file foo/bar that was just created in upper layer, at overlay path
+foo/foo/bar and hash the an overlay inode with the new real dentry as lower
+dentry. This is possible because the overlay directory foo/foo is not
+locked and the upper dentry foo/bar is in dcache, so ovl_lookup() can find
+it without taking upper dir inode shared lock.
 
-For example:
+Overlapping layers is considered a wrong setup which would result in
+unexpected behavior, but it shouldn't crash the kernel and it shouldn't
+trigger WARN_ON() either, so relax this WARN_ON() and leave a pr_warn()
+instead to cover all cases of failure to get an overlay inode.
 
-           FS 260     FS 261 (Dropped)
-            node A        node B
-           /      \      /      \
-       node C      node D      node E
-      /   \         /  \        /     \
-  leaf F|leaf G|leaf H|leaf I|leaf J|leaf K
+The error returned from failure to insert new inode to cache with
+inode_insert5() was changed to -EEXIST, to distinguish from the error
+-ENOMEM returned on failure to get/allocate inode with iget5_locked().
 
-The lock sequence would be:
-
-      Thread A (cleaner)             |       Thread B (other writer)
------------------------------------------------------------------------
-write_lock(B)                        |
-write_lock(D)                        |
-^^^ called by walk_down_tree()       |
-                                     |       write_lock(A)
-                                     |       write_lock(D) << Stall
-read_lock(H) << for backref walk     |
-read_lock(D) << lock owner is        |
-                the same thread A    |
-                so read lock is OK   |
-read_lock(A) << Stall                |
-
-So thread A hold write lock D, and needs read lock A to unlock.
-While thread B holds write lock A, while needs lock D to unlock.
-
-This will cause a deadlock.
-
-This is not only limited to snapshot dropping case.  As the backref
-walk, even only happens on commit trees, is breaking the normal top-down
-locking order, makes it deadlock prone.
-
-Fixes: fb235dc06fac ("btrfs: qgroup: Move half of the qgroup accounting time out of commit trans")
-CC: stable@vger.kernel.org # 4.14+
-Reported-and-tested-by: David Sterba <dsterba@suse.com>
-Reported-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-[ rebase to latest branch and fix lock assert bug in btrfs/007 ]
-[ solve conflicts and backport to linux-5.0.y ]
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-[ copy logs and deadlock analysis from Qu's patch ]
-Signed-off-by: David Sterba <dsterba@suse.com>
+Reported-by: syzbot+9c69c282adc4edd2b540@syzkaller.appspotmail.com
+Fixes: 01b39dcc9568 ("ovl: use inode_insert5() to hash a newly...")
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/backref.c |   19 ++++++++++++-------
- 1 file changed, 12 insertions(+), 7 deletions(-)
+ fs/overlayfs/dir.c   |    2 +-
+ fs/overlayfs/inode.c |    3 ++-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
---- a/fs/btrfs/backref.c
-+++ b/fs/btrfs/backref.c
-@@ -712,7 +712,7 @@ out:
-  * read tree blocks and add keys where required.
-  */
- static int add_missing_keys(struct btrfs_fs_info *fs_info,
--			    struct preftrees *preftrees)
-+			    struct preftrees *preftrees, bool lock)
- {
- 	struct prelim_ref *ref;
- 	struct extent_buffer *eb;
-@@ -737,12 +737,14 @@ static int add_missing_keys(struct btrfs
- 			free_extent_buffer(eb);
- 			return -EIO;
- 		}
--		btrfs_tree_read_lock(eb);
-+		if (lock)
-+			btrfs_tree_read_lock(eb);
- 		if (btrfs_header_level(eb) == 0)
- 			btrfs_item_key_to_cpu(eb, &ref->key_for_search, 0);
- 		else
- 			btrfs_node_key_to_cpu(eb, &ref->key_for_search, 0);
--		btrfs_tree_read_unlock(eb);
-+		if (lock)
-+			btrfs_tree_read_unlock(eb);
- 		free_extent_buffer(eb);
- 		prelim_ref_insert(fs_info, &preftrees->indirect, ref, NULL);
- 		cond_resched();
-@@ -1227,7 +1229,7 @@ again:
+--- a/fs/overlayfs/dir.c
++++ b/fs/overlayfs/dir.c
+@@ -260,7 +260,7 @@ static int ovl_instantiate(struct dentry
+ 		 * hashed directory inode aliases.
+ 		 */
+ 		inode = ovl_get_inode(dentry->d_sb, &oip);
+-		if (WARN_ON(IS_ERR(inode)))
++		if (IS_ERR(inode))
+ 			return PTR_ERR(inode);
+ 	} else {
+ 		WARN_ON(ovl_inode_real(inode) != d_inode(newdentry));
+--- a/fs/overlayfs/inode.c
++++ b/fs/overlayfs/inode.c
+@@ -832,7 +832,7 @@ struct inode *ovl_get_inode(struct super
+ 	int fsid = bylower ? oip->lowerpath->layer->fsid : 0;
+ 	bool is_dir, metacopy = false;
+ 	unsigned long ino = 0;
+-	int err = -ENOMEM;
++	int err = oip->newinode ? -EEXIST : -ENOMEM;
  
- 	btrfs_release_path(path);
+ 	if (!realinode)
+ 		realinode = d_inode(lowerdentry);
+@@ -917,6 +917,7 @@ out:
+ 	return inode;
  
--	ret = add_missing_keys(fs_info, &preftrees);
-+	ret = add_missing_keys(fs_info, &preftrees, path->skip_locking == 0);
- 	if (ret)
- 		goto out;
- 
-@@ -1288,11 +1290,14 @@ again:
- 					ret = -EIO;
- 					goto out;
- 				}
--				btrfs_tree_read_lock(eb);
--				btrfs_set_lock_blocking_rw(eb, BTRFS_READ_LOCK);
-+				if (!path->skip_locking) {
-+					btrfs_tree_read_lock(eb);
-+					btrfs_set_lock_blocking_rw(eb, BTRFS_READ_LOCK);
-+				}
- 				ret = find_extent_in_eb(eb, bytenr,
- 							*extent_item_pos, &eie, ignore_offset);
--				btrfs_tree_read_unlock_blocking(eb);
-+				if (!path->skip_locking)
-+					btrfs_tree_read_unlock_blocking(eb);
- 				free_extent_buffer(eb);
- 				if (ret < 0)
- 					goto out;
+ out_err:
++	pr_warn_ratelimited("overlayfs: failed to get inode (%i)\n", err);
+ 	inode = ERR_PTR(err);
+ 	goto out;
+ }
 
 
