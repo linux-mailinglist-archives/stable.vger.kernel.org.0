@@ -2,51 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 621422F66E
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:56:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D5FD2F43B
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:36:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727947AbfE3DKH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:10:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46352 "EHLO mail.kernel.org"
+        id S1729314AbfE3DNA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:13:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727938AbfE3DKH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:10:07 -0400
+        id S1728313AbfE3DNA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:13:00 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 67B862448B;
-        Thu, 30 May 2019 03:10:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2755824528;
+        Thu, 30 May 2019 03:12:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185806;
-        bh=c7mEp2bWb7xo/WCjfGs/ZqOnDbMz3eb9yp1e7zhHQMs=;
+        s=default; t=1559185979;
+        bh=7RcEOH/HE3JXRnzDunkFCAZCXEfpzCP3ZZnCtC8r6qM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2a3w+8cvn5CX3FfIaLdAWUevswoxPScOvzzFM+hCPq7IpynKqhQSUDokwL/fXrWOO
-         Pe3bVESme86AHyOPA9PgZXZ6S7GNwUF8T6AZvcb2QN2FmPOurp2bgFvKC5hPmYETMR
-         sJyadSjrj0/m7phJLeXHI1cs7Kaj/E329JqXRtuo=
+        b=qgH4dN+cyhnG91XaDqkAhMX9bFk63Vhy8zPR+9NcBWp+8R7WOK7kFLEalB0k2u4Hg
+         Yz+JBcUErWO83QQJUYMiBoiPaA57WUezNu5BDT0bztqvZun8oNOGVbXyyTQ/ohCVOv
+         z3Nwl/phsiaZi9lgF1sst5v5moZbYgQJvBm/u/6w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nadav Amit <namit@vmware.com>,
-        Rick Edgecombe <rick.p.edgecombe@intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        akpm@linux-foundation.org, ard.biesheuvel@linaro.org,
-        deneen.t.dock@intel.com, kernel-hardening@lists.openwall.com,
-        kristen@linux.intel.com, linux_dti@icloud.com, will.deacon@arm.com,
-        Andy Lutomirski <luto@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Rik van Riel <riel@surriel.com>,
+        stable@vger.kernel.org, Jeff Moyer <jmoyer@redhat.com>,
+        Ingo Molnar <mingo@redhat.com>, Christoph Hellwig <hch@lst.de>,
+        Al Viro <viro@zeniv.linux.org.uk>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 088/405] x86/ftrace: Set trampoline pages as executable
+        Matthew Wilcox <willy@infradead.org>,
+        Kees Cook <keescook@chromium.org>, Jan Kara <jack@suse.cz>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Jeff Smits <jeff.smits@intel.com>
+Subject: [PATCH 5.0 013/346] libnvdimm/pmem: Bypass CONFIG_HARDENED_USERCOPY overhead
 Date:   Wed, 29 May 2019 20:01:26 -0700
-Message-Id: <20190530030545.478406255@linuxfoundation.org>
+Message-Id: <20190530030541.232517654@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,74 +49,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 3c0dab44e22782359a0a706cbce72de99a22aa75 ]
+From: Dan Williams <dan.j.williams@intel.com>
 
-Since alloc_module() will not set the pages as executable soon, set
-ftrace trampoline pages as executable after they are allocated.
+commit 52f476a323f9efc959be1c890d0cdcf12e1582e0 upstream.
 
-For the time being, do not change ftrace to use the text_poke()
-interface. As a result, ftrace still breaks W^X.
+Jeff discovered that performance improves from ~375K iops to ~519K iops
+on a simple psync-write fio workload when moving the location of 'struct
+page' from the default PMEM location to DRAM. This result is surprising
+because the expectation is that 'struct page' for dax is only needed for
+third party references to dax mappings. For example, a dax-mapped buffer
+passed to another system call for direct-I/O requires 'struct page' for
+sending the request down the driver stack and pinning the page. There is
+no usage of 'struct page' for first party access to a file via
+read(2)/write(2) and friends.
 
-Signed-off-by: Nadav Amit <namit@vmware.com>
-Signed-off-by: Rick Edgecombe <rick.p.edgecombe@intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Cc: <akpm@linux-foundation.org>
-Cc: <ard.biesheuvel@linaro.org>
-Cc: <deneen.t.dock@intel.com>
-Cc: <kernel-hardening@lists.openwall.com>
-Cc: <kristen@linux.intel.com>
-Cc: <linux_dti@icloud.com>
-Cc: <will.deacon@arm.com>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: H. Peter Anvin <hpa@zytor.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Rik van Riel <riel@surriel.com>
+However, this "no page needed" expectation is violated by
+CONFIG_HARDENED_USERCOPY and the check_copy_size() performed in
+copy_from_iter_full_nocache() and copy_to_iter_mcsafe(). The
+check_heap_object() helper routine assumes the buffer is backed by a
+slab allocator (DRAM) page and applies some checks.  Those checks are
+invalid, dax pages do not originate from the slab, and redundant,
+dax_iomap_actor() has already validated that the I/O is within bounds.
+Specifically that routine validates that the logical file offset is
+within bounds of the file, then it does a sector-to-pfn translation
+which validates that the physical mapping is within bounds of the block
+device.
+
+Bypass additional hardened usercopy overhead and call the 'no check'
+versions of the copy_{to,from}_iter operations directly.
+
+Fixes: 0aed55af8834 ("x86, uaccess: introduce copy_from_iter_flushcache...")
+Cc: <stable@vger.kernel.org>
+Cc: Jeff Moyer <jmoyer@redhat.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
 Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/20190426001143.4983-10-namit@vmware.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Matthew Wilcox <willy@infradead.org>
+Reported-and-tested-by: Jeff Smits <jeff.smits@intel.com>
+Acked-by: Kees Cook <keescook@chromium.org>
+Acked-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/x86/kernel/ftrace.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/nvdimm/pmem.c |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/kernel/ftrace.c b/arch/x86/kernel/ftrace.c
-index bd553b3af22e9..6e0c0ed8e4bf4 100644
---- a/arch/x86/kernel/ftrace.c
-+++ b/arch/x86/kernel/ftrace.c
-@@ -749,6 +749,7 @@ create_trampoline(struct ftrace_ops *ops, unsigned int *tramp_size)
- 	unsigned long end_offset;
- 	unsigned long op_offset;
- 	unsigned long offset;
-+	unsigned long npages;
- 	unsigned long size;
- 	unsigned long retq;
- 	unsigned long *ptr;
-@@ -781,6 +782,7 @@ create_trampoline(struct ftrace_ops *ops, unsigned int *tramp_size)
- 		return 0;
+--- a/drivers/nvdimm/pmem.c
++++ b/drivers/nvdimm/pmem.c
+@@ -281,16 +281,22 @@ static long pmem_dax_direct_access(struc
+ 	return __pmem_direct_access(pmem, pgoff, nr_pages, kaddr, pfn);
+ }
  
- 	*tramp_size = size + RET_SIZE + sizeof(void *);
-+	npages = DIV_ROUND_UP(*tramp_size, PAGE_SIZE);
++/*
++ * Use the 'no check' versions of copy_from_iter_flushcache() and
++ * copy_to_iter_mcsafe() to bypass HARDENED_USERCOPY overhead. Bounds
++ * checking, both file offset and device offset, is handled by
++ * dax_iomap_actor()
++ */
+ static size_t pmem_copy_from_iter(struct dax_device *dax_dev, pgoff_t pgoff,
+ 		void *addr, size_t bytes, struct iov_iter *i)
+ {
+-	return copy_from_iter_flushcache(addr, bytes, i);
++	return _copy_from_iter_flushcache(addr, bytes, i);
+ }
  
- 	/* Copy ftrace_caller onto the trampoline memory */
- 	ret = probe_kernel_read(trampoline, (void *)start_offset, size);
-@@ -825,6 +827,12 @@ create_trampoline(struct ftrace_ops *ops, unsigned int *tramp_size)
- 	/* ALLOC_TRAMP flags lets us know we created it */
- 	ops->flags |= FTRACE_OPS_FL_ALLOC_TRAMP;
+ static size_t pmem_copy_to_iter(struct dax_device *dax_dev, pgoff_t pgoff,
+ 		void *addr, size_t bytes, struct iov_iter *i)
+ {
+-	return copy_to_iter_mcsafe(addr, bytes, i);
++	return _copy_to_iter_mcsafe(addr, bytes, i);
+ }
  
-+	/*
-+	 * Module allocation needs to be completed by making the page
-+	 * executable. The page is still writable, which is a security hazard,
-+	 * but anyhow ftrace breaks W^X completely.
-+	 */
-+	set_memory_x((unsigned long)trampoline, npages);
- 	return (unsigned long)trampoline;
- fail:
- 	tramp_free(trampoline, *tramp_size);
--- 
-2.20.1
-
+ static const struct dax_operations pmem_dax_ops = {
 
 
