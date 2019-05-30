@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FF6E2F1FD
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:18:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 102B32F015
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:01:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729603AbfE3ER2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:17:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39062 "EHLO mail.kernel.org"
+        id S1727131AbfE3EAY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:00:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730415AbfE3DPj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:15:39 -0400
+        id S1731531AbfE3DSY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:18:24 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A3A42458A;
-        Thu, 30 May 2019 03:15:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C2A1624725;
+        Thu, 30 May 2019 03:18:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186139;
-        bh=6XI6BUlrA5k8SXnhUDs5kmKjC8YZaPyUQ+X6CdLHIY0=;
+        s=default; t=1559186303;
+        bh=x2/QNGx8nirwxcagObMIBp3v/Rk1Pl5OmQJ2gEngKL4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UxxsdPHnw599B6/XhEB0d/MjB3yIJhuq81s+QgGfHW0LIxM/ntpCZi1N8zzinQuej
-         UFZFARBYROdzmIWYb7rfGJlxXTVKN5zF6P4pS9KVkdAglmZ0RJUE1tg/Td1q855xVM
-         o9QDw/KbRYltUk6dP40Y82zsoM4BSvH+G89m1XZk=
+        b=J46v4nXRWVBFu696ASjUIY+8FGrKMIe3Lm7YItGJvYXhDaZErJ0KWT5aJc1OZR1X6
+         YJ30SXi1qlMGgosT5DIIVuCh1QZROCRtrVZuJQWBP3HcejTK5+xTZKsDoZ9Jw9BWJQ
+         BpdbYWf/2oFRK3r3C5RZfXhcVtfdntvnW9uqh+Z4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dick Kennedy <dick.kennedy@broadcom.com>,
-        James Smart <jsmart2021@gmail.com>,
+        stable@vger.kernel.org, Chad Dupuis <cdupuis@marvell.com>,
+        Saurav Kashyap <skashyap@marvell.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 312/346] scsi: lpfc: Fix fc4type information for FDMI
+Subject: [PATCH 4.19 227/276] scsi: qedf: Add missing return in qedf_post_io_req() in the fcport offload check
 Date:   Wed, 29 May 2019 20:06:25 -0700
-Message-Id: <20190530030556.636057037@linuxfoundation.org>
+Message-Id: <20190530030539.304527381@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,56 +45,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 32a80c093b524a0682f1c6166c910387b116ffce ]
+[ Upstream commit c5e06ba2f76809ad1492fdad312e81335df46bc5 ]
 
-The driver is reporting support for NVME even when not configured for NVME
-operation.
+Fixes the following crash as the return was missing from the check if an
+fcport is offloaded. If we hit this code we continue to try to post an
+invalid task which can lead to the crash:
 
-Fix (and make more readable) when NVME protocol support is indicated.
+[30259.616411] [0000:61:00.3]:[qedf_post_io_req:989]:3: Session not offloaded yet.
+[30259.616413] [0000:61:00.3]:[qedf_upload_connection:1340]:3: Uploading connection port_id=490020.
+[30259.623769] BUG: unable to handle kernel NULL pointer dereference at 0000000000000198
+[30259.631645] IP: [<ffffffffc035b1ed>] qedf_init_task.isra.16+0x3d/0x450 [qedf]
+[30259.638816] PGD 0
+[30259.640841] Oops: 0000 [#1] SMP
+[30259.644098] Modules linked in: fuse xt_CHECKSUM iptable_mangle ipt_MASQUERADE nf_nat_masquerade_ipv4 iptable_nat nf_nat_ipv4 nf_nat nf_conntrack_ipv4 nf_defrag_ipv4 xt_conntrack nf_conntrack ipt_REJECT nf_reject_ipv4 tun bridge stp llc ebtable_filter ebtables devlink ip6table_filter ip6_tables iptable_filter vfat fat ib_isert iscsi_target_mod ib_srpt target_core_mod ib_srp scsi_transport_srp ib_ipoib ib_ucm ib_umad dm_service_time skx_edac intel_powerclamp coretemp intel_rapl iosf_mbi kvm_intel kvm irqbypass crc32_pclmul ghash_clmulni_intel aesni_intel rpcrdma sunrpc rdma_ucm ib_uverbs lrw gf128mul ib_iser rdma_cm iw_cm ib_cm libiscsi scsi_transport_iscsi qedr(OE) glue_helper ablk_helper cryptd ib_core dm_round_robin joydev pcspkr ipmi_ssif ses enclosure ipmi_si ipmi_devintf ipmi_msghandler mei_me
+[30259.715529]  mei sg hpilo hpwdt shpchp wmi lpc_ich acpi_power_meter dm_multipath ip_tables xfs libcrc32c sd_mod crc_t10dif crct10dif_generic uas usb_storage mgag200 qedf(OE) i2c_algo_bit libfcoe drm_kms_helper libfc syscopyarea sysfillrect scsi_transport_fc qede(OE) sysimgblt fb_sys_fops ptp ttm pps_core drm qed(OE) smartpqi crct10dif_pclmul crct10dif_common crc32c_intel i2c_core scsi_transport_sas scsi_tgt dm_mirror dm_region_hash dm_log dm_mod
+[30259.754237] CPU: 9 PID: 977 Comm: kdmwork-253:7 Kdump: loaded Tainted: G        W  OE  ------------   3.10.0-862.el7.x86_64 #1
+[30259.765664] Hardware name: HPE Synergy 480 Gen10/Synergy 480 Gen10 Compute Module, BIOS I42 04/04/2018
+[30259.775000] task: ffff8c801efd0000 ti: ffff8c801efd8000 task.ti: ffff8c801efd8000
+[30259.782505] RIP: 0010:[<ffffffffc035b1ed>]  [<ffffffffc035b1ed>] qedf_init_task.isra.16+0x3d/0x450 [qedf]
+[30259.792116] RSP: 0018:ffff8c801efdbbb0  EFLAGS: 00010046
+[30259.797444] RAX: 0000000000000000 RBX: ffffa7f1450948d8 RCX: ffff8c7fe5bc40c8
+[30259.804600] RDX: ffff8c800715b300 RSI: ffffa7f1450948d8 RDI: ffff8c80169c2480
+[30259.811755] RBP: ffff8c801efdbc30 R08: 00000000000000ae R09: ffff8c800a314540
+[30259.818911] R10: ffff8c7fe5bc40c8 R11: ffff8c801efdb8ae R12: 0000000000000000
+[30259.826068] R13: ffff8c800715b300 R14: ffff8c80169c2480 R15: ffff8c8005da28e0
+[30259.833223] FS:  0000000000000000(0000) GS:ffff8c803f840000(0000) knlGS:0000000000000000
+[30259.841338] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[30259.847100] CR2: 0000000000000198 CR3: 000000081242e000 CR4: 00000000007607e0
+[30259.854256] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[30259.861412] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[30259.868568] PKRU: 00000000
+[30259.871278] Call Trace:
+[30259.873737]  [<ffffffffc035c948>] qedf_post_io_req+0x148/0x680 [qedf]
+[30259.880201]  [<ffffffffc035d070>] qedf_queuecommand+0x1f0/0x240 [qedf]
+[30259.886749]  [<ffffffffa329b050>] scsi_dispatch_cmd+0xb0/0x240
+[30259.892600]  [<ffffffffa32a45bc>] scsi_request_fn+0x4cc/0x680
+[30259.898364]  [<ffffffffa3118ad9>] __blk_run_queue+0x39/0x50
+[30259.903954]  [<ffffffffa3114393>] __elv_add_request+0xd3/0x260
+[30259.909805]  [<ffffffffa311baf0>] blk_insert_cloned_request+0xf0/0x1b0
+[30259.916358]  [<ffffffffc010b622>] map_request+0x142/0x220 [dm_mod]
+[30259.922560]  [<ffffffffc010b716>] map_tio_request+0x16/0x40 [dm_mod]
+[30259.928932]  [<ffffffffa2ebb1f5>] kthread_worker_fn+0x85/0x180
+[30259.934782]  [<ffffffffa2ebb170>] ? kthread_stop+0xf0/0xf0
+[30259.940284]  [<ffffffffa2ebae31>] kthread+0xd1/0xe0
+[30259.945176]  [<ffffffffa2ebad60>] ? insert_kthread_work+0x40/0x40
+[30259.951290]  [<ffffffffa351f61d>] ret_from_fork_nospec_begin+0x7/0x21
+[30259.957750]  [<ffffffffa2ebad60>] ? insert_kthread_work+0x40/0x40
+[30259.963860] Code: fe 41 55 49 89 d5 41 54 53 48 89 f3 48 83 ec 58 4c 8b 67 28 4c 8b 4e 18 65 48 8b 04 25 28 00 00 00 48 89 45 d0 31 c0 4c 8b 7e 58 <49> 8b 84 24 98 01 00 00 48 8b 00 f6 80 31 01 00 00 10 0f 85 0b
+[30259.983372] RIP  [<ffffffffc035b1ed>] qedf_init_task.isra.16+0x3d/0x450 [qedf]
+[30259.990630]  RSP <ffff8c801efdbbb0>
+[30259.994127] CR2: 0000000000000198
 
-Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Chad Dupuis <cdupuis@marvell.com>
+Signed-off-by: Saurav Kashyap <skashyap@marvell.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_ct.c | 17 ++++++++++-------
- 1 file changed, 10 insertions(+), 7 deletions(-)
+ drivers/scsi/qedf/qedf_io.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/scsi/lpfc/lpfc_ct.c b/drivers/scsi/lpfc/lpfc_ct.c
-index 912aad3d5b043..b385b8ece343c 100644
---- a/drivers/scsi/lpfc/lpfc_ct.c
-+++ b/drivers/scsi/lpfc/lpfc_ct.c
-@@ -2363,10 +2363,11 @@ lpfc_fdmi_port_attr_fc4type(struct lpfc_vport *vport,
- 	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
- 	memset(ae, 0, 32);
+diff --git a/drivers/scsi/qedf/qedf_io.c b/drivers/scsi/qedf/qedf_io.c
+index 6bbc38b1b4654..a17c13846d1eb 100644
+--- a/drivers/scsi/qedf/qedf_io.c
++++ b/drivers/scsi/qedf/qedf_io.c
+@@ -902,6 +902,7 @@ int qedf_post_io_req(struct qedf_rport *fcport, struct qedf_ioreq *io_req)
+ 	if (!test_bit(QEDF_RPORT_SESSION_READY, &fcport->flags)) {
+ 		QEDF_ERR(&(qedf->dbg_ctx), "Session not offloaded yet.\n");
+ 		kref_put(&io_req->refcount, qedf_release_cmd);
++		return -EINVAL;
+ 	}
  
--	ae->un.AttrTypes[3] = 0x02; /* Type 1 - ELS */
--	ae->un.AttrTypes[2] = 0x01; /* Type 8 - FCP */
--	ae->un.AttrTypes[6] = 0x01; /* Type 40 - NVME */
--	ae->un.AttrTypes[7] = 0x01; /* Type 32 - CT */
-+	ae->un.AttrTypes[3] = 0x02; /* Type 0x1 - ELS */
-+	ae->un.AttrTypes[2] = 0x01; /* Type 0x8 - FCP */
-+	if (vport->nvmei_support || vport->phba->nvmet_support)
-+		ae->un.AttrTypes[6] = 0x01; /* Type 0x28 - NVME */
-+	ae->un.AttrTypes[7] = 0x01; /* Type 0x20 - CT */
- 	size = FOURBYTES + 32;
- 	ad->AttrLen = cpu_to_be16(size);
- 	ad->AttrType = cpu_to_be16(RPRT_SUPPORTED_FC4_TYPES);
-@@ -2676,9 +2677,11 @@ lpfc_fdmi_port_attr_active_fc4type(struct lpfc_vport *vport,
- 	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
- 	memset(ae, 0, 32);
- 
--	ae->un.AttrTypes[3] = 0x02; /* Type 1 - ELS */
--	ae->un.AttrTypes[2] = 0x01; /* Type 8 - FCP */
--	ae->un.AttrTypes[7] = 0x01; /* Type 32 - CT */
-+	ae->un.AttrTypes[3] = 0x02; /* Type 0x1 - ELS */
-+	ae->un.AttrTypes[2] = 0x01; /* Type 0x8 - FCP */
-+	if (vport->phba->cfg_enable_fc4_type & LPFC_ENABLE_NVME)
-+		ae->un.AttrTypes[6] = 0x1; /* Type 0x28 - NVME */
-+	ae->un.AttrTypes[7] = 0x01; /* Type 0x20 - CT */
- 	size = FOURBYTES + 32;
- 	ad->AttrLen = cpu_to_be16(size);
- 	ad->AttrType = cpu_to_be16(RPRT_ACTIVE_FC4_TYPES);
+ 	/* Obtain free SQE */
 -- 
 2.20.1
 
