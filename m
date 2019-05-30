@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 499A22F2C7
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:25:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 307BA2F4DA
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:42:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729204AbfE3DOt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:14:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35654 "EHLO mail.kernel.org"
+        id S1728928AbfE3DMR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:12:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729999AbfE3DOs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:14:48 -0400
+        id S1728910AbfE3DMQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:12:16 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E849423D83;
-        Thu, 30 May 2019 03:14:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C80642446F;
+        Thu, 30 May 2019 03:12:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186088;
-        bh=RFEM2H8khOyd/ggh69UVrx3KhVVg1WNQLPmT6YZ1J14=;
+        s=default; t=1559185935;
+        bh=nee2vrOmQ4okfHpD3mzELlBwcqL/4NjdOs0zA3n8Yhc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EbezbJ11DUFdW9EKse9HL9wYH4HgNKUiYmIwHzhAM+H0pmYQ9tokbVataoSwnOJ01
-         dbAdpiGYw72f6+udAYzLKb344/g3RM/IIVRmzjlvDR4sY+NxjM9RsiC0x/2inVA+4o
-         RFpPo7Pre5nPF+W33dXYxOAgnWfP1FsDydaaHULI=
+        b=ogDvhqfQnLanwno68Ca4rmQ0McjeyHz3nAY/d68QtOaDBpYjHqP069w8QbcwpHXLj
+         mRPdN9QHGR4IASL81ekXIQs78T/CaNLFLs+Y75S1XBH+uOOwxGnP43Ah1PoFMw8B8J
+         VCkRiEAC9Zx5RanuPhJCerYicvHHPIU+gIwBN47Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
-        Alexandru Ardelean <Alexandru.Ardelean@analog.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        Mukesh Ojha <mojha@codeaurora.org>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 216/346] iio: ad_sigma_delta: Properly handle SPI bus locking vs CS assertion
+Subject: [PATCH 5.1 291/405] thunderbolt: property: Fix a missing check of kzalloc
 Date:   Wed, 29 May 2019 20:04:49 -0700
-Message-Id: <20190530030552.040282078@linuxfoundation.org>
+Message-Id: <20190530030555.577875115@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,120 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit df1d80aee963480c5c2938c64ec0ac3e4a0df2e0 ]
+[ Upstream commit 6183d5a51866f3acdeeb66b75e87d44025b01a55 ]
 
-For devices from the SigmaDelta family we need to keep CS low when doing a
-conversion, since the device will use the MISO line as a interrupt to
-indicate that the conversion is complete.
+No check is enforced for the return value of kzalloc,
+which may lead to NULL-pointer dereference.
 
-This is why the driver locks the SPI bus and when the SPI bus is locked
-keeps as long as a conversion is going on. The current implementation gets
-one small detail wrong though. CS is only de-asserted after the SPI bus is
-unlocked. This means it is possible for a different SPI device on the same
-bus to send a message which would be wrongfully be addressed to the
-SigmaDelta device as well. Make sure that the last SPI transfer that is
-done while holding the SPI bus lock de-asserts the CS signal.
+The patch fixes this issue.
 
-Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
-Signed-off-by: Alexandru Ardelean <Alexandru.Ardelean@analog.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Kangjie Lu <kjlu@umn.edu>
+Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/ad_sigma_delta.c       | 16 +++++++++++-----
- include/linux/iio/adc/ad_sigma_delta.h |  1 +
- 2 files changed, 12 insertions(+), 5 deletions(-)
+ drivers/thunderbolt/property.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iio/adc/ad_sigma_delta.c b/drivers/iio/adc/ad_sigma_delta.c
-index 54d9978b27405..a4310600a8536 100644
---- a/drivers/iio/adc/ad_sigma_delta.c
-+++ b/drivers/iio/adc/ad_sigma_delta.c
-@@ -62,7 +62,7 @@ int ad_sd_write_reg(struct ad_sigma_delta *sigma_delta, unsigned int reg,
- 	struct spi_transfer t = {
- 		.tx_buf		= data,
- 		.len		= size + 1,
--		.cs_change	= sigma_delta->bus_locked,
-+		.cs_change	= sigma_delta->keep_cs_asserted,
- 	};
- 	struct spi_message m;
- 	int ret;
-@@ -218,6 +218,7 @@ static int ad_sd_calibrate(struct ad_sigma_delta *sigma_delta,
+diff --git a/drivers/thunderbolt/property.c b/drivers/thunderbolt/property.c
+index b2f0d6386ceea..ead18c532b53d 100644
+--- a/drivers/thunderbolt/property.c
++++ b/drivers/thunderbolt/property.c
+@@ -578,7 +578,12 @@ int tb_property_add_text(struct tb_property_dir *parent, const char *key,
+ 		return -ENOMEM;
  
- 	spi_bus_lock(sigma_delta->spi->master);
- 	sigma_delta->bus_locked = true;
-+	sigma_delta->keep_cs_asserted = true;
- 	reinit_completion(&sigma_delta->completion);
- 
- 	ret = ad_sigma_delta_set_mode(sigma_delta, mode);
-@@ -235,9 +236,10 @@ static int ad_sd_calibrate(struct ad_sigma_delta *sigma_delta,
- 		ret = 0;
- 	}
- out:
-+	sigma_delta->keep_cs_asserted = false;
-+	ad_sigma_delta_set_mode(sigma_delta, AD_SD_MODE_IDLE);
- 	sigma_delta->bus_locked = false;
- 	spi_bus_unlock(sigma_delta->spi->master);
--	ad_sigma_delta_set_mode(sigma_delta, AD_SD_MODE_IDLE);
- 
- 	return ret;
- }
-@@ -290,6 +292,7 @@ int ad_sigma_delta_single_conversion(struct iio_dev *indio_dev,
- 
- 	spi_bus_lock(sigma_delta->spi->master);
- 	sigma_delta->bus_locked = true;
-+	sigma_delta->keep_cs_asserted = true;
- 	reinit_completion(&sigma_delta->completion);
- 
- 	ad_sigma_delta_set_mode(sigma_delta, AD_SD_MODE_SINGLE);
-@@ -299,9 +302,6 @@ int ad_sigma_delta_single_conversion(struct iio_dev *indio_dev,
- 	ret = wait_for_completion_interruptible_timeout(
- 			&sigma_delta->completion, HZ);
- 
--	sigma_delta->bus_locked = false;
--	spi_bus_unlock(sigma_delta->spi->master);
--
- 	if (ret == 0)
- 		ret = -EIO;
- 	if (ret < 0)
-@@ -322,7 +322,10 @@ int ad_sigma_delta_single_conversion(struct iio_dev *indio_dev,
- 		sigma_delta->irq_dis = true;
- 	}
- 
-+	sigma_delta->keep_cs_asserted = false;
- 	ad_sigma_delta_set_mode(sigma_delta, AD_SD_MODE_IDLE);
-+	sigma_delta->bus_locked = false;
-+	spi_bus_unlock(sigma_delta->spi->master);
- 	mutex_unlock(&indio_dev->mlock);
- 
- 	if (ret)
-@@ -359,6 +362,8 @@ static int ad_sd_buffer_postenable(struct iio_dev *indio_dev)
- 
- 	spi_bus_lock(sigma_delta->spi->master);
- 	sigma_delta->bus_locked = true;
-+	sigma_delta->keep_cs_asserted = true;
+ 	property->length = size / 4;
+-	property->value.data = kzalloc(size, GFP_KERNEL);
++	property->value.text = kzalloc(size, GFP_KERNEL);
++	if (!property->value.text) {
++		kfree(property);
++		return -ENOMEM;
++	}
 +
- 	ret = ad_sigma_delta_set_mode(sigma_delta, AD_SD_MODE_CONTINUOUS);
- 	if (ret)
- 		goto err_unlock;
-@@ -387,6 +392,7 @@ static int ad_sd_buffer_postdisable(struct iio_dev *indio_dev)
- 		sigma_delta->irq_dis = true;
- 	}
+ 	strcpy(property->value.text, text);
  
-+	sigma_delta->keep_cs_asserted = false;
- 	ad_sigma_delta_set_mode(sigma_delta, AD_SD_MODE_IDLE);
- 
- 	sigma_delta->bus_locked = false;
-diff --git a/include/linux/iio/adc/ad_sigma_delta.h b/include/linux/iio/adc/ad_sigma_delta.h
-index 7e84351fa2c05..6e9fb1932dde9 100644
---- a/include/linux/iio/adc/ad_sigma_delta.h
-+++ b/include/linux/iio/adc/ad_sigma_delta.h
-@@ -69,6 +69,7 @@ struct ad_sigma_delta {
- 	bool			irq_dis;
- 
- 	bool			bus_locked;
-+	bool			keep_cs_asserted;
- 
- 	uint8_t			comm;
- 
+ 	list_add_tail(&property->list, &parent->properties);
 -- 
 2.20.1
 
