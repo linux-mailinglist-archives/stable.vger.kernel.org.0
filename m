@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BDA932EEE8
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:51:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A03962EC15
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:18:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731160AbfE3Du6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:50:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56488 "EHLO mail.kernel.org"
+        id S1731496AbfE3DSQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:18:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50012 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732050AbfE3DTv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:19:51 -0400
+        id S1731487AbfE3DSQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:18:16 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7C631248E3;
-        Thu, 30 May 2019 03:19:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DECD624797;
+        Thu, 30 May 2019 03:18:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186390;
-        bh=m8QEM/pFxCfxTcHSKNahObBFJDwpB5U9Z7VT3abzRP8=;
+        s=default; t=1559186296;
+        bh=HlqsrYSyKxnRC0lH59ph0ZTOGikuu4WjthtcOBJPZ1M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tvqr2LqEfjg072xKSPqQ3ns8k48hr3QTxybWikBFlX8vQeG1fubZkSR/k7kmEyXAp
-         aA+PltccC0IRHoONHTV6ocoydnioayBY+gzx5VDRsmAUoGl2+h7kuVkqHfvbgX88LX
-         tNToXhJzQzQF03t3i6INX2ZzeNmaiObYnMpaFdWI=
+        b=t9NfTeQ/54mOte8RUTFP7uyOh83EemTXw5j6+vfV3zd+8pjYfKG9Pr9gI5WYFBGHF
+         WRfNike8/J90Z8WElRG/VvF5RZD8AoNAwrN3tNTWCoSAqgNNw4IpH7XOUe9miRIn2k
+         pYdYYWAAqj9AarlnktLjgq7AEiR++eMeSpHUa4RI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 161/193] HID: logitech-hidpp: change low battery level threshold from 31 to 30 percent
+        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 257/276] media: gspca: do not resubmit URBs when streaming has stopped
 Date:   Wed, 29 May 2019 20:06:55 -0700
-Message-Id: <20190530030510.483197958@linuxfoundation.org>
+Message-Id: <20190530030541.254790523@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,49 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 1f87b0cd32b3456d7efdfb017fcf74d0bfe3ec29 ]
+[ Upstream commit e6f8bd59c28f758feea403a70d6c3ef28c50959f ]
 
-According to hidpp20_batterylevel_get_battery_info my Logitech K270
-keyboard reports only 2 battery levels. This matches with what I've seen
-after testing with batteries at varying level of fullness, it always
-reports either 5% or 30%.
+When streaming is stopped all URBs are killed, but in fill_frame and in
+bulk_irq this results in an attempt to resubmit the killed URB. That is
+not what you want and causes spurious kernel messages.
 
-Windows reports "battery good" for the 30% level. I've captured an USB
-trace of Windows reading the battery and it is getting the same info
-as the Linux hidpp code gets.
+So check if streaming has stopped before resubmitting.
 
-Now that Linux handles these devices as hidpp devices, it reports the
-battery as being low as it treats anything under 31% as low, this leads
-to the user constantly getting a "Keyboard battery is low" warning from
-GNOME3, which is very annoying.
+Also check against gspca_dev->streaming rather than vb2_start_streaming_called()
+since vb2_start_streaming_called() will return true when in stop_streaming,
+but gspca_dev->streaming is set to false when stop_streaming is called.
 
-This commit fixes this by changing the low threshold to anything under
-30%, which I assume is what Windows does.
+Fixes: 6992effe5344 ("gspca: Kill all URBs before releasing any of them")
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-logitech-hidpp.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/media/usb/gspca/gspca.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index d209b12057d59..b705cbb58ca6b 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -910,7 +910,11 @@ static int hidpp_map_battery_level(int capacity)
- {
- 	if (capacity < 11)
- 		return POWER_SUPPLY_CAPACITY_LEVEL_CRITICAL;
--	else if (capacity < 31)
-+	/*
-+	 * The spec says this should be < 31 but some devices report 30
-+	 * with brand new batteries and Windows reports 30 as "Good".
-+	 */
-+	else if (capacity < 30)
- 		return POWER_SUPPLY_CAPACITY_LEVEL_LOW;
- 	else if (capacity < 81)
- 		return POWER_SUPPLY_CAPACITY_LEVEL_NORMAL;
+diff --git a/drivers/media/usb/gspca/gspca.c b/drivers/media/usb/gspca/gspca.c
+index fd4a1456b6ca2..b12356c533a65 100644
+--- a/drivers/media/usb/gspca/gspca.c
++++ b/drivers/media/usb/gspca/gspca.c
+@@ -314,6 +314,8 @@ static void fill_frame(struct gspca_dev *gspca_dev,
+ 	}
+ 
+ resubmit:
++	if (!gspca_dev->streaming)
++		return;
+ 	/* resubmit the URB */
+ 	st = usb_submit_urb(urb, GFP_ATOMIC);
+ 	if (st < 0)
+@@ -330,7 +332,7 @@ static void isoc_irq(struct urb *urb)
+ 	struct gspca_dev *gspca_dev = (struct gspca_dev *) urb->context;
+ 
+ 	gspca_dbg(gspca_dev, D_PACK, "isoc irq\n");
+-	if (!vb2_start_streaming_called(&gspca_dev->queue))
++	if (!gspca_dev->streaming)
+ 		return;
+ 	fill_frame(gspca_dev, urb);
+ }
+@@ -344,7 +346,7 @@ static void bulk_irq(struct urb *urb)
+ 	int st;
+ 
+ 	gspca_dbg(gspca_dev, D_PACK, "bulk irq\n");
+-	if (!vb2_start_streaming_called(&gspca_dev->queue))
++	if (!gspca_dev->streaming)
+ 		return;
+ 	switch (urb->status) {
+ 	case 0:
+@@ -367,6 +369,8 @@ static void bulk_irq(struct urb *urb)
+ 				urb->actual_length);
+ 
+ resubmit:
++	if (!gspca_dev->streaming)
++		return;
+ 	/* resubmit the URB */
+ 	if (gspca_dev->cam.bulk_nurbs != 0) {
+ 		st = usb_submit_urb(urb, GFP_ATOMIC);
 -- 
 2.20.1
 
