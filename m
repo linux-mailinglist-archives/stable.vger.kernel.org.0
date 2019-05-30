@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 289D02F466
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:38:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A40B62EF0F
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:52:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728420AbfE3DMq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:12:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56188 "EHLO mail.kernel.org"
+        id S1731958AbfE3DTh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:19:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729210AbfE3DMq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:12:46 -0400
+        id S1728936AbfE3DTg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:19:36 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AFD86244B0;
-        Thu, 30 May 2019 03:12:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1AD062482E;
+        Thu, 30 May 2019 03:19:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185965;
-        bh=xEQL8cLkJontcf8UKMDxuTMBWccBYxd86576sMJ/CxU=;
+        s=default; t=1559186376;
+        bh=G7/EF0+sycBI1xObFRMuUqqyLtCEWKWSYGWiHh9zcnk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wdFH3qHpEIgMcJGyv4aSKSDeJ9guBnl9VKcMzA/g0GS+QnfH1/q85YG5RrK1wcD83
-         mPfy6Nt2H07fhwpsJZrugmylaecwoXOu5MwRvaoBsK96+hWYvvVfHTTSZjv6B/+NKF
-         6cT2q6AIf1kFZgngnS2Cr09GnlQjwUkDYXjGcuSk=
+        b=QI41VqCMuqcyVxz32tMLM9jAaOGXuOT2I+GgfOcNjthkOAfZk20Z2Woa6UmQrTdPU
+         jkMUdr2URK0inWlPBQGK5dE/qdQ5AUYBx2fPNNuPKm8m/S3JzZYWfCsk9GFG+Js3wc
+         yI7GRM3kmkQhrpnpkmE2ZoKxDwHfU6UTJgffFPYI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Peter Ujfalusi <peter.ujfalusi@ti.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 393/405] ASoC: ti: fix davinci_mcasp_probe dependencies
+Subject: [PATCH 4.14 137/193] iio: hmc5843: fix potential NULL pointer dereferences
 Date:   Wed, 29 May 2019 20:06:31 -0700
-Message-Id: <20190530030600.490522223@linuxfoundation.org>
+Message-Id: <20190530030507.522040726@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
+References: <20190530030446.953835040@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,52 +44,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 7d7b25d05ef1c5a1a9320190e1eeb55534847558 ]
+[ Upstream commit 536cc27deade8f1ec3c1beefa60d5fbe0f6fcb28 ]
 
-The SND_SOC_DAVINCI_MCASP driver can use either edma or sdma as
-a back-end, and it takes the presence of the respective dma engine
-drivers in the configuration as an indication to which ones should be
-built. However, this is flawed in multiple ways:
+devm_regmap_init_i2c may fail and return NULL. The fix returns
+the error when it fails.
 
-- With CONFIG_TI_EDMA=m and CONFIG_SND_SOC_DAVINCI_MCASP=y,
-  is enabled as =m, and we get a link error:
-  sound/soc/ti/davinci-mcasp.o: In function `davinci_mcasp_probe':
-  davinci-mcasp.c:(.text+0x930): undefined reference to `edma_pcm_platform_register'
-
-- When CONFIG_SND_SOC_DAVINCI_MCASP=m has already been selected by
-  another driver, the same link error appears even if CONFIG_TI_EDMA
-  is disabled
-
-There are possibly other issues here, but it seems that the only reasonable
-solution is to always build both SND_SOC_TI_EDMA_PCM and
-SND_SOC_TI_SDMA_PCM as a dependency here. Both are fairly small and
-do not have any other compile-time dependencies, so the cost is
-very small, and makes the configuration stage much more consistent.
-
-Fixes: f2055e145f29 ("ASoC: ti: Merge davinci and omap directories")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Kangjie Lu <kjlu@umn.edu>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/ti/Kconfig | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/iio/magnetometer/hmc5843_i2c.c | 7 ++++++-
+ drivers/iio/magnetometer/hmc5843_spi.c | 7 ++++++-
+ 2 files changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/ti/Kconfig b/sound/soc/ti/Kconfig
-index 4bf3c15d4e514..ee7c202c69b77 100644
---- a/sound/soc/ti/Kconfig
-+++ b/sound/soc/ti/Kconfig
-@@ -21,8 +21,8 @@ config SND_SOC_DAVINCI_ASP
+diff --git a/drivers/iio/magnetometer/hmc5843_i2c.c b/drivers/iio/magnetometer/hmc5843_i2c.c
+index 3de7f4426ac40..86abba5827a25 100644
+--- a/drivers/iio/magnetometer/hmc5843_i2c.c
++++ b/drivers/iio/magnetometer/hmc5843_i2c.c
+@@ -58,8 +58,13 @@ static const struct regmap_config hmc5843_i2c_regmap_config = {
+ static int hmc5843_i2c_probe(struct i2c_client *cli,
+ 			     const struct i2c_device_id *id)
+ {
++	struct regmap *regmap = devm_regmap_init_i2c(cli,
++			&hmc5843_i2c_regmap_config);
++	if (IS_ERR(regmap))
++		return PTR_ERR(regmap);
++
+ 	return hmc5843_common_probe(&cli->dev,
+-			devm_regmap_init_i2c(cli, &hmc5843_i2c_regmap_config),
++			regmap,
+ 			id->driver_data, id->name);
+ }
  
- config SND_SOC_DAVINCI_MCASP
- 	tristate "Multichannel Audio Serial Port (McASP) support"
--	select SND_SOC_TI_EDMA_PCM if TI_EDMA
--	select SND_SOC_TI_SDMA_PCM if DMA_OMAP
-+	select SND_SOC_TI_EDMA_PCM
-+	select SND_SOC_TI_SDMA_PCM
- 	help
- 	  Say Y or M here if you want to have support for McASP IP found in
- 	  various Texas Instruments SoCs like:
+diff --git a/drivers/iio/magnetometer/hmc5843_spi.c b/drivers/iio/magnetometer/hmc5843_spi.c
+index 535f03a70d630..79b2b707f90e7 100644
+--- a/drivers/iio/magnetometer/hmc5843_spi.c
++++ b/drivers/iio/magnetometer/hmc5843_spi.c
+@@ -58,6 +58,7 @@ static const struct regmap_config hmc5843_spi_regmap_config = {
+ static int hmc5843_spi_probe(struct spi_device *spi)
+ {
+ 	int ret;
++	struct regmap *regmap;
+ 	const struct spi_device_id *id = spi_get_device_id(spi);
+ 
+ 	spi->mode = SPI_MODE_3;
+@@ -67,8 +68,12 @@ static int hmc5843_spi_probe(struct spi_device *spi)
+ 	if (ret)
+ 		return ret;
+ 
++	regmap = devm_regmap_init_spi(spi, &hmc5843_spi_regmap_config);
++	if (IS_ERR(regmap))
++		return PTR_ERR(regmap);
++
+ 	return hmc5843_common_probe(&spi->dev,
+-			devm_regmap_init_spi(spi, &hmc5843_spi_regmap_config),
++			regmap,
+ 			id->driver_data, id->name);
+ }
+ 
 -- 
 2.20.1
 
