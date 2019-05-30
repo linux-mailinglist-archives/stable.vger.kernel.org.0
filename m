@@ -2,51 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 433FE2F385
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:33:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 271EA2F61E
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:53:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729528AbfE3DNg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:13:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59154 "EHLO mail.kernel.org"
+        id S1728181AbfE3ExR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:53:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728611AbfE3DNf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:13:35 -0400
+        id S1728176AbfE3DKj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:10:39 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB98A23D14;
-        Thu, 30 May 2019 03:13:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 33EAA24476;
+        Thu, 30 May 2019 03:10:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186014;
-        bh=xtfGhJxCISmQEIAzY9UNuJPijIzOmphvj3fYTog3FJs=;
+        s=default; t=1559185839;
+        bh=UmEJHAfWIK7VkVI/uteN4bC2ybQ8chuCJEsEv4rU13A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nDWpWhd63FDgWNiYB8Lk7WK65shUKzzzR4UPmeula6IHJ/OW1rBDzAV0+UDYAHTrC
-         gUKGraD/ypEXA8C7RNGhpdogNPwNFCWPjkNocl9GzkhlLTi67VdVyWkYnvJY21N6Mb
-         Ye3YlCLFBg2VzKOc80qHOY25mm0tYP3vUiWH8q7M=
+        b=eHCtpbgXPSfoumZgH32U7ahvgv4hzRNyaMYAIiD/3Zh5xZPhqEIj+uC/XXw5F3Tga
+         UKJ2z+tkbkucLqwpbSQNYKv7zwsHkalBT0nXhHifZX7oJfMgP3MN9Id7TVbi6Qv5c5
+         IasyRSkIW9foB7xPUSxTw6cI27l3jg8JSlWJm0ZI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nadav Amit <namit@vmware.com>,
-        Rick Edgecombe <rick.p.edgecombe@intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        akpm@linux-foundation.org, ard.biesheuvel@linaro.org,
-        deneen.t.dock@intel.com, kernel-hardening@lists.openwall.com,
-        kristen@linux.intel.com, linux_dti@icloud.com, will.deacon@arm.com,
-        Andy Lutomirski <luto@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Rik van Riel <riel@surriel.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 079/346] x86/ftrace: Set trampoline pages as executable
+        stable@vger.kernel.org, Janusz Krzysztofik <jmkrzyszt@gmail.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 154/405] media: ov6650: Move v4l2_clk_get() to ov6650_video_probe() helper
 Date:   Wed, 29 May 2019 20:02:32 -0700
-Message-Id: <20190530030545.129961442@linuxfoundation.org>
+Message-Id: <20190530030548.941784142@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,72 +45,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 3c0dab44e22782359a0a706cbce72de99a22aa75 ]
+[ Upstream commit ccdd85d518d8b9320ace1d87271f0ba2175f21fa ]
 
-Since alloc_module() will not set the pages as executable soon, set
-ftrace trampoline pages as executable after they are allocated.
+In preparation for adding asynchronous subdevice support to the driver,
+don't acquire v4l2_clk from the driver .probe() callback as that may
+fail if the clock is provided by a bridge driver which may be not yet
+initialized.  Move the v4l2_clk_get() to ov6650_video_probe() helper
+which is going to be converted to v4l2_subdev_internal_ops.registered()
+callback, executed only when the bridge driver is ready.
 
-For the time being, do not change ftrace to use the text_poke()
-interface. As a result, ftrace still breaks W^X.
-
-Signed-off-by: Nadav Amit <namit@vmware.com>
-Signed-off-by: Rick Edgecombe <rick.p.edgecombe@intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Cc: <akpm@linux-foundation.org>
-Cc: <ard.biesheuvel@linaro.org>
-Cc: <deneen.t.dock@intel.com>
-Cc: <kernel-hardening@lists.openwall.com>
-Cc: <kristen@linux.intel.com>
-Cc: <linux_dti@icloud.com>
-Cc: <will.deacon@arm.com>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: H. Peter Anvin <hpa@zytor.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Rik van Riel <riel@surriel.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: https://lkml.kernel.org/r/20190426001143.4983-10-namit@vmware.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/ftrace.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/media/i2c/ov6650.c | 25 ++++++++++++++-----------
+ 1 file changed, 14 insertions(+), 11 deletions(-)
 
-diff --git a/arch/x86/kernel/ftrace.c b/arch/x86/kernel/ftrace.c
-index 2ee4b12a70e80..becb075954aa9 100644
---- a/arch/x86/kernel/ftrace.c
-+++ b/arch/x86/kernel/ftrace.c
-@@ -748,6 +748,7 @@ create_trampoline(struct ftrace_ops *ops, unsigned int *tramp_size)
- 	unsigned long end_offset;
- 	unsigned long op_offset;
- 	unsigned long offset;
-+	unsigned long npages;
- 	unsigned long size;
- 	unsigned long retq;
- 	unsigned long *ptr;
-@@ -780,6 +781,7 @@ create_trampoline(struct ftrace_ops *ops, unsigned int *tramp_size)
- 		return 0;
+diff --git a/drivers/media/i2c/ov6650.c b/drivers/media/i2c/ov6650.c
+index f9359b11fa5cb..de7d9790f0542 100644
+--- a/drivers/media/i2c/ov6650.c
++++ b/drivers/media/i2c/ov6650.c
+@@ -810,9 +810,16 @@ static int ov6650_video_probe(struct i2c_client *client)
+ 	u8		pidh, pidl, midh, midl;
+ 	int		ret;
  
- 	*tramp_size = size + RET_SIZE + sizeof(void *);
-+	npages = DIV_ROUND_UP(*tramp_size, PAGE_SIZE);
++	priv->clk = v4l2_clk_get(&client->dev, NULL);
++	if (IS_ERR(priv->clk)) {
++		ret = PTR_ERR(priv->clk);
++		dev_err(&client->dev, "v4l2_clk request err: %d\n", ret);
++		return ret;
++	}
++
+ 	ret = ov6650_s_power(&priv->subdev, 1);
+ 	if (ret < 0)
+-		return ret;
++		goto eclkput;
  
- 	/* Copy ftrace_caller onto the trampoline memory */
- 	ret = probe_kernel_read(trampoline, (void *)start_offset, size);
-@@ -824,6 +826,12 @@ create_trampoline(struct ftrace_ops *ops, unsigned int *tramp_size)
- 	/* ALLOC_TRAMP flags lets us know we created it */
- 	ops->flags |= FTRACE_OPS_FL_ALLOC_TRAMP;
+ 	msleep(20);
  
-+	/*
-+	 * Module allocation needs to be completed by making the page
-+	 * executable. The page is still writable, which is a security hazard,
-+	 * but anyhow ftrace breaks W^X completely.
-+	 */
-+	set_memory_x((unsigned long)trampoline, npages);
- 	return (unsigned long)trampoline;
- fail:
- 	tramp_free(trampoline, *tramp_size);
+@@ -849,6 +856,11 @@ static int ov6650_video_probe(struct i2c_client *client)
+ 
+ done:
+ 	ov6650_s_power(&priv->subdev, 0);
++	if (!ret)
++		return 0;
++eclkput:
++	v4l2_clk_put(priv->clk);
++
+ 	return ret;
+ }
+ 
+@@ -991,18 +1003,9 @@ static int ov6650_probe(struct i2c_client *client,
+ 	priv->code	  = MEDIA_BUS_FMT_YUYV8_2X8;
+ 	priv->colorspace  = V4L2_COLORSPACE_JPEG;
+ 
+-	priv->clk = v4l2_clk_get(&client->dev, NULL);
+-	if (IS_ERR(priv->clk)) {
+-		ret = PTR_ERR(priv->clk);
+-		goto eclkget;
+-	}
+-
+ 	ret = ov6650_video_probe(client);
+-	if (ret) {
+-		v4l2_clk_put(priv->clk);
+-eclkget:
++	if (ret)
+ 		v4l2_ctrl_handler_free(&priv->hdl);
+-	}
+ 
+ 	return ret;
+ }
 -- 
 2.20.1
 
