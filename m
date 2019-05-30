@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C91402F325
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:27:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 501C42F565
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:47:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729893AbfE3E0j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:26:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33692 "EHLO mail.kernel.org"
+        id S1729291AbfE3ErA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:47:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729883AbfE3DOa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:14:30 -0400
+        id S1728605AbfE3DLf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:11:35 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 45ABA24593;
-        Thu, 30 May 2019 03:14:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3FCC82449A;
+        Thu, 30 May 2019 03:11:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186070;
-        bh=KP7lvIFijuAn26mjaA5TFZqQkhkHwDao4ZgML5cbYZg=;
+        s=default; t=1559185895;
+        bh=IPghI0RmVykeJr4nnKCP1kF2boj4VSlS5RPM9XtrRCk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uS7CqsVzzGsPeoLFGnLTRPr4dCr7a41k1irYxVs3YAy4BTVIkCJSfc26LX1LQCj2R
-         IM5oygVjlLW+BCrsozrzcf6k2XHLO4sJOfdc2lKH4IB5r0uGIp4ZaGavRRgH139UWv
-         V8zcOwgOqA3tXmZ5MG88dq8mqGCFPryn9y0OWjDI=
+        b=BQXTs7EFhA49c7fXb1dr7lbQlPQk0S6BXynIOL4LqZ9LPeyH9SVFQ8ySyCrgCRHZZ
+         PlSy3DPj1Xh0YKexsyIW++jZpZO3R15xjufbVbCHBX7ikYOrhnTrDwA1Jwn93b5/1d
+         vRdWEzRr9xPiKmuL+Aq+mG1uXFc2QlwJEzzEcvlY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kefeng Wang <wangkefeng.wang@huawei.com>,
-        John Garry <john.garry@huawei.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        stable@vger.kernel.org, Stanley Chu <stanley.chu@mediatek.com>,
+        Avri Altman <avri.altman@wdc.com>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 184/346] hwmon: (f71805f) Use request_muxed_region for Super-IO accesses
+Subject: [PATCH 5.1 259/405] scsi: ufs: Avoid configuring regulator with undefined voltage range
 Date:   Wed, 29 May 2019 20:04:17 -0700
-Message-Id: <20190530030550.429515183@linuxfoundation.org>
+Message-Id: <20190530030554.064456881@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,89 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 73e6ff71a7ea924fb7121d576a2d41e3be3fc6b5 ]
+[ Upstream commit 3b141e8cfd54ba3e5c610717295b2a02aab26a05 ]
 
-Super-IO accesses may fail on a system with no or unmapped LPC bus.
+For regulators used by UFS, vcc, vccq and vccq2 will have voltage range
+initialized by ufshcd_populate_vreg(), however other regulators may have
+undefined voltage range if dt-bindings have no such definition.
 
-Unable to handle kernel paging request at virtual address ffffffbffee0002e
-pgd = ffffffc1d68d4000
-[ffffffbffee0002e] *pgd=0000000000000000, *pud=0000000000000000
-Internal error: Oops: 94000046 [#1] PREEMPT SMP
-Modules linked in: f71805f(+) hwmon
-CPU: 3 PID: 1659 Comm: insmod Not tainted 4.5.0+ #88
-Hardware name: linux,dummy-virt (DT)
-task: ffffffc1f6665400 ti: ffffffc1d6418000 task.ti: ffffffc1d6418000
-PC is at f71805f_find+0x6c/0x358 [f71805f]
+In above undefined case, both "min_uV" and "max_uV" fields in ufs_vreg
+struct will be zero values and these values will be configured on
+regulators in different power modes.
 
-Also, other drivers may attempt to access the LPC bus at the same time,
-resulting in undefined behavior.
+Currently this may have no harm if both "min_uV" and "max_uV" always keep
+"zero values" because regulator_set_voltage() will always bypass such
+invalid values and return "good" results.
 
-Use request_muxed_region() to ensure that IO access on the requested
-address space is supported, and to ensure that access by multiple
-drivers is synchronized.
+However improper values shall be fixed to avoid potential bugs.  Simply
+bypass voltage configuration if voltage range is not defined.
 
-Fixes: e53004e20a58e ("hwmon: New f71805f driver")
-Reported-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Reported-by: John Garry <john.garry@huawei.com>
-Cc: John Garry <john.garry@huawei.com>
-Acked-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
+Reviewed-by: Avri Altman <avri.altman@wdc.com>
+Acked-by: Alim Akhtar <alim.akhtar@samsung.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/f71805f.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ drivers/scsi/ufs/ufshcd.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/hwmon/f71805f.c b/drivers/hwmon/f71805f.c
-index 73c681162653b..623736d2a7c1d 100644
---- a/drivers/hwmon/f71805f.c
-+++ b/drivers/hwmon/f71805f.c
-@@ -96,17 +96,23 @@ superio_select(int base, int ld)
- 	outb(ld, base + 1);
- }
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index 58e0bd1dac9b4..5ba49c8cd2a36 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -7048,12 +7048,15 @@ static int ufshcd_config_vreg(struct device *dev,
+ 	name = vreg->name;
  
--static inline void
-+static inline int
- superio_enter(int base)
- {
-+	if (!request_muxed_region(base, 2, DRVNAME))
-+		return -EBUSY;
-+
- 	outb(0x87, base);
- 	outb(0x87, base);
-+
-+	return 0;
- }
+ 	if (regulator_count_voltages(reg) > 0) {
+-		min_uV = on ? vreg->min_uV : 0;
+-		ret = regulator_set_voltage(reg, min_uV, vreg->max_uV);
+-		if (ret) {
+-			dev_err(dev, "%s: %s set voltage failed, err=%d\n",
++		if (vreg->min_uV && vreg->max_uV) {
++			min_uV = on ? vreg->min_uV : 0;
++			ret = regulator_set_voltage(reg, min_uV, vreg->max_uV);
++			if (ret) {
++				dev_err(dev,
++					"%s: %s set voltage failed, err=%d\n",
+ 					__func__, name, ret);
+-			goto out;
++				goto out;
++			}
+ 		}
  
- static inline void
- superio_exit(int base)
- {
- 	outb(0xaa, base);
-+	release_region(base, 2);
- }
- 
- /*
-@@ -1561,7 +1567,7 @@ static int __init f71805f_device_add(unsigned short address,
- static int __init f71805f_find(int sioaddr, unsigned short *address,
- 			       struct f71805f_sio_data *sio_data)
- {
--	int err = -ENODEV;
-+	int err;
- 	u16 devid;
- 
- 	static const char * const names[] = {
-@@ -1569,8 +1575,11 @@ static int __init f71805f_find(int sioaddr, unsigned short *address,
- 		"F71872F/FG or F71806F/FG",
- 	};
- 
--	superio_enter(sioaddr);
-+	err = superio_enter(sioaddr);
-+	if (err)
-+		return err;
- 
-+	err = -ENODEV;
- 	devid = superio_inw(sioaddr, SIO_REG_MANID);
- 	if (devid != SIO_FINTEK_ID)
- 		goto exit;
+ 		uA_load = on ? vreg->max_uA : 0;
 -- 
 2.20.1
 
