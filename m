@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D8CF02F226
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:19:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC5252F088
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:05:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727400AbfE3ETD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:19:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38798 "EHLO mail.kernel.org"
+        id S1731255AbfE3DRs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:17:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730303AbfE3DP2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:15:28 -0400
+        id S1731248AbfE3DRr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:17:47 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA10224557;
-        Thu, 30 May 2019 03:15:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4B015246F4;
+        Thu, 30 May 2019 03:17:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186127;
-        bh=E/EYYlcgbQtQS2gTJGEww6lOw4QQeGZBhvt4msuHt0o=;
+        s=default; t=1559186267;
+        bh=uaRMoL5wlZ6kDLSuDyHVPV2xn/4AO4FX8g0HIPN9Oco=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h9e5X6ny16Tlosap+d2Braqi8Hji8HthIDKTRfKT3S9F+3Cbg8gDhMxKl/RNtNsil
-         wFwv0+sZ+kieNBMzGFagWeOs6bi9Zg2Q9lNbaeeWbBGFzer9/t/0AHjQjSYdlyEbNL
-         MURIpq6awKEPh6na2AMVDxBRuPBpUnIlxQQzqlLM=
+        b=Govy9GKyA8CXpPM+VZ6GKrZzgUWw4ZG86RwOG4xAO9Hf+AprTGxKXQMgJKz7/rn33
+         SYVYnoFnHZM4dCAHP06h8x1ol3IDYxpfZwp314ySWgJgGRiG9BRwRYJA+3BBreXoHR
+         HrubZO7VRqJM5SndFJb+DKag8o9YlkM9vvGgUoXI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>,
-        Tony Cheng <Tony.Cheng@amd.com>,
-        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        =?UTF-8?q?Yannick=20Fertr=C3=A9?= <yannick.fertre@st.com>,
+        Philippe Cornu <philippe.cornu@st.com>,
+        Thierry Reding <treding@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 288/346] drm/amd/display: fix releasing planes when exiting odm
+Subject: [PATCH 4.19 203/276] drm/panel: otm8009a: Add delay at the end of initialization
 Date:   Wed, 29 May 2019 20:06:01 -0700
-Message-Id: <20190530030555.482788966@linuxfoundation.org>
+Message-Id: <20190530030537.820652297@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,40 +46,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit bc2193992b00488f5734613ac95b78ef2d2803ab ]
+[ Upstream commit 0084c3c71126fc878c6dab8a6ab8ecc484c2be02 ]
 
-Releasing planes should not release the 2nd odm pipe right away,
-this change leaves us with 2 pipes with null planes and same stream
-when planes are released during odm.
+At the end of initialization, a delay is required by the panel. Without
+this delay, the panel could received a frame early & generate a crash of
+panel (black screen).
 
-Signed-off-by: Dmytro Laktyushkin <Dmytro.Laktyushkin@amd.com>
-Reviewed-by: Tony Cheng <Tony.Cheng@amd.com>
-Acked-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Yannick Fertré <yannick.fertre@st.com>
+Reviewed-by: Philippe Cornu <philippe.cornu@st.com>
+Tested-by: Philippe Cornu <philippe.cornu@st.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/1553155445-13407-1-git-send-email-yannick.fertre@st.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc_resource.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/panel/panel-orisetech-otm8009a.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-index 76137df74a535..c6aa80d7e639b 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_resource.c
-@@ -1266,10 +1266,12 @@ bool dc_remove_plane_from_context(
- 			 * For head pipe detach surfaces from pipe for tail
- 			 * pipe just zero it out
- 			 */
--			if (!pipe_ctx->top_pipe) {
-+			if (!pipe_ctx->top_pipe ||
-+				(!pipe_ctx->top_pipe->top_pipe &&
-+					pipe_ctx->top_pipe->stream_res.opp != pipe_ctx->stream_res.opp)) {
- 				pipe_ctx->plane_state = NULL;
- 				pipe_ctx->bottom_pipe = NULL;
--			} else  {
-+			} else {
- 				memset(pipe_ctx, 0, sizeof(*pipe_ctx));
- 			}
- 		}
+diff --git a/drivers/gpu/drm/panel/panel-orisetech-otm8009a.c b/drivers/gpu/drm/panel/panel-orisetech-otm8009a.c
+index 87fa316e1d7b0..58ccf648b70fb 100644
+--- a/drivers/gpu/drm/panel/panel-orisetech-otm8009a.c
++++ b/drivers/gpu/drm/panel/panel-orisetech-otm8009a.c
+@@ -248,6 +248,9 @@ static int otm8009a_init_sequence(struct otm8009a *ctx)
+ 	/* Send Command GRAM memory write (no parameters) */
+ 	dcs_write_seq(ctx, MIPI_DCS_WRITE_MEMORY_START);
+ 
++	/* Wait a short while to let the panel be ready before the 1st frame */
++	mdelay(10);
++
+ 	return 0;
+ }
+ 
 -- 
 2.20.1
 
