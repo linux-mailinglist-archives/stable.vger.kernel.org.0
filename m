@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A09902F140
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:11:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C91402F325
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:27:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727522AbfE3ELZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:11:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44146 "EHLO mail.kernel.org"
+        id S1729893AbfE3E0j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:26:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730824AbfE3DQt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:16:49 -0400
+        id S1729883AbfE3DOa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:14:30 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 165C02463B;
-        Thu, 30 May 2019 03:16:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 45ABA24593;
+        Thu, 30 May 2019 03:14:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186209;
-        bh=2UazqRjuzoOXDHyZZIdyQrYIVDecx+AtbXkWHmBiQsA=;
+        s=default; t=1559186070;
+        bh=KP7lvIFijuAn26mjaA5TFZqQkhkHwDao4ZgML5cbYZg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p4JoyhJmbjBt3HJKGeN4SgTYHpIrDmqZaLU5V1T2zPHkDX4h4tjpcE0aGW3TVM4T+
-         Dk5wXVSSHad0dOQaPkKK+t8R7fBVJri2RZANfw42oODGNWGAfXp921l3Ya1rIaCwQB
-         6DM/0qgg+uizOn0gDvchabsgALbVu9bBI6kt2fAQ=
+        b=uS7CqsVzzGsPeoLFGnLTRPr4dCr7a41k1irYxVs3YAy4BTVIkCJSfc26LX1LQCj2R
+         IM5oygVjlLW+BCrsozrzcf6k2XHLO4sJOfdc2lKH4IB5r0uGIp4ZaGavRRgH139UWv
+         V8zcOwgOqA3tXmZ5MG88dq8mqGCFPryn9y0OWjDI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sagi Grimberg <sagi@grimberg.me>,
-        Keith Busch <keith.busch@intel.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 099/276] nvme: set 0 capacity if namespace block size exceeds PAGE_SIZE
+        stable@vger.kernel.org, Kefeng Wang <wangkefeng.wang@huawei.com>,
+        John Garry <john.garry@huawei.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 184/346] hwmon: (f71805f) Use request_muxed_region for Super-IO accesses
 Date:   Wed, 29 May 2019 20:04:17 -0700
-Message-Id: <20190530030532.308764459@linuxfoundation.org>
+Message-Id: <20190530030550.429515183@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +45,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 01fa017484ad98fccdeaab32db0077c574b6bd6f ]
+[ Upstream commit 73e6ff71a7ea924fb7121d576a2d41e3be3fc6b5 ]
 
-If our target exposed a namespace with a block size that is greater
-than PAGE_SIZE, set 0 capacity on the namespace as we do not support it.
+Super-IO accesses may fail on a system with no or unmapped LPC bus.
 
-This issue encountered when the nvmet namespace was backed by a tempfile.
+Unable to handle kernel paging request at virtual address ffffffbffee0002e
+pgd = ffffffc1d68d4000
+[ffffffbffee0002e] *pgd=0000000000000000, *pud=0000000000000000
+Internal error: Oops: 94000046 [#1] PREEMPT SMP
+Modules linked in: f71805f(+) hwmon
+CPU: 3 PID: 1659 Comm: insmod Not tainted 4.5.0+ #88
+Hardware name: linux,dummy-virt (DT)
+task: ffffffc1f6665400 ti: ffffffc1d6418000 task.ti: ffffffc1d6418000
+PC is at f71805f_find+0x6c/0x358 [f71805f]
 
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
-Reviewed-by: Keith Busch <keith.busch@intel.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Also, other drivers may attempt to access the LPC bus at the same time,
+resulting in undefined behavior.
+
+Use request_muxed_region() to ensure that IO access on the requested
+address space is supported, and to ensure that access by multiple
+drivers is synchronized.
+
+Fixes: e53004e20a58e ("hwmon: New f71805f driver")
+Reported-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Reported-by: John Garry <john.garry@huawei.com>
+Cc: John Garry <john.garry@huawei.com>
+Acked-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/hwmon/f71805f.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index 2cdb3032ca0fc..abfb46378cc13 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -1480,6 +1480,10 @@ static void nvme_update_disk_info(struct gendisk *disk,
- 	sector_t capacity = le64_to_cpup(&id->nsze) << (ns->lba_shift - 9);
- 	unsigned short bs = 1 << ns->lba_shift;
+diff --git a/drivers/hwmon/f71805f.c b/drivers/hwmon/f71805f.c
+index 73c681162653b..623736d2a7c1d 100644
+--- a/drivers/hwmon/f71805f.c
++++ b/drivers/hwmon/f71805f.c
+@@ -96,17 +96,23 @@ superio_select(int base, int ld)
+ 	outb(ld, base + 1);
+ }
  
-+	if (ns->lba_shift > PAGE_SHIFT) {
-+		/* unsupported block size, set capacity to 0 later */
-+		bs = (1 << 9);
-+	}
- 	blk_mq_freeze_queue(disk->queue);
- 	blk_integrity_unregister(disk);
+-static inline void
++static inline int
+ superio_enter(int base)
+ {
++	if (!request_muxed_region(base, 2, DRVNAME))
++		return -EBUSY;
++
+ 	outb(0x87, base);
+ 	outb(0x87, base);
++
++	return 0;
+ }
  
-@@ -1490,7 +1494,8 @@ static void nvme_update_disk_info(struct gendisk *disk,
- 	if (ns->ms && !ns->ext &&
- 	    (ns->ctrl->ops->flags & NVME_F_METADATA_SUPPORTED))
- 		nvme_init_integrity(disk, ns->ms, ns->pi_type);
--	if (ns->ms && !nvme_ns_has_pi(ns) && !blk_get_integrity(disk))
-+	if ((ns->ms && !nvme_ns_has_pi(ns) && !blk_get_integrity(disk)) ||
-+	    ns->lba_shift > PAGE_SHIFT)
- 		capacity = 0;
+ static inline void
+ superio_exit(int base)
+ {
+ 	outb(0xaa, base);
++	release_region(base, 2);
+ }
  
- 	set_capacity(disk, capacity);
+ /*
+@@ -1561,7 +1567,7 @@ static int __init f71805f_device_add(unsigned short address,
+ static int __init f71805f_find(int sioaddr, unsigned short *address,
+ 			       struct f71805f_sio_data *sio_data)
+ {
+-	int err = -ENODEV;
++	int err;
+ 	u16 devid;
+ 
+ 	static const char * const names[] = {
+@@ -1569,8 +1575,11 @@ static int __init f71805f_find(int sioaddr, unsigned short *address,
+ 		"F71872F/FG or F71806F/FG",
+ 	};
+ 
+-	superio_enter(sioaddr);
++	err = superio_enter(sioaddr);
++	if (err)
++		return err;
+ 
++	err = -ENODEV;
+ 	devid = superio_inw(sioaddr, SIO_REG_MANID);
+ 	if (devid != SIO_FINTEK_ID)
+ 		goto exit;
 -- 
 2.20.1
 
