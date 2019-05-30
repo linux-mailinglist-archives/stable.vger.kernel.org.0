@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6739B2F2FA
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:25:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 534FA2F577
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:48:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729961AbfE3EZ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:25:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35654 "EHLO mail.kernel.org"
+        id S2388703AbfE3ErZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:47:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51096 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729958AbfE3DOo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:14:44 -0400
+        id S1728589AbfE3DLc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:11:32 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 492A624557;
-        Thu, 30 May 2019 03:14:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4A29A244A6;
+        Thu, 30 May 2019 03:11:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186083;
-        bh=F4j3C1I/AmJOenPzkhvKt4FZZQjBeRUG9aGZTrUFB04=;
+        s=default; t=1559185892;
+        bh=NyQG9Ck0an3Dh7dq3z/tb5rtl6XFYUhM2ZD9J8wXdzY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o1yd4ccXLIXJ9e1t5t+2dVgKdTAfjGyG2YZmwImcqYkjmNyyPtPhsrPXMOneWle8N
-         c/iZwuNHBPFK788CrO4QgxLc5XFFpNsxVfsTqZ/nvyXAhvxUMvTNQvc1BJ/CXmfs6p
-         6925eIMKwYweJRvzyxh1hIShN7x8NxgoV59E94y4=
+        b=YL/gV3S/NJFx4Fvldfe+oAE+ES1cF8RgVb0Livtc32VDaQRe9O+3UStUAKDI2LZPy
+         s7+CAecq36U6qek9QHl00+AnCYb8k3L4nqbAVKyj6oeIOGe0uZwc9RjNYnSOQO5Ff7
+         ADlPNkdejrQCGgbJb4d2RY9V16ZOXGlgbuzS5+hg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Dmitry Osipenko <digetx@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 162/346] thunderbolt: Take domain lock in switch sysfs attribute callbacks
+Subject: [PATCH 5.1 237/405] regulator: core: Avoid potential deadlock on regulator_unregister
 Date:   Wed, 29 May 2019 20:03:55 -0700
-Message-Id: <20190530030549.377881868@linuxfoundation.org>
+Message-Id: <20190530030553.004381428@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,242 +46,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 09f11b6c99feaf86a26444bca85dc693b3f58f8b ]
+[ Upstream commit 063773011d33bb36588a90385aa9eb75d13c6d80 ]
 
-switch_lock was introduced because it allowed serialization of device
-authorization requests from userspace without need to take the big
-domain lock (tb->lock). This was fine because device authorization with
-ICM is just one command that is sent to the firmware. Now that we start
-to handle all tunneling in the driver switch_lock is not enough because
-we need to walk over the topology to establish paths.
+Lockdep reports the following issue on my setup:
 
-For this reason drop switch_lock from the driver completely in favour of
-big domain lock.
+Possible unsafe locking scenario:
 
-There is one complication, though. If userspace is waiting for the lock
-in tb_switch_set_authorized(), it keeps the device_del() from removing
-the sysfs attribute because it waits for active users to release the
-attribute first which leads into following splat:
+CPU0                    CPU1
+----                    ----
+lock((work_completion)(&(&rdev->disable_work)->work));
+                        lock(regulator_list_mutex);
+                        lock((work_completion)(&(&rdev->disable_work)->work));
+lock(regulator_list_mutex);
 
-    INFO: task kworker/u8:3:73 blocked for more than 61 seconds.
-          Tainted: G        W         5.1.0-rc1+ #244
-    "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-    kworker/u8:3    D12976    73      2 0x80000000
-    Workqueue: thunderbolt0 tb_handle_hotplug [thunderbolt]
-    Call Trace:
-     ? __schedule+0x2e5/0x740
-     ? _raw_spin_lock_irqsave+0x12/0x40
-     ? prepare_to_wait_event+0xc5/0x160
-     schedule+0x2d/0x80
-     __kernfs_remove.part.17+0x183/0x1f0
-     ? finish_wait+0x80/0x80
-     kernfs_remove_by_name_ns+0x4a/0x90
-     remove_files.isra.1+0x2b/0x60
-     sysfs_remove_group+0x38/0x80
-     sysfs_remove_groups+0x24/0x40
-     device_remove_attrs+0x3d/0x70
-     device_del+0x14c/0x360
-     device_unregister+0x15/0x50
-     tb_switch_remove+0x9e/0x1d0 [thunderbolt]
-     tb_handle_hotplug+0x119/0x5a0 [thunderbolt]
-     ? process_one_work+0x1b7/0x420
-     process_one_work+0x1b7/0x420
-     worker_thread+0x37/0x380
-     ? _raw_spin_unlock_irqrestore+0xf/0x30
-     ? process_one_work+0x420/0x420
-     kthread+0x118/0x130
-     ? kthread_create_on_node+0x60/0x60
-     ret_from_fork+0x35/0x40
+The problem is that regulator_unregister takes the
+regulator_list_mutex and then calls flush_work on disable_work. But
+regulator_disable_work calls regulator_lock_dependent which will
+also take the regulator_list_mutex. Resulting in a deadlock if the
+flush_work call actually needs to flush the work.
 
-We deal this by following what network stack did for some of their
-attributes and use mutex_trylock() with restart_syscall(). This makes
-userspace release the attribute allowing sysfs attribute removal to
-progress before the write is restarted and eventually fail when the
-attribute is removed.
+Fix this issue by moving the flush_work outside of the
+regulator_list_mutex. The list mutex is not used to guard the point at
+which the delayed work is queued, so its use adds no additional safety.
 
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Fixes: f8702f9e4aa7 ("regulator: core: Use ww_mutex for regulators locking")
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thunderbolt/switch.c | 45 +++++++++++++++---------------------
- drivers/thunderbolt/tb.h     |  3 +--
- 2 files changed, 20 insertions(+), 28 deletions(-)
+ drivers/regulator/core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/thunderbolt/switch.c b/drivers/thunderbolt/switch.c
-index cd96994dc0947..32e012713dbeb 100644
---- a/drivers/thunderbolt/switch.c
-+++ b/drivers/thunderbolt/switch.c
-@@ -10,15 +10,13 @@
- #include <linux/idr.h>
- #include <linux/nvmem-provider.h>
- #include <linux/pm_runtime.h>
-+#include <linux/sched/signal.h>
- #include <linux/sizes.h>
- #include <linux/slab.h>
- #include <linux/vmalloc.h>
- 
- #include "tb.h"
- 
--/* Switch authorization from userspace is serialized by this lock */
--static DEFINE_MUTEX(switch_lock);
--
- /* Switch NVM support */
- 
- #define NVM_DEVID		0x05
-@@ -254,8 +252,8 @@ static int tb_switch_nvm_write(void *priv, unsigned int offset, void *val,
- 	struct tb_switch *sw = priv;
- 	int ret = 0;
- 
--	if (mutex_lock_interruptible(&switch_lock))
--		return -ERESTARTSYS;
-+	if (!mutex_trylock(&sw->tb->lock))
-+		return restart_syscall();
- 
- 	/*
- 	 * Since writing the NVM image might require some special steps,
-@@ -275,7 +273,7 @@ static int tb_switch_nvm_write(void *priv, unsigned int offset, void *val,
- 	memcpy(sw->nvm->buf + offset, val, bytes);
- 
- unlock:
--	mutex_unlock(&switch_lock);
-+	mutex_unlock(&sw->tb->lock);
- 
- 	return ret;
- }
-@@ -364,10 +362,7 @@ static int tb_switch_nvm_add(struct tb_switch *sw)
- 	}
- 	nvm->non_active = nvm_dev;
- 
--	mutex_lock(&switch_lock);
- 	sw->nvm = nvm;
--	mutex_unlock(&switch_lock);
--
- 	return 0;
- 
- err_nvm_active:
-@@ -384,10 +379,8 @@ static void tb_switch_nvm_remove(struct tb_switch *sw)
- {
- 	struct tb_switch_nvm *nvm;
- 
--	mutex_lock(&switch_lock);
- 	nvm = sw->nvm;
- 	sw->nvm = NULL;
--	mutex_unlock(&switch_lock);
- 
- 	if (!nvm)
- 		return;
-@@ -716,8 +709,8 @@ static int tb_switch_set_authorized(struct tb_switch *sw, unsigned int val)
- {
- 	int ret = -EINVAL;
- 
--	if (mutex_lock_interruptible(&switch_lock))
--		return -ERESTARTSYS;
-+	if (!mutex_trylock(&sw->tb->lock))
-+		return restart_syscall();
- 
- 	if (sw->authorized)
- 		goto unlock;
-@@ -760,7 +753,7 @@ static int tb_switch_set_authorized(struct tb_switch *sw, unsigned int val)
+diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
+index 6da41207e479a..35a7d020afecd 100644
+--- a/drivers/regulator/core.c
++++ b/drivers/regulator/core.c
+@@ -5062,10 +5062,11 @@ void regulator_unregister(struct regulator_dev *rdev)
+ 		regulator_put(rdev->supply);
  	}
  
- unlock:
--	mutex_unlock(&switch_lock);
-+	mutex_unlock(&sw->tb->lock);
- 	return ret;
- }
++	flush_work(&rdev->disable_work.work);
++
+ 	mutex_lock(&regulator_list_mutex);
  
-@@ -817,15 +810,15 @@ static ssize_t key_show(struct device *dev, struct device_attribute *attr,
- 	struct tb_switch *sw = tb_to_switch(dev);
- 	ssize_t ret;
- 
--	if (mutex_lock_interruptible(&switch_lock))
--		return -ERESTARTSYS;
-+	if (!mutex_trylock(&sw->tb->lock))
-+		return restart_syscall();
- 
- 	if (sw->key)
- 		ret = sprintf(buf, "%*phN\n", TB_SWITCH_KEY_SIZE, sw->key);
- 	else
- 		ret = sprintf(buf, "\n");
- 
--	mutex_unlock(&switch_lock);
-+	mutex_unlock(&sw->tb->lock);
- 	return ret;
- }
- 
-@@ -842,8 +835,8 @@ static ssize_t key_store(struct device *dev, struct device_attribute *attr,
- 	else if (hex2bin(key, buf, sizeof(key)))
- 		return -EINVAL;
- 
--	if (mutex_lock_interruptible(&switch_lock))
--		return -ERESTARTSYS;
-+	if (!mutex_trylock(&sw->tb->lock))
-+		return restart_syscall();
- 
- 	if (sw->authorized) {
- 		ret = -EBUSY;
-@@ -858,7 +851,7 @@ static ssize_t key_store(struct device *dev, struct device_attribute *attr,
- 		}
- 	}
- 
--	mutex_unlock(&switch_lock);
-+	mutex_unlock(&sw->tb->lock);
- 	return ret;
- }
- static DEVICE_ATTR(key, 0600, key_show, key_store);
-@@ -904,8 +897,8 @@ static ssize_t nvm_authenticate_store(struct device *dev,
- 	bool val;
- 	int ret;
- 
--	if (mutex_lock_interruptible(&switch_lock))
--		return -ERESTARTSYS;
-+	if (!mutex_trylock(&sw->tb->lock))
-+		return restart_syscall();
- 
- 	/* If NVMem devices are not yet added */
- 	if (!sw->nvm) {
-@@ -953,7 +946,7 @@ static ssize_t nvm_authenticate_store(struct device *dev,
- 	}
- 
- exit_unlock:
--	mutex_unlock(&switch_lock);
-+	mutex_unlock(&sw->tb->lock);
- 
- 	if (ret)
- 		return ret;
-@@ -967,8 +960,8 @@ static ssize_t nvm_version_show(struct device *dev,
- 	struct tb_switch *sw = tb_to_switch(dev);
- 	int ret;
- 
--	if (mutex_lock_interruptible(&switch_lock))
--		return -ERESTARTSYS;
-+	if (!mutex_trylock(&sw->tb->lock))
-+		return restart_syscall();
- 
- 	if (sw->safe_mode)
- 		ret = -ENODATA;
-@@ -977,7 +970,7 @@ static ssize_t nvm_version_show(struct device *dev,
- 	else
- 		ret = sprintf(buf, "%x.%x\n", sw->nvm->major, sw->nvm->minor);
- 
--	mutex_unlock(&switch_lock);
-+	mutex_unlock(&sw->tb->lock);
- 
- 	return ret;
- }
-diff --git a/drivers/thunderbolt/tb.h b/drivers/thunderbolt/tb.h
-index 52584c4003e3a..f5e0282225d1c 100644
---- a/drivers/thunderbolt/tb.h
-+++ b/drivers/thunderbolt/tb.h
-@@ -80,8 +80,7 @@ struct tb_switch_nvm {
-  * @depth: Depth in the chain this switch is connected (ICM only)
-  *
-  * When the switch is being added or removed to the domain (other
-- * switches) you need to have domain lock held. For switch authorization
-- * internal switch_lock is enough.
-+ * switches) you need to have domain lock held.
-  */
- struct tb_switch {
- 	struct device dev;
+ 	debugfs_remove_recursive(rdev->debugfs);
+-	flush_work(&rdev->disable_work.work);
+ 	WARN_ON(rdev->open_count);
+ 	regulator_remove_coupling(rdev);
+ 	unset_regulator_supplies(rdev);
 -- 
 2.20.1
 
