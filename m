@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B36A92F1A8
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:15:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72CBB2F5F3
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:51:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727100AbfE3EOy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:14:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41138 "EHLO mail.kernel.org"
+        id S1728284AbfE3DKy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:10:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730591AbfE3DQH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:16:07 -0400
+        id S1728271AbfE3DKy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:10:54 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6DEB1245AF;
-        Thu, 30 May 2019 03:16:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8804E244C4;
+        Thu, 30 May 2019 03:10:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186166;
-        bh=irsuCSjqH9Xp7SJpFQA1MXvfKEAZZxM4R5/EeSWs8qo=;
+        s=default; t=1559185853;
+        bh=QcfP4SGmVsiYl+5myMku98rDbfG5/bHXY/ahLelCOmY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nC2VoI3qEqYlEc+UuQXEo8tDfvXH26UAAUgGrp0Wix6Zp3cqU9/61BKDCSQNdPi2a
-         8lLJKsFCzx9HJWugrPc39Z+yyGCUp8m2+OKmRQEpOpXumDBQjYQ7CHAbIw4ijVNcaU
-         hZxygSNwkztVvxdxBrO+Y0K3m+NqXN1Clhm74lkw=
+        b=V/9Yv4cNRanHcBRPI7gpJPpkaZ2nwd+FvuO21TJVqxsdIahq1LDkAQtwUp03MXuqX
+         caN18Uc1K8opvmoZfBPu9EGpSp7M6GQFkrxX+hXhCUHSM6I33EPjjzFAuJdEMbp5cD
+         tQnBIGcHUYuVdEhS8QfL3sO2aAoNUMY4eqOodDLw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.19 019/276] Btrfs: avoid fallback to transaction commit during fsync of files with holes
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Kento Kobayashi <Kento.A.Kobayashi@sony.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Jacky Cao <Jacky.Cao@sony.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 179/405] USB: core: Dont unbind interfaces following device reset failure
 Date:   Wed, 29 May 2019 20:02:57 -0700
-Message-Id: <20190530030525.240003863@linuxfoundation.org>
+Message-Id: <20190530030550.151064739@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,84 +46,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+[ Upstream commit 381419fa720060ba48b7bbc483be787d5b1dca6f ]
 
-commit ebb929060aeb162417b4c1307e63daee47b208d9 upstream.
+The SCSI core does not like to have devices or hosts unregistered
+while error recovery is in progress.  Trying to do so can lead to
+self-deadlock: Part of the removal code tries to obtain a lock already
+held by the error handler.
 
-When we are doing a full fsync (bit BTRFS_INODE_NEEDS_FULL_SYNC set) of a
-file that has holes and has file extent items spanning two or more leafs,
-we can end up falling to back to a full transaction commit due to a logic
-bug that leads to failure to insert a duplicate file extent item that is
-meant to represent a hole between the last file extent item of a leaf and
-the first file extent item in the next leaf. The failure (EEXIST error)
-leads to a transaction commit (as most errors when logging an inode do).
+This can cause problems for the usb-storage and uas drivers, because
+their error handler routines perform a USB reset, and if the reset
+fails then the USB core automatically goes on to unbind all drivers
+from the device's interfaces -- all while still in the context of the
+SCSI error handler.
 
-For example, we have the two following leafs:
+As it turns out, practically all the scenarios leading to a USB reset
+failure end up causing a device disconnect (the main error pathway in
+usb_reset_and_verify_device(), at the end of the routine, calls
+hub_port_logical_disconnect() before returning).  As a result, the
+hub_wq thread will soon become aware of the problem and will unbind
+all the device's drivers in its own context, not in the
+error-handler's context.
 
-Leaf N:
+This means that usb_reset_device() does not need to call
+usb_unbind_and_rebind_marked_interfaces() in cases where
+usb_reset_and_verify_device() has returned an error, because hub_wq
+will take care of everything anyway.
 
-  -----------------------------------------------
-  | ..., ..., ..., (257, FILE_EXTENT_ITEM, 64K) |
-  -----------------------------------------------
-  The file extent item at the end of leaf N has a length of 4Kb,
-  representing the file range from 64K to 68K - 1.
+This particular problem was observed in somewhat artificial
+circumstances, by using usbfs to tell a hub to power-down a port
+connected to a USB-3 mass storage device using the UAS protocol.  With
+the port turned off, the currently executing command timed out and the
+error handler started running.  The USB reset naturally failed,
+because the hub port was off, and the error handler deadlocked as
+described above.  Not carrying out the call to
+usb_unbind_and_rebind_marked_interfaces() fixes this issue.
 
-Leaf N + 1:
-
-  -----------------------------------------------
-  | (257, FILE_EXTENT_ITEM, 72K), ..., ..., ... |
-  -----------------------------------------------
-  The file extent item at the first slot of leaf N + 1 has a length of
-  4Kb too, representing the file range from 72K to 76K - 1.
-
-During the full fsync path, when we are at tree-log.c:copy_items() with
-leaf N as a parameter, after processing the last file extent item, that
-represents the extent at offset 64K, we take a look at the first file
-extent item at the next leaf (leaf N + 1), and notice there's a 4K hole
-between the two extents, and therefore we insert a file extent item
-representing that hole, starting at file offset 68K and ending at offset
-72K - 1. However we don't update the value of *last_extent, which is used
-to represent the end offset (plus 1, non-inclusive end) of the last file
-extent item inserted in the log, so it stays with a value of 68K and not
-with a value of 72K.
-
-Then, when copy_items() is called for leaf N + 1, because the value of
-*last_extent is smaller then the offset of the first extent item in the
-leaf (68K < 72K), we look at the last file extent item in the previous
-leaf (leaf N) and see it there's a 4K gap between it and our first file
-extent item (again, 68K < 72K), so we decide to insert a file extent item
-representing the hole, starting at file offset 68K and ending at offset
-72K - 1, this insertion will fail with -EEXIST being returned from
-btrfs_insert_file_extent() because we already inserted a file extent item
-representing a hole for this offset (68K) in the previous call to
-copy_items(), when processing leaf N.
-
-The -EEXIST error gets propagated to the fsync callback, btrfs_sync_file(),
-which falls back to a full transaction commit.
-
-Fix this by adjusting *last_extent after inserting a hole when we had to
-look at the next leaf.
-
-Fixes: 4ee3fad34a9c ("Btrfs: fix fsync after hole punching when using no-holes feature")
-Cc: stable@vger.kernel.org # 4.14+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Reported-by: Kento Kobayashi <Kento.A.Kobayashi@sony.com>
+Tested-by: Kento Kobayashi <Kento.A.Kobayashi@sony.com>
+CC: Bart Van Assche <bvanassche@acm.org>
+CC: Martin K. Petersen <martin.petersen@oracle.com>
+CC: Jacky Cao <Jacky.Cao@sony.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/tree-log.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/core/hub.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -4121,6 +4121,7 @@ fill_holes:
- 							       *last_extent, 0,
- 							       0, len, 0, len,
- 							       0, 0, 0);
-+				*last_extent += len;
+diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
+index 8d4631c81b9f0..310eef451db82 100644
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -5902,7 +5902,10 @@ int usb_reset_device(struct usb_device *udev)
+ 					cintf->needs_binding = 1;
  			}
  		}
+-		usb_unbind_and_rebind_marked_interfaces(udev);
++
++		/* If the reset failed, hub_wq will unbind drivers later */
++		if (ret == 0)
++			usb_unbind_and_rebind_marked_interfaces(udev);
  	}
+ 
+ 	usb_autosuspend_device(udev);
+-- 
+2.20.1
+
 
 
