@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 91E2F2F000
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:01:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 502F52EE8F
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:49:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731552AbfE3DS1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:18:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50856 "EHLO mail.kernel.org"
+        id S1730608AbfE3DsS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:48:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730064AbfE3DS1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:18:27 -0400
+        id S1732170AbfE3DUW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:20:22 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BFB35247C8;
-        Thu, 30 May 2019 03:18:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 25C3824923;
+        Thu, 30 May 2019 03:20:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186306;
-        bh=bB6jC1Dmpqr111bwzyRwcfMB0pV1fnZ4gBFTnhP25eI=;
+        s=default; t=1559186421;
+        bh=NNX8TfOE1eoiQ0tEo8mNTq/l4fQjj0DGRchKEYf1pdQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HeEX4owEoIRIKNU4TGsV3qgQ/kwBJm+7i72NJov/3iKjV/rND3loh2OW4wXdZ8s5m
-         rt8IZZ7d4FbnEb1LcOglex/xDSNXRCEwcNUr54l2g7Zz0tFKmLfNmfQ8NlSqMB05Bm
-         4CgN2G7uLDR5mvSGFgj9VBBfDSx0OfSm4IXqbKvc=
+        b=f9ajOved0frRC7oFvdcY0yR0122aoevVTGDYo3ch4KH4dMTFxEyYGxXowzbUIFtDu
+         K5nbjkdzMd57ucNlCxNCdZYuAfbbxaUOyrHFvL3uMYVkSugDPFyHEja0+bcD8kot1z
+         kRERkEsOJqUdyK5iHUDLY+O6IxJFSzqbOOehr2iE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>,
-        Gerd Hoffmann <kraxel@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 271/276] drm/drv: Hold ref on parent device during drm_device lifetime
+        stable@vger.kernel.org, Mohan Kumar D <mkumard@nvidia.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Sameer Pujar <spujar@nvidia.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 175/193] dmaengine: tegra210-adma: use devm_clk_*() helpers
 Date:   Wed, 29 May 2019 20:07:09 -0700
-Message-Id: <20190530030542.146504255@linuxfoundation.org>
+Message-Id: <20190530030512.141001893@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
+References: <20190530030446.953835040@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,49 +45,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 56be6503aab2bc3a30beae408071b9be5e1bae51 ]
+[ Upstream commit f6ed6491d565c336a360471e0c29228e34f4380e ]
 
-This makes it safe to access drm_device->dev after the parent device has
-been removed/unplugged.
+adma driver is using pm_clk_*() interface for managing clock resources.
+With this it is observed that clocks remain ON always. This happens on
+Tegra devices which use BPMP co-processor to manage clock resources,
+where clocks are enabled during prepare phase. This is necessary because
+clocks to BPMP are always blocking. When pm_clk_*() interface is used on
+such Tegra devices, clock prepare count is not balanced till remove call
+happens for the driver and hence clocks are seen ON always. Thus this
+patch replaces pm_clk_*() with devm_clk_*() framework.
 
-Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
-Reviewed-by: Gerd Hoffmann <kraxel@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190225144232.20761-2-noralf@tronnes.org
+Suggested-by: Mohan Kumar D <mkumard@nvidia.com>
+Reviewed-by: Jonathan Hunter <jonathanh@nvidia.com>
+Signed-off-by: Sameer Pujar <spujar@nvidia.com>
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_drv.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/dma/tegra210-adma.c | 27 ++++++++++++---------------
+ 1 file changed, 12 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_drv.c b/drivers/gpu/drm/drm_drv.c
-index 0201ccb22f4ca..d8ae4ca129c70 100644
---- a/drivers/gpu/drm/drm_drv.c
-+++ b/drivers/gpu/drm/drm_drv.c
-@@ -499,7 +499,7 @@ int drm_dev_init(struct drm_device *dev,
- 	}
+diff --git a/drivers/dma/tegra210-adma.c b/drivers/dma/tegra210-adma.c
+index 08b10274284a8..09b6756366c30 100644
+--- a/drivers/dma/tegra210-adma.c
++++ b/drivers/dma/tegra210-adma.c
+@@ -22,7 +22,6 @@
+ #include <linux/of_device.h>
+ #include <linux/of_dma.h>
+ #include <linux/of_irq.h>
+-#include <linux/pm_clock.h>
+ #include <linux/pm_runtime.h>
+ #include <linux/slab.h>
  
- 	kref_init(&dev->ref);
--	dev->dev = parent;
-+	dev->dev = get_device(parent);
- 	dev->driver = driver;
+@@ -141,6 +140,7 @@ struct tegra_adma {
+ 	struct dma_device		dma_dev;
+ 	struct device			*dev;
+ 	void __iomem			*base_addr;
++	struct clk			*ahub_clk;
+ 	unsigned int			nr_channels;
+ 	unsigned long			rx_requests_reserved;
+ 	unsigned long			tx_requests_reserved;
+@@ -637,8 +637,9 @@ static int tegra_adma_runtime_suspend(struct device *dev)
+ 	struct tegra_adma *tdma = dev_get_drvdata(dev);
  
- 	INIT_LIST_HEAD(&dev->filelist);
-@@ -568,6 +568,7 @@ int drm_dev_init(struct drm_device *dev,
- 	drm_minor_free(dev, DRM_MINOR_RENDER);
- 	drm_fs_inode_free(dev->anon_inode);
- err_free:
-+	put_device(dev->dev);
- 	mutex_destroy(&dev->master_mutex);
- 	mutex_destroy(&dev->ctxlist_mutex);
- 	mutex_destroy(&dev->clientlist_mutex);
-@@ -603,6 +604,8 @@ void drm_dev_fini(struct drm_device *dev)
- 	drm_minor_free(dev, DRM_MINOR_PRIMARY);
- 	drm_minor_free(dev, DRM_MINOR_RENDER);
+ 	tdma->global_cmd = tdma_read(tdma, ADMA_GLOBAL_CMD);
++	clk_disable_unprepare(tdma->ahub_clk);
  
-+	put_device(dev->dev);
-+
- 	mutex_destroy(&dev->master_mutex);
- 	mutex_destroy(&dev->ctxlist_mutex);
- 	mutex_destroy(&dev->clientlist_mutex);
+-	return pm_clk_suspend(dev);
++	return 0;
+ }
+ 
+ static int tegra_adma_runtime_resume(struct device *dev)
+@@ -646,10 +647,11 @@ static int tegra_adma_runtime_resume(struct device *dev)
+ 	struct tegra_adma *tdma = dev_get_drvdata(dev);
+ 	int ret;
+ 
+-	ret = pm_clk_resume(dev);
+-	if (ret)
++	ret = clk_prepare_enable(tdma->ahub_clk);
++	if (ret) {
++		dev_err(dev, "ahub clk_enable failed: %d\n", ret);
+ 		return ret;
+-
++	}
+ 	tdma_write(tdma, ADMA_GLOBAL_CMD, tdma->global_cmd);
+ 
+ 	return 0;
+@@ -692,13 +694,11 @@ static int tegra_adma_probe(struct platform_device *pdev)
+ 	if (IS_ERR(tdma->base_addr))
+ 		return PTR_ERR(tdma->base_addr);
+ 
+-	ret = pm_clk_create(&pdev->dev);
+-	if (ret)
+-		return ret;
+-
+-	ret = of_pm_clk_add_clk(&pdev->dev, "d_audio");
+-	if (ret)
+-		goto clk_destroy;
++	tdma->ahub_clk = devm_clk_get(&pdev->dev, "d_audio");
++	if (IS_ERR(tdma->ahub_clk)) {
++		dev_err(&pdev->dev, "Error: Missing ahub controller clock\n");
++		return PTR_ERR(tdma->ahub_clk);
++	}
+ 
+ 	pm_runtime_enable(&pdev->dev);
+ 
+@@ -775,8 +775,6 @@ static int tegra_adma_probe(struct platform_device *pdev)
+ 	pm_runtime_put_sync(&pdev->dev);
+ rpm_disable:
+ 	pm_runtime_disable(&pdev->dev);
+-clk_destroy:
+-	pm_clk_destroy(&pdev->dev);
+ 
+ 	return ret;
+ }
+@@ -794,7 +792,6 @@ static int tegra_adma_remove(struct platform_device *pdev)
+ 
+ 	pm_runtime_put_sync(&pdev->dev);
+ 	pm_runtime_disable(&pdev->dev);
+-	pm_clk_destroy(&pdev->dev);
+ 
+ 	return 0;
+ }
 -- 
 2.20.1
 
