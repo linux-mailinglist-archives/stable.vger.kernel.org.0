@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 797812F11B
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:10:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A79AF2F2F6
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:25:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726638AbfE3EKF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:10:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44526 "EHLO mail.kernel.org"
+        id S1728270AbfE3EZS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:25:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727792AbfE3DRD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:17:03 -0400
+        id S1728831AbfE3DOq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:14:46 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0542D24667;
-        Thu, 30 May 2019 03:17:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 97BDD24502;
+        Thu, 30 May 2019 03:14:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186223;
-        bh=tC7NTXSe/TYDw6Asm3AZRObPUlGg+FzVbVVTxS3MCyk=;
+        s=default; t=1559186085;
+        bh=4m0V6gs00H3AQi5sqAns7djNJx5ZGC9wfwfv+rwdCrg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lZLtZY6TsCXu26MvsKrzMyGoTlfDgE9mZWHahJwowwUR62Nh8GCNIzP5UeTvnk4WF
-         rDhIvIOzrjalYX4+RPMC1y2+g3m6uhGQlPgNA2vSZp4OFlodyrgI1GKjxaBdG4kKLB
-         TVOSMuzrvKoeMHOvCkENg6IdBKPZvnoSXl6Tme5g=
+        b=iEcRXmHEx9d8ci/LLN1RuJo+rEkcTPdKGSanSCzFEqOgvt6VvXF7GLIh4ZZYxTpk+
+         8bxX45PSoxOXmf6vq4wtoCENAWn3nVFth5nc2hLjyG53RgU+FFyIGTL2g7U6vHxGNS
+         gYiXpYV4TJcxQ0TBXTEp2kfEOeUdAa9TbcIu+5kI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
+        Lucas Stach <l.stach@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 081/276] btrfs: fix panic during relocation after ENOSPC before writeback happens
+Subject: [PATCH 5.0 166/346] drm: etnaviv: avoid DMA API warning when importing buffers
 Date:   Wed, 29 May 2019 20:03:59 -0700
-Message-Id: <20190530030531.422077636@linuxfoundation.org>
+Message-Id: <20190530030549.568808155@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,118 +44,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ff612ba7849964b1898fd3ccd1f56941129c6aab ]
+[ Upstream commit 1262cc8893ecb0eb2c21e042d0d268cc180edb61 ]
 
-We've been seeing the following sporadically throughout our fleet
+During boot, I get this kernel warning:
 
-panic: kernel BUG at fs/btrfs/relocation.c:4584!
-netversion: 5.0-0
-Backtrace:
- #0 [ffffc90003adb880] machine_kexec at ffffffff81041da8
- #1 [ffffc90003adb8c8] __crash_kexec at ffffffff8110396c
- #2 [ffffc90003adb988] crash_kexec at ffffffff811048ad
- #3 [ffffc90003adb9a0] oops_end at ffffffff8101c19a
- #4 [ffffc90003adb9c0] do_trap at ffffffff81019114
- #5 [ffffc90003adba00] do_error_trap at ffffffff810195d0
- #6 [ffffc90003adbab0] invalid_op at ffffffff81a00a9b
-    [exception RIP: btrfs_reloc_cow_block+692]
-    RIP: ffffffff8143b614  RSP: ffffc90003adbb68  RFLAGS: 00010246
-    RAX: fffffffffffffff7  RBX: ffff8806b9c32000  RCX: ffff8806aad00690
-    RDX: ffff880850b295e0  RSI: ffff8806b9c32000  RDI: ffff88084f205bd0
-    RBP: ffff880849415000   R8: ffffc90003adbbe0   R9: ffff88085ac90000
-    R10: ffff8805f7369140  R11: 0000000000000000  R12: ffff880850b295e0
-    R13: ffff88084f205bd0  R14: 0000000000000000  R15: 0000000000000000
-    ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
- #7 [ffffc90003adbbb0] __btrfs_cow_block at ffffffff813bf1cd
- #8 [ffffc90003adbc28] btrfs_cow_block at ffffffff813bf4b3
- #9 [ffffc90003adbc78] btrfs_search_slot at ffffffff813c2e6c
+WARNING: CPU: 0 PID: 19001 at kernel/dma/debug.c:1301 debug_dma_map_sg+0x284/0x3dc
+etnaviv etnaviv: DMA-API: mapping sg segment longer than device claims to support [len=3145728] [max=65536]
+Modules linked in: ip6t_REJECT nf_reject_ipv6 ip6t_rpfilter xt_tcpudp ipt_REJECT nf_reject_ipv4 xt_conntrack ip_set nfnetlink ebtable_broute ebtable_nat ip6table_raw ip6table_nat nf_nat_ipv6 ip6table_mangle iptable_raw iptable_nat nf_nat_ipv4 nf_nat nf_conntrack nf_defrag_ipv4 nf_defrag_ipv6 libcrc32c iptable_mangle ebtable_filter ebtables ip6table_filter ip6_tables iptable_filter caam_jr error snd_soc_imx_spdif imx_thermal snd_soc_imx_audmux nvmem_imx_ocotp snd_soc_sgtl5000
+caam imx_sdma virt_dma coda rc_cec v4l2_mem2mem snd_soc_fsl_ssi snd_soc_fsl_spdif imx_vdoa imx_pcm_dma videobuf2_dma_contig etnaviv dw_hdmi_cec gpu_sched dw_hdmi_ahb_audio imx6q_cpufreq nfsd sch_fq_codel ip_tables x_tables
+CPU: 0 PID: 19001 Comm: Xorg Not tainted 4.20.0+ #307
+Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
+[<c0019658>] (unwind_backtrace) from [<c001489c>] (show_stack+0x10/0x14)
+[<c001489c>] (show_stack) from [<c07fb420>] (dump_stack+0x9c/0xd4)
+[<c07fb420>] (dump_stack) from [<c00312dc>] (__warn+0xf8/0x124)
+[<c00312dc>] (__warn) from [<c00313d0>] (warn_slowpath_fmt+0x38/0x48)
+[<c00313d0>] (warn_slowpath_fmt) from [<c00b14e8>] (debug_dma_map_sg+0x284/0x3dc)
+[<c00b14e8>] (debug_dma_map_sg) from [<c046eb40>] (drm_gem_map_dma_buf+0xc4/0x13c)
+[<c046eb40>] (drm_gem_map_dma_buf) from [<c04c3314>] (dma_buf_map_attachment+0x38/0x5c)
+[<c04c3314>] (dma_buf_map_attachment) from [<c046e728>] (drm_gem_prime_import_dev+0x74/0x104)
+[<c046e728>] (drm_gem_prime_import_dev) from [<c046e5bc>] (drm_gem_prime_fd_to_handle+0x84/0x17c)
+[<c046e5bc>] (drm_gem_prime_fd_to_handle) from [<c046edd0>] (drm_prime_fd_to_handle_ioctl+0x38/0x4c)
+[<c046edd0>] (drm_prime_fd_to_handle_ioctl) from [<c0460efc>] (drm_ioctl_kernel+0x90/0xc8)
+[<c0460efc>] (drm_ioctl_kernel) from [<c0461114>] (drm_ioctl+0x1e0/0x3b0)
+[<c0461114>] (drm_ioctl) from [<c01cae20>] (do_vfs_ioctl+0x90/0xa48)
+[<c01cae20>] (do_vfs_ioctl) from [<c01cb80c>] (ksys_ioctl+0x34/0x60)
+[<c01cb80c>] (ksys_ioctl) from [<c0009000>] (ret_fast_syscall+0x0/0x28)
+Exception stack(0xd81a9fa8 to 0xd81a9ff0)
+9fa0:                   b6c69c88 bec613f8 00000009 c00c642e bec613f8 b86c4600
+9fc0: b6c69c88 bec613f8 c00c642e 00000036 012762e0 01276348 00000300 012d91f8
+9fe0: b6989f18 bec613dc b697185c b667be5c
+irq event stamp: 47905
+hardirqs last  enabled at (47913): [<c0098824>] console_unlock+0x46c/0x680
+hardirqs last disabled at (47922): [<c0098470>] console_unlock+0xb8/0x680
+softirqs last  enabled at (47754): [<c000a484>] __do_softirq+0x344/0x540
+softirqs last disabled at (47701): [<c0038700>] irq_exit+0x124/0x144
+---[ end trace af477747acbcc642 ]---
 
-The way relocation moves data extents is by creating a reloc inode and
-preallocating extents in this inode and then copying the data into these
-preallocated extents.  Once we've done this for all of our extents,
-we'll write out these dirty pages, which marks the extent written, and
-goes into btrfs_reloc_cow_block().  From here we get our current
-reloc_control, which _should_ match the reloc_control for the current
-block group we're relocating.
+The reason is the contiguous buffer exceeds the default maximum segment
+size of 64K as specified by dma_get_max_seg_size() in
+linux/dma-mapping.h.  Fix this by providing our own segment size, which
+is set to 2GiB to cover the window found in MMUv1 GPUs.
 
-However if we get an ENOSPC in this path at some point we'll bail out,
-never initiating writeback on this inode.  Not a huge deal, unless we
-happen to be doing relocation on a different block group, and this block
-group is now rc->stage == UPDATE_DATA_PTRS.  This trips the BUG_ON() in
-btrfs_reloc_cow_block(), because we expect to be done modifying the data
-inode.  We are in fact done modifying the metadata for the data inode
-we're currently using, but not the one from the failed block group, and
-thus we BUG_ON().
-
-(This happens when writeback finishes for extents from the previous
-group, when we are at btrfs_finish_ordered_io() which updates the data
-reloc tree (inode item, drops/adds extent items, etc).)
-
-Fix this by writing out the reloc data inode always, and then breaking
-out of the loop after that point to keep from tripping this BUG_ON()
-later.
-
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-[ add note from Filipe ]
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/relocation.c | 31 ++++++++++++++++++++-----------
- 1 file changed, 20 insertions(+), 11 deletions(-)
+ drivers/gpu/drm/etnaviv/etnaviv_drv.c | 5 +++++
+ drivers/gpu/drm/etnaviv/etnaviv_drv.h | 1 +
+ 2 files changed, 6 insertions(+)
 
-diff --git a/fs/btrfs/relocation.c b/fs/btrfs/relocation.c
-index 0526b6c473c79..5d57ed6293455 100644
---- a/fs/btrfs/relocation.c
-+++ b/fs/btrfs/relocation.c
-@@ -4289,27 +4289,36 @@ int btrfs_relocate_block_group(struct btrfs_fs_info *fs_info, u64 group_start)
- 		mutex_lock(&fs_info->cleaner_mutex);
- 		ret = relocate_block_group(rc);
- 		mutex_unlock(&fs_info->cleaner_mutex);
--		if (ret < 0) {
-+		if (ret < 0)
- 			err = ret;
--			goto out;
--		}
--
--		if (rc->extents_found == 0)
--			break;
--
--		btrfs_info(fs_info, "found %llu extents", rc->extents_found);
- 
-+		/*
-+		 * We may have gotten ENOSPC after we already dirtied some
-+		 * extents.  If writeout happens while we're relocating a
-+		 * different block group we could end up hitting the
-+		 * BUG_ON(rc->stage == UPDATE_DATA_PTRS) in
-+		 * btrfs_reloc_cow_block.  Make sure we write everything out
-+		 * properly so we don't trip over this problem, and then break
-+		 * out of the loop if we hit an error.
-+		 */
- 		if (rc->stage == MOVE_DATA_EXTENTS && rc->found_file_extent) {
- 			ret = btrfs_wait_ordered_range(rc->data_inode, 0,
- 						       (u64)-1);
--			if (ret) {
-+			if (ret)
- 				err = ret;
--				goto out;
--			}
- 			invalidate_mapping_pages(rc->data_inode->i_mapping,
- 						 0, -1);
- 			rc->stage = UPDATE_DATA_PTRS;
- 		}
-+
-+		if (err < 0)
-+			goto out;
-+
-+		if (rc->extents_found == 0)
-+			break;
-+
-+		btrfs_info(fs_info, "found %llu extents", rc->extents_found);
-+
+diff --git a/drivers/gpu/drm/etnaviv/etnaviv_drv.c b/drivers/gpu/drm/etnaviv/etnaviv_drv.c
+index 18c27f795cf61..3156450723bad 100644
+--- a/drivers/gpu/drm/etnaviv/etnaviv_drv.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_drv.c
+@@ -515,6 +515,9 @@ static int etnaviv_bind(struct device *dev)
  	}
+ 	drm->dev_private = priv;
  
- 	WARN_ON(rc->block_group->pinned > 0);
++	dev->dma_parms = &priv->dma_parms;
++	dma_set_max_seg_size(dev, SZ_2G);
++
+ 	mutex_init(&priv->gem_lock);
+ 	INIT_LIST_HEAD(&priv->gem_list);
+ 	priv->num_gpus = 0;
+@@ -552,6 +555,8 @@ static void etnaviv_unbind(struct device *dev)
+ 
+ 	component_unbind_all(dev, drm);
+ 
++	dev->dma_parms = NULL;
++
+ 	drm->dev_private = NULL;
+ 	kfree(priv);
+ 
+diff --git a/drivers/gpu/drm/etnaviv/etnaviv_drv.h b/drivers/gpu/drm/etnaviv/etnaviv_drv.h
+index 4bf698de59969..51b7bdf5748bc 100644
+--- a/drivers/gpu/drm/etnaviv/etnaviv_drv.h
++++ b/drivers/gpu/drm/etnaviv/etnaviv_drv.h
+@@ -43,6 +43,7 @@ struct etnaviv_file_private {
+ 
+ struct etnaviv_drm_private {
+ 	int num_gpus;
++	struct device_dma_parameters dma_parms;
+ 	struct etnaviv_gpu *gpu[ETNA_MAX_PIPES];
+ 
+ 	/* list of GEM objects: */
 -- 
 2.20.1
 
