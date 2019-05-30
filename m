@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D746B2EEB3
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:50:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63F432F22A
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:19:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732256AbfE3DtT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:49:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58924 "EHLO mail.kernel.org"
+        id S1730303AbfE3ETJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:19:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732241AbfE3DUd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:20:33 -0400
+        id S1730293AbfE3DP1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:15:27 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1371F24941;
-        Thu, 30 May 2019 03:20:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C2AE52457F;
+        Thu, 30 May 2019 03:15:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186433;
-        bh=XTYT+Zjx4efHvomWboiyx+5cbYpMYlvQgDuWNjWDh9M=;
+        s=default; t=1559186126;
+        bh=oGMgnOnKZhEXrJDQyhTO2LVkP6kwGWwuTovV+BkBQls=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nUUSunvmkLycvPZLn+4eiGpN0kVzq66nb0GaURUESQS6x/a6bbw0fOeY/7GdHtRa0
-         bkjPoKmBm1vth/LzYQiTr+l6+W+jZZ+d9dWgKnEIqeTz77KN9ndmJRRsi7FRIVPhvG
-         eWT8BzyuoG15N0bfq5jzGHB8s8nYe5ojsU6gTX8s=
+        b=ISY9bGtFGbWV8JYDfC5U97PJoJN10qqnAhsPDuppwlGASgdZH2aZrx9RROaOtZAiZ
+         sVLtVFMTX1jgeK6gBdjcCQMs9Xtm+M7hABUoP20JUxs11NkuKcu9dGaL8XjfStNVrl
+         RW9YEZAmhA2bkRJImzbFSo6H918b/uL+4+hEYy18=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sameeh Jubran <sameehj@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 027/128] net: ena: gcc 8: fix compilation warning
+Subject: [PATCH 5.0 286/346] thunderbolt: Fix to check return value of ida_simple_get
 Date:   Wed, 29 May 2019 20:05:59 -0700
-Message-Id: <20190530030439.578007972@linuxfoundation.org>
+Message-Id: <20190530030555.397145883@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
-References: <20190530030432.977908967@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f913308879bc6ae437ce64d878c7b05643ddea44 ]
+[ Upstream commit 9aabb68568b473bf2f0b179d053b403961e42e4d ]
 
-GCC 8 contains a number of new warnings as well as enhancements to existing
-checkers. The warning - Wstringop-truncation - warns for calls to bounded
-string manipulation functions such as strncat, strncpy, and stpncpy that
-may either truncate the copied string or leave the destination unchanged.
+In enumerate_services, ida_simple_get on failure can return an error and
+leaks memory. The patch ensures that the dev_set_name is set on non
+failure cases, and releases memory during failure.
 
-In our case the destination string length (32 bytes) is much shorter than
-the source string (64 bytes) which causes this warning to show up. In
-general the destination has to be at least a byte larger than the length
-of the source string with strncpy for this warning not to showup.
-
-This can be easily fixed by using strlcpy instead which already does the
-truncation to the string. Documentation for this function can be
-found here:
-
-https://elixir.bootlin.com/linux/latest/source/lib/string.c#L141
-
-Fixes: 1738cd3ed342 ("net: ena: Add a driver for Amazon Elastic Network Adapters (ENA)")
-Signed-off-by: Sameeh Jubran <sameehj@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Aditya Pakki <pakki001@umn.edu>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/amazon/ena/ena_netdev.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/thunderbolt/xdomain.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/amazon/ena/ena_netdev.c b/drivers/net/ethernet/amazon/ena/ena_netdev.c
-index 0c298878bf46f..0780900b37c72 100644
---- a/drivers/net/ethernet/amazon/ena/ena_netdev.c
-+++ b/drivers/net/ethernet/amazon/ena/ena_netdev.c
-@@ -2116,7 +2116,7 @@ static void ena_config_host_info(struct ena_com_dev *ena_dev)
+diff --git a/drivers/thunderbolt/xdomain.c b/drivers/thunderbolt/xdomain.c
+index e27dd8beb94be..e0642dcb8b9bd 100644
+--- a/drivers/thunderbolt/xdomain.c
++++ b/drivers/thunderbolt/xdomain.c
+@@ -740,6 +740,7 @@ static void enumerate_services(struct tb_xdomain *xd)
+ 	struct tb_service *svc;
+ 	struct tb_property *p;
+ 	struct device *dev;
++	int id;
  
- 	host_info->os_type = ENA_ADMIN_OS_LINUX;
- 	host_info->kernel_ver = LINUX_VERSION_CODE;
--	strncpy(host_info->kernel_ver_str, utsname()->version,
-+	strlcpy(host_info->kernel_ver_str, utsname()->version,
- 		sizeof(host_info->kernel_ver_str) - 1);
- 	host_info->os_dist = 0;
- 	strncpy(host_info->os_dist_str, utsname()->release,
+ 	/*
+ 	 * First remove all services that are not available anymore in
+@@ -768,7 +769,12 @@ static void enumerate_services(struct tb_xdomain *xd)
+ 			break;
+ 		}
+ 
+-		svc->id = ida_simple_get(&xd->service_ids, 0, 0, GFP_KERNEL);
++		id = ida_simple_get(&xd->service_ids, 0, 0, GFP_KERNEL);
++		if (id < 0) {
++			kfree(svc);
++			break;
++		}
++		svc->id = id;
+ 		svc->dev.bus = &tb_bus_type;
+ 		svc->dev.type = &tb_service_type;
+ 		svc->dev.parent = &xd->dev;
 -- 
 2.20.1
 
