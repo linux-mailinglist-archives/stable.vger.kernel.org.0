@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CE2792EBF2
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:17:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CEA22F543
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:46:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730918AbfE3DRH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:17:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45024 "EHLO mail.kernel.org"
+        id S1728917AbfE3Ep4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:45:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730915AbfE3DRG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:17:06 -0400
+        id S1727874AbfE3DLs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:11:48 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 83BB424667;
-        Thu, 30 May 2019 03:17:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C4652244E8;
+        Thu, 30 May 2019 03:11:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186225;
-        bh=IszB0OOQeLjmgoIzz1bL/59sa6EgoYvgOFPYwjoubSg=;
+        s=default; t=1559185907;
+        bh=ASvY6a5M6iEQjWScKSfAjtQLT7Ex6G0T4yGJbVUtEaM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Iq95Njrullp0gRFwafxRL+cuQRoK8jlytBpueQiw9cn4Ijn2+kLTlLOsQbqo+l8th
-         Jc+ouKU/MMsJvrjAkPxBeiHMiHcLow8qDhLNxnvaOZuzWBUlomxb2WN9XUIEskH6Yp
-         sCEQr9bNJ/S5GYucPzUkCuUL0/tjkdzH57sXpAzY=
+        b=aVhbqK8p5yifn9Qh6CiN3kBgy5YaykUUbRq7diE9FFTYTnZR1vVANhzjnzRLIk4TC
+         RMR+W1OB+QvLSAmyEx6DXuCZ5gHqo1uhUpHTNgPenUKt4fPFfj/2COgV7RECEMqEX5
+         XJcDTrNtitDSiZTHE1NgkwKk//m1xGHd+DvF2T+Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Philipp Zabel <p.zabel@pengutronix.de>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org,
+        Takeshi Kihara <takeshi.kihara.df@renesas.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Simon Horman <horms+renesas@verge.net.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 121/276] media: coda: clear error return value before picture run
+Subject: [PATCH 5.1 281/405] clk: renesas: rcar-gen3: Correct parent clock of Audio-DMAC
 Date:   Wed, 29 May 2019 20:04:39 -0700
-Message-Id: <20190530030533.435208596@linuxfoundation.org>
+Message-Id: <20190530030555.106478106@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,35 +46,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit bbeefa7357a648afe70e7183914c87c3878d528d ]
+[ Upstream commit b9df2ea2b8d09ad850afe4d4a0403cb23d9e0c02 ]
 
-The error return value is not written by some firmware codecs, such as
-MPEG-2 decode on CodaHx4. Clear the error return value before starting
-the picture run to avoid misinterpreting unrelated values returned by
-sequence initialization as error return value.
+The clock sources of the AXI-bus clock (266.66 MHz) used for Audio-DMAC
+DMA transfers are:
 
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+    Channel        R-Car H3    R-Car M3-W    R-Car M3-N    R-Car E3
+    ---------------------------------------------------------------
+    Audio-DMAC0    S1D2        S1D2          S1D2          S1D2
+    Audio-DMAC1    S1D2        S1D2          S1D2          -
+
+As a result, change the parent clocks of the Audio-DMAC{0,1} module
+clocks on R-Car H3, R-Car M3-W, and R-Car M3-N to S1D2, and change the
+parent clock of the Audio-DMAC0 module on R-Car E3 to S1D2.
+
+NOTE: This information will be reflected in a future revision of the
+      R-Car Gen3 Hardware Manual.
+
+Signed-off-by: Takeshi Kihara <takeshi.kihara.df@renesas.com>
+[geert: Update R-Car D3, RZ/G2M, and RZ/G2E]
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/coda/coda-bit.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/clk/renesas/r8a774a1-cpg-mssr.c | 4 ++--
+ drivers/clk/renesas/r8a774c0-cpg-mssr.c | 2 +-
+ drivers/clk/renesas/r8a7795-cpg-mssr.c  | 4 ++--
+ drivers/clk/renesas/r8a7796-cpg-mssr.c  | 4 ++--
+ drivers/clk/renesas/r8a77965-cpg-mssr.c | 4 ++--
+ drivers/clk/renesas/r8a77990-cpg-mssr.c | 2 +-
+ drivers/clk/renesas/r8a77995-cpg-mssr.c | 2 +-
+ 7 files changed, 11 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/media/platform/coda/coda-bit.c b/drivers/media/platform/coda/coda-bit.c
-index d20d3df5778bc..a3cfefdbee127 100644
---- a/drivers/media/platform/coda/coda-bit.c
-+++ b/drivers/media/platform/coda/coda-bit.c
-@@ -1999,6 +1999,9 @@ static int coda_prepare_decode(struct coda_ctx *ctx)
- 	/* Clear decode success flag */
- 	coda_write(dev, 0, CODA_RET_DEC_PIC_SUCCESS);
+diff --git a/drivers/clk/renesas/r8a774a1-cpg-mssr.c b/drivers/clk/renesas/r8a774a1-cpg-mssr.c
+index 047599579c651..7a4c5957939a5 100644
+--- a/drivers/clk/renesas/r8a774a1-cpg-mssr.c
++++ b/drivers/clk/renesas/r8a774a1-cpg-mssr.c
+@@ -143,8 +143,8 @@ static const struct mssr_mod_clk r8a774a1_mod_clks[] __initconst = {
+ 	DEF_MOD("rwdt",			 402,	R8A774A1_CLK_R),
+ 	DEF_MOD("intc-ex",		 407,	R8A774A1_CLK_CP),
+ 	DEF_MOD("intc-ap",		 408,	R8A774A1_CLK_S0D3),
+-	DEF_MOD("audmac1",		 501,	R8A774A1_CLK_S0D3),
+-	DEF_MOD("audmac0",		 502,	R8A774A1_CLK_S0D3),
++	DEF_MOD("audmac1",		 501,	R8A774A1_CLK_S1D2),
++	DEF_MOD("audmac0",		 502,	R8A774A1_CLK_S1D2),
+ 	DEF_MOD("hscif4",		 516,	R8A774A1_CLK_S3D1),
+ 	DEF_MOD("hscif3",		 517,	R8A774A1_CLK_S3D1),
+ 	DEF_MOD("hscif2",		 518,	R8A774A1_CLK_S3D1),
+diff --git a/drivers/clk/renesas/r8a774c0-cpg-mssr.c b/drivers/clk/renesas/r8a774c0-cpg-mssr.c
+index 34e274f2a273a..93dacd826fd04 100644
+--- a/drivers/clk/renesas/r8a774c0-cpg-mssr.c
++++ b/drivers/clk/renesas/r8a774c0-cpg-mssr.c
+@@ -157,7 +157,7 @@ static const struct mssr_mod_clk r8a774c0_mod_clks[] __initconst = {
+ 	DEF_MOD("intc-ex",		 407,	R8A774C0_CLK_CP),
+ 	DEF_MOD("intc-ap",		 408,	R8A774C0_CLK_S0D3),
  
-+	/* Clear error return value */
-+	coda_write(dev, 0, CODA_RET_DEC_PIC_ERR_MB);
-+
- 	trace_coda_dec_pic_run(ctx, meta);
+-	DEF_MOD("audmac0",		 502,	R8A774C0_CLK_S3D4),
++	DEF_MOD("audmac0",		 502,	R8A774C0_CLK_S1D2),
+ 	DEF_MOD("hscif4",		 516,	R8A774C0_CLK_S3D1C),
+ 	DEF_MOD("hscif3",		 517,	R8A774C0_CLK_S3D1C),
+ 	DEF_MOD("hscif2",		 518,	R8A774C0_CLK_S3D1C),
+diff --git a/drivers/clk/renesas/r8a7795-cpg-mssr.c b/drivers/clk/renesas/r8a7795-cpg-mssr.c
+index eade38e9ed36b..0825cd0ff2866 100644
+--- a/drivers/clk/renesas/r8a7795-cpg-mssr.c
++++ b/drivers/clk/renesas/r8a7795-cpg-mssr.c
+@@ -153,8 +153,8 @@ static struct mssr_mod_clk r8a7795_mod_clks[] __initdata = {
+ 	DEF_MOD("rwdt",			 402,	R8A7795_CLK_R),
+ 	DEF_MOD("intc-ex",		 407,	R8A7795_CLK_CP),
+ 	DEF_MOD("intc-ap",		 408,	R8A7795_CLK_S0D3),
+-	DEF_MOD("audmac1",		 501,	R8A7795_CLK_S0D3),
+-	DEF_MOD("audmac0",		 502,	R8A7795_CLK_S0D3),
++	DEF_MOD("audmac1",		 501,	R8A7795_CLK_S1D2),
++	DEF_MOD("audmac0",		 502,	R8A7795_CLK_S1D2),
+ 	DEF_MOD("drif7",		 508,	R8A7795_CLK_S3D2),
+ 	DEF_MOD("drif6",		 509,	R8A7795_CLK_S3D2),
+ 	DEF_MOD("drif5",		 510,	R8A7795_CLK_S3D2),
+diff --git a/drivers/clk/renesas/r8a7796-cpg-mssr.c b/drivers/clk/renesas/r8a7796-cpg-mssr.c
+index 654f3ea88f335..997cd956f12bc 100644
+--- a/drivers/clk/renesas/r8a7796-cpg-mssr.c
++++ b/drivers/clk/renesas/r8a7796-cpg-mssr.c
+@@ -146,8 +146,8 @@ static const struct mssr_mod_clk r8a7796_mod_clks[] __initconst = {
+ 	DEF_MOD("rwdt",			 402,	R8A7796_CLK_R),
+ 	DEF_MOD("intc-ex",		 407,	R8A7796_CLK_CP),
+ 	DEF_MOD("intc-ap",		 408,	R8A7796_CLK_S0D3),
+-	DEF_MOD("audmac1",		 501,	R8A7796_CLK_S0D3),
+-	DEF_MOD("audmac0",		 502,	R8A7796_CLK_S0D3),
++	DEF_MOD("audmac1",		 501,	R8A7796_CLK_S1D2),
++	DEF_MOD("audmac0",		 502,	R8A7796_CLK_S1D2),
+ 	DEF_MOD("drif7",		 508,	R8A7796_CLK_S3D2),
+ 	DEF_MOD("drif6",		 509,	R8A7796_CLK_S3D2),
+ 	DEF_MOD("drif5",		 510,	R8A7796_CLK_S3D2),
+diff --git a/drivers/clk/renesas/r8a77965-cpg-mssr.c b/drivers/clk/renesas/r8a77965-cpg-mssr.c
+index 13d1f88be04a5..afc9c72fa0940 100644
+--- a/drivers/clk/renesas/r8a77965-cpg-mssr.c
++++ b/drivers/clk/renesas/r8a77965-cpg-mssr.c
+@@ -146,8 +146,8 @@ static const struct mssr_mod_clk r8a77965_mod_clks[] __initconst = {
+ 	DEF_MOD("intc-ex",		407,	R8A77965_CLK_CP),
+ 	DEF_MOD("intc-ap",		408,	R8A77965_CLK_S0D3),
  
- 	coda_command_async(ctx, CODA_COMMAND_PIC_RUN);
+-	DEF_MOD("audmac1",		501,	R8A77965_CLK_S0D3),
+-	DEF_MOD("audmac0",		502,	R8A77965_CLK_S0D3),
++	DEF_MOD("audmac1",		501,	R8A77965_CLK_S1D2),
++	DEF_MOD("audmac0",		502,	R8A77965_CLK_S1D2),
+ 	DEF_MOD("drif7",		508,	R8A77965_CLK_S3D2),
+ 	DEF_MOD("drif6",		509,	R8A77965_CLK_S3D2),
+ 	DEF_MOD("drif5",		510,	R8A77965_CLK_S3D2),
+diff --git a/drivers/clk/renesas/r8a77990-cpg-mssr.c b/drivers/clk/renesas/r8a77990-cpg-mssr.c
+index 9a278c75c918c..03f445d47ef69 100644
+--- a/drivers/clk/renesas/r8a77990-cpg-mssr.c
++++ b/drivers/clk/renesas/r8a77990-cpg-mssr.c
+@@ -152,7 +152,7 @@ static const struct mssr_mod_clk r8a77990_mod_clks[] __initconst = {
+ 	DEF_MOD("intc-ex",		 407,	R8A77990_CLK_CP),
+ 	DEF_MOD("intc-ap",		 408,	R8A77990_CLK_S0D3),
+ 
+-	DEF_MOD("audmac0",		 502,	R8A77990_CLK_S3D4),
++	DEF_MOD("audmac0",		 502,	R8A77990_CLK_S1D2),
+ 	DEF_MOD("drif7",		 508,	R8A77990_CLK_S3D2),
+ 	DEF_MOD("drif6",		 509,	R8A77990_CLK_S3D2),
+ 	DEF_MOD("drif5",		 510,	R8A77990_CLK_S3D2),
+diff --git a/drivers/clk/renesas/r8a77995-cpg-mssr.c b/drivers/clk/renesas/r8a77995-cpg-mssr.c
+index eee3874865a95..68707277b17b4 100644
+--- a/drivers/clk/renesas/r8a77995-cpg-mssr.c
++++ b/drivers/clk/renesas/r8a77995-cpg-mssr.c
+@@ -133,7 +133,7 @@ static const struct mssr_mod_clk r8a77995_mod_clks[] __initconst = {
+ 	DEF_MOD("rwdt",			 402,	R8A77995_CLK_R),
+ 	DEF_MOD("intc-ex",		 407,	R8A77995_CLK_CP),
+ 	DEF_MOD("intc-ap",		 408,	R8A77995_CLK_S1D2),
+-	DEF_MOD("audmac0",		 502,	R8A77995_CLK_S3D1),
++	DEF_MOD("audmac0",		 502,	R8A77995_CLK_S1D2),
+ 	DEF_MOD("hscif3",		 517,	R8A77995_CLK_S3D1C),
+ 	DEF_MOD("hscif0",		 520,	R8A77995_CLK_S3D1C),
+ 	DEF_MOD("thermal",		 522,	R8A77995_CLK_CP),
 -- 
 2.20.1
 
