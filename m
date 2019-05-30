@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D605A2EC2E
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:20:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9F852F0E2
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:08:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731744AbfE3DSy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:18:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53020 "EHLO mail.kernel.org"
+        id S1727329AbfE3EIO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:08:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731743AbfE3DSx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:18:53 -0400
+        id S1730180AbfE3DRT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:17:19 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 51D162479B;
-        Thu, 30 May 2019 03:18:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A2E9C2469C;
+        Thu, 30 May 2019 03:17:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186333;
-        bh=Si3j1yTPqK5NevGyq/Mg/kLi2fvNusVTnF7ZPW0gFDU=;
+        s=default; t=1559186238;
+        bh=/EzRxJH9Bmv5p2CdWxg0REiWSPClfGG6o9kLPMDmLrU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cjhiLi5QHoKW2tUwDzfCvx1+J/jbRJahz7UJDT13GbCy/R24bJiD1KUhDrCJOPUGD
-         wCrvDmmbQV2M5gR+h7ieZ4CfIX5cMwjLJ3qXd8o8pjcRdq4aXQSPKiegc+liKALuXU
-         ZlDPwY8R4g3EF/HPgqs5sNL2bIPzhb92mXocVxRg=
+        b=dr/4oRmxspTOjzGxxz6o6qZ3E+PW9a2GB6Q4METH3fhePIg9l42ZM1GWPXlqAOl2b
+         ay2jCKe4IpDcLrzw/jGMsqNrC5Un7zVVV3mXleyQ7ZdcpWxECdKherZqjDJ7VduFza
+         0e03HFPnCJqsaFZyOdw4NPWY1Ske+Jnu7nA5mts0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Marc Zyngier <marc.zyngier@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
+        stable@vger.kernel.org,
+        Adam Ludkiewicz <adam.ludkiewicz@intel.com>,
+        Andrew Bowers <andrewx.bowers@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 053/193] ARM: vdso: Remove dependency with the arch_timer driver internals
+Subject: [PATCH 4.19 149/276] i40e: Able to add up to 16 MAC filters on an untrusted VF
 Date:   Wed, 29 May 2019 20:05:07 -0700
-Message-Id: <20190530030456.907422213@linuxfoundation.org>
+Message-Id: <20190530030534.923702091@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,63 +46,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 1f5b62f09f6b314c8d70b9de5182dae4de1f94da ]
+[ Upstream commit 06b6e2a2333eb3581567a7ac43ca465ef45f4daa ]
 
-The VDSO code uses the kernel helper that was originally designed
-to abstract the access between 32 and 64bit systems. It worked so
-far because this function is declared as 'inline'.
+This patch fixes the problem with the driver being able to add only 7
+multicast MAC address filters instead of 16. The problem is fixed by
+changing the maximum number of MAC address filters to 16+1+1 (two extra
+are needed because the driver uses 1 for unicast MAC address and 1 for
+broadcast).
 
-As we're about to revamp that part of the code, the VDSO would
-break. Let's fix it by doing what should have been done from
-the start, a proper system register access.
-
-Reviewed-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Adam Ludkiewicz <adam.ludkiewicz@intel.com>
+Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/include/asm/cp15.h   | 2 ++
- arch/arm/vdso/vgettimeofday.c | 5 +++--
- 2 files changed, 5 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/include/asm/cp15.h b/arch/arm/include/asm/cp15.h
-index 07e27f212dc75..d2453e2d3f1f3 100644
---- a/arch/arm/include/asm/cp15.h
-+++ b/arch/arm/include/asm/cp15.h
-@@ -68,6 +68,8 @@
- #define BPIALL				__ACCESS_CP15(c7, 0, c5, 6)
- #define ICIALLU				__ACCESS_CP15(c7, 0, c5, 0)
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+index c6d24eaede184..d86f3fa7aa6a4 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+@@ -2399,8 +2399,10 @@ static int i40e_vc_get_stats_msg(struct i40e_vf *vf, u8 *msg, u16 msglen)
+ 				      (u8 *)&stats, sizeof(stats));
+ }
  
-+#define CNTVCT				__ACCESS_CP15_64(1, c14)
-+
- extern unsigned long cr_alignment;	/* defined in entry-armv.S */
+-/* If the VF is not trusted restrict the number of MAC/VLAN it can program */
+-#define I40E_VC_MAX_MAC_ADDR_PER_VF 12
++/* If the VF is not trusted restrict the number of MAC/VLAN it can program
++ * MAC filters: 16 for multicast, 1 for MAC, 1 for broadcast
++ */
++#define I40E_VC_MAX_MAC_ADDR_PER_VF (16 + 1 + 1)
+ #define I40E_VC_MAX_VLAN_PER_VF 8
  
- static inline unsigned long get_cr(void)
-diff --git a/arch/arm/vdso/vgettimeofday.c b/arch/arm/vdso/vgettimeofday.c
-index 79214d5ff0970..3af02d2a0b7f2 100644
---- a/arch/arm/vdso/vgettimeofday.c
-+++ b/arch/arm/vdso/vgettimeofday.c
-@@ -18,9 +18,9 @@
- #include <linux/compiler.h>
- #include <linux/hrtimer.h>
- #include <linux/time.h>
--#include <asm/arch_timer.h>
- #include <asm/barrier.h>
- #include <asm/bug.h>
-+#include <asm/cp15.h>
- #include <asm/page.h>
- #include <asm/unistd.h>
- #include <asm/vdso_datapage.h>
-@@ -123,7 +123,8 @@ static notrace u64 get_ns(struct vdso_data *vdata)
- 	u64 cycle_now;
- 	u64 nsec;
- 
--	cycle_now = arch_counter_get_cntvct();
-+	isb();
-+	cycle_now = read_sysreg(CNTVCT);
- 
- 	cycle_delta = (cycle_now - vdata->cs_cycle_last) & vdata->cs_mask;
- 
+ /**
 -- 
 2.20.1
 
