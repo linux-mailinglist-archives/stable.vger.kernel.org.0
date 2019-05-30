@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F62A2F209
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:18:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7AF02F49B
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:42:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729443AbfE3ER6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:17:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39024 "EHLO mail.kernel.org"
+        id S1728314AbfE3DMa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:12:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729081AbfE3DPh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:15:37 -0400
+        id S1729058AbfE3DM3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:12:29 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9083424547;
-        Thu, 30 May 2019 03:15:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 67CE8218B6;
+        Thu, 30 May 2019 03:12:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186136;
-        bh=9hq0++QxrdKZauVmyZY7B4QP8K+XhmxC67cf+KjhLRo=;
+        s=default; t=1559185949;
+        bh=NY+bzGCLjPOwmO4DfrTLzjvI0VS/oC+/ExlyrjN8xHU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ij9x3NJcwU3+i904QxMpbkLcinBhaVvtcSJKf9sz24cIZZU5PVFOF+Dl86JxkaUi+
-         6admwtyY8URBXOFGqmCwt32vprd0SD6Ixom2oQ1L13Bg/lrTnIlg/gvxM2WtoT11Fi
-         Duyr5udO6km8wyOp1AwXCM1WSDKzMHhuXpHk5ONE=
+        b=hmAdeJTB9h4RdHZzpVsLknpTOx+zgsix2PACuYvP1VfetU08/wcZArCFDXYDKQFfI
+         zwVthCc1HI9CT5GU9uJgZPAaKJxq+2vLT5NO+xkW413k75Ss4jhGFZgkBQmsMNLlpk
+         BzLCpguTh4ZJcIkczPFsxArWX/i6tsqlsybWfank=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ezequiel Garcia <ezequiel@collabora.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 259/346] media: gspca: Kill URBs on USB device disconnect
+Subject: [PATCH 5.1 334/405] thunderbolt: property: Fix a NULL pointer dereference
 Date:   Wed, 29 May 2019 20:05:32 -0700
-Message-Id: <20190530030554.101934368@linuxfoundation.org>
+Message-Id: <20190530030557.612661571@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,47 +44,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 9b9ea7c2b57a0c9c3341fc6db039d1f7971a432e ]
+[ Upstream commit 106204b56f60abf1bead7dceb88f2be3e34433da ]
 
-In order to prevent ISOC URBs from being infinitely resubmitted,
-the driver's USB disconnect handler must kill all the in-flight URBs.
+In case kzalloc fails, the fix releases resources and returns
+-ENOMEM to avoid the NULL pointer dereference.
 
-While here, change the URB packet status message to a debug level,
-to avoid spamming the console too much.
-
-This commit fixes a lockup caused by an interrupt storm coming
-from the URB completion handler.
-
-Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Kangjie Lu <kjlu@umn.edu>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/gspca/gspca.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/thunderbolt/property.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/media/usb/gspca/gspca.c b/drivers/media/usb/gspca/gspca.c
-index 3137f5d89d803..cac8e5f0543be 100644
---- a/drivers/media/usb/gspca/gspca.c
-+++ b/drivers/media/usb/gspca/gspca.c
-@@ -294,7 +294,7 @@ static void fill_frame(struct gspca_dev *gspca_dev,
- 		/* check the packet status and length */
- 		st = urb->iso_frame_desc[i].status;
- 		if (st) {
--			pr_err("ISOC data error: [%d] len=%d, status=%d\n",
-+			gspca_dbg(gspca_dev, D_PACK, "ISOC data error: [%d] len=%d, status=%d\n",
- 			       i, len, st);
- 			gspca_dev->last_packet_type = DISCARD_PACKET;
- 			continue;
-@@ -1630,6 +1630,8 @@ void gspca_disconnect(struct usb_interface *intf)
+diff --git a/drivers/thunderbolt/property.c b/drivers/thunderbolt/property.c
+index ead18c532b53d..8c077c4f3b5b2 100644
+--- a/drivers/thunderbolt/property.c
++++ b/drivers/thunderbolt/property.c
+@@ -548,6 +548,11 @@ int tb_property_add_data(struct tb_property_dir *parent, const char *key,
  
- 	mutex_lock(&gspca_dev->usb_lock);
- 	gspca_dev->present = false;
-+	destroy_urbs(gspca_dev);
-+	gspca_input_destroy_urb(gspca_dev);
+ 	property->length = size / 4;
+ 	property->value.data = kzalloc(size, GFP_KERNEL);
++	if (!property->value.data) {
++		kfree(property);
++		return -ENOMEM;
++	}
++
+ 	memcpy(property->value.data, buf, buflen);
  
- 	vb2_queue_error(&gspca_dev->queue);
- 
+ 	list_add_tail(&property->list, &parent->properties);
 -- 
 2.20.1
 
