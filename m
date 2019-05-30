@@ -2,41 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D5FD2F43B
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:36:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76B4C2F43E
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:36:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729314AbfE3DNA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:13:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57024 "EHLO mail.kernel.org"
+        id S1729487AbfE3Egb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:36:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728313AbfE3DNA (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729308AbfE3DNA (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 29 May 2019 23:13:00 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2755824528;
+        by mail.kernel.org (Postfix) with ESMTPSA id 90EB72449A;
         Thu, 30 May 2019 03:12:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1559185979;
-        bh=7RcEOH/HE3JXRnzDunkFCAZCXEfpzCP3ZZnCtC8r6qM=;
+        bh=SbTFFUuSRSP005lrWiHb6QE2jPtSQRfWODw8nUneGEI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qgH4dN+cyhnG91XaDqkAhMX9bFk63Vhy8zPR+9NcBWp+8R7WOK7kFLEalB0k2u4Hg
-         Yz+JBcUErWO83QQJUYMiBoiPaA57WUezNu5BDT0bztqvZun8oNOGVbXyyTQ/ohCVOv
-         z3Nwl/phsiaZi9lgF1sst5v5moZbYgQJvBm/u/6w=
+        b=JKiLXXrf/nzsU3Qv1Xeu7rrJ2Ldu5pSLVYFIB03529IK73G2B8h6G6QuMsVPfTV6A
+         ayCu6hDyIh6D3Lj6l0MNZGR8nT96mcA9gkgU9KOCsSfyVCrVMxANRFAVBgq3Vb5UFL
+         FLEgqnzjUt/PY7YzaP33RCHhoxC5L95YuxmkjBxk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeff Moyer <jmoyer@redhat.com>,
-        Ingo Molnar <mingo@redhat.com>, Christoph Hellwig <hch@lst.de>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Matthew Wilcox <willy@infradead.org>,
-        Kees Cook <keescook@chromium.org>, Jan Kara <jack@suse.cz>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Jeff Smits <jeff.smits@intel.com>
-Subject: [PATCH 5.0 013/346] libnvdimm/pmem: Bypass CONFIG_HARDENED_USERCOPY overhead
-Date:   Wed, 29 May 2019 20:01:26 -0700
-Message-Id: <20190530030541.232517654@linuxfoundation.org>
+        stable@vger.kernel.org, Ard Biesheuvel <ard.biesheuvel@arm.com>,
+        Will Deacon <will.deacon@arm.com>
+Subject: [PATCH 5.0 014/346] arm64/kernel: kaslr: reduce module randomization range to 2 GB
+Date:   Wed, 29 May 2019 20:01:27 -0700
+Message-Id: <20190530030541.312633535@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
 References: <20190530030540.363386121@linuxfoundation.org>
@@ -49,79 +43,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Williams <dan.j.williams@intel.com>
+From: Ard Biesheuvel <ard.biesheuvel@arm.com>
 
-commit 52f476a323f9efc959be1c890d0cdcf12e1582e0 upstream.
+commit b2eed9b58811283d00fa861944cb75797d4e52a7 upstream.
 
-Jeff discovered that performance improves from ~375K iops to ~519K iops
-on a simple psync-write fio workload when moving the location of 'struct
-page' from the default PMEM location to DRAM. This result is surprising
-because the expectation is that 'struct page' for dax is only needed for
-third party references to dax mappings. For example, a dax-mapped buffer
-passed to another system call for direct-I/O requires 'struct page' for
-sending the request down the driver stack and pinning the page. There is
-no usage of 'struct page' for first party access to a file via
-read(2)/write(2) and friends.
+The following commit
 
-However, this "no page needed" expectation is violated by
-CONFIG_HARDENED_USERCOPY and the check_copy_size() performed in
-copy_from_iter_full_nocache() and copy_to_iter_mcsafe(). The
-check_heap_object() helper routine assumes the buffer is backed by a
-slab allocator (DRAM) page and applies some checks.  Those checks are
-invalid, dax pages do not originate from the slab, and redundant,
-dax_iomap_actor() has already validated that the I/O is within bounds.
-Specifically that routine validates that the logical file offset is
-within bounds of the file, then it does a sector-to-pfn translation
-which validates that the physical mapping is within bounds of the block
-device.
+  7290d5809571 ("module: use relative references for __ksymtab entries")
 
-Bypass additional hardened usercopy overhead and call the 'no check'
-versions of the copy_{to,from}_iter operations directly.
+updated the ksymtab handling of some KASLR capable architectures
+so that ksymtab entries are emitted as pairs of 32-bit relative
+references. This reduces the size of the entries, but more
+importantly, it gets rid of statically assigned absolute
+addresses, which require fixing up at boot time if the kernel
+is self relocating (which takes a 24 byte RELA entry for each
+member of the ksymtab struct).
 
-Fixes: 0aed55af8834 ("x86, uaccess: introduce copy_from_iter_flushcache...")
-Cc: <stable@vger.kernel.org>
-Cc: Jeff Moyer <jmoyer@redhat.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Matthew Wilcox <willy@infradead.org>
-Reported-and-tested-by: Jeff Smits <jeff.smits@intel.com>
-Acked-by: Kees Cook <keescook@chromium.org>
-Acked-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Since ksymtab entries are always part of the same module as the
+symbol they export, it was assumed at the time that a 32-bit
+relative reference is always sufficient to capture the offset
+between a ksymtab entry and its target symbol.
+
+Unfortunately, this is not always true: in the case of per-CPU
+variables, a per-CPU variable's base address (which usually differs
+from the actual address of any of its per-CPU copies) is allocated
+in the vicinity of the ..data.percpu section in the core kernel
+(i.e., in the per-CPU reserved region which follows the section
+containing the core kernel's statically allocated per-CPU variables).
+
+Since we randomize the module space over a 4 GB window covering
+the core kernel (based on the -/+ 4 GB range of an ADRP/ADD pair),
+we may end up putting the core kernel out of the -/+ 2 GB range of
+32-bit relative references of module ksymtab entries that refer to
+per-CPU variables.
+
+So reduce the module randomization range a bit further. We lose
+1 bit of randomization this way, but this is something we can
+tolerate.
+
+Cc: <stable@vger.kernel.org> # v4.19+
+Signed-off-by: Ard Biesheuvel <ard.biesheuvel@arm.com>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/nvdimm/pmem.c |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ arch/arm64/kernel/kaslr.c  |    6 +++---
+ arch/arm64/kernel/module.c |    2 +-
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/nvdimm/pmem.c
-+++ b/drivers/nvdimm/pmem.c
-@@ -281,16 +281,22 @@ static long pmem_dax_direct_access(struc
- 	return __pmem_direct_access(pmem, pgoff, nr_pages, kaddr, pfn);
- }
+--- a/arch/arm64/kernel/kaslr.c
++++ b/arch/arm64/kernel/kaslr.c
+@@ -145,15 +145,15 @@ u64 __init kaslr_early_init(u64 dt_phys)
  
-+/*
-+ * Use the 'no check' versions of copy_from_iter_flushcache() and
-+ * copy_to_iter_mcsafe() to bypass HARDENED_USERCOPY overhead. Bounds
-+ * checking, both file offset and device offset, is handled by
-+ * dax_iomap_actor()
-+ */
- static size_t pmem_copy_from_iter(struct dax_device *dax_dev, pgoff_t pgoff,
- 		void *addr, size_t bytes, struct iov_iter *i)
- {
--	return copy_from_iter_flushcache(addr, bytes, i);
-+	return _copy_from_iter_flushcache(addr, bytes, i);
- }
+ 	if (IS_ENABLED(CONFIG_RANDOMIZE_MODULE_REGION_FULL)) {
+ 		/*
+-		 * Randomize the module region over a 4 GB window covering the
++		 * Randomize the module region over a 2 GB window covering the
+ 		 * kernel. This reduces the risk of modules leaking information
+ 		 * about the address of the kernel itself, but results in
+ 		 * branches between modules and the core kernel that are
+ 		 * resolved via PLTs. (Branches between modules will be
+ 		 * resolved normally.)
+ 		 */
+-		module_range = SZ_4G - (u64)(_end - _stext);
+-		module_alloc_base = max((u64)_end + offset - SZ_4G,
++		module_range = SZ_2G - (u64)(_end - _stext);
++		module_alloc_base = max((u64)_end + offset - SZ_2G,
+ 					(u64)MODULES_VADDR);
+ 	} else {
+ 		/*
+--- a/arch/arm64/kernel/module.c
++++ b/arch/arm64/kernel/module.c
+@@ -56,7 +56,7 @@ void *module_alloc(unsigned long size)
+ 		 * can simply omit this fallback in that case.
+ 		 */
+ 		p = __vmalloc_node_range(size, MODULE_ALIGN, module_alloc_base,
+-				module_alloc_base + SZ_4G, GFP_KERNEL,
++				module_alloc_base + SZ_2G, GFP_KERNEL,
+ 				PAGE_KERNEL_EXEC, 0, NUMA_NO_NODE,
+ 				__builtin_return_address(0));
  
- static size_t pmem_copy_to_iter(struct dax_device *dax_dev, pgoff_t pgoff,
- 		void *addr, size_t bytes, struct iov_iter *i)
- {
--	return copy_to_iter_mcsafe(addr, bytes, i);
-+	return _copy_to_iter_mcsafe(addr, bytes, i);
- }
- 
- static const struct dax_operations pmem_dax_ops = {
 
 
