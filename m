@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 08CCF2F001
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:01:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8ACF32F00D
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:01:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731567AbfE3DS3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:18:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51424 "EHLO mail.kernel.org"
+        id S1725862AbfE3EAC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:00:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51474 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731563AbfE3DS3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727838AbfE3DS3 (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 29 May 2019 23:18:29 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B17B5247C2;
-        Thu, 30 May 2019 03:18:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 48D272474D;
+        Thu, 30 May 2019 03:18:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186308;
-        bh=j5IrkmXoqipm6SS+hShpCMelEn2qPU/FEDpbZVsmWNM=;
+        s=default; t=1559186309;
+        bh=q4GEWxI8zFJV+i2pxijjdsUKmJrEI9Khc/QMjifhyWg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H1q/y9UscHsksiRgcXiGnGVYABFNhjtslU4z0Mrqn/gjRm2pi48EPojA9WcYT/DIM
-         0E9tKI6GaW+Upf+YucljD7aXzxmP5n/rmsiNe+sHOeMarZQDtCtvVli5dAavETbQdV
-         wKTjxGHcaLrMHosqv0vJgW0D+53oUnZ5AD+cqC44=
+        b=nexOqOp1JoiymgRlfP8mtw+7Kibcaa7XhNr76WG+PYY1LqGW5aoJ3OP9uiKtTfoMg
+         FDPWCCtzAsUcn0ZUpE1jnYDTlIpsVZ0GZm993CtrDpQSLMjHdH48jiD4W4AWkf2Jjq
+         laUCtc6E5+FGM/iG4UM7jQYIYOwHLHD4Sj+21Vh0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Ripard <maxime.ripard@bootlin.com>,
-        Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
+        stable@vger.kernel.org,
+        syzbot+228a82b263b5da91883d@syzkaller.appspotmail.com,
+        Benjamin Coddington <bcodding@redhat.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 275/276] drm/sun4i: dsi: Enforce boundaries on the start delay
-Date:   Wed, 29 May 2019 20:07:13 -0700
-Message-Id: <20190530030542.392185247@linuxfoundation.org>
+Subject: [PATCH 4.19 276/276] NFS: Fix a double unlock from nfs_match,get_client
+Date:   Wed, 29 May 2019 20:07:14 -0700
+Message-Id: <20190530030542.445869259@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
 References: <20190530030523.133519668@linuxfoundation.org>
@@ -44,40 +46,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit efa31801203ac2f5c6a82a28cb991c7163ee0f1d ]
+[ Upstream commit c260121a97a3e4df6536edbc2f26e166eff370ce ]
 
-The Allwinner BSP makes sure that we don't end up with a null start delay
-or with a delay larger than vtotal.
+Now that nfs_match_client drops the nfs_client_lock, we should be
+careful
+to always return it in the same condition: locked.
 
-The former condition is likely to happen now with the reworked start delay,
-so make sure we enforce the same boundaries.
-
-Signed-off-by: Maxime Ripard <maxime.ripard@bootlin.com>
-Reviewed-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/c9889cf5f7a3d101ef380905900b45a182596f56.1549896081.git-series.maxime.ripard@bootlin.com
+Fixes: 950a578c6128 ("NFS: make nfs_match_client killable")
+Reported-by: syzbot+228a82b263b5da91883d@syzkaller.appspotmail.com
+Signed-off-by: Benjamin Coddington <bcodding@redhat.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ fs/nfs/client.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c b/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c
-index 3de41de43127b..97a0573cc5145 100644
---- a/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c
-+++ b/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c
-@@ -358,8 +358,12 @@ static u16 sun6i_dsi_get_video_start_delay(struct sun6i_dsi *dsi,
- 					   struct drm_display_mode *mode)
- {
- 	u16 start = clamp(mode->vtotal - mode->vdisplay - 10, 8, 100);
-+	u16 delay = mode->vtotal - (mode->vsync_end - mode->vdisplay) + start;
+diff --git a/fs/nfs/client.c b/fs/nfs/client.c
+index 846d45cb1a3c8..c092661147b30 100644
+--- a/fs/nfs/client.c
++++ b/fs/nfs/client.c
+@@ -305,9 +305,9 @@ static struct nfs_client *nfs_match_client(const struct nfs_client_initdata *dat
+ 			spin_unlock(&nn->nfs_client_lock);
+ 			error = nfs_wait_client_init_complete(clp);
+ 			nfs_put_client(clp);
++			spin_lock(&nn->nfs_client_lock);
+ 			if (error < 0)
+ 				return ERR_PTR(error);
+-			spin_lock(&nn->nfs_client_lock);
+ 			goto again;
+ 		}
  
--	return mode->vtotal - (mode->vsync_end - mode->vdisplay) + start;
-+	if (delay > mode->vtotal)
-+		delay = delay % mode->vtotal;
-+
-+	return max_t(u16, delay, 1);
- }
- 
- static void sun6i_dsi_setup_burst(struct sun6i_dsi *dsi,
 -- 
 2.20.1
 
