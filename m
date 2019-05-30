@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 35EA92F356
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:28:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF7D22F161
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:12:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729763AbfE3DON (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:14:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33404 "EHLO mail.kernel.org"
+        id S1730715AbfE3DQd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:16:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42876 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729750AbfE3DOM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:14:12 -0400
+        id S1730703AbfE3DQc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:16:32 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C382F24562;
-        Thu, 30 May 2019 03:14:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B156924590;
+        Thu, 30 May 2019 03:16:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186050;
-        bh=c1tsIp4+0Sx+h/zMntok1F2nhraqv5sSU4X2SMmCONw=;
+        s=default; t=1559186191;
+        bh=I5csH4V8mLaYJl8pLwmMuS2+jOoRE1fhsLHCEUi8Cps=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YW4kPD8yFyShSJ3O4InQm2yJK5yl4IaMbY7y+MUSm3H4nAL9r9Vir4JJTidSMKrQu
-         HKFHZ+7gLxEyncDqwn5aFX8xF9bIAg8GrZ7U6z/1jrTD1RQcEYZUQ9VvqfRPw+bu6Y
-         GdreqpV5xpMNzBU0YJQAsHo/CX8p+N4zyE6OcWyE=
+        b=KKtZ+p4Lt9EKoRX+h5zCNGLwGKFdrlIGTN1z9YXHKdTmMGaJyknl5bLv+/ddqXjBQ
+         CtpgbMFFhuOCHc0HmrwDTvBYQyjgqtQrbTTLtVk26CEURiCihUnGqHJEdabCGVMtkQ
+         /4hDmQsosuHVBhGNxVHxV112xXsN5OISJG71OYPk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Keith Busch <keith.busch@intel.com>, Jan Kara <jack@suse.cz>,
-        Yufen Yu <yuyufen@huawei.com>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Madhavan Srinivasan <maddy@linux.vnet.ibm.com>,
+        Anju T Sudhakar <anju@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 147/346] block: fix use-after-free on gendisk
+Subject: [PATCH 4.19 062/276] powerpc/perf: Return accordingly on invalid chip-id in
 Date:   Wed, 29 May 2019 20:03:40 -0700
-Message-Id: <20190530030548.616666575@linuxfoundation.org>
+Message-Id: <20190530030529.658403050@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,131 +46,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2c88e3c7ec32d7a40cc7c9b4a487cf90e4671bdd ]
+[ Upstream commit a913e5e8b43be1d3897a141ce61c1ec071cad89c ]
 
-commit 2da78092dda "block: Fix dev_t minor allocation lifetime"
-specifically moved blk_free_devt(dev->devt) call to part_release()
-to avoid reallocating device number before the device is fully
-shutdown.
+Nest hardware counter memory resides in a per-chip reserve-memory.
+During nest_imc_event_init(), chip-id of the event-cpu is considered to
+calculate the base memory addresss for that cpu. Return, proper error
+condition if the chip_id calculated is invalid.
 
-However, it can cause use-after-free on gendisk in get_gendisk().
-We use md device as example to show the race scenes:
-
-Process1		Worker			Process2
-md_free
-						blkdev_open
-del_gendisk
-  add delete_partition_work_fn() to wq
-  						__blkdev_get
-						get_gendisk
-put_disk
-  disk_release
-    kfree(disk)
-    						find part from ext_devt_idr
-						get_disk_and_module(disk)
-    					  	cause use after free
-
-    			delete_partition_work_fn
-			put_device(part)
-    		  	part_release
-		    	remove part from ext_devt_idr
-
-Before <devt, hd_struct pointer> is removed from ext_devt_idr by
-delete_partition_work_fn(), we can find the devt and then access
-gendisk by hd_struct pointer. But, if we access the gendisk after
-it have been freed, it can cause in use-after-freeon gendisk in
-get_gendisk().
-
-We fix this by adding a new helper blk_invalidate_devt() in
-delete_partition() and del_gendisk(). It replaces hd_struct
-pointer in idr with value 'NULL', and deletes the entry from
-idr in part_release() as we do now.
-
-Thanks to Jan Kara for providing the solution and more clear comments
-for the code.
-
-Fixes: 2da78092dda1 ("block: Fix dev_t minor allocation lifetime")
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Reviewed-by: Keith Busch <keith.busch@intel.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Suggested-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Yufen Yu <yuyufen@huawei.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Fixes: 885dcd709ba91 ("powerpc/perf: Add nest IMC PMU support")
+Reviewed-by: Madhavan Srinivasan <maddy@linux.vnet.ibm.com>
+Signed-off-by: Anju T Sudhakar <anju@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/genhd.c             | 19 +++++++++++++++++++
- block/partition-generic.c |  7 +++++++
- include/linux/genhd.h     |  1 +
- 3 files changed, 27 insertions(+)
+ arch/powerpc/perf/imc-pmu.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/block/genhd.c b/block/genhd.c
-index 1dd8fd6613b8d..ef28a5126d218 100644
---- a/block/genhd.c
-+++ b/block/genhd.c
-@@ -531,6 +531,18 @@ void blk_free_devt(dev_t devt)
- 	}
- }
- 
-+/**
-+ *	We invalidate devt by assigning NULL pointer for devt in idr.
-+ */
-+void blk_invalidate_devt(dev_t devt)
-+{
-+	if (MAJOR(devt) == BLOCK_EXT_MAJOR) {
-+		spin_lock_bh(&ext_devt_lock);
-+		idr_replace(&ext_devt_idr, NULL, blk_mangle_minor(MINOR(devt)));
-+		spin_unlock_bh(&ext_devt_lock);
-+	}
-+}
+diff --git a/arch/powerpc/perf/imc-pmu.c b/arch/powerpc/perf/imc-pmu.c
+index 1fafc32b12a0f..3cebfdf362116 100644
+--- a/arch/powerpc/perf/imc-pmu.c
++++ b/arch/powerpc/perf/imc-pmu.c
+@@ -496,6 +496,11 @@ static int nest_imc_event_init(struct perf_event *event)
+ 	 * Get the base memory addresss for this cpu.
+ 	 */
+ 	chip_id = cpu_to_chip_id(event->cpu);
 +
- static char *bdevt_str(dev_t devt, char *buf)
- {
- 	if (MAJOR(devt) <= 0xff && MINOR(devt) <= 0xff) {
-@@ -791,6 +803,13 @@ void del_gendisk(struct gendisk *disk)
- 
- 	if (!(disk->flags & GENHD_FL_HIDDEN))
- 		blk_unregister_region(disk_devt(disk), disk->minors);
-+	/*
-+	 * Remove gendisk pointer from idr so that it cannot be looked up
-+	 * while RCU period before freeing gendisk is running to prevent
-+	 * use-after-free issues. Note that the device number stays
-+	 * "in-use" until we really free the gendisk.
-+	 */
-+	blk_invalidate_devt(disk_devt(disk));
- 
- 	kobject_put(disk->part0.holder_dir);
- 	kobject_put(disk->slave_dir);
-diff --git a/block/partition-generic.c b/block/partition-generic.c
-index 8e596a8dff321..aee643ce13d15 100644
---- a/block/partition-generic.c
-+++ b/block/partition-generic.c
-@@ -285,6 +285,13 @@ void delete_partition(struct gendisk *disk, int partno)
- 	kobject_put(part->holder_dir);
- 	device_del(part_to_dev(part));
- 
-+	/*
-+	 * Remove gendisk pointer from idr so that it cannot be looked up
-+	 * while RCU period before freeing gendisk is running to prevent
-+	 * use-after-free issues. Note that the device number stays
-+	 * "in-use" until we really free the gendisk.
-+	 */
-+	blk_invalidate_devt(part_devt(part));
- 	hd_struct_kill(part);
- }
- 
-diff --git a/include/linux/genhd.h b/include/linux/genhd.h
-index 06c0fd594097d..69db1affedb0b 100644
---- a/include/linux/genhd.h
-+++ b/include/linux/genhd.h
-@@ -610,6 +610,7 @@ struct unixware_disklabel {
- 
- extern int blk_alloc_devt(struct hd_struct *part, dev_t *devt);
- extern void blk_free_devt(dev_t devt);
-+extern void blk_invalidate_devt(dev_t devt);
- extern dev_t blk_lookup_devt(const char *name, int partno);
- extern char *disk_name (struct gendisk *hd, int partno, char *buf);
- 
++	/* Return, if chip_id is not valid */
++	if (chip_id < 0)
++		return -ENODEV;
++
+ 	pcni = pmu->mem_info;
+ 	do {
+ 		if (pcni->id == chip_id) {
 -- 
 2.20.1
 
