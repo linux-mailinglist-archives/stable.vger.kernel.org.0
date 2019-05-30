@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E4742F49F
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:42:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 860AA2F223
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:19:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729098AbfE3DMd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:12:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55440 "EHLO mail.kernel.org"
+        id S1729235AbfE3ESz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:18:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38826 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729089AbfE3DMc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:12:32 -0400
+        id S1730306AbfE3DP3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:15:29 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 932D123D14;
-        Thu, 30 May 2019 03:12:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5C06224547;
+        Thu, 30 May 2019 03:15:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185951;
-        bh=h97403slzt+aUJCshZfyfWkq30Iiw7lJH4ga9p0XgO4=;
+        s=default; t=1559186128;
+        bh=SnqwmFzw03K1gcPmMYOzxHxxvJbpotaVF5rgolxW8i4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ep56G2dpmDAmVXBwS/4S9mtrspRx6H9JVmTZm0Klndzmv28qOiKbWPEyk4rxfD49B
-         pMLV2thA6Mji2ug6ctQP2lf3qfVDERa6k+10Rq/MqLsXrvTm2IFWS5sh6k1n4olsfO
-         9CxSyZdgKUte9dVGxRTG/PJKHfnHiEm/2sXKIGAo=
+        b=nspBsodjbrLd/8/s9iJpVKZg+LJz0J/qZFSauCBNZl/oIYei4WQhXfgBwJ94j2Abw
+         1wz7EXb9M3rMDRn5AAC05iLogzpsS1/A+fUMnbUn2MskbpErLZWTro/g0bPr4bvh4i
+         AdHSJe2ZABGg54JEOhlBGoFeCu57ubIYRyGNIpBg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dick Kennedy <dick.kennedy@broadcom.com>,
-        James Smart <jsmart2021@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Samson Tam <Samson.Tam@amd.com>,
+        Aric Cyr <Aric.Cyr@amd.com>, Anthony Koo <Anthony.Koo@amd.com>,
+        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 364/405] scsi: lpfc: Fix io lost on host resets
+Subject: [PATCH 5.0 289/346] drm/amd/display: Link train only when link is DP and backend is enabled
 Date:   Wed, 29 May 2019 20:06:02 -0700
-Message-Id: <20190530030559.015596636@linuxfoundation.org>
+Message-Id: <20190530030555.524480172@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,42 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c66a91974634bfdf9d8e8736219d3b27621fa704 ]
+[ Upstream commit 66acd4418d7de131ef3831e52a8af3d2480e5b15 ]
 
-If the driver undergoes repeated host resets it starts losing exchange
-structures and eventually returns SCSI_MLQUEUE_HOST_BUSY and does not
-recover. The offline path is not reclaiming the outstanding ios on the fcp
-pring txcmplq before calling lpfc_destroy_multixripool, which causes the
-txmcplq to be reinit and the resources lost.
+[Why]
+In certain cases we do link training when we don't have a backend.
 
-Flush the fcp rings before destroying the multixripools.
+[How]
+In dc_link_set_preferred_link_settings(), store preferred link settings
+first and then verify that the link is DP and the link stream's backend is
+enabled.  If either is false, then we will not do any link retraining.
 
-Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Samson Tam <Samson.Tam@amd.com>
+Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
+Acked-by: Anthony Koo <Anthony.Koo@amd.com>
+Acked-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_init.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/gpu/drm/amd/display/dc/core/dc.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_init.c b/drivers/scsi/lpfc/lpfc_init.c
-index 7fcdaed3fa945..89a0c2bdb6a15 100644
---- a/drivers/scsi/lpfc/lpfc_init.c
-+++ b/drivers/scsi/lpfc/lpfc_init.c
-@@ -3245,6 +3245,13 @@ void lpfc_destroy_multixri_pools(struct lpfc_hba *phba)
- 	if (phba->cfg_enable_fc4_type & LPFC_ENABLE_NVME)
- 		lpfc_destroy_expedite_pool(phba);
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc.c b/drivers/gpu/drm/amd/display/dc/core/dc.c
+index 5af2ea1f201d3..68529acba015f 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc.c
+@@ -524,6 +524,14 @@ void dc_link_set_preferred_link_settings(struct dc *dc,
+ 	struct dc_stream_state *link_stream;
+ 	struct dc_link_settings store_settings = *link_setting;
  
-+	if (!(phba->pport->load_flag & FC_UNLOADING)) {
-+		lpfc_sli_flush_fcp_rings(phba);
++	link->preferred_link_setting = store_settings;
 +
-+		if (phba->cfg_enable_fc4_type & LPFC_ENABLE_NVME)
-+			lpfc_sli_flush_nvme_rings(phba);
-+	}
++	/* Retrain with preferred link settings only relevant for
++	 * DP signal type
++	 */
++	if (!dc_is_dp_signal(link->connector_signal))
++		return;
 +
- 	hwq_count = phba->cfg_hdw_queue;
+ 	for (i = 0; i < MAX_PIPES; i++) {
+ 		pipe = &dc->current_state->res_ctx.pipe_ctx[i];
+ 		if (pipe->stream && pipe->stream->sink
+@@ -539,7 +547,10 @@ void dc_link_set_preferred_link_settings(struct dc *dc,
  
- 	for (i = 0; i < hwq_count; i++) {
+ 	link_stream = link->dc->current_state->res_ctx.pipe_ctx[i].stream;
+ 
+-	link->preferred_link_setting = store_settings;
++	/* Cannot retrain link if backend is off */
++	if (link_stream->dpms_off)
++		return;
++
+ 	if (link_stream)
+ 		decide_link_settings(link_stream, &store_settings);
+ 
 -- 
 2.20.1
 
