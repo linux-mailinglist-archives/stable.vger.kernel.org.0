@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CB6F72EDFD
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:43:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E6AF2F00F
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:01:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732114AbfE3DnR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:43:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33390 "EHLO mail.kernel.org"
+        id S1726232AbfE3EAH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:00:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731802AbfE3DVL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:21:11 -0400
+        id S1731558AbfE3DS2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:18:28 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 908F0249CE;
-        Thu, 30 May 2019 03:21:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D108024741;
+        Thu, 30 May 2019 03:18:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186470;
-        bh=yrLqvuy0Gi+/mqgwgslP0CMc1UikWllpQo7pWoDrmus=;
+        s=default; t=1559186307;
+        bh=an8IQFE+oE9Q58XxhNNdWBbllAu43dweJSmTzxFf5gg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rOAzmesRWINBLlv4LX3fsrW1MIL8ttEiFIY37mAMx9xt8Xdh6QtpCbqotPFPN4rJ0
-         xD+kOcuRoxOruBzWIY0h6xhJ9VrmCkmBMkzbKEWlZGvFLMFc6bDL6ajGgOUc0vFaFp
-         B6ZcZHAiDTLQNgSqTo6h0f7Yo546+jTxXg9VvLgM=
+        b=sJvbbEVSGq7TnB3hsWQnl+o6TkABJImKUcd9RyhnJ/lGR1xjxymVzGNVkZ0wazWGi
+         gqZeeAxJfNv2ldf2U97k1hk3dog5YKDTPviNyJ/s+gpwGGJZXcK/zWoMffPRtpmAZN
+         YNZHbW2FRtKZdXcZqq7jddhBXpIBFh/VD0q5Q6NY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stanley Chu <stanley.chu@mediatek.com>,
-        Avri Altman <avri.altman@wdc.com>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        Paul Kocialkowski <paul.kocialkowski@bootlin.com>,
+        Maxime Ripard <maxime.ripard@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 099/128] scsi: ufs: Fix regulator load and icc-level configuration
+Subject: [PATCH 4.19 273/276] drm/sun4i: dsi: Change the start delay calculation
 Date:   Wed, 29 May 2019 20:07:11 -0700
-Message-Id: <20190530030452.380736501@linuxfoundation.org>
+Message-Id: <20190530030542.271763109@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
-References: <20190530030432.977908967@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,74 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 0487fff76632ec023d394a05b82e87a971db8c03 ]
+[ Upstream commit da676c6aa6413d59ab0a80c97bbc273025e640b2 ]
 
-Currently if a regulator has "<name>-fixed-regulator" property in device
-tree, it will skip current limit initialization.  This lead to a zero
-"max_uA" value in struct ufs_vreg.
+The current calculation for the video start delay in the current DSI driver
+is that it is the total vertical size, minus the front porch and sync length,
+plus 1. This equals to the active vertical size plus the back porch plus 1.
 
-However, "regulator_set_load" operation shall be required on regulators
-which have valid current limits, otherwise a zero "max_uA" set by
-"regulator_set_load" may cause unexpected behavior when this regulator is
-enabled or set as high power mode.
+That 1 is coming in the Allwinner BSP from an variable that is set to 1.
+However, if we look at the Allwinner BSP more closely, and especially in
+the "legacy" code for the display (in drivers/video/sunxi/legacy/), we can
+see that this variable is actually computed from the porches and the sync
+minus 10, clamped between 8 and 100.
 
-Similarly, in device's icc_level configuration flow, the target icc_level
-shall be updated if regulator also has valid current limit, otherwise a
-wrong icc_level will be calculated by zero "max_uA" and thus causes
-unexpected results after it is written to device.
+This fixes the start delay symptom we've seen on some panels (vblank
+timeouts with vertical white stripes at the bottom of the panel).
 
-Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
-Reviewed-by: Avri Altman <avri.altman@wdc.com>
-Acked-by: Alim Akhtar <alim.akhtar@samsung.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reviewed-by: Paul Kocialkowski <paul.kocialkowski@bootlin.com>
+Signed-off-by: Maxime Ripard <maxime.ripard@bootlin.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/6e5f72e68f47ca0223877464bf12f0c3f3978de8.1549896081.git-series.maxime.ripard@bootlin.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 0b858414c558b..8869c666d458c 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -4875,19 +4875,19 @@ static u32 ufshcd_find_max_sup_active_icc_level(struct ufs_hba *hba,
- 		goto out;
- 	}
- 
--	if (hba->vreg_info.vcc)
-+	if (hba->vreg_info.vcc && hba->vreg_info.vcc->max_uA)
- 		icc_level = ufshcd_get_max_icc_level(
- 				hba->vreg_info.vcc->max_uA,
- 				POWER_DESC_MAX_ACTV_ICC_LVLS - 1,
- 				&desc_buf[PWR_DESC_ACTIVE_LVLS_VCC_0]);
- 
--	if (hba->vreg_info.vccq)
-+	if (hba->vreg_info.vccq && hba->vreg_info.vccq->max_uA)
- 		icc_level = ufshcd_get_max_icc_level(
- 				hba->vreg_info.vccq->max_uA,
- 				icc_level,
- 				&desc_buf[PWR_DESC_ACTIVE_LVLS_VCCQ_0]);
- 
--	if (hba->vreg_info.vccq2)
-+	if (hba->vreg_info.vccq2 && hba->vreg_info.vccq2->max_uA)
- 		icc_level = ufshcd_get_max_icc_level(
- 				hba->vreg_info.vccq2->max_uA,
- 				icc_level,
-@@ -5449,6 +5449,15 @@ static int ufshcd_config_vreg_load(struct device *dev, struct ufs_vreg *vreg,
- 	if (!vreg)
- 		return 0;
- 
-+	/*
-+	 * "set_load" operation shall be required on those regulators
-+	 * which specifically configured current limitation. Otherwise
-+	 * zero max_uA may cause unexpected behavior when regulator is
-+	 * enabled or set as high power mode.
-+	 */
-+	if (!vreg->max_uA)
-+		return 0;
+diff --git a/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c b/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c
+index e3b34a3455460..3de41de43127b 100644
+--- a/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c
++++ b/drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c
+@@ -357,7 +357,9 @@ static void sun6i_dsi_inst_init(struct sun6i_dsi *dsi,
+ static u16 sun6i_dsi_get_video_start_delay(struct sun6i_dsi *dsi,
+ 					   struct drm_display_mode *mode)
+ {
+-	return mode->vtotal - (mode->vsync_end - mode->vdisplay) + 1;
++	u16 start = clamp(mode->vtotal - mode->vdisplay - 10, 8, 100);
 +
- 	ret = regulator_set_load(vreg->reg, ua);
- 	if (ret < 0) {
- 		dev_err(dev, "%s: %s set load (ua=%d) failed, err=%d\n",
++	return mode->vtotal - (mode->vsync_end - mode->vdisplay) + start;
+ }
+ 
+ static void sun6i_dsi_setup_burst(struct sun6i_dsi *dsi,
 -- 
 2.20.1
 
