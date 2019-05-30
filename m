@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 704352F38C
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:33:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F21BB2F5F2
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:51:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729601AbfE3DNt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:13:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60192 "EHLO mail.kernel.org"
+        id S1728283AbfE3Evp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:51:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729596AbfE3DNt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:13:49 -0400
+        id S1728276AbfE3DKz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:10:55 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A102E24556;
-        Thu, 30 May 2019 03:13:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 15F3D24476;
+        Thu, 30 May 2019 03:10:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186028;
-        bh=CYi8NvBAxVHnyCPZsVnbMsCHDi5Ti7e1WI+OTRJsNws=;
+        s=default; t=1559185854;
+        bh=OxCAIHPoH18e4bJyXWJl8c54vD7RQRBMGt1OQmZG0A4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g2vf315RdJi/hQSBHX7mFGUJDXEqLy1OX6UMP1Vk+4LHC3k6jSEt2bxlEi/jIgTeB
-         sX2aIaCnG/PT3aj9F6L3rR+wqROW9C+a8Frphr4t5iO484Meh7Ci9lAGlAPn9S8UEb
-         m4+CR/oEEAaJS7bp0j5Sx6nvvgHlhUAett1lzxjc=
+        b=B0aGR8TgqoXmINLQBJ9AMZaN+OJvSGD85mSm0aR5SyNXtO29mPZFE6ixkVfDdEdRn
+         PgSoR/szFU69skcu83rQW4HuPMBHt6/AKhPeElwKej2mryU7C28zMXSfjXwLAGTbz4
+         npZnxj7czbt9LjGWRNYsWCThKlp1l0sWT8uJfvFA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 104/346] mac80211/cfg80211: update bss channel on channel switch
-Date:   Wed, 29 May 2019 20:02:57 -0700
-Message-Id: <20190530030546.399761699@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Borislav Petkov <bp@suse.de>,
+        Andy Lutomirski <luto@kernel.org>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Mitsuo Hayasaka <mitsuo.hayasaka.hu@hitachi.com>,
+        Nicolai Stange <nstange@suse.de>,
+        Sean Christopherson <sean.j.christopherson@intel.com>,
+        x86-ml <x86@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 180/405] x86/irq/64: Limit IST stack overflow check to #DB stack
+Date:   Wed, 29 May 2019 20:02:58 -0700
+Message-Id: <20190530030550.194242069@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,66 +50,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 5dc8cdce1d722c733f8c7af14c5fb595cfedbfa8 ]
+[ Upstream commit 7dbcf2b0b770eeb803a416ee8dcbef78e6389d40 ]
 
-FullMAC STAs have no way to update bss channel after CSA channel switch
-completion. As a result, user-space tools may provide inconsistent
-channel info. For instance, consider the following two commands:
-$ sudo iw dev wlan0 link
-$ sudo iw dev wlan0 info
-The latter command gets channel info from the hardware, so most probably
-its output will be correct. However the former command gets channel info
-from scan cache, so its output will contain outdated channel info.
-In fact, current bss channel info will not be updated until the
-next [re-]connect.
+Commit
 
-Note that mac80211 STAs have a workaround for this, but it requires
-access to internal cfg80211 data, see ieee80211_chswitch_work:
+  37fe6a42b343 ("x86: Check stack overflow in detail")
 
-	/* XXX: shouldn't really modify cfg80211-owned data! */
-	ifmgd->associated->channel = sdata->csa_chandef.chan;
+added a broad check for the full exception stack area, i.e. it considers
+the full exception stack area as valid.
 
-This patch suggests to convert mac80211 workaround into cfg80211 behavior
-and to update current bss channel in cfg80211_ch_switch_notify.
+That's wrong in two aspects:
 
-Signed-off-by: Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+ 1) It does not check the individual areas one by one
+
+ 2) #DF, NMI and #MCE are not enabling interrupts which means that a
+    regular device interrupt cannot happen in their context. In fact if a
+    device interrupt hits one of those IST stacks that's a bug because some
+    code path enabled interrupts while handling the exception.
+
+Limit the check to the #DB stack and consider all other IST stacks as
+'overflow' or invalid.
+
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Mitsuo Hayasaka <mitsuo.hayasaka.hu@hitachi.com>
+Cc: Nicolai Stange <nstange@suse.de>
+Cc: Sean Christopherson <sean.j.christopherson@intel.com>
+Cc: x86-ml <x86@kernel.org>
+Link: https://lkml.kernel.org/r/20190414160143.682135110@linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/mlme.c    | 3 ---
- net/wireless/nl80211.c | 5 +++++
- 2 files changed, 5 insertions(+), 3 deletions(-)
+ arch/x86/kernel/irq_64.c | 19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
-diff --git a/net/mac80211/mlme.c b/net/mac80211/mlme.c
-index 6878215672871..715ab0e6579cb 100644
---- a/net/mac80211/mlme.c
-+++ b/net/mac80211/mlme.c
-@@ -1167,9 +1167,6 @@ static void ieee80211_chswitch_work(struct work_struct *work)
- 		goto out;
- 	}
+diff --git a/arch/x86/kernel/irq_64.c b/arch/x86/kernel/irq_64.c
+index 0469cd078db15..b50ac9c7397bb 100644
+--- a/arch/x86/kernel/irq_64.c
++++ b/arch/x86/kernel/irq_64.c
+@@ -26,9 +26,18 @@ int sysctl_panic_on_stackoverflow;
+ /*
+  * Probabilistic stack overflow check:
+  *
+- * Only check the stack in process context, because everything else
+- * runs on the big interrupt stacks. Checking reliably is too expensive,
+- * so we just check from interrupts.
++ * Regular device interrupts can enter on the following stacks:
++ *
++ * - User stack
++ *
++ * - Kernel task stack
++ *
++ * - Interrupt stack if a device driver reenables interrupts
++ *   which should only happen in really old drivers.
++ *
++ * - Debug IST stack
++ *
++ * All other contexts are invalid.
+  */
+ static inline void stack_overflow_check(struct pt_regs *regs)
+ {
+@@ -53,8 +62,8 @@ static inline void stack_overflow_check(struct pt_regs *regs)
+ 		return;
  
--	/* XXX: shouldn't really modify cfg80211-owned data! */
--	ifmgd->associated->channel = sdata->csa_chandef.chan;
--
- 	ifmgd->csa_waiting_bcn = true;
+ 	oist = this_cpu_ptr(&orig_ist);
+-	estack_top = (u64)oist->ist[0] - EXCEPTION_STKSZ + STACK_TOP_MARGIN;
+-	estack_bottom = (u64)oist->ist[N_EXCEPTION_STACKS - 1];
++	estack_bottom = (u64)oist->ist[DEBUG_STACK];
++	estack_top = estack_bottom - DEBUG_STKSZ + STACK_TOP_MARGIN;
+ 	if (regs->sp >= estack_top && regs->sp <= estack_bottom)
+ 		return;
  
- 	ieee80211_sta_reset_beacon_monitor(sdata);
-diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
-index 156ce708b5330..0044bfb526abc 100644
---- a/net/wireless/nl80211.c
-+++ b/net/wireless/nl80211.c
-@@ -15667,6 +15667,11 @@ void cfg80211_ch_switch_notify(struct net_device *dev,
- 
- 	wdev->chandef = *chandef;
- 	wdev->preset_chandef = *chandef;
-+
-+	if (wdev->iftype == NL80211_IFTYPE_STATION &&
-+	    !WARN_ON(!wdev->current_bss))
-+		wdev->current_bss->pub.channel = chandef->chan;
-+
- 	nl80211_ch_switch_notify(rdev, dev, chandef, GFP_KERNEL,
- 				 NL80211_CMD_CH_SWITCH_NOTIFY, 0);
- }
 -- 
 2.20.1
 
