@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 498CE2F284
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:22:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACB3C2EC32
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:20:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730169AbfE3EWw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:22:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36996 "EHLO mail.kernel.org"
+        id S1731767AbfE3DS7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:18:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730086AbfE3DPE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:15:04 -0400
+        id S1731763AbfE3DS7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:18:59 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6FB9C2456F;
-        Thu, 30 May 2019 03:15:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AFF952481B;
+        Thu, 30 May 2019 03:18:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186103;
-        bh=dCVDXips007izB5sZEkFSjcUty+mk+m6uZJDYn5+XbQ=;
+        s=default; t=1559186338;
+        bh=pIQPawHZ5IFuCUzabyBZl2wAqFNJ+HzJXZxHmV9vQ/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UPGifUcY5Wjymn70p98zbRy9hQ4f/O5ZjmteeuIyN114XU7Lhfczc/0zaiFz65IZ3
-         uJB+1Iav1Zb1Ykk606k49guyQrkads7hUcQw9akiMwT92LgxB4Gm9YBlVZ5Onv48nQ
-         CJUwtIojvFF99hBwsVMVFDWwjD3eyWXSYZ76NUqw=
+        b=Y64OVnWMdi8a38PiaThErMb/kYBDimVuxee+TKEyMaU2kmZnIVXxD/rDmN+VSspTX
+         wJ496edYqtdYds89vCl1/yI1J2Xn8Q6U00Ocgq8UrxvL4FoKeek9DEWl+lMKzeuwO2
+         SuX5d9ZqJY1kMBtW/xDk1G7Py/3yA4sDPNuXRUzs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 243/346] x86/uaccess: Fix up the fixup
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 062/193] iwlwifi: pcie: dont crash on invalid RX interrupt
 Date:   Wed, 29 May 2019 20:05:16 -0700
-Message-Id: <20190530030553.322995002@linuxfoundation.org>
+Message-Id: <20190530030458.067993242@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
+References: <20190530030446.953835040@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,51 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit b69656fa7ea2f75e47d7bd5b9430359fa46488af ]
+[ Upstream commit 30f24eabab8cd801064c5c37589d803cb4341929 ]
 
-New tooling got confused about this:
+If for some reason the device gives us an RX interrupt before we're
+ready for it, perhaps during device power-on with misconfigured IRQ
+causes mapping or so, we can crash trying to access the queues.
 
-  arch/x86/lib/memcpy_64.o: warning: objtool: .fixup+0x7: return with UACCESS enabled
+Prevent that by checking that we actually have RXQs and that they
+were properly allocated.
 
-While the code isn't wrong, it is tedious (if at all possible) to
-figure out what function a particular chunk of .fixup belongs to.
-
-This then confuses the objtool uaccess validation. Instead of
-returning directly from the .fixup, jump back into the right function.
-
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/lib/memcpy_64.S | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/wireless/intel/iwlwifi/pcie/rx.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/lib/memcpy_64.S b/arch/x86/lib/memcpy_64.S
-index 3b24dc05251c7..9d05572370edc 100644
---- a/arch/x86/lib/memcpy_64.S
-+++ b/arch/x86/lib/memcpy_64.S
-@@ -257,6 +257,7 @@ ENTRY(__memcpy_mcsafe)
- 	/* Copy successful. Return zero */
- .L_done_memcpy_trap:
- 	xorl %eax, %eax
-+.L_done:
- 	ret
- ENDPROC(__memcpy_mcsafe)
- EXPORT_SYMBOL_GPL(__memcpy_mcsafe)
-@@ -273,7 +274,7 @@ EXPORT_SYMBOL_GPL(__memcpy_mcsafe)
- 	addl	%edx, %ecx
- .E_trailing_bytes:
- 	mov	%ecx, %eax
--	ret
-+	jmp	.L_done
+diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/rx.c b/drivers/net/wireless/intel/iwlwifi/pcie/rx.c
+index a40ad4675e19e..953e0254a94c1 100644
+--- a/drivers/net/wireless/intel/iwlwifi/pcie/rx.c
++++ b/drivers/net/wireless/intel/iwlwifi/pcie/rx.c
+@@ -1252,10 +1252,15 @@ static void iwl_pcie_rx_handle_rb(struct iwl_trans *trans,
+ static void iwl_pcie_rx_handle(struct iwl_trans *trans, int queue)
+ {
+ 	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
+-	struct iwl_rxq *rxq = &trans_pcie->rxq[queue];
++	struct iwl_rxq *rxq;
+ 	u32 r, i, count = 0;
+ 	bool emergency = false;
  
- 	/*
- 	 * For write fault handling, given the destination is unaligned,
++	if (WARN_ON_ONCE(!trans_pcie->rxq || !trans_pcie->rxq[queue].bd))
++		return;
++
++	rxq = &trans_pcie->rxq[queue];
++
+ restart:
+ 	spin_lock(&rxq->lock);
+ 	/* uCode's read index (stored in shared DRAM) indicates the last Rx
 -- 
 2.20.1
 
