@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DEB72F660
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:56:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 02B022F425
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:36:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388115AbfE3Ezi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:55:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46842 "EHLO mail.kernel.org"
+        id S1732448AbfE3Efh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:35:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727663AbfE3DKP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:10:15 -0400
+        id S1727685AbfE3DNJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:13:09 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BED092446F;
-        Thu, 30 May 2019 03:10:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E0B0223D83;
+        Thu, 30 May 2019 03:13:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185814;
-        bh=BVZeyU1/iVIaE/V2LIymSSwYBEsq99mennyrdoguKtQ=;
+        s=default; t=1559185988;
+        bh=gUN3RiU/YiYxHbJj2DJdbRdm5L9iYQNLzmUSnZO6Zn8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kY1j902DWZi+kCB76H/uYlTSTEGaWnUfCnmvMI61lggrWlTh8P/GFD5oMYWXV5iDf
-         kdrGz3Z94+3ejvTP+DDF+rcpnjZJlEP2wtLCTHEWgfDsSPAVZ25xfkGH5FEUbX17UI
-         xTp3YqY00dLbzbr9TJLc6JMIB5hlZO2PdcOxBu8U=
+        b=aCoV9pypAkCgXAeJYtHdPIEPU91UXEWw8UcNIoRTsj+4a73XKd7mi5fydqNzKcOTW
+         FPKjokkQsm3PXVoPf2mAmfp5sFMwOQYVKuxCxWk4RJWI8J78aNNISJTi7uCfgBd4xc
+         zHUm8yYMWFqxvQ25msNWvQBS1a1gVu8iul3eoX8U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 106/405] net: ethernet: ti: cpsw: fix allmulti cfg in dual_mac mode
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        YueHaibing <yuehaibing@huawei.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Subject: [PATCH 5.0 031/346] media: cpia2: Fix use-after-free in cpia2_exit
 Date:   Wed, 29 May 2019 20:01:44 -0700
-Message-Id: <20190530030546.366066429@linuxfoundation.org>
+Message-Id: <20190530030542.365566006@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,123 +45,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 06095f34f8a0a2c4c83a19514c272699edd5f80b ]
+From: YueHaibing <yuehaibing@huawei.com>
 
-Now CPSW ALE will set/clean Host port bit in Unregistered Multicast Flood
-Mask (UNREG_MCAST_FLOOD_MASK) for every VLAN without checking if this port
-belongs to VLAN or not when ALLMULTI mode flag is set for nedev. This is
-working in non dual_mac mode, but in dual_mac - it causes
-enabling/disabling ALLMULTI flag for both ports.
+commit dea37a97265588da604c6ba80160a287b72c7bfd upstream.
 
-Hence fix it by adding additional parameter to cpsw_ale_set_allmulti() to
-specify ALE port number for which ALLMULTI has to be enabled and check if
-port belongs to VLAN before modifying UNREG_MCAST_FLOOD_MASK.
+Syzkaller report this:
 
-Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+BUG: KASAN: use-after-free in sysfs_remove_file_ns+0x5f/0x70 fs/sysfs/file.c:468
+Read of size 8 at addr ffff8881f59a6b70 by task syz-executor.0/8363
+
+CPU: 0 PID: 8363 Comm: syz-executor.0 Not tainted 5.0.0-rc8+ #3
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0xfa/0x1ce lib/dump_stack.c:113
+ print_address_description+0x65/0x270 mm/kasan/report.c:187
+ kasan_report+0x149/0x18d mm/kasan/report.c:317
+ sysfs_remove_file_ns+0x5f/0x70 fs/sysfs/file.c:468
+ sysfs_remove_file include/linux/sysfs.h:519 [inline]
+ driver_remove_file+0x40/0x50 drivers/base/driver.c:122
+ usb_remove_newid_files drivers/usb/core/driver.c:212 [inline]
+ usb_deregister+0x12a/0x3b0 drivers/usb/core/driver.c:1005
+ cpia2_exit+0xa/0x16 [cpia2]
+ __do_sys_delete_module kernel/module.c:1018 [inline]
+ __se_sys_delete_module kernel/module.c:961 [inline]
+ __x64_sys_delete_module+0x3dc/0x5e0 kernel/module.c:961
+ do_syscall_64+0x147/0x600 arch/x86/entry/common.c:290
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x462e99
+Code: f7 d8 64 89 02 b8 ff ff ff ff c3 66 0f 1f 44 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 bc ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007f86f3754c58 EFLAGS: 00000246 ORIG_RAX: 00000000000000b0
+RAX: ffffffffffffffda RBX: 000000000073bf00 RCX: 0000000000462e99
+RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000020000300
+RBP: 0000000000000002 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 00007f86f37556bc
+R13: 00000000004bcca9 R14: 00000000006f6b48 R15: 00000000ffffffff
+
+Allocated by task 8363:
+ set_track mm/kasan/common.c:85 [inline]
+ __kasan_kmalloc.constprop.3+0xa0/0xd0 mm/kasan/common.c:495
+ kmalloc include/linux/slab.h:545 [inline]
+ kzalloc include/linux/slab.h:740 [inline]
+ bus_add_driver+0xc0/0x610 drivers/base/bus.c:651
+ driver_register+0x1bb/0x3f0 drivers/base/driver.c:170
+ usb_register_driver+0x267/0x520 drivers/usb/core/driver.c:965
+ 0xffffffffc1b4817c
+ do_one_initcall+0xfa/0x5ca init/main.c:887
+ do_init_module+0x204/0x5f6 kernel/module.c:3460
+ load_module+0x66b2/0x8570 kernel/module.c:3808
+ __do_sys_finit_module+0x238/0x2a0 kernel/module.c:3902
+ do_syscall_64+0x147/0x600 arch/x86/entry/common.c:290
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+Freed by task 8363:
+ set_track mm/kasan/common.c:85 [inline]
+ __kasan_slab_free+0x130/0x180 mm/kasan/common.c:457
+ slab_free_hook mm/slub.c:1430 [inline]
+ slab_free_freelist_hook mm/slub.c:1457 [inline]
+ slab_free mm/slub.c:3005 [inline]
+ kfree+0xe1/0x270 mm/slub.c:3957
+ kobject_cleanup lib/kobject.c:662 [inline]
+ kobject_release lib/kobject.c:691 [inline]
+ kref_put include/linux/kref.h:67 [inline]
+ kobject_put+0x146/0x240 lib/kobject.c:708
+ bus_remove_driver+0x10e/0x220 drivers/base/bus.c:732
+ driver_unregister+0x6c/0xa0 drivers/base/driver.c:197
+ usb_register_driver+0x341/0x520 drivers/usb/core/driver.c:980
+ 0xffffffffc1b4817c
+ do_one_initcall+0xfa/0x5ca init/main.c:887
+ do_init_module+0x204/0x5f6 kernel/module.c:3460
+ load_module+0x66b2/0x8570 kernel/module.c:3808
+ __do_sys_finit_module+0x238/0x2a0 kernel/module.c:3902
+ do_syscall_64+0x147/0x600 arch/x86/entry/common.c:290
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+The buggy address belongs to the object at ffff8881f59a6b40
+ which belongs to the cache kmalloc-256 of size 256
+The buggy address is located 48 bytes inside of
+ 256-byte region [ffff8881f59a6b40, ffff8881f59a6c40)
+The buggy address belongs to the page:
+page:ffffea0007d66980 count:1 mapcount:0 mapping:ffff8881f6c02e00 index:0x0
+flags: 0x2fffc0000000200(slab)
+raw: 02fffc0000000200 dead000000000100 dead000000000200 ffff8881f6c02e00
+raw: 0000000000000000 00000000800c000c 00000001ffffffff 0000000000000000
+page dumped because: kasan: bad access detected
+
+Memory state around the buggy address:
+ ffff8881f59a6a00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ ffff8881f59a6a80: 00 00 00 00 00 00 00 00 00 00 fc fc fc fc fc fc
+>ffff8881f59a6b00: fc fc fc fc fc fc fc fc fb fb fb fb fb fb fb fb
+                                                             ^
+ ffff8881f59a6b80: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff8881f59a6c00: fb fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
+
+cpia2_init does not check return value of cpia2_init, if it failed
+in usb_register_driver, there is already cleanup using driver_unregister.
+No need call cpia2_usb_cleanup on module exit.
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/ethernet/ti/cpsw.c     | 12 +++++++++---
- drivers/net/ethernet/ti/cpsw_ale.c | 19 ++++++++++---------
- drivers/net/ethernet/ti/cpsw_ale.h |  3 +--
- 3 files changed, 20 insertions(+), 14 deletions(-)
+ drivers/media/usb/cpia2/cpia2_v4l.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/ti/cpsw.c b/drivers/net/ethernet/ti/cpsw.c
-index a591583d120e1..dd12b73a88530 100644
---- a/drivers/net/ethernet/ti/cpsw.c
-+++ b/drivers/net/ethernet/ti/cpsw.c
-@@ -800,12 +800,17 @@ static int cpsw_purge_all_mc(struct net_device *ndev, const u8 *addr, int num)
- 
- static void cpsw_ndo_set_rx_mode(struct net_device *ndev)
- {
--	struct cpsw_common *cpsw = ndev_to_cpsw(ndev);
-+	struct cpsw_priv *priv = netdev_priv(ndev);
-+	struct cpsw_common *cpsw = priv->cpsw;
-+	int slave_port = -1;
-+
-+	if (cpsw->data.dual_emac)
-+		slave_port = priv->emac_port + 1;
- 
- 	if (ndev->flags & IFF_PROMISC) {
- 		/* Enable promiscuous mode */
- 		cpsw_set_promiscious(ndev, true);
--		cpsw_ale_set_allmulti(cpsw->ale, IFF_ALLMULTI);
-+		cpsw_ale_set_allmulti(cpsw->ale, IFF_ALLMULTI, slave_port);
- 		return;
- 	} else {
- 		/* Disable promiscuous mode */
-@@ -813,7 +818,8 @@ static void cpsw_ndo_set_rx_mode(struct net_device *ndev)
- 	}
- 
- 	/* Restore allmulti on vlans if necessary */
--	cpsw_ale_set_allmulti(cpsw->ale, ndev->flags & IFF_ALLMULTI);
-+	cpsw_ale_set_allmulti(cpsw->ale,
-+			      ndev->flags & IFF_ALLMULTI, slave_port);
- 
- 	/* add/remove mcast address either for real netdev or for vlan */
- 	__hw_addr_ref_sync_dev(&ndev->mc, ndev, cpsw_add_mc_addr,
-diff --git a/drivers/net/ethernet/ti/cpsw_ale.c b/drivers/net/ethernet/ti/cpsw_ale.c
-index 798c989d5d934..b3d9591b4824a 100644
---- a/drivers/net/ethernet/ti/cpsw_ale.c
-+++ b/drivers/net/ethernet/ti/cpsw_ale.c
-@@ -482,24 +482,25 @@ int cpsw_ale_del_vlan(struct cpsw_ale *ale, u16 vid, int port_mask)
+--- a/drivers/media/usb/cpia2/cpia2_v4l.c
++++ b/drivers/media/usb/cpia2/cpia2_v4l.c
+@@ -1245,8 +1245,7 @@ static int __init cpia2_init(void)
+ 	LOG("%s v%s\n",
+ 	    ABOUT, CPIA_VERSION);
+ 	check_parameters();
+-	cpia2_usb_init();
+-	return 0;
++	return cpia2_usb_init();
  }
- EXPORT_SYMBOL_GPL(cpsw_ale_del_vlan);
  
--void cpsw_ale_set_allmulti(struct cpsw_ale *ale, int allmulti)
-+void cpsw_ale_set_allmulti(struct cpsw_ale *ale, int allmulti, int port)
- {
- 	u32 ale_entry[ALE_ENTRY_WORDS];
--	int type, idx;
- 	int unreg_mcast = 0;
--
--	/* Only bother doing the work if the setting is actually changing */
--	if (ale->allmulti == allmulti)
--		return;
--
--	/* Remember the new setting to check against next time */
--	ale->allmulti = allmulti;
-+	int type, idx;
  
- 	for (idx = 0; idx < ale->params.ale_entries; idx++) {
-+		int vlan_members;
-+
- 		cpsw_ale_read(ale, idx, ale_entry);
- 		type = cpsw_ale_get_entry_type(ale_entry);
- 		if (type != ALE_TYPE_VLAN)
- 			continue;
-+		vlan_members =
-+			cpsw_ale_get_vlan_member_list(ale_entry,
-+						      ale->vlan_field_bits);
-+
-+		if (port != -1 && !(vlan_members & BIT(port)))
-+			continue;
- 
- 		unreg_mcast =
- 			cpsw_ale_get_vlan_unreg_mcast(ale_entry,
-diff --git a/drivers/net/ethernet/ti/cpsw_ale.h b/drivers/net/ethernet/ti/cpsw_ale.h
-index cd07a3e96d576..1fe196d8a5e42 100644
---- a/drivers/net/ethernet/ti/cpsw_ale.h
-+++ b/drivers/net/ethernet/ti/cpsw_ale.h
-@@ -37,7 +37,6 @@ struct cpsw_ale {
- 	struct cpsw_ale_params	params;
- 	struct timer_list	timer;
- 	unsigned long		ageout;
--	int			allmulti;
- 	u32			version;
- 	/* These bits are different on NetCP NU Switch ALE */
- 	u32			port_mask_bits;
-@@ -116,7 +115,7 @@ int cpsw_ale_del_mcast(struct cpsw_ale *ale, const u8 *addr, int port_mask,
- int cpsw_ale_add_vlan(struct cpsw_ale *ale, u16 vid, int port, int untag,
- 			int reg_mcast, int unreg_mcast);
- int cpsw_ale_del_vlan(struct cpsw_ale *ale, u16 vid, int port);
--void cpsw_ale_set_allmulti(struct cpsw_ale *ale, int allmulti);
-+void cpsw_ale_set_allmulti(struct cpsw_ale *ale, int allmulti, int port);
- 
- int cpsw_ale_control_get(struct cpsw_ale *ale, int port, int control);
- int cpsw_ale_control_set(struct cpsw_ale *ale, int port,
--- 
-2.20.1
-
 
 
