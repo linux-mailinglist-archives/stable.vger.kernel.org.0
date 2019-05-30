@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1132C2F5A6
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:49:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B81752F593
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:48:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387484AbfE3Es4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:48:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50232 "EHLO mail.kernel.org"
+        id S1728459AbfE3DLR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:11:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728445AbfE3DLP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:11:15 -0400
+        id S1728452AbfE3DLQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:11:16 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 72010244D8;
-        Thu, 30 May 2019 03:11:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 18A9F244A0;
+        Thu, 30 May 2019 03:11:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185875;
-        bh=iGxECOeYoMheEdkjkj36hyuYRAMoQSKnz47vNcgJL9g=;
+        s=default; t=1559185876;
+        bh=DVm8cUoM2GUEV1LjUHxjwniAIsCCEkp6fyjE0tp7TLo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KPt+0KaGnDetVFF+FsLcLOsxWDv0q5ZkMd5wZzHZEQOsRToRm512OmfiFHCzzRki6
-         zbcGbjEdrEuG4Zy9wmx+rHyS1AwE8OLFkeS/JPHP7GAESHVO/xLE44G38eQw9qVrtT
-         kCGgbuusWbk6tPaWSuWP3KPx97lXhSxBAy08olbc=
+        b=ru+9ylJly3vUL9bEBnrMUNVDtOfPPvw5NqAiAH8vfVG8fxoUfkym3vHH5TFE97H0A
+         bnn0jLS1YVTsX7++2g9vGK6Uc1xBY/Os7n71nsK2Z17uQQ0o00dWvQj0nZrxFAmXug
+         adrkB31ADt0VTRNx1e7XlbRVee6kq/g3YZAmliZA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roman Gushchin <guro@fb.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        "Shuah Khan (Samsung OSG)" <shuah@kernel.org>,
-        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        stable@vger.kernel.org, Huazhong Tan <tanhuazhong@huawei.com>,
+        Peng Li <lipeng321@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 221/405] selftests: cgroup: fix cleanup path in test_memcg_subtree_control()
-Date:   Wed, 29 May 2019 20:03:39 -0700
-Message-Id: <20190530030552.243696447@linuxfoundation.org>
+Subject: [PATCH 5.1 222/405] net: hns3: fix keep_alive_timer not stop problem
+Date:   Wed, 29 May 2019 20:03:40 -0700
+Message-Id: <20190530030552.290139794@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
 References: <20190530030540.291644921@linuxfoundation.org>
@@ -46,113 +45,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit e14d314c7a489f060d6d691866fef5f131281718 ]
+[ Upstream commit e233516e6a92baeec20aa40fa5b63be6b94f1627 ]
 
-Dan reported, that cleanup path in test_memcg_subtree_control()
-triggers a static checker warning:
-  ./tools/testing/selftests/cgroup/test_memcontrol.c:76 \
-  test_memcg_subtree_control()
-  error: uninitialized symbol 'child2'.
+When hclgevf_client_start() fails or VF driver unloaded, there is
+nobody to disable keep_alive_timer.
 
-Fix this by initializing child2 and parent2 variables and
-split the cleanup path into few stages.
+So this patch fixes them.
 
-Signed-off-by: Roman Gushchin <guro@fb.com>
-Fixes: 84092dbcf901 ("selftests: cgroup: add memory controller self-tests")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Shuah Khan (Samsung OSG) <shuah@kernel.org>
-Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
-Signed-off-by: Shuah Khan <shuah@kernel.org>
+Fixes: a6d818e31d08 ("net: hns3: Add vport alive state checking support")
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: Peng Li <lipeng321@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../selftests/cgroup/test_memcontrol.c        | 38 ++++++++++---------
- 1 file changed, 21 insertions(+), 17 deletions(-)
+ .../ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c    | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/cgroup/test_memcontrol.c b/tools/testing/selftests/cgroup/test_memcontrol.c
-index 28d321ba311b4..6f339882a6ca1 100644
---- a/tools/testing/selftests/cgroup/test_memcontrol.c
-+++ b/tools/testing/selftests/cgroup/test_memcontrol.c
-@@ -26,7 +26,7 @@
-  */
- static int test_memcg_subtree_control(const char *root)
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+index 8bc28e6f465f1..8dd7fef863f68 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3vf/hclgevf_main.c
+@@ -2007,9 +2007,15 @@ static int hclgevf_set_alive(struct hnae3_handle *handle, bool alive)
+ static int hclgevf_client_start(struct hnae3_handle *handle)
  {
--	char *parent, *child, *parent2, *child2;
-+	char *parent, *child, *parent2 = NULL, *child2 = NULL;
- 	int ret = KSFT_FAIL;
- 	char buf[PAGE_SIZE];
+ 	struct hclgevf_dev *hdev = hclgevf_ae_get_hdev(handle);
++	int ret;
++
++	ret = hclgevf_set_alive(handle, true);
++	if (ret)
++		return ret;
  
-@@ -34,50 +34,54 @@ static int test_memcg_subtree_control(const char *root)
- 	parent = cg_name(root, "memcg_test_0");
- 	child = cg_name(root, "memcg_test_0/memcg_test_1");
- 	if (!parent || !child)
--		goto cleanup;
-+		goto cleanup_free;
- 
- 	if (cg_create(parent))
--		goto cleanup;
-+		goto cleanup_free;
- 
- 	if (cg_write(parent, "cgroup.subtree_control", "+memory"))
--		goto cleanup;
-+		goto cleanup_parent;
- 
- 	if (cg_create(child))
--		goto cleanup;
-+		goto cleanup_parent;
- 
- 	if (cg_read_strstr(child, "cgroup.controllers", "memory"))
--		goto cleanup;
-+		goto cleanup_child;
- 
- 	/* Create two nested cgroups without enabling memory controller */
- 	parent2 = cg_name(root, "memcg_test_1");
- 	child2 = cg_name(root, "memcg_test_1/memcg_test_1");
- 	if (!parent2 || !child2)
--		goto cleanup;
-+		goto cleanup_free2;
- 
- 	if (cg_create(parent2))
--		goto cleanup;
-+		goto cleanup_free2;
- 
- 	if (cg_create(child2))
--		goto cleanup;
-+		goto cleanup_parent2;
- 
- 	if (cg_read(child2, "cgroup.controllers", buf, sizeof(buf)))
--		goto cleanup;
-+		goto cleanup_all;
- 
- 	if (!cg_read_strstr(child2, "cgroup.controllers", "memory"))
--		goto cleanup;
-+		goto cleanup_all;
- 
- 	ret = KSFT_PASS;
- 
--cleanup:
--	cg_destroy(child);
--	cg_destroy(parent);
--	free(parent);
--	free(child);
--
-+cleanup_all:
- 	cg_destroy(child2);
-+cleanup_parent2:
- 	cg_destroy(parent2);
-+cleanup_free2:
- 	free(parent2);
- 	free(child2);
-+cleanup_child:
-+	cg_destroy(child);
-+cleanup_parent:
-+	cg_destroy(parent);
-+cleanup_free:
-+	free(parent);
-+	free(child);
- 
- 	return ret;
+ 	mod_timer(&hdev->keep_alive_timer, jiffies + 2 * HZ);
+-	return hclgevf_set_alive(handle, true);
++
++	return 0;
  }
+ 
+ static void hclgevf_client_stop(struct hnae3_handle *handle)
+@@ -2051,6 +2057,10 @@ static void hclgevf_state_uninit(struct hclgevf_dev *hdev)
+ {
+ 	set_bit(HCLGEVF_STATE_DOWN, &hdev->state);
+ 
++	if (hdev->keep_alive_timer.function)
++		del_timer_sync(&hdev->keep_alive_timer);
++	if (hdev->keep_alive_task.func)
++		cancel_work_sync(&hdev->keep_alive_task);
+ 	if (hdev->service_timer.function)
+ 		del_timer_sync(&hdev->service_timer);
+ 	if (hdev->service_task.func)
 -- 
 2.20.1
 
