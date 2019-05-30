@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7664B2F4CA
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:42:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 980C02EE85
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:49:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388293AbfE3Elq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:41:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54584 "EHLO mail.kernel.org"
+        id S1733180AbfE3Drx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:47:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728980AbfE3DMW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:12:22 -0400
+        id S1731575AbfE3DU0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:20:26 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EA7A3244D4;
-        Thu, 30 May 2019 03:12:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B0B092486B;
+        Thu, 30 May 2019 03:20:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185942;
-        bh=zcYXCLDHVhGC+NS8oueAupsBWd0nWcs0IvU5yFJNkIs=;
+        s=default; t=1559186425;
+        bh=zgiv+qFIzyKL+BVY8zd+kxmbe99pwOeqQq748lSnyHU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xbg2ozpY7Q7KAh4lmlpCZ9yUjqXOz5S6fDkyEZ1cQPlLvSZsGvtraZD5ibWEvvRk+
-         C4AM/xyBdBofSqdWTnvitKlZ6Oci4ylzJAhw2DTlPJYHSrCx3QMYYWBqEQH84lF+F7
-         N3JknmOv5idESqLbqcZs9dEZZSacXmpAEtDAZvvc=
+        b=oFFK8RtaTWim0eKqxwzgta4ceD3nqbXUe7gjdiNlmL7AFWNUSLk0xLzmS2a4rDnIa
+         q+CpItsE6rQzWbnu+KVKnsE2dNxuXTpU624EFrVe9iaADSr19z/RsQuM2F+XyOjIYO
+         GJL25C2vEl30wSMz6nNZjQzFHUUpE8lKs3vwQBfk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Murton Liu <murton.liu@amd.com>,
-        Aric Cyr <Aric.Cyr@amd.com>,
-        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
-        Sivapiriyan Kumarasamy <Sivapiriyan.Kumarasamy@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 348/405] drm/amd/display: Fix Divide by 0 in memory calculations
-Date:   Wed, 29 May 2019 20:05:46 -0700
-Message-Id: <20190530030558.287948873@linuxfoundation.org>
+        stable@vger.kernel.org, Jiufei Xue <jiufei.xue@linux.alibaba.com>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Subject: [PATCH 4.9 015/128] fbdev: fix WARNING in __alloc_pages_nodemask bug
+Date:   Wed, 29 May 2019 20:05:47 -0700
+Message-Id: <20190530030437.478216971@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
+References: <20190530030432.977908967@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,57 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 59979bf8be1784ebfc44215031c6c88ca22ae65d ]
+From: Jiufei Xue <jiufei.xue@linux.alibaba.com>
 
-Check if we get any values equal to 0, and set to 1 if so.
+commit 8c40292be9169a9cbe19aadd1a6fc60cbd1af82f upstream.
 
-Signed-off-by: Murton Liu <murton.liu@amd.com>
-Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
-Acked-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
-Acked-by: Sivapiriyan Kumarasamy <Sivapiriyan.Kumarasamy@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Syzkaller hit 'WARNING in __alloc_pages_nodemask' bug.
+
+WARNING: CPU: 1 PID: 1473 at mm/page_alloc.c:4377
+__alloc_pages_nodemask+0x4da/0x2130
+Kernel panic - not syncing: panic_on_warn set ...
+
+Call Trace:
+ alloc_pages_current+0xb1/0x1e0
+ kmalloc_order+0x1f/0x60
+ kmalloc_order_trace+0x1d/0x120
+ fb_alloc_cmap_gfp+0x85/0x2b0
+ fb_set_user_cmap+0xff/0x370
+ do_fb_ioctl+0x949/0xa20
+ fb_ioctl+0xdd/0x120
+ do_vfs_ioctl+0x186/0x1070
+ ksys_ioctl+0x89/0xa0
+ __x64_sys_ioctl+0x74/0xb0
+ do_syscall_64+0xc8/0x550
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+This is a warning about order >= MAX_ORDER and the order is from
+userspace ioctl. Add flag __NOWARN to silence this warning.
+
+Signed-off-by: Jiufei Xue <jiufei.xue@linux.alibaba.com>
+Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- .../drm/amd/display/dc/dcn10/dcn10_dpp_dscl.c | 20 ++++++++++++++-----
- 1 file changed, 15 insertions(+), 5 deletions(-)
+ drivers/video/fbdev/core/fbcmap.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_dpp_dscl.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_dpp_dscl.c
-index c7642e7482970..ce21a290bf3e4 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_dpp_dscl.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_dpp_dscl.c
-@@ -406,15 +406,25 @@ void dpp1_dscl_calc_lb_num_partitions(
- 		int *num_part_y,
- 		int *num_part_c)
- {
-+	int lb_memory_size, lb_memory_size_c, lb_memory_size_a, num_partitions_a,
-+	lb_bpc, memory_line_size_y, memory_line_size_c, memory_line_size_a;
-+
- 	int line_size = scl_data->viewport.width < scl_data->recout.width ?
- 			scl_data->viewport.width : scl_data->recout.width;
- 	int line_size_c = scl_data->viewport_c.width < scl_data->recout.width ?
- 			scl_data->viewport_c.width : scl_data->recout.width;
--	int lb_bpc = dpp1_dscl_get_lb_depth_bpc(scl_data->lb_params.depth);
--	int memory_line_size_y = (line_size * lb_bpc + 71) / 72; /* +71 to ceil */
--	int memory_line_size_c = (line_size_c * lb_bpc + 71) / 72; /* +71 to ceil */
--	int memory_line_size_a = (line_size + 5) / 6; /* +5 to ceil */
--	int lb_memory_size, lb_memory_size_c, lb_memory_size_a, num_partitions_a;
-+
-+	if (line_size == 0)
-+		line_size = 1;
-+
-+	if (line_size_c == 0)
-+		line_size_c = 1;
-+
-+
-+	lb_bpc = dpp1_dscl_get_lb_depth_bpc(scl_data->lb_params.depth);
-+	memory_line_size_y = (line_size * lb_bpc + 71) / 72; /* +71 to ceil */
-+	memory_line_size_c = (line_size_c * lb_bpc + 71) / 72; /* +71 to ceil */
-+	memory_line_size_a = (line_size + 5) / 6; /* +5 to ceil */
+--- a/drivers/video/fbdev/core/fbcmap.c
++++ b/drivers/video/fbdev/core/fbcmap.c
+@@ -94,6 +94,8 @@ int fb_alloc_cmap_gfp(struct fb_cmap *cm
+ 	int size = len * sizeof(u16);
+ 	int ret = -ENOMEM;
  
- 	if (lb_config == LB_MEMORY_CONFIG_1) {
- 		lb_memory_size = 816;
--- 
-2.20.1
-
++	flags |= __GFP_NOWARN;
++
+ 	if (cmap->len != len) {
+ 		fb_dealloc_cmap(cmap);
+ 		if (!len)
 
 
