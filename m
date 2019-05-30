@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B64EC2F2E5
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:25:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BB762F522
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:46:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730018AbfE3DOu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:14:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35142 "EHLO mail.kernel.org"
+        id S1728731AbfE3DLy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:11:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730009AbfE3DOu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:14:50 -0400
+        id S1728726AbfE3DLy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:11:54 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A0D7B24561;
-        Thu, 30 May 2019 03:14:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5FC6C24481;
+        Thu, 30 May 2019 03:11:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186089;
-        bh=nqfYF8dUGO4hkuMbiBjfoewqvUHFBm1r8Wi5bynYi2o=;
+        s=default; t=1559185913;
+        bh=3QIZPcRalKcKDFHU14CZdpeeSwM0JVMBt9IhR65Fwlw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QCytm3wkLAs+WRtO0hzcnXSAEr4fcg0EPZfnfo+ofnoPKyOW1vtdqgftDNSxhSkYn
-         kvP7W80JqN/IwDStDaQ1vs4eT8e8Bd7N/FeqOSEPCgTPhzG8pEo/gcygDeeESMO/bk
-         V8/sWpnELk+kZMglSI8EOJHpV0oEhrSnsaH0Rno0=
+        b=RL3foP7m9pl/UB9Fdzbj1j4c8Enbe1erSutteW59eX1W/L95J/TRCmLaePBtEOvch
+         SaDystChBH8hcYBetOM4ZthHB+pP4k69mlZujsaQJqMtgWPWk9zh4Yo0cD19m6b7Tb
+         8d6my6qSwk7KsKV2MRFDWyK1A6KqFIrqg3DjSFuc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Justin Chen <justinpopo6@gmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        stable@vger.kernel.org,
+        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
+        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 219/346] iio: adc: ti-ads7950: Fix improper use of mlock
+Subject: [PATCH 5.1 294/405] drm: rcar-du: lvds: Fix post-DLL divider calculation
 Date:   Wed, 29 May 2019 20:04:52 -0700
-Message-Id: <20190530030552.188244015@linuxfoundation.org>
+Message-Id: <20190530030555.715789849@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,107 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit abbde2792999c9ad3514dd25d7f8d9a96034fe16 ]
+[ Upstream commit 167e535438ecc73d299340bb1269616432020dfb ]
 
-Indio->mlock is used for protecting the different iio device modes.
-It is currently not being used in this way. Replace the lock with
-an internal lock specifically used for protecting the SPI transfer
-buffer.
+The PLL parameters are computed by looping over the range of acceptable
+M, N and E values, and selecting the combination that produces the
+output frequency closest to the target. The internal frequency
+constraints are taken into account by restricting the tested values for
+the PLL parameters, reducing the search space. The target frequency,
+however, is only taken into account when computing the post-PLL divider,
+which can result in a 0 value for the divider when the PLL output
+frequency being tested is lower than half of the target frequency.
+Subsequent loops will produce a better set of PLL parameters, but for
+some of the iterations this can result in a division by 0.
 
-Signed-off-by: Justin Chen <justinpopo6@gmail.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fix it by clamping the divider value. We could instead restrict the E
+values being tested in the inner loop, but that would require additional
+calculation that would likely be less efficient as the E parameter can
+only take three different values.
+
+Fixes: c25c01361199 ("drm: rcar-du: lvds: D3/E3 support")
+Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/ti-ads7950.c | 19 +++++++++++++++----
- 1 file changed, 15 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/rcar-du/rcar_lvds.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iio/adc/ti-ads7950.c b/drivers/iio/adc/ti-ads7950.c
-index 0ad63592cc3c9..1e47bef72bb79 100644
---- a/drivers/iio/adc/ti-ads7950.c
-+++ b/drivers/iio/adc/ti-ads7950.c
-@@ -56,6 +56,9 @@ struct ti_ads7950_state {
- 	struct spi_message	ring_msg;
- 	struct spi_message	scan_single_msg;
+diff --git a/drivers/gpu/drm/rcar-du/rcar_lvds.c b/drivers/gpu/drm/rcar-du/rcar_lvds.c
+index f0314790333ba..033f44e46daf4 100644
+--- a/drivers/gpu/drm/rcar-du/rcar_lvds.c
++++ b/drivers/gpu/drm/rcar-du/rcar_lvds.c
+@@ -283,7 +283,7 @@ static void rcar_lvds_d3_e3_pll_calc(struct rcar_lvds *lvds, struct clk *clk,
+ 				 * divider.
+ 				 */
+ 				fout = fvco / (1 << e) / div7;
+-				div = DIV_ROUND_CLOSEST(fout, target);
++				div = max(1UL, DIV_ROUND_CLOSEST(fout, target));
+ 				diff = abs(fout / div - target);
  
-+	/* Lock to protect the spi xfer buffers */
-+	struct mutex		slock;
-+
- 	struct regulator	*reg;
- 	unsigned int		vref_mv;
- 
-@@ -268,6 +271,7 @@ static irqreturn_t ti_ads7950_trigger_handler(int irq, void *p)
- 	struct ti_ads7950_state *st = iio_priv(indio_dev);
- 	int ret;
- 
-+	mutex_lock(&st->slock);
- 	ret = spi_sync(st->spi, &st->ring_msg);
- 	if (ret < 0)
- 		goto out;
-@@ -276,6 +280,7 @@ static irqreturn_t ti_ads7950_trigger_handler(int irq, void *p)
- 					   iio_get_time_ns(indio_dev));
- 
- out:
-+	mutex_unlock(&st->slock);
- 	iio_trigger_notify_done(indio_dev->trig);
- 
- 	return IRQ_HANDLED;
-@@ -286,7 +291,7 @@ static int ti_ads7950_scan_direct(struct iio_dev *indio_dev, unsigned int ch)
- 	struct ti_ads7950_state *st = iio_priv(indio_dev);
- 	int ret, cmd;
- 
--	mutex_lock(&indio_dev->mlock);
-+	mutex_lock(&st->slock);
- 
- 	cmd = TI_ADS7950_CR_WRITE | TI_ADS7950_CR_CHAN(ch) | st->settings;
- 	st->single_tx = cmd;
-@@ -298,7 +303,7 @@ static int ti_ads7950_scan_direct(struct iio_dev *indio_dev, unsigned int ch)
- 	ret = st->single_rx;
- 
- out:
--	mutex_unlock(&indio_dev->mlock);
-+	mutex_unlock(&st->slock);
- 
- 	return ret;
- }
-@@ -432,16 +437,19 @@ static int ti_ads7950_probe(struct spi_device *spi)
- 	if (ACPI_COMPANION(&spi->dev))
- 		st->vref_mv = TI_ADS7950_VA_MV_ACPI_DEFAULT;
- 
-+	mutex_init(&st->slock);
-+
- 	st->reg = devm_regulator_get(&spi->dev, "vref");
- 	if (IS_ERR(st->reg)) {
- 		dev_err(&spi->dev, "Failed get get regulator \"vref\"\n");
--		return PTR_ERR(st->reg);
-+		ret = PTR_ERR(st->reg);
-+		goto error_destroy_mutex;
- 	}
- 
- 	ret = regulator_enable(st->reg);
- 	if (ret) {
- 		dev_err(&spi->dev, "Failed to enable regulator \"vref\"\n");
--		return ret;
-+		goto error_destroy_mutex;
- 	}
- 
- 	ret = iio_triggered_buffer_setup(indio_dev, NULL,
-@@ -463,6 +471,8 @@ static int ti_ads7950_probe(struct spi_device *spi)
- 	iio_triggered_buffer_cleanup(indio_dev);
- error_disable_reg:
- 	regulator_disable(st->reg);
-+error_destroy_mutex:
-+	mutex_destroy(&st->slock);
- 
- 	return ret;
- }
-@@ -475,6 +485,7 @@ static int ti_ads7950_remove(struct spi_device *spi)
- 	iio_device_unregister(indio_dev);
- 	iio_triggered_buffer_cleanup(indio_dev);
- 	regulator_disable(st->reg);
-+	mutex_destroy(&st->slock);
- 
- 	return 0;
- }
+ 				if (diff < pll->diff) {
 -- 
 2.20.1
 
