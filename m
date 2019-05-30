@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 481772EF3B
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:54:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27A122F491
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:39:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730922AbfE3Dxw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:53:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55278 "EHLO mail.kernel.org"
+        id S1729130AbfE3Ejo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:39:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729421AbfE3DT2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:19:28 -0400
+        id S1728239AbfE3DMh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:12:37 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 41B9024888;
-        Thu, 30 May 2019 03:19:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ADFE923C5A;
+        Thu, 30 May 2019 03:12:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186367;
-        bh=TIFyNDY9FzGlyx5lxUxH4rwVPK55GjuPa0XuZBHjypo=;
+        s=default; t=1559185956;
+        bh=r4n9B0Nzlwy+WTd/3TjJMZizJyy4JvP92WwFbRE+sXY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nVwhr0TG64Jq1cV1sgzV3iqZ6TWPB9sVcLolDvcTFJCGZDfcZXw5qZaxM5O454vSV
-         /VNY1hR/QBXE7sesLZQaFJDZK208VaT7O34U5SWxya1ZUHw+fY4YL0z5mvZaHGOBF3
-         mplA9OL384D03YcebSKEG6lpsyJq6TVfHIt9d2pY=
+        b=MQBYa2peTvOp9qBk8W78Kcsa1yb42wxDhMVtBlhavxTQrC6rM/7haJsrfKJ3+/PMj
+         b4pqZyV4ARYIO8sWkip4Wd+hMp3p2o2WAA9GUVUZXrPmpNXQCpWhlFGv4wbFyS9ta5
+         XKSU7r2Mm4PEZ1hK2TvfQFvtynAr03ynPq+JS4eA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrea Merello <andrea.merello@gmail.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org,
+        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
+        Brian Starkey <brian.starkey@arm.com>,
+        Liviu Dudau <liviu.dudau@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 117/193] mmc: core: make pwrseq_emmc (partially) support sleepy GPIO controllers
+Subject: [PATCH 5.1 373/405] drm: writeback: Fix leak of writeback job
 Date:   Wed, 29 May 2019 20:06:11 -0700
-Message-Id: <20190530030504.992800247@linuxfoundation.org>
+Message-Id: <20190530030559.595289366@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,114 +46,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 002ee28e8b322d4d4b7b83234b5d0f4ebd428eda ]
+[ Upstream commit e482ae9b5fdc01a343f22f52930e85a6cfdf85eb ]
 
-pwrseq_emmc.c implements a HW reset procedure for eMMC chip by driving a
-GPIO line.
+Writeback jobs are allocated when the WRITEBACK_FB_ID is set, and
+deleted when the jobs complete. This results in both a memory leak of
+the job and a leak of the framebuffer if the atomic commit returns
+before the job is queued for processing, for instance if the atomic
+check fails or if the commit runs in test-only mode.
 
-It registers the .reset() cb on mmc_pwrseq_ops and it registers a system
-restart notification handler; both of them perform reset by unconditionally
-calling gpiod_set_value().
+Fix this by implementing the drm_writeback_cleanup_job() function and
+calling it from __drm_atomic_helper_connector_destroy_state(). As
+writeback jobs are removed from the state when they're queued for
+processing, any job left in the state when the state gets destroyed
+needs to be cleaned up.
 
-If the eMMC reset line is tied to a GPIO controller whose driver can sleep
-(i.e. I2C GPIO controller), then the kernel would spit warnings when trying
-to reset the eMMC chip by means of .reset() mmc_pwrseq_ops cb (that is
-exactly what I'm seeing during boot).
+The existing declaration of the drm_writeback_cleanup_job() function
+without an implementation hints that this problem was considered, but
+never addressed.
 
-Furthermore, on system reset we would gets to the system restart
-notification handler with disabled interrupts - local_irq_disable() is
-called in machine_restart() at least on ARM/ARM64 - and we would be in
-trouble when the GPIO driver tries to sleep (which indeed doesn't happen
-here, likely because in my case the machine specific code doesn't call
-do_kernel_restart(), I guess..).
-
-This patch fixes the .reset() cb to make use of gpiod_set_value_cansleep(),
-so that the eMMC gets reset on boot without complaints, while, since there
-isn't that much we can do, we avoid register the restart handler if the
-GPIO controller has a sleepy driver (and we spit a dev_notice() message to
-let people know)..
-
-This had been tested on a downstream 4.9 kernel with backported
-commit 83f37ee7ba33 ("mmc: pwrseq: Add reset callback to the struct
-mmc_pwrseq_ops") and commit ae60fb031cf2 ("mmc: core: Don't do eMMC HW
-reset when resuming the eMMC card"), because I couldn't boot my board
-otherwise. Maybe worth to RFT.
-
-Signed-off-by: Andrea Merello <andrea.merello@gmail.com>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+Reviewed-by: Brian Starkey <brian.starkey@arm.com>
+Acked-by: Liviu Dudau <liviu.dudau@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/core/pwrseq_emmc.c | 38 ++++++++++++++++++----------------
- 1 file changed, 20 insertions(+), 18 deletions(-)
+ drivers/gpu/drm/drm_atomic_state_helper.c |  4 ++++
+ drivers/gpu/drm/drm_writeback.c           | 14 +++++++++++---
+ 2 files changed, 15 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/mmc/core/pwrseq_emmc.c b/drivers/mmc/core/pwrseq_emmc.c
-index efb8a7965dd4a..154f4204d58cb 100644
---- a/drivers/mmc/core/pwrseq_emmc.c
-+++ b/drivers/mmc/core/pwrseq_emmc.c
-@@ -30,19 +30,14 @@ struct mmc_pwrseq_emmc {
+diff --git a/drivers/gpu/drm/drm_atomic_state_helper.c b/drivers/gpu/drm/drm_atomic_state_helper.c
+index 4985384e51f6e..59ffb6b9c7453 100644
+--- a/drivers/gpu/drm/drm_atomic_state_helper.c
++++ b/drivers/gpu/drm/drm_atomic_state_helper.c
+@@ -30,6 +30,7 @@
+ #include <drm/drm_connector.h>
+ #include <drm/drm_atomic.h>
+ #include <drm/drm_device.h>
++#include <drm/drm_writeback.h>
  
- #define to_pwrseq_emmc(p) container_of(p, struct mmc_pwrseq_emmc, pwrseq)
+ #include <linux/slab.h>
+ #include <linux/dma-fence.h>
+@@ -412,6 +413,9 @@ __drm_atomic_helper_connector_destroy_state(struct drm_connector_state *state)
  
--static void __mmc_pwrseq_emmc_reset(struct mmc_pwrseq_emmc *pwrseq)
--{
--	gpiod_set_value(pwrseq->reset_gpio, 1);
--	udelay(1);
--	gpiod_set_value(pwrseq->reset_gpio, 0);
--	udelay(200);
+ 	if (state->commit)
+ 		drm_crtc_commit_put(state->commit);
++
++	if (state->writeback_job)
++		drm_writeback_cleanup_job(state->writeback_job);
+ }
+ EXPORT_SYMBOL(__drm_atomic_helper_connector_destroy_state);
+ 
+diff --git a/drivers/gpu/drm/drm_writeback.c b/drivers/gpu/drm/drm_writeback.c
+index c20e6fe00cb38..2d75032f81591 100644
+--- a/drivers/gpu/drm/drm_writeback.c
++++ b/drivers/gpu/drm/drm_writeback.c
+@@ -268,6 +268,15 @@ void drm_writeback_queue_job(struct drm_writeback_connector *wb_connector,
+ }
+ EXPORT_SYMBOL(drm_writeback_queue_job);
+ 
++void drm_writeback_cleanup_job(struct drm_writeback_job *job)
++{
++	if (job->fb)
++		drm_framebuffer_put(job->fb);
++
++	kfree(job);
++}
++EXPORT_SYMBOL(drm_writeback_cleanup_job);
++
+ /*
+  * @cleanup_work: deferred cleanup of a writeback job
+  *
+@@ -280,10 +289,9 @@ static void cleanup_work(struct work_struct *work)
+ 	struct drm_writeback_job *job = container_of(work,
+ 						     struct drm_writeback_job,
+ 						     cleanup_work);
+-	drm_framebuffer_put(job->fb);
+-	kfree(job);
 -}
--
- static void mmc_pwrseq_emmc_reset(struct mmc_host *host)
- {
- 	struct mmc_pwrseq_emmc *pwrseq =  to_pwrseq_emmc(host->pwrseq);
  
--	__mmc_pwrseq_emmc_reset(pwrseq);
-+	gpiod_set_value_cansleep(pwrseq->reset_gpio, 1);
-+	udelay(1);
-+	gpiod_set_value_cansleep(pwrseq->reset_gpio, 0);
-+	udelay(200);
- }
++	drm_writeback_cleanup_job(job);
++}
  
- static int mmc_pwrseq_emmc_reset_nb(struct notifier_block *this,
-@@ -50,8 +45,11 @@ static int mmc_pwrseq_emmc_reset_nb(struct notifier_block *this,
- {
- 	struct mmc_pwrseq_emmc *pwrseq = container_of(this,
- 					struct mmc_pwrseq_emmc, reset_nb);
-+	gpiod_set_value(pwrseq->reset_gpio, 1);
-+	udelay(1);
-+	gpiod_set_value(pwrseq->reset_gpio, 0);
-+	udelay(200);
- 
--	__mmc_pwrseq_emmc_reset(pwrseq);
- 	return NOTIFY_DONE;
- }
- 
-@@ -72,14 +70,18 @@ static int mmc_pwrseq_emmc_probe(struct platform_device *pdev)
- 	if (IS_ERR(pwrseq->reset_gpio))
- 		return PTR_ERR(pwrseq->reset_gpio);
- 
--	/*
--	 * register reset handler to ensure emmc reset also from
--	 * emergency_reboot(), priority 255 is the highest priority
--	 * so it will be executed before any system reboot handler.
--	 */
--	pwrseq->reset_nb.notifier_call = mmc_pwrseq_emmc_reset_nb;
--	pwrseq->reset_nb.priority = 255;
--	register_restart_handler(&pwrseq->reset_nb);
-+	if (!gpiod_cansleep(pwrseq->reset_gpio)) {
-+		/*
-+		 * register reset handler to ensure emmc reset also from
-+		 * emergency_reboot(), priority 255 is the highest priority
-+		 * so it will be executed before any system reboot handler.
-+		 */
-+		pwrseq->reset_nb.notifier_call = mmc_pwrseq_emmc_reset_nb;
-+		pwrseq->reset_nb.priority = 255;
-+		register_restart_handler(&pwrseq->reset_nb);
-+	} else {
-+		dev_notice(dev, "EMMC reset pin tied to a sleepy GPIO driver; reset on emergency-reboot disabled\n");
-+	}
- 
- 	pwrseq->pwrseq.ops = &mmc_pwrseq_emmc_ops;
- 	pwrseq->pwrseq.dev = dev;
+ /**
+  * drm_writeback_signal_completion - Signal the completion of a writeback job
 -- 
 2.20.1
 
