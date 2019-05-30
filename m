@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A9702F3E7
+	by mail.lfdr.de (Postfix) with ESMTP id A4C952F3E8
 	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:34:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733272AbfE3EdQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729491AbfE3EdQ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 30 May 2019 00:33:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58640 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:58800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729473AbfE3DN3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:13:29 -0400
+        id S1729481AbfE3DNa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:13:30 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 93A2624555;
-        Thu, 30 May 2019 03:13:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3FD1C24558;
+        Thu, 30 May 2019 03:13:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186008;
-        bh=/2LHEkYu/goeeY7c4o2zeiu0wluSLY7o9LR3wpTiklk=;
+        s=default; t=1559186009;
+        bh=zS/mtP419U35zPbFURmoEAfOjtToTryk78bmtyeQoqc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pFnFR5mn5KzSAuk/GvWUCxiVL8IXZKP/A3qJh1iRorcV+F35wcWQbqXryDAKfbgVo
-         fFN4wKPcqnJfVDdUe7QQoVJpS7QnpGG6oBBRpXSvrSummIvaNU8lSspgNU+S6A2x0M
-         LpcNUg+ncJV11aJzjTn19m6Hdb7BkQDsRgYPFrIQ=
+        b=U5JXNo3MlXgC0dWdmA1tjJuBHGAZrdw0PO3qNq4Gtanpc8TpaCTiAyNycjJ5Yn7Yd
+         dkYtizKS7N/pcGCZT5sRRxx2Q7PlspXoOQUv5tmLwhMoIYc3AHSSMgY+mHH6aFTbhv
+         JaDqfOb47sUzfKtkJjMuTp0VU9doQ/eyRKaw8tUY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Shile Zhang <shile.zhang@linux.alibaba.com>,
-        Fredrik Noring <noring@nocrew.org>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Mukesh Ojha <mojha@codeaurora.org>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Subject: [PATCH 5.0 023/346] fbdev: fix divide error in fb_var_to_videomode
-Date:   Wed, 29 May 2019 20:01:36 -0700
-Message-Id: <20190530030541.902184837@linuxfoundation.org>
+        stable@vger.kernel.org, Ronnie Sahlberg <lsahlber@redhat.com>,
+        Pavel Shilovsky <pshilov@microsoft.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.0 024/346] cifs: fix credits leak for SMB1 oplock breaks
+Date:   Wed, 29 May 2019 20:01:37 -0700
+Message-Id: <20190530030541.955558148@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
 References: <20190530030540.363386121@linuxfoundation.org>
@@ -47,81 +44,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shile Zhang <shile.zhang@linux.alibaba.com>
+From: Ronnie Sahlberg <lsahlber@redhat.com>
 
-commit cf84807f6dd0be5214378e66460cfc9187f532f9 upstream.
+commit d69cb728e70c40268762182a62f5d5d6fa51c5b2 upstream.
 
-To fix following divide-by-zero error found by Syzkaller:
+For SMB1 oplock breaks we would grab one credit while sending the PDU
+but we would never relese the credit back since we will never receive a
+response to this from the server. Eventuallt this would lead to a hang
+once all credits are leaked.
 
-  divide error: 0000 [#1] SMP PTI
-  CPU: 7 PID: 8447 Comm: test Kdump: loaded Not tainted 4.19.24-8.al7.x86_64 #1
-  Hardware name: Alibaba Cloud Alibaba Cloud ECS, BIOS rel-1.12.0-0-ga698c8995f-prebuilt.qemu.org 04/01/2014
-  RIP: 0010:fb_var_to_videomode+0xae/0xc0
-  Code: 04 44 03 46 78 03 4e 7c 44 03 46 68 03 4e 70 89 ce d1 ee 69 c0 e8 03 00 00 f6 c2 01 0f 45 ce 83 e2 02 8d 34 09 0f 45 ce 31 d2 <41> f7 f0 31 d2 f7 f1 89 47 08 f3 c3 66 0f 1f 44 00 00 0f 1f 44 00
-  RSP: 0018:ffffb7e189347bf0 EFLAGS: 00010246
-  RAX: 00000000e1692410 RBX: ffffb7e189347d60 RCX: 0000000000000000
-  RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffffb7e189347c10
-  RBP: ffff99972a091c00 R08: 0000000000000000 R09: 0000000000000000
-  R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000100
-  R13: 0000000000010000 R14: 00007ffd66baf6d0 R15: 0000000000000000
-  FS:  00007f2054d11740(0000) GS:ffff99972fbc0000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 00007f205481fd20 CR3: 00000004288a0001 CR4: 00000000001606a0
-  Call Trace:
-   fb_set_var+0x257/0x390
-   ? lookup_fast+0xbb/0x2b0
-   ? fb_open+0xc0/0x140
-   ? chrdev_open+0xa6/0x1a0
-   do_fb_ioctl+0x445/0x5a0
-   do_vfs_ioctl+0x92/0x5f0
-   ? __alloc_fd+0x3d/0x160
-   ksys_ioctl+0x60/0x90
-   __x64_sys_ioctl+0x16/0x20
-   do_syscall_64+0x5b/0x190
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  RIP: 0033:0x7f20548258d7
-  Code: 44 00 00 48 8b 05 b9 15 2d 00 64 c7 00 26 00 00 00 48 c7 c0 ff ff ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 b8 10 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 89 15 2d 00 f7 d8 64 89 01 48
+Fix this by defining a new flag CIFS_NO_SRV_RSP which indicates that there
+is no server response to this command and thus we need to add any credits back
+immediately after sending the PDU.
 
-It can be triggered easily with following test code:
-
-  #include <linux/fb.h>
-  #include <fcntl.h>
-  #include <sys/ioctl.h>
-  int main(void)
-  {
-          struct fb_var_screeninfo var = {.activate = 0x100, .pixclock = 60};
-          int fd = open("/dev/fb0", O_RDWR);
-          if (fd < 0)
-                  return 1;
-
-          if (ioctl(fd, FBIOPUT_VSCREENINFO, &var))
-                  return 1;
-
-          return 0;
-  }
-
-Signed-off-by: Shile Zhang <shile.zhang@linux.alibaba.com>
-Cc: Fredrik Noring <noring@nocrew.org>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
-Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+CC: Stable <stable@vger.kernel.org> #v5.0+
+Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/video/fbdev/core/modedb.c |    3 +++
- 1 file changed, 3 insertions(+)
+ fs/cifs/cifsglob.h  |    1 +
+ fs/cifs/cifssmb.c   |    2 +-
+ fs/cifs/transport.c |   10 +++++-----
+ 3 files changed, 7 insertions(+), 6 deletions(-)
 
---- a/drivers/video/fbdev/core/modedb.c
-+++ b/drivers/video/fbdev/core/modedb.c
-@@ -935,6 +935,9 @@ void fb_var_to_videomode(struct fb_video
- 	if (var->vmode & FB_VMODE_DOUBLE)
- 		vtotal *= 2;
+--- a/fs/cifs/cifsglob.h
++++ b/fs/cifs/cifsglob.h
+@@ -1657,6 +1657,7 @@ static inline bool is_retryable_error(in
  
-+	if (!htotal || !vtotal)
-+		return;
-+
- 	hfreq = pixclock/htotal;
- 	mode->refresh = hfreq/vtotal;
- }
+ #define   CIFS_HAS_CREDITS 0x0400    /* already has credits */
+ #define   CIFS_TRANSFORM_REQ 0x0800    /* transform request before sending */
++#define   CIFS_NO_SRV_RSP    0x1000    /* there is no server response */
+ 
+ /* Security Flags: indicate type of session setup needed */
+ #define   CIFSSEC_MAY_SIGN	0x00001
+--- a/fs/cifs/cifssmb.c
++++ b/fs/cifs/cifssmb.c
+@@ -2533,7 +2533,7 @@ CIFSSMBLock(const unsigned int xid, stru
+ 
+ 	if (lockType == LOCKING_ANDX_OPLOCK_RELEASE) {
+ 		/* no response expected */
+-		flags = CIFS_ASYNC_OP | CIFS_OBREAK_OP;
++		flags = CIFS_NO_SRV_RSP | CIFS_ASYNC_OP | CIFS_OBREAK_OP;
+ 		pSMB->Timeout = 0;
+ 	} else if (waitFlag) {
+ 		flags = CIFS_BLOCKING_OP; /* blocking operation, no timeout */
+--- a/fs/cifs/transport.c
++++ b/fs/cifs/transport.c
+@@ -906,8 +906,11 @@ compound_send_recv(const unsigned int xi
+ 
+ 	mutex_unlock(&ses->server->srv_mutex);
+ 
+-	if (rc < 0) {
+-		/* Sending failed for some reason - return credits back */
++	/*
++	 * If sending failed for some reason or it is an oplock break that we
++	 * will not receive a response to - return credits back
++	 */
++	if (rc < 0 || (flags & CIFS_NO_SRV_RSP)) {
+ 		for (i = 0; i < num_rqst; i++)
+ 			add_credits(ses->server, credits[i], optype);
+ 		goto out;
+@@ -928,9 +931,6 @@ compound_send_recv(const unsigned int xi
+ 		smb311_update_preauth_hash(ses, rqst[0].rq_iov,
+ 					   rqst[0].rq_nvec);
+ 
+-	if (timeout == CIFS_ASYNC_OP)
+-		goto out;
+-
+ 	for (i = 0; i < num_rqst; i++) {
+ 		rc = wait_for_response(ses->server, midQ[i]);
+ 		if (rc != 0)
 
 
