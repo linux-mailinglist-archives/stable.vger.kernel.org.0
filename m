@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 753B62F3BB
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:33:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD74E2F60D
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:53:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729555AbfE3Ebn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:31:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59634 "EHLO mail.kernel.org"
+        id S1732998AbfE3Ewb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:52:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729559AbfE3DNn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:13:43 -0400
+        id S1728232AbfE3DKt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:10:49 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 54FE02455E;
-        Thu, 30 May 2019 03:13:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1403F2447F;
+        Thu, 30 May 2019 03:10:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186023;
-        bh=0CbJ8rpWm3HT9n56a02/4rzdQVexT5uxY+2zHGbKtZc=;
+        s=default; t=1559185848;
+        bh=QVNWfYZwzxl9bw2yAAO6T7NG2zjG5e8grcLVRUtlrrI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N7oQ4nq/4xlGoP344ipSxGbGlgygWp4PvBz0/37W5nqcml8Y6PGGSUlDJFx2vPUjl
-         yoQ/qojvISQtBb328Nk3HEh5d5o0+zf6YBynMb178AYbR7Y+DKggiJA5ptVTDG8euU
-         AbZUdRhacilhzY9JRD+8GmoN6iQkJiOeAEaWSgfU=
+        b=WuQ6PRafi1LkXoxtMN+K+c7/FtxUZZJsSvKNKLBCfO+Nvxx2NTCQn3+l8bF1niqc7
+         TEWzvUCH4FFf6KqURqavp5d40stiTv/du8HGsGGDeTrTH9ZI68N7k+SaoNq/abcprQ
+         8VCBPym+4q/5XBrwDZTiXVQkR3HC1S9gJMpH1AiY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Philipp Rudo <prudo@linux.ibm.com>,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 094/346] s390/kexec_file: Fix detection of text segment in ELF loader
+        stable@vger.kernel.org,
+        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
+        Peter Zijlstra <a.p.zijlstra@chello.nl>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 169/405] sched/rt: Check integer overflow at usec to nsec conversion
 Date:   Wed, 29 May 2019 20:02:47 -0700
-Message-Id: <20190530030545.927308458@linuxfoundation.org>
+Message-Id: <20190530030549.678437762@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,50 +48,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 729829d775c9a5217abc784b2f16087d79c4eec8 ]
+[ Upstream commit 1a010e29cfa00fee2888fd2fd4983f848cbafb58 ]
 
-To register data for the next kernel (command line, oldmem_base, etc.) the
-current kernel needs to find the ELF segment that contains head.S. This is
-currently done by checking ifor 'phdr->p_paddr == 0'. This works fine for
-the current kernel build but in theory the first few pages could be
-skipped. Make the detection more robust by checking if the entry point lies
-within the segment.
+Example of unhandled overflows:
 
-Signed-off-by: Philipp Rudo <prudo@linux.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+ # echo 18446744073709651 > cpu.rt_runtime_us
+ # cat cpu.rt_runtime_us
+ 99
+
+ # echo 18446744073709900 > cpu.rt_period_us
+ # cat cpu.rt_period_us
+ 348
+
+After this patch they will fail with -EINVAL.
+
+Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+Acked-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: http://lkml.kernel.org/r/155125501739.293431.5252197504404771496.stgit@buzz
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/kexec_elf.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ kernel/sched/rt.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/arch/s390/kernel/kexec_elf.c b/arch/s390/kernel/kexec_elf.c
-index 5a286b012043b..602e7cc26d118 100644
---- a/arch/s390/kernel/kexec_elf.c
-+++ b/arch/s390/kernel/kexec_elf.c
-@@ -19,10 +19,15 @@ static int kexec_file_add_elf_kernel(struct kimage *image,
- 	struct kexec_buf buf;
- 	const Elf_Ehdr *ehdr;
- 	const Elf_Phdr *phdr;
-+	Elf_Addr entry;
- 	int i, ret;
+diff --git a/kernel/sched/rt.c b/kernel/sched/rt.c
+index 90fa23d36565d..1e6b909dca367 100644
+--- a/kernel/sched/rt.c
++++ b/kernel/sched/rt.c
+@@ -2555,6 +2555,8 @@ int sched_group_set_rt_runtime(struct task_group *tg, long rt_runtime_us)
+ 	rt_runtime = (u64)rt_runtime_us * NSEC_PER_USEC;
+ 	if (rt_runtime_us < 0)
+ 		rt_runtime = RUNTIME_INF;
++	else if ((u64)rt_runtime_us > U64_MAX / NSEC_PER_USEC)
++		return -EINVAL;
  
- 	ehdr = (Elf_Ehdr *)kernel;
- 	buf.image = image;
-+	if (image->type == KEXEC_TYPE_CRASH)
-+		entry = STARTUP_KDUMP_OFFSET;
-+	else
-+		entry = ehdr->e_entry;
+ 	return tg_set_rt_bandwidth(tg, rt_period, rt_runtime);
+ }
+@@ -2575,6 +2577,9 @@ int sched_group_set_rt_period(struct task_group *tg, u64 rt_period_us)
+ {
+ 	u64 rt_runtime, rt_period;
  
- 	phdr = (void *)ehdr + ehdr->e_phoff;
- 	for (i = 0; i < ehdr->e_phnum; i++, phdr++) {
-@@ -35,7 +40,7 @@ static int kexec_file_add_elf_kernel(struct kimage *image,
- 		buf.mem = ALIGN(phdr->p_paddr, phdr->p_align);
- 		buf.memsz = phdr->p_memsz;
- 
--		if (phdr->p_paddr == 0) {
-+		if (entry - phdr->p_paddr < phdr->p_memsz) {
- 			data->kernel_buf = buf.buffer;
- 			data->memsz += STARTUP_NORMAL_OFFSET;
++	if (rt_period_us > U64_MAX / NSEC_PER_USEC)
++		return -EINVAL;
++
+ 	rt_period = rt_period_us * NSEC_PER_USEC;
+ 	rt_runtime = tg->rt_bandwidth.rt_runtime;
  
 -- 
 2.20.1
