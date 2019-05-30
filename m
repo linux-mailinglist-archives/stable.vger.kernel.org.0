@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CF9B82F067
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:03:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 166A52EDF7
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:43:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726952AbfE3EDo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:03:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49154 "EHLO mail.kernel.org"
+        id S1729531AbfE3Dm4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:42:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731336AbfE3DRz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:17:55 -0400
+        id S1730621AbfE3DVE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:21:04 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 95FE62465C;
-        Thu, 30 May 2019 03:17:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 66CFA2496D;
+        Thu, 30 May 2019 03:21:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186274;
-        bh=DVF2BsjhTgYxFfpTkGy6e03bpwNSrsgVjaDEudMpCwE=;
+        s=default; t=1559186464;
+        bh=5yfE+PIdwBJEYMQT2JIinYrvyYeU/jnxN8az01WPZ08=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZkoTca978pLaI8GT1F0W7SKSVRSjnDQbPRAa/sB39m4gwLcFx9noPoQKxEzyY/Lfb
-         zf8bwl76pivwY2fh6N4TIqa5EKe+4fUdPmLa+/HN4PZsgDLO+xiqcSGScfaVh68cQd
-         +mHJUrPXV1typGibKUBf43OhAWvzc6Oqw64npQJY=
+        b=GqOkuGKgWcd9gZ6MR3H4Uo5/gzSwSF8H9i6383J2JpGJSBJq6naRjMj6Dsv7widCG
+         zxIiIlS97mMJZBZ+/g6ijsgdMIKwzNeqo+eOgOUluTvEuRyY3TeoebdBUmgjXIaBCA
+         YHqnPKMt3zPhsAw9QG1Nop+4NCIWAzyOp5f3hCm0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Daniel Baluta <daniel.baluta@nxp.com>,
+        Nicolin Chen <nicoleotsuka@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 216/276] cxgb3/l2t: Fix undefined behaviour
+Subject: [PATCH 4.9 042/128] ASoC: fsl_sai: Update is_slave_mode with correct value
 Date:   Wed, 29 May 2019 20:06:14 -0700
-Message-Id: <20190530030538.634682418@linuxfoundation.org>
+Message-Id: <20190530030441.786039033@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
+References: <20190530030432.977908967@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,47 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 76497732932f15e7323dc805e8ea8dc11bb587cf ]
+[ Upstream commit ddb351145a967ee791a0fb0156852ec2fcb746ba ]
 
-The use of zero-sized array causes undefined behaviour when it is not
-the last member in a structure. As it happens to be in this case.
+is_slave_mode defaults to false because sai structure
+that contains it is kzalloc'ed.
 
-Also, the current code makes use of a language extension to the C90
-standard, but the preferred mechanism to declare variable-length
-types such as this one is a flexible array member, introduced in
-C99:
+Anyhow, if we decide to set the following configuration
+SAI slave -> SAI master, is_slave_mode will remain set on true
+although SAI being master it should be set to false.
 
-struct foo {
-        int stuff;
-        struct boo array[];
-};
+Fix this by updating is_slave_mode for each call of
+fsl_sai_set_dai_fmt.
 
-By making use of the mechanism above, we will get a compiler warning
-in case the flexible array does not occur last. Which is beneficial
-to cultivate a high-quality code.
-
-Fixes: e48f129c2f20 ("[SCSI] cxgb3i: convert cdev->l2opt to use rcu to prevent NULL dereference")
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Daniel Baluta <daniel.baluta@nxp.com>
+Acked-by: Nicolin Chen <nicoleotsuka@gmail.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/chelsio/cxgb3/l2t.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/fsl/fsl_sai.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb3/l2t.h b/drivers/net/ethernet/chelsio/cxgb3/l2t.h
-index c2fd323c40782..ea75f275023ff 100644
---- a/drivers/net/ethernet/chelsio/cxgb3/l2t.h
-+++ b/drivers/net/ethernet/chelsio/cxgb3/l2t.h
-@@ -75,8 +75,8 @@ struct l2t_data {
- 	struct l2t_entry *rover;	/* starting point for next allocation */
- 	atomic_t nfree;		/* number of free entries */
- 	rwlock_t lock;
--	struct l2t_entry l2tab[0];
- 	struct rcu_head rcu_head;	/* to handle rcu cleanup */
-+	struct l2t_entry l2tab[];
- };
- 
- typedef void (*arp_failure_handler_func)(struct t3cdev * dev,
+diff --git a/sound/soc/fsl/fsl_sai.c b/sound/soc/fsl/fsl_sai.c
+index 9fadf7e31c5f8..cb43f57f978b1 100644
+--- a/sound/soc/fsl/fsl_sai.c
++++ b/sound/soc/fsl/fsl_sai.c
+@@ -274,12 +274,14 @@ static int fsl_sai_set_dai_fmt_tr(struct snd_soc_dai *cpu_dai,
+ 	case SND_SOC_DAIFMT_CBS_CFS:
+ 		val_cr2 |= FSL_SAI_CR2_BCD_MSTR;
+ 		val_cr4 |= FSL_SAI_CR4_FSD_MSTR;
++		sai->is_slave_mode = false;
+ 		break;
+ 	case SND_SOC_DAIFMT_CBM_CFM:
+ 		sai->is_slave_mode = true;
+ 		break;
+ 	case SND_SOC_DAIFMT_CBS_CFM:
+ 		val_cr2 |= FSL_SAI_CR2_BCD_MSTR;
++		sai->is_slave_mode = false;
+ 		break;
+ 	case SND_SOC_DAIFMT_CBM_CFS:
+ 		val_cr4 |= FSL_SAI_CR4_FSD_MSTR;
 -- 
 2.20.1
 
