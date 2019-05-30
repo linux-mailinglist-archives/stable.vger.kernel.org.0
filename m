@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8087F2F307
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:26:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B1132F54A
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:46:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729086AbfE3EZw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:25:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35454 "EHLO mail.kernel.org"
+        id S1728679AbfE3EqI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:46:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729938AbfE3DOl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:14:41 -0400
+        id S1728654AbfE3DLo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:11:44 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2A7B223D83;
-        Thu, 30 May 2019 03:14:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ABAC2244EB;
+        Thu, 30 May 2019 03:11:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186080;
-        bh=uhUTGgs0Qbrk39i5znOTzYXW2P3rC5XQlxdAYOie0qQ=;
+        s=default; t=1559185903;
+        bh=PrASumR4TwpvbI9yKAcKLsEX+QBbVstRS6VbOrnSOUg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NQP0exsI1gWtQ7pIRxsaEYjEilQqCcOAsEk9g24XZxrmI/mWRhHBRAyCQkVy3CBxK
-         y3OKuLnH3TkGYvhcARb0G71CoYEcbSuXjBXQ+AmDdLs6uitiMP9E5RgqsbDIV6frv4
-         F7bWVTwbqxzJdcG8cM2VYvMiRUAv+0T6zlZ10F7o=
+        b=r9S5dQFaOFj/E8oH8D9mJi4L/0+xWhkuJ7FOPeBZnd5Pn7zZwrMEThf7G6I/wm8XV
+         WOWwXwDL6PNZjqK5jdjN7PYdPeMv7WsoMtWPPwvT+RB2BwgPf2BFYGRSLjUkS5PoYw
+         9qMwPO3vFSxHtI78l/4Xb3vYoZdyrNB2dh74XUZU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Jann Horn <jannh@google.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 199/346] x86/microcode: Fix the ancient deprecated microcode loading method
+        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.com>, alsa-devel@alsa-project.org,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 274/405] ASoC: eukrea-tlv320: fix a leaked reference by adding missing of_node_put
 Date:   Wed, 29 May 2019 20:04:32 -0700
-Message-Id: <20190530030551.315782824@linuxfoundation.org>
+Message-Id: <20190530030554.758240117@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +47,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 24613a04ad1c0588c10f4b5403ca60a73d164051 ]
+[ Upstream commit b820d52e7eed7b30b2dfef5f4213a2bc3cbea6f3 ]
 
-Commit
+The call to of_parse_phandle returns a node pointer with refcount
+incremented thus it must be explicitly decremented after the last
+usage.
 
-  2613f36ed965 ("x86/microcode: Attempt late loading only when new microcode is present")
+Detected by coccinelle with the following warnings:
+./sound/soc/fsl/eukrea-tlv320.c:121:3-9: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 102, but without a correspo    nding object release within this function.
+./sound/soc/fsl/eukrea-tlv320.c:127:3-9: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 102, but without a correspo    nding object release within this function.
 
-added the new define UCODE_NEW to denote that an update should happen
-only when newer microcode (than installed on the system) has been found.
-
-But it missed adjusting that for the old /dev/cpu/microcode loading
-interface. Fix it.
-
-Fixes: 2613f36ed965 ("x86/microcode: Attempt late loading only when new microcode is present")
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Jann Horn <jannh@google.com>
-Link: https://lkml.kernel.org/r/20190405133010.24249-3-bp@alien8.de
+Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
+Cc: Liam Girdwood <lgirdwood@gmail.com>
+Cc: Mark Brown <broonie@kernel.org>
+Cc: Jaroslav Kysela <perex@perex.cz>
+Cc: Takashi Iwai <tiwai@suse.com>
+Cc: alsa-devel@alsa-project.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/microcode/core.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/soc/fsl/eukrea-tlv320.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/kernel/cpu/microcode/core.c b/arch/x86/kernel/cpu/microcode/core.c
-index 97f9ada9cedaf..fc70d39b804f0 100644
---- a/arch/x86/kernel/cpu/microcode/core.c
-+++ b/arch/x86/kernel/cpu/microcode/core.c
-@@ -418,8 +418,9 @@ static int do_microcode_update(const void __user *buf, size_t size)
- 		if (ustate == UCODE_ERROR) {
- 			error = -1;
- 			break;
--		} else if (ustate == UCODE_OK)
-+		} else if (ustate == UCODE_NEW) {
- 			apply_microcode_on_target(cpu);
-+		}
- 	}
+diff --git a/sound/soc/fsl/eukrea-tlv320.c b/sound/soc/fsl/eukrea-tlv320.c
+index 191426a6d9adf..30a3d68b5c033 100644
+--- a/sound/soc/fsl/eukrea-tlv320.c
++++ b/sound/soc/fsl/eukrea-tlv320.c
+@@ -118,13 +118,13 @@ static int eukrea_tlv320_probe(struct platform_device *pdev)
+ 		if (ret) {
+ 			dev_err(&pdev->dev,
+ 				"fsl,mux-int-port node missing or invalid.\n");
+-			return ret;
++			goto err;
+ 		}
+ 		ret = of_property_read_u32(np, "fsl,mux-ext-port", &ext_port);
+ 		if (ret) {
+ 			dev_err(&pdev->dev,
+ 				"fsl,mux-ext-port node missing or invalid.\n");
+-			return ret;
++			goto err;
+ 		}
  
- 	return error;
+ 		/*
 -- 
 2.20.1
 
