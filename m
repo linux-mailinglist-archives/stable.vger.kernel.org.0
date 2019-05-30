@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 39FC92F403
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:36:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 78C482EB25
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:10:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728551AbfE3DNS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:13:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57836 "EHLO mail.kernel.org"
+        id S1728079AbfE3DKZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:10:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728440AbfE3DNS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:13:18 -0400
+        id S1728069AbfE3DKY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:10:24 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 890AD2449A;
-        Thu, 30 May 2019 03:13:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 73BD52449D;
+        Thu, 30 May 2019 03:10:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185997;
-        bh=X5au7f96IOi/d7xdbcCMJXSy7yjvbMLDW17izV5+LAw=;
+        s=default; t=1559185823;
+        bh=5RLysbjutLyy0H2j0S6gLUuxbUtDMbuWmcgwqXBZXwA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hj8/CWFPslY6l9GahmJbZURo9em/P4ey+SXhXnQVP4wwa18H/YgYwMOtGm/Yx9hRQ
-         3uGnGLtGLvVt9LetqsDrGZt+KSd8oW1urdZjKamOmJ0RGHnfbHWN/XpV/q3fdWalWE
-         a9kFvdSgLmEh3yTmHLJ5BQP77LXkiYaJhwIVvMPQ=
+        b=WeVyaBk7noXXXpkltzELKDpwqZqIWqHLtneyw5kaSEH2GdAZHsLMg3xwmqDLcDy1W
+         ngrUGdmneiJSFzaYpI0CQAzaimnVXEyQzw7XIrBlqGiSr1v9pqGLw0A9pea4xx/IA/
+         sh94pqRocIrtsHot6B7MLo9CRHqN7lkg0b4BO8YY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Roberto Bergantinos Corpas <rbergant@redhat.com>,
-        Benjamin Coddington <bcodding@redhat.com>,
+        stable@vger.kernel.org, Xiaoli Feng <fengxiaoli0714@gmail.com>,
         Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 045/346] NFS: make nfs_match_client killable
-Date:   Wed, 29 May 2019 20:01:58 -0700
-Message-Id: <20190530030543.160262551@linuxfoundation.org>
+Subject: [PATCH 5.1 121/405] Fix nfs4.2 return -EINVAL when do dedupe operation
+Date:   Wed, 29 May 2019 20:01:59 -0700
+Message-Id: <20190530030547.125038768@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,57 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 950a578c6128c2886e295b9c7ecb0b6b22fcc92b ]
+[ Upstream commit ce96e888fe48ecfa868c9a39adc03292c78a80ff ]
 
-    Actually we don't do anything with return value from
-    nfs_wait_client_init_complete in nfs_match_client, as a
-    consequence if we get a fatal signal and client is not
-    fully initialised, we'll loop to "again" label
+dedupe_file_range operations is combiled into remap_file_range.
+But in nfs42_remap_file_range, it's skiped for dedupe operations.
+Before this patch:
+  # dd if=/dev/zero of=nfs/file bs=1M count=1
+  # xfs_io -c "dedupe nfs/file 4k 64k 4k" nfs/file
+  XFS_IOC_FILE_EXTENT_SAME: Invalid argument
+After this patch:
+  # dd if=/dev/zero of=nfs/file bs=1M count=1
+  # xfs_io -c "dedupe nfs/file 4k 64k 4k" nfs/file
+  deduped 4096/4096 bytes at offset 65536
+  4 KiB, 1 ops; 0.0046 sec (865.988 KiB/sec and 216.4971 ops/sec)
 
-    This has been proven to cause soft lockups on some scenarios
-    (no-carrier but configured network interfaces)
-
-Signed-off-by: Roberto Bergantinos Corpas <rbergant@redhat.com>
-Reviewed-by: Benjamin Coddington <bcodding@redhat.com>
+Signed-off-by: Xiaoli Feng <fengxiaoli0714@gmail.com>
 Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/client.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ fs/nfs/nfs4file.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/nfs/client.c b/fs/nfs/client.c
-index 90d71fda65cec..350cfa561e0e8 100644
---- a/fs/nfs/client.c
-+++ b/fs/nfs/client.c
-@@ -284,6 +284,7 @@ static struct nfs_client *nfs_match_client(const struct nfs_client_initdata *dat
- 	struct nfs_client *clp;
- 	const struct sockaddr *sap = data->addr;
- 	struct nfs_net *nn = net_generic(data->net, nfs_net_id);
-+	int error;
+diff --git a/fs/nfs/nfs4file.c b/fs/nfs/nfs4file.c
+index 00d17198ee12a..f10b660805fc4 100644
+--- a/fs/nfs/nfs4file.c
++++ b/fs/nfs/nfs4file.c
+@@ -187,7 +187,7 @@ static loff_t nfs42_remap_file_range(struct file *src_file, loff_t src_off,
+ 	bool same_inode = false;
+ 	int ret;
  
- again:
- 	list_for_each_entry(clp, &nn->nfs_client_list, cl_share_link) {
-@@ -296,8 +297,10 @@ static struct nfs_client *nfs_match_client(const struct nfs_client_initdata *dat
- 		if (clp->cl_cons_state > NFS_CS_READY) {
- 			refcount_inc(&clp->cl_count);
- 			spin_unlock(&nn->nfs_client_lock);
--			nfs_wait_client_init_complete(clp);
-+			error = nfs_wait_client_init_complete(clp);
- 			nfs_put_client(clp);
-+			if (error < 0)
-+				return ERR_PTR(error);
- 			spin_lock(&nn->nfs_client_lock);
- 			goto again;
- 		}
-@@ -407,6 +410,8 @@ struct nfs_client *nfs_get_client(const struct nfs_client_initdata *cl_init)
- 		clp = nfs_match_client(cl_init);
- 		if (clp) {
- 			spin_unlock(&nn->nfs_client_lock);
-+			if (IS_ERR(clp))
-+				return clp;
- 			if (new)
- 				new->rpc_ops->free_client(new);
- 			return nfs_found_client(cl_init, clp);
+-	if (remap_flags & ~REMAP_FILE_ADVISORY)
++	if (remap_flags & ~(REMAP_FILE_DEDUP | REMAP_FILE_ADVISORY))
+ 		return -EINVAL;
+ 
+ 	/* check alignment w.r.t. clone_blksize */
 -- 
 2.20.1
 
