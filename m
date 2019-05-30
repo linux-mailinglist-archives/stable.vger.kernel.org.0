@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 49EC12F555
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:47:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A28B2F12A
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:11:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729097AbfE3EqJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:46:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52128 "EHLO mail.kernel.org"
+        id S1727336AbfE3EKm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:10:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728657AbfE3DLo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:11:44 -0400
+        id S1729935AbfE3DQ6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:16:58 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0FA98244C4;
-        Thu, 30 May 2019 03:11:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC3032463F;
+        Thu, 30 May 2019 03:16:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185904;
-        bh=GZUqsTk4DRyMhsW1KtZI2tC5X5LSHWq2AHH1vJ4K+oM=;
+        s=default; t=1559186218;
+        bh=mB1JwBppuuYo9KbxWZGD36wEw4Y+aFhaE5D0Y/3vHP8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XDq+ijSknErqK8+23pyCh04VQSURpX2Y8oEBR29tsWEgjAEcTnAsFIIU4xktW93cM
-         p8niY5HmFqVrr5grz7vP/zZwlcQEOOnDeGKgGL3Cox0nDNMx4qRLrdbnpLs4aPq6ns
-         JvUPcii+CCvnYlZ1bNbMDaN49vptAZ2z8bRSR1ds=
+        b=1BsVPh4lb43Cuz1pkWH0TJS96AsWBF79mhWbcVbr2Kcxk5xwpLtJ2I0e+e5a/UAq0
+         Q66PuHoYDHapbbhOQ6UdHbwlRMDmIsHpfMJ7rRDxOBHNWGe9t75WSzb8dM99Z+8ncY
+         FGbWfX8OJ/N5eUccyx86EVGErBzVCiQcqSUfDcYA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
-        dri-devel@lists.freedesktop.org ("open list:DRM DRIVERS"),
-        Eric Anholt <eric@anholt.net>, Sasha Levin <sashal@kernel.org>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>
-Subject: [PATCH 5.1 239/405] drm/pl111: fix possible object reference leak
-Date:   Wed, 29 May 2019 20:03:57 -0700
-Message-Id: <20190530030553.101349333@linuxfoundation.org>
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        Robbie Ko <robbieko@synology.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 080/276] Btrfs: fix data bytes_may_use underflow with fallocate due to failed quota reserve
+Date:   Wed, 29 May 2019 20:03:58 -0700
+Message-Id: <20190530030531.374696788@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,66 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit bc29d3a69d4c1bd1a103e8b3c1ed81b807c1870b ]
+[ Upstream commit 39ad317315887c2cb9a4347a93a8859326ddf136 ]
 
-The call to of_find_matching_node_and_match returns a node pointer with
-refcount incremented thus it must be explicitly decremented after the
-last usage.
+When doing fallocate, we first add the range to the reserve_list and
+then reserve the quota.  If quota reservation fails, we'll release all
+reserved parts of reserve_list.
 
-Detected by coccinelle with the following warnings:
-drivers/gpu/drm/pl111/pl111_versatile.c:333:3-9: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 317, but without a corresponding object release within this function.
-drivers/gpu/drm/pl111/pl111_versatile.c:340:3-9: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 317, but without a corresponding object release within this function.
-drivers/gpu/drm/pl111/pl111_versatile.c:346:3-9: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 317, but without a corresponding object release within this function.
-drivers/gpu/drm/pl111/pl111_versatile.c:354:2-8: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 317, but without a corresponding object release within this function.
-drivers/gpu/drm/pl111/pl111_versatile.c:395:3-9: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 317, but without a corresponding object release within this function.
-drivers/gpu/drm/pl111/pl111_versatile.c:402:1-7: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 317, but without a corresponding object release within this function.
+However, cur_offset is not updated to indicate that this range is
+already been inserted into the list.  Therefore, the same range is freed
+twice.  Once at list_for_each_entry loop, and once at the end of the
+function.  This will result in WARN_ON on bytes_may_use when we free the
+remaining space.
 
-Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
-Cc: Eric Anholt <eric@anholt.net> (supporter:DRM DRIVER FOR ARM PL111 CLCD)
-Cc: David Airlie <airlied@linux.ie> (maintainer:DRM DRIVERS)
-Cc: Daniel Vetter <daniel@ffwll.ch> (maintainer:DRM DRIVERS)
-Cc: dri-devel@lists.freedesktop.org (open list:DRM DRIVERS)
-Cc: linux-kernel@vger.kernel.org (open list)
-Signed-off-by: Eric Anholt <eric@anholt.net>
-Link: https://patchwork.freedesktop.org/patch/msgid/1554307455-40361-6-git-send-email-wen.yang99@zte.com.cn
+At the end, under the 'out' label we have a call to:
+
+   btrfs_free_reserved_data_space(inode, data_reserved, alloc_start, alloc_end - cur_offset);
+
+The start offset, third argument, should be cur_offset.
+
+Everything from alloc_start to cur_offset was freed by the
+list_for_each_entry_safe_loop.
+
+Fixes: 18513091af94 ("btrfs: update btrfs_space_info's bytes_may_use timely")
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Robbie Ko <robbieko@synology.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/pl111/pl111_versatile.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ fs/btrfs/file.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/pl111/pl111_versatile.c b/drivers/gpu/drm/pl111/pl111_versatile.c
-index b9baefdba38a1..1c318ad32a8cd 100644
---- a/drivers/gpu/drm/pl111/pl111_versatile.c
-+++ b/drivers/gpu/drm/pl111/pl111_versatile.c
-@@ -330,6 +330,7 @@ int pl111_versatile_init(struct device *dev, struct pl111_drm_dev_private *priv)
- 		ret = vexpress_muxfpga_init();
- 		if (ret) {
- 			dev_err(dev, "unable to initialize muxfpga driver\n");
-+			of_node_put(np);
- 			return ret;
- 		}
- 
-@@ -337,17 +338,20 @@ int pl111_versatile_init(struct device *dev, struct pl111_drm_dev_private *priv)
- 		pdev = of_find_device_by_node(np);
- 		if (!pdev) {
- 			dev_err(dev, "can't find the sysreg device, deferring\n");
-+			of_node_put(np);
- 			return -EPROBE_DEFER;
- 		}
- 		map = dev_get_drvdata(&pdev->dev);
- 		if (!map) {
- 			dev_err(dev, "sysreg has not yet probed\n");
- 			platform_device_put(pdev);
-+			of_node_put(np);
- 			return -EPROBE_DEFER;
- 		}
- 	} else {
- 		map = syscon_node_to_regmap(np);
- 	}
-+	of_node_put(np);
- 
- 	if (IS_ERR(map)) {
- 		dev_err(dev, "no Versatile syscon regmap\n");
+diff --git a/fs/btrfs/file.c b/fs/btrfs/file.c
+index de4d3baec1616..e24c0a69ff5d4 100644
+--- a/fs/btrfs/file.c
++++ b/fs/btrfs/file.c
+@@ -3161,6 +3161,7 @@ static long btrfs_fallocate(struct file *file, int mode,
+ 			ret = btrfs_qgroup_reserve_data(inode, &data_reserved,
+ 					cur_offset, last_byte - cur_offset);
+ 			if (ret < 0) {
++				cur_offset = last_byte;
+ 				free_extent_map(em);
+ 				break;
+ 			}
+@@ -3210,7 +3211,7 @@ static long btrfs_fallocate(struct file *file, int mode,
+ 	/* Let go of our reservation. */
+ 	if (ret != 0 && !(mode & FALLOC_FL_ZERO_RANGE))
+ 		btrfs_free_reserved_data_space(inode, data_reserved,
+-				alloc_start, alloc_end - cur_offset);
++				cur_offset, alloc_end - cur_offset);
+ 	extent_changeset_free(data_reserved);
+ 	return ret;
+ }
 -- 
 2.20.1
 
