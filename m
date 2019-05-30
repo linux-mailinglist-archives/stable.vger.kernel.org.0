@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D41C2F31D
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:27:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9E922F564
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:47:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729887AbfE3DOa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:14:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34646 "EHLO mail.kernel.org"
+        id S1728631AbfE3Eq7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:46:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51506 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729879AbfE3DOa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:14:30 -0400
+        id S1728604AbfE3DLf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:11:35 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D4DB52458C;
-        Thu, 30 May 2019 03:14:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C37F024481;
+        Thu, 30 May 2019 03:11:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186069;
-        bh=s4kCazaRSWnzkH+QoFib8l1lxFponnhzdXNy2kqfGz0=;
+        s=default; t=1559185894;
+        bh=zPhkdEyPvLEDVt6X262QEz0UmdGy+4Dt+gYYbqb9aNE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mEzNRciYizLMJGi1GLqLMVoo0IITwjUQ5qUZ8FqrokrdJg01UAflLqetrnH0nRXw4
-         DvxzDSQxyDsrt4OE4BdDKx0RvkvbjgOL7OW0iF8HkG9uNTfaR+M5lNRh/jGrhzQRxx
-         524kL1tZaPfdQiq6/+5dtDZsuXr4J8AQJYSrwvMA=
+        b=TQDKMxDoogpg5fwN6aMpcjmT1aQRqVc1hQw6FD4L0od7GkQrfZriyv9zq/M3IP18d
+         Hzwm0ywneo7Ec5+IUJNH0YCTlMKcc2KL9OpL8C/+aFXmu9P6BUrVNn3IDxxnFe+65C
+         3JmUXGTTFuIzuliqmuUbG848E+ZhZER7knX5+MDY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kefeng Wang <wangkefeng.wang@huawei.com>,
-        John Garry <john.garry@huawei.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        stable@vger.kernel.org, Stanley Chu <stanley.chu@mediatek.com>,
+        Avri Altman <avri.altman@wdc.com>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 183/346] hwmon: (pc87427) Use request_muxed_region for Super-IO accesses
+Subject: [PATCH 5.1 258/405] scsi: ufs: Fix regulator load and icc-level configuration
 Date:   Wed, 29 May 2019 20:04:16 -0700
-Message-Id: <20190530030550.384713553@linuxfoundation.org>
+Message-Id: <20190530030554.019527182@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,67 +46,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 755a9b0f8aaa5639ba5671ca50080852babb89ce ]
+[ Upstream commit 0487fff76632ec023d394a05b82e87a971db8c03 ]
 
-Super-IO accesses may fail on a system with no or unmapped LPC bus.
+Currently if a regulator has "<name>-fixed-regulator" property in device
+tree, it will skip current limit initialization.  This lead to a zero
+"max_uA" value in struct ufs_vreg.
 
-Also, other drivers may attempt to access the LPC bus at the same time,
-resulting in undefined behavior.
+However, "regulator_set_load" operation shall be required on regulators
+which have valid current limits, otherwise a zero "max_uA" set by
+"regulator_set_load" may cause unexpected behavior when this regulator is
+enabled or set as high power mode.
 
-Use request_muxed_region() to ensure that IO access on the requested
-address space is supported, and to ensure that access by multiple drivers
-is synchronized.
+Similarly, in device's icc_level configuration flow, the target icc_level
+shall be updated if regulator also has valid current limit, otherwise a
+wrong icc_level will be calculated by zero "max_uA" and thus causes
+unexpected results after it is written to device.
 
-Fixes: ba224e2c4f0a7 ("hwmon: New PC87427 hardware monitoring driver")
-Reported-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Reported-by: John Garry <john.garry@huawei.com>
-Cc: John Garry <john.garry@huawei.com>
-Acked-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
+Reviewed-by: Avri Altman <avri.altman@wdc.com>
+Acked-by: Alim Akhtar <alim.akhtar@samsung.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/pc87427.c | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ drivers/scsi/ufs/ufshcd.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hwmon/pc87427.c b/drivers/hwmon/pc87427.c
-index dc5a9d5ada516..81a05cd1a5121 100644
---- a/drivers/hwmon/pc87427.c
-+++ b/drivers/hwmon/pc87427.c
-@@ -106,6 +106,13 @@ static const char *logdev_str[2] = { DRVNAME " FMC", DRVNAME " HMC" };
- #define LD_IN		1
- #define LD_TEMP		1
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index e040f9dd9ff32..58e0bd1dac9b4 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -6294,19 +6294,19 @@ static u32 ufshcd_find_max_sup_active_icc_level(struct ufs_hba *hba,
+ 		goto out;
+ 	}
  
-+static inline int superio_enter(int sioaddr)
-+{
-+	if (!request_muxed_region(sioaddr, 2, DRVNAME))
-+		return -EBUSY;
-+	return 0;
-+}
+-	if (hba->vreg_info.vcc)
++	if (hba->vreg_info.vcc && hba->vreg_info.vcc->max_uA)
+ 		icc_level = ufshcd_get_max_icc_level(
+ 				hba->vreg_info.vcc->max_uA,
+ 				POWER_DESC_MAX_ACTV_ICC_LVLS - 1,
+ 				&desc_buf[PWR_DESC_ACTIVE_LVLS_VCC_0]);
+ 
+-	if (hba->vreg_info.vccq)
++	if (hba->vreg_info.vccq && hba->vreg_info.vccq->max_uA)
+ 		icc_level = ufshcd_get_max_icc_level(
+ 				hba->vreg_info.vccq->max_uA,
+ 				icc_level,
+ 				&desc_buf[PWR_DESC_ACTIVE_LVLS_VCCQ_0]);
+ 
+-	if (hba->vreg_info.vccq2)
++	if (hba->vreg_info.vccq2 && hba->vreg_info.vccq2->max_uA)
+ 		icc_level = ufshcd_get_max_icc_level(
+ 				hba->vreg_info.vccq2->max_uA,
+ 				icc_level,
+@@ -7004,6 +7004,15 @@ static int ufshcd_config_vreg_load(struct device *dev, struct ufs_vreg *vreg,
+ 	if (!vreg)
+ 		return 0;
+ 
++	/*
++	 * "set_load" operation shall be required on those regulators
++	 * which specifically configured current limitation. Otherwise
++	 * zero max_uA may cause unexpected behavior when regulator is
++	 * enabled or set as high power mode.
++	 */
++	if (!vreg->max_uA)
++		return 0;
 +
- static inline void superio_outb(int sioaddr, int reg, int val)
- {
- 	outb(reg, sioaddr);
-@@ -122,6 +129,7 @@ static inline void superio_exit(int sioaddr)
- {
- 	outb(0x02, sioaddr);
- 	outb(0x02, sioaddr + 1);
-+	release_region(sioaddr, 2);
- }
- 
- /*
-@@ -1220,7 +1228,11 @@ static int __init pc87427_find(int sioaddr, struct pc87427_sio_data *sio_data)
- {
- 	u16 val;
- 	u8 cfg, cfg_b;
--	int i, err = 0;
-+	int i, err;
-+
-+	err = superio_enter(sioaddr);
-+	if (err)
-+		return err;
- 
- 	/* Identify device */
- 	val = force_id ? force_id : superio_inb(sioaddr, SIOREG_DEVID);
+ 	ret = regulator_set_load(vreg->reg, ua);
+ 	if (ret < 0) {
+ 		dev_err(dev, "%s: %s set load (ua=%d) failed, err=%d\n",
 -- 
 2.20.1
 
