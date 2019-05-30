@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ED20D2EE2A
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:44:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 663F82F4A3
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:42:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730064AbfE3Dow (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:44:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60414 "EHLO mail.kernel.org"
+        id S2388422AbfE3Eju (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:39:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55746 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731213AbfE3DUx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:20:53 -0400
+        id S1729120AbfE3DMg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:12:36 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 15BD92497F;
-        Thu, 30 May 2019 03:20:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 23AEB21BE2;
+        Thu, 30 May 2019 03:12:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186453;
-        bh=9PYpEDZLRhbi7YVmJolHM37nqF9o+1KmaP4pr3hYhsM=;
+        s=default; t=1559185956;
+        bh=jQeLfbc24WqIqBDon1czJa4L8rIcHQyFNvuEV7UatyI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TxrpropmjZ3IpslVElra0Rh2dinwmxTPHMt4DgOWE3Q2mRc+r7GLb+/jcyJIa4frh
-         CYnCRjOdsI/TutErxKvY9QnCgG0S8D1u2AAEVfzRnN2LDJ2BRRww3mVNIbEJSpCzR2
-         WLcXv/8NWARYofha8VKAnrmIXlTfsxkMI7w/m8LY=
+        b=ImRkrb3nPwdFAdyX9KwLizZI1+RmSk86hVd4XoP05dVD7MQWbbBFLiKyvXd1dMMII
+         dHONF58Vh1khXso24IkhjhwClqkb017vm139zVt9htEpIiF0jCkecTbPXnbkQ/RmYW
+         Dns9urN//p8+mI9i9cRdo47Ig31PVpXASmxBLVhs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Van Asbroeck <TheSven73@gmail.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 038/128] rtc: 88pm860x: prevent use-after-free on device remove
+Subject: [PATCH 5.1 372/405] spi : spi-topcliff-pch: Fix to handle empty DMA buffers
 Date:   Wed, 29 May 2019 20:06:10 -0700
-Message-Id: <20190530030441.114078667@linuxfoundation.org>
+Message-Id: <20190530030559.549780257@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
-References: <20190530030432.977908967@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f22b1ba15ee5785aa028384ebf77dd39e8e47b70 ]
+[ Upstream commit f37d8e67f39e6d3eaf4cc5471e8a3d21209843c6 ]
 
-The device's remove() attempts to shut down the delayed_work scheduled
-on the kernel-global workqueue by calling flush_scheduled_work().
+pch_alloc_dma_buf allocated tx, rx DMA buffers which can fail. Further,
+these buffers are used without a check. The patch checks for these
+failures and sends the error upstream.
 
-Unfortunately, flush_scheduled_work() does not prevent the delayed_work
-from re-scheduling itself. The delayed_work might run after the device
-has been removed, and touch the already de-allocated info structure.
-This is a potential use-after-free.
-
-Fix by calling cancel_delayed_work_sync() during remove(): this ensures
-that the delayed work is properly cancelled, is no longer running, and
-is not able to re-schedule itself.
-
-This issue was detected with the help of Coccinelle.
-
-Signed-off-by: Sven Van Asbroeck <TheSven73@gmail.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Aditya Pakki <pakki001@umn.edu>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-88pm860x.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/spi/spi-topcliff-pch.c | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/rtc/rtc-88pm860x.c b/drivers/rtc/rtc-88pm860x.c
-index 19e53b3b8e005..166faae3a59cd 100644
---- a/drivers/rtc/rtc-88pm860x.c
-+++ b/drivers/rtc/rtc-88pm860x.c
-@@ -414,7 +414,7 @@ static int pm860x_rtc_remove(struct platform_device *pdev)
- 	struct pm860x_rtc_info *info = platform_get_drvdata(pdev);
+diff --git a/drivers/spi/spi-topcliff-pch.c b/drivers/spi/spi-topcliff-pch.c
+index fba3f180f233b..8a5966963834c 100644
+--- a/drivers/spi/spi-topcliff-pch.c
++++ b/drivers/spi/spi-topcliff-pch.c
+@@ -1299,18 +1299,27 @@ static void pch_free_dma_buf(struct pch_spi_board_data *board_dat,
+ 				  dma->rx_buf_virt, dma->rx_buf_dma);
+ }
  
- #ifdef VRTC_CALIBRATION
--	flush_scheduled_work();
-+	cancel_delayed_work_sync(&info->calib_work);
- 	/* disable measurement */
- 	pm860x_set_bits(info->i2c, PM8607_MEAS_EN2, MEAS2_VRTC, 0);
- #endif	/* VRTC_CALIBRATION */
+-static void pch_alloc_dma_buf(struct pch_spi_board_data *board_dat,
++static int pch_alloc_dma_buf(struct pch_spi_board_data *board_dat,
+ 			      struct pch_spi_data *data)
+ {
+ 	struct pch_spi_dma_ctrl *dma;
++	int ret;
+ 
+ 	dma = &data->dma;
++	ret = 0;
+ 	/* Get Consistent memory for Tx DMA */
+ 	dma->tx_buf_virt = dma_alloc_coherent(&board_dat->pdev->dev,
+ 				PCH_BUF_SIZE, &dma->tx_buf_dma, GFP_KERNEL);
++	if (!dma->tx_buf_virt)
++		ret = -ENOMEM;
++
+ 	/* Get Consistent memory for Rx DMA */
+ 	dma->rx_buf_virt = dma_alloc_coherent(&board_dat->pdev->dev,
+ 				PCH_BUF_SIZE, &dma->rx_buf_dma, GFP_KERNEL);
++	if (!dma->rx_buf_virt)
++		ret = -ENOMEM;
++
++	return ret;
+ }
+ 
+ static int pch_spi_pd_probe(struct platform_device *plat_dev)
+@@ -1387,7 +1396,9 @@ static int pch_spi_pd_probe(struct platform_device *plat_dev)
+ 
+ 	if (use_dma) {
+ 		dev_info(&plat_dev->dev, "Use DMA for data transfers\n");
+-		pch_alloc_dma_buf(board_dat, data);
++		ret = pch_alloc_dma_buf(board_dat, data);
++		if (ret)
++			goto err_spi_register_master;
+ 	}
+ 
+ 	ret = spi_register_master(master);
 -- 
 2.20.1
 
