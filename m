@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 25EE02F34D
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:28:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15CCC2F15B
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:12:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729799AbfE3E2H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:28:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33726 "EHLO mail.kernel.org"
+        id S1729036AbfE3EMY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:12:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728145AbfE3DOQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:14:16 -0400
+        id S1730735AbfE3DQh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:16:37 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 24A8C2455E;
-        Thu, 30 May 2019 03:14:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E228B245AB;
+        Thu, 30 May 2019 03:16:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186056;
-        bh=oydYdC0NqSDUA9GLPTTmL9wL9pNRkReA8vZR24mINLw=;
+        s=default; t=1559186197;
+        bh=oDp3VEB09fC7B/D5QmrWyIiX/u6HdGaoyP3JsUBBgxw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nhQ3uw8X+aDe50OohTGQGsTtDMQjT67QxzvPrpWK6y24wYIr2x9CIcFpwzZ31uo0q
-         Hx/liBhNeuW89d713VigJEHZytjB7Fswc1N7Xa/bZfC4XLCDzKbr/QaW3/mZU5yVxW
-         ahWL8VoR9b/qf/hEv2BKUJmzVt0CS6xjcMLnt9cY=
+        b=xx+BoNI3kZoOwmBOj/2IiThfWed0w+lsbTejKzSO34nYwWg0fvUcJB7z9fds3E44Y
+         UtKDWfIpkT4/x1gdrnGGDD/wzEkh6FqFuBqKpok3+FPRDGZRuPAITBwRy7yOcLI7Np
+         oZikbinxCEVpIfx2uOOCawt0ppouc9Dz8LRhSQgs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
-        Peter Zijlstra <a.p.zijlstra@chello.nl>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 155/346] sched/core: Handle overflow in cpu_shares_write_u64
-Date:   Wed, 29 May 2019 20:03:48 -0700
-Message-Id: <20190530030549.030446153@linuxfoundation.org>
+        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 071/276] ARM: vdso: Remove dependency with the arch_timer driver internals
+Date:   Wed, 29 May 2019 20:03:49 -0700
+Message-Id: <20190530030530.679202176@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,43 +45,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 5b61d50ab4ef590f5e1d4df15cd2cea5f5715308 ]
+[ Upstream commit 1f5b62f09f6b314c8d70b9de5182dae4de1f94da ]
 
-Bit shift in scale_load() could overflow shares. This patch saturates
-it to MAX_SHARES like following sched_group_set_shares().
+The VDSO code uses the kernel helper that was originally designed
+to abstract the access between 32 and 64bit systems. It worked so
+far because this function is declared as 'inline'.
 
-Example:
+As we're about to revamp that part of the code, the VDSO would
+break. Let's fix it by doing what should have been done from
+the start, a proper system register access.
 
- # echo 9223372036854776832 > cpu.shares
- # cat cpu.shares
-
-Before patch: 1024
-After pattch: 262144
-
-Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-Acked-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: http://lkml.kernel.org/r/155125501891.293431.3345233332801109696.stgit@buzz
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Reviewed-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/core.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm/include/asm/cp15.h   | 2 ++
+ arch/arm/vdso/vgettimeofday.c | 5 +++--
+ 2 files changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 55c1061b5aeb1..9346e2ce0ac03 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -6503,6 +6503,8 @@ static void cpu_cgroup_attach(struct cgroup_taskset *tset)
- static int cpu_shares_write_u64(struct cgroup_subsys_state *css,
- 				struct cftype *cftype, u64 shareval)
- {
-+	if (shareval > scale_load_down(ULONG_MAX))
-+		shareval = MAX_SHARES;
- 	return sched_group_set_shares(css_tg(css), scale_load(shareval));
- }
+diff --git a/arch/arm/include/asm/cp15.h b/arch/arm/include/asm/cp15.h
+index 07e27f212dc75..d2453e2d3f1f3 100644
+--- a/arch/arm/include/asm/cp15.h
++++ b/arch/arm/include/asm/cp15.h
+@@ -68,6 +68,8 @@
+ #define BPIALL				__ACCESS_CP15(c7, 0, c5, 6)
+ #define ICIALLU				__ACCESS_CP15(c7, 0, c5, 0)
+ 
++#define CNTVCT				__ACCESS_CP15_64(1, c14)
++
+ extern unsigned long cr_alignment;	/* defined in entry-armv.S */
+ 
+ static inline unsigned long get_cr(void)
+diff --git a/arch/arm/vdso/vgettimeofday.c b/arch/arm/vdso/vgettimeofday.c
+index a9dd619c6c290..7bdbf5d5c47d3 100644
+--- a/arch/arm/vdso/vgettimeofday.c
++++ b/arch/arm/vdso/vgettimeofday.c
+@@ -18,9 +18,9 @@
+ #include <linux/compiler.h>
+ #include <linux/hrtimer.h>
+ #include <linux/time.h>
+-#include <asm/arch_timer.h>
+ #include <asm/barrier.h>
+ #include <asm/bug.h>
++#include <asm/cp15.h>
+ #include <asm/page.h>
+ #include <asm/unistd.h>
+ #include <asm/vdso_datapage.h>
+@@ -123,7 +123,8 @@ static notrace u64 get_ns(struct vdso_data *vdata)
+ 	u64 cycle_now;
+ 	u64 nsec;
+ 
+-	cycle_now = arch_counter_get_cntvct();
++	isb();
++	cycle_now = read_sysreg(CNTVCT);
+ 
+ 	cycle_delta = (cycle_now - vdata->cs_cycle_last) & vdata->cs_mask;
  
 -- 
 2.20.1
