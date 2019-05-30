@@ -2,45 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E53A2F545
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:46:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A5C12EFE6
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:59:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727915AbfE3DLs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:11:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52216 "EHLO mail.kernel.org"
+        id S1728594AbfE3D7P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:59:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728664AbfE3DLp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:11:45 -0400
+        id S1730552AbfE3DSg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:18:36 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0F68524504;
-        Thu, 30 May 2019 03:11:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C79102471D;
+        Thu, 30 May 2019 03:18:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185905;
-        bh=OP34NqQ4nCzrgrEOVghTv1qjubuhWWBEwB2RnRZva84=;
+        s=default; t=1559186315;
+        bh=nyfPIe0u8n8KIQrrASxE206fImnENFxIy8VAiZmQtcA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y1zkshmHoex4BjW4gjDvfFdCWf+jxVrqgxshNWpOTFJ1EJ1nP0byJaw7CJgsmmdB1
-         uF99QcI424OP/M/qUPNVtK20unDIgDkmfbpfLpoC3/eGM0PO58wsYBh5PHZW126xZI
-         E084OOmutFTP//O3/KSenhiPgyX124hkWsJWEznM=
+        b=rZ3R7BzRgO59XWEofAyzhKJE6bngPyWE0U9ooxMnUbgyyR7Z7zZAPNjy4BQrTmJUA
+         nwuh2y6iGPps3OuPKSSfzO42G0tBpxmGqvV2GJtHk4c/YhDTmMSAZ7QFYIfgk8SqhT
+         KQSNfov1PkIrLB1+SamRRNf4Mp+MXxis8KTvhUSA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.com>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Vinod Koul <vkoul@kernel.org>, alsa-devel@alsa-project.org,
-        Sasha Levin <sashal@kernel.org>,
-        Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [PATCH 5.1 276/405] ASoC: wcd9335: fix a leaked reference by adding missing of_node_put
+        stable@vger.kernel.org, "Tobin C. Harding" <tobin@kernel.org>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.14 020/193] btrfs: sysfs: dont leak memory when failing add fsid
 Date:   Wed, 29 May 2019 20:04:34 -0700
-Message-Id: <20190530030554.859752508@linuxfoundation.org>
+Message-Id: <20190530030451.543837359@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
+References: <20190530030446.953835040@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,45 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 64b92de9603f22b5455da925ee57268ef7fb4e80 ]
+From: Tobin C. Harding <tobin@kernel.org>
 
-The call to of_parse_phandle returns a node pointer with refcount
-incremented thus it must be explicitly decremented after the last
-usage.
+commit e32773357d5cc271b1d23550b3ed026eb5c2a468 upstream.
 
-Detected by coccinelle with the following warnings:
-./sound/soc/codecs/wcd9335.c:5193:2-8: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 5183, but without a correspon    ding object release within this function.
+A failed call to kobject_init_and_add() must be followed by a call to
+kobject_put().  Currently in the error path when adding fs_devices we
+are missing this call.  This could be fixed by calling
+btrfs_sysfs_remove_fsid() if btrfs_sysfs_add_fsid() returns an error or
+by adding a call to kobject_put() directly in btrfs_sysfs_add_fsid().
+Here we choose the second option because it prevents the slightly
+unusual error path handling requirements of kobject from leaking out
+into btrfs functions.
 
-Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
-Cc: Liam Girdwood <lgirdwood@gmail.com>
-Cc: Mark Brown <broonie@kernel.org>
-Cc: Jaroslav Kysela <perex@perex.cz>
-Cc: Takashi Iwai <tiwai@suse.com>
-Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Cc: Vinod Koul <vkoul@kernel.org>
-Cc: Dan Carpenter <dan.carpenter@oracle.com> (commit_signer:1/11=9%,authored:1/11=9%)
-Cc: alsa-devel@alsa-project.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Add a call to kobject_put() in the error path of kobject_add_and_init().
+This causes the release method to be called if kobject_init_and_add()
+fails.  open_tree() is the function that calls btrfs_sysfs_add_fsid()
+and the error code in this function is already written with the
+assumption that the release method is called during the error path of
+open_tree() (as seen by the call to btrfs_sysfs_remove_fsid() under the
+fail_fsdev_sysfs label).
+
+Cc: stable@vger.kernel.org # v4.4+
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Tobin C. Harding <tobin@kernel.org>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- sound/soc/codecs/wcd9335.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/btrfs/sysfs.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/codecs/wcd9335.c b/sound/soc/codecs/wcd9335.c
-index 981f88a5f6154..a04a7cedd99de 100644
---- a/sound/soc/codecs/wcd9335.c
-+++ b/sound/soc/codecs/wcd9335.c
-@@ -5188,6 +5188,7 @@ static int wcd9335_slim_status(struct slim_device *sdev,
+--- a/fs/btrfs/sysfs.c
++++ b/fs/btrfs/sysfs.c
+@@ -794,7 +794,12 @@ int btrfs_sysfs_add_fsid(struct btrfs_fs
+ 	fs_devs->fsid_kobj.kset = btrfs_kset;
+ 	error = kobject_init_and_add(&fs_devs->fsid_kobj,
+ 				&btrfs_ktype, parent, "%pU", fs_devs->fsid);
+-	return error;
++	if (error) {
++		kobject_put(&fs_devs->fsid_kobj);
++		return error;
++	}
++
++	return 0;
+ }
  
- 	wcd->slim = sdev;
- 	wcd->slim_ifc_dev = of_slim_get_device(sdev->ctrl, ifc_dev_np);
-+	of_node_put(ifc_dev_np);
- 	if (!wcd->slim_ifc_dev) {
- 		dev_err(dev, "Unable to get SLIM Interface device\n");
- 		return -EINVAL;
--- 
-2.20.1
-
+ int btrfs_sysfs_add_mounted(struct btrfs_fs_info *fs_info)
 
 
