@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 840662F4A1
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:42:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E376E2F218
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:18:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729105AbfE3DMe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:12:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55566 "EHLO mail.kernel.org"
+        id S1730339AbfE3ES2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:18:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729095AbfE3DMe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:12:34 -0400
+        id S1730336AbfE3DPc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:15:32 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D5DDC23DE3;
-        Thu, 30 May 2019 03:12:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 35E7E24547;
+        Thu, 30 May 2019 03:15:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185952;
-        bh=G0WwxCGxWt8M2yPclyrVs6do+B1idp9xfogDxJogi1U=;
+        s=default; t=1559186131;
+        bh=Y3eZz0Mm8BdAAV6CkfQUlxz2nBO3lsDVEhIClk1Z1yc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B8TLKDQrTv0jTBy0zDTk+eZoLeQTYb0L+DqVsgSuyHw/2RAZGZEusz292Fi5NrYFi
-         YR6g9Bj2oOgo4zBq1atVAHwsAVVG+55M4LPHVlfh0Smif2HyRV5fp+WuUEQgcF8LyY
-         /+vernLuXWFeVmYP5S8472e7w/bEadyaMLY3ePzA=
+        b=PyK+ExBvsFclWbqKNJ8cuss/IeqCGJGN5YgCZ6RStL9CSbjHlxTmGmu7TII9ZxT7y
+         +0Fap8ikzBIL5e5OxX1iFQZVfmZXo8lo3RBmy2v1qgxh63UXF7TiXu6+0FAyzxLftA
+         znRiLBOlgGjG1tzI83bccC20UwigYeOR4KiG5UOo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dick Kennedy <dick.kennedy@broadcom.com>,
-        James Smart <jsmart2021@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 367/405] scsi: lpfc: Fix mailbox hang on adapter init
-Date:   Wed, 29 May 2019 20:06:05 -0700
-Message-Id: <20190530030559.267293822@linuxfoundation.org>
+Subject: [PATCH 5.0 293/346] media: staging/intel-ipu3: mark PM function as __maybe_unused
+Date:   Wed, 29 May 2019 20:06:06 -0700
+Message-Id: <20190530030555.706499889@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,68 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit e8869f5b0a7273fcf20ef99066fd8129e58ba5b7 ]
+[ Upstream commit 948dff7cfa1d7653e7828e7b905863bd24ca5c02 ]
 
-The adapter initialization sequence enables interrupts, initializes the
-adapter link_state to LINK_DOWN, then issues commands to initialize the
-adapter. The interrupt handler on the adapter validates the link_state (has
-to be at least LINK_DOWN) and if invalid, will discard the interrupting
-event.
+The imgu_rpm_dummy_cb() looks like an API misuse that is explained
+in the comment above it. Aside from that, it also causes a warning
+when power management support is disabled:
 
-In most cases, there is not a command completion, thus an interrupt until
-the initialization commands have been sent which is post the setting of
-state to LINK_DOWN.  However, in cases of firmware reset, the reset will
-modify the link_state to an invalid value (indicating a reset of the
-adapter) and there occasionally are cases where the adapter will generate
-an asynchronous event which shares the eq/cq used for mailbox commands. In
-the failure case, an interrupt is generated immediately after enabling them
-due to the async event.  As link_state is invalid, the eq is list and the
-CQ not serviced.  At this point link_state is initialized and the mailbox
-command sent.  As the CQ has not been serviced, it is not armed, so no
-interrupt event is generated when the mailbox command completes.
+drivers/staging/media/ipu3/ipu3.c:794:12: error: 'imgu_rpm_dummy_cb' defined but not used [-Werror=unused-function]
 
-Modify the initialization sequence so that interrupts are enabled after
-link_state is properly initialized, which avoids the race condition with
-the async event.
+The warning is at least easy to fix by marking the function as
+__maybe_unused.
 
-Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 7fc7af649ca7 ("media: staging/intel-ipu3: Add imgu top level pci device driver")
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_sli.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/staging/media/ipu3/ipu3.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
-index 57b4a463b5892..7d2abb70cf093 100644
---- a/drivers/scsi/lpfc/lpfc_sli.c
-+++ b/drivers/scsi/lpfc/lpfc_sli.c
-@@ -7652,12 +7652,6 @@ lpfc_sli4_hba_setup(struct lpfc_hba *phba)
- 		phba->cfg_xri_rebalancing = 0;
- 	}
- 
--	/* Arm the CQs and then EQs on device */
--	lpfc_sli4_arm_cqeq_intr(phba);
--
--	/* Indicate device interrupt mode */
--	phba->sli4_hba.intr_enable = 1;
--
- 	/* Allow asynchronous mailbox command to go through */
- 	spin_lock_irq(&phba->hbalock);
- 	phba->sli.sli_flag &= ~LPFC_SLI_ASYNC_MBX_BLK;
-@@ -7726,6 +7720,12 @@ lpfc_sli4_hba_setup(struct lpfc_hba *phba)
- 		phba->trunk_link.link3.state = LPFC_LINK_DOWN;
- 	spin_unlock_irq(&phba->hbalock);
- 
-+	/* Arm the CQs and then EQs on device */
-+	lpfc_sli4_arm_cqeq_intr(phba);
-+
-+	/* Indicate device interrupt mode */
-+	phba->sli4_hba.intr_enable = 1;
-+
- 	if (!(phba->hba_flag & HBA_FCOE_MODE) &&
- 	    (phba->hba_flag & LINK_DISABLED)) {
- 		lpfc_printf_log(phba, KERN_ERR, LOG_INIT | LOG_SLI,
+diff --git a/drivers/staging/media/ipu3/ipu3.c b/drivers/staging/media/ipu3/ipu3.c
+index d521b3afb8b1a..0b161888ec282 100644
+--- a/drivers/staging/media/ipu3/ipu3.c
++++ b/drivers/staging/media/ipu3/ipu3.c
+@@ -792,7 +792,7 @@ static int __maybe_unused imgu_resume(struct device *dev)
+  * PCI rpm framework checks the existence of driver rpm callbacks.
+  * Place a dummy callback here to avoid rpm going into error state.
+  */
+-static int imgu_rpm_dummy_cb(struct device *dev)
++static __maybe_unused int imgu_rpm_dummy_cb(struct device *dev)
+ {
+ 	return 0;
+ }
 -- 
 2.20.1
 
