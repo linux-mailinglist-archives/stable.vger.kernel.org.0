@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E1692F6A3
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:59:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7832F2F6AC
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:59:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727826AbfE3DJv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:09:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45484 "EHLO mail.kernel.org"
+        id S1727966AbfE3E6K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:58:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727815AbfE3DJv (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727817AbfE3DJv (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 29 May 2019 23:09:51 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3DC382446F;
+        by mail.kernel.org (Postfix) with ESMTPSA id A80D424490;
         Thu, 30 May 2019 03:09:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1559185790;
-        bh=aEHkIAT4SvhZrfz4NOR4ZJzVuz4032hA/XKpYXwF+0o=;
+        bh=WfpdtFgC/0wlYZVLJzAH8OAhUWZ7d9TQnak4/lQ/9aM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xOaKSsJrhwMvgDB5k1q6MOTbXDn51VMGOxVgtW2m75sZdhFFdVdlO3TYkwGkB4qxz
-         0b2oZA30VDJJrcQTqNwcA5CUU448OA5zog9f0MG3liIBm1ZMSCUCITWcXu7TZ2/HhT
-         Yt+g2bPjP+v67UIgpOftp56viiM2j0rt/hZ0JbF4=
+        b=GrT8gZY/1crP7Q5F+7/EcXHBiUhmw52xNsON1kYUD5mSS6ONLQ4CA7SxQEdXK8nTI
+         1TC/TOOK51NjKJBNOYp4DBq+PDEk3XGVcdMY2h5POnpMeqnh/fNLquGKVqXfUwiuqO
+         IIxK7GdhfvZ0mdYpnu7CmKUMLhg2j6pNmqFUJQEA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Dongli Zhang <dongli.zhang@oracle.com>,
         James Smart <james.smart@broadcom.com>,
-        Bart Van Assche <bart.vanassche@wdc.com>,
-        linux-scsi@vger.kernel.org,
+        Bart Van Assche <bvanassche@acm.org>,
+        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
         Christoph Hellwig <hch@lst.de>,
-        "James E . J . Bottomley" <jejb@linux.vnet.ibm.com>,
-        Hannes Reinecke <hare@suse.com>,
-        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 061/405] blk-mq: split blk_mq_alloc_and_init_hctx into two parts
-Date:   Wed, 29 May 2019 20:00:59 -0700
-Message-Id: <20190530030544.028497142@linuxfoundation.org>
+        "James E . J . Bottomley" <jejb@linux.vnet.ibm.com>
+Subject: [PATCH 5.1 062/405] blk-mq: grab .q_usage_counter when queuing request from plug code path
+Date:   Wed, 29 May 2019 20:01:00 -0700
+Message-Id: <20190530030544.078681607@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
 References: <20190530030540.291644921@linuxfoundation.org>
@@ -51,236 +49,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 7c6c5b7c9186e3fb5b10afb8e5f710ae661144c6 ]
+[ Upstream commit e87eb301bee183d82bb3d04bd71b6660889a2588 ]
 
-Split blk_mq_alloc_and_init_hctx into two parts, and one is
-blk_mq_alloc_hctx() for allocating all hctx resources, another
-is blk_mq_init_hctx() for initializing hctx, which serves as
-counter-part of blk_mq_exit_hctx().
+Just like aio/io_uring, we need to grab 2 refcount for queuing one
+request, one is for submission, another is for completion.
+
+If the request isn't queued from plug code path, the refcount grabbed
+in generic_make_request() serves for submission. In theroy, this
+refcount should have been released after the sumission(async run queue)
+is done. blk_freeze_queue() works with blk_sync_queue() together
+for avoiding race between cleanup queue and IO submission, given async
+run queue activities are canceled because hctx->run_work is scheduled with
+the refcount held, so it is fine to not hold the refcount when
+running the run queue work function for dispatch IO.
+
+However, if request is staggered into plug list, and finally queued
+from plug code path, the refcount in submission side is actually missed.
+And we may start to run queue after queue is removed because the queue's
+kobject refcount isn't guaranteed to be grabbed in flushing plug list
+context, then kernel oops is triggered, see the following race:
+
+blk_mq_flush_plug_list():
+        blk_mq_sched_insert_requests()
+                insert requests to sw queue or scheduler queue
+                blk_mq_run_hw_queue
+
+Because of concurrent run queue, all requests inserted above may be
+completed before calling the above blk_mq_run_hw_queue. Then queue can
+be freed during the above blk_mq_run_hw_queue().
+
+Fixes the issue by grab .q_usage_counter before calling
+blk_mq_sched_insert_requests() in blk_mq_flush_plug_list(). This way is
+safe because the queue is absolutely alive before inserting request.
 
 Cc: Dongli Zhang <dongli.zhang@oracle.com>
 Cc: James Smart <james.smart@broadcom.com>
-Cc: Bart Van Assche <bart.vanassche@wdc.com>
-Cc: linux-scsi@vger.kernel.org
-Cc: Martin K . Petersen <martin.petersen@oracle.com>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: James E . J . Bottomley <jejb@linux.vnet.ibm.com>
-Reviewed-by: Hannes Reinecke <hare@suse.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
+Cc: linux-scsi@vger.kernel.org,
+Cc: Martin K . Petersen <martin.petersen@oracle.com>,
+Cc: Christoph Hellwig <hch@lst.de>,
+Cc: James E . J . Bottomley <jejb@linux.vnet.ibm.com>,
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
 Tested-by: James Smart <james.smart@broadcom.com>
 Signed-off-by: Ming Lei <ming.lei@redhat.com>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-mq.c | 139 ++++++++++++++++++++++++++-----------------------
- 1 file changed, 75 insertions(+), 64 deletions(-)
+ block/blk-mq-sched.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/block/blk-mq.c b/block/blk-mq.c
-index b0e5e67e20a28..8a41cc5974fe1 100644
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -2284,15 +2284,65 @@ static void blk_mq_exit_hw_queues(struct request_queue *q,
+diff --git a/block/blk-mq-sched.c b/block/blk-mq-sched.c
+index aa6bc5c026438..c59babca6857a 100644
+--- a/block/blk-mq-sched.c
++++ b/block/blk-mq-sched.c
+@@ -413,6 +413,14 @@ void blk_mq_sched_insert_requests(struct blk_mq_hw_ctx *hctx,
+ 				  struct list_head *list, bool run_queue_async)
+ {
+ 	struct elevator_queue *e;
++	struct request_queue *q = hctx->queue;
++
++	/*
++	 * blk_mq_sched_insert_requests() is called from flush plug
++	 * context only, and hold one usage counter to prevent queue
++	 * from being released.
++	 */
++	percpu_ref_get(&q->q_usage_counter);
+ 
+ 	e = hctx->queue->elevator;
+ 	if (e && e->type->ops.insert_requests)
+@@ -426,12 +434,14 @@ void blk_mq_sched_insert_requests(struct blk_mq_hw_ctx *hctx,
+ 		if (!hctx->dispatch_busy && !e && !run_queue_async) {
+ 			blk_mq_try_issue_list_directly(hctx, list);
+ 			if (list_empty(list))
+-				return;
++				goto out;
+ 		}
+ 		blk_mq_insert_requests(hctx, ctx, list);
  	}
+ 
+ 	blk_mq_run_hw_queue(hctx, run_queue_async);
++ out:
++	percpu_ref_put(&q->q_usage_counter);
  }
  
-+static int blk_mq_hw_ctx_size(struct blk_mq_tag_set *tag_set)
-+{
-+	int hw_ctx_size = sizeof(struct blk_mq_hw_ctx);
-+
-+	BUILD_BUG_ON(ALIGN(offsetof(struct blk_mq_hw_ctx, srcu),
-+			   __alignof__(struct blk_mq_hw_ctx)) !=
-+		     sizeof(struct blk_mq_hw_ctx));
-+
-+	if (tag_set->flags & BLK_MQ_F_BLOCKING)
-+		hw_ctx_size += sizeof(struct srcu_struct);
-+
-+	return hw_ctx_size;
-+}
-+
- static int blk_mq_init_hctx(struct request_queue *q,
- 		struct blk_mq_tag_set *set,
- 		struct blk_mq_hw_ctx *hctx, unsigned hctx_idx)
- {
--	int node;
-+	hctx->queue_num = hctx_idx;
-+
-+	cpuhp_state_add_instance_nocalls(CPUHP_BLK_MQ_DEAD, &hctx->cpuhp_dead);
-+
-+	hctx->tags = set->tags[hctx_idx];
-+
-+	if (set->ops->init_hctx &&
-+	    set->ops->init_hctx(hctx, set->driver_data, hctx_idx))
-+		goto unregister_cpu_notifier;
- 
--	node = hctx->numa_node;
-+	if (blk_mq_init_request(set, hctx->fq->flush_rq, hctx_idx,
-+				hctx->numa_node))
-+		goto exit_hctx;
-+	return 0;
-+
-+ exit_hctx:
-+	if (set->ops->exit_hctx)
-+		set->ops->exit_hctx(hctx, hctx_idx);
-+ unregister_cpu_notifier:
-+	blk_mq_remove_cpuhp(hctx);
-+	return -1;
-+}
-+
-+static struct blk_mq_hw_ctx *
-+blk_mq_alloc_hctx(struct request_queue *q, struct blk_mq_tag_set *set,
-+		int node)
-+{
-+	struct blk_mq_hw_ctx *hctx;
-+	gfp_t gfp = GFP_NOIO | __GFP_NOWARN | __GFP_NORETRY;
-+
-+	hctx = kzalloc_node(blk_mq_hw_ctx_size(set), gfp, node);
-+	if (!hctx)
-+		goto fail_alloc_hctx;
-+
-+	if (!zalloc_cpumask_var_node(&hctx->cpumask, gfp, node))
-+		goto free_hctx;
-+
-+	atomic_set(&hctx->nr_active, 0);
- 	if (node == NUMA_NO_NODE)
--		node = hctx->numa_node = set->numa_node;
-+		node = set->numa_node;
-+	hctx->numa_node = node;
- 
- 	INIT_DELAYED_WORK(&hctx->run_work, blk_mq_run_work_fn);
- 	spin_lock_init(&hctx->lock);
-@@ -2300,58 +2350,45 @@ static int blk_mq_init_hctx(struct request_queue *q,
- 	hctx->queue = q;
- 	hctx->flags = set->flags & ~BLK_MQ_F_TAG_SHARED;
- 
--	cpuhp_state_add_instance_nocalls(CPUHP_BLK_MQ_DEAD, &hctx->cpuhp_dead);
--
--	hctx->tags = set->tags[hctx_idx];
--
- 	/*
- 	 * Allocate space for all possible cpus to avoid allocation at
- 	 * runtime
- 	 */
- 	hctx->ctxs = kmalloc_array_node(nr_cpu_ids, sizeof(void *),
--			GFP_NOIO | __GFP_NOWARN | __GFP_NORETRY, node);
-+			gfp, node);
- 	if (!hctx->ctxs)
--		goto unregister_cpu_notifier;
-+		goto free_cpumask;
- 
- 	if (sbitmap_init_node(&hctx->ctx_map, nr_cpu_ids, ilog2(8),
--				GFP_NOIO | __GFP_NOWARN | __GFP_NORETRY, node))
-+				gfp, node))
- 		goto free_ctxs;
--
- 	hctx->nr_ctx = 0;
- 
- 	spin_lock_init(&hctx->dispatch_wait_lock);
- 	init_waitqueue_func_entry(&hctx->dispatch_wait, blk_mq_dispatch_wake);
- 	INIT_LIST_HEAD(&hctx->dispatch_wait.entry);
- 
--	if (set->ops->init_hctx &&
--	    set->ops->init_hctx(hctx, set->driver_data, hctx_idx))
--		goto free_bitmap;
--
- 	hctx->fq = blk_alloc_flush_queue(q, hctx->numa_node, set->cmd_size,
--			GFP_NOIO | __GFP_NOWARN | __GFP_NORETRY);
-+			gfp);
- 	if (!hctx->fq)
--		goto exit_hctx;
--
--	if (blk_mq_init_request(set, hctx->fq->flush_rq, hctx_idx, node))
--		goto free_fq;
-+		goto free_bitmap;
- 
- 	if (hctx->flags & BLK_MQ_F_BLOCKING)
- 		init_srcu_struct(hctx->srcu);
-+	blk_mq_hctx_kobj_init(hctx);
- 
--	return 0;
-+	return hctx;
- 
-- free_fq:
--	blk_free_flush_queue(hctx->fq);
-- exit_hctx:
--	if (set->ops->exit_hctx)
--		set->ops->exit_hctx(hctx, hctx_idx);
-  free_bitmap:
- 	sbitmap_free(&hctx->ctx_map);
-  free_ctxs:
- 	kfree(hctx->ctxs);
-- unregister_cpu_notifier:
--	blk_mq_remove_cpuhp(hctx);
--	return -1;
-+ free_cpumask:
-+	free_cpumask_var(hctx->cpumask);
-+ free_hctx:
-+	kfree(hctx);
-+ fail_alloc_hctx:
-+	return NULL;
- }
- 
- static void blk_mq_init_cpu_queues(struct request_queue *q,
-@@ -2695,51 +2732,25 @@ struct request_queue *blk_mq_init_sq_queue(struct blk_mq_tag_set *set,
- }
- EXPORT_SYMBOL(blk_mq_init_sq_queue);
- 
--static int blk_mq_hw_ctx_size(struct blk_mq_tag_set *tag_set)
--{
--	int hw_ctx_size = sizeof(struct blk_mq_hw_ctx);
--
--	BUILD_BUG_ON(ALIGN(offsetof(struct blk_mq_hw_ctx, srcu),
--			   __alignof__(struct blk_mq_hw_ctx)) !=
--		     sizeof(struct blk_mq_hw_ctx));
--
--	if (tag_set->flags & BLK_MQ_F_BLOCKING)
--		hw_ctx_size += sizeof(struct srcu_struct);
--
--	return hw_ctx_size;
--}
--
- static struct blk_mq_hw_ctx *blk_mq_alloc_and_init_hctx(
- 		struct blk_mq_tag_set *set, struct request_queue *q,
- 		int hctx_idx, int node)
- {
- 	struct blk_mq_hw_ctx *hctx;
- 
--	hctx = kzalloc_node(blk_mq_hw_ctx_size(set),
--			GFP_NOIO | __GFP_NOWARN | __GFP_NORETRY,
--			node);
-+	hctx = blk_mq_alloc_hctx(q, set, node);
- 	if (!hctx)
--		return NULL;
--
--	if (!zalloc_cpumask_var_node(&hctx->cpumask,
--				GFP_NOIO | __GFP_NOWARN | __GFP_NORETRY,
--				node)) {
--		kfree(hctx);
--		return NULL;
--	}
--
--	atomic_set(&hctx->nr_active, 0);
--	hctx->numa_node = node;
--	hctx->queue_num = hctx_idx;
-+		goto fail;
- 
--	if (blk_mq_init_hctx(q, set, hctx, hctx_idx)) {
--		free_cpumask_var(hctx->cpumask);
--		kfree(hctx);
--		return NULL;
--	}
--	blk_mq_hctx_kobj_init(hctx);
-+	if (blk_mq_init_hctx(q, set, hctx, hctx_idx))
-+		goto free_hctx;
- 
- 	return hctx;
-+
-+ free_hctx:
-+	kobject_put(&hctx->kobj);
-+ fail:
-+	return NULL;
- }
- 
- static void blk_mq_realloc_hw_ctxs(struct blk_mq_tag_set *set,
+ static void blk_mq_sched_free_tags(struct blk_mq_tag_set *set,
 -- 
 2.20.1
 
