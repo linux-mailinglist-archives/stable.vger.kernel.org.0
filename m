@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AE892EFE3
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:59:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D41C2F31D
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:27:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731599AbfE3DSg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:18:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51738 "EHLO mail.kernel.org"
+        id S1729887AbfE3DOa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:14:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731597AbfE3DSf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:18:35 -0400
+        id S1729879AbfE3DOa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:14:30 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 325A92479B;
-        Thu, 30 May 2019 03:18:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D4DB52458C;
+        Thu, 30 May 2019 03:14:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186315;
-        bh=G4Ukji/71z2u2uhgTzoL7dunEcMO79AC69J39W+kNTo=;
+        s=default; t=1559186069;
+        bh=s4kCazaRSWnzkH+QoFib8l1lxFponnhzdXNy2kqfGz0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i6c1JL97jjngTKztym5OVskBXWURho6FvCiSFMFQi3AbIi9j0Z0bzgez2AuKlWYMY
-         ooODeCpzbavvhTIW7VtdXpVpk8QlhmHP7joYDQAAtUfHU2gnMupcxMDokj15vtszMh
-         AGEVgFCl70oSI6Bu0nqj8Bs1nWaw+A6aCjO0RJ/s=
+        b=mEzNRciYizLMJGi1GLqLMVoo0IITwjUQ5qUZ8FqrokrdJg01UAflLqetrnH0nRXw4
+         DvxzDSQxyDsrt4OE4BdDKx0RvkvbjgOL7OW0iF8HkG9uNTfaR+M5lNRh/jGrhzQRxx
+         524kL1tZaPfdQiq6/+5dtDZsuXr4J8AQJYSrwvMA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ira Weiny <ira.weiny@intel.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
-        stable@kernel.org
-Subject: [PATCH 4.14 002/193] ext4: do not delete unlinked inode from orphan list on failed truncate
+        stable@vger.kernel.org, Kefeng Wang <wangkefeng.wang@huawei.com>,
+        John Garry <john.garry@huawei.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 183/346] hwmon: (pc87427) Use request_muxed_region for Super-IO accesses
 Date:   Wed, 29 May 2019 20:04:16 -0700
-Message-Id: <20190530030447.267370009@linuxfoundation.org>
+Message-Id: <20190530030550.384713553@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +45,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+[ Upstream commit 755a9b0f8aaa5639ba5671ca50080852babb89ce ]
 
-commit ee0ed02ca93ef1ecf8963ad96638795d55af2c14 upstream.
+Super-IO accesses may fail on a system with no or unmapped LPC bus.
 
-It is possible that unlinked inode enters ext4_setattr() (e.g. if
-somebody calls ftruncate(2) on unlinked but still open file). In such
-case we should not delete the inode from the orphan list if truncate
-fails. Note that this is mostly a theoretical concern as filesystem is
-corrupted if we reach this path anyway but let's be consistent in our
-orphan handling.
+Also, other drivers may attempt to access the LPC bus at the same time,
+resulting in undefined behavior.
 
-Reviewed-by: Ira Weiny <ira.weiny@intel.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Use request_muxed_region() to ensure that IO access on the requested
+address space is supported, and to ensure that access by multiple drivers
+is synchronized.
 
+Fixes: ba224e2c4f0a7 ("hwmon: New PC87427 hardware monitoring driver")
+Reported-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Reported-by: John Garry <john.garry@huawei.com>
+Cc: John Garry <john.garry@huawei.com>
+Acked-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/inode.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hwmon/pc87427.c | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -5450,7 +5450,7 @@ int ext4_setattr(struct dentry *dentry,
- 			up_write(&EXT4_I(inode)->i_data_sem);
- 			ext4_journal_stop(handle);
- 			if (error) {
--				if (orphan)
-+				if (orphan && inode->i_nlink)
- 					ext4_orphan_del(NULL, inode);
- 				goto err_out;
- 			}
+diff --git a/drivers/hwmon/pc87427.c b/drivers/hwmon/pc87427.c
+index dc5a9d5ada516..81a05cd1a5121 100644
+--- a/drivers/hwmon/pc87427.c
++++ b/drivers/hwmon/pc87427.c
+@@ -106,6 +106,13 @@ static const char *logdev_str[2] = { DRVNAME " FMC", DRVNAME " HMC" };
+ #define LD_IN		1
+ #define LD_TEMP		1
+ 
++static inline int superio_enter(int sioaddr)
++{
++	if (!request_muxed_region(sioaddr, 2, DRVNAME))
++		return -EBUSY;
++	return 0;
++}
++
+ static inline void superio_outb(int sioaddr, int reg, int val)
+ {
+ 	outb(reg, sioaddr);
+@@ -122,6 +129,7 @@ static inline void superio_exit(int sioaddr)
+ {
+ 	outb(0x02, sioaddr);
+ 	outb(0x02, sioaddr + 1);
++	release_region(sioaddr, 2);
+ }
+ 
+ /*
+@@ -1220,7 +1228,11 @@ static int __init pc87427_find(int sioaddr, struct pc87427_sio_data *sio_data)
+ {
+ 	u16 val;
+ 	u8 cfg, cfg_b;
+-	int i, err = 0;
++	int i, err;
++
++	err = superio_enter(sioaddr);
++	if (err)
++		return err;
+ 
+ 	/* Identify device */
+ 	val = force_id ? force_id : superio_inb(sioaddr, SIOREG_DEVID);
+-- 
+2.20.1
+
 
 
