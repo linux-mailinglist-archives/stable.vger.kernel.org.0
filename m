@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 70E3A2F07E
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:04:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BEB32EE61
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:47:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731285AbfE3DRu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:17:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48756 "EHLO mail.kernel.org"
+        id S1731347AbfE3Dqo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:46:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731266AbfE3DRu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:17:50 -0400
+        id S1732265AbfE3DUh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:20:37 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 343CB246A8;
-        Thu, 30 May 2019 03:17:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 85A6D2492F;
+        Thu, 30 May 2019 03:20:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186269;
-        bh=YiRpyNlzCzcEpWtS4gydfZ8A3XMZuET072msQe/H26k=;
+        s=default; t=1559186436;
+        bh=cIGnD4yXtI3MMHtih8BtRCO6noHVs0fjrkprujW0B5Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tqiETahoJ7EKM9Xy7WxchgSOYVudwACG2D8UWsnC45xKLJXUMgTu6UE+xrC5tFXt7
-         ViPf39ac55tWM4jVSaXh6rCOfycVUkD235fpOI3fuxCX0vWGOUuqEfB4V05lfAWbPl
-         wzWilGVPdhrc/TP8rdGseMGaMuxOnqisi8w/Ifas=
+        b=UUqcZjnlZvsb2PCucUWsG/JKE54tdoKGFWaoeQ0w3S00ORk+4lDHyY+tuiMfHujT2
+         TUMDlKMjZ0trsTrXlhfSQYdXRbQWcCuv9sIDHfrD65+ESltEwYr3b37Wgl2EYekTON
+         oKcQBCPgi4WlrJiSVDiozeyYNgaiaE8aAb7QNBv0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 207/276] x86/uaccess, signal: Fix AC=1 bloat
+        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 033/128] ARM: vdso: Remove dependency with the arch_timer driver internals
 Date:   Wed, 29 May 2019 20:06:05 -0700
-Message-Id: <20190530030538.076039362@linuxfoundation.org>
+Message-Id: <20190530030440.414195214@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
+References: <20190530030432.977908967@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,109 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 88e4718275c1bddca6f61f300688b4553dc8584b ]
+[ Upstream commit 1f5b62f09f6b314c8d70b9de5182dae4de1f94da ]
 
-Occasionally GCC is less agressive with inlining and the following is
-observed:
+The VDSO code uses the kernel helper that was originally designed
+to abstract the access between 32 and 64bit systems. It worked so
+far because this function is declared as 'inline'.
 
-  arch/x86/kernel/signal.o: warning: objtool: restore_sigcontext()+0x3cc: call to force_valid_ss.isra.5() with UACCESS enabled
-  arch/x86/kernel/signal.o: warning: objtool: do_signal()+0x384: call to frame_uc_flags.isra.0() with UACCESS enabled
+As we're about to revamp that part of the code, the VDSO would
+break. Let's fix it by doing what should have been done from
+the start, a proper system register access.
 
-Cure this by moving this code out of the AC=1 region, since it really
-isn't needed for the user access.
-
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Andy Lutomirski <luto@kernel.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Reviewed-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/signal.c | 29 +++++++++++++++++------------
- 1 file changed, 17 insertions(+), 12 deletions(-)
+ arch/arm/include/asm/cp15.h   | 2 ++
+ arch/arm/vdso/vgettimeofday.c | 5 +++--
+ 2 files changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/kernel/signal.c b/arch/x86/kernel/signal.c
-index 92a3b312a53c4..44e647a65de88 100644
---- a/arch/x86/kernel/signal.c
-+++ b/arch/x86/kernel/signal.c
-@@ -132,16 +132,6 @@ static int restore_sigcontext(struct pt_regs *regs,
- 		COPY_SEG_CPL3(cs);
- 		COPY_SEG_CPL3(ss);
+diff --git a/arch/arm/include/asm/cp15.h b/arch/arm/include/asm/cp15.h
+index b74b174ac9fcd..b458e41227943 100644
+--- a/arch/arm/include/asm/cp15.h
++++ b/arch/arm/include/asm/cp15.h
+@@ -67,6 +67,8 @@
+ #define BPIALL				__ACCESS_CP15(c7, 0, c5, 6)
+ #define ICIALLU				__ACCESS_CP15(c7, 0, c5, 0)
  
--#ifdef CONFIG_X86_64
--		/*
--		 * Fix up SS if needed for the benefit of old DOSEMU and
--		 * CRIU.
--		 */
--		if (unlikely(!(uc_flags & UC_STRICT_RESTORE_SS) &&
--			     user_64bit_mode(regs)))
--			force_valid_ss(regs);
--#endif
--
- 		get_user_ex(tmpflags, &sc->flags);
- 		regs->flags = (regs->flags & ~FIX_EFLAGS) | (tmpflags & FIX_EFLAGS);
- 		regs->orig_ax = -1;		/* disable syscall checks */
-@@ -150,6 +140,15 @@ static int restore_sigcontext(struct pt_regs *regs,
- 		buf = (void __user *)buf_val;
- 	} get_user_catch(err);
- 
-+#ifdef CONFIG_X86_64
-+	/*
-+	 * Fix up SS if needed for the benefit of old DOSEMU and
-+	 * CRIU.
-+	 */
-+	if (unlikely(!(uc_flags & UC_STRICT_RESTORE_SS) && user_64bit_mode(regs)))
-+		force_valid_ss(regs);
-+#endif
++#define CNTVCT				__ACCESS_CP15_64(1, c14)
 +
- 	err |= fpu__restore_sig(buf, IS_ENABLED(CONFIG_X86_32));
+ extern unsigned long cr_alignment;	/* defined in entry-armv.S */
  
- 	force_iret();
-@@ -461,6 +460,7 @@ static int __setup_rt_frame(int sig, struct ksignal *ksig,
- {
- 	struct rt_sigframe __user *frame;
- 	void __user *fp = NULL;
-+	unsigned long uc_flags;
- 	int err = 0;
+ static inline unsigned long get_cr(void)
+diff --git a/arch/arm/vdso/vgettimeofday.c b/arch/arm/vdso/vgettimeofday.c
+index 79214d5ff0970..3af02d2a0b7f2 100644
+--- a/arch/arm/vdso/vgettimeofday.c
++++ b/arch/arm/vdso/vgettimeofday.c
+@@ -18,9 +18,9 @@
+ #include <linux/compiler.h>
+ #include <linux/hrtimer.h>
+ #include <linux/time.h>
+-#include <asm/arch_timer.h>
+ #include <asm/barrier.h>
+ #include <asm/bug.h>
++#include <asm/cp15.h>
+ #include <asm/page.h>
+ #include <asm/unistd.h>
+ #include <asm/vdso_datapage.h>
+@@ -123,7 +123,8 @@ static notrace u64 get_ns(struct vdso_data *vdata)
+ 	u64 cycle_now;
+ 	u64 nsec;
  
- 	frame = get_sigframe(&ksig->ka, regs, sizeof(struct rt_sigframe), &fp);
-@@ -473,9 +473,11 @@ static int __setup_rt_frame(int sig, struct ksignal *ksig,
- 			return -EFAULT;
- 	}
+-	cycle_now = arch_counter_get_cntvct();
++	isb();
++	cycle_now = read_sysreg(CNTVCT);
  
-+	uc_flags = frame_uc_flags(regs);
-+
- 	put_user_try {
- 		/* Create the ucontext.  */
--		put_user_ex(frame_uc_flags(regs), &frame->uc.uc_flags);
-+		put_user_ex(uc_flags, &frame->uc.uc_flags);
- 		put_user_ex(0, &frame->uc.uc_link);
- 		save_altstack_ex(&frame->uc.uc_stack, regs->sp);
+ 	cycle_delta = (cycle_now - vdata->cs_cycle_last) & vdata->cs_mask;
  
-@@ -541,6 +543,7 @@ static int x32_setup_rt_frame(struct ksignal *ksig,
- {
- #ifdef CONFIG_X86_X32_ABI
- 	struct rt_sigframe_x32 __user *frame;
-+	unsigned long uc_flags;
- 	void __user *restorer;
- 	int err = 0;
- 	void __user *fpstate = NULL;
-@@ -555,9 +558,11 @@ static int x32_setup_rt_frame(struct ksignal *ksig,
- 			return -EFAULT;
- 	}
- 
-+	uc_flags = frame_uc_flags(regs);
-+
- 	put_user_try {
- 		/* Create the ucontext.  */
--		put_user_ex(frame_uc_flags(regs), &frame->uc.uc_flags);
-+		put_user_ex(uc_flags, &frame->uc.uc_flags);
- 		put_user_ex(0, &frame->uc.uc_link);
- 		compat_save_altstack_ex(&frame->uc.uc_stack, regs->sp);
- 		put_user_ex(0, &frame->uc.uc__pad0);
 -- 
 2.20.1
 
