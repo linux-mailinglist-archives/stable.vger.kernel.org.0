@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B35F2EBFB
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:17:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CE4B2F529
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:46:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728697AbfE3DRR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:17:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45326 "EHLO mail.kernel.org"
+        id S1728775AbfE3DL7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:11:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728245AbfE3DRQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:17:16 -0400
+        id S1728770AbfE3DL7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:11:59 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 483CE24697;
-        Thu, 30 May 2019 03:17:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7B0CB244B0;
+        Thu, 30 May 2019 03:11:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186235;
-        bh=usSd065J3MbuKsQuMpQnSgM3+CXM1dMSOdCHQzXuOYk=;
+        s=default; t=1559185918;
+        bh=VXyRPV+AZqNbT4pLdeZ9aZNRbMmkTY9wRADnGD5Tbac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F5eIoi+AOHEyHpXiwFf8QXzMBYODtxhcDQzHIGqDk+hrAeAVP8DDD03or1/sKXa5B
-         5uizzpXLZYlg22PI0xZEx7z5tJWJdOJ2QpMfDYCErMENZOxltupbdQOe5xXQyf5PvG
-         Qz1wcj/FUCjGJ4pFFzvDbaQBbCX2XuN5F8j70MG4=
+        b=rr8IA0y7ZNGNxFjbXbHrUShs9qz+hvU4qAJWvIFGnqXZn4mTWgyU2tQXpFXdG1UvV
+         n5HciVRL27JEHPIsWQPhoa34/vKzpyjOL66pVAk9fHa+ejvyEmWtLYO9pO4dVCxbP9
+         vK+UE1fx25gwFSvN3g5ZC4PdFVEEqAC1FXzq4oG0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        George Hilliard <thirtythreeforty@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 143/276] s390/qeth: handle error from qeth_update_from_chp_desc()
+Subject: [PATCH 5.1 303/405] staging: mt7621-mmc: Initialize completions a single time during probe
 Date:   Wed, 29 May 2019 20:05:01 -0700
-Message-Id: <20190530030534.607420342@linuxfoundation.org>
+Message-Id: <20190530030556.141474496@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,79 +44,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a4cdc9baee0740748f16e50cd70c2607510df492 ]
+[ Upstream commit 7ca8c2c8bbeda2a2a2a9898cd35066bc1dc83836 ]
 
-Subsequent code relies on the values that qeth_update_from_chp_desc()
-reads from the CHP descriptor. Rather than dealing with weird errors
-later on, just handle it properly here.
+The module was initializing completions whenever it was going to wait on
+them, and not when the completion was allocated.  This is incorrect
+according to the completion docs:
 
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+    Calling init_completion() on the same completion object twice is
+    most likely a bug [...]
+
+Re-initialization is also unnecessary because the module never uses
+complete_all().  Fix this by only ever initializing the completion a
+single time, and log if the completions are not consumed as intended
+(this is not a fatal problem, but should not go unnoticed).
+
+Signed-off-by: George Hilliard <thirtythreeforty@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/net/qeth_core_main.c | 14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ drivers/staging/mt7621-mmc/sd.c | 18 ++++++++++++++----
+ 1 file changed, 14 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
-index 56aacf32f71b0..461afc276db72 100644
---- a/drivers/s390/net/qeth_core_main.c
-+++ b/drivers/s390/net/qeth_core_main.c
-@@ -1370,7 +1370,7 @@ static void qeth_set_multiple_write_queues(struct qeth_card *card)
- 	card->qdio.no_out_queues = 4;
- }
+diff --git a/drivers/staging/mt7621-mmc/sd.c b/drivers/staging/mt7621-mmc/sd.c
+index 4b26ec896a96f..74f0e57ad2f15 100644
+--- a/drivers/staging/mt7621-mmc/sd.c
++++ b/drivers/staging/mt7621-mmc/sd.c
+@@ -468,7 +468,11 @@ static unsigned int msdc_command_start(struct msdc_host   *host,
+ 	host->cmd     = cmd;
+ 	host->cmd_rsp = resp;
  
--static void qeth_update_from_chp_desc(struct qeth_card *card)
-+static int qeth_update_from_chp_desc(struct qeth_card *card)
- {
- 	struct ccw_device *ccwdev;
- 	struct channel_path_desc_fmt0 *chp_dsc;
-@@ -1380,7 +1380,7 @@ static void qeth_update_from_chp_desc(struct qeth_card *card)
- 	ccwdev = card->data.ccwdev;
- 	chp_dsc = ccw_device_get_chp_desc(ccwdev, 0);
- 	if (!chp_dsc)
--		goto out;
-+		return -ENOMEM;
+-	init_completion(&host->cmd_done);
++	// The completion should have been consumed by the previous command
++	// response handler, because the mmc requests should be serialized
++	if (completion_done(&host->cmd_done))
++		dev_err(mmc_dev(host->mmc),
++			"previous command was not handled\n");
  
- 	card->info.func_level = 0x4100 + chp_dsc->desc;
- 	if (card->info.type == QETH_CARD_TYPE_IQD)
-@@ -1395,6 +1395,7 @@ static void qeth_update_from_chp_desc(struct qeth_card *card)
- 	kfree(chp_dsc);
- 	QETH_DBF_TEXT_(SETUP, 2, "nr:%x", card->qdio.no_out_queues);
- 	QETH_DBF_TEXT_(SETUP, 2, "lvl:%02x", card->info.func_level);
-+	return 0;
- }
+ 	sdr_set_bits(host->base + MSDC_INTEN, wints);
+ 	sdc_send_cmd(rawcmd, cmd->arg);
+@@ -490,7 +494,6 @@ static unsigned int msdc_command_resp(struct msdc_host   *host,
+ 		    MSDC_INT_ACMD19_DONE;
  
- static void qeth_init_qdio_info(struct qeth_card *card)
-@@ -5090,7 +5091,9 @@ int qeth_core_hardsetup_card(struct qeth_card *card)
+ 	BUG_ON(in_interrupt());
+-	//init_completion(&host->cmd_done);
+ 	//sdr_set_bits(host->base + MSDC_INTEN, wints);
  
- 	QETH_DBF_TEXT(SETUP, 2, "hrdsetup");
- 	atomic_set(&card->force_alloc_skb, 0);
--	qeth_update_from_chp_desc(card);
-+	rc = qeth_update_from_chp_desc(card);
-+	if (rc)
-+		return rc;
- retry:
- 	if (retries < 3)
- 		QETH_DBF_MESSAGE(2, "%s Retrying to do IDX activates.\n",
-@@ -5768,7 +5771,9 @@ static int qeth_core_probe_device(struct ccwgroup_device *gdev)
- 	gdev->cdev[2]->handler = qeth_irq;
+ 	spin_unlock(&host->lock);
+@@ -674,7 +677,13 @@ static int msdc_do_request(struct mmc_host *mmc, struct mmc_request *mrq)
+ 		//msdc_clr_fifo(host);  /* no need */
  
- 	qeth_setup_card(card);
--	qeth_update_from_chp_desc(card);
-+	rc = qeth_update_from_chp_desc(card);
-+	if (rc)
-+		goto err_chp_desc;
+ 		msdc_dma_on();  /* enable DMA mode first!! */
+-		init_completion(&host->xfer_done);
++
++		// The completion should have been consumed by the previous
++		// xfer response handler, because the mmc requests should be
++		// serialized
++		if (completion_done(&host->cmd_done))
++			dev_err(mmc_dev(host->mmc),
++				"previous transfer was not handled\n");
  
- 	card->dev = qeth_alloc_netdev(card);
- 	if (!card->dev) {
-@@ -5806,6 +5811,7 @@ static int qeth_core_probe_device(struct ccwgroup_device *gdev)
- 	qeth_core_free_discipline(card);
- err_load:
- 	free_netdev(card->dev);
-+err_chp_desc:
- err_card:
- 	qeth_core_free_card(card);
- err_dev:
+ 		/* start the command first*/
+ 		if (msdc_command_start(host, cmd, CMD_TIMEOUT) != 0)
+@@ -693,7 +702,6 @@ static int msdc_do_request(struct mmc_host *mmc, struct mmc_request *mrq)
+ 		/* for read, the data coming too fast, then CRC error
+ 		 *  start DMA no business with CRC.
+ 		 */
+-		//init_completion(&host->xfer_done);
+ 		msdc_dma_start(host);
+ 
+ 		spin_unlock(&host->lock);
+@@ -1688,6 +1696,8 @@ static int msdc_drv_probe(struct platform_device *pdev)
+ 	}
+ 	msdc_init_gpd_bd(host, &host->dma);
+ 
++	init_completion(&host->cmd_done);
++	init_completion(&host->xfer_done);
+ 	INIT_DELAYED_WORK(&host->card_delaywork, msdc_tasklet_card);
+ 	spin_lock_init(&host->lock);
+ 	msdc_init_hw(host);
 -- 
 2.20.1
 
