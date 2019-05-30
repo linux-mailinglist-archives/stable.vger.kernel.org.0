@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1977C2EF5D
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:55:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 079EB2F0AA
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:06:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731832AbfE3DTL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:19:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53996 "EHLO mail.kernel.org"
+        id S1726879AbfE3EGC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:06:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728966AbfE3DTL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:19:11 -0400
+        id S1727628AbfE3DRh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:17:37 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A352524846;
-        Thu, 30 May 2019 03:19:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3F5FA246BB;
+        Thu, 30 May 2019 03:17:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186350;
-        bh=qfICDiLunXHQGiuMdU6soxJavQnlBqyhnJcDoK1k6EU=;
+        s=default; t=1559186256;
+        bh=GZUqsTk4DRyMhsW1KtZI2tC5X5LSHWq2AHH1vJ4K+oM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R0o24WOqWopK4nuqRp4KndC7wJk6oSynU7O7LJFA8nCEo77SHQEbanOn0aek6yWFK
-         hC5J1mGbtRW8o8CED+HiLDXDJUIehtT2spu+qytFUJHuRTumHKFqXgUgpvR/h/OU7p
-         6Xe9I7/2ip/a0R5jnSnw6LeOM16ogUr28T6vqZt8=
+        b=PD0rnapvWqFn6yxQ05XwsIaBgxuBsyQfIfmaugVN0n1+MOtoLsIsKbMTYYEr8MM6L
+         oBCmgtChHkCSBu561yWPizbYoX0n7uflqE7B0ADOY5QF1Sy/NCxSTnaCU2US13n3ha
+         87YWOiHOui9t1vtTkH0dJwWp90Yuk9qfew4qIacM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Janusz Krzysztofik <jmkrzyszt@gmail.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 089/193] media: ov6650: Move v4l2_clk_get() to ov6650_video_probe() helper
+        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
+        dri-devel@lists.freedesktop.org ("open list:DRM DRIVERS"),
+        Eric Anholt <eric@anholt.net>, Sasha Levin <sashal@kernel.org>,
+        David Airlie <airlied@linux.ie>,
+        Daniel Vetter <daniel@ffwll.ch>
+Subject: [PATCH 4.19 185/276] drm/pl111: fix possible object reference leak
 Date:   Wed, 29 May 2019 20:05:43 -0700
-Message-Id: <20190530030501.370244529@linuxfoundation.org>
+Message-Id: <20190530030536.807374138@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,77 +46,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ccdd85d518d8b9320ace1d87271f0ba2175f21fa ]
+[ Upstream commit bc29d3a69d4c1bd1a103e8b3c1ed81b807c1870b ]
 
-In preparation for adding asynchronous subdevice support to the driver,
-don't acquire v4l2_clk from the driver .probe() callback as that may
-fail if the clock is provided by a bridge driver which may be not yet
-initialized.  Move the v4l2_clk_get() to ov6650_video_probe() helper
-which is going to be converted to v4l2_subdev_internal_ops.registered()
-callback, executed only when the bridge driver is ready.
+The call to of_find_matching_node_and_match returns a node pointer with
+refcount incremented thus it must be explicitly decremented after the
+last usage.
 
-Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Detected by coccinelle with the following warnings:
+drivers/gpu/drm/pl111/pl111_versatile.c:333:3-9: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 317, but without a corresponding object release within this function.
+drivers/gpu/drm/pl111/pl111_versatile.c:340:3-9: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 317, but without a corresponding object release within this function.
+drivers/gpu/drm/pl111/pl111_versatile.c:346:3-9: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 317, but without a corresponding object release within this function.
+drivers/gpu/drm/pl111/pl111_versatile.c:354:2-8: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 317, but without a corresponding object release within this function.
+drivers/gpu/drm/pl111/pl111_versatile.c:395:3-9: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 317, but without a corresponding object release within this function.
+drivers/gpu/drm/pl111/pl111_versatile.c:402:1-7: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 317, but without a corresponding object release within this function.
+
+Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
+Cc: Eric Anholt <eric@anholt.net> (supporter:DRM DRIVER FOR ARM PL111 CLCD)
+Cc: David Airlie <airlied@linux.ie> (maintainer:DRM DRIVERS)
+Cc: Daniel Vetter <daniel@ffwll.ch> (maintainer:DRM DRIVERS)
+Cc: dri-devel@lists.freedesktop.org (open list:DRM DRIVERS)
+Cc: linux-kernel@vger.kernel.org (open list)
+Signed-off-by: Eric Anholt <eric@anholt.net>
+Link: https://patchwork.freedesktop.org/patch/msgid/1554307455-40361-6-git-send-email-wen.yang99@zte.com.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/ov6650.c | 25 ++++++++++++++-----------
- 1 file changed, 14 insertions(+), 11 deletions(-)
+ drivers/gpu/drm/pl111/pl111_versatile.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/media/i2c/ov6650.c b/drivers/media/i2c/ov6650.c
-index 07bc819f5819d..025869eec2ac9 100644
---- a/drivers/media/i2c/ov6650.c
-+++ b/drivers/media/i2c/ov6650.c
-@@ -822,9 +822,16 @@ static int ov6650_video_probe(struct i2c_client *client)
- 	u8		pidh, pidl, midh, midl;
- 	int		ret;
+diff --git a/drivers/gpu/drm/pl111/pl111_versatile.c b/drivers/gpu/drm/pl111/pl111_versatile.c
+index b9baefdba38a1..1c318ad32a8cd 100644
+--- a/drivers/gpu/drm/pl111/pl111_versatile.c
++++ b/drivers/gpu/drm/pl111/pl111_versatile.c
+@@ -330,6 +330,7 @@ int pl111_versatile_init(struct device *dev, struct pl111_drm_dev_private *priv)
+ 		ret = vexpress_muxfpga_init();
+ 		if (ret) {
+ 			dev_err(dev, "unable to initialize muxfpga driver\n");
++			of_node_put(np);
+ 			return ret;
+ 		}
  
-+	priv->clk = v4l2_clk_get(&client->dev, NULL);
-+	if (IS_ERR(priv->clk)) {
-+		ret = PTR_ERR(priv->clk);
-+		dev_err(&client->dev, "v4l2_clk request err: %d\n", ret);
-+		return ret;
-+	}
-+
- 	ret = ov6650_s_power(&priv->subdev, 1);
- 	if (ret < 0)
--		return ret;
-+		goto eclkput;
+@@ -337,17 +338,20 @@ int pl111_versatile_init(struct device *dev, struct pl111_drm_dev_private *priv)
+ 		pdev = of_find_device_by_node(np);
+ 		if (!pdev) {
+ 			dev_err(dev, "can't find the sysreg device, deferring\n");
++			of_node_put(np);
+ 			return -EPROBE_DEFER;
+ 		}
+ 		map = dev_get_drvdata(&pdev->dev);
+ 		if (!map) {
+ 			dev_err(dev, "sysreg has not yet probed\n");
+ 			platform_device_put(pdev);
++			of_node_put(np);
+ 			return -EPROBE_DEFER;
+ 		}
+ 	} else {
+ 		map = syscon_node_to_regmap(np);
+ 	}
++	of_node_put(np);
  
- 	msleep(20);
- 
-@@ -861,6 +868,11 @@ static int ov6650_video_probe(struct i2c_client *client)
- 
- done:
- 	ov6650_s_power(&priv->subdev, 0);
-+	if (!ret)
-+		return 0;
-+eclkput:
-+	v4l2_clk_put(priv->clk);
-+
- 	return ret;
- }
- 
-@@ -1006,18 +1018,9 @@ static int ov6650_probe(struct i2c_client *client,
- 	priv->code	  = MEDIA_BUS_FMT_YUYV8_2X8;
- 	priv->colorspace  = V4L2_COLORSPACE_JPEG;
- 
--	priv->clk = v4l2_clk_get(&client->dev, NULL);
--	if (IS_ERR(priv->clk)) {
--		ret = PTR_ERR(priv->clk);
--		goto eclkget;
--	}
--
- 	ret = ov6650_video_probe(client);
--	if (ret) {
--		v4l2_clk_put(priv->clk);
--eclkget:
-+	if (ret)
- 		v4l2_ctrl_handler_free(&priv->hdl);
--	}
- 
- 	return ret;
- }
+ 	if (IS_ERR(map)) {
+ 		dev_err(dev, "no Versatile syscon regmap\n");
 -- 
 2.20.1
 
