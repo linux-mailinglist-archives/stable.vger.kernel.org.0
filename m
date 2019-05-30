@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A1A02EE31
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:45:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 289D02F466
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:38:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730327AbfE3DpI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:45:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60166 "EHLO mail.kernel.org"
+        id S1728420AbfE3DMq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:12:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732362AbfE3DUu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:20:50 -0400
+        id S1729210AbfE3DMq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:12:46 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1767824953;
-        Thu, 30 May 2019 03:20:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AFD86244B0;
+        Thu, 30 May 2019 03:12:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186450;
-        bh=f1dA+bQb+tcOGSWgGeWxyox1dR6ozwf+oOvwxb0UMcw=;
+        s=default; t=1559185965;
+        bh=xEQL8cLkJontcf8UKMDxuTMBWccBYxd86576sMJ/CxU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X0SBt07VBOeP2Omy1lHoYz5SRWxHWHjAK3z3unTUQt4r5Mz0HvNNmJGo7xfVt6m22
-         cIMQ3tv7LfJZ6aFGtNvMRKVssu4q1ZLrxxCZJIs5ySKsdrDFDZjIHx89Xj1SHDh1jO
-         pRBy5JrU8v7askexSMc58hW+RKJEPt9y75ufLwZM=
+        b=wdFH3qHpEIgMcJGyv4aSKSDeJ9guBnl9VKcMzA/g0GS+QnfH1/q85YG5RrK1wcD83
+         mPfy6Nt2H07fhwpsJZrugmylaecwoXOu5MwRvaoBsK96+hWYvvVfHTTSZjv6B/+NKF
+         6cT2q6AIf1kFZgngnS2Cr09GnlQjwUkDYXjGcuSk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Shuah Khan <shuah@kernel.org>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Peter Ujfalusi <peter.ujfalusi@ti.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 059/128] media: au0828: stop video streaming only when last user stops
+Subject: [PATCH 5.1 393/405] ASoC: ti: fix davinci_mcasp_probe dependencies
 Date:   Wed, 29 May 2019 20:06:31 -0700
-Message-Id: <20190530030445.434381279@linuxfoundation.org>
+Message-Id: <20190530030600.490522223@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
-References: <20190530030432.977908967@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,67 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f604f0f5afb88045944567f604409951b5eb6af8 ]
+[ Upstream commit 7d7b25d05ef1c5a1a9320190e1eeb55534847558 ]
 
-If the application was streaming from both videoX and vbiX, and streaming
-from videoX was stopped, then the vbi streaming also stopped.
+The SND_SOC_DAVINCI_MCASP driver can use either edma or sdma as
+a back-end, and it takes the presence of the respective dma engine
+drivers in the configuration as an indication to which ones should be
+built. However, this is flawed in multiple ways:
 
-The cause being that stop_streaming for video stopped the subdevs as well,
-instead of only doing that if dev->streaming_users reached 0.
+- With CONFIG_TI_EDMA=m and CONFIG_SND_SOC_DAVINCI_MCASP=y,
+  is enabled as =m, and we get a link error:
+  sound/soc/ti/davinci-mcasp.o: In function `davinci_mcasp_probe':
+  davinci-mcasp.c:(.text+0x930): undefined reference to `edma_pcm_platform_register'
 
-au0828_stop_vbi_streaming was also wrong since it didn't stop the subdevs
-at all when dev->streaming_users reached 0.
+- When CONFIG_SND_SOC_DAVINCI_MCASP=m has already been selected by
+  another driver, the same link error appears even if CONFIG_TI_EDMA
+  is disabled
 
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Tested-by: Shuah Khan <shuah@kernel.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+There are possibly other issues here, but it seems that the only reasonable
+solution is to always build both SND_SOC_TI_EDMA_PCM and
+SND_SOC_TI_SDMA_PCM as a dependency here. Both are fairly small and
+do not have any other compile-time dependencies, so the cost is
+very small, and makes the configuration stage much more consistent.
+
+Fixes: f2055e145f29 ("ASoC: ti: Merge davinci and omap directories")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/au0828/au0828-video.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ sound/soc/ti/Kconfig | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/usb/au0828/au0828-video.c b/drivers/media/usb/au0828/au0828-video.c
-index 85dd9a8e83ff1..40594c8a71f4f 100644
---- a/drivers/media/usb/au0828/au0828-video.c
-+++ b/drivers/media/usb/au0828/au0828-video.c
-@@ -852,9 +852,9 @@ int au0828_start_analog_streaming(struct vb2_queue *vq, unsigned int count)
- 			return rc;
- 		}
+diff --git a/sound/soc/ti/Kconfig b/sound/soc/ti/Kconfig
+index 4bf3c15d4e514..ee7c202c69b77 100644
+--- a/sound/soc/ti/Kconfig
++++ b/sound/soc/ti/Kconfig
+@@ -21,8 +21,8 @@ config SND_SOC_DAVINCI_ASP
  
-+		v4l2_device_call_all(&dev->v4l2_dev, 0, video, s_stream, 1);
-+
- 		if (vq->type == V4L2_BUF_TYPE_VIDEO_CAPTURE) {
--			v4l2_device_call_all(&dev->v4l2_dev, 0, video,
--						s_stream, 1);
- 			dev->vid_timeout_running = 1;
- 			mod_timer(&dev->vid_timeout, jiffies + (HZ / 10));
- 		} else if (vq->type == V4L2_BUF_TYPE_VBI_CAPTURE) {
-@@ -874,10 +874,11 @@ static void au0828_stop_streaming(struct vb2_queue *vq)
- 
- 	dprintk(1, "au0828_stop_streaming called %d\n", dev->streaming_users);
- 
--	if (dev->streaming_users-- == 1)
-+	if (dev->streaming_users-- == 1) {
- 		au0828_uninit_isoc(dev);
-+		v4l2_device_call_all(&dev->v4l2_dev, 0, video, s_stream, 0);
-+	}
- 
--	v4l2_device_call_all(&dev->v4l2_dev, 0, video, s_stream, 0);
- 	dev->vid_timeout_running = 0;
- 	del_timer_sync(&dev->vid_timeout);
- 
-@@ -906,8 +907,10 @@ void au0828_stop_vbi_streaming(struct vb2_queue *vq)
- 	dprintk(1, "au0828_stop_vbi_streaming called %d\n",
- 		dev->streaming_users);
- 
--	if (dev->streaming_users-- == 1)
-+	if (dev->streaming_users-- == 1) {
- 		au0828_uninit_isoc(dev);
-+		v4l2_device_call_all(&dev->v4l2_dev, 0, video, s_stream, 0);
-+	}
- 
- 	spin_lock_irqsave(&dev->slock, flags);
- 	if (dev->isoc_ctl.vbi_buf != NULL) {
+ config SND_SOC_DAVINCI_MCASP
+ 	tristate "Multichannel Audio Serial Port (McASP) support"
+-	select SND_SOC_TI_EDMA_PCM if TI_EDMA
+-	select SND_SOC_TI_SDMA_PCM if DMA_OMAP
++	select SND_SOC_TI_EDMA_PCM
++	select SND_SOC_TI_SDMA_PCM
+ 	help
+ 	  Say Y or M here if you want to have support for McASP IP found in
+ 	  various Texas Instruments SoCs like:
 -- 
 2.20.1
 
