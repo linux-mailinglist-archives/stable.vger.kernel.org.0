@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BAEC2F3B1
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:33:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F1432F1A5
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:14:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728903AbfE3EbP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:31:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60160 "EHLO mail.kernel.org"
+        id S1727922AbfE3EOz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:14:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729592AbfE3DNs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:13:48 -0400
+        id S1730588AbfE3DQG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:16:06 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0F19C24526;
-        Thu, 30 May 2019 03:13:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F15C82458A;
+        Thu, 30 May 2019 03:16:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186028;
-        bh=F60ovf0n5l2kPM8Qyh6dLDCgATr4YEityKsVWQ5te1o=;
+        s=default; t=1559186166;
+        bh=IMvOMrwfmvlEvp9BbnZTOcWW0xU9lq/DlMKMHRjOHos=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qnCDeBP9z1BSy4tS38gy6ubafZYmvneyodWB1KSBxwiLk+aS2rbtHWiFySscksJsj
-         5jfJ3AGVxpAiZmz8DJdt5aRcb5V1fNn32LpnIcXH1IBCFBYFtdshwiMyIZjykRKbQB
-         D6m7ap74yAGB1hnpZ4vaHEDE+kOCvvHd6f0bSvFc=
+        b=eQC4kKmgllhC5LnVhEhoD0Px4lST3TH1EpstctPUnFrIlL+7UsGtovUmPNiCUk0ij
+         XzY8Fpl9qksqHynf2pJEEaVqeo5gESof/yBEteFRuB5YOo2mRlytTlkzRxEMiGBBGX
+         5UTyMTMqdx4OaTrlIZ72kW2rLB1C6BcYimMPUmBc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sugar Zhang <sugar.zhang@rock-chips.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 103/346] dmaengine: pl330: _stop: clear interrupt status
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        Anand Jain <anand.jain@oracle.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.19 018/276] Btrfs: do not abort transaction at btrfs_update_root() after failure to COW path
 Date:   Wed, 29 May 2019 20:02:56 -0700
-Message-Id: <20190530030546.355562064@linuxfoundation.org>
+Message-Id: <20190530030525.139495426@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,92 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2da254cc7908105a60a6bb219d18e8dced03dcb9 ]
+From: Filipe Manana <fdmanana@suse.com>
 
-This patch kill instructs the DMAC to immediately terminate
-execution of a thread. and then clear the interrupt status,
-at last, stop generating interrupts for DMA_SEV. to guarantee
-the next dma start is clean. otherwise, one interrupt maybe leave
-to next start and make some mistake.
+commit 72bd2323ec87722c115a5906bc6a1b31d11e8f54 upstream.
 
-we can reporduce the problem as follows:
+Currently when we fail to COW a path at btrfs_update_root() we end up
+always aborting the transaction. However all the current callers of
+btrfs_update_root() are able to deal with errors returned from it, many do
+end up aborting the transaction themselves (directly or not, such as the
+transaction commit path), other BUG_ON() or just gracefully cancel whatever
+they were doing.
 
-DMASEV: modify the event-interrupt resource, and if the INTEN sets
-function as interrupt, the DMAC will set irq<event_num> HIGH to
-generate interrupt. write INTCLR to clear interrupt.
+When syncing the fsync log, we call btrfs_update_root() through
+tree-log.c:update_log_root(), and if it returns an -ENOSPC error, the log
+sync code does not abort the transaction, instead it gracefully handles
+the error and returns -EAGAIN to the fsync handler, so that it falls back
+to a transaction commit. Any other error different from -ENOSPC, makes the
+log sync code abort the transaction.
 
-	DMA EXECUTING INSTRUCTS		DMA TERMINATE
-		|				|
-		|				|
-	       ...			      _stop
-		|				|
-		|			spin_lock_irqsave
-	     DMASEV				|
-		|				|
-		|			    mask INTEN
-		|				|
-		|			     DMAKILL
-		|				|
-		|			spin_unlock_irqrestore
+So remove the transaction abort from btrfs_update_log() when we fail to
+COW a path to update the root item, so that if an -ENOSPC failure happens
+we avoid aborting the current transaction and have a chance of the fsync
+succeeding after falling back to a transaction commit.
 
-in above case, a interrupt was left, and if we unmask INTEN, the DMAC
-will set irq<event_num> HIGH to generate interrupt.
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=203413
+Fixes: 79787eaab46121 ("btrfs: replace many BUG_ONs with proper error handling")
+Cc: stable@vger.kernel.org # 4.4+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: Anand Jain <anand.jain@oracle.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-to fix this, do as follows:
-
-	DMA EXECUTING INSTRUCTS		DMA TERMINATE
-		|				|
-		|				|
-	       ...			      _stop
-		|				|
-		|			spin_lock_irqsave
-	     DMASEV				|
-		|				|
-		|			     DMAKILL
-		|				|
-		|			   clear INTCLR
-		|			    mask INTEN
-		|				|
-		|			spin_unlock_irqrestore
-
-Signed-off-by: Sugar Zhang <sugar.zhang@rock-chips.com>
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/pl330.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ fs/btrfs/root-tree.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/dma/pl330.c b/drivers/dma/pl330.c
-index cff1b143fff5d..9b7a49fc76971 100644
---- a/drivers/dma/pl330.c
-+++ b/drivers/dma/pl330.c
-@@ -966,6 +966,7 @@ static void _stop(struct pl330_thread *thrd)
- {
- 	void __iomem *regs = thrd->dmac->base;
- 	u8 insn[6] = {0, 0, 0, 0, 0, 0};
-+	u32 inten = readl(regs + INTEN);
+--- a/fs/btrfs/root-tree.c
++++ b/fs/btrfs/root-tree.c
+@@ -132,10 +132,8 @@ int btrfs_update_root(struct btrfs_trans
+ 		return -ENOMEM;
  
- 	if (_state(thrd) == PL330_STATE_FAULT_COMPLETING)
- 		UNTIL(thrd, PL330_STATE_FAULTING | PL330_STATE_KILLING);
-@@ -978,10 +979,13 @@ static void _stop(struct pl330_thread *thrd)
+ 	ret = btrfs_search_slot(trans, root, key, path, 0, 1);
+-	if (ret < 0) {
+-		btrfs_abort_transaction(trans, ret);
++	if (ret < 0)
+ 		goto out;
+-	}
  
- 	_emit_KILL(0, insn);
- 
--	/* Stop generating interrupts for SEV */
--	writel(readl(regs + INTEN) & ~(1 << thrd->ev), regs + INTEN);
--
- 	_execute_DBGINSN(thrd, insn, is_manager(thrd));
-+
-+	/* clear the event */
-+	if (inten & (1 << thrd->ev))
-+		writel(1 << thrd->ev, regs + INTCLR);
-+	/* Stop generating interrupts for SEV */
-+	writel(inten & ~(1 << thrd->ev), regs + INTEN);
- }
- 
- /* Start doing req 'idx' of thread 'thrd' */
--- 
-2.20.1
-
+ 	if (ret != 0) {
+ 		btrfs_print_leaf(path->nodes[0]);
 
 
