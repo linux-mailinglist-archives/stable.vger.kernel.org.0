@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 67E192EBFF
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:17:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B3922F507
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:44:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731102AbfE3DRZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:17:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46748 "EHLO mail.kernel.org"
+        id S1731764AbfE3Enn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:43:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731100AbfE3DRZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:17:25 -0400
+        id S1728840AbfE3DMI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:12:08 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A4B1824479;
-        Thu, 30 May 2019 03:17:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A8769244E8;
+        Thu, 30 May 2019 03:12:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186244;
-        bh=zabL5YfqfgkOhrTRcXafw5T08OQA8mRkWoJ70DYQGDc=;
+        s=default; t=1559185927;
+        bh=giia1H8fV3MI0n0b6NEl9yVmTOqXajqyIE74fhzbvmw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2kYaiLQ/8h7V4PaO4FrXzoknc7RjRjyPWajsU90Ye0tn/+AMqEhHoEz0vC60GEhOn
-         mjrMf+Ro6x+irTkrdk87GnJlrwEB0ASHSS3G7RPls23YtEIBlYXGRQJ4nn/KIj2aHl
-         gIIIOuu+go9PbpleR/xQ5WlIqpKhBTpIS+Cy+Tws=
+        b=bDgbuE5MiK0P6olwkawb4cbuDP0Y1D7kWvhJXPH+4CSQB9akouI/UMHbFYEzVP9m+
+         YjbDoUJXmdu8imdztCz5OJEByBvQS7ykOSWr/ZMr3HP0HhUg31JIQLp5fWc95AVTBj
+         Znsi9TZG1GMHsWG0HODjoXvY1iAmSYmWysFN8YFI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kefeng Wang <wangkefeng.wang@huawei.com>,
-        John Garry <john.garry@huawei.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Paul Moore <paul@paul-moore.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 159/276] hwmon: (smsc47b397) Use request_muxed_region for Super-IO accesses
+Subject: [PATCH 5.1 319/405] selinux: avoid uninitialized variable warning
 Date:   Wed, 29 May 2019 20:05:17 -0700
-Message-Id: <20190530030535.446686774@linuxfoundation.org>
+Message-Id: <20190530030556.904947838@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,67 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 8c0826756744c0ac1df600a5e4cca1a341b13101 ]
+[ Upstream commit 98bbbb76f2edcfb8fb2b8f4b3ccc7b6e99d64bd8 ]
 
-Super-IO accesses may fail on a system with no or unmapped LPC bus.
+clang correctly points out a code path that would lead
+to an uninitialized variable use:
 
-Also, other drivers may attempt to access the LPC bus at the same time,
-resulting in undefined behavior.
+security/selinux/netlabel.c:310:6: error: variable 'addr' is used uninitialized whenever 'if' condition is false
+      [-Werror,-Wsometimes-uninitialized]
+        if (ip_hdr(skb)->version == 4) {
+            ^~~~~~~~~~~~~~~~~~~~~~~~~
+security/selinux/netlabel.c:322:40: note: uninitialized use occurs here
+        rc = netlbl_conn_setattr(ep->base.sk, addr, &secattr);
+                                              ^~~~
+security/selinux/netlabel.c:310:2: note: remove the 'if' if its condition is always true
+        if (ip_hdr(skb)->version == 4) {
+        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+security/selinux/netlabel.c:291:23: note: initialize the variable 'addr' to silence this warning
+        struct sockaddr *addr;
+                             ^
+                              = NULL
 
-Use request_muxed_region() to ensure that IO access on the requested
-address space is supported, and to ensure that access by multiple drivers
-is synchronized.
+This is probably harmless since we should not see ipv6 packets
+of CONFIG_IPV6 is disabled, but it's better to rearrange the code
+so this cannot happen.
 
-Fixes: 8d5d45fb1468 ("I2C: Move hwmon drivers (2/3)")
-Reported-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Reported-by: John Garry <john.garry@huawei.com>
-Cc: John Garry <john.garry@huawei.com>
-Acked-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+[PM: removed old patchwork link, fixed checkpatch.pl style errors]
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/smsc47b397.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ security/selinux/netlabel.c | 14 +++++---------
+ 1 file changed, 5 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/hwmon/smsc47b397.c b/drivers/hwmon/smsc47b397.c
-index 6bd2007565603..cbdb5c4991ae3 100644
---- a/drivers/hwmon/smsc47b397.c
-+++ b/drivers/hwmon/smsc47b397.c
-@@ -72,14 +72,19 @@ static inline void superio_select(int ld)
- 	superio_outb(0x07, ld);
- }
+diff --git a/security/selinux/netlabel.c b/security/selinux/netlabel.c
+index 186e727b737b9..6fd9954e1c085 100644
+--- a/security/selinux/netlabel.c
++++ b/security/selinux/netlabel.c
+@@ -288,11 +288,8 @@ int selinux_netlbl_sctp_assoc_request(struct sctp_endpoint *ep,
+ 	int rc;
+ 	struct netlbl_lsm_secattr secattr;
+ 	struct sk_security_struct *sksec = ep->base.sk->sk_security;
+-	struct sockaddr *addr;
+ 	struct sockaddr_in addr4;
+-#if IS_ENABLED(CONFIG_IPV6)
+ 	struct sockaddr_in6 addr6;
+-#endif
  
--static inline void superio_enter(void)
-+static inline int superio_enter(void)
- {
-+	if (!request_muxed_region(REG, 2, DRVNAME))
-+		return -EBUSY;
-+
- 	outb(0x55, REG);
-+	return 0;
- }
+ 	if (ep->base.sk->sk_family != PF_INET &&
+ 				ep->base.sk->sk_family != PF_INET6)
+@@ -310,16 +307,15 @@ int selinux_netlbl_sctp_assoc_request(struct sctp_endpoint *ep,
+ 	if (ip_hdr(skb)->version == 4) {
+ 		addr4.sin_family = AF_INET;
+ 		addr4.sin_addr.s_addr = ip_hdr(skb)->saddr;
+-		addr = (struct sockaddr *)&addr4;
+-#if IS_ENABLED(CONFIG_IPV6)
+-	} else {
++		rc = netlbl_conn_setattr(ep->base.sk, (void *)&addr4, &secattr);
++	} else if (IS_ENABLED(CONFIG_IPV6) && ip_hdr(skb)->version == 6) {
+ 		addr6.sin6_family = AF_INET6;
+ 		addr6.sin6_addr = ipv6_hdr(skb)->saddr;
+-		addr = (struct sockaddr *)&addr6;
+-#endif
++		rc = netlbl_conn_setattr(ep->base.sk, (void *)&addr6, &secattr);
++	} else {
++		rc = -EAFNOSUPPORT;
+ 	}
  
- static inline void superio_exit(void)
- {
- 	outb(0xAA, REG);
-+	release_region(REG, 2);
- }
+-	rc = netlbl_conn_setattr(ep->base.sk, addr, &secattr);
+ 	if (rc == 0)
+ 		sksec->nlbl_state = NLBL_LABELED;
  
- #define SUPERIO_REG_DEVID	0x20
-@@ -300,8 +305,12 @@ static int __init smsc47b397_find(void)
- 	u8 id, rev;
- 	char *name;
- 	unsigned short addr;
-+	int err;
-+
-+	err = superio_enter();
-+	if (err)
-+		return err;
- 
--	superio_enter();
- 	id = force_id ? force_id : superio_inb(SUPERIO_REG_DEVID);
- 
- 	switch (id) {
 -- 
 2.20.1
 
