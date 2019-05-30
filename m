@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BC0D02F060
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:03:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C69BE2F47E
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:39:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731483AbfE3EDT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:03:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49292 "EHLO mail.kernel.org"
+        id S1729152AbfE3DMk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:12:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731348AbfE3DR5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:17:57 -0400
+        id S1729148AbfE3DMk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:12:40 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 663272474C;
-        Thu, 30 May 2019 03:17:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EA46F23C5A;
+        Thu, 30 May 2019 03:12:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186276;
-        bh=PMELHRCeRDIFD+jrxj6PLctkSpayI5PK/9PmQXSfZX8=;
+        s=default; t=1559185960;
+        bh=M+rwiQC1uIg8UKPRB2v+M6onIb7LceG5Q5XWTBBUPvg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NeLYg4bFbnvHLRM3DDd0GYBoaHvCTyWPmoVsHqrXzNOlIX+TZRLFLpUdJcZ8WAbcT
-         3h+WTUhsFo95jWLz9kwgrXVO1KEXK4b3zWpvZmVRl84Y0nMyIH67RZU/oH3YjkbxDn
-         GUDCY6szWP6E0x5AFefKCLXW0livsOIleG143Ogo=
+        b=kGHvDLoMU0WoMeincPNZdMOEk5DP6Q+R4BUruGuAUABbFIal60zVq0USqDF5m2uOX
+         qJmcfcMShGOkl5DBSzXpWirME9+n0xSYscogaWB7vy3xhVZ3vHJcKR5rur3g5KW8co
+         RRV+adhGW0T1OJ+aCY4BUiWVpBVDWKDnmsa4o038=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot <syzbot+f648cfb7e0b52bf7ae32@syzkaller.appspotmail.com>,
-        Kay Sievers <kay@vrfy.org>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Sasha Levin <sashal@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 4.19 219/276] kobject: Dont trigger kobject_uevent(KOBJ_REMOVE) twice.
+        Adam Thomson <Adam.Thomson.Opensource@diasemi.com>,
+        Steve Twiss <stwiss.opensource@diasemi.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 379/405] regulator: ltc3676: Fix notifier mutex lock warning
 Date:   Wed, 29 May 2019 20:06:17 -0700
-Message-Id: <20190530030538.815031887@linuxfoundation.org>
+Message-Id: <20190530030559.909313032@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,70 +46,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c03a0fd0b609e2f5c669c2b7f27c8e1928e9196e ]
+[ Upstream commit 769fc8d4182c1d1875db7859852afeb436714c5c ]
 
-syzbot is hitting use-after-free bug in uinput module [1]. This is because
-kobject_uevent(KOBJ_REMOVE) is called again due to commit 0f4dafc0563c6c49
-("Kobject: auto-cleanup on final unref") after memory allocation fault
-injection made kobject_uevent(KOBJ_REMOVE) from device_del() from
-input_unregister_device() fail, while uinput_destroy_device() is expecting
-that kobject_uevent(KOBJ_REMOVE) is not called after device_del() from
-input_unregister_device() completed.
+The mutex for the regulator_dev must be controlled by the caller of
+the regulator_notifier_call_chain(), as described in the comment
+for that function.
 
-That commit intended to catch cases where nobody even attempted to send
-"remove" uevents. But there is no guarantee that an event will ultimately
-be sent. We are at the point of no return as far as the rest of the kernel
-is concerned; there are no repeats or do-overs.
+Failure to mutex lock and unlock surrounding the notifier call results
+in a kernel WARN_ON_ONCE() which will dump a backtrace for the
+regulator_notifier_call_chain() when that function call is first made.
+The mutex can be controlled using the regulator_lock/unlock() API.
 
-Also, it is not clear whether some subsystem depends on that commit.
-If no subsystem depends on that commit, it will be better to remove
-the state_{add,remove}_uevent_sent logic. But we don't want to risk
-a regression (in a patch which will be backported) by trying to remove
-that logic. Therefore, as a first step, let's avoid the use-after-free bug
-by making sure that kobject_uevent(KOBJ_REMOVE) won't be triggered twice.
-
-[1] https://syzkaller.appspot.com/bug?id=8b17c134fe938bbddd75a45afaa9e68af43a362d
-
-Reported-by: syzbot <syzbot+f648cfb7e0b52bf7ae32@syzkaller.appspotmail.com>
-Analyzed-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Fixes: 0f4dafc0563c6c49 ("Kobject: auto-cleanup on final unref")
-Cc: Kay Sievers <kay@vrfy.org>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 37b918a034fe ("regulator: Add LTC3676 support")
+Suggested-by: Adam Thomson <Adam.Thomson.Opensource@diasemi.com>
+Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/kobject_uevent.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/regulator/ltc3676.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/lib/kobject_uevent.c b/lib/kobject_uevent.c
-index 63d0816ab23b0..7761f32943391 100644
---- a/lib/kobject_uevent.c
-+++ b/lib/kobject_uevent.c
-@@ -464,6 +464,13 @@ int kobject_uevent_env(struct kobject *kobj, enum kobject_action action,
- 	int i = 0;
- 	int retval = 0;
+diff --git a/drivers/regulator/ltc3676.c b/drivers/regulator/ltc3676.c
+index e6d66e492b851..4be90c78c7209 100644
+--- a/drivers/regulator/ltc3676.c
++++ b/drivers/regulator/ltc3676.c
+@@ -285,17 +285,23 @@ static irqreturn_t ltc3676_isr(int irq, void *dev_id)
+ 	if (irqstat & LTC3676_IRQSTAT_THERMAL_WARN) {
+ 		dev_warn(dev, "Over-temperature Warning\n");
+ 		event = REGULATOR_EVENT_OVER_TEMP;
+-		for (i = 0; i < LTC3676_NUM_REGULATORS; i++)
++		for (i = 0; i < LTC3676_NUM_REGULATORS; i++) {
++			regulator_lock(ltc3676->regulators[i]);
+ 			regulator_notifier_call_chain(ltc3676->regulators[i],
+ 						      event, NULL);
++			regulator_unlock(ltc3676->regulators[i]);
++		}
+ 	}
  
-+	/*
-+	 * Mark "remove" event done regardless of result, for some subsystems
-+	 * do not want to re-trigger "remove" event via automatic cleanup.
-+	 */
-+	if (action == KOBJ_REMOVE)
-+		kobj->state_remove_uevent_sent = 1;
-+
- 	pr_debug("kobject: '%s' (%p): %s\n",
- 		 kobject_name(kobj), kobj, __func__);
+ 	if (irqstat & LTC3676_IRQSTAT_UNDERVOLT_WARN) {
+ 		dev_info(dev, "Undervoltage Warning\n");
+ 		event = REGULATOR_EVENT_UNDER_VOLTAGE;
+-		for (i = 0; i < LTC3676_NUM_REGULATORS; i++)
++		for (i = 0; i < LTC3676_NUM_REGULATORS; i++) {
++			regulator_lock(ltc3676->regulators[i]);
+ 			regulator_notifier_call_chain(ltc3676->regulators[i],
+ 						      event, NULL);
++			regulator_unlock(ltc3676->regulators[i]);
++		}
+ 	}
  
-@@ -565,10 +572,6 @@ int kobject_uevent_env(struct kobject *kobj, enum kobject_action action,
- 		kobj->state_add_uevent_sent = 1;
- 		break;
- 
--	case KOBJ_REMOVE:
--		kobj->state_remove_uevent_sent = 1;
--		break;
--
- 	case KOBJ_UNBIND:
- 		zap_modalias_env(env);
- 		break;
+ 	/* Clear warning condition */
 -- 
 2.20.1
 
