@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B9782F3EE
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:34:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2E782EB2C
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:10:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727770AbfE3Edw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:33:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58698 "EHLO mail.kernel.org"
+        id S1728150AbfE3DKf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:10:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729465AbfE3DN2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:13:28 -0400
+        id S1726738AbfE3DKe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:10:34 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9C28124544;
-        Thu, 30 May 2019 03:13:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A7D8C24476;
+        Thu, 30 May 2019 03:10:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186007;
-        bh=bSW/zRakr983HeDe9R0FmG/hQdxqR93bcJ1wDX6JWcM=;
+        s=default; t=1559185833;
+        bh=J1NbJloJvfKvA5uLonwiNChOz54nsgGxJRLELe14tdI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ccJCcSFlMWwswZRM168gicN8SKln76Fe0HLlmeDexyrfkfre/xkz1qDZ3t8CXrvi9
-         PuztnAm7qU9K1MDdiQ/tMA4/4xPbr8XvkgejzMa3GA82wTSY0kjPdm7vv8JThHUP6D
-         trCEdE4w2mIxE+fN/nJ/nmQzMTcLE+Lz4SyMd9dQ=
+        b=sPDN25brYeQiKbWwA35M4/xY4cdL2OSLQA6fNBH65uD5JqSEtU3SykMyyD6xXmzzR
+         nS3EKwtNYeayVrBlS+gc5hM0XunFVyhPmQe7suun/LsBpqUvSXgMZXEQvRKO+JJK9D
+         opdP9zPCfJN050fSoguvo8F+kH6dmEsArSIHlBz8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Tobin C. Harding" <tobin@kernel.org>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.0 021/346] btrfs: sysfs: Fix error path kobject memory leak
-Date:   Wed, 29 May 2019 20:01:34 -0700
-Message-Id: <20190530030541.780803446@linuxfoundation.org>
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 097/405] btrfs: fix panic during relocation after ENOSPC before writeback happens
+Date:   Wed, 29 May 2019 20:01:35 -0700
+Message-Id: <20190530030545.926776244@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,42 +45,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tobin C. Harding <tobin@kernel.org>
+[ Upstream commit ff612ba7849964b1898fd3ccd1f56941129c6aab ]
 
-commit 450ff8348808a89cc27436771aa05c2b90c0eef1 upstream.
+We've been seeing the following sporadically throughout our fleet
 
-If a call to kobject_init_and_add() fails we must call kobject_put()
-otherwise we leak memory.
+panic: kernel BUG at fs/btrfs/relocation.c:4584!
+netversion: 5.0-0
+Backtrace:
+ #0 [ffffc90003adb880] machine_kexec at ffffffff81041da8
+ #1 [ffffc90003adb8c8] __crash_kexec at ffffffff8110396c
+ #2 [ffffc90003adb988] crash_kexec at ffffffff811048ad
+ #3 [ffffc90003adb9a0] oops_end at ffffffff8101c19a
+ #4 [ffffc90003adb9c0] do_trap at ffffffff81019114
+ #5 [ffffc90003adba00] do_error_trap at ffffffff810195d0
+ #6 [ffffc90003adbab0] invalid_op at ffffffff81a00a9b
+    [exception RIP: btrfs_reloc_cow_block+692]
+    RIP: ffffffff8143b614  RSP: ffffc90003adbb68  RFLAGS: 00010246
+    RAX: fffffffffffffff7  RBX: ffff8806b9c32000  RCX: ffff8806aad00690
+    RDX: ffff880850b295e0  RSI: ffff8806b9c32000  RDI: ffff88084f205bd0
+    RBP: ffff880849415000   R8: ffffc90003adbbe0   R9: ffff88085ac90000
+    R10: ffff8805f7369140  R11: 0000000000000000  R12: ffff880850b295e0
+    R13: ffff88084f205bd0  R14: 0000000000000000  R15: 0000000000000000
+    ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
+ #7 [ffffc90003adbbb0] __btrfs_cow_block at ffffffff813bf1cd
+ #8 [ffffc90003adbc28] btrfs_cow_block at ffffffff813bf4b3
+ #9 [ffffc90003adbc78] btrfs_search_slot at ffffffff813c2e6c
 
-Calling kobject_put() when kobject_init_and_add() fails drops the
-refcount back to 0 and calls the ktype release method (which in turn
-calls the percpu destroy and kfree).
+The way relocation moves data extents is by creating a reloc inode and
+preallocating extents in this inode and then copying the data into these
+preallocated extents.  Once we've done this for all of our extents,
+we'll write out these dirty pages, which marks the extent written, and
+goes into btrfs_reloc_cow_block().  From here we get our current
+reloc_control, which _should_ match the reloc_control for the current
+block group we're relocating.
 
-Add call to kobject_put() in the error path of call to
-kobject_init_and_add().
+However if we get an ENOSPC in this path at some point we'll bail out,
+never initiating writeback on this inode.  Not a huge deal, unless we
+happen to be doing relocation on a different block group, and this block
+group is now rc->stage == UPDATE_DATA_PTRS.  This trips the BUG_ON() in
+btrfs_reloc_cow_block(), because we expect to be done modifying the data
+inode.  We are in fact done modifying the metadata for the data inode
+we're currently using, but not the one from the failed block group, and
+thus we BUG_ON().
 
-Cc: stable@vger.kernel.org # v4.4+
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Tobin C. Harding <tobin@kernel.org>
-Reviewed-by: David Sterba <dsterba@suse.com>
+(This happens when writeback finishes for extents from the previous
+group, when we are at btrfs_finish_ordered_io() which updates the data
+reloc tree (inode item, drops/adds extent items, etc).)
+
+Fix this by writing out the reloc data inode always, and then breaking
+out of the loop after that point to keep from tripping this BUG_ON()
+later.
+
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+[ add note from Filipe ]
 Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/extent-tree.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ fs/btrfs/relocation.c | 31 ++++++++++++++++++++-----------
+ 1 file changed, 20 insertions(+), 11 deletions(-)
 
---- a/fs/btrfs/extent-tree.c
-+++ b/fs/btrfs/extent-tree.c
-@@ -3985,8 +3985,7 @@ static int create_space_info(struct btrf
- 				    info->space_info_kobj, "%s",
- 				    alloc_name(space_info->flags));
- 	if (ret) {
--		percpu_counter_destroy(&space_info->total_bytes_pinned);
--		kfree(space_info);
-+		kobject_put(&space_info->kobj);
- 		return ret;
+diff --git a/fs/btrfs/relocation.c b/fs/btrfs/relocation.c
+index 351fa506dc9bf..1d82ee4883eb3 100644
+--- a/fs/btrfs/relocation.c
++++ b/fs/btrfs/relocation.c
+@@ -4330,27 +4330,36 @@ int btrfs_relocate_block_group(struct btrfs_fs_info *fs_info, u64 group_start)
+ 		mutex_lock(&fs_info->cleaner_mutex);
+ 		ret = relocate_block_group(rc);
+ 		mutex_unlock(&fs_info->cleaner_mutex);
+-		if (ret < 0) {
++		if (ret < 0)
+ 			err = ret;
+-			goto out;
+-		}
+-
+-		if (rc->extents_found == 0)
+-			break;
+-
+-		btrfs_info(fs_info, "found %llu extents", rc->extents_found);
+ 
++		/*
++		 * We may have gotten ENOSPC after we already dirtied some
++		 * extents.  If writeout happens while we're relocating a
++		 * different block group we could end up hitting the
++		 * BUG_ON(rc->stage == UPDATE_DATA_PTRS) in
++		 * btrfs_reloc_cow_block.  Make sure we write everything out
++		 * properly so we don't trip over this problem, and then break
++		 * out of the loop if we hit an error.
++		 */
+ 		if (rc->stage == MOVE_DATA_EXTENTS && rc->found_file_extent) {
+ 			ret = btrfs_wait_ordered_range(rc->data_inode, 0,
+ 						       (u64)-1);
+-			if (ret) {
++			if (ret)
+ 				err = ret;
+-				goto out;
+-			}
+ 			invalidate_mapping_pages(rc->data_inode->i_mapping,
+ 						 0, -1);
+ 			rc->stage = UPDATE_DATA_PTRS;
+ 		}
++
++		if (err < 0)
++			goto out;
++
++		if (rc->extents_found == 0)
++			break;
++
++		btrfs_info(fs_info, "found %llu extents", rc->extents_found);
++
  	}
  
+ 	WARN_ON(rc->block_group->pinned > 0);
+-- 
+2.20.1
+
 
 
