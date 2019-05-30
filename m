@@ -2,47 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 52E692F31B
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:27:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41FCA2EB4C
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:11:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729871AbfE3DO2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:14:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34536 "EHLO mail.kernel.org"
+        id S1728590AbfE3DLc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:11:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51314 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728819AbfE3DO1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:14:27 -0400
+        id S1727816AbfE3DLc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:11:32 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6763A2455A;
-        Thu, 30 May 2019 03:14:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3317A244EA;
+        Thu, 30 May 2019 03:11:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186067;
-        bh=mHW7ZCmT9QHkUxcJYvWmclZSQBMqlDKvHzeICj7BZSU=;
+        s=default; t=1559185891;
+        bh=ehCWaSK5UqCJY9APhF526DsVkJj5JKn6u5Mm6VEj4fk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pj2ld8FL6TeWIhNrNa71m0eDv1vmquLsinykhtMcR4LOCKlmW3YFbG6hI8Hi/x2hq
-         7g8uHgXcuoXYVpkb4gZgEA12HLusvJSI6EqE6Gn3PQiDiBaaLcUfM7E9v62FFHjKA3
-         zBQUPQIwCDTsnbi6dTCOmB5D/lElstaP9j1pZZ0o=
+        b=K9u1XZf8cLfSxKE9PQd+kXkb9sCQjafiXWcYhqDfIV7Wot991u4kNv9ugMzFN6mgT
+         pXPR1YBsyh0wYdnU5as0iMTcRO9bkm/Uic0DSInqTC7oJ3EJIoVPMoez9s6I0JlH4s
+         YNA+YNbeWuwS3zosLrhHJHnN6KGYMCCB/vLy0t7U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kan Liang <kan.liang@linux.intel.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Stephane Eranian <eranian@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vince Weaver <vincent.weaver@maine.edu>, acme@kernel.org,
-        jolsa@kernel.org, Ingo Molnar <mingo@kernel.org>,
+        stable@vger.kernel.org,
+        Piotr Figiel <p.figiel@camlintechnologies.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 178/346] perf/x86/intel/cstate: Add Icelake support
+Subject: [PATCH 5.1 253/405] brcmfmac: fix race during disconnect when USB completion is in progress
 Date:   Wed, 29 May 2019 20:04:11 -0700
-Message-Id: <20190530030550.153293463@linuxfoundation.org>
+Message-Id: <20190530030553.773053143@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,42 +45,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f08c47d1f86c6dc666c7e659d94bf6d4492aa9d7 ]
+[ Upstream commit db3b9e2e1d58080d0754bdf9293dabf8c6491b67 ]
 
-Icelake uses the same C-state residency events as Sandy Bridge.
+It was observed that rarely during USB disconnect happening shortly after
+connect (before full initialization completes) usb_hub_wq would wait
+forever for the dev_init_lock to be unlocked. dev_init_lock would remain
+locked though because of infinite wait during usb_kill_urb:
 
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vince Weaver <vincent.weaver@maine.edu>
-Cc: acme@kernel.org
-Cc: jolsa@kernel.org
-Link: https://lkml.kernel.org/r/20190402194509.2832-10-kan.liang@linux.intel.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+[ 2730.656472] kworker/0:2     D    0   260      2 0x00000000
+[ 2730.660700] Workqueue: events request_firmware_work_func
+[ 2730.664807] [<809dca20>] (__schedule) from [<809dd164>] (schedule+0x4c/0xac)
+[ 2730.670587] [<809dd164>] (schedule) from [<8069af44>] (usb_kill_urb+0xdc/0x114)
+[ 2730.676815] [<8069af44>] (usb_kill_urb) from [<7f258b50>] (brcmf_usb_free_q+0x34/0xa8 [brcmfmac])
+[ 2730.684833] [<7f258b50>] (brcmf_usb_free_q [brcmfmac]) from [<7f2517d4>] (brcmf_detach+0xa0/0xb8 [brcmfmac])
+[ 2730.693557] [<7f2517d4>] (brcmf_detach [brcmfmac]) from [<7f251a34>] (brcmf_attach+0xac/0x3d8 [brcmfmac])
+[ 2730.702094] [<7f251a34>] (brcmf_attach [brcmfmac]) from [<7f2587ac>] (brcmf_usb_probe_phase2+0x468/0x4a0 [brcmfmac])
+[ 2730.711601] [<7f2587ac>] (brcmf_usb_probe_phase2 [brcmfmac]) from [<7f252888>] (brcmf_fw_request_done+0x194/0x220 [brcmfmac])
+[ 2730.721795] [<7f252888>] (brcmf_fw_request_done [brcmfmac]) from [<805748e4>] (request_firmware_work_func+0x4c/0x88)
+[ 2730.731125] [<805748e4>] (request_firmware_work_func) from [<80141474>] (process_one_work+0x228/0x808)
+[ 2730.739223] [<80141474>] (process_one_work) from [<80141a80>] (worker_thread+0x2c/0x564)
+[ 2730.746105] [<80141a80>] (worker_thread) from [<80147bcc>] (kthread+0x13c/0x16c)
+[ 2730.752227] [<80147bcc>] (kthread) from [<801010b4>] (ret_from_fork+0x14/0x20)
+
+[ 2733.099695] kworker/0:3     D    0  1065      2 0x00000000
+[ 2733.103926] Workqueue: usb_hub_wq hub_event
+[ 2733.106914] [<809dca20>] (__schedule) from [<809dd164>] (schedule+0x4c/0xac)
+[ 2733.112693] [<809dd164>] (schedule) from [<809e2a8c>] (schedule_timeout+0x214/0x3e4)
+[ 2733.119621] [<809e2a8c>] (schedule_timeout) from [<809dde2c>] (wait_for_common+0xc4/0x1c0)
+[ 2733.126810] [<809dde2c>] (wait_for_common) from [<7f258d00>] (brcmf_usb_disconnect+0x1c/0x4c [brcmfmac])
+[ 2733.135206] [<7f258d00>] (brcmf_usb_disconnect [brcmfmac]) from [<8069e0c8>] (usb_unbind_interface+0x5c/0x1e4)
+[ 2733.143943] [<8069e0c8>] (usb_unbind_interface) from [<8056d3e8>] (device_release_driver_internal+0x164/0x1fc)
+[ 2733.152769] [<8056d3e8>] (device_release_driver_internal) from [<8056c078>] (bus_remove_device+0xd0/0xfc)
+[ 2733.161138] [<8056c078>] (bus_remove_device) from [<8056977c>] (device_del+0x11c/0x310)
+[ 2733.167939] [<8056977c>] (device_del) from [<8069cba8>] (usb_disable_device+0xa0/0x1cc)
+[ 2733.174743] [<8069cba8>] (usb_disable_device) from [<8069507c>] (usb_disconnect+0x74/0x1dc)
+[ 2733.181823] [<8069507c>] (usb_disconnect) from [<80695e88>] (hub_event+0x478/0xf88)
+[ 2733.188278] [<80695e88>] (hub_event) from [<80141474>] (process_one_work+0x228/0x808)
+[ 2733.194905] [<80141474>] (process_one_work) from [<80141a80>] (worker_thread+0x2c/0x564)
+[ 2733.201724] [<80141a80>] (worker_thread) from [<80147bcc>] (kthread+0x13c/0x16c)
+[ 2733.207913] [<80147bcc>] (kthread) from [<801010b4>] (ret_from_fork+0x14/0x20)
+
+It was traced down to a case where usb_kill_urb would be called on an URB
+structure containing more or less random data, including large number in
+its use_count. During the debugging it appeared that in brcmf_usb_free_q()
+the traversal over URBs' lists is not synchronized with operations on those
+lists in brcmf_usb_rx_complete() leading to handling
+brcmf_usbdev_info structure (holding lists' head) as lists' element and in
+result causing above problem.
+
+Fix it by walking through all URBs during brcmf_cancel_all_urbs using the
+arrays of requests instead of linked lists.
+
+Signed-off-by: Piotr Figiel <p.figiel@camlintechnologies.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/intel/cstate.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/events/intel/cstate.c b/arch/x86/events/intel/cstate.c
-index 56194c571299f..4a650eb3d94a3 100644
---- a/arch/x86/events/intel/cstate.c
-+++ b/arch/x86/events/intel/cstate.c
-@@ -584,6 +584,8 @@ static const struct x86_cpu_id intel_cstates_match[] __initconst = {
- 	X86_CSTATES_MODEL(INTEL_FAM6_ATOM_GOLDMONT_X, glm_cstates),
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c
+index a513990cd1d6a..81e1842f1d8c1 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c
+@@ -682,12 +682,18 @@ static int brcmf_usb_up(struct device *dev)
  
- 	X86_CSTATES_MODEL(INTEL_FAM6_ATOM_GOLDMONT_PLUS, glm_cstates),
+ static void brcmf_cancel_all_urbs(struct brcmf_usbdev_info *devinfo)
+ {
++	int i;
 +
-+	X86_CSTATES_MODEL(INTEL_FAM6_ICELAKE_MOBILE, snb_cstates),
- 	{ },
- };
- MODULE_DEVICE_TABLE(x86cpu, intel_cstates_match);
+ 	if (devinfo->ctl_urb)
+ 		usb_kill_urb(devinfo->ctl_urb);
+ 	if (devinfo->bulk_urb)
+ 		usb_kill_urb(devinfo->bulk_urb);
+-	brcmf_usb_free_q(&devinfo->tx_postq, true);
+-	brcmf_usb_free_q(&devinfo->rx_postq, true);
++	if (devinfo->tx_reqs)
++		for (i = 0; i < devinfo->bus_pub.ntxq; i++)
++			usb_kill_urb(devinfo->tx_reqs[i].urb);
++	if (devinfo->rx_reqs)
++		for (i = 0; i < devinfo->bus_pub.nrxq; i++)
++			usb_kill_urb(devinfo->rx_reqs[i].urb);
+ }
+ 
+ static void brcmf_usb_down(struct device *dev)
 -- 
 2.20.1
 
