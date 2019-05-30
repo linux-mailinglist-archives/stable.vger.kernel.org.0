@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E3472EBB5
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:16:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F127F2F0BF
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:07:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730233AbfE3DPU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:15:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38176 "EHLO mail.kernel.org"
+        id S1726527AbfE3EG5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:06:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730214AbfE3DPU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:15:20 -0400
+        id S1731142AbfE3DRb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:17:31 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9A0DA2457F;
-        Thu, 30 May 2019 03:15:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AA45C24688;
+        Thu, 30 May 2019 03:17:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186118;
-        bh=LzKJXOeiQ17vHM3+ckSUF66amKUIRGoN2NeYO7IoEGU=;
+        s=default; t=1559186250;
+        bh=TLQ6wRuSyYf00wfdWZw3VLwozrQHQv4iyOZqob7MM3A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1QGnyzd2mAdtdtvkVMHyxhxQLZswQ62PWT3bqCN348zSBJzPyLUFZ8Xsfu4XM5+FW
-         66RxRTkLnxDRQz4k4yLC9ndaYtg5gVO0Mkx1cuywYZT/0WCdmSprxBtGdVTSoDHPJg
-         e3j7CPzsZxGf7zT8Y0XQ5Mlfzc1KscCuuyr/Z9m0=
+        b=ZIUX1oja/C/pu7m7l/2RT4iWISdqkdrFdjN/uB/6PdEsfhUCfdOoG1bQ7siA3gBTG
+         ihFbdDmbNoaO+VH4nBqjkCCsXrckUg/qa9lNpflmjYHfgcIT6gMau2RCt1qMJxclbd
+         gA/nSBep1GuaiFI8oJmgJWM3uwqlleIqbSnxfT4E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sowjanya Komatineni <skomatineni@nvidia.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Jonas Karlman <jonas@kwiboo.se>,
+        Randy Li <ayaka@soulik.info>,
+        Douglas Anderson <dianders@chromium.org>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 255/346] spi: tegra114: reset controller on probe
+Subject: [PATCH 4.19 170/276] clk: rockchip: Fix video codec clocks on rk3288
 Date:   Wed, 29 May 2019 20:05:28 -0700
-Message-Id: <20190530030553.921625409@linuxfoundation.org>
+Message-Id: <20190530030536.018618665@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,104 +46,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 019194933339b3e9b486639c8cb3692020844d65 ]
+[ Upstream commit 00c0cd9e59d265b393553e9afa54fee8b10e8158 ]
 
-Fixes: SPI driver can be built as module so perform SPI controller reset
-on probe to make sure it is in valid state before initiating transfer.
+It appears that there is a typo in the rk3288 TRM.  For
+GRF_SOC_CON0[7] it says that 0 means "vepu" and 1 means "vdpu".  It's
+the other way around.
 
-Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+How do I know?  Here's my evidence:
+
+1. Prior to commit 4d3e84f99628 ("clk: rockchip: describe aclk_vcodec
+   using the new muxgrf type on rk3288") we always pretended that we
+   were using "aclk_vdpu" and the comment in the code said that this
+   matched the default setting in the system.  In fact the default
+   setting is 0 according to the TRM and according to reading memory
+   at bootup.  In addition rk3288-based Chromebooks ran like this and
+   the video codecs worked.
+2. With the existing clock code if you boot up and try to enable the
+   new VIDEO_ROCKCHIP_VPU as a module (and without "clk_ignore_unused"
+   on the command line), you get errors like "failed to get ack on
+   domain 'pd_video', val=0x80208".  After flipping vepu/vdpu things
+   init OK.
+3. If I export and add both the vepu and vdpu to the list of clocks
+   for RK3288_PD_VIDEO I can get past the power domain errors, but now
+   I freeze when the vpu_mmu gets initted.
+4. If I just mark the "vdpu" as IGNORE_UNUSED then everything boots up
+   and probes OK showing that somehow the "vdpu" was important to keep
+   enabled.  This is because we were actually using it as a parent.
+5. After this change I can hack "aclk_vcodec_pre" to parent from
+   "aclk_vepu" using assigned-clocks and the video codec still probes
+   OK.
+6. Rockchip has said so on the mailing list [1].
+
+...so let's fix it.
+
+Let's also add CLK_SET_RATE_PARENT to "aclk_vcodec_pre" as suggested
+by Jonas Karlman.  Prior to the same commit you could do
+clk_set_rate() on "aclk_vcodec" and it would change "aclk_vdpu".
+That's because "aclk_vcodec" was a simple gate clock (always gets
+CLK_SET_RATE_PARENT) and its direct parent was "aclk_vdpu".  After
+that commit "aclk_vcodec_pre" gets in the way so we need to add
+CLK_SET_RATE_PARENT to it too.
+
+[1] https://lkml.kernel.org/r/1d17b015-9e17-34b9-baf8-c285dc1957aa@rock-chips.com
+
+Fixes: 4d3e84f99628 ("clk: rockchip: describe aclk_vcodec using the new muxgrf type on rk3288")
+Suggested-by: Jonas Karlman <jonas@kwiboo.se>
+Suggested-by: Randy Li <ayaka@soulik.info>
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-tegra114.c | 32 ++++++++++++++++++--------------
- 1 file changed, 18 insertions(+), 14 deletions(-)
+ drivers/clk/rockchip/clk-rk3288.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/spi/spi-tegra114.c b/drivers/spi/spi-tegra114.c
-index a76acedd7e2f4..a1888dc6a938a 100644
---- a/drivers/spi/spi-tegra114.c
-+++ b/drivers/spi/spi-tegra114.c
-@@ -1067,27 +1067,19 @@ static int tegra_spi_probe(struct platform_device *pdev)
+diff --git a/drivers/clk/rockchip/clk-rk3288.c b/drivers/clk/rockchip/clk-rk3288.c
+index 45cd2897e586b..c6cd6d28af56f 100644
+--- a/drivers/clk/rockchip/clk-rk3288.c
++++ b/drivers/clk/rockchip/clk-rk3288.c
+@@ -198,7 +198,7 @@ PNAME(mux_hsadcout_p)	= { "hsadc_src", "ext_hsadc" };
+ PNAME(mux_edp_24m_p)	= { "ext_edp_24m", "xin24m" };
+ PNAME(mux_tspout_p)	= { "cpll", "gpll", "npll", "xin27m" };
  
- 	spi_irq = platform_get_irq(pdev, 0);
- 	tspi->irq = spi_irq;
--	ret = request_threaded_irq(tspi->irq, tegra_spi_isr,
--			tegra_spi_isr_thread, IRQF_ONESHOT,
--			dev_name(&pdev->dev), tspi);
--	if (ret < 0) {
--		dev_err(&pdev->dev, "Failed to register ISR for IRQ %d\n",
--					tspi->irq);
--		goto exit_free_master;
--	}
- 
- 	tspi->clk = devm_clk_get(&pdev->dev, "spi");
- 	if (IS_ERR(tspi->clk)) {
- 		dev_err(&pdev->dev, "can not get clock\n");
- 		ret = PTR_ERR(tspi->clk);
--		goto exit_free_irq;
-+		goto exit_free_master;
- 	}
- 
- 	tspi->rst = devm_reset_control_get_exclusive(&pdev->dev, "spi");
- 	if (IS_ERR(tspi->rst)) {
- 		dev_err(&pdev->dev, "can not get reset\n");
- 		ret = PTR_ERR(tspi->rst);
--		goto exit_free_irq;
-+		goto exit_free_master;
- 	}
- 
- 	tspi->max_buf_size = SPI_FIFO_DEPTH << 2;
-@@ -1095,7 +1087,7 @@ static int tegra_spi_probe(struct platform_device *pdev)
- 
- 	ret = tegra_spi_init_dma_param(tspi, true);
- 	if (ret < 0)
--		goto exit_free_irq;
-+		goto exit_free_master;
- 	ret = tegra_spi_init_dma_param(tspi, false);
- 	if (ret < 0)
- 		goto exit_rx_dma_free;
-@@ -1117,18 +1109,32 @@ static int tegra_spi_probe(struct platform_device *pdev)
- 		dev_err(&pdev->dev, "pm runtime get failed, e = %d\n", ret);
- 		goto exit_pm_disable;
- 	}
-+
-+	reset_control_assert(tspi->rst);
-+	udelay(2);
-+	reset_control_deassert(tspi->rst);
- 	tspi->def_command1_reg  = SPI_M_S;
- 	tegra_spi_writel(tspi, tspi->def_command1_reg, SPI_COMMAND1);
- 	pm_runtime_put(&pdev->dev);
-+	ret = request_threaded_irq(tspi->irq, tegra_spi_isr,
-+				   tegra_spi_isr_thread, IRQF_ONESHOT,
-+				   dev_name(&pdev->dev), tspi);
-+	if (ret < 0) {
-+		dev_err(&pdev->dev, "Failed to register ISR for IRQ %d\n",
-+			tspi->irq);
-+		goto exit_pm_disable;
-+	}
- 
- 	master->dev.of_node = pdev->dev.of_node;
- 	ret = devm_spi_register_master(&pdev->dev, master);
- 	if (ret < 0) {
- 		dev_err(&pdev->dev, "can not register to master err %d\n", ret);
--		goto exit_pm_disable;
-+		goto exit_free_irq;
- 	}
- 	return ret;
- 
-+exit_free_irq:
-+	free_irq(spi_irq, tspi);
- exit_pm_disable:
- 	pm_runtime_disable(&pdev->dev);
- 	if (!pm_runtime_status_suspended(&pdev->dev))
-@@ -1136,8 +1142,6 @@ static int tegra_spi_probe(struct platform_device *pdev)
- 	tegra_spi_deinit_dma_param(tspi, false);
- exit_rx_dma_free:
- 	tegra_spi_deinit_dma_param(tspi, true);
--exit_free_irq:
--	free_irq(spi_irq, tspi);
- exit_free_master:
- 	spi_master_put(master);
- 	return ret;
+-PNAME(mux_aclk_vcodec_pre_p)	= { "aclk_vepu", "aclk_vdpu" };
++PNAME(mux_aclk_vcodec_pre_p)	= { "aclk_vdpu", "aclk_vepu" };
+ PNAME(mux_usbphy480m_p)		= { "sclk_otgphy1_480m", "sclk_otgphy2_480m",
+ 				    "sclk_otgphy0_480m" };
+ PNAME(mux_hsicphy480m_p)	= { "cpll", "gpll", "usbphy480m_src" };
+@@ -399,7 +399,7 @@ static struct rockchip_clk_branch rk3288_clk_branches[] __initdata = {
+ 	COMPOSITE(0, "aclk_vdpu", mux_pll_src_cpll_gpll_usb480m_p, 0,
+ 			RK3288_CLKSEL_CON(32), 14, 2, MFLAGS, 8, 5, DFLAGS,
+ 			RK3288_CLKGATE_CON(3), 11, GFLAGS),
+-	MUXGRF(0, "aclk_vcodec_pre", mux_aclk_vcodec_pre_p, 0,
++	MUXGRF(0, "aclk_vcodec_pre", mux_aclk_vcodec_pre_p, CLK_SET_RATE_PARENT,
+ 			RK3288_GRF_SOC_CON(0), 7, 1, MFLAGS),
+ 	GATE(ACLK_VCODEC, "aclk_vcodec", "aclk_vcodec_pre", 0,
+ 		RK3288_CLKGATE_CON(9), 0, GFLAGS),
 -- 
 2.20.1
 
