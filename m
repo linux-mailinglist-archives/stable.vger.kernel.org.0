@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 16CB02EC6C
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:22:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 608C82F1C2
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:15:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731111AbfE3DUp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:20:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59750 "EHLO mail.kernel.org"
+        id S1729553AbfE3EPh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:15:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732312AbfE3DUo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:20:44 -0400
+        id S1730554AbfE3DP7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:15:59 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E9C524934;
-        Thu, 30 May 2019 03:20:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1378C245A9;
+        Thu, 30 May 2019 03:15:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186444;
-        bh=tZflS49DPNtO7Lc38JLA01S4YHi42nusf2afGwu/Y7Q=;
+        s=default; t=1559186159;
+        bh=C1aHfw0Q7zVSrkpSO8pPer+mYBC/MxfNZLuffaxO7RU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z38nWaLz4LH60RyyDxLeMkFQcv/sER9h34wnpjCYDXkAfJunR9fZtlqw/hscNcuIm
-         mv3tgzecGGgLSwo0PCxQWeSP9yTldaoQfuV+2qn39wr9avw9Cl3IUwGFH/DwitH+eN
-         3FFBN8lBao6NqJ0Gp5tIvii95nkFd2Bpv0qMyY8M=
+        b=VRjAo5HJFjSHcYPQ+fnVffBaEr5Jm+csQl7qeW+hyIfDkhOKChXJbuuxgyt+O4vjJ
+         raz9JTB6+0OtpcdHk3STyaa/uo9OyfpYBsVYg8EbPkUsD4bgwOex5Zj326J608Y3O9
+         POpIvscMV4U6XiG7cntYVEpXEPBYNRJkSQkQe1YM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Coly Li <colyli@suse.de>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 049/128] bcache: avoid clang -Wunintialized warning
+Subject: [PATCH 5.0 308/346] media: vimc: zero the media_device on probe
 Date:   Wed, 29 May 2019 20:06:21 -0700
-Message-Id: <20190530030443.598433870@linuxfoundation.org>
+Message-Id: <20190530030556.437436593@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
-References: <20190530030432.977908967@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,73 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 78d4eb8ad9e1d413449d1b7a060f50b6efa81ebd ]
+[ Upstream commit f74267b51cb36321f777807b2e04ca02167ecc08 ]
 
-clang has identified a code path in which it thinks a
-variable may be unused:
+The media_device is part of a static global vimc_device struct.
+The media framework expects this to be zeroed before it is
+used, however, since this is a global this is not the case if
+vimc is unbound and then bound again.
 
-drivers/md/bcache/alloc.c:333:4: error: variable 'bucket' is used uninitialized whenever 'if' condition is false
-      [-Werror,-Wsometimes-uninitialized]
-                        fifo_pop(&ca->free_inc, bucket);
-                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-drivers/md/bcache/util.h:219:27: note: expanded from macro 'fifo_pop'
- #define fifo_pop(fifo, i)       fifo_pop_front(fifo, (i))
-                                ^~~~~~~~~~~~~~~~~~~~~~~~~
-drivers/md/bcache/util.h:189:6: note: expanded from macro 'fifo_pop_front'
-        if (_r) {                                                       \
-            ^~
-drivers/md/bcache/alloc.c:343:46: note: uninitialized use occurs here
-                        allocator_wait(ca, bch_allocator_push(ca, bucket));
-                                                                  ^~~~~~
-drivers/md/bcache/alloc.c:287:7: note: expanded from macro 'allocator_wait'
-                if (cond)                                               \
-                    ^~~~
-drivers/md/bcache/alloc.c:333:4: note: remove the 'if' if its condition is always true
-                        fifo_pop(&ca->free_inc, bucket);
-                        ^
-drivers/md/bcache/util.h:219:27: note: expanded from macro 'fifo_pop'
- #define fifo_pop(fifo, i)       fifo_pop_front(fifo, (i))
-                                ^
-drivers/md/bcache/util.h:189:2: note: expanded from macro 'fifo_pop_front'
-        if (_r) {                                                       \
-        ^
-drivers/md/bcache/alloc.c:331:15: note: initialize the variable 'bucket' to silence this warning
-                        long bucket;
-                                   ^
+So call memset to ensure any left-over values are cleared.
 
-This cannot happen in practice because we only enter the loop
-if there is at least one element in the list.
-
-Slightly rearranging the code makes this clearer to both the
-reader and the compiler, which avoids the warning.
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Coly Li <colyli@suse.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/bcache/alloc.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/media/platform/vimc/vimc-core.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/md/bcache/alloc.c b/drivers/md/bcache/alloc.c
-index dd344ee9e62b7..ebacd21714efa 100644
---- a/drivers/md/bcache/alloc.c
-+++ b/drivers/md/bcache/alloc.c
-@@ -322,10 +322,11 @@ static int bch_allocator_thread(void *arg)
- 		 * possibly issue discards to them, then we add the bucket to
- 		 * the free list:
- 		 */
--		while (!fifo_empty(&ca->free_inc)) {
-+		while (1) {
- 			long bucket;
+diff --git a/drivers/media/platform/vimc/vimc-core.c b/drivers/media/platform/vimc/vimc-core.c
+index ce809d2e3d537..64eb424c15ab9 100644
+--- a/drivers/media/platform/vimc/vimc-core.c
++++ b/drivers/media/platform/vimc/vimc-core.c
+@@ -303,6 +303,8 @@ static int vimc_probe(struct platform_device *pdev)
  
--			fifo_pop(&ca->free_inc, bucket);
-+			if (!fifo_pop(&ca->free_inc, bucket))
-+				break;
+ 	dev_dbg(&pdev->dev, "probe");
  
- 			if (ca->discard) {
- 				mutex_unlock(&ca->set->bucket_lock);
++	memset(&vimc->mdev, 0, sizeof(vimc->mdev));
++
+ 	/* Create platform_device for each entity in the topology*/
+ 	vimc->subdevs = devm_kcalloc(&vimc->pdev.dev, vimc->pipe_cfg->num_ents,
+ 				     sizeof(*vimc->subdevs), GFP_KERNEL);
 -- 
 2.20.1
 
