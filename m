@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D02742F580
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:48:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B1522F39D
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:33:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728673AbfE3Ert (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:47:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50990 "EHLO mail.kernel.org"
+        id S1730419AbfE3EaN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:30:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728545AbfE3DL0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:11:26 -0400
+        id S1728729AbfE3DN4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:13:56 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8E42F24482;
-        Thu, 30 May 2019 03:11:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5415124570;
+        Thu, 30 May 2019 03:13:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185885;
-        bh=LTGs/ZQ0ZWor2mCV+mT5jRrLzyYC3NSzLDS7oOfHpEM=;
+        s=default; t=1559186035;
+        bh=B0kkcBhPPymQtbiVsDOq5fIlhZphzUPVBtAroCUNc0s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oGMtPZX9LdSvmOoUoXgKD7gSYpotlYmB9xDaepx22Ifg16Dl6IP0OCCghSEBzU0GS
-         WczEfK3dPg7oe/pkeqtGySN2mKrlOpWmB35rGnZdhon+8sLyuDlN1kflMTAfRk2WWq
-         ztbEmBKQothkTcHFrJ+7ffiQST530gdjEv+PvXSM=
+        b=uvByfgqNMJ08zI2yoh++BZ44mdkXCvG8wI8OU1LFweC3hNJZt9BG+0g1oaC3u0G9+
+         +HfY8PUyQcqWPvNevY8TipZqBckPQv0Z0nvmq9zrCJ36PJjsHV5vjkEWNPSpst4Xql
+         SHeMWmviQ4OTahSHEbwYa56irmExjJ6n1XZubJjE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
-        MyungJoo Ham <myungjoo.ham@samsung.com>,
+        stable@vger.kernel.org, Parav Pandit <parav@mellanox.com>,
+        Daniel Jurgens <danielj@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 196/405] PM / devfreq: Fix static checker warning in try_then_request_governor
+Subject: [PATCH 5.0 121/346] RDMA/cma: Consider scope_id while binding to ipv6 ll address
 Date:   Wed, 29 May 2019 20:03:14 -0700
-Message-Id: <20190530030550.927772449@linuxfoundation.org>
+Message-Id: <20190530030547.206456234@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,51 +46,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit b53b0128052ffd687797d5f4deeb76327e7b5711 ]
+[ Upstream commit 5d7ed2f27bbd482fd29e6b2e204b1a1ee8a0b268 ]
 
-The patch 23c7b54ca1cd: "PM / devfreq: Fix devfreq_add_device() when
-drivers are built as modules." leads to the following static checker
-warning:
+When two netdev have same link local addresses (such as vlan and non
+vlan), two rdma cm listen id should be able to bind to following different
+addresses.
 
-    drivers/devfreq/devfreq.c:1043 governor_store()
-    warn: 'governor' can also be NULL
+listener-1: addr=lla, scope_id=A, port=X
+listener-2: addr=lla, scope_id=B, port=X
 
-The reason is that the try_then_request_governor() function returns both
-error pointers and NULL. It should just return error pointers, so fix
-this by returning a ERR_PTR to the error intead of returning NULL.
+However while comparing the addresses only addr and port are considered,
+due to which 2nd listener fails to listen.
 
-Fixes: 23c7b54ca1cd ("PM / devfreq: Fix devfreq_add_device() when drivers are built as modules.")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
-Reviewed-by: Chanwoo Choi <cw00.choi@samsung.com>
-Signed-off-by: MyungJoo Ham <myungjoo.ham@samsung.com>
+In below example of two listeners, 2nd listener is failing with address in
+use error.
+
+$ rping -sv -a fe80::268a:7ff:feb3:d113%ens2f1 -p 4545&
+
+$ rping -sv -a fe80::268a:7ff:feb3:d113%ens2f1.200 -p 4545
+rdma_bind_addr: Address already in use
+
+To overcome this, consider the scope_ids as well which forms the accurate
+IPv6 link local address.
+
+Signed-off-by: Parav Pandit <parav@mellanox.com>
+Reviewed-by: Daniel Jurgens <danielj@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/devfreq/devfreq.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/infiniband/core/cma.c | 25 +++++++++++++++++++------
+ 1 file changed, 19 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/devfreq/devfreq.c b/drivers/devfreq/devfreq.c
-index 0ae3de76833b7..839621b044f49 100644
---- a/drivers/devfreq/devfreq.c
-+++ b/drivers/devfreq/devfreq.c
-@@ -228,7 +228,7 @@ static struct devfreq_governor *find_devfreq_governor(const char *name)
-  * if is not found. This can happen when both drivers (the governor driver
-  * and the driver that call devfreq_add_device) are built as modules.
-  * devfreq_list_lock should be held by the caller. Returns the matched
-- * governor's pointer.
-+ * governor's pointer or an error pointer.
-  */
- static struct devfreq_governor *try_then_request_governor(const char *name)
- {
-@@ -254,7 +254,7 @@ static struct devfreq_governor *try_then_request_governor(const char *name)
- 		/* Restore previous state before return */
- 		mutex_lock(&devfreq_list_lock);
- 		if (err)
--			return NULL;
-+			return ERR_PTR(err);
+diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
+index 81bded0d37d1e..cb482f3389504 100644
+--- a/drivers/infiniband/core/cma.c
++++ b/drivers/infiniband/core/cma.c
+@@ -1170,18 +1170,31 @@ static inline bool cma_any_addr(const struct sockaddr *addr)
+ 	return cma_zero_addr(addr) || cma_loopback_addr(addr);
+ }
  
- 		governor = find_devfreq_governor(name);
- 	}
+-static int cma_addr_cmp(struct sockaddr *src, struct sockaddr *dst)
++static int cma_addr_cmp(const struct sockaddr *src, const struct sockaddr *dst)
+ {
+ 	if (src->sa_family != dst->sa_family)
+ 		return -1;
+ 
+ 	switch (src->sa_family) {
+ 	case AF_INET:
+-		return ((struct sockaddr_in *) src)->sin_addr.s_addr !=
+-		       ((struct sockaddr_in *) dst)->sin_addr.s_addr;
+-	case AF_INET6:
+-		return ipv6_addr_cmp(&((struct sockaddr_in6 *) src)->sin6_addr,
+-				     &((struct sockaddr_in6 *) dst)->sin6_addr);
++		return ((struct sockaddr_in *)src)->sin_addr.s_addr !=
++		       ((struct sockaddr_in *)dst)->sin_addr.s_addr;
++	case AF_INET6: {
++		struct sockaddr_in6 *src_addr6 = (struct sockaddr_in6 *)src;
++		struct sockaddr_in6 *dst_addr6 = (struct sockaddr_in6 *)dst;
++		bool link_local;
++
++		if (ipv6_addr_cmp(&src_addr6->sin6_addr,
++					  &dst_addr6->sin6_addr))
++			return 1;
++		link_local = ipv6_addr_type(&dst_addr6->sin6_addr) &
++			     IPV6_ADDR_LINKLOCAL;
++		/* Link local must match their scope_ids */
++		return link_local ? (src_addr6->sin6_scope_id !=
++				     dst_addr6->sin6_scope_id) :
++				    0;
++	}
++
+ 	default:
+ 		return ib_addr_cmp(&((struct sockaddr_ib *) src)->sib_addr,
+ 				   &((struct sockaddr_ib *) dst)->sib_addr);
 -- 
 2.20.1
 
