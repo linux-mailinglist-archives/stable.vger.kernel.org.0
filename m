@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 902C92F4B8
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:42:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA8B42EE59
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:47:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729080AbfE3Ekz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:40:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55166 "EHLO mail.kernel.org"
+        id S1732240AbfE3DUd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:20:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729040AbfE3DM2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:12:28 -0400
+        id S1732235AbfE3DUc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:20:32 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 59A3521BE2;
-        Thu, 30 May 2019 03:12:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2FD78248C3;
+        Thu, 30 May 2019 03:20:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185948;
-        bh=bYZ7HeSZb8851DyKUc2Ht8f0mLDiJa48lCbIpn2UIEQ=;
+        s=default; t=1559186432;
+        bh=DAzweQMGmYgLZ4SGVEZjbKvDh41CeFf+yhPVel4pdOk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VhgIMBn3dGBBx5tKms8ZXh4habFhD+GOcvCrbBacuILSO+54Wb8oqOjN0NfIVLQ/H
-         aUa3joIn/2VqtCgy7cxPBHhI/nSKi5bFbv+WlKYuXSob50V3JwBC6swBPOuqAFdPmM
-         P+BzpDfl40Ei+5F4C2migNgB4R1RMGUc42w3VD4w=
+        b=gaWr85E1FpfjgUmlGA92JhhxgQZTlFqByLTMacSNwLcLlYgYTFIfRxIawJ9Bo32uB
+         TZSO0FhJatPHs00RvHxx5XseciBW+qLpvw+fy97kkqO2Hz/o6pF5U8rsW8AN7ruvpY
+         R2rkMAWIZwMWqoM61DIvik/MDP2HbfpEn3ZaOAwc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Avri Altman <avri.altman@wdc.com>,
+        Raul E Rangel <rrangel@chromium.org>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 359/405] media: vimc: zero the media_device on probe
+Subject: [PATCH 4.9 025/128] mmc: core: Verify SD bus width
 Date:   Wed, 29 May 2019 20:05:57 -0700
-Message-Id: <20190530030558.782590967@linuxfoundation.org>
+Message-Id: <20190530030439.381967370@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
+References: <20190530030432.977908967@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,36 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f74267b51cb36321f777807b2e04ca02167ecc08 ]
+[ Upstream commit 9e4be8d03f50d1b25c38e2b59e73b194c130df7d ]
 
-The media_device is part of a static global vimc_device struct.
-The media framework expects this to be zeroed before it is
-used, however, since this is a global this is not the case if
-vimc is unbound and then bound again.
+The SD Physical Layer Spec says the following: Since the SD Memory Card
+shall support at least the two bus modes 1-bit or 4-bit width, then any SD
+Card shall set at least bits 0 and 2 (SD_BUS_WIDTH="0101").
 
-So call memset to ensure any left-over values are cleared.
+This change verifies the card has specified a bus width.
 
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+AMD SDHC Device 7806 can get into a bad state after a card disconnect
+where anything transferred via the DATA lines will always result in a
+zero filled buffer. Currently the driver will continue without error if
+the HC is in this condition. A block device will be created, but reading
+from it will result in a zero buffer. This makes it seem like the SD
+device has been erased, when in actuality the data is never getting
+copied from the DATA lines to the data buffer.
+
+SCR is the first command in the SD initialization sequence that uses the
+DATA lines. By checking that the response was invalid, we can abort
+mounting the card.
+
+Reviewed-by: Avri Altman <avri.altman@wdc.com>
+Signed-off-by: Raul E Rangel <rrangel@chromium.org>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/vimc/vimc-core.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/mmc/core/sd.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/media/platform/vimc/vimc-core.c b/drivers/media/platform/vimc/vimc-core.c
-index 0fbb7914098f6..3aa62d7e3d0e0 100644
---- a/drivers/media/platform/vimc/vimc-core.c
-+++ b/drivers/media/platform/vimc/vimc-core.c
-@@ -304,6 +304,8 @@ static int vimc_probe(struct platform_device *pdev)
+diff --git a/drivers/mmc/core/sd.c b/drivers/mmc/core/sd.c
+index f09148a4ab557..00ba8807dafe4 100644
+--- a/drivers/mmc/core/sd.c
++++ b/drivers/mmc/core/sd.c
+@@ -214,6 +214,14 @@ static int mmc_decode_scr(struct mmc_card *card)
  
- 	dev_dbg(&pdev->dev, "probe");
- 
-+	memset(&vimc->mdev, 0, sizeof(vimc->mdev));
+ 	if (scr->sda_spec3)
+ 		scr->cmds = UNSTUFF_BITS(resp, 32, 2);
 +
- 	/* Create platform_device for each entity in the topology*/
- 	vimc->subdevs = devm_kcalloc(&vimc->pdev.dev, vimc->pipe_cfg->num_ents,
- 				     sizeof(*vimc->subdevs), GFP_KERNEL);
++	/* SD Spec says: any SD Card shall set at least bits 0 and 2 */
++	if (!(scr->bus_widths & SD_SCR_BUS_WIDTH_1) ||
++	    !(scr->bus_widths & SD_SCR_BUS_WIDTH_4)) {
++		pr_err("%s: invalid bus width\n", mmc_hostname(card->host));
++		return -EINVAL;
++	}
++
+ 	return 0;
+ }
+ 
 -- 
 2.20.1
 
