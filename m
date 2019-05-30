@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 426F72F5E6
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:51:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A0962EB90
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:14:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727695AbfE3EvM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:51:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49534 "EHLO mail.kernel.org"
+        id S1729625AbfE3DNy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:13:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60456 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728307AbfE3DK7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:10:59 -0400
+        id S1728697AbfE3DNx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:13:53 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B3B60244E5;
-        Thu, 30 May 2019 03:10:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AFA2E24547;
+        Thu, 30 May 2019 03:13:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185858;
-        bh=6dIRTKo7ssCP3K7R1QhywNBy8AjmoCkBO+6/RAJolpM=;
+        s=default; t=1559186032;
+        bh=NP9GJwS7GdR8uLfmWhGAHZP3f6D5LrFqhmkGBFMjYQ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nrl90rneYNy4ZDBmb/xcTRvRAn0r1MYeOwc2NdYCzMYKYqsvtXeIfKfRCgUhOLBnk
-         t7ZDrzTQZXnnaOVGl3j17OTRTGWvOfrmQVnzZo/3fN5MUZ1bkNxOzw3OoAWMlN7sX6
-         CPMyiH3JMxntGZsLbhyfMdIJ1xx2SKVowY3vrV9g=
+        b=10zfsgnnuk3vStWlMwiypVZcsKMid6nlYIAF57WLcWrFT/2E1s3tkA1XmbmLmI3gI
+         neaWpS0VGqwpWg80Gcd0ZDz2sEeDtWiv/kzNWy/J1MniYAAbQ/rDl0C/PoSlHI7vNI
+         0HvfS1QR0lzTo/6nlgHAZiwBx0I+PBWqAcbr1SIw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Sean Wang <sean.wang@mediatek.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 145/405] Bluetooth: mediatek: Fixed incorrect type in assignment
+Subject: [PATCH 5.0 070/346] spi: atmel-quadspi: fix crash while suspending
 Date:   Wed, 29 May 2019 20:02:23 -0700
-Message-Id: <20190530030548.463626535@linuxfoundation.org>
+Message-Id: <20190530030544.608765568@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,65 +46,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit cac63f9b163700fb70a609ad220697c61b797d6b ]
+[ Upstream commit e5c27498a0403b270620b1a8a0a66e3efc222fb6 ]
 
-Fixed warning: incorrect type in assignment reported by kbuild test robot.
-The detailed warning is shown as below.
+atmel_qspi objects are kept in spi_controller objects, so, first get
+pointer to spi_controller object and then get atmel_qspi object from
+spi_controller object.
 
-make ARCH=x86_64 allmodconfig
-make C=1 CF='-fdiagnostic-prefix -D__CHECK_ENDIAN__'
-
-All warnings (new ones prefixed by >>):
-
-btmtkuart.c:671:18: sparse:    warning: incorrect type in assignment
-			       (different base types)
-btmtkuart.c:671:18: sparse:    expected unsigned int [usertype] baudrate
-btmtkuart.c:671:18: sparse:    got restricted __le32 [usertype]
-
-sparse warnings: (new ones prefixed by >>)
-btmtkuart.c:671:18: sparse: warning: incorrect type in assignment
-			       (different base types)
-btmtkuart.c:671:18: sparse:    expected unsigned int [usertype] baudrate
-btmtkuart.c:671:18: sparse:    got restricted __le32 [usertype]
-
-vim +671 drivers/bluetooth/btmtkuart.c
-
-   659
-   660	static int btmtkuart_change_baudrate(struct hci_dev *hdev)
-   661	{
-   662		struct btmtkuart_dev *bdev = hci_get_drvdata(hdev);
-   663		struct btmtk_hci_wmt_params wmt_params;
-   664		u32 baudrate;
-   665		u8 param;
-   666		int err;
-   667
-   668		/* Indicate the device to enter the probe state the host is
-   669		 * ready to change a new baudrate.
-   670		 */
- > 671		baudrate = cpu_to_le32(bdev->desired_speed);
-   672		wmt_params.op = MTK_WMT_HIF;
-
-Fixes: 22eaf6c9946a ("Bluetooth: mediatek: add support for MediaTek MT7663U and MT7668U UART devices")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Sean Wang <sean.wang@mediatek.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Fixes: 2d30ac5ed633 ("mtd: spi-nor: atmel-quadspi: Use spi-mem interface for atmel-quadspi driver")
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Reviewed-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/btmtkuart.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/spi/atmel-quadspi.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/bluetooth/btmtkuart.c b/drivers/bluetooth/btmtkuart.c
-index b0b680dd69f49..f5dbeec8e2748 100644
---- a/drivers/bluetooth/btmtkuart.c
-+++ b/drivers/bluetooth/btmtkuart.c
-@@ -661,7 +661,7 @@ static int btmtkuart_change_baudrate(struct hci_dev *hdev)
+diff --git a/drivers/spi/atmel-quadspi.c b/drivers/spi/atmel-quadspi.c
+index ddc7124108125..ec6e9970d7750 100644
+--- a/drivers/spi/atmel-quadspi.c
++++ b/drivers/spi/atmel-quadspi.c
+@@ -506,7 +506,8 @@ static int atmel_qspi_remove(struct platform_device *pdev)
+ 
+ static int __maybe_unused atmel_qspi_suspend(struct device *dev)
  {
- 	struct btmtkuart_dev *bdev = hci_get_drvdata(hdev);
- 	struct btmtk_hci_wmt_params wmt_params;
--	u32 baudrate;
-+	__le32 baudrate;
- 	u8 param;
- 	int err;
+-	struct atmel_qspi *aq = dev_get_drvdata(dev);
++	struct spi_controller *ctrl = dev_get_drvdata(dev);
++	struct atmel_qspi *aq = spi_controller_get_devdata(ctrl);
+ 
+ 	clk_disable_unprepare(aq->clk);
+ 
+@@ -515,7 +516,8 @@ static int __maybe_unused atmel_qspi_suspend(struct device *dev)
+ 
+ static int __maybe_unused atmel_qspi_resume(struct device *dev)
+ {
+-	struct atmel_qspi *aq = dev_get_drvdata(dev);
++	struct spi_controller *ctrl = dev_get_drvdata(dev);
++	struct atmel_qspi *aq = spi_controller_get_devdata(ctrl);
+ 
+ 	clk_prepare_enable(aq->clk);
  
 -- 
 2.20.1
