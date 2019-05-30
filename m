@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AFACA2EFB6
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:57:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06DFF2F524
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:46:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727923AbfE3D5u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:57:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52524 "EHLO mail.kernel.org"
+        id S1727963AbfE3DL4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:11:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731698AbfE3DSr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:18:47 -0400
+        id S1728734AbfE3DLz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:11:55 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 17BCE247D8;
-        Thu, 30 May 2019 03:18:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A33B1244B0;
+        Thu, 30 May 2019 03:11:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186326;
-        bh=g3m7bodQ6vo14Ps6d5WWyAcDcR3EOLYJj6Uq2u3ZAMI=;
+        s=default; t=1559185914;
+        bh=DGwY8+PMszvfrhekxgnzEn85BTPXoR99XdKjRFYihnk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nFvRTuS343x1N3T5IyYl91Gt2gfE0XrZ4Jgxbh8HavEi4HZC+01La4al2howbkMu7
-         fvXWxw44rrEyTwS/REPZXtfRfXMpWRd6QhOJu4Zs8AekaCrQHgwG/08htP8oMr4KCP
-         iLvJ/kOXyTR16ZkxEAyb8LfCzCN89iFDb+rJ+dq4=
+        b=0rco3KMreUwsrjXjCnKv63gwh1m+86HnHjkb8HTS4kZ+0zVbiwb6y28u0b75EEVgR
+         mGFU+48stRBMtER6dXH8+ALr/8UdT03INXn73bxyAYrA2LzktUqle/8SV8baNzbWGI
+         veHRjpjW7+41b8s4hY5GLFwFkFl/dXjnqHj+jZaE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ross Lagerwall <ross.lagerwall@citrix.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>,
-        Bob Peterson <rpeterso@redhat.com>,
+        stable@vger.kernel.org, Artemy Kovalyov <artemyko@mellanox.com>,
+        Moni Shoua <monis@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 040/193] gfs2: Fix occasional glock use-after-free
+Subject: [PATCH 5.1 296/405] IB/mlx5: Compare only index part of a memory window rkey
 Date:   Wed, 29 May 2019 20:04:54 -0700
-Message-Id: <20190530030455.027656488@linuxfoundation.org>
+Message-Id: <20190530030555.810274417@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,95 +46,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 9287c6452d2b1f24ea8e84bd3cf6f3c6f267f712 ]
+[ Upstream commit d623dfd2836114507d647c9793a80d213d8bffe8 ]
 
-This patch has to do with the life cycle of glocks and buffers.  When
-gfs2 metadata or journaled data is queued to be written, a gfs2_bufdata
-object is assigned to track the buffer, and that is queued to various
-lists, including the glock's gl_ail_list to indicate it's on the active
-items list.  Once the page associated with the buffer has been written,
-it is removed from the ail list, but its life isn't over until a revoke
-has been successfully written.
+The InfiniBand Architecture Specification section 10.6.7.2.4 TYPE 2 MEMORY
+WINDOWS says that if the CI supports the Base Memory Management Extensions
+defined in this specification, the R_Key format for a Type 2 Memory Window
+must consist of:
 
-So after the block is written, its bufdata object is moved from the
-glock's gl_ail_list to a file-system-wide list of pending revokes,
-sd_log_le_revoke.  At that point the glock still needs to track how many
-revokes it contributed to that list (in gl_revokes) so that things like
-glock go_sync can ensure all the metadata has been not only written, but
-also revoked before the glock is granted to a different node.  This is
-to guarantee journal replay doesn't replay the block once the glock has
-been granted to another node.
+* 24 bit index in the most significant bits of the R_Key, which is owned
+  by the CI, and
+* 8 bit key in the least significant bits of the R_Key, which is owned by
+  the Consumer.
 
-Ross Lagerwall recently discovered a race in which an inode could be
-evicted, and its glock freed after its ail list had been synced, but
-while it still had unwritten revokes on the sd_log_le_revoke list.  The
-evict decremented the glock reference count to zero, which allowed the
-glock to be freed.  After the revoke was written, function
-revoke_lo_after_commit tried to adjust the glock's gl_revokes counter
-and clear its GLF_LFLUSH flag, at which time it referenced the freed
-glock.
+This means that the kernel should compare only the index part of a R_Key
+to determine equality with another R_Key.
 
-This patch fixes the problem by incrementing the glock reference count
-in gfs2_add_revoke when the glock's first bufdata object is moved from
-the glock to the global revokes list. Later, when the glock's last such
-bufdata object is freed, the reference count is decremented. This
-guarantees that whichever process finishes last (the revoke writing or
-the evict) will properly free the glock, and neither will reference the
-glock after it has been freed.
-
-Reported-by: Ross Lagerwall <ross.lagerwall@citrix.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
+Fixes: db570d7deafb ("IB/mlx5: Add ODP support to MW")
+Signed-off-by: Artemy Kovalyov <artemyko@mellanox.com>
+Signed-off-by: Moni Shoua <monis@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/glock.c | 1 +
- fs/gfs2/log.c   | 3 ++-
- fs/gfs2/lops.c  | 6 ++++--
- 3 files changed, 7 insertions(+), 3 deletions(-)
+ drivers/infiniband/hw/mlx5/odp.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/fs/gfs2/glock.c b/fs/gfs2/glock.c
-index cd6a64478a026..aea1ed0aebd0f 100644
---- a/fs/gfs2/glock.c
-+++ b/fs/gfs2/glock.c
-@@ -140,6 +140,7 @@ void gfs2_glock_free(struct gfs2_glock *gl)
- {
- 	struct gfs2_sbd *sdp = gl->gl_name.ln_sbd;
+diff --git a/drivers/infiniband/hw/mlx5/odp.c b/drivers/infiniband/hw/mlx5/odp.c
+index 0aa10ebda5d9a..91669e35c6ca8 100644
+--- a/drivers/infiniband/hw/mlx5/odp.c
++++ b/drivers/infiniband/hw/mlx5/odp.c
+@@ -711,6 +711,15 @@ struct pf_frame {
+ 	int depth;
+ };
  
-+	BUG_ON(atomic_read(&gl->gl_revokes));
- 	rhashtable_remove_fast(&gl_hash_table, &gl->gl_node, ht_parms);
- 	smp_mb();
- 	wake_up_glock(gl);
-diff --git a/fs/gfs2/log.c b/fs/gfs2/log.c
-index f72c442314062..483b82e2be923 100644
---- a/fs/gfs2/log.c
-+++ b/fs/gfs2/log.c
-@@ -588,7 +588,8 @@ void gfs2_add_revoke(struct gfs2_sbd *sdp, struct gfs2_bufdata *bd)
- 	bd->bd_bh = NULL;
- 	bd->bd_ops = &gfs2_revoke_lops;
- 	sdp->sd_log_num_revoke++;
--	atomic_inc(&gl->gl_revokes);
-+	if (atomic_inc_return(&gl->gl_revokes) == 1)
-+		gfs2_glock_hold(gl);
- 	set_bit(GLF_LFLUSH, &gl->gl_flags);
- 	list_add(&bd->bd_list, &sdp->sd_log_le_revoke);
- }
-diff --git a/fs/gfs2/lops.c b/fs/gfs2/lops.c
-index c8ff7b7954f05..049f8c6721b4a 100644
---- a/fs/gfs2/lops.c
-+++ b/fs/gfs2/lops.c
-@@ -660,8 +660,10 @@ static void revoke_lo_after_commit(struct gfs2_sbd *sdp, struct gfs2_trans *tr)
- 		bd = list_entry(head->next, struct gfs2_bufdata, bd_list);
- 		list_del_init(&bd->bd_list);
- 		gl = bd->bd_gl;
--		atomic_dec(&gl->gl_revokes);
--		clear_bit(GLF_LFLUSH, &gl->gl_flags);
-+		if (atomic_dec_return(&gl->gl_revokes) == 0) {
-+			clear_bit(GLF_LFLUSH, &gl->gl_flags);
-+			gfs2_glock_queue_put(gl);
-+		}
- 		kmem_cache_free(gfs2_bufdata_cachep, bd);
- 	}
- }
++static bool mkey_is_eq(struct mlx5_core_mkey *mmkey, u32 key)
++{
++	if (!mmkey)
++		return false;
++	if (mmkey->type == MLX5_MKEY_MW)
++		return mlx5_base_mkey(mmkey->key) == mlx5_base_mkey(key);
++	return mmkey->key == key;
++}
++
+ static int get_indirect_num_descs(struct mlx5_core_mkey *mmkey)
+ {
+ 	struct mlx5_ib_mw *mw;
+@@ -760,7 +769,7 @@ static int pagefault_single_data_segment(struct mlx5_ib_dev *dev,
+ 
+ next_mr:
+ 	mmkey = __mlx5_mr_lookup(dev->mdev, mlx5_base_mkey(key));
+-	if (!mmkey || mmkey->key != key) {
++	if (!mkey_is_eq(mmkey, key)) {
+ 		mlx5_ib_dbg(dev, "failed to find mkey %x\n", key);
+ 		ret = -EFAULT;
+ 		goto srcu_unlock;
 -- 
 2.20.1
 
