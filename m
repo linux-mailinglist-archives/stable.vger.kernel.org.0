@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5644F2EBCC
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:16:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E6DA2EB8E
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:14:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730608AbfE3DQK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:16:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41444 "EHLO mail.kernel.org"
+        id S1729607AbfE3DNv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:13:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60160 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730602AbfE3DQI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:16:08 -0400
+        id S1729604AbfE3DNu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:13:50 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4AD252449A;
-        Thu, 30 May 2019 03:16:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B607124558;
+        Thu, 30 May 2019 03:13:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186168;
-        bh=YlPrh8K80E/Ugmg5D1lT+uJVwaWCaWzq3kBRQR+V0F4=;
+        s=default; t=1559186029;
+        bh=/xgXLdIZmQ6E5ax/uAchCoFzvE9UX2jP7h3ZiscHh/E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x0BorF/84yal8Xb78erMdws7QlmkjpYfJ/s/e2Dz7pUlVp4e8yjVX2YLhYNAMh8pK
-         Aevf9kCq09b7sugrarQMd5aFNiot8ivvq+hY0eW+rE6D6Bsdlygd6HcI+mFOUCKA1I
-         A5E9WW9Zc5KcQztHn7q/LUXDPsAMis9BgkGAujsQ=
+        b=z00pKlAjaGgIP9GIzxHIOxs7ilDA5/q/C1grZ16DF412uBz9s9Mu0c3PPlv6TS5qy
+         tiCsxTKHdrT39EnMSVkTE7XNrNluqzxG7PBucDxp5Ny3kxEmNQXHIGJhTG87PA+Dov
+         4xQ6fVJ5FJA90seJqrhUCr02ZOzfMYCo9Q34aL2A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Tobin C. Harding" <tobin@kernel.org>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.19 021/276] btrfs: sysfs: Fix error path kobject memory leak
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 106/346] slimbus: fix a potential NULL pointer dereference in of_qcom_slim_ngd_register
 Date:   Wed, 29 May 2019 20:02:59 -0700
-Message-Id: <20190530030525.458287378@linuxfoundation.org>
+Message-Id: <20190530030546.488815341@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,42 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tobin C. Harding <tobin@kernel.org>
+[ Upstream commit 06d5d6b7f9948a89543e1160ef852d57892c750d ]
 
-commit 450ff8348808a89cc27436771aa05c2b90c0eef1 upstream.
+In case platform_device_alloc fails, the fix returns an error
+code to avoid the NULL pointer dereference.
 
-If a call to kobject_init_and_add() fails we must call kobject_put()
-otherwise we leak memory.
-
-Calling kobject_put() when kobject_init_and_add() fails drops the
-refcount back to 0 and calls the ktype release method (which in turn
-calls the percpu destroy and kfree).
-
-Add call to kobject_put() in the error path of call to
-kobject_init_and_add().
-
-Cc: stable@vger.kernel.org # v4.4+
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Tobin C. Harding <tobin@kernel.org>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Kangjie Lu <kjlu@umn.edu>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/extent-tree.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/slimbus/qcom-ngd-ctrl.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/fs/btrfs/extent-tree.c
-+++ b/fs/btrfs/extent-tree.c
-@@ -3911,8 +3911,7 @@ static int create_space_info(struct btrf
- 				    info->space_info_kobj, "%s",
- 				    alloc_name(space_info->flags));
- 	if (ret) {
--		percpu_counter_destroy(&space_info->total_bytes_pinned);
--		kfree(space_info);
-+		kobject_put(&space_info->kobj);
- 		return ret;
- 	}
+diff --git a/drivers/slimbus/qcom-ngd-ctrl.c b/drivers/slimbus/qcom-ngd-ctrl.c
+index 71f094c9ec684..f3585777324cf 100644
+--- a/drivers/slimbus/qcom-ngd-ctrl.c
++++ b/drivers/slimbus/qcom-ngd-ctrl.c
+@@ -1342,6 +1342,10 @@ static int of_qcom_slim_ngd_register(struct device *parent,
+ 			return -ENOMEM;
  
+ 		ngd->pdev = platform_device_alloc(QCOM_SLIM_NGD_DRV_NAME, id);
++		if (!ngd->pdev) {
++			kfree(ngd);
++			return -ENOMEM;
++		}
+ 		ngd->id = id;
+ 		ngd->pdev->dev.parent = parent;
+ 		ngd->pdev->driver_override = QCOM_SLIM_NGD_DRV_NAME;
+-- 
+2.20.1
+
 
 
