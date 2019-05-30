@@ -2,40 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A31B2EC43
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:20:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34B832F06D
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:04:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731924AbfE3DTc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:19:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55402 "EHLO mail.kernel.org"
+        id S1731424AbfE3EDu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:03:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731919AbfE3DTb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:19:31 -0400
+        id S1731329AbfE3DRy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:17:54 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BDFA024893;
-        Thu, 30 May 2019 03:19:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EDE3924479;
+        Thu, 30 May 2019 03:17:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186370;
-        bh=MmIkGhU8yGNON9B772QdRYAIc7GER/U26lleh8N4WcU=;
+        s=default; t=1559186274;
+        bh=MUReWeJro4bxc7yBDsWgZz5yQ6ksbBFwyAHIyxQ+gJ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R0CGy/jHEyYRS2k9Ws3sT9GOvrGregCdWSbDlRWSuCrPTMW2X8ehXH1yf/hbvQJdf
-         GyzPzmf5apjQRkwHEaBzfwNidDyTgV1whX5vci8luYBD/X8B+nBx96JYOgWYEe+b5a
-         H3qUaPQrsax+fQkP9b2wIKI5vIbv+Lf23oXOY+aw=
+        b=UL0u7tSUhErc5Y8FNYg/h6FnYl5PI4WurIq+ocV5iLEqHXZcj/TBWu0I/k1InHgaE
+         vbPFxXmeFlspGEQ5+Dk/8hOMhCMA6l6G7H9uyrFJj9MOGWDul5vlCOQRexpsW0Wa67
+         o86gQIs5hgRqspbI3CvgkjHrJZKVPSWb7kbfhhHs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yinbo Zhu <yinbo.zhu@nxp.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 119/193] mmc: sdhci-of-esdhc: add erratum eSDHC5 support
+        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
+        Timur Tabi <timur@kernel.org>,
+        Nicolin Chen <nicoleotsuka@gmail.com>,
+        Xiubo Li <Xiubo.Lee@gmail.com>,
+        Fabio Estevam <festevam@gmail.com>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.com>, alsa-devel@alsa-project.org,
+        linuxppc-dev@lists.ozlabs.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 215/276] ASoC: fsl_utils: fix a leaked reference by adding missing of_node_put
 Date:   Wed, 29 May 2019 20:06:13 -0700
-Message-Id: <20190530030505.202984416@linuxfoundation.org>
+Message-Id: <20190530030538.571433062@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,36 +51,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a46e42712596b51874f04c73f1cdf1017f88df52 ]
+[ Upstream commit c705247136a523488eac806bd357c3e5d79a7acd ]
 
-Software writing to the Transfer Type configuration register
-(system clock domain) can cause a setup/hold violation in the
-CRC flops (card clock domain), which can cause write accesses
-to be sent with corrupt CRC values. This issue occurs only for
-write preceded by read. this erratum is to fix this issue.
+The call to of_parse_phandle returns a node pointer with refcount
+incremented thus it must be explicitly decremented after the last
+usage.
 
-Signed-off-by: Yinbo Zhu <yinbo.zhu@nxp.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Detected by coccinelle with the following warnings:
+./sound/soc/fsl/fsl_utils.c:74:2-8: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 38, but without a corresponding     object release within this function.
+
+Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
+Cc: Timur Tabi <timur@kernel.org>
+Cc: Nicolin Chen <nicoleotsuka@gmail.com>
+Cc: Xiubo Li <Xiubo.Lee@gmail.com>
+Cc: Fabio Estevam <festevam@gmail.com>
+Cc: Liam Girdwood <lgirdwood@gmail.com>
+Cc: Mark Brown <broonie@kernel.org>
+Cc: Jaroslav Kysela <perex@perex.cz>
+Cc: Takashi Iwai <tiwai@suse.com>
+Cc: alsa-devel@alsa-project.org
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/sdhci-of-esdhc.c | 3 +++
- 1 file changed, 3 insertions(+)
+ sound/soc/fsl/fsl_utils.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/mmc/host/sdhci-of-esdhc.c b/drivers/mmc/host/sdhci-of-esdhc.c
-index 7b7d077e40fd4..9207820514ceb 100644
---- a/drivers/mmc/host/sdhci-of-esdhc.c
-+++ b/drivers/mmc/host/sdhci-of-esdhc.c
-@@ -880,6 +880,9 @@ static int sdhci_esdhc_probe(struct platform_device *pdev)
- 	if (esdhc->vendor_ver > VENDOR_V_22)
- 		host->quirks &= ~SDHCI_QUIRK_NO_BUSY_IRQ;
- 
-+	if (of_find_compatible_node(NULL, NULL, "fsl,p2020-esdhc"))
-+		host->quirks2 |= SDHCI_QUIRK_RESET_AFTER_REQUEST;
-+
- 	if (of_device_is_compatible(np, "fsl,p5040-esdhc") ||
- 	    of_device_is_compatible(np, "fsl,p5020-esdhc") ||
- 	    of_device_is_compatible(np, "fsl,p4080-esdhc") ||
+diff --git a/sound/soc/fsl/fsl_utils.c b/sound/soc/fsl/fsl_utils.c
+index 7f0fa4b522231..cca33ab7020a4 100644
+--- a/sound/soc/fsl/fsl_utils.c
++++ b/sound/soc/fsl/fsl_utils.c
+@@ -71,6 +71,7 @@ int fsl_asoc_get_dma_channel(struct device_node *ssi_np,
+ 	iprop = of_get_property(dma_np, "cell-index", NULL);
+ 	if (!iprop) {
+ 		of_node_put(dma_np);
++		of_node_put(dma_channel_np);
+ 		return -EINVAL;
+ 	}
+ 	*dma_id = be32_to_cpup(iprop);
 -- 
 2.20.1
 
