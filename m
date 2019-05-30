@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 56FE12F089
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:05:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4AB72F22D
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:19:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731246AbfE3DRq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:17:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48304 "EHLO mail.kernel.org"
+        id S1729028AbfE3ETU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:19:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731241AbfE3DRp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:17:45 -0400
+        id S1730286AbfE3DP0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:15:26 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ABFBE246F4;
-        Thu, 30 May 2019 03:17:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F74824563;
+        Thu, 30 May 2019 03:15:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186264;
-        bh=6QpzbCYWRPZJFeldcE3ktARIpqyvLNnqWXqDwDhS1JI=;
+        s=default; t=1559186126;
+        bh=0s+FdrxQyBQqyT7+UtTeo2sVNyCRXt20aXWkTRMk/MI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q9Dp81mRDaLUJkpxtA+r3Egoc7el598+cxsDVtwnVbyl2HJBVhxOaCBA1G+ZcFanH
-         uHILY6kbzuDS9BNGpQMf8Rdve2JfHvgB/JVwZ5sdwC9mCTdXSVrJA29sOiI7AYYGAC
-         CF09jbvt5N9S+pgvSZOHEQNpnndV1cl0b+uGvbAs=
+        b=WtRoLHl1tIDA14DYYG+s4DV7RA9p7cuKIle5TaqbuHkQoFs+l0btgQDTfNIJrqf0v
+         1Usv5oLdjZwAl78n/YtcJUyAFeE0hh7/CThbvxJWPNkc3x2e23b64wWRdOuz6StaUD
+         TXBO4dE5hPHt9PNiy+HbiA27Bg4O8OW1+xMuz3e4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ping-Ke Shih <pkshih@realtek.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org,
+        Rouven Czerwinski <r.czerwinski@pengutronix.de>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 200/276] rtlwifi: fix potential NULL pointer dereference
+Subject: [PATCH 5.0 285/346] hwrng: omap - Set default quality
 Date:   Wed, 29 May 2019 20:05:58 -0700
-Message-Id: <20190530030537.617010332@linuxfoundation.org>
+Message-Id: <20190530030555.348375534@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,110 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 60209d482b97743915883d293c8b85226d230c19 ]
+[ Upstream commit 62f95ae805fa9e1e84d47d3219adddd97b2654b7 ]
 
-In case dev_alloc_skb fails, the fix safely returns to avoid
-potential NULL pointer dereference.
+Newer combinations of the glibc, kernel and openssh can result in long initial
+startup times on OMAP devices:
 
-Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+[    6.671425] systemd-rc-once[102]: Creating ED25519 key; this may take some time ...
+[  142.652491] systemd-rc-once[102]: Creating ED25519 key; done.
+
+due to the blocking getrandom(2) system call:
+
+[  142.610335] random: crng init done
+
+Set the quality level for the omap hwrng driver allowing the kernel to use the
+hwrng as an entropy source at boot.
+
+Signed-off-by: Rouven Czerwinski <r.czerwinski@pengutronix.de>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtlwifi/rtl8188ee/fw.c       | 2 ++
- drivers/net/wireless/realtek/rtlwifi/rtl8192c/fw_common.c | 2 ++
- drivers/net/wireless/realtek/rtlwifi/rtl8192ee/fw.c       | 2 ++
- drivers/net/wireless/realtek/rtlwifi/rtl8723ae/fw.c       | 2 ++
- drivers/net/wireless/realtek/rtlwifi/rtl8723be/fw.c       | 2 ++
- drivers/net/wireless/realtek/rtlwifi/rtl8821ae/fw.c       | 4 ++++
- 6 files changed, 14 insertions(+)
+ drivers/char/hw_random/omap-rng.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8188ee/fw.c b/drivers/net/wireless/realtek/rtlwifi/rtl8188ee/fw.c
-index 63874512598bb..b5f91c994c798 100644
---- a/drivers/net/wireless/realtek/rtlwifi/rtl8188ee/fw.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/rtl8188ee/fw.c
-@@ -622,6 +622,8 @@ void rtl88e_set_fw_rsvdpagepkt(struct ieee80211_hw *hw, bool b_dl_finished)
- 		      u1rsvdpageloc, 3);
+diff --git a/drivers/char/hw_random/omap-rng.c b/drivers/char/hw_random/omap-rng.c
+index b65ff69628995..e9b6ac61fb7f6 100644
+--- a/drivers/char/hw_random/omap-rng.c
++++ b/drivers/char/hw_random/omap-rng.c
+@@ -443,6 +443,7 @@ static int omap_rng_probe(struct platform_device *pdev)
+ 	priv->rng.read = omap_rng_do_read;
+ 	priv->rng.init = omap_rng_init;
+ 	priv->rng.cleanup = omap_rng_cleanup;
++	priv->rng.quality = 900;
  
- 	skb = dev_alloc_skb(totalpacketlen);
-+	if (!skb)
-+		return;
- 	skb_put_data(skb, &reserved_page_packet, totalpacketlen);
- 
- 	rtstatus = rtl_cmd_send_packet(hw, skb);
-diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8192c/fw_common.c b/drivers/net/wireless/realtek/rtlwifi/rtl8192c/fw_common.c
-index f3bff66e85d0c..81ec0e6e07c1f 100644
---- a/drivers/net/wireless/realtek/rtlwifi/rtl8192c/fw_common.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192c/fw_common.c
-@@ -646,6 +646,8 @@ void rtl92c_set_fw_rsvdpagepkt(struct ieee80211_hw *hw,
- 
- 
- 	skb = dev_alloc_skb(totalpacketlen);
-+	if (!skb)
-+		return;
- 	skb_put_data(skb, &reserved_page_packet, totalpacketlen);
- 
- 	if (cmd_send_packet)
-diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8192ee/fw.c b/drivers/net/wireless/realtek/rtlwifi/rtl8192ee/fw.c
-index 84a0d0eb72e1e..a933490928ba9 100644
---- a/drivers/net/wireless/realtek/rtlwifi/rtl8192ee/fw.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192ee/fw.c
-@@ -766,6 +766,8 @@ void rtl92ee_set_fw_rsvdpagepkt(struct ieee80211_hw *hw, bool b_dl_finished)
- 		      u1rsvdpageloc, 3);
- 
- 	skb = dev_alloc_skb(totalpacketlen);
-+	if (!skb)
-+		return;
- 	skb_put_data(skb, &reserved_page_packet, totalpacketlen);
- 
- 	rtstatus = rtl_cmd_send_packet(hw, skb);
-diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8723ae/fw.c b/drivers/net/wireless/realtek/rtlwifi/rtl8723ae/fw.c
-index bf9859f74b6f5..52f108744e969 100644
---- a/drivers/net/wireless/realtek/rtlwifi/rtl8723ae/fw.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/rtl8723ae/fw.c
-@@ -470,6 +470,8 @@ void rtl8723e_set_fw_rsvdpagepkt(struct ieee80211_hw *hw, bool b_dl_finished)
- 		      u1rsvdpageloc, 3);
- 
- 	skb = dev_alloc_skb(totalpacketlen);
-+	if (!skb)
-+		return;
- 	skb_put_data(skb, &reserved_page_packet, totalpacketlen);
- 
- 	rtstatus = rtl_cmd_send_packet(hw, skb);
-diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8723be/fw.c b/drivers/net/wireless/realtek/rtlwifi/rtl8723be/fw.c
-index f2441fbb92f1e..307c2bd77f060 100644
---- a/drivers/net/wireless/realtek/rtlwifi/rtl8723be/fw.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/rtl8723be/fw.c
-@@ -584,6 +584,8 @@ void rtl8723be_set_fw_rsvdpagepkt(struct ieee80211_hw *hw,
- 		      u1rsvdpageloc, sizeof(u1rsvdpageloc));
- 
- 	skb = dev_alloc_skb(totalpacketlen);
-+	if (!skb)
-+		return;
- 	skb_put_data(skb, &reserved_page_packet, totalpacketlen);
- 
- 	rtstatus = rtl_cmd_send_packet(hw, skb);
-diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8821ae/fw.c b/drivers/net/wireless/realtek/rtlwifi/rtl8821ae/fw.c
-index d868a034659fb..d7235f6165fdf 100644
---- a/drivers/net/wireless/realtek/rtlwifi/rtl8821ae/fw.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/rtl8821ae/fw.c
-@@ -1645,6 +1645,8 @@ void rtl8812ae_set_fw_rsvdpagepkt(struct ieee80211_hw *hw,
- 		      &reserved_page_packet_8812[0], totalpacketlen);
- 
- 	skb = dev_alloc_skb(totalpacketlen);
-+	if (!skb)
-+		return;
- 	skb_put_data(skb, &reserved_page_packet_8812, totalpacketlen);
- 
- 	rtstatus = rtl_cmd_send_packet(hw, skb);
-@@ -1781,6 +1783,8 @@ void rtl8821ae_set_fw_rsvdpagepkt(struct ieee80211_hw *hw,
- 		      &reserved_page_packet_8821[0], totalpacketlen);
- 
- 	skb = dev_alloc_skb(totalpacketlen);
-+	if (!skb)
-+		return;
- 	skb_put_data(skb, &reserved_page_packet_8821, totalpacketlen);
- 
- 	rtstatus = rtl_cmd_send_packet(hw, skb);
+ 	priv->rng.priv = (unsigned long)priv;
+ 	platform_set_drvdata(pdev, priv);
 -- 
 2.20.1
 
