@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E2BE02F2A8
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:24:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 873FD2EB58
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:12:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728079AbfE3DOz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:14:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36290 "EHLO mail.kernel.org"
+        id S1728764AbfE3DL6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:11:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730034AbfE3DOy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:14:54 -0400
+        id S1728754AbfE3DL5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:11:57 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6C3632456F;
-        Thu, 30 May 2019 03:14:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0AC3E24481;
+        Thu, 30 May 2019 03:11:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186093;
-        bh=TGNn3w8UnNTGFgYzmWMeqqAhTOy7qEZ3VF+fUmhdAb8=;
+        s=default; t=1559185917;
+        bh=dJfhr74dfhlzBQ06oDacfJP3wgeQgcEy2cx2MN0M1ss=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G/ogOevLP2HqSkAjCgcgC3bQbqEb40csgofO3BbzwX/9F1rlnr0CWEwm2uxTpDLQg
-         qQkzR6RpC7J1dzobp7zvEVWTHE9OJ6bAMUONKeZPHDNo9YOo+60aZZZWU103fRZIRp
-         PHh4muqTvTbqR85Gm28jKe2GieIu+OS0vCQtqPWs=
+        b=sl4g/6+xedYkBKuswD0PXGD19t5nEzArP613mqDqMLNjqRiloTwtKfoL3nvmaZN81
+         3gmO9FHl6NS8VrGNs7zlOuFVTJBr98Isgl53UIGRPKOtWZqQx7BfCkcsxiJVDB3Zm/
+         NdawRLmoycDknb8ArS9CeZcYcjLvd0WD2P9K5kPs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Arend van Spriel <arend.vanspriel@broadcom.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, siliu@redhat.com,
+        Pankaj Gupta <pagupta@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 225/346] brcmfmac: fix missing checks for kmemdup
-Date:   Wed, 29 May 2019 20:04:58 -0700
-Message-Id: <20190530030552.468522421@linuxfoundation.org>
+Subject: [PATCH 5.1 301/405] virtio_console: initialize vtermno value for ports
+Date:   Wed, 29 May 2019 20:04:59 -0700
+Message-Id: <20190530030556.048247301@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 46953f97224d56a12ccbe9c6acaa84ca0dab2780 ]
+[ Upstream commit 4b0a2c5ff7215206ea6135a405f17c5f6fca7d00 ]
 
-In case kmemdup fails, the fix sets conn_info->req_ie_len and
-conn_info->resp_ie_len to zero to avoid buffer overflows.
+For regular serial ports we do not initialize value of vtermno
+variable. A garbage value is assigned for non console ports.
+The value can be observed as a random integer with [1].
 
-Signed-off-by: Kangjie Lu <kjlu@umn.edu>
-Acked-by: Arend van Spriel <arend.vanspriel@broadcom.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+[1] vim /sys/kernel/debug/virtio-ports/vport*p*
+
+This patch initialize the value of vtermno for console serial
+ports to '1' and regular serial ports are initiaized to '0'.
+
+Reported-by: siliu@redhat.com
+Signed-off-by: Pankaj Gupta <pagupta@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/char/virtio_console.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
-index 9f85eec3d79f4..ded629460fc05 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
-@@ -5376,6 +5376,8 @@ static s32 brcmf_get_assoc_ies(struct brcmf_cfg80211_info *cfg,
- 		conn_info->req_ie =
- 		    kmemdup(cfg->extra_buf, conn_info->req_ie_len,
- 			    GFP_KERNEL);
-+		if (!conn_info->req_ie)
-+			conn_info->req_ie_len = 0;
- 	} else {
- 		conn_info->req_ie_len = 0;
- 		conn_info->req_ie = NULL;
-@@ -5392,6 +5394,8 @@ static s32 brcmf_get_assoc_ies(struct brcmf_cfg80211_info *cfg,
- 		conn_info->resp_ie =
- 		    kmemdup(cfg->extra_buf, conn_info->resp_ie_len,
- 			    GFP_KERNEL);
-+		if (!conn_info->resp_ie)
-+			conn_info->resp_ie_len = 0;
- 	} else {
- 		conn_info->resp_ie_len = 0;
- 		conn_info->resp_ie = NULL;
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index fbeb71953526a..05dbfdb9f4aff 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -75,7 +75,7 @@ struct ports_driver_data {
+ 	/* All the console devices handled by this driver */
+ 	struct list_head consoles;
+ };
+-static struct ports_driver_data pdrvdata;
++static struct ports_driver_data pdrvdata = { .next_vtermno = 1};
+ 
+ static DEFINE_SPINLOCK(pdrvdata_lock);
+ static DECLARE_COMPLETION(early_console_added);
+@@ -1394,6 +1394,7 @@ static int add_port(struct ports_device *portdev, u32 id)
+ 	port->async_queue = NULL;
+ 
+ 	port->cons.ws.ws_row = port->cons.ws.ws_col = 0;
++	port->cons.vtermno = 0;
+ 
+ 	port->host_connected = port->guest_connected = false;
+ 	port->stats = (struct port_stats) { 0 };
 -- 
 2.20.1
 
