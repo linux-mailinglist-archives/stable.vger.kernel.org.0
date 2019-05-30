@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D2E8B2EF3A
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:54:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE4892F238
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:20:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732595AbfE3Dxw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:53:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55318 "EHLO mail.kernel.org"
+        id S1728410AbfE3ETi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:19:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730540AbfE3DT2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:19:28 -0400
+        id S1730279AbfE3DPZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:15:25 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D14182488A;
-        Thu, 30 May 2019 03:19:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CC0482459C;
+        Thu, 30 May 2019 03:15:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186367;
-        bh=uXUyQnom1ZyT0LjF8TENhfFmRzHTBOF3OVN24+Bvjno=;
+        s=default; t=1559186124;
+        bh=joNhK/ROcodXxZke0Sa4iVMfvbCBd77Z4mWlUohCtzE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JeZHt450OifOtizEOFEUDOxF0VxcpPcEBKy0gUmAEhlIQh996blvYpu8FspOT7DPq
-         5ladBs6tHJYbflLYy/qPc3dG2bKGgSqIjOqtrJw2lXcGvswQVIjPYAuvbjipOiguFT
-         uzBGDh/KfDVHSkHI23GbkDl4kE3UbevyhJd5vHeM=
+        b=xFXLZvW5HZMKP5dqlSINnFBtCWVuYLgE1HncX8MMO7I47Fz5r2cJ07sFd/Gq1dvTK
+         9FlsIY/kltOZOBqAtM3b9hDm6S7pSAqONrIuk53i3w+AZKAYqhw+lT263ucCA1Sg/I
+         GftbuRD6tQtPa/4tPMkpTDfofYlqXci9A0tdQC48=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 075/193] bcache: add failure check to run_cache_set() for journal replay
+        stable@vger.kernel.org,
+        syzbot <syzbot+f648cfb7e0b52bf7ae32@syzkaller.appspotmail.com>,
+        Kay Sievers <kay@vrfy.org>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Sasha Levin <sashal@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 5.0 256/346] kobject: Dont trigger kobject_uevent(KOBJ_REMOVE) twice.
 Date:   Wed, 29 May 2019 20:05:29 -0700
-Message-Id: <20190530030459.667354211@linuxfoundation.org>
+Message-Id: <20190530030553.966661442@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,89 +47,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ce3e4cfb59cb382f8e5ce359238aa580d4ae7778 ]
+[ Upstream commit c03a0fd0b609e2f5c669c2b7f27c8e1928e9196e ]
 
-Currently run_cache_set() has no return value, if there is failure in
-bch_journal_replay(), the caller of run_cache_set() has no idea about
-such failure and just continue to execute following code after
-run_cache_set().  The internal failure is triggered inside
-bch_journal_replay() and being handled in async way. This behavior is
-inefficient, while failure handling inside bch_journal_replay(), cache
-register code is still running to start the cache set. Registering and
-unregistering code running as same time may introduce some rare race
-condition, and make the code to be more hard to be understood.
+syzbot is hitting use-after-free bug in uinput module [1]. This is because
+kobject_uevent(KOBJ_REMOVE) is called again due to commit 0f4dafc0563c6c49
+("Kobject: auto-cleanup on final unref") after memory allocation fault
+injection made kobject_uevent(KOBJ_REMOVE) from device_del() from
+input_unregister_device() fail, while uinput_destroy_device() is expecting
+that kobject_uevent(KOBJ_REMOVE) is not called after device_del() from
+input_unregister_device() completed.
 
-This patch adds return value to run_cache_set(), and returns -EIO if
-bch_journal_rreplay() fails. Then caller of run_cache_set() may detect
-such failure and stop registering code flow immedidately inside
-register_cache_set().
+That commit intended to catch cases where nobody even attempted to send
+"remove" uevents. But there is no guarantee that an event will ultimately
+be sent. We are at the point of no return as far as the rest of the kernel
+is concerned; there are no repeats or do-overs.
 
-If journal replay fails, run_cache_set() can report error immediately
-to register_cache_set(). This patch makes the failure handling for
-bch_journal_replay() be in synchronized way, easier to understand and
-debug, and avoid poetential race condition for register-and-unregister
-in same time.
+Also, it is not clear whether some subsystem depends on that commit.
+If no subsystem depends on that commit, it will be better to remove
+the state_{add,remove}_uevent_sent logic. But we don't want to risk
+a regression (in a patch which will be backported) by trying to remove
+that logic. Therefore, as a first step, let's avoid the use-after-free bug
+by making sure that kobject_uevent(KOBJ_REMOVE) won't be triggered twice.
 
-Signed-off-by: Coly Li <colyli@suse.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+[1] https://syzkaller.appspot.com/bug?id=8b17c134fe938bbddd75a45afaa9e68af43a362d
+
+Reported-by: syzbot <syzbot+f648cfb7e0b52bf7ae32@syzkaller.appspotmail.com>
+Analyzed-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Fixes: 0f4dafc0563c6c49 ("Kobject: auto-cleanup on final unref")
+Cc: Kay Sievers <kay@vrfy.org>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/bcache/super.c | 17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ lib/kobject_uevent.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
-index 175bab2d72067..85a5afe01d397 100644
---- a/drivers/md/bcache/super.c
-+++ b/drivers/md/bcache/super.c
-@@ -1560,7 +1560,7 @@ struct cache_set *bch_cache_set_alloc(struct cache_sb *sb)
- 	return NULL;
- }
+diff --git a/lib/kobject_uevent.c b/lib/kobject_uevent.c
+index 27c6118afd1ce..bd26df36757f0 100644
+--- a/lib/kobject_uevent.c
++++ b/lib/kobject_uevent.c
+@@ -466,6 +466,13 @@ int kobject_uevent_env(struct kobject *kobj, enum kobject_action action,
+ 	int i = 0;
+ 	int retval = 0;
  
--static void run_cache_set(struct cache_set *c)
-+static int run_cache_set(struct cache_set *c)
- {
- 	const char *err = "cannot allocate memory";
- 	struct cached_dev *dc, *t;
-@@ -1652,7 +1652,9 @@ static void run_cache_set(struct cache_set *c)
- 		if (j->version < BCACHE_JSET_VERSION_UUID)
- 			__uuid_write(c);
- 
--		bch_journal_replay(c, &journal);
-+		err = "bcache: replay journal failed";
-+		if (bch_journal_replay(c, &journal))
-+			goto err;
- 	} else {
- 		pr_notice("invalidating existing data");
- 
-@@ -1720,11 +1722,13 @@ static void run_cache_set(struct cache_set *c)
- 	flash_devs_run(c);
- 
- 	set_bit(CACHE_SET_RUNNING, &c->flags);
--	return;
-+	return 0;
- err:
- 	closure_sync(&cl);
- 	/* XXX: test this, it's broken */
- 	bch_cache_set_error(c, "%s", err);
++	/*
++	 * Mark "remove" event done regardless of result, for some subsystems
++	 * do not want to re-trigger "remove" event via automatic cleanup.
++	 */
++	if (action == KOBJ_REMOVE)
++		kobj->state_remove_uevent_sent = 1;
 +
-+	return -EIO;
- }
+ 	pr_debug("kobject: '%s' (%p): %s\n",
+ 		 kobject_name(kobj), kobj, __func__);
  
- static bool can_attach_cache(struct cache *ca, struct cache_set *c)
-@@ -1788,8 +1792,11 @@ static const char *register_cache_set(struct cache *ca)
- 	ca->set->cache[ca->sb.nr_this_dev] = ca;
- 	c->cache_by_alloc[c->caches_loaded++] = ca;
+@@ -567,10 +574,6 @@ int kobject_uevent_env(struct kobject *kobj, enum kobject_action action,
+ 		kobj->state_add_uevent_sent = 1;
+ 		break;
  
--	if (c->caches_loaded == c->sb.nr_in_set)
--		run_cache_set(c);
-+	if (c->caches_loaded == c->sb.nr_in_set) {
-+		err = "failed to run cache set";
-+		if (run_cache_set(c) < 0)
-+			goto err;
-+	}
- 
- 	return NULL;
- err:
+-	case KOBJ_REMOVE:
+-		kobj->state_remove_uevent_sent = 1;
+-		break;
+-
+ 	case KOBJ_UNBIND:
+ 		zap_modalias_env(env);
+ 		break;
 -- 
 2.20.1
 
