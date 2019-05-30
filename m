@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BBD332F379
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:29:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C39FD2F183
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:13:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728500AbfE3DOC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:14:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32826 "EHLO mail.kernel.org"
+        id S1726587AbfE3ENj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:13:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729681AbfE3DOC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:14:02 -0400
+        id S1729294AbfE3DQV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:16:21 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 73A1E2455E;
-        Thu, 30 May 2019 03:14:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6E9B6245CA;
+        Thu, 30 May 2019 03:16:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186041;
-        bh=nkRGmyUwdjOOZEN1bV2aoAyTIqai0OB2YKorjIp4+Y4=;
+        s=default; t=1559186181;
+        bh=GsArPxxXUNMTSolPrYNzpqOWlGbn7QMpvOKGuFK/054=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=11MMFR/S9QykJZBpN/sFtUJGPZ0Iu35/OffoWKeIEBMWNN4TFoWMGN2PCdpR0NIjs
-         3X+kYlp/1PD0szAR+SmL6fxvtk4vTrFqEEVjBMNpZOmVrnXzcdNFn5OLrSJ65iWNFg
-         3ZyUQGmiOgJzJ6BQFmdLx8hq/+N7xxf2LcnbhA7k=
+        b=WNvtgElKhoM31BCVv1/ZWs1awmmFGU9aD3D0dlf+F4KGf9Lx8HW6Ih0Lj69XPiyLO
+         eLivoWJsULYwZP64+MLGlJ1HsHrF698zBGg8TSuh68/Qi0zVuuYKgDqcRLWDtwBGls
+         xnHQQsKqFUbz5QlZqbqmc/90LbM7TPCJ/QCLgy5c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        stable@vger.kernel.org,
+        Roberto Bergantinos Corpas <rbergant@redhat.com>,
+        Benjamin Coddington <bcodding@redhat.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 131/346] HID: logitech-hidpp: use RAP instead of FAP to get the protocol version
+Subject: [PATCH 4.19 046/276] NFS: make nfs_match_client killable
 Date:   Wed, 29 May 2019 20:03:24 -0700
-Message-Id: <20190530030547.751588104@linuxfoundation.org>
+Message-Id: <20190530030527.549336028@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,74 +46,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 096377525cdb8251e4656085efc988bdf733fb4c ]
+[ Upstream commit 950a578c6128c2886e295b9c7ecb0b6b22fcc92b ]
 
-According to the logitech_hidpp_2.0_specification_draft_2012-06-04.pdf doc:
-https://lekensteyn.nl/files/logitech/logitech_hidpp_2.0_specification_draft_2012-06-04.pdf
+    Actually we don't do anything with return value from
+    nfs_wait_client_init_complete in nfs_match_client, as a
+    consequence if we get a fatal signal and client is not
+    fully initialised, we'll loop to "again" label
 
-We should use a register-access-protocol request using the short input /
-output report ids. This is necessary because 27MHz HID++ receivers have
-a max-packetsize on their HIP++ endpoint of 8, so they cannot support
-long reports. Using a feature-access-protocol request (which is always
-long or very-long) with these will cause a timeout error, followed by
-the hidpp driver treating the device as not being HID++ capable.
+    This has been proven to cause soft lockups on some scenarios
+    (no-carrier but configured network interfaces)
 
-This commit fixes this by switching to using a rap request to get the
-protocol version.
-
-Besides being tested with a (046d:c517) 27MHz receiver with various
-27MHz keyboards and mice, this has also been tested to not cause
-regressions on a non-unifying dual-HID++ nano receiver (046d:c534) with
-k270 and m185 HID++-2.0 devices connected and on a unifying/dj receiver
-(046d:c52b) with a HID++-2.0 Logitech Rechargeable Touchpad T650.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Roberto Bergantinos Corpas <rbergant@redhat.com>
+Reviewed-by: Benjamin Coddington <bcodding@redhat.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-logitech-hidpp.c | 17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ fs/nfs/client.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
-index 199cc256e9d9d..ffd30c7492df8 100644
---- a/drivers/hid/hid-logitech-hidpp.c
-+++ b/drivers/hid/hid-logitech-hidpp.c
-@@ -836,13 +836,16 @@ static int hidpp_root_get_feature(struct hidpp_device *hidpp, u16 feature,
+diff --git a/fs/nfs/client.c b/fs/nfs/client.c
+index 751ca65da8a35..846d45cb1a3c8 100644
+--- a/fs/nfs/client.c
++++ b/fs/nfs/client.c
+@@ -290,6 +290,7 @@ static struct nfs_client *nfs_match_client(const struct nfs_client_initdata *dat
+ 	struct nfs_client *clp;
+ 	const struct sockaddr *sap = data->addr;
+ 	struct nfs_net *nn = net_generic(data->net, nfs_net_id);
++	int error;
  
- static int hidpp_root_get_protocol_version(struct hidpp_device *hidpp)
- {
-+	const u8 ping_byte = 0x5a;
-+	u8 ping_data[3] = { 0, 0, ping_byte };
- 	struct hidpp_report response;
- 	int ret;
- 
--	ret = hidpp_send_fap_command_sync(hidpp,
-+	ret = hidpp_send_rap_command_sync(hidpp,
-+			REPORT_ID_HIDPP_SHORT,
- 			HIDPP_PAGE_ROOT_IDX,
- 			CMD_ROOT_GET_PROTOCOL_VERSION,
--			NULL, 0, &response);
-+			ping_data, sizeof(ping_data), &response);
- 
- 	if (ret == HIDPP_ERROR_INVALID_SUBID) {
- 		hidpp->protocol_major = 1;
-@@ -862,8 +865,14 @@ static int hidpp_root_get_protocol_version(struct hidpp_device *hidpp)
- 	if (ret)
- 		return ret;
- 
--	hidpp->protocol_major = response.fap.params[0];
--	hidpp->protocol_minor = response.fap.params[1];
-+	if (response.rap.params[2] != ping_byte) {
-+		hid_err(hidpp->hid_dev, "%s: ping mismatch 0x%02x != 0x%02x\n",
-+			__func__, response.rap.params[2], ping_byte);
-+		return -EPROTO;
-+	}
-+
-+	hidpp->protocol_major = response.rap.params[0];
-+	hidpp->protocol_minor = response.rap.params[1];
- 
- 	return ret;
- }
+ again:
+ 	list_for_each_entry(clp, &nn->nfs_client_list, cl_share_link) {
+@@ -302,8 +303,10 @@ static struct nfs_client *nfs_match_client(const struct nfs_client_initdata *dat
+ 		if (clp->cl_cons_state > NFS_CS_READY) {
+ 			refcount_inc(&clp->cl_count);
+ 			spin_unlock(&nn->nfs_client_lock);
+-			nfs_wait_client_init_complete(clp);
++			error = nfs_wait_client_init_complete(clp);
+ 			nfs_put_client(clp);
++			if (error < 0)
++				return ERR_PTR(error);
+ 			spin_lock(&nn->nfs_client_lock);
+ 			goto again;
+ 		}
+@@ -413,6 +416,8 @@ struct nfs_client *nfs_get_client(const struct nfs_client_initdata *cl_init)
+ 		clp = nfs_match_client(cl_init);
+ 		if (clp) {
+ 			spin_unlock(&nn->nfs_client_lock);
++			if (IS_ERR(clp))
++				return clp;
+ 			if (new)
+ 				new->rpc_ops->free_client(new);
+ 			return nfs_found_client(cl_init, clp);
 -- 
 2.20.1
 
