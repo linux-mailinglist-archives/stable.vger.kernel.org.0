@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BCDDC2F292
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:23:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8EBA2F296
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:23:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730205AbfE3EXX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:23:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36748 "EHLO mail.kernel.org"
+        id S1728641AbfE3EXd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:23:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728641AbfE3DPB (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730049AbfE3DPB (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 29 May 2019 23:15:01 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 50B2424586;
+        by mail.kernel.org (Postfix) with ESMTPSA id C4CFF2449A;
         Thu, 30 May 2019 03:15:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1559186100;
-        bh=T4dd8ApveJOaVaQZYHfqP1ICixbz55uiW5XkeUbLFtM=;
+        bh=UJiPpQOR8Dhm936UzxmqRdc9QwzhXyAeIt40ybzJZ4E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KId+aGUTkdoeUgcjNBjXwev5F3/ZH92mhLldOLmvVzoUlQn6Zr/KRUavooKqCnq9W
-         D9zrtZpfDXxi6m+uQZjh5xFpjbkyGpu7EwySRuHnYJEyBknCiLpC5jphSxSR4EeFy6
-         rrueFF39NNwhXVUzhv0ppbiwe3QsgPQF0hhcCH5Y=
+        b=ytKUHtUY8lL+PNk7Ai9eOrZaDiEGrcRwve6zghWvTU6e9q+eiFYSMLxc7cabePBeI
+         xIwGXNZsksGXp75vf9qFac2XEjQ1hHnLsodS5oeVMRYgVv4Og9YBpZeEvR/65NmM7B
+         WBfShro8bXWPmyxlqgJxzqhWDvDJTBWQV9kQSCpg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Sun peng Li <Sunpeng.Li@amd.com>,
-        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        linux-arm-kernel@lists.infradead.org,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 236/346] drm/amd/display: Prevent cursor hotspot overflow for RV overlay planes
-Date:   Wed, 29 May 2019 20:05:09 -0700
-Message-Id: <20190530030552.998746142@linuxfoundation.org>
+Subject: [PATCH 5.0 237/346] arm64: cpu_ops: fix a leaked reference by adding missing of_node_put
+Date:   Wed, 29 May 2019 20:05:10 -0700
+Message-Id: <20190530030553.042815312@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
 References: <20190530030540.363386121@linuxfoundation.org>
@@ -47,78 +47,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 6752bea8b03e77c98be7d8d25b0a9d86a00b3cf7 ]
+[ Upstream commit 92606ec9285fb84cd9b5943df23f07d741384bfc ]
 
-[Why]
-The actual position for the cursor on the screen is essentially:
+The call to of_get_next_child returns a node pointer with refcount
+incremented thus it must be explicitly decremented after the last
+usage.
 
-x_out = x - x_plane - x_hotspot
-y_out = y - y_plane - y_hotspot
+Detected by coccinelle with the following warnings:
+  ./arch/arm64/kernel/cpu_ops.c:102:1-7: ERROR: missing of_node_put;
+  acquired a node pointer with refcount incremented on line 69, but
+  without a corresponding object release within this function.
 
-The register values for cursor position and cursor hotspot need to be
-greater than zero when programmed, but we also need to subtract off
-the plane position to display the cursor at the correct position.
-
-Since we don't want x or y to be less than zero, we add the plane
-position as a positive value to x_hotspot or y_hotspot. However, what
-this doesn't take into account is that the hotspot registers are limited
-by the maximum cursor size.
-
-On DCN10 the cursor hotspot regitsers are masked to 0xFF, so they have
-a maximum value of 0-255. Values greater this will wrap, causing the
-cursor to display in the wrong position.
-
-In practice this means that for sufficiently large plane positions, the
-cursor will be drawn twice on the screen, and can cause screen flashes
-or p-state WARNS depending on what the wrapped value is.
-
-So we need a way to remove the value from x_plane and y_plane without
-exceeding the maximum cursor size.
-
-[How]
-Subtract as much as x_plane/y_plane as possible from x and y and place
-the remainder in the cursor hotspot register.
-
-The value for x_hotspot and y_hotspot can still wrap around but it
-won't happen in a case where the cursor is actually enabled.
-
-The cursor plane needs to intersect at least one pixel of the plane's
-rectangle to be enabled, so the cursor position + hotspot provided by
-userspace must always be strictly less than the maximum cursor size for
-the cursor to actually be enabled.
-
-Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Reviewed-by: Sun peng Li <Sunpeng.Li@amd.com>
-Acked-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Will Deacon <will.deacon@arm.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c    | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ arch/arm64/kernel/cpu_ops.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
-index a684b38332ac3..2ab05a4e8ed4a 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
-@@ -2658,9 +2658,15 @@ static void dcn10_set_cursor_position(struct pipe_ctx *pipe_ctx)
- 		.rotation = pipe_ctx->plane_state->rotation,
- 		.mirror = pipe_ctx->plane_state->horizontal_mirror
- 	};
--
--	pos_cpy.x_hotspot += pipe_ctx->plane_state->dst_rect.x;
--	pos_cpy.y_hotspot += pipe_ctx->plane_state->dst_rect.y;
-+	uint32_t x_plane = pipe_ctx->plane_state->dst_rect.x;
-+	uint32_t y_plane = pipe_ctx->plane_state->dst_rect.y;
-+	uint32_t x_offset = min(x_plane, pos_cpy.x);
-+	uint32_t y_offset = min(y_plane, pos_cpy.y);
-+
-+	pos_cpy.x -= x_offset;
-+	pos_cpy.y -= y_offset;
-+	pos_cpy.x_hotspot += (x_plane - x_offset);
-+	pos_cpy.y_hotspot += (y_plane - y_offset);
- 
- 	if (pipe_ctx->plane_state->address.type
- 			== PLN_ADDR_TYPE_VIDEO_PROGRESSIVE)
+diff --git a/arch/arm64/kernel/cpu_ops.c b/arch/arm64/kernel/cpu_ops.c
+index ea001241bdd47..00f8b8612b69f 100644
+--- a/arch/arm64/kernel/cpu_ops.c
++++ b/arch/arm64/kernel/cpu_ops.c
+@@ -85,6 +85,7 @@ static const char *__init cpu_read_enable_method(int cpu)
+ 				pr_err("%pOF: missing enable-method property\n",
+ 					dn);
+ 		}
++		of_node_put(dn);
+ 	} else {
+ 		enable_method = acpi_get_enable_method(cpu);
+ 		if (!enable_method) {
 -- 
 2.20.1
 
