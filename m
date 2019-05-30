@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 960052F1A2
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:14:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D569F2F5D7
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:51:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730229AbfE3EOo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:14:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41472 "EHLO mail.kernel.org"
+        id S1728292AbfE3DK4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:10:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730603AbfE3DQJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:16:09 -0400
+        id S1727732AbfE3DKz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:10:55 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E95342458C;
-        Thu, 30 May 2019 03:16:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 68324244BB;
+        Thu, 30 May 2019 03:10:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186169;
-        bh=g7xRx7wbkWXxzsmEexPdZrCdeFMYV6Mspchdbw0hIvI=;
+        s=default; t=1559185855;
+        bh=aq+pFlzRX86VxARbygEbyQtzAqJ7YxsGDMBDyJmYGes=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YYvTiJiT8+Ees7CUAwnaeq5i+sfWybzfrzMFkb4B8lB4fgcW8icuxy35zPzjiw364
-         vhVFkZV5Ej+PQ4yX+t+iNwKVpqQCUIXeK2CNuVVSaxa+y916OKaS38nXt15JvbcGVB
-         Q0hmSKiMPu3/Vm/yu1nfZiM8/8yWSsOOs1cAS4nY=
+        b=NQXpQGrTPA7jsb5Mn/7HRqc1oytncEUOvxqJ64SOeSP1nTS92ZmKZYNO0pyhJ4YbX
+         2/d9bLRwu9hmVOmD3k9bJR/ZcwIsYuEYGIlIWgV/gAmHUVtFChU9ShvyPQ3wseAu/b
+         kD2LRNhYSsMCYk96AtuVK6emBhXyX0CIP4q7VU8w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Tobin C. Harding" <tobin@kernel.org>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.19 022/276] btrfs: sysfs: dont leak memory when failing add fsid
+        stable@vger.kernel.org, Evan Green <evgreen@chromium.org>,
+        Rob Herring <robh@kernel.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Kishon Vijay Abraham I <kishon@ti.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 182/405] dt-bindings: phy-qcom-qmp: Add UFS PHY reset
 Date:   Wed, 29 May 2019 20:03:00 -0700
-Message-Id: <20190530030525.532621039@linuxfoundation.org>
+Message-Id: <20190530030550.286418608@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,53 +46,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tobin C. Harding <tobin@kernel.org>
+[ Upstream commit 95cee0b4e30a09a411a17e9a3bc6b72ed92063da ]
 
-commit e32773357d5cc271b1d23550b3ed026eb5c2a468 upstream.
+Add a required reset to the SDM845 UFS phy to express the PHY reset
+bit inside the UFS controller register space. Before this change, this
+reset was not expressed in the DT, and the driver utilized two different
+callbacks (phy_init and phy_poweron) to implement a two-phase
+initialization procedure that involved deasserting this reset between
+init and poweron. This abused the two callbacks and diluted their
+purpose.
 
-A failed call to kobject_init_and_add() must be followed by a call to
-kobject_put().  Currently in the error path when adding fs_devices we
-are missing this call.  This could be fixed by calling
-btrfs_sysfs_remove_fsid() if btrfs_sysfs_add_fsid() returns an error or
-by adding a call to kobject_put() directly in btrfs_sysfs_add_fsid().
-Here we choose the second option because it prevents the slightly
-unusual error path handling requirements of kobject from leaking out
-into btrfs functions.
+That scheme does not work as regulators cannot be turned off in
+phy_poweroff because they were turned on in init, rather than poweron.
+The net result is that regulators are left on in suspend that shouldn't
+be.
 
-Add a call to kobject_put() in the error path of kobject_add_and_init().
-This causes the release method to be called if kobject_init_and_add()
-fails.  open_tree() is the function that calls btrfs_sysfs_add_fsid()
-and the error code in this function is already written with the
-assumption that the release method is called during the error path of
-open_tree() (as seen by the call to btrfs_sysfs_remove_fsid() under the
-fail_fsdev_sysfs label).
+This new scheme gives the UFS reset to the PHY, so that it can fully
+initialize itself in a single callback. We can then turn regulators on
+during poweron and off during poweroff.
 
-Cc: stable@vger.kernel.org # v4.4+
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Tobin C. Harding <tobin@kernel.org>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Evan Green <evgreen@chromium.org>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/sysfs.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ Documentation/devicetree/bindings/phy/qcom-qmp-phy.txt | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/fs/btrfs/sysfs.c
-+++ b/fs/btrfs/sysfs.c
-@@ -811,7 +811,12 @@ int btrfs_sysfs_add_fsid(struct btrfs_fs
- 	fs_devs->fsid_kobj.kset = btrfs_kset;
- 	error = kobject_init_and_add(&fs_devs->fsid_kobj,
- 				&btrfs_ktype, parent, "%pU", fs_devs->fsid);
--	return error;
-+	if (error) {
-+		kobject_put(&fs_devs->fsid_kobj);
-+		return error;
-+	}
-+
-+	return 0;
- }
+diff --git a/Documentation/devicetree/bindings/phy/qcom-qmp-phy.txt b/Documentation/devicetree/bindings/phy/qcom-qmp-phy.txt
+index 5d181fc3cc182..4a78ba8b85bc0 100644
+--- a/Documentation/devicetree/bindings/phy/qcom-qmp-phy.txt
++++ b/Documentation/devicetree/bindings/phy/qcom-qmp-phy.txt
+@@ -59,7 +59,8 @@ Required properties:
+ 	   one for each entry in reset-names.
+  - reset-names: "phy" for reset of phy block,
+ 		"common" for phy common block reset,
+-		"cfg" for phy's ahb cfg block reset.
++		"cfg" for phy's ahb cfg block reset,
++		"ufsphy" for the PHY reset in the UFS controller.
  
- int btrfs_sysfs_add_mounted(struct btrfs_fs_info *fs_info)
+ 		For "qcom,ipq8074-qmp-pcie-phy" must contain:
+ 			"phy", "common".
+@@ -74,7 +75,8 @@ Required properties:
+ 			"phy", "common".
+ 		For "qcom,sdm845-qmp-usb3-uni-phy" must contain:
+ 			"phy", "common".
+-		For "qcom,sdm845-qmp-ufs-phy": no resets are listed.
++		For "qcom,sdm845-qmp-ufs-phy": must contain:
++			"ufsphy".
+ 
+  - vdda-phy-supply: Phandle to a regulator supply to PHY core block.
+  - vdda-pll-supply: Phandle to 1.8V regulator supply to PHY refclk pll block.
+-- 
+2.20.1
+
 
 
