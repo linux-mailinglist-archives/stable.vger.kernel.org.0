@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 534A02EDE0
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:42:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33B872EDAC
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:42:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732733AbfE3DmE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:42:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33432 "EHLO mail.kernel.org"
+        id S1731858AbfE3DVP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:21:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730805AbfE3DVO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:21:14 -0400
+        id S1731334AbfE3DVP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:21:15 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A5600249DA;
-        Thu, 30 May 2019 03:21:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 14E29249DE;
+        Thu, 30 May 2019 03:21:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186473;
-        bh=u/o9e/Zn2ubRLqes5gnJEJABVXFhgeWSjSpwDT/8djA=;
+        s=default; t=1559186474;
+        bh=QxmXPB/OVVlcaVi3NnQoldDaqOW7u/rn7JLO0Jh6XrQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C+3V/+dkr754WXFAwbboXUadkxl+yL2BfCaYDNDbw9lCGrKcGNJQfhYf3JeMmerkN
-         Dw/XkLaR+HZyaVJ3rvxl/sf+/jNE03l4F7CSPqkIqU0ToC7jOtMIFiHKT0b6lPSvlU
-         EsRTGs+EWHw0SlMO4es08Phh6H68Pnlhw0pqh930=
+        b=tbREkdn0UUmTPkRN2corsIPleeiyEM1FPmGiNIA/48B+3+oz4BDok1nK9AjKUWTyI
+         jb7du+TWm7ZYO/HhMYoBsXRA9HWYQxnovqHejnxmcgpjD7Dtgnq7HKjptE1J0JNeLX
+         jAK6V6Fy04j8jWX7oXlA41UL5Jk32lMv8FjywwvE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chengguang Xu <cgxu519@gmx.com>,
+        stable@vger.kernel.org,
+        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
+        Terry Junge <terry.junge@poly.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 104/128] chardev: add additional check for minor range overlap
-Date:   Wed, 29 May 2019 20:07:16 -0700
-Message-Id: <20190530030453.326003210@linuxfoundation.org>
+Subject: [PATCH 4.9 105/128] HID: core: move Usage Page concatenation to Main item
+Date:   Wed, 29 May 2019 20:07:17 -0700
+Message-Id: <20190530030453.456154649@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
 References: <20190530030432.977908967@linuxfoundation.org>
@@ -43,36 +46,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit de36e16d1557a0b6eb328bc3516359a12ba5c25c ]
+[ Upstream commit 58e75155009cc800005629955d3482f36a1e0eec ]
 
-Current overlap checking cannot correctly handle
-a case which is baseminor < existing baseminor &&
-baseminor + minorct > existing baseminor + minorct.
+As seen on some USB wireless keyboards manufactured by Primax, the HID
+parser was using some assumptions that are not always true. In this case
+it's s the fact that, inside the scope of a main item, an Usage Page
+will always precede an Usage.
 
-Signed-off-by: Chengguang Xu <cgxu519@gmx.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The spec is not pretty clear as 6.2.2.7 states "Any usage that follows
+is interpreted as a Usage ID and concatenated with the Usage Page".
+While 6.2.2.8 states "When the parser encounters a main item it
+concatenates the last declared Usage Page with a Usage to form a
+complete usage value." Being somewhat contradictory it was decided to
+match Window's implementation, which follows 6.2.2.8.
+
+In summary, the patch moves the Usage Page concatenation from the local
+item parsing function to the main item parsing function.
+
+Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
+Reviewed-by: Terry Junge <terry.junge@poly.com>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/char_dev.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/hid/hid-core.c | 36 ++++++++++++++++++++++++------------
+ include/linux/hid.h    |  1 +
+ 2 files changed, 25 insertions(+), 12 deletions(-)
 
-diff --git a/fs/char_dev.c b/fs/char_dev.c
-index 44a240c4bb658..a112a4745d8b3 100644
---- a/fs/char_dev.c
-+++ b/fs/char_dev.c
-@@ -134,6 +134,12 @@ __register_chrdev_region(unsigned int major, unsigned int baseminor,
- 			ret = -EBUSY;
- 			goto out;
- 		}
-+
-+		if (new_min < old_min && new_max > old_max) {
-+			ret = -EBUSY;
-+			goto out;
-+		}
-+
- 	}
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index 70597854397fc..ceb4df96e0d55 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -200,13 +200,14 @@ static unsigned hid_lookup_collection(struct hid_parser *parser, unsigned type)
+  * Add a usage to the temporary parser table.
+  */
  
- 	cd->next = *cp;
+-static int hid_add_usage(struct hid_parser *parser, unsigned usage)
++static int hid_add_usage(struct hid_parser *parser, unsigned usage, u8 size)
+ {
+ 	if (parser->local.usage_index >= HID_MAX_USAGES) {
+ 		hid_err(parser->device, "usage index exceeded\n");
+ 		return -1;
+ 	}
+ 	parser->local.usage[parser->local.usage_index] = usage;
++	parser->local.usage_size[parser->local.usage_index] = size;
+ 	parser->local.collection_index[parser->local.usage_index] =
+ 		parser->collection_stack_ptr ?
+ 		parser->collection_stack[parser->collection_stack_ptr - 1] : 0;
+@@ -463,10 +464,7 @@ static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
+ 			return 0;
+ 		}
+ 
+-		if (item->size <= 2)
+-			data = (parser->global.usage_page << 16) + data;
+-
+-		return hid_add_usage(parser, data);
++		return hid_add_usage(parser, data, item->size);
+ 
+ 	case HID_LOCAL_ITEM_TAG_USAGE_MINIMUM:
+ 
+@@ -475,9 +473,6 @@ static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
+ 			return 0;
+ 		}
+ 
+-		if (item->size <= 2)
+-			data = (parser->global.usage_page << 16) + data;
+-
+ 		parser->local.usage_minimum = data;
+ 		return 0;
+ 
+@@ -488,9 +483,6 @@ static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
+ 			return 0;
+ 		}
+ 
+-		if (item->size <= 2)
+-			data = (parser->global.usage_page << 16) + data;
+-
+ 		count = data - parser->local.usage_minimum;
+ 		if (count + parser->local.usage_index >= HID_MAX_USAGES) {
+ 			/*
+@@ -510,7 +502,7 @@ static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
+ 		}
+ 
+ 		for (n = parser->local.usage_minimum; n <= data; n++)
+-			if (hid_add_usage(parser, n)) {
++			if (hid_add_usage(parser, n, item->size)) {
+ 				dbg_hid("hid_add_usage failed\n");
+ 				return -1;
+ 			}
+@@ -524,6 +516,22 @@ static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
+ 	return 0;
+ }
+ 
++/*
++ * Concatenate Usage Pages into Usages where relevant:
++ * As per specification, 6.2.2.8: "When the parser encounters a main item it
++ * concatenates the last declared Usage Page with a Usage to form a complete
++ * usage value."
++ */
++
++static void hid_concatenate_usage_page(struct hid_parser *parser)
++{
++	int i;
++
++	for (i = 0; i < parser->local.usage_index; i++)
++		if (parser->local.usage_size[i] <= 2)
++			parser->local.usage[i] += parser->global.usage_page << 16;
++}
++
+ /*
+  * Process a main item.
+  */
+@@ -533,6 +541,8 @@ static int hid_parser_main(struct hid_parser *parser, struct hid_item *item)
+ 	__u32 data;
+ 	int ret;
+ 
++	hid_concatenate_usage_page(parser);
++
+ 	data = item_udata(item);
+ 
+ 	switch (item->tag) {
+@@ -746,6 +756,8 @@ static int hid_scan_main(struct hid_parser *parser, struct hid_item *item)
+ 	__u32 data;
+ 	int i;
+ 
++	hid_concatenate_usage_page(parser);
++
+ 	data = item_udata(item);
+ 
+ 	switch (item->tag) {
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index fab65b61d6d4e..04bdf5477ec51 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -374,6 +374,7 @@ struct hid_global {
+ 
+ struct hid_local {
+ 	unsigned usage[HID_MAX_USAGES]; /* usage array */
++	u8 usage_size[HID_MAX_USAGES]; /* usage size array */
+ 	unsigned collection_index[HID_MAX_USAGES]; /* collection index array */
+ 	unsigned usage_index;
+ 	unsigned usage_minimum;
 -- 
 2.20.1
 
