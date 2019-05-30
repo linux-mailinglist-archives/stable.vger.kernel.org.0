@@ -2,60 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BF8B130024
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 18:23:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 297AD30029
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 18:27:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727669AbfE3QXq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 12:23:46 -0400
-Received: from mail-lf1-f67.google.com ([209.85.167.67]:39858 "EHLO
-        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726684AbfE3QXq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 May 2019 12:23:46 -0400
-Received: by mail-lf1-f67.google.com with SMTP id e27so1259804lfn.6
-        for <stable@vger.kernel.org>; Thu, 30 May 2019 09:23:45 -0700 (PDT)
+        id S1726359AbfE3Q1Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 12:27:16 -0400
+Received: from mail-lf1-f68.google.com ([209.85.167.68]:35049 "EHLO
+        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726355AbfE3Q1Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 May 2019 12:27:16 -0400
+Received: by mail-lf1-f68.google.com with SMTP id a25so5535005lfg.2
+        for <stable@vger.kernel.org>; Thu, 30 May 2019 09:27:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=bv/mFS9CC6/OZ/sIVUU6SKDdjsoPp5A94OH9TBp6UhM=;
-        b=BkdDO99xutRVm5tNbNa8Wa5ly1F0R4muVc4vMChVGCo4Vz9krnJyUk+4iPUssg+eCE
-         CeTOPxO74MSKtGc95NPzy0zBMi7IGAZBEU0MBzpcsGX/BW5N1LATR1hhLBfR2Pmivvmu
-         tfUjD9pYQuyT0zz1VsA0/mmikEFMSmc6vGdMdbG09DWksgMwwfs6GPGw4x/NJB/J2OF9
-         scY+5YgzwNitlAgj4tLRjNgY+OfauR1G0YSIzH3wgPF0cD1VB7tv0fzZSl4S2qc3+ux3
-         cYQ1cVMG18WaOVU8rUI/Cprtfpnp3eoZA1CrmOo64rXLI2WJ0eZ45iUfSCj1CASN+5ex
-         thlw==
+        bh=bcgcWgAyzI4wAMncBYoxjWmRoluq1i/e3trlgUy2IJ8=;
+        b=RNktRFBlwcjGyYnbw3SlhETA+ckBoUlLX1aqAYKYzFAqR/LmYJVdb6zbRDztX4bVZR
+         xMxFtfUJ958V/utMqciXOq/0nkU3VIRxmKanWKEeCYWO3TBn3TdwKy8x0BY3o/hPboZg
+         Qaqc5tlvq0T0U2TU11Fdw+cKF6vucPHiZh0m9ESWfqrWc8ZV4pE4rIMo5yW/6ea96oHv
+         ePSImUavQYJWKu9aib7UKT8uwW3xa4m2TKNbvcFsW/1I3CNkX2sF8LUUjGjkZP5qcsf+
+         W5slPKsIzo+FHfwiSVn29OaLyqdUghysHthp0PK0y26OiUB+dcqKK1hKbp+72xa9GHAF
+         kkwg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=bv/mFS9CC6/OZ/sIVUU6SKDdjsoPp5A94OH9TBp6UhM=;
-        b=ASb94SCDZVa7Jw41APPOw+yaBpPSlTWOOXLtBCj8UznhJtd3NxUX+FAlKeXzcI7TU0
-         TlhNavauJaXjRkv1reatt4RR4mM7V4zzyzxeFYZdKhTURbtG8golSggMQqvnCLinxsur
-         Vc7IukFxbIxCJVFUFYgT0Enk63aU2Z0Xsgseagb/Oq8d4mDHMbFwgphwAl8EO3qEN+xi
-         kjQYbZv4VIGQMlTEpxCZgUrebqmRYW6h5dB6OQisKy/naMbAssJNVaPm5zx3tFxka0eo
-         kyQpBwFi5HBWyBgW7OG9aCNFEqlVuvfErqLvUxjn+qpoI8nRW5LnTszIyQWXdQRBO0c9
-         vLOQ==
-X-Gm-Message-State: APjAAAUn2UF133Yyg43EezjAHoU7EGNDgLeoKpdpY4iK+RAqJ00xFRiY
-        48HuyOtHz9hHvi4XzLS3OD2/0su+CUm8AVHD4VtlnQ==
-X-Google-Smtp-Source: APXvYqyiLBLHtmBQOOHYewT3ZYon7PZYdDbyDEU1ogRqdFPpk4e+V7xsfzmfCWw/FAuhGvNPOC/kYzjxGQ4yLYH7FIg=
-X-Received: by 2002:a19:ed0c:: with SMTP id y12mr2477008lfy.191.1559233424779;
- Thu, 30 May 2019 09:23:44 -0700 (PDT)
+        bh=bcgcWgAyzI4wAMncBYoxjWmRoluq1i/e3trlgUy2IJ8=;
+        b=YTkpv9dih962okXEbQT3rT+smTjQXO6/rEuTkcgdx2/eSyoWZczSO0UPtv1cV4LfYg
+         6gdz8cJsCbJAQjhpMQD9DlhbdoQfKJKMSI5JW+0qBqLK9OhGAe8dNYlU6svSeEU4lUyw
+         6aRIUhToF+BLgFRLI2lsS3u1FKIjicjlB78lXXyEygzCxHLcl22XpDRxhwqsYkDQVd13
+         nk70SIblrz8MGk4/vBURM3IFT42xvUlX5/LiAmsBPIB8POkeQJ64MsiJOzIuK9PuZym3
+         L2ZZ4ao9wGKtmRaluSrao+eXOhvPbAWJReNyOp4y5ESBBsgaYpMUuZ+Fhp9dq2GWsFaL
+         0x+A==
+X-Gm-Message-State: APjAAAX4SXiPv13rjSfxvDPP6gs/UUkYZ64JJLi0iCEzqmrHyv0oNV8Y
+        n/g64tLg+h+KYBUtCRpuHfFim40pBmKvWPBTLecaug==
+X-Google-Smtp-Source: APXvYqydY4ZuyQWHYbcBdwdAWkev+5Azw5+28aPegnVHkirUji7qVs1ZDH5C7jRMtA00wwMOi6t+7VP3lC8jhpm6vI0=
+X-Received: by 2002:a19:488e:: with SMTP id v136mr2524437lfa.192.1559233634141;
+ Thu, 30 May 2019 09:27:14 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190530030540.363386121@linuxfoundation.org>
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030432.977908967@linuxfoundation.org>
+In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Thu, 30 May 2019 21:53:33 +0530
-Message-ID: <CA+G9fYtW1E+jOKaU3qnhdwa63r1t7i04uMAcigWAUjVmDss6Pg@mail.gmail.com>
-Subject: Re: [PATCH 5.0 000/346] 5.0.20-stable review
+Date:   Thu, 30 May 2019 21:57:02 +0530
+Message-ID: <CA+G9fYuZo54ui8A_Zy=N3kL5gyFbF9KwO2EYF417xU8FQwWb3Q@mail.gmail.com>
+Subject: Re: [PATCH 4.9 000/128] 4.9.180-stable review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        linux- stable <stable@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
@@ -63,23 +63,23 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 30 May 2019 at 08:48, Greg Kroah-Hartman
+On Thu, 30 May 2019 at 08:59, Greg Kroah-Hartman
 <gregkh@linuxfoundation.org> wrote:
 >
-> This is the start of the stable review cycle for the 5.0.20 release.
-> There are 346 patches in this series, all will be posted as a response
+> This is the start of the stable review cycle for the 4.9.180 release.
+> There are 128 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 >
-> Responses should be made by Sat 01 Jun 2019 03:02:10 AM UTC.
+> Responses should be made by Sat 01 Jun 2019 03:02:06 AM UTC.
 > Anything received after that time might be too late.
 >
 > The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.0.20-rc1.gz
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.9.180-rc1.gz
 > or in the git tree and branch at:
 >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.0.y
+-rc.git linux-4.9.y
 > and the diffstat can be found below.
 >
 > thanks,
@@ -92,47 +92,49 @@ No regressions on arm64, arm, x86_64, and i386.
 Summary
 ------------------------------------------------------------------------
 
-kernel: 5.0.20-rc1
+kernel: 4.9.180-rc1
 git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
 le-rc.git
-git branch: linux-5.0.y
-git commit: 79c6130942fe2bc8d8cc92c526e93cce6a068262
-git describe: v5.0.19-347-g79c6130942fe
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.0-oe/bui=
-ld/v5.0.19-347-g79c6130942fe
+git branch: linux-4.9.y
+git commit: 545b59ea794cfbac3646ccfab4a34c9f7753621e
+git describe: v4.9.179-129-g545b59ea794c
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.9-oe/bui=
+ld/v4.9.179-129-g545b59ea794c
 
-No regressions (compared to build v5.0.19)
+No regressions (compared to build v4.9.179)
 
-Fixes (compared to build v5.0.19)
+No fixes (compared to build v4.9.179)
 
-Ran 22805 total tests in the following environments and test suites.
+Ran 18444 total tests in the following environments and test suites.
 
 Environments
 --------------
-- dragonboard-410c
-- hi6220-hikey
+- dragonboard-410c - arm64
+- hi6220-hikey - arm64
 - i386
-- juno-r2
+- juno-r2 - arm64
 - qemu_arm
 - qemu_arm64
 - qemu_i386
 - qemu_x86_64
-- x15
-- x86
+- x15 - arm
+- x86_64
 
 Test Suites
 -----------
 * build
 * install-android-platform-tools-r2600
 * kselftest
-* libgpiod
 * libhugetlbfs
 * ltp-cap_bounds-tests
 * ltp-commands-tests
+* ltp-containers-tests
 * ltp-cpuhotplug-tests
+* ltp-cve-tests
 * ltp-dio-tests
 * ltp-fcntl-locktests-tests
 * ltp-filecaps-tests
+* ltp-fs-tests
 * ltp-fs_bind-tests
 * ltp-fs_perms_simple-tests
 * ltp-fsx-tests
@@ -148,16 +150,14 @@ Test Suites
 * ltp-syscalls-tests
 * ltp-timers-tests
 * perf
-* v4l2-compliance
-* ltp-fs-tests
-* network-basic-tests
-* ltp-containers-tests
-* ltp-cve-tests
-* ltp-open-posix-tests
 * spectre-meltdown-checker-test
-* kvm-unit-tests
+* v4l2-compliance
+* ltp-open-posix-tests
+* network-basic-tests
 * kselftest-vsyscall-mode-native
 * kselftest-vsyscall-mode-none
+* kvm-unit-tests
+* prep-tmp-disk
 
 --=20
 Linaro LKFT
