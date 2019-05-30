@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B1522F39D
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:33:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E9282F178
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:13:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730419AbfE3EaN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:30:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60664 "EHLO mail.kernel.org"
+        id S1726842AbfE3ENT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:13:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43312 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728729AbfE3DN4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:13:56 -0400
+        id S1730762AbfE3DQl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:16:41 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5415124570;
-        Thu, 30 May 2019 03:13:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EC3C0245F8;
+        Thu, 30 May 2019 03:16:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186035;
-        bh=B0kkcBhPPymQtbiVsDOq5fIlhZphzUPVBtAroCUNc0s=;
+        s=default; t=1559186201;
+        bh=uIbglvcgcCD288qkSn4ygSDW/GSXl/64XOYxAqgcNZM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uvByfgqNMJ08zI2yoh++BZ44mdkXCvG8wI8OU1LFweC3hNJZt9BG+0g1oaC3u0G9+
-         +HfY8PUyQcqWPvNevY8TipZqBckPQv0Z0nvmq9zrCJ36PJjsHV5vjkEWNPSpst4Xql
-         SHeMWmviQ4OTahSHEbwYa56irmExjJ6n1XZubJjE=
+        b=nrTDqrGaKmIld68UrRx2K7JQsxVFjxwKYFAkf4gcR7Ao0Ro2P84eCtaF+R1Bkdmac
+         5yu1xxoxvqTLJke62yr6Av1EdG3Ybjs0OI49WFmJ1KF0Q2CMnTPKCQfBO6u69QGy+t
+         PDs+vidcky6rPr3xleMuLjOo+KpYBjrz7GTdPBQQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Parav Pandit <parav@mellanox.com>,
-        Daniel Jurgens <danielj@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 121/346] RDMA/cma: Consider scope_id while binding to ipv6 ll address
+        stable@vger.kernel.org, Hans Verkuil <hverkuil@xs4all.nl>,
+        Syzbot <syzbot+4180ff9ca6810b06c1e9@syzkaller.appspotmail.com>,
+        Tomasz Figa <tfiga@chromium.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Subject: [PATCH 4.19 036/276] media: vb2: add waiting_in_dqbuf flag
 Date:   Wed, 29 May 2019 20:03:14 -0700
-Message-Id: <20190530030547.206456234@linuxfoundation.org>
+Message-Id: <20190530030526.499360569@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,82 +46,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 5d7ed2f27bbd482fd29e6b2e204b1a1ee8a0b268 ]
+From: Hans Verkuil <hverkuil@xs4all.nl>
 
-When two netdev have same link local addresses (such as vlan and non
-vlan), two rdma cm listen id should be able to bind to following different
-addresses.
+commit d65842f7126aa1a87fb44b7c9980c12630ed4f33 upstream.
 
-listener-1: addr=lla, scope_id=A, port=X
-listener-2: addr=lla, scope_id=B, port=X
+Calling VIDIOC_DQBUF can release the core serialization lock pointed to
+by vb2_queue->lock if it has to wait for a new buffer to arrive.
 
-However while comparing the addresses only addr and port are considered,
-due to which 2nd listener fails to listen.
+However, if userspace dup()ped the video device filehandle, then it is
+possible to read or call DQBUF from two filehandles at the same time.
 
-In below example of two listeners, 2nd listener is failing with address in
-use error.
+It is also possible to call REQBUFS from one filehandle while the other
+is waiting for a buffer. This will remove all the buffers and reallocate
+new ones. Removing all the buffers isn't the problem here (that's already
+handled correctly by DQBUF), but the reallocating part is: DQBUF isn't
+aware that the buffers have changed.
 
-$ rping -sv -a fe80::268a:7ff:feb3:d113%ens2f1 -p 4545&
+This is fixed by setting a flag whenever the lock is released while waiting
+for a buffer to arrive. And checking the flag where needed so we can return
+-EBUSY.
 
-$ rping -sv -a fe80::268a:7ff:feb3:d113%ens2f1.200 -p 4545
-rdma_bind_addr: Address already in use
+Signed-off-by: Hans Verkuil <hverkuil@xs4all.nl>
+Reported-by: Syzbot <syzbot+4180ff9ca6810b06c1e9@syzkaller.appspotmail.com>
+Reviewed-by: Tomasz Figa <tfiga@chromium.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-To overcome this, consider the scope_ids as well which forms the accurate
-IPv6 link local address.
-
-Signed-off-by: Parav Pandit <parav@mellanox.com>
-Reviewed-by: Daniel Jurgens <danielj@mellanox.com>
-Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/cma.c | 25 +++++++++++++++++++------
- 1 file changed, 19 insertions(+), 6 deletions(-)
+ drivers/media/common/videobuf2/videobuf2-core.c |   22 ++++++++++++++++++++++
+ include/media/videobuf2-core.h                  |    1 +
+ 2 files changed, 23 insertions(+)
 
-diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
-index 81bded0d37d1e..cb482f3389504 100644
---- a/drivers/infiniband/core/cma.c
-+++ b/drivers/infiniband/core/cma.c
-@@ -1170,18 +1170,31 @@ static inline bool cma_any_addr(const struct sockaddr *addr)
- 	return cma_zero_addr(addr) || cma_loopback_addr(addr);
- }
+--- a/drivers/media/common/videobuf2/videobuf2-core.c
++++ b/drivers/media/common/videobuf2/videobuf2-core.c
+@@ -668,6 +668,11 @@ int vb2_core_reqbufs(struct vb2_queue *q
+ 		return -EBUSY;
+ 	}
  
--static int cma_addr_cmp(struct sockaddr *src, struct sockaddr *dst)
-+static int cma_addr_cmp(const struct sockaddr *src, const struct sockaddr *dst)
- {
- 	if (src->sa_family != dst->sa_family)
- 		return -1;
- 
- 	switch (src->sa_family) {
- 	case AF_INET:
--		return ((struct sockaddr_in *) src)->sin_addr.s_addr !=
--		       ((struct sockaddr_in *) dst)->sin_addr.s_addr;
--	case AF_INET6:
--		return ipv6_addr_cmp(&((struct sockaddr_in6 *) src)->sin6_addr,
--				     &((struct sockaddr_in6 *) dst)->sin6_addr);
-+		return ((struct sockaddr_in *)src)->sin_addr.s_addr !=
-+		       ((struct sockaddr_in *)dst)->sin_addr.s_addr;
-+	case AF_INET6: {
-+		struct sockaddr_in6 *src_addr6 = (struct sockaddr_in6 *)src;
-+		struct sockaddr_in6 *dst_addr6 = (struct sockaddr_in6 *)dst;
-+		bool link_local;
-+
-+		if (ipv6_addr_cmp(&src_addr6->sin6_addr,
-+					  &dst_addr6->sin6_addr))
-+			return 1;
-+		link_local = ipv6_addr_type(&dst_addr6->sin6_addr) &
-+			     IPV6_ADDR_LINKLOCAL;
-+		/* Link local must match their scope_ids */
-+		return link_local ? (src_addr6->sin6_scope_id !=
-+				     dst_addr6->sin6_scope_id) :
-+				    0;
++	if (q->waiting_in_dqbuf && *count) {
++		dprintk(1, "another dup()ped fd is waiting for a buffer\n");
++		return -EBUSY;
 +	}
 +
- 	default:
- 		return ib_addr_cmp(&((struct sockaddr_ib *) src)->sib_addr,
- 				   &((struct sockaddr_ib *) dst)->sib_addr);
--- 
-2.20.1
-
+ 	if (*count == 0 || q->num_buffers != 0 ||
+ 	    (q->memory != VB2_MEMORY_UNKNOWN && q->memory != memory)) {
+ 		/*
+@@ -797,6 +802,10 @@ int vb2_core_create_bufs(struct vb2_queu
+ 	}
+ 
+ 	if (!q->num_buffers) {
++		if (q->waiting_in_dqbuf && *count) {
++			dprintk(1, "another dup()ped fd is waiting for a buffer\n");
++			return -EBUSY;
++		}
+ 		memset(q->alloc_devs, 0, sizeof(q->alloc_devs));
+ 		q->memory = memory;
+ 		q->waiting_for_buffers = !q->is_output;
+@@ -1466,6 +1475,11 @@ static int __vb2_wait_for_done_vb(struct
+ 	for (;;) {
+ 		int ret;
+ 
++		if (q->waiting_in_dqbuf) {
++			dprintk(1, "another dup()ped fd is waiting for a buffer\n");
++			return -EBUSY;
++		}
++
+ 		if (!q->streaming) {
+ 			dprintk(1, "streaming off, will not wait for buffers\n");
+ 			return -EINVAL;
+@@ -1493,6 +1507,7 @@ static int __vb2_wait_for_done_vb(struct
+ 			return -EAGAIN;
+ 		}
+ 
++		q->waiting_in_dqbuf = 1;
+ 		/*
+ 		 * We are streaming and blocking, wait for another buffer to
+ 		 * become ready or for streamoff. Driver's lock is released to
+@@ -1513,6 +1528,7 @@ static int __vb2_wait_for_done_vb(struct
+ 		 * the locks or return an error if one occurred.
+ 		 */
+ 		call_void_qop(q, wait_finish, q);
++		q->waiting_in_dqbuf = 0;
+ 		if (ret) {
+ 			dprintk(1, "sleep was interrupted\n");
+ 			return ret;
+@@ -2361,6 +2377,12 @@ static size_t __vb2_perform_fileio(struc
+ 	if (!data)
+ 		return -EINVAL;
+ 
++	if (q->waiting_in_dqbuf) {
++		dprintk(3, "another dup()ped fd is %s\n",
++			read ? "reading" : "writing");
++		return -EBUSY;
++	}
++
+ 	/*
+ 	 * Initialize emulator on first call.
+ 	 */
+--- a/include/media/videobuf2-core.h
++++ b/include/media/videobuf2-core.h
+@@ -551,6 +551,7 @@ struct vb2_queue {
+ 	unsigned int			start_streaming_called:1;
+ 	unsigned int			error:1;
+ 	unsigned int			waiting_for_buffers:1;
++	unsigned int			waiting_in_dqbuf:1;
+ 	unsigned int			is_multiplanar:1;
+ 	unsigned int			is_output:1;
+ 	unsigned int			copy_timestamp:1;
 
 
