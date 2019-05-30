@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AD0272EC5B
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:20:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 943A12EC76
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:22:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732167AbfE3DUV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:20:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58258 "EHLO mail.kernel.org"
+        id S1727394AbfE3DVL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:21:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730512AbfE3DUU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:20:20 -0400
+        id S1732475AbfE3DVK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:21:10 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0E2E324820;
-        Thu, 30 May 2019 03:20:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D8A2B249C2;
+        Thu, 30 May 2019 03:21:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186420;
-        bh=S0RtJDyOdJxOcZGkcElDQaz2DuMFWae4Nk8Vcu5JZk4=;
+        s=default; t=1559186469;
+        bh=dFVTRMQShWSKyV+DNlr1H0V44BM6jzEICjqpG4UeNmU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=prI+XrSRDOO0gS4bk1FVYWBFfYPidAo9YkHdkGtIL19x+Sr3k0Y9cQNE3oJpgfufB
-         zofsjJZIcWJ593e9S/G2U92Z6ypMGXhLzMEz2eA/H7DGHMlyennVyRWL5lS/EMQMV9
-         82xTV/NWBHUxEvytLCu++z/AXhCsTlW3yjFglWmI=
+        b=Sb3FusQ9EiQfb+8ljlP4ZfbI5bRXrplpDi2OgL7M+MF8qJFJjfTVZ41MDm+x3fG5W
+         rWTCx1HaG2ltpTNgulSo0fp9zC5PgXVMHf1JIfct7wqBplPeoX/eyu27lQZhz03UdN
+         Uf15IjYb19eXG8fopU5L06Ik7yzrrOMAvWHmJcXo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Larry Finger <Larry.Finger@lwfinger.net>,
         Nathan Chancellor <natechancellor@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 173/193] scsi: qla4xxx: avoid freeing unallocated dma memory
+Subject: [PATCH 4.9 095/128] b43: shut up clang -Wuninitialized variable warning
 Date:   Wed, 29 May 2019 20:07:07 -0700
-Message-Id: <20190530030512.001954376@linuxfoundation.org>
+Message-Id: <20190530030451.719097680@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
+References: <20190530030432.977908967@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,50 +46,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 608f729c31d4caf52216ea00d20092a80959256d ]
+[ Upstream commit d825db346270dbceef83b7b750dbc29f1d7dcc0e ]
 
-Clang -Wuninitialized notices that on is_qla40XX we never allocate any DMA
-memory in get_fw_boot_info() but attempt to free it anyway:
+Clang warns about what is clearly a case of passing an uninitalized
+variable into a static function:
 
-drivers/scsi/qla4xxx/ql4_os.c:5915:7: error: variable 'buf_dma' is used uninitialized whenever 'if' condition is false
-      [-Werror,-Wsometimes-uninitialized]
-                if (!(val & 0x07)) {
-                    ^~~~~~~~~~~~~
-drivers/scsi/qla4xxx/ql4_os.c:5985:47: note: uninitialized use occurs here
-        dma_free_coherent(&ha->pdev->dev, size, buf, buf_dma);
-                                                     ^~~~~~~
-drivers/scsi/qla4xxx/ql4_os.c:5915:3: note: remove the 'if' if its condition is always true
-                if (!(val & 0x07)) {
-                ^~~~~~~~~~~~~~~~~~~
-drivers/scsi/qla4xxx/ql4_os.c:5885:20: note: initialize the variable 'buf_dma' to silence this warning
-        dma_addr_t buf_dma;
-                          ^
-                           = 0
+drivers/net/wireless/broadcom/b43/phy_lp.c:1852:23: error: variable 'gains' is uninitialized when used here
+      [-Werror,-Wuninitialized]
+                lpphy_papd_cal(dev, gains, 0, 1, 30);
+                                    ^~~~~
+drivers/net/wireless/broadcom/b43/phy_lp.c:1838:2: note: variable 'gains' is declared here
+        struct lpphy_tx_gains gains, oldgains;
+        ^
+1 error generated.
 
-Skip the call to dma_free_coherent() here.
+However, this function is empty, and its arguments are never evaluated,
+so gcc in contrast does not warn here. Both compilers behave in a
+reasonable way as far as I can tell, so we should change the code
+to avoid the warning everywhere.
 
-Fixes: 2a991c215978 ("[SCSI] qla4xxx: Boot from SAN support for open-iscsi")
+We could just eliminate the lpphy_papd_cal() function entirely,
+given that it has had the TODO comment in it for 10 years now
+and is rather unlikely to ever get done. I'm doing a simpler
+change here, and just pass the 'oldgains' variable in that has
+been initialized, based on the guess that this is what was
+originally meant.
+
+Fixes: 2c0d6100da3e ("b43: LP-PHY: Begin implementing calibration & software RFKILL support")
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Larry Finger <Larry.Finger@lwfinger.net>
 Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla4xxx/ql4_os.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/broadcom/b43/phy_lp.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/qla4xxx/ql4_os.c b/drivers/scsi/qla4xxx/ql4_os.c
-index 630b7404843d0..4421f9bdfcf77 100644
---- a/drivers/scsi/qla4xxx/ql4_os.c
-+++ b/drivers/scsi/qla4xxx/ql4_os.c
-@@ -5939,7 +5939,7 @@ static int get_fw_boot_info(struct scsi_qla_host *ha, uint16_t ddb_index[])
- 		val = rd_nvram_byte(ha, sec_addr);
- 		if (val & BIT_7)
- 			ddb_index[1] = (val & 0x7f);
--
-+		goto exit_boot_info;
- 	} else if (is_qla80XX(ha)) {
- 		buf = dma_alloc_coherent(&ha->pdev->dev, size,
- 					 &buf_dma, GFP_KERNEL);
+diff --git a/drivers/net/wireless/broadcom/b43/phy_lp.c b/drivers/net/wireless/broadcom/b43/phy_lp.c
+index 6922cbb99a044..5a0699fb4b9ab 100644
+--- a/drivers/net/wireless/broadcom/b43/phy_lp.c
++++ b/drivers/net/wireless/broadcom/b43/phy_lp.c
+@@ -1834,7 +1834,7 @@ static void lpphy_papd_cal(struct b43_wldev *dev, struct lpphy_tx_gains gains,
+ static void lpphy_papd_cal_txpwr(struct b43_wldev *dev)
+ {
+ 	struct b43_phy_lp *lpphy = dev->phy.lp;
+-	struct lpphy_tx_gains gains, oldgains;
++	struct lpphy_tx_gains oldgains;
+ 	int old_txpctl, old_afe_ovr, old_rf, old_bbmult;
+ 
+ 	lpphy_read_tx_pctl_mode_from_hardware(dev);
+@@ -1848,9 +1848,9 @@ static void lpphy_papd_cal_txpwr(struct b43_wldev *dev)
+ 	lpphy_set_tx_power_control(dev, B43_LPPHY_TXPCTL_OFF);
+ 
+ 	if (dev->dev->chip_id == 0x4325 && dev->dev->chip_rev == 0)
+-		lpphy_papd_cal(dev, gains, 0, 1, 30);
++		lpphy_papd_cal(dev, oldgains, 0, 1, 30);
+ 	else
+-		lpphy_papd_cal(dev, gains, 0, 1, 65);
++		lpphy_papd_cal(dev, oldgains, 0, 1, 65);
+ 
+ 	if (old_afe_ovr)
+ 		lpphy_set_tx_gains(dev, oldgains);
 -- 
 2.20.1
 
