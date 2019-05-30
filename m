@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 40F042EE91
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:49:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A0032EC77
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:22:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730582AbfE3DsY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:48:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58294 "EHLO mail.kernel.org"
+        id S1732483AbfE3DVL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:21:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732166AbfE3DUV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:20:21 -0400
+        id S1732478AbfE3DVK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:21:10 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A7D46248C3;
-        Thu, 30 May 2019 03:20:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B55B4249C6;
+        Thu, 30 May 2019 03:21:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186420;
-        bh=nIogvrBNilFmJItUjp19blsKg1b9fJovWYXIMeADW7o=;
+        s=default; t=1559186469;
+        bh=DAZia6pEScLnyChBtoVglMHO6LuOLDhphpeN2FZxS0Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rX+mk7fuR5SNEiVPhQ6hsZZYKCxqE0suuMhXxoAXnjIB+O82Ln8O6BLEN//FqLsEX
-         VgnpKSoo+c9kYLt0pf0hSbOqQO1UfntGjIRhnOD6pcnK5AUrHZkFSB7imXSXOImkfk
-         5/kABEqRQLc/UGILiTMCz0HjXMIG6nCU5wlb+iNQ=
+        b=WsdwY2eqLsF6cfxRfhLP8Yw/0L50Hnn2sSPZA+VKynwH2Awtm8NDRV1BZkFkU3f6h
+         P1gKi+2Ll1/mmJwdvAJG+GAKy3BUnKl/Sbf+sHS0E5fsPApzy+/NcEtQTWSlVOHBPo
+         Heq6lILtoNNs6RPoj3XHWHiasY/P4/yk35QuMRoQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>,
-        Antonio Quartulli <a@unstable.cc>,
-        Sven Eckelmann <sven@narfation.org>,
-        Simon Wunderlich <sw@simonwunderlich.de>,
+        Piotr Figiel <p.figiel@camlintechnologies.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 174/193] batman-adv: allow updating DAT entry timeouts on incoming ARP Replies
-Date:   Wed, 29 May 2019 20:07:08 -0700
-Message-Id: <20190530030512.070537709@linuxfoundation.org>
+Subject: [PATCH 4.9 097/128] brcmfmac: fix race during disconnect when USB completion is in progress
+Date:   Wed, 29 May 2019 20:07:09 -0700
+Message-Id: <20190530030452.065702841@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
+References: <20190530030432.977908967@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,55 +45,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 099e6cc1582dc2903fecb898bbeae8f7cf4262c7 ]
+[ Upstream commit db3b9e2e1d58080d0754bdf9293dabf8c6491b67 ]
 
-Currently incoming ARP Replies, for example via a DHT-PUT message, do
-not update the timeout for an already existing DAT entry. These ARP
-Replies are dropped instead.
+It was observed that rarely during USB disconnect happening shortly after
+connect (before full initialization completes) usb_hub_wq would wait
+forever for the dev_init_lock to be unlocked. dev_init_lock would remain
+locked though because of infinite wait during usb_kill_urb:
 
-This however defeats the purpose of the DHCPACK snooping, for instance.
-Right now, a DAT entry in the DHT will be purged every five minutes,
-likely leading to a mesh-wide ARP Request broadcast after this timeout.
-Which then recreates the entry. The idea of the DHCPACK snooping is to
-be able to update an entry before a timeout happens, to avoid ARP Request
-flooding.
+[ 2730.656472] kworker/0:2     D    0   260      2 0x00000000
+[ 2730.660700] Workqueue: events request_firmware_work_func
+[ 2730.664807] [<809dca20>] (__schedule) from [<809dd164>] (schedule+0x4c/0xac)
+[ 2730.670587] [<809dd164>] (schedule) from [<8069af44>] (usb_kill_urb+0xdc/0x114)
+[ 2730.676815] [<8069af44>] (usb_kill_urb) from [<7f258b50>] (brcmf_usb_free_q+0x34/0xa8 [brcmfmac])
+[ 2730.684833] [<7f258b50>] (brcmf_usb_free_q [brcmfmac]) from [<7f2517d4>] (brcmf_detach+0xa0/0xb8 [brcmfmac])
+[ 2730.693557] [<7f2517d4>] (brcmf_detach [brcmfmac]) from [<7f251a34>] (brcmf_attach+0xac/0x3d8 [brcmfmac])
+[ 2730.702094] [<7f251a34>] (brcmf_attach [brcmfmac]) from [<7f2587ac>] (brcmf_usb_probe_phase2+0x468/0x4a0 [brcmfmac])
+[ 2730.711601] [<7f2587ac>] (brcmf_usb_probe_phase2 [brcmfmac]) from [<7f252888>] (brcmf_fw_request_done+0x194/0x220 [brcmfmac])
+[ 2730.721795] [<7f252888>] (brcmf_fw_request_done [brcmfmac]) from [<805748e4>] (request_firmware_work_func+0x4c/0x88)
+[ 2730.731125] [<805748e4>] (request_firmware_work_func) from [<80141474>] (process_one_work+0x228/0x808)
+[ 2730.739223] [<80141474>] (process_one_work) from [<80141a80>] (worker_thread+0x2c/0x564)
+[ 2730.746105] [<80141a80>] (worker_thread) from [<80147bcc>] (kthread+0x13c/0x16c)
+[ 2730.752227] [<80147bcc>] (kthread) from [<801010b4>] (ret_from_fork+0x14/0x20)
 
-This patch fixes this issue by updating a DAT entry on incoming
-ARP Replies even if a matching DAT entry already exists. While still
-filtering the ARP Reply towards the soft-interface, to avoid duplicate
-messages on the client device side.
+[ 2733.099695] kworker/0:3     D    0  1065      2 0x00000000
+[ 2733.103926] Workqueue: usb_hub_wq hub_event
+[ 2733.106914] [<809dca20>] (__schedule) from [<809dd164>] (schedule+0x4c/0xac)
+[ 2733.112693] [<809dd164>] (schedule) from [<809e2a8c>] (schedule_timeout+0x214/0x3e4)
+[ 2733.119621] [<809e2a8c>] (schedule_timeout) from [<809dde2c>] (wait_for_common+0xc4/0x1c0)
+[ 2733.126810] [<809dde2c>] (wait_for_common) from [<7f258d00>] (brcmf_usb_disconnect+0x1c/0x4c [brcmfmac])
+[ 2733.135206] [<7f258d00>] (brcmf_usb_disconnect [brcmfmac]) from [<8069e0c8>] (usb_unbind_interface+0x5c/0x1e4)
+[ 2733.143943] [<8069e0c8>] (usb_unbind_interface) from [<8056d3e8>] (device_release_driver_internal+0x164/0x1fc)
+[ 2733.152769] [<8056d3e8>] (device_release_driver_internal) from [<8056c078>] (bus_remove_device+0xd0/0xfc)
+[ 2733.161138] [<8056c078>] (bus_remove_device) from [<8056977c>] (device_del+0x11c/0x310)
+[ 2733.167939] [<8056977c>] (device_del) from [<8069cba8>] (usb_disable_device+0xa0/0x1cc)
+[ 2733.174743] [<8069cba8>] (usb_disable_device) from [<8069507c>] (usb_disconnect+0x74/0x1dc)
+[ 2733.181823] [<8069507c>] (usb_disconnect) from [<80695e88>] (hub_event+0x478/0xf88)
+[ 2733.188278] [<80695e88>] (hub_event) from [<80141474>] (process_one_work+0x228/0x808)
+[ 2733.194905] [<80141474>] (process_one_work) from [<80141a80>] (worker_thread+0x2c/0x564)
+[ 2733.201724] [<80141a80>] (worker_thread) from [<80147bcc>] (kthread+0x13c/0x16c)
+[ 2733.207913] [<80147bcc>] (kthread) from [<801010b4>] (ret_from_fork+0x14/0x20)
 
-Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
-Acked-by: Antonio Quartulli <a@unstable.cc>
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+It was traced down to a case where usb_kill_urb would be called on an URB
+structure containing more or less random data, including large number in
+its use_count. During the debugging it appeared that in brcmf_usb_free_q()
+the traversal over URBs' lists is not synchronized with operations on those
+lists in brcmf_usb_rx_complete() leading to handling
+brcmf_usbdev_info structure (holding lists' head) as lists' element and in
+result causing above problem.
+
+Fix it by walking through all URBs during brcmf_cancel_all_urbs using the
+arrays of requests instead of linked lists.
+
+Signed-off-by: Piotr Figiel <p.figiel@camlintechnologies.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/batman-adv/distributed-arp-table.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/net/batman-adv/distributed-arp-table.c b/net/batman-adv/distributed-arp-table.c
-index 4f0111bc6621e..8d1d0fdb157e7 100644
---- a/net/batman-adv/distributed-arp-table.c
-+++ b/net/batman-adv/distributed-arp-table.c
-@@ -1240,7 +1240,6 @@ bool batadv_dat_snoop_incoming_arp_reply(struct batadv_priv *bat_priv,
- 			   hw_src, &ip_src, hw_dst, &ip_dst,
- 			   dat_entry->mac_addr,	&dat_entry->ip);
- 		dropped = true;
--		goto out;
- 	}
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c
+index bfdf6ef224437..acf513fd9e6d5 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c
+@@ -681,12 +681,18 @@ static int brcmf_usb_up(struct device *dev)
  
- 	/* Update our internal cache with both the IP addresses the node got
-@@ -1249,6 +1248,9 @@ bool batadv_dat_snoop_incoming_arp_reply(struct batadv_priv *bat_priv,
- 	batadv_dat_entry_add(bat_priv, ip_src, hw_src, vid);
- 	batadv_dat_entry_add(bat_priv, ip_dst, hw_dst, vid);
- 
-+	if (dropped)
-+		goto out;
+ static void brcmf_cancel_all_urbs(struct brcmf_usbdev_info *devinfo)
+ {
++	int i;
 +
- 	/* If BLA is enabled, only forward ARP replies if we have claimed the
- 	 * source of the ARP reply or if no one else of the same backbone has
- 	 * already claimed that client. This prevents that different gateways
+ 	if (devinfo->ctl_urb)
+ 		usb_kill_urb(devinfo->ctl_urb);
+ 	if (devinfo->bulk_urb)
+ 		usb_kill_urb(devinfo->bulk_urb);
+-	brcmf_usb_free_q(&devinfo->tx_postq, true);
+-	brcmf_usb_free_q(&devinfo->rx_postq, true);
++	if (devinfo->tx_reqs)
++		for (i = 0; i < devinfo->bus_pub.ntxq; i++)
++			usb_kill_urb(devinfo->tx_reqs[i].urb);
++	if (devinfo->rx_reqs)
++		for (i = 0; i < devinfo->bus_pub.nrxq; i++)
++			usb_kill_urb(devinfo->rx_reqs[i].urb);
+ }
+ 
+ static void brcmf_usb_down(struct device *dev)
 -- 
 2.20.1
 
