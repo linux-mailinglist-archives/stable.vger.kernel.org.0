@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 896AD2F505
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:44:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4A4E2EF8B
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:56:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728991AbfE3Enm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:43:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53606 "EHLO mail.kernel.org"
+        id S1731774AbfE3DTB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:19:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727983AbfE3DMJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:12:09 -0400
+        id S1731771AbfE3DTB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:19:01 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C871A24481;
-        Thu, 30 May 2019 03:12:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 57D772481E;
+        Thu, 30 May 2019 03:19:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185928;
-        bh=k/DFDhT28fNL96xS6/KX2l6JDpDseEomSmkyL5TdaSo=;
+        s=default; t=1559186340;
+        bh=zpDVnYjF5VGV7F2+2umof3By86+rf23DqZ1ERK2R1Jw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PvZ0p0ZwZ6WXO3nqGmsgf9+pZzXXYqbh8giMiOXzhj0FZFNeH0We40r9Ci5+VwsPK
-         79WByEqLcz2nLMFCwwbmApSt6ce2IaD3UKYEo7ejciG8/6QVW/TrXLr8tUaMZ/9R1D
-         Ws6wrRbKlRiS3QnjPY5NfriW/u36xqnmcjQ690ZA=
+        b=ejxm5bKoVw2lMhQw6tjfVCtPyjYDq36xkwdVHL+b/DOMuZyArIgb7rvPpGmLV8r5C
+         LycG5YT88xqxwqCu5CUmwB0a/N6T7i8zQmopm6CxU/1F+0PHHHpgQ+Y8BfzOBwP/ZW
+         UzSRUXAirLPgkagFWlSQWdGlxadJrqkGMbferaOk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mohan Kumar D <mkumard@nvidia.com>,
-        Jonathan Hunter <jonathanh@nvidia.com>,
-        Sameer Pujar <spujar@nvidia.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 321/405] dmaengine: tegra210-adma: use devm_clk_*() helpers
+        stable@vger.kernel.org, Mariusz Bialonczyk <manio@skyboo.net>,
+        Jean-Francois Dagenais <jeff.dagenais@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 065/193] w1: fix the resume command API
 Date:   Wed, 29 May 2019 20:05:19 -0700
-Message-Id: <20190530030556.994716092@linuxfoundation.org>
+Message-Id: <20190530030458.472296211@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
+References: <20190530030446.953835040@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,108 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f6ed6491d565c336a360471e0c29228e34f4380e ]
+[ Upstream commit 62909da8aca048ecf9fbd7e484e5100608f40a63 ]
 
-adma driver is using pm_clk_*() interface for managing clock resources.
-With this it is observed that clocks remain ON always. This happens on
-Tegra devices which use BPMP co-processor to manage clock resources,
-where clocks are enabled during prepare phase. This is necessary because
-clocks to BPMP are always blocking. When pm_clk_*() interface is used on
-such Tegra devices, clock prepare count is not balanced till remove call
-happens for the driver and hence clocks are seen ON always. Thus this
-patch replaces pm_clk_*() with devm_clk_*() framework.
+>From the DS2408 datasheet [1]:
+"Resume Command function checks the status of the RC flag and, if it is set,
+ directly transfers control to the control functions, similar to a Skip ROM
+ command. The only way to set the RC flag is through successfully executing
+ the Match ROM, Search ROM, Conditional Search ROM, or Overdrive-Match ROM
+ command"
 
-Suggested-by: Mohan Kumar D <mkumard@nvidia.com>
-Reviewed-by: Jonathan Hunter <jonathanh@nvidia.com>
-Signed-off-by: Sameer Pujar <spujar@nvidia.com>
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+The function currently works perfectly fine in a multidrop bus, but when we
+have only a single slave connected, then only a Skip ROM is used and Match
+ROM is not called at all. This is leading to problems e.g. with single one
+DS2408 connected, as the Resume Command is not working properly and the
+device is responding with failing results after the Resume Command.
+
+This commit is fixing this by using a Skip ROM instead in those cases.
+The bandwidth / performance advantage is exactly the same.
+
+Refs:
+[1] https://datasheets.maximintegrated.com/en/ds/DS2408.pdf
+
+Signed-off-by: Mariusz Bialonczyk <manio@skyboo.net>
+Reviewed-by: Jean-Francois Dagenais <jeff.dagenais@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/tegra210-adma.c | 27 ++++++++++++---------------
- 1 file changed, 12 insertions(+), 15 deletions(-)
+ drivers/w1/w1_io.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/dma/tegra210-adma.c b/drivers/dma/tegra210-adma.c
-index 9aa35a7f13692..1477cce33dbe5 100644
---- a/drivers/dma/tegra210-adma.c
-+++ b/drivers/dma/tegra210-adma.c
-@@ -22,7 +22,6 @@
- #include <linux/of_device.h>
- #include <linux/of_dma.h>
- #include <linux/of_irq.h>
--#include <linux/pm_clock.h>
- #include <linux/pm_runtime.h>
- #include <linux/slab.h>
+diff --git a/drivers/w1/w1_io.c b/drivers/w1/w1_io.c
+index d191e1f805799..661551c4ffa25 100644
+--- a/drivers/w1/w1_io.c
++++ b/drivers/w1/w1_io.c
+@@ -430,8 +430,7 @@ int w1_reset_resume_command(struct w1_master *dev)
+ 	if (w1_reset_bus(dev))
+ 		return -1;
  
-@@ -141,6 +140,7 @@ struct tegra_adma {
- 	struct dma_device		dma_dev;
- 	struct device			*dev;
- 	void __iomem			*base_addr;
-+	struct clk			*ahub_clk;
- 	unsigned int			nr_channels;
- 	unsigned long			rx_requests_reserved;
- 	unsigned long			tx_requests_reserved;
-@@ -637,8 +637,9 @@ static int tegra_adma_runtime_suspend(struct device *dev)
- 	struct tegra_adma *tdma = dev_get_drvdata(dev);
- 
- 	tdma->global_cmd = tdma_read(tdma, ADMA_GLOBAL_CMD);
-+	clk_disable_unprepare(tdma->ahub_clk);
- 
--	return pm_clk_suspend(dev);
-+	return 0;
- }
- 
- static int tegra_adma_runtime_resume(struct device *dev)
-@@ -646,10 +647,11 @@ static int tegra_adma_runtime_resume(struct device *dev)
- 	struct tegra_adma *tdma = dev_get_drvdata(dev);
- 	int ret;
- 
--	ret = pm_clk_resume(dev);
--	if (ret)
-+	ret = clk_prepare_enable(tdma->ahub_clk);
-+	if (ret) {
-+		dev_err(dev, "ahub clk_enable failed: %d\n", ret);
- 		return ret;
--
-+	}
- 	tdma_write(tdma, ADMA_GLOBAL_CMD, tdma->global_cmd);
- 
- 	return 0;
-@@ -693,13 +695,11 @@ static int tegra_adma_probe(struct platform_device *pdev)
- 	if (IS_ERR(tdma->base_addr))
- 		return PTR_ERR(tdma->base_addr);
- 
--	ret = pm_clk_create(&pdev->dev);
--	if (ret)
--		return ret;
--
--	ret = of_pm_clk_add_clk(&pdev->dev, "d_audio");
--	if (ret)
--		goto clk_destroy;
-+	tdma->ahub_clk = devm_clk_get(&pdev->dev, "d_audio");
-+	if (IS_ERR(tdma->ahub_clk)) {
-+		dev_err(&pdev->dev, "Error: Missing ahub controller clock\n");
-+		return PTR_ERR(tdma->ahub_clk);
-+	}
- 
- 	pm_runtime_enable(&pdev->dev);
- 
-@@ -776,8 +776,6 @@ static int tegra_adma_probe(struct platform_device *pdev)
- 	pm_runtime_put_sync(&pdev->dev);
- rpm_disable:
- 	pm_runtime_disable(&pdev->dev);
--clk_destroy:
--	pm_clk_destroy(&pdev->dev);
- 
- 	return ret;
- }
-@@ -795,7 +793,6 @@ static int tegra_adma_remove(struct platform_device *pdev)
- 
- 	pm_runtime_put_sync(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
--	pm_clk_destroy(&pdev->dev);
- 
+-	/* This will make only the last matched slave perform a skip ROM. */
+-	w1_write_8(dev, W1_RESUME_CMD);
++	w1_write_8(dev, dev->slave_count > 1 ? W1_RESUME_CMD : W1_SKIP_ROM);
  	return 0;
  }
+ EXPORT_SYMBOL_GPL(w1_reset_resume_command);
 -- 
 2.20.1
 
