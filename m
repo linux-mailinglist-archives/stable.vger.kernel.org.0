@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D2732EF54
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:54:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53BFA2F4BC
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:42:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727196AbfE3Dyg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:54:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54624 "EHLO mail.kernel.org"
+        id S1727468AbfE3ElH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:41:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55200 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731857AbfE3DTS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:19:18 -0400
+        id S1729030AbfE3DM2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:12:28 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AA02424849;
-        Thu, 30 May 2019 03:19:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2BDE623C5A;
+        Thu, 30 May 2019 03:12:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186357;
-        bh=27AnvQp6V1UBvA8YUZr5d1qzCcobTE+49gHKQuYrNho=;
+        s=default; t=1559185947;
+        bh=BV20e+OC80Fj1qO36WZBQ7yWjyZjhNk+3OIm08cdVsE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X9nqEoAGNFATa2OcGFF+HQCe+235D/PgGdtQ/CzZ8mQgUt6cLEtfo0ostAGMcLCr6
-         HBT058KCY3jG6RoKJmpRfHY2HOg8c00UeBPFgC99jXY5nuA+TkoAEY2Ps0jWN9IZDt
-         NOhQUHqiWWTr3Gt6VoJ2dNRtB88UAtjR12GH++hs=
+        b=F8UmVDTDcQMkJBUYM+jpKMkYSf3sFJR6yDmfcfu1sAyiwOgx+CKyo+85dYCSk7Z8a
+         7/WBGjLMyhfm3x/XQWu0Xy6oWpvXyz1Zqxs+Upr62I5jvuYZ76lYMOFKEl6IUcXb+m
+         w0r8SJ1ZpeXytxy596iS3vW0NCAcfQvArfCbpMNs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
-        Peter Zijlstra <a.p.zijlstra@chello.nl>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 101/193] sched/rt: Check integer overflow at usec to nsec conversion
+        stable@vger.kernel.org, Alexandre Courbot <acourbot@chromium.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 357/405] media: mtk-vcodec: fix access to vb2_v4l2_buffer struct
 Date:   Wed, 29 May 2019 20:05:55 -0700
-Message-Id: <20190530030502.959142662@linuxfoundation.org>
+Message-Id: <20190530030558.688634539@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,55 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 1a010e29cfa00fee2888fd2fd4983f848cbafb58 ]
+[ Upstream commit 3235d3946429f64b19addfd89fc926a36eaec06a ]
 
-Example of unhandled overflows:
+Commit 0650a91499e0 ("media: mtk-vcodec: Correct return type for mem2mem
+buffer helpers") fixed the return types for mem2mem buffer helper
+functions, but omitted two occurrences that are accessed in the
+mtk_v4l2_debug() macro. These only trigger compiler errors when DEBUG is
+defined.
 
- # echo 18446744073709651 > cpu.rt_runtime_us
- # cat cpu.rt_runtime_us
- 99
+Fixes: 0650a91499e0 ("media: mtk-vcodec: Correct return type for mem2mem buffer helpers")
 
- # echo 18446744073709900 > cpu.rt_period_us
- # cat cpu.rt_period_us
- 348
-
-After this patch they will fail with -EINVAL.
-
-Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-Acked-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: http://lkml.kernel.org/r/155125501739.293431.5252197504404771496.stgit@buzz
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Alexandre Courbot <acourbot@chromium.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/rt.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/media/platform/mtk-vcodec/mtk_vcodec_dec.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/sched/rt.c b/kernel/sched/rt.c
-index cb9a5b8532fa5..cc7dd1aaf08e3 100644
---- a/kernel/sched/rt.c
-+++ b/kernel/sched/rt.c
-@@ -2533,6 +2533,8 @@ int sched_group_set_rt_runtime(struct task_group *tg, long rt_runtime_us)
- 	rt_runtime = (u64)rt_runtime_us * NSEC_PER_USEC;
- 	if (rt_runtime_us < 0)
- 		rt_runtime = RUNTIME_INF;
-+	else if ((u64)rt_runtime_us > U64_MAX / NSEC_PER_USEC)
-+		return -EINVAL;
+diff --git a/drivers/media/platform/mtk-vcodec/mtk_vcodec_dec.c b/drivers/media/platform/mtk-vcodec/mtk_vcodec_dec.c
+index 49babf994cb75..e20b340855e76 100644
+--- a/drivers/media/platform/mtk-vcodec/mtk_vcodec_dec.c
++++ b/drivers/media/platform/mtk-vcodec/mtk_vcodec_dec.c
+@@ -1158,7 +1158,7 @@ static void vb2ops_vdec_buf_queue(struct vb2_buffer *vb)
+ 	src_mem.size = (size_t)src_buf->vb2_buf.planes[0].bytesused;
+ 	mtk_v4l2_debug(2,
+ 			"[%d] buf id=%d va=%p dma=%pad size=%zx",
+-			ctx->id, src_buf->index,
++			ctx->id, src_buf->vb2_buf.index,
+ 			src_mem.va, &src_mem.dma_addr,
+ 			src_mem.size);
  
- 	return tg_set_rt_bandwidth(tg, rt_period, rt_runtime);
- }
-@@ -2553,6 +2555,9 @@ int sched_group_set_rt_period(struct task_group *tg, u64 rt_period_us)
- {
- 	u64 rt_runtime, rt_period;
- 
-+	if (rt_period_us > U64_MAX / NSEC_PER_USEC)
-+		return -EINVAL;
-+
- 	rt_period = rt_period_us * NSEC_PER_USEC;
- 	rt_runtime = tg->rt_bandwidth.rt_runtime;
- 
+@@ -1182,7 +1182,7 @@ static void vb2ops_vdec_buf_queue(struct vb2_buffer *vb)
+ 		}
+ 		mtk_v4l2_debug(ret ? 0 : 1,
+ 			       "[%d] vdec_if_decode() src_buf=%d, size=%zu, fail=%d, res_chg=%d",
+-			       ctx->id, src_buf->index,
++			       ctx->id, src_buf->vb2_buf.index,
+ 			       src_mem.size, ret, res_chg);
+ 		return;
+ 	}
 -- 
 2.20.1
 
