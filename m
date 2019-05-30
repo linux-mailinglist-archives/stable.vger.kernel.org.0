@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C8522F063
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:03:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 336C32EEED
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:51:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727873AbfE3EDa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:03:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49242 "EHLO mail.kernel.org"
+        id S1728819AbfE3DvI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:51:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731345AbfE3DR5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:17:57 -0400
+        id S1732033AbfE3DTs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:19:48 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E7D0924745;
-        Thu, 30 May 2019 03:17:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 32CDF248D3;
+        Thu, 30 May 2019 03:19:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186276;
-        bh=LzKJXOeiQ17vHM3+ckSUF66amKUIRGoN2NeYO7IoEGU=;
+        s=default; t=1559186388;
+        bh=rPBCzzUJlptEP951D4yPK4MGsRf7+UEXKPZT7CVSj7c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v8CkNfM7+8d7l8hhBw0dDUrC404EwLqzfRs1FRr+vsn78EHQb9i6HU2OLf3/a1j2r
-         NGZfoXAJ3ax1t6dP0mwxqsmYgw6cozLIV6s6Y6TGYoL4m4O1rDIOwJCikyOmfYXCKT
-         x4i5h6jrmBA21f1G8ZcF0vRvVb8IOeTOHyTZ+EmE=
+        b=Fxrq9Kzx4m8meooccA4mQomjD4B2kc+xRrKEb9NlkZqpLIdck5sGqvVXyRzBxx5DA
+         448djDsaIZvytFdPyhhcpwwwkOAJkyB5O+WqdCdxDZJeEbtaGtXwl05vvepX7hRMKk
+         7zAvQmqw0tHHcfXwgeBqoEdn5cLNm3GUOZwUueB4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Sowjanya Komatineni <skomatineni@nvidia.com>,
-        Mark Brown <broonie@kernel.org>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Chunming Zhou <david1.zhou@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 218/276] spi: tegra114: reset controller on probe
+Subject: [PATCH 4.14 122/193] drm/amdgpu: fix old fence check in amdgpu_fence_emit
 Date:   Wed, 29 May 2019 20:06:16 -0700
-Message-Id: <20190530030538.756988156@linuxfoundation.org>
+Message-Id: <20190530030505.578069191@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
+References: <20190530030446.953835040@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,104 +46,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 019194933339b3e9b486639c8cb3692020844d65 ]
+[ Upstream commit 3d2aca8c8620346abdba96c6300d2c0b90a1d0cc ]
 
-Fixes: SPI driver can be built as module so perform SPI controller reset
-on probe to make sure it is in valid state before initiating transfer.
+We don't hold a reference to the old fence, so it can go away
+any time we are waiting for it to signal.
 
-Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Christian König <christian.koenig@amd.com>
+Reviewed-by: Chunming Zhou <david1.zhou@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-tegra114.c | 32 ++++++++++++++++++--------------
- 1 file changed, 18 insertions(+), 14 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c | 24 ++++++++++++++++-------
+ 1 file changed, 17 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/spi/spi-tegra114.c b/drivers/spi/spi-tegra114.c
-index a76acedd7e2f4..a1888dc6a938a 100644
---- a/drivers/spi/spi-tegra114.c
-+++ b/drivers/spi/spi-tegra114.c
-@@ -1067,27 +1067,19 @@ static int tegra_spi_probe(struct platform_device *pdev)
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
+index 333bad7490678..415e9a384799e 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
+@@ -135,8 +135,9 @@ int amdgpu_fence_emit(struct amdgpu_ring *ring, struct dma_fence **f)
+ {
+ 	struct amdgpu_device *adev = ring->adev;
+ 	struct amdgpu_fence *fence;
+-	struct dma_fence *old, **ptr;
++	struct dma_fence __rcu **ptr;
+ 	uint32_t seq;
++	int r;
  
- 	spi_irq = platform_get_irq(pdev, 0);
- 	tspi->irq = spi_irq;
--	ret = request_threaded_irq(tspi->irq, tegra_spi_isr,
--			tegra_spi_isr_thread, IRQF_ONESHOT,
--			dev_name(&pdev->dev), tspi);
--	if (ret < 0) {
--		dev_err(&pdev->dev, "Failed to register ISR for IRQ %d\n",
--					tspi->irq);
--		goto exit_free_master;
--	}
+ 	fence = kmem_cache_alloc(amdgpu_fence_slab, GFP_KERNEL);
+ 	if (fence == NULL)
+@@ -152,15 +153,24 @@ int amdgpu_fence_emit(struct amdgpu_ring *ring, struct dma_fence **f)
+ 			       seq, AMDGPU_FENCE_FLAG_INT);
  
- 	tspi->clk = devm_clk_get(&pdev->dev, "spi");
- 	if (IS_ERR(tspi->clk)) {
- 		dev_err(&pdev->dev, "can not get clock\n");
- 		ret = PTR_ERR(tspi->clk);
--		goto exit_free_irq;
-+		goto exit_free_master;
- 	}
- 
- 	tspi->rst = devm_reset_control_get_exclusive(&pdev->dev, "spi");
- 	if (IS_ERR(tspi->rst)) {
- 		dev_err(&pdev->dev, "can not get reset\n");
- 		ret = PTR_ERR(tspi->rst);
--		goto exit_free_irq;
-+		goto exit_free_master;
- 	}
- 
- 	tspi->max_buf_size = SPI_FIFO_DEPTH << 2;
-@@ -1095,7 +1087,7 @@ static int tegra_spi_probe(struct platform_device *pdev)
- 
- 	ret = tegra_spi_init_dma_param(tspi, true);
- 	if (ret < 0)
--		goto exit_free_irq;
-+		goto exit_free_master;
- 	ret = tegra_spi_init_dma_param(tspi, false);
- 	if (ret < 0)
- 		goto exit_rx_dma_free;
-@@ -1117,18 +1109,32 @@ static int tegra_spi_probe(struct platform_device *pdev)
- 		dev_err(&pdev->dev, "pm runtime get failed, e = %d\n", ret);
- 		goto exit_pm_disable;
- 	}
+ 	ptr = &ring->fence_drv.fences[seq & ring->fence_drv.num_fences_mask];
++	if (unlikely(rcu_dereference_protected(*ptr, 1))) {
++		struct dma_fence *old;
 +
-+	reset_control_assert(tspi->rst);
-+	udelay(2);
-+	reset_control_deassert(tspi->rst);
- 	tspi->def_command1_reg  = SPI_M_S;
- 	tegra_spi_writel(tspi, tspi->def_command1_reg, SPI_COMMAND1);
- 	pm_runtime_put(&pdev->dev);
-+	ret = request_threaded_irq(tspi->irq, tegra_spi_isr,
-+				   tegra_spi_isr_thread, IRQF_ONESHOT,
-+				   dev_name(&pdev->dev), tspi);
-+	if (ret < 0) {
-+		dev_err(&pdev->dev, "Failed to register ISR for IRQ %d\n",
-+			tspi->irq);
-+		goto exit_pm_disable;
++		rcu_read_lock();
++		old = dma_fence_get_rcu_safe(ptr);
++		rcu_read_unlock();
++
++		if (old) {
++			r = dma_fence_wait(old, false);
++			dma_fence_put(old);
++			if (r)
++				return r;
++		}
 +	}
++
+ 	/* This function can't be called concurrently anyway, otherwise
+ 	 * emitting the fence would mess up the hardware ring buffer.
+ 	 */
+-	old = rcu_dereference_protected(*ptr, 1);
+-	if (old && !dma_fence_is_signaled(old)) {
+-		DRM_INFO("rcu slot is busy\n");
+-		dma_fence_wait(old, false);
+-	}
+-
+ 	rcu_assign_pointer(*ptr, dma_fence_get(&fence->base));
  
- 	master->dev.of_node = pdev->dev.of_node;
- 	ret = devm_spi_register_master(&pdev->dev, master);
- 	if (ret < 0) {
- 		dev_err(&pdev->dev, "can not register to master err %d\n", ret);
--		goto exit_pm_disable;
-+		goto exit_free_irq;
- 	}
- 	return ret;
- 
-+exit_free_irq:
-+	free_irq(spi_irq, tspi);
- exit_pm_disable:
- 	pm_runtime_disable(&pdev->dev);
- 	if (!pm_runtime_status_suspended(&pdev->dev))
-@@ -1136,8 +1142,6 @@ static int tegra_spi_probe(struct platform_device *pdev)
- 	tegra_spi_deinit_dma_param(tspi, false);
- exit_rx_dma_free:
- 	tegra_spi_deinit_dma_param(tspi, true);
--exit_free_irq:
--	free_irq(spi_irq, tspi);
- exit_free_master:
- 	spi_master_put(master);
- 	return ret;
+ 	*f = &fence->base;
 -- 
 2.20.1
 
