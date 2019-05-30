@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9398C2F6DD
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 07:01:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFA332F6CF
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 07:00:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389303AbfE3E7k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:59:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44662 "EHLO mail.kernel.org"
+        id S1727673AbfE3DJh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:09:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727657AbfE3DJg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:09:36 -0400
+        id S1727663AbfE3DJh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:09:37 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9BB4824488;
-        Thu, 30 May 2019 03:09:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 270462448E;
+        Thu, 30 May 2019 03:09:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185775;
-        bh=/2LHEkYu/goeeY7c4o2zeiu0wluSLY7o9LR3wpTiklk=;
+        s=default; t=1559185776;
+        bh=zSdNoWLi7DzaPV9mNqnkEQ+YTFMlkL5rHOvndssRU3c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PWapk4ES6peUVIxT4HhIhXFuCpwkq9ifj1l+AxeXUCo3Y/JQUQo+p5Qawn+h7tErN
-         UqhIEZFFk+jETKfdEtvH19c4Bd+B05OOb6lVsSDHuxMBgK0K+fm3u+ThCe60j0DqXf
-         S8SWDbUU9rFTctzGXaY1e1uaKOMaFSCoe4A8S/ag=
+        b=Rzbe8CsGWsSB4j4nT6lUVrruH+HP0DlFZmafJtmll/GOU2lCYiaxJBGWt4hwZJ9TL
+         pu7JsmQHIEyyQAqZaIkQpxTvDWyQEpCAJi6gmOLPMlVaBk9yaXU1UoYibcU24WjRg0
+         hAPG5Kg8Y6TVqQbWrVHsKwOy2FrUfFxnOb4pD7tw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Shile Zhang <shile.zhang@linux.alibaba.com>,
-        Fredrik Noring <noring@nocrew.org>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Mukesh Ojha <mojha@codeaurora.org>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Subject: [PATCH 5.1 030/405] fbdev: fix divide error in fb_var_to_videomode
-Date:   Wed, 29 May 2019 20:00:28 -0700
-Message-Id: <20190530030542.231036206@linuxfoundation.org>
+        stable@vger.kernel.org, Marc Zyngier <marc.zyngier@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>
+Subject: [PATCH 5.1 031/405] arm64: errata: Add workaround for Cortex-A76 erratum #1463225
+Date:   Wed, 29 May 2019 20:00:29 -0700
+Message-Id: <20190530030542.291832598@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
 References: <20190530030540.291644921@linuxfoundation.org>
@@ -47,81 +44,226 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shile Zhang <shile.zhang@linux.alibaba.com>
+From: Will Deacon <will.deacon@arm.com>
 
-commit cf84807f6dd0be5214378e66460cfc9187f532f9 upstream.
+commit 969f5ea627570e91c9d54403287ee3ed657f58fe upstream.
 
-To fix following divide-by-zero error found by Syzkaller:
+Revisions of the Cortex-A76 CPU prior to r4p0 are affected by an erratum
+that can prevent interrupts from being taken when single-stepping.
 
-  divide error: 0000 [#1] SMP PTI
-  CPU: 7 PID: 8447 Comm: test Kdump: loaded Not tainted 4.19.24-8.al7.x86_64 #1
-  Hardware name: Alibaba Cloud Alibaba Cloud ECS, BIOS rel-1.12.0-0-ga698c8995f-prebuilt.qemu.org 04/01/2014
-  RIP: 0010:fb_var_to_videomode+0xae/0xc0
-  Code: 04 44 03 46 78 03 4e 7c 44 03 46 68 03 4e 70 89 ce d1 ee 69 c0 e8 03 00 00 f6 c2 01 0f 45 ce 83 e2 02 8d 34 09 0f 45 ce 31 d2 <41> f7 f0 31 d2 f7 f1 89 47 08 f3 c3 66 0f 1f 44 00 00 0f 1f 44 00
-  RSP: 0018:ffffb7e189347bf0 EFLAGS: 00010246
-  RAX: 00000000e1692410 RBX: ffffb7e189347d60 RCX: 0000000000000000
-  RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffffb7e189347c10
-  RBP: ffff99972a091c00 R08: 0000000000000000 R09: 0000000000000000
-  R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000100
-  R13: 0000000000010000 R14: 00007ffd66baf6d0 R15: 0000000000000000
-  FS:  00007f2054d11740(0000) GS:ffff99972fbc0000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 00007f205481fd20 CR3: 00000004288a0001 CR4: 00000000001606a0
-  Call Trace:
-   fb_set_var+0x257/0x390
-   ? lookup_fast+0xbb/0x2b0
-   ? fb_open+0xc0/0x140
-   ? chrdev_open+0xa6/0x1a0
-   do_fb_ioctl+0x445/0x5a0
-   do_vfs_ioctl+0x92/0x5f0
-   ? __alloc_fd+0x3d/0x160
-   ksys_ioctl+0x60/0x90
-   __x64_sys_ioctl+0x16/0x20
-   do_syscall_64+0x5b/0x190
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  RIP: 0033:0x7f20548258d7
-  Code: 44 00 00 48 8b 05 b9 15 2d 00 64 c7 00 26 00 00 00 48 c7 c0 ff ff ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 b8 10 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 89 15 2d 00 f7 d8 64 89 01 48
+This patch implements a software workaround to prevent userspace from
+effectively being able to disable interrupts.
 
-It can be triggered easily with following test code:
-
-  #include <linux/fb.h>
-  #include <fcntl.h>
-  #include <sys/ioctl.h>
-  int main(void)
-  {
-          struct fb_var_screeninfo var = {.activate = 0x100, .pixclock = 60};
-          int fd = open("/dev/fb0", O_RDWR);
-          if (fd < 0)
-                  return 1;
-
-          if (ioctl(fd, FBIOPUT_VSCREENINFO, &var))
-                  return 1;
-
-          return 0;
-  }
-
-Signed-off-by: Shile Zhang <shile.zhang@linux.alibaba.com>
-Cc: Fredrik Noring <noring@nocrew.org>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
-Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Cc: <stable@vger.kernel.org>
+Cc: Marc Zyngier <marc.zyngier@arm.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
----
- drivers/video/fbdev/core/modedb.c |    3 +++
- 1 file changed, 3 insertions(+)
 
---- a/drivers/video/fbdev/core/modedb.c
-+++ b/drivers/video/fbdev/core/modedb.c
-@@ -935,6 +935,9 @@ void fb_var_to_videomode(struct fb_video
- 	if (var->vmode & FB_VMODE_DOUBLE)
- 		vtotal *= 2;
+---
+ Documentation/arm64/silicon-errata.txt |    1 
+ arch/arm64/Kconfig                     |   18 ++++++++++++++++
+ arch/arm64/include/asm/cpucaps.h       |    3 +-
+ arch/arm64/kernel/cpu_errata.c         |   24 +++++++++++++++++++++
+ arch/arm64/kernel/syscall.c            |   31 +++++++++++++++++++++++++++
+ arch/arm64/mm/fault.c                  |   37 +++++++++++++++++++++++++++++++--
+ 6 files changed, 111 insertions(+), 3 deletions(-)
+
+--- a/Documentation/arm64/silicon-errata.txt
++++ b/Documentation/arm64/silicon-errata.txt
+@@ -61,6 +61,7 @@ stable kernels.
+ | ARM            | Cortex-A76      | #1188873        | ARM64_ERRATUM_1188873       |
+ | ARM            | Cortex-A76      | #1165522        | ARM64_ERRATUM_1165522       |
+ | ARM            | Cortex-A76      | #1286807        | ARM64_ERRATUM_1286807       |
++| ARM            | Cortex-A76      | #1463225        | ARM64_ERRATUM_1463225       |
+ | ARM            | MMU-500         | #841119,#826419 | N/A                         |
+ |                |                 |                 |                             |
+ | Cavium         | ThunderX ITS    | #22375, #24313  | CAVIUM_ERRATUM_22375        |
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -517,6 +517,24 @@ config ARM64_ERRATUM_1286807
  
-+	if (!htotal || !vtotal)
+ 	  If unsure, say Y.
+ 
++config ARM64_ERRATUM_1463225
++	bool "Cortex-A76: Software Step might prevent interrupt recognition"
++	default y
++	help
++	  This option adds a workaround for Arm Cortex-A76 erratum 1463225.
++
++	  On the affected Cortex-A76 cores (r0p0 to r3p1), software stepping
++	  of a system call instruction (SVC) can prevent recognition of
++	  subsequent interrupts when software stepping is disabled in the
++	  exception handler of the system call and either kernel debugging
++	  is enabled or VHE is in use.
++
++	  Work around the erratum by triggering a dummy step exception
++	  when handling a system call from a task that is being stepped
++	  in a VHE configuration of the kernel.
++
++	  If unsure, say Y.
++
+ config CAVIUM_ERRATUM_22375
+ 	bool "Cavium erratum 22375, 24313"
+ 	default y
+--- a/arch/arm64/include/asm/cpucaps.h
++++ b/arch/arm64/include/asm/cpucaps.h
+@@ -61,7 +61,8 @@
+ #define ARM64_HAS_GENERIC_AUTH_ARCH		40
+ #define ARM64_HAS_GENERIC_AUTH_IMP_DEF		41
+ #define ARM64_HAS_IRQ_PRIO_MASKING		42
++#define ARM64_WORKAROUND_1463225		43
+ 
+-#define ARM64_NCAPS				43
++#define ARM64_NCAPS				44
+ 
+ #endif /* __ASM_CPUCAPS_H */
+--- a/arch/arm64/kernel/cpu_errata.c
++++ b/arch/arm64/kernel/cpu_errata.c
+@@ -464,6 +464,22 @@ out_printmsg:
+ }
+ #endif	/* CONFIG_ARM64_SSBD */
+ 
++#ifdef CONFIG_ARM64_ERRATUM_1463225
++DEFINE_PER_CPU(int, __in_cortex_a76_erratum_1463225_wa);
++
++static bool
++has_cortex_a76_erratum_1463225(const struct arm64_cpu_capabilities *entry,
++			       int scope)
++{
++	u32 midr = read_cpuid_id();
++	/* Cortex-A76 r0p0 - r3p1 */
++	struct midr_range range = MIDR_RANGE(MIDR_CORTEX_A76, 0, 0, 3, 1);
++
++	WARN_ON(scope != SCOPE_LOCAL_CPU || preemptible());
++	return is_midr_in_range(midr, &range) && is_kernel_in_hyp_mode();
++}
++#endif
++
+ static void __maybe_unused
+ cpu_enable_cache_maint_trap(const struct arm64_cpu_capabilities *__unused)
+ {
+@@ -739,6 +755,14 @@ const struct arm64_cpu_capabilities arm6
+ 		ERRATA_MIDR_RANGE(MIDR_CORTEX_A76, 0, 0, 2, 0),
+ 	},
+ #endif
++#ifdef CONFIG_ARM64_ERRATUM_1463225
++	{
++		.desc = "ARM erratum 1463225",
++		.capability = ARM64_WORKAROUND_1463225,
++		.type = ARM64_CPUCAP_LOCAL_CPU_ERRATUM,
++		.matches = has_cortex_a76_erratum_1463225,
++	},
++#endif
+ 	{
+ 	}
+ };
+--- a/arch/arm64/kernel/syscall.c
++++ b/arch/arm64/kernel/syscall.c
+@@ -8,6 +8,7 @@
+ #include <linux/syscalls.h>
+ 
+ #include <asm/daifflags.h>
++#include <asm/debug-monitors.h>
+ #include <asm/fpsimd.h>
+ #include <asm/syscall.h>
+ #include <asm/thread_info.h>
+@@ -60,6 +61,35 @@ static inline bool has_syscall_work(unsi
+ int syscall_trace_enter(struct pt_regs *regs);
+ void syscall_trace_exit(struct pt_regs *regs);
+ 
++#ifdef CONFIG_ARM64_ERRATUM_1463225
++DECLARE_PER_CPU(int, __in_cortex_a76_erratum_1463225_wa);
++
++static void cortex_a76_erratum_1463225_svc_handler(void)
++{
++	u32 reg, val;
++
++	if (!unlikely(test_thread_flag(TIF_SINGLESTEP)))
 +		return;
 +
- 	hfreq = pixclock/htotal;
- 	mode->refresh = hfreq/vtotal;
++	if (!unlikely(this_cpu_has_cap(ARM64_WORKAROUND_1463225)))
++		return;
++
++	__this_cpu_write(__in_cortex_a76_erratum_1463225_wa, 1);
++	reg = read_sysreg(mdscr_el1);
++	val = reg | DBG_MDSCR_SS | DBG_MDSCR_KDE;
++	write_sysreg(val, mdscr_el1);
++	asm volatile("msr daifclr, #8");
++	isb();
++
++	/* We will have taken a single-step exception by this point */
++
++	write_sysreg(reg, mdscr_el1);
++	__this_cpu_write(__in_cortex_a76_erratum_1463225_wa, 0);
++}
++#else
++static void cortex_a76_erratum_1463225_svc_handler(void) { }
++#endif /* CONFIG_ARM64_ERRATUM_1463225 */
++
+ static void el0_svc_common(struct pt_regs *regs, int scno, int sc_nr,
+ 			   const syscall_fn_t syscall_table[])
+ {
+@@ -68,6 +98,7 @@ static void el0_svc_common(struct pt_reg
+ 	regs->orig_x0 = regs->regs[0];
+ 	regs->syscallno = scno;
+ 
++	cortex_a76_erratum_1463225_svc_handler();
+ 	local_daif_restore(DAIF_PROCCTX);
+ 	user_exit();
+ 
+--- a/arch/arm64/mm/fault.c
++++ b/arch/arm64/mm/fault.c
+@@ -810,14 +810,47 @@ void __init hook_debug_fault_code(int nr
+ 	debug_fault_info[nr].name	= name;
  }
+ 
++#ifdef CONFIG_ARM64_ERRATUM_1463225
++DECLARE_PER_CPU(int, __in_cortex_a76_erratum_1463225_wa);
++
++static int __exception
++cortex_a76_erratum_1463225_debug_handler(struct pt_regs *regs)
++{
++	if (user_mode(regs))
++		return 0;
++
++	if (!__this_cpu_read(__in_cortex_a76_erratum_1463225_wa))
++		return 0;
++
++	/*
++	 * We've taken a dummy step exception from the kernel to ensure
++	 * that interrupts are re-enabled on the syscall path. Return back
++	 * to cortex_a76_erratum_1463225_svc_handler() with debug exceptions
++	 * masked so that we can safely restore the mdscr and get on with
++	 * handling the syscall.
++	 */
++	regs->pstate |= PSR_D_BIT;
++	return 1;
++}
++#else
++static int __exception
++cortex_a76_erratum_1463225_debug_handler(struct pt_regs *regs)
++{
++	return 0;
++}
++#endif /* CONFIG_ARM64_ERRATUM_1463225 */
++
+ asmlinkage int __exception do_debug_exception(unsigned long addr_if_watchpoint,
+-					      unsigned int esr,
+-					      struct pt_regs *regs)
++					       unsigned int esr,
++					       struct pt_regs *regs)
+ {
+ 	const struct fault_info *inf = esr_to_debug_fault_info(esr);
+ 	unsigned long pc = instruction_pointer(regs);
+ 	int rv;
+ 
++	if (cortex_a76_erratum_1463225_debug_handler(regs))
++		return 0;
++
+ 	/*
+ 	 * Tell lockdep we disabled irqs in entry.S. Do nothing if they were
+ 	 * already disabled to preserve the last enabled/disabled addresses.
 
 
