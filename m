@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 34B542EEE3
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:51:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 909262EDB3
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:42:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732064AbfE3DTx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:19:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57028 "EHLO mail.kernel.org"
+        id S1732550AbfE3DVZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:21:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34358 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731346AbfE3DTx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:19:53 -0400
+        id S1732546AbfE3DVY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:21:24 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6F2AB248E3;
-        Thu, 30 May 2019 03:19:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A45D224A0A;
+        Thu, 30 May 2019 03:21:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186392;
-        bh=ZQFyU4cqT2U+b9/BORK7QRaVKcpBPZgIQWZKPkKE71M=;
+        s=default; t=1559186483;
+        bh=sdK1Xn6v9YbWQEGAiClWqejKazMG/VXN5F69IhQH0JM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xcoqZ7O9XxK8sSCszF0yyXmx81SmG9w986oSTSwr7CiJ30SurQQLonJ2lrABnlioD
-         qLn+nzah+oUkEr6dHee7TEia7cV/2Wk9gC54SAp1AmK09ix9wAZvEgcOWWyOG/BS9q
-         qu+qZrw5aVw8DJ30tujXPxSHVlekN1nPEldLUDvs=
+        b=bv8ImWOx9MIMAzmur6E1+rIVM+SiAtwDL6ZJscR09QjJ/Vou9YhSaMbCPw8Ymz2QC
+         5db6DVVDtUNM1eaWVte8GQNnYAnjKVm9pc7FQJ/OYyOy+Z7dp8GNSA5nWRcSLq2hwN
+         QXDGUzB5SNAeNawsrkWEED7EcUI9q3AAv84DAbTM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        linuxppc-dev@lists.ozlabs.org, linux-pm@vger.kernel.org,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 164/193] media: video-mux: fix null pointer dereferences
+Subject: [PATCH 4.9 086/128] cpufreq/pasemi: fix possible object reference leak
 Date:   Wed, 29 May 2019 20:06:58 -0700
-Message-Id: <20190530030510.795775492@linuxfoundation.org>
+Message-Id: <20190530030450.275356015@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
+References: <20190530030432.977908967@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,39 +46,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit aeb0d0f581e2079868e64a2e5ee346d340376eae ]
+[ Upstream commit a9acc26b75f652f697e02a9febe2ab0da648a571 ]
 
-devm_kcalloc may fail and return a null pointer. The fix returns
--ENOMEM upon failures to avoid null pointer dereferences.
+The call to of_get_cpu_node returns a node pointer with refcount
+incremented thus it must be explicitly decremented after the last
+usage.
 
-Signed-off-by: Kangjie Lu <kjlu@umn.edu>
-Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Detected by coccinelle with the following warnings:
+./drivers/cpufreq/pasemi-cpufreq.c:212:1-7: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 147, but without a corresponding object release within this function.
+./drivers/cpufreq/pasemi-cpufreq.c:220:1-7: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 147, but without a corresponding object release within this function.
+
+Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Viresh Kumar <viresh.kumar@linaro.org>
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-pm@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/video-mux.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/cpufreq/pasemi-cpufreq.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/platform/video-mux.c b/drivers/media/platform/video-mux.c
-index ee89ad76bee23..eedc0b99a891e 100644
---- a/drivers/media/platform/video-mux.c
-+++ b/drivers/media/platform/video-mux.c
-@@ -242,9 +242,14 @@ static int video_mux_probe(struct platform_device *pdev)
- 	vmux->active = -1;
- 	vmux->pads = devm_kcalloc(dev, num_pads, sizeof(*vmux->pads),
- 				  GFP_KERNEL);
-+	if (!vmux->pads)
-+		return -ENOMEM;
-+
- 	vmux->format_mbus = devm_kcalloc(dev, num_pads,
- 					 sizeof(*vmux->format_mbus),
- 					 GFP_KERNEL);
-+	if (!vmux->format_mbus)
-+		return -ENOMEM;
+diff --git a/drivers/cpufreq/pasemi-cpufreq.c b/drivers/cpufreq/pasemi-cpufreq.c
+index 35dd4d7ffee08..58c933f483004 100644
+--- a/drivers/cpufreq/pasemi-cpufreq.c
++++ b/drivers/cpufreq/pasemi-cpufreq.c
+@@ -146,6 +146,7 @@ static int pas_cpufreq_cpu_init(struct cpufreq_policy *policy)
  
- 	for (i = 0; i < num_pads - 1; i++)
- 		vmux->pads[i].flags = MEDIA_PAD_FL_SINK;
+ 	cpu = of_get_cpu_node(policy->cpu, NULL);
+ 
++	of_node_put(cpu);
+ 	if (!cpu)
+ 		goto out;
+ 
 -- 
 2.20.1
 
