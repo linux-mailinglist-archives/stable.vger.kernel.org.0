@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 079EB2F0AA
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:06:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8BDC2F4D2
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:42:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726879AbfE3EGC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:06:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47936 "EHLO mail.kernel.org"
+        id S1728980AbfE3EmB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:42:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727628AbfE3DRh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:17:37 -0400
+        id S1728962AbfE3DMV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:12:21 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3F5FA246BB;
-        Thu, 30 May 2019 03:17:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0443524515;
+        Thu, 30 May 2019 03:12:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186256;
-        bh=GZUqsTk4DRyMhsW1KtZI2tC5X5LSHWq2AHH1vJ4K+oM=;
+        s=default; t=1559185940;
+        bh=D15HQzt/gFInZPdaZ219sAc+1IU88ZyBC5dXpV86zog=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PD0rnapvWqFn6yxQ05XwsIaBgxuBsyQfIfmaugVN0n1+MOtoLsIsKbMTYYEr8MM6L
-         oBCmgtChHkCSBu561yWPizbYoX0n7uflqE7B0ADOY5QF1Sy/NCxSTnaCU2US13n3ha
-         87YWOiHOui9t1vtTkH0dJwWp90Yuk9qfew4qIacM=
+        b=FjL4u1Ry4/Cma9Ivp1IPgdnu9Tnk1vTsR3EXhuhEKhn06H9va8oq2ObrcNB7yHz7O
+         PhAgpObA/EeXMJvqU9sgkDnPWLxYnkfZpwbDcI+SYyrlCFBOSU7uaXCwIvWDVulE7i
+         6LuuaiRe94FSMo7zbfkeQCiYczfpO2vfLwbz2fNc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
-        dri-devel@lists.freedesktop.org ("open list:DRM DRIVERS"),
-        Eric Anholt <eric@anholt.net>, Sasha Levin <sashal@kernel.org>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>
-Subject: [PATCH 4.19 185/276] drm/pl111: fix possible object reference leak
+        stable@vger.kernel.org,
+        James Hutchinson <jahutchinson99@googlemail.com>,
+        Antti Palosaari <crope@iki.fi>, Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 345/405] media: m88ds3103: serialize reset messages in m88ds3103_set_frontend
 Date:   Wed, 29 May 2019 20:05:43 -0700
-Message-Id: <20190530030536.807374138@linuxfoundation.org>
+Message-Id: <20190530030558.144982340@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,66 +46,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit bc29d3a69d4c1bd1a103e8b3c1ed81b807c1870b ]
+[ Upstream commit 981fbe3da20a6f35f17977453bce7dfc1664d74f ]
 
-The call to of_find_matching_node_and_match returns a node pointer with
-refcount incremented thus it must be explicitly decremented after the
-last usage.
+Ref: https://bugzilla.kernel.org/show_bug.cgi?id=199323
 
-Detected by coccinelle with the following warnings:
-drivers/gpu/drm/pl111/pl111_versatile.c:333:3-9: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 317, but without a corresponding object release within this function.
-drivers/gpu/drm/pl111/pl111_versatile.c:340:3-9: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 317, but without a corresponding object release within this function.
-drivers/gpu/drm/pl111/pl111_versatile.c:346:3-9: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 317, but without a corresponding object release within this function.
-drivers/gpu/drm/pl111/pl111_versatile.c:354:2-8: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 317, but without a corresponding object release within this function.
-drivers/gpu/drm/pl111/pl111_versatile.c:395:3-9: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 317, but without a corresponding object release within this function.
-drivers/gpu/drm/pl111/pl111_versatile.c:402:1-7: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 317, but without a corresponding object release within this function.
+Users are experiencing problems with the DVBSky S960/S960C USB devices
+since the following commit:
 
-Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
-Cc: Eric Anholt <eric@anholt.net> (supporter:DRM DRIVER FOR ARM PL111 CLCD)
-Cc: David Airlie <airlied@linux.ie> (maintainer:DRM DRIVERS)
-Cc: Daniel Vetter <daniel@ffwll.ch> (maintainer:DRM DRIVERS)
-Cc: dri-devel@lists.freedesktop.org (open list:DRM DRIVERS)
-Cc: linux-kernel@vger.kernel.org (open list)
-Signed-off-by: Eric Anholt <eric@anholt.net>
-Link: https://patchwork.freedesktop.org/patch/msgid/1554307455-40361-6-git-send-email-wen.yang99@zte.com.cn
+9d659ae: ("locking/mutex: Add lock handoff to avoid starvation")
+
+The device malfunctions after running for an indeterminable period of
+time, and the problem can only be cleared by rebooting the machine.
+
+It is possible to encourage the problem to surface by blocking the
+signal to the LNB.
+
+Further debugging revealed the cause of the problem.
+
+In the following capture:
+- thread #1325 is running m88ds3103_set_frontend
+- thread #42 is running ts2020_stat_work
+
+a> [1325] usb 1-1: dvb_usb_v2_generic_io: >>> 08 68 02 07 80
+   [1325] usb 1-1: dvb_usb_v2_generic_io: <<< 08
+   [42] usb 1-1: dvb_usb_v2_generic_io: >>> 09 01 01 68 3f
+   [42] usb 1-1: dvb_usb_v2_generic_io: <<< 08 ff
+   [42] usb 1-1: dvb_usb_v2_generic_io: >>> 08 68 02 03 11
+   [42] usb 1-1: dvb_usb_v2_generic_io: <<< 07
+   [42] usb 1-1: dvb_usb_v2_generic_io: >>> 09 01 01 60 3d
+   [42] usb 1-1: dvb_usb_v2_generic_io: <<< 07 ff
+b> [1325] usb 1-1: dvb_usb_v2_generic_io: >>> 08 68 02 07 00
+   [1325] usb 1-1: dvb_usb_v2_generic_io: <<< 07
+   [42] usb 1-1: dvb_usb_v2_generic_io: >>> 08 68 02 03 11
+   [42] usb 1-1: dvb_usb_v2_generic_io: <<< 07
+   [42] usb 1-1: dvb_usb_v2_generic_io: >>> 09 01 01 60 21
+   [42] usb 1-1: dvb_usb_v2_generic_io: <<< 07 ff
+   [42] usb 1-1: dvb_usb_v2_generic_io: >>> 08 68 02 03 11
+   [42] usb 1-1: dvb_usb_v2_generic_io: <<< 07
+   [42] usb 1-1: dvb_usb_v2_generic_io: >>> 09 01 01 60 66
+   [42] usb 1-1: dvb_usb_v2_generic_io: <<< 07 ff
+   [1325] usb 1-1: dvb_usb_v2_generic_io: >>> 08 68 02 03 11
+   [1325] usb 1-1: dvb_usb_v2_generic_io: <<< 07
+   [1325] usb 1-1: dvb_usb_v2_generic_io: >>> 08 60 02 10 0b
+   [1325] usb 1-1: dvb_usb_v2_generic_io: <<< 07
+
+Two i2c messages are sent to perform a reset in m88ds3103_set_frontend:
+
+  a. 0x07, 0x80
+  b. 0x07, 0x00
+
+However, as shown in the capture, the regmap mutex is being handed over
+to another thread (ts2020_stat_work) in between these two messages.
+
+>From here, the device responds to every i2c message with an 07 message,
+and will only return to normal operation following a power cycle.
+
+Use regmap_multi_reg_write to group the two reset messages, ensuring
+both are processed before the regmap mutex is unlocked.
+
+Signed-off-by: James Hutchinson <jahutchinson99@googlemail.com>
+Reviewed-by: Antti Palosaari <crope@iki.fi>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/pl111/pl111_versatile.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/media/dvb-frontends/m88ds3103.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/pl111/pl111_versatile.c b/drivers/gpu/drm/pl111/pl111_versatile.c
-index b9baefdba38a1..1c318ad32a8cd 100644
---- a/drivers/gpu/drm/pl111/pl111_versatile.c
-+++ b/drivers/gpu/drm/pl111/pl111_versatile.c
-@@ -330,6 +330,7 @@ int pl111_versatile_init(struct device *dev, struct pl111_drm_dev_private *priv)
- 		ret = vexpress_muxfpga_init();
- 		if (ret) {
- 			dev_err(dev, "unable to initialize muxfpga driver\n");
-+			of_node_put(np);
- 			return ret;
- 		}
+diff --git a/drivers/media/dvb-frontends/m88ds3103.c b/drivers/media/dvb-frontends/m88ds3103.c
+index 123f2a33738b0..403f42806455e 100644
+--- a/drivers/media/dvb-frontends/m88ds3103.c
++++ b/drivers/media/dvb-frontends/m88ds3103.c
+@@ -309,6 +309,9 @@ static int m88ds3103_set_frontend(struct dvb_frontend *fe)
+ 	u16 u16tmp;
+ 	u32 tuner_frequency_khz, target_mclk;
+ 	s32 s32tmp;
++	static const struct reg_sequence reset_buf[] = {
++		{0x07, 0x80}, {0x07, 0x00}
++	};
  
-@@ -337,17 +338,20 @@ int pl111_versatile_init(struct device *dev, struct pl111_drm_dev_private *priv)
- 		pdev = of_find_device_by_node(np);
- 		if (!pdev) {
- 			dev_err(dev, "can't find the sysreg device, deferring\n");
-+			of_node_put(np);
- 			return -EPROBE_DEFER;
- 		}
- 		map = dev_get_drvdata(&pdev->dev);
- 		if (!map) {
- 			dev_err(dev, "sysreg has not yet probed\n");
- 			platform_device_put(pdev);
-+			of_node_put(np);
- 			return -EPROBE_DEFER;
- 		}
- 	} else {
- 		map = syscon_node_to_regmap(np);
+ 	dev_dbg(&client->dev,
+ 		"delivery_system=%d modulation=%d frequency=%u symbol_rate=%d inversion=%d pilot=%d rolloff=%d\n",
+@@ -321,11 +324,7 @@ static int m88ds3103_set_frontend(struct dvb_frontend *fe)
  	}
-+	of_node_put(np);
  
- 	if (IS_ERR(map)) {
- 		dev_err(dev, "no Versatile syscon regmap\n");
+ 	/* reset */
+-	ret = regmap_write(dev->regmap, 0x07, 0x80);
+-	if (ret)
+-		goto err;
+-
+-	ret = regmap_write(dev->regmap, 0x07, 0x00);
++	ret = regmap_multi_reg_write(dev->regmap, reset_buf, 2);
+ 	if (ret)
+ 		goto err;
+ 
 -- 
 2.20.1
 
