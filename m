@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DF5EE2EE8C
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:49:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBF222EC1B
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:18:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732917AbfE3DsJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:48:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58372 "EHLO mail.kernel.org"
+        id S1731561AbfE3DS2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:18:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732176AbfE3DUW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:20:22 -0400
+        id S1731549AbfE3DS2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:18:28 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B315124929;
-        Thu, 30 May 2019 03:20:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 42419247C9;
+        Thu, 30 May 2019 03:18:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186421;
-        bh=hLBNMSxSz/L4jAZKh/L2aL9dvFAHIK+33TJbtnPfNkM=;
+        s=default; t=1559186307;
+        bh=0Yf7YGQ/sEpb1kMylafb/6YPgn3HoZ7N3cN3eq1HrTs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v6aponoBhS9j6qhfd5227MusfLsWtPGPEvcq911mrskiZ2ob5eruiu0S50+M+MCCu
-         nNgai0f/CpXDVAN3WGOgxk1vPzc4ggtdyPQISKAKw861kn7C0HCf7apmXCG9eEaaZg
-         GvQjT8IX+m663uCX7gKlcYcVxGKe/aLtreTbqQXE=
+        b=hCogC67faGCcET/7J7GXCV7w3Em/aNIANPz9LUCqtK3s1MA6DuSvcQCUri5B7aSW7
+         wmubR0gxjag0sdFSRNPQbx3fjX3JEh63SE3CXtCrsjDKn6JY3YtpWI9vE6qjarT+ND
+         Zbh7uOwCtzoG7hLg4/iheBFyNG5MBGiYJgCW6lig=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Rouven Czerwinski <r.czerwinski@pengutronix.de>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 176/193] hwrng: omap - Set default quality
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 272/276] drm: Wake up next in drm_read() chain if we are forced to putback the event
 Date:   Wed, 29 May 2019 20:07:10 -0700
-Message-Id: <20190530030512.241993153@linuxfoundation.org>
+Message-Id: <20190530030542.215922846@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,40 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 62f95ae805fa9e1e84d47d3219adddd97b2654b7 ]
+[ Upstream commit 60b801999c48b6c1dd04e653a38e2e613664264e ]
 
-Newer combinations of the glibc, kernel and openssh can result in long initial
-startup times on OMAP devices:
+After an event is sent, we try to copy it into the user buffer of the
+first waiter in drm_read() and if the user buffer doesn't have enough
+room we put it back onto the list. However, we didn't wake up any
+subsequent waiter, so that event may sit on the list until either a new
+vblank event is sent or a new waiter appears. Rare, but in the worst
+case may lead to a stuck process.
 
-[    6.671425] systemd-rc-once[102]: Creating ED25519 key; this may take some time ...
-[  142.652491] systemd-rc-once[102]: Creating ED25519 key; done.
-
-due to the blocking getrandom(2) system call:
-
-[  142.610335] random: crng init done
-
-Set the quality level for the omap hwrng driver allowing the kernel to use the
-hwrng as an entropy source at boot.
-
-Signed-off-by: Rouven Czerwinski <r.czerwinski@pengutronix.de>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Testcase: igt/drm_read/short-buffer-wakeup
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20170804082328.17173-1-chris@chris-wilson.co.uk
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/hw_random/omap-rng.c | 1 +
+ drivers/gpu/drm/drm_file.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/char/hw_random/omap-rng.c b/drivers/char/hw_random/omap-rng.c
-index 74d11ae6abe9a..25173454efa32 100644
---- a/drivers/char/hw_random/omap-rng.c
-+++ b/drivers/char/hw_random/omap-rng.c
-@@ -442,6 +442,7 @@ static int omap_rng_probe(struct platform_device *pdev)
- 	priv->rng.read = omap_rng_do_read;
- 	priv->rng.init = omap_rng_init;
- 	priv->rng.cleanup = omap_rng_cleanup;
-+	priv->rng.quality = 900;
+diff --git a/drivers/gpu/drm/drm_file.c b/drivers/gpu/drm/drm_file.c
+index e4ccb52c67ea4..334addaca9c54 100644
+--- a/drivers/gpu/drm/drm_file.c
++++ b/drivers/gpu/drm/drm_file.c
+@@ -567,6 +567,7 @@ ssize_t drm_read(struct file *filp, char __user *buffer,
+ 				file_priv->event_space -= length;
+ 				list_add(&e->link, &file_priv->event_list);
+ 				spin_unlock_irq(&dev->event_lock);
++				wake_up_interruptible(&file_priv->event_wait);
+ 				break;
+ 			}
  
- 	priv->rng.priv = (unsigned long)priv;
- 	platform_set_drvdata(pdev, priv);
 -- 
 2.20.1
 
