@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D0412F27F
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:22:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8BB52EF82
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:56:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730113AbfE3EWi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:22:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37054 "EHLO mail.kernel.org"
+        id S1732057AbfE3D4G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:56:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53664 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730100AbfE3DPF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:15:05 -0400
+        id S1731789AbfE3DTE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:19:04 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7337024595;
-        Thu, 30 May 2019 03:15:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D9E562482D;
+        Thu, 30 May 2019 03:19:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186104;
-        bh=KFjWdcM0j1PIjGo1SD5vVsinYegNqV/OwabGD7l4Pfo=;
+        s=default; t=1559186344;
+        bh=BCB1gKyFBCxZOzWt4F6nU9APsJkem9tiJGG7YipQI0s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pq5rW2Cxe4u1bomJp/fvhgQbmHXyVVlHJQoFi3v2yq97ugK/RH7zSNz5Fjq5U2aXC
-         +/CsUkV3sIdFaMZECOHvWfo/4UUs8QMF9/nCBzevz9w0Rpie9BngF+r/1UBQHF7zBH
-         WUEM/I0ZPcLNB/36vA8EPonitOHaipfdhKpKhqPA=
+        b=Nb95ES2XPJMK76ZdZ94Tcycz0sQ1gNYUNJ3J1fEoXYCa5eKLLTy1rCaZzoohA4df3
+         zIN2DGwblnbwqgIOj2yhh/CkknqMci3w+fXhw//0jz4tKl2l5BbgjJyuTB8tgr/+X0
+         r7OgEc704r/UwihkoVh/ouPqvD83VG3XsQteghgg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        linux-pm@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 209/346] cpufreq: kirkwood: fix possible object reference leak
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        YueHaibing <yuehaibing@huawei.com>, Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Subject: [PATCH 4.14 028/193] media: serial_ir: Fix use-after-free in serial_ir_init_module
 Date:   Wed, 29 May 2019 20:04:42 -0700
-Message-Id: <20190530030551.716687141@linuxfoundation.org>
+Message-Id: <20190530030453.252415625@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
+References: <20190530030446.953835040@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,85 +44,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 7c468966f05ac9c17bb5948275283d34e6fe0660 ]
+From: YueHaibing <yuehaibing@huawei.com>
 
-The call to of_get_child_by_name returns a node pointer with refcount
-incremented thus it must be explicitly decremented after the last
-usage.
+commit 56cd26b618855c9af48c8301aa6754ced8dd0beb upstream.
 
-Detected by coccinelle with the following warnings:
-./drivers/cpufreq/kirkwood-cpufreq.c:127:2-8: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 118, but without a corresponding object release within this function.
-./drivers/cpufreq/kirkwood-cpufreq.c:133:2-8: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 118, but without a corresponding object release within this function.
+Syzkaller report this:
 
-and also do some cleanup:
-- of_node_put(np);
-- np = NULL;
-...
-of_node_put(np);
+BUG: KASAN: use-after-free in sysfs_remove_file_ns+0x5f/0x70 fs/sysfs/file.c:468
+Read of size 8 at addr ffff8881dc7ae030 by task syz-executor.0/6249
 
-Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Viresh Kumar <viresh.kumar@linaro.org>
-Cc: linux-pm@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+CPU: 1 PID: 6249 Comm: syz-executor.0 Not tainted 5.0.0-rc8+ #3
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0xfa/0x1ce lib/dump_stack.c:113
+ print_address_description+0x65/0x270 mm/kasan/report.c:187
+ kasan_report+0x149/0x18d mm/kasan/report.c:317
+ ? 0xffffffffc1728000
+ sysfs_remove_file_ns+0x5f/0x70 fs/sysfs/file.c:468
+ sysfs_remove_file include/linux/sysfs.h:519 [inline]
+ driver_remove_file+0x40/0x50 drivers/base/driver.c:122
+ remove_bind_files drivers/base/bus.c:585 [inline]
+ bus_remove_driver+0x186/0x220 drivers/base/bus.c:725
+ driver_unregister+0x6c/0xa0 drivers/base/driver.c:197
+ serial_ir_init_module+0x169/0x1000 [serial_ir]
+ do_one_initcall+0xfa/0x5ca init/main.c:887
+ do_init_module+0x204/0x5f6 kernel/module.c:3460
+ load_module+0x66b2/0x8570 kernel/module.c:3808
+ __do_sys_finit_module+0x238/0x2a0 kernel/module.c:3902
+ do_syscall_64+0x147/0x600 arch/x86/entry/common.c:290
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x462e99
+Code: f7 d8 64 89 02 b8 ff ff ff ff c3 66 0f 1f 44 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 bc ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007f9450132c58 EFLAGS: 00000246 ORIG_RAX: 0000000000000139
+RAX: ffffffffffffffda RBX: 000000000073bf00 RCX: 0000000000462e99
+RDX: 0000000000000000 RSI: 0000000020000100 RDI: 0000000000000003
+RBP: 00007f9450132c70 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 00007f94501336bc
+R13: 00000000004bcefa R14: 00000000006f6fb0 R15: 0000000000000004
+
+Allocated by task 6249:
+ set_track mm/kasan/common.c:85 [inline]
+ __kasan_kmalloc.constprop.3+0xa0/0xd0 mm/kasan/common.c:495
+ kmalloc include/linux/slab.h:545 [inline]
+ kzalloc include/linux/slab.h:740 [inline]
+ bus_add_driver+0xc0/0x610 drivers/base/bus.c:651
+ driver_register+0x1bb/0x3f0 drivers/base/driver.c:170
+ serial_ir_init_module+0xe8/0x1000 [serial_ir]
+ do_one_initcall+0xfa/0x5ca init/main.c:887
+ do_init_module+0x204/0x5f6 kernel/module.c:3460
+ load_module+0x66b2/0x8570 kernel/module.c:3808
+ __do_sys_finit_module+0x238/0x2a0 kernel/module.c:3902
+ do_syscall_64+0x147/0x600 arch/x86/entry/common.c:290
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+Freed by task 6249:
+ set_track mm/kasan/common.c:85 [inline]
+ __kasan_slab_free+0x130/0x180 mm/kasan/common.c:457
+ slab_free_hook mm/slub.c:1430 [inline]
+ slab_free_freelist_hook mm/slub.c:1457 [inline]
+ slab_free mm/slub.c:3005 [inline]
+ kfree+0xe1/0x270 mm/slub.c:3957
+ kobject_cleanup lib/kobject.c:662 [inline]
+ kobject_release lib/kobject.c:691 [inline]
+ kref_put include/linux/kref.h:67 [inline]
+ kobject_put+0x146/0x240 lib/kobject.c:708
+ bus_remove_driver+0x10e/0x220 drivers/base/bus.c:732
+ driver_unregister+0x6c/0xa0 drivers/base/driver.c:197
+ serial_ir_init_module+0x14c/0x1000 [serial_ir]
+ do_one_initcall+0xfa/0x5ca init/main.c:887
+ do_init_module+0x204/0x5f6 kernel/module.c:3460
+ load_module+0x66b2/0x8570 kernel/module.c:3808
+ __do_sys_finit_module+0x238/0x2a0 kernel/module.c:3902
+ do_syscall_64+0x147/0x600 arch/x86/entry/common.c:290
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+The buggy address belongs to the object at ffff8881dc7ae000
+ which belongs to the cache kmalloc-256 of size 256
+The buggy address is located 48 bytes inside of
+ 256-byte region [ffff8881dc7ae000, ffff8881dc7ae100)
+The buggy address belongs to the page:
+page:ffffea000771eb80 count:1 mapcount:0 mapping:ffff8881f6c02e00 index:0x0
+flags: 0x2fffc0000000200(slab)
+raw: 02fffc0000000200 ffffea0007d14800 0000000400000002 ffff8881f6c02e00
+raw: 0000000000000000 00000000800c000c 00000001ffffffff 0000000000000000
+page dumped because: kasan: bad access detected
+
+Memory state around the buggy address:
+ ffff8881dc7adf00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ ffff8881dc7adf80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>ffff8881dc7ae000: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                                     ^
+ ffff8881dc7ae080: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+ ffff8881dc7ae100: fc fc fc fc fc fc fc fc 00 00 00 00 00 00 00 00
+
+There are already cleanup handlings in serial_ir_init error path,
+no need to call serial_ir_exit do it again in serial_ir_init_module,
+otherwise will trigger a use-after-free issue.
+
+Fixes: fa5dc29c1fcc ("[media] lirc_serial: move out of staging and rename to serial_ir")
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/cpufreq/kirkwood-cpufreq.c | 19 +++++++++++--------
- 1 file changed, 11 insertions(+), 8 deletions(-)
+ drivers/media/rc/serial_ir.c |    9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
 
-diff --git a/drivers/cpufreq/kirkwood-cpufreq.c b/drivers/cpufreq/kirkwood-cpufreq.c
-index c2dd43f3f5d8a..8d63a6dc8383c 100644
---- a/drivers/cpufreq/kirkwood-cpufreq.c
-+++ b/drivers/cpufreq/kirkwood-cpufreq.c
-@@ -124,13 +124,14 @@ static int kirkwood_cpufreq_probe(struct platform_device *pdev)
- 	priv.cpu_clk = of_clk_get_by_name(np, "cpu_clk");
- 	if (IS_ERR(priv.cpu_clk)) {
- 		dev_err(priv.dev, "Unable to get cpuclk\n");
--		return PTR_ERR(priv.cpu_clk);
-+		err = PTR_ERR(priv.cpu_clk);
-+		goto out_node;
- 	}
+--- a/drivers/media/rc/serial_ir.c
++++ b/drivers/media/rc/serial_ir.c
+@@ -774,8 +774,6 @@ static void serial_ir_exit(void)
  
- 	err = clk_prepare_enable(priv.cpu_clk);
- 	if (err) {
- 		dev_err(priv.dev, "Unable to prepare cpuclk\n");
--		return err;
-+		goto out_node;
- 	}
- 
- 	kirkwood_freq_table[0].frequency = clk_get_rate(priv.cpu_clk) / 1000;
-@@ -161,20 +162,22 @@ static int kirkwood_cpufreq_probe(struct platform_device *pdev)
- 		goto out_ddr;
- 	}
- 
--	of_node_put(np);
--	np = NULL;
+ static int __init serial_ir_init_module(void)
+ {
+-	int result;
 -
- 	err = cpufreq_register_driver(&kirkwood_cpufreq_driver);
--	if (!err)
+ 	switch (type) {
+ 	case IR_HOMEBREW:
+ 	case IR_IRDEO:
+@@ -803,12 +801,7 @@ static int __init serial_ir_init_module(
+ 	if (sense != -1)
+ 		sense = !!sense;
+ 
+-	result = serial_ir_init();
+-	if (!result)
 -		return 0;
-+	if (err) {
-+		dev_err(priv.dev, "Failed to register cpufreq driver\n");
-+		goto out_powersave;
-+	}
+-
+-	serial_ir_exit();
+-	return result;
++	return serial_ir_init();
+ }
  
--	dev_err(priv.dev, "Failed to register cpufreq driver\n");
-+	of_node_put(np);
-+	return 0;
- 
-+out_powersave:
- 	clk_disable_unprepare(priv.powersave_clk);
- out_ddr:
- 	clk_disable_unprepare(priv.ddr_clk);
- out_cpu:
- 	clk_disable_unprepare(priv.cpu_clk);
-+out_node:
- 	of_node_put(np);
- 
- 	return err;
--- 
-2.20.1
-
+ static void __exit serial_ir_exit_module(void)
 
 
