@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E116B2F4F5
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:44:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 994A32F0C9
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:07:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729459AbfE3EnD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:43:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53754 "EHLO mail.kernel.org"
+        id S1726859AbfE3EHI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:07:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47466 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728876AbfE3DMN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:12:13 -0400
+        id S1731137AbfE3DRa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:17:30 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 849A6244A0;
-        Thu, 30 May 2019 03:12:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 49E032464B;
+        Thu, 30 May 2019 03:17:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185932;
-        bh=6ZasBnQkNWDrauYS3P0AR+Bx7T/GvEgr4cuwvTY9LWw=;
+        s=default; t=1559186250;
+        bh=AqjRXvAowMkD8Xr9ZMA3vBOBovKcSxEwvdYWHoscRq8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x0M1KdQ5xh1mChOa96AwYK4QiiNqUozf9HNku9MRSw5FwYfxybqZS5C2Wo4d4wvjo
-         5OLkWTLSGf04i+0mljyozbaw8pXMs2eXcb/n8+GZK3JQvvRVE8Al1sJcfX+MHONDwL
-         GYqti1iOY8wo8t/rV+YtNKeQ+MoC903JA1f5gBR0=
+        b=xBD21zjLfFnAHRbuLJaoCCvlKBipZiSUGBLL3DwR9lhwFTWf9Ob0xGFloqD7NJCi+
+         F5csTMvZYsks437xp4EITcTsdG8YGClU7TnK3Obj/S27zf13heT9qKXqAGpFz5nXhM
+         CFQimDFEqsIZQXBTCGx+X6H8+ONVeXPpQ3n9vFYU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Loic Pallardy <loic.pallardy@st.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 328/405] spi: export tracepoint symbols to modules
-Date:   Wed, 29 May 2019 20:05:26 -0700
-Message-Id: <20190530030557.335473736@linuxfoundation.org>
+Subject: [PATCH 4.19 169/276] PM / core: Propagate dev->power.wakeup_path when no callbacks
+Date:   Wed, 29 May 2019 20:05:27 -0700
+Message-Id: <20190530030535.965554437@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,39 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ca1438dcb34c7fcad63b6ce14ea63a870b92a69b ]
+[ Upstream commit dc351d4c5f4fe4d0f274d6d660227be0c3a03317 ]
 
-The newly added tracepoints in the spi-mxs driver cause a link
-error when the driver is a loadable module:
+The dev->power.direct_complete flag may become set in device_prepare() in
+case the device don't have any PM callbacks (dev->power.no_pm_callbacks is
+set). This leads to a broken behaviour, when there is child having wakeup
+enabled and relies on its parent to be used in the wakeup path.
 
-ERROR: "__tracepoint_spi_transfer_stop" [drivers/spi/spi-mxs.ko] undefined!
-ERROR: "__tracepoint_spi_transfer_start" [drivers/spi/spi-mxs.ko] undefined!
+More precisely, when the direct complete path becomes selected for the
+child in __device_suspend(), the propagation of the dev->power.wakeup_path
+becomes skipped as well.
 
-I'm not quite sure where to put the export statements, but
-directly after the inclusion of the header seems as good as
-any other place.
+Let's address this problem, by checking if the device is a part the wakeup
+path or has wakeup enabled, then prevent the direct complete path from
+being used.
 
-Fixes: f3fdea3af405 ("spi: mxs: add tracing to custom .transfer_one_message callback")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-by: Loic Pallardy <loic.pallardy@st.com>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+[ rjw: Comment cleanup ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/base/power/main.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
-index e3f2e15b75ad4..6cb72287eac82 100644
---- a/drivers/spi/spi.c
-+++ b/drivers/spi/spi.c
-@@ -36,6 +36,8 @@
+diff --git a/drivers/base/power/main.c b/drivers/base/power/main.c
+index a690fd4002605..4abd7c6531d9d 100644
+--- a/drivers/base/power/main.c
++++ b/drivers/base/power/main.c
+@@ -1736,6 +1736,10 @@ static int __device_suspend(struct device *dev, pm_message_t state, bool async)
+ 	if (dev->power.syscore)
+ 		goto Complete;
  
- #define CREATE_TRACE_POINTS
- #include <trace/events/spi.h>
-+EXPORT_TRACEPOINT_SYMBOL(spi_transfer_start);
-+EXPORT_TRACEPOINT_SYMBOL(spi_transfer_stop);
- 
- #include "internals.h"
- 
++	/* Avoid direct_complete to let wakeup_path propagate. */
++	if (device_may_wakeup(dev) || dev->power.wakeup_path)
++		dev->power.direct_complete = false;
++
+ 	if (dev->power.direct_complete) {
+ 		if (pm_runtime_status_suspended(dev)) {
+ 			pm_runtime_disable(dev);
 -- 
 2.20.1
 
