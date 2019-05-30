@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E7FC32F007
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:01:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3F392F129
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:11:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731759AbfE3D7q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:59:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51548 "EHLO mail.kernel.org"
+        id S1727015AbfE3EKm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:10:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731574AbfE3DSb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:18:31 -0400
+        id S1730878AbfE3DQ7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:16:59 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E3BC9247D4;
-        Thu, 30 May 2019 03:18:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5C1F724627;
+        Thu, 30 May 2019 03:16:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186311;
-        bh=jg3i/Q1qNmu17a97+l+Rkl3xirT3wgwiD63RXH7z14E=;
+        s=default; t=1559186218;
+        bh=4db5lcLgJ3ET8TrH4aWhQ7EKOifDOX0uLXxtvfOh7nM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ez41Vvghh8IS5HMgP3fa9eRdTgRv5C38L+JIP93dlwyWln37W1AnA9TJSn+pqg+M4
-         aUExhNDkd+Ex1gqF9KehdLlK2vaRctkMVnOIPHuLwPyj1CWlfAKAOz7dWfLHflhykJ
-         OAZ1BspzB8shLomEQXinoUOL68PSFgKs173wtT1M=
+        b=ytsp3uqcOBlnb6sRDhZxJfJOPuQtZq6QEbTu/DMyifb4SpLXXHfr+gX0t+muoUPr/
+         O7i1if/+8sALyUghzXfCbRhf99891mwSrhV7oPcNfT8NEMe0RIjMuU37OJO5imnb0d
+         okjn1B+cMc0Hv2w0ekVHHrifNMkSnDWJ/wNZlOxo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 4.14 011/193] kvm: svm/avic: fix off-by-one in checking host APIC ID
+        stable@vger.kernel.org, Parav Pandit <parav@mellanox.com>,
+        Daniel Jurgens <danielj@mellanox.com>,
+        Leon Romanovsky <leonro@mellanox.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 107/276] RDMA/cma: Consider scope_id while binding to ipv6 ll address
 Date:   Wed, 29 May 2019 20:04:25 -0700
-Message-Id: <20190530030449.164544652@linuxfoundation.org>
+Message-Id: <20190530030532.719815315@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +46,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suthikulpanit, Suravee <Suravee.Suthikulpanit@amd.com>
+[ Upstream commit 5d7ed2f27bbd482fd29e6b2e204b1a1ee8a0b268 ]
 
-commit c9bcd3e3335d0a29d89fabd2c385e1b989e6f1b0 upstream.
+When two netdev have same link local addresses (such as vlan and non
+vlan), two rdma cm listen id should be able to bind to following different
+addresses.
 
-Current logic does not allow VCPU to be loaded onto CPU with
-APIC ID 255. This should be allowed since the host physical APIC ID
-field in the AVIC Physical APIC table entry is an 8-bit value,
-and APIC ID 255 is valid in system with x2APIC enabled.
-Instead, do not allow VCPU load if the host APIC ID cannot be
-represented by an 8-bit value.
+listener-1: addr=lla, scope_id=A, port=X
+listener-2: addr=lla, scope_id=B, port=X
 
-Also, use the more appropriate AVIC_PHYSICAL_ID_ENTRY_HOST_PHYSICAL_ID_MASK
-instead of AVIC_MAX_PHYSICAL_ID_COUNT.
+However while comparing the addresses only addr and port are considered,
+due to which 2nd listener fails to listen.
 
-Signed-off-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In below example of two listeners, 2nd listener is failing with address in
+use error.
 
+$ rping -sv -a fe80::268a:7ff:feb3:d113%ens2f1 -p 4545&
+
+$ rping -sv -a fe80::268a:7ff:feb3:d113%ens2f1.200 -p 4545
+rdma_bind_addr: Address already in use
+
+To overcome this, consider the scope_ids as well which forms the accurate
+IPv6 link local address.
+
+Signed-off-by: Parav Pandit <parav@mellanox.com>
+Reviewed-by: Daniel Jurgens <danielj@mellanox.com>
+Signed-off-by: Leon Romanovsky <leonro@mellanox.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/svm.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/infiniband/core/cma.c | 25 +++++++++++++++++++------
+ 1 file changed, 19 insertions(+), 6 deletions(-)
 
---- a/arch/x86/kvm/svm.c
-+++ b/arch/x86/kvm/svm.c
-@@ -1567,7 +1567,11 @@ static void avic_vcpu_load(struct kvm_vc
- 	if (!kvm_vcpu_apicv_active(vcpu))
- 		return;
+diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
+index 6f5be78024762..39dc7be56884a 100644
+--- a/drivers/infiniband/core/cma.c
++++ b/drivers/infiniband/core/cma.c
+@@ -1078,18 +1078,31 @@ static inline bool cma_any_addr(const struct sockaddr *addr)
+ 	return cma_zero_addr(addr) || cma_loopback_addr(addr);
+ }
  
--	if (WARN_ON(h_physical_id >= AVIC_MAX_PHYSICAL_ID_COUNT))
-+	/*
-+	 * Since the host physical APIC id is 8 bits,
-+	 * we can support host APIC ID upto 255.
-+	 */
-+	if (WARN_ON(h_physical_id > AVIC_PHYSICAL_ID_ENTRY_HOST_PHYSICAL_ID_MASK))
- 		return;
+-static int cma_addr_cmp(struct sockaddr *src, struct sockaddr *dst)
++static int cma_addr_cmp(const struct sockaddr *src, const struct sockaddr *dst)
+ {
+ 	if (src->sa_family != dst->sa_family)
+ 		return -1;
  
- 	entry = READ_ONCE(*(svm->avic_physical_id_cache));
+ 	switch (src->sa_family) {
+ 	case AF_INET:
+-		return ((struct sockaddr_in *) src)->sin_addr.s_addr !=
+-		       ((struct sockaddr_in *) dst)->sin_addr.s_addr;
+-	case AF_INET6:
+-		return ipv6_addr_cmp(&((struct sockaddr_in6 *) src)->sin6_addr,
+-				     &((struct sockaddr_in6 *) dst)->sin6_addr);
++		return ((struct sockaddr_in *)src)->sin_addr.s_addr !=
++		       ((struct sockaddr_in *)dst)->sin_addr.s_addr;
++	case AF_INET6: {
++		struct sockaddr_in6 *src_addr6 = (struct sockaddr_in6 *)src;
++		struct sockaddr_in6 *dst_addr6 = (struct sockaddr_in6 *)dst;
++		bool link_local;
++
++		if (ipv6_addr_cmp(&src_addr6->sin6_addr,
++					  &dst_addr6->sin6_addr))
++			return 1;
++		link_local = ipv6_addr_type(&dst_addr6->sin6_addr) &
++			     IPV6_ADDR_LINKLOCAL;
++		/* Link local must match their scope_ids */
++		return link_local ? (src_addr6->sin6_scope_id !=
++				     dst_addr6->sin6_scope_id) :
++				    0;
++	}
++
+ 	default:
+ 		return ib_addr_cmp(&((struct sockaddr_ib *) src)->sib_addr,
+ 				   &((struct sockaddr_ib *) dst)->sib_addr);
+-- 
+2.20.1
+
 
 
