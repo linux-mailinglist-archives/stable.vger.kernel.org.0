@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EF37E2F229
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:19:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36D822EF52
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:54:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730276AbfE3DPY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:15:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38524 "EHLO mail.kernel.org"
+        id S1733155AbfE3Dyg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:54:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728892AbfE3DPY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:15:24 -0400
+        id S1731854AbfE3DTR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:19:17 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B711924557;
-        Thu, 30 May 2019 03:15:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 13CDA24865;
+        Thu, 30 May 2019 03:19:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186123;
-        bh=pGdJXlPA3D7iOZ8ln5P2oeV31hWaclZe70Axgm70Nb0=;
+        s=default; t=1559186357;
+        bh=Udqoyn03xR71fL5XiDPWv5x+FeOrtCnyp8Wqxzu3yJY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sINZ7mRByq0QrY9j1OdaEDqiffee9bHLlDj8qVkIr8T7g7YYRiNr6cD75bcB21NvH
-         oH8wGXy3awrpFPi4msACYBKn34liHBRFiyjgoHHlM5S8HYiKnV1iVh9E6+WXTz1E1s
-         aCQDW06jFVKrofXdgBO99+FF758zvLsnVvBJeMkM=
+        b=laV57B8xkRpdpN+aEPqrWv6FDNX9WMB8qDC671737xpFh6sAFFA2En9elnUcOmozt
+         dsWE5rdMjaUy79ER/FNfieLAPc6U6xouJgKrARff5nXn8YsTK7Dc7KAeGtPwuoHjKY
+         gvTj17cfaspcDePbRlo0NKkrIgHeRaQ7b0xEOQT8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>,
-        Antonio Quartulli <a@unstable.cc>,
-        Sven Eckelmann <sven@narfation.org>,
-        Simon Wunderlich <sw@simonwunderlich.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 281/346] batman-adv: allow updating DAT entry timeouts on incoming ARP Replies
+        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
+        Peter Zijlstra <a.p.zijlstra@chello.nl>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 100/193] sched/core: Check quota and period overflow at usec to nsec conversion
 Date:   Wed, 29 May 2019 20:05:54 -0700
-Message-Id: <20190530030555.157536107@linuxfoundation.org>
+Message-Id: <20190530030502.850842444@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
+References: <20190530030446.953835040@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,55 +48,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 099e6cc1582dc2903fecb898bbeae8f7cf4262c7 ]
+[ Upstream commit 1a8b4540db732ca16c9e43ac7c08b1b8f0b252d8 ]
 
-Currently incoming ARP Replies, for example via a DHT-PUT message, do
-not update the timeout for an already existing DAT entry. These ARP
-Replies are dropped instead.
+Large values could overflow u64 and pass following sanity checks.
 
-This however defeats the purpose of the DHCPACK snooping, for instance.
-Right now, a DAT entry in the DHT will be purged every five minutes,
-likely leading to a mesh-wide ARP Request broadcast after this timeout.
-Which then recreates the entry. The idea of the DHCPACK snooping is to
-be able to update an entry before a timeout happens, to avoid ARP Request
-flooding.
+ # echo 18446744073750000 > cpu.cfs_period_us
+ # cat cpu.cfs_period_us
+ 40448
 
-This patch fixes this issue by updating a DAT entry on incoming
-ARP Replies even if a matching DAT entry already exists. While still
-filtering the ARP Reply towards the soft-interface, to avoid duplicate
-messages on the client device side.
+ # echo 18446744073750000 > cpu.cfs_quota_us
+ # cat cpu.cfs_quota_us
+ 40448
 
-Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
-Acked-by: Antonio Quartulli <a@unstable.cc>
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+After this patch they will fail with -EINVAL.
+
+Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+Acked-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: http://lkml.kernel.org/r/155125502079.293431.3947497929372138600.stgit@buzz
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/batman-adv/distributed-arp-table.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ kernel/sched/core.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/net/batman-adv/distributed-arp-table.c b/net/batman-adv/distributed-arp-table.c
-index b9ffe1826527e..0b8d84ece7db6 100644
---- a/net/batman-adv/distributed-arp-table.c
-+++ b/net/batman-adv/distributed-arp-table.c
-@@ -1398,7 +1398,6 @@ bool batadv_dat_snoop_incoming_arp_reply(struct batadv_priv *bat_priv,
- 			   hw_src, &ip_src, hw_dst, &ip_dst,
- 			   dat_entry->mac_addr,	&dat_entry->ip);
- 		dropped = true;
--		goto out;
- 	}
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 0552ddbb25e2a..2464a242d6c9d 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -6482,8 +6482,10 @@ int tg_set_cfs_quota(struct task_group *tg, long cfs_quota_us)
+ 	period = ktime_to_ns(tg->cfs_bandwidth.period);
+ 	if (cfs_quota_us < 0)
+ 		quota = RUNTIME_INF;
+-	else
++	else if ((u64)cfs_quota_us <= U64_MAX / NSEC_PER_USEC)
+ 		quota = (u64)cfs_quota_us * NSEC_PER_USEC;
++	else
++		return -EINVAL;
  
- 	/* Update our internal cache with both the IP addresses the node got
-@@ -1407,6 +1406,9 @@ bool batadv_dat_snoop_incoming_arp_reply(struct batadv_priv *bat_priv,
- 	batadv_dat_entry_add(bat_priv, ip_src, hw_src, vid);
- 	batadv_dat_entry_add(bat_priv, ip_dst, hw_dst, vid);
+ 	return tg_set_cfs_bandwidth(tg, period, quota);
+ }
+@@ -6505,6 +6507,9 @@ int tg_set_cfs_period(struct task_group *tg, long cfs_period_us)
+ {
+ 	u64 quota, period;
  
-+	if (dropped)
-+		goto out;
++	if ((u64)cfs_period_us > U64_MAX / NSEC_PER_USEC)
++		return -EINVAL;
 +
- 	/* If BLA is enabled, only forward ARP replies if we have claimed the
- 	 * source of the ARP reply or if no one else of the same backbone has
- 	 * already claimed that client. This prevents that different gateways
+ 	period = (u64)cfs_period_us * NSEC_PER_USEC;
+ 	quota = tg->cfs_bandwidth.quota;
+ 
 -- 
 2.20.1
 
