@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8006E2EFD6
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:59:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B0E52F521
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:46:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731666AbfE3D61 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:58:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52322 "EHLO mail.kernel.org"
+        id S1728725AbfE3DLx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:11:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731671AbfE3DSo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:18:44 -0400
+        id S1728720AbfE3DLx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:11:53 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4C52C247E7;
-        Thu, 30 May 2019 03:18:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8C11724512;
+        Thu, 30 May 2019 03:11:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186324;
-        bh=yxYT/nPb9t4X+A1NGkvt0mkwd6R4HwCpUOPyU18G4u0=;
+        s=default; t=1559185912;
+        bh=rqf+WCP3JKuipcslg6e04zOOBxAAsJ9FP0vvfATf1As=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aB3tzWT6wUSj6s/PkLOzrss+PncZfmHQoGjJnFpU1LkWEtmXeAMKhbyLjEXjCemC7
-         gCIxsrfW+6hXioUBkzBwVGwbgnv4juD6MRCDvTLQ9crekTlHQX/odbaRVlqRJ/3Qgm
-         etXjI0TDyk53YK+qnY24gia4mpxFjkDUEKYEHEy8=
+        b=Dj3NAYhR9QShVtsJMq2IQpLjlOgCpcMqodoj02G2c2qshMJXLdn/m9DhaPUfT/e6a
+         jWOb00jC4hDL/fhHSnWRpdagSRRCpaYZNU1V7smhUy07WSJLPYeZH9iEP2A317iQfU
+         2RfFcKYCKnKbIZa/vZKQf8VvuoPcf1kQJPfjDBe8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
+        Jacopo Mondi <jacopo+renesas@jmondi.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 037/193] cxgb4: Fix error path in cxgb4_init_module
+Subject: [PATCH 5.1 293/405] drm: rcar-du: lvds: Set LVEN and LVRES bits together on D3
 Date:   Wed, 29 May 2019 20:04:51 -0700
-Message-Id: <20190530030454.672580857@linuxfoundation.org>
+Message-Id: <20190530030555.667789342@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,83 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a3147770bea76c8dbad73eca3a24c2118da5e719 ]
+[ Upstream commit 00d082cc4ea6e42ec4fed832a1020231bb1ca150 ]
 
-BUG: unable to handle kernel paging request at ffffffffa016a270
-PGD 3270067 P4D 3270067 PUD 3271063 PMD 230bbd067 PTE 0
-Oops: 0000 [#1
-CPU: 0 PID: 6134 Comm: modprobe Not tainted 5.1.0+ #33
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.9.3-0-ge2fc41e-prebuilt.qemu-project.org 04/01/2014
-RIP: 0010:atomic_notifier_chain_register+0x24/0x60
-Code: 1f 80 00 00 00 00 55 48 89 e5 41 54 49 89 f4 53 48 89 fb e8 ae b4 38 01 48 8b 53 38 48 8d 4b 38 48 85 d2 74 20 45 8b 44 24 10 <44> 3b 42 10 7e 08 eb 13 44 39 42 10 7c 0d 48 8d 4a 08 48 8b 52 08
-RSP: 0018:ffffc90000e2bc60 EFLAGS: 00010086
-RAX: 0000000000000292 RBX: ffffffff83467240 RCX: ffffffff83467278
-RDX: ffffffffa016a260 RSI: ffffffff83752140 RDI: ffffffff83467240
-RBP: ffffc90000e2bc70 R08: 0000000000000000 R09: 0000000000000001
-R10: 0000000000000000 R11: 00000000014fa61f R12: ffffffffa01c8260
-R13: ffff888231091e00 R14: 0000000000000000 R15: ffffc90000e2be78
-FS:  00007fbd8d7cd540(0000) GS:ffff888237a00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: ffffffffa016a270 CR3: 000000022c7e3000 CR4: 00000000000006f0
-Call Trace:
- register_inet6addr_notifier+0x13/0x20
- cxgb4_init_module+0x6c/0x1000 [cxgb4
- ? 0xffffffffa01d7000
- do_one_initcall+0x6c/0x3cc
- ? do_init_module+0x22/0x1f1
- ? rcu_read_lock_sched_held+0x97/0xb0
- ? kmem_cache_alloc_trace+0x325/0x3b0
- do_init_module+0x5b/0x1f1
- load_module+0x1db1/0x2690
- ? m_show+0x1d0/0x1d0
- __do_sys_finit_module+0xc5/0xd0
- __x64_sys_finit_module+0x15/0x20
- do_syscall_64+0x6b/0x1d0
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
+On the D3 SoC the LVDS PHY must be enabled in the same register write
+that enables the LVDS output. Skip writing the LVEN bit independently
+on that platform, it will be set by the write that sets LVRES.
 
-If pci_register_driver fails, register inet6addr_notifier is
-pointless. This patch fix the error path in cxgb4_init_module.
-
-Fixes: b5a02f503caa ("cxgb4 : Update ipv6 address handling api")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+Reviewed-by: Jacopo Mondi <jacopo+renesas@jmondi.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/rcar-du/rcar_lvds.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
-index 74a42f12064b6..0e13989608f19 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
-@@ -5399,15 +5399,24 @@ static int __init cxgb4_init_module(void)
- 
- 	ret = pci_register_driver(&cxgb4_driver);
- 	if (ret < 0)
--		debugfs_remove(cxgb4_debugfs_root);
-+		goto err_pci;
- 
- #if IS_ENABLED(CONFIG_IPV6)
- 	if (!inet6addr_registered) {
--		register_inet6addr_notifier(&cxgb4_inet6addr_notifier);
--		inet6addr_registered = true;
-+		ret = register_inet6addr_notifier(&cxgb4_inet6addr_notifier);
-+		if (ret)
-+			pci_unregister_driver(&cxgb4_driver);
-+		else
-+			inet6addr_registered = true;
+diff --git a/drivers/gpu/drm/rcar-du/rcar_lvds.c b/drivers/gpu/drm/rcar-du/rcar_lvds.c
+index 7ef97b2a6edaa..f0314790333ba 100644
+--- a/drivers/gpu/drm/rcar-du/rcar_lvds.c
++++ b/drivers/gpu/drm/rcar-du/rcar_lvds.c
+@@ -485,9 +485,13 @@ static void rcar_lvds_enable(struct drm_bridge *bridge)
  	}
- #endif
  
-+	if (ret == 0)
-+		return ret;
-+
-+err_pci:
-+	debugfs_remove(cxgb4_debugfs_root);
-+
- 	return ret;
- }
+ 	if (lvds->info->quirks & RCAR_LVDS_QUIRK_GEN3_LVEN) {
+-		/* Turn on the LVDS PHY. */
++		/*
++		 * Turn on the LVDS PHY. On D3, the LVEN and LVRES bit must be
++		 * set at the same time, so don't write the register yet.
++		 */
+ 		lvdcr0 |= LVDCR0_LVEN;
+-		rcar_lvds_write(lvds, LVDCR0, lvdcr0);
++		if (!(lvds->info->quirks & RCAR_LVDS_QUIRK_PWD))
++			rcar_lvds_write(lvds, LVDCR0, lvdcr0);
+ 	}
  
+ 	if (!(lvds->info->quirks & RCAR_LVDS_QUIRK_EXT_PLL)) {
 -- 
 2.20.1
 
