@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AD30A2EDAF
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:42:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 05AA02EDCD
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:42:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732534AbfE3DVW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:21:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34358 "EHLO mail.kernel.org"
+        id S1728259AbfE3DlT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:41:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34356 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732527AbfE3DVW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:21:22 -0400
+        id S1732526AbfE3DVV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:21:21 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C36DB2499E;
-        Thu, 30 May 2019 03:21:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 28DEB248FC;
+        Thu, 30 May 2019 03:21:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186479;
-        bh=R1Y/Uxnl9zCkAKdG+RQhuidqwjK17ZPDNJ3eFv/YJNc=;
+        s=default; t=1559186480;
+        bh=eLnA3TCUZw3mt9N2WqAhU+mxgcnznVC7qAxRzjMRZv4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ARmSnt3GBPZd4znfD1cTPpH+auovG+29d+RN08XN9cWfGFeHoqmV3Hkw/KQdgXsob
-         KFKcMaHfX2kH5rmis4xOFWF8j86TwdE5/yD1k3dtwCyIJ49XZ0Xk/CG4LvsIWxiWBt
-         Y3K/jNISJGiHLV6yzgvjeKOFIbGHUg2YF4MWRxKc=
+        b=xWECkO40a9SGJb880MbdY39kIjo2QJRnVvWRvLBvw2tynECUTs2WHD0V6xMdOjW0U
+         Xxbl3u8R5UhvD7g7acHUgNmxdKNRsKwRlyEGbXMprOPVDaJsT4m9Xlew0iXeVPbhtM
+         xy3Aj5NigvlnZih0REUBIOiHtd6H2rKvLL8dMLrc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Paul E. McKenney" <paulmck@linux.ibm.com>,
+        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
+        Alan Stern <stern@rowland.harvard.edu>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 115/128] rcuperf: Fix cleanup path for invalid perf_type strings
-Date:   Wed, 29 May 2019 20:07:27 -0700
-Message-Id: <20190530030455.194275136@linuxfoundation.org>
+Subject: [PATCH 4.9 116/128] usb: core: Add PM runtime calls to usb_hcd_platform_shutdown
+Date:   Wed, 29 May 2019 20:07:28 -0700
+Message-Id: <20190530030455.379251731@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
 References: <20190530030432.977908967@linuxfoundation.org>
@@ -43,50 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ad092c027713a68a34168942a5ef422e42e039f4 ]
+[ Upstream commit 8ead7e817224d7832fe51a19783cb8fcadc79467 ]
 
-If the specified rcuperf.perf_type is not in the rcu_perf_init()
-function's perf_ops[] array, rcuperf prints some console messages and
-then invokes rcu_perf_cleanup() to set state so that a future torture
-test can run.  However, rcu_perf_cleanup() also attempts to end the
-test that didn't actually start, and in doing so relies on the value
-of cur_ops, a value that is not particularly relevant in this case.
-This can result in confusing output or even follow-on failures due to
-attempts to use facilities that have not been properly initialized.
+If ohci-platform is runtime suspended, we can currently get an "imprecise
+external abort" on reboot with ohci-platform loaded when PM runtime
+is implemented for the SoC.
 
-This commit therefore sets the value of cur_ops to NULL in this case and
-inserts a check near the beginning of rcu_perf_cleanup(), thus avoiding
-relying on an irrelevant cur_ops value.
+Let's fix this by adding PM runtime support to usb_hcd_platform_shutdown.
 
-Signed-off-by: Paul E. McKenney <paulmck@linux.ibm.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/rcuperf.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/usb/core/hcd.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/kernel/rcu/rcuperf.c b/kernel/rcu/rcuperf.c
-index 123ccbd224492..2b8579d5a5445 100644
---- a/kernel/rcu/rcuperf.c
-+++ b/kernel/rcu/rcuperf.c
-@@ -453,6 +453,10 @@ rcu_perf_cleanup(void)
+diff --git a/drivers/usb/core/hcd.c b/drivers/usb/core/hcd.c
+index bdb0d7a08ff9b..1dd4c65e9188a 100644
+--- a/drivers/usb/core/hcd.c
++++ b/drivers/usb/core/hcd.c
+@@ -3033,6 +3033,9 @@ usb_hcd_platform_shutdown(struct platform_device *dev)
+ {
+ 	struct usb_hcd *hcd = platform_get_drvdata(dev);
  
- 	if (torture_cleanup_begin())
- 		return;
-+	if (!cur_ops) {
-+		torture_cleanup_end();
-+		return;
-+	}
- 
- 	if (reader_tasks) {
- 		for (i = 0; i < nrealreaders; i++)
-@@ -574,6 +578,7 @@ rcu_perf_init(void)
- 			pr_alert(" %s", perf_ops[i]->name);
- 		pr_alert("\n");
- 		firsterr = -EINVAL;
-+		cur_ops = NULL;
- 		goto unwind;
- 	}
- 	if (cur_ops->init)
++	/* No need for pm_runtime_put(), we're shutting down */
++	pm_runtime_get_sync(&dev->dev);
++
+ 	if (hcd->driver->shutdown)
+ 		hcd->driver->shutdown(hcd);
+ }
 -- 
 2.20.1
 
