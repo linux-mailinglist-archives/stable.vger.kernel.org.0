@@ -2,106 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F6FE3008F
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 19:10:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DC6E300D3
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 19:18:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726527AbfE3RKq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 13:10:46 -0400
-Received: from mga14.intel.com ([192.55.52.115]:64258 "EHLO mga14.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725961AbfE3RKq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 30 May 2019 13:10:46 -0400
-X-Amp-Result: UNKNOWN
-X-Amp-Original-Verdict: FILE UNKNOWN
-X-Amp-File-Uploaded: False
-Received: from fmsmga005.fm.intel.com ([10.253.24.32])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 30 May 2019 10:10:45 -0700
-X-ExtLoop1: 1
-Received: from araj-mobl1.jf.intel.com ([10.251.6.93])
-  by fmsmga005.fm.intel.com with ESMTP; 30 May 2019 10:10:44 -0700
-Date:   Thu, 30 May 2019 10:10:44 -0700
-From:   "Raj, Ashok" <ashok.raj@intel.com>
-To:     Tony W Wang-oc <TonyWWang-oc@zhaoxin.com>
-Cc:     "tipbot@zytor.com" <tipbot@zytor.com>, "bp@suse.de" <bp@suse.de>,
-        "hpa@zytor.com" <hpa@zytor.com>,
-        "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linux-tip-commits@vger.kernel.org" 
-        <linux-tip-commits@vger.kernel.org>,
-        "mingo@kernel.org" <mingo@kernel.org>,
-        "peterz@infradead.org" <peterz@infradead.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "tglx@linutronix.de" <tglx@linutronix.de>,
-        "tony.luck@intel.com" <tony.luck@intel.com>,
-        "torvalds@linux-foundation.org" <torvalds@linux-foundation.org>,
-        David Wang <DavidWang@zhaoxin.com>,
-        Ashok Raj <ashok.raj@intel.com>
-Subject: Re: =?utf-8?B?562U5aSNOiBSZTogW3RpcDp4ODYv?=
- =?utf-8?Q?urgent=5D_x86=2Fmce=3A_Ensur?= =?utf-8?Q?e?= offline CPUs don' t
- participate in rendezvous process
-Message-ID: <20190530171044.GA18559@araj-mobl1.jf.intel.com>
-References: <985acf114ab245fbab52caabf03bd280@zhaoxin.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <985acf114ab245fbab52caabf03bd280@zhaoxin.com>
-User-Agent: Mutt/1.9.1 (2017-09-22)
+        id S1726307AbfE3RSE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 13:18:04 -0400
+Received: from imap1.codethink.co.uk ([176.9.8.82]:60066 "EHLO
+        imap1.codethink.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726280AbfE3RSE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 May 2019 13:18:04 -0400
+Received: from [167.98.27.226] (helo=xylophone)
+        by imap1.codethink.co.uk with esmtpsa (Exim 4.84_2 #1 (Debian))
+        id 1hWOgj-0002oW-IM; Thu, 30 May 2019 18:18:01 +0100
+Message-ID: <1559236680.24330.5.camel@codethink.co.uk>
+Subject: Re: [stable] bpf: add bpf_jit_limit knob to restrict unpriv
+ allocations
+From:   Ben Hutchings <ben.hutchings@codethink.co.uk>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <Alexander.Levin@microsoft.com>
+Cc:     stable <stable@vger.kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>, bpf@vger.kernel.org
+Date:   Thu, 30 May 2019 18:18:00 +0100
+In-Reply-To: <1558994144.2631.14.camel@codethink.co.uk>
+References: <1558994144.2631.14.camel@codethink.co.uk>
+Organization: Codethink Ltd.
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.22.6-1+deb9u1 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, May 30, 2019 at 09:13:39AM +0000, Tony W Wang-oc wrote:
-> On Thu, May 30, 2019, Tony W Wang-oc wrote:
-> > Hi Ashok,
-> > I have two questions about this patch, could you help to check:
-> > 
-> > 1, for broadcast #MC exceptions, this patch seems require #MC exception
-> > errors
-> > set MCG_STATUS_RIPV = 1.
-> > But for Intel CPU, some #MC exception errors set MCG_STATUS_RIPV = 0
-> > (like "Recoverable-not-continuable SRAR Type" Errors), for these errors
-> > the patch doesn't seem to work, is that okay?
-> > 
-> > 2, for LMCE exceptions, this patch seems require #MC exception errors
-> > set MCG_STATUS_RIPV = 0 to make sure LMCE be handled normally even
-> > on offline CPU.
-> > For LMCE errors set MCG_STAUS_RIPV = 1, the patch prevents offline CPU
-> > handle these LMCE errors, is that okay?
-> > 
+On Mon, 2019-05-27 at 22:55 +0100, Ben Hutchings wrote:
+> Please consider backporting this commit to 4.19-stable:
 > 
-> More specifically, this patch seems require #MC exceptions meet the condition
-> "MCG_STATUS_RIPV ^ MCG_STATUS_LMCES == 1"; But on a Xeon X5650 machine (SMP), 
-
-The offline CPU will never get a LMCE=1, since those only happen on the CPU 
-that's doing active work. Offline CPUs just sitting in idle.
-
-The specific error here is a PCC=1, so irrespective of what happens
-We do capture the errors in the per-cpu log, and kernel would panic. 
-
-What specifically this patch tries to achieve is to leave an error
-sitting with MCG-STATUS.MCIP=1 and another recoverable error would shut the 
-system dowm. 
-
-I don't see anything wrong with what this patch does.. 
-
-> "Data CACHE Level-2 Generic Error" does not meet this condition.
+> commit ede95a63b5e84ddeea6b0c473b36ab8bfd8c6ce3
+> Author: Daniel Borkmann <daniel@iogearbox.net>
+> Date:   Tue Oct 23 01:11:04 2018 +0200
 > 
-> I got below message from: https://www.centos.org/forums/viewtopic.php?p=292742
+>     bpf: add bpf_jit_limit knob to restrict unpriv allocations
 > 
-> Hardware event. This is not a software error.
-> MCE 0
-> CPU 4 BANK 6 TSC b7065eeaa18b0 
-> TIME 1545643603 Mon Dec 24 10:26:43 2018
-> MCG status:MCIP 
-> MCi status:
-> Uncorrected error
-> Error enabled
-> Processor context corrupt
-> MCA: Data CACHE Level-2 Generic Error
-> STATUS b200000080000106 MCGSTATUS 4
-> MCGCAP 1c09 APICID 4 SOCKETID 0 
-> CPUID Vendor Intel Family 6 Model 44
-> 
-> > Thanks
-> > Tony W Wang-oc
+> No other stable branches are affected by the issue.
+
+Actually that's wrong; the commit introducing this was backported to
+4.4, 4.9, and 4.14.  I haven't yet checked whether this fix applies
+cleanly to them.
+
+Ben.
+
+-- 
+Ben Hutchings, Software Developer                         Codethink Ltd
+https://www.codethink.co.uk/                 Dale House, 35 Dale Street
+                                     Manchester, M1 2HF, United Kingdom
