@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 81C712F297
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:23:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CEDB52F0E8
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:08:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730059AbfE3DPB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:15:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36590 "EHLO mail.kernel.org"
+        id S1726779AbfE3EI2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:08:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728325AbfE3DO7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:14:59 -0400
+        id S1731070AbfE3DRT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:17:19 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 27F672456F;
-        Thu, 30 May 2019 03:14:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 34183246A1;
+        Thu, 30 May 2019 03:17:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186098;
-        bh=jCWnGsAAbuluNuNPeEC/tiHdJn5qmn0z9MOTxt9bhV4=;
+        s=default; t=1559186238;
+        bh=35T0qHW0GoLyTvKSX60pYUseUsylkpZKu7B/BgGYgcY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i2xFpfKQd2mdFacyPqSm933rgrXe15IHyreTj4KBXYoTKQUanQJG7ZS4CJYUW1NhO
-         j78UB1/x/qvmgrztBjwiW/6C0V+j5h1MB2bdEkZOmIUV4j/SAzH+6BTwaIh0puOSsJ
-         Wvn0SrlRscO7DLoXPJzgAeBOF31a4IZTNwC9Q0GU=
+        b=VjS+roE4piIDYe8Zci3UU1F1uZuQgYVYVQvMCjRKDrR6Id/xBptFqivXOWe0CARuN
+         mG+GPsUsBQPhK5T+gZlxCnhj9QvajRxUXkc8WDgnMgNtRfkIMpqliOICW5cbq2t96m
+         pCRJnEP2X2x4Jdnx1Zlag8ENLf5opFoSMQaO9o+k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stanley Chu <stanley.chu@mediatek.com>,
-        Avri Altman <avri.altman@wdc.com>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Tony Lindgren <tony@atomide.com>,
+        Kishon Vijay Abraham I <kishon@ti.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 233/346] scsi: ufs: Fix regulator load and icc-level configuration
+Subject: [PATCH 4.19 148/276] phy: mapphone-mdm6600: add gpiolib dependency
 Date:   Wed, 29 May 2019 20:05:06 -0700
-Message-Id: <20190530030552.848943898@linuxfoundation.org>
+Message-Id: <20190530030534.874778653@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,74 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 0487fff76632ec023d394a05b82e87a971db8c03 ]
+[ Upstream commit 208d3423ee463ab257908456f6bbca4024ab63f7 ]
 
-Currently if a regulator has "<name>-fixed-regulator" property in device
-tree, it will skip current limit initialization.  This lead to a zero
-"max_uA" value in struct ufs_vreg.
+gcc points out that when CONFIG_GPIOLIB is disabled,
+gpiod_get_array_value_cansleep() returns 0 but fails to set its output:
 
-However, "regulator_set_load" operation shall be required on regulators
-which have valid current limits, otherwise a zero "max_uA" set by
-"regulator_set_load" may cause unexpected behavior when this regulator is
-enabled or set as high power mode.
+drivers/phy/motorola/phy-mapphone-mdm6600.c: In function 'phy_mdm6600_status':
+drivers/phy/motorola/phy-mapphone-mdm6600.c:220:24: error: 'values[0]' is used uninitialized in this function [-Werror=uninitialized]
 
-Similarly, in device's icc_level configuration flow, the target icc_level
-shall be updated if regulator also has valid current limit, otherwise a
-wrong icc_level will be calculated by zero "max_uA" and thus causes
-unexpected results after it is written to device.
+This could be fixed more generally in gpiolib by returning a failure
+code, but for this specific case, the easier workaround is to add a
+gpiolib dependency.
 
-Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
-Reviewed-by: Avri Altman <avri.altman@wdc.com>
-Acked-by: Alim Akhtar <alim.akhtar@samsung.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 5d1ebbda0318 ("phy: mapphone-mdm6600: Add USB PHY driver for MDM6600 on Droid 4")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ drivers/phy/motorola/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 2ddf24466a62e..75d7267b73879 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -6286,19 +6286,19 @@ static u32 ufshcd_find_max_sup_active_icc_level(struct ufs_hba *hba,
- 		goto out;
- 	}
+diff --git a/drivers/phy/motorola/Kconfig b/drivers/phy/motorola/Kconfig
+index 82651524ffb9c..718f8729701df 100644
+--- a/drivers/phy/motorola/Kconfig
++++ b/drivers/phy/motorola/Kconfig
+@@ -13,7 +13,7 @@ config PHY_CPCAP_USB
  
--	if (hba->vreg_info.vcc)
-+	if (hba->vreg_info.vcc && hba->vreg_info.vcc->max_uA)
- 		icc_level = ufshcd_get_max_icc_level(
- 				hba->vreg_info.vcc->max_uA,
- 				POWER_DESC_MAX_ACTV_ICC_LVLS - 1,
- 				&desc_buf[PWR_DESC_ACTIVE_LVLS_VCC_0]);
- 
--	if (hba->vreg_info.vccq)
-+	if (hba->vreg_info.vccq && hba->vreg_info.vccq->max_uA)
- 		icc_level = ufshcd_get_max_icc_level(
- 				hba->vreg_info.vccq->max_uA,
- 				icc_level,
- 				&desc_buf[PWR_DESC_ACTIVE_LVLS_VCCQ_0]);
- 
--	if (hba->vreg_info.vccq2)
-+	if (hba->vreg_info.vccq2 && hba->vreg_info.vccq2->max_uA)
- 		icc_level = ufshcd_get_max_icc_level(
- 				hba->vreg_info.vccq2->max_uA,
- 				icc_level,
-@@ -7001,6 +7001,15 @@ static int ufshcd_config_vreg_load(struct device *dev, struct ufs_vreg *vreg,
- 	if (!vreg)
- 		return 0;
- 
-+	/*
-+	 * "set_load" operation shall be required on those regulators
-+	 * which specifically configured current limitation. Otherwise
-+	 * zero max_uA may cause unexpected behavior when regulator is
-+	 * enabled or set as high power mode.
-+	 */
-+	if (!vreg->max_uA)
-+		return 0;
-+
- 	ret = regulator_set_load(vreg->reg, ua);
- 	if (ret < 0) {
- 		dev_err(dev, "%s: %s set load (ua=%d) failed, err=%d\n",
+ config PHY_MAPPHONE_MDM6600
+ 	tristate "Motorola Mapphone MDM6600 modem USB PHY driver"
+-	depends on OF && USB_SUPPORT
++	depends on OF && USB_SUPPORT && GPIOLIB
+ 	select GENERIC_PHY
+ 	help
+ 	  Enable this for MDM6600 USB modem to work on Motorola phones
 -- 
 2.20.1
 
