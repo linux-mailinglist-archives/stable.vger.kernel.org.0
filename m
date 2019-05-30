@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 32A252F61C
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:53:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CF462F3D2
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:33:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727916AbfE3DKj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:10:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48176 "EHLO mail.kernel.org"
+        id S1728845AbfE3Eci (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:32:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728164AbfE3DKi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:10:38 -0400
+        id S1729508AbfE3DNe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:13:34 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C9D424481;
-        Thu, 30 May 2019 03:10:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 28BE024523;
+        Thu, 30 May 2019 03:13:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185837;
-        bh=YeDlf52phRKrXD74FV1sV6yCl9qOF84tqVlkV2IO+z0=;
+        s=default; t=1559186013;
+        bh=W9Hl3z1lh1OzMBu05h7bMKuHaM+Q3mM1d9ytbZ7pGLA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YHCWEFiw4UZDGvXqvda8SyLhxXbnmIL7wsb0CcznZedIAEJhvscR+YFhl472Zr5Wk
-         ljcCqSlSxeIQ4WeLitL2wGtB+0FLly9LJc6BaMKZAKDmUQwFeRyZMuNzHsImxC5/uJ
-         pNi0SJpDxBo5eDBGTiEmlUl8m11Oyd+O3mEyjUiw=
+        b=PNkh9gYYoSPNlpLk7bESDOE33s9Pgc1OHqtpOW2Evbw3YQ5UuGXX9F59zcL9I985U
+         C3NeRjMhVijwtzCwLZz7Td2kFcu06HwK9VEWkFvfZj/m20/OakmHCDZOT+ltcpZ16U
+         YtVdST3nznkqohoXwNY/6HIBFurQCKpbF3elZ7aA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Elaine Zhang <zhangqing@rock-chips.com>,
-        Heiko Stuebner <heiko@sntech.de>,
+        stable@vger.kernel.org, Fabien Dessenne <fabien.dessenne@st.com>,
+        Hugues Fruchet <hugues.fruchet@st.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 150/405] clk: rockchip: undo several noc and special clocks as critical on rk3288
-Date:   Wed, 29 May 2019 20:02:28 -0700
-Message-Id: <20190530030548.730666383@linuxfoundation.org>
+Subject: [PATCH 5.0 076/346] media: stm32-dcmi: return appropriate error codes during probe
+Date:   Wed, 29 May 2019 20:02:29 -0700
+Message-Id: <20190530030544.953487388@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,117 +46,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f4033db5b84ebe4b32c25ba2ed65ab20b628996a ]
+[ Upstream commit b5b5a27bee5884860798ffd0f08e611a3942064b ]
 
-This is mostly a revert of commit 55bb6a633c33 ("clk: rockchip: mark
-noc and some special clk as critical on rk3288") except that we're
-keeping "pmu_hclk_otg0" as critical still.
+During probe, return the provided errors value instead of -ENODEV.
+This allows the driver to be deferred probed if needed.
 
-NOTE: turning these clocks off doesn't seem to do a whole lot in terms
-of power savings (checking the power on the logic rail).  It appears
-to save maybe 1-2mW.  ...but still it seems like we should turn the
-clocks off if they aren't needed.
-
-About "pmu_hclk_otg0" (the one clock from the original commit we're
-still keeping critical) from an email thread:
-
-> pmu ahb clock
->
-> Function: Clock to pmu module when hibernation and/or ADP is
-> enabled. Must be greater than or equal to 30 MHz.
->
-> If the SOC design does not support hibernation/ADP function, only have
-> hclk_otg, this clk can be switched according to the usage of otg.
-> If the SOC design support hibernation/ADP, has two clocks, hclk_otg and
-> pmu_hclk_otg0.
-> Hclk_otg belongs to the closed part of otg logic, which can be switched
-> according to the use of otg.
->
-> pmu_hclk_otg0 belongs to the always on part.
->
-> As for whether pmu_hclk_otg0 can be turned off when otg is not in use,
-> we have not tested. IC suggest make pmu_hclk_otg0 always on.
-
-For the rest of the clocks:
-
-atclk: No documentation about this clock other than that it goes to
-the CPU.  CPU functions fine without it on.  Maybe needed for JTAG?
-
-jtag: Presumably this clock is only needed if you're debugging with
-JTAG.  It doesn't seem like it makes sense to waste power for every
-rk3288 user.  In any case to do JTAG you'd need private patches to
-adjust the pinctrl the mux the JTAG out anyway.
-
-pclk_dbg, pclk_core_niu: On veyron Chromebooks we turn these two
-clocks on only during kernel panics in order to access some coresight
-registers.  Since nothing in the upstream kernel does this we should
-be able to leave them off safely.  Maybe also needed for JTAG?
-
-hsicphy12m_xin12m: There is no indication of why this clock would need
-to be turned on for boards that don't use HSIC.
-
-pclk_ddrupctl[0-1], pclk_publ0[0-1]: On veyron Chromebooks we turn
-these 4 clocks on only when doing DDR transitions and they are off
-otherwise.  I see no reason why they'd need to be on in the upstream
-kernel which doesn't support DDRFreq.
-
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Elaine Zhang <zhangqing@rock-chips.com>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Fabien Dessenne <fabien.dessenne@st.com>
+Acked-by: Hugues Fruchet <hugues.fruchet@st.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/rockchip/clk-rk3288.c | 13 ++++---------
- 1 file changed, 4 insertions(+), 9 deletions(-)
+ drivers/media/platform/stm32/stm32-dcmi.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/clk/rockchip/clk-rk3288.c b/drivers/clk/rockchip/clk-rk3288.c
-index 5a67b7869960e..f3bbcdfa88ead 100644
---- a/drivers/clk/rockchip/clk-rk3288.c
-+++ b/drivers/clk/rockchip/clk-rk3288.c
-@@ -313,13 +313,13 @@ static struct rockchip_clk_branch rk3288_clk_branches[] __initdata = {
- 	COMPOSITE_NOMUX(0, "aclk_core_mp", "armclk", CLK_IGNORE_UNUSED,
- 			RK3288_CLKSEL_CON(0), 4, 4, DFLAGS | CLK_DIVIDER_READ_ONLY,
- 			RK3288_CLKGATE_CON(12), 6, GFLAGS),
--	COMPOSITE_NOMUX(0, "atclk", "armclk", CLK_IGNORE_UNUSED,
-+	COMPOSITE_NOMUX(0, "atclk", "armclk", 0,
- 			RK3288_CLKSEL_CON(37), 4, 5, DFLAGS | CLK_DIVIDER_READ_ONLY,
- 			RK3288_CLKGATE_CON(12), 7, GFLAGS),
- 	COMPOSITE_NOMUX(0, "pclk_dbg_pre", "armclk", CLK_IGNORE_UNUSED,
- 			RK3288_CLKSEL_CON(37), 9, 5, DFLAGS | CLK_DIVIDER_READ_ONLY,
- 			RK3288_CLKGATE_CON(12), 8, GFLAGS),
--	GATE(0, "pclk_dbg", "pclk_dbg_pre", CLK_IGNORE_UNUSED,
-+	GATE(0, "pclk_dbg", "pclk_dbg_pre", 0,
- 			RK3288_CLKGATE_CON(12), 9, GFLAGS),
- 	GATE(0, "cs_dbg", "pclk_dbg_pre", CLK_IGNORE_UNUSED,
- 			RK3288_CLKGATE_CON(12), 10, GFLAGS),
-@@ -647,7 +647,7 @@ static struct rockchip_clk_branch rk3288_clk_branches[] __initdata = {
- 	INVERTER(SCLK_HSADC, "sclk_hsadc", "sclk_hsadc_out",
- 			RK3288_CLKSEL_CON(22), 7, IFLAGS),
+diff --git a/drivers/media/platform/stm32/stm32-dcmi.c b/drivers/media/platform/stm32/stm32-dcmi.c
+index 6732874114cf7..918e49f27c7ed 100644
+--- a/drivers/media/platform/stm32/stm32-dcmi.c
++++ b/drivers/media/platform/stm32/stm32-dcmi.c
+@@ -1645,7 +1645,7 @@ static int dcmi_probe(struct platform_device *pdev)
+ 	dcmi->rstc = devm_reset_control_get_exclusive(&pdev->dev, NULL);
+ 	if (IS_ERR(dcmi->rstc)) {
+ 		dev_err(&pdev->dev, "Could not get reset control\n");
+-		return -ENODEV;
++		return PTR_ERR(dcmi->rstc);
+ 	}
  
--	GATE(0, "jtag", "ext_jtag", CLK_IGNORE_UNUSED,
-+	GATE(0, "jtag", "ext_jtag", 0,
- 			RK3288_CLKGATE_CON(4), 14, GFLAGS),
+ 	/* Get bus characteristics from devicetree */
+@@ -1660,7 +1660,7 @@ static int dcmi_probe(struct platform_device *pdev)
+ 	of_node_put(np);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "Could not parse the endpoint\n");
+-		return -ENODEV;
++		return ret;
+ 	}
  
- 	COMPOSITE_NODIV(SCLK_USBPHY480M_SRC, "usbphy480m_src", mux_usbphy480m_p, 0,
-@@ -656,7 +656,7 @@ static struct rockchip_clk_branch rk3288_clk_branches[] __initdata = {
- 	COMPOSITE_NODIV(SCLK_HSICPHY480M, "sclk_hsicphy480m", mux_hsicphy480m_p, 0,
- 			RK3288_CLKSEL_CON(29), 0, 2, MFLAGS,
- 			RK3288_CLKGATE_CON(3), 6, GFLAGS),
--	GATE(0, "hsicphy12m_xin12m", "xin12m", CLK_IGNORE_UNUSED,
-+	GATE(0, "hsicphy12m_xin12m", "xin12m", 0,
- 			RK3288_CLKGATE_CON(13), 9, GFLAGS),
- 	DIV(0, "hsicphy12m_usbphy", "sclk_hsicphy480m", 0,
- 			RK3288_CLKSEL_CON(11), 8, 6, DFLAGS),
-@@ -837,11 +837,6 @@ static const char *const rk3288_critical_clocks[] __initconst = {
- 	"pclk_alive_niu",
- 	"pclk_pd_pmu",
- 	"pclk_pmu_niu",
--	"pclk_core_niu",
--	"pclk_ddrupctl0",
--	"pclk_publ0",
--	"pclk_ddrupctl1",
--	"pclk_publ1",
- 	"pmu_hclk_otg0",
- };
+ 	if (ep.bus_type == V4L2_MBUS_CSI2_DPHY) {
+@@ -1673,8 +1673,9 @@ static int dcmi_probe(struct platform_device *pdev)
+ 
+ 	irq = platform_get_irq(pdev, 0);
+ 	if (irq <= 0) {
+-		dev_err(&pdev->dev, "Could not get irq\n");
+-		return -ENODEV;
++		if (irq != -EPROBE_DEFER)
++			dev_err(&pdev->dev, "Could not get irq\n");
++		return irq;
+ 	}
+ 
+ 	dcmi->res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+@@ -1694,12 +1695,13 @@ static int dcmi_probe(struct platform_device *pdev)
+ 					dev_name(&pdev->dev), dcmi);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "Unable to request irq %d\n", irq);
+-		return -ENODEV;
++		return ret;
+ 	}
+ 
+ 	mclk = devm_clk_get(&pdev->dev, "mclk");
+ 	if (IS_ERR(mclk)) {
+-		dev_err(&pdev->dev, "Unable to get mclk\n");
++		if (PTR_ERR(mclk) != -EPROBE_DEFER)
++			dev_err(&pdev->dev, "Unable to get mclk\n");
+ 		return PTR_ERR(mclk);
+ 	}
  
 -- 
 2.20.1
