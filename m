@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E65AE2F093
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:05:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC8342EE76
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:47:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730384AbfE3DRm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:17:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48242 "EHLO mail.kernel.org"
+        id S1732217AbfE3Drl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:47:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58824 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731214AbfE3DRm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:17:42 -0400
+        id S1732211AbfE3DUa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:20:30 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 60C4724590;
-        Thu, 30 May 2019 03:17:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 67A16248DD;
+        Thu, 30 May 2019 03:20:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186261;
-        bh=dFVTRMQShWSKyV+DNlr1H0V44BM6jzEICjqpG4UeNmU=;
+        s=default; t=1559186429;
+        bh=zcSDRYYANgVW+8OZycFrbRqXh96XqkgyNzMtKCFAmOw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tzeT2aWAgpj08yCSnLgIPPUCeu/hD3+0nFDLvDGPlh2TNS/LCF1fvY9QaFbJZK5cr
-         mp05z5rSeGLYv9BUqu3PEdChQS/oGf3wTBjxnj827u0SAabpuSzrwvPMBDZ+MyMHDI
-         0ttkE1eexmMOfnGarNNQC0ceAZ5UCJdv2C1lG97o=
+        b=VyDl1RZG2CMmMbRzKqkX69yHk2opdRChh+nh1fuW2NL209TLuOZwQ6xHI7HTXfc+B
+         naBjXKkFb7CFz5ozXwR5Xn5xPDBElO5h0YjNN/dpJM4SAMvPrkbCX8SIipOHvjRmBF
+         4bnSAWgfZ/mrWvuHM7yxVsscAmDVk3GDn8dIfrA8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Larry Finger <Larry.Finger@lwfinger.net>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 194/276] b43: shut up clang -Wuninitialized variable warning
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        David Ahern <dsahern@gmail.com>, Jiri Olsa <jolsa@kernel.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Wang Nan <wangnan0@huawei.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.9 020/128] perf tools: No need to include bitops.h in util.h
 Date:   Wed, 29 May 2019 20:05:52 -0700
-Message-Id: <20190530030537.266079756@linuxfoundation.org>
+Message-Id: <20190530030438.446639479@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
+References: <20190530030432.977908967@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,69 +47,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d825db346270dbceef83b7b750dbc29f1d7dcc0e ]
+From: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-Clang warns about what is clearly a case of passing an uninitalized
-variable into a static function:
+commit 6dcca6df4b73d409628c7b4464c63d4eb9d4d13a upstream.
 
-drivers/net/wireless/broadcom/b43/phy_lp.c:1852:23: error: variable 'gains' is uninitialized when used here
-      [-Werror,-Wuninitialized]
-                lpphy_papd_cal(dev, gains, 0, 1, 30);
-                                    ^~~~~
-drivers/net/wireless/broadcom/b43/phy_lp.c:1838:2: note: variable 'gains' is declared here
-        struct lpphy_tx_gains gains, oldgains;
-        ^
-1 error generated.
+When we switched to the kernel's roundup_pow_of_two we forgot to remove
+this include from util.h, do it now.
 
-However, this function is empty, and its arguments are never evaluated,
-so gcc in contrast does not warn here. Both compilers behave in a
-reasonable way as far as I can tell, so we should change the code
-to avoid the warning everywhere.
-
-We could just eliminate the lpphy_papd_cal() function entirely,
-given that it has had the TODO comment in it for 10 years now
-and is rather unlikely to ever get done. I'm doing a simpler
-change here, and just pass the 'oldgains' variable in that has
-been initialized, based on the guess that this is what was
-originally meant.
-
-Fixes: 2c0d6100da3e ("b43: LP-PHY: Begin implementing calibration & software RFKILL support")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Larry Finger <Larry.Finger@lwfinger.net>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: David Ahern <dsahern@gmail.com>
+Cc: Jiri Olsa <jolsa@kernel.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Wang Nan <wangnan0@huawei.com>
+Fixes: 91529834d1de ("perf evlist: Use roundup_pow_of_two")
+Link: http://lkml.kernel.org/n/tip-kfye5rxivib6155cltx0bw4h@git.kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+[bwh: Backported to 4.9 as dependency of "tools include: Adopt linux/bits.h";
+ adjusted context]
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/broadcom/b43/phy_lp.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ tools/perf/util/util.h |    1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/net/wireless/broadcom/b43/phy_lp.c b/drivers/net/wireless/broadcom/b43/phy_lp.c
-index 6922cbb99a044..5a0699fb4b9ab 100644
---- a/drivers/net/wireless/broadcom/b43/phy_lp.c
-+++ b/drivers/net/wireless/broadcom/b43/phy_lp.c
-@@ -1834,7 +1834,7 @@ static void lpphy_papd_cal(struct b43_wldev *dev, struct lpphy_tx_gains gains,
- static void lpphy_papd_cal_txpwr(struct b43_wldev *dev)
- {
- 	struct b43_phy_lp *lpphy = dev->phy.lp;
--	struct lpphy_tx_gains gains, oldgains;
-+	struct lpphy_tx_gains oldgains;
- 	int old_txpctl, old_afe_ovr, old_rf, old_bbmult;
+--- a/tools/perf/util/util.h
++++ b/tools/perf/util/util.h
+@@ -74,7 +74,6 @@
+ #include <sys/ttydefaults.h>
+ #include <api/fs/tracing_path.h>
+ #include <termios.h>
+-#include <linux/bitops.h>
+ #include <termios.h>
+ #include "strlist.h"
  
- 	lpphy_read_tx_pctl_mode_from_hardware(dev);
-@@ -1848,9 +1848,9 @@ static void lpphy_papd_cal_txpwr(struct b43_wldev *dev)
- 	lpphy_set_tx_power_control(dev, B43_LPPHY_TXPCTL_OFF);
- 
- 	if (dev->dev->chip_id == 0x4325 && dev->dev->chip_rev == 0)
--		lpphy_papd_cal(dev, gains, 0, 1, 30);
-+		lpphy_papd_cal(dev, oldgains, 0, 1, 30);
- 	else
--		lpphy_papd_cal(dev, gains, 0, 1, 65);
-+		lpphy_papd_cal(dev, oldgains, 0, 1, 65);
- 
- 	if (old_afe_ovr)
- 		lpphy_set_tx_gains(dev, oldgains);
--- 
-2.20.1
-
 
 
