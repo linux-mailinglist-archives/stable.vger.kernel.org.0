@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 924522F558
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:47:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F34E2EB9D
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:14:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728655AbfE3Eq3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:46:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51872 "EHLO mail.kernel.org"
+        id S1729918AbfE3DOg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:14:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728643AbfE3DLl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:11:41 -0400
+        id S1729914AbfE3DOg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:14:36 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 003AB244D1;
-        Thu, 30 May 2019 03:11:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8CD2B24502;
+        Thu, 30 May 2019 03:14:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185900;
-        bh=a5vBKldDFMIWqKj3YFCiqzTrdTC6lPMJps72Dvwnk3k=;
+        s=default; t=1559186075;
+        bh=uehieXudrxU2deCpWjUOTsxJYwDki7icIgGbHkm1yKo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xAcnF5zdV1UmvwkSFIS07+sP07Q9UHcEdwuF88CWDGIl/VmzCtKAP6DtwPOgblYX0
-         ZCwhNGRGyoBG520Pw+A/u0Q/OKLTUVMWKRbHnNIi8GlcRdYTcaHBO4MWe1unuuavmd
-         7NcibVTCKfC/pSCWOeg0yIhKnorbaijgCCBwUQtQ=
+        b=bhG+WFGdLCeJ0IPPr0dOjVwfOX1pevY9KqkcKnoCAWJGQr/IjknGgvfMW+XE7jSbz
+         wuVbgaQ0BVSPLddKj2VjM1q2dN/c9Bwz24mPMhO38uS84ixBaQhbF/y8TvfvOME8Cy
+         /YCMwLikEbUAaAlPr+A/9k1Q6NrPuIhRr3OSOBCM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 267/405] x86/uaccess, signal: Fix AC=1 bloat
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Chunming Zhou <david1.zhou@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 192/346] drm/amdgpu: fix old fence check in amdgpu_fence_emit
 Date:   Wed, 29 May 2019 20:04:25 -0700
-Message-Id: <20190530030554.434153719@linuxfoundation.org>
+Message-Id: <20190530030550.803212918@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,109 +46,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 88e4718275c1bddca6f61f300688b4553dc8584b ]
+[ Upstream commit 3d2aca8c8620346abdba96c6300d2c0b90a1d0cc ]
 
-Occasionally GCC is less agressive with inlining and the following is
-observed:
+We don't hold a reference to the old fence, so it can go away
+any time we are waiting for it to signal.
 
-  arch/x86/kernel/signal.o: warning: objtool: restore_sigcontext()+0x3cc: call to force_valid_ss.isra.5() with UACCESS enabled
-  arch/x86/kernel/signal.o: warning: objtool: do_signal()+0x384: call to frame_uc_flags.isra.0() with UACCESS enabled
-
-Cure this by moving this code out of the AC=1 region, since it really
-isn't needed for the user access.
-
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Andy Lutomirski <luto@kernel.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Christian König <christian.koenig@amd.com>
+Reviewed-by: Chunming Zhou <david1.zhou@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/signal.c | 29 +++++++++++++++++------------
- 1 file changed, 17 insertions(+), 12 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c | 24 ++++++++++++++++-------
+ 1 file changed, 17 insertions(+), 7 deletions(-)
 
-diff --git a/arch/x86/kernel/signal.c b/arch/x86/kernel/signal.c
-index 08dfd4c1a4f95..c8aa58a2bab97 100644
---- a/arch/x86/kernel/signal.c
-+++ b/arch/x86/kernel/signal.c
-@@ -132,16 +132,6 @@ static int restore_sigcontext(struct pt_regs *regs,
- 		COPY_SEG_CPL3(cs);
- 		COPY_SEG_CPL3(ss);
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
+index ee47c11e92ce7..4dee2326b29c3 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
+@@ -136,8 +136,9 @@ int amdgpu_fence_emit(struct amdgpu_ring *ring, struct dma_fence **f,
+ {
+ 	struct amdgpu_device *adev = ring->adev;
+ 	struct amdgpu_fence *fence;
+-	struct dma_fence *old, **ptr;
++	struct dma_fence __rcu **ptr;
+ 	uint32_t seq;
++	int r;
  
--#ifdef CONFIG_X86_64
--		/*
--		 * Fix up SS if needed for the benefit of old DOSEMU and
--		 * CRIU.
--		 */
--		if (unlikely(!(uc_flags & UC_STRICT_RESTORE_SS) &&
--			     user_64bit_mode(regs)))
--			force_valid_ss(regs);
--#endif
+ 	fence = kmem_cache_alloc(amdgpu_fence_slab, GFP_KERNEL);
+ 	if (fence == NULL)
+@@ -153,15 +154,24 @@ int amdgpu_fence_emit(struct amdgpu_ring *ring, struct dma_fence **f,
+ 			       seq, flags | AMDGPU_FENCE_FLAG_INT);
+ 
+ 	ptr = &ring->fence_drv.fences[seq & ring->fence_drv.num_fences_mask];
++	if (unlikely(rcu_dereference_protected(*ptr, 1))) {
++		struct dma_fence *old;
++
++		rcu_read_lock();
++		old = dma_fence_get_rcu_safe(ptr);
++		rcu_read_unlock();
++
++		if (old) {
++			r = dma_fence_wait(old, false);
++			dma_fence_put(old);
++			if (r)
++				return r;
++		}
++	}
++
+ 	/* This function can't be called concurrently anyway, otherwise
+ 	 * emitting the fence would mess up the hardware ring buffer.
+ 	 */
+-	old = rcu_dereference_protected(*ptr, 1);
+-	if (old && !dma_fence_is_signaled(old)) {
+-		DRM_INFO("rcu slot is busy\n");
+-		dma_fence_wait(old, false);
+-	}
 -
- 		get_user_ex(tmpflags, &sc->flags);
- 		regs->flags = (regs->flags & ~FIX_EFLAGS) | (tmpflags & FIX_EFLAGS);
- 		regs->orig_ax = -1;		/* disable syscall checks */
-@@ -150,6 +140,15 @@ static int restore_sigcontext(struct pt_regs *regs,
- 		buf = (void __user *)buf_val;
- 	} get_user_catch(err);
+ 	rcu_assign_pointer(*ptr, dma_fence_get(&fence->base));
  
-+#ifdef CONFIG_X86_64
-+	/*
-+	 * Fix up SS if needed for the benefit of old DOSEMU and
-+	 * CRIU.
-+	 */
-+	if (unlikely(!(uc_flags & UC_STRICT_RESTORE_SS) && user_64bit_mode(regs)))
-+		force_valid_ss(regs);
-+#endif
-+
- 	err |= fpu__restore_sig(buf, IS_ENABLED(CONFIG_X86_32));
- 
- 	force_iret();
-@@ -461,6 +460,7 @@ static int __setup_rt_frame(int sig, struct ksignal *ksig,
- {
- 	struct rt_sigframe __user *frame;
- 	void __user *fp = NULL;
-+	unsigned long uc_flags;
- 	int err = 0;
- 
- 	frame = get_sigframe(&ksig->ka, regs, sizeof(struct rt_sigframe), &fp);
-@@ -473,9 +473,11 @@ static int __setup_rt_frame(int sig, struct ksignal *ksig,
- 			return -EFAULT;
- 	}
- 
-+	uc_flags = frame_uc_flags(regs);
-+
- 	put_user_try {
- 		/* Create the ucontext.  */
--		put_user_ex(frame_uc_flags(regs), &frame->uc.uc_flags);
-+		put_user_ex(uc_flags, &frame->uc.uc_flags);
- 		put_user_ex(0, &frame->uc.uc_link);
- 		save_altstack_ex(&frame->uc.uc_stack, regs->sp);
- 
-@@ -541,6 +543,7 @@ static int x32_setup_rt_frame(struct ksignal *ksig,
- {
- #ifdef CONFIG_X86_X32_ABI
- 	struct rt_sigframe_x32 __user *frame;
-+	unsigned long uc_flags;
- 	void __user *restorer;
- 	int err = 0;
- 	void __user *fpstate = NULL;
-@@ -555,9 +558,11 @@ static int x32_setup_rt_frame(struct ksignal *ksig,
- 			return -EFAULT;
- 	}
- 
-+	uc_flags = frame_uc_flags(regs);
-+
- 	put_user_try {
- 		/* Create the ucontext.  */
--		put_user_ex(frame_uc_flags(regs), &frame->uc.uc_flags);
-+		put_user_ex(uc_flags, &frame->uc.uc_flags);
- 		put_user_ex(0, &frame->uc.uc_link);
- 		compat_save_altstack_ex(&frame->uc.uc_stack, regs->sp);
- 		put_user_ex(0, &frame->uc.uc__pad0);
+ 	*f = &fence->base;
 -- 
 2.20.1
 
