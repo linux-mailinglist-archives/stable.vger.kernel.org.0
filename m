@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D5F352F2AE
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:24:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC5262F541
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:46:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730292AbfE3EYO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:24:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36244 "EHLO mail.kernel.org"
+        id S1728946AbfE3Epu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:45:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730032AbfE3DOx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:14:53 -0400
+        id S1728688AbfE3DLt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:11:49 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C0DBB2455E;
-        Thu, 30 May 2019 03:14:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 42650244D2;
+        Thu, 30 May 2019 03:11:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186092;
-        bh=vbT6JzcrqgZfDANvgbazIhs61L2kvqOjhh2SjOsVIHQ=;
+        s=default; t=1559185908;
+        bh=xBU2hhLJSBFB5kZNSkrZObsIKiSrJiUa1t5WuCZg3jo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qZntrzre6f1GpkTrmmPDnichXqQXODvA4CN0rXxIlOvcOlfbKOc0nwwvB92CBJNg2
-         NH5GSGFiykOfeUluG7+Vd2YpzTbEE4mn6ca/pXCFFrlgPINpbPckkQlnjtCAo9Kujj
-         5t6iv6YA37hrLXNLl2GGq0d7iu+wJ7uqNgRlgJz4=
+        b=r/RkqZeAsW7wicJ1xQ25a8rwENZKtaACDcKrtl5UhrCazNtIEaNpr2WuKb7Ng+Qi7
+         leswgrGY48nd4MSCOauwl1q8nkihMIdjbTjVx5SOMTc+m8/cWGwZafsFPV/f4E/4ss
+         uBCFBBvig6PvvNOAsOpcFEf6tQaGSzIMq2m0rB6s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        linuxppc-dev@lists.ozlabs.org, linux-pm@vger.kernel.org,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 207/346] cpufreq/pasemi: fix possible object reference leak
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 282/405] HID: logitech-hidpp: change low battery level threshold from 31 to 30 percent
 Date:   Wed, 29 May 2019 20:04:40 -0700
-Message-Id: <20190530030551.623981607@linuxfoundation.org>
+Message-Id: <20190530030555.149187976@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,40 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a9acc26b75f652f697e02a9febe2ab0da648a571 ]
+[ Upstream commit 1f87b0cd32b3456d7efdfb017fcf74d0bfe3ec29 ]
 
-The call to of_get_cpu_node returns a node pointer with refcount
-incremented thus it must be explicitly decremented after the last
-usage.
+According to hidpp20_batterylevel_get_battery_info my Logitech K270
+keyboard reports only 2 battery levels. This matches with what I've seen
+after testing with batteries at varying level of fullness, it always
+reports either 5% or 30%.
 
-Detected by coccinelle with the following warnings:
-./drivers/cpufreq/pasemi-cpufreq.c:212:1-7: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 147, but without a corresponding object release within this function.
-./drivers/cpufreq/pasemi-cpufreq.c:220:1-7: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 147, but without a corresponding object release within this function.
+Windows reports "battery good" for the 30% level. I've captured an USB
+trace of Windows reading the battery and it is getting the same info
+as the Linux hidpp code gets.
 
-Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Viresh Kumar <viresh.kumar@linaro.org>
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: linux-pm@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Now that Linux handles these devices as hidpp devices, it reports the
+battery as being low as it treats anything under 31% as low, this leads
+to the user constantly getting a "Keyboard battery is low" warning from
+GNOME3, which is very annoying.
+
+This commit fixes this by changing the low threshold to anything under
+30%, which I assume is what Windows does.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/pasemi-cpufreq.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hid/hid-logitech-hidpp.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/cpufreq/pasemi-cpufreq.c b/drivers/cpufreq/pasemi-cpufreq.c
-index 75dfbd2a58ea6..c7710c149de85 100644
---- a/drivers/cpufreq/pasemi-cpufreq.c
-+++ b/drivers/cpufreq/pasemi-cpufreq.c
-@@ -146,6 +146,7 @@ static int pas_cpufreq_cpu_init(struct cpufreq_policy *policy)
- 
- 	cpu = of_get_cpu_node(policy->cpu, NULL);
- 
-+	of_node_put(cpu);
- 	if (!cpu)
- 		goto out;
- 
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index ffd30c7492df8..e74fa990ba133 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -1021,7 +1021,11 @@ static int hidpp_map_battery_level(int capacity)
+ {
+ 	if (capacity < 11)
+ 		return POWER_SUPPLY_CAPACITY_LEVEL_CRITICAL;
+-	else if (capacity < 31)
++	/*
++	 * The spec says this should be < 31 but some devices report 30
++	 * with brand new batteries and Windows reports 30 as "Good".
++	 */
++	else if (capacity < 30)
+ 		return POWER_SUPPLY_CAPACITY_LEVEL_LOW;
+ 	else if (capacity < 81)
+ 		return POWER_SUPPLY_CAPACITY_LEVEL_NORMAL;
 -- 
 2.20.1
 
