@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A8E7F2EF0A
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:52:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9330C2F1E7
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:17:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730739AbfE3DwR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:52:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55742 "EHLO mail.kernel.org"
+        id S1730458AbfE3DPn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:15:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731960AbfE3DTh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:19:37 -0400
+        id S1730454AbfE3DPn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:15:43 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2774E248B7;
-        Thu, 30 May 2019 03:19:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 944AA24598;
+        Thu, 30 May 2019 03:15:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186377;
-        bh=2wpiB4zzn6wBHIQlOWQviFupKUmKgjTIpgGgSQWBWKQ=;
+        s=default; t=1559186142;
+        bh=PYS5Datf5pZZIG36tQdTDk0Mop6H0RA4WAcw/qUerck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PVW6dFLZLhOce25hkivS15QaJhiIcZGsAfrQbQ/+EkdNIghFayZH+bvovvlhzEAt+
-         pBLRitq/anfrtQ+hH/ihnUWybHB/PD+VLB4Vr/qkrmIKLLrA6Tg/F9iqZ5JDxqIyHC
-         A5OGWngpFFuKAgtIrvr+gIyKMLdNoYh3oeEvQMcY=
+        b=G2p0qPCZvBb2vMwauJquyIg7QwZkk6omrPelOiNiZk4XNi2de4ZfYiU1J2qSSFWML
+         kF3Iw26BmCyZrcVJ3h7zKIK1xjGVz4kWgByZYwD/cLk4zsE7MHAz86OellSQfKPNfk
+         Q61JYa0PGA0RAkR2W8G1jdctuA5EQO8Q7Y9UHOSo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        stable@vger.kernel.org, Tomi Valkeinen <tomi.valkeinen@ti.com>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 138/193] iio: common: ssp_sensors: Initialize calculated_time in ssp_common_process_data
+Subject: [PATCH 5.0 319/346] drm/omap: dsi: Fix PM for display blank with paired dss_pll calls
 Date:   Wed, 29 May 2019 20:06:32 -0700
-Message-Id: <20190530030507.677251715@linuxfoundation.org>
+Message-Id: <20190530030556.960466235@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,46 +44,165 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 6f9ca1d3eb74b81f811a87002de2d51640d135b1 ]
+[ Upstream commit fe4ed1b457943113ee1138c939fbdeede4af6cf3 ]
 
-When building with -Wsometimes-uninitialized, Clang warns:
+Currently dsi_display_init_dsi() calls dss_pll_enable() but it is not
+paired with dss_pll_disable() in dsi_display_uninit_dsi(). This leaves
+the DSS clocks enabled when the display is blanked wasting about extra
+5mW of power while idle.
 
-drivers/iio/common/ssp_sensors/ssp_iio.c:95:6: warning: variable
-'calculated_time' is used uninitialized whenever 'if' condition is false
-[-Wsometimes-uninitialized]
+The clock that is left on by not calling dss_pll_disable() is
+DSS_CLKCTRL bit 10 OPTFCLKEN_SYS_CLK that is the source clock for
+DSI PLL.
 
-While it isn't wrong, this will never be a problem because
-iio_push_to_buffers_with_timestamp only uses calculated_time
-on the same condition that it is assigned (when scan_timestamp
-is not zero). While iio_push_to_buffers_with_timestamp is marked
-as inline, Clang does inlining in the optimization stage, which
-happens after the semantic analysis phase (plus inline is merely
-a hint to the compiler).
+We can fix this issue by by making the current dsi_pll_uninit() into
+dsi_pll_disable(). This way we can just call dss_pll_disable() from
+dsi_display_uninit_dsi() and the code becomes a bit easier to follow.
 
-Fix this by just zero initializing calculated_time.
+However, we need to also consider that DSI PLL can be muxed for DVI too
+as pointed out by Tomi Valkeinen <tomi.valkeinen@ti.com>. In the DVI
+case, we want to unconditionally disable the clocks. To get around this
+issue, we separate out the DSI lane handling from dsi_pll_enable() and
+dsi_pll_disable() as suggested by Tomi in an earlier experimental patch.
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/394
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+So we must only toggle the DSI regulator based on the vdds_dsi_enabled
+flag from dsi_display_init_dsi() and dsi_display_uninit_dsi().
+
+We need to make these two changes together to avoid breaking things
+for DVI when fixing the DSI clock handling. And this all causes a
+slight renumbering of the error path for dsi_display_init_dsi().
+
+Suggested-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/common/ssp_sensors/ssp_iio.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/omapdrm/dss/dsi.c | 60 ++++++++++++++++---------------
+ 1 file changed, 31 insertions(+), 29 deletions(-)
 
-diff --git a/drivers/iio/common/ssp_sensors/ssp_iio.c b/drivers/iio/common/ssp_sensors/ssp_iio.c
-index 645f2e3975db4..e38f704d88b7e 100644
---- a/drivers/iio/common/ssp_sensors/ssp_iio.c
-+++ b/drivers/iio/common/ssp_sensors/ssp_iio.c
-@@ -81,7 +81,7 @@ int ssp_common_process_data(struct iio_dev *indio_dev, void *buf,
- 			    unsigned int len, int64_t timestamp)
- {
- 	__le32 time;
--	int64_t calculated_time;
-+	int64_t calculated_time = 0;
- 	struct ssp_sensor_data *spd = iio_priv(indio_dev);
+diff --git a/drivers/gpu/drm/omapdrm/dss/dsi.c b/drivers/gpu/drm/omapdrm/dss/dsi.c
+index 64fb788b66474..f0fe975ed46c7 100644
+--- a/drivers/gpu/drm/omapdrm/dss/dsi.c
++++ b/drivers/gpu/drm/omapdrm/dss/dsi.c
+@@ -1342,12 +1342,9 @@ static int dsi_pll_enable(struct dss_pll *pll)
+ 	 */
+ 	dsi_enable_scp_clk(dsi);
  
- 	if (indio_dev->scan_bytes == 0)
+-	if (!dsi->vdds_dsi_enabled) {
+-		r = regulator_enable(dsi->vdds_dsi_reg);
+-		if (r)
+-			goto err0;
+-		dsi->vdds_dsi_enabled = true;
+-	}
++	r = regulator_enable(dsi->vdds_dsi_reg);
++	if (r)
++		goto err0;
+ 
+ 	/* XXX PLL does not come out of reset without this... */
+ 	dispc_pck_free_enable(dsi->dss->dispc, 1);
+@@ -1372,36 +1369,25 @@ static int dsi_pll_enable(struct dss_pll *pll)
+ 
+ 	return 0;
+ err1:
+-	if (dsi->vdds_dsi_enabled) {
+-		regulator_disable(dsi->vdds_dsi_reg);
+-		dsi->vdds_dsi_enabled = false;
+-	}
++	regulator_disable(dsi->vdds_dsi_reg);
+ err0:
+ 	dsi_disable_scp_clk(dsi);
+ 	dsi_runtime_put(dsi);
+ 	return r;
+ }
+ 
+-static void dsi_pll_uninit(struct dsi_data *dsi, bool disconnect_lanes)
++static void dsi_pll_disable(struct dss_pll *pll)
+ {
++	struct dsi_data *dsi = container_of(pll, struct dsi_data, pll);
++
+ 	dsi_pll_power(dsi, DSI_PLL_POWER_OFF);
+-	if (disconnect_lanes) {
+-		WARN_ON(!dsi->vdds_dsi_enabled);
+-		regulator_disable(dsi->vdds_dsi_reg);
+-		dsi->vdds_dsi_enabled = false;
+-	}
++
++	regulator_disable(dsi->vdds_dsi_reg);
+ 
+ 	dsi_disable_scp_clk(dsi);
+ 	dsi_runtime_put(dsi);
+ 
+-	DSSDBG("PLL uninit done\n");
+-}
+-
+-static void dsi_pll_disable(struct dss_pll *pll)
+-{
+-	struct dsi_data *dsi = container_of(pll, struct dsi_data, pll);
+-
+-	dsi_pll_uninit(dsi, true);
++	DSSDBG("PLL disable done\n");
+ }
+ 
+ static int dsi_dump_dsi_clocks(struct seq_file *s, void *p)
+@@ -4096,11 +4082,11 @@ static int dsi_display_init_dsi(struct dsi_data *dsi)
+ 
+ 	r = dss_pll_enable(&dsi->pll);
+ 	if (r)
+-		goto err0;
++		return r;
+ 
+ 	r = dsi_configure_dsi_clocks(dsi);
+ 	if (r)
+-		goto err1;
++		goto err0;
+ 
+ 	dss_select_dsi_clk_source(dsi->dss, dsi->module_id,
+ 				  dsi->module_id == 0 ?
+@@ -4108,6 +4094,14 @@ static int dsi_display_init_dsi(struct dsi_data *dsi)
+ 
+ 	DSSDBG("PLL OK\n");
+ 
++	if (!dsi->vdds_dsi_enabled) {
++		r = regulator_enable(dsi->vdds_dsi_reg);
++		if (r)
++			goto err1;
++
++		dsi->vdds_dsi_enabled = true;
++	}
++
+ 	r = dsi_cio_init(dsi);
+ 	if (r)
+ 		goto err2;
+@@ -4136,10 +4130,13 @@ static int dsi_display_init_dsi(struct dsi_data *dsi)
+ err3:
+ 	dsi_cio_uninit(dsi);
+ err2:
+-	dss_select_dsi_clk_source(dsi->dss, dsi->module_id, DSS_CLK_SRC_FCK);
++	regulator_disable(dsi->vdds_dsi_reg);
++	dsi->vdds_dsi_enabled = false;
+ err1:
+-	dss_pll_disable(&dsi->pll);
++	dss_select_dsi_clk_source(dsi->dss, dsi->module_id, DSS_CLK_SRC_FCK);
+ err0:
++	dss_pll_disable(&dsi->pll);
++
+ 	return r;
+ }
+ 
+@@ -4158,7 +4155,12 @@ static void dsi_display_uninit_dsi(struct dsi_data *dsi, bool disconnect_lanes,
+ 
+ 	dss_select_dsi_clk_source(dsi->dss, dsi->module_id, DSS_CLK_SRC_FCK);
+ 	dsi_cio_uninit(dsi);
+-	dsi_pll_uninit(dsi, disconnect_lanes);
++	dss_pll_disable(&dsi->pll);
++
++	if (disconnect_lanes) {
++		regulator_disable(dsi->vdds_dsi_reg);
++		dsi->vdds_dsi_enabled = false;
++	}
+ }
+ 
+ static int dsi_display_enable(struct omap_dss_device *dssdev)
 -- 
 2.20.1
 
