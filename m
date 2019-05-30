@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6ABC42EC23
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:18:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D45E82F554
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:47:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731595AbfE3DSf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:18:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51796 "EHLO mail.kernel.org"
+        id S2388309AbfE3EqJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:46:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731587AbfE3DSe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:18:34 -0400
+        id S1728655AbfE3DLo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:11:44 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5DD2A247CF;
-        Thu, 30 May 2019 03:18:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8E49C244FC;
+        Thu, 30 May 2019 03:11:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186313;
-        bh=WEkxGOTOrldUFzewf8WLDqXHSWnnWqn7UaLHQjhoE0o=;
+        s=default; t=1559185902;
+        bh=JiKLfGdF1GBvxS/NHn/yixWD70lJRE3tN76wzctWgYo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hIKsAqTwo1BbOpmFENLd+2yInOV8ZLDAIlNiVtO12b8rB5UIF+Z1IDmO1mvMjnhjT
-         fZCFCs6xCWm1OVc9jJHB7/TGSLmNYi+MtwiMy2Uj/z/wDL7eOaS3hXbfiTZevtOqzp
-         /DBbZ2Og3lHIsy6KiXnPQdrofenmaB2RXWpDrKXk=
+        b=lw2P+prs42dAwb11Sw0mXBOs/dJ2FvUDdL76szxreQz0cXIcCIOWE6jG8+IPUBxHf
+         dmlnkw5jfC/+XTnk81yzBwiO/5uqUbqcfM0VchCQw+VxFpYMluUbJ8/fyzqWAtoXz8
+         Cfgbg+FO6lN4LgmBk9+ylNaW7b+mqk87hxpPuxv8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Anand Jain <anand.jain@oracle.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.14 016/193] Btrfs: do not abort transaction at btrfs_update_root() after failure to COW path
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Simon Horman <horms+renesas@verge.net.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 272/405] sh: sh7786: Add explicit I/O cast to sh7786_mm_sel()
 Date:   Wed, 29 May 2019 20:04:30 -0700
-Message-Id: <20190530030450.301586277@linuxfoundation.org>
+Message-Id: <20190530030554.657716581@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,54 +45,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+[ Upstream commit 8440bb9b944c02222c7a840d406141ed42e945cd ]
 
-commit 72bd2323ec87722c115a5906bc6a1b31d11e8f54 upstream.
+When compile-testing on arm:
 
-Currently when we fail to COW a path at btrfs_update_root() we end up
-always aborting the transaction. However all the current callers of
-btrfs_update_root() are able to deal with errors returned from it, many do
-end up aborting the transaction themselves (directly or not, such as the
-transaction commit path), other BUG_ON() or just gracefully cancel whatever
-they were doing.
+    arch/sh/include/cpu-sh4/cpu/sh7786.h: In function ‘sh7786_mm_sel’:
+    arch/sh/include/cpu-sh4/cpu/sh7786.h:135:21: warning: passing argument 1 of ‘__raw_readl’ makes pointer from integer without a cast [-Wint-conversion]
+      return __raw_readl(0xFC400020) & 0x7;
+			 ^~~~~~~~~~
+    In file included from include/linux/io.h:25:0,
+		     from arch/sh/include/cpu-sh4/cpu/sh7786.h:14,
+		     from drivers/pinctrl/sh-pfc/pfc-sh7786.c:15:
+    arch/arm/include/asm/io.h:113:21: note: expected ‘const volatile void *’ but argument is of type ‘unsigned int’
+     #define __raw_readl __raw_readl
+			 ^
+    arch/arm/include/asm/io.h:114:19: note: in expansion of macro ‘__raw_readl’
+     static inline u32 __raw_readl(const volatile void __iomem *addr)
+		       ^~~~~~~~~~~
 
-When syncing the fsync log, we call btrfs_update_root() through
-tree-log.c:update_log_root(), and if it returns an -ENOSPC error, the log
-sync code does not abort the transaction, instead it gracefully handles
-the error and returns -EAGAIN to the fsync handler, so that it falls back
-to a transaction commit. Any other error different from -ENOSPC, makes the
-log sync code abort the transaction.
+__raw_readl() on SuperH is a macro that casts the passed I/O address to
+the correct type, while the implementations on most other architectures
+expect to be passed the correct pointer type.
 
-So remove the transaction abort from btrfs_update_log() when we fail to
-COW a path to update the root item, so that if an -ENOSPC failure happens
-we avoid aborting the current transaction and have a chance of the fsync
-succeeding after falling back to a transaction commit.
+Add an explicit cast to fix this.
 
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=203413
-Fixes: 79787eaab46121 ("btrfs: replace many BUG_ONs with proper error handling")
-Cc: stable@vger.kernel.org # 4.4+
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Note that this also gets rid of a sparse warning on SuperH:
 
+    arch/sh/include/cpu-sh4/cpu/sh7786.h:135:16: warning: incorrect type in argument 1 (different base types)
+    arch/sh/include/cpu-sh4/cpu/sh7786.h:135:16:    expected void const volatile [noderef] <asn:2>*<noident>
+    arch/sh/include/cpu-sh4/cpu/sh7786.h:135:16:    got unsigned int
+
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/root-tree.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ arch/sh/include/cpu-sh4/cpu/sh7786.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/btrfs/root-tree.c
-+++ b/fs/btrfs/root-tree.c
-@@ -145,10 +145,8 @@ int btrfs_update_root(struct btrfs_trans
- 		return -ENOMEM;
+diff --git a/arch/sh/include/cpu-sh4/cpu/sh7786.h b/arch/sh/include/cpu-sh4/cpu/sh7786.h
+index 8f9bfbf3cdb10..d6cce65b48713 100644
+--- a/arch/sh/include/cpu-sh4/cpu/sh7786.h
++++ b/arch/sh/include/cpu-sh4/cpu/sh7786.h
+@@ -132,7 +132,7 @@ enum {
  
- 	ret = btrfs_search_slot(trans, root, key, path, 0, 1);
--	if (ret < 0) {
--		btrfs_abort_transaction(trans, ret);
-+	if (ret < 0)
- 		goto out;
--	}
+ static inline u32 sh7786_mm_sel(void)
+ {
+-	return __raw_readl(0xFC400020) & 0x7;
++	return __raw_readl((const volatile void __iomem *)0xFC400020) & 0x7;
+ }
  
- 	if (ret != 0) {
- 		btrfs_print_leaf(path->nodes[0]);
+ #endif /* __CPU_SH7786_H__ */
+-- 
+2.20.1
+
 
 
