@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A5B1B2F6D9
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 07:01:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B27072F6D7
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 07:01:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727968AbfE3E73 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:59:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44694 "EHLO mail.kernel.org"
+        id S1727704AbfE3E7X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:59:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44898 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727591AbfE3DJj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:09:39 -0400
+        id S1727693AbfE3DJk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:09:40 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 10F8624496;
+        by mail.kernel.org (Postfix) with ESMTPSA id 949B024480;
         Thu, 30 May 2019 03:09:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1559185779;
-        bh=80qvU2A6W1cvNMjQy9ODmjDz8WoL5gRikq7V+gJgsDI=;
+        bh=ecFYmclGr4Ma+CSqI+4aEMpcsPaqhZ/WD2pBQ7Jm9GI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=umYE+JnOtPAMXWAOVWYqtYCZtL33i8xcZpDqrMLFdywA/DeBTs29irtIY7W2niicp
-         IuD8jWdZk6y88MgFJpeVmeifU5CkFU6gb52jGOJP56UPEr3eoW9EEWhI4VHMe5uTBH
-         DhBYDH924sTOlKe5ah4hUlLdaU4ORzbmwWtQuXDQ=
+        b=v/tdjYWGbKH++FHo+lQqfGMFgpYKYTgRvwDUK9OaaZ3us8j8PnwW4iugKzFrPijUX
+         UTVC6HbtLdU99E4QYoi03b/NZWO++vgFRNor+EhjKN2zONzzbF0Z22EkCJOMivfoBP
+         s+JquBkZRXx1i7d4LrEWJa3gneaKd9ylvLcSE010=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        YueHaibing <yuehaibing@huawei.com>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.1 038/405] ssb: Fix possible NULL pointer dereference in ssb_host_pcmcia_exit
-Date:   Wed, 29 May 2019 20:00:36 -0700
-Message-Id: <20190530030542.696290265@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot+457d3e2ffbcf31aee5c0@syzkaller.appspotmail.com,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        Jesper Dangaard Brouer <brouer@redhat.com>,
+        Daniel Borkmann <daniel@iogearbox.net>
+Subject: [PATCH 5.1 039/405] bpf: devmap: fix use-after-free Read in __dev_map_entry_free
+Date:   Wed, 29 May 2019 20:00:37 -0700
+Message-Id: <20190530030542.749700711@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
 References: <20190530030540.291644921@linuxfoundation.org>
@@ -44,94 +46,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit b2c01aab9646ed8ffb7c549afe55d5349c482425 upstream.
+commit 2baae3545327632167c0180e9ca1d467416f1919 upstream.
 
-Syzkaller report this:
+synchronize_rcu() is fine when the rcu callbacks only need
+to free memory (kfree_rcu() or direct kfree() call rcu call backs)
 
-kasan: GPF could be caused by NULL-ptr deref or user memory access
-general protection fault: 0000 [#1] SMP KASAN PTI
-CPU: 0 PID: 4492 Comm: syz-executor.0 Not tainted 5.0.0-rc7+ #45
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
-RIP: 0010:sysfs_remove_file_ns+0x27/0x70 fs/sysfs/file.c:468
-Code: 00 00 00 41 54 55 48 89 fd 53 49 89 d4 48 89 f3 e8 ee 76 9c ff 48 8d 7d 30 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <80> 3c 02 00 75 2d 48 89 da 48 b8 00 00 00 00 00 fc ff df 48 8b 6d
-RSP: 0018:ffff8881e9d9fc00 EFLAGS: 00010206
-RAX: dffffc0000000000 RBX: ffffffff900367e0 RCX: ffffffff81a95952
-RDX: 0000000000000006 RSI: ffffc90001405000 RDI: 0000000000000030
-RBP: 0000000000000000 R08: fffffbfff1fa22ed R09: fffffbfff1fa22ed
-R10: 0000000000000001 R11: fffffbfff1fa22ec R12: 0000000000000000
-R13: ffffffffc1abdac0 R14: 1ffff1103d3b3f8b R15: 0000000000000000
-FS:  00007fe409dc1700(0000) GS:ffff8881f1200000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000001b2d721000 CR3: 00000001e98b6005 CR4: 00000000007606f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-PKRU: 55555554
+__dev_map_entry_free() is a bit more complex, so we need to make
+sure that call queued __dev_map_entry_free() callbacks have completed.
+
+sysbot report:
+
+BUG: KASAN: use-after-free in dev_map_flush_old kernel/bpf/devmap.c:365
+[inline]
+BUG: KASAN: use-after-free in __dev_map_entry_free+0x2a8/0x300
+kernel/bpf/devmap.c:379
+Read of size 8 at addr ffff8801b8da38c8 by task ksoftirqd/1/18
+
+CPU: 1 PID: 18 Comm: ksoftirqd/1 Not tainted 4.17.0+ #39
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
+Google 01/01/2011
 Call Trace:
- sysfs_remove_file include/linux/sysfs.h:519 [inline]
- driver_remove_file+0x40/0x50 drivers/base/driver.c:122
- pcmcia_remove_newid_file drivers/pcmcia/ds.c:163 [inline]
- pcmcia_unregister_driver+0x7d/0x2b0 drivers/pcmcia/ds.c:209
- ssb_modexit+0xa/0x1b [ssb]
- __do_sys_delete_module kernel/module.c:1018 [inline]
- __se_sys_delete_module kernel/module.c:961 [inline]
- __x64_sys_delete_module+0x3dc/0x5e0 kernel/module.c:961
- do_syscall_64+0x147/0x600 arch/x86/entry/common.c:290
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x462e99
-Code: f7 d8 64 89 02 b8 ff ff ff ff c3 66 0f 1f 44 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 bc ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007fe409dc0c58 EFLAGS: 00000246 ORIG_RAX: 00000000000000b0
-RAX: ffffffffffffffda RBX: 000000000073bf00 RCX: 0000000000462e99
-RDX: 0000000000000000 RSI: 0000000000000000 RDI: 00000000200000c0
-RBP: 0000000000000002 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 00007fe409dc16bc
-R13: 00000000004bccaa R14: 00000000006f6bc8 R15: 00000000ffffffff
-Modules linked in: ssb(-) 3c59x nvme_core macvlan tap pata_hpt3x3 rt2x00pci null_blk tsc40 pm_notifier_error_inject notifier_error_inject mdio cdc_wdm nf_reject_ipv4 ath9k_common ath9k_hw ath pppox ppp_generic slhc ehci_platform wl12xx wlcore tps6507x_ts ioc4 nf_synproxy_core ide_gd_mod ax25 can_dev iwlwifi can_raw atm tm2_touchkey can_gw can sundance adp5588_keys rt2800mmio rt2800lib rt2x00mmio rt2x00lib eeprom_93cx6 pn533 lru_cache elants_i2c ip_set nfnetlink gameport tipc hampshire nhc_ipv6 nhc_hop nhc_udp nhc_fragment nhc_routing nhc_mobility nhc_dest 6lowpan silead brcmutil nfc mt76_usb mt76 mac80211 iptable_security iptable_raw iptable_mangle iptable_nat nf_nat_ipv4 nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 iptable_filter bpfilter ip6_vti ip_gre sit hsr veth vxcan batman_adv cfg80211 rfkill chnl_net caif nlmon vcan bridge stp llc ip6_gre ip6_tunnel tunnel6 tun joydev mousedev serio_raw ide_pci_generic piix floppy ide_core sch_fq_codel ip_tables x_tables ipv6
- [last unloaded: 3c59x]
-Dumping ftrace buffer:
-   (ftrace buffer empty)
----[ end trace 3913cbf8011e1c05 ]---
+  __dump_stack lib/dump_stack.c:77 [inline]
+  dump_stack+0x1b9/0x294 lib/dump_stack.c:113
+  print_address_description+0x6c/0x20b mm/kasan/report.c:256
+  kasan_report_error mm/kasan/report.c:354 [inline]
+  kasan_report.cold.7+0x242/0x2fe mm/kasan/report.c:412
+  __asan_report_load8_noabort+0x14/0x20 mm/kasan/report.c:433
+  dev_map_flush_old kernel/bpf/devmap.c:365 [inline]
+  __dev_map_entry_free+0x2a8/0x300 kernel/bpf/devmap.c:379
+  __rcu_reclaim kernel/rcu/rcu.h:178 [inline]
+  rcu_do_batch kernel/rcu/tree.c:2558 [inline]
+  invoke_rcu_callbacks kernel/rcu/tree.c:2818 [inline]
+  __rcu_process_callbacks kernel/rcu/tree.c:2785 [inline]
+  rcu_process_callbacks+0xe9d/0x1760 kernel/rcu/tree.c:2802
+  __do_softirq+0x2e0/0xaf5 kernel/softirq.c:284
+  run_ksoftirqd+0x86/0x100 kernel/softirq.c:645
+  smpboot_thread_fn+0x417/0x870 kernel/smpboot.c:164
+  kthread+0x345/0x410 kernel/kthread.c:240
+  ret_from_fork+0x3a/0x50 arch/x86/entry/entry_64.S:412
 
-In ssb_modinit, it does not fail SSB init when ssb_host_pcmcia_init failed,
-however in ssb_modexit, ssb_host_pcmcia_exit calls pcmcia_unregister_driver
-unconditionally, which may tigger a NULL pointer dereference issue as above.
+Allocated by task 6675:
+  save_stack+0x43/0xd0 mm/kasan/kasan.c:448
+  set_track mm/kasan/kasan.c:460 [inline]
+  kasan_kmalloc+0xc4/0xe0 mm/kasan/kasan.c:553
+  kmem_cache_alloc_trace+0x152/0x780 mm/slab.c:3620
+  kmalloc include/linux/slab.h:513 [inline]
+  kzalloc include/linux/slab.h:706 [inline]
+  dev_map_alloc+0x208/0x7f0 kernel/bpf/devmap.c:102
+  find_and_alloc_map kernel/bpf/syscall.c:129 [inline]
+  map_create+0x393/0x1010 kernel/bpf/syscall.c:453
+  __do_sys_bpf kernel/bpf/syscall.c:2351 [inline]
+  __se_sys_bpf kernel/bpf/syscall.c:2328 [inline]
+  __x64_sys_bpf+0x303/0x510 kernel/bpf/syscall.c:2328
+  do_syscall_64+0x1b1/0x800 arch/x86/entry/common.c:290
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Fixes: 399500da18f7 ("ssb: pick PCMCIA host code support from b43 driver")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Freed by task 26:
+  save_stack+0x43/0xd0 mm/kasan/kasan.c:448
+  set_track mm/kasan/kasan.c:460 [inline]
+  __kasan_slab_free+0x11a/0x170 mm/kasan/kasan.c:521
+  kasan_slab_free+0xe/0x10 mm/kasan/kasan.c:528
+  __cache_free mm/slab.c:3498 [inline]
+  kfree+0xd9/0x260 mm/slab.c:3813
+  dev_map_free+0x4fa/0x670 kernel/bpf/devmap.c:191
+  bpf_map_free_deferred+0xba/0xf0 kernel/bpf/syscall.c:262
+  process_one_work+0xc64/0x1b70 kernel/workqueue.c:2153
+  worker_thread+0x181/0x13a0 kernel/workqueue.c:2296
+  kthread+0x345/0x410 kernel/kthread.c:240
+  ret_from_fork+0x3a/0x50 arch/x86/entry/entry_64.S:412
+
+The buggy address belongs to the object at ffff8801b8da37c0
+  which belongs to the cache kmalloc-512 of size 512
+The buggy address is located 264 bytes inside of
+  512-byte region [ffff8801b8da37c0, ffff8801b8da39c0)
+The buggy address belongs to the page:
+page:ffffea0006e368c0 count:1 mapcount:0 mapping:ffff8801da800940
+index:0xffff8801b8da3540
+flags: 0x2fffc0000000100(slab)
+raw: 02fffc0000000100 ffffea0007217b88 ffffea0006e30cc8 ffff8801da800940
+raw: ffff8801b8da3540 ffff8801b8da3040 0000000100000004 0000000000000000
+page dumped because: kasan: bad access detected
+
+Memory state around the buggy address:
+  ffff8801b8da3780: fc fc fc fc fc fc fc fc fb fb fb fb fb fb fb fb
+  ffff8801b8da3800: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+> ffff8801b8da3880: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                                               ^
+  ffff8801b8da3900: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+  ffff8801b8da3980: fb fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
+
+Fixes: 546ac1ffb70d ("bpf: add devmap, a map for storing net device references")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot+457d3e2ffbcf31aee5c0@syzkaller.appspotmail.com
+Acked-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Acked-by: Jesper Dangaard Brouer <brouer@redhat.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/ssb/bridge_pcmcia_80211.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ kernel/bpf/devmap.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/ssb/bridge_pcmcia_80211.c
-+++ b/drivers/ssb/bridge_pcmcia_80211.c
-@@ -113,16 +113,21 @@ static struct pcmcia_driver ssb_host_pcm
- 	.resume		= ssb_host_pcmcia_resume,
- };
+--- a/kernel/bpf/devmap.c
++++ b/kernel/bpf/devmap.c
+@@ -164,6 +164,9 @@ static void dev_map_free(struct bpf_map
+ 	bpf_clear_redirect_map(map);
+ 	synchronize_rcu();
  
-+static int pcmcia_init_failed;
++	/* Make sure prior __dev_map_entry_free() have completed. */
++	rcu_barrier();
 +
- /*
-  * These are not module init/exit functions!
-  * The module_pcmcia_driver() helper cannot be used here.
-  */
- int ssb_host_pcmcia_init(void)
- {
--	return pcmcia_register_driver(&ssb_host_pcmcia_driver);
-+	pcmcia_init_failed = pcmcia_register_driver(&ssb_host_pcmcia_driver);
-+
-+	return pcmcia_init_failed;
- }
- 
- void ssb_host_pcmcia_exit(void)
- {
--	pcmcia_unregister_driver(&ssb_host_pcmcia_driver);
-+	if (!pcmcia_init_failed)
-+		pcmcia_unregister_driver(&ssb_host_pcmcia_driver);
- }
+ 	/* To ensure all pending flush operations have completed wait for flush
+ 	 * bitmap to indicate all flush_needed bits to be zero on _all_ cpus.
+ 	 * Because the above synchronize_rcu() ensures the map is disconnected
 
 
