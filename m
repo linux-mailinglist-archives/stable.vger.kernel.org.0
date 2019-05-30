@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 681E92F45C
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:38:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6434D2F1DD
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:16:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728302AbfE3Ehg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:37:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56480 "EHLO mail.kernel.org"
+        id S1730490AbfE3DPs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:15:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40032 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729253AbfE3DMv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:12:51 -0400
+        id S1730481AbfE3DPr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:15:47 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4FA35244EF;
-        Thu, 30 May 2019 03:12:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 43A2024559;
+        Thu, 30 May 2019 03:15:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185970;
-        bh=g7WW4hCAqoz9YrVrGwYWvImdBx87C0/YOTv7ftVL5F0=;
+        s=default; t=1559186146;
+        bh=qFJB82RvWiimfGDlAECHzDLXCltM3UAZiZ/moEzcAxg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PoApe9wLDahdxgP5Sq5nBDDDhVp78t/H/KHs/iKxsnVqje5WSiRil/vUCSrWskG+r
-         fZFqd8MCSngzFKb9VXiUQZLsvUtdtL/qYDFOwia5z6radbgnntG4DQZ0FS0GK4KY2r
-         rHNB+zPrjGPfnRVkEXUce23JINmNUPab7n7KVxv0=
+        b=CCWA0poF3QIrl6JSFfDnx3N3G17JSWfn+ManarfsPdkf/mC+Pz5ka6sxNcEA+P6/H
+         vYWRShx90sKOJzF57yUObf6wko6sSSIoPM6MDqDywk6YPnwctNh+8jZ1l9ga0FQ2aK
+         QKTc23CdXNxCjSby/jjlVNvICUsWX0Xp8ug+w86U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Farman <farman@linux.ibm.com>,
-        Farhan Ali <alifm@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
+        stable@vger.kernel.org,
+        Adam Thomson <Adam.Thomson.Opensource@diasemi.com>,
+        Steve Twiss <stwiss.opensource@diasemi.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 401/405] vfio-ccw: Prevent quiesce function going into an infinite loop
+Subject: [PATCH 5.0 326/346] regulator: pv88060: Fix notifier mutex lock warning
 Date:   Wed, 29 May 2019 20:06:39 -0700
-Message-Id: <20190530030600.840046316@linuxfoundation.org>
+Message-Id: <20190530030557.300172612@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,87 +46,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d1ffa760d22aa1d8190478e5ef555c59a771db27 ]
+[ Upstream commit f58213637206e190453e3bd91f98f535566290a3 ]
 
-The quiesce function calls cio_cancel_halt_clear() and if we
-get an -EBUSY we go into a loop where we:
-	- wait for any interrupts
-	- flush all I/O in the workqueue
-	- retry cio_cancel_halt_clear
+The mutex for the regulator_dev must be controlled by the caller of
+the regulator_notifier_call_chain(), as described in the comment
+for that function.
 
-During the period where we are waiting for interrupts or
-flushing all I/O, the channel subsystem could have completed
-a halt/clear action and turned off the corresponding activity
-control bits in the subchannel status word. This means the next
-time we call cio_cancel_halt_clear(), we will again start by
-calling cancel subchannel and so we can be stuck between calling
-cancel and halt forever.
+Failure to mutex lock and unlock surrounding the notifier call results
+in a kernel WARN_ON_ONCE() which will dump a backtrace for the
+regulator_notifier_call_chain() when that function call is first made.
+The mutex can be controlled using the regulator_lock/unlock() API.
 
-Rather than calling cio_cancel_halt_clear() immediately after
-waiting, let's try to disable the subchannel. If we succeed in
-disabling the subchannel then we know nothing else can happen
-with the device.
-
-Suggested-by: Eric Farman <farman@linux.ibm.com>
-Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
-Message-Id: <4d5a4b98ab1b41ac6131b5c36de18b76c5d66898.1555449329.git.alifm@linux.ibm.com>
-Reviewed-by: Eric Farman <farman@linux.ibm.com>
-Acked-by: Halil Pasic <pasic@linux.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+Fixes: f307a7e9b7af ("regulator: pv88060: new regulator driver")
+Suggested-by: Adam Thomson <Adam.Thomson.Opensource@diasemi.com>
+Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/cio/vfio_ccw_drv.c | 32 ++++++++++++++++++--------------
- 1 file changed, 18 insertions(+), 14 deletions(-)
+ drivers/regulator/pv88060-regulator.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index 64bb121ba5987..9e84d8a971ad9 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -40,26 +40,30 @@ int vfio_ccw_sch_quiesce(struct subchannel *sch)
- 	if (ret != -EBUSY)
- 		goto out_unlock;
+diff --git a/drivers/regulator/pv88060-regulator.c b/drivers/regulator/pv88060-regulator.c
+index a9446056435f9..000c34914fe39 100644
+--- a/drivers/regulator/pv88060-regulator.c
++++ b/drivers/regulator/pv88060-regulator.c
+@@ -276,9 +276,11 @@ static irqreturn_t pv88060_irq_handler(int irq, void *data)
+ 	if (reg_val & PV88060_E_VDD_FLT) {
+ 		for (i = 0; i < PV88060_MAX_REGULATORS; i++) {
+ 			if (chip->rdev[i] != NULL) {
++				regulator_lock(chip->rdev[i]);
+ 				regulator_notifier_call_chain(chip->rdev[i],
+ 					REGULATOR_EVENT_UNDER_VOLTAGE,
+ 					NULL);
++				regulator_unlock(chip->rdev[i]);
+ 			}
+ 		}
  
-+	iretry = 255;
- 	do {
--		iretry = 255;
+@@ -293,9 +295,11 @@ static irqreturn_t pv88060_irq_handler(int irq, void *data)
+ 	if (reg_val & PV88060_E_OVER_TEMP) {
+ 		for (i = 0; i < PV88060_MAX_REGULATORS; i++) {
+ 			if (chip->rdev[i] != NULL) {
++				regulator_lock(chip->rdev[i]);
+ 				regulator_notifier_call_chain(chip->rdev[i],
+ 					REGULATOR_EVENT_OVER_TEMP,
+ 					NULL);
++				regulator_unlock(chip->rdev[i]);
+ 			}
+ 		}
  
- 		ret = cio_cancel_halt_clear(sch, &iretry);
--		while (ret == -EBUSY) {
--			/*
--			 * Flush all I/O and wait for
--			 * cancel/halt/clear completion.
--			 */
--			private->completion = &completion;
--			spin_unlock_irq(sch->lock);
- 
--			wait_for_completion_timeout(&completion, 3*HZ);
-+		if (ret == -EIO) {
-+			pr_err("vfio_ccw: could not quiesce subchannel 0.%x.%04x!\n",
-+			       sch->schid.ssid, sch->schid.sch_no);
-+			break;
-+		}
-+
-+		/*
-+		 * Flush all I/O and wait for
-+		 * cancel/halt/clear completion.
-+		 */
-+		private->completion = &completion;
-+		spin_unlock_irq(sch->lock);
- 
--			private->completion = NULL;
--			flush_workqueue(vfio_ccw_work_q);
--			spin_lock_irq(sch->lock);
--			ret = cio_cancel_halt_clear(sch, &iretry);
--		};
-+		if (ret == -EBUSY)
-+			wait_for_completion_timeout(&completion, 3*HZ);
- 
-+		private->completion = NULL;
-+		flush_workqueue(vfio_ccw_work_q);
-+		spin_lock_irq(sch->lock);
- 		ret = cio_disable_subchannel(sch);
- 	} while (ret == -EBUSY);
- out_unlock:
 -- 
 2.20.1
 
