@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EEC292EC64
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:22:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0A762F24C
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:21:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728162AbfE3DU0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:20:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58550 "EHLO mail.kernel.org"
+        id S1729899AbfE3EUf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:20:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732190AbfE3DUZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:20:25 -0400
+        id S1730211AbfE3DPS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:15:18 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DCE6C248C3;
-        Thu, 30 May 2019 03:20:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 38B4A24569;
+        Thu, 30 May 2019 03:15:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186424;
-        bh=po6PrqAoVpGPWqDdgcC6f5pnQsj2Uf8VLIkfxgVObCw=;
+        s=default; t=1559186118;
+        bh=KwBmMHrM/VNDCNY/EsuobreJQZHWTBGnu8KWY9DU1KQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AGuG2fN7i0sG8Y1NLArLW6jxfBaVSEKFpJa+jh+padYEnNNVKRpRjLa6Uw1yqC93G
-         P1HIRgJPSAZhfCBWWCS4oCFJKvSf5Dx90lD7Bj2PNy5Jij7Yet/ldtHl2FnDbPDRi/
-         LugVvWyCmMpP5kByHdSa2PeJllBIY+cnD6v96j3Y=
+        b=FSdfG1gZaPa2EhJcVo5rZwFm95idVQmdPx744hKUq9k67lr0KR5E0XZhVuwav8Z+V
+         31O2nuoTFELPtqOg+sUEOsRaH3RDfSg/FxeuL3fYB4SJKgKkQOAU2SovttoCSXC3Iy
+         NFdyrixQukSGqwGT1Azj22KsKIx/SAgkIIkwUhTM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Shile Zhang <shile.zhang@linux.alibaba.com>,
-        Fredrik Noring <noring@nocrew.org>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Mukesh Ojha <mojha@codeaurora.org>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Subject: [PATCH 4.9 013/128] fbdev: fix divide error in fb_var_to_videomode
+        stable@vger.kernel.org, Yazen Ghannam <yazen.ghannam@amd.com>,
+        Borislav Petkov <bp@suse.de>, "H. Peter Anvin" <hpa@zytor.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        linux-edac <linux-edac@vger.kernel.org>, Pu Wen <puwen@hygon.cn>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Tony Luck <tony.luck@intel.com>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        x86-ml <x86@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 272/346] x86/mce: Handle varying MCA bank counts
 Date:   Wed, 29 May 2019 20:05:45 -0700
-Message-Id: <20190530030436.853914496@linuxfoundation.org>
+Message-Id: <20190530030554.738448568@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
-References: <20190530030432.977908967@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,81 +49,172 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shile Zhang <shile.zhang@linux.alibaba.com>
+[ Upstream commit 006c077041dc73b9490fffc4c6af5befe0687110 ]
 
-commit cf84807f6dd0be5214378e66460cfc9187f532f9 upstream.
+Linux reads MCG_CAP[Count] to find the number of MCA banks visible to a
+CPU. Currently, this number is the same for all CPUs and a warning is
+shown if there is a difference. The number of banks is overwritten with
+the MCG_CAP[Count] value of each following CPU that boots.
 
-To fix following divide-by-zero error found by Syzkaller:
+According to the Intel SDM and AMD APM, the MCG_CAP[Count] value gives
+the number of banks that are available to a "processor implementation".
+The AMD BKDGs/PPRs further clarify that this value is per core. This
+value has historically been the same for every core in the system, but
+that is not an architectural requirement.
 
-  divide error: 0000 [#1] SMP PTI
-  CPU: 7 PID: 8447 Comm: test Kdump: loaded Not tainted 4.19.24-8.al7.x86_64 #1
-  Hardware name: Alibaba Cloud Alibaba Cloud ECS, BIOS rel-1.12.0-0-ga698c8995f-prebuilt.qemu.org 04/01/2014
-  RIP: 0010:fb_var_to_videomode+0xae/0xc0
-  Code: 04 44 03 46 78 03 4e 7c 44 03 46 68 03 4e 70 89 ce d1 ee 69 c0 e8 03 00 00 f6 c2 01 0f 45 ce 83 e2 02 8d 34 09 0f 45 ce 31 d2 <41> f7 f0 31 d2 f7 f1 89 47 08 f3 c3 66 0f 1f 44 00 00 0f 1f 44 00
-  RSP: 0018:ffffb7e189347bf0 EFLAGS: 00010246
-  RAX: 00000000e1692410 RBX: ffffb7e189347d60 RCX: 0000000000000000
-  RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffffb7e189347c10
-  RBP: ffff99972a091c00 R08: 0000000000000000 R09: 0000000000000000
-  R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000100
-  R13: 0000000000010000 R14: 00007ffd66baf6d0 R15: 0000000000000000
-  FS:  00007f2054d11740(0000) GS:ffff99972fbc0000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 00007f205481fd20 CR3: 00000004288a0001 CR4: 00000000001606a0
-  Call Trace:
-   fb_set_var+0x257/0x390
-   ? lookup_fast+0xbb/0x2b0
-   ? fb_open+0xc0/0x140
-   ? chrdev_open+0xa6/0x1a0
-   do_fb_ioctl+0x445/0x5a0
-   do_vfs_ioctl+0x92/0x5f0
-   ? __alloc_fd+0x3d/0x160
-   ksys_ioctl+0x60/0x90
-   __x64_sys_ioctl+0x16/0x20
-   do_syscall_64+0x5b/0x190
-   entry_SYSCALL_64_after_hwframe+0x44/0xa9
-  RIP: 0033:0x7f20548258d7
-  Code: 44 00 00 48 8b 05 b9 15 2d 00 64 c7 00 26 00 00 00 48 c7 c0 ff ff ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 b8 10 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 89 15 2d 00 f7 d8 64 89 01 48
+Future AMD systems may have different MCG_CAP[Count] values per core,
+so the assumption that all CPUs will have the same MCG_CAP[Count] value
+will no longer be valid.
 
-It can be triggered easily with following test code:
+Also, the first CPU to boot will allocate the struct mce_banks[] array
+using the number of banks based on its MCG_CAP[Count] value. The machine
+check handler and other functions use the global number of banks to
+iterate and index into the mce_banks[] array. So it's possible to use an
+out-of-bounds index on an asymmetric system where a following CPU sees a
+MCG_CAP[Count] value greater than its predecessors.
 
-  #include <linux/fb.h>
-  #include <fcntl.h>
-  #include <sys/ioctl.h>
-  int main(void)
-  {
-          struct fb_var_screeninfo var = {.activate = 0x100, .pixclock = 60};
-          int fd = open("/dev/fb0", O_RDWR);
-          if (fd < 0)
-                  return 1;
+Thus, allocate the mce_banks[] array to the maximum number of banks.
+This will avoid the potential out-of-bounds index since the value of
+mca_cfg.banks is capped to MAX_NR_BANKS.
 
-          if (ioctl(fd, FBIOPUT_VSCREENINFO, &var))
-                  return 1;
+Set the value of mca_cfg.banks equal to the max of the previous value
+and the value for the current CPU. This way mca_cfg.banks will always
+represent the max number of banks detected on any CPU in the system.
 
-          return 0;
-  }
+This will ensure that all CPUs will access all the banks that are
+visible to them. A CPU that can access fewer than the max number of
+banks will find the registers of the extra banks to be read-as-zero.
 
-Signed-off-by: Shile Zhang <shile.zhang@linux.alibaba.com>
-Cc: Fredrik Noring <noring@nocrew.org>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
-Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Furthermore, print the resulting number of MCA banks in use. Do this in
+mcheck_late_init() so that the final value is printed after all CPUs
+have been initialized.
 
+Finally, get bank count from target CPU when doing injection with mce-inject
+module.
+
+ [ bp: Remove out-of-bounds example, passify and cleanup commit message. ]
+
+Signed-off-by: Yazen Ghannam <yazen.ghannam@amd.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: linux-edac <linux-edac@vger.kernel.org>
+Cc: Pu Wen <puwen@hygon.cn>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Tony Luck <tony.luck@intel.com>
+Cc: Vishal Verma <vishal.l.verma@intel.com>
+Cc: x86-ml <x86@kernel.org>
+Link: https://lkml.kernel.org/r/20180727214009.78289-1-Yazen.Ghannam@amd.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/core/modedb.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/x86/kernel/cpu/mce/core.c   | 22 +++++++---------------
+ arch/x86/kernel/cpu/mce/inject.c | 14 +++++++-------
+ 2 files changed, 14 insertions(+), 22 deletions(-)
 
---- a/drivers/video/fbdev/core/modedb.c
-+++ b/drivers/video/fbdev/core/modedb.c
-@@ -933,6 +933,9 @@ void fb_var_to_videomode(struct fb_video
- 	if (var->vmode & FB_VMODE_DOUBLE)
- 		vtotal *= 2;
+diff --git a/arch/x86/kernel/cpu/mce/core.c b/arch/x86/kernel/cpu/mce/core.c
+index 0d47306cec7ae..9e6a94c208e01 100644
+--- a/arch/x86/kernel/cpu/mce/core.c
++++ b/arch/x86/kernel/cpu/mce/core.c
+@@ -1481,13 +1481,12 @@ EXPORT_SYMBOL_GPL(mce_notify_irq);
+ static int __mcheck_cpu_mce_banks_init(void)
+ {
+ 	int i;
+-	u8 num_banks = mca_cfg.banks;
  
-+	if (!htotal || !vtotal)
-+		return;
+-	mce_banks = kcalloc(num_banks, sizeof(struct mce_bank), GFP_KERNEL);
++	mce_banks = kcalloc(MAX_NR_BANKS, sizeof(struct mce_bank), GFP_KERNEL);
+ 	if (!mce_banks)
+ 		return -ENOMEM;
+ 
+-	for (i = 0; i < num_banks; i++) {
++	for (i = 0; i < MAX_NR_BANKS; i++) {
+ 		struct mce_bank *b = &mce_banks[i];
+ 
+ 		b->ctl = -1ULL;
+@@ -1501,28 +1500,19 @@ static int __mcheck_cpu_mce_banks_init(void)
+  */
+ static int __mcheck_cpu_cap_init(void)
+ {
+-	unsigned b;
+ 	u64 cap;
++	u8 b;
+ 
+ 	rdmsrl(MSR_IA32_MCG_CAP, cap);
+ 
+ 	b = cap & MCG_BANKCNT_MASK;
+-	if (!mca_cfg.banks)
+-		pr_info("CPU supports %d MCE banks\n", b);
+-
+-	if (b > MAX_NR_BANKS) {
+-		pr_warn("Using only %u machine check banks out of %u\n",
+-			MAX_NR_BANKS, b);
++	if (WARN_ON_ONCE(b > MAX_NR_BANKS))
+ 		b = MAX_NR_BANKS;
+-	}
+ 
+-	/* Don't support asymmetric configurations today */
+-	WARN_ON(mca_cfg.banks != 0 && b != mca_cfg.banks);
+-	mca_cfg.banks = b;
++	mca_cfg.banks = max(mca_cfg.banks, b);
+ 
+ 	if (!mce_banks) {
+ 		int err = __mcheck_cpu_mce_banks_init();
+-
+ 		if (err)
+ 			return err;
+ 	}
+@@ -2489,6 +2479,8 @@ EXPORT_SYMBOL_GPL(mcsafe_key);
+ 
+ static int __init mcheck_late_init(void)
+ {
++	pr_info("Using %d MCE banks\n", mca_cfg.banks);
 +
- 	hfreq = pixclock/htotal;
- 	mode->refresh = hfreq/vtotal;
- }
+ 	if (mca_cfg.recovery)
+ 		static_branch_inc(&mcsafe_key);
+ 
+diff --git a/arch/x86/kernel/cpu/mce/inject.c b/arch/x86/kernel/cpu/mce/inject.c
+index 8492ef7d90150..3f82afd0f46f2 100644
+--- a/arch/x86/kernel/cpu/mce/inject.c
++++ b/arch/x86/kernel/cpu/mce/inject.c
+@@ -46,8 +46,6 @@
+ static struct mce i_mce;
+ static struct dentry *dfs_inj;
+ 
+-static u8 n_banks;
+-
+ #define MAX_FLAG_OPT_SIZE	4
+ #define NBCFG			0x44
+ 
+@@ -570,9 +568,15 @@ static void do_inject(void)
+ static int inj_bank_set(void *data, u64 val)
+ {
+ 	struct mce *m = (struct mce *)data;
++	u8 n_banks;
++	u64 cap;
++
++	/* Get bank count on target CPU so we can handle non-uniform values. */
++	rdmsrl_on_cpu(m->extcpu, MSR_IA32_MCG_CAP, &cap);
++	n_banks = cap & MCG_BANKCNT_MASK;
+ 
+ 	if (val >= n_banks) {
+-		pr_err("Non-existent MCE bank: %llu\n", val);
++		pr_err("MCA bank %llu non-existent on CPU%d\n", val, m->extcpu);
+ 		return -EINVAL;
+ 	}
+ 
+@@ -665,10 +669,6 @@ static struct dfs_node {
+ static int __init debugfs_init(void)
+ {
+ 	unsigned int i;
+-	u64 cap;
+-
+-	rdmsrl(MSR_IA32_MCG_CAP, cap);
+-	n_banks = cap & MCG_BANKCNT_MASK;
+ 
+ 	dfs_inj = debugfs_create_dir("mce-inject", NULL);
+ 	if (!dfs_inj)
+-- 
+2.20.1
+
 
 
