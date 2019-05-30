@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C09B12EB3F
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:11:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83FB52F381
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:29:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728361AbfE3DLG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:11:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49830 "EHLO mail.kernel.org"
+        id S1729659AbfE3E3y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:29:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727977AbfE3DLG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:11:06 -0400
+        id S1729652AbfE3DOA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:14:00 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 17641244EE;
-        Thu, 30 May 2019 03:11:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2D5982455A;
+        Thu, 30 May 2019 03:13:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185865;
-        bh=TIFyNDY9FzGlyx5lxUxH4rwVPK55GjuPa0XuZBHjypo=;
+        s=default; t=1559186039;
+        bh=u+nUiTKKKXyldh9p4wc93XIBYk6vNLNZaGRrS5m1MzU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JchXSAsdQfdl8OArrVSFMELjKYLOZql/j4EPrutzLkT9MyPJGbfbrSvFbWUW2dCXB
-         chqgeaD19Rlu4s5lNfJIaKcfqdkGYHWyAqFRZz0a/wgDOzCVQYo+jEwg9LQ/pORKhl
-         ecJOYUAfRVI0tR/9NCUka+uw0QBkEyG8g/oucOSc=
+        b=LI7FODCjVCgJD0HJNZ6AN8bG/wtB3YKsvgmBG5XF2boy/3WDBSblzAGGCvzCcy42R
+         IXIS0v5yOZXfXTt1zyRhW9lktnkdcavwlmEh03zo4r6muOKYtXo/gZ0L01sgbaavUM
+         /L6EuZDXa18BK9+zgf1m4BGI1JnH//OUbqnApeLE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrea Merello <andrea.merello@gmail.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 203/405] mmc: core: make pwrseq_emmc (partially) support sleepy GPIO controllers
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>, luto@kernel.org,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 128/346] mm/uaccess: Use unsigned long to placate UBSAN warnings on older GCC versions
 Date:   Wed, 29 May 2019 20:03:21 -0700
-Message-Id: <20190530030551.432064473@linuxfoundation.org>
+Message-Id: <20190530030547.598146383@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,114 +46,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 002ee28e8b322d4d4b7b83234b5d0f4ebd428eda ]
+[ Upstream commit 29da93fea3ea39ab9b12270cc6be1b70ef201c9e ]
 
-pwrseq_emmc.c implements a HW reset procedure for eMMC chip by driving a
-GPIO line.
+Randy reported objtool triggered on his (GCC-7.4) build:
 
-It registers the .reset() cb on mmc_pwrseq_ops and it registers a system
-restart notification handler; both of them perform reset by unconditionally
-calling gpiod_set_value().
+  lib/strncpy_from_user.o: warning: objtool: strncpy_from_user()+0x315: call to __ubsan_handle_add_overflow() with UACCESS enabled
+  lib/strnlen_user.o: warning: objtool: strnlen_user()+0x337: call to __ubsan_handle_sub_overflow() with UACCESS enabled
 
-If the eMMC reset line is tied to a GPIO controller whose driver can sleep
-(i.e. I2C GPIO controller), then the kernel would spit warnings when trying
-to reset the eMMC chip by means of .reset() mmc_pwrseq_ops cb (that is
-exactly what I'm seeing during boot).
+This is due to UBSAN generating signed-overflow-UB warnings where it
+should not. Prior to GCC-8 UBSAN ignored -fwrapv (which the kernel
+uses through -fno-strict-overflow).
 
-Furthermore, on system reset we would gets to the system restart
-notification handler with disabled interrupts - local_irq_disable() is
-called in machine_restart() at least on ARM/ARM64 - and we would be in
-trouble when the GPIO driver tries to sleep (which indeed doesn't happen
-here, likely because in my case the machine specific code doesn't call
-do_kernel_restart(), I guess..).
+Make the functions use 'unsigned long' throughout.
 
-This patch fixes the .reset() cb to make use of gpiod_set_value_cansleep(),
-so that the eMMC gets reset on boot without complaints, while, since there
-isn't that much we can do, we avoid register the restart handler if the
-GPIO controller has a sleepy driver (and we spit a dev_notice() message to
-let people know)..
-
-This had been tested on a downstream 4.9 kernel with backported
-commit 83f37ee7ba33 ("mmc: pwrseq: Add reset callback to the struct
-mmc_pwrseq_ops") and commit ae60fb031cf2 ("mmc: core: Don't do eMMC HW
-reset when resuming the eMMC card"), because I couldn't boot my board
-otherwise. Maybe worth to RFT.
-
-Signed-off-by: Andrea Merello <andrea.merello@gmail.com>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Reported-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Randy Dunlap <rdunlap@infradead.org> # build-tested
+Acked-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: luto@kernel.org
+Link: http://lkml.kernel.org/r/20190424072208.754094071@infradead.org
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/core/pwrseq_emmc.c | 38 ++++++++++++++++++----------------
- 1 file changed, 20 insertions(+), 18 deletions(-)
+ lib/strncpy_from_user.c | 5 +++--
+ lib/strnlen_user.c      | 4 ++--
+ 2 files changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/mmc/core/pwrseq_emmc.c b/drivers/mmc/core/pwrseq_emmc.c
-index efb8a7965dd4a..154f4204d58cb 100644
---- a/drivers/mmc/core/pwrseq_emmc.c
-+++ b/drivers/mmc/core/pwrseq_emmc.c
-@@ -30,19 +30,14 @@ struct mmc_pwrseq_emmc {
- 
- #define to_pwrseq_emmc(p) container_of(p, struct mmc_pwrseq_emmc, pwrseq)
- 
--static void __mmc_pwrseq_emmc_reset(struct mmc_pwrseq_emmc *pwrseq)
--{
--	gpiod_set_value(pwrseq->reset_gpio, 1);
--	udelay(1);
--	gpiod_set_value(pwrseq->reset_gpio, 0);
--	udelay(200);
--}
--
- static void mmc_pwrseq_emmc_reset(struct mmc_host *host)
+diff --git a/lib/strncpy_from_user.c b/lib/strncpy_from_user.c
+index 58eacd41526c5..023ba9f3b99f0 100644
+--- a/lib/strncpy_from_user.c
++++ b/lib/strncpy_from_user.c
+@@ -23,10 +23,11 @@
+  * hit it), 'max' is the address space maximum (and we return
+  * -EFAULT if we hit it).
+  */
+-static inline long do_strncpy_from_user(char *dst, const char __user *src, long count, unsigned long max)
++static inline long do_strncpy_from_user(char *dst, const char __user *src,
++					unsigned long count, unsigned long max)
  {
- 	struct mmc_pwrseq_emmc *pwrseq =  to_pwrseq_emmc(host->pwrseq);
+ 	const struct word_at_a_time constants = WORD_AT_A_TIME_CONSTANTS;
+-	long res = 0;
++	unsigned long res = 0;
  
--	__mmc_pwrseq_emmc_reset(pwrseq);
-+	gpiod_set_value_cansleep(pwrseq->reset_gpio, 1);
-+	udelay(1);
-+	gpiod_set_value_cansleep(pwrseq->reset_gpio, 0);
-+	udelay(200);
- }
- 
- static int mmc_pwrseq_emmc_reset_nb(struct notifier_block *this,
-@@ -50,8 +45,11 @@ static int mmc_pwrseq_emmc_reset_nb(struct notifier_block *this,
+ 	/*
+ 	 * Truncate 'max' to the user-specified limit, so that
+diff --git a/lib/strnlen_user.c b/lib/strnlen_user.c
+index 1c1a1b0e38a5f..7f2db3fe311fd 100644
+--- a/lib/strnlen_user.c
++++ b/lib/strnlen_user.c
+@@ -28,7 +28,7 @@
+ static inline long do_strnlen_user(const char __user *src, unsigned long count, unsigned long max)
  {
- 	struct mmc_pwrseq_emmc *pwrseq = container_of(this,
- 					struct mmc_pwrseq_emmc, reset_nb);
-+	gpiod_set_value(pwrseq->reset_gpio, 1);
-+	udelay(1);
-+	gpiod_set_value(pwrseq->reset_gpio, 0);
-+	udelay(200);
+ 	const struct word_at_a_time constants = WORD_AT_A_TIME_CONSTANTS;
+-	long align, res = 0;
++	unsigned long align, res = 0;
+ 	unsigned long c;
  
--	__mmc_pwrseq_emmc_reset(pwrseq);
- 	return NOTIFY_DONE;
- }
+ 	/*
+@@ -42,7 +42,7 @@ static inline long do_strnlen_user(const char __user *src, unsigned long count,
+ 	 * Do everything aligned. But that means that we
+ 	 * need to also expand the maximum..
+ 	 */
+-	align = (sizeof(long) - 1) & (unsigned long)src;
++	align = (sizeof(unsigned long) - 1) & (unsigned long)src;
+ 	src -= align;
+ 	max += align;
  
-@@ -72,14 +70,18 @@ static int mmc_pwrseq_emmc_probe(struct platform_device *pdev)
- 	if (IS_ERR(pwrseq->reset_gpio))
- 		return PTR_ERR(pwrseq->reset_gpio);
- 
--	/*
--	 * register reset handler to ensure emmc reset also from
--	 * emergency_reboot(), priority 255 is the highest priority
--	 * so it will be executed before any system reboot handler.
--	 */
--	pwrseq->reset_nb.notifier_call = mmc_pwrseq_emmc_reset_nb;
--	pwrseq->reset_nb.priority = 255;
--	register_restart_handler(&pwrseq->reset_nb);
-+	if (!gpiod_cansleep(pwrseq->reset_gpio)) {
-+		/*
-+		 * register reset handler to ensure emmc reset also from
-+		 * emergency_reboot(), priority 255 is the highest priority
-+		 * so it will be executed before any system reboot handler.
-+		 */
-+		pwrseq->reset_nb.notifier_call = mmc_pwrseq_emmc_reset_nb;
-+		pwrseq->reset_nb.priority = 255;
-+		register_restart_handler(&pwrseq->reset_nb);
-+	} else {
-+		dev_notice(dev, "EMMC reset pin tied to a sleepy GPIO driver; reset on emergency-reboot disabled\n");
-+	}
- 
- 	pwrseq->pwrseq.ops = &mmc_pwrseq_emmc_ops;
- 	pwrseq->pwrseq.dev = dev;
 -- 
 2.20.1
 
