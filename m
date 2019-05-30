@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AE4652F6A1
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:59:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 588292F6AE
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:59:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727813AbfE3DJu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:09:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45426 "EHLO mail.kernel.org"
+        id S1727817AbfE3E6Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:58:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727793AbfE3DJu (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727803AbfE3DJu (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 29 May 2019 23:09:50 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1185724490;
+        by mail.kernel.org (Postfix) with ESMTPSA id 9BAD424493;
         Thu, 30 May 2019 03:09:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1559185789;
-        bh=MbN0Gjltzp8CmPfQZSiyn81eybuXFk4Chh1qol6L8EA=;
+        bh=i9z4KHR11Up/9y1I6Td8Ei325Q0bHiPkdTRW7D/gym0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VN3EsqZGMcoHS8wMucaPZ14hNNQ5A9lSxaRPypU8nI0hc0yNrAMn6zNw+U7e8Ad/3
-         KnHRIN03ieZrwI9y3DQL9CDEr8la1AOykvbRGPlF9BLRfbo3vRdrXVZRrA1VIlDmiY
-         BeoHvayGop1L5gHbBzuCpw6Y5nJh0GbF9dXA2poo=
+        b=fMcg61i8bY+ISgjt1I1Pf8fwMeoD3S//RvUE+pLubam/KH114EdWyiYpPJ4+E3kyh
+         CMPJD0HJkmaiRPNpRKBbezQ9MWEIUFbvXf6gFyBvjS3id7U7bA/cj+6UG2Aj9hQpUp
+         beCHAgd3RJ/n066oHEPWfg0/GcZnDiUlqV40JVOk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -31,9 +31,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Andrew Bowers <andrewx.bowers@intel.com>,
         Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 059/405] ice: Separate if conditions for ice_set_features()
-Date:   Wed, 29 May 2019 20:00:57 -0700
-Message-Id: <20190530030543.931314010@linuxfoundation.org>
+Subject: [PATCH 5.1 060/405] ice: Preserve VLAN Rx stripping settings
+Date:   Wed, 29 May 2019 20:00:58 -0700
+Message-Id: <20190530030543.985405676@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
 References: <20190530030540.291644921@linuxfoundation.org>
@@ -46,13 +46,11 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 8f529ff912073f778e3cd74e87fb69a36499fc2f ]
+[ Upstream commit e80e76db6c5bbc7a8f8512f3dc630a2170745b0b ]
 
-Set features can have multiple features turned on|off in a single
-call.  Grouping these all in an if/else means after one condition
-is met, other conditions/features will not be evaluated.  Break
-the if/else statements by feature to ensure all features will be
-handled properly.
+When Tx insertion is set, we are not accounting for the state of Rx
+stripping.  This causes Rx stripping to be enabled any time Tx
+insertion is changed, even when it's supposed to be disabled.
 
 Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>
@@ -60,35 +58,24 @@ Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
 Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_main.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/intel/ice/ice_lib.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
-index 47cc3f905b7ff..ac30288720f71 100644
---- a/drivers/net/ethernet/intel/ice/ice_main.c
-+++ b/drivers/net/ethernet/intel/ice/ice_main.c
-@@ -2545,6 +2545,9 @@ static int ice_set_features(struct net_device *netdev,
- 	struct ice_vsi *vsi = np->vsi;
- 	int ret = 0;
+diff --git a/drivers/net/ethernet/intel/ice/ice_lib.c b/drivers/net/ethernet/intel/ice/ice_lib.c
+index fa61203bee269..b710545cf7d1a 100644
+--- a/drivers/net/ethernet/intel/ice/ice_lib.c
++++ b/drivers/net/ethernet/intel/ice/ice_lib.c
+@@ -1848,6 +1848,10 @@ int ice_vsi_manage_vlan_insertion(struct ice_vsi *vsi)
+ 	 */
+ 	ctxt->info.vlan_flags = ICE_AQ_VSI_VLAN_MODE_ALL;
  
-+	/* Multiple features can be changed in one call so keep features in
-+	 * separate if/else statements to guarantee each feature is checked
-+	 */
- 	if (features & NETIF_F_RXHASH && !(netdev->features & NETIF_F_RXHASH))
- 		ret = ice_vsi_manage_rss_lut(vsi, true);
- 	else if (!(features & NETIF_F_RXHASH) &&
-@@ -2557,8 +2560,9 @@ static int ice_set_features(struct net_device *netdev,
- 	else if (!(features & NETIF_F_HW_VLAN_CTAG_RX) &&
- 		 (netdev->features & NETIF_F_HW_VLAN_CTAG_RX))
- 		ret = ice_vsi_manage_vlan_stripping(vsi, false);
--	else if ((features & NETIF_F_HW_VLAN_CTAG_TX) &&
--		 !(netdev->features & NETIF_F_HW_VLAN_CTAG_TX))
++	/* Preserve existing VLAN strip setting */
++	ctxt->info.vlan_flags |= (vsi->info.vlan_flags &
++				  ICE_AQ_VSI_VLAN_EMOD_M);
 +
-+	if ((features & NETIF_F_HW_VLAN_CTAG_TX) &&
-+	    !(netdev->features & NETIF_F_HW_VLAN_CTAG_TX))
- 		ret = ice_vsi_manage_vlan_insertion(vsi);
- 	else if (!(features & NETIF_F_HW_VLAN_CTAG_TX) &&
- 		 (netdev->features & NETIF_F_HW_VLAN_CTAG_TX))
+ 	ctxt->info.valid_sections = cpu_to_le16(ICE_AQ_VSI_PROP_VLAN_VALID);
+ 
+ 	status = ice_update_vsi(hw, vsi->idx, ctxt, NULL);
 -- 
 2.20.1
 
