@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E42372EFFA
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:01:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EBFF2EE01
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:43:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730025AbfE3DSX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:18:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50856 "EHLO mail.kernel.org"
+        id S1731224AbfE3DnS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:43:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730035AbfE3DSW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:18:22 -0400
+        id S1732469AbfE3DVI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:21:08 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3586A247BC;
-        Thu, 30 May 2019 03:18:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A711249A9;
+        Thu, 30 May 2019 03:21:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186302;
-        bh=pq8DH5vJ+r/czJBLB7goRxkkFDsB/y4F+Nuk/fNzKh0=;
+        s=default; t=1559186468;
+        bh=bppTzBxoO9Ue7WR8F4rWlFuDGJvLkjrVlQGw2T/vVjs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aGR1yB8SjtZyOQxWqQjN1yNBobQbrgsfn67RqW5imj7QLN3Wxp5X81LHK43+IZTwB
-         meLpZfp32FWaulr6BPTth3BeESrItAXKhhQibqCLpdEWclBgH+YRrgmBsJBn0kwdDQ
-         iHZX8hk7zNgpMEJc0CJ9ikBw1oJ52PfPYHwbqh0A=
+        b=ZW+7SGMosHbrqzOdj/ZS3WUGfPt464BY71E+5/AW1nvUDYA3zY+CrF0jFtJ7agIJF
+         hSwcXIJJJb9nxVOnZsPTnlhH7FinFad8FzYF4olKYUHrZ/fokuIWIgoS8CNTJGb1Oi
+         kINirgvbvBd2zc3iYDVyp3030pWrlIooTTTIW8Sw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Lesiak <chris.lesiak@licor.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        Arend van Spriel <arend.vanspriel@broadcom.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 268/276] spi: Fix zero length xfer bug
+Subject: [PATCH 4.9 094/128] brcmfmac: fix missing checks for kmemdup
 Date:   Wed, 29 May 2019 20:07:06 -0700
-Message-Id: <20190530030541.962793651@linuxfoundation.org>
+Message-Id: <20190530030451.578660109@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
+References: <20190530030432.977908967@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 5442dcaa0d90fc376bdfc179a018931a8f43dea4 ]
+[ Upstream commit 46953f97224d56a12ccbe9c6acaa84ca0dab2780 ]
 
-This fixes a bug for messages containing both zero length and
-unidirectional xfers.
+In case kmemdup fails, the fix sets conn_info->req_ie_len and
+conn_info->resp_ie_len to zero to avoid buffer overflows.
 
-The function spi_map_msg will allocate dummy tx and/or rx buffers
-for use with unidirectional transfers when the hardware can only do
-a bidirectional transfer.  That dummy buffer will be used in place
-of a NULL buffer even when the xfer length is 0.
-
-Then in the function __spi_map_msg, if he hardware can dma,
-the zero length xfer will have spi_map_buf called on the dummy
-buffer.
-
-Eventually, __sg_alloc_table is called and returns -EINVAL
-because nents == 0.
-
-This fix prevents the error by not using the dummy buffer when
-the xfer length is zero.
-
-Signed-off-by: Chris Lesiak <chris.lesiak@licor.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Kangjie Lu <kjlu@umn.edu>
+Acked-by: Arend van Spriel <arend.vanspriel@broadcom.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
-index 9da0bc5a036cf..88a8a8edd44be 100644
---- a/drivers/spi/spi.c
-+++ b/drivers/spi/spi.c
-@@ -982,6 +982,8 @@ static int spi_map_msg(struct spi_controller *ctlr, struct spi_message *msg)
- 		if (max_tx || max_rx) {
- 			list_for_each_entry(xfer, &msg->transfers,
- 					    transfer_list) {
-+				if (!xfer->len)
-+					continue;
- 				if (!xfer->tx_buf)
- 					xfer->tx_buf = ctlr->dummy_tx;
- 				if (!xfer->rx_buf)
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
+index 530f521209728..8f8fe6f2af5b0 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
+@@ -5374,6 +5374,8 @@ static s32 brcmf_get_assoc_ies(struct brcmf_cfg80211_info *cfg,
+ 		conn_info->req_ie =
+ 		    kmemdup(cfg->extra_buf, conn_info->req_ie_len,
+ 			    GFP_KERNEL);
++		if (!conn_info->req_ie)
++			conn_info->req_ie_len = 0;
+ 	} else {
+ 		conn_info->req_ie_len = 0;
+ 		conn_info->req_ie = NULL;
+@@ -5390,6 +5392,8 @@ static s32 brcmf_get_assoc_ies(struct brcmf_cfg80211_info *cfg,
+ 		conn_info->resp_ie =
+ 		    kmemdup(cfg->extra_buf, conn_info->resp_ie_len,
+ 			    GFP_KERNEL);
++		if (!conn_info->resp_ie)
++			conn_info->resp_ie_len = 0;
+ 	} else {
+ 		conn_info->resp_ie_len = 0;
+ 		conn_info->resp_ie = NULL;
 -- 
 2.20.1
 
