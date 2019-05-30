@@ -2,50 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AACB02F515
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:44:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7366E2F0E3
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:08:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728818AbfE3EoZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:44:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53270 "EHLO mail.kernel.org"
+        id S1727323AbfE3EIO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:08:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727939AbfE3DMC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:12:02 -0400
+        id S1729621AbfE3DRU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:17:20 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 34655244D6;
-        Thu, 30 May 2019 03:12:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AF3412469E;
+        Thu, 30 May 2019 03:17:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185922;
-        bh=+3kSHClLptg6DesRS/me8pwXtVYyalM2f39uqBqGRao=;
+        s=default; t=1559186239;
+        bh=UFh/zJ1gijS7gMSPqAyLNEYVNc/ARSAND5iI9zLBZgw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iyHf5T4u6wMm+gGIyIjslYVp0/sckcuIeLH3NgiCtfUJqnePekTZJFMHlBj1Oa7Wk
-         3UN3GBsrwq+Vutkl6ThR+XMr6wYTfIFJeLgRInYTygIbPnBwcb1zAvK9TauF5rLXNr
-         8hrgUsafkpDmCpiRIEhf1zzSDtaNYnOBEhy1+JDs=
+        b=scksEpJys201TQbs9qjEokUF8Qmaui57+AwZNnCIafcLNqBxbXq4oldrESc1azD28
+         P6J+3VkFFf3ef6kK6hrP2AU1531zgo0YV0acmiD3sA42tLoTIbBk9yKUitbzzy33Ey
+         rDBCp9OXOg9rJy903Af/hjuLkyvYRsHQkAp5ZwVI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Borislav Petkov <bp@suse.de>, Andrew Banman <abanman@hpe.com>,
-        Andy Shevchenko <andy@infradead.org>,
-        Colin Ian King <colin.king@canonical.com>,
-        Darren Hart <dvhart@infradead.org>,
-        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        Kees Cook <keescook@chromium.org>,
-        Mike Travis <mike.travis@hpe.com>,
-        Nicolai Stange <nstange@suse.de>, pakki001@umn.edu,
-        platform-driver-x86@vger.kernel.org,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Varsha Rao <rvarsha016@gmail.com>, x86-ml <x86@kernel.org>,
+        stable@vger.kernel.org,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Will Deacon <will.deacon@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 310/405] x86/platform/uv: Fix missing checks of kcalloc() return values
-Date:   Wed, 29 May 2019 20:05:08 -0700
-Message-Id: <20190530030556.486305232@linuxfoundation.org>
+Subject: [PATCH 4.19 151/276] ACPI/IORT: Reject platform device creation on NUMA node mapping failure
+Date:   Wed, 29 May 2019 20:05:09 -0700
+Message-Id: <20190530030535.028955066@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,60 +46,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 766460852cfaeca4042e5f3aeb9616b3689147bc ]
+[ Upstream commit 36a2ba07757df790b4a874efb1a105b9330a9ae7 ]
 
-Handle potential errors returned from kcalloc().
+In a system where, through IORT firmware mappings, the SMMU device is
+mapped to a NUMA node that is not online, the kernel bootstrap results
+in the following crash:
 
- [ bp: rewrite commit message. ]
+  Unable to handle kernel paging request at virtual address 0000000000001388
+  Mem abort info:
+    ESR = 0x96000004
+    Exception class = DABT (current EL), IL = 32 bits
+    SET = 0, FnV = 0
+    EA = 0, S1PTW = 0
+  Data abort info:
+    ISV = 0, ISS = 0x00000004
+    CM = 0, WnR = 0
+  [0000000000001388] user address but active_mm is swapper
+  Internal error: Oops: 96000004 [#1] SMP
+  Modules linked in:
+  CPU: 5 PID: 1 Comm: swapper/0 Not tainted 5.0.0 #15
+  pstate: 80c00009 (Nzcv daif +PAN +UAO)
+  pc : __alloc_pages_nodemask+0x13c/0x1068
+  lr : __alloc_pages_nodemask+0xdc/0x1068
+  ...
+  Process swapper/0 (pid: 1, stack limit = 0x(____ptrval____))
+  Call trace:
+   __alloc_pages_nodemask+0x13c/0x1068
+   new_slab+0xec/0x570
+   ___slab_alloc+0x3e0/0x4f8
+   __slab_alloc+0x60/0x80
+   __kmalloc_node_track_caller+0x10c/0x478
+   devm_kmalloc+0x44/0xb0
+   pinctrl_bind_pins+0x4c/0x188
+   really_probe+0x78/0x2b8
+   driver_probe_device+0x64/0x110
+   device_driver_attach+0x74/0x98
+   __driver_attach+0x9c/0xe8
+   bus_for_each_dev+0x84/0xd8
+   driver_attach+0x30/0x40
+   bus_add_driver+0x170/0x218
+   driver_register+0x64/0x118
+   __platform_driver_register+0x54/0x60
+   arm_smmu_driver_init+0x24/0x2c
+   do_one_initcall+0xbc/0x328
+   kernel_init_freeable+0x304/0x3ac
+   kernel_init+0x18/0x110
+   ret_from_fork+0x10/0x1c
+  Code: f90013b5 b9410fa1 1a9f0694 b50014c2 (b9400804)
+  ---[ end trace dfeaed4c373a32da ]--
 
-Signed-off-by: Kangjie Lu <kjlu@umn.edu>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: Andrew Banman <abanman@hpe.com>
-Cc: Andy Shevchenko <andy@infradead.org>
-Cc: Colin Ian King <colin.king@canonical.com>
-Cc: Darren Hart <dvhart@infradead.org>
-Cc: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Mike Travis <mike.travis@hpe.com>
-Cc: Nicolai Stange <nstange@suse.de>
-Cc: pakki001@umn.edu
-Cc: platform-driver-x86@vger.kernel.org
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Varsha Rao <rvarsha016@gmail.com>
-Cc: x86-ml <x86@kernel.org>
-Link: https://lkml.kernel.org/r/20190325202924.4624-1-kjlu@umn.edu
+Change the dev_set_proximity() hook prototype so that it returns a
+value and make it return failure if the PXM->NUMA-node mapping
+corresponds to an offline node, fixing the crash.
+
+Acked-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Link: https://lore.kernel.org/linux-arm-kernel/20190315021940.86905-1-wangkefeng.wang@huawei.com/
+Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/platform/uv/tlb_uv.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/acpi/arm64/iort.c | 19 ++++++++++++++-----
+ 1 file changed, 14 insertions(+), 5 deletions(-)
 
-diff --git a/arch/x86/platform/uv/tlb_uv.c b/arch/x86/platform/uv/tlb_uv.c
-index 2c53b0f19329a..1297e185b8c8d 100644
---- a/arch/x86/platform/uv/tlb_uv.c
-+++ b/arch/x86/platform/uv/tlb_uv.c
-@@ -2133,14 +2133,19 @@ static int __init summarize_uvhub_sockets(int nuvhubs,
+diff --git a/drivers/acpi/arm64/iort.c b/drivers/acpi/arm64/iort.c
+index e48eebc27b81b..43c2615434b48 100644
+--- a/drivers/acpi/arm64/iort.c
++++ b/drivers/acpi/arm64/iort.c
+@@ -1231,18 +1231,24 @@ static bool __init arm_smmu_v3_is_coherent(struct acpi_iort_node *node)
+ /*
+  * set numa proximity domain for smmuv3 device
   */
- static int __init init_per_cpu(int nuvhubs, int base_part_pnode)
+-static void  __init arm_smmu_v3_set_proximity(struct device *dev,
++static int  __init arm_smmu_v3_set_proximity(struct device *dev,
+ 					      struct acpi_iort_node *node)
  {
--	unsigned char *uvhub_mask;
- 	struct uvhub_desc *uvhub_descs;
-+	unsigned char *uvhub_mask = NULL;
+ 	struct acpi_iort_smmu_v3 *smmu;
  
- 	if (is_uv3_hub() || is_uv2_hub() || is_uv1_hub())
- 		timeout_us = calculate_destination_timeout();
- 
- 	uvhub_descs = kcalloc(nuvhubs, sizeof(struct uvhub_desc), GFP_KERNEL);
-+	if (!uvhub_descs)
-+		goto fail;
+ 	smmu = (struct acpi_iort_smmu_v3 *)node->node_data;
+ 	if (smmu->flags & ACPI_IORT_SMMU_V3_PXM_VALID) {
+-		set_dev_node(dev, acpi_map_pxm_to_node(smmu->pxm));
++		int node = acpi_map_pxm_to_node(smmu->pxm);
 +
- 	uvhub_mask = kzalloc((nuvhubs+7)/8, GFP_KERNEL);
-+	if (!uvhub_mask)
-+		goto fail;
++		if (node != NUMA_NO_NODE && !node_online(node))
++			return -EINVAL;
++
++		set_dev_node(dev, node);
+ 		pr_info("SMMU-v3[%llx] Mapped to Proximity domain %d\n",
+ 			smmu->base_address,
+ 			smmu->pxm);
+ 	}
++	return 0;
+ }
+ #else
+ #define arm_smmu_v3_set_proximity NULL
+@@ -1317,7 +1323,7 @@ struct iort_dev_config {
+ 	int (*dev_count_resources)(struct acpi_iort_node *node);
+ 	void (*dev_init_resources)(struct resource *res,
+ 				     struct acpi_iort_node *node);
+-	void (*dev_set_proximity)(struct device *dev,
++	int (*dev_set_proximity)(struct device *dev,
+ 				    struct acpi_iort_node *node);
+ };
  
- 	if (get_cpu_topology(base_part_pnode, uvhub_descs, uvhub_mask))
- 		goto fail;
+@@ -1368,8 +1374,11 @@ static int __init iort_add_platform_device(struct acpi_iort_node *node,
+ 	if (!pdev)
+ 		return -ENOMEM;
+ 
+-	if (ops->dev_set_proximity)
+-		ops->dev_set_proximity(&pdev->dev, node);
++	if (ops->dev_set_proximity) {
++		ret = ops->dev_set_proximity(&pdev->dev, node);
++		if (ret)
++			goto dev_put;
++	}
+ 
+ 	count = ops->dev_count_resources(node);
+ 
 -- 
 2.20.1
 
