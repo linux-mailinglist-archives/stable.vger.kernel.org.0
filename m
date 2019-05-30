@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 99E7D2EE36
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:45:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CF8E2F468
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:38:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732356AbfE3DpX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:45:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60102 "EHLO mail.kernel.org"
+        id S1729211AbfE3DMp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:12:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732344AbfE3DUt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:20:49 -0400
+        id S1729202AbfE3DMp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:12:45 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C34212497C;
-        Thu, 30 May 2019 03:20:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D621721BE2;
+        Thu, 30 May 2019 03:12:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186448;
-        bh=ZCsxXdpu8EEZLeV/iQOFEU/H1o4X1Ff8AUSV1hp8S+4=;
+        s=default; t=1559185964;
+        bh=6UtnZmZDRPIFFWnnzeD6y6Zq1E3Ghsj/Yw4UQV/JS48=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eCoj6KAhiPqhqat+bxIJiULZrKuL0Ua3SkO24/t6e5rIhuzOveA2T150eSQxAMrUe
-         SayAgUOG0RRvXHYbInBHmdQC+l5kTcE78C+nVPB6kno4SzDfCVPkMNIwmEb/Cio4pM
-         yxvm8AUOg9j5p/qcJIN+LycKV2x0PljnzCBEcMYs=
+        b=x8DTziGX1y2ai0MFARK5sMOm4SpRovgJU6Fw3qp0OZq6BZ62HNALlHmbP+JYCuJEn
+         fQd8DKz2d6Y0P6G2/6f52A2fwp7XyTRqQMhlMnFHcEepVbwi4B8nFT+rHa9Mue7fkq
+         0i+1bQgzAZvp6S5VgDTFxk0wKv+EeJVpNUiy6HR4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Philipp Zabel <p.zabel@pengutronix.de>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Chris Lesiak <chris.lesiak@licor.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 057/128] media: coda: clear error return value before picture run
+Subject: [PATCH 5.1 391/405] spi: Fix zero length xfer bug
 Date:   Wed, 29 May 2019 20:06:29 -0700
-Message-Id: <20190530030445.134089589@linuxfoundation.org>
+Message-Id: <20190530030600.410751588@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
-References: <20190530030432.977908967@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,35 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit bbeefa7357a648afe70e7183914c87c3878d528d ]
+[ Upstream commit 5442dcaa0d90fc376bdfc179a018931a8f43dea4 ]
 
-The error return value is not written by some firmware codecs, such as
-MPEG-2 decode on CodaHx4. Clear the error return value before starting
-the picture run to avoid misinterpreting unrelated values returned by
-sequence initialization as error return value.
+This fixes a bug for messages containing both zero length and
+unidirectional xfers.
 
-Signed-off-by: Philipp Zabel <p.zabel@pengutronix.de>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+The function spi_map_msg will allocate dummy tx and/or rx buffers
+for use with unidirectional transfers when the hardware can only do
+a bidirectional transfer.  That dummy buffer will be used in place
+of a NULL buffer even when the xfer length is 0.
+
+Then in the function __spi_map_msg, if he hardware can dma,
+the zero length xfer will have spi_map_buf called on the dummy
+buffer.
+
+Eventually, __sg_alloc_table is called and returns -EINVAL
+because nents == 0.
+
+This fix prevents the error by not using the dummy buffer when
+the xfer length is zero.
+
+Signed-off-by: Chris Lesiak <chris.lesiak@licor.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/coda/coda-bit.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/spi/spi.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/media/platform/coda/coda-bit.c b/drivers/media/platform/coda/coda-bit.c
-index b6625047250d6..717ee9a6a80ef 100644
---- a/drivers/media/platform/coda/coda-bit.c
-+++ b/drivers/media/platform/coda/coda-bit.c
-@@ -1829,6 +1829,9 @@ static int coda_prepare_decode(struct coda_ctx *ctx)
- 	/* Clear decode success flag */
- 	coda_write(dev, 0, CODA_RET_DEC_PIC_SUCCESS);
- 
-+	/* Clear error return value */
-+	coda_write(dev, 0, CODA_RET_DEC_PIC_ERR_MB);
-+
- 	trace_coda_dec_pic_run(ctx, meta);
- 
- 	coda_command_async(ctx, CODA_COMMAND_PIC_RUN);
+diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
+index 6cb72287eac82..a83fcddf1dadc 100644
+--- a/drivers/spi/spi.c
++++ b/drivers/spi/spi.c
+@@ -1041,6 +1041,8 @@ static int spi_map_msg(struct spi_controller *ctlr, struct spi_message *msg)
+ 		if (max_tx || max_rx) {
+ 			list_for_each_entry(xfer, &msg->transfers,
+ 					    transfer_list) {
++				if (!xfer->len)
++					continue;
+ 				if (!xfer->tx_buf)
+ 					xfer->tx_buf = ctlr->dummy_tx;
+ 				if (!xfer->rx_buf)
 -- 
 2.20.1
 
