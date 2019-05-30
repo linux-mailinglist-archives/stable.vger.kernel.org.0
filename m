@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D7E462F5F4
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:53:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF5542F3E4
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:34:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728190AbfE3DKl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:10:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47936 "EHLO mail.kernel.org"
+        id S2388391AbfE3EdR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:33:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58866 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728184AbfE3DKl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:10:41 -0400
+        id S1729530AbfE3DNh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:13:37 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7C49E2447F;
-        Thu, 30 May 2019 03:10:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 32C2E244EF;
+        Thu, 30 May 2019 03:13:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185840;
-        bh=ooLmpwkcLoMhxVfvFpVYBfGTFCq3m9d3/e7UeQfE2mc=;
+        s=default; t=1559186017;
+        bh=8R9jFfT08JwEs0XsRO0jnmrRXK4wuSUaVTuE3NIU3A0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cf1bIwzCyMQ9TGLZoKVECzgVLqI8Qj2FiNwN2Kp7rd1N+RdMille3hqzG4FvyUOSz
-         xKA3k4iJug5lbwgKmogRtBRRV5+IVAV8qnllCYCOis1vQCEJVGtqdcLJ+yP7QXP2ql
-         o0CV6puKy3R/MrHGl8RY9Ijz0W803e/c7EVc5lDA=
+        b=s6/jK0xz8TfuI126V9koa2WJDrr/kXVt95fUsyCAeIFjt8lK6m/5H/Pl2XUGdFoeH
+         b3B+6iMheFGHfoDx37m7AKiKL161q5iCiZlUGEKDP1BZZr/ST+LXwRaK8qNCWfegaM
+         tM/5DHynINEJsEzzsRJ++/zO0GLOsKEZXb9azCxU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenwen Wang <wang6495@umn.edu>,
-        Richard Guy Briggs <rgb@redhat.com>,
-        Paul Moore <paul@paul-moore.com>,
+        stable@vger.kernel.org, Himanshu Madhani <hmadhani@marvell.com>,
+        Giridhar Malavali <gmalavali@marvell.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 157/405] audit: fix a memory leak bug
-Date:   Wed, 29 May 2019 20:02:35 -0700
-Message-Id: <20190530030549.082328534@linuxfoundation.org>
+Subject: [PATCH 5.0 083/346] scsi: qla2xxx: Fix abort handling in tcm_qla2xxx_write_pending()
+Date:   Wed, 29 May 2019 20:02:36 -0700
+Message-Id: <20190530030545.363819882@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,64 +46,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 70c4cf17e445264453bc5323db3e50aa0ac9e81f ]
+[ Upstream commit e209783d66bca04b5fce4429e59338517ffc1a0b ]
 
-In audit_rule_change(), audit_data_to_entry() is firstly invoked to
-translate the payload data to the kernel's rule representation. In
-audit_data_to_entry(), depending on the audit field type, an audit tree may
-be created in audit_make_tree(), which eventually invokes kmalloc() to
-allocate the tree.  Since this tree is a temporary tree, it will be then
-freed in the following execution, e.g., audit_add_rule() if the message
-type is AUDIT_ADD_RULE or audit_del_rule() if the message type is
-AUDIT_DEL_RULE. However, if the message type is neither AUDIT_ADD_RULE nor
-AUDIT_DEL_RULE, i.e., the default case of the switch statement, this
-temporary tree is not freed.
+Implementations of the .write_pending() callback functions must guarantee
+that an appropriate LIO core callback function will be called immediately or
+at a later time.  Make sure that this guarantee is met for aborted SCSI
+commands.
 
-To fix this issue, only allocate the tree when the type is AUDIT_ADD_RULE
-or AUDIT_DEL_RULE.
+[mkp: typo]
 
-Signed-off-by: Wenwen Wang <wang6495@umn.edu>
-Reviewed-by: Richard Guy Briggs <rgb@redhat.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Cc: Himanshu Madhani <hmadhani@marvell.com>
+Cc: Giridhar Malavali <gmalavali@marvell.com>
+Fixes: 694833ee00c4 ("scsi: tcm_qla2xxx: Do not allow aborted cmd to advance.") # v4.13.
+Fixes: a07100e00ac4 ("qla2xxx: Fix TMR ABORT interaction issue between qla2xxx and TCM") # v4.5.
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Acked-by: Himanshu Madhani <hmadhani@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/auditfilter.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/scsi/qla2xxx/tcm_qla2xxx.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/kernel/auditfilter.c b/kernel/auditfilter.c
-index 63f8b3f26fab4..3ac71c4fda49a 100644
---- a/kernel/auditfilter.c
-+++ b/kernel/auditfilter.c
-@@ -1114,22 +1114,24 @@ int audit_rule_change(int type, int seq, void *data, size_t datasz)
- 	int err = 0;
- 	struct audit_entry *entry;
- 
--	entry = audit_data_to_entry(data, datasz);
--	if (IS_ERR(entry))
--		return PTR_ERR(entry);
--
- 	switch (type) {
- 	case AUDIT_ADD_RULE:
-+		entry = audit_data_to_entry(data, datasz);
-+		if (IS_ERR(entry))
-+			return PTR_ERR(entry);
- 		err = audit_add_rule(entry);
- 		audit_log_rule_change("add_rule", &entry->rule, !err);
- 		break;
- 	case AUDIT_DEL_RULE:
-+		entry = audit_data_to_entry(data, datasz);
-+		if (IS_ERR(entry))
-+			return PTR_ERR(entry);
- 		err = audit_del_rule(entry);
- 		audit_log_rule_change("remove_rule", &entry->rule, !err);
- 		break;
- 	default:
--		err = -EINVAL;
- 		WARN_ON(1);
-+		return -EINVAL;
+diff --git a/drivers/scsi/qla2xxx/tcm_qla2xxx.c b/drivers/scsi/qla2xxx/tcm_qla2xxx.c
+index 283e6b80abb5a..708151b72ee9f 100644
+--- a/drivers/scsi/qla2xxx/tcm_qla2xxx.c
++++ b/drivers/scsi/qla2xxx/tcm_qla2xxx.c
+@@ -399,6 +399,8 @@ static int tcm_qla2xxx_write_pending(struct se_cmd *se_cmd)
+ 			cmd->se_cmd.transport_state,
+ 			cmd->se_cmd.t_state,
+ 			cmd->se_cmd.se_cmd_flags);
++		transport_generic_request_failure(&cmd->se_cmd,
++			TCM_CHECK_CONDITION_ABORT_CMD);
+ 		return 0;
  	}
- 
- 	if (err || type == AUDIT_DEL_RULE) {
+ 	cmd->trc_flags |= TRC_XFR_RDY;
 -- 
 2.20.1
 
