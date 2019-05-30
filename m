@@ -2,40 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A4CA02F56F
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:47:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 549B82F30B
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:26:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728557AbfE3DL1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:11:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51046 "EHLO mail.kernel.org"
+        id S1730801AbfE3E0D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:26:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35106 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728551AbfE3DL1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:11:27 -0400
+        id S1729928AbfE3DOi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:14:38 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D37E244FF;
-        Thu, 30 May 2019 03:11:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 503FA2449A;
+        Thu, 30 May 2019 03:14:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185886;
-        bh=B7dNO3kXNyfXTlNOL5kR74EmahW3u0qcRg/nMy1bMtU=;
+        s=default; t=1559186078;
+        bh=lZqlFI5rRdNdBUUDFTiQ61znwPK0+JBPzKezX7TVJFQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WTnNFvyaHCmo1i8TpzCQfNcHdiQEOMkizd7iU3tH/cbtVydTkZuCT2Oze3N7Qo0qN
-         TYhhYv80UYVxyTdaUAC7/ylhCRRJFEx7UKqV+OpGciC1mzTOMAm4/P3bbrHgr02Snv
-         KdhkP+BbNmjYNZXt76jDwsK5o0H9oU7ZrLxYAy/I=
+        b=AGQaY9sIS5Bl+HfGSDOf/MLDn35BQ83BL2zX5x+GpIV7YSMvrVkIRu39f1B9KACR1
+         cC/EyN4P7yuzgOprKhFGi2t5rJRCT1x1g6JQ1Lb8IH9djDKtCogabnrTZvpNi0e3Li
+         zsI8h+AyyPPygkwyADLk9Sxv61QUPyQNJatfXpKY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrey Smirnov <andrew.smirnov@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Chris Healy <cphealy@gmail.com>, linux-spi@vger.kernel.org,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 236/405] spi: Dont call spi_get_gpio_descs() before device name is set
+        stable@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Suraj Jitindar Singh <sjitindarsingh@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 161/346] irq_work: Do not raise an IPI when queueing work on the local CPU
 Date:   Wed, 29 May 2019 20:03:54 -0700
-Message-Id: <20190530030552.951884503@linuxfoundation.org>
+Message-Id: <20190530030549.330167307@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,107 +52,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 0a919ae49223d32ac0e8be3494547fcd1e4aa0aa ]
+[ Upstream commit 471ba0e686cb13752bc1ff3216c54b69a2d250ea ]
 
-Move code calling spi_get_gpio_descs() to happen after ctlr->dev's
-name is set in order to have proper GPIO consumer names.
+The QEMU PowerPC/PSeries machine model was not expecting a self-IPI,
+and it may be a bit surprising thing to do, so have irq_work_queue_on
+do local queueing when target is the current CPU.
 
-Before:
-
-cat /sys/kernel/debug/gpio
-gpiochip0: GPIOs 0-31, parent: platform/40049000.gpio, vf610-gpio:
- gpio-6   (                    |regulator-usb0-vbus ) out lo
-
-gpiochip1: GPIOs 32-63, parent: platform/4004a000.gpio, vf610-gpio:
- gpio-36  (                    |scl                 ) in  hi
- gpio-37  (                    |sda                 ) in  hi
- gpio-40  (                    |(null) CS1          ) out lo
- gpio-41  (                    |(null) CS0          ) out lo ACTIVE LOW
- gpio-42  (                    |miso                ) in  hi
- gpio-43  (                    |mosi                ) in  lo
- gpio-44  (                    |sck                 ) out lo
-
-After:
-
-cat /sys/kernel/debug/gpio
-gpiochip0: GPIOs 0-31, parent: platform/40049000.gpio, vf610-gpio:
- gpio-6   (                    |regulator-usb0-vbus ) out lo
-
-gpiochip1: GPIOs 32-63, parent: platform/4004a000.gpio, vf610-gpio:
- gpio-36  (                    |scl                 ) in  hi
- gpio-37  (                    |sda                 ) in  hi
- gpio-40  (                    |spi0 CS1            ) out lo
- gpio-41  (                    |spi0 CS0            ) out lo ACTIVE LOW
- gpio-42  (                    |miso                ) in  hi
- gpio-43  (                    |mosi                ) in  lo
- gpio-44  (                    |sck                 ) out lo
-
-Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
-Cc: Mark Brown <broonie@kernel.org>
-Cc: Chris Healy <cphealy@gmail.com>
-Cc: linux-spi@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Suggested-by: Steven Rostedt <rostedt@goodmis.org>
+Reported-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Tested-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Suraj Jitindar Singh <sjitindarsingh@gmail.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lkml.kernel.org/r/20190409093403.20994-1-npiggin@gmail.com
+[ Simplified the preprocessor comments.
+  Fixed unbalanced curly brackets pointed out by Thomas. ]
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi.c | 37 +++++++++++++++++++------------------
- 1 file changed, 19 insertions(+), 18 deletions(-)
+ kernel/irq_work.c | 75 ++++++++++++++++++++++++++---------------------
+ 1 file changed, 42 insertions(+), 33 deletions(-)
 
-diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
-index 93986f879b09e..d17f68775a4bb 100644
---- a/drivers/spi/spi.c
-+++ b/drivers/spi/spi.c
-@@ -2275,24 +2275,6 @@ int spi_register_controller(struct spi_controller *ctlr)
- 	if (status)
- 		return status;
+diff --git a/kernel/irq_work.c b/kernel/irq_work.c
+index 6b7cdf17ccf89..73288914ed5e7 100644
+--- a/kernel/irq_work.c
++++ b/kernel/irq_work.c
+@@ -56,61 +56,70 @@ void __weak arch_irq_work_raise(void)
+ 	 */
+ }
  
--	if (!spi_controller_is_slave(ctlr)) {
--		if (ctlr->use_gpio_descriptors) {
--			status = spi_get_gpio_descs(ctlr);
--			if (status)
--				return status;
--			/*
--			 * A controller using GPIO descriptors always
--			 * supports SPI_CS_HIGH if need be.
--			 */
--			ctlr->mode_bits |= SPI_CS_HIGH;
--		} else {
--			/* Legacy code path for GPIOs from DT */
--			status = of_spi_register_master(ctlr);
--			if (status)
--				return status;
--		}
--	}
+-/*
+- * Enqueue the irq_work @work on @cpu unless it's already pending
+- * somewhere.
+- *
+- * Can be re-enqueued while the callback is still in progress.
+- */
+-bool irq_work_queue_on(struct irq_work *work, int cpu)
++/* Enqueue on current CPU, work must already be claimed and preempt disabled */
++static void __irq_work_queue_local(struct irq_work *work)
+ {
+-	/* All work should have been flushed before going offline */
+-	WARN_ON_ONCE(cpu_is_offline(cpu));
 -
- 	/* even if it's just one always-selected device, there must
- 	 * be at least one chipselect
- 	 */
-@@ -2349,6 +2331,25 @@ int spi_register_controller(struct spi_controller *ctlr)
- 	 * registration fails if the bus ID is in use.
- 	 */
- 	dev_set_name(&ctlr->dev, "spi%u", ctlr->bus_num);
-+
-+	if (!spi_controller_is_slave(ctlr)) {
-+		if (ctlr->use_gpio_descriptors) {
-+			status = spi_get_gpio_descs(ctlr);
-+			if (status)
-+				return status;
-+			/*
-+			 * A controller using GPIO descriptors always
-+			 * supports SPI_CS_HIGH if need be.
-+			 */
-+			ctlr->mode_bits |= SPI_CS_HIGH;
-+		} else {
-+			/* Legacy code path for GPIOs from DT */
-+			status = of_spi_register_master(ctlr);
-+			if (status)
-+				return status;
-+		}
+-#ifdef CONFIG_SMP
+-
+-	/* Arch remote IPI send/receive backend aren't NMI safe */
+-	WARN_ON_ONCE(in_nmi());
++	/* If the work is "lazy", handle it from next tick if any */
++	if (work->flags & IRQ_WORK_LAZY) {
++		if (llist_add(&work->llnode, this_cpu_ptr(&lazy_list)) &&
++		    tick_nohz_tick_stopped())
++			arch_irq_work_raise();
++	} else {
++		if (llist_add(&work->llnode, this_cpu_ptr(&raised_list)))
++			arch_irq_work_raise();
 +	}
++}
+ 
++/* Enqueue the irq work @work on the current CPU */
++bool irq_work_queue(struct irq_work *work)
++{
+ 	/* Only queue if not already pending */
+ 	if (!irq_work_claim(work))
+ 		return false;
+ 
+-	if (llist_add(&work->llnode, &per_cpu(raised_list, cpu)))
+-		arch_send_call_function_single_ipi(cpu);
+-
+-#else /* #ifdef CONFIG_SMP */
+-	irq_work_queue(work);
+-#endif /* #else #ifdef CONFIG_SMP */
++	/* Queue the entry and raise the IPI if needed. */
++	preempt_disable();
++	__irq_work_queue_local(work);
++	preempt_enable();
+ 
+ 	return true;
+ }
++EXPORT_SYMBOL_GPL(irq_work_queue);
+ 
+-/* Enqueue the irq work @work on the current CPU */
+-bool irq_work_queue(struct irq_work *work)
++/*
++ * Enqueue the irq_work @work on @cpu unless it's already pending
++ * somewhere.
++ *
++ * Can be re-enqueued while the callback is still in progress.
++ */
++bool irq_work_queue_on(struct irq_work *work, int cpu)
+ {
++#ifndef CONFIG_SMP
++	return irq_work_queue(work);
 +
- 	status = device_add(&ctlr->dev);
- 	if (status < 0) {
- 		/* free bus id */
++#else /* CONFIG_SMP: */
++	/* All work should have been flushed before going offline */
++	WARN_ON_ONCE(cpu_is_offline(cpu));
++
+ 	/* Only queue if not already pending */
+ 	if (!irq_work_claim(work))
+ 		return false;
+ 
+-	/* Queue the entry and raise the IPI if needed. */
+ 	preempt_disable();
+-
+-	/* If the work is "lazy", handle it from next tick if any */
+-	if (work->flags & IRQ_WORK_LAZY) {
+-		if (llist_add(&work->llnode, this_cpu_ptr(&lazy_list)) &&
+-		    tick_nohz_tick_stopped())
+-			arch_irq_work_raise();
++	if (cpu != smp_processor_id()) {
++		/* Arch remote IPI send/receive backend aren't NMI safe */
++		WARN_ON_ONCE(in_nmi());
++		if (llist_add(&work->llnode, &per_cpu(raised_list, cpu)))
++			arch_send_call_function_single_ipi(cpu);
+ 	} else {
+-		if (llist_add(&work->llnode, this_cpu_ptr(&raised_list)))
+-			arch_irq_work_raise();
++		__irq_work_queue_local(work);
+ 	}
+-
+ 	preempt_enable();
+ 
+ 	return true;
++#endif /* CONFIG_SMP */
+ }
+-EXPORT_SYMBOL_GPL(irq_work_queue);
++
+ 
+ bool irq_work_needs_cpu(void)
+ {
 -- 
 2.20.1
 
