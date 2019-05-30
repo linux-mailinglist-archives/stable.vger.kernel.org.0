@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 680132EC1F
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:18:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 739732EC78
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:22:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731573AbfE3DSb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:18:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50856 "EHLO mail.kernel.org"
+        id S1732484AbfE3DVL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:21:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731566AbfE3DSa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:18:30 -0400
+        id S1732477AbfE3DVK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:21:10 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B72622472C;
-        Thu, 30 May 2019 03:18:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4F499249A9;
+        Thu, 30 May 2019 03:21:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186309;
-        bh=8gRQZ733zbroR7nLj5wr3+V5DHtMrt2aYomVG95miOY=;
+        s=default; t=1559186469;
+        bh=PeEOHpAnsxOnJ3op26vd1bC0ZKqTI9yeC8C57/ZvabM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0hOrIda8REVcbtSlduRMmOzECRvumE/hIwduBdcXRnv30VaW0eORJKq21M95KQi5S
-         Iaouj0K3UpNZQLZInt2KMQ/ixzKXP4C78plfl5PvkQ88CdsCFBrogkEwEPp3uoKD4d
-         tTGXSCMy9MJuVk7ACofeeORaBSKrzp7gwfZeKEQQ=
+        b=CbQ2tI04ZRCjfMyrWj/PNCSWZ2GGaQkkupQ/WmWc7nPADv3iFbgOT7kLQ3SUFzAfM
+         b5vEbXihMGXVajqD937ofj6GoNlbRW8CSH6ohOndOjtajExaZqp6+fVAfj/w/fqSl7
+         TkVMwTzAlySwGHQ6zMpqu90JGFZZvOheRS+rWzrQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Anholt <eric@anholt.net>,
-        Dave Emett <david.emett@broadcom.com>,
+        stable@vger.kernel.org,
+        Piotr Figiel <p.figiel@camlintechnologies.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 270/276] drm/v3d: Handle errors from IRQ setup.
+Subject: [PATCH 4.9 096/128] brcmfmac: convert dev_init_lock mutex to completion
 Date:   Wed, 29 May 2019 20:07:08 -0700
-Message-Id: <20190530030542.094351553@linuxfoundation.org>
+Message-Id: <20190530030451.893945135@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
+References: <20190530030432.977908967@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,95 +45,188 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit fc22771547e7e8a63679f0218e943d72b107de65 ]
+[ Upstream commit a9fd0953fa4a62887306be28641b4b0809f3b2fd ]
 
-Noted in review by Dave Emett for V3D 4.2 support.
+Leaving dev_init_lock mutex locked in probe causes BUG and a WARNING when
+kernel is compiled with CONFIG_PROVE_LOCKING. Convert mutex to completion
+which silences those warnings and improves code readability.
 
-Signed-off-by: Eric Anholt <eric@anholt.net>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190308174336.7866-1-eric@anholt.net
-Reviewed-by: Dave Emett <david.emett@broadcom.com>
+Fix below errors when connecting the USB WiFi dongle:
+
+brcmfmac: brcmf_fw_alloc_request: using brcm/brcmfmac43143 for chip BCM43143/2
+BUG: workqueue leaked lock or atomic: kworker/0:2/0x00000000/434
+     last function: hub_event
+1 lock held by kworker/0:2/434:
+ #0: 18d5dcdf (&devinfo->dev_init_lock){+.+.}, at: brcmf_usb_probe+0x78/0x550 [brcmfmac]
+CPU: 0 PID: 434 Comm: kworker/0:2 Not tainted 4.19.23-00084-g454a789-dirty #123
+Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
+Workqueue: usb_hub_wq hub_event
+[<8011237c>] (unwind_backtrace) from [<8010d74c>] (show_stack+0x10/0x14)
+[<8010d74c>] (show_stack) from [<809c4324>] (dump_stack+0xa8/0xd4)
+[<809c4324>] (dump_stack) from [<8014195c>] (process_one_work+0x710/0x808)
+[<8014195c>] (process_one_work) from [<80141a80>] (worker_thread+0x2c/0x564)
+[<80141a80>] (worker_thread) from [<80147bcc>] (kthread+0x13c/0x16c)
+[<80147bcc>] (kthread) from [<801010b4>] (ret_from_fork+0x14/0x20)
+Exception stack(0xed1d9fb0 to 0xed1d9ff8)
+9fa0:                                     00000000 00000000 00000000 00000000
+9fc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+9fe0: 00000000 00000000 00000000 00000000 00000013 00000000
+
+======================================================
+WARNING: possible circular locking dependency detected
+4.19.23-00084-g454a789-dirty #123 Not tainted
+------------------------------------------------------
+kworker/0:2/434 is trying to acquire lock:
+e29cf799 ((wq_completion)"events"){+.+.}, at: process_one_work+0x174/0x808
+
+but task is already holding lock:
+18d5dcdf (&devinfo->dev_init_lock){+.+.}, at: brcmf_usb_probe+0x78/0x550 [brcmfmac]
+
+which lock already depends on the new lock.
+
+the existing dependency chain (in reverse order) is:
+
+-> #2 (&devinfo->dev_init_lock){+.+.}:
+       mutex_lock_nested+0x1c/0x24
+       brcmf_usb_probe+0x78/0x550 [brcmfmac]
+       usb_probe_interface+0xc0/0x1bc
+       really_probe+0x228/0x2c0
+       __driver_attach+0xe4/0xe8
+       bus_for_each_dev+0x68/0xb4
+       bus_add_driver+0x19c/0x214
+       driver_register+0x78/0x110
+       usb_register_driver+0x84/0x148
+       process_one_work+0x228/0x808
+       worker_thread+0x2c/0x564
+       kthread+0x13c/0x16c
+       ret_from_fork+0x14/0x20
+         (null)
+
+-> #1 (brcmf_driver_work){+.+.}:
+       worker_thread+0x2c/0x564
+       kthread+0x13c/0x16c
+       ret_from_fork+0x14/0x20
+         (null)
+
+-> #0 ((wq_completion)"events"){+.+.}:
+       process_one_work+0x1b8/0x808
+       worker_thread+0x2c/0x564
+       kthread+0x13c/0x16c
+       ret_from_fork+0x14/0x20
+         (null)
+
+other info that might help us debug this:
+
+Chain exists of:
+  (wq_completion)"events" --> brcmf_driver_work --> &devinfo->dev_init_lock
+
+ Possible unsafe locking scenario:
+
+       CPU0                    CPU1
+       ----                    ----
+  lock(&devinfo->dev_init_lock);
+                               lock(brcmf_driver_work);
+                               lock(&devinfo->dev_init_lock);
+  lock((wq_completion)"events");
+
+ *** DEADLOCK ***
+
+1 lock held by kworker/0:2/434:
+ #0: 18d5dcdf (&devinfo->dev_init_lock){+.+.}, at: brcmf_usb_probe+0x78/0x550 [brcmfmac]
+
+stack backtrace:
+CPU: 0 PID: 434 Comm: kworker/0:2 Not tainted 4.19.23-00084-g454a789-dirty #123
+Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
+Workqueue: events request_firmware_work_func
+[<8011237c>] (unwind_backtrace) from [<8010d74c>] (show_stack+0x10/0x14)
+[<8010d74c>] (show_stack) from [<809c4324>] (dump_stack+0xa8/0xd4)
+[<809c4324>] (dump_stack) from [<80172838>] (print_circular_bug+0x210/0x330)
+[<80172838>] (print_circular_bug) from [<80175940>] (__lock_acquire+0x160c/0x1a30)
+[<80175940>] (__lock_acquire) from [<8017671c>] (lock_acquire+0xe0/0x268)
+[<8017671c>] (lock_acquire) from [<80141404>] (process_one_work+0x1b8/0x808)
+[<80141404>] (process_one_work) from [<80141a80>] (worker_thread+0x2c/0x564)
+[<80141a80>] (worker_thread) from [<80147bcc>] (kthread+0x13c/0x16c)
+[<80147bcc>] (kthread) from [<801010b4>] (ret_from_fork+0x14/0x20)
+Exception stack(0xed1d9fb0 to 0xed1d9ff8)
+9fa0:                                     00000000 00000000 00000000 00000000
+9fc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+9fe0: 00000000 00000000 00000000 00000000 00000013 00000000
+
+Signed-off-by: Piotr Figiel <p.figiel@camlintechnologies.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/v3d/v3d_drv.c |  8 ++++++--
- drivers/gpu/drm/v3d/v3d_drv.h |  2 +-
- drivers/gpu/drm/v3d/v3d_irq.c | 13 +++++++++++--
- 3 files changed, 18 insertions(+), 5 deletions(-)
+ .../wireless/broadcom/brcm80211/brcmfmac/usb.c  | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/gpu/drm/v3d/v3d_drv.c b/drivers/gpu/drm/v3d/v3d_drv.c
-index 2a85fa68ffea5..2a4c6187e675f 100644
---- a/drivers/gpu/drm/v3d/v3d_drv.c
-+++ b/drivers/gpu/drm/v3d/v3d_drv.c
-@@ -305,14 +305,18 @@ static int v3d_platform_drm_probe(struct platform_device *pdev)
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c
+index 053f3b59f21e0..bfdf6ef224437 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c
+@@ -157,7 +157,7 @@ struct brcmf_usbdev_info {
+ 
+ 	struct usb_device *usbdev;
+ 	struct device *dev;
+-	struct mutex dev_init_lock;
++	struct completion dev_init_done;
+ 
+ 	int ctl_in_pipe, ctl_out_pipe;
+ 	struct urb *ctl_urb; /* URB for control endpoint */
+@@ -1189,11 +1189,11 @@ static void brcmf_usb_probe_phase2(struct device *dev, int ret,
  	if (ret)
- 		goto dev_destroy;
+ 		goto error;
  
--	v3d_irq_init(v3d);
-+	ret = v3d_irq_init(v3d);
-+	if (ret)
-+		goto gem_destroy;
+-	mutex_unlock(&devinfo->dev_init_lock);
++	complete(&devinfo->dev_init_done);
+ 	return;
+ error:
+ 	brcmf_dbg(TRACE, "failed: dev=%s, err=%d\n", dev_name(dev), ret);
+-	mutex_unlock(&devinfo->dev_init_lock);
++	complete(&devinfo->dev_init_done);
+ 	device_release_driver(dev);
+ }
  
- 	ret = drm_dev_register(drm, 0);
- 	if (ret)
--		goto gem_destroy;
-+		goto irq_disable;
+@@ -1239,7 +1239,7 @@ static int brcmf_usb_probe_cb(struct brcmf_usbdev_info *devinfo)
+ 		if (ret)
+ 			goto fail;
+ 		/* we are done */
+-		mutex_unlock(&devinfo->dev_init_lock);
++		complete(&devinfo->dev_init_done);
+ 		return 0;
+ 	}
+ 	bus->chip = bus_pub->devid;
+@@ -1300,11 +1300,10 @@ brcmf_usb_probe(struct usb_interface *intf, const struct usb_device_id *id)
  
+ 	devinfo->usbdev = usb;
+ 	devinfo->dev = &usb->dev;
+-	/* Take an init lock, to protect for disconnect while still loading.
++	/* Init completion, to protect for disconnect while still loading.
+ 	 * Necessary because of the asynchronous firmware load construction
+ 	 */
+-	mutex_init(&devinfo->dev_init_lock);
+-	mutex_lock(&devinfo->dev_init_lock);
++	init_completion(&devinfo->dev_init_done);
+ 
+ 	usb_set_intfdata(intf, devinfo);
+ 
+@@ -1382,7 +1381,7 @@ brcmf_usb_probe(struct usb_interface *intf, const struct usb_device_id *id)
  	return 0;
  
-+irq_disable:
-+	v3d_irq_disable(v3d);
- gem_destroy:
- 	v3d_gem_destroy(drm);
- dev_destroy:
-diff --git a/drivers/gpu/drm/v3d/v3d_drv.h b/drivers/gpu/drm/v3d/v3d_drv.h
-index e6fed696ad869..0ad73f4b7509a 100644
---- a/drivers/gpu/drm/v3d/v3d_drv.h
-+++ b/drivers/gpu/drm/v3d/v3d_drv.h
-@@ -284,7 +284,7 @@ void v3d_invalidate_caches(struct v3d_dev *v3d);
- void v3d_flush_caches(struct v3d_dev *v3d);
+ fail:
+-	mutex_unlock(&devinfo->dev_init_lock);
++	complete(&devinfo->dev_init_done);
+ 	kfree(devinfo);
+ 	usb_set_intfdata(intf, NULL);
+ 	return ret;
+@@ -1397,7 +1396,7 @@ brcmf_usb_disconnect(struct usb_interface *intf)
+ 	devinfo = (struct brcmf_usbdev_info *)usb_get_intfdata(intf);
  
- /* v3d_irq.c */
--void v3d_irq_init(struct v3d_dev *v3d);
-+int v3d_irq_init(struct v3d_dev *v3d);
- void v3d_irq_enable(struct v3d_dev *v3d);
- void v3d_irq_disable(struct v3d_dev *v3d);
- void v3d_irq_reset(struct v3d_dev *v3d);
-diff --git a/drivers/gpu/drm/v3d/v3d_irq.c b/drivers/gpu/drm/v3d/v3d_irq.c
-index e07514eb11b51..22be0f2dff99c 100644
---- a/drivers/gpu/drm/v3d/v3d_irq.c
-+++ b/drivers/gpu/drm/v3d/v3d_irq.c
-@@ -137,7 +137,7 @@ v3d_hub_irq(int irq, void *arg)
- 	return status;
- }
- 
--void
-+int
- v3d_irq_init(struct v3d_dev *v3d)
- {
- 	int ret, core;
-@@ -154,13 +154,22 @@ v3d_irq_init(struct v3d_dev *v3d)
- 	ret = devm_request_irq(v3d->dev, platform_get_irq(v3d->pdev, 0),
- 			       v3d_hub_irq, IRQF_SHARED,
- 			       "v3d_hub", v3d);
-+	if (ret)
-+		goto fail;
-+
- 	ret = devm_request_irq(v3d->dev, platform_get_irq(v3d->pdev, 1),
- 			       v3d_irq, IRQF_SHARED,
- 			       "v3d_core0", v3d);
- 	if (ret)
--		dev_err(v3d->dev, "IRQ setup failed: %d\n", ret);
-+		goto fail;
- 
- 	v3d_irq_enable(v3d);
-+	return 0;
-+
-+fail:
-+	if (ret != -EPROBE_DEFER)
-+		dev_err(v3d->dev, "IRQ setup failed: %d\n", ret);
-+	return ret;
- }
- 
- void
+ 	if (devinfo) {
+-		mutex_lock(&devinfo->dev_init_lock);
++		wait_for_completion(&devinfo->dev_init_done);
+ 		/* Make sure that devinfo still exists. Firmware probe routines
+ 		 * may have released the device and cleared the intfdata.
+ 		 */
 -- 
 2.20.1
 
