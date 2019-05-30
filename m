@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B7AF02F49B
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:42:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBFAA2F0B2
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:06:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728314AbfE3DMa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:12:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55246 "EHLO mail.kernel.org"
+        id S1726985AbfE3EGW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:06:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47798 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729058AbfE3DM3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:12:29 -0400
+        id S1731173AbfE3DRf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:17:35 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 67CE8218B6;
-        Thu, 30 May 2019 03:12:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0458D246EE;
+        Thu, 30 May 2019 03:17:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185949;
-        bh=NY+bzGCLjPOwmO4DfrTLzjvI0VS/oC+/ExlyrjN8xHU=;
+        s=default; t=1559186255;
+        bh=xNydASI18Rj2zLvBaJytxcUwe6gFezTCWCARsuFWbys=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hmAdeJTB9h4RdHZzpVsLknpTOx+zgsix2PACuYvP1VfetU08/wcZArCFDXYDKQFfI
-         zwVthCc1HI9CT5GU9uJgZPAaKJxq+2vLT5NO+xkW413k75Ss4jhGFZgkBQmsMNLlpk
-         BzLCpguTh4ZJcIkczPFsxArWX/i6tsqlsybWfank=
+        b=rx43P8SqF9Czn9kYPEX5u0IrTVeMmLWayk1ETrTcFBma+YOQ3wUgPcQo4/PDGLR1c
+         zgJ9gE17jp/XeQbcukueJOnXIirTB2p1Ijkis5r3GthKYYQ7qnd5E0K/vITMKHEIXP
+         MYdkXj1ZEhTCFQ6nbw2AP1E0d2OP0FKrtitdBnBQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 334/405] thunderbolt: property: Fix a NULL pointer dereference
+        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Jann Horn <jannh@google.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 174/276] x86/microcode: Fix the ancient deprecated microcode loading method
 Date:   Wed, 29 May 2019 20:05:32 -0700
-Message-Id: <20190530030557.612661571@linuxfoundation.org>
+Message-Id: <20190530030536.226687991@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,34 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 106204b56f60abf1bead7dceb88f2be3e34433da ]
+[ Upstream commit 24613a04ad1c0588c10f4b5403ca60a73d164051 ]
 
-In case kzalloc fails, the fix releases resources and returns
--ENOMEM to avoid the NULL pointer dereference.
+Commit
 
-Signed-off-by: Kangjie Lu <kjlu@umn.edu>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+  2613f36ed965 ("x86/microcode: Attempt late loading only when new microcode is present")
+
+added the new define UCODE_NEW to denote that an update should happen
+only when newer microcode (than installed on the system) has been found.
+
+But it missed adjusting that for the old /dev/cpu/microcode loading
+interface. Fix it.
+
+Fixes: 2613f36ed965 ("x86/microcode: Attempt late loading only when new microcode is present")
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Jann Horn <jannh@google.com>
+Link: https://lkml.kernel.org/r/20190405133010.24249-3-bp@alien8.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thunderbolt/property.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ arch/x86/kernel/cpu/microcode/core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/thunderbolt/property.c b/drivers/thunderbolt/property.c
-index ead18c532b53d..8c077c4f3b5b2 100644
---- a/drivers/thunderbolt/property.c
-+++ b/drivers/thunderbolt/property.c
-@@ -548,6 +548,11 @@ int tb_property_add_data(struct tb_property_dir *parent, const char *key,
+diff --git a/arch/x86/kernel/cpu/microcode/core.c b/arch/x86/kernel/cpu/microcode/core.c
+index b9bc8a1a584e3..b43ddefd77f45 100644
+--- a/arch/x86/kernel/cpu/microcode/core.c
++++ b/arch/x86/kernel/cpu/microcode/core.c
+@@ -418,8 +418,9 @@ static int do_microcode_update(const void __user *buf, size_t size)
+ 		if (ustate == UCODE_ERROR) {
+ 			error = -1;
+ 			break;
+-		} else if (ustate == UCODE_OK)
++		} else if (ustate == UCODE_NEW) {
+ 			apply_microcode_on_target(cpu);
++		}
+ 	}
  
- 	property->length = size / 4;
- 	property->value.data = kzalloc(size, GFP_KERNEL);
-+	if (!property->value.data) {
-+		kfree(property);
-+		return -ENOMEM;
-+	}
-+
- 	memcpy(property->value.data, buf, buflen);
- 
- 	list_add_tail(&property->list, &parent->properties);
+ 	return error;
 -- 
 2.20.1
 
