@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 63E6F2EBED
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:17:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 551EF2EFDC
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:59:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730876AbfE3DQ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:16:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44396 "EHLO mail.kernel.org"
+        id S1731363AbfE3D6w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:58:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729909AbfE3DQ5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:16:57 -0400
+        id S1729926AbfE3DSk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:18:40 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E1A4E24645;
-        Thu, 30 May 2019 03:16:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A9C8F24773;
+        Thu, 30 May 2019 03:18:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186217;
-        bh=eMfYIMmN8IRYeFVqqs0Ntci4tZ4bgEYCeE5PmwQgDkM=;
+        s=default; t=1559186319;
+        bh=jf+s4SK7RpMzJsq9FgaAX31/M1NUE6wB1p0wg35hEgQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mWeglRWcu/r0mppLQnEdoyv7PhV1uniS8UQENaHbcU8q69Wq4Pq32qHtkHHNTqe/X
-         t0nwM6hne4fmSCUPJ+2CttASDPlZpWAvsqFn0iB7YM+PJLRafFqov8nDK9D2qAngf7
-         QEf4bq8zWrOTuyaK9OB5yd0CZ0BeF2Anj546DBsA=
+        b=M9A2KlnZTfWCor6J9I0NzNpkKQqCxOpUmvOX+50KDKdLzZpV9MiT8kEs6kxHXnCni
+         eIx0r3E057RHIExRIm9qR5ajLq/DFNQIjrXUusdFCzNLtxkWw6xghnAv+obxA/bOXT
+         phCZDquopq0CedgDqmcqqS8+qPQHdSGov6aiPou4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 105/276] bcache: add failure check to run_cache_set() for journal replay
+        stable@vger.kernel.org, Trac Hoang <trac.hoang@broadcom.com>,
+        Scott Branden <scott.branden@broadcom.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 4.14 009/193] mmc: sdhci-iproc: cygnus: Set NO_HISPD bit to fix HS50 data hold time problem
 Date:   Wed, 29 May 2019 20:04:23 -0700
-Message-Id: <20190530030532.608636349@linuxfoundation.org>
+Message-Id: <20190530030448.503973559@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
+References: <20190530030446.953835040@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,94 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ce3e4cfb59cb382f8e5ce359238aa580d4ae7778 ]
+From: Trac Hoang <trac.hoang@broadcom.com>
 
-Currently run_cache_set() has no return value, if there is failure in
-bch_journal_replay(), the caller of run_cache_set() has no idea about
-such failure and just continue to execute following code after
-run_cache_set().  The internal failure is triggered inside
-bch_journal_replay() and being handled in async way. This behavior is
-inefficient, while failure handling inside bch_journal_replay(), cache
-register code is still running to start the cache set. Registering and
-unregistering code running as same time may introduce some rare race
-condition, and make the code to be more hard to be understood.
+commit b7dfa695afc40d5396ed84b9f25aa3754de23e39 upstream.
 
-This patch adds return value to run_cache_set(), and returns -EIO if
-bch_journal_rreplay() fails. Then caller of run_cache_set() may detect
-such failure and stop registering code flow immedidately inside
-register_cache_set().
+The iproc host eMMC/SD controller hold time does not meet the
+specification in the HS50 mode. This problem can be mitigated
+by disabling the HISPD bit; thus forcing the controller output
+data to be driven on the falling clock edges rather than the
+rising clock edges.
 
-If journal replay fails, run_cache_set() can report error immediately
-to register_cache_set(). This patch makes the failure handling for
-bch_journal_replay() be in synchronized way, easier to understand and
-debug, and avoid poetential race condition for register-and-unregister
-in same time.
+This change applies only to the Cygnus platform.
 
-Signed-off-by: Coly Li <colyli@suse.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Stable tag (v4.12+) chosen to assist stable kernel maintainers so that
+the change does not produce merge conflicts backporting to older kernel
+versions. In reality, the timing bug existed since the driver was first
+introduced but there is no need for this driver to be supported in kernel
+versions that old.
+
+Cc: stable@vger.kernel.org # v4.12+
+Signed-off-by: Trac Hoang <trac.hoang@broadcom.com>
+Signed-off-by: Scott Branden <scott.branden@broadcom.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/md/bcache/super.c | 17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ drivers/mmc/host/sdhci-iproc.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
-index d8190804aee9b..2409507d7bff8 100644
---- a/drivers/md/bcache/super.c
-+++ b/drivers/md/bcache/super.c
-@@ -1770,7 +1770,7 @@ struct cache_set *bch_cache_set_alloc(struct cache_sb *sb)
- 	return NULL;
- }
+--- a/drivers/mmc/host/sdhci-iproc.c
++++ b/drivers/mmc/host/sdhci-iproc.c
+@@ -185,7 +185,8 @@ static const struct sdhci_ops sdhci_ipro
+ };
  
--static void run_cache_set(struct cache_set *c)
-+static int run_cache_set(struct cache_set *c)
- {
- 	const char *err = "cannot allocate memory";
- 	struct cached_dev *dc, *t;
-@@ -1866,7 +1866,9 @@ static void run_cache_set(struct cache_set *c)
- 		if (j->version < BCACHE_JSET_VERSION_UUID)
- 			__uuid_write(c);
- 
--		bch_journal_replay(c, &journal);
-+		err = "bcache: replay journal failed";
-+		if (bch_journal_replay(c, &journal))
-+			goto err;
- 	} else {
- 		pr_notice("invalidating existing data");
- 
-@@ -1934,7 +1936,7 @@ static void run_cache_set(struct cache_set *c)
- 	flash_devs_run(c);
- 
- 	set_bit(CACHE_SET_RUNNING, &c->flags);
--	return;
-+	return 0;
- err:
- 	while (!list_empty(&journal)) {
- 		l = list_first_entry(&journal, struct journal_replay, list);
-@@ -1945,6 +1947,8 @@ static void run_cache_set(struct cache_set *c)
- 	closure_sync(&cl);
- 	/* XXX: test this, it's broken */
- 	bch_cache_set_error(c, "%s", err);
-+
-+	return -EIO;
- }
- 
- static bool can_attach_cache(struct cache *ca, struct cache_set *c)
-@@ -2008,8 +2012,11 @@ static const char *register_cache_set(struct cache *ca)
- 	ca->set->cache[ca->sb.nr_this_dev] = ca;
- 	c->cache_by_alloc[c->caches_loaded++] = ca;
- 
--	if (c->caches_loaded == c->sb.nr_in_set)
--		run_cache_set(c);
-+	if (c->caches_loaded == c->sb.nr_in_set) {
-+		err = "failed to run cache set";
-+		if (run_cache_set(c) < 0)
-+			goto err;
-+	}
- 
- 	return NULL;
- err:
--- 
-2.20.1
-
+ static const struct sdhci_pltfm_data sdhci_iproc_cygnus_pltfm_data = {
+-	.quirks = SDHCI_QUIRK_DATA_TIMEOUT_USES_SDCLK,
++	.quirks = SDHCI_QUIRK_DATA_TIMEOUT_USES_SDCLK |
++		  SDHCI_QUIRK_NO_HISPD_BIT,
+ 	.quirks2 = SDHCI_QUIRK2_ACMD23_BROKEN | SDHCI_QUIRK2_HOST_OFF_CARD_ON,
+ 	.ops = &sdhci_iproc_32only_ops,
+ };
 
 
