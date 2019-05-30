@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A6F92F23B
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:20:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE3112F4BD
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:42:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728886AbfE3ETv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:19:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38494 "EHLO mail.kernel.org"
+        id S2387451AbfE3ElI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:41:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729210AbfE3DPY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:15:24 -0400
+        id S1729024AbfE3DM1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:12:27 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C29C24502;
-        Thu, 30 May 2019 03:15:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 129FA23CCB;
+        Thu, 30 May 2019 03:12:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186123;
-        bh=giia1H8fV3MI0n0b6NEl9yVmTOqXajqyIE74fhzbvmw=;
+        s=default; t=1559185946;
+        bh=R+1SEPBkQ9tLiLcev28eLtWcpov6GKMZtJNoicwTjOo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XXGCEXEwhbKvTLku+0TU1Of8J1FJn78Vq/KH7/NEjKO0CjAcjfQOhq30cBtyE/6Wz
-         dTW6xJz3g12masUCTUyK3c9QJzNXdjZBtxchv8Sq5L8UUGgNKB+2Iu7Iym0xf71zUM
-         b91JB4/bmVaGqVSoIJ2hxPMiLtEJHBVKLqtbHmCo=
+        b=0Y4mU5bvmXpYV9OOhF/flQhwNUojUgPvZ7FC3I7tg6VPdPK0iOIbnFW7AOv6rDkn1
+         NrtxCEsB+vjoLDFDRuVmTWjaY8PexGBQcmA5TNX7/c6lvf0+jyva/496lz4LdAAHWF
+         LBrbe9elui9EOcdgdTNfF+WJN3BsSuFTTaMpEV+Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Paul Moore <paul@paul-moore.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 280/346] selinux: avoid uninitialized variable warning
+Subject: [PATCH 5.1 355/405] media: vicodec: avoid clang frame size warning
 Date:   Wed, 29 May 2019 20:05:53 -0700
-Message-Id: <20190530030555.107475369@linuxfoundation.org>
+Message-Id: <20190530030558.602845501@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,76 +45,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 98bbbb76f2edcfb8fb2b8f4b3ccc7b6e99d64bd8 ]
+[ Upstream commit e855165f3dae6f71da859a5f00b85d5368641d61 ]
 
-clang correctly points out a code path that would lead
-to an uninitialized variable use:
+Clang-9 makes some different inlining decisions compared to gcc, which
+leads to a warning about a possible stack overflow problem when building
+with CONFIG_KASAN, including when setting asan-stack=0, which avoids
+most other frame overflow warnings:
 
-security/selinux/netlabel.c:310:6: error: variable 'addr' is used uninitialized whenever 'if' condition is false
-      [-Werror,-Wsometimes-uninitialized]
-        if (ip_hdr(skb)->version == 4) {
-            ^~~~~~~~~~~~~~~~~~~~~~~~~
-security/selinux/netlabel.c:322:40: note: uninitialized use occurs here
-        rc = netlbl_conn_setattr(ep->base.sk, addr, &secattr);
-                                              ^~~~
-security/selinux/netlabel.c:310:2: note: remove the 'if' if its condition is always true
-        if (ip_hdr(skb)->version == 4) {
-        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-security/selinux/netlabel.c:291:23: note: initialize the variable 'addr' to silence this warning
-        struct sockaddr *addr;
-                             ^
-                              = NULL
+drivers/media/platform/vicodec/codec-fwht.c:673:12: error: stack frame size of 2224 bytes in function 'encode_plane'
 
-This is probably harmless since we should not see ipv6 packets
-of CONFIG_IPV6 is disabled, but it's better to rearrange the code
-so this cannot happen.
+Manually adding noinline_for_stack annotations in those functions
+called by encode_plane() or decode_plane() that require a significant
+amount of kernel stack makes this impossible to happen with any
+compiler.
 
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-[PM: removed old patchwork link, fixed checkpatch.pl style errors]
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/selinux/netlabel.c | 14 +++++---------
- 1 file changed, 5 insertions(+), 9 deletions(-)
+ drivers/media/platform/vicodec/codec-fwht.c | 29 +++++++++++++--------
+ 1 file changed, 18 insertions(+), 11 deletions(-)
 
-diff --git a/security/selinux/netlabel.c b/security/selinux/netlabel.c
-index 186e727b737b9..6fd9954e1c085 100644
---- a/security/selinux/netlabel.c
-+++ b/security/selinux/netlabel.c
-@@ -288,11 +288,8 @@ int selinux_netlbl_sctp_assoc_request(struct sctp_endpoint *ep,
- 	int rc;
- 	struct netlbl_lsm_secattr secattr;
- 	struct sk_security_struct *sksec = ep->base.sk->sk_security;
--	struct sockaddr *addr;
- 	struct sockaddr_in addr4;
--#if IS_ENABLED(CONFIG_IPV6)
- 	struct sockaddr_in6 addr6;
--#endif
+diff --git a/drivers/media/platform/vicodec/codec-fwht.c b/drivers/media/platform/vicodec/codec-fwht.c
+index d1d6085da9f1d..cf469a1191aa7 100644
+--- a/drivers/media/platform/vicodec/codec-fwht.c
++++ b/drivers/media/platform/vicodec/codec-fwht.c
+@@ -46,8 +46,12 @@ static const uint8_t zigzag[64] = {
+ 	63,
+ };
  
- 	if (ep->base.sk->sk_family != PF_INET &&
- 				ep->base.sk->sk_family != PF_INET6)
-@@ -310,16 +307,15 @@ int selinux_netlbl_sctp_assoc_request(struct sctp_endpoint *ep,
- 	if (ip_hdr(skb)->version == 4) {
- 		addr4.sin_family = AF_INET;
- 		addr4.sin_addr.s_addr = ip_hdr(skb)->saddr;
--		addr = (struct sockaddr *)&addr4;
--#if IS_ENABLED(CONFIG_IPV6)
--	} else {
-+		rc = netlbl_conn_setattr(ep->base.sk, (void *)&addr4, &secattr);
-+	} else if (IS_ENABLED(CONFIG_IPV6) && ip_hdr(skb)->version == 6) {
- 		addr6.sin6_family = AF_INET6;
- 		addr6.sin6_addr = ipv6_hdr(skb)->saddr;
--		addr = (struct sockaddr *)&addr6;
--#endif
-+		rc = netlbl_conn_setattr(ep->base.sk, (void *)&addr6, &secattr);
-+	} else {
-+		rc = -EAFNOSUPPORT;
+-
+-static int rlc(const s16 *in, __be16 *output, int blocktype)
++/*
++ * noinline_for_stack to work around
++ * https://bugs.llvm.org/show_bug.cgi?id=38809
++ */
++static int noinline_for_stack
++rlc(const s16 *in, __be16 *output, int blocktype)
+ {
+ 	s16 block[8 * 8];
+ 	s16 *wp = block;
+@@ -106,8 +110,8 @@ static int rlc(const s16 *in, __be16 *output, int blocktype)
+  * This function will worst-case increase rlc_in by 65*2 bytes:
+  * one s16 value for the header and 8 * 8 coefficients of type s16.
+  */
+-static u16 derlc(const __be16 **rlc_in, s16 *dwht_out,
+-		 const __be16 *end_of_input)
++static noinline_for_stack u16
++derlc(const __be16 **rlc_in, s16 *dwht_out, const __be16 *end_of_input)
+ {
+ 	/* header */
+ 	const __be16 *input = *rlc_in;
+@@ -240,8 +244,9 @@ static void dequantize_inter(s16 *coeff)
+ 			*coeff <<= *quant;
+ }
+ 
+-static void fwht(const u8 *block, s16 *output_block, unsigned int stride,
+-		 unsigned int input_step, bool intra)
++static void noinline_for_stack fwht(const u8 *block, s16 *output_block,
++				    unsigned int stride,
++				    unsigned int input_step, bool intra)
+ {
+ 	/* we'll need more than 8 bits for the transformed coefficients */
+ 	s32 workspace1[8], workspace2[8];
+@@ -373,7 +378,8 @@ static void fwht(const u8 *block, s16 *output_block, unsigned int stride,
+  * Furthermore values can be negative... This is just a version that
+  * works with 16 signed data
+  */
+-static void fwht16(const s16 *block, s16 *output_block, int stride, int intra)
++static void noinline_for_stack
++fwht16(const s16 *block, s16 *output_block, int stride, int intra)
+ {
+ 	/* we'll need more than 8 bits for the transformed coefficients */
+ 	s32 workspace1[8], workspace2[8];
+@@ -456,7 +462,8 @@ static void fwht16(const s16 *block, s16 *output_block, int stride, int intra)
  	}
+ }
  
--	rc = netlbl_conn_setattr(ep->base.sk, addr, &secattr);
- 	if (rc == 0)
- 		sksec->nlbl_state = NLBL_LABELED;
+-static void ifwht(const s16 *block, s16 *output_block, int intra)
++static noinline_for_stack void
++ifwht(const s16 *block, s16 *output_block, int intra)
+ {
+ 	/*
+ 	 * we'll need more than 8 bits for the transformed coefficients
+@@ -604,9 +611,9 @@ static int var_inter(const s16 *old, const s16 *new)
+ 	return ret;
+ }
  
+-static int decide_blocktype(const u8 *cur, const u8 *reference,
+-			    s16 *deltablock, unsigned int stride,
+-			    unsigned int input_step)
++static noinline_for_stack int
++decide_blocktype(const u8 *cur, const u8 *reference, s16 *deltablock,
++		 unsigned int stride, unsigned int input_step)
+ {
+ 	s16 tmp[64];
+ 	s16 old[64];
 -- 
 2.20.1
 
