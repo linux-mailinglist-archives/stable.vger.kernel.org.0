@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0085D2F21D
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:18:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CBCF2F0BE
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:07:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729155AbfE3ESi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:18:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38970 "EHLO mail.kernel.org"
+        id S1726508AbfE3EG5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:06:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47466 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729338AbfE3DPb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:15:31 -0400
+        id S1731147AbfE3DRc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:17:32 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B268924559;
-        Thu, 30 May 2019 03:15:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DB84123B5C;
+        Thu, 30 May 2019 03:17:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186130;
-        bh=aoxyoPCuAgGkO3SV9RXleLnENqAvFJUJWdYOT0w20ZM=;
+        s=default; t=1559186252;
+        bh=4qFf+ReEGAlxmB+u/dhYnW1b0I/eQL6fC26LheLmXMg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dxxb0O5VM+AriOsgU7gCMphE3j0AWqAIHZXJfwZ+uwg8ldG67Gc7+bzKqROMUYOxB
-         McuxExcfpsgBvRHMWKcVhvPTSDN2cdpEnzhWl+QinjE5082xf2fCB9dwmNUV5cX6Gy
-         i9JN2FfRegf61h25oz2oiq0z/OOmTG5kvuBL8PJw=
+        b=0sL0TzuQpEzVjAW6TwhmfmwsXRGb2JHlSwd4Fg8ya7lyVqdzfBX+6Qdl71i4oiyms
+         5loC9HBGKkgc0tZ6EsF6tyStD1s6p2SbiSqBuFj1TM5YWtZz40N6PHBN1p1sujE80/
+         ok7Zo7Kgg769oiMIXR5b6jDvZnKbAyp5WDZ4dahA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 257/346] media: video-mux: fix null pointer dereferences
+Subject: [PATCH 4.19 172/276] clk: rockchip: Make rkpwm a critical clock on rk3288
 Date:   Wed, 29 May 2019 20:05:30 -0700
-Message-Id: <20190530030554.010021267@linuxfoundation.org>
+Message-Id: <20190530030536.122559536@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,39 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit aeb0d0f581e2079868e64a2e5ee346d340376eae ]
+[ Upstream commit dfe7fb21cd9e730230d55a79bc72cf2ece67cdd5 ]
 
-devm_kcalloc may fail and return a null pointer. The fix returns
--ENOMEM upon failures to avoid null pointer dereferences.
+Most rk3288-based boards are derived from the EVB and thus use a PWM
+regulator for the logic rail.  However, most rk3288-based boards don't
+specify the PWM regulator in their device tree.  We'll deal with that
+by making it critical.
 
-Signed-off-by: Kangjie Lu <kjlu@umn.edu>
-Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+NOTE: it's important to make it critical and not just IGNORE_UNUSED
+because all PWMs in the system share the same clock.  We don't want
+another PWM user to turn the clock on and off and kill the logic rail.
+
+This change is in preparation for actually having the PWMs in the
+rk3288 device tree actually point to the proper PWM clock.  Up until
+now they've all pointed to the clock for the old IP block and they've
+all worked due to the fact that rkpwm was IGNORE_UNUSED and that the
+clock rates for both clocks were the same.
+
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/video-mux.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/clk/rockchip/clk-rk3288.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/video-mux.c b/drivers/media/platform/video-mux.c
-index c33900e3c23ef..4135165cdabe6 100644
---- a/drivers/media/platform/video-mux.c
-+++ b/drivers/media/platform/video-mux.c
-@@ -399,9 +399,14 @@ static int video_mux_probe(struct platform_device *pdev)
- 	vmux->active = -1;
- 	vmux->pads = devm_kcalloc(dev, num_pads, sizeof(*vmux->pads),
- 				  GFP_KERNEL);
-+	if (!vmux->pads)
-+		return -ENOMEM;
-+
- 	vmux->format_mbus = devm_kcalloc(dev, num_pads,
- 					 sizeof(*vmux->format_mbus),
- 					 GFP_KERNEL);
-+	if (!vmux->format_mbus)
-+		return -ENOMEM;
+diff --git a/drivers/clk/rockchip/clk-rk3288.c b/drivers/clk/rockchip/clk-rk3288.c
+index c6cd6d28af56f..64191694ff6e9 100644
+--- a/drivers/clk/rockchip/clk-rk3288.c
++++ b/drivers/clk/rockchip/clk-rk3288.c
+@@ -676,7 +676,7 @@ static struct rockchip_clk_branch rk3288_clk_branches[] __initdata = {
+ 	GATE(PCLK_TZPC, "pclk_tzpc", "pclk_cpu", 0, RK3288_CLKGATE_CON(11), 3, GFLAGS),
+ 	GATE(PCLK_UART2, "pclk_uart2", "pclk_cpu", 0, RK3288_CLKGATE_CON(11), 9, GFLAGS),
+ 	GATE(PCLK_EFUSE256, "pclk_efuse_256", "pclk_cpu", 0, RK3288_CLKGATE_CON(11), 10, GFLAGS),
+-	GATE(PCLK_RKPWM, "pclk_rkpwm", "pclk_cpu", CLK_IGNORE_UNUSED, RK3288_CLKGATE_CON(11), 11, GFLAGS),
++	GATE(PCLK_RKPWM, "pclk_rkpwm", "pclk_cpu", 0, RK3288_CLKGATE_CON(11), 11, GFLAGS),
  
- 	for (i = 0; i < num_pads; i++) {
- 		vmux->pads[i].flags = (i < num_pads - 1) ? MEDIA_PAD_FL_SINK
+ 	/* ddrctrl [DDR Controller PHY clock] gates */
+ 	GATE(0, "nclk_ddrupctl0", "ddrphy", CLK_IGNORE_UNUSED, RK3288_CLKGATE_CON(11), 4, GFLAGS),
+@@ -817,6 +817,8 @@ static const char *const rk3288_critical_clocks[] __initconst = {
+ 	"pclk_pd_pmu",
+ 	"pclk_pmu_niu",
+ 	"pmu_hclk_otg0",
++	/* pwm-regulators on some boards, so handoff-critical later */
++	"pclk_rkpwm",
+ };
+ 
+ static void __iomem *rk3288_cru_base;
 -- 
 2.20.1
 
