@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F15582EF6A
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:55:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 819952F052
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:03:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731827AbfE3DTL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:19:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53934 "EHLO mail.kernel.org"
+        id S1726423AbfE3EC4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:02:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730116AbfE3DTK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:19:10 -0400
+        id S1731365AbfE3DR7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:17:59 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 383C9247F0;
-        Thu, 30 May 2019 03:19:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 02F8224751;
+        Thu, 30 May 2019 03:17:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186349;
-        bh=PEFDu1+k8T8ykKHz4YwvRCtoXOkMfwVc22GXXxz3HMQ=;
+        s=default; t=1559186279;
+        bh=KFjWdcM0j1PIjGo1SD5vVsinYegNqV/OwabGD7l4Pfo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xbSSxhSdMyvLNxbyP/5nxkH4MrgMj5Mcgy6YLFVZV/gSOvM5glNSqqB7GQgNSpaP7
-         1QDTWTbGslmZFxOdIk5IroPPuPaICxO4b5/g8ZNOf/TQGEUdigfPuPOFPG4HafrkT5
-         7v2DfmmP/2vroRMdnENGWmWd4ZggM9QkoSU/EzpM=
+        b=ABidRPS6gF/4kc2kRZt3zfSq74g6FTfAciWcBRO/7hAx4RLGAwPMLYorttrftT14Y
+         IiK2kjZxPLqsEFUWxxIGPD1qjP2f89cxFjzg95Scy+VagH82IGY5aIlTaEnDXm3D37
+         eBXWcy/dR86MPbF/9Jq1zAAmsmw++Ov/JZbhrgek=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Elaine Zhang <zhangqing@rock-chips.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 086/193] clk: rockchip: undo several noc and special clocks as critical on rk3288
+        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        linux-pm@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 182/276] cpufreq: kirkwood: fix possible object reference leak
 Date:   Wed, 29 May 2019 20:05:40 -0700
-Message-Id: <20190530030500.969590456@linuxfoundation.org>
+Message-Id: <20190530030536.651571945@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,118 +45,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f4033db5b84ebe4b32c25ba2ed65ab20b628996a ]
+[ Upstream commit 7c468966f05ac9c17bb5948275283d34e6fe0660 ]
 
-This is mostly a revert of commit 55bb6a633c33 ("clk: rockchip: mark
-noc and some special clk as critical on rk3288") except that we're
-keeping "pmu_hclk_otg0" as critical still.
+The call to of_get_child_by_name returns a node pointer with refcount
+incremented thus it must be explicitly decremented after the last
+usage.
 
-NOTE: turning these clocks off doesn't seem to do a whole lot in terms
-of power savings (checking the power on the logic rail).  It appears
-to save maybe 1-2mW.  ...but still it seems like we should turn the
-clocks off if they aren't needed.
+Detected by coccinelle with the following warnings:
+./drivers/cpufreq/kirkwood-cpufreq.c:127:2-8: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 118, but without a corresponding object release within this function.
+./drivers/cpufreq/kirkwood-cpufreq.c:133:2-8: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 118, but without a corresponding object release within this function.
 
-About "pmu_hclk_otg0" (the one clock from the original commit we're
-still keeping critical) from an email thread:
+and also do some cleanup:
+- of_node_put(np);
+- np = NULL;
+...
+of_node_put(np);
 
-> pmu ahb clock
->
-> Function: Clock to pmu module when hibernation and/or ADP is
-> enabled. Must be greater than or equal to 30 MHz.
->
-> If the SOC design does not support hibernation/ADP function, only have
-> hclk_otg, this clk can be switched according to the usage of otg.
-> If the SOC design support hibernation/ADP, has two clocks, hclk_otg and
-> pmu_hclk_otg0.
-> Hclk_otg belongs to the closed part of otg logic, which can be switched
-> according to the use of otg.
->
-> pmu_hclk_otg0 belongs to the always on part.
->
-> As for whether pmu_hclk_otg0 can be turned off when otg is not in use,
-> we have not tested. IC suggest make pmu_hclk_otg0 always on.
-
-For the rest of the clocks:
-
-atclk: No documentation about this clock other than that it goes to
-the CPU.  CPU functions fine without it on.  Maybe needed for JTAG?
-
-jtag: Presumably this clock is only needed if you're debugging with
-JTAG.  It doesn't seem like it makes sense to waste power for every
-rk3288 user.  In any case to do JTAG you'd need private patches to
-adjust the pinctrl the mux the JTAG out anyway.
-
-pclk_dbg, pclk_core_niu: On veyron Chromebooks we turn these two
-clocks on only during kernel panics in order to access some coresight
-registers.  Since nothing in the upstream kernel does this we should
-be able to leave them off safely.  Maybe also needed for JTAG?
-
-hsicphy12m_xin12m: There is no indication of why this clock would need
-to be turned on for boards that don't use HSIC.
-
-pclk_ddrupctl[0-1], pclk_publ0[0-1]: On veyron Chromebooks we turn
-these 4 clocks on only when doing DDR transitions and they are off
-otherwise.  I see no reason why they'd need to be on in the upstream
-kernel which doesn't support DDRFreq.
-
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Elaine Zhang <zhangqing@rock-chips.com>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Viresh Kumar <viresh.kumar@linaro.org>
+Cc: linux-pm@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/rockchip/clk-rk3288.c | 13 ++++---------
- 1 file changed, 4 insertions(+), 9 deletions(-)
+ drivers/cpufreq/kirkwood-cpufreq.c | 19 +++++++++++--------
+ 1 file changed, 11 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/clk/rockchip/clk-rk3288.c b/drivers/clk/rockchip/clk-rk3288.c
-index 450de24a1b422..45cd2897e586b 100644
---- a/drivers/clk/rockchip/clk-rk3288.c
-+++ b/drivers/clk/rockchip/clk-rk3288.c
-@@ -292,13 +292,13 @@ static struct rockchip_clk_branch rk3288_clk_branches[] __initdata = {
- 	COMPOSITE_NOMUX(0, "aclk_core_mp", "armclk", CLK_IGNORE_UNUSED,
- 			RK3288_CLKSEL_CON(0), 4, 4, DFLAGS | CLK_DIVIDER_READ_ONLY,
- 			RK3288_CLKGATE_CON(12), 6, GFLAGS),
--	COMPOSITE_NOMUX(0, "atclk", "armclk", CLK_IGNORE_UNUSED,
-+	COMPOSITE_NOMUX(0, "atclk", "armclk", 0,
- 			RK3288_CLKSEL_CON(37), 4, 5, DFLAGS | CLK_DIVIDER_READ_ONLY,
- 			RK3288_CLKGATE_CON(12), 7, GFLAGS),
- 	COMPOSITE_NOMUX(0, "pclk_dbg_pre", "armclk", CLK_IGNORE_UNUSED,
- 			RK3288_CLKSEL_CON(37), 9, 5, DFLAGS | CLK_DIVIDER_READ_ONLY,
- 			RK3288_CLKGATE_CON(12), 8, GFLAGS),
--	GATE(0, "pclk_dbg", "pclk_dbg_pre", CLK_IGNORE_UNUSED,
-+	GATE(0, "pclk_dbg", "pclk_dbg_pre", 0,
- 			RK3288_CLKGATE_CON(12), 9, GFLAGS),
- 	GATE(0, "cs_dbg", "pclk_dbg_pre", CLK_IGNORE_UNUSED,
- 			RK3288_CLKGATE_CON(12), 10, GFLAGS),
-@@ -626,7 +626,7 @@ static struct rockchip_clk_branch rk3288_clk_branches[] __initdata = {
- 	INVERTER(SCLK_HSADC, "sclk_hsadc", "sclk_hsadc_out",
- 			RK3288_CLKSEL_CON(22), 7, IFLAGS),
+diff --git a/drivers/cpufreq/kirkwood-cpufreq.c b/drivers/cpufreq/kirkwood-cpufreq.c
+index c2dd43f3f5d8a..8d63a6dc8383c 100644
+--- a/drivers/cpufreq/kirkwood-cpufreq.c
++++ b/drivers/cpufreq/kirkwood-cpufreq.c
+@@ -124,13 +124,14 @@ static int kirkwood_cpufreq_probe(struct platform_device *pdev)
+ 	priv.cpu_clk = of_clk_get_by_name(np, "cpu_clk");
+ 	if (IS_ERR(priv.cpu_clk)) {
+ 		dev_err(priv.dev, "Unable to get cpuclk\n");
+-		return PTR_ERR(priv.cpu_clk);
++		err = PTR_ERR(priv.cpu_clk);
++		goto out_node;
+ 	}
  
--	GATE(0, "jtag", "ext_jtag", CLK_IGNORE_UNUSED,
-+	GATE(0, "jtag", "ext_jtag", 0,
- 			RK3288_CLKGATE_CON(4), 14, GFLAGS),
+ 	err = clk_prepare_enable(priv.cpu_clk);
+ 	if (err) {
+ 		dev_err(priv.dev, "Unable to prepare cpuclk\n");
+-		return err;
++		goto out_node;
+ 	}
  
- 	COMPOSITE_NODIV(SCLK_USBPHY480M_SRC, "usbphy480m_src", mux_usbphy480m_p, 0,
-@@ -635,7 +635,7 @@ static struct rockchip_clk_branch rk3288_clk_branches[] __initdata = {
- 	COMPOSITE_NODIV(SCLK_HSICPHY480M, "sclk_hsicphy480m", mux_hsicphy480m_p, 0,
- 			RK3288_CLKSEL_CON(29), 0, 2, MFLAGS,
- 			RK3288_CLKGATE_CON(3), 6, GFLAGS),
--	GATE(0, "hsicphy12m_xin12m", "xin12m", CLK_IGNORE_UNUSED,
-+	GATE(0, "hsicphy12m_xin12m", "xin12m", 0,
- 			RK3288_CLKGATE_CON(13), 9, GFLAGS),
- 	DIV(0, "hsicphy12m_usbphy", "sclk_hsicphy480m", 0,
- 			RK3288_CLKSEL_CON(11), 8, 6, DFLAGS),
-@@ -816,11 +816,6 @@ static const char *const rk3288_critical_clocks[] __initconst = {
- 	"pclk_alive_niu",
- 	"pclk_pd_pmu",
- 	"pclk_pmu_niu",
--	"pclk_core_niu",
--	"pclk_ddrupctl0",
--	"pclk_publ0",
--	"pclk_ddrupctl1",
--	"pclk_publ1",
- 	"pmu_hclk_otg0",
- };
+ 	kirkwood_freq_table[0].frequency = clk_get_rate(priv.cpu_clk) / 1000;
+@@ -161,20 +162,22 @@ static int kirkwood_cpufreq_probe(struct platform_device *pdev)
+ 		goto out_ddr;
+ 	}
  
+-	of_node_put(np);
+-	np = NULL;
+-
+ 	err = cpufreq_register_driver(&kirkwood_cpufreq_driver);
+-	if (!err)
+-		return 0;
++	if (err) {
++		dev_err(priv.dev, "Failed to register cpufreq driver\n");
++		goto out_powersave;
++	}
+ 
+-	dev_err(priv.dev, "Failed to register cpufreq driver\n");
++	of_node_put(np);
++	return 0;
+ 
++out_powersave:
+ 	clk_disable_unprepare(priv.powersave_clk);
+ out_ddr:
+ 	clk_disable_unprepare(priv.ddr_clk);
+ out_cpu:
+ 	clk_disable_unprepare(priv.cpu_clk);
++out_node:
+ 	of_node_put(np);
+ 
+ 	return err;
 -- 
 2.20.1
 
