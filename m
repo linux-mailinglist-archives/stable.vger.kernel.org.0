@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A4252EBD7
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:16:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 848262EB93
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:14:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730662AbfE3DQX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:16:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42334 "EHLO mail.kernel.org"
+        id S1729703AbfE3DOE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:14:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730659AbfE3DQW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:16:22 -0400
+        id S1729691AbfE3DOD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:14:03 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F3ADC245BB;
-        Thu, 30 May 2019 03:16:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 801C62449A;
+        Thu, 30 May 2019 03:14:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186182;
-        bh=sIuyJJEtx+15ZALMzPbnzzQZkzP6gGkMSQ1h1QW2OSM=;
+        s=default; t=1559186042;
+        bh=YVSsXPhSV/AB32E936YZFOqFqKBy8o2/bd5r9JlQOZ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M+vIgfF5u5N+Y5U3PlvV8mv8TyM+oLNawrJRJlMcD2NjRumlsJjjxGHroSRp73SC9
-         8yI9lpiz6GblyR+j3FvEhwhkrBFub+cVAikRzOuXCUbkvBuS/O1yx/eTU1JJ4oPlpP
-         AhhvekDgocPxnkD1zPQHQFpU/9Tbu6a/QO+zuhTA=
+        b=eZu4CFms2Rlc+mK6RdRFt4tPJvipIn5+IlRyD7QcaixUYE9xyJW69w+1LsTGB5xgR
+         DTACyKy1XYphHXsJZHeSwbwREWVeuWQ9fK4jGrbB482Gks+2q7bblVyvlazVb5Nyb+
+         CxlHzX79SqaCRxWhzY2sWy7W1iGxV+Cz9PEsBHEo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Michael J. Ruhl" <michael.j.ruhl@intel.com>,
-        Mike Marciniszyn <mike.marciniszyn@intel.com>,
-        Dennis Dalessandro <dennis.dalessandro@intel.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 047/276] IB/hfi1: Fix WQ_MEM_RECLAIM warning
-Date:   Wed, 29 May 2019 20:03:25 -0700
-Message-Id: <20190530030527.688201988@linuxfoundation.org>
+        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
+        Patrice Chotard <patrice.chotard@st.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        linux-gpio@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 133/346] pinctrl: st: fix leaked of_node references
+Date:   Wed, 29 May 2019 20:03:26 -0700
+Message-Id: <20190530030547.853652402@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,60 +45,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 4c4b1996b5db688e2dcb8242b0a3bf7b1e845e42 ]
+[ Upstream commit 483d70d73beaecab55882fcd2a357af72674e24c ]
 
-The work_item cancels that occur when a QP is destroyed can elicit the
-following trace:
+The call to of_get_child_by_name returns a node pointer with refcount
+incremented thus it must be explicitly decremented after the last
+usage.
 
- workqueue: WQ_MEM_RECLAIM ipoib_wq:ipoib_cm_tx_reap [ib_ipoib] is flushing !WQ_MEM_RECLAIM hfi0_0:_hfi1_do_send [hfi1]
- WARNING: CPU: 7 PID: 1403 at kernel/workqueue.c:2486 check_flush_dependency+0xb1/0x100
- Call Trace:
-  __flush_work.isra.29+0x8c/0x1a0
-  ? __switch_to_asm+0x40/0x70
-  __cancel_work_timer+0x103/0x190
-  ? schedule+0x32/0x80
-  iowait_cancel_work+0x15/0x30 [hfi1]
-  rvt_reset_qp+0x1f8/0x3e0 [rdmavt]
-  rvt_destroy_qp+0x65/0x1f0 [rdmavt]
-  ? _cond_resched+0x15/0x30
-  ib_destroy_qp+0xe9/0x230 [ib_core]
-  ipoib_cm_tx_reap+0x21c/0x560 [ib_ipoib]
-  process_one_work+0x171/0x370
-  worker_thread+0x49/0x3f0
-  kthread+0xf8/0x130
-  ? max_active_store+0x80/0x80
-  ? kthread_bind+0x10/0x10
-  ret_from_fork+0x35/0x40
+Detected by coccinelle with the following warnings:
+./drivers/pinctrl/pinctrl-st.c:1188:3-9: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 1175, but without a corresponding object release within this function.
+./drivers/pinctrl/pinctrl-st.c:1188:3-9: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 1175, but without a corresponding object release within this function.
+./drivers/pinctrl/pinctrl-st.c:1199:2-8: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 1175, but without a corresponding object release within this function.
+./drivers/pinctrl/pinctrl-st.c:1199:2-8: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 1175, but without a corresponding object release within this function.
 
-Since QP destruction frees memory, hfi1_wq should have the WQ_MEM_RECLAIM.
-
-The hfi1_wq does not allocate memory with GFP_KERNEL or otherwise become
-entangled with memory reclaim, so this flag is appropriate.
-
-Fixes: 0a226edd203f ("staging/rdma/hfi1: Use parallel workqueue for SDMA engines")
-Reviewed-by: Michael J. Ruhl <michael.j.ruhl@intel.com>
-Signed-off-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
+Cc: Patrice Chotard <patrice.chotard@st.com>
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Cc: linux-gpio@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org (open list)
+Reviewed-by: Patrice Chotard <patrice.chotard@st.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hfi1/init.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/pinctrl/pinctrl-st.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hfi1/init.c b/drivers/infiniband/hw/hfi1/init.c
-index da786eb18558d..368f4f08b6866 100644
---- a/drivers/infiniband/hw/hfi1/init.c
-+++ b/drivers/infiniband/hw/hfi1/init.c
-@@ -798,7 +798,8 @@ static int create_workqueues(struct hfi1_devdata *dd)
- 			ppd->hfi1_wq =
- 				alloc_workqueue(
- 				    "hfi%d_%d",
--				    WQ_SYSFS | WQ_HIGHPRI | WQ_CPU_INTENSIVE,
-+				    WQ_SYSFS | WQ_HIGHPRI | WQ_CPU_INTENSIVE |
-+				    WQ_MEM_RECLAIM,
- 				    HFI1_MAX_ACTIVE_WORKQUEUE_ENTRIES,
- 				    dd->unit, pidx);
- 			if (!ppd->hfi1_wq)
+diff --git a/drivers/pinctrl/pinctrl-st.c b/drivers/pinctrl/pinctrl-st.c
+index e66af93f2cbf8..195b442a23434 100644
+--- a/drivers/pinctrl/pinctrl-st.c
++++ b/drivers/pinctrl/pinctrl-st.c
+@@ -1170,7 +1170,7 @@ static int st_pctl_dt_parse_groups(struct device_node *np,
+ 	struct property *pp;
+ 	struct st_pinconf *conf;
+ 	struct device_node *pins;
+-	int i = 0, npins = 0, nr_props;
++	int i = 0, npins = 0, nr_props, ret = 0;
+ 
+ 	pins = of_get_child_by_name(np, "st,pins");
+ 	if (!pins)
+@@ -1185,7 +1185,8 @@ static int st_pctl_dt_parse_groups(struct device_node *np,
+ 			npins++;
+ 		} else {
+ 			pr_warn("Invalid st,pins in %pOFn node\n", np);
+-			return -EINVAL;
++			ret = -EINVAL;
++			goto out_put_node;
+ 		}
+ 	}
+ 
+@@ -1195,8 +1196,10 @@ static int st_pctl_dt_parse_groups(struct device_node *np,
+ 	grp->pin_conf = devm_kcalloc(info->dev,
+ 					npins, sizeof(*conf), GFP_KERNEL);
+ 
+-	if (!grp->pins || !grp->pin_conf)
+-		return -ENOMEM;
++	if (!grp->pins || !grp->pin_conf) {
++		ret = -ENOMEM;
++		goto out_put_node;
++	}
+ 
+ 	/* <bank offset mux direction rt_type rt_delay rt_clk> */
+ 	for_each_property_of_node(pins, pp) {
+@@ -1229,9 +1232,11 @@ static int st_pctl_dt_parse_groups(struct device_node *np,
+ 		}
+ 		i++;
+ 	}
++
++out_put_node:
+ 	of_node_put(pins);
+ 
+-	return 0;
++	return ret;
+ }
+ 
+ static int st_pctl_parse_functions(struct device_node *np,
 -- 
 2.20.1
 
