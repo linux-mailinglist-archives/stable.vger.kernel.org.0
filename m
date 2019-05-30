@@ -2,45 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 692562F2EF
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:25:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3ACEA2EB55
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:12:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729980AbfE3DOq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:14:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35142 "EHLO mail.kernel.org"
+        id S1728706AbfE3DLu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:11:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729971AbfE3DOp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:14:45 -0400
+        id S1728696AbfE3DLt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:11:49 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0879D24555;
-        Thu, 30 May 2019 03:14:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5EEC324508;
+        Thu, 30 May 2019 03:11:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186085;
-        bh=OxCAIHPoH18e4bJyXWJl8c54vD7RQRBMGt1OQmZG0A4=;
+        s=default; t=1559185909;
+        bh=G7/EF0+sycBI1xObFRMuUqqyLtCEWKWSYGWiHh9zcnk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mx4UOKuStnusYIj9/WyzrFXoHOV8uP1soK65zmUJvlm1JmZIa0sSa/b1lGmbTMC2X
-         +uUAKKizi+dFRglKWJvZhk48gvqPtk9eOzvaqbvTrBlbBBHS/bGU5mYRH7Jq48A6mz
-         jdobiZauJA4mT4mQBbgETg2LXGevAh8FknGPBw9A=
+        b=xOsgS0C14oJLt/BqXEvbxW5Z4pvpLay5AMbX4m2B4B6wOk75O5C9u3FcxyhN/wy83
+         jwCblnHwwqnd+1VB0UU6UPTpdqKKUK1hF5OdU9HNuLe8b7KYb+0Pah70Sbzgy4eOov
+         ImFgfXl7uXrPMjm9Xm0GUjsHUegdZBcBV+rNvArM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Borislav Petkov <bp@suse.de>,
-        Andy Lutomirski <luto@kernel.org>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Mitsuo Hayasaka <mitsuo.hayasaka.hu@hitachi.com>,
-        Nicolai Stange <nstange@suse.de>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        x86-ml <x86@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 165/346] x86/irq/64: Limit IST stack overflow check to #DB stack
-Date:   Wed, 29 May 2019 20:03:58 -0700
-Message-Id: <20190530030549.523431206@linuxfoundation.org>
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 241/405] iio: hmc5843: fix potential NULL pointer dereferences
+Date:   Wed, 29 May 2019 20:03:59 -0700
+Message-Id: <20190530030553.187656356@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,79 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 7dbcf2b0b770eeb803a416ee8dcbef78e6389d40 ]
+[ Upstream commit 536cc27deade8f1ec3c1beefa60d5fbe0f6fcb28 ]
 
-Commit
+devm_regmap_init_i2c may fail and return NULL. The fix returns
+the error when it fails.
 
-  37fe6a42b343 ("x86: Check stack overflow in detail")
-
-added a broad check for the full exception stack area, i.e. it considers
-the full exception stack area as valid.
-
-That's wrong in two aspects:
-
- 1) It does not check the individual areas one by one
-
- 2) #DF, NMI and #MCE are not enabling interrupts which means that a
-    regular device interrupt cannot happen in their context. In fact if a
-    device interrupt hits one of those IST stacks that's a bug because some
-    code path enabled interrupts while handling the exception.
-
-Limit the check to the #DB stack and consider all other IST stacks as
-'overflow' or invalid.
-
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Mitsuo Hayasaka <mitsuo.hayasaka.hu@hitachi.com>
-Cc: Nicolai Stange <nstange@suse.de>
-Cc: Sean Christopherson <sean.j.christopherson@intel.com>
-Cc: x86-ml <x86@kernel.org>
-Link: https://lkml.kernel.org/r/20190414160143.682135110@linutronix.de
+Signed-off-by: Kangjie Lu <kjlu@umn.edu>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/irq_64.c | 19 ++++++++++++++-----
- 1 file changed, 14 insertions(+), 5 deletions(-)
+ drivers/iio/magnetometer/hmc5843_i2c.c | 7 ++++++-
+ drivers/iio/magnetometer/hmc5843_spi.c | 7 ++++++-
+ 2 files changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/kernel/irq_64.c b/arch/x86/kernel/irq_64.c
-index 0469cd078db15..b50ac9c7397bb 100644
---- a/arch/x86/kernel/irq_64.c
-+++ b/arch/x86/kernel/irq_64.c
-@@ -26,9 +26,18 @@ int sysctl_panic_on_stackoverflow;
- /*
-  * Probabilistic stack overflow check:
-  *
-- * Only check the stack in process context, because everything else
-- * runs on the big interrupt stacks. Checking reliably is too expensive,
-- * so we just check from interrupts.
-+ * Regular device interrupts can enter on the following stacks:
-+ *
-+ * - User stack
-+ *
-+ * - Kernel task stack
-+ *
-+ * - Interrupt stack if a device driver reenables interrupts
-+ *   which should only happen in really old drivers.
-+ *
-+ * - Debug IST stack
-+ *
-+ * All other contexts are invalid.
-  */
- static inline void stack_overflow_check(struct pt_regs *regs)
+diff --git a/drivers/iio/magnetometer/hmc5843_i2c.c b/drivers/iio/magnetometer/hmc5843_i2c.c
+index 3de7f4426ac40..86abba5827a25 100644
+--- a/drivers/iio/magnetometer/hmc5843_i2c.c
++++ b/drivers/iio/magnetometer/hmc5843_i2c.c
+@@ -58,8 +58,13 @@ static const struct regmap_config hmc5843_i2c_regmap_config = {
+ static int hmc5843_i2c_probe(struct i2c_client *cli,
+ 			     const struct i2c_device_id *id)
  {
-@@ -53,8 +62,8 @@ static inline void stack_overflow_check(struct pt_regs *regs)
- 		return;
++	struct regmap *regmap = devm_regmap_init_i2c(cli,
++			&hmc5843_i2c_regmap_config);
++	if (IS_ERR(regmap))
++		return PTR_ERR(regmap);
++
+ 	return hmc5843_common_probe(&cli->dev,
+-			devm_regmap_init_i2c(cli, &hmc5843_i2c_regmap_config),
++			regmap,
+ 			id->driver_data, id->name);
+ }
  
- 	oist = this_cpu_ptr(&orig_ist);
--	estack_top = (u64)oist->ist[0] - EXCEPTION_STKSZ + STACK_TOP_MARGIN;
--	estack_bottom = (u64)oist->ist[N_EXCEPTION_STACKS - 1];
-+	estack_bottom = (u64)oist->ist[DEBUG_STACK];
-+	estack_top = estack_bottom - DEBUG_STKSZ + STACK_TOP_MARGIN;
- 	if (regs->sp >= estack_top && regs->sp <= estack_bottom)
- 		return;
+diff --git a/drivers/iio/magnetometer/hmc5843_spi.c b/drivers/iio/magnetometer/hmc5843_spi.c
+index 535f03a70d630..79b2b707f90e7 100644
+--- a/drivers/iio/magnetometer/hmc5843_spi.c
++++ b/drivers/iio/magnetometer/hmc5843_spi.c
+@@ -58,6 +58,7 @@ static const struct regmap_config hmc5843_spi_regmap_config = {
+ static int hmc5843_spi_probe(struct spi_device *spi)
+ {
+ 	int ret;
++	struct regmap *regmap;
+ 	const struct spi_device_id *id = spi_get_device_id(spi);
+ 
+ 	spi->mode = SPI_MODE_3;
+@@ -67,8 +68,12 @@ static int hmc5843_spi_probe(struct spi_device *spi)
+ 	if (ret)
+ 		return ret;
+ 
++	regmap = devm_regmap_init_spi(spi, &hmc5843_spi_regmap_config);
++	if (IS_ERR(regmap))
++		return PTR_ERR(regmap);
++
+ 	return hmc5843_common_probe(&spi->dev,
+-			devm_regmap_init_spi(spi, &hmc5843_spi_regmap_config),
++			regmap,
+ 			id->driver_data, id->name);
+ }
  
 -- 
 2.20.1
