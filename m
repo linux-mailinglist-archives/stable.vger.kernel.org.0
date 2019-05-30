@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BBDAA2F64A
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:54:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16E392F41C
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:36:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387606AbfE3Eyj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:54:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46954 "EHLO mail.kernel.org"
+        id S2388287AbfE3EfN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:35:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728040AbfE3DKU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:10:20 -0400
+        id S1729379AbfE3DNO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:13:14 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C782244C5;
-        Thu, 30 May 2019 03:10:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E7F74244E8;
+        Thu, 30 May 2019 03:13:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185819;
-        bh=wuTJFjnd0fE2xg30wPdCtn3UAvUzITI1qIY5UXPwr6Q=;
+        s=default; t=1559185994;
+        bh=DDAiTRqEGOZMR5wKbJ4tM+vT0aH2qQvHbBxCDs12tLQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VFyLYsmze/s8cqpc6vDAQ1mUENB1NDGNXJD6G4WKAsWIyhTKhbmn0RlULFRWHAPiT
-         feO46Du/yBi3bDj1K4TBal6BFJ3mW50rjJjRUyK2hVdkG0KFT+Dn5efB6YlBaKrVwA
-         Qzy+I+r6RDHqAD6Oo43+7mc0a/qr6hR9ux8uZlq8=
+        b=uooP3PbyAucODx5jvWTb1KeIQPWZ2l6rLs+kACC5uIMih7mXc6gX9ug5B30tF8yKm
+         5qHnFEX4LTv4t6IRRJ0Hhx4yfs1KbGM06Wt+InxuyIkL26+dM/06OF4MlU/K1U7F/A
+         fVeNmYrcwXzAmT6E/ff5RS48u+ijE9dGeKCdoH1Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sugar Zhang <sugar.zhang@rock-chips.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 114/405] dmaengine: pl330: _stop: clear interrupt status
+        stable@vger.kernel.org, Amir Goldstein <amir73il@gmail.com>,
+        syzbot+2a73a6ea9507b7112141@syzkaller.appspotmail.com,
+        Al Viro <viro@zeniv.linux.org.uk>
+Subject: [PATCH 5.0 039/346] acct_on(): dont mess with freeze protection
 Date:   Wed, 29 May 2019 20:01:52 -0700
-Message-Id: <20190530030546.767460667@linuxfoundation.org>
+Message-Id: <20190530030542.825843152@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,92 +44,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2da254cc7908105a60a6bb219d18e8dced03dcb9 ]
+From: Al Viro <viro@zeniv.linux.org.uk>
 
-This patch kill instructs the DMAC to immediately terminate
-execution of a thread. and then clear the interrupt status,
-at last, stop generating interrupts for DMA_SEV. to guarantee
-the next dma start is clean. otherwise, one interrupt maybe leave
-to next start and make some mistake.
+commit 9419a3191dcb27f24478d288abaab697228d28e6 upstream.
 
-we can reporduce the problem as follows:
+What happens there is that we are replacing file->path.mnt of
+a file we'd just opened with a clone and we need the write
+count contribution to be transferred from original mount to
+new one.  That's it.  We do *NOT* want any kind of freeze
+protection for the duration of switchover.
 
-DMASEV: modify the event-interrupt resource, and if the INTEN sets
-function as interrupt, the DMAC will set irq<event_num> HIGH to
-generate interrupt. write INTCLR to clear interrupt.
+IOW, we should just use __mnt_{want,drop}_write() for that
+switchover; no need to bother with mnt_{want,drop}_write()
+there.
 
-	DMA EXECUTING INSTRUCTS		DMA TERMINATE
-		|				|
-		|				|
-	       ...			      _stop
-		|				|
-		|			spin_lock_irqsave
-	     DMASEV				|
-		|				|
-		|			    mask INTEN
-		|				|
-		|			     DMAKILL
-		|				|
-		|			spin_unlock_irqrestore
+Tested-by: Amir Goldstein <amir73il@gmail.com>
+Reported-by: syzbot+2a73a6ea9507b7112141@syzkaller.appspotmail.com
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-in above case, a interrupt was left, and if we unmask INTEN, the DMAC
-will set irq<event_num> HIGH to generate interrupt.
-
-to fix this, do as follows:
-
-	DMA EXECUTING INSTRUCTS		DMA TERMINATE
-		|				|
-		|				|
-	       ...			      _stop
-		|				|
-		|			spin_lock_irqsave
-	     DMASEV				|
-		|				|
-		|			     DMAKILL
-		|				|
-		|			   clear INTCLR
-		|			    mask INTEN
-		|				|
-		|			spin_unlock_irqrestore
-
-Signed-off-by: Sugar Zhang <sugar.zhang@rock-chips.com>
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/pl330.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ fs/internal.h         |    2 --
+ include/linux/mount.h |    2 ++
+ kernel/acct.c         |    4 ++--
+ 3 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/dma/pl330.c b/drivers/dma/pl330.c
-index eec79fdf27a5b..56695ffb5d377 100644
---- a/drivers/dma/pl330.c
-+++ b/drivers/dma/pl330.c
-@@ -966,6 +966,7 @@ static void _stop(struct pl330_thread *thrd)
- {
- 	void __iomem *regs = thrd->dmac->base;
- 	u8 insn[6] = {0, 0, 0, 0, 0, 0};
-+	u32 inten = readl(regs + INTEN);
+--- a/fs/internal.h
++++ b/fs/internal.h
+@@ -80,9 +80,7 @@ extern int sb_prepare_remount_readonly(s
  
- 	if (_state(thrd) == PL330_STATE_FAULT_COMPLETING)
- 		UNTIL(thrd, PL330_STATE_FAULTING | PL330_STATE_KILLING);
-@@ -978,10 +979,13 @@ static void _stop(struct pl330_thread *thrd)
+ extern void __init mnt_init(void);
  
- 	_emit_KILL(0, insn);
+-extern int __mnt_want_write(struct vfsmount *);
+ extern int __mnt_want_write_file(struct file *);
+-extern void __mnt_drop_write(struct vfsmount *);
+ extern void __mnt_drop_write_file(struct file *);
  
--	/* Stop generating interrupts for SEV */
--	writel(readl(regs + INTEN) & ~(1 << thrd->ev), regs + INTEN);
--
- 	_execute_DBGINSN(thrd, insn, is_manager(thrd));
-+
-+	/* clear the event */
-+	if (inten & (1 << thrd->ev))
-+		writel(1 << thrd->ev, regs + INTCLR);
-+	/* Stop generating interrupts for SEV */
-+	writel(inten & ~(1 << thrd->ev), regs + INTEN);
+ /*
+--- a/include/linux/mount.h
++++ b/include/linux/mount.h
+@@ -86,6 +86,8 @@ extern bool mnt_may_suid(struct vfsmount
+ 
+ struct path;
+ extern struct vfsmount *clone_private_mount(const struct path *path);
++extern int __mnt_want_write(struct vfsmount *);
++extern void __mnt_drop_write(struct vfsmount *);
+ 
+ struct file_system_type;
+ extern struct vfsmount *vfs_kern_mount(struct file_system_type *type,
+--- a/kernel/acct.c
++++ b/kernel/acct.c
+@@ -227,7 +227,7 @@ static int acct_on(struct filename *path
+ 		filp_close(file, NULL);
+ 		return PTR_ERR(internal);
+ 	}
+-	err = mnt_want_write(internal);
++	err = __mnt_want_write(internal);
+ 	if (err) {
+ 		mntput(internal);
+ 		kfree(acct);
+@@ -252,7 +252,7 @@ static int acct_on(struct filename *path
+ 	old = xchg(&ns->bacct, &acct->pin);
+ 	mutex_unlock(&acct->lock);
+ 	pin_kill(old);
+-	mnt_drop_write(mnt);
++	__mnt_drop_write(mnt);
+ 	mntput(mnt);
+ 	return 0;
  }
- 
- /* Start doing req 'idx' of thread 'thrd' */
--- 
-2.20.1
-
 
 
