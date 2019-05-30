@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 789462EBDA
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:16:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD5F82F365
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:29:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730680AbfE3DQ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:16:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42598 "EHLO mail.kernel.org"
+        id S1729729AbfE3DOH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:14:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729751AbfE3DQ0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:16:26 -0400
+        id S1729722AbfE3DOH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:14:07 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4F048245C4;
-        Thu, 30 May 2019 03:16:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D91DF2455A;
+        Thu, 30 May 2019 03:14:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186186;
-        bh=q+KNvMBWqHGJYd5F8Q04+GqU0pdLw8t+lNz1bm5hdgM=;
+        s=default; t=1559186046;
+        bh=TafnwVeoyIB5+u24332Q6fviaSBWjMIlnE3OTxLsJO0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vH7bPHF2MW2S3351h9gNGfg87Ust5fFx1nD6/xSIeUfZnrnckbPCC39qomX6TI9yW
-         kEeWtRmwOgH25Nco21CHEC5bwtWDdHQotCN8WFgASbJYAxXZO5hHzb1QyLFVAr/uau
-         s/U1M/nvOEidjXCitG4xR+gFTP6IDIxhckh1Vsy8=
+        b=cA1YrXpzJgI/uIggj331RqVWknHjVKBTb9OfKCFadYTHxU4peQuV4TBCR24F3sVnz
+         r3NbAo9/qyzuXo8S3Fsrjpf230hgEpYuc99jKY4sJ+zZfhYnJ1TQ4P3GTa3lWTi1of
+         C0j48NngHphCx0iOB6tAOaBIH78+WRz/VVSesnKY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sameeh Jubran <sameehj@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Shuah Khan <shuah@kernel.org>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 054/276] net: ena: gcc 8: fix compilation warning
-Date:   Wed, 29 May 2019 20:03:32 -0700
-Message-Id: <20190530030528.639643512@linuxfoundation.org>
+Subject: [PATCH 5.0 140/346] media: au0828: stop video streaming only when last user stops
+Date:   Wed, 29 May 2019 20:03:33 -0700
+Message-Id: <20190530030548.223868259@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +45,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f913308879bc6ae437ce64d878c7b05643ddea44 ]
+[ Upstream commit f604f0f5afb88045944567f604409951b5eb6af8 ]
 
-GCC 8 contains a number of new warnings as well as enhancements to existing
-checkers. The warning - Wstringop-truncation - warns for calls to bounded
-string manipulation functions such as strncat, strncpy, and stpncpy that
-may either truncate the copied string or leave the destination unchanged.
+If the application was streaming from both videoX and vbiX, and streaming
+from videoX was stopped, then the vbi streaming also stopped.
 
-In our case the destination string length (32 bytes) is much shorter than
-the source string (64 bytes) which causes this warning to show up. In
-general the destination has to be at least a byte larger than the length
-of the source string with strncpy for this warning not to showup.
+The cause being that stop_streaming for video stopped the subdevs as well,
+instead of only doing that if dev->streaming_users reached 0.
 
-This can be easily fixed by using strlcpy instead which already does the
-truncation to the string. Documentation for this function can be
-found here:
+au0828_stop_vbi_streaming was also wrong since it didn't stop the subdevs
+at all when dev->streaming_users reached 0.
 
-https://elixir.bootlin.com/linux/latest/source/lib/string.c#L141
-
-Fixes: 1738cd3ed342 ("net: ena: Add a driver for Amazon Elastic Network Adapters (ENA)")
-Signed-off-by: Sameeh Jubran <sameehj@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Tested-by: Shuah Khan <shuah@kernel.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/amazon/ena/ena_netdev.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/usb/au0828/au0828-video.c | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/amazon/ena/ena_netdev.c b/drivers/net/ethernet/amazon/ena/ena_netdev.c
-index 1b5f591cf0a23..b5d72815776cb 100644
---- a/drivers/net/ethernet/amazon/ena/ena_netdev.c
-+++ b/drivers/net/ethernet/amazon/ena/ena_netdev.c
-@@ -2223,7 +2223,7 @@ static void ena_config_host_info(struct ena_com_dev *ena_dev)
+diff --git a/drivers/media/usb/au0828/au0828-video.c b/drivers/media/usb/au0828/au0828-video.c
+index 7876c897cc1d6..ad2b1b7ecea4d 100644
+--- a/drivers/media/usb/au0828/au0828-video.c
++++ b/drivers/media/usb/au0828/au0828-video.c
+@@ -839,9 +839,9 @@ int au0828_start_analog_streaming(struct vb2_queue *vq, unsigned int count)
+ 			return rc;
+ 		}
  
- 	host_info->os_type = ENA_ADMIN_OS_LINUX;
- 	host_info->kernel_ver = LINUX_VERSION_CODE;
--	strncpy(host_info->kernel_ver_str, utsname()->version,
-+	strlcpy(host_info->kernel_ver_str, utsname()->version,
- 		sizeof(host_info->kernel_ver_str) - 1);
- 	host_info->os_dist = 0;
- 	strncpy(host_info->os_dist_str, utsname()->release,
++		v4l2_device_call_all(&dev->v4l2_dev, 0, video, s_stream, 1);
++
+ 		if (vq->type == V4L2_BUF_TYPE_VIDEO_CAPTURE) {
+-			v4l2_device_call_all(&dev->v4l2_dev, 0, video,
+-						s_stream, 1);
+ 			dev->vid_timeout_running = 1;
+ 			mod_timer(&dev->vid_timeout, jiffies + (HZ / 10));
+ 		} else if (vq->type == V4L2_BUF_TYPE_VBI_CAPTURE) {
+@@ -861,10 +861,11 @@ static void au0828_stop_streaming(struct vb2_queue *vq)
+ 
+ 	dprintk(1, "au0828_stop_streaming called %d\n", dev->streaming_users);
+ 
+-	if (dev->streaming_users-- == 1)
++	if (dev->streaming_users-- == 1) {
+ 		au0828_uninit_isoc(dev);
++		v4l2_device_call_all(&dev->v4l2_dev, 0, video, s_stream, 0);
++	}
+ 
+-	v4l2_device_call_all(&dev->v4l2_dev, 0, video, s_stream, 0);
+ 	dev->vid_timeout_running = 0;
+ 	del_timer_sync(&dev->vid_timeout);
+ 
+@@ -893,8 +894,10 @@ void au0828_stop_vbi_streaming(struct vb2_queue *vq)
+ 	dprintk(1, "au0828_stop_vbi_streaming called %d\n",
+ 		dev->streaming_users);
+ 
+-	if (dev->streaming_users-- == 1)
++	if (dev->streaming_users-- == 1) {
+ 		au0828_uninit_isoc(dev);
++		v4l2_device_call_all(&dev->v4l2_dev, 0, video, s_stream, 0);
++	}
+ 
+ 	spin_lock_irqsave(&dev->slock, flags);
+ 	if (dev->isoc_ctl.vbi_buf != NULL) {
 -- 
 2.20.1
 
