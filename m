@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0179C2EBDB
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:16:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EADF2F367
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:29:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729611AbfE3DQ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:16:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42680 "EHLO mail.kernel.org"
+        id S1730123AbfE3E3G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:29:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33238 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730679AbfE3DQ2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:16:28 -0400
+        id S1728720AbfE3DOI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:14:08 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 927BA245C4;
-        Thu, 30 May 2019 03:16:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F0954244EF;
+        Thu, 30 May 2019 03:14:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186187;
-        bh=0fhmFRimn8eOjBRietxxwWBOu7Lo478PhD4c+RCWILg=;
+        s=default; t=1559186048;
+        bh=NVvAzGOIg97qKyAva+g4y1yXfLiTQHg1ERmm+Zug250=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eJnsyfPxjNWnPudQiRMokYOl+VuQfVt6nQxgkNT4NSNPQIWqqRDgBujQEO1aSIvXC
-         9keto4R4BA1W5i/qVTpUG5Fb+y2dSazk3eelepeFRrutUdEIOXN1Lz6Fv2wLDhWmPA
-         A3cl2p+tPt+3sjFuV6QXc2n4+DY/7KaR5QvWiZo4=
+        b=FhjQ+kpaHsQxjsPJT5i7Ha47baePM3eXR4orZOxYellFRM3YDkAvuw1AnZuw4uNBA
+         otEPLSV+13C6pydiqUcEuNo2X9mfaBYXBBKo3svpo3FUQGxLfV88aX1gcp+fTR5V4J
+         X5vOuS9mzWacFBSmEwma5xqxlsmGAb3jRnc/7C6g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jo=C3=A3o=20Paulo=20Rechi=20Vita?= <jprvita@endlessm.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Wenwen Wang <wang6495@umn.edu>,
+        Richard Guy Briggs <rgb@redhat.com>,
+        Paul Moore <paul@paul-moore.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 056/276] Bluetooth: Ignore CC events not matching the last HCI command
-Date:   Wed, 29 May 2019 20:03:34 -0700
-Message-Id: <20190530030528.863524474@linuxfoundation.org>
+Subject: [PATCH 5.0 142/346] audit: fix a memory leak bug
+Date:   Wed, 29 May 2019 20:03:35 -0700
+Message-Id: <20190530030548.329894864@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,190 +45,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f80c5dad7b6467b884c445ffea45985793b4b2d0 ]
+[ Upstream commit 70c4cf17e445264453bc5323db3e50aa0ac9e81f ]
 
-This commit makes the kernel not send the next queued HCI command until
-a command complete arrives for the last HCI command sent to the
-controller. This change avoids a problem with some buggy controllers
-(seen on two SKUs of QCA9377) that send an extra command complete event
-for the previous command after the kernel had already sent a new HCI
-command to the controller.
+In audit_rule_change(), audit_data_to_entry() is firstly invoked to
+translate the payload data to the kernel's rule representation. In
+audit_data_to_entry(), depending on the audit field type, an audit tree may
+be created in audit_make_tree(), which eventually invokes kmalloc() to
+allocate the tree.  Since this tree is a temporary tree, it will be then
+freed in the following execution, e.g., audit_add_rule() if the message
+type is AUDIT_ADD_RULE or audit_del_rule() if the message type is
+AUDIT_DEL_RULE. However, if the message type is neither AUDIT_ADD_RULE nor
+AUDIT_DEL_RULE, i.e., the default case of the switch statement, this
+temporary tree is not freed.
 
-The problem was reproduced when starting an active scanning procedure,
-where an extra command complete event arrives for the LE_SET_RANDOM_ADDR
-command. When this happends the kernel ends up not processing the
-command complete for the following commmand, LE_SET_SCAN_PARAM, and
-ultimately behaving as if a passive scanning procedure was being
-performed, when in fact controller is performing an active scanning
-procedure. This makes it impossible to discover BLE devices as no device
-found events are sent to userspace.
+To fix this issue, only allocate the tree when the type is AUDIT_ADD_RULE
+or AUDIT_DEL_RULE.
 
-This problem is reproducible on 100% of the attempts on the affected
-controllers. The extra command complete event can be seen at timestamp
-27.420131 on the btmon logs bellow.
-
-Bluetooth monitor ver 5.50
-= Note: Linux version 5.0.0+ (x86_64)                                  0.352340
-= Note: Bluetooth subsystem version 2.22                               0.352343
-= New Index: 80:C5:F2:8F:87:84 (Primary,USB,hci0)               [hci0] 0.352344
-= Open Index: 80:C5:F2:8F:87:84                                 [hci0] 0.352345
-= Index Info: 80:C5:F2:8F:87:84 (Qualcomm)                      [hci0] 0.352346
-@ MGMT Open: bluetoothd (privileged) version 1.14             {0x0001} 0.352347
-@ MGMT Open: btmon (privileged) version 1.14                  {0x0002} 0.352366
-@ MGMT Open: btmgmt (privileged) version 1.14                {0x0003} 27.302164
-@ MGMT Command: Start Discovery (0x0023) plen 1       {0x0003} [hci0] 27.302310
-        Address type: 0x06
-          LE Public
-          LE Random
-< HCI Command: LE Set Random Address (0x08|0x0005) plen 6   #1 [hci0] 27.302496
-        Address: 15:60:F2:91:B2:24 (Non-Resolvable)
-> HCI Event: Command Complete (0x0e) plen 4                 #2 [hci0] 27.419117
-      LE Set Random Address (0x08|0x0005) ncmd 1
-        Status: Success (0x00)
-< HCI Command: LE Set Scan Parameters (0x08|0x000b) plen 7  #3 [hci0] 27.419244
-        Type: Active (0x01)
-        Interval: 11.250 msec (0x0012)
-        Window: 11.250 msec (0x0012)
-        Own address type: Random (0x01)
-        Filter policy: Accept all advertisement (0x00)
-> HCI Event: Command Complete (0x0e) plen 4                 #4 [hci0] 27.420131
-      LE Set Random Address (0x08|0x0005) ncmd 1
-        Status: Success (0x00)
-< HCI Command: LE Set Scan Enable (0x08|0x000c) plen 2      #5 [hci0] 27.420259
-        Scanning: Enabled (0x01)
-        Filter duplicates: Enabled (0x01)
-> HCI Event: Command Complete (0x0e) plen 4                 #6 [hci0] 27.420969
-      LE Set Scan Parameters (0x08|0x000b) ncmd 1
-        Status: Success (0x00)
-> HCI Event: Command Complete (0x0e) plen 4                 #7 [hci0] 27.421983
-      LE Set Scan Enable (0x08|0x000c) ncmd 1
-        Status: Success (0x00)
-@ MGMT Event: Command Complete (0x0001) plen 4        {0x0003} [hci0] 27.422059
-      Start Discovery (0x0023) plen 1
-        Status: Success (0x00)
-        Address type: 0x06
-          LE Public
-          LE Random
-@ MGMT Event: Discovering (0x0013) plen 2             {0x0003} [hci0] 27.422067
-        Address type: 0x06
-          LE Public
-          LE Random
-        Discovery: Enabled (0x01)
-@ MGMT Event: Discovering (0x0013) plen 2             {0x0002} [hci0] 27.422067
-        Address type: 0x06
-          LE Public
-          LE Random
-        Discovery: Enabled (0x01)
-@ MGMT Event: Discovering (0x0013) plen 2             {0x0001} [hci0] 27.422067
-        Address type: 0x06
-          LE Public
-          LE Random
-        Discovery: Enabled (0x01)
-
-Signed-off-by: João Paulo Rechi Vita <jprvita@endlessm.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Wenwen Wang <wang6495@umn.edu>
+Reviewed-by: Richard Guy Briggs <rgb@redhat.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/bluetooth/hci.h |  1 +
- net/bluetooth/hci_core.c    |  5 +++++
- net/bluetooth/hci_event.c   | 12 ++++++++++++
- net/bluetooth/hci_request.c |  5 +++++
- net/bluetooth/hci_request.h |  1 +
- 5 files changed, 24 insertions(+)
+ kernel/auditfilter.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/include/net/bluetooth/hci.h b/include/net/bluetooth/hci.h
-index cdd9f1fe7cfa9..845d947dbae82 100644
---- a/include/net/bluetooth/hci.h
-+++ b/include/net/bluetooth/hci.h
-@@ -270,6 +270,7 @@ enum {
- 	HCI_FORCE_BREDR_SMP,
- 	HCI_FORCE_STATIC_ADDR,
- 	HCI_LL_RPA_RESOLUTION,
-+	HCI_CMD_PENDING,
+diff --git a/kernel/auditfilter.c b/kernel/auditfilter.c
+index bf309f2592c46..425c67e4f5681 100644
+--- a/kernel/auditfilter.c
++++ b/kernel/auditfilter.c
+@@ -1114,22 +1114,24 @@ int audit_rule_change(int type, int seq, void *data, size_t datasz)
+ 	int err = 0;
+ 	struct audit_entry *entry;
  
- 	__HCI_NUM_FLAGS,
- };
-diff --git a/net/bluetooth/hci_core.c b/net/bluetooth/hci_core.c
-index a06f030477173..5afd67ef797a6 100644
---- a/net/bluetooth/hci_core.c
-+++ b/net/bluetooth/hci_core.c
-@@ -4274,6 +4274,9 @@ void hci_req_cmd_complete(struct hci_dev *hdev, u16 opcode, u8 status,
- 		return;
+-	entry = audit_data_to_entry(data, datasz);
+-	if (IS_ERR(entry))
+-		return PTR_ERR(entry);
+-
+ 	switch (type) {
+ 	case AUDIT_ADD_RULE:
++		entry = audit_data_to_entry(data, datasz);
++		if (IS_ERR(entry))
++			return PTR_ERR(entry);
+ 		err = audit_add_rule(entry);
+ 		audit_log_rule_change("add_rule", &entry->rule, !err);
+ 		break;
+ 	case AUDIT_DEL_RULE:
++		entry = audit_data_to_entry(data, datasz);
++		if (IS_ERR(entry))
++			return PTR_ERR(entry);
+ 		err = audit_del_rule(entry);
+ 		audit_log_rule_change("remove_rule", &entry->rule, !err);
+ 		break;
+ 	default:
+-		err = -EINVAL;
+ 		WARN_ON(1);
++		return -EINVAL;
  	}
  
-+	/* If we reach this point this event matches the last command sent */
-+	hci_dev_clear_flag(hdev, HCI_CMD_PENDING);
-+
- 	/* If the command succeeded and there's still more commands in
- 	 * this request the request is not yet complete.
- 	 */
-@@ -4384,6 +4387,8 @@ static void hci_cmd_work(struct work_struct *work)
- 
- 		hdev->sent_cmd = skb_clone(skb, GFP_KERNEL);
- 		if (hdev->sent_cmd) {
-+			if (hci_req_status_pend(hdev))
-+				hci_dev_set_flag(hdev, HCI_CMD_PENDING);
- 			atomic_dec(&hdev->cmd_cnt);
- 			hci_send_frame(hdev, skb);
- 			if (test_bit(HCI_RESET, &hdev->flags))
-diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
-index 7f800c3480f7a..3e7badb3ac2d5 100644
---- a/net/bluetooth/hci_event.c
-+++ b/net/bluetooth/hci_event.c
-@@ -3357,6 +3357,12 @@ static void hci_cmd_complete_evt(struct hci_dev *hdev, struct sk_buff *skb,
- 	hci_req_cmd_complete(hdev, *opcode, *status, req_complete,
- 			     req_complete_skb);
- 
-+	if (hci_dev_test_flag(hdev, HCI_CMD_PENDING)) {
-+		bt_dev_err(hdev,
-+			   "unexpected event for opcode 0x%4.4x", *opcode);
-+		return;
-+	}
-+
- 	if (atomic_read(&hdev->cmd_cnt) && !skb_queue_empty(&hdev->cmd_q))
- 		queue_work(hdev->workqueue, &hdev->cmd_work);
- }
-@@ -3464,6 +3470,12 @@ static void hci_cmd_status_evt(struct hci_dev *hdev, struct sk_buff *skb,
- 		hci_req_cmd_complete(hdev, *opcode, ev->status, req_complete,
- 				     req_complete_skb);
- 
-+	if (hci_dev_test_flag(hdev, HCI_CMD_PENDING)) {
-+		bt_dev_err(hdev,
-+			   "unexpected event for opcode 0x%4.4x", *opcode);
-+		return;
-+	}
-+
- 	if (atomic_read(&hdev->cmd_cnt) && !skb_queue_empty(&hdev->cmd_q))
- 		queue_work(hdev->workqueue, &hdev->cmd_work);
- }
-diff --git a/net/bluetooth/hci_request.c b/net/bluetooth/hci_request.c
-index e8c9ef1e19227..9448ebd3780a3 100644
---- a/net/bluetooth/hci_request.c
-+++ b/net/bluetooth/hci_request.c
-@@ -46,6 +46,11 @@ void hci_req_purge(struct hci_request *req)
- 	skb_queue_purge(&req->cmd_q);
- }
- 
-+bool hci_req_status_pend(struct hci_dev *hdev)
-+{
-+	return hdev->req_status == HCI_REQ_PEND;
-+}
-+
- static int req_run(struct hci_request *req, hci_req_complete_t complete,
- 		   hci_req_complete_skb_t complete_skb)
- {
-diff --git a/net/bluetooth/hci_request.h b/net/bluetooth/hci_request.h
-index 692cc8b133682..55b2050cc9ff0 100644
---- a/net/bluetooth/hci_request.h
-+++ b/net/bluetooth/hci_request.h
-@@ -37,6 +37,7 @@ struct hci_request {
- 
- void hci_req_init(struct hci_request *req, struct hci_dev *hdev);
- void hci_req_purge(struct hci_request *req);
-+bool hci_req_status_pend(struct hci_dev *hdev);
- int hci_req_run(struct hci_request *req, hci_req_complete_t complete);
- int hci_req_run_skb(struct hci_request *req, hci_req_complete_skb_t complete);
- void hci_req_add(struct hci_request *req, u16 opcode, u32 plen,
+ 	if (err || type == AUDIT_DEL_RULE) {
 -- 
 2.20.1
 
