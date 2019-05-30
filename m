@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E6DA2EB8E
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:14:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 960052F1A2
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:14:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729607AbfE3DNv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:13:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60160 "EHLO mail.kernel.org"
+        id S1730229AbfE3EOo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:14:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729604AbfE3DNu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:13:50 -0400
+        id S1730603AbfE3DQJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:16:09 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B607124558;
-        Thu, 30 May 2019 03:13:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E95342458C;
+        Thu, 30 May 2019 03:16:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186029;
-        bh=/xgXLdIZmQ6E5ax/uAchCoFzvE9UX2jP7h3ZiscHh/E=;
+        s=default; t=1559186169;
+        bh=g7xRx7wbkWXxzsmEexPdZrCdeFMYV6Mspchdbw0hIvI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z00pKlAjaGgIP9GIzxHIOxs7ilDA5/q/C1grZ16DF412uBz9s9Mu0c3PPlv6TS5qy
-         tiCsxTKHdrT39EnMSVkTE7XNrNluqzxG7PBucDxp5Ny3kxEmNQXHIGJhTG87PA+Dov
-         4xQ6fVJ5FJA90seJqrhUCr02ZOzfMYCo9Q34aL2A=
+        b=YYvTiJiT8+Ees7CUAwnaeq5i+sfWybzfrzMFkb4B8lB4fgcW8icuxy35zPzjiw364
+         vhVFkZV5Ej+PQ4yX+t+iNwKVpqQCUIXeK2CNuVVSaxa+y916OKaS38nXt15JvbcGVB
+         Q0hmSKiMPu3/Vm/yu1nfZiM8/8yWSsOOs1cAS4nY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 106/346] slimbus: fix a potential NULL pointer dereference in of_qcom_slim_ngd_register
-Date:   Wed, 29 May 2019 20:02:59 -0700
-Message-Id: <20190530030546.488815341@linuxfoundation.org>
+        stable@vger.kernel.org, "Tobin C. Harding" <tobin@kernel.org>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.19 022/276] btrfs: sysfs: dont leak memory when failing add fsid
+Date:   Wed, 29 May 2019 20:03:00 -0700
+Message-Id: <20190530030525.532621039@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 06d5d6b7f9948a89543e1160ef852d57892c750d ]
+From: Tobin C. Harding <tobin@kernel.org>
 
-In case platform_device_alloc fails, the fix returns an error
-code to avoid the NULL pointer dereference.
+commit e32773357d5cc271b1d23550b3ed026eb5c2a468 upstream.
 
-Signed-off-by: Kangjie Lu <kjlu@umn.edu>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+A failed call to kobject_init_and_add() must be followed by a call to
+kobject_put().  Currently in the error path when adding fs_devices we
+are missing this call.  This could be fixed by calling
+btrfs_sysfs_remove_fsid() if btrfs_sysfs_add_fsid() returns an error or
+by adding a call to kobject_put() directly in btrfs_sysfs_add_fsid().
+Here we choose the second option because it prevents the slightly
+unusual error path handling requirements of kobject from leaking out
+into btrfs functions.
+
+Add a call to kobject_put() in the error path of kobject_add_and_init().
+This causes the release method to be called if kobject_init_and_add()
+fails.  open_tree() is the function that calls btrfs_sysfs_add_fsid()
+and the error code in this function is already written with the
+assumption that the release method is called during the error path of
+open_tree() (as seen by the call to btrfs_sysfs_remove_fsid() under the
+fail_fsdev_sysfs label).
+
+Cc: stable@vger.kernel.org # v4.4+
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Tobin C. Harding <tobin@kernel.org>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+
 ---
- drivers/slimbus/qcom-ngd-ctrl.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ fs/btrfs/sysfs.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/slimbus/qcom-ngd-ctrl.c b/drivers/slimbus/qcom-ngd-ctrl.c
-index 71f094c9ec684..f3585777324cf 100644
---- a/drivers/slimbus/qcom-ngd-ctrl.c
-+++ b/drivers/slimbus/qcom-ngd-ctrl.c
-@@ -1342,6 +1342,10 @@ static int of_qcom_slim_ngd_register(struct device *parent,
- 			return -ENOMEM;
+--- a/fs/btrfs/sysfs.c
++++ b/fs/btrfs/sysfs.c
+@@ -811,7 +811,12 @@ int btrfs_sysfs_add_fsid(struct btrfs_fs
+ 	fs_devs->fsid_kobj.kset = btrfs_kset;
+ 	error = kobject_init_and_add(&fs_devs->fsid_kobj,
+ 				&btrfs_ktype, parent, "%pU", fs_devs->fsid);
+-	return error;
++	if (error) {
++		kobject_put(&fs_devs->fsid_kobj);
++		return error;
++	}
++
++	return 0;
+ }
  
- 		ngd->pdev = platform_device_alloc(QCOM_SLIM_NGD_DRV_NAME, id);
-+		if (!ngd->pdev) {
-+			kfree(ngd);
-+			return -ENOMEM;
-+		}
- 		ngd->id = id;
- 		ngd->pdev->dev.parent = parent;
- 		ngd->pdev->driver_override = QCOM_SLIM_NGD_DRV_NAME;
--- 
-2.20.1
-
+ int btrfs_sysfs_add_mounted(struct btrfs_fs_info *fs_info)
 
 
