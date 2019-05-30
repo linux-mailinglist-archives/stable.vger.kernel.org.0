@@ -2,40 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C3FE2EB81
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:13:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19F0E2F620
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:53:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729531AbfE3DNh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:13:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58832 "EHLO mail.kernel.org"
+        id S1728168AbfE3DKi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:10:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729526AbfE3DNh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:13:37 -0400
+        id S1728154AbfE3DKh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:10:37 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4FD742454E;
-        Thu, 30 May 2019 03:13:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3ECE0244A9;
+        Thu, 30 May 2019 03:10:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186016;
-        bh=N/pF3K1NFhyQSZDSqQuVhgWuqwwXPTxyp50grt/9H4k=;
+        s=default; t=1559185836;
+        bh=gSCqpRSwWR9itNPa8ZOffy3svP0Zw3PUJv+UrAYcSqY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xRSbL17P3UpGSkrvJc6k2s1nVHn02ChU3CUD8zYxFNHuhnnt/begX7umkGzP3IMfE
-         UzJDF46Kncuuh9+1SSnw7vP6YOFdBFQVoZhv/Xi+cbV1VT6ESqUZM/H2ZKmnFTtrgL
-         t0Phb7TfGe8Z71+PPXpW55GbzghWJfwSINUu8FMQ=
+        b=oXrBL8hPWCk0KETUMmnJ5vph8dl+rmF6o0GIc/PUhaSUQoTHBL3e6pEYIntY90xe8
+         u7M361/qfFUgRkcC05jizD/ceDYBLt7Rs83a/VJS0wnETi5dhmR2btLlcsX2plYI6J
+         C5e1jUo3F6gK8rr4Pz3P9n8S6Gzh4U7OBRJ9Bgp4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Felipe Balbi <felipe.balbi@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 064/346] usb: dwc3: move synchronize_irq() out of the spinlock protected block
-Date:   Wed, 29 May 2019 20:02:17 -0700
-Message-Id: <20190530030544.308581434@linuxfoundation.org>
+        stable@vger.kernel.org, Nicolai Stange <nstange@suse.de>,
+        Jiri Kosina <jkosina@suse.cz>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Andy Lutomirski <luto@kernel.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Frederic Weisbecker <fweisbec@gmail.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 140/405] x86/mm: Remove in_nmi() warning from 64-bit implementation of vmalloc_fault()
+Date:   Wed, 29 May 2019 20:02:18 -0700
+Message-Id: <20190530030548.194188273@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,98 +52,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 41a91c606e7d2b74358a944525267cc451c271e8 ]
+[ Upstream commit a65c88e16f32aa9ef2e8caa68ea5c29bd5eb0ff0 ]
 
-dwc3_gadget_suspend() is called under dwc->lock spinlock. In such context
-calling synchronize_irq() is not allowed. Move the problematic call out
-of the protected block to fix the following kernel BUG during system
-suspend:
+In-NMI warnings have been added to vmalloc_fault() via:
 
-BUG: sleeping function called from invalid context at kernel/irq/manage.c:112
-in_atomic(): 1, irqs_disabled(): 128, pid: 1601, name: rtcwake
-6 locks held by rtcwake/1601:
- #0: f70ac2a2 (sb_writers#7){.+.+}, at: vfs_write+0x130/0x16c
- #1: b5fe1270 (&of->mutex){+.+.}, at: kernfs_fop_write+0xc0/0x1e4
- #2: 7e597705 (kn->count#60){.+.+}, at: kernfs_fop_write+0xc8/0x1e4
- #3: 8b3527d0 (system_transition_mutex){+.+.}, at: pm_suspend+0xc4/0xc04
- #4: fc7f1c42 (&dev->mutex){....}, at: __device_suspend+0xd8/0x74c
- #5: 4b36507e (&(&dwc->lock)->rlock){....}, at: dwc3_gadget_suspend+0x24/0x3c
-irq event stamp: 11252
-hardirqs last  enabled at (11251): [<c09c54a4>] _raw_spin_unlock_irqrestore+0x6c/0x74
-hardirqs last disabled at (11252): [<c09c4d44>] _raw_spin_lock_irqsave+0x1c/0x5c
-softirqs last  enabled at (9744): [<c0102564>] __do_softirq+0x3a4/0x66c
-softirqs last disabled at (9737): [<c0128528>] irq_exit+0x140/0x168
-Preemption disabled at:
-[<00000000>]   (null)
-CPU: 7 PID: 1601 Comm: rtcwake Not tainted
-5.0.0-rc3-next-20190122-00039-ga3f4ee4f8a52 #5252
-Hardware name: SAMSUNG EXYNOS (Flattened Device Tree)
-[<c01110f0>] (unwind_backtrace) from [<c010d120>] (show_stack+0x10/0x14)
-[<c010d120>] (show_stack) from [<c09a4d04>] (dump_stack+0x90/0xc8)
-[<c09a4d04>] (dump_stack) from [<c014c700>] (___might_sleep+0x22c/0x2c8)
-[<c014c700>] (___might_sleep) from [<c0189d68>] (synchronize_irq+0x28/0x84)
-[<c0189d68>] (synchronize_irq) from [<c05cbbf8>] (dwc3_gadget_suspend+0x34/0x3c)
-[<c05cbbf8>] (dwc3_gadget_suspend) from [<c05bd020>] (dwc3_suspend_common+0x154/0x410)
-[<c05bd020>] (dwc3_suspend_common) from [<c05bd34c>] (dwc3_suspend+0x14/0x2c)
-[<c05bd34c>] (dwc3_suspend) from [<c051c730>] (platform_pm_suspend+0x2c/0x54)
-[<c051c730>] (platform_pm_suspend) from [<c05285d4>] (dpm_run_callback+0xa4/0x3dc)
-[<c05285d4>] (dpm_run_callback) from [<c0528a40>] (__device_suspend+0x134/0x74c)
-[<c0528a40>] (__device_suspend) from [<c052c508>] (dpm_suspend+0x174/0x588)
-[<c052c508>] (dpm_suspend) from [<c0182134>] (suspend_devices_and_enter+0xc0/0xe74)
-[<c0182134>] (suspend_devices_and_enter) from [<c0183658>] (pm_suspend+0x770/0xc04)
-[<c0183658>] (pm_suspend) from [<c0180ddc>] (state_store+0x6c/0xcc)
-[<c0180ddc>] (state_store) from [<c09a9a70>] (kobj_attr_store+0x14/0x20)
-[<c09a9a70>] (kobj_attr_store) from [<c02d6800>] (sysfs_kf_write+0x4c/0x50)
-[<c02d6800>] (sysfs_kf_write) from [<c02d594c>] (kernfs_fop_write+0xfc/0x1e4)
-[<c02d594c>] (kernfs_fop_write) from [<c02593d8>] (__vfs_write+0x2c/0x160)
-[<c02593d8>] (__vfs_write) from [<c0259694>] (vfs_write+0xa4/0x16c)
-[<c0259694>] (vfs_write) from [<c0259870>] (ksys_write+0x40/0x8c)
-[<c0259870>] (ksys_write) from [<c0101000>] (ret_fast_syscall+0x0/0x28)
-Exception stack(0xed55ffa8 to 0xed55fff0)
-...
+  ebc8827f75 ("x86: Barf when vmalloc and kmemcheck faults happen in NMI")
 
-Fixes: 01c10880d242 ("usb: dwc3: gadget: synchronize_irq dwc irq in suspend")
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+back in the time when our NMI entry code could not cope with nested NMIs.
+
+These days, it's perfectly fine to take a fault in NMI context and we
+don't have to care about the fact that IRET from the fault handler might
+cause NMI nesting.
+
+This warning has already been removed from 32-bit implementation of
+vmalloc_fault() in:
+
+  6863ea0cda8 ("x86/mm: Remove in_nmi() warning from vmalloc_fault()")
+
+but the 64-bit version was omitted.
+
+Remove the bogus warning also from 64-bit implementation of vmalloc_fault().
+
+Reported-by: Nicolai Stange <nstange@suse.de>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Frederic Weisbecker <fweisbec@gmail.com>
+Cc: Joerg Roedel <jroedel@suse.de>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Fixes: 6863ea0cda8 ("x86/mm: Remove in_nmi() warning from vmalloc_fault()")
+Link: http://lkml.kernel.org/r/nycvar.YFH.7.76.1904240902280.9803@cbobk.fhfr.pm
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/core.c   | 2 ++
- drivers/usb/dwc3/gadget.c | 2 --
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/mm/fault.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/usb/dwc3/core.c b/drivers/usb/dwc3/core.c
-index f944cea4056bc..72110a8c49d68 100644
---- a/drivers/usb/dwc3/core.c
-+++ b/drivers/usb/dwc3/core.c
-@@ -1600,6 +1600,7 @@ static int dwc3_suspend_common(struct dwc3 *dwc, pm_message_t msg)
- 		spin_lock_irqsave(&dwc->lock, flags);
- 		dwc3_gadget_suspend(dwc);
- 		spin_unlock_irqrestore(&dwc->lock, flags);
-+		synchronize_irq(dwc->irq_gadget);
- 		dwc3_core_exit(dwc);
- 		break;
- 	case DWC3_GCTL_PRTCAP_HOST:
-@@ -1632,6 +1633,7 @@ static int dwc3_suspend_common(struct dwc3 *dwc, pm_message_t msg)
- 			spin_lock_irqsave(&dwc->lock, flags);
- 			dwc3_gadget_suspend(dwc);
- 			spin_unlock_irqrestore(&dwc->lock, flags);
-+			synchronize_irq(dwc->irq_gadget);
- 		}
+diff --git a/arch/x86/mm/fault.c b/arch/x86/mm/fault.c
+index 667f1da36208e..5eaf67e8314f1 100644
+--- a/arch/x86/mm/fault.c
++++ b/arch/x86/mm/fault.c
+@@ -359,8 +359,6 @@ static noinline int vmalloc_fault(unsigned long address)
+ 	if (!(address >= VMALLOC_START && address < VMALLOC_END))
+ 		return -1;
  
- 		dwc3_otg_exit(dwc);
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index 9f941cdb0691d..1227e8f5a5c87 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -3385,8 +3385,6 @@ int dwc3_gadget_suspend(struct dwc3 *dwc)
- 	dwc3_disconnect_gadget(dwc);
- 	__dwc3_gadget_stop(dwc);
- 
--	synchronize_irq(dwc->irq_gadget);
+-	WARN_ON_ONCE(in_nmi());
 -
- 	return 0;
- }
- 
+ 	/*
+ 	 * Copy kernel mappings over when needed. This can also
+ 	 * happen within a race in page table update. In the later
 -- 
 2.20.1
 
