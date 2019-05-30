@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B106E2F684
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:57:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EB202EB6E
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:13:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728160AbfE3E4r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:56:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46060 "EHLO mail.kernel.org"
+        id S1729321AbfE3DNB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:13:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727895AbfE3DKB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:10:01 -0400
+        id S1729315AbfE3DNB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:13:01 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8EDD92447F;
-        Thu, 30 May 2019 03:10:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 662E521BE2;
+        Thu, 30 May 2019 03:13:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185800;
-        bh=txYrdKE6cywEwEdJM+MpKkI+iHppVEDntyB2O4NREiw=;
+        s=default; t=1559185980;
+        bh=s9nAbxXhx0OfYa9n7VHi49AdWW/fvxIXefqFeauvzgM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gNTUeV3PJAOdQuSKe54Z7QxFktu9/kI5iqd00l9Z2UuwTk/NAtndqAU6b61pPNdDQ
-         g9USCNYmlbS/2pC/5bnOId/DJD9b4QrQGGJhZseIjs1+BZ66Qw409GY+zNcd7txVbe
-         5FYSjv4X9rpPjwNPYVioFW6foVHrEBiWHHSuOkvg=
+        b=vK+BBf6RojGeoUdqwF6Sjuqx+yCu3y3LbmjmUdGKIjoG84jIFflzH5ETT98HVNbTn
+         /yTgeM029q3qV81I9GBwehmzhLN02TZXvyLQzd4ywtjqzhaIZULbPgkDNJPjjK7uiA
+         oeqrsSXxBr6APYqhjf7M62gcraqiJJM1Yghdpgyo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 078/405] ASoC: imx: fix fiq dependencies
+        stable@vger.kernel.org, Ira Weiny <ira.weiny@intel.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 5.0 003/346] ext4: wait for outstanding dio during truncate in nojournal mode
 Date:   Wed, 29 May 2019 20:01:16 -0700
-Message-Id: <20190530030544.922803750@linuxfoundation.org>
+Message-Id: <20190530030540.580600723@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,67 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ea751227c813ab833609afecfeedaf0aa26f327e ]
+From: Jan Kara <jack@suse.cz>
 
-During randconfig builds, I occasionally run into an invalid configuration
-of the freescale FIQ sound support:
+commit 82a25b027ca48d7ef197295846b352345853dfa8 upstream.
 
-WARNING: unmet direct dependencies detected for SND_SOC_IMX_PCM_FIQ
-  Depends on [m]: SOUND [=y] && !UML && SND [=y] && SND_SOC [=y] && SND_IMX_SOC [=m]
-  Selected by [y]:
-  - SND_SOC_FSL_SPDIF [=y] && SOUND [=y] && !UML && SND [=y] && SND_SOC [=y] && SND_IMX_SOC [=m]!=n && (MXC_TZIC [=n] || MXC_AVIC [=y])
+We didn't wait for outstanding direct IO during truncate in nojournal
+mode (as we skip orphan handling in that case). This can lead to fs
+corruption or stale data exposure if truncate ends up freeing blocks
+and these get reallocated before direct IO finishes. Fix the condition
+determining whether the wait is necessary.
 
-sound/soc/fsl/imx-ssi.o: In function `imx_ssi_remove':
-imx-ssi.c:(.text+0x28): undefined reference to `imx_pcm_fiq_exit'
-sound/soc/fsl/imx-ssi.o: In function `imx_ssi_probe':
-imx-ssi.c:(.text+0xa64): undefined reference to `imx_pcm_fiq_init'
+CC: stable@vger.kernel.org
+Fixes: 1c9114f9c0f1 ("ext4: serialize unlocked dio reads with truncate")
+Reviewed-by: Ira Weiny <ira.weiny@intel.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-The Kconfig warning is a result of the symbol being defined inside of
-the "if SND_IMX_SOC" block, and is otherwise harmless. The link error
-is more tricky and happens with SND_SOC_IMX_SSI=y, which may or may not
-imply FIQ support. However, if SND_SOC_FSL_SSI is set to =m at the same
-time, that selects SND_SOC_IMX_PCM_FIQ as a loadable module dependency,
-which then causes a link failure from imx-ssi.
-
-The solution here is to make SND_SOC_IMX_PCM_FIQ built-in whenever
-one of its potential users is built-in.
-
-Fixes: ff40260f79dc ("ASoC: fsl: refine DMA/FIQ dependencies")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/fsl/Kconfig | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ fs/ext4/inode.c |   21 +++++++++------------
+ 1 file changed, 9 insertions(+), 12 deletions(-)
 
-diff --git a/sound/soc/fsl/Kconfig b/sound/soc/fsl/Kconfig
-index 7b1d9970be8b3..1f65cf555ebe0 100644
---- a/sound/soc/fsl/Kconfig
-+++ b/sound/soc/fsl/Kconfig
-@@ -182,16 +182,17 @@ config SND_MPC52xx_SOC_EFIKA
- 
- endif # SND_POWERPC_SOC
- 
-+config SND_SOC_IMX_PCM_FIQ
-+	tristate
-+	default y if SND_SOC_IMX_SSI=y && (SND_SOC_FSL_SSI=m || SND_SOC_FSL_SPDIF=m) && (MXC_TZIC || MXC_AVIC)
-+	select FIQ
-+
- if SND_IMX_SOC
- 
- config SND_SOC_IMX_SSI
- 	tristate
- 	select SND_SOC_FSL_UTILS
- 
--config SND_SOC_IMX_PCM_FIQ
--	tristate
--	select FIQ
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -5632,20 +5632,17 @@ int ext4_setattr(struct dentry *dentry,
+ 				goto err_out;
+ 			}
+ 		}
+-		if (!shrink)
++		if (!shrink) {
+ 			pagecache_isize_extended(inode, oldsize, inode->i_size);
 -
- comment "SoC Audio support for Freescale i.MX boards:"
+-		/*
+-		 * Blocks are going to be removed from the inode. Wait
+-		 * for dio in flight.  Temporarily disable
+-		 * dioread_nolock to prevent livelock.
+-		 */
+-		if (orphan) {
+-			if (!ext4_should_journal_data(inode)) {
+-				inode_dio_wait(inode);
+-			} else
+-				ext4_wait_for_tail_page_commit(inode);
++		} else {
++			/*
++			 * Blocks are going to be removed from the inode. Wait
++			 * for dio in flight.
++			 */
++			inode_dio_wait(inode);
+ 		}
++		if (orphan && ext4_should_journal_data(inode))
++			ext4_wait_for_tail_page_commit(inode);
+ 		down_write(&EXT4_I(inode)->i_mmap_sem);
  
- config SND_MXC_SOC_WM1133_EV1
--- 
-2.20.1
-
+ 		rc = ext4_break_layouts(inode);
 
 
