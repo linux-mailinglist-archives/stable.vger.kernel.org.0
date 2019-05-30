@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CFFD92EB78
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:13:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5BE32F63A
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:54:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728099AbfE3DNW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:13:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58290 "EHLO mail.kernel.org"
+        id S1727484AbfE3DK2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:10:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47550 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729413AbfE3DNV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:13:21 -0400
+        id S1728099AbfE3DK1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:10:27 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 10716244E8;
-        Thu, 30 May 2019 03:13:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 004AE24490;
+        Thu, 30 May 2019 03:10:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186001;
-        bh=jxFEU4hEZfRWH8xSa6TsEgftBEFtYHFMd2kCHP1i7X8=;
+        s=default; t=1559185827;
+        bh=dI0F82b5i+4o3HJUm9vdDFZnNx3jp5jYr9/1WIuPzj4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nWDhIUCw902KJZZl4U48T5t9Rp9VNo6tUD9LsdDVJpW8mQNjb9u2nNol8x/ciufGN
-         XW98bS1vtgm0SMYrlVStSiyRU1mXliw+rOupSNcCK0L+rNQ0R5Ffa1JyFlyi72xb10
-         DGgtuCE2Z72p0SsTF2X/MCWx0AO2JsxlJHCd6Bao=
+        b=aE0ENn1MmWRZheQnzqbXqXBmem/RVoOJsxHrAqcnlfvNmZYRr2qCubORLsC+t82dW
+         nyxVAG8yCayoTGdwT4BcD/0cQa/YTwEa2YO2lzxY606zVuNvhIQA8A89/MyLPGTHjV
+         Y7K/tKyhNqD/v00UXgxu3tonQAr0bCN2Vs1U2ci4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Quentin Monnet <quentin.monnet@netronome.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 052/346] bpftool: exclude bash-completion/bpftool from .gitignore pattern
+        stable@vger.kernel.org, Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 127/405] nvme-tcp: fix a NULL deref when an admin connect times out
 Date:   Wed, 29 May 2019 20:02:05 -0700
-Message-Id: <20190530030543.558284058@linuxfoundation.org>
+Message-Id: <20190530030547.467230220@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,55 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a7d006714724de4334c5e3548701b33f7b12ca96 ]
+[ Upstream commit 7a42589654ae79e1177f0d74306a02d6cef7bddf ]
 
-tools/bpf/bpftool/.gitignore has the "bpftool" pattern, which is
-intended to ignore the following build artifact:
+If we timeout the admin startup sequence we might not yet have
+an I/O tagset allocated which causes the teardown sequence to crash.
+Make nvme_tcp_teardown_io_queues safe by not iterating inflight tags
+if the tagset wasn't allocated.
 
-  tools/bpf/bpftool/bpftool
-
-However, the .gitignore entry is effective not only for the current
-directory, but also for any sub-directories.
-
-So, from the point of .gitignore grammar, the following check-in file
-is also considered to be ignored:
-
-  tools/bpf/bpftool/bash-completion/bpftool
-
-As the manual gitignore(5) says "Files already tracked by Git are not
-affected", this is not a problem as far as Git is concerned.
-
-However, Git is not the only program that parses .gitignore because
-.gitignore is useful to distinguish build artifacts from source files.
-
-For example, tar(1) supports the --exclude-vcs-ignore option. As of
-writing, this option does not work perfectly, but it intends to create
-a tarball excluding files specified by .gitignore.
-
-So, I believe it is better to fix this issue.
-
-You can fix it by prefixing the pattern with a slash; the leading slash
-means the specified pattern is relative to the current directory.
-
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-Reviewed-by: Quentin Monnet <quentin.monnet@netronome.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Fixes: 39d57757467b ("nvme-tcp: fix timeout handler")
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/bpf/bpftool/.gitignore | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/nvme/host/tcp.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/tools/bpf/bpftool/.gitignore b/tools/bpf/bpftool/.gitignore
-index 67167e44b7266..8248b8dd89d4b 100644
---- a/tools/bpf/bpftool/.gitignore
-+++ b/tools/bpf/bpftool/.gitignore
-@@ -1,5 +1,5 @@
- *.d
--bpftool
-+/bpftool
- bpftool*.8
- bpf-helpers.*
- FEATURE-DUMP.bpftool
+diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
+index 68c49dd672104..aae5374d2b93f 100644
+--- a/drivers/nvme/host/tcp.c
++++ b/drivers/nvme/host/tcp.c
+@@ -1710,7 +1710,9 @@ static void nvme_tcp_teardown_admin_queue(struct nvme_ctrl *ctrl,
+ {
+ 	blk_mq_quiesce_queue(ctrl->admin_q);
+ 	nvme_tcp_stop_queue(ctrl, 0);
+-	blk_mq_tagset_busy_iter(ctrl->admin_tagset, nvme_cancel_request, ctrl);
++	if (ctrl->admin_tagset)
++		blk_mq_tagset_busy_iter(ctrl->admin_tagset,
++			nvme_cancel_request, ctrl);
+ 	blk_mq_unquiesce_queue(ctrl->admin_q);
+ 	nvme_tcp_destroy_admin_queue(ctrl, remove);
+ }
+@@ -1722,7 +1724,9 @@ static void nvme_tcp_teardown_io_queues(struct nvme_ctrl *ctrl,
+ 		return;
+ 	nvme_stop_queues(ctrl);
+ 	nvme_tcp_stop_io_queues(ctrl);
+-	blk_mq_tagset_busy_iter(ctrl->tagset, nvme_cancel_request, ctrl);
++	if (ctrl->tagset)
++		blk_mq_tagset_busy_iter(ctrl->tagset,
++			nvme_cancel_request, ctrl);
+ 	if (remove)
+ 		nvme_start_queues(ctrl);
+ 	nvme_tcp_destroy_io_queues(ctrl, remove);
 -- 
 2.20.1
 
