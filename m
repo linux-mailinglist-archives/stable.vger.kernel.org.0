@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 031522F01E
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:01:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E0812F1D2
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:16:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728709AbfE3EAz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:00:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50450 "EHLO mail.kernel.org"
+        id S1729359AbfE3EQB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:16:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729107AbfE3DSO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:18:14 -0400
+        id S1729356AbfE3DPx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:15:53 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E1423245AF;
-        Thu, 30 May 2019 03:18:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 44D7823D83;
+        Thu, 30 May 2019 03:15:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186294;
-        bh=20NGHh9hI3pUhV5NSLVTioijjfVOpQ0vS7J9QaqBhV4=;
+        s=default; t=1559186153;
+        bh=xEQL8cLkJontcf8UKMDxuTMBWccBYxd86576sMJ/CxU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B237X1ljmYZ6TQmfDGchEi9vk9aIQutmdC3IHa8veRiVYgfYVKmxBtyymSdNx5xyk
-         K/6h5MPLJ4J4KIN81OiOp8iiy7E/oNPRfMLO5U9YpdYLplVrrQeVzRP5PFy7G1f3G2
-         tDjdgQD+WLuXVjuqzHCMovy2nPnUGisDNTj/Q5jA=
+        b=x3iDBf75DvkDSDKr8dPvc2Ma0gk0pdOBgpcyKcKl+RMb/ulfB9W9O1b0aqBbbbDXW
+         Et0i3asJ34+TMFzBXUCD8Ts54i079fTcTWAUEmCtrZqvpISg1+CIv18ite3uIyB1pm
+         oVB9ttUk60oEGU1JNURJZasorBB+yBrGpTQlvtKw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Murton Liu <murton.liu@amd.com>,
-        Aric Cyr <Aric.Cyr@amd.com>,
-        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
-        Sivapiriyan Kumarasamy <Sivapiriyan.Kumarasamy@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Peter Ujfalusi <peter.ujfalusi@ti.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 253/276] drm/amd/display: Fix Divide by 0 in memory calculations
+Subject: [PATCH 5.0 338/346] ASoC: ti: fix davinci_mcasp_probe dependencies
 Date:   Wed, 29 May 2019 20:06:51 -0700
-Message-Id: <20190530030540.954741678@linuxfoundation.org>
+Message-Id: <20190530030557.856939634@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,55 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 59979bf8be1784ebfc44215031c6c88ca22ae65d ]
+[ Upstream commit 7d7b25d05ef1c5a1a9320190e1eeb55534847558 ]
 
-Check if we get any values equal to 0, and set to 1 if so.
+The SND_SOC_DAVINCI_MCASP driver can use either edma or sdma as
+a back-end, and it takes the presence of the respective dma engine
+drivers in the configuration as an indication to which ones should be
+built. However, this is flawed in multiple ways:
 
-Signed-off-by: Murton Liu <murton.liu@amd.com>
-Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
-Acked-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
-Acked-by: Sivapiriyan Kumarasamy <Sivapiriyan.Kumarasamy@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+- With CONFIG_TI_EDMA=m and CONFIG_SND_SOC_DAVINCI_MCASP=y,
+  is enabled as =m, and we get a link error:
+  sound/soc/ti/davinci-mcasp.o: In function `davinci_mcasp_probe':
+  davinci-mcasp.c:(.text+0x930): undefined reference to `edma_pcm_platform_register'
+
+- When CONFIG_SND_SOC_DAVINCI_MCASP=m has already been selected by
+  another driver, the same link error appears even if CONFIG_TI_EDMA
+  is disabled
+
+There are possibly other issues here, but it seems that the only reasonable
+solution is to always build both SND_SOC_TI_EDMA_PCM and
+SND_SOC_TI_SDMA_PCM as a dependency here. Both are fairly small and
+do not have any other compile-time dependencies, so the cost is
+very small, and makes the configuration stage much more consistent.
+
+Fixes: f2055e145f29 ("ASoC: ti: Merge davinci and omap directories")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../drm/amd/display/dc/dcn10/dcn10_dpp_dscl.c | 20 ++++++++++++++-----
- 1 file changed, 15 insertions(+), 5 deletions(-)
+ sound/soc/ti/Kconfig | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_dpp_dscl.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_dpp_dscl.c
-index 4a863a5dab417..321af9af95e86 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_dpp_dscl.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_dpp_dscl.c
-@@ -406,15 +406,25 @@ void dpp1_dscl_calc_lb_num_partitions(
- 		int *num_part_y,
- 		int *num_part_c)
- {
-+	int lb_memory_size, lb_memory_size_c, lb_memory_size_a, num_partitions_a,
-+	lb_bpc, memory_line_size_y, memory_line_size_c, memory_line_size_a;
-+
- 	int line_size = scl_data->viewport.width < scl_data->recout.width ?
- 			scl_data->viewport.width : scl_data->recout.width;
- 	int line_size_c = scl_data->viewport_c.width < scl_data->recout.width ?
- 			scl_data->viewport_c.width : scl_data->recout.width;
--	int lb_bpc = dpp1_dscl_get_lb_depth_bpc(scl_data->lb_params.depth);
--	int memory_line_size_y = (line_size * lb_bpc + 71) / 72; /* +71 to ceil */
--	int memory_line_size_c = (line_size_c * lb_bpc + 71) / 72; /* +71 to ceil */
--	int memory_line_size_a = (line_size + 5) / 6; /* +5 to ceil */
--	int lb_memory_size, lb_memory_size_c, lb_memory_size_a, num_partitions_a;
-+
-+	if (line_size == 0)
-+		line_size = 1;
-+
-+	if (line_size_c == 0)
-+		line_size_c = 1;
-+
-+
-+	lb_bpc = dpp1_dscl_get_lb_depth_bpc(scl_data->lb_params.depth);
-+	memory_line_size_y = (line_size * lb_bpc + 71) / 72; /* +71 to ceil */
-+	memory_line_size_c = (line_size_c * lb_bpc + 71) / 72; /* +71 to ceil */
-+	memory_line_size_a = (line_size + 5) / 6; /* +5 to ceil */
+diff --git a/sound/soc/ti/Kconfig b/sound/soc/ti/Kconfig
+index 4bf3c15d4e514..ee7c202c69b77 100644
+--- a/sound/soc/ti/Kconfig
++++ b/sound/soc/ti/Kconfig
+@@ -21,8 +21,8 @@ config SND_SOC_DAVINCI_ASP
  
- 	if (lb_config == LB_MEMORY_CONFIG_1) {
- 		lb_memory_size = 816;
+ config SND_SOC_DAVINCI_MCASP
+ 	tristate "Multichannel Audio Serial Port (McASP) support"
+-	select SND_SOC_TI_EDMA_PCM if TI_EDMA
+-	select SND_SOC_TI_SDMA_PCM if DMA_OMAP
++	select SND_SOC_TI_EDMA_PCM
++	select SND_SOC_TI_SDMA_PCM
+ 	help
+ 	  Say Y or M here if you want to have support for McASP IP found in
+ 	  various Texas Instruments SoCs like:
 -- 
 2.20.1
 
