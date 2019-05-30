@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 10F3F2EF34
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:53:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CB9B2F050
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:03:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732748AbfE3Dxm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:53:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55402 "EHLO mail.kernel.org"
+        id S1725440AbfE3ECu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:02:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49208 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731909AbfE3DT3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:19:29 -0400
+        id S1731370AbfE3DSA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:18:00 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F145624893;
-        Thu, 30 May 2019 03:19:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 93D6624733;
+        Thu, 30 May 2019 03:17:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186369;
-        bh=6HhoEqfB900/gBNVZ2xAYHzCuhOQS/FB6bnJ+gdUPWU=;
+        s=default; t=1559186279;
+        bh=58uaOlYXwMEaMgbFjjNeG3nzjjuStrWihyeEJBWhiTc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PqOQUy5GwOfMpDZfSRdRuyURxK4hFIuSm/drkV9Mw88oINYxerrJqtQmMpcGWcLvn
-         d+GAdQGHCzVR2QRs4hrNFJGBWq7hffLUDAxY/aAUs7sRLDQ++YQiIbf2bB1XngXKCy
-         SJpHmlFbqIpEYviQkRYLreYw31nXGFEbry9HWvx8=
+        b=wlhM3oJGLP3lh9J3zEgG9ZURhCnP7ftjZ7TiPUzpLSnQc/q3jBkvOiOLq1qJLHIo/
+         DuCMwjRYl+5RxqnNCTdb98j3CpzfTiF4N3jhoJsa/W7fkSOtSYwAewnH7P68zKuRo0
+         P/LFcPdnfKOjvg/6a9uvfa3UjAnhQ8wI8UmXiEso=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Farhan Ali <alifm@linux.ibm.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Pierre Morel <pmorel@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 077/193] vfio-ccw: Do not call flush_workqueue while holding the spinlock
+Subject: [PATCH 4.19 173/276] s390: zcrypt: initialize variables before_use
 Date:   Wed, 29 May 2019 20:05:31 -0700
-Message-Id: <20190530030459.782377268@linuxfoundation.org>
+Message-Id: <20190530030536.174871379@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,67 +44,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit cea5dde42a83b5f0a039da672f8686455936b8d8 ]
+[ Upstream commit 913140e221567b3ecd21b4242257a7e3fa279026 ]
 
-Currently we call flush_workqueue while holding the subchannel
-spinlock. But flush_workqueue function can go to sleep, so
-do not call the function while holding the spinlock.
+The 'func_code' variable gets printed in debug statements without
+a prior initialization in multiple functions, as reported when building
+with clang:
 
-Fixes the following bug:
+drivers/s390/crypto/zcrypt_api.c:659:6: warning: variable 'func_code' is used uninitialized whenever 'if' condition is true
+      [-Wsometimes-uninitialized]
+        if (mex->outputdatalength < mex->inputdatalength) {
+            ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+drivers/s390/crypto/zcrypt_api.c:725:29: note: uninitialized use occurs here
+        trace_s390_zcrypt_rep(mex, func_code, rc,
+                                   ^~~~~~~~~
+drivers/s390/crypto/zcrypt_api.c:659:2: note: remove the 'if' if its condition is always false
+        if (mex->outputdatalength < mex->inputdatalength) {
+        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+drivers/s390/crypto/zcrypt_api.c:654:24: note: initialize the variable 'func_code' to silence this warning
+        unsigned int func_code;
+                              ^
 
-[  285.203430] BUG: scheduling while atomic: bash/14193/0x00000002
-[  285.203434] INFO: lockdep is turned off.
-....
-[  285.203485] Preemption disabled at:
-[  285.203488] [<000003ff80243e5c>] vfio_ccw_sch_quiesce+0xbc/0x120 [vfio_ccw]
-[  285.203496] CPU: 7 PID: 14193 Comm: bash Tainted: G        W
-....
-[  285.203504] Call Trace:
-[  285.203510] ([<0000000000113772>] show_stack+0x82/0xd0)
-[  285.203514]  [<0000000000b7a102>] dump_stack+0x92/0xd0
-[  285.203518]  [<000000000017b8be>] __schedule_bug+0xde/0xf8
-[  285.203524]  [<0000000000b95b5a>] __schedule+0x7a/0xc38
-[  285.203528]  [<0000000000b9678a>] schedule+0x72/0xb0
-[  285.203533]  [<0000000000b9bfbc>] schedule_timeout+0x34/0x528
-[  285.203538]  [<0000000000b97608>] wait_for_common+0x118/0x1b0
-[  285.203544]  [<0000000000166d6a>] flush_workqueue+0x182/0x548
-[  285.203550]  [<000003ff80243e6e>] vfio_ccw_sch_quiesce+0xce/0x120 [vfio_ccw]
-[  285.203556]  [<000003ff80245278>] vfio_ccw_mdev_reset+0x38/0x70 [vfio_ccw]
-[  285.203562]  [<000003ff802458b0>] vfio_ccw_mdev_remove+0x40/0x78 [vfio_ccw]
-[  285.203567]  [<000003ff801a499c>] mdev_device_remove_ops+0x3c/0x80 [mdev]
-[  285.203573]  [<000003ff801a4d5c>] mdev_device_remove+0xc4/0x130 [mdev]
-[  285.203578]  [<000003ff801a5074>] remove_store+0x6c/0xa8 [mdev]
-[  285.203582]  [<000000000046f494>] kernfs_fop_write+0x14c/0x1f8
-[  285.203588]  [<00000000003c1530>] __vfs_write+0x38/0x1a8
-[  285.203593]  [<00000000003c187c>] vfs_write+0xb4/0x198
-[  285.203597]  [<00000000003c1af2>] ksys_write+0x5a/0xb0
-[  285.203601]  [<0000000000b9e270>] system_call+0xdc/0x2d8
+Add initializations to all affected code paths to shut up the warning
+and make the warning output consistent.
 
-Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
-Reviewed-by: Eric Farman <farman@linux.ibm.com>
-Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
-Message-Id: <626bab8bb2958ae132452e1ddaf1b20882ad5a9d.1554756534.git.alifm@linux.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/cio/vfio_ccw_drv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/s390/crypto/zcrypt_api.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index d22759eb66407..59eb5e6d9c79d 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -52,9 +52,9 @@ int vfio_ccw_sch_quiesce(struct subchannel *sch)
+diff --git a/drivers/s390/crypto/zcrypt_api.c b/drivers/s390/crypto/zcrypt_api.c
+index e6854127b4343..b2737bfeb8bb6 100644
+--- a/drivers/s390/crypto/zcrypt_api.c
++++ b/drivers/s390/crypto/zcrypt_api.c
+@@ -224,6 +224,7 @@ static long zcrypt_rsa_modexpo(struct ica_rsa_modexpo *mex)
+ 	trace_s390_zcrypt_req(mex, TP_ICARSAMODEXPO);
  
- 			wait_for_completion_timeout(&completion, 3*HZ);
+ 	if (mex->outputdatalength < mex->inputdatalength) {
++		func_code = 0;
+ 		rc = -EINVAL;
+ 		goto out;
+ 	}
+@@ -298,6 +299,7 @@ static long zcrypt_rsa_crt(struct ica_rsa_modexpo_crt *crt)
+ 	trace_s390_zcrypt_req(crt, TP_ICARSACRT);
  
--			spin_lock_irq(sch->lock);
- 			private->completion = NULL;
- 			flush_workqueue(vfio_ccw_work_q);
-+			spin_lock_irq(sch->lock);
- 			ret = cio_cancel_halt_clear(sch, &iretry);
- 		};
+ 	if (crt->outputdatalength < crt->inputdatalength) {
++		func_code = 0;
+ 		rc = -EINVAL;
+ 		goto out;
+ 	}
+@@ -483,6 +485,7 @@ static long zcrypt_send_ep11_cprb(struct ep11_urb *xcrb)
  
+ 		targets = kcalloc(target_num, sizeof(*targets), GFP_KERNEL);
+ 		if (!targets) {
++			func_code = 0;
+ 			rc = -ENOMEM;
+ 			goto out;
+ 		}
+@@ -490,6 +493,7 @@ static long zcrypt_send_ep11_cprb(struct ep11_urb *xcrb)
+ 		uptr = (struct ep11_target_dev __force __user *) xcrb->targets;
+ 		if (copy_from_user(targets, uptr,
+ 				   target_num * sizeof(*targets))) {
++			func_code = 0;
+ 			rc = -EFAULT;
+ 			goto out_free;
+ 		}
 -- 
 2.20.1
 
