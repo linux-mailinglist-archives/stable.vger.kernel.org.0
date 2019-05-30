@@ -2,118 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E3DD30209
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 20:37:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F98F30222
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 20:44:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726485AbfE3Shq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 14:37:46 -0400
-Received: from mail-qt1-f195.google.com ([209.85.160.195]:46379 "EHLO
-        mail-qt1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726029AbfE3Shq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 May 2019 14:37:46 -0400
-Received: by mail-qt1-f195.google.com with SMTP id z19so8178917qtz.13;
-        Thu, 30 May 2019 11:37:46 -0700 (PDT)
+        id S1725961AbfE3Soj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 14:44:39 -0400
+Received: from mail-qk1-f171.google.com ([209.85.222.171]:33012 "EHLO
+        mail-qk1-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726100AbfE3Soj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 May 2019 14:44:39 -0400
+Received: by mail-qk1-f171.google.com with SMTP id p18so4614541qkk.0
+        for <stable@vger.kernel.org>; Thu, 30 May 2019 11:44:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ziepe.ca; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=TP8qwa9bFK7NFf69y+6nuD/Rj/Tkum/YLtDiaznw/zk=;
+        b=iGGsfgIWOnESCeTKRI1vhV5K1ummCk4WqBKYOfMe5sMDaXavz+HBstuXM3RwHncmuM
+         6gHnbkB6w8sOMo/5Vb/RI9Sr+PL9GlTLfC6cBEEJ6reCkM6DSIHxxwd9d6d554Vr44nw
+         N83a2GCAXgcdicBF4e8aVKzBGE1KIT3Cj4rYxa73lk5WjFO2MZKath3dDYK5pt5Iyuqu
+         ESyZh2CK8RfZBOBGSuEramSqQvhqmyQtPCNyqB/fxBHXy8Z8BQ0Irk/dr8RC+WHsIEA8
+         wrRQ622vSmfylyo1mph/rVkMun/6rbqx760jS3Vxw4pNm/bxU8grQCq/s+Qrwfvj76Bo
+         QZrQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=QtDItTOKG0oEuYgA/AzlL7vWHCZCAXyrTV6+oZdO3RI=;
-        b=t4LTECWexeRis1nwkZ4ukEbdTcRKcXleNUuqEq7EshDhHwCiajhu0cTM9A9slqP9JB
-         RlnKUOQBQC3OQ+vqwmV4ijb2LgJAdATVDGNfBqHuoLuelsvb+StTTSlRxnTrNC5nNMXc
-         qGS/TbOVRJCNuGdmwF2wPAqXEDhVG3Vb0Y6OcR3/ES2xhXKJkxRD8ZWiaKNS7+Yu5SHz
-         u3ZcBbff3Uo9ZecUCrJXm1TX7n7obIggVD4yapVBk+kuWEuGNB1Bo8bYVxgEsqBhpdWH
-         pu3ZnROIt8DHJToHhg+WLlEBhLqx8Nmx9X6l0XqTm9MDEls/SfcEi/evW+3qh3xIRNAj
-         iaTg==
-X-Gm-Message-State: APjAAAXj0VaWuvJSUq/ZdEmSsKK8BXCJpQjzsx6ByoA8RHp+2ZGOVe/s
-        0/+yIQJ3gMcuAbb7ccc+Q4ICgBPL6CrRzJXznFU=
-X-Google-Smtp-Source: APXvYqzLTIr9hnY4VamvBbGXgDqhOWM+DId1eEn9j5p3MUoL2aeyzJLJmTc3J4WjWBULvqEaQSjsTb5gGB8bLa2FTjk=
-X-Received: by 2002:a0c:e78b:: with SMTP id x11mr1178890qvn.93.1559241465438;
- Thu, 30 May 2019 11:37:45 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=TP8qwa9bFK7NFf69y+6nuD/Rj/Tkum/YLtDiaznw/zk=;
+        b=LqfkxHux6QoNCFEguwjtnmBnn/LwiW+kVU8l6bHbMe5KjIsXc25vU8DBMh+dkcnee1
+         2am/WGwkqP/UyAesrIqmxv0KY+CxYQW3G1qUKx/tSD85a1XjEMcfykuhxT7Ix/yD7+zr
+         eScPK6bodB65fixblwWN+szJ/pvk0rZZJ3IqiKSAbjX7jfXzypXVaw8frQj+PXGUbKbs
+         Yx4DUa7X4c7kTyTsx9Gz1bMP9GFjbVcr1Ah1gAA7y8LdcztXSTbVB9GXokjuLjl8db5g
+         YrpO5byFccWvI6ie/4DyCN10H+L71vnci0jcl+mr0slXD7nfCSVSUGF2kypEjzm/fGY1
+         Uiuw==
+X-Gm-Message-State: APjAAAX9GTTFDDztb//7d8pK/Q/f4vH6KFDR+4NkbZnL5Tbf7blEEx6f
+        623RFsVuq7dGCbWd5SIZKAFhXw==
+X-Google-Smtp-Source: APXvYqxTkYAcWdM96OFgtvEHPBL33vEIMWOThLloG2x5ZdOiI/82rb0b11rYmw1ZGFn757LKXPZDFw==
+X-Received: by 2002:a37:bd86:: with SMTP id n128mr4624184qkf.318.1559241878551;
+        Thu, 30 May 2019 11:44:38 -0700 (PDT)
+Received: from ziepe.ca (hlfxns017vw-156-34-55-100.dhcp-dynamic.fibreop.ns.bellaliant.net. [156.34.55.100])
+        by smtp.gmail.com with ESMTPSA id e66sm2194653qtb.55.2019.05.30.11.44.38
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Thu, 30 May 2019 11:44:38 -0700 (PDT)
+Received: from jgg by mlx.ziepe.ca with local (Exim 4.90_1)
+        (envelope-from <jgg@ziepe.ca>)
+        id 1hWQ2X-0007lm-MM; Thu, 30 May 2019 15:44:37 -0300
+Date:   Thu, 30 May 2019 15:44:37 -0300
+From:   Jason Gunthorpe <jgg@ziepe.ca>
+To:     Bart Van Assche <bvanassche@acm.org>
+Cc:     Leon Romanovsky <leonro@mellanox.com>,
+        Doug Ledford <dledford@redhat.com>, linux-rdma@vger.kernel.org,
+        Laurence Oberman <loberman@redhat.com>, stable@vger.kernel.org
+Subject: Re: [PATCH, RESEND] RDMA/srp: Accept again source addresses that do
+ not have a port number
+Message-ID: <20190530184437.GA29836@ziepe.ca>
+References: <20190529163831.138926-1-bvanassche@acm.org>
 MIME-Version: 1.0
-References: <20190522032144.10995-1-deepa.kernel@gmail.com>
- <20190529161157.GA27659@redhat.com> <CAK8P3a1fsrz6kAB1z-mqcaNvXL4Hf3XMiN=Q5rzAJ3rLGPK_Yg@mail.gmail.com>
- <20190530144044.GG22536@redhat.com>
-In-Reply-To: <20190530144044.GG22536@redhat.com>
-From:   Arnd Bergmann <arnd@arndb.de>
-Date:   Thu, 30 May 2019 20:37:29 +0200
-Message-ID: <CAK8P3a2g_58+n6+T6rspcp_kvYiyjB0WqtxoYfshwQ7vXMmdWw@mail.gmail.com>
-Subject: Re: pselect/etc semantics (Was: [PATCH v2] signal: Adjust error codes
- according to restore_user_sigmask())
-To:     Oleg Nesterov <oleg@redhat.com>
-Cc:     Deepa Dinamani <deepa.kernel@gmail.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>, dbueso@suse.de,
-        Jens Axboe <axboe@kernel.dk>,
-        Davidlohr Bueso <dave@stgolabs.net>, e@80x24.org,
-        Jason Baron <jbaron@akamai.com>,
-        Linux FS-devel Mailing List <linux-fsdevel@vger.kernel.org>,
-        linux-aio <linux-aio@kvack.org>, omar.kilani@gmail.com,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "# 3.4.x" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190529163831.138926-1-bvanassche@acm.org>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, May 30, 2019 at 4:41 PM Oleg Nesterov <oleg@redhat.com> wrote:
-> On 05/30, Arnd Bergmann wrote:
-> Plus every file touched by this patch asks for more cleanups. Say, do_poll()
-> should return -ERESTARTNOHAND, not -EINTR, after that we can remove the ugly
-> EINTR->ERESTARTNOHAND in its callers. And more.
->
-> > For the stable
-> > kernels, I think we want just the addition of the 'bool interrupted' argument
-> > to restore_user_sigmask()
->
-> or simply revert this patch. I will check if this is possible today... At first
-> glance 854a6ed56839a40f6 fixed another bug by accident, do_pselect() did
-> "ret == -ERESTARTNOHAND" after "ret = poll_select_copy_remaining()" which can
-> turn ERESTARTNOHAND into EINTR, but this is simple. I'll check tomorrow.
+On Wed, May 29, 2019 at 09:38:31AM -0700, Bart Van Assche wrote:
+> The function srp_parse_in() is used both for parsing source address
+> specifications and for target address specifications. Target addresses
+> must have a port number. Having to specify a port number for source
+> addresses is inconvenient. Make sure that srp_parse_in() supports again
+> parsing addresses with no port number.
+> 
+> Cc: Laurence Oberman <loberman@redhat.com>
+> Cc: <stable@vger.kernel.org>
+> Fixes: c62adb7def71 ("IB/srp: Fix IPv6 address parsing") # v4.17.
+> Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+> ---
+>  drivers/infiniband/ulp/srp/ib_srp.c | 21 +++++++++++++++------
+>  1 file changed, 15 insertions(+), 6 deletions(-)
 
-Right, there were several differences between the system calls
-that Deepa's original change got rid of. I don't know if any ones besides
-the do_pselect() return code can be observed in practice.
+Bart, do you want this applied now, or are we still waiting for
+Laurence?
 
-> > > -       ret = set_user_sigmask(ksig.sigmask, &ksigmask, &sigsaved, ksig.sigsetsize);
-> > > +       ret = set_xxx(ksig.sigmask, ksig.sigsetsize);
-> > >         if (ret)
-> > >                 return ret;
-> > >
-> > >         ret = do_io_getevents(ctx_id, min_nr, nr, events, timeout ? &ts : NULL);
-> > > -       restore_user_sigmask(ksig.sigmask, &sigsaved);
-> > > -       if (signal_pending(current) && !ret)
-> > > +
-> > > +       interrupted = signal_pending(current);
-> > > +       update_xxx(interrupted);
-> >
-> > Maybe name this
-> >
-> >            restore_saved_sigmask_if(!interrupted);
->
-> Yes, I thought about restore_if(), but to me
->
->                 restore_saved_sigmask_if(ret != -EINTR);
->
-> doesn't look readable... May be
->
->                 restore_saved_sigmask_unless(ret == -EINTR);
->
-> ? but actually I agree with any naming.
-
-Yes, restore_saved_sigmask_unless() probably better.
-
-> > With some of the recent discussions about compat syscall handling,
-> > I now think that we want to just fold set_compat_user_sigmask()
-> > into set_user_sigmask()
->
-> agreed, and I thought about this too. But again, I'd prefer to do this
-> and other cleanups later, on top of this patch.
-
-Ok, fair enough. I don't care much about the order as long as the
-regression fix comes first.
-
-     Arnd
+Jason
