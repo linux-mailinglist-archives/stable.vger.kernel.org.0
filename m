@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 626B22F50C
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:44:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 322162F287
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:23:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728942AbfE3EoF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:44:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53524 "EHLO mail.kernel.org"
+        id S1730086AbfE3EW5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:22:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728016AbfE3DMG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:12:06 -0400
+        id S1730080AbfE3DPD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:15:03 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 09C5024527;
-        Thu, 30 May 2019 03:12:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 08DE824555;
+        Thu, 30 May 2019 03:15:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185926;
-        bh=Lt4gn8Zax1A1k0bW3kZVZAUEGQyIjyfrREkDlcuqJEs=;
+        s=default; t=1559186103;
+        bh=rnCGcQRRiEsV+Wvp2kATdZa1Pv/LFRaa3WEypRNUCL0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OpAW13m2mzPDIjKObYwDThABF2s6LFTIRVS+5GcKA4Kn/RZrSmd1CJBrAW54n18F8
-         EAxvioYsvmWvRsN4n136p7USpNTvhiGupaBh/8HFgC2pcLTDJkURfUCHZv++P7GjCL
-         kHOjRwaSuF8CW3JnwYXbkzvBNxzx+Vsy5DYuUQXE=
+        b=z4XEILGjGs+KhCqSGqhv1WKYb8NLmTF7GepjwFY1VR2Wp4CaBoOUeDw/MGngvjOZ7
+         35VfjF88UcoT4c7M69b/RwKBZLl6iLIo/P6oDqgO4acwrT59+Tg8JD2oEx3k2jsKdG
+         8B6AojfZFR1w0VnBZNIONX6VIXGojII5l1/iX8XU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        James Smart <james.smart@broadcom.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 316/405] scsi: lpfc: avoid uninitialized variable warning
-Date:   Wed, 29 May 2019 20:05:14 -0700
-Message-Id: <20190530030556.767435137@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 242/346] x86/ia32: Fix ia32_restore_sigcontext() AC leak
+Date:   Wed, 29 May 2019 20:05:15 -0700
+Message-Id: <20190530030553.280642663@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,60 +48,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit faf5a744f4f8d76e7c03912b5cd381ac8045f6ec ]
+[ Upstream commit 67a0514afdbb8b2fc70b771b8c77661a9cb9d3a9 ]
 
-clang -Wuninitialized incorrectly sees a variable being used without
-initialization:
+Objtool spotted that we call native_load_gs_index() with AC set.
+Re-arrange the code to avoid that.
 
-drivers/scsi/lpfc/lpfc_nvme.c:2102:37: error: variable 'localport' is uninitialized when used here
-      [-Werror,-Wuninitialized]
-                lport = (struct lpfc_nvme_lport *)localport->private;
-                                                  ^~~~~~~~~
-drivers/scsi/lpfc/lpfc_nvme.c:2059:38: note: initialize the variable 'localport' to silence this warning
-        struct nvme_fc_local_port *localport;
-                                            ^
-                                             = NULL
-1 error generated.
-
-This is clearly in dead code, as the condition leading up to it is always
-false when CONFIG_NVME_FC is disabled, and the variable is always
-initialized when nvme_fc_register_localport() got called successfully.
-
-Change the preprocessor conditional to the equivalent C construct, which
-makes the code more readable and gets rid of the warning.
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: James Smart <james.smart@broadcom.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_nvme.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/x86/ia32/ia32_signal.c | 29 +++++++++++++++++------------
+ 1 file changed, 17 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_nvme.c b/drivers/scsi/lpfc/lpfc_nvme.c
-index 1aa00d2c3f74e..9defff7118846 100644
---- a/drivers/scsi/lpfc/lpfc_nvme.c
-+++ b/drivers/scsi/lpfc/lpfc_nvme.c
-@@ -2080,15 +2080,15 @@ lpfc_nvme_create_localport(struct lpfc_vport *vport)
- 		lpfc_nvme_template.max_hw_queues =
- 			phba->sli4_hba.num_present_cpu;
+diff --git a/arch/x86/ia32/ia32_signal.c b/arch/x86/ia32/ia32_signal.c
+index 321fe5f5d0e96..4d5fcd47ab75a 100644
+--- a/arch/x86/ia32/ia32_signal.c
++++ b/arch/x86/ia32/ia32_signal.c
+@@ -61,9 +61,8 @@
+ } while (0)
  
-+	if (!IS_ENABLED(CONFIG_NVME_FC))
-+		return ret;
+ #define RELOAD_SEG(seg)		{		\
+-	unsigned int pre = GET_SEG(seg);	\
++	unsigned int pre = (seg) | 3;		\
+ 	unsigned int cur = get_user_seg(seg);	\
+-	pre |= 3;				\
+ 	if (pre != cur)				\
+ 		set_user_seg(seg, pre);		\
+ }
+@@ -72,6 +71,7 @@ static int ia32_restore_sigcontext(struct pt_regs *regs,
+ 				   struct sigcontext_32 __user *sc)
+ {
+ 	unsigned int tmpflags, err = 0;
++	u16 gs, fs, es, ds;
+ 	void __user *buf;
+ 	u32 tmp;
+ 
+@@ -79,16 +79,10 @@ static int ia32_restore_sigcontext(struct pt_regs *regs,
+ 	current->restart_block.fn = do_no_restart_syscall;
+ 
+ 	get_user_try {
+-		/*
+-		 * Reload fs and gs if they have changed in the signal
+-		 * handler.  This does not handle long fs/gs base changes in
+-		 * the handler, but does not clobber them at least in the
+-		 * normal case.
+-		 */
+-		RELOAD_SEG(gs);
+-		RELOAD_SEG(fs);
+-		RELOAD_SEG(ds);
+-		RELOAD_SEG(es);
++		gs = GET_SEG(gs);
++		fs = GET_SEG(fs);
++		ds = GET_SEG(ds);
++		es = GET_SEG(es);
+ 
+ 		COPY(di); COPY(si); COPY(bp); COPY(sp); COPY(bx);
+ 		COPY(dx); COPY(cx); COPY(ip); COPY(ax);
+@@ -106,6 +100,17 @@ static int ia32_restore_sigcontext(struct pt_regs *regs,
+ 		buf = compat_ptr(tmp);
+ 	} get_user_catch(err);
+ 
++	/*
++	 * Reload fs and gs if they have changed in the signal
++	 * handler.  This does not handle long fs/gs base changes in
++	 * the handler, but does not clobber them at least in the
++	 * normal case.
++	 */
++	RELOAD_SEG(gs);
++	RELOAD_SEG(fs);
++	RELOAD_SEG(ds);
++	RELOAD_SEG(es);
 +
- 	/* localport is allocated from the stack, but the registration
- 	 * call allocates heap memory as well as the private area.
- 	 */
--#if (IS_ENABLED(CONFIG_NVME_FC))
-+
- 	ret = nvme_fc_register_localport(&nfcp_info, &lpfc_nvme_template,
- 					 &vport->phba->pcidev->dev, &localport);
--#else
--	ret = -ENOMEM;
--#endif
- 	if (!ret) {
- 		lpfc_printf_vlog(vport, KERN_INFO, LOG_NVME | LOG_NVME_DISC,
- 				 "6005 Successfully registered local "
+ 	err |= fpu__restore_sig(buf, 1);
+ 
+ 	force_iret();
 -- 
 2.20.1
 
