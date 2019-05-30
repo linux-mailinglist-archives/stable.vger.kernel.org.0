@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 711632F45A
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:38:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65E742EEFD
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:52:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729339AbfE3Eh2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:37:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56480 "EHLO mail.kernel.org"
+        id S1731175AbfE3DTm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:19:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56150 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728302AbfE3DMw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:12:52 -0400
+        id S1732001AbfE3DTm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:19:42 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5BB7421BE2;
-        Thu, 30 May 2019 03:12:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DBE48248C3;
+        Thu, 30 May 2019 03:19:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185971;
-        bh=jRfTBW2JkF8yxRD513xsOEnLvb8aGirahpO9atWfbZU=;
+        s=default; t=1559186381;
+        bh=ZCpNzldH/Rfxc3WhAb7MgQDI+1+hiRN60xxxARJvzmU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eNRgOzout4uI9TXbeZxnH2w7nJgJoq6+REqjtfCTqGz7Ir7hBxq0ofSTqRRbABccv
-         Rm9WFYIJEEeITsrNFpT3m5JNTGS/U5CPlnV1IJniQDMJSzCaOGmDpr02LdpapJvZOL
-         TuGmV/pe4VdPHclInxcYdAmcyf0ZtZIxfqaC/fiM=
+        b=vnyi4Qzb+nZvdbwGP2Bi/x7BpOd+qBKK3THG0/UYwoFbpo4aJNzCoX3PYjxjrOPZr
+         EeGcitad8uUpq6m7LXs5PjkdUcxs1RG17O+ZNpvcnEsL7/tE3zS16irtTpDOqTbjGb
+         AHvD3HtVaNvI7NWi7bZIknSy8GogEK/53FzW6zLA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brett Creeley <brett.creeley@intel.com>,
-        Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>,
-        Andrew Bowers <andrewx.bowers@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        stable@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 403/405] ice: Put __ICE_PREPARED_FOR_RESET check in ice_prepare_for_reset
+Subject: [PATCH 4.14 147/193] rtc: xgene: fix possible race condition
 Date:   Wed, 29 May 2019 20:06:41 -0700
-Message-Id: <20190530030600.929953416@linuxfoundation.org>
+Message-Id: <20190530030508.793590207@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
+References: <20190530030446.953835040@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,50 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 5abac9d7e1bb9a373673811154774d4c89a7f85e ]
+[ Upstream commit a652e00ee1233e251a337c28e18a1da59224e5ce ]
 
-Currently we check if the __ICE_PREPARED_FOR_RESET bit is set prior to
-calling ice_prepare_for_reset in ice_reset_subtask(), but we aren't
-checking that bit in ice_do_reset() before calling
-ice_prepare_for_reset(). This is not consistent and can cause issues if
-ice_prepare_for_reset() is called prior to ice_do_reset(). Fix this by
-checking if the __ICE_PREPARED_FOR_RESET bit is set internal to
-ice_prepare_for_reset().
+The IRQ is requested before the struct rtc is allocated and registered, but
+this struct is used in the IRQ handler. This may lead to a NULL pointer
+dereference.
 
-Signed-off-by: Brett Creeley <brett.creeley@intel.com>
-Signed-off-by: Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>
-Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Switch to devm_rtc_allocate_device/rtc_register_device to allocate the rtc
+struct before requesting the IRQ.
+
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_main.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/rtc/rtc-xgene.c | 18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
-index ba9f88cd138de..6ec73864019c0 100644
---- a/drivers/net/ethernet/intel/ice/ice_main.c
-+++ b/drivers/net/ethernet/intel/ice/ice_main.c
-@@ -342,6 +342,10 @@ ice_prepare_for_reset(struct ice_pf *pf)
- {
- 	struct ice_hw *hw = &pf->hw;
+diff --git a/drivers/rtc/rtc-xgene.c b/drivers/rtc/rtc-xgene.c
+index 65b432a096fe2..f68f84205b48d 100644
+--- a/drivers/rtc/rtc-xgene.c
++++ b/drivers/rtc/rtc-xgene.c
+@@ -163,6 +163,10 @@ static int xgene_rtc_probe(struct platform_device *pdev)
+ 	if (IS_ERR(pdata->csr_base))
+ 		return PTR_ERR(pdata->csr_base);
  
-+	/* already prepared for reset */
-+	if (test_bit(__ICE_PREPARED_FOR_RESET, pf->state))
-+		return;
++	pdata->rtc = devm_rtc_allocate_device(&pdev->dev);
++	if (IS_ERR(pdata->rtc))
++		return PTR_ERR(pdata->rtc);
 +
- 	/* Notify VFs of impending reset */
- 	if (ice_check_sq_alive(hw, &hw->mailboxq))
- 		ice_vc_notify_reset(pf);
-@@ -424,8 +428,7 @@ static void ice_reset_subtask(struct ice_pf *pf)
- 		/* return if no valid reset type requested */
- 		if (reset_type == ICE_RESET_INVAL)
- 			return;
--		if (!test_bit(__ICE_PREPARED_FOR_RESET, pf->state))
--			ice_prepare_for_reset(pf);
-+		ice_prepare_for_reset(pf);
+ 	irq = platform_get_irq(pdev, 0);
+ 	if (irq < 0) {
+ 		dev_err(&pdev->dev, "No IRQ resource\n");
+@@ -187,15 +191,15 @@ static int xgene_rtc_probe(struct platform_device *pdev)
  
- 		/* make sure we are ready to rebuild */
- 		if (ice_check_reset(&pf->hw)) {
+ 	device_init_wakeup(&pdev->dev, 1);
+ 
+-	pdata->rtc = devm_rtc_device_register(&pdev->dev, pdev->name,
+-					 &xgene_rtc_ops, THIS_MODULE);
+-	if (IS_ERR(pdata->rtc)) {
+-		clk_disable_unprepare(pdata->clk);
+-		return PTR_ERR(pdata->rtc);
+-	}
+-
+ 	/* HW does not support update faster than 1 seconds */
+ 	pdata->rtc->uie_unsupported = 1;
++	pdata->rtc->ops = &xgene_rtc_ops;
++
++	ret = rtc_register_device(pdata->rtc);
++	if (ret) {
++		clk_disable_unprepare(pdata->clk);
++		return ret;
++	}
+ 
+ 	return 0;
+ }
 -- 
 2.20.1
 
