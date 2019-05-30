@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 570182EC3A
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:20:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 880D32F0A9
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:06:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731840AbfE3DTO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:19:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54174 "EHLO mail.kernel.org"
+        id S1726860AbfE3EGB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:06:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731831AbfE3DTM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:19:12 -0400
+        id S1731184AbfE3DRi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:17:38 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7CD792484B;
-        Thu, 30 May 2019 03:19:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CC746246F8;
+        Thu, 30 May 2019 03:17:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186351;
-        bh=+Gt3yha4H/+lKvAWpUCj6MTamW/nP7rXy47C+174hdU=;
+        s=default; t=1559186256;
+        bh=hP7Pn2TFsJ+M9ZcoamJ6klxsTa95U9lo4RWpMbOEv6U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nEhb9IixDPGc1t7i0ubZN6p7rBcCO/d4M+Ok22u9V7HiUEtk7muHnLPsHCSD0s/nW
-         PuqjOTq4j/RoqYqjRkNhoai8wWw2poH7J3Aup8ufgfvPp/wtZe4S3Nm41U8mDBD/pf
-         fUz6bNYjz4K3Z18q/b9hKJRaKf1fAGkR7eaS6RsY=
+        b=xX9JTsT2WMEsvKQKP+7+t5Rwii37JyfVjPD8dOnQPJKSDG6eKGbFdPwOwF7rlOHJH
+         V1HQARbtHQxdFbFa3dcl217kNPbmV26lzN5EEcth0YjfVrBISLGaSMJ0GoSQlB4w7g
+         4WRs9nCUG+WG64DwV1yw9+LgTR4NcDhI2AFro32M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Shuah Khan <shuah@kernel.org>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Lars-Peter Clausen <lars@metafoo.de>,
+        Alexandru Ardelean <Alexandru.Ardelean@analog.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 090/193] media: au0828: stop video streaming only when last user stops
+Subject: [PATCH 4.19 186/276] iio: ad_sigma_delta: Properly handle SPI bus locking vs CS assertion
 Date:   Wed, 29 May 2019 20:05:44 -0700
-Message-Id: <20190530030501.529087638@linuxfoundation.org>
+Message-Id: <20190530030536.859176700@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,67 +45,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f604f0f5afb88045944567f604409951b5eb6af8 ]
+[ Upstream commit df1d80aee963480c5c2938c64ec0ac3e4a0df2e0 ]
 
-If the application was streaming from both videoX and vbiX, and streaming
-from videoX was stopped, then the vbi streaming also stopped.
+For devices from the SigmaDelta family we need to keep CS low when doing a
+conversion, since the device will use the MISO line as a interrupt to
+indicate that the conversion is complete.
 
-The cause being that stop_streaming for video stopped the subdevs as well,
-instead of only doing that if dev->streaming_users reached 0.
+This is why the driver locks the SPI bus and when the SPI bus is locked
+keeps as long as a conversion is going on. The current implementation gets
+one small detail wrong though. CS is only de-asserted after the SPI bus is
+unlocked. This means it is possible for a different SPI device on the same
+bus to send a message which would be wrongfully be addressed to the
+SigmaDelta device as well. Make sure that the last SPI transfer that is
+done while holding the SPI bus lock de-asserts the CS signal.
 
-au0828_stop_vbi_streaming was also wrong since it didn't stop the subdevs
-at all when dev->streaming_users reached 0.
-
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Tested-by: Shuah Khan <shuah@kernel.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Lars-Peter Clausen <lars@metafoo.de>
+Signed-off-by: Alexandru Ardelean <Alexandru.Ardelean@analog.com>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/au0828/au0828-video.c | 13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/iio/adc/ad_sigma_delta.c       | 16 +++++++++++-----
+ include/linux/iio/adc/ad_sigma_delta.h |  1 +
+ 2 files changed, 12 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/media/usb/au0828/au0828-video.c b/drivers/media/usb/au0828/au0828-video.c
-index 9342402b92f76..7cd2daf869895 100644
---- a/drivers/media/usb/au0828/au0828-video.c
-+++ b/drivers/media/usb/au0828/au0828-video.c
-@@ -839,9 +839,9 @@ int au0828_start_analog_streaming(struct vb2_queue *vq, unsigned int count)
- 			return rc;
- 		}
+diff --git a/drivers/iio/adc/ad_sigma_delta.c b/drivers/iio/adc/ad_sigma_delta.c
+index ae2a5097f4493..25af4c76b57fe 100644
+--- a/drivers/iio/adc/ad_sigma_delta.c
++++ b/drivers/iio/adc/ad_sigma_delta.c
+@@ -62,7 +62,7 @@ int ad_sd_write_reg(struct ad_sigma_delta *sigma_delta, unsigned int reg,
+ 	struct spi_transfer t = {
+ 		.tx_buf		= data,
+ 		.len		= size + 1,
+-		.cs_change	= sigma_delta->bus_locked,
++		.cs_change	= sigma_delta->keep_cs_asserted,
+ 	};
+ 	struct spi_message m;
+ 	int ret;
+@@ -218,6 +218,7 @@ static int ad_sd_calibrate(struct ad_sigma_delta *sigma_delta,
  
-+		v4l2_device_call_all(&dev->v4l2_dev, 0, video, s_stream, 1);
+ 	spi_bus_lock(sigma_delta->spi->master);
+ 	sigma_delta->bus_locked = true;
++	sigma_delta->keep_cs_asserted = true;
+ 	reinit_completion(&sigma_delta->completion);
+ 
+ 	ret = ad_sigma_delta_set_mode(sigma_delta, mode);
+@@ -235,9 +236,10 @@ static int ad_sd_calibrate(struct ad_sigma_delta *sigma_delta,
+ 		ret = 0;
+ 	}
+ out:
++	sigma_delta->keep_cs_asserted = false;
++	ad_sigma_delta_set_mode(sigma_delta, AD_SD_MODE_IDLE);
+ 	sigma_delta->bus_locked = false;
+ 	spi_bus_unlock(sigma_delta->spi->master);
+-	ad_sigma_delta_set_mode(sigma_delta, AD_SD_MODE_IDLE);
+ 
+ 	return ret;
+ }
+@@ -289,6 +291,7 @@ int ad_sigma_delta_single_conversion(struct iio_dev *indio_dev,
+ 
+ 	spi_bus_lock(sigma_delta->spi->master);
+ 	sigma_delta->bus_locked = true;
++	sigma_delta->keep_cs_asserted = true;
+ 	reinit_completion(&sigma_delta->completion);
+ 
+ 	ad_sigma_delta_set_mode(sigma_delta, AD_SD_MODE_SINGLE);
+@@ -298,9 +301,6 @@ int ad_sigma_delta_single_conversion(struct iio_dev *indio_dev,
+ 	ret = wait_for_completion_interruptible_timeout(
+ 			&sigma_delta->completion, HZ);
+ 
+-	sigma_delta->bus_locked = false;
+-	spi_bus_unlock(sigma_delta->spi->master);
+-
+ 	if (ret == 0)
+ 		ret = -EIO;
+ 	if (ret < 0)
+@@ -316,7 +316,10 @@ int ad_sigma_delta_single_conversion(struct iio_dev *indio_dev,
+ 		sigma_delta->irq_dis = true;
+ 	}
+ 
++	sigma_delta->keep_cs_asserted = false;
+ 	ad_sigma_delta_set_mode(sigma_delta, AD_SD_MODE_IDLE);
++	sigma_delta->bus_locked = false;
++	spi_bus_unlock(sigma_delta->spi->master);
+ 	mutex_unlock(&indio_dev->mlock);
+ 
+ 	if (ret)
+@@ -353,6 +356,8 @@ static int ad_sd_buffer_postenable(struct iio_dev *indio_dev)
+ 
+ 	spi_bus_lock(sigma_delta->spi->master);
+ 	sigma_delta->bus_locked = true;
++	sigma_delta->keep_cs_asserted = true;
 +
- 		if (vq->type == V4L2_BUF_TYPE_VIDEO_CAPTURE) {
--			v4l2_device_call_all(&dev->v4l2_dev, 0, video,
--						s_stream, 1);
- 			dev->vid_timeout_running = 1;
- 			mod_timer(&dev->vid_timeout, jiffies + (HZ / 10));
- 		} else if (vq->type == V4L2_BUF_TYPE_VBI_CAPTURE) {
-@@ -861,10 +861,11 @@ static void au0828_stop_streaming(struct vb2_queue *vq)
+ 	ret = ad_sigma_delta_set_mode(sigma_delta, AD_SD_MODE_CONTINUOUS);
+ 	if (ret)
+ 		goto err_unlock;
+@@ -381,6 +386,7 @@ static int ad_sd_buffer_postdisable(struct iio_dev *indio_dev)
+ 		sigma_delta->irq_dis = true;
+ 	}
  
- 	dprintk(1, "au0828_stop_streaming called %d\n", dev->streaming_users);
++	sigma_delta->keep_cs_asserted = false;
+ 	ad_sigma_delta_set_mode(sigma_delta, AD_SD_MODE_IDLE);
  
--	if (dev->streaming_users-- == 1)
-+	if (dev->streaming_users-- == 1) {
- 		au0828_uninit_isoc(dev);
-+		v4l2_device_call_all(&dev->v4l2_dev, 0, video, s_stream, 0);
-+	}
+ 	sigma_delta->bus_locked = false;
+diff --git a/include/linux/iio/adc/ad_sigma_delta.h b/include/linux/iio/adc/ad_sigma_delta.h
+index 730ead1a46df6..57c122ae54523 100644
+--- a/include/linux/iio/adc/ad_sigma_delta.h
++++ b/include/linux/iio/adc/ad_sigma_delta.h
+@@ -66,6 +66,7 @@ struct ad_sigma_delta {
+ 	bool			irq_dis;
  
--	v4l2_device_call_all(&dev->v4l2_dev, 0, video, s_stream, 0);
- 	dev->vid_timeout_running = 0;
- 	del_timer_sync(&dev->vid_timeout);
+ 	bool			bus_locked;
++	bool			keep_cs_asserted;
  
-@@ -893,8 +894,10 @@ void au0828_stop_vbi_streaming(struct vb2_queue *vq)
- 	dprintk(1, "au0828_stop_vbi_streaming called %d\n",
- 		dev->streaming_users);
+ 	uint8_t			comm;
  
--	if (dev->streaming_users-- == 1)
-+	if (dev->streaming_users-- == 1) {
- 		au0828_uninit_isoc(dev);
-+		v4l2_device_call_all(&dev->v4l2_dev, 0, video, s_stream, 0);
-+	}
- 
- 	spin_lock_irqsave(&dev->slock, flags);
- 	if (dev->isoc_ctl.vbi_buf != NULL) {
 -- 
 2.20.1
 
