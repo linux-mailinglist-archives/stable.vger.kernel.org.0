@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 36D822EF52
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:54:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16B6B2F4C0
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:42:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733155AbfE3Dyg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:54:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54588 "EHLO mail.kernel.org"
+        id S1729024AbfE3ElQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:41:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55166 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731854AbfE3DTR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:19:17 -0400
+        id S1729027AbfE3DM1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:12:27 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 13CDA24865;
-        Thu, 30 May 2019 03:19:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B01A023D14;
+        Thu, 30 May 2019 03:12:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186357;
-        bh=Udqoyn03xR71fL5XiDPWv5x+FeOrtCnyp8Wqxzu3yJY=;
+        s=default; t=1559185946;
+        bh=bDXiMGFvmldpxTxfhq4JdbAQvsgjlZNGG0/Vu9YG5q8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=laV57B8xkRpdpN+aEPqrWv6FDNX9WMB8qDC671737xpFh6sAFFA2En9elnUcOmozt
-         dsWE5rdMjaUy79ER/FNfieLAPc6U6xouJgKrARff5nXn8YsTK7Dc7KAeGtPwuoHjKY
-         gvTj17cfaspcDePbRlo0NKkrIgHeRaQ7b0xEOQT8=
+        b=ZIoNFO3ryFs69HAOlbX04+bv2TLBfwHgPFCNuSwONJBh/QzNfkJI58fHq6HtB0v3C
+         BjuC5B8mTwcN+KYdl1Jdu+04GOM1RBNcg4xyvWEPmV+ZuhFSJKXOBinp86BSJyLhRA
+         v5iAJA/K2ZF5Tf5TPXOQaXooqeOl6svWO7LmhXJU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
-        Peter Zijlstra <a.p.zijlstra@chello.nl>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 100/193] sched/core: Check quota and period overflow at usec to nsec conversion
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 356/405] media: go7007: avoid clang frame overflow warning with KASAN
 Date:   Wed, 29 May 2019 20:05:54 -0700
-Message-Id: <20190530030502.850842444@linuxfoundation.org>
+Message-Id: <20190530030558.645730883@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,58 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 1a8b4540db732ca16c9e43ac7c08b1b8f0b252d8 ]
+[ Upstream commit ed713a4a1367aca5c0f2f329579465db00c17995 ]
 
-Large values could overflow u64 and pass following sanity checks.
+clang-8 warns about one function here when KASAN is enabled, even
+without the 'asan-stack' option:
 
- # echo 18446744073750000 > cpu.cfs_period_us
- # cat cpu.cfs_period_us
- 40448
+drivers/media/usb/go7007/go7007-fw.c:1551:5: warning: stack frame size of 2656 bytes in function
 
- # echo 18446744073750000 > cpu.cfs_quota_us
- # cat cpu.cfs_quota_us
- 40448
+I have reported this issue in the llvm bugzilla, but to make
+it work with the clang-8 release, a small annotation is still
+needed.
 
-After this patch they will fail with -EINVAL.
+Link: https://bugs.llvm.org/show_bug.cgi?id=38809
 
-Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-Acked-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: http://lkml.kernel.org/r/155125502079.293431.3947497929372138600.stgit@buzz
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+[hverkuil-cisco@xs4all.nl: fix checkpatch warning]
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/core.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/media/usb/go7007/go7007-fw.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 0552ddbb25e2a..2464a242d6c9d 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -6482,8 +6482,10 @@ int tg_set_cfs_quota(struct task_group *tg, long cfs_quota_us)
- 	period = ktime_to_ns(tg->cfs_bandwidth.period);
- 	if (cfs_quota_us < 0)
- 		quota = RUNTIME_INF;
--	else
-+	else if ((u64)cfs_quota_us <= U64_MAX / NSEC_PER_USEC)
- 		quota = (u64)cfs_quota_us * NSEC_PER_USEC;
-+	else
-+		return -EINVAL;
- 
- 	return tg_set_cfs_bandwidth(tg, period, quota);
+diff --git a/drivers/media/usb/go7007/go7007-fw.c b/drivers/media/usb/go7007/go7007-fw.c
+index 24f5b615dc7af..dfa9f899d0c25 100644
+--- a/drivers/media/usb/go7007/go7007-fw.c
++++ b/drivers/media/usb/go7007/go7007-fw.c
+@@ -1499,8 +1499,8 @@ static int modet_to_package(struct go7007 *go, __le16 *code, int space)
+ 	return cnt;
  }
-@@ -6505,6 +6507,9 @@ int tg_set_cfs_period(struct task_group *tg, long cfs_period_us)
+ 
+-static int do_special(struct go7007 *go, u16 type, __le16 *code, int space,
+-			int *framelen)
++static noinline_for_stack int do_special(struct go7007 *go, u16 type,
++					 __le16 *code, int space, int *framelen)
  {
- 	u64 quota, period;
- 
-+	if ((u64)cfs_period_us > U64_MAX / NSEC_PER_USEC)
-+		return -EINVAL;
-+
- 	period = (u64)cfs_period_us * NSEC_PER_USEC;
- 	quota = tg->cfs_bandwidth.quota;
- 
+ 	switch (type) {
+ 	case SPECIAL_FRM_HEAD:
 -- 
 2.20.1
 
