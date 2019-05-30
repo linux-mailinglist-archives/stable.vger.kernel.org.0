@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ADEE62EF24
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:53:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FF6E2F1FD
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:18:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728200AbfE3Dw7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:52:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55430 "EHLO mail.kernel.org"
+        id S1729603AbfE3ER2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:17:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730912AbfE3DTd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:19:33 -0400
+        id S1730415AbfE3DPj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:15:39 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1CC2F2489F;
-        Thu, 30 May 2019 03:19:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3A3A42458A;
+        Thu, 30 May 2019 03:15:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186373;
-        bh=WeE25g83ma4VNVN8TPBWVGA/qrGdFQKGMw85tuQEoYk=;
+        s=default; t=1559186139;
+        bh=6XI6BUlrA5k8SXnhUDs5kmKjC8YZaPyUQ+X6CdLHIY0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r/tNuhO/YBbYtJimVfXt0n5xMF3ZDqXSlPjBmgXk9BtWbAK8z5uCuT0JUDU14Fts0
-         PwcK9NxY7/h1Llhk6+86Xco678GSc+7YbRIZPoNSXJdWvevinvERc0JZ8d2R+AUvka
-         9r5LZsHFZ28qBNZGRf+O6GVwyFp7UThi6STeVbrQ=
+        b=UxxsdPHnw599B6/XhEB0d/MjB3yIJhuq81s+QgGfHW0LIxM/ntpCZi1N8zzinQuej
+         UFZFARBYROdzmIWYb7rfGJlxXTVKN5zF6P4pS9KVkdAglmZ0RJUE1tg/Td1q855xVM
+         o9QDw/KbRYltUk6dP40Y82zsoM4BSvH+G89m1XZk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        linuxppc-dev@lists.ozlabs.org, linux-pm@vger.kernel.org,
+        stable@vger.kernel.org, Dick Kennedy <dick.kennedy@broadcom.com>,
+        James Smart <jsmart2021@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 131/193] cpufreq/pasemi: fix possible object reference leak
+Subject: [PATCH 5.0 312/346] scsi: lpfc: Fix fc4type information for FDMI
 Date:   Wed, 29 May 2019 20:06:25 -0700
-Message-Id: <20190530030506.693074332@linuxfoundation.org>
+Message-Id: <20190530030556.636057037@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,40 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a9acc26b75f652f697e02a9febe2ab0da648a571 ]
+[ Upstream commit 32a80c093b524a0682f1c6166c910387b116ffce ]
 
-The call to of_get_cpu_node returns a node pointer with refcount
-incremented thus it must be explicitly decremented after the last
-usage.
+The driver is reporting support for NVME even when not configured for NVME
+operation.
 
-Detected by coccinelle with the following warnings:
-./drivers/cpufreq/pasemi-cpufreq.c:212:1-7: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 147, but without a corresponding object release within this function.
-./drivers/cpufreq/pasemi-cpufreq.c:220:1-7: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 147, but without a corresponding object release within this function.
+Fix (and make more readable) when NVME protocol support is indicated.
 
-Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Viresh Kumar <viresh.kumar@linaro.org>
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: linux-pm@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/pasemi-cpufreq.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/scsi/lpfc/lpfc_ct.c | 17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/cpufreq/pasemi-cpufreq.c b/drivers/cpufreq/pasemi-cpufreq.c
-index b257fc7d52041..8456492124f0c 100644
---- a/drivers/cpufreq/pasemi-cpufreq.c
-+++ b/drivers/cpufreq/pasemi-cpufreq.c
-@@ -146,6 +146,7 @@ static int pas_cpufreq_cpu_init(struct cpufreq_policy *policy)
+diff --git a/drivers/scsi/lpfc/lpfc_ct.c b/drivers/scsi/lpfc/lpfc_ct.c
+index 912aad3d5b043..b385b8ece343c 100644
+--- a/drivers/scsi/lpfc/lpfc_ct.c
++++ b/drivers/scsi/lpfc/lpfc_ct.c
+@@ -2363,10 +2363,11 @@ lpfc_fdmi_port_attr_fc4type(struct lpfc_vport *vport,
+ 	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
+ 	memset(ae, 0, 32);
  
- 	cpu = of_get_cpu_node(policy->cpu, NULL);
+-	ae->un.AttrTypes[3] = 0x02; /* Type 1 - ELS */
+-	ae->un.AttrTypes[2] = 0x01; /* Type 8 - FCP */
+-	ae->un.AttrTypes[6] = 0x01; /* Type 40 - NVME */
+-	ae->un.AttrTypes[7] = 0x01; /* Type 32 - CT */
++	ae->un.AttrTypes[3] = 0x02; /* Type 0x1 - ELS */
++	ae->un.AttrTypes[2] = 0x01; /* Type 0x8 - FCP */
++	if (vport->nvmei_support || vport->phba->nvmet_support)
++		ae->un.AttrTypes[6] = 0x01; /* Type 0x28 - NVME */
++	ae->un.AttrTypes[7] = 0x01; /* Type 0x20 - CT */
+ 	size = FOURBYTES + 32;
+ 	ad->AttrLen = cpu_to_be16(size);
+ 	ad->AttrType = cpu_to_be16(RPRT_SUPPORTED_FC4_TYPES);
+@@ -2676,9 +2677,11 @@ lpfc_fdmi_port_attr_active_fc4type(struct lpfc_vport *vport,
+ 	ae = (struct lpfc_fdmi_attr_entry *)&ad->AttrValue;
+ 	memset(ae, 0, 32);
  
-+	of_node_put(cpu);
- 	if (!cpu)
- 		goto out;
- 
+-	ae->un.AttrTypes[3] = 0x02; /* Type 1 - ELS */
+-	ae->un.AttrTypes[2] = 0x01; /* Type 8 - FCP */
+-	ae->un.AttrTypes[7] = 0x01; /* Type 32 - CT */
++	ae->un.AttrTypes[3] = 0x02; /* Type 0x1 - ELS */
++	ae->un.AttrTypes[2] = 0x01; /* Type 0x8 - FCP */
++	if (vport->phba->cfg_enable_fc4_type & LPFC_ENABLE_NVME)
++		ae->un.AttrTypes[6] = 0x1; /* Type 0x28 - NVME */
++	ae->un.AttrTypes[7] = 0x01; /* Type 0x20 - CT */
+ 	size = FOURBYTES + 32;
+ 	ad->AttrLen = cpu_to_be16(size);
+ 	ad->AttrType = cpu_to_be16(RPRT_ACTIVE_FC4_TYPES);
 -- 
 2.20.1
 
