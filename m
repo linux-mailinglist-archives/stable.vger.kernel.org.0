@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 257CA2EF91
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:56:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36BF32F4E5
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:44:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730414AbfE3DS5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:18:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53140 "EHLO mail.kernel.org"
+        id S1728837AbfE3DMH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:12:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731754AbfE3DS5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:18:57 -0400
+        id S1728195AbfE3DMG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:12:06 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB57724814;
-        Thu, 30 May 2019 03:18:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8B91E24519;
+        Thu, 30 May 2019 03:12:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186336;
-        bh=h5PVYRuniRZJ0/n0iOpYilvo2GmxHdFIE+EpkaXm9YM=;
+        s=default; t=1559185925;
+        bh=Jan7DD9Uh0cQPM9Trrlwh8Yfj1EXn5QYmANOkL08xFg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L7yN6uWnvcTiAHtrQb7YQ93IrKhQgDatXsAbARkId5YvyFk08tHMk69pGw76dexds
-         98+SiXZmfX0vSPm0mF5MIHJVzvRu5O5sTKgKbdXYTz6YbwxEa1md8aWzebsGhy2KKf
-         q7AHvtt3RGr1DlxiyDTeHL+gQrblZUo+N56U8WjM=
+        b=bf/hFyIT5hXGqwGLCIb4SvwBdhPzfBQSH1z04YvT+Qon+PTWE59MRHHf1+WXmzsJf
+         u/a7kLdH9JqRFco1s4/rDiG/9PGExy/ZORcy49BPWw734qE4odyadhcwZqUY+L8khE
+         nnpsIJdqA59i5b4TFnkzj3Z1v/ANp76k3zoH8RnU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Robbie Ko <robbieko@synology.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 059/193] Btrfs: fix data bytes_may_use underflow with fallocate due to failed quota reserve
+Subject: [PATCH 5.1 315/405] scsi: qla4xxx: avoid freeing unallocated dma memory
 Date:   Wed, 29 May 2019 20:05:13 -0700
-Message-Id: <20190530030457.743362179@linuxfoundation.org>
+Message-Id: <20190530030556.725255091@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,57 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 39ad317315887c2cb9a4347a93a8859326ddf136 ]
+[ Upstream commit 608f729c31d4caf52216ea00d20092a80959256d ]
 
-When doing fallocate, we first add the range to the reserve_list and
-then reserve the quota.  If quota reservation fails, we'll release all
-reserved parts of reserve_list.
+Clang -Wuninitialized notices that on is_qla40XX we never allocate any DMA
+memory in get_fw_boot_info() but attempt to free it anyway:
 
-However, cur_offset is not updated to indicate that this range is
-already been inserted into the list.  Therefore, the same range is freed
-twice.  Once at list_for_each_entry loop, and once at the end of the
-function.  This will result in WARN_ON on bytes_may_use when we free the
-remaining space.
+drivers/scsi/qla4xxx/ql4_os.c:5915:7: error: variable 'buf_dma' is used uninitialized whenever 'if' condition is false
+      [-Werror,-Wsometimes-uninitialized]
+                if (!(val & 0x07)) {
+                    ^~~~~~~~~~~~~
+drivers/scsi/qla4xxx/ql4_os.c:5985:47: note: uninitialized use occurs here
+        dma_free_coherent(&ha->pdev->dev, size, buf, buf_dma);
+                                                     ^~~~~~~
+drivers/scsi/qla4xxx/ql4_os.c:5915:3: note: remove the 'if' if its condition is always true
+                if (!(val & 0x07)) {
+                ^~~~~~~~~~~~~~~~~~~
+drivers/scsi/qla4xxx/ql4_os.c:5885:20: note: initialize the variable 'buf_dma' to silence this warning
+        dma_addr_t buf_dma;
+                          ^
+                           = 0
 
-At the end, under the 'out' label we have a call to:
+Skip the call to dma_free_coherent() here.
 
-   btrfs_free_reserved_data_space(inode, data_reserved, alloc_start, alloc_end - cur_offset);
-
-The start offset, third argument, should be cur_offset.
-
-Everything from alloc_start to cur_offset was freed by the
-list_for_each_entry_safe_loop.
-
-Fixes: 18513091af94 ("btrfs: update btrfs_space_info's bytes_may_use timely")
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Robbie Ko <robbieko@synology.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: 2a991c215978 ("[SCSI] qla4xxx: Boot from SAN support for open-iscsi")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/file.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/scsi/qla4xxx/ql4_os.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/btrfs/file.c b/fs/btrfs/file.c
-index 821001138c296..97958ecaeed9d 100644
---- a/fs/btrfs/file.c
-+++ b/fs/btrfs/file.c
-@@ -2976,6 +2976,7 @@ static long btrfs_fallocate(struct file *file, int mode,
- 			ret = btrfs_qgroup_reserve_data(inode, &data_reserved,
- 					cur_offset, last_byte - cur_offset);
- 			if (ret < 0) {
-+				cur_offset = last_byte;
- 				free_extent_map(em);
- 				break;
- 			}
-@@ -3046,7 +3047,7 @@ static long btrfs_fallocate(struct file *file, int mode,
- 	/* Let go of our reservation. */
- 	if (ret != 0)
- 		btrfs_free_reserved_data_space(inode, data_reserved,
--				alloc_start, alloc_end - cur_offset);
-+				cur_offset, alloc_end - cur_offset);
- 	extent_changeset_free(data_reserved);
- 	return ret;
- }
+diff --git a/drivers/scsi/qla4xxx/ql4_os.c b/drivers/scsi/qla4xxx/ql4_os.c
+index 6e4f4931ae175..8c674eca09f13 100644
+--- a/drivers/scsi/qla4xxx/ql4_os.c
++++ b/drivers/scsi/qla4xxx/ql4_os.c
+@@ -5930,7 +5930,7 @@ static int get_fw_boot_info(struct scsi_qla_host *ha, uint16_t ddb_index[])
+ 		val = rd_nvram_byte(ha, sec_addr);
+ 		if (val & BIT_7)
+ 			ddb_index[1] = (val & 0x7f);
+-
++		goto exit_boot_info;
+ 	} else if (is_qla80XX(ha)) {
+ 		buf = dma_alloc_coherent(&ha->pdev->dev, size,
+ 					 &buf_dma, GFP_KERNEL);
 -- 
 2.20.1
 
