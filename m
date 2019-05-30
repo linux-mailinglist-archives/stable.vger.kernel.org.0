@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C8DD2F4D6
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:42:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0085D2F21D
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:18:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728948AbfE3DMS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:12:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54138 "EHLO mail.kernel.org"
+        id S1729155AbfE3ESi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:18:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728935AbfE3DMS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:12:18 -0400
+        id S1729338AbfE3DPb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:15:31 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 856A7244D4;
-        Thu, 30 May 2019 03:12:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B268924559;
+        Thu, 30 May 2019 03:15:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185937;
-        bh=n5kjA7fjbOwqd5N27ytYvPLS2ALxClmy4UA9vMmx6Oc=;
+        s=default; t=1559186130;
+        bh=aoxyoPCuAgGkO3SV9RXleLnENqAvFJUJWdYOT0w20ZM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IwB42shWgQqL01jbE5OMNPkTBM37wxqSEBJ22y2gvjeoTUYMUOxEdYD8ZBd3e6b4V
-         NuayEhYKwHLwp6VyeO5uxt5VTd07fvi7ICUoz5meb5n9dmVY6ExKD3CH1XlwXggKcF
-         lkIDlPueMSims2Pqr2rAoqH/pjw9c5Hdz9HOlPRY=
+        b=dxxb0O5VM+AriOsgU7gCMphE3j0AWqAIHZXJfwZ+uwg8ldG67Gc7+bzKqROMUYOxB
+         McuxExcfpsgBvRHMWKcVhvPTSDN2cdpEnzhWl+QinjE5082xf2fCB9dwmNUV5cX6Gy
+         i9JN2FfRegf61h25oz2oiq0z/OOmTG5kvuBL8PJw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Francis <David.Francis@amd.com>,
-        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
-        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 332/405] drm/amd/display: Update ABM crtc state on non-modeset
+Subject: [PATCH 5.0 257/346] media: video-mux: fix null pointer dereferences
 Date:   Wed, 29 May 2019 20:05:30 -0700
-Message-Id: <20190530030557.522308546@linuxfoundation.org>
+Message-Id: <20190530030554.010021267@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,40 +46,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit b05e2c5e81f9a0be4a145e0926b1dfe62f6347d4 ]
+[ Upstream commit aeb0d0f581e2079868e64a2e5ee346d340376eae ]
 
-[Why]
-Somewhere in the atomic check reshuffle ABM got lost.
-ABM is a crtc property (copied from a connector property).
-It can change without a modeset, just like underscan.
+devm_kcalloc may fail and return a null pointer. The fix returns
+-ENOMEM upon failures to avoid null pointer dereferences.
 
-[How]
-In the skip_modeset branch of atomic check crtc updates,
-copy over the abm property.
-
-Signed-off-by: David Francis <David.Francis@amd.com>
-Reviewed-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
-Acked-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Kangjie Lu <kjlu@umn.edu>
+Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/media/platform/video-mux.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index 66f19d1864b17..c212bff457eec 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -5661,6 +5661,9 @@ static int dm_update_crtc_state(struct amdgpu_display_manager *dm,
- 		update_stream_scaling_settings(
- 			&new_crtc_state->mode, dm_new_conn_state, dm_new_crtc_state->stream);
- 
-+	/* ABM settings */
-+	dm_new_crtc_state->abm_level = dm_new_conn_state->abm_level;
+diff --git a/drivers/media/platform/video-mux.c b/drivers/media/platform/video-mux.c
+index c33900e3c23ef..4135165cdabe6 100644
+--- a/drivers/media/platform/video-mux.c
++++ b/drivers/media/platform/video-mux.c
+@@ -399,9 +399,14 @@ static int video_mux_probe(struct platform_device *pdev)
+ 	vmux->active = -1;
+ 	vmux->pads = devm_kcalloc(dev, num_pads, sizeof(*vmux->pads),
+ 				  GFP_KERNEL);
++	if (!vmux->pads)
++		return -ENOMEM;
 +
- 	/*
- 	 * Color management settings. We also update color properties
- 	 * when a modeset is needed, to ensure it gets reprogrammed.
+ 	vmux->format_mbus = devm_kcalloc(dev, num_pads,
+ 					 sizeof(*vmux->format_mbus),
+ 					 GFP_KERNEL);
++	if (!vmux->format_mbus)
++		return -ENOMEM;
+ 
+ 	for (i = 0; i < num_pads; i++) {
+ 		vmux->pads[i].flags = (i < num_pads - 1) ? MEDIA_PAD_FL_SINK
 -- 
 2.20.1
 
