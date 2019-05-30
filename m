@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 76DF22F1C9
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:16:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C6CF2F01D
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:01:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730523AbfE3DPy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:15:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40328 "EHLO mail.kernel.org"
+        id S1731245AbfE3EAz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:00:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728162AbfE3DPx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:15:53 -0400
+        id S1731472AbfE3DSO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:18:14 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B75F724590;
-        Thu, 30 May 2019 03:15:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7B5912478C;
+        Thu, 30 May 2019 03:18:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186152;
-        bh=Abh9yq3u4rDNWsfi/7nQqad8KR6xGjgWlEyf7rT3IYg=;
+        s=default; t=1559186293;
+        bh=VXQLeDfoSz4hky/VbJ78p/pF58lpzAFNQGeTBEj+as0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CpYYQhKGbGz8LjRzEZGajP+zRpLN+2kl3LPE8VWXPYYrXHmVAHcMLhmGUVO+3AS5F
-         spEojtN/WPSkGhN/Fo4soFjrJ/r6JETAE0HdCytyvgs5SL+K56QpD6zcy85mdk325A
-         TIp1nVeEbcyzdx9C1Wm9e2Xd1PBpCYTts3FNs7tg=
+        b=MjnKHtbUyziQ+oRm59YEdxWk/ApMq4dFMdp1Wyju0WlCXCE6trRVrvuvXLchY09cJ
+         LhoYSmSDTAa3S5ilORv7bEfNb0ih99BOt12frWp9uhtWvQI5mMqV0O33SCaAbtFOIm
+         g9X32/lTnhOhwebjmI2rCEEVgnIcc+6gH61eDdkw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Peter Ujfalusi <peter.ujfalusi@ti.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 337/346] ASoC: davinci-mcasp: Fix clang warning without CONFIG_PM
+Subject: [PATCH 4.19 252/276] media: staging: davinci_vpfe: disallow building with COMPILE_TEST
 Date:   Wed, 29 May 2019 20:06:50 -0700
-Message-Id: <20190530030557.809253714@linuxfoundation.org>
+Message-Id: <20190530030540.894690461@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,47 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 8ca5104715cfd14254ea5aecc390ae583b707607 ]
+[ Upstream commit 49dc762cffd8305a861ca649e82dc5533b3e3344 ]
 
-Building with clang shows a variable that is only used by the
-suspend/resume functions but defined outside of their #ifdef block:
+The driver should really call dm365_isif_setup_pinmux() through a callback,
+but uses a hack to include a davinci specific machine header file when
+compile testing instead. This works almost everywhere, but not on the
+ARM omap1 platform, which has another header named mach/mux.h. This
+causes a build failure:
 
-sound/soc/ti/davinci-mcasp.c:48:12: error: variable 'context_regs' is not needed and will not be emitted
+drivers/staging/media/davinci_vpfe/dm365_isif.c:2028:2: error: implicit declaration of function 'davinci_cfg_reg' [-Werror,-Wimplicit-function-declaration]
+        davinci_cfg_reg(DM365_VIN_CAM_WEN);
+        ^
+drivers/staging/media/davinci_vpfe/dm365_isif.c:2028:2: error: this function declaration is not a prototype [-Werror,-Wstrict-prototypes]
+drivers/staging/media/davinci_vpfe/dm365_isif.c:2028:18: error: use of undeclared identifier 'DM365_VIN_CAM_WEN'
+        davinci_cfg_reg(DM365_VIN_CAM_WEN);
+                        ^
+drivers/staging/media/davinci_vpfe/dm365_isif.c:2029:18: error: use of undeclared identifier 'DM365_VIN_CAM_VD'
+        davinci_cfg_reg(DM365_VIN_CAM_VD);
+                        ^
+drivers/staging/media/davinci_vpfe/dm365_isif.c:2030:18: error: use of undeclared identifier 'DM365_VIN_CAM_HD'
+        davinci_cfg_reg(DM365_VIN_CAM_HD);
+                        ^
+drivers/staging/media/davinci_vpfe/dm365_isif.c:2031:18: error: use of undeclared identifier 'DM365_VIN_YIN4_7_EN'
+        davinci_cfg_reg(DM365_VIN_YIN4_7_EN);
+                        ^
+drivers/staging/media/davinci_vpfe/dm365_isif.c:2032:18: error: use of undeclared identifier 'DM365_VIN_YIN0_3_EN'
+        davinci_cfg_reg(DM365_VIN_YIN0_3_EN);
+                        ^
+7 errors generated.
 
-We commonly fix these by marking the PM functions as __maybe_unused,
-but here that would grow the davinci_mcasp structure, so instead
-add another #ifdef here.
+Exclude omap1 from compile-testing, under the assumption that all others
+still work.
 
-Fixes: 1cc0c054f380 ("ASoC: davinci-mcasp: Convert the context save/restore to use array")
+Fixes: 4907c73deefe ("media: staging: davinci_vpfe: allow building with COMPILE_TEST")
+
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/ti/davinci-mcasp.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/staging/media/davinci_vpfe/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/ti/davinci-mcasp.c b/sound/soc/ti/davinci-mcasp.c
-index a10fcb5963c67..570d435e3e8be 100644
---- a/sound/soc/ti/davinci-mcasp.c
-+++ b/sound/soc/ti/davinci-mcasp.c
-@@ -44,6 +44,7 @@
- 
- #define MCASP_MAX_AFIFO_DEPTH	64
- 
-+#ifdef CONFIG_PM
- static u32 context_regs[] = {
- 	DAVINCI_MCASP_TXFMCTL_REG,
- 	DAVINCI_MCASP_RXFMCTL_REG,
-@@ -66,6 +67,7 @@ struct davinci_mcasp_context {
- 	u32	*xrsr_regs; /* for serializer configuration */
- 	bool	pm_state;
- };
-+#endif
- 
- struct davinci_mcasp_ruledata {
- 	struct davinci_mcasp *mcasp;
+diff --git a/drivers/staging/media/davinci_vpfe/Kconfig b/drivers/staging/media/davinci_vpfe/Kconfig
+index aea449a8dbf8a..76818cc48ddcb 100644
+--- a/drivers/staging/media/davinci_vpfe/Kconfig
++++ b/drivers/staging/media/davinci_vpfe/Kconfig
+@@ -1,7 +1,7 @@
+ config VIDEO_DM365_VPFE
+ 	tristate "DM365 VPFE Media Controller Capture Driver"
+ 	depends on VIDEO_V4L2
+-	depends on (ARCH_DAVINCI_DM365 && !VIDEO_DM365_ISIF) || COMPILE_TEST
++	depends on (ARCH_DAVINCI_DM365 && !VIDEO_DM365_ISIF) || (COMPILE_TEST && !ARCH_OMAP1)
+ 	depends on VIDEO_V4L2_SUBDEV_API
+ 	depends on VIDEO_DAVINCI_VPBE_DISPLAY
+ 	select VIDEOBUF2_DMA_CONTIG
 -- 
 2.20.1
 
