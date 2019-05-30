@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EAF62F42E
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:36:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17B772F451
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:38:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729637AbfE3Ef6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:35:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57360 "EHLO mail.kernel.org"
+        id S2388096AbfE3Egm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:36:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729332AbfE3DNF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:13:05 -0400
+        id S1729302AbfE3DM6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:12:58 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B616C24526;
-        Thu, 30 May 2019 03:13:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6F8AC2449A;
+        Thu, 30 May 2019 03:12:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185983;
-        bh=t6bx2D04IYoytuycVZr10En/w9fgx4z/f8hlVwcsreI=;
+        s=default; t=1559185977;
+        bh=6RPWTBSids8jpnfkiKL3ALT3grkFLg/V1aA0rerayp4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YrVwQbiTJuExAkboIpErvFXEUBkQPDK+9X//V1DcA70cNr7wnUq/7wz8PpEDSmGWd
-         2MsVts3Vspnr3HRRlUq4Pr3UDxY3iTMfybMlZL1dXPETmtwHoZmKsAniLJT0jPn2cW
-         pDlDrS0zyhxx/+ts5MWnGx9U1aHqBKJY2bOWhPxE=
+        b=k8dngso5q64tAU8HsvHur0rkbaHFtf14m3YbFHLniNWDFzkj8LLIbz8L05H28Jg8S
+         ryeLf2tZK7m8kIR1ck2IbKsEKD/uHVzYlTvVGwhg+n+akFLq5h+VXJgkBadNqK9E/B
+         sDE/eCgomOzl4jCslj9KH82V3hA6E5vvSqZO8psU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Axtens <dja@axtens.net>,
-        Nayna Jain <nayna@linux.ibm.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.0 009/346] crypto: vmx - CTR: always increment IV as quadword
-Date:   Wed, 29 May 2019 20:01:22 -0700
-Message-Id: <20190530030540.980132209@linuxfoundation.org>
+        stable@vger.kernel.org, Trac Hoang <trac.hoang@broadcom.com>,
+        Scott Branden <scott.branden@broadcom.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.0 010/346] mmc: sdhci-iproc: cygnus: Set NO_HISPD bit to fix HS50 data hold time problem
+Date:   Wed, 29 May 2019 20:01:23 -0700
+Message-Id: <20190530030541.050502306@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
 References: <20190530030540.363386121@linuxfoundation.org>
@@ -44,57 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Axtens <dja@axtens.net>
+From: Trac Hoang <trac.hoang@broadcom.com>
 
-commit 009b30ac7444c17fae34c4f435ebce8e8e2b3250 upstream.
+commit b7dfa695afc40d5396ed84b9f25aa3754de23e39 upstream.
 
-The kernel self-tests picked up an issue with CTR mode:
-alg: skcipher: p8_aes_ctr encryption test failed (wrong result) on test vector 3, cfg="uneven misaligned splits, may sleep"
+The iproc host eMMC/SD controller hold time does not meet the
+specification in the HS50 mode. This problem can be mitigated
+by disabling the HISPD bit; thus forcing the controller output
+data to be driven on the falling clock edges rather than the
+rising clock edges.
 
-Test vector 3 has an IV of FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFD, so
-after 3 increments it should wrap around to 0.
+This change applies only to the Cygnus platform.
 
-In the aesp8-ppc code from OpenSSL, there are two paths that
-increment IVs: the bulk (8 at a time) path, and the individual
-path which is used when there are fewer than 8 AES blocks to
-process.
+Stable tag (v4.12+) chosen to assist stable kernel maintainers so that
+the change does not produce merge conflicts backporting to older kernel
+versions. In reality, the timing bug existed since the driver was first
+introduced but there is no need for this driver to be supported in kernel
+versions that old.
 
-In the bulk path, the IV is incremented with vadduqm: "Vector
-Add Unsigned Quadword Modulo", which does 128-bit addition.
-
-In the individual path, however, the IV is incremented with
-vadduwm: "Vector Add Unsigned Word Modulo", which instead
-does 4 32-bit additions. Thus the IV would instead become
-FFFFFFFFFFFFFFFFFFFFFFFF00000000, throwing off the result.
-
-Use vadduqm.
-
-This was probably a typo originally, what with q and w being
-adjacent. It is a pretty narrow edge case: I am really
-impressed by the quality of the kernel self-tests!
-
-Fixes: 5c380d623ed3 ("crypto: vmx - Add support for VMS instructions by ASM")
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Axtens <dja@axtens.net>
-Acked-by: Nayna Jain <nayna@linux.ibm.com>
-Tested-by: Nayna Jain <nayna@linux.ibm.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: stable@vger.kernel.org # v4.12+
+Signed-off-by: Trac Hoang <trac.hoang@broadcom.com>
+Signed-off-by: Scott Branden <scott.branden@broadcom.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/vmx/aesp8-ppc.pl |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mmc/host/sdhci-iproc.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/crypto/vmx/aesp8-ppc.pl
-+++ b/drivers/crypto/vmx/aesp8-ppc.pl
-@@ -1357,7 +1357,7 @@ Loop_ctr32_enc:
- 	addi		$idx,$idx,16
- 	bdnz		Loop_ctr32_enc
+--- a/drivers/mmc/host/sdhci-iproc.c
++++ b/drivers/mmc/host/sdhci-iproc.c
+@@ -196,7 +196,8 @@ static const struct sdhci_ops sdhci_ipro
+ };
  
--	vadduwm		$ivec,$ivec,$one
-+	vadduqm		$ivec,$ivec,$one
- 	 vmr		$dat,$inptail
- 	 lvx		$inptail,0,$inp
- 	 addi		$inp,$inp,16
+ static const struct sdhci_pltfm_data sdhci_iproc_cygnus_pltfm_data = {
+-	.quirks = SDHCI_QUIRK_DATA_TIMEOUT_USES_SDCLK,
++	.quirks = SDHCI_QUIRK_DATA_TIMEOUT_USES_SDCLK |
++		  SDHCI_QUIRK_NO_HISPD_BIT,
+ 	.quirks2 = SDHCI_QUIRK2_ACMD23_BROKEN | SDHCI_QUIRK2_HOST_OFF_CARD_ON,
+ 	.ops = &sdhci_iproc_32only_ops,
+ };
 
 
