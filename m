@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 51D012F649
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:54:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 944EF2F63F
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:54:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728291AbfE3Eyi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:54:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46842 "EHLO mail.kernel.org"
+        id S1728047AbfE3DKV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:10:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728042AbfE3DKV (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1728043AbfE3DKV (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 29 May 2019 23:10:21 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 258EB24493;
+        by mail.kernel.org (Postfix) with ESMTPSA id A224E2446F;
         Thu, 30 May 2019 03:10:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1559185820;
-        bh=3RCxgWEyXcSUgOh3L8bO5IkpkOryQ3Q4vhOf9zYAuZA=;
+        bh=7DV/oEmtjL0CMN/Y3tOWLsHH6mF/zdqT2RUmRQqsRUI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eWUiY/8Eg1WJPe/knam2yaEdyJ3MmDatUps7OnuYwpZ9bHk4HQWBFJGdfhpMw4cBc
-         mk5Oo2tt8WLxTqre0jZ0xsQaJyfhuKWz0dw1i1S+HadNYCnyC6IjLYIwvzkd+My9gd
-         lpEKn/PezjRQBRjmEueDyvCiE3EbmyE8mfOOK5+I=
+        b=k91Qzx1B1txw0wG+z59XheCg2/YxP8v4xUFZtX8WcRzMthSEDbEDsUhVrp6ZOae4s
+         fP1Td8v78AKSYixK4B9coWkAJZux7OF90KY3PgYLAffK9q/Ut1PN6wGruk7eAXEQlx
+         pXAiZ8NoSN2B6ABzf4yA81Dq8eDdFMSo3BND6+PU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Sam Ravnborg <sam@ravnborg.org>,
-        "James Qian Wang (Arm Technology China)" <james.qian.wang@arm.com>,
-        Liviu Dudau <liviu.dudau@arm.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        stable@vger.kernel.org, "Daniel T. Lee" <danieltimlee@gmail.com>,
+        Yonghong Song <yhs@fb.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 116/405] drm: prefix header search paths with $(srctree)/
-Date:   Wed, 29 May 2019 20:01:54 -0700
-Message-Id: <20190530030546.869328633@linuxfoundation.org>
+Subject: [PATCH 5.1 117/405] libbpf: fix samples/bpf build failure due to undefined UINT32_MAX
+Date:   Wed, 29 May 2019 20:01:55 -0700
+Message-Id: <20190530030546.915608617@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
 References: <20190530030540.291644921@linuxfoundation.org>
@@ -48,106 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 43068cb7ba1f6ceb1523e947c84002b2a61fd6d4 ]
+[ Upstream commit 32e621e55496a0009f44fe4914cd4a23cade4984 ]
 
-Currently, the Kbuild core manipulates header search paths in a crazy
-way [1].
+Currently, building bpf samples will cause the following error.
 
-To fix this mess, I want all Makefiles to add explicit $(srctree)/ to
-the search paths in the srctree. Some Makefiles are already written in
-that way, but not all. The goal of this work is to make the notation
-consistent, and finally get rid of the gross hacks.
+    ./tools/lib/bpf/bpf.h:132:27: error: 'UINT32_MAX' undeclared here (not in a function) ..
+     #define BPF_LOG_BUF_SIZE (UINT32_MAX >> 8) /* verifier maximum in kernels <= 5.1 */
+                               ^
+    ./samples/bpf/bpf_load.h:31:25: note: in expansion of macro 'BPF_LOG_BUF_SIZE'
+     extern char bpf_log_buf[BPF_LOG_BUF_SIZE];
+                             ^~~~~~~~~~~~~~~~
 
-Having whitespaces after -I does not matter since commit 48f6e3cf5bc6
-("kbuild: do not drop -I without parameter").
+Due to commit 4519efa6f8ea ("libbpf: fix BPF_LOG_BUF_SIZE off-by-one error")
+hard-coded size of BPF_LOG_BUF_SIZE has been replaced with UINT32_MAX which is
+defined in <stdint.h> header.
 
-[1]: https://patchwork.kernel.org/patch/9632347/
+Even with this change, bpf selftests are running fine since these are built
+with clang and it includes header(-idirafter) from clang/6.0.0/include.
+(it has <stdint.h>)
 
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
-Reviewed-by: James Qian Wang (Arm Technology China) <james.qian.wang@arm.com>
-Acked-by: Liviu Dudau <liviu.dudau@arm.com>
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/1553859161-2628-1-git-send-email-yamada.masahiro@socionext.com
+    clang -I. -I./include/uapi -I../../../include/uapi -idirafter /usr/local/include -idirafter /usr/include \
+    -idirafter /usr/lib/llvm-6.0/lib/clang/6.0.0/include -idirafter /usr/include/x86_64-linux-gnu \
+    -Wno-compare-distinct-pointer-types -O2 -target bpf -emit-llvm -c progs/test_sysctl_prog.c -o - | \
+    llc -march=bpf -mcpu=generic  -filetype=obj -o /linux/tools/testing/selftests/bpf/test_sysctl_prog.o
+
+But bpf samples are compiled with GCC, and it only searches and includes
+headers declared at the target file. As '#include <stdint.h>' hasn't been
+declared in tools/lib/bpf/bpf.h, it causes build failure of bpf samples.
+
+    gcc -Wp,-MD,./samples/bpf/.sockex3_user.o.d -Wall -Wmissing-prototypes -Wstrict-prototypes \
+    -O2 -fomit-frame-pointer -std=gnu89 -I./usr/include -I./tools/lib/ -I./tools/testing/selftests/bpf/ \
+    -I./tools/  lib/ -I./tools/include -I./tools/perf -c -o ./samples/bpf/sockex3_user.o ./samples/bpf/sockex3_user.c;
+
+This commit add declaration of '#include <stdint.h>' to tools/lib/bpf/bpf.h
+to fix this problem.
+
+Signed-off-by: Daniel T. Lee <danieltimlee@gmail.com>
+Acked-by: Yonghong Song <yhs@fb.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/Makefile         | 2 +-
- drivers/gpu/drm/arm/display/komeda/Makefile | 4 ++--
- drivers/gpu/drm/i915/gvt/Makefile           | 2 +-
- drivers/gpu/drm/msm/Makefile                | 6 +++---
- drivers/gpu/drm/nouveau/Kbuild              | 8 ++++----
- 5 files changed, 11 insertions(+), 11 deletions(-)
+ tools/lib/bpf/bpf.h | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/Makefile b/drivers/gpu/drm/amd/amdgpu/Makefile
-index 466da5954a682..62bf9da25e4b3 100644
---- a/drivers/gpu/drm/amd/amdgpu/Makefile
-+++ b/drivers/gpu/drm/amd/amdgpu/Makefile
-@@ -23,7 +23,7 @@
- # Makefile for the drm device driver.  This driver provides support for the
- # Direct Rendering Infrastructure (DRI) in XFree86 4.1.0 and higher.
+diff --git a/tools/lib/bpf/bpf.h b/tools/lib/bpf/bpf.h
+index 6ffdd79bea89d..6dc1f418034fb 100644
+--- a/tools/lib/bpf/bpf.h
++++ b/tools/lib/bpf/bpf.h
+@@ -26,6 +26,7 @@
+ #include <linux/bpf.h>
+ #include <stdbool.h>
+ #include <stddef.h>
++#include <stdint.h>
  
--FULL_AMD_PATH=$(src)/..
-+FULL_AMD_PATH=$(srctree)/$(src)/..
- DISPLAY_FOLDER_NAME=display
- FULL_AMD_DISPLAY_PATH = $(FULL_AMD_PATH)/$(DISPLAY_FOLDER_NAME)
- 
-diff --git a/drivers/gpu/drm/arm/display/komeda/Makefile b/drivers/gpu/drm/arm/display/komeda/Makefile
-index 1b875e5dc0f6f..a72e30c0e03d3 100644
---- a/drivers/gpu/drm/arm/display/komeda/Makefile
-+++ b/drivers/gpu/drm/arm/display/komeda/Makefile
-@@ -1,8 +1,8 @@
- # SPDX-License-Identifier: GPL-2.0
- 
- ccflags-y := \
--	-I$(src)/../include \
--	-I$(src)
-+	-I $(srctree)/$(src)/../include \
-+	-I $(srctree)/$(src)
- 
- komeda-y := \
- 	komeda_drv.o \
-diff --git a/drivers/gpu/drm/i915/gvt/Makefile b/drivers/gpu/drm/i915/gvt/Makefile
-index 271fb46d4dd0d..ea8324abc784a 100644
---- a/drivers/gpu/drm/i915/gvt/Makefile
-+++ b/drivers/gpu/drm/i915/gvt/Makefile
-@@ -5,5 +5,5 @@ GVT_SOURCE := gvt.o aperture_gm.o handlers.o vgpu.o trace_points.o firmware.o \
- 	execlist.o scheduler.o sched_policy.o mmio_context.o cmd_parser.o debugfs.o \
- 	fb_decoder.o dmabuf.o page_track.o
- 
--ccflags-y				+= -I$(src) -I$(src)/$(GVT_DIR)
-+ccflags-y				+= -I $(srctree)/$(src) -I $(srctree)/$(src)/$(GVT_DIR)/
- i915-y					+= $(addprefix $(GVT_DIR)/, $(GVT_SOURCE))
-diff --git a/drivers/gpu/drm/msm/Makefile b/drivers/gpu/drm/msm/Makefile
-index 56a70c74af4ed..b7b1ebdc81902 100644
---- a/drivers/gpu/drm/msm/Makefile
-+++ b/drivers/gpu/drm/msm/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
--ccflags-y := -Idrivers/gpu/drm/msm
--ccflags-y += -Idrivers/gpu/drm/msm/disp/dpu1
--ccflags-$(CONFIG_DRM_MSM_DSI) += -Idrivers/gpu/drm/msm/dsi
-+ccflags-y := -I $(srctree)/$(src)
-+ccflags-y += -I $(srctree)/$(src)/disp/dpu1
-+ccflags-$(CONFIG_DRM_MSM_DSI) += -I $(srctree)/$(src)/dsi
- 
- msm-y := \
- 	adreno/adreno_device.o \
-diff --git a/drivers/gpu/drm/nouveau/Kbuild b/drivers/gpu/drm/nouveau/Kbuild
-index 581404e6544d4..378c5dd692b0b 100644
---- a/drivers/gpu/drm/nouveau/Kbuild
-+++ b/drivers/gpu/drm/nouveau/Kbuild
-@@ -1,7 +1,7 @@
--ccflags-y += -I$(src)/include
--ccflags-y += -I$(src)/include/nvkm
--ccflags-y += -I$(src)/nvkm
--ccflags-y += -I$(src)
-+ccflags-y += -I $(srctree)/$(src)/include
-+ccflags-y += -I $(srctree)/$(src)/include/nvkm
-+ccflags-y += -I $(srctree)/$(src)/nvkm
-+ccflags-y += -I $(srctree)/$(src)
- 
- # NVKM - HW resource manager
- #- code also used by various userspace tools/tests
+ #ifdef __cplusplus
+ extern "C" {
 -- 
 2.20.1
 
