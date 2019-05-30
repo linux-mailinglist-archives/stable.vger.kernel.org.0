@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 57BE02F383
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:33:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FCAB2EB2B
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:10:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729499AbfE3DNc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:13:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58866 "EHLO mail.kernel.org"
+        id S1727504AbfE3DKe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:10:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729484AbfE3DNb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:13:31 -0400
+        id S1728141AbfE3DKd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:10:33 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 643ED24502;
-        Thu, 30 May 2019 03:13:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CF45E24488;
+        Thu, 30 May 2019 03:10:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186010;
-        bh=ZHEtNDfR/QT50PNn2KzsiynEhrp0uaN1i7z4WEqqhNU=;
+        s=default; t=1559185832;
+        bh=xtJxQC0Yev/gdAJgBJR+QbV4KFDeR1pDpv2e2eMbnsc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=meLpF/KTKiw3cXRXEU3mWQzbZPeujvi0S27QVTiqhbCerAkJp6yGGL/7l23hfEn5J
-         0cprZM+SxO8SS0an4TBBz+I5ri7r+2MFpOUVKDMS747GDAECPDv/fCIf7jP6MQPrB9
-         59F240eo9Y3Oh9lyxdOyvSWBTTqueQPIKPwA/Wjw=
+        b=lzyS3vVgsf4AHOuEmF75B94XZuX+N2xvsELhcX4tCELYI/3LcNugcxontPMq0hzG4
+         NYNpacbgNgYWG17pyYFWtkQ7KGZbV2C4MNaEvQGjj84iFclMozeLDdInUSBMcrWGa0
+         GLWix1b37ur6cvtt54eKvfJZkCoNuc11S0Wu1cFs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Minas Harutyunyan <hminas@synopsys.com>,
-        Felipe Balbi <felipe.balbi@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 063/346] usb: dwc2: gadget: Increase descriptors count for ISOCs
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        "Paul E. McKenney" <paulmck@linux.ibm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 138/405] smpboot: Place the __percpu annotation correctly
 Date:   Wed, 29 May 2019 20:02:16 -0700
-Message-Id: <20190530030544.255087781@linuxfoundation.org>
+Message-Id: <20190530030548.078012395@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,104 +48,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 54f37f56631747075f1f9a2f0edf6ba405e3e66c ]
+[ Upstream commit d4645d30b50d1691c26ff0f8fa4e718b08f8d3bb ]
 
-Some function drivers queueing more than 128 ISOC requests at a time.
-To avoid "descriptor chain full" cases, increasing descriptors count
-from MAX_DMA_DESC_NUM_GENERIC to MAX_DMA_DESC_NUM_HS_ISOC for ISOC's
-only.
+The test robot reported a wrong assignment of a per-CPU variable which
+it detected by using sparse and sent a report. The assignment itself is
+correct. The annotation for sparse was wrong and hence the report.
+The first pointer is a "normal" pointer and points to the per-CPU memory
+area. That means that the __percpu annotation has to be moved.
 
-Signed-off-by: Minas Harutyunyan <hminas@synopsys.com>
-Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+Move the __percpu annotation to pointer which points to the per-CPU
+area. This change affects only the sparse tool (and is ignored by the
+compiler).
+
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Paul E. McKenney <paulmck@linux.ibm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Fixes: f97f8f06a49fe ("smpboot: Provide infrastructure for percpu hotplug threads")
+Link: http://lkml.kernel.org/r/20190424085253.12178-1-bigeasy@linutronix.de
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc2/gadget.c | 27 +++++++++++++++------------
- 1 file changed, 15 insertions(+), 12 deletions(-)
+ include/linux/smpboot.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/dwc2/gadget.c b/drivers/usb/dwc2/gadget.c
-index 55ef3cc2701b9..f541274732397 100644
---- a/drivers/usb/dwc2/gadget.c
-+++ b/drivers/usb/dwc2/gadget.c
-@@ -714,13 +714,11 @@ static unsigned int dwc2_gadget_get_chain_limit(struct dwc2_hsotg_ep *hs_ep)
- 	unsigned int maxsize;
- 
- 	if (is_isoc)
--		maxsize = hs_ep->dir_in ? DEV_DMA_ISOC_TX_NBYTES_LIMIT :
--					   DEV_DMA_ISOC_RX_NBYTES_LIMIT;
-+		maxsize = (hs_ep->dir_in ? DEV_DMA_ISOC_TX_NBYTES_LIMIT :
-+					   DEV_DMA_ISOC_RX_NBYTES_LIMIT) *
-+					   MAX_DMA_DESC_NUM_HS_ISOC;
- 	else
--		maxsize = DEV_DMA_NBYTES_LIMIT;
--
--	/* Above size of one descriptor was chosen, multiple it */
--	maxsize *= MAX_DMA_DESC_NUM_GENERIC;
-+		maxsize = DEV_DMA_NBYTES_LIMIT * MAX_DMA_DESC_NUM_GENERIC;
- 
- 	return maxsize;
- }
-@@ -903,7 +901,7 @@ static int dwc2_gadget_fill_isoc_desc(struct dwc2_hsotg_ep *hs_ep,
- 
- 	/* Update index of last configured entry in the chain */
- 	hs_ep->next_desc++;
--	if (hs_ep->next_desc >= MAX_DMA_DESC_NUM_GENERIC)
-+	if (hs_ep->next_desc >= MAX_DMA_DESC_NUM_HS_ISOC)
- 		hs_ep->next_desc = 0;
- 
- 	return 0;
-@@ -935,7 +933,7 @@ static void dwc2_gadget_start_isoc_ddma(struct dwc2_hsotg_ep *hs_ep)
- 	}
- 
- 	/* Initialize descriptor chain by Host Busy status */
--	for (i = 0; i < MAX_DMA_DESC_NUM_GENERIC; i++) {
-+	for (i = 0; i < MAX_DMA_DESC_NUM_HS_ISOC; i++) {
- 		desc = &hs_ep->desc_list[i];
- 		desc->status = 0;
- 		desc->status |= (DEV_DMA_BUFF_STS_HBUSY
-@@ -2122,7 +2120,7 @@ static void dwc2_gadget_complete_isoc_request_ddma(struct dwc2_hsotg_ep *hs_ep)
- 		dwc2_hsotg_complete_request(hsotg, hs_ep, hs_req, 0);
- 
- 		hs_ep->compl_desc++;
--		if (hs_ep->compl_desc > (MAX_DMA_DESC_NUM_GENERIC - 1))
-+		if (hs_ep->compl_desc > (MAX_DMA_DESC_NUM_HS_ISOC - 1))
- 			hs_ep->compl_desc = 0;
- 		desc_sts = hs_ep->desc_list[hs_ep->compl_desc].status;
- 	}
-@@ -3859,6 +3857,7 @@ static int dwc2_hsotg_ep_enable(struct usb_ep *ep,
- 	unsigned int i, val, size;
- 	int ret = 0;
- 	unsigned char ep_type;
-+	int desc_num;
- 
- 	dev_dbg(hsotg->dev,
- 		"%s: ep %s: a 0x%02x, attr 0x%02x, mps 0x%04x, intr %d\n",
-@@ -3905,11 +3904,15 @@ static int dwc2_hsotg_ep_enable(struct usb_ep *ep,
- 	dev_dbg(hsotg->dev, "%s: read DxEPCTL=0x%08x from 0x%08x\n",
- 		__func__, epctrl, epctrl_reg);
- 
-+	if (using_desc_dma(hsotg) && ep_type == USB_ENDPOINT_XFER_ISOC)
-+		desc_num = MAX_DMA_DESC_NUM_HS_ISOC;
-+	else
-+		desc_num = MAX_DMA_DESC_NUM_GENERIC;
-+
- 	/* Allocate DMA descriptor chain for non-ctrl endpoints */
- 	if (using_desc_dma(hsotg) && !hs_ep->desc_list) {
- 		hs_ep->desc_list = dmam_alloc_coherent(hsotg->dev,
--			MAX_DMA_DESC_NUM_GENERIC *
--			sizeof(struct dwc2_dma_desc),
-+			desc_num * sizeof(struct dwc2_dma_desc),
- 			&hs_ep->desc_list_dma, GFP_ATOMIC);
- 		if (!hs_ep->desc_list) {
- 			ret = -ENOMEM;
-@@ -4051,7 +4054,7 @@ static int dwc2_hsotg_ep_enable(struct usb_ep *ep,
- 
- error2:
- 	if (ret && using_desc_dma(hsotg) && hs_ep->desc_list) {
--		dmam_free_coherent(hsotg->dev, MAX_DMA_DESC_NUM_GENERIC *
-+		dmam_free_coherent(hsotg->dev, desc_num *
- 			sizeof(struct dwc2_dma_desc),
- 			hs_ep->desc_list, hs_ep->desc_list_dma);
- 		hs_ep->desc_list = NULL;
+diff --git a/include/linux/smpboot.h b/include/linux/smpboot.h
+index d0884b5250010..9d1bc65d226cc 100644
+--- a/include/linux/smpboot.h
++++ b/include/linux/smpboot.h
+@@ -29,7 +29,7 @@ struct smpboot_thread_data;
+  * @thread_comm:	The base name of the thread
+  */
+ struct smp_hotplug_thread {
+-	struct task_struct __percpu	**store;
++	struct task_struct		* __percpu *store;
+ 	struct list_head		list;
+ 	int				(*thread_should_run)(unsigned int cpu);
+ 	void				(*thread_fn)(unsigned int cpu);
 -- 
 2.20.1
 
