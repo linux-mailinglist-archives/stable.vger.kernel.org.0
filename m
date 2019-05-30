@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EDC72EDD5
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:42:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED1EB2EE9B
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:49:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731134AbfE3Dlh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:41:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34090 "EHLO mail.kernel.org"
+        id S1733171AbfE3Dsw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:48:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731590AbfE3DVS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:21:18 -0400
+        id S1732143AbfE3DUR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:20:17 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 64215249F7;
-        Thu, 30 May 2019 03:21:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 31C2324913;
+        Thu, 30 May 2019 03:20:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186478;
-        bh=v5+OdRiroJNePL+EMSWqYBpZD6+2xfylolszboFxqXU=;
+        s=default; t=1559186417;
+        bh=D57ohe9MJE9ynAZ87YT9Yn/9+tuD5LBAyKgmV/j5pcY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MwSu3Z+l0b4xqFcpXVcFfwC+NQhPddz+V4bS3wzGx5p90wJQQK0bz1KNPx/7W3HgB
-         HO44QVTPwqPGIwjfdoMyi7aXfERHlZ0wqqwNHp+zIVSMfcf3pnF9ZSCL3lhwVNF1D9
-         m0Hdk14AUYyuE9Udh+FMbGv04+SlYa2dcVQoBVJ4=
+        b=sge8uHlRmtsLZrAV7q0Y6V56U8QgS05AZyC62euBSUL83OgqcGnyDkvEyJAfqpKup
+         7UGkiJ3SqC5Hne28rTwNsSnlpI7m2BpEJj8ZCJ2wFvXZIKABGEBuwQcmUU5L9WeDTr
+         k1EoG3DXxlC9LAZUJ/O1ePXxsQU5IR3arHrRp5JM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 112/128] tty: ipwireless: fix missing checks for ioremap
-Date:   Wed, 29 May 2019 20:07:24 -0700
-Message-Id: <20190530030454.762402652@linuxfoundation.org>
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 191/193] drm: Wake up next in drm_read() chain if we are forced to putback the event
+Date:   Wed, 29 May 2019 20:07:25 -0700
+Message-Id: <20190530030513.324164890@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
-References: <20190530030432.977908967@linuxfoundation.org>
+In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
+References: <20190530030446.953835040@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 1bbb1c318cd8a3a39e8c3e2e83d5e90542d6c3e3 ]
+[ Upstream commit 60b801999c48b6c1dd04e653a38e2e613664264e ]
 
-ipw->attr_memory and ipw->common_memory are assigned with the
-return value of ioremap. ioremap may fail, but no checks
-are enforced. The fix inserts the checks to avoid potential
-NULL pointer dereferences.
+After an event is sent, we try to copy it into the user buffer of the
+first waiter in drm_read() and if the user buffer doesn't have enough
+room we put it back onto the list. However, we didn't wake up any
+subsequent waiter, so that event may sit on the list until either a new
+vblank event is sent or a new waiter appears. Rare, but in the worst
+case may lead to a stuck process.
 
-Signed-off-by: Kangjie Lu <kjlu@umn.edu>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Testcase: igt/drm_read/short-buffer-wakeup
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20170804082328.17173-1-chris@chris-wilson.co.uk
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/ipwireless/main.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/gpu/drm/drm_file.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/tty/ipwireless/main.c b/drivers/tty/ipwireless/main.c
-index 655c7948261c7..2fa4f91234693 100644
---- a/drivers/tty/ipwireless/main.c
-+++ b/drivers/tty/ipwireless/main.c
-@@ -113,6 +113,10 @@ static int ipwireless_probe(struct pcmcia_device *p_dev, void *priv_data)
+diff --git a/drivers/gpu/drm/drm_file.c b/drivers/gpu/drm/drm_file.c
+index 03244b3c985d7..3cf07f5063ff6 100644
+--- a/drivers/gpu/drm/drm_file.c
++++ b/drivers/gpu/drm/drm_file.c
+@@ -525,6 +525,7 @@ ssize_t drm_read(struct file *filp, char __user *buffer,
+ 				file_priv->event_space -= length;
+ 				list_add(&e->link, &file_priv->event_list);
+ 				spin_unlock_irq(&dev->event_lock);
++				wake_up_interruptible(&file_priv->event_wait);
+ 				break;
+ 			}
  
- 	ipw->common_memory = ioremap(p_dev->resource[2]->start,
- 				resource_size(p_dev->resource[2]));
-+	if (!ipw->common_memory) {
-+		ret = -ENOMEM;
-+		goto exit1;
-+	}
- 	if (!request_mem_region(p_dev->resource[2]->start,
- 				resource_size(p_dev->resource[2]),
- 				IPWIRELESS_PCCARD_NAME)) {
-@@ -133,6 +137,10 @@ static int ipwireless_probe(struct pcmcia_device *p_dev, void *priv_data)
- 
- 	ipw->attr_memory = ioremap(p_dev->resource[3]->start,
- 				resource_size(p_dev->resource[3]));
-+	if (!ipw->attr_memory) {
-+		ret = -ENOMEM;
-+		goto exit3;
-+	}
- 	if (!request_mem_region(p_dev->resource[3]->start,
- 				resource_size(p_dev->resource[3]),
- 				IPWIRELESS_PCCARD_NAME)) {
 -- 
 2.20.1
 
