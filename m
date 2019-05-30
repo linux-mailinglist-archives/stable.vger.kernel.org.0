@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 16B6B2F4C0
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:42:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC5652EC07
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:17:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729024AbfE3ElQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:41:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55166 "EHLO mail.kernel.org"
+        id S1731236AbfE3DRo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:17:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729027AbfE3DM1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:12:27 -0400
+        id S1731224AbfE3DRn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:17:43 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B01A023D14;
-        Thu, 30 May 2019 03:12:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 57D7F246EE;
+        Thu, 30 May 2019 03:17:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185946;
-        bh=bDXiMGFvmldpxTxfhq4JdbAQvsgjlZNGG0/Vu9YG5q8=;
+        s=default; t=1559186262;
+        bh=kNhMMzXAe84h3vGa1fylrwuHVRkYskw/3R/d2L47mCg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZIoNFO3ryFs69HAOlbX04+bv2TLBfwHgPFCNuSwONJBh/QzNfkJI58fHq6HtB0v3C
-         BjuC5B8mTwcN+KYdl1Jdu+04GOM1RBNcg4xyvWEPmV+ZuhFSJKXOBinp86BSJyLhRA
-         v5iAJA/K2ZF5Tf5TPXOQaXooqeOl6svWO7LmhXJU=
+        b=Npkn3aq7iUmKQM0foKFy6kqh3fEAKu1KM60MdY9vWD8xrbVzE1qrpgXglCg5IssN0
+         iznuycRJ/7Un+pVx0kLG893QasbJSbke6CXEYrKdyP4nBYsSL2RCH/ZKYpzzbKvSsk
+         bXYDm4Bfmg5p7MVyHFpahH94RR+D680INyLG1WA0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org,
+        Piotr Figiel <p.figiel@camlintechnologies.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 356/405] media: go7007: avoid clang frame overflow warning with KASAN
+Subject: [PATCH 4.19 196/276] brcmfmac: fix WARNING during USB disconnect in case of unempty psq
 Date:   Wed, 29 May 2019 20:05:54 -0700
-Message-Id: <20190530030558.645730883@linuxfoundation.org>
+Message-Id: <20190530030537.375788322@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,43 +45,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ed713a4a1367aca5c0f2f329579465db00c17995 ]
+[ Upstream commit c80d26e81ef1802f30364b4ad1955c1443a592b9 ]
 
-clang-8 warns about one function here when KASAN is enabled, even
-without the 'asan-stack' option:
+brcmu_pkt_buf_free_skb emits WARNING when attempting to free a sk_buff
+which is part of any queue. After USB disconnect this may have happened
+when brcmf_fws_hanger_cleanup() is called as per-interface psq was never
+cleaned when removing the interface.
+Change brcmf_fws_macdesc_cleanup() in a way that it removes the
+corresponding packets from hanger table (to avoid double-free when
+brcmf_fws_hanger_cleanup() is called) and add a call to clean-up the
+interface specific packet queue.
 
-drivers/media/usb/go7007/go7007-fw.c:1551:5: warning: stack frame size of 2656 bytes in function
+Below is a WARNING during USB disconnect with Raspberry Pi WiFi dongle
+running in AP mode. This was reproducible when the interface was
+transmitting during the disconnect and is fixed with this commit.
 
-I have reported this issue in the llvm bugzilla, but to make
-it work with the clang-8 release, a small annotation is still
-needed.
+------------[ cut here ]------------
+WARNING: CPU: 0 PID: 1171 at drivers/net/wireless/broadcom/brcm80211/brcmutil/utils.c:49 brcmu_pkt_buf_free_skb+0x3c/0x40
+Modules linked in: nf_log_ipv4 nf_log_common xt_LOG xt_limit iptable_mangle xt_connmark xt_tcpudp xt_conntrack nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 iptable_filter ip_tables x_tables usb_f_mass_storage usb_f_rndis u_ether cdc_acm smsc95xx usbnet ci_hdrc_imx ci_hdrc ulpi usbmisc_imx 8250_exar 8250_pci 8250 8250_base libcomposite configfs udc_core
+CPU: 0 PID: 1171 Comm: kworker/0:0 Not tainted 4.19.23-00075-gde33ed8 #99
+Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
+Workqueue: usb_hub_wq hub_event
+[<8010ff84>] (unwind_backtrace) from [<8010bb64>] (show_stack+0x10/0x14)
+[<8010bb64>] (show_stack) from [<80840278>] (dump_stack+0x88/0x9c)
+[<80840278>] (dump_stack) from [<8011f5ec>] (__warn+0xfc/0x114)
+[<8011f5ec>] (__warn) from [<8011f71c>] (warn_slowpath_null+0x40/0x48)
+[<8011f71c>] (warn_slowpath_null) from [<805a476c>] (brcmu_pkt_buf_free_skb+0x3c/0x40)
+[<805a476c>] (brcmu_pkt_buf_free_skb) from [<805bb6c4>] (brcmf_fws_cleanup+0x1e4/0x22c)
+[<805bb6c4>] (brcmf_fws_cleanup) from [<805bc854>] (brcmf_fws_del_interface+0x58/0x68)
+[<805bc854>] (brcmf_fws_del_interface) from [<805b66ac>] (brcmf_remove_interface+0x40/0x150)
+[<805b66ac>] (brcmf_remove_interface) from [<805b6870>] (brcmf_detach+0x6c/0xb0)
+[<805b6870>] (brcmf_detach) from [<805bdbb8>] (brcmf_usb_disconnect+0x30/0x4c)
+[<805bdbb8>] (brcmf_usb_disconnect) from [<805e5d64>] (usb_unbind_interface+0x5c/0x1e0)
+[<805e5d64>] (usb_unbind_interface) from [<804aab10>] (device_release_driver_internal+0x154/0x1ec)
+[<804aab10>] (device_release_driver_internal) from [<804a97f4>] (bus_remove_device+0xcc/0xf8)
+[<804a97f4>] (bus_remove_device) from [<804a6fc0>] (device_del+0x118/0x308)
+[<804a6fc0>] (device_del) from [<805e488c>] (usb_disable_device+0xa0/0x1c8)
+[<805e488c>] (usb_disable_device) from [<805dcf98>] (usb_disconnect+0x70/0x1d8)
+[<805dcf98>] (usb_disconnect) from [<805ddd84>] (hub_event+0x464/0xf50)
+[<805ddd84>] (hub_event) from [<80135a70>] (process_one_work+0x138/0x3f8)
+[<80135a70>] (process_one_work) from [<80135d5c>] (worker_thread+0x2c/0x554)
+[<80135d5c>] (worker_thread) from [<8013b1a0>] (kthread+0x124/0x154)
+[<8013b1a0>] (kthread) from [<801010e8>] (ret_from_fork+0x14/0x2c)
+Exception stack(0xecf8dfb0 to 0xecf8dff8)
+dfa0:                                     00000000 00000000 00000000 00000000
+dfc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+dfe0: 00000000 00000000 00000000 00000000 00000013 00000000
+---[ end trace 38d234018e9e2a90 ]---
+------------[ cut here ]------------
 
-Link: https://bugs.llvm.org/show_bug.cgi?id=38809
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-[hverkuil-cisco@xs4all.nl: fix checkpatch warning]
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Piotr Figiel <p.figiel@camlintechnologies.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/go7007/go7007-fw.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ .../broadcom/brcm80211/brcmfmac/fwsignal.c    | 42 +++++++++++--------
+ 1 file changed, 24 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/media/usb/go7007/go7007-fw.c b/drivers/media/usb/go7007/go7007-fw.c
-index 24f5b615dc7af..dfa9f899d0c25 100644
---- a/drivers/media/usb/go7007/go7007-fw.c
-+++ b/drivers/media/usb/go7007/go7007-fw.c
-@@ -1499,8 +1499,8 @@ static int modet_to_package(struct go7007 *go, __le16 *code, int space)
- 	return cnt;
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwsignal.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwsignal.c
+index f3cbf78c8899c..5a0a29c4cdea3 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwsignal.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwsignal.c
+@@ -579,24 +579,6 @@ static bool brcmf_fws_ifidx_match(struct sk_buff *skb, void *arg)
+ 	return ifidx == *(int *)arg;
  }
  
--static int do_special(struct go7007 *go, u16 type, __le16 *code, int space,
--			int *framelen)
-+static noinline_for_stack int do_special(struct go7007 *go, u16 type,
-+					 __le16 *code, int space, int *framelen)
+-static void brcmf_fws_psq_flush(struct brcmf_fws_info *fws, struct pktq *q,
+-				int ifidx)
+-{
+-	bool (*matchfn)(struct sk_buff *, void *) = NULL;
+-	struct sk_buff *skb;
+-	int prec;
+-
+-	if (ifidx != -1)
+-		matchfn = brcmf_fws_ifidx_match;
+-	for (prec = 0; prec < q->num_prec; prec++) {
+-		skb = brcmu_pktq_pdeq_match(q, prec, matchfn, &ifidx);
+-		while (skb) {
+-			brcmu_pkt_buf_free_skb(skb);
+-			skb = brcmu_pktq_pdeq_match(q, prec, matchfn, &ifidx);
+-		}
+-	}
+-}
+-
+ static void brcmf_fws_hanger_init(struct brcmf_fws_hanger *hanger)
  {
- 	switch (type) {
- 	case SPECIAL_FRM_HEAD:
+ 	int i;
+@@ -668,6 +650,28 @@ static inline int brcmf_fws_hanger_poppkt(struct brcmf_fws_hanger *h,
+ 	return 0;
+ }
+ 
++static void brcmf_fws_psq_flush(struct brcmf_fws_info *fws, struct pktq *q,
++				int ifidx)
++{
++	bool (*matchfn)(struct sk_buff *, void *) = NULL;
++	struct sk_buff *skb;
++	int prec;
++	u32 hslot;
++
++	if (ifidx != -1)
++		matchfn = brcmf_fws_ifidx_match;
++	for (prec = 0; prec < q->num_prec; prec++) {
++		skb = brcmu_pktq_pdeq_match(q, prec, matchfn, &ifidx);
++		while (skb) {
++			hslot = brcmf_skb_htod_tag_get_field(skb, HSLOT);
++			brcmf_fws_hanger_poppkt(&fws->hanger, hslot, &skb,
++						true);
++			brcmu_pkt_buf_free_skb(skb);
++			skb = brcmu_pktq_pdeq_match(q, prec, matchfn, &ifidx);
++		}
++	}
++}
++
+ static int brcmf_fws_hanger_mark_suppressed(struct brcmf_fws_hanger *h,
+ 					    u32 slot_id)
+ {
+@@ -2168,6 +2172,8 @@ void brcmf_fws_del_interface(struct brcmf_if *ifp)
+ 	brcmf_fws_lock(fws);
+ 	ifp->fws_desc = NULL;
+ 	brcmf_dbg(TRACE, "deleting %s\n", entry->name);
++	brcmf_fws_macdesc_cleanup(fws, &fws->desc.iface[ifp->ifidx],
++				  ifp->ifidx);
+ 	brcmf_fws_macdesc_deinit(entry);
+ 	brcmf_fws_cleanup(fws, ifp->ifidx);
+ 	brcmf_fws_unlock(fws);
 -- 
 2.20.1
 
