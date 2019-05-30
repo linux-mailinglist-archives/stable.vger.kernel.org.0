@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 97A8E2F14C
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:12:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 842352F571
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:47:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730797AbfE3DQq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:16:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43826 "EHLO mail.kernel.org"
+        id S2388747AbfE3Er0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:47:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730793AbfE3DQp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:16:45 -0400
+        id S1728577AbfE3DLb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:11:31 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A269245F8;
-        Thu, 30 May 2019 03:16:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 57E02244D2;
+        Thu, 30 May 2019 03:11:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186205;
-        bh=L8niNnImYyoZkkl53mLLIkJHC8fq5SUYuuXMq03gDWQ=;
+        s=default; t=1559185890;
+        bh=VEAwPjTmVywilNSL/QuUmIHhxJSzuOmym3HvbSoIm3A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qqnVB0rJVtYJaZthvRAQiv3+5yGT7Ed/QRxDd1UCOAHCwvQNFru24AkZFrCIS1yq0
-         Vo7JZuqbFgwtovfBUX/2pbAtbDahABLvNkvpnIaDcWIDsU0ULVpeI+dv3KOR6N8tSB
-         DhupXe5o1n7Ur0yPJDYPLryfZpMLE4p6tpsGlouQ=
+        b=fLr+OpZ1EsX1bLJkIXgLIAyD+WDz9aMX1KMakpde9nkcbdM8DoM3nOQ9WdGiunDCX
+         KEXi7TW3PBJ/V/jlysJuXlCsd3/h28BjFQNIh7u7BAbTY1Ju10jMZ+NyA2nKkb03Vg
+         YH9BsvWhrBg+l88rIhZDIxvyMwTtKzuYqlxhSuq4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sugar Zhang <sugar.zhang@rock-chips.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 091/276] dmaengine: pl330: _stop: clear interrupt status
+        stable@vger.kernel.org,
+        Piotr Figiel <p.figiel@camlintechnologies.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 251/405] brcmfmac: convert dev_init_lock mutex to completion
 Date:   Wed, 29 May 2019 20:04:09 -0700
-Message-Id: <20190530030531.898865677@linuxfoundation.org>
+Message-Id: <20190530030553.683358493@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,90 +45,188 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2da254cc7908105a60a6bb219d18e8dced03dcb9 ]
+[ Upstream commit a9fd0953fa4a62887306be28641b4b0809f3b2fd ]
 
-This patch kill instructs the DMAC to immediately terminate
-execution of a thread. and then clear the interrupt status,
-at last, stop generating interrupts for DMA_SEV. to guarantee
-the next dma start is clean. otherwise, one interrupt maybe leave
-to next start and make some mistake.
+Leaving dev_init_lock mutex locked in probe causes BUG and a WARNING when
+kernel is compiled with CONFIG_PROVE_LOCKING. Convert mutex to completion
+which silences those warnings and improves code readability.
 
-we can reporduce the problem as follows:
+Fix below errors when connecting the USB WiFi dongle:
 
-DMASEV: modify the event-interrupt resource, and if the INTEN sets
-function as interrupt, the DMAC will set irq<event_num> HIGH to
-generate interrupt. write INTCLR to clear interrupt.
+brcmfmac: brcmf_fw_alloc_request: using brcm/brcmfmac43143 for chip BCM43143/2
+BUG: workqueue leaked lock or atomic: kworker/0:2/0x00000000/434
+     last function: hub_event
+1 lock held by kworker/0:2/434:
+ #0: 18d5dcdf (&devinfo->dev_init_lock){+.+.}, at: brcmf_usb_probe+0x78/0x550 [brcmfmac]
+CPU: 0 PID: 434 Comm: kworker/0:2 Not tainted 4.19.23-00084-g454a789-dirty #123
+Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
+Workqueue: usb_hub_wq hub_event
+[<8011237c>] (unwind_backtrace) from [<8010d74c>] (show_stack+0x10/0x14)
+[<8010d74c>] (show_stack) from [<809c4324>] (dump_stack+0xa8/0xd4)
+[<809c4324>] (dump_stack) from [<8014195c>] (process_one_work+0x710/0x808)
+[<8014195c>] (process_one_work) from [<80141a80>] (worker_thread+0x2c/0x564)
+[<80141a80>] (worker_thread) from [<80147bcc>] (kthread+0x13c/0x16c)
+[<80147bcc>] (kthread) from [<801010b4>] (ret_from_fork+0x14/0x20)
+Exception stack(0xed1d9fb0 to 0xed1d9ff8)
+9fa0:                                     00000000 00000000 00000000 00000000
+9fc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+9fe0: 00000000 00000000 00000000 00000000 00000013 00000000
 
-	DMA EXECUTING INSTRUCTS		DMA TERMINATE
-		|				|
-		|				|
-	       ...			      _stop
-		|				|
-		|			spin_lock_irqsave
-	     DMASEV				|
-		|				|
-		|			    mask INTEN
-		|				|
-		|			     DMAKILL
-		|				|
-		|			spin_unlock_irqrestore
+======================================================
+WARNING: possible circular locking dependency detected
+4.19.23-00084-g454a789-dirty #123 Not tainted
+------------------------------------------------------
+kworker/0:2/434 is trying to acquire lock:
+e29cf799 ((wq_completion)"events"){+.+.}, at: process_one_work+0x174/0x808
 
-in above case, a interrupt was left, and if we unmask INTEN, the DMAC
-will set irq<event_num> HIGH to generate interrupt.
+but task is already holding lock:
+18d5dcdf (&devinfo->dev_init_lock){+.+.}, at: brcmf_usb_probe+0x78/0x550 [brcmfmac]
 
-to fix this, do as follows:
+which lock already depends on the new lock.
 
-	DMA EXECUTING INSTRUCTS		DMA TERMINATE
-		|				|
-		|				|
-	       ...			      _stop
-		|				|
-		|			spin_lock_irqsave
-	     DMASEV				|
-		|				|
-		|			     DMAKILL
-		|				|
-		|			   clear INTCLR
-		|			    mask INTEN
-		|				|
-		|			spin_unlock_irqrestore
+the existing dependency chain (in reverse order) is:
 
-Signed-off-by: Sugar Zhang <sugar.zhang@rock-chips.com>
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+-> #2 (&devinfo->dev_init_lock){+.+.}:
+       mutex_lock_nested+0x1c/0x24
+       brcmf_usb_probe+0x78/0x550 [brcmfmac]
+       usb_probe_interface+0xc0/0x1bc
+       really_probe+0x228/0x2c0
+       __driver_attach+0xe4/0xe8
+       bus_for_each_dev+0x68/0xb4
+       bus_add_driver+0x19c/0x214
+       driver_register+0x78/0x110
+       usb_register_driver+0x84/0x148
+       process_one_work+0x228/0x808
+       worker_thread+0x2c/0x564
+       kthread+0x13c/0x16c
+       ret_from_fork+0x14/0x20
+         (null)
+
+-> #1 (brcmf_driver_work){+.+.}:
+       worker_thread+0x2c/0x564
+       kthread+0x13c/0x16c
+       ret_from_fork+0x14/0x20
+         (null)
+
+-> #0 ((wq_completion)"events"){+.+.}:
+       process_one_work+0x1b8/0x808
+       worker_thread+0x2c/0x564
+       kthread+0x13c/0x16c
+       ret_from_fork+0x14/0x20
+         (null)
+
+other info that might help us debug this:
+
+Chain exists of:
+  (wq_completion)"events" --> brcmf_driver_work --> &devinfo->dev_init_lock
+
+ Possible unsafe locking scenario:
+
+       CPU0                    CPU1
+       ----                    ----
+  lock(&devinfo->dev_init_lock);
+                               lock(brcmf_driver_work);
+                               lock(&devinfo->dev_init_lock);
+  lock((wq_completion)"events");
+
+ *** DEADLOCK ***
+
+1 lock held by kworker/0:2/434:
+ #0: 18d5dcdf (&devinfo->dev_init_lock){+.+.}, at: brcmf_usb_probe+0x78/0x550 [brcmfmac]
+
+stack backtrace:
+CPU: 0 PID: 434 Comm: kworker/0:2 Not tainted 4.19.23-00084-g454a789-dirty #123
+Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
+Workqueue: events request_firmware_work_func
+[<8011237c>] (unwind_backtrace) from [<8010d74c>] (show_stack+0x10/0x14)
+[<8010d74c>] (show_stack) from [<809c4324>] (dump_stack+0xa8/0xd4)
+[<809c4324>] (dump_stack) from [<80172838>] (print_circular_bug+0x210/0x330)
+[<80172838>] (print_circular_bug) from [<80175940>] (__lock_acquire+0x160c/0x1a30)
+[<80175940>] (__lock_acquire) from [<8017671c>] (lock_acquire+0xe0/0x268)
+[<8017671c>] (lock_acquire) from [<80141404>] (process_one_work+0x1b8/0x808)
+[<80141404>] (process_one_work) from [<80141a80>] (worker_thread+0x2c/0x564)
+[<80141a80>] (worker_thread) from [<80147bcc>] (kthread+0x13c/0x16c)
+[<80147bcc>] (kthread) from [<801010b4>] (ret_from_fork+0x14/0x20)
+Exception stack(0xed1d9fb0 to 0xed1d9ff8)
+9fa0:                                     00000000 00000000 00000000 00000000
+9fc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+9fe0: 00000000 00000000 00000000 00000000 00000013 00000000
+
+Signed-off-by: Piotr Figiel <p.figiel@camlintechnologies.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/pl330.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ .../wireless/broadcom/brcm80211/brcmfmac/usb.c  | 17 ++++++++---------
+ 1 file changed, 8 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/dma/pl330.c b/drivers/dma/pl330.c
-index 88750a34e8598..bc8050c025b7b 100644
---- a/drivers/dma/pl330.c
-+++ b/drivers/dma/pl330.c
-@@ -961,6 +961,7 @@ static void _stop(struct pl330_thread *thrd)
- {
- 	void __iomem *regs = thrd->dmac->base;
- 	u8 insn[6] = {0, 0, 0, 0, 0, 0};
-+	u32 inten = readl(regs + INTEN);
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c
+index e9cbfd077710a..a513990cd1d6a 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c
+@@ -160,7 +160,7 @@ struct brcmf_usbdev_info {
  
- 	if (_state(thrd) == PL330_STATE_FAULT_COMPLETING)
- 		UNTIL(thrd, PL330_STATE_FAULTING | PL330_STATE_KILLING);
-@@ -973,10 +974,13 @@ static void _stop(struct pl330_thread *thrd)
+ 	struct usb_device *usbdev;
+ 	struct device *dev;
+-	struct mutex dev_init_lock;
++	struct completion dev_init_done;
  
- 	_emit_KILL(0, insn);
+ 	int ctl_in_pipe, ctl_out_pipe;
+ 	struct urb *ctl_urb; /* URB for control endpoint */
+@@ -1193,11 +1193,11 @@ static void brcmf_usb_probe_phase2(struct device *dev, int ret,
+ 	if (ret)
+ 		goto error;
  
--	/* Stop generating interrupts for SEV */
--	writel(readl(regs + INTEN) & ~(1 << thrd->ev), regs + INTEN);
--
- 	_execute_DBGINSN(thrd, insn, is_manager(thrd));
-+
-+	/* clear the event */
-+	if (inten & (1 << thrd->ev))
-+		writel(1 << thrd->ev, regs + INTCLR);
-+	/* Stop generating interrupts for SEV */
-+	writel(inten & ~(1 << thrd->ev), regs + INTEN);
+-	mutex_unlock(&devinfo->dev_init_lock);
++	complete(&devinfo->dev_init_done);
+ 	return;
+ error:
+ 	brcmf_dbg(TRACE, "failed: dev=%s, err=%d\n", dev_name(dev), ret);
+-	mutex_unlock(&devinfo->dev_init_lock);
++	complete(&devinfo->dev_init_done);
+ 	device_release_driver(dev);
  }
  
- /* Start doing req 'idx' of thread 'thrd' */
+@@ -1265,7 +1265,7 @@ static int brcmf_usb_probe_cb(struct brcmf_usbdev_info *devinfo)
+ 		if (ret)
+ 			goto fail;
+ 		/* we are done */
+-		mutex_unlock(&devinfo->dev_init_lock);
++		complete(&devinfo->dev_init_done);
+ 		return 0;
+ 	}
+ 	bus->chip = bus_pub->devid;
+@@ -1325,11 +1325,10 @@ brcmf_usb_probe(struct usb_interface *intf, const struct usb_device_id *id)
+ 
+ 	devinfo->usbdev = usb;
+ 	devinfo->dev = &usb->dev;
+-	/* Take an init lock, to protect for disconnect while still loading.
++	/* Init completion, to protect for disconnect while still loading.
+ 	 * Necessary because of the asynchronous firmware load construction
+ 	 */
+-	mutex_init(&devinfo->dev_init_lock);
+-	mutex_lock(&devinfo->dev_init_lock);
++	init_completion(&devinfo->dev_init_done);
+ 
+ 	usb_set_intfdata(intf, devinfo);
+ 
+@@ -1407,7 +1406,7 @@ brcmf_usb_probe(struct usb_interface *intf, const struct usb_device_id *id)
+ 	return 0;
+ 
+ fail:
+-	mutex_unlock(&devinfo->dev_init_lock);
++	complete(&devinfo->dev_init_done);
+ 	kfree(devinfo);
+ 	usb_set_intfdata(intf, NULL);
+ 	return ret;
+@@ -1422,7 +1421,7 @@ brcmf_usb_disconnect(struct usb_interface *intf)
+ 	devinfo = (struct brcmf_usbdev_info *)usb_get_intfdata(intf);
+ 
+ 	if (devinfo) {
+-		mutex_lock(&devinfo->dev_init_lock);
++		wait_for_completion(&devinfo->dev_init_done);
+ 		/* Make sure that devinfo still exists. Firmware probe routines
+ 		 * may have released the device and cleared the intfdata.
+ 		 */
 -- 
 2.20.1
 
