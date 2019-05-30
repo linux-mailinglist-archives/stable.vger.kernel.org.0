@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 329742EE14
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:44:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D3CE2F210
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:18:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732449AbfE3DoD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:44:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60756 "EHLO mail.kernel.org"
+        id S1728313AbfE3DPf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:15:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732399AbfE3DU7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:20:59 -0400
+        id S1730372AbfE3DPe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:15:34 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 076D2249A3;
-        Thu, 30 May 2019 03:20:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 50EBD24580;
+        Thu, 30 May 2019 03:15:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186459;
-        bh=HkH4ufft1e+AwPuafmpxUftWAu+HKVxTA7Pt6dpLcFE=;
+        s=default; t=1559186134;
+        bh=D15HQzt/gFInZPdaZ219sAc+1IU88ZyBC5dXpV86zog=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IivxnyFWr3jCXPf3+7IEiNIu3CACVBOvr9F1n2lfcwzSIgWLpIxxxEsiyhw2Yhdxs
-         Hy1G5UKV716GJA+Mx3ZGDPT2eWeoK8bvbdnScHPYi6j21RE/IdgdFuZi7TaBvC9316
-         DI5B8xPiB5LHILQuLVhBhxXEk0G+iEJ7bhpDm+9A=
+        b=wSuGQmwNuNdFZqLgsRLWLXuj4SWzj33XVtqfy9cG0HyHJQuS2J9Pp4tIgSZnS8ED4
+         5l8fmLKcLIdfpnQS1gUucg1DWKXj8UYISGtKjbMGMSYrmspGdEWc4LE4PgaIzBUiEC
+         FNvrNl1XirXR1nf3B/czK+lZP9d1KpJx5gFf8/ks=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mariusz Bialonczyk <manio@skyboo.net>,
-        Jean-Francois Dagenais <jeff.dagenais@gmail.com>,
+        stable@vger.kernel.org,
+        James Hutchinson <jahutchinson99@googlemail.com>,
+        Antti Palosaari <crope@iki.fi>, Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 039/128] w1: fix the resume command API
-Date:   Wed, 29 May 2019 20:06:11 -0700
-Message-Id: <20190530030441.183162785@linuxfoundation.org>
+Subject: [PATCH 5.0 299/346] media: m88ds3103: serialize reset messages in m88ds3103_set_frontend
+Date:   Wed, 29 May 2019 20:06:12 -0700
+Message-Id: <20190530030556.000868235@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
-References: <20190530030432.977908967@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,49 +46,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 62909da8aca048ecf9fbd7e484e5100608f40a63 ]
+[ Upstream commit 981fbe3da20a6f35f17977453bce7dfc1664d74f ]
 
->From the DS2408 datasheet [1]:
-"Resume Command function checks the status of the RC flag and, if it is set,
- directly transfers control to the control functions, similar to a Skip ROM
- command. The only way to set the RC flag is through successfully executing
- the Match ROM, Search ROM, Conditional Search ROM, or Overdrive-Match ROM
- command"
+Ref: https://bugzilla.kernel.org/show_bug.cgi?id=199323
 
-The function currently works perfectly fine in a multidrop bus, but when we
-have only a single slave connected, then only a Skip ROM is used and Match
-ROM is not called at all. This is leading to problems e.g. with single one
-DS2408 connected, as the Resume Command is not working properly and the
-device is responding with failing results after the Resume Command.
+Users are experiencing problems with the DVBSky S960/S960C USB devices
+since the following commit:
 
-This commit is fixing this by using a Skip ROM instead in those cases.
-The bandwidth / performance advantage is exactly the same.
+9d659ae: ("locking/mutex: Add lock handoff to avoid starvation")
 
-Refs:
-[1] https://datasheets.maximintegrated.com/en/ds/DS2408.pdf
+The device malfunctions after running for an indeterminable period of
+time, and the problem can only be cleared by rebooting the machine.
 
-Signed-off-by: Mariusz Bialonczyk <manio@skyboo.net>
-Reviewed-by: Jean-Francois Dagenais <jeff.dagenais@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+It is possible to encourage the problem to surface by blocking the
+signal to the LNB.
+
+Further debugging revealed the cause of the problem.
+
+In the following capture:
+- thread #1325 is running m88ds3103_set_frontend
+- thread #42 is running ts2020_stat_work
+
+a> [1325] usb 1-1: dvb_usb_v2_generic_io: >>> 08 68 02 07 80
+   [1325] usb 1-1: dvb_usb_v2_generic_io: <<< 08
+   [42] usb 1-1: dvb_usb_v2_generic_io: >>> 09 01 01 68 3f
+   [42] usb 1-1: dvb_usb_v2_generic_io: <<< 08 ff
+   [42] usb 1-1: dvb_usb_v2_generic_io: >>> 08 68 02 03 11
+   [42] usb 1-1: dvb_usb_v2_generic_io: <<< 07
+   [42] usb 1-1: dvb_usb_v2_generic_io: >>> 09 01 01 60 3d
+   [42] usb 1-1: dvb_usb_v2_generic_io: <<< 07 ff
+b> [1325] usb 1-1: dvb_usb_v2_generic_io: >>> 08 68 02 07 00
+   [1325] usb 1-1: dvb_usb_v2_generic_io: <<< 07
+   [42] usb 1-1: dvb_usb_v2_generic_io: >>> 08 68 02 03 11
+   [42] usb 1-1: dvb_usb_v2_generic_io: <<< 07
+   [42] usb 1-1: dvb_usb_v2_generic_io: >>> 09 01 01 60 21
+   [42] usb 1-1: dvb_usb_v2_generic_io: <<< 07 ff
+   [42] usb 1-1: dvb_usb_v2_generic_io: >>> 08 68 02 03 11
+   [42] usb 1-1: dvb_usb_v2_generic_io: <<< 07
+   [42] usb 1-1: dvb_usb_v2_generic_io: >>> 09 01 01 60 66
+   [42] usb 1-1: dvb_usb_v2_generic_io: <<< 07 ff
+   [1325] usb 1-1: dvb_usb_v2_generic_io: >>> 08 68 02 03 11
+   [1325] usb 1-1: dvb_usb_v2_generic_io: <<< 07
+   [1325] usb 1-1: dvb_usb_v2_generic_io: >>> 08 60 02 10 0b
+   [1325] usb 1-1: dvb_usb_v2_generic_io: <<< 07
+
+Two i2c messages are sent to perform a reset in m88ds3103_set_frontend:
+
+  a. 0x07, 0x80
+  b. 0x07, 0x00
+
+However, as shown in the capture, the regmap mutex is being handed over
+to another thread (ts2020_stat_work) in between these two messages.
+
+>From here, the device responds to every i2c message with an 07 message,
+and will only return to normal operation following a power cycle.
+
+Use regmap_multi_reg_write to group the two reset messages, ensuring
+both are processed before the regmap mutex is unlocked.
+
+Signed-off-by: James Hutchinson <jahutchinson99@googlemail.com>
+Reviewed-by: Antti Palosaari <crope@iki.fi>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/w1/w1_io.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/media/dvb-frontends/m88ds3103.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/w1/w1_io.c b/drivers/w1/w1_io.c
-index f4bc8c100a01b..a3ac582420ec4 100644
---- a/drivers/w1/w1_io.c
-+++ b/drivers/w1/w1_io.c
-@@ -437,8 +437,7 @@ int w1_reset_resume_command(struct w1_master *dev)
- 	if (w1_reset_bus(dev))
- 		return -1;
+diff --git a/drivers/media/dvb-frontends/m88ds3103.c b/drivers/media/dvb-frontends/m88ds3103.c
+index 123f2a33738b0..403f42806455e 100644
+--- a/drivers/media/dvb-frontends/m88ds3103.c
++++ b/drivers/media/dvb-frontends/m88ds3103.c
+@@ -309,6 +309,9 @@ static int m88ds3103_set_frontend(struct dvb_frontend *fe)
+ 	u16 u16tmp;
+ 	u32 tuner_frequency_khz, target_mclk;
+ 	s32 s32tmp;
++	static const struct reg_sequence reset_buf[] = {
++		{0x07, 0x80}, {0x07, 0x00}
++	};
  
--	/* This will make only the last matched slave perform a skip ROM. */
--	w1_write_8(dev, W1_RESUME_CMD);
-+	w1_write_8(dev, dev->slave_count > 1 ? W1_RESUME_CMD : W1_SKIP_ROM);
- 	return 0;
- }
- EXPORT_SYMBOL_GPL(w1_reset_resume_command);
+ 	dev_dbg(&client->dev,
+ 		"delivery_system=%d modulation=%d frequency=%u symbol_rate=%d inversion=%d pilot=%d rolloff=%d\n",
+@@ -321,11 +324,7 @@ static int m88ds3103_set_frontend(struct dvb_frontend *fe)
+ 	}
+ 
+ 	/* reset */
+-	ret = regmap_write(dev->regmap, 0x07, 0x80);
+-	if (ret)
+-		goto err;
+-
+-	ret = regmap_write(dev->regmap, 0x07, 0x00);
++	ret = regmap_multi_reg_write(dev->regmap, reset_buf, 2);
+ 	if (ret)
+ 		goto err;
+ 
 -- 
 2.20.1
 
