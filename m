@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E13DB2F0CE
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:07:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 141FA2F278
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:22:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726386AbfE3EH1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:07:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47176 "EHLO mail.kernel.org"
+        id S1730122AbfE3DPH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:15:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37226 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731112AbfE3DR2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:17:28 -0400
+        id S1730116AbfE3DPH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:15:07 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AA994246D2;
-        Thu, 30 May 2019 03:17:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C73DC23D83;
+        Thu, 30 May 2019 03:15:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186246;
-        bh=TIFyNDY9FzGlyx5lxUxH4rwVPK55GjuPa0XuZBHjypo=;
+        s=default; t=1559186106;
+        bh=PrASumR4TwpvbI9yKAcKLsEX+QBbVstRS6VbOrnSOUg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LfCm/7BFrOcqRTWGz1KaCK+skLv7ckR+6UcKAfzpcw7t1YcqNbw+jShv+1Pk4zob2
-         SXR1yFutSzGvmrhwymNZjbIMzormmU5i+Te6toY147xsRLir3XRmKGM3Pfm0A1pllv
-         9bg0PH2SWLIULtK8/wnRwUyokrYUL0SnqPGzn/lQ=
+        b=NdaVn3nAwlvm4uiYCS/859f+hi8MWZnjo+cLiv3iGflQpiOZF7hFwcvHmE7KoErQx
+         hdqPK9P8MV39g6dGXr+gfUlmiyvNb+jLSgSleT5O70yMrhf6Sg+Wu2fIU0i50P7CNo
+         5J2RtyiAGm3bjFGEntQj6QIDQF8tsuFEMZuaf3d8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrea Merello <andrea.merello@gmail.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.com>, alsa-devel@alsa-project.org,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 163/276] mmc: core: make pwrseq_emmc (partially) support sleepy GPIO controllers
+Subject: [PATCH 5.0 248/346] ASoC: eukrea-tlv320: fix a leaked reference by adding missing of_node_put
 Date:   Wed, 29 May 2019 20:05:21 -0700
-Message-Id: <20190530030535.648236068@linuxfoundation.org>
+Message-Id: <20190530030553.592279120@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,114 +47,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 002ee28e8b322d4d4b7b83234b5d0f4ebd428eda ]
+[ Upstream commit b820d52e7eed7b30b2dfef5f4213a2bc3cbea6f3 ]
 
-pwrseq_emmc.c implements a HW reset procedure for eMMC chip by driving a
-GPIO line.
+The call to of_parse_phandle returns a node pointer with refcount
+incremented thus it must be explicitly decremented after the last
+usage.
 
-It registers the .reset() cb on mmc_pwrseq_ops and it registers a system
-restart notification handler; both of them perform reset by unconditionally
-calling gpiod_set_value().
+Detected by coccinelle with the following warnings:
+./sound/soc/fsl/eukrea-tlv320.c:121:3-9: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 102, but without a correspo    nding object release within this function.
+./sound/soc/fsl/eukrea-tlv320.c:127:3-9: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 102, but without a correspo    nding object release within this function.
 
-If the eMMC reset line is tied to a GPIO controller whose driver can sleep
-(i.e. I2C GPIO controller), then the kernel would spit warnings when trying
-to reset the eMMC chip by means of .reset() mmc_pwrseq_ops cb (that is
-exactly what I'm seeing during boot).
-
-Furthermore, on system reset we would gets to the system restart
-notification handler with disabled interrupts - local_irq_disable() is
-called in machine_restart() at least on ARM/ARM64 - and we would be in
-trouble when the GPIO driver tries to sleep (which indeed doesn't happen
-here, likely because in my case the machine specific code doesn't call
-do_kernel_restart(), I guess..).
-
-This patch fixes the .reset() cb to make use of gpiod_set_value_cansleep(),
-so that the eMMC gets reset on boot without complaints, while, since there
-isn't that much we can do, we avoid register the restart handler if the
-GPIO controller has a sleepy driver (and we spit a dev_notice() message to
-let people know)..
-
-This had been tested on a downstream 4.9 kernel with backported
-commit 83f37ee7ba33 ("mmc: pwrseq: Add reset callback to the struct
-mmc_pwrseq_ops") and commit ae60fb031cf2 ("mmc: core: Don't do eMMC HW
-reset when resuming the eMMC card"), because I couldn't boot my board
-otherwise. Maybe worth to RFT.
-
-Signed-off-by: Andrea Merello <andrea.merello@gmail.com>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
+Cc: Liam Girdwood <lgirdwood@gmail.com>
+Cc: Mark Brown <broonie@kernel.org>
+Cc: Jaroslav Kysela <perex@perex.cz>
+Cc: Takashi Iwai <tiwai@suse.com>
+Cc: alsa-devel@alsa-project.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/core/pwrseq_emmc.c | 38 ++++++++++++++++++----------------
- 1 file changed, 20 insertions(+), 18 deletions(-)
+ sound/soc/fsl/eukrea-tlv320.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mmc/core/pwrseq_emmc.c b/drivers/mmc/core/pwrseq_emmc.c
-index efb8a7965dd4a..154f4204d58cb 100644
---- a/drivers/mmc/core/pwrseq_emmc.c
-+++ b/drivers/mmc/core/pwrseq_emmc.c
-@@ -30,19 +30,14 @@ struct mmc_pwrseq_emmc {
+diff --git a/sound/soc/fsl/eukrea-tlv320.c b/sound/soc/fsl/eukrea-tlv320.c
+index 191426a6d9adf..30a3d68b5c033 100644
+--- a/sound/soc/fsl/eukrea-tlv320.c
++++ b/sound/soc/fsl/eukrea-tlv320.c
+@@ -118,13 +118,13 @@ static int eukrea_tlv320_probe(struct platform_device *pdev)
+ 		if (ret) {
+ 			dev_err(&pdev->dev,
+ 				"fsl,mux-int-port node missing or invalid.\n");
+-			return ret;
++			goto err;
+ 		}
+ 		ret = of_property_read_u32(np, "fsl,mux-ext-port", &ext_port);
+ 		if (ret) {
+ 			dev_err(&pdev->dev,
+ 				"fsl,mux-ext-port node missing or invalid.\n");
+-			return ret;
++			goto err;
+ 		}
  
- #define to_pwrseq_emmc(p) container_of(p, struct mmc_pwrseq_emmc, pwrseq)
- 
--static void __mmc_pwrseq_emmc_reset(struct mmc_pwrseq_emmc *pwrseq)
--{
--	gpiod_set_value(pwrseq->reset_gpio, 1);
--	udelay(1);
--	gpiod_set_value(pwrseq->reset_gpio, 0);
--	udelay(200);
--}
--
- static void mmc_pwrseq_emmc_reset(struct mmc_host *host)
- {
- 	struct mmc_pwrseq_emmc *pwrseq =  to_pwrseq_emmc(host->pwrseq);
- 
--	__mmc_pwrseq_emmc_reset(pwrseq);
-+	gpiod_set_value_cansleep(pwrseq->reset_gpio, 1);
-+	udelay(1);
-+	gpiod_set_value_cansleep(pwrseq->reset_gpio, 0);
-+	udelay(200);
- }
- 
- static int mmc_pwrseq_emmc_reset_nb(struct notifier_block *this,
-@@ -50,8 +45,11 @@ static int mmc_pwrseq_emmc_reset_nb(struct notifier_block *this,
- {
- 	struct mmc_pwrseq_emmc *pwrseq = container_of(this,
- 					struct mmc_pwrseq_emmc, reset_nb);
-+	gpiod_set_value(pwrseq->reset_gpio, 1);
-+	udelay(1);
-+	gpiod_set_value(pwrseq->reset_gpio, 0);
-+	udelay(200);
- 
--	__mmc_pwrseq_emmc_reset(pwrseq);
- 	return NOTIFY_DONE;
- }
- 
-@@ -72,14 +70,18 @@ static int mmc_pwrseq_emmc_probe(struct platform_device *pdev)
- 	if (IS_ERR(pwrseq->reset_gpio))
- 		return PTR_ERR(pwrseq->reset_gpio);
- 
--	/*
--	 * register reset handler to ensure emmc reset also from
--	 * emergency_reboot(), priority 255 is the highest priority
--	 * so it will be executed before any system reboot handler.
--	 */
--	pwrseq->reset_nb.notifier_call = mmc_pwrseq_emmc_reset_nb;
--	pwrseq->reset_nb.priority = 255;
--	register_restart_handler(&pwrseq->reset_nb);
-+	if (!gpiod_cansleep(pwrseq->reset_gpio)) {
-+		/*
-+		 * register reset handler to ensure emmc reset also from
-+		 * emergency_reboot(), priority 255 is the highest priority
-+		 * so it will be executed before any system reboot handler.
-+		 */
-+		pwrseq->reset_nb.notifier_call = mmc_pwrseq_emmc_reset_nb;
-+		pwrseq->reset_nb.priority = 255;
-+		register_restart_handler(&pwrseq->reset_nb);
-+	} else {
-+		dev_notice(dev, "EMMC reset pin tied to a sleepy GPIO driver; reset on emergency-reboot disabled\n");
-+	}
- 
- 	pwrseq->pwrseq.ops = &mmc_pwrseq_emmc_ops;
- 	pwrseq->pwrseq.dev = dev;
+ 		/*
 -- 
 2.20.1
 
