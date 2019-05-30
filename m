@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C99B2F17C
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:13:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBD332F379
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:29:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730661AbfE3DQW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:16:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42266 "EHLO mail.kernel.org"
+        id S1728500AbfE3DOC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:14:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32826 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728692AbfE3DQW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:16:22 -0400
+        id S1729681AbfE3DOC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:14:02 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 00DC5245AC;
-        Thu, 30 May 2019 03:16:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 73A1E2455E;
+        Thu, 30 May 2019 03:14:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186181;
-        bh=sLy6X3e0LogK1de6O8dKO+dzc7OzvXYFoM0XMb1DSsk=;
+        s=default; t=1559186041;
+        bh=nkRGmyUwdjOOZEN1bV2aoAyTIqai0OB2YKorjIp4+Y4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jLwK1N/w7h7G3X1cKYAqCaMfTW4Nx/J80pRSIvn+0XEZdRGGIcOEu43GXRsasmjYX
-         x0cD2ZAHdYNP7vRZnsRzrQd7I41UDn73bBh9pWPVfhqlxYi+4IZrpWs0QWQKfRG8BO
-         Hj78JO6kcyIaEErwBcrd9Z2ERq/MO+1s/jViE1cE=
+        b=11MMFR/S9QykJZBpN/sFtUJGPZ0Iu35/OffoWKeIEBMWNN4TFoWMGN2PCdpR0NIjs
+         3X+kYlp/1PD0szAR+SmL6fxvtk4vTrFqEEVjBMNpZOmVrnXzcdNFn5OLrSJ65iWNFg
+         3ZyUQGmiOgJzJ6BQFmdLx8hq/+N7xxf2LcnbhA7k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 045/276] cxgb4: Fix error path in cxgb4_init_module
-Date:   Wed, 29 May 2019 20:03:23 -0700
-Message-Id: <20190530030527.413192898@linuxfoundation.org>
+Subject: [PATCH 5.0 131/346] HID: logitech-hidpp: use RAP instead of FAP to get the protocol version
+Date:   Wed, 29 May 2019 20:03:24 -0700
+Message-Id: <20190530030547.751588104@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,83 +44,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a3147770bea76c8dbad73eca3a24c2118da5e719 ]
+[ Upstream commit 096377525cdb8251e4656085efc988bdf733fb4c ]
 
-BUG: unable to handle kernel paging request at ffffffffa016a270
-PGD 3270067 P4D 3270067 PUD 3271063 PMD 230bbd067 PTE 0
-Oops: 0000 [#1
-CPU: 0 PID: 6134 Comm: modprobe Not tainted 5.1.0+ #33
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.9.3-0-ge2fc41e-prebuilt.qemu-project.org 04/01/2014
-RIP: 0010:atomic_notifier_chain_register+0x24/0x60
-Code: 1f 80 00 00 00 00 55 48 89 e5 41 54 49 89 f4 53 48 89 fb e8 ae b4 38 01 48 8b 53 38 48 8d 4b 38 48 85 d2 74 20 45 8b 44 24 10 <44> 3b 42 10 7e 08 eb 13 44 39 42 10 7c 0d 48 8d 4a 08 48 8b 52 08
-RSP: 0018:ffffc90000e2bc60 EFLAGS: 00010086
-RAX: 0000000000000292 RBX: ffffffff83467240 RCX: ffffffff83467278
-RDX: ffffffffa016a260 RSI: ffffffff83752140 RDI: ffffffff83467240
-RBP: ffffc90000e2bc70 R08: 0000000000000000 R09: 0000000000000001
-R10: 0000000000000000 R11: 00000000014fa61f R12: ffffffffa01c8260
-R13: ffff888231091e00 R14: 0000000000000000 R15: ffffc90000e2be78
-FS:  00007fbd8d7cd540(0000) GS:ffff888237a00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: ffffffffa016a270 CR3: 000000022c7e3000 CR4: 00000000000006f0
-Call Trace:
- register_inet6addr_notifier+0x13/0x20
- cxgb4_init_module+0x6c/0x1000 [cxgb4
- ? 0xffffffffa01d7000
- do_one_initcall+0x6c/0x3cc
- ? do_init_module+0x22/0x1f1
- ? rcu_read_lock_sched_held+0x97/0xb0
- ? kmem_cache_alloc_trace+0x325/0x3b0
- do_init_module+0x5b/0x1f1
- load_module+0x1db1/0x2690
- ? m_show+0x1d0/0x1d0
- __do_sys_finit_module+0xc5/0xd0
- __x64_sys_finit_module+0x15/0x20
- do_syscall_64+0x6b/0x1d0
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
+According to the logitech_hidpp_2.0_specification_draft_2012-06-04.pdf doc:
+https://lekensteyn.nl/files/logitech/logitech_hidpp_2.0_specification_draft_2012-06-04.pdf
 
-If pci_register_driver fails, register inet6addr_notifier is
-pointless. This patch fix the error path in cxgb4_init_module.
+We should use a register-access-protocol request using the short input /
+output report ids. This is necessary because 27MHz HID++ receivers have
+a max-packetsize on their HIP++ endpoint of 8, so they cannot support
+long reports. Using a feature-access-protocol request (which is always
+long or very-long) with these will cause a timeout error, followed by
+the hidpp driver treating the device as not being HID++ capable.
 
-Fixes: b5a02f503caa ("cxgb4 : Update ipv6 address handling api")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This commit fixes this by switching to using a rap request to get the
+protocol version.
+
+Besides being tested with a (046d:c517) 27MHz receiver with various
+27MHz keyboards and mice, this has also been tested to not cause
+regressions on a non-unifying dual-HID++ nano receiver (046d:c534) with
+k270 and m185 HID++-2.0 devices connected and on a unifying/dj receiver
+(046d:c52b) with a HID++-2.0 Logitech Rechargeable Touchpad T650.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ drivers/hid/hid-logitech-hidpp.c | 17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
-index 961e3087d1d38..bb04c695ab9fd 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
-@@ -6010,15 +6010,24 @@ static int __init cxgb4_init_module(void)
+diff --git a/drivers/hid/hid-logitech-hidpp.c b/drivers/hid/hid-logitech-hidpp.c
+index 199cc256e9d9d..ffd30c7492df8 100644
+--- a/drivers/hid/hid-logitech-hidpp.c
++++ b/drivers/hid/hid-logitech-hidpp.c
+@@ -836,13 +836,16 @@ static int hidpp_root_get_feature(struct hidpp_device *hidpp, u16 feature,
  
- 	ret = pci_register_driver(&cxgb4_driver);
- 	if (ret < 0)
--		debugfs_remove(cxgb4_debugfs_root);
-+		goto err_pci;
+ static int hidpp_root_get_protocol_version(struct hidpp_device *hidpp)
+ {
++	const u8 ping_byte = 0x5a;
++	u8 ping_data[3] = { 0, 0, ping_byte };
+ 	struct hidpp_report response;
+ 	int ret;
  
- #if IS_ENABLED(CONFIG_IPV6)
- 	if (!inet6addr_registered) {
--		register_inet6addr_notifier(&cxgb4_inet6addr_notifier);
--		inet6addr_registered = true;
-+		ret = register_inet6addr_notifier(&cxgb4_inet6addr_notifier);
-+		if (ret)
-+			pci_unregister_driver(&cxgb4_driver);
-+		else
-+			inet6addr_registered = true;
- 	}
- #endif
+-	ret = hidpp_send_fap_command_sync(hidpp,
++	ret = hidpp_send_rap_command_sync(hidpp,
++			REPORT_ID_HIDPP_SHORT,
+ 			HIDPP_PAGE_ROOT_IDX,
+ 			CMD_ROOT_GET_PROTOCOL_VERSION,
+-			NULL, 0, &response);
++			ping_data, sizeof(ping_data), &response);
  
-+	if (ret == 0)
-+		return ret;
+ 	if (ret == HIDPP_ERROR_INVALID_SUBID) {
+ 		hidpp->protocol_major = 1;
+@@ -862,8 +865,14 @@ static int hidpp_root_get_protocol_version(struct hidpp_device *hidpp)
+ 	if (ret)
+ 		return ret;
+ 
+-	hidpp->protocol_major = response.fap.params[0];
+-	hidpp->protocol_minor = response.fap.params[1];
++	if (response.rap.params[2] != ping_byte) {
++		hid_err(hidpp->hid_dev, "%s: ping mismatch 0x%02x != 0x%02x\n",
++			__func__, response.rap.params[2], ping_byte);
++		return -EPROTO;
++	}
 +
-+err_pci:
-+	debugfs_remove(cxgb4_debugfs_root);
-+
++	hidpp->protocol_major = response.rap.params[0];
++	hidpp->protocol_minor = response.rap.params[1];
+ 
  	return ret;
  }
- 
 -- 
 2.20.1
 
