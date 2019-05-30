@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4ECC32F702
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 07:01:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F4622F6F8
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 07:01:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727559AbfE3FBM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 01:01:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43994 "EHLO mail.kernel.org"
+        id S1727574AbfE3DJ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:09:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726744AbfE3DJZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:09:25 -0400
+        id S1727547AbfE3DJ0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:09:26 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE8FD24472;
-        Thu, 30 May 2019 03:09:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 59AAE24475;
+        Thu, 30 May 2019 03:09:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185764;
-        bh=6RPWTBSids8jpnfkiKL3ALT3grkFLg/V1aA0rerayp4=;
+        s=default; t=1559185765;
+        bh=bTCYZz8DbHuYKLD6x91vzbE9CQm30B8sbJCnRKDjnxg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AncUOUExMHa/FZdDL7bY3yQ81jSDRy3Jz+FckllVbmGkjU79EudM4Qz3LQERe0Rxe
-         b8EtvCo9FvJZ9H0ohFmEMGz/v9FWjrmTXk8rV3n1a7u1/rPyHGZOxZi1LftODAjQ21
-         zBta5rFYS9O1YzGTWY/2144+aZywJ/kBfFkgElD0=
+        b=eq1sF2bU4Ct/uD7lmDIydwfMGHbdhUO0+BZYotwGze+VtI0p63fhwjqOV/DcRQjQO
+         xwtCaylrQIx7/ogX9UNd/fEHeSyPKnbRYW1wpPgVOW2nh3rryGVQuKLoJQquOggjcw
+         tw0dvV8+6y0jTjKrdWCwhXZTTDgrOt1JDDn4RGe0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Scott Branden <scott.branden@broadcom.com>,
         Adrian Hunter <adrian.hunter@intel.com>,
         Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.1 011/405] mmc: sdhci-iproc: cygnus: Set NO_HISPD bit to fix HS50 data hold time problem
-Date:   Wed, 29 May 2019 20:00:09 -0700
-Message-Id: <20190530030540.997387425@linuxfoundation.org>
+Subject: [PATCH 5.1 012/405] mmc: sdhci-iproc: Set NO_HISPD bit to fix HS50 data hold time problem
+Date:   Wed, 29 May 2019 20:00:10 -0700
+Message-Id: <20190530030541.060952274@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
 References: <20190530030540.291644921@linuxfoundation.org>
@@ -47,15 +47,13 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Trac Hoang <trac.hoang@broadcom.com>
 
-commit b7dfa695afc40d5396ed84b9f25aa3754de23e39 upstream.
+commit ec0970e0a1b2c807c908d459641a9f9a1be3e130 upstream.
 
 The iproc host eMMC/SD controller hold time does not meet the
-specification in the HS50 mode. This problem can be mitigated
+specification in the HS50 mode.  This problem can be mitigated
 by disabling the HISPD bit; thus forcing the controller output
 data to be driven on the falling clock edges rather than the
 rising clock edges.
-
-This change applies only to the Cygnus platform.
 
 Stable tag (v4.12+) chosen to assist stable kernel maintainers so that
 the change does not produce merge conflicts backporting to older kernel
@@ -76,15 +74,15 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/mmc/host/sdhci-iproc.c
 +++ b/drivers/mmc/host/sdhci-iproc.c
-@@ -196,7 +196,8 @@ static const struct sdhci_ops sdhci_ipro
- };
+@@ -220,7 +220,8 @@ static const struct sdhci_iproc_data ipr
  
- static const struct sdhci_pltfm_data sdhci_iproc_cygnus_pltfm_data = {
--	.quirks = SDHCI_QUIRK_DATA_TIMEOUT_USES_SDCLK,
-+	.quirks = SDHCI_QUIRK_DATA_TIMEOUT_USES_SDCLK |
+ static const struct sdhci_pltfm_data sdhci_iproc_pltfm_data = {
+ 	.quirks = SDHCI_QUIRK_DATA_TIMEOUT_USES_SDCLK |
+-		  SDHCI_QUIRK_MULTIBLOCK_READ_ACMD12,
++		  SDHCI_QUIRK_MULTIBLOCK_READ_ACMD12 |
 +		  SDHCI_QUIRK_NO_HISPD_BIT,
- 	.quirks2 = SDHCI_QUIRK2_ACMD23_BROKEN | SDHCI_QUIRK2_HOST_OFF_CARD_ON,
- 	.ops = &sdhci_iproc_32only_ops,
+ 	.quirks2 = SDHCI_QUIRK2_ACMD23_BROKEN,
+ 	.ops = &sdhci_iproc_ops,
  };
 
 
