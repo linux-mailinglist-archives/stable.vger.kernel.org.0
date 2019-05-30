@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ECDF22F15F
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:12:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 777962EBE0
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:16:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730727AbfE3DQf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:16:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42908 "EHLO mail.kernel.org"
+        id S1729423AbfE3DQg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:16:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730723AbfE3DQe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:16:34 -0400
+        id S1729838AbfE3DQf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:16:35 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EDFBB24604;
-        Thu, 30 May 2019 03:16:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3130924590;
+        Thu, 30 May 2019 03:16:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186194;
-        bh=w3IVtbtJNkqRBo+VDM/Lw8cnn4ALV8HzJvwSy/aYl6k=;
+        s=default; t=1559186195;
+        bh=MjXQS3y9/+u+lZla8UU9/IM/aiALE+hEOkl2pgRuKEE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f8WZvDXy4ZouYHqlmOLYkEzg2ivaEzChMeGK8iKLMCfzy1zGhR0KSYtt8U1AAZp8/
-         nFTfTv+NUXsMb4eAqo8m73t6pWz09bzP+ZRmzqAcP7ZmuAg0ylrB8ScmwupcJAgH5G
-         Noafje6C5on87QxOl7Hr+7hZnDjAveH1CZjF/Pr8=
+        b=bkBah5nto+xUvFqXSCf9r78g1AutI0aH59mHonuEiHwDh5NtMTT5YFCtEukfV5nj5
+         kDBITOJZEeFScgeDVWjoY3qFYTLP7j3gsGtF41jedTxrvDS9m7uNezlYHPMhWMXIi3
+         d+YEJ+CFISqJKRkSesPvCmSoxGMNWfVOqVbZhQHc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 067/276] brcm80211: potential NULL dereference in brcmf_cfg80211_vndr_cmds_dcmd_handler()
-Date:   Wed, 29 May 2019 20:03:45 -0700
-Message-Id: <20190530030530.227301900@linuxfoundation.org>
+Subject: [PATCH 4.19 068/276] ACPI / property: fix handling of data_nodes in acpi_get_next_subnode()
+Date:   Wed, 29 May 2019 20:03:46 -0700
+Message-Id: <20190530030530.373484267@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
 References: <20190530030523.133519668@linuxfoundation.org>
@@ -44,55 +46,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit e025da3d7aa4770bb1d1b3b0aa7cc4da1744852d ]
+[ Upstream commit 23583f7795025e3c783b680d906509366b0906ad ]
 
-If "ret_len" is negative then it could lead to a NULL dereference.
+When the DSDT tables expose devices with subdevices and a set of
+hierarchical _DSD properties, the data returned by
+acpi_get_next_subnode() is incorrect, with the results suggesting a bad
+pointer assignment. The parser works fine with device_nodes or
+data_nodes, but not with a combination of the two.
 
-The "ret_len" value comes from nl80211_vendor_cmd(), if it's negative
-then we don't allocate the "dcmd_buf" buffer.  Then we pass "ret_len" to
-brcmf_fil_cmd_data_set() where it is cast to a very high u32 value.
-Most of the functions in that call tree check whether the buffer we pass
-is NULL but there are at least a couple places which don't such as
-brcmf_dbg_hex_dump() and brcmf_msgbuf_query_dcmd().  We memcpy() to and
-from the buffer so it would result in a NULL dereference.
+The problem is traced to an invalid pointer used when jumping from
+handling device_nodes to data nodes. The existing code looks for data
+nodes below the last subdevice found instead of the common root. Fix
+by forcing the acpi_device pointer to be derived from the same fwnode
+for the two types of subnodes.
 
-The fix is to change the types so that "ret_len" can't be negative.  (If
-we memcpy() zero bytes to NULL, that's a no-op and doesn't cause an
-issue).
+This same problem of handling device and data nodes was already fixed
+in a similar way by 'commit bf4703fdd166 ("ACPI / property: fix data
+node parsing in acpi_get_next_subnode()")' but broken later by 'commit
+34055190b19 ("ACPI / property: Add fwnode_get_next_child_node()")', so
+this should probably go to linux-stable all the way to 4.12
 
-Fixes: 1bacb0487d0e ("brcmfmac: replace cfg80211 testmode with vendor command")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/vendor.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/acpi/property.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/vendor.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/vendor.c
-index 8eff2753abade..d493021f60318 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/vendor.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/vendor.c
-@@ -35,9 +35,10 @@ static int brcmf_cfg80211_vndr_cmds_dcmd_handler(struct wiphy *wiphy,
- 	struct brcmf_if *ifp;
- 	const struct brcmf_vndr_dcmd_hdr *cmdhdr = data;
- 	struct sk_buff *reply;
--	int ret, payload, ret_len;
-+	unsigned int payload, ret_len;
- 	void *dcmd_buf = NULL, *wr_pointer;
- 	u16 msglen, maxmsglen = PAGE_SIZE - 0x100;
-+	int ret;
+diff --git a/drivers/acpi/property.c b/drivers/acpi/property.c
+index 693cf05b0cc44..288673cff85ea 100644
+--- a/drivers/acpi/property.c
++++ b/drivers/acpi/property.c
+@@ -975,6 +975,14 @@ struct fwnode_handle *acpi_get_next_subnode(const struct fwnode_handle *fwnode,
+ 		const struct acpi_data_node *data = to_acpi_data_node(fwnode);
+ 		struct acpi_data_node *dn;
  
- 	if (len < sizeof(*cmdhdr)) {
- 		brcmf_err("vendor command too short: %d\n", len);
-@@ -65,7 +66,7 @@ static int brcmf_cfg80211_vndr_cmds_dcmd_handler(struct wiphy *wiphy,
- 			brcmf_err("oversize return buffer %d\n", ret_len);
- 			ret_len = BRCMF_DCMD_MAXLEN;
- 		}
--		payload = max(ret_len, len) + 1;
-+		payload = max_t(unsigned int, ret_len, len) + 1;
- 		dcmd_buf = vzalloc(payload);
- 		if (NULL == dcmd_buf)
- 			return -ENOMEM;
++		/*
++		 * We can have a combination of device and data nodes, e.g. with
++		 * hierarchical _DSD properties. Make sure the adev pointer is
++		 * restored before going through data nodes, otherwise we will
++		 * be looking for data_nodes below the last device found instead
++		 * of the common fwnode shared by device_nodes and data_nodes.
++		 */
++		adev = to_acpi_device_node(fwnode);
+ 		if (adev)
+ 			head = &adev->data.subnodes;
+ 		else if (data)
 -- 
 2.20.1
 
