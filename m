@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C8592EE7B
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:49:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 342742EC7D
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:22:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731486AbfE3DUQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:20:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57890 "EHLO mail.kernel.org"
+        id S1730939AbfE3DVR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:21:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730776AbfE3DUP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:20:15 -0400
+        id S1732506AbfE3DVR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:21:17 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1898524820;
-        Thu, 30 May 2019 03:20:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AC2D3249DA;
+        Thu, 30 May 2019 03:21:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186415;
-        bh=y0k9iqj8A4GuHqMLHdiiRWKOxCV0ojJjvEX1tuxDsY0=;
+        s=default; t=1559186476;
+        bh=hqO8khmazp4lM1KFVi1BgHAUrnclTL+xalaZPhEo3hE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QA3bGEqFgJl1radU1T9Bp5g1VpMD1kBTxN2kPWof++iURiZM48mFdoklyG8YXy5Cg
-         mBGC6nEjL0MWdieeZF3i5qvCFA4gK4hN3ctgW82m/BV4CfDe5rQHQaBvWjQ9I8KWD7
-         BzPwXi175/02J9QLlJgE76n9Sz1OAn+XEgIZJ5tQ=
+        b=sJZB6USRY6akt0L/eQxxtQieUapVRk+ihKYWvePGeYTu/gN1arVyDKTzQBqoGX4aH
+         pRc/zhtWOK5GVwFWdSVGc2OsDzPx8zuFEaMrBAkshuYc2rq5xp1MUmqeSk3rRzgeYY
+         Ad/jJ9uZQ/CvCkXxSA7V+rSTYTbeGMaNC+vNL2E0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 187/193] spi: rspi: Fix sequencer reset during initialization
-Date:   Wed, 29 May 2019 20:07:21 -0700
-Message-Id: <20190530030513.089499756@linuxfoundation.org>
+Subject: [PATCH 4.9 110/128] media: wl128x: prevent two potential buffer overflows
+Date:   Wed, 29 May 2019 20:07:22 -0700
+Message-Id: <20190530030454.354971883@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
+References: <20190530030432.977908967@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,57 +45,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 26843bb128590edd7eba1ad7ce22e4b9f1066ce3 ]
+[ Upstream commit 9c2ccc324b3a6cbc865ab8b3e1a09e93d3c8ade9 ]
 
-While the sequencer is reset after each SPI message since commit
-880c6d114fd79a69 ("spi: rspi: Add support for Quad and Dual SPI
-Transfers on QSPI"), it was never reset for the first message, thus
-relying on reset state or bootloader settings.
+Smatch marks skb->data as untrusted so it warns that "evt_hdr->dlen"
+can copy up to 255 bytes and we only have room for two bytes.  Even
+if this comes from the firmware and we trust it, the new policy
+generally is just to fix it as kernel hardenning.
 
-Fix this by initializing it explicitly during configuration.
+I can't test this code so I tried to be very conservative.  I considered
+not allowing "evt_hdr->dlen == 1" because it doesn't initialize the
+whole variable but in the end I decided to allow it and manually
+initialized "asic_id" and "asic_ver" to zero.
 
-Fixes: 0b2182ddac4b8837 ("spi: add support for Renesas RSPI")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: e8454ff7b9a4 ("[media] drivers:media:radio: wl128x: FM Driver Common sources")
+
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-rspi.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/media/radio/wl128x/fmdrv_common.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/spi/spi-rspi.c b/drivers/spi/spi-rspi.c
-index 20981e08ee975..f4a797a9d76e9 100644
---- a/drivers/spi/spi-rspi.c
-+++ b/drivers/spi/spi-rspi.c
-@@ -279,7 +279,8 @@ static int rspi_set_config_register(struct rspi_data *rspi, int access_size)
- 	/* Sets parity, interrupt mask */
- 	rspi_write8(rspi, 0x00, RSPI_SPCR2);
+diff --git a/drivers/media/radio/wl128x/fmdrv_common.c b/drivers/media/radio/wl128x/fmdrv_common.c
+index 642b89c66bcb9..c1457cf466981 100644
+--- a/drivers/media/radio/wl128x/fmdrv_common.c
++++ b/drivers/media/radio/wl128x/fmdrv_common.c
+@@ -494,7 +494,8 @@ int fmc_send_cmd(struct fmdev *fmdev, u8 fm_op, u16 type, void *payload,
+ 		return -EIO;
+ 	}
+ 	/* Send response data to caller */
+-	if (response != NULL && response_len != NULL && evt_hdr->dlen) {
++	if (response != NULL && response_len != NULL && evt_hdr->dlen &&
++	    evt_hdr->dlen <= payload_len) {
+ 		/* Skip header info and copy only response data */
+ 		skb_pull(skb, sizeof(struct fm_event_msg_hdr));
+ 		memcpy(response, skb->data, evt_hdr->dlen);
+@@ -590,6 +591,8 @@ static void fm_irq_handle_flag_getcmd_resp(struct fmdev *fmdev)
+ 		return;
  
--	/* Sets SPCMD */
-+	/* Resets sequencer */
-+	rspi_write8(rspi, 0, RSPI_SPSCR);
- 	rspi->spcmd |= SPCMD_SPB_8_TO_16(access_size);
- 	rspi_write16(rspi, rspi->spcmd, RSPI_SPCMD0);
+ 	fm_evt_hdr = (void *)skb->data;
++	if (fm_evt_hdr->dlen > sizeof(fmdev->irq_info.flag))
++		return;
  
-@@ -323,7 +324,8 @@ static int rspi_rz_set_config_register(struct rspi_data *rspi, int access_size)
- 	rspi_write8(rspi, 0x00, RSPI_SSLND);
- 	rspi_write8(rspi, 0x00, RSPI_SPND);
+ 	/* Skip header info and copy only response data */
+ 	skb_pull(skb, sizeof(struct fm_event_msg_hdr));
+@@ -1315,7 +1318,7 @@ static int load_default_rx_configuration(struct fmdev *fmdev)
+ static int fm_power_up(struct fmdev *fmdev, u8 mode)
+ {
+ 	u16 payload;
+-	__be16 asic_id, asic_ver;
++	__be16 asic_id = 0, asic_ver = 0;
+ 	int resp_len, ret;
+ 	u8 fw_name[50];
  
--	/* Sets SPCMD */
-+	/* Resets sequencer */
-+	rspi_write8(rspi, 0, RSPI_SPSCR);
- 	rspi->spcmd |= SPCMD_SPB_8_TO_16(access_size);
- 	rspi_write16(rspi, rspi->spcmd, RSPI_SPCMD0);
- 
-@@ -374,7 +376,8 @@ static int qspi_set_config_register(struct rspi_data *rspi, int access_size)
- 	/* Sets buffer to allow normal operation */
- 	rspi_write8(rspi, 0x00, QSPI_SPBFCR);
- 
--	/* Sets SPCMD */
-+	/* Resets sequencer */
-+	rspi_write8(rspi, 0, RSPI_SPSCR);
- 	rspi_write16(rspi, rspi->spcmd, RSPI_SPCMD0);
- 
- 	/* Enables SPI function in master mode */
 -- 
 2.20.1
 
