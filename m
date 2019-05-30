@@ -2,40 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 92FBA2F14E
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:12:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 020CF2F32A
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:27:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726350AbfE3ELw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:11:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43788 "EHLO mail.kernel.org"
+        id S1730420AbfE3E0v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:26:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729391AbfE3DQq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:16:46 -0400
+        id S1729029AbfE3DO1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:14:27 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 83A3F245C1;
-        Thu, 30 May 2019 03:16:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C3AB224547;
+        Thu, 30 May 2019 03:14:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186205;
-        bh=lfa6ubSAXCwwv7XGl9evmSVdGbNoD54IxTwiATEwgto=;
+        s=default; t=1559186066;
+        bh=0tLTZClcKKFgPoH9shh1EIWhEETmj6LdTSvdImpzG/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rq21TnSsP3c43jgXnJHt6V/UcsULfeV3SWW8JOKKeoCQ8ZWaUlQSEG9H2W3Cl4bQ/
-         E3JiJKCpIwGL8FK7Gw1mBXpNKOm293czlhj6qZLhIqtJd778s13upThgP0rtc2og3r
-         zzmwL/MTFQdyBiv80xWknCflxJbOKs9v1FWQ7G+E=
+        b=U3j464NqV94C+ocHgGp0gvuasvLq/Elxk4hbvBqXurugKrYN9Tl9v2/qtbAmMoMSX
+         kKHjnlwwro+t26+QPpt+drWDYU84MFI3N/V58G+c2js1gM1MznBtMtiS791yaYK7Wr
+         l62YrohzRiR5XD32JA2gaDWyavOoBHyt5cfVODL0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Kan Liang <kan.liang@linux.intel.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Stephane Eranian <eranian@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vince Weaver <vincent.weaver@maine.edu>, acme@kernel.org,
+        jolsa@kernel.org, Ingo Molnar <mingo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 092/276] mac80211/cfg80211: update bss channel on channel switch
+Subject: [PATCH 5.0 177/346] perf/x86/intel/rapl: Add Icelake support
 Date:   Wed, 29 May 2019 20:04:10 -0700
-Message-Id: <20190530030531.952544540@linuxfoundation.org>
+Message-Id: <20190530030550.101261928@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,66 +52,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 5dc8cdce1d722c733f8c7af14c5fb595cfedbfa8 ]
+[ Upstream commit b3377c3acb9e54cf86efcfe25f2e792bca599ed4 ]
 
-FullMAC STAs have no way to update bss channel after CSA channel switch
-completion. As a result, user-space tools may provide inconsistent
-channel info. For instance, consider the following two commands:
-$ sudo iw dev wlan0 link
-$ sudo iw dev wlan0 info
-The latter command gets channel info from the hardware, so most probably
-its output will be correct. However the former command gets channel info
-from scan cache, so its output will contain outdated channel info.
-In fact, current bss channel info will not be updated until the
-next [re-]connect.
+Icelake support the same RAPL counters as Skylake.
 
-Note that mac80211 STAs have a workaround for this, but it requires
-access to internal cfg80211 data, see ieee80211_chswitch_work:
-
-	/* XXX: shouldn't really modify cfg80211-owned data! */
-	ifmgd->associated->channel = sdata->csa_chandef.chan;
-
-This patch suggests to convert mac80211 workaround into cfg80211 behavior
-and to update current bss channel in cfg80211_ch_switch_notify.
-
-Signed-off-by: Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Vince Weaver <vincent.weaver@maine.edu>
+Cc: acme@kernel.org
+Cc: jolsa@kernel.org
+Link: https://lkml.kernel.org/r/20190402194509.2832-11-kan.liang@linux.intel.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/mlme.c    | 3 ---
- net/wireless/nl80211.c | 5 +++++
- 2 files changed, 5 insertions(+), 3 deletions(-)
+ arch/x86/events/intel/rapl.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/mac80211/mlme.c b/net/mac80211/mlme.c
-index 3dbecae4be73c..2ac749c4a6b26 100644
---- a/net/mac80211/mlme.c
-+++ b/net/mac80211/mlme.c
-@@ -1156,9 +1156,6 @@ static void ieee80211_chswitch_work(struct work_struct *work)
- 		goto out;
- 	}
+diff --git a/arch/x86/events/intel/rapl.c b/arch/x86/events/intel/rapl.c
+index 91039ffed6333..2413169ce3627 100644
+--- a/arch/x86/events/intel/rapl.c
++++ b/arch/x86/events/intel/rapl.c
+@@ -780,6 +780,8 @@ static const struct x86_cpu_id rapl_cpu_match[] __initconst = {
+ 	X86_RAPL_MODEL_MATCH(INTEL_FAM6_ATOM_GOLDMONT_X, hsw_rapl_init),
  
--	/* XXX: shouldn't really modify cfg80211-owned data! */
--	ifmgd->associated->channel = sdata->csa_chandef.chan;
--
- 	ifmgd->csa_waiting_bcn = true;
- 
- 	ieee80211_sta_reset_beacon_monitor(sdata);
-diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
-index 048e004ed0ee8..c6711ead5e591 100644
---- a/net/wireless/nl80211.c
-+++ b/net/wireless/nl80211.c
-@@ -15441,6 +15441,11 @@ void cfg80211_ch_switch_notify(struct net_device *dev,
- 
- 	wdev->chandef = *chandef;
- 	wdev->preset_chandef = *chandef;
+ 	X86_RAPL_MODEL_MATCH(INTEL_FAM6_ATOM_GOLDMONT_PLUS, hsw_rapl_init),
 +
-+	if (wdev->iftype == NL80211_IFTYPE_STATION &&
-+	    !WARN_ON(!wdev->current_bss))
-+		wdev->current_bss->pub.channel = chandef->chan;
-+
- 	nl80211_ch_switch_notify(rdev, dev, chandef, GFP_KERNEL,
- 				 NL80211_CMD_CH_SWITCH_NOTIFY, 0);
- }
++	X86_RAPL_MODEL_MATCH(INTEL_FAM6_ICELAKE_MOBILE,  skl_rapl_init),
+ 	{},
+ };
+ 
 -- 
 2.20.1
 
