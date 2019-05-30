@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A49F2EF9E
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:57:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7F002F513
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:44:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729324AbfE3D5A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:57:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52636 "EHLO mail.kernel.org"
+        id S1728810AbfE3DMD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:12:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53248 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731738AbfE3DSx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:18:53 -0400
+        id S1728799AbfE3DMC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:12:02 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B300B2480D;
-        Thu, 30 May 2019 03:18:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8EDCF24481;
+        Thu, 30 May 2019 03:12:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186332;
-        bh=vraa4DO0CKAQ0cePnddNicGGHZfeaTl86+HfTCh+TJA=;
+        s=default; t=1559185921;
+        bh=IhqzS5kn9D2++obbCuqop4TPzQXIpOqdjVY8mQvNTfo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DYJDZcL++IUImmAe8pLxgZKOfkrvm6/6kWf9NnBZ49GeuICSBpiyNi7llIIBQ41gl
-         fPm2cti1py0qpMWq3H/nD38vSNHV6PVaAboRjwyyUG0gugGtVYyxedlGPklH8IZho9
-         SGJJSJQb+N8YEh4DavgLfuwnqogE/VHNi03a0ZLg=
+        b=IG/VHiQ9+rXZmTveYnsP6kuGQMe8e812fQ5NEGJ25Y9EHLrQRTeUVtRvtCFXH7b22
+         EK9uMGWV1NGebv19Dhj9A4dpYWTuNSgyw44Y9+n2qfQR84aPUyUlU3c9Bp3r7wvkhp
+         xg55KOV/bcWhSV1b1N6Hulyu2m2G9cpXRNc0cJvo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Neeraj Upadhyay <neeraju@codeaurora.org>,
+        "Paul E. McKenney" <paulmck@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 052/193] ACPI / property: fix handling of data_nodes in acpi_get_next_subnode()
-Date:   Wed, 29 May 2019 20:05:06 -0700
-Message-Id: <20190530030456.821909111@linuxfoundation.org>
+Subject: [PATCH 5.1 309/405] rcu: Do a single rhp->func read in rcu_head_after_call_rcu()
+Date:   Wed, 29 May 2019 20:05:07 -0700
+Message-Id: <20190530030556.439992073@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,53 +44,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 23583f7795025e3c783b680d906509366b0906ad ]
+[ Upstream commit b699cce1604e828f19c39845252626eb78cdf38a ]
 
-When the DSDT tables expose devices with subdevices and a set of
-hierarchical _DSD properties, the data returned by
-acpi_get_next_subnode() is incorrect, with the results suggesting a bad
-pointer assignment. The parser works fine with device_nodes or
-data_nodes, but not with a combination of the two.
+The rcu_head_after_call_rcu() function reads the rhp->func pointer twice,
+which can result in a false-positive WARN_ON_ONCE() if the callback
+were passed to call_rcu() between the two reads.  Although racing
+rcu_head_after_call_rcu() with call_rcu() is to be a dubious use case
+(the return value is not reliable in that case), intermittent and
+irreproducible warnings are also quite dubious.  This commit therefore
+uses a single READ_ONCE() to pick up the value of rhp->func once, then
+tests that value twice, thus guaranteeing consistent processing within
+rcu_head_after_call_rcu()().
 
-The problem is traced to an invalid pointer used when jumping from
-handling device_nodes to data nodes. The existing code looks for data
-nodes below the last subdevice found instead of the common root. Fix
-by forcing the acpi_device pointer to be derived from the same fwnode
-for the two types of subnodes.
+Neverthless, racing rcu_head_after_call_rcu() with call_rcu() is still
+a dubious use case.
 
-This same problem of handling device and data nodes was already fixed
-in a similar way by 'commit bf4703fdd166 ("ACPI / property: fix data
-node parsing in acpi_get_next_subnode()")' but broken later by 'commit
-34055190b19 ("ACPI / property: Add fwnode_get_next_child_node()")', so
-this should probably go to linux-stable all the way to 4.12
-
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Neeraj Upadhyay <neeraju@codeaurora.org>
+[ paulmck: Add blank line after declaration per checkpatch.pl. ]
+Signed-off-by: Paul E. McKenney <paulmck@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/property.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ include/linux/rcupdate.h | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/acpi/property.c b/drivers/acpi/property.c
-index e26ea209b63ef..7a3194e2e0906 100644
---- a/drivers/acpi/property.c
-+++ b/drivers/acpi/property.c
-@@ -943,6 +943,14 @@ struct fwnode_handle *acpi_get_next_subnode(const struct fwnode_handle *fwnode,
- 		const struct acpi_data_node *data = to_acpi_data_node(fwnode);
- 		struct acpi_data_node *dn;
+diff --git a/include/linux/rcupdate.h b/include/linux/rcupdate.h
+index 6cdb1db776cf9..922bb68488133 100644
+--- a/include/linux/rcupdate.h
++++ b/include/linux/rcupdate.h
+@@ -878,9 +878,11 @@ static inline void rcu_head_init(struct rcu_head *rhp)
+ static inline bool
+ rcu_head_after_call_rcu(struct rcu_head *rhp, rcu_callback_t f)
+ {
+-	if (READ_ONCE(rhp->func) == f)
++	rcu_callback_t func = READ_ONCE(rhp->func);
++
++	if (func == f)
+ 		return true;
+-	WARN_ON_ONCE(READ_ONCE(rhp->func) != (rcu_callback_t)~0L);
++	WARN_ON_ONCE(func != (rcu_callback_t)~0L);
+ 	return false;
+ }
  
-+		/*
-+		 * We can have a combination of device and data nodes, e.g. with
-+		 * hierarchical _DSD properties. Make sure the adev pointer is
-+		 * restored before going through data nodes, otherwise we will
-+		 * be looking for data_nodes below the last device found instead
-+		 * of the common fwnode shared by device_nodes and data_nodes.
-+		 */
-+		adev = to_acpi_device_node(fwnode);
- 		if (adev)
- 			head = &adev->data.subnodes;
- 		else if (data)
 -- 
 2.20.1
 
