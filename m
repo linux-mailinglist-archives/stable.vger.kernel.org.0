@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EBFF2EE01
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:43:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2569C2EE95
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:49:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731224AbfE3DnS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:43:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33182 "EHLO mail.kernel.org"
+        id S1729202AbfE3Dsc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:48:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732469AbfE3DVI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:21:08 -0400
+        id S1732157AbfE3DUT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:20:19 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A711249A9;
-        Thu, 30 May 2019 03:21:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7552E2490E;
+        Thu, 30 May 2019 03:20:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186468;
-        bh=bppTzBxoO9Ue7WR8F4rWlFuDGJvLkjrVlQGw2T/vVjs=;
+        s=default; t=1559186419;
+        bh=MiooSD0rWkqKK4flaOwrfWB+eO0A5ruYrhlxcARL354=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZW+7SGMosHbrqzOdj/ZS3WUGfPt464BY71E+5/AW1nvUDYA3zY+CrF0jFtJ7agIJF
-         hSwcXIJJJb9nxVOnZsPTnlhH7FinFad8FzYF4olKYUHrZ/fokuIWIgoS8CNTJGb1Oi
-         kINirgvbvBd2zc3iYDVyp3030pWrlIooTTTIW8Sw=
+        b=VMYV0f/OpgilxawMY5EysJ7tdtHC1U/AKl5bG5aQfrCmAzec9mV2XqnpsvEFyWuBk
+         gvlp1p0FidwgbQHOSSEEsv7yAATJK6RLXnUNbm0XuB2lCDwh1xL/jVRmtAD5m/ymbC
+         +bXGAE0+AQ3uRMqffaEm1kivAlUCFUAxpACzFo5U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Arend van Spriel <arend.vanspriel@broadcom.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
+        Alan Stern <stern@rowland.harvard.edu>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 094/128] brcmfmac: fix missing checks for kmemdup
+Subject: [PATCH 4.14 172/193] usb: core: Add PM runtime calls to usb_hcd_platform_shutdown
 Date:   Wed, 29 May 2019 20:07:06 -0700
-Message-Id: <20190530030451.578660109@linuxfoundation.org>
+Message-Id: <20190530030511.898815094@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
-References: <20190530030432.977908967@linuxfoundation.org>
+In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
+References: <20190530030446.953835040@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 46953f97224d56a12ccbe9c6acaa84ca0dab2780 ]
+[ Upstream commit 8ead7e817224d7832fe51a19783cb8fcadc79467 ]
 
-In case kmemdup fails, the fix sets conn_info->req_ie_len and
-conn_info->resp_ie_len to zero to avoid buffer overflows.
+If ohci-platform is runtime suspended, we can currently get an "imprecise
+external abort" on reboot with ohci-platform loaded when PM runtime
+is implemented for the SoC.
 
-Signed-off-by: Kangjie Lu <kjlu@umn.edu>
-Acked-by: Arend van Spriel <arend.vanspriel@broadcom.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Let's fix this by adding PM runtime support to usb_hcd_platform_shutdown.
+
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/usb/core/hcd.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
-index 530f521209728..8f8fe6f2af5b0 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
-@@ -5374,6 +5374,8 @@ static s32 brcmf_get_assoc_ies(struct brcmf_cfg80211_info *cfg,
- 		conn_info->req_ie =
- 		    kmemdup(cfg->extra_buf, conn_info->req_ie_len,
- 			    GFP_KERNEL);
-+		if (!conn_info->req_ie)
-+			conn_info->req_ie_len = 0;
- 	} else {
- 		conn_info->req_ie_len = 0;
- 		conn_info->req_ie = NULL;
-@@ -5390,6 +5392,8 @@ static s32 brcmf_get_assoc_ies(struct brcmf_cfg80211_info *cfg,
- 		conn_info->resp_ie =
- 		    kmemdup(cfg->extra_buf, conn_info->resp_ie_len,
- 			    GFP_KERNEL);
-+		if (!conn_info->resp_ie)
-+			conn_info->resp_ie_len = 0;
- 	} else {
- 		conn_info->resp_ie_len = 0;
- 		conn_info->resp_ie = NULL;
+diff --git a/drivers/usb/core/hcd.c b/drivers/usb/core/hcd.c
+index d0b2e0ed9babb..5fcea1114e2f6 100644
+--- a/drivers/usb/core/hcd.c
++++ b/drivers/usb/core/hcd.c
+@@ -3053,6 +3053,9 @@ usb_hcd_platform_shutdown(struct platform_device *dev)
+ {
+ 	struct usb_hcd *hcd = platform_get_drvdata(dev);
+ 
++	/* No need for pm_runtime_put(), we're shutting down */
++	pm_runtime_get_sync(&dev->dev);
++
+ 	if (hcd->driver->shutdown)
+ 		hcd->driver->shutdown(hcd);
+ }
 -- 
 2.20.1
 
