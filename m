@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1139D2F09D
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:05:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 346612F239
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:20:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726240AbfE3EFe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:05:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48242 "EHLO mail.kernel.org"
+        id S1729489AbfE3ETj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:19:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38554 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731230AbfE3DRn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:17:43 -0400
+        id S1730273AbfE3DPZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:15:25 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 06905245D7;
-        Thu, 30 May 2019 03:17:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D7D324559;
+        Thu, 30 May 2019 03:15:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186263;
-        bh=dls/P3crLuJWs0pBybzZw2BlVJdJ0xY47HhhRswb3LI=;
+        s=default; t=1559186124;
+        bh=NNX8TfOE1eoiQ0tEo8mNTq/l4fQjj0DGRchKEYf1pdQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yKQFJyLIs3M46g7RwojrS+FSGSxvNYxSXjX2xxrmhkjHaT8sQ4PMKEn0E5YTcXGJw
-         QcKRIJmRszfNUGrp89POfUCUs5hdVAoQsj/g/9D8wTOJCqzR8xYuZuoP3eyDqgYJ15
-         bj1pcVVQ/SIycZz7QiUMTOl3zYMzBAGpSyipYA+c=
+        b=g9rLcTr1AK3GEDm1NooLEjMY5ERGFaTRI18Tb/C16Y4VQ67fG/B/n9Vtf/aJd3uPx
+         RE/0MQfNzRbzRb2ZrHLit13ls7/fQgi2HFAc+js8MFJX2Ppol38+rFtnNIL4EUfSlz
+         MBRpZMqSt9+M+uy+jCpK/qEhoG7bmCNqazJWCOVk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Piotr Figiel <p.figiel@camlintechnologies.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 197/276] brcmfmac: fix race during disconnect when USB completion is in progress
+        stable@vger.kernel.org, Mohan Kumar D <mkumard@nvidia.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Sameer Pujar <spujar@nvidia.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 282/346] dmaengine: tegra210-adma: use devm_clk_*() helpers
 Date:   Wed, 29 May 2019 20:05:55 -0700
-Message-Id: <20190530030537.432656546@linuxfoundation.org>
+Message-Id: <20190530030555.208967873@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,89 +45,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit db3b9e2e1d58080d0754bdf9293dabf8c6491b67 ]
+[ Upstream commit f6ed6491d565c336a360471e0c29228e34f4380e ]
 
-It was observed that rarely during USB disconnect happening shortly after
-connect (before full initialization completes) usb_hub_wq would wait
-forever for the dev_init_lock to be unlocked. dev_init_lock would remain
-locked though because of infinite wait during usb_kill_urb:
+adma driver is using pm_clk_*() interface for managing clock resources.
+With this it is observed that clocks remain ON always. This happens on
+Tegra devices which use BPMP co-processor to manage clock resources,
+where clocks are enabled during prepare phase. This is necessary because
+clocks to BPMP are always blocking. When pm_clk_*() interface is used on
+such Tegra devices, clock prepare count is not balanced till remove call
+happens for the driver and hence clocks are seen ON always. Thus this
+patch replaces pm_clk_*() with devm_clk_*() framework.
 
-[ 2730.656472] kworker/0:2     D    0   260      2 0x00000000
-[ 2730.660700] Workqueue: events request_firmware_work_func
-[ 2730.664807] [<809dca20>] (__schedule) from [<809dd164>] (schedule+0x4c/0xac)
-[ 2730.670587] [<809dd164>] (schedule) from [<8069af44>] (usb_kill_urb+0xdc/0x114)
-[ 2730.676815] [<8069af44>] (usb_kill_urb) from [<7f258b50>] (brcmf_usb_free_q+0x34/0xa8 [brcmfmac])
-[ 2730.684833] [<7f258b50>] (brcmf_usb_free_q [brcmfmac]) from [<7f2517d4>] (brcmf_detach+0xa0/0xb8 [brcmfmac])
-[ 2730.693557] [<7f2517d4>] (brcmf_detach [brcmfmac]) from [<7f251a34>] (brcmf_attach+0xac/0x3d8 [brcmfmac])
-[ 2730.702094] [<7f251a34>] (brcmf_attach [brcmfmac]) from [<7f2587ac>] (brcmf_usb_probe_phase2+0x468/0x4a0 [brcmfmac])
-[ 2730.711601] [<7f2587ac>] (brcmf_usb_probe_phase2 [brcmfmac]) from [<7f252888>] (brcmf_fw_request_done+0x194/0x220 [brcmfmac])
-[ 2730.721795] [<7f252888>] (brcmf_fw_request_done [brcmfmac]) from [<805748e4>] (request_firmware_work_func+0x4c/0x88)
-[ 2730.731125] [<805748e4>] (request_firmware_work_func) from [<80141474>] (process_one_work+0x228/0x808)
-[ 2730.739223] [<80141474>] (process_one_work) from [<80141a80>] (worker_thread+0x2c/0x564)
-[ 2730.746105] [<80141a80>] (worker_thread) from [<80147bcc>] (kthread+0x13c/0x16c)
-[ 2730.752227] [<80147bcc>] (kthread) from [<801010b4>] (ret_from_fork+0x14/0x20)
-
-[ 2733.099695] kworker/0:3     D    0  1065      2 0x00000000
-[ 2733.103926] Workqueue: usb_hub_wq hub_event
-[ 2733.106914] [<809dca20>] (__schedule) from [<809dd164>] (schedule+0x4c/0xac)
-[ 2733.112693] [<809dd164>] (schedule) from [<809e2a8c>] (schedule_timeout+0x214/0x3e4)
-[ 2733.119621] [<809e2a8c>] (schedule_timeout) from [<809dde2c>] (wait_for_common+0xc4/0x1c0)
-[ 2733.126810] [<809dde2c>] (wait_for_common) from [<7f258d00>] (brcmf_usb_disconnect+0x1c/0x4c [brcmfmac])
-[ 2733.135206] [<7f258d00>] (brcmf_usb_disconnect [brcmfmac]) from [<8069e0c8>] (usb_unbind_interface+0x5c/0x1e4)
-[ 2733.143943] [<8069e0c8>] (usb_unbind_interface) from [<8056d3e8>] (device_release_driver_internal+0x164/0x1fc)
-[ 2733.152769] [<8056d3e8>] (device_release_driver_internal) from [<8056c078>] (bus_remove_device+0xd0/0xfc)
-[ 2733.161138] [<8056c078>] (bus_remove_device) from [<8056977c>] (device_del+0x11c/0x310)
-[ 2733.167939] [<8056977c>] (device_del) from [<8069cba8>] (usb_disable_device+0xa0/0x1cc)
-[ 2733.174743] [<8069cba8>] (usb_disable_device) from [<8069507c>] (usb_disconnect+0x74/0x1dc)
-[ 2733.181823] [<8069507c>] (usb_disconnect) from [<80695e88>] (hub_event+0x478/0xf88)
-[ 2733.188278] [<80695e88>] (hub_event) from [<80141474>] (process_one_work+0x228/0x808)
-[ 2733.194905] [<80141474>] (process_one_work) from [<80141a80>] (worker_thread+0x2c/0x564)
-[ 2733.201724] [<80141a80>] (worker_thread) from [<80147bcc>] (kthread+0x13c/0x16c)
-[ 2733.207913] [<80147bcc>] (kthread) from [<801010b4>] (ret_from_fork+0x14/0x20)
-
-It was traced down to a case where usb_kill_urb would be called on an URB
-structure containing more or less random data, including large number in
-its use_count. During the debugging it appeared that in brcmf_usb_free_q()
-the traversal over URBs' lists is not synchronized with operations on those
-lists in brcmf_usb_rx_complete() leading to handling
-brcmf_usbdev_info structure (holding lists' head) as lists' element and in
-result causing above problem.
-
-Fix it by walking through all URBs during brcmf_cancel_all_urbs using the
-arrays of requests instead of linked lists.
-
-Signed-off-by: Piotr Figiel <p.figiel@camlintechnologies.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Suggested-by: Mohan Kumar D <mkumard@nvidia.com>
+Reviewed-by: Jonathan Hunter <jonathanh@nvidia.com>
+Signed-off-by: Sameer Pujar <spujar@nvidia.com>
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/dma/tegra210-adma.c | 27 ++++++++++++---------------
+ 1 file changed, 12 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c
-index 5aeb401d9a024..44ead0fea7c61 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c
-@@ -684,12 +684,18 @@ static int brcmf_usb_up(struct device *dev)
+diff --git a/drivers/dma/tegra210-adma.c b/drivers/dma/tegra210-adma.c
+index 08b10274284a8..09b6756366c30 100644
+--- a/drivers/dma/tegra210-adma.c
++++ b/drivers/dma/tegra210-adma.c
+@@ -22,7 +22,6 @@
+ #include <linux/of_device.h>
+ #include <linux/of_dma.h>
+ #include <linux/of_irq.h>
+-#include <linux/pm_clock.h>
+ #include <linux/pm_runtime.h>
+ #include <linux/slab.h>
  
- static void brcmf_cancel_all_urbs(struct brcmf_usbdev_info *devinfo)
- {
-+	int i;
-+
- 	if (devinfo->ctl_urb)
- 		usb_kill_urb(devinfo->ctl_urb);
- 	if (devinfo->bulk_urb)
- 		usb_kill_urb(devinfo->bulk_urb);
--	brcmf_usb_free_q(&devinfo->tx_postq, true);
--	brcmf_usb_free_q(&devinfo->rx_postq, true);
-+	if (devinfo->tx_reqs)
-+		for (i = 0; i < devinfo->bus_pub.ntxq; i++)
-+			usb_kill_urb(devinfo->tx_reqs[i].urb);
-+	if (devinfo->rx_reqs)
-+		for (i = 0; i < devinfo->bus_pub.nrxq; i++)
-+			usb_kill_urb(devinfo->rx_reqs[i].urb);
+@@ -141,6 +140,7 @@ struct tegra_adma {
+ 	struct dma_device		dma_dev;
+ 	struct device			*dev;
+ 	void __iomem			*base_addr;
++	struct clk			*ahub_clk;
+ 	unsigned int			nr_channels;
+ 	unsigned long			rx_requests_reserved;
+ 	unsigned long			tx_requests_reserved;
+@@ -637,8 +637,9 @@ static int tegra_adma_runtime_suspend(struct device *dev)
+ 	struct tegra_adma *tdma = dev_get_drvdata(dev);
+ 
+ 	tdma->global_cmd = tdma_read(tdma, ADMA_GLOBAL_CMD);
++	clk_disable_unprepare(tdma->ahub_clk);
+ 
+-	return pm_clk_suspend(dev);
++	return 0;
  }
  
- static void brcmf_usb_down(struct device *dev)
+ static int tegra_adma_runtime_resume(struct device *dev)
+@@ -646,10 +647,11 @@ static int tegra_adma_runtime_resume(struct device *dev)
+ 	struct tegra_adma *tdma = dev_get_drvdata(dev);
+ 	int ret;
+ 
+-	ret = pm_clk_resume(dev);
+-	if (ret)
++	ret = clk_prepare_enable(tdma->ahub_clk);
++	if (ret) {
++		dev_err(dev, "ahub clk_enable failed: %d\n", ret);
+ 		return ret;
+-
++	}
+ 	tdma_write(tdma, ADMA_GLOBAL_CMD, tdma->global_cmd);
+ 
+ 	return 0;
+@@ -692,13 +694,11 @@ static int tegra_adma_probe(struct platform_device *pdev)
+ 	if (IS_ERR(tdma->base_addr))
+ 		return PTR_ERR(tdma->base_addr);
+ 
+-	ret = pm_clk_create(&pdev->dev);
+-	if (ret)
+-		return ret;
+-
+-	ret = of_pm_clk_add_clk(&pdev->dev, "d_audio");
+-	if (ret)
+-		goto clk_destroy;
++	tdma->ahub_clk = devm_clk_get(&pdev->dev, "d_audio");
++	if (IS_ERR(tdma->ahub_clk)) {
++		dev_err(&pdev->dev, "Error: Missing ahub controller clock\n");
++		return PTR_ERR(tdma->ahub_clk);
++	}
+ 
+ 	pm_runtime_enable(&pdev->dev);
+ 
+@@ -775,8 +775,6 @@ static int tegra_adma_probe(struct platform_device *pdev)
+ 	pm_runtime_put_sync(&pdev->dev);
+ rpm_disable:
+ 	pm_runtime_disable(&pdev->dev);
+-clk_destroy:
+-	pm_clk_destroy(&pdev->dev);
+ 
+ 	return ret;
+ }
+@@ -794,7 +792,6 @@ static int tegra_adma_remove(struct platform_device *pdev)
+ 
+ 	pm_runtime_put_sync(&pdev->dev);
+ 	pm_runtime_disable(&pdev->dev);
+-	pm_clk_destroy(&pdev->dev);
+ 
+ 	return 0;
+ }
 -- 
 2.20.1
 
