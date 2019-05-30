@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 864EA2F110
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:09:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DCF542F57E
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:48:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726125AbfE3EJp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:09:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45256 "EHLO mail.kernel.org"
+        id S1727512AbfE3Ers (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:47:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51072 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730112AbfE3DRJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:17:09 -0400
+        id S1728556AbfE3DL1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:11:27 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4767324667;
-        Thu, 30 May 2019 03:17:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F3D2A244EA;
+        Thu, 30 May 2019 03:11:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186229;
-        bh=Yr1NWBa2ygGEK+iU7YFpXLjJuhvl7ZvsAVvfPbvqE5A=;
+        s=default; t=1559185887;
+        bh=C/y9jVYicF7vOuqIdn6DGLEg4eu3Qi2zsr4WVZjtQSs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dr8uvFunzE59QWXJHthjh6W9cy50Dtqxt47jE/AMt8HQYbwrguRo5m8Tct1AbRdEh
-         E0PnLjgUP+Scr6tqcHiqMBWvB/o/vGXlWZTazgo/1U2NmaiTjRlr1Szbg11Z3W2vjg
-         FQ0GC+oo+J3hxz4Uj1OpaVB8+x8KZ9tQb3kJeZqE=
+        b=wn3I3PdsWDlntRMWLifZGkIWdBnkIbFfSjfn0p9AoWNC5HofWCbHjpmXXfLixlnCK
+         P07yJE7AEqGbF1yDowRWoqoz/0YwnVCEWYGqSca/9d11g/JDkJCYChLbe8gctZOWUZ
+         D8vFZ6VlHcscsWcCZSzgsBdWzyucYmZmRMgtC5Co=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabien Dessenne <fabien.dessenne@st.com>,
-        Amelie Delaunay <amelie.delaunay@st.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        stable@vger.kernel.org, Jian Shen <shenjian15@huawei.com>,
+        Peng Li <lipeng321@huawei.com>,
+        Huazhong Tan <tanhuazhong@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 085/276] rtc: stm32: manage the get_irq probe defer case
+Subject: [PATCH 5.1 245/405] net: hns3: add protect when handling mac addr list
 Date:   Wed, 29 May 2019 20:04:03 -0700
-Message-Id: <20190530030531.603323909@linuxfoundation.org>
+Message-Id: <20190530030553.383157582@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,40 +46,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit cf612c5949aca2bd81a1e28688957c8149ea2693 ]
+[ Upstream commit 389775a6605e040dddea21a778a88eaaa57c068d ]
 
-Manage the -EPROBE_DEFER error case for the wake IRQ.
+It used netdev->uc and netdev->mc list in function
+hns3_recover_hw_addr() and hns3_remove_hw_addr().
+We should add protect for them.
 
-Signed-off-by: Fabien Dessenne <fabien.dessenne@st.com>
-Acked-by: Amelie Delaunay <amelie.delaunay@st.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Fixes: f05e21097121 ("net: hns3: Clear mac vlan table entries when unload driver or function reset")
+Signed-off-by: Jian Shen <shenjian15@huawei.com>
+Signed-off-by: Peng Li <lipeng321@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-stm32.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3_enet.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/rtc/rtc-stm32.c b/drivers/rtc/rtc-stm32.c
-index c5908cfea2340..8e6c9b3bcc29a 100644
---- a/drivers/rtc/rtc-stm32.c
-+++ b/drivers/rtc/rtc-stm32.c
-@@ -788,11 +788,14 @@ static int stm32_rtc_probe(struct platform_device *pdev)
- 	ret = device_init_wakeup(&pdev->dev, true);
- 	if (rtc->data->has_wakeirq) {
- 		rtc->wakeirq_alarm = platform_get_irq(pdev, 1);
--		if (rtc->wakeirq_alarm <= 0)
--			ret = rtc->wakeirq_alarm;
--		else
-+		if (rtc->wakeirq_alarm > 0) {
- 			ret = dev_pm_set_dedicated_wake_irq(&pdev->dev,
- 							    rtc->wakeirq_alarm);
-+		} else {
-+			ret = rtc->wakeirq_alarm;
-+			if (rtc->wakeirq_alarm == -EPROBE_DEFER)
-+				goto err;
-+		}
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+index d6b488c2de332..c7d310903319f 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+@@ -3774,12 +3774,13 @@ static int hns3_recover_hw_addr(struct net_device *ndev)
+ 	struct netdev_hw_addr *ha, *tmp;
+ 	int ret = 0;
+ 
++	netif_addr_lock_bh(ndev);
+ 	/* go through and sync uc_addr entries to the device */
+ 	list = &ndev->uc;
+ 	list_for_each_entry_safe(ha, tmp, &list->list, list) {
+ 		ret = hns3_nic_uc_sync(ndev, ha->addr);
+ 		if (ret)
+-			return ret;
++			goto out;
  	}
- 	if (ret)
- 		dev_warn(&pdev->dev, "alarm can't wake up the system: %d", ret);
+ 
+ 	/* go through and sync mc_addr entries to the device */
+@@ -3787,9 +3788,11 @@ static int hns3_recover_hw_addr(struct net_device *ndev)
+ 	list_for_each_entry_safe(ha, tmp, &list->list, list) {
+ 		ret = hns3_nic_mc_sync(ndev, ha->addr);
+ 		if (ret)
+-			return ret;
++			goto out;
+ 	}
+ 
++out:
++	netif_addr_unlock_bh(ndev);
+ 	return ret;
+ }
+ 
+@@ -3800,6 +3803,7 @@ static void hns3_remove_hw_addr(struct net_device *netdev)
+ 
+ 	hns3_nic_uc_unsync(netdev, netdev->dev_addr);
+ 
++	netif_addr_lock_bh(netdev);
+ 	/* go through and unsync uc_addr entries to the device */
+ 	list = &netdev->uc;
+ 	list_for_each_entry_safe(ha, tmp, &list->list, list)
+@@ -3810,6 +3814,8 @@ static void hns3_remove_hw_addr(struct net_device *netdev)
+ 	list_for_each_entry_safe(ha, tmp, &list->list, list)
+ 		if (ha->refcount > 1)
+ 			hns3_nic_mc_unsync(netdev, ha->addr);
++
++	netif_addr_unlock_bh(netdev);
+ }
+ 
+ static void hns3_clear_tx_ring(struct hns3_enet_ring *ring)
 -- 
 2.20.1
 
