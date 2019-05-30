@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 16C002EE97
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:49:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07CB02EE99
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:49:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728924AbfE3Dsm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:48:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58016 "EHLO mail.kernel.org"
+        id S1732147AbfE3Dsr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:48:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58046 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732147AbfE3DUS (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1730508AbfE3DUS (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 29 May 2019 23:20:18 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9C3362490A;
-        Thu, 30 May 2019 03:20:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0CE8424820;
+        Thu, 30 May 2019 03:20:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186417;
-        bh=qpIVF3Cx9pKmLiimFB7271ld1ODQuXJahy+4CSBYWh0=;
+        s=default; t=1559186418;
+        bh=ZoOu+9eNxoWTL0myO+IfaODWr5QLt9Z4pCwwIUjUTMk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tp8a7dRkQRCgUE4oTArpY0OX4pLoaFNbsk4KqiVXExl4n9U+feELHrLWRzi1yIQVJ
-         AnNFPtmC32cXsdhdrrGyUXl3TnT9xsyyJeycqaH31lhxTan4NMgUNMvL7+qzGlstu6
-         MQ6UegWZp5jrFGhSKQAvVZALl4WhMIKFf+7QPZgw=
+        b=RIDNfw2AvMUP4H6Y7pc+i+CQEiB+r+I25sbctZ6LFSm2msitku/bA/xXD3te2gW23
+         U9uu0wxS8UXxIwqiH9i7TTz9XaP7c2Yok5tBBeI7JLQPHL/MuRaLC06IMBDqWLd2c2
+         hVVxhQw1aJ/SDD5+NXTnvGJLklP1STOZX2pmSvNs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Farman <farman@linux.ibm.com>,
-        Farhan Ali <alifm@linux.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
+        stable@vger.kernel.org,
+        syzbot+228a82b263b5da91883d@syzkaller.appspotmail.com,
+        Benjamin Coddington <bcodding@redhat.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 192/193] vfio-ccw: Prevent quiesce function going into an infinite loop
-Date:   Wed, 29 May 2019 20:07:26 -0700
-Message-Id: <20190530030513.378820673@linuxfoundation.org>
+Subject: [PATCH 4.14 193/193] NFS: Fix a double unlock from nfs_match,get_client
+Date:   Wed, 29 May 2019 20:07:27 -0700
+Message-Id: <20190530030513.442571341@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
 References: <20190530030446.953835040@linuxfoundation.org>
@@ -46,87 +46,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d1ffa760d22aa1d8190478e5ef555c59a771db27 ]
+[ Upstream commit c260121a97a3e4df6536edbc2f26e166eff370ce ]
 
-The quiesce function calls cio_cancel_halt_clear() and if we
-get an -EBUSY we go into a loop where we:
-	- wait for any interrupts
-	- flush all I/O in the workqueue
-	- retry cio_cancel_halt_clear
+Now that nfs_match_client drops the nfs_client_lock, we should be
+careful
+to always return it in the same condition: locked.
 
-During the period where we are waiting for interrupts or
-flushing all I/O, the channel subsystem could have completed
-a halt/clear action and turned off the corresponding activity
-control bits in the subchannel status word. This means the next
-time we call cio_cancel_halt_clear(), we will again start by
-calling cancel subchannel and so we can be stuck between calling
-cancel and halt forever.
-
-Rather than calling cio_cancel_halt_clear() immediately after
-waiting, let's try to disable the subchannel. If we succeed in
-disabling the subchannel then we know nothing else can happen
-with the device.
-
-Suggested-by: Eric Farman <farman@linux.ibm.com>
-Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
-Message-Id: <4d5a4b98ab1b41ac6131b5c36de18b76c5d66898.1555449329.git.alifm@linux.ibm.com>
-Reviewed-by: Eric Farman <farman@linux.ibm.com>
-Acked-by: Halil Pasic <pasic@linux.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+Fixes: 950a578c6128 ("NFS: make nfs_match_client killable")
+Reported-by: syzbot+228a82b263b5da91883d@syzkaller.appspotmail.com
+Signed-off-by: Benjamin Coddington <bcodding@redhat.com>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/cio/vfio_ccw_drv.c | 32 ++++++++++++++++++--------------
- 1 file changed, 18 insertions(+), 14 deletions(-)
+ fs/nfs/client.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
-index 59eb5e6d9c79d..6cd41086f23e4 100644
---- a/drivers/s390/cio/vfio_ccw_drv.c
-+++ b/drivers/s390/cio/vfio_ccw_drv.c
-@@ -38,26 +38,30 @@ int vfio_ccw_sch_quiesce(struct subchannel *sch)
- 	if (ret != -EBUSY)
- 		goto out_unlock;
+diff --git a/fs/nfs/client.c b/fs/nfs/client.c
+index 65da2c105f434..0c7008fb6d5ab 100644
+--- a/fs/nfs/client.c
++++ b/fs/nfs/client.c
+@@ -305,9 +305,9 @@ static struct nfs_client *nfs_match_client(const struct nfs_client_initdata *dat
+ 			spin_unlock(&nn->nfs_client_lock);
+ 			error = nfs_wait_client_init_complete(clp);
+ 			nfs_put_client(clp);
++			spin_lock(&nn->nfs_client_lock);
+ 			if (error < 0)
+ 				return ERR_PTR(error);
+-			spin_lock(&nn->nfs_client_lock);
+ 			goto again;
+ 		}
  
-+	iretry = 255;
- 	do {
--		iretry = 255;
- 
- 		ret = cio_cancel_halt_clear(sch, &iretry);
--		while (ret == -EBUSY) {
--			/*
--			 * Flush all I/O and wait for
--			 * cancel/halt/clear completion.
--			 */
--			private->completion = &completion;
--			spin_unlock_irq(sch->lock);
- 
--			wait_for_completion_timeout(&completion, 3*HZ);
-+		if (ret == -EIO) {
-+			pr_err("vfio_ccw: could not quiesce subchannel 0.%x.%04x!\n",
-+			       sch->schid.ssid, sch->schid.sch_no);
-+			break;
-+		}
-+
-+		/*
-+		 * Flush all I/O and wait for
-+		 * cancel/halt/clear completion.
-+		 */
-+		private->completion = &completion;
-+		spin_unlock_irq(sch->lock);
- 
--			private->completion = NULL;
--			flush_workqueue(vfio_ccw_work_q);
--			spin_lock_irq(sch->lock);
--			ret = cio_cancel_halt_clear(sch, &iretry);
--		};
-+		if (ret == -EBUSY)
-+			wait_for_completion_timeout(&completion, 3*HZ);
- 
-+		private->completion = NULL;
-+		flush_workqueue(vfio_ccw_work_q);
-+		spin_lock_irq(sch->lock);
- 		ret = cio_disable_subchannel(sch);
- 	} while (ret == -EBUSY);
- out_unlock:
 -- 
 2.20.1
 
