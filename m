@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DFB622F06A
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:04:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA5EB2F474
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:38:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729750AbfE3DRx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:17:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49014 "EHLO mail.kernel.org"
+        id S1729182AbfE3DMm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:12:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731307AbfE3DRx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:17:53 -0400
+        id S1729173AbfE3DMm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:12:42 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2BDDA24733;
-        Thu, 30 May 2019 03:17:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D146E23DE3;
+        Thu, 30 May 2019 03:12:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186272;
-        bh=iGxECOeYoMheEdkjkj36hyuYRAMoQSKnz47vNcgJL9g=;
+        s=default; t=1559185961;
+        bh=XcJ67KVlbfws4QxK94sQYcVSTdHXWYoiAMcJLHgKWQE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YQAw5qDiUa0a0FPmJI6xh9XQ2ppv7FB97YPwQXFYiAOdc6uDsNDzSEqSK8OvNGvJl
-         cFYWbyKUZd4wsN3i3HRIY77HF2CvpNRonQNMNIPSEcFg9H8YSDNTfeHRc06uGCo8L8
-         +6qFkWhkeLbPxy4LZjxb/OFWXaUWp0HaEnfsUUn8=
+        b=dXdYmy86gvrKCrmXDH4r2+x94xYrYvZ6Uo65qx3Os5vUGaZtefW2+E0YlQN8LaZGK
+         tqqqM9QN2B9zCgAz8IayPCAkD9y5atuWIx+u5CThKCwX9DDooYq7C0ledGZOBDqwzs
+         ls9U4U79f/nMbdwDUIydQyj4u2Sq7A7cb+FElVOQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roman Gushchin <guro@fb.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        "Shuah Khan (Samsung OSG)" <shuah@kernel.org>,
-        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 177/276] selftests: cgroup: fix cleanup path in test_memcg_subtree_control()
-Date:   Wed, 29 May 2019 20:05:35 -0700
-Message-Id: <20190530030536.382969778@linuxfoundation.org>
+Subject: [PATCH 5.1 338/405] media: vicodec: reset last_src/dst_buf based on the IS_OUTPUT
+Date:   Wed, 29 May 2019 20:05:36 -0700
+Message-Id: <20190530030557.798675147@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,113 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit e14d314c7a489f060d6d691866fef5f131281718 ]
+[ Upstream commit 76eb24fc233b8c94b2156ead5811e08d2046ad58 ]
 
-Dan reported, that cleanup path in test_memcg_subtree_control()
-triggers a static checker warning:
-  ./tools/testing/selftests/cgroup/test_memcontrol.c:76 \
-  test_memcg_subtree_control()
-  error: uninitialized symbol 'child2'.
+When start_streaming was called both last_src_buf and last_dst_buf
+pointers were set to NULL, but this depends on whether the capture
+or output queue starts streaming.
 
-Fix this by initializing child2 and parent2 variables and
-split the cleanup path into few stages.
+When decoding with resolution changes in between the capture queue
+has to restart streaming whenever a resolution change occurs. And
+that would reset last_src_buf as well, which causes a problem if
+the decoder was stopped by the application. Since last_src_buf
+is now NULL, the LAST flag is never set for the last capture
+buffer.
 
-Signed-off-by: Roman Gushchin <guro@fb.com>
-Fixes: 84092dbcf901 ("selftests: cgroup: add memory controller self-tests")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Shuah Khan (Samsung OSG) <shuah@kernel.org>
-Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
-Signed-off-by: Shuah Khan <shuah@kernel.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../selftests/cgroup/test_memcontrol.c        | 38 ++++++++++---------
- 1 file changed, 21 insertions(+), 17 deletions(-)
+ drivers/media/platform/vicodec/vicodec-core.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/cgroup/test_memcontrol.c b/tools/testing/selftests/cgroup/test_memcontrol.c
-index 28d321ba311b4..6f339882a6ca1 100644
---- a/tools/testing/selftests/cgroup/test_memcontrol.c
-+++ b/tools/testing/selftests/cgroup/test_memcontrol.c
-@@ -26,7 +26,7 @@
-  */
- static int test_memcg_subtree_control(const char *root)
- {
--	char *parent, *child, *parent2, *child2;
-+	char *parent, *child, *parent2 = NULL, *child2 = NULL;
- 	int ret = KSFT_FAIL;
- 	char buf[PAGE_SIZE];
+diff --git a/drivers/media/platform/vicodec/vicodec-core.c b/drivers/media/platform/vicodec/vicodec-core.c
+index 6b618452700c4..8788369e59a0a 100644
+--- a/drivers/media/platform/vicodec/vicodec-core.c
++++ b/drivers/media/platform/vicodec/vicodec-core.c
+@@ -1339,8 +1339,11 @@ static int vicodec_start_streaming(struct vb2_queue *q,
+ 	chroma_div = info->width_div * info->height_div;
+ 	q_data->sequence = 0;
  
-@@ -34,50 +34,54 @@ static int test_memcg_subtree_control(const char *root)
- 	parent = cg_name(root, "memcg_test_0");
- 	child = cg_name(root, "memcg_test_0/memcg_test_1");
- 	if (!parent || !child)
--		goto cleanup;
-+		goto cleanup_free;
+-	ctx->last_src_buf = NULL;
+-	ctx->last_dst_buf = NULL;
++	if (V4L2_TYPE_IS_OUTPUT(q->type))
++		ctx->last_src_buf = NULL;
++	else
++		ctx->last_dst_buf = NULL;
++
+ 	state->gop_cnt = 0;
  
- 	if (cg_create(parent))
--		goto cleanup;
-+		goto cleanup_free;
- 
- 	if (cg_write(parent, "cgroup.subtree_control", "+memory"))
--		goto cleanup;
-+		goto cleanup_parent;
- 
- 	if (cg_create(child))
--		goto cleanup;
-+		goto cleanup_parent;
- 
- 	if (cg_read_strstr(child, "cgroup.controllers", "memory"))
--		goto cleanup;
-+		goto cleanup_child;
- 
- 	/* Create two nested cgroups without enabling memory controller */
- 	parent2 = cg_name(root, "memcg_test_1");
- 	child2 = cg_name(root, "memcg_test_1/memcg_test_1");
- 	if (!parent2 || !child2)
--		goto cleanup;
-+		goto cleanup_free2;
- 
- 	if (cg_create(parent2))
--		goto cleanup;
-+		goto cleanup_free2;
- 
- 	if (cg_create(child2))
--		goto cleanup;
-+		goto cleanup_parent2;
- 
- 	if (cg_read(child2, "cgroup.controllers", buf, sizeof(buf)))
--		goto cleanup;
-+		goto cleanup_all;
- 
- 	if (!cg_read_strstr(child2, "cgroup.controllers", "memory"))
--		goto cleanup;
-+		goto cleanup_all;
- 
- 	ret = KSFT_PASS;
- 
--cleanup:
--	cg_destroy(child);
--	cg_destroy(parent);
--	free(parent);
--	free(child);
--
-+cleanup_all:
- 	cg_destroy(child2);
-+cleanup_parent2:
- 	cg_destroy(parent2);
-+cleanup_free2:
- 	free(parent2);
- 	free(child2);
-+cleanup_child:
-+	cg_destroy(child);
-+cleanup_parent:
-+	cg_destroy(parent);
-+cleanup_free:
-+	free(parent);
-+	free(child);
- 
- 	return ret;
- }
+ 	if ((V4L2_TYPE_IS_OUTPUT(q->type) && !ctx->is_enc) ||
 -- 
 2.20.1
 
