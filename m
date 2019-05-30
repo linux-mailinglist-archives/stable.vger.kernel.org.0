@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 461052F683
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:57:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E10692F43F
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:36:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727888AbfE3DKA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:10:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45998 "EHLO mail.kernel.org"
+        id S1729320AbfE3Egb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:36:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727882AbfE3DJ7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:09:59 -0400
+        id S1729310AbfE3DNA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:13:00 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6902A24485;
-        Thu, 30 May 2019 03:09:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 009D9218B6;
+        Thu, 30 May 2019 03:12:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185799;
-        bh=JiHI/TgLk+DcrLr+6I+X2S/Lr18PKHaI8i5a3ZmgMQY=;
+        s=default; t=1559185980;
+        bh=k0FQIGkfAm/PewsCfwZLsT1OwTJqrkaAFB/IDlbtVFc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CQBaWEO20xAY8ZKRJKTpULp24jiMlLa8o0rLLvtHb61/wvb/m15Ok4uG4/qmZmTvB
-         N32jgZaQv/NOgkmo5nIllL6+5TsbV7UnQdfNeZAr8x0r01qYQHmNvhfDt9yXtHk2dJ
-         LoWSGhh0+wkeUB7xov0Dxb7KPN9oQ6ceBIKGsfcg=
+        b=Mb2KJ9ncx9ACVvNp0tEjf6IqdCCYutykwzIs32Phjnmk1n7kX4GfBw6rCUB6pekgt
+         O4ziXhNy+SmJZqCHCH7e8xBcV+Tx6oB6C7ejGxwbNEfHmQ41vl08cHOUro/X0f6/nv
+         4Ka4tXLlidM40a5/RvtrxUsByG1BP0d+X0UmWmMA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Anju T Sudhakar <anju@linux.vnet.ibm.com>,
-        Madhavan Srinivasan <maddy@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 076/405] powerpc/perf: Fix loop exit condition in nest_imc_event_init
-Date:   Wed, 29 May 2019 20:01:14 -0700
-Message-Id: <20190530030544.798185296@linuxfoundation.org>
+        stable@vger.kernel.org, Ira Weiny <ira.weiny@intel.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
+        stable@kernel.org
+Subject: [PATCH 5.0 002/346] ext4: do not delete unlinked inode from orphan list on failed truncate
+Date:   Wed, 29 May 2019 20:01:15 -0700
+Message-Id: <20190530030540.518398703@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,60 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 860b7d2286236170a36f94946d03ca9888d32571 ]
+From: Jan Kara <jack@suse.cz>
 
-The data structure (i.e struct imc_mem_info) to hold the memory address
-information for nest imc units is allocated based on the number of nodes
-in the system.
+commit ee0ed02ca93ef1ecf8963ad96638795d55af2c14 upstream.
 
-nest_imc_event_init() traverse this struct array to calculate the memory
-base address for the event-cpu. If we fail to find a match for the event
-cpu's chip-id in imc_mem_info struct array, then the do-while loop will
-iterate until we crash.
+It is possible that unlinked inode enters ext4_setattr() (e.g. if
+somebody calls ftruncate(2) on unlinked but still open file). In such
+case we should not delete the inode from the orphan list if truncate
+fails. Note that this is mostly a theoretical concern as filesystem is
+corrupted if we reach this path anyway but let's be consistent in our
+orphan handling.
 
-Fix this by changing the loop exit condition based on the number of
-non zero vbase elements in the array, since the allocation is done for
-nr_chips + 1.
+Reviewed-by: Ira Weiny <ira.weiny@intel.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Fixes: 885dcd709ba91 ("powerpc/perf: Add nest IMC PMU support")
-Signed-off-by: Anju T Sudhakar <anju@linux.vnet.ibm.com>
-Reviewed-by: Madhavan Srinivasan <maddy@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/perf/imc-pmu.c               | 2 +-
- arch/powerpc/platforms/powernv/opal-imc.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ fs/ext4/inode.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/perf/imc-pmu.c b/arch/powerpc/perf/imc-pmu.c
-index 6159e9edddfd0..2d12f0037e3a5 100644
---- a/arch/powerpc/perf/imc-pmu.c
-+++ b/arch/powerpc/perf/imc-pmu.c
-@@ -499,7 +499,7 @@ static int nest_imc_event_init(struct perf_event *event)
- 			break;
- 		}
- 		pcni++;
--	} while (pcni);
-+	} while (pcni->vbase != 0);
- 
- 	if (!flag)
- 		return -ENODEV;
-diff --git a/arch/powerpc/platforms/powernv/opal-imc.c b/arch/powerpc/platforms/powernv/opal-imc.c
-index 58a07948c76e7..3d27f02695e41 100644
---- a/arch/powerpc/platforms/powernv/opal-imc.c
-+++ b/arch/powerpc/platforms/powernv/opal-imc.c
-@@ -127,7 +127,7 @@ static int imc_get_mem_addr_nest(struct device_node *node,
- 								nr_chips))
- 		goto error;
- 
--	pmu_ptr->mem_info = kcalloc(nr_chips, sizeof(*pmu_ptr->mem_info),
-+	pmu_ptr->mem_info = kcalloc(nr_chips + 1, sizeof(*pmu_ptr->mem_info),
- 				    GFP_KERNEL);
- 	if (!pmu_ptr->mem_info)
- 		goto error;
--- 
-2.20.1
-
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -5627,7 +5627,7 @@ int ext4_setattr(struct dentry *dentry,
+ 			up_write(&EXT4_I(inode)->i_data_sem);
+ 			ext4_journal_stop(handle);
+ 			if (error) {
+-				if (orphan)
++				if (orphan && inode->i_nlink)
+ 					ext4_orphan_del(NULL, inode);
+ 				goto err_out;
+ 			}
 
 
