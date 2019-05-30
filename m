@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D3CE2F210
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:18:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B6DD82F48E
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:39:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728313AbfE3DPf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:15:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39024 "EHLO mail.kernel.org"
+        id S1729256AbfE3Eje (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:39:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730372AbfE3DPe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:15:34 -0400
+        id S1729126AbfE3DMi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:12:38 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 50EBD24580;
-        Thu, 30 May 2019 03:15:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 58B7C23E29;
+        Thu, 30 May 2019 03:12:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186134;
-        bh=D15HQzt/gFInZPdaZ219sAc+1IU88ZyBC5dXpV86zog=;
+        s=default; t=1559185957;
+        bh=PYS5Datf5pZZIG36tQdTDk0Mop6H0RA4WAcw/qUerck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wSuGQmwNuNdFZqLgsRLWLXuj4SWzj33XVtqfy9cG0HyHJQuS2J9Pp4tIgSZnS8ED4
-         5l8fmLKcLIdfpnQS1gUucg1DWKXj8UYISGtKjbMGMSYrmspGdEWc4LE4PgaIzBUiEC
-         FNvrNl1XirXR1nf3B/czK+lZP9d1KpJx5gFf8/ks=
+        b=AYSFVCwfXlzpGlEVtOaurLignNk9B51tcsR2EK3g5QqLBUwrRQVosRb7vcfH9m7Bp
+         DQc1BTJSUTsyR7yb5yGrVViEtiLNnAqv1G1mIiGT1CGeCEci9rN4NXMLp9gFnTKj/c
+         Jd0bTlA4BQGk7dlujsHpElMpARk13G3g9FnDYkBw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        James Hutchinson <jahutchinson99@googlemail.com>,
-        Antti Palosaari <crope@iki.fi>, Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Tomi Valkeinen <tomi.valkeinen@ti.com>,
+        Tony Lindgren <tony@atomide.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 299/346] media: m88ds3103: serialize reset messages in m88ds3103_set_frontend
+Subject: [PATCH 5.1 374/405] drm/omap: dsi: Fix PM for display blank with paired dss_pll calls
 Date:   Wed, 29 May 2019 20:06:12 -0700
-Message-Id: <20190530030556.000868235@linuxfoundation.org>
+Message-Id: <20190530030559.655544763@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,100 +44,165 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 981fbe3da20a6f35f17977453bce7dfc1664d74f ]
+[ Upstream commit fe4ed1b457943113ee1138c939fbdeede4af6cf3 ]
 
-Ref: https://bugzilla.kernel.org/show_bug.cgi?id=199323
+Currently dsi_display_init_dsi() calls dss_pll_enable() but it is not
+paired with dss_pll_disable() in dsi_display_uninit_dsi(). This leaves
+the DSS clocks enabled when the display is blanked wasting about extra
+5mW of power while idle.
 
-Users are experiencing problems with the DVBSky S960/S960C USB devices
-since the following commit:
+The clock that is left on by not calling dss_pll_disable() is
+DSS_CLKCTRL bit 10 OPTFCLKEN_SYS_CLK that is the source clock for
+DSI PLL.
 
-9d659ae: ("locking/mutex: Add lock handoff to avoid starvation")
+We can fix this issue by by making the current dsi_pll_uninit() into
+dsi_pll_disable(). This way we can just call dss_pll_disable() from
+dsi_display_uninit_dsi() and the code becomes a bit easier to follow.
 
-The device malfunctions after running for an indeterminable period of
-time, and the problem can only be cleared by rebooting the machine.
+However, we need to also consider that DSI PLL can be muxed for DVI too
+as pointed out by Tomi Valkeinen <tomi.valkeinen@ti.com>. In the DVI
+case, we want to unconditionally disable the clocks. To get around this
+issue, we separate out the DSI lane handling from dsi_pll_enable() and
+dsi_pll_disable() as suggested by Tomi in an earlier experimental patch.
 
-It is possible to encourage the problem to surface by blocking the
-signal to the LNB.
+So we must only toggle the DSI regulator based on the vdds_dsi_enabled
+flag from dsi_display_init_dsi() and dsi_display_uninit_dsi().
 
-Further debugging revealed the cause of the problem.
+We need to make these two changes together to avoid breaking things
+for DVI when fixing the DSI clock handling. And this all causes a
+slight renumbering of the error path for dsi_display_init_dsi().
 
-In the following capture:
-- thread #1325 is running m88ds3103_set_frontend
-- thread #42 is running ts2020_stat_work
-
-a> [1325] usb 1-1: dvb_usb_v2_generic_io: >>> 08 68 02 07 80
-   [1325] usb 1-1: dvb_usb_v2_generic_io: <<< 08
-   [42] usb 1-1: dvb_usb_v2_generic_io: >>> 09 01 01 68 3f
-   [42] usb 1-1: dvb_usb_v2_generic_io: <<< 08 ff
-   [42] usb 1-1: dvb_usb_v2_generic_io: >>> 08 68 02 03 11
-   [42] usb 1-1: dvb_usb_v2_generic_io: <<< 07
-   [42] usb 1-1: dvb_usb_v2_generic_io: >>> 09 01 01 60 3d
-   [42] usb 1-1: dvb_usb_v2_generic_io: <<< 07 ff
-b> [1325] usb 1-1: dvb_usb_v2_generic_io: >>> 08 68 02 07 00
-   [1325] usb 1-1: dvb_usb_v2_generic_io: <<< 07
-   [42] usb 1-1: dvb_usb_v2_generic_io: >>> 08 68 02 03 11
-   [42] usb 1-1: dvb_usb_v2_generic_io: <<< 07
-   [42] usb 1-1: dvb_usb_v2_generic_io: >>> 09 01 01 60 21
-   [42] usb 1-1: dvb_usb_v2_generic_io: <<< 07 ff
-   [42] usb 1-1: dvb_usb_v2_generic_io: >>> 08 68 02 03 11
-   [42] usb 1-1: dvb_usb_v2_generic_io: <<< 07
-   [42] usb 1-1: dvb_usb_v2_generic_io: >>> 09 01 01 60 66
-   [42] usb 1-1: dvb_usb_v2_generic_io: <<< 07 ff
-   [1325] usb 1-1: dvb_usb_v2_generic_io: >>> 08 68 02 03 11
-   [1325] usb 1-1: dvb_usb_v2_generic_io: <<< 07
-   [1325] usb 1-1: dvb_usb_v2_generic_io: >>> 08 60 02 10 0b
-   [1325] usb 1-1: dvb_usb_v2_generic_io: <<< 07
-
-Two i2c messages are sent to perform a reset in m88ds3103_set_frontend:
-
-  a. 0x07, 0x80
-  b. 0x07, 0x00
-
-However, as shown in the capture, the regmap mutex is being handed over
-to another thread (ts2020_stat_work) in between these two messages.
-
->From here, the device responds to every i2c message with an 07 message,
-and will only return to normal operation following a power cycle.
-
-Use regmap_multi_reg_write to group the two reset messages, ensuring
-both are processed before the regmap mutex is unlocked.
-
-Signed-off-by: James Hutchinson <jahutchinson99@googlemail.com>
-Reviewed-by: Antti Palosaari <crope@iki.fi>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Suggested-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ti.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/dvb-frontends/m88ds3103.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/omapdrm/dss/dsi.c | 60 ++++++++++++++++---------------
+ 1 file changed, 31 insertions(+), 29 deletions(-)
 
-diff --git a/drivers/media/dvb-frontends/m88ds3103.c b/drivers/media/dvb-frontends/m88ds3103.c
-index 123f2a33738b0..403f42806455e 100644
---- a/drivers/media/dvb-frontends/m88ds3103.c
-+++ b/drivers/media/dvb-frontends/m88ds3103.c
-@@ -309,6 +309,9 @@ static int m88ds3103_set_frontend(struct dvb_frontend *fe)
- 	u16 u16tmp;
- 	u32 tuner_frequency_khz, target_mclk;
- 	s32 s32tmp;
-+	static const struct reg_sequence reset_buf[] = {
-+		{0x07, 0x80}, {0x07, 0x00}
-+	};
+diff --git a/drivers/gpu/drm/omapdrm/dss/dsi.c b/drivers/gpu/drm/omapdrm/dss/dsi.c
+index 64fb788b66474..f0fe975ed46c7 100644
+--- a/drivers/gpu/drm/omapdrm/dss/dsi.c
++++ b/drivers/gpu/drm/omapdrm/dss/dsi.c
+@@ -1342,12 +1342,9 @@ static int dsi_pll_enable(struct dss_pll *pll)
+ 	 */
+ 	dsi_enable_scp_clk(dsi);
  
- 	dev_dbg(&client->dev,
- 		"delivery_system=%d modulation=%d frequency=%u symbol_rate=%d inversion=%d pilot=%d rolloff=%d\n",
-@@ -321,11 +324,7 @@ static int m88ds3103_set_frontend(struct dvb_frontend *fe)
- 	}
+-	if (!dsi->vdds_dsi_enabled) {
+-		r = regulator_enable(dsi->vdds_dsi_reg);
+-		if (r)
+-			goto err0;
+-		dsi->vdds_dsi_enabled = true;
+-	}
++	r = regulator_enable(dsi->vdds_dsi_reg);
++	if (r)
++		goto err0;
  
- 	/* reset */
--	ret = regmap_write(dev->regmap, 0x07, 0x80);
--	if (ret)
--		goto err;
+ 	/* XXX PLL does not come out of reset without this... */
+ 	dispc_pck_free_enable(dsi->dss->dispc, 1);
+@@ -1372,36 +1369,25 @@ static int dsi_pll_enable(struct dss_pll *pll)
+ 
+ 	return 0;
+ err1:
+-	if (dsi->vdds_dsi_enabled) {
+-		regulator_disable(dsi->vdds_dsi_reg);
+-		dsi->vdds_dsi_enabled = false;
+-	}
++	regulator_disable(dsi->vdds_dsi_reg);
+ err0:
+ 	dsi_disable_scp_clk(dsi);
+ 	dsi_runtime_put(dsi);
+ 	return r;
+ }
+ 
+-static void dsi_pll_uninit(struct dsi_data *dsi, bool disconnect_lanes)
++static void dsi_pll_disable(struct dss_pll *pll)
+ {
++	struct dsi_data *dsi = container_of(pll, struct dsi_data, pll);
++
+ 	dsi_pll_power(dsi, DSI_PLL_POWER_OFF);
+-	if (disconnect_lanes) {
+-		WARN_ON(!dsi->vdds_dsi_enabled);
+-		regulator_disable(dsi->vdds_dsi_reg);
+-		dsi->vdds_dsi_enabled = false;
+-	}
++
++	regulator_disable(dsi->vdds_dsi_reg);
+ 
+ 	dsi_disable_scp_clk(dsi);
+ 	dsi_runtime_put(dsi);
+ 
+-	DSSDBG("PLL uninit done\n");
+-}
 -
--	ret = regmap_write(dev->regmap, 0x07, 0x00);
-+	ret = regmap_multi_reg_write(dev->regmap, reset_buf, 2);
- 	if (ret)
- 		goto err;
+-static void dsi_pll_disable(struct dss_pll *pll)
+-{
+-	struct dsi_data *dsi = container_of(pll, struct dsi_data, pll);
+-
+-	dsi_pll_uninit(dsi, true);
++	DSSDBG("PLL disable done\n");
+ }
  
+ static int dsi_dump_dsi_clocks(struct seq_file *s, void *p)
+@@ -4096,11 +4082,11 @@ static int dsi_display_init_dsi(struct dsi_data *dsi)
+ 
+ 	r = dss_pll_enable(&dsi->pll);
+ 	if (r)
+-		goto err0;
++		return r;
+ 
+ 	r = dsi_configure_dsi_clocks(dsi);
+ 	if (r)
+-		goto err1;
++		goto err0;
+ 
+ 	dss_select_dsi_clk_source(dsi->dss, dsi->module_id,
+ 				  dsi->module_id == 0 ?
+@@ -4108,6 +4094,14 @@ static int dsi_display_init_dsi(struct dsi_data *dsi)
+ 
+ 	DSSDBG("PLL OK\n");
+ 
++	if (!dsi->vdds_dsi_enabled) {
++		r = regulator_enable(dsi->vdds_dsi_reg);
++		if (r)
++			goto err1;
++
++		dsi->vdds_dsi_enabled = true;
++	}
++
+ 	r = dsi_cio_init(dsi);
+ 	if (r)
+ 		goto err2;
+@@ -4136,10 +4130,13 @@ static int dsi_display_init_dsi(struct dsi_data *dsi)
+ err3:
+ 	dsi_cio_uninit(dsi);
+ err2:
+-	dss_select_dsi_clk_source(dsi->dss, dsi->module_id, DSS_CLK_SRC_FCK);
++	regulator_disable(dsi->vdds_dsi_reg);
++	dsi->vdds_dsi_enabled = false;
+ err1:
+-	dss_pll_disable(&dsi->pll);
++	dss_select_dsi_clk_source(dsi->dss, dsi->module_id, DSS_CLK_SRC_FCK);
+ err0:
++	dss_pll_disable(&dsi->pll);
++
+ 	return r;
+ }
+ 
+@@ -4158,7 +4155,12 @@ static void dsi_display_uninit_dsi(struct dsi_data *dsi, bool disconnect_lanes,
+ 
+ 	dss_select_dsi_clk_source(dsi->dss, dsi->module_id, DSS_CLK_SRC_FCK);
+ 	dsi_cio_uninit(dsi);
+-	dsi_pll_uninit(dsi, disconnect_lanes);
++	dss_pll_disable(&dsi->pll);
++
++	if (disconnect_lanes) {
++		regulator_disable(dsi->vdds_dsi_reg);
++		dsi->vdds_dsi_enabled = false;
++	}
+ }
+ 
+ static int dsi_display_enable(struct omap_dss_device *dssdev)
 -- 
 2.20.1
 
