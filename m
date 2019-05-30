@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 44C372F3F8
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:36:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA6C02F668
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:56:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729333AbfE3DNH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:13:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57438 "EHLO mail.kernel.org"
+        id S1728196AbfE3Ez7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:55:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728369AbfE3DNH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:13:07 -0400
+        id S1727982AbfE3DKM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:10:12 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CF95421BE2;
-        Thu, 30 May 2019 03:13:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 485F9244B1;
+        Thu, 30 May 2019 03:10:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185985;
-        bh=SHD36+BY1QvaEGUkOypXBRfC8ohz3yaLFqEMSfO4UWU=;
+        s=default; t=1559185812;
+        bh=BVFPEq2252lRkspmWfxez9TenSlGcURuz34/DoGJY80=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ILmeb8BvdDqC1TuRd3hl72FA+Y+1x2GWkheEASzPnRQEHv0/d+S+MH+EotawGer8A
-         P348dRzCiQ+dtWX4MuQfeXMdtmiGtCtziBAj+NZ3XGRpTCb7u+p+p/9n/3KQJa+Oat
-         RZl8O3fbOozSSMZikHj2wMZ48G0/m5l8BkX1q6tg=
+        b=jiYT0NYflqyEfHh0DDxhPbzMjnXGLYdWf63zZtSsxXLyPHf/M1PNiujAaMa+w3uld
+         mbBGhjvU8Me9sGu0Lz2l42I9cV186HUF2cKwCCpZHd6VCZUlV+ktfFUwFjRwGLI+YL
+         /cY5bDfzFfAgDN7PyicJVpN7MzZKBxWYst9d2aIw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Hante Meuleman <hante.meuleman@broadcom.com>,
-        Pieter-Paul Giesberts <pieter-paul.giesberts@broadcom.com>,
-        Franky Lin <franky.lin@broadcom.com>,
-        Arend van Spriel <arend.vanspriel@broadcom.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>
-Subject: [PATCH 5.0 026/346] brcmfmac: add subtype check for event handling in data path
-Date:   Wed, 29 May 2019 20:01:39 -0700
-Message-Id: <20190530030542.073544918@linuxfoundation.org>
+        stable@vger.kernel.org, Manish Rangankar <mrangankar@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 102/405] scsi: qedi: Abort ep termination if offload not scheduled
+Date:   Wed, 29 May 2019 20:01:40 -0700
+Message-Id: <20190530030546.182249721@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,103 +44,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arend van Spriel <arend.vanspriel@broadcom.com>
+[ Upstream commit f848bfd8e167210a29374e8a678892bed591684f ]
 
-commit a4176ec356c73a46c07c181c6d04039fafa34a9f upstream.
+Sometimes during connection recovery when there is a failure to resolve
+ARP, and offload connection was not issued, driver tries to flush pending
+offload connection work which was not queued up.
 
-For USB there is no separate channel being used to pass events
-from firmware to the host driver and as such are passed over the
-data path. In order to detect mock event messages an additional
-check is needed on event subtype. This check is added conditionally
-using unlikely() keyword.
+kernel: WARNING: CPU: 19 PID: 10110 at kernel/workqueue.c:3030 __flush_work.isra.34+0x19c/0x1b0
+kernel: CPU: 19 PID: 10110 Comm: iscsid Tainted: G W 5.1.0-rc4 #11
+kernel: Hardware name: Dell Inc. PowerEdge R730/0599V5, BIOS 2.9.1 12/04/2018
+kernel: RIP: 0010:__flush_work.isra.34+0x19c/0x1b0
+kernel: Code: 8b fb 66 0f 1f 44 00 00 31 c0 eb ab 48 89 ef c6 07 00 0f 1f 40 00 fb 66 0f 1f 44 00 00 31 c0 eb 96 e8 08 16 fe ff 0f 0b eb 8d <0f> 0b 31 c0 eb 87 0f 1f 40 00 66 2e 0f 1
+f 84 00 00 00 00 00 0f 1f
+kernel: RSP: 0018:ffffa6b4054dba68 EFLAGS: 00010246
+kernel: RAX: 0000000000000000 RBX: ffff91df21c36fc0 RCX: 0000000000000000
+kernel: RDX: 0000000000000001 RSI: 0000000000000000 RDI: ffff91df21c36fc0
+kernel: RBP: ffff91df21c36ef0 R08: 0000000000000000 R09: 0000000000000000
+kernel: R10: 0000000000000038 R11: ffffa6b4054dbd60 R12: ffffffffc05e72c0
+kernel: R13: ffff91db10280820 R14: 0000000000000048 R15: 0000000000000000
+kernel: FS:  00007f5d83cc1740(0000) GS:ffff91df2f840000(0000) knlGS:0000000000000000
+kernel: CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+kernel: CR2: 0000000001cc5000 CR3: 0000000465450002 CR4: 00000000001606e0
+kernel: Call Trace:
+kernel: ? try_to_del_timer_sync+0x4d/0x80
+kernel: qedi_ep_disconnect+0x3b/0x410 [qedi]
+kernel: ? 0xffffffffc083c000
+kernel: ? klist_iter_exit+0x14/0x20
+kernel: ? class_find_device+0x93/0xf0
+kernel: iscsi_if_ep_disconnect.isra.18+0x58/0x70 [scsi_transport_iscsi]
+kernel: iscsi_if_recv_msg+0x10e2/0x1510 [scsi_transport_iscsi]
+kernel: ? copyout+0x22/0x30
+kernel: ? _copy_to_iter+0xa0/0x430
+kernel: ? _cond_resched+0x15/0x30
+kernel: ? __kmalloc_node_track_caller+0x1f9/0x270
+kernel: iscsi_if_rx+0xa5/0x1e0 [scsi_transport_iscsi]
+kernel: netlink_unicast+0x17f/0x230
+kernel: netlink_sendmsg+0x2d2/0x3d0
+kernel: sock_sendmsg+0x36/0x50
+kernel: ___sys_sendmsg+0x280/0x2a0
+kernel: ? timerqueue_add+0x54/0x80
+kernel: ? enqueue_hrtimer+0x38/0x90
+kernel: ? hrtimer_start_range_ns+0x19f/0x2c0
+kernel: __sys_sendmsg+0x58/0xa0
+kernel: do_syscall_64+0x5b/0x180
+kernel: entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Reviewed-by: Hante Meuleman <hante.meuleman@broadcom.com>
-Reviewed-by: Pieter-Paul Giesberts <pieter-paul.giesberts@broadcom.com>
-Reviewed-by: Franky Lin <franky.lin@broadcom.com>
-Signed-off-by: Arend van Spriel <arend.vanspriel@broadcom.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Cc: Ben Hutchings <ben.hutchings@codethink.co.uk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Manish Rangankar <mrangankar@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c   |    5 ++--
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/fweh.h   |   16 ++++++++++----
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/msgbuf.c |    2 -
- 3 files changed, 16 insertions(+), 7 deletions(-)
+ drivers/scsi/qedi/qedi_iscsi.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
-@@ -464,7 +464,8 @@ void brcmf_rx_frame(struct device *dev,
- 	} else {
- 		/* Process special event packets */
- 		if (handle_event)
--			brcmf_fweh_process_skb(ifp->drvr, skb);
-+			brcmf_fweh_process_skb(ifp->drvr, skb,
-+					       BCMILCP_SUBTYPE_VENDOR_LONG);
+diff --git a/drivers/scsi/qedi/qedi_iscsi.c b/drivers/scsi/qedi/qedi_iscsi.c
+index 6d6d6013e35b8..bf371e7b957d0 100644
+--- a/drivers/scsi/qedi/qedi_iscsi.c
++++ b/drivers/scsi/qedi/qedi_iscsi.c
+@@ -1000,6 +1000,9 @@ static void qedi_ep_disconnect(struct iscsi_endpoint *ep)
+ 	qedi_ep = ep->dd_data;
+ 	qedi = qedi_ep->qedi;
  
- 		brcmf_netif_rx(ifp, skb);
- 	}
-@@ -481,7 +482,7 @@ void brcmf_rx_event(struct device *dev,
- 	if (brcmf_rx_hdrpull(drvr, skb, &ifp))
- 		return;
- 
--	brcmf_fweh_process_skb(ifp->drvr, skb);
-+	brcmf_fweh_process_skb(ifp->drvr, skb, 0);
- 	brcmu_pkt_buf_free_skb(skb);
- }
- 
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fweh.h
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fweh.h
-@@ -211,7 +211,7 @@ enum brcmf_fweh_event_code {
-  */
- #define BRCM_OUI				"\x00\x10\x18"
- #define BCMILCP_BCM_SUBTYPE_EVENT		1
--
-+#define BCMILCP_SUBTYPE_VENDOR_LONG		32769
- 
- /**
-  * struct brcm_ethhdr - broadcom specific ether header.
-@@ -334,10 +334,10 @@ void brcmf_fweh_process_event(struct brc
- void brcmf_fweh_p2pdev_setup(struct brcmf_if *ifp, bool ongoing);
- 
- static inline void brcmf_fweh_process_skb(struct brcmf_pub *drvr,
--					  struct sk_buff *skb)
-+					  struct sk_buff *skb, u16 stype)
- {
- 	struct brcmf_event *event_packet;
--	u16 usr_stype;
-+	u16 subtype, usr_stype;
- 
- 	/* only process events when protocol matches */
- 	if (skb->protocol != cpu_to_be16(ETH_P_LINK_CTL))
-@@ -346,8 +346,16 @@ static inline void brcmf_fweh_process_sk
- 	if ((skb->len + ETH_HLEN) < sizeof(*event_packet))
- 		return;
- 
--	/* check for BRCM oui match */
- 	event_packet = (struct brcmf_event *)skb_mac_header(skb);
++	if (qedi_ep->state == EP_STATE_OFLDCONN_START)
++		goto ep_exit_recover;
 +
-+	/* check subtype if needed */
-+	if (unlikely(stype)) {
-+		subtype = get_unaligned_be16(&event_packet->hdr.subtype);
-+		if (subtype != stype)
-+			return;
-+	}
-+
-+	/* check for BRCM oui match */
- 	if (memcmp(BRCM_OUI, &event_packet->hdr.oui[0],
- 		   sizeof(event_packet->hdr.oui)))
- 		return;
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/msgbuf.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/msgbuf.c
-@@ -1116,7 +1116,7 @@ static void brcmf_msgbuf_process_event(s
+ 	flush_work(&qedi_ep->offload_work);
  
- 	skb->protocol = eth_type_trans(skb, ifp->ndev);
- 
--	brcmf_fweh_process_skb(ifp->drvr, skb);
-+	brcmf_fweh_process_skb(ifp->drvr, skb, 0);
- 
- exit:
- 	brcmu_pkt_buf_free_skb(skb);
+ 	if (qedi_ep->conn) {
+-- 
+2.20.1
+
 
 
