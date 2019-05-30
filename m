@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EB512EFA9
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:57:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28ACE2F532
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:46:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728375AbfE3D5b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:57:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52636 "EHLO mail.kernel.org"
+        id S1728771AbfE3EpD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:45:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731721AbfE3DSs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:18:48 -0400
+        id S1728749AbfE3DL5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:11:57 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB4C124713;
-        Thu, 30 May 2019 03:18:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9CACA244E8;
+        Thu, 30 May 2019 03:11:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186327;
-        bh=VEZpUIdlXjhf23J0PQHrbPeW73H2jqsEXS2Vwuma1lw=;
+        s=default; t=1559185916;
+        bh=dFb6AU3j1hRuep8QAfyqSFlBYLisUFvTepGXb2ad46g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e9dfjBNOdfTmq9XwiYjiizVBqIPuZRTbcGw8YOEE1xTekey5mUkhXkZuV7Ld/RDMv
-         UkQsFbgz9quehAUSPrT4KnHE36RYaH1YenWA7n5ZKqTkikYcs+6QD7ypJLxEdbaOXd
-         qkF24n7gquq0xEKmhITmp1wSScn038Pyo8+psXlQ=
+        b=CaLp9V0bKTPrjVAouRgi9/ucpkr8Ff+dwQDWn0nS3CSo+xxBh9m7GVJIucl3aiE4J
+         wCvv+g0L78Thq3PaPdshkZixVtmHBzvMZ886+UifkcVOIXwSILMDSkvN1+zdDoFyMm
+         hsQQcEGADtts5aPDari4F+fylUMOI9bwLjTeKkio=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sameer Pujar <spujar@nvidia.com>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 043/193] dmaengine: tegra210-dma: free dma controller in remove()
-Date:   Wed, 29 May 2019 20:04:57 -0700
-Message-Id: <20190530030455.560914714@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Thierry Escande <thierry.escande@linaro.org>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 300/405] misc: fastrpc: Fix a possible double free
+Date:   Wed, 29 May 2019 20:04:58 -0700
+Message-Id: <20190530030556.000648592@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,85 +45,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f030e419501cb95e961e9ed35c493b5d46a04eca ]
+[ Upstream commit b49f6d83e290f17e20f4e5cf31288d3bb4955ea6 ]
 
-Following kernel panic is seen during DMA driver unload->load sequence
-==========================================================================
-Unable to handle kernel paging request at virtual address ffffff8001198880
-Internal error: Oops: 86000007 [#1] PREEMPT SMP
-CPU: 0 PID: 5907 Comm: HwBinder:4123_1 Tainted: G C 4.9.128-tegra-g065839f
-Hardware name: galen (DT)
-task: ffffffc3590d1a80 task.stack: ffffffc3d0678000
-PC is at 0xffffff8001198880
-LR is at of_dma_request_slave_channel+0xd8/0x1f8
-pc : [<ffffff8001198880>] lr : [<ffffff8008746f30>] pstate: 60400045
-sp : ffffffc3d067b710
-x29: ffffffc3d067b710 x28: 000000000000002f
-x27: ffffff800949e000 x26: ffffff800949e750
-x25: ffffff800949e000 x24: ffffffbefe817d84
-x23: ffffff8009f77cb0 x22: 0000000000000028
-x21: ffffffc3ffda49c8 x20: 0000000000000029
-x19: 0000000000000001 x18: ffffffffffffffff
-x17: 0000000000000000 x16: ffffff80082b66a0
-x15: ffffff8009e78250 x14: 000000000000000a
-x13: 0000000000000038 x12: 0101010101010101
-x11: 0000000000000030 x10: 0101010101010101
-x9 : fffffffffffffffc x8 : 7f7f7f7f7f7f7f7f
-x7 : 62ff726b6b64622c x6 : 0000000000008064
-x5 : 6400000000000000 x4 : ffffffbefe817c44
-x3 : ffffffc3ffda3e08 x2 : ffffff8001198880
-x1 : ffffffc3d48323c0 x0 : ffffffc3d067b788
+This patch fixes the error exit path of fastrpc_init_create_process().
+If the DMA allocation or the DSP invoke fails the fastrpc_map was freed
+but not removed from the mapping list leading to a double free once the
+mapping list is emptied in fastrpc_device_release().
 
-Process HwBinder:4123_1 (pid: 5907, stack limit = 0xffffffc3d0678028)
-Call trace:
-[<ffffff8001198880>] 0xffffff8001198880
-[<ffffff80087459f8>] dma_request_chan+0x50/0x1f0
-[<ffffff8008745bc0>] dma_request_slave_channel+0x28/0x40
-[<ffffff8001552c44>] tegra_alt_pcm_open+0x114/0x170
-[<ffffff8008d65fa4>] soc_pcm_open+0x10c/0x878
-[<ffffff8008d18618>] snd_pcm_open_substream+0xc0/0x170
-[<ffffff8008d1878c>] snd_pcm_open+0xc4/0x240
-[<ffffff8008d189e0>] snd_pcm_playback_open+0x58/0x80
-[<ffffff8008cfc6d4>] snd_open+0xb4/0x178
-[<ffffff8008250628>] chrdev_open+0xb8/0x1d0
-[<ffffff8008246fdc>] do_dentry_open+0x214/0x318
-[<ffffff80082485d0>] vfs_open+0x58/0x88
-[<ffffff800825bce0>] do_last+0x450/0xde0
-[<ffffff800825c718>] path_openat+0xa8/0x368
-[<ffffff800825dd84>] do_filp_open+0x8c/0x110
-[<ffffff8008248a74>] do_sys_open+0x164/0x220
-[<ffffff80082b66dc>] compat_SyS_openat+0x3c/0x50
-[<ffffff8008083040>] el0_svc_naked+0x34/0x38
----[ end trace 67e6d544e65b5145 ]---
-Kernel panic - not syncing: Fatal exception
-==========================================================================
-
-In device probe(), of_dma_controller_register() registers DMA controller.
-But when driver is removed, this is not freed. During driver reload this
-results in data abort and kernel panic. Add of_dma_controller_free() in
-driver remove path to fix the issue.
-
-Fixes: f46b195799b5 ("dmaengine: tegra-adma: Add support for Tegra210 ADMA")
-Signed-off-by: Sameer Pujar <spujar@nvidia.com>
-Reviewed-by: Jon Hunter <jonathanh@nvidia.com>
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+[srinivas kandagatla]: Cleaned up error path labels and reset init mem
+to NULL after free
+Fixes: d73f71c7c6ee("misc: fastrpc: Add support for create remote init process")
+Signed-off-by: Thierry Escande <thierry.escande@linaro.org>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/tegra210-adma.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/misc/fastrpc.c | 31 ++++++++++++++++++++-----------
+ 1 file changed, 20 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/dma/tegra210-adma.c b/drivers/dma/tegra210-adma.c
-index b26256f23d67f..08b10274284a8 100644
---- a/drivers/dma/tegra210-adma.c
-+++ b/drivers/dma/tegra210-adma.c
-@@ -786,6 +786,7 @@ static int tegra_adma_remove(struct platform_device *pdev)
- 	struct tegra_adma *tdma = platform_get_drvdata(pdev);
- 	int i;
+diff --git a/drivers/misc/fastrpc.c b/drivers/misc/fastrpc.c
+index a10937652ca73..35be1cc11dd85 100644
+--- a/drivers/misc/fastrpc.c
++++ b/drivers/misc/fastrpc.c
+@@ -856,12 +856,12 @@ static int fastrpc_init_create_process(struct fastrpc_user *fl,
  
-+	of_dma_controller_free(pdev->dev.of_node);
- 	dma_async_device_unregister(&tdma->dma_dev);
+ 	if (copy_from_user(&init, argp, sizeof(init))) {
+ 		err = -EFAULT;
+-		goto bail;
++		goto err;
+ 	}
  
- 	for (i = 0; i < tdma->nr_channels; ++i)
+ 	if (init.filelen > INIT_FILELEN_MAX) {
+ 		err = -EINVAL;
+-		goto bail;
++		goto err;
+ 	}
+ 
+ 	inbuf.pgid = fl->tgid;
+@@ -875,17 +875,15 @@ static int fastrpc_init_create_process(struct fastrpc_user *fl,
+ 	if (init.filelen && init.filefd) {
+ 		err = fastrpc_map_create(fl, init.filefd, init.filelen, &map);
+ 		if (err)
+-			goto bail;
++			goto err;
+ 	}
+ 
+ 	memlen = ALIGN(max(INIT_FILELEN_MAX, (int)init.filelen * 4),
+ 		       1024 * 1024);
+ 	err = fastrpc_buf_alloc(fl, fl->sctx->dev, memlen,
+ 				&imem);
+-	if (err) {
+-		fastrpc_map_put(map);
+-		goto bail;
+-	}
++	if (err)
++		goto err_alloc;
+ 
+ 	fl->init_mem = imem;
+ 	args[0].ptr = (u64)(uintptr_t)&inbuf;
+@@ -921,13 +919,24 @@ static int fastrpc_init_create_process(struct fastrpc_user *fl,
+ 
+ 	err = fastrpc_internal_invoke(fl, true, FASTRPC_INIT_HANDLE,
+ 				      sc, args);
++	if (err)
++		goto err_invoke;
+ 
+-	if (err) {
++	kfree(args);
++
++	return 0;
++
++err_invoke:
++	fl->init_mem = NULL;
++	fastrpc_buf_free(imem);
++err_alloc:
++	if (map) {
++		spin_lock(&fl->lock);
++		list_del(&map->node);
++		spin_unlock(&fl->lock);
+ 		fastrpc_map_put(map);
+-		fastrpc_buf_free(imem);
+ 	}
+-
+-bail:
++err:
+ 	kfree(args);
+ 
+ 	return err;
 -- 
 2.20.1
 
