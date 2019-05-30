@@ -2,497 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C621E2EDA0
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:40:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27E652EDA6
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:40:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726558AbfE3Dif convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Wed, 29 May 2019 23:38:35 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:60654 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726339AbfE3Die (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:38:34 -0400
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id C4A51F449C
-        for <stable@vger.kernel.org>; Thu, 30 May 2019 03:38:33 +0000 (UTC)
-Received: from [172.54.208.215] (cpt-0038.paas.prod.upshift.rdu2.redhat.com [10.0.18.103])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 4C4666148C;
-        Thu, 30 May 2019 03:38:31 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        id S1729918AbfE3DkI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:40:08 -0400
+Received: from mail-eopbgr00047.outbound.protection.outlook.com ([40.107.0.47]:56994
+        "EHLO EUR02-AM5-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1728807AbfE3DkI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:40:08 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=qKwAFgywkH+FauUPh6gweA96RNgwmnsZdlMeA0QJyQk=;
+ b=KHS9djjAzs3cT12G1OOyoH/rtScyUINZdRKpWmUqd8AWEexRJ9GvF/WiQd4PXq6GrXshVx4lLd/28ggIaqEOxJoRGVMwoi7Itve3EUgLAGSDuP0Wz7oWVPG9NxJXVMQ7KdUs9cPY3i4Zx//3KV8BRUkat0iHa08FLmhTY+dN0BM=
+Received: from VI1PR0501MB2271.eurprd05.prod.outlook.com (10.169.134.149) by
+ VI1PR0501MB2462.eurprd05.prod.outlook.com (10.168.136.13) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.1943.17; Thu, 30 May 2019 03:40:04 +0000
+Received: from VI1PR0501MB2271.eurprd05.prod.outlook.com
+ ([fe80::a0a7:7e01:762e:58e0]) by VI1PR0501MB2271.eurprd05.prod.outlook.com
+ ([fe80::a0a7:7e01:762e:58e0%6]) with mapi id 15.20.1922.021; Thu, 30 May 2019
+ 03:40:04 +0000
+From:   Parav Pandit <parav@mellanox.com>
+To:     Greg KH <gregkh@linuxfoundation.org>
+CC:     Sasha Levin <sashal@kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: Patch "RDMA/cma: Consider scope_id while binding to ipv6 ll
+ address" has been added to the 4.4-stable tree
+Thread-Topic: Patch "RDMA/cma: Consider scope_id while binding to ipv6 ll
+ address" has been added to the 4.4-stable tree
+Thread-Index: AQHVFnrdojY27MvgW0iSfMZmKZw+NqaC6KlQgAASZwCAAASRYA==
+Date:   Thu, 30 May 2019 03:40:04 +0000
+Message-ID: <VI1PR0501MB22718F564B8EDE567F1BD8FED1180@VI1PR0501MB2271.eurprd05.prod.outlook.com>
+References: <20190530000140.C90462054F@mail.kernel.org>
+ <VI1PR0501MB22711EFC034FE4C57C62C6B8D1180@VI1PR0501MB2271.eurprd05.prod.outlook.com>
+ <20190530030144.GA6051@kroah.com>
+In-Reply-To: <20190530030144.GA6051@kroah.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=parav@mellanox.com; 
+x-originating-ip: [122.179.25.149]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 98b255f3-20ac-403d-80d3-08d6e4b0809b
+x-ms-office365-filtering-ht: Tenant
+x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600148)(711020)(4605104)(1401327)(4618075)(2017052603328)(7193020);SRVR:VI1PR0501MB2462;
+x-ms-traffictypediagnostic: VI1PR0501MB2462:
+x-ms-exchange-purlcount: 1
+x-microsoft-antispam-prvs: <VI1PR0501MB24624D6A4E1BF9FDC368CA72D1180@VI1PR0501MB2462.eurprd05.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:8273;
+x-forefront-prvs: 00531FAC2C
+x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(39860400002)(136003)(396003)(366004)(376002)(346002)(13464003)(189003)(199004)(2906002)(54906003)(966005)(26005)(186003)(478600001)(14454004)(99286004)(102836004)(76176011)(53546011)(7696005)(6506007)(5660300002)(3846002)(6116002)(74316002)(52536014)(86362001)(446003)(8936002)(6916009)(476003)(486006)(11346002)(66066001)(229853002)(68736007)(66946007)(73956011)(76116006)(316002)(66446008)(64756008)(66556008)(66476007)(256004)(8676002)(81166006)(81156014)(6436002)(53936002)(9686003)(6306002)(25786009)(4326008)(6246003)(33656002)(7736002)(71200400001)(71190400001)(305945005)(55016002);DIR:OUT;SFP:1101;SCL:1;SRVR:VI1PR0501MB2462;H:VI1PR0501MB2271.eurprd05.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
+received-spf: None (protection.outlook.com: mellanox.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam-message-info: J0Ozy3eUazuyg/WRS1MdJTcP5LgikbAZzTBQx3u+xeeSCQx7eK5Szr3xqW/QafCRwsktd1cL7Q3r3crqLxO7LtT0LJfhrpWiOfqRw+lT5ZxDSqJxkDot6yC9QJJ5Tts7gvPqSS9sJ2sFbj0yCOEYJUwDrH5apCPhBtA/yByPk4oyRfPMWQRqBeS/C0NBBhETYIegq/qYAdyJii3vdxJHz3KjYy6dxMU60OAR2QVMl55ZzRWl4n99fUYthOtlSeuxKqkQXmCsZFGzBE4jM9GpfE6++o/p2VlG5wzqAVItuMuJ4zuR0h+rYh5cfgd56jcV+p9PpOTee2ITdqOvqrr/WrymuVFA+6rx1orhFm6b1Zj4YdnLU+8jYPj5xB0D8lSZOKnebodcfuTVvz1YqURG4rocdkvVo3xGAOj+yDiXhXo=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-4.19
-Message-ID: <cki.7352B166A1.X6OFU70CT1@redhat.com>
-X-Gitlab-Pipeline-ID: 11093
-X-Gitlab-Pipeline: =?utf-8?q?https=3A//xci32=2Elab=2Eeng=2Erdu2=2Eredhat=2Ec?=
- =?utf-8?q?om/cki-project/cki-pipeline/pipelines/11093?=
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.38]); Thu, 30 May 2019 03:38:33 +0000 (UTC)
-Date:   Wed, 29 May 2019 23:38:34 -0400
+X-OriginatorOrg: Mellanox.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 98b255f3-20ac-403d-80d3-08d6e4b0809b
+X-MS-Exchange-CrossTenant-originalarrivaltime: 30 May 2019 03:40:04.1444
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: a652971c-7d2e-4d9b-a6a4-d149256f461b
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: parav@mellanox.com
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI1PR0501MB2462
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
-
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
-
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: 8b2fc0058255 - Linux 4.19.46
-
-The results of these automated tests are provided below.
-
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Merge testing
--------------
-
-We cloned this repository and checked out the following commit:
-
-  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: 8b2fc0058255 - Linux 4.19.46
 
 
-We then merged the patchset with `git am`:
+> -----Original Message-----
+> From: Greg KH <gregkh@linuxfoundation.org>
+> Sent: Thursday, May 30, 2019 8:32 AM
+> To: Parav Pandit <parav@mellanox.com>
+> Cc: Sasha Levin <sashal@kernel.org>; stable@vger.kernel.org
+> Subject: Re: Patch "RDMA/cma: Consider scope_id while binding to ipv6 ll
+> address" has been added to the 4.4-stable tree
+>=20
+> On Thu, May 30, 2019 at 02:01:59AM +0000, Parav Pandit wrote:
+> > Hi Sasha,
+> >
+> > > -----Original Message-----
+> > > From: Sasha Levin <sashal@kernel.org>
+> > > Sent: Thursday, May 30, 2019 5:32 AM
+> > > To: Parav Pandit <parav@mellanox.com>
+> > > Cc: stable-commits@vger.kernel.org
+> > > Subject: Patch "RDMA/cma: Consider scope_id while binding to ipv6 ll
+> address"
+> > > has been added to the 4.4-stable tree
+> > >
+> > > This is a note to let you know that I've just added the patch titled
+> > >
+> > >     RDMA/cma: Consider scope_id while binding to ipv6 ll address
+> > >
+> > > to the 4.4-stable tree which can be found at:
+> > >     http://www.kernel.org/git/?p=3Dlinux/kernel/git/stable/stable-
+> > > queue.git;a=3Dsummary
+> > >
+> > > The filename of the patch is:
+> > >      rdma-cma-consider-scope_id-while-binding-to-ipv6-ll-.patch
+> > > and it can be found in the queue-4.4 subdirectory.
+> > >
+> > > If you, or anyone else, feels it should not be added to the stable
+> > > tree, please let <stable@vger.kernel.org> know about it.
+> > >
+> > This patch depends on another patch [1] in same series.
+> >
+> > However, these two patches only make sense on the kernels which has
+> commit [2].
+> > Patch [2] is not available in 4.4, 4.9 and 4.14 kernels.
+> >
+> > Therefore, patch in this email should not be applied to 4.4, 4.9 and 4.=
+14
+> kernel trees.
+>=20
+> Now dropped from all of those trees, thanks.
+>=20
+> > [1] commit 823b23da71132b80d9f41ab667c68b112455f3b6 ("IB/core: Allow
+> > vlan link local address based RoCE GIDs")
+>=20
+> Note this patch is only in 5.2-rc1, and not in any stable tree.  is that =
+ok?
+>=20
+This feature ('support of VLAN link local GIDs') is practically is getting =
+added to 5.2 kernel using these two patches.
+So I think its ok to not include in older kernels.
 
-  x86-hide-the-int3_emulate_call-jmp-functions-from-uml.patch
-  ext4-do-not-delete-unlinked-inode-from-orphan-list-on-failed-truncate.patch
-  ext4-wait-for-outstanding-dio-during-truncate-in-nojournal-mode.patch
-  f2fs-fix-use-of-number-of-devices.patch
-  kvm-x86-fix-return-value-for-reserved-efer.patch
-  bio-fix-improper-use-of-smp_mb__before_atomic.patch
-  sbitmap-fix-improper-use-of-smp_mb__before_atomic.patch
-  revert-scsi-sd-keep-disk-read-only-when-re-reading-partition.patch
-  crypto-vmx-ctr-always-increment-iv-as-quadword.patch
-  mmc-sdhci-iproc-cygnus-set-no_hispd-bit-to-fix-hs50-data-hold-time-problem.patch
-  mmc-sdhci-iproc-set-no_hispd-bit-to-fix-hs50-data-hold-time-problem.patch
-  kvm-svm-avic-fix-off-by-one-in-checking-host-apic-id.patch
-  libnvdimm-pmem-bypass-config_hardened_usercopy-overhead.patch
-  arm64-kernel-kaslr-reduce-module-randomization-range-to-2-gb.patch
-  arm64-iommu-handle-non-remapped-addresses-in-mmap-and-get_sgtable.patch
-  gfs2-fix-sign-extension-bug-in-gfs2_update_stats.patch
-  btrfs-don-t-double-unlock-on-error-in-btrfs_punch_hole.patch
-  btrfs-do-not-abort-transaction-at-btrfs_update_root-after-failure-to-cow-path.patch
-  btrfs-avoid-fallback-to-transaction-commit-during-fsync-of-files-with-holes.patch
-  btrfs-fix-race-between-ranged-fsync-and-writeback-of-adjacent-ranges.patch
-  btrfs-sysfs-fix-error-path-kobject-memory-leak.patch
-  btrfs-sysfs-don-t-leak-memory-when-failing-add-fsid.patch
-  udlfb-fix-some-inconsistent-null-checking.patch
-  fbdev-fix-divide-error-in-fb_var_to_videomode.patch
-  nfsv4.2-fix-unnecessary-retry-in-nfs4_copy_file_range.patch
-  nfsv4.1-fix-incorrect-return-value-in-copy_file_range.patch
-  bpf-add-bpf_jit_limit-knob-to-restrict-unpriv-allocations.patch
-  brcmfmac-assure-ssid-length-from-firmware-is-limited.patch
-  brcmfmac-add-subtype-check-for-event-handling-in-data-path.patch
-  arm64-errata-add-workaround-for-cortex-a76-erratum-1463225.patch
-  btrfs-honor-path-skip_locking-in-backref-code.patch
-  ovl-relax-warn_on-for-overlapping-layers-use-case.patch
-  fbdev-fix-warning-in-__alloc_pages_nodemask-bug.patch
-  media-cpia2-fix-use-after-free-in-cpia2_exit.patch
-  media-serial_ir-fix-use-after-free-in-serial_ir_init_module.patch
-  media-vb2-add-waiting_in_dqbuf-flag.patch
-  media-vivid-use-vfree-instead-of-kfree-for-dev-bitmap_cap.patch
-  ssb-fix-possible-null-pointer-dereference-in-ssb_host_pcmcia_exit.patch
-  bpf-devmap-fix-use-after-free-read-in-__dev_map_entry_free.patch
-  batman-adv-mcast-fix-multicast-tt-tvlv-worker-locking.patch
-  at76c50x-usb-don-t-register-led_trigger-if-usb_register_driver-failed.patch
-  acct_on-don-t-mess-with-freeze-protection.patch
-  revert-btrfs-honour-fitrim-range-constraints-during-free-space-trim.patch
-  gfs2-fix-lru_count-going-negative.patch
-  cxgb4-fix-error-path-in-cxgb4_init_module.patch
-  nfs-make-nfs_match_client-killable.patch
-  ib-hfi1-fix-wq_mem_reclaim-warning.patch
-  gfs2-fix-occasional-glock-use-after-free.patch
-  mmc-core-verify-sd-bus-width.patch
-  tools-bpf-fix-perf-build-error-with-uclibc-seen-on-a.patch
-  selftests-bpf-set-rlimit_memlock-properly-for-test_l.patch
-  bpftool-exclude-bash-completion-bpftool-from-.gitign.patch
-  dmaengine-tegra210-dma-free-dma-controller-in-remove.patch
-  net-ena-gcc-8-fix-compilation-warning.patch
-  hv_netvsc-fix-race-that-may-miss-tx-queue-wakeup.patch
-  bluetooth-ignore-cc-events-not-matching-the-last-hci.patch
-  pinctrl-zte-fix-leaked-of_node-references.patch
-  asoc-intel-kbl_da7219_max98357a-map-btn_0-to-key_pla.patch
-  usb-dwc2-gadget-increase-descriptors-count-for-isoc-.patch
-  usb-dwc3-move-synchronize_irq-out-of-the-spinlock-pr.patch
-  asoc-hdmi-codec-unlock-the-device-on-startup-errors.patch
-  powerpc-perf-return-accordingly-on-invalid-chip-id-i.patch
-  powerpc-boot-fix-missing-check-of-lseek-return-value.patch
-  powerpc-perf-fix-loop-exit-condition-in-nest_imc_eve.patch
-  asoc-imx-fix-fiq-dependencies.patch
-  spi-pxa2xx-fix-scr-divisor-calculation.patch
-  brcm80211-potential-null-dereference-in-brcmf_cfg802.patch
-  acpi-property-fix-handling-of-data_nodes-in-acpi_get.patch
-  drm-nouveau-bar-nv50-ensure-bar-is-mapped.patch
-  media-stm32-dcmi-return-appropriate-error-codes-duri.patch
-  arm-vdso-remove-dependency-with-the-arch_timer-drive.patch
-  arm64-fix-compiler-warning-from-pte_unmap-with-wunus.patch
-  powerpc-watchdog-use-hrtimers-for-per-cpu-heartbeat.patch
-  sched-cpufreq-fix-kobject-memleak.patch
-  scsi-qla2xxx-fix-a-qla24xx_enable_msix-error-path.patch
-  scsi-qla2xxx-fix-abort-handling-in-tcm_qla2xxx_write.patch
-  scsi-qla2xxx-avoid-that-lockdep-complains-about-unsa.patch
-  scsi-qla2xxx-fix-hardirq-unsafe-locking.patch
-  x86-modules-avoid-breaking-w-x-while-loading-modules.patch
-  btrfs-fix-data-bytes_may_use-underflow-with-fallocat.patch
-  btrfs-fix-panic-during-relocation-after-enospc-befor.patch
-  btrfs-don-t-panic-when-we-can-t-find-a-root-key.patch
-  iwlwifi-pcie-don-t-crash-on-invalid-rx-interrupt.patch
-  rtc-88pm860x-prevent-use-after-free-on-device-remove.patch
-  rtc-stm32-manage-the-get_irq-probe-defer-case.patch
-  scsi-qedi-abort-ep-termination-if-offload-not-schedu.patch
-  s390-kexec_file-fix-detection-of-text-segment-in-elf.patch
-  sched-nohz-run-nohz-idle-load-balancer-on-hk_flag_mi.patch
-  w1-fix-the-resume-command-api.patch
-  s390-qeth-address-type-mismatch-warning.patch
-  dmaengine-pl330-_stop-clear-interrupt-status.patch
-  mac80211-cfg80211-update-bss-channel-on-channel-swit.patch
-  libbpf-fix-samples-bpf-build-failure-due-to-undefine.patch
-  slimbus-fix-a-potential-null-pointer-dereference-in-.patch
-  asoc-fsl_sai-update-is_slave_mode-with-correct-value.patch
-  mwifiex-prevent-an-array-overflow.patch
-  rsi-fix-null-pointer-dereference-in-kmalloc.patch
-  net-cw1200-fix-a-null-pointer-dereference.patch
-  nvme-set-0-capacity-if-namespace-block-size-exceeds-.patch
-  nvme-rdma-fix-a-null-deref-when-an-admin-connect-tim.patch
-  crypto-sun4i-ss-fix-invalid-calculation-of-hash-end.patch
-  bcache-avoid-potential-memleak-of-list-of-journal_re.patch
-  bcache-return-error-immediately-in-bch_journal_repla.patch
-  bcache-fix-failure-in-journal-relplay.patch
-  bcache-add-failure-check-to-run_cache_set-for-journa.patch
-  bcache-avoid-clang-wunintialized-warning.patch
-  rdma-cma-consider-scope_id-while-binding-to-ipv6-ll-.patch
-  vfio-ccw-do-not-call-flush_workqueue-while-holding-t.patch
-  vfio-ccw-release-any-channel-program-when-releasing-.patch
-  x86-build-move-_etext-to-actual-end-of-.text.patch
-  smpboot-place-the-__percpu-annotation-correctly.patch
-  x86-mm-remove-in_nmi-warning-from-64-bit-implementat.patch
-  mm-uaccess-use-unsigned-long-to-placate-ubsan-warnin.patch
-  bluetooth-hci_qca-give-enough-time-to-rome-controlle.patch
-  hid-logitech-hidpp-use-rap-instead-of-fap-to-get-the.patch
-  pinctrl-pistachio-fix-leaked-of_node-references.patch
-  pinctrl-samsung-fix-leaked-of_node-references.patch
-  clk-rockchip-undo-several-noc-and-special-clocks-as-.patch
-  perf-arm-cci-remove-broken-race-mitigation.patch
-  dmaengine-at_xdmac-remove-bug_on-macro-in-tasklet.patch
-  media-coda-clear-error-return-value-before-picture-r.patch
-  media-ov6650-move-v4l2_clk_get-to-ov6650_video_probe.patch
-  media-au0828-stop-video-streaming-only-when-last-use.patch
-  media-ov2659-make-s_fmt-succeed-even-if-requested-fo.patch
-  audit-fix-a-memory-leak-bug.patch
-  media-stm32-dcmi-fix-crash-when-subdev-do-not-expose.patch
-  media-au0828-fix-null-pointer-dereference-in-au0828_.patch
-  media-pvrusb2-prevent-a-buffer-overflow.patch
-  iio-adc-stm32-dfsdm-fix-unmet-direct-dependencies-de.patch
-  block-fix-use-after-free-on-gendisk.patch
-  powerpc-numa-improve-control-of-topology-updates.patch
-  powerpc-64-fix-booting-large-kernels-with-strict_ker.patch
-  random-fix-crng-initialization-when-random.trust_cpu.patch
-  random-add-a-spinlock_t-to-struct-batched_entropy.patch
-  cgroup-protect-cgroup-nr_-dying_-descendants-by-css_.patch
-  sched-core-check-quota-and-period-overflow-at-usec-t.patch
-  sched-rt-check-integer-overflow-at-usec-to-nsec-conv.patch
-  sched-core-handle-overflow-in-cpu_shares_write_u64.patch
-  staging-vc04_services-handle-kzalloc-failure.patch
-  drm-msm-a5xx-fix-possible-object-reference-leak.patch
-  irq_work-do-not-raise-an-ipi-when-queueing-work-on-t.patch
-  thunderbolt-take-domain-lock-in-switch-sysfs-attribu.patch
-  s390-qeth-handle-error-from-qeth_update_from_chp_des.patch
-  usb-core-don-t-unbind-interfaces-following-device-re.patch
-  x86-irq-64-limit-ist-stack-overflow-check-to-db-stac.patch
-  drm-etnaviv-avoid-dma-api-warning-when-importing-buf.patch
-  phy-sun4i-usb-make-sure-to-disable-phy0-passby-for-p.patch
-  phy-mapphone-mdm6600-add-gpiolib-dependency.patch
-  i40e-able-to-add-up-to-16-mac-filters-on-an-untruste.patch
-  i40e-don-t-allow-changes-to-hw-vlan-stripping-on-act.patch
-  acpi-iort-reject-platform-device-creation-on-numa-no.patch
-  arm64-vdso-fix-clock_getres-for-clock_realtime.patch
-  rdma-cxgb4-fix-null-pointer-dereference-on-alloc_skb.patch
-  perf-x86-msr-add-icelake-support.patch
-  perf-x86-intel-rapl-add-icelake-support.patch
-  perf-x86-intel-cstate-add-icelake-support.patch
-  hwmon-vt1211-use-request_muxed_region-for-super-io-a.patch
-  hwmon-smsc47m1-use-request_muxed_region-for-super-io.patch
-  hwmon-smsc47b397-use-request_muxed_region-for-super-.patch
-  hwmon-pc87427-use-request_muxed_region-for-super-io-.patch
-  hwmon-f71805f-use-request_muxed_region-for-super-io-.patch
-  scsi-libsas-do-discovery-on-empty-phy-to-update-phy-.patch
-  mmc-core-make-pwrseq_emmc-partially-support-sleepy-g.patch
-  mmc_spi-add-a-status-check-for-spi_sync_locked.patch
-  mmc-sdhci-of-esdhc-add-erratum-esdhc5-support.patch
-  mmc-sdhci-of-esdhc-add-erratum-a-009204-support.patch
-  mmc-sdhci-of-esdhc-add-erratum-esdhc-a001-and-a-0083.patch
-  drm-amdgpu-fix-old-fence-check-in-amdgpu_fence_emit.patch
-  pm-core-propagate-dev-power.wakeup_path-when-no-call.patch
-  clk-rockchip-fix-video-codec-clocks-on-rk3288.patch
-  extcon-arizona-disable-mic-detect-if-running-when-dr.patch
-  clk-rockchip-make-rkpwm-a-critical-clock-on-rk3288.patch
-  s390-zcrypt-initialize-variables-before_use.patch
-  x86-microcode-fix-the-ancient-deprecated-microcode-l.patch
-  s390-mm-silence-compiler-warning-when-compiling-with.patch
-  s390-cio-fix-cio_irb-declaration.patch
-  selftests-cgroup-fix-cleanup-path-in-test_memcg_subt.patch
-  qmi_wwan-add-quirk-for-quectel-dynamic-config.patch
-  cpufreq-ppc_cbe-fix-possible-object-reference-leak.patch
-  cpufreq-pasemi-fix-possible-object-reference-leak.patch
-  cpufreq-pmac32-fix-possible-object-reference-leak.patch
-  cpufreq-kirkwood-fix-possible-object-reference-leak.patch
-  block-sed-opal-fix-ioc_opal_enable_disable_mbr.patch
-  x86-build-keep-local-relocations-with-ld.lld.patch
-  drm-pl111-fix-possible-object-reference-leak.patch
-  iio-ad_sigma_delta-properly-handle-spi-bus-locking-v.patch
-  iio-hmc5843-fix-potential-null-pointer-dereferences.patch
-  iio-common-ssp_sensors-initialize-calculated_time-in.patch
-  iio-adc-ti-ads7950-fix-improper-use-of-mlock.patch
-  selftests-bpf-ksym_search-won-t-check-symbols-exists.patch
-  rtlwifi-fix-a-potential-null-pointer-dereference.patch
-  mwifiex-fix-mem-leak-in-mwifiex_tm_cmd.patch
-  brcmfmac-fix-missing-checks-for-kmemdup.patch
-  b43-shut-up-clang-wuninitialized-variable-warning.patch
-  brcmfmac-convert-dev_init_lock-mutex-to-completion.patch
-  brcmfmac-fix-warning-during-usb-disconnect-in-case-o.patch
-  brcmfmac-fix-race-during-disconnect-when-usb-complet.patch
-  brcmfmac-fix-oops-when-bringing-up-interface-during-.patch
-  rtc-xgene-fix-possible-race-condition.patch
-  rtlwifi-fix-potential-null-pointer-dereference.patch
-  scsi-ufs-fix-regulator-load-and-icc-level-configurat.patch
-  scsi-ufs-avoid-configuring-regulator-with-undefined-.patch
-  drm-panel-otm8009a-add-delay-at-the-end-of-initializ.patch
-  arm64-cpu_ops-fix-a-leaked-reference-by-adding-missi.patch
-  wil6210-fix-return-code-of-wmi_mgmt_tx-and-wmi_mgmt_.patch
-  x86-uaccess-ftrace-fix-ftrace_likely_update-vs.-smap.patch
-  x86-uaccess-signal-fix-ac-1-bloat.patch
-  x86-ia32-fix-ia32_restore_sigcontext-ac-leak.patch
-  x86-uaccess-fix-up-the-fixup.patch
-  chardev-add-additional-check-for-minor-range-overlap.patch
-  rdma-hns-fix-bad-endianess-of-port_pd-variable.patch
-  sh-sh7786-add-explicit-i-o-cast-to-sh7786_mm_sel.patch
-  hid-core-move-usage-page-concatenation-to-main-item.patch
-  asoc-eukrea-tlv320-fix-a-leaked-reference-by-adding-.patch
-  asoc-fsl_utils-fix-a-leaked-reference-by-adding-miss.patch
-  cxgb3-l2t-fix-undefined-behaviour.patch
-  hid-logitech-hidpp-change-low-battery-level-threshol.patch
-  spi-tegra114-reset-controller-on-probe.patch
-  kobject-don-t-trigger-kobject_uevent-kobj_remove-twi.patch
-  media-video-mux-fix-null-pointer-dereferences.patch
-  media-wl128x-prevent-two-potential-buffer-overflows.patch
-  media-gspca-kill-urbs-on-usb-device-disconnect.patch
-  efifb-omit-memory-map-check-on-legacy-boot.patch
-  thunderbolt-property-fix-a-missing-check-of-kzalloc.patch
-  thunderbolt-fix-to-check-the-return-value-of-kmemdup.patch
-  timekeeping-force-upper-bound-for-setting-clock_real.patch
-  scsi-qedf-add-missing-return-in-qedf_post_io_req-in-.patch
-  virtio_console-initialize-vtermno-value-for-ports.patch
-  tty-ipwireless-fix-missing-checks-for-ioremap.patch
-  overflow-fix-wtype-limits-compilation-warnings.patch
-  x86-mce-fix-machine_check_poll-tests-for-error-types.patch
-  rcutorture-fix-cleanup-path-for-invalid-torture_type.patch
-  x86-mce-handle-varying-mca-bank-counts.patch
-  rcuperf-fix-cleanup-path-for-invalid-perf_type-strin.patch
-  usb-core-add-pm-runtime-calls-to-usb_hcd_platform_sh.patch
-  scsi-qla4xxx-avoid-freeing-unallocated-dma-memory.patch
-  scsi-lpfc-avoid-uninitialized-variable-warning.patch
-  selinux-avoid-uninitialized-variable-warning.patch
-  batman-adv-allow-updating-dat-entry-timeouts-on-inco.patch
-  dmaengine-tegra210-adma-use-devm_clk_-helpers.patch
-  hwrng-omap-set-default-quality.patch
-  thunderbolt-fix-to-check-return-value-of-ida_simple_.patch
-  thunderbolt-fix-to-check-for-kmemdup-failure.patch
-  drm-amd-display-fix-releasing-planes-when-exiting-od.patch
-  thunderbolt-property-fix-a-null-pointer-dereference.patch
-  e1000e-disable-runtime-pm-on-cnp.patch
-  tinydrm-mipi-dbi-use-dma-safe-buffers-for-all-spi-tr.patch
-  igb-exclude-device-from-suspend-direct-complete-opti.patch
-  media-si2165-fix-a-missing-check-of-return-value.patch
-  media-dvbsky-avoid-leaking-dvb-frontend.patch
-  media-m88ds3103-serialize-reset-messages-in-m88ds310.patch
-  media-staging-davinci_vpfe-disallow-building-with-co.patch
-  drm-amd-display-fix-divide-by-0-in-memory-calculatio.patch
-  drm-amd-display-set-stream-mode_changed-when-connect.patch
-  scsi-ufs-fix-a-missing-check-of-devm_reset_control_g.patch
-  media-vimc-stream-fix-thread-state-before-sleep.patch
-  media-gspca-do-not-resubmit-urbs-when-streaming-has-.patch
-  media-go7007-avoid-clang-frame-overflow-warning-with.patch
-  media-vimc-zero-the-media_device-on-probe.patch
-  scsi-lpfc-fix-fdmi-manufacturer-attribute-value.patch
-  scsi-lpfc-fix-fc4type-information-for-fdmi.patch
-  media-saa7146-avoid-high-stack-usage-with-clang.patch
-  scsi-lpfc-fix-sli3-commands-being-issued-on-sli4-dev.patch
-  spi-spi-topcliff-pch-fix-to-handle-empty-dma-buffers.patch
-  drm-omap-dsi-fix-pm-for-display-blank-with-paired-ds.patch
-  spi-rspi-fix-sequencer-reset-during-initialization.patch
-  spi-imx-stop-buffer-overflow-in-rx-fifo-flush.patch
-  spi-fix-zero-length-xfer-bug.patch
-  asoc-davinci-mcasp-fix-clang-warning-without-config_.patch
-  drm-v3d-handle-errors-from-irq-setup.patch
-  drm-drv-hold-ref-on-parent-device-during-drm_device-.patch
-  drm-wake-up-next-in-drm_read-chain-if-we-are-forced-.patch
-  drm-sun4i-dsi-change-the-start-delay-calculation.patch
-  vfio-ccw-prevent-quiesce-function-going-into-an-infi.patch
-  drm-sun4i-dsi-enforce-boundaries-on-the-start-delay.patch
-  nfs-fix-a-double-unlock-from-nfs_match-get_client.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-  aarch64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-6bf1132746868f110c6d7104df5cc635f11c25aa.config
-    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-6bf1132746868f110c6d7104df5cc635f11c25aa.tar.gz
-
-  ppc64le:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-6bf1132746868f110c6d7104df5cc635f11c25aa.config
-    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-6bf1132746868f110c6d7104df5cc635f11c25aa.tar.gz
-
-  s390x:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-6bf1132746868f110c6d7104df5cc635f11c25aa.config
-    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-6bf1132746868f110c6d7104df5cc635f11c25aa.tar.gz
-
-  x86_64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-6bf1132746868f110c6d7104df5cc635f11c25aa.config
-    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-6bf1132746868f110c6d7104df5cc635f11c25aa.tar.gz
-
-
-Hardware testing
-----------------
-
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ Ethernet drivers sanity [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ✅ tuned: tune-processes-through-perf [8]
-       ✅ Usex - version 1.9-29 [9]
-       ✅ lvm thinp sanity [10]
-       🚧 ✅ Networking socket: fuzz [12]
-       🚧 ✅ Storage blktests [13]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ xfstests: ext4 [14]
-       ✅ xfstests: xfs [14]
-       ✅ selinux-policy: serge-testsuite [15]
-
-
-  ppc64le:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ Ethernet drivers sanity [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ✅ tuned: tune-processes-through-perf [8]
-       ✅ Usex - version 1.9-29 [9]
-       ✅ lvm thinp sanity [10]
-       ✅ stress: stress-ng [11]
-       🚧 ✅ Networking socket: fuzz [12]
-       🚧 ✅ Storage blktests [13]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ xfstests: ext4 [14]
-       ✅ xfstests: xfs [14]
-       ✅ selinux-policy: serge-testsuite [15]
-
-
-  s390x:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [15]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ Ethernet drivers sanity [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ✅ tuned: tune-processes-through-perf [8]
-       ✅ lvm thinp sanity [10]
-       ✅ stress: stress-ng [11]
-       🚧 ✅ Networking socket: fuzz [12]
-       🚧 ✅ Storage blktests [13]
-
-
-  x86_64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ Ethernet drivers sanity [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ✅ tuned: tune-processes-through-perf [8]
-       ✅ Usex - version 1.9-29 [9]
-       ✅ lvm thinp sanity [10]
-       ✅ stress: stress-ng [11]
-       🚧 ✅ Networking socket: fuzz [12]
-       🚧 ✅ Storage blktests [13]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ xfstests: ext4 [14]
-       ✅ xfstests: xfs [14]
-       ✅ selinux-policy: serge-testsuite [15]
-
-
-  Test source:
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/lvm/thinp/sanity
-    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
-    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
-    [13]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/blk
-    [14]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/filesystems/xfs/xfstests
-    [15]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-
-Waived tests (marked with 🚧)
------------------------------
-This test run included waived tests. Such tests are executed but their results
-are not taken into account. Tests are waived when their results are not
-reliable enough, e.g. when they're just introduced or are being fixed.
+> thanks,
+>=20
+> greg k-h
