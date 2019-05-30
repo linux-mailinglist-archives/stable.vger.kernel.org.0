@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 10F602F687
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:57:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2E3F2F690
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:57:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387633AbfE3E5F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729710AbfE3E5F (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 30 May 2019 00:57:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45638 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:45728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727868AbfE3DJ5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:09:57 -0400
+        id S1727872AbfE3DJ6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:09:58 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 78B8B244A5;
-        Thu, 30 May 2019 03:09:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 173DF24481;
+        Thu, 30 May 2019 03:09:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185797;
-        bh=yFYJFqXYy4pT1N+v8TDuMyKOBiPLrB1ikOYIvvdyVpc=;
+        s=default; t=1559185798;
+        bh=NFvxy4p5eF66yukZtJ+HHF2fvulgI/oP8ZcdIAob1pQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rrcQPC16DOSrBVOOD7Ym3dYwIHHK8JEYjEvNZGb9EddzVvwUtzI/GlHecppqu1sDW
-         0blgV/5hpdEkUiznk8c0ueBH4fp7zcwmjLVG9oIQ7dDwfBhTQTtG5reuglrxAXRhS/
-         4n3cs/UpCj9u2C1jZB2bKlHzXSZcRSO7s5Cpv4Rc=
+        b=UCES8zLM3V0nGDUpar8JEIa1FvzdNSeit94HAN5u0hjYqwqaJKTreq6XQB6VxREY6
+         COD/6/nN6MRW54qwfqfuRcqG4lHTQPaTNgzQIoRGk1m0UDcKcirrpGmqQMlEPWPSAo
+         plR6PwMFAyLyOZdvu8huOMqG/rPq1zXs67q2MuCw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jerome Brunet <jbrunet@baylibre.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Madhavan Srinivasan <maddy@linux.vnet.ibm.com>,
+        Anju T Sudhakar <anju@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 073/405] ASoC: hdmi-codec: unlock the device on startup errors
-Date:   Wed, 29 May 2019 20:01:11 -0700
-Message-Id: <20190530030544.631691367@linuxfoundation.org>
+Subject: [PATCH 5.1 074/405] powerpc/perf: Return accordingly on invalid chip-id in
+Date:   Wed, 29 May 2019 20:01:12 -0700
+Message-Id: <20190530030544.693166485@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
 References: <20190530030540.291644921@linuxfoundation.org>
@@ -44,39 +46,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 30180e8436046344b12813dc954b2e01dfdcd22d ]
+[ Upstream commit a913e5e8b43be1d3897a141ce61c1ec071cad89c ]
 
-If the hdmi codec startup fails, it should clear the current_substream
-pointer to free the device. This is properly done for the audio_startup()
-callback but for snd_pcm_hw_constraint_eld().
+Nest hardware counter memory resides in a per-chip reserve-memory.
+During nest_imc_event_init(), chip-id of the event-cpu is considered to
+calculate the base memory addresss for that cpu. Return, proper error
+condition if the chip_id calculated is invalid.
 
-Make sure the pointer cleared if an error is reported.
-
-Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Fixes: 885dcd709ba91 ("powerpc/perf: Add nest IMC PMU support")
+Reviewed-by: Madhavan Srinivasan <maddy@linux.vnet.ibm.com>
+Signed-off-by: Anju T Sudhakar <anju@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/hdmi-codec.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ arch/powerpc/perf/imc-pmu.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/sound/soc/codecs/hdmi-codec.c b/sound/soc/codecs/hdmi-codec.c
-index 35df73e42cbc5..fb2f0ac1f16f3 100644
---- a/sound/soc/codecs/hdmi-codec.c
-+++ b/sound/soc/codecs/hdmi-codec.c
-@@ -439,8 +439,12 @@ static int hdmi_codec_startup(struct snd_pcm_substream *substream,
- 		if (!ret) {
- 			ret = snd_pcm_hw_constraint_eld(substream->runtime,
- 							hcp->eld);
--			if (ret)
-+			if (ret) {
-+				mutex_lock(&hcp->current_stream_lock);
-+				hcp->current_stream = NULL;
-+				mutex_unlock(&hcp->current_stream_lock);
- 				return ret;
-+			}
- 		}
- 		/* Select chmap supported */
- 		hdmi_codec_eld_chmap(hcp);
+diff --git a/arch/powerpc/perf/imc-pmu.c b/arch/powerpc/perf/imc-pmu.c
+index b1c37cc3fa98b..6159e9edddfd0 100644
+--- a/arch/powerpc/perf/imc-pmu.c
++++ b/arch/powerpc/perf/imc-pmu.c
+@@ -487,6 +487,11 @@ static int nest_imc_event_init(struct perf_event *event)
+ 	 * Get the base memory addresss for this cpu.
+ 	 */
+ 	chip_id = cpu_to_chip_id(event->cpu);
++
++	/* Return, if chip_id is not valid */
++	if (chip_id < 0)
++		return -ENODEV;
++
+ 	pcni = pmu->mem_info;
+ 	do {
+ 		if (pcni->id == chip_id) {
 -- 
 2.20.1
 
