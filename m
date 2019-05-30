@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B6DEA2F08E
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:05:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7552D2F221
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:19:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731617AbfE3EFI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:05:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48242 "EHLO mail.kernel.org"
+        id S1729745AbfE3ESs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:18:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731252AbfE3DRs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:17:48 -0400
+        id S1730314AbfE3DP3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:15:29 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B1AC824725;
-        Thu, 30 May 2019 03:17:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 07B5324559;
+        Thu, 30 May 2019 03:15:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186267;
-        bh=UJiPpQOR8Dhm936UzxmqRdc9QwzhXyAeIt40ybzJZ4E=;
+        s=default; t=1559186129;
+        bh=BYFtQfBUzUSraymaH/ctnpl6FrmDvPDOsJF1vVqIk6E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0LKpMCeGDvyyGVWBzoVbciG3u4dWMuxt0J3awRe4XbjaS4rVrVGsEaHj5m5Twyn9l
-         3Kdzs6BGaCPKbI2HnQNr1kIYLoU4D5/shIca0qnywLQnB0aGldFSKC0k9Rw2/Z3CTZ
-         3RkZDATVrXyVgvZYlzsuu/Diz5j8ak9RbFwfN+z4=
+        b=PWisfc/Enoy48vqV03KEtPdP/aLIwcLFx/YHXpMKvrrIiY3Q0NGZ2T3UovtqhPt97
+         uv2NZBDY2MxePKxSN4jRsWp13ZWKF2yO4YB2GY/CRsb7lWxDWOoLHxkcbmSV/2kD9/
+         3ZHBPiilBAWp/6/0CnIBBAEeIlGODmB+VJ/9RGWc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        linux-arm-kernel@lists.infradead.org,
+        stable@vger.kernel.org,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Harry Wentland <Harry.Wentland@amd.com>,
+        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 204/276] arm64: cpu_ops: fix a leaked reference by adding missing of_node_put
-Date:   Wed, 29 May 2019 20:06:02 -0700
-Message-Id: <20190530030537.889697689@linuxfoundation.org>
+Subject: [PATCH 5.0 290/346] drm/amd/display: Reset alpha state for planes to the correct values
+Date:   Wed, 29 May 2019 20:06:03 -0700
+Message-Id: <20190530030555.570465890@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,41 +47,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 92606ec9285fb84cd9b5943df23f07d741384bfc ]
+[ Upstream commit eec3d5efd16d13984a88396b685ae17462fb6d87 ]
 
-The call to of_get_next_child returns a node pointer with refcount
-incremented thus it must be explicitly decremented after the last
-usage.
+[Why]
+The plane_reset callback is subclassed but hasn't been updated since
+the drm helper got updated to include resetting alpha related state
+(state->alpha and state->pixel_blend_mode). The overlay planes
+exposed by amdgpu_dm were therefore being rendered as invisible by
+default ever since supported was exposed for alpha blending properties
+on overlays.
 
-Detected by coccinelle with the following warnings:
-  ./arch/arm64/kernel/cpu_ops.c:102:1-7: ERROR: missing of_node_put;
-  acquired a node pointer with refcount incremented on line 69, but
-  without a corresponding object release within this function.
+This caused regressions in igt@kms_plane_multiple@atomic-tiling-none
+and igt@kms_plane@plane-position-covered-pipe tests.
 
-Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Will Deacon <will.deacon@arm.com>
+[How]
+Reset the plane state values to their correct values as defined in
+the drm helper.
+
+This fixes the IGT test regression.
+
+Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Reviewed-by: Harry Wentland <Harry.Wentland@amd.com>
+Acked-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kernel/cpu_ops.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm64/kernel/cpu_ops.c b/arch/arm64/kernel/cpu_ops.c
-index ea001241bdd47..00f8b8612b69f 100644
---- a/arch/arm64/kernel/cpu_ops.c
-+++ b/arch/arm64/kernel/cpu_ops.c
-@@ -85,6 +85,7 @@ static const char *__init cpu_read_enable_method(int cpu)
- 				pr_err("%pOF: missing enable-method property\n",
- 					dn);
- 		}
-+		of_node_put(dn);
- 	} else {
- 		enable_method = acpi_get_enable_method(cpu);
- 		if (!enable_method) {
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index 84ee777869441..e766dede5b472 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -3519,6 +3519,8 @@ static void dm_drm_plane_reset(struct drm_plane *plane)
+ 		plane->state = &amdgpu_state->base;
+ 		plane->state->plane = plane;
+ 		plane->state->rotation = DRM_MODE_ROTATE_0;
++		plane->state->alpha = DRM_BLEND_ALPHA_OPAQUE;
++		plane->state->pixel_blend_mode = DRM_MODE_BLEND_PREMULTI;
+ 	}
+ }
+ 
 -- 
 2.20.1
 
