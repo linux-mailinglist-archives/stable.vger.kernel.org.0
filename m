@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 222272EC1D
+	by mail.lfdr.de (Postfix) with ESMTP id 680132EC1F
 	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:18:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729899AbfE3DSY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:18:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51042 "EHLO mail.kernel.org"
+        id S1731573AbfE3DSb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:18:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731524AbfE3DSX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:18:23 -0400
+        id S1731566AbfE3DSa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:18:30 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 965EF247B7;
-        Thu, 30 May 2019 03:18:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B72622472C;
+        Thu, 30 May 2019 03:18:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186302;
-        bh=SUtdxd2XvZEpCCTWuOGbP1NoKjrxUrq5fr2HHhTeWUs=;
+        s=default; t=1559186309;
+        bh=8gRQZ733zbroR7nLj5wr3+V5DHtMrt2aYomVG95miOY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tZsl1iWwBYoSpIOK4RHGnJWa8W1ufHgqQHz9CQ+Otp3MRg49ANApwtJAgmmXmrm0F
-         vnP8Xr3gwX1lLDxiWuUrK28yQsIuW4T5gFB/HBuN1H8gmKgnqIZpJ3mYOg7UOXxe7g
-         BG92zig1+DnOA1wCDJJIiqY50ivuUOZdkFzLbVtw=
+        b=0hOrIda8REVcbtSlduRMmOzECRvumE/hIwduBdcXRnv30VaW0eORJKq21M95KQi5S
+         Iaouj0K3UpNZQLZInt2KMQ/ixzKXP4C78plfl5PvkQ88CdsCFBrogkEwEPp3uoKD4d
+         tTGXSCMy9MJuVk7ACofeeORaBSKrzp7gwfZeKEQQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Peter Ujfalusi <peter.ujfalusi@ti.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Eric Anholt <eric@anholt.net>,
+        Dave Emett <david.emett@broadcom.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 269/276] ASoC: davinci-mcasp: Fix clang warning without CONFIG_PM
-Date:   Wed, 29 May 2019 20:07:07 -0700
-Message-Id: <20190530030542.030155180@linuxfoundation.org>
+Subject: [PATCH 4.19 270/276] drm/v3d: Handle errors from IRQ setup.
+Date:   Wed, 29 May 2019 20:07:08 -0700
+Message-Id: <20190530030542.094351553@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
 References: <20190530030523.133519668@linuxfoundation.org>
@@ -46,47 +44,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 8ca5104715cfd14254ea5aecc390ae583b707607 ]
+[ Upstream commit fc22771547e7e8a63679f0218e943d72b107de65 ]
 
-Building with clang shows a variable that is only used by the
-suspend/resume functions but defined outside of their #ifdef block:
+Noted in review by Dave Emett for V3D 4.2 support.
 
-sound/soc/ti/davinci-mcasp.c:48:12: error: variable 'context_regs' is not needed and will not be emitted
-
-We commonly fix these by marking the PM functions as __maybe_unused,
-but here that would grow the davinci_mcasp structure, so instead
-add another #ifdef here.
-
-Fixes: 1cc0c054f380 ("ASoC: davinci-mcasp: Convert the context save/restore to use array")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Eric Anholt <eric@anholt.net>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190308174336.7866-1-eric@anholt.net
+Reviewed-by: Dave Emett <david.emett@broadcom.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/davinci/davinci-mcasp.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/v3d/v3d_drv.c |  8 ++++++--
+ drivers/gpu/drm/v3d/v3d_drv.h |  2 +-
+ drivers/gpu/drm/v3d/v3d_irq.c | 13 +++++++++++--
+ 3 files changed, 18 insertions(+), 5 deletions(-)
 
-diff --git a/sound/soc/davinci/davinci-mcasp.c b/sound/soc/davinci/davinci-mcasp.c
-index f70db8412c7cc..160b2764b2ad8 100644
---- a/sound/soc/davinci/davinci-mcasp.c
-+++ b/sound/soc/davinci/davinci-mcasp.c
-@@ -43,6 +43,7 @@
+diff --git a/drivers/gpu/drm/v3d/v3d_drv.c b/drivers/gpu/drm/v3d/v3d_drv.c
+index 2a85fa68ffea5..2a4c6187e675f 100644
+--- a/drivers/gpu/drm/v3d/v3d_drv.c
++++ b/drivers/gpu/drm/v3d/v3d_drv.c
+@@ -305,14 +305,18 @@ static int v3d_platform_drm_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		goto dev_destroy;
  
- #define MCASP_MAX_AFIFO_DEPTH	64
+-	v3d_irq_init(v3d);
++	ret = v3d_irq_init(v3d);
++	if (ret)
++		goto gem_destroy;
  
-+#ifdef CONFIG_PM
- static u32 context_regs[] = {
- 	DAVINCI_MCASP_TXFMCTL_REG,
- 	DAVINCI_MCASP_RXFMCTL_REG,
-@@ -65,6 +66,7 @@ struct davinci_mcasp_context {
- 	u32	*xrsr_regs; /* for serializer configuration */
- 	bool	pm_state;
- };
-+#endif
+ 	ret = drm_dev_register(drm, 0);
+ 	if (ret)
+-		goto gem_destroy;
++		goto irq_disable;
  
- struct davinci_mcasp_ruledata {
- 	struct davinci_mcasp *mcasp;
+ 	return 0;
+ 
++irq_disable:
++	v3d_irq_disable(v3d);
+ gem_destroy:
+ 	v3d_gem_destroy(drm);
+ dev_destroy:
+diff --git a/drivers/gpu/drm/v3d/v3d_drv.h b/drivers/gpu/drm/v3d/v3d_drv.h
+index e6fed696ad869..0ad73f4b7509a 100644
+--- a/drivers/gpu/drm/v3d/v3d_drv.h
++++ b/drivers/gpu/drm/v3d/v3d_drv.h
+@@ -284,7 +284,7 @@ void v3d_invalidate_caches(struct v3d_dev *v3d);
+ void v3d_flush_caches(struct v3d_dev *v3d);
+ 
+ /* v3d_irq.c */
+-void v3d_irq_init(struct v3d_dev *v3d);
++int v3d_irq_init(struct v3d_dev *v3d);
+ void v3d_irq_enable(struct v3d_dev *v3d);
+ void v3d_irq_disable(struct v3d_dev *v3d);
+ void v3d_irq_reset(struct v3d_dev *v3d);
+diff --git a/drivers/gpu/drm/v3d/v3d_irq.c b/drivers/gpu/drm/v3d/v3d_irq.c
+index e07514eb11b51..22be0f2dff99c 100644
+--- a/drivers/gpu/drm/v3d/v3d_irq.c
++++ b/drivers/gpu/drm/v3d/v3d_irq.c
+@@ -137,7 +137,7 @@ v3d_hub_irq(int irq, void *arg)
+ 	return status;
+ }
+ 
+-void
++int
+ v3d_irq_init(struct v3d_dev *v3d)
+ {
+ 	int ret, core;
+@@ -154,13 +154,22 @@ v3d_irq_init(struct v3d_dev *v3d)
+ 	ret = devm_request_irq(v3d->dev, platform_get_irq(v3d->pdev, 0),
+ 			       v3d_hub_irq, IRQF_SHARED,
+ 			       "v3d_hub", v3d);
++	if (ret)
++		goto fail;
++
+ 	ret = devm_request_irq(v3d->dev, platform_get_irq(v3d->pdev, 1),
+ 			       v3d_irq, IRQF_SHARED,
+ 			       "v3d_core0", v3d);
+ 	if (ret)
+-		dev_err(v3d->dev, "IRQ setup failed: %d\n", ret);
++		goto fail;
+ 
+ 	v3d_irq_enable(v3d);
++	return 0;
++
++fail:
++	if (ret != -EPROBE_DEFER)
++		dev_err(v3d->dev, "IRQ setup failed: %d\n", ret);
++	return ret;
+ }
+ 
+ void
 -- 
 2.20.1
 
