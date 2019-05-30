@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 503382EB5E
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:12:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0EA72EF96
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:56:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728834AbfE3DMH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:12:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53466 "EHLO mail.kernel.org"
+        id S1731090AbfE3D4r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:56:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728824AbfE3DMG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:12:06 -0400
+        id S1731750AbfE3DS5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:18:57 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E23D22452B;
-        Thu, 30 May 2019 03:12:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2EB7B24811;
+        Thu, 30 May 2019 03:18:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185925;
-        bh=7bufPFfe/XwpuopAGCj8kdDolxgpksl7WmNctub1E58=;
+        s=default; t=1559186336;
+        bh=fuReYihqI40wcgxccUAXgZINCndo5zrH+xsXMz5n6vg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R12iXg2oIO8xG7WPzwwymmkMYa3k7DdzfPy0Fx619MDWcN1GvPf8u82QHoLbBp+/7
-         2n83VtyZe29izmvGzIlVOcGbqGPGc3e/qo0uxDEIgVa6q49EOddBuZ8/L/tZmx6RCc
-         4JBBG2pqDdTbP0D0JGT2AG4UNBW5jrAfXGd9Pde8=
+        b=noE1JDoXudMXKepkI74PxOLIjNyMtHKZtBYKBkydyKxCLyNIYNg0srz21vFCKFQr6
+         OPtufCVQL59+6UFKH2w36hPOQCkFEEzllrXmSrBnOtSma2LP45l+jhwZ12EfYhD876
+         VmF3k+y0bnqKKiFbpw3a/i6749hbjpqreKpYPuTg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>,
-        Andrew Bowers <andrewx.bowers@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        stable@vger.kernel.org, Himanshu Madhani <hmadhani@marvell.com>,
+        Giridhar Malavali <gmalavali@marvell.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 314/405] ice: Fix for adaptive interrupt moderation
+Subject: [PATCH 4.14 058/193] scsi: qla2xxx: Avoid that lockdep complains about unsafe locking in tcm_qla2xxx_close_session()
 Date:   Wed, 29 May 2019 20:05:12 -0700
-Message-Id: <20190530030556.680188738@linuxfoundation.org>
+Message-Id: <20190530030457.607000503@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
+References: <20190530030446.953835040@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,393 +46,258 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 64a59d05a4b3ddb37eb5ad3a3be0f17148f449f5 ]
+[ Upstream commit d4023db71108375e4194e92730ba0d32d7f07813 ]
 
-commit 63f545ed1285 ("ice: Add support for adaptive interrupt moderation")
-was meant to add support for adaptive interrupt moderation but there was
-an error on my part while formatting the patch, and thus only part of the
-patch ended up being submitted.
+This patch avoids that lockdep reports the following warning:
 
-This patch rectifies the error by adding the rest of the code.
+=====================================================
+WARNING: HARDIRQ-safe -> HARDIRQ-unsafe lock order detected
+5.1.0-rc1-dbg+ #11 Tainted: G        W
+-----------------------------------------------------
+rmdir/1478 [HC0[0]:SC0[0]:HE0:SE1] is trying to acquire:
+00000000e7ac4607 (&(&k->k_lock)->rlock){+.+.}, at: klist_next+0x43/0x1d0
 
-Fixes: 63f545ed1285 ("ice: Add support for adaptive interrupt moderation")
-Signed-off-by: Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>
-Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+and this task is already holding:
+00000000cf0baf5e (&(&ha->tgt.sess_lock)->rlock){-...}, at: tcm_qla2xxx_close_session+0x57/0xb0 [tcm_qla2xxx]
+which would create a new lock dependency:
+ (&(&ha->tgt.sess_lock)->rlock){-...} -> (&(&k->k_lock)->rlock){+.+.}
+
+but this new dependency connects a HARDIRQ-irq-safe lock:
+ (&(&ha->tgt.sess_lock)->rlock){-...}
+
+... which became HARDIRQ-irq-safe at:
+  lock_acquire+0xe3/0x200
+  _raw_spin_lock_irqsave+0x3d/0x60
+  qla2x00_fcport_event_handler+0x1f3d/0x22b0 [qla2xxx]
+  qla2x00_async_login_sp_done+0x1dc/0x1f0 [qla2xxx]
+  qla24xx_process_response_queue+0xa37/0x10e0 [qla2xxx]
+  qla24xx_msix_rsp_q+0x79/0xf0 [qla2xxx]
+  __handle_irq_event_percpu+0x79/0x3c0
+  handle_irq_event_percpu+0x70/0xf0
+  handle_irq_event+0x5a/0x8b
+  handle_edge_irq+0x12c/0x310
+  handle_irq+0x192/0x20a
+  do_IRQ+0x73/0x160
+  ret_from_intr+0x0/0x1d
+  default_idle+0x23/0x1f0
+  arch_cpu_idle+0x15/0x20
+  default_idle_call+0x35/0x40
+  do_idle+0x2bb/0x2e0
+  cpu_startup_entry+0x1d/0x20
+  start_secondary+0x24d/0x2d0
+  secondary_startup_64+0xa4/0xb0
+
+to a HARDIRQ-irq-unsafe lock:
+ (&(&k->k_lock)->rlock){+.+.}
+
+... which became HARDIRQ-irq-unsafe at:
+...
+  lock_acquire+0xe3/0x200
+  _raw_spin_lock+0x32/0x50
+  klist_add_tail+0x33/0xb0
+  device_add+0x7f4/0xb60
+  device_create_groups_vargs+0x11c/0x150
+  device_create_with_groups+0x89/0xb0
+  vtconsole_class_init+0xb2/0x124
+  do_one_initcall+0xc5/0x3ce
+  kernel_init_freeable+0x295/0x32e
+  kernel_init+0x11/0x11b
+  ret_from_fork+0x3a/0x50
+
+other info that might help us debug this:
+
+ Possible interrupt unsafe locking scenario:
+
+       CPU0                    CPU1
+       ----                    ----
+  lock(&(&k->k_lock)->rlock);
+                               local_irq_disable();
+                               lock(&(&ha->tgt.sess_lock)->rlock);
+                               lock(&(&k->k_lock)->rlock);
+  <Interrupt>
+    lock(&(&ha->tgt.sess_lock)->rlock);
+
+ *** DEADLOCK ***
+
+4 locks held by rmdir/1478:
+ #0: 000000002c7f1ba4 (sb_writers#10){.+.+}, at: mnt_want_write+0x32/0x70
+ #1: 00000000c85eb147 (&default_group_class[depth - 1]#2/1){+.+.}, at: do_rmdir+0x217/0x2d0
+ #2: 000000002b164d6f (&sb->s_type->i_mutex_key#13){++++}, at: vfs_rmdir+0x7e/0x1d0
+ #3: 00000000cf0baf5e (&(&ha->tgt.sess_lock)->rlock){-...}, at: tcm_qla2xxx_close_session+0x57/0xb0 [tcm_qla2xxx]
+
+the dependencies between HARDIRQ-irq-safe lock and the holding lock:
+-> (&(&ha->tgt.sess_lock)->rlock){-...} ops: 127 {
+   IN-HARDIRQ-W at:
+                    lock_acquire+0xe3/0x200
+                    _raw_spin_lock_irqsave+0x3d/0x60
+                    qla2x00_fcport_event_handler+0x1f3d/0x22b0 [qla2xxx]
+                    qla2x00_async_login_sp_done+0x1dc/0x1f0 [qla2xxx]
+                    qla24xx_process_response_queue+0xa37/0x10e0 [qla2xxx]
+                    qla24xx_msix_rsp_q+0x79/0xf0 [qla2xxx]
+                    __handle_irq_event_percpu+0x79/0x3c0
+                    handle_irq_event_percpu+0x70/0xf0
+                    handle_irq_event+0x5a/0x8b
+                    handle_edge_irq+0x12c/0x310
+                    handle_irq+0x192/0x20a
+                    do_IRQ+0x73/0x160
+                    ret_from_intr+0x0/0x1d
+                    default_idle+0x23/0x1f0
+                    arch_cpu_idle+0x15/0x20
+                    default_idle_call+0x35/0x40
+                    do_idle+0x2bb/0x2e0
+                    cpu_startup_entry+0x1d/0x20
+                    start_secondary+0x24d/0x2d0
+                    secondary_startup_64+0xa4/0xb0
+   INITIAL USE at:
+                   lock_acquire+0xe3/0x200
+                   _raw_spin_lock_irqsave+0x3d/0x60
+                   qla2x00_loop_resync+0xb3d/0x2690 [qla2xxx]
+                   qla2x00_do_dpc+0xcee/0xf30 [qla2xxx]
+                   kthread+0x1d2/0x1f0
+                   ret_from_fork+0x3a/0x50
+ }
+ ... key      at: [<ffffffffa125f700>] __key.62804+0x0/0xfffffffffff7e900 [qla2xxx]
+ ... acquired at:
+   __lock_acquire+0x11ed/0x1b60
+   lock_acquire+0xe3/0x200
+   _raw_spin_lock_irqsave+0x3d/0x60
+   klist_next+0x43/0x1d0
+   device_for_each_child+0x96/0x110
+   scsi_target_block+0x3c/0x40 [scsi_mod]
+   fc_remote_port_delete+0xe7/0x1c0 [scsi_transport_fc]
+   qla2x00_mark_device_lost+0x4d3/0x500 [qla2xxx]
+   qlt_unreg_sess+0x104/0x2c0 [qla2xxx]
+   tcm_qla2xxx_close_session+0xa2/0xb0 [tcm_qla2xxx]
+   target_shutdown_sessions+0x17b/0x190 [target_core_mod]
+   core_tpg_del_initiator_node_acl+0xf3/0x1f0 [target_core_mod]
+   target_fabric_nacl_base_release+0x25/0x30 [target_core_mod]
+   config_item_release+0x9f/0x120 [configfs]
+   config_item_put+0x29/0x2b [configfs]
+   configfs_rmdir+0x3d2/0x520 [configfs]
+   vfs_rmdir+0xb3/0x1d0
+   do_rmdir+0x25c/0x2d0
+   __x64_sys_rmdir+0x24/0x30
+   do_syscall_64+0x77/0x220
+   entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+the dependencies between the lock to be acquired
+ and HARDIRQ-irq-unsafe lock:
+-> (&(&k->k_lock)->rlock){+.+.} ops: 14568 {
+   HARDIRQ-ON-W at:
+                    lock_acquire+0xe3/0x200
+                    _raw_spin_lock+0x32/0x50
+                    klist_add_tail+0x33/0xb0
+                    device_add+0x7f4/0xb60
+                    device_create_groups_vargs+0x11c/0x150
+                    device_create_with_groups+0x89/0xb0
+                    vtconsole_class_init+0xb2/0x124
+                    do_one_initcall+0xc5/0x3ce
+                    kernel_init_freeable+0x295/0x32e
+                    kernel_init+0x11/0x11b
+                    ret_from_fork+0x3a/0x50
+   SOFTIRQ-ON-W at:
+                    lock_acquire+0xe3/0x200
+                    _raw_spin_lock+0x32/0x50
+                    klist_add_tail+0x33/0xb0
+                    device_add+0x7f4/0xb60
+                    device_create_groups_vargs+0x11c/0x150
+                    device_create_with_groups+0x89/0xb0
+                    vtconsole_class_init+0xb2/0x124
+                    do_one_initcall+0xc5/0x3ce
+                    kernel_init_freeable+0x295/0x32e
+                    kernel_init+0x11/0x11b
+                    ret_from_fork+0x3a/0x50
+   INITIAL USE at:
+                   lock_acquire+0xe3/0x200
+                   _raw_spin_lock+0x32/0x50
+                   klist_add_tail+0x33/0xb0
+                   device_add+0x7f4/0xb60
+                   device_create_groups_vargs+0x11c/0x150
+                   device_create_with_groups+0x89/0xb0
+                   vtconsole_class_init+0xb2/0x124
+                   do_one_initcall+0xc5/0x3ce
+                   kernel_init_freeable+0x295/0x32e
+                   kernel_init+0x11/0x11b
+                   ret_from_fork+0x3a/0x50
+ }
+ ... key      at: [<ffffffff83f3d900>] __key.15805+0x0/0x40
+ ... acquired at:
+   __lock_acquire+0x11ed/0x1b60
+   lock_acquire+0xe3/0x200
+   _raw_spin_lock_irqsave+0x3d/0x60
+   klist_next+0x43/0x1d0
+   device_for_each_child+0x96/0x110
+   scsi_target_block+0x3c/0x40 [scsi_mod]
+   fc_remote_port_delete+0xe7/0x1c0 [scsi_transport_fc]
+   qla2x00_mark_device_lost+0x4d3/0x500 [qla2xxx]
+   qlt_unreg_sess+0x104/0x2c0 [qla2xxx]
+   tcm_qla2xxx_close_session+0xa2/0xb0 [tcm_qla2xxx]
+   target_shutdown_sessions+0x17b/0x190 [target_core_mod]
+   core_tpg_del_initiator_node_acl+0xf3/0x1f0 [target_core_mod]
+   target_fabric_nacl_base_release+0x25/0x30 [target_core_mod]
+   config_item_release+0x9f/0x120 [configfs]
+   config_item_put+0x29/0x2b [configfs]
+   configfs_rmdir+0x3d2/0x520 [configfs]
+   vfs_rmdir+0xb3/0x1d0
+   do_rmdir+0x25c/0x2d0
+   __x64_sys_rmdir+0x24/0x30
+   do_syscall_64+0x77/0x220
+   entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+stack backtrace:
+CPU: 7 PID: 1478 Comm: rmdir Tainted: G        W         5.1.0-rc1-dbg+ #11
+Hardware name: Bochs Bochs, BIOS Bochs 01/01/2011
+Call Trace:
+ dump_stack+0x86/0xca
+ check_usage.cold.59+0x473/0x563
+ check_prev_add.constprop.43+0x1f1/0x1170
+ __lock_acquire+0x11ed/0x1b60
+ lock_acquire+0xe3/0x200
+ _raw_spin_lock_irqsave+0x3d/0x60
+ klist_next+0x43/0x1d0
+ device_for_each_child+0x96/0x110
+ scsi_target_block+0x3c/0x40 [scsi_mod]
+ fc_remote_port_delete+0xe7/0x1c0 [scsi_transport_fc]
+ qla2x00_mark_device_lost+0x4d3/0x500 [qla2xxx]
+ qlt_unreg_sess+0x104/0x2c0 [qla2xxx]
+ tcm_qla2xxx_close_session+0xa2/0xb0 [tcm_qla2xxx]
+ target_shutdown_sessions+0x17b/0x190 [target_core_mod]
+ core_tpg_del_initiator_node_acl+0xf3/0x1f0 [target_core_mod]
+ target_fabric_nacl_base_release+0x25/0x30 [target_core_mod]
+ config_item_release+0x9f/0x120 [configfs]
+ config_item_put+0x29/0x2b [configfs]
+ configfs_rmdir+0x3d2/0x520 [configfs]
+ vfs_rmdir+0xb3/0x1d0
+ do_rmdir+0x25c/0x2d0
+ __x64_sys_rmdir+0x24/0x30
+ do_syscall_64+0x77/0x220
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+Cc: Himanshu Madhani <hmadhani@marvell.com>
+Cc: Giridhar Malavali <gmalavali@marvell.com>
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Acked-by: Himanshu Madhani <hmadhani@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice.h      |   1 +
- drivers/net/ethernet/intel/ice/ice_txrx.c | 292 ++++++++++++++++++++--
- drivers/net/ethernet/intel/ice/ice_txrx.h |   6 +
- 3 files changed, 275 insertions(+), 24 deletions(-)
+ drivers/scsi/qla2xxx/tcm_qla2xxx.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice.h b/drivers/net/ethernet/intel/ice/ice.h
-index 89440775aea12..6af5bd5883ca4 100644
---- a/drivers/net/ethernet/intel/ice/ice.h
-+++ b/drivers/net/ethernet/intel/ice/ice.h
-@@ -277,6 +277,7 @@ struct ice_q_vector {
- 	 * value to the device
- 	 */
- 	u8 intrl;
-+	u8 itr_countdown;	/* when 0 should adjust adaptive ITR */
- } ____cacheline_internodealigned_in_smp;
+diff --git a/drivers/scsi/qla2xxx/tcm_qla2xxx.c b/drivers/scsi/qla2xxx/tcm_qla2xxx.c
+index 4c99f1797b489..2fcdaadd10fa5 100644
+--- a/drivers/scsi/qla2xxx/tcm_qla2xxx.c
++++ b/drivers/scsi/qla2xxx/tcm_qla2xxx.c
+@@ -366,8 +366,9 @@ static void tcm_qla2xxx_close_session(struct se_session *se_sess)
  
- enum ice_pf_flags {
-diff --git a/drivers/net/ethernet/intel/ice/ice_txrx.c b/drivers/net/ethernet/intel/ice/ice_txrx.c
-index c289d97f477d5..851030ad50160 100644
---- a/drivers/net/ethernet/intel/ice/ice_txrx.c
-+++ b/drivers/net/ethernet/intel/ice/ice_txrx.c
-@@ -1048,18 +1048,257 @@ static int ice_clean_rx_irq(struct ice_ring *rx_ring, int budget)
- 	return failure ? budget : (int)total_rx_pkts;
+ 	spin_lock_irqsave(&vha->hw->tgt.sess_lock, flags);
+ 	target_sess_cmd_list_set_waiting(se_sess);
+-	tcm_qla2xxx_put_sess(sess);
+ 	spin_unlock_irqrestore(&vha->hw->tgt.sess_lock, flags);
++
++	tcm_qla2xxx_put_sess(sess);
  }
  
-+static unsigned int ice_itr_divisor(struct ice_port_info *pi)
-+{
-+	switch (pi->phy.link_info.link_speed) {
-+	case ICE_AQ_LINK_SPEED_40GB:
-+		return ICE_ITR_ADAPTIVE_MIN_INC * 1024;
-+	case ICE_AQ_LINK_SPEED_25GB:
-+	case ICE_AQ_LINK_SPEED_20GB:
-+		return ICE_ITR_ADAPTIVE_MIN_INC * 512;
-+	case ICE_AQ_LINK_SPEED_100MB:
-+		return ICE_ITR_ADAPTIVE_MIN_INC * 32;
-+	default:
-+		return ICE_ITR_ADAPTIVE_MIN_INC * 256;
-+	}
-+}
-+
-+/**
-+ * ice_update_itr - update the adaptive ITR value based on statistics
-+ * @q_vector: structure containing interrupt and ring information
-+ * @rc: structure containing ring performance data
-+ *
-+ * Stores a new ITR value based on packets and byte
-+ * counts during the last interrupt.  The advantage of per interrupt
-+ * computation is faster updates and more accurate ITR for the current
-+ * traffic pattern.  Constants in this function were computed
-+ * based on theoretical maximum wire speed and thresholds were set based
-+ * on testing data as well as attempting to minimize response time
-+ * while increasing bulk throughput.
-+ */
-+static void
-+ice_update_itr(struct ice_q_vector *q_vector, struct ice_ring_container *rc)
-+{
-+	unsigned int avg_wire_size, packets, bytes, itr;
-+	unsigned long next_update = jiffies;
-+	bool container_is_rx;
-+
-+	if (!rc->ring || !ITR_IS_DYNAMIC(rc->itr_setting))
-+		return;
-+
-+	/* If itr_countdown is set it means we programmed an ITR within
-+	 * the last 4 interrupt cycles. This has a side effect of us
-+	 * potentially firing an early interrupt. In order to work around
-+	 * this we need to throw out any data received for a few
-+	 * interrupts following the update.
-+	 */
-+	if (q_vector->itr_countdown) {
-+		itr = rc->target_itr;
-+		goto clear_counts;
-+	}
-+
-+	container_is_rx = (&q_vector->rx == rc);
-+	/* For Rx we want to push the delay up and default to low latency.
-+	 * for Tx we want to pull the delay down and default to high latency.
-+	 */
-+	itr = container_is_rx ?
-+		ICE_ITR_ADAPTIVE_MIN_USECS | ICE_ITR_ADAPTIVE_LATENCY :
-+		ICE_ITR_ADAPTIVE_MAX_USECS | ICE_ITR_ADAPTIVE_LATENCY;
-+
-+	/* If we didn't update within up to 1 - 2 jiffies we can assume
-+	 * that either packets are coming in so slow there hasn't been
-+	 * any work, or that there is so much work that NAPI is dealing
-+	 * with interrupt moderation and we don't need to do anything.
-+	 */
-+	if (time_after(next_update, rc->next_update))
-+		goto clear_counts;
-+
-+	packets = rc->total_pkts;
-+	bytes = rc->total_bytes;
-+
-+	if (container_is_rx) {
-+		/* If Rx there are 1 to 4 packets and bytes are less than
-+		 * 9000 assume insufficient data to use bulk rate limiting
-+		 * approach unless Tx is already in bulk rate limiting. We
-+		 * are likely latency driven.
-+		 */
-+		if (packets && packets < 4 && bytes < 9000 &&
-+		    (q_vector->tx.target_itr & ICE_ITR_ADAPTIVE_LATENCY)) {
-+			itr = ICE_ITR_ADAPTIVE_LATENCY;
-+			goto adjust_by_size;
-+		}
-+	} else if (packets < 4) {
-+		/* If we have Tx and Rx ITR maxed and Tx ITR is running in
-+		 * bulk mode and we are receiving 4 or fewer packets just
-+		 * reset the ITR_ADAPTIVE_LATENCY bit for latency mode so
-+		 * that the Rx can relax.
-+		 */
-+		if (rc->target_itr == ICE_ITR_ADAPTIVE_MAX_USECS &&
-+		    (q_vector->rx.target_itr & ICE_ITR_MASK) ==
-+		    ICE_ITR_ADAPTIVE_MAX_USECS)
-+			goto clear_counts;
-+	} else if (packets > 32) {
-+		/* If we have processed over 32 packets in a single interrupt
-+		 * for Tx assume we need to switch over to "bulk" mode.
-+		 */
-+		rc->target_itr &= ~ICE_ITR_ADAPTIVE_LATENCY;
-+	}
-+
-+	/* We have no packets to actually measure against. This means
-+	 * either one of the other queues on this vector is active or
-+	 * we are a Tx queue doing TSO with too high of an interrupt rate.
-+	 *
-+	 * Between 4 and 56 we can assume that our current interrupt delay
-+	 * is only slightly too low. As such we should increase it by a small
-+	 * fixed amount.
-+	 */
-+	if (packets < 56) {
-+		itr = rc->target_itr + ICE_ITR_ADAPTIVE_MIN_INC;
-+		if ((itr & ICE_ITR_MASK) > ICE_ITR_ADAPTIVE_MAX_USECS) {
-+			itr &= ICE_ITR_ADAPTIVE_LATENCY;
-+			itr += ICE_ITR_ADAPTIVE_MAX_USECS;
-+		}
-+		goto clear_counts;
-+	}
-+
-+	if (packets <= 256) {
-+		itr = min(q_vector->tx.current_itr, q_vector->rx.current_itr);
-+		itr &= ICE_ITR_MASK;
-+
-+		/* Between 56 and 112 is our "goldilocks" zone where we are
-+		 * working out "just right". Just report that our current
-+		 * ITR is good for us.
-+		 */
-+		if (packets <= 112)
-+			goto clear_counts;
-+
-+		/* If packet count is 128 or greater we are likely looking
-+		 * at a slight overrun of the delay we want. Try halving
-+		 * our delay to see if that will cut the number of packets
-+		 * in half per interrupt.
-+		 */
-+		itr >>= 1;
-+		itr &= ICE_ITR_MASK;
-+		if (itr < ICE_ITR_ADAPTIVE_MIN_USECS)
-+			itr = ICE_ITR_ADAPTIVE_MIN_USECS;
-+
-+		goto clear_counts;
-+	}
-+
-+	/* The paths below assume we are dealing with a bulk ITR since
-+	 * number of packets is greater than 256. We are just going to have
-+	 * to compute a value and try to bring the count under control,
-+	 * though for smaller packet sizes there isn't much we can do as
-+	 * NAPI polling will likely be kicking in sooner rather than later.
-+	 */
-+	itr = ICE_ITR_ADAPTIVE_BULK;
-+
-+adjust_by_size:
-+	/* If packet counts are 256 or greater we can assume we have a gross
-+	 * overestimation of what the rate should be. Instead of trying to fine
-+	 * tune it just use the formula below to try and dial in an exact value
-+	 * gives the current packet size of the frame.
-+	 */
-+	avg_wire_size = bytes / packets;
-+
-+	/* The following is a crude approximation of:
-+	 *  wmem_default / (size + overhead) = desired_pkts_per_int
-+	 *  rate / bits_per_byte / (size + ethernet overhead) = pkt_rate
-+	 *  (desired_pkt_rate / pkt_rate) * usecs_per_sec = ITR value
-+	 *
-+	 * Assuming wmem_default is 212992 and overhead is 640 bytes per
-+	 * packet, (256 skb, 64 headroom, 320 shared info), we can reduce the
-+	 * formula down to
-+	 *
-+	 *  (170 * (size + 24)) / (size + 640) = ITR
-+	 *
-+	 * We first do some math on the packet size and then finally bitshift
-+	 * by 8 after rounding up. We also have to account for PCIe link speed
-+	 * difference as ITR scales based on this.
-+	 */
-+	if (avg_wire_size <= 60) {
-+		/* Start at 250k ints/sec */
-+		avg_wire_size = 4096;
-+	} else if (avg_wire_size <= 380) {
-+		/* 250K ints/sec to 60K ints/sec */
-+		avg_wire_size *= 40;
-+		avg_wire_size += 1696;
-+	} else if (avg_wire_size <= 1084) {
-+		/* 60K ints/sec to 36K ints/sec */
-+		avg_wire_size *= 15;
-+		avg_wire_size += 11452;
-+	} else if (avg_wire_size <= 1980) {
-+		/* 36K ints/sec to 30K ints/sec */
-+		avg_wire_size *= 5;
-+		avg_wire_size += 22420;
-+	} else {
-+		/* plateau at a limit of 30K ints/sec */
-+		avg_wire_size = 32256;
-+	}
-+
-+	/* If we are in low latency mode halve our delay which doubles the
-+	 * rate to somewhere between 100K to 16K ints/sec
-+	 */
-+	if (itr & ICE_ITR_ADAPTIVE_LATENCY)
-+		avg_wire_size >>= 1;
-+
-+	/* Resultant value is 256 times larger than it needs to be. This
-+	 * gives us room to adjust the value as needed to either increase
-+	 * or decrease the value based on link speeds of 10G, 2.5G, 1G, etc.
-+	 *
-+	 * Use addition as we have already recorded the new latency flag
-+	 * for the ITR value.
-+	 */
-+	itr += DIV_ROUND_UP(avg_wire_size,
-+			    ice_itr_divisor(q_vector->vsi->port_info)) *
-+	       ICE_ITR_ADAPTIVE_MIN_INC;
-+
-+	if ((itr & ICE_ITR_MASK) > ICE_ITR_ADAPTIVE_MAX_USECS) {
-+		itr &= ICE_ITR_ADAPTIVE_LATENCY;
-+		itr += ICE_ITR_ADAPTIVE_MAX_USECS;
-+	}
-+
-+clear_counts:
-+	/* write back value */
-+	rc->target_itr = itr;
-+
-+	/* next update should occur within next jiffy */
-+	rc->next_update = next_update + 1;
-+
-+	rc->total_bytes = 0;
-+	rc->total_pkts = 0;
-+}
-+
- /**
-  * ice_buildreg_itr - build value for writing to the GLINT_DYN_CTL register
-  * @itr_idx: interrupt throttling index
-- * @reg_itr: interrupt throttling value adjusted based on ITR granularity
-+ * @itr: interrupt throttling value in usecs
-  */
--static u32 ice_buildreg_itr(int itr_idx, u16 reg_itr)
-+static u32 ice_buildreg_itr(int itr_idx, u16 itr)
- {
-+	/* The itr value is reported in microseconds, and the register value is
-+	 * recorded in 2 microsecond units. For this reason we only need to
-+	 * shift by the GLINT_DYN_CTL_INTERVAL_S - ICE_ITR_GRAN_S to apply this
-+	 * granularity as a shift instead of division. The mask makes sure the
-+	 * ITR value is never odd so we don't accidentally write into the field
-+	 * prior to the ITR field.
-+	 */
-+	itr &= ICE_ITR_MASK;
-+
- 	return GLINT_DYN_CTL_INTENA_M | GLINT_DYN_CTL_CLEARPBA_M |
- 		(itr_idx << GLINT_DYN_CTL_ITR_INDX_S) |
--		(reg_itr << GLINT_DYN_CTL_INTERVAL_S);
-+		(itr << (GLINT_DYN_CTL_INTERVAL_S - ICE_ITR_GRAN_S));
- }
- 
-+/* The act of updating the ITR will cause it to immediately trigger. In order
-+ * to prevent this from throwing off adaptive update statistics we defer the
-+ * update so that it can only happen so often. So after either Tx or Rx are
-+ * updated we make the adaptive scheme wait until either the ITR completely
-+ * expires via the next_update expiration or we have been through at least
-+ * 3 interrupts.
-+ */
-+#define ITR_COUNTDOWN_START 3
-+
- /**
-  * ice_update_ena_itr - Update ITR and re-enable MSIX interrupt
-  * @vsi: the VSI associated with the q_vector
-@@ -1068,10 +1307,14 @@ static u32 ice_buildreg_itr(int itr_idx, u16 reg_itr)
- static void
- ice_update_ena_itr(struct ice_vsi *vsi, struct ice_q_vector *q_vector)
- {
--	struct ice_hw *hw = &vsi->back->hw;
--	struct ice_ring_container *rc;
-+	struct ice_ring_container *tx = &q_vector->tx;
-+	struct ice_ring_container *rx = &q_vector->rx;
- 	u32 itr_val;
- 
-+	/* This will do nothing if dynamic updates are not enabled */
-+	ice_update_itr(q_vector, tx);
-+	ice_update_itr(q_vector, rx);
-+
- 	/* This block of logic allows us to get away with only updating
- 	 * one ITR value with each interrupt. The idea is to perform a
- 	 * pseudo-lazy update with the following criteria.
-@@ -1080,35 +1323,36 @@ ice_update_ena_itr(struct ice_vsi *vsi, struct ice_q_vector *q_vector)
- 	 * 2. If we must reduce an ITR that is given highest priority.
- 	 * 3. We then give priority to increasing ITR based on amount.
- 	 */
--	if (q_vector->rx.target_itr < q_vector->rx.current_itr) {
--		rc = &q_vector->rx;
-+	if (rx->target_itr < rx->current_itr) {
- 		/* Rx ITR needs to be reduced, this is highest priority */
--		itr_val = ice_buildreg_itr(rc->itr_idx, rc->target_itr);
--		rc->current_itr = rc->target_itr;
--	} else if ((q_vector->tx.target_itr < q_vector->tx.current_itr) ||
--		   ((q_vector->rx.target_itr - q_vector->rx.current_itr) <
--		    (q_vector->tx.target_itr - q_vector->tx.current_itr))) {
--		rc = &q_vector->tx;
-+		itr_val = ice_buildreg_itr(rx->itr_idx, rx->target_itr);
-+		rx->current_itr = rx->target_itr;
-+		q_vector->itr_countdown = ITR_COUNTDOWN_START;
-+	} else if ((tx->target_itr < tx->current_itr) ||
-+		   ((rx->target_itr - rx->current_itr) <
-+		    (tx->target_itr - tx->current_itr))) {
- 		/* Tx ITR needs to be reduced, this is second priority
- 		 * Tx ITR needs to be increased more than Rx, fourth priority
- 		 */
--		itr_val = ice_buildreg_itr(rc->itr_idx, rc->target_itr);
--		rc->current_itr = rc->target_itr;
--	} else if (q_vector->rx.current_itr != q_vector->rx.target_itr) {
--		rc = &q_vector->rx;
-+		itr_val = ice_buildreg_itr(tx->itr_idx, tx->target_itr);
-+		tx->current_itr = tx->target_itr;
-+		q_vector->itr_countdown = ITR_COUNTDOWN_START;
-+	} else if (rx->current_itr != rx->target_itr) {
- 		/* Rx ITR needs to be increased, third priority */
--		itr_val = ice_buildreg_itr(rc->itr_idx, rc->target_itr);
--		rc->current_itr = rc->target_itr;
-+		itr_val = ice_buildreg_itr(rx->itr_idx, rx->target_itr);
-+		rx->current_itr = rx->target_itr;
-+		q_vector->itr_countdown = ITR_COUNTDOWN_START;
- 	} else {
- 		/* Still have to re-enable the interrupts */
- 		itr_val = ice_buildreg_itr(ICE_ITR_NONE, 0);
-+		if (q_vector->itr_countdown)
-+			q_vector->itr_countdown--;
- 	}
- 
--	if (!test_bit(__ICE_DOWN, vsi->state)) {
--		int vector = vsi->hw_base_vector + q_vector->v_idx;
--
--		wr32(hw, GLINT_DYN_CTL(vector), itr_val);
--	}
-+	if (!test_bit(__ICE_DOWN, vsi->state))
-+		wr32(&vsi->back->hw,
-+		     GLINT_DYN_CTL(vsi->hw_base_vector + q_vector->v_idx),
-+		     itr_val);
- }
- 
- /**
-diff --git a/drivers/net/ethernet/intel/ice/ice_txrx.h b/drivers/net/ethernet/intel/ice/ice_txrx.h
-index fc358ea81816f..74a031fbd7323 100644
---- a/drivers/net/ethernet/intel/ice/ice_txrx.h
-+++ b/drivers/net/ethernet/intel/ice/ice_txrx.h
-@@ -128,6 +128,12 @@ enum ice_rx_dtype {
- #define ICE_ITR_MASK		0x1FFE	/* ITR register value alignment mask */
- #define ITR_REG_ALIGN(setting)	__ALIGN_MASK(setting, ~ICE_ITR_MASK)
- 
-+#define ICE_ITR_ADAPTIVE_MIN_INC	0x0002
-+#define ICE_ITR_ADAPTIVE_MIN_USECS	0x0002
-+#define ICE_ITR_ADAPTIVE_MAX_USECS	0x00FA
-+#define ICE_ITR_ADAPTIVE_LATENCY	0x8000
-+#define ICE_ITR_ADAPTIVE_BULK		0x0000
-+
- #define ICE_DFLT_INTRL	0
- 
- /* Legacy or Advanced Mode Queue */
+ static u32 tcm_qla2xxx_sess_get_index(struct se_session *se_sess)
 -- 
 2.20.1
 
