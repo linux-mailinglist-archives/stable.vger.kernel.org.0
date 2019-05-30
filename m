@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 194612EB18
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:10:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EAF62F42E
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:36:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727724AbfE3DKF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:10:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46250 "EHLO mail.kernel.org"
+        id S1729637AbfE3Ef6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:35:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727922AbfE3DKF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:10:05 -0400
+        id S1729332AbfE3DNF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:13:05 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5DA1824485;
-        Thu, 30 May 2019 03:10:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B616C24526;
+        Thu, 30 May 2019 03:13:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185804;
-        bh=ttLh+ckpVc5RVPBST4JMsgoTePgU8TMjDpQTS1LxvbA=;
+        s=default; t=1559185983;
+        bh=t6bx2D04IYoytuycVZr10En/w9fgx4z/f8hlVwcsreI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LumMgQ2lZi5l1S4UjJA7JT+PBGQ3fEg6k3JxY90Oy+3uonAZUOzcfaTlAx/EVfSv2
-         p31P3ud0n294rfvsuLGpJQrWL0g/pxbdWof33WZ/LCiwK564BQ1obO2fPm8Ca6PVvX
-         ZE8CtmuzrbcRKDOo5hWldStqq84DQ/o1iMw8h0i0=
+        b=YrVwQbiTJuExAkboIpErvFXEUBkQPDK+9X//V1DcA70cNr7wnUq/7wz8PpEDSmGWd
+         2MsVts3Vspnr3HRRlUq4Pr3UDxY3iTMfybMlZL1dXPETmtwHoZmKsAniLJT0jPn2cW
+         pDlDrS0zyhxx/+ts5MWnGx9U1aHqBKJY2bOWhPxE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabien Dessenne <fabien.dessenne@st.com>,
-        Hugues Fruchet <hugues.fruchet@st.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 084/405] media: stm32-dcmi: return appropriate error codes during probe
+        stable@vger.kernel.org, Daniel Axtens <dja@axtens.net>,
+        Nayna Jain <nayna@linux.ibm.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.0 009/346] crypto: vmx - CTR: always increment IV as quadword
 Date:   Wed, 29 May 2019 20:01:22 -0700
-Message-Id: <20190530030545.269740596@linuxfoundation.org>
+Message-Id: <20190530030540.980132209@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,72 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit b5b5a27bee5884860798ffd0f08e611a3942064b ]
+From: Daniel Axtens <dja@axtens.net>
 
-During probe, return the provided errors value instead of -ENODEV.
-This allows the driver to be deferred probed if needed.
+commit 009b30ac7444c17fae34c4f435ebce8e8e2b3250 upstream.
 
-Signed-off-by: Fabien Dessenne <fabien.dessenne@st.com>
-Acked-by: Hugues Fruchet <hugues.fruchet@st.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The kernel self-tests picked up an issue with CTR mode:
+alg: skcipher: p8_aes_ctr encryption test failed (wrong result) on test vector 3, cfg="uneven misaligned splits, may sleep"
+
+Test vector 3 has an IV of FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFD, so
+after 3 increments it should wrap around to 0.
+
+In the aesp8-ppc code from OpenSSL, there are two paths that
+increment IVs: the bulk (8 at a time) path, and the individual
+path which is used when there are fewer than 8 AES blocks to
+process.
+
+In the bulk path, the IV is incremented with vadduqm: "Vector
+Add Unsigned Quadword Modulo", which does 128-bit addition.
+
+In the individual path, however, the IV is incremented with
+vadduwm: "Vector Add Unsigned Word Modulo", which instead
+does 4 32-bit additions. Thus the IV would instead become
+FFFFFFFFFFFFFFFFFFFFFFFF00000000, throwing off the result.
+
+Use vadduqm.
+
+This was probably a typo originally, what with q and w being
+adjacent. It is a pretty narrow edge case: I am really
+impressed by the quality of the kernel self-tests!
+
+Fixes: 5c380d623ed3 ("crypto: vmx - Add support for VMS instructions by ASM")
+Cc: stable@vger.kernel.org
+Signed-off-by: Daniel Axtens <dja@axtens.net>
+Acked-by: Nayna Jain <nayna@linux.ibm.com>
+Tested-by: Nayna Jain <nayna@linux.ibm.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/media/platform/stm32/stm32-dcmi.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ drivers/crypto/vmx/aesp8-ppc.pl |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/stm32/stm32-dcmi.c b/drivers/media/platform/stm32/stm32-dcmi.c
-index 5fe5b38fa901d..a1f0801081ba9 100644
---- a/drivers/media/platform/stm32/stm32-dcmi.c
-+++ b/drivers/media/platform/stm32/stm32-dcmi.c
-@@ -1645,7 +1645,7 @@ static int dcmi_probe(struct platform_device *pdev)
- 	dcmi->rstc = devm_reset_control_get_exclusive(&pdev->dev, NULL);
- 	if (IS_ERR(dcmi->rstc)) {
- 		dev_err(&pdev->dev, "Could not get reset control\n");
--		return -ENODEV;
-+		return PTR_ERR(dcmi->rstc);
- 	}
+--- a/drivers/crypto/vmx/aesp8-ppc.pl
++++ b/drivers/crypto/vmx/aesp8-ppc.pl
+@@ -1357,7 +1357,7 @@ Loop_ctr32_enc:
+ 	addi		$idx,$idx,16
+ 	bdnz		Loop_ctr32_enc
  
- 	/* Get bus characteristics from devicetree */
-@@ -1660,7 +1660,7 @@ static int dcmi_probe(struct platform_device *pdev)
- 	of_node_put(np);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Could not parse the endpoint\n");
--		return -ENODEV;
-+		return ret;
- 	}
- 
- 	if (ep.bus_type == V4L2_MBUS_CSI2_DPHY) {
-@@ -1673,8 +1673,9 @@ static int dcmi_probe(struct platform_device *pdev)
- 
- 	irq = platform_get_irq(pdev, 0);
- 	if (irq <= 0) {
--		dev_err(&pdev->dev, "Could not get irq\n");
--		return -ENODEV;
-+		if (irq != -EPROBE_DEFER)
-+			dev_err(&pdev->dev, "Could not get irq\n");
-+		return irq;
- 	}
- 
- 	dcmi->res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-@@ -1694,12 +1695,13 @@ static int dcmi_probe(struct platform_device *pdev)
- 					dev_name(&pdev->dev), dcmi);
- 	if (ret) {
- 		dev_err(&pdev->dev, "Unable to request irq %d\n", irq);
--		return -ENODEV;
-+		return ret;
- 	}
- 
- 	mclk = devm_clk_get(&pdev->dev, "mclk");
- 	if (IS_ERR(mclk)) {
--		dev_err(&pdev->dev, "Unable to get mclk\n");
-+		if (PTR_ERR(mclk) != -EPROBE_DEFER)
-+			dev_err(&pdev->dev, "Unable to get mclk\n");
- 		return PTR_ERR(mclk);
- 	}
- 
--- 
-2.20.1
-
+-	vadduwm		$ivec,$ivec,$one
++	vadduqm		$ivec,$ivec,$one
+ 	 vmr		$dat,$inptail
+ 	 lvx		$inptail,0,$inp
+ 	 addi		$inp,$inp,16
 
 
