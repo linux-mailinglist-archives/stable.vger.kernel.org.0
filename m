@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A9B82F1E6
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:17:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BE502EE33
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:45:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730453AbfE3DPm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:15:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39682 "EHLO mail.kernel.org"
+        id S1729703AbfE3DpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:45:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60140 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730446AbfE3DPm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:15:42 -0400
+        id S1732356AbfE3DUt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:20:49 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F2F524585;
-        Thu, 30 May 2019 03:15:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6CAAD2497E;
+        Thu, 30 May 2019 03:20:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186141;
-        bh=5zpwOjDO1fpQzwqoXZLpNd3AB+Dz2aPEnFSCm18DBbw=;
+        s=default; t=1559186449;
+        bh=S1j6bad579v5fusLnPckpJ2t/x9ds1L+5EFoRA5iTbk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nweUEK2UNPm0hgH4Ul449Lk2fmxrP86pUg9JO6v8vwXR8WHKYbjhZ+nWlZJseUYNH
-         QfhRHBxZS8bQd5IpqPNPQJ1pG8BmjDap/WxNxqmExO/ek9aK8I78KG6iZM3v9MCNJu
-         H5tZq7DdBSkQMwx+nnOFlJeV/DO3GbzKZrs3Z0X8=
+        b=2c0MPi5nlbN1h2ka+PHpgQm+b2BgdKbeL7n1804Bv97KXIodBLT1/8RFjfS2ek5hT
+         FtOhPeS4KNhO8ApNcOKr9FZcHWYzvEI+pBsfNfFJaS6OJ2UnTm9Wce+u273S6plG7+
+         0x9kiDw+SPuOhrbSkBupi8x0XIVIMjqJa53eq3FU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Janusz Krzysztofik <jmkrzyszt@gmail.com>,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 317/346] spi : spi-topcliff-pch: Fix to handle empty DMA buffers
+Subject: [PATCH 4.9 058/128] media: ov6650: Move v4l2_clk_get() to ov6650_video_probe() helper
 Date:   Wed, 29 May 2019 20:06:30 -0700
-Message-Id: <20190530030556.868566279@linuxfoundation.org>
+Message-Id: <20190530030445.289771897@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
+References: <20190530030432.977908967@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,63 +45,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f37d8e67f39e6d3eaf4cc5471e8a3d21209843c6 ]
+[ Upstream commit ccdd85d518d8b9320ace1d87271f0ba2175f21fa ]
 
-pch_alloc_dma_buf allocated tx, rx DMA buffers which can fail. Further,
-these buffers are used without a check. The patch checks for these
-failures and sends the error upstream.
+In preparation for adding asynchronous subdevice support to the driver,
+don't acquire v4l2_clk from the driver .probe() callback as that may
+fail if the clock is provided by a bridge driver which may be not yet
+initialized.  Move the v4l2_clk_get() to ov6650_video_probe() helper
+which is going to be converted to v4l2_subdev_internal_ops.registered()
+callback, executed only when the bridge driver is ready.
 
-Signed-off-by: Aditya Pakki <pakki001@umn.edu>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Janusz Krzysztofik <jmkrzyszt@gmail.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-topcliff-pch.c | 15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+ drivers/media/i2c/soc_camera/ov6650.c | 25 ++++++++++++++-----------
+ 1 file changed, 14 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/spi/spi-topcliff-pch.c b/drivers/spi/spi-topcliff-pch.c
-index 97d137591b18d..4389ab80c23e6 100644
---- a/drivers/spi/spi-topcliff-pch.c
-+++ b/drivers/spi/spi-topcliff-pch.c
-@@ -1294,18 +1294,27 @@ static void pch_free_dma_buf(struct pch_spi_board_data *board_dat,
- 				  dma->rx_buf_virt, dma->rx_buf_dma);
+diff --git a/drivers/media/i2c/soc_camera/ov6650.c b/drivers/media/i2c/soc_camera/ov6650.c
+index e21b7e1c2ee15..fc187c5aeb1e9 100644
+--- a/drivers/media/i2c/soc_camera/ov6650.c
++++ b/drivers/media/i2c/soc_camera/ov6650.c
+@@ -840,9 +840,16 @@ static int ov6650_video_probe(struct i2c_client *client)
+ 	u8		pidh, pidl, midh, midl;
+ 	int		ret;
+ 
++	priv->clk = v4l2_clk_get(&client->dev, NULL);
++	if (IS_ERR(priv->clk)) {
++		ret = PTR_ERR(priv->clk);
++		dev_err(&client->dev, "v4l2_clk request err: %d\n", ret);
++		return ret;
++	}
++
+ 	ret = ov6650_s_power(&priv->subdev, 1);
+ 	if (ret < 0)
+-		return ret;
++		goto eclkput;
+ 
+ 	msleep(20);
+ 
+@@ -879,6 +886,11 @@ static int ov6650_video_probe(struct i2c_client *client)
+ 
+ done:
+ 	ov6650_s_power(&priv->subdev, 0);
++	if (!ret)
++		return 0;
++eclkput:
++	v4l2_clk_put(priv->clk);
++
+ 	return ret;
  }
  
--static void pch_alloc_dma_buf(struct pch_spi_board_data *board_dat,
-+static int pch_alloc_dma_buf(struct pch_spi_board_data *board_dat,
- 			      struct pch_spi_data *data)
- {
- 	struct pch_spi_dma_ctrl *dma;
-+	int ret;
+@@ -1035,18 +1047,9 @@ static int ov6650_probe(struct i2c_client *client,
+ 	priv->code	  = MEDIA_BUS_FMT_YUYV8_2X8;
+ 	priv->colorspace  = V4L2_COLORSPACE_JPEG;
  
- 	dma = &data->dma;
-+	ret = 0;
- 	/* Get Consistent memory for Tx DMA */
- 	dma->tx_buf_virt = dma_alloc_coherent(&board_dat->pdev->dev,
- 				PCH_BUF_SIZE, &dma->tx_buf_dma, GFP_KERNEL);
-+	if (!dma->tx_buf_virt)
-+		ret = -ENOMEM;
-+
- 	/* Get Consistent memory for Rx DMA */
- 	dma->rx_buf_virt = dma_alloc_coherent(&board_dat->pdev->dev,
- 				PCH_BUF_SIZE, &dma->rx_buf_dma, GFP_KERNEL);
-+	if (!dma->rx_buf_virt)
-+		ret = -ENOMEM;
-+
-+	return ret;
+-	priv->clk = v4l2_clk_get(&client->dev, NULL);
+-	if (IS_ERR(priv->clk)) {
+-		ret = PTR_ERR(priv->clk);
+-		goto eclkget;
+-	}
+-
+ 	ret = ov6650_video_probe(client);
+-	if (ret) {
+-		v4l2_clk_put(priv->clk);
+-eclkget:
++	if (ret)
+ 		v4l2_ctrl_handler_free(&priv->hdl);
+-	}
+ 
+ 	return ret;
  }
- 
- static int pch_spi_pd_probe(struct platform_device *plat_dev)
-@@ -1382,7 +1391,9 @@ static int pch_spi_pd_probe(struct platform_device *plat_dev)
- 
- 	if (use_dma) {
- 		dev_info(&plat_dev->dev, "Use DMA for data transfers\n");
--		pch_alloc_dma_buf(board_dat, data);
-+		ret = pch_alloc_dma_buf(board_dat, data);
-+		if (ret)
-+			goto err_spi_register_master;
- 	}
- 
- 	ret = spi_register_master(master);
 -- 
 2.20.1
 
