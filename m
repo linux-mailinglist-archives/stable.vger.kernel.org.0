@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A79AF2F2F6
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:25:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F63B2F53C
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:46:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728270AbfE3EZS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:25:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35654 "EHLO mail.kernel.org"
+        id S1729265AbfE3Epf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:45:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728831AbfE3DOq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:14:46 -0400
+        id S1728701AbfE3DLu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:11:50 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 97BDD24502;
-        Thu, 30 May 2019 03:14:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F2E4124481;
+        Thu, 30 May 2019 03:11:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186085;
-        bh=4m0V6gs00H3AQi5sqAns7djNJx5ZGC9wfwfv+rwdCrg=;
+        s=default; t=1559185910;
+        bh=2wpiB4zzn6wBHIQlOWQviFupKUmKgjTIpgGgSQWBWKQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iEcRXmHEx9d8ci/LLN1RuJo+rEkcTPdKGSanSCzFEqOgvt6VvXF7GLIh4ZZYxTpk+
-         8bxX45PSoxOXmf6vq4wtoCENAWn3nVFth5nc2hLjyG53RgU+FFyIGTL2g7U6vHxGNS
-         gYiXpYV4TJcxQ0TBXTEp2kfEOeUdAa9TbcIu+5kI=
+        b=e2+tXUignM1mdJtBDv/D+ssyRysBwWGhdzDQp5M0iwByBX5Hk1HevJmbm1duchem+
+         qTq5XbbkjEN2k3/t/6Pk5lgnsHrownNugTQVacrvBHh4HUKu4E4uILJJrOETaxVBUH
+         U8ddWjr/CIUVPJZfvCmmRPfzBIDbm3XIJaGlKTLI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
-        Lucas Stach <l.stach@pengutronix.de>,
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 166/346] drm: etnaviv: avoid DMA API warning when importing buffers
-Date:   Wed, 29 May 2019 20:03:59 -0700
-Message-Id: <20190530030549.568808155@linuxfoundation.org>
+Subject: [PATCH 5.1 242/405] iio: common: ssp_sensors: Initialize calculated_time in ssp_common_process_data
+Date:   Wed, 29 May 2019 20:04:00 -0700
+Message-Id: <20190530030553.234582311@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,90 +46,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 1262cc8893ecb0eb2c21e042d0d268cc180edb61 ]
+[ Upstream commit 6f9ca1d3eb74b81f811a87002de2d51640d135b1 ]
 
-During boot, I get this kernel warning:
+When building with -Wsometimes-uninitialized, Clang warns:
 
-WARNING: CPU: 0 PID: 19001 at kernel/dma/debug.c:1301 debug_dma_map_sg+0x284/0x3dc
-etnaviv etnaviv: DMA-API: mapping sg segment longer than device claims to support [len=3145728] [max=65536]
-Modules linked in: ip6t_REJECT nf_reject_ipv6 ip6t_rpfilter xt_tcpudp ipt_REJECT nf_reject_ipv4 xt_conntrack ip_set nfnetlink ebtable_broute ebtable_nat ip6table_raw ip6table_nat nf_nat_ipv6 ip6table_mangle iptable_raw iptable_nat nf_nat_ipv4 nf_nat nf_conntrack nf_defrag_ipv4 nf_defrag_ipv6 libcrc32c iptable_mangle ebtable_filter ebtables ip6table_filter ip6_tables iptable_filter caam_jr error snd_soc_imx_spdif imx_thermal snd_soc_imx_audmux nvmem_imx_ocotp snd_soc_sgtl5000
-caam imx_sdma virt_dma coda rc_cec v4l2_mem2mem snd_soc_fsl_ssi snd_soc_fsl_spdif imx_vdoa imx_pcm_dma videobuf2_dma_contig etnaviv dw_hdmi_cec gpu_sched dw_hdmi_ahb_audio imx6q_cpufreq nfsd sch_fq_codel ip_tables x_tables
-CPU: 0 PID: 19001 Comm: Xorg Not tainted 4.20.0+ #307
-Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
-[<c0019658>] (unwind_backtrace) from [<c001489c>] (show_stack+0x10/0x14)
-[<c001489c>] (show_stack) from [<c07fb420>] (dump_stack+0x9c/0xd4)
-[<c07fb420>] (dump_stack) from [<c00312dc>] (__warn+0xf8/0x124)
-[<c00312dc>] (__warn) from [<c00313d0>] (warn_slowpath_fmt+0x38/0x48)
-[<c00313d0>] (warn_slowpath_fmt) from [<c00b14e8>] (debug_dma_map_sg+0x284/0x3dc)
-[<c00b14e8>] (debug_dma_map_sg) from [<c046eb40>] (drm_gem_map_dma_buf+0xc4/0x13c)
-[<c046eb40>] (drm_gem_map_dma_buf) from [<c04c3314>] (dma_buf_map_attachment+0x38/0x5c)
-[<c04c3314>] (dma_buf_map_attachment) from [<c046e728>] (drm_gem_prime_import_dev+0x74/0x104)
-[<c046e728>] (drm_gem_prime_import_dev) from [<c046e5bc>] (drm_gem_prime_fd_to_handle+0x84/0x17c)
-[<c046e5bc>] (drm_gem_prime_fd_to_handle) from [<c046edd0>] (drm_prime_fd_to_handle_ioctl+0x38/0x4c)
-[<c046edd0>] (drm_prime_fd_to_handle_ioctl) from [<c0460efc>] (drm_ioctl_kernel+0x90/0xc8)
-[<c0460efc>] (drm_ioctl_kernel) from [<c0461114>] (drm_ioctl+0x1e0/0x3b0)
-[<c0461114>] (drm_ioctl) from [<c01cae20>] (do_vfs_ioctl+0x90/0xa48)
-[<c01cae20>] (do_vfs_ioctl) from [<c01cb80c>] (ksys_ioctl+0x34/0x60)
-[<c01cb80c>] (ksys_ioctl) from [<c0009000>] (ret_fast_syscall+0x0/0x28)
-Exception stack(0xd81a9fa8 to 0xd81a9ff0)
-9fa0:                   b6c69c88 bec613f8 00000009 c00c642e bec613f8 b86c4600
-9fc0: b6c69c88 bec613f8 c00c642e 00000036 012762e0 01276348 00000300 012d91f8
-9fe0: b6989f18 bec613dc b697185c b667be5c
-irq event stamp: 47905
-hardirqs last  enabled at (47913): [<c0098824>] console_unlock+0x46c/0x680
-hardirqs last disabled at (47922): [<c0098470>] console_unlock+0xb8/0x680
-softirqs last  enabled at (47754): [<c000a484>] __do_softirq+0x344/0x540
-softirqs last disabled at (47701): [<c0038700>] irq_exit+0x124/0x144
----[ end trace af477747acbcc642 ]---
+drivers/iio/common/ssp_sensors/ssp_iio.c:95:6: warning: variable
+'calculated_time' is used uninitialized whenever 'if' condition is false
+[-Wsometimes-uninitialized]
 
-The reason is the contiguous buffer exceeds the default maximum segment
-size of 64K as specified by dma_get_max_seg_size() in
-linux/dma-mapping.h.  Fix this by providing our own segment size, which
-is set to 2GiB to cover the window found in MMUv1 GPUs.
+While it isn't wrong, this will never be a problem because
+iio_push_to_buffers_with_timestamp only uses calculated_time
+on the same condition that it is assigned (when scan_timestamp
+is not zero). While iio_push_to_buffers_with_timestamp is marked
+as inline, Clang does inlining in the optimization stage, which
+happens after the semantic analysis phase (plus inline is merely
+a hint to the compiler).
 
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Fix this by just zero initializing calculated_time.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/394
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/etnaviv/etnaviv_drv.c | 5 +++++
- drivers/gpu/drm/etnaviv/etnaviv_drv.h | 1 +
- 2 files changed, 6 insertions(+)
+ drivers/iio/common/ssp_sensors/ssp_iio.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/etnaviv/etnaviv_drv.c b/drivers/gpu/drm/etnaviv/etnaviv_drv.c
-index 18c27f795cf61..3156450723bad 100644
---- a/drivers/gpu/drm/etnaviv/etnaviv_drv.c
-+++ b/drivers/gpu/drm/etnaviv/etnaviv_drv.c
-@@ -515,6 +515,9 @@ static int etnaviv_bind(struct device *dev)
- 	}
- 	drm->dev_private = priv;
+diff --git a/drivers/iio/common/ssp_sensors/ssp_iio.c b/drivers/iio/common/ssp_sensors/ssp_iio.c
+index 645f2e3975db4..e38f704d88b7e 100644
+--- a/drivers/iio/common/ssp_sensors/ssp_iio.c
++++ b/drivers/iio/common/ssp_sensors/ssp_iio.c
+@@ -81,7 +81,7 @@ int ssp_common_process_data(struct iio_dev *indio_dev, void *buf,
+ 			    unsigned int len, int64_t timestamp)
+ {
+ 	__le32 time;
+-	int64_t calculated_time;
++	int64_t calculated_time = 0;
+ 	struct ssp_sensor_data *spd = iio_priv(indio_dev);
  
-+	dev->dma_parms = &priv->dma_parms;
-+	dma_set_max_seg_size(dev, SZ_2G);
-+
- 	mutex_init(&priv->gem_lock);
- 	INIT_LIST_HEAD(&priv->gem_list);
- 	priv->num_gpus = 0;
-@@ -552,6 +555,8 @@ static void etnaviv_unbind(struct device *dev)
- 
- 	component_unbind_all(dev, drm);
- 
-+	dev->dma_parms = NULL;
-+
- 	drm->dev_private = NULL;
- 	kfree(priv);
- 
-diff --git a/drivers/gpu/drm/etnaviv/etnaviv_drv.h b/drivers/gpu/drm/etnaviv/etnaviv_drv.h
-index 4bf698de59969..51b7bdf5748bc 100644
---- a/drivers/gpu/drm/etnaviv/etnaviv_drv.h
-+++ b/drivers/gpu/drm/etnaviv/etnaviv_drv.h
-@@ -43,6 +43,7 @@ struct etnaviv_file_private {
- 
- struct etnaviv_drm_private {
- 	int num_gpus;
-+	struct device_dma_parameters dma_parms;
- 	struct etnaviv_gpu *gpu[ETNA_MAX_PIPES];
- 
- 	/* list of GEM objects: */
+ 	if (indio_dev->scan_bytes == 0)
 -- 
 2.20.1
 
