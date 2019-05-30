@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AC142EE89
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:49:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 841542F0AF
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:06:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731575AbfE3DsD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:48:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58408 "EHLO mail.kernel.org"
+        id S1726965AbfE3EGR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:06:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732184AbfE3DUX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:20:23 -0400
+        id S1731181AbfE3DRg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:17:36 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3732C24934;
-        Thu, 30 May 2019 03:20:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D2FFD246F4;
+        Thu, 30 May 2019 03:17:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186423;
-        bh=bp+FKhsPpaUv+Z2jl2+x8XsPlCB1XpCj2NmslC4+y3c=;
+        s=default; t=1559186255;
+        bh=a7LZHAGSnn7a+kd0ARbVNsTrdcYFhfOU/2ik8HLnMxU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kdz3NWubUQz0GgU4v+ndatvIiumNJzpU0NmJik1J1m/qDNP0ggVqZO/zkg7i939u2
-         bEQbLCOayWKPI9elScFG/rwiVbHBQNoH2q6jxdkHXq0fEp/WbW/VCrMqIrCFtYfBpA
-         UtA0hShudQOgw2d2Y5pKDBJ6hQj+GybGTK1GfGwI=
+        b=2BJdFEnzgJRByjOK42sZaJegtWTtPhbNWf4uBRVVseK1NRPYOkppWjbOY6g7Dq6/S
+         vegZdZo2VqwHC4TvWh9mMEXMU2pw0d+PuPfnCR7g5pDeB3ClFyS0a4ZbYZFzyhCWU8
+         XPUfHt91IiNBu/eVUkJVB/jDrxaipMpt4jWBNFjs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        Anand Jain <anand.jain@oracle.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.9 010/128] Btrfs: do not abort transaction at btrfs_update_root() after failure to COW path
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Borislav Petkov <bp@suse.de>, "H. Peter Anvin" <hpa@zytor.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        clang-built-linux@googlegroups.com, x86-ml <x86@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 184/276] x86/build: Keep local relocations with ld.lld
 Date:   Wed, 29 May 2019 20:05:42 -0700
-Message-Id: <20190530030435.413618973@linuxfoundation.org>
+Message-Id: <20190530030536.752838183@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
-References: <20190530030432.977908967@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,54 +48,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+[ Upstream commit 7c21383f3429dd70da39c0c7f1efa12377a47ab6 ]
 
-commit 72bd2323ec87722c115a5906bc6a1b31d11e8f54 upstream.
+The LLVM linker (ld.lld) defaults to removing local relocations, which
+causes KASLR boot failures. ld.bfd and ld.gold already handle this
+correctly. This adds the explicit instruction "--discard-none" during
+the link phase. There is no change in output for ld.bfd and ld.gold,
+but ld.lld now produces an image with all the needed relocations.
 
-Currently when we fail to COW a path at btrfs_update_root() we end up
-always aborting the transaction. However all the current callers of
-btrfs_update_root() are able to deal with errors returned from it, many do
-end up aborting the transaction themselves (directly or not, such as the
-transaction commit path), other BUG_ON() or just gracefully cancel whatever
-they were doing.
-
-When syncing the fsync log, we call btrfs_update_root() through
-tree-log.c:update_log_root(), and if it returns an -ENOSPC error, the log
-sync code does not abort the transaction, instead it gracefully handles
-the error and returns -EAGAIN to the fsync handler, so that it falls back
-to a transaction commit. Any other error different from -ENOSPC, makes the
-log sync code abort the transaction.
-
-So remove the transaction abort from btrfs_update_log() when we fail to
-COW a path to update the root item, so that if an -ENOSPC failure happens
-we avoid aborting the current transaction and have a chance of the fsync
-succeeding after falling back to a transaction commit.
-
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=203413
-Fixes: 79787eaab46121 ("btrfs: replace many BUG_ONs with proper error handling")
-Cc: stable@vger.kernel.org # 4.4+
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: clang-built-linux@googlegroups.com
+Cc: x86-ml <x86@kernel.org>
+Link: https://lkml.kernel.org/r/20190404214027.GA7324@beast
+Link: https://github.com/ClangBuiltLinux/linux/issues/404
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/root-tree.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ arch/x86/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/btrfs/root-tree.c
-+++ b/fs/btrfs/root-tree.c
-@@ -144,10 +144,8 @@ int btrfs_update_root(struct btrfs_trans
- 		return -ENOMEM;
+diff --git a/arch/x86/Makefile b/arch/x86/Makefile
+index ffc823a8312fb..ab2071e40efe3 100644
+--- a/arch/x86/Makefile
++++ b/arch/x86/Makefile
+@@ -47,7 +47,7 @@ export REALMODE_CFLAGS
+ export BITS
  
- 	ret = btrfs_search_slot(trans, root, key, path, 0, 1);
--	if (ret < 0) {
--		btrfs_abort_transaction(trans, ret);
-+	if (ret < 0)
- 		goto out;
--	}
+ ifdef CONFIG_X86_NEED_RELOCS
+-        LDFLAGS_vmlinux := --emit-relocs
++        LDFLAGS_vmlinux := --emit-relocs --discard-none
+ endif
  
- 	if (ret != 0) {
- 		btrfs_print_leaf(root, path->nodes[0]);
+ #
+-- 
+2.20.1
+
 
 
