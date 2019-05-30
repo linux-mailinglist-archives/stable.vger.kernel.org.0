@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 58CCC2EB53
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:12:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 066382F11A
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:10:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728671AbfE3DLp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:11:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52110 "EHLO mail.kernel.org"
+        id S1730898AbfE3DRC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:17:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728653AbfE3DLp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:11:45 -0400
+        id S1730892AbfE3DRC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:17:02 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 39DF224496;
-        Thu, 30 May 2019 03:11:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1D35924657;
+        Thu, 30 May 2019 03:17:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185903;
-        bh=0nkLdu9uf9xRYIRUglcYtarLubKkn17vhOoynGRZVsk=;
+        s=default; t=1559186221;
+        bh=ktULjbtGiu6USQiIsLXH9WoJV2uliWLQyEHGbCjaLcs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Anl71trqkxIzfNwwkIuoYLJhco6w2YUlt7XNkxqQWtTSfnNqknhrJ1Nd4BY9k7XjM
-         UEY6G6iK0vJF131J3iyjQpbTREMzwh+1tVlmqTglstoQn6vnRr7eryRWnhs8zFzAd9
-         dQZ4IF3HEZM1qaOdWebyZ7jXaJHfprUytfSf1ZiM=
+        b=TAK52jHNiuWS/jsEdnKXTuEnlvvzAZEDAOP4XYY07j4OFyEB3udHbwexK04pCzdlN
+         SG98bPJEOEDnzZ20URSQEAxcLbImnq9emfkAHA46tV8Rzh4Y6uko10D7jBWlCgt6IO
+         DkvpTT92xTs5z/2nBYrlgxvyqTlEuNiQXJZP5cIs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
-        Terry Junge <terry.junge@poly.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 273/405] HID: core: move Usage Page concatenation to Main item
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>, luto@kernel.org,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 113/276] mm/uaccess: Use unsigned long to placate UBSAN warnings on older GCC versions
 Date:   Wed, 29 May 2019 20:04:31 -0700
-Message-Id: <20190530030554.710991889@linuxfoundation.org>
+Message-Id: <20190530030533.017771519@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,146 +46,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 58e75155009cc800005629955d3482f36a1e0eec ]
+[ Upstream commit 29da93fea3ea39ab9b12270cc6be1b70ef201c9e ]
 
-As seen on some USB wireless keyboards manufactured by Primax, the HID
-parser was using some assumptions that are not always true. In this case
-it's s the fact that, inside the scope of a main item, an Usage Page
-will always precede an Usage.
+Randy reported objtool triggered on his (GCC-7.4) build:
 
-The spec is not pretty clear as 6.2.2.7 states "Any usage that follows
-is interpreted as a Usage ID and concatenated with the Usage Page".
-While 6.2.2.8 states "When the parser encounters a main item it
-concatenates the last declared Usage Page with a Usage to form a
-complete usage value." Being somewhat contradictory it was decided to
-match Window's implementation, which follows 6.2.2.8.
+  lib/strncpy_from_user.o: warning: objtool: strncpy_from_user()+0x315: call to __ubsan_handle_add_overflow() with UACCESS enabled
+  lib/strnlen_user.o: warning: objtool: strnlen_user()+0x337: call to __ubsan_handle_sub_overflow() with UACCESS enabled
 
-In summary, the patch moves the Usage Page concatenation from the local
-item parsing function to the main item parsing function.
+This is due to UBSAN generating signed-overflow-UB warnings where it
+should not. Prior to GCC-8 UBSAN ignored -fwrapv (which the kernel
+uses through -fno-strict-overflow).
 
-Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Reviewed-by: Terry Junge <terry.junge@poly.com>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Make the functions use 'unsigned long' throughout.
+
+Reported-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Randy Dunlap <rdunlap@infradead.org> # build-tested
+Acked-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: luto@kernel.org
+Link: http://lkml.kernel.org/r/20190424072208.754094071@infradead.org
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-core.c | 36 ++++++++++++++++++++++++------------
- include/linux/hid.h    |  1 +
- 2 files changed, 25 insertions(+), 12 deletions(-)
+ lib/strncpy_from_user.c | 5 +++--
+ lib/strnlen_user.c      | 4 ++--
+ 2 files changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 860e21ec6a492..63a43726cce0f 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -218,13 +218,14 @@ static unsigned hid_lookup_collection(struct hid_parser *parser, unsigned type)
-  * Add a usage to the temporary parser table.
+diff --git a/lib/strncpy_from_user.c b/lib/strncpy_from_user.c
+index b53e1b5d80f42..e304b54c9c7dd 100644
+--- a/lib/strncpy_from_user.c
++++ b/lib/strncpy_from_user.c
+@@ -23,10 +23,11 @@
+  * hit it), 'max' is the address space maximum (and we return
+  * -EFAULT if we hit it).
   */
- 
--static int hid_add_usage(struct hid_parser *parser, unsigned usage)
-+static int hid_add_usage(struct hid_parser *parser, unsigned usage, u8 size)
+-static inline long do_strncpy_from_user(char *dst, const char __user *src, long count, unsigned long max)
++static inline long do_strncpy_from_user(char *dst, const char __user *src,
++					unsigned long count, unsigned long max)
  {
- 	if (parser->local.usage_index >= HID_MAX_USAGES) {
- 		hid_err(parser->device, "usage index exceeded\n");
- 		return -1;
- 	}
- 	parser->local.usage[parser->local.usage_index] = usage;
-+	parser->local.usage_size[parser->local.usage_index] = size;
- 	parser->local.collection_index[parser->local.usage_index] =
- 		parser->collection_stack_ptr ?
- 		parser->collection_stack[parser->collection_stack_ptr - 1] : 0;
-@@ -486,10 +487,7 @@ static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
- 			return 0;
- 		}
+ 	const struct word_at_a_time constants = WORD_AT_A_TIME_CONSTANTS;
+-	long res = 0;
++	unsigned long res = 0;
  
--		if (item->size <= 2)
--			data = (parser->global.usage_page << 16) + data;
--
--		return hid_add_usage(parser, data);
-+		return hid_add_usage(parser, data, item->size);
+ 	/*
+ 	 * Truncate 'max' to the user-specified limit, so that
+diff --git a/lib/strnlen_user.c b/lib/strnlen_user.c
+index 60d0bbda8f5e5..184f80f7bacfa 100644
+--- a/lib/strnlen_user.c
++++ b/lib/strnlen_user.c
+@@ -28,7 +28,7 @@
+ static inline long do_strnlen_user(const char __user *src, unsigned long count, unsigned long max)
+ {
+ 	const struct word_at_a_time constants = WORD_AT_A_TIME_CONSTANTS;
+-	long align, res = 0;
++	unsigned long align, res = 0;
+ 	unsigned long c;
  
- 	case HID_LOCAL_ITEM_TAG_USAGE_MINIMUM:
+ 	/*
+@@ -42,7 +42,7 @@ static inline long do_strnlen_user(const char __user *src, unsigned long count,
+ 	 * Do everything aligned. But that means that we
+ 	 * need to also expand the maximum..
+ 	 */
+-	align = (sizeof(long) - 1) & (unsigned long)src;
++	align = (sizeof(unsigned long) - 1) & (unsigned long)src;
+ 	src -= align;
+ 	max += align;
  
-@@ -498,9 +496,6 @@ static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
- 			return 0;
- 		}
- 
--		if (item->size <= 2)
--			data = (parser->global.usage_page << 16) + data;
--
- 		parser->local.usage_minimum = data;
- 		return 0;
- 
-@@ -511,9 +506,6 @@ static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
- 			return 0;
- 		}
- 
--		if (item->size <= 2)
--			data = (parser->global.usage_page << 16) + data;
--
- 		count = data - parser->local.usage_minimum;
- 		if (count + parser->local.usage_index >= HID_MAX_USAGES) {
- 			/*
-@@ -533,7 +525,7 @@ static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
- 		}
- 
- 		for (n = parser->local.usage_minimum; n <= data; n++)
--			if (hid_add_usage(parser, n)) {
-+			if (hid_add_usage(parser, n, item->size)) {
- 				dbg_hid("hid_add_usage failed\n");
- 				return -1;
- 			}
-@@ -547,6 +539,22 @@ static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
- 	return 0;
- }
- 
-+/*
-+ * Concatenate Usage Pages into Usages where relevant:
-+ * As per specification, 6.2.2.8: "When the parser encounters a main item it
-+ * concatenates the last declared Usage Page with a Usage to form a complete
-+ * usage value."
-+ */
-+
-+static void hid_concatenate_usage_page(struct hid_parser *parser)
-+{
-+	int i;
-+
-+	for (i = 0; i < parser->local.usage_index; i++)
-+		if (parser->local.usage_size[i] <= 2)
-+			parser->local.usage[i] += parser->global.usage_page << 16;
-+}
-+
- /*
-  * Process a main item.
-  */
-@@ -556,6 +564,8 @@ static int hid_parser_main(struct hid_parser *parser, struct hid_item *item)
- 	__u32 data;
- 	int ret;
- 
-+	hid_concatenate_usage_page(parser);
-+
- 	data = item_udata(item);
- 
- 	switch (item->tag) {
-@@ -765,6 +775,8 @@ static int hid_scan_main(struct hid_parser *parser, struct hid_item *item)
- 	__u32 data;
- 	int i;
- 
-+	hid_concatenate_usage_page(parser);
-+
- 	data = item_udata(item);
- 
- 	switch (item->tag) {
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index f9707d1dcb584..ac0c70b4ce10a 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -417,6 +417,7 @@ struct hid_global {
- 
- struct hid_local {
- 	unsigned usage[HID_MAX_USAGES]; /* usage array */
-+	u8 usage_size[HID_MAX_USAGES]; /* usage size array */
- 	unsigned collection_index[HID_MAX_USAGES]; /* collection index array */
- 	unsigned usage_index;
- 	unsigned usage_minimum;
 -- 
 2.20.1
 
