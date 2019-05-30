@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BE4892F238
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:20:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B276E2EF31
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:53:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728410AbfE3ETi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:19:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38610 "EHLO mail.kernel.org"
+        id S1732025AbfE3Dxd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:53:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730279AbfE3DPZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:15:25 -0400
+        id S1730914AbfE3DT3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:19:29 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CC0482459C;
-        Thu, 30 May 2019 03:15:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D3EB24890;
+        Thu, 30 May 2019 03:19:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186124;
-        bh=joNhK/ROcodXxZke0Sa4iVMfvbCBd77Z4mWlUohCtzE=;
+        s=default; t=1559186368;
+        bh=WGJhJ+4pPLDW89M17rh9ZMB5imz0kOh66AkNRrNHTAc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xFXLZvW5HZMKP5dqlSINnFBtCWVuYLgE1HncX8MMO7I47Fz5r2cJ07sFd/Gq1dvTK
-         9FlsIY/kltOZOBqAtM3b9hDm6S7pSAqONrIuk53i3w+AZKAYqhw+lT263ucCA1Sg/I
-         GftbuRD6tQtPa/4tPMkpTDfofYlqXci9A0tdQC48=
+        b=RKSioTI7TL3cdr8DXa+SAz06fmI/C0GTJ08Ufd1sfSKlZDK4XW3VFa7hYvBy8L7V/
+         w4bkInPkBTs3m3qrxKIzpgmUYBl8N04PBODYELtZPk95fgCalxW9xCMHNC9pkipfcI
+         UVK/yvZGHPLk7trJ3KxCT7h/F99CNlQRUGHp0f2s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot <syzbot+f648cfb7e0b52bf7ae32@syzkaller.appspotmail.com>,
-        Kay Sievers <kay@vrfy.org>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Sasha Levin <sashal@kernel.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: [PATCH 5.0 256/346] kobject: Dont trigger kobject_uevent(KOBJ_REMOVE) twice.
-Date:   Wed, 29 May 2019 20:05:29 -0700
-Message-Id: <20190530030553.966661442@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Coly Li <colyli@suse.de>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 076/193] bcache: avoid clang -Wunintialized warning
+Date:   Wed, 29 May 2019 20:05:30 -0700
+Message-Id: <20190530030459.724674358@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
+References: <20190530030446.953835040@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,70 +45,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c03a0fd0b609e2f5c669c2b7f27c8e1928e9196e ]
+[ Upstream commit 78d4eb8ad9e1d413449d1b7a060f50b6efa81ebd ]
 
-syzbot is hitting use-after-free bug in uinput module [1]. This is because
-kobject_uevent(KOBJ_REMOVE) is called again due to commit 0f4dafc0563c6c49
-("Kobject: auto-cleanup on final unref") after memory allocation fault
-injection made kobject_uevent(KOBJ_REMOVE) from device_del() from
-input_unregister_device() fail, while uinput_destroy_device() is expecting
-that kobject_uevent(KOBJ_REMOVE) is not called after device_del() from
-input_unregister_device() completed.
+clang has identified a code path in which it thinks a
+variable may be unused:
 
-That commit intended to catch cases where nobody even attempted to send
-"remove" uevents. But there is no guarantee that an event will ultimately
-be sent. We are at the point of no return as far as the rest of the kernel
-is concerned; there are no repeats or do-overs.
+drivers/md/bcache/alloc.c:333:4: error: variable 'bucket' is used uninitialized whenever 'if' condition is false
+      [-Werror,-Wsometimes-uninitialized]
+                        fifo_pop(&ca->free_inc, bucket);
+                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+drivers/md/bcache/util.h:219:27: note: expanded from macro 'fifo_pop'
+ #define fifo_pop(fifo, i)       fifo_pop_front(fifo, (i))
+                                ^~~~~~~~~~~~~~~~~~~~~~~~~
+drivers/md/bcache/util.h:189:6: note: expanded from macro 'fifo_pop_front'
+        if (_r) {                                                       \
+            ^~
+drivers/md/bcache/alloc.c:343:46: note: uninitialized use occurs here
+                        allocator_wait(ca, bch_allocator_push(ca, bucket));
+                                                                  ^~~~~~
+drivers/md/bcache/alloc.c:287:7: note: expanded from macro 'allocator_wait'
+                if (cond)                                               \
+                    ^~~~
+drivers/md/bcache/alloc.c:333:4: note: remove the 'if' if its condition is always true
+                        fifo_pop(&ca->free_inc, bucket);
+                        ^
+drivers/md/bcache/util.h:219:27: note: expanded from macro 'fifo_pop'
+ #define fifo_pop(fifo, i)       fifo_pop_front(fifo, (i))
+                                ^
+drivers/md/bcache/util.h:189:2: note: expanded from macro 'fifo_pop_front'
+        if (_r) {                                                       \
+        ^
+drivers/md/bcache/alloc.c:331:15: note: initialize the variable 'bucket' to silence this warning
+                        long bucket;
+                                   ^
 
-Also, it is not clear whether some subsystem depends on that commit.
-If no subsystem depends on that commit, it will be better to remove
-the state_{add,remove}_uevent_sent logic. But we don't want to risk
-a regression (in a patch which will be backported) by trying to remove
-that logic. Therefore, as a first step, let's avoid the use-after-free bug
-by making sure that kobject_uevent(KOBJ_REMOVE) won't be triggered twice.
+This cannot happen in practice because we only enter the loop
+if there is at least one element in the list.
 
-[1] https://syzkaller.appspot.com/bug?id=8b17c134fe938bbddd75a45afaa9e68af43a362d
+Slightly rearranging the code makes this clearer to both the
+reader and the compiler, which avoids the warning.
 
-Reported-by: syzbot <syzbot+f648cfb7e0b52bf7ae32@syzkaller.appspotmail.com>
-Analyzed-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Fixes: 0f4dafc0563c6c49 ("Kobject: auto-cleanup on final unref")
-Cc: Kay Sievers <kay@vrfy.org>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Coly Li <colyli@suse.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/kobject_uevent.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/md/bcache/alloc.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/lib/kobject_uevent.c b/lib/kobject_uevent.c
-index 27c6118afd1ce..bd26df36757f0 100644
---- a/lib/kobject_uevent.c
-+++ b/lib/kobject_uevent.c
-@@ -466,6 +466,13 @@ int kobject_uevent_env(struct kobject *kobj, enum kobject_action action,
- 	int i = 0;
- 	int retval = 0;
+diff --git a/drivers/md/bcache/alloc.c b/drivers/md/bcache/alloc.c
+index 8c13a9036d07f..ada94a01e1423 100644
+--- a/drivers/md/bcache/alloc.c
++++ b/drivers/md/bcache/alloc.c
+@@ -325,10 +325,11 @@ static int bch_allocator_thread(void *arg)
+ 		 * possibly issue discards to them, then we add the bucket to
+ 		 * the free list:
+ 		 */
+-		while (!fifo_empty(&ca->free_inc)) {
++		while (1) {
+ 			long bucket;
  
-+	/*
-+	 * Mark "remove" event done regardless of result, for some subsystems
-+	 * do not want to re-trigger "remove" event via automatic cleanup.
-+	 */
-+	if (action == KOBJ_REMOVE)
-+		kobj->state_remove_uevent_sent = 1;
-+
- 	pr_debug("kobject: '%s' (%p): %s\n",
- 		 kobject_name(kobj), kobj, __func__);
+-			fifo_pop(&ca->free_inc, bucket);
++			if (!fifo_pop(&ca->free_inc, bucket))
++				break;
  
-@@ -567,10 +574,6 @@ int kobject_uevent_env(struct kobject *kobj, enum kobject_action action,
- 		kobj->state_add_uevent_sent = 1;
- 		break;
- 
--	case KOBJ_REMOVE:
--		kobj->state_remove_uevent_sent = 1;
--		break;
--
- 	case KOBJ_UNBIND:
- 		zap_modalias_env(env);
- 		break;
+ 			if (ca->discard) {
+ 				mutex_unlock(&ca->set->bucket_lock);
 -- 
 2.20.1
 
