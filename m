@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 84CB12F46A
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:38:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34FF32F04A
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:03:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729214AbfE3DMq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:12:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56214 "EHLO mail.kernel.org"
+        id S1726695AbfE3ECe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:02:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729206AbfE3DMp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:12:45 -0400
+        id S1730465AbfE3DSB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:18:01 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 46775244E8;
-        Thu, 30 May 2019 03:12:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 186F624760;
+        Thu, 30 May 2019 03:18:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185965;
-        bh=p+vAPlUq3BhdDdI6PDbqlqpe5x/stIK25vssRkh1rBo=;
+        s=default; t=1559186281;
+        bh=rUom6fya4qpqz8Hi67+pvk/A3ZVJMOFfbtAwZZ1KJUE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SUpESecLVvumcpSJG9Buz1HlEgLwwTPngazxZAvxwU95gyRQjZ8ydbwUvmRN/YiGS
-         KQS2Ug2W3zoex6SrCpzUEtCGwU31tGa9MHdqRCSQxbEU5P17S0YlJo9+SUmR5R53B5
-         JUTyDjHc7twM9hIaJC/OffI9Sh+vyj6PQxrywn1w=
+        b=EmVAV1cMlDWU6q/wzOCu1Ee9lRtTlSi6YORCrEL9bLDNXhEnzZ48F9V+XIATexTxe
+         6NT6mMwx8y4A/0Rk2jP5E5KBE8h+s3evebrd5Rfh89gQiMq8VC4A60O1Fg7+b27fcW
+         sCewo2WUtKb9Uy3bFr6thx5errvtBSvFd/Zm1SjI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Peter Ujfalusi <peter.ujfalusi@ti.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, kernel test robot <rong.a.chen@intel.com>,
+        "Paul E. McKenney" <paulmck@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 392/405] ASoC: davinci-mcasp: Fix clang warning without CONFIG_PM
+Subject: [PATCH 4.19 232/276] rcutorture: Fix cleanup path for invalid torture_type strings
 Date:   Wed, 29 May 2019 20:06:30 -0700
-Message-Id: <20190530030600.453182033@linuxfoundation.org>
+Message-Id: <20190530030539.640331172@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,47 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 8ca5104715cfd14254ea5aecc390ae583b707607 ]
+[ Upstream commit b813afae7ab6a5e91b4e16cc567331d9c2ae1f04 ]
 
-Building with clang shows a variable that is only used by the
-suspend/resume functions but defined outside of their #ifdef block:
+If the specified rcutorture.torture_type is not in the rcu_torture_init()
+function's torture_ops[] array, rcutorture prints some console messages
+and then invokes rcu_torture_cleanup() to set state so that a future
+torture test can run.  However, rcu_torture_cleanup() also attempts to
+end the test that didn't actually start, and in doing so relies on the
+value of cur_ops, a value that is not particularly relevant in this case.
+This can result in confusing output or even follow-on failures due to
+attempts to use facilities that have not been properly initialized.
 
-sound/soc/ti/davinci-mcasp.c:48:12: error: variable 'context_regs' is not needed and will not be emitted
+This commit therefore sets the value of cur_ops to NULL in this case
+and inserts a check near the beginning of rcu_torture_cleanup(),
+thus avoiding relying on an irrelevant cur_ops value.
 
-We commonly fix these by marking the PM functions as __maybe_unused,
-but here that would grow the davinci_mcasp structure, so instead
-add another #ifdef here.
-
-Fixes: 1cc0c054f380 ("ASoC: davinci-mcasp: Convert the context save/restore to use array")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-by: kernel test robot <rong.a.chen@intel.com>
+Signed-off-by: Paul E. McKenney <paulmck@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/ti/davinci-mcasp.c | 2 ++
- 1 file changed, 2 insertions(+)
+ kernel/rcu/rcutorture.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/sound/soc/ti/davinci-mcasp.c b/sound/soc/ti/davinci-mcasp.c
-index a3a67a8f0f543..9fbc759fdefe1 100644
---- a/sound/soc/ti/davinci-mcasp.c
-+++ b/sound/soc/ti/davinci-mcasp.c
-@@ -45,6 +45,7 @@
+diff --git a/kernel/rcu/rcutorture.c b/kernel/rcu/rcutorture.c
+index c596c6f1e4571..0b7af7e2bcbb1 100644
+--- a/kernel/rcu/rcutorture.c
++++ b/kernel/rcu/rcutorture.c
+@@ -1826,6 +1826,10 @@ rcu_torture_cleanup(void)
+ 			cur_ops->cb_barrier();
+ 		return;
+ 	}
++	if (!cur_ops) {
++		torture_cleanup_end();
++		return;
++	}
  
- #define MCASP_MAX_AFIFO_DEPTH	64
- 
-+#ifdef CONFIG_PM
- static u32 context_regs[] = {
- 	DAVINCI_MCASP_TXFMCTL_REG,
- 	DAVINCI_MCASP_RXFMCTL_REG,
-@@ -68,6 +69,7 @@ struct davinci_mcasp_context {
- 	u32	*xrsr_regs; /* for serializer configuration */
- 	bool	pm_state;
- };
-+#endif
- 
- struct davinci_mcasp_ruledata {
- 	struct davinci_mcasp *mcasp;
+ 	rcu_torture_barrier_cleanup();
+ 	torture_stop_kthread(rcu_torture_stall, stall_task);
+@@ -1964,6 +1968,7 @@ rcu_torture_init(void)
+ 			pr_cont(" %s", torture_ops[i]->name);
+ 		pr_cont("\n");
+ 		firsterr = -EINVAL;
++		cur_ops = NULL;
+ 		goto unwind;
+ 	}
+ 	if (cur_ops->fqs == NULL && fqs_duration != 0) {
 -- 
 2.20.1
 
