@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F1312EC25
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:18:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C36BE2F2B5
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:24:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731723AbfE3DSs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:18:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52610 "EHLO mail.kernel.org"
+        id S1730134AbfE3EYX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:24:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36218 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731714AbfE3DSs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:18:48 -0400
+        id S1730030AbfE3DOw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:14:52 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 56A86247F3;
-        Thu, 30 May 2019 03:18:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 336EA245A4;
+        Thu, 30 May 2019 03:14:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186327;
-        bh=48QWxyRbS6OIC0nyUfFd69jYM1HcEg4sAJ2IE52vsMw=;
+        s=default; t=1559186092;
+        bh=2EzRCk6ucJaYzo9xlbwg+bpp8Agv2zet2GiQ6f0xZNM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0T5heefgHir4HAT65IuWKHfen01CBTCpRVL8ghm5v3o6c+ZT9/FK4eoJHTVkWxJBF
-         dv7rharekN6EqWJDPyaWKdHKwmnc0DG7GauHdt/iDnqbPCzGvpuwf0xZWyoyMDrYS2
-         LpeyghN+RXOrDLTKOQ8wyN7jHFZOLUbzqpKztW/o=
+        b=0XthtUZPC+4J4s230pZohrCb6FmhppeTwHpooyE/YPANU9V93hn8HXzad8ksvrnQX
+         FZo2jVSKCHqoxGNomiALHfZ1Y23yq5wkxP2ALhvbraVchkCgmdQY84fO5R+d7sKowK
+         9bg3OsXbRhl/WIZ0TzFtcsyZCQMYsKAh154/JV98=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vineet Gupta <vgupta@synopsys.com>,
-        Yonghong Song <yhs@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>,
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 042/193] tools/bpf: fix perf build error with uClibc (seen on ARC)
-Date:   Wed, 29 May 2019 20:04:56 -0700
-Message-Id: <20190530030455.429601103@linuxfoundation.org>
+Subject: [PATCH 5.0 224/346] mwifiex: Fix mem leak in mwifiex_tm_cmd
+Date:   Wed, 29 May 2019 20:04:57 -0700
+Message-Id: <20190530030552.425344820@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,45 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ca31ca8247e2d3807ff5fa1d1760616a2292001c ]
+[ Upstream commit 003b686ace820ce2d635a83f10f2d7f9c147dabc ]
 
-When build perf for ARC recently, there was a build failure due to lack
-of __NR_bpf.
+'hostcmd' is alloced by kzalloc, should be freed before
+leaving from the error handling cases, otherwise it will
+cause mem leak.
 
-| Auto-detecting system features:
-|
-| ...                     get_cpuid: [ OFF ]
-| ...                           bpf: [ on  ]
-|
-| #  error __NR_bpf not defined. libbpf does not support your arch.
-    ^~~~~
-| bpf.c: In function 'sys_bpf':
-| bpf.c:66:17: error: '__NR_bpf' undeclared (first use in this function)
-|  return syscall(__NR_bpf, cmd, attr, size);
-|                 ^~~~~~~~
-|                 sys_bpf
-
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
-Acked-by: Yonghong Song <yhs@fb.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Fixes: 3935ccc14d2c ("mwifiex: add cfg80211 testmode support")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/bpf.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/wireless/marvell/mwifiex/cfg80211.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/tools/lib/bpf/bpf.c b/tools/lib/bpf/bpf.c
-index 1d6907d379c99..976b28137d836 100644
---- a/tools/lib/bpf/bpf.c
-+++ b/tools/lib/bpf/bpf.c
-@@ -41,6 +41,8 @@
- #  define __NR_bpf 349
- # elif defined(__s390__)
- #  define __NR_bpf 351
-+# elif defined(__arc__)
-+#  define __NR_bpf 280
- # else
- #  error __NR_bpf not defined. libbpf does not support your arch.
- # endif
+diff --git a/drivers/net/wireless/marvell/mwifiex/cfg80211.c b/drivers/net/wireless/marvell/mwifiex/cfg80211.c
+index 883752f640b41..4bc25dc5dc1d5 100644
+--- a/drivers/net/wireless/marvell/mwifiex/cfg80211.c
++++ b/drivers/net/wireless/marvell/mwifiex/cfg80211.c
+@@ -4073,16 +4073,20 @@ static int mwifiex_tm_cmd(struct wiphy *wiphy, struct wireless_dev *wdev,
+ 
+ 		if (mwifiex_send_cmd(priv, 0, 0, 0, hostcmd, true)) {
+ 			dev_err(priv->adapter->dev, "Failed to process hostcmd\n");
++			kfree(hostcmd);
+ 			return -EFAULT;
+ 		}
+ 
+ 		/* process hostcmd response*/
+ 		skb = cfg80211_testmode_alloc_reply_skb(wiphy, hostcmd->len);
+-		if (!skb)
++		if (!skb) {
++			kfree(hostcmd);
+ 			return -ENOMEM;
++		}
+ 		err = nla_put(skb, MWIFIEX_TM_ATTR_DATA,
+ 			      hostcmd->len, hostcmd->cmd);
+ 		if (err) {
++			kfree(hostcmd);
+ 			kfree_skb(skb);
+ 			return -EMSGSIZE;
+ 		}
 -- 
 2.20.1
 
