@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DFE7C2F3BC
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:33:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 442172F610
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:53:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729912AbfE3Ebn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:31:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59812 "EHLO mail.kernel.org"
+        id S1728350AbfE3Ewn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:52:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728601AbfE3DNn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:13:43 -0400
+        id S1728223AbfE3DKr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:10:47 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA70A24561;
-        Thu, 30 May 2019 03:13:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E96FF24476;
+        Thu, 30 May 2019 03:10:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186022;
-        bh=BVFPEq2252lRkspmWfxez9TenSlGcURuz34/DoGJY80=;
+        s=default; t=1559185847;
+        bh=gUJGElDUmYaGZz0mXoK2ZHflA9qv13MVmPHG5xNgH0o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ulS2DtnnCE9n7Y2XjhEbJeXp7S1aOi1s8ISdNkG/PWiXmZ3T8MelInMm0bO6twyp2
-         H7py1rmMgaSmUq/QaOFy8frDerahAdYoVQTqSLEqnnHn2bXvOPCPgvJSfPCKnTFKCT
-         Q+Alw+7CpZaKuElUPtQ66iQL71F4W6m64xtE2ngQ=
+        b=BMYyDGdQWzwcTFejKZ3aPiWmSvjnriI7Sx/cLcRvWct0jKadnESQ7oYFmamh0TDaY
+         /7nvj3yeu//WFysdL7NDDkZXVXwFx+k8wKjNY6QIe1FxYPb2Tmb3z6hUWstBBz7mKT
+         yh5TQjCed+p606P+hKn32DqMLcQRSwo/9F5Ihedk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manish Rangankar <mrangankar@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 093/346] scsi: qedi: Abort ep termination if offload not scheduled
+        stable@vger.kernel.org,
+        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
+        Peter Zijlstra <a.p.zijlstra@chello.nl>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 168/405] sched/core: Check quota and period overflow at usec to nsec conversion
 Date:   Wed, 29 May 2019 20:02:46 -0700
-Message-Id: <20190530030545.875442703@linuxfoundation.org>
+Message-Id: <20190530030549.629652475@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,72 +48,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f848bfd8e167210a29374e8a678892bed591684f ]
+[ Upstream commit 1a8b4540db732ca16c9e43ac7c08b1b8f0b252d8 ]
 
-Sometimes during connection recovery when there is a failure to resolve
-ARP, and offload connection was not issued, driver tries to flush pending
-offload connection work which was not queued up.
+Large values could overflow u64 and pass following sanity checks.
 
-kernel: WARNING: CPU: 19 PID: 10110 at kernel/workqueue.c:3030 __flush_work.isra.34+0x19c/0x1b0
-kernel: CPU: 19 PID: 10110 Comm: iscsid Tainted: G W 5.1.0-rc4 #11
-kernel: Hardware name: Dell Inc. PowerEdge R730/0599V5, BIOS 2.9.1 12/04/2018
-kernel: RIP: 0010:__flush_work.isra.34+0x19c/0x1b0
-kernel: Code: 8b fb 66 0f 1f 44 00 00 31 c0 eb ab 48 89 ef c6 07 00 0f 1f 40 00 fb 66 0f 1f 44 00 00 31 c0 eb 96 e8 08 16 fe ff 0f 0b eb 8d <0f> 0b 31 c0 eb 87 0f 1f 40 00 66 2e 0f 1
-f 84 00 00 00 00 00 0f 1f
-kernel: RSP: 0018:ffffa6b4054dba68 EFLAGS: 00010246
-kernel: RAX: 0000000000000000 RBX: ffff91df21c36fc0 RCX: 0000000000000000
-kernel: RDX: 0000000000000001 RSI: 0000000000000000 RDI: ffff91df21c36fc0
-kernel: RBP: ffff91df21c36ef0 R08: 0000000000000000 R09: 0000000000000000
-kernel: R10: 0000000000000038 R11: ffffa6b4054dbd60 R12: ffffffffc05e72c0
-kernel: R13: ffff91db10280820 R14: 0000000000000048 R15: 0000000000000000
-kernel: FS:  00007f5d83cc1740(0000) GS:ffff91df2f840000(0000) knlGS:0000000000000000
-kernel: CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-kernel: CR2: 0000000001cc5000 CR3: 0000000465450002 CR4: 00000000001606e0
-kernel: Call Trace:
-kernel: ? try_to_del_timer_sync+0x4d/0x80
-kernel: qedi_ep_disconnect+0x3b/0x410 [qedi]
-kernel: ? 0xffffffffc083c000
-kernel: ? klist_iter_exit+0x14/0x20
-kernel: ? class_find_device+0x93/0xf0
-kernel: iscsi_if_ep_disconnect.isra.18+0x58/0x70 [scsi_transport_iscsi]
-kernel: iscsi_if_recv_msg+0x10e2/0x1510 [scsi_transport_iscsi]
-kernel: ? copyout+0x22/0x30
-kernel: ? _copy_to_iter+0xa0/0x430
-kernel: ? _cond_resched+0x15/0x30
-kernel: ? __kmalloc_node_track_caller+0x1f9/0x270
-kernel: iscsi_if_rx+0xa5/0x1e0 [scsi_transport_iscsi]
-kernel: netlink_unicast+0x17f/0x230
-kernel: netlink_sendmsg+0x2d2/0x3d0
-kernel: sock_sendmsg+0x36/0x50
-kernel: ___sys_sendmsg+0x280/0x2a0
-kernel: ? timerqueue_add+0x54/0x80
-kernel: ? enqueue_hrtimer+0x38/0x90
-kernel: ? hrtimer_start_range_ns+0x19f/0x2c0
-kernel: __sys_sendmsg+0x58/0xa0
-kernel: do_syscall_64+0x5b/0x180
-kernel: entry_SYSCALL_64_after_hwframe+0x44/0xa9
+ # echo 18446744073750000 > cpu.cfs_period_us
+ # cat cpu.cfs_period_us
+ 40448
 
-Signed-off-by: Manish Rangankar <mrangankar@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+ # echo 18446744073750000 > cpu.cfs_quota_us
+ # cat cpu.cfs_quota_us
+ 40448
+
+After this patch they will fail with -EINVAL.
+
+Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+Acked-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: http://lkml.kernel.org/r/155125502079.293431.3947497929372138600.stgit@buzz
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qedi/qedi_iscsi.c | 3 +++
- 1 file changed, 3 insertions(+)
+ kernel/sched/core.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/qedi/qedi_iscsi.c b/drivers/scsi/qedi/qedi_iscsi.c
-index 6d6d6013e35b8..bf371e7b957d0 100644
---- a/drivers/scsi/qedi/qedi_iscsi.c
-+++ b/drivers/scsi/qedi/qedi_iscsi.c
-@@ -1000,6 +1000,9 @@ static void qedi_ep_disconnect(struct iscsi_endpoint *ep)
- 	qedi_ep = ep->dd_data;
- 	qedi = qedi_ep->qedi;
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 4778c48a7fda4..89c9c1d7d22c5 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -6661,8 +6661,10 @@ int tg_set_cfs_quota(struct task_group *tg, long cfs_quota_us)
+ 	period = ktime_to_ns(tg->cfs_bandwidth.period);
+ 	if (cfs_quota_us < 0)
+ 		quota = RUNTIME_INF;
+-	else
++	else if ((u64)cfs_quota_us <= U64_MAX / NSEC_PER_USEC)
+ 		quota = (u64)cfs_quota_us * NSEC_PER_USEC;
++	else
++		return -EINVAL;
  
-+	if (qedi_ep->state == EP_STATE_OFLDCONN_START)
-+		goto ep_exit_recover;
+ 	return tg_set_cfs_bandwidth(tg, period, quota);
+ }
+@@ -6684,6 +6686,9 @@ int tg_set_cfs_period(struct task_group *tg, long cfs_period_us)
+ {
+ 	u64 quota, period;
+ 
++	if ((u64)cfs_period_us > U64_MAX / NSEC_PER_USEC)
++		return -EINVAL;
 +
- 	flush_work(&qedi_ep->offload_work);
+ 	period = (u64)cfs_period_us * NSEC_PER_USEC;
+ 	quota = tg->cfs_bandwidth.quota;
  
- 	if (qedi_ep->conn) {
 -- 
 2.20.1
 
