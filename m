@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D2AE2F26D
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:22:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFC3F2EFC2
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:59:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727382AbfE3EVu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:21:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37634 "EHLO mail.kernel.org"
+        id S1731662AbfE3DSn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:18:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730156AbfE3DPM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:15:12 -0400
+        id S1731645AbfE3DSn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:18:43 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8EFA4245AC;
-        Thu, 30 May 2019 03:15:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D3A08247E6;
+        Thu, 30 May 2019 03:18:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186111;
-        bh=wro3ECXet6tn1QQSQA7tVVQwH1ZNwKWIcAwt3CH8xJ8=;
+        s=default; t=1559186321;
+        bh=4kiLYyGmLgH7uW8Cb3XYZ+VS8QuZe6vKKHMPAZ1o7NU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rX6gRKosnpnlSe7A7+kfseJn7/mUxi8A4oYs3KtnK/9INvSSOAo0q67kPNDYbFyHr
-         hCt4EOmJhnUYavbriixJSShP1IucPIE/7dLKLR4jSBTqdv/iofq76/Hcyrz507QkU1
-         YsHHIzksWmWNpFk8Tx795wg3menUvzXAA7VP2OW8=
+        b=CoMH0PJbtbWxEj1+szxTc76kzKN2acCM98vQpX+owCGW+UMVAfLjqqt/qqZejs8o5
+         zvdP3YY2SZ0wbcx9Z8Y0F8FzdvMJN62uExk9s8cSi9BljCKjhSwBitlWTj2TQI3beJ
+         SnghXvgbpfA7YMoXuUTRLwmECKgXOFu2MjfpvLqs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Dmitry Osipenko <digetx@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 214/346] regulator: core: Avoid potential deadlock on regulator_unregister
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        YueHaibing <yuehaibing@huawei.com>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.14 033/193] at76c50x-usb: Dont register led_trigger if usb_register_driver failed
 Date:   Wed, 29 May 2019 20:04:47 -0700
-Message-Id: <20190530030551.945104258@linuxfoundation.org>
+Message-Id: <20190530030453.902931570@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
+References: <20190530030446.953835040@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,57 +44,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 063773011d33bb36588a90385aa9eb75d13c6d80 ]
+From: YueHaibing <yuehaibing@huawei.com>
 
-Lockdep reports the following issue on my setup:
+commit 09ac2694b0475f96be895848687ebcbba97eeecf upstream.
 
-Possible unsafe locking scenario:
+Syzkaller report this:
 
-CPU0                    CPU1
-----                    ----
-lock((work_completion)(&(&rdev->disable_work)->work));
-                        lock(regulator_list_mutex);
-                        lock((work_completion)(&(&rdev->disable_work)->work));
-lock(regulator_list_mutex);
+[ 1213.468581] BUG: unable to handle kernel paging request at fffffbfff83bf338
+[ 1213.469530] #PF error: [normal kernel read fault]
+[ 1213.469530] PGD 237fe4067 P4D 237fe4067 PUD 237e60067 PMD 1c868b067 PTE 0
+[ 1213.473514] Oops: 0000 [#1] SMP KASAN PTI
+[ 1213.473514] CPU: 0 PID: 6321 Comm: syz-executor.0 Tainted: G         C        5.1.0-rc3+ #8
+[ 1213.473514] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
+[ 1213.473514] RIP: 0010:strcmp+0x31/0xa0
+[ 1213.473514] Code: 00 00 00 00 fc ff df 55 53 48 83 ec 08 eb 0a 84 db 48 89 ef 74 5a 4c 89 e6 48 89 f8 48 89 fa 48 8d 6f 01 48 c1 e8 03 83 e2 07 <42> 0f b6 04 28 38 d0 7f 04 84 c0 75 50 48 89 f0 48 89 f2 0f b6 5d
+[ 1213.473514] RSP: 0018:ffff8881f2b7f950 EFLAGS: 00010246
+[ 1213.473514] RAX: 1ffffffff83bf338 RBX: ffff8881ea6f7240 RCX: ffffffff825350c6
+[ 1213.473514] RDX: 0000000000000000 RSI: ffffffffc1ee19c0 RDI: ffffffffc1df99c0
+[ 1213.473514] RBP: ffffffffc1df99c1 R08: 0000000000000001 R09: 0000000000000004
+[ 1213.473514] R10: 0000000000000000 R11: ffff8881de353f00 R12: ffff8881ee727900
+[ 1213.473514] R13: dffffc0000000000 R14: 0000000000000001 R15: ffffffffc1eeaaf0
+[ 1213.473514] FS:  00007fa66fa01700(0000) GS:ffff8881f7200000(0000) knlGS:0000000000000000
+[ 1213.473514] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ 1213.473514] CR2: fffffbfff83bf338 CR3: 00000001ebb9e005 CR4: 00000000007606f0
+[ 1213.473514] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[ 1213.473514] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[ 1213.473514] PKRU: 55555554
+[ 1213.473514] Call Trace:
+[ 1213.473514]  led_trigger_register+0x112/0x3f0
+[ 1213.473514]  led_trigger_register_simple+0x7a/0x110
+[ 1213.473514]  ? 0xffffffffc1c10000
+[ 1213.473514]  at76_mod_init+0x77/0x1000 [at76c50x_usb]
+[ 1213.473514]  do_one_initcall+0xbc/0x47d
+[ 1213.473514]  ? perf_trace_initcall_level+0x3a0/0x3a0
+[ 1213.473514]  ? kasan_unpoison_shadow+0x30/0x40
+[ 1213.473514]  ? kasan_unpoison_shadow+0x30/0x40
+[ 1213.473514]  do_init_module+0x1b5/0x547
+[ 1213.473514]  load_module+0x6405/0x8c10
+[ 1213.473514]  ? module_frob_arch_sections+0x20/0x20
+[ 1213.473514]  ? kernel_read_file+0x1e6/0x5d0
+[ 1213.473514]  ? find_held_lock+0x32/0x1c0
+[ 1213.473514]  ? cap_capable+0x1ae/0x210
+[ 1213.473514]  ? __do_sys_finit_module+0x162/0x190
+[ 1213.473514]  __do_sys_finit_module+0x162/0x190
+[ 1213.473514]  ? __ia32_sys_init_module+0xa0/0xa0
+[ 1213.473514]  ? __mutex_unlock_slowpath+0xdc/0x690
+[ 1213.473514]  ? wait_for_completion+0x370/0x370
+[ 1213.473514]  ? vfs_write+0x204/0x4a0
+[ 1213.473514]  ? do_syscall_64+0x18/0x450
+[ 1213.473514]  do_syscall_64+0x9f/0x450
+[ 1213.473514]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+[ 1213.473514] RIP: 0033:0x462e99
+[ 1213.473514] Code: f7 d8 64 89 02 b8 ff ff ff ff c3 66 0f 1f 44 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 bc ff ff ff f7 d8 64 89 01 48
+[ 1213.473514] RSP: 002b:00007fa66fa00c58 EFLAGS: 00000246 ORIG_RAX: 0000000000000139
+[ 1213.473514] RAX: ffffffffffffffda RBX: 000000000073bf00 RCX: 0000000000462e99
+[ 1213.473514] RDX: 0000000000000000 RSI: 0000000020000300 RDI: 0000000000000003
+[ 1213.473514] RBP: 00007fa66fa00c70 R08: 0000000000000000 R09: 0000000000000000
+[ 1213.473514] R10: 0000000000000000 R11: 0000000000000246 R12: 00007fa66fa016bc
+[ 1213.473514] R13: 00000000004bcefa R14: 00000000006f6fb0 R15: 0000000000000004
 
-The problem is that regulator_unregister takes the
-regulator_list_mutex and then calls flush_work on disable_work. But
-regulator_disable_work calls regulator_lock_dependent which will
-also take the regulator_list_mutex. Resulting in a deadlock if the
-flush_work call actually needs to flush the work.
+If usb_register failed, no need to call led_trigger_register_simple.
 
-Fix this issue by moving the flush_work outside of the
-regulator_list_mutex. The list mutex is not used to guard the point at
-which the delayed work is queued, so its use adds no additional safety.
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Fixes: 1264b951463a ("at76c50x-usb: add driver")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Fixes: f8702f9e4aa7 ("regulator: core: Use ww_mutex for regulators locking")
-Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/core.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/wireless/atmel/at76c50x-usb.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
-index fb9fe26fd0fa1..218b9331475b7 100644
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -5101,10 +5101,11 @@ void regulator_unregister(struct regulator_dev *rdev)
- 		regulator_put(rdev->supply);
- 	}
+--- a/drivers/net/wireless/atmel/at76c50x-usb.c
++++ b/drivers/net/wireless/atmel/at76c50x-usb.c
+@@ -2585,8 +2585,8 @@ static int __init at76_mod_init(void)
+ 	if (result < 0)
+ 		printk(KERN_ERR DRIVER_NAME
+ 		       ": usb_register failed (status %d)\n", result);
+-
+-	led_trigger_register_simple("at76_usb-tx", &ledtrig_tx);
++	else
++		led_trigger_register_simple("at76_usb-tx", &ledtrig_tx);
+ 	return result;
+ }
  
-+	flush_work(&rdev->disable_work.work);
-+
- 	mutex_lock(&regulator_list_mutex);
- 
- 	debugfs_remove_recursive(rdev->debugfs);
--	flush_work(&rdev->disable_work.work);
- 	WARN_ON(rdev->open_count);
- 	regulator_remove_coupling(rdev);
- 	unset_regulator_supplies(rdev);
--- 
-2.20.1
-
 
 
