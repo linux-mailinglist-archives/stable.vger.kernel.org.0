@@ -2,45 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E7C562EF43
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:54:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD4E92F090
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:05:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731873AbfE3DTW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:19:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54702 "EHLO mail.kernel.org"
+        id S1732066AbfE3EFQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:05:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48276 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731864AbfE3DTV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:19:21 -0400
+        id S1731243AbfE3DRq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:17:46 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D1BE824871;
-        Thu, 30 May 2019 03:19:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 52CB124715;
+        Thu, 30 May 2019 03:17:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186359;
-        bh=OxCAIHPoH18e4bJyXWJl8c54vD7RQRBMGt1OQmZG0A4=;
+        s=default; t=1559186265;
+        bh=6pM+PNif8JYGgG7H6zUEqqTadsP929Buviyt5KO/yAw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UCtIS8QHlwpjBNxR2kh9vJ1KLM1pBCth8+/zx+4z5YVmR8qwGXUni/Aaqr74dGxsh
-         KUKMUJimUDDbDOIBqKwrzCEieyT3Pn4/W0KVKyMEH//Z8I5BDSs65Y342KxN5Gkec+
-         bVeKpgDgEB4fKOIseV7+sf1H7Pd5OhoFQV6m6A74=
+        b=pH598TkbBT4SZzJoQbqKMJeKfv6VlgyQnQL4609whNDPuzbPONdpnyix6rnGkS0sI
+         PgKPZDDc1l+G4IhGKbKtOmsbKf5BGgoZVHRt8wOOZNcdOe+yG3YnJgQdFMrpfsSb6f
+         DJLBPsXgFwN3fQI/Jfm45iZhqWxYVuEYiR5No7J4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Borislav Petkov <bp@suse.de>,
-        Andy Lutomirski <luto@kernel.org>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@redhat.com>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Mitsuo Hayasaka <mitsuo.hayasaka.hu@hitachi.com>,
-        Nicolai Stange <nstange@suse.de>,
-        Sean Christopherson <sean.j.christopherson@intel.com>,
-        x86-ml <x86@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 105/193] x86/irq/64: Limit IST stack overflow check to #DB stack
+        stable@vger.kernel.org, Stanley Chu <stanley.chu@mediatek.com>,
+        Avri Altman <avri.altman@wdc.com>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 201/276] scsi: ufs: Fix regulator load and icc-level configuration
 Date:   Wed, 29 May 2019 20:05:59 -0700
-Message-Id: <20190530030503.464322165@linuxfoundation.org>
+Message-Id: <20190530030537.691588710@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,80 +46,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 7dbcf2b0b770eeb803a416ee8dcbef78e6389d40 ]
+[ Upstream commit 0487fff76632ec023d394a05b82e87a971db8c03 ]
 
-Commit
+Currently if a regulator has "<name>-fixed-regulator" property in device
+tree, it will skip current limit initialization.  This lead to a zero
+"max_uA" value in struct ufs_vreg.
 
-  37fe6a42b343 ("x86: Check stack overflow in detail")
+However, "regulator_set_load" operation shall be required on regulators
+which have valid current limits, otherwise a zero "max_uA" set by
+"regulator_set_load" may cause unexpected behavior when this regulator is
+enabled or set as high power mode.
 
-added a broad check for the full exception stack area, i.e. it considers
-the full exception stack area as valid.
+Similarly, in device's icc_level configuration flow, the target icc_level
+shall be updated if regulator also has valid current limit, otherwise a
+wrong icc_level will be calculated by zero "max_uA" and thus causes
+unexpected results after it is written to device.
 
-That's wrong in two aspects:
-
- 1) It does not check the individual areas one by one
-
- 2) #DF, NMI and #MCE are not enabling interrupts which means that a
-    regular device interrupt cannot happen in their context. In fact if a
-    device interrupt hits one of those IST stacks that's a bug because some
-    code path enabled interrupts while handling the exception.
-
-Limit the check to the #DB stack and consider all other IST stacks as
-'overflow' or invalid.
-
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Mitsuo Hayasaka <mitsuo.hayasaka.hu@hitachi.com>
-Cc: Nicolai Stange <nstange@suse.de>
-Cc: Sean Christopherson <sean.j.christopherson@intel.com>
-Cc: x86-ml <x86@kernel.org>
-Link: https://lkml.kernel.org/r/20190414160143.682135110@linutronix.de
+Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
+Reviewed-by: Avri Altman <avri.altman@wdc.com>
+Acked-by: Alim Akhtar <alim.akhtar@samsung.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/irq_64.c | 19 ++++++++++++++-----
- 1 file changed, 14 insertions(+), 5 deletions(-)
+ drivers/scsi/ufs/ufshcd.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/kernel/irq_64.c b/arch/x86/kernel/irq_64.c
-index 0469cd078db15..b50ac9c7397bb 100644
---- a/arch/x86/kernel/irq_64.c
-+++ b/arch/x86/kernel/irq_64.c
-@@ -26,9 +26,18 @@ int sysctl_panic_on_stackoverflow;
- /*
-  * Probabilistic stack overflow check:
-  *
-- * Only check the stack in process context, because everything else
-- * runs on the big interrupt stacks. Checking reliably is too expensive,
-- * so we just check from interrupts.
-+ * Regular device interrupts can enter on the following stacks:
-+ *
-+ * - User stack
-+ *
-+ * - Kernel task stack
-+ *
-+ * - Interrupt stack if a device driver reenables interrupts
-+ *   which should only happen in really old drivers.
-+ *
-+ * - Debug IST stack
-+ *
-+ * All other contexts are invalid.
-  */
- static inline void stack_overflow_check(struct pt_regs *regs)
- {
-@@ -53,8 +62,8 @@ static inline void stack_overflow_check(struct pt_regs *regs)
- 		return;
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index 6e80dfe4fa979..73156579e9885 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -6130,19 +6130,19 @@ static u32 ufshcd_find_max_sup_active_icc_level(struct ufs_hba *hba,
+ 		goto out;
+ 	}
  
- 	oist = this_cpu_ptr(&orig_ist);
--	estack_top = (u64)oist->ist[0] - EXCEPTION_STKSZ + STACK_TOP_MARGIN;
--	estack_bottom = (u64)oist->ist[N_EXCEPTION_STACKS - 1];
-+	estack_bottom = (u64)oist->ist[DEBUG_STACK];
-+	estack_top = estack_bottom - DEBUG_STKSZ + STACK_TOP_MARGIN;
- 	if (regs->sp >= estack_top && regs->sp <= estack_bottom)
- 		return;
+-	if (hba->vreg_info.vcc)
++	if (hba->vreg_info.vcc && hba->vreg_info.vcc->max_uA)
+ 		icc_level = ufshcd_get_max_icc_level(
+ 				hba->vreg_info.vcc->max_uA,
+ 				POWER_DESC_MAX_ACTV_ICC_LVLS - 1,
+ 				&desc_buf[PWR_DESC_ACTIVE_LVLS_VCC_0]);
  
+-	if (hba->vreg_info.vccq)
++	if (hba->vreg_info.vccq && hba->vreg_info.vccq->max_uA)
+ 		icc_level = ufshcd_get_max_icc_level(
+ 				hba->vreg_info.vccq->max_uA,
+ 				icc_level,
+ 				&desc_buf[PWR_DESC_ACTIVE_LVLS_VCCQ_0]);
+ 
+-	if (hba->vreg_info.vccq2)
++	if (hba->vreg_info.vccq2 && hba->vreg_info.vccq2->max_uA)
+ 		icc_level = ufshcd_get_max_icc_level(
+ 				hba->vreg_info.vccq2->max_uA,
+ 				icc_level,
+@@ -6767,6 +6767,15 @@ static int ufshcd_config_vreg_load(struct device *dev, struct ufs_vreg *vreg,
+ 	if (!vreg)
+ 		return 0;
+ 
++	/*
++	 * "set_load" operation shall be required on those regulators
++	 * which specifically configured current limitation. Otherwise
++	 * zero max_uA may cause unexpected behavior when regulator is
++	 * enabled or set as high power mode.
++	 */
++	if (!vreg->max_uA)
++		return 0;
++
+ 	ret = regulator_set_load(vreg->reg, ua);
+ 	if (ret < 0) {
+ 		dev_err(dev, "%s: %s set load (ua=%d) failed, err=%d\n",
 -- 
 2.20.1
 
