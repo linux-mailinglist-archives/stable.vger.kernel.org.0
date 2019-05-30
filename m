@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C51D2EF13
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:52:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3BB42F46F
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:38:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731948AbfE3Dwh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:52:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55812 "EHLO mail.kernel.org"
+        id S1729307AbfE3EiZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:38:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56166 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731942AbfE3DTf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:19:35 -0400
+        id S1729197AbfE3DMp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:12:45 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C61DA248AB;
-        Thu, 30 May 2019 03:19:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 72DBE23E29;
+        Thu, 30 May 2019 03:12:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186374;
-        bh=s6FEYyvu1TbYUCnhqVfPKx0CXV4TC8zXgKIEs96uMy8=;
+        s=default; t=1559185964;
+        bh=xJ8Arp/ag80s7p8RExPV8Tq/H/C6hupbqTYKxTsNmD8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HP00cNMbwwhN7sOibAqJUybGwSDy1BiTL7Y1k0EMwc9porAV1lVmppBdLo1+UVP1s
-         absKv86rFbo8u4PRuxvpOK7t2wdxCemVXhYEEkQbXqJ47ZSZwS7dHn2GM9y3/Dv/t3
-         LQZ4UxBEAreOfiRcaRcgCoIq3U0b8GCz+lAMKvOg=
+        b=nlb+jcKJlwythqHbS/QTImYz7NDcIb0KUuaJRjhefi6Th9Q+DlJg/KZH6LP65CUhc
+         3qH35VTjv6Udyji0XaPtb/7y8kHItrbv7nXk5Wvq+Pu1iCXZbOOrVXgLmf5Hzf3C+o
+         mLYNbLidmNUrhvipUfwYqxuJDdvKhvw38UB/U9rI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Derrick <jonathan.derrick@intel.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Scott Bauer <sbauer@plzdonthack.me>,
-        David Kozub <zub@linux.fjfi.cvut.cz>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 134/193] block: sed-opal: fix IOC_OPAL_ENABLE_DISABLE_MBR
+        stable@vger.kernel.org,
+        Adam Thomson <Adam.Thomson.Opensource@diasemi.com>,
+        Steve Twiss <stwiss.opensource@diasemi.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 390/405] regulator: da9055: Fix notifier mutex lock warning
 Date:   Wed, 29 May 2019 20:06:28 -0700
-Message-Id: <20190530030507.068785313@linuxfoundation.org>
+Message-Id: <20190530030600.370084234@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,63 +46,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 78bf47353b0041865564deeed257a54f047c2fdc ]
+[ Upstream commit 5e6afb3832bedf420dd8e4c5b32ed85117c5087d ]
 
-The implementation of IOC_OPAL_ENABLE_DISABLE_MBR handled the value
-opal_mbr_data.enable_disable incorrectly: enable_disable is expected
-to be one of OPAL_MBR_ENABLE(0) or OPAL_MBR_DISABLE(1). enable_disable
-was passed directly to set_mbr_done and set_mbr_enable_disable where
-is was interpreted as either OPAL_TRUE(1) or OPAL_FALSE(0). The end
-result was that calling IOC_OPAL_ENABLE_DISABLE_MBR with OPAL_MBR_ENABLE
-actually disabled the shadow MBR and vice versa.
+The mutex for the regulator_dev must be controlled by the caller of
+the regulator_notifier_call_chain(), as described in the comment
+for that function.
 
-This patch adds correct conversion from OPAL_MBR_DISABLE/ENABLE to
-OPAL_FALSE/TRUE. The change affects existing programs using
-IOC_OPAL_ENABLE_DISABLE_MBR but this is typically used only once when
-setting up an Opal drive.
+Failure to mutex lock and unlock surrounding the notifier call results
+in a kernel WARN_ON_ONCE() which will dump a backtrace for the
+regulator_notifier_call_chain() when that function call is first made.
+The mutex can be controlled using the regulator_lock/unlock() API.
 
-Acked-by: Jon Derrick <jonathan.derrick@intel.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Scott Bauer <sbauer@plzdonthack.me>
-Signed-off-by: David Kozub <zub@linux.fjfi.cvut.cz>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: f6130be652d0 ("regulator: DA9055 regulator driver")
+Suggested-by: Adam Thomson <Adam.Thomson.Opensource@diasemi.com>
+Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/sed-opal.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/regulator/da9055-regulator.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/block/sed-opal.c b/block/sed-opal.c
-index 4f5e70d4abc3c..c64011cda9fcc 100644
---- a/block/sed-opal.c
-+++ b/block/sed-opal.c
-@@ -2078,13 +2078,16 @@ static int opal_erase_locking_range(struct opal_dev *dev,
- static int opal_enable_disable_shadow_mbr(struct opal_dev *dev,
- 					  struct opal_mbr_data *opal_mbr)
+diff --git a/drivers/regulator/da9055-regulator.c b/drivers/regulator/da9055-regulator.c
+index 3c6fac7936585..3ade4b8d204eb 100644
+--- a/drivers/regulator/da9055-regulator.c
++++ b/drivers/regulator/da9055-regulator.c
+@@ -487,8 +487,10 @@ static irqreturn_t da9055_ldo5_6_oc_irq(int irq, void *data)
  {
-+	u8 enable_disable = opal_mbr->enable_disable == OPAL_MBR_ENABLE ?
-+		OPAL_TRUE : OPAL_FALSE;
-+
- 	const struct opal_step mbr_steps[] = {
- 		{ opal_discovery0, },
- 		{ start_admin1LSP_opal_session, &opal_mbr->key },
--		{ set_mbr_done, &opal_mbr->enable_disable },
-+		{ set_mbr_done, &enable_disable },
- 		{ end_opal_session, },
- 		{ start_admin1LSP_opal_session, &opal_mbr->key },
--		{ set_mbr_enable_disable, &opal_mbr->enable_disable },
-+		{ set_mbr_enable_disable, &enable_disable },
- 		{ end_opal_session, },
- 		{ NULL, }
- 	};
-@@ -2204,7 +2207,7 @@ static int __opal_lock_unlock(struct opal_dev *dev,
+ 	struct da9055_regulator *regulator = data;
  
- static int __opal_set_mbr_done(struct opal_dev *dev, struct opal_key *key)
- {
--	u8 mbr_done_tf = 1;
-+	u8 mbr_done_tf = OPAL_TRUE;
- 	const struct opal_step mbrdone_step [] = {
- 		{ opal_discovery0, },
- 		{ start_admin1LSP_opal_session, key },
++	regulator_lock(regulator->rdev);
+ 	regulator_notifier_call_chain(regulator->rdev,
+ 				      REGULATOR_EVENT_OVER_CURRENT, NULL);
++	regulator_unlock(regulator->rdev);
+ 
+ 	return IRQ_HANDLED;
+ }
 -- 
 2.20.1
 
