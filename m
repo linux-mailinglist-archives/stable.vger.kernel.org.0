@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E725C2EC81
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:22:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA8622F1CA
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:16:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731422AbfE3DVa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:21:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35036 "EHLO mail.kernel.org"
+        id S1730529AbfE3DPz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:15:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731537AbfE3DV3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:21:29 -0400
+        id S1729143AbfE3DPz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:15:55 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 44ECA249E6;
-        Thu, 30 May 2019 03:21:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BE3FC2458A;
+        Thu, 30 May 2019 03:15:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186489;
-        bh=lIVMaLhmshgVfq45JXAYLYb6R1A9DPD6T82LQI64QZ4=;
+        s=default; t=1559186154;
+        bh=0Z11osrJPDVUTFcHjQOPdOwtQXp2VYNINeIfJT/Bcgw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MTSX9EUtZaDc+ng3q0HmnB+Of7OqC3B216P2Nm46uuDKHfVj8tN3j8VK7Cb14ymLv
-         d6gGnHcdKHx7s4IqD81KWPYeWBv98/IR9RgMrOy5zzCiaIUYJ9M9om7K0kbCt6UPuA
-         kVQkCJ1B/w7+AjumqtotUrg/1QXXdrIWVRZ3eu4Y=
+        b=lzr65Uk5Ams9NDXIsubQFVAIy91qdaNM4tc6uG38KBhY3Rd57F6S1pwkB8FzuK13F
+         +1p6bBWvceK8IrUGt6ZgAvAneE/PeQQkMckf3W+M9gH/fkgR9lqWSAvPN9yu8SLhFE
+         +pQlUNqofaMsCbFTIlJFSSVhUaC3qcl83aspDg18=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Loic Pallardy <loic.pallardy@st.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 082/128] PM / core: Propagate dev->power.wakeup_path when no callbacks
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 341/346] drm: Wake up next in drm_read() chain if we are forced to putback the event
 Date:   Wed, 29 May 2019 20:06:54 -0700
-Message-Id: <20190530030449.649947405@linuxfoundation.org>
+Message-Id: <20190530030558.004800089@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
-References: <20190530030432.977908967@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,45 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit dc351d4c5f4fe4d0f274d6d660227be0c3a03317 ]
+[ Upstream commit 60b801999c48b6c1dd04e653a38e2e613664264e ]
 
-The dev->power.direct_complete flag may become set in device_prepare() in
-case the device don't have any PM callbacks (dev->power.no_pm_callbacks is
-set). This leads to a broken behaviour, when there is child having wakeup
-enabled and relies on its parent to be used in the wakeup path.
+After an event is sent, we try to copy it into the user buffer of the
+first waiter in drm_read() and if the user buffer doesn't have enough
+room we put it back onto the list. However, we didn't wake up any
+subsequent waiter, so that event may sit on the list until either a new
+vblank event is sent or a new waiter appears. Rare, but in the worst
+case may lead to a stuck process.
 
-More precisely, when the direct complete path becomes selected for the
-child in __device_suspend(), the propagation of the dev->power.wakeup_path
-becomes skipped as well.
-
-Let's address this problem, by checking if the device is a part the wakeup
-path or has wakeup enabled, then prevent the direct complete path from
-being used.
-
-Reported-by: Loic Pallardy <loic.pallardy@st.com>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-[ rjw: Comment cleanup ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Testcase: igt/drm_read/short-buffer-wakeup
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20170804082328.17173-1-chris@chris-wilson.co.uk
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/power/main.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/drm_file.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/base/power/main.c b/drivers/base/power/main.c
-index 98517216879d5..a2714890fe431 100644
---- a/drivers/base/power/main.c
-+++ b/drivers/base/power/main.c
-@@ -1383,6 +1383,10 @@ static int __device_suspend(struct device *dev, pm_message_t state, bool async)
- 	if (dev->power.syscore)
- 		goto Complete;
+diff --git a/drivers/gpu/drm/drm_file.c b/drivers/gpu/drm/drm_file.c
+index 3f20f598cd7cf..9c5bc0121ff99 100644
+--- a/drivers/gpu/drm/drm_file.c
++++ b/drivers/gpu/drm/drm_file.c
+@@ -567,6 +567,7 @@ ssize_t drm_read(struct file *filp, char __user *buffer,
+ 				file_priv->event_space -= length;
+ 				list_add(&e->link, &file_priv->event_list);
+ 				spin_unlock_irq(&dev->event_lock);
++				wake_up_interruptible(&file_priv->event_wait);
+ 				break;
+ 			}
  
-+	/* Avoid direct_complete to let wakeup_path propagate. */
-+	if (device_may_wakeup(dev) || dev->power.wakeup_path)
-+		dev->power.direct_complete = false;
-+
- 	if (dev->power.direct_complete) {
- 		if (pm_runtime_status_suspended(dev)) {
- 			pm_runtime_disable(dev);
 -- 
 2.20.1
 
