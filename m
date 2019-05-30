@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8257D2F6B3
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:59:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3845E2F6B0
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:59:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727935AbfE3E6b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:58:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45296 "EHLO mail.kernel.org"
+        id S1728343AbfE3E6X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:58:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727769AbfE3DJs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:09:48 -0400
+        id S1727785AbfE3DJt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:09:49 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EDE9124494;
-        Thu, 30 May 2019 03:09:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 90AC02447C;
+        Thu, 30 May 2019 03:09:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1559185788;
-        bh=iYzo/VRtevKekWWggl+QIhG1PwDIUuE4DzWTR6nh2n0=;
+        bh=jxFEU4hEZfRWH8xSa6TsEgftBEFtYHFMd2kCHP1i7X8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HrafJyIS3neoYnHPejYj65GJU+r4DN5enzJe+XdzDegTmkvDyaoDCpGJmqxPXMRDk
-         owG0mD7/d600ay6S+aJZDo04cBI6YZfbF6b+UfLn3PKYeMW+nkuOFPztoX11IuELQd
-         Glu6sTUL122kdxmnA/IEV8TfPVNJixZLrFA/oezU=
+        b=HbZnQBnxgu4jhpuhPHmUunLz7Wf/IkSQBqiPBWBP7E7/8dJ87fryMla/GLd+KwwjL
+         eCrlJ93pre4fM3WDfMasqqQm4UO4mrXIjRs7ymcpuITf7oJMJQjgavn9iavnwGJO7b
+         uO6/u3MmLynY/yK957/4hY0dSRry6S9HDcmcepEI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yonghong Song <yhs@fb.com>,
+        stable@vger.kernel.org,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Quentin Monnet <quentin.monnet@netronome.com>,
         Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 057/405] selftests/bpf: set RLIMIT_MEMLOCK properly for test_libbpf_open.c
-Date:   Wed, 29 May 2019 20:00:55 -0700
-Message-Id: <20190530030543.759081513@linuxfoundation.org>
+Subject: [PATCH 5.1 058/405] bpftool: exclude bash-completion/bpftool from .gitignore pattern
+Date:   Wed, 29 May 2019 20:00:56 -0700
+Message-Id: <20190530030543.827288335@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
 References: <20190530030540.291644921@linuxfoundation.org>
@@ -44,41 +46,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 6cea33701eb024bc6c920ab83940ee22afd29139 ]
+[ Upstream commit a7d006714724de4334c5e3548701b33f7b12ca96 ]
 
-Test test_libbpf.sh failed on my development server with failure
-  -bash-4.4$ sudo ./test_libbpf.sh
-  [0] libbpf: Error in bpf_object__probe_name():Operation not permitted(1).
-      Couldn't load basic 'r0 = 0' BPF program.
-  test_libbpf: failed at file test_l4lb.o
-  selftests: test_libbpf [FAILED]
-  -bash-4.4$
+tools/bpf/bpftool/.gitignore has the "bpftool" pattern, which is
+intended to ignore the following build artifact:
 
-The reason is because my machine has 64KB locked memory by default which
-is not enough for this program to get locked memory.
-Similar to other bpf selftests, let us increase RLIMIT_MEMLOCK
-to infinity, which fixed the issue.
+  tools/bpf/bpftool/bpftool
 
-Signed-off-by: Yonghong Song <yhs@fb.com>
+However, the .gitignore entry is effective not only for the current
+directory, but also for any sub-directories.
+
+So, from the point of .gitignore grammar, the following check-in file
+is also considered to be ignored:
+
+  tools/bpf/bpftool/bash-completion/bpftool
+
+As the manual gitignore(5) says "Files already tracked by Git are not
+affected", this is not a problem as far as Git is concerned.
+
+However, Git is not the only program that parses .gitignore because
+.gitignore is useful to distinguish build artifacts from source files.
+
+For example, tar(1) supports the --exclude-vcs-ignore option. As of
+writing, this option does not work perfectly, but it intends to create
+a tarball excluding files specified by .gitignore.
+
+So, I believe it is better to fix this issue.
+
+You can fix it by prefixing the pattern with a slash; the leading slash
+means the specified pattern is relative to the current directory.
+
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Reviewed-by: Quentin Monnet <quentin.monnet@netronome.com>
 Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/test_libbpf_open.c | 2 ++
- 1 file changed, 2 insertions(+)
+ tools/bpf/bpftool/.gitignore | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/bpf/test_libbpf_open.c b/tools/testing/selftests/bpf/test_libbpf_open.c
-index 65cbd30704b5a..9e9db202d218a 100644
---- a/tools/testing/selftests/bpf/test_libbpf_open.c
-+++ b/tools/testing/selftests/bpf/test_libbpf_open.c
-@@ -11,6 +11,8 @@ static const char *__doc__ =
- #include <bpf/libbpf.h>
- #include <getopt.h>
- 
-+#include "bpf_rlimit.h"
-+
- static const struct option long_options[] = {
- 	{"help",	no_argument,		NULL, 'h' },
- 	{"debug",	no_argument,		NULL, 'D' },
+diff --git a/tools/bpf/bpftool/.gitignore b/tools/bpf/bpftool/.gitignore
+index 67167e44b7266..8248b8dd89d4b 100644
+--- a/tools/bpf/bpftool/.gitignore
++++ b/tools/bpf/bpftool/.gitignore
+@@ -1,5 +1,5 @@
+ *.d
+-bpftool
++/bpftool
+ bpftool*.8
+ bpf-helpers.*
+ FEATURE-DUMP.bpftool
 -- 
 2.20.1
 
