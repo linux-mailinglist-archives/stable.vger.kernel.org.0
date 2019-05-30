@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CC4012F420
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:36:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC4E92F648
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:54:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729379AbfE3EfV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:35:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57816 "EHLO mail.kernel.org"
+        id S1728055AbfE3Eyi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:54:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46796 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729381AbfE3DNO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:13:14 -0400
+        id S1728041AbfE3DKV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:10:21 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 646C5244EA;
-        Thu, 30 May 2019 03:13:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D80D244C3;
+        Thu, 30 May 2019 03:10:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185994;
-        bh=pkrYt45KKdk5c84Ve5J+EfLCCGC9mP22vg+IvgPQH2w=;
+        s=default; t=1559185819;
+        bh=Axkzu3uUr36TK7bECZeZQysYGOwAXPhX0hzv+gGko7I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I9SpoOcnM8wc5jm9NgLSVQvZPcs0moHhUOMF1RANmY2XrCJekoo9jReL6gNBsmw7c
-         FLIRQk/PI41k4cT3H35q+Yr/o+8ETkpZIScZTJJuKTKArYQiC4B41tNH6lidG6NpAw
-         rj/dlxrHg9ceQ2qkFix8iPSZLWO6H0Xu+lkczhmk=
+        b=TIjHBySUYCfdu9wft1QP1ET+2M2BhRguivzg0PIX1jG29bVyKsWLEhriaaqbG7ZS5
+         oP6d+IbQI79UYACrD2qzPaw6DYyQoiC9mkO4nxWuhnQPxzIlV/90Wg8mCn6KE2fb0m
+         KrasDySaj/6+Ij48PtlhrzW+mQtoQLCtO473WWzY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Kristian Evensen <kristian.evensen@gmail.com>
-Subject: [PATCH 5.0 040/346] netfilter: ctnetlink: Resolve conntrack L3-protocol flush regression
+        Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 115/405] mac80211/cfg80211: update bss channel on channel switch
 Date:   Wed, 29 May 2019 20:01:53 -0700
-Message-Id: <20190530030542.881377799@linuxfoundation.org>
+Message-Id: <20190530030546.818518699@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,50 +45,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kristian Evensen <kristian.evensen@gmail.com>
+[ Upstream commit 5dc8cdce1d722c733f8c7af14c5fb595cfedbfa8 ]
 
-commit f8e608982022fad035160870f5b06086d3cba54d upstream.
+FullMAC STAs have no way to update bss channel after CSA channel switch
+completion. As a result, user-space tools may provide inconsistent
+channel info. For instance, consider the following two commands:
+$ sudo iw dev wlan0 link
+$ sudo iw dev wlan0 info
+The latter command gets channel info from the hardware, so most probably
+its output will be correct. However the former command gets channel info
+from scan cache, so its output will contain outdated channel info.
+In fact, current bss channel info will not be updated until the
+next [re-]connect.
 
-Commit 59c08c69c278 ("netfilter: ctnetlink: Support L3 protocol-filter
-on flush") introduced a user-space regression when flushing connection
-track entries. Before this commit, the nfgen_family field was not used
-by the kernel and all entries were removed. Since this commit,
-nfgen_family is used to filter out entries that should not be removed.
-One example a broken tool is conntrack. conntrack always sets
-nfgen_family to AF_INET, so after 59c08c69c278 only IPv4 entries were
-removed with the -F parameter.
+Note that mac80211 STAs have a workaround for this, but it requires
+access to internal cfg80211 data, see ieee80211_chswitch_work:
 
-Pablo Neira Ayuso suggested using nfgenmsg->version to resolve the
-regression, and this commit implements his suggestion. nfgenmsg->version
-is so far set to zero, so it is well-suited to be used as a flag for
-selecting old or new flush behavior. If version is 0, nfgen_family is
-ignored and all entries are used. If user-space sets the version to one
-(or any other value than 0), then the new behavior is used. As version
-only can have two valid values, I chose not to add a new
-NFNETLINK_VERSION-constant.
+	/* XXX: shouldn't really modify cfg80211-owned data! */
+	ifmgd->associated->channel = sdata->csa_chandef.chan;
 
-Fixes: 59c08c69c278 ("netfilter: ctnetlink: Support L3 protocol-filter on flush")
-Reported-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Suggested-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Kristian Evensen <kristian.evensen@gmail.com>
-Tested-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This patch suggests to convert mac80211 workaround into cfg80211 behavior
+and to update current bss channel in cfg80211_ch_switch_notify.
 
+Signed-off-by: Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_conntrack_netlink.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/mac80211/mlme.c    | 3 ---
+ net/wireless/nl80211.c | 5 +++++
+ 2 files changed, 5 insertions(+), 3 deletions(-)
 
---- a/net/netfilter/nf_conntrack_netlink.c
-+++ b/net/netfilter/nf_conntrack_netlink.c
-@@ -1254,7 +1254,7 @@ static int ctnetlink_del_conntrack(struc
- 	struct nf_conntrack_tuple tuple;
- 	struct nf_conn *ct;
- 	struct nfgenmsg *nfmsg = nlmsg_data(nlh);
--	u_int8_t u3 = nfmsg->nfgen_family;
-+	u_int8_t u3 = nfmsg->version ? nfmsg->nfgen_family : AF_UNSPEC;
- 	struct nf_conntrack_zone zone;
- 	int err;
+diff --git a/net/mac80211/mlme.c b/net/mac80211/mlme.c
+index 2dbcf5d5512ef..b7a9fe3d5fcb7 100644
+--- a/net/mac80211/mlme.c
++++ b/net/mac80211/mlme.c
+@@ -1188,9 +1188,6 @@ static void ieee80211_chswitch_work(struct work_struct *work)
+ 		goto out;
+ 	}
  
+-	/* XXX: shouldn't really modify cfg80211-owned data! */
+-	ifmgd->associated->channel = sdata->csa_chandef.chan;
+-
+ 	ifmgd->csa_waiting_bcn = true;
+ 
+ 	ieee80211_sta_reset_beacon_monitor(sdata);
+diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
+index 47e30a58566c2..d2a7459a5da43 100644
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -15727,6 +15727,11 @@ void cfg80211_ch_switch_notify(struct net_device *dev,
+ 
+ 	wdev->chandef = *chandef;
+ 	wdev->preset_chandef = *chandef;
++
++	if (wdev->iftype == NL80211_IFTYPE_STATION &&
++	    !WARN_ON(!wdev->current_bss))
++		wdev->current_bss->pub.channel = chandef->chan;
++
+ 	nl80211_ch_switch_notify(rdev, dev, chandef, GFP_KERNEL,
+ 				 NL80211_CMD_CH_SWITCH_NOTIFY, 0);
+ }
+-- 
+2.20.1
+
 
 
