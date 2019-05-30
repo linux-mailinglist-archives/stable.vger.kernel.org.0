@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 267742F0F6
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:09:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D1C72EFC1
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:59:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726944AbfE3EIs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:08:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45782 "EHLO mail.kernel.org"
+        id S1731647AbfE3DSm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:18:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729927AbfE3DRR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:17:17 -0400
+        id S1731638AbfE3DSm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:18:42 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6C8032469D;
-        Thu, 30 May 2019 03:17:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0AF4824773;
+        Thu, 30 May 2019 03:18:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186236;
-        bh=gax3MfaSwfiYA6qdvLN2qDcIcWd8QKT8FjHPxYZr8pE=;
+        s=default; t=1559186321;
+        bh=oryTupGbrP0Ae2JeDZUHDiT2EeTkD1fZgp3YcnMdvt4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yk+sXNAYn+ixTploTzMZuRo/q+j0tpxy+yDuNv/0Thc2tDbwJ+lQ5s66ZxJ36idaz
-         /pzpMQWu7dS3ofYXVWdO0T+WiAxn3iDbLfYoESd08VLUmELa1EoN4W57d2udGK0sle
-         daMAemJVmip8xJ1BG34CqCOeug2NiKVQmhow2Uhc=
+        b=dP0D1tD9KfmL5MmhsCCwkeCOeSdFKUQz769f+IJuPSS2/xEEsVlO28Cw2RY+Ova/W
+         Vrw8go8zGnPjP1dz8hn4CGfIpwkEi0bQGXjJIUOW1Nxv9hWBxp/nrMdsyYm1lz1Ulk
+         Q5N8AaHjJQusYwFMIOylEQjDv52KYr+Mw/2psJQ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuah Khan <shuah@kernel.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 127/276] media: au0828: Fix NULL pointer dereference in au0828_analog_stream_enable()
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot+457d3e2ffbcf31aee5c0@syzkaller.appspotmail.com,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        Jesper Dangaard Brouer <brouer@redhat.com>,
+        Daniel Borkmann <daniel@iogearbox.net>
+Subject: [PATCH 4.14 031/193] bpf: devmap: fix use-after-free Read in __dev_map_entry_free
 Date:   Wed, 29 May 2019 20:04:45 -0700
-Message-Id: <20190530030533.748197804@linuxfoundation.org>
+Message-Id: <20190530030453.606316270@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
+References: <20190530030446.953835040@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,77 +46,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 898bc40bfcc26abb6e06e960d6d4754c36c58b50 ]
+From: Eric Dumazet <edumazet@google.com>
 
-Fix au0828_analog_stream_enable() to check if device is in the right
-state first. When unbind happens while bind is in progress, usbdev
-pointer could be invalid in au0828_analog_stream_enable() and a call
-to usb_ifnum_to_if() will result in the null pointer dereference.
+commit 2baae3545327632167c0180e9ca1d467416f1919 upstream.
 
-This problem is found with the new media_dev_allocator.sh test.
+synchronize_rcu() is fine when the rcu callbacks only need
+to free memory (kfree_rcu() or direct kfree() call rcu call backs)
 
-kernel: [  590.359623] BUG: unable to handle kernel NULL pointer dereference at 00000000000004e8
-kernel: [  590.359627] #PF error: [normal kernel read fault]
-kernel: [  590.359629] PGD 0 P4D 0
-kernel: [  590.359632] Oops: 0000 [#1] SMP PTI
-kernel: [  590.359634] CPU: 3 PID: 1458 Comm: v4l_id Not tainted 5.1.0-rc2+ #30
-kernel: [  590.359636] Hardware name: Dell Inc. OptiPlex 7 90/0HY9JP, BIOS A18 09/24/2013
-kernel: [  590.359641] RIP: 0010:usb_ifnum_to_if+0x6/0x60
-kernel: [  590.359643] Code: 5d 41 5e 41 5f 5d c3 48 83 c4
- 10 b8 fa ff ff ff 5b 41 5c 41 5d 41 5e 41 5f 5d c3 b8 fa ff ff ff c3 0f 1f 00 6
-6 66 66 66 90 55 <48> 8b 97 e8 04 00 00 48 89 e5 48 85 d2 74 41 0f b6 4a 04 84 c
-9 74
-kernel: [  590.359645] RSP: 0018:ffffad3cc3c1fc00 EFLAGS: 00010246
-kernel: [  590.359646] RAX: 0000000000000000 RBX: ffff8ded b1f3c000 RCX: 1f377e4500000000
-kernel: [  590.359648] RDX: ffff8dedfa3a6b50 RSI: 00000000 00000000 RDI: 0000000000000000
-kernel: [  590.359649] RBP: ffffad3cc3c1fc28 R08: 00000000 8574acc2 R09: ffff8dedfa3a6b50
-kernel: [  590.359650] R10: 0000000000000001 R11: 00000000 00000000 R12: 0000000000000000
-kernel: [  590.359652] R13: ffff8dedb1f3f0f0 R14: ffffffff adcf7ec0 R15: 0000000000000000
-kernel: [  590.359654] FS:  00007f7917198540(0000) GS:ffff 8dee258c0000(0000) knlGS:0000000000000000
-kernel: [  590.359655] CS:  0010 DS: 0000 ES: 0000 CR0: 00 00000080050033
-kernel: [  590.359657] CR2: 00000000000004e8 CR3: 00000001 a388e002 CR4: 00000000000606e0
-kernel: [  590.359658] Call Trace:
-kernel: [  590.359664]  ? au0828_analog_stream_enable+0x2c/0x180
-kernel: [  590.359666]  au0828_v4l2_open+0xa4/0x110
-kernel: [  590.359670]  v4l2_open+0x8b/0x120
-kernel: [  590.359674]  chrdev_open+0xa6/0x1c0
-kernel: [  590.359676]  ? cdev_put.part.3+0x20/0x20
-kernel: [  590.359678]  do_dentry_open+0x1f6/0x360
-kernel: [  590.359681]  vfs_open+0x2f/0x40
-kernel: [  590.359684]  path_openat+0x299/0xc20
-kernel: [  590.359688]  do_filp_open+0x9b/0x110
-kernel: [  590.359695]  ? _raw_spin_unlock+0x27/0x40
-kernel: [  590.359697]  ? __alloc_fd+0xb2/0x160
-kernel: [  590.359700]  do_sys_open+0x1ba/0x260
-kernel: [  590.359702]  ? do_sys_open+0x1ba/0x260
-kernel: [  590.359712]  __x64_sys_openat+0x20/0x30
-kernel: [  590.359715]  do_syscall_64+0x5a/0x120
-kernel: [  590.359718]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+__dev_map_entry_free() is a bit more complex, so we need to make
+sure that call queued __dev_map_entry_free() callbacks have completed.
 
-Signed-off-by: Shuah Khan <shuah@kernel.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+sysbot report:
+
+BUG: KASAN: use-after-free in dev_map_flush_old kernel/bpf/devmap.c:365
+[inline]
+BUG: KASAN: use-after-free in __dev_map_entry_free+0x2a8/0x300
+kernel/bpf/devmap.c:379
+Read of size 8 at addr ffff8801b8da38c8 by task ksoftirqd/1/18
+
+CPU: 1 PID: 18 Comm: ksoftirqd/1 Not tainted 4.17.0+ #39
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
+Google 01/01/2011
+Call Trace:
+  __dump_stack lib/dump_stack.c:77 [inline]
+  dump_stack+0x1b9/0x294 lib/dump_stack.c:113
+  print_address_description+0x6c/0x20b mm/kasan/report.c:256
+  kasan_report_error mm/kasan/report.c:354 [inline]
+  kasan_report.cold.7+0x242/0x2fe mm/kasan/report.c:412
+  __asan_report_load8_noabort+0x14/0x20 mm/kasan/report.c:433
+  dev_map_flush_old kernel/bpf/devmap.c:365 [inline]
+  __dev_map_entry_free+0x2a8/0x300 kernel/bpf/devmap.c:379
+  __rcu_reclaim kernel/rcu/rcu.h:178 [inline]
+  rcu_do_batch kernel/rcu/tree.c:2558 [inline]
+  invoke_rcu_callbacks kernel/rcu/tree.c:2818 [inline]
+  __rcu_process_callbacks kernel/rcu/tree.c:2785 [inline]
+  rcu_process_callbacks+0xe9d/0x1760 kernel/rcu/tree.c:2802
+  __do_softirq+0x2e0/0xaf5 kernel/softirq.c:284
+  run_ksoftirqd+0x86/0x100 kernel/softirq.c:645
+  smpboot_thread_fn+0x417/0x870 kernel/smpboot.c:164
+  kthread+0x345/0x410 kernel/kthread.c:240
+  ret_from_fork+0x3a/0x50 arch/x86/entry/entry_64.S:412
+
+Allocated by task 6675:
+  save_stack+0x43/0xd0 mm/kasan/kasan.c:448
+  set_track mm/kasan/kasan.c:460 [inline]
+  kasan_kmalloc+0xc4/0xe0 mm/kasan/kasan.c:553
+  kmem_cache_alloc_trace+0x152/0x780 mm/slab.c:3620
+  kmalloc include/linux/slab.h:513 [inline]
+  kzalloc include/linux/slab.h:706 [inline]
+  dev_map_alloc+0x208/0x7f0 kernel/bpf/devmap.c:102
+  find_and_alloc_map kernel/bpf/syscall.c:129 [inline]
+  map_create+0x393/0x1010 kernel/bpf/syscall.c:453
+  __do_sys_bpf kernel/bpf/syscall.c:2351 [inline]
+  __se_sys_bpf kernel/bpf/syscall.c:2328 [inline]
+  __x64_sys_bpf+0x303/0x510 kernel/bpf/syscall.c:2328
+  do_syscall_64+0x1b1/0x800 arch/x86/entry/common.c:290
+  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+Freed by task 26:
+  save_stack+0x43/0xd0 mm/kasan/kasan.c:448
+  set_track mm/kasan/kasan.c:460 [inline]
+  __kasan_slab_free+0x11a/0x170 mm/kasan/kasan.c:521
+  kasan_slab_free+0xe/0x10 mm/kasan/kasan.c:528
+  __cache_free mm/slab.c:3498 [inline]
+  kfree+0xd9/0x260 mm/slab.c:3813
+  dev_map_free+0x4fa/0x670 kernel/bpf/devmap.c:191
+  bpf_map_free_deferred+0xba/0xf0 kernel/bpf/syscall.c:262
+  process_one_work+0xc64/0x1b70 kernel/workqueue.c:2153
+  worker_thread+0x181/0x13a0 kernel/workqueue.c:2296
+  kthread+0x345/0x410 kernel/kthread.c:240
+  ret_from_fork+0x3a/0x50 arch/x86/entry/entry_64.S:412
+
+The buggy address belongs to the object at ffff8801b8da37c0
+  which belongs to the cache kmalloc-512 of size 512
+The buggy address is located 264 bytes inside of
+  512-byte region [ffff8801b8da37c0, ffff8801b8da39c0)
+The buggy address belongs to the page:
+page:ffffea0006e368c0 count:1 mapcount:0 mapping:ffff8801da800940
+index:0xffff8801b8da3540
+flags: 0x2fffc0000000100(slab)
+raw: 02fffc0000000100 ffffea0007217b88 ffffea0006e30cc8 ffff8801da800940
+raw: ffff8801b8da3540 ffff8801b8da3040 0000000100000004 0000000000000000
+page dumped because: kasan: bad access detected
+
+Memory state around the buggy address:
+  ffff8801b8da3780: fc fc fc fc fc fc fc fc fb fb fb fb fb fb fb fb
+  ffff8801b8da3800: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+> ffff8801b8da3880: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                                               ^
+  ffff8801b8da3900: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+  ffff8801b8da3980: fb fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
+
+Fixes: 546ac1ffb70d ("bpf: add devmap, a map for storing net device references")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot+457d3e2ffbcf31aee5c0@syzkaller.appspotmail.com
+Acked-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Acked-by: Jesper Dangaard Brouer <brouer@redhat.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/media/usb/au0828/au0828-video.c | 3 +++
+ kernel/bpf/devmap.c |    3 +++
  1 file changed, 3 insertions(+)
 
-diff --git a/drivers/media/usb/au0828/au0828-video.c b/drivers/media/usb/au0828/au0828-video.c
-index 72095465856a2..3e111f7f56dfe 100644
---- a/drivers/media/usb/au0828/au0828-video.c
-+++ b/drivers/media/usb/au0828/au0828-video.c
-@@ -758,6 +758,9 @@ static int au0828_analog_stream_enable(struct au0828_dev *d)
+--- a/kernel/bpf/devmap.c
++++ b/kernel/bpf/devmap.c
+@@ -156,6 +156,9 @@ static void dev_map_free(struct bpf_map
  
- 	dprintk(1, "au0828_analog_stream_enable called\n");
+ 	synchronize_rcu();
  
-+	if (test_bit(DEV_DISCONNECTED, &d->dev_state))
-+		return -ENODEV;
++	/* Make sure prior __dev_map_entry_free() have completed. */
++	rcu_barrier();
 +
- 	iface = usb_ifnum_to_if(d->usbdev, 0);
- 	if (iface && iface->cur_altsetting->desc.bAlternateSetting != 5) {
- 		dprintk(1, "Changing intf#0 to alt 5\n");
--- 
-2.20.1
-
+ 	/* To ensure all pending flush operations have completed wait for flush
+ 	 * bitmap to indicate all flush_needed bits to be zero on _all_ cpus.
+ 	 * Because the above synchronize_rcu() ensures the map is disconnected
 
 
