@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7514B2EDBE
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:42:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D27472EDB8
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:42:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731955AbfE3Dkg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:40:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34596 "EHLO mail.kernel.org"
+        id S1732572AbfE3DV2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:21:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732563AbfE3DV0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:21:26 -0400
+        id S1730046AbfE3DV1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:21:27 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 51C0824A1C;
+        by mail.kernel.org (Postfix) with ESMTPSA id B5E3D249E6;
         Thu, 30 May 2019 03:21:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1559186486;
-        bh=ff40QEk6SVBAfJzCgpMarkuQLoS7zPbCJqfUuXq2++0=;
+        bh=SoCcNy78lwGhxP++i8+gokc+1T3HmcxE2eEBtGwag8o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X9whdLFRZnxE6dG3q/Js036t9xuFHufGHaOgsdJYplREf4ifd5MNMtRMdkvJYeJ9w
-         R5VBu9R8XmCfzYldBUtFnazDTHNXpARSVIrIAqFQ1s5atzpInwNX1TuUXU9i6u1h9L
-         c2lIwGiOCNP7xH5WcwkgWZz6NVUxpSVB9oX/ysbs=
+        b=E9sW7p2Tmd6pS4UvTiHpjseETvR/g3KzaUyt1vUUG3AkMXZ/pgOVeDka6a9DvVJY8
+         4wNGYAzhlMa91DipYJ/7bp73VYPeCiD/l+74PVriZedHy/Fy3AeBzPDEuidDYSxjAZ
+         d08427t/9V9c5tXfClQ7XCDyPG41Ubg+uGEt1UCM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Peter Ujfalusi <peter.ujfalusi@ti.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 127/128] ASoC: davinci-mcasp: Fix clang warning without CONFIG_PM
-Date:   Wed, 29 May 2019 20:07:39 -0700
-Message-Id: <20190530030456.989284553@linuxfoundation.org>
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 128/128] drm: Wake up next in drm_read() chain if we are forced to putback the event
+Date:   Wed, 29 May 2019 20:07:40 -0700
+Message-Id: <20190530030457.108342500@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
 References: <20190530030432.977908967@linuxfoundation.org>
@@ -46,47 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 8ca5104715cfd14254ea5aecc390ae583b707607 ]
+[ Upstream commit 60b801999c48b6c1dd04e653a38e2e613664264e ]
 
-Building with clang shows a variable that is only used by the
-suspend/resume functions but defined outside of their #ifdef block:
+After an event is sent, we try to copy it into the user buffer of the
+first waiter in drm_read() and if the user buffer doesn't have enough
+room we put it back onto the list. However, we didn't wake up any
+subsequent waiter, so that event may sit on the list until either a new
+vblank event is sent or a new waiter appears. Rare, but in the worst
+case may lead to a stuck process.
 
-sound/soc/ti/davinci-mcasp.c:48:12: error: variable 'context_regs' is not needed and will not be emitted
-
-We commonly fix these by marking the PM functions as __maybe_unused,
-but here that would grow the davinci_mcasp structure, so instead
-add another #ifdef here.
-
-Fixes: 1cc0c054f380 ("ASoC: davinci-mcasp: Convert the context save/restore to use array")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Testcase: igt/drm_read/short-buffer-wakeup
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20170804082328.17173-1-chris@chris-wilson.co.uk
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/davinci/davinci-mcasp.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/drm_fops.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/davinci/davinci-mcasp.c b/sound/soc/davinci/davinci-mcasp.c
-index 3c5a9804d3f5e..5a0b17ebfc025 100644
---- a/sound/soc/davinci/davinci-mcasp.c
-+++ b/sound/soc/davinci/davinci-mcasp.c
-@@ -43,6 +43,7 @@
+diff --git a/drivers/gpu/drm/drm_fops.c b/drivers/gpu/drm/drm_fops.c
+index c37b7b5f1dd31..921f7f690ae9b 100644
+--- a/drivers/gpu/drm/drm_fops.c
++++ b/drivers/gpu/drm/drm_fops.c
+@@ -515,6 +515,7 @@ ssize_t drm_read(struct file *filp, char __user *buffer,
+ 				file_priv->event_space -= length;
+ 				list_add(&e->link, &file_priv->event_list);
+ 				spin_unlock_irq(&dev->event_lock);
++				wake_up_interruptible(&file_priv->event_wait);
+ 				break;
+ 			}
  
- #define MCASP_MAX_AFIFO_DEPTH	64
- 
-+#ifdef CONFIG_PM
- static u32 context_regs[] = {
- 	DAVINCI_MCASP_TXFMCTL_REG,
- 	DAVINCI_MCASP_RXFMCTL_REG,
-@@ -65,6 +66,7 @@ struct davinci_mcasp_context {
- 	u32	*xrsr_regs; /* for serializer configuration */
- 	bool	pm_state;
- };
-+#endif
- 
- struct davinci_mcasp_ruledata {
- 	struct davinci_mcasp *mcasp;
 -- 
 2.20.1
 
