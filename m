@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EB102F26F
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:22:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FC932F0D7
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:08:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728442AbfE3EV4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:21:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37528 "EHLO mail.kernel.org"
+        id S1731087AbfE3DRX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:17:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730148AbfE3DPL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:15:11 -0400
+        id S1731079AbfE3DRW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:17:22 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 56DC124598;
-        Thu, 30 May 2019 03:15:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D7F702463F;
+        Thu, 30 May 2019 03:17:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186110;
-        bh=vACxFoaRYP5jpW6GY39AcU0tnRCiSOhoxjkhWlv5gfI=;
+        s=default; t=1559186242;
+        bh=B3DhlEJ4ntR8egRJP5RlZfeyVV2zTNXwZoWVRbGKFCE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oYBlAdloHa+UkHc3oh00fQdRiSbtCPVtfrszgFvfsZ1u0YcxoHCo8L2rd8tMACUxL
-         7um2EOsUiUjmdKKfTxkL9WlmloSdfyrfS0vdIMTQHqKl4vy/knoS1viH4RiQOx2ui3
-         H7JZ4ngjSoGvPD0sst6fAlLJ4ZgMdQ3w6jpALmL0=
+        b=yvvINWwa7TkoOxfxqMbQDJoQYKY+wx0nwIwBK8HaIG6MjOBct5meD37BIbvIOlkOr
+         +ud3nDxZHVmj4tCoFyBUMCCKi7Ka91OGZKXUjPNOFhVrmBLVWsqdxaaKQxIGKSez/a
+         2/Z9+K7u1KGfuz87vRnvAHA8VXqs/IHehDIpwORo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 212/346] samples/bpf: fix build with new clang
-Date:   Wed, 29 May 2019 20:04:45 -0700
-Message-Id: <20190530030551.859624705@linuxfoundation.org>
+Subject: [PATCH 4.19 128/276] media: pvrusb2: Prevent a buffer overflow
+Date:   Wed, 29 May 2019 20:04:46 -0700
+Message-Id: <20190530030533.803120908@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +45,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 636e78b1cdb40b77a79b143dbd9d94847b360efa ]
+[ Upstream commit c1ced46c7b49ad7bc064e68d966e0ad303f917fb ]
 
-clang started to error on invalid asm clobber usage in x86 headers
-and many bpf program samples failed to build with the message:
+The ctrl_check_input() function is called from pvr2_ctrl_range_check().
+It's supposed to validate user supplied input and return true or false
+depending on whether the input is valid or not.  The problem is that
+negative shifts or shifts greater than 31 are undefined in C.  In
+practice with GCC they result in shift wrapping so this function returns
+true for some inputs which are not valid and this could result in a
+buffer overflow:
 
-  CLANG-bpf  /data/users/ast/bpf-next/samples/bpf/xdp_redirect_kern.o
-In file included from /data/users/ast/bpf-next/samples/bpf/xdp_redirect_kern.c:14:
-In file included from ../include/linux/in.h:23:
-In file included from ../include/uapi/linux/in.h:24:
-In file included from ../include/linux/socket.h:8:
-In file included from ../include/linux/uio.h:14:
-In file included from ../include/crypto/hash.h:16:
-In file included from ../include/linux/crypto.h:26:
-In file included from ../include/linux/uaccess.h:5:
-In file included from ../include/linux/sched.h:15:
-In file included from ../include/linux/sem.h:5:
-In file included from ../include/uapi/linux/sem.h:5:
-In file included from ../include/linux/ipc.h:9:
-In file included from ../include/linux/refcount.h:72:
-../arch/x86/include/asm/refcount.h:72:36: error: asm-specifier for input or output variable conflicts with asm clobber list
-                                         r->refs.counter, e, "er", i, "cx");
-                                                                      ^
-../arch/x86/include/asm/refcount.h:86:27: error: asm-specifier for input or output variable conflicts with asm clobber list
-                                         r->refs.counter, e, "cx");
-                                                             ^
-2 errors generated.
+    drivers/media/usb/pvrusb2/pvrusb2-ctrl.c:205 pvr2_ctrl_get_valname()
+    warn: uncapped user index 'names[val]'
 
-Override volatile() to workaround the problem.
+The cptr->hdw->input_allowed_mask mask is configured in pvr2_hdw_create()
+and the highest valid bit is BIT(4).
 
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Fixes: 7fb20fa38caa ("V4L/DVB (7299): pvrusb2: Improve logic which handles input choice availability")
+
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- samples/bpf/asm_goto_workaround.h | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/usb/pvrusb2/pvrusb2-hdw.c | 2 ++
+ drivers/media/usb/pvrusb2/pvrusb2-hdw.h | 1 +
+ 2 files changed, 3 insertions(+)
 
-diff --git a/samples/bpf/asm_goto_workaround.h b/samples/bpf/asm_goto_workaround.h
-index 5cd7c1d1a5d56..7409722727ca1 100644
---- a/samples/bpf/asm_goto_workaround.h
-+++ b/samples/bpf/asm_goto_workaround.h
-@@ -13,4 +13,5 @@
- #define asm_volatile_goto(x...) asm volatile("invalid use of asm_volatile_goto")
- #endif
+diff --git a/drivers/media/usb/pvrusb2/pvrusb2-hdw.c b/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
+index a8519da0020bf..673fdca8d2dac 100644
+--- a/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
++++ b/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
+@@ -666,6 +666,8 @@ static int ctrl_get_input(struct pvr2_ctrl *cptr,int *vp)
  
-+#define volatile(x...) volatile("")
- #endif
+ static int ctrl_check_input(struct pvr2_ctrl *cptr,int v)
+ {
++	if (v < 0 || v > PVR2_CVAL_INPUT_MAX)
++		return 0;
+ 	return ((1 << v) & cptr->hdw->input_allowed_mask) != 0;
+ }
+ 
+diff --git a/drivers/media/usb/pvrusb2/pvrusb2-hdw.h b/drivers/media/usb/pvrusb2/pvrusb2-hdw.h
+index 25648add77e58..bd2b7a67b7322 100644
+--- a/drivers/media/usb/pvrusb2/pvrusb2-hdw.h
++++ b/drivers/media/usb/pvrusb2/pvrusb2-hdw.h
+@@ -50,6 +50,7 @@
+ #define PVR2_CVAL_INPUT_COMPOSITE 2
+ #define PVR2_CVAL_INPUT_SVIDEO 3
+ #define PVR2_CVAL_INPUT_RADIO 4
++#define PVR2_CVAL_INPUT_MAX PVR2_CVAL_INPUT_RADIO
+ 
+ enum pvr2_config {
+ 	pvr2_config_empty,    /* No configuration */
 -- 
 2.20.1
 
