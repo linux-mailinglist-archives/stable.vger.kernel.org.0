@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 975952F350
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:28:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E49372F59A
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:48:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728734AbfE3E2T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:28:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33642 "EHLO mail.kernel.org"
+        id S1728974AbfE3EsY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:48:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729781AbfE3DOP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:14:15 -0400
+        id S1728480AbfE3DLU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:11:20 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F3FBB24555;
-        Thu, 30 May 2019 03:14:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C1E77244A0;
+        Thu, 30 May 2019 03:11:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186055;
-        bh=Ccf3TJwtMM4NcJB/LDU11Fx86Q+CHjGntLaWj4vFXDc=;
+        s=default; t=1559185879;
+        bh=KFjWdcM0j1PIjGo1SD5vVsinYegNqV/OwabGD7l4Pfo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QDC7ZB8Jw6gMA6is+5qDMKmZRyp8TtsGmAYXKt35/EpoSKYgGEiBvwDaeRX04H36p
-         9W4B8HY9o3yRC/SQCBdBWMyZCf5WJVrcZ0suPj+6C1OjZKEjW0O+J6Mglz4Gds5wSm
-         xMVozjuAIZpInNcHir490Jqn3f96ZFDH1KRKaBTg=
+        b=YqvojkeDy1Y90biBVjTlp/AnwBYNgFjRaPrHj07N7l0bo71JhCSowDoThcuEuyogO
+         DQrd+G9918MknqB3v3x5/hMSBJyfI0gyyEhRCGOQ+gNUG5hiHXuizdNkPgSQCBYoJv
+         kIfvqNV2C04TkSEFnNFtHh0bXUTDZjKkIGMoCTUY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
-        Peter Zijlstra <a.p.zijlstra@chello.nl>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 153/346] sched/core: Check quota and period overflow at usec to nsec conversion
+        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        linux-pm@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 228/405] cpufreq: kirkwood: fix possible object reference leak
 Date:   Wed, 29 May 2019 20:03:46 -0700
-Message-Id: <20190530030548.935524112@linuxfoundation.org>
+Message-Id: <20190530030552.571647167@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,58 +45,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 1a8b4540db732ca16c9e43ac7c08b1b8f0b252d8 ]
+[ Upstream commit 7c468966f05ac9c17bb5948275283d34e6fe0660 ]
 
-Large values could overflow u64 and pass following sanity checks.
+The call to of_get_child_by_name returns a node pointer with refcount
+incremented thus it must be explicitly decremented after the last
+usage.
 
- # echo 18446744073750000 > cpu.cfs_period_us
- # cat cpu.cfs_period_us
- 40448
+Detected by coccinelle with the following warnings:
+./drivers/cpufreq/kirkwood-cpufreq.c:127:2-8: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 118, but without a corresponding object release within this function.
+./drivers/cpufreq/kirkwood-cpufreq.c:133:2-8: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 118, but without a corresponding object release within this function.
 
- # echo 18446744073750000 > cpu.cfs_quota_us
- # cat cpu.cfs_quota_us
- 40448
+and also do some cleanup:
+- of_node_put(np);
+- np = NULL;
+...
+of_node_put(np);
 
-After this patch they will fail with -EINVAL.
-
-Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
-Acked-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: http://lkml.kernel.org/r/155125502079.293431.3947497929372138600.stgit@buzz
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Viresh Kumar <viresh.kumar@linaro.org>
+Cc: linux-pm@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/core.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/cpufreq/kirkwood-cpufreq.c | 19 +++++++++++--------
+ 1 file changed, 11 insertions(+), 8 deletions(-)
 
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 62cc29364fba9..55c1061b5aeb1 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -6605,8 +6605,10 @@ int tg_set_cfs_quota(struct task_group *tg, long cfs_quota_us)
- 	period = ktime_to_ns(tg->cfs_bandwidth.period);
- 	if (cfs_quota_us < 0)
- 		quota = RUNTIME_INF;
--	else
-+	else if ((u64)cfs_quota_us <= U64_MAX / NSEC_PER_USEC)
- 		quota = (u64)cfs_quota_us * NSEC_PER_USEC;
-+	else
-+		return -EINVAL;
+diff --git a/drivers/cpufreq/kirkwood-cpufreq.c b/drivers/cpufreq/kirkwood-cpufreq.c
+index c2dd43f3f5d8a..8d63a6dc8383c 100644
+--- a/drivers/cpufreq/kirkwood-cpufreq.c
++++ b/drivers/cpufreq/kirkwood-cpufreq.c
+@@ -124,13 +124,14 @@ static int kirkwood_cpufreq_probe(struct platform_device *pdev)
+ 	priv.cpu_clk = of_clk_get_by_name(np, "cpu_clk");
+ 	if (IS_ERR(priv.cpu_clk)) {
+ 		dev_err(priv.dev, "Unable to get cpuclk\n");
+-		return PTR_ERR(priv.cpu_clk);
++		err = PTR_ERR(priv.cpu_clk);
++		goto out_node;
+ 	}
  
- 	return tg_set_cfs_bandwidth(tg, period, quota);
- }
-@@ -6628,6 +6630,9 @@ int tg_set_cfs_period(struct task_group *tg, long cfs_period_us)
- {
- 	u64 quota, period;
+ 	err = clk_prepare_enable(priv.cpu_clk);
+ 	if (err) {
+ 		dev_err(priv.dev, "Unable to prepare cpuclk\n");
+-		return err;
++		goto out_node;
+ 	}
  
-+	if ((u64)cfs_period_us > U64_MAX / NSEC_PER_USEC)
-+		return -EINVAL;
-+
- 	period = (u64)cfs_period_us * NSEC_PER_USEC;
- 	quota = tg->cfs_bandwidth.quota;
+ 	kirkwood_freq_table[0].frequency = clk_get_rate(priv.cpu_clk) / 1000;
+@@ -161,20 +162,22 @@ static int kirkwood_cpufreq_probe(struct platform_device *pdev)
+ 		goto out_ddr;
+ 	}
  
+-	of_node_put(np);
+-	np = NULL;
+-
+ 	err = cpufreq_register_driver(&kirkwood_cpufreq_driver);
+-	if (!err)
+-		return 0;
++	if (err) {
++		dev_err(priv.dev, "Failed to register cpufreq driver\n");
++		goto out_powersave;
++	}
+ 
+-	dev_err(priv.dev, "Failed to register cpufreq driver\n");
++	of_node_put(np);
++	return 0;
+ 
++out_powersave:
+ 	clk_disable_unprepare(priv.powersave_clk);
+ out_ddr:
+ 	clk_disable_unprepare(priv.ddr_clk);
+ out_cpu:
+ 	clk_disable_unprepare(priv.cpu_clk);
++out_node:
+ 	of_node_put(np);
+ 
+ 	return err;
 -- 
 2.20.1
 
