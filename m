@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E7CF02F646
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:54:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C7AF2EB23
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:10:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726498AbfE3Eyd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:54:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47276 "EHLO mail.kernel.org"
+        id S1728066AbfE3DKX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:10:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728055AbfE3DKW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:10:22 -0400
+        id S1728058AbfE3DKX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:10:23 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E5AF524481;
-        Thu, 30 May 2019 03:10:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 61BF42448B;
+        Thu, 30 May 2019 03:10:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1559185822;
-        bh=ot9FM3WGabb+tXREUKJBTyJMdSCYuDcHcMZmKOAYjwc=;
+        bh=DGwI68EpuJ6zAp05syVes+pWzZQjOwsZ0B9Eg/W2hJw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FlP7QGpGBQ+eVzAw8xyzVw8I2zNJIPxm0NbniROXN2+63iVTF5Gg3ybtyZj1u18Cl
-         57HWtVbK0XcO6oDdLrIQSYEonwF+iXwThnXmDZii5XfhvPeBafdZK6cWo3FO5/hNxw
-         D8WwfRg50fYwW1F+oJv389nVziJxiVHa+xChtyJg=
+        b=XyQ3UFAGru8po4+ghMFzrNtWmZ1Mg0H7YFoJWbYyY+eOanY3+GWF9PFvlWGd7nGw+
+         NRz4Jp9kqY/XqO+eb1jJSFJgKV3Xpxf0Luu+PZjOFLlvnCiDg3z7okWeey9LDPmImS
+         RJk6ag1xswmH0ESYPB2Y7vSslVYqygS5U1Bu16kc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, Daniel Baluta <daniel.baluta@nxp.com>,
+        Nicolin Chen <nicoleotsuka@gmail.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 119/405] regulator: core: Actually put the gpiod after use
-Date:   Wed, 29 May 2019 20:01:57 -0700
-Message-Id: <20190530030547.022035842@linuxfoundation.org>
+Subject: [PATCH 5.1 120/405] ASoC: fsl_sai: Update is_slave_mode with correct value
+Date:   Wed, 29 May 2019 20:01:58 -0700
+Message-Id: <20190530030547.072208511@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
 References: <20190530030540.291644921@linuxfoundation.org>
@@ -44,38 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 78927aa40bc82f32de07323ddc1c9de07ac68180 ]
+[ Upstream commit ddb351145a967ee791a0fb0156852ec2fcb746ba ]
 
-I went to great lengths to hand over the management of the GPIO
-descriptors to the regulator core, and some stray rebased
-oneliner in the old patch must have been assuming the devices
-were still doing devres management of it.
+is_slave_mode defaults to false because sai structure
+that contains it is kzalloc'ed.
 
-We handed the management over to the regulator core, so of
-course the regulator core shall issue gpiod_put() when done.
+Anyhow, if we decide to set the following configuration
+SAI slave -> SAI master, is_slave_mode will remain set on true
+although SAI being master it should be set to false.
 
-Sorry for the descriptor leak.
+Fix this by updating is_slave_mode for each call of
+fsl_sai_set_dai_fmt.
 
-Fixes: 541d052d7215 ("regulator: core: Only support passing enable GPIO descriptors")
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Daniel Baluta <daniel.baluta@nxp.com>
+Acked-by: Nicolin Chen <nicoleotsuka@gmail.com>
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/core.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/fsl/fsl_sai.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
-index 968dcd9d7a070..6da41207e479a 100644
---- a/drivers/regulator/core.c
-+++ b/drivers/regulator/core.c
-@@ -2256,6 +2256,7 @@ static void regulator_ena_gpio_free(struct regulator_dev *rdev)
- 		if (pin->gpiod == rdev->ena_pin->gpiod) {
- 			if (pin->request_count <= 1) {
- 				pin->request_count = 0;
-+				gpiod_put(pin->gpiod);
- 				list_del(&pin->list);
- 				kfree(pin);
- 				rdev->ena_pin = NULL;
+diff --git a/sound/soc/fsl/fsl_sai.c b/sound/soc/fsl/fsl_sai.c
+index db9e0872f73db..7549b74e464e9 100644
+--- a/sound/soc/fsl/fsl_sai.c
++++ b/sound/soc/fsl/fsl_sai.c
+@@ -268,12 +268,14 @@ static int fsl_sai_set_dai_fmt_tr(struct snd_soc_dai *cpu_dai,
+ 	case SND_SOC_DAIFMT_CBS_CFS:
+ 		val_cr2 |= FSL_SAI_CR2_BCD_MSTR;
+ 		val_cr4 |= FSL_SAI_CR4_FSD_MSTR;
++		sai->is_slave_mode = false;
+ 		break;
+ 	case SND_SOC_DAIFMT_CBM_CFM:
+ 		sai->is_slave_mode = true;
+ 		break;
+ 	case SND_SOC_DAIFMT_CBS_CFM:
+ 		val_cr2 |= FSL_SAI_CR2_BCD_MSTR;
++		sai->is_slave_mode = false;
+ 		break;
+ 	case SND_SOC_DAIFMT_CBM_CFS:
+ 		val_cr4 |= FSL_SAI_CR4_FSD_MSTR;
 -- 
 2.20.1
 
