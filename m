@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E7DA62F211
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:18:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 329742EE14
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:44:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729056AbfE3DPf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:15:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39062 "EHLO mail.kernel.org"
+        id S1732449AbfE3DoD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:44:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730362AbfE3DPe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:15:34 -0400
+        id S1732399AbfE3DU7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:20:59 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BF02024569;
-        Thu, 30 May 2019 03:15:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 076D2249A3;
+        Thu, 30 May 2019 03:20:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186133;
-        bh=2YrukC3cEquubOCbw1IuRKiQl5aoHpT/7i1Fh9AHkO8=;
+        s=default; t=1559186459;
+        bh=HkH4ufft1e+AwPuafmpxUftWAu+HKVxTA7Pt6dpLcFE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gJkkS/wFITPWgP38JbiVNmg4nEAkLI1IjY6htcHpNog+iPuDnXrIYAfZDwh9xdUYO
-         swsLPRG4G4Ctgi6LYhIrlJriiYz2Tk/XgR6840H2FwJEOKuA1Z6VjB5X1K/en61b9d
-         Pc2w5xIWS6Be8KaZW9mYZ9ly7dcHg2iG1rnd8X0I=
+        b=IivxnyFWr3jCXPf3+7IEiNIu3CACVBOvr9F1n2lfcwzSIgWLpIxxxEsiyhw2Yhdxs
+         Hy1G5UKV716GJA+Mx3ZGDPT2eWeoK8bvbdnScHPYi6j21RE/IdgdFuZi7TaBvC9316
+         DI5B8xPiB5LHILQuLVhBhxXEk0G+iEJ7bhpDm+9A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Stefan=20Br=C3=BCns?= <stefan.bruens@rwth-aachen.de>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Mariusz Bialonczyk <manio@skyboo.net>,
+        Jean-Francois Dagenais <jeff.dagenais@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 298/346] media: dvbsky: Avoid leaking dvb frontend
+Subject: [PATCH 4.9 039/128] w1: fix the resume command API
 Date:   Wed, 29 May 2019 20:06:11 -0700
-Message-Id: <20190530030555.955572319@linuxfoundation.org>
+Message-Id: <20190530030441.183162785@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
+References: <20190530030432.977908967@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,140 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit fdfa59cd63b184e1e96d51ff170fcac739bc6f6f ]
+[ Upstream commit 62909da8aca048ecf9fbd7e484e5100608f40a63 ]
 
-Commit 14f4eaeddabc ("media: dvbsky: fix driver unregister logic") fixed
-a use-after-free by removing the reference to the frontend after deleting
-the backing i2c device.
+>From the DS2408 datasheet [1]:
+"Resume Command function checks the status of the RC flag and, if it is set,
+ directly transfers control to the control functions, similar to a Skip ROM
+ command. The only way to set the RC flag is through successfully executing
+ the Match ROM, Search ROM, Conditional Search ROM, or Overdrive-Match ROM
+ command"
 
-This has the unfortunate side effect the frontend device is never freed
-in the dvb core leaving a dangling device, leading to errors when the
-dvb core tries to register the frontend after e.g. a replug as reported
-here: https://www.spinics.net/lists/linux-media/msg138181.html
+The function currently works perfectly fine in a multidrop bus, but when we
+have only a single slave connected, then only a Skip ROM is used and Match
+ROM is not called at all. This is leading to problems e.g. with single one
+DS2408 connected, as the Resume Command is not working properly and the
+device is responding with failing results after the Resume Command.
 
-media: dvbsky: issues with DVBSky T680CI
+This commit is fixing this by using a Skip ROM instead in those cases.
+The bandwidth / performance advantage is exactly the same.
 
-===
-[  561.119145] sp2 8-0040: CIMaX SP2 successfully attached
-[  561.119161] usb 2-3: DVB: registering adapter 0 frontend 0 (Silicon Labs
-Si2168)...
-[  561.119174] sysfs: cannot create duplicate filename '/class/dvb/
-dvb0.frontend0'
-===
+Refs:
+[1] https://datasheets.maximintegrated.com/en/ds/DS2408.pdf
 
-The use after free happened as dvb_usbv2_disconnect calls in this order:
-- dvb_usb_device::props->exit(...)
-- dvb_usbv2_adapter_frontend_exit(...)
-  + if (fe) dvb_unregister_frontend(fe)
-  + dvb_usb_device::props->frontend_detach(...)
-
-Moving the release of the i2c device from exit() to frontend_detach()
-avoids the dangling pointer access and allows the core to unregister
-the frontend.
-
-This was originally reported for a DVBSky T680CI, but it also affects
-the MyGica T230C. As all supported devices structure the registration/
-unregistration identically, apply the change for all device types.
-
-Signed-off-by: Stefan Brüns <stefan.bruens@rwth-aachen.de>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Mariusz Bialonczyk <manio@skyboo.net>
+Reviewed-by: Jean-Francois Dagenais <jeff.dagenais@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/dvb-usb-v2/dvbsky.c | 18 ++++++++++--------
- 1 file changed, 10 insertions(+), 8 deletions(-)
+ drivers/w1/w1_io.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/media/usb/dvb-usb-v2/dvbsky.c b/drivers/media/usb/dvb-usb-v2/dvbsky.c
-index e28bd8836751e..ae0814dd202a6 100644
---- a/drivers/media/usb/dvb-usb-v2/dvbsky.c
-+++ b/drivers/media/usb/dvb-usb-v2/dvbsky.c
-@@ -615,16 +615,18 @@ static int dvbsky_init(struct dvb_usb_device *d)
+diff --git a/drivers/w1/w1_io.c b/drivers/w1/w1_io.c
+index f4bc8c100a01b..a3ac582420ec4 100644
+--- a/drivers/w1/w1_io.c
++++ b/drivers/w1/w1_io.c
+@@ -437,8 +437,7 @@ int w1_reset_resume_command(struct w1_master *dev)
+ 	if (w1_reset_bus(dev))
+ 		return -1;
+ 
+-	/* This will make only the last matched slave perform a skip ROM. */
+-	w1_write_8(dev, W1_RESUME_CMD);
++	w1_write_8(dev, dev->slave_count > 1 ? W1_RESUME_CMD : W1_SKIP_ROM);
  	return 0;
  }
- 
--static void dvbsky_exit(struct dvb_usb_device *d)
-+static int dvbsky_frontend_detach(struct dvb_usb_adapter *adap)
- {
-+	struct dvb_usb_device *d = adap_to_d(adap);
- 	struct dvbsky_state *state = d_to_priv(d);
--	struct dvb_usb_adapter *adap = &d->adapter[0];
-+
-+	dev_dbg(&d->udev->dev, "%s: adap=%d\n", __func__, adap->id);
- 
- 	dvb_module_release(state->i2c_client_tuner);
- 	dvb_module_release(state->i2c_client_demod);
- 	dvb_module_release(state->i2c_client_ci);
- 
--	adap->fe[0] = NULL;
-+	return 0;
- }
- 
- /* DVB USB Driver stuff */
-@@ -640,11 +642,11 @@ static struct dvb_usb_device_properties dvbsky_s960_props = {
- 
- 	.i2c_algo         = &dvbsky_i2c_algo,
- 	.frontend_attach  = dvbsky_s960_attach,
-+	.frontend_detach  = dvbsky_frontend_detach,
- 	.init             = dvbsky_init,
- 	.get_rc_config    = dvbsky_get_rc_config,
- 	.streaming_ctrl   = dvbsky_streaming_ctrl,
- 	.identify_state	  = dvbsky_identify_state,
--	.exit             = dvbsky_exit,
- 	.read_mac_address = dvbsky_read_mac_addr,
- 
- 	.num_adapters = 1,
-@@ -667,11 +669,11 @@ static struct dvb_usb_device_properties dvbsky_s960c_props = {
- 
- 	.i2c_algo         = &dvbsky_i2c_algo,
- 	.frontend_attach  = dvbsky_s960c_attach,
-+	.frontend_detach  = dvbsky_frontend_detach,
- 	.init             = dvbsky_init,
- 	.get_rc_config    = dvbsky_get_rc_config,
- 	.streaming_ctrl   = dvbsky_streaming_ctrl,
- 	.identify_state	  = dvbsky_identify_state,
--	.exit             = dvbsky_exit,
- 	.read_mac_address = dvbsky_read_mac_addr,
- 
- 	.num_adapters = 1,
-@@ -694,11 +696,11 @@ static struct dvb_usb_device_properties dvbsky_t680c_props = {
- 
- 	.i2c_algo         = &dvbsky_i2c_algo,
- 	.frontend_attach  = dvbsky_t680c_attach,
-+	.frontend_detach  = dvbsky_frontend_detach,
- 	.init             = dvbsky_init,
- 	.get_rc_config    = dvbsky_get_rc_config,
- 	.streaming_ctrl   = dvbsky_streaming_ctrl,
- 	.identify_state	  = dvbsky_identify_state,
--	.exit             = dvbsky_exit,
- 	.read_mac_address = dvbsky_read_mac_addr,
- 
- 	.num_adapters = 1,
-@@ -721,11 +723,11 @@ static struct dvb_usb_device_properties dvbsky_t330_props = {
- 
- 	.i2c_algo         = &dvbsky_i2c_algo,
- 	.frontend_attach  = dvbsky_t330_attach,
-+	.frontend_detach  = dvbsky_frontend_detach,
- 	.init             = dvbsky_init,
- 	.get_rc_config    = dvbsky_get_rc_config,
- 	.streaming_ctrl   = dvbsky_streaming_ctrl,
- 	.identify_state	  = dvbsky_identify_state,
--	.exit             = dvbsky_exit,
- 	.read_mac_address = dvbsky_read_mac_addr,
- 
- 	.num_adapters = 1,
-@@ -748,11 +750,11 @@ static struct dvb_usb_device_properties mygica_t230c_props = {
- 
- 	.i2c_algo         = &dvbsky_i2c_algo,
- 	.frontend_attach  = dvbsky_mygica_t230c_attach,
-+	.frontend_detach  = dvbsky_frontend_detach,
- 	.init             = dvbsky_init,
- 	.get_rc_config    = dvbsky_get_rc_config,
- 	.streaming_ctrl   = dvbsky_streaming_ctrl,
- 	.identify_state	  = dvbsky_identify_state,
--	.exit             = dvbsky_exit,
- 
- 	.num_adapters = 1,
- 	.adapter = {
+ EXPORT_SYMBOL_GPL(w1_reset_resume_command);
 -- 
 2.20.1
 
