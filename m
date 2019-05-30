@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7552D2F221
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:19:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B8F82EE65
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:47:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729745AbfE3ESs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:18:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38864 "EHLO mail.kernel.org"
+        id S1731095AbfE3Dqy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:46:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730314AbfE3DP3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:15:29 -0400
+        id S1732261AbfE3DUg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:20:36 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 07B5324559;
-        Thu, 30 May 2019 03:15:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8D73F2494A;
+        Thu, 30 May 2019 03:20:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186129;
-        bh=BYFtQfBUzUSraymaH/ctnpl6FrmDvPDOsJF1vVqIk6E=;
+        s=default; t=1559186435;
+        bh=gPq7/Es2MUJDAPUJFUxdqzEFrIWAU7SZEDLJAutsj6o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PWisfc/Enoy48vqV03KEtPdP/aLIwcLFx/YHXpMKvrrIiY3Q0NGZ2T3UovtqhPt97
-         uv2NZBDY2MxePKxSN4jRsWp13ZWKF2yO4YB2GY/CRsb7lWxDWOoLHxkcbmSV/2kD9/
-         3ZHBPiilBAWp/6/0CnIBBAEeIlGODmB+VJ/9RGWc=
+        b=omM6IKw1jm/lZUXBVXtMfr7c+45wsVfPrRwZ1CXwIVJwfNU3SJGifC4pLjv54Bylk
+         DHks3lcR6AjxUxn5bqrfS924aqZLIbIyoiCSvrrV+UomzejBxGZvN1H37xXkC3/Tbn
+         C3W+0SGxum+Dn7mMFVHTur1ldDsMdGNwoZviNI7k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Harry Wentland <Harry.Wentland@amd.com>,
-        Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Flavio Suligoi <f.suligoi@asem.it>,
+        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 290/346] drm/amd/display: Reset alpha state for planes to the correct values
+Subject: [PATCH 4.9 031/128] spi: pxa2xx: fix SCR (divisor) calculation
 Date:   Wed, 29 May 2019 20:06:03 -0700
-Message-Id: <20190530030555.570465890@linuxfoundation.org>
+Message-Id: <20190530030440.229574563@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
+References: <20190530030432.977908967@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,47 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit eec3d5efd16d13984a88396b685ae17462fb6d87 ]
+[ Upstream commit 29f2133717c527f492933b0622a4aafe0b3cbe9e ]
 
-[Why]
-The plane_reset callback is subclassed but hasn't been updated since
-the drm helper got updated to include resetting alpha related state
-(state->alpha and state->pixel_blend_mode). The overlay planes
-exposed by amdgpu_dm were therefore being rendered as invisible by
-default ever since supported was exposed for alpha blending properties
-on overlays.
+Calculate the divisor for the SCR (Serial Clock Rate), avoiding
+that the SSP transmission rate can be greater than the device rate.
 
-This caused regressions in igt@kms_plane_multiple@atomic-tiling-none
-and igt@kms_plane@plane-position-covered-pipe tests.
+When the division between the SSP clock and the device rate generates
+a reminder, we have to increment by one the divisor.
+In this way the resulting SSP clock will never be greater than the
+device SPI max frequency.
 
-[How]
-Reset the plane state values to their correct values as defined in
-the drm helper.
+For example, with:
 
-This fixes the IGT test regression.
+ - ssp_clk  = 50 MHz
+ - dev freq = 15 MHz
 
-Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Reviewed-by: Harry Wentland <Harry.Wentland@amd.com>
-Acked-by: Bhawanpreet Lakha <Bhawanpreet.Lakha@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+without this patch the SSP clock will be greater than 15 MHz:
+
+ - 25 MHz for PXA25x_SSP and CE4100_SSP
+ - 16,56 MHz for the others
+
+Instead, with this patch, we have in both case an SSP clock of 12.5MHz,
+so the max rate of the SPI device clock is respected.
+
+Signed-off-by: Flavio Suligoi <f.suligoi@asem.it>
+Reviewed-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Reviewed-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/spi/spi-pxa2xx.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index 84ee777869441..e766dede5b472 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -3519,6 +3519,8 @@ static void dm_drm_plane_reset(struct drm_plane *plane)
- 		plane->state = &amdgpu_state->base;
- 		plane->state->plane = plane;
- 		plane->state->rotation = DRM_MODE_ROTATE_0;
-+		plane->state->alpha = DRM_BLEND_ALPHA_OPAQUE;
-+		plane->state->pixel_blend_mode = DRM_MODE_BLEND_PREMULTI;
- 	}
+diff --git a/drivers/spi/spi-pxa2xx.c b/drivers/spi/spi-pxa2xx.c
+index f2209ec4cb68d..8b618f0fa459f 100644
+--- a/drivers/spi/spi-pxa2xx.c
++++ b/drivers/spi/spi-pxa2xx.c
+@@ -921,10 +921,14 @@ static unsigned int ssp_get_clk_div(struct driver_data *drv_data, int rate)
+ 
+ 	rate = min_t(int, ssp_clk, rate);
+ 
++	/*
++	 * Calculate the divisor for the SCR (Serial Clock Rate), avoiding
++	 * that the SSP transmission rate can be greater than the device rate
++	 */
+ 	if (ssp->type == PXA25x_SSP || ssp->type == CE4100_SSP)
+-		return (ssp_clk / (2 * rate) - 1) & 0xff;
++		return (DIV_ROUND_UP(ssp_clk, 2 * rate) - 1) & 0xff;
+ 	else
+-		return (ssp_clk / rate - 1) & 0xfff;
++		return (DIV_ROUND_UP(ssp_clk, rate) - 1)  & 0xfff;
  }
  
+ static unsigned int pxa2xx_ssp_get_clk_div(struct driver_data *drv_data,
 -- 
 2.20.1
 
