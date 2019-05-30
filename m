@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C86F32F5F8
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:53:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD67C2EBCF
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:16:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728227AbfE3DKr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:10:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48586 "EHLO mail.kernel.org"
+        id S1730636AbfE3DQP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:16:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41638 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728222AbfE3DKq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:10:46 -0400
+        id S1730633AbfE3DQO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:16:14 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 43E2A24482;
-        Thu, 30 May 2019 03:10:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 54909245AF;
+        Thu, 30 May 2019 03:16:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185846;
-        bh=YIEHj8k+muqmfN/iqJwk9JaVvzGTOFJmiRm/Ea1hqKw=;
+        s=default; t=1559186174;
+        bh=uX0O8fFyjqjn47LlhwbHs8LWWpB51mG9r7AbkqwtLpI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wJ32upuNhs0bTKfpel/AJQM/0OzrysORqQ53iBQIcVTDjW6Mvr4Mv421XPSKwB78R
-         epifKuy2+7eFeBuOKr+H4JBFkJ+Vq3ezrO8IC2wNuEjD6Q8vJQMURM8c01c6pcD6QW
-         JPnBdUdJ+oziqgzx55J6+MQJKi5UGbeaOalGOQ/o=
+        b=WTrI3gLg0W2bYMtNWWNYmW639dTP76Qpcy3OVfwIByoGdybP3O8Vid6qZAXuGbCRl
+         6tSXAV5B1BysXn8KiH3wa6Fsy+pq7soN8bmAqerFfb/ePXnvBHjaXReyY9cR2HW36T
+         yRfhv+1EsZiaOH5+afY7ZLYrHK5GGSCpHUubgx4w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roman Gushchin <guro@fb.com>,
-        Tejun Heo <tj@kernel.org>, kernel-team@fb.com,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 167/405] cgroup: protect cgroup->nr_(dying_)descendants by css_set_lock
-Date:   Wed, 29 May 2019 20:02:45 -0700
-Message-Id: <20190530030549.576219681@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.19 008/276] Revert "scsi: sd: Keep disk read-only when re-reading partition"
+Date:   Wed, 29 May 2019 20:02:46 -0700
+Message-Id: <20190530030524.061242852@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,94 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 4dcabece4c3a9f9522127be12cc12cc120399b2f ]
+From: Martin K. Petersen <martin.petersen@oracle.com>
 
-The number of descendant cgroups and the number of dying
-descendant cgroups are currently synchronized using the cgroup_mutex.
+commit 8acf608e602f6ec38b7cc37b04c80f1ce9a1a6cc upstream.
 
-The number of descendant cgroups will be required by the cgroup v2
-freezer, which will use it to determine if a cgroup is frozen
-(depending on total number of descendants and number of frozen
-descendants). It's not always acceptable to grab the cgroup_mutex,
-especially from quite hot paths (e.g. exit()).
+This reverts commit 20bd1d026aacc5399464f8328f305985c493cde3.
 
-To avoid this, let's additionally synchronize these counters using
-the css_set_lock.
+This patch introduced regressions for devices that come online in
+read-only state and subsequently switch to read-write.
 
-So, it's safe to read these counters with either cgroup_mutex or
-css_set_lock locked, and for changing both locks should be acquired.
+Given how the partition code is currently implemented it is not
+possible to persist the read-only flag across a device revalidate
+call. This may need to get addressed in the future since it is common
+for user applications to proactively call BLKRRPART.
 
-Signed-off-by: Roman Gushchin <guro@fb.com>
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Cc: kernel-team@fb.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reverting this commit will re-introduce a regression where a
+device-initiated revalidate event will cause the admin state to be
+forgotten. A separate patch will address this issue.
+
+Fixes: 20bd1d026aac ("scsi: sd: Keep disk read-only when re-reading partition")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- include/linux/cgroup-defs.h | 5 +++++
- kernel/cgroup/cgroup.c      | 6 ++++++
- 2 files changed, 11 insertions(+)
+ drivers/scsi/sd.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/include/linux/cgroup-defs.h b/include/linux/cgroup-defs.h
-index 1c70803e9f770..7d57890cec671 100644
---- a/include/linux/cgroup-defs.h
-+++ b/include/linux/cgroup-defs.h
-@@ -349,6 +349,11 @@ struct cgroup {
- 	 * Dying cgroups are cgroups which were deleted by a user,
- 	 * but are still existing because someone else is holding a reference.
- 	 * max_descendants is a maximum allowed number of descent cgroups.
-+	 *
-+	 * nr_descendants and nr_dying_descendants are protected
-+	 * by cgroup_mutex and css_set_lock. It's fine to read them holding
-+	 * any of cgroup_mutex and css_set_lock; for writing both locks
-+	 * should be held.
- 	 */
- 	int nr_descendants;
- 	int nr_dying_descendants;
-diff --git a/kernel/cgroup/cgroup.c b/kernel/cgroup/cgroup.c
-index 3f2b4bde0f9c3..9fcf6338ea5f9 100644
---- a/kernel/cgroup/cgroup.c
-+++ b/kernel/cgroup/cgroup.c
-@@ -4781,9 +4781,11 @@ static void css_release_work_fn(struct work_struct *work)
- 		if (cgroup_on_dfl(cgrp))
- 			cgroup_rstat_flush(cgrp);
+--- a/drivers/scsi/sd.c
++++ b/drivers/scsi/sd.c
+@@ -2605,7 +2605,6 @@ sd_read_write_protect_flag(struct scsi_d
+ 	int res;
+ 	struct scsi_device *sdp = sdkp->device;
+ 	struct scsi_mode_data data;
+-	int disk_ro = get_disk_ro(sdkp->disk);
+ 	int old_wp = sdkp->write_prot;
  
-+		spin_lock_irq(&css_set_lock);
- 		for (tcgrp = cgroup_parent(cgrp); tcgrp;
- 		     tcgrp = cgroup_parent(tcgrp))
- 			tcgrp->nr_dying_descendants--;
-+		spin_unlock_irq(&css_set_lock);
- 
- 		cgroup_idr_remove(&cgrp->root->cgroup_idr, cgrp->id);
- 		cgrp->id = -1;
-@@ -5001,12 +5003,14 @@ static struct cgroup *cgroup_create(struct cgroup *parent)
- 	if (ret)
- 		goto out_psi_free;
- 
-+	spin_lock_irq(&css_set_lock);
- 	for (tcgrp = cgrp; tcgrp; tcgrp = cgroup_parent(tcgrp)) {
- 		cgrp->ancestor_ids[tcgrp->level] = tcgrp->id;
- 
- 		if (tcgrp != cgrp)
- 			tcgrp->nr_descendants++;
- 	}
-+	spin_unlock_irq(&css_set_lock);
- 
- 	if (notify_on_release(parent))
- 		set_bit(CGRP_NOTIFY_ON_RELEASE, &cgrp->flags);
-@@ -5291,10 +5295,12 @@ static int cgroup_destroy_locked(struct cgroup *cgrp)
- 	if (parent && cgroup_is_threaded(cgrp))
- 		parent->nr_threaded_children--;
- 
-+	spin_lock_irq(&css_set_lock);
- 	for (tcgrp = cgroup_parent(cgrp); tcgrp; tcgrp = cgroup_parent(tcgrp)) {
- 		tcgrp->nr_descendants--;
- 		tcgrp->nr_dying_descendants++;
- 	}
-+	spin_unlock_irq(&css_set_lock);
- 
- 	cgroup1_check_for_release(parent);
- 
--- 
-2.20.1
-
+ 	set_disk_ro(sdkp->disk, 0);
+@@ -2646,7 +2645,7 @@ sd_read_write_protect_flag(struct scsi_d
+ 			  "Test WP failed, assume Write Enabled\n");
+ 	} else {
+ 		sdkp->write_prot = ((data.device_specific & 0x80) != 0);
+-		set_disk_ro(sdkp->disk, sdkp->write_prot || disk_ro);
++		set_disk_ro(sdkp->disk, sdkp->write_prot);
+ 		if (sdkp->first_scan || old_wp != sdkp->write_prot) {
+ 			sd_printk(KERN_NOTICE, sdkp, "Write Protect is %s\n",
+ 				  sdkp->write_prot ? "on" : "off");
 
 
