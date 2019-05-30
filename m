@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 52B652EF2E
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:53:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FAC72EBB9
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:16:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731907AbfE3DT3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:19:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55246 "EHLO mail.kernel.org"
+        id S1730366AbfE3DPe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:15:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731900AbfE3DT1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:19:27 -0400
+        id S1730357AbfE3DPd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:15:33 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CD2DF24881;
-        Thu, 30 May 2019 03:19:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F6FA24557;
+        Thu, 30 May 2019 03:15:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186366;
-        bh=h97OPWBF9XxIPNtl9ralEyhxEfrSQ5x9/KsPwIKj3qA=;
+        s=default; t=1559186133;
+        bh=wNIIGNdY+3Ff5ByT6wZINYkqc6SV4Xy+MelFjAUT/GE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xk/RyBxv6+BNJjQsUC7sJspD3Seb+2RxIh5JIcHKSmBBLRbaB1Q7Un6NExSNok61t
-         CoeQu8OpawkCoxDTtcgsWL5dJ03BuBHyBLbfxz1JiyJvVhDw6tK6eNCBoRhemhBB66
-         4cChmDHbrBUvTT4AS/Nqw1cDcd2/wWTfTpplspnA=
+        b=fmHJmoDF9jErKUYofZgWa1vUzDHHkUg//l5ZDgbMMGj7B2LCyHvuQi9NrjV9fPY9G
+         qIfFhyRXL9WBMArNG3qw0taTEXbPQ+7mc4M7fMnWory2Zvlr0uZzJKF2KOLfGQi1fd
+         cIGizZ1a/oL5Kk1MejTwwe+NEDEB0enEa0EkQC3M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        Matthias Schwarzott <zzam@gentoo.org>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 116/193] scsi: libsas: Do discovery on empty PHY to update PHY info
+Subject: [PATCH 5.0 297/346] media: si2165: fix a missing check of return value
 Date:   Wed, 29 May 2019 20:06:10 -0700
-Message-Id: <20190530030504.949052152@linuxfoundation.org>
+Message-Id: <20190530030555.908707442@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,53 +46,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d8649fc1c5e40e691d589ed825998c36a947491c ]
+[ Upstream commit 0ab34a08812a3334350dbaf69a018ee0ab3d2ddd ]
 
-When we discover the PHY is empty in sas_rediscover_dev(), the PHY
-information (like negotiated linkrate) is not updated.
+si2165_readreg8() may fail. Looking into si2165_readreg8(), we will find
+that "val_tmp" will be an uninitialized value when regmap_read() fails.
+"val_tmp" is then assigned to "val". So if si2165_readreg8() fails,
+"val" will be a random value. Further use will lead to undefined
+behaviors. The fix checks if si2165_readreg8() fails, and if so, returns
+its error code upstream.
 
-As such, for a user examining sysfs for that PHY, they would see
-incorrect values:
-
-root@(none)$ cd /sys/class/sas_phy/phy-0:0:20
-root@(none)$ more negotiated_linkrate
-3.0 Gbit
-root@(none)$ echo 0 > enable
-root@(none)$ more negotiated_linkrate
-3.0 Gbit
-
-So fix this, simply discover the PHY again, even though we know it's empty;
-in the above example, this gives us:
-
-root@(none)$ more negotiated_linkrate
-Phy disabled
-
-We must do this after unregistering the device associated with the PHY
-(in sas_unregister_devs_sas_addr()).
-
-Signed-off-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Kangjie Lu <kjlu@umn.edu>
+Reviewed-by: Matthias Schwarzott <zzam@gentoo.org>
+Tested-by: Matthias Schwarzott <zzam@gentoo.org>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/libsas/sas_expander.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/media/dvb-frontends/si2165.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/libsas/sas_expander.c b/drivers/scsi/libsas/sas_expander.c
-index 1c0d2784574aa..ffea620a147d4 100644
---- a/drivers/scsi/libsas/sas_expander.c
-+++ b/drivers/scsi/libsas/sas_expander.c
-@@ -2038,6 +2038,11 @@ static int sas_rediscover_dev(struct domain_device *dev, int phy_id, bool last)
- 	if ((SAS_ADDR(sas_addr) == 0) || (res == -ECOMM)) {
- 		phy->phy_state = PHY_EMPTY;
- 		sas_unregister_devs_sas_addr(dev, phy_id, last);
-+		/*
-+		 * Even though the PHY is empty, for convenience we discover
-+		 * the PHY to update the PHY info, like negotiated linkrate.
-+		 */
-+		sas_ex_phy_discover(dev, phy_id);
- 		return res;
- 	} else if (SAS_ADDR(sas_addr) == SAS_ADDR(phy->attached_sas_addr) &&
- 		   dev_type_flutter(type, phy->attached_dev_type)) {
+diff --git a/drivers/media/dvb-frontends/si2165.c b/drivers/media/dvb-frontends/si2165.c
+index feacd8da421da..d55d8f169dca6 100644
+--- a/drivers/media/dvb-frontends/si2165.c
++++ b/drivers/media/dvb-frontends/si2165.c
+@@ -275,18 +275,20 @@ static u32 si2165_get_fe_clk(struct si2165_state *state)
+ 
+ static int si2165_wait_init_done(struct si2165_state *state)
+ {
+-	int ret = -EINVAL;
++	int ret;
+ 	u8 val = 0;
+ 	int i;
+ 
+ 	for (i = 0; i < 3; ++i) {
+-		si2165_readreg8(state, REG_INIT_DONE, &val);
++		ret = si2165_readreg8(state, REG_INIT_DONE, &val);
++		if (ret < 0)
++			return ret;
+ 		if (val == 0x01)
+ 			return 0;
+ 		usleep_range(1000, 50000);
+ 	}
+ 	dev_err(&state->client->dev, "init_done was not set\n");
+-	return ret;
++	return -EINVAL;
+ }
+ 
+ static int si2165_upload_firmware_block(struct si2165_state *state,
 -- 
 2.20.1
 
