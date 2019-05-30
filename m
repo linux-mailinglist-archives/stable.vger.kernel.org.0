@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 87BD92EE43
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:45:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CD1C2F458
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:38:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732321AbfE3DUq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:20:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59786 "EHLO mail.kernel.org"
+        id S1728696AbfE3EhW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:37:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732316AbfE3DUp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:20:45 -0400
+        id S1728482AbfE3DMx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:12:53 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 847722492F;
-        Thu, 30 May 2019 03:20:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3EF68244B0;
+        Thu, 30 May 2019 03:12:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186444;
-        bh=cljvCdreLiATqOX+yPWqpwvNf0F2rEkzn8uzKx7ndVo=;
+        s=default; t=1559185973;
+        bh=JgN37LjgXSRNCtPU8BWPOAtUz0V1fcZPJhyRBE7O2SQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VHFMTvJz5TBSyR4eGSG332svgfuj0dsjZVhGY0xeM59t9zQIX1g/yEPtyzc0qZF6y
-         oN7gzTbilh6dH8q+M8y+CfLd2QXIkQ6r47LuPI/oiY/SavEbKJWqBH9o9qOiRPqYV1
-         TtkotPQnxfY4QXVuTa3cNKiNN4A5r0bEdhn6CNvg=
+        b=TkJ9GWfeHUoszPq1ID2UHLVhO7Rma9ogLWpJcDEzaph4/Bc1pbtjREQHRB2pnfZm5
+         sP3U3s3fS6VysWqYyjWscKtNZq0rl3TKm3xEB7eTnepjBlWlRqFPtJ7zCWY+wd4dxx
+         8wqE6Nl6XRKF43BDOODZQLL6CYqD9Tg4foTzvc4A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Borislav Petkov <bp@suse.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Sami Tolvanen <samitolvanen@google.com>
-Subject: [PATCH 4.9 050/128] x86/build: Move _etext to actual end of .text
+        stable@vger.kernel.org,
+        Adam Thomson <Adam.Thomson.Opensource@diasemi.com>,
+        Steve Twiss <stwiss.opensource@diasemi.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 384/405] regulator: da9211: Fix notifier mutex lock warning
 Date:   Wed, 29 May 2019 20:06:22 -0700
-Message-Id: <20190530030443.771931522@linuxfoundation.org>
+Message-Id: <20190530030600.144343924@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
-References: <20190530030432.977908967@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,49 +46,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 392bef709659abea614abfe53cf228e7a59876a4 ]
+[ Upstream commit 65378de3359d30ebce44762d8b8027f372b5b1c4 ]
 
-When building x86 with Clang LTO and CFI, CFI jump regions are
-automatically added to the end of the .text section late in linking. As a
-result, the _etext position was being labelled before the appended jump
-regions, causing confusion about where the boundaries of the executable
-region actually are in the running kernel, and broke at least the fault
-injection code. This moves the _etext mark to outside (and immediately
-after) the .text area, as it already the case on other architectures
-(e.g. arm64, arm).
+The mutex for the regulator_dev must be controlled by the caller of
+the regulator_notifier_call_chain(), as described in the comment
+for that function.
 
-Reported-and-tested-by: Sami Tolvanen <samitolvanen@google.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Cc: Borislav Petkov <bp@suse.de>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: http://lkml.kernel.org/r/20190423183827.GA4012@beast
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Failure to mutex lock and unlock surrounding the notifier call results
+in a kernel WARN_ON_ONCE() which will dump a backtrace for the
+regulator_notifier_call_chain() when that function call is first made.
+The mutex can be controlled using the regulator_lock/unlock() API.
+
+Fixes: 1028a37daa14 ("regulator: da9211: new regulator driver")
+Suggested-by: Adam Thomson <Adam.Thomson.Opensource@diasemi.com>
+Signed-off-by: Steve Twiss <stwiss.opensource@diasemi.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/vmlinux.lds.S | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/regulator/da9211-regulator.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/x86/kernel/vmlinux.lds.S b/arch/x86/kernel/vmlinux.lds.S
-index 55f04875293fa..51b772f9d886a 100644
---- a/arch/x86/kernel/vmlinux.lds.S
-+++ b/arch/x86/kernel/vmlinux.lds.S
-@@ -111,11 +111,11 @@ SECTIONS
- 		*(.text.__x86.indirect_thunk)
- 		__indirect_thunk_end = .;
- #endif
--
--		/* End of text section */
--		_etext = .;
- 	} :text = 0x9090
+diff --git a/drivers/regulator/da9211-regulator.c b/drivers/regulator/da9211-regulator.c
+index 109ee12d43626..4d7fe4819c1ce 100644
+--- a/drivers/regulator/da9211-regulator.c
++++ b/drivers/regulator/da9211-regulator.c
+@@ -322,8 +322,10 @@ static irqreturn_t da9211_irq_handler(int irq, void *data)
+ 		goto error_i2c;
  
-+	/* End of text section */
-+	_etext = .;
-+
- 	NOTES :text :note
+ 	if (reg_val & DA9211_E_OV_CURR_A) {
++	        regulator_lock(chip->rdev[0]);
+ 		regulator_notifier_call_chain(chip->rdev[0],
+ 			REGULATOR_EVENT_OVER_CURRENT, NULL);
++	        regulator_unlock(chip->rdev[0]);
  
- 	EXCEPTION_TABLE(16) :text = 0x9090
+ 		err = regmap_write(chip->regmap, DA9211_REG_EVENT_B,
+ 			DA9211_E_OV_CURR_A);
+@@ -334,8 +336,10 @@ static irqreturn_t da9211_irq_handler(int irq, void *data)
+ 	}
+ 
+ 	if (reg_val & DA9211_E_OV_CURR_B) {
++	        regulator_lock(chip->rdev[1]);
+ 		regulator_notifier_call_chain(chip->rdev[1],
+ 			REGULATOR_EVENT_OVER_CURRENT, NULL);
++	        regulator_unlock(chip->rdev[1]);
+ 
+ 		err = regmap_write(chip->regmap, DA9211_REG_EVENT_B,
+ 			DA9211_E_OV_CURR_B);
 -- 
 2.20.1
 
