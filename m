@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C23272F631
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:54:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6363B2F408
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:36:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731109AbfE3Ex5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:53:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47618 "EHLO mail.kernel.org"
+        id S1729635AbfE3EeQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:34:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728121AbfE3DKb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:10:31 -0400
+        id S1729445AbfE3DNZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:13:25 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 72ED3244BE;
-        Thu, 30 May 2019 03:10:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6C79E24534;
+        Thu, 30 May 2019 03:13:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185830;
-        bh=B71QUzXxuY/5P12+ReZl2k2PlJJ2/W9n9mOxrKU+LfA=;
+        s=default; t=1559186005;
+        bh=ZkNZh9SIMk+1zb+7Px4neMQcWkOjdcIr0kEfZFVoaqY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wplino6MiugmBislBpPoYPYwR5TJYSm/FcbQ0xv8DLZ1qScUyekwRBCKZFW1yTbV+
-         nEHZaqY08cnS3XDSEVT0pwoRbDwDGwunkPM5+lZu3c60l1jyprcmmrWuodB9f5yibI
-         Ijh++kvdudlfTTffLsQEcuEdGFshGVezCPcWsOFQ=
+        b=J/f1qubCTsW55r2D/yY50/nViwZlTaky/K+vzmGzoOZoeQO3SuFCTKskXsGG4O7MB
+         bW0gjjvjY3WDgN7dU/MqcyxjDMrDHVVGGeCPq8YqoBqr2Fbc074eNmxxuuswWJ1sIZ
+         j3DcGgXY6mYlXyE+nk+q9jm6UA3zmkXlVazSumhA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Coly Li <colyli@suse.de>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 133/405] bcache: avoid clang -Wunintialized warning
-Date:   Wed, 29 May 2019 20:02:11 -0700
-Message-Id: <20190530030547.815389736@linuxfoundation.org>
+        stable@vger.kernel.org, Haiyang Zhang <haiyangz@microsoft.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>,
+        Stephan Klein <stephan.klein@wegfinder.at>
+Subject: [PATCH 5.0 059/346] hv_netvsc: fix race that may miss tx queue wakeup
+Date:   Wed, 29 May 2019 20:02:12 -0700
+Message-Id: <20190530030544.043932242@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,73 +45,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 78d4eb8ad9e1d413449d1b7a060f50b6efa81ebd ]
+[ Upstream commit 93aa4792c3908eac87ddd368ee0fe0564148232b ]
 
-clang has identified a code path in which it thinks a
-variable may be unused:
+When the ring buffer is almost full due to RX completion messages, a
+TX packet may reach the "low watermark" and cause the queue stopped.
+If the TX completion arrives earlier than queue stopping, the wakeup
+may be missed.
 
-drivers/md/bcache/alloc.c:333:4: error: variable 'bucket' is used uninitialized whenever 'if' condition is false
-      [-Werror,-Wsometimes-uninitialized]
-                        fifo_pop(&ca->free_inc, bucket);
-                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-drivers/md/bcache/util.h:219:27: note: expanded from macro 'fifo_pop'
- #define fifo_pop(fifo, i)       fifo_pop_front(fifo, (i))
-                                ^~~~~~~~~~~~~~~~~~~~~~~~~
-drivers/md/bcache/util.h:189:6: note: expanded from macro 'fifo_pop_front'
-        if (_r) {                                                       \
-            ^~
-drivers/md/bcache/alloc.c:343:46: note: uninitialized use occurs here
-                        allocator_wait(ca, bch_allocator_push(ca, bucket));
-                                                                  ^~~~~~
-drivers/md/bcache/alloc.c:287:7: note: expanded from macro 'allocator_wait'
-                if (cond)                                               \
-                    ^~~~
-drivers/md/bcache/alloc.c:333:4: note: remove the 'if' if its condition is always true
-                        fifo_pop(&ca->free_inc, bucket);
-                        ^
-drivers/md/bcache/util.h:219:27: note: expanded from macro 'fifo_pop'
- #define fifo_pop(fifo, i)       fifo_pop_front(fifo, (i))
-                                ^
-drivers/md/bcache/util.h:189:2: note: expanded from macro 'fifo_pop_front'
-        if (_r) {                                                       \
-        ^
-drivers/md/bcache/alloc.c:331:15: note: initialize the variable 'bucket' to silence this warning
-                        long bucket;
-                                   ^
+This patch moves the check for the last pending packet to cover both
+EAGAIN and success cases, so the queue will be reliably waked up when
+necessary.
 
-This cannot happen in practice because we only enter the loop
-if there is at least one element in the list.
-
-Slightly rearranging the code makes this clearer to both the
-reader and the compiler, which avoids the warning.
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Coly Li <colyli@suse.de>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Reported-and-tested-by: Stephan Klein <stephan.klein@wegfinder.at>
+Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/bcache/alloc.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/hyperv/netvsc.c | 15 +++++++++------
+ 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/md/bcache/alloc.c b/drivers/md/bcache/alloc.c
-index 5002838ea4760..f8986effcb501 100644
---- a/drivers/md/bcache/alloc.c
-+++ b/drivers/md/bcache/alloc.c
-@@ -327,10 +327,11 @@ static int bch_allocator_thread(void *arg)
- 		 * possibly issue discards to them, then we add the bucket to
- 		 * the free list:
- 		 */
--		while (!fifo_empty(&ca->free_inc)) {
-+		while (1) {
- 			long bucket;
+diff --git a/drivers/net/hyperv/netvsc.c b/drivers/net/hyperv/netvsc.c
+index e0dce373cdd9d..3d4a166a49d58 100644
+--- a/drivers/net/hyperv/netvsc.c
++++ b/drivers/net/hyperv/netvsc.c
+@@ -875,12 +875,6 @@ static inline int netvsc_send_pkt(
+ 	} else if (ret == -EAGAIN) {
+ 		netif_tx_stop_queue(txq);
+ 		ndev_ctx->eth_stats.stop_queue++;
+-		if (atomic_read(&nvchan->queue_sends) < 1 &&
+-		    !net_device->tx_disable) {
+-			netif_tx_wake_queue(txq);
+-			ndev_ctx->eth_stats.wake_queue++;
+-			ret = -ENOSPC;
+-		}
+ 	} else {
+ 		netdev_err(ndev,
+ 			   "Unable to send packet pages %u len %u, ret %d\n",
+@@ -888,6 +882,15 @@ static inline int netvsc_send_pkt(
+ 			   ret);
+ 	}
  
--			fifo_pop(&ca->free_inc, bucket);
-+			if (!fifo_pop(&ca->free_inc, bucket))
-+				break;
++	if (netif_tx_queue_stopped(txq) &&
++	    atomic_read(&nvchan->queue_sends) < 1 &&
++	    !net_device->tx_disable) {
++		netif_tx_wake_queue(txq);
++		ndev_ctx->eth_stats.wake_queue++;
++		if (ret == -EAGAIN)
++			ret = -ENOSPC;
++	}
++
+ 	return ret;
+ }
  
- 			if (ca->discard) {
- 				mutex_unlock(&ca->set->bucket_lock);
 -- 
 2.20.1
 
