@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D0A12EC33
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:20:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 896AD2F505
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:44:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731777AbfE3DTB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:19:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53372 "EHLO mail.kernel.org"
+        id S1728991AbfE3Enm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:43:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731770AbfE3DTA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:19:00 -0400
+        id S1727983AbfE3DMJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:12:09 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C7C4624807;
-        Thu, 30 May 2019 03:18:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C871A24481;
+        Thu, 30 May 2019 03:12:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186339;
-        bh=ChpmML56fJOS8+8t9YjrOkx4LFxFbfujQGW0dRMef/U=;
+        s=default; t=1559185928;
+        bh=k/DFDhT28fNL96xS6/KX2l6JDpDseEomSmkyL5TdaSo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ezjuykmWlvjRnFLOVnNzHGPLHzbIwTTMM5YXkbdnTbY8FtrXEWT00yRGpa/TWwn0O
-         Ka8Yyz/D3E+pGnRkkADknoWheNVkkkCZmN/HkJbQTte6X0aNYY7Hom/iAUfh/RqSHJ
-         XlcghZew8cNy6RIAHghSkIJWshZ+4YCdbOOCGOZo=
+        b=PvZ0p0ZwZ6WXO3nqGmsgf9+pZzXXYqbh8giMiOXzhj0FZFNeH0We40r9Ci5+VwsPK
+         79WByEqLcz2nLMFCwwbmApSt6ce2IaD3UKYEo7ejciG8/6QVW/TrXLr8tUaMZ/9R1D
+         Ws6wrRbKlRiS3QnjPY5NfriW/u36xqnmcjQ690ZA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Manish Rangankar <mrangankar@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 064/193] scsi: qedi: Abort ep termination if offload not scheduled
-Date:   Wed, 29 May 2019 20:05:18 -0700
-Message-Id: <20190530030458.350313429@linuxfoundation.org>
+        stable@vger.kernel.org, Mohan Kumar D <mkumard@nvidia.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Sameer Pujar <spujar@nvidia.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 321/405] dmaengine: tegra210-adma: use devm_clk_*() helpers
+Date:   Wed, 29 May 2019 20:05:19 -0700
+Message-Id: <20190530030556.994716092@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,72 +45,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f848bfd8e167210a29374e8a678892bed591684f ]
+[ Upstream commit f6ed6491d565c336a360471e0c29228e34f4380e ]
 
-Sometimes during connection recovery when there is a failure to resolve
-ARP, and offload connection was not issued, driver tries to flush pending
-offload connection work which was not queued up.
+adma driver is using pm_clk_*() interface for managing clock resources.
+With this it is observed that clocks remain ON always. This happens on
+Tegra devices which use BPMP co-processor to manage clock resources,
+where clocks are enabled during prepare phase. This is necessary because
+clocks to BPMP are always blocking. When pm_clk_*() interface is used on
+such Tegra devices, clock prepare count is not balanced till remove call
+happens for the driver and hence clocks are seen ON always. Thus this
+patch replaces pm_clk_*() with devm_clk_*() framework.
 
-kernel: WARNING: CPU: 19 PID: 10110 at kernel/workqueue.c:3030 __flush_work.isra.34+0x19c/0x1b0
-kernel: CPU: 19 PID: 10110 Comm: iscsid Tainted: G W 5.1.0-rc4 #11
-kernel: Hardware name: Dell Inc. PowerEdge R730/0599V5, BIOS 2.9.1 12/04/2018
-kernel: RIP: 0010:__flush_work.isra.34+0x19c/0x1b0
-kernel: Code: 8b fb 66 0f 1f 44 00 00 31 c0 eb ab 48 89 ef c6 07 00 0f 1f 40 00 fb 66 0f 1f 44 00 00 31 c0 eb 96 e8 08 16 fe ff 0f 0b eb 8d <0f> 0b 31 c0 eb 87 0f 1f 40 00 66 2e 0f 1
-f 84 00 00 00 00 00 0f 1f
-kernel: RSP: 0018:ffffa6b4054dba68 EFLAGS: 00010246
-kernel: RAX: 0000000000000000 RBX: ffff91df21c36fc0 RCX: 0000000000000000
-kernel: RDX: 0000000000000001 RSI: 0000000000000000 RDI: ffff91df21c36fc0
-kernel: RBP: ffff91df21c36ef0 R08: 0000000000000000 R09: 0000000000000000
-kernel: R10: 0000000000000038 R11: ffffa6b4054dbd60 R12: ffffffffc05e72c0
-kernel: R13: ffff91db10280820 R14: 0000000000000048 R15: 0000000000000000
-kernel: FS:  00007f5d83cc1740(0000) GS:ffff91df2f840000(0000) knlGS:0000000000000000
-kernel: CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-kernel: CR2: 0000000001cc5000 CR3: 0000000465450002 CR4: 00000000001606e0
-kernel: Call Trace:
-kernel: ? try_to_del_timer_sync+0x4d/0x80
-kernel: qedi_ep_disconnect+0x3b/0x410 [qedi]
-kernel: ? 0xffffffffc083c000
-kernel: ? klist_iter_exit+0x14/0x20
-kernel: ? class_find_device+0x93/0xf0
-kernel: iscsi_if_ep_disconnect.isra.18+0x58/0x70 [scsi_transport_iscsi]
-kernel: iscsi_if_recv_msg+0x10e2/0x1510 [scsi_transport_iscsi]
-kernel: ? copyout+0x22/0x30
-kernel: ? _copy_to_iter+0xa0/0x430
-kernel: ? _cond_resched+0x15/0x30
-kernel: ? __kmalloc_node_track_caller+0x1f9/0x270
-kernel: iscsi_if_rx+0xa5/0x1e0 [scsi_transport_iscsi]
-kernel: netlink_unicast+0x17f/0x230
-kernel: netlink_sendmsg+0x2d2/0x3d0
-kernel: sock_sendmsg+0x36/0x50
-kernel: ___sys_sendmsg+0x280/0x2a0
-kernel: ? timerqueue_add+0x54/0x80
-kernel: ? enqueue_hrtimer+0x38/0x90
-kernel: ? hrtimer_start_range_ns+0x19f/0x2c0
-kernel: __sys_sendmsg+0x58/0xa0
-kernel: do_syscall_64+0x5b/0x180
-kernel: entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-Signed-off-by: Manish Rangankar <mrangankar@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Suggested-by: Mohan Kumar D <mkumard@nvidia.com>
+Reviewed-by: Jonathan Hunter <jonathanh@nvidia.com>
+Signed-off-by: Sameer Pujar <spujar@nvidia.com>
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qedi/qedi_iscsi.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/dma/tegra210-adma.c | 27 ++++++++++++---------------
+ 1 file changed, 12 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/scsi/qedi/qedi_iscsi.c b/drivers/scsi/qedi/qedi_iscsi.c
-index 45f044f35cea8..0b7267e683360 100644
---- a/drivers/scsi/qedi/qedi_iscsi.c
-+++ b/drivers/scsi/qedi/qedi_iscsi.c
-@@ -1008,6 +1008,9 @@ static void qedi_ep_disconnect(struct iscsi_endpoint *ep)
- 	qedi_ep = ep->dd_data;
- 	qedi = qedi_ep->qedi;
+diff --git a/drivers/dma/tegra210-adma.c b/drivers/dma/tegra210-adma.c
+index 9aa35a7f13692..1477cce33dbe5 100644
+--- a/drivers/dma/tegra210-adma.c
++++ b/drivers/dma/tegra210-adma.c
+@@ -22,7 +22,6 @@
+ #include <linux/of_device.h>
+ #include <linux/of_dma.h>
+ #include <linux/of_irq.h>
+-#include <linux/pm_clock.h>
+ #include <linux/pm_runtime.h>
+ #include <linux/slab.h>
  
-+	if (qedi_ep->state == EP_STATE_OFLDCONN_START)
-+		goto ep_exit_recover;
-+
- 	flush_work(&qedi_ep->offload_work);
+@@ -141,6 +140,7 @@ struct tegra_adma {
+ 	struct dma_device		dma_dev;
+ 	struct device			*dev;
+ 	void __iomem			*base_addr;
++	struct clk			*ahub_clk;
+ 	unsigned int			nr_channels;
+ 	unsigned long			rx_requests_reserved;
+ 	unsigned long			tx_requests_reserved;
+@@ -637,8 +637,9 @@ static int tegra_adma_runtime_suspend(struct device *dev)
+ 	struct tegra_adma *tdma = dev_get_drvdata(dev);
  
- 	if (qedi_ep->conn) {
+ 	tdma->global_cmd = tdma_read(tdma, ADMA_GLOBAL_CMD);
++	clk_disable_unprepare(tdma->ahub_clk);
+ 
+-	return pm_clk_suspend(dev);
++	return 0;
+ }
+ 
+ static int tegra_adma_runtime_resume(struct device *dev)
+@@ -646,10 +647,11 @@ static int tegra_adma_runtime_resume(struct device *dev)
+ 	struct tegra_adma *tdma = dev_get_drvdata(dev);
+ 	int ret;
+ 
+-	ret = pm_clk_resume(dev);
+-	if (ret)
++	ret = clk_prepare_enable(tdma->ahub_clk);
++	if (ret) {
++		dev_err(dev, "ahub clk_enable failed: %d\n", ret);
+ 		return ret;
+-
++	}
+ 	tdma_write(tdma, ADMA_GLOBAL_CMD, tdma->global_cmd);
+ 
+ 	return 0;
+@@ -693,13 +695,11 @@ static int tegra_adma_probe(struct platform_device *pdev)
+ 	if (IS_ERR(tdma->base_addr))
+ 		return PTR_ERR(tdma->base_addr);
+ 
+-	ret = pm_clk_create(&pdev->dev);
+-	if (ret)
+-		return ret;
+-
+-	ret = of_pm_clk_add_clk(&pdev->dev, "d_audio");
+-	if (ret)
+-		goto clk_destroy;
++	tdma->ahub_clk = devm_clk_get(&pdev->dev, "d_audio");
++	if (IS_ERR(tdma->ahub_clk)) {
++		dev_err(&pdev->dev, "Error: Missing ahub controller clock\n");
++		return PTR_ERR(tdma->ahub_clk);
++	}
+ 
+ 	pm_runtime_enable(&pdev->dev);
+ 
+@@ -776,8 +776,6 @@ static int tegra_adma_probe(struct platform_device *pdev)
+ 	pm_runtime_put_sync(&pdev->dev);
+ rpm_disable:
+ 	pm_runtime_disable(&pdev->dev);
+-clk_destroy:
+-	pm_clk_destroy(&pdev->dev);
+ 
+ 	return ret;
+ }
+@@ -795,7 +793,6 @@ static int tegra_adma_remove(struct platform_device *pdev)
+ 
+ 	pm_runtime_put_sync(&pdev->dev);
+ 	pm_runtime_disable(&pdev->dev);
+-	pm_clk_destroy(&pdev->dev);
+ 
+ 	return 0;
+ }
 -- 
 2.20.1
 
