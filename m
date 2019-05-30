@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6144C2F18B
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:14:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A3562F5CB
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:50:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728455AbfE3EOD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:14:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41638 "EHLO mail.kernel.org"
+        id S1727758AbfE3EuS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:50:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730640AbfE3DQS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:16:18 -0400
+        id S1728334AbfE3DLD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:11:03 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7999C245BA;
-        Thu, 30 May 2019 03:16:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D773724496;
+        Thu, 30 May 2019 03:11:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186177;
-        bh=ecFYmclGr4Ma+CSqI+4aEMpcsPaqhZ/WD2pBQ7Jm9GI=;
+        s=default; t=1559185863;
+        bh=UIoZc5owPmJU0ms9w6jKmXYPLGFCtit3EcHRKOkHaCY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J0bN2l5jIt3zAz8rUBq+pcTPi36NBiG7+3ZhxJ+zflQjohGMXZyQPkNZKhVFH6n5H
-         4gsB5GAfEcQ1aIwf096L5i1/EGEiDC7V9DsHc7tjRWRlCROdCNXGAzqVUApbp1+/3n
-         5G+iyTpEQGhnwbiGE8dtXeaq0rRq5/pDx0vIVtWE=
+        b=2YXNDCA5BRmbQry4KH8FsjbNd1skMJz3Fo8jnR6PAYP9KKk826ZegmiSdINSqcMRl
+         WciXuSSL2gVERfmN4MQ38E1m9HppDcJ9m0kJWYu+R9ZUUN7ezop9/kyq1pn+Qn3gaM
+         T5cB62HwmAE1/DPLT6ZAXR6aYI8BAJNWsucDiR+0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot+457d3e2ffbcf31aee5c0@syzkaller.appspotmail.com,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
-        Jesper Dangaard Brouer <brouer@redhat.com>,
-        Daniel Borkmann <daniel@iogearbox.net>
-Subject: [PATCH 4.19 039/276] bpf: devmap: fix use-after-free Read in __dev_map_entry_free
+        stable@vger.kernel.org, Kefeng Wang <wangkefeng.wang@huawei.com>,
+        John Garry <john.garry@huawei.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 199/405] hwmon: (smsc47b397) Use request_muxed_region for Super-IO accesses
 Date:   Wed, 29 May 2019 20:03:17 -0700
-Message-Id: <20190530030526.677649836@linuxfoundation.org>
+Message-Id: <20190530030551.269436881@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,120 +45,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+[ Upstream commit 8c0826756744c0ac1df600a5e4cca1a341b13101 ]
 
-commit 2baae3545327632167c0180e9ca1d467416f1919 upstream.
+Super-IO accesses may fail on a system with no or unmapped LPC bus.
 
-synchronize_rcu() is fine when the rcu callbacks only need
-to free memory (kfree_rcu() or direct kfree() call rcu call backs)
+Also, other drivers may attempt to access the LPC bus at the same time,
+resulting in undefined behavior.
 
-__dev_map_entry_free() is a bit more complex, so we need to make
-sure that call queued __dev_map_entry_free() callbacks have completed.
+Use request_muxed_region() to ensure that IO access on the requested
+address space is supported, and to ensure that access by multiple drivers
+is synchronized.
 
-sysbot report:
-
-BUG: KASAN: use-after-free in dev_map_flush_old kernel/bpf/devmap.c:365
-[inline]
-BUG: KASAN: use-after-free in __dev_map_entry_free+0x2a8/0x300
-kernel/bpf/devmap.c:379
-Read of size 8 at addr ffff8801b8da38c8 by task ksoftirqd/1/18
-
-CPU: 1 PID: 18 Comm: ksoftirqd/1 Not tainted 4.17.0+ #39
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS
-Google 01/01/2011
-Call Trace:
-  __dump_stack lib/dump_stack.c:77 [inline]
-  dump_stack+0x1b9/0x294 lib/dump_stack.c:113
-  print_address_description+0x6c/0x20b mm/kasan/report.c:256
-  kasan_report_error mm/kasan/report.c:354 [inline]
-  kasan_report.cold.7+0x242/0x2fe mm/kasan/report.c:412
-  __asan_report_load8_noabort+0x14/0x20 mm/kasan/report.c:433
-  dev_map_flush_old kernel/bpf/devmap.c:365 [inline]
-  __dev_map_entry_free+0x2a8/0x300 kernel/bpf/devmap.c:379
-  __rcu_reclaim kernel/rcu/rcu.h:178 [inline]
-  rcu_do_batch kernel/rcu/tree.c:2558 [inline]
-  invoke_rcu_callbacks kernel/rcu/tree.c:2818 [inline]
-  __rcu_process_callbacks kernel/rcu/tree.c:2785 [inline]
-  rcu_process_callbacks+0xe9d/0x1760 kernel/rcu/tree.c:2802
-  __do_softirq+0x2e0/0xaf5 kernel/softirq.c:284
-  run_ksoftirqd+0x86/0x100 kernel/softirq.c:645
-  smpboot_thread_fn+0x417/0x870 kernel/smpboot.c:164
-  kthread+0x345/0x410 kernel/kthread.c:240
-  ret_from_fork+0x3a/0x50 arch/x86/entry/entry_64.S:412
-
-Allocated by task 6675:
-  save_stack+0x43/0xd0 mm/kasan/kasan.c:448
-  set_track mm/kasan/kasan.c:460 [inline]
-  kasan_kmalloc+0xc4/0xe0 mm/kasan/kasan.c:553
-  kmem_cache_alloc_trace+0x152/0x780 mm/slab.c:3620
-  kmalloc include/linux/slab.h:513 [inline]
-  kzalloc include/linux/slab.h:706 [inline]
-  dev_map_alloc+0x208/0x7f0 kernel/bpf/devmap.c:102
-  find_and_alloc_map kernel/bpf/syscall.c:129 [inline]
-  map_create+0x393/0x1010 kernel/bpf/syscall.c:453
-  __do_sys_bpf kernel/bpf/syscall.c:2351 [inline]
-  __se_sys_bpf kernel/bpf/syscall.c:2328 [inline]
-  __x64_sys_bpf+0x303/0x510 kernel/bpf/syscall.c:2328
-  do_syscall_64+0x1b1/0x800 arch/x86/entry/common.c:290
-  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-Freed by task 26:
-  save_stack+0x43/0xd0 mm/kasan/kasan.c:448
-  set_track mm/kasan/kasan.c:460 [inline]
-  __kasan_slab_free+0x11a/0x170 mm/kasan/kasan.c:521
-  kasan_slab_free+0xe/0x10 mm/kasan/kasan.c:528
-  __cache_free mm/slab.c:3498 [inline]
-  kfree+0xd9/0x260 mm/slab.c:3813
-  dev_map_free+0x4fa/0x670 kernel/bpf/devmap.c:191
-  bpf_map_free_deferred+0xba/0xf0 kernel/bpf/syscall.c:262
-  process_one_work+0xc64/0x1b70 kernel/workqueue.c:2153
-  worker_thread+0x181/0x13a0 kernel/workqueue.c:2296
-  kthread+0x345/0x410 kernel/kthread.c:240
-  ret_from_fork+0x3a/0x50 arch/x86/entry/entry_64.S:412
-
-The buggy address belongs to the object at ffff8801b8da37c0
-  which belongs to the cache kmalloc-512 of size 512
-The buggy address is located 264 bytes inside of
-  512-byte region [ffff8801b8da37c0, ffff8801b8da39c0)
-The buggy address belongs to the page:
-page:ffffea0006e368c0 count:1 mapcount:0 mapping:ffff8801da800940
-index:0xffff8801b8da3540
-flags: 0x2fffc0000000100(slab)
-raw: 02fffc0000000100 ffffea0007217b88 ffffea0006e30cc8 ffff8801da800940
-raw: ffff8801b8da3540 ffff8801b8da3040 0000000100000004 0000000000000000
-page dumped because: kasan: bad access detected
-
-Memory state around the buggy address:
-  ffff8801b8da3780: fc fc fc fc fc fc fc fc fb fb fb fb fb fb fb fb
-  ffff8801b8da3800: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-> ffff8801b8da3880: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-                                               ^
-  ffff8801b8da3900: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-  ffff8801b8da3980: fb fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
-
-Fixes: 546ac1ffb70d ("bpf: add devmap, a map for storing net device references")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot+457d3e2ffbcf31aee5c0@syzkaller.appspotmail.com
-Acked-by: Toke Høiland-Jørgensen <toke@redhat.com>
-Acked-by: Jesper Dangaard Brouer <brouer@redhat.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 8d5d45fb1468 ("I2C: Move hwmon drivers (2/3)")
+Reported-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Reported-by: John Garry <john.garry@huawei.com>
+Cc: John Garry <john.garry@huawei.com>
+Acked-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/devmap.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/hwmon/smsc47b397.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
---- a/kernel/bpf/devmap.c
-+++ b/kernel/bpf/devmap.c
-@@ -164,6 +164,9 @@ static void dev_map_free(struct bpf_map
- 	bpf_clear_redirect_map(map);
- 	synchronize_rcu();
+diff --git a/drivers/hwmon/smsc47b397.c b/drivers/hwmon/smsc47b397.c
+index c0775084dde00..60e193f2e9707 100644
+--- a/drivers/hwmon/smsc47b397.c
++++ b/drivers/hwmon/smsc47b397.c
+@@ -72,14 +72,19 @@ static inline void superio_select(int ld)
+ 	superio_outb(0x07, ld);
+ }
  
-+	/* Make sure prior __dev_map_entry_free() have completed. */
-+	rcu_barrier();
+-static inline void superio_enter(void)
++static inline int superio_enter(void)
+ {
++	if (!request_muxed_region(REG, 2, DRVNAME))
++		return -EBUSY;
 +
- 	/* To ensure all pending flush operations have completed wait for flush
- 	 * bitmap to indicate all flush_needed bits to be zero on _all_ cpus.
- 	 * Because the above synchronize_rcu() ensures the map is disconnected
+ 	outb(0x55, REG);
++	return 0;
+ }
+ 
+ static inline void superio_exit(void)
+ {
+ 	outb(0xAA, REG);
++	release_region(REG, 2);
+ }
+ 
+ #define SUPERIO_REG_DEVID	0x20
+@@ -300,8 +305,12 @@ static int __init smsc47b397_find(void)
+ 	u8 id, rev;
+ 	char *name;
+ 	unsigned short addr;
++	int err;
++
++	err = superio_enter();
++	if (err)
++		return err;
+ 
+-	superio_enter();
+ 	id = force_id ? force_id : superio_inb(SUPERIO_REG_DEVID);
+ 
+ 	switch (id) {
+-- 
+2.20.1
+
 
 
