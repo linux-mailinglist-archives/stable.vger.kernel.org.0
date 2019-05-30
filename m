@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E9282F178
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:13:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A8052F39B
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:33:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726842AbfE3ENT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:13:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43312 "EHLO mail.kernel.org"
+        id S1729634AbfE3EaM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:30:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60686 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730762AbfE3DQl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:16:41 -0400
+        id S1728588AbfE3DN4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:13:56 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EC3C0245F8;
-        Thu, 30 May 2019 03:16:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BD7EE24575;
+        Thu, 30 May 2019 03:13:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186201;
-        bh=uIbglvcgcCD288qkSn4ygSDW/GSXl/64XOYxAqgcNZM=;
+        s=default; t=1559186035;
+        bh=c3ylOG23e2uaO1Qyo4knJrORs0BfMvOcAjDmTCaefMI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nrTDqrGaKmIld68UrRx2K7JQsxVFjxwKYFAkf4gcR7Ao0Ro2P84eCtaF+R1Bkdmac
-         5yu1xxoxvqTLJke62yr6Av1EdG3Ybjs0OI49WFmJ1KF0Q2CMnTPKCQfBO6u69QGy+t
-         PDs+vidcky6rPr3xleMuLjOo+KpYBjrz7GTdPBQQ=
+        b=H4+DRfnMvx3e6VFGFAMBaIogphJPvBSAr33NV01aTeLAQ81+aYqTnpjZzWWaJLNCv
+         SRtBXhJAIUXZ9JHcBvI1G1sKUAIEUmVHWoFB7tdgB8LAi80CtfCeIBa1dUQGZa/INB
+         iRqkiLVX2WSJYk/5/okR+th4nABtRhWe0WFO+VnQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil@xs4all.nl>,
-        Syzbot <syzbot+4180ff9ca6810b06c1e9@syzkaller.appspotmail.com>,
-        Tomasz Figa <tfiga@chromium.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 4.19 036/276] media: vb2: add waiting_in_dqbuf flag
-Date:   Wed, 29 May 2019 20:03:14 -0700
-Message-Id: <20190530030526.499360569@linuxfoundation.org>
+        stable@vger.kernel.org, Farhan Ali <alifm@linux.ibm.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Pierre Morel <pmorel@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.0 122/346] vfio-ccw: Do not call flush_workqueue while holding the spinlock
+Date:   Wed, 29 May 2019 20:03:15 -0700
+Message-Id: <20190530030547.265517891@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,113 +46,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil@xs4all.nl>
+[ Upstream commit cea5dde42a83b5f0a039da672f8686455936b8d8 ]
 
-commit d65842f7126aa1a87fb44b7c9980c12630ed4f33 upstream.
+Currently we call flush_workqueue while holding the subchannel
+spinlock. But flush_workqueue function can go to sleep, so
+do not call the function while holding the spinlock.
 
-Calling VIDIOC_DQBUF can release the core serialization lock pointed to
-by vb2_queue->lock if it has to wait for a new buffer to arrive.
+Fixes the following bug:
 
-However, if userspace dup()ped the video device filehandle, then it is
-possible to read or call DQBUF from two filehandles at the same time.
+[  285.203430] BUG: scheduling while atomic: bash/14193/0x00000002
+[  285.203434] INFO: lockdep is turned off.
+....
+[  285.203485] Preemption disabled at:
+[  285.203488] [<000003ff80243e5c>] vfio_ccw_sch_quiesce+0xbc/0x120 [vfio_ccw]
+[  285.203496] CPU: 7 PID: 14193 Comm: bash Tainted: G        W
+....
+[  285.203504] Call Trace:
+[  285.203510] ([<0000000000113772>] show_stack+0x82/0xd0)
+[  285.203514]  [<0000000000b7a102>] dump_stack+0x92/0xd0
+[  285.203518]  [<000000000017b8be>] __schedule_bug+0xde/0xf8
+[  285.203524]  [<0000000000b95b5a>] __schedule+0x7a/0xc38
+[  285.203528]  [<0000000000b9678a>] schedule+0x72/0xb0
+[  285.203533]  [<0000000000b9bfbc>] schedule_timeout+0x34/0x528
+[  285.203538]  [<0000000000b97608>] wait_for_common+0x118/0x1b0
+[  285.203544]  [<0000000000166d6a>] flush_workqueue+0x182/0x548
+[  285.203550]  [<000003ff80243e6e>] vfio_ccw_sch_quiesce+0xce/0x120 [vfio_ccw]
+[  285.203556]  [<000003ff80245278>] vfio_ccw_mdev_reset+0x38/0x70 [vfio_ccw]
+[  285.203562]  [<000003ff802458b0>] vfio_ccw_mdev_remove+0x40/0x78 [vfio_ccw]
+[  285.203567]  [<000003ff801a499c>] mdev_device_remove_ops+0x3c/0x80 [mdev]
+[  285.203573]  [<000003ff801a4d5c>] mdev_device_remove+0xc4/0x130 [mdev]
+[  285.203578]  [<000003ff801a5074>] remove_store+0x6c/0xa8 [mdev]
+[  285.203582]  [<000000000046f494>] kernfs_fop_write+0x14c/0x1f8
+[  285.203588]  [<00000000003c1530>] __vfs_write+0x38/0x1a8
+[  285.203593]  [<00000000003c187c>] vfs_write+0xb4/0x198
+[  285.203597]  [<00000000003c1af2>] ksys_write+0x5a/0xb0
+[  285.203601]  [<0000000000b9e270>] system_call+0xdc/0x2d8
 
-It is also possible to call REQBUFS from one filehandle while the other
-is waiting for a buffer. This will remove all the buffers and reallocate
-new ones. Removing all the buffers isn't the problem here (that's already
-handled correctly by DQBUF), but the reallocating part is: DQBUF isn't
-aware that the buffers have changed.
-
-This is fixed by setting a flag whenever the lock is released while waiting
-for a buffer to arrive. And checking the flag where needed so we can return
--EBUSY.
-
-Signed-off-by: Hans Verkuil <hverkuil@xs4all.nl>
-Reported-by: Syzbot <syzbot+4180ff9ca6810b06c1e9@syzkaller.appspotmail.com>
-Reviewed-by: Tomasz Figa <tfiga@chromium.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Farhan Ali <alifm@linux.ibm.com>
+Reviewed-by: Eric Farman <farman@linux.ibm.com>
+Reviewed-by: Pierre Morel <pmorel@linux.ibm.com>
+Message-Id: <626bab8bb2958ae132452e1ddaf1b20882ad5a9d.1554756534.git.alifm@linux.ibm.com>
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/common/videobuf2/videobuf2-core.c |   22 ++++++++++++++++++++++
- include/media/videobuf2-core.h                  |    1 +
- 2 files changed, 23 insertions(+)
+ drivers/s390/cio/vfio_ccw_drv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/media/common/videobuf2/videobuf2-core.c
-+++ b/drivers/media/common/videobuf2/videobuf2-core.c
-@@ -668,6 +668,11 @@ int vb2_core_reqbufs(struct vb2_queue *q
- 		return -EBUSY;
- 	}
+diff --git a/drivers/s390/cio/vfio_ccw_drv.c b/drivers/s390/cio/vfio_ccw_drv.c
+index 0b3b9de45c602..64bb121ba5987 100644
+--- a/drivers/s390/cio/vfio_ccw_drv.c
++++ b/drivers/s390/cio/vfio_ccw_drv.c
+@@ -54,9 +54,9 @@ int vfio_ccw_sch_quiesce(struct subchannel *sch)
  
-+	if (q->waiting_in_dqbuf && *count) {
-+		dprintk(1, "another dup()ped fd is waiting for a buffer\n");
-+		return -EBUSY;
-+	}
-+
- 	if (*count == 0 || q->num_buffers != 0 ||
- 	    (q->memory != VB2_MEMORY_UNKNOWN && q->memory != memory)) {
- 		/*
-@@ -797,6 +802,10 @@ int vb2_core_create_bufs(struct vb2_queu
- 	}
+ 			wait_for_completion_timeout(&completion, 3*HZ);
  
- 	if (!q->num_buffers) {
-+		if (q->waiting_in_dqbuf && *count) {
-+			dprintk(1, "another dup()ped fd is waiting for a buffer\n");
-+			return -EBUSY;
-+		}
- 		memset(q->alloc_devs, 0, sizeof(q->alloc_devs));
- 		q->memory = memory;
- 		q->waiting_for_buffers = !q->is_output;
-@@ -1466,6 +1475,11 @@ static int __vb2_wait_for_done_vb(struct
- 	for (;;) {
- 		int ret;
+-			spin_lock_irq(sch->lock);
+ 			private->completion = NULL;
+ 			flush_workqueue(vfio_ccw_work_q);
++			spin_lock_irq(sch->lock);
+ 			ret = cio_cancel_halt_clear(sch, &iretry);
+ 		};
  
-+		if (q->waiting_in_dqbuf) {
-+			dprintk(1, "another dup()ped fd is waiting for a buffer\n");
-+			return -EBUSY;
-+		}
-+
- 		if (!q->streaming) {
- 			dprintk(1, "streaming off, will not wait for buffers\n");
- 			return -EINVAL;
-@@ -1493,6 +1507,7 @@ static int __vb2_wait_for_done_vb(struct
- 			return -EAGAIN;
- 		}
- 
-+		q->waiting_in_dqbuf = 1;
- 		/*
- 		 * We are streaming and blocking, wait for another buffer to
- 		 * become ready or for streamoff. Driver's lock is released to
-@@ -1513,6 +1528,7 @@ static int __vb2_wait_for_done_vb(struct
- 		 * the locks or return an error if one occurred.
- 		 */
- 		call_void_qop(q, wait_finish, q);
-+		q->waiting_in_dqbuf = 0;
- 		if (ret) {
- 			dprintk(1, "sleep was interrupted\n");
- 			return ret;
-@@ -2361,6 +2377,12 @@ static size_t __vb2_perform_fileio(struc
- 	if (!data)
- 		return -EINVAL;
- 
-+	if (q->waiting_in_dqbuf) {
-+		dprintk(3, "another dup()ped fd is %s\n",
-+			read ? "reading" : "writing");
-+		return -EBUSY;
-+	}
-+
- 	/*
- 	 * Initialize emulator on first call.
- 	 */
---- a/include/media/videobuf2-core.h
-+++ b/include/media/videobuf2-core.h
-@@ -551,6 +551,7 @@ struct vb2_queue {
- 	unsigned int			start_streaming_called:1;
- 	unsigned int			error:1;
- 	unsigned int			waiting_for_buffers:1;
-+	unsigned int			waiting_in_dqbuf:1;
- 	unsigned int			is_multiplanar:1;
- 	unsigned int			is_output:1;
- 	unsigned int			copy_timestamp:1;
+-- 
+2.20.1
+
 
 
