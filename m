@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A0032EC77
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:22:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91E2F2F000
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:01:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732483AbfE3DVL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:21:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33322 "EHLO mail.kernel.org"
+        id S1731552AbfE3DS1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:18:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732478AbfE3DVK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:21:10 -0400
+        id S1730064AbfE3DS1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:18:27 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B55B4249C6;
-        Thu, 30 May 2019 03:21:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BFB35247C8;
+        Thu, 30 May 2019 03:18:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186469;
-        bh=DAZia6pEScLnyChBtoVglMHO6LuOLDhphpeN2FZxS0Q=;
+        s=default; t=1559186306;
+        bh=bB6jC1Dmpqr111bwzyRwcfMB0pV1fnZ4gBFTnhP25eI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WsdwY2eqLsF6cfxRfhLP8Yw/0L50Hnn2sSPZA+VKynwH2Awtm8NDRV1BZkFkU3f6h
-         P1gKi+2Ll1/mmJwdvAJG+GAKy3BUnKl/Sbf+sHS0E5fsPApzy+/NcEtQTWSlVOHBPo
-         Heq6lILtoNNs6RPoj3XHWHiasY/P4/yk35QuMRoQ=
+        b=HeEX4owEoIRIKNU4TGsV3qgQ/kwBJm+7i72NJov/3iKjV/rND3loh2OW4wXdZ8s5m
+         rt8IZZ7d4FbnEb1LcOglex/xDSNXRCEwcNUr54l2g7Zz0tFKmLfNmfQ8NlSqMB05Bm
+         4CgN2G7uLDR5mvSGFgj9VBBfDSx0OfSm4IXqbKvc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Piotr Figiel <p.figiel@camlintechnologies.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>,
+        Gerd Hoffmann <kraxel@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 097/128] brcmfmac: fix race during disconnect when USB completion is in progress
+Subject: [PATCH 4.19 271/276] drm/drv: Hold ref on parent device during drm_device lifetime
 Date:   Wed, 29 May 2019 20:07:09 -0700
-Message-Id: <20190530030452.065702841@linuxfoundation.org>
+Message-Id: <20190530030542.146504255@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
-References: <20190530030432.977908967@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,89 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit db3b9e2e1d58080d0754bdf9293dabf8c6491b67 ]
+[ Upstream commit 56be6503aab2bc3a30beae408071b9be5e1bae51 ]
 
-It was observed that rarely during USB disconnect happening shortly after
-connect (before full initialization completes) usb_hub_wq would wait
-forever for the dev_init_lock to be unlocked. dev_init_lock would remain
-locked though because of infinite wait during usb_kill_urb:
+This makes it safe to access drm_device->dev after the parent device has
+been removed/unplugged.
 
-[ 2730.656472] kworker/0:2     D    0   260      2 0x00000000
-[ 2730.660700] Workqueue: events request_firmware_work_func
-[ 2730.664807] [<809dca20>] (__schedule) from [<809dd164>] (schedule+0x4c/0xac)
-[ 2730.670587] [<809dd164>] (schedule) from [<8069af44>] (usb_kill_urb+0xdc/0x114)
-[ 2730.676815] [<8069af44>] (usb_kill_urb) from [<7f258b50>] (brcmf_usb_free_q+0x34/0xa8 [brcmfmac])
-[ 2730.684833] [<7f258b50>] (brcmf_usb_free_q [brcmfmac]) from [<7f2517d4>] (brcmf_detach+0xa0/0xb8 [brcmfmac])
-[ 2730.693557] [<7f2517d4>] (brcmf_detach [brcmfmac]) from [<7f251a34>] (brcmf_attach+0xac/0x3d8 [brcmfmac])
-[ 2730.702094] [<7f251a34>] (brcmf_attach [brcmfmac]) from [<7f2587ac>] (brcmf_usb_probe_phase2+0x468/0x4a0 [brcmfmac])
-[ 2730.711601] [<7f2587ac>] (brcmf_usb_probe_phase2 [brcmfmac]) from [<7f252888>] (brcmf_fw_request_done+0x194/0x220 [brcmfmac])
-[ 2730.721795] [<7f252888>] (brcmf_fw_request_done [brcmfmac]) from [<805748e4>] (request_firmware_work_func+0x4c/0x88)
-[ 2730.731125] [<805748e4>] (request_firmware_work_func) from [<80141474>] (process_one_work+0x228/0x808)
-[ 2730.739223] [<80141474>] (process_one_work) from [<80141a80>] (worker_thread+0x2c/0x564)
-[ 2730.746105] [<80141a80>] (worker_thread) from [<80147bcc>] (kthread+0x13c/0x16c)
-[ 2730.752227] [<80147bcc>] (kthread) from [<801010b4>] (ret_from_fork+0x14/0x20)
-
-[ 2733.099695] kworker/0:3     D    0  1065      2 0x00000000
-[ 2733.103926] Workqueue: usb_hub_wq hub_event
-[ 2733.106914] [<809dca20>] (__schedule) from [<809dd164>] (schedule+0x4c/0xac)
-[ 2733.112693] [<809dd164>] (schedule) from [<809e2a8c>] (schedule_timeout+0x214/0x3e4)
-[ 2733.119621] [<809e2a8c>] (schedule_timeout) from [<809dde2c>] (wait_for_common+0xc4/0x1c0)
-[ 2733.126810] [<809dde2c>] (wait_for_common) from [<7f258d00>] (brcmf_usb_disconnect+0x1c/0x4c [brcmfmac])
-[ 2733.135206] [<7f258d00>] (brcmf_usb_disconnect [brcmfmac]) from [<8069e0c8>] (usb_unbind_interface+0x5c/0x1e4)
-[ 2733.143943] [<8069e0c8>] (usb_unbind_interface) from [<8056d3e8>] (device_release_driver_internal+0x164/0x1fc)
-[ 2733.152769] [<8056d3e8>] (device_release_driver_internal) from [<8056c078>] (bus_remove_device+0xd0/0xfc)
-[ 2733.161138] [<8056c078>] (bus_remove_device) from [<8056977c>] (device_del+0x11c/0x310)
-[ 2733.167939] [<8056977c>] (device_del) from [<8069cba8>] (usb_disable_device+0xa0/0x1cc)
-[ 2733.174743] [<8069cba8>] (usb_disable_device) from [<8069507c>] (usb_disconnect+0x74/0x1dc)
-[ 2733.181823] [<8069507c>] (usb_disconnect) from [<80695e88>] (hub_event+0x478/0xf88)
-[ 2733.188278] [<80695e88>] (hub_event) from [<80141474>] (process_one_work+0x228/0x808)
-[ 2733.194905] [<80141474>] (process_one_work) from [<80141a80>] (worker_thread+0x2c/0x564)
-[ 2733.201724] [<80141a80>] (worker_thread) from [<80147bcc>] (kthread+0x13c/0x16c)
-[ 2733.207913] [<80147bcc>] (kthread) from [<801010b4>] (ret_from_fork+0x14/0x20)
-
-It was traced down to a case where usb_kill_urb would be called on an URB
-structure containing more or less random data, including large number in
-its use_count. During the debugging it appeared that in brcmf_usb_free_q()
-the traversal over URBs' lists is not synchronized with operations on those
-lists in brcmf_usb_rx_complete() leading to handling
-brcmf_usbdev_info structure (holding lists' head) as lists' element and in
-result causing above problem.
-
-Fix it by walking through all URBs during brcmf_cancel_all_urbs using the
-arrays of requests instead of linked lists.
-
-Signed-off-by: Piotr Figiel <p.figiel@camlintechnologies.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
+Reviewed-by: Gerd Hoffmann <kraxel@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190225144232.20761-2-noralf@tronnes.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/drm_drv.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c
-index bfdf6ef224437..acf513fd9e6d5 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c
-@@ -681,12 +681,18 @@ static int brcmf_usb_up(struct device *dev)
+diff --git a/drivers/gpu/drm/drm_drv.c b/drivers/gpu/drm/drm_drv.c
+index 0201ccb22f4ca..d8ae4ca129c70 100644
+--- a/drivers/gpu/drm/drm_drv.c
++++ b/drivers/gpu/drm/drm_drv.c
+@@ -499,7 +499,7 @@ int drm_dev_init(struct drm_device *dev,
+ 	}
  
- static void brcmf_cancel_all_urbs(struct brcmf_usbdev_info *devinfo)
- {
-+	int i;
+ 	kref_init(&dev->ref);
+-	dev->dev = parent;
++	dev->dev = get_device(parent);
+ 	dev->driver = driver;
+ 
+ 	INIT_LIST_HEAD(&dev->filelist);
+@@ -568,6 +568,7 @@ int drm_dev_init(struct drm_device *dev,
+ 	drm_minor_free(dev, DRM_MINOR_RENDER);
+ 	drm_fs_inode_free(dev->anon_inode);
+ err_free:
++	put_device(dev->dev);
+ 	mutex_destroy(&dev->master_mutex);
+ 	mutex_destroy(&dev->ctxlist_mutex);
+ 	mutex_destroy(&dev->clientlist_mutex);
+@@ -603,6 +604,8 @@ void drm_dev_fini(struct drm_device *dev)
+ 	drm_minor_free(dev, DRM_MINOR_PRIMARY);
+ 	drm_minor_free(dev, DRM_MINOR_RENDER);
+ 
++	put_device(dev->dev);
 +
- 	if (devinfo->ctl_urb)
- 		usb_kill_urb(devinfo->ctl_urb);
- 	if (devinfo->bulk_urb)
- 		usb_kill_urb(devinfo->bulk_urb);
--	brcmf_usb_free_q(&devinfo->tx_postq, true);
--	brcmf_usb_free_q(&devinfo->rx_postq, true);
-+	if (devinfo->tx_reqs)
-+		for (i = 0; i < devinfo->bus_pub.ntxq; i++)
-+			usb_kill_urb(devinfo->tx_reqs[i].urb);
-+	if (devinfo->rx_reqs)
-+		for (i = 0; i < devinfo->bus_pub.nrxq; i++)
-+			usb_kill_urb(devinfo->rx_reqs[i].urb);
- }
- 
- static void brcmf_usb_down(struct device *dev)
+ 	mutex_destroy(&dev->master_mutex);
+ 	mutex_destroy(&dev->ctxlist_mutex);
+ 	mutex_destroy(&dev->clientlist_mutex);
 -- 
 2.20.1
 
