@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FC932F0D7
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:08:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86F102F4F0
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:44:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731087AbfE3DRX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:17:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46214 "EHLO mail.kernel.org"
+        id S1729494AbfE3Emo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:42:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731079AbfE3DRW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:17:22 -0400
+        id S1728893AbfE3DMO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:12:14 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D7F702463F;
-        Thu, 30 May 2019 03:17:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF804244E8;
+        Thu, 30 May 2019 03:12:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186242;
-        bh=B3DhlEJ4ntR8egRJP5RlZfeyVV2zTNXwZoWVRbGKFCE=;
+        s=default; t=1559185934;
+        bh=n+u/WguqQF8MlrFw+6RnxXfno7gUgXsBE8I1I+UCr8o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yvvINWwa7TkoOxfxqMbQDJoQYKY+wx0nwIwBK8HaIG6MjOBct5meD37BIbvIOlkOr
-         +ud3nDxZHVmj4tCoFyBUMCCKi7Ka91OGZKXUjPNOFhVrmBLVWsqdxaaKQxIGKSez/a
-         2/Z9+K7u1KGfuz87vRnvAHA8VXqs/IHehDIpwORo=
+        b=EI6n4uFyNXvq542M58bmYcAZOyzV9fVDq2GvxtyG34qU+n+PUrBv+TUuqHU9JvWni
+         dG1J1akWxgNqAsIvS/eMcsBmKQ5l1kt2CYJYwb7md73FHIANqLW/K0lMnYqiwkqige
+         +PQRovN2SRYdWS5G61N9bih0QwIygrxU5H4y/9xk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org, Ezequiel Garcia <ezequiel@collabora.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 128/276] media: pvrusb2: Prevent a buffer overflow
+Subject: [PATCH 5.1 288/405] media: gspca: Kill URBs on USB device disconnect
 Date:   Wed, 29 May 2019 20:04:46 -0700
-Message-Id: <20190530030533.803120908@linuxfoundation.org>
+Message-Id: <20190530030555.440542283@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,58 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c1ced46c7b49ad7bc064e68d966e0ad303f917fb ]
+[ Upstream commit 9b9ea7c2b57a0c9c3341fc6db039d1f7971a432e ]
 
-The ctrl_check_input() function is called from pvr2_ctrl_range_check().
-It's supposed to validate user supplied input and return true or false
-depending on whether the input is valid or not.  The problem is that
-negative shifts or shifts greater than 31 are undefined in C.  In
-practice with GCC they result in shift wrapping so this function returns
-true for some inputs which are not valid and this could result in a
-buffer overflow:
+In order to prevent ISOC URBs from being infinitely resubmitted,
+the driver's USB disconnect handler must kill all the in-flight URBs.
 
-    drivers/media/usb/pvrusb2/pvrusb2-ctrl.c:205 pvr2_ctrl_get_valname()
-    warn: uncapped user index 'names[val]'
+While here, change the URB packet status message to a debug level,
+to avoid spamming the console too much.
 
-The cptr->hdw->input_allowed_mask mask is configured in pvr2_hdw_create()
-and the highest valid bit is BIT(4).
+This commit fixes a lockup caused by an interrupt storm coming
+from the URB completion handler.
 
-Fixes: 7fb20fa38caa ("V4L/DVB (7299): pvrusb2: Improve logic which handles input choice availability")
-
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Ezequiel Garcia <ezequiel@collabora.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/pvrusb2/pvrusb2-hdw.c | 2 ++
- drivers/media/usb/pvrusb2/pvrusb2-hdw.h | 1 +
- 2 files changed, 3 insertions(+)
+ drivers/media/usb/gspca/gspca.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/usb/pvrusb2/pvrusb2-hdw.c b/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
-index a8519da0020bf..673fdca8d2dac 100644
---- a/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
-+++ b/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
-@@ -666,6 +666,8 @@ static int ctrl_get_input(struct pvr2_ctrl *cptr,int *vp)
+diff --git a/drivers/media/usb/gspca/gspca.c b/drivers/media/usb/gspca/gspca.c
+index ac70b36d67b7b..128935f2a217e 100644
+--- a/drivers/media/usb/gspca/gspca.c
++++ b/drivers/media/usb/gspca/gspca.c
+@@ -294,7 +294,7 @@ static void fill_frame(struct gspca_dev *gspca_dev,
+ 		/* check the packet status and length */
+ 		st = urb->iso_frame_desc[i].status;
+ 		if (st) {
+-			pr_err("ISOC data error: [%d] len=%d, status=%d\n",
++			gspca_dbg(gspca_dev, D_PACK, "ISOC data error: [%d] len=%d, status=%d\n",
+ 			       i, len, st);
+ 			gspca_dev->last_packet_type = DISCARD_PACKET;
+ 			continue;
+@@ -1638,6 +1638,8 @@ void gspca_disconnect(struct usb_interface *intf)
  
- static int ctrl_check_input(struct pvr2_ctrl *cptr,int v)
- {
-+	if (v < 0 || v > PVR2_CVAL_INPUT_MAX)
-+		return 0;
- 	return ((1 << v) & cptr->hdw->input_allowed_mask) != 0;
- }
+ 	mutex_lock(&gspca_dev->usb_lock);
+ 	gspca_dev->present = false;
++	destroy_urbs(gspca_dev);
++	gspca_input_destroy_urb(gspca_dev);
  
-diff --git a/drivers/media/usb/pvrusb2/pvrusb2-hdw.h b/drivers/media/usb/pvrusb2/pvrusb2-hdw.h
-index 25648add77e58..bd2b7a67b7322 100644
---- a/drivers/media/usb/pvrusb2/pvrusb2-hdw.h
-+++ b/drivers/media/usb/pvrusb2/pvrusb2-hdw.h
-@@ -50,6 +50,7 @@
- #define PVR2_CVAL_INPUT_COMPOSITE 2
- #define PVR2_CVAL_INPUT_SVIDEO 3
- #define PVR2_CVAL_INPUT_RADIO 4
-+#define PVR2_CVAL_INPUT_MAX PVR2_CVAL_INPUT_RADIO
+ 	vb2_queue_error(&gspca_dev->queue);
  
- enum pvr2_config {
- 	pvr2_config_empty,    /* No configuration */
 -- 
 2.20.1
 
