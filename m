@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 785312F3AB
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:33:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D01C92F1A4
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:14:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730416AbfE3Ea4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:30:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60312 "EHLO mail.kernel.org"
+        id S1727139AbfE3EOo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:14:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41502 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729606AbfE3DNv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:13:51 -0400
+        id S1730607AbfE3DQK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:16:10 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9BE2723D14;
-        Thu, 30 May 2019 03:13:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 94CBE245C1;
+        Thu, 30 May 2019 03:16:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186030;
-        bh=5RLysbjutLyy0H2j0S6gLUuxbUtDMbuWmcgwqXBZXwA=;
+        s=default; t=1559186169;
+        bh=PUMGySMOvqViDwthjrKLycmSFSgpXE5ZVGTIsv2lKDs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P+9+dZFgrQDaGsQK4nX9Lu9VSfWUZsO/D+mT/Vip/kHYnh6ub1MdJzUWf7FyuZ4pl
-         ikEGHzSMjZnIoUsuv46530wmrlSRs+fSE2OUYtu9KB62bO0RNaSU94yO1lQs2UHvyG
-         sNdmGOoGggtrTRi/TvjTLo29gR85twxcsiJWAaPY=
+        b=NEI1Mlfk17nZBAQdNfCtU4vqReHciVNvT73jrasZWIL69OZIVqtQwNaFgv56k7Z8R
+         O0hmOD6/QF6mzp6ZQYuR0uDnBjEgdoUNKSuyYwIXN40T8QJtuqRyxyN2lxJrlDRyS0
+         FY+eyUjsrP6ir00hD67RKjt3XgcuyUfucxmA8qgE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaoli Feng <fengxiaoli0714@gmail.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 108/346] Fix nfs4.2 return -EINVAL when do dedupe operation
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Bernie Thompson <bernie@plugable.com>,
+        Mikulas Patocka <mpatocka@redhat.com>,
+        Alexey Khoroshilov <khoroshilov@ispras.ru>,
+        Colin Ian King <colin.king@canonical.com>,
+        Wen Yang <wen.yang99@zte.com.cn>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Subject: [PATCH 4.19 023/276] udlfb: fix some inconsistent NULL checking
 Date:   Wed, 29 May 2019 20:03:01 -0700
-Message-Id: <20190530030546.576648554@linuxfoundation.org>
+Message-Id: <20190530030525.612759499@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +48,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit ce96e888fe48ecfa868c9a39adc03292c78a80ff ]
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-dedupe_file_range operations is combiled into remap_file_range.
-But in nfs42_remap_file_range, it's skiped for dedupe operations.
-Before this patch:
-  # dd if=/dev/zero of=nfs/file bs=1M count=1
-  # xfs_io -c "dedupe nfs/file 4k 64k 4k" nfs/file
-  XFS_IOC_FILE_EXTENT_SAME: Invalid argument
-After this patch:
-  # dd if=/dev/zero of=nfs/file bs=1M count=1
-  # xfs_io -c "dedupe nfs/file 4k 64k 4k" nfs/file
-  deduped 4096/4096 bytes at offset 65536
-  4 KiB, 1 ops; 0.0046 sec (865.988 KiB/sec and 216.4971 ops/sec)
+commit c143a559b073aeea688b9bb7c5b46f3cf322d569 upstream.
 
-Signed-off-by: Xiaoli Feng <fengxiaoli0714@gmail.com>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+In the current kernel, then kzalloc() can't fail for small allocations,
+but if it did fail then we would have a NULL dereference in the error
+handling.  Also in dlfb_usb_disconnect() if "info" were NULL then it
+would cause an Oops inside the unregister_framebuffer() function but it
+can't be NULL so let's remove that check.
+
+Fixes: 68a958a915ca ("udlfb: handle unplug properly")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Bernie Thompson <bernie@plugable.com>
+Cc: Mikulas Patocka <mpatocka@redhat.com>
+Cc: Alexey Khoroshilov <khoroshilov@ispras.ru>
+Cc: Colin Ian King <colin.king@canonical.com>
+Cc: Wen Yang <wen.yang99@zte.com.cn>
+[b.zolnierkie: added "Fixes:" tag]
+Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- fs/nfs/nfs4file.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/video/fbdev/udlfb.c |   14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
 
-diff --git a/fs/nfs/nfs4file.c b/fs/nfs/nfs4file.c
-index 00d17198ee12a..f10b660805fc4 100644
---- a/fs/nfs/nfs4file.c
-+++ b/fs/nfs/nfs4file.c
-@@ -187,7 +187,7 @@ static loff_t nfs42_remap_file_range(struct file *src_file, loff_t src_off,
- 	bool same_inode = false;
- 	int ret;
+--- a/drivers/video/fbdev/udlfb.c
++++ b/drivers/video/fbdev/udlfb.c
+@@ -1659,7 +1659,7 @@ static int dlfb_usb_probe(struct usb_int
+ 	dlfb = kzalloc(sizeof(*dlfb), GFP_KERNEL);
+ 	if (!dlfb) {
+ 		dev_err(&intf->dev, "%s: failed to allocate dlfb\n", __func__);
+-		goto error;
++		return -ENOMEM;
+ 	}
  
--	if (remap_flags & ~REMAP_FILE_ADVISORY)
-+	if (remap_flags & ~(REMAP_FILE_DEDUP | REMAP_FILE_ADVISORY))
- 		return -EINVAL;
+ 	INIT_LIST_HEAD(&dlfb->deferred_free);
+@@ -1769,7 +1769,7 @@ static int dlfb_usb_probe(struct usb_int
+ error:
+ 	if (dlfb->info) {
+ 		dlfb_ops_destroy(dlfb->info);
+-	} else if (dlfb) {
++	} else {
+ 		usb_put_dev(dlfb->udev);
+ 		kfree(dlfb);
+ 	}
+@@ -1796,12 +1796,10 @@ static void dlfb_usb_disconnect(struct u
+ 	/* this function will wait for all in-flight urbs to complete */
+ 	dlfb_free_urb_list(dlfb);
  
- 	/* check alignment w.r.t. clone_blksize */
--- 
-2.20.1
-
+-	if (info) {
+-		/* remove udlfb's sysfs interfaces */
+-		for (i = 0; i < ARRAY_SIZE(fb_device_attrs); i++)
+-			device_remove_file(info->dev, &fb_device_attrs[i]);
+-		device_remove_bin_file(info->dev, &edid_attr);
+-	}
++	/* remove udlfb's sysfs interfaces */
++	for (i = 0; i < ARRAY_SIZE(fb_device_attrs); i++)
++		device_remove_file(info->dev, &fb_device_attrs[i]);
++	device_remove_bin_file(info->dev, &edid_attr);
+ 
+ 	unregister_framebuffer(info);
+ }
 
 
