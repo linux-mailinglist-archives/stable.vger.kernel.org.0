@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B0E52F521
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:46:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 620E92F0B5
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:06:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728725AbfE3DLx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:11:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52698 "EHLO mail.kernel.org"
+        id S1727067AbfE3EGg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:06:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728720AbfE3DLx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:11:53 -0400
+        id S1731163AbfE3DRe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:17:34 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8C11724512;
-        Thu, 30 May 2019 03:11:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AF70C2464B;
+        Thu, 30 May 2019 03:17:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185912;
-        bh=rqf+WCP3JKuipcslg6e04zOOBxAAsJ9FP0vvfATf1As=;
+        s=default; t=1559186253;
+        bh=VlALxv8za7zVD5ocOij2gNebnaZB8CTrJQnYlpH9y0k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dj3NAYhR9QShVtsJMq2IQpLjlOgCpcMqodoj02G2c2qshMJXLdn/m9DhaPUfT/e6a
-         jWOb00jC4hDL/fhHSnWRpdagSRRCpaYZNU1V7smhUy07WSJLPYeZH9iEP2A317iQfU
-         2RfFcKYCKnKbIZa/vZKQf8VvuoPcf1kQJPfjDBe8=
+        b=KFDJ+qdBFmZabf7qJ0PcyjMCgxbeIaYj8scyTyhSSiyiG91C5FjKCAnnzRu173XsK
+         YeY2T6vjdHwNG4FgQQnrFyoXpRth0MnNs57qaA0lUyM7ymRpdZ8Kwx47TShoe3wdG9
+         IAo8XGxFRSwZSDiDIaiiS/jg/R4a3D+XCYpl3DMY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
-        Jacopo Mondi <jacopo+renesas@jmondi.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 293/405] drm: rcar-du: lvds: Set LVEN and LVRES bits together on D3
+        stable@vger.kernel.org, Jon DeVree <nuxi@vault24.org>,
+        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 133/276] random: fix CRNG initialization when random.trust_cpu=1
 Date:   Wed, 29 May 2019 20:04:51 -0700
-Message-Id: <20190530030555.667789342@linuxfoundation.org>
+Message-Id: <20190530030534.073451785@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,39 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 00d082cc4ea6e42ec4fed832a1020231bb1ca150 ]
+[ Upstream commit fe6f1a6a8eedc1aa538fee0baa612b6a59639cf8 ]
 
-On the D3 SoC the LVDS PHY must be enabled in the same register write
-that enables the LVDS output. Skip writing the LVEN bit independently
-on that platform, it will be set by the write that sets LVRES.
+When the system boots with random.trust_cpu=1 it doesn't initialize the
+per-NUMA CRNGs because it skips the rest of the CRNG startup code. This
+means that the code from 1e7f583af67b ("random: make /dev/urandom scalable
+for silly userspace programs") is not used when random.trust_cpu=1.
 
-Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
-Reviewed-by: Jacopo Mondi <jacopo+renesas@jmondi.org>
+crash> dmesg | grep random:
+[    0.000000] random: get_random_bytes called from start_kernel+0x94/0x530 with crng_init=0
+[    0.314029] random: crng done (trusting CPU's manufacturer)
+crash> print crng_node_pool
+$6 = (struct crng_state **) 0x0
+
+After adding the missing call to numa_crng_init() the per-NUMA CRNGs are
+initialized again:
+
+crash> dmesg | grep random:
+[    0.000000] random: get_random_bytes called from start_kernel+0x94/0x530 with crng_init=0
+[    0.314031] random: crng done (trusting CPU's manufacturer)
+crash> print crng_node_pool
+$1 = (struct crng_state **) 0xffff9a915f4014a0
+
+The call to invalidate_batched_entropy() was also missing. This is
+important for architectures like PPC and S390 which only have the
+arch_get_random_seed_* functions.
+
+Fixes: 39a8883a2b98 ("random: add a config option to trust the CPU's hwrng")
+Signed-off-by: Jon DeVree <nuxi@vault24.org>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/rcar-du/rcar_lvds.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/char/random.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/rcar-du/rcar_lvds.c b/drivers/gpu/drm/rcar-du/rcar_lvds.c
-index 7ef97b2a6edaa..f0314790333ba 100644
---- a/drivers/gpu/drm/rcar-du/rcar_lvds.c
-+++ b/drivers/gpu/drm/rcar-du/rcar_lvds.c
-@@ -485,9 +485,13 @@ static void rcar_lvds_enable(struct drm_bridge *bridge)
- 	}
+diff --git a/drivers/char/random.c b/drivers/char/random.c
+index c75b6cdf00533..a4515703cfcdd 100644
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -778,6 +778,7 @@ static struct crng_state **crng_node_pool __read_mostly;
+ #endif
  
- 	if (lvds->info->quirks & RCAR_LVDS_QUIRK_GEN3_LVEN) {
--		/* Turn on the LVDS PHY. */
-+		/*
-+		 * Turn on the LVDS PHY. On D3, the LVEN and LVRES bit must be
-+		 * set at the same time, so don't write the register yet.
-+		 */
- 		lvdcr0 |= LVDCR0_LVEN;
--		rcar_lvds_write(lvds, LVDCR0, lvdcr0);
-+		if (!(lvds->info->quirks & RCAR_LVDS_QUIRK_PWD))
-+			rcar_lvds_write(lvds, LVDCR0, lvdcr0);
- 	}
+ static void invalidate_batched_entropy(void);
++static void numa_crng_init(void);
  
- 	if (!(lvds->info->quirks & RCAR_LVDS_QUIRK_EXT_PLL)) {
+ static bool trust_cpu __ro_after_init = IS_ENABLED(CONFIG_RANDOM_TRUST_CPU);
+ static int __init parse_trust_cpu(char *arg)
+@@ -806,7 +807,9 @@ static void crng_initialize(struct crng_state *crng)
+ 		}
+ 		crng->state[i] ^= rv;
+ 	}
+-	if (trust_cpu && arch_init) {
++	if (trust_cpu && arch_init && crng == &primary_crng) {
++		invalidate_batched_entropy();
++		numa_crng_init();
+ 		crng_init = 2;
+ 		pr_notice("random: crng done (trusting CPU's manufacturer)\n");
+ 	}
 -- 
 2.20.1
 
