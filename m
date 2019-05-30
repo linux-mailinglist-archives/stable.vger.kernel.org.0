@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F34E2EB9D
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:14:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7FC32F007
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:01:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729918AbfE3DOg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:14:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35142 "EHLO mail.kernel.org"
+        id S1731759AbfE3D7q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:59:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729914AbfE3DOg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:14:36 -0400
+        id S1731574AbfE3DSb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:18:31 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8CD2B24502;
-        Thu, 30 May 2019 03:14:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E3BC9247D4;
+        Thu, 30 May 2019 03:18:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186075;
-        bh=uehieXudrxU2deCpWjUOTsxJYwDki7icIgGbHkm1yKo=;
+        s=default; t=1559186311;
+        bh=jg3i/Q1qNmu17a97+l+Rkl3xirT3wgwiD63RXH7z14E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bhG+WFGdLCeJ0IPPr0dOjVwfOX1pevY9KqkcKnoCAWJGQr/IjknGgvfMW+XE7jSbz
-         wuVbgaQ0BVSPLddKj2VjM1q2dN/c9Bwz24mPMhO38uS84ixBaQhbF/y8TvfvOME8Cy
-         /YCMwLikEbUAaAlPr+A/9k1Q6NrPuIhRr3OSOBCM=
+        b=ez41Vvghh8IS5HMgP3fa9eRdTgRv5C38L+JIP93dlwyWln37W1AnA9TJSn+pqg+M4
+         aUExhNDkd+Ex1gqF9KehdLlK2vaRctkMVnOIPHuLwPyj1CWlfAKAOz7dWfLHflhykJ
+         OAZ1BspzB8shLomEQXinoUOL68PSFgKs173wtT1M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Chunming Zhou <david1.zhou@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 192/346] drm/amdgpu: fix old fence check in amdgpu_fence_emit
+        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.14 011/193] kvm: svm/avic: fix off-by-one in checking host APIC ID
 Date:   Wed, 29 May 2019 20:04:25 -0700
-Message-Id: <20190530030550.803212918@linuxfoundation.org>
+Message-Id: <20190530030449.164544652@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
+References: <20190530030446.953835040@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,67 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 3d2aca8c8620346abdba96c6300d2c0b90a1d0cc ]
+From: Suthikulpanit, Suravee <Suravee.Suthikulpanit@amd.com>
 
-We don't hold a reference to the old fence, so it can go away
-any time we are waiting for it to signal.
+commit c9bcd3e3335d0a29d89fabd2c385e1b989e6f1b0 upstream.
 
-Signed-off-by: Christian König <christian.koenig@amd.com>
-Reviewed-by: Chunming Zhou <david1.zhou@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Current logic does not allow VCPU to be loaded onto CPU with
+APIC ID 255. This should be allowed since the host physical APIC ID
+field in the AVIC Physical APIC table entry is an 8-bit value,
+and APIC ID 255 is valid in system with x2APIC enabled.
+Instead, do not allow VCPU load if the host APIC ID cannot be
+represented by an 8-bit value.
+
+Also, use the more appropriate AVIC_PHYSICAL_ID_ENTRY_HOST_PHYSICAL_ID_MASK
+instead of AVIC_MAX_PHYSICAL_ID_COUNT.
+
+Signed-off-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c | 24 ++++++++++++++++-------
- 1 file changed, 17 insertions(+), 7 deletions(-)
+ arch/x86/kvm/svm.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
-index ee47c11e92ce7..4dee2326b29c3 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
-@@ -136,8 +136,9 @@ int amdgpu_fence_emit(struct amdgpu_ring *ring, struct dma_fence **f,
- {
- 	struct amdgpu_device *adev = ring->adev;
- 	struct amdgpu_fence *fence;
--	struct dma_fence *old, **ptr;
-+	struct dma_fence __rcu **ptr;
- 	uint32_t seq;
-+	int r;
+--- a/arch/x86/kvm/svm.c
++++ b/arch/x86/kvm/svm.c
+@@ -1567,7 +1567,11 @@ static void avic_vcpu_load(struct kvm_vc
+ 	if (!kvm_vcpu_apicv_active(vcpu))
+ 		return;
  
- 	fence = kmem_cache_alloc(amdgpu_fence_slab, GFP_KERNEL);
- 	if (fence == NULL)
-@@ -153,15 +154,24 @@ int amdgpu_fence_emit(struct amdgpu_ring *ring, struct dma_fence **f,
- 			       seq, flags | AMDGPU_FENCE_FLAG_INT);
+-	if (WARN_ON(h_physical_id >= AVIC_MAX_PHYSICAL_ID_COUNT))
++	/*
++	 * Since the host physical APIC id is 8 bits,
++	 * we can support host APIC ID upto 255.
++	 */
++	if (WARN_ON(h_physical_id > AVIC_PHYSICAL_ID_ENTRY_HOST_PHYSICAL_ID_MASK))
+ 		return;
  
- 	ptr = &ring->fence_drv.fences[seq & ring->fence_drv.num_fences_mask];
-+	if (unlikely(rcu_dereference_protected(*ptr, 1))) {
-+		struct dma_fence *old;
-+
-+		rcu_read_lock();
-+		old = dma_fence_get_rcu_safe(ptr);
-+		rcu_read_unlock();
-+
-+		if (old) {
-+			r = dma_fence_wait(old, false);
-+			dma_fence_put(old);
-+			if (r)
-+				return r;
-+		}
-+	}
-+
- 	/* This function can't be called concurrently anyway, otherwise
- 	 * emitting the fence would mess up the hardware ring buffer.
- 	 */
--	old = rcu_dereference_protected(*ptr, 1);
--	if (old && !dma_fence_is_signaled(old)) {
--		DRM_INFO("rcu slot is busy\n");
--		dma_fence_wait(old, false);
--	}
--
- 	rcu_assign_pointer(*ptr, dma_fence_get(&fence->base));
- 
- 	*f = &fence->base;
--- 
-2.20.1
-
+ 	entry = READ_ONCE(*(svm->avic_physical_id_cache));
 
 
