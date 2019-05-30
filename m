@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 72B5A2F6C3
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:59:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28DAB2F6C0
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:59:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727729AbfE3DJn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:09:43 -0400
+        id S1727737AbfE3DJo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:09:44 -0400
 Received: from mail.kernel.org ([198.145.29.99]:44662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727721AbfE3DJn (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727724AbfE3DJn (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 29 May 2019 23:09:43 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 908D82447A;
-        Thu, 30 May 2019 03:09:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2D7A124485;
+        Thu, 30 May 2019 03:09:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185782;
-        bh=5HFNcEidiS625lqjNdCy7zgxF5XscqP3STPmvUdBR2o=;
+        s=default; t=1559185783;
+        bh=A/qTvWQsG3Ff5F0BoRVW48/iXrDe5cHXZgzWL8eWG+o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BghmTt6JjHA1mVdalHzbGxD9GLa+1QuKPsLV9qGnIxBz1BqNQ94irMWhmfeaDKKK1
-         X1zEQx5WXmjA9+LFSpVgZmeCLYrKhYouoJQM+rScFP9aeC5ZosN4QK1CUC8fCzdONQ
-         TI7AIz5RBKVK1wFWHim+nwld3RFqptBIn5XCps2g=
+        b=Se+li6CLtBf/Xj/RinfP6ii6EZ7gh1zmXivDlK0GGOpEWYippR1IcIoOgYil8WS8A
+         2E7xBmlNQq8dJSZJSuCP5Gw8QJRY+sNTIqQrKUNpUnqRG6qOwZFVlb0u6/BCchwo8Q
+         onHFNd3wymcuVvu9z8gtMA8tS9GX6DCDL8zU4CCk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,10 +30,10 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Peter Zijlstra <peterz@infradead.org>,
         Andrea Parri <andrea.parri@amarulasolutions.com>,
         Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
-        linux-block@vger.kernel.org
-Subject: [PATCH 5.1 006/405] bio: fix improper use of smp_mb__before_atomic()
-Date:   Wed, 29 May 2019 20:00:04 -0700
-Message-Id: <20190530030540.693129039@linuxfoundation.org>
+        Omar Sandoval <osandov@fb.com>, linux-block@vger.kernel.org
+Subject: [PATCH 5.1 007/405] sbitmap: fix improper use of smp_mb__before_atomic()
+Date:   Wed, 29 May 2019 20:00:05 -0700
+Message-Id: <20190530030540.754728543@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
 References: <20190530030540.291644921@linuxfoundation.org>
@@ -48,20 +48,21 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Andrea Parri <andrea.parri@amarulasolutions.com>
 
-commit f381c6a4bd0ae0fde2d6340f1b9bb0f58d915de6 upstream.
+commit a0934fd2b1208458e55fc4b48f55889809fce666 upstream.
 
 This barrier only applies to the read-modify-write operations; in
 particular, it does not apply to the atomic_set() primitive.
 
 Replace the barrier with an smp_mb().
 
-Fixes: dac56212e8127 ("bio: skip atomic inc/dec of ->bi_cnt for most use cases")
+Fixes: 6c0ca7ae292ad ("sbitmap: fix wakeup hang after sbq resize")
 Cc: stable@vger.kernel.org
 Reported-by: "Paul E. McKenney" <paulmck@linux.ibm.com>
 Reported-by: Peter Zijlstra <peterz@infradead.org>
 Signed-off-by: Andrea Parri <andrea.parri@amarulasolutions.com>
 Reviewed-by: Ming Lei <ming.lei@redhat.com>
 Cc: Jens Axboe <axboe@kernel.dk>
+Cc: Omar Sandoval <osandov@fb.com>
 Cc: Ming Lei <ming.lei@redhat.com>
 Cc: linux-block@vger.kernel.org
 Cc: "Paul E. McKenney" <paulmck@linux.ibm.com>
@@ -70,19 +71,19 @@ Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/bio.h |    2 +-
+ lib/sbitmap.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/linux/bio.h
-+++ b/include/linux/bio.h
-@@ -224,7 +224,7 @@ static inline void bio_cnt_set(struct bi
- {
- 	if (count != 1) {
- 		bio->bi_flags |= (1 << BIO_REFFED);
+--- a/lib/sbitmap.c
++++ b/lib/sbitmap.c
+@@ -435,7 +435,7 @@ static void sbitmap_queue_update_wake_ba
+ 		 * to ensure that the batch size is updated before the wait
+ 		 * counts.
+ 		 */
 -		smp_mb__before_atomic();
 +		smp_mb();
+ 		for (i = 0; i < SBQ_WAIT_QUEUES; i++)
+ 			atomic_set(&sbq->ws[i].wait_cnt, 1);
  	}
- 	atomic_set(&bio->__bi_cnt, count);
- }
 
 
