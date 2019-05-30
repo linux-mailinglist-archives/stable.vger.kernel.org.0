@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FCEA2EB48
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:11:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9240A2F320
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:27:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728517AbfE3DLX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:11:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50814 "EHLO mail.kernel.org"
+        id S1729847AbfE3E0Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:26:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728509AbfE3DLX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:11:23 -0400
+        id S1729895AbfE3DOd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:14:33 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DB1A224476;
-        Thu, 30 May 2019 03:11:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E714F24587;
+        Thu, 30 May 2019 03:14:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185883;
-        bh=vACxFoaRYP5jpW6GY39AcU0tnRCiSOhoxjkhWlv5gfI=;
+        s=default; t=1559186072;
+        bh=Vci/umP4zohYkjZhyJfArTfVZjExS2r+W/HB3xw/kH0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UcaJoFfRNrjLPXjhN3/v3zC4T5H3i9JilGNrdDydF4+QnyIDDx0Ddp2ir0lPVQ27A
-         7EvPd7zDaUqQzA4oDl6XpdZIyx9H0c+jbPmUDOZixBttLIXezNZCodhfT5Xm8aTmmb
-         cFAt1I/KppdxvP6dBEu9oHv9iGGn2lCPECXCZtOo=
+        b=Ne4JUZDG7d7wdiryYTYHl0fBbbPMg00MlQktVme/lZY7MVUJGq/pdVD8368vsSPOU
+         hVlHqRzDt7nODrqaL051klS+MyN3qwPlWte/y2qQvmBX2Z2oSPq6UZLetqHflFKdsp
+         sKlcKYTNP+LiDmSEdxfJXEJxmGcxxFwZZfT8eXMw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org, Luca Weiss <luca@z3ntu.xyz>,
+        Rob Clark <robdclark@gmail.com>,
+        Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 234/405] samples/bpf: fix build with new clang
-Date:   Wed, 29 May 2019 20:03:52 -0700
-Message-Id: <20190530030552.857506831@linuxfoundation.org>
+Subject: [PATCH 5.0 160/346] drm/msm: Fix NULL pointer dereference
+Date:   Wed, 29 May 2019 20:03:53 -0700
+Message-Id: <20190530030549.275911820@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +45,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 636e78b1cdb40b77a79b143dbd9d94847b360efa ]
+[ Upstream commit 7603df38cc8c1e5d540b18ec9eb9d62d823197d0 ]
 
-clang started to error on invalid asm clobber usage in x86 headers
-and many bpf program samples failed to build with the message:
+[    3.707412] Unable to handle kernel NULL pointer dereference at virtual address 0000009c
+[    3.714511] pgd = (ptrval)
+[    3.722742] [0000009c] *pgd=00000000
+[    3.725238] Internal error: Oops: 5 [#1] PREEMPT SMP ARM
+[    3.728968] Modules linked in:
+[    3.734265] CPU: 3 PID: 112 Comm: kworker/3:2 Tainted: G        W         5.0.0-rc7-00183-g06a1c31df9eb #4
+[    3.737142] Hardware name: Generic DT based system
+[    3.746778] Workqueue: events deferred_probe_work_func
+[    3.751542] PC is at msm_gem_map_vma+0x3c/0xac
+[    3.756669] LR is at msm_gem_get_and_pin_iova+0xd8/0x134
+[    3.761086] pc : [<c07d3b7c>]    lr : [<c07d14f8>]    psr: 60000013
+[    3.766560] sp : ee297be8  ip : ed9ab1c0  fp : ed93b800
+[    3.772546] r10: ee35e180  r9 : 00000000  r8 : ee297c80
+[    3.777752] r7 : 00000000  r6 : 7c100000  r5 : 00000000  r4 : ee35e180
+[    3.782968] r3 : 00000001  r2 : 00000003  r1 : ee35e180  r0 : 00000000
+[    3.789562] Flags: nZCv  IRQs on  FIQs on  Mode SVC_32  ISA ARM  Segment none
+[    3.796079] Control: 10c5787d  Table: 2e3a806a  DAC: 00000051
+[    3.803282] Process kworker/3:2 (pid: 112, stack limit = 0x(ptrval))
+[    3.809006] Stack: (0xee297be8 to 0xee298000)
+[    3.815445] 7be0:                   00000000 c1108c48 eda8c000 00000003 eda8c0fc c1108c48
+[    3.819715] 7c00: eda8c000 00000003 eda8c0fc c07d14f8 00000001 c07d1100 7c100000 00000000
+[    3.827873] 7c20: eda8c000 bb7ffb78 00000000 eda8c000 00000000 00000000 c0c8b1d4 ee3bfa00
+[    3.836037] 7c40: ee3b9800 c07d1684 00000000 c1108c48 ee0d7810 ee3b9800 c0c8b1d4 c07d222c
+[    3.844193] 7c60: ee3bfd84 ee297c80 00000000 c0b1d5b0 ee3bfc40 c07dcfd8 ee3bfd84 ee297c80
+[    3.852357] 7c80: 0000006d ee3bfc40 ee0d7810 bb7ffb78 c0c8b1d4 00000000 ee3bfc40 c07ddb48
+[    3.860516] 7ca0: 00002004 c0eba384 ee3bfc40 c079eba0 ee3bd040 ee3b9800 00000001 ed93b800
+[    3.868673] 7cc0: ed9aa100 c07db7e8 ee3bf240 ed9a6500 00000001 ee3b9800 ee3bf2d4 c07a0a30
+[    3.876834] 7ce0: ed93b800 7d100000 c1108c48 ee0d7610 ee3b9800 ed93b800 c1108c48 00000000
+[    3.884991] 7d00: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+[    3.893151] 7d20: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 bb7ffb78
+[    3.901310] 7d40: c12113c4 ed93b800 ee3b9800 c1108c48 ee9eec10 00000000 ed93b800 7d100000
+[    3.909472] 7d60: eff7b000 c07cf748 7d100000 00000000 c0e9a350 c0b1d5b0 c12113c4 c0961e40
+[    3.917633] 7d80: c12113c4 40000113 eeff4bec c0ebe004 00000019 c0b1d230 ee9eeda8 60000113
+[    3.925791] 7da0: ee35d300 ee9eeda8 c07ce260 bb7ffb78 c07ce260 ee35d2c0 00000028 00000002
+[    3.933950] 7dc0: eeb76280 c118f884 ee0be640 c11c6128 c07ce260 c07ea4ac 00000000 c0962b48
+[    3.942108] 7de0: c118f868 00000001 c0ebbc98 ee35d2c0 00000000 eeb76280 00000000 c118f87c
+[    3.950270] 7e00: ee35d2c0 00000000 c11c63e0 c118f694 00000019 c07ea5d0 ee0d7810 00000000
+[    3.958430] 7e20: c118f694 00000000 00000000 c07f2b0c c120f55c ee0d7810 c120f560 00000000
+[    3.966590] 7e40: 00000000 c07f08c4 c07f0e8c ee0d7810 c11ba3d0 ee0d7810 c118f694 c07f0e8c
+[    3.974748] 7e60: c1108c48 00000001 c0ebc3cc c11c63f8 c11ba3d0 c07f0c08 00000001 c07f2f8c
+[    3.982908] 7e80: c118f694 00000000 ee297ed4 c07f0e8c c1108c48 00000001 c0ebc3cc c11c63f8
+[    3.991068] 7ea0: c11ba3d0 c07ee8a0 c11ba3d0 ee82686c ee0baf38 bb7ffb78 ee0d7810 ee0d7810
+[    3.999227] 7ec0: c1108c48 ee0d7844 c118faac c07f05b0 ee0d7810 ee0d7810 00000001 bb7ffb78
+[    4.007389] 7ee0: ee0d7810 ee0d7810 c118fd18 c118faac c11c63e0 c07ef7d0 ee0d7810 c118fa90
+[    4.015548] 7f00: c118fa90 c07efd68 c118fac8 ee27fe00 eefd9c80 eefdcd00 00000000 c118facc
+[    4.023708] 7f20: 00000000 c033c038 eefd9c80 eefd9c80 00000008 ee27fe00 ee27fe14 eefd9c80
+[    4.031866] 7f40: 00000008 c1103d00 eefd9c98 ee296000 eefd9c80 c033ce54 ee907eac c0b1d230
+[    4.040026] 7f60: ee907eac eea24440 ee285000 00000000 ee296000 ee27fe00 c033ce24 eea2445c
+[    4.048188] 7f80: ee907eac c0341db0 00000000 ee285000 c0341c8c 00000000 00000000 00000000
+[    4.056346] 7fa0: 00000000 00000000 00000000 c03010e8 00000000 00000000 00000000 00000000
+[    4.064505] 7fc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+[    4.072665] 7fe0: 00000000 00000000 00000000 00000000 00000013 00000000 00000000 00000000
+[    4.080828] [<c07d3b7c>] (msm_gem_map_vma) from [<c07d14f8>] (msm_gem_get_and_pin_iova+0xd8/0x134)
+[    4.088983] [<c07d14f8>] (msm_gem_get_and_pin_iova) from [<c07d1684>] (_msm_gem_kernel_new+0x38/0xac)
+[    4.097839] [<c07d1684>] (_msm_gem_kernel_new) from [<c07d222c>] (msm_gem_kernel_new+0x24/0x2c)
+[    4.107130] [<c07d222c>] (msm_gem_kernel_new) from [<c07dcfd8>] (dsi_tx_buf_alloc_6g+0x44/0x90)
+[    4.115631] [<c07dcfd8>] (dsi_tx_buf_alloc_6g) from [<c07ddb48>] (msm_dsi_host_modeset_init+0x80/0x104)
+[    4.124313] [<c07ddb48>] (msm_dsi_host_modeset_init) from [<c07db7e8>] (msm_dsi_modeset_init+0x34/0x1c0)
+[    4.133691] [<c07db7e8>] (msm_dsi_modeset_init) from [<c07a0a30>] (mdp5_kms_init+0x764/0x7e0)
+[    4.143409] [<c07a0a30>] (mdp5_kms_init) from [<c07cf748>] (msm_drm_bind+0x56c/0x740)
+[    4.151824] [<c07cf748>] (msm_drm_bind) from [<c07ea4ac>] (try_to_bring_up_master+0x238/0x2b4)
+[    4.159636] [<c07ea4ac>] (try_to_bring_up_master) from [<c07ea5d0>] (component_add+0xa8/0x170)
+[    4.168146] [<c07ea5d0>] (component_add) from [<c07f2b0c>] (platform_drv_probe+0x48/0x9c)
+[    4.176737] [<c07f2b0c>] (platform_drv_probe) from [<c07f08c4>] (really_probe+0x278/0x404)
+[    4.184981] [<c07f08c4>] (really_probe) from [<c07f0c08>] (driver_probe_device+0x78/0x1c0)
+[    4.193147] [<c07f0c08>] (driver_probe_device) from [<c07ee8a0>] (bus_for_each_drv+0x74/0xb8)
+[    4.201389] [<c07ee8a0>] (bus_for_each_drv) from [<c07f05b0>] (__device_attach+0xd0/0x164)
+[    4.209984] [<c07f05b0>] (__device_attach) from [<c07ef7d0>] (bus_probe_device+0x84/0x8c)
+[    4.218143] [<c07ef7d0>] (bus_probe_device) from [<c07efd68>] (deferred_probe_work_func+0x48/0xc4)
+[    4.226398] [<c07efd68>] (deferred_probe_work_func) from [<c033c038>] (process_one_work+0x204/0x574)
+[    4.235254] [<c033c038>] (process_one_work) from [<c033ce54>] (worker_thread+0x30/0x560)
+[    4.244534] [<c033ce54>] (worker_thread) from [<c0341db0>] (kthread+0x124/0x154)
+[    4.252606] [<c0341db0>] (kthread) from [<c03010e8>] (ret_from_fork+0x14/0x2c)
+[    4.259966] Exception stack(0xee297fb0 to 0xee297ff8)
+[    4.266998] 7fa0:                                     00000000 00000000 00000000 00000000
+[    4.272143] 7fc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+[    4.280297] 7fe0: 00000000 00000000 00000000 00000000 00000013 00000000
+[    4.288451] Code: e5813080 1a000013 e3a03001 e5c4307c (e590009c)
+[    4.294933] ---[ end trace 18729cc2bca2b4b3 ]---
 
-  CLANG-bpf  /data/users/ast/bpf-next/samples/bpf/xdp_redirect_kern.o
-In file included from /data/users/ast/bpf-next/samples/bpf/xdp_redirect_kern.c:14:
-In file included from ../include/linux/in.h:23:
-In file included from ../include/uapi/linux/in.h:24:
-In file included from ../include/linux/socket.h:8:
-In file included from ../include/linux/uio.h:14:
-In file included from ../include/crypto/hash.h:16:
-In file included from ../include/linux/crypto.h:26:
-In file included from ../include/linux/uaccess.h:5:
-In file included from ../include/linux/sched.h:15:
-In file included from ../include/linux/sem.h:5:
-In file included from ../include/uapi/linux/sem.h:5:
-In file included from ../include/linux/ipc.h:9:
-In file included from ../include/linux/refcount.h:72:
-../arch/x86/include/asm/refcount.h:72:36: error: asm-specifier for input or output variable conflicts with asm clobber list
-                                         r->refs.counter, e, "er", i, "cx");
-                                                                      ^
-../arch/x86/include/asm/refcount.h:86:27: error: asm-specifier for input or output variable conflicts with asm clobber list
-                                         r->refs.counter, e, "cx");
-                                                             ^
-2 errors generated.
-
-Override volatile() to workaround the problem.
-
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Luca Weiss <luca@z3ntu.xyz>
+Signed-off-by: Rob Clark <robdclark@gmail.com>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- samples/bpf/asm_goto_workaround.h | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/msm/msm_gem_vma.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/samples/bpf/asm_goto_workaround.h b/samples/bpf/asm_goto_workaround.h
-index 5cd7c1d1a5d56..7409722727ca1 100644
---- a/samples/bpf/asm_goto_workaround.h
-+++ b/samples/bpf/asm_goto_workaround.h
-@@ -13,4 +13,5 @@
- #define asm_volatile_goto(x...) asm volatile("invalid use of asm_volatile_goto")
- #endif
+diff --git a/drivers/gpu/drm/msm/msm_gem_vma.c b/drivers/gpu/drm/msm/msm_gem_vma.c
+index 49c04829cf344..fcf7a83f0e6fe 100644
+--- a/drivers/gpu/drm/msm/msm_gem_vma.c
++++ b/drivers/gpu/drm/msm/msm_gem_vma.c
+@@ -85,7 +85,7 @@ msm_gem_map_vma(struct msm_gem_address_space *aspace,
  
-+#define volatile(x...) volatile("")
- #endif
+ 	vma->mapped = true;
+ 
+-	if (aspace->mmu)
++	if (aspace && aspace->mmu)
+ 		ret = aspace->mmu->funcs->map(aspace->mmu, vma->iova, sgt,
+ 				size, prot);
+ 
 -- 
 2.20.1
 
