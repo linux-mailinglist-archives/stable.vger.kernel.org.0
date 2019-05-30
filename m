@@ -2,163 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 297AD30029
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 18:27:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41BE83007F
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 18:59:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726359AbfE3Q1Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 12:27:16 -0400
-Received: from mail-lf1-f68.google.com ([209.85.167.68]:35049 "EHLO
-        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726355AbfE3Q1Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 30 May 2019 12:27:16 -0400
-Received: by mail-lf1-f68.google.com with SMTP id a25so5535005lfg.2
-        for <stable@vger.kernel.org>; Thu, 30 May 2019 09:27:15 -0700 (PDT)
+        id S1727790AbfE3Q7U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 12:59:20 -0400
+Received: from mail-it1-f195.google.com ([209.85.166.195]:51836 "EHLO
+        mail-it1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725961AbfE3Q7T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 30 May 2019 12:59:19 -0400
+Received: by mail-it1-f195.google.com with SMTP id m3so11099500itl.1;
+        Thu, 30 May 2019 09:59:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
+        d=gmail.com; s=20161025;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=bcgcWgAyzI4wAMncBYoxjWmRoluq1i/e3trlgUy2IJ8=;
-        b=RNktRFBlwcjGyYnbw3SlhETA+ckBoUlLX1aqAYKYzFAqR/LmYJVdb6zbRDztX4bVZR
-         xMxFtfUJ958V/utMqciXOq/0nkU3VIRxmKanWKEeCYWO3TBn3TdwKy8x0BY3o/hPboZg
-         Qaqc5tlvq0T0U2TU11Fdw+cKF6vucPHiZh0m9ESWfqrWc8ZV4pE4rIMo5yW/6ea96oHv
-         ePSImUavQYJWKu9aib7UKT8uwW3xa4m2TKNbvcFsW/1I3CNkX2sF8LUUjGjkZP5qcsf+
-         W5slPKsIzo+FHfwiSVn29OaLyqdUghysHthp0PK0y26OiUB+dcqKK1hKbp+72xa9GHAF
-         kkwg==
+         :cc;
+        bh=Pnobng2gi3rGJg7lXjPJmItCYfW7DKyQeE9acJ+cdtU=;
+        b=stBVtq2ifj+amgGeFGtMkDBmRyAt4VYbME5ABSMYsmEEUGPwQRZUs0Lq02rdfc/ARr
+         QlJ//UHU2yERD9GqwdwV4Kg0Ehts8XeFoXusWp9nPNVWp6e0k+556ZqRhdOWQtkiN6gS
+         v+SZpdzk14Ja+j4/fPjIzuQ3MeC8BqH6k2+0WRltWQ7CodeiTuPIvMQsOBf4Ee6806K/
+         b10b+vo1cuk93M3HBsiVxsOBvIg1zOUX6Q08aSsJq3hHD7YZUtZYyu8bQ6Rcdst2Mkjp
+         zjUADoH/veZOtEg7UqvSxSpjPOqEeKi/AlfJZZrY9/o3hUJejeI6hIU8gMQNsunvxbwo
+         JNTQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=bcgcWgAyzI4wAMncBYoxjWmRoluq1i/e3trlgUy2IJ8=;
-        b=YTkpv9dih962okXEbQT3rT+smTjQXO6/rEuTkcgdx2/eSyoWZczSO0UPtv1cV4LfYg
-         6gdz8cJsCbJAQjhpMQD9DlhbdoQfKJKMSI5JW+0qBqLK9OhGAe8dNYlU6svSeEU4lUyw
-         6aRIUhToF+BLgFRLI2lsS3u1FKIjicjlB78lXXyEygzCxHLcl22XpDRxhwqsYkDQVd13
-         nk70SIblrz8MGk4/vBURM3IFT42xvUlX5/LiAmsBPIB8POkeQJ64MsiJOzIuK9PuZym3
-         L2ZZ4ao9wGKtmRaluSrao+eXOhvPbAWJReNyOp4y5ESBBsgaYpMUuZ+Fhp9dq2GWsFaL
-         0x+A==
-X-Gm-Message-State: APjAAAX4SXiPv13rjSfxvDPP6gs/UUkYZ64JJLi0iCEzqmrHyv0oNV8Y
-        n/g64tLg+h+KYBUtCRpuHfFim40pBmKvWPBTLecaug==
-X-Google-Smtp-Source: APXvYqydY4ZuyQWHYbcBdwdAWkev+5Azw5+28aPegnVHkirUji7qVs1ZDH5C7jRMtA00wwMOi6t+7VP3lC8jhpm6vI0=
-X-Received: by 2002:a19:488e:: with SMTP id v136mr2524437lfa.192.1559233634141;
- Thu, 30 May 2019 09:27:14 -0700 (PDT)
+         :message-id:subject:to:cc;
+        bh=Pnobng2gi3rGJg7lXjPJmItCYfW7DKyQeE9acJ+cdtU=;
+        b=rEF6ReIBI32UR/Opqs7YjXjuBexsgw8HysCIo1z2PmOFtiLeTyWnpYhLA3H6f9g4+X
+         LbrFGZAZvlQVLs3hLq6VDwxpz6FTpoZmHeTgUeXuus8RXvkeCDl/GoPkuaQ+aw0g78Ff
+         whKmpsT+HRWpwPCxYE8+1zsiTOZWWVzEH8NWoFbOrUzjX2a0OHPkZ25YPo7mEiM/dl+9
+         xzd0DJEvZ3U/RnK4AXU4A5d2TzYJCqSLAinbM5lEOFa5WJ6tx2YrL3g70p/zffoXeYH2
+         0mJ80ZA0ojKUOrj069zgrKSl+esizGgau5137+leqX3S9Cl5i2R7D6tdVnCltdPjvL/A
+         Ax6A==
+X-Gm-Message-State: APjAAAUEbPvhl0hpSh5+1y+4zyuOSklBR6Y76eYZ6EmsMNGZ4tR7nRVJ
+        BC6qVbhITaTF+mC1SkrMxJppoVE2ayuBzR0/WV8=
+X-Google-Smtp-Source: APXvYqxjoDHIfEGfCFMFLMpPgv+YNiv3xf18azNUb7eYdVVXA2udc6ppfyaqiDURJX8QX96FxMl5W2yWNB0YB1Bee2Y=
+X-Received: by 2002:a02:bb83:: with SMTP id g3mr3158555jan.139.1559235558647;
+ Thu, 30 May 2019 09:59:18 -0700 (PDT)
 MIME-Version: 1.0
-References: <20190530030432.977908967@linuxfoundation.org>
-In-Reply-To: <20190530030432.977908967@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Thu, 30 May 2019 21:57:02 +0530
-Message-ID: <CA+G9fYuZo54ui8A_Zy=N3kL5gyFbF9KwO2EYF417xU8FQwWb3Q@mail.gmail.com>
-Subject: Re: [PATCH 4.9 000/128] 4.9.180-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
+References: <20190522032144.10995-1-deepa.kernel@gmail.com>
+ <20190529161157.GA27659@redhat.com> <87woi8rt96.fsf@xmission.com>
+ <871s0grlzo.fsf@xmission.com> <CABeXuvoRmWXVk3KTKO3MLoLxxw7TU2G1YQVOe_ATAqBkjcROsA@mail.gmail.com>
+In-Reply-To: <CABeXuvoRmWXVk3KTKO3MLoLxxw7TU2G1YQVOe_ATAqBkjcROsA@mail.gmail.com>
+From:   Deepa Dinamani <deepa.kernel@gmail.com>
+Date:   Thu, 30 May 2019 09:59:08 -0700
+Message-ID: <CABeXuvq12z3PFYpNXjNPSCp7pYmoT90pC0BdugPiw-0k22J4NQ@mail.gmail.com>
+Subject: Re: pselect/etc semantics
+To:     "Eric W. Biederman" <ebiederm@xmission.com>
+Cc:     Oleg Nesterov <oleg@redhat.com>, Al Viro <viro@zeniv.linux.org.uk>,
         Linus Torvalds <torvalds@linux-foundation.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
+        Arnd Bergmann <arnd@arndb.de>, dbueso@suse.de, axboe@kernel.dk,
+        Davidlohr Bueso <dave@stgolabs.net>, Eric Wong <e@80x24.org>,
+        Jason Baron <jbaron@akamai.com>,
+        Linux FS-devel Mailing List <linux-fsdevel@vger.kernel.org>,
+        linux-aio <linux-aio@kvack.org>,
+        Omar Kilani <omar.kilani@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 30 May 2019 at 08:59, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
+On Thu, May 30, 2019 at 8:48 AM Deepa Dinamani <deepa.kernel@gmail.com> wrote:
 >
-> This is the start of the stable review cycle for the 4.9.180 release.
-> There are 128 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+> > On May 30, 2019, at 8:38 AM, Eric W. Biederman <ebiederm@xmission.com> wrote:
+> >
+> > ebiederm@xmission.com (Eric W. Biederman) writes:
+> >
+> >> Which means I believe we have a semantically valid change in behavior
+> >> that is causing a regression.
+> >
+> > I haven't made a survey of all of the functions yet but
+> > fucntions return -ENORESTARTNOHAND will never return -EINTR and are
+> > immune from this problem.
+> >
+> > AKA pselect is fine.  While epoll_pwait can be affected.
 >
-> Responses should be made by Sat 01 Jun 2019 03:02:06 AM UTC.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.9.180-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.9.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+> This was my understanding as well.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+I think I was misremembered here. I had noted this before:
+https://lore.kernel.org/linux-fsdevel/CABeXuvq7gCV2qPOo+Q8jvNyRaTvhkRLRbnL_oJ-AuK7Sp=P3QQ@mail.gmail.com/
 
-Summary
-------------------------------------------------------------------------
+"sys_io_pgetevents() does not seem to have this problem as we are still
+checking signal_pending() here.
+sys_pselect6() seems to have a similar problem. The changes to
+sys_pselect6() also impact sys_select() as the changes are in the
+common code path."
 
-kernel: 4.9.180-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-4.9.y
-git commit: 545b59ea794cfbac3646ccfab4a34c9f7753621e
-git describe: v4.9.179-129-g545b59ea794c
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-4.9-oe/bui=
-ld/v4.9.179-129-g545b59ea794c
+This was the code replaced for io_pgetevents by 854a6ed56839a40f6b is as below.
+No matter what events completed, there was signal_pending() check
+after the return from do_io_getevents().
 
-No regressions (compared to build v4.9.179)
+--- a/fs/aio.c
++++ b/fs/aio.c
+@@ -2110,18 +2110,9 @@ SYSCALL_DEFINE6(io_pgetevents,
+                return ret;
 
-No fixes (compared to build v4.9.179)
+        ret = do_io_getevents(ctx_id, min_nr, nr, events, timeout ? &ts : NULL);
+-       if (signal_pending(current)) {
+-               if (ksig.sigmask) {
+-                       current->saved_sigmask = sigsaved;
+-                       set_restore_sigmask();
+-               }
+-
+-               if (!ret)
+-                       ret = -ERESTARTNOHAND;
+-       } else {
+-               if (ksig.sigmask)
+-                       sigprocmask(SIG_SETMASK, &sigsaved, NULL);
+-       }
++       restore_user_sigmask(ksig.sigmask, &sigsaved);
++       if (signal_pending(current) && !ret)
++               ret = -ERESTARTNOHAND;
 
-Ran 18444 total tests in the following environments and test suites.
+Can I ask a simple question for my understanding?
 
-Environments
---------------
-- dragonboard-410c - arm64
-- hi6220-hikey - arm64
-- i386
-- juno-r2 - arm64
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15 - arm
-- x86_64
+man page for epoll_pwait says
 
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* libhugetlbfs
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-timers-tests
-* perf
-* spectre-meltdown-checker-test
-* v4l2-compliance
-* ltp-open-posix-tests
-* network-basic-tests
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-none
-* kvm-unit-tests
-* prep-tmp-disk
+EINTR
+The call was interrupted by a signal handler before either any of the
+requested events occurred or the timeout expired; see signal(7).
 
---=20
-Linaro LKFT
-https://lkft.linaro.org
+But it is not clear to me if we can figure out(without race) the
+chronological order if one of the requested events are completed or a
+signal came first.
+Is this a correct exectation?
+
+Also like pointed out above, this behavior is not consistent for all
+such syscalls(io_pgetevents). Was this also by design?
+
+-Deepa
