@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 056F12F562
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:47:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87B532F2F8
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:25:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728640AbfE3Eqw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:46:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51622 "EHLO mail.kernel.org"
+        id S1730182AbfE3EZY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:25:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728631AbfE3DLi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:11:38 -0400
+        id S1729961AbfE3DOo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:14:44 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7C677244A6;
-        Thu, 30 May 2019 03:11:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E739C24559;
+        Thu, 30 May 2019 03:14:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185898;
-        bh=pegDi5gcAt2itKaulnEPA9b3IfsIsZpoclWPbRF2Cks=;
+        s=default; t=1559186084;
+        bh=l2lCQC88FteZ3o8hc2q7Gubze7R3bePhk1MTicc8pgw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n+gN0+l2O0ea1JByB/dtzjCTkVksnZyrQcSQGiB4/jk+2lQEqAL9PgqhvG+D8XuDE
-         skO6EIwvdcZ9GhTuvZ1A5fqYqhaZxUqTBiYUbR39rWOF8LE8QzFqprUVa4STND9/HR
-         AFpoTLbb/PLLgwU/mE1UIWVE1iflJBUlTVlBtxfM=
+        b=K0ukpS703s0GPapWMDpGuEZ8y2KeAjxrGJib44Wm9sKVu7xWtNk5WocCtLP4Mz6pt
+         47Mz4bIGpJFwzHPqpEGP2Srb517Pu8HLMXWBvAzij4CK9eKeCLTgV82aCpTw6xEiKq
+         KRCHQ5MJyq2x6Ke/olXZRt0JmAQK4hMMtxm0PBlE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 238/405] ASoC: core: remove link components before cleaning up card resources
+Subject: [PATCH 5.0 163/346] s390/qeth: handle error from qeth_update_from_chp_desc()
 Date:   Wed, 29 May 2019 20:03:56 -0700
-Message-Id: <20190530030553.048558415@linuxfoundation.org>
+Message-Id: <20190530030549.429751456@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,62 +44,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f96fb7d198ca624fe33c4145a004eb5a3d0eddec ]
+[ Upstream commit a4cdc9baee0740748f16e50cd70c2607510df492 ]
 
-When the card is registered by the machine driver,
-dai link components are probed after the snd_card is
-created. This is done in snd_soc_bind_card() which calls
-snd_soc_instantiate_card() to first create the snd_card
-and then probes the link components by calling
-soc_probe_link_components(). The snd_card is used by the
-component driver to add the kcontrols associated
-with dapm widgets to the card.
+Subsequent code relies on the values that qeth_update_from_chp_desc()
+reads from the CHP descriptor. Rather than dealing with weird errors
+later on, just handle it properly here.
 
-When the machine driver is unregistered, the snd_card
-is freed when the card resources are cleaned up.
-But the snd_card needs to be valid while unloading the
-topology dapm widgets in order to remove the kcontrols
-from the card.
-
-Since, unloading topology is done when the component
-driver is removed, the link components should be removed
-in snd_soc_unbind_card(). This will ensure that the kcontrols
-are removed before the card resources are cleaned up and
-the snd_card itself is freed.
-
-Signed-off-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/soc-core.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/s390/net/qeth_core_main.c | 14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
-diff --git a/sound/soc/soc-core.c b/sound/soc/soc-core.c
-index 46e3ab0fced47..fe99b02bbf171 100644
---- a/sound/soc/soc-core.c
-+++ b/sound/soc/soc-core.c
-@@ -2828,10 +2828,21 @@ EXPORT_SYMBOL_GPL(snd_soc_register_card);
+diff --git a/drivers/s390/net/qeth_core_main.c b/drivers/s390/net/qeth_core_main.c
+index 89f912213e626..8786805b9d1c6 100644
+--- a/drivers/s390/net/qeth_core_main.c
++++ b/drivers/s390/net/qeth_core_main.c
+@@ -1325,7 +1325,7 @@ static void qeth_set_multiple_write_queues(struct qeth_card *card)
+ 	card->qdio.no_out_queues = 4;
+ }
  
- static void snd_soc_unbind_card(struct snd_soc_card *card, bool unregister)
+-static void qeth_update_from_chp_desc(struct qeth_card *card)
++static int qeth_update_from_chp_desc(struct qeth_card *card)
  {
-+	struct snd_soc_pcm_runtime *rtd;
-+	int order;
-+
- 	if (card->instantiated) {
- 		card->instantiated = false;
- 		snd_soc_dapm_shutdown(card);
- 		snd_soc_flush_all_delayed_work(card);
-+
-+		/* remove all components used by DAI links on this card */
-+		for_each_comp_order(order) {
-+			for_each_card_rtds(card, rtd) {
-+				soc_remove_link_components(card, rtd, order);
-+			}
-+		}
-+
- 		soc_cleanup_card_resources(card);
- 		if (!unregister)
- 			list_add(&card->list, &unbind_card_list);
+ 	struct ccw_device *ccwdev;
+ 	struct channel_path_desc_fmt0 *chp_dsc;
+@@ -1335,7 +1335,7 @@ static void qeth_update_from_chp_desc(struct qeth_card *card)
+ 	ccwdev = card->data.ccwdev;
+ 	chp_dsc = ccw_device_get_chp_desc(ccwdev, 0);
+ 	if (!chp_dsc)
+-		goto out;
++		return -ENOMEM;
+ 
+ 	card->info.func_level = 0x4100 + chp_dsc->desc;
+ 	if (card->info.type == QETH_CARD_TYPE_IQD)
+@@ -1350,6 +1350,7 @@ static void qeth_update_from_chp_desc(struct qeth_card *card)
+ 	kfree(chp_dsc);
+ 	QETH_DBF_TEXT_(SETUP, 2, "nr:%x", card->qdio.no_out_queues);
+ 	QETH_DBF_TEXT_(SETUP, 2, "lvl:%02x", card->info.func_level);
++	return 0;
+ }
+ 
+ static void qeth_init_qdio_info(struct qeth_card *card)
+@@ -5086,7 +5087,9 @@ int qeth_core_hardsetup_card(struct qeth_card *card, bool *carrier_ok)
+ 
+ 	QETH_DBF_TEXT(SETUP, 2, "hrdsetup");
+ 	atomic_set(&card->force_alloc_skb, 0);
+-	qeth_update_from_chp_desc(card);
++	rc = qeth_update_from_chp_desc(card);
++	if (rc)
++		return rc;
+ retry:
+ 	if (retries < 3)
+ 		QETH_DBF_MESSAGE(2, "Retrying to do IDX activates on device %x.\n",
+@@ -5755,7 +5758,9 @@ static int qeth_core_probe_device(struct ccwgroup_device *gdev)
+ 	}
+ 
+ 	qeth_setup_card(card);
+-	qeth_update_from_chp_desc(card);
++	rc = qeth_update_from_chp_desc(card);
++	if (rc)
++		goto err_chp_desc;
+ 
+ 	card->dev = qeth_alloc_netdev(card);
+ 	if (!card->dev) {
+@@ -5790,6 +5795,7 @@ static int qeth_core_probe_device(struct ccwgroup_device *gdev)
+ 	qeth_core_free_discipline(card);
+ err_load:
+ 	free_netdev(card->dev);
++err_chp_desc:
+ err_card:
+ 	qeth_core_free_card(card);
+ err_dev:
 -- 
 2.20.1
 
