@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A7FCC2F152
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:12:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC0902F330
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:27:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726819AbfE3EL7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:11:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43788 "EHLO mail.kernel.org"
+        id S1729091AbfE3E1C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:27:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730787AbfE3DQo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:16:44 -0400
+        id S1729854AbfE3DOZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:14:25 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6F62C245AB;
-        Thu, 30 May 2019 03:16:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DB5AE2455A;
+        Thu, 30 May 2019 03:14:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186204;
-        bh=Q7httw4GMtbhRVDmW0NF83OeHyB4FnlwhHmUY1vI1OM=;
+        s=default; t=1559186065;
+        bh=Zjnm/CSMq+WhVMJ0o+aNEUs/uCH6cf9Umkgw6pLqbpk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yuV1NHY6a8iOogoFm2Mn2CTnUqJKAgdkY9Ep/01WaUyAWanL6lC4/7XsFlWpf1UKS
-         sKan8BY1VMIhG+5wzXII18gFVydl1rZaUrktHGbJn/6hPpVmEkDbV2QnzGwsKhDuig
-         Jm2TfFTdmqMm39B3npW+WfX4Etu9ZroiWaQUEoIA=
+        b=vQmvO0H2pVhidVKoTWcOmkZGTxnxuEHnSdHqS2H+RYQda2Q17BHF0B9JSch8FG4bg
+         ZCBgdAl8rkziKV9NJsABRsDhuqQe3iWUN/LYyGepUKB81M8w+XSy2syzCvf1jHVu+x
+         8xa4U68yOaKq28qrD/Fhzn4lEwKK909N9qnviTcI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Julian Wiedmann <jwi@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Potnuri Bharat Teja <bharat@chelsio.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 090/276] s390: qeth: address type mismatch warning
+Subject: [PATCH 5.0 175/346] RDMA/cxgb4: Fix null pointer dereference on alloc_skb failure
 Date:   Wed, 29 May 2019 20:04:08 -0700
-Message-Id: <20190530030531.850004089@linuxfoundation.org>
+Message-Id: <20190530030550.017430210@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
-References: <20190530030523.133519668@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,60 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 46b83629dede262315aa82179d105581f11763b6 ]
+[ Upstream commit a6d2a5a92e67d151c98886babdc86d530d27111c ]
 
-clang produces a harmless warning for each use for the qeth_adp_supported
-macro:
+Currently if alloc_skb fails to allocate the skb a null skb is passed to
+t4_set_arp_err_handler and this ends up dereferencing the null skb.  Avoid
+the NULL pointer dereference by checking for a NULL skb and returning
+early.
 
-drivers/s390/net/qeth_l2_main.c:559:31: warning: implicit conversion from enumeration type 'enum qeth_ipa_setadp_cmd' to
-      different enumeration type 'enum qeth_ipa_funcs' [-Wenum-conversion]
-        if (qeth_adp_supported(card, IPA_SETADP_SET_PROMISC_MODE))
-            ~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~
-drivers/s390/net/qeth_core.h:179:41: note: expanded from macro 'qeth_adp_supported'
-        qeth_is_ipa_supported(&c->options.adp, f)
-        ~~~~~~~~~~~~~~~~~~~~~                  ^
-
-Add a version of this macro that uses the correct types, and
-remove the unused qeth_adp_enabled() macro that has the same
-problem.
-
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Addresses-Coverity: ("Dereference null return")
+Fixes: b38a0ad8ec11 ("RDMA/cxgb4: Set arp error handler for PASS_ACCEPT_RPL messages")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Acked-by: Potnuri Bharat Teja <bharat@chelsio.com>
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/net/qeth_core.h | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/infiniband/hw/cxgb4/cm.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/s390/net/qeth_core.h b/drivers/s390/net/qeth_core.h
-index 2d1f6a583641b..b2657582cfcfd 100644
---- a/drivers/s390/net/qeth_core.h
-+++ b/drivers/s390/net/qeth_core.h
-@@ -201,6 +201,12 @@ struct qeth_vnicc_info {
- 	bool rx_bcast_enabled;
- };
- 
-+static inline int qeth_is_adp_supported(struct qeth_ipa_info *ipa,
-+		enum qeth_ipa_setadp_cmd func)
-+{
-+	return (ipa->supported_funcs & func);
-+}
-+
- static inline int qeth_is_ipa_supported(struct qeth_ipa_info *ipa,
- 		enum qeth_ipa_funcs func)
- {
-@@ -214,9 +220,7 @@ static inline int qeth_is_ipa_enabled(struct qeth_ipa_info *ipa,
- }
- 
- #define qeth_adp_supported(c, f) \
--	qeth_is_ipa_supported(&c->options.adp, f)
--#define qeth_adp_enabled(c, f) \
--	qeth_is_ipa_enabled(&c->options.adp, f)
-+	qeth_is_adp_supported(&c->options.adp, f)
- #define qeth_is_supported(c, f) \
- 	qeth_is_ipa_supported(&c->options.ipa4, f)
- #define qeth_is_enabled(c, f) \
+diff --git a/drivers/infiniband/hw/cxgb4/cm.c b/drivers/infiniband/hw/cxgb4/cm.c
+index 25a81fbb0d4d5..f1819b5272560 100644
+--- a/drivers/infiniband/hw/cxgb4/cm.c
++++ b/drivers/infiniband/hw/cxgb4/cm.c
+@@ -457,6 +457,8 @@ static struct sk_buff *get_skb(struct sk_buff *skb, int len, gfp_t gfp)
+ 		skb_reset_transport_header(skb);
+ 	} else {
+ 		skb = alloc_skb(len, gfp);
++		if (!skb)
++			return NULL;
+ 	}
+ 	t4_set_arp_err_handler(skb, NULL, NULL);
+ 	return skb;
 -- 
 2.20.1
 
