@@ -2,45 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 13DFA2F4EF
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:44:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D2AE2F26D
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:22:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729064AbfE3Emn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:42:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53798 "EHLO mail.kernel.org"
+        id S1727382AbfE3EVu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:21:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728880AbfE3DMP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:12:15 -0400
+        id S1730156AbfE3DPM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:15:12 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8E6BD244A0;
-        Thu, 30 May 2019 03:12:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8EFA4245AC;
+        Thu, 30 May 2019 03:15:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185934;
-        bh=dfEg2HOpaul2hogvunM38ZcGW3iNqFcO1GoCYEy8P4Q=;
+        s=default; t=1559186111;
+        bh=wro3ECXet6tn1QQSQA7tVVQwH1ZNwKWIcAwt3CH8xJ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aGUeHRkKwPhi4hKrdT6dKYQ9+KIuKv5XBeIrGcsUtvZ+Sqt++F3qv1KosoI/kUo9c
-         /DNrFtL51iQr132FJbCJkRDI0KP1HSbXj5m3ehzCj0IvMSuGejXAGW2ukvatDX2+Gp
-         naob9zo5VuvwvbviObWzXvGADU/SzEyW7szu0N9Y=
+        b=rX6gRKosnpnlSe7A7+kfseJn7/mUxi8A4oYs3KtnK/9INvSSOAo0q67kPNDYbFyHr
+         hCt4EOmJhnUYavbriixJSShP1IucPIE/7dLKLR4jSBTqdv/iofq76/Hcyrz507QkU1
+         YsHHIzksWmWNpFk8Tx795wg3menUvzXAA7VP2OW8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Matt Fleming <matt@codeblueprint.co.uk>,
-        Peter Jones <pjones@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linux-efi@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
+        stable@vger.kernel.org,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Dmitry Osipenko <digetx@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 289/405] efifb: Omit memory map check on legacy boot
+Subject: [PATCH 5.0 214/346] regulator: core: Avoid potential deadlock on regulator_unregister
 Date:   Wed, 29 May 2019 20:04:47 -0700
-Message-Id: <20190530030555.482106919@linuxfoundation.org>
+Message-Id: <20190530030551.945104258@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,54 +46,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c2999c281ea2d2ebbdfce96cecc7b52e2ae7c406 ]
+[ Upstream commit 063773011d33bb36588a90385aa9eb75d13c6d80 ]
 
-Since the following commit:
+Lockdep reports the following issue on my setup:
 
-  38ac0287b7f4 ("fbdev/efifb: Honour UEFI memory map attributes when mapping the FB")
+Possible unsafe locking scenario:
 
-efifb_probe() checks its memory range via efi_mem_desc_lookup(),
-and this leads to a spurious error message:
+CPU0                    CPU1
+----                    ----
+lock((work_completion)(&(&rdev->disable_work)->work));
+                        lock(regulator_list_mutex);
+                        lock((work_completion)(&(&rdev->disable_work)->work));
+lock(regulator_list_mutex);
 
-   EFI_MEMMAP is not enabled
+The problem is that regulator_unregister takes the
+regulator_list_mutex and then calls flush_work on disable_work. But
+regulator_disable_work calls regulator_lock_dependent which will
+also take the regulator_list_mutex. Resulting in a deadlock if the
+flush_work call actually needs to flush the work.
 
-at every boot on KVM.  This is quite annoying since the error message
-appears even if you set "quiet" boot option.
+Fix this issue by moving the flush_work outside of the
+regulator_list_mutex. The list mutex is not used to guard the point at
+which the delayed work is queued, so its use adds no additional safety.
 
-Since this happens on legacy boot, which strangely enough exposes
-a EFI framebuffer via screen_info, let's double check that we are
-doing an EFI boot before attempting to access the EFI memory map.
-
-Reported-by: Takashi Iwai <tiwai@suse.de>
-Tested-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Matt Fleming <matt@codeblueprint.co.uk>
-Cc: Peter Jones <pjones@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: linux-efi@vger.kernel.org
-Link: http://lkml.kernel.org/r/20190328193429.21373-3-ard.biesheuvel@linaro.org
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Fixes: f8702f9e4aa7 ("regulator: core: Use ww_mutex for regulators locking")
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/efifb.c | 3 ++-
+ drivers/regulator/core.c | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/video/fbdev/efifb.c b/drivers/video/fbdev/efifb.c
-index fd02e8a4841d6..9f39f0c360e0c 100644
---- a/drivers/video/fbdev/efifb.c
-+++ b/drivers/video/fbdev/efifb.c
-@@ -464,7 +464,8 @@ static int efifb_probe(struct platform_device *dev)
- 	info->apertures->ranges[0].base = efifb_fix.smem_start;
- 	info->apertures->ranges[0].size = size_remap;
+diff --git a/drivers/regulator/core.c b/drivers/regulator/core.c
+index fb9fe26fd0fa1..218b9331475b7 100644
+--- a/drivers/regulator/core.c
++++ b/drivers/regulator/core.c
+@@ -5101,10 +5101,11 @@ void regulator_unregister(struct regulator_dev *rdev)
+ 		regulator_put(rdev->supply);
+ 	}
  
--	if (!efi_mem_desc_lookup(efifb_fix.smem_start, &md)) {
-+	if (efi_enabled(EFI_BOOT) &&
-+	    !efi_mem_desc_lookup(efifb_fix.smem_start, &md)) {
- 		if ((efifb_fix.smem_start + efifb_fix.smem_len) >
- 		    (md.phys_addr + (md.num_pages << EFI_PAGE_SHIFT))) {
- 			pr_err("efifb: video memory @ 0x%lx spans multiple EFI memory regions\n",
++	flush_work(&rdev->disable_work.work);
++
+ 	mutex_lock(&regulator_list_mutex);
+ 
+ 	debugfs_remove_recursive(rdev->debugfs);
+-	flush_work(&rdev->disable_work.work);
+ 	WARN_ON(rdev->open_count);
+ 	regulator_remove_coupling(rdev);
+ 	unset_regulator_supplies(rdev);
 -- 
 2.20.1
 
