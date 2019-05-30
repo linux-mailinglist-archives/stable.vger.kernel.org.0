@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E63A62F56B
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:47:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA97B2F327
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:27:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729047AbfE3ErK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:47:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51460 "EHLO mail.kernel.org"
+        id S1729883AbfE3E0p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:26:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728600AbfE3DLe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:11:34 -0400
+        id S1729875AbfE3DO3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:14:29 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 278C6244FC;
-        Thu, 30 May 2019 03:11:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5CC5B2455E;
+        Thu, 30 May 2019 03:14:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185894;
-        bh=BqZZIOycs8gGcPlEI9PbI3jL2AyLpyzb+4LwIR0Nejw=;
+        s=default; t=1559186069;
+        bh=zabL5YfqfgkOhrTRcXafw5T08OQA8mRkWoJ70DYQGDc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Prff8fS6DEMPnHnXaVYKkBX3XOfzMx4kQfIJoWQfdTKc25PT22srVYlQF7zYS6xYe
-         PH1LbmUeI0YUdZXi5vkV/NKrv4CKYIYO/ndoT75lMgPU95zNnkHdCvuH/+pfkmhYKS
-         eaMCLClYu1aTLJoNcaPybfXTSgJU7QSh+0JbHyRw=
+        b=0YT7oZBVFszm5EBJpsSJDc4YlzSpr+pcM+uo1wM2EOj5HKpNsHBmaZfnNPIwl/TP/
+         1s9PoZWUCWa98c+OpXYLqfbKT0YQ6RcBux5eFQfDMbv+u25j5fkPLDfrcYxtnplzw7
+         5RHg+6KBqL7um/SxzfDbzGQ/b4D7LHphNsV535o8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ping-Ke Shih <pkshih@realtek.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Kefeng Wang <wangkefeng.wang@huawei.com>,
+        John Garry <john.garry@huawei.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 257/405] rtlwifi: fix potential NULL pointer dereference
+Subject: [PATCH 5.0 182/346] hwmon: (smsc47b397) Use request_muxed_region for Super-IO accesses
 Date:   Wed, 29 May 2019 20:04:15 -0700
-Message-Id: <20190530030553.975429029@linuxfoundation.org>
+Message-Id: <20190530030550.332532730@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,110 +45,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 60209d482b97743915883d293c8b85226d230c19 ]
+[ Upstream commit 8c0826756744c0ac1df600a5e4cca1a341b13101 ]
 
-In case dev_alloc_skb fails, the fix safely returns to avoid
-potential NULL pointer dereference.
+Super-IO accesses may fail on a system with no or unmapped LPC bus.
 
-Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Also, other drivers may attempt to access the LPC bus at the same time,
+resulting in undefined behavior.
+
+Use request_muxed_region() to ensure that IO access on the requested
+address space is supported, and to ensure that access by multiple drivers
+is synchronized.
+
+Fixes: 8d5d45fb1468 ("I2C: Move hwmon drivers (2/3)")
+Reported-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Reported-by: John Garry <john.garry@huawei.com>
+Cc: John Garry <john.garry@huawei.com>
+Acked-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtlwifi/rtl8188ee/fw.c       | 2 ++
- drivers/net/wireless/realtek/rtlwifi/rtl8192c/fw_common.c | 2 ++
- drivers/net/wireless/realtek/rtlwifi/rtl8192ee/fw.c       | 2 ++
- drivers/net/wireless/realtek/rtlwifi/rtl8723ae/fw.c       | 2 ++
- drivers/net/wireless/realtek/rtlwifi/rtl8723be/fw.c       | 2 ++
- drivers/net/wireless/realtek/rtlwifi/rtl8821ae/fw.c       | 4 ++++
- 6 files changed, 14 insertions(+)
+ drivers/hwmon/smsc47b397.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8188ee/fw.c b/drivers/net/wireless/realtek/rtlwifi/rtl8188ee/fw.c
-index 203e7b574e845..e2e0bfbc24fe2 100644
---- a/drivers/net/wireless/realtek/rtlwifi/rtl8188ee/fw.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/rtl8188ee/fw.c
-@@ -600,6 +600,8 @@ void rtl88e_set_fw_rsvdpagepkt(struct ieee80211_hw *hw, bool b_dl_finished)
- 		      u1rsvdpageloc, 3);
+diff --git a/drivers/hwmon/smsc47b397.c b/drivers/hwmon/smsc47b397.c
+index 6bd2007565603..cbdb5c4991ae3 100644
+--- a/drivers/hwmon/smsc47b397.c
++++ b/drivers/hwmon/smsc47b397.c
+@@ -72,14 +72,19 @@ static inline void superio_select(int ld)
+ 	superio_outb(0x07, ld);
+ }
  
- 	skb = dev_alloc_skb(totalpacketlen);
-+	if (!skb)
-+		return;
- 	skb_put_data(skb, &reserved_page_packet, totalpacketlen);
+-static inline void superio_enter(void)
++static inline int superio_enter(void)
+ {
++	if (!request_muxed_region(REG, 2, DRVNAME))
++		return -EBUSY;
++
+ 	outb(0x55, REG);
++	return 0;
+ }
  
- 	rtstatus = rtl_cmd_send_packet(hw, skb);
-diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8192c/fw_common.c b/drivers/net/wireless/realtek/rtlwifi/rtl8192c/fw_common.c
-index 18c76990a0898..86b1b88cc4ed8 100644
---- a/drivers/net/wireless/realtek/rtlwifi/rtl8192c/fw_common.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192c/fw_common.c
-@@ -623,6 +623,8 @@ void rtl92c_set_fw_rsvdpagepkt(struct ieee80211_hw *hw,
- 		      u1rsvdpageloc, 3);
+ static inline void superio_exit(void)
+ {
+ 	outb(0xAA, REG);
++	release_region(REG, 2);
+ }
  
- 	skb = dev_alloc_skb(totalpacketlen);
-+	if (!skb)
-+		return;
- 	skb_put_data(skb, &reserved_page_packet, totalpacketlen);
+ #define SUPERIO_REG_DEVID	0x20
+@@ -300,8 +305,12 @@ static int __init smsc47b397_find(void)
+ 	u8 id, rev;
+ 	char *name;
+ 	unsigned short addr;
++	int err;
++
++	err = superio_enter();
++	if (err)
++		return err;
  
- 	if (cmd_send_packet)
-diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8192ee/fw.c b/drivers/net/wireless/realtek/rtlwifi/rtl8192ee/fw.c
-index 7c5b54b71a92f..67305ce915ec4 100644
---- a/drivers/net/wireless/realtek/rtlwifi/rtl8192ee/fw.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192ee/fw.c
-@@ -744,6 +744,8 @@ void rtl92ee_set_fw_rsvdpagepkt(struct ieee80211_hw *hw, bool b_dl_finished)
- 		      u1rsvdpageloc, 3);
+-	superio_enter();
+ 	id = force_id ? force_id : superio_inb(SUPERIO_REG_DEVID);
  
- 	skb = dev_alloc_skb(totalpacketlen);
-+	if (!skb)
-+		return;
- 	skb_put_data(skb, &reserved_page_packet, totalpacketlen);
- 
- 	rtstatus = rtl_cmd_send_packet(hw, skb);
-diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8723ae/fw.c b/drivers/net/wireless/realtek/rtlwifi/rtl8723ae/fw.c
-index be451a6f7dbe5..33481232fad01 100644
---- a/drivers/net/wireless/realtek/rtlwifi/rtl8723ae/fw.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/rtl8723ae/fw.c
-@@ -448,6 +448,8 @@ void rtl8723e_set_fw_rsvdpagepkt(struct ieee80211_hw *hw, bool b_dl_finished)
- 		      u1rsvdpageloc, 3);
- 
- 	skb = dev_alloc_skb(totalpacketlen);
-+	if (!skb)
-+		return;
- 	skb_put_data(skb, &reserved_page_packet, totalpacketlen);
- 
- 	rtstatus = rtl_cmd_send_packet(hw, skb);
-diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8723be/fw.c b/drivers/net/wireless/realtek/rtlwifi/rtl8723be/fw.c
-index 4d7fa27f55caa..aa56058af56ef 100644
---- a/drivers/net/wireless/realtek/rtlwifi/rtl8723be/fw.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/rtl8723be/fw.c
-@@ -562,6 +562,8 @@ void rtl8723be_set_fw_rsvdpagepkt(struct ieee80211_hw *hw,
- 		      u1rsvdpageloc, sizeof(u1rsvdpageloc));
- 
- 	skb = dev_alloc_skb(totalpacketlen);
-+	if (!skb)
-+		return;
- 	skb_put_data(skb, &reserved_page_packet, totalpacketlen);
- 
- 	rtstatus = rtl_cmd_send_packet(hw, skb);
-diff --git a/drivers/net/wireless/realtek/rtlwifi/rtl8821ae/fw.c b/drivers/net/wireless/realtek/rtlwifi/rtl8821ae/fw.c
-index dc0eb692088f6..fe32d397d2875 100644
---- a/drivers/net/wireless/realtek/rtlwifi/rtl8821ae/fw.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/rtl8821ae/fw.c
-@@ -1623,6 +1623,8 @@ void rtl8812ae_set_fw_rsvdpagepkt(struct ieee80211_hw *hw,
- 		      &reserved_page_packet_8812[0], totalpacketlen);
- 
- 	skb = dev_alloc_skb(totalpacketlen);
-+	if (!skb)
-+		return;
- 	skb_put_data(skb, &reserved_page_packet_8812, totalpacketlen);
- 
- 	rtstatus = rtl_cmd_send_packet(hw, skb);
-@@ -1759,6 +1761,8 @@ void rtl8821ae_set_fw_rsvdpagepkt(struct ieee80211_hw *hw,
- 		      &reserved_page_packet_8821[0], totalpacketlen);
- 
- 	skb = dev_alloc_skb(totalpacketlen);
-+	if (!skb)
-+		return;
- 	skb_put_data(skb, &reserved_page_packet_8821, totalpacketlen);
- 
- 	rtstatus = rtl_cmd_send_packet(hw, skb);
+ 	switch (id) {
 -- 
 2.20.1
 
