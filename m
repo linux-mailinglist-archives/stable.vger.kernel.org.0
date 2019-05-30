@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CD62D2EEFC
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:52:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E19EE2F032
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:02:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729552AbfE3DTl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 29 May 2019 23:19:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56182 "EHLO mail.kernel.org"
+        id S1727838AbfE3EBs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:01:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49208 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730372AbfE3DTl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:19:41 -0400
+        id S1731415AbfE3DSG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:18:06 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5DDAD248B7;
-        Thu, 30 May 2019 03:19:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A874E2476F;
+        Thu, 30 May 2019 03:18:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186380;
-        bh=ZSX3Gwh1itRbtkQL+q70qtno/jtYzsy88krRLuFj1Zc=;
+        s=default; t=1559186285;
+        bh=NNX8TfOE1eoiQ0tEo8mNTq/l4fQjj0DGRchKEYf1pdQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wPZjWqVNCNYkchc7YFQvzU9EhU6OkQ3WrwPiXgiM1glHofKy/4LN81zfXB+jgqUHe
-         DCbTHPDJQAsyB5fsUKc2EZEYHFpFet7lpEAYj6iKNOIozVra3JQgGgHWL0Z4kT6Unw
-         a+FiGpsu9TTDze5FBd/QGqkaBED1W+Z9egh0Xl08=
+        b=RTfduuVmZYwz2uma6d6ZCh94Redfv20oV2b9HOBRzc4Xp5BROg+hS17Va4mg5FhXU
+         81iOiCmW+hrtqkuh4L1WI1v7lha1cvWV7QVdHUZ84gqbh7u6BxRuFGfjQwqZAlHRcy
+         ciWqQ0XuKzkwtaydnslOixB79VMNlFTR7Nt77cG8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Piotr Figiel <p.figiel@camlintechnologies.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 144/193] brcmfmac: fix WARNING during USB disconnect in case of unempty psq
+        stable@vger.kernel.org, Mohan Kumar D <mkumard@nvidia.com>,
+        Jonathan Hunter <jonathanh@nvidia.com>,
+        Sameer Pujar <spujar@nvidia.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 240/276] dmaengine: tegra210-adma: use devm_clk_*() helpers
 Date:   Wed, 29 May 2019 20:06:38 -0700
-Message-Id: <20190530030508.420733248@linuxfoundation.org>
+Message-Id: <20190530030540.138161968@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030446.953835040@linuxfoundation.org>
-References: <20190530030446.953835040@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,129 +45,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c80d26e81ef1802f30364b4ad1955c1443a592b9 ]
+[ Upstream commit f6ed6491d565c336a360471e0c29228e34f4380e ]
 
-brcmu_pkt_buf_free_skb emits WARNING when attempting to free a sk_buff
-which is part of any queue. After USB disconnect this may have happened
-when brcmf_fws_hanger_cleanup() is called as per-interface psq was never
-cleaned when removing the interface.
-Change brcmf_fws_macdesc_cleanup() in a way that it removes the
-corresponding packets from hanger table (to avoid double-free when
-brcmf_fws_hanger_cleanup() is called) and add a call to clean-up the
-interface specific packet queue.
+adma driver is using pm_clk_*() interface for managing clock resources.
+With this it is observed that clocks remain ON always. This happens on
+Tegra devices which use BPMP co-processor to manage clock resources,
+where clocks are enabled during prepare phase. This is necessary because
+clocks to BPMP are always blocking. When pm_clk_*() interface is used on
+such Tegra devices, clock prepare count is not balanced till remove call
+happens for the driver and hence clocks are seen ON always. Thus this
+patch replaces pm_clk_*() with devm_clk_*() framework.
 
-Below is a WARNING during USB disconnect with Raspberry Pi WiFi dongle
-running in AP mode. This was reproducible when the interface was
-transmitting during the disconnect and is fixed with this commit.
-
-------------[ cut here ]------------
-WARNING: CPU: 0 PID: 1171 at drivers/net/wireless/broadcom/brcm80211/brcmutil/utils.c:49 brcmu_pkt_buf_free_skb+0x3c/0x40
-Modules linked in: nf_log_ipv4 nf_log_common xt_LOG xt_limit iptable_mangle xt_connmark xt_tcpudp xt_conntrack nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 iptable_filter ip_tables x_tables usb_f_mass_storage usb_f_rndis u_ether cdc_acm smsc95xx usbnet ci_hdrc_imx ci_hdrc ulpi usbmisc_imx 8250_exar 8250_pci 8250 8250_base libcomposite configfs udc_core
-CPU: 0 PID: 1171 Comm: kworker/0:0 Not tainted 4.19.23-00075-gde33ed8 #99
-Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
-Workqueue: usb_hub_wq hub_event
-[<8010ff84>] (unwind_backtrace) from [<8010bb64>] (show_stack+0x10/0x14)
-[<8010bb64>] (show_stack) from [<80840278>] (dump_stack+0x88/0x9c)
-[<80840278>] (dump_stack) from [<8011f5ec>] (__warn+0xfc/0x114)
-[<8011f5ec>] (__warn) from [<8011f71c>] (warn_slowpath_null+0x40/0x48)
-[<8011f71c>] (warn_slowpath_null) from [<805a476c>] (brcmu_pkt_buf_free_skb+0x3c/0x40)
-[<805a476c>] (brcmu_pkt_buf_free_skb) from [<805bb6c4>] (brcmf_fws_cleanup+0x1e4/0x22c)
-[<805bb6c4>] (brcmf_fws_cleanup) from [<805bc854>] (brcmf_fws_del_interface+0x58/0x68)
-[<805bc854>] (brcmf_fws_del_interface) from [<805b66ac>] (brcmf_remove_interface+0x40/0x150)
-[<805b66ac>] (brcmf_remove_interface) from [<805b6870>] (brcmf_detach+0x6c/0xb0)
-[<805b6870>] (brcmf_detach) from [<805bdbb8>] (brcmf_usb_disconnect+0x30/0x4c)
-[<805bdbb8>] (brcmf_usb_disconnect) from [<805e5d64>] (usb_unbind_interface+0x5c/0x1e0)
-[<805e5d64>] (usb_unbind_interface) from [<804aab10>] (device_release_driver_internal+0x154/0x1ec)
-[<804aab10>] (device_release_driver_internal) from [<804a97f4>] (bus_remove_device+0xcc/0xf8)
-[<804a97f4>] (bus_remove_device) from [<804a6fc0>] (device_del+0x118/0x308)
-[<804a6fc0>] (device_del) from [<805e488c>] (usb_disable_device+0xa0/0x1c8)
-[<805e488c>] (usb_disable_device) from [<805dcf98>] (usb_disconnect+0x70/0x1d8)
-[<805dcf98>] (usb_disconnect) from [<805ddd84>] (hub_event+0x464/0xf50)
-[<805ddd84>] (hub_event) from [<80135a70>] (process_one_work+0x138/0x3f8)
-[<80135a70>] (process_one_work) from [<80135d5c>] (worker_thread+0x2c/0x554)
-[<80135d5c>] (worker_thread) from [<8013b1a0>] (kthread+0x124/0x154)
-[<8013b1a0>] (kthread) from [<801010e8>] (ret_from_fork+0x14/0x2c)
-Exception stack(0xecf8dfb0 to 0xecf8dff8)
-dfa0:                                     00000000 00000000 00000000 00000000
-dfc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
-dfe0: 00000000 00000000 00000000 00000000 00000013 00000000
----[ end trace 38d234018e9e2a90 ]---
-------------[ cut here ]------------
-
-Signed-off-by: Piotr Figiel <p.figiel@camlintechnologies.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Suggested-by: Mohan Kumar D <mkumard@nvidia.com>
+Reviewed-by: Jonathan Hunter <jonathanh@nvidia.com>
+Signed-off-by: Sameer Pujar <spujar@nvidia.com>
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../broadcom/brcm80211/brcmfmac/fwsignal.c    | 42 +++++++++++--------
- 1 file changed, 24 insertions(+), 18 deletions(-)
+ drivers/dma/tegra210-adma.c | 27 ++++++++++++---------------
+ 1 file changed, 12 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwsignal.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwsignal.c
-index f59642b2c935a..2370060ef980a 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwsignal.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwsignal.c
-@@ -579,24 +579,6 @@ static bool brcmf_fws_ifidx_match(struct sk_buff *skb, void *arg)
- 	return ifidx == *(int *)arg;
+diff --git a/drivers/dma/tegra210-adma.c b/drivers/dma/tegra210-adma.c
+index 08b10274284a8..09b6756366c30 100644
+--- a/drivers/dma/tegra210-adma.c
++++ b/drivers/dma/tegra210-adma.c
+@@ -22,7 +22,6 @@
+ #include <linux/of_device.h>
+ #include <linux/of_dma.h>
+ #include <linux/of_irq.h>
+-#include <linux/pm_clock.h>
+ #include <linux/pm_runtime.h>
+ #include <linux/slab.h>
+ 
+@@ -141,6 +140,7 @@ struct tegra_adma {
+ 	struct dma_device		dma_dev;
+ 	struct device			*dev;
+ 	void __iomem			*base_addr;
++	struct clk			*ahub_clk;
+ 	unsigned int			nr_channels;
+ 	unsigned long			rx_requests_reserved;
+ 	unsigned long			tx_requests_reserved;
+@@ -637,8 +637,9 @@ static int tegra_adma_runtime_suspend(struct device *dev)
+ 	struct tegra_adma *tdma = dev_get_drvdata(dev);
+ 
+ 	tdma->global_cmd = tdma_read(tdma, ADMA_GLOBAL_CMD);
++	clk_disable_unprepare(tdma->ahub_clk);
+ 
+-	return pm_clk_suspend(dev);
++	return 0;
  }
  
--static void brcmf_fws_psq_flush(struct brcmf_fws_info *fws, struct pktq *q,
--				int ifidx)
--{
--	bool (*matchfn)(struct sk_buff *, void *) = NULL;
--	struct sk_buff *skb;
--	int prec;
+ static int tegra_adma_runtime_resume(struct device *dev)
+@@ -646,10 +647,11 @@ static int tegra_adma_runtime_resume(struct device *dev)
+ 	struct tegra_adma *tdma = dev_get_drvdata(dev);
+ 	int ret;
+ 
+-	ret = pm_clk_resume(dev);
+-	if (ret)
++	ret = clk_prepare_enable(tdma->ahub_clk);
++	if (ret) {
++		dev_err(dev, "ahub clk_enable failed: %d\n", ret);
+ 		return ret;
 -
--	if (ifidx != -1)
--		matchfn = brcmf_fws_ifidx_match;
--	for (prec = 0; prec < q->num_prec; prec++) {
--		skb = brcmu_pktq_pdeq_match(q, prec, matchfn, &ifidx);
--		while (skb) {
--			brcmu_pkt_buf_free_skb(skb);
--			skb = brcmu_pktq_pdeq_match(q, prec, matchfn, &ifidx);
--		}
--	}
--}
++	}
+ 	tdma_write(tdma, ADMA_GLOBAL_CMD, tdma->global_cmd);
+ 
+ 	return 0;
+@@ -692,13 +694,11 @@ static int tegra_adma_probe(struct platform_device *pdev)
+ 	if (IS_ERR(tdma->base_addr))
+ 		return PTR_ERR(tdma->base_addr);
+ 
+-	ret = pm_clk_create(&pdev->dev);
+-	if (ret)
+-		return ret;
 -
- static void brcmf_fws_hanger_init(struct brcmf_fws_hanger *hanger)
- {
- 	int i;
-@@ -668,6 +650,28 @@ static inline int brcmf_fws_hanger_poppkt(struct brcmf_fws_hanger *h,
+-	ret = of_pm_clk_add_clk(&pdev->dev, "d_audio");
+-	if (ret)
+-		goto clk_destroy;
++	tdma->ahub_clk = devm_clk_get(&pdev->dev, "d_audio");
++	if (IS_ERR(tdma->ahub_clk)) {
++		dev_err(&pdev->dev, "Error: Missing ahub controller clock\n");
++		return PTR_ERR(tdma->ahub_clk);
++	}
+ 
+ 	pm_runtime_enable(&pdev->dev);
+ 
+@@ -775,8 +775,6 @@ static int tegra_adma_probe(struct platform_device *pdev)
+ 	pm_runtime_put_sync(&pdev->dev);
+ rpm_disable:
+ 	pm_runtime_disable(&pdev->dev);
+-clk_destroy:
+-	pm_clk_destroy(&pdev->dev);
+ 
+ 	return ret;
+ }
+@@ -794,7 +792,6 @@ static int tegra_adma_remove(struct platform_device *pdev)
+ 
+ 	pm_runtime_put_sync(&pdev->dev);
+ 	pm_runtime_disable(&pdev->dev);
+-	pm_clk_destroy(&pdev->dev);
+ 
  	return 0;
  }
- 
-+static void brcmf_fws_psq_flush(struct brcmf_fws_info *fws, struct pktq *q,
-+				int ifidx)
-+{
-+	bool (*matchfn)(struct sk_buff *, void *) = NULL;
-+	struct sk_buff *skb;
-+	int prec;
-+	u32 hslot;
-+
-+	if (ifidx != -1)
-+		matchfn = brcmf_fws_ifidx_match;
-+	for (prec = 0; prec < q->num_prec; prec++) {
-+		skb = brcmu_pktq_pdeq_match(q, prec, matchfn, &ifidx);
-+		while (skb) {
-+			hslot = brcmf_skb_htod_tag_get_field(skb, HSLOT);
-+			brcmf_fws_hanger_poppkt(&fws->hanger, hslot, &skb,
-+						true);
-+			brcmu_pkt_buf_free_skb(skb);
-+			skb = brcmu_pktq_pdeq_match(q, prec, matchfn, &ifidx);
-+		}
-+	}
-+}
-+
- static int brcmf_fws_hanger_mark_suppressed(struct brcmf_fws_hanger *h,
- 					    u32 slot_id)
- {
-@@ -2168,6 +2172,8 @@ void brcmf_fws_del_interface(struct brcmf_if *ifp)
- 	brcmf_fws_lock(fws);
- 	ifp->fws_desc = NULL;
- 	brcmf_dbg(TRACE, "deleting %s\n", entry->name);
-+	brcmf_fws_macdesc_cleanup(fws, &fws->desc.iface[ifp->ifidx],
-+				  ifp->ifidx);
- 	brcmf_fws_macdesc_deinit(entry);
- 	brcmf_fws_cleanup(fws, ifp->ifidx);
- 	brcmf_fws_unlock(fws);
 -- 
 2.20.1
 
