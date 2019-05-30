@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A128E2F443
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:36:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 461052F683
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:57:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388120AbfE3Egn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:36:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56898 "EHLO mail.kernel.org"
+        id S1727888AbfE3DKA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:10:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45998 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729301AbfE3DM5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:12:57 -0400
+        id S1727882AbfE3DJ7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:09:59 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DAF9A244E8;
-        Thu, 30 May 2019 03:12:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6902A24485;
+        Thu, 30 May 2019 03:09:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185976;
-        bh=oi8lKQ5r/i49dFb9dykc0Y0t9E2sFOuG489GbRWGmc4=;
+        s=default; t=1559185799;
+        bh=JiHI/TgLk+DcrLr+6I+X2S/Lr18PKHaI8i5a3ZmgMQY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kevY+k94O/zBFhLGYTF4ou4qsWGS9cw6sJ0oEbRqLRzdsBvTVoApvQJQE9UpBaZUG
-         7SuoRXZl8mMBjsrhDkARTcVKO6zS0WaDnidXbRgw5xDNju1PDae7rfvaJZuujkXHvj
-         O40niDGv9rYlc5Dca4J9i2Z4HjKAYCMaasmdjIB0=
+        b=CQBaWEO20xAY8ZKRJKTpULp24jiMlLa8o0rLLvtHb61/wvb/m15Ok4uG4/qmZmTvB
+         N32jgZaQv/NOgkmo5nIllL6+5TsbV7UnQdfNeZAr8x0r01qYQHmNvhfDt9yXtHk2dJ
+         LoWSGhh0+wkeUB7xov0Dxb7KPN9oQ6ceBIKGsfcg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 5.0 001/346] x86: Hide the int3_emulate_call/jmp functions from UML
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Anju T Sudhakar <anju@linux.vnet.ibm.com>,
+        Madhavan Srinivasan <maddy@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 076/405] powerpc/perf: Fix loop exit condition in nest_imc_event_init
 Date:   Wed, 29 May 2019 20:01:14 -0700
-Message-Id: <20190530030540.450712739@linuxfoundation.org>
+Message-Id: <20190530030544.798185296@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,41 +46,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+[ Upstream commit 860b7d2286236170a36f94946d03ca9888d32571 ]
 
-commit 693713cbdb3a4bda5a8a678c31f06560bbb14657 upstream.
+The data structure (i.e struct imc_mem_info) to hold the memory address
+information for nest imc units is allocated based on the number of nodes
+in the system.
 
-User Mode Linux does not have access to the ip or sp fields of the pt_regs,
-and accessing them causes UML to fail to build. Hide the int3_emulate_jmp()
-and int3_emulate_call() instructions from UML, as it doesn't need them
-anyway.
+nest_imc_event_init() traverse this struct array to calculate the memory
+base address for the event-cpu. If we fail to find a match for the event
+cpu's chip-id in imc_mem_info struct array, then the do-while loop will
+iterate until we crash.
 
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix this by changing the loop exit condition based on the number of
+non zero vbase elements in the array, since the allocation is done for
+nr_chips + 1.
 
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Fixes: 885dcd709ba91 ("powerpc/perf: Add nest IMC PMU support")
+Signed-off-by: Anju T Sudhakar <anju@linux.vnet.ibm.com>
+Reviewed-by: Madhavan Srinivasan <maddy@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/text-patching.h |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/powerpc/perf/imc-pmu.c               | 2 +-
+ arch/powerpc/platforms/powernv/opal-imc.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/x86/include/asm/text-patching.h
-+++ b/arch/x86/include/asm/text-patching.h
-@@ -39,6 +39,7 @@ extern int poke_int3_handler(struct pt_r
- extern void *text_poke_bp(void *addr, const void *opcode, size_t len, void *handler);
- extern int after_bootmem;
+diff --git a/arch/powerpc/perf/imc-pmu.c b/arch/powerpc/perf/imc-pmu.c
+index 6159e9edddfd0..2d12f0037e3a5 100644
+--- a/arch/powerpc/perf/imc-pmu.c
++++ b/arch/powerpc/perf/imc-pmu.c
+@@ -499,7 +499,7 @@ static int nest_imc_event_init(struct perf_event *event)
+ 			break;
+ 		}
+ 		pcni++;
+-	} while (pcni);
++	} while (pcni->vbase != 0);
  
-+#ifndef CONFIG_UML_X86
- static inline void int3_emulate_jmp(struct pt_regs *regs, unsigned long ip)
- {
- 	regs->ip = ip;
-@@ -65,6 +66,7 @@ static inline void int3_emulate_call(str
- 	int3_emulate_push(regs, regs->ip - INT3_INSN_SIZE + CALL_INSN_SIZE);
- 	int3_emulate_jmp(regs, func);
- }
--#endif
-+#endif /* CONFIG_X86_64 */
-+#endif /* !CONFIG_UML_X86 */
+ 	if (!flag)
+ 		return -ENODEV;
+diff --git a/arch/powerpc/platforms/powernv/opal-imc.c b/arch/powerpc/platforms/powernv/opal-imc.c
+index 58a07948c76e7..3d27f02695e41 100644
+--- a/arch/powerpc/platforms/powernv/opal-imc.c
++++ b/arch/powerpc/platforms/powernv/opal-imc.c
+@@ -127,7 +127,7 @@ static int imc_get_mem_addr_nest(struct device_node *node,
+ 								nr_chips))
+ 		goto error;
  
- #endif /* _ASM_X86_TEXT_PATCHING_H */
+-	pmu_ptr->mem_info = kcalloc(nr_chips, sizeof(*pmu_ptr->mem_info),
++	pmu_ptr->mem_info = kcalloc(nr_chips + 1, sizeof(*pmu_ptr->mem_info),
+ 				    GFP_KERNEL);
+ 	if (!pmu_ptr->mem_info)
+ 		goto error;
+-- 
+2.20.1
+
 
 
