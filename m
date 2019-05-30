@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 16E392F41C
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:36:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC4012F420
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:36:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388287AbfE3EfN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:35:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57864 "EHLO mail.kernel.org"
+        id S1729379AbfE3EfV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:35:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729379AbfE3DNO (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1729381AbfE3DNO (ORCPT <rfc822;stable@vger.kernel.org>);
         Wed, 29 May 2019 23:13:14 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E7F74244E8;
-        Thu, 30 May 2019 03:13:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 646C5244EA;
+        Thu, 30 May 2019 03:13:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1559185994;
-        bh=DDAiTRqEGOZMR5wKbJ4tM+vT0aH2qQvHbBxCDs12tLQ=;
+        bh=pkrYt45KKdk5c84Ve5J+EfLCCGC9mP22vg+IvgPQH2w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uooP3PbyAucODx5jvWTb1KeIQPWZ2l6rLs+kACC5uIMih7mXc6gX9ug5B30tF8yKm
-         5qHnFEX4LTv4t6IRRJ0Hhx4yfs1KbGM06Wt+InxuyIkL26+dM/06OF4MlU/K1U7F/A
-         fVeNmYrcwXzAmT6E/ff5RS48u+ijE9dGeKCdoH1Y=
+        b=I9SpoOcnM8wc5jm9NgLSVQvZPcs0moHhUOMF1RANmY2XrCJekoo9jReL6gNBsmw7c
+         FLIRQk/PI41k4cT3H35q+Yr/o+8ETkpZIScZTJJuKTKArYQiC4B41tNH6lidG6NpAw
+         rj/dlxrHg9ceQ2qkFix8iPSZLWO6H0Xu+lkczhmk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amir Goldstein <amir73il@gmail.com>,
-        syzbot+2a73a6ea9507b7112141@syzkaller.appspotmail.com,
-        Al Viro <viro@zeniv.linux.org.uk>
-Subject: [PATCH 5.0 039/346] acct_on(): dont mess with freeze protection
-Date:   Wed, 29 May 2019 20:01:52 -0700
-Message-Id: <20190530030542.825843152@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Kristian Evensen <kristian.evensen@gmail.com>
+Subject: [PATCH 5.0 040/346] netfilter: ctnetlink: Resolve conntrack L3-protocol flush regression
+Date:   Wed, 29 May 2019 20:01:53 -0700
+Message-Id: <20190530030542.881377799@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
 References: <20190530030540.363386121@linuxfoundation.org>
@@ -44,73 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Kristian Evensen <kristian.evensen@gmail.com>
 
-commit 9419a3191dcb27f24478d288abaab697228d28e6 upstream.
+commit f8e608982022fad035160870f5b06086d3cba54d upstream.
 
-What happens there is that we are replacing file->path.mnt of
-a file we'd just opened with a clone and we need the write
-count contribution to be transferred from original mount to
-new one.  That's it.  We do *NOT* want any kind of freeze
-protection for the duration of switchover.
+Commit 59c08c69c278 ("netfilter: ctnetlink: Support L3 protocol-filter
+on flush") introduced a user-space regression when flushing connection
+track entries. Before this commit, the nfgen_family field was not used
+by the kernel and all entries were removed. Since this commit,
+nfgen_family is used to filter out entries that should not be removed.
+One example a broken tool is conntrack. conntrack always sets
+nfgen_family to AF_INET, so after 59c08c69c278 only IPv4 entries were
+removed with the -F parameter.
 
-IOW, we should just use __mnt_{want,drop}_write() for that
-switchover; no need to bother with mnt_{want,drop}_write()
-there.
+Pablo Neira Ayuso suggested using nfgenmsg->version to resolve the
+regression, and this commit implements his suggestion. nfgenmsg->version
+is so far set to zero, so it is well-suited to be used as a flag for
+selecting old or new flush behavior. If version is 0, nfgen_family is
+ignored and all entries are used. If user-space sets the version to one
+(or any other value than 0), then the new behavior is used. As version
+only can have two valid values, I chose not to add a new
+NFNETLINK_VERSION-constant.
 
-Tested-by: Amir Goldstein <amir73il@gmail.com>
-Reported-by: syzbot+2a73a6ea9507b7112141@syzkaller.appspotmail.com
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Fixes: 59c08c69c278 ("netfilter: ctnetlink: Support L3 protocol-filter on flush")
+Reported-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Suggested-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Kristian Evensen <kristian.evensen@gmail.com>
+Tested-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/internal.h         |    2 --
- include/linux/mount.h |    2 ++
- kernel/acct.c         |    4 ++--
- 3 files changed, 4 insertions(+), 4 deletions(-)
+ net/netfilter/nf_conntrack_netlink.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/internal.h
-+++ b/fs/internal.h
-@@ -80,9 +80,7 @@ extern int sb_prepare_remount_readonly(s
+--- a/net/netfilter/nf_conntrack_netlink.c
++++ b/net/netfilter/nf_conntrack_netlink.c
+@@ -1254,7 +1254,7 @@ static int ctnetlink_del_conntrack(struc
+ 	struct nf_conntrack_tuple tuple;
+ 	struct nf_conn *ct;
+ 	struct nfgenmsg *nfmsg = nlmsg_data(nlh);
+-	u_int8_t u3 = nfmsg->nfgen_family;
++	u_int8_t u3 = nfmsg->version ? nfmsg->nfgen_family : AF_UNSPEC;
+ 	struct nf_conntrack_zone zone;
+ 	int err;
  
- extern void __init mnt_init(void);
- 
--extern int __mnt_want_write(struct vfsmount *);
- extern int __mnt_want_write_file(struct file *);
--extern void __mnt_drop_write(struct vfsmount *);
- extern void __mnt_drop_write_file(struct file *);
- 
- /*
---- a/include/linux/mount.h
-+++ b/include/linux/mount.h
-@@ -86,6 +86,8 @@ extern bool mnt_may_suid(struct vfsmount
- 
- struct path;
- extern struct vfsmount *clone_private_mount(const struct path *path);
-+extern int __mnt_want_write(struct vfsmount *);
-+extern void __mnt_drop_write(struct vfsmount *);
- 
- struct file_system_type;
- extern struct vfsmount *vfs_kern_mount(struct file_system_type *type,
---- a/kernel/acct.c
-+++ b/kernel/acct.c
-@@ -227,7 +227,7 @@ static int acct_on(struct filename *path
- 		filp_close(file, NULL);
- 		return PTR_ERR(internal);
- 	}
--	err = mnt_want_write(internal);
-+	err = __mnt_want_write(internal);
- 	if (err) {
- 		mntput(internal);
- 		kfree(acct);
-@@ -252,7 +252,7 @@ static int acct_on(struct filename *path
- 	old = xchg(&ns->bacct, &acct->pin);
- 	mutex_unlock(&acct->lock);
- 	pin_kill(old);
--	mnt_drop_write(mnt);
-+	__mnt_drop_write(mnt);
- 	mntput(mnt);
- 	return 0;
- }
 
 
