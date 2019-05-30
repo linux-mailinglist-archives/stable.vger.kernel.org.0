@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DC4E92F648
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:54:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0F962F41B
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:36:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728055AbfE3Eyi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:54:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46796 "EHLO mail.kernel.org"
+        id S1729565AbfE3EfM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 30 May 2019 00:35:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728041AbfE3DKV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:10:21 -0400
+        id S1729384AbfE3DNQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:13:16 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7D80D244C3;
-        Thu, 30 May 2019 03:10:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0075221BE2;
+        Thu, 30 May 2019 03:13:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559185819;
-        bh=Axkzu3uUr36TK7bECZeZQysYGOwAXPhX0hzv+gGko7I=;
+        s=default; t=1559185995;
+        bh=5cIoNPrYoOfe6SHmkc6fk808rFkjGP3Hjmm2cmWKvu8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TIjHBySUYCfdu9wft1QP1ET+2M2BhRguivzg0PIX1jG29bVyKsWLEhriaaqbG7ZS5
-         oP6d+IbQI79UYACrD2qzPaw6DYyQoiC9mkO4nxWuhnQPxzIlV/90Wg8mCn6KE2fb0m
-         KrasDySaj/6+Ij48PtlhrzW+mQtoQLCtO473WWzY=
+        b=Gp7tqwgTeqPLAW0w4R5RWloce3JH8LeSQLfxvbOeaYT2I0l75DHKcNB+n+SvcA9zU
+         OBI/BlbjNnycy+SaPL1BnLcm1ET27Dxq5ZgcoVC2v1LS02KfVPsaYQK+tQ2TyLuZ6r
+         AD3/RaV9pwPl4X0zPrrLcjKTUVgW8XrYpIj+A/ps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 115/405] mac80211/cfg80211: update bss channel on channel switch
-Date:   Wed, 29 May 2019 20:01:53 -0700
-Message-Id: <20190530030546.818518699@linuxfoundation.org>
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.0 041/346] Revert "btrfs: Honour FITRIM range constraints during free space trim"
+Date:   Wed, 29 May 2019 20:01:54 -0700
+Message-Id: <20190530030542.936701328@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
-References: <20190530030540.291644921@linuxfoundation.org>
+In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
+References: <20190530030540.363386121@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,68 +42,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 5dc8cdce1d722c733f8c7af14c5fb595cfedbfa8 ]
+From: David Sterba <dsterba@suse.com>
 
-FullMAC STAs have no way to update bss channel after CSA channel switch
-completion. As a result, user-space tools may provide inconsistent
-channel info. For instance, consider the following two commands:
-$ sudo iw dev wlan0 link
-$ sudo iw dev wlan0 info
-The latter command gets channel info from the hardware, so most probably
-its output will be correct. However the former command gets channel info
-from scan cache, so its output will contain outdated channel info.
-In fact, current bss channel info will not be updated until the
-next [re-]connect.
+This reverts commit b9ee627187491547791aacf96d4dd8f4d9afbf1c.
 
-Note that mac80211 STAs have a workaround for this, but it requires
-access to internal cfg80211 data, see ieee80211_chswitch_work:
+There is currently no corresponding patch in master due to additional
+changes that would be significantly different from plain revert in the
+respective stable branch.
 
-	/* XXX: shouldn't really modify cfg80211-owned data! */
-	ifmgd->associated->channel = sdata->csa_chandef.chan;
+The range argument was not handled correctly and could cause trim to
+overlap allocated areas or reach beyond the end of the device. The
+address space that fitrim normally operates on is in logical
+coordinates, while the discards are done on the physical device extents.
+This distinction cannot be made with the current ioctl interface and
+caused the confusion.
 
-This patch suggests to convert mac80211 workaround into cfg80211 behavior
-and to update current bss channel in cfg80211_ch_switch_notify.
+The bug depends on the layout of block groups and does not always
+happen. The whole-fs trim (run by default by the fstrim tool) is not
+affected.
 
-Signed-off-by: Sergey Matyukevich <sergey.matyukevich.os@quantenna.com>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/mlme.c    | 3 ---
- net/wireless/nl80211.c | 5 +++++
- 2 files changed, 5 insertions(+), 3 deletions(-)
+ fs/btrfs/extent-tree.c |   25 ++++++-------------------
+ 1 file changed, 6 insertions(+), 19 deletions(-)
 
-diff --git a/net/mac80211/mlme.c b/net/mac80211/mlme.c
-index 2dbcf5d5512ef..b7a9fe3d5fcb7 100644
---- a/net/mac80211/mlme.c
-+++ b/net/mac80211/mlme.c
-@@ -1188,9 +1188,6 @@ static void ieee80211_chswitch_work(struct work_struct *work)
- 		goto out;
- 	}
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -11191,9 +11191,9 @@ int btrfs_error_unpin_extent_range(struc
+  * held back allocations.
+  */
+ static int btrfs_trim_free_extents(struct btrfs_device *device,
+-				   struct fstrim_range *range, u64 *trimmed)
++				   u64 minlen, u64 *trimmed)
+ {
+-	u64 start = range->start, len = 0;
++	u64 start = 0, len = 0;
+ 	int ret;
  
--	/* XXX: shouldn't really modify cfg80211-owned data! */
--	ifmgd->associated->channel = sdata->csa_chandef.chan;
+ 	*trimmed = 0;
+@@ -11236,8 +11236,8 @@ static int btrfs_trim_free_extents(struc
+ 		if (!trans)
+ 			up_read(&fs_info->commit_root_sem);
+ 
+-		ret = find_free_dev_extent_start(trans, device, range->minlen,
+-						 start, &start, &len);
++		ret = find_free_dev_extent_start(trans, device, minlen, start,
++						 &start, &len);
+ 		if (trans) {
+ 			up_read(&fs_info->commit_root_sem);
+ 			btrfs_put_transaction(trans);
+@@ -11250,16 +11250,6 @@ static int btrfs_trim_free_extents(struc
+ 			break;
+ 		}
+ 
+-		/* If we are out of the passed range break */
+-		if (start > range->start + range->len - 1) {
+-			mutex_unlock(&fs_info->chunk_mutex);
+-			ret = 0;
+-			break;
+-		}
 -
- 	ifmgd->csa_waiting_bcn = true;
+-		start = max(range->start, start);
+-		len = min(range->len, len);
+-
+ 		ret = btrfs_issue_discard(device->bdev, start, len, &bytes);
+ 		mutex_unlock(&fs_info->chunk_mutex);
  
- 	ieee80211_sta_reset_beacon_monitor(sdata);
-diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
-index 47e30a58566c2..d2a7459a5da43 100644
---- a/net/wireless/nl80211.c
-+++ b/net/wireless/nl80211.c
-@@ -15727,6 +15727,11 @@ void cfg80211_ch_switch_notify(struct net_device *dev,
+@@ -11269,10 +11259,6 @@ static int btrfs_trim_free_extents(struc
+ 		start += len;
+ 		*trimmed += bytes;
  
- 	wdev->chandef = *chandef;
- 	wdev->preset_chandef = *chandef;
-+
-+	if (wdev->iftype == NL80211_IFTYPE_STATION &&
-+	    !WARN_ON(!wdev->current_bss))
-+		wdev->current_bss->pub.channel = chandef->chan;
-+
- 	nl80211_ch_switch_notify(rdev, dev, chandef, GFP_KERNEL,
- 				 NL80211_CMD_CH_SWITCH_NOTIFY, 0);
- }
--- 
-2.20.1
-
+-		/* We've trimmed enough */
+-		if (*trimmed >= range->len)
+-			break;
+-
+ 		if (fatal_signal_pending(current)) {
+ 			ret = -ERESTARTSYS;
+ 			break;
+@@ -11356,7 +11342,8 @@ int btrfs_trim_fs(struct btrfs_fs_info *
+ 	mutex_lock(&fs_info->fs_devices->device_list_mutex);
+ 	devices = &fs_info->fs_devices->devices;
+ 	list_for_each_entry(device, devices, dev_list) {
+-		ret = btrfs_trim_free_extents(device, range, &group_trimmed);
++		ret = btrfs_trim_free_extents(device, range->minlen,
++					      &group_trimmed);
+ 		if (ret) {
+ 			dev_failed++;
+ 			dev_ret = ret;
 
 
