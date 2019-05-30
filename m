@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CC00F2F3C5
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:33:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D5B22EB36
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:11:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728678AbfE3EcH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:32:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59668 "EHLO mail.kernel.org"
+        id S1728220AbfE3DKq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:10:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48628 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729547AbfE3DNl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:13:41 -0400
+        id S1728212AbfE3DKp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:10:45 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E4D452456A;
-        Thu, 30 May 2019 03:13:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 32D37244B2;
+        Thu, 30 May 2019 03:10:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186021;
-        bh=VGzhhKbe+lFSOO+k1naK0jo0kuQdMPAcQZFTCeTS41U=;
+        s=default; t=1559185845;
+        bh=B0H+g/8USRbal6cUg08JsxAQPv2okvZdDnuC5cZMagk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hZBZOs9I0wX/cj5acvpHcYB6uo+qUwkoOxFc6qWZ9UoWevOXDQKXgqMvdOzuEk2e6
-         a46baoDRVKAEW0OvfclZdhXKEf+jEVYSjsguDmwyuiL2vwrLbkhRVQQ8sYrLYeQN53
-         zrwZgS6m239cLU3YXvrnixfF6WPIAPi5aXFz4TyQ=
+        b=J28QRjhCOcDNlraqf4iKPKD4T2itTKej0QpRhBT9hxADIerf15BTBUWzLb1r1SW2f
+         IGWtns1bH+wsTIVVme8JNJ88xh8ndgK4/xOlBwxmra5aeJb/k3wekmRR4uVAwYzWTW
+         uiuXobEWLeWiHijzhgHw7OzvSpGQD/YYVrAZWbP0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 090/346] iwlwifi: pcie: dont crash on invalid RX interrupt
+        stable@vger.kernel.org, Jon DeVree <nuxi@vault24.org>,
+        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 165/405] random: fix CRNG initialization when random.trust_cpu=1
 Date:   Wed, 29 May 2019 20:02:43 -0700
-Message-Id: <20190530030545.725366167@linuxfoundation.org>
+Message-Id: <20190530030549.478535388@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030540.291644921@linuxfoundation.org>
+References: <20190530030540.291644921@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 30f24eabab8cd801064c5c37589d803cb4341929 ]
+[ Upstream commit fe6f1a6a8eedc1aa538fee0baa612b6a59639cf8 ]
 
-If for some reason the device gives us an RX interrupt before we're
-ready for it, perhaps during device power-on with misconfigured IRQ
-causes mapping or so, we can crash trying to access the queues.
+When the system boots with random.trust_cpu=1 it doesn't initialize the
+per-NUMA CRNGs because it skips the rest of the CRNG startup code. This
+means that the code from 1e7f583af67b ("random: make /dev/urandom scalable
+for silly userspace programs") is not used when random.trust_cpu=1.
 
-Prevent that by checking that we actually have RXQs and that they
-were properly allocated.
+crash> dmesg | grep random:
+[    0.000000] random: get_random_bytes called from start_kernel+0x94/0x530 with crng_init=0
+[    0.314029] random: crng done (trusting CPU's manufacturer)
+crash> print crng_node_pool
+$6 = (struct crng_state **) 0x0
 
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+After adding the missing call to numa_crng_init() the per-NUMA CRNGs are
+initialized again:
+
+crash> dmesg | grep random:
+[    0.000000] random: get_random_bytes called from start_kernel+0x94/0x530 with crng_init=0
+[    0.314031] random: crng done (trusting CPU's manufacturer)
+crash> print crng_node_pool
+$1 = (struct crng_state **) 0xffff9a915f4014a0
+
+The call to invalidate_batched_entropy() was also missing. This is
+important for architectures like PPC and S390 which only have the
+arch_get_random_seed_* functions.
+
+Fixes: 39a8883a2b98 ("random: add a config option to trust the CPU's hwrng")
+Signed-off-by: Jon DeVree <nuxi@vault24.org>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/pcie/rx.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/char/random.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/rx.c b/drivers/net/wireless/intel/iwlwifi/pcie/rx.c
-index c596c7b13504d..4354c0fedda78 100644
---- a/drivers/net/wireless/intel/iwlwifi/pcie/rx.c
-+++ b/drivers/net/wireless/intel/iwlwifi/pcie/rx.c
-@@ -1384,10 +1384,15 @@ static struct iwl_rx_mem_buffer *iwl_pcie_get_rxb(struct iwl_trans *trans,
- static void iwl_pcie_rx_handle(struct iwl_trans *trans, int queue)
- {
- 	struct iwl_trans_pcie *trans_pcie = IWL_TRANS_GET_PCIE_TRANS(trans);
--	struct iwl_rxq *rxq = &trans_pcie->rxq[queue];
-+	struct iwl_rxq *rxq;
- 	u32 r, i, count = 0;
- 	bool emergency = false;
+diff --git a/drivers/char/random.c b/drivers/char/random.c
+index 38c6d1af6d1c0..d4d45ccfeefc0 100644
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -777,6 +777,7 @@ static struct crng_state **crng_node_pool __read_mostly;
+ #endif
  
-+	if (WARN_ON_ONCE(!trans_pcie->rxq || !trans_pcie->rxq[queue].bd))
-+		return;
-+
-+	rxq = &trans_pcie->rxq[queue];
-+
- restart:
- 	spin_lock(&rxq->lock);
- 	/* uCode's read index (stored in shared DRAM) indicates the last Rx
+ static void invalidate_batched_entropy(void);
++static void numa_crng_init(void);
+ 
+ static bool trust_cpu __ro_after_init = IS_ENABLED(CONFIG_RANDOM_TRUST_CPU);
+ static int __init parse_trust_cpu(char *arg)
+@@ -805,7 +806,9 @@ static void crng_initialize(struct crng_state *crng)
+ 		}
+ 		crng->state[i] ^= rv;
+ 	}
+-	if (trust_cpu && arch_init) {
++	if (trust_cpu && arch_init && crng == &primary_crng) {
++		invalidate_batched_entropy();
++		numa_crng_init();
+ 		crng_init = 2;
+ 		pr_notice("random: crng done (trusting CPU's manufacturer)\n");
+ 	}
 -- 
 2.20.1
 
