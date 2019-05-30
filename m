@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D81D2F312
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:26:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63E6F2EBED
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 05:17:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730364AbfE3E0O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:26:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35018 "EHLO mail.kernel.org"
+        id S1730876AbfE3DQ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:16:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729136AbfE3DOe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:14:34 -0400
+        id S1729909AbfE3DQ5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:16:57 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D259624587;
-        Thu, 30 May 2019 03:14:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E1A4E24645;
+        Thu, 30 May 2019 03:16:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186073;
-        bh=25pFTBoD6N4oU3ZGvpFp9ZGtLP/CfMK1rvuyWPEpq8Y=;
+        s=default; t=1559186217;
+        bh=eMfYIMmN8IRYeFVqqs0Ntci4tZ4bgEYCeE5PmwQgDkM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ryESb2AAWn+LxkhRvUzMsJmA8tS1b4wdes+8VSENkCvt/axFm4QYpcU94MsYKwNe9
-         Nfg7ecEbatFepy3XzxMgjUVhdf4rUIjfas6ZJYWtXQRPKoZnBjb6T8PNwdPxz5ntp5
-         qkFczVppsvWFYbbW+LkdsxSCvFrQYdW4s7a070YU=
+        b=mWeglRWcu/r0mppLQnEdoyv7PhV1uniS8UQENaHbcU8q69Wq4Pq32qHtkHHNTqe/X
+         t0nwM6hne4fmSCUPJ+2CttASDPlZpWAvsqFn0iB7YM+PJLRafFqov8nDK9D2qAngf7
+         QEf4bq8zWrOTuyaK9OB5yd0CZ0BeF2Anj546DBsA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yinbo Zhu <yinbo.zhu@nxp.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 189/346] mmc: sdhci-of-esdhc: add erratum A-009204 support
-Date:   Wed, 29 May 2019 20:04:22 -0700
-Message-Id: <20190530030550.649914916@linuxfoundation.org>
+        stable@vger.kernel.org, Coly Li <colyli@suse.de>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 105/276] bcache: add failure check to run_cache_set() for journal replay
+Date:   Wed, 29 May 2019 20:04:23 -0700
+Message-Id: <20190530030532.608636349@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,40 +43,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 5dd195522562542bc6ebe6e7bd47890d8b7ca93c ]
+[ Upstream commit ce3e4cfb59cb382f8e5ce359238aa580d4ae7778 ]
 
-In the event of that any data error (like, IRQSTAT[DCE]) occurs
-during an eSDHC data transaction where DMA is used for data
-transfer to/from the system memory, setting the SYSCTL[RSTD]
-register may cause a system hang. If software sets the register
-SYSCTL[RSTD] to 1 for error recovery while DMA transferring is
-not complete, eSDHC may hang the system bus. This happens because
-the software register SYSCTL[RSTD] resets the DMA engine without
-waiting for the completion of pending system transactions. This
-erratum is to fix this issue.
+Currently run_cache_set() has no return value, if there is failure in
+bch_journal_replay(), the caller of run_cache_set() has no idea about
+such failure and just continue to execute following code after
+run_cache_set().  The internal failure is triggered inside
+bch_journal_replay() and being handled in async way. This behavior is
+inefficient, while failure handling inside bch_journal_replay(), cache
+register code is still running to start the cache set. Registering and
+unregistering code running as same time may introduce some rare race
+condition, and make the code to be more hard to be understood.
 
-Signed-off-by: Yinbo Zhu <yinbo.zhu@nxp.com>
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+This patch adds return value to run_cache_set(), and returns -EIO if
+bch_journal_rreplay() fails. Then caller of run_cache_set() may detect
+such failure and stop registering code flow immedidately inside
+register_cache_set().
+
+If journal replay fails, run_cache_set() can report error immediately
+to register_cache_set(). This patch makes the failure handling for
+bch_journal_replay() be in synchronized way, easier to understand and
+debug, and avoid poetential race condition for register-and-unregister
+in same time.
+
+Signed-off-by: Coly Li <colyli@suse.de>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/sdhci-of-esdhc.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/md/bcache/super.c | 17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/mmc/host/sdhci-of-esdhc.c b/drivers/mmc/host/sdhci-of-esdhc.c
-index 9da53e548691b..4fc4d2c7643c5 100644
---- a/drivers/mmc/host/sdhci-of-esdhc.c
-+++ b/drivers/mmc/host/sdhci-of-esdhc.c
-@@ -694,6 +694,9 @@ static void esdhc_reset(struct sdhci_host *host, u8 mask)
- 	sdhci_writel(host, host->ier, SDHCI_INT_ENABLE);
- 	sdhci_writel(host, host->ier, SDHCI_SIGNAL_ENABLE);
+diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
+index d8190804aee9b..2409507d7bff8 100644
+--- a/drivers/md/bcache/super.c
++++ b/drivers/md/bcache/super.c
+@@ -1770,7 +1770,7 @@ struct cache_set *bch_cache_set_alloc(struct cache_sb *sb)
+ 	return NULL;
+ }
  
-+	if (of_find_compatible_node(NULL, NULL, "fsl,p2020-esdhc"))
-+		mdelay(5);
+-static void run_cache_set(struct cache_set *c)
++static int run_cache_set(struct cache_set *c)
+ {
+ 	const char *err = "cannot allocate memory";
+ 	struct cached_dev *dc, *t;
+@@ -1866,7 +1866,9 @@ static void run_cache_set(struct cache_set *c)
+ 		if (j->version < BCACHE_JSET_VERSION_UUID)
+ 			__uuid_write(c);
+ 
+-		bch_journal_replay(c, &journal);
++		err = "bcache: replay journal failed";
++		if (bch_journal_replay(c, &journal))
++			goto err;
+ 	} else {
+ 		pr_notice("invalidating existing data");
+ 
+@@ -1934,7 +1936,7 @@ static void run_cache_set(struct cache_set *c)
+ 	flash_devs_run(c);
+ 
+ 	set_bit(CACHE_SET_RUNNING, &c->flags);
+-	return;
++	return 0;
+ err:
+ 	while (!list_empty(&journal)) {
+ 		l = list_first_entry(&journal, struct journal_replay, list);
+@@ -1945,6 +1947,8 @@ static void run_cache_set(struct cache_set *c)
+ 	closure_sync(&cl);
+ 	/* XXX: test this, it's broken */
+ 	bch_cache_set_error(c, "%s", err);
 +
- 	if (mask & SDHCI_RESET_ALL) {
- 		val = sdhci_readl(host, ESDHC_TBCTL);
- 		val &= ~ESDHC_TB_EN;
++	return -EIO;
+ }
+ 
+ static bool can_attach_cache(struct cache *ca, struct cache_set *c)
+@@ -2008,8 +2012,11 @@ static const char *register_cache_set(struct cache *ca)
+ 	ca->set->cache[ca->sb.nr_this_dev] = ca;
+ 	c->cache_by_alloc[c->caches_loaded++] = ca;
+ 
+-	if (c->caches_loaded == c->sb.nr_in_set)
+-		run_cache_set(c);
++	if (c->caches_loaded == c->sb.nr_in_set) {
++		err = "failed to run cache set";
++		if (run_cache_set(c) < 0)
++			goto err;
++	}
+ 
+ 	return NULL;
+ err:
 -- 
 2.20.1
 
