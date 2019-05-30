@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AEBE82F2B7
-	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:24:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 378E52F102
+	for <lists+stable@lfdr.de>; Thu, 30 May 2019 06:09:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730024AbfE3EYk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 30 May 2019 00:24:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35142 "EHLO mail.kernel.org"
+        id S1730958AbfE3DRM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 29 May 2019 23:17:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730017AbfE3DOv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 29 May 2019 23:14:51 -0400
+        id S1729596AbfE3DRM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 29 May 2019 23:17:12 -0400
 Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA27724585;
-        Thu, 30 May 2019 03:14:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8A98C24673;
+        Thu, 30 May 2019 03:17:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559186090;
-        bh=04Trd73qiFU1O86K9BIr3b/8N0ZYnRRlWR2TB6BlRo4=;
+        s=default; t=1559186231;
+        bh=3Gs0ydWZIhhouJbQGOpRTMF9JDNJuDunzz54fnbAY4Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AsKtaLYClBbyLIcXv6HoucoXIbWmUlCtENJd9/+R+KU8N4I6wmutElm4A6UtRd6vz
-         FWaoEaCEYBX9dSuM9ePCROUKADdqWHPv86n1qGM9EGLfNB3Kibxt2pKDE3rbR8qkkH
-         8eMAsHZ9yPmEd/fjclH7ROolFL8tqNqIzyHj103w=
+        b=IpJ7TTuNPmer1DJwvMnTpjvu/QqVcadMSya4HIk30rovqwxQGn22FpfRO8JU2/HI/
+         k2SXcGXWHR/S/1KNgVWaPl0mp1yC2/FJ+HFuvqFwD6wSjOOQ1MVtMBaDzSf5ZFdrEn
+         mSGdPL3zfRLDBm/I0qXQ8G/herfINf4ZHwa0+298=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jian Shen <shenjian15@huawei.com>,
-        Peng Li <lipeng321@huawei.com>,
-        Huazhong Tan <tanhuazhong@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.0 221/346] net: hns3: add protect when handling mac addr list
+        stable@vger.kernel.org,
+        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
+        Peter Zijlstra <a.p.zijlstra@chello.nl>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 136/276] sched/core: Check quota and period overflow at usec to nsec conversion
 Date:   Wed, 29 May 2019 20:04:54 -0700
-Message-Id: <20190530030552.279834702@linuxfoundation.org>
+Message-Id: <20190530030534.232304006@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190530030540.363386121@linuxfoundation.org>
-References: <20190530030540.363386121@linuxfoundation.org>
+In-Reply-To: <20190530030523.133519668@linuxfoundation.org>
+References: <20190530030523.133519668@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,71 +48,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 389775a6605e040dddea21a778a88eaaa57c068d ]
+[ Upstream commit 1a8b4540db732ca16c9e43ac7c08b1b8f0b252d8 ]
 
-It used netdev->uc and netdev->mc list in function
-hns3_recover_hw_addr() and hns3_remove_hw_addr().
-We should add protect for them.
+Large values could overflow u64 and pass following sanity checks.
 
-Fixes: f05e21097121 ("net: hns3: Clear mac vlan table entries when unload driver or function reset")
-Signed-off-by: Jian Shen <shenjian15@huawei.com>
-Signed-off-by: Peng Li <lipeng321@huawei.com>
-Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+ # echo 18446744073750000 > cpu.cfs_period_us
+ # cat cpu.cfs_period_us
+ 40448
+
+ # echo 18446744073750000 > cpu.cfs_quota_us
+ # cat cpu.cfs_quota_us
+ 40448
+
+After this patch they will fail with -EINVAL.
+
+Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+Acked-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: http://lkml.kernel.org/r/155125502079.293431.3947497929372138600.stgit@buzz
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3_enet.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ kernel/sched/core.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-index fb5cb15aea9ec..a6481bd34c3bb 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-@@ -3794,12 +3794,13 @@ static int hns3_recover_hw_addr(struct net_device *ndev)
- 	struct netdev_hw_addr *ha, *tmp;
- 	int ret = 0;
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index d7f409866cdf5..bd5ae34c20c0b 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -6593,8 +6593,10 @@ int tg_set_cfs_quota(struct task_group *tg, long cfs_quota_us)
+ 	period = ktime_to_ns(tg->cfs_bandwidth.period);
+ 	if (cfs_quota_us < 0)
+ 		quota = RUNTIME_INF;
+-	else
++	else if ((u64)cfs_quota_us <= U64_MAX / NSEC_PER_USEC)
+ 		quota = (u64)cfs_quota_us * NSEC_PER_USEC;
++	else
++		return -EINVAL;
  
-+	netif_addr_lock_bh(ndev);
- 	/* go through and sync uc_addr entries to the device */
- 	list = &ndev->uc;
- 	list_for_each_entry_safe(ha, tmp, &list->list, list) {
- 		ret = hns3_nic_uc_sync(ndev, ha->addr);
- 		if (ret)
--			return ret;
-+			goto out;
- 	}
- 
- 	/* go through and sync mc_addr entries to the device */
-@@ -3807,9 +3808,11 @@ static int hns3_recover_hw_addr(struct net_device *ndev)
- 	list_for_each_entry_safe(ha, tmp, &list->list, list) {
- 		ret = hns3_nic_mc_sync(ndev, ha->addr);
- 		if (ret)
--			return ret;
-+			goto out;
- 	}
- 
-+out:
-+	netif_addr_unlock_bh(ndev);
- 	return ret;
+ 	return tg_set_cfs_bandwidth(tg, period, quota);
  }
+@@ -6616,6 +6618,9 @@ int tg_set_cfs_period(struct task_group *tg, long cfs_period_us)
+ {
+ 	u64 quota, period;
  
-@@ -3820,6 +3823,7 @@ static void hns3_remove_hw_addr(struct net_device *netdev)
- 
- 	hns3_nic_uc_unsync(netdev, netdev->dev_addr);
- 
-+	netif_addr_lock_bh(netdev);
- 	/* go through and unsync uc_addr entries to the device */
- 	list = &netdev->uc;
- 	list_for_each_entry_safe(ha, tmp, &list->list, list)
-@@ -3830,6 +3834,8 @@ static void hns3_remove_hw_addr(struct net_device *netdev)
- 	list_for_each_entry_safe(ha, tmp, &list->list, list)
- 		if (ha->refcount > 1)
- 			hns3_nic_mc_unsync(netdev, ha->addr);
++	if ((u64)cfs_period_us > U64_MAX / NSEC_PER_USEC)
++		return -EINVAL;
 +
-+	netif_addr_unlock_bh(netdev);
- }
+ 	period = (u64)cfs_period_us * NSEC_PER_USEC;
+ 	quota = tg->cfs_bandwidth.quota;
  
- static void hns3_clear_tx_ring(struct hns3_enet_ring *ring)
 -- 
 2.20.1
 
