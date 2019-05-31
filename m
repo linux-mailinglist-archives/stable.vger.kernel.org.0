@@ -2,89 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 07D7431068
-	for <lists+stable@lfdr.de>; Fri, 31 May 2019 16:41:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FA1031071
+	for <lists+stable@lfdr.de>; Fri, 31 May 2019 16:45:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726518AbfEaOlT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 May 2019 10:41:19 -0400
-Received: from mx2.suse.de ([195.135.220.15]:34074 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726485AbfEaOlS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 31 May 2019 10:41:18 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 55689AF08;
-        Fri, 31 May 2019 14:41:17 +0000 (UTC)
-Subject: Re: [Xen-devel] [PATCH] xen-blkfront: switch kcalloc to kvcalloc for
- large array allocation
-To:     Roger Pau Monne <roger.pau@citrix.com>,
+        id S1726548AbfEaOo6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 May 2019 10:44:58 -0400
+Received: from aserp2130.oracle.com ([141.146.126.79]:51032 "EHLO
+        aserp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726518AbfEaOo5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 31 May 2019 10:44:57 -0400
+Received: from pps.filterd (aserp2130.oracle.com [127.0.0.1])
+        by aserp2130.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x4VEiI7M135718;
+        Fri, 31 May 2019 14:44:48 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=date : in-reply-to :
+ references : mime-version : content-type : content-transfer-encoding :
+ subject : to : cc : from : message-id; s=corp-2018-07-02;
+ bh=2Om5stwDArQ6nGqOb7I9JAkeWMfEhcwW5B4qI7FOiB0=;
+ b=cLRCeCwZnlsUocnqR6QzeNTw/ws6EKRiVDGt5QG90Hn/e4KTVGWKirkrucWPvBhFQUvU
+ v2Ar9cbIhR0DQteupVsa3sD9gytEUUrem5p0dvpG45c/auWqrWM9jKusfY4jekJ93mPM
+ yVU3FV1gKzN4vsWQan5e9Vgx85Gd9wQA6aQQlL84DNBFSEHv9Ld/W9P34Psv3faIHBkz
+ tvhl6unPvXR/vg/aPQKcZbYPdRJzzyIWTasj6fIVTo6MESGnsA1rnkdLj49ZQAll+Tj8
+ yHdJnQAdKrCaso0uk8lLbIvcYujnVdOybEm18+d0Ml+IVaKBURzuOhPzyk/5UHMOzLjp 7w== 
+Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
+        by aserp2130.oracle.com with ESMTP id 2spu7dxyqt-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 31 May 2019 14:44:48 +0000
+Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
+        by aserp3020.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x4VEiTu6146225;
+        Fri, 31 May 2019 14:44:47 GMT
+Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
+        by aserp3020.oracle.com with ESMTP id 2su61fgc4n-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 31 May 2019 14:44:47 +0000
+Received: from abhmp0007.oracle.com (abhmp0007.oracle.com [141.146.116.13])
+        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id x4VEiitL032333;
+        Fri, 31 May 2019 14:44:44 GMT
+Received: from galaxy-s9.lan (/209.6.36.129)
+        by default (Oracle Beehive Gateway v4.0)
+        with ESMTP ; Fri, 31 May 2019 07:44:43 -0700
+Date:   Fri, 31 May 2019 10:44:39 -0400
+User-Agent: K-9 Mail for Android
+In-Reply-To: <ba37b50c-c0ac-5af4-441b-a2d4eda81255@suse.com>
+References: <20190503150401.15904-1-roger.pau@citrix.com> <f4b944e8-6678-a921-e2b2-aaeb00c0d5e1@suse.com> <ba37b50c-c0ac-5af4-441b-a2d4eda81255@suse.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+ charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [Xen-devel] [PATCH] xen-blkfront: switch kcalloc to kvcalloc for large array allocation
+To:     Juergen Gross <jgross@suse.com>,
+        Roger Pau Monne <roger.pau@citrix.com>,
         linux-kernel@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
-Cc:     Stefano Stabellini <sstabellini@kernel.org>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+CC:     Stefano Stabellini <sstabellini@kernel.org>,
         stable@vger.kernel.org, linux-block@vger.kernel.org,
         xen-devel@lists.xenproject.org,
         Boris Ostrovsky <boris.ostrovsky@oracle.com>
-References: <20190503150401.15904-1-roger.pau@citrix.com>
- <f4b944e8-6678-a921-e2b2-aaeb00c0d5e1@suse.com>
-From:   Juergen Gross <jgross@suse.com>
-Openpgp: preference=signencrypt
-Autocrypt: addr=jgross@suse.com; prefer-encrypt=mutual; keydata=
- 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
-Message-ID: <ba37b50c-c0ac-5af4-441b-a2d4eda81255@suse.com>
-Date:   Fri, 31 May 2019 16:41:16 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
-MIME-Version: 1.0
-In-Reply-To: <f4b944e8-6678-a921-e2b2-aaeb00c0d5e1@suse.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: de-DE
-Content-Transfer-Encoding: 8bit
+From:   Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Message-ID: <63D28830-5450-41F5-AC6E-3D5FDE1F80B7@oracle.com>
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9273 signatures=668687
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
+ phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.0.1-1810050000 definitions=main-1905310093
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9273 signatures=668687
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
+ suspectscore=0 phishscore=0 bulkscore=0 spamscore=0 clxscore=1011
+ lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=999 adultscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1810050000
+ definitions=main-1905310093
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 06/05/2019 10:11, Juergen Gross wrote:
-> On 03/05/2019 17:04, Roger Pau Monne wrote:
->> There's no reason to request physically contiguous memory for those
->> allocations.
->>
->> Reported-by: Ian Jackson <ian.jackson@citrix.com>
->> Signed-off-by: Roger Pau Monné <roger.pau@citrix.com>
-> 
-> Reviewed-by: Juergen Gross <jgross@suse.com>
+On May 31, 2019 10:41:16 AM EDT, Juergen Gross <jgross@suse=2Ecom> wrote:
+>On 06/05/2019 10:11, Juergen Gross wrote:
+>> On 03/05/2019 17:04, Roger Pau Monne wrote:
+>>> There's no reason to request physically contiguous memory for those
+>>> allocations=2E
+>>>
+>>> Reported-by: Ian Jackson <ian=2Ejackson@citrix=2Ecom>
+>>> Signed-off-by: Roger Pau Monn=C3=A9 <roger=2Epau@citrix=2Ecom>
+>>=20
+>> Reviewed-by: Juergen Gross <jgross@suse=2Ecom>
+>
+>Jens, are you going to tkae this patch or should I carry it through the
+>Xen tree?
 
-Jens, are you going to tkae this patch or should I carry it through the
-Xen tree?
+Usually I ended up picking them (and then asking Jens to git pull into his=
+ branch) but if you want to handle them that would be much easier!
 
+(And if so, please add Acked-by on them from me)=2E
+>
+>
+>Juergen
 
-Juergen
