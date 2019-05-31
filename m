@@ -2,119 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B9A8316CC
-	for <lists+stable@lfdr.de>; Fri, 31 May 2019 23:54:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 450F2316DB
+	for <lists+stable@lfdr.de>; Fri, 31 May 2019 23:59:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726700AbfEaVyC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 May 2019 17:54:02 -0400
-Received: from mout.web.de ([212.227.17.12]:60965 "EHLO mout.web.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725913AbfEaVyC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 31 May 2019 17:54:02 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=web.de;
-        s=dbaedf251592; t=1559339632;
-        bh=4PnwSzytXpwFC3XqLknN/leQqVZx0q9UvCEseQqQS+4=;
-        h=X-UI-Sender-Class:From:To:Cc:Subject:Date;
-        b=jIC5Q2LtJwYGaPixV8SgrlD6n2xlnLUZMrjXre6okDNzFH+EcIRIKtX5dyJHJ1zr2
-         F6jum7nSXJ4DBw+y0Syq1NWQEevxMmbJofzIMQtNHzcKgwGX1CYErJdzhakDVanY3a
-         VLDQ+QsiFssVg6PlZXF47PWm/TObLqPCm6VhFatU=
-X-UI-Sender-Class: c548c8c5-30a9-4db5-a2e7-cb6cb037b8f9
-Received: from platinum.office.videantis.de ([89.15.238.249]) by smtp.web.de
- (mrweb103 [213.165.67.124]) with ESMTPSA (Nemesis) id
- 0MIN2h-1haPpo39vr-00489n; Fri, 31 May 2019 23:53:51 +0200
-From:   Soeren Moch <smoch@web.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Soeren Moch <smoch@web.de>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: [PATCH] Revert "usb: core: remove local_irq_save() around ->complete() handler"
-Date:   Fri, 31 May 2019 23:53:40 +0200
-Message-Id: <20190531215340.24539-1-smoch@web.de>
-X-Mailer: git-send-email 2.17.1
-X-Provags-ID: V03:K1:4pki4c77cO/q+Q4fp+esI/7+IHZntp6ARk7ufrkg7lwd/BtNRwG
- ZONH+X9My05hiGQTV64d6W5tSdlWE7RbotPQYA10uJpTdHeFjQTmo+y0465WGOkacVVpfO3
- SMdhpb4JQd03rlXmKdIMRNJLlxlJ9T+wkpg7CaPLHbHa06VLqBwVpleYOXMnLX7qthLmmW0
- RKSTX2erEBTfeSGII/HMw==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:00Fs/HKfJpE=:uEzYaepEDBH2thRnu2t4VM
- j3m7F9bB23oQqaxPeOsMPIZXoRwYHT/Xx/9zyE1+38jrJGrEH9Xwy78d6Gd38G/SUXU84tRjJ
- C7EDAmc1FacNELDuF9ZjM9bF62PKthxcQQ9Pvuw3L/R491xeA9d4lW73/+tMtilFK4EqyHTNd
- UB9dKEnm9AuSroRSUUXZpeblMr4zyrffr8BhT5GGLiUjsceMdWJvkr32tonOUR2I4/dC8vDJZ
- lKZ0FeaRGX1uNaCwqVgvClEaze/3L7LnExqjIhIQ7VQrv0/8EOAI48HnmlKN5YV20JxQ/tmQj
- BG+8EBkK4AK8rRaJ0WTBgmWLvRukhdXiK4ynEAOsGqQ4tt4IJ80rh8OrhsP+hEKEcOZ5qlxUK
- 4Z+iOCAwlA9OwEzsHLUxZCHMoUjI5KPJGVj2EBY1oDozymJ//dr0vGCxYxalqG3uyeCTE74FB
- 6SjpJrWDjbslzR85yLp2w+qXoatdqi1hpD9N6QcHygmKBXwVHK8luzO7jFLjOjoseLkT1O8XC
- B4alIAk+rNgLZjCbjJs/9ZV0E8RVY3SX77ZfuH/OBr57qVxeosqImw0QATlURPT4UhIE2IxEG
- 1F0twVmQvsDK7MVe4b/gO5r5Dnz0Dv+ano6aZCFa2RVvjjl3lAbQnGpdinPpXSjsy7NXyKK6G
- F2xO4X6aU5Y+dqArnrnqIBpwtHrdE+CZC4/U6C5e+/hxldZ91bWGAyb4hCV48+LnytHDRJWyV
- wwsh5yiKKJ0y+KffV7aCGbIFEZuuli5wRr3IXVItqOV8G64E4AeZbzyUHpCdkg5RiokklrsBM
- /DPbA90EZ9CbdyVmIjXhJJIDDkmxADqdXkPV0h2W7zICp93rDqilW7gA6zQwgRsqbKcsA4c2o
- hco2JeHF34+EqpgHlRKppY5vAiy/Yooc6PxjdSn8LNH4LbHzYO4PNbJMBuhYCVy84ZWAoQuNS
- EUK1xnNxqxODuKXF+HPc6DloRvvV0hBg=
+        id S1726483AbfEaV7w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 May 2019 17:59:52 -0400
+Received: from mail-wr1-f45.google.com ([209.85.221.45]:34007 "EHLO
+        mail-wr1-f45.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725913AbfEaV7w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 31 May 2019 17:59:52 -0400
+Received: by mail-wr1-f45.google.com with SMTP id f8so7433681wrt.1
+        for <stable@vger.kernel.org>; Fri, 31 May 2019 14:59:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=kUpLqUgnI1+PrNJHr7rOV4tlYckLWRONCaGlIe9UXrc=;
+        b=ePrky56yjEmIlj9XQK+M4ChatZjag2Bkiw3RugIDbUzk4Y7yKI3WJGUCfEzugcJrb7
+         siP1//136kqajbdremY/ywHOgRodjPYtiuaEOZPRCO1I6QsCW59hux80KYVxTWyPgBHY
+         EgspLNb2be+Gcj/RqsXv5ahAhBhoTAzwgLCjsKdrir8ljujrEE/I/ggSy3yNm3DGxYhk
+         A7tJa1H8VWKUd36HSvobfWOx+Iy7C46qEGtu3jH+r7jVrhLglJnGD13oPmbQZoUj5zmi
+         yjoa94jBlnS9ouEGnkOJmcX1nqUWNXobL64boGr9AsGDQCMlTREtKWVn4Ds9wmkdMzrH
+         i/wg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=kUpLqUgnI1+PrNJHr7rOV4tlYckLWRONCaGlIe9UXrc=;
+        b=GbpanCxV4HwAQM5ciBAWGqtZTZyKB1+RN8rVbYuGHI8Fhc3Rffp+htB3NgIEbkmnkV
+         JWbN9zKxiZzDjBQicM4nRniJaT8zcChDEkeY5GzG8gTdBEw59Ln3Vc9IdUoX8DlP2r/Y
+         5YLEqT2KJHmPXX2jBXkwlKomdW7u0kaUPXzvsq+zgBd5gKLN2msVOVlHH7o2bcMGX9K9
+         wFL6FS+9pJAYY30QukAR+HJdfjzT/N0xZNVy5i45c3JnaUn7hM3KS40CsmmsCfhj1i6W
+         LFy/x3y0fg4OawfocoHwoAIWDYJC+0dJc9q0cGUalu0O9xWlXDwOV0Kgr3AMr4jy4F7B
+         5cWQ==
+X-Gm-Message-State: APjAAAU2xyN+qxO7akiURBNrwNVllGLjUk4bjvhFEYma3QfeHXUcY1pz
+        yTcPw61TW9x/0bot7BvyVYU2JYMpfknxTQ==
+X-Google-Smtp-Source: APXvYqySui+XSXwp6aX3RZ91mbkaWh4gwHHO+cJaZnWlheo1GZGW9NysUVYs5hBop04V5lHGDudD+w==
+X-Received: by 2002:a5d:488b:: with SMTP id g11mr8129143wrq.72.1559339990696;
+        Fri, 31 May 2019 14:59:50 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id c2sm5768762wrf.75.2019.05.31.14.59.49
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 31 May 2019 14:59:49 -0700 (PDT)
+Message-ID: <5cf1a3d5.1c69fb81.6c6ed.f476@mx.google.com>
+Date:   Fri, 31 May 2019 14:59:49 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.14.123
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.14.y boot: 119 boots: 0 failed,
+ 119 passed (v4.14.123)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This reverts commit ed194d1367698a0872a2b75bbe06b3932ce9df3a.
+stable-rc/linux-4.14.y boot: 119 boots: 0 failed, 119 passed (v4.14.123)
 
-In contrast to the original patch description, apparently not all handlers
-were audited properly. E.g. my RT5370 based USB WIFI adapter (driver in
-drivers/net/wireless/ralink/rt2x00) hangs after a while under heavy load.
-This revert fixes this.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.14.y/kernel/v4.14.123/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.123/
 
-Also revert the follow-up patch d6142b91e9cc249b3aa22c90fade67e2e2d52cdb
-("usb: core: remove flags variable in __usb_hcd_giveback_urb()"), since no=
-w
-we need the flags variable again.
+Tree: stable-rc
+Branch: linux-4.14.y
+Git Describe: v4.14.123
+Git Commit: 8cb1239889087368a792c655de99529eec219bfc
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 62 unique boards, 23 SoC families, 14 builds out of 201
 
-Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: Alan Stern <stern@rowland.harvard.edu>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: linux-usb@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: stable@vger.kernel.org # 4.20+
-Signed-off-by: Soeren Moch <smoch@web.de>
-=2D--
- drivers/usb/core/hcd.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
-
-diff --git a/drivers/usb/core/hcd.c b/drivers/usb/core/hcd.c
-index 94d22551fc1b..08d25fcf8b8e 100644
-=2D-- a/drivers/usb/core/hcd.c
-+++ b/drivers/usb/core/hcd.c
-@@ -1739,6 +1739,7 @@ static void __usb_hcd_giveback_urb(struct urb *urb)
- 	struct usb_hcd *hcd =3D bus_to_hcd(urb->dev->bus);
- 	struct usb_anchor *anchor =3D urb->anchor;
- 	int status =3D urb->unlinked;
-+	unsigned long flags;
-
- 	urb->hcpriv =3D NULL;
- 	if (unlikely((urb->transfer_flags & URB_SHORT_NOT_OK) &&
-@@ -1755,7 +1756,20 @@ static void __usb_hcd_giveback_urb(struct urb *urb)
-
- 	/* pass ownership to the completion handler */
- 	urb->status =3D status;
-+
-+	/*
-+	 * We disable local IRQs here avoid possible deadlock because
-+	 * drivers may call spin_lock() to hold lock which might be
-+	 * acquired in one hard interrupt handler.
-+	 *
-+	 * The local_irq_save()/local_irq_restore() around complete()
-+	 * will be removed if current USB drivers have been cleaned up
-+	 * and no one may trigger the above deadlock situation when
-+	 * running complete() in tasklet.
-+	 */
-+	local_irq_save(flags);
- 	urb->complete(urb);
-+	local_irq_restore(flags);
-
- 	usb_anchor_resume_wakeups(anchor);
- 	atomic_dec(&urb->use_count);
-=2D-
-2.17.1
-
+---
+For more info write to <info@kernelci.org>
