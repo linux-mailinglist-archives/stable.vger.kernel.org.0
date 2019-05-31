@@ -2,141 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B70A309B9
-	for <lists+stable@lfdr.de>; Fri, 31 May 2019 09:56:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03BA0309D4
+	for <lists+stable@lfdr.de>; Fri, 31 May 2019 10:06:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726158AbfEaH45 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 May 2019 03:56:57 -0400
-Received: from mail-eopbgr130041.outbound.protection.outlook.com ([40.107.13.41]:4199
-        "EHLO EUR01-HE1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725963AbfEaH44 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 31 May 2019 03:56:56 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=PUNanSQS9LC1pT5UQhboECcs+Q/6GY5ZrtjTwqLVF3A=;
- b=pUsQFbpODN6tiKhXTPPX0HwyO+t8/cV21mpAuNFMfxOIVDdUFfRa3bGacLty6cuHXysXshv0Ew1ADwoEAbHwwN6rcuzWcDjjPVsc4XTOC8iFQZ6yA5gY5gZOMDBesMrnuX0A8OTs4ALPq77vSSbf0+n0dwYyQR9gKWyq+iRM938=
-Received: from AM0PR04MB4481.eurprd04.prod.outlook.com (52.135.147.15) by
- AM0PR04MB5041.eurprd04.prod.outlook.com (20.176.214.78) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.1922.19; Fri, 31 May 2019 07:56:51 +0000
-Received: from AM0PR04MB4481.eurprd04.prod.outlook.com
- ([fe80::3173:24:d401:2378]) by AM0PR04MB4481.eurprd04.prod.outlook.com
- ([fe80::3173:24:d401:2378%6]) with mapi id 15.20.1922.021; Fri, 31 May 2019
- 07:56:51 +0000
-From:   Peng Fan <peng.fan@nxp.com>
-To:     Shawn Guo <shawnguo@kernel.org>
-CC:     Stephen Boyd <sboyd@kernel.org>,
-        "mturquette@baylibre.com" <mturquette@baylibre.com>,
-        "s.hauer@pengutronix.de" <s.hauer@pengutronix.de>,
-        "kernel@pengutronix.de" <kernel@pengutronix.de>,
-        "festevam@gmail.com" <festevam@gmail.com>,
-        dl-linux-imx <linux-imx@nxp.com>,
-        "linux-clk@vger.kernel.org" <linux-clk@vger.kernel.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH] clk: imx: imx8mm: correct audio_pll2_clk to
- audio_pll2_out
-Thread-Topic: [PATCH] clk: imx: imx8mm: correct audio_pll2_clk to
- audio_pll2_out
-Thread-Index: AQHVED6JGbhPMl1ASUycBcbN9uhZiqZ4tK8AgAoZTgCAAB1qcIAB/gsAgAACfsA=
-Date:   Fri, 31 May 2019 07:56:51 +0000
-Message-ID: <AM0PR04MB4481853F9CF85F6B5CB7FA7088190@AM0PR04MB4481.eurprd04.prod.outlook.com>
-References: <20190522014832.29485-1-peng.fan@nxp.com>
- <20190523132235.GZ9261@dragon> <20190529233547.B7F6F2435D@mail.kernel.org>
- <AM0PR04MB4481A7FF28A9AB9A1584423888180@AM0PR04MB4481.eurprd04.prod.outlook.com>
- <20190531074633.GF23453@dragon>
-In-Reply-To: <20190531074633.GF23453@dragon>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=peng.fan@nxp.com; 
-x-originating-ip: [119.31.174.71]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 1753ada6-17d6-4672-d178-08d6e59d8a86
-x-ms-office365-filtering-ht: Tenant
-x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600148)(711020)(4605104)(1401327)(4618075)(2017052603328)(7193020);SRVR:AM0PR04MB5041;
-x-ms-traffictypediagnostic: AM0PR04MB5041:
-x-ms-exchange-purlcount: 2
-x-microsoft-antispam-prvs: <AM0PR04MB5041B57F9555945D443FF69588190@AM0PR04MB5041.eurprd04.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:8882;
-x-forefront-prvs: 00540983E2
-x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(346002)(39860400002)(396003)(136003)(366004)(376002)(189003)(199004)(66556008)(73956011)(66476007)(66946007)(86362001)(7416002)(4326008)(64756008)(966005)(14454004)(76116006)(186003)(3846002)(6116002)(45080400002)(478600001)(8676002)(81156014)(66446008)(81166006)(476003)(8936002)(11346002)(446003)(7736002)(33656002)(44832011)(2906002)(6246003)(305945005)(74316002)(52536014)(486006)(54906003)(5660300002)(229853002)(6506007)(99286004)(6306002)(6916009)(76176011)(7696005)(102836004)(55016002)(26005)(71190400001)(9686003)(68736007)(316002)(6436002)(66066001)(71200400001)(25786009)(53936002)(256004)(32563001);DIR:OUT;SFP:1101;SCL:1;SRVR:AM0PR04MB5041;H:AM0PR04MB4481.eurprd04.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
-received-spf: None (protection.outlook.com: nxp.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam-message-info: +l2I7DAVaF5+LpP3NTIlJ2kWQlFOpzn6QSKe+V7v8uTZ4oOqedoDhXax1ZvlZLQlnz2sMd3HAk+8OV3Da7adVkizqhp8M07nokwYXJVA/xLfgZAeGKuaLG6QhEiXRHCtzXR7F1RH6ZJnyjXf7IN9xWLmUcqozrOiUmrPBDzEMJDjH5lYg7vTLsFvKwv63QVOTg7Ik3bWIQHCR9RCPIotcetm03PbD0fI9PzLqaF27NcGGQ9NgMlQ7ZdUVAswovVC/gDPtl16GzHK/zSN28a2uV/JOf3ooSw9AFe3UBBNHx+xaHogXCGqSMB67HudMV61n0gUO/1m+Bt2dGcymtkr3cO3DaDekOEtqqiXiCAdpRSGw0soz3CzxeqSHD2DpSbnVXSDP1abkmr8+L4NkySXn2U169tOn2vY659bRrf8wHc=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        id S1726887AbfEaIGS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 May 2019 04:06:18 -0400
+Received: from mail-pf1-f181.google.com ([209.85.210.181]:33281 "EHLO
+        mail-pf1-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726724AbfEaIGS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 31 May 2019 04:06:18 -0400
+Received: by mail-pf1-f181.google.com with SMTP id x10so604049pfi.0
+        for <stable@vger.kernel.org>; Fri, 31 May 2019 01:06:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=date:from:to:cc:subject:message-id:mime-version:content-disposition;
+        bh=os3L1aVX5urKdl/cFtZ58c7IF2+Q+k6ccfeuAVisz7U=;
+        b=axdYRrIlGG8i4TJ34DvLRWKhQVMKYg5PQrJhvoDkY8NxJ6WWVvkrFTJ0Q1i6duljo7
+         /bLvUxma1BwaPI8qj3hCgq9m/wp2gLSbF++38PlpKd0a6veaquuaMvJTJwbxc15eR+gI
+         D9WM9vaoakfJYQvrPD9HbvRqBZ2Dzs82OvAeo=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition;
+        bh=os3L1aVX5urKdl/cFtZ58c7IF2+Q+k6ccfeuAVisz7U=;
+        b=fDLqc/kZYWX1Cq8xYnTEgtaCPcxDPGtDbw0VQlwOEffOF/WAy9TCzP+RZ/un7axvfE
+         AE7DX6iJU0oxKu4yQhZUjZ/iE37MuRbEPvB7P08d9dxFZsfEN4rp4h35yBXTx+ikhT2o
+         YtP6Z4F1KzD+N1gZAuxs+J5qOa8Eyn4UR5tcuGv9xsFaHYQJkKGXx5CIEV9Ef4XB8rkw
+         CgWY40sWmG9NVObZPYrj47AfAZcSV1OnuSs3rrr+jtTPGywY9TZVsu2g4rtDBddC+JTq
+         4kh4tLiXnHRbCCTf0IKvd+b+e8VyYnpwnJM+Ynpi2EHWvm0UfDJqRLG3/9pug+elI+Wf
+         RnLA==
+X-Gm-Message-State: APjAAAVQ0+v0zwjEcXwXYZyxznq6CKPAZ9WU03cqgDczukXEL+8NNrjd
+        4yYSt0FX6v9JG5nj3OShHpqtpA==
+X-Google-Smtp-Source: APXvYqzVO29kuep0HFj1p9Lz+mholj8I0J4ZCtAVHKOa+CsJ2PZnmDqnMec95dTKrHcsBufJEgKOyA==
+X-Received: by 2002:a63:2b92:: with SMTP id r140mr7630955pgr.363.1559289977336;
+        Fri, 31 May 2019 01:06:17 -0700 (PDT)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id 132sm4705007pga.79.2019.05.31.01.06.16
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Fri, 31 May 2019 01:06:16 -0700 (PDT)
+Date:   Fri, 31 May 2019 01:06:15 -0700
+From:   Kees Cook <keescook@chromium.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Yaro Slav <yaro330@gmail.com>, stable@vger.kernel.org
+Subject: pstore backports to 4.14
+Message-ID: <201905310055.F37C37E@keescook>
 MIME-Version: 1.0
-X-OriginatorOrg: nxp.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 1753ada6-17d6-4672-d178-08d6e59d8a86
-X-MS-Exchange-CrossTenant-originalarrivaltime: 31 May 2019 07:56:51.5341
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: peng.fan@nxp.com
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM0PR04MB5041
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Shawn,
+Hi Greg,
 
-> Subject: Re: [PATCH] clk: imx: imx8mm: correct audio_pll2_clk to
-> audio_pll2_out
->=20
-> On Thu, May 30, 2019 at 01:22:57AM +0000, Peng Fan wrote:
-> > Hi Stephen,
-> >
-> > > Subject: Re: [PATCH] clk: imx: imx8mm: correct audio_pll2_clk to
-> > > audio_pll2_out
-> > >
-> > > Quoting Shawn Guo (2019-05-23 06:22:36)
-> > > > On Wed, May 22, 2019 at 01:34:46AM +0000, Peng Fan wrote:
-> > > > > There is no audio_pll2_clk registered, it should be audio_pll2_ou=
-t.
-> > > > >
-> > > > > Cc: <stable@vger.kernel.org>
-> > > > > Fixes: ba5625c3e27 ("clk: imx: Add clock driver support for
-> > > > > imx8mm")
-> > > > > Signed-off-by: Peng Fan <peng.fan@nxp.com>
-> > > >
-> > > > Stephen,
-> > > >
-> > > > I leave this to you, since it's a fix.
-> > > >
-> > >
-> > > Is it a critical fix? Or is it an annoyance that can wait in -next
-> > > until the next merge window?
-> >
-> > I did not run into issue without this fix currently, so it should be
-> > fine to wait in -next until the next merge window.
->=20
-> I was trying to pick up the patch, but the base64 Content-Transfer-Encodi=
-ng
-> make the applying difficult.  Please talk to NXP colleague Anson Huang
-> <Anson.Huang@nxp.com> to find out how to fix it.
+Can you please add these two pstore fixes to 4.14 please? They are
+prerequisites for another fix I'll be sending to Linus soon that'll
+be needed in 4.14 (to fix the bug Yaro ran into).
 
-This patch was sent out before we find workaround in our IT.
-Sorry for inconvenience. Patch was resent just now,
-https://patchwork.kernel.org/patch/10969743/
+b77fa617a2ff ("pstore: Remove needless lock during console writes")
+ea84b580b955 ("pstore: Convert buf_lock to semaphore")
 
-Thanks,
-Peng.
+Thanks!
 
->=20
-> https://eur01.safelinks.protection.outlook.com/?url=3Dhttps%3A%2F%2Fpatch
-> work.kernel.org%2Fpatch%2F10944169%2F%2322656941&amp;data=3D02%7C
-> 01%7Cpeng.fan%40nxp.com%7Ca54e9a2a6ebf4411be7808d6e59c4c2e%7C6
-> 86ea1d3bc2b4c6fa92cd99c5c301635%7C0%7C0%7C636948856849287143&
-> amp;sdata=3D9ONV36WZT2owv07e%2Faf2IzQU5KzRE3S111joTBzsXJQ%3D&a
-> mp;reserved=3D0
->=20
-> Shawn
+-- 
+Kees Cook
