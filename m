@@ -2,60 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B647030840
-	for <lists+stable@lfdr.de>; Fri, 31 May 2019 08:04:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E4AB230885
+	for <lists+stable@lfdr.de>; Fri, 31 May 2019 08:29:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726331AbfEaGEP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 May 2019 02:04:15 -0400
-Received: from mail-ed1-f68.google.com ([209.85.208.68]:39675 "EHLO
-        mail-ed1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725955AbfEaGEP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 31 May 2019 02:04:15 -0400
-Received: by mail-ed1-f68.google.com with SMTP id e24so12792978edq.6
-        for <stable@vger.kernel.org>; Thu, 30 May 2019 23:04:13 -0700 (PDT)
+        id S1726776AbfEaG3B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 May 2019 02:29:01 -0400
+Received: from mail-pg1-f196.google.com ([209.85.215.196]:36549 "EHLO
+        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725955AbfEaG3B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 31 May 2019 02:29:01 -0400
+Received: by mail-pg1-f196.google.com with SMTP id a3so3462673pgb.3
+        for <stable@vger.kernel.org>; Thu, 30 May 2019 23:29:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
+        d=axtens.net; s=google;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=xeJtG7vEar5JVvT9PCS2XrltCjozk3OE5Wgh3IZCm48=;
-        b=gZFICE+J9YJB/dVuG+P4RmSBhGxFlflDNSFVLINZmw0ueczc1xcH45vTifwugcB+yw
-         n8I3S1wJUmDdRAAd9bLFH4FJ4Vg4RwvOSVeB96mRzvAqbk19/UcbqTkYO9QxXOdn8jVS
-         aoBMPREM+MYyWXPvXWjIz+3u4090SuYeWGyHGK4TGFzhmB6xLo3Xl/9HWEexCHhrMr3D
-         sLIsJk5bzYNvkeTjvQR04KzAU4IejV5QpbnKqo/5LTT8y1d6Jih7iGqRu0nY9bNHo9HQ
-         D/lWdcHu6TJ2FRAC+JN0q8EtoLCIKt89jKtlcJt6kRk35zi/n2L8TAh6f4WJ3rMoFE8E
-         aZZQ==
+        bh=U1q4nyu1wWh9F6RWJJuLI88/9B7MUNJ47qh4u9mobT0=;
+        b=HOIoCMyilj6wXmhyXsyVXVafUYIOv8GIeWCBP+tiW/hHaRbNyeSAOsC8bQ5NwVuoFu
+         9N1yr7geIEiJmpjUAnnoK0C7MZHsQfueUq7KA0v/jmVUfdLp/bPZYsIF2a8razVZWGPV
+         L9Gx1dGQZ3WfxO2w6+Yts/2BJgcYTQETfsZFI=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=xeJtG7vEar5JVvT9PCS2XrltCjozk3OE5Wgh3IZCm48=;
-        b=FDWE2TaAHm0fAlSTFQM4OJmSq/cxIHXtzcJrC+KM3LQ7mT3z4SsLLb4eWJau0J1ZeX
-         SXEsG82QzQ2MlkCCtBLVXUIj+AUXlqI2Yi4A76GimC86mTuZNbWJI0Mei9u5MXt0z388
-         tXa93cFdANshW3vwCDKGQ4mMaxJ6OaM9YQTBfo8NxN7wbnIoOTRcILYN2neuR7mMcTp5
-         UGgRj73TEIwg8/G0VtGHGodiSyCsq9/xNrg8+A0PmSWcydkSFydRGhOwrCMg3IC1S7La
-         YGUXv5IB5O3n88mZIkK3tK6hwS0u16OLuga1oyaoS7TdOf3xvpC5y+gtBWiwCKkMWwvX
-         viyw==
-X-Gm-Message-State: APjAAAXIG9WfgrFhBS1KXq3PHAaCo3rGP/cfNtYfY25DNIiruqemuxuj
-        1GkXRKIPHvM7V4Mx1B39rtg=
-X-Google-Smtp-Source: APXvYqxznhQzTz2a5j83A03h0kysNOOfSAleLHYXahj2hpd6RlHtOg8qP+kYyZe3ko7r+o0+b+tCfw==
-X-Received: by 2002:a50:f286:: with SMTP id f6mr6677791edm.44.1559282653176;
-        Thu, 30 May 2019 23:04:13 -0700 (PDT)
-Received: from localhost.localdomain ([2a01:4f9:2b:2b15::2])
-        by smtp.gmail.com with ESMTPSA id g18sm1314552edh.13.2019.05.30.23.04.11
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 30 May 2019 23:04:12 -0700 (PDT)
-From:   Nathan Chancellor <natechancellor@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     stable@vger.kernel.org, clang-built-linux@googlegroups.com,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Kees Cook <keescook@chromium.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <natechancellor@gmail.com>
-Subject: [PATCH 4.19] compiler.h: give up __compiletime_assert_fallback()
-Date:   Thu, 30 May 2019 23:01:10 -0700
-Message-Id: <20190531060109.124476-1-natechancellor@gmail.com>
-X-Mailer: git-send-email 2.22.0.rc2
+        bh=U1q4nyu1wWh9F6RWJJuLI88/9B7MUNJ47qh4u9mobT0=;
+        b=rUaOReKsJ9tESsXAgxhiBtv+JRiXGVt2E8MabG/xjzYgWkXpP4bcBs/92BruNYS36Q
+         DsQdDYvVZSnGXQJFai1FPXakibxoy3/Vi/zuYkAnijGNRM/DB7Fuw101JnHjX4on6gS5
+         Gxc6bX3Me4IAgZEi1NAxvFSStr1Hh1HkqzFsM0Hx44NRCDJcgPqL4RqwrZJohIa4UC3B
+         kd2dsvG5k54kH8twvwgNN5dqroHsexPcJZp5jxRtjmWarZQHJFKP+3P6IO0IrmI6TpRQ
+         +oSd3nfxfQKz2jHMYk2Gw779D6+g+K2Ys7farl9WraWbeyNCpnE+QQ3xaG9YN6BN/RKz
+         DqJg==
+X-Gm-Message-State: APjAAAUXN6DTL1VgqC9G8276iOT81xxNQLsniRZGJEoIoHrUmcw8Y+Pj
+        wXrV/JxcPNLYSChXAO1W8RRQJHgyX6Y=
+X-Google-Smtp-Source: APXvYqxmaJGSmNYa+6wJzVu68L8OlqMbDKkRTJVq3Yq6lRVi0G/W+PnEqvW6RmjfDmoU30PT1VwwAw==
+X-Received: by 2002:aa7:881a:: with SMTP id c26mr8076779pfo.254.1559284140410;
+        Thu, 30 May 2019 23:29:00 -0700 (PDT)
+Received: from localhost (ppp167-251-205.static.internode.on.net. [59.167.251.205])
+        by smtp.gmail.com with ESMTPSA id j72sm5038672pje.12.2019.05.30.23.28.58
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Thu, 30 May 2019 23:28:59 -0700 (PDT)
+From:   Daniel Axtens <dja@axtens.net>
+To:     linuxppc-dev@lists.ozlabs.org
+Cc:     Daniel Axtens <dja@axtens.net>, stable@vger.kernel.org,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH BACKPORT 4.19, 5.0, 5.1] crypto: vmx - ghash: do nosimd fallback manually
+Date:   Fri, 31 May 2019 16:28:53 +1000
+Message-Id: <20190531062853.30957-1-dja@axtens.net>
+X-Mailer: git-send-email 2.19.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
@@ -63,93 +56,311 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <yamada.masahiro@socionext.com>
+VMX ghash was using a fallback that did not support interleaving simd
+and nosimd operations, leading to failures in the extended test suite.
 
-commit 81b45683487a51b0f4d3b29d37f20d6d078544e4 upstream.
+If I understood correctly, Eric's suggestion was to use the same
+data format that the generic code uses, allowing us to call into it
+with the same contexts. I wasn't able to get that to work - I think
+there's a very different key structure and data layout being used.
 
-__compiletime_assert_fallback() is supposed to stop building earlier
-by using the negative-array-size method in case the compiler does not
-support "error" attribute, but has never worked like that.
+So instead steal the arm64 approach and perform the fallback
+operations directly if required.
 
-You can simply try:
-
-    BUILD_BUG_ON(1);
-
-GCC immediately terminates the build, but Clang does not report
-anything because Clang does not support the "error" attribute now.
-It will later fail at link time, but __compiletime_assert_fallback()
-is not working at least.
-
-The root cause is commit 1d6a0d19c855 ("bug.h: prevent double evaluation
-of `condition' in BUILD_BUG_ON").  Prior to that commit, BUILD_BUG_ON()
-was checked by the negative-array-size method *and* the link-time trick.
-Since that commit, the negative-array-size is not effective because
-'__cond' is no longer constant.  As the comment in <linux/build_bug.h>
-says, GCC (and Clang as well) only emits the error for obvious cases.
-
-When '__cond' is a variable,
-
-    ((void)sizeof(char[1 - 2 * __cond]))
-
-... is not obvious for the compiler to know the array size is negative.
-
-Reverting that commit would break BUILD_BUG() because negative-size-array
-is evaluated before the code is optimized out.
-
-Let's give up __compiletime_assert_fallback().  This commit does not
-change the current behavior since it just rips off the useless code.
-
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Fixes: cc333cd68dfa ("crypto: vmx - Adding GHASH routines for VMX module")
+Cc: stable@vger.kernel.org # v4.1+
+Reported-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Daniel Axtens <dja@axtens.net>
+Acked-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Tested-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+(backported from commit 357d065a44cdd77ed5ff35155a989f2a763e96ef)
+Signed-off-by: Daniel Axtens <dja@axtens.net>
 ---
+ drivers/crypto/vmx/ghash.c | 212 +++++++++++++++----------------------
+ 1 file changed, 86 insertions(+), 126 deletions(-)
 
-Hi Greg and Sasha,
-
-Please pick up this patch for 4.19. It fixes an insane amount of spam
-from the drivers/gpu/drm/i915 subsystem because they enable the -Wvla
-warning and we have been carrying it in our CI for a while.
-
- include/linux/compiler.h | 17 +----------------
- 1 file changed, 1 insertion(+), 16 deletions(-)
-
-diff --git a/include/linux/compiler.h b/include/linux/compiler.h
-index 81c2238b884c..bb22908c79e8 100644
---- a/include/linux/compiler.h
-+++ b/include/linux/compiler.h
-@@ -319,29 +319,14 @@ static inline void *offset_to_ptr(const int *off)
- #endif
- #ifndef __compiletime_error
- # define __compiletime_error(message)
--/*
-- * Sparse complains of variable sized arrays due to the temporary variable in
-- * __compiletime_assert. Unfortunately we can't just expand it out to make
-- * sparse see a constant array size without breaking compiletime_assert on old
-- * versions of GCC (e.g. 4.2.4), so hide the array from sparse altogether.
-- */
--# ifndef __CHECKER__
--#  define __compiletime_error_fallback(condition) \
--	do { ((void)sizeof(char[1 - 2 * condition])); } while (0)
--# endif
--#endif
--#ifndef __compiletime_error_fallback
--# define __compiletime_error_fallback(condition) do { } while (0)
- #endif
+diff --git a/drivers/crypto/vmx/ghash.c b/drivers/crypto/vmx/ghash.c
+index dd8b8716467a..2d1a8cd35509 100644
+--- a/drivers/crypto/vmx/ghash.c
++++ b/drivers/crypto/vmx/ghash.c
+@@ -1,22 +1,14 @@
++// SPDX-License-Identifier: GPL-2.0
+ /**
+  * GHASH routines supporting VMX instructions on the Power 8
+  *
+- * Copyright (C) 2015 International Business Machines Inc.
+- *
+- * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License as published by
+- * the Free Software Foundation; version 2 only.
+- *
+- * This program is distributed in the hope that it will be useful,
+- * but WITHOUT ANY WARRANTY; without even the implied warranty of
+- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- * GNU General Public License for more details.
+- *
+- * You should have received a copy of the GNU General Public License
+- * along with this program; if not, write to the Free Software
+- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ * Copyright (C) 2015, 2019 International Business Machines Inc.
+  *
+  * Author: Marcelo Henrique Cerri <mhcerri@br.ibm.com>
++ *
++ * Extended by Daniel Axtens <dja@axtens.net> to replace the fallback
++ * mechanism. The new approach is based on arm64 code, which is:
++ *   Copyright (C) 2014 - 2018 Linaro Ltd. <ard.biesheuvel@linaro.org>
+  */
  
- #ifdef __OPTIMIZE__
- # define __compiletime_assert(condition, msg, prefix, suffix)		\
- 	do {								\
--		int __cond = !(condition);				\
- 		extern void prefix ## suffix(void) __compiletime_error(msg); \
--		if (__cond)						\
-+		if (!(condition))					\
- 			prefix ## suffix();				\
--		__compiletime_error_fallback(__cond);			\
- 	} while (0)
- #else
- # define __compiletime_assert(condition, msg, prefix, suffix) do { } while (0)
+ #include <linux/types.h>
+@@ -39,71 +31,25 @@ void gcm_ghash_p8(u64 Xi[2], const u128 htable[16],
+ 		  const u8 *in, size_t len);
+ 
+ struct p8_ghash_ctx {
++	/* key used by vector asm */
+ 	u128 htable[16];
+-	struct crypto_shash *fallback;
++	/* key used by software fallback */
++	be128 key;
+ };
+ 
+ struct p8_ghash_desc_ctx {
+ 	u64 shash[2];
+ 	u8 buffer[GHASH_DIGEST_SIZE];
+ 	int bytes;
+-	struct shash_desc fallback_desc;
+ };
+ 
+-static int p8_ghash_init_tfm(struct crypto_tfm *tfm)
+-{
+-	const char *alg = "ghash-generic";
+-	struct crypto_shash *fallback;
+-	struct crypto_shash *shash_tfm = __crypto_shash_cast(tfm);
+-	struct p8_ghash_ctx *ctx = crypto_tfm_ctx(tfm);
+-
+-	fallback = crypto_alloc_shash(alg, 0, CRYPTO_ALG_NEED_FALLBACK);
+-	if (IS_ERR(fallback)) {
+-		printk(KERN_ERR
+-		       "Failed to allocate transformation for '%s': %ld\n",
+-		       alg, PTR_ERR(fallback));
+-		return PTR_ERR(fallback);
+-	}
+-
+-	crypto_shash_set_flags(fallback,
+-			       crypto_shash_get_flags((struct crypto_shash
+-						       *) tfm));
+-
+-	/* Check if the descsize defined in the algorithm is still enough. */
+-	if (shash_tfm->descsize < sizeof(struct p8_ghash_desc_ctx)
+-	    + crypto_shash_descsize(fallback)) {
+-		printk(KERN_ERR
+-		       "Desc size of the fallback implementation (%s) does not match the expected value: %lu vs %u\n",
+-		       alg,
+-		       shash_tfm->descsize - sizeof(struct p8_ghash_desc_ctx),
+-		       crypto_shash_descsize(fallback));
+-		return -EINVAL;
+-	}
+-	ctx->fallback = fallback;
+-
+-	return 0;
+-}
+-
+-static void p8_ghash_exit_tfm(struct crypto_tfm *tfm)
+-{
+-	struct p8_ghash_ctx *ctx = crypto_tfm_ctx(tfm);
+-
+-	if (ctx->fallback) {
+-		crypto_free_shash(ctx->fallback);
+-		ctx->fallback = NULL;
+-	}
+-}
+-
+ static int p8_ghash_init(struct shash_desc *desc)
+ {
+-	struct p8_ghash_ctx *ctx = crypto_tfm_ctx(crypto_shash_tfm(desc->tfm));
+ 	struct p8_ghash_desc_ctx *dctx = shash_desc_ctx(desc);
+ 
+ 	dctx->bytes = 0;
+ 	memset(dctx->shash, 0, GHASH_DIGEST_SIZE);
+-	dctx->fallback_desc.tfm = ctx->fallback;
+-	dctx->fallback_desc.flags = desc->flags;
+-	return crypto_shash_init(&dctx->fallback_desc);
++	return 0;
+ }
+ 
+ static int p8_ghash_setkey(struct crypto_shash *tfm, const u8 *key,
+@@ -121,7 +67,51 @@ static int p8_ghash_setkey(struct crypto_shash *tfm, const u8 *key,
+ 	disable_kernel_vsx();
+ 	pagefault_enable();
+ 	preempt_enable();
+-	return crypto_shash_setkey(ctx->fallback, key, keylen);
++
++	memcpy(&ctx->key, key, GHASH_BLOCK_SIZE);
++
++	return 0;
++}
++
++static inline void __ghash_block(struct p8_ghash_ctx *ctx,
++				 struct p8_ghash_desc_ctx *dctx)
++{
++	if (!IN_INTERRUPT) {
++		preempt_disable();
++		pagefault_disable();
++		enable_kernel_vsx();
++		gcm_ghash_p8(dctx->shash, ctx->htable,
++				dctx->buffer, GHASH_DIGEST_SIZE);
++		disable_kernel_vsx();
++		pagefault_enable();
++		preempt_enable();
++	} else {
++		crypto_xor((u8 *)dctx->shash, dctx->buffer, GHASH_BLOCK_SIZE);
++		gf128mul_lle((be128 *)dctx->shash, &ctx->key);
++	}
++}
++
++static inline void __ghash_blocks(struct p8_ghash_ctx *ctx,
++				  struct p8_ghash_desc_ctx *dctx,
++				  const u8 *src, unsigned int srclen)
++{
++	if (!IN_INTERRUPT) {
++		preempt_disable();
++		pagefault_disable();
++		enable_kernel_vsx();
++		gcm_ghash_p8(dctx->shash, ctx->htable,
++				src, srclen);
++		disable_kernel_vsx();
++		pagefault_enable();
++		preempt_enable();
++	} else {
++		while (srclen >= GHASH_BLOCK_SIZE) {
++			crypto_xor((u8 *)dctx->shash, src, GHASH_BLOCK_SIZE);
++			gf128mul_lle((be128 *)dctx->shash, &ctx->key);
++			srclen -= GHASH_BLOCK_SIZE;
++			src += GHASH_BLOCK_SIZE;
++		}
++	}
+ }
+ 
+ static int p8_ghash_update(struct shash_desc *desc,
+@@ -131,49 +121,33 @@ static int p8_ghash_update(struct shash_desc *desc,
+ 	struct p8_ghash_ctx *ctx = crypto_tfm_ctx(crypto_shash_tfm(desc->tfm));
+ 	struct p8_ghash_desc_ctx *dctx = shash_desc_ctx(desc);
+ 
+-	if (IN_INTERRUPT) {
+-		return crypto_shash_update(&dctx->fallback_desc, src,
+-					   srclen);
+-	} else {
+-		if (dctx->bytes) {
+-			if (dctx->bytes + srclen < GHASH_DIGEST_SIZE) {
+-				memcpy(dctx->buffer + dctx->bytes, src,
+-				       srclen);
+-				dctx->bytes += srclen;
+-				return 0;
+-			}
++	if (dctx->bytes) {
++		if (dctx->bytes + srclen < GHASH_DIGEST_SIZE) {
+ 			memcpy(dctx->buffer + dctx->bytes, src,
+-			       GHASH_DIGEST_SIZE - dctx->bytes);
+-			preempt_disable();
+-			pagefault_disable();
+-			enable_kernel_vsx();
+-			gcm_ghash_p8(dctx->shash, ctx->htable,
+-				     dctx->buffer, GHASH_DIGEST_SIZE);
+-			disable_kernel_vsx();
+-			pagefault_enable();
+-			preempt_enable();
+-			src += GHASH_DIGEST_SIZE - dctx->bytes;
+-			srclen -= GHASH_DIGEST_SIZE - dctx->bytes;
+-			dctx->bytes = 0;
+-		}
+-		len = srclen & ~(GHASH_DIGEST_SIZE - 1);
+-		if (len) {
+-			preempt_disable();
+-			pagefault_disable();
+-			enable_kernel_vsx();
+-			gcm_ghash_p8(dctx->shash, ctx->htable, src, len);
+-			disable_kernel_vsx();
+-			pagefault_enable();
+-			preempt_enable();
+-			src += len;
+-			srclen -= len;
+-		}
+-		if (srclen) {
+-			memcpy(dctx->buffer, src, srclen);
+-			dctx->bytes = srclen;
++				srclen);
++			dctx->bytes += srclen;
++			return 0;
+ 		}
+-		return 0;
++		memcpy(dctx->buffer + dctx->bytes, src,
++			GHASH_DIGEST_SIZE - dctx->bytes);
++
++		__ghash_block(ctx, dctx);
++
++		src += GHASH_DIGEST_SIZE - dctx->bytes;
++		srclen -= GHASH_DIGEST_SIZE - dctx->bytes;
++		dctx->bytes = 0;
++	}
++	len = srclen & ~(GHASH_DIGEST_SIZE - 1);
++	if (len) {
++		__ghash_blocks(ctx, dctx, src, len);
++		src += len;
++		srclen -= len;
+ 	}
++	if (srclen) {
++		memcpy(dctx->buffer, src, srclen);
++		dctx->bytes = srclen;
++	}
++	return 0;
+ }
+ 
+ static int p8_ghash_final(struct shash_desc *desc, u8 *out)
+@@ -182,25 +156,14 @@ static int p8_ghash_final(struct shash_desc *desc, u8 *out)
+ 	struct p8_ghash_ctx *ctx = crypto_tfm_ctx(crypto_shash_tfm(desc->tfm));
+ 	struct p8_ghash_desc_ctx *dctx = shash_desc_ctx(desc);
+ 
+-	if (IN_INTERRUPT) {
+-		return crypto_shash_final(&dctx->fallback_desc, out);
+-	} else {
+-		if (dctx->bytes) {
+-			for (i = dctx->bytes; i < GHASH_DIGEST_SIZE; i++)
+-				dctx->buffer[i] = 0;
+-			preempt_disable();
+-			pagefault_disable();
+-			enable_kernel_vsx();
+-			gcm_ghash_p8(dctx->shash, ctx->htable,
+-				     dctx->buffer, GHASH_DIGEST_SIZE);
+-			disable_kernel_vsx();
+-			pagefault_enable();
+-			preempt_enable();
+-			dctx->bytes = 0;
+-		}
+-		memcpy(out, dctx->shash, GHASH_DIGEST_SIZE);
+-		return 0;
++	if (dctx->bytes) {
++		for (i = dctx->bytes; i < GHASH_DIGEST_SIZE; i++)
++			dctx->buffer[i] = 0;
++		__ghash_block(ctx, dctx);
++		dctx->bytes = 0;
+ 	}
++	memcpy(out, dctx->shash, GHASH_DIGEST_SIZE);
++	return 0;
+ }
+ 
+ struct shash_alg p8_ghash_alg = {
+@@ -215,11 +178,8 @@ struct shash_alg p8_ghash_alg = {
+ 		 .cra_name = "ghash",
+ 		 .cra_driver_name = "p8_ghash",
+ 		 .cra_priority = 1000,
+-		 .cra_flags = CRYPTO_ALG_NEED_FALLBACK,
+ 		 .cra_blocksize = GHASH_BLOCK_SIZE,
+ 		 .cra_ctxsize = sizeof(struct p8_ghash_ctx),
+ 		 .cra_module = THIS_MODULE,
+-		 .cra_init = p8_ghash_init_tfm,
+-		 .cra_exit = p8_ghash_exit_tfm,
+ 	},
+ };
 -- 
-2.22.0.rc2
+2.19.1
 
