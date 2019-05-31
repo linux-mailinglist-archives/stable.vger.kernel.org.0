@@ -2,156 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ED23430E6C
-	for <lists+stable@lfdr.de>; Fri, 31 May 2019 14:55:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5452A30EC1
+	for <lists+stable@lfdr.de>; Fri, 31 May 2019 15:20:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726555AbfEaMzI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 May 2019 08:55:08 -0400
-Received: from mail-io1-f67.google.com ([209.85.166.67]:44396 "EHLO
-        mail-io1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726518AbfEaMzH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 31 May 2019 08:55:07 -0400
-Received: by mail-io1-f67.google.com with SMTP id s7so700826iob.11
-        for <stable@vger.kernel.org>; Fri, 31 May 2019 05:55:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=tomeuvizoso-net.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=RRUe8zQwyuAuKGZtxLK3YIRDz14pyhb0pZiftXDRPlU=;
-        b=cTkTyaXWwnB6q1lhhnK+dEPVS0ql6hvJxhqWFJa65ajuoMexH/KFwN/9JkjS53Nr5b
-         uuX4lv9Y4pPu/m0qxsPMjUW3d3+unGrI8vIVtimdPqlPEV6KvDNBAdZWsQtZlaGMZ2T6
-         o1mh+pYD1AppJzI8MEKcaWu0nTPnWStC7tWjg6yusf7TX/KxqHVCtKZCsoPKq0pE6UZg
-         djQfN4nhCa55hbwWeGIWIEGrYZOBNKkmD7ACjVBlkVs+wV6oa1+IwkL/RrudAdzPKqv0
-         u23SbWK1xRqWK4qaUq71aWUYcfj+16LUpAYDyJwnVB7iyqj13ghwEB11kCFX9u8qepYZ
-         B/ZA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=RRUe8zQwyuAuKGZtxLK3YIRDz14pyhb0pZiftXDRPlU=;
-        b=eR/qjB2iqyoaH0NxgSlrLN5y79eolDK81jABsaR3GVjXcY+hBG1dRnqxIdmw3rYZ4C
-         OEmUQRNXHPNFy7GyQv+5EvEVC+u2osq5+WhIlrsd292aIxci2L6V6jm5Xq83UTr7ZDEj
-         1/alc66joiEWZkJoQrb2yaPbwB53sKLDrLgJb9VmZ09jNGqS1NLMnqmyHbYRT9SQ3inQ
-         22F12VLu4UnQRyWoz5s6i8IKtwvxPOK+nN+wVLS6+JBr27eXmyUKPuSUxg6q6CHt+9CD
-         +MM1J7rK9iLAlKGqQcSdEz2y2XGB+c/gBCO0iizDD6LsZcYvfy6uFIBRYGncAmibQf98
-         aWVA==
-X-Gm-Message-State: APjAAAVqCTn6HblK5PkvCIHK0pcw7XnrPNwV9rkzCFg2ZJ7usRZ3rZPH
-        FbqA7hmSmst5a/8bI/R6I+vxoPk8mpI=
-X-Google-Smtp-Source: APXvYqyPQOj0SCm9EQYHG2Esee3XtqSEiMVCsMaKFRmrYxMnI3r/gfwE4dY7ZPH4oEYFSC0xZxC55A==
-X-Received: by 2002:a6b:ac01:: with SMTP id v1mr6943115ioe.162.1559307306833;
-        Fri, 31 May 2019 05:55:06 -0700 (PDT)
-Received: from mail-it1-f169.google.com (mail-it1-f169.google.com. [209.85.166.169])
-        by smtp.gmail.com with ESMTPSA id i7sm1871352iop.79.2019.05.31.05.55.06
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 31 May 2019 05:55:06 -0700 (PDT)
-Received: by mail-it1-f169.google.com with SMTP id h9so872485itk.3
-        for <stable@vger.kernel.org>; Fri, 31 May 2019 05:55:06 -0700 (PDT)
-X-Received: by 2002:a02:7b2d:: with SMTP id q45mr1964953jac.127.1559307306025;
- Fri, 31 May 2019 05:55:06 -0700 (PDT)
+        id S1726330AbfEaNUp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 May 2019 09:20:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39622 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726037AbfEaNUp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 31 May 2019 09:20:45 -0400
+Received: from localhost (ip67-88-213-2.z213-88-67.customer.algx.net [67.88.213.2])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 98F1425FAB;
+        Fri, 31 May 2019 13:20:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1559308844;
+        bh=IVpg/xGn7qe8/tHwC9TEBHbh9a1nkzglnzMUdZRU/Cw=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=LrNhS0OxAzs3zpV7Bl3Hc7gBmj4dvlpnv7kdO1HOtNz3ahaN2tp+34dPXGSs+BqdW
+         +5k6hzl1LiYCldy6Eqjs2LBSHmGjiyntpL8Ru1cX25nFoED/BCTxkhsOJG/C0dBylI
+         /chJdDpjwId9B6JEXNbJ22ShJc9TgamTuBpFeMqg=
+Date:   Fri, 31 May 2019 06:20:43 -0700
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        linux- stable <stable@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: Re: [PATCH 5.0 000/346] 5.0.20-stable review
+Message-ID: <20190531132043.GA5211@kroah.com>
+References: <20190530030540.363386121@linuxfoundation.org>
+ <CA+G9fYtW1E+jOKaU3qnhdwa63r1t7i04uMAcigWAUjVmDss6Pg@mail.gmail.com>
 MIME-Version: 1.0
-References: <20190529091836.22060-1-boris.brezillon@collabora.com>
-In-Reply-To: <20190529091836.22060-1-boris.brezillon@collabora.com>
-From:   Tomeu Vizoso <tomeu@tomeuvizoso.net>
-Date:   Fri, 31 May 2019 14:54:54 +0200
-X-Gmail-Original-Message-ID: <CAAObsKBYvVKVTJf6ZwSarAVr6FSCz-NDYNhEqrDhBWUM3q57Nw@mail.gmail.com>
-Message-ID: <CAAObsKBYvVKVTJf6ZwSarAVr6FSCz-NDYNhEqrDhBWUM3q57Nw@mail.gmail.com>
-Subject: Re: [PATCH] drm/panfrost: Make sure a BO is only unmapped when appropriate
-To:     Boris Brezillon <boris.brezillon@collabora.com>
-Cc:     Rob Herring <robh+dt@kernel.org>,
-        dri-devel <dri-devel@lists.freedesktop.org>,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CA+G9fYtW1E+jOKaU3qnhdwa63r1t7i04uMAcigWAUjVmDss6Pg@mail.gmail.com>
+User-Agent: Mutt/1.12.0 (2019-05-25)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 29 May 2019 at 11:18, Boris Brezillon
-<boris.brezillon@collabora.com> wrote:
->
-> mmu_ops->unmap() will fail when called on a BO that has not been
-> previously mapped, and the error path in panfrost_ioctl_create_bo()
-> can call drm_gem_object_put_unlocked() (which in turn calls
-> panfrost_mmu_unmap()) on a BO that has not been mapped yet.
->
-> Keep track of the mapped/unmapped state to avoid such issues.
->
-> Fixes: f3ba91228e8e ("drm/panfrost: Add initial panfrost driver")
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
-> ---
->  drivers/gpu/drm/panfrost/panfrost_gem.h | 1 +
->  drivers/gpu/drm/panfrost/panfrost_mmu.c | 8 ++++++++
->  2 files changed, 9 insertions(+)
->
-> diff --git a/drivers/gpu/drm/panfrost/panfrost_gem.h b/drivers/gpu/drm/panfrost/panfrost_gem.h
-> index 045000eb5fcf..6dbcaba020fc 100644
-> --- a/drivers/gpu/drm/panfrost/panfrost_gem.h
-> +++ b/drivers/gpu/drm/panfrost/panfrost_gem.h
-> @@ -11,6 +11,7 @@ struct panfrost_gem_object {
->         struct drm_gem_shmem_object base;
->
->         struct drm_mm_node node;
-> +       bool is_mapped;
->  };
->
->  static inline
-> diff --git a/drivers/gpu/drm/panfrost/panfrost_mmu.c b/drivers/gpu/drm/panfrost/panfrost_mmu.c
-> index 762b1bd2a8c2..fb556aa89203 100644
-> --- a/drivers/gpu/drm/panfrost/panfrost_mmu.c
-> +++ b/drivers/gpu/drm/panfrost/panfrost_mmu.c
-> @@ -156,6 +156,9 @@ int panfrost_mmu_map(struct panfrost_gem_object *bo)
->         struct sg_table *sgt;
->         int ret;
->
-> +       if (bo->is_mapped)
-> +               return 0;
+On Thu, May 30, 2019 at 09:53:33PM +0530, Naresh Kamboju wrote:
+> On Thu, 30 May 2019 at 08:48, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > This is the start of the stable review cycle for the 5.0.20 release.
+> > There are 346 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> >
+> > Responses should be made by Sat 01 Jun 2019 03:02:10 AM UTC.
+> > Anything received after that time might be too late.
+> >
+> > The whole patch series can be found in one patch at:
+> >         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.0.20-rc1.gz
+> > or in the git tree and branch at:
+> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.0.y
+> > and the diffstat can be found below.
+> >
+> > thanks,
+> >
+> > greg k-h
+> 
+> Results from Linaro’s test farm.
+> No regressions on arm64, arm, x86_64, and i386.
 
-In what circumstances we want to silently go on? I would expect that
-for this function to be called when the BO has been mapped already
-would mean that we have a bug in the kernel, so why not a WARN?
+Thanks for testing 4 of these and letting me know.
 
-> +
->         sgt = drm_gem_shmem_get_pages_sgt(obj);
->         if (WARN_ON(IS_ERR(sgt)))
->                 return PTR_ERR(sgt);
-> @@ -189,6 +192,7 @@ int panfrost_mmu_map(struct panfrost_gem_object *bo)
->
->         pm_runtime_mark_last_busy(pfdev->dev);
->         pm_runtime_put_autosuspend(pfdev->dev);
-> +       bo->is_mapped = true;
->
->         return 0;
->  }
-> @@ -203,6 +207,9 @@ void panfrost_mmu_unmap(struct panfrost_gem_object *bo)
->         size_t unmapped_len = 0;
->         int ret;
->
-> +       if (!bo->is_mapped)
-> +               return;
-
-Similarly, I think that what we should do is not to call
-panfrost_mmu_unmap when a BO is freed if we know it isn't mapped. And
-probably add a WARN here if it still gets called when the BO isn't
-mapped.
-
-> +
->         dev_dbg(pfdev->dev, "unmap: iova=%llx, len=%zx", iova, len);
->
->         ret = pm_runtime_get_sync(pfdev->dev);
-> @@ -230,6 +237,7 @@ void panfrost_mmu_unmap(struct panfrost_gem_object *bo)
->
->         pm_runtime_mark_last_busy(pfdev->dev);
->         pm_runtime_put_autosuspend(pfdev->dev);
-> +       bo->is_mapped = false;
->  }
->
->  static void mmu_tlb_inv_context_s1(void *cookie)
-> --
-> 2.20.1
->
-
-Thanks for taking care of this!
-
-Tomeu
+greg k-h
