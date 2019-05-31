@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CB95A30886
-	for <lists+stable@lfdr.de>; Fri, 31 May 2019 08:29:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE9F730889
+	for <lists+stable@lfdr.de>; Fri, 31 May 2019 08:30:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726002AbfEaG3R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 May 2019 02:29:17 -0400
-Received: from mail-pl1-f193.google.com ([209.85.214.193]:44804 "EHLO
-        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725955AbfEaG3R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 31 May 2019 02:29:17 -0400
-Received: by mail-pl1-f193.google.com with SMTP id c5so3569485pll.11
-        for <stable@vger.kernel.org>; Thu, 30 May 2019 23:29:16 -0700 (PDT)
+        id S1726520AbfEaGaF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 May 2019 02:30:05 -0400
+Received: from mail-pf1-f195.google.com ([209.85.210.195]:44058 "EHLO
+        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725955AbfEaGaF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 31 May 2019 02:30:05 -0400
+Received: by mail-pf1-f195.google.com with SMTP id x3so26759pff.11
+        for <stable@vger.kernel.org>; Thu, 30 May 2019 23:30:05 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=axtens.net; s=google;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=Fd/VsGZ+Z9Ncti9VvNCLWk3+S2P8ZxqTRqByeam8TOk=;
-        b=ispSS450pvRSYnNyHQgJ91C38bo4ch/YMGbd0za05L5B6oEd6vL/UY5eO7pDGdl8hq
-         Uu2b1lb3P7kT+YIZ1Vd387UIM1txNQ0cg6DO9DypNmab+2sMkag1qK7HPq7xgcBKpDE2
-         huuDOSOgulkqGxdQf99HkcmJFWbKIV52oRj10=
+        bh=2/jJgJhEYxE/cMLfs8y3D/CaUyVGhWs0LtNV3Nlsykk=;
+        b=nFdvLaiyMN52+tAMTwod1awR/7QHijiNNvqtZbjy2sdf67icE+3D4z87vYje9CcTSW
+         PNpwIvXowE80kWcLrrz71W+zWQ2sNlElFBE68H9wpeVMW0+bQAvA39qrt2x2Dzy0iuvO
+         154Ll0pJyFw1Bn++MCdJyJ/7KUtD0QAwqFiYw=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=Fd/VsGZ+Z9Ncti9VvNCLWk3+S2P8ZxqTRqByeam8TOk=;
-        b=VJDTRRE89PHCa1WSQE1Gxj5cIkKciBJsz0q8H/Ea5AfXdx18nyE10XYpgK4Umgs98N
-         iNjgNi9r/Uoggia4gezy+skCWhbUCV53mPvPpMaSb59bYoCNsLJIz2jsgnW/jVZ5Yd7/
-         ghz+q72MjOC12B/Qtp4Tvyka/H/NBtrBcweLvDS0aKhoP7dvhxRqNrN9VIOP9Z0XOWWr
-         LHpICiqOjatkna99tKkzc7VYbkI8e2c5elHjxx500MGP3FqXiGJuhOtCm3TFmsYZXsxa
-         HOoTiNqvYvqpOUlah5h2mNyIBxNVCNOCQjuD6SgK++LNYAZNT/odO+jbuqVDdl3Nme5P
-         ULMA==
-X-Gm-Message-State: APjAAAWb8LODcFtyDZwfdRY4mlSkDJirrolqjEho34ko+X8l2xON3lmj
-        dvWm829jYhNpHAatRHNOna3UqT+WfXg=
-X-Google-Smtp-Source: APXvYqwP7bvx5d1gOADNelWqpvcQkrzpxsRlqh5ABwsGbMtOS+RTNmFtd/RbOyuGgcXl2v30ZNlevg==
-X-Received: by 2002:a17:902:4827:: with SMTP id s36mr7556678pld.197.1559284156239;
-        Thu, 30 May 2019 23:29:16 -0700 (PDT)
+        bh=2/jJgJhEYxE/cMLfs8y3D/CaUyVGhWs0LtNV3Nlsykk=;
+        b=PGQK3ddy2IG+REF1SQTUcLX8wElzFWTlxlcC1vhRFIJ3SCKD9k392o/N+0qtMCu9NI
+         utmFZQt+XoqA47bWnf5GlfdxeLOSgaX0EAUNDshrRHxaR10Wq8Y6C1TT/kSihrnEfCaJ
+         q61yjRaXz6yzBOfgGhG65eX5GsWOryoEkLS65UZvDkuIu4PzhcGYg1ZoJ7YLgFTe2U0X
+         Q2cnsuBMLugagia65CeWj+ePaDh0MdzQjENXtuar7d9hNU1xbuvtcQJ6sqiMk4Lki9uA
+         4W+atDhvwWR+pNphJ/jLZZtmjXPi9oub36h4jPlKzNxr8UB/LbQ/F0kake/gI0ah62X6
+         CTXQ==
+X-Gm-Message-State: APjAAAXHbFjcGr7Ae2FFnFq/TFQbjcVcwXBhmqT9rCZB2bACcKlBVm9x
+        VZWTPM8jg+8IukRYJJ4flUFLxw==
+X-Google-Smtp-Source: APXvYqxKge3huvI3J3+7VUa62vwkWiyMnhoukN2euqDyZn/+lGlIoh8Qdz16W4p7kGUQ5dTdGQAjAA==
+X-Received: by 2002:a62:1692:: with SMTP id 140mr7590896pfw.166.1559284204678;
+        Thu, 30 May 2019 23:30:04 -0700 (PDT)
 Received: from localhost (ppp167-251-205.static.internode.on.net. [59.167.251.205])
-        by smtp.gmail.com with ESMTPSA id n70sm4152332pjb.4.2019.05.30.23.29.14
+        by smtp.gmail.com with ESMTPSA id p15sm4301859pgj.61.2019.05.30.23.30.02
         (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Thu, 30 May 2019 23:29:15 -0700 (PDT)
+        Thu, 30 May 2019 23:30:03 -0700 (PDT)
 From:   Daniel Axtens <dja@axtens.net>
 To:     linuxppc-dev@lists.ozlabs.org
 Cc:     Daniel Axtens <dja@axtens.net>, stable@vger.kernel.org,
         Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH BACKPORT 4.9, 4.14] crypto: vmx - ghash: do nosimd fallback manually
-Date:   Fri, 31 May 2019 16:29:09 +1000
-Message-Id: <20190531062909.31028-1-dja@axtens.net>
+Subject: [PATCH BACKPORT 4.4] crypto: vmx - ghash: do nosimd fallback manually
+Date:   Fri, 31 May 2019 16:29:58 +1000
+Message-Id: <20190531062958.31130-1-dja@axtens.net>
 X-Mailer: git-send-email 2.19.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -77,11 +77,11 @@ Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 (backported from commit 357d065a44cdd77ed5ff35155a989f2a763e96ef)
 Signed-off-by: Daniel Axtens <dja@axtens.net>
 ---
- drivers/crypto/vmx/ghash.c | 213 +++++++++++++++----------------------
- 1 file changed, 87 insertions(+), 126 deletions(-)
+ drivers/crypto/vmx/ghash.c | 218 +++++++++++++++----------------------
+ 1 file changed, 89 insertions(+), 129 deletions(-)
 
 diff --git a/drivers/crypto/vmx/ghash.c b/drivers/crypto/vmx/ghash.c
-index 1c4b5b889fba..1bfe867c0b7b 100644
+index 84b9389bf1ed..d6b68cf7bba7 100644
 --- a/drivers/crypto/vmx/ghash.c
 +++ b/drivers/crypto/vmx/ghash.c
 @@ -1,22 +1,14 @@
@@ -189,8 +189,8 @@ index 1c4b5b889fba..1bfe867c0b7b 100644
  }
  
  static int p8_ghash_setkey(struct crypto_shash *tfm, const u8 *key,
-@@ -121,7 +67,51 @@ static int p8_ghash_setkey(struct crypto_shash *tfm, const u8 *key,
- 	disable_kernel_vsx();
+@@ -122,7 +68,53 @@ static int p8_ghash_setkey(struct crypto_shash *tfm, const u8 *key,
+ 	gcm_init_p8(ctx->htable, (const u64 *) key);
  	pagefault_enable();
  	preempt_enable();
 -	return crypto_shash_setkey(ctx->fallback, key, keylen);
@@ -206,10 +206,11 @@ index 1c4b5b889fba..1bfe867c0b7b 100644
 +	if (!IN_INTERRUPT) {
 +		preempt_disable();
 +		pagefault_disable();
++		enable_kernel_altivec();
 +		enable_kernel_vsx();
++		enable_kernel_fp();
 +		gcm_ghash_p8(dctx->shash, ctx->htable,
 +				dctx->buffer, GHASH_DIGEST_SIZE);
-+		disable_kernel_vsx();
 +		pagefault_enable();
 +		preempt_enable();
 +	} else {
@@ -225,10 +226,11 @@ index 1c4b5b889fba..1bfe867c0b7b 100644
 +	if (!IN_INTERRUPT) {
 +		preempt_disable();
 +		pagefault_disable();
++		enable_kernel_altivec();
 +		enable_kernel_vsx();
++		enable_kernel_fp();
 +		gcm_ghash_p8(dctx->shash, ctx->htable,
 +				src, srclen);
-+		disable_kernel_vsx();
 +		pagefault_enable();
 +		preempt_enable();
 +	} else {
@@ -242,7 +244,7 @@ index 1c4b5b889fba..1bfe867c0b7b 100644
  }
  
  static int p8_ghash_update(struct shash_desc *desc,
-@@ -131,49 +121,33 @@ static int p8_ghash_update(struct shash_desc *desc,
+@@ -132,51 +124,33 @@ static int p8_ghash_update(struct shash_desc *desc,
  	struct p8_ghash_ctx *ctx = crypto_tfm_ctx(crypto_shash_tfm(desc->tfm));
  	struct p8_ghash_desc_ctx *dctx = shash_desc_ctx(desc);
  
@@ -263,10 +265,11 @@ index 1c4b5b889fba..1bfe867c0b7b 100644
 -			       GHASH_DIGEST_SIZE - dctx->bytes);
 -			preempt_disable();
 -			pagefault_disable();
+-			enable_kernel_altivec();
 -			enable_kernel_vsx();
+-			enable_kernel_fp();
 -			gcm_ghash_p8(dctx->shash, ctx->htable,
 -				     dctx->buffer, GHASH_DIGEST_SIZE);
--			disable_kernel_vsx();
 -			pagefault_enable();
 -			preempt_enable();
 -			src += GHASH_DIGEST_SIZE - dctx->bytes;
@@ -277,9 +280,10 @@ index 1c4b5b889fba..1bfe867c0b7b 100644
 -		if (len) {
 -			preempt_disable();
 -			pagefault_disable();
+-			enable_kernel_altivec();
 -			enable_kernel_vsx();
+-			enable_kernel_fp();
 -			gcm_ghash_p8(dctx->shash, ctx->htable, src, len);
--			disable_kernel_vsx();
 -			pagefault_enable();
 -			preempt_enable();
 -			src += len;
@@ -316,7 +320,7 @@ index 1c4b5b889fba..1bfe867c0b7b 100644
  }
  
  static int p8_ghash_final(struct shash_desc *desc, u8 *out)
-@@ -182,25 +156,14 @@ static int p8_ghash_final(struct shash_desc *desc, u8 *out)
+@@ -185,26 +159,14 @@ static int p8_ghash_final(struct shash_desc *desc, u8 *out)
  	struct p8_ghash_ctx *ctx = crypto_tfm_ctx(crypto_shash_tfm(desc->tfm));
  	struct p8_ghash_desc_ctx *dctx = shash_desc_ctx(desc);
  
@@ -328,10 +332,11 @@ index 1c4b5b889fba..1bfe867c0b7b 100644
 -				dctx->buffer[i] = 0;
 -			preempt_disable();
 -			pagefault_disable();
+-			enable_kernel_altivec();
 -			enable_kernel_vsx();
+-			enable_kernel_fp();
 -			gcm_ghash_p8(dctx->shash, ctx->htable,
 -				     dctx->buffer, GHASH_DIGEST_SIZE);
--			disable_kernel_vsx();
 -			pagefault_enable();
 -			preempt_enable();
 -			dctx->bytes = 0;
@@ -349,7 +354,7 @@ index 1c4b5b889fba..1bfe867c0b7b 100644
  }
  
  struct shash_alg p8_ghash_alg = {
-@@ -215,11 +178,9 @@ struct shash_alg p8_ghash_alg = {
+@@ -219,11 +181,9 @@ struct shash_alg p8_ghash_alg = {
  		 .cra_name = "ghash",
  		 .cra_driver_name = "p8_ghash",
  		 .cra_priority = 1000,
