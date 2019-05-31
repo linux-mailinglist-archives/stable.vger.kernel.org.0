@@ -2,82 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 81C9E31528
-	for <lists+stable@lfdr.de>; Fri, 31 May 2019 21:18:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E67EE31562
+	for <lists+stable@lfdr.de>; Fri, 31 May 2019 21:33:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727247AbfEaTSu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 May 2019 15:18:50 -0400
-Received: from mail-wm1-f48.google.com ([209.85.128.48]:55424 "EHLO
-        mail-wm1-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727187AbfEaTSu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 31 May 2019 15:18:50 -0400
-Received: by mail-wm1-f48.google.com with SMTP id 16so2256581wmg.5
-        for <stable@vger.kernel.org>; Fri, 31 May 2019 12:18:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=gUtOQo0w/csD3SQ4BRemNqAQpXWnezF29/hLrr1Hqzg=;
-        b=YQFqU0oWQ1ZwmTdOd4fHJVOZbV6mHLqpcvEZm0AVF4XwwNufIEoB+R5vE+LvFubdUM
-         niPYFhsa6HT6UTADIqQ2BaTAWIaf6+GMEpK0rto/hjVlztkkNgegpHd8vBgemoYroRSy
-         wZsabgQP/w7ghpgERtAThpka0I42vor+Mp20sc53iVXLzdHoHMziLUgGuYfGQZxWqS/Q
-         bVUF0KlR+FCHFKeWrLaes+WJ1uzGHzY86lDeOFsww9Lnx8q6MHRJ7qU5dYKrauI74yit
-         zcl5O8xNfsbA2Nx09ZFyrShiLhhutqwGbr3ufHD+T9d1aV1wMY0hEuZzaqQnMpv9sLTS
-         L+CQ==
+        id S1727282AbfEaTdU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 May 2019 15:33:20 -0400
+Received: from mail-pg1-f182.google.com ([209.85.215.182]:43942 "EHLO
+        mail-pg1-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726808AbfEaTdT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 31 May 2019 15:33:19 -0400
+Received: by mail-pg1-f182.google.com with SMTP id f25so4565207pgv.10;
+        Fri, 31 May 2019 12:33:19 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=gUtOQo0w/csD3SQ4BRemNqAQpXWnezF29/hLrr1Hqzg=;
-        b=ImZzsgzgBaz51aWJie6EAoKMIInIk2tg1LAVO1XOb98Hf8xDtR+b9QITjTBYc30S5o
-         z7Bjvb09fUXvhLeM4kZd1PbY+Jkor/MWqMIm5T4uMfC8e9S6jh7FfZU2c+rFZi8FeCcx
-         G4atX0Te2FgRBE3JeU5ulBZvT6eAbC7xXEXdu0fvasnDamPjcsg9XqA6NCT3w6FF735q
-         5wzJDoCGmf+11hMSFj2COOfMJklGEFz8RwLhivmb5hyO0iHBCo3pcC/XzT48W6xg00MM
-         IXNjeX+WSZBiJfkxBY6+UHcrVbT69x2ShjvEDn49KlYjiXQKZul8dhsENElzSrZSZFb4
-         O53g==
-X-Gm-Message-State: APjAAAX1jpdfbAeqyuuH2TYk4Os1+kz5P/hH013Xxmy8ckkIc1Pm/9G7
-        HPJnT5gF2Ytl5jYmuS2YjRYaa7meYnaxCA==
-X-Google-Smtp-Source: APXvYqzfm+e0zRQPgaQ5d4ufnIIsTk9EgVFT1JSsvPXSwb1tLBqnfOWgXz385M5NJRoftbVTgVtmGQ==
-X-Received: by 2002:a7b:c159:: with SMTP id z25mr6894721wmi.105.1559330328132;
-        Fri, 31 May 2019 12:18:48 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id b69sm3102074wme.44.2019.05.31.12.18.47
-        for <stable@vger.kernel.org>
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=tF4itkqnXuiTyUoa0PM1pBKr3QyIJoJOIgWAaCan9v8=;
+        b=UdbkpMHZGzIhlylkhxIi5Co/v81bLstXixqKj7cgvtxn0edtXMQn/XJbieZ2fKRj+5
+         mB2voTkAo35pxV10bJcUE7LqNNP5/WoCRjiV2LlxURPj5CDKEKvQXFDotCIbvqffhdjL
+         btJY22XZs42LVy1LrHG/926D/UDE3jvh/S2W8qjPlXL2hMzBXTu1zP75W1M4Caf8NH+z
+         A61tO7UncvTNlAYOUBIrl02TYkDLSgtaMhb5B4k1QDVoXflCiQ8kOYTzLWqcAcobBCoQ
+         DvsRy1+tAbsh+zufIOVz+HWZieUZwDX7X7wr765fAeaUHjzqmnh6VNw/omF7KLkMn0I5
+         ygHQ==
+X-Gm-Message-State: APjAAAX5H1W3zbHZhEm898ka4cS5jCLTr2CgnT1rBw2ibhU328KYGCE2
+        VuACPJWHos1qKGVVEV3QahftO0Q6
+X-Google-Smtp-Source: APXvYqy5jhD6b7Wtpuh1kyQPz8jssbocCY50E7GCI4UbM1odJoBKqZ0xOKoo2iyNuep5VB1mGsAqrg==
+X-Received: by 2002:a17:90a:2a09:: with SMTP id i9mr11543070pjd.103.1559331198576;
+        Fri, 31 May 2019 12:33:18 -0700 (PDT)
+Received: from desktop-bart.svl.corp.google.com ([2620:15c:2cd:202:4308:52a3:24b6:2c60])
+        by smtp.gmail.com with ESMTPSA id x28sm7843526pfo.78.2019.05.31.12.33.12
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 31 May 2019 12:18:47 -0700 (PDT)
-Message-ID: <5cf17e17.1c69fb81.eaf58.0d4d@mx.google.com>
-Date:   Fri, 31 May 2019 12:18:47 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Fri, 31 May 2019 12:33:13 -0700 (PDT)
+Subject: Re: [PATCH, RESEND] RDMA/srp: Accept again source addresses that do
+ not have a port number
+To:     Jason Gunthorpe <jgg@ziepe.ca>
+Cc:     Leon Romanovsky <leonro@mellanox.com>,
+        Doug Ledford <dledford@redhat.com>, linux-rdma@vger.kernel.org,
+        Laurence Oberman <loberman@redhat.com>, stable@vger.kernel.org
+References: <20190529163831.138926-1-bvanassche@acm.org>
+ <20190530184437.GA29836@ziepe.ca>
+From:   Bart Van Assche <bvanassche@acm.org>
+Message-ID: <aa530e2d-a968-4532-cdaa-a6cbf722f19e@acm.org>
+Date:   Fri, 31 May 2019 12:33:12 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.14.123
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Tree: stable
-Subject: stable/linux-4.14.y boot: 59 boots: 0 failed,
- 57 passed with 2 untried/unknown (v4.14.123)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <20190530184437.GA29836@ziepe.ca>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.14.y boot: 59 boots: 0 failed, 57 passed with 2 untried/unkn=
-own (v4.14.123)
+On 5/30/19 11:44 AM, Jason Gunthorpe wrote:
+> On Wed, May 29, 2019 at 09:38:31AM -0700, Bart Van Assche wrote:
+>> The function srp_parse_in() is used both for parsing source address
+>> specifications and for target address specifications. Target addresses
+>> must have a port number. Having to specify a port number for source
+>> addresses is inconvenient. Make sure that srp_parse_in() supports again
+>> parsing addresses with no port number.
+>>
+>> Cc: Laurence Oberman <loberman@redhat.com>
+>> Cc: <stable@vger.kernel.org>
+>> Fixes: c62adb7def71 ("IB/srp: Fix IPv6 address parsing") # v4.17.
+>> Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+>> ---
+>>   drivers/infiniband/ulp/srp/ib_srp.c | 21 +++++++++++++++------
+>>   1 file changed, 15 insertions(+), 6 deletions(-)
+> 
+> Bart, do you want this applied now, or are we still waiting for
+> Laurence?
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
-14.y/kernel/v4.14.123/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.14.y/k=
-ernel/v4.14.123/
+Hi Jason,
 
-Tree: stable
-Branch: linux-4.14.y
-Git Describe: v4.14.123
-Git Commit: 8cb1239889087368a792c655de99529eec219bfc
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 29 unique boards, 16 SoC families, 11 builds out of 201
+Since Laurence has not replied to your e-mail please go ahead and apply 
+this patch.
 
----
-For more info write to <info@kernelci.org>
+Thanks,
+
+Bart.
