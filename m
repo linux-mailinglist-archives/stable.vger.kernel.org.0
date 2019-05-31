@@ -2,302 +2,7677 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D955E315CB
-	for <lists+stable@lfdr.de>; Fri, 31 May 2019 22:04:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5816315D4
+	for <lists+stable@lfdr.de>; Fri, 31 May 2019 22:09:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727434AbfEaUEv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 May 2019 16:04:51 -0400
-Received: from mail-pg1-f193.google.com ([209.85.215.193]:42129 "EHLO
-        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727395AbfEaUEv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 31 May 2019 16:04:51 -0400
-Received: by mail-pg1-f193.google.com with SMTP id e6so3356395pgd.9
-        for <stable@vger.kernel.org>; Fri, 31 May 2019 13:04:50 -0700 (PDT)
+        id S1727349AbfEaUJB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 May 2019 16:09:01 -0400
+Received: from mail-wm1-f43.google.com ([209.85.128.43]:36723 "EHLO
+        mail-wm1-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727282AbfEaUJB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 31 May 2019 16:09:01 -0400
+Received: by mail-wm1-f43.google.com with SMTP id v22so6640753wml.1
+        for <stable@vger.kernel.org>; Fri, 31 May 2019 13:08:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=112Zovjtx8ZJr1t4s7LUgNI3HCAGsmSvfOjQRnyMJCU=;
-        b=XxlXQ2LA/Fd9NkSesPvODwD6A3tksGsqrm9lVeOG5pHiO8te7bj9+Wr9ALiY1LHYhc
-         kfp/43WLVOLMo+N8RMOwetkmI60RcS4TH5h1vGced56vFH3ZHuCo9C0hTL920OCrQE8Z
-         gKTi52cWIJxbFcnl6g8BP21BCKYbdUciAUYB0=
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=dA1x2b2yqA4zwR8SJkBKJphC/DPez+gnsOaIC5aNopk=;
+        b=w0ou8tYAtTV9Nh8z9bAvP51pOmdx2JzwZ9Vx8uXGyzz4QPpsn0nRyqkekj3frtyhQL
+         Xich3s+/UPj/igwW6v6HSNHY9outgdLbU8dF7LYJ34fZIaCVba3YAKWxBQLOqCHjALxw
+         2nDc6XLxTZq0jvvk0Yh0eKpq3tOszGaNok3zWc3BqeJD+U3hh3ZKLG07faHMJ+8iwaYJ
+         /WSksoTXN6Fw4LC33bvm/WInCW4craKeP9RDejHeX0gQpOel+rH467Yd/5LuhYTQP7Jf
+         pNsuvkoqXv8EiRDr2SA7W/zFzdbkHCm15MUC9jW6gOu15LUPJ9IjKqDbYvkBKqYl+K7x
+         0n2A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=112Zovjtx8ZJr1t4s7LUgNI3HCAGsmSvfOjQRnyMJCU=;
-        b=cUma8/xpm3k7kbb88ArfAlB57MYMkAA/Dwz/4EdF3adtMg2JElqANEBqOcrBFv3dfF
-         ISTFiyvAnM4zPZkIEQbyIy7gmWUwgXqMXZo4v5CFXeu0EpeSV8SHA5rNNNuiExc8ApQi
-         dfx+UI8eVA0eHF4lOoJWmG5rcbdtgl47HVIZOdguNxcpefDrXkXa13zZ7GxWp338wVS2
-         rGJDYDqlJp5FD+aZF0GPQbWLdUMFvmOT5wzdv5LL2S/KN3TB2MJGjlR9bxZQrKLk+ShR
-         xvnEZtRP440h6OMhB6ybd/T3zTbTOmOUntJHAzy2C88wG3o0oEaNifOfdOs7/N2dobmw
-         r45w==
-X-Gm-Message-State: APjAAAUzDugPzW3Pm/U6AtQM3i2irgYu257N+PA8t4sOBlPFkGPbxOAd
-        cVdmxV+VAF1JG6W/ITcPX3Pvng==
-X-Google-Smtp-Source: APXvYqxeTGnGGkTjihI9uH7d87T5xK7nlJC61qOLzE4WGy41v83odHoZijRIrqBW0NIFX0gqq5wJVw==
-X-Received: by 2002:a62:3287:: with SMTP id y129mr7161023pfy.101.1559333089720;
-        Fri, 31 May 2019 13:04:49 -0700 (PDT)
-Received: from tictac2.mtv.corp.google.com ([2620:15c:202:1:24fa:e766:52c9:e3b2])
-        by smtp.gmail.com with ESMTPSA id z4sm6856910pfa.142.2019.05.31.13.04.48
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=dA1x2b2yqA4zwR8SJkBKJphC/DPez+gnsOaIC5aNopk=;
+        b=QJe4Ap8t9k+I6s3UOeTLF8EcK9lXrmus5BnP83XGyLrBwZtvDThcKCA3zeIedQun4d
+         FvfD9fgDKbJTX/LfeTCKwW/jlPABvTbcuqHTJ1jfXh7MlQpdsGSv4MZVdNzldyH/9gej
+         l3kRB03jO3vBJmT4cDTIlGC13DGrjg1U0ybcEYk/sOAsoM9p3+UfK3Xgs8w4sPjP8O2f
+         +mUxAA4A8w1wsXOqAlSHAUwqAUAPUb2NsZyggWF3YaICgYc4S3Y9EWPzdDhUQrdEo9Ii
+         Joqdq1P4J1+xjg2B4OoKr+3Qdz8GkVW2aAF2u8dWRFEn0+gfKck2Pw7BYHdo6H+9/rMm
+         PScw==
+X-Gm-Message-State: APjAAAXwQXijwW8cW7VWFCQZrTrE9UstgrSvcdSMZiTtCzXSwZ/Od9Fw
+        oetBQXAzDyvSrpOBzhanpBJsJh6nlxP9Ig==
+X-Google-Smtp-Source: APXvYqxVNGmAlyJSylxkG6c9+gnjUm5iJTy6ICDKi1Cthpxf9U3F0Xr5e2U3wpMHCOtEbk0NJ9TVuA==
+X-Received: by 2002:a1c:188:: with SMTP id 130mr6692498wmb.18.1559333326241;
+        Fri, 31 May 2019 13:08:46 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id y16sm8225612wru.28.2019.05.31.13.08.44
+        for <stable@vger.kernel.org>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 31 May 2019 13:04:49 -0700 (PDT)
-From:   Douglas Anderson <dianders@chromium.org>
-To:     Felipe Balbi <felipe.balbi@linux.intel.com>,
-        Minas Harutyunyan <hminas@synopsys.com>
-Cc:     linux-rockchip@lists.infradead.org,
-        Stefan Wahren <stefan.wahren@i2se.com>, tfiga@chromium.org,
-        mka@chromium.org, groeck@chromium.org,
-        Martin Schiller <ms@dev.tdt.de>,
-        Douglas Anderson <dianders@chromium.org>,
-        stable@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] usb: dwc2: host: Fix wMaxPacketSize handling (fix webcam regression)
-Date:   Fri, 31 May 2019 13:04:12 -0700
-Message-Id: <20190531200412.129429-1-dianders@chromium.org>
-X-Mailer: git-send-email 2.22.0.rc1.311.g5d7573a151-goog
+        Fri, 31 May 2019 13:08:44 -0700 (PDT)
+Message-ID: <5cf189cc.1c69fb81.4f3a6.c035@mx.google.com>
+Date:   Fri, 31 May 2019 13:08:44 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: build
+X-Kernelci-Kernel: v4.9.180
+X-Kernelci-Branch: linux-4.9.y
+X-Kernelci-Tree: stable
+Subject: stable/linux-4.9.y build: 197 builds: 6 failed, 191 passed, 5 errors,
+ 3135 warnings (v4.9.180)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In commit abb621844f6a ("usb: ch9: make usb_endpoint_maxp() return
-only packet size") the API to usb_endpoint_maxp() changed.  It used to
-just return wMaxPacketSize but after that commit it returned
-wMaxPacketSize with the high bits (the multiplier) masked off.  If you
-wanted to get the multiplier it was now up to your code to call the
-new usb_endpoint_maxp_mult() which was introduced in
-commit 541b6fe63023 ("usb: add helper to extract bits 12:11 of
-wMaxPacketSize").
+stable/linux-4.9.y build: 197 builds: 6 failed, 191 passed, 5 errors, 3135 =
+warnings (v4.9.180)
 
-Prior to the API change most host drivers were updated, but no update
-was made to dwc2.  Presumably it was assumed that dwc2 was too
-simplistic to use the multiplier and thus just didn't support a
-certain class of USB devices.  However, it turns out that dwc2 did use
-the multiplier and many devices using it were working quite nicely.
-That means that many USB devices have been broken since the API
-change.  One such device is a Logitech HD Pro Webcam C920.
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.9.y/ke=
+rnel/v4.9.180/
 
-Specifically, though dwc2 didn't directly call usb_endpoint_maxp(), it
-did call usb_maxpacket() which in turn called usb_endpoint_maxp().
+Tree: stable
+Branch: linux-4.9.y
+Git Describe: v4.9.180
+Git Commit: b16a5334ed1211bf961c5883eb0f3ce35e90b4df
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Built: 6 unique architectures
 
-Let's update dwc2 to work properly with the new API.
+Build Failures Detected:
 
-Fixes: abb621844f6a ("usb: ch9: make usb_endpoint_maxp() return only packet size")
-Cc: stable@vger.kernel.org
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
+mips:
+    32r2el_defconfig: (gcc-8) FAIL
+    bigsur_defconfig: (gcc-8) FAIL
+    decstation_defconfig: (gcc-8) FAIL
+    jmr3927_defconfig: (gcc-8) FAIL
+    nlm_xlr_defconfig: (gcc-8) FAIL
+    sb1250_swarm_defconfig: (gcc-8) FAIL
+
+Errors and Warnings Detected:
+
+arc:
+    allnoconfig (gcc-8): 4 warnings
+    axs103_defconfig (gcc-8): 16 warnings
+    axs103_smp_defconfig (gcc-8): 17 warnings
+    nsim_hs_defconfig (gcc-8): 3 warnings
+    nsim_hs_smp_defconfig (gcc-8): 4 warnings
+    nsimosci_hs_defconfig (gcc-8): 6 warnings
+    nsimosci_hs_smp_defconfig (gcc-8): 7 warnings
+    tinyconfig (gcc-8): 5 warnings
+    vdk_hs38_defconfig (gcc-8): 17 warnings
+    vdk_hs38_smp_defconfig (gcc-8): 18 warnings
+    zebu_hs_defconfig (gcc-8): 3 warnings
+    zebu_hs_smp_defconfig (gcc-8): 4 warnings
+
+arm64:
+    defconfig (gcc-8): 1 warning
+    tinyconfig (gcc-8): 1 warning
+
+arm:
+    multi_v7_defconfig (gcc-8): 2 warnings
+    omap2plus_defconfig (gcc-8): 1 warning
+    sunxi_defconfig (gcc-8): 1 warning
+
+i386:
+
+mips:
+    allnoconfig (gcc-8): 52 warnings
+    ar7_defconfig (gcc-8): 52 warnings
+    ath25_defconfig (gcc-8): 52 warnings
+    ath79_defconfig (gcc-8): 52 warnings
+    bcm47xx_defconfig (gcc-8): 52 warnings
+    bcm63xx_defconfig (gcc-8): 52 warnings
+    bigsur_defconfig (gcc-8): 1 error, 56 warnings
+    bmips_be_defconfig (gcc-8): 52 warnings
+    bmips_stb_defconfig (gcc-8): 52 warnings
+    capcella_defconfig (gcc-8): 52 warnings
+    cavium_octeon_defconfig (gcc-8): 52 warnings
+    ci20_defconfig (gcc-8): 52 warnings
+    cobalt_defconfig (gcc-8): 52 warnings
+    db1xxx_defconfig (gcc-8): 52 warnings
+    decstation_defconfig (gcc-8): 1 error
+    e55_defconfig (gcc-8): 52 warnings
+    fuloong2e_defconfig (gcc-8): 52 warnings
+    gpr_defconfig (gcc-8): 52 warnings
+    ip22_defconfig (gcc-8): 52 warnings
+    ip27_defconfig (gcc-8): 52 warnings
+    ip28_defconfig (gcc-8): 52 warnings
+    ip32_defconfig (gcc-8): 52 warnings
+    jazz_defconfig (gcc-8): 52 warnings
+    jmr3927_defconfig (gcc-8): 1 error
+    lasat_defconfig (gcc-8): 52 warnings
+    lemote2f_defconfig (gcc-8): 52 warnings
+    loongson1b_defconfig (gcc-8): 52 warnings
+    loongson1c_defconfig (gcc-8): 52 warnings
+    loongson3_defconfig (gcc-8): 52 warnings
+    malta_defconfig (gcc-8): 52 warnings
+    malta_kvm_defconfig (gcc-8): 52 warnings
+    malta_kvm_guest_defconfig (gcc-8): 52 warnings
+    malta_qemu_32r6_defconfig (gcc-8): 52 warnings
+    maltaaprp_defconfig (gcc-8): 52 warnings
+    maltasmvp_defconfig (gcc-8): 52 warnings
+    maltasmvp_eva_defconfig (gcc-8): 52 warnings
+    maltaup_defconfig (gcc-8): 52 warnings
+    maltaup_xpa_defconfig (gcc-8): 52 warnings
+    markeins_defconfig (gcc-8): 52 warnings
+    mips_paravirt_defconfig (gcc-8): 52 warnings
+    mpc30x_defconfig (gcc-8): 52 warnings
+    msp71xx_defconfig (gcc-8): 52 warnings
+    mtx1_defconfig (gcc-8): 52 warnings
+    nlm_xlp_defconfig (gcc-8): 52 warnings
+    nlm_xlr_defconfig (gcc-8): 1 error, 1 warning
+    pic32mzda_defconfig (gcc-8): 52 warnings
+    pistachio_defconfig (gcc-8): 52 warnings
+    pnx8335_stb225_defconfig (gcc-8): 52 warnings
+    qi_lb60_defconfig (gcc-8): 52 warnings
+    rb532_defconfig (gcc-8): 52 warnings
+    rbtx49xx_defconfig (gcc-8): 52 warnings
+    rm200_defconfig (gcc-8): 52 warnings
+    rt305x_defconfig (gcc-8): 52 warnings
+    sb1250_swarm_defconfig (gcc-8): 1 error, 56 warnings
+    tb0219_defconfig (gcc-8): 52 warnings
+    tb0226_defconfig (gcc-8): 52 warnings
+    tb0287_defconfig (gcc-8): 52 warnings
+    tinyconfig (gcc-8): 52 warnings
+    workpad_defconfig (gcc-8): 52 warnings
+    xilfpga_defconfig (gcc-8): 52 warnings
+    xway_defconfig (gcc-8): 52 warnings
+
+x86_64:
+
+Errors summary:
+
+    1    cc1: error: '-march=3Dr3900' requires '-mfp32'
+    1    cc1: error: '-march=3Dr3000' requires '-mfp32'
+    1    arch/mips/include/asm/netlogic/xlr/fmn.h:304:22: error: bitwise co=
+mparison always evaluates to false [-Werror=3Dtautological-compare]
+    1    (.text+0x1bf10): undefined reference to `iommu_is_span_boundary'
+    1    (.text+0x1bbc0): undefined reference to `iommu_is_span_boundary'
+
+Warnings summary:
+
+    2668  arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean exp=
+ression [-Wbool-operation]
+    348  arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expr=
+ession [-Wbool-operation]
+    36   fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-voi=
+d function [-Wreturn-type]
+    12   kernel/sched/core.c:3294:1: warning: control reaches end of non-vo=
+id function [-Wreturn-type]
+    12   arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is n=
+ot used [-Wunused-value]
+    10   net/core/ethtool.c:300:1: warning: control reaches end of non-void=
+ function [-Wreturn-type]
+    10   include/linux/sunrpc/svc_xprt.h:178:1: warning: control reaches en=
+d of non-void function [-Wreturn-type]
+    8    warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOT=
+LB_XEN && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (C=
+AVIUM_OCTEON_SOC || MACH_LOONGSON64 && CPU_LOONGSON3 || NLM_XLP_BOARD || NL=
+M_XLR_BOARD)
+    7    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct d=
+ependencies (FUTEX)
+    6    fs/posix_acl.c:34:1: warning: control reaches end of non-void func=
+tion [-Wreturn-type]
+    5    lib/cpumask.c:211:1: warning: control reaches end of non-void func=
+tion [-Wreturn-type]
+    4    block/cfq-iosched.c:3840:1: warning: control reaches end of non-vo=
+id function [-Wreturn-type]
+    3    drivers/clk/sunxi/clk-sun8i-bus-gates.c:85:27: warning: 'clk_paren=
+t' may be used uninitialized in this function [-Wmaybe-uninitialized]
+    2    drivers/mfd/omap-usb-tll.c:90:53: warning: overflow in conversion =
+from 'int' to 'u8' {aka 'unsigned char'} changes value from 'i * 256 + 2070=
+' to '22' [-Woverflow]
+    2    arch/arc/kernel/unwind.c:188:14: warning: 'unw_hdr_alloc' defined =
+but not used [-Wunused-function]
+    1    cc1: all warnings being treated as errors
+    1    arch/arm64/kernel/vdso.c:127:6: warning: 'memcmp' reading 4 bytes =
+from a region of size 1 [-Wstringop-overflow=3D]
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D
+
+Detailed per-defconfig build reports:
+
+---------------------------------------------------------------------------=
+-----
+32r2el_defconfig (mips, gcc-8) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+acs5k_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+acs5k_tiny_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 4 warnings, 0 section mi=
+smatches
+
+Warnings:
+    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
+encies (FUTEX)
+    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
+encies (FUTEX)
+    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
+encies (FUTEX)
+    kernel/sched/core.c:3294:1: warning: control reaches end of non-void fu=
+nction [-Wreturn-type]
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 section =
+mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+am200epdkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+ar7_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 sectio=
+n mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+aspeed_g4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+aspeed_g5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+assabet_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+at91_dt_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ath25_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+ath79_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+axm55xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+axs103_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 16 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    kernel/sched/core.c:3294:1: warning: control reaches end of non-void fu=
+nction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    block/cfq-iosched.c:3840:1: warning: control reaches end of non-void fu=
+nction [-Wreturn-type]
+    net/core/ethtool.c:300:1: warning: control reaches end of non-void func=
+tion [-Wreturn-type]
+    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
+ed [-Wunused-value]
+    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
+ed [-Wunused-value]
+    fs/posix_acl.c:34:1: warning: control reaches end of non-void function =
+[-Wreturn-type]
+    include/linux/sunrpc/svc_xprt.h:178:1: warning: control reaches end of =
+non-void function [-Wreturn-type]
+
+---------------------------------------------------------------------------=
+-----
+axs103_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 17 warnings, 0 =
+section mismatches
+
+Warnings:
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    kernel/sched/core.c:3294:1: warning: control reaches end of non-void fu=
+nction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    block/cfq-iosched.c:3840:1: warning: control reaches end of non-void fu=
+nction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    net/core/ethtool.c:300:1: warning: control reaches end of non-void func=
+tion [-Wreturn-type]
+    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
+ed [-Wunused-value]
+    lib/cpumask.c:211:1: warning: control reaches end of non-void function =
+[-Wreturn-type]
+    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
+ed [-Wunused-value]
+    fs/posix_acl.c:34:1: warning: control reaches end of non-void function =
+[-Wreturn-type]
+    include/linux/sunrpc/svc_xprt.h:178:1: warning: control reaches end of =
+non-void function [-Wreturn-type]
+
+---------------------------------------------------------------------------=
+-----
+badge4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm2835_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+bcm47xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+bcm63xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+bigsur_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 56 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    (.text+0x1bf10): undefined reference to `iommu_is_span_boundary'
+
+Warnings:
+    warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOTLB_XE=
+N && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (CAVIUM=
+_OCTEON_SOC || MACH_LOONGSON64 && CPU_LOONGSON3 || NLM_XLP_BOARD || NLM_XLR=
+_BOARD)
+    warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOTLB_XE=
+N && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (CAVIUM=
+_OCTEON_SOC || MACH_LOONGSON64 && CPU_LOONGSON3 || NLM_XLP_BOARD || NLM_XLR=
+_BOARD)
+    warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOTLB_XE=
+N && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (CAVIUM=
+_OCTEON_SOC || MACH_LOONGSON64 && CPU_LOONGSON3 || NLM_XLP_BOARD || NLM_XLR=
+_BOARD)
+    warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOTLB_XE=
+N && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (CAVIUM=
+_OCTEON_SOC || MACH_LOONGSON64 && CPU_LOONGSON3 || NLM_XLP_BOARD || NLM_XLR=
+_BOARD)
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+bmips_be_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 s=
+ection mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+bmips_stb_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 =
+section mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+capcella_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 s=
+ection mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+cavium_octeon_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings=
+, 0 section mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+cerfcube_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ci20_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+clps711x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+cm_x2xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+cm_x300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+cns3420vb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+cobalt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+colibri_pxa300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
+ 0 section mismatches
+
+---------------------------------------------------------------------------=
+-----
+collie_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+corgi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+davinci_all_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+db1xxx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+decstation_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 0 warnings, 0 s=
+ection mismatches
+
+Errors:
+    cc1: error: '-march=3Dr3000' requires '-mfp32'
+
+---------------------------------------------------------------------------=
+-----
+defconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mis=
+matches
+
+Warnings:
+    drivers/clk/sunxi/clk-sun8i-bus-gates.c:85:27: warning: 'clk_parent' ma=
+y be used uninitialized in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+dove_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+e55_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 sectio=
+n mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+ebsa110_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+efm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+em_x270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ep93xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+eseries_pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
+section mismatches
+
+---------------------------------------------------------------------------=
+-----
+exynos_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ezx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+footbridge_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+fuloong2e_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 =
+section mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+gpr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 sectio=
+n mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+h3600_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+h5000_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+hackkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+hisi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+i386_defconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+imote2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+imx_v4_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+imx_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+integrator_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+iop13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+iop32x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+iop33x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+ip22_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+ip27_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+ip28_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+ip32_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+ixp4xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+jazz_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+jmr3927_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 0 warnings, 0 sect=
+ion mismatches
+
+Errors:
+    cc1: error: '-march=3Dr3900' requires '-mfp32'
+
+---------------------------------------------------------------------------=
+-----
+jornada720_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+keystone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+ks8695_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+lart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+lasat_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+lemote2f_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 s=
+ection mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+loongson1b_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0=
+ section mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+loongson1c_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0=
+ section mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+loongson3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 =
+section mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+lpc18xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lpc32xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+lpd270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+lubbock_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+magician_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mainstone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+malta_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 =
+section mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+malta_kvm_guest_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnin=
+gs, 0 section mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnin=
+gs, 0 section mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+maltaaprp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 =
+section mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 =
+section mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+maltasmvp_eva_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings=
+, 0 section mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+maltaup_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+maltaup_xpa_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, =
+0 section mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+markeins_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 s=
+ection mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+mini2440_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mips_paravirt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings=
+, 0 section mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+mmp2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+moxart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+mpc30x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+mps2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+msp71xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+mtx1_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+multi_v4t_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+multi_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+multi_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    drivers/clk/sunxi/clk-sun8i-bus-gates.c:85:27: warning: 'clk_parent' ma=
+y be used uninitialized in this function [-Wmaybe-uninitialized]
+    drivers/mfd/omap-usb-tll.c:90:53: warning: overflow in conversion from =
+'int' to 'u8' {aka 'unsigned char'} changes value from 'i * 256 + 2070' to =
+'22' [-Woverflow]
+
+---------------------------------------------------------------------------=
+-----
+mv78xx0_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mvebu_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+mxs_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+neponset_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+netwinder_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+netx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+nhk8815_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+nlm_xlr_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 1 warning, 0 secti=
+on mismatches
+
+Errors:
+    arch/mips/include/asm/netlogic/xlr/fmn.h:304:22: error: bitwise compari=
+son always evaluates to false [-Werror=3Dtautological-compare]
+
+Warnings:
+    cc1: all warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
+nsim_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    kernel/sched/core.c:3294:1: warning: control reaches end of non-void fu=
+nction [-Wreturn-type]
+    net/core/ethtool.c:300:1: warning: control reaches end of non-void func=
+tion [-Wreturn-type]
+    include/linux/sunrpc/svc_xprt.h:178:1: warning: control reaches end of =
+non-void function [-Wreturn-type]
+
+---------------------------------------------------------------------------=
+-----
+nsim_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 4 warnings, 0 =
+section mismatches
+
+Warnings:
+    kernel/sched/core.c:3294:1: warning: control reaches end of non-void fu=
+nction [-Wreturn-type]
+    net/core/ethtool.c:300:1: warning: control reaches end of non-void func=
+tion [-Wreturn-type]
+    lib/cpumask.c:211:1: warning: control reaches end of non-void function =
+[-Wreturn-type]
+    include/linux/sunrpc/svc_xprt.h:178:1: warning: control reaches end of =
+non-void function [-Wreturn-type]
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 6 warnings, 0 =
+section mismatches
+
+Warnings:
+    kernel/sched/core.c:3294:1: warning: control reaches end of non-void fu=
+nction [-Wreturn-type]
+    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
+ed [-Wunused-value]
+    net/core/ethtool.c:300:1: warning: control reaches end of non-void func=
+tion [-Wreturn-type]
+    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
+ed [-Wunused-value]
+    fs/posix_acl.c:34:1: warning: control reaches end of non-void function =
+[-Wreturn-type]
+    include/linux/sunrpc/svc_xprt.h:178:1: warning: control reaches end of =
+non-void function [-Wreturn-type]
+
+---------------------------------------------------------------------------=
+-----
+nsimosci_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 7 warnings=
+, 0 section mismatches
+
+Warnings:
+    kernel/sched/core.c:3294:1: warning: control reaches end of non-void fu=
+nction [-Wreturn-type]
+    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
+ed [-Wunused-value]
+    lib/cpumask.c:211:1: warning: control reaches end of non-void function =
+[-Wreturn-type]
+    net/core/ethtool.c:300:1: warning: control reaches end of non-void func=
+tion [-Wreturn-type]
+    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
+ed [-Wunused-value]
+    fs/posix_acl.c:34:1: warning: control reaches end of non-void function =
+[-Wreturn-type]
+    include/linux/sunrpc/svc_xprt.h:178:1: warning: control reaches end of =
+non-void function [-Wreturn-type]
+
+---------------------------------------------------------------------------=
+-----
+nuc910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+nuc950_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+nuc960_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+omap1_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+omap2plus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
+tion mismatches
+
+Warnings:
+    drivers/mfd/omap-usb-tll.c:90:53: warning: overflow in conversion from =
+'int' to 'u8' {aka 'unsigned char'} changes value from 'i * 256 + 2070' to =
+'22' [-Woverflow]
+
+---------------------------------------------------------------------------=
+-----
+orion5x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+palmz72_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+pcm027_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+pic32mzda_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 =
+section mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+pistachio_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 =
+section mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+pleb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+pnx8335_stb225_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warning=
+s, 0 section mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+prima2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa168_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa255-idp_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+qcom_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+qi_lb60_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+raumfeld_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+rb532_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+rbtx49xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 s=
+ection mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+realview_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+rm200_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+rpc_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+rt305x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+s3c2410_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+s3c6400_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+s5pv210_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+sama5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+sb1250_swarm_defconfig (mips, gcc-8) =E2=80=94 FAIL, 1 error, 56 warnings, =
+0 section mismatches
+
+Errors:
+    (.text+0x1bbc0): undefined reference to `iommu_is_span_boundary'
+
+Warnings:
+    warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOTLB_XE=
+N && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (CAVIUM=
+_OCTEON_SOC || MACH_LOONGSON64 && CPU_LOONGSON3 || NLM_XLP_BOARD || NLM_XLR=
+_BOARD)
+    warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOTLB_XE=
+N && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (CAVIUM=
+_OCTEON_SOC || MACH_LOONGSON64 && CPU_LOONGSON3 || NLM_XLP_BOARD || NLM_XLR=
+_BOARD)
+    warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOTLB_XE=
+N && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (CAVIUM=
+_OCTEON_SOC || MACH_LOONGSON64 && CPU_LOONGSON3 || NLM_XLP_BOARD || NLM_XLR=
+_BOARD)
+    warning: (SIBYTE_SWARM && SIBYTE_SENTOSA && SIBYTE_BIGSUR && SWIOTLB_XE=
+N && AMD_IOMMU) selects SWIOTLB which has unmet direct dependencies (CAVIUM=
+_OCTEON_SOC || MACH_LOONGSON64 && CPU_LOONGSON3 || NLM_XLP_BOARD || NLM_XLR=
+_BOARD)
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+shannon_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+shmobile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+simpad_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
+on mismatches
+
+---------------------------------------------------------------------------=
+-----
+socfpga_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+spear6xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+spitz_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+stm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+sunxi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
+ mismatches
+
+Warnings:
+    drivers/clk/sunxi/clk-sun8i-bus-gates.c:85:27: warning: 'clk_parent' ma=
+y be used uninitialized in this function [-Wmaybe-uninitialized]
+
+---------------------------------------------------------------------------=
+-----
+tb0219_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+tb0226_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+tb0287_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 sec=
+tion mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+tct_hammer_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
+ection mismatches
+
+---------------------------------------------------------------------------=
+-----
+tegra_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mi=
+smatches
+
+Warnings:
+    arch/arm64/kernel/vdso.c:127:6: warning: 'memcmp' reading 4 bytes from =
+a region of size 1 [-Wstringop-overflow=3D]
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mis=
+matches
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 section m=
+ismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 5 warnings, 0 section mis=
+matches
+
+Warnings:
+    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
+encies (FUTEX)
+    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
+encies (FUTEX)
+    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
+encies (FUTEX)
+    warning: (ARC) selects HAVE_FUTEX_CMPXCHG which has unmet direct depend=
+encies (FUTEX)
+    kernel/sched/core.c:3294:1: warning: control reaches end of non-void fu=
+nction [-Wreturn-type]
+
+---------------------------------------------------------------------------=
+-----
+trizeps4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+u300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+u8500_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 17 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    arch/arc/kernel/unwind.c:188:14: warning: 'unw_hdr_alloc' defined but n=
+ot used [-Wunused-function]
+    kernel/sched/core.c:3294:1: warning: control reaches end of non-void fu=
+nction [-Wreturn-type]
+    block/cfq-iosched.c:3840:1: warning: control reaches end of non-void fu=
+nction [-Wreturn-type]
+    net/core/ethtool.c:300:1: warning: control reaches end of non-void func=
+tion [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    include/linux/sunrpc/svc_xprt.h:178:1: warning: control reaches end of =
+non-void function [-Wreturn-type]
+    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
+ed [-Wunused-value]
+    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
+ed [-Wunused-value]
+    fs/posix_acl.c:34:1: warning: control reaches end of non-void function =
+[-Wreturn-type]
+
+---------------------------------------------------------------------------=
+-----
+vdk_hs38_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 18 warnings, =
+0 section mismatches
+
+Warnings:
+    arch/arc/kernel/unwind.c:188:14: warning: 'unw_hdr_alloc' defined but n=
+ot used [-Wunused-function]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    kernel/sched/core.c:3294:1: warning: control reaches end of non-void fu=
+nction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    fs/ext4/ext4_jbd2.h:430:1: warning: control reaches end of non-void fun=
+ction [-Wreturn-type]
+    block/cfq-iosched.c:3840:1: warning: control reaches end of non-void fu=
+nction [-Wreturn-type]
+    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
+ed [-Wunused-value]
+    arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not us=
+ed [-Wunused-value]
+    fs/posix_acl.c:34:1: warning: control reaches end of non-void function =
+[-Wreturn-type]
+    net/core/ethtool.c:300:1: warning: control reaches end of non-void func=
+tion [-Wreturn-type]
+    lib/cpumask.c:211:1: warning: control reaches end of non-void function =
+[-Wreturn-type]
+    include/linux/sunrpc/svc_xprt.h:178:1: warning: control reaches end of =
+non-void function [-Wreturn-type]
+
+---------------------------------------------------------------------------=
+-----
+versatile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+vexpress_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
+tion mismatches
+
+---------------------------------------------------------------------------=
+-----
+vf610m4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
+ion mismatches
+
+---------------------------------------------------------------------------=
+-----
+viper_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+vt8500_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
+ section mismatches
+
+---------------------------------------------------------------------------=
+-----
+workpad_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+x86_64_defconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
+
+---------------------------------------------------------------------------=
+-----
+xcep_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+xilfpga_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 se=
+ction mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+xway_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 52 warnings, 0 secti=
+on mismatches
+
+Warnings:
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:831:36: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+    arch/mips/math-emu/cp1emu.c:836:14: warning: '~' on a boolean expressio=
+n [-Wbool-operation]
+
+---------------------------------------------------------------------------=
+-----
+zebu_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 3 warnings, 0 sect=
+ion mismatches
+
+Warnings:
+    kernel/sched/core.c:3294:1: warning: control reaches end of non-void fu=
+nction [-Wreturn-type]
+    net/core/ethtool.c:300:1: warning: control reaches end of non-void func=
+tion [-Wreturn-type]
+    include/linux/sunrpc/svc_xprt.h:178:1: warning: control reaches end of =
+non-void function [-Wreturn-type]
+
+---------------------------------------------------------------------------=
+-----
+zebu_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 4 warnings, 0 =
+section mismatches
+
+Warnings:
+    kernel/sched/core.c:3294:1: warning: control reaches end of non-void fu=
+nction [-Wreturn-type]
+    net/core/ethtool.c:300:1: warning: control reaches end of non-void func=
+tion [-Wreturn-type]
+    lib/cpumask.c:211:1: warning: control reaches end of non-void function =
+[-Wreturn-type]
+    include/linux/sunrpc/svc_xprt.h:178:1: warning: control reaches end of =
+non-void function [-Wreturn-type]
+
+---------------------------------------------------------------------------=
+-----
+zeus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+zx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
 ---
-
- drivers/usb/dwc2/hcd.c       | 29 +++++++++++++++++------------
- drivers/usb/dwc2/hcd.h       | 20 +++++++++++---------
- drivers/usb/dwc2/hcd_intr.c  |  5 +++--
- drivers/usb/dwc2/hcd_queue.c | 10 ++++++----
- 4 files changed, 37 insertions(+), 27 deletions(-)
-
-diff --git a/drivers/usb/dwc2/hcd.c b/drivers/usb/dwc2/hcd.c
-index b50ec3714fd8..5c51bf5506d1 100644
---- a/drivers/usb/dwc2/hcd.c
-+++ b/drivers/usb/dwc2/hcd.c
-@@ -2608,7 +2608,7 @@ static int dwc2_assign_and_init_hc(struct dwc2_hsotg *hsotg, struct dwc2_qh *qh)
- 	chan->dev_addr = dwc2_hcd_get_dev_addr(&urb->pipe_info);
- 	chan->ep_num = dwc2_hcd_get_ep_num(&urb->pipe_info);
- 	chan->speed = qh->dev_speed;
--	chan->max_packet = dwc2_max_packet(qh->maxp);
-+	chan->max_packet = qh->maxp;
- 
- 	chan->xfer_started = 0;
- 	chan->halt_status = DWC2_HC_XFER_NO_HALT_STATUS;
-@@ -2686,7 +2686,7 @@ static int dwc2_assign_and_init_hc(struct dwc2_hsotg *hsotg, struct dwc2_qh *qh)
- 		 * This value may be modified when the transfer is started
- 		 * to reflect the actual transfer length
- 		 */
--		chan->multi_count = dwc2_hb_mult(qh->maxp);
-+		chan->multi_count = qh->maxp_mult;
- 
- 	if (hsotg->params.dma_desc_enable) {
- 		chan->desc_list_addr = qh->desc_list_dma;
-@@ -3806,19 +3806,21 @@ static struct dwc2_hcd_urb *dwc2_hcd_urb_alloc(struct dwc2_hsotg *hsotg,
- 
- static void dwc2_hcd_urb_set_pipeinfo(struct dwc2_hsotg *hsotg,
- 				      struct dwc2_hcd_urb *urb, u8 dev_addr,
--				      u8 ep_num, u8 ep_type, u8 ep_dir, u16 mps)
-+				      u8 ep_num, u8 ep_type, u8 ep_dir,
-+				      u16 maxp, u16 maxp_mult)
- {
- 	if (dbg_perio() ||
- 	    ep_type == USB_ENDPOINT_XFER_BULK ||
- 	    ep_type == USB_ENDPOINT_XFER_CONTROL)
- 		dev_vdbg(hsotg->dev,
--			 "addr=%d, ep_num=%d, ep_dir=%1x, ep_type=%1x, mps=%d\n",
--			 dev_addr, ep_num, ep_dir, ep_type, mps);
-+			 "addr=%d, ep_num=%d, ep_dir=%1x, ep_type=%1x, maxp=%d (%d mult)\n",
-+			 dev_addr, ep_num, ep_dir, ep_type, maxp, maxp_mult);
- 	urb->pipe_info.dev_addr = dev_addr;
- 	urb->pipe_info.ep_num = ep_num;
- 	urb->pipe_info.pipe_type = ep_type;
- 	urb->pipe_info.pipe_dir = ep_dir;
--	urb->pipe_info.mps = mps;
-+	urb->pipe_info.maxp = maxp;
-+	urb->pipe_info.maxp_mult = maxp_mult;
- }
- 
- /*
-@@ -3909,8 +3911,9 @@ void dwc2_hcd_dump_state(struct dwc2_hsotg *hsotg)
- 					dwc2_hcd_is_pipe_in(&urb->pipe_info) ?
- 					"IN" : "OUT");
- 				dev_dbg(hsotg->dev,
--					"      Max packet size: %d\n",
--					dwc2_hcd_get_mps(&urb->pipe_info));
-+					"      Max packet size: %d (%d mult)\n",
-+					dwc2_hcd_get_maxp(&urb->pipe_info),
-+					dwc2_hcd_get_maxp_mult(&urb->pipe_info));
- 				dev_dbg(hsotg->dev,
- 					"      transfer_buffer: %p\n",
- 					urb->buf);
-@@ -4510,8 +4513,10 @@ static void dwc2_dump_urb_info(struct usb_hcd *hcd, struct urb *urb,
- 	}
- 
- 	dev_vdbg(hsotg->dev, "  Speed: %s\n", speed);
--	dev_vdbg(hsotg->dev, "  Max packet size: %d\n",
--		 usb_maxpacket(urb->dev, urb->pipe, usb_pipeout(urb->pipe)));
-+	dev_vdbg(hsotg->dev, "  Max packet size: %d (%d mult)\n",
-+		 usb_endpoint_maxp(&urb->ep->desc),
-+		 usb_endpoint_maxp_mult(&urb->ep->desc));
-+
- 	dev_vdbg(hsotg->dev, "  Data buffer length: %d\n",
- 		 urb->transfer_buffer_length);
- 	dev_vdbg(hsotg->dev, "  Transfer buffer: %p, Transfer DMA: %08lx\n",
-@@ -4594,8 +4599,8 @@ static int _dwc2_hcd_urb_enqueue(struct usb_hcd *hcd, struct urb *urb,
- 	dwc2_hcd_urb_set_pipeinfo(hsotg, dwc2_urb, usb_pipedevice(urb->pipe),
- 				  usb_pipeendpoint(urb->pipe), ep_type,
- 				  usb_pipein(urb->pipe),
--				  usb_maxpacket(urb->dev, urb->pipe,
--						!(usb_pipein(urb->pipe))));
-+				  usb_endpoint_maxp(&ep->desc),
-+				  usb_endpoint_maxp_mult(&ep->desc));
- 
- 	buf = urb->transfer_buffer;
- 
-diff --git a/drivers/usb/dwc2/hcd.h b/drivers/usb/dwc2/hcd.h
-index c089ffa1f0a8..ce6445a06588 100644
---- a/drivers/usb/dwc2/hcd.h
-+++ b/drivers/usb/dwc2/hcd.h
-@@ -171,7 +171,8 @@ struct dwc2_hcd_pipe_info {
- 	u8 ep_num;
- 	u8 pipe_type;
- 	u8 pipe_dir;
--	u16 mps;
-+	u16 maxp;
-+	u16 maxp_mult;
- };
- 
- struct dwc2_hcd_iso_packet_desc {
-@@ -264,6 +265,7 @@ struct dwc2_hs_transfer_time {
-  *                       - USB_ENDPOINT_XFER_ISOC
-  * @ep_is_in:           Endpoint direction
-  * @maxp:               Value from wMaxPacketSize field of Endpoint Descriptor
-+ * @maxp_mult:          Multiplier for maxp
-  * @dev_speed:          Device speed. One of the following values:
-  *                       - USB_SPEED_LOW
-  *                       - USB_SPEED_FULL
-@@ -340,6 +342,7 @@ struct dwc2_qh {
- 	u8 ep_type;
- 	u8 ep_is_in;
- 	u16 maxp;
-+	u16 maxp_mult;
- 	u8 dev_speed;
- 	u8 data_toggle;
- 	u8 ping_state;
-@@ -503,9 +506,14 @@ static inline u8 dwc2_hcd_get_pipe_type(struct dwc2_hcd_pipe_info *pipe)
- 	return pipe->pipe_type;
- }
- 
--static inline u16 dwc2_hcd_get_mps(struct dwc2_hcd_pipe_info *pipe)
-+static inline u16 dwc2_hcd_get_maxp(struct dwc2_hcd_pipe_info *pipe)
-+{
-+	return pipe->maxp;
-+}
-+
-+static inline u16 dwc2_hcd_get_maxp_mult(struct dwc2_hcd_pipe_info *pipe)
- {
--	return pipe->mps;
-+	return pipe->maxp_mult;
- }
- 
- static inline u8 dwc2_hcd_get_dev_addr(struct dwc2_hcd_pipe_info *pipe)
-@@ -620,12 +628,6 @@ static inline bool dbg_urb(struct urb *urb)
- static inline bool dbg_perio(void) { return false; }
- #endif
- 
--/* High bandwidth multiplier as encoded in highspeed endpoint descriptors */
--#define dwc2_hb_mult(wmaxpacketsize) (1 + (((wmaxpacketsize) >> 11) & 0x03))
--
--/* Packet size for any kind of endpoint descriptor */
--#define dwc2_max_packet(wmaxpacketsize) ((wmaxpacketsize) & 0x07ff)
--
- /*
-  * Returns true if frame1 index is greater than frame2 index. The comparison
-  * is done modulo FRLISTEN_64_SIZE. This accounts for the rollover of the
-diff --git a/drivers/usb/dwc2/hcd_intr.c b/drivers/usb/dwc2/hcd_intr.c
-index 88b5dcf3aefc..a052d39b4375 100644
---- a/drivers/usb/dwc2/hcd_intr.c
-+++ b/drivers/usb/dwc2/hcd_intr.c
-@@ -1617,8 +1617,9 @@ static void dwc2_hc_ahberr_intr(struct dwc2_hsotg *hsotg,
- 
- 	dev_err(hsotg->dev, "  Speed: %s\n", speed);
- 
--	dev_err(hsotg->dev, "  Max packet size: %d\n",
--		dwc2_hcd_get_mps(&urb->pipe_info));
-+	dev_err(hsotg->dev, "  Max packet size: %d (mult %d)\n",
-+		dwc2_hcd_get_maxp(&urb->pipe_info),
-+		dwc2_hcd_get_maxp_mult(&urb->pipe_info));
- 	dev_err(hsotg->dev, "  Data buffer length: %d\n", urb->length);
- 	dev_err(hsotg->dev, "  Transfer buffer: %p, Transfer DMA: %08lx\n",
- 		urb->buf, (unsigned long)urb->dma);
-diff --git a/drivers/usb/dwc2/hcd_queue.c b/drivers/usb/dwc2/hcd_queue.c
-index ea3aa640c15c..68bbac64b753 100644
---- a/drivers/usb/dwc2/hcd_queue.c
-+++ b/drivers/usb/dwc2/hcd_queue.c
-@@ -708,7 +708,7 @@ static void dwc2_hs_pmap_unschedule(struct dwc2_hsotg *hsotg,
- static int dwc2_uframe_schedule_split(struct dwc2_hsotg *hsotg,
- 				      struct dwc2_qh *qh)
- {
--	int bytecount = dwc2_hb_mult(qh->maxp) * dwc2_max_packet(qh->maxp);
-+	int bytecount = qh->maxp_mult * qh->maxp;
- 	int ls_search_slice;
- 	int err = 0;
- 	int host_interval_in_sched;
-@@ -1332,7 +1332,7 @@ static int dwc2_check_max_xfer_size(struct dwc2_hsotg *hsotg,
- 	u32 max_channel_xfer_size;
- 	int status = 0;
- 
--	max_xfer_size = dwc2_max_packet(qh->maxp) * dwc2_hb_mult(qh->maxp);
-+	max_xfer_size = qh->maxp * qh->maxp_mult;
- 	max_channel_xfer_size = hsotg->params.max_transfer_size;
- 
- 	if (max_xfer_size > max_channel_xfer_size) {
-@@ -1517,8 +1517,9 @@ static void dwc2_qh_init(struct dwc2_hsotg *hsotg, struct dwc2_qh *qh,
- 	u32 prtspd = (hprt & HPRT0_SPD_MASK) >> HPRT0_SPD_SHIFT;
- 	bool do_split = (prtspd == HPRT0_SPD_HIGH_SPEED &&
- 			 dev_speed != USB_SPEED_HIGH);
--	int maxp = dwc2_hcd_get_mps(&urb->pipe_info);
--	int bytecount = dwc2_hb_mult(maxp) * dwc2_max_packet(maxp);
-+	int maxp = dwc2_hcd_get_maxp(&urb->pipe_info);
-+	int maxp_mult = dwc2_hcd_get_maxp_mult(&urb->pipe_info);
-+	int bytecount = maxp_mult * maxp;
- 	char *speed, *type;
- 
- 	/* Initialize QH */
-@@ -1531,6 +1532,7 @@ static void dwc2_qh_init(struct dwc2_hsotg *hsotg, struct dwc2_qh *qh,
- 
- 	qh->data_toggle = DWC2_HC_PID_DATA0;
- 	qh->maxp = maxp;
-+	qh->maxp_mult = maxp_mult;
- 	INIT_LIST_HEAD(&qh->qtd_list);
- 	INIT_LIST_HEAD(&qh->qh_list_entry);
- 
--- 
-2.22.0.rc1.311.g5d7573a151-goog
-
+For more info write to <info@kernelci.org>
