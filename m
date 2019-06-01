@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 71BD831D76
-	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:30:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4E3D31D5B
+	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:28:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729383AbfFAN2m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1729936AbfFAN2m (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 1 Jun 2019 09:28:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57246 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:57262 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729789AbfFAN0n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Jun 2019 09:26:43 -0400
+        id S1729818AbfFAN0o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 1 Jun 2019 09:26:44 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 71FCD273DA;
-        Sat,  1 Jun 2019 13:26:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8C27F273BD;
+        Sat,  1 Jun 2019 13:26:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559395603;
-        bh=hppQ/HvHTQZMWNI9Q433yxzljygMRj4FZgCPLiBCMi0=;
+        s=default; t=1559395604;
+        bh=UNuKEqGv1phTlS2mkIZ57l/ivlTnengkZI+UYIKW4ic=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WvMT8VZM3KgZgk6mEl9dnOFpsIUFu2c8HOVDVhTE8G82BlxaG/GvcViZXBBPcUc7I
-         IP0Y7KtyMMcwhBU6+hiLRuweggUxrIA3fe1gem7QPdgD53G+tTbB7nqy5sdepvPV18
-         cFeOyEnNjS4Hs7QFqs6OdPz0t/WE5QRJTAWmdXrY=
+        b=WH4izXtShZLpjTMFTqbHrfsg16SY+WwzDt9xgR4Uof7srw+ZJIV/X1m2YGJp/c/bw
+         RsHX0kV0kTwfo1fYSm2C5XQJ+vPWItQduC7s5e6DvjizC10B5MeCbxg+YvjoLotba1
+         GzaQmAKZ0sN6QSoUBJR2J3sxIfPgp8/WyBT5apJA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tingwei Zhang <tingwei@codeaurora.org>,
-        Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 22/56] stm class: Fix channel free in stm output free path
-Date:   Sat,  1 Jun 2019 09:25:26 -0400
-Message-Id: <20190601132600.27427-22-sashal@kernel.org>
+Cc:     Liu Bo <bo.liu@linux.alibaba.com>,
+        Miklos Szeredi <mszeredi@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 23/56] fuse: honor RLIMIT_FSIZE in fuse_file_fallocate
+Date:   Sat,  1 Jun 2019 09:25:27 -0400
+Message-Id: <20190601132600.27427-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190601132600.27427-1-sashal@kernel.org>
 References: <20190601132600.27427-1-sashal@kernel.org>
@@ -45,43 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tingwei Zhang <tingwei@codeaurora.org>
+From: Liu Bo <bo.liu@linux.alibaba.com>
 
-[ Upstream commit ee496da4c3915de3232b5f5cd20e21ae3e46fe8d ]
+[ Upstream commit 0cbade024ba501313da3b7e5dd2a188a6bc491b5 ]
 
-Number of free masters is not set correctly in stm
-free path. Fix this by properly adding the number
-of output channels before setting them to 0 in
-stm_output_disclaim().
+fstests generic/228 reported this failure that fuse fallocate does not
+honor what 'ulimit -f' has set.
 
-Currently it is equivalent to doing nothing since
-master->nr_free is incremented by 0.
+This adds the necessary inode_newsize_ok() check.
 
-Fixes: 7bd1d4093c2f ("stm class: Introduce an abstraction for System Trace Module devices")
-Signed-off-by: Tingwei Zhang <tingwei@codeaurora.org>
-Signed-off-by: Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>
-Cc: stable@vger.kernel.org # v4.4
-Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Liu Bo <bo.liu@linux.alibaba.com>
+Fixes: 05ba1f082300 ("fuse: add FALLOCATE operation")
+Cc: <stable@vger.kernel.org> # v3.5
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwtracing/stm/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/fuse/file.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/hwtracing/stm/core.c b/drivers/hwtracing/stm/core.c
-index b6cc841de79dd..e880702a37840 100644
---- a/drivers/hwtracing/stm/core.c
-+++ b/drivers/hwtracing/stm/core.c
-@@ -210,8 +210,8 @@ stm_output_disclaim(struct stm_device *stm, struct stm_output *output)
- 	bitmap_release_region(&master->chan_map[0], output->channel,
- 			      ilog2(output->nr_chans));
+diff --git a/fs/fuse/file.c b/fs/fuse/file.c
+index d40c2451487cb..3ba45758e0938 100644
+--- a/fs/fuse/file.c
++++ b/fs/fuse/file.c
+@@ -2947,6 +2947,13 @@ static long fuse_file_fallocate(struct file *file, int mode, loff_t offset,
+ 		}
+ 	}
  
--	output->nr_chans = 0;
- 	master->nr_free += output->nr_chans;
-+	output->nr_chans = 0;
- }
++	if (!(mode & FALLOC_FL_KEEP_SIZE) &&
++	    offset + length > i_size_read(inode)) {
++		err = inode_newsize_ok(inode, offset + length);
++		if (err)
++			return err;
++	}
++
+ 	if (!(mode & FALLOC_FL_KEEP_SIZE))
+ 		set_bit(FUSE_I_SIZE_UNSTABLE, &fi->state);
  
- /*
 -- 
 2.20.1
 
