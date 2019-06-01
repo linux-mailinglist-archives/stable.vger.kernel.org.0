@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 350E831CB0
-	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:23:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4043C31E44
+	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:35:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728994AbfFANXZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728991AbfFANXZ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 1 Jun 2019 09:23:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53126 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:53172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728978AbfFANXU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Jun 2019 09:23:20 -0400
+        id S1728982AbfFANXW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 1 Jun 2019 09:23:22 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8F58A27357;
-        Sat,  1 Jun 2019 13:23:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9E8F827359;
+        Sat,  1 Jun 2019 13:23:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559395400;
-        bh=Alw0lthfCLmtbgTfq7jRYqausoeIl0hgDtrnSur8zhs=;
+        s=default; t=1559395401;
+        bh=IJgCsnCscmaIOUw0lpzQ4vvjmabqAz71RYqBpOX1BwY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hp4cRQ1NB9mu2T2Pg8OFkplQ8dUVNqVzbo7aCFURKMW5ZqnJ6LoNFBO7G908HfgGY
-         PfCWF6XpSQxdczDYRkpgJLNpriK43TTvClXb3B1ORhvgBXFIdeugM1Jrw+sGnNmoCv
-         nScT5/E0JZcrJJ0dOtRnpypV2nsP0DCtx+FyNd4c=
+        b=IKsB+gV0bft1YBQ6Mk+MdmQwT3USMdMVy4VpDxK4arhL/80k4ThetaFxsSGynvk5p
+         h1XLAEw1pUNvDqk36Ii8zCbv5f0mMDO7NtLINsGvzBqrAoQoTp1mdP4qxWyFHiDTXH
+         1rZs++QlBrG+XLDLZBy7Q4CIX9VWzyQ6DH3NwXnM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>,
         linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 4.19 040/141] f2fs: fix to use inline space only if inline_xattr is enable
-Date:   Sat,  1 Jun 2019 09:20:16 -0400
-Message-Id: <20190601132158.25821-40-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 041/141] f2fs: fix to do sanity check on valid block count of segment
+Date:   Sat,  1 Jun 2019 09:20:17 -0400
+Message-Id: <20190601132158.25821-41-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190601132158.25821-1-sashal@kernel.org>
 References: <20190601132158.25821-1-sashal@kernel.org>
@@ -45,54 +45,91 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Chao Yu <yuchao0@huawei.com>
 
-[ Upstream commit 622927f3b8809206f6da54a6a7ed4df1a7770fce ]
+[ Upstream commit e95bcdb2fefa129f37bd9035af1d234ca92ee4ef ]
 
-With below mkfs and mount option:
+As Jungyeon reported in bugzilla:
 
-MKFS_OPTIONS  -- -O extra_attr -O project_quota -O inode_checksum -O flexible_inline_xattr -O inode_crtime -f
-MOUNT_OPTIONS -- -o noinline_xattr
+https://bugzilla.kernel.org/show_bug.cgi?id=203233
 
-We may miss xattr data with below testcase:
-- mkdir dir
-- setfattr -n "user.name" -v 0 dir
-- for ((i = 0; i < 190; i++)) do touch dir/$i; done
-- umount
-- mount
-- getfattr -n "user.name" dir
+- Overview
+When mounting the attached crafted image and running program, following errors are reported.
+Additionally, it hangs on sync after running program.
 
-user.name: No such attribute
+The image is intentionally fuzzed from a normal f2fs image for testing.
+Compile options for F2FS are as follows.
+CONFIG_F2FS_FS=y
+CONFIG_F2FS_STAT_FS=y
+CONFIG_F2FS_FS_XATTR=y
+CONFIG_F2FS_FS_POSIX_ACL=y
+CONFIG_F2FS_CHECK_FS=y
 
-The root cause is that we persist xattr data into reserved inline xattr
-space, even if inline_xattr is not enable in inline directory inode, after
-inline dentry conversion, reserved space no longer exists, so that xattr
-data missed.
+- Reproduces
+cc poc_13.c
+mkdir test
+mount -t f2fs tmp.img test
+cp a.out test
+cd test
+sudo ./a.out
+sync
 
-Let's use inline xattr space only if inline_xattr flag is set on inode
-to fix this iusse.
+- Kernel messages
+ F2FS-fs (sdb): Bitmap was wrongly set, blk:4608
+ kernel BUG at fs/f2fs/segment.c:2102!
+ RIP: 0010:update_sit_entry+0x394/0x410
+ Call Trace:
+  f2fs_allocate_data_block+0x16f/0x660
+  do_write_page+0x62/0x170
+  f2fs_do_write_node_page+0x33/0xa0
+  __write_node_page+0x270/0x4e0
+  f2fs_sync_node_pages+0x5df/0x670
+  f2fs_write_checkpoint+0x372/0x1400
+  f2fs_sync_fs+0xa3/0x130
+  f2fs_do_sync_file+0x1a6/0x810
+  do_fsync+0x33/0x60
+  __x64_sys_fsync+0xb/0x10
+  do_syscall_64+0x43/0xf0
+  entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Fixes: 6afc662e68b5 ("f2fs: support flexible inline xattr size")
+sit.vblocks and sum valid block count in sit.valid_map may be
+inconsistent, segment w/ zero vblocks will be treated as free
+segment, while allocating in free segment, we may allocate a
+free block, if its bitmap is valid previously, it can cause
+kernel crash due to bitmap verification failure.
+
+Anyway, to avoid further serious metadata inconsistence and
+corruption, it is necessary and worth to detect SIT
+inconsistence. So let's enable check_block_count() to verify
+vblocks and valid_map all the time rather than do it only
+CONFIG_F2FS_CHECK_FS is enabled.
+
 Signed-off-by: Chao Yu <yuchao0@huawei.com>
 Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/f2fs.h | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/f2fs/segment.h | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
-index 1f3bf039a90e8..51eea636719a2 100644
---- a/fs/f2fs/f2fs.h
-+++ b/fs/f2fs/f2fs.h
-@@ -2486,7 +2486,9 @@ static inline void *inline_xattr_addr(struct inode *inode, struct page *page)
- 
- static inline int inline_xattr_size(struct inode *inode)
+diff --git a/fs/f2fs/segment.h b/fs/f2fs/segment.h
+index b3d9e317ff0c1..5079532cb176b 100644
+--- a/fs/f2fs/segment.h
++++ b/fs/f2fs/segment.h
+@@ -660,7 +660,6 @@ static inline void verify_block_addr(struct f2fs_io_info *fio, block_t blk_addr)
+ static inline int check_block_count(struct f2fs_sb_info *sbi,
+ 		int segno, struct f2fs_sit_entry *raw_sit)
  {
--	return get_inline_xattr_addrs(inode) * sizeof(__le32);
-+	if (f2fs_has_inline_xattr(inode))
-+		return get_inline_xattr_addrs(inode) * sizeof(__le32);
-+	return 0;
- }
- 
- static inline int f2fs_has_inline_data(struct inode *inode)
+-#ifdef CONFIG_F2FS_CHECK_FS
+ 	bool is_valid  = test_bit_le(0, raw_sit->valid_map) ? true : false;
+ 	int valid_blocks = 0;
+ 	int cur_pos = 0, next_pos;
+@@ -687,7 +686,7 @@ static inline int check_block_count(struct f2fs_sb_info *sbi,
+ 		set_sbi_flag(sbi, SBI_NEED_FSCK);
+ 		return -EINVAL;
+ 	}
+-#endif
++
+ 	/* check segment usage, and check boundary of a given segment number */
+ 	if (unlikely(GET_SIT_VBLOCKS(raw_sit) > sbi->blocks_per_seg
+ 					|| segno > TOTAL_SEGS(sbi) - 1)) {
 -- 
 2.20.1
 
