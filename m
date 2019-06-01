@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B58131E1B
-	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:34:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C227D31E12
+	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:34:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728823AbfFANeT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Jun 2019 09:34:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53726 "EHLO mail.kernel.org"
+        id S1729128AbfFANXw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Jun 2019 09:23:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727672AbfFANXp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Jun 2019 09:23:45 -0400
+        id S1729087AbfFANXs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 1 Jun 2019 09:23:48 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CF55927355;
-        Sat,  1 Jun 2019 13:23:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 692AB240F2;
+        Sat,  1 Jun 2019 13:23:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559395424;
-        bh=6bKgTT5gnfcJKsWHUTECbQrducSnrKEOJSsgdtKBWCw=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HAJBPlqqBJ3eBT6+nxNV4hAQKxGkwaqKYvfLQdxhx3NrSFdW8LOjujdwrjkinnr6A
-         P95SplnyGSoXSWZZ21/+9GZVklUS2bbeN2e7xc9H4s6XWaTJzDILQdkdK816k98TSz
-         SOoExu2fwWBZ3ykXpg/hlC0mdWbzmFweqr68WuY0=
+        s=default; t=1559395428;
+        bh=LTi+JbfTQHp/PZG7LixQxWzqEOh2c+JikTHhQVj8nHc=;
+        h=From:To:Cc:Subject:Date:From;
+        b=eOfhNzrvQlB+QzxX7SaWzoo2sXbusD1WIKzfsTsXQ2VPJm6UjC6kqks33hW3D16wv
+         DpuQ89zWIvjjmyj5ERtEwMON+ETwycE1ZGOqGtRtNihKqzlrQ2gzhAHCOPUs++Kwju
+         RsxvWJCWipP+krLT6oc7EziBhx44FRfQ0IOSGENk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Georg Hofmann <georg@hofmannsweb.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@linux-watchdog.org>,
-        Sasha Levin <sashal@kernel.org>, linux-watchdog@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 056/141] watchdog: imx2_wdt: Fix set_timeout for big timeout values
-Date:   Sat,  1 Jun 2019 09:20:32 -0400
-Message-Id: <20190601132158.25821-56-sashal@kernel.org>
+Cc:     Kangjie Lu <kjlu@umn.edu>, Alexandre Bounine <alex.bou9@gmail.com>,
+        Matt Porter <mporter@kernel.crashing.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 01/99] rapidio: fix a NULL pointer dereference when create_workqueue() fails
+Date:   Sat,  1 Jun 2019 09:22:08 -0400
+Message-Id: <20190601132346.26558-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190601132158.25821-1-sashal@kernel.org>
-References: <20190601132158.25821-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,41 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Georg Hofmann <georg@hofmannsweb.com>
+From: Kangjie Lu <kjlu@umn.edu>
 
-[ Upstream commit b07e228eee69601addba98b47b1a3850569e5013 ]
+[ Upstream commit 23015b22e47c5409620b1726a677d69e5cd032ba ]
 
-The documentated behavior is: if max_hw_heartbeat_ms is implemented, the
-minimum of the set_timeout argument and max_hw_heartbeat_ms should be used.
-This patch implements this behavior.
-Previously only the first 7bits were used and the input argument was
-returned.
+In case create_workqueue fails, the fix releases resources and returns
+-ENOMEM to avoid NULL pointer dereference.
 
-Signed-off-by: Georg Hofmann <georg@hofmannsweb.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
+Signed-off-by: Kangjie Lu <kjlu@umn.edu>
+Acked-by: Alexandre Bounine <alex.bou9@gmail.com>
+Cc: Matt Porter <mporter@kernel.crashing.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/watchdog/imx2_wdt.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/rapidio/rio_cm.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/watchdog/imx2_wdt.c b/drivers/watchdog/imx2_wdt.c
-index 2b52514eaa86a..7e7bdcbbc741b 100644
---- a/drivers/watchdog/imx2_wdt.c
-+++ b/drivers/watchdog/imx2_wdt.c
-@@ -178,8 +178,10 @@ static void __imx2_wdt_set_timeout(struct watchdog_device *wdog,
- static int imx2_wdt_set_timeout(struct watchdog_device *wdog,
- 				unsigned int new_timeout)
- {
--	__imx2_wdt_set_timeout(wdog, new_timeout);
-+	unsigned int actual;
+diff --git a/drivers/rapidio/rio_cm.c b/drivers/rapidio/rio_cm.c
+index bad0e0ea4f305..ef989a15aefc4 100644
+--- a/drivers/rapidio/rio_cm.c
++++ b/drivers/rapidio/rio_cm.c
+@@ -2145,6 +2145,14 @@ static int riocm_add_mport(struct device *dev,
+ 	mutex_init(&cm->rx_lock);
+ 	riocm_rx_fill(cm, RIOCM_RX_RING_SIZE);
+ 	cm->rx_wq = create_workqueue(DRV_NAME "/rxq");
++	if (!cm->rx_wq) {
++		riocm_error("failed to allocate IBMBOX_%d on %s",
++			    cmbox, mport->name);
++		rio_release_outb_mbox(mport, cmbox);
++		kfree(cm);
++		return -ENOMEM;
++	}
++
+ 	INIT_WORK(&cm->rx_work, rio_ibmsg_handler);
  
-+	actual = min(new_timeout, wdog->max_hw_heartbeat_ms * 1000);
-+	__imx2_wdt_set_timeout(wdog, actual);
- 	wdog->timeout = new_timeout;
- 	return 0;
- }
+ 	cm->tx_slot = 0;
 -- 
 2.20.1
 
