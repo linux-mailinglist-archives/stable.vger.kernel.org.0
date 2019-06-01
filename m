@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 504B831D44
-	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:28:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34A3D31D2D
+	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:27:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728778AbfFAN2E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Jun 2019 09:28:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59036 "EHLO mail.kernel.org"
+        id S1729955AbfFAN13 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Jun 2019 09:27:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729950AbfFAN12 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Jun 2019 09:27:28 -0400
+        id S1729952AbfFAN13 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 1 Jun 2019 09:27:29 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E35C524937;
-        Sat,  1 Jun 2019 13:27:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2BDB524EEF;
+        Sat,  1 Jun 2019 13:27:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559395647;
-        bh=bBqzhpjlF9a5ewQjycgLTP6BzvF8Q9GBGeuSnfvvjww=;
+        s=default; t=1559395648;
+        bh=VBtP+46+0ikRfN2VCn1+6UuYyC/LkPlmOox4Ox07x1o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ehOpGPq7ip0HskbGxzeJvzPlvTTwgsUQVERM5GkdRpI/mjX55o1nbplPTV3mO4Cm8
-         QAsUjp7wt5X2BFTzdqdKx+4xcR6pooz7cjuZVAipYZpEspB4QlAFth0ZZA5O2celdN
-         I6HR52MUGl3aMqbBtSF6zRcdwdKnJWXNHscpbYHw=
+        b=DKONGtQ1yF0m9jgJyYND6Wd/BJsfQcCyg4PTN4qGCnTRE35dBHks6w9pR3AHTTaZ3
+         HgGQGsbfbB2KKTOErbwIXSZDoW5onamE8Ygjys3/X7+2d7qPG7OyhP5C1Apk92w4f+
+         uM5YdgQWcXHG2ksBIs5q2MNebv/KdsXY37E5hKr4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kangjie Lu <kjlu@umn.edu>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Steven Price <steven.price@arm.com>,
-        Mukesh Ojha <mojha@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 49/56] PCI: xilinx: Check for __get_free_pages() failure
-Date:   Sat,  1 Jun 2019 09:25:53 -0400
-Message-Id: <20190601132600.27427-49-sashal@kernel.org>
+Cc:     Sahara <keun-o.park@darkmatter.ae>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 50/56] tty: pty: Fix race condition between release_one_tty and pty_write
+Date:   Sat,  1 Jun 2019 09:25:54 -0400
+Message-Id: <20190601132600.27427-50-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190601132600.27427-1-sashal@kernel.org>
 References: <20190601132600.27427-1-sashal@kernel.org>
@@ -45,66 +43,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kangjie Lu <kjlu@umn.edu>
+From: Sahara <keun-o.park@darkmatter.ae>
 
-[ Upstream commit 699ca30162686bf305cdf94861be02eb0cf9bda2 ]
+[ Upstream commit b9ca5f8560af244489b4a1bc1ae88b341f24bc95 ]
 
-If __get_free_pages() fails, return -ENOMEM to avoid a NULL pointer
-dereference.
+Especially when a linked tty is used such as pty, the linked tty
+port's buf works have not been cancelled while master tty port's
+buf work has been cancelled. Since release_one_tty and flush_to_ldisc
+run in workqueue threads separately, when pty_cleanup happens and
+link tty port is freed, flush_to_ldisc tries to access freed port
+and port->itty, eventually it causes a panic.
+This patch utilizes the magic value with holding the tty_mutex to
+check if the tty->link is valid.
 
-Signed-off-by: Kangjie Lu <kjlu@umn.edu>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Steven Price <steven.price@arm.com>
-Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
+Fixes: 2b022ab7542d ("pty: cancel pty slave port buf's work in tty_release")
+Signed-off-by: Sahara <keun-o.park@darkmatter.ae>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/host/pcie-xilinx.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/tty/pty.c    | 7 +++++++
+ drivers/tty/tty_io.c | 3 +++
+ 2 files changed, 10 insertions(+)
 
-diff --git a/drivers/pci/host/pcie-xilinx.c b/drivers/pci/host/pcie-xilinx.c
-index 4cfa46360d122..6a2499f4d6109 100644
---- a/drivers/pci/host/pcie-xilinx.c
-+++ b/drivers/pci/host/pcie-xilinx.c
-@@ -349,14 +349,19 @@ static const struct irq_domain_ops msi_domain_ops = {
-  * xilinx_pcie_enable_msi - Enable MSI support
-  * @port: PCIe port information
-  */
--static void xilinx_pcie_enable_msi(struct xilinx_pcie_port *port)
-+static int xilinx_pcie_enable_msi(struct xilinx_pcie_port *port)
- {
- 	phys_addr_t msg_addr;
+diff --git a/drivers/tty/pty.c b/drivers/tty/pty.c
+index c8a2e5b0eff76..0e10600f3884d 100644
+--- a/drivers/tty/pty.c
++++ b/drivers/tty/pty.c
+@@ -111,6 +111,12 @@ static int pty_write(struct tty_struct *tty, const unsigned char *buf, int c)
+ 	if (tty->stopped)
+ 		return 0;
  
- 	port->msi_pages = __get_free_pages(GFP_KERNEL, 0);
-+	if (!port->msi_pages)
-+		return -ENOMEM;
++	mutex_lock(&tty_mutex);
++	if (to->magic != TTY_MAGIC) {
++		mutex_unlock(&tty_mutex);
++		return -EIO;
++	}
 +
- 	msg_addr = virt_to_phys((void *)port->msi_pages);
- 	pcie_write(port, 0x0, XILINX_PCIE_REG_MSIBASE1);
- 	pcie_write(port, msg_addr, XILINX_PCIE_REG_MSIBASE2);
-+
-+	return 0;
+ 	if (c > 0) {
+ 		spin_lock_irqsave(&to->port->lock, flags);
+ 		/* Stuff the data into the input queue of the other end */
+@@ -120,6 +126,7 @@ static int pty_write(struct tty_struct *tty, const unsigned char *buf, int c)
+ 			tty_flip_buffer_push(to->port);
+ 		spin_unlock_irqrestore(&to->port->lock, flags);
+ 	}
++	mutex_unlock(&tty_mutex);
+ 	return c;
  }
  
- /* INTx Functions */
-@@ -555,6 +560,7 @@ static int xilinx_pcie_init_irq_domain(struct xilinx_pcie_port *port)
- 	struct device *dev = port->dev;
- 	struct device_node *node = dev->of_node;
- 	struct device_node *pcie_intc_node;
-+	int ret;
+diff --git a/drivers/tty/tty_io.c b/drivers/tty/tty_io.c
+index b7effcfee91d8..acaf244859039 100644
+--- a/drivers/tty/tty_io.c
++++ b/drivers/tty/tty_io.c
+@@ -1639,10 +1639,13 @@ static void release_one_tty(struct work_struct *work)
+ 	struct tty_driver *driver = tty->driver;
+ 	struct module *owner = driver->owner;
  
- 	/* Setup INTx */
- 	pcie_intc_node = of_get_next_child(node, NULL);
-@@ -582,7 +588,9 @@ static int xilinx_pcie_init_irq_domain(struct xilinx_pcie_port *port)
- 			return PTR_ERR(port->irq_domain);
- 		}
++	mutex_lock(&tty_mutex);
+ 	if (tty->ops->cleanup)
+ 		tty->ops->cleanup(tty);
  
--		xilinx_pcie_enable_msi(port);
-+		ret = xilinx_pcie_enable_msi(port);
-+		if (ret)
-+			return ret;
- 	}
+ 	tty->magic = 0;
++	mutex_unlock(&tty_mutex);
++
+ 	tty_driver_kref_put(driver);
+ 	module_put(owner);
  
- 	return 0;
 -- 
 2.20.1
 
