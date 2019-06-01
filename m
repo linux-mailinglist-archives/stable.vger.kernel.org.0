@@ -2,36 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E75F431C82
-	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:22:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3015131E86
+	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:38:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727813AbfFANWK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Jun 2019 09:22:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49610 "EHLO mail.kernel.org"
+        id S1728681AbfFANWP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Jun 2019 09:22:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49688 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728681AbfFANWJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Jun 2019 09:22:09 -0400
+        id S1728165AbfFANWP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 1 Jun 2019 09:22:15 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 452E5272E9;
-        Sat,  1 Jun 2019 13:22:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 19ADE27317;
+        Sat,  1 Jun 2019 13:22:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559395328;
-        bh=s+Z98v9ivrDolaDrRNoRrO6t6pmUb/gBb80oUlBT2RM=;
+        s=default; t=1559395334;
+        bh=65+oI+gNS+mmapLi9WjBE4fYlJojZJhH6L7fxyBb/jw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YQkkVSnxBHZgz86HvHovgL2bXKLNSHb3JZTbECjqwBzcIrvVtKkiPjOcMvzHVnaD5
-         54b8Xp6IfMSwfaqTmvQinBsVkrrE4xdBn83fuZYjvWxz3mn03VDScd5cjvk/k2AN1Q
-         LarzYlK+5o7C9HMXnqGACZQRk3VBzZzfaP85eELM=
+        b=Kr0FETRwgtgtZPOA7ACMM5sSKbyN0aHYR2T+LHlkkrSqlji6i9O63KCFBlXH6N5Rq
+         mq1GpkdklWtvkQaGhTHw0DN6pETaSrb9tjmvBckQu/PoaIEuChmtkiBCu3fx4gEztU
+         HO6y8fCqNJe6pRwzMcKXrlrsv1Bvm+QUsF2LaT9Q=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Guenter Roeck <linux@roeck-us.net>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 005/141] drm/pl111: Initialize clock spinlock early
-Date:   Sat,  1 Jun 2019 09:19:41 -0400
-Message-Id: <20190601132158.25821-5-sashal@kernel.org>
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Christophe Leroy <christophe.leroy@c-s.fr>,
+        Mathieu Malaterre <malat@debian.org>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Stefan Agner <stefan@agner.ch>,
+        Boris Brezillon <bbrezillon@kernel.org>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Richard Weinberger <richard@nod.at>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Brian Norris <computersforpeace@gmail.com>,
+        Marek Vasut <marek.vasut@gmail.com>,
+        Russell King <rmk+kernel@arm.linux.org.uk>,
+        Borislav Petkov <bp@suse.de>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 006/141] ARM: prevent tracing IPI_CPU_BACKTRACE
+Date:   Sat,  1 Jun 2019 09:19:42 -0400
+Message-Id: <20190601132158.25821-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190601132158.25821-1-sashal@kernel.org>
 References: <20190601132158.25821-1-sashal@kernel.org>
@@ -44,65 +64,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 3e01ae2612bdd7975c74ec7123d7f8f5e6eed795 ]
+[ Upstream commit be167862ae7dd85c56d385209a4890678e1b0488 ]
 
-The following warning is seen on systems with broken clock divider.
+Patch series "compiler: allow all arches to enable
+CONFIG_OPTIMIZE_INLINING", v3.
 
-INFO: trying to register non-static key.
-the code is fine but needs lockdep annotation.
-turning off the locking correctness validator.
-CPU: 0 PID: 1 Comm: swapper Not tainted 5.1.0-09698-g1fb3b52 #1
-Hardware name: ARM Integrator/CP (Device Tree)
-[<c0011be8>] (unwind_backtrace) from [<c000ebb8>] (show_stack+0x10/0x18)
-[<c000ebb8>] (show_stack) from [<c07d3fd0>] (dump_stack+0x18/0x24)
-[<c07d3fd0>] (dump_stack) from [<c0060d48>] (register_lock_class+0x674/0x6f8)
-[<c0060d48>] (register_lock_class) from [<c005de2c>]
-	(__lock_acquire+0x68/0x2128)
-[<c005de2c>] (__lock_acquire) from [<c0060408>] (lock_acquire+0x110/0x21c)
-[<c0060408>] (lock_acquire) from [<c07f755c>] (_raw_spin_lock+0x34/0x48)
-[<c07f755c>] (_raw_spin_lock) from [<c0536c8c>]
-	(pl111_display_enable+0xf8/0x5fc)
-[<c0536c8c>] (pl111_display_enable) from [<c0502f54>]
-	(drm_atomic_helper_commit_modeset_enables+0x1ec/0x244)
+This patch (of 11):
 
-Since commit eedd6033b4c8 ("drm/pl111: Support variants with broken clock
-divider"), the spinlock is not initialized if the clock divider is broken.
-Initialize it earlier to fix the problem.
+When function tracing for IPIs is enabled, we get a warning for an
+overflow of the ipi_types array with the IPI_CPU_BACKTRACE type as
+triggered by raise_nmi():
 
-Fixes: eedd6033b4c8 ("drm/pl111: Support variants with broken clock divider")
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/1557758781-23586-1-git-send-email-linux@roeck-us.net
+  arch/arm/kernel/smp.c: In function 'raise_nmi':
+  arch/arm/kernel/smp.c:489:2: error: array subscript is above array bounds [-Werror=array-bounds]
+    trace_ipi_raise(target, ipi_types[ipinr]);
+
+This is a correct warning as we actually overflow the array here.
+
+This patch raise_nmi() to call __smp_cross_call() instead of
+smp_cross_call(), to avoid calling into ftrace.  For clarification, I'm
+also adding a two new code comments describing how this one is special.
+
+The warning appears to have shown up after commit e7273ff49acf ("ARM:
+8488/1: Make IPI_CPU_BACKTRACE a "non-secure" SGI"), which changed the
+number assignment from '15' to '8', but as far as I can tell has existed
+since the IPI tracepoints were first introduced.  If we decide to
+backport this patch to stable kernels, we probably need to backport
+e7273ff49acf as well.
+
+[yamada.masahiro@socionext.com: rebase on v5.1-rc1]
+Link: http://lkml.kernel.org/r/20190423034959.13525-2-yamada.masahiro@socionext.com
+Fixes: e7273ff49acf ("ARM: 8488/1: Make IPI_CPU_BACKTRACE a "non-secure" SGI")
+Fixes: 365ec7b17327 ("ARM: add IPI tracepoints") # v3.17
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Christophe Leroy <christophe.leroy@c-s.fr>
+Cc: Mathieu Malaterre <malat@debian.org>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: Stefan Agner <stefan@agner.ch>
+Cc: Boris Brezillon <bbrezillon@kernel.org>
+Cc: Miquel Raynal <miquel.raynal@bootlin.com>
+Cc: Richard Weinberger <richard@nod.at>
+Cc: David Woodhouse <dwmw2@infradead.org>
+Cc: Brian Norris <computersforpeace@gmail.com>
+Cc: Marek Vasut <marek.vasut@gmail.com>
+Cc: Russell King <rmk+kernel@arm.linux.org.uk>
+Cc: Borislav Petkov <bp@suse.de>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/pl111/pl111_display.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/arm/include/asm/hardirq.h | 1 +
+ arch/arm/kernel/smp.c          | 6 +++++-
+ 2 files changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/pl111/pl111_display.c b/drivers/gpu/drm/pl111/pl111_display.c
-index 754f6b25f2652..6d9f78612deeb 100644
---- a/drivers/gpu/drm/pl111/pl111_display.c
-+++ b/drivers/gpu/drm/pl111/pl111_display.c
-@@ -531,14 +531,15 @@ pl111_init_clock_divider(struct drm_device *drm)
- 		dev_err(drm->dev, "CLCD: unable to get clcdclk.\n");
- 		return PTR_ERR(parent);
- 	}
-+
-+	spin_lock_init(&priv->tim2_lock);
-+
- 	/* If the clock divider is broken, use the parent directly */
- 	if (priv->variant->broken_clockdivider) {
- 		priv->clk = parent;
- 		return 0;
- 	}
- 	parent_name = __clk_get_name(parent);
--
--	spin_lock_init(&priv->tim2_lock);
- 	div->init = &init;
+diff --git a/arch/arm/include/asm/hardirq.h b/arch/arm/include/asm/hardirq.h
+index cba23eaa60721..7a88f160b1fbe 100644
+--- a/arch/arm/include/asm/hardirq.h
++++ b/arch/arm/include/asm/hardirq.h
+@@ -6,6 +6,7 @@
+ #include <linux/threads.h>
+ #include <asm/irq.h>
  
- 	ret = devm_clk_hw_register(drm->dev, div);
++/* number of IPIS _not_ including IPI_CPU_BACKTRACE */
+ #define NR_IPI	7
+ 
+ typedef struct {
+diff --git a/arch/arm/kernel/smp.c b/arch/arm/kernel/smp.c
+index a3ce7c5365fa8..bada66ef44193 100644
+--- a/arch/arm/kernel/smp.c
++++ b/arch/arm/kernel/smp.c
+@@ -76,6 +76,10 @@ enum ipi_msg_type {
+ 	IPI_CPU_STOP,
+ 	IPI_IRQ_WORK,
+ 	IPI_COMPLETION,
++	/*
++	 * CPU_BACKTRACE is special and not included in NR_IPI
++	 * or tracable with trace_ipi_*
++	 */
+ 	IPI_CPU_BACKTRACE,
+ 	/*
+ 	 * SGI8-15 can be reserved by secure firmware, and thus may
+@@ -803,7 +807,7 @@ core_initcall(register_cpufreq_notifier);
+ 
+ static void raise_nmi(cpumask_t *mask)
+ {
+-	smp_cross_call(mask, IPI_CPU_BACKTRACE);
++	__smp_cross_call(mask, IPI_CPU_BACKTRACE);
+ }
+ 
+ void arch_trigger_cpumask_backtrace(const cpumask_t *mask, bool exclude_self)
 -- 
 2.20.1
 
