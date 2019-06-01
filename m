@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B1E831DE7
-	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:33:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36EDF31DE5
+	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:33:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727734AbfFANca (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Jun 2019 09:32:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55060 "EHLO mail.kernel.org"
+        id S1727418AbfFANcV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Jun 2019 09:32:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729334AbfFANYw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Jun 2019 09:24:52 -0400
+        id S1729352AbfFANYz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 1 Jun 2019 09:24:55 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D563527358;
-        Sat,  1 Jun 2019 13:24:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C2BDD27368;
+        Sat,  1 Jun 2019 13:24:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559395491;
-        bh=ywvvdd9oSFpraLt+fk0hQCZAKHCivxgtF0sMSLhDmsw=;
+        s=default; t=1559395494;
+        bh=PTVGXK4NKED6PSxZQ5ihwGx+M6YevY8nWj6ZOOpaAAk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dyO9mPdNNR4IofH0OadZ/686vficVDcbDKkiCNJIZZ/sxzxid7NCcGzNBsojbeQAo
-         w6P8Ced9Y2cFK3zYRoEGP+zLY7ZnO0rrmoktt9XsrBtxrYQT3oFgwj36Fza7SlOdly
-         N64cScMhM6pXPNIYC6zIa6t3wv4Fqo+6Z9gCb2Y4=
+        b=P9OaNmo/kUwByh0pWCdOJz1NsEw9yhUY7r0HiQOidhdMfUx8j+DPVL90QZEa1xVTK
+         j00io/olHKgGeIzRH1O983yeE3UJUNmqCpJOjof+3tATu/sekhsG7QXNeDIXk490B+
+         V0ZEfAAwK0w3ahPY+Bk7V3LL8DSH8csQ1ICf7BYU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
-        Jeff Dike <jdike@addtoit.com>,
-        Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        linux-um@lists.infradead.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 34/99] uml: fix a boot splat wrt use of cpu_all_mask
-Date:   Sat,  1 Jun 2019 09:22:41 -0400
-Message-Id: <20190601132346.26558-34-sashal@kernel.org>
+Cc:     Ludovic Barre <ludovic.barre@st.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-mmc@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 35/99] mmc: mmci: Prevent polling for busy detection in IRQ context
+Date:   Sat,  1 Jun 2019 09:22:42 -0400
+Message-Id: <20190601132346.26558-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190601132346.26558-1-sashal@kernel.org>
 References: <20190601132346.26558-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,84 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Żenczykowski <maze@google.com>
+From: Ludovic Barre <ludovic.barre@st.com>
 
-[ Upstream commit 689a58605b63173acb0a8cf954af6a8f60440c93 ]
+[ Upstream commit 8520ce1e17799b220ff421d4f39438c9c572ade3 ]
 
-Memory: 509108K/542612K available (3835K kernel code, 919K rwdata, 1028K rodata, 129K init, 211K bss, 33504K reserved, 0K cma-reserved)
-NR_IRQS: 15
-clocksource: timer: mask: 0xffffffffffffffff max_cycles: 0x1cd42e205, max_idle_ns: 881590404426 ns
-------------[ cut here ]------------
-WARNING: CPU: 0 PID: 0 at kernel/time/clockevents.c:458 clockevents_register_device+0x72/0x140
-posix-timer cpumask == cpu_all_mask, using cpu_possible_mask instead
-Modules linked in:
-CPU: 0 PID: 0 Comm: swapper Not tainted 5.1.0-rc4-00048-ged79cc87302b #4
-Stack:
- 604ebda0 603c5370 604ebe20 6046fd17
- 00000000 6006fcbb 604ebdb0 603c53b5
- 604ebe10 6003bfc4 604ebdd0 9000001ca
-Call Trace:
- [<6006fcbb>] ? printk+0x0/0x94
- [<60083160>] ? clockevents_register_device+0x72/0x140
- [<6001f16e>] show_stack+0x13b/0x155
- [<603c5370>] ? dump_stack_print_info+0xe2/0xeb
- [<6006fcbb>] ? printk+0x0/0x94
- [<603c53b5>] dump_stack+0x2a/0x2c
- [<6003bfc4>] __warn+0x10e/0x13e
- [<60070320>] ? vprintk_func+0xc8/0xcf
- [<60030fd6>] ? block_signals+0x0/0x16
- [<6006fcbb>] ? printk+0x0/0x94
- [<6003c08b>] warn_slowpath_fmt+0x97/0x99
- [<600311a1>] ? set_signals+0x0/0x3f
- [<6003bff4>] ? warn_slowpath_fmt+0x0/0x99
- [<600842cb>] ? tick_oneshot_mode_active+0x44/0x4f
- [<60030fd6>] ? block_signals+0x0/0x16
- [<6006fcbb>] ? printk+0x0/0x94
- [<6007d2d5>] ? __clocksource_select+0x20/0x1b1
- [<60030fd6>] ? block_signals+0x0/0x16
- [<6006fcbb>] ? printk+0x0/0x94
- [<60083160>] clockevents_register_device+0x72/0x140
- [<60031192>] ? get_signals+0x0/0xf
- [<60030fd6>] ? block_signals+0x0/0x16
- [<6006fcbb>] ? printk+0x0/0x94
- [<60002eec>] um_timer_setup+0xc8/0xca
- [<60001b59>] start_kernel+0x47f/0x57e
- [<600035bc>] start_kernel_proc+0x49/0x4d
- [<6006c483>] ? kmsg_dump_register+0x82/0x8a
- [<6001de62>] new_thread_handler+0x81/0xb2
- [<60003571>] ? kmsg_dumper_stdout_init+0x1a/0x1c
- [<60020c75>] uml_finishsetup+0x54/0x59
+The IRQ handler, mmci_irq(), loops until all status bits have been cleared.
+However, the status bit signaling busy in variant->busy_detect_flag, may be
+set even if busy detection isn't monitored for the current request.
 
-random: get_random_bytes called from init_oops_id+0x27/0x34 with crng_init=0
----[ end trace 00173d0117a88acb ]---
-Calibrating delay loop... 6941.90 BogoMIPS (lpj=34709504)
+This may be the case for the CMD11 when switching the I/O voltage, which
+leads to that mmci_irq() busy loops in IRQ context. Fix this problem, by
+clearing the status bit for busy, before continuing to validate the
+condition for the loop. This is safe, because the busy status detection has
+already been taken care of by mmci_cmd_irq().
 
-Signed-off-by: Maciej Żenczykowski <maze@google.com>
-Cc: Jeff Dike <jdike@addtoit.com>
-Cc: Richard Weinberger <richard@nod.at>
-Cc: Anton Ivanov <anton.ivanov@cambridgegreys.com>
-Cc: linux-um@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org
-
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Ludovic Barre <ludovic.barre@st.com>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/um/kernel/time.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mmc/host/mmci.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/um/kernel/time.c b/arch/um/kernel/time.c
-index 7f69d17de3540..9b21ae892009f 100644
---- a/arch/um/kernel/time.c
-+++ b/arch/um/kernel/time.c
-@@ -56,7 +56,7 @@ static int itimer_one_shot(struct clock_event_device *evt)
- static struct clock_event_device timer_clockevent = {
- 	.name			= "posix-timer",
- 	.rating			= 250,
--	.cpumask		= cpu_all_mask,
-+	.cpumask		= cpu_possible_mask,
- 	.features		= CLOCK_EVT_FEAT_PERIODIC |
- 				  CLOCK_EVT_FEAT_ONESHOT,
- 	.set_state_shutdown	= itimer_shutdown,
+diff --git a/drivers/mmc/host/mmci.c b/drivers/mmc/host/mmci.c
+index f1f54a8184895..77f18729ee96f 100644
+--- a/drivers/mmc/host/mmci.c
++++ b/drivers/mmc/host/mmci.c
+@@ -1320,9 +1320,10 @@ static irqreturn_t mmci_irq(int irq, void *dev_id)
+ 		}
+ 
+ 		/*
+-		 * Don't poll for busy completion in irq context.
++		 * Busy detection has been handled by mmci_cmd_irq() above.
++		 * Clear the status bit to prevent polling in IRQ context.
+ 		 */
+-		if (host->variant->busy_detect && host->busy_status)
++		if (host->variant->busy_detect_flag)
+ 			status &= ~host->variant->busy_detect_flag;
+ 
+ 		ret = 1;
 -- 
 2.20.1
 
