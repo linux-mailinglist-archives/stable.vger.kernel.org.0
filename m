@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 45F8531E70
+	by mail.lfdr.de (Postfix) with ESMTP id B050E31E71
 	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:38:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728571AbfFANVj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Jun 2019 09:21:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49100 "EHLO mail.kernel.org"
+        id S1727967AbfFANVl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Jun 2019 09:21:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728562AbfFANVi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Jun 2019 09:21:38 -0400
+        id S1727913AbfFANVj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 1 Jun 2019 09:21:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EF206272F6;
-        Sat,  1 Jun 2019 13:21:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 36BAA27301;
+        Sat,  1 Jun 2019 13:21:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559395297;
-        bh=2uGRV4UYU8MhgIsmB1C/n9YqWWL5HigLXU2aP/VhuWI=;
+        s=default; t=1559395299;
+        bh=b3UYFyW2TplH2lsanGiRcy3ZjlWFpAr0VzXFvEPYGwc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IpPU9i24vncrGw8rd2i7dOqr3q01gUklxDJ0lyYk9Ax5eNi/MnuPnRSTgDXsLiO28
-         4N5Gw5WZP5dkCMnraM620L9wTtzktPeuzewoEtn0quVFph8sB573mF81GA9xjj8pFQ
-         5c7VQuN5PAXzUH5IglHA3kaKV7k5YeTBM+JZ/WYQ=
+        b=NxQNqBNMDpkd5fafmbJzwvU9oVdrMh22EzIwW1XsvDMooZzOIEmbZksfIZouWewIK
+         NLzasma6VM3cWn3YgIN5K+oelj+gaEadt+tUCZsiUsFv0PH8Nj3F9mzY5bm3cdVy37
+         gh97i+J+MEufkHdE7sFZVErHx7DqVx8rl2Uo3HbQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
-        Jeff Dike <jdike@addtoit.com>,
-        Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        linux-um@lists.infradead.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.0 058/173] uml: fix a boot splat wrt use of cpu_all_mask
-Date:   Sat,  1 Jun 2019 09:17:30 -0400
-Message-Id: <20190601131934.25053-58-sashal@kernel.org>
+Cc:     Jisheng Zhang <Jisheng.Zhang@synaptics.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Gustavo Pimentel <gustavo.pimentel@synopsys.com>,
+        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.0 059/173] PCI: dwc: Free MSI in dw_pcie_host_init() error path
+Date:   Sat,  1 Jun 2019 09:17:31 -0400
+Message-Id: <20190601131934.25053-59-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190601131934.25053-1-sashal@kernel.org>
 References: <20190601131934.25053-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,84 +45,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Żenczykowski <maze@google.com>
+From: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
 
-[ Upstream commit 689a58605b63173acb0a8cf954af6a8f60440c93 ]
+[ Upstream commit 9e2b5de5604a6ff2626c51e77014d92c9299722c ]
 
-Memory: 509108K/542612K available (3835K kernel code, 919K rwdata, 1028K rodata, 129K init, 211K bss, 33504K reserved, 0K cma-reserved)
-NR_IRQS: 15
-clocksource: timer: mask: 0xffffffffffffffff max_cycles: 0x1cd42e205, max_idle_ns: 881590404426 ns
-------------[ cut here ]------------
-WARNING: CPU: 0 PID: 0 at kernel/time/clockevents.c:458 clockevents_register_device+0x72/0x140
-posix-timer cpumask == cpu_all_mask, using cpu_possible_mask instead
-Modules linked in:
-CPU: 0 PID: 0 Comm: swapper Not tainted 5.1.0-rc4-00048-ged79cc87302b #4
-Stack:
- 604ebda0 603c5370 604ebe20 6046fd17
- 00000000 6006fcbb 604ebdb0 603c53b5
- 604ebe10 6003bfc4 604ebdd0 9000001ca
-Call Trace:
- [<6006fcbb>] ? printk+0x0/0x94
- [<60083160>] ? clockevents_register_device+0x72/0x140
- [<6001f16e>] show_stack+0x13b/0x155
- [<603c5370>] ? dump_stack_print_info+0xe2/0xeb
- [<6006fcbb>] ? printk+0x0/0x94
- [<603c53b5>] dump_stack+0x2a/0x2c
- [<6003bfc4>] __warn+0x10e/0x13e
- [<60070320>] ? vprintk_func+0xc8/0xcf
- [<60030fd6>] ? block_signals+0x0/0x16
- [<6006fcbb>] ? printk+0x0/0x94
- [<6003c08b>] warn_slowpath_fmt+0x97/0x99
- [<600311a1>] ? set_signals+0x0/0x3f
- [<6003bff4>] ? warn_slowpath_fmt+0x0/0x99
- [<600842cb>] ? tick_oneshot_mode_active+0x44/0x4f
- [<60030fd6>] ? block_signals+0x0/0x16
- [<6006fcbb>] ? printk+0x0/0x94
- [<6007d2d5>] ? __clocksource_select+0x20/0x1b1
- [<60030fd6>] ? block_signals+0x0/0x16
- [<6006fcbb>] ? printk+0x0/0x94
- [<60083160>] clockevents_register_device+0x72/0x140
- [<60031192>] ? get_signals+0x0/0xf
- [<60030fd6>] ? block_signals+0x0/0x16
- [<6006fcbb>] ? printk+0x0/0x94
- [<60002eec>] um_timer_setup+0xc8/0xca
- [<60001b59>] start_kernel+0x47f/0x57e
- [<600035bc>] start_kernel_proc+0x49/0x4d
- [<6006c483>] ? kmsg_dump_register+0x82/0x8a
- [<6001de62>] new_thread_handler+0x81/0xb2
- [<60003571>] ? kmsg_dumper_stdout_init+0x1a/0x1c
- [<60020c75>] uml_finishsetup+0x54/0x59
+If we ever did MSI-related initializations, we need to call
+dw_pcie_free_msi() in the error code path.
 
-random: get_random_bytes called from init_oops_id+0x27/0x34 with crng_init=0
----[ end trace 00173d0117a88acb ]---
-Calibrating delay loop... 6941.90 BogoMIPS (lpj=34709504)
+Remove the IS_ENABLED(CONFIG_PCI_MSI) check for MSI init because
+pci_msi_enabled() already has a stub for !CONFIG_PCI_MSI.
 
-Signed-off-by: Maciej Żenczykowski <maze@google.com>
-Cc: Jeff Dike <jdike@addtoit.com>
-Cc: Richard Weinberger <richard@nod.at>
-Cc: Anton Ivanov <anton.ivanov@cambridgegreys.com>
-Cc: linux-um@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org
-
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Acked-by: Gustavo Pimentel <gustavo.pimentel@synopsys.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/um/kernel/time.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/controller/dwc/pcie-designware-host.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/arch/um/kernel/time.c b/arch/um/kernel/time.c
-index 052de4c8acb2e..0c572a48158e8 100644
---- a/arch/um/kernel/time.c
-+++ b/arch/um/kernel/time.c
-@@ -56,7 +56,7 @@ static int itimer_one_shot(struct clock_event_device *evt)
- static struct clock_event_device timer_clockevent = {
- 	.name			= "posix-timer",
- 	.rating			= 250,
--	.cpumask		= cpu_all_mask,
-+	.cpumask		= cpu_possible_mask,
- 	.features		= CLOCK_EVT_FEAT_PERIODIC |
- 				  CLOCK_EVT_FEAT_ONESHOT,
- 	.set_state_shutdown	= itimer_shutdown,
+diff --git a/drivers/pci/controller/dwc/pcie-designware-host.c b/drivers/pci/controller/dwc/pcie-designware-host.c
+index 9c5614f21b8eb..d14a6237bdf5a 100644
+--- a/drivers/pci/controller/dwc/pcie-designware-host.c
++++ b/drivers/pci/controller/dwc/pcie-designware-host.c
+@@ -439,7 +439,7 @@ int dw_pcie_host_init(struct pcie_port *pp)
+ 	if (ret)
+ 		pci->num_viewport = 2;
+ 
+-	if (IS_ENABLED(CONFIG_PCI_MSI) && pci_msi_enabled()) {
++	if (pci_msi_enabled()) {
+ 		/*
+ 		 * If a specific SoC driver needs to change the
+ 		 * default number of vectors, it needs to implement
+@@ -477,7 +477,7 @@ int dw_pcie_host_init(struct pcie_port *pp)
+ 	if (pp->ops->host_init) {
+ 		ret = pp->ops->host_init(pp);
+ 		if (ret)
+-			goto error;
++			goto err_free_msi;
+ 	}
+ 
+ 	pp->root_bus_nr = pp->busn->start;
+@@ -491,7 +491,7 @@ int dw_pcie_host_init(struct pcie_port *pp)
+ 
+ 	ret = pci_scan_root_bus_bridge(bridge);
+ 	if (ret)
+-		goto error;
++		goto err_free_msi;
+ 
+ 	bus = bridge->bus;
+ 
+@@ -507,6 +507,9 @@ int dw_pcie_host_init(struct pcie_port *pp)
+ 	pci_bus_add_devices(bus);
+ 	return 0;
+ 
++err_free_msi:
++	if (pci_msi_enabled() && !pp->ops->msi_host_init)
++		dw_pcie_free_msi(pp);
+ error:
+ 	pci_free_host_bridge(bridge);
+ 	return ret;
 -- 
 2.20.1
 
