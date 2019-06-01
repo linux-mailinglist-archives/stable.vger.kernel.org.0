@@ -2,41 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DD87031BDA
-	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:17:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BCC0631BDC
+	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:17:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727467AbfFANR3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Jun 2019 09:17:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43206 "EHLO mail.kernel.org"
+        id S1727485AbfFANRf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Jun 2019 09:17:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727461AbfFANR3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Jun 2019 09:17:29 -0400
+        id S1727461AbfFANRf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 1 Jun 2019 09:17:35 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 38FB523B55;
-        Sat,  1 Jun 2019 13:17:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 38A8525F5A;
+        Sat,  1 Jun 2019 13:17:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559395048;
-        bh=adYvW22iqvVHA34DPtYAqlnX/zQXWKyEMfkrJ54DvBg=;
+        s=default; t=1559395054;
+        bh=FSFoZTMt11iXc0aoK+/E7I+63GFkRN+cT3nCiArd59o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F7RoYFZNb+Cbu6HlQ2I7BjeCmGbC7jxcXKSq+0fzI4WvhHYpIaVgH2LpkSZRLsdK1
-         Hr2ETIBWIHMK3Nm0oJLrcN6OR5jTjHXb17MslFhVEPbla1Tq230IarzIzYplk+Zd0f
-         rKrVDjlEyCBPcBMoOXOUoEabBAT0CwhS9kq5UdCg=
+        b=WdBT87pg0UO5w1MqB8+z4+fAVpvvH1f/91WDmyZLQIH7xUwCxvlkBgwNbObVLTRQe
+         5lPZypnb312K9GYy6vDqflQRDvLkg19l8InDv5tFYopf1uWwoLTNRzmDJ+MVu0lEqh
+         8lWAAI22pjolklMNRrpkxMa3jC9SBfedVlcS5Fl8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mike Kravetz <mike.kravetz@oracle.com>,
-        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
-        Davidlohr Bueso <dave@stgolabs.net>,
+Cc:     David Hildenbrand <david@redhat.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Michal Hocko <mhocko@suse.com>,
+        Pavel Tatashin <pasha.tatashin@soleen.com>,
+        Wei Yang <richard.weiyang@gmail.com>, Qian Cai <cai@lca.pw>,
+        Arun KS <arunks@codeaurora.org>,
+        Mathieu Malaterre <malat@debian.org>,
+        Andrew Banman <andrew.banman@hpe.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Christophe Leroy <christophe.leroy@c-s.fr>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Fenghua Yu <fenghua.yu@intel.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@kernel.org>,
+        Ingo Molnar <mingo@redhat.com>,
         Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Michal Hocko <mhocko@kernel.org>,
-        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Mike Travis <mike.travis@hpe.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Oscar Salvador <osalvador@suse.com>,
+        Paul Mackerras <paulus@samba.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Rich Felker <dalias@libc.org>, Rob Herring <robh@kernel.org>,
+        Stefan Agner <stefan@agner.ch>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Tony Luck <tony.luck@intel.com>,
+        Vasily Gorbik <gor@linux.ibm.com>,
+        Yoshinori Sato <ysato@users.sourceforge.jp>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
-Subject: [PATCH AUTOSEL 5.1 012/186] hugetlbfs: on restore reserve error path retain subpool reservation
-Date:   Sat,  1 Jun 2019 09:13:48 -0400
-Message-Id: <20190601131653.24205-12-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 013/186] mm/memory_hotplug: release memory resource after arch_remove_memory()
+Date:   Sat,  1 Jun 2019 09:13:49 -0400
+Message-Id: <20190601131653.24205-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190601131653.24205-1-sashal@kernel.org>
 References: <20190601131653.24205-1-sashal@kernel.org>
@@ -49,80 +80,178 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Kravetz <mike.kravetz@oracle.com>
+From: David Hildenbrand <david@redhat.com>
 
-[ Upstream commit 0919e1b69ab459e06df45d3ba6658d281962db80 ]
+[ Upstream commit d9eb1417c77df7ce19abd2e41619e9dceccbdf2a ]
 
-When a huge page is allocated, PagePrivate() is set if the allocation
-consumed a reservation.  When freeing a huge page, PagePrivate is checked.
-If set, it indicates the reservation should be restored.  PagePrivate
-being set at free huge page time mostly happens on error paths.
+Patch series "mm/memory_hotplug: Better error handling when removing
+memory", v1.
 
-When huge page reservations are created, a check is made to determine if
-the mapping is associated with an explicitly mounted filesystem.  If so,
-pages are also reserved within the filesystem.  The default action when
-freeing a huge page is to decrement the usage count in any associated
-explicitly mounted filesystem.  However, if the reservation is to be
-restored the reservation/use count within the filesystem should not be
-decrementd.  Otherwise, a subsequent page allocation and free for the same
-mapping location will cause the file filesystem usage to go 'negative'.
+Error handling when removing memory is somewhat messed up right now.  Some
+errors result in warnings, others are completely ignored.  Memory unplug
+code can essentially not deal with errors properly as of now.
+remove_memory() will never fail.
 
-Filesystem                         Size  Used Avail Use% Mounted on
-nodev                              4.0G -4.0M  4.1G    - /opt/hugepool
+We have basically two choices:
+1. Allow arch_remov_memory() and friends to fail, propagating errors via
+   remove_memory(). Might be problematic (e.g. DIMMs consisting of multiple
+   pieces added/removed separately).
+2. Don't allow the functions to fail, handling errors in a nicer way.
 
-To fix, when freeing a huge page do not adjust filesystem usage if
-PagePrivate() is set to indicate the reservation should be restored.
+It seems like most errors that can theoretically happen are really corner
+cases and mostly theoretical (e.g.  "section not valid").  However e.g.
+aborting removal of sections while all callers simply continue in case of
+errors is not nice.
 
-I did not cc stable as the problem has been around since reserves were
-added to hugetlbfs and nobody has noticed.
+If we can gurantee that removal of memory always works (and WARN/skip in
+case of theoretical errors so we can figure out what is going on), we can
+go ahead and implement better error handling when adding memory.
 
-Link: http://lkml.kernel.org/r/20190328234704.27083-2-mike.kravetz@oracle.com
-Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-Reviewed-by: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
+E.g. via add_memory():
+
+arch_add_memory()
+ret = do_stuff()
+if (ret) {
+	arch_remove_memory();
+	goto error;
+}
+
+Handling here that arch_remove_memory() might fail is basically
+impossible.  So I suggest, let's avoid reporting errors while removing
+memory, warning on theoretical errors instead and continuing instead of
+aborting.
+
+This patch (of 4):
+
+__add_pages() doesn't add the memory resource, so __remove_pages()
+shouldn't remove it.  Let's factor it out.  Especially as it is a special
+case for memory used as system memory, added via add_memory() and friends.
+
+We now remove the resource after removing the sections instead of doing it
+the other way around.  I don't think this change is problematic.
+
+add_memory()
+	register memory resource
+	arch_add_memory()
+
+remove_memory
+	arch_remove_memory()
+	release memory resource
+
+While at it, explain why we ignore errors and that it only happeny if
+we remove memory in a different granularity as we added it.
+
+[david@redhat.com: fix printk warning]
+  Link: http://lkml.kernel.org/r/20190417120204.6997-1-david@redhat.com
+Link: http://lkml.kernel.org/r/20190409100148.24703-2-david@redhat.com
+Signed-off-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
+Cc: Wei Yang <richard.weiyang@gmail.com>
+Cc: Qian Cai <cai@lca.pw>
+Cc: Arun KS <arunks@codeaurora.org>
+Cc: Mathieu Malaterre <malat@debian.org>
+Cc: Andrew Banman <andrew.banman@hpe.com>
+Cc: Andy Lutomirski <luto@kernel.org>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Christophe Leroy <christophe.leroy@c-s.fr>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: Fenghua Yu <fenghua.yu@intel.com>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Ingo Molnar <mingo@redhat.com>
 Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>
+Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Mike Rapoport <rppt@linux.ibm.com>
+Cc: Mike Travis <mike.travis@hpe.com>
+Cc: Nicholas Piggin <npiggin@gmail.com>
+Cc: Oscar Salvador <osalvador@suse.com>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: Rich Felker <dalias@libc.org>
+Cc: Rob Herring <robh@kernel.org>
+Cc: Stefan Agner <stefan@agner.ch>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Tony Luck <tony.luck@intel.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/hugetlb.c | 21 ++++++++++++++++-----
- 1 file changed, 16 insertions(+), 5 deletions(-)
+ mm/memory_hotplug.c | 35 +++++++++++++++++++++--------------
+ 1 file changed, 21 insertions(+), 14 deletions(-)
 
-diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index 5baf1f00ad427..5b4f00be325d7 100644
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -1258,12 +1258,23 @@ void free_huge_page(struct page *page)
- 	ClearPagePrivate(page);
+diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+index b236069ff0d82..28587f2901090 100644
+--- a/mm/memory_hotplug.c
++++ b/mm/memory_hotplug.c
+@@ -561,20 +561,6 @@ int __remove_pages(struct zone *zone, unsigned long phys_start_pfn,
+ 	if (is_dev_zone(zone)) {
+ 		if (altmap)
+ 			map_offset = vmem_altmap_offset(altmap);
+-	} else {
+-		resource_size_t start, size;
+-
+-		start = phys_start_pfn << PAGE_SHIFT;
+-		size = nr_pages * PAGE_SIZE;
+-
+-		ret = release_mem_region_adjustable(&iomem_resource, start,
+-					size);
+-		if (ret) {
+-			resource_size_t endres = start + size - 1;
+-
+-			pr_warn("Unable to release resource <%pa-%pa> (%d)\n",
+-					&start, &endres, ret);
+-		}
+ 	}
  
- 	/*
--	 * A return code of zero implies that the subpool will be under its
--	 * minimum size if the reservation is not restored after page is free.
--	 * Therefore, force restore_reserve operation.
-+	 * If PagePrivate() was set on page, page allocation consumed a
-+	 * reservation.  If the page was associated with a subpool, there
-+	 * would have been a page reserved in the subpool before allocation
-+	 * via hugepage_subpool_get_pages().  Since we are 'restoring' the
-+	 * reservtion, do not call hugepage_subpool_put_pages() as this will
-+	 * remove the reserved page from the subpool.
- 	 */
--	if (hugepage_subpool_put_pages(spool, 1) == 0)
--		restore_reserve = true;
-+	if (!restore_reserve) {
-+		/*
-+		 * A return code of zero implies that the subpool will be
-+		 * under its minimum size if the reservation is not restored
-+		 * after page is free.  Therefore, force restore_reserve
-+		 * operation.
-+		 */
-+		if (hugepage_subpool_put_pages(spool, 1) == 0)
-+			restore_reserve = true;
+ 	clear_zone_contiguous(zone);
+@@ -1843,6 +1829,26 @@ void try_offline_node(int nid)
+ }
+ EXPORT_SYMBOL(try_offline_node);
+ 
++static void __release_memory_resource(resource_size_t start,
++				      resource_size_t size)
++{
++	int ret;
++
++	/*
++	 * When removing memory in the same granularity as it was added,
++	 * this function never fails. It might only fail if resources
++	 * have to be adjusted or split. We'll ignore the error, as
++	 * removing of memory cannot fail.
++	 */
++	ret = release_mem_region_adjustable(&iomem_resource, start, size);
++	if (ret) {
++		resource_size_t endres = start + size - 1;
++
++		pr_warn("Unable to release resource <%pa-%pa> (%d)\n",
++			&start, &endres, ret);
 +	}
++}
++
+ /**
+  * remove_memory
+  * @nid: the node ID
+@@ -1877,6 +1883,7 @@ void __ref __remove_memory(int nid, u64 start, u64 size)
+ 	memblock_remove(start, size);
  
- 	spin_lock(&hugetlb_lock);
- 	clear_page_huge_active(page);
+ 	arch_remove_memory(nid, start, size, NULL);
++	__release_memory_resource(start, size);
+ 
+ 	try_offline_node(nid);
+ 
 -- 
 2.20.1
 
