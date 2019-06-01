@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9643E31EB7
-	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:40:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6487D31C50
+	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:21:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728325AbfFANUe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Jun 2019 09:20:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47748 "EHLO mail.kernel.org"
+        id S1728337AbfFANUh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Jun 2019 09:20:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728321AbfFANUd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Jun 2019 09:20:33 -0400
+        id S1728330AbfFANUg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 1 Jun 2019 09:20:36 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE084272DB;
-        Sat,  1 Jun 2019 13:20:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C0B3C272D8;
+        Sat,  1 Jun 2019 13:20:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559395233;
-        bh=i2CKDvvI3H1Wdcjf6zDc07VYBcgn+3crgsPxk0chYKw=;
+        s=default; t=1559395235;
+        bh=lERRBpbiWXcItU0VZZrHkshCFTxnimKBKwtoNIoSXbM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rA9OPVjt3HdvnevdKf64evreMsSRwglAN1X6gVGdawdt5e4dWgYiIdXPDgZWhGtEd
-         JI47YgYhtfLr5UdmPK/1/bxwNP1C4KhtHFfVXIVZSjRvjxSgKcD4wL2iEBu0lD4MrW
-         D9FA3A44QyX+bY1SqYb5mziMwvOutgyvT/5Uy8h4=
+        b=gmVdpg1IjEFC8PHYzXCJUfvfHvJ7ByU/9Nw3/Wp+CqKKQ8qeaL431Yp5IuUe2PgjZ
+         8AVtzJRnpdFYipS9Hp/SdP/muuVHxqfGwSBKtS/M+Vp1s/71eMBiiKx8jHd86iHiK+
+         Sf24ts6tzhgj795p5ChcKj8uDGo/PWTyCgxLiuE4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yue Hu <huyue2@yulong.com>,
+Cc:     "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Mike Rapoport <rppt@linux.vnet.ibm.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Laura Abbott <labbott@redhat.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Andrea Arcangeli <aarcange@redhat.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
-Subject: [PATCH AUTOSEL 5.0 017/173] mm/cma.c: fix the bitmap status to show failed allocation reason
-Date:   Sat,  1 Jun 2019 09:16:49 -0400
-Message-Id: <20190601131934.25053-17-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org,
+        linux-nvdimm@lists.01.org, linux-mm@kvack.org
+Subject: [PATCH AUTOSEL 5.0 018/173] mm: page_mkclean vs MADV_DONTNEED race
+Date:   Sat,  1 Jun 2019 09:16:50 -0400
+Message-Id: <20190601131934.25053-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190601131934.25053-1-sashal@kernel.org>
 References: <20190601131934.25053-1-sashal@kernel.org>
@@ -50,85 +47,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yue Hu <huyue2@yulong.com>
+From: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
 
-[ Upstream commit 2b59e01a3aa665f751d1410b99fae9336bd424e1 ]
+[ Upstream commit 024eee0e83f0df52317be607ca521e0fc572aa07 ]
 
-Currently one bit in cma bitmap represents number of pages rather than
-one page, cma->count means cma size in pages. So to find available pages
-via find_next_zero_bit()/find_next_bit() we should use cma size not in
-pages but in bits although current free pages number is correct due to
-zero value of order_per_bit. Once order_per_bit is changed the bitmap
-status will be incorrect.
+MADV_DONTNEED is handled with mmap_sem taken in read mode.  We call
+page_mkclean without holding mmap_sem.
 
-The size input in cma_debug_show_areas() is not correct.  It will
-affect the available pages at some position to debug the failure issue.
+MADV_DONTNEED implies that pages in the region are unmapped and subsequent
+access to the pages in that range is handled as a new page fault.  This
+implies that if we don't have parallel access to the region when
+MADV_DONTNEED is run we expect those range to be unallocated.
 
-This is an example with order_per_bit = 1
+w.r.t page_mkclean() we need to make sure that we don't break the
+MADV_DONTNEED semantics.  MADV_DONTNEED check for pmd_none without holding
+pmd_lock.  This implies we skip the pmd if we temporarily mark pmd none.
+Avoid doing that while marking the page clean.
 
-Before this change:
-[    4.120060] cma: number of available pages: 1@93+4@108+7@121+7@137+7@153+7@169+7@185+7@201+3@213+3@221+3@229+3@237+3@245+3@253+3@261+3@269+3@277+3@285+3@293+3@301+3@309+3@317+3@325+19@333+15@369+512@512=> 638 free of 1024 total pages
+Keep the sequence same for dax too even though we don't support
+MADV_DONTNEED for dax mapping
 
-After this change:
-[    4.143234] cma: number of available pages: 2@93+8@108+14@121+14@137+14@153+14@169+14@185+14@201+6@213+6@221+6@229+6@237+6@245+6@253+6@261+6@269+6@277+6@285+6@293+6@301+6@309+6@317+6@325+38@333+30@369=> 252 free of 1024 total pages
+The bug was noticed by code review and I didn't observe any failures w.r.t
+test run.  This is similar to
 
-Obviously the bitmap status before is incorrect.
+commit 58ceeb6bec86d9140f9d91d71a710e963523d063
+Author: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Date:   Thu Apr 13 14:56:26 2017 -0700
 
-Link: http://lkml.kernel.org/r/20190320060829.9144-1-zbestahu@gmail.com
-Signed-off-by: Yue Hu <huyue2@yulong.com>
+    thp: fix MADV_DONTNEED vs. MADV_FREE race
+
+commit ced108037c2aa542b3ed8b7afd1576064ad1362a
+Author: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Date:   Thu Apr 13 14:56:20 2017 -0700
+
+    thp: fix MADV_DONTNEED vs. numa balancing race
+
+Link: http://lkml.kernel.org/r/20190321040610.14226-1-aneesh.kumar@linux.ibm.com
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
 Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
-Cc: Randy Dunlap <rdunlap@infradead.org>
-Cc: Laura Abbott <labbott@redhat.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc:"Kirill A . Shutemov" <kirill@shutemov.name>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/cma.c | 19 +++++++++++--------
- 1 file changed, 11 insertions(+), 8 deletions(-)
+ fs/dax.c  | 2 +-
+ mm/rmap.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/mm/cma.c b/mm/cma.c
-index f160ce31ef469..0b6d6c63bcef5 100644
---- a/mm/cma.c
-+++ b/mm/cma.c
-@@ -371,23 +371,26 @@ int __init cma_declare_contiguous(phys_addr_t base,
- #ifdef CONFIG_CMA_DEBUG
- static void cma_debug_show_areas(struct cma *cma)
- {
--	unsigned long next_zero_bit, next_set_bit;
-+	unsigned long next_zero_bit, next_set_bit, nr_zero;
- 	unsigned long start = 0;
--	unsigned int nr_zero, nr_total = 0;
-+	unsigned long nr_part, nr_total = 0;
-+	unsigned long nbits = cma_bitmap_maxno(cma);
+diff --git a/fs/dax.c b/fs/dax.c
+index 8eb3e8c2b4bdc..163ebd6cc0d1c 100644
+--- a/fs/dax.c
++++ b/fs/dax.c
+@@ -814,7 +814,7 @@ static void dax_entry_mkclean(struct address_space *mapping, pgoff_t index,
+ 				goto unlock_pmd;
  
- 	mutex_lock(&cma->lock);
- 	pr_info("number of available pages: ");
- 	for (;;) {
--		next_zero_bit = find_next_zero_bit(cma->bitmap, cma->count, start);
--		if (next_zero_bit >= cma->count)
-+		next_zero_bit = find_next_zero_bit(cma->bitmap, nbits, start);
-+		if (next_zero_bit >= nbits)
- 			break;
--		next_set_bit = find_next_bit(cma->bitmap, cma->count, next_zero_bit);
-+		next_set_bit = find_next_bit(cma->bitmap, nbits, next_zero_bit);
- 		nr_zero = next_set_bit - next_zero_bit;
--		pr_cont("%s%u@%lu", nr_total ? "+" : "", nr_zero, next_zero_bit);
--		nr_total += nr_zero;
-+		nr_part = nr_zero << cma->order_per_bit;
-+		pr_cont("%s%lu@%lu", nr_total ? "+" : "", nr_part,
-+			next_zero_bit);
-+		nr_total += nr_part;
- 		start = next_zero_bit + nr_zero;
- 	}
--	pr_cont("=> %u free of %lu total pages\n", nr_total, cma->count);
-+	pr_cont("=> %lu free of %lu total pages\n", nr_total, cma->count);
- 	mutex_unlock(&cma->lock);
- }
- #else
+ 			flush_cache_page(vma, address, pfn);
+-			pmd = pmdp_huge_clear_flush(vma, address, pmdp);
++			pmd = pmdp_invalidate(vma, address, pmdp);
+ 			pmd = pmd_wrprotect(pmd);
+ 			pmd = pmd_mkclean(pmd);
+ 			set_pmd_at(vma->vm_mm, address, pmdp, pmd);
+diff --git a/mm/rmap.c b/mm/rmap.c
+index 0454ecc29537a..e0710b258c417 100644
+--- a/mm/rmap.c
++++ b/mm/rmap.c
+@@ -928,7 +928,7 @@ static bool page_mkclean_one(struct page *page, struct vm_area_struct *vma,
+ 				continue;
+ 
+ 			flush_cache_page(vma, address, page_to_pfn(page));
+-			entry = pmdp_huge_clear_flush(vma, address, pmd);
++			entry = pmdp_invalidate(vma, address, pmd);
+ 			entry = pmd_wrprotect(entry);
+ 			entry = pmd_mkclean(entry);
+ 			set_pmd_at(vma->vm_mm, address, pmd, entry);
 -- 
 2.20.1
 
