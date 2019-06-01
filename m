@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C4FCC31DA5
-	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:30:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E621A31DA3
+	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:30:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729651AbfFAN0M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Jun 2019 09:26:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56526 "EHLO mail.kernel.org"
+        id S1728251AbfFANak (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Jun 2019 09:30:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56594 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729123AbfFAN0L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Jun 2019 09:26:11 -0400
+        id S1729358AbfFAN0N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 1 Jun 2019 09:26:13 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 19FF72739A;
-        Sat,  1 Jun 2019 13:26:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 015AD273C1;
+        Sat,  1 Jun 2019 13:26:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559395570;
-        bh=me0jHZ4okS1/tGNFwIDuP/a8uqOaFJTeahlh8eX/lQo=;
+        s=default; t=1559395573;
+        bh=bw8UDpgDObzmuy67BHmUvWs9daSIpWqkdGgNmdcHcac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Iq00m0vDFEnvXuJMWFm6+xE3RS7cMzVSIqdSkYfn3WFT70VcOXdbErjh/U7Qabqc0
-         d8h7pxH5Yf0sjlu2IZqyaRX6u5+4L2MQOJPqyrWViLUWiwYiHZDemMYfQmrnKK8Bgz
-         rbpxqJ3tc7ILnG4npup7DTERmlBFDVm5rXJ1qYwM=
+        b=IR8ROffjBLFFr7zB32B+4s7Soynpc9nOORheIaHrzHfRUioXLlEhVJA1rwiXCbVyc
+         w8Ddh5ll5AAPciGmjsUzyT5efQ77asBJvgYT7ckDg3hy3+xJ4ac00KLwYrm8VqcuCo
+         5Q2wh0g1IvjyglDZhICh/qOI9yvdtJdx6qTmDk1w=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mike Kravetz <mike.kravetz@oracle.com>,
-        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
-        Davidlohr Bueso <dave@stgolabs.net>,
+Cc:     Yue Hu <huyue2@yulong.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
         Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Michal Hocko <mhocko@kernel.org>,
-        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
+        Laura Abbott <labbott@redhat.com>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
-Subject: [PATCH AUTOSEL 4.4 04/56] hugetlbfs: on restore reserve error path retain subpool reservation
-Date:   Sat,  1 Jun 2019 09:25:08 -0400
-Message-Id: <20190601132600.27427-4-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 05/56] mm/cma.c: fix crash on CMA allocation if bitmap allocation fails
+Date:   Sat,  1 Jun 2019 09:25:09 -0400
+Message-Id: <20190601132600.27427-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190601132600.27427-1-sashal@kernel.org>
 References: <20190601132600.27427-1-sashal@kernel.org>
@@ -49,80 +49,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Kravetz <mike.kravetz@oracle.com>
+From: Yue Hu <huyue2@yulong.com>
 
-[ Upstream commit 0919e1b69ab459e06df45d3ba6658d281962db80 ]
+[ Upstream commit 1df3a339074e31db95c4790ea9236874b13ccd87 ]
 
-When a huge page is allocated, PagePrivate() is set if the allocation
-consumed a reservation.  When freeing a huge page, PagePrivate is checked.
-If set, it indicates the reservation should be restored.  PagePrivate
-being set at free huge page time mostly happens on error paths.
+f022d8cb7ec7 ("mm: cma: Don't crash on allocation if CMA area can't be
+activated") fixes the crash issue when activation fails via setting
+cma->count as 0, same logic exists if bitmap allocation fails.
 
-When huge page reservations are created, a check is made to determine if
-the mapping is associated with an explicitly mounted filesystem.  If so,
-pages are also reserved within the filesystem.  The default action when
-freeing a huge page is to decrement the usage count in any associated
-explicitly mounted filesystem.  However, if the reservation is to be
-restored the reservation/use count within the filesystem should not be
-decrementd.  Otherwise, a subsequent page allocation and free for the same
-mapping location will cause the file filesystem usage to go 'negative'.
-
-Filesystem                         Size  Used Avail Use% Mounted on
-nodev                              4.0G -4.0M  4.1G    - /opt/hugepool
-
-To fix, when freeing a huge page do not adjust filesystem usage if
-PagePrivate() is set to indicate the reservation should be restored.
-
-I did not cc stable as the problem has been around since reserves were
-added to hugetlbfs and nobody has noticed.
-
-Link: http://lkml.kernel.org/r/20190328234704.27083-2-mike.kravetz@oracle.com
-Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-Reviewed-by: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
-Cc: Davidlohr Bueso <dave@stgolabs.net>
+Link: http://lkml.kernel.org/r/20190325081309.6004-1-zbestahu@gmail.com
+Signed-off-by: Yue Hu <huyue2@yulong.com>
+Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
 Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>
+Cc: Laura Abbott <labbott@redhat.com>
+Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
+Cc: Randy Dunlap <rdunlap@infradead.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/hugetlb.c | 21 ++++++++++++++++-----
- 1 file changed, 16 insertions(+), 5 deletions(-)
+ mm/cma.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index 324b2953e57e9..0357ad53af368 100644
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -1221,12 +1221,23 @@ void free_huge_page(struct page *page)
- 	ClearPagePrivate(page);
+diff --git a/mm/cma.c b/mm/cma.c
+index f0d91aca5a4cd..5ae4452656cdf 100644
+--- a/mm/cma.c
++++ b/mm/cma.c
+@@ -100,8 +100,10 @@ static int __init cma_activate_area(struct cma *cma)
  
- 	/*
--	 * A return code of zero implies that the subpool will be under its
--	 * minimum size if the reservation is not restored after page is free.
--	 * Therefore, force restore_reserve operation.
-+	 * If PagePrivate() was set on page, page allocation consumed a
-+	 * reservation.  If the page was associated with a subpool, there
-+	 * would have been a page reserved in the subpool before allocation
-+	 * via hugepage_subpool_get_pages().  Since we are 'restoring' the
-+	 * reservtion, do not call hugepage_subpool_put_pages() as this will
-+	 * remove the reserved page from the subpool.
- 	 */
--	if (hugepage_subpool_put_pages(spool, 1) == 0)
--		restore_reserve = true;
-+	if (!restore_reserve) {
-+		/*
-+		 * A return code of zero implies that the subpool will be
-+		 * under its minimum size if the reservation is not restored
-+		 * after page is free.  Therefore, force restore_reserve
-+		 * operation.
-+		 */
-+		if (hugepage_subpool_put_pages(spool, 1) == 0)
-+			restore_reserve = true;
+ 	cma->bitmap = kzalloc(bitmap_size, GFP_KERNEL);
+ 
+-	if (!cma->bitmap)
++	if (!cma->bitmap) {
++		cma->count = 0;
+ 		return -ENOMEM;
 +	}
  
- 	spin_lock(&hugetlb_lock);
- 	clear_page_huge_active(page);
+ 	WARN_ON_ONCE(!pfn_valid(pfn));
+ 	zone = page_zone(pfn_to_page(pfn));
 -- 
 2.20.1
 
