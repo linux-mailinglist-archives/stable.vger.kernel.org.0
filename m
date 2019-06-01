@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AD97031CAC
-	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:23:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F2DE31E42
+	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:35:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728970AbfFANXT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Jun 2019 09:23:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53044 "EHLO mail.kernel.org"
+        id S1728989AbfFANXY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Jun 2019 09:23:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53094 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728962AbfFANXS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Jun 2019 09:23:18 -0400
+        id S1728944AbfFANXU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 1 Jun 2019 09:23:20 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 79EDD2735C;
-        Sat,  1 Jun 2019 13:23:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 92B0326147;
+        Sat,  1 Jun 2019 13:23:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559395398;
-        bh=vCcH/DjruyxEQEGaa1tKNSfuUWOxs6wINfaRYg05J4w=;
+        s=default; t=1559395399;
+        bh=+X4uAI027shrewhNGiOsVcN08ktvaGgH/OPkfR/yK34=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fDN5MEJjopUQwZfQJcpvpBfBUh9mQ4gdbNU449X1gsuh625Ds80sFNQeYFRa0Dc/u
-         tMpGUNxlyYd0gfhXqBXocVp7xvbjkcQ8CRg/rLaotaDNz2NOkRBM+6xyE66s4Q4U9g
-         vZTg2irr1jXoZ8xxeN6XmqEUNRYOzqwg9zOlcOr8=
+        b=Uk36MdYEjV1IQPG+/nzVtH8/GAW/OfD90jBRBpFUqHSTnRF3CpxJUSa650KjDm1fP
+         GTuo+5CwWq+BNTE/uQFUYeGrgBA074qYsQ5/ONoluJVWUPp05isusYxNznKGJeQfdk
+         C9P2n6oOzjYaSSuB7d2moI0ITFz44uZgxVd9BRsU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>,
         linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 4.19 038/141] f2fs: fix to clear dirty inode in error path of f2fs_iget()
-Date:   Sat,  1 Jun 2019 09:20:14 -0400
-Message-Id: <20190601132158.25821-38-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 039/141] f2fs: fix to avoid panic in dec_valid_block_count()
+Date:   Sat,  1 Jun 2019 09:20:15 -0400
+Message-Id: <20190601132158.25821-39-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190601132158.25821-1-sashal@kernel.org>
 References: <20190601132158.25821-1-sashal@kernel.org>
@@ -45,67 +45,92 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Chao Yu <yuchao0@huawei.com>
 
-[ Upstream commit 546d22f070d64a7b96f57c93333772085d3a5e6d ]
+[ Upstream commit 5e159cd349bf3a31fb7e35c23a93308eb30f4f71 ]
 
 As Jungyeon reported in bugzilla:
 
-https://bugzilla.kernel.org/show_bug.cgi?id=203217
+https://bugzilla.kernel.org/show_bug.cgi?id=203209
 
 - Overview
 When mounting the attached crafted image and running program, I got this error.
-Additionally, it hangs on sync after running the program.
+Additionally, it hangs on sync after the this script.
 
 The image is intentionally fuzzed from a normal f2fs image for testing and I enabled option CONFIG_F2FS_CHECK_FS on.
 
 - Reproduces
-cc poc_test_05.c
-mkdir test
-mount -t f2fs tmp.img test
-sudo ./a.out
+cc poc_01.c
+./run.sh f2fs
 sync
 
-- Messages
- kernel BUG at fs/f2fs/inode.c:707!
- RIP: 0010:f2fs_evict_inode+0x33f/0x3a0
+ kernel BUG at fs/f2fs/f2fs.h:1788!
+ RIP: 0010:f2fs_truncate_data_blocks_range+0x342/0x350
  Call Trace:
-  evict+0xba/0x180
-  f2fs_iget+0x598/0xdf0
-  f2fs_lookup+0x136/0x320
-  __lookup_slow+0x92/0x140
-  lookup_slow+0x30/0x50
-  walk_component+0x1c1/0x350
-  path_lookupat+0x62/0x200
-  filename_lookup+0xb3/0x1a0
-  do_readlinkat+0x56/0x110
-  __x64_sys_readlink+0x16/0x20
+  f2fs_truncate_blocks+0x36d/0x3c0
+  f2fs_truncate+0x88/0x110
+  f2fs_setattr+0x3e1/0x460
+  notify_change+0x2da/0x400
+  do_truncate+0x6d/0xb0
+  do_sys_ftruncate+0xf1/0x160
   do_syscall_64+0x43/0xf0
   entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-During inode loading, __recover_inline_status() can recovery inode status
-and set inode dirty, once we failed in following process, it will fail
-the check in f2fs_evict_inode, result in trigger BUG_ON().
+The reason is dec_valid_block_count() will trigger kernel panic due to
+inconsistent count in between inode.i_blocks and actual block.
 
-Let's clear dirty inode in error path of f2fs_iget() to avoid panic.
+To avoid panic, let's just print debug message and set SBI_NEED_FSCK to
+give a hint to fsck for latter repairing.
 
 Signed-off-by: Chao Yu <yuchao0@huawei.com>
+[Jaegeuk Kim: fix build warning and add unlikely]
 Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/inode.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/f2fs/f2fs.h | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/fs/f2fs/inode.c b/fs/f2fs/inode.c
-index dd608b819a3c3..fae9570e6860e 100644
---- a/fs/f2fs/inode.c
-+++ b/fs/f2fs/inode.c
-@@ -476,6 +476,7 @@ struct inode *f2fs_iget(struct super_block *sb, unsigned long ino)
- 	return inode;
+diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
+index 1f5d5f62bb77d..1f3bf039a90e8 100644
+--- a/fs/f2fs/f2fs.h
++++ b/fs/f2fs/f2fs.h
+@@ -1733,6 +1733,7 @@ static inline int inc_valid_block_count(struct f2fs_sb_info *sbi,
+ 	return -ENOSPC;
+ }
  
- bad_inode:
-+	f2fs_inode_synced(inode);
- 	iget_failed(inode);
- 	trace_f2fs_iget_exit(inode, ret);
- 	return ERR_PTR(ret);
++void f2fs_msg(struct super_block *sb, const char *level, const char *fmt, ...);
+ static inline void dec_valid_block_count(struct f2fs_sb_info *sbi,
+ 						struct inode *inode,
+ 						block_t count)
+@@ -1741,13 +1742,21 @@ static inline void dec_valid_block_count(struct f2fs_sb_info *sbi,
+ 
+ 	spin_lock(&sbi->stat_lock);
+ 	f2fs_bug_on(sbi, sbi->total_valid_block_count < (block_t) count);
+-	f2fs_bug_on(sbi, inode->i_blocks < sectors);
+ 	sbi->total_valid_block_count -= (block_t)count;
+ 	if (sbi->reserved_blocks &&
+ 		sbi->current_reserved_blocks < sbi->reserved_blocks)
+ 		sbi->current_reserved_blocks = min(sbi->reserved_blocks,
+ 					sbi->current_reserved_blocks + count);
+ 	spin_unlock(&sbi->stat_lock);
++	if (unlikely(inode->i_blocks < sectors)) {
++		f2fs_msg(sbi->sb, KERN_WARNING,
++			"Inconsistent i_blocks, ino:%lu, iblocks:%llu, sectors:%llu",
++			inode->i_ino,
++			(unsigned long long)inode->i_blocks,
++			(unsigned long long)sectors);
++		set_sbi_flag(sbi, SBI_NEED_FSCK);
++		return;
++	}
+ 	f2fs_i_blocks_write(inode, count, false, true);
+ }
+ 
+@@ -2716,7 +2725,6 @@ static inline void f2fs_update_iostat(struct f2fs_sb_info *sbi,
+ 
+ bool f2fs_is_valid_blkaddr(struct f2fs_sb_info *sbi,
+ 					block_t blkaddr, int type);
+-void f2fs_msg(struct super_block *sb, const char *level, const char *fmt, ...);
+ static inline void verify_blkaddr(struct f2fs_sb_info *sbi,
+ 					block_t blkaddr, int type)
+ {
 -- 
 2.20.1
 
