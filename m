@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EC0BA31F57
-	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:44:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0039A31BD2
+	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:17:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727267AbfFANRG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Jun 2019 09:17:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41828 "EHLO mail.kernel.org"
+        id S1727314AbfFANRK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Jun 2019 09:17:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726210AbfFANRG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Jun 2019 09:17:06 -0400
+        id S1727269AbfFANRH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 1 Jun 2019 09:17:07 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9A8C427256;
-        Sat,  1 Jun 2019 13:17:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D2A5B2725E;
+        Sat,  1 Jun 2019 13:17:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559395025;
-        bh=ODfp8jxc5ne6xwedr1RUz4fhd+Pxzup3hNIbD9QDFfA=;
+        s=default; t=1559395026;
+        bh=tcNmDS2dYfT0+toW5BTsfBTpVZ2j+T3dVc+NEoQiLYc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D9vLrNxXyxARAXGq6IrdcNSCT+Bm44+moayj2mT+RI8gGGQhd9vFNtrJvESivQ+pU
-         2z3BMRd9b3bfzIM51/qKqm7y+2Nl7VJjB/fm9Kv83oojULjqsC6j2EpMjSBj1OUs53
-         sdHh/InnQEZ21cWnCRxhG0rmV6tW4nI+fsENq/rI=
+        b=Z3hNBJh5t9+k3cevH0is/455tORRtsD3EZraPdkozFVeal600QkC0qQBU2aDNh7V8
+         ZLUCXTs2zXZJgeUSYFvVTeA2i8CLivEwX2E0FIujpxoH7c+Bxc0gs7cB8qgDncNdYi
+         BEOM55ItDfokLOfl1dgFr7zwVR0VCBZdT1UUVO5M=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kangjie Lu <kjlu@umn.edu>, Alexandre Bounine <alex.bou9@gmail.com>,
-        Matt Porter <mporter@kernel.crashing.org>,
+Cc:     Hou Tao <houtao1@huawei.com>,
+        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+        Al Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.1 003/186] rapidio: fix a NULL pointer dereference when create_workqueue() fails
-Date:   Sat,  1 Jun 2019 09:13:39 -0400
-Message-Id: <20190601131653.24205-3-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 004/186] fs/fat/file.c: issue flush after the writeback of FAT
+Date:   Sat,  1 Jun 2019 09:13:40 -0400
+Message-Id: <20190601131653.24205-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190601131653.24205-1-sashal@kernel.org>
 References: <20190601131653.24205-1-sashal@kernel.org>
@@ -45,42 +46,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kangjie Lu <kjlu@umn.edu>
+From: Hou Tao <houtao1@huawei.com>
 
-[ Upstream commit 23015b22e47c5409620b1726a677d69e5cd032ba ]
+[ Upstream commit bd8309de0d60838eef6fb575b0c4c7e95841cf73 ]
 
-In case create_workqueue fails, the fix releases resources and returns
--ENOMEM to avoid NULL pointer dereference.
+fsync() needs to make sure the data & meta-data of file are persistent
+after the return of fsync(), even when a power-failure occurs later.  In
+the case of fat-fs, the FAT belongs to the meta-data of file, so we need
+to issue a flush after the writeback of FAT instead before.
 
-Signed-off-by: Kangjie Lu <kjlu@umn.edu>
-Acked-by: Alexandre Bounine <alex.bou9@gmail.com>
-Cc: Matt Porter <mporter@kernel.crashing.org>
+Also bail out early when any stage of fsync fails.
+
+Link: http://lkml.kernel.org/r/20190409030158.136316-1-houtao1@huawei.com
+Signed-off-by: Hou Tao <houtao1@huawei.com>
+Acked-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Jan Kara <jack@suse.cz>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rapidio/rio_cm.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ fs/fat/file.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/rapidio/rio_cm.c b/drivers/rapidio/rio_cm.c
-index cf45829585cb4..b29fc258eeba4 100644
---- a/drivers/rapidio/rio_cm.c
-+++ b/drivers/rapidio/rio_cm.c
-@@ -2147,6 +2147,14 @@ static int riocm_add_mport(struct device *dev,
- 	mutex_init(&cm->rx_lock);
- 	riocm_rx_fill(cm, RIOCM_RX_RING_SIZE);
- 	cm->rx_wq = create_workqueue(DRV_NAME "/rxq");
-+	if (!cm->rx_wq) {
-+		riocm_error("failed to allocate IBMBOX_%d on %s",
-+			    cmbox, mport->name);
-+		rio_release_outb_mbox(mport, cmbox);
-+		kfree(cm);
-+		return -ENOMEM;
-+	}
+diff --git a/fs/fat/file.c b/fs/fat/file.c
+index b3bed32946b1d..0e3ed79fcc3f1 100644
+--- a/fs/fat/file.c
++++ b/fs/fat/file.c
+@@ -193,12 +193,17 @@ static int fat_file_release(struct inode *inode, struct file *filp)
+ int fat_file_fsync(struct file *filp, loff_t start, loff_t end, int datasync)
+ {
+ 	struct inode *inode = filp->f_mapping->host;
+-	int res, err;
++	int err;
 +
- 	INIT_WORK(&cm->rx_work, rio_ibmsg_handler);
++	err = __generic_file_fsync(filp, start, end, datasync);
++	if (err)
++		return err;
  
- 	cm->tx_slot = 0;
+-	res = generic_file_fsync(filp, start, end, datasync);
+ 	err = sync_mapping_buffers(MSDOS_SB(inode->i_sb)->fat_inode->i_mapping);
++	if (err)
++		return err;
+ 
+-	return res ? res : err;
++	return blkdev_issue_flush(inode->i_sb->s_bdev, GFP_KERNEL, NULL);
+ }
+ 
+ 
 -- 
 2.20.1
 
