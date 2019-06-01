@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D313031D5E
-	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:30:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B209931D60
+	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:30:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729725AbfFAN0c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Jun 2019 09:26:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56964 "EHLO mail.kernel.org"
+        id S1729743AbfFAN0f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Jun 2019 09:26:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729722AbfFAN0b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Jun 2019 09:26:31 -0400
+        id S1729735AbfFAN0f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 1 Jun 2019 09:26:35 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6A9AA273CD;
-        Sat,  1 Jun 2019 13:26:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EE122273D4;
+        Sat,  1 Jun 2019 13:26:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559395591;
-        bh=AMh3azfDv9eQJGwB33I3PMFCyzDsud9Khu23J1NMkyw=;
+        s=default; t=1559395593;
+        bh=ty7Rs8PNem+NvFiBuUU9izB3uA0APh35AcywvSrFMVU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YnkKdvNYlk/SnNUN3aJmEeQDCT5iqUrpYfXB65ImIGMGJxDA9D/nraSwUrlhhvAFW
-         ffzgEpnSdeI2PecBBFJrU7kOLQl52KenxTXAxvPrbWjdN4hCDJZvf0lAgG9YKDY5hL
-         QlMKRfYHjoEky0WVlcBPGQnL64AU6kNjKzXxEBsk=
+        b=CEu+uwnn3g+maV1AW3WiIju32v+Yj9kUs78JG9PmUq7UEUhurhCaWgf+BbE55aJmn
+         LylpsFXD85XayuTAun+siUPfjtEj/P/eGWfem+5f4+OMf7mRiSEsXxNx2DdELy5xL4
+         W0sjB33AHqvpQVEREStRSYfyHDGqgIK+cuMYJHLo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Elazar Leibovich <elazar@lightbitslabs.com>,
-        Orit Wasserman <orit.was@gmail.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 16/56] tracing: Fix partial reading of trace event's id file
-Date:   Sat,  1 Jun 2019 09:25:20 -0400
-Message-Id: <20190601132600.27427-16-sashal@kernel.org>
+Cc:     =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
+        Jeff Dike <jdike@addtoit.com>,
+        Richard Weinberger <richard@nod.at>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        linux-um@lists.infradead.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 17/56] uml: fix a boot splat wrt use of cpu_all_mask
+Date:   Sat,  1 Jun 2019 09:25:21 -0400
+Message-Id: <20190601132600.27427-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190601132600.27427-1-sashal@kernel.org>
 References: <20190601132600.27427-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,79 +46,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Elazar Leibovich <elazar@lightbitslabs.com>
+From: Maciej Żenczykowski <maze@google.com>
 
-[ Upstream commit cbe08bcbbe787315c425dde284dcb715cfbf3f39 ]
+[ Upstream commit 689a58605b63173acb0a8cf954af6a8f60440c93 ]
 
-When reading only part of the id file, the ppos isn't tracked correctly.
-This is taken care by simple_read_from_buffer.
+Memory: 509108K/542612K available (3835K kernel code, 919K rwdata, 1028K rodata, 129K init, 211K bss, 33504K reserved, 0K cma-reserved)
+NR_IRQS: 15
+clocksource: timer: mask: 0xffffffffffffffff max_cycles: 0x1cd42e205, max_idle_ns: 881590404426 ns
+------------[ cut here ]------------
+WARNING: CPU: 0 PID: 0 at kernel/time/clockevents.c:458 clockevents_register_device+0x72/0x140
+posix-timer cpumask == cpu_all_mask, using cpu_possible_mask instead
+Modules linked in:
+CPU: 0 PID: 0 Comm: swapper Not tainted 5.1.0-rc4-00048-ged79cc87302b #4
+Stack:
+ 604ebda0 603c5370 604ebe20 6046fd17
+ 00000000 6006fcbb 604ebdb0 603c53b5
+ 604ebe10 6003bfc4 604ebdd0 9000001ca
+Call Trace:
+ [<6006fcbb>] ? printk+0x0/0x94
+ [<60083160>] ? clockevents_register_device+0x72/0x140
+ [<6001f16e>] show_stack+0x13b/0x155
+ [<603c5370>] ? dump_stack_print_info+0xe2/0xeb
+ [<6006fcbb>] ? printk+0x0/0x94
+ [<603c53b5>] dump_stack+0x2a/0x2c
+ [<6003bfc4>] __warn+0x10e/0x13e
+ [<60070320>] ? vprintk_func+0xc8/0xcf
+ [<60030fd6>] ? block_signals+0x0/0x16
+ [<6006fcbb>] ? printk+0x0/0x94
+ [<6003c08b>] warn_slowpath_fmt+0x97/0x99
+ [<600311a1>] ? set_signals+0x0/0x3f
+ [<6003bff4>] ? warn_slowpath_fmt+0x0/0x99
+ [<600842cb>] ? tick_oneshot_mode_active+0x44/0x4f
+ [<60030fd6>] ? block_signals+0x0/0x16
+ [<6006fcbb>] ? printk+0x0/0x94
+ [<6007d2d5>] ? __clocksource_select+0x20/0x1b1
+ [<60030fd6>] ? block_signals+0x0/0x16
+ [<6006fcbb>] ? printk+0x0/0x94
+ [<60083160>] clockevents_register_device+0x72/0x140
+ [<60031192>] ? get_signals+0x0/0xf
+ [<60030fd6>] ? block_signals+0x0/0x16
+ [<6006fcbb>] ? printk+0x0/0x94
+ [<60002eec>] um_timer_setup+0xc8/0xca
+ [<60001b59>] start_kernel+0x47f/0x57e
+ [<600035bc>] start_kernel_proc+0x49/0x4d
+ [<6006c483>] ? kmsg_dump_register+0x82/0x8a
+ [<6001de62>] new_thread_handler+0x81/0xb2
+ [<60003571>] ? kmsg_dumper_stdout_init+0x1a/0x1c
+ [<60020c75>] uml_finishsetup+0x54/0x59
 
-Reading a single byte, and then the next byte would result EOF.
+random: get_random_bytes called from init_oops_id+0x27/0x34 with crng_init=0
+---[ end trace 00173d0117a88acb ]---
+Calibrating delay loop... 6941.90 BogoMIPS (lpj=34709504)
 
-While this seems like not a big deal, this breaks abstractions that
-reads information from files unbuffered. See for example
-https://github.com/golang/go/issues/29399
+Signed-off-by: Maciej Żenczykowski <maze@google.com>
+Cc: Jeff Dike <jdike@addtoit.com>
+Cc: Richard Weinberger <richard@nod.at>
+Cc: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+Cc: linux-um@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org
 
-This code was mentioned as problematic in
-commit cd458ba9d5a5
-("tracing: Do not (ab)use trace_seq in event_id_read()")
-
-An example C code that show this bug is:
-
-  #include <stdio.h>
-  #include <stdint.h>
-
-  #include <sys/types.h>
-  #include <sys/stat.h>
-  #include <fcntl.h>
-  #include <unistd.h>
-
-  int main(int argc, char **argv) {
-    if (argc < 2)
-      return 1;
-    int fd = open(argv[1], O_RDONLY);
-    char c;
-    read(fd, &c, 1);
-    printf("First  %c\n", c);
-    read(fd, &c, 1);
-    printf("Second %c\n", c);
-  }
-
-Then run with, e.g.
-
-  sudo ./a.out /sys/kernel/debug/tracing/events/tcp/tcp_set_state/id
-
-You'll notice you're getting the first character twice, instead of the
-first two characters in the id file.
-
-Link: http://lkml.kernel.org/r/20181231115837.4932-1-elazar@lightbitslabs.com
-
-Cc: Orit Wasserman <orit.was@gmail.com>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: stable@vger.kernel.org
-Fixes: 23725aeeab10b ("ftrace: provide an id file for each event")
-Signed-off-by: Elazar Leibovich <elazar@lightbitslabs.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace_events.c | 3 ---
- 1 file changed, 3 deletions(-)
+ arch/um/kernel/time.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/trace/trace_events.c b/kernel/trace/trace_events.c
-index ba5392807912b..bd4c0bb61ad72 100644
---- a/kernel/trace/trace_events.c
-+++ b/kernel/trace/trace_events.c
-@@ -1288,9 +1288,6 @@ event_id_read(struct file *filp, char __user *ubuf, size_t cnt, loff_t *ppos)
- 	char buf[32];
- 	int len;
- 
--	if (*ppos)
--		return 0;
--
- 	if (unlikely(!id))
- 		return -ENODEV;
- 
+diff --git a/arch/um/kernel/time.c b/arch/um/kernel/time.c
+index 25c23666d5924..040e3efdc9a67 100644
+--- a/arch/um/kernel/time.c
++++ b/arch/um/kernel/time.c
+@@ -56,7 +56,7 @@ static int itimer_one_shot(struct clock_event_device *evt)
+ static struct clock_event_device timer_clockevent = {
+ 	.name			= "posix-timer",
+ 	.rating			= 250,
+-	.cpumask		= cpu_all_mask,
++	.cpumask		= cpu_possible_mask,
+ 	.features		= CLOCK_EVT_FEAT_PERIODIC |
+ 				  CLOCK_EVT_FEAT_ONESHOT,
+ 	.set_state_shutdown	= itimer_shutdown,
 -- 
 2.20.1
 
