@@ -2,48 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A6AA31EFF
-	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:41:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF47A31C23
+	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:19:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728190AbfFANTU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Jun 2019 09:19:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46478 "EHLO mail.kernel.org"
+        id S1728209AbfFANTW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Jun 2019 09:19:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728184AbfFANTU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Jun 2019 09:19:20 -0400
+        id S1728196AbfFANTV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 1 Jun 2019 09:19:21 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ABACA27280;
-        Sat,  1 Jun 2019 13:19:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DC5F7272B3;
+        Sat,  1 Jun 2019 13:19:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559395159;
-        bh=9xEkafkImboL0Vlars0FgDOJ0ZEDWSP9hRRg7LPRHYY=;
+        s=default; t=1559395160;
+        bh=el4UumI+dWZf9QEDr98NW9WMPFeWsO8jktub8fr2lCg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uYrOX6P2jchL1WyrvPZD9w7+HgIuR3AzX2WhV1gfs2lMZLyqclJpR9LUop9fUahpx
-         tzKVTZyXB3Z43rrxmnB1A//o2ECa/Ajr1lGJO6G9SfFD+SbneweKeDS2rSfzwlDow5
-         NY+VrvkMgovJstgAAU6yDXkyC4CyxQ25SQ1WTdFM=
+        b=QcGxe4M+8DiBfPv77lKVhTxhyGyHy67VdLZsSEY65pFiriXs0FeNqFEWHyAB01kX0
+         mL/mJ899ZOuDEmIAi28py7HhIsPPkSiFv7eKlNs//ucZ2EMLeBkjQVJXuIAqSNCddv
+         ahIiqMPHiO//C0cI2LBtM2pvfNr5FxXljzAVN2XI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Serge Semin <fancer.lancer@gmail.com>,
-        Paul Burton <paul.burton@mips.com>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        James Hogan <jhogan@kernel.org>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Michal Hocko <mhocko@suse.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Thomas Bogendoerfer <tbogendoerfer@suse.de>,
-        Huacai Chen <chenhc@lemote.com>,
-        Stefan Agner <stefan@agner.ch>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Juergen Gross <jgross@suse.com>,
-        Serge Semin <Sergey.Semin@t-platforms.ru>,
-        linux-mips@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.1 071/186] mips: Make sure dt memory regions are valid
-Date:   Sat,  1 Jun 2019 09:14:47 -0400
-Message-Id: <20190601131653.24205-71-sashal@kernel.org>
+Cc:     Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>,
+        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.1 072/186] netfilter: nf_tables: fix base chain stat rcu_dereference usage
+Date:   Sat,  1 Jun 2019 09:14:48 -0400
+Message-Id: <20190601131653.24205-72-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190601131653.24205-1-sashal@kernel.org>
 References: <20190601131653.24205-1-sashal@kernel.org>
@@ -56,69 +45,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Serge Semin <fancer.lancer@gmail.com>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit 93fa5b280761a4dbb14c5330f260380385ab2b49 ]
+[ Upstream commit edbd82c5fba009f68d20b5db585be1e667c605f6 ]
 
-There are situations when memory regions coming from dts may be
-too big for the platform physical address space. This especially
-concerns XPA-capable systems. Bootloader may determine more than 4GB
-memory available and pass it to the kernel over dts memory node, while
-kernel is built without XPA/64BIT support. In this case the region
-may either simply be truncated by add_memory_region() method
-or by u64->phys_addr_t type casting. But in worst case the method
-can even drop the memory region if it exceeds PHYS_ADDR_MAX size.
-So lets make sure the retrieved from dts memory regions are valid,
-and if some of them aren't, just manually truncate them with a warning
-printed out.
+Following splat gets triggered when nfnetlink monitor is running while
+xtables-nft selftests are running:
 
-Signed-off-by: Serge Semin <fancer.lancer@gmail.com>
-Signed-off-by: Paul Burton <paul.burton@mips.com>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: James Hogan <jhogan@kernel.org>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Thomas Bogendoerfer <tbogendoerfer@suse.de>
-Cc: Huacai Chen <chenhc@lemote.com>
-Cc: Stefan Agner <stefan@agner.ch>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Juergen Gross <jgross@suse.com>
-Cc: Serge Semin <Sergey.Semin@t-platforms.ru>
-Cc: linux-mips@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+net/netfilter/nf_tables_api.c:1272 suspicious rcu_dereference_check() usage!
+other info that might help us debug this:
+
+1 lock held by xtables-nft-mul/27006:
+ #0: 00000000e0f85be9 (&net->nft.commit_mutex){+.+.}, at: nf_tables_valid_genid+0x1a/0x50
+Call Trace:
+ nf_tables_fill_chain_info.isra.45+0x6cc/0x6e0
+ nf_tables_chain_notify+0xf8/0x1a0
+ nf_tables_commit+0x165c/0x1740
+
+nf_tables_fill_chain_info() can be called both from dumps (rcu read locked)
+or from the transaction path if a userspace process subscribed to nftables
+notifications.
+
+In the 'table dump' case, rcu_access_pointer() cannot be used: We do not
+hold transaction mutex so the pointer can be NULLed right after the check.
+Just unconditionally fetch the value, then have the helper return
+immediately if its NULL.
+
+In the notification case we don't hold the rcu read lock, but updates are
+prevented due to transaction mutex. Use rcu_dereference_check() to make lockdep
+aware of this.
+
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/kernel/prom.c | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ net/netfilter/nf_tables_api.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/arch/mips/kernel/prom.c b/arch/mips/kernel/prom.c
-index 93b8e0b4332f7..b9d6c6ec41778 100644
---- a/arch/mips/kernel/prom.c
-+++ b/arch/mips/kernel/prom.c
-@@ -41,7 +41,19 @@ char *mips_get_machine_name(void)
- #ifdef CONFIG_USE_OF
- void __init early_init_dt_add_memory_arch(u64 base, u64 size)
- {
--	return add_memory_region(base, size, BOOT_MEM_RAM);
-+	if (base >= PHYS_ADDR_MAX) {
-+		pr_warn("Trying to add an invalid memory region, skipped\n");
-+		return;
-+	}
-+
-+	/* Truncate the passed memory region instead of type casting */
-+	if (base + size - 1 >= PHYS_ADDR_MAX || base + size < base) {
-+		pr_warn("Truncate memory region %llx @ %llx to size %llx\n",
-+			size, base, PHYS_ADDR_MAX - base);
-+		size = PHYS_ADDR_MAX - base;
-+	}
-+
-+	add_memory_region(base, size, BOOT_MEM_RAM);
- }
+diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
+index 1606eaa5ae0da..aa5e7b00a581f 100644
+--- a/net/netfilter/nf_tables_api.c
++++ b/net/netfilter/nf_tables_api.c
+@@ -1190,6 +1190,9 @@ static int nft_dump_stats(struct sk_buff *skb, struct nft_stats __percpu *stats)
+ 	u64 pkts, bytes;
+ 	int cpu;
  
- int __init early_init_dt_reserve_memory_arch(phys_addr_t base,
++	if (!stats)
++		return 0;
++
+ 	memset(&total, 0, sizeof(total));
+ 	for_each_possible_cpu(cpu) {
+ 		cpu_stats = per_cpu_ptr(stats, cpu);
+@@ -1247,6 +1250,7 @@ static int nf_tables_fill_chain_info(struct sk_buff *skb, struct net *net,
+ 	if (nft_is_base_chain(chain)) {
+ 		const struct nft_base_chain *basechain = nft_base_chain(chain);
+ 		const struct nf_hook_ops *ops = &basechain->ops;
++		struct nft_stats __percpu *stats;
+ 		struct nlattr *nest;
+ 
+ 		nest = nla_nest_start(skb, NFTA_CHAIN_HOOK);
+@@ -1268,8 +1272,9 @@ static int nf_tables_fill_chain_info(struct sk_buff *skb, struct net *net,
+ 		if (nla_put_string(skb, NFTA_CHAIN_TYPE, basechain->type->name))
+ 			goto nla_put_failure;
+ 
+-		if (rcu_access_pointer(basechain->stats) &&
+-		    nft_dump_stats(skb, rcu_dereference(basechain->stats)))
++		stats = rcu_dereference_check(basechain->stats,
++					      lockdep_commit_lock_is_held(net));
++		if (nft_dump_stats(skb, stats))
+ 			goto nla_put_failure;
+ 	}
+ 
 -- 
 2.20.1
 
