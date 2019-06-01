@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9102531D62
-	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:30:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4760731D8F
+	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:30:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729851AbfFAN0q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Jun 2019 09:26:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57284 "EHLO mail.kernel.org"
+        id S1727579AbfFAN3o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Jun 2019 09:29:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729845AbfFAN0q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Jun 2019 09:26:46 -0400
+        id S1729854AbfFAN0r (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 1 Jun 2019 09:26:47 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 96367273C3;
-        Sat,  1 Jun 2019 13:26:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C9802273D6;
+        Sat,  1 Jun 2019 13:26:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559395605;
-        bh=QKHwLt3uugsnYRvB0JA2qbRzynAt2NN7z333VfW/eFc=;
+        s=default; t=1559395606;
+        bh=3UPIdmXIdADXaiJl+kkjj0qnijCPhtrHNPwoEaZBDMM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PJnn2z4b8B5dOxd5SeB2fsMr51PbYeyL2ucR44xTJI4bKYK9AL2BCc+Pca19dPzlO
-         Mrz29XjFGJFTTKzhZIV77dsMQE5BBpgJgLpwlWvQNBS/b7IH+lvT4xjEyLLadbAyok
-         FmnOOZwhaA27CxchaSTPiKze9jhwFsiPE6Sf/Q18=
+        b=RuvVB9HMK+SCbEl6EZ9oXsN5+u6qacoSnk6WrslEhO7/KxtQ2DUzSyQhM/YUh27Uz
+         1ueFQrRW7/N8yBtaaFX2VZtJdX1coyCz3H0qhRaJ2TUX9NSx+s9IUDVmIHRQiWm1BT
+         GatragTZdhp5ie5DzZtwXSQlwfHUuMbMtr2kalC4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Kirill Smelkov <kirr@nexedi.com>,
@@ -30,9 +30,9 @@ Cc:     Kirill Smelkov <kirr@nexedi.com>,
         Jakob Unterwurzacher <jakobunt@gmail.com>,
         Miklos Szeredi <mszeredi@redhat.com>,
         Sasha Levin <sashal@kernel.org>, linux-fsdevel@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 24/56] fuse: require /dev/fuse reads to have enough buffer capacity
-Date:   Sat,  1 Jun 2019 09:25:28 -0400
-Message-Id: <20190601132600.27427-24-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 25/56] fuse: retrieve: cap requested size to negotiated max_write
+Date:   Sat,  1 Jun 2019 09:25:29 -0400
+Message-Id: <20190601132600.27427-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190601132600.27427-1-sashal@kernel.org>
 References: <20190601132600.27427-1-sashal@kernel.org>
@@ -47,49 +47,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Kirill Smelkov <kirr@nexedi.com>
 
-[ Upstream commit d4b13963f217dd947da5c0cabd1569e914d21699 ]
+[ Upstream commit 7640682e67b33cab8628729afec8ca92b851394f ]
 
-A FUSE filesystem server queues /dev/fuse sys_read calls to get
-filesystem requests to handle. It does not know in advance what would be
-that request as it can be anything that client issues - LOOKUP, READ,
-WRITE, ... Many requests are short and retrieve data from the
-filesystem. However WRITE and NOTIFY_REPLY write data into filesystem.
+FUSE filesystem server and kernel client negotiate during initialization
+phase, what should be the maximum write size the client will ever issue.
+Correspondingly the filesystem server then queues sys_read calls to read
+requests with buffer capacity large enough to carry request header + that
+max_write bytes. A filesystem server is free to set its max_write in
+anywhere in the range between [1*page, fc->max_pages*page]. In particular
+go-fuse[2] sets max_write by default as 64K, wheres default fc->max_pages
+corresponds to 128K. Libfuse also allows users to configure max_write, but
+by default presets it to possible maximum.
 
-Before getting into operation phase, FUSE filesystem server and kernel
-client negotiate what should be the maximum write size the client will
-ever issue. After negotiation the contract in between server/client is
-that the filesystem server then should queue /dev/fuse sys_read calls with
-enough buffer capacity to receive any client request - WRITE in
-particular, while FUSE client should not, in particular, send WRITE
-requests with > negotiated max_write payload. FUSE client in kernel and
-libfuse historically reserve 4K for request header. This way the
-contract is that filesystem server should queue sys_reads with
-4K+max_write buffer.
+If max_write is < fc->max_pages*page, and in NOTIFY_RETRIEVE handler we
+allow to retrieve more than max_write bytes, corresponding prepared
+NOTIFY_REPLY will be thrown away by fuse_dev_do_read, because the
+filesystem server, in full correspondence with server/client contract, will
+be only queuing sys_read with ~max_write buffer capacity, and
+fuse_dev_do_read throws away requests that cannot fit into server request
+buffer. In turn the filesystem server could get stuck waiting indefinitely
+for NOTIFY_REPLY since NOTIFY_RETRIEVE handler returned OK which is
+understood by clients as that NOTIFY_REPLY was queued and will be sent
+back.
 
-If the filesystem server does not follow this contract, what can happen
-is that fuse_dev_do_read will see that request size is > buffer size,
-and then it will return EIO to client who issued the request but won't
-indicate in any way that there is a problem to filesystem server.
-This can be hard to diagnose because for some requests, e.g. for
-NOTIFY_REPLY which mimics WRITE, there is no client thread that is
-waiting for request completion and that EIO goes nowhere, while on
-filesystem server side things look like the kernel is not replying back
-after successful NOTIFY_RETRIEVE request made by the server.
-
-We can make the problem easy to diagnose if we indicate via error return to
-filesystem server when it is violating the contract.  This should not
-practically cause problems because if a filesystem server is using shorter
-buffer, writes to it were already very likely to cause EIO, and if the
-filesystem is read-only it should be too following FUSE_MIN_READ_BUFFER
-minimum buffer size.
+Cap requested size to negotiate max_write to avoid the problem.  This
+aligns with the way NOTIFY_RETRIEVE handler works, which already
+unconditionally caps requested retrieve size to fuse_conn->max_pages.  This
+way it should not hurt NOTIFY_RETRIEVE semantic if we return less data than
+was originally requested.
 
 Please see [1] for context where the problem of stuck filesystem was hit
-for real (because kernel client was incorrectly sending more than
-max_write data with NOTIFY_REPLY; see also previous patch), how the
-situation was traced and for more involving patch that did not make it
-into the tree.
+for real, how the situation was traced and for more involving patch that
+did not make it into the tree.
 
 [1] https://marc.info/?l=linux-fsdevel&m=155057023600853&w=2
+[2] https://github.com/hanwen/go-fuse
 
 Signed-off-by: Kirill Smelkov <kirr@nexedi.com>
 Cc: Han-Wen Nienhuys <hanwen@google.com>
@@ -97,30 +89,22 @@ Cc: Jakob Unterwurzacher <jakobunt@gmail.com>
 Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/fuse/dev.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ fs/fuse/dev.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/fs/fuse/dev.c b/fs/fuse/dev.c
-index 341196338e484..fbb978e75c6be 100644
+index fbb978e75c6be..217ceca3eb063 100644
 --- a/fs/fuse/dev.c
 +++ b/fs/fuse/dev.c
-@@ -1265,6 +1265,16 @@ static ssize_t fuse_dev_do_read(struct fuse_dev *fud, struct file *file,
- 	struct fuse_in *in;
- 	unsigned reqsize;
+@@ -1734,7 +1734,7 @@ static int fuse_retrieve(struct fuse_conn *fc, struct inode *inode,
+ 	offset = outarg->offset & ~PAGE_CACHE_MASK;
+ 	file_size = i_size_read(inode);
  
-+	/*
-+	 * Require sane minimum read buffer - that has capacity for fixed part
-+	 * of any request header + negotated max_write room for data. If the
-+	 * requirement is not satisfied return EINVAL to the filesystem server
-+	 * to indicate that it is not following FUSE server/client contract.
-+	 * Don't dequeue / abort any request.
-+	 */
-+	if (nbytes < max_t(size_t, FUSE_MIN_READ_BUFFER, 4096 + fc->max_write))
-+		return -EINVAL;
-+
-  restart:
- 	spin_lock(&fiq->waitq.lock);
- 	err = -EAGAIN;
+-	num = outarg->size;
++	num = min(outarg->size, fc->max_write);
+ 	if (outarg->offset > file_size)
+ 		num = 0;
+ 	else if (outarg->offset + num > file_size)
 -- 
 2.20.1
 
