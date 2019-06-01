@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C4F1631C49
-	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:21:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3F5E31C4C
+	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:21:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728302AbfFANUW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Jun 2019 09:20:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47524 "EHLO mail.kernel.org"
+        id S1727734AbfFANUZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Jun 2019 09:20:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728299AbfFANUV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Jun 2019 09:20:21 -0400
+        id S1727545AbfFANUY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 1 Jun 2019 09:20:24 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 60D26272E4;
-        Sat,  1 Jun 2019 13:20:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6CC5C272E2;
+        Sat,  1 Jun 2019 13:20:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559395220;
-        bh=i4Yu/3MTaldNHtJo+VKdVtRs33iUDUWR/V3xo/Zz3Lg=;
+        s=default; t=1559395223;
+        bh=8MS0V5tPfk/9WGLTQwnoxCLz2GwEAguIF5tSrT/drqE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uRTQcvKUTLEWl/CTApCvSDTRkzDag9dq9Ni/qRUHikROWBJvuW/ze1ZHilQ6U+6T+
-         1Isc5efo9S/j8fLua3gT3eYoWABxaz2GryN0aPgKsSE5MR9cnKcu7I+rXJ0uRpGoTj
-         +3Zxfhb5zm0eAG5xsAPASVTwyn7a7kPGUtRR3NIg=
+        b=dNc+7XlDcA2JYbC6KZ/I/xj1hJrjcpa3D2wRfbTGVtLa21hrYFTtv5ghMM5dZ0xx6
+         nEylOu6zdU0JijeU7japd+L0yHy/WSuBZplmhjiQjncMEVB7Odiqs1mwIbJoSzfh98
+         YVTPU8eICJuW0CC79Sl3NDxygbSdXuodQm3RF9Ck=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Linxu Fang <fanglinxu@huawei.com>,
-        Taku Izumi <izumi.taku@jp.fujitsu.com>,
-        Xishi Qiu <qiuxishi@huawei.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Pavel Tatashin <pavel.tatashin@microsoft.com>,
-        Oscar Salvador <osalvador@suse.de>,
+Cc:     Yue Hu <huyue2@yulong.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Laura Abbott <labbott@redhat.com>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
-Subject: [PATCH AUTOSEL 5.0 013/173] mem-hotplug: fix node spanned pages when we have a node with only ZONE_MOVABLE
-Date:   Sat,  1 Jun 2019 09:16:45 -0400
-Message-Id: <20190601131934.25053-13-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.0 014/173] mm/cma.c: fix crash on CMA allocation if bitmap allocation fails
+Date:   Sat,  1 Jun 2019 09:16:46 -0400
+Message-Id: <20190601131934.25053-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190601131934.25053-1-sashal@kernel.org>
 References: <20190601131934.25053-1-sashal@kernel.org>
@@ -50,111 +49,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linxu Fang <fanglinxu@huawei.com>
+From: Yue Hu <huyue2@yulong.com>
 
-[ Upstream commit 299c83dce9ea3a79bb4b5511d2cb996b6b8e5111 ]
+[ Upstream commit 1df3a339074e31db95c4790ea9236874b13ccd87 ]
 
-342332e6a925 ("mm/page_alloc.c: introduce kernelcore=mirror option") and
-later patches rewrote the calculation of node spanned pages.
+f022d8cb7ec7 ("mm: cma: Don't crash on allocation if CMA area can't be
+activated") fixes the crash issue when activation fails via setting
+cma->count as 0, same logic exists if bitmap allocation fails.
 
-e506b99696a2 ("mem-hotplug: fix node spanned pages when we have a movable
-node"), but the current code still has problems,
-
-When we have a node with only zone_movable and the node id is not zero,
-the size of node spanned pages is double added.
-
-That's because we have an empty normal zone, and zone_start_pfn or
-zone_end_pfn is not between arch_zone_lowest_possible_pfn and
-arch_zone_highest_possible_pfn, so we need to use clamp to constrain the
-range just like the commit <96e907d13602> (bootmem: Reimplement
-__absent_pages_in_range() using for_each_mem_pfn_range()).
-
-e.g.
-Zone ranges:
-  DMA      [mem 0x0000000000001000-0x0000000000ffffff]
-  DMA32    [mem 0x0000000001000000-0x00000000ffffffff]
-  Normal   [mem 0x0000000100000000-0x000000023fffffff]
-Movable zone start for each node
-  Node 0: 0x0000000100000000
-  Node 1: 0x0000000140000000
-Early memory node ranges
-  node   0: [mem 0x0000000000001000-0x000000000009efff]
-  node   0: [mem 0x0000000000100000-0x00000000bffdffff]
-  node   0: [mem 0x0000000100000000-0x000000013fffffff]
-  node   1: [mem 0x0000000140000000-0x000000023fffffff]
-
-node 0 DMA	spanned:0xfff   present:0xf9e   absent:0x61
-node 0 DMA32	spanned:0xff000 present:0xbefe0	absent:0x40020
-node 0 Normal	spanned:0	present:0	absent:0
-node 0 Movable	spanned:0x40000 present:0x40000 absent:0
-On node 0 totalpages(node_present_pages): 1048446
-node_spanned_pages:1310719
-node 1 DMA	spanned:0	    present:0		absent:0
-node 1 DMA32	spanned:0	    present:0		absent:0
-node 1 Normal	spanned:0x100000    present:0x100000	absent:0
-node 1 Movable	spanned:0x100000    present:0x100000	absent:0
-On node 1 totalpages(node_present_pages): 2097152
-node_spanned_pages:2097152
-Memory: 6967796K/12582392K available (16388K kernel code, 3686K rwdata,
-4468K rodata, 2160K init, 10444K bss, 5614596K reserved, 0K
-cma-reserved)
-
-It shows that the current memory of node 1 is double added.
-After this patch, the problem is fixed.
-
-node 0 DMA	spanned:0xfff   present:0xf9e   absent:0x61
-node 0 DMA32	spanned:0xff000 present:0xbefe0	absent:0x40020
-node 0 Normal	spanned:0	present:0	absent:0
-node 0 Movable	spanned:0x40000 present:0x40000 absent:0
-On node 0 totalpages(node_present_pages): 1048446
-node_spanned_pages:1310719
-node 1 DMA	spanned:0	    present:0		absent:0
-node 1 DMA32	spanned:0	    present:0		absent:0
-node 1 Normal	spanned:0	    present:0		absent:0
-node 1 Movable	spanned:0x100000    present:0x100000	absent:0
-On node 1 totalpages(node_present_pages): 1048576
-node_spanned_pages:1048576
-memory: 6967796K/8388088K available (16388K kernel code, 3686K rwdata,
-4468K rodata, 2160K init, 10444K bss, 1420292K reserved, 0K
-cma-reserved)
-
-Link: http://lkml.kernel.org/r/1554178276-10372-1-git-send-email-fanglinxu@huawei.com
-Signed-off-by: Linxu Fang <fanglinxu@huawei.com>
-Cc: Taku Izumi <izumi.taku@jp.fujitsu.com>
-Cc: Xishi Qiu <qiuxishi@huawei.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Pavel Tatashin <pavel.tatashin@microsoft.com>
-Cc: Oscar Salvador <osalvador@suse.de>
+Link: http://lkml.kernel.org/r/20190325081309.6004-1-zbestahu@gmail.com
+Signed-off-by: Yue Hu <huyue2@yulong.com>
+Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: Laura Abbott <labbott@redhat.com>
+Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
+Cc: Randy Dunlap <rdunlap@infradead.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/page_alloc.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ mm/cma.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index d59be95ba45cf..140acb4b69aae 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -6182,13 +6182,15 @@ static unsigned long __init zone_spanned_pages_in_node(int nid,
- 					unsigned long *zone_end_pfn,
- 					unsigned long *ignored)
- {
-+	unsigned long zone_low = arch_zone_lowest_possible_pfn[zone_type];
-+	unsigned long zone_high = arch_zone_highest_possible_pfn[zone_type];
- 	/* When hotadd a new node from cpu_up(), the node should be empty */
- 	if (!node_start_pfn && !node_end_pfn)
- 		return 0;
+diff --git a/mm/cma.c b/mm/cma.c
+index f4f3a8a57d862..f160ce31ef469 100644
+--- a/mm/cma.c
++++ b/mm/cma.c
+@@ -106,8 +106,10 @@ static int __init cma_activate_area(struct cma *cma)
  
- 	/* Get the start and end of the zone */
--	*zone_start_pfn = arch_zone_lowest_possible_pfn[zone_type];
--	*zone_end_pfn = arch_zone_highest_possible_pfn[zone_type];
-+	*zone_start_pfn = clamp(node_start_pfn, zone_low, zone_high);
-+	*zone_end_pfn = clamp(node_end_pfn, zone_low, zone_high);
- 	adjust_zone_range_for_zone_movable(nid, zone_type,
- 				node_start_pfn, node_end_pfn,
- 				zone_start_pfn, zone_end_pfn);
+ 	cma->bitmap = kzalloc(bitmap_size, GFP_KERNEL);
+ 
+-	if (!cma->bitmap)
++	if (!cma->bitmap) {
++		cma->count = 0;
+ 		return -ENOMEM;
++	}
+ 
+ 	WARN_ON_ONCE(!pfn_valid(pfn));
+ 	zone = page_zone(pfn_to_page(pfn));
 -- 
 2.20.1
 
