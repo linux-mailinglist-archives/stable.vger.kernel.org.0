@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0736931E74
-	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:38:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CD0C31E99
+	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:38:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728600AbfFANVq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Jun 2019 09:21:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49234 "EHLO mail.kernel.org"
+        id S1727941AbfFANhj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Jun 2019 09:37:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728593AbfFANVq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Jun 2019 09:21:46 -0400
+        id S1727779AbfFANVr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 1 Jun 2019 09:21:47 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E2D7227301;
-        Sat,  1 Jun 2019 13:21:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F3F83272FC;
+        Sat,  1 Jun 2019 13:21:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559395305;
-        bh=q6lYAXrbOHjk6G5hDGd3xLkcRNksrwOKLZ8xq7pp21w=;
+        s=default; t=1559395306;
+        bh=yVDF691FvRRmQWwU9hpWWqnPFhNxOx4wwe332Tui718=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mZoBj4VxIM1zOOS1YsFf+E+ZY8n06BNaKg9PnHowKRYX0dPDBGnHrHsGhJ7TdwhNf
-         cK0+OInoSPAYRZvjoEHpvjmMYLdR0A8ML/N/yGWjqaB8LuNVPNXPN47ygp/7xqAS1w
-         4keAJTEUl2K0Yppl3TdH9fqEnrV5ZU5CzGQ2Sh1U=
+        b=Yvz9PsWIGQOk5TibzWZqJEDrqs2dVeGXf4n2LkDS/8q1RXlzppJeX39/digbLSqI/
+         yBlkZr8jCXVT8sDLMdbyUc25ccBzelc97L5eCKvIDnRgGe32L2b6S4n06JDUqQSiq9
+         LSA3sB/UkELY4euY3Txr14ol/nnk2z5NyZpU8ACs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ludovic Barre <ludovic.barre@st.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, linux-mmc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.0 063/173] mmc: mmci: Prevent polling for busy detection in IRQ context
-Date:   Sat,  1 Jun 2019 09:17:35 -0400
-Message-Id: <20190601131934.25053-63-sashal@kernel.org>
+Cc:     Taehee Yoo <ap420073@gmail.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>,
+        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.0 064/173] netfilter: nf_flow_table: fix missing error check for rhashtable_insert_fast
+Date:   Sat,  1 Jun 2019 09:17:36 -0400
+Message-Id: <20190601131934.25053-64-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190601131934.25053-1-sashal@kernel.org>
 References: <20190601131934.25053-1-sashal@kernel.org>
@@ -43,44 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ludovic Barre <ludovic.barre@st.com>
+From: Taehee Yoo <ap420073@gmail.com>
 
-[ Upstream commit 8520ce1e17799b220ff421d4f39438c9c572ade3 ]
+[ Upstream commit 43c8f131184faf20c07221f3e09724611c6525d8 ]
 
-The IRQ handler, mmci_irq(), loops until all status bits have been cleared.
-However, the status bit signaling busy in variant->busy_detect_flag, may be
-set even if busy detection isn't monitored for the current request.
+rhashtable_insert_fast() may return an error value when memory
+allocation fails, but flow_offload_add() does not check for errors.
+This patch just adds missing error checking.
 
-This may be the case for the CMD11 when switching the I/O voltage, which
-leads to that mmci_irq() busy loops in IRQ context. Fix this problem, by
-clearing the status bit for busy, before continuing to validate the
-condition for the loop. This is safe, because the busy status detection has
-already been taken care of by mmci_cmd_irq().
-
-Signed-off-by: Ludovic Barre <ludovic.barre@st.com>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: ac2a66665e23 ("netfilter: add generic flow table infrastructure")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/mmci.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ net/netfilter/nf_flow_table_core.c | 25 ++++++++++++++++++-------
+ 1 file changed, 18 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/mmc/host/mmci.c b/drivers/mmc/host/mmci.c
-index e352f5ad58018..cb010a83faf4b 100644
---- a/drivers/mmc/host/mmci.c
-+++ b/drivers/mmc/host/mmci.c
-@@ -1534,9 +1534,10 @@ static irqreturn_t mmci_irq(int irq, void *dev_id)
- 		}
+diff --git a/net/netfilter/nf_flow_table_core.c b/net/netfilter/nf_flow_table_core.c
+index c0c72ae9df42f..604446c0264cc 100644
+--- a/net/netfilter/nf_flow_table_core.c
++++ b/net/netfilter/nf_flow_table_core.c
+@@ -185,14 +185,25 @@ static const struct rhashtable_params nf_flow_offload_rhash_params = {
  
- 		/*
--		 * Don't poll for busy completion in irq context.
-+		 * Busy detection has been handled by mmci_cmd_irq() above.
-+		 * Clear the status bit to prevent polling in IRQ context.
- 		 */
--		if (host->variant->busy_detect && host->busy_status)
-+		if (host->variant->busy_detect_flag)
- 			status &= ~host->variant->busy_detect_flag;
+ int flow_offload_add(struct nf_flowtable *flow_table, struct flow_offload *flow)
+ {
+-	flow->timeout = (u32)jiffies;
++	int err;
  
- 		ret = 1;
+-	rhashtable_insert_fast(&flow_table->rhashtable,
+-			       &flow->tuplehash[FLOW_OFFLOAD_DIR_ORIGINAL].node,
+-			       nf_flow_offload_rhash_params);
+-	rhashtable_insert_fast(&flow_table->rhashtable,
+-			       &flow->tuplehash[FLOW_OFFLOAD_DIR_REPLY].node,
+-			       nf_flow_offload_rhash_params);
++	err = rhashtable_insert_fast(&flow_table->rhashtable,
++				     &flow->tuplehash[0].node,
++				     nf_flow_offload_rhash_params);
++	if (err < 0)
++		return err;
++
++	err = rhashtable_insert_fast(&flow_table->rhashtable,
++				     &flow->tuplehash[1].node,
++				     nf_flow_offload_rhash_params);
++	if (err < 0) {
++		rhashtable_remove_fast(&flow_table->rhashtable,
++				       &flow->tuplehash[0].node,
++				       nf_flow_offload_rhash_params);
++		return err;
++	}
++
++	flow->timeout = (u32)jiffies;
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(flow_offload_add);
 -- 
 2.20.1
 
