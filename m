@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BF47A31C23
-	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:19:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06E5931C2F
+	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:20:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728209AbfFANTW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Jun 2019 09:19:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46520 "EHLO mail.kernel.org"
+        id S1727285AbfFANTX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Jun 2019 09:19:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46526 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728196AbfFANTV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Jun 2019 09:19:21 -0400
+        id S1728184AbfFANTX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 1 Jun 2019 09:19:23 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DC5F7272B3;
-        Sat,  1 Jun 2019 13:19:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 317BD2725F;
+        Sat,  1 Jun 2019 13:19:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559395160;
-        bh=el4UumI+dWZf9QEDr98NW9WMPFeWsO8jktub8fr2lCg=;
+        s=default; t=1559395161;
+        bh=wZ6tuDrRkPrM+Vcz63gxvzc04Ec8yGwcjLpW6W+50Cs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QcGxe4M+8DiBfPv77lKVhTxhyGyHy67VdLZsSEY65pFiriXs0FeNqFEWHyAB01kX0
-         mL/mJ899ZOuDEmIAi28py7HhIsPPkSiFv7eKlNs//ucZ2EMLeBkjQVJXuIAqSNCddv
-         ahIiqMPHiO//C0cI2LBtM2pvfNr5FxXljzAVN2XI=
+        b=m1mwd+EeP+X+tG7D4B6+WjcldxfGcVhvGG4YcM/z3j42JdAjldTEecBYHu2n3yh2w
+         vQnT9pB3j5tlpEXa+MoF34knNwvZcrqMiiGJ6QPgHFcqaWZ3vh3sGGrm9CqwfDoIXc
+         vonTblkVtcLhvdsIasD9Ml0ybFJwTevWwhxMV8W4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>,
-        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 072/186] netfilter: nf_tables: fix base chain stat rcu_dereference usage
-Date:   Sat,  1 Jun 2019 09:14:48 -0400
-Message-Id: <20190601131653.24205-72-sashal@kernel.org>
+Cc:     Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
+        Sasha Levin <sashal@kernel.org>, linux-watchdog@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.1 073/186] watchdog: Use depends instead of select for pretimeout governors
+Date:   Sat,  1 Jun 2019 09:14:49 -0400
+Message-Id: <20190601131653.24205-73-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190601131653.24205-1-sashal@kernel.org>
 References: <20190601131653.24205-1-sashal@kernel.org>
@@ -45,77 +43,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit edbd82c5fba009f68d20b5db585be1e667c605f6 ]
+[ Upstream commit f627ac0e12cd2736e60b9f5782ecec1d97251f77 ]
 
-Following splat gets triggered when nfnetlink monitor is running while
-xtables-nft selftests are running:
+Watchdog pretimeout governors were enabled from the default governor
+selection using "select". As a result, the default governor was always
+built into the kernel, even if no watchdog driver was loaded. By using
+"depends on" instead of "select", we are in better control, and the
+governors can all be built as modules. At the same time, set the default
+configuration option for pretimeout governors to match WATCHDOG_CORE
+(meaning all pretimeout governors are by default enabled if pretimeout
+support is enabled).
 
-net/netfilter/nf_tables_api.c:1272 suspicious rcu_dereference_check() usage!
-other info that might help us debug this:
+The practical impact of this change is minimal. Previously, selecting
+a default governor automatically enabled that governor. Now, a default
+governor can only be selected if that governor has been enabled.
+Consequently, the order of governor selection is now reversed: The
+governor selection is now first, followed by default governor selection.
 
-1 lock held by xtables-nft-mul/27006:
- #0: 00000000e0f85be9 (&net->nft.commit_mutex){+.+.}, at: nf_tables_valid_genid+0x1a/0x50
-Call Trace:
- nf_tables_fill_chain_info.isra.45+0x6cc/0x6e0
- nf_tables_chain_notify+0xf8/0x1a0
- nf_tables_commit+0x165c/0x1740
-
-nf_tables_fill_chain_info() can be called both from dumps (rcu read locked)
-or from the transaction path if a userspace process subscribed to nftables
-notifications.
-
-In the 'table dump' case, rcu_access_pointer() cannot be used: We do not
-hold transaction mutex so the pointer can be NULLed right after the check.
-Just unconditionally fetch the value, then have the helper return
-immediately if its NULL.
-
-In the notification case we don't hold the rcu read lock, but updates are
-prevented due to transaction mutex. Use rcu_dereference_check() to make lockdep
-aware of this.
-
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_tables_api.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/watchdog/Kconfig | 30 ++++++++++++++++--------------
+ 1 file changed, 16 insertions(+), 14 deletions(-)
 
-diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index 1606eaa5ae0da..aa5e7b00a581f 100644
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -1190,6 +1190,9 @@ static int nft_dump_stats(struct sk_buff *skb, struct nft_stats __percpu *stats)
- 	u64 pkts, bytes;
- 	int cpu;
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 242eea8596373..1d3b4bfbbc4d8 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -2033,6 +2033,20 @@ config WATCHDOG_PRETIMEOUT_GOV
  
-+	if (!stats)
-+		return 0;
+ if WATCHDOG_PRETIMEOUT_GOV
+ 
++config WATCHDOG_PRETIMEOUT_GOV_NOOP
++	tristate "Noop watchdog pretimeout governor"
++	default WATCHDOG_CORE
++	help
++	  Noop watchdog pretimeout governor, only an informational
++	  message is added to kernel log buffer.
 +
- 	memset(&total, 0, sizeof(total));
- 	for_each_possible_cpu(cpu) {
- 		cpu_stats = per_cpu_ptr(stats, cpu);
-@@ -1247,6 +1250,7 @@ static int nf_tables_fill_chain_info(struct sk_buff *skb, struct net *net,
- 	if (nft_is_base_chain(chain)) {
- 		const struct nft_base_chain *basechain = nft_base_chain(chain);
- 		const struct nf_hook_ops *ops = &basechain->ops;
-+		struct nft_stats __percpu *stats;
- 		struct nlattr *nest;
++config WATCHDOG_PRETIMEOUT_GOV_PANIC
++	tristate "Panic watchdog pretimeout governor"
++	default WATCHDOG_CORE
++	help
++	  Panic watchdog pretimeout governor, on watchdog pretimeout
++	  event put the kernel into panic.
++
+ choice
+ 	prompt "Default Watchdog Pretimeout Governor"
+ 	default WATCHDOG_PRETIMEOUT_DEFAULT_GOV_PANIC
+@@ -2043,7 +2057,7 @@ choice
  
- 		nest = nla_nest_start(skb, NFTA_CHAIN_HOOK);
-@@ -1268,8 +1272,9 @@ static int nf_tables_fill_chain_info(struct sk_buff *skb, struct net *net,
- 		if (nla_put_string(skb, NFTA_CHAIN_TYPE, basechain->type->name))
- 			goto nla_put_failure;
+ config WATCHDOG_PRETIMEOUT_DEFAULT_GOV_NOOP
+ 	bool "noop"
+-	select WATCHDOG_PRETIMEOUT_GOV_NOOP
++	depends on WATCHDOG_PRETIMEOUT_GOV_NOOP
+ 	help
+ 	  Use noop watchdog pretimeout governor by default. If noop
+ 	  governor is selected by a user, write a short message to
+@@ -2051,7 +2065,7 @@ config WATCHDOG_PRETIMEOUT_DEFAULT_GOV_NOOP
  
--		if (rcu_access_pointer(basechain->stats) &&
--		    nft_dump_stats(skb, rcu_dereference(basechain->stats)))
-+		stats = rcu_dereference_check(basechain->stats,
-+					      lockdep_commit_lock_is_held(net));
-+		if (nft_dump_stats(skb, stats))
- 			goto nla_put_failure;
- 	}
+ config WATCHDOG_PRETIMEOUT_DEFAULT_GOV_PANIC
+ 	bool "panic"
+-	select WATCHDOG_PRETIMEOUT_GOV_PANIC
++	depends on WATCHDOG_PRETIMEOUT_GOV_PANIC
+ 	help
+ 	  Use panic watchdog pretimeout governor by default, if
+ 	  a watchdog pretimeout event happens, consider that
+@@ -2059,18 +2073,6 @@ config WATCHDOG_PRETIMEOUT_DEFAULT_GOV_PANIC
  
+ endchoice
+ 
+-config WATCHDOG_PRETIMEOUT_GOV_NOOP
+-	tristate "Noop watchdog pretimeout governor"
+-	help
+-	  Noop watchdog pretimeout governor, only an informational
+-	  message is added to kernel log buffer.
+-
+-config WATCHDOG_PRETIMEOUT_GOV_PANIC
+-	tristate "Panic watchdog pretimeout governor"
+-	help
+-	  Panic watchdog pretimeout governor, on watchdog pretimeout
+-	  event put the kernel into panic.
+-
+ endif # WATCHDOG_PRETIMEOUT_GOV
+ 
+ endif # WATCHDOG
 -- 
 2.20.1
 
