@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DAF931DF8
-	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:33:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8312331DF2
+	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:33:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727707AbfFANdL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Jun 2019 09:33:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54694 "EHLO mail.kernel.org"
+        id S1729286AbfFANYm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Jun 2019 09:24:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54720 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729266AbfFANYi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Jun 2019 09:24:38 -0400
+        id S1729276AbfFANYj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 1 Jun 2019 09:24:39 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DF57727358;
-        Sat,  1 Jun 2019 13:24:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5B09E264C3;
+        Sat,  1 Jun 2019 13:24:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559395478;
-        bh=a1/59yPA5qvkX/IzatJ1mZxQdqXMcsdATBRZAsjQNgc=;
+        s=default; t=1559395479;
+        bh=gp+DGT7gtt3x5OWJFjFcWKPEvdYnUBCpjHeoYhOqYPc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cgkYysJRDS30p67Vc0FTWLwjdC7VgtahZpOE9nxUoXn7CjY1AKRqzlTxIUOqBbFm6
-         hZGIzDRF/Ttln6alw2oADiwgFflXoRje6LI3qPCr7cT9x8oJv2g4AIceVhP84Hi3Hi
-         WkeNby3YXZwws+yWPJfvf79+Vx9UcfeKDMFmsGI0=
+        b=WGR5ITHrIS7y21I+ka7XLWfJPpN+I5R45t7cJ6V9jkV4FVJv2a9hLjmOErizhqtIr
+         Zlu7R/KTrjScg0yEUN64LW4wyRLJq5e0wKogBCK5/qlGlb6MJZUOpH2ZfuDUPG9fGY
+         4KJ7UjRXGNvX7pJLjZc7KCWRjXuHRLN1Qxf6VtBA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michael Ellerman <mpe@ellerman.id.au>,
-        Borislav Petkov <bp@suse.de>,
-        Johannes Thumshirn <jth@kernel.org>,
-        James Morse <james.morse@arm.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        linux-edac <linux-edac@vger.kernel.org>, linuxppc-dev@ozlabs.org,
-        morbidrsa@gmail.com, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 23/99] EDAC/mpc85xx: Prevent building as a module
-Date:   Sat,  1 Jun 2019 09:22:30 -0400
-Message-Id: <20190601132346.26558-23-sashal@kernel.org>
+Cc:     ZhangXiaoxu <zhangxiaoxu5@huawei.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 24/99] NFS4: Fix v4.0 client state corruption when mount
+Date:   Sat,  1 Jun 2019 09:22:31 -0400
+Message-Id: <20190601132346.26558-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190601132346.26558-1-sashal@kernel.org>
 References: <20190601132346.26558-1-sashal@kernel.org>
@@ -47,57 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: ZhangXiaoxu <zhangxiaoxu5@huawei.com>
 
-[ Upstream commit 2b8358a951b1e2a534a54924cd8245e58a1c5fb8 ]
+[ Upstream commit f02f3755dbd14fb935d24b14650fff9ba92243b8 ]
 
-The mpc85xx EDAC driver can be configured as a module but then fails to
-build because it uses two unexported symbols:
+stat command with soft mount never return after server is stopped.
 
-  ERROR: ".pci_find_hose_for_OF_device" [drivers/edac/mpc85xx_edac_mod.ko] undefined!
-  ERROR: ".early_find_capability" [drivers/edac/mpc85xx_edac_mod.ko] undefined!
+When alloc a new client, the state of the client will be set to
+NFS4CLNT_LEASE_EXPIRED.
 
-We don't want to export those symbols just for this driver, so make the
-driver only configurable as a built-in.
+When the server is stopped, the state manager will work, and accord
+the state to recover. But the state is NFS4CLNT_LEASE_EXPIRED, it
+will drain the slot table and lead other task to wait queue, until
+the client recovered. Then the stat command is hung.
 
-This seems to have been broken since at least
+When discover server trunking, the client will renew the lease,
+but check the client state, it lead the client state corruption.
 
-  c92132f59806 ("edac/85xx: Add PCIe error interrupt edac support")
+So, we need to call state manager to recover it when detect server
+ip trunking.
 
-(Nov 2013).
-
- [ bp: make it depend on EDAC=y so that the EDAC core doesn't get built
-   as a module. ]
-
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Johannes Thumshirn <jth@kernel.org>
-Cc: James Morse <james.morse@arm.com>
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc: linux-edac <linux-edac@vger.kernel.org>
-Cc: linuxppc-dev@ozlabs.org
-Cc: morbidrsa@gmail.com
-Link: https://lkml.kernel.org/r/20190502141941.12927-1-mpe@ellerman.id.au
+Signed-off-by: ZhangXiaoxu <zhangxiaoxu5@huawei.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/Kconfig | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/nfs/nfs4state.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/edac/Kconfig b/drivers/edac/Kconfig
-index 96afb2aeed18a..aaaa8ce8d3fdd 100644
---- a/drivers/edac/Kconfig
-+++ b/drivers/edac/Kconfig
-@@ -246,8 +246,8 @@ config EDAC_PND2
- 	  micro-server but may appear on others in the future.
- 
- config EDAC_MPC85XX
--	tristate "Freescale MPC83xx / MPC85xx"
--	depends on FSL_SOC
-+	bool "Freescale MPC83xx / MPC85xx"
-+	depends on FSL_SOC && EDAC=y
- 	help
- 	  Support for error detection and correction on the Freescale
- 	  MPC8349, MPC8560, MPC8540, MPC8548, T4240
+diff --git a/fs/nfs/nfs4state.c b/fs/nfs/nfs4state.c
+index e1d88bca815e1..85ec07e4aa91b 100644
+--- a/fs/nfs/nfs4state.c
++++ b/fs/nfs/nfs4state.c
+@@ -143,6 +143,10 @@ int nfs40_discover_server_trunking(struct nfs_client *clp,
+ 		/* Sustain the lease, even if it's empty.  If the clientid4
+ 		 * goes stale it's of no use for trunking discovery. */
+ 		nfs4_schedule_state_renewal(*result);
++
++		/* If the client state need to recover, do it. */
++		if (clp->cl_state)
++			nfs4_schedule_state_manager(clp);
+ 	}
+ out:
+ 	return status;
 -- 
 2.20.1
 
