@@ -2,273 +2,214 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 10B21319AE
-	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 06:52:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4301D319BE
+	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 07:30:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725881AbfFAEwy convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Sat, 1 Jun 2019 00:52:54 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:42060 "EHLO mx1.redhat.com"
+        id S1726134AbfFAFaZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Jun 2019 01:30:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45626 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725866AbfFAEwy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Jun 2019 00:52:54 -0400
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1725899AbfFAFaZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 1 Jun 2019 01:30:25 -0400
+Received: from localhost.localdomain (c-73-223-200-170.hsd1.ca.comcast.net [73.223.200.170])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 5F9A6FA8BD
-        for <stable@vger.kernel.org>; Sat,  1 Jun 2019 04:52:53 +0000 (UTC)
-Received: from [172.54.208.215] (cpt-0038.paas.prod.upshift.rdu2.redhat.com [10.0.18.103])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 2F99260FFC;
-        Sat,  1 Jun 2019 04:52:46 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 5.1.7-rc1-0d98dce.cki
- (stable)
-CC:     Jianlin Shi <jishi@redhat.com>, Hangbin Liu <haliu@redhat.com>,
-        Xiumei Mu <xmu@redhat.com>, Ondrej Moris <omoris@redhat.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Brano Nater <bnater@redhat.com>, David Jez <djez@redhat.com>,
-        Karel Srot <ksrot@redhat.com>,
-        Petr Sklenar <psklenar@redhat.com>,
-        Memory Management <mm-qe@redhat.com>,
-        Yi Zhang <yi.zhang@redhat.com>,
-        Jakub Krysl <jkrysl@redhat.com>,
-        Jeff Bastian <jbastian@redhat.com>
-Message-ID: <cki.3841DD3F4E.HWGIEY8B10@redhat.com>
-X-Gitlab-Pipeline-ID: 11271
-X-Gitlab-Pipeline: =?utf-8?q?https=3A//xci32=2Elab=2Eeng=2Erdu2=2Eredhat=2Ec?=
- =?utf-8?q?om/cki-project/cki-pipeline/pipelines/11271?=
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.38]); Sat, 01 Jun 2019 04:52:53 +0000 (UTC)
-Date:   Sat, 1 Jun 2019 00:52:54 -0400
+        by mail.kernel.org (Postfix) with ESMTPSA id 5B33B27134;
+        Sat,  1 Jun 2019 05:30:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1559367023;
+        bh=y6rhXHgM1jhy0w7rWsAqI2i4DnzdBqw1rSPBRQ75ERg=;
+        h=Date:From:To:Subject:From;
+        b=v71xAm2312cC/1rAC4JYdxS18ZyZIwLqtelrjxEeHbpZQ7Mnuh6DdphDdKgEEFOWa
+         1vn4O94gfHCW+paV6SRBihHBFLSXnA6+q3O+niaq7DQO7ZmcNkMd4fWhUHw3MJS/oS
+         QxLgzU5E+1CxdHaMfk9ASD1Y3f+kHtC/221U19pY=
+Date:   Fri, 31 May 2019 22:30:22 -0700
+From:   akpm@linux-foundation.org
+To:     akpm@linux-foundation.org, chris@chrisdown.name, dennis@kernel.org,
+        guro@fb.com, hannes@cmpxchg.org, mhocko@kernel.org,
+        mm-commits@vger.kernel.org, shakeelb@google.com,
+        stable@vger.kernel.org, surenb@google.com, tj@kernel.org,
+        torvalds@linux-foundation.org
+Subject:  [patch 09/21] mm, memcg: consider subtrees in
+ memory.events
+Message-ID: <20190601053022.1FiUj8UZE%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+From: Chris Down <chris@chrisdown.name>
+Subject: mm, memcg: consider subtrees in memory.events
 
-We ran automated tests on a recent commit from this kernel tree:
+memory.stat and other files already consider subtrees in their output, and
+we should too in order to not present an inconsistent interface.
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-            Commit: 5a6f1b561052 - Linux 5.1.7-rc1
+The current situation is fairly confusing, because people interacting with
+cgroups expect hierarchical behaviour in the vein of memory.stat,
+cgroup.events, and other files.  For example, this causes confusion when
+debugging reclaim events under low, as currently these always read "0" at
+non-leaf memcg nodes, which frequently causes people to misdiagnose breach
+behaviour.  The same confusion applies to other counters in this file when
+debugging issues.
 
-The results of these automated tests are provided below.
+Aggregation is done at write time instead of at read-time since these
+counters aren't hot (unlike memory.stat which is per-page, so it does it
+at read time), and it makes sense to bundle this with the file
+notifications.
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
+After this patch, events are propagated up the hierarchy:
 
+    [root@ktst ~]# cat /sys/fs/cgroup/system.slice/memory.events
+    low 0
+    high 0
+    max 0
+    oom 0
+    oom_kill 0
+    [root@ktst ~]# systemd-run -p MemoryMax=1 true
+    Running as unit: run-r251162a189fb4562b9dabfdc9b0422f5.service
+    [root@ktst ~]# cat /sys/fs/cgroup/system.slice/memory.events
+    low 0
+    high 0
+    max 7
+    oom 1
+    oom_kill 1
 
-We hope that these logs can help you find the problem quickly. For the full
-detail on our testing procedures, please scroll to the bottom of this message.
+As this is a change in behaviour, this can be reverted to the old
+behaviour by mounting with the `memory_localevents' flag set.  However, we
+use the new behaviour by default as there's a lack of evidence that there
+are any current users of memory.events that would find this change
+undesirable.
 
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
+akpm: this is a behaviour change, so Cc:stable.  THis is so that
+forthcoming distros which use cgroup v2 are more likely to pick up the
+revised behaviour.
 
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
+Link: http://lkml.kernel.org/r/20190208224419.GA24772@chrisdown.name
+Signed-off-by: Chris Down <chris@chrisdown.name>
+Acked-by: Johannes Weiner <hannes@cmpxchg.org>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Tejun Heo <tj@kernel.org>
+Cc: Roman Gushchin <guro@fb.com>
+Cc: Dennis Zhou <dennis@kernel.org>
+Cc: Suren Baghdasaryan <surenb@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
 
-Compile testing
----------------
+ Documentation/admin-guide/cgroup-v2.rst |    9 +++++++++
+ include/linux/cgroup-defs.h             |    5 +++++
+ include/linux/memcontrol.h              |   10 ++++++++--
+ kernel/cgroup/cgroup.c                  |   16 ++++++++++++++--
+ 4 files changed, 36 insertions(+), 4 deletions(-)
 
-We compiled the kernel for 4 architectures:
-
-  aarch64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable-aarch64-5a6f1b561052770d4b877bb1f7ef5b876ef3e3a3.config
-    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable-aarch64-5a6f1b561052770d4b877bb1f7ef5b876ef3e3a3.tar.gz
-
-  ppc64le:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable-ppc64le-5a6f1b561052770d4b877bb1f7ef5b876ef3e3a3.config
-    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable-ppc64le-5a6f1b561052770d4b877bb1f7ef5b876ef3e3a3.tar.gz
-
-  s390x:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable-s390x-5a6f1b561052770d4b877bb1f7ef5b876ef3e3a3.config
-    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable-s390x-5a6f1b561052770d4b877bb1f7ef5b876ef3e3a3.tar.gz
-
-  x86_64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable-x86_64-5a6f1b561052770d4b877bb1f7ef5b876ef3e3a3.config
-    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable-x86_64-5a6f1b561052770d4b877bb1f7ef5b876ef3e3a3.tar.gz
-
-
-Hardware testing
-----------------
-
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ xfstests: ext4 [1]
-       ✅ xfstests: xfs [1]
-       ✅ selinux-policy: serge-testsuite [2]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [3]
-       ✅ Loopdev Sanity [4]
-       ✅ Memory function: memfd_create [5]
-       ✅ AMTU (Abstract Machine Test Utility) [6]
-       ✅ Ethernet drivers sanity [7]
-       ✅ audit: audit testsuite test [8]
-       ✅ httpd: mod_ssl smoke sanity [9]
-       ✅ iotop: sanity [10]
-       ✅ redhat-rpm-config: detect-kabi-provides sanity [11]
-       ✅ redhat-rpm-config: kabi-whitelist-not-found sanity [12]
-       ✅ tuned: tune-processes-through-perf [13]
-       ✅ Usex - version 1.9-29 [14]
-       ✅ lvm thinp sanity [15]
-       ✅ storage: SCSI VPD [16]
-       ✅ stress: stress-ng [17]
-       🚧 ✅ Networking socket: fuzz [18]
-       🚧 ✅ Networking sctp-auth: sockopts test [19]
-       🚧 ✅ Networking: igmp conformance test [20]
-       🚧 ✅ Networking route: pmtu [21]
-       🚧 ✅ Networking route_func: local [22]
-       🚧 ✅ Networking route_func: forward [22]
-       🚧 ✅ Networking TCP: keepalive test [23]
-       🚧 ✅ Networking UDP: socket [24]
-       🚧 ✅ Networking tunnel: vxlan basic [25]
-       🚧 ✅ Networking tunnel: geneve basic test [26]
-       🚧 ✅ Networking ipsec: basic netns transport [27]
-       🚧 ✅ Networking ipsec: basic netns tunnel [27]
-       🚧 ✅ Storage blktests [28]
-
-
-  ppc64le:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ xfstests: ext4 [1]
-       ✅ xfstests: xfs [1]
-       ✅ selinux-policy: serge-testsuite [2]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [3]
-       ✅ Loopdev Sanity [4]
-       ✅ Memory function: memfd_create [5]
-       ✅ AMTU (Abstract Machine Test Utility) [6]
-       ✅ Ethernet drivers sanity [7]
-       ✅ audit: audit testsuite test [8]
-       ✅ httpd: mod_ssl smoke sanity [9]
-       ✅ iotop: sanity [10]
-       ✅ redhat-rpm-config: detect-kabi-provides sanity [11]
-       ✅ redhat-rpm-config: kabi-whitelist-not-found sanity [12]
-       ✅ tuned: tune-processes-through-perf [13]
-       ✅ Usex - version 1.9-29 [14]
-       ✅ lvm thinp sanity [15]
-       ✅ stress: stress-ng [17]
-       🚧 ✅ Networking socket: fuzz [18]
-       🚧 ✅ Networking sctp-auth: sockopts test [19]
-       🚧 ✅ Networking route: pmtu [21]
-       🚧 ✅ Networking route_func: local [22]
-       🚧 ✅ Networking route_func: forward [22]
-       🚧 ✅ Networking TCP: keepalive test [23]
-       🚧 ✅ Networking UDP: socket [24]
-       🚧 ✅ Networking tunnel: vxlan basic [25]
-       🚧 ✅ Networking tunnel: geneve basic test [26]
-       🚧 ✅ Networking ipsec: basic netns tunnel [27]
-       🚧 ✅ Storage blktests [28]
-
-
-  s390x:
-
-    ⚡ Internal infrastructure issues prevented one or more tests from running
-    on this architecture. This is not the fault of the kernel that was tested.
-
-  x86_64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ xfstests: ext4 [1]
-       ✅ xfstests: xfs [1]
-       ✅ selinux-policy: serge-testsuite [2]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ kdump: sysrq-c - megaraid_sas [29]
-
-    Host 3:
-       ✅ Boot test [0]
-       ✅ LTP lite [3]
-       ✅ Loopdev Sanity [4]
-       ✅ Memory function: memfd_create [5]
-       ✅ AMTU (Abstract Machine Test Utility) [6]
-       ✅ Ethernet drivers sanity [7]
-       ✅ audit: audit testsuite test [8]
-       ✅ httpd: mod_ssl smoke sanity [9]
-       ✅ iotop: sanity [10]
-       ✅ redhat-rpm-config: detect-kabi-provides sanity [11]
-       ✅ redhat-rpm-config: kabi-whitelist-not-found sanity [12]
-       ✅ tuned: tune-processes-through-perf [13]
-       ✅ Usex - version 1.9-29 [14]
-       ✅ lvm thinp sanity [15]
-       ✅ storage: SCSI VPD [16]
-       ✅ stress: stress-ng [17]
-       🚧 ✅ Networking socket: fuzz [18]
-       🚧 ✅ Networking sctp-auth: sockopts test [19]
-       🚧 ✅ Networking: igmp conformance test [20]
-       🚧 ✅ Networking route: pmtu [21]
-       🚧 ✅ Networking route_func: local [22]
-       🚧 ✅ Networking route_func: forward [22]
-       🚧 ✅ Networking TCP: keepalive test [23]
-       🚧 ✅ Networking UDP: socket [24]
-       🚧 ✅ Networking tunnel: vxlan basic [25]
-       🚧 ✅ Networking tunnel: geneve basic test [26]
-       🚧 ✅ Networking ipsec: basic netns transport [27]
-       🚧 ✅ Networking ipsec: basic netns tunnel [27]
-       🚧 ✅ Storage blktests [28]
-
-    Host 4:
-       ✅ Boot test [0]
-       ✅ kdump: sysrq-c [29]
-
-
-  Test source:
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/filesystems/xfs/xfstests
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/memory/function/memfd_create
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/redhat-rpm-config/detect-kabi-provides
-    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/redhat-rpm-config/kabi-whitelist-not-found
-    [13]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [14]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-    [15]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/lvm/thinp/sanity
-    [16]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/scsi/vpd
-    [17]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
-    [18]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
-    [19]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/sctp/auth/sockopts
-    [20]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/igmp/conformance
-    [21]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/route/pmtu
-    [22]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/route/route_func
-    [23]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/tcp/tcp_keepalive
-    [24]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/udp/udp_socket
-    [25]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/tunnel/vxlan/basic
-    [26]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/tunnel/geneve/basic
-    [27]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/ipsec/ipsec_basic/ipsec_basic_netns
-    [28]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/blk
-    [29]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/kdump/kdump-sysrq-c
-
-Waived tests (marked with 🚧)
------------------------------
-This test run included waived tests. Such tests are executed but their results
-are not taken into account. Tests are waived when their results are not
-reliable enough, e.g. when they're just introduced or are being fixed.
+--- a/Documentation/admin-guide/cgroup-v2.rst~mm-consider-subtrees-in-memoryevents
++++ a/Documentation/admin-guide/cgroup-v2.rst
+@@ -177,6 +177,15 @@ cgroup v2 currently supports the followi
+ 	ignored on non-init namespace mounts.  Please refer to the
+ 	Delegation section for details.
+ 
++  memory_localevents
++
++        Only populate memory.events with data for the current cgroup,
++        and not any subtrees. This is legacy behaviour, the default
++        behaviour without this option is to include subtree counts.
++        This option is system wide and can only be set on mount or
++        modified through remount from the init namespace. The mount
++        option is ignored on non-init namespace mounts.
++
+ 
+ Organizing Processes and Threads
+ --------------------------------
+--- a/include/linux/cgroup-defs.h~mm-consider-subtrees-in-memoryevents
++++ a/include/linux/cgroup-defs.h
+@@ -89,6 +89,11 @@ enum {
+ 	 * Enable cpuset controller in v1 cgroup to use v2 behavior.
+ 	 */
+ 	CGRP_ROOT_CPUSET_V2_MODE = (1 << 4),
++
++	/*
++	 * Enable legacy local memory.events.
++	 */
++	CGRP_ROOT_MEMORY_LOCAL_EVENTS = (1 << 5),
+ };
+ 
+ /* cftype->flags */
+--- a/include/linux/memcontrol.h~mm-consider-subtrees-in-memoryevents
++++ a/include/linux/memcontrol.h
+@@ -737,8 +737,14 @@ static inline void count_memcg_event_mm(
+ static inline void memcg_memory_event(struct mem_cgroup *memcg,
+ 				      enum memcg_memory_event event)
+ {
+-	atomic_long_inc(&memcg->memory_events[event]);
+-	cgroup_file_notify(&memcg->events_file);
++	do {
++		atomic_long_inc(&memcg->memory_events[event]);
++		cgroup_file_notify(&memcg->events_file);
++
++		if (cgrp_dfl_root.flags & CGRP_ROOT_MEMORY_LOCAL_EVENTS)
++			break;
++	} while ((memcg = parent_mem_cgroup(memcg)) &&
++		 !mem_cgroup_is_root(memcg));
+ }
+ 
+ static inline void memcg_memory_event_mm(struct mm_struct *mm,
+--- a/kernel/cgroup/cgroup.c~mm-consider-subtrees-in-memoryevents
++++ a/kernel/cgroup/cgroup.c
+@@ -1810,11 +1810,13 @@ int cgroup_show_path(struct seq_file *sf
+ 
+ enum cgroup2_param {
+ 	Opt_nsdelegate,
++	Opt_memory_localevents,
+ 	nr__cgroup2_params
+ };
+ 
+ static const struct fs_parameter_spec cgroup2_param_specs[] = {
+-	fsparam_flag  ("nsdelegate",		Opt_nsdelegate),
++	fsparam_flag("nsdelegate",		Opt_nsdelegate),
++	fsparam_flag("memory_localevents",	Opt_memory_localevents),
+ 	{}
+ };
+ 
+@@ -1837,6 +1839,9 @@ static int cgroup2_parse_param(struct fs
+ 	case Opt_nsdelegate:
+ 		ctx->flags |= CGRP_ROOT_NS_DELEGATE;
+ 		return 0;
++	case Opt_memory_localevents:
++		ctx->flags |= CGRP_ROOT_MEMORY_LOCAL_EVENTS;
++		return 0;
+ 	}
+ 	return -EINVAL;
+ }
+@@ -1848,6 +1853,11 @@ static void apply_cgroup_root_flags(unsi
+ 			cgrp_dfl_root.flags |= CGRP_ROOT_NS_DELEGATE;
+ 		else
+ 			cgrp_dfl_root.flags &= ~CGRP_ROOT_NS_DELEGATE;
++
++		if (root_flags & CGRP_ROOT_MEMORY_LOCAL_EVENTS)
++			cgrp_dfl_root.flags |= CGRP_ROOT_MEMORY_LOCAL_EVENTS;
++		else
++			cgrp_dfl_root.flags &= ~CGRP_ROOT_MEMORY_LOCAL_EVENTS;
+ 	}
+ }
+ 
+@@ -1855,6 +1865,8 @@ static int cgroup_show_options(struct se
+ {
+ 	if (cgrp_dfl_root.flags & CGRP_ROOT_NS_DELEGATE)
+ 		seq_puts(seq, ",nsdelegate");
++	if (cgrp_dfl_root.flags & CGRP_ROOT_MEMORY_LOCAL_EVENTS)
++		seq_puts(seq, ",memory_localevents");
+ 	return 0;
+ }
+ 
+@@ -6325,7 +6337,7 @@ static struct kobj_attribute cgroup_dele
+ static ssize_t features_show(struct kobject *kobj, struct kobj_attribute *attr,
+ 			     char *buf)
+ {
+-	return snprintf(buf, PAGE_SIZE, "nsdelegate\n");
++	return snprintf(buf, PAGE_SIZE, "nsdelegate\nmemory_localevents\n");
+ }
+ static struct kobj_attribute cgroup_features_attr = __ATTR_RO(features);
+ 
+_
