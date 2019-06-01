@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F47F31C38
-	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:20:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99BC231EFD
+	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:41:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727406AbfFANTi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Jun 2019 09:19:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46750 "EHLO mail.kernel.org"
+        id S1727183AbfFANTr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Jun 2019 09:19:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726794AbfFANTh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Jun 2019 09:19:37 -0400
+        id S1726794AbfFANTr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 1 Jun 2019 09:19:47 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BE4A4272BE;
-        Sat,  1 Jun 2019 13:19:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9EF082725F;
+        Sat,  1 Jun 2019 13:19:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559395176;
-        bh=0BH7zsVElE5DDidWWhc24VgxlmlbeytlvrOF5RZBkgI=;
-        h=From:To:Cc:Subject:Date:From;
-        b=DnuLTbkFfqGn9ia3ApPI4iiDFb+8wx9EuSLf9veL3lVWa0QV0j9T6O6SogD1ivUwV
-         Fn9/4XpeFSO1cow30isMmcxRSSEr/1m+8APJjDM1ekazo/Y3IkKI/ppl90tuwjCOrI
-         IxOOvDTp0mqM+dXILwCTGrJqz0eg6Ui1CKR3hCcQ=
+        s=default; t=1559395186;
+        bh=NHp4Zus6V4JDtlhyZgmwXxF/CbFxoMXzr6qTYcrfCPI=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=VuiUhad7NAChNF9UZcoCgwfFn9BF/KQ8m6F3TGnJ5ul9mPMLLGFw7rd0UqzSll1ER
+         6+yk36QjCl/ZGDeXH2kKjAGpP0JjGO5Qzfqsy4id4n+r3f1iQllGL0xtbagcvFpT/g
+         4DiI0wNSwIYhjGtMvxfYX+M+ZfPGXEx7aStUYXnU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Jonas Karlman <jonas@kwiboo.se>,
@@ -31,10 +31,12 @@ Cc:     Jonas Karlman <jonas@kwiboo.se>,
         Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org,
         devel@driverdev.osuosl.org, linux-rockchip@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.0 001/173] media: rockchip/vpu: Fix/re-order probe-error/remove path
-Date:   Sat,  1 Jun 2019 09:16:33 -0400
-Message-Id: <20190601131934.25053-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.0 002/173] media: rockchip/vpu: Add missing dont_use_autosuspend() calls
+Date:   Sat,  1 Jun 2019 09:16:34 -0400
+Message-Id: <20190601131934.25053-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190601131934.25053-1-sashal@kernel.org>
+References: <20190601131934.25053-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -46,12 +48,11 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jonas Karlman <jonas@kwiboo.se>
 
-[ Upstream commit fc8670d1f72b746ff3a5fe441f1fca4c4dba0e6f ]
+[ Upstream commit 5c5b90f5cbad77dc15d8b5582efdb2e362bcd710 ]
 
-media_device_cleanup() and v4l2_m2m_unregister_media_controller() were
-missing in the probe error path.
-While at it, re-order calls in the remove path to unregister/cleanup
-things in the reverse order they were initialized/registered.
+Those calls are needed to restore a clean PM state when the probe fails
+or when the driver is unloaded such that future ->probe() calls can
+initialize runtime PM again.
 
 Signed-off-by: Jonas Karlman <jonas@kwiboo.se>
 Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
@@ -59,43 +60,29 @@ Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/rockchip/vpu/rockchip_vpu_drv.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/staging/media/rockchip/vpu/rockchip_vpu_drv.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
 diff --git a/drivers/staging/media/rockchip/vpu/rockchip_vpu_drv.c b/drivers/staging/media/rockchip/vpu/rockchip_vpu_drv.c
-index 962412c79b917..33b556b3f0df8 100644
+index 33b556b3f0df8..d489b5dd54d7a 100644
 --- a/drivers/staging/media/rockchip/vpu/rockchip_vpu_drv.c
 +++ b/drivers/staging/media/rockchip/vpu/rockchip_vpu_drv.c
-@@ -481,10 +481,12 @@ static int rockchip_vpu_probe(struct platform_device *pdev)
- 	return 0;
- err_video_dev_unreg:
- 	if (vpu->vfd_enc) {
-+		v4l2_m2m_unregister_media_controller(vpu->m2m_dev);
- 		video_unregister_device(vpu->vfd_enc);
- 		video_device_release(vpu->vfd_enc);
- 	}
- err_m2m_rel:
-+	media_device_cleanup(&vpu->mdev);
- 	v4l2_m2m_release(vpu->m2m_dev);
- err_v4l2_unreg:
+@@ -492,6 +492,7 @@ static int rockchip_vpu_probe(struct platform_device *pdev)
  	v4l2_device_unregister(&vpu->v4l2_dev);
-@@ -501,13 +503,13 @@ static int rockchip_vpu_remove(struct platform_device *pdev)
- 	v4l2_info(&vpu->v4l2_dev, "Removing %s\n", pdev->name);
- 
- 	media_device_unregister(&vpu->mdev);
--	v4l2_m2m_unregister_media_controller(vpu->m2m_dev);
--	v4l2_m2m_release(vpu->m2m_dev);
--	media_device_cleanup(&vpu->mdev);
- 	if (vpu->vfd_enc) {
-+		v4l2_m2m_unregister_media_controller(vpu->m2m_dev);
- 		video_unregister_device(vpu->vfd_enc);
- 		video_device_release(vpu->vfd_enc);
- 	}
-+	media_device_cleanup(&vpu->mdev);
-+	v4l2_m2m_release(vpu->m2m_dev);
+ err_clk_unprepare:
+ 	clk_bulk_unprepare(vpu->variant->num_clocks, vpu->clocks);
++	pm_runtime_dont_use_autosuspend(vpu->dev);
+ 	pm_runtime_disable(vpu->dev);
+ 	return ret;
+ }
+@@ -512,6 +513,7 @@ static int rockchip_vpu_remove(struct platform_device *pdev)
+ 	v4l2_m2m_release(vpu->m2m_dev);
  	v4l2_device_unregister(&vpu->v4l2_dev);
  	clk_bulk_unprepare(vpu->variant->num_clocks, vpu->clocks);
++	pm_runtime_dont_use_autosuspend(vpu->dev);
  	pm_runtime_disable(vpu->dev);
+ 	return 0;
+ }
 -- 
 2.20.1
 
