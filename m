@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B40DE31DBC
-	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:33:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3371E31DBD
+	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:33:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729452AbfFANZZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Jun 2019 09:25:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55694 "EHLO mail.kernel.org"
+        id S1729183AbfFANZa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Jun 2019 09:25:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728558AbfFANZZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Jun 2019 09:25:25 -0400
+        id S1729175AbfFANZ2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 1 Jun 2019 09:25:28 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2DC5427385;
-        Sat,  1 Jun 2019 13:25:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 156E5273A3;
+        Sat,  1 Jun 2019 13:25:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559395524;
-        bh=VYVk60ZNb1aOiekkl7kRqZCFF3W/BmPDLd0VQkFddJU=;
+        s=default; t=1559395527;
+        bh=W+mXVN4o7qdgu7foKIesICoUXtgOLDULDim6bbYHyBQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l6dAie1I51GFOjUg5YEXVURvqpsTmN+QmbwdXy2xSyxJxUxEEItSOSRPQo1ZYkX9D
-         FvaYlbC5TkK+kzKbaj5aYtYBqRD7ivzAQhdtzTA8lL6Vq9Nm8g1zZfbd+9RH+i/eKu
-         G9cJTPAStdYAr5Ug1amrMR01ySew1loMGMWbXGhM=
+        b=vkrfiYXHG/UaTTFIJkMaF3CYR+GkeoS90ASRMOvcQ+jOeUO0EqsMsh9illfg0NwZZ
+         1WuvbE08RCqe3f6lm6Wlyofn2CcC2eHzrj4B8dvijGt9ldTT14H60B41TXrlAlY/gz
+         N0XwX7G6UbN0MTCDPcTFXeRe3nzfBsa8BbobhsCk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Yue Hu <huyue2@yulong.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Laura Abbott <labbott@redhat.com>,
-        Mike Rapoport <rppt@linux.vnet.ibm.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
         Andrew Morton <akpm@linux-foundation.org>,
+        Michal Hocko <mhocko@suse.com>, Joe Perches <joe@perches.com>,
+        David Rientjes <rientjes@google.com>,
+        Dmitry Safonov <d.safonov@partner.samsung.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
-Subject: [PATCH AUTOSEL 4.9 08/74] mm/cma.c: fix crash on CMA allocation if bitmap allocation fails
-Date:   Sat,  1 Jun 2019 09:23:55 -0400
-Message-Id: <20190601132501.27021-8-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 09/74] mm/cma_debug.c: fix the break condition in cma_maxchunk_get()
+Date:   Sat,  1 Jun 2019 09:23:56 -0400
+Message-Id: <20190601132501.27021-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190601132501.27021-1-sashal@kernel.org>
 References: <20190601132501.27021-1-sashal@kernel.org>
@@ -51,42 +50,42 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yue Hu <huyue2@yulong.com>
 
-[ Upstream commit 1df3a339074e31db95c4790ea9236874b13ccd87 ]
+[ Upstream commit f0fd50504a54f5548eb666dc16ddf8394e44e4b7 ]
 
-f022d8cb7ec7 ("mm: cma: Don't crash on allocation if CMA area can't be
-activated") fixes the crash issue when activation fails via setting
-cma->count as 0, same logic exists if bitmap allocation fails.
+If not find zero bit in find_next_zero_bit(), it will return the size
+parameter passed in, so the start bit should be compared with bitmap_maxno
+rather than cma->count.  Although getting maxchunk is working fine due to
+zero value of order_per_bit currently, the operation will be stuck if
+order_per_bit is set as non-zero.
 
-Link: http://lkml.kernel.org/r/20190325081309.6004-1-zbestahu@gmail.com
+Link: http://lkml.kernel.org/r/20190319092734.276-1-zbestahu@gmail.com
 Signed-off-by: Yue Hu <huyue2@yulong.com>
-Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Joe Perches <joe@perches.com>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Dmitry Safonov <d.safonov@partner.samsung.com>
 Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: Laura Abbott <labbott@redhat.com>
-Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
-Cc: Randy Dunlap <rdunlap@infradead.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/cma.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ mm/cma_debug.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/mm/cma.c b/mm/cma.c
-index b5d8847497a3e..4ea0f32761c1a 100644
---- a/mm/cma.c
-+++ b/mm/cma.c
-@@ -100,8 +100,10 @@ static int __init cma_activate_area(struct cma *cma)
- 
- 	cma->bitmap = kzalloc(bitmap_size, GFP_KERNEL);
- 
--	if (!cma->bitmap)
-+	if (!cma->bitmap) {
-+		cma->count = 0;
- 		return -ENOMEM;
-+	}
- 
- 	WARN_ON_ONCE(!pfn_valid(pfn));
- 	zone = page_zone(pfn_to_page(pfn));
+diff --git a/mm/cma_debug.c b/mm/cma_debug.c
+index f8e4b60db1672..da50dab56b700 100644
+--- a/mm/cma_debug.c
++++ b/mm/cma_debug.c
+@@ -57,7 +57,7 @@ static int cma_maxchunk_get(void *data, u64 *val)
+ 	mutex_lock(&cma->lock);
+ 	for (;;) {
+ 		start = find_next_zero_bit(cma->bitmap, bitmap_maxno, end);
+-		if (start >= cma->count)
++		if (start >= bitmap_maxno)
+ 			break;
+ 		end = find_next_bit(cma->bitmap, bitmap_maxno, start);
+ 		maxchunk = max(end - start, maxchunk);
 -- 
 2.20.1
 
