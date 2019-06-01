@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F02631D94
-	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:30:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C606431D5C
+	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:30:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729374AbfFANaK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Jun 2019 09:30:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56882 "EHLO mail.kernel.org"
+        id S1729429AbfFAN0a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Jun 2019 09:26:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729709AbfFAN02 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Jun 2019 09:26:28 -0400
+        id S1727442AbfFAN03 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 1 Jun 2019 09:26:29 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0E7F9273C1;
-        Sat,  1 Jun 2019 13:26:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5B676273AC;
+        Sat,  1 Jun 2019 13:26:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559395588;
-        bh=0ar076jmH0sMsMaf6T/4hb3NCEfzVN9jqdWdJ3pX69Y=;
+        s=default; t=1559395589;
+        bh=RuV1rmQjMiQxxHW7uHW03PXKl3lV1LJQxkPwU2UGFW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sDH+nRSZkqvhzYkL5EGLT5iU504PfISYXMIVqtLULvAroNzyOtwjlPEe/JHOMkXFQ
-         O8pO1nRa6qu5iyAZB2r0N5ED7G+NzliC5lxBUBbrWulycfKt1d6MovwcyLjf16bSoX
-         hE9UWt1FlorIBwUtGwJNI3cm1UlCDYo9tsfxmrIM=
+        b=Mh9YW0vVdrnPp0HYrRdv3kTAuVV9A8rA3WAI5+tSjkVsdBuOIISXlnW71axAZ05L2
+         Nt9yAG70jPsq97bAynqM7vVrGAXClAeEYgT0rerH7R1eyed653x78s93kZkTCJ/fIH
+         CFujQGHzEHbd56nPJuTUsp5BuJDDpzmz28VPAmpg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Miroslav Lichvar <mlichvar@redhat.com>,
-        Ondrej Mosnacek <omosnace@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        John Stultz <john.stultz@linaro.org>,
-        Richard Cochran <richardcochran@gmail.com>,
-        Prarit Bhargava <prarit@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 13/56] ntp: Allow TAI-UTC offset to be set to zero
-Date:   Sat,  1 Jun 2019 09:25:17 -0400
-Message-Id: <20190601132600.27427-13-sashal@kernel.org>
+Cc:     Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-f2fs-devel@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 4.4 14/56] f2fs: fix to avoid panic in do_recover_data()
+Date:   Sat,  1 Jun 2019 09:25:18 -0400
+Message-Id: <20190601132600.27427-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190601132600.27427-1-sashal@kernel.org>
 References: <20190601132600.27427-1-sashal@kernel.org>
@@ -47,46 +43,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miroslav Lichvar <mlichvar@redhat.com>
+From: Chao Yu <yuchao0@huawei.com>
 
-[ Upstream commit fdc6bae940ee9eb869e493990540098b8c0fd6ab ]
+[ Upstream commit 22d61e286e2d9097dae36f75ed48801056b77cac ]
 
-The ADJ_TAI adjtimex mode sets the TAI-UTC offset of the system clock.
-It is typically set by NTP/PTP implementations and it is automatically
-updated by the kernel on leap seconds. The initial value is zero (which
-applications may interpret as unknown), but this value cannot be set by
-adjtimex. This limitation seems to go back to the original "nanokernel"
-implementation by David Mills.
+As Jungyeon reported in bugzilla:
 
-Change the ADJ_TAI check to accept zero as a valid TAI-UTC offset in
-order to allow setting it back to the initial value.
+https://bugzilla.kernel.org/show_bug.cgi?id=203227
 
-Fixes: 153b5d054ac2 ("ntp: support for TAI")
-Suggested-by: Ondrej Mosnacek <omosnace@redhat.com>
-Signed-off-by: Miroslav Lichvar <mlichvar@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: John Stultz <john.stultz@linaro.org>
-Cc: Richard Cochran <richardcochran@gmail.com>
-Cc: Prarit Bhargava <prarit@redhat.com>
-Link: https://lkml.kernel.org/r/20190417084833.7401-1-mlichvar@redhat.com
+- Overview
+When mounting the attached crafted image, following errors are reported.
+Additionally, it hangs on sync after trying to mount it.
+
+The image is intentionally fuzzed from a normal f2fs image for testing.
+Compile options for F2FS are as follows.
+CONFIG_F2FS_FS=y
+CONFIG_F2FS_STAT_FS=y
+CONFIG_F2FS_FS_XATTR=y
+CONFIG_F2FS_FS_POSIX_ACL=y
+CONFIG_F2FS_CHECK_FS=y
+
+- Reproduces
+mkdir test
+mount -t f2fs tmp.img test
+sync
+
+- Messages
+ kernel BUG at fs/f2fs/recovery.c:549!
+ RIP: 0010:recover_data+0x167a/0x1780
+ Call Trace:
+  f2fs_recover_fsync_data+0x613/0x710
+  f2fs_fill_super+0x1043/0x1aa0
+  mount_bdev+0x16d/0x1a0
+  mount_fs+0x4a/0x170
+  vfs_kern_mount+0x5d/0x100
+  do_mount+0x200/0xcf0
+  ksys_mount+0x79/0xc0
+  __x64_sys_mount+0x1c/0x20
+  do_syscall_64+0x43/0xf0
+  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+During recovery, if ofs_of_node is inconsistent in between recovered
+node page and original checkpointed node page, let's just fail recovery
+instead of making kernel panic.
+
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/time/ntp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/f2fs/recovery.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/time/ntp.c b/kernel/time/ntp.c
-index ab861771e37f8..0e0dc5d89911d 100644
---- a/kernel/time/ntp.c
-+++ b/kernel/time/ntp.c
-@@ -633,7 +633,7 @@ static inline void process_adjtimex_modes(struct timex *txc,
- 		time_constant = max(time_constant, 0l);
- 	}
+diff --git a/fs/f2fs/recovery.c b/fs/f2fs/recovery.c
+index 2878be3e448f7..410354c334d75 100644
+--- a/fs/f2fs/recovery.c
++++ b/fs/f2fs/recovery.c
+@@ -413,7 +413,15 @@ static int do_recover_data(struct f2fs_sb_info *sbi, struct inode *inode,
  
--	if (txc->modes & ADJ_TAI && txc->constant > 0)
-+	if (txc->modes & ADJ_TAI && txc->constant >= 0)
- 		*time_tai = txc->constant;
+ 	get_node_info(sbi, dn.nid, &ni);
+ 	f2fs_bug_on(sbi, ni.ino != ino_of_node(page));
+-	f2fs_bug_on(sbi, ofs_of_node(dn.node_page) != ofs_of_node(page));
++
++	if (ofs_of_node(dn.node_page) != ofs_of_node(page)) {
++		f2fs_msg(sbi->sb, KERN_WARNING,
++			"Inconsistent ofs_of_node, ino:%lu, ofs:%u, %u",
++			inode->i_ino, ofs_of_node(dn.node_page),
++			ofs_of_node(page));
++		err = -EFAULT;
++		goto err;
++	}
  
- 	if (txc->modes & ADJ_OFFSET)
+ 	for (; start < end; start++, dn.ofs_in_node++) {
+ 		block_t src, dest;
 -- 
 2.20.1
 
