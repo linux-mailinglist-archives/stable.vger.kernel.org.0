@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2130131F07
-	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:41:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C907F31F15
+	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:41:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728052AbfFANTC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Jun 2019 09:19:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46192 "EHLO mail.kernel.org"
+        id S1728360AbfFANlk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Jun 2019 09:41:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46224 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728041AbfFANTB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Jun 2019 09:19:01 -0400
+        id S1728054AbfFANTD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 1 Jun 2019 09:19:03 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 097902729D;
-        Sat,  1 Jun 2019 13:18:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5A3C027280;
+        Sat,  1 Jun 2019 13:19:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559395140;
-        bh=2uGRV4UYU8MhgIsmB1C/n9YqWWL5HigLXU2aP/VhuWI=;
+        s=default; t=1559395142;
+        bh=VJXdiM0UCZ55BzcrYVIp2IYpcyvmtSQqPebIULr9+q8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RkUNsxQKxlnz1eu2HxrWp+p6GEWH950z28Zzeh1peAanNpSV2at4x2f4pxupXMDD2
-         HyWIOD3k2VwDGUjAHmmvppt1ZbbZqPMQ7wnR7jN2NAFislySxl7gQBLKdcNq4qbgeD
-         gfIxLHF3l5ptYsLV0ZRUckqcVmI7tnLtmvefVovk=
+        b=wF0iOvE0lxF6NtYRK12cIsNsKe5cVagjbpSqv8WKAfMopjd8demoELRH1E6ujrBVL
+         jjWZxLZo6regZMRY6Jpfaxhelc6+WHl4neQ/yRPvC83fBfBfbWAOTso9Wjw8emqdK7
+         mnO1Q/BtRg8wV+K592tqCmDJAScFKNr9wYfXr3go=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
-        Jeff Dike <jdike@addtoit.com>,
-        Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        linux-um@lists.infradead.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.1 061/186] uml: fix a boot splat wrt use of cpu_all_mask
-Date:   Sat,  1 Jun 2019 09:14:37 -0400
-Message-Id: <20190601131653.24205-61-sashal@kernel.org>
+Cc:     Ronnie Sahlberg <lsahlber@redhat.com>,
+        Pavel Shilovsky <pshilov@microsoft.com>,
+        Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.1 062/186] cifs: fix credits leak for SMB1 oplock breaks
+Date:   Sat,  1 Jun 2019 09:14:38 -0400
+Message-Id: <20190601131653.24205-62-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190601131653.24205-1-sashal@kernel.org>
 References: <20190601131653.24205-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,84 +44,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Żenczykowski <maze@google.com>
+From: Ronnie Sahlberg <lsahlber@redhat.com>
 
-[ Upstream commit 689a58605b63173acb0a8cf954af6a8f60440c93 ]
+[ Upstream commit d69cb728e70c40268762182a62f5d5d6fa51c5b2 ]
 
-Memory: 509108K/542612K available (3835K kernel code, 919K rwdata, 1028K rodata, 129K init, 211K bss, 33504K reserved, 0K cma-reserved)
-NR_IRQS: 15
-clocksource: timer: mask: 0xffffffffffffffff max_cycles: 0x1cd42e205, max_idle_ns: 881590404426 ns
-------------[ cut here ]------------
-WARNING: CPU: 0 PID: 0 at kernel/time/clockevents.c:458 clockevents_register_device+0x72/0x140
-posix-timer cpumask == cpu_all_mask, using cpu_possible_mask instead
-Modules linked in:
-CPU: 0 PID: 0 Comm: swapper Not tainted 5.1.0-rc4-00048-ged79cc87302b #4
-Stack:
- 604ebda0 603c5370 604ebe20 6046fd17
- 00000000 6006fcbb 604ebdb0 603c53b5
- 604ebe10 6003bfc4 604ebdd0 9000001ca
-Call Trace:
- [<6006fcbb>] ? printk+0x0/0x94
- [<60083160>] ? clockevents_register_device+0x72/0x140
- [<6001f16e>] show_stack+0x13b/0x155
- [<603c5370>] ? dump_stack_print_info+0xe2/0xeb
- [<6006fcbb>] ? printk+0x0/0x94
- [<603c53b5>] dump_stack+0x2a/0x2c
- [<6003bfc4>] __warn+0x10e/0x13e
- [<60070320>] ? vprintk_func+0xc8/0xcf
- [<60030fd6>] ? block_signals+0x0/0x16
- [<6006fcbb>] ? printk+0x0/0x94
- [<6003c08b>] warn_slowpath_fmt+0x97/0x99
- [<600311a1>] ? set_signals+0x0/0x3f
- [<6003bff4>] ? warn_slowpath_fmt+0x0/0x99
- [<600842cb>] ? tick_oneshot_mode_active+0x44/0x4f
- [<60030fd6>] ? block_signals+0x0/0x16
- [<6006fcbb>] ? printk+0x0/0x94
- [<6007d2d5>] ? __clocksource_select+0x20/0x1b1
- [<60030fd6>] ? block_signals+0x0/0x16
- [<6006fcbb>] ? printk+0x0/0x94
- [<60083160>] clockevents_register_device+0x72/0x140
- [<60031192>] ? get_signals+0x0/0xf
- [<60030fd6>] ? block_signals+0x0/0x16
- [<6006fcbb>] ? printk+0x0/0x94
- [<60002eec>] um_timer_setup+0xc8/0xca
- [<60001b59>] start_kernel+0x47f/0x57e
- [<600035bc>] start_kernel_proc+0x49/0x4d
- [<6006c483>] ? kmsg_dump_register+0x82/0x8a
- [<6001de62>] new_thread_handler+0x81/0xb2
- [<60003571>] ? kmsg_dumper_stdout_init+0x1a/0x1c
- [<60020c75>] uml_finishsetup+0x54/0x59
+For SMB1 oplock breaks we would grab one credit while sending the PDU
+but we would never relese the credit back since we will never receive a
+response to this from the server. Eventuallt this would lead to a hang
+once all credits are leaked.
 
-random: get_random_bytes called from init_oops_id+0x27/0x34 with crng_init=0
----[ end trace 00173d0117a88acb ]---
-Calibrating delay loop... 6941.90 BogoMIPS (lpj=34709504)
+Fix this by defining a new flag CIFS_NO_SRV_RSP which indicates that there
+is no server response to this command and thus we need to add any credits back
+immediately after sending the PDU.
 
-Signed-off-by: Maciej Żenczykowski <maze@google.com>
-Cc: Jeff Dike <jdike@addtoit.com>
-Cc: Richard Weinberger <richard@nod.at>
-Cc: Anton Ivanov <anton.ivanov@cambridgegreys.com>
-Cc: linux-um@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org
-
-Signed-off-by: Richard Weinberger <richard@nod.at>
+CC: Stable <stable@vger.kernel.org> #v5.0+
+Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
+Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/um/kernel/time.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/cifs/cifsglob.h  |  1 +
+ fs/cifs/cifssmb.c   |  2 +-
+ fs/cifs/transport.c | 10 +++++-----
+ 3 files changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/arch/um/kernel/time.c b/arch/um/kernel/time.c
-index 052de4c8acb2e..0c572a48158e8 100644
---- a/arch/um/kernel/time.c
-+++ b/arch/um/kernel/time.c
-@@ -56,7 +56,7 @@ static int itimer_one_shot(struct clock_event_device *evt)
- static struct clock_event_device timer_clockevent = {
- 	.name			= "posix-timer",
- 	.rating			= 250,
--	.cpumask		= cpu_all_mask,
-+	.cpumask		= cpu_possible_mask,
- 	.features		= CLOCK_EVT_FEAT_PERIODIC |
- 				  CLOCK_EVT_FEAT_ONESHOT,
- 	.set_state_shutdown	= itimer_shutdown,
+diff --git a/fs/cifs/cifsglob.h b/fs/cifs/cifsglob.h
+index 585ad3207cb12..607468948f72b 100644
+--- a/fs/cifs/cifsglob.h
++++ b/fs/cifs/cifsglob.h
+@@ -1687,6 +1687,7 @@ static inline bool is_retryable_error(int error)
+ 
+ #define   CIFS_HAS_CREDITS 0x0400    /* already has credits */
+ #define   CIFS_TRANSFORM_REQ 0x0800    /* transform request before sending */
++#define   CIFS_NO_SRV_RSP    0x1000    /* there is no server response */
+ 
+ /* Security Flags: indicate type of session setup needed */
+ #define   CIFSSEC_MAY_SIGN	0x00001
+diff --git a/fs/cifs/cifssmb.c b/fs/cifs/cifssmb.c
+index f43747c062a70..6050851edcb82 100644
+--- a/fs/cifs/cifssmb.c
++++ b/fs/cifs/cifssmb.c
+@@ -2540,7 +2540,7 @@ CIFSSMBLock(const unsigned int xid, struct cifs_tcon *tcon,
+ 
+ 	if (lockType == LOCKING_ANDX_OPLOCK_RELEASE) {
+ 		/* no response expected */
+-		flags = CIFS_ASYNC_OP | CIFS_OBREAK_OP;
++		flags = CIFS_NO_SRV_RSP | CIFS_ASYNC_OP | CIFS_OBREAK_OP;
+ 		pSMB->Timeout = 0;
+ 	} else if (waitFlag) {
+ 		flags = CIFS_BLOCKING_OP; /* blocking operation, no timeout */
+diff --git a/fs/cifs/transport.c b/fs/cifs/transport.c
+index 1de8e996e566f..72e242c49ca11 100644
+--- a/fs/cifs/transport.c
++++ b/fs/cifs/transport.c
+@@ -1054,8 +1054,11 @@ compound_send_recv(const unsigned int xid, struct cifs_ses *ses,
+ 
+ 	mutex_unlock(&ses->server->srv_mutex);
+ 
+-	if (rc < 0) {
+-		/* Sending failed for some reason - return credits back */
++	/*
++	 * If sending failed for some reason or it is an oplock break that we
++	 * will not receive a response to - return credits back
++	 */
++	if (rc < 0 || (flags & CIFS_NO_SRV_RSP)) {
+ 		for (i = 0; i < num_rqst; i++)
+ 			add_credits(ses->server, &credits[i], optype);
+ 		goto out;
+@@ -1076,9 +1079,6 @@ compound_send_recv(const unsigned int xid, struct cifs_ses *ses,
+ 		smb311_update_preauth_hash(ses, rqst[0].rq_iov,
+ 					   rqst[0].rq_nvec);
+ 
+-	if ((flags & CIFS_TIMEOUT_MASK) == CIFS_ASYNC_OP)
+-		goto out;
+-
+ 	for (i = 0; i < num_rqst; i++) {
+ 		rc = wait_for_response(ses->server, midQ[i]);
+ 		if (rc != 0)
 -- 
 2.20.1
 
