@@ -2,40 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F7E731D5A
-	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:28:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E58F31D0E
+	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:26:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729033AbfFAN2m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Jun 2019 09:28:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57140 "EHLO mail.kernel.org"
+        id S1729454AbfFAN0p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Jun 2019 09:26:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729757AbfFAN0j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Jun 2019 09:26:39 -0400
+        id S1729462AbfFAN0l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 1 Jun 2019 09:26:41 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A49A3273C3;
-        Sat,  1 Jun 2019 13:26:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 745DC273C3;
+        Sat,  1 Jun 2019 13:26:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559395598;
-        bh=Ty1n3O1+kcrqM6zde0cyWrmCFeIf8+B9A/Bi/spdayo=;
+        s=default; t=1559395601;
+        bh=YE2Axna26BxbOj4bYB4bN0rPCd2ystqjbVgrX3oPqMY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LNcNuDrw8mkPkg1vtBYrrX6vgjyMfvmRTcGbba0ufPMRJeWNK1d9Cms/QwuXXPHe5
-         4GYWotD9xVw67ScDi+8+pWi/l0ZSeHF0rs1bIOpR9z9XdndevIY3Uq0at7waUfCltp
-         6k7gbOBZ15PQfCXX0d56Q6WYz+Q4GGqCK8xbSxvE=
+        b=BEaP8W/3kAWNVSK/VlvNSvu0WIhLjprNN6qIRmzctbNJYqo9uSjei7LCWr1RJaWpZ
+         Lt19B0Ykg4V557ALvLuQWHjEk+TRkHIsm+J+JxyiZlyu4JDkcdxnfgSiNwh/EnbSrO
+         +NpcOwKkGOpCcFE1t4xyxITcyZPEtTfeEJKYSU3c=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lu Baolu <baolu.lu@linux.intel.com>,
-        Ashok Raj <ashok.raj@intel.com>,
-        Jacob Pan <jacob.jun.pan@linux.intel.com>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        Sasha Levin <sashal@kernel.org>,
-        iommu@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 4.4 19/56] iommu/vt-d: Set intel_iommu_gfx_mapped correctly
-Date:   Sat,  1 Jun 2019 09:25:23 -0400
-Message-Id: <20190601132600.27427-19-sashal@kernel.org>
+Cc:     Takashi Iwai <tiwai@suse.de>,
+        Liwei Song <liwei.song@windriver.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 20/56] ALSA: hda - Register irq handler after the chip initialization
+Date:   Sat,  1 Jun 2019 09:25:24 -0400
+Message-Id: <20190601132600.27427-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190601132600.27427-1-sashal@kernel.org>
 References: <20190601132600.27427-1-sashal@kernel.org>
@@ -48,54 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lu Baolu <baolu.lu@linux.intel.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit cf1ec4539a50bdfe688caad4615ca47646884316 ]
+[ Upstream commit f495222e28275222ab6fd93813bd3d462e16d340 ]
 
-The intel_iommu_gfx_mapped flag is exported by the Intel
-IOMMU driver to indicate whether an IOMMU is used for the
-graphic device. In a virtualized IOMMU environment (e.g.
-QEMU), an include-all IOMMU is used for graphic device.
-This flag is found to be clear even the IOMMU is used.
+Currently the IRQ handler in HD-audio controller driver is registered
+before the chip initialization.  That is, we have some window opened
+between the azx_acquire_irq() call and the CORB/RIRB setup.  If an
+interrupt is triggered in this small window, the IRQ handler may
+access to the uninitialized RIRB buffer, which leads to a NULL
+dereference Oops.
 
-Cc: Ashok Raj <ashok.raj@intel.com>
-Cc: Jacob Pan <jacob.jun.pan@linux.intel.com>
-Cc: Kevin Tian <kevin.tian@intel.com>
-Reported-by: Zhenyu Wang <zhenyuw@linux.intel.com>
-Fixes: c0771df8d5297 ("intel-iommu: Export a flag indicating that the IOMMU is used for iGFX.")
-Suggested-by: Kevin Tian <kevin.tian@intel.com>
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+This is usually no big problem since most of Intel chips do register
+the IRQ via MSI, and we've already fixed the order of the IRQ
+enablement and the CORB/RIRB setup in the former commit b61749a89f82
+("sound: enable interrupt after dma buffer initialization"), hence the
+IRQ won't be triggered in that room.  However, some platforms use a
+shared IRQ, and this may allow the IRQ trigger by another source.
+
+Another possibility is the kdump environment: a stale interrupt might
+be present in there, the IRQ handler can be falsely triggered as well.
+
+For covering this small race, let's move the azx_acquire_irq() call
+after hda_intel_init_chip() call.  Although this is a bit radical
+change, it can cover more widely than checking the CORB/RIRB setup
+locally in the callee side.
+
+Reported-by: Liwei Song <liwei.song@windriver.com>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/intel-iommu.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ sound/pci/hda/hda_intel.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
-index 3e97c4b2ebed2..b965561a41627 100644
---- a/drivers/iommu/intel-iommu.c
-+++ b/drivers/iommu/intel-iommu.c
-@@ -3983,9 +3983,7 @@ static void __init init_no_remapping_devices(void)
- 
- 		/* This IOMMU has *only* gfx devices. Either bypass it or
- 		   set the gfx_mapped flag, as appropriate */
--		if (dmar_map_gfx) {
--			intel_iommu_gfx_mapped = 1;
--		} else {
-+		if (!dmar_map_gfx) {
- 			drhd->ignored = 1;
- 			for_each_active_dev_scope(drhd->devices,
- 						  drhd->devices_cnt, i, dev)
-@@ -4694,6 +4692,9 @@ int __init intel_iommu_init(void)
- 		goto out_free_reserved_range;
+diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
+index 74c9600876d68..ef8955abd9186 100644
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -1707,9 +1707,6 @@ static int azx_first_init(struct azx *chip)
+ 			chip->msi = 0;
  	}
  
-+	if (dmar_map_gfx)
-+		intel_iommu_gfx_mapped = 1;
-+
- 	init_no_remapping_devices();
+-	if (azx_acquire_irq(chip, 0) < 0)
+-		return -EBUSY;
+-
+ 	pci_set_master(pci);
+ 	synchronize_irq(bus->irq);
  
- 	ret = init_dmars();
+@@ -1820,6 +1817,9 @@ static int azx_first_init(struct azx *chip)
+ 		return -ENODEV;
+ 	}
+ 
++	if (azx_acquire_irq(chip, 0) < 0)
++		return -EBUSY;
++
+ 	strcpy(card->driver, "HDA-Intel");
+ 	strlcpy(card->shortname, driver_short_names[chip->driver_type],
+ 		sizeof(card->shortname));
 -- 
 2.20.1
 
