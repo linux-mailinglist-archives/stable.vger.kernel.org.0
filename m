@@ -2,51 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FE6A3186A
-	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 01:49:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D6BE31891
+	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 02:04:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726708AbfEaXtR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 31 May 2019 19:49:17 -0400
-Received: from shards.monkeyblade.net ([23.128.96.9]:52600 "EHLO
-        shards.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726701AbfEaXtR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 31 May 2019 19:49:17 -0400
-Received: from localhost (unknown [IPv6:2601:601:9f80:35cd::3d5])
-        (using TLSv1 with cipher AES256-SHA (256/256 bits))
-        (Client did not present a certificate)
-        (Authenticated sender: davem-davemloft)
-        by shards.monkeyblade.net (Postfix) with ESMTPSA id 744F01503AD4A;
-        Fri, 31 May 2019 16:49:16 -0700 (PDT)
-Date:   Fri, 31 May 2019 16:49:13 -0700 (PDT)
-Message-Id: <20190531.164913.1785238168456092697.davem@davemloft.net>
-To:     greg@kroah.com
-Cc:     stable@vger.kernel.org
-Subject: Re: [GIT] Networking
-From:   David Miller <davem@davemloft.net>
-In-Reply-To: <20190531221810.GA7311@kroah.com>
-References: <20190531.141626.1051997873999042502.davem@davemloft.net>
-        <20190531221810.GA7311@kroah.com>
-X-Mailer: Mew version 6.8 on Emacs 26.1
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Greylist: Sender succeeded SMTP AUTH, not delayed by milter-greylist-4.5.12 (shards.monkeyblade.net [149.20.54.216]); Fri, 31 May 2019 16:49:16 -0700 (PDT)
+        id S1726634AbfFAAEV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 31 May 2019 20:04:21 -0400
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:41756 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726550AbfFAAEV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 31 May 2019 20:04:21 -0400
+Received: by mail-wr1-f66.google.com with SMTP id c2so7542637wrm.8
+        for <stable@vger.kernel.org>; Fri, 31 May 2019 17:04:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=xg6bCkUEIvx4mLZSRyaOHFrUk3bc068ftfR8n0kMrEY=;
+        b=OJdckJ35lBEbFyOOfuOTn0qeJv/fGtpsa5i4TNBf71lHrnZzp5KOiLi8ah69CbKA0r
+         6Yhibp7Fyt0noyWeBqDaBtaVMcRWQ0AW90RNys/r+3lXTvG9MOAyqIi6Yt02iJSSMPeX
+         e6dgjtbqdY92gZqG30veDLqjQNlER8dT+k9OczVjaHjWM00WNWyd1MooWuNETD4hMUSx
+         666j7iheQY7c1T7DRwMF43m+BK/oEj1LCEz1KroBEeMiQk5xR2hAQFuIFl0XBssh/nhy
+         q4jRqLwaidpzrUnhdc3ZRnIobKDaxmlXZ2RdMTH/qw4mTVo7lf8RNaCT/IzSHuW6S5Kk
+         /CdQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=xg6bCkUEIvx4mLZSRyaOHFrUk3bc068ftfR8n0kMrEY=;
+        b=Kq6zo/YX5JwwMaAwKlha6dnfzE4ukcDx4SGu8xk5/qPd5hjWldSVK3EKOGsYKo9J5u
+         iDlEhBnyhJVenEripOd545Jkyrc98Wzywt/ZqhXTHPKThU6OxsawSH9ZOoaghXdENUP1
+         yKWezn0N5NwUfXyf3Cs/4G2Qjeq3GVDTgHVcteqwIoZp5oSAcnE2xvL5MUgeZb98N085
+         8U+9hrnLHqxqjkh1PAV09Y2NID8PYODNoHK7ap1ehGuQiS4rzFTxRMCSlJQKlI5AMNtX
+         VAouPjqX4n4NGkGX5u/JSjeTe8WS2Kdbg2FM7E8nvFkWxobmk0fGUQZAGDj7p3cewadJ
+         orDQ==
+X-Gm-Message-State: APjAAAWL+KveQA0YnzrTyEkh+zJYfvqSQyZ1ARKMEQaEf9WbIp33bo2Q
+        YOsf+IGpqhxgqL+5E5srLAvNtf8ozYkfNQ==
+X-Google-Smtp-Source: APXvYqycS9IlpCVVe4svU5+0hOPNvru6IomfHCXV1hyjfV9jl85E/ICPqm8cggJMNz+IySulcKYl/w==
+X-Received: by 2002:adf:e301:: with SMTP id b1mr8458589wrj.304.1559347459455;
+        Fri, 31 May 2019 17:04:19 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id z4sm4552422wrm.12.2019.05.31.17.04.18
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 31 May 2019 17:04:18 -0700 (PDT)
+Message-ID: <5cf1c102.1c69fb81.b54c5.a124@mx.google.com>
+Date:   Fri, 31 May 2019 17:04:18 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v5.0.20
+X-Kernelci-Branch: linux-5.0.y
+X-Kernelci-Tree: stable
+Subject: stable/linux-5.0.y boot: 59 boots: 1 failed, 58 passed (v5.0.20)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg KH <greg@kroah.com>
-Date: Fri, 31 May 2019 15:18:10 -0700
+stable/linux-5.0.y boot: 59 boots: 1 failed, 58 passed (v5.0.20)
 
-> On Fri, May 31, 2019 at 02:16:26PM -0700, David Miller wrote:
->> 
->> Please queue up the following networking bug fixes for v5.0 and v5.1
->> -stable, respectively.
-> 
-> Now queued up, thanks!
-> 
-> Note, 5.0 will be end-of-life after this next release, so no need to do
-> any patches for that kernel anymore.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-5.=
+0.y/kernel/v5.0.20/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-5.0.y/ke=
+rnel/v5.0.20/
 
-Thank you Greg.
+Tree: stable
+Branch: linux-5.0.y
+Git Describe: v5.0.20
+Git Commit: 227ab209e9be6821bfb3360c4111dbed1598715c
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 30 unique boards, 16 SoC families, 11 builds out of 208
+
+Boot Regressions Detected:
+
+arm64:
+
+    defconfig:
+        gcc-8:
+          meson-gxbb-p200:
+              lab-baylibre: new failure (last pass: v5.0.19)
+
+Boot Failure Detected:
+
+arm64:
+    defconfig:
+        gcc-8:
+            meson-gxbb-p200: 1 failed lab
+
+---
+For more info write to <info@kernelci.org>
