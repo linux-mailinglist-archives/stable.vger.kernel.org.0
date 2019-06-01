@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CA6931ECD
-	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:40:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C6A331ECB
+	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:40:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728506AbfFANir (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Jun 2019 09:38:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48752 "EHLO mail.kernel.org"
+        id S1728509AbfFANV1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Jun 2019 09:21:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48804 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728497AbfFANVZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Jun 2019 09:21:25 -0400
+        id S1728503AbfFANV1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 1 Jun 2019 09:21:27 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5E764272E7;
-        Sat,  1 Jun 2019 13:21:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6D1FC272F6;
+        Sat,  1 Jun 2019 13:21:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559395285;
-        bh=GUBnE26ObaEZ2rJdkXbyFoQ6Kso2IScR5Y/JntbeDtU=;
+        s=default; t=1559395286;
+        bh=x2rfPktW9Ulf7+FWQ0RDol+RaLdakR/YPP8j7eDSA6o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bkcrFf4eq+8nheCLmBt/XLZkpXSzFGZPWhVvnFCwh1SpWY4H1WIKk95nAFBQAQ/80
-         3U2upBWnx2OOBEm0rRFPXuN25FgNrwL+ngS7S+xiw0i0Rkh49xPglJ3T62t1aCnA1q
-         aPcet33tiyonMO051xA2mteQ/hKFyOL3bLRXG+NY=
+        b=Igi4MbsO6d8PlzDjON9GTLvV1BvYOovCHrm4XZjuLORa9H9cx4NLwT1laBjxoAJ/t
+         CxyKyNRpcze06XLHZpI+DNX9C561dB7Gxb8+FNj7XPwPA5Os2/ZojnDPbROP6Jr9Cb
+         XT1xDmS6o7XCQOZODMSclXIOxwhzDd/Fyeg4G7qI=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>,
         linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 5.0 048/173] f2fs: fix to avoid panic in dec_valid_node_count()
-Date:   Sat,  1 Jun 2019 09:17:20 -0400
-Message-Id: <20190601131934.25053-48-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.0 049/173] f2fs: fix to do sanity check on valid block count of segment
+Date:   Sat,  1 Jun 2019 09:17:21 -0400
+Message-Id: <20190601131934.25053-49-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190601131934.25053-1-sashal@kernel.org>
 References: <20190601131934.25053-1-sashal@kernel.org>
@@ -45,19 +45,26 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Chao Yu <yuchao0@huawei.com>
 
-[ Upstream commit ea6d7e72fea49402aa445345aade7a26b81732e3 ]
+[ Upstream commit e95bcdb2fefa129f37bd9035af1d234ca92ee4ef ]
 
 As Jungyeon reported in bugzilla:
 
-https://bugzilla.kernel.org/show_bug.cgi?id=203213
+https://bugzilla.kernel.org/show_bug.cgi?id=203233
 
 - Overview
-When mounting the attached crafted image and running program, I got this error.
-Additionally, it hangs on sync after running the this script.
+When mounting the attached crafted image and running program, following errors are reported.
+Additionally, it hangs on sync after running program.
 
-The image is intentionally fuzzed from a normal f2fs image for testing and I enabled option CONFIG_F2FS_CHECK_FS on.
+The image is intentionally fuzzed from a normal f2fs image for testing.
+Compile options for F2FS are as follows.
+CONFIG_F2FS_FS=y
+CONFIG_F2FS_STAT_FS=y
+CONFIG_F2FS_FS_XATTR=y
+CONFIG_F2FS_FS_POSIX_ACL=y
+CONFIG_F2FS_CHECK_FS=y
 
 - Reproduces
+cc poc_13.c
 mkdir test
 mount -t f2fs tmp.img test
 cp a.out test
@@ -65,69 +72,64 @@ cd test
 sudo ./a.out
 sync
 
- kernel BUG at fs/f2fs/f2fs.h:2012!
- RIP: 0010:truncate_node+0x2c9/0x2e0
+- Kernel messages
+ F2FS-fs (sdb): Bitmap was wrongly set, blk:4608
+ kernel BUG at fs/f2fs/segment.c:2102!
+ RIP: 0010:update_sit_entry+0x394/0x410
  Call Trace:
-  f2fs_truncate_xattr_node+0xa1/0x130
-  f2fs_remove_inode_page+0x82/0x2d0
-  f2fs_evict_inode+0x2a3/0x3a0
-  evict+0xba/0x180
-  __dentry_kill+0xbe/0x160
-  dentry_kill+0x46/0x180
-  dput+0xbb/0x100
-  do_renameat2+0x3c9/0x550
-  __x64_sys_rename+0x17/0x20
+  f2fs_allocate_data_block+0x16f/0x660
+  do_write_page+0x62/0x170
+  f2fs_do_write_node_page+0x33/0xa0
+  __write_node_page+0x270/0x4e0
+  f2fs_sync_node_pages+0x5df/0x670
+  f2fs_write_checkpoint+0x372/0x1400
+  f2fs_sync_fs+0xa3/0x130
+  f2fs_do_sync_file+0x1a6/0x810
+  do_fsync+0x33/0x60
+  __x64_sys_fsync+0xb/0x10
   do_syscall_64+0x43/0xf0
   entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-The reason is dec_valid_node_count() will trigger kernel panic due to
-inconsistent count in between inode.i_blocks and actual block.
+sit.vblocks and sum valid block count in sit.valid_map may be
+inconsistent, segment w/ zero vblocks will be treated as free
+segment, while allocating in free segment, we may allocate a
+free block, if its bitmap is valid previously, it can cause
+kernel crash due to bitmap verification failure.
 
-To avoid panic, let's just print debug message and set SBI_NEED_FSCK to
-give a hint to fsck for latter repairing.
+Anyway, to avoid further serious metadata inconsistence and
+corruption, it is necessary and worth to detect SIT
+inconsistence. So let's enable check_block_count() to verify
+vblocks and valid_map all the time rather than do it only
+CONFIG_F2FS_CHECK_FS is enabled.
 
 Signed-off-by: Chao Yu <yuchao0@huawei.com>
-[Jaegeuk Kim: fix build warning and add unlikely]
 Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/f2fs.h | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ fs/f2fs/segment.h | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
-index 2149d1f190d62..1686d09db3f1a 100644
---- a/fs/f2fs/f2fs.h
-+++ b/fs/f2fs/f2fs.h
-@@ -2028,7 +2028,6 @@ static inline void dec_valid_node_count(struct f2fs_sb_info *sbi,
- 
- 	f2fs_bug_on(sbi, !sbi->total_valid_block_count);
- 	f2fs_bug_on(sbi, !sbi->total_valid_node_count);
--	f2fs_bug_on(sbi, !is_inode && !inode->i_blocks);
- 
- 	sbi->total_valid_node_count--;
- 	sbi->total_valid_block_count--;
-@@ -2038,10 +2037,19 @@ static inline void dec_valid_node_count(struct f2fs_sb_info *sbi,
- 
- 	spin_unlock(&sbi->stat_lock);
- 
--	if (is_inode)
-+	if (is_inode) {
- 		dquot_free_inode(inode);
--	else
-+	} else {
-+		if (unlikely(inode->i_blocks == 0)) {
-+			f2fs_msg(sbi->sb, KERN_WARNING,
-+				"Inconsistent i_blocks, ino:%lu, iblocks:%llu",
-+				inode->i_ino,
-+				(unsigned long long)inode->i_blocks);
-+			set_sbi_flag(sbi, SBI_NEED_FSCK);
-+			return;
-+		}
- 		f2fs_i_blocks_write(inode, 1, false, true);
-+	}
- }
- 
- static inline unsigned int valid_node_count(struct f2fs_sb_info *sbi)
+diff --git a/fs/f2fs/segment.h b/fs/f2fs/segment.h
+index a77f76f528b61..5af21e53ecf58 100644
+--- a/fs/f2fs/segment.h
++++ b/fs/f2fs/segment.h
+@@ -672,7 +672,6 @@ static inline void verify_block_addr(struct f2fs_io_info *fio, block_t blk_addr)
+ static inline int check_block_count(struct f2fs_sb_info *sbi,
+ 		int segno, struct f2fs_sit_entry *raw_sit)
+ {
+-#ifdef CONFIG_F2FS_CHECK_FS
+ 	bool is_valid  = test_bit_le(0, raw_sit->valid_map) ? true : false;
+ 	int valid_blocks = 0;
+ 	int cur_pos = 0, next_pos;
+@@ -699,7 +698,7 @@ static inline int check_block_count(struct f2fs_sb_info *sbi,
+ 		set_sbi_flag(sbi, SBI_NEED_FSCK);
+ 		return -EINVAL;
+ 	}
+-#endif
++
+ 	/* check segment usage, and check boundary of a given segment number */
+ 	if (unlikely(GET_SIT_VBLOCKS(raw_sit) > sbi->blocks_per_seg
+ 					|| segno > TOTAL_SEGS(sbi) - 1)) {
 -- 
 2.20.1
 
