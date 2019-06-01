@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F1CAD31EE2
-	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:41:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09BEB31EBC
+	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:40:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727971AbfFANjw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Jun 2019 09:39:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48124 "EHLO mail.kernel.org"
+        id S1728056AbfFANUx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Jun 2019 09:20:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728374AbfFANUv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Jun 2019 09:20:51 -0400
+        id S1727981AbfFANUw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 1 Jun 2019 09:20:52 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A9D96272D8;
-        Sat,  1 Jun 2019 13:20:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B72EE272E0;
+        Sat,  1 Jun 2019 13:20:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559395250;
-        bh=Au6V8N1tGmfWzLGZV8cy65ZWNYgqrGSrVTj21xNZJog=;
+        s=default; t=1559395251;
+        bh=FqTSBe2EtMLANJyq2W3Rh4WKsrc9+fooGilgER43Ulc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lKaFq0dvIUQv1mlHxE/3KOxafivpWZ+gn7EEVeyr0QnxZC+2J5xxMLasbmGFVZamD
-         99+VbdH5NkHdIiWKwk+V0NzQRtoN/dJtfYMetz6RvYsWb4NF8YZk1WnOtgJDVQvfw7
-         GrbMThKJMmSkhCVy0//pPAGTNtL1c8/zseCu1Ti0=
+        b=RMhOUBQAiX4ZtMdBr5WYqKmIVUE94uOOMPKC3foU+ztUOhjGbMnVCYbUZ5qXpfCyC
+         n+mSzYvKviHUS7d92FNf9L/gTxo7muWYHuMzMFvgawRqtU6CJs9A6nARuEMXXXhOO+
+         u9VBnSsf89sMwAj5xT0qVEfx4imcfLRmz/JjzdlA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ben Skeggs <bskeggs@redhat.com>, Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.0 026/173] drm/nouveau/disp/dp: respect sink limits when selecting failsafe link configuration
-Date:   Sat,  1 Jun 2019 09:16:58 -0400
-Message-Id: <20190601131934.25053-26-sashal@kernel.org>
+Cc:     Tony Lindgren <tony@atomide.com>,
+        Peter Ujfalusi <peter.ujfalusi@ti.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, linux-omap@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.0 027/173] mfd: twl6040: Fix device init errors for ACCCTL register
+Date:   Sat,  1 Jun 2019 09:16:59 -0400
+Message-Id: <20190601131934.25053-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190601131934.25053-1-sashal@kernel.org>
 References: <20190601131934.25053-1-sashal@kernel.org>
@@ -42,45 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Skeggs <bskeggs@redhat.com>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 13d03e9daf70dab032c03dc172e75bb98ad899c4 ]
+[ Upstream commit 48171d0ea7caccf21c9ee3ae75eb370f2a756062 ]
 
-Where possible, we want the failsafe link configuration (one which won't
-hang the OR during modeset because of not enough bandwidth for the mode)
-to also be supported by the sink.
+I noticed that we can get a -EREMOTEIO errors on at least omap4 duovero:
 
-This prevents "link rate unsupported by sink" messages when link training
-fails.
+twl6040 0-004b: Failed to write 2d = 19: -121
 
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+And then any following register access will produce errors.
+
+There 2d offset above is register ACCCTL that gets written on twl6040
+powerup. With error checking added to the related regcache_sync() call,
+the -EREMOTEIO error is reproducable on twl6040 powerup at least
+duovero.
+
+To fix the error, we need to wait until twl6040 is accessible after the
+powerup. Based on tests on omap4 duovero, we need to wait over 8ms after
+powerup before register write will complete without failures. Let's also
+make sure we warn about possible errors too.
+
+Note that we have twl6040_patch[] reg_sequence with the ACCCTL register
+configuration and regcache_sync() will write the new value to ACCCTL.
+
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Acked-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nvkm/engine/disp/dp.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/mfd/twl6040.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/disp/dp.c b/drivers/gpu/drm/nouveau/nvkm/engine/disp/dp.c
-index 5f301e632599b..818d21bd28d31 100644
---- a/drivers/gpu/drm/nouveau/nvkm/engine/disp/dp.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/engine/disp/dp.c
-@@ -365,8 +365,15 @@ nvkm_dp_train(struct nvkm_dp *dp, u32 dataKBps)
- 	 * and it's better to have a failed modeset than that.
- 	 */
- 	for (cfg = nvkm_dp_rates; cfg->rate; cfg++) {
--		if (cfg->nr <= outp_nr && cfg->nr <= outp_bw)
--			failsafe = cfg;
-+		if (cfg->nr <= outp_nr && cfg->nr <= outp_bw) {
-+			/* Try to respect sink limits too when selecting
-+			 * lowest link configuration.
-+			 */
-+			if (!failsafe ||
-+			    (cfg->nr <= sink_nr && cfg->bw <= sink_bw))
-+				failsafe = cfg;
-+		}
+diff --git a/drivers/mfd/twl6040.c b/drivers/mfd/twl6040.c
+index 7c3c5fd5fcd04..86052c5c60696 100644
+--- a/drivers/mfd/twl6040.c
++++ b/drivers/mfd/twl6040.c
+@@ -322,8 +322,19 @@ int twl6040_power(struct twl6040 *twl6040, int on)
+ 			}
+ 		}
+ 
++		/*
++		 * Register access can produce errors after power-up unless we
++		 * wait at least 8ms based on measurements on duovero.
++		 */
++		usleep_range(10000, 12000);
 +
- 		if (failsafe && cfg[1].rate < dataKBps)
- 			break;
- 	}
+ 		/* Sync with the HW */
+-		regcache_sync(twl6040->regmap);
++		ret = regcache_sync(twl6040->regmap);
++		if (ret) {
++			dev_err(twl6040->dev, "Failed to sync with the HW: %i\n",
++				ret);
++			goto out;
++		}
+ 
+ 		/* Default PLL configuration after power up */
+ 		twl6040->pll = TWL6040_SYSCLK_SEL_LPPLL;
 -- 
 2.20.1
 
