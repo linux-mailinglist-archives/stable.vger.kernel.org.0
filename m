@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A2B531F18
-	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:41:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2130131F07
+	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:41:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727992AbfFANS7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Jun 2019 09:18:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46164 "EHLO mail.kernel.org"
+        id S1728052AbfFANTC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Jun 2019 09:19:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728021AbfFANS6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Jun 2019 09:18:58 -0400
+        id S1728041AbfFANTB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 1 Jun 2019 09:19:01 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9F8C2251C3;
-        Sat,  1 Jun 2019 13:18:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 097902729D;
+        Sat,  1 Jun 2019 13:18:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559395138;
-        bh=A4/NetqUtcNLkyBmze+0c1akfZnG/G1wfiwTCwo3EgY=;
+        s=default; t=1559395140;
+        bh=2uGRV4UYU8MhgIsmB1C/n9YqWWL5HigLXU2aP/VhuWI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VUIfiDQOZ8tK+MDLJ6Sin7Qovqktq19Bk2Q5uafCclFjkyn9WpPhs97RFzaWPqmOC
-         4kqLeFCzwyySsQlYS1v6spdtKexjanVrGqXGxYWQnyH9jXezbg58DWluQ48KggrKe8
-         WW9WwxmxhVa5nxPFd3FbFVQN3kld1IAkykOK0RKs=
+        b=RkUNsxQKxlnz1eu2HxrWp+p6GEWH950z28Zzeh1peAanNpSV2at4x2f4pxupXMDD2
+         HyWIOD3k2VwDGUjAHmmvppt1ZbbZqPMQ7wnR7jN2NAFislySxl7gQBLKdcNq4qbgeD
+         gfIxLHF3l5ptYsLV0ZRUckqcVmI7tnLtmvefVovk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     YueHaibing <yuehaibing@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.1 060/186] configfs: fix possible use-after-free in configfs_register_group
-Date:   Sat,  1 Jun 2019 09:14:36 -0400
-Message-Id: <20190601131653.24205-60-sashal@kernel.org>
+Cc:     =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
+        Jeff Dike <jdike@addtoit.com>,
+        Richard Weinberger <richard@nod.at>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        linux-um@lists.infradead.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 061/186] uml: fix a boot splat wrt use of cpu_all_mask
+Date:   Sat,  1 Jun 2019 09:14:37 -0400
+Message-Id: <20190601131653.24205-61-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190601131653.24205-1-sashal@kernel.org>
 References: <20190601131653.24205-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -42,135 +46,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Maciej Żenczykowski <maze@google.com>
 
-[ Upstream commit 35399f87e271f7cf3048eab00a421a6519ac8441 ]
+[ Upstream commit 689a58605b63173acb0a8cf954af6a8f60440c93 ]
 
-In configfs_register_group(), if create_default_group() failed, we
-forget to unlink the group. It will left a invalid item in the parent list,
-which may trigger the use-after-free issue seen below:
-
-BUG: KASAN: use-after-free in __list_add_valid+0xd4/0xe0 lib/list_debug.c:26
-Read of size 8 at addr ffff8881ef61ae20 by task syz-executor.0/5996
-
-CPU: 1 PID: 5996 Comm: syz-executor.0 Tainted: G         C        5.0.0+ #5
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
+Memory: 509108K/542612K available (3835K kernel code, 919K rwdata, 1028K rodata, 129K init, 211K bss, 33504K reserved, 0K cma-reserved)
+NR_IRQS: 15
+clocksource: timer: mask: 0xffffffffffffffff max_cycles: 0x1cd42e205, max_idle_ns: 881590404426 ns
+------------[ cut here ]------------
+WARNING: CPU: 0 PID: 0 at kernel/time/clockevents.c:458 clockevents_register_device+0x72/0x140
+posix-timer cpumask == cpu_all_mask, using cpu_possible_mask instead
+Modules linked in:
+CPU: 0 PID: 0 Comm: swapper Not tainted 5.1.0-rc4-00048-ged79cc87302b #4
+Stack:
+ 604ebda0 603c5370 604ebe20 6046fd17
+ 00000000 6006fcbb 604ebdb0 603c53b5
+ 604ebe10 6003bfc4 604ebdd0 9000001ca
 Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0xa9/0x10e lib/dump_stack.c:113
- print_address_description+0x65/0x270 mm/kasan/report.c:187
- kasan_report+0x149/0x18d mm/kasan/report.c:317
- __list_add_valid+0xd4/0xe0 lib/list_debug.c:26
- __list_add include/linux/list.h:60 [inline]
- list_add_tail include/linux/list.h:93 [inline]
- link_obj+0xb0/0x190 fs/configfs/dir.c:759
- link_group+0x1c/0x130 fs/configfs/dir.c:784
- configfs_register_group+0x56/0x1e0 fs/configfs/dir.c:1751
- configfs_register_default_group+0x72/0xc0 fs/configfs/dir.c:1834
- ? 0xffffffffc1be0000
- iio_sw_trigger_init+0x23/0x1000 [industrialio_sw_trigger]
- do_one_initcall+0xbc/0x47d init/main.c:887
- do_init_module+0x1b5/0x547 kernel/module.c:3456
- load_module+0x6405/0x8c10 kernel/module.c:3804
- __do_sys_finit_module+0x162/0x190 kernel/module.c:3898
- do_syscall_64+0x9f/0x450 arch/x86/entry/common.c:290
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
-RIP: 0033:0x462e99
-Code: f7 d8 64 89 02 b8 ff ff ff ff c3 66 0f 1f 44 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 bc ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007f494ecbcc58 EFLAGS: 00000246 ORIG_RAX: 0000000000000139
-RAX: ffffffffffffffda RBX: 000000000073bf00 RCX: 0000000000462e99
-RDX: 0000000000000000 RSI: 0000000020000180 RDI: 0000000000000003
-RBP: 00007f494ecbcc70 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 00007f494ecbd6bc
-R13: 00000000004bcefa R14: 00000000006f6fb0 R15: 0000000000000004
+ [<6006fcbb>] ? printk+0x0/0x94
+ [<60083160>] ? clockevents_register_device+0x72/0x140
+ [<6001f16e>] show_stack+0x13b/0x155
+ [<603c5370>] ? dump_stack_print_info+0xe2/0xeb
+ [<6006fcbb>] ? printk+0x0/0x94
+ [<603c53b5>] dump_stack+0x2a/0x2c
+ [<6003bfc4>] __warn+0x10e/0x13e
+ [<60070320>] ? vprintk_func+0xc8/0xcf
+ [<60030fd6>] ? block_signals+0x0/0x16
+ [<6006fcbb>] ? printk+0x0/0x94
+ [<6003c08b>] warn_slowpath_fmt+0x97/0x99
+ [<600311a1>] ? set_signals+0x0/0x3f
+ [<6003bff4>] ? warn_slowpath_fmt+0x0/0x99
+ [<600842cb>] ? tick_oneshot_mode_active+0x44/0x4f
+ [<60030fd6>] ? block_signals+0x0/0x16
+ [<6006fcbb>] ? printk+0x0/0x94
+ [<6007d2d5>] ? __clocksource_select+0x20/0x1b1
+ [<60030fd6>] ? block_signals+0x0/0x16
+ [<6006fcbb>] ? printk+0x0/0x94
+ [<60083160>] clockevents_register_device+0x72/0x140
+ [<60031192>] ? get_signals+0x0/0xf
+ [<60030fd6>] ? block_signals+0x0/0x16
+ [<6006fcbb>] ? printk+0x0/0x94
+ [<60002eec>] um_timer_setup+0xc8/0xca
+ [<60001b59>] start_kernel+0x47f/0x57e
+ [<600035bc>] start_kernel_proc+0x49/0x4d
+ [<6006c483>] ? kmsg_dump_register+0x82/0x8a
+ [<6001de62>] new_thread_handler+0x81/0xb2
+ [<60003571>] ? kmsg_dumper_stdout_init+0x1a/0x1c
+ [<60020c75>] uml_finishsetup+0x54/0x59
 
-Allocated by task 5987:
- set_track mm/kasan/common.c:87 [inline]
- __kasan_kmalloc.constprop.3+0xa0/0xd0 mm/kasan/common.c:497
- kmalloc include/linux/slab.h:545 [inline]
- kzalloc include/linux/slab.h:740 [inline]
- configfs_register_default_group+0x4c/0xc0 fs/configfs/dir.c:1829
- 0xffffffffc1bd0023
- do_one_initcall+0xbc/0x47d init/main.c:887
- do_init_module+0x1b5/0x547 kernel/module.c:3456
- load_module+0x6405/0x8c10 kernel/module.c:3804
- __do_sys_finit_module+0x162/0x190 kernel/module.c:3898
- do_syscall_64+0x9f/0x450 arch/x86/entry/common.c:290
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
+random: get_random_bytes called from init_oops_id+0x27/0x34 with crng_init=0
+---[ end trace 00173d0117a88acb ]---
+Calibrating delay loop... 6941.90 BogoMIPS (lpj=34709504)
 
-Freed by task 5987:
- set_track mm/kasan/common.c:87 [inline]
- __kasan_slab_free+0x130/0x180 mm/kasan/common.c:459
- slab_free_hook mm/slub.c:1429 [inline]
- slab_free_freelist_hook mm/slub.c:1456 [inline]
- slab_free mm/slub.c:3003 [inline]
- kfree+0xe1/0x270 mm/slub.c:3955
- configfs_register_default_group+0x9a/0xc0 fs/configfs/dir.c:1836
- 0xffffffffc1bd0023
- do_one_initcall+0xbc/0x47d init/main.c:887
- do_init_module+0x1b5/0x547 kernel/module.c:3456
- load_module+0x6405/0x8c10 kernel/module.c:3804
- __do_sys_finit_module+0x162/0x190 kernel/module.c:3898
- do_syscall_64+0x9f/0x450 arch/x86/entry/common.c:290
- entry_SYSCALL_64_after_hwframe+0x49/0xbe
+Signed-off-by: Maciej Żenczykowski <maze@google.com>
+Cc: Jeff Dike <jdike@addtoit.com>
+Cc: Richard Weinberger <richard@nod.at>
+Cc: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+Cc: linux-um@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org
 
-The buggy address belongs to the object at ffff8881ef61ae00
- which belongs to the cache kmalloc-192 of size 192
-The buggy address is located 32 bytes inside of
- 192-byte region [ffff8881ef61ae00, ffff8881ef61aec0)
-The buggy address belongs to the page:
-page:ffffea0007bd8680 count:1 mapcount:0 mapping:ffff8881f6c03000 index:0xffff8881ef61a700
-flags: 0x2fffc0000000200(slab)
-raw: 02fffc0000000200 ffffea0007ca4740 0000000500000005 ffff8881f6c03000
-raw: ffff8881ef61a700 000000008010000c 00000001ffffffff 0000000000000000
-page dumped because: kasan: bad access detected
-
-Memory state around the buggy address:
- ffff8881ef61ad00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
- ffff8881ef61ad80: 00 00 00 00 00 00 00 00 fc fc fc fc fc fc fc fc
->ffff8881ef61ae00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-                               ^
- ffff8881ef61ae80: fb fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
- ffff8881ef61af00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-
-Fixes: 5cf6a51e6062 ("configfs: allow dynamic group creation")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/configfs/dir.c | 17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ arch/um/kernel/time.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/configfs/dir.c b/fs/configfs/dir.c
-index 39843fa7e11b0..920d350df37b6 100644
---- a/fs/configfs/dir.c
-+++ b/fs/configfs/dir.c
-@@ -1755,12 +1755,19 @@ int configfs_register_group(struct config_group *parent_group,
- 
- 	inode_lock_nested(d_inode(parent), I_MUTEX_PARENT);
- 	ret = create_default_group(parent_group, group);
--	if (!ret) {
--		spin_lock(&configfs_dirent_lock);
--		configfs_dir_set_ready(group->cg_item.ci_dentry->d_fsdata);
--		spin_unlock(&configfs_dirent_lock);
--	}
-+	if (ret)
-+		goto err_out;
-+
-+	spin_lock(&configfs_dirent_lock);
-+	configfs_dir_set_ready(group->cg_item.ci_dentry->d_fsdata);
-+	spin_unlock(&configfs_dirent_lock);
-+	inode_unlock(d_inode(parent));
-+	return 0;
-+err_out:
- 	inode_unlock(d_inode(parent));
-+	mutex_lock(&subsys->su_mutex);
-+	unlink_group(group);
-+	mutex_unlock(&subsys->su_mutex);
- 	return ret;
- }
- EXPORT_SYMBOL(configfs_register_group);
+diff --git a/arch/um/kernel/time.c b/arch/um/kernel/time.c
+index 052de4c8acb2e..0c572a48158e8 100644
+--- a/arch/um/kernel/time.c
++++ b/arch/um/kernel/time.c
+@@ -56,7 +56,7 @@ static int itimer_one_shot(struct clock_event_device *evt)
+ static struct clock_event_device timer_clockevent = {
+ 	.name			= "posix-timer",
+ 	.rating			= 250,
+-	.cpumask		= cpu_all_mask,
++	.cpumask		= cpu_possible_mask,
+ 	.features		= CLOCK_EVT_FEAT_PERIODIC |
+ 				  CLOCK_EVT_FEAT_ONESHOT,
+ 	.set_state_shutdown	= itimer_shutdown,
 -- 
 2.20.1
 
