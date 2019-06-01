@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A504B31D06
-	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:26:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F02631D94
+	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:30:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729707AbfFAN01 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Jun 2019 09:26:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56866 "EHLO mail.kernel.org"
+        id S1729374AbfFANaK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Jun 2019 09:30:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729702AbfFAN01 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Jun 2019 09:26:27 -0400
+        id S1729709AbfFAN02 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 1 Jun 2019 09:26:28 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E1696273C0;
-        Sat,  1 Jun 2019 13:26:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0E7F9273C1;
+        Sat,  1 Jun 2019 13:26:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559395586;
-        bh=2u4dtYYCfBMkyXk9hND4YOWvxFui6Ydq4Lq2VEZEErk=;
+        s=default; t=1559395588;
+        bh=0ar076jmH0sMsMaf6T/4hb3NCEfzVN9jqdWdJ3pX69Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U2d0omDgKlJnm8wyQVSwWclDKiAMimIrweaFkGxbhdmgeZoW6R8K7Di4xW202JrSd
-         P+jU/WKeyM6d05gTK8DWkKwGpnnWIxEX2Umk4SNG4WL+0U2E3SehYR6EwiGqWxlYEn
-         7IKzXwgjU80ZPzsMWb2JoKQwClkMLYPuV+0+TukA=
+        b=sDH+nRSZkqvhzYkL5EGLT5iU504PfISYXMIVqtLULvAroNzyOtwjlPEe/JHOMkXFQ
+         O8pO1nRa6qu5iyAZB2r0N5ED7G+NzliC5lxBUBbrWulycfKt1d6MovwcyLjf16bSoX
+         hE9UWt1FlorIBwUtGwJNI3cm1UlCDYo9tsfxmrIM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     ZhangXiaoxu <zhangxiaoxu5@huawei.com>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 12/56] NFS4: Fix v4.0 client state corruption when mount
-Date:   Sat,  1 Jun 2019 09:25:16 -0400
-Message-Id: <20190601132600.27427-12-sashal@kernel.org>
+Cc:     Miroslav Lichvar <mlichvar@redhat.com>,
+        Ondrej Mosnacek <omosnace@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        John Stultz <john.stultz@linaro.org>,
+        Richard Cochran <richardcochran@gmail.com>,
+        Prarit Bhargava <prarit@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.4 13/56] ntp: Allow TAI-UTC offset to be set to zero
+Date:   Sat,  1 Jun 2019 09:25:17 -0400
+Message-Id: <20190601132600.27427-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190601132600.27427-1-sashal@kernel.org>
 References: <20190601132600.27427-1-sashal@kernel.org>
@@ -43,49 +47,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: ZhangXiaoxu <zhangxiaoxu5@huawei.com>
+From: Miroslav Lichvar <mlichvar@redhat.com>
 
-[ Upstream commit f02f3755dbd14fb935d24b14650fff9ba92243b8 ]
+[ Upstream commit fdc6bae940ee9eb869e493990540098b8c0fd6ab ]
 
-stat command with soft mount never return after server is stopped.
+The ADJ_TAI adjtimex mode sets the TAI-UTC offset of the system clock.
+It is typically set by NTP/PTP implementations and it is automatically
+updated by the kernel on leap seconds. The initial value is zero (which
+applications may interpret as unknown), but this value cannot be set by
+adjtimex. This limitation seems to go back to the original "nanokernel"
+implementation by David Mills.
 
-When alloc a new client, the state of the client will be set to
-NFS4CLNT_LEASE_EXPIRED.
+Change the ADJ_TAI check to accept zero as a valid TAI-UTC offset in
+order to allow setting it back to the initial value.
 
-When the server is stopped, the state manager will work, and accord
-the state to recover. But the state is NFS4CLNT_LEASE_EXPIRED, it
-will drain the slot table and lead other task to wait queue, until
-the client recovered. Then the stat command is hung.
-
-When discover server trunking, the client will renew the lease,
-but check the client state, it lead the client state corruption.
-
-So, we need to call state manager to recover it when detect server
-ip trunking.
-
-Signed-off-by: ZhangXiaoxu <zhangxiaoxu5@huawei.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Fixes: 153b5d054ac2 ("ntp: support for TAI")
+Suggested-by: Ondrej Mosnacek <omosnace@redhat.com>
+Signed-off-by: Miroslav Lichvar <mlichvar@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: John Stultz <john.stultz@linaro.org>
+Cc: Richard Cochran <richardcochran@gmail.com>
+Cc: Prarit Bhargava <prarit@redhat.com>
+Link: https://lkml.kernel.org/r/20190417084833.7401-1-mlichvar@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4state.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ kernel/time/ntp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/nfs/nfs4state.c b/fs/nfs/nfs4state.c
-index 44f5cea496994..5be61affeefd8 100644
---- a/fs/nfs/nfs4state.c
-+++ b/fs/nfs/nfs4state.c
-@@ -140,6 +140,10 @@ int nfs40_discover_server_trunking(struct nfs_client *clp,
- 		/* Sustain the lease, even if it's empty.  If the clientid4
- 		 * goes stale it's of no use for trunking discovery. */
- 		nfs4_schedule_state_renewal(*result);
-+
-+		/* If the client state need to recover, do it. */
-+		if (clp->cl_state)
-+			nfs4_schedule_state_manager(clp);
+diff --git a/kernel/time/ntp.c b/kernel/time/ntp.c
+index ab861771e37f8..0e0dc5d89911d 100644
+--- a/kernel/time/ntp.c
++++ b/kernel/time/ntp.c
+@@ -633,7 +633,7 @@ static inline void process_adjtimex_modes(struct timex *txc,
+ 		time_constant = max(time_constant, 0l);
  	}
- out:
- 	return status;
+ 
+-	if (txc->modes & ADJ_TAI && txc->constant > 0)
++	if (txc->modes & ADJ_TAI && txc->constant >= 0)
+ 		*time_tai = txc->constant;
+ 
+ 	if (txc->modes & ADJ_OFFSET)
 -- 
 2.20.1
 
