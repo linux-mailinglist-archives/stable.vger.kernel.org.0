@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AA3031EB6
+	by mail.lfdr.de (Postfix) with ESMTP id 9643E31EB7
 	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:40:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728318AbfFANUc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Jun 2019 09:20:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47716 "EHLO mail.kernel.org"
+        id S1728325AbfFANUe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Jun 2019 09:20:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728314AbfFANUa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Jun 2019 09:20:30 -0400
+        id S1728321AbfFANUd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 1 Jun 2019 09:20:33 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A191D272DE;
-        Sat,  1 Jun 2019 13:20:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AE084272DB;
+        Sat,  1 Jun 2019 13:20:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559395229;
-        bh=DHR7kqRzoj0p2zUAiXG+aU4DQZFfXRciLoxmjLkKDQY=;
+        s=default; t=1559395233;
+        bh=i2CKDvvI3H1Wdcjf6zDc07VYBcgn+3crgsPxk0chYKw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x+hU3+pd/Vc6FNGedGcso1ElgcqREezAShbeqlEzN8/y/3TiPWOxo3Qlh4rmFflXi
-         oRYY0lFQtiKOuk6cV2q7865DlUoEZJ4n06gXXn1jGBjCnXovMZYqX49f45mZOQOdDD
-         EpU9dJsgNn6zjJ/9YIKpMEvCC8pR6QyqJhWfmsp4=
+        b=rA9OPVjt3HdvnevdKf64evreMsSRwglAN1X6gVGdawdt5e4dWgYiIdXPDgZWhGtEd
+         JI47YgYhtfLr5UdmPK/1/bxwNP1C4KhtHFfVXIVZSjRvjxSgKcD4wL2iEBu0lD4MrW
+         D9FA3A44QyX+bY1SqYb5mziMwvOutgyvT/5Uy8h4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Baoquan He <bhe@redhat.com>, David Hildenbrand <david@redhat.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Wei Yang <richard.weiyang@gmail.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
+Cc:     Yue Hu <huyue2@yulong.com>,
         Andrew Morton <akpm@linux-foundation.org>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Laura Abbott <labbott@redhat.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
-Subject: [PATCH AUTOSEL 5.0 016/173] mm/memory_hotplug.c: fix the wrong usage of N_HIGH_MEMORY
-Date:   Sat,  1 Jun 2019 09:16:48 -0400
-Message-Id: <20190601131934.25053-16-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.0 017/173] mm/cma.c: fix the bitmap status to show failed allocation reason
+Date:   Sat,  1 Jun 2019 09:16:49 -0400
+Message-Id: <20190601131934.25053-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190601131934.25053-1-sashal@kernel.org>
 References: <20190601131934.25053-1-sashal@kernel.org>
@@ -48,47 +50,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baoquan He <bhe@redhat.com>
+From: Yue Hu <huyue2@yulong.com>
 
-[ Upstream commit d3ba3ae19751e476b0840a0c9a673a5766fa3219 ]
+[ Upstream commit 2b59e01a3aa665f751d1410b99fae9336bd424e1 ]
 
-In node_states_check_changes_online(), N_HIGH_MEMORY is used to substitute
-ZONE_HIGHMEM directly.  This is not right.  N_HIGH_MEMORY is to mark the
-memory state of node.  Here zone index is checked, which should be
-compared with 'ZONE_HIGHMEM' accordingly.
+Currently one bit in cma bitmap represents number of pages rather than
+one page, cma->count means cma size in pages. So to find available pages
+via find_next_zero_bit()/find_next_bit() we should use cma size not in
+pages but in bits although current free pages number is correct due to
+zero value of order_per_bit. Once order_per_bit is changed the bitmap
+status will be incorrect.
 
-Replace it with ZONE_HIGHMEM.
+The size input in cma_debug_show_areas() is not correct.  It will
+affect the available pages at some position to debug the failure issue.
 
-This is a code cleanup - no known runtime effects.
+This is an example with order_per_bit = 1
 
-Link: http://lkml.kernel.org/r/20190320080732.14933-1-bhe@redhat.com
-Fixes: 8efe33f40f3e ("mm/memory_hotplug.c: simplify node_states_check_changes_online")
-Signed-off-by: Baoquan He <bhe@redhat.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
-Cc: Wei Yang <richard.weiyang@gmail.com>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
+Before this change:
+[    4.120060] cma: number of available pages: 1@93+4@108+7@121+7@137+7@153+7@169+7@185+7@201+3@213+3@221+3@229+3@237+3@245+3@253+3@261+3@269+3@277+3@285+3@293+3@301+3@309+3@317+3@325+19@333+15@369+512@512=> 638 free of 1024 total pages
+
+After this change:
+[    4.143234] cma: number of available pages: 2@93+8@108+14@121+14@137+14@153+14@169+14@185+14@201+6@213+6@221+6@229+6@237+6@245+6@253+6@261+6@269+6@277+6@285+6@293+6@301+6@309+6@317+6@325+38@333+30@369=> 252 free of 1024 total pages
+
+Obviously the bitmap status before is incorrect.
+
+Link: http://lkml.kernel.org/r/20190320060829.9144-1-zbestahu@gmail.com
+Signed-off-by: Yue Hu <huyue2@yulong.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
+Cc: Randy Dunlap <rdunlap@infradead.org>
+Cc: Laura Abbott <labbott@redhat.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/memory_hotplug.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/cma.c | 19 +++++++++++--------
+ 1 file changed, 11 insertions(+), 8 deletions(-)
 
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index e06e7a89d0e5b..33f1b8d307e64 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -684,7 +684,7 @@ static void node_states_check_changes_online(unsigned long nr_pages,
- 	if (zone_idx(zone) <= ZONE_NORMAL && !node_state(nid, N_NORMAL_MEMORY))
- 		arg->status_change_nid_normal = nid;
- #ifdef CONFIG_HIGHMEM
--	if (zone_idx(zone) <= N_HIGH_MEMORY && !node_state(nid, N_HIGH_MEMORY))
-+	if (zone_idx(zone) <= ZONE_HIGHMEM && !node_state(nid, N_HIGH_MEMORY))
- 		arg->status_change_nid_high = nid;
- #endif
+diff --git a/mm/cma.c b/mm/cma.c
+index f160ce31ef469..0b6d6c63bcef5 100644
+--- a/mm/cma.c
++++ b/mm/cma.c
+@@ -371,23 +371,26 @@ int __init cma_declare_contiguous(phys_addr_t base,
+ #ifdef CONFIG_CMA_DEBUG
+ static void cma_debug_show_areas(struct cma *cma)
+ {
+-	unsigned long next_zero_bit, next_set_bit;
++	unsigned long next_zero_bit, next_set_bit, nr_zero;
+ 	unsigned long start = 0;
+-	unsigned int nr_zero, nr_total = 0;
++	unsigned long nr_part, nr_total = 0;
++	unsigned long nbits = cma_bitmap_maxno(cma);
+ 
+ 	mutex_lock(&cma->lock);
+ 	pr_info("number of available pages: ");
+ 	for (;;) {
+-		next_zero_bit = find_next_zero_bit(cma->bitmap, cma->count, start);
+-		if (next_zero_bit >= cma->count)
++		next_zero_bit = find_next_zero_bit(cma->bitmap, nbits, start);
++		if (next_zero_bit >= nbits)
+ 			break;
+-		next_set_bit = find_next_bit(cma->bitmap, cma->count, next_zero_bit);
++		next_set_bit = find_next_bit(cma->bitmap, nbits, next_zero_bit);
+ 		nr_zero = next_set_bit - next_zero_bit;
+-		pr_cont("%s%u@%lu", nr_total ? "+" : "", nr_zero, next_zero_bit);
+-		nr_total += nr_zero;
++		nr_part = nr_zero << cma->order_per_bit;
++		pr_cont("%s%lu@%lu", nr_total ? "+" : "", nr_part,
++			next_zero_bit);
++		nr_total += nr_part;
+ 		start = next_zero_bit + nr_zero;
+ 	}
+-	pr_cont("=> %u free of %lu total pages\n", nr_total, cma->count);
++	pr_cont("=> %lu free of %lu total pages\n", nr_total, cma->count);
+ 	mutex_unlock(&cma->lock);
  }
+ #else
 -- 
 2.20.1
 
