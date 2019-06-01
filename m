@@ -2,35 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 34A3D31D2D
-	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:27:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 587D331D3A
+	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:28:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729955AbfFAN13 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Jun 2019 09:27:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59204 "EHLO mail.kernel.org"
+        id S1729969AbfFAN1d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Jun 2019 09:27:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729952AbfFAN13 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Jun 2019 09:27:29 -0400
+        id S1729960AbfFAN1b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 1 Jun 2019 09:27:31 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2BDB524EEF;
-        Sat,  1 Jun 2019 13:27:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1EF5D25515;
+        Sat,  1 Jun 2019 13:27:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559395648;
-        bh=VBtP+46+0ikRfN2VCn1+6UuYyC/LkPlmOox4Ox07x1o=;
+        s=default; t=1559395650;
+        bh=DXLDT3cjyd1hg4iNu9cprxPx3Jjx2o2sbUQoe1/bG9w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DKONGtQ1yF0m9jgJyYND6Wd/BJsfQcCyg4PTN4qGCnTRE35dBHks6w9pR3AHTTaZ3
-         HgGQGsbfbB2KKTOErbwIXSZDoW5onamE8Ygjys3/X7+2d7qPG7OyhP5C1Apk92w4f+
-         uM5YdgQWcXHG2ksBIs5q2MNebv/KdsXY37E5hKr4=
+        b=jufq+0dGOgoA5Le+Cy0nW5kf3WSQJrn+B/uztad1Rg/1/7qFT8YAWZDle7huQ1YSw
+         VZh5iOfSWAPUKwPz1l4CZyd8NEG2fE9Ob/FmVq5RWxqoA4xPdZ4uepeTmpUELLaOxj
+         hOgKbyMkXC2vAAZtI5Ch8e2KJdHPFjeiGss7X70s=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sahara <keun-o.park@darkmatter.ae>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 50/56] tty: pty: Fix race condition between release_one_tty and pty_write
-Date:   Sat,  1 Jun 2019 09:25:54 -0400
-Message-Id: <20190601132600.27427-50-sashal@kernel.org>
+Cc:     Tony Lindgren <tony@atomide.com>,
+        Aaro Koskinen <aaro.koskinen@iki.fi>,
+        Grygorii Strashko <grygorii.strashko@ti.com>,
+        Keerthy <j-keerthy@ti.com>,
+        Peter Ujfalusi <peter.ujfalusi@ti.com>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Tero Kristo <t-kristo@ti.com>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Sasha Levin <sashal@kernel.org>, linux-omap@vger.kernel.org,
+        linux-gpio@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 51/56] gpio: gpio-omap: add check for off wake capable gpios
+Date:   Sat,  1 Jun 2019 09:25:55 -0400
+Message-Id: <20190601132600.27427-51-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190601132600.27427-1-sashal@kernel.org>
 References: <20190601132600.27427-1-sashal@kernel.org>
@@ -43,72 +50,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sahara <keun-o.park@darkmatter.ae>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit b9ca5f8560af244489b4a1bc1ae88b341f24bc95 ]
+[ Upstream commit da38ef3ed10a09248e13ae16530c2c6d448dc47d ]
 
-Especially when a linked tty is used such as pty, the linked tty
-port's buf works have not been cancelled while master tty port's
-buf work has been cancelled. Since release_one_tty and flush_to_ldisc
-run in workqueue threads separately, when pty_cleanup happens and
-link tty port is freed, flush_to_ldisc tries to access freed port
-and port->itty, eventually it causes a panic.
-This patch utilizes the magic value with holding the tty_mutex to
-check if the tty->link is valid.
+We are currently assuming all GPIOs are non-wakeup capable GPIOs as we
+not configuring the bank->non_wakeup_gpios like we used to earlier with
+platform_data.
 
-Fixes: 2b022ab7542d ("pty: cancel pty slave port buf's work in tty_release")
-Signed-off-by: Sahara <keun-o.park@darkmatter.ae>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Let's add omap_gpio_is_off_wakeup_capable() to make the handling clearer
+while considering that later patches may want to configure SoC specific
+bank->non_wakeup_gpios for the GPIOs in wakeup domain.
+
+Cc: Aaro Koskinen <aaro.koskinen@iki.fi>
+Cc: Grygorii Strashko <grygorii.strashko@ti.com>
+Cc: Keerthy <j-keerthy@ti.com>
+Cc: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Cc: Russell King <rmk+kernel@armlinux.org.uk>
+Cc: Tero Kristo <t-kristo@ti.com>
+Reported-by: Grygorii Strashko <grygorii.strashko@ti.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/pty.c    | 7 +++++++
- drivers/tty/tty_io.c | 3 +++
- 2 files changed, 10 insertions(+)
+ drivers/gpio/gpio-omap.c | 25 +++++++++++++++++--------
+ 1 file changed, 17 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/tty/pty.c b/drivers/tty/pty.c
-index c8a2e5b0eff76..0e10600f3884d 100644
---- a/drivers/tty/pty.c
-+++ b/drivers/tty/pty.c
-@@ -111,6 +111,12 @@ static int pty_write(struct tty_struct *tty, const unsigned char *buf, int c)
- 	if (tty->stopped)
- 		return 0;
- 
-+	mutex_lock(&tty_mutex);
-+	if (to->magic != TTY_MAGIC) {
-+		mutex_unlock(&tty_mutex);
-+		return -EIO;
-+	}
-+
- 	if (c > 0) {
- 		spin_lock_irqsave(&to->port->lock, flags);
- 		/* Stuff the data into the input queue of the other end */
-@@ -120,6 +126,7 @@ static int pty_write(struct tty_struct *tty, const unsigned char *buf, int c)
- 			tty_flip_buffer_push(to->port);
- 		spin_unlock_irqrestore(&to->port->lock, flags);
+diff --git a/drivers/gpio/gpio-omap.c b/drivers/gpio/gpio-omap.c
+index 9943273ec9818..c8c49b1d5f9f9 100644
+--- a/drivers/gpio/gpio-omap.c
++++ b/drivers/gpio/gpio-omap.c
+@@ -292,6 +292,22 @@ static void omap_clear_gpio_debounce(struct gpio_bank *bank, unsigned offset)
  	}
-+	mutex_unlock(&tty_mutex);
- 	return c;
  }
  
-diff --git a/drivers/tty/tty_io.c b/drivers/tty/tty_io.c
-index b7effcfee91d8..acaf244859039 100644
---- a/drivers/tty/tty_io.c
-+++ b/drivers/tty/tty_io.c
-@@ -1639,10 +1639,13 @@ static void release_one_tty(struct work_struct *work)
- 	struct tty_driver *driver = tty->driver;
- 	struct module *owner = driver->owner;
- 
-+	mutex_lock(&tty_mutex);
- 	if (tty->ops->cleanup)
- 		tty->ops->cleanup(tty);
- 
- 	tty->magic = 0;
-+	mutex_unlock(&tty_mutex);
++/*
++ * Off mode wake-up capable GPIOs in bank(s) that are in the wakeup domain.
++ * See TRM section for GPIO for "Wake-Up Generation" for the list of GPIOs
++ * in wakeup domain. If bank->non_wakeup_gpios is not configured, assume none
++ * are capable waking up the system from off mode.
++ */
++static bool omap_gpio_is_off_wakeup_capable(struct gpio_bank *bank, u32 gpio_mask)
++{
++	u32 no_wake = bank->non_wakeup_gpios;
 +
- 	tty_driver_kref_put(driver);
- 	module_put(owner);
++	if (no_wake)
++		return !!(~no_wake & gpio_mask);
++
++	return false;
++}
++
+ static inline void omap_set_gpio_trigger(struct gpio_bank *bank, int gpio,
+ 						unsigned trigger)
+ {
+@@ -323,13 +339,7 @@ static inline void omap_set_gpio_trigger(struct gpio_bank *bank, int gpio,
+ 	}
  
+ 	/* This part needs to be executed always for OMAP{34xx, 44xx} */
+-	if (!bank->regs->irqctrl) {
+-		/* On omap24xx proceed only when valid GPIO bit is set */
+-		if (bank->non_wakeup_gpios) {
+-			if (!(bank->non_wakeup_gpios & gpio_bit))
+-				goto exit;
+-		}
+-
++	if (!bank->regs->irqctrl && !omap_gpio_is_off_wakeup_capable(bank, gpio)) {
+ 		/*
+ 		 * Log the edge gpio and manually trigger the IRQ
+ 		 * after resume if the input level changes
+@@ -342,7 +352,6 @@ static inline void omap_set_gpio_trigger(struct gpio_bank *bank, int gpio,
+ 			bank->enabled_non_wakeup_gpios &= ~gpio_bit;
+ 	}
+ 
+-exit:
+ 	bank->level_mask =
+ 		readl_relaxed(bank->base + bank->regs->leveldetect0) |
+ 		readl_relaxed(bank->base + bank->regs->leveldetect1);
 -- 
 2.20.1
 
