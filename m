@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 43A3431DFC
-	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:33:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 503C631DFA
+	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:33:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728642AbfFANYd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Jun 2019 09:24:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54624 "EHLO mail.kernel.org"
+        id S1728265AbfFANdR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Jun 2019 09:33:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729237AbfFANYd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Jun 2019 09:24:33 -0400
+        id S1729254AbfFANYf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 1 Jun 2019 09:24:35 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B0612737A;
-        Sat,  1 Jun 2019 13:24:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 95595264C3;
+        Sat,  1 Jun 2019 13:24:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559395472;
-        bh=LYd7yfqZAV1mEdBiJ9BN3+K19cHjYcomUjoPUxgLoNM=;
+        s=default; t=1559395475;
+        bh=L1l+bDPGzWMLLpyThuWyfRXFsi+ClQ8hhC2jhdWIYaA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pD1b/jT8T3e2+YAANbVflfzpUXEm/FCjRUm+bH9JTNAgt4nqaD6rZx5g8YJu2ngoD
-         9KJHRG67HaNL8tGl3tS3u/iqqomZfxntVIOVTb+o5YwJwh3dv5q2uJicYXTe9Xvfu5
-         dcUEVOfv9aD3+e2aZM4hVCjsEBXOmDbWDMb+Bsrg=
+        b=HOnd+csCf6mTbj9HWWvyP57y2OK+4wc8Kvqg2o6ucf2M48svkkQv560s+i63YxbRf
+         S/XMKeIyQnnPR//pVSTEClFomr+P1z3BLrl4vv+N8cHmb1lGVCvhjS5g+7LCS08ime
+         KN2OquNYm4s021bfEhtN9J4lPFgSNaOyD7xyBX7w=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Stephane Eranian <eranian@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>, jolsa@redhat.com,
-        kan.liang@intel.com, vincent.weaver@maine.edu,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 20/99] perf/x86/intel: Allow PEBS multi-entry in watermark mode
-Date:   Sat,  1 Jun 2019 09:22:27 -0400
-Message-Id: <20190601132346.26558-20-sashal@kernel.org>
+Cc:     Matt Redfearn <matt.redfearn@thinci.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Sean Paul <seanpaul@chromium.org>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 4.14 21/99] drm/bridge: adv7511: Fix low refresh rate selection
+Date:   Sat,  1 Jun 2019 09:22:28 -0400
+Message-Id: <20190601132346.26558-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190601132346.26558-1-sashal@kernel.org>
 References: <20190601132346.26558-1-sashal@kernel.org>
@@ -46,47 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephane Eranian <eranian@google.com>
+From: Matt Redfearn <matt.redfearn@thinci.com>
 
-[ Upstream commit c7a286577d7592720c2f179aadfb325a1ff48c95 ]
+[ Upstream commit 67793bd3b3948dc8c8384b6430e036a30a0ecb43 ]
 
-This patch fixes a restriction/bug introduced by:
+The driver currently sets register 0xfb (Low Refresh Rate) based on the
+value of mode->vrefresh. Firstly, this field is specified to be in Hz,
+but the magic numbers used by the code are Hz * 1000. This essentially
+leads to the low refresh rate always being set to 0x01, since the
+vrefresh value will always be less than 24000. Fix the magic numbers to
+be in Hz.
+Secondly, according to the comment in drm_modes.h, the field is not
+supposed to be used in a functional way anyway. Instead, use the helper
+function drm_mode_vrefresh().
 
-   583feb08e7f7 ("perf/x86/intel: Fix handling of wakeup_events for multi-entry PEBS")
-
-The original patch prevented using multi-entry PEBS when wakeup_events != 0.
-However given that wakeup_events is part of a union with wakeup_watermark, it
-means that in watermark mode, PEBS multi-entry is also disabled which is not the
-intent. This patch fixes this by checking is watermark mode is enabled.
-
-Signed-off-by: Stephane Eranian <eranian@google.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: jolsa@redhat.com
-Cc: kan.liang@intel.com
-Cc: vincent.weaver@maine.edu
-Fixes: 583feb08e7f7 ("perf/x86/intel: Fix handling of wakeup_events for multi-entry PEBS")
-Link: http://lkml.kernel.org/r/20190514003400.224340-1-eranian@google.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Fixes: 9c8af882bf12 ("drm: Add adv7511 encoder driver")
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Matt Redfearn <matt.redfearn@thinci.com>
+Signed-off-by: Sean Paul <seanpaul@chromium.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190424132210.26338-1-matt.redfearn@thinci.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/intel/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/bridge/adv7511/adv7511_drv.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/events/intel/core.c b/arch/x86/events/intel/core.c
-index 0b93f5519ddab..d44bb077c6cfd 100644
---- a/arch/x86/events/intel/core.c
-+++ b/arch/x86/events/intel/core.c
-@@ -3051,7 +3051,7 @@ static int intel_pmu_hw_config(struct perf_event *event)
- 		return ret;
+diff --git a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
+index f5091827628ab..3c94d838863e4 100644
+--- a/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
++++ b/drivers/gpu/drm/bridge/adv7511/adv7511_drv.c
+@@ -735,11 +735,11 @@ static void adv7511_mode_set(struct adv7511 *adv7511,
+ 			vsync_polarity = 1;
+ 	}
  
- 	if (event->attr.precise_ip) {
--		if (!(event->attr.freq || event->attr.wakeup_events)) {
-+		if (!(event->attr.freq || (event->attr.wakeup_events && !event->attr.watermark))) {
- 			event->hw.flags |= PERF_X86_EVENT_AUTO_RELOAD;
- 			if (!(event->attr.sample_type &
- 			      ~intel_pmu_free_running_flags(event)))
+-	if (mode->vrefresh <= 24000)
++	if (drm_mode_vrefresh(mode) <= 24)
+ 		low_refresh_rate = ADV7511_LOW_REFRESH_RATE_24HZ;
+-	else if (mode->vrefresh <= 25000)
++	else if (drm_mode_vrefresh(mode) <= 25)
+ 		low_refresh_rate = ADV7511_LOW_REFRESH_RATE_25HZ;
+-	else if (mode->vrefresh <= 30000)
++	else if (drm_mode_vrefresh(mode) <= 30)
+ 		low_refresh_rate = ADV7511_LOW_REFRESH_RATE_30HZ;
+ 	else
+ 		low_refresh_rate = ADV7511_LOW_REFRESH_RATE_NONE;
 -- 
 2.20.1
 
