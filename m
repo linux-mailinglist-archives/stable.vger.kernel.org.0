@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 289A431D73
-	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:30:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BCBE31D55
+	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:28:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729642AbfFAN2k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Jun 2019 09:28:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57868 "EHLO mail.kernel.org"
+        id S1728210AbfFAN2d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Jun 2019 09:28:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729921AbfFAN1N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Jun 2019 09:27:13 -0400
+        id S1729918AbfFAN1O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 1 Jun 2019 09:27:14 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B3F27273CD;
-        Sat,  1 Jun 2019 13:27:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0DDCE273AD;
+        Sat,  1 Jun 2019 13:27:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559395632;
-        bh=h1UnrCnk/5MnPPaNdmSoBK/0X7X3BZNxYU/PcbGSPbc=;
+        s=default; t=1559395634;
+        bh=z+2iD4+/Ewj+1snXK5rNtGsBfX7fC0rrDwMCwJjU3FU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vAHRjfKiAYcVruuLNis7zO748d8ur1qKB1koqGIzrDBdGyxSYjFHXS+bWDfHhvmzo
-         BleaS4m7H/raQBWrHUoyXMj3hY+yV2Tbfkn5CvJxY1wnet2fOH5KACM4GAr99g9DXO
-         ZIxLkr5wFbzS8+57kLdJ94wRc3VDBblCmOLtvu98=
+        b=UlaKj1WiOSn1nUj5rEsoHtO0XRClOPdDkDZgzqO2EuoWxmP4FQ8hSfN2ApJ+13bDQ
+         zwXW8mqfrRaBVCyl6aha4mg2lJB+POiPZ8+AiSU+NDhuTwE5BXzVZ9ERvWgkoIQaOb
+         yrVTgcA1qk5lOJ557o568K2kOwJiAJpgbFJBA2fY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yifeng Li <tomli@tomli.me>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        Teddy Wang <teddy.wang@siliconmotion.com>,
+Cc:     Kangjie Lu <kjlu@umn.edu>, Aditya Pakki <pakki001@umn.edu>,
+        Ferenc Bakonyi <fero@drama.obuda.kando.hu>,
         Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Sasha Levin <sashal@kernel.org>, linux-fbdev@vger.kernel.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.4 42/56] fbdev: sm712fb: fix boot screen glitch when sm712fb replaces VGA
-Date:   Sat,  1 Jun 2019 09:25:46 -0400
-Message-Id: <20190601132600.27427-42-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>,
+        linux-nvidia@lists.surfsouth.com, dri-devel@lists.freedesktop.org,
+        linux-fbdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 43/56] video: hgafb: fix potential NULL pointer dereference
+Date:   Sat,  1 Jun 2019 09:25:47 -0400
+Message-Id: <20190601132600.27427-43-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190601132600.27427-1-sashal@kernel.org>
 References: <20190601132600.27427-1-sashal@kernel.org>
@@ -46,43 +46,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yifeng Li <tomli@tomli.me>
+From: Kangjie Lu <kjlu@umn.edu>
 
-[ Upstream commit ec1587d5073f29820e358f3a383850d61601d981 ]
+[ Upstream commit ec7f6aad57ad29e4e66cc2e18e1e1599ddb02542 ]
 
-When the machine is booted in VGA mode, loading sm712fb would cause
-a glitch of random pixels shown on the screen. To prevent it from
-happening, we first clear the entire framebuffer, and we also need
-to stop calling smtcfb_setmode() during initialization, the fbdev
-layer will call it for us later when it's ready.
+When ioremap fails, hga_vram should not be dereferenced. The fix
+check the failure to avoid NULL pointer dereference.
 
-Signed-off-by: Yifeng Li <tomli@tomli.me>
-Tested-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Cc: Teddy Wang <teddy.wang@siliconmotion.com>
-Cc: <stable@vger.kernel.org>  # v4.4+
+Signed-off-by: Kangjie Lu <kjlu@umn.edu>
+Cc: Aditya Pakki <pakki001@umn.edu>
+Cc: Ferenc Bakonyi <fero@drama.obuda.kando.hu>
+[b.zolnierkie: minor patch summary fixup]
 Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/sm712fb.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/video/fbdev/hgafb.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/video/fbdev/sm712fb.c b/drivers/video/fbdev/sm712fb.c
-index 2539c1e6facb4..6a30714a18632 100644
---- a/drivers/video/fbdev/sm712fb.c
-+++ b/drivers/video/fbdev/sm712fb.c
-@@ -1498,7 +1498,11 @@ static int smtcfb_pci_probe(struct pci_dev *pdev,
- 	if (err)
- 		goto failed;
+diff --git a/drivers/video/fbdev/hgafb.c b/drivers/video/fbdev/hgafb.c
+index 15d3ccff29654..4a397c7c1b560 100644
+--- a/drivers/video/fbdev/hgafb.c
++++ b/drivers/video/fbdev/hgafb.c
+@@ -285,6 +285,8 @@ static int hga_card_detect(void)
+ 	hga_vram_len  = 0x08000;
  
--	smtcfb_setmode(sfb);
-+	/*
-+	 * The screen would be temporarily garbled when sm712fb takes over
-+	 * vesafb or VGA text mode. Zero the framebuffer.
-+	 */
-+	memset_io(sfb->lfb, 0, sfb->fb->fix.smem_len);
+ 	hga_vram = ioremap(0xb0000, hga_vram_len);
++	if (!hga_vram)
++		goto error;
  
- 	err = register_framebuffer(info);
- 	if (err < 0)
+ 	if (request_region(0x3b0, 12, "hgafb"))
+ 		release_io_ports = 1;
 -- 
 2.20.1
 
