@@ -2,56 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C131031DBA
-	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:33:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40AB831DBB
+	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:33:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728775AbfFANZR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Jun 2019 09:25:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55480 "EHLO mail.kernel.org"
+        id S1727467AbfFANZU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Jun 2019 09:25:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727467AbfFANZQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Jun 2019 09:25:16 -0400
+        id S1729437AbfFANZS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 1 Jun 2019 09:25:18 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E609E27396;
-        Sat,  1 Jun 2019 13:25:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AD4512739B;
+        Sat,  1 Jun 2019 13:25:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559395516;
-        bh=akRk9BFNu3sjDvlyPGKslYcMDJL61YdZ2gM0KAhnFZU=;
+        s=default; t=1559395517;
+        bh=yaP2hH6CpFvO7MSIngyl9hWVZPMdRMnYHGCQ+0vGdPE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2U44VEW/uJAhTKrT+Pe14obkiPo4NZmR+G0XVPg3gTdWWM+pR9d1tU0oiJghqp+VL
-         1FDIIyTRc1sV9Sh/ugbVMQs9i30rXLkFpHDeT2XGNYaoszF9bVxRvuYEVZo48ZjWmP
-         0/O8TbKgz3fL56fVyAWFsCfNCG9XZrOD/lsOMetU=
+        b=l6r+31vsTtPoxXz+ZE2x/6JyaHv8CWtW63wMRyBuvvYyRJJy2KdYZsu25qOQ9Zw7g
+         uJbWDuyqdTKSYQZXhXsgTjiow8VbC3G3LgKkLTkuqtMLxHm8DFAPiAu+tG8DDh+x2b
+         +74Y9F6kIOqfoqh0YeQzTrmH9vpnO1xaOBhYqIDY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Christophe Leroy <christophe.leroy@c-s.fr>,
-        Mathieu Malaterre <malat@debian.org>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Stefan Agner <stefan@agner.ch>,
-        Boris Brezillon <bbrezillon@kernel.org>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Richard Weinberger <richard@nod.at>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Brian Norris <computersforpeace@gmail.com>,
-        Marek Vasut <marek.vasut@gmail.com>,
-        Russell King <rmk+kernel@arm.linux.org.uk>,
-        Borislav Petkov <bp@suse.de>,
-        Mark Rutland <mark.rutland@arm.com>,
+Cc:     Mike Kravetz <mike.kravetz@oracle.com>,
+        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Michal Hocko <mhocko@kernel.org>,
+        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 05/74] ARM: prevent tracing IPI_CPU_BACKTRACE
-Date:   Sat,  1 Jun 2019 09:23:52 -0400
-Message-Id: <20190601132501.27021-5-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
+Subject: [PATCH AUTOSEL 4.9 06/74] hugetlbfs: on restore reserve error path retain subpool reservation
+Date:   Sat,  1 Jun 2019 09:23:53 -0400
+Message-Id: <20190601132501.27021-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190601132501.27021-1-sashal@kernel.org>
 References: <20190601132501.27021-1-sashal@kernel.org>
@@ -64,106 +49,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Mike Kravetz <mike.kravetz@oracle.com>
 
-[ Upstream commit be167862ae7dd85c56d385209a4890678e1b0488 ]
+[ Upstream commit 0919e1b69ab459e06df45d3ba6658d281962db80 ]
 
-Patch series "compiler: allow all arches to enable
-CONFIG_OPTIMIZE_INLINING", v3.
+When a huge page is allocated, PagePrivate() is set if the allocation
+consumed a reservation.  When freeing a huge page, PagePrivate is checked.
+If set, it indicates the reservation should be restored.  PagePrivate
+being set at free huge page time mostly happens on error paths.
 
-This patch (of 11):
+When huge page reservations are created, a check is made to determine if
+the mapping is associated with an explicitly mounted filesystem.  If so,
+pages are also reserved within the filesystem.  The default action when
+freeing a huge page is to decrement the usage count in any associated
+explicitly mounted filesystem.  However, if the reservation is to be
+restored the reservation/use count within the filesystem should not be
+decrementd.  Otherwise, a subsequent page allocation and free for the same
+mapping location will cause the file filesystem usage to go 'negative'.
 
-When function tracing for IPIs is enabled, we get a warning for an
-overflow of the ipi_types array with the IPI_CPU_BACKTRACE type as
-triggered by raise_nmi():
+Filesystem                         Size  Used Avail Use% Mounted on
+nodev                              4.0G -4.0M  4.1G    - /opt/hugepool
 
-  arch/arm/kernel/smp.c: In function 'raise_nmi':
-  arch/arm/kernel/smp.c:489:2: error: array subscript is above array bounds [-Werror=array-bounds]
-    trace_ipi_raise(target, ipi_types[ipinr]);
+To fix, when freeing a huge page do not adjust filesystem usage if
+PagePrivate() is set to indicate the reservation should be restored.
 
-This is a correct warning as we actually overflow the array here.
+I did not cc stable as the problem has been around since reserves were
+added to hugetlbfs and nobody has noticed.
 
-This patch raise_nmi() to call __smp_cross_call() instead of
-smp_cross_call(), to avoid calling into ftrace.  For clarification, I'm
-also adding a two new code comments describing how this one is special.
-
-The warning appears to have shown up after commit e7273ff49acf ("ARM:
-8488/1: Make IPI_CPU_BACKTRACE a "non-secure" SGI"), which changed the
-number assignment from '15' to '8', but as far as I can tell has existed
-since the IPI tracepoints were first introduced.  If we decide to
-backport this patch to stable kernels, we probably need to backport
-e7273ff49acf as well.
-
-[yamada.masahiro@socionext.com: rebase on v5.1-rc1]
-Link: http://lkml.kernel.org/r/20190423034959.13525-2-yamada.masahiro@socionext.com
-Fixes: e7273ff49acf ("ARM: 8488/1: Make IPI_CPU_BACKTRACE a "non-secure" SGI")
-Fixes: 365ec7b17327 ("ARM: add IPI tracepoints") # v3.17
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Christophe Leroy <christophe.leroy@c-s.fr>
-Cc: Mathieu Malaterre <malat@debian.org>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: Stefan Agner <stefan@agner.ch>
-Cc: Boris Brezillon <bbrezillon@kernel.org>
-Cc: Miquel Raynal <miquel.raynal@bootlin.com>
-Cc: Richard Weinberger <richard@nod.at>
-Cc: David Woodhouse <dwmw2@infradead.org>
-Cc: Brian Norris <computersforpeace@gmail.com>
-Cc: Marek Vasut <marek.vasut@gmail.com>
-Cc: Russell King <rmk+kernel@arm.linux.org.uk>
-Cc: Borislav Petkov <bp@suse.de>
-Cc: Mark Rutland <mark.rutland@arm.com>
+Link: http://lkml.kernel.org/r/20190328234704.27083-2-mike.kravetz@oracle.com
+Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+Reviewed-by: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/include/asm/hardirq.h | 1 +
- arch/arm/kernel/smp.c          | 6 +++++-
- 2 files changed, 6 insertions(+), 1 deletion(-)
+ mm/hugetlb.c | 21 ++++++++++++++++-----
+ 1 file changed, 16 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm/include/asm/hardirq.h b/arch/arm/include/asm/hardirq.h
-index 3d7351c844aac..2fd0a2619b0b3 100644
---- a/arch/arm/include/asm/hardirq.h
-+++ b/arch/arm/include/asm/hardirq.h
-@@ -5,6 +5,7 @@
- #include <linux/threads.h>
- #include <asm/irq.h>
+diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+index 8b682da98d95b..6d40bd1759cf2 100644
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -1247,12 +1247,23 @@ void free_huge_page(struct page *page)
+ 	ClearPagePrivate(page);
  
-+/* number of IPIS _not_ including IPI_CPU_BACKTRACE */
- #define NR_IPI	7
- 
- typedef struct {
-diff --git a/arch/arm/kernel/smp.c b/arch/arm/kernel/smp.c
-index 7a5dc011c5230..deea60f01d245 100644
---- a/arch/arm/kernel/smp.c
-+++ b/arch/arm/kernel/smp.c
-@@ -75,6 +75,10 @@ enum ipi_msg_type {
- 	IPI_CPU_STOP,
- 	IPI_IRQ_WORK,
- 	IPI_COMPLETION,
-+	/*
-+	 * CPU_BACKTRACE is special and not included in NR_IPI
-+	 * or tracable with trace_ipi_*
-+	 */
- 	IPI_CPU_BACKTRACE,
  	/*
- 	 * SGI8-15 can be reserved by secure firmware, and thus may
-@@ -801,7 +805,7 @@ core_initcall(register_cpufreq_notifier);
+-	 * A return code of zero implies that the subpool will be under its
+-	 * minimum size if the reservation is not restored after page is free.
+-	 * Therefore, force restore_reserve operation.
++	 * If PagePrivate() was set on page, page allocation consumed a
++	 * reservation.  If the page was associated with a subpool, there
++	 * would have been a page reserved in the subpool before allocation
++	 * via hugepage_subpool_get_pages().  Since we are 'restoring' the
++	 * reservtion, do not call hugepage_subpool_put_pages() as this will
++	 * remove the reserved page from the subpool.
+ 	 */
+-	if (hugepage_subpool_put_pages(spool, 1) == 0)
+-		restore_reserve = true;
++	if (!restore_reserve) {
++		/*
++		 * A return code of zero implies that the subpool will be
++		 * under its minimum size if the reservation is not restored
++		 * after page is free.  Therefore, force restore_reserve
++		 * operation.
++		 */
++		if (hugepage_subpool_put_pages(spool, 1) == 0)
++			restore_reserve = true;
++	}
  
- static void raise_nmi(cpumask_t *mask)
- {
--	smp_cross_call(mask, IPI_CPU_BACKTRACE);
-+	__smp_cross_call(mask, IPI_CPU_BACKTRACE);
- }
- 
- void arch_trigger_cpumask_backtrace(const cpumask_t *mask, bool exclude_self)
+ 	spin_lock(&hugetlb_lock);
+ 	clear_page_huge_active(page);
 -- 
 2.20.1
 
