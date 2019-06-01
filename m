@@ -2,82 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E5D2319CB
-	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 07:49:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 971EA31AA5
+	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 10:55:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726180AbfFAFti (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Jun 2019 01:49:38 -0400
-Received: from mail-wm1-f48.google.com ([209.85.128.48]:39576 "EHLO
-        mail-wm1-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725916AbfFAFti (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 1 Jun 2019 01:49:38 -0400
-Received: by mail-wm1-f48.google.com with SMTP id z23so7122209wma.4
-        for <stable@vger.kernel.org>; Fri, 31 May 2019 22:49:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=YGyIL8cjN9Q8AU3MlAsa9qNhpLsGmXRCsv5M82McPnw=;
-        b=kSKFinfnuDSQ9O27B9KpjHOxfFUQXVS676DL4fhbO0Ibapeoue9R4KWDz9x/jVHX9t
-         wcwRKeMkVq3kmIPc6eWn8zHinmuVQljTxhb7CRl/LIRDr3xS/eadt8tmKh6qVPObb5uD
-         cNE+m/cb02m0dKcD9FoQ1JdywBl1CQoyoB6yCfS+gnoH26g3JJMts8aN5fHnUycNZ0pY
-         71Az15j4MAfhuP6ahQVauj1Z85z64KpdQuW6vTMEE/IWIXehR3f6/eHBddvi9K1cDA4H
-         rSc0lBEq7VmAQH5KknS6dGI6t3O37wEqRsxbianE4MXUaGdLOvDSAwhMUUJa/tvdJpkH
-         EjpA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=YGyIL8cjN9Q8AU3MlAsa9qNhpLsGmXRCsv5M82McPnw=;
-        b=BSkXR1hxtsld4pjMf1aqVfpJQDtp4u2gf3W4hVdmNMiiEXEmdQ4J6gOvVYIYEfkPOh
-         ABYdr5knU7LCmMrRFVCz2Li6TWg/VFNqheztzzjem5qjF1MJdtqKjx2MxXBWLVcgyWin
-         JCo/rDz5tzOrO+z9GCuu3hprTZ1l5T4JGZfwHOYzGOHicMLjTctrPsgqFxLTq7lVp/aT
-         5vYIkN236Tdm/VdPD/Wkz25/s9bAreIuUdx3hJAQsM4KuJ179tb6yLaSSEgdcubLHwX4
-         zpdfyVo7A5JCa/BBVFk86qVXOBEX5I7RByH1CtTI7oB1xFXXPQ2n3oN/ohoHsPpFMWHD
-         p1aw==
-X-Gm-Message-State: APjAAAXsAvOuQ0N3FhxrM9iYfa11eUNlGgtyDeApoEMyNexTlftJq+ae
-        IaWrQZhh1DSogkdgDUGVFO+koMgrTn0lxQ==
-X-Google-Smtp-Source: APXvYqy4oHFgnMo9rZdon5D/xRGPkoAqs4AznTfVmJ7H+CncbcT44jPC7HLflh0MEZuQ2AtFQ4rrHQ==
-X-Received: by 2002:a7b:c34b:: with SMTP id l11mr8073600wmj.69.1559368175867;
-        Fri, 31 May 2019 22:49:35 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id k125sm18555499wmb.34.2019.05.31.22.49.35
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 31 May 2019 22:49:35 -0700 (PDT)
-Message-ID: <5cf211ef.1c69fb81.6dd14.cefb@mx.google.com>
-Date:   Fri, 31 May 2019 22:49:35 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726142AbfFAIzv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Jun 2019 04:55:51 -0400
+Received: from bhuna.collabora.co.uk ([46.235.227.227]:46224 "EHLO
+        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726130AbfFAIzv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 1 Jun 2019 04:55:51 -0400
+Received: from localhost (unknown [IPv6:2a01:e0a:2c:6930:5cf4:84a1:2763:fe0d])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        (Authenticated sender: bbrezillon)
+        by bhuna.collabora.co.uk (Postfix) with ESMTPSA id 42A662612A0;
+        Sat,  1 Jun 2019 09:55:50 +0100 (BST)
+Date:   Sat, 1 Jun 2019 10:55:47 +0200
+From:   Boris Brezillon <boris.brezillon@collabora.com>
+To:     Tomeu Vizoso <tomeu@tomeuvizoso.net>
+Cc:     Rob Herring <robh+dt@kernel.org>,
+        dri-devel <dri-devel@lists.freedesktop.org>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] drm/panfrost: Make sure a BO is only unmapped when
+ appropriate
+Message-ID: <20190601105547.5efe481d@collabora.com>
+In-Reply-To: <CAAObsKBYvVKVTJf6ZwSarAVr6FSCz-NDYNhEqrDhBWUM3q57Nw@mail.gmail.com>
+References: <20190529091836.22060-1-boris.brezillon@collabora.com>
+        <CAAObsKBYvVKVTJf6ZwSarAVr6FSCz-NDYNhEqrDhBWUM3q57Nw@mail.gmail.com>
+Organization: Collabora
+X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.9.180-14-gb172850a7710
-X-Kernelci-Branch: linux-4.9.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.9.y boot: 104 boots: 0 failed,
- 104 passed (v4.9.180-14-gb172850a7710)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y boot: 104 boots: 0 failed, 104 passed (v4.9.180-14-gb=
-172850a7710)
+On Fri, 31 May 2019 14:54:54 +0200
+Tomeu Vizoso <tomeu@tomeuvizoso.net> wrote:
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.9.y/kernel/v4.9.180-14-gb172850a7710/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.9.y=
-/kernel/v4.9.180-14-gb172850a7710/
+> On Wed, 29 May 2019 at 11:18, Boris Brezillon
+> <boris.brezillon@collabora.com> wrote:
+> >
+> > mmu_ops->unmap() will fail when called on a BO that has not been
+> > previously mapped, and the error path in panfrost_ioctl_create_bo()
+> > can call drm_gem_object_put_unlocked() (which in turn calls
+> > panfrost_mmu_unmap()) on a BO that has not been mapped yet.
+> >
+> > Keep track of the mapped/unmapped state to avoid such issues.
+> >
+> > Fixes: f3ba91228e8e ("drm/panfrost: Add initial panfrost driver")
+> > Cc: <stable@vger.kernel.org>
+> > Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
+> > ---
+> >  drivers/gpu/drm/panfrost/panfrost_gem.h | 1 +
+> >  drivers/gpu/drm/panfrost/panfrost_mmu.c | 8 ++++++++
+> >  2 files changed, 9 insertions(+)
+> >
+> > diff --git a/drivers/gpu/drm/panfrost/panfrost_gem.h b/drivers/gpu/drm/panfrost/panfrost_gem.h
+> > index 045000eb5fcf..6dbcaba020fc 100644
+> > --- a/drivers/gpu/drm/panfrost/panfrost_gem.h
+> > +++ b/drivers/gpu/drm/panfrost/panfrost_gem.h
+> > @@ -11,6 +11,7 @@ struct panfrost_gem_object {
+> >         struct drm_gem_shmem_object base;
+> >
+> >         struct drm_mm_node node;
+> > +       bool is_mapped;
+> >  };
+> >
+> >  static inline
+> > diff --git a/drivers/gpu/drm/panfrost/panfrost_mmu.c b/drivers/gpu/drm/panfrost/panfrost_mmu.c
+> > index 762b1bd2a8c2..fb556aa89203 100644
+> > --- a/drivers/gpu/drm/panfrost/panfrost_mmu.c
+> > +++ b/drivers/gpu/drm/panfrost/panfrost_mmu.c
+> > @@ -156,6 +156,9 @@ int panfrost_mmu_map(struct panfrost_gem_object *bo)
+> >         struct sg_table *sgt;
+> >         int ret;
+> >
+> > +       if (bo->is_mapped)
+> > +               return 0;  
+> 
+> In what circumstances we want to silently go on? I would expect that
+> for this function to be called when the BO has been mapped already
+> would mean that we have a bug in the kernel, so why not a WARN?
+> 
+> > +
+> >         sgt = drm_gem_shmem_get_pages_sgt(obj);
+> >         if (WARN_ON(IS_ERR(sgt)))
+> >                 return PTR_ERR(sgt);
+> > @@ -189,6 +192,7 @@ int panfrost_mmu_map(struct panfrost_gem_object *bo)
+> >
+> >         pm_runtime_mark_last_busy(pfdev->dev);
+> >         pm_runtime_put_autosuspend(pfdev->dev);
+> > +       bo->is_mapped = true;
+> >
+> >         return 0;
+> >  }
+> > @@ -203,6 +207,9 @@ void panfrost_mmu_unmap(struct panfrost_gem_object *bo)
+> >         size_t unmapped_len = 0;
+> >         int ret;
+> >
+> > +       if (!bo->is_mapped)
+> > +               return;  
+> 
+> Similarly, I think that what we should do is not to call
+> panfrost_mmu_unmap when a BO is freed if we know it isn't mapped. And
+> probably add a WARN here if it still gets called when the BO isn't
+> mapped.
 
-Tree: stable-rc
-Branch: linux-4.9.y
-Git Describe: v4.9.180-14-gb172850a7710
-Git Commit: b172850a77105c892b4983590a2c786bb4a0fea2
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 51 unique boards, 21 SoC families, 15 builds out of 197
+Okay, will add WARN_ON()s and add a check in the caller.
 
----
-For more info write to <info@kernelci.org>
