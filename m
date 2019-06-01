@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3371E31DBD
-	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:33:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 45E7231CF0
+	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:26:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729183AbfFANZa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728851AbfFANZa (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 1 Jun 2019 09:25:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55752 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:55808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729175AbfFANZ2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Jun 2019 09:25:28 -0400
+        id S1728558AbfFANZ3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 1 Jun 2019 09:25:29 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 156E5273A3;
-        Sat,  1 Jun 2019 13:25:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A3FE8273AC;
+        Sat,  1 Jun 2019 13:25:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559395527;
-        bh=W+mXVN4o7qdgu7foKIesICoUXtgOLDULDim6bbYHyBQ=;
+        s=default; t=1559395528;
+        bh=2gwOA4oXprxT5utFsmFxHJm6LeTnp8J00kQIUqH1TKQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vkrfiYXHG/UaTTFIJkMaF3CYR+GkeoS90ASRMOvcQ+jOeUO0EqsMsh9illfg0NwZZ
-         1WuvbE08RCqe3f6lm6Wlyofn2CcC2eHzrj4B8dvijGt9ldTT14H60B41TXrlAlY/gz
-         N0XwX7G6UbN0MTCDPcTFXeRe3nzfBsa8BbobhsCk=
+        b=DGXicQ4V7Hdnq14PC3+r2NtPJNQcUo/K87bCRiCW7JdRPVfhwNT/3CmDHwcCNbdxk
+         NPY/Oh9mp2EvwXCilUwa54YbFRUM1h5OOeOl5YzZwFANuZbZg3TESI8daUJYC/+O4P
+         hNVJgLy6OkudECk6pqq/Afr7TSrBWBGI69bUuMmA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yue Hu <huyue2@yulong.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Michal Hocko <mhocko@suse.com>, Joe Perches <joe@perches.com>,
+Cc:     Qian Cai <cai@lca.pw>, Andrew Morton <akpm@linux-foundation.org>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Christoph Lameter <cl@linux.com>,
+        Pekka Enberg <penberg@kernel.org>,
         David Rientjes <rientjes@google.com>,
-        Dmitry Safonov <d.safonov@partner.samsung.com>,
         Joonsoo Kim <iamjoonsoo.kim@lge.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
-Subject: [PATCH AUTOSEL 4.9 09/74] mm/cma_debug.c: fix the break condition in cma_maxchunk_get()
-Date:   Sat,  1 Jun 2019 09:23:56 -0400
-Message-Id: <20190601132501.27021-9-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 10/74] mm/slab.c: fix an infinite loop in leaks_show()
+Date:   Sat,  1 Jun 2019 09:23:57 -0400
+Message-Id: <20190601132501.27021-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190601132501.27021-1-sashal@kernel.org>
 References: <20190601132501.27021-1-sashal@kernel.org>
@@ -48,44 +48,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yue Hu <huyue2@yulong.com>
+From: Qian Cai <cai@lca.pw>
 
-[ Upstream commit f0fd50504a54f5548eb666dc16ddf8394e44e4b7 ]
+[ Upstream commit 745e10146c31b1c6ed3326286704ae251b17f663 ]
 
-If not find zero bit in find_next_zero_bit(), it will return the size
-parameter passed in, so the start bit should be compared with bitmap_maxno
-rather than cma->count.  Although getting maxchunk is working fine due to
-zero value of order_per_bit currently, the operation will be stuck if
-order_per_bit is set as non-zero.
+"cat /proc/slab_allocators" could hang forever on SMP machines with
+kmemleak or object debugging enabled due to other CPUs running do_drain()
+will keep making kmemleak_object or debug_objects_cache dirty and unable
+to escape the first loop in leaks_show(),
 
-Link: http://lkml.kernel.org/r/20190319092734.276-1-zbestahu@gmail.com
-Signed-off-by: Yue Hu <huyue2@yulong.com>
+do {
+	set_store_user_clean(cachep);
+	drain_cpu_caches(cachep);
+	...
+
+} while (!is_store_user_clean(cachep));
+
+For example,
+
+do_drain
+  slabs_destroy
+    slab_destroy
+      kmem_cache_free
+        __cache_free
+          ___cache_free
+            kmemleak_free_recursive
+              delete_object_full
+                __delete_object
+                  put_object
+                    free_object_rcu
+                      kmem_cache_free
+                        cache_free_debugcheck --> dirty kmemleak_object
+
+One approach is to check cachep->name and skip both kmemleak_object and
+debug_objects_cache in leaks_show().  The other is to set store_user_clean
+after drain_cpu_caches() which leaves a small window between
+drain_cpu_caches() and set_store_user_clean() where per-CPU caches could
+be dirty again lead to slightly wrong information has been stored but
+could also speed up things significantly which sounds like a good
+compromise.  For example,
+
+ # cat /proc/slab_allocators
+ 0m42.778s # 1st approach
+ 0m0.737s  # 2nd approach
+
+[akpm@linux-foundation.org: tweak comment]
+Link: http://lkml.kernel.org/r/20190411032635.10325-1-cai@lca.pw
+Fixes: d31676dfde25 ("mm/slab: alternative implementation for DEBUG_SLAB_LEAK")
+Signed-off-by: Qian Cai <cai@lca.pw>
 Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Joe Perches <joe@perches.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Christoph Lameter <cl@linux.com>
+Cc: Pekka Enberg <penberg@kernel.org>
 Cc: David Rientjes <rientjes@google.com>
-Cc: Dmitry Safonov <d.safonov@partner.samsung.com>
 Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/cma_debug.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/slab.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/mm/cma_debug.c b/mm/cma_debug.c
-index f8e4b60db1672..da50dab56b700 100644
---- a/mm/cma_debug.c
-+++ b/mm/cma_debug.c
-@@ -57,7 +57,7 @@ static int cma_maxchunk_get(void *data, u64 *val)
- 	mutex_lock(&cma->lock);
- 	for (;;) {
- 		start = find_next_zero_bit(cma->bitmap, bitmap_maxno, end);
--		if (start >= cma->count)
-+		if (start >= bitmap_maxno)
- 			break;
- 		end = find_next_bit(cma->bitmap, bitmap_maxno, start);
- 		maxchunk = max(end - start, maxchunk);
+diff --git a/mm/slab.c b/mm/slab.c
+index d2c0499c6b15d..9547f02b4af96 100644
+--- a/mm/slab.c
++++ b/mm/slab.c
+@@ -4365,8 +4365,12 @@ static int leaks_show(struct seq_file *m, void *p)
+ 	 * whole processing.
+ 	 */
+ 	do {
+-		set_store_user_clean(cachep);
+ 		drain_cpu_caches(cachep);
++		/*
++		 * drain_cpu_caches() could make kmemleak_object and
++		 * debug_objects_cache dirty, so reset afterwards.
++		 */
++		set_store_user_clean(cachep);
+ 
+ 		x[1] = 0;
+ 
 -- 
 2.20.1
 
