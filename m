@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EF64731F22
-	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:42:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6668D31F23
+	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:42:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728316AbfFANmH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727987AbfFANmH (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 1 Jun 2019 09:42:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45970 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:45996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727973AbfFANSw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Jun 2019 09:18:52 -0400
+        id S1727980AbfFANSx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 1 Jun 2019 09:18:53 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9E7ED25525;
-        Sat,  1 Jun 2019 13:18:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B6D9625BFE;
+        Sat,  1 Jun 2019 13:18:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559395131;
-        bh=j9nceCr4lnqVvFaCMjBVALHv0h6X+sYsZqwcySYCEZo=;
+        s=default; t=1559395132;
+        bh=w0Bm7F9oZAeoWWo7a+fdtxYbVcUwFCPXqW6Amh3j6v8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mrd9z94cXEFhQI7zk+NicSydxRToYP8g2bceNPfAwOXjpVhjVnDd+ZEtVM6gwGjK4
-         /wuOoHz6QPrEXynsV3NUfva/g7d0inzgCUH27Uo+IhL1wmg8Kjn3IcSG2S6R9HeQUB
-         HYjzF5yn7F/lXK+c2kJjgSEt+3hGvz8vmCO8vwMI=
+        b=hpgXp9aE4b4a68tdJG/U0X6uyZoyeI6r+JwVh/hBfaoLesXHpDPTEBuvJhZTnYmNb
+         viElyFBcw5He1LLMy8KuTdCmziyW99sg+1OOcAC52kt7r+/p0elB7gQHeugqRWf5ZI
+         dol2iO7BB6whKlCo1UPl0lCD3MEPMT6xivCgqnfU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>,
         linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 5.1 054/186] f2fs: fix to retrieve inline xattr space
-Date:   Sat,  1 Jun 2019 09:14:30 -0400
-Message-Id: <20190601131653.24205-54-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 055/186] f2fs: fix to do checksum even if inode page is uptodate
+Date:   Sat,  1 Jun 2019 09:14:31 -0400
+Message-Id: <20190601131653.24205-55-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190601131653.24205-1-sashal@kernel.org>
 References: <20190601131653.24205-1-sashal@kernel.org>
@@ -45,73 +45,95 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Chao Yu <yuchao0@huawei.com>
 
-[ Upstream commit 45a746881576977f85504c21a75547f10c5c0a8e ]
+[ Upstream commit b42b179bda9ff11075a6fc2bac4d9e400513679a ]
 
-With below mkfs and mount option, generic/339 of fstest will report that
-scratch image becomes corrupted.
+As Jungyeon reported in bugzilla:
 
-MKFS_OPTIONS  -- -O extra_attr -O project_quota -O inode_checksum -O flexible_inline_xattr -O inode_crtime -f /dev/zram1
-MOUNT_OPTIONS -- -o acl,user_xattr -o discard,noinline_xattr /dev/zram1 /mnt/scratch_f2fs
+https://bugzilla.kernel.org/show_bug.cgi?id=203221
 
-[ASSERT] (f2fs_check_dirent_position:1315)  --> Wrong position of dirent pino:1970, name: (...)
-level:8, dir_level:0, pgofs:951, correct range:[900, 901]
+- Overview
+When mounting the attached crafted image and running program, this error is reported.
 
-In old kernel, inline data and directory always reserved 200 bytes in
-inode layout, even if inline_xattr is disabled, then new kernel tries
-to retrieve that space for non-inline xattr inode, but for inline dentry,
-its layout size should be fixed, so we just keep that reserved space.
+The image is intentionally fuzzed from a normal f2fs image for testing and I enabled option CONFIG_F2FS_CHECK_FS on.
 
-But the problem here is that, after inline dentry conversion, inline
-dentry layout no longer exists, if we still reserve inline xattr space,
-after dents updates, there will be a hole in inline xattr space, which
-can break hierarchy hash directory structure.
+- Reproduces
+cc poc_07.c
+mkdir test
+mount -t f2fs tmp.img test
+cp a.out test
+cd test
+sudo ./a.out
 
-This patch fixes this issue by retrieving inline xattr space after
-inline dentry conversion.
+- Messages
+ kernel BUG at fs/f2fs/node.c:1279!
+ RIP: 0010:read_node_page+0xcf/0xf0
+ Call Trace:
+  __get_node_page+0x6b/0x2f0
+  f2fs_iget+0x8f/0xdf0
+  f2fs_lookup+0x136/0x320
+  __lookup_slow+0x92/0x140
+  lookup_slow+0x30/0x50
+  walk_component+0x1c1/0x350
+  path_lookupat+0x62/0x200
+  filename_lookup+0xb3/0x1a0
+  do_fchmodat+0x3e/0xa0
+  __x64_sys_chmod+0x12/0x20
+  do_syscall_64+0x43/0xf0
+  entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Fixes: 6afc662e68b5 ("f2fs: support flexible inline xattr size")
+On below paths, we can have opportunity to readahead inode page
+- gc_node_segment -> f2fs_ra_node_page
+- gc_data_segment -> f2fs_ra_node_page
+- f2fs_fill_dentries -> f2fs_ra_node_page
+
+Unlike synchronized read, on readahead path, we can set page uptodate
+before verifying page's checksum, then read_node_page() will trigger
+kernel panic once it encounters a uptodated page w/ incorrect checksum.
+
+So considering readahead scenario, we have to do checksum each time
+when loading inode page even if it is uptodated.
+
 Signed-off-by: Chao Yu <yuchao0@huawei.com>
 Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/inline.c | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ fs/f2fs/inode.c | 4 ++--
+ fs/f2fs/node.c  | 7 ++++---
+ 2 files changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/fs/f2fs/inline.c b/fs/f2fs/inline.c
-index bb6a152310ef4..404d2462a0fe6 100644
---- a/fs/f2fs/inline.c
-+++ b/fs/f2fs/inline.c
-@@ -420,6 +420,14 @@ static int f2fs_move_inline_dirents(struct inode *dir, struct page *ipage,
- 	stat_dec_inline_dir(dir);
- 	clear_inode_flag(dir, FI_INLINE_DENTRY);
+diff --git a/fs/f2fs/inode.c b/fs/f2fs/inode.c
+index 4edd6f2bb4910..b53952a15ffae 100644
+--- a/fs/f2fs/inode.c
++++ b/fs/f2fs/inode.c
+@@ -177,8 +177,8 @@ bool f2fs_inode_chksum_verify(struct f2fs_sb_info *sbi, struct page *page)
  
-+	/*
-+	 * should retrieve reserved space which was used to keep
-+	 * inline_dentry's structure for backward compatibility.
-+	 */
-+	if (!f2fs_sb_has_flexible_inline_xattr(F2FS_I_SB(dir)) &&
-+			!f2fs_has_inline_xattr(dir))
-+		F2FS_I(dir)->i_inline_xattr_size = 0;
-+
- 	f2fs_i_depth_write(dir, 1);
- 	if (i_size_read(dir) < PAGE_SIZE)
- 		f2fs_i_size_write(dir, PAGE_SIZE);
-@@ -501,6 +509,15 @@ static int f2fs_move_rehashed_dirents(struct inode *dir, struct page *ipage,
+ 	if (provided != calculated)
+ 		f2fs_msg(sbi->sb, KERN_WARNING,
+-			"checksum invalid, ino = %x, %x vs. %x",
+-			ino_of_node(page), provided, calculated);
++			"checksum invalid, nid = %lu, ino_of_node = %x, %x vs. %x",
++			page->index, ino_of_node(page), provided, calculated);
  
- 	stat_dec_inline_dir(dir);
- 	clear_inode_flag(dir, FI_INLINE_DENTRY);
-+
-+	/*
-+	 * should retrieve reserved space which was used to keep
-+	 * inline_dentry's structure for backward compatibility.
-+	 */
-+	if (!f2fs_sb_has_flexible_inline_xattr(F2FS_I_SB(dir)) &&
-+			!f2fs_has_inline_xattr(dir))
-+		F2FS_I(dir)->i_inline_xattr_size = 0;
-+
- 	kvfree(backup_dentry);
- 	return 0;
- recover:
+ 	return provided == calculated;
+ }
+diff --git a/fs/f2fs/node.c b/fs/f2fs/node.c
+index 63bb6134d39ae..e29d5f6735ae9 100644
+--- a/fs/f2fs/node.c
++++ b/fs/f2fs/node.c
+@@ -1281,9 +1281,10 @@ static int read_node_page(struct page *page, int op_flags)
+ 	int err;
+ 
+ 	if (PageUptodate(page)) {
+-#ifdef CONFIG_F2FS_CHECK_FS
+-		f2fs_bug_on(sbi, !f2fs_inode_chksum_verify(sbi, page));
+-#endif
++		if (!f2fs_inode_chksum_verify(sbi, page)) {
++			ClearPageUptodate(page);
++			return -EBADMSG;
++		}
+ 		return LOCKED_PAGE;
+ 	}
+ 
 -- 
 2.20.1
 
