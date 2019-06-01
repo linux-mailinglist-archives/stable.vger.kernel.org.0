@@ -2,39 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D35131EDC
-	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:41:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DB0731EDE
+	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:41:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728659AbfFANjd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1728423AbfFANjd (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sat, 1 Jun 2019 09:39:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48398 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:48414 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727276AbfFANVH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Jun 2019 09:21:07 -0400
+        id S1728389AbfFANVI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 1 Jun 2019 09:21:08 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1A7ED272FB;
-        Sat,  1 Jun 2019 13:21:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3D541272F3;
+        Sat,  1 Jun 2019 13:21:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559395266;
-        bh=ASVA2U74puGrj3gTWdNjad0glNORNV5tZItqufhBi1c=;
+        s=default; t=1559395268;
+        bh=WY1hPdJyYKI9OsjIk8QB655ji3F1XMrtlczo3w6SXlY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dGkqlR510IG31PmdOytcJgTxEimAvWEZCJo8oosg26MjhcxiZHU1nZmFNuvCF3cGh
-         3ojdbZyv+dyL0cwbM6TTltZbR9rpe2RhSQY5+eH5qANKhweyN4MS0Ayu1E32PWCGMe
-         Mch04BZ2lYM6ETqrItEJImO37k5vMey/YVPDg+Zo=
+        b=v26wxSIUxBXUkolnycaBgG3rJMzvytkKyeFrOmJzWgRl5bZBcz3MVJI6kLAyUymTQ
+         5v12YE3WxyUZohJTkTGY5z7vpr0zfLgMCxirFnm51UqGOCVPDtDdVQatgZAF07GTOK
+         V6zc5GJ+GdniURqHDtLF3otGsTs/r/Qg53RN8OsQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ben Skeggs <bskeggs@redhat.com>, Lyude Paul <lyude@redhat.com>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.0 032/173] drm/nouveau/kms/gv100-: fix spurious window immediate interlocks
-Date:   Sat,  1 Jun 2019 09:17:04 -0400
-Message-Id: <20190601131934.25053-32-sashal@kernel.org>
+Cc:     Krzesimir Nowak <krzesimir@kinvolk.io>,
+        Alban Crequy <alban@kinvolk.io>,
+        =?UTF-8?q?Iago=20L=C3=B3pez=20Galeiras?= <iago@kinvolk.io>,
+        Yonghong Song <yhs@fb.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.0 033/173] bpf: fix undefined behavior in narrow load handling
+Date:   Sat,  1 Jun 2019 09:17:05 -0400
+Message-Id: <20190601131934.25053-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190601131934.25053-1-sashal@kernel.org>
 References: <20190601131934.25053-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,62 +48,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Skeggs <bskeggs@redhat.com>
+From: Krzesimir Nowak <krzesimir@kinvolk.io>
 
-[ Upstream commit d2434e4d942c32cadcbdbcd32c58f35098f3b604 ]
+[ Upstream commit e2f7fc0ac6957cabff4cecf6c721979b571af208 ]
 
-Cursor position updates were accidentally causing us to attempt to interlock
-window with window immediate, and without a matching window immediate update,
-NVDisplay could hang forever in some circumstances.
+Commit 31fd85816dbe ("bpf: permits narrower load from bpf program
+context fields") made the verifier add AND instructions to clear the
+unwanted bits with a mask when doing a narrow load. The mask is
+computed with
 
-Fixes suspend/resume on (at least) Quadro RTX4000 (TU104).
+  (1 << size * 8) - 1
 
-Reported-by: Lyude Paul <lyude@redhat.com>
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+where "size" is the size of the narrow load. When doing a 4 byte load
+of a an 8 byte field the verifier shifts the literal 1 by 32 places to
+the left. This results in an overflow of a signed integer, which is an
+undefined behavior. Typically, the computed mask was zero, so the
+result of the narrow load ended up being zero too.
+
+Cast the literal to long long to avoid overflows. Note that narrow
+load of the 4 byte fields does not have the undefined behavior,
+because the load size can only be either 1 or 2 bytes, so shifting 1
+by 8 or 16 places will not overflow it. And reading 4 bytes would not
+be a narrow load of a 4 bytes field.
+
+Fixes: 31fd85816dbe ("bpf: permits narrower load from bpf program context fields")
+Reviewed-by: Alban Crequy <alban@kinvolk.io>
+Reviewed-by: Iago López Galeiras <iago@kinvolk.io>
+Signed-off-by: Krzesimir Nowak <krzesimir@kinvolk.io>
+Cc: Yonghong Song <yhs@fb.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/dispnv50/disp.h     | 1 +
- drivers/gpu/drm/nouveau/dispnv50/wimmc37b.c | 1 +
- drivers/gpu/drm/nouveau/dispnv50/wndw.c     | 2 +-
- 3 files changed, 3 insertions(+), 1 deletion(-)
+ kernel/bpf/verifier.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/nouveau/dispnv50/disp.h b/drivers/gpu/drm/nouveau/dispnv50/disp.h
-index 2216c58620c2d..7c41b0599d1ac 100644
---- a/drivers/gpu/drm/nouveau/dispnv50/disp.h
-+++ b/drivers/gpu/drm/nouveau/dispnv50/disp.h
-@@ -41,6 +41,7 @@ struct nv50_disp_interlock {
- 		NV50_DISP_INTERLOCK__SIZE
- 	} type;
- 	u32 data;
-+	u32 wimm;
- };
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index d53825b6fcd94..3b287b42212ea 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -6612,7 +6612,7 @@ static int convert_ctx_accesses(struct bpf_verifier_env *env)
+ 									insn->dst_reg,
+ 									shift);
+ 				insn_buf[cnt++] = BPF_ALU64_IMM(BPF_AND, insn->dst_reg,
+-								(1 << size * 8) - 1);
++								(1ULL << size * 8) - 1);
+ 			}
+ 		}
  
- void corec37d_ntfy_init(struct nouveau_bo *, u32);
-diff --git a/drivers/gpu/drm/nouveau/dispnv50/wimmc37b.c b/drivers/gpu/drm/nouveau/dispnv50/wimmc37b.c
-index 9103b8494279c..f7dbd965e4e72 100644
---- a/drivers/gpu/drm/nouveau/dispnv50/wimmc37b.c
-+++ b/drivers/gpu/drm/nouveau/dispnv50/wimmc37b.c
-@@ -75,6 +75,7 @@ wimmc37b_init_(const struct nv50_wimm_func *func, struct nouveau_drm *drm,
- 		return ret;
- 	}
- 
-+	wndw->interlock.wimm = wndw->interlock.data;
- 	wndw->immd = func;
- 	return 0;
- }
-diff --git a/drivers/gpu/drm/nouveau/dispnv50/wndw.c b/drivers/gpu/drm/nouveau/dispnv50/wndw.c
-index ba9eea2ff16bb..bbdb6d274c047 100644
---- a/drivers/gpu/drm/nouveau/dispnv50/wndw.c
-+++ b/drivers/gpu/drm/nouveau/dispnv50/wndw.c
-@@ -149,7 +149,7 @@ nv50_wndw_flush_set(struct nv50_wndw *wndw, u32 *interlock,
- 	if (asyw->set.point) {
- 		if (asyw->set.point = false, asyw->set.mask)
- 			interlock[wndw->interlock.type] |= wndw->interlock.data;
--		interlock[NV50_DISP_INTERLOCK_WIMM] |= wndw->interlock.data;
-+		interlock[NV50_DISP_INTERLOCK_WIMM] |= wndw->interlock.wimm;
- 
- 		wndw->immd->point(wndw, asyw);
- 		wndw->immd->update(wndw, interlock);
 -- 
 2.20.1
 
