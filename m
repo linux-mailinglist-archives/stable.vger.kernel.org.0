@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D74C331E0C
-	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:33:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B48531E07
+	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:33:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729193AbfFANYV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Jun 2019 09:24:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54394 "EHLO mail.kernel.org"
+        id S1729368AbfFANdm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Jun 2019 09:33:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728651AbfFANYV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Jun 2019 09:24:21 -0400
+        id S1729184AbfFANYX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 1 Jun 2019 09:24:23 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EB9BD27381;
-        Sat,  1 Jun 2019 13:24:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DB403264C3;
+        Sat,  1 Jun 2019 13:24:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559395460;
-        bh=1FCE2P2huRigfGwOZTyr6/C7luFUnEpUUA7uGPN+dFw=;
+        s=default; t=1559395462;
+        bh=FSI2aQNv3ltYE6uawZI59HSVPdmf3g/QpBr65EX3ngs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DZGkah5eAu2N9rYwOEcgn6p9K2GvC6/ouED06+KTcGnYkhnKOnuooDG9wMjHgoQfz
-         bQjoU4Q17LHH1HSIT+SgF6PFS44Xa9X+VWP3q9e58IJJzN3kqYZvBVXnGm2BR6GGIm
-         UudXqYxLkdBNBJraWttrIHbSVmUiRWydHDBM+VwI=
+        b=zK+Vl7F7+GGDHfxsC+DKIBOo1T1sczwk5lGGBN/2XAGTAF3hrWz6yWJxy26iXcjKp
+         FVg+wQaxBZFJo91aFslSiN7sLMY2izFRWeaSeabDM2CaVOr6JIYPuP49pOV4ydyC3L
+         8UakgtXHfC4G40e87+yukln3Byp4OATcKsPqeoSw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qian Cai <cai@lca.pw>, Andrew Morton <akpm@linux-foundation.org>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Christoph Lameter <cl@linux.com>,
-        Pekka Enberg <penberg@kernel.org>,
-        David Rientjes <rientjes@google.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+Cc:     Cyrill Gorcunov <gorcunov@gmail.com>,
+        Andrey Vagin <avagin@gmail.com>,
+        Dmitry Safonov <0x7f454c46@gmail.com>,
+        Pavel Emelyanov <xemul@virtuozzo.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
-Subject: [PATCH AUTOSEL 4.14 12/99] mm/slab.c: fix an infinite loop in leaks_show()
-Date:   Sat,  1 Jun 2019 09:22:19 -0400
-Message-Id: <20190601132346.26558-12-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 13/99] kernel/sys.c: prctl: fix false positive in validate_prctl_map()
+Date:   Sat,  1 Jun 2019 09:22:20 -0400
+Message-Id: <20190601132346.26558-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190601132346.26558-1-sashal@kernel.org>
 References: <20190601132346.26558-1-sashal@kernel.org>
@@ -48,85 +47,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qian Cai <cai@lca.pw>
+From: Cyrill Gorcunov <gorcunov@gmail.com>
 
-[ Upstream commit 745e10146c31b1c6ed3326286704ae251b17f663 ]
+[ Upstream commit a9e73998f9d705c94a8dca9687633adc0f24a19a ]
 
-"cat /proc/slab_allocators" could hang forever on SMP machines with
-kmemleak or object debugging enabled due to other CPUs running do_drain()
-will keep making kmemleak_object or debug_objects_cache dirty and unable
-to escape the first loop in leaks_show(),
+While validating new map we require the @start_data to be strictly less
+than @end_data, which is fine for regular applications (this is why this
+nit didn't trigger for that long).  These members are set from executable
+loaders such as elf handers, still it is pretty valid to have a loadable
+data section with zero size in file, in such case the start_data is equal
+to end_data once kernel loader finishes.
 
-do {
-	set_store_user_clean(cachep);
-	drain_cpu_caches(cachep);
-	...
+As a result when we're trying to restore such programs the procedure fails
+and the kernel returns -EINVAL.  From the image dump of a program:
 
-} while (!is_store_user_clean(cachep));
+ | "mm_start_code": "0x400000",
+ | "mm_end_code": "0x8f5fb4",
+ | "mm_start_data": "0xf1bfb0",
+ | "mm_end_data": "0xf1bfb0",
 
-For example,
+Thus we need to change validate_prctl_map from strictly less to less or
+equal operator use.
 
-do_drain
-  slabs_destroy
-    slab_destroy
-      kmem_cache_free
-        __cache_free
-          ___cache_free
-            kmemleak_free_recursive
-              delete_object_full
-                __delete_object
-                  put_object
-                    free_object_rcu
-                      kmem_cache_free
-                        cache_free_debugcheck --> dirty kmemleak_object
-
-One approach is to check cachep->name and skip both kmemleak_object and
-debug_objects_cache in leaks_show().  The other is to set store_user_clean
-after drain_cpu_caches() which leaves a small window between
-drain_cpu_caches() and set_store_user_clean() where per-CPU caches could
-be dirty again lead to slightly wrong information has been stored but
-could also speed up things significantly which sounds like a good
-compromise.  For example,
-
- # cat /proc/slab_allocators
- 0m42.778s # 1st approach
- 0m0.737s  # 2nd approach
-
-[akpm@linux-foundation.org: tweak comment]
-Link: http://lkml.kernel.org/r/20190411032635.10325-1-cai@lca.pw
-Fixes: d31676dfde25 ("mm/slab: alternative implementation for DEBUG_SLAB_LEAK")
-Signed-off-by: Qian Cai <cai@lca.pw>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Christoph Lameter <cl@linux.com>
-Cc: Pekka Enberg <penberg@kernel.org>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Link: http://lkml.kernel.org/r/20190408143554.GY1421@uranus.lan
+Fixes: f606b77f1a9e3 ("prctl: PR_SET_MM -- introduce PR_SET_MM_MAP operation")
+Signed-off-by: Cyrill Gorcunov <gorcunov@gmail.com>
+Cc: Andrey Vagin <avagin@gmail.com>
+Cc: Dmitry Safonov <0x7f454c46@gmail.com>
+Cc: Pavel Emelyanov <xemul@virtuozzo.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/slab.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ kernel/sys.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/mm/slab.c b/mm/slab.c
-index 843ecea9e336b..a04aeae423062 100644
---- a/mm/slab.c
-+++ b/mm/slab.c
-@@ -4320,8 +4320,12 @@ static int leaks_show(struct seq_file *m, void *p)
- 	 * whole processing.
- 	 */
- 	do {
--		set_store_user_clean(cachep);
- 		drain_cpu_caches(cachep);
-+		/*
-+		 * drain_cpu_caches() could make kmemleak_object and
-+		 * debug_objects_cache dirty, so reset afterwards.
-+		 */
-+		set_store_user_clean(cachep);
- 
- 		x[1] = 0;
- 
+diff --git a/kernel/sys.c b/kernel/sys.c
+index e25ec93aea221..ab96b98823473 100644
+--- a/kernel/sys.c
++++ b/kernel/sys.c
+@@ -1861,7 +1861,7 @@ static int validate_prctl_map(struct prctl_mm_map *prctl_map)
+ 	((unsigned long)prctl_map->__m1 __op				\
+ 	 (unsigned long)prctl_map->__m2) ? 0 : -EINVAL
+ 	error  = __prctl_check_order(start_code, <, end_code);
+-	error |= __prctl_check_order(start_data, <, end_data);
++	error |= __prctl_check_order(start_data,<=, end_data);
+ 	error |= __prctl_check_order(start_brk, <=, brk);
+ 	error |= __prctl_check_order(arg_start, <=, arg_end);
+ 	error |= __prctl_check_order(env_start, <=, env_end);
 -- 
 2.20.1
 
