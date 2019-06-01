@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E3F2231F11
-	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:41:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B82431F0D
+	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:41:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728123AbfFANTM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Jun 2019 09:19:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46374 "EHLO mail.kernel.org"
+        id S1728120AbfFANTL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Jun 2019 09:19:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728105AbfFANTK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Jun 2019 09:19:10 -0400
+        id S1728117AbfFANTL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 1 Jun 2019 09:19:11 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AA737255FF;
-        Sat,  1 Jun 2019 13:19:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 01BD325525;
+        Sat,  1 Jun 2019 13:19:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559395149;
-        bh=Br3cRnNVP5bb5xNzXE3kLWwEt5wSKwgAOl2eaAtvdwE=;
+        s=default; t=1559395150;
+        bh=2LUsXLY2sI/4AyYGBsY7LNb4t1yX41DcnUFOv/XEQ+Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PQBDMzNXnCca7YnKvPXOdcOnsE8T2BYlc7ykwH7Z9dTwAPbfgylJruUGU5OZBxaNr
-         87OpIqG95ghem0fxWmNzItWabC+oHQ6Y3uLHg8cu5fLTESWqJXlaAFpzsa1YO+CzmL
-         xFBT4rVsR1Qt34l2tjfnD7EvtjCRI1a/ymn9DTCA=
+        b=BPG1vr0fTvjBMcb9VdT06u5MmQ8xJKlWJAHb7406rFzKqwVfd2mBsmZkB8oeLIca+
+         2Zm18ZAxma9HPmD/nxw8vS7Tocri9YR2YzuhH6TejRyqH2wWq4AlneT5HMALxA+v9f
+         tyxGmEuA8v3zXkYkLVUhKZjT3tf8B4J/0jGlb9to=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kristian Evensen <kristian.evensen@gmail.com>,
-        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>,
-        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 066/186] netfilter: ctnetlink: Resolve conntrack L3-protocol flush regression
-Date:   Sat,  1 Jun 2019 09:14:42 -0400
-Message-Id: <20190601131653.24205-66-sashal@kernel.org>
+Cc:     Amir Goldstein <amir73il@gmail.com>,
+        Murphy Zhou <jencce.kernel@gmail.com>,
+        Miklos Szeredi <mszeredi@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-unionfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.1 067/186] ovl: do not generate duplicate fsnotify events for "fake" path
+Date:   Sat,  1 Jun 2019 09:14:43 -0400
+Message-Id: <20190601131653.24205-67-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190601131653.24205-1-sashal@kernel.org>
 References: <20190601131653.24205-1-sashal@kernel.org>
@@ -46,52 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kristian Evensen <kristian.evensen@gmail.com>
+From: Amir Goldstein <amir73il@gmail.com>
 
-[ Upstream commit f8e608982022fad035160870f5b06086d3cba54d ]
+[ Upstream commit d989903058a83e8536cc7aadf9256a47d5c173fe ]
 
-Commit 59c08c69c278 ("netfilter: ctnetlink: Support L3 protocol-filter
-on flush") introduced a user-space regression when flushing connection
-track entries. Before this commit, the nfgen_family field was not used
-by the kernel and all entries were removed. Since this commit,
-nfgen_family is used to filter out entries that should not be removed.
-One example a broken tool is conntrack. conntrack always sets
-nfgen_family to AF_INET, so after 59c08c69c278 only IPv4 entries were
-removed with the -F parameter.
+Overlayfs "fake" path is used for stacked file operations on underlying
+files.  Operations on files with "fake" path must not generate fsnotify
+events with path data, because those events have already been generated at
+overlayfs layer and because the reported event->fd for fanotify marks on
+underlying inode/filesystem will have the wrong path (the overlayfs path).
 
-Pablo Neira Ayuso suggested using nfgenmsg->version to resolve the
-regression, and this commit implements his suggestion. nfgenmsg->version
-is so far set to zero, so it is well-suited to be used as a flag for
-selecting old or new flush behavior. If version is 0, nfgen_family is
-ignored and all entries are used. If user-space sets the version to one
-(or any other value than 0), then the new behavior is used. As version
-only can have two valid values, I chose not to add a new
-NFNETLINK_VERSION-constant.
-
-Fixes: 59c08c69c278 ("netfilter: ctnetlink: Support L3 protocol-filter on flush")
-Reported-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Suggested-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Kristian Evensen <kristian.evensen@gmail.com>
-Tested-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Link: https://lore.kernel.org/linux-fsdevel/20190423065024.12695-1-jencce.kernel@gmail.com/
+Reported-by: Murphy Zhou <jencce.kernel@gmail.com>
+Fixes: d1d04ef8572b ("ovl: stack file ops")
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_conntrack_netlink.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/overlayfs/file.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/net/netfilter/nf_conntrack_netlink.c b/net/netfilter/nf_conntrack_netlink.c
-index d7f61b0547c65..d2715b4d2e72e 100644
---- a/net/netfilter/nf_conntrack_netlink.c
-+++ b/net/netfilter/nf_conntrack_netlink.c
-@@ -1254,7 +1254,7 @@ static int ctnetlink_del_conntrack(struct net *net, struct sock *ctnl,
- 	struct nf_conntrack_tuple tuple;
- 	struct nf_conn *ct;
- 	struct nfgenmsg *nfmsg = nlmsg_data(nlh);
--	u_int8_t u3 = nfmsg->nfgen_family;
-+	u_int8_t u3 = nfmsg->version ? nfmsg->nfgen_family : AF_UNSPEC;
- 	struct nf_conntrack_zone zone;
+diff --git a/fs/overlayfs/file.c b/fs/overlayfs/file.c
+index 84dd957efa24a..6f6eb638a320f 100644
+--- a/fs/overlayfs/file.c
++++ b/fs/overlayfs/file.c
+@@ -29,10 +29,11 @@ static struct file *ovl_open_realfile(const struct file *file,
+ 	struct inode *inode = file_inode(file);
+ 	struct file *realfile;
+ 	const struct cred *old_cred;
++	int flags = file->f_flags | O_NOATIME | FMODE_NONOTIFY;
+ 
+ 	old_cred = ovl_override_creds(inode->i_sb);
+-	realfile = open_with_fake_path(&file->f_path, file->f_flags | O_NOATIME,
+-				       realinode, current_cred());
++	realfile = open_with_fake_path(&file->f_path, flags, realinode,
++				       current_cred());
+ 	revert_creds(old_cred);
+ 
+ 	pr_debug("open(%p[%pD2/%c], 0%o) -> (%p, 0%o)\n",
+@@ -50,7 +51,7 @@ static int ovl_change_flags(struct file *file, unsigned int flags)
  	int err;
  
+ 	/* No atime modificaton on underlying */
+-	flags |= O_NOATIME;
++	flags |= O_NOATIME | FMODE_NONOTIFY;
+ 
+ 	/* If some flag changed that cannot be changed then something's amiss */
+ 	if (WARN_ON((file->f_flags ^ flags) & ~OVL_SETFL_MASK))
 -- 
 2.20.1
 
