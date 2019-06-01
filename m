@@ -2,37 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F08031BD5
-	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:17:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A54531BD8
+	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:17:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727385AbfFANRS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Jun 2019 09:17:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42076 "EHLO mail.kernel.org"
+        id S1727427AbfFANRZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Jun 2019 09:17:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727379AbfFANRS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Jun 2019 09:17:18 -0400
+        id S1727379AbfFANRZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 1 Jun 2019 09:17:25 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2B4132725B;
-        Sat,  1 Jun 2019 13:17:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 233C227266;
+        Sat,  1 Jun 2019 13:17:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559395038;
-        bh=Jt7V68HZiWXTwbMN1VICdRfxSL5xySYNAxl4eFdrVlE=;
+        s=default; t=1559395043;
+        bh=Ke1iK7dMBqo3uwhIOK8BZej60GWeTMPNWzjKsuezZR4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KEcQjyjMTafUVkUJtoC2ywncRgBfpBy+Y4++RYRM5Fys7WbR8OXQyHEUS+hUv9WNw
-         Zv2shBFQdclcLt+BGP2rgH6VUry4iM4/Lj+nI9GZHCZ0a4rCOduBsm9NcrrnWFzHev
-         RnLE5w4ovvYcTEvVm268N9MBEO68x9De77dfMfrE=
+        b=gZz0rh7C1Tw7eMpWQVenwVYAbkFNdLk1XqPUCPVCesy6l+GbANlwif1heWhqMOX2z
+         bBkFO7jlye5pL+D+vHvHpJtWiHflqmCw493ls3h1Wdl4/v0z9I1L/FBN+Hvo5oT7F8
+         VUvMIPIZxw3bmlvlWcxHo0EeIUjnkOS2OrACl71c=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mike Rapoport <rppt@linux.ibm.com>,
+Cc:     Arnd Bergmann <arnd@arndb.de>,
+        Masahiro Yamada <yamada.masahiro@socionext.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Christophe Leroy <christophe.leroy@c-s.fr>,
+        Mathieu Malaterre <malat@debian.org>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Stefan Agner <stefan@agner.ch>,
+        Boris Brezillon <bbrezillon@kernel.org>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Richard Weinberger <richard@nod.at>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Brian Norris <computersforpeace@gmail.com>,
+        Marek Vasut <marek.vasut@gmail.com>,
+        Russell King <rmk+kernel@arm.linux.org.uk>,
+        Borislav Petkov <bp@suse.de>,
+        Mark Rutland <mark.rutland@arm.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Song Liu <liu.song.a23@gmail.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org
-Subject: [PATCH AUTOSEL 5.1 009/186] mm/mprotect.c: fix compilation warning because of unused 'mm' variable
-Date:   Sat,  1 Jun 2019 09:13:45 -0400
-Message-Id: <20190601131653.24205-9-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 010/186] ARM: prevent tracing IPI_CPU_BACKTRACE
+Date:   Sat,  1 Jun 2019 09:13:46 -0400
+Message-Id: <20190601131653.24205-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190601131653.24205-1-sashal@kernel.org>
 References: <20190601131653.24205-1-sashal@kernel.org>
@@ -45,68 +64,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 94393c78964c432917014e3a456fa15c3e78f741 ]
+[ Upstream commit be167862ae7dd85c56d385209a4890678e1b0488 ]
 
-Since 0cbe3e26abe0 ("mm: update ptep_modify_prot_start/commit to take
-vm_area_struct as arg") the only place that uses the local 'mm' variable
-in change_pte_range() is the call to set_pte_at().
+Patch series "compiler: allow all arches to enable
+CONFIG_OPTIMIZE_INLINING", v3.
 
-Many architectures define set_pte_at() as macro that does not use the 'mm'
-parameter, which generates the following compilation warning:
+This patch (of 11):
 
- CC      mm/mprotect.o
-mm/mprotect.c: In function 'change_pte_range':
-mm/mprotect.c:42:20: warning: unused variable 'mm' [-Wunused-variable]
-  struct mm_struct *mm = vma->vm_mm;
-                    ^~
+When function tracing for IPIs is enabled, we get a warning for an
+overflow of the ipi_types array with the IPI_CPU_BACKTRACE type as
+triggered by raise_nmi():
 
-Fix it by passing vma->mm to set_pte_at() and dropping the local 'mm'
-variable in change_pte_range().
+  arch/arm/kernel/smp.c: In function 'raise_nmi':
+  arch/arm/kernel/smp.c:489:2: error: array subscript is above array bounds [-Werror=array-bounds]
+    trace_ipi_raise(target, ipi_types[ipinr]);
 
-[liu.song.a23@gmail.com: fix missed conversions]
-  Link: http://lkml.kernel.org/r/CAPhsuW6wcQgYLHNdBdw6m0YiR4RWsS4XzfpSKU7wBLLeOCTbpw@mail.gmail.comLink: http://lkml.kernel.org/r/1557305432-4940-1-git-send-email-rppt@linux.ibm.com
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Song Liu <liu.song.a23@gmail.com>
+This is a correct warning as we actually overflow the array here.
+
+This patch raise_nmi() to call __smp_cross_call() instead of
+smp_cross_call(), to avoid calling into ftrace.  For clarification, I'm
+also adding a two new code comments describing how this one is special.
+
+The warning appears to have shown up after commit e7273ff49acf ("ARM:
+8488/1: Make IPI_CPU_BACKTRACE a "non-secure" SGI"), which changed the
+number assignment from '15' to '8', but as far as I can tell has existed
+since the IPI tracepoints were first introduced.  If we decide to
+backport this patch to stable kernels, we probably need to backport
+e7273ff49acf as well.
+
+[yamada.masahiro@socionext.com: rebase on v5.1-rc1]
+Link: http://lkml.kernel.org/r/20190423034959.13525-2-yamada.masahiro@socionext.com
+Fixes: e7273ff49acf ("ARM: 8488/1: Make IPI_CPU_BACKTRACE a "non-secure" SGI")
+Fixes: 365ec7b17327 ("ARM: add IPI tracepoints") # v3.17
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Christophe Leroy <christophe.leroy@c-s.fr>
+Cc: Mathieu Malaterre <malat@debian.org>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: Stefan Agner <stefan@agner.ch>
+Cc: Boris Brezillon <bbrezillon@kernel.org>
+Cc: Miquel Raynal <miquel.raynal@bootlin.com>
+Cc: Richard Weinberger <richard@nod.at>
+Cc: David Woodhouse <dwmw2@infradead.org>
+Cc: Brian Norris <computersforpeace@gmail.com>
+Cc: Marek Vasut <marek.vasut@gmail.com>
+Cc: Russell King <rmk+kernel@arm.linux.org.uk>
+Cc: Borislav Petkov <bp@suse.de>
+Cc: Mark Rutland <mark.rutland@arm.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/mprotect.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ arch/arm/include/asm/hardirq.h | 1 +
+ arch/arm/kernel/smp.c          | 6 +++++-
+ 2 files changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/mm/mprotect.c b/mm/mprotect.c
-index 028c724dcb1ae..ab40f3d04aa37 100644
---- a/mm/mprotect.c
-+++ b/mm/mprotect.c
-@@ -39,7 +39,6 @@ static unsigned long change_pte_range(struct vm_area_struct *vma, pmd_t *pmd,
- 		unsigned long addr, unsigned long end, pgprot_t newprot,
- 		int dirty_accountable, int prot_numa)
+diff --git a/arch/arm/include/asm/hardirq.h b/arch/arm/include/asm/hardirq.h
+index cba23eaa60721..7a88f160b1fbe 100644
+--- a/arch/arm/include/asm/hardirq.h
++++ b/arch/arm/include/asm/hardirq.h
+@@ -6,6 +6,7 @@
+ #include <linux/threads.h>
+ #include <asm/irq.h>
+ 
++/* number of IPIS _not_ including IPI_CPU_BACKTRACE */
+ #define NR_IPI	7
+ 
+ typedef struct {
+diff --git a/arch/arm/kernel/smp.c b/arch/arm/kernel/smp.c
+index facd4240ca02c..c93fe0f256deb 100644
+--- a/arch/arm/kernel/smp.c
++++ b/arch/arm/kernel/smp.c
+@@ -70,6 +70,10 @@ enum ipi_msg_type {
+ 	IPI_CPU_STOP,
+ 	IPI_IRQ_WORK,
+ 	IPI_COMPLETION,
++	/*
++	 * CPU_BACKTRACE is special and not included in NR_IPI
++	 * or tracable with trace_ipi_*
++	 */
+ 	IPI_CPU_BACKTRACE,
+ 	/*
+ 	 * SGI8-15 can be reserved by secure firmware, and thus may
+@@ -797,7 +801,7 @@ core_initcall(register_cpufreq_notifier);
+ 
+ static void raise_nmi(cpumask_t *mask)
  {
--	struct mm_struct *mm = vma->vm_mm;
- 	pte_t *pte, oldpte;
- 	spinlock_t *ptl;
- 	unsigned long pages = 0;
-@@ -136,7 +135,7 @@ static unsigned long change_pte_range(struct vm_area_struct *vma, pmd_t *pmd,
- 				newpte = swp_entry_to_pte(entry);
- 				if (pte_swp_soft_dirty(oldpte))
- 					newpte = pte_swp_mksoft_dirty(newpte);
--				set_pte_at(mm, addr, pte, newpte);
-+				set_pte_at(vma->vm_mm, addr, pte, newpte);
+-	smp_cross_call(mask, IPI_CPU_BACKTRACE);
++	__smp_cross_call(mask, IPI_CPU_BACKTRACE);
+ }
  
- 				pages++;
- 			}
-@@ -150,7 +149,7 @@ static unsigned long change_pte_range(struct vm_area_struct *vma, pmd_t *pmd,
- 				 */
- 				make_device_private_entry_read(&entry);
- 				newpte = swp_entry_to_pte(entry);
--				set_pte_at(mm, addr, pte, newpte);
-+				set_pte_at(vma->vm_mm, addr, pte, newpte);
- 
- 				pages++;
- 			}
+ void arch_trigger_cpumask_backtrace(const cpumask_t *mask, bool exclude_self)
 -- 
 2.20.1
 
