@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DB0731EDE
-	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:41:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED8CB31EC2
+	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:40:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728423AbfFANjd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Jun 2019 09:39:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48414 "EHLO mail.kernel.org"
+        id S1728428AbfFANVN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Jun 2019 09:21:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728389AbfFANVI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Jun 2019 09:21:08 -0400
+        id S1728419AbfFANVJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 1 Jun 2019 09:21:09 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3D541272F3;
-        Sat,  1 Jun 2019 13:21:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9F6B2272F5;
+        Sat,  1 Jun 2019 13:21:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559395268;
-        bh=WY1hPdJyYKI9OsjIk8QB655ji3F1XMrtlczo3w6SXlY=;
+        s=default; t=1559395269;
+        bh=ovK+AB50RkngX4ySnqrgWIrQ10Rt36zLYGZVQ5jDaEM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v26wxSIUxBXUkolnycaBgG3rJMzvytkKyeFrOmJzWgRl5bZBcz3MVJI6kLAyUymTQ
-         5v12YE3WxyUZohJTkTGY5z7vpr0zfLgMCxirFnm51UqGOCVPDtDdVQatgZAF07GTOK
-         V6zc5GJ+GdniURqHDtLF3otGsTs/r/Qg53RN8OsQ=
+        b=z/yKsNj1nueg8nCIqgBq6xlYh6diCWex/riOg7Ne0ViA5EpLL0LXCFcXpfzahnV8o
+         LbkorczrkUbrhsW1CnBd20FF49TGBmMWZ4Ql0BaArEPnaK/+YV+jD0x3w9dmg4Ge8u
+         A5b2lDH9acIJWUpD6yz+p7uIvJUnRF6CcVRJ7Cls=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Krzesimir Nowak <krzesimir@kinvolk.io>,
-        Alban Crequy <alban@kinvolk.io>,
-        =?UTF-8?q?Iago=20L=C3=B3pez=20Galeiras?= <iago@kinvolk.io>,
-        Yonghong Song <yhs@fb.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.0 033/173] bpf: fix undefined behavior in narrow load handling
-Date:   Sat,  1 Jun 2019 09:17:05 -0400
-Message-Id: <20190601131934.25053-33-sashal@kernel.org>
+Cc:     Chris Packham <chris.packham@alliedtelesis.co.nz>,
+        Douglas Anderson <dianders@chromium.org>,
+        Kees Cook <keescook@chromium.org>,
+        Sasha Levin <sashal@kernel.org>,
+        kernel-hardening@lists.openwall.com
+Subject: [PATCH AUTOSEL 5.0 034/173] gcc-plugins: arm_ssp_per_task_plugin: Fix for older GCC < 6
+Date:   Sat,  1 Jun 2019 09:17:06 -0400
+Message-Id: <20190601131934.25053-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190601131934.25053-1-sashal@kernel.org>
 References: <20190601131934.25053-1-sashal@kernel.org>
@@ -48,53 +46,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzesimir Nowak <krzesimir@kinvolk.io>
+From: Chris Packham <chris.packham@alliedtelesis.co.nz>
 
-[ Upstream commit e2f7fc0ac6957cabff4cecf6c721979b571af208 ]
+[ Upstream commit 259799ea5a9aa099a267f3b99e1f7078bbaf5c5e ]
 
-Commit 31fd85816dbe ("bpf: permits narrower load from bpf program
-context fields") made the verifier add AND instructions to clear the
-unwanted bits with a mask when doing a narrow load. The mask is
-computed with
+Use gen_rtx_set instead of gen_rtx_SET. The former is a wrapper macro
+that handles the difference between GCC versions implementing
+the latter.
 
-  (1 << size * 8) - 1
+This fixes the following error on my system with g++ 5.4.0 as the host
+compiler
 
-where "size" is the size of the narrow load. When doing a 4 byte load
-of a an 8 byte field the verifier shifts the literal 1 by 32 places to
-the left. This results in an overflow of a signed integer, which is an
-undefined behavior. Typically, the computed mask was zero, so the
-result of the narrow load ended up being zero too.
+   HOSTCXX -fPIC scripts/gcc-plugins/arm_ssp_per_task_plugin.o
+ scripts/gcc-plugins/arm_ssp_per_task_plugin.c:42:14: error: macro "gen_rtx_SET" requires 3 arguments, but only 2 given
+          mask)),
+               ^
+ scripts/gcc-plugins/arm_ssp_per_task_plugin.c: In function ‘unsigned int arm_pertask_ssp_rtl_execute()’:
+ scripts/gcc-plugins/arm_ssp_per_task_plugin.c:39:20: error: ‘gen_rtx_SET’ was not declared in this scope
+    emit_insn_before(gen_rtx_SET
 
-Cast the literal to long long to avoid overflows. Note that narrow
-load of the 4 byte fields does not have the undefined behavior,
-because the load size can only be either 1 or 2 bytes, so shifting 1
-by 8 or 16 places will not overflow it. And reading 4 bytes would not
-be a narrow load of a 4 bytes field.
-
-Fixes: 31fd85816dbe ("bpf: permits narrower load from bpf program context fields")
-Reviewed-by: Alban Crequy <alban@kinvolk.io>
-Reviewed-by: Iago López Galeiras <iago@kinvolk.io>
-Signed-off-by: Krzesimir Nowak <krzesimir@kinvolk.io>
-Cc: Yonghong Song <yhs@fb.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Fixes: 189af4657186 ("ARM: smp: add support for per-task stack canaries")
+Cc: stable@vger.kernel.org
+Tested-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Kees Cook <keescook@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/verifier.c | 2 +-
+ scripts/gcc-plugins/arm_ssp_per_task_plugin.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index d53825b6fcd94..3b287b42212ea 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -6612,7 +6612,7 @@ static int convert_ctx_accesses(struct bpf_verifier_env *env)
- 									insn->dst_reg,
- 									shift);
- 				insn_buf[cnt++] = BPF_ALU64_IMM(BPF_AND, insn->dst_reg,
--								(1 << size * 8) - 1);
-+								(1ULL << size * 8) - 1);
- 			}
- 		}
+diff --git a/scripts/gcc-plugins/arm_ssp_per_task_plugin.c b/scripts/gcc-plugins/arm_ssp_per_task_plugin.c
+index 89c47f57d1ce1..8c1af9bdcb1bb 100644
+--- a/scripts/gcc-plugins/arm_ssp_per_task_plugin.c
++++ b/scripts/gcc-plugins/arm_ssp_per_task_plugin.c
+@@ -36,7 +36,7 @@ static unsigned int arm_pertask_ssp_rtl_execute(void)
+ 		mask = GEN_INT(sext_hwi(sp_mask, GET_MODE_PRECISION(Pmode)));
+ 		masked_sp = gen_reg_rtx(Pmode);
  
+-		emit_insn_before(gen_rtx_SET(masked_sp,
++		emit_insn_before(gen_rtx_set(masked_sp,
+ 					     gen_rtx_AND(Pmode,
+ 							 stack_pointer_rtx,
+ 							 mask)),
 -- 
 2.20.1
 
