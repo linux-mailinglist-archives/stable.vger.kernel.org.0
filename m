@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2394631F5E
-	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:44:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EB8431F6F
+	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:44:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727339AbfFANRS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Jun 2019 09:17:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41944 "EHLO mail.kernel.org"
+        id S1727512AbfFANoJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Jun 2019 09:44:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727348AbfFANRP (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727356AbfFANRP (ORCPT <rfc822;stable@vger.kernel.org>);
         Sat, 1 Jun 2019 09:17:15 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8061827227;
-        Sat,  1 Jun 2019 13:17:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C12EB27251;
+        Sat,  1 Jun 2019 13:17:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559395034;
-        bh=scxhZynwZodEPPgyPa4Jy0luRfXCFIG9QxNi2wfXlKY=;
+        s=default; t=1559395035;
+        bh=s+Z98v9ivrDolaDrRNoRrO6t6pmUb/gBb80oUlBT2RM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MMbyILE5MCNZMfK70LuvMQvHLVF/vFCMdvbovVxzUdGbm5sBADDhGn6X+BQLb5bt5
-         /TQnh0lA/NO0AoI/xkUlpOTTicgTtAnau13b6jgFZtsLOm9azsSuO6e6G8zjJ2Qh8I
-         CzOyBtXErF0WVDE6C8eebLtPnYgDGJFQIRAfBv68=
+        b=TQRalkMppdwB+2NOkR0A9L1EcquxGN9uZhQMYLlVPHLXd+Nx7F2PpOjvM9Nn06rQl
+         /hzzGkYiScSsZDuCMM3IrNA6EfrVqCIl6LXdU62GrVn6V5pvQYvpioPi1I9YcQANVP
+         +UCOAbobOCgrIgZp/4ZopdOc3q7aZLF/j/CRiFqU=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Brian Masney <masneyb@onstation.org>,
-        Sean Paul <seanpaul@chromium.org>,
-        Sasha Levin <sashal@kernel.org>, linux-arm-msm@vger.kernel.org,
-        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.1 007/186] drm/msm: correct attempted NULL pointer dereference in debugfs
-Date:   Sat,  1 Jun 2019 09:13:43 -0400
-Message-Id: <20190601131653.24205-7-sashal@kernel.org>
+Cc:     Guenter Roeck <linux@roeck-us.net>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.1 008/186] drm/pl111: Initialize clock spinlock early
+Date:   Sat,  1 Jun 2019 09:13:44 -0400
+Message-Id: <20190601131653.24205-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190601131653.24205-1-sashal@kernel.org>
 References: <20190601131653.24205-1-sashal@kernel.org>
@@ -44,37 +44,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Masney <masneyb@onstation.org>
+From: Guenter Roeck <linux@roeck-us.net>
 
-[ Upstream commit 90f94660e53189755676543954101de78c26253b ]
+[ Upstream commit 3e01ae2612bdd7975c74ec7123d7f8f5e6eed795 ]
 
-msm_gem_describe() would attempt to dereference a NULL pointer via the
-address space pointer when no IOMMU is present. Correct this by adding
-the appropriate check.
+The following warning is seen on systems with broken clock divider.
 
-Signed-off-by: Brian Masney <masneyb@onstation.org>
-Fixes: 575f0485508b ("drm/msm: Clean up and enhance the output of the 'gem' debugfs node")
-Signed-off-by: Sean Paul <seanpaul@chromium.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190513234105.7531-2-masneyb@onstation.org
+INFO: trying to register non-static key.
+the code is fine but needs lockdep annotation.
+turning off the locking correctness validator.
+CPU: 0 PID: 1 Comm: swapper Not tainted 5.1.0-09698-g1fb3b52 #1
+Hardware name: ARM Integrator/CP (Device Tree)
+[<c0011be8>] (unwind_backtrace) from [<c000ebb8>] (show_stack+0x10/0x18)
+[<c000ebb8>] (show_stack) from [<c07d3fd0>] (dump_stack+0x18/0x24)
+[<c07d3fd0>] (dump_stack) from [<c0060d48>] (register_lock_class+0x674/0x6f8)
+[<c0060d48>] (register_lock_class) from [<c005de2c>]
+	(__lock_acquire+0x68/0x2128)
+[<c005de2c>] (__lock_acquire) from [<c0060408>] (lock_acquire+0x110/0x21c)
+[<c0060408>] (lock_acquire) from [<c07f755c>] (_raw_spin_lock+0x34/0x48)
+[<c07f755c>] (_raw_spin_lock) from [<c0536c8c>]
+	(pl111_display_enable+0xf8/0x5fc)
+[<c0536c8c>] (pl111_display_enable) from [<c0502f54>]
+	(drm_atomic_helper_commit_modeset_enables+0x1ec/0x244)
+
+Since commit eedd6033b4c8 ("drm/pl111: Support variants with broken clock
+divider"), the spinlock is not initialized if the clock divider is broken.
+Initialize it earlier to fix the problem.
+
+Fixes: eedd6033b4c8 ("drm/pl111: Support variants with broken clock divider")
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/1557758781-23586-1-git-send-email-linux@roeck-us.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/msm_gem.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/pl111/pl111_display.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/msm_gem.c b/drivers/gpu/drm/msm/msm_gem.c
-index 18ca651ab942a..23de4d1b7b1ac 100644
---- a/drivers/gpu/drm/msm/msm_gem.c
-+++ b/drivers/gpu/drm/msm/msm_gem.c
-@@ -805,7 +805,8 @@ void msm_gem_describe(struct drm_gem_object *obj, struct seq_file *m)
- 		seq_puts(m, "      vmas:");
+diff --git a/drivers/gpu/drm/pl111/pl111_display.c b/drivers/gpu/drm/pl111/pl111_display.c
+index 754f6b25f2652..6d9f78612deeb 100644
+--- a/drivers/gpu/drm/pl111/pl111_display.c
++++ b/drivers/gpu/drm/pl111/pl111_display.c
+@@ -531,14 +531,15 @@ pl111_init_clock_divider(struct drm_device *drm)
+ 		dev_err(drm->dev, "CLCD: unable to get clcdclk.\n");
+ 		return PTR_ERR(parent);
+ 	}
++
++	spin_lock_init(&priv->tim2_lock);
++
+ 	/* If the clock divider is broken, use the parent directly */
+ 	if (priv->variant->broken_clockdivider) {
+ 		priv->clk = parent;
+ 		return 0;
+ 	}
+ 	parent_name = __clk_get_name(parent);
+-
+-	spin_lock_init(&priv->tim2_lock);
+ 	div->init = &init;
  
- 		list_for_each_entry(vma, &msm_obj->vmas, list)
--			seq_printf(m, " [%s: %08llx,%s,inuse=%d]", vma->aspace->name,
-+			seq_printf(m, " [%s: %08llx,%s,inuse=%d]",
-+				vma->aspace != NULL ? vma->aspace->name : NULL,
- 				vma->iova, vma->mapped ? "mapped" : "unmapped",
- 				vma->inuse);
- 
+ 	ret = devm_clk_hw_register(drm->dev, div);
 -- 
 2.20.1
 
