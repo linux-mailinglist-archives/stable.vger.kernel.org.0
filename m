@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D16DD31ED5
-	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:40:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE4D031EC8
+	for <lists+stable@lfdr.de>; Sat,  1 Jun 2019 15:40:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727411AbfFANjR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Jun 2019 09:39:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48620 "EHLO mail.kernel.org"
+        id S1728455AbfFANVU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Jun 2019 09:21:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727338AbfFANVS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 1 Jun 2019 09:21:18 -0400
+        id S1728445AbfFANVT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 1 Jun 2019 09:21:19 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0BFDC27306;
-        Sat,  1 Jun 2019 13:21:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 18B9D272F6;
+        Sat,  1 Jun 2019 13:21:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559395277;
-        bh=lto4uKj0I1kt3M2FNnSTn8NQADKxrJcUxNIx3W2cx/U=;
+        s=default; t=1559395278;
+        bh=KyJQPpQA3t/kHSchWa3aIy96jwgQX46ZurVe8ZfdpHk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M1sbpqkvTDub9T6L5LbTeiR9EHq5zKGL2ivr12y2ST02BYi+DZ8hRsmEGB8mZKJO9
-         wE25hzSqWmNaY9eHnSjIg4EGyQaJpFsMnfWeCPGFupK0hnB2PXH9nTRUuTpbg27h91
-         rHfwns2E20bcgt5jyvRm4e2bOvoL4hX4kyMQE1oo=
+        b=ow1fWcHKgSB2mq5ntdSS8dz4MwkZiJuEH3VlN812O60LQtG4Uy81wDZ/fAf+bDfvO
+         D8oFJYD+K5RByUh11HuOolOVLkUtnyxlcB5e3Ot0odCV29QJlaV2lRvuMF8poJCGHi
+         ApYo6DTzuksxJObf9yijAOh8k4yl4HVHBO8Vnxro=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>,
         linux-f2fs-devel@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 5.0 041/173] f2fs: fix to avoid panic in f2fs_inplace_write_data()
-Date:   Sat,  1 Jun 2019 09:17:13 -0400
-Message-Id: <20190601131934.25053-41-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.0 042/173] f2fs: fix error path of recovery
+Date:   Sat,  1 Jun 2019 09:17:14 -0400
+Message-Id: <20190601131934.25053-42-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190601131934.25053-1-sashal@kernel.org>
 References: <20190601131934.25053-1-sashal@kernel.org>
@@ -45,85 +45,82 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Chao Yu <yuchao0@huawei.com>
 
-[ Upstream commit 05573d6ccf702df549a7bdeabef31e4753df1a90 ]
+[ Upstream commit 988385795c7f46b231982d54750587f204bd558b ]
 
-As Jungyeon reported in bugzilla:
-
-https://bugzilla.kernel.org/show_bug.cgi?id=203239
-
-- Overview
-When mounting the attached crafted image and running program, following errors are reported.
-Additionally, it hangs on sync after running program.
-
-The image is intentionally fuzzed from a normal f2fs image for testing.
-Compile options for F2FS are as follows.
-CONFIG_F2FS_FS=y
-CONFIG_F2FS_STAT_FS=y
-CONFIG_F2FS_FS_XATTR=y
-CONFIG_F2FS_FS_POSIX_ACL=y
-CONFIG_F2FS_CHECK_FS=y
-
-- Reproduces
-cc poc_15.c
-./run.sh f2fs
-sync
-
-- Kernel messages
- ------------[ cut here ]------------
- kernel BUG at fs/f2fs/segment.c:3162!
- RIP: 0010:f2fs_inplace_write_data+0x12d/0x160
- Call Trace:
-  f2fs_do_write_data_page+0x3c1/0x820
-  __write_data_page+0x156/0x720
-  f2fs_write_cache_pages+0x20d/0x460
-  f2fs_write_data_pages+0x1b4/0x300
-  do_writepages+0x15/0x60
-  __filemap_fdatawrite_range+0x7c/0xb0
-  file_write_and_wait_range+0x2c/0x80
-  f2fs_do_sync_file+0x102/0x810
-  do_fsync+0x33/0x60
-  __x64_sys_fsync+0xb/0x10
-  do_syscall_64+0x43/0xf0
-  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-The reason is f2fs_inplace_write_data() will trigger kernel panic due
-to data block locates in node type segment.
-
-To avoid panic, let's just return error code and set SBI_NEED_FSCK to
-give a hint to fsck for latter repairing.
+There are some places in where we missed to unlock page or unlock page
+incorrectly, fix them.
 
 Signed-off-by: Chao Yu <yuchao0@huawei.com>
 Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/segment.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ fs/f2fs/recovery.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
-index 2b809b54d81bb..b3f1f75af05cc 100644
---- a/fs/f2fs/segment.c
-+++ b/fs/f2fs/segment.c
-@@ -3170,13 +3170,18 @@ int f2fs_inplace_write_data(struct f2fs_io_info *fio)
- {
- 	int err;
- 	struct f2fs_sb_info *sbi = fio->sbi;
-+	unsigned int segno;
+diff --git a/fs/f2fs/recovery.c b/fs/f2fs/recovery.c
+index 73338c432e7e4..b14c718139a96 100644
+--- a/fs/f2fs/recovery.c
++++ b/fs/f2fs/recovery.c
+@@ -325,8 +325,10 @@ static int find_fsync_dnodes(struct f2fs_sb_info *sbi, struct list_head *head,
+ 			break;
+ 		}
  
- 	fio->new_blkaddr = fio->old_blkaddr;
- 	/* i/o temperature is needed for passing down write hints */
- 	__get_segment_type(fio);
+-		if (!is_recoverable_dnode(page))
++		if (!is_recoverable_dnode(page)) {
++			f2fs_put_page(page, 1);
+ 			break;
++		}
  
--	f2fs_bug_on(sbi, !IS_DATASEG(get_seg_entry(sbi,
--			GET_SEGNO(sbi, fio->new_blkaddr))->type));
-+	segno = GET_SEGNO(sbi, fio->new_blkaddr);
-+
-+	if (!IS_DATASEG(get_seg_entry(sbi, segno)->type)) {
-+		set_sbi_flag(sbi, SBI_NEED_FSCK);
-+		return -EFAULT;
-+	}
+ 		if (!is_fsync_dnode(page))
+ 			goto next;
+@@ -338,8 +340,10 @@ static int find_fsync_dnodes(struct f2fs_sb_info *sbi, struct list_head *head,
+ 			if (!check_only &&
+ 					IS_INODE(page) && is_dent_dnode(page)) {
+ 				err = f2fs_recover_inode_page(sbi, page);
+-				if (err)
++				if (err) {
++					f2fs_put_page(page, 1);
+ 					break;
++				}
+ 				quota_inode = true;
+ 			}
  
- 	stat_inc_inplace_blocks(fio->sbi);
+@@ -355,6 +359,7 @@ static int find_fsync_dnodes(struct f2fs_sb_info *sbi, struct list_head *head,
+ 					err = 0;
+ 					goto next;
+ 				}
++				f2fs_put_page(page, 1);
+ 				break;
+ 			}
+ 		}
+@@ -370,6 +375,7 @@ static int find_fsync_dnodes(struct f2fs_sb_info *sbi, struct list_head *head,
+ 				"%s: detect looped node chain, "
+ 				"blkaddr:%u, next:%u",
+ 				__func__, blkaddr, next_blkaddr_of_node(page));
++			f2fs_put_page(page, 1);
+ 			err = -EINVAL;
+ 			break;
+ 		}
+@@ -380,7 +386,6 @@ static int find_fsync_dnodes(struct f2fs_sb_info *sbi, struct list_head *head,
  
+ 		f2fs_ra_meta_pages_cond(sbi, blkaddr);
+ 	}
+-	f2fs_put_page(page, 1);
+ 	return err;
+ }
+ 
+@@ -674,8 +679,10 @@ static int recover_data(struct f2fs_sb_info *sbi, struct list_head *inode_list,
+ 		 */
+ 		if (IS_INODE(page)) {
+ 			err = recover_inode(entry->inode, page);
+-			if (err)
++			if (err) {
++				f2fs_put_page(page, 1);
+ 				break;
++			}
+ 		}
+ 		if (entry->last_dentry == blkaddr) {
+ 			err = recover_dentry(entry->inode, page, dir_list);
 -- 
 2.20.1
 
