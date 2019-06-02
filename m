@@ -2,88 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 676FB32136
-	for <lists+stable@lfdr.de>; Sun,  2 Jun 2019 01:53:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86F6932181
+	for <lists+stable@lfdr.de>; Sun,  2 Jun 2019 03:30:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726343AbfFAXxl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 1 Jun 2019 19:53:41 -0400
-Received: from kvm5.telegraphics.com.au ([98.124.60.144]:33760 "EHLO
+        id S1726797AbfFBB3K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 1 Jun 2019 21:29:10 -0400
+Received: from kvm5.telegraphics.com.au ([98.124.60.144]:34636 "EHLO
         kvm5.telegraphics.com.au" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726211AbfFAXxl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 1 Jun 2019 19:53:41 -0400
-Received: from localhost (localhost.localdomain [127.0.0.1])
-        by kvm5.telegraphics.com.au (Postfix) with ESMTP id D444327652;
-        Sat,  1 Jun 2019 19:53:37 -0400 (EDT)
-Date:   Sun, 2 Jun 2019 09:53:47 +1000 (AEST)
+        with ESMTP id S1726485AbfFBB3J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 1 Jun 2019 21:29:09 -0400
+Received: by kvm5.telegraphics.com.au (Postfix, from userid 502)
+        id 0698F27EC3; Sat,  1 Jun 2019 21:29:06 -0400 (EDT)
+To:     "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Cc:     "Michael Schmitz" <schmitzmic@gmail.com>,
+        linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Message-Id: <666248afffd5a75c3259f06737ddcfb2b833b1f7.1559438652.git.fthain@telegraphics.com.au>
+In-Reply-To: <cover.1559438652.git.fthain@telegraphics.com.au>
+References: <cover.1559438652.git.fthain@telegraphics.com.au>
 From:   Finn Thain <fthain@telegraphics.com.au>
-To:     Kangjie Lu <kjlu@umn.edu>
-cc:     Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
-        Rob Herring <robh@kernel.org>, linux-fbdev@vger.kernel.org,
-        dri-devel@lists.freedesktop.org
-Subject: Re: [PATCH AUTOSEL 4.4 44/56] video: imsttfb: fix potential NULL
- pointer dereferences
-In-Reply-To: <20190601161929.GA5028@kroah.com>
-Message-ID: <alpine.LNX.2.21.1906020944570.8@nippy.intranet>
-References: <20190601132600.27427-1-sashal@kernel.org> <20190601132600.27427-44-sashal@kernel.org> <20190601161929.GA5028@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Subject: [PATCH 4/7] scsi: mac_scsi: Increase PIO/PDMA transfer length
+ threshold
+Date:   Sun, 02 Jun 2019 11:24:12 +1000
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, 1 Jun 2019, Greg Kroah-Hartman wrote:
+Some targets introduce delays when handshaking the response to certain
+commands. For example, a disk may send a 96-byte response to an INQUIRY
+command (or a 24-byte response to a MODE SENSE command) too slowly.
 
-> On Sat, Jun 01, 2019 at 09:25:48AM -0400, Sasha Levin wrote:
+Apparently the first 12 or 14 bytes are handshaked okay but then the
+system bus error timeout is reached while transferring the next word.
 
-> > From: Kangjie Lu <kjlu@umn.edu>
-> > 
-> > [ Upstream commit 1d84353d205a953e2381044953b7fa31c8c9702d ]
-> > ...
-> 
-> Why only 4.4.y?  Shouldn't this be queued up for everything or none?
-> 
-> thanks,
-> 
-> greg k-h
-> 
+Since the scsi bus phase hasn't changed, the driver then sets the target
+borken flag to prevent further PDMA transfers. The driver also logs the
+warning, "switching to slow handshake".
 
-Also, why not check the result of the other ioremap calls? (I should have 
-checked that when this first crossed my inbox...)
+Raise the PDMA threshold to 512 bytes so that PIO transfers will be used
+for these commands. This default is sufficiently low that PDMA will still
+be used for READ and WRITE commands.
 
-From 1d84353d205a953e2381044953b7fa31c8c9702d Mon Sep 17 00:00:00 2001
-From: Kangjie Lu <kjlu@umn.edu>
-Date: Mon, 1 Apr 2019 17:46:58 +0200
-Subject: [PATCH] video: imsttfb: fix potential NULL pointer dereferences
+The existing threshold (16 bytes) was chosen more or less at random.
+However, best performance requires the threshold to be as low as possible.
+Those systems that don't need the PIO workaround at all may benefit from
+mac_scsi.setup_use_pdma=1
 
-In case ioremap fails, the fix releases resources and returns
--ENOMEM to avoid NULL pointer dereferences.
+Cc: Michael Schmitz <schmitzmic@gmail.com>
+Cc: stable@vger.kernel.org # v4.14+
+Fixes: 3a0f64bfa907 ("mac_scsi: Fix pseudo DMA implementation")
+Tested-by: Stan Johnson <userm57@yahoo.com>
+Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
+---
+ drivers/scsi/mac_scsi.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Signed-off-by: Kangjie Lu <kjlu@umn.edu>
-Cc: Aditya Pakki <pakki001@umn.edu>
-Cc: Finn Thain <fthain@telegraphics.com.au>
-Cc: Rob Herring <robh@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[b.zolnierkie: minor patch summary fixup]
-Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-
-diff --git a/drivers/video/fbdev/imsttfb.c b/drivers/video/fbdev/imsttfb.c
-index 4b9615e4ce74..35bba3c2036d 100644
---- a/drivers/video/fbdev/imsttfb.c
-+++ b/drivers/video/fbdev/imsttfb.c
-@@ -1515,6 +1515,11 @@ static int imsttfb_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 	info->fix.smem_start = addr;
- 	info->screen_base = (__u8 *)ioremap(addr, par->ramdac == IBM ?
- 					    0x400000 : 0x800000);
-+	if (!info->screen_base) {
-+		release_mem_region(addr, size);
-+		framebuffer_release(info);
-+		return -ENOMEM;
-+	}
- 	info->fix.mmio_start = addr + 0x800000;
- 	par->dc_regs = ioremap(addr + 0x800000, 0x1000);
- 	par->cmap_regs_phys = addr + 0x840000;
+diff --git a/drivers/scsi/mac_scsi.c b/drivers/scsi/mac_scsi.c
+index 8b4b5b1a13d7..ba1afcaadae8 100644
+--- a/drivers/scsi/mac_scsi.c
++++ b/drivers/scsi/mac_scsi.c
+@@ -52,7 +52,7 @@ static int setup_cmd_per_lun = -1;
+ module_param(setup_cmd_per_lun, int, 0);
+ static int setup_sg_tablesize = -1;
+ module_param(setup_sg_tablesize, int, 0);
+-static int setup_use_pdma = -1;
++static int setup_use_pdma = 512;
+ module_param(setup_use_pdma, int, 0);
+ static int setup_hostid = -1;
+ module_param(setup_hostid, int, 0);
+@@ -305,7 +305,7 @@ static int macscsi_dma_xfer_len(struct NCR5380_hostdata *hostdata,
+                                 struct scsi_cmnd *cmd)
+ {
+ 	if (hostdata->flags & FLAG_NO_PSEUDO_DMA ||
+-	    cmd->SCp.this_residual < 16)
++	    cmd->SCp.this_residual < setup_use_pdma)
+ 		return 0;
+ 
+ 	return cmd->SCp.this_residual;
+-- 
+2.21.0
 
