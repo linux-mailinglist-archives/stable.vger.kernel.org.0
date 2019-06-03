@@ -2,82 +2,193 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BF13330BF
-	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 15:15:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0626330EE
+	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 15:22:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728215AbfFCNPj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jun 2019 09:15:39 -0400
-Received: from mail-wm1-f41.google.com ([209.85.128.41]:38861 "EHLO
-        mail-wm1-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728057AbfFCNPj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jun 2019 09:15:39 -0400
-Received: by mail-wm1-f41.google.com with SMTP id t5so11050880wmh.3
-        for <stable@vger.kernel.org>; Mon, 03 Jun 2019 06:15:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=qX5GjP07fdRDS4KbikdzdPkb1+NJWrdAODNcsJitWPg=;
-        b=rA1V4cQsA17HLbjJeT7bZz67apGxIN1sIogJLpckYmRNSWB3tNIQkPE9KrY2/5xG78
-         AqbGdwE/r4WYLe0ck0WAp1cYXS40Xg/To8ostqT3mAD0DjNywVGCJt46aqs+obFuiEa0
-         wcupTMKBnOC7jr7lFae+DLz2BzXV1lVWfuDxA7rFS7f7UM7l6VUlfjCX/fv+aaJjypLc
-         O9a9KJ/lk/qQAsoXV2TxHVKCmiy+OSLpzaT3S9LxkfusRa3TZbIGgYmi/k5HjW0bbSF/
-         A6qGVCTbK0OA3yztvZZ1v7TgwmJ2xlaGlEdZF/SVEzaR0EssIc2s6Pfapk5hGgaq5EMx
-         m12A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=qX5GjP07fdRDS4KbikdzdPkb1+NJWrdAODNcsJitWPg=;
-        b=bAkV9o/VvEcPqG9lBjeHOi9nhnQX9WNMPhSEwE0rjrrC4HCLDVJUXCTZULrEs58gFL
-         BeP2+Ug5VVgrbqD8qAetn03uWjeUyVb3VhO+/lOWydgTmk9NPzvdzpe1CE0RW2GODrn8
-         rmnSL/eMHivb+M26m3k8dUjvSGb6A36C0h3aqVvqzHSlN00wZNBnopniR+wgKKJwD2Bx
-         eXDVEY2JLvdSb6ZF85ID1VqgIPKylxz3JIEimOjtDemopLQ0AD63q2F/VUcFEvc08aHa
-         lFtE38K8rSqIt9poHlHaw7wrv06QLXG3S7nMolK0C5o4fyp6yEDddmibm5ABYeCCfWPJ
-         E8hw==
-X-Gm-Message-State: APjAAAU3bOSTLmIgtRxhVkDe6nF46dIyeTldR3KO5fWotxViD5OlhQMU
-        zpw0llAg7ucB6oKRSCyH5WIAKr1d12k=
-X-Google-Smtp-Source: APXvYqybbHUBJZKEngQh8CLnCb+Q6hy3MJ29C63tgwbQde53zNy+I4OvPkDdcfddRvDMxQNkmT3MYw==
-X-Received: by 2002:a1c:2907:: with SMTP id p7mr14200600wmp.100.1559567736948;
-        Mon, 03 Jun 2019 06:15:36 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id d2sm11118438wmb.9.2019.06.03.06.15.36
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 03 Jun 2019 06:15:36 -0700 (PDT)
-Message-ID: <5cf51d78.1c69fb81.f8ab.931c@mx.google.com>
-Date:   Mon, 03 Jun 2019 06:15:36 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.19.47-31-ge70b94fa650f
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.19.y boot: 126 boots: 0 failed,
- 126 passed (v4.19.47-31-ge70b94fa650f)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S1726336AbfFCNWF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jun 2019 09:22:05 -0400
+Received: from mx2.suse.de ([195.135.220.15]:40920 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727707AbfFCNWF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Jun 2019 09:22:05 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id 325BCADC4;
+        Mon,  3 Jun 2019 13:22:03 +0000 (UTC)
+Received: by quack2.suse.cz (Postfix, from userid 1000)
+        id 4E8AB1E0DBA; Mon,  3 Jun 2019 15:22:00 +0200 (CEST)
+From:   Jan Kara <jack@suse.cz>
+To:     <linux-ext4@vger.kernel.org>
+Cc:     Ted Tso <tytso@mit.edu>, <linux-mm@kvack.org>,
+        <linux-fsdevel@vger.kernel.org>,
+        Amir Goldstein <amir73il@gmail.com>, Jan Kara <jack@suse.cz>,
+        stable@vger.kernel.org
+Subject: [PATCH 1/2] mm: Add readahead file operation
+Date:   Mon,  3 Jun 2019 15:21:54 +0200
+Message-Id: <20190603132155.20600-2-jack@suse.cz>
+X-Mailer: git-send-email 2.16.4
+In-Reply-To: <20190603132155.20600-1-jack@suse.cz>
+References: <20190603132155.20600-1-jack@suse.cz>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y boot: 126 boots: 0 failed, 126 passed (v4.19.47-31-g=
-e70b94fa650f)
+Some filesystems need to acquire locks before pages are read into page
+cache to protect from races with hole punching. The lock generally
+cannot be acquired within readpage as it ranks above page lock so we are
+left with acquiring the lock within filesystem's ->read_iter
+implementation for normal reads and ->fault implementation during page
+faults. That however does not cover all paths how pages can be
+instantiated within page cache - namely explicitely requested readahead.
+Add new ->readahead file operation which filesystem can use for this.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.19.y/kernel/v4.19.47-31-ge70b94fa650f/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.47-31-ge70b94fa650f/
-
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.47-31-ge70b94fa650f
-Git Commit: e70b94fa650fb695da2d68dfa649ee7f0036c153
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 68 unique boards, 23 SoC families, 14 builds out of 206
-
+CC: stable@vger.kernel.org # Needed by following ext4 fix
+Signed-off-by: Jan Kara <jack@suse.cz>
 ---
-For more info write to <info@kernelci.org>
+ include/linux/fs.h |  5 +++++
+ include/linux/mm.h |  3 ---
+ mm/fadvise.c       | 12 +-----------
+ mm/madvise.c       |  3 ++-
+ mm/readahead.c     | 26 ++++++++++++++++++++++++--
+ 5 files changed, 32 insertions(+), 17 deletions(-)
+
+diff --git a/include/linux/fs.h b/include/linux/fs.h
+index f7fdfe93e25d..9968abcd06ea 100644
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -1828,6 +1828,7 @@ struct file_operations {
+ 				   struct file *file_out, loff_t pos_out,
+ 				   loff_t len, unsigned int remap_flags);
+ 	int (*fadvise)(struct file *, loff_t, loff_t, int);
++	int (*readahead)(struct file *, loff_t, loff_t);
+ } __randomize_layout;
+ 
+ struct inode_operations {
+@@ -3537,6 +3538,10 @@ extern void inode_nohighmem(struct inode *inode);
+ extern int vfs_fadvise(struct file *file, loff_t offset, loff_t len,
+ 		       int advice);
+ 
++/* mm/readahead.c */
++extern int generic_readahead(struct file *filp, loff_t start, loff_t end);
++extern int vfs_readahead(struct file *filp, loff_t start, loff_t end);
++
+ #if defined(CONFIG_IO_URING)
+ extern struct sock *io_uring_get_socket(struct file *file);
+ #else
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index 0e8834ac32b7..8f6597295920 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -2461,9 +2461,6 @@ void task_dirty_inc(struct task_struct *tsk);
+ /* readahead.c */
+ #define VM_READAHEAD_PAGES	(SZ_128K / PAGE_SIZE)
+ 
+-int force_page_cache_readahead(struct address_space *mapping, struct file *filp,
+-			pgoff_t offset, unsigned long nr_to_read);
+-
+ void page_cache_sync_readahead(struct address_space *mapping,
+ 			       struct file_ra_state *ra,
+ 			       struct file *filp,
+diff --git a/mm/fadvise.c b/mm/fadvise.c
+index 467bcd032037..e5aab207550e 100644
+--- a/mm/fadvise.c
++++ b/mm/fadvise.c
+@@ -36,7 +36,6 @@ static int generic_fadvise(struct file *file, loff_t offset, loff_t len,
+ 	loff_t endbyte;			/* inclusive */
+ 	pgoff_t start_index;
+ 	pgoff_t end_index;
+-	unsigned long nrpages;
+ 
+ 	inode = file_inode(file);
+ 	if (S_ISFIFO(inode->i_mode))
+@@ -94,20 +93,11 @@ static int generic_fadvise(struct file *file, loff_t offset, loff_t len,
+ 		spin_unlock(&file->f_lock);
+ 		break;
+ 	case POSIX_FADV_WILLNEED:
+-		/* First and last PARTIAL page! */
+-		start_index = offset >> PAGE_SHIFT;
+-		end_index = endbyte >> PAGE_SHIFT;
+-
+-		/* Careful about overflow on the "+1" */
+-		nrpages = end_index - start_index + 1;
+-		if (!nrpages)
+-			nrpages = ~0UL;
+-
+ 		/*
+ 		 * Ignore return value because fadvise() shall return
+ 		 * success even if filesystem can't retrieve a hint,
+ 		 */
+-		force_page_cache_readahead(mapping, file, start_index, nrpages);
++		vfs_readahead(file, offset, endbyte);
+ 		break;
+ 	case POSIX_FADV_NOREUSE:
+ 		break;
+diff --git a/mm/madvise.c b/mm/madvise.c
+index 628022e674a7..9111b75e88cf 100644
+--- a/mm/madvise.c
++++ b/mm/madvise.c
+@@ -303,7 +303,8 @@ static long madvise_willneed(struct vm_area_struct *vma,
+ 		end = vma->vm_end;
+ 	end = ((end - vma->vm_start) >> PAGE_SHIFT) + vma->vm_pgoff;
+ 
+-	force_page_cache_readahead(file->f_mapping, file, start, end - start);
++	vfs_readahead(file, (loff_t)start << PAGE_SHIFT,
++		      (loff_t)end << PAGE_SHIFT);
+ 	return 0;
+ }
+ 
+diff --git a/mm/readahead.c b/mm/readahead.c
+index 2fe72cd29b47..e66ae8c764ad 100644
+--- a/mm/readahead.c
++++ b/mm/readahead.c
+@@ -219,8 +219,9 @@ unsigned int __do_page_cache_readahead(struct address_space *mapping,
+  * Chunk the readahead into 2 megabyte units, so that we don't pin too much
+  * memory at once.
+  */
+-int force_page_cache_readahead(struct address_space *mapping, struct file *filp,
+-			       pgoff_t offset, unsigned long nr_to_read)
++static int force_page_cache_readahead(struct address_space *mapping,
++				      struct file *filp, pgoff_t offset,
++				      unsigned long nr_to_read)
+ {
+ 	struct backing_dev_info *bdi = inode_to_bdi(mapping->host);
+ 	struct file_ra_state *ra = &filp->f_ra;
+@@ -248,6 +249,20 @@ int force_page_cache_readahead(struct address_space *mapping, struct file *filp,
+ 	return 0;
+ }
+ 
++int generic_readahead(struct file *filp, loff_t start, loff_t end)
++{
++	pgoff_t first, last;
++	unsigned long count;
++
++	first = start >> PAGE_SHIFT;
++	last = end >> PAGE_SHIFT;
++	count = last - first + 1;
++	if (!count)
++		count = ~0UL;
++	return force_page_cache_readahead(filp->f_mapping, filp, first, count);
++}
++EXPORT_SYMBOL_GPL(generic_readahead);
++
+ /*
+  * Set the initial window size, round to next power of 2 and square
+  * for small size, x 4 for medium, and x 2 for large
+@@ -575,6 +590,13 @@ page_cache_async_readahead(struct address_space *mapping,
+ }
+ EXPORT_SYMBOL_GPL(page_cache_async_readahead);
+ 
++int vfs_readahead(struct file *filp, loff_t start, loff_t end)
++{
++	if (filp->f_op->readahead)
++		return filp->f_op->readahead(filp, start, end);
++	return generic_readahead(filp, start, end);
++}
++
+ ssize_t ksys_readahead(int fd, loff_t offset, size_t count)
+ {
+ 	ssize_t ret;
+-- 
+2.16.4
+
