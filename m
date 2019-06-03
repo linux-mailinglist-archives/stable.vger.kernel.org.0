@@ -2,46 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E70D232C69
-	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 11:17:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F96332C75
+	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 11:17:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728307AbfFCJLK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jun 2019 05:11:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56014 "EHLO mail.kernel.org"
+        id S1728442AbfFCJLj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jun 2019 05:11:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56822 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728302AbfFCJLK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Jun 2019 05:11:10 -0400
+        id S1728440AbfFCJLj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Jun 2019 05:11:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8B5AC27E36;
-        Mon,  3 Jun 2019 09:11:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A495827E7A;
+        Mon,  3 Jun 2019 09:11:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559553069;
-        bh=wKRkOxxi0rWgjjdvH42irIrb7H/TvTZPRbgRF8ZF4o4=;
+        s=default; t=1559553098;
+        bh=ZAwey9El/ODFZAWcujVsTBv2WCksD9veMZj0nHo1jek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S8NuzwFiP4/7M5GN4pyLznQz0hGS2EmARSfKYpLNCogowH5dDgNi8aA+dpEngg3GX
-         6u15ARH51C1Jcer7ii5tI4XlS/BMfcsb6+wIwpKOfq9AIsq9qS9G2YEHpR4+QkfLRZ
-         tv5RC1mzcyVToXGGSW+rlbm0a0TOn74orba7Ynv0=
+        b=ZNHwroYcfIM8d3VdLDTDU0p3c5HlLN96RtkG9H1sht6L5nITb7IgB0VnVo+Mz7fYA
+         yrcteVe/cB7vojXTCeV+bavQyw9YVkyPqTtXZ2raH2Vv/ZkaXGQVHtrcgGnL/SEgam
+         nZnFrbBVeBnEJi3JiFIjxuTzJsdydSEvqH/xMB2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jay Vosburgh <j.vosburgh@gmail.com>,
-        Veaceslav Falico <vfalico@gmail.com>,
-        Andy Gospodarek <andy@greyhouse.net>,
-        "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
-        Heesoon Kim <Heesoon.Kim@stratus.com>,
-        Jarod Wilson <jarod@redhat.com>,
-        Jay Vosburgh <jay.vosburgh@canonical.com>
-Subject: [PATCH 5.0 01/36] bonding/802.3ad: fix slave link initialization transition states
-Date:   Mon,  3 Jun 2019 11:08:49 +0200
-Message-Id: <20190603090521.077564611@linuxfoundation.org>
+        stable@vger.kernel.org, Raju Rangoju <rajur@chelsio.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.0 02/36] cxgb4: offload VLAN flows regardless of VLAN ethtype
+Date:   Mon,  3 Jun 2019 11:08:50 +0200
+Message-Id: <20190603090521.133068585@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190603090520.998342694@linuxfoundation.org>
 References: <20190603090520.998342694@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -50,67 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jarod Wilson <jarod@redhat.com>
+From: Raju Rangoju <rajur@chelsio.com>
 
-[ Upstream commit 334031219a84b9994594015aab85ed7754c80176 ]
+[ Upstream commit b5730061d1056abf317caea823b94d6e12b5b4f6 ]
 
-Once in a while, with just the right timing, 802.3ad slaves will fail to
-properly initialize, winding up in a weird state, with a partner system
-mac address of 00:00:00:00:00:00. This started happening after a fix to
-properly track link_failure_count tracking, where an 802.3ad slave that
-reported itself as link up in the miimon code, but wasn't able to get a
-valid speed/duplex, started getting set to BOND_LINK_FAIL instead of
-BOND_LINK_DOWN. That was the proper thing to do for the general "my link
-went down" case, but has created a link initialization race that can put
-the interface in this odd state.
+VLAN flows never get offloaded unless ivlan_vld is set in filter spec.
+It's not compulsory for vlan_ethtype to be set.
 
-The simple fix is to instead set the slave link to BOND_LINK_DOWN again,
-if the link has never been up (last_link_up == 0), so the link state
-doesn't bounce from BOND_LINK_DOWN to BOND_LINK_FAIL -- it hasn't failed
-in this case, it simply hasn't been up yet, and this prevents the
-unnecessary state change from DOWN to FAIL and getting stuck in an init
-failure w/o a partner mac.
+So, always enable ivlan_vld bit for offloading VLAN flows regardless of
+vlan_ethtype is set or not.
 
-Fixes: ea53abfab960 ("bonding/802.3ad: fix link_failure_count tracking")
-CC: Jay Vosburgh <j.vosburgh@gmail.com>
-CC: Veaceslav Falico <vfalico@gmail.com>
-CC: Andy Gospodarek <andy@greyhouse.net>
-CC: "David S. Miller" <davem@davemloft.net>
-CC: netdev@vger.kernel.org
-Tested-by: Heesoon Kim <Heesoon.Kim@stratus.com>
-Signed-off-by: Jarod Wilson <jarod@redhat.com>
-Acked-by: Jay Vosburgh <jay.vosburgh@canonical.com>
+Fixes: ad9af3e09c (cxgb4: add tc flower match support for vlan)
+Signed-off-by: Raju Rangoju <rajur@chelsio.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/bonding/bond_main.c |   15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_flower.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/net/bonding/bond_main.c
-+++ b/drivers/net/bonding/bond_main.c
-@@ -3123,13 +3123,18 @@ static int bond_slave_netdev_event(unsig
- 	case NETDEV_CHANGE:
- 		/* For 802.3ad mode only:
- 		 * Getting invalid Speed/Duplex values here will put slave
--		 * in weird state. So mark it as link-fail for the time
--		 * being and let link-monitoring (miimon) set it right when
--		 * correct speeds/duplex are available.
-+		 * in weird state. Mark it as link-fail if the link was
-+		 * previously up or link-down if it hasn't yet come up, and
-+		 * let link-monitoring (miimon) set it right when correct
-+		 * speeds/duplex are available.
- 		 */
- 		if (bond_update_speed_duplex(slave) &&
--		    BOND_MODE(bond) == BOND_MODE_8023AD)
--			slave->link = BOND_LINK_FAIL;
-+		    BOND_MODE(bond) == BOND_MODE_8023AD) {
-+			if (slave->last_link_up)
-+				slave->link = BOND_LINK_FAIL;
-+			else
-+				slave->link = BOND_LINK_DOWN;
-+		}
+--- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_flower.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_flower.c
+@@ -228,6 +228,9 @@ static void cxgb4_process_flow_match(str
+ 		fs->val.ivlan = vlan_tci;
+ 		fs->mask.ivlan = vlan_tci_mask;
  
- 		if (BOND_MODE(bond) == BOND_MODE_8023AD)
- 			bond_3ad_adapter_speed_duplex_changed(slave);
++		fs->val.ivlan_vld = 1;
++		fs->mask.ivlan_vld = 1;
++
+ 		/* Chelsio adapters use ivlan_vld bit to match vlan packets
+ 		 * as 802.1Q. Also, when vlan tag is present in packets,
+ 		 * ethtype match is used then to match on ethtype of inner
+@@ -238,8 +241,6 @@ static void cxgb4_process_flow_match(str
+ 		 * ethtype value with ethtype of inner header.
+ 		 */
+ 		if (fs->val.ethtype == ETH_P_8021Q) {
+-			fs->val.ivlan_vld = 1;
+-			fs->mask.ivlan_vld = 1;
+ 			fs->val.ethtype = 0;
+ 			fs->mask.ethtype = 0;
+ 		}
 
 
