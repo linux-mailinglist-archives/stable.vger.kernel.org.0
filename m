@@ -2,111 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 353FD330B1
-	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 15:11:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BF13330BF
+	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 15:15:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727468AbfFCNK7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jun 2019 09:10:59 -0400
-Received: from mx2.suse.de ([195.135.220.15]:38610 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726516AbfFCNK6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Jun 2019 09:10:58 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id D7E3AAB91;
-        Mon,  3 Jun 2019 13:10:56 +0000 (UTC)
-Subject: Re: [stable] xen/pciback: Don't disable PCI_COMMAND on PCI device
- reset.
-To:     Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        Greg KH <greg@kroah.com>
-Cc:     Prarit Bhargava <prarit@redhat.com>,
-        xen-devel@lists.xenproject.org, stable <stable@vger.kernel.org>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-References: <1559229415.24330.2.camel@codethink.co.uk>
- <0e6ebb5c-ff43-6d65-bcba-6ac5e60aa472@oracle.com>
- <20190603080036.GF7814@kroah.com> <1559563359.24330.8.camel@codethink.co.uk>
-From:   Juergen Gross <jgross@suse.com>
-Openpgp: preference=signencrypt
-Autocrypt: addr=jgross@suse.com; prefer-encrypt=mutual; keydata=
- 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
-Message-ID: <d3358f62-3e53-4468-782c-7b4466d34c0a@suse.com>
-Date:   Mon, 3 Jun 2019 15:10:55 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
+        id S1728215AbfFCNPj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jun 2019 09:15:39 -0400
+Received: from mail-wm1-f41.google.com ([209.85.128.41]:38861 "EHLO
+        mail-wm1-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728057AbfFCNPj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jun 2019 09:15:39 -0400
+Received: by mail-wm1-f41.google.com with SMTP id t5so11050880wmh.3
+        for <stable@vger.kernel.org>; Mon, 03 Jun 2019 06:15:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=qX5GjP07fdRDS4KbikdzdPkb1+NJWrdAODNcsJitWPg=;
+        b=rA1V4cQsA17HLbjJeT7bZz67apGxIN1sIogJLpckYmRNSWB3tNIQkPE9KrY2/5xG78
+         AqbGdwE/r4WYLe0ck0WAp1cYXS40Xg/To8ostqT3mAD0DjNywVGCJt46aqs+obFuiEa0
+         wcupTMKBnOC7jr7lFae+DLz2BzXV1lVWfuDxA7rFS7f7UM7l6VUlfjCX/fv+aaJjypLc
+         O9a9KJ/lk/qQAsoXV2TxHVKCmiy+OSLpzaT3S9LxkfusRa3TZbIGgYmi/k5HjW0bbSF/
+         A6qGVCTbK0OA3yztvZZ1v7TgwmJ2xlaGlEdZF/SVEzaR0EssIc2s6Pfapk5hGgaq5EMx
+         m12A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=qX5GjP07fdRDS4KbikdzdPkb1+NJWrdAODNcsJitWPg=;
+        b=bAkV9o/VvEcPqG9lBjeHOi9nhnQX9WNMPhSEwE0rjrrC4HCLDVJUXCTZULrEs58gFL
+         BeP2+Ug5VVgrbqD8qAetn03uWjeUyVb3VhO+/lOWydgTmk9NPzvdzpe1CE0RW2GODrn8
+         rmnSL/eMHivb+M26m3k8dUjvSGb6A36C0h3aqVvqzHSlN00wZNBnopniR+wgKKJwD2Bx
+         eXDVEY2JLvdSb6ZF85ID1VqgIPKylxz3JIEimOjtDemopLQ0AD63q2F/VUcFEvc08aHa
+         lFtE38K8rSqIt9poHlHaw7wrv06QLXG3S7nMolK0C5o4fyp6yEDddmibm5ABYeCCfWPJ
+         E8hw==
+X-Gm-Message-State: APjAAAU3bOSTLmIgtRxhVkDe6nF46dIyeTldR3KO5fWotxViD5OlhQMU
+        zpw0llAg7ucB6oKRSCyH5WIAKr1d12k=
+X-Google-Smtp-Source: APXvYqybbHUBJZKEngQh8CLnCb+Q6hy3MJ29C63tgwbQde53zNy+I4OvPkDdcfddRvDMxQNkmT3MYw==
+X-Received: by 2002:a1c:2907:: with SMTP id p7mr14200600wmp.100.1559567736948;
+        Mon, 03 Jun 2019 06:15:36 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id d2sm11118438wmb.9.2019.06.03.06.15.36
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 03 Jun 2019 06:15:36 -0700 (PDT)
+Message-ID: <5cf51d78.1c69fb81.f8ab.931c@mx.google.com>
+Date:   Mon, 03 Jun 2019 06:15:36 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <1559563359.24330.8.camel@codethink.co.uk>
-Content-Type: text/plain; charset=utf-8
-Content-Language: de-DE
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.19.47-31-ge70b94fa650f
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.19.y boot: 126 boots: 0 failed,
+ 126 passed (v4.19.47-31-ge70b94fa650f)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 03/06/2019 14:02, Ben Hutchings wrote:
-> On Mon, 2019-06-03 at 10:00 +0200, Greg KH wrote:
->> On Thu, May 30, 2019 at 07:02:34PM -0700, Konrad Rzeszutek Wilk wrote:
->>> On 5/30/19 8:16 AM, Ben Hutchings wrote:
->>>> I'm looking at CVE-2015-8553 which is fixed by:
->>>>
->>>> commit 7681f31ec9cdacab4fd10570be924f2cef6669ba
->>>> Author: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
->>>> Date:   Wed Feb 13 18:21:31 2019 -0500
->>>>
->>>>      xen/pciback: Don't disable PCI_COMMAND on PCI device reset.
->>>>
->>>> I'm aware that this change is incompatible with qemu < 2.5, but that's
->>>> now quite old.  Do you think it makes sense to apply this change to
->>>> some stable branches?
->>>>
->>>> Ben.
->>>>
->>>
->>> Hey Ben,
->>>
->>> <shrugs> My opinion is to drop it, but if Juergen thinks it makes sense to
->>> backport I am not going to argue.
->>
->> Ok, I've queued this up now, thanks.
-> 
-> Juergen said:
-> 
->> I'm with Konrad here.
-> 
-> so unless I'm very confused this should *not* be applied to stable
-> branches.
+stable-rc/linux-4.19.y boot: 126 boots: 0 failed, 126 passed (v4.19.47-31-g=
+e70b94fa650f)
 
-"should not" is a little bit hard. I didn't opt for adding it, but I
-don't object to add it either (like Konrad :-) ).
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.47-31-ge70b94fa650f/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.47-31-ge70b94fa650f/
 
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.47-31-ge70b94fa650f
+Git Commit: e70b94fa650fb695da2d68dfa649ee7f0036c153
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 68 unique boards, 23 SoC families, 14 builds out of 206
 
-Juergen
+---
+For more info write to <info@kernelci.org>
