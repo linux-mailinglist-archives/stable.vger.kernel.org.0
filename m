@@ -2,154 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C3E0E330A6
-	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 15:09:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 353FD330B1
+	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 15:11:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728355AbfFCNJG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jun 2019 09:09:06 -0400
-Received: from eu-smtp-delivery-151.mimecast.com ([207.82.80.151]:20761 "EHLO
-        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728351AbfFCNJG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jun 2019 09:09:06 -0400
-Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
- TLS) by relay.mimecast.com with ESMTP id
- uk-mta-144-DmL0yzerNDm5Z6l8YvJ_GQ-1; Mon, 03 Jun 2019 14:09:02 +0100
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b::d117) by AcuMS.aculab.com
- (fd9f:af1c:a25b::d117) with Microsoft SMTP Server (TLS) id 15.0.1347.2; Mon,
- 3 Jun 2019 14:09:02 +0100
-Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
- AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
- Mon, 3 Jun 2019 14:09:02 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Masahiro Yamada' <yamada.masahiro@socionext.com>
-CC:     "linux-kbuild@vger.kernel.org" <linux-kbuild@vger.kernel.org>,
-        "Vineet Gupta" <vgupta@synopsys.com>,
-        Alexey Brodkin <abrodkin@synopsys.com>,
-        "linux-snps-arc@lists.infradead.org" 
-        <linux-snps-arc@lists.infradead.org>,
-        linux-stable <stable@vger.kernel.org>,
-        Michal Marek <michal.lkml@markovi.net>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH] kbuild: use more portable 'command -v' for
- cc-cross-prefix
-Thread-Topic: [PATCH] kbuild: use more portable 'command -v' for
- cc-cross-prefix
-Thread-Index: AQHVGfoc7Nk6FX5Ty02s910sxgLWxaaJxI+g///4bICAACdTsA==
-Date:   Mon, 3 Jun 2019 13:09:02 +0000
-Message-ID: <810dd6ae018b4a31b70d26fb6b29e48d@AcuMS.aculab.com>
-References: <20190603104902.23799-1-yamada.masahiro@socionext.com>
- <863c29c5f0214c008fbcbb2aac517a5c@AcuMS.aculab.com>
- <CAK7LNARHR=xv_YxQCkCM7PtW3vpNfXOgZrez0c4HbMX6C-8-uA@mail.gmail.com>
-In-Reply-To: <CAK7LNARHR=xv_YxQCkCM7PtW3vpNfXOgZrez0c4HbMX6C-8-uA@mail.gmail.com>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        id S1727468AbfFCNK7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jun 2019 09:10:59 -0400
+Received: from mx2.suse.de ([195.135.220.15]:38610 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726516AbfFCNK6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Jun 2019 09:10:58 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id D7E3AAB91;
+        Mon,  3 Jun 2019 13:10:56 +0000 (UTC)
+Subject: Re: [stable] xen/pciback: Don't disable PCI_COMMAND on PCI device
+ reset.
+To:     Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        Greg KH <greg@kroah.com>
+Cc:     Prarit Bhargava <prarit@redhat.com>,
+        xen-devel@lists.xenproject.org, stable <stable@vger.kernel.org>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+References: <1559229415.24330.2.camel@codethink.co.uk>
+ <0e6ebb5c-ff43-6d65-bcba-6ac5e60aa472@oracle.com>
+ <20190603080036.GF7814@kroah.com> <1559563359.24330.8.camel@codethink.co.uk>
+From:   Juergen Gross <jgross@suse.com>
+Openpgp: preference=signencrypt
+Autocrypt: addr=jgross@suse.com; prefer-encrypt=mutual; keydata=
+ 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
+Message-ID: <d3358f62-3e53-4468-782c-7b4466d34c0a@suse.com>
+Date:   Mon, 3 Jun 2019 15:10:55 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-X-MC-Unique: DmL0yzerNDm5Z6l8YvJ_GQ-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
+In-Reply-To: <1559563359.24330.8.camel@codethink.co.uk>
+Content-Type: text/plain; charset=utf-8
+Content-Language: de-DE
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-RnJvbTogTWFzYWhpcm8gWWFtYWRhDQo+IFNlbnQ6IDAzIEp1bmUgMjAxOSAxMjozOA0KPiBIaSBE
-YXZpZCwNCj4gDQo+IE9uIE1vbiwgSnVuIDMsIDIwMTkgYXQgODoxNCBQTSBEYXZpZCBMYWlnaHQg
-PERhdmlkLkxhaWdodEBhY3VsYWIuY29tPiB3cm90ZToNCj4gPg0KPiA+IEZyb206IE1hc2FoaXJv
-IFlhbWFkYQ0KPiA+ID4gU2VudDogMDMgSnVuZSAyMDE5IDExOjQ5DQo+ID4gPg0KPiA+ID4gVG8g
-cHJpbnQgdGhlIHBhdGhuYW1lIHRoYXQgd2lsbCBiZSB1c2VkIGJ5IHNoZWxsIGluIHRoZSBjdXJy
-ZW50DQo+ID4gPiBlbnZpcm9ubWVudCwgJ2NvbW1hbmQgLXYnIGlzIGEgc3RhbmRhcmRpemVkIHdh
-eS4gWzFdDQo+ID4gPg0KPiA+ID4gJ3doaWNoJyBpcyBhbHNvIG9mdGVuIHVzZWQgaW4gc2NyaXB0
-aW5nLCBidXQgaXQgaXMgbm90IHBvcnRhYmxlLg0KPiA+ID4NCj4gPiA+IFdoZW4gSSB3b3JrZWQg
-b24gY29tbWl0IGJkNTVmOTZmYTlmYyAoImtidWlsZDogcmVmYWN0b3IgY2MtY3Jvc3MtcHJlZml4
-DQo+ID4gPiBpbXBsZW1lbnRhdGlvbiIpLCBJIHdhcyBlYWdlciB0byB1c2UgJ2NvbW1hbmQgLXYn
-IGJ1dCBpdCBkaWQgbm90IHdvcmsuDQo+ID4gPiAoVGhlIHJlYXNvbiBpcyBleHBsYWluZWQgYmVs
-b3cuKQ0KPiA+ID4NCj4gPiA+IEkga2VwdCAnd2hpY2gnIGFzIGJlZm9yZSBidXQgZ290IHJpZCBv
-ZiAnPiAvZGV2L251bGwgMj4mMScgYXMgSQ0KPiA+ID4gdGhvdWdodCBpdCB3YXMgbm8gbG9uZ2Vy
-IG5lZWRlZC4gU29ycnksIEkgd2FzIHdyb25nLg0KPiA+ID4NCj4gPiA+IEl0IHdvcmtzIHdlbGwg
-b24gbXkgVWJ1bnR1IG1hY2hpbmUsIGJ1dCBBbGV4ZXkgQnJvZGtpbiByZXBvcnRzIGFubm95aW5n
-DQo+ID4gPiB3YXJuaW5ncyBmcm9tIHRoZSAnd2hpY2gnIG9uIENlbnRPUyA3IHdoZW4gdGhlIGdp
-dmVuIGNvbW1hbmQgaXMgbm90DQo+ID4gPiBmb3VuZCBpbiB0aGUgUEFUSCBlbnZpcm9ubWVudC4N
-Cj4gPiA+DQo+ID4gPiAgICQgd2hpY2ggZm9vDQo+ID4gPiAgIHdoaWNoOiBubyBmb28gaW4gKC91
-c3IvbG9jYWwvc2JpbjovdXNyL2xvY2FsL2JpbjovdXNyL3NiaW46L3Vzci9iaW46L3NiaW46L2Jp
-bikNCj4gPiA+DQo+ID4gPiBHaXZlbiB0aGF0IGJlaGF2aW9yIG9mICd3aGljaCcgaXMgZGlmZmVy
-ZW50IG9uIGVudmlyb25tZW50LCBJIHdhbnQNCj4gPiA+IHRvIHRyeSAnY29tbWFuZCAtdicgYWdh
-aW4uDQo+ID4gPg0KPiA+ID4gVGhlIHNwZWNpZmljYXRpb24gWzFdIGNsZWFybHkgZGVzY3JpYmVz
-IHRoZSBiZWhhdmlvciBvZiAnY29tbWFuZCAtdicNCj4gPiA+IHdoZW4gdGhlIGdpdmVuIGNvbW1h
-bmQgaXMgbm90IGZvdW5kOg0KPiA+ID4NCj4gPiA+ICAgT3RoZXJ3aXNlLCBubyBvdXRwdXQgc2hh
-bGwgYmUgd3JpdHRlbiBhbmQgdGhlIGV4aXQgc3RhdHVzIHNoYWxsIHJlZmxlY3QNCj4gPiA+ICAg
-dGhhdCB0aGUgbmFtZSB3YXMgbm90IGZvdW5kLg0KPiA+ID4NCj4gPiA+IEhvd2V2ZXIsIHdlIG5l
-ZWQgYSBsaXR0bGUgbWFnaWMgdG8gdXNlICdjb21tYW5kIC12JyBmcm9tIE1ha2UuDQo+ID4gPg0K
-PiA+ID4gJChzaGVsbCAuLi4pIHBhc3NlcyB0aGUgYXJndW1lbnQgdG8gYSBzdWJzaGVsbCBmb3Ig
-ZXhlY3V0aW9uLCBhbmQNCj4gPiA+IHJldHVybnMgdGhlIHN0YW5kYXJkIG91dHB1dCBvZiB0aGUg
-Y29tbWFuZC4NCj4gPiA+DQo+ID4gPiBIZXJlIGlzIGEgdHJpY2suIEdOVSBNYWtlIG1heSBvcHRp
-bWl6ZSB0aGlzIGJ5IGV4ZWN1dGluZyB0aGUgY29tbWFuZA0KPiA+ID4gZGlyZWN0bHkgaW5zdGVh
-ZCBvZiBmb3JraW5nIGEgc3Vic2hlbGwsIGlmIG5vIHNoZWxsIHNwZWNpYWwgY2hhcmFjdGVycw0K
-PiA+ID4gYXJlIGZvdW5kIGluIHRoZSBjb21tYW5kIGxpbmUgYW5kIG9taXR0aW5nIHRoZSBzdWJz
-aGVsbCB3aWxsIG5vdA0KPiA+ID4gY2hhbmdlIHRoZSBiZWhhdmlvci4NCj4gPiA+DQo+ID4gPiBJ
-biB0aGlzIGNhc2UsIG5vIHNoZWxsIHNwZWNpYWwgY2hhcmFjdGVyIGlzIHVzZWQuIFNvLCBNYWtl
-IHdpbGwgdHJ5DQo+ID4gPiB0byBydW4gdGhlIGNvbW1hbmQgZGlyZWN0bHkuIEhvd2V2ZXIsICdj
-b21tYW5kJyBpcyBhIHNoZWxsLWJ1aWx0aW4NCj4gPiA+IGNvbW1hbmQuIEluIGZhY3QsIE1ha2Ug
-aGFzIGEgdGFibGUgb2Ygc2hlbGwtYnVpbHRpbiBjb21tYW5kcyBiZWNhdXNlDQo+ID4gPiBpdCBt
-dXN0IHNwYXduIGEgc3Vic2hlbGwgdG8gZXhlY3V0ZSB0aGVtLg0KPiA+ID4NCj4gPiA+IFVudGls
-IHJlY2VudGx5LCAnY29tbWFuZCcgd2FzIG1pc3NpbmcgaW4gdGhlIHRhYmxlLg0KPiA+ID4NCj4g
-PiA+IFRoaXMgaXNzdWUgd2FzIGZpeGVkIGJ5IHRoZSBmb2xsb3dpbmcgY29tbWl0Og0KPiA+ID4N
-Cj4gPiA+IHwgY29tbWl0IDFhZjMxNDQ2NWU1ZGZlM2U4YmFhODM5YTMyYTcyZTgzYzA0ZjI2ZWYN
-Cj4gPiA+IHwgQXV0aG9yOiBQYXVsIFNtaXRoIDxwc21pdGhAZ251Lm9yZz4NCj4gPiA+IHwgRGF0
-ZTogICBTdW4gTm92IDEyIDE4OjEwOjI4IDIwMTcgLTA1MDANCj4gPiA+IHwNCj4gPiA+IHwgICAg
-ICogam9iLmM6IEFkZCAiY29tbWFuZCIgYXMgYSBrbm93biBzaGVsbCBidWlsdC1pbi4NCj4gPiA+
-IHwNCj4gPiA+IHwgICAgIFRoaXMgaXMgbm90IGEgUE9TSVggc2hlbGwgYnVpbHQtaW4gYnV0IGl0
-J3MgY29tbW9uIGluIFVOSVggc2hlbGxzLg0KPiA+ID4gfCAgICAgUmVwb3J0ZWQgYnkgTmljayBC
-b3dsZXIgPG5ib3dsZXJAZHJhY29ueC5jYT4uDQo+ID4gPg0KPiA+ID4gVGhpcyBpcyBub3QgaW5j
-bHVkZWQgaW4gYW55IHJlbGVhc2VkIHZlcnNpb25zIG9mIE1ha2UgeWV0Lg0KPiA+ID4gKEJ1dCwg
-c29tZSBkaXN0cmlidXRpb25zIG1heSBoYXZlIGJhY2stcG9ydGVkIHRoZSBmaXgtdXAuKQ0KPiA+
-ID4NCj4gPiA+IFRvIHRyaWNrIE1ha2UgYW5kIGxldCBpdCBmb3JrIHRoZSBzdWJzaGVsbCwgSSBh
-ZGRlZCBhIHNoZWxsIHNwZWNpYWwNCj4gPiA+IGNoYXJhY3RlciAnficuIFdlIG1heSBiZSBhYmxl
-IHRvIGdldCByaWQgb2YgdGhpcyB3b3JrYXJvdW5kIHNvbWVkYXksDQo+ID4gPiBidXQgaXQgaXMg
-dmVyeSBmYXIgaW50byB0aGUgZnV0dXJlLg0KPiA+ID4NCj4gPiA+IFsxXSBodHRwOi8vcHVicy5v
-cGVuZ3JvdXAub3JnL29ubGluZXB1YnMvOTY5OTkxOTc5OS91dGlsaXRpZXMvY29tbWFuZC5odG1s
-DQo+ID4gPg0KPiA+ID4gRml4ZXM6IGJkNTVmOTZmYTlmYyAoImtidWlsZDogcmVmYWN0b3IgY2Mt
-Y3Jvc3MtcHJlZml4IGltcGxlbWVudGF0aW9uIikNCj4gPiA+IENjOiBsaW51eC1zdGFibGUgPHN0
-YWJsZUB2Z2VyLmtlcm5lbC5vcmc+ICMgNS4xDQo+ID4gPiBSZXBvcnRlZC1ieTogQWxleGV5IEJy
-b2RraW4gPGFicm9ka2luQHN5bm9wc3lzLmNvbT4NCj4gPiA+IFNpZ25lZC1vZmYtYnk6IE1hc2Fo
-aXJvIFlhbWFkYSA8eWFtYWRhLm1hc2FoaXJvQHNvY2lvbmV4dC5jb20+DQo+ID4gPiAtLS0NCj4g
-PiA+DQo+ID4gPiAgc2NyaXB0cy9LYnVpbGQuaW5jbHVkZSB8IDUgKysrKy0NCj4gPiA+ICAxIGZp
-bGUgY2hhbmdlZCwgNCBpbnNlcnRpb25zKCspLCAxIGRlbGV0aW9uKC0pDQo+ID4gPg0KPiA+ID4g
-ZGlmZiAtLWdpdCBhL3NjcmlwdHMvS2J1aWxkLmluY2x1ZGUgYi9zY3JpcHRzL0tidWlsZC5pbmNs
-dWRlDQo+ID4gPiBpbmRleCA4NWQ3NTgyMzM0ODMuLjVhMzJjYTgwYzNmNiAxMDA2NDQNCj4gPiA+
-IC0tLSBhL3NjcmlwdHMvS2J1aWxkLmluY2x1ZGUNCj4gPiA+ICsrKyBiL3NjcmlwdHMvS2J1aWxk
-LmluY2x1ZGUNCj4gPiA+IEBAIC03NCw4ICs3NCwxMSBAQCBlbmRlZg0KPiA+ID4gICMgVXNhZ2U6
-IENST1NTX0NPTVBJTEUgOj0gJChjYWxsIGNjLWNyb3NzLXByZWZpeCwgbTY4ay1saW51eC1nbnUt
-IG02OGstbGludXgtKQ0KPiA+ID4gICMgUmV0dXJuIGZpcnN0IDxwcmVmaXg+IHdoZXJlIGEgPHBy
-ZWZpeD5nY2MgaXMgZm91bmQgaW4gUEFUSC4NCj4gPiA+ICAjIElmIG5vIGdjYyBmb3VuZCBpbiBQ
-QVRIIHdpdGggbGlzdGVkIHByZWZpeGVzIHJldHVybiBub3RoaW5nDQo+ID4gPiArIw0KPiA+ID4g
-KyMgTm90ZTogdGhlIHNwZWNpYWwgY2hhcmFjdGVyICd+JyBmb3JjZXMgTWFrZSB0byBpbnZva2Ug
-YSBzaGVsbC4gVGhpcyB3b3JrYXJvdW5kDQo+ID4gPiArIyBpcyBuZWVkZWQgYmVjYXVzZSB0aGlz
-IGlzc3VlIHdhcyBvbmx5IGZpeGVkIGFmdGVyIEdOVSBNYWtlIDQuMi4xIHJlbGVhc2UuDQo+ID4g
-PiAgY2MtY3Jvc3MtcHJlZml4ID0gJChmaXJzdHdvcmQgJChmb3JlYWNoIGMsICQoZmlsdGVyLW91
-dCAtJSwgJCgxKSksIFwNCj4gPiA+IC0gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgJChpZiAkKHNoZWxsIHdoaWNoICQoYylnY2MpLCAkKGMpKSkpDQo+ID4gPiArICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAkKGlmICQoc2hlbGwgY29tbWFuZCAtdiAkKGMpZ2NjIH4pLCAk
-KGMpKSkpDQo+ID4NCj4gPiBJIHNlZSBhIHByb2JsZW0gaGVyZToNCj4gPiAgICAgICAgIGNvbW1h
-bmQgLXYgZm9vIGJhcg0KPiA+IGNvdWxkIGJlIGRlZW1lZCB0byBiZSBhbiBlcnJvciAoZXh0cmEg
-YXJndW1lbnQpLg0KPiANCj4gT0ssIHRoZSBzcGVjaWZpY2F0aW9uIGRvZXMgbm90IGFsbG93IHRv
-IHBhc3MgYXJndW1lbnRzDQo+IHdpdGggLXYuDQo+IA0KPiANCj4gPiBZb3UgY291bGQgdXNlOg0K
-PiA+ICAgICAgICAgJChzaGVsbCBzaCAtYyAiY29tbWFuZCAtdiAkKGMpZ2NjIikNCj4gPiBvciBt
-YXliZToNCj4gPiAgICAgICAgICQoc2hlbGwgY29tbWFuZCQke3g6K30gLXYgJChjKWdjYykNCj4g
-DQo+IA0KPiBIb3cgYWJvdXQgdGhpcz8NCj4gDQo+ICAgICAgICAgICAkKHNoZWxsIDogfjsgY29t
-bWFuZCAtdiAkKGMpZ2NjKQ0KDQpPdmVyY29tcGxpY2F0ZWQgLi4uLg0KDQpJJ3ZlIG5vdCBsb29r
-ZWQgYXQgdGhlIGxpc3Qgb2YgJ3NwZWNpYWwgY2hhcmFjdGVycycgaW4gbWFrZSwNCmJ1dCBJIHN1
-c3BlY3QgYW55IHZhcmlhYmxlIGV4cGFuc2lvbiBpcyBlbm91Z2guDQpTaW5jZSAke3g6K30gYWx3
-YXlzIGV4cGFuZHMgdG8gdGhlIGVtcHR5IHN0cmluZyAod2hldGhlciBvcg0Kbm90ICd4JyBpcyBk
-ZWZpbmVkKSBpdCBjYW4ndCBoYXZlIGFueSB1bmZvcnR1bmF0ZSBzaWRlIGVmZmVjdHMuDQoNCkkn
-ZCBjb21tZW50IGFzOg0KIyBOb3RlOiAke3g6K30gYWx3YXlzIGV4cGFuZHMgdG8gdGhlIGVtcHR5
-IHN0cmluZyBhbmQgZm9yY2VzIGFsbA0KIyB2ZXJzaW9ucyBvZiBtYWtlIHRvIGFjdHVhbGx5IGV4
-ZWMgJFNIRUxMIHJhdGhlciB0aGFuIHRyeSB0bw0KIyBkaXJlY3RseSBleGVjdXRlIHRoZSBzaGVs
-bCBidWlsdGluICdjb21tYW5kJy4NCg0KCURhdmlkDQoNCi0NClJlZ2lzdGVyZWQgQWRkcmVzcyBM
-YWtlc2lkZSwgQnJhbWxleSBSb2FkLCBNb3VudCBGYXJtLCBNaWx0b24gS2V5bmVzLCBNSzEgMVBU
-LCBVSw0KUmVnaXN0cmF0aW9uIE5vOiAxMzk3Mzg2IChXYWxlcykNCg==
+On 03/06/2019 14:02, Ben Hutchings wrote:
+> On Mon, 2019-06-03 at 10:00 +0200, Greg KH wrote:
+>> On Thu, May 30, 2019 at 07:02:34PM -0700, Konrad Rzeszutek Wilk wrote:
+>>> On 5/30/19 8:16 AM, Ben Hutchings wrote:
+>>>> I'm looking at CVE-2015-8553 which is fixed by:
+>>>>
+>>>> commit 7681f31ec9cdacab4fd10570be924f2cef6669ba
+>>>> Author: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+>>>> Date:   Wed Feb 13 18:21:31 2019 -0500
+>>>>
+>>>>      xen/pciback: Don't disable PCI_COMMAND on PCI device reset.
+>>>>
+>>>> I'm aware that this change is incompatible with qemu < 2.5, but that's
+>>>> now quite old.  Do you think it makes sense to apply this change to
+>>>> some stable branches?
+>>>>
+>>>> Ben.
+>>>>
+>>>
+>>> Hey Ben,
+>>>
+>>> <shrugs> My opinion is to drop it, but if Juergen thinks it makes sense to
+>>> backport I am not going to argue.
+>>
+>> Ok, I've queued this up now, thanks.
+> 
+> Juergen said:
+> 
+>> I'm with Konrad here.
+> 
+> so unless I'm very confused this should *not* be applied to stable
+> branches.
 
+"should not" is a little bit hard. I didn't opt for adding it, but I
+don't object to add it either (like Konrad :-) ).
+
+
+Juergen
