@@ -2,101 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5229B32A35
-	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 10:00:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0184932A37
+	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 10:00:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727416AbfFCIAe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jun 2019 04:00:34 -0400
-Received: from mail-wm1-f65.google.com ([209.85.128.65]:53118 "EHLO
-        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727415AbfFCIAe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jun 2019 04:00:34 -0400
-Received: by mail-wm1-f65.google.com with SMTP id s3so2747749wms.2
-        for <stable@vger.kernel.org>; Mon, 03 Jun 2019 01:00:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:content-transfer-encoding:in-reply-to
-         :user-agent;
-        bh=S5cWpjCtWP6cEwCb4PLedIGxhmVpA+oBg2HMGf8+esM=;
-        b=GGSqkCE8VrBwFRdievnVdY9WcCEc5q61VPbovitryaz2nJE2PFCKQxmFXd+9SRXlRY
-         rFW37LGw9eQZC2sb43EvX2MIz08D/i5aBTwly+YxPi9oD2JDJ7Tj7G5S66ONTsPSpNMz
-         RDPgsVU0qJwzX9RAOhW8bPCOitT2I14975Wi1ZD83vKJbz3wRS9QhRkTAjpdjf4Rlf3Q
-         MwWqzTUMVbQT3l6UDdziTydLrXC/iCDnvRQB714w/16wEYt/YkZ24D92XjCAMZ/u7NYD
-         pkLMGowgKpRtLity/kSp+IVy4lLKksSRzb2DdcCTes2IqZ7jlL1kYXk0W7ZwZsAWcJLX
-         MQng==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to:user-agent;
-        bh=S5cWpjCtWP6cEwCb4PLedIGxhmVpA+oBg2HMGf8+esM=;
-        b=UePPWEsQXgmLDsm1p6uF4EFO+A9hK5FXa7ZW/PZ3UyP8eGIptusK7al8DKmZPnEN/D
-         38lrG1x/Cc3P6eUItu2OTtzeg7PvwCLvyUlCZUlplQ+DxB0xwuzzMdNM8Z4S3Iy/zJUx
-         KXSl2C4cacVWxDl143tpkeSSxPvKq9bhKfCNz5wjUChmq1Ggf5ifFqQp1MtWMWtVUujG
-         Edqo9B0y/vymus5pgr5EGbh6Pd2h3OhawsALY5u0aIaz6ND17TXLzywSL3dgvRous3AJ
-         IYR20RFXDJeJ3kaDWFBVT1dx+x0XNwCeXywNif4Y/2RVLNZ623r1E3HOvAAbEuu3CyJW
-         z9pA==
-X-Gm-Message-State: APjAAAXaHoXKEf36UmtDBsE5Xj7jxq+xQMcyGHdO+sOw1xGJqBoEp10e
-        JUl9tO1MNkHWxreCU+4eVf49Eg==
-X-Google-Smtp-Source: APXvYqyTO3DC1woO81zp4cGlWYvtMXURLSdDWgNtBMOrhf4T74MPm+NUUV5RQdYEK3BX2mUkV3JAJQ==
-X-Received: by 2002:a1c:7ec8:: with SMTP id z191mr1251839wmc.66.1559548832228;
-        Mon, 03 Jun 2019 01:00:32 -0700 (PDT)
-Received: from dell ([2.27.167.43])
-        by smtp.gmail.com with ESMTPSA id g5sm16275111wrp.29.2019.06.03.01.00.30
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Mon, 03 Jun 2019 01:00:30 -0700 (PDT)
-Date:   Mon, 3 Jun 2019 09:00:29 +0100
-From:   Lee Jones <lee.jones@linaro.org>
-To:     Heiko Stuebner <heiko@sntech.de>
-Cc:     linux-kernel@vger.kernel.org, Daniel Schultz <d.schultz@phytec.de>,
-        stable@vger.kernel.org, Elaine Zhang <zhangqing@rock-chips.com>,
-        Joseph Chen <chenjh@rock-chips.com>
-Subject: Re: [PATCH RESEND] mfd: rk808: Fix RK818 ID template
-Message-ID: <20190603080029.GF4797@dell>
-References: <20190513082943.31750-1-heiko@sntech.de>
+        id S1727478AbfFCIAv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jun 2019 04:00:51 -0400
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:42689 "EHLO
+        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1725975AbfFCIAu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jun 2019 04:00:50 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id 993CB2208C;
+        Mon,  3 Jun 2019 04:00:49 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Mon, 03 Jun 2019 04:00:49 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:content-transfer-encoding:in-reply-to; s=fm3; bh=q
+        daAgJ9fNvUmysHIjCTXJpXixNuqYmRyjOfd7GNfc2M=; b=nuudXgCxTteabkqM+
+        /LHWKDbcH5m6Fv3KtkTb5JEVaDomOO04Mq2xrKd5dAwOLgxNczmDXepPPSkMZP9W
+        Es0HyGTMQyjvaJksZbhv4iR3BrOGjslkg26VQaoyLpMmFXRVy6rCzQKozKDWXZ3+
+        RVwiMBFksD3Oy+tSDLmx4UqbyXxvbsdNcCDS1Brfqx2acW/91vwGOGd/VqiEiCYW
+        q7Yk+dYc8F5lTrTsm1yB4L/4s0atBxfNyd+r5P5pTd6MOlKAzqFq5mlNsbXcmfJz
+        KaCQEqI5e2iIQhr3PS3U0ujDXWwA3DrETjLqUQaP4ZjpIymBSqEUIFG2XniUYgBt
+        RK16w==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:in-reply-to:message-id:mime-version:references
+        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm2; bh=qdaAgJ9fNvUmysHIjCTXJpXixNuqYmRyjOfd7GNfc
+        2M=; b=JH4MFZXfU0MVLUrYvbtHtpW/GGWXHQCNiNnngg3wSSEdsd+AvHIP01/nz
+        Y9DOyBKnwKIx/1S5p1UMYZ0lfc3uLEkF6+q2N/lE7Wsa4TJ3h9XTWn1i8tcvcQ4c
+        MOyZWwzAXIFswvCuPd9Q/UUHWfGDUi5RKxQ43FKNkU+uTIj4vmauir4Px1t9VyLh
+        1rTu+ZBI3Wzj9xip9hxusJlD9jvoiQ2+gQx4s5I15K0Mkjg6Hpi3umzk9sCpZlHS
+        i96QeilpTyrY8ntuD/kQKXM9360jn9gnLmElHDsg+RuHvVZseNij84iyCy5gcazQ
+        0VCm838oOSmf75ra7qJ3uLzT2p16g==
+X-ME-Sender: <xms:sdP0XOH3f0iliZfCjhYddenAqprOGjQjiotneKRfiP9kYvZfvnv9kw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrudefiedguddvjecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
+    enucfjughrpeffhffvuffkfhggtggugfgjfgesthekredttderudenucfhrhhomhepifhr
+    vghgucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecukfhppeekfedrkeeirdekle
+    druddtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+    necuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:sdP0XAklciS6gRNVUtDytsc93_KVsgPJfHqRgRE-z9mrQqwB8WiOYw>
+    <xmx:sdP0XFM4Pp9Rq87Po4vvR9pHecf-6DG7BD-a2tejMTO6aPbl_y1ejg>
+    <xmx:sdP0XLGPwG0ljHLDc0KIVI1z0ol96v9yLxY7ejRXxEssB7v818BRPg>
+    <xmx:sdP0XJaNdTck15kubQyXLB61LvpWyjkUT4WyU4rl-1kxy5AY5rXDxA>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id A017D380086;
+        Mon,  3 Jun 2019 04:00:48 -0400 (EDT)
+Date:   Mon, 3 Jun 2019 10:00:36 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc:     Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        Prarit Bhargava <prarit@redhat.com>,
+        Juergen Gross <jgross@suse.com>,
+        xen-devel@lists.xenproject.org, stable <stable@vger.kernel.org>
+Subject: Re: [stable] xen/pciback: Don't disable PCI_COMMAND on PCI device
+ reset.
+Message-ID: <20190603080036.GF7814@kroah.com>
+References: <1559229415.24330.2.camel@codethink.co.uk>
+ <0e6ebb5c-ff43-6d65-bcba-6ac5e60aa472@oracle.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20190513082943.31750-1-heiko@sntech.de>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <0e6ebb5c-ff43-6d65-bcba-6ac5e60aa472@oracle.com>
+User-Agent: Mutt/1.12.0 (2019-05-25)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 13 May 2019, Heiko Stuebner wrote:
+On Thu, May 30, 2019 at 07:02:34PM -0700, Konrad Rzeszutek Wilk wrote:
+> On 5/30/19 8:16 AM, Ben Hutchings wrote:
+> > I'm looking at CVE-2015-8553 which is fixed by:
+> > 
+> > commit 7681f31ec9cdacab4fd10570be924f2cef6669ba
+> > Author: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+> > Date:†††Wed Feb 13 18:21:31 2019 -0500
+> > 
+> >  ††††xen/pciback: Don't disable PCI_COMMAND on PCI device reset.
+> > 
+> > I'm aware that this change is incompatible with qemu < 2.5, but that's
+> > now quite old.  Do you think it makes sense to apply this change to
+> > some stable branches?
+> > 
+> > Ben.
+> > 
+> 
+> Hey Ben,
+> 
+> <shrugs> My opinion is to drop it, but if Juergen thinks it makes sense to
+> backport I am not going to argue.
 
-> From: Daniel Schultz <d.schultz@phytec.de>
-> 
-> The Rockchip PMIC driver can automatically detect connected component
-> versions by reading the ID_MSB and ID_LSB registers. The probe function
-> will always fail with RK818 PMICs because the ID_MSK is 0xFFF0 and the
-> RK818 template ID is 0x8181.
-> 
-> This patch changes this value to 0x8180.
-> 
-> Fixes: 9d6105e19f61 ("mfd: rk808: Fix up the chip id get failed")
-> Cc: stable@vger.kernel.org
-> Cc: Elaine Zhang <zhangqing@rock-chips.com>
-> Cc: Joseph Chen <chenjh@rock-chips.com>
-> Signed-off-by: Daniel Schultz <d.schultz@phytec.de>
-> Acked-by: Lee Jones <lee.jones@linaro.org>
-> [added Fixes and cc-stable]
-> Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-> ---
-> The original patch from Feburary 2018 got an Ack but never reached
-> the mfd-tree, so I ran into that problem this weekend as well.
-> So it would be really cool if this could be applied as fix :-) .
-> 
->  include/linux/mfd/rk808.h | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+Ok, I've queued this up now, thanks.
 
-Applied, thanks.
-
--- 
-Lee Jones [ÊùéÁêºÊñØ]
-Linaro Services Technical Lead
-Linaro.org ‚îÇ Open source software for ARM SoCs
-Follow Linaro: Facebook | Twitter | Blog
+greg k-h
