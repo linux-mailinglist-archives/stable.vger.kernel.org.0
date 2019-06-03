@@ -2,156 +2,165 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AE0B338DE
-	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 21:05:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D1BFE3391F
+	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 21:33:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726216AbfFCTFo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jun 2019 15:05:44 -0400
-Received: from mail-io1-f68.google.com ([209.85.166.68]:40457 "EHLO
-        mail-io1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726136AbfFCTFo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jun 2019 15:05:44 -0400
-Received: by mail-io1-f68.google.com with SMTP id n5so15243727ioc.7
-        for <stable@vger.kernel.org>; Mon, 03 Jun 2019 12:05:43 -0700 (PDT)
+        id S1726157AbfFCTdf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jun 2019 15:33:35 -0400
+Received: from mail-lj1-f195.google.com ([209.85.208.195]:33240 "EHLO
+        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726055AbfFCTdf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jun 2019 15:33:35 -0400
+Received: by mail-lj1-f195.google.com with SMTP id v29so6089104ljv.0
+        for <stable@vger.kernel.org>; Mon, 03 Jun 2019 12:33:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=wUI9gVW/nhS4vRXB9vYqoY7kmuY4RLTiR4+fvOgFm+s=;
+        b=N/BIVHvdFRvgSUtBS3ONW+AOMV95IreRw4yLbu2K5LEQCd5lKtjoSCDfIU0X++Z/12
+         HEjxGdIfZJ/EhnyURl8FxKStzLIhlOoP2yuRy3mWV2WGxE2jdQNCtt4eP3f6JdhVnZMT
+         zWaSwbYzHHbzdlaLaV9SNzsEYOD6YhPzNB/23hm54TkjnFUIYz1ia6uf5dCyMCNnwttr
+         cHh6+mcVc3Xl495VVfJ/NLcRBoaqh3gg2N69oyfqS9a05OrX1Thm8DUtXzqlEOuA5Q5z
+         KlhqA53Q+CgNVdQA9AQUx5XjZZxsKz8kY7lLwkanzeqvPRiInEvHdjFV9/ve4NBDINln
+         yuMA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=M9x4q7kQodOcQ+0HR2ctxAwI/7C0bNG43/9QNU/UJu4=;
-        b=IIuFrb3/FYiG0ktqzXQMM71h1eyeFyRxd0hJL++eT3qTxEMo08EX6LABIhiRnHsLpr
-         znLsc5kX8y1tu4/V7/6ARZbHyUHxITrkEmw3W5GuFXDE3hg/47oLP9G0FaLg6Env0enk
-         GRhfsVXy/v8f3eX8sdMa+X6Xqz+3nu5rtQdgsf9rYaczonkKeB4bl4OYUiaIv9frvCUq
-         t4fBvovf7Sk+d97lc/xGAMsiKvfn7pCwN6LpSKWm5HoPsyfwWHUNpeMPbCEI2XNu7sRg
-         rVV8pvl3DRKRhcAjFIxtBdMg/jKMPchs+O6stvQeuy1U4cetjJdpvVEp7uSiLMp4xiT/
-         kKJw==
-X-Gm-Message-State: APjAAAV7VrjOhHsfk8Yb7ucy7eHW6QSOrWMHpeN1735jDqTIIMK3vJi6
-        OqokQfHK6yRblW5Do0DkFNMGiSvXpeI=
-X-Google-Smtp-Source: APXvYqyQmXdt6gSfwi9HitsPjfHvxPMDizNH7n9a8M0OhU9uT1SAtPe21I4KulormlJm6jL0lqC5Dw==
-X-Received: by 2002:a5e:8618:: with SMTP id z24mr17325460ioj.174.1559588743249;
-        Mon, 03 Jun 2019 12:05:43 -0700 (PDT)
-Received: from google.com ([2620:15c:183:0:20b8:dee7:5447:d05])
-        by smtp.gmail.com with ESMTPSA id v190sm7431796ita.14.2019.06.03.12.05.42
-        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Mon, 03 Jun 2019 12:05:42 -0700 (PDT)
-Date:   Mon, 3 Jun 2019 13:05:38 -0600
-From:   Raul Rangel <rrangel@chromium.org>
-To:     mathias.nyman@linux.intel.com
-Cc:     andrew.smirnov@gmail.com, mathias.nyman@linux.intel.com,
-        stable@vger.kernel.org, gregkh@linuxfoundation.org
-Subject: Re: patch "xhci: Convert xhci_handshake() to use
- readl_poll_timeout_atomic()" added to usb-linus
-Message-ID: <20190603190538.GA164323@google.com>
-References: <155852804916633@kroah.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=wUI9gVW/nhS4vRXB9vYqoY7kmuY4RLTiR4+fvOgFm+s=;
+        b=YTPNBn/h18sZvoxmxxyemdZ/p+ytGm1dtw/gcMLW6bn+cy0L0oDyGRLcsNpgqNjsMa
+         Sey0x/fOfnl4t6GOPncPgVL40k8PHXUlKUnz+CEavHuIdtA7RN/2t2OzmP9Tu8tkgrep
+         P+ES8IxF6f7zt5zHM+cNBDaiADbWwb+/DBu/4xrtbeal2zxy2X+nuErV5W4eODkv0BE8
+         lOt/RfygO/dINr/QyBx3ExR9I6UP/3L2rdLkQ18mZjrbyAF6iBemqd2VSERYQlPybd8h
+         IuzIe1uZ+xd7i2wd1m3fMSsrRYuTtDU7FqGkICclJfnPpjfIrjz4Ykn0xSejt2PWqLZY
+         7Z9g==
+X-Gm-Message-State: APjAAAU0qvC62SYAtTgDnflyKJuopWPi7HnBzA0iLV09mH2xNJNho6lp
+        4l7lnHWF9brdhK0qcW7354r6WEHT/6ZY+t2ks+LUgQ==
+X-Google-Smtp-Source: APXvYqxT7g0rbBTauSgvhQL3bVoe+CkOBjODQONbh8Zv39m/18ueK374i+T0hrk7cZSf2hURjOzZLZ7i2Cdpm2DJafI=
+X-Received: by 2002:a2e:90d1:: with SMTP id o17mr14959183ljg.187.1559590413365;
+ Mon, 03 Jun 2019 12:33:33 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <155852804916633@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <20190603090522.617635820@linuxfoundation.org>
+In-Reply-To: <20190603090522.617635820@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 4 Jun 2019 01:03:21 +0530
+Message-ID: <CA+G9fYtDyv34JNgrT0gw7NbJXWC2p8F3_zHJUjYGiSE4kefK6A@mail.gmail.com>
+Subject: Re: [PATCH 5.1 00/40] 5.1.7-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Mathias,
-Are there any plans to backport this to the other kernels?
+On Mon, 3 Jun 2019 at 14:44, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.1.7 release.
+> There are 40 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed 05 Jun 2019 09:04:46 AM UTC.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.1.7-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.1.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
+>
 
-Looks like it landed upstream as f7fac17ca925faa03fc5eb854c081a24075f8bad
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-Thanks,
-Raul
-On Wed, May 22, 2019 at 02:27:29PM +0200, gregkh@linuxfoundation.org wrote:
-> 
-> This is a note to let you know that I've just added the patch titled
-> 
->     xhci: Convert xhci_handshake() to use readl_poll_timeout_atomic()
-> 
-> to my usb git tree which can be found at
->     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-> in the usb-linus branch.
-> 
-> The patch will show up in the next release of the linux-next tree
-> (usually sometime within the next 24 hours during the week.)
-> 
-> The patch will hopefully also be merged in Linus's tree for the
-> next -rc kernel release.
-> 
-> If you have any questions about this process, please let me know.
-> 
-> 
-> From f7fac17ca925faa03fc5eb854c081a24075f8bad Mon Sep 17 00:00:00 2001
-> From: Andrey Smirnov <andrew.smirnov@gmail.com>
-> Date: Wed, 22 May 2019 14:34:01 +0300
-> Subject: xhci: Convert xhci_handshake() to use readl_poll_timeout_atomic()
-> 
-> Xhci_handshake() implements the algorithm already captured by
-> readl_poll_timeout_atomic(). Convert the former to use the latter to
-> avoid repetition.
-> 
-> Turned out this patch also fixes a bug on the AMD Stoneyridge platform
-> where usleep(1) sometimes takes over 10ms.
-> This means a 5 second timeout can easily take over 15 seconds which will
-> trigger the watchdog and reboot the system.
-> 
-> [Add info about patch fixing a bug to commit message -Mathias]
-> Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
-> Tested-by: Raul E Rangel <rrangel@chromium.org>
-> Reviewed-by: Raul E Rangel <rrangel@chromium.org>
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> ---
->  drivers/usb/host/xhci.c | 22 ++++++++++------------
->  1 file changed, 10 insertions(+), 12 deletions(-)
-> 
-> diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
-> index 048a675bbc52..20db378a6012 100644
-> --- a/drivers/usb/host/xhci.c
-> +++ b/drivers/usb/host/xhci.c
-> @@ -9,6 +9,7 @@
->   */
->  
->  #include <linux/pci.h>
-> +#include <linux/iopoll.h>
->  #include <linux/irq.h>
->  #include <linux/log2.h>
->  #include <linux/module.h>
-> @@ -52,7 +53,6 @@ static bool td_on_ring(struct xhci_td *td, struct xhci_ring *ring)
->  	return false;
->  }
->  
-> -/* TODO: copied from ehci-hcd.c - can this be refactored? */
->  /*
->   * xhci_handshake - spin reading hc until handshake completes or fails
->   * @ptr: address of hc register to be read
-> @@ -69,18 +69,16 @@ static bool td_on_ring(struct xhci_td *td, struct xhci_ring *ring)
->  int xhci_handshake(void __iomem *ptr, u32 mask, u32 done, int usec)
->  {
->  	u32	result;
-> +	int	ret;
->  
-> -	do {
-> -		result = readl(ptr);
-> -		if (result == ~(u32)0)		/* card removed */
-> -			return -ENODEV;
-> -		result &= mask;
-> -		if (result == done)
-> -			return 0;
-> -		udelay(1);
-> -		usec--;
-> -	} while (usec > 0);
-> -	return -ETIMEDOUT;
-> +	ret = readl_poll_timeout_atomic(ptr, result,
-> +					(result & mask) == done ||
-> +					result == U32_MAX,
-> +					1, usec);
-> +	if (result == U32_MAX)		/* card removed */
-> +		return -ENODEV;
-> +
-> +	return ret;
->  }
->  
->  /*
-> -- 
-> 2.21.0
-> 
-> 
+Summary
+------------------------------------------------------------------------
+
+kernel: 5.1.7-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-5.1.y
+git commit: e674455b924207b06e6527d961a4b617cf13e7a9
+git describe: v5.1.6-41-ge674455b9242
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.1-oe/bui=
+ld/v5.1.6-41-ge674455b9242
+
+No regressions (compared to build v5.1.6)
+
+No fixes (compared to build v5.1.6)
+
+
+Ran 21177 total tests in the following environments and test suites.
+
+Environments
+--------------
+- dragonboard-410c
+- hi6220-hikey
+- i386
+- juno-r2
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15
+- x86
+
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* libgpiod
+* libhugetlbfs
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-timers-tests
+* perf
+* spectre-meltdown-checker-test
+* v4l2-compliance
+* kselftest
+* network-basic-tests
+* ltp-fs-tests
+* ltp-open-posix-tests
+* kvm-unit-tests
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-none
+
+--=20
+Linaro LKFT
+https://lkft.linaro.org
