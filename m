@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A676832C5E
-	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 11:17:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6151932C06
+	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 11:14:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727248AbfFCJQt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jun 2019 05:16:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57468 "EHLO mail.kernel.org"
+        id S1728164AbfFCJN6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jun 2019 05:13:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728048AbfFCJMC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Jun 2019 05:12:02 -0400
+        id S1728917AbfFCJN6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Jun 2019 05:13:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8BD4327E5C;
-        Mon,  3 Jun 2019 09:12:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A2BD927ED9;
+        Mon,  3 Jun 2019 09:13:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559553122;
-        bh=3uhOgWtwXAoAVnDkN0BtdVnEqdI/wKvo3nohKpjXZz4=;
+        s=default; t=1559553237;
+        bh=suSWMGjxGefQft5sgN3EkO93Ti80OxTxpknLkWyFfJs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jjMFlVrvTVcwCDLkjtz4OV0HUb2Cu1kzRktr6+3ANjoRKLLLTEcO2zuTLTNl+sBCq
-         TBE5uao9KEwoxiO98+uSn1khgoNiXK3g0HruC0nQnJim5AXuc2k/ISXCpEMSb2mMHI
-         72ygt5sDit75BqlnOL95BZFuniXxsuLXVYzh0hfg=
+        b=cTmwWlsl7FtrlWSyM1duxsCL36PWAbXTSffsaq4/3+HmFlRJVxVHqlq0i4qdQB4Z4
+         E54ZY22Mm3RGA7LaLJSre5hjxzT3Rcthmop3Dp5zcqE32a17V/+3G5gn599jYY91ln
+         ghhQC3OcfO+2+mA/u8yIX+PKIxgbVwHEf69Q5jbY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Kushnarov <alexanderk@mellanox.com>,
-        Jiri Pirko <jiri@mellanox.com>,
-        Ido Schimmel <idosch@mellanox.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Hangbin Liu <liuhangbin@gmail.com>,
+        syzbot <syzkaller@googlegroups.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.0 09/36] mlxsw: spectrum_acl: Avoid warning after identical rules insertion
-Date:   Mon,  3 Jun 2019 11:08:57 +0200
-Message-Id: <20190603090521.569034163@linuxfoundation.org>
+Subject: [PATCH 5.1 05/40] ipv4/igmp: fix another memory leak in igmpv3_del_delrec()
+Date:   Mon,  3 Jun 2019 11:08:58 +0200
+Message-Id: <20190603090522.960391894@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190603090520.998342694@linuxfoundation.org>
-References: <20190603090520.998342694@linuxfoundation.org>
+In-Reply-To: <20190603090522.617635820@linuxfoundation.org>
+References: <20190603090522.617635820@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,46 +45,162 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Pirko <jiri@mellanox.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit ef74422020aa8c224b00a927e3e47faac4d8fae3 ]
+[ Upstream commit 3580d04aa674383c42de7b635d28e52a1e5bc72c ]
 
-When identical rules are inserted, the latter one goes to C-TCAM. For
-that, a second eRP with the same mask is created. These 2 eRPs by the
-nature cannot be merged and also one cannot be parent of another.
-Teach mlxsw_sp_acl_erp_delta_fill() about this possibility and handle it
-gracefully.
+syzbot reported memory leaks [1] that I have back tracked to
+a missing cleanup from igmpv3_del_delrec() when
+(im->sfmode != MCAST_INCLUDE)
 
-Reported-by: Alex Kushnarov <alexanderk@mellanox.com>
-Fixes: c22291f7cf45 ("mlxsw: spectrum: acl: Implement delta for ERP")
-Signed-off-by: Jiri Pirko <jiri@mellanox.com>
-Signed-off-by: Ido Schimmel <idosch@mellanox.com>
+Add ip_sf_list_clear_all() and kfree_pmc() helpers to explicitely
+handle the cleanups before freeing.
+
+[1]
+
+BUG: memory leak
+unreferenced object 0xffff888123e32b00 (size 64):
+  comm "softirq", pid 0, jiffies 4294942968 (age 8.010s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 e0 00 00 01 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<000000006105011b>] kmemleak_alloc_recursive include/linux/kmemleak.h:55 [inline]
+    [<000000006105011b>] slab_post_alloc_hook mm/slab.h:439 [inline]
+    [<000000006105011b>] slab_alloc mm/slab.c:3326 [inline]
+    [<000000006105011b>] kmem_cache_alloc_trace+0x13d/0x280 mm/slab.c:3553
+    [<000000004bba8073>] kmalloc include/linux/slab.h:547 [inline]
+    [<000000004bba8073>] kzalloc include/linux/slab.h:742 [inline]
+    [<000000004bba8073>] ip_mc_add1_src net/ipv4/igmp.c:1961 [inline]
+    [<000000004bba8073>] ip_mc_add_src+0x36b/0x400 net/ipv4/igmp.c:2085
+    [<00000000a46a65a0>] ip_mc_msfilter+0x22d/0x310 net/ipv4/igmp.c:2475
+    [<000000005956ca89>] do_ip_setsockopt.isra.0+0x1795/0x1930 net/ipv4/ip_sockglue.c:957
+    [<00000000848e2d2f>] ip_setsockopt+0x3b/0xb0 net/ipv4/ip_sockglue.c:1246
+    [<00000000b9db185c>] udp_setsockopt+0x4e/0x90 net/ipv4/udp.c:2616
+    [<000000003028e438>] sock_common_setsockopt+0x38/0x50 net/core/sock.c:3130
+    [<0000000015b65589>] __sys_setsockopt+0x98/0x120 net/socket.c:2078
+    [<00000000ac198ef0>] __do_sys_setsockopt net/socket.c:2089 [inline]
+    [<00000000ac198ef0>] __se_sys_setsockopt net/socket.c:2086 [inline]
+    [<00000000ac198ef0>] __x64_sys_setsockopt+0x26/0x30 net/socket.c:2086
+    [<000000000a770437>] do_syscall_64+0x76/0x1a0 arch/x86/entry/common.c:301
+    [<00000000d3adb93b>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Fixes: 9c8bb163ae78 ("igmp, mld: Fix memory leak in igmpv3/mld_del_delrec()")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Hangbin Liu <liuhangbin@gmail.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlxsw/spectrum_acl_erp.c |   11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ net/ipv4/igmp.c |   47 ++++++++++++++++++++++++++++++-----------------
+ 1 file changed, 30 insertions(+), 17 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_acl_erp.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_acl_erp.c
-@@ -1169,13 +1169,12 @@ mlxsw_sp_acl_erp_delta_fill(const struct
- 			return -EINVAL;
+--- a/net/ipv4/igmp.c
++++ b/net/ipv4/igmp.c
+@@ -633,6 +633,24 @@ static void igmpv3_clear_zeros(struct ip
  	}
- 	if (si == -1) {
--		/* The masks are the same, this cannot happen.
--		 * That means the caller is broken.
-+		/* The masks are the same, this can happen in case eRPs with
-+		 * the same mask were created in both A-TCAM and C-TCAM.
-+		 * The only possible condition under which this can happen
-+		 * is identical rule insertion. Delta is not possible here.
- 		 */
--		WARN_ON(1);
--		*delta_start = 0;
--		*delta_mask = 0;
--		return 0;
-+		return -EINVAL;
+ }
+ 
++static void ip_sf_list_clear_all(struct ip_sf_list *psf)
++{
++	struct ip_sf_list *next;
++
++	while (psf) {
++		next = psf->sf_next;
++		kfree(psf);
++		psf = next;
++	}
++}
++
++static void kfree_pmc(struct ip_mc_list *pmc)
++{
++	ip_sf_list_clear_all(pmc->sources);
++	ip_sf_list_clear_all(pmc->tomb);
++	kfree(pmc);
++}
++
+ static void igmpv3_send_cr(struct in_device *in_dev)
+ {
+ 	struct ip_mc_list *pmc, *pmc_prev, *pmc_next;
+@@ -669,7 +687,7 @@ static void igmpv3_send_cr(struct in_dev
+ 			else
+ 				in_dev->mc_tomb = pmc_next;
+ 			in_dev_put(pmc->interface);
+-			kfree(pmc);
++			kfree_pmc(pmc);
+ 		} else
+ 			pmc_prev = pmc;
  	}
- 	pmask = (unsigned char) parent_key->mask[__MASK_IDX(si)];
- 	mask = (unsigned char) key->mask[__MASK_IDX(si)];
+@@ -1215,14 +1233,18 @@ static void igmpv3_del_delrec(struct in_
+ 		im->interface = pmc->interface;
+ 		if (im->sfmode == MCAST_INCLUDE) {
+ 			im->tomb = pmc->tomb;
++			pmc->tomb = NULL;
++
+ 			im->sources = pmc->sources;
++			pmc->sources = NULL;
++
+ 			for (psf = im->sources; psf; psf = psf->sf_next)
+ 				psf->sf_crcount = in_dev->mr_qrv ?: net->ipv4.sysctl_igmp_qrv;
+ 		} else {
+ 			im->crcount = in_dev->mr_qrv ?: net->ipv4.sysctl_igmp_qrv;
+ 		}
+ 		in_dev_put(pmc->interface);
+-		kfree(pmc);
++		kfree_pmc(pmc);
+ 	}
+ 	spin_unlock_bh(&im->lock);
+ }
+@@ -1243,21 +1265,18 @@ static void igmpv3_clear_delrec(struct i
+ 		nextpmc = pmc->next;
+ 		ip_mc_clear_src(pmc);
+ 		in_dev_put(pmc->interface);
+-		kfree(pmc);
++		kfree_pmc(pmc);
+ 	}
+ 	/* clear dead sources, too */
+ 	rcu_read_lock();
+ 	for_each_pmc_rcu(in_dev, pmc) {
+-		struct ip_sf_list *psf, *psf_next;
++		struct ip_sf_list *psf;
+ 
+ 		spin_lock_bh(&pmc->lock);
+ 		psf = pmc->tomb;
+ 		pmc->tomb = NULL;
+ 		spin_unlock_bh(&pmc->lock);
+-		for (; psf; psf = psf_next) {
+-			psf_next = psf->sf_next;
+-			kfree(psf);
+-		}
++		ip_sf_list_clear_all(psf);
+ 	}
+ 	rcu_read_unlock();
+ }
+@@ -2123,7 +2142,7 @@ static int ip_mc_add_src(struct in_devic
+ 
+ static void ip_mc_clear_src(struct ip_mc_list *pmc)
+ {
+-	struct ip_sf_list *psf, *nextpsf, *tomb, *sources;
++	struct ip_sf_list *tomb, *sources;
+ 
+ 	spin_lock_bh(&pmc->lock);
+ 	tomb = pmc->tomb;
+@@ -2135,14 +2154,8 @@ static void ip_mc_clear_src(struct ip_mc
+ 	pmc->sfcount[MCAST_EXCLUDE] = 1;
+ 	spin_unlock_bh(&pmc->lock);
+ 
+-	for (psf = tomb; psf; psf = nextpsf) {
+-		nextpsf = psf->sf_next;
+-		kfree(psf);
+-	}
+-	for (psf = sources; psf; psf = nextpsf) {
+-		nextpsf = psf->sf_next;
+-		kfree(psf);
+-	}
++	ip_sf_list_clear_all(tomb);
++	ip_sf_list_clear_all(sources);
+ }
+ 
+ /* Join a multicast group
 
 
