@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6401033946
-	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 21:50:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD95E33947
+	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 21:50:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726510AbfFCTuK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jun 2019 15:50:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56694 "EHLO mail.kernel.org"
+        id S1726623AbfFCTuP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jun 2019 15:50:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726033AbfFCTuK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Jun 2019 15:50:10 -0400
+        id S1726033AbfFCTuP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Jun 2019 15:50:15 -0400
 Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B4D18268AE;
-        Mon,  3 Jun 2019 19:50:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 897CF268A1;
+        Mon,  3 Jun 2019 19:50:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559591410;
-        bh=7fuc0z+9VgPldy/PovZcYLSde13GkHbwK+Fcx5rwtIo=;
+        s=default; t=1559591413;
+        bh=bF3DbY2PwGVShyZRAv+pSLY2Hrh51YJlRcFBzT1TbUM=;
         h=Date:From:To:Subject:From;
-        b=o++zYuDqVgmdxYkIfstoiida5QoK7kVfzVlnpozjz4iKvKVvMRdjX0xccghaAVKch
-         BL6VXC8j4R0TzuSa4PUJsQkl2CYlkysfl5EiFd7eg6EuTR/tyAUHRU6Sm4Ewgj2EuO
-         L5xKmHGDmP9Bq74JZXtCeyB7jL2CoRxxQjB3+p7k=
-Date:   Mon, 03 Jun 2019 12:50:09 -0700
+        b=V+8SHyYBWUJjc9s2n1g4hf2n5So1Yq9ZsLE+YM3bI6WxNdsacl2ZQmNAdEHwosZtm
+         zlnltRJuPNImIfZuBH4KO1UzmIeXS5hFsYouaA2TWBkJCV34Xp5BhRUMEhQTSc4pKg
+         tSR1iTgOj5oAq9pc1dEROwHlU+Q89rOzokWLidiY=
+Date:   Mon, 03 Jun 2019 12:50:13 -0700
 From:   akpm@linux-foundation.org
-To:     arnd@arndb.de, christian@brauner.io, colona@arista.com,
-        deepa.kernel@gmail.com, ebiederm@xmission.com,
-        gregkh@linuxfoundation.org, mm-commits@vger.kernel.org,
-        oleg@redhat.com, stable@vger.kernel.org, tglx@linutronix.de,
-        weizhenliang@huawei.com
+To:     anshuman.khandual@arm.com, cai@lca.pw, marc.zyngier@arm.com,
+        mgorman@techsingularity.net, mhocko@suse.com,
+        mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        suzuki.poulose@arm.com
 Subject:  [merged]
- signal-trace_signal_deliver-when-signal_group_exit.patch removed from -mm
- tree
-Message-ID: <20190603195009.OMPzmpH6Q%akpm@linux-foundation.org>
+ mm-compaction-make-sure-we-isolate-a-valid-pfn.patch removed from -mm tree
+Message-ID: <20190603195013.Ktj7hAUe7%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -42,57 +40,113 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: kernel/signal.c: trace_signal_deliver when signal_group_exit
+     Subject: mm, compaction: make sure we isolate a valid PFN
 has been removed from the -mm tree.  Its filename was
-     signal-trace_signal_deliver-when-signal_group_exit.patch
+     mm-compaction-make-sure-we-isolate-a-valid-pfn.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
-From: Zhenliang Wei <weizhenliang@huawei.com>
-Subject: kernel/signal.c: trace_signal_deliver when signal_group_exit
+From: Suzuki K Poulose <suzuki.poulose@arm.com>
+Subject: mm, compaction: make sure we isolate a valid PFN
 
-In the fixes commit, removing SIGKILL from each thread signal mask and
-executing "goto fatal" directly will skip the call to
-"trace_signal_deliver".  At this point, the delivery tracking of the
-SIGKILL signal will be inaccurate.
+When we have holes in a normal memory zone, we could endup having
+cached_migrate_pfns which may not necessarily be valid, under heavy memory
+pressure with swapping enabled ( via __reset_isolation_suitable(),
+triggered by kswapd).
 
-Therefore, we need to add trace_signal_deliver before "goto fatal" after
-executing sigdelset.
+Later if we fail to find a page via fast_isolate_freepages(), we may end
+up using the migrate_pfn we started the search with, as valid page.  This
+could lead to accessing NULL pointer derefernces like below, due to an
+invalid mem_section pointer.
 
-Note: SEND_SIG_NOINFO matches the fact that SIGKILL doesn't have any info.
+Unable to handle kernel NULL pointer dereference at virtual address 0000000000000008 [47/1825]
+ Mem abort info:
+   ESR = 0x96000004
+   Exception class = DABT (current EL), IL = 32 bits
+   SET = 0, FnV = 0
+   EA = 0, S1PTW = 0
+ Data abort info:
+   ISV = 0, ISS = 0x00000004
+   CM = 0, WnR = 0
+ user pgtable: 4k pages, 48-bit VAs, pgdp = 0000000082f94ae9
+ [0000000000000008] pgd=0000000000000000
+ Internal error: Oops: 96000004 [#1] SMP
+ ...
+ CPU: 10 PID: 6080 Comm: qemu-system-aar Not tainted 510-rc1+ #6
+ Hardware name: AmpereComputing(R) OSPREY EV-883832-X3-0001/OSPREY, BIOS 4819 09/25/2018
+ pstate: 60000005 (nZCv daif -PAN -UAO)
+ pc : set_pfnblock_flags_mask+0x58/0xe8
+ lr : compaction_alloc+0x300/0x950
+ [...]
+ Process qemu-system-aar (pid: 6080, stack limit = 0x0000000095070da5)
+ Call trace:
+  set_pfnblock_flags_mask+0x58/0xe8
+  compaction_alloc+0x300/0x950
+  migrate_pages+0x1a4/0xbb0
+  compact_zone+0x750/0xde8
+  compact_zone_order+0xd8/0x118
+  try_to_compact_pages+0xb4/0x290
+  __alloc_pages_direct_compact+0x84/0x1e0
+  __alloc_pages_nodemask+0x5e0/0xe18
+  alloc_pages_vma+0x1cc/0x210
+  do_huge_pmd_anonymous_page+0x108/0x7c8
+  __handle_mm_fault+0xdd4/0x1190
+  handle_mm_fault+0x114/0x1c0
+  __get_user_pages+0x198/0x3c0
+  get_user_pages_unlocked+0xb4/0x1d8
+  __gfn_to_pfn_memslot+0x12c/0x3b8
+  gfn_to_pfn_prot+0x4c/0x60
+  kvm_handle_guest_abort+0x4b0/0xcd8
+  handle_exit+0x140/0x1b8
+  kvm_arch_vcpu_ioctl_run+0x260/0x768
+  kvm_vcpu_ioctl+0x490/0x898
+  do_vfs_ioctl+0xc4/0x898
+  ksys_ioctl+0x8c/0xa0
+  __arm64_sys_ioctl+0x28/0x38
+  el0_svc_common+0x74/0x118
+  el0_svc_handler+0x38/0x78
+  el0_svc+0x8/0xc
+ Code: f8607840 f100001f 8b011401 9a801020 (f9400400)
+ ---[ end trace af6a35219325a9b6 ]---
 
-Link: http://lkml.kernel.org/r/20190425025812.91424-1-weizhenliang@huawei.com
-Fixes: cf43a757fd4944 ("signal: Restore the stop PTRACE_EVENT_EXIT")
-Signed-off-by: Zhenliang Wei <weizhenliang@huawei.com>
-Reviewed-by: Christian Brauner <christian@brauner.io>
-Reviewed-by: Oleg Nesterov <oleg@redhat.com>
-Cc: Eric W. Biederman <ebiederm@xmission.com>
-Cc: Ivan Delalande <colona@arista.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Deepa Dinamani <deepa.kernel@gmail.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The issue was reported on an arm64 server with 128GB with holes in the
+zone (e.g, [32GB@4GB, 96GB@544GB]), with a swap device enabled, while
+running 100 KVM guest instances.
+
+This patch fixes the issue by ensuring that the page belongs to a valid
+PFN when we fallback to using the lower limit of the scan range upon
+failure in fast_isolate_freepages().
+
+Link: http://lkml.kernel.org/r/1558711908-15688-1-git-send-email-suzuki.poulose@arm.com
+Fixes: 5a811889de10f1eb ("mm, compaction: use free lists to quickly locate a migration target")
+Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Reported-by: Marc Zyngier <marc.zyngier@arm.com>
+Reviewed-by: Mel Gorman <mgorman@techsingularity.net>
+Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Qian Cai <cai@lca.pw>
+Cc: Marc Zyngier <marc.zyngier@arm.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- kernel/signal.c |    2 ++
- 1 file changed, 2 insertions(+)
+ mm/compaction.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/signal.c~signal-trace_signal_deliver-when-signal_group_exit
-+++ a/kernel/signal.c
-@@ -2485,6 +2485,8 @@ relock:
- 	if (signal_group_exit(signal)) {
- 		ksig->info.si_signo = signr = SIGKILL;
- 		sigdelset(&current->pending.signal, SIGKILL);
-+		trace_signal_deliver(SIGKILL, SEND_SIG_NOINFO,
-+				&sighand->action[SIGKILL - 1]);
- 		recalc_sigpending();
- 		goto fatal;
- 	}
+--- a/mm/compaction.c~mm-compaction-make-sure-we-isolate-a-valid-pfn
++++ a/mm/compaction.c
+@@ -1399,7 +1399,7 @@ fast_isolate_freepages(struct compact_co
+ 				page = pfn_to_page(highest);
+ 				cc->free_pfn = highest;
+ 			} else {
+-				if (cc->direct_compaction) {
++				if (cc->direct_compaction && pfn_valid(min_pfn)) {
+ 					page = pfn_to_page(min_pfn);
+ 					cc->free_pfn = min_pfn;
+ 				}
 _
 
-Patches currently in -mm which might be from weizhenliang@huawei.com are
+Patches currently in -mm which might be from suzuki.poulose@arm.com are
 
 
