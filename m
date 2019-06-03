@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3632032BE2
-	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 11:14:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4576932C29
+	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 11:15:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728121AbfFCJMZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jun 2019 05:12:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57960 "EHLO mail.kernel.org"
+        id S1727973AbfFCJOg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jun 2019 05:14:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728623AbfFCJMW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Jun 2019 05:12:22 -0400
+        id S1729032AbfFCJOf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Jun 2019 05:14:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D750527E94;
-        Mon,  3 Jun 2019 09:12:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 81ED527EDF;
+        Mon,  3 Jun 2019 09:14:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559553141;
-        bh=U0+A1eH0PChDoSnp+9mbDWZ2PvOe3k6f0Luo5Jjp5HM=;
+        s=default; t=1559553275;
+        bh=F+WH521pKwpdz27eW9ZhfHJ86+Jmo59k6+j31Jvp1PA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FrL25BwlrhEPmWfDcrIxGADXRZDleG3qoezM+5+nyUwWeeNYlbG7rzTgdG+H1yNCV
-         wgNUqujJATwEHcOS6boyYg7oD7bYqBEL2rFtiisIcEI+yUcBv52CHB4EOqbk7ZRZHR
-         6H+lMzGHyfftR6vkFJKdto2S32NDIPOTkqdVoO2o=
+        b=chL90GiYFzxBPW6t+YbHNb1/xKzVmupMfX6CEiX16g0pFLgFo7p/Ez0/6pVrgxHSW
+         5SuxZY9uYGpAvZAuv/y6PNOzJX8CymHtVvyYRaByDN/+l3J0LprtKH/AOZpvTUKc3e
+         zRRlQywXgP6UK8sJ8dp6WZDGzNQ8jDA3wCCHFO1k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Junwei Hu <hujunwei4@huawei.com>,
-        Wang Wang <wangwang2@huawei.com>,
-        syzbot+1e8114b61079bfe9cbc5@syzkaller.appspotmail.com,
-        Kang Zhou <zhoukang7@huawei.com>,
-        Suanming Mou <mousuanming@huawei.com>,
+        stable@vger.kernel.org,
+        David Beckett <david.beckett@netronome.com>,
+        Jakub Kicinski <jakub.kicinski@netronome.com>,
+        Dirk van der Merwe <dirk.vandermerwe@netronome.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.0 36/36] tipc: fix modprobe tipc failed after switch order of device registration
-Date:   Mon,  3 Jun 2019 11:09:24 +0200
-Message-Id: <20190603090523.349514531@linuxfoundation.org>
+Subject: [PATCH 5.1 32/40] net/tls: fix no wakeup on partial reads
+Date:   Mon,  3 Jun 2019 11:09:25 +0200
+Message-Id: <20190603090524.509763583@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190603090520.998342694@linuxfoundation.org>
-References: <20190603090520.998342694@linuxfoundation.org>
+In-Reply-To: <20190603090522.617635820@linuxfoundation.org>
+References: <20190603090522.617635820@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,161 +46,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Junwei Hu <hujunwei4@huawei.com>
+From: Jakub Kicinski <jakub.kicinski@netronome.com>
 
-commit 526f5b851a96566803ee4bee60d0a34df56c77f8 upstream.
+[ Upstream commit 04b25a5411f966c2e586909a8496553b71876fae ]
 
-Error message printed:
-modprobe: ERROR: could not insert 'tipc': Address family not
-supported by protocol.
-when modprobe tipc after the following patch: switch order of
-device registration, commit 7e27e8d6130c
-("tipc: switch order of device registration to fix a crash")
+When tls_sw_recvmsg() partially copies a record it pops that
+record from ctx->recv_pkt and places it on rx_list.
 
-Because sock_create_kern(net, AF_TIPC, ...) called by
-tipc_topsrv_create_listener() in the initialization process
-of tipc_init_net(), so tipc_socket_init() must be execute before that.
-Meanwhile, tipc_net_id need to be initialized when sock_create()
-called, and tipc_socket_init() is no need to be called for each namespace.
+Next iteration of tls_sw_recvmsg() reads from rx_list via
+process_rx_list() before it enters the decryption loop.
+If there is no more records to be read tls_wait_data()
+will put the process on the wait queue and got to sleep.
+This is incorrect, because some data was already copied
+in process_rx_list().
 
-I add a variable tipc_topsrv_net_ops, and split the
-register_pernet_subsys() of tipc into two parts, and split
-tipc_socket_init() with initialization of pernet params.
+In case of RPC connections process may never get woken up,
+because peer also simply blocks in read().
 
-By the way, I fixed resources rollback error when tipc_bcast_init()
-failed in tipc_init_net().
+I think this may also fix a similar issue when BPF is at
+play, because after __tcp_bpf_recvmsg() returns some data
+we subtract it from len and use continue to restart the
+loop, but len could have just reached 0, so again we'd
+sleep unnecessarily. That's added by:
+commit d3b18ad31f93 ("tls: add bpf support to sk_msg handling")
 
-Fixes: 7e27e8d6130c ("tipc: switch order of device registration to fix a crash")
-Signed-off-by: Junwei Hu <hujunwei4@huawei.com>
-Reported-by: Wang Wang <wangwang2@huawei.com>
-Reported-by: syzbot+1e8114b61079bfe9cbc5@syzkaller.appspotmail.com
-Reviewed-by: Kang Zhou <zhoukang7@huawei.com>
-Reviewed-by: Suanming Mou <mousuanming@huawei.com>
+Fixes: 692d7b5d1f91 ("tls: Fix recvmsg() to be able to peek across multiple records")
+Reported-by: David Beckett <david.beckett@netronome.com>
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Reviewed-by: Dirk van der Merwe <dirk.vandermerwe@netronome.com>
+Tested-by: David Beckett <david.beckett@netronome.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- net/tipc/core.c   |   18 ++++++++++++------
- net/tipc/subscr.h |    5 +++--
- net/tipc/topsrv.c |   14 ++++++++++++--
- 3 files changed, 27 insertions(+), 10 deletions(-)
+ net/tls/tls_sw.c |    8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
---- a/net/tipc/core.c
-+++ b/net/tipc/core.c
-@@ -75,9 +75,6 @@ static int __net_init tipc_init_net(stru
- 		goto out_nametbl;
+--- a/net/tls/tls_sw.c
++++ b/net/tls/tls_sw.c
+@@ -1692,7 +1692,7 @@ int tls_sw_recvmsg(struct sock *sk,
+ 	len = len - copied;
+ 	timeo = sock_rcvtimeo(sk, flags & MSG_DONTWAIT);
  
- 	INIT_LIST_HEAD(&tn->dist_queue);
--	err = tipc_topsrv_start(net);
--	if (err)
--		goto out_subscr;
+-	do {
++	while (len && (decrypted + copied < target || ctx->recv_pkt)) {
+ 		bool retain_skb = false;
+ 		bool zc = false;
+ 		int to_decrypt;
+@@ -1823,11 +1823,7 @@ pick_next_record:
+ 		} else {
+ 			break;
+ 		}
+-
+-		/* If we have a new message from strparser, continue now. */
+-		if (decrypted + copied >= target && !ctx->recv_pkt)
+-			break;
+-	} while (len);
++	}
  
- 	err = tipc_bcast_init(net);
- 	if (err)
-@@ -86,8 +83,6 @@ static int __net_init tipc_init_net(stru
- 	return 0;
- 
- out_bclink:
--	tipc_bcast_stop(net);
--out_subscr:
- 	tipc_nametbl_stop(net);
- out_nametbl:
- 	tipc_sk_rht_destroy(net);
-@@ -97,7 +92,6 @@ out_sk_rht:
- 
- static void __net_exit tipc_exit_net(struct net *net)
- {
--	tipc_topsrv_stop(net);
- 	tipc_net_stop(net);
- 	tipc_bcast_stop(net);
- 	tipc_nametbl_stop(net);
-@@ -111,6 +105,11 @@ static struct pernet_operations tipc_net
- 	.size = sizeof(struct tipc_net),
- };
- 
-+static struct pernet_operations tipc_topsrv_net_ops = {
-+	.init = tipc_topsrv_init_net,
-+	.exit = tipc_topsrv_exit_net,
-+};
-+
- static int __init tipc_init(void)
- {
- 	int err;
-@@ -141,6 +140,10 @@ static int __init tipc_init(void)
- 	if (err)
- 		goto out_socket;
- 
-+	err = register_pernet_subsys(&tipc_topsrv_net_ops);
-+	if (err)
-+		goto out_pernet_topsrv;
-+
- 	err = tipc_bearer_setup();
- 	if (err)
- 		goto out_bearer;
-@@ -148,6 +151,8 @@ static int __init tipc_init(void)
- 	pr_info("Started in single node mode\n");
- 	return 0;
- out_bearer:
-+	unregister_pernet_subsys(&tipc_topsrv_net_ops);
-+out_pernet_topsrv:
- 	tipc_socket_stop();
- out_socket:
- 	unregister_pernet_subsys(&tipc_net_ops);
-@@ -165,6 +170,7 @@ out_netlink:
- static void __exit tipc_exit(void)
- {
- 	tipc_bearer_cleanup();
-+	unregister_pernet_subsys(&tipc_topsrv_net_ops);
- 	tipc_socket_stop();
- 	unregister_pernet_subsys(&tipc_net_ops);
- 	tipc_netlink_stop();
---- a/net/tipc/subscr.h
-+++ b/net/tipc/subscr.h
-@@ -77,8 +77,9 @@ void tipc_sub_report_overlap(struct tipc
- 			     u32 found_lower, u32 found_upper,
- 			     u32 event, u32 port, u32 node,
- 			     u32 scope, int must);
--int tipc_topsrv_start(struct net *net);
--void tipc_topsrv_stop(struct net *net);
-+
-+int __net_init tipc_topsrv_init_net(struct net *net);
-+void __net_exit tipc_topsrv_exit_net(struct net *net);
- 
- void tipc_sub_put(struct tipc_subscription *subscription);
- void tipc_sub_get(struct tipc_subscription *subscription);
---- a/net/tipc/topsrv.c
-+++ b/net/tipc/topsrv.c
-@@ -637,7 +637,7 @@ static void tipc_topsrv_work_stop(struct
- 	destroy_workqueue(s->send_wq);
- }
- 
--int tipc_topsrv_start(struct net *net)
-+static int tipc_topsrv_start(struct net *net)
- {
- 	struct tipc_net *tn = tipc_net(net);
- 	const char name[] = "topology_server";
-@@ -671,7 +671,7 @@ int tipc_topsrv_start(struct net *net)
- 	return ret;
- }
- 
--void tipc_topsrv_stop(struct net *net)
-+static void tipc_topsrv_stop(struct net *net)
- {
- 	struct tipc_topsrv *srv = tipc_topsrv(net);
- 	struct socket *lsock = srv->listener;
-@@ -696,3 +696,13 @@ void tipc_topsrv_stop(struct net *net)
- 	idr_destroy(&srv->conn_idr);
- 	kfree(srv);
- }
-+
-+int __net_init tipc_topsrv_init_net(struct net *net)
-+{
-+	return tipc_topsrv_start(net);
-+}
-+
-+void __net_exit tipc_topsrv_exit_net(struct net *net)
-+{
-+	tipc_topsrv_stop(net);
-+}
+ recv_end:
+ 	if (num_async) {
 
 
