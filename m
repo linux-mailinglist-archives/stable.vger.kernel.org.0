@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F2B632C77
-	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 11:17:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79D0732BB8
+	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 11:11:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727066AbfFCJLC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jun 2019 05:11:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55772 "EHLO mail.kernel.org"
+        id S1728288AbfFCJLF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jun 2019 05:11:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728255AbfFCJLC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Jun 2019 05:11:02 -0400
+        id S1727317AbfFCJLE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Jun 2019 05:11:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D7DDD27E43;
-        Mon,  3 Jun 2019 09:11:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7805527E44;
+        Mon,  3 Jun 2019 09:11:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559553061;
-        bh=lfpX54i1ME6lCEhNG/tCmCnRWGzVpXWcT0EQVjwNNIk=;
+        s=default; t=1559553064;
+        bh=pzvuY0MLooD1BHTw3uxhWYwmhUamRWf5Y/TkApoxcns=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dynLvXuEENnUvP8LUrEGAXgBYhp+QWL88THb+2TgQ9BB1LL57E7ze/tFqYMAw70yk
-         tqwoUbLJfHsYUQ9VvzCEXGzCbq5cLHb6xya3Xs0Uk6GVLzzNcIzycEDrS4uDiQizNj
-         mL2cBVmMeZRCuqHLDIkOOgNQWUlteChalbCpGl1o=
+        b=lvrA51Zkkv/xmlzPIZkWZkDpNsF4WHvLEjri9iHStxD/BT7W16BXnCJ3JjsfQZl8Y
+         Gs9qs2DH28ASglE13hlAqtqoypaEzVPGulHAEgp8HLR2HjcPNgVPNEkbLz6+WqItfg
+         bKgjzl0dcjJVtXb9jxuh75QEbXsp6/rvWwR483mQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jan=20Kl=C3=B6tzke?= <Jan.Kloetzke@preh.de>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 17/32] usbnet: fix kernel crash after disconnect
-Date:   Mon,  3 Jun 2019 11:08:11 +0200
-Message-Id: <20190603090313.578874049@linuxfoundation.org>
+        stable@vger.kernel.org, Parav Pandit <parav@mellanox.com>,
+        Mark Bloch <markb@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>
+Subject: [PATCH 4.19 18/32] net/mlx5: Avoid double free in fs init error unwinding path
+Date:   Mon,  3 Jun 2019 11:08:12 +0200
+Message-Id: <20190603090313.666082384@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190603090308.472021390@linuxfoundation.org>
 References: <20190603090308.472021390@linuxfoundation.org>
@@ -44,90 +44,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kloetzke Jan <Jan.Kloetzke@preh.de>
+From: Parav Pandit <parav@mellanox.com>
 
-[ Upstream commit ad70411a978d1e6e97b1e341a7bde9a79af0c93d ]
+[ Upstream commit 9414277a5df3669c67e818708c0f881597e0118e ]
 
-When disconnecting cdc_ncm the kernel sporadically crashes shortly
-after the disconnect:
+In below code flow, for ingress acl table root ns memory leads
+to double free.
 
-  [   57.868812] Unable to handle kernel NULL pointer dereference at virtual address 00000000
-  ...
-  [   58.006653] PC is at 0x0
-  [   58.009202] LR is at call_timer_fn+0xec/0x1b4
-  [   58.013567] pc : [<0000000000000000>] lr : [<ffffff80080f5130>] pstate: 00000145
-  [   58.020976] sp : ffffff8008003da0
-  [   58.024295] x29: ffffff8008003da0 x28: 0000000000000001
-  [   58.029618] x27: 000000000000000a x26: 0000000000000100
-  [   58.034941] x25: 0000000000000000 x24: ffffff8008003e68
-  [   58.040263] x23: 0000000000000000 x22: 0000000000000000
-  [   58.045587] x21: 0000000000000000 x20: ffffffc68fac1808
-  [   58.050910] x19: 0000000000000100 x18: 0000000000000000
-  [   58.056232] x17: 0000007f885aff8c x16: 0000007f883a9f10
-  [   58.061556] x15: 0000000000000001 x14: 000000000000006e
-  [   58.066878] x13: 0000000000000000 x12: 00000000000000ba
-  [   58.072201] x11: ffffffc69ff1db30 x10: 0000000000000020
-  [   58.077524] x9 : 8000100008001000 x8 : 0000000000000001
-  [   58.082847] x7 : 0000000000000800 x6 : ffffff8008003e70
-  [   58.088169] x5 : ffffffc69ff17a28 x4 : 00000000ffff138b
-  [   58.093492] x3 : 0000000000000000 x2 : 0000000000000000
-  [   58.098814] x1 : 0000000000000000 x0 : 0000000000000000
-  ...
-  [   58.205800] [<          (null)>]           (null)
-  [   58.210521] [<ffffff80080f5298>] expire_timers+0xa0/0x14c
-  [   58.215937] [<ffffff80080f542c>] run_timer_softirq+0xe8/0x128
-  [   58.221702] [<ffffff8008081120>] __do_softirq+0x298/0x348
-  [   58.227118] [<ffffff80080a6304>] irq_exit+0x74/0xbc
-  [   58.232009] [<ffffff80080e17dc>] __handle_domain_irq+0x78/0xac
-  [   58.237857] [<ffffff8008080cf4>] gic_handle_irq+0x80/0xac
-  ...
+mlx5_init_fs
+  init_ingress_acls_root_ns()
+    init_ingress_acl_root_ns
+       kfree(steering->esw_ingress_root_ns);
+       /* steering->esw_ingress_root_ns is not marked NULL */
+  mlx5_cleanup_fs
+    cleanup_ingress_acls_root_ns
+       steering->esw_ingress_root_ns non NULL check passes.
+       kfree(steering->esw_ingress_root_ns);
+       /* double free */
 
-The crash happens roughly 125..130ms after the disconnect. This
-correlates with the 'delay' timer that is started on certain USB tx/rx
-errors in the URB completion handler.
+Similar issue exist for other tables.
 
-The problem is a race of usbnet_stop() with usbnet_start_xmit(). In
-usbnet_stop() we call usbnet_terminate_urbs() to cancel all URBs in
-flight. This only makes sense if no new URBs are submitted
-concurrently, though. But the usbnet_start_xmit() can run at the same
-time on another CPU which almost unconditionally submits an URB. The
-error callback of the new URB will then schedule the timer after it was
-already stopped.
+Hence zero out the pointers to not process the table again.
 
-The fix adds a check if the tx queue is stopped after the tx list lock
-has been taken. This should reliably prevent the submission of new URBs
-while usbnet_terminate_urbs() does its job. The same thing is done on
-the rx side even though it might be safe due to other flags that are
-checked there.
-
-Signed-off-by: Jan Klötzke <Jan.Kloetzke@preh.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 9b93ab981e3bf ("net/mlx5: Separate ingress/egress namespaces for each vport")
+Fixes: 40c3eebb49e51 ("net/mlx5: Add support in RDMA RX steering")
+Signed-off-by: Parav Pandit <parav@mellanox.com>
+Reviewed-by: Mark Bloch <markb@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/usbnet.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/ethernet/mellanox/mlx5/core/fs_core.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/net/usb/usbnet.c
-+++ b/drivers/net/usb/usbnet.c
-@@ -506,6 +506,7 @@ static int rx_submit (struct usbnet *dev
+--- a/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
+@@ -2363,6 +2363,7 @@ static void cleanup_egress_acls_root_ns(
+ 		cleanup_root_ns(steering->esw_egress_root_ns[i]);
  
- 	if (netif_running (dev->net) &&
- 	    netif_device_present (dev->net) &&
-+	    test_bit(EVENT_DEV_OPEN, &dev->flags) &&
- 	    !test_bit (EVENT_RX_HALT, &dev->flags) &&
- 	    !test_bit (EVENT_DEV_ASLEEP, &dev->flags)) {
- 		switch (retval = usb_submit_urb (urb, GFP_ATOMIC)) {
-@@ -1431,6 +1432,11 @@ netdev_tx_t usbnet_start_xmit (struct sk
- 		spin_unlock_irqrestore(&dev->txq.lock, flags);
- 		goto drop;
- 	}
-+	if (netif_queue_stopped(net)) {
-+		usb_autopm_put_interface_async(dev->intf);
-+		spin_unlock_irqrestore(&dev->txq.lock, flags);
-+		goto drop;
-+	}
+ 	kfree(steering->esw_egress_root_ns);
++	steering->esw_egress_root_ns = NULL;
+ }
  
- #ifdef CONFIG_PM
- 	/* if this triggers the device is still a sleep */
+ static void cleanup_ingress_acls_root_ns(struct mlx5_core_dev *dev)
+@@ -2377,6 +2378,7 @@ static void cleanup_ingress_acls_root_ns
+ 		cleanup_root_ns(steering->esw_ingress_root_ns[i]);
+ 
+ 	kfree(steering->esw_ingress_root_ns);
++	steering->esw_ingress_root_ns = NULL;
+ }
+ 
+ void mlx5_cleanup_fs(struct mlx5_core_dev *dev)
+@@ -2505,6 +2507,7 @@ cleanup_root_ns:
+ 	for (i--; i >= 0; i--)
+ 		cleanup_root_ns(steering->esw_egress_root_ns[i]);
+ 	kfree(steering->esw_egress_root_ns);
++	steering->esw_egress_root_ns = NULL;
+ 	return err;
+ }
+ 
+@@ -2532,6 +2535,7 @@ cleanup_root_ns:
+ 	for (i--; i >= 0; i--)
+ 		cleanup_root_ns(steering->esw_ingress_root_ns[i]);
+ 	kfree(steering->esw_ingress_root_ns);
++	steering->esw_ingress_root_ns = NULL;
+ 	return err;
+ }
+ 
 
 
