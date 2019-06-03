@@ -2,118 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B1D0233287
-	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 16:44:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4093A3329A
+	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 16:48:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729382AbfFCOoT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jun 2019 10:44:19 -0400
-Received: from lhrrgout.huawei.com ([185.176.76.210]:32980 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1729238AbfFCOoS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Jun 2019 10:44:18 -0400
-Received: from LHREML712-CAH.china.huawei.com (unknown [172.18.7.106])
-        by Forcepoint Email with ESMTP id 970C97DED53F5CEC1E01;
-        Mon,  3 Jun 2019 15:44:14 +0100 (IST)
-Received: from [10.220.96.108] (10.220.96.108) by smtpsuk.huawei.com
- (10.201.108.35) with Microsoft SMTP Server (TLS) id 14.3.408.0; Mon, 3 Jun
- 2019 15:44:04 +0100
-Subject: Re: [PATCH v2 2/3] ima: don't ignore INTEGRITY_UNKNOWN EVM status
-To:     James Bottomley <James.Bottomley@HansenPartnership.com>,
-        Mimi Zohar <zohar@linux.ibm.com>, <dmitry.kasatkin@huawei.com>,
-        <mjg59@google.com>
-CC:     <linux-integrity@vger.kernel.org>,
-        <linux-security-module@vger.kernel.org>,
-        <linux-doc@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <silviu.vlasceanu@huawei.com>, <stable@vger.kernel.org>
-References: <20190529133035.28724-1-roberto.sassu@huawei.com>
- <20190529133035.28724-3-roberto.sassu@huawei.com>
- <1559217621.4008.7.camel@linux.ibm.com>
- <e6b31aa9-0319-1805-bdfc-3ddde5884494@huawei.com>
- <1559569401.5052.17.camel@HansenPartnership.com>
- <3667fbd4-b6ed-6a76-9ff4-84ec3c2dda12@huawei.com>
- <1559572305.5052.19.camel@HansenPartnership.com>
-From:   Roberto Sassu <roberto.sassu@huawei.com>
-Message-ID: <b38d75b1-873a-1630-0148-41c49571531a@huawei.com>
-Date:   Mon, 3 Jun 2019 16:44:12 +0200
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.3.0
+        id S1729122AbfFCOse (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jun 2019 10:48:34 -0400
+Received: from mail-wr1-f52.google.com ([209.85.221.52]:45241 "EHLO
+        mail-wr1-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727650AbfFCOse (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jun 2019 10:48:34 -0400
+Received: by mail-wr1-f52.google.com with SMTP id b18so12357710wrq.12
+        for <stable@vger.kernel.org>; Mon, 03 Jun 2019 07:48:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=dTxrOsxUCXsXFGn572IgwOw5+RP5dDurYTRimMn6u1g=;
+        b=uRtDSAb8eCcm3P1ma2ae3WTDQggzf/4+xfIDWMn38vayk3e11RkEdFXSmy6/YT9lXB
+         ZncIm5E9Lbs8u79AqobiZ4SFXaU8T+c3iWERlnyueF7E28JMXyVGNMyiDN77v2Fz2wdn
+         fJ/bLqLxN2DsWVRFHtGe77kN0iaq5LEqZsnzrKR/Hw5C2nx2GkWxh3gYCU8qUPEyyFdT
+         9vHiTAdinvsUeM2TQqH0BUHmsHdkqQQ4n76LtE1W7wppz9MfLoWBHbE/YaRMYzYI3YSt
+         cxYLoq/DNm3AHqGkKOlkk5wkLYkZTIJ6vJumEnBJjB0fAjN5dCSBkr2+XbeWINU1PeY3
+         5qRw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=dTxrOsxUCXsXFGn572IgwOw5+RP5dDurYTRimMn6u1g=;
+        b=bteCasZaTmYOC6AmlQXWCNB1peIhcz2X0gA+8wdI/dN6vlYmTQA+U47VezgOnEpocu
+         f1Y4M8/BSHL2oizNfoF6miyakAA3SEeW7/YwxCO/PfNWVXHtpcuVnpUb5p4oB0KH+Ckd
+         bmtr1GmwTmO2UErT0XK+oaBTsQHNCpQZot+L/vLDDz3sMTi4Dry0I9XmY8UFEyFeqJ2C
+         CRiF3jOw2itIvgmUcsvrLPtNBtb+vp4cKMUKZ4GavSfOTFQ4TJVlGqBp4GzODuNszhRm
+         yeHt41KeSF9Vle7YrsGbnJYkrBpnarQ/YypOPFfl/lxA84hCc6OIUPqJYKMRUUza1XrS
+         dNUg==
+X-Gm-Message-State: APjAAAWxIhnzKZEbrJJ4bTgVhUy41w0rbAMMTuRxEhVicGWymWjko8hM
+        sDsP1jv2l1/AYbOraG8bTV9uj3lz426ayw==
+X-Google-Smtp-Source: APXvYqyUsoQXhZi+ofHvUg4jHvjlrgKwVNWn5CSzUNS+sR/t5BMxZS6+/JlkwmUghayNTuL5MVe32w==
+X-Received: by 2002:adf:8028:: with SMTP id 37mr16579495wrk.106.1559573313035;
+        Mon, 03 Jun 2019 07:48:33 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id s63sm6299957wme.17.2019.06.03.07.48.32
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 03 Jun 2019 07:48:32 -0700 (PDT)
+Message-ID: <5cf53340.1c69fb81.47692.3715@mx.google.com>
+Date:   Mon, 03 Jun 2019 07:48:32 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <1559572305.5052.19.camel@HansenPartnership.com>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.220.96.108]
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v5.1.6-41-ge674455b9242
+X-Kernelci-Branch: linux-5.1.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-5.1.y boot: 132 boots: 1 failed,
+ 131 passed (v5.1.6-41-ge674455b9242)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/3/2019 4:31 PM, James Bottomley wrote:
-> On Mon, 2019-06-03 at 16:29 +0200, Roberto Sassu wrote:
->> On 6/3/2019 3:43 PM, James Bottomley wrote:
->>> On Mon, 2019-06-03 at 11:25 +0200, Roberto Sassu wrote:
->>>> On 5/30/2019 2:00 PM, Mimi Zohar wrote:
->>>>> On Wed, 2019-05-29 at 15:30 +0200, Roberto Sassu wrote:
->>>>>> Currently, ima_appraise_measurement() ignores the EVM status
->>>>>> when evm_verifyxattr() returns INTEGRITY_UNKNOWN. If a file
->>>>>> has a valid security.ima xattr with type IMA_XATTR_DIGEST or
->>>>>> IMA_XATTR_DIGEST_NG, ima_appraise_measurement() returns
->>>>>> INTEGRITY_PASS regardless of the EVM status. The problem is
->>>>>> that the EVM status is overwritten with the appraisal statu
->>>>>
->>>>> Roberto, your framing of this problem is harsh and
->>>>> misleading.  IMA and EVM are intentionally independent of each
->>>>> other and can be configured independently of each other.  The
->>>>> intersection of the two is the call to
->>>>> evm_verifyxattr().  INTEGRITY_UNKNOWN is
->>>>> returned for a number of reasons - when EVM is not configured,
->>>>> the EVM hmac key has not yet been loaded, the protected
->>>>> security attribute is unknown, or the file is not in policy.
->>>>>
->>>>> This patch does not differentiate between any of the above
->>>>> cases, requiring mutable files to always be protected by EVM,
->>>>> when specified as an "ima_appraise=" option on the boot command
->>>>> line.
->>>>>
->>>>> IMA could be extended to require EVM on a per IMA policy rule
->>>>> basis. Instead of framing allowing IMA file hashes without EVM
->>>>> as a bug that has existed from the very beginning, now that
->>>>> IMA/EVM have matured and is being used, you could frame it as
->>>>> extending IMA or hardening.
->>>>
->>>> I'm seeing it from the perspective of an administrator that
->>>> manages an already hardened system, and expects that the system
->>>> only grants access to files with a valid signature/HMAC. That
->>>> system would not enforce this behavior if EVM keys are removed
->>>> and the digest in security.ima is set to the actual file digest.
->>>>
->>>> Framing it as a bug rather than an extension would in my opinion
->>>> help to convince people about the necessity to switch to the safe
->>>> mode, if their system is already hardened.
->>>
->>> I have a use case for IMA where I use it to enforce immutability of
->>> containers.  In this use case, the cluster admin places hashes on
->>> executables as the image is unpacked so that if an executable file
->>> is changed, IMA will cause an execution failure.  For this use
->>> case, I don't care about the EVM, in fact we don't use it, because
->>> the only object is to fail execution if a binary is mutated.
->>
->> How would you prevent root in the container from updating
->> security.ima?
-> 
-> We don't.  We only guarantee immutability for unprivileged containers,
-> so root can't be inside.
+stable-rc/linux-5.1.y boot: 132 boots: 1 failed, 131 passed (v5.1.6-41-ge67=
+4455b9242)
 
-Ok.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-5.1.y/kernel/v5.1.6-41-ge674455b9242/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.1.y=
+/kernel/v5.1.6-41-ge674455b9242/
 
-Regarding the new behavior, this must be explicitly enabled by adding
-ima_appraise=enforce-evm or log-evm to the kernel command line.
-Otherwise, the current behavior is preserved with this patch. Would this
-be ok?
+Tree: stable-rc
+Branch: linux-5.1.y
+Git Describe: v5.1.6-41-ge674455b9242
+Git Commit: e674455b924207b06e6527d961a4b617cf13e7a9
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 73 unique boards, 23 SoC families, 14 builds out of 209
 
-Roberto
+Boot Failure Detected:
 
--- 
-HUAWEI TECHNOLOGIES Duesseldorf GmbH, HRB 56063
-Managing Director: Bo PENG, Jian LI, Yanli SHI
+arm:
+    multi_v7_defconfig:
+        gcc-8:
+            bcm4708-smartrg-sr400ac: 1 failed lab
+
+---
+For more info write to <info@kernelci.org>
