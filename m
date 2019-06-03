@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 045F93388B
-	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 20:50:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86BBF33898
+	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 20:53:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726112AbfFCSuX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jun 2019 14:50:23 -0400
-Received: from mail-pg1-f196.google.com ([209.85.215.196]:46593 "EHLO
+        id S1726270AbfFCSxL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jun 2019 14:53:11 -0400
+Received: from mail-pg1-f196.google.com ([209.85.215.196]:38050 "EHLO
         mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726055AbfFCSuX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jun 2019 14:50:23 -0400
-Received: by mail-pg1-f196.google.com with SMTP id v9so8769089pgr.13
-        for <stable@vger.kernel.org>; Mon, 03 Jun 2019 11:50:22 -0700 (PDT)
+        with ESMTP id S1726112AbfFCSxL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jun 2019 14:53:11 -0400
+Received: by mail-pg1-f196.google.com with SMTP id v11so8790531pgl.5
+        for <stable@vger.kernel.org>; Mon, 03 Jun 2019 11:53:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=chromium.org; s=google;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=2Xopmdxw630udg8sc3WFoukd+r5XBzX5qUOtBDIPHjI=;
-        b=HwEsH4E4OqacLS9nL2wxeBGHw/sTvuB7qRWQKfGmoIBgg43ue4GHUkpkQjO9f17D4Y
-         cjaFnx5qPIX3WHoztruDoI63uW4BDV4eDKr9DcCRYQO3B0UPLPqwZQU7yqcDlPPEdlPb
-         MpMt5mpZQCHEOju38TirhrKRbl/Cj/Px1jQqs=
+        bh=rjr6iROiguEZRxbhpv14nKbI9j4PxTCmpWNmvKjVO8k=;
+        b=Qwl5BEDP1LeVWofFhcxUETb6g1+M56Oh5KWHHTDsx1yk3/pqkfyhYT/oBU3+mCKZV3
+         lnv9Bj/t398PQaaGHswBhkm/ZuqhjVfPF53Pip3NjIlB0Rd3IEZO9TPfJ+TLS++UxoZt
+         PF8MyA9QFXyl8Vn/Hd81q+vTE8Gc2mjE0jfmk=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=2Xopmdxw630udg8sc3WFoukd+r5XBzX5qUOtBDIPHjI=;
-        b=r/YQ2Qu/MHrJMuk6daMxgMAT3K9GCzV8VJYN/BYPAcA4uCTZuSWBPMktISmUtzVOPD
-         DQbft/EBvUxNd5eTG0jd7ryTgoBHuz3816h2Jef7GU8baJG4bHppWNY2uQnzV0vXkQ2c
-         V6hvyDKrQirA6oQdBXHeFoPKfuua0ROLyy4wQdbEDk2IsA/x1L858cfhgoL6IErh06jI
-         4SRb8I0t0NjnnNTsvL2LxgR1q3yBsVcNkVpG4Nw4WrtMEDlZZ8ZvqhqW+mWB2pXYkFrD
-         9UXKssOz7O2FGSO6Zu1iMPWWWgARn0/CwKMGwlBCLoz7asxcqGiX5DNgAqZgFnsHbeRC
-         L5ig==
-X-Gm-Message-State: APjAAAWk8GWk56uzyYrOXZ/MnYWe3Fowp4mCHAuN/T2EFzGYn/LXw56F
-        e5Mkibjwz5GdUI0pV2aAlryCTw==
-X-Google-Smtp-Source: APXvYqzUGScpnRCh0F7iBXFTNWvOCU1e+3zVwqagUPqg0MBVDCf7q/cYYPI9T3xTmSQb5EK5Emebnw==
-X-Received: by 2002:a62:ed1a:: with SMTP id u26mr6293453pfh.229.1559587822316;
-        Mon, 03 Jun 2019 11:50:22 -0700 (PDT)
+        bh=rjr6iROiguEZRxbhpv14nKbI9j4PxTCmpWNmvKjVO8k=;
+        b=p9Dex9SPF7Lv8AN7W/UbHI89lu2/cXRAMVpdwULUlY3G6NzKmUdegmuOwjXVeBiD4f
+         s76vEamI3jafVXIqwKTMeTmtY5EBHQhEPEbB63GWerX5B2L5ESsFsKAq9UtqL4exoe6x
+         SokhPAt6pGrNEvPpr4CRJUju75nO86IaFTRYm6ERC/+Us8vCMse6Kn8QUtI94HYfve40
+         0ZyGfVdqnJn0pGQJ7YbPq7FVZ8YWJGmIjccxGWm3vjGXwnSvBGBqCiAYcN4YWeUy10kg
+         3VEIiHyCoYMOpUL4qsEH95IR3UoygmdBUAOagTxHHxtl8DgaYeBvLV81L7Wn2ai7xsFe
+         h/2A==
+X-Gm-Message-State: APjAAAWGlhMqSu6qMfAGiF6QPSxh0lR4faOxuItSvA5YwgNL1qK2dGRQ
+        1fWdv7ezgH2GnEwhW033+MuUog==
+X-Google-Smtp-Source: APXvYqwNYXEE6HbvoyNmXU+/4o7J4D0yvcmE2ughCY22FzWnonxmDGE75Y+MKyO9eHCPqxnGjUTaKQ==
+X-Received: by 2002:aa7:8491:: with SMTP id u17mr20641855pfn.93.1559587990026;
+        Mon, 03 Jun 2019 11:53:10 -0700 (PDT)
 Received: from localhost ([2620:15c:202:1:75a:3f6e:21d:9374])
-        by smtp.gmail.com with ESMTPSA id l12sm12750412pgq.26.2019.06.03.11.50.21
+        by smtp.gmail.com with ESMTPSA id e127sm12460286pfe.98.2019.06.03.11.53.09
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 03 Jun 2019 11:50:21 -0700 (PDT)
+        Mon, 03 Jun 2019 11:53:09 -0700 (PDT)
 From:   Matthias Kaehlcke <mka@chromium.org>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
@@ -56,9 +56,9 @@ Cc:     stable@vger.kernel.org, clang-built-linux@googlegroups.com,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Matthias Kaehlcke <mka@chromium.org>
-Subject: [PATCH 4.14] include/linux/bitops.h: sanitize rotate primitives
-Date:   Mon,  3 Jun 2019 11:50:15 -0700
-Message-Id: <20190603185015.45362-1-mka@chromium.org>
+Subject: [PATCH 4.9] include/linux/bitops.h: sanitize rotate primitives
+Date:   Mon,  3 Jun 2019 11:53:06 -0700
+Message-Id: <20190603185306.45994-1-mka@chromium.org>
 X-Mailer: git-send-email 2.22.0.rc1.311.g5d7573a151-goog
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -69,7 +69,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 
-commit ef4d6f6b275c498f8e5626c99dbeefdc5027f843 upstream
+commit ef4d6f6b275c498f8e5626c99dbeefdc5027f843 upstream.
 
 The ror32 implementation (word >> shift) | (word << (32 - shift) has
 undefined behaviour if shift is outside the [1, 31] range.  Similarly
@@ -118,22 +118,24 @@ Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
 ---
 Hi Greg and Sasha,
 
-Please pick this patch for 4.14. Issues were observed on arm32 with
+Please pick this patch for 4.9. Issues were observed on arm32 with
 newer kernels built with clang for rotations with a shift count of
 zero.
 
 Thanks
 
 Matthias
+
+Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
 ---
  include/linux/bitops.h | 16 ++++++++--------
  1 file changed, 8 insertions(+), 8 deletions(-)
 
 diff --git a/include/linux/bitops.h b/include/linux/bitops.h
-index d03c5dd6185d..fc64a43690f8 100644
+index a83c822c35c2..4b61c71048ed 100644
 --- a/include/linux/bitops.h
 +++ b/include/linux/bitops.h
-@@ -79,7 +79,7 @@ static __always_inline unsigned long hweight_long(unsigned long w)
+@@ -77,7 +77,7 @@ static __always_inline unsigned long hweight_long(unsigned long w)
   */
  static inline __u64 rol64(__u64 word, unsigned int shift)
  {
@@ -142,7 +144,7 @@ index d03c5dd6185d..fc64a43690f8 100644
  }
  
  /**
-@@ -89,7 +89,7 @@ static inline __u64 rol64(__u64 word, unsigned int shift)
+@@ -87,7 +87,7 @@ static inline __u64 rol64(__u64 word, unsigned int shift)
   */
  static inline __u64 ror64(__u64 word, unsigned int shift)
  {
@@ -151,7 +153,7 @@ index d03c5dd6185d..fc64a43690f8 100644
  }
  
  /**
-@@ -99,7 +99,7 @@ static inline __u64 ror64(__u64 word, unsigned int shift)
+@@ -97,7 +97,7 @@ static inline __u64 ror64(__u64 word, unsigned int shift)
   */
  static inline __u32 rol32(__u32 word, unsigned int shift)
  {
@@ -160,7 +162,7 @@ index d03c5dd6185d..fc64a43690f8 100644
  }
  
  /**
-@@ -109,7 +109,7 @@ static inline __u32 rol32(__u32 word, unsigned int shift)
+@@ -107,7 +107,7 @@ static inline __u32 rol32(__u32 word, unsigned int shift)
   */
  static inline __u32 ror32(__u32 word, unsigned int shift)
  {
@@ -169,7 +171,7 @@ index d03c5dd6185d..fc64a43690f8 100644
  }
  
  /**
-@@ -119,7 +119,7 @@ static inline __u32 ror32(__u32 word, unsigned int shift)
+@@ -117,7 +117,7 @@ static inline __u32 ror32(__u32 word, unsigned int shift)
   */
  static inline __u16 rol16(__u16 word, unsigned int shift)
  {
@@ -178,7 +180,7 @@ index d03c5dd6185d..fc64a43690f8 100644
  }
  
  /**
-@@ -129,7 +129,7 @@ static inline __u16 rol16(__u16 word, unsigned int shift)
+@@ -127,7 +127,7 @@ static inline __u16 rol16(__u16 word, unsigned int shift)
   */
  static inline __u16 ror16(__u16 word, unsigned int shift)
  {
@@ -187,7 +189,7 @@ index d03c5dd6185d..fc64a43690f8 100644
  }
  
  /**
-@@ -139,7 +139,7 @@ static inline __u16 ror16(__u16 word, unsigned int shift)
+@@ -137,7 +137,7 @@ static inline __u16 ror16(__u16 word, unsigned int shift)
   */
  static inline __u8 rol8(__u8 word, unsigned int shift)
  {
@@ -196,7 +198,7 @@ index d03c5dd6185d..fc64a43690f8 100644
  }
  
  /**
-@@ -149,7 +149,7 @@ static inline __u8 rol8(__u8 word, unsigned int shift)
+@@ -147,7 +147,7 @@ static inline __u8 rol8(__u8 word, unsigned int shift)
   */
  static inline __u8 ror8(__u8 word, unsigned int shift)
  {
