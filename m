@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A78032C4A
-	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 11:17:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F67232BFC
+	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 11:14:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728648AbfFCJMh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jun 2019 05:12:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60148 "EHLO mail.kernel.org"
+        id S1727962AbfFCJNb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jun 2019 05:13:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728202AbfFCJMh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Jun 2019 05:12:37 -0400
+        id S1727961AbfFCJNa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Jun 2019 05:13:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 09FE426F51;
-        Mon,  3 Jun 2019 09:12:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 120F527EB0;
+        Mon,  3 Jun 2019 09:13:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559553156;
-        bh=famVA7ob8TpRxTb4UrHWZEGJtnZWdrQQBvRwDY8CjhA=;
+        s=default; t=1559553210;
+        bh=Yag5q5aS2+NS59gLAB7BzUtRjUWKTMRecEygGQgq704=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pbG5zpvtN4ZZ+r8si55iV7A2IXSlxEn7E6PWgkC+ZKGhY5Xqx/hNq9DQmIwXKI9fX
-         JPiRRvr4icT0uZrAGHuhNrwM2qSqpCbwtx0xHmVi2uEZ326wOE5b5pNift6vgxOLBR
-         V2/6lrBFZ8WP2db/AHyM0BTwXUemDzG3rHvidA7Y=
+        b=IzR/gxP9heK5dAlsGHPE5me+POsCCBghX2v9IkHO8o5D3QCZkSGdLoz20jU1UIVNE
+         IQuDVlFsjp8KbLKe5M1kyrb0ilI1bNyI0j7u9Z3U2klFGDVun6xErkd8i0vO3YduT0
+         1ks6Q38e3RmpjzzD1Jajdjql1TgLBXJ3jm72DmNw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
-        Dirk van der Merwe <dirk.vandermerwe@netronome.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.0 29/36] net/tls: fix state removal with feature flags off
+        stable@vger.kernel.org, Saeed Mahameed <saeedm@mellanox.com>
+Subject: [PATCH 5.1 24/40] net/mlx5e: Disable rxhash when CQE compress is enabled
 Date:   Mon,  3 Jun 2019 11:09:17 +0200
-Message-Id: <20190603090522.925911024@linuxfoundation.org>
+Message-Id: <20190603090524.096682349@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190603090520.998342694@linuxfoundation.org>
-References: <20190603090520.998342694@linuxfoundation.org>
+In-Reply-To: <20190603090522.617635820@linuxfoundation.org>
+References: <20190603090522.617635820@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,60 +42,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <jakub.kicinski@netronome.com>
+From: Saeed Mahameed <saeedm@mellanox.com>
 
-[ Upstream commit 3686637e507b48525fcea6fb91e1988bdbc14530 ]
+[ Upstream commit c0194e2d0ef0e5ce5e21a35640d23a706827ae28 ]
 
-TLS offload drivers shouldn't (and currently don't) block
-the TLS offload feature changes based on whether there are
-active offloaded connections or not.
+When CQE compression is enabled (Multi-host systems), compressed CQEs
+might arrive to the driver rx, compressed CQEs don't have a valid hash
+offload and the driver already reports a hash value of 0 and invalid hash
+type on the skb for compressed CQEs, but this is not good enough.
 
-This seems to be a good idea, because we want the admin to
-be able to disable the TLS offload at any time, and there
-is no clean way of disabling it for active connections
-(TX side is quite problematic).  So if features are cleared
-existing connections will stay offloaded until they close,
-and new connections will not attempt offload to a given
-device.
+On a congested PCIe, where CQE compression will kick in aggressively,
+gro will deliver lots of out of order packets due to the invalid hash
+and this might cause a serious performance drop.
 
-However, the offload state removal handling is currently
-broken if feature flags get cleared while there are
-active TLS offloads.
+The only valid solution, is to disable rxhash offload at all when CQE
+compression is favorable (Multi-host systems).
 
-RX side will completely bail from cleanup, even on normal
-remove path, leaving device state dangling, potentially
-causing issues when the 5-tuple is reused.  It will also
-fail to release the netdev reference.
-
-Remove the RX-side warning message, in next release cycle
-it should be printed when features are disabled, rather
-than when connection dies, but for that we need a more
-efficient method of finding connection of a given netdev
-(a'la BPF offload code).
-
-Fixes: 4799ac81e52a ("tls: Add rx inline crypto offload")
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Reviewed-by: Dirk van der Merwe <dirk.vandermerwe@netronome.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 7219ab34f184 ("net/mlx5e: CQE compression")
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/tls/tls_device.c |    6 ------
- 1 file changed, 6 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_main.c |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
---- a/net/tls/tls_device.c
-+++ b/net/tls/tls_device.c
-@@ -923,12 +923,6 @@ void tls_device_offload_cleanup_rx(struc
- 	if (!netdev)
- 		goto out;
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+@@ -3750,6 +3750,12 @@ static netdev_features_t mlx5e_fix_featu
+ 			netdev_warn(netdev, "Disabling LRO, not supported in legacy RQ\n");
+ 	}
  
--	if (!(netdev->features & NETIF_F_HW_TLS_RX)) {
--		pr_err_ratelimited("%s: device is missing NETIF_F_HW_TLS_RX cap\n",
--				   __func__);
--		goto out;
--	}
--
- 	netdev->tlsdev_ops->tls_dev_del(netdev, tls_ctx,
- 					TLS_OFFLOAD_CTX_DIR_RX);
++	if (MLX5E_GET_PFLAG(params, MLX5E_PFLAG_RX_CQE_COMPRESS)) {
++		features &= ~NETIF_F_RXHASH;
++		if (netdev->features & NETIF_F_RXHASH)
++			netdev_warn(netdev, "Disabling rxhash, not supported when CQE compress is active\n");
++	}
++
+ 	mutex_unlock(&priv->state_lock);
  
+ 	return features;
+@@ -3875,6 +3881,9 @@ int mlx5e_hwstamp_set(struct mlx5e_priv
+ 	memcpy(&priv->tstamp, &config, sizeof(config));
+ 	mutex_unlock(&priv->state_lock);
+ 
++	/* might need to fix some features */
++	netdev_update_features(priv->netdev);
++
+ 	return copy_to_user(ifr->ifr_data, &config,
+ 			    sizeof(config)) ? -EFAULT : 0;
+ }
+@@ -4734,6 +4743,10 @@ static void mlx5e_build_nic_netdev(struc
+ 	if (!priv->channels.params.scatter_fcs_en)
+ 		netdev->features  &= ~NETIF_F_RXFCS;
+ 
++	/* prefere CQE compression over rxhash */
++	if (MLX5E_GET_PFLAG(&priv->channels.params, MLX5E_PFLAG_RX_CQE_COMPRESS))
++		netdev->features &= ~NETIF_F_RXHASH;
++
+ #define FT_CAP(f) MLX5_CAP_FLOWTABLE(mdev, flow_table_properties_nic_receive.f)
+ 	if (FT_CAP(flow_modify_en) &&
+ 	    FT_CAP(modify_root) &&
 
 
