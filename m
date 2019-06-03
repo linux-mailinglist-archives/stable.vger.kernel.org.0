@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AD0F532C09
-	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 11:14:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0203432C0C
+	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 11:14:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728973AbfFCJOO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jun 2019 05:14:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34882 "EHLO mail.kernel.org"
+        id S1728954AbfFCJOS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jun 2019 05:14:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728967AbfFCJOO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Jun 2019 05:14:14 -0400
+        id S1728981AbfFCJOQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Jun 2019 05:14:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C7B2D27ED4;
-        Mon,  3 Jun 2019 09:14:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A8B3527EE4;
+        Mon,  3 Jun 2019 09:14:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559553253;
-        bh=iiiQ/w7bDO3+K3ZoIcH7I7ymiXEuXiarUgk1wffJPo0=;
+        s=default; t=1559553256;
+        bh=dYttiehfkk88Cug34rZINtJ77ZlqTj1hqrTI2sLLz/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RqxQC2OXHWyt40Hx9G7y/86juce1H1NWJgLGyBeBCenAXEwYqdeZNFgn6nMKiYqfA
-         LeayPDSzSp3qJFo4EsJS7HS0R/uMsYXDiU85UbUc7i8Xp5SlsfGffSeorWDkHwM4U+
-         yHmjf7IgHdJ2V3tzGKTfw8wlFrWvcvDGO+CX91Vs=
+        b=lDcVR09aXLuxOgIyRYfjRRizOIA757otEKpONWRth+q8WkFkFSjEmsRhjuzjInXLe
+         Kf5cIOrq7YwWzLk6TRIp1salN+eBJ8wQ3ODDeKk7MwElcvgCIbz4RoPHJH2KMf17uu
+         vXglhgrGo1UTVg2itxtkTJZdQQvmk4XUPE2RQ15w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Jakub Kicinski <jakub.kicinski@netronome.com>,
         Dirk van der Merwe <dirk.vandermerwe@netronome.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.1 33/40] selftests/tls: add test for sleeping even though there is data
-Date:   Mon,  3 Jun 2019 11:09:26 +0200
-Message-Id: <20190603090524.555722482@linuxfoundation.org>
+Subject: [PATCH 5.1 34/40] net/tls: fix state removal with feature flags off
+Date:   Mon,  3 Jun 2019 11:09:27 +0200
+Message-Id: <20190603090524.607098473@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190603090522.617635820@linuxfoundation.org>
 References: <20190603090522.617635820@linuxfoundation.org>
@@ -47,44 +47,58 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jakub Kicinski <jakub.kicinski@netronome.com>
 
-[ Upstream commit 043556d0917a1a5ea58795fe1656a2bce06d2649 ]
+[ Upstream commit 3686637e507b48525fcea6fb91e1988bdbc14530 ]
 
-Add a test which sends 15 bytes of data, and then tries
-to read 10 byes twice.  Previously the second read would
-sleep indifinitely, since the record was already decrypted
-and there is only 5 bytes left, not full 10.
+TLS offload drivers shouldn't (and currently don't) block
+the TLS offload feature changes based on whether there are
+active offloaded connections or not.
 
+This seems to be a good idea, because we want the admin to
+be able to disable the TLS offload at any time, and there
+is no clean way of disabling it for active connections
+(TX side is quite problematic).  So if features are cleared
+existing connections will stay offloaded until they close,
+and new connections will not attempt offload to a given
+device.
+
+However, the offload state removal handling is currently
+broken if feature flags get cleared while there are
+active TLS offloads.
+
+RX side will completely bail from cleanup, even on normal
+remove path, leaving device state dangling, potentially
+causing issues when the 5-tuple is reused.  It will also
+fail to release the netdev reference.
+
+Remove the RX-side warning message, in next release cycle
+it should be printed when features are disabled, rather
+than when connection dies, but for that we need a more
+efficient method of finding connection of a given netdev
+(a'la BPF offload code).
+
+Fixes: 4799ac81e52a ("tls: Add rx inline crypto offload")
 Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
 Reviewed-by: Dirk van der Merwe <dirk.vandermerwe@netronome.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/net/tls.c |   15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ net/tls/tls_device.c |    6 ------
+ 1 file changed, 6 deletions(-)
 
---- a/tools/testing/selftests/net/tls.c
-+++ b/tools/testing/selftests/net/tls.c
-@@ -442,6 +442,21 @@ TEST_F(tls, multiple_send_single_recv)
- 	EXPECT_EQ(memcmp(send_mem, recv_mem + send_len, send_len), 0);
- }
+--- a/net/tls/tls_device.c
++++ b/net/tls/tls_device.c
+@@ -943,12 +943,6 @@ void tls_device_offload_cleanup_rx(struc
+ 	if (!netdev)
+ 		goto out;
  
-+TEST_F(tls, single_send_multiple_recv_non_align)
-+{
-+	const unsigned int total_len = 15;
-+	const unsigned int recv_len = 10;
-+	char recv_mem[recv_len * 2];
-+	char send_mem[total_len];
-+
-+	EXPECT_GE(send(self->fd, send_mem, total_len, 0), 0);
-+	memset(recv_mem, 0, total_len);
-+
-+	EXPECT_EQ(recv(self->cfd, recv_mem, recv_len, 0), recv_len);
-+	EXPECT_EQ(recv(self->cfd, recv_mem + recv_len, recv_len, 0), 5);
-+	EXPECT_EQ(memcmp(send_mem, recv_mem, total_len), 0);
-+}
-+
- TEST_F(tls, recv_partial)
- {
- 	char const *test_str = "test_read_partial";
+-	if (!(netdev->features & NETIF_F_HW_TLS_RX)) {
+-		pr_err_ratelimited("%s: device is missing NETIF_F_HW_TLS_RX cap\n",
+-				   __func__);
+-		goto out;
+-	}
+-
+ 	netdev->tlsdev_ops->tls_dev_del(netdev, tls_ctx,
+ 					TLS_OFFLOAD_CTX_DIR_RX);
+ 
 
 
