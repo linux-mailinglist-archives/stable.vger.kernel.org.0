@@ -2,118 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 17AF732CC9
-	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 11:25:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62F0A32D10
+	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 11:44:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727264AbfFCJZQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jun 2019 05:25:16 -0400
-Received: from lhrrgout.huawei.com ([185.176.76.210]:32977 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726684AbfFCJZQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Jun 2019 05:25:16 -0400
-Received: from LHREML712-CAH.china.huawei.com (unknown [172.18.7.106])
-        by Forcepoint Email with ESMTP id DAD2985DF29930B44972;
-        Mon,  3 Jun 2019 10:25:13 +0100 (IST)
-Received: from [10.220.96.108] (10.220.96.108) by smtpsuk.huawei.com
- (10.201.108.35) with Microsoft SMTP Server (TLS) id 14.3.408.0; Mon, 3 Jun
- 2019 10:25:06 +0100
-Subject: Re: [PATCH v2 2/3] ima: don't ignore INTEGRITY_UNKNOWN EVM status
-To:     Mimi Zohar <zohar@linux.ibm.com>, <dmitry.kasatkin@huawei.com>,
-        <mjg59@google.com>
-CC:     <linux-integrity@vger.kernel.org>,
-        <linux-security-module@vger.kernel.org>,
-        <linux-doc@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <silviu.vlasceanu@huawei.com>, <stable@vger.kernel.org>
-References: <20190529133035.28724-1-roberto.sassu@huawei.com>
- <20190529133035.28724-3-roberto.sassu@huawei.com>
- <1559217621.4008.7.camel@linux.ibm.com>
-From:   Roberto Sassu <roberto.sassu@huawei.com>
-Message-ID: <e6b31aa9-0319-1805-bdfc-3ddde5884494@huawei.com>
-Date:   Mon, 3 Jun 2019 11:25:13 +0200
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.3.0
+        id S1727248AbfFCJoJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jun 2019 05:44:09 -0400
+Received: from mail-ua1-f66.google.com ([209.85.222.66]:43988 "EHLO
+        mail-ua1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726609AbfFCJoJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jun 2019 05:44:09 -0400
+Received: by mail-ua1-f66.google.com with SMTP id 89so4621979uar.10
+        for <stable@vger.kernel.org>; Mon, 03 Jun 2019 02:44:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=endlessm-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=KO0I6a1R8Ow4IiQDjusN4yj+7PxTwoTlZYdw3YZciUs=;
+        b=YymHVF2uaJu+SGCjnp5DIs5XPpZekYMiP4xUSlhfyTaNAgi19l7LhTgkKLGKP4UErp
+         KKyov/0QXeb8wQ3rfyqeFCL7fna4/DWbkMPSr/3pyomr6scGLEmfZUzVEFLWjvXoLMfK
+         XnN0e0wo4XPmfBbDmXYTI0Bc78yyKN4Wf1EBeNnleNgq/z8dljTAcwRZIJ2NJ9deWZ9o
+         8E4N552VZq6lNd9L89FxwThr9/+OEk1ug7eAeakPrKbhP71/AZDHj6vOBwOePgnP6GhL
+         JipCPIOnGsrmjLJMD94jnKCwe9oFMDiFslqB6HOGjn4rr8T5F7mijJiC5L85YgVxS6Xq
+         SLgg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=KO0I6a1R8Ow4IiQDjusN4yj+7PxTwoTlZYdw3YZciUs=;
+        b=WHjxRGhcWITCs6/077Noo79o9GRMoOYGrH/KdgTS7NlbUOd7JF8uSQ0UAn6Di56nTe
+         mdzJbIIiZSm8OnJ73XbCWgwXUssgmC6F6xtBNYnMUyRYlEMPmkMnfMhVoNlnCvKyFLkk
+         CUugE+jUKabR1o7wQwXUgxbR+GWZB3nw9WOuR+0ZFSeQRfHmbRQIhZaHZkL+38yAybA+
+         aZDqxlx6MlnUrgNR+HoNeR5MGkOm5cI7f4yzE5Qc2sKdNVWTVqJohRuK6YSpejQ2p+IP
+         eGE+ZiEvftypEZWpBLwpIl2QgajPj7XxBOnffnvyuv7hczngnJiYD8DKQBUtj4l4K8Iv
+         ZoYw==
+X-Gm-Message-State: APjAAAVETZduYhDAiw0nzIps3kSxvGi4yA2Z7NecFmV7H78y+4kjXm4a
+        MYHmU0PulybrP7c2pj18GMPM5Hy6f01F3Gm7fdm6ln6sFlA=
+X-Google-Smtp-Source: APXvYqxZgk1ruMKZgGLyclajvEyvA7DPAjYkHbn4oHhCjmMM5sn135/9CxFM/merxbMRcYWo48pAClqv+aIUB3905NU=
+X-Received: by 2002:ab0:e08:: with SMTP id g8mr11191540uak.32.1559555048463;
+ Mon, 03 Jun 2019 02:44:08 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <1559217621.4008.7.camel@linux.ibm.com>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.220.96.108]
-X-CFilter-Loop: Reflected
+References: <20190603082725.7255-1-jian-hong@endlessm.com> <CAD8Lp468gEZ3A_o4YAcrn185=8yG=ezGptb21QSBCDQxzH07Zw@mail.gmail.com>
+In-Reply-To: <CAD8Lp468gEZ3A_o4YAcrn185=8yG=ezGptb21QSBCDQxzH07Zw@mail.gmail.com>
+From:   Jian-Hong Pan <jian-hong@endlessm.com>
+Date:   Mon, 3 Jun 2019 17:43:31 +0800
+Message-ID: <CAPpJ_ef=PQruyz7xyYoHxajQRzj1t044FMN8WHUFLRzAJ5L=og@mail.gmail.com>
+Subject: Re: [PATCH 5.1 stable] drm/i915: Force 2*96 MHz cdclk on glk/cnl when
+ audio power is enabled
+To:     Daniel Drake <drake@endlessm.com>
+Cc:     stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Linux Upstreaming Team <linux@endlessm.com>,
+        =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>,
+        Abhay Kumar <abhay.kumar@intel.com>,
+        Imre Deak <imre.deak@intel.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 5/30/2019 2:00 PM, Mimi Zohar wrote:
-> On Wed, 2019-05-29 at 15:30 +0200, Roberto Sassu wrote:
->> Currently, ima_appraise_measurement() ignores the EVM status when
->> evm_verifyxattr() returns INTEGRITY_UNKNOWN. If a file has a valid
->> security.ima xattr with type IMA_XATTR_DIGEST or IMA_XATTR_DIGEST_NG,
->> ima_appraise_measurement() returns INTEGRITY_PASS regardless of the EVM
->> status. The problem is that the EVM status is overwritten with the
->>> appraisal statu
-> 
-> Roberto, your framing of this problem is harsh and misleading.  IMA
-> and EVM are intentionally independent of each other and can be
-> configured independently of each other.  The intersection of the two
-> is the call to evm_verifyxattr().  INTEGRITY_UNKNOWN is returned for a
-> number of reasons - when EVM is not configured, the EVM hmac key has
-> not yet been loaded, the protected security attribute is unknown, or
-> the file is not in policy.
-> 
-> This patch does not differentiate between any of the above cases,
-> requiring mutable files to always be protected by EVM, when specified
-> as an "ima_appraise=" option on the boot command line.
-> 
-> IMA could be extended to require EVM on a per IMA policy rule basis.
-> Instead of framing allowing IMA file hashes without EVM as a bug that
-> has existed from the very beginning, now that IMA/EVM have matured and
-> is being used, you could frame it as extending IMA or hardening.
+Daniel Drake <drake@endlessm.com> =E6=96=BC 2019=E5=B9=B46=E6=9C=883=E6=97=
+=A5 =E9=80=B1=E4=B8=80 =E4=B8=8B=E5=8D=884:47=E5=AF=AB=E9=81=93=EF=BC=9A
+>
+> On Mon, Jun 3, 2019 at 4:27 PM Jian-Hong Pan <jian-hong@endlessm.com> wro=
+te:
+> >  static void i915_audio_component_get_power(struct device *kdev)
+> >  {
+> > -       intel_display_power_get(kdev_to_i915(kdev), POWER_DOMAIN_AUDIO)=
+;
+> > +       struct drm_i915_private *dev_priv =3D kdev_to_i915(kdev);
+> > +
+> > +       intel_display_power_get(dev_priv, POWER_DOMAIN_AUDIO);
+> > +
+> > +       /* Force CDCLK to 2*BCLK as long as we need audio to be powered=
+. */
+> > +       if (dev_priv->audio_power_refcount++ =3D=3D 0)
+> > +               if (IS_CANNONLAKE(dev_priv) || IS_GEMINILAKE(dev_priv))
+> > +                       glk_force_audio_cdclk(dev_priv, true);
+> >  }
+> >
+> >  static void i915_audio_component_put_power(struct device *kdev)
+> >  {
+> > -       intel_display_power_put_unchecked(kdev_to_i915(kdev),
+> > -                                         POWER_DOMAIN_AUDIO);
+> > +       struct drm_i915_private *dev_priv =3D kdev_to_i915(kdev);
+> > +       intel_wakeref_t cookie;
+> > +
+> > +       /* Stop forcing CDCLK to 2*BCLK if no need for audio to be powe=
+red. */
+> > +       if (--dev_priv->audio_power_refcount =3D=3D 0)
+> > +               if (IS_CANNONLAKE(dev_priv) || IS_GEMINILAKE(dev_priv))
+> > +                       glk_force_audio_cdclk(dev_priv, false);
+> > +
+> > +       cookie =3D intel_display_power_get(dev_priv, POWER_DOMAIN_AUDIO=
+);
+> > +       intel_display_power_put(dev_priv, POWER_DOMAIN_AUDIO, cookie);
+> >  }
+>
+> The code above is the rediffed part of the patch. I think the last 2
+> lines here are not quite right.
+>
+> Here, get means "increment reference count" and put means "decrease
+> reference count".
+>
+> Before your patch, i915_audio_component_get_power() does
+> intel_display_power_get(), and i915_audio_component_put_power() does
+> intel_display_power_put_unchecked(). You can see the symmetry.
+>
+> After your patch, i915_audio_component_get_power() does
+> intel_display_power_get() as before (good), but
+> i915_audio_component_put_power() does a 2nd get and then a single put.
+> So the reference count is now unbalanced.
+>
+> I think the last 2 lines of this function should just be left the same
+> as they were before:
+>        intel_display_power_put_unchecked(kdev_to_i915(kdev),
+>                                          POWER_DOMAIN_AUDIO);
 
-I'm seeing it from the perspective of an administrator that manages an
-already hardened system, and expects that the system only grants access
-to files with a valid signature/HMAC. That system would not enforce this
-behavior if EVM keys are removed and the digest in security.ima is set
-to the actual file digest.
+Hi Daniel,
 
-Framing it as a bug rather than an extension would in my opinion help to
-convince people about the necessity to switch to the safe mode, if their
-system is already hardened.
+Thanks for your reviewing.
+I'm going to prepare new Rediff.
 
-
->> This patch mitigates the issue by selecting signature verification as the
->> only method allowed for appraisal when EVM is not initialized. Since the
->> new behavior might break user space, it must be turned on by adding the
->> '-evm' suffix to the value of the ima_appraise= kernel option.
->>
->> Fixes: 2fe5d6def1672 ("ima: integrity appraisal extension")
->> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
->> Cc: stable@vger.kernel.org
->> ---
->>   Documentation/admin-guide/kernel-parameters.txt | 3 ++-
->>   security/integrity/ima/ima_appraise.c           | 8 ++++++++
->>   2 files changed, 10 insertions(+), 1 deletion(-)
->>
->> diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
->> index 138f6664b2e2..d84a2e612b93 100644
->> --- a/Documentation/admin-guide/kernel-parameters.txt
->> +++ b/Documentation/admin-guide/kernel-parameters.txt
->> @@ -1585,7 +1585,8 @@
->>   			Set number of hash buckets for inode cache.
->>   
->>   	ima_appraise=	[IMA] appraise integrity measurements
->> -			Format: { "off" | "enforce" | "fix" | "log" }
->> +			Format: { "off" | "enforce" | "fix" | "log" |
->> +				  "enforce-evm" | "log-evm" }
-> 
-> Is it necessary to define both "enforce-evm" and "log-evm"?  Perhaps
-> defining "require-evm" is sufficient.
-
-ima_appraise= accepts as values modes of operation. I consider the -evm
-suffix as a modifier of already defined modes.
-
-Roberto
-
--- 
-HUAWEI TECHNOLOGIES Duesseldorf GmbH, HRB 56063
-Managing Director: Bo PENG, Jian LI, Yanli SHI
+Jian-Hong Pan
