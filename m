@@ -2,132 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 03A463302C
-	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 14:49:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D3C033034
+	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 14:50:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726336AbfFCMtI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jun 2019 08:49:08 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:54582 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726713AbfFCMtF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jun 2019 08:49:05 -0400
-Received: from pps.filterd (m0098410.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x53Cau5h008913
-        for <stable@vger.kernel.org>; Mon, 3 Jun 2019 08:49:04 -0400
-Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 2sw3q70jgs-1
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
-        for <stable@vger.kernel.org>; Mon, 03 Jun 2019 08:49:03 -0400
-Received: from localhost
-        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
-        for <stable@vger.kernel.org> from <zohar@linux.ibm.com>;
-        Mon, 3 Jun 2019 13:49:01 +0100
-Received: from b06cxnps4075.portsmouth.uk.ibm.com (9.149.109.197)
-        by e06smtp03.uk.ibm.com (192.168.101.133) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
-        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
-        Mon, 3 Jun 2019 13:48:57 +0100
-Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
-        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id x53Cmu2F50856002
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Mon, 3 Jun 2019 12:48:56 GMT
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 9421BAE051;
-        Mon,  3 Jun 2019 12:48:56 +0000 (GMT)
-Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 45E87AE04D;
-        Mon,  3 Jun 2019 12:48:55 +0000 (GMT)
-Received: from localhost.localdomain (unknown [9.80.80.245])
-        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Mon,  3 Jun 2019 12:48:55 +0000 (GMT)
-Subject: Re: [PATCH v2 2/3] ima: don't ignore INTEGRITY_UNKNOWN EVM status
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Roberto Sassu <roberto.sassu@huawei.com>,
-        dmitry.kasatkin@huawei.com, mjg59@google.com
-Cc:     linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org, linux-doc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, silviu.vlasceanu@huawei.com,
+        id S1727403AbfFCMuO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jun 2019 08:50:14 -0400
+Received: from mout.web.de ([217.72.192.78]:51579 "EHLO mout.web.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726855AbfFCMuO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Jun 2019 08:50:14 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=web.de;
+        s=dbaedf251592; t=1559566206;
+        bh=ncAOMhhFgsUF2XN16mQShqw1rNbF+Fdi8FKqT34/XD8=;
+        h=X-UI-Sender-Class:Subject:To:Cc:References:From:Date:In-Reply-To;
+        b=rTDGsqGBj17yUQp7FoSiYHvT2c5Frz/uZlELQ++2O0a+WOwC8SWvZmz/KZE9bxrVZ
+         VAzAn3ny5LMVyiCgjea1wByNeqi/CZmRYX479353Cf7rxbydNvQqSLgS5kvxjfJr2l
+         57GVpkA6NkUg1AItoqddyalNnxtc5UrGauOKOV7M=
+X-UI-Sender-Class: c548c8c5-30a9-4db5-a2e7-cb6cb037b8f9
+Received: from [192.168.58.28] ([80.130.118.25]) by smtp.web.de (mrweb102
+ [213.165.67.124]) with ESMTPSA (Nemesis) id 0McWnE-1hGFWn3zYe-00HcGC; Mon, 03
+ Jun 2019 14:50:06 +0200
+Subject: Re: [PATCH] Revert "usb: core: remove local_irq_save() around
+ ->complete() handler"
+To:     Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
         stable@vger.kernel.org
-Date:   Mon, 03 Jun 2019 08:48:44 -0400
-In-Reply-To: <e6b31aa9-0319-1805-bdfc-3ddde5884494@huawei.com>
-References: <20190529133035.28724-1-roberto.sassu@huawei.com>
-         <20190529133035.28724-3-roberto.sassu@huawei.com>
-         <1559217621.4008.7.camel@linux.ibm.com>
-         <e6b31aa9-0319-1805-bdfc-3ddde5884494@huawei.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.20.5 (3.20.5-1.fc24) 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-x-cbid: 19060312-0012-0000-0000-0000032257A7
-X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
-x-cbparentid: 19060312-0013-0000-0000-0000215B31B6
-Message-Id: <1559566124.4365.65.camel@linux.ibm.com>
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-06-03_10:,,
- signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
- malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 spamscore=0
- clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
- mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.0.1-1810050000 definitions=main-1906030091
+References: <20190531215340.24539-1-smoch@web.de>
+ <20190531220535.GA16603@kroah.com>
+ <6c03445c-3607-9f33-afee-94613f8d6978@web.de>
+ <20190601105008.zfqrtu6krw4mhisb@linutronix.de>
+ <20190601110247.v4lzwvqhuwrjrotb@linutronix.de>
+From:   =?UTF-8?Q?S=c3=b6ren_Moch?= <smoch@web.de>
+Message-ID: <4c7bf7c6-ed59-e1b6-47a4-0f5623d35ba5@web.de>
+Date:   Mon, 3 Jun 2019 14:50:05 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.0
+MIME-Version: 1.0
+In-Reply-To: <20190601110247.v4lzwvqhuwrjrotb@linutronix.de>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Content-Language: en-US
+X-Provags-ID: V03:K1:qFn9Y+T56/6+a/FEeIJmIMcxZPT2LFJxYX2NkrgnS7uJ/mDJ2/K
+ q/i2foJDu60xNCTkCWPc3PK7G1TI4KdvqwiiZ0AXGcONuJS6hqlcG/8hLOG9vid38cwVU1B
+ ARFbVdaVTVY3NfTDHXFgQ25csXXWd0mpUC88ZWvoMH/t9RAXCjQGnil5GkBI6/+rCvdIAqu
+ 3FHFIVoF6knn2YhZRCrMQ==
+X-Spam-Flag: NO
+X-UI-Out-Filterresults: notjunk:1;V03:K0:4Cm5CqzsTSA=:F6v3mYZtH5Bz9b2q26Sa5q
+ c3LITnLLJbEYanijSZ5IBbPBc1SX9Jhc9hNea/0IrrGD3BEZ5/f5TRzTgux4zTK1FwbnozN99
+ N6wHiLZT6yPds1iAv7GkaNSQaMQgqpVG1x9tSQp1Sly/8N4F4I5orbcWHj5O5f+6KthmAeuTY
+ wO+fceg6+sM5WyEEGRKRAMSFnlNykBDb4dXNe8wiGa4210kBtA2gyfveyeAdgdJ9QaYlqT0y2
+ pEGxJ66WSzseFJdycAlmJ/eFlsLu1tSLXlMaoVTlY121I7KzhsiTLoBtp5qB0fm/wSOhiT8TR
+ 1sCckS5naQBhGb8YErdogmE7mm/dmoNP41UQCHirqZNeSvtg0dUdUH4UD8pywactecFBMMODx
+ rcYF0KHuk+2Oxp9Zpr+0jKuOc09mSRhDYNbsJRbvnLyUOWWlANJMT/C+8RiL1fzZhUkxFxac+
+ 5jGCnA5Ltt7SRyro/lWPeMrpH9jCJI/NaXJzJT9GQxFqjSzoOXmMB11dqsJzrQGWWlFC71BFE
+ oaVPooC57TQ14T+K7mST213fW0qPkk24KLoAKFmQxwHjWmvB4gXEPnKbeR/BEQUmAR4h0PF7T
+ sC/9KGF1L5knuqApH+tEFIe+T/AWUIqcz1CIjnViiCfA2ApiLHvNb/dRtu7Q5NpvUJOjrr0CT
+ rgg/o+UMtc3DGSIbsJkbs9Vw6DEBpx9HwoZUSkASuHLm5jvZlF3W9+OmyjOQsXcvsI7Bp5GFM
+ tXbx0ZHCF/OCSro3WhwuNZf06HXRCsCi/FBwwrcTylUVARu/OtJzYg2aXe8KsGdG2gcIaAo3m
+ UtIeMyFkaxgm3uAzIrqVtcP+jETVFI0vOt18KkgcMUJVZtqkhM4kGIkpc9DnMardhFOqkpqRH
+ LSNgsEiObbv/gjpp3Wivwt0ljje2mkucNxLug7oI4RVVqgeq3qpNRdP8Igcrj29nMR67IPTKn
+ jkWyZI2YSHoSPWKjMba6oS/3prZ2P9Jw=
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 2019-06-03 at 11:25 +0200, Roberto Sassu wrote:
-> On 5/30/2019 2:00 PM, Mimi Zohar wrote:
-> > On Wed, 2019-05-29 at 15:30 +0200, Roberto Sassu wrote:
-> >> Currently, ima_appraise_measurement() ignores the EVM status when
-> >> evm_verifyxattr() returns INTEGRITY_UNKNOWN. If a file has a valid
-> >> security.ima xattr with type IMA_XATTR_DIGEST or IMA_XATTR_DIGEST_NG,
-> >> ima_appraise_measurement() returns INTEGRITY_PASS regardless of the EVM
-> >> status. The problem is that the EVM status is overwritten with the
-> >>> appraisal status
-> > 
-> > Roberto, your framing of this problem is harsh and misleading.  IMA
-> > and EVM are intentionally independent of each other and can be
-> > configured independently of each other.  The intersection of the two
-> > is the call to evm_verifyxattr().  INTEGRITY_UNKNOWN is returned for a
-> > number of reasons - when EVM is not configured, the EVM hmac key has
-> > not yet been loaded, the protected security attribute is unknown, or
-> > the file is not in policy.
-> > 
-> > This patch does not differentiate between any of the above cases,
-> > requiring mutable files to always be protected by EVM, when specified
-> > as an "ima_appraise=" option on the boot command line.
-> > 
-> > IMA could be extended to require EVM on a per IMA policy rule basis.
-> > Instead of framing allowing IMA file hashes without EVM as a bug that
-> > has existed from the very beginning, now that IMA/EVM have matured and
-> > is being used, you could frame it as extending IMA or hardening.
-> 
-> I'm seeing it from the perspective of an administrator that manages an
-> already hardened system, and expects that the system only grants access
-> to files with a valid signature/HMAC. That system would not enforce this
-> behavior if EVM keys are removed and the digest in security.ima is set
-> to the actual file digest.
-> 
-> Framing it as a bug rather than an extension would in my opinion help to
-> convince people about the necessity to switch to the safe mode, if their
-> system is already hardened.
 
-I don't disagree with you that people should be using EVM to protect
-IMA hashes.  If you claim this is a bug in the design from the very
-beginning, then there needs some explanation as to why it was
-upstreamed as it was.  My review of this patch provided that
-context/background.
 
-Mimi
+On 01.06.19 13:02, Sebastian Andrzej Siewior wrote:
+> On 2019-06-01 12:50:08 [+0200], To Soeren Moch wrote:
+>> I will look into this.
+> nothing obvious. If there is really blocken lock, could you please
+> enable lockdep
+> |CONFIG_LOCK_DEBUGGING_SUPPORT=3Dy
+> |CONFIG_PROVE_LOCKING=3Dy
+> |# CONFIG_LOCK_STAT is not set
+> |CONFIG_DEBUG_RT_MUTEXES=3Dy
+> |CONFIG_DEBUG_SPINLOCK=3Dy
+> |CONFIG_DEBUG_MUTEXES=3Dy
+> |CONFIG_DEBUG_WW_MUTEX_SLOWPATH=3Dy
+> |CONFIG_DEBUG_RWSEMS=3Dy
+> |CONFIG_DEBUG_LOCK_ALLOC=3Dy
+> |CONFIG_LOCKDEP=3Dy
+> |# CONFIG_DEBUG_LOCKDEP is not set
+> |CONFIG_DEBUG_ATOMIC_SLEEP=3Dy
+>
+> and send me the splat that lockdep will report?
+>
+I will do so. I cannot promise, however, that this will happen within
+the next few days.
 
-> 
-> 
-> >> This patch mitigates the issue by selecting signature verification as the
-> >> only method allowed for appraisal when EVM is not initialized. Since the
-> >> new behavior might break user space, it must be turned on by adding the
-> >> '-evm' suffix to the value of the ima_appraise= kernel option.
-> >>
-> >> Fixes: 2fe5d6def1672 ("ima: integrity appraisal extension")
-> >> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-> >> Cc: stable@vger.kernel.org
-> 
+Thanks for your suggestions,
+Soeren
 
