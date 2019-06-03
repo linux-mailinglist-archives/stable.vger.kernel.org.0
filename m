@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 98F433265D
-	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 04:09:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A76C3265E
+	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 04:09:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726714AbfFCCJK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 Jun 2019 22:09:10 -0400
-Received: from mail-pl1-f193.google.com ([209.85.214.193]:46819 "EHLO
-        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726270AbfFCCJK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 2 Jun 2019 22:09:10 -0400
-Received: by mail-pl1-f193.google.com with SMTP id e5so4595727pls.13
-        for <stable@vger.kernel.org>; Sun, 02 Jun 2019 19:09:09 -0700 (PDT)
+        id S1726713AbfFCCJ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 Jun 2019 22:09:28 -0400
+Received: from mail-pg1-f195.google.com ([209.85.215.195]:39644 "EHLO
+        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726270AbfFCCJ2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 2 Jun 2019 22:09:28 -0400
+Received: by mail-pg1-f195.google.com with SMTP id 196so7351901pgc.6
+        for <stable@vger.kernel.org>; Sun, 02 Jun 2019 19:09:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=axtens.net; s=google;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=W0qPdmOlHokX2EU0AW/d1ZAOu7LJ1PYTnO4lj8aDC9U=;
-        b=b6czOLs+OdxQpOdatuxnK+W1hOShYB0s/RH6VCccdeaBOldKKK4BJC8codDTgCZBgD
-         cAkXI9RInnHBVIUNZaEVZjFclfIlx57+Hjg+4bH4Ix4aRwONyZj+mkIxwNOsaeoC0kay
-         bSYXnZKFeuh/LDxQ6K28Tc/lN49nQUIXBgdXE=
+        bh=stz73iUf9C6RHHj3xWZfepbbnMyNao045W9wPexeqOg=;
+        b=OWV+H2ukCkdcMzBttQVcGVVY/ANUL2/4r1X7AY/OpH5D16JJup0DYJtgmo+zicX5Jv
+         0VMGP2aS03USXjvIUoknRaRoJsfKg0lVy+h4tBa8JlZBX9OH281VnGv44MIdQWUjfW4F
+         b0/BuVLfgjxapSRnGjmkHbdb9LLD60Yrxrdts=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=W0qPdmOlHokX2EU0AW/d1ZAOu7LJ1PYTnO4lj8aDC9U=;
-        b=SDZSByL8I1Uu4u/FpKKUEFEFy4Yq1gr1hmD+vVD7q5igNGP/qnORg3Ne8ARa0pPkta
-         3dgevpbD0WvrdQimjeLdAwjD1S9qFYtxA9VVCkJIyKcB4BS4fb6OJ2yYswutas3Qf+/r
-         X8gv4vJ6evAINux87yyI/Pck6+1xNZnxvSFpQ17bb96Ja8J0lyXxTMgR7aIBQc0z/rQv
-         Q8ZliesBp/H0euVrBtu8b5BRtM/x0K3epHrYm7J9DNgI//qVUQIC6R/52E+vmPbQme9j
-         FO3CXK+cUmSLb14BC+/iu547JO/pPdP8gE2uFSfo77ZqXkej0WzjusRjIuPjB7mIX4TH
-         ramA==
-X-Gm-Message-State: APjAAAV7IKeobLg9XyHqtIvDGRIjzQ8VpqcfNK+vEZ+2KPhgdcLb25Oj
-        KtDoVbhgTDkTbapkuo/NSBto/g==
-X-Google-Smtp-Source: APXvYqwRwfUGjSsFzgdRa3h4nuXmscF+zjBYPO39Gx5tFWk+kevskB7m4bSgAmdwO4CJCeAEdlnCdQ==
-X-Received: by 2002:a17:902:2a69:: with SMTP id i96mr18430590plb.108.1559527749031;
-        Sun, 02 Jun 2019 19:09:09 -0700 (PDT)
+        bh=stz73iUf9C6RHHj3xWZfepbbnMyNao045W9wPexeqOg=;
+        b=BNoV4XuoCUEYeqPZUQp6UMiKBCRuUkNeEnRoz5krOK1PiVyRqGJZ/akeE0pC2TtLsg
+         rp1/V8uZPW23Y018MhErZbSubxf8GLa5WJUtWCHtzWkY7MVEUPL6V6mhLwfnq+HgZ6wG
+         vQdd5K5htbVFAA64+MveWYEXUI3ZR5TRQ7DhOMpo7z9AMolxeTxZbwSGsrRm9RaPNZYO
+         A5NPGE2r98yzezlG6Jiucr59BVXsYTCagtBf3swgKuojXIySG1a7LweumW2XVwVyD8zE
+         3YqRcd02mx3gcIJCbOvJv0VDYy488XSPecLKxCPNgC/ZQuLGFA6yc3jJA3OpVSEa7f07
+         ++1w==
+X-Gm-Message-State: APjAAAVNpYpB4DUA614hr2vax1qM96vqUnQ36Ix0Lf5TQu+DGIMKti9K
+        Qnlul27FW4jzaDIRe77wzYN6bf/uhe8=
+X-Google-Smtp-Source: APXvYqyLSdTdqYJobr3J//O8hGFEnS+QMTUvdKcaopilRPTmvD/1cRXiCDjhda0nHzlYUKVlrEIJaQ==
+X-Received: by 2002:a65:6495:: with SMTP id e21mr25177639pgv.383.1559527767587;
+        Sun, 02 Jun 2019 19:09:27 -0700 (PDT)
 Received: from localhost (ppp167-251-205.static.internode.on.net. [59.167.251.205])
-        by smtp.gmail.com with ESMTPSA id m5sm6238381pgn.59.2019.06.02.19.09.07
+        by smtp.gmail.com with ESMTPSA id p18sm723916pff.93.2019.06.02.19.09.25
         (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Sun, 02 Jun 2019 19:09:08 -0700 (PDT)
+        Sun, 02 Jun 2019 19:09:26 -0700 (PDT)
 From:   Daniel Axtens <dja@axtens.net>
 To:     linuxppc-dev@lists.ozlabs.org
 Cc:     Daniel Axtens <dja@axtens.net>, stable@vger.kernel.org,
         Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH BACKPORTv2 4.9, 4.14] crypto: vmx - ghash: do nosimd fallback manually
-Date:   Mon,  3 Jun 2019 12:09:03 +1000
-Message-Id: <20190603020903.9665-1-dja@axtens.net>
+Subject: [PATCH BACKPORTv2 4.4] crypto: vmx - ghash: do nosimd fallback manually
+Date:   Mon,  3 Jun 2019 12:09:20 +1000
+Message-Id: <20190603020920.9798-1-dja@axtens.net>
 X-Mailer: git-send-email 2.19.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,8 @@ X-Mailing-List: stable@vger.kernel.org
 commit 357d065a44cdd77ed5ff35155a989f2a763e96ef upstream.
 [backported: the VMX driver did not use crypto_simd_usable() until
  after 5.1, CRYPTO_ALG_TYPE_SHASH was still specified in .options
- until after 4.14]
+ until after 4.14, and the sequence for preparing the kernel to use
+ vmx changed after 4.4.]
 
 VMX ghash was using a fallback that did not support interleaving simd
 and nosimd operations, leading to failures in the extended test suite.
@@ -85,11 +86,11 @@ Signed-off-by: Daniel Axtens <dja@axtens.net>
 v2: do stable backport form correctly.
 
 ---
- drivers/crypto/vmx/ghash.c | 213 +++++++++++++++----------------------
- 1 file changed, 87 insertions(+), 126 deletions(-)
+ drivers/crypto/vmx/ghash.c | 218 +++++++++++++++----------------------
+ 1 file changed, 89 insertions(+), 129 deletions(-)
 
 diff --git a/drivers/crypto/vmx/ghash.c b/drivers/crypto/vmx/ghash.c
-index 1c4b5b889fba..1bfe867c0b7b 100644
+index 84b9389bf1ed..d6b68cf7bba7 100644
 --- a/drivers/crypto/vmx/ghash.c
 +++ b/drivers/crypto/vmx/ghash.c
 @@ -1,22 +1,14 @@
@@ -197,8 +198,8 @@ index 1c4b5b889fba..1bfe867c0b7b 100644
  }
  
  static int p8_ghash_setkey(struct crypto_shash *tfm, const u8 *key,
-@@ -121,7 +67,51 @@ static int p8_ghash_setkey(struct crypto_shash *tfm, const u8 *key,
- 	disable_kernel_vsx();
+@@ -122,7 +68,53 @@ static int p8_ghash_setkey(struct crypto_shash *tfm, const u8 *key,
+ 	gcm_init_p8(ctx->htable, (const u64 *) key);
  	pagefault_enable();
  	preempt_enable();
 -	return crypto_shash_setkey(ctx->fallback, key, keylen);
@@ -214,10 +215,11 @@ index 1c4b5b889fba..1bfe867c0b7b 100644
 +	if (!IN_INTERRUPT) {
 +		preempt_disable();
 +		pagefault_disable();
++		enable_kernel_altivec();
 +		enable_kernel_vsx();
++		enable_kernel_fp();
 +		gcm_ghash_p8(dctx->shash, ctx->htable,
 +				dctx->buffer, GHASH_DIGEST_SIZE);
-+		disable_kernel_vsx();
 +		pagefault_enable();
 +		preempt_enable();
 +	} else {
@@ -233,10 +235,11 @@ index 1c4b5b889fba..1bfe867c0b7b 100644
 +	if (!IN_INTERRUPT) {
 +		preempt_disable();
 +		pagefault_disable();
++		enable_kernel_altivec();
 +		enable_kernel_vsx();
++		enable_kernel_fp();
 +		gcm_ghash_p8(dctx->shash, ctx->htable,
 +				src, srclen);
-+		disable_kernel_vsx();
 +		pagefault_enable();
 +		preempt_enable();
 +	} else {
@@ -250,7 +253,7 @@ index 1c4b5b889fba..1bfe867c0b7b 100644
  }
  
  static int p8_ghash_update(struct shash_desc *desc,
-@@ -131,49 +121,33 @@ static int p8_ghash_update(struct shash_desc *desc,
+@@ -132,51 +124,33 @@ static int p8_ghash_update(struct shash_desc *desc,
  	struct p8_ghash_ctx *ctx = crypto_tfm_ctx(crypto_shash_tfm(desc->tfm));
  	struct p8_ghash_desc_ctx *dctx = shash_desc_ctx(desc);
  
@@ -271,10 +274,11 @@ index 1c4b5b889fba..1bfe867c0b7b 100644
 -			       GHASH_DIGEST_SIZE - dctx->bytes);
 -			preempt_disable();
 -			pagefault_disable();
+-			enable_kernel_altivec();
 -			enable_kernel_vsx();
+-			enable_kernel_fp();
 -			gcm_ghash_p8(dctx->shash, ctx->htable,
 -				     dctx->buffer, GHASH_DIGEST_SIZE);
--			disable_kernel_vsx();
 -			pagefault_enable();
 -			preempt_enable();
 -			src += GHASH_DIGEST_SIZE - dctx->bytes;
@@ -285,9 +289,10 @@ index 1c4b5b889fba..1bfe867c0b7b 100644
 -		if (len) {
 -			preempt_disable();
 -			pagefault_disable();
+-			enable_kernel_altivec();
 -			enable_kernel_vsx();
+-			enable_kernel_fp();
 -			gcm_ghash_p8(dctx->shash, ctx->htable, src, len);
--			disable_kernel_vsx();
 -			pagefault_enable();
 -			preempt_enable();
 -			src += len;
@@ -324,7 +329,7 @@ index 1c4b5b889fba..1bfe867c0b7b 100644
  }
  
  static int p8_ghash_final(struct shash_desc *desc, u8 *out)
-@@ -182,25 +156,14 @@ static int p8_ghash_final(struct shash_desc *desc, u8 *out)
+@@ -185,26 +159,14 @@ static int p8_ghash_final(struct shash_desc *desc, u8 *out)
  	struct p8_ghash_ctx *ctx = crypto_tfm_ctx(crypto_shash_tfm(desc->tfm));
  	struct p8_ghash_desc_ctx *dctx = shash_desc_ctx(desc);
  
@@ -336,10 +341,11 @@ index 1c4b5b889fba..1bfe867c0b7b 100644
 -				dctx->buffer[i] = 0;
 -			preempt_disable();
 -			pagefault_disable();
+-			enable_kernel_altivec();
 -			enable_kernel_vsx();
+-			enable_kernel_fp();
 -			gcm_ghash_p8(dctx->shash, ctx->htable,
 -				     dctx->buffer, GHASH_DIGEST_SIZE);
--			disable_kernel_vsx();
 -			pagefault_enable();
 -			preempt_enable();
 -			dctx->bytes = 0;
@@ -357,7 +363,7 @@ index 1c4b5b889fba..1bfe867c0b7b 100644
  }
  
  struct shash_alg p8_ghash_alg = {
-@@ -215,11 +178,9 @@ struct shash_alg p8_ghash_alg = {
+@@ -219,11 +181,9 @@ struct shash_alg p8_ghash_alg = {
  		 .cra_name = "ghash",
  		 .cra_driver_name = "p8_ghash",
  		 .cra_priority = 1000,
