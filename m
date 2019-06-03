@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D8BF32BE7
-	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 11:14:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A78032C4A
+	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 11:17:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726561AbfFCJMi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jun 2019 05:12:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59786 "EHLO mail.kernel.org"
+        id S1728648AbfFCJMh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jun 2019 05:12:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728652AbfFCJMe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Jun 2019 05:12:34 -0400
+        id S1728202AbfFCJMh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Jun 2019 05:12:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7EF4D26121;
-        Mon,  3 Jun 2019 09:12:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 09FE426F51;
+        Mon,  3 Jun 2019 09:12:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559553154;
-        bh=lFZ3PGfZK2qjQolczzZuiGrnCp8ui3kQL4gKKqL5Ufk=;
+        s=default; t=1559553156;
+        bh=famVA7ob8TpRxTb4UrHWZEGJtnZWdrQQBvRwDY8CjhA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TLb1eIgJbZEDJ1BSUAeJYuIJ24ayY7H7XwDWrawli/HXaeVSnPk3ix8/4AwtvQFvG
-         x/wvK2SfZ3LHPkBOa+gXJ9/IY5BNY+rBFlZjvClsEHVmFRB3dMmcjitbGZmoZmR2+m
-         hAYnxGVZEny3y+WMC8nTo1yX3e6VaZa2fIRyPgfk=
+        b=pbG5zpvtN4ZZ+r8si55iV7A2IXSlxEn7E6PWgkC+ZKGhY5Xqx/hNq9DQmIwXKI9fX
+         JPiRRvr4icT0uZrAGHuhNrwM2qSqpCbwtx0xHmVi2uEZ326wOE5b5pNift6vgxOLBR
+         V2/6lrBFZ8WP2db/AHyM0BTwXUemDzG3rHvidA7Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Chan <michael.chan@broadcom.com>,
+        stable@vger.kernel.org,
+        Jakub Kicinski <jakub.kicinski@netronome.com>,
+        Dirk van der Merwe <dirk.vandermerwe@netronome.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.0 28/36] bnxt_en: Reduce memory usage when running in kdump kernel.
-Date:   Mon,  3 Jun 2019 11:09:16 +0200
-Message-Id: <20190603090522.857884217@linuxfoundation.org>
+Subject: [PATCH 5.0 29/36] net/tls: fix state removal with feature flags off
+Date:   Mon,  3 Jun 2019 11:09:17 +0200
+Message-Id: <20190603090522.925911024@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190603090520.998342694@linuxfoundation.org>
 References: <20190603090520.998342694@linuxfoundation.org>
@@ -43,63 +45,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+From: Jakub Kicinski <jakub.kicinski@netronome.com>
 
-[ Upstream commit d629522e1d66561f38e5c8d4f52bb6d254ec0707 ]
+[ Upstream commit 3686637e507b48525fcea6fb91e1988bdbc14530 ]
 
-Skip RDMA context memory allocations, reduce to 1 ring, and disable
-TPA when running in the kdump kernel.  Without this patch, the driver
-fails to initialize with memory allocation errors when running in a
-typical kdump kernel.
+TLS offload drivers shouldn't (and currently don't) block
+the TLS offload feature changes based on whether there are
+active offloaded connections or not.
 
-Fixes: cf6daed098d1 ("bnxt_en: Increase context memory allocations on 57500 chips for RDMA.")
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+This seems to be a good idea, because we want the admin to
+be able to disable the TLS offload at any time, and there
+is no clean way of disabling it for active connections
+(TX side is quite problematic).  So if features are cleared
+existing connections will stay offloaded until they close,
+and new connections will not attempt offload to a given
+device.
+
+However, the offload state removal handling is currently
+broken if feature flags get cleared while there are
+active TLS offloads.
+
+RX side will completely bail from cleanup, even on normal
+remove path, leaving device state dangling, potentially
+causing issues when the 5-tuple is reused.  It will also
+fail to release the netdev reference.
+
+Remove the RX-side warning message, in next release cycle
+it should be printed when features are disabled, rather
+than when connection dies, but for that we need a more
+efficient method of finding connection of a given netdev
+(a'la BPF offload code).
+
+Fixes: 4799ac81e52a ("tls: Add rx inline crypto offload")
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Reviewed-by: Dirk van der Merwe <dirk.vandermerwe@netronome.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c |    4 ++--
- drivers/net/ethernet/broadcom/bnxt/bnxt.h |    4 +++-
- 2 files changed, 5 insertions(+), 3 deletions(-)
+ net/tls/tls_device.c |    6 ------
+ 1 file changed, 6 deletions(-)
 
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -6338,7 +6338,7 @@ static int bnxt_alloc_ctx_mem(struct bnx
- 	if (!ctx || (ctx->flags & BNXT_CTX_FLAG_INITED))
- 		return 0;
+--- a/net/tls/tls_device.c
++++ b/net/tls/tls_device.c
+@@ -923,12 +923,6 @@ void tls_device_offload_cleanup_rx(struc
+ 	if (!netdev)
+ 		goto out;
  
--	if (bp->flags & BNXT_FLAG_ROCE_CAP) {
-+	if ((bp->flags & BNXT_FLAG_ROCE_CAP) && !is_kdump_kernel()) {
- 		pg_lvl = 2;
- 		extra_qps = 65536;
- 		extra_srqs = 8192;
-@@ -10279,7 +10279,7 @@ static int bnxt_set_dflt_rings(struct bn
+-	if (!(netdev->features & NETIF_F_HW_TLS_RX)) {
+-		pr_err_ratelimited("%s: device is missing NETIF_F_HW_TLS_RX cap\n",
+-				   __func__);
+-		goto out;
+-	}
+-
+ 	netdev->tlsdev_ops->tls_dev_del(netdev, tls_ctx,
+ 					TLS_OFFLOAD_CTX_DIR_RX);
  
- 	if (sh)
- 		bp->flags |= BNXT_FLAG_SHARED_RINGS;
--	dflt_rings = netif_get_num_default_rss_queues();
-+	dflt_rings = is_kdump_kernel() ? 1 : netif_get_num_default_rss_queues();
- 	/* Reduce default rings on multi-port cards so that total default
- 	 * rings do not exceed CPU count.
- 	 */
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-@@ -20,6 +20,7 @@
- 
- #include <linux/interrupt.h>
- #include <linux/rhashtable.h>
-+#include <linux/crash_dump.h>
- #include <net/devlink.h>
- #include <net/dst_metadata.h>
- #include <net/switchdev.h>
-@@ -1367,7 +1368,8 @@ struct bnxt {
- #define BNXT_CHIP_TYPE_NITRO_A0(bp) ((bp)->flags & BNXT_FLAG_CHIP_NITRO_A0)
- #define BNXT_RX_PAGE_MODE(bp)	((bp)->flags & BNXT_FLAG_RX_PAGE_MODE)
- #define BNXT_SUPPORTS_TPA(bp)	(!BNXT_CHIP_TYPE_NITRO_A0(bp) &&	\
--				 !(bp->flags & BNXT_FLAG_CHIP_P5))
-+				 !(bp->flags & BNXT_FLAG_CHIP_P5) &&	\
-+				 !is_kdump_kernel())
- 
- /* Chip class phase 5 */
- #define BNXT_CHIP_P5(bp)			\
 
 
