@@ -2,380 +2,176 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A76C3265E
-	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 04:09:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DA7C3266D
+	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 04:12:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726713AbfFCCJ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 Jun 2019 22:09:28 -0400
-Received: from mail-pg1-f195.google.com ([209.85.215.195]:39644 "EHLO
-        mail-pg1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726270AbfFCCJ2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 2 Jun 2019 22:09:28 -0400
-Received: by mail-pg1-f195.google.com with SMTP id 196so7351901pgc.6
-        for <stable@vger.kernel.org>; Sun, 02 Jun 2019 19:09:28 -0700 (PDT)
+        id S1727225AbfFCCLb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 Jun 2019 22:11:31 -0400
+Received: from mail-pf1-f194.google.com ([209.85.210.194]:34165 "EHLO
+        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726922AbfFCCLa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 2 Jun 2019 22:11:30 -0400
+Received: by mail-pf1-f194.google.com with SMTP id c85so863964pfc.1;
+        Sun, 02 Jun 2019 19:11:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=axtens.net; s=google;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=stz73iUf9C6RHHj3xWZfepbbnMyNao045W9wPexeqOg=;
-        b=OWV+H2ukCkdcMzBttQVcGVVY/ANUL2/4r1X7AY/OpH5D16JJup0DYJtgmo+zicX5Jv
-         0VMGP2aS03USXjvIUoknRaRoJsfKg0lVy+h4tBa8JlZBX9OH281VnGv44MIdQWUjfW4F
-         b0/BuVLfgjxapSRnGjmkHbdb9LLD60Yrxrdts=
+        d=gmail.com; s=20161025;
+        h=date:from:subject:to:cc:references:in-reply-to:mime-version
+         :user-agent:message-id:content-transfer-encoding;
+        bh=70ySUXfZoJO6NGjc1E/FmmTs4bYAgjLgidrG3Ztqgro=;
+        b=N0tPlhFS7EVIX0TmCmv3wtEGkv0GRdDQm9Mkd1iFCIhw0myxgTcujzr8uIsAswNqUu
+         1tSsfFGqW5UFld1Rn5X/vM9f2Q7veliZaQoOmphthpjhTtWrFTtdEgGY/Kn9ulwCiuBN
+         jUybSGR3DK843gMnNSjHw0AGxhWqDE7BjGlnzah2zzRg9SJdWt7jfgAHMhe+nwGr6sCz
+         gKWaUN7xFeXwNJytNXX3ryCXvwF680blTWzI5VvyO037t3774Gn8Fa2y6JTj1gvwL+7k
+         AQ30p11tZd2TY7yLrfV9WMNxNRJdScmJPwzz5nA8hzPl596txfj8lHqBfSs7turSBjug
+         GHUA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=stz73iUf9C6RHHj3xWZfepbbnMyNao045W9wPexeqOg=;
-        b=BNoV4XuoCUEYeqPZUQp6UMiKBCRuUkNeEnRoz5krOK1PiVyRqGJZ/akeE0pC2TtLsg
-         rp1/V8uZPW23Y018MhErZbSubxf8GLa5WJUtWCHtzWkY7MVEUPL6V6mhLwfnq+HgZ6wG
-         vQdd5K5htbVFAA64+MveWYEXUI3ZR5TRQ7DhOMpo7z9AMolxeTxZbwSGsrRm9RaPNZYO
-         A5NPGE2r98yzezlG6Jiucr59BVXsYTCagtBf3swgKuojXIySG1a7LweumW2XVwVyD8zE
-         3YqRcd02mx3gcIJCbOvJv0VDYy488XSPecLKxCPNgC/ZQuLGFA6yc3jJA3OpVSEa7f07
-         ++1w==
-X-Gm-Message-State: APjAAAVNpYpB4DUA614hr2vax1qM96vqUnQ36Ix0Lf5TQu+DGIMKti9K
-        Qnlul27FW4jzaDIRe77wzYN6bf/uhe8=
-X-Google-Smtp-Source: APXvYqyLSdTdqYJobr3J//O8hGFEnS+QMTUvdKcaopilRPTmvD/1cRXiCDjhda0nHzlYUKVlrEIJaQ==
-X-Received: by 2002:a65:6495:: with SMTP id e21mr25177639pgv.383.1559527767587;
-        Sun, 02 Jun 2019 19:09:27 -0700 (PDT)
-Received: from localhost (ppp167-251-205.static.internode.on.net. [59.167.251.205])
-        by smtp.gmail.com with ESMTPSA id p18sm723916pff.93.2019.06.02.19.09.25
+        h=x-gm-message-state:date:from:subject:to:cc:references:in-reply-to
+         :mime-version:user-agent:message-id:content-transfer-encoding;
+        bh=70ySUXfZoJO6NGjc1E/FmmTs4bYAgjLgidrG3Ztqgro=;
+        b=nZwvL8AAH6SJkp576xz5xZnVWcwQOP3tuwNp9dxl/8tTXl7mOYSbxn8S4IFa6aBfmW
+         8z3yYC68SCFAItM9Asc5Z8n34+aqng0npq+Q9nxGnfj/blyUxn5yAkdAk3jIVWtCqWar
+         J7PjZ/XLPM62mfxZO4UciHptRAaiodr3GWxIR/chlP3lbMdartBDCmn+ktlFFh6aew7z
+         cqlmxjJdOIYBKt6C0addXdjEN5TV5CNeMnsi1cpQdgo6GYo8WKCOtrJ5/9xlz7bqm4d9
+         zqhTZBKQzDsg8aTBpD1ju5XVN30K6dDk65YwjrmKx20AuQUvY1UE1PhzFWf9Tfa2NMFw
+         X39w==
+X-Gm-Message-State: APjAAAXdjd3Eu3hvv56u1kcV6/2B6kAEHGOVUKs3Gb0D7/1gTfi/pK5L
+        r0kOYQq4UoBpqdALYgxfo6o=
+X-Google-Smtp-Source: APXvYqwl+QUMQbJKuqvWCqD/I3daFukmo+iJAwxSbBy2KoZGXbkZmLJoXdYt0vdo2IqjUbkW3ETjnA==
+X-Received: by 2002:aa7:9212:: with SMTP id 18mr28384804pfo.120.1559527889129;
+        Sun, 02 Jun 2019 19:11:29 -0700 (PDT)
+Received: from localhost ([203.111.179.138])
+        by smtp.gmail.com with ESMTPSA id y185sm3831872pfy.110.2019.06.02.19.11.27
         (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Sun, 02 Jun 2019 19:09:26 -0700 (PDT)
-From:   Daniel Axtens <dja@axtens.net>
-To:     linuxppc-dev@lists.ozlabs.org
-Cc:     Daniel Axtens <dja@axtens.net>, stable@vger.kernel.org,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH BACKPORTv2 4.4] crypto: vmx - ghash: do nosimd fallback manually
-Date:   Mon,  3 Jun 2019 12:09:20 +1000
-Message-Id: <20190603020920.9798-1-dja@axtens.net>
-X-Mailer: git-send-email 2.19.1
+        Sun, 02 Jun 2019 19:11:28 -0700 (PDT)
+Date:   Mon, 03 Jun 2019 12:11:38 +1000
+From:   Nicholas Piggin <npiggin@gmail.com>
+Subject: Re: + mm-mmu_gather-remove-__tlb_reset_range-for-force-flush.patch
+ added to -mm tree
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     akpm@linux-foundation.org,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        jstancek@redhat.com, mgorman@suse.de, minchan@kernel.org,
+        mm-commits@vger.kernel.org, namit@vmware.com,
+        stable@vger.kernel.org, will.deacon@arm.com,
+        yang.shi@linux.alibaba.com
+References: <20190521231833.P5ThR%akpm@linux-foundation.org>
+        <20190527110158.GB2623@hirez.programming.kicks-ass.net>
+        <335de44e-02f5-ce92-c026-e8ac4a34a766@linux.ibm.com>
+        <20190527142552.GD2623@hirez.programming.kicks-ass.net>
+        <1559270298.wiy8c3d4zs.astroid@bobo.none>
+        <20190531094931.GM2623@hirez.programming.kicks-ass.net>
+In-Reply-To: <20190531094931.GM2623@hirez.programming.kicks-ass.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: astroid/0.14.0 (https://github.com/astroidmail/astroid)
+Message-Id: <1559527383.76rykleqz1.astroid@bobo.none>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 357d065a44cdd77ed5ff35155a989f2a763e96ef upstream.
-[backported: the VMX driver did not use crypto_simd_usable() until
- after 5.1, CRYPTO_ALG_TYPE_SHASH was still specified in .options
- until after 4.14, and the sequence for preparing the kernel to use
- vmx changed after 4.4.]
+Peter Zijlstra's on May 31, 2019 7:49 pm:
+> On Fri, May 31, 2019 at 12:46:56PM +1000, Nicholas Piggin wrote:
+>> Peter Zijlstra's on May 28, 2019 12:25 am:
+>> > On Mon, May 27, 2019 at 06:59:08PM +0530, Aneesh Kumar K.V wrote:
+>> >> On 5/27/19 4:31 PM, Peter Zijlstra wrote:
+>> >> > On Tue, May 21, 2019 at 04:18:33PM -0700, akpm@linux-foundation.org=
+ wrote:
+>> >> > > --- a/mm/mmu_gather.c~mm-mmu_gather-remove-__tlb_reset_range-for-=
+force-flush
+>> >> > > +++ a/mm/mmu_gather.c
+>> >> > > @@ -245,14 +245,28 @@ void tlb_finish_mmu(struct mmu_gather *t
+>> >> > >   {
+>> >> > >   	/*
+>> >> > >   	 * If there are parallel threads are doing PTE changes on same=
+ range
+>> >> > > -	 * under non-exclusive lock(e.g., mmap_sem read-side) but defer=
+ TLB
+>> >> > > -	 * flush by batching, a thread has stable TLB entry can fail to=
+ flush
+>> >> > > -	 * the TLB by observing pte_none|!pte_dirty, for example so flu=
+sh TLB
+>> >> > > -	 * forcefully if we detect parallel PTE batching threads.
+>> >> > > +	 * under non-exclusive lock (e.g., mmap_sem read-side) but defe=
+r TLB
+>> >> > > +	 * flush by batching, one thread may end up seeing inconsistent=
+ PTEs
+>> >> > > +	 * and result in having stale TLB entries.  So flush TLB forcef=
+ully
+>> >> > > +	 * if we detect parallel PTE batching threads.
+>> >> > > +	 *
+>> >> > > +	 * However, some syscalls, e.g. munmap(), may free page tables,=
+ this
+>> >> > > +	 * needs force flush everything in the given range. Otherwise t=
+his
+>> >> > > +	 * may result in having stale TLB entries for some architecture=
+s,
+>> >> > > +	 * e.g. aarch64, that could specify flush what level TLB.
+>> >> > >   	 */
+>> >> > >   	if (mm_tlb_flush_nested(tlb->mm)) {
+>> >> > > +		/*
+>> >> > > +		 * The aarch64 yields better performance with fullmm by
+>> >> > > +		 * avoiding multiple CPUs spamming TLBI messages at the
+>> >> > > +		 * same time.
+>> >> > > +		 *
+>> >> > > +		 * On x86 non-fullmm doesn't yield significant difference
+>> >> > > +		 * against fullmm.
+>> >> > > +		 */
+>> >> > > +		tlb->fullmm =3D 1;
+>> >> > >   		__tlb_reset_range(tlb);
+>> >> > > -		__tlb_adjust_range(tlb, start, end - start);
+>> >> > > +		tlb->freed_tables =3D 1;
+>> >> > >   	}
+>> >> > >   	tlb_flush_mmu(tlb);
+>=20
+>> > Maybe, but given the patch that went into -mm, PPC will never hit that
+>> > branch I killed anymore -- and that really shouldn't be in architectur=
+e
+>> > code anyway.
+>>=20
+>> Yeah well if mm/ does this then sure it's dead and can go.
+>>=20
+>> I don't think it's very nice to set fullmm and freed_tables for this=20
+>> case though. Is this concurrent zapping an important fast path? It
+>> must have been, in order to justify all this complexity to the mm, so
+>> we don't want to tie this boat anchor to it AFAIKS?
+>=20
+> I'm not convinced its an important fast path, afaict it is an
+> unfortunate correctness issue caused by allowing concurrenct frees.
 
-VMX ghash was using a fallback that did not support interleaving simd
-and nosimd operations, leading to failures in the extended test suite.
+I mean -- concurrent freeing was an important fastpath, right?
+And concurrent freeing means that you hit this case. So this
+case itself should be important too.
 
-If I understood correctly, Eric's suggestion was to use the same
-data format that the generic code uses, allowing us to call into it
-with the same contexts. I wasn't able to get that to work - I think
-there's a very different key structure and data layout being used.
+>=20
+>> Is the problem just that the freed page tables flags get cleared by
+>> __tlb_reset_range()? Why not just remove that then, so the bits are
+>> set properly for the munmap?
+>=20
+> That's insufficient; as argued in my initial suggestion:
+>=20
+>   https://lkml.kernel.org/r/20190509103813.GP2589@hirez.programming.kicks=
+-ass.net
+>=20
+> Since we don't know what was flushed by the concorrent flushes, we must
+> flush all state (page sizes, tables etc..).
 
-So instead steal the arm64 approach and perform the fallback
-operations directly if required.
+Page tables should not be concurrently freed I think. Just don't clear
+those page table free flags and it should be okay. Page sizes yes,
+but we accommodated for that in the arch code. I could see reason to
+add a flag to the gather struct like "concurrent_free" and set that
+from the generic code, which the arch has to take care of.
 
-Fixes: cc333cd68dfa ("crypto: vmx - Adding GHASH routines for VMX module")
-Cc: stable@vger.kernel.org # v4.1+
-Reported-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Daniel Axtens <dja@axtens.net>
-Acked-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Tested-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Daniel Axtens <dja@axtens.net>
----
+> But it looks like benchmarks (for the one test-case we have) seem to
+> favour flushing the world over flushing a smaller range.
 
-v2: do stable backport form correctly.
+Testing on 16MB unmap is possibly not a good benchmark, I didn't run
+it exactly but it looks likely to go beyond the range flush threshold
+and flush the entire PID anyway.
 
----
- drivers/crypto/vmx/ghash.c | 218 +++++++++++++++----------------------
- 1 file changed, 89 insertions(+), 129 deletions(-)
+Thanks,
+Nick
 
-diff --git a/drivers/crypto/vmx/ghash.c b/drivers/crypto/vmx/ghash.c
-index 84b9389bf1ed..d6b68cf7bba7 100644
---- a/drivers/crypto/vmx/ghash.c
-+++ b/drivers/crypto/vmx/ghash.c
-@@ -1,22 +1,14 @@
-+// SPDX-License-Identifier: GPL-2.0
- /**
-  * GHASH routines supporting VMX instructions on the Power 8
-  *
-- * Copyright (C) 2015 International Business Machines Inc.
-- *
-- * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License as published by
-- * the Free Software Foundation; version 2 only.
-- *
-- * This program is distributed in the hope that it will be useful,
-- * but WITHOUT ANY WARRANTY; without even the implied warranty of
-- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-- * GNU General Public License for more details.
-- *
-- * You should have received a copy of the GNU General Public License
-- * along with this program; if not, write to the Free Software
-- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ * Copyright (C) 2015, 2019 International Business Machines Inc.
-  *
-  * Author: Marcelo Henrique Cerri <mhcerri@br.ibm.com>
-+ *
-+ * Extended by Daniel Axtens <dja@axtens.net> to replace the fallback
-+ * mechanism. The new approach is based on arm64 code, which is:
-+ *   Copyright (C) 2014 - 2018 Linaro Ltd. <ard.biesheuvel@linaro.org>
-  */
- 
- #include <linux/types.h>
-@@ -39,71 +31,25 @@ void gcm_ghash_p8(u64 Xi[2], const u128 htable[16],
- 		  const u8 *in, size_t len);
- 
- struct p8_ghash_ctx {
-+	/* key used by vector asm */
- 	u128 htable[16];
--	struct crypto_shash *fallback;
-+	/* key used by software fallback */
-+	be128 key;
- };
- 
- struct p8_ghash_desc_ctx {
- 	u64 shash[2];
- 	u8 buffer[GHASH_DIGEST_SIZE];
- 	int bytes;
--	struct shash_desc fallback_desc;
- };
- 
--static int p8_ghash_init_tfm(struct crypto_tfm *tfm)
--{
--	const char *alg = "ghash-generic";
--	struct crypto_shash *fallback;
--	struct crypto_shash *shash_tfm = __crypto_shash_cast(tfm);
--	struct p8_ghash_ctx *ctx = crypto_tfm_ctx(tfm);
--
--	fallback = crypto_alloc_shash(alg, 0, CRYPTO_ALG_NEED_FALLBACK);
--	if (IS_ERR(fallback)) {
--		printk(KERN_ERR
--		       "Failed to allocate transformation for '%s': %ld\n",
--		       alg, PTR_ERR(fallback));
--		return PTR_ERR(fallback);
--	}
--
--	crypto_shash_set_flags(fallback,
--			       crypto_shash_get_flags((struct crypto_shash
--						       *) tfm));
--
--	/* Check if the descsize defined in the algorithm is still enough. */
--	if (shash_tfm->descsize < sizeof(struct p8_ghash_desc_ctx)
--	    + crypto_shash_descsize(fallback)) {
--		printk(KERN_ERR
--		       "Desc size of the fallback implementation (%s) does not match the expected value: %lu vs %u\n",
--		       alg,
--		       shash_tfm->descsize - sizeof(struct p8_ghash_desc_ctx),
--		       crypto_shash_descsize(fallback));
--		return -EINVAL;
--	}
--	ctx->fallback = fallback;
--
--	return 0;
--}
--
--static void p8_ghash_exit_tfm(struct crypto_tfm *tfm)
--{
--	struct p8_ghash_ctx *ctx = crypto_tfm_ctx(tfm);
--
--	if (ctx->fallback) {
--		crypto_free_shash(ctx->fallback);
--		ctx->fallback = NULL;
--	}
--}
--
- static int p8_ghash_init(struct shash_desc *desc)
- {
--	struct p8_ghash_ctx *ctx = crypto_tfm_ctx(crypto_shash_tfm(desc->tfm));
- 	struct p8_ghash_desc_ctx *dctx = shash_desc_ctx(desc);
- 
- 	dctx->bytes = 0;
- 	memset(dctx->shash, 0, GHASH_DIGEST_SIZE);
--	dctx->fallback_desc.tfm = ctx->fallback;
--	dctx->fallback_desc.flags = desc->flags;
--	return crypto_shash_init(&dctx->fallback_desc);
-+	return 0;
- }
- 
- static int p8_ghash_setkey(struct crypto_shash *tfm, const u8 *key,
-@@ -122,7 +68,53 @@ static int p8_ghash_setkey(struct crypto_shash *tfm, const u8 *key,
- 	gcm_init_p8(ctx->htable, (const u64 *) key);
- 	pagefault_enable();
- 	preempt_enable();
--	return crypto_shash_setkey(ctx->fallback, key, keylen);
-+
-+	memcpy(&ctx->key, key, GHASH_BLOCK_SIZE);
-+
-+	return 0;
-+}
-+
-+static inline void __ghash_block(struct p8_ghash_ctx *ctx,
-+				 struct p8_ghash_desc_ctx *dctx)
-+{
-+	if (!IN_INTERRUPT) {
-+		preempt_disable();
-+		pagefault_disable();
-+		enable_kernel_altivec();
-+		enable_kernel_vsx();
-+		enable_kernel_fp();
-+		gcm_ghash_p8(dctx->shash, ctx->htable,
-+				dctx->buffer, GHASH_DIGEST_SIZE);
-+		pagefault_enable();
-+		preempt_enable();
-+	} else {
-+		crypto_xor((u8 *)dctx->shash, dctx->buffer, GHASH_BLOCK_SIZE);
-+		gf128mul_lle((be128 *)dctx->shash, &ctx->key);
-+	}
-+}
-+
-+static inline void __ghash_blocks(struct p8_ghash_ctx *ctx,
-+				  struct p8_ghash_desc_ctx *dctx,
-+				  const u8 *src, unsigned int srclen)
-+{
-+	if (!IN_INTERRUPT) {
-+		preempt_disable();
-+		pagefault_disable();
-+		enable_kernel_altivec();
-+		enable_kernel_vsx();
-+		enable_kernel_fp();
-+		gcm_ghash_p8(dctx->shash, ctx->htable,
-+				src, srclen);
-+		pagefault_enable();
-+		preempt_enable();
-+	} else {
-+		while (srclen >= GHASH_BLOCK_SIZE) {
-+			crypto_xor((u8 *)dctx->shash, src, GHASH_BLOCK_SIZE);
-+			gf128mul_lle((be128 *)dctx->shash, &ctx->key);
-+			srclen -= GHASH_BLOCK_SIZE;
-+			src += GHASH_BLOCK_SIZE;
-+		}
-+	}
- }
- 
- static int p8_ghash_update(struct shash_desc *desc,
-@@ -132,51 +124,33 @@ static int p8_ghash_update(struct shash_desc *desc,
- 	struct p8_ghash_ctx *ctx = crypto_tfm_ctx(crypto_shash_tfm(desc->tfm));
- 	struct p8_ghash_desc_ctx *dctx = shash_desc_ctx(desc);
- 
--	if (IN_INTERRUPT) {
--		return crypto_shash_update(&dctx->fallback_desc, src,
--					   srclen);
--	} else {
--		if (dctx->bytes) {
--			if (dctx->bytes + srclen < GHASH_DIGEST_SIZE) {
--				memcpy(dctx->buffer + dctx->bytes, src,
--				       srclen);
--				dctx->bytes += srclen;
--				return 0;
--			}
-+	if (dctx->bytes) {
-+		if (dctx->bytes + srclen < GHASH_DIGEST_SIZE) {
- 			memcpy(dctx->buffer + dctx->bytes, src,
--			       GHASH_DIGEST_SIZE - dctx->bytes);
--			preempt_disable();
--			pagefault_disable();
--			enable_kernel_altivec();
--			enable_kernel_vsx();
--			enable_kernel_fp();
--			gcm_ghash_p8(dctx->shash, ctx->htable,
--				     dctx->buffer, GHASH_DIGEST_SIZE);
--			pagefault_enable();
--			preempt_enable();
--			src += GHASH_DIGEST_SIZE - dctx->bytes;
--			srclen -= GHASH_DIGEST_SIZE - dctx->bytes;
--			dctx->bytes = 0;
--		}
--		len = srclen & ~(GHASH_DIGEST_SIZE - 1);
--		if (len) {
--			preempt_disable();
--			pagefault_disable();
--			enable_kernel_altivec();
--			enable_kernel_vsx();
--			enable_kernel_fp();
--			gcm_ghash_p8(dctx->shash, ctx->htable, src, len);
--			pagefault_enable();
--			preempt_enable();
--			src += len;
--			srclen -= len;
--		}
--		if (srclen) {
--			memcpy(dctx->buffer, src, srclen);
--			dctx->bytes = srclen;
-+				srclen);
-+			dctx->bytes += srclen;
-+			return 0;
- 		}
--		return 0;
-+		memcpy(dctx->buffer + dctx->bytes, src,
-+			GHASH_DIGEST_SIZE - dctx->bytes);
-+
-+		__ghash_block(ctx, dctx);
-+
-+		src += GHASH_DIGEST_SIZE - dctx->bytes;
-+		srclen -= GHASH_DIGEST_SIZE - dctx->bytes;
-+		dctx->bytes = 0;
-+	}
-+	len = srclen & ~(GHASH_DIGEST_SIZE - 1);
-+	if (len) {
-+		__ghash_blocks(ctx, dctx, src, len);
-+		src += len;
-+		srclen -= len;
- 	}
-+	if (srclen) {
-+		memcpy(dctx->buffer, src, srclen);
-+		dctx->bytes = srclen;
-+	}
-+	return 0;
- }
- 
- static int p8_ghash_final(struct shash_desc *desc, u8 *out)
-@@ -185,26 +159,14 @@ static int p8_ghash_final(struct shash_desc *desc, u8 *out)
- 	struct p8_ghash_ctx *ctx = crypto_tfm_ctx(crypto_shash_tfm(desc->tfm));
- 	struct p8_ghash_desc_ctx *dctx = shash_desc_ctx(desc);
- 
--	if (IN_INTERRUPT) {
--		return crypto_shash_final(&dctx->fallback_desc, out);
--	} else {
--		if (dctx->bytes) {
--			for (i = dctx->bytes; i < GHASH_DIGEST_SIZE; i++)
--				dctx->buffer[i] = 0;
--			preempt_disable();
--			pagefault_disable();
--			enable_kernel_altivec();
--			enable_kernel_vsx();
--			enable_kernel_fp();
--			gcm_ghash_p8(dctx->shash, ctx->htable,
--				     dctx->buffer, GHASH_DIGEST_SIZE);
--			pagefault_enable();
--			preempt_enable();
--			dctx->bytes = 0;
--		}
--		memcpy(out, dctx->shash, GHASH_DIGEST_SIZE);
--		return 0;
-+	if (dctx->bytes) {
-+		for (i = dctx->bytes; i < GHASH_DIGEST_SIZE; i++)
-+			dctx->buffer[i] = 0;
-+		__ghash_block(ctx, dctx);
-+		dctx->bytes = 0;
- 	}
-+	memcpy(out, dctx->shash, GHASH_DIGEST_SIZE);
-+	return 0;
- }
- 
- struct shash_alg p8_ghash_alg = {
-@@ -219,11 +181,9 @@ struct shash_alg p8_ghash_alg = {
- 		 .cra_name = "ghash",
- 		 .cra_driver_name = "p8_ghash",
- 		 .cra_priority = 1000,
--		 .cra_flags = CRYPTO_ALG_TYPE_SHASH | CRYPTO_ALG_NEED_FALLBACK,
-+		 .cra_flags = CRYPTO_ALG_TYPE_SHASH,
- 		 .cra_blocksize = GHASH_BLOCK_SIZE,
- 		 .cra_ctxsize = sizeof(struct p8_ghash_ctx),
- 		 .cra_module = THIS_MODULE,
--		 .cra_init = p8_ghash_init_tfm,
--		 .cra_exit = p8_ghash_exit_tfm,
- 	},
- };
--- 
-2.19.1
-
+=
