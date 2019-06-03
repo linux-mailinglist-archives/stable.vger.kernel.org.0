@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F3C753265A
-	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 04:08:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98F433265D
+	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 04:09:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726561AbfFCCI5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 2 Jun 2019 22:08:57 -0400
-Received: from mail-pl1-f195.google.com ([209.85.214.195]:46812 "EHLO
-        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726270AbfFCCI4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 2 Jun 2019 22:08:56 -0400
-Received: by mail-pl1-f195.google.com with SMTP id e5so4595569pls.13
-        for <stable@vger.kernel.org>; Sun, 02 Jun 2019 19:08:56 -0700 (PDT)
+        id S1726714AbfFCCJK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 2 Jun 2019 22:09:10 -0400
+Received: from mail-pl1-f193.google.com ([209.85.214.193]:46819 "EHLO
+        mail-pl1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726270AbfFCCJK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 2 Jun 2019 22:09:10 -0400
+Received: by mail-pl1-f193.google.com with SMTP id e5so4595727pls.13
+        for <stable@vger.kernel.org>; Sun, 02 Jun 2019 19:09:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=axtens.net; s=google;
         h=from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=6twrwfZ3Vil/bEOQrdijLO4yzU26PRkdi9DMQO75SOw=;
-        b=EStULTI5ASp8d9AZ4HSTnAPe3nQwuV6QTa6a0QTH9v/vXoUNm4AfAWAoyA9FXwChY6
-         j6mZvxOi7CZGOxsYy1XJU0nq6+VM1xEkAZCLL4Z5vXp9ML84BBpSkqAvzwjXe1xkFMw3
-         YQqewzfjVkzXNeEqYiRiuy7KIfXNoqLl3NN+8=
+        bh=W0qPdmOlHokX2EU0AW/d1ZAOu7LJ1PYTnO4lj8aDC9U=;
+        b=b6czOLs+OdxQpOdatuxnK+W1hOShYB0s/RH6VCccdeaBOldKKK4BJC8codDTgCZBgD
+         cAkXI9RInnHBVIUNZaEVZjFclfIlx57+Hjg+4bH4Ix4aRwONyZj+mkIxwNOsaeoC0kay
+         bSYXnZKFeuh/LDxQ6K28Tc/lN49nQUIXBgdXE=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=6twrwfZ3Vil/bEOQrdijLO4yzU26PRkdi9DMQO75SOw=;
-        b=NKqF6+UNT9yHA4xM1Yfcdnh3C723+bZDoEGf7z9VbPQvQylg9mb2hne47jPYdr2s/t
-         Qz2tOUmUmDeNpM1w4E/JYd7tiC040STfLeRq04VmRxv9RNphiCIZ3qE+NboAByeU36KK
-         czs6Ikpmg93yZvQF3Bjs+II+GlqPrGCQz9dIL46i0UwnNlXbHBPudJYfRZnVSuIzY/l/
-         JaD9Xr1A/7tNCD7RRn8zQeizn7cpKPumloeeokItddojLNRYvkgMrCGOF6eiwXSRnEKP
-         8zm7/K2bYbsZ2ArRd0ajyb1oj9LimXd4a521BPkUskBggjuZPU2/6mNbE4VTM7X3+t8c
-         iikg==
-X-Gm-Message-State: APjAAAU2PDQvNzSb7oW2QPtakc/17jiTLaQs0BbgFuaQSH8+TATVjOP7
-        Tq7s+XTXzLa+l8NZj9IuDYiOPpqfM5g=
-X-Google-Smtp-Source: APXvYqw61PuarSr9wUovUQ/7JXewsO5LTlUcdtHuJlzvhoV9os6pkd25V/u4YQe5V4qWupP2fie50g==
-X-Received: by 2002:a17:902:bc47:: with SMTP id t7mr15206233plz.336.1559527735759;
-        Sun, 02 Jun 2019 19:08:55 -0700 (PDT)
+        bh=W0qPdmOlHokX2EU0AW/d1ZAOu7LJ1PYTnO4lj8aDC9U=;
+        b=SDZSByL8I1Uu4u/FpKKUEFEFy4Yq1gr1hmD+vVD7q5igNGP/qnORg3Ne8ARa0pPkta
+         3dgevpbD0WvrdQimjeLdAwjD1S9qFYtxA9VVCkJIyKcB4BS4fb6OJ2yYswutas3Qf+/r
+         X8gv4vJ6evAINux87yyI/Pck6+1xNZnxvSFpQ17bb96Ja8J0lyXxTMgR7aIBQc0z/rQv
+         Q8ZliesBp/H0euVrBtu8b5BRtM/x0K3epHrYm7J9DNgI//qVUQIC6R/52E+vmPbQme9j
+         FO3CXK+cUmSLb14BC+/iu547JO/pPdP8gE2uFSfo77ZqXkej0WzjusRjIuPjB7mIX4TH
+         ramA==
+X-Gm-Message-State: APjAAAV7IKeobLg9XyHqtIvDGRIjzQ8VpqcfNK+vEZ+2KPhgdcLb25Oj
+        KtDoVbhgTDkTbapkuo/NSBto/g==
+X-Google-Smtp-Source: APXvYqwRwfUGjSsFzgdRa3h4nuXmscF+zjBYPO39Gx5tFWk+kevskB7m4bSgAmdwO4CJCeAEdlnCdQ==
+X-Received: by 2002:a17:902:2a69:: with SMTP id i96mr18430590plb.108.1559527749031;
+        Sun, 02 Jun 2019 19:09:09 -0700 (PDT)
 Received: from localhost (ppp167-251-205.static.internode.on.net. [59.167.251.205])
-        by smtp.gmail.com with ESMTPSA id h14sm10328695pgj.8.2019.06.02.19.08.52
+        by smtp.gmail.com with ESMTPSA id m5sm6238381pgn.59.2019.06.02.19.09.07
         (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Sun, 02 Jun 2019 19:08:54 -0700 (PDT)
+        Sun, 02 Jun 2019 19:09:08 -0700 (PDT)
 From:   Daniel Axtens <dja@axtens.net>
 To:     linuxppc-dev@lists.ozlabs.org
 Cc:     Daniel Axtens <dja@axtens.net>, stable@vger.kernel.org,
         Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH BACKPORTv2 4.19, 5.0, 5.1] crypto: vmx - ghash: do nosimd fallback manually
-Date:   Mon,  3 Jun 2019 12:08:48 +1000
-Message-Id: <20190603020848.9598-1-dja@axtens.net>
+Subject: [PATCH BACKPORTv2 4.9, 4.14] crypto: vmx - ghash: do nosimd fallback manually
+Date:   Mon,  3 Jun 2019 12:09:03 +1000
+Message-Id: <20190603020903.9665-1-dja@axtens.net>
 X-Mailer: git-send-email 2.19.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,8 @@ X-Mailing-List: stable@vger.kernel.org
 
 commit 357d065a44cdd77ed5ff35155a989f2a763e96ef upstream.
 [backported: the VMX driver did not use crypto_simd_usable() until
- after 5.1]
+ after 5.1, CRYPTO_ALG_TYPE_SHASH was still specified in .options
+ until after 4.14]
 
 VMX ghash was using a fallback that did not support interleaving simd
 and nosimd operations, leading to failures in the extended test suite.
@@ -84,11 +85,11 @@ Signed-off-by: Daniel Axtens <dja@axtens.net>
 v2: do stable backport form correctly.
 
 ---
- drivers/crypto/vmx/ghash.c | 212 +++++++++++++++----------------------
- 1 file changed, 86 insertions(+), 126 deletions(-)
+ drivers/crypto/vmx/ghash.c | 213 +++++++++++++++----------------------
+ 1 file changed, 87 insertions(+), 126 deletions(-)
 
 diff --git a/drivers/crypto/vmx/ghash.c b/drivers/crypto/vmx/ghash.c
-index dd8b8716467a..2d1a8cd35509 100644
+index 1c4b5b889fba..1bfe867c0b7b 100644
 --- a/drivers/crypto/vmx/ghash.c
 +++ b/drivers/crypto/vmx/ghash.c
 @@ -1,22 +1,14 @@
@@ -356,11 +357,12 @@ index dd8b8716467a..2d1a8cd35509 100644
  }
  
  struct shash_alg p8_ghash_alg = {
-@@ -215,11 +178,8 @@ struct shash_alg p8_ghash_alg = {
+@@ -215,11 +178,9 @@ struct shash_alg p8_ghash_alg = {
  		 .cra_name = "ghash",
  		 .cra_driver_name = "p8_ghash",
  		 .cra_priority = 1000,
--		 .cra_flags = CRYPTO_ALG_NEED_FALLBACK,
+-		 .cra_flags = CRYPTO_ALG_TYPE_SHASH | CRYPTO_ALG_NEED_FALLBACK,
++		 .cra_flags = CRYPTO_ALG_TYPE_SHASH,
  		 .cra_blocksize = GHASH_BLOCK_SIZE,
  		 .cra_ctxsize = sizeof(struct p8_ghash_ctx),
  		 .cra_module = THIS_MODULE,
