@@ -2,40 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 81BFD32BCE
-	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 11:12:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2F8032C4E
+	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 11:17:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728519AbfFCJLw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jun 2019 05:11:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57140 "EHLO mail.kernel.org"
+        id S1728702AbfFCJMv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jun 2019 05:12:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60988 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728511AbfFCJLw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Jun 2019 05:11:52 -0400
+        id S1728693AbfFCJMr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Jun 2019 05:12:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AD65127E51;
-        Mon,  3 Jun 2019 09:11:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4856F245B9;
+        Mon,  3 Jun 2019 09:12:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559553111;
-        bh=Eoqrcd+Jb5+J5XJOqRM1pn5UpfVPaTOv7EbLS0XI0AU=;
+        s=default; t=1559553166;
+        bh=erX6YxDH2r6uXzI9LcRs8ZHxY09bIc1J7b+RmnL8fMQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R9+ke6ZFK/cu6t/tJNUIzJKrFuxeFAgGYdPulFnFI18lL81G9qsuoUQ/RoT3xw180
-         XNWVR6bFqjNaixfPu6bIKn42QZYwLt8ca2+p+0kw2UdqejTTjOPMy4gIRLd3XuLPxi
-         Nm4UCRFhNwio6k/a0L844frNs6pIjoBO6Xtik1c4=
+        b=aS91T9+Xmh5q7CpqlkXFGskdaGSaVzQkIHi7J9piv3sQRgupXj1aDCh0CS2xxCMqy
+         vKlqJlhRVuGeTaMWIlfaTwGkC1izpru7sfz9fABBamKe4R+fryWzZnwu8wXSdTovyj
+         /5pFSu5wDabtuIL5D1/N+JiPpqcH/bSdmUAU2JWM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        kbuild test robot <lkp@intel.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.0 05/36] ipv4/igmp: fix build error if !CONFIG_IP_MULTICAST
-Date:   Mon,  3 Jun 2019 11:08:53 +0200
-Message-Id: <20190603090521.307430808@linuxfoundation.org>
+        stable@vger.kernel.org, Jay Vosburgh <j.vosburgh@gmail.com>,
+        Veaceslav Falico <vfalico@gmail.com>,
+        Andy Gospodarek <andy@greyhouse.net>,
+        "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
+        Heesoon Kim <Heesoon.Kim@stratus.com>,
+        Jarod Wilson <jarod@redhat.com>,
+        Jay Vosburgh <jay.vosburgh@canonical.com>
+Subject: [PATCH 5.1 01/40] bonding/802.3ad: fix slave link initialization transition states
+Date:   Mon,  3 Jun 2019 11:08:54 +0200
+Message-Id: <20190603090522.709589250@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190603090520.998342694@linuxfoundation.org>
-References: <20190603090520.998342694@linuxfoundation.org>
+In-Reply-To: <20190603090522.617635820@linuxfoundation.org>
+References: <20190603090522.617635820@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -44,58 +50,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Jarod Wilson <jarod@redhat.com>
 
-[ Upstream commit 903869bd10e6719b9df6718e785be7ec725df59f ]
+[ Upstream commit 334031219a84b9994594015aab85ed7754c80176 ]
 
-ip_sf_list_clear_all() needs to be defined even if !CONFIG_IP_MULTICAST
+Once in a while, with just the right timing, 802.3ad slaves will fail to
+properly initialize, winding up in a weird state, with a partner system
+mac address of 00:00:00:00:00:00. This started happening after a fix to
+properly track link_failure_count tracking, where an 802.3ad slave that
+reported itself as link up in the miimon code, but wasn't able to get a
+valid speed/duplex, started getting set to BOND_LINK_FAIL instead of
+BOND_LINK_DOWN. That was the proper thing to do for the general "my link
+went down" case, but has created a link initialization race that can put
+the interface in this odd state.
 
-Fixes: 3580d04aa674 ("ipv4/igmp: fix another memory leak in igmpv3_del_delrec()")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: kbuild test robot <lkp@intel.com>
+The simple fix is to instead set the slave link to BOND_LINK_DOWN again,
+if the link has never been up (last_link_up == 0), so the link state
+doesn't bounce from BOND_LINK_DOWN to BOND_LINK_FAIL -- it hasn't failed
+in this case, it simply hasn't been up yet, and this prevents the
+unnecessary state change from DOWN to FAIL and getting stuck in an init
+failure w/o a partner mac.
+
+Fixes: ea53abfab960 ("bonding/802.3ad: fix link_failure_count tracking")
+CC: Jay Vosburgh <j.vosburgh@gmail.com>
+CC: Veaceslav Falico <vfalico@gmail.com>
+CC: Andy Gospodarek <andy@greyhouse.net>
+CC: "David S. Miller" <davem@davemloft.net>
+CC: netdev@vger.kernel.org
+Tested-by: Heesoon Kim <Heesoon.Kim@stratus.com>
+Signed-off-by: Jarod Wilson <jarod@redhat.com>
+Acked-by: Jay Vosburgh <jay.vosburgh@canonical.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/igmp.c |   22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ drivers/net/bonding/bond_main.c |   15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
---- a/net/ipv4/igmp.c
-+++ b/net/ipv4/igmp.c
-@@ -187,6 +187,17 @@ static void ip_ma_put(struct ip_mc_list
- 	     pmc != NULL;					\
- 	     pmc = rtnl_dereference(pmc->next_rcu))
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -3122,13 +3122,18 @@ static int bond_slave_netdev_event(unsig
+ 	case NETDEV_CHANGE:
+ 		/* For 802.3ad mode only:
+ 		 * Getting invalid Speed/Duplex values here will put slave
+-		 * in weird state. So mark it as link-fail for the time
+-		 * being and let link-monitoring (miimon) set it right when
+-		 * correct speeds/duplex are available.
++		 * in weird state. Mark it as link-fail if the link was
++		 * previously up or link-down if it hasn't yet come up, and
++		 * let link-monitoring (miimon) set it right when correct
++		 * speeds/duplex are available.
+ 		 */
+ 		if (bond_update_speed_duplex(slave) &&
+-		    BOND_MODE(bond) == BOND_MODE_8023AD)
+-			slave->link = BOND_LINK_FAIL;
++		    BOND_MODE(bond) == BOND_MODE_8023AD) {
++			if (slave->last_link_up)
++				slave->link = BOND_LINK_FAIL;
++			else
++				slave->link = BOND_LINK_DOWN;
++		}
  
-+static void ip_sf_list_clear_all(struct ip_sf_list *psf)
-+{
-+	struct ip_sf_list *next;
-+
-+	while (psf) {
-+		next = psf->sf_next;
-+		kfree(psf);
-+		psf = next;
-+	}
-+}
-+
- #ifdef CONFIG_IP_MULTICAST
- 
- /*
-@@ -632,17 +643,6 @@ static void igmpv3_clear_zeros(struct ip
- 	}
- }
- 
--static void ip_sf_list_clear_all(struct ip_sf_list *psf)
--{
--	struct ip_sf_list *next;
--
--	while (psf) {
--		next = psf->sf_next;
--		kfree(psf);
--		psf = next;
--	}
--}
--
- static void kfree_pmc(struct ip_mc_list *pmc)
- {
- 	ip_sf_list_clear_all(pmc->sources);
+ 		if (BOND_MODE(bond) == BOND_MODE_8023AD)
+ 			bond_3ad_adapter_speed_duplex_changed(slave);
 
 
