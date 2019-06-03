@@ -2,121 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BC933322D
-	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 16:31:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3292933288
+	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 16:44:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729087AbfFCObw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jun 2019 10:31:52 -0400
-Received: from bedivere.hansenpartnership.com ([66.63.167.143]:60606 "EHLO
-        bedivere.hansenpartnership.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728975AbfFCObw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jun 2019 10:31:52 -0400
-Received: from localhost (localhost [127.0.0.1])
-        by bedivere.hansenpartnership.com (Postfix) with ESMTP id A82388EE1D8;
-        Mon,  3 Jun 2019 07:31:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=hansenpartnership.com;
-        s=20151216; t=1559572311;
-        bh=dBf6OsH1dH1yiJZKwGirpHIR1BMjca9GHmos7hCcdg0=;
-        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
-        b=YGxWww1S7CcKvc1sv2E62wGx8Ey/cpVtHAKv/JuRQR4FcmB7DEFuQ3Fri7Rkfw+Df
-         G9K033KMQ28qgVyxK9MlIkX/z1A566W4I+THsAO3pzFLu1rCTehu+q0zF7yMetx1Rk
-         h4bceWm/oVJ7OmjWxyvsVPcFyxRSbt973N8QCYlI=
-Received: from bedivere.hansenpartnership.com ([127.0.0.1])
-        by localhost (bedivere.hansenpartnership.com [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id 5R8vaiKHL1DO; Mon,  3 Jun 2019 07:31:51 -0700 (PDT)
-Received: from jarvis.guest.haifa.ibm.com (unknown [195.110.41.42])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by bedivere.hansenpartnership.com (Postfix) with ESMTPSA id 2191D8EE104;
-        Mon,  3 Jun 2019 07:31:48 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=hansenpartnership.com;
-        s=20151216; t=1559572311;
-        bh=dBf6OsH1dH1yiJZKwGirpHIR1BMjca9GHmos7hCcdg0=;
-        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
-        b=YGxWww1S7CcKvc1sv2E62wGx8Ey/cpVtHAKv/JuRQR4FcmB7DEFuQ3Fri7Rkfw+Df
-         G9K033KMQ28qgVyxK9MlIkX/z1A566W4I+THsAO3pzFLu1rCTehu+q0zF7yMetx1Rk
-         h4bceWm/oVJ7OmjWxyvsVPcFyxRSbt973N8QCYlI=
-Message-ID: <1559572305.5052.19.camel@HansenPartnership.com>
-Subject: Re: [PATCH v2 2/3] ima: don't ignore INTEGRITY_UNKNOWN EVM status
-From:   James Bottomley <James.Bottomley@HansenPartnership.com>
-To:     Roberto Sassu <roberto.sassu@huawei.com>,
-        Mimi Zohar <zohar@linux.ibm.com>, dmitry.kasatkin@huawei.com,
-        mjg59@google.com
-Cc:     linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org, linux-doc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, silviu.vlasceanu@huawei.com,
-        stable@vger.kernel.org
-Date:   Mon, 03 Jun 2019 17:31:45 +0300
-In-Reply-To: <3667fbd4-b6ed-6a76-9ff4-84ec3c2dda12@huawei.com>
-References: <20190529133035.28724-1-roberto.sassu@huawei.com>
-         <20190529133035.28724-3-roberto.sassu@huawei.com>
-         <1559217621.4008.7.camel@linux.ibm.com>
-         <e6b31aa9-0319-1805-bdfc-3ddde5884494@huawei.com>
-         <1559569401.5052.17.camel@HansenPartnership.com>
-         <3667fbd4-b6ed-6a76-9ff4-84ec3c2dda12@huawei.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.26.6 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+        id S1729153AbfFCOoM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jun 2019 10:44:12 -0400
+Received: from szxga03-in.huawei.com ([45.249.212.189]:6537 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1729362AbfFCOoM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Jun 2019 10:44:12 -0400
+Received: from DGGEMM403-HUB.china.huawei.com (unknown [172.30.72.53])
+        by Forcepoint Email with ESMTP id ABDE473F26C1B62FBD33;
+        Mon,  3 Jun 2019 22:44:06 +0800 (CST)
+Received: from dggeme704-chm.china.huawei.com (10.1.199.100) by
+ DGGEMM403-HUB.china.huawei.com (10.3.20.211) with Microsoft SMTP Server (TLS)
+ id 14.3.439.0; Mon, 3 Jun 2019 22:44:05 +0800
+Received: from dggeme762-chm.china.huawei.com (10.3.19.108) by
+ dggeme704-chm.china.huawei.com (10.1.199.100) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.1591.10; Mon, 3 Jun 2019 22:44:05 +0800
+Received: from dggeme762-chm.china.huawei.com ([10.8.68.53]) by
+ dggeme762-chm.china.huawei.com ([10.8.68.53]) with mapi id 15.01.1591.008;
+ Mon, 3 Jun 2019 22:44:05 +0800
+From:   gaoyongliang <gaoyongliang@huawei.com>
+To:     Marc Zyngier <marc.zyngier@arm.com>,
+        "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
+        "rmk+kernel@armlinux.org.uk" <rmk+kernel@armlinux.org.uk>,
+        "linux@armlinux.org.uk" <linux@armlinux.org.uk>,
+        "punitagrawal@gmail.com" <punitagrawal@gmail.com>,
+        "rafael.j.wysocki@intel.com" <rafael.j.wysocki@intel.com>,
+        "james.morse@arm.com" <james.morse@arm.com>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>
+CC:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "Chenjie (K)" <chenjie6@huawei.com>,
+        Nixiaoming <nixiaoming@huawei.com>,
+        Zengweilin <zengweilin@huawei.com>,
+        Shiwenlu <shiwenlu@huawei.com>
+Subject: Re: [PATCH] arm: fix using smp_processor_id() in preemptible context
+Thread-Topic: [PATCH] arm: fix using smp_processor_id() in preemptible context
+Thread-Index: AdUaGpxZgkuQtJQ9aUeV34E/V29yBQ==
+Date:   Mon, 3 Jun 2019 14:44:05 +0000
+Message-ID: <d003bd4642aa44e1a51b83cd0bf1f04e@huawei.com>
+Accept-Language: en-US
+Content-Language: zh-CN
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-originating-ip: [10.63.153.231]
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+MIME-Version: 1.0
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 2019-06-03 at 16:29 +0200, Roberto Sassu wrote:
-> On 6/3/2019 3:43 PM, James Bottomley wrote:
-> > On Mon, 2019-06-03 at 11:25 +0200, Roberto Sassu wrote:
-> > > On 5/30/2019 2:00 PM, Mimi Zohar wrote:
-> > > > On Wed, 2019-05-29 at 15:30 +0200, Roberto Sassu wrote:
-> > > > > Currently, ima_appraise_measurement() ignores the EVM status
-> > > > > when evm_verifyxattr() returns INTEGRITY_UNKNOWN. If a file
-> > > > > has a valid security.ima xattr with type IMA_XATTR_DIGEST or
-> > > > > IMA_XATTR_DIGEST_NG, ima_appraise_measurement() returns
-> > > > > INTEGRITY_PASS regardless of the EVM status. The problem is
-> > > > > that the EVM status is overwritten with the appraisal statu
-> > > > 
-> > > > Roberto, your framing of this problem is harsh and
-> > > > misleading.  IMA and EVM are intentionally independent of each
-> > > > other and can be configured independently of each other.  The
-> > > > intersection of the two is the call to
-> > > > evm_verifyxattr().  INTEGRITY_UNKNOWN is
-> > > > returned for a number of reasons - when EVM is not configured,
-> > > > the EVM hmac key has not yet been loaded, the protected
-> > > > security attribute is unknown, or the file is not in policy.
-> > > > 
-> > > > This patch does not differentiate between any of the above
-> > > > cases, requiring mutable files to always be protected by EVM,
-> > > > when specified as an "ima_appraise=" option on the boot command
-> > > > line.
-> > > > 
-> > > > IMA could be extended to require EVM on a per IMA policy rule
-> > > > basis. Instead of framing allowing IMA file hashes without EVM
-> > > > as a bug that has existed from the very beginning, now that
-> > > > IMA/EVM have matured and is being used, you could frame it as
-> > > > extending IMA or hardening.
-> > > 
-> > > I'm seeing it from the perspective of an administrator that
-> > > manages an already hardened system, and expects that the system
-> > > only grants access to files with a valid signature/HMAC. That
-> > > system would not enforce this behavior if EVM keys are removed
-> > > and the digest in security.ima is set to the actual file digest.
-> > > 
-> > > Framing it as a bug rather than an extension would in my opinion
-> > > help to convince people about the necessity to switch to the safe
-> > > mode, if their system is already hardened.
-> > 
-> > I have a use case for IMA where I use it to enforce immutability of
-> > containers.  In this use case, the cluster admin places hashes on
-> > executables as the image is unpacked so that if an executable file
-> > is changed, IMA will cause an execution failure.  For this use
-> > case, I don't care about the EVM, in fact we don't use it, because
-> > the only object is to fail execution if a binary is mutated.
-> 
-> How would you prevent root in the container from updating
-> security.ima?
-
-We don't.  We only guarantee immutability for unprivileged containers,
-so root can't be inside.
-
-James
-
+SGkgTWFyYywNCg0KT24gMjAxOS82LzMgMTg6MTcsIE1hcmMgWnluZ2llciB3cm90ZToNCj4gT24g
+MjcvMDUvMjAxOSAxMDozOSwgWW9uZ2xpYW5nIEdhbyB3cm90ZToNCj4+IGhhcmRlbl9icmFuY2hf
+cHJlZGljdG9yKCkgY2FsbCBzbXBfcHJvY2Vzc29yX2lkKCkgaW4gcHJlZW1wdGlibGUNCj4+IGNv
+bnRleHQsIHRoaXMgd291bGQgY2F1c2UgYSBidWcgbWVzc2FnZXMuDQo+Pg0KPj4gVGhlIGJ1ZyBt
+ZXNzYWdlcyBpcyBhcyBmb2xsb3dzOg0KPj4gQlVHOiB1c2luZyBzbXBfcHJvY2Vzc29yX2lkKCkg
+aW4gcHJlZW1wdGlibGUgWzAwMDAwMDAwXSBjb2RlOiBzeXotZXhlY3V0b3IwLzE3OTkyDQo+PiBj
+YWxsZXIgaXMgaGFyZGVuX2JyYW5jaF9wcmVkaWN0b3IgYXJjaC9hcm0vaW5jbHVkZS9hc20vc3lz
+dGVtX21pc2MuaDoyNyBbaW5saW5lXQ0KPj4gY2FsbGVyIGlzIF9fZG9fdXNlcl9mYXVsdCsweDM0
+LzB4MTE0IGFyY2gvYXJtL21tL2ZhdWx0LmM6MjAwDQo+PiBDUFU6IDEgUElEOiAxNzk5MiBDb21t
+OiBzeXotZXhlY3V0b3IwIFRhaW50ZWQ6IEcgTyA0LjQuMTc2ICMxDQo+PiBIYXJkd2FyZSBuYW1l
+OiBIaXNpbGljb24gQTkNCj4+IFs8YzAxMTRhZTQ+XSAodW53aW5kX2JhY2t0cmFjZSkgZnJvbSBb
+PGMwMTBlNmZjPl0gKHNob3dfc3RhY2srMHgxOC8weDFjKQ0KPj4gWzxjMDEwZTZmYz5dIChzaG93
+X3N0YWNrKSBmcm9tIFs8YzAzNzk1MTQ+XSAoZHVtcF9zdGFjaysweGM4LzB4MTE4KQ0KPj4gWzxj
+MDM3OTUxND5dIChkdW1wX3N0YWNrKSBmcm9tIFs8YzAzOWI1YTA+XSAoY2hlY2tfcHJlZW1wdGlv
+bl9kaXNhYmxlZCsweGY0LzB4MTM4KQ0KPj4gWzxjMDM5YjVhMD5dIChjaGVja19wcmVlbXB0aW9u
+X2Rpc2FibGVkKSBmcm9tIFs8YzAxMWFiZTQ+XSAoX19kb191c2VyX2ZhdWx0KzB4MzQvMHgxMTQp
+DQo+PiBbPGMwMTFhYmU0Pl0gKF9fZG9fdXNlcl9mYXVsdCkgZnJvbSBbPGMwNTNiMGQwPl0gKGRv
+X3BhZ2VfZmF1bHQrMHgzYjQvMHgzZDgpDQo+PiBbPGMwNTNiMGQwPl0gKGRvX3BhZ2VfZmF1bHQp
+IGZyb20gWzxjMDEwMTNkYz5dIChkb19EYXRhQWJvcnQrMHg1OC8weGY4KQ0KPj4gWzxjMDEwMTNk
+Yz5dIChkb19EYXRhQWJvcnQpIGZyb20gWzxjMDUzYTg4MD5dIChfX2RhYnRfdXNyKzB4NDAvMHg2
+MCkNCj4+DQo+PiBSZXBvcnRlZC1ieTogSmluZ3dlbiBRaXUgPHFpdWppbmd3ZW5AaHVhd2VpLmNv
+bT4NCj4+IFNpZ25lZC1vZmYtYnk6IFlvbmdsaWFuZyBHYW8gPGdhb3lvbmdsaWFuZ0BodWF3ZWku
+Y29tPg0KPj4gQ2M6IDxzdGFibGVAdmdlci5rZXJuZWwub3JnPg0KPj4gLS0tDQo+PiAgYXJjaC9h
+cm0vaW5jbHVkZS9hc20vc3lzdGVtX21pc2MuaCB8IDMgKystDQo+PiAgMSBmaWxlIGNoYW5nZWQs
+IDIgaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigtKQ0KPj4NCj4+IGRpZmYgLS1naXQgYS9hcmNo
+L2FybS9pbmNsdWRlL2FzbS9zeXN0ZW1fbWlzYy5oIGIvYXJjaC9hcm0vaW5jbHVkZS9hc20vc3lz
+dGVtX21pc2MuaA0KPj4gaW5kZXggNjZmNmEzYS4uNGE1NWNmYiAxMDA2NDQNCj4+IC0tLSBhL2Fy
+Y2gvYXJtL2luY2x1ZGUvYXNtL3N5c3RlbV9taXNjLmgNCj4+ICsrKyBiL2FyY2gvYXJtL2luY2x1
+ZGUvYXNtL3N5c3RlbV9taXNjLmgNCj4+IEBAIC0yMiw5ICsyMiwxMCBAQA0KPj4gIHN0YXRpYyBp
+bmxpbmUgdm9pZCBoYXJkZW5fYnJhbmNoX3ByZWRpY3Rvcih2b2lkKQ0KPj4gIHsNCj4+ICAJaGFy
+ZGVuX2JyYW5jaF9wcmVkaWN0b3JfZm5fdCBmbiA9IHBlcl9jcHUoaGFyZGVuX2JyYW5jaF9wcmVk
+aWN0b3JfZm4sDQo+PiAtCQkJCQkJICBzbXBfcHJvY2Vzc29yX2lkKCkpOw0KPj4gKwkJCQkJCSAg
+Z2V0X2NwdSgpKTsNCj4+ICAJaWYgKGZuKQ0KPj4gIAkJZm4oKTsNCj4+ICsJcHV0X2NwdSgpOw0K
+Pj4gIH0NCj4+ICAjZWxzZQ0KPj4gICNkZWZpbmUgaGFyZGVuX2JyYW5jaF9wcmVkaWN0b3IoKSBk
+byB7IH0gd2hpbGUgKDApDQo+Pg0KPiANCj4gVGhpcyBkb2Vzbid0IGxvb2sgbGlrZSB0aGUgcmln
+aHQgZml4LiBJZiB3ZSdyZSBpbiBhIHByZWVtcHRpYmxlIGNvbnRleHQsDQo+IHRoZW4gd2UgY291
+bGQgaW52YWxpZGF0ZSB0aGUgYnJhbmNoIHByZWRpY3RvciBvbiB0aGUgd3JvbmcgQ1BVLg0KDQpT
+b3JyeSwgbXkgYmFkLCB0aGFua3MgYSBsb3QgZm9yIHRoZSBnb29kIGNhdGNoLg0KDQo+IA0KPiBU
+aGUgcmlnaHQgZml4IHdvdWxkIGJlIHRvIG1vdmUgdGhlIGNhbGwgdG8gYSBwb2ludCB3aGVyZSB3
+ZSBoYXZlbid0DQo+IGVuYWJsZWQgcHJlZW1wdGlvbiB5ZXQuDQoNCkkgdG9vayBhIGxvb2sgYXQg
+dGhlIGNvZGUsIGFuZCBmaW5kIG91dCB0aGF0IHRoZSBjYWxsZXIgb2YNCmhhcmRlbl9icmFuY2hf
+cHJlZGljdG9yKCksIF9fZG9fdXNlcl9mYXVsdCgpLCBpcyBjYWxsZWQgYnkgZG9fcGFnZV9mYXVs
+dCgpDQphbmQgZG9fYmFkX2FyZWEoKSwgdGhvc2UgdHdvIGZ1bmN0aW9uJ3MgY29udGV4dCBhcmUg
+Ym90aCBydW5uaW5nIHdpdGgNCnByZWVtcHRpb24gZW5hYmxlZCwgc28gSSBkaWRuJ3QgZmluZCBh
+IGdvb2QgcGxhY2UgdG8gbW92ZSB0aGUgY2FsbCwNCmNvdWxkIHlvdSBwbGVhc2UgZ2l2ZSBzb21l
+IHN1Z2dlc3Rpb24gZm9yIG15IG5leHQgc3RlcD8NCg0KQmVzdCBSZWdhcmRzDQpZb25nbGlhbmcN
+Cg==
