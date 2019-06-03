@@ -2,77 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2374732C2B
-	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 11:16:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17AF732CC9
+	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 11:25:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728410AbfFCJOm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jun 2019 05:14:42 -0400
-Received: from szxga06-in.huawei.com ([45.249.212.32]:47522 "EHLO huawei.com"
+        id S1727264AbfFCJZQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jun 2019 05:25:16 -0400
+Received: from lhrrgout.huawei.com ([185.176.76.210]:32977 "EHLO huawei.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1729032AbfFCJOl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Jun 2019 05:14:41 -0400
-Received: from DGGEMS406-HUB.china.huawei.com (unknown [172.30.72.60])
-        by Forcepoint Email with ESMTP id E475A1C793E5AEDA66D9;
-        Mon,  3 Jun 2019 17:14:38 +0800 (CST)
-Received: from architecture4.huawei.com (10.140.130.215) by smtp.huawei.com
- (10.3.19.206) with Microsoft SMTP Server (TLS) id 14.3.439.0; Mon, 3 Jun 2019
- 17:14:28 +0800
-From:   Gao Xiang <gaoxiang25@huawei.com>
-To:     Andrew Morton <akpm@linux-foundation.org>
-CC:     LKML <linux-kernel@vger.kernel.org>, Tejun Heo <tj@kernel.org>,
-        "Ingo Molnar" <mingo@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        <stable@vger.kernel.org>, Miao Xie <miaoxie@huawei.com>,
-        <koujilong@huawei.com>, Gao Xiang <gaoxiang25@huawei.com>
-Subject: [PATCH v2] sched/core: add __sched tag for io_schedule()
-Date:   Mon, 3 Jun 2019 17:13:38 +0800
-Message-ID: <20190603091338.2695-1-gaoxiang25@huawei.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20190531082912.80724-1-gaoxiang25@huawei.com>
-References: <20190531082912.80724-1-gaoxiang25@huawei.com>
+        id S1726684AbfFCJZQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Jun 2019 05:25:16 -0400
+Received: from LHREML712-CAH.china.huawei.com (unknown [172.18.7.106])
+        by Forcepoint Email with ESMTP id DAD2985DF29930B44972;
+        Mon,  3 Jun 2019 10:25:13 +0100 (IST)
+Received: from [10.220.96.108] (10.220.96.108) by smtpsuk.huawei.com
+ (10.201.108.35) with Microsoft SMTP Server (TLS) id 14.3.408.0; Mon, 3 Jun
+ 2019 10:25:06 +0100
+Subject: Re: [PATCH v2 2/3] ima: don't ignore INTEGRITY_UNKNOWN EVM status
+To:     Mimi Zohar <zohar@linux.ibm.com>, <dmitry.kasatkin@huawei.com>,
+        <mjg59@google.com>
+CC:     <linux-integrity@vger.kernel.org>,
+        <linux-security-module@vger.kernel.org>,
+        <linux-doc@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <silviu.vlasceanu@huawei.com>, <stable@vger.kernel.org>
+References: <20190529133035.28724-1-roberto.sassu@huawei.com>
+ <20190529133035.28724-3-roberto.sassu@huawei.com>
+ <1559217621.4008.7.camel@linux.ibm.com>
+From:   Roberto Sassu <roberto.sassu@huawei.com>
+Message-ID: <e6b31aa9-0319-1805-bdfc-3ddde5884494@huawei.com>
+Date:   Mon, 3 Jun 2019 11:25:13 +0200
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.3.0
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.140.130.215]
+In-Reply-To: <1559217621.4008.7.camel@linux.ibm.com>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-Originating-IP: [10.220.96.108]
 X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-non-inline io_schedule() was introduced in
-commit 10ab56434f2f ("sched/core: Separate out io_schedule_prepare() and io_schedule_finish()")
-Keep in line with io_schedule_timeout, Otherwise
-"/proc/<pid>/wchan" will report io_schedule()
-rather than its callers when waiting io.
+On 5/30/2019 2:00 PM, Mimi Zohar wrote:
+> On Wed, 2019-05-29 at 15:30 +0200, Roberto Sassu wrote:
+>> Currently, ima_appraise_measurement() ignores the EVM status when
+>> evm_verifyxattr() returns INTEGRITY_UNKNOWN. If a file has a valid
+>> security.ima xattr with type IMA_XATTR_DIGEST or IMA_XATTR_DIGEST_NG,
+>> ima_appraise_measurement() returns INTEGRITY_PASS regardless of the EVM
+>> status. The problem is that the EVM status is overwritten with the
+>>> appraisal statu
+> 
+> Roberto, your framing of this problem is harsh and misleading.  IMA
+> and EVM are intentionally independent of each other and can be
+> configured independently of each other.  The intersection of the two
+> is the call to evm_verifyxattr().  INTEGRITY_UNKNOWN is returned for a
+> number of reasons - when EVM is not configured, the EVM hmac key has
+> not yet been loaded, the protected security attribute is unknown, or
+> the file is not in policy.
+> 
+> This patch does not differentiate between any of the above cases,
+> requiring mutable files to always be protected by EVM, when specified
+> as an "ima_appraise=" option on the boot command line.
+> 
+> IMA could be extended to require EVM on a per IMA policy rule basis.
+> Instead of framing allowing IMA file hashes without EVM as a bug that
+> has existed from the very beginning, now that IMA/EVM have matured and
+> is being used, you could frame it as extending IMA or hardening.
 
-Reported-by: Jilong Kou <koujilong@huawei.com>
-Cc: Tejun Heo <tj@kernel.org>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Acked-by: Tejun Heo <tj@kernel.org>
-Fixes: 10ab56434f2f ("sched/core: Separate out io_schedule_prepare() and io_schedule_finish()")
-Cc: <stable@vger.kernel.org> # 4.11+
-Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
----
-change log v2:
- - add missing tags
+I'm seeing it from the perspective of an administrator that manages an
+already hardened system, and expects that the system only grants access
+to files with a valid signature/HMAC. That system would not enforce this
+behavior if EVM keys are removed and the digest in security.ima is set
+to the actual file digest.
 
- kernel/sched/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Framing it as a bug rather than an extension would in my opinion help to
+convince people about the necessity to switch to the safe mode, if their
+system is already hardened.
 
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 874c427742a9..4d5962232a55 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -5123,7 +5123,7 @@ long __sched io_schedule_timeout(long timeout)
- }
- EXPORT_SYMBOL(io_schedule_timeout);
- 
--void io_schedule(void)
-+void __sched io_schedule(void)
- {
- 	int token;
- 
+
+>> This patch mitigates the issue by selecting signature verification as the
+>> only method allowed for appraisal when EVM is not initialized. Since the
+>> new behavior might break user space, it must be turned on by adding the
+>> '-evm' suffix to the value of the ima_appraise= kernel option.
+>>
+>> Fixes: 2fe5d6def1672 ("ima: integrity appraisal extension")
+>> Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+>> Cc: stable@vger.kernel.org
+>> ---
+>>   Documentation/admin-guide/kernel-parameters.txt | 3 ++-
+>>   security/integrity/ima/ima_appraise.c           | 8 ++++++++
+>>   2 files changed, 10 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
+>> index 138f6664b2e2..d84a2e612b93 100644
+>> --- a/Documentation/admin-guide/kernel-parameters.txt
+>> +++ b/Documentation/admin-guide/kernel-parameters.txt
+>> @@ -1585,7 +1585,8 @@
+>>   			Set number of hash buckets for inode cache.
+>>   
+>>   	ima_appraise=	[IMA] appraise integrity measurements
+>> -			Format: { "off" | "enforce" | "fix" | "log" }
+>> +			Format: { "off" | "enforce" | "fix" | "log" |
+>> +				  "enforce-evm" | "log-evm" }
+> 
+> Is it necessary to define both "enforce-evm" and "log-evm"?  Perhaps
+> defining "require-evm" is sufficient.
+
+ima_appraise= accepts as values modes of operation. I consider the -evm
+suffix as a modifier of already defined modes.
+
+Roberto
+
 -- 
-2.17.1
-
+HUAWEI TECHNOLOGIES Duesseldorf GmbH, HRB 56063
+Managing Director: Bo PENG, Jian LI, Yanli SHI
