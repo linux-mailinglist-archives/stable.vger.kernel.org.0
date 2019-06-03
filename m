@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A0CEF32C50
-	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 11:17:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C29532C71
+	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 11:17:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728741AbfFCJNC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jun 2019 05:13:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33062 "EHLO mail.kernel.org"
+        id S1728432AbfFCJLg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jun 2019 05:11:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56760 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727320AbfFCJNB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Jun 2019 05:13:01 -0400
+        id S1727462AbfFCJLg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Jun 2019 05:11:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F209F245DF;
-        Mon,  3 Jun 2019 09:12:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 196C427E69;
+        Mon,  3 Jun 2019 09:11:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559553180;
-        bh=yIL5NuiECHeHhIeHCh3UBszSfdb3KeS2gVIULncVAgk=;
+        s=default; t=1559553095;
+        bh=lfpX54i1ME6lCEhNG/tCmCnRWGzVpXWcT0EQVjwNNIk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TBjyk+jaP4mqXBPRzTr8u8t7DvLzMjqG4+FxjuYdOVzxF9wM9cQN8Znsy6rAXGyDK
-         yH96IDOMcGpOKrC+v4VVneNlioukMRFHrTucTEaU3pZPg8YwT+E7fxzyxqM8gABw/U
-         rHqkBAT3sHS4p6Z5vH7tnzODvNg6Fu82BJkciPPc=
+        b=A3bwt0ftu5WaKlB4LN+NmVMeqfbZD/gaF/gnZtyIgV85inNSSXrgJ6tITilbY85Pm
+         FR2jjBarx93uzmq2g48cG6MSRoERs+b9KS323RB0ZZuA4t3m7PHb1ZezjJ/TIFANYX
+         XrF26EByKC4yR3YabYtt11UnTmHGDLTZka3OyrEo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Jisheng Zhang <Jisheng.Zhang@synaptics.com>,
+        =?UTF-8?q?Jan=20Kl=C3=B6tzke?= <Jan.Kloetzke@preh.de>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.1 14/40] net: mvneta: Fix err code path of probe
+Subject: [PATCH 5.0 19/36] usbnet: fix kernel crash after disconnect
 Date:   Mon,  3 Jun 2019 11:09:07 +0200
-Message-Id: <20190603090523.498666377@linuxfoundation.org>
+Message-Id: <20190603090522.257021301@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190603090522.617635820@linuxfoundation.org>
-References: <20190603090522.617635820@linuxfoundation.org>
+In-Reply-To: <20190603090520.998342694@linuxfoundation.org>
+References: <20190603090520.998342694@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,49 +44,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
+From: Kloetzke Jan <Jan.Kloetzke@preh.de>
 
-[ Upstream commit d484e06e25ebb937d841dac02ac1fe76ec7d4ddd ]
+[ Upstream commit ad70411a978d1e6e97b1e341a7bde9a79af0c93d ]
 
-Fix below issues in err code path of probe:
-1. we don't need to unregister_netdev() because the netdev isn't
-registered.
-2. when register_netdev() fails, we also need to destroy bm pool for
-HWBM case.
+When disconnecting cdc_ncm the kernel sporadically crashes shortly
+after the disconnect:
 
-Fixes: dc35a10f68d3 ("net: mvneta: bm: add support for hardware buffer management")
-Signed-off-by: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
+  [   57.868812] Unable to handle kernel NULL pointer dereference at virtual address 00000000
+  ...
+  [   58.006653] PC is at 0x0
+  [   58.009202] LR is at call_timer_fn+0xec/0x1b4
+  [   58.013567] pc : [<0000000000000000>] lr : [<ffffff80080f5130>] pstate: 00000145
+  [   58.020976] sp : ffffff8008003da0
+  [   58.024295] x29: ffffff8008003da0 x28: 0000000000000001
+  [   58.029618] x27: 000000000000000a x26: 0000000000000100
+  [   58.034941] x25: 0000000000000000 x24: ffffff8008003e68
+  [   58.040263] x23: 0000000000000000 x22: 0000000000000000
+  [   58.045587] x21: 0000000000000000 x20: ffffffc68fac1808
+  [   58.050910] x19: 0000000000000100 x18: 0000000000000000
+  [   58.056232] x17: 0000007f885aff8c x16: 0000007f883a9f10
+  [   58.061556] x15: 0000000000000001 x14: 000000000000006e
+  [   58.066878] x13: 0000000000000000 x12: 00000000000000ba
+  [   58.072201] x11: ffffffc69ff1db30 x10: 0000000000000020
+  [   58.077524] x9 : 8000100008001000 x8 : 0000000000000001
+  [   58.082847] x7 : 0000000000000800 x6 : ffffff8008003e70
+  [   58.088169] x5 : ffffffc69ff17a28 x4 : 00000000ffff138b
+  [   58.093492] x3 : 0000000000000000 x2 : 0000000000000000
+  [   58.098814] x1 : 0000000000000000 x0 : 0000000000000000
+  ...
+  [   58.205800] [<          (null)>]           (null)
+  [   58.210521] [<ffffff80080f5298>] expire_timers+0xa0/0x14c
+  [   58.215937] [<ffffff80080f542c>] run_timer_softirq+0xe8/0x128
+  [   58.221702] [<ffffff8008081120>] __do_softirq+0x298/0x348
+  [   58.227118] [<ffffff80080a6304>] irq_exit+0x74/0xbc
+  [   58.232009] [<ffffff80080e17dc>] __handle_domain_irq+0x78/0xac
+  [   58.237857] [<ffffff8008080cf4>] gic_handle_irq+0x80/0xac
+  ...
+
+The crash happens roughly 125..130ms after the disconnect. This
+correlates with the 'delay' timer that is started on certain USB tx/rx
+errors in the URB completion handler.
+
+The problem is a race of usbnet_stop() with usbnet_start_xmit(). In
+usbnet_stop() we call usbnet_terminate_urbs() to cancel all URBs in
+flight. This only makes sense if no new URBs are submitted
+concurrently, though. But the usbnet_start_xmit() can run at the same
+time on another CPU which almost unconditionally submits an URB. The
+error callback of the new URB will then schedule the timer after it was
+already stopped.
+
+The fix adds a check if the tx queue is stopped after the tx list lock
+has been taken. This should reliably prevent the submission of new URBs
+while usbnet_terminate_urbs() does its job. The same thing is done on
+the rx side even though it might be safe due to other flags that are
+checked there.
+
+Signed-off-by: Jan Klötzke <Jan.Kloetzke@preh.de>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/marvell/mvneta.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/net/usb/usbnet.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/net/ethernet/marvell/mvneta.c
-+++ b/drivers/net/ethernet/marvell/mvneta.c
-@@ -4674,7 +4674,7 @@ static int mvneta_probe(struct platform_
- 	err = register_netdev(dev);
- 	if (err < 0) {
- 		dev_err(&pdev->dev, "failed to register\n");
--		goto err_free_stats;
-+		goto err_netdev;
- 	}
+--- a/drivers/net/usb/usbnet.c
++++ b/drivers/net/usb/usbnet.c
+@@ -506,6 +506,7 @@ static int rx_submit (struct usbnet *dev
  
- 	netdev_info(dev, "Using %s mac address %pM\n", mac_from,
-@@ -4685,14 +4685,12 @@ static int mvneta_probe(struct platform_
- 	return 0;
- 
- err_netdev:
--	unregister_netdev(dev);
- 	if (pp->bm_priv) {
- 		mvneta_bm_pool_destroy(pp->bm_priv, pp->pool_long, 1 << pp->id);
- 		mvneta_bm_pool_destroy(pp->bm_priv, pp->pool_short,
- 				       1 << pp->id);
- 		mvneta_bm_put(pp->bm_priv);
+ 	if (netif_running (dev->net) &&
+ 	    netif_device_present (dev->net) &&
++	    test_bit(EVENT_DEV_OPEN, &dev->flags) &&
+ 	    !test_bit (EVENT_RX_HALT, &dev->flags) &&
+ 	    !test_bit (EVENT_DEV_ASLEEP, &dev->flags)) {
+ 		switch (retval = usb_submit_urb (urb, GFP_ATOMIC)) {
+@@ -1431,6 +1432,11 @@ netdev_tx_t usbnet_start_xmit (struct sk
+ 		spin_unlock_irqrestore(&dev->txq.lock, flags);
+ 		goto drop;
  	}
--err_free_stats:
- 	free_percpu(pp->stats);
- err_free_ports:
- 	free_percpu(pp->ports);
++	if (netif_queue_stopped(net)) {
++		usb_autopm_put_interface_async(dev->intf);
++		spin_unlock_irqrestore(&dev->txq.lock, flags);
++		goto drop;
++	}
+ 
+ #ifdef CONFIG_PM
+ 	/* if this triggers the device is still a sleep */
 
 
