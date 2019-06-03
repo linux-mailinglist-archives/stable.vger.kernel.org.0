@@ -2,89 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DCD0332A2A
-	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 09:58:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5229B32A35
+	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 10:00:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726642AbfFCH6i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jun 2019 03:58:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58322 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725856AbfFCH6i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Jun 2019 03:58:38 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 191DF27D02;
-        Mon,  3 Jun 2019 07:58:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559548717;
-        bh=B+3QOAxzyhGeUhy50rc2ee+EAF0kA5fNYeJbxtDg74U=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=iFf5KHVL1400dPwfqA6Rx5YJ8RU2OVn/wedaLqVkMKbLE8QZnBs6iREg4TOAXOCvb
-         bZhGW9Qdu7hTmn2pf/he+tval8A0EN1rIAHOEM/vsmiOX6R/wtXY+iOTVVOA2JyC+y
-         iSvetq5Yj3tfI3+xTN9/R8AQuSd5r8bE9MrVNiB0=
-Date:   Mon, 3 Jun 2019 09:58:35 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Nathan Chancellor <natechancellor@gmail.com>
-Cc:     Sasha Levin <sashal@kernel.org>, stable@vger.kernel.org,
-        clang-built-linux@googlegroups.com,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sedat Dilek <sedat.dilek@gmail.com>
-Subject: Re: [PATCH 4.19] jump_label: move 'asm goto' support test to Kconfig
-Message-ID: <20190603075835.GE7814@kroah.com>
-References: <20190531065159.6490-1-natechancellor@gmail.com>
+        id S1727416AbfFCIAe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jun 2019 04:00:34 -0400
+Received: from mail-wm1-f65.google.com ([209.85.128.65]:53118 "EHLO
+        mail-wm1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727415AbfFCIAe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jun 2019 04:00:34 -0400
+Received: by mail-wm1-f65.google.com with SMTP id s3so2747749wms.2
+        for <stable@vger.kernel.org>; Mon, 03 Jun 2019 01:00:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to
+         :user-agent;
+        bh=S5cWpjCtWP6cEwCb4PLedIGxhmVpA+oBg2HMGf8+esM=;
+        b=GGSqkCE8VrBwFRdievnVdY9WcCEc5q61VPbovitryaz2nJE2PFCKQxmFXd+9SRXlRY
+         rFW37LGw9eQZC2sb43EvX2MIz08D/i5aBTwly+YxPi9oD2JDJ7Tj7G5S66ONTsPSpNMz
+         RDPgsVU0qJwzX9RAOhW8bPCOitT2I14975Wi1ZD83vKJbz3wRS9QhRkTAjpdjf4Rlf3Q
+         MwWqzTUMVbQT3l6UDdziTydLrXC/iCDnvRQB714w/16wEYt/YkZ24D92XjCAMZ/u7NYD
+         pkLMGowgKpRtLity/kSp+IVy4lLKksSRzb2DdcCTes2IqZ7jlL1kYXk0W7ZwZsAWcJLX
+         MQng==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to:user-agent;
+        bh=S5cWpjCtWP6cEwCb4PLedIGxhmVpA+oBg2HMGf8+esM=;
+        b=UePPWEsQXgmLDsm1p6uF4EFO+A9hK5FXa7ZW/PZ3UyP8eGIptusK7al8DKmZPnEN/D
+         38lrG1x/Cc3P6eUItu2OTtzeg7PvwCLvyUlCZUlplQ+DxB0xwuzzMdNM8Z4S3Iy/zJUx
+         KXSl2C4cacVWxDl143tpkeSSxPvKq9bhKfCNz5wjUChmq1Ggf5ifFqQp1MtWMWtVUujG
+         Edqo9B0y/vymus5pgr5EGbh6Pd2h3OhawsALY5u0aIaz6ND17TXLzywSL3dgvRous3AJ
+         IYR20RFXDJeJ3kaDWFBVT1dx+x0XNwCeXywNif4Y/2RVLNZ623r1E3HOvAAbEuu3CyJW
+         z9pA==
+X-Gm-Message-State: APjAAAXaHoXKEf36UmtDBsE5Xj7jxq+xQMcyGHdO+sOw1xGJqBoEp10e
+        JUl9tO1MNkHWxreCU+4eVf49Eg==
+X-Google-Smtp-Source: APXvYqyTO3DC1woO81zp4cGlWYvtMXURLSdDWgNtBMOrhf4T74MPm+NUUV5RQdYEK3BX2mUkV3JAJQ==
+X-Received: by 2002:a1c:7ec8:: with SMTP id z191mr1251839wmc.66.1559548832228;
+        Mon, 03 Jun 2019 01:00:32 -0700 (PDT)
+Received: from dell ([2.27.167.43])
+        by smtp.gmail.com with ESMTPSA id g5sm16275111wrp.29.2019.06.03.01.00.30
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Mon, 03 Jun 2019 01:00:30 -0700 (PDT)
+Date:   Mon, 3 Jun 2019 09:00:29 +0100
+From:   Lee Jones <lee.jones@linaro.org>
+To:     Heiko Stuebner <heiko@sntech.de>
+Cc:     linux-kernel@vger.kernel.org, Daniel Schultz <d.schultz@phytec.de>,
+        stable@vger.kernel.org, Elaine Zhang <zhangqing@rock-chips.com>,
+        Joseph Chen <chenjh@rock-chips.com>
+Subject: Re: [PATCH RESEND] mfd: rk808: Fix RK818 ID template
+Message-ID: <20190603080029.GF4797@dell>
+References: <20190513082943.31750-1-heiko@sntech.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <20190531065159.6490-1-natechancellor@gmail.com>
-User-Agent: Mutt/1.12.0 (2019-05-25)
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190513082943.31750-1-heiko@sntech.de>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, May 30, 2019 at 11:52:00PM -0700, Nathan Chancellor wrote:
-> From: Masahiro Yamada <yamada.masahiro@socionext.com>
+On Mon, 13 May 2019, Heiko Stuebner wrote:
+
+> From: Daniel Schultz <d.schultz@phytec.de>
 > 
-> commit e9666d10a5677a494260d60d1fa0b73cc7646eb3 upstream.
+> The Rockchip PMIC driver can automatically detect connected component
+> versions by reading the ID_MSB and ID_LSB registers. The probe function
+> will always fail with RK818 PMICs because the ID_MSK is 0xFFF0 and the
+> RK818 template ID is 0x8181.
 > 
-> Currently, CONFIG_JUMP_LABEL just means "I _want_ to use jump label".
+> This patch changes this value to 0x8180.
 > 
-> The jump label is controlled by HAVE_JUMP_LABEL, which is defined
-> like this:
-> 
->   #if defined(CC_HAVE_ASM_GOTO) && defined(CONFIG_JUMP_LABEL)
->   # define HAVE_JUMP_LABEL
->   #endif
-> 
-> We can improve this by testing 'asm goto' support in Kconfig, then
-> make JUMP_LABEL depend on CC_HAS_ASM_GOTO.
-> 
-> Ugly #ifdef HAVE_JUMP_LABEL will go away, and CONFIG_JUMP_LABEL will
-> match to the real kernel capability.
-> 
-> Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-> Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
-> Tested-by: Sedat Dilek <sedat.dilek@gmail.com>
-> [nc: Fix trivial conflicts in 4.19
->      arch/xtensa/kernel/jump_label.c doesn't exist yet
->      Ensured CC_HAVE_ASM_GOTO and HAVE_JUMP_LABEL were sufficiently
->      eliminated]
-> Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+> Fixes: 9d6105e19f61 ("mfd: rk808: Fix up the chip id get failed")
+> Cc: stable@vger.kernel.org
+> Cc: Elaine Zhang <zhangqing@rock-chips.com>
+> Cc: Joseph Chen <chenjh@rock-chips.com>
+> Signed-off-by: Daniel Schultz <d.schultz@phytec.de>
+> Acked-by: Lee Jones <lee.jones@linaro.org>
+> [added Fixes and cc-stable]
+> Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 > ---
+> The original patch from Feburary 2018 got an Ack but never reached
+> the mfd-tree, so I ran into that problem this weekend as well.
+> So it would be really cool if this could be applied as fix :-) .
 > 
-> Hi Greg and Sasha,
-> 
-> Please pick up this patch for 4.19. It fixes some warnings in the boot
-> code for x86 when using clang because that Makefile steamrolls
-> KBUILD_CFLAGS so CC_HAVE_ASM_GOTO is not defined, which triggers the
-> warnings in arch/x86/include/asm/cpufeature.h on line 143.
-> 
-> I've tested this with GCC 9.1.0 and a clang 9.0.0 build with asm goto
-> support on arm, arm64, and x86_64 and CONFIG_CC_HAS_ASM_GOTO and
-> CONFIG_JUMP_LABEL get enabled properly.
+>  include/linux/mfd/rk808.h | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-Now applied, thanks.
+Applied, thanks.
 
-greg k-h
+-- 
+Lee Jones [李琼斯]
+Linaro Services Technical Lead
+Linaro.org │ Open source software for ARM SoCs
+Follow Linaro: Facebook | Twitter | Blog
