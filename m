@@ -2,130 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B4F60329CA
-	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 09:40:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A19732A0D
+	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 09:52:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726797AbfFCHkO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jun 2019 03:40:14 -0400
-Received: from kvm5.telegraphics.com.au ([98.124.60.144]:55556 "EHLO
-        kvm5.telegraphics.com.au" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726538AbfFCHkO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jun 2019 03:40:14 -0400
-Received: from localhost (localhost.localdomain [127.0.0.1])
-        by kvm5.telegraphics.com.au (Postfix) with ESMTP id 08DAC27E6E;
-        Mon,  3 Jun 2019 03:40:11 -0400 (EDT)
-Date:   Mon, 3 Jun 2019 17:40:21 +1000 (AEST)
-From:   Finn Thain <fthain@telegraphics.com.au>
-To:     Geert Uytterhoeven <geert@linux-m68k.org>
-cc:     "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Michael Schmitz <schmitzmic@gmail.com>,
-        scsi <linux-scsi@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        linux-m68k <linux-m68k@lists.linux-m68k.org>
-Subject: Re: [PATCH 5/7] scsi: mac_scsi: Fix pseudo DMA implementation, take
- 2
-In-Reply-To: <CAMuHMdUFxQnmJmkr2qm4waTfFA5yfCHAFngyD37cFH6gbbD-Pg@mail.gmail.com>
-Message-ID: <alpine.LNX.2.21.1906031702220.37@nippy.intranet>
-References: <cover.1559438652.git.fthain@telegraphics.com.au> <c56deeb735545c7942607a93f017bb536f581ae5.1559438652.git.fthain@telegraphics.com.au> <CAMuHMdWxRtJU2aRQQjXzR2mvpfpDezCVu42Eo1eXDsQaPb+j6Q@mail.gmail.com> <alpine.LNX.2.21.1906030903510.20@nippy.intranet>
- <CAMuHMdUFxQnmJmkr2qm4waTfFA5yfCHAFngyD37cFH6gbbD-Pg@mail.gmail.com>
+        id S1726179AbfFCHwT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jun 2019 03:52:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46278 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725856AbfFCHwT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Jun 2019 03:52:19 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3AECE27C95;
+        Mon,  3 Jun 2019 07:52:18 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1559548338;
+        bh=Fk4duzsbxKUVCIBrml2q/YQ3SFUZNyVvmEKTPPaq+QM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=FR6eivSDrrj78LvTX4Tf90GYFKP0ZHBC7wEJQJTHBf3I+aYHSIjA9C7AG3qhElRiJ
+         058h7S5/tavzi0SuUzu9oEzNL31goT8gYv8F34i9DGh2yLmjsARVQgdTdCcS/uAq/U
+         UHHQ5VejQe5FNUPGPpTdpYCPGi1/8KipgyhgnwEc=
+Date:   Mon, 3 Jun 2019 09:52:15 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Horia Geanta <horia.geanta@nxp.com>
+Cc:     Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Aymen Sghaier <aymen.sghaier@nxp.com>,
+        "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>,
+        dl-linux-imx <linux-imx@nxp.com>,
+        Iuliana Prodan <iuliana.prodan@nxp.com>,
+        Valentin Ciocoi Radulescu <valentin.ciocoi@nxp.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [v2 PATCH] crypto: caam - fix DKP detection logic
+Message-ID: <20190603075215.GA7814@kroah.com>
+References: <20190503120548.5576-1-horia.geanta@nxp.com>
+ <20190506063944.enwkbljhy42rcaqq@gondor.apana.org.au>
+ <VI1PR0402MB3485B440F9D3F033F021307298300@VI1PR0402MB3485.eurprd04.prod.outlook.com>
+ <VI1PR0402MB348596A1F9AF7B547DC6AB2C98180@VI1PR0402MB3485.eurprd04.prod.outlook.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <VI1PR0402MB348596A1F9AF7B547DC6AB2C98180@VI1PR0402MB3485.eurprd04.prod.outlook.com>
+User-Agent: Mutt/1.12.0 (2019-05-25)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 3 Jun 2019, Geert Uytterhoeven wrote:
+On Thu, May 30, 2019 at 11:36:25AM +0000, Horia Geanta wrote:
+> On 5/6/2019 11:06 AM, Horia Geanta wrote:
+> > On 5/6/2019 9:40 AM, Herbert Xu wrote:
+> >> On Fri, May 03, 2019 at 03:05:48PM +0300, Horia Geantă wrote:
+> >>> The detection whether DKP (Derived Key Protocol) is used relies on
+> >>> the setkey callback.
+> >>> Since "aead_setkey" was replaced in some cases with "des3_aead_setkey"
+> >>> (for 3DES weak key checking), the logic has to be updated - otherwise
+> >>> the DMA mapping direction is incorrect (leading to faults in case caam
+> >>> is behind an IOMMU).
+> >>>
+> >>> Fixes: 1b52c40919e6 ("crypto: caam - Forbid 2-key 3DES in FIPS mode")
+> >>> Signed-off-by: Horia Geantă <horia.geanta@nxp.com>
+> >>> ---
+> >>>
+> >>> This issue was noticed when testing with previously submitted IOMMU support:
+> >>> https://patchwork.kernel.org/project/linux-crypto/list/?series=110277&state=*
+> >>
+> >> Thanks for catching this Horia!
+> >>
+> >> My preference would be to encode this logic separately rather than
+> >> relying on the setkey test.  How about this patch?
+> >>
+> > This is probably more reliable.
+> > 
+> >> ---8<---
+> >> The detection for DKP (Derived Key Protocol) relied on the value
+> >> of the setkey function.  This was broken by the recent change which
+> >> added des3_aead_setkey.
+> >>
+> >> This patch fixes this by introducing a new flag for DKP and setting
+> >> that where needed.
+> >>
+> >> Reported-by: Horia Geantă <horia.geanta@nxp.com>
+> >> Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+> > Tested-by: Horia Geantă <horia.geanta@nxp.com>
+> > 
+> Unfortunately the commit message dropped the tag provided in v1:
+> Fixes: 1b52c40919e6 ("crypto: caam - Forbid 2-key 3DES in FIPS mode")
+> 
+> This fix was merged in v5.2-rc1 (commit 24586b5feaf17ecf85ae6259fe3ea7815dee432d
+> upstream) but should also be queued up for 5.1.y.
 
-> Hi Finn,
-> 
-> On Mon, Jun 3, 2019 at 1:32 AM Finn Thain <fthain@telegraphics.com.au> wrote:
-> > On Sun, 2 Jun 2019, Geert Uytterhoeven wrote:
-> > > On Sun, Jun 2, 2019 at 3:29 AM Finn Thain <fthain@telegraphics.com.au>
-> > > wrote:
-> > > > A system bus error during a PDMA transfer can mess up the calculation
-> > > > of the transfer residual (the PDMA handshaking hardware lacks a byte
-> > > > counter). This results in data corruption.
-> > > >
-> > > > The algorithm in this patch anticipates a bus error by starting each
-> > > > transfer with a MOVE.B instruction. If a bus error is caught the
-> > > > transfer will be retried. If a bus error is caught later in the
-> > > > transfer (for a MOVE.W instruction) the transfer gets failed and
-> > > > subsequent requests for that target will use PIO instead of PDMA.
-> > > >
-> > > > This avoids the "!REQ and !ACK" error so the severity level of that
-> > > > message is reduced to KERN_DEBUG.
-> > > >
-> > > > Cc: Michael Schmitz <schmitzmic@gmail.com>
-> > > > Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-> > > > Cc: stable@vger.kernel.org # v4.14+
-> > > > Fixes: 3a0f64bfa907 ("mac_scsi: Fix pseudo DMA implementation")
-> > > > Reported-by: Chris Jones <chris@martin-jones.com>
-> > > > Tested-by: Stan Johnson <userm57@yahoo.com>
-> > > > Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
-> > >
-> > > Thanks for your patch!
-> > >
-> > > > ---
-> > > >  arch/m68k/include/asm/mac_pdma.h | 179 +++++++++++++++++++++++++++
-> > > >  drivers/scsi/mac_scsi.c          | 201 ++++++++-----------------------
-> > >
-> > > Why have you moved the PDMA implementation to a header file under
-> > > arch/m68k/? Do you intend to reuse it by other drivers?
-> > >
-> >
-> > There are a couple of reasons: the mac_esp driver also uses PDMA and the
-> > NuBus PowerMac port also uses mac_scsi.c. OTOH, the NuBus PowerMac port is
-> > still out-of-tree, and it is unclear whether the mac_esp driver will ever
-> > benefit from this code.
-> 
-> So you do have future sharing in mind...
-> 
-> > > If not, please keep it in the driver, so (a) you don't need an ack from
-> > > me ;-), and (b) your change may be easier to review.
-> >
-> > I take your wink to mean that you don't want to ask the SCSI maintainers
-> > to review m68k asm. Putting aside the code review process for a moment, do
-> 
-> I meant that apart from the code containing m68k assembler source, it is 
-> not related to arch/m68k/, and thus belongs to the driver.
+I do not understand, sorry.  What exact patches need to be applied to
+5.1.y?
 
-That criterion seems insufficient. It could describe most of arch/m68k/mac 
-(which has headers in arch/m68k/include).
+thanks,
 
-> There are several other drivers that contain pieces of assembler code.
-> 
-
-Does any driver contain assembler code for multiple architectures? I was 
-trying to avoid that -- though admittedly I don't yet have actual code for 
-the PDMA implementation for mac_scsi for Nubus PowerMacs.
-
-However, the existence of that out-of-tree port suggests to me that 
-arch/powerpc/include/mac_scsi.h and arch/m68k/include/mac_scsi.h would be 
-an appropriate layout.
-
-But if there's no clear policy then perhaps we should ignore the whole 
-question until the driver code actually becomes shared code. I don't mind 
-re-working the patch to combine the two files.
-
--- 
-
-> > you have an opinion on the most logical way to organise this sort of 
-> > code, from the point-of-view of maintainability, re-usability, 
-> > readability etc.?
-> 
-> If the code is used by multiple SCSI drivers, you can move it to a header
-> file under drivers/scsi/.
-> If the code is shared by drivers belonging to multiple subsystems, you can
-> move it to a header file under include/linux/.
-> 
-> Anyone who has a better solution?
-> Thanks!
-> 
-> Gr{oetje,eeting}s,
-> 
->                         Geert
-> 
-> 
+greg k-h
