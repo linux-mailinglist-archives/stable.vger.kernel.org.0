@@ -2,205 +2,246 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 192AE32BCD
-	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 11:12:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2149432C24
+	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 11:15:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728505AbfFCJLu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jun 2019 05:11:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57100 "EHLO mail.kernel.org"
+        id S1728961AbfFCJOM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jun 2019 05:14:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727746AbfFCJLt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Jun 2019 05:11:49 -0400
+        id S1728954AbfFCJOL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Jun 2019 05:14:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 19CDE27E55;
-        Mon,  3 Jun 2019 09:11:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4088927ED9;
+        Mon,  3 Jun 2019 09:14:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559553108;
-        bh=uASL9iPfn1ZdHQyTVS/nDPZ3G877IR7JXrz1Jv+5cYY=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fttCOtT0ncQuHkUjR9pe1CeqeOqJG0G/UkxYVj0EJV0hmLcGsV7BxWqwS2fRH44qt
-         rGLMdHnoJpT89vMueqo6SB428VakJt4mNy6hWqVPkh0zRsP3QUeRoi5Kk+94Fw4gSN
-         JXBnk4Nms2mMsrBfSQav69APSbkVFU1rYmRYlEmg=
+        s=default; t=1559553250;
+        bh=exZYYG+nCLzd6TZ9W5M1ttx5hyWneBu2JDtE2pErC9k=;
+        h=From:To:Cc:Subject:Date:From;
+        b=zwRPeSAcVFm5MyC4fqdzEGJOWlzAaFt/zcFt8iRX2qJlX/I2i/L0XuDG+xLpb9rVF
+         DV/qBtO8DhxH1tJC9nT8JcMOJ5P+wXq20XVDZslvfNVvDZcDBXTBBBHg8syIzhhaaP
+         /3z+UU88XXWUxuqLVD7uWU6KLSOWbwktTC6LV0qQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Hangbin Liu <liuhangbin@gmail.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.0 04/36] ipv4/igmp: fix another memory leak in igmpv3_del_delrec()
-Date:   Mon,  3 Jun 2019 11:08:52 +0200
-Message-Id: <20190603090521.253228497@linuxfoundation.org>
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+Subject: [PATCH 5.1 00/40] 5.1.7-stable review
+Date:   Mon,  3 Jun 2019 11:08:53 +0200
+Message-Id: <20190603090522.617635820@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190603090520.998342694@linuxfoundation.org>
-References: <20190603090520.998342694@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-5.1.7-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.1.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.1.7-rc1
+X-KernelTest-Deadline: 2019-06-05T09:05+00:00
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+This is the start of the stable review cycle for the 5.1.7 release.
+There are 40 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-[ Upstream commit 3580d04aa674383c42de7b635d28e52a1e5bc72c ]
+Responses should be made by Wed 05 Jun 2019 09:04:46 AM UTC.
+Anything received after that time might be too late.
 
-syzbot reported memory leaks [1] that I have back tracked to
-a missing cleanup from igmpv3_del_delrec() when
-(im->sfmode != MCAST_INCLUDE)
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.1.7-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.1.y
+and the diffstat can be found below.
 
-Add ip_sf_list_clear_all() and kfree_pmc() helpers to explicitely
-handle the cleanups before freeing.
+thanks,
 
-[1]
+greg k-h
 
-BUG: memory leak
-unreferenced object 0xffff888123e32b00 (size 64):
-  comm "softirq", pid 0, jiffies 4294942968 (age 8.010s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 e0 00 00 01 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<000000006105011b>] kmemleak_alloc_recursive include/linux/kmemleak.h:55 [inline]
-    [<000000006105011b>] slab_post_alloc_hook mm/slab.h:439 [inline]
-    [<000000006105011b>] slab_alloc mm/slab.c:3326 [inline]
-    [<000000006105011b>] kmem_cache_alloc_trace+0x13d/0x280 mm/slab.c:3553
-    [<000000004bba8073>] kmalloc include/linux/slab.h:547 [inline]
-    [<000000004bba8073>] kzalloc include/linux/slab.h:742 [inline]
-    [<000000004bba8073>] ip_mc_add1_src net/ipv4/igmp.c:1961 [inline]
-    [<000000004bba8073>] ip_mc_add_src+0x36b/0x400 net/ipv4/igmp.c:2085
-    [<00000000a46a65a0>] ip_mc_msfilter+0x22d/0x310 net/ipv4/igmp.c:2475
-    [<000000005956ca89>] do_ip_setsockopt.isra.0+0x1795/0x1930 net/ipv4/ip_sockglue.c:957
-    [<00000000848e2d2f>] ip_setsockopt+0x3b/0xb0 net/ipv4/ip_sockglue.c:1246
-    [<00000000b9db185c>] udp_setsockopt+0x4e/0x90 net/ipv4/udp.c:2616
-    [<000000003028e438>] sock_common_setsockopt+0x38/0x50 net/core/sock.c:3130
-    [<0000000015b65589>] __sys_setsockopt+0x98/0x120 net/socket.c:2078
-    [<00000000ac198ef0>] __do_sys_setsockopt net/socket.c:2089 [inline]
-    [<00000000ac198ef0>] __se_sys_setsockopt net/socket.c:2086 [inline]
-    [<00000000ac198ef0>] __x64_sys_setsockopt+0x26/0x30 net/socket.c:2086
-    [<000000000a770437>] do_syscall_64+0x76/0x1a0 arch/x86/entry/common.c:301
-    [<00000000d3adb93b>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+-------------
+Pseudo-Shortlog of commits:
 
-Fixes: 9c8bb163ae78 ("igmp, mld: Fix memory leak in igmpv3/mld_del_delrec()")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Hangbin Liu <liuhangbin@gmail.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/ipv4/igmp.c |   47 ++++++++++++++++++++++++++++++-----------------
- 1 file changed, 30 insertions(+), 17 deletions(-)
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.1.7-rc1
 
---- a/net/ipv4/igmp.c
-+++ b/net/ipv4/igmp.c
-@@ -632,6 +632,24 @@ static void igmpv3_clear_zeros(struct ip
- 	}
- }
- 
-+static void ip_sf_list_clear_all(struct ip_sf_list *psf)
-+{
-+	struct ip_sf_list *next;
-+
-+	while (psf) {
-+		next = psf->sf_next;
-+		kfree(psf);
-+		psf = next;
-+	}
-+}
-+
-+static void kfree_pmc(struct ip_mc_list *pmc)
-+{
-+	ip_sf_list_clear_all(pmc->sources);
-+	ip_sf_list_clear_all(pmc->tomb);
-+	kfree(pmc);
-+}
-+
- static void igmpv3_send_cr(struct in_device *in_dev)
- {
- 	struct ip_mc_list *pmc, *pmc_prev, *pmc_next;
-@@ -668,7 +686,7 @@ static void igmpv3_send_cr(struct in_dev
- 			else
- 				in_dev->mc_tomb = pmc_next;
- 			in_dev_put(pmc->interface);
--			kfree(pmc);
-+			kfree_pmc(pmc);
- 		} else
- 			pmc_prev = pmc;
- 	}
-@@ -1213,14 +1231,18 @@ static void igmpv3_del_delrec(struct in_
- 		im->interface = pmc->interface;
- 		if (im->sfmode == MCAST_INCLUDE) {
- 			im->tomb = pmc->tomb;
-+			pmc->tomb = NULL;
-+
- 			im->sources = pmc->sources;
-+			pmc->sources = NULL;
-+
- 			for (psf = im->sources; psf; psf = psf->sf_next)
- 				psf->sf_crcount = in_dev->mr_qrv ?: net->ipv4.sysctl_igmp_qrv;
- 		} else {
- 			im->crcount = in_dev->mr_qrv ?: net->ipv4.sysctl_igmp_qrv;
- 		}
- 		in_dev_put(pmc->interface);
--		kfree(pmc);
-+		kfree_pmc(pmc);
- 	}
- 	spin_unlock_bh(&im->lock);
- }
-@@ -1241,21 +1263,18 @@ static void igmpv3_clear_delrec(struct i
- 		nextpmc = pmc->next;
- 		ip_mc_clear_src(pmc);
- 		in_dev_put(pmc->interface);
--		kfree(pmc);
-+		kfree_pmc(pmc);
- 	}
- 	/* clear dead sources, too */
- 	rcu_read_lock();
- 	for_each_pmc_rcu(in_dev, pmc) {
--		struct ip_sf_list *psf, *psf_next;
-+		struct ip_sf_list *psf;
- 
- 		spin_lock_bh(&pmc->lock);
- 		psf = pmc->tomb;
- 		pmc->tomb = NULL;
- 		spin_unlock_bh(&pmc->lock);
--		for (; psf; psf = psf_next) {
--			psf_next = psf->sf_next;
--			kfree(psf);
--		}
-+		ip_sf_list_clear_all(psf);
- 	}
- 	rcu_read_unlock();
- }
-@@ -2133,7 +2152,7 @@ static int ip_mc_add_src(struct in_devic
- 
- static void ip_mc_clear_src(struct ip_mc_list *pmc)
- {
--	struct ip_sf_list *psf, *nextpsf, *tomb, *sources;
-+	struct ip_sf_list *tomb, *sources;
- 
- 	spin_lock_bh(&pmc->lock);
- 	tomb = pmc->tomb;
-@@ -2145,14 +2164,8 @@ static void ip_mc_clear_src(struct ip_mc
- 	pmc->sfcount[MCAST_EXCLUDE] = 1;
- 	spin_unlock_bh(&pmc->lock);
- 
--	for (psf = tomb; psf; psf = nextpsf) {
--		nextpsf = psf->sf_next;
--		kfree(psf);
--	}
--	for (psf = sources; psf; psf = nextpsf) {
--		nextpsf = psf->sf_next;
--		kfree(psf);
--	}
-+	ip_sf_list_clear_all(tomb);
-+	ip_sf_list_clear_all(sources);
- }
- 
- /* Join a multicast group
+Junwei Hu <hujunwei4@huawei.com>
+    tipc: fix modprobe tipc failed after switch order of device registration
+
+David S. Miller <davem@davemloft.net>
+    Revert "tipc: fix modprobe tipc failed after switch order of device registration"
+
+Daniel Axtens <dja@axtens.net>
+    crypto: vmx - ghash: do nosimd fallback manually
+
+Willem de Bruijn <willemb@google.com>
+    net: correct zerocopy refcnt with udp MSG_MORE
+
+Vishal Kulkarni <vishal@chelsio.com>
+    cxgb4: Revert "cxgb4: Remove SGE_HOST_PAGE_SIZE dependency on page size"
+
+Jakub Kicinski <jakub.kicinski@netronome.com>
+    net/tls: don't ignore netdev notifications if no TLS features
+
+Jakub Kicinski <jakub.kicinski@netronome.com>
+    net/tls: fix state removal with feature flags off
+
+Jakub Kicinski <jakub.kicinski@netronome.com>
+    selftests/tls: add test for sleeping even though there is data
+
+Jakub Kicinski <jakub.kicinski@netronome.com>
+    net/tls: fix no wakeup on partial reads
+
+Jakub Kicinski <jakub.kicinski@netronome.com>
+    selftests/tls: test for lowat overshoot with multiple records
+
+Jakub Kicinski <jakub.kicinski@netronome.com>
+    net/tls: fix lowat calculation if some data came from previous record
+
+Michael Chan <michael.chan@broadcom.com>
+    bnxt_en: Reduce memory usage when running in kdump kernel.
+
+Michael Chan <michael.chan@broadcom.com>
+    bnxt_en: Fix possible BUG() condition when calling pci_disable_msix().
+
+Michael Chan <michael.chan@broadcom.com>
+    bnxt_en: Fix aggregation buffer leak under OOM condition.
+
+Weifeng Voon <weifeng.voon@intel.com>
+    net: stmmac: dma channel control register need to be init first
+
+Tan, Tee Min <tee.min.tan@intel.com>
+    net: stmmac: fix ethtool flow control not able to get/set
+
+Saeed Mahameed <saeedm@mellanox.com>
+    net/mlx5e: Disable rxhash when CQE compress is enabled
+
+Parav Pandit <parav@mellanox.com>
+    net/mlx5: Allocate root ns memory using kzalloc to match kfree
+
+Chris Packham <chris.packham@alliedtelesis.co.nz>
+    tipc: Avoid copying bytes beyond the supplied data
+
+Parav Pandit <parav@mellanox.com>
+    net/mlx5: Avoid double free in fs init error unwinding path
+
+Kloetzke Jan <Jan.Kloetzke@preh.de>
+    usbnet: fix kernel crash after disconnect
+
+Heiner Kallweit <hkallweit1@gmail.com>
+    r8169: fix MAC address being lost in PCI D3
+
+Jisheng Zhang <Jisheng.Zhang@synaptics.com>
+    net: stmmac: fix reset gpio free missing
+
+Vlad Buslov <vladbu@mellanox.com>
+    net: sched: don't use tc_action->order during action dump
+
+Russell King <rmk+kernel@armlinux.org.uk>
+    net: phy: marvell10g: report if the PHY fails to boot firmware
+
+Antoine Tenart <antoine.tenart@bootlin.com>
+    net: mvpp2: fix bad MVPP2_TXQ_SCHED_TOKEN_CNTR_REG queue value
+
+Jisheng Zhang <Jisheng.Zhang@synaptics.com>
+    net: mvneta: Fix err code path of probe
+
+Eric Dumazet <edumazet@google.com>
+    net-gro: fix use-after-free read in napi_gro_frags()
+
+Andy Duan <fugang.duan@nxp.com>
+    net: fec: fix the clk mismatch in failed_reset path
+
+Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+    net: dsa: mv88e6xxx: fix handling of upper half of STATS_TYPE_PORT
+
+Jiri Pirko <jiri@mellanox.com>
+    mlxsw: spectrum_acl: Avoid warning after identical rules insertion
+
+Eric Dumazet <edumazet@google.com>
+    llc: fix skb leak in llc_build_and_send_ui_pkt()
+
+David Ahern <dsahern@gmail.com>
+    ipv6: Fix redirect with VRF
+
+Mike Manning <mmanning@vyatta.att-mail.com>
+    ipv6: Consider sk_bound_dev_if when binding a raw socket to an address
+
+Eric Dumazet <edumazet@google.com>
+    ipv4/igmp: fix build error if !CONFIG_IP_MULTICAST
+
+Eric Dumazet <edumazet@google.com>
+    ipv4/igmp: fix another memory leak in igmpv3_del_delrec()
+
+Eric Dumazet <edumazet@google.com>
+    inet: switch IP ID generator to siphash
+
+Maxime Chevallier <maxime.chevallier@bootlin.com>
+    ethtool: Check for vlan etype or vlan tci when parsing flow_rule
+
+Raju Rangoju <rajur@chelsio.com>
+    cxgb4: offload VLAN flows regardless of VLAN ethtype
+
+Jarod Wilson <jarod@redhat.com>
+    bonding/802.3ad: fix slave link initialization transition states
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |   4 +-
+ drivers/crypto/vmx/ghash.c                         | 212 +++++++++------------
+ drivers/net/bonding/bond_main.c                    |  15 +-
+ drivers/net/dsa/mv88e6xxx/chip.c                   |   2 +-
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c          |  19 +-
+ drivers/net/ethernet/broadcom/bnxt/bnxt.h          |   6 +-
+ drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c  |   2 +-
+ drivers/net/ethernet/broadcom/bnxt/bnxt_ulp.c      |   2 +-
+ .../net/ethernet/chelsio/cxgb4/cxgb4_tc_flower.c   |   5 +-
+ drivers/net/ethernet/chelsio/cxgb4/t4_hw.c         |  11 ++
+ drivers/net/ethernet/freescale/fec_main.c          |   2 +-
+ drivers/net/ethernet/marvell/mvneta.c              |   4 +-
+ drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c    |  10 +-
+ drivers/net/ethernet/mellanox/mlx5/core/en_main.c  |  13 ++
+ drivers/net/ethernet/mellanox/mlx5/core/fs_core.c  |   6 +-
+ .../net/ethernet/mellanox/mlxsw/spectrum_acl_erp.c |  11 +-
+ drivers/net/ethernet/realtek/r8169.c               |   3 +
+ .../net/ethernet/stmicro/stmmac/stmmac_ethtool.c   |   4 +-
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c  |   8 +-
+ drivers/net/ethernet/stmicro/stmmac/stmmac_mdio.c  |   3 +-
+ drivers/net/phy/marvell10g.c                       |  13 ++
+ drivers/net/usb/usbnet.c                           |   6 +
+ include/linux/siphash.h                            |   5 +
+ include/net/netns/ipv4.h                           |   2 +
+ include/uapi/linux/tipc_config.h                   |  10 +-
+ net/core/dev.c                                     |   2 +-
+ net/core/ethtool.c                                 |   8 +-
+ net/core/skbuff.c                                  |   6 +-
+ net/ipv4/igmp.c                                    |  47 +++--
+ net/ipv4/ip_output.c                               |   4 +-
+ net/ipv4/route.c                                   |  12 +-
+ net/ipv6/ip6_output.c                              |   4 +-
+ net/ipv6/output_core.c                             |  30 +--
+ net/ipv6/raw.c                                     |   2 +
+ net/ipv6/route.c                                   |   6 +
+ net/llc/llc_output.c                               |   2 +
+ net/sched/act_api.c                                |   3 +-
+ net/tipc/core.c                                    |  32 ++--
+ net/tipc/subscr.h                                  |   5 +-
+ net/tipc/topsrv.c                                  |  14 +-
+ net/tls/tls_device.c                               |   9 +-
+ net/tls/tls_sw.c                                   |  19 +-
+ tools/testing/selftests/net/tls.c                  |  34 ++++
+ 43 files changed, 360 insertions(+), 257 deletions(-)
 
 
