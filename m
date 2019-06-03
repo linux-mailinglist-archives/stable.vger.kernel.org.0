@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F2C3B32C1D
-	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 11:15:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7A4E32C3A
+	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 11:16:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727527AbfFCJNs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jun 2019 05:13:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34170 "EHLO mail.kernel.org"
+        id S1728572AbfFCJPc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jun 2019 05:15:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728443AbfFCJNn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Jun 2019 05:13:43 -0400
+        id S1728417AbfFCJNu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Jun 2019 05:13:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E4C3827EC9;
-        Mon,  3 Jun 2019 09:13:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 076F921952;
+        Mon,  3 Jun 2019 09:13:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559553223;
-        bh=ThvnHefOggdfHm5JVqIjsm5q+QS3OeoZAquMwoRHieI=;
+        s=default; t=1559553229;
+        bh=bOkLfz4pYti8bdqfmRaH2+hbvvt225WbwlfpM02E7Qs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x7dDhlOSViDyAYBfUkeiotWxun0t7IBHXxVl2KXnjqC4ENm3xIG/W4DBinhZOsU3L
-         Ua/5Ow+zOD8eYLAqE16yt7mwkbSsqlgv19L2Mse1ZO2Ytbc4ff/cKPWfjd1tfPDeaQ
-         DaPzbxH9pals7AxaO+8kDvCNZ+rCstp5vLtmryZs=
+        b=fANSR89BkTMxRgX/Ajnion/p6rpHHEJ8k6PIOVL46GaD+aoL1f6ZzMcjmSqayDt8u
+         wY4gtkZ8CZYDcnkLHd77JO5wd1upmcUPDX2MIEa39y0GPX44niVlbbF90vTPjuEKNw
+         JAp3DnD2k9qn32T6/XAConJEQYq1zFzzQAvrdtEQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Chan <michael.chan@broadcom.com>,
+        stable@vger.kernel.org,
+        Jakub Kicinski <jakub.kicinski@netronome.com>,
+        Dirk van der Merwe <dirk.vandermerwe@netronome.com>,
+        David Beckett <david.beckett@netronome.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.1 29/40] bnxt_en: Reduce memory usage when running in kdump kernel.
-Date:   Mon,  3 Jun 2019 11:09:22 +0200
-Message-Id: <20190603090524.363467295@linuxfoundation.org>
+Subject: [PATCH 5.1 30/40] net/tls: fix lowat calculation if some data came from previous record
+Date:   Mon,  3 Jun 2019 11:09:23 +0200
+Message-Id: <20190603090524.417109218@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190603090522.617635820@linuxfoundation.org>
 References: <20190603090522.617635820@linuxfoundation.org>
@@ -43,63 +46,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+From: Jakub Kicinski <jakub.kicinski@netronome.com>
 
-[ Upstream commit d629522e1d66561f38e5c8d4f52bb6d254ec0707 ]
+[ Upstream commit 46a1695960d0600d58da7af33c65f24f3d839674 ]
 
-Skip RDMA context memory allocations, reduce to 1 ring, and disable
-TPA when running in the kdump kernel.  Without this patch, the driver
-fails to initialize with memory allocation errors when running in a
-typical kdump kernel.
+If some of the data came from the previous record, i.e. from
+the rx_list it had already been decrypted, so it's not counted
+towards the "decrypted" variable, but the "copied" variable.
+Take that into account when checking lowat.
 
-Fixes: cf6daed098d1 ("bnxt_en: Increase context memory allocations on 57500 chips for RDMA.")
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+When calculating lowat target we need to pass the original len.
+E.g. if lowat is at 80, len is 100 and we had 30 bytes on rx_list
+target would currently be incorrectly calculated as 70, even though
+we only need 50 more bytes to make up the 80.
+
+Fixes: 692d7b5d1f91 ("tls: Fix recvmsg() to be able to peek across multiple records")
+Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
+Reviewed-by: Dirk van der Merwe <dirk.vandermerwe@netronome.com>
+Tested-by: David Beckett <david.beckett@netronome.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c |    4 ++--
- drivers/net/ethernet/broadcom/bnxt/bnxt.h |    4 +++-
- 2 files changed, 5 insertions(+), 3 deletions(-)
+ net/tls/tls_sw.c |   13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -6342,7 +6342,7 @@ static int bnxt_alloc_ctx_mem(struct bnx
- 	if (!ctx || (ctx->flags & BNXT_CTX_FLAG_INITED))
- 		return 0;
+--- a/net/tls/tls_sw.c
++++ b/net/tls/tls_sw.c
+@@ -1685,13 +1685,12 @@ int tls_sw_recvmsg(struct sock *sk,
+ 		copied = err;
+ 	}
  
--	if (bp->flags & BNXT_FLAG_ROCE_CAP) {
-+	if ((bp->flags & BNXT_FLAG_ROCE_CAP) && !is_kdump_kernel()) {
- 		pg_lvl = 2;
- 		extra_qps = 65536;
- 		extra_srqs = 8192;
-@@ -10340,7 +10340,7 @@ static int bnxt_set_dflt_rings(struct bn
+-	len = len - copied;
+-	if (len) {
+-		target = sock_rcvlowat(sk, flags & MSG_WAITALL, len);
+-		timeo = sock_rcvtimeo(sk, flags & MSG_DONTWAIT);
+-	} else {
++	if (len <= copied)
+ 		goto recv_end;
+-	}
++
++	target = sock_rcvlowat(sk, flags & MSG_WAITALL, len);
++	len = len - copied;
++	timeo = sock_rcvtimeo(sk, flags & MSG_DONTWAIT);
  
- 	if (sh)
- 		bp->flags |= BNXT_FLAG_SHARED_RINGS;
--	dflt_rings = netif_get_num_default_rss_queues();
-+	dflt_rings = is_kdump_kernel() ? 1 : netif_get_num_default_rss_queues();
- 	/* Reduce default rings on multi-port cards so that total default
- 	 * rings do not exceed CPU count.
- 	 */
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
-@@ -20,6 +20,7 @@
+ 	do {
+ 		bool retain_skb = false;
+@@ -1826,7 +1825,7 @@ pick_next_record:
+ 		}
  
- #include <linux/interrupt.h>
- #include <linux/rhashtable.h>
-+#include <linux/crash_dump.h>
- #include <net/devlink.h>
- #include <net/dst_metadata.h>
- #include <net/xdp.h>
-@@ -1367,7 +1368,8 @@ struct bnxt {
- #define BNXT_CHIP_TYPE_NITRO_A0(bp) ((bp)->flags & BNXT_FLAG_CHIP_NITRO_A0)
- #define BNXT_RX_PAGE_MODE(bp)	((bp)->flags & BNXT_FLAG_RX_PAGE_MODE)
- #define BNXT_SUPPORTS_TPA(bp)	(!BNXT_CHIP_TYPE_NITRO_A0(bp) &&	\
--				 !(bp->flags & BNXT_FLAG_CHIP_P5))
-+				 !(bp->flags & BNXT_FLAG_CHIP_P5) &&	\
-+				 !is_kdump_kernel())
+ 		/* If we have a new message from strparser, continue now. */
+-		if (decrypted >= target && !ctx->recv_pkt)
++		if (decrypted + copied >= target && !ctx->recv_pkt)
+ 			break;
+ 	} while (len);
  
- /* Chip class phase 5 */
- #define BNXT_CHIP_P5(bp)			\
 
 
