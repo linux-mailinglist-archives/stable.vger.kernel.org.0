@@ -2,74 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 56B9333BAD
-	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 01:02:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71D5033BBC
+	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 01:07:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726223AbfFCXCq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jun 2019 19:02:46 -0400
-Received: from mail-pf1-f181.google.com ([209.85.210.181]:41572 "EHLO
-        mail-pf1-f181.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726216AbfFCXCq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jun 2019 19:02:46 -0400
-Received: by mail-pf1-f181.google.com with SMTP id q17so11455530pfq.8
-        for <stable@vger.kernel.org>; Mon, 03 Jun 2019 16:02:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=date:from:to:cc:subject:message-id:mime-version:content-disposition
-         :user-agent;
-        bh=JBk6HRiVJ3rPGZQamPfiwghjYQ4wREdWP6rR9aW69Ew=;
-        b=GJ0dPILY3ecPG7ptEwgHuRlnA+2ME4YB48+vjVLAom91EVqR0i9nmC+jQ8Jv/PsNHk
-         1Y1fqwA4CvPyQ/BR0iefBda9VsdKYKoF/R3UVorH4R3SNgLc/pir7pSsySEewrn/1N2e
-         yqmDdsgUJiXJWgbaAjbLHnU/8xhILgwqVpGQA=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
-         :content-disposition:user-agent;
-        bh=JBk6HRiVJ3rPGZQamPfiwghjYQ4wREdWP6rR9aW69Ew=;
-        b=JrVKE/8D2zGzltc1EaBX8fE1j8mkapjbqY5H7++8TVoitaZv7lReNHkgKw/PhgConM
-         S7WT+Iw7VpkLdV+2r3ioeBUN3Iz3dnCoHBSuAgsSLbD7uetx8/hMq5MH+sUdHm8YmEwx
-         BS28U6ZW9ka5fyXPFrqCHKFwJ0mPi9rXRdrw7G7nqZx/lY1AAlcYXngJdddROCLR3oe0
-         rrkaaZq8AJeTkVS0Fw82UPzJ3akOfJT8wFRZR78D+2t3Hw6MYPymJORiTy3osGEGDGtR
-         XlXkAHQKLpq8UXwICBKpjxHWo9/pYDWrcgussK+wdCOnM5fG7c/vF9eR8jkKpKHYhU8T
-         Vd/g==
-X-Gm-Message-State: APjAAAVcapmcCCr2rRZzLVc7wpBcFHb4PwXbjkSHmSR+oDwA0SliHhF/
-        beLqOZXK+pwKPmhscv27+vDb5hdnUA8=
-X-Google-Smtp-Source: APXvYqx6jhAP68mAxBQMg1Hzoo2gV3AB9b1r6jI7U6Q9qs76nv4s3Y+AsXmLCTY7lmYinUazUfgJPA==
-X-Received: by 2002:a63:b24:: with SMTP id 36mr27424233pgl.439.1559602965347;
-        Mon, 03 Jun 2019 16:02:45 -0700 (PDT)
-Received: from google.com ([2620:15c:202:201:49ea:b78f:4f04:4d25])
-        by smtp.googlemail.com with ESMTPSA id e4sm15517718pgi.80.2019.06.03.16.02.44
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Mon, 03 Jun 2019 16:02:44 -0700 (PDT)
-Date:   Mon, 3 Jun 2019 16:02:40 -0700
-From:   Zubin Mithra <zsm@chromium.org>
-To:     stable@vger.kernel.org
-Cc:     gregkh@linuxfoundation.org, groeck@chromium.org,
-        blackgod016574@gmail.com, davem@davemloft.net,
-        kuznet@ms2.inr.ac.ru, jmorris@namei.org, yoshfuji@linux-ipv6.org,
-        kaber@trash.net
-Subject: 425aa0e1d015 ("ip_sockglue: Fix missing-check bug in
- ip_ra_control()")
-Message-ID: <20190603230239.GA168284@google.com>
+        id S1726382AbfFCXHi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jun 2019 19:07:38 -0400
+Received: from sonic302-9.consmr.mail.bf2.yahoo.com ([74.6.135.48]:37681 "EHLO
+        sonic302-9.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726269AbfFCXHi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jun 2019 19:07:38 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1559603256; bh=iAKVJJmKSNaUAJbHvYvdpTwceiT1Npldru+UQuZ4uHM=; h=Subject:To:Cc:References:From:Date:In-Reply-To:From:Subject; b=WS86WhAiOCKpE4CRInGVOqSlCGbwECv4zkjw+KzPgo23xDIItCJ9wZIymCTUs81KrVrBEIOCi9PReAdT9uxl0RLT4mQM2vRICHdMQbUGmtH3RHgIsm/Kk/CprQJO1izJ4Ec00PAY9z/CGeQNTpee2dL0fYkjutdKtb/0sDNREeAJInSVSIjGzt2ts70STNC5DhisMczSEQfWTvuEytwe5vo4BkZTZr/RyXB4Taq/hMhTW+/eysqUlVu8uPwFbWmiAZ51PzT/n2vxOIO660DJ2vpV05ee7Ocmcv86XBiGy37HxZ0/jbUPFTFI+EwHBq4C8axLP0eL3wUDaxoXxFnJSw==
+X-YMail-OSG: qXvPzssVM1k3p4cLuH2OOn.7aw0vk.oqkptXw1.lxtmSla7nSw2h28PnpX8oUBX
+ eNu_TlujUHp3PS_L7ckxxhgfljtnrnl9OtZeSygCIyp3Hz_St56MhQTBpTKwnrVAJO8WqqRmOqvR
+ QKiit.Kg_zLiE0AgzCQxGiB80c1a3A6Kn3v8XVfvJe5Xu4B4ckdmKZc88zfeDQOQOzyjCs1H_Wbo
+ ctTLpHCr1MmpiducdrVKmurIqkHIs3L6KeTof3cNH.O5DjUXA7j9h6Rjee0XjROQZY7r5EJdEzsj
+ XCzScGX15ztJbvfCnWQd8ZG83OymeROb3EYI4BRigvtnW4qX2nTU3zeV1SQXKjyr3y1b12qDN8Yq
+ d3YWF6554ECqFmjQefO2_RR0H5s67smeYoWaEMzx8fmRphEMqi3bMu.Kfyz0lEuZG35UnzjSW41_
+ nLhwaPLUqmp58BL.uJJeR_5clacWZd4sikZr.4VwvQGWKQsyxRTuSifthJNLKVmGaqkyAlSullAr
+ NrUc8lurKYeuLLgIkecY99MRP9eMtjGCpkO3BVP0yzMAfvIBdebQtk89op6ViL6VUxcUw9NaXwIK
+ qCRU.L_Kdeon1WMAV0fanZkWuFCYoMcxhmo5OrkwX4aasRIo5Hb082cnfes0Ivjyfj8o1NALtsc6
+ sYDjkcIJXd8Dy_knYSceNvu_x0jkmDef0cC0b.7W5oIeS27BkLlwcglrpVYx4VVPzmM_8Vr2cHrl
+ i_1mNuIruHc_mIUH9SKkQeEq.YQ88vakbj4o7EcQvHf4r1LUg7ioJQUmoV.WhuJSHqaqrZJDq6FT
+ 2RjdFX1dFmZa_h_jFpgkNF50F8kU6McXXh6tB6yjqTugCN7HlW5w9LCjRA6WLXAfKw.MstyshQxK
+ IfUQE5D8gfpOixitFxy_Fbe6uO_K6Vv5aQKM60oBrclZoAez1HS2vy1_68xBNDnxm7CSDosTH9qO
+ wQT2rtPjzHOJbBBd27U1h.vbIHU1PEIxvJXcjp9VgUvOXzzLye8_qp5a7yf11sOxTJMr6LfvftYC
+ wCs0ooNuOtttbCUWrPsrewGXg7RprbM1JNyQ9FeP5SZutOL19suanCcYivNRXTE9A5dTXVdtfggk
+ Twa.bl8EhnB5og3xDjs1YqqbUYDM7PqO6qy7lF.qKSO_a_a9meksN4W2rqloMCJHHsbXWQkOU2eN
+ zCY1z2cXfbrIvJ_xRcheS2d1uTRfXaYHcSI8XLxfjPx7ucXDzvLrlkIlPBaXCryhupvsc_grvdi6
+ wjQ.7CV3_.1nDixd9d2G72Ow-
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic302.consmr.mail.bf2.yahoo.com with HTTP; Mon, 3 Jun 2019 23:07:36 +0000
+Received: from c-73-223-4-185.hsd1.ca.comcast.net (EHLO [192.168.0.103]) ([73.223.4.185])
+          by smtp410.mail.bf1.yahoo.com (Oath Hermes SMTP Server) with ESMTPA ID 1c5b7e8f6a7c6437d9ded3e20076f616;
+          Mon, 03 Jun 2019 23:07:32 +0000 (UTC)
+Subject: Re: [PATCH] Smack: Restore the smackfsdef mount option and add
+ missing prefixes
+To:     James Morris <jmorris@namei.org>,
+        David Howells <dhowells@redhat.com>
+Cc:     viro@zeniv.linux.org.uk, stable@vger.kernel.org,
+        Jose Bollo <jose.bollo@iot.bzh>, torvalds@linux-foundation.org,
+        linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, casey@schaufler-ca.com
+References: <155930001303.17253.2447519598157285098.stgit@warthog.procyon.org.uk>
+ <17467.1559300202@warthog.procyon.org.uk>
+ <alpine.LRH.2.21.1906040842110.13657@namei.org>
+From:   Casey Schaufler <casey@schaufler-ca.com>
+Openpgp: preference=signencrypt
+Autocrypt: addr=casey@schaufler-ca.com; keydata=
+ mQINBFzV9HABEAC/mmv3jeJyF7lR7QhILYg1+PeBLIMZv7KCzBSc/4ZZipoWdmr77Lel/RxQ
+ 1PrNx0UaM5r6Hj9lJmJ9eg4s/TUBSP67mTx+tsZ1RhG78/WFf9aBe8MSXxY5cu7IUwo0J/CG
+ vdSqACKyYPV5eoTJmnMxalu8/oVUHyPnKF3eMGgE0mKOFBUMsb2pLS/enE4QyxhcZ26jeeS6
+ 3BaqDl1aTXGowM5BHyn7s9LEU38x/y2ffdqBjd3au2YOlvZ+XUkzoclSVfSR29bomZVVyhMB
+ h1jTmX4Ac9QjpwsxihT8KNGvOM5CeCjQyWcW/g8LfWTzOVF9lzbx6IfEZDDoDem4+ZiPsAXC
+ SWKBKil3npdbgb8MARPes2DpuhVm8yfkJEQQmuLYv8GPiJbwHQVLZGQAPBZSAc7IidD2zbf9
+ XAw1/SJGe1poxOMfuSBsfKxv9ba2i8hUR+PH7gWwkMQaQ97B1yXYxVEkpG8Y4MfE5Vd3bjJU
+ kvQ/tOBUCw5zwyIRC9+7zr1zYi/3hk+OG8OryZ5kpILBNCo+aePeAJ44znrySarUqS69tuXd
+ a3lMPHUJJpUpIwSKQ5UuYYkWlWwENEWSefpakFAIwY4YIBkzoJ/t+XJHE1HTaJnRk6SWpeDf
+ CreF3+LouP4njyeLEjVIMzaEpwROsw++BX5i5vTXJB+4UApTAQARAQABtChDYXNleSBTY2hh
+ dWZsZXIgPGNhc2V5QHNjaGF1Zmxlci1jYS5jb20+iQJUBBMBCAA+FiEEC+9tH1YyUwIQzUIe
+ OKUVfIxDyBEFAlzV9HACGwMFCRLMAwAFCwkIBwIGFQoJCAsCBBYCAwECHgECF4AACgkQOKUV
+ fIxDyBG6ag/6AiRl8yof47YOEVHlrmewbpnlBTaYNfJ5cZflNRKRX6t4bp1B2YV1whlDTpiL
+ vNOwFkh+ZE0eI5M4x8Gw2Oiok+4Q5liA9PHTozQYF+Ia+qdL5EehfbLGoEBqklpGvG3h8JsO
+ 7SvONJuFDgvab/U/UriDYycJwzwKZuhVtK9EMpnTtUDyP3DY+Q8h7MWsniNBLVXnh4yBIEJg
+ SSgDn3COpZoFTPGKE+rIzioo/GJe8CTa2g+ZggJiY/myWTS3quG0FMvwvNYvZ4I2g6uxSl7n
+ bZVqAZgqwoTAv1HSXIAn9muwZUJL03qo25PFi2gQmX15BgJKQcV5RL0GHFHRThDS3IyadOgK
+ P2j78P8SddTN73EmsG5OoyzwZAxXfck9A512BfVESqapHurRu2qvMoUkQaW/2yCeRQwGTsFj
+ /rr0lnOBkyC6wCmPSKXe3dT2mnD5KnCkjn7KxLqexKt4itGjJz4/ynD/qh+gL7IPbifrQtVH
+ JI7cr0fI6Tl8V6efurk5RjtELsAlSR6fKV7hClfeDEgLpigHXGyVOsynXLr59uE+g/+InVic
+ jKueTq7LzFd0BiduXGO5HbGyRKw4MG5DNQvC//85EWmFUnDlD3WHz7Hicg95D+2IjD2ZVXJy
+ x3LTfKWdC8bU8am1fi+d6tVEFAe/KbUfe+stXkgmfB7pxqW5Ag0EXNX0cAEQAPIEYtPebJzT
+ wHpKLu1/j4jQcke06Kmu5RNuj1pEje7kX5IKzQSs+CPH0NbSNGvrA4dNGcuDUTNHgb5Be9hF
+ zVqRCEvF2j7BFbrGe9jqMBWHuWheQM8RRoa2UMwQ704mRvKr4sNPh01nKT52ASbWpBPYG3/t
+ WbYaqfgtRmCxBnqdOx5mBJIBh9Q38i63DjQgdNcsTx2qS7HFuFyNef5LCf3jogcbmZGxG/b7
+ yF4OwmGsVc8ufvlKo5A9Wm+tnRjLr/9Mn9vl5Xa/tQDoPxz26+aWz7j1in7UFzAarcvqzsdM
+ Em6S7uT+qy5jcqyuipuenDKYF/yNOVSNnsiFyQTFqCPCpFihOnuaWqfmdeUOQHCSo8fD4aRF
+ emsuxqcsq0Jp2ODq73DOTsdFxX2ESXYoFt3Oy7QmIxeEgiHBzdKU2bruIB5OVaZ4zWF+jusM
+ Uh+jh+44w9DZkDNjxRAA5CxPlmBIn1OOYt1tsphrHg1cH1fDLK/pDjsJZkiH8EIjhckOtGSb
+ aoUUMMJ85nVhN1EbU/A3DkWCVFEA//Vu1+BckbSbJKE7Hl6WdW19BXOZ7v3jo1q6lWwcFYth
+ esJfk3ZPPJXuBokrFH8kqnEQ9W2QgrjDX3et2WwZFLOoOCItWxT0/1QO4ikcef/E7HXQf/ij
+ Dxf9HG2o5hOlMIAkJq/uLNMvABEBAAGJAjwEGAEIACYWIQQL720fVjJTAhDNQh44pRV8jEPI
+ EQUCXNX0cAIbDAUJEswDAAAKCRA4pRV8jEPIEWkzEACKFUnpp+wIVHpckMfBqN8BE5dUbWJc
+ GyQ7wXWajLtlPdw1nNw0Wrv+ob2RCT7qQlUo6GRLcvj9Fn5tR4hBvR6D3m8aR0AGHbcC62cq
+ I7LjaSDP5j/em4oVL2SMgNTrXgE2w33JMGjAx9oBzkxmKUqprhJomPwmfDHMJ0t7y39Da724
+ oLPTkQDpJL1kuraM9TC5NyLe1+MyIxqM/8NujoJbWeQUgGjn9uxQAil7o/xSCjrWCP3kZDID
+ vd5ZaHpdl8e1mTExQoKr4EWgaMjmD/a3hZ/j3KfTVNpM2cLfD/QwTMaC2fkK8ExMsz+rUl1H
+ icmcmpptCwOSgwSpPY1Zfio6HvEJp7gmDwMgozMfwQuT9oxyFTxn1X3rn1IoYQF3P8gsziY5
+ qtTxy2RrgqQFm/hr8gM78RhP54UPltIE96VywviFzDZehMvuwzW//fxysIoK97Y/KBZZOQs+
+ /T+Bw80Pwk/dqQ8UmIt2ffHEgwCTbkSm711BejapWCfklxkMZDp16mkxSt2qZovboVjXnfuq
+ wQ1QL4o4t1hviM7LyoflsCLnQFJh6RSBhBpKQinMJl/z0A6NYDkQi6vEGMDBWX/M2vk9Jvwa
+ v0cEBfY3Z5oFgkh7BUORsu1V+Hn0fR/Lqq/Pyq+nTR26WzGDkolLsDr3IH0TiAVH5ZuPxyz6
+ abzjfg==
+Message-ID: <6cfd5113-8473-f962-dee7-e490e6f76f9c@schaufler-ca.com>
+Date:   Mon, 3 Jun 2019 16:07:32 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <alpine.LRH.2.21.1906040842110.13657@namei.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+On 6/3/2019 3:42 PM, James Morris wrote:
+> On Fri, 31 May 2019, David Howells wrote:
+>
+>> Should this go via Al's tree, James's tree, Casey's tree or directly to Linus?
+> If it's specific to one LSM (as this is), via Casey, who can decide to 
+> forward to Al or Linus.
 
-CVE-2019-12381 was fixed in the upstream linux kernel with the commit :-
-* 425aa0e1d015 ("ip_sockglue: Fix missing-check bug in ip_ra_control()")
+I would very much appreciate it if Al could send this fix along.
+I am not fully set up for sending directly to Linus.
 
-Could the patch be applied in order to v4.19.y, v4.14.y, v4.9.y and v4.4.y ?
-
-Tests run:
-* Chrome OS tryjobs
-
-
-Thanks,
-- Zubin
