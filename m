@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FE2C32BFA
-	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 11:14:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EB7632BE5
+	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 11:14:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728829AbfFCJN0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jun 2019 05:13:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33680 "EHLO mail.kernel.org"
+        id S1727868AbfFCJMc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jun 2019 05:12:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728394AbfFCJN0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Jun 2019 05:13:26 -0400
+        id S1728648AbfFCJMc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Jun 2019 05:12:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DE23B276DB;
-        Mon,  3 Jun 2019 09:13:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 01BDE25252;
+        Mon,  3 Jun 2019 09:12:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559553205;
-        bh=N1GD6wogL0wc3ROCjL0Tr4+i1aVNnoY969QvokdKYgw=;
+        s=default; t=1559553151;
+        bh=7poWLfge9RswRZ6rssIGQ3Pi8MUaFChzBuDyCdLtx5g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vWe+tStIlF9TfwDhkKdPpt9jPcwlROqXMQ9poC4KKEMfGJ/9ZNoLaKDoMAO5hfYZB
-         5cCW47QmvEOq6xk/Ln/626oLmYb1gF7y4MHgZ28bRCw+6cYhMI4aSZHzuORFR4o9Xk
-         3zcU5xTcyVaAb8gJ7KHXcI0E1nbN2Sr8NtXt/eWI=
+        b=JPHlUaay3ejLxIVF6Ni+yUQ4zInUwShQNZo+nK/JSwMGSVrfQ+sXgujKmGEOoEqrY
+         g4bZ7u5SUjfApl+qDZciq/xJuKTQbCwyhgKqioUVejYKef1p6wYuJifZ5UhmIAIUtN
+         WcTZqebo50eFwrVV5JKVkQpIS/90BP8EBEXxgl3w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Chris Packham <chris.packham@alliedtelesis.co.nz>,
+        stable@vger.kernel.org, Michael Chan <michael.chan@broadcom.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.1 22/40] tipc: Avoid copying bytes beyond the supplied data
+Subject: [PATCH 5.0 27/36] bnxt_en: Fix possible BUG() condition when calling pci_disable_msix().
 Date:   Mon,  3 Jun 2019 11:09:15 +0200
-Message-Id: <20190603090523.981084133@linuxfoundation.org>
+Message-Id: <20190603090522.776280971@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190603090522.617635820@linuxfoundation.org>
-References: <20190603090522.617635820@linuxfoundation.org>
+In-Reply-To: <20190603090520.998342694@linuxfoundation.org>
+References: <20190603090520.998342694@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,67 +43,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Packham <chris.packham@alliedtelesis.co.nz>
+From: Michael Chan <michael.chan@broadcom.com>
 
-TLV_SET is called with a data pointer and a len parameter that tells us
-how many bytes are pointed to by data. When invoking memcpy() we need
-to careful to only copy len bytes.
+[ Upstream commit 1b3f0b75c39f534278a895c117282014e9d0ae1f ]
 
-Previously we would copy TLV_LENGTH(len) bytes which would copy an extra
-4 bytes past the end of the data pointer which newer GCC versions
-complain about.
+When making configuration changes, the driver calls bnxt_close_nic()
+and then bnxt_open_nic() for the changes to take effect.  A parameter
+irq_re_init is passed to the call sequence to indicate if IRQ
+should be re-initialized.  This irq_re_init parameter needs to
+be included in the bnxt_reserve_rings() call.  bnxt_reserve_rings()
+can only call pci_disable_msix() if the irq_re_init parameter is
+true, otherwise it may hit BUG() because some IRQs may not have been
+freed yet.
 
- In file included from test.c:17:
- In function 'TLV_SET',
-     inlined from 'test' at test.c:186:5:
- /usr/include/linux/tipc_config.h:317:3:
- warning: 'memcpy' forming offset [33, 36] is out of the bounds [0, 32]
- of object 'bearer_name' with type 'char[32]' [-Warray-bounds]
-     memcpy(TLV_DATA(tlv_ptr), data, tlv_len);
-     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- test.c: In function 'test':
- test.c::161:10: note:
- 'bearer_name' declared here
-     char bearer_name[TIPC_MAX_BEARER_NAME];
-          ^~~~~~~~~~~
-
-We still want to ensure any padding bytes at the end are initialised, do
-this with a explicit memset() rather than copy bytes past the end of
-data. Apply the same logic to TCM_SET.
-
-Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Fixes: 41e8d7983752 ("bnxt_en: Modify the ring reservation functions for 57500 series chips.")
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/uapi/linux/tipc_config.h |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c         |   13 +++++++------
+ drivers/net/ethernet/broadcom/bnxt/bnxt.h         |    2 +-
+ drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c |    2 +-
+ drivers/net/ethernet/broadcom/bnxt/bnxt_ulp.c     |    2 +-
+ 4 files changed, 10 insertions(+), 9 deletions(-)
 
---- a/include/uapi/linux/tipc_config.h
-+++ b/include/uapi/linux/tipc_config.h
-@@ -307,8 +307,10 @@ static inline int TLV_SET(void *tlv, __u
- 	tlv_ptr = (struct tlv_desc *)tlv;
- 	tlv_ptr->tlv_type = htons(type);
- 	tlv_ptr->tlv_len  = htons(tlv_len);
--	if (len && data)
--		memcpy(TLV_DATA(tlv_ptr), data, tlv_len);
-+	if (len && data) {
-+		memcpy(TLV_DATA(tlv_ptr), data, len);
-+		memset(TLV_DATA(tlv_ptr) + len, 0, TLV_SPACE(len) - tlv_len);
-+	}
- 	return TLV_SPACE(len);
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -7506,22 +7506,23 @@ static void bnxt_clear_int_mode(struct b
+ 	bp->flags &= ~BNXT_FLAG_USING_MSIX;
  }
  
-@@ -405,8 +407,10 @@ static inline int TCM_SET(void *msg, __u
- 	tcm_hdr->tcm_len   = htonl(msg_len);
- 	tcm_hdr->tcm_type  = htons(cmd);
- 	tcm_hdr->tcm_flags = htons(flags);
--	if (data_len && data)
-+	if (data_len && data) {
- 		memcpy(TCM_DATA(msg), data, data_len);
-+		memset(TCM_DATA(msg) + data_len, 0, TCM_SPACE(data_len) - msg_len);
-+	}
- 	return TCM_SPACE(data_len);
- }
+-int bnxt_reserve_rings(struct bnxt *bp)
++int bnxt_reserve_rings(struct bnxt *bp, bool irq_re_init)
+ {
+ 	int tcs = netdev_get_num_tc(bp->dev);
+-	bool reinit_irq = false;
++	bool irq_cleared = false;
+ 	int rc;
  
+ 	if (!bnxt_need_reserve_rings(bp))
+ 		return 0;
+ 
+-	if (BNXT_NEW_RM(bp) && (bnxt_get_num_msix(bp) != bp->total_irqs)) {
++	if (irq_re_init && BNXT_NEW_RM(bp) &&
++	    bnxt_get_num_msix(bp) != bp->total_irqs) {
+ 		bnxt_ulp_irq_stop(bp);
+ 		bnxt_clear_int_mode(bp);
+-		reinit_irq = true;
++		irq_cleared = true;
+ 	}
+ 	rc = __bnxt_reserve_rings(bp);
+-	if (reinit_irq) {
++	if (irq_cleared) {
+ 		if (!rc)
+ 			rc = bnxt_init_int_mode(bp);
+ 		bnxt_ulp_irq_restart(bp, rc);
+@@ -8420,7 +8421,7 @@ static int __bnxt_open_nic(struct bnxt *
+ 			return rc;
+ 		}
+ 	}
+-	rc = bnxt_reserve_rings(bp);
++	rc = bnxt_reserve_rings(bp, irq_re_init);
+ 	if (rc)
+ 		return rc;
+ 	if ((bp->flags & BNXT_FLAG_RFS) &&
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.h
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.h
+@@ -1776,7 +1776,7 @@ unsigned int bnxt_get_avail_stat_ctxs_fo
+ unsigned int bnxt_get_max_func_cp_rings(struct bnxt *bp);
+ unsigned int bnxt_get_avail_cp_rings_for_en(struct bnxt *bp);
+ int bnxt_get_avail_msix(struct bnxt *bp, int num);
+-int bnxt_reserve_rings(struct bnxt *bp);
++int bnxt_reserve_rings(struct bnxt *bp, bool irq_re_init);
+ void bnxt_tx_disable(struct bnxt *bp);
+ void bnxt_tx_enable(struct bnxt *bp);
+ int bnxt_hwrm_set_pause(struct bnxt *);
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
+@@ -788,7 +788,7 @@ static int bnxt_set_channels(struct net_
+ 			 */
+ 		}
+ 	} else {
+-		rc = bnxt_reserve_rings(bp);
++		rc = bnxt_reserve_rings(bp, true);
+ 	}
+ 
+ 	return rc;
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ulp.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ulp.c
+@@ -150,7 +150,7 @@ static int bnxt_req_msix_vecs(struct bnx
+ 			bnxt_close_nic(bp, true, false);
+ 			rc = bnxt_open_nic(bp, true, false);
+ 		} else {
+-			rc = bnxt_reserve_rings(bp);
++			rc = bnxt_reserve_rings(bp, true);
+ 		}
+ 	}
+ 	if (rc) {
 
 
