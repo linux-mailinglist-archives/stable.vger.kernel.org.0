@@ -2,56 +2,229 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 04E403392C
-	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 21:40:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3509A33943
+	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 21:49:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726190AbfFCTk6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jun 2019 15:40:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48052 "EHLO mail.kernel.org"
+        id S1726465AbfFCTtr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jun 2019 15:49:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726112AbfFCTk5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Jun 2019 15:40:57 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        id S1726033AbfFCTtr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Jun 2019 15:49:47 -0400
+Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DAECD266DF;
-        Mon,  3 Jun 2019 19:40:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B5AD126894;
+        Mon,  3 Jun 2019 19:49:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559590857;
-        bh=miHGtuBA3UVIyWCLcFGNaCgjBeN4i7RgajZReGrYwgw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=yejRsJFt+1avbc1/TFlmD5btBVz8hCgUZdkfc8hCLaAapeO2T8D/iDPhCo/SL5bLS
-         6RXWgSmw2ED+gO9gtojrABksSU1JreqpilGL8xQ+Po00iVfByBZcpzUDgfcJW+OlaG
-         iDEutqu01awqqRBlRDdb4Moo7FrxFEUMgV7XJ3co=
-Date:   Mon, 3 Jun 2019 21:40:54 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Raul Rangel <rrangel@chromium.org>
-Cc:     mathias.nyman@linux.intel.com, andrew.smirnov@gmail.com,
-        stable@vger.kernel.org
-Subject: Re: patch "xhci: Convert xhci_handshake() to use
- readl_poll_timeout_atomic()" added to usb-linus
-Message-ID: <20190603194054.GA17062@kroah.com>
-References: <155852804916633@kroah.com>
- <20190603190538.GA164323@google.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190603190538.GA164323@google.com>
-User-Agent: Mutt/1.12.0 (2019-05-25)
+        s=default; t=1559591386;
+        bh=lBFXJu3gXPrx82oIX5oimpk0fycIX1VfgrR5+JI80rE=;
+        h=Date:From:To:Subject:From;
+        b=WXJajurQRq30eNe17+b1kZoWsjq5nF8TXPLP3ZEOY94I2qghiZyudHXLCLfV2I2kP
+         b5wOT+19KFN7Ys5VU+HkSjU8ZJXI97F/JR0vtYIPzvMyihODBR4FiNrjUvan59yUIv
+         WGI195kkPT6P8rfyA+DuG10+1nbnR1sxz2CpcCMs=
+Date:   Mon, 03 Jun 2019 12:49:45 -0700
+From:   akpm@linux-foundation.org
+To:     chris@chrisdown.name, dennis@kernel.org, guro@fb.com,
+        hannes@cmpxchg.org, mhocko@kernel.org, mm-commits@vger.kernel.org,
+        shakeelb@google.com, stable@vger.kernel.org, surenb@google.com,
+        tj@kernel.org
+Subject:  [merged] mm-consider-subtrees-in-memoryevents.patch
+ removed from -mm tree
+Message-ID: <20190603194945.s7LL6CtH1%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 03, 2019 at 01:05:38PM -0600, Raul Rangel wrote:
-> Mathias,
-> Are there any plans to backport this to the other kernels?
-> 
-> Looks like it landed upstream as f7fac17ca925faa03fc5eb854c081a24075f8bad
 
-That is what the stable@ tag will cause to have happen.  Give it some
-time...
+The patch titled
+     Subject: mm, memcg: consider subtrees in memory.events
+has been removed from the -mm tree.  Its filename was
+     mm-consider-subtrees-in-memoryevents.patch
 
-thanks,
+This patch was dropped because it was merged into mainline or a subsystem tree
 
-greg k-h
+------------------------------------------------------
+From: Chris Down <chris@chrisdown.name>
+Subject: mm, memcg: consider subtrees in memory.events
+
+memory.stat and other files already consider subtrees in their output, and
+we should too in order to not present an inconsistent interface.
+
+The current situation is fairly confusing, because people interacting with
+cgroups expect hierarchical behaviour in the vein of memory.stat,
+cgroup.events, and other files.  For example, this causes confusion when
+debugging reclaim events under low, as currently these always read "0" at
+non-leaf memcg nodes, which frequently causes people to misdiagnose breach
+behaviour.  The same confusion applies to other counters in this file when
+debugging issues.
+
+Aggregation is done at write time instead of at read-time since these
+counters aren't hot (unlike memory.stat which is per-page, so it does it
+at read time), and it makes sense to bundle this with the file
+notifications.
+
+After this patch, events are propagated up the hierarchy:
+
+    [root@ktst ~]# cat /sys/fs/cgroup/system.slice/memory.events
+    low 0
+    high 0
+    max 0
+    oom 0
+    oom_kill 0
+    [root@ktst ~]# systemd-run -p MemoryMax=1 true
+    Running as unit: run-r251162a189fb4562b9dabfdc9b0422f5.service
+    [root@ktst ~]# cat /sys/fs/cgroup/system.slice/memory.events
+    low 0
+    high 0
+    max 7
+    oom 1
+    oom_kill 1
+
+As this is a change in behaviour, this can be reverted to the old
+behaviour by mounting with the `memory_localevents' flag set.  However, we
+use the new behaviour by default as there's a lack of evidence that there
+are any current users of memory.events that would find this change
+undesirable.
+
+akpm: this is a behaviour change, so Cc:stable.  THis is so that
+forthcoming distros which use cgroup v2 are more likely to pick up the
+revised behaviour.
+
+Link: http://lkml.kernel.org/r/20190208224419.GA24772@chrisdown.name
+Signed-off-by: Chris Down <chris@chrisdown.name>
+Acked-by: Johannes Weiner <hannes@cmpxchg.org>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Tejun Heo <tj@kernel.org>
+Cc: Roman Gushchin <guro@fb.com>
+Cc: Dennis Zhou <dennis@kernel.org>
+Cc: Suren Baghdasaryan <surenb@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ Documentation/admin-guide/cgroup-v2.rst |    9 +++++++++
+ include/linux/cgroup-defs.h             |    5 +++++
+ include/linux/memcontrol.h              |   10 ++++++++--
+ kernel/cgroup/cgroup.c                  |   16 ++++++++++++++--
+ 4 files changed, 36 insertions(+), 4 deletions(-)
+
+--- a/Documentation/admin-guide/cgroup-v2.rst~mm-consider-subtrees-in-memoryevents
++++ a/Documentation/admin-guide/cgroup-v2.rst
+@@ -177,6 +177,15 @@ cgroup v2 currently supports the followi
+ 	ignored on non-init namespace mounts.  Please refer to the
+ 	Delegation section for details.
+ 
++  memory_localevents
++
++        Only populate memory.events with data for the current cgroup,
++        and not any subtrees. This is legacy behaviour, the default
++        behaviour without this option is to include subtree counts.
++        This option is system wide and can only be set on mount or
++        modified through remount from the init namespace. The mount
++        option is ignored on non-init namespace mounts.
++
+ 
+ Organizing Processes and Threads
+ --------------------------------
+--- a/include/linux/cgroup-defs.h~mm-consider-subtrees-in-memoryevents
++++ a/include/linux/cgroup-defs.h
+@@ -89,6 +89,11 @@ enum {
+ 	 * Enable cpuset controller in v1 cgroup to use v2 behavior.
+ 	 */
+ 	CGRP_ROOT_CPUSET_V2_MODE = (1 << 4),
++
++	/*
++	 * Enable legacy local memory.events.
++	 */
++	CGRP_ROOT_MEMORY_LOCAL_EVENTS = (1 << 5),
+ };
+ 
+ /* cftype->flags */
+--- a/include/linux/memcontrol.h~mm-consider-subtrees-in-memoryevents
++++ a/include/linux/memcontrol.h
+@@ -737,8 +737,14 @@ static inline void count_memcg_event_mm(
+ static inline void memcg_memory_event(struct mem_cgroup *memcg,
+ 				      enum memcg_memory_event event)
+ {
+-	atomic_long_inc(&memcg->memory_events[event]);
+-	cgroup_file_notify(&memcg->events_file);
++	do {
++		atomic_long_inc(&memcg->memory_events[event]);
++		cgroup_file_notify(&memcg->events_file);
++
++		if (cgrp_dfl_root.flags & CGRP_ROOT_MEMORY_LOCAL_EVENTS)
++			break;
++	} while ((memcg = parent_mem_cgroup(memcg)) &&
++		 !mem_cgroup_is_root(memcg));
+ }
+ 
+ static inline void memcg_memory_event_mm(struct mm_struct *mm,
+--- a/kernel/cgroup/cgroup.c~mm-consider-subtrees-in-memoryevents
++++ a/kernel/cgroup/cgroup.c
+@@ -1810,11 +1810,13 @@ int cgroup_show_path(struct seq_file *sf
+ 
+ enum cgroup2_param {
+ 	Opt_nsdelegate,
++	Opt_memory_localevents,
+ 	nr__cgroup2_params
+ };
+ 
+ static const struct fs_parameter_spec cgroup2_param_specs[] = {
+-	fsparam_flag  ("nsdelegate",		Opt_nsdelegate),
++	fsparam_flag("nsdelegate",		Opt_nsdelegate),
++	fsparam_flag("memory_localevents",	Opt_memory_localevents),
+ 	{}
+ };
+ 
+@@ -1837,6 +1839,9 @@ static int cgroup2_parse_param(struct fs
+ 	case Opt_nsdelegate:
+ 		ctx->flags |= CGRP_ROOT_NS_DELEGATE;
+ 		return 0;
++	case Opt_memory_localevents:
++		ctx->flags |= CGRP_ROOT_MEMORY_LOCAL_EVENTS;
++		return 0;
+ 	}
+ 	return -EINVAL;
+ }
+@@ -1848,6 +1853,11 @@ static void apply_cgroup_root_flags(unsi
+ 			cgrp_dfl_root.flags |= CGRP_ROOT_NS_DELEGATE;
+ 		else
+ 			cgrp_dfl_root.flags &= ~CGRP_ROOT_NS_DELEGATE;
++
++		if (root_flags & CGRP_ROOT_MEMORY_LOCAL_EVENTS)
++			cgrp_dfl_root.flags |= CGRP_ROOT_MEMORY_LOCAL_EVENTS;
++		else
++			cgrp_dfl_root.flags &= ~CGRP_ROOT_MEMORY_LOCAL_EVENTS;
+ 	}
+ }
+ 
+@@ -1855,6 +1865,8 @@ static int cgroup_show_options(struct se
+ {
+ 	if (cgrp_dfl_root.flags & CGRP_ROOT_NS_DELEGATE)
+ 		seq_puts(seq, ",nsdelegate");
++	if (cgrp_dfl_root.flags & CGRP_ROOT_MEMORY_LOCAL_EVENTS)
++		seq_puts(seq, ",memory_localevents");
+ 	return 0;
+ }
+ 
+@@ -6325,7 +6337,7 @@ static struct kobj_attribute cgroup_dele
+ static ssize_t features_show(struct kobject *kobj, struct kobj_attribute *attr,
+ 			     char *buf)
+ {
+-	return snprintf(buf, PAGE_SIZE, "nsdelegate\n");
++	return snprintf(buf, PAGE_SIZE, "nsdelegate\nmemory_localevents\n");
+ }
+ static struct kobj_attribute cgroup_features_attr = __ATTR_RO(features);
+ 
+_
+
+Patches currently in -mm which might be from chris@chrisdown.name are
+
+mm-proportional-memorylowmin-reclaim.patch
+mm-make-memoryemin-the-baseline-for-utilisation-determination.patch
+mm-make-memoryemin-the-baseline-for-utilisation-determination-fix.patch
+
