@@ -2,206 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6768B32C27
-	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 11:15:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2374732C2B
+	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 11:16:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728336AbfFCJOe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jun 2019 05:14:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35374 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728999AbfFCJOd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Jun 2019 05:14:33 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F23B427ED9;
-        Mon,  3 Jun 2019 09:14:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559553272;
-        bh=70XdtqCKL2HSQ+O8iNV/GIT53S9ae4n5XVq2zIPyzn0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jyd9/jTcALwpo+rBvEVStTDxvLJWuSK+P7Cad643F7F5KiR/xywgJvaQNubwwHGTt
-         g76wlrEIFRsXiwdyXSOjTJm1fuLOqdb9bXsW2mKNsE7XYEXTAQN17iB/jWark98PhK
-         /KekmY9Q84Zv1GMDmX/aUaQjB7qUpZowKt3d7Kco=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Junwei Hu <hujunwei4@huawei.com>,
-        Wang Wang <wangwang2@huawei.com>,
-        syzbot+1e8114b61079bfe9cbc5@syzkaller.appspotmail.com,
-        Kang Zhou <zhoukang7@huawei.com>,
-        Suanming Mou <mousuanming@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.1 40/40] tipc: fix modprobe tipc failed after switch order of device registration
-Date:   Mon,  3 Jun 2019 11:09:33 +0200
-Message-Id: <20190603090524.869318441@linuxfoundation.org>
-X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190603090522.617635820@linuxfoundation.org>
-References: <20190603090522.617635820@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S1728410AbfFCJOm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jun 2019 05:14:42 -0400
+Received: from szxga06-in.huawei.com ([45.249.212.32]:47522 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1729032AbfFCJOl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Jun 2019 05:14:41 -0400
+Received: from DGGEMS406-HUB.china.huawei.com (unknown [172.30.72.60])
+        by Forcepoint Email with ESMTP id E475A1C793E5AEDA66D9;
+        Mon,  3 Jun 2019 17:14:38 +0800 (CST)
+Received: from architecture4.huawei.com (10.140.130.215) by smtp.huawei.com
+ (10.3.19.206) with Microsoft SMTP Server (TLS) id 14.3.439.0; Mon, 3 Jun 2019
+ 17:14:28 +0800
+From:   Gao Xiang <gaoxiang25@huawei.com>
+To:     Andrew Morton <akpm@linux-foundation.org>
+CC:     LKML <linux-kernel@vger.kernel.org>, Tejun Heo <tj@kernel.org>,
+        "Ingo Molnar" <mingo@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        <stable@vger.kernel.org>, Miao Xie <miaoxie@huawei.com>,
+        <koujilong@huawei.com>, Gao Xiang <gaoxiang25@huawei.com>
+Subject: [PATCH v2] sched/core: add __sched tag for io_schedule()
+Date:   Mon, 3 Jun 2019 17:13:38 +0800
+Message-ID: <20190603091338.2695-1-gaoxiang25@huawei.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20190531082912.80724-1-gaoxiang25@huawei.com>
+References: <20190531082912.80724-1-gaoxiang25@huawei.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.140.130.215]
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Junwei Hu <hujunwei4@huawei.com>
+non-inline io_schedule() was introduced in
+commit 10ab56434f2f ("sched/core: Separate out io_schedule_prepare() and io_schedule_finish()")
+Keep in line with io_schedule_timeout, Otherwise
+"/proc/<pid>/wchan" will report io_schedule()
+rather than its callers when waiting io.
 
-commit 526f5b851a96566803ee4bee60d0a34df56c77f8 upstream.
-
-Error message printed:
-modprobe: ERROR: could not insert 'tipc': Address family not
-supported by protocol.
-when modprobe tipc after the following patch: switch order of
-device registration, commit 7e27e8d6130c
-("tipc: switch order of device registration to fix a crash")
-
-Because sock_create_kern(net, AF_TIPC, ...) called by
-tipc_topsrv_create_listener() in the initialization process
-of tipc_init_net(), so tipc_socket_init() must be execute before that.
-Meanwhile, tipc_net_id need to be initialized when sock_create()
-called, and tipc_socket_init() is no need to be called for each namespace.
-
-I add a variable tipc_topsrv_net_ops, and split the
-register_pernet_subsys() of tipc into two parts, and split
-tipc_socket_init() with initialization of pernet params.
-
-By the way, I fixed resources rollback error when tipc_bcast_init()
-failed in tipc_init_net().
-
-Fixes: 7e27e8d6130c ("tipc: switch order of device registration to fix a crash")
-Signed-off-by: Junwei Hu <hujunwei4@huawei.com>
-Reported-by: Wang Wang <wangwang2@huawei.com>
-Reported-by: syzbot+1e8114b61079bfe9cbc5@syzkaller.appspotmail.com
-Reviewed-by: Kang Zhou <zhoukang7@huawei.com>
-Reviewed-by: Suanming Mou <mousuanming@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Reported-by: Jilong Kou <koujilong@huawei.com>
+Cc: Tejun Heo <tj@kernel.org>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Acked-by: Tejun Heo <tj@kernel.org>
+Fixes: 10ab56434f2f ("sched/core: Separate out io_schedule_prepare() and io_schedule_finish()")
+Cc: <stable@vger.kernel.org> # 4.11+
+Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
 ---
- net/tipc/core.c   |   18 ++++++++++++------
- net/tipc/subscr.h |    5 +++--
- net/tipc/topsrv.c |   14 ++++++++++++--
- 3 files changed, 27 insertions(+), 10 deletions(-)
+change log v2:
+ - add missing tags
 
---- a/net/tipc/core.c
-+++ b/net/tipc/core.c
-@@ -75,9 +75,6 @@ static int __net_init tipc_init_net(stru
- 		goto out_nametbl;
- 
- 	INIT_LIST_HEAD(&tn->dist_queue);
--	err = tipc_topsrv_start(net);
--	if (err)
--		goto out_subscr;
- 
- 	err = tipc_bcast_init(net);
- 	if (err)
-@@ -86,8 +83,6 @@ static int __net_init tipc_init_net(stru
- 	return 0;
- 
- out_bclink:
--	tipc_bcast_stop(net);
--out_subscr:
- 	tipc_nametbl_stop(net);
- out_nametbl:
- 	tipc_sk_rht_destroy(net);
-@@ -97,7 +92,6 @@ out_sk_rht:
- 
- static void __net_exit tipc_exit_net(struct net *net)
- {
--	tipc_topsrv_stop(net);
- 	tipc_net_stop(net);
- 	tipc_bcast_stop(net);
- 	tipc_nametbl_stop(net);
-@@ -111,6 +105,11 @@ static struct pernet_operations tipc_net
- 	.size = sizeof(struct tipc_net),
- };
- 
-+static struct pernet_operations tipc_topsrv_net_ops = {
-+	.init = tipc_topsrv_init_net,
-+	.exit = tipc_topsrv_exit_net,
-+};
-+
- static int __init tipc_init(void)
- {
- 	int err;
-@@ -141,6 +140,10 @@ static int __init tipc_init(void)
- 	if (err)
- 		goto out_socket;
- 
-+	err = register_pernet_subsys(&tipc_topsrv_net_ops);
-+	if (err)
-+		goto out_pernet_topsrv;
-+
- 	err = tipc_bearer_setup();
- 	if (err)
- 		goto out_bearer;
-@@ -148,6 +151,8 @@ static int __init tipc_init(void)
- 	pr_info("Started in single node mode\n");
- 	return 0;
- out_bearer:
-+	unregister_pernet_subsys(&tipc_topsrv_net_ops);
-+out_pernet_topsrv:
- 	tipc_socket_stop();
- out_socket:
- 	unregister_pernet_subsys(&tipc_net_ops);
-@@ -165,6 +170,7 @@ out_netlink:
- static void __exit tipc_exit(void)
- {
- 	tipc_bearer_cleanup();
-+	unregister_pernet_subsys(&tipc_topsrv_net_ops);
- 	tipc_socket_stop();
- 	unregister_pernet_subsys(&tipc_net_ops);
- 	tipc_netlink_stop();
---- a/net/tipc/subscr.h
-+++ b/net/tipc/subscr.h
-@@ -77,8 +77,9 @@ void tipc_sub_report_overlap(struct tipc
- 			     u32 found_lower, u32 found_upper,
- 			     u32 event, u32 port, u32 node,
- 			     u32 scope, int must);
--int tipc_topsrv_start(struct net *net);
--void tipc_topsrv_stop(struct net *net);
-+
-+int __net_init tipc_topsrv_init_net(struct net *net);
-+void __net_exit tipc_topsrv_exit_net(struct net *net);
- 
- void tipc_sub_put(struct tipc_subscription *subscription);
- void tipc_sub_get(struct tipc_subscription *subscription);
---- a/net/tipc/topsrv.c
-+++ b/net/tipc/topsrv.c
-@@ -635,7 +635,7 @@ static void tipc_topsrv_work_stop(struct
- 	destroy_workqueue(s->send_wq);
- }
- 
--int tipc_topsrv_start(struct net *net)
-+static int tipc_topsrv_start(struct net *net)
- {
- 	struct tipc_net *tn = tipc_net(net);
- 	const char name[] = "topology_server";
-@@ -668,7 +668,7 @@ int tipc_topsrv_start(struct net *net)
- 	return ret;
- }
- 
--void tipc_topsrv_stop(struct net *net)
-+static void tipc_topsrv_stop(struct net *net)
- {
- 	struct tipc_topsrv *srv = tipc_topsrv(net);
- 	struct socket *lsock = srv->listener;
-@@ -693,3 +693,13 @@ void tipc_topsrv_stop(struct net *net)
- 	idr_destroy(&srv->conn_idr);
- 	kfree(srv);
- }
-+
-+int __net_init tipc_topsrv_init_net(struct net *net)
-+{
-+	return tipc_topsrv_start(net);
-+}
-+
-+void __net_exit tipc_topsrv_exit_net(struct net *net)
-+{
-+	tipc_topsrv_stop(net);
-+}
+ kernel/sched/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 874c427742a9..4d5962232a55 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -5123,7 +5123,7 @@ long __sched io_schedule_timeout(long timeout)
+ }
+ EXPORT_SYMBOL(io_schedule_timeout);
+ 
+-void io_schedule(void)
++void __sched io_schedule(void)
+ {
+ 	int token;
+ 
+-- 
+2.17.1
 
