@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F8AF32BD0
-	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 11:12:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D6A932C3E
+	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 11:16:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728534AbfFCJLz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jun 2019 05:11:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57256 "EHLO mail.kernel.org"
+        id S1727184AbfFCJPw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jun 2019 05:15:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33512 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728529AbfFCJLy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Jun 2019 05:11:54 -0400
+        id S1728782AbfFCJNR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Jun 2019 05:13:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8BD9B27E66;
-        Mon,  3 Jun 2019 09:11:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3843B25B49;
+        Mon,  3 Jun 2019 09:13:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559553114;
-        bh=+9FvUUl097hlFjRGGEZfiRxbpeiccsHlXb1z5QkWtc8=;
+        s=default; t=1559553196;
+        bh=v1u4WaibhGkT0QwhXbC4ebfZ3xPIoHuMkzdWT2zUeiE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xFrGuZnTZTGwAIYLVJFHGCWa/7rGuTLsmopCPaKn8lDYedTwTq/YuLqNnZ46xTuIU
-         ZidrDIWgxy5yPBVQ0Qu5EZk8Y6VI/uEdEk/1oNOVpPROhRgUwSTRAhfyBstNTVgXxW
-         zUjvw/Ja9OYk5jaeDWsJJXV3b4FrxZcjCQwopkcA=
+        b=c3Vc2wRLaLzpPiunaTb/ouX6Ljzf44blbqxuDVtP0GfJJHcs78fWEXfMO5OVcb/K5
+         N1uRwMZfVonPqB7h0odTAFgWA5ycUWg5ow0yjX9VcMnE1AcNDV2cqneShi9HZQ1hnP
+         67cN2/TLg//SKXRcbdwG0Wdw0FdCMTjlTe/fz0cY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mike Manning <mmanning@vyatta.att-mail.com>,
-        David Ahern <dsahern@gmail.com>,
+        stable@vger.kernel.org, Raju Rangoju <rajur@chelsio.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.0 06/36] ipv6: Consider sk_bound_dev_if when binding a raw socket to an address
-Date:   Mon,  3 Jun 2019 11:08:54 +0200
-Message-Id: <20190603090521.372530333@linuxfoundation.org>
+Subject: [PATCH 5.1 02/40] cxgb4: offload VLAN flows regardless of VLAN ethtype
+Date:   Mon,  3 Jun 2019 11:08:55 +0200
+Message-Id: <20190603090522.767228340@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190603090520.998342694@linuxfoundation.org>
-References: <20190603090520.998342694@linuxfoundation.org>
+In-Reply-To: <20190603090522.617635820@linuxfoundation.org>
+References: <20190603090522.617635820@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Manning <mmanning@vyatta.att-mail.com>
+From: Raju Rangoju <rajur@chelsio.com>
 
-[ Upstream commit 72f7cfab6f93a8ea825fab8ccfb016d064269f7f ]
+[ Upstream commit b5730061d1056abf317caea823b94d6e12b5b4f6 ]
 
-IPv6 does not consider if the socket is bound to a device when binding
-to an address. The result is that a socket can be bound to eth0 and
-then bound to the address of eth1. If the device is a VRF, the result
-is that a socket can only be bound to an address in the default VRF.
+VLAN flows never get offloaded unless ivlan_vld is set in filter spec.
+It's not compulsory for vlan_ethtype to be set.
 
-Resolve by considering the device if sk_bound_dev_if is set.
+So, always enable ivlan_vld bit for offloading VLAN flows regardless of
+vlan_ethtype is set or not.
 
-Signed-off-by: Mike Manning <mmanning@vyatta.att-mail.com>
-Reviewed-by: David Ahern <dsahern@gmail.com>
-Tested-by: David Ahern <dsahern@gmail.com>
+Fixes: ad9af3e09c (cxgb4: add tc flower match support for vlan)
+Signed-off-by: Raju Rangoju <rajur@chelsio.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/raw.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_flower.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/net/ipv6/raw.c
-+++ b/net/ipv6/raw.c
-@@ -287,7 +287,9 @@ static int rawv6_bind(struct sock *sk, s
- 			/* Binding to link-local address requires an interface */
- 			if (!sk->sk_bound_dev_if)
- 				goto out_unlock;
-+		}
+--- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_flower.c
++++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_flower.c
+@@ -197,6 +197,9 @@ static void cxgb4_process_flow_match(str
+ 		fs->val.ivlan = vlan_tci;
+ 		fs->mask.ivlan = vlan_tci_mask;
  
-+		if (sk->sk_bound_dev_if) {
- 			err = -ENODEV;
- 			dev = dev_get_by_index_rcu(sock_net(sk),
- 						   sk->sk_bound_dev_if);
++		fs->val.ivlan_vld = 1;
++		fs->mask.ivlan_vld = 1;
++
+ 		/* Chelsio adapters use ivlan_vld bit to match vlan packets
+ 		 * as 802.1Q. Also, when vlan tag is present in packets,
+ 		 * ethtype match is used then to match on ethtype of inner
+@@ -207,8 +210,6 @@ static void cxgb4_process_flow_match(str
+ 		 * ethtype value with ethtype of inner header.
+ 		 */
+ 		if (fs->val.ethtype == ETH_P_8021Q) {
+-			fs->val.ivlan_vld = 1;
+-			fs->mask.ivlan_vld = 1;
+ 			fs->val.ethtype = 0;
+ 			fs->mask.ethtype = 0;
+ 		}
 
 
