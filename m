@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E88C32BA2
-	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 11:11:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70AB732C8A
+	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 11:18:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728068AbfFCJKN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jun 2019 05:10:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54416 "EHLO mail.kernel.org"
+        id S1727951AbfFCJSI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jun 2019 05:18:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42512 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728057AbfFCJKN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Jun 2019 05:10:13 -0400
+        id S1728062AbfFCJSD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Jun 2019 05:18:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D4CC27E2B;
-        Mon,  3 Jun 2019 09:10:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9DCEB27EA1;
+        Mon,  3 Jun 2019 09:18:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559553012;
-        bh=OkSZOmrzbRtglGgaWTCASBVMjYEU2o0yP0IEyf5sVKc=;
+        s=default; t=1559553483;
+        bh=apmDn9e7EHYtKheI9oJYwY5vH4hfrUYCM5LDOt9D9hs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SGXnNZwjGw8zthhsQSjYJLs7dW5l2929U+eneJ9oHEXDolUiffKQj78E261l08P8E
-         NJLxrXMVPvDo9X1Pd7nCC3TbqJZqMkABWxTXYxKP3mqceRWeCAqYWMZ043cLPbH4xk
-         DCYh83ibvQ2dTVbfEtvPVtPK+9lkZh+oLbqG5TCo=
+        b=1qbkzRU9mwlTPzwj2ZPmcw4pohPGEH4k0NNs2N2cVPKrJhiA1uOPy0mkPT75GOV8B
+         42P2WDi3y041St59k5kwlFoWaGbhSbHYscvosjtBPA5w39I/v5oCSMy9YqF0GAdqcI
+         k42v/XsvqZN9G72G+NRo2yevly7vpll3VKaK6Yhc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Saeed Mahameed <saeedm@mellanox.com>
-Subject: [PATCH 4.19 21/32] net/mlx5e: Disable rxhash when CQE compress is enabled
-Date:   Mon,  3 Jun 2019 11:08:15 +0200
-Message-Id: <20190603090313.925496353@linuxfoundation.org>
+        stable@vger.kernel.org, "Zhang, Baoli" <baoli.zhang@intel.com>,
+        Ong Boon Leong <boon.leong.ong@intel.com>,
+        Weifeng Voon <weifeng.voon@intel.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 22/32] net: stmmac: dma channel control register need to be init first
+Date:   Mon,  3 Jun 2019 11:08:16 +0200
+Message-Id: <20190603090314.784323813@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190603090308.472021390@linuxfoundation.org>
 References: <20190603090308.472021390@linuxfoundation.org>
@@ -42,64 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saeed Mahameed <saeedm@mellanox.com>
+From: Weifeng Voon <weifeng.voon@intel.com>
 
-[ Upstream commit c0194e2d0ef0e5ce5e21a35640d23a706827ae28 ]
+stmmac_init_chan() needs to be called before stmmac_init_rx_chan() and
+stmmac_init_tx_chan(). This is because if PBLx8 is to be used,
+"DMA_CH(#i)_Control.PBLx8" needs to be set before programming
+"DMA_CH(#i)_TX_Control.TxPBL" and "DMA_CH(#i)_RX_Control.RxPBL".
 
-When CQE compression is enabled (Multi-host systems), compressed CQEs
-might arrive to the driver rx, compressed CQEs don't have a valid hash
-offload and the driver already reports a hash value of 0 and invalid hash
-type on the skb for compressed CQEs, but this is not good enough.
-
-On a congested PCIe, where CQE compression will kick in aggressively,
-gro will deliver lots of out of order packets due to the invalid hash
-and this might cause a serious performance drop.
-
-The only valid solution, is to disable rxhash offload at all when CQE
-compression is favorable (Multi-host systems).
-
-Fixes: 7219ab34f184 ("net/mlx5e: CQE compression")
-Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
+Fixes: 47f2a9ce527a ("net: stmmac: dma channel init prepared for multiple queues")
+Reviewed-by: Zhang, Baoli <baoli.zhang@intel.com>
+Signed-off-by: Ong Boon Leong <boon.leong.ong@intel.com>
+Signed-off-by: Weifeng Voon <weifeng.voon@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_main.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-@@ -3734,6 +3734,12 @@ static netdev_features_t mlx5e_fix_featu
- 			netdev_warn(netdev, "Disabling LRO, not supported in legacy RQ\n");
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -2195,6 +2195,10 @@ static int stmmac_init_dma_engine(struct
+ 	if (priv->plat->axi)
+ 		stmmac_axi(priv, priv->ioaddr, priv->plat->axi);
+ 
++	/* DMA CSR Channel configuration */
++	for (chan = 0; chan < dma_csr_ch; chan++)
++		stmmac_init_chan(priv, priv->ioaddr, priv->plat->dma_cfg, chan);
++
+ 	/* DMA RX Channel Configuration */
+ 	for (chan = 0; chan < rx_channels_count; chan++) {
+ 		rx_q = &priv->rx_queue[chan];
+@@ -2220,10 +2224,6 @@ static int stmmac_init_dma_engine(struct
+ 				       tx_q->tx_tail_addr, chan);
  	}
  
-+	if (MLX5E_GET_PFLAG(params, MLX5E_PFLAG_RX_CQE_COMPRESS)) {
-+		features &= ~NETIF_F_RXHASH;
-+		if (netdev->features & NETIF_F_RXHASH)
-+			netdev_warn(netdev, "Disabling rxhash, not supported when CQE compress is active\n");
-+	}
-+
- 	mutex_unlock(&priv->state_lock);
- 
- 	return features;
-@@ -3860,6 +3866,9 @@ int mlx5e_hwstamp_set(struct mlx5e_priv
- 	memcpy(&priv->tstamp, &config, sizeof(config));
- 	mutex_unlock(&priv->state_lock);
- 
-+	/* might need to fix some features */
-+	netdev_update_features(priv->netdev);
-+
- 	return copy_to_user(ifr->ifr_data, &config,
- 			    sizeof(config)) ? -EFAULT : 0;
+-	/* DMA CSR Channel configuration */
+-	for (chan = 0; chan < dma_csr_ch; chan++)
+-		stmmac_init_chan(priv, priv->ioaddr, priv->plat->dma_cfg, chan);
+-
+ 	return ret;
  }
-@@ -4702,6 +4711,10 @@ static void mlx5e_build_nic_netdev(struc
- 	if (!priv->channels.params.scatter_fcs_en)
- 		netdev->features  &= ~NETIF_F_RXFCS;
  
-+	/* prefere CQE compression over rxhash */
-+	if (MLX5E_GET_PFLAG(&priv->channels.params, MLX5E_PFLAG_RX_CQE_COMPRESS))
-+		netdev->features &= ~NETIF_F_RXHASH;
-+
- #define FT_CAP(f) MLX5_CAP_FLOWTABLE(mdev, flow_table_properties_nic_receive.f)
- 	if (FT_CAP(flow_modify_en) &&
- 	    FT_CAP(modify_root) &&
 
 
