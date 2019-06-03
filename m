@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6151932C06
-	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 11:14:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C614C32C6B
+	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 11:17:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728164AbfFCJN6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jun 2019 05:13:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34482 "EHLO mail.kernel.org"
+        id S1728323AbfFCJLM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jun 2019 05:11:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56086 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728917AbfFCJN6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Jun 2019 05:13:58 -0400
+        id S1728319AbfFCJLM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 3 Jun 2019 05:11:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A2BD927ED9;
-        Mon,  3 Jun 2019 09:13:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1C62E27E49;
+        Mon,  3 Jun 2019 09:11:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559553237;
-        bh=suSWMGjxGefQft5sgN3EkO93Ti80OxTxpknLkWyFfJs=;
+        s=default; t=1559553071;
+        bh=mJiP0iGvPk9hlL2FjCpWB9nY/cTx1gt9kGP2V+kVdYw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cTmwWlsl7FtrlWSyM1duxsCL36PWAbXTSffsaq4/3+HmFlRJVxVHqlq0i4qdQB4Z4
-         E54ZY22Mm3RGA7LaLJSre5hjxzT3Rcthmop3Dp5zcqE32a17V/+3G5gn599jYY91ln
-         ghhQC3OcfO+2+mA/u8yIX+PKIxgbVwHEf69Q5jbY=
+        b=v5Kt5WMPmhiq8oJffaujylyphqxhpemaDGic1p0ZzsTC6ZkYuIKotdTq8gJ7ImtSJ
+         9f50lU7oOZnxPIwfz3x9W0g8LZZnt4h07xrQxwh7pDuTV5EY1IH0fdI+MTdYOpDvcp
+         yG2878wb5ktYjPKimeEOoyRDabkuO1ggw8JQcNj4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Hangbin Liu <liuhangbin@gmail.com>,
-        syzbot <syzkaller@googlegroups.com>,
+        stable@vger.kernel.org,
+        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
+        Vivien Didelot <vivien.didelot@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.1 05/40] ipv4/igmp: fix another memory leak in igmpv3_del_delrec()
+Subject: [PATCH 5.0 10/36] net: dsa: mv88e6xxx: fix handling of upper half of STATS_TYPE_PORT
 Date:   Mon,  3 Jun 2019 11:08:58 +0200
-Message-Id: <20190603090522.960391894@linuxfoundation.org>
+Message-Id: <20190603090521.633921930@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190603090522.617635820@linuxfoundation.org>
-References: <20190603090522.617635820@linuxfoundation.org>
+In-Reply-To: <20190603090520.998342694@linuxfoundation.org>
+References: <20190603090520.998342694@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,162 +45,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
 
-[ Upstream commit 3580d04aa674383c42de7b635d28e52a1e5bc72c ]
+[ Upstream commit 84b3fd1fc9592d431e23b077e692fa4e3fd0f086 ]
 
-syzbot reported memory leaks [1] that I have back tracked to
-a missing cleanup from igmpv3_del_delrec() when
-(im->sfmode != MCAST_INCLUDE)
+Currently, the upper half of a 4-byte STATS_TYPE_PORT statistic ends
+up in bits 47:32 of the return value, instead of bits 31:16 as they
+should.
 
-Add ip_sf_list_clear_all() and kfree_pmc() helpers to explicitely
-handle the cleanups before freeing.
-
-[1]
-
-BUG: memory leak
-unreferenced object 0xffff888123e32b00 (size 64):
-  comm "softirq", pid 0, jiffies 4294942968 (age 8.010s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 e0 00 00 01 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<000000006105011b>] kmemleak_alloc_recursive include/linux/kmemleak.h:55 [inline]
-    [<000000006105011b>] slab_post_alloc_hook mm/slab.h:439 [inline]
-    [<000000006105011b>] slab_alloc mm/slab.c:3326 [inline]
-    [<000000006105011b>] kmem_cache_alloc_trace+0x13d/0x280 mm/slab.c:3553
-    [<000000004bba8073>] kmalloc include/linux/slab.h:547 [inline]
-    [<000000004bba8073>] kzalloc include/linux/slab.h:742 [inline]
-    [<000000004bba8073>] ip_mc_add1_src net/ipv4/igmp.c:1961 [inline]
-    [<000000004bba8073>] ip_mc_add_src+0x36b/0x400 net/ipv4/igmp.c:2085
-    [<00000000a46a65a0>] ip_mc_msfilter+0x22d/0x310 net/ipv4/igmp.c:2475
-    [<000000005956ca89>] do_ip_setsockopt.isra.0+0x1795/0x1930 net/ipv4/ip_sockglue.c:957
-    [<00000000848e2d2f>] ip_setsockopt+0x3b/0xb0 net/ipv4/ip_sockglue.c:1246
-    [<00000000b9db185c>] udp_setsockopt+0x4e/0x90 net/ipv4/udp.c:2616
-    [<000000003028e438>] sock_common_setsockopt+0x38/0x50 net/core/sock.c:3130
-    [<0000000015b65589>] __sys_setsockopt+0x98/0x120 net/socket.c:2078
-    [<00000000ac198ef0>] __do_sys_setsockopt net/socket.c:2089 [inline]
-    [<00000000ac198ef0>] __se_sys_setsockopt net/socket.c:2086 [inline]
-    [<00000000ac198ef0>] __x64_sys_setsockopt+0x26/0x30 net/socket.c:2086
-    [<000000000a770437>] do_syscall_64+0x76/0x1a0 arch/x86/entry/common.c:301
-    [<00000000d3adb93b>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-Fixes: 9c8bb163ae78 ("igmp, mld: Fix memory leak in igmpv3/mld_del_delrec()")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Hangbin Liu <liuhangbin@gmail.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
+Fixes: 6e46e2d821bb ("net: dsa: mv88e6xxx: Fix u64 statistics")
+Signed-off-by: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+Reviewed-by: Vivien Didelot <vivien.didelot@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/igmp.c |   47 ++++++++++++++++++++++++++++++-----------------
- 1 file changed, 30 insertions(+), 17 deletions(-)
+ drivers/net/dsa/mv88e6xxx/chip.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/ipv4/igmp.c
-+++ b/net/ipv4/igmp.c
-@@ -633,6 +633,24 @@ static void igmpv3_clear_zeros(struct ip
- 	}
- }
- 
-+static void ip_sf_list_clear_all(struct ip_sf_list *psf)
-+{
-+	struct ip_sf_list *next;
-+
-+	while (psf) {
-+		next = psf->sf_next;
-+		kfree(psf);
-+		psf = next;
-+	}
-+}
-+
-+static void kfree_pmc(struct ip_mc_list *pmc)
-+{
-+	ip_sf_list_clear_all(pmc->sources);
-+	ip_sf_list_clear_all(pmc->tomb);
-+	kfree(pmc);
-+}
-+
- static void igmpv3_send_cr(struct in_device *in_dev)
- {
- 	struct ip_mc_list *pmc, *pmc_prev, *pmc_next;
-@@ -669,7 +687,7 @@ static void igmpv3_send_cr(struct in_dev
- 			else
- 				in_dev->mc_tomb = pmc_next;
- 			in_dev_put(pmc->interface);
--			kfree(pmc);
-+			kfree_pmc(pmc);
- 		} else
- 			pmc_prev = pmc;
- 	}
-@@ -1215,14 +1233,18 @@ static void igmpv3_del_delrec(struct in_
- 		im->interface = pmc->interface;
- 		if (im->sfmode == MCAST_INCLUDE) {
- 			im->tomb = pmc->tomb;
-+			pmc->tomb = NULL;
-+
- 			im->sources = pmc->sources;
-+			pmc->sources = NULL;
-+
- 			for (psf = im->sources; psf; psf = psf->sf_next)
- 				psf->sf_crcount = in_dev->mr_qrv ?: net->ipv4.sysctl_igmp_qrv;
- 		} else {
- 			im->crcount = in_dev->mr_qrv ?: net->ipv4.sysctl_igmp_qrv;
+--- a/drivers/net/dsa/mv88e6xxx/chip.c
++++ b/drivers/net/dsa/mv88e6xxx/chip.c
+@@ -892,7 +892,7 @@ static uint64_t _mv88e6xxx_get_ethtool_s
+ 			err = mv88e6xxx_port_read(chip, port, s->reg + 1, &reg);
+ 			if (err)
+ 				return U64_MAX;
+-			high = reg;
++			low |= ((u32)reg) << 16;
  		}
- 		in_dev_put(pmc->interface);
--		kfree(pmc);
-+		kfree_pmc(pmc);
- 	}
- 	spin_unlock_bh(&im->lock);
- }
-@@ -1243,21 +1265,18 @@ static void igmpv3_clear_delrec(struct i
- 		nextpmc = pmc->next;
- 		ip_mc_clear_src(pmc);
- 		in_dev_put(pmc->interface);
--		kfree(pmc);
-+		kfree_pmc(pmc);
- 	}
- 	/* clear dead sources, too */
- 	rcu_read_lock();
- 	for_each_pmc_rcu(in_dev, pmc) {
--		struct ip_sf_list *psf, *psf_next;
-+		struct ip_sf_list *psf;
- 
- 		spin_lock_bh(&pmc->lock);
- 		psf = pmc->tomb;
- 		pmc->tomb = NULL;
- 		spin_unlock_bh(&pmc->lock);
--		for (; psf; psf = psf_next) {
--			psf_next = psf->sf_next;
--			kfree(psf);
--		}
-+		ip_sf_list_clear_all(psf);
- 	}
- 	rcu_read_unlock();
- }
-@@ -2123,7 +2142,7 @@ static int ip_mc_add_src(struct in_devic
- 
- static void ip_mc_clear_src(struct ip_mc_list *pmc)
- {
--	struct ip_sf_list *psf, *nextpsf, *tomb, *sources;
-+	struct ip_sf_list *tomb, *sources;
- 
- 	spin_lock_bh(&pmc->lock);
- 	tomb = pmc->tomb;
-@@ -2135,14 +2154,8 @@ static void ip_mc_clear_src(struct ip_mc
- 	pmc->sfcount[MCAST_EXCLUDE] = 1;
- 	spin_unlock_bh(&pmc->lock);
- 
--	for (psf = tomb; psf; psf = nextpsf) {
--		nextpsf = psf->sf_next;
--		kfree(psf);
--	}
--	for (psf = sources; psf; psf = nextpsf) {
--		nextpsf = psf->sf_next;
--		kfree(psf);
--	}
-+	ip_sf_list_clear_all(tomb);
-+	ip_sf_list_clear_all(sources);
- }
- 
- /* Join a multicast group
+ 		break;
+ 	case STATS_TYPE_BANK1:
 
 
