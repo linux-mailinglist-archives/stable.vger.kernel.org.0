@@ -2,168 +2,171 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B04883375A
-	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 19:57:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 900B13375D
+	for <lists+stable@lfdr.de>; Mon,  3 Jun 2019 19:59:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726341AbfFCR53 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jun 2019 13:57:29 -0400
-Received: from foss.arm.com ([217.140.101.70]:57226 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726270AbfFCR52 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Jun 2019 13:57:28 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.72.51.249])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 22C6B80D;
-        Mon,  3 Jun 2019 10:57:28 -0700 (PDT)
-Received: from fuggles.cambridge.arm.com (usa-sjc-imap-foss1.foss.arm.com [10.72.51.249])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 2FFC33F5AF;
-        Mon,  3 Jun 2019 10:57:26 -0700 (PDT)
-Date:   Mon, 3 Jun 2019 18:57:19 +0100
-From:   Will Deacon <will.deacon@arm.com>
-To:     Nicholas Piggin <npiggin@gmail.com>
-Cc:     akpm@linux-foundation.org,
-        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
-        jstancek@redhat.com, mgorman@suse.de, minchan@kernel.org,
-        mm-commits@vger.kernel.org, namit@vmware.com,
-        Peter Zijlstra <peterz@infradead.org>, stable@vger.kernel.org,
-        yang.shi@linux.alibaba.com
-Subject: Re: + mm-mmu_gather-remove-__tlb_reset_range-for-force-flush.patch
- added to -mm tree
-Message-ID: <20190603175719.GA13018@fuggles.cambridge.arm.com>
-References: <20190521231833.P5ThR%akpm@linux-foundation.org>
- <20190527110158.GB2623@hirez.programming.kicks-ass.net>
- <335de44e-02f5-ce92-c026-e8ac4a34a766@linux.ibm.com>
- <20190527142552.GD2623@hirez.programming.kicks-ass.net>
- <1559270298.wiy8c3d4zs.astroid@bobo.none>
- <20190531094931.GM2623@hirez.programming.kicks-ass.net>
- <1559527383.76rykleqz1.astroid@bobo.none>
- <20190603103009.GB27507@fuggles.cambridge.arm.com>
- <1559569861.n3f6bbdn43.astroid@bobo.none>
+        id S1726343AbfFCR7o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jun 2019 13:59:44 -0400
+Received: from mail-lj1-f193.google.com ([209.85.208.193]:35309 "EHLO
+        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726112AbfFCR7o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jun 2019 13:59:44 -0400
+Received: by mail-lj1-f193.google.com with SMTP id h11so17146547ljb.2
+        for <stable@vger.kernel.org>; Mon, 03 Jun 2019 10:59:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=mH6+A+NS7QW3MyGOuaPV+dA+RYHBYZ5EuSKnn5qVj2U=;
+        b=nVn2G+1tQkkcW+z1EmPJ3bLoLvOlW0/5qi6r2uYA+XL4fjTvz/MNabAMIfNCV2arMW
+         KyQQvVxDkzRCCd97KS52Z9mgSSG746lES/hfLejANyv7gpVWQzWHv+7h0cuef1x4Kb5B
+         yu0Ekb3a9SsZr4l3GniFR/o2J/4qITTE0ZBkgWphbxxiYPGLK2jqQ6wyc/tAi4G0bmRV
+         YAOG0YrKEmgD5MG9anKRHvDz+PaMUgPD4vnzrilu+BVmS19xIMzPpelcGLLuizqimouT
+         e/jOiwg/svgaFN33XFNt2xuScMZJ5N2Tt6SKqdkv/q5xKXaua0lBDjAu2dCd9flE0jQc
+         RVUw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=mH6+A+NS7QW3MyGOuaPV+dA+RYHBYZ5EuSKnn5qVj2U=;
+        b=D16UVXZxHPdfJ3hRGTXGxUIEeSz4YeehIj1/qoQOoofJyh+SQHpDuUibzjG+ubpTPr
+         x23r2/RLC0gxSc1xof4llK4o21yI2Qr4501xZiZmN9sg4keSV4mhWU/7Rf9+DvicHCTU
+         xq0c4ZJqtj1G3ah4TMW8IvodYupd9HqvS96eBfU/7H/40iMbIfT4KOgoAwTF1kJJiqJD
+         sqlLavbII6g8/4rFh33u0B4/6YPRhhlnFP0XYolzbMsynvyojMIMBuET2Tm/LJqNCY7e
+         1oTi3IPXyneZHHvVftvmkSIjvLImmyF6tQDJeItLonqwq8Kzt4+2H/C6fpjuVk1S/lYl
+         9QVA==
+X-Gm-Message-State: APjAAAUgUWJ7GqHFK++CopHLqa0CpMdZUysYuPpXFnifFT/y56gPiUc+
+        WAiXsw679hXaA3pSR1+0OmzTCq0sh8dvyDuiDU1GxN/vdmA=
+X-Google-Smtp-Source: APXvYqx35gBKnFOjVzN955g9DU4bF9xDah5c4OrnvnpZGU50luEaoyMVEUm7lgNlo0nN0UXgQQcoKc5378/z/5/Pdtw=
+X-Received: by 2002:a2e:1510:: with SMTP id s16mr5667671ljd.19.1559584782456;
+ Mon, 03 Jun 2019 10:59:42 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1559569861.n3f6bbdn43.astroid@bobo.none>
-User-Agent: Mutt/1.11.1+86 (6f28e57d73f2) ()
+References: <20190603090520.998342694@linuxfoundation.org>
+In-Reply-To: <20190603090520.998342694@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Mon, 3 Jun 2019 23:29:31 +0530
+Message-ID: <CA+G9fYv3o4a=b66523jojw_JUFB9zV4+1wgyBWxyoKyfHsv3KA@mail.gmail.com>
+Subject: Re: [PATCH 5.0 00/36] 5.0.21-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Nick,
+On Mon, 3 Jun 2019 at 14:42, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> Note, this is going to be the LAST 5.0.y kernel release.  After this one,=
+ it is
+> end-of-life, please move to 5.1.y at this point in time.  If there is any=
+thing
+> wrong with the 5.1.y tree, preventing you from moving to 5.1.y, please le=
+t me
+> know.
+>
+> This is the start of the stable review cycle for the 5.0.21 release.
+> There are 36 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed 05 Jun 2019 09:04:48 AM UTC.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.0.21-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.0.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-On Tue, Jun 04, 2019 at 12:10:37AM +1000, Nicholas Piggin wrote:
-> Will Deacon's on June 3, 2019 8:30 pm:
-> > On Mon, Jun 03, 2019 at 12:11:38PM +1000, Nicholas Piggin wrote:
-> >> Peter Zijlstra's on May 31, 2019 7:49 pm:
-> >> > On Fri, May 31, 2019 at 12:46:56PM +1000, Nicholas Piggin wrote:
-> >> >> I don't think it's very nice to set fullmm and freed_tables for this 
-> >> >> case though. Is this concurrent zapping an important fast path? It
-> >> >> must have been, in order to justify all this complexity to the mm, so
-> >> >> we don't want to tie this boat anchor to it AFAIKS?
-> >> > 
-> >> > I'm not convinced its an important fast path, afaict it is an
-> >> > unfortunate correctness issue caused by allowing concurrenct frees.
-> >> 
-> >> I mean -- concurrent freeing was an important fastpath, right?
-> >> And concurrent freeing means that you hit this case. So this
-> >> case itself should be important too.
-> > 
-> > I honestly don't think we (Peter and I) know. Our first involvement with
-> > this was because TLBs were found to contain stale user entries:
-> > 
-> > https://lore.kernel.org/linux-arm-kernel/1817839533.20996552.1557065445233.JavaMail.zimbra@redhat.com/
-> > 
-> > so the initial work to support the concurrent freeing was done separately
-> > and, I assume, motivated by some real workloads. I would also very much
-> > like to know more about that, since nothing remotely realistic has surfaced
-> > in this discussion, other than some historical glibc thing which has long
-> > since been fixed.
-> 
-> Well, it seems like it is important. While the complexity is carried
-> in the mm, we should not skimp on this last small piece.
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-As I say, I really don't know. But yes, if we can do something better we
-should.
+Summary
+------------------------------------------------------------------------
 
-> >> >> Is the problem just that the freed page tables flags get cleared by
-> >> >> __tlb_reset_range()? Why not just remove that then, so the bits are
-> >> >> set properly for the munmap?
-> >> > 
-> >> > That's insufficient; as argued in my initial suggestion:
-> >> > 
-> >> >   https://lkml.kernel.org/r/20190509103813.GP2589@hirez.programming.kicks-ass.net
-> >> > 
-> >> > Since we don't know what was flushed by the concorrent flushes, we must
-> >> > flush all state (page sizes, tables etc..).
-> >> 
-> >> Page tables should not be concurrently freed I think. Just don't clear
-> >> those page table free flags and it should be okay. Page sizes yes,
-> >> but we accommodated for that in the arch code. I could see reason to
-> >> add a flag to the gather struct like "concurrent_free" and set that
-> >> from the generic code, which the arch has to take care of.
-> > 
-> > I think you're correct that two CPUs cannot free the page tables
-> > concurrently (I misunderstood this initially), although I also think
-> > there may be some subtle issues if tlb->freed_tables is not set,
-> > depending on the architecture. Roughly speaking, if one CPU is clearing
-> > a PMD as part of munmap() and another CPU in madvise() does only last-level
-> > TLB invalidation, then I think there's the potential for the invalidation
-> > to be ineffective if observing a cleared PMD doesn't imply that the last
-> > level has been unmapped from the perspective of the page-table walker.
-> 
-> That should not be the case because the last level table should have
-> had all entries cleared before the pointer to it has been cleared.
+kernel: 5.0.21-rc1
+git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
+le-rc.git
+git branch: linux-5.0.y
+git commit: 9866761971edf6312f8144e0b73e8e831883a461
+git describe: v5.0.20-37-g9866761971ed
+Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.0-oe/bui=
+ld/v5.0.20-37-g9866761971ed
 
-The devil is in the detail here, and I think specifically it depends
-what you mean by "before". Does that mean memory barrier, or special
-page-table walker barrier, or TLB invalidation or ...?
+No regressions (compared to build v5.0.20)
 
-> So the page table walker could begin from the now-freed page table,
-> but it would never instantiate a valid TLB entry from there. So a
-> TLB invalidation would behave properly despite not flushing page
-> tables.
-> 
-> Powerpc at least would want to avoid over flushing here, AFAIKS.
+No fixes (compared to build v5.0.20)
 
-For arm64 it really depends how often this hits. Simply not setting
-tlb->freed_tables would also break things for us, because we have an
-optimisation where we elide invalidation in the fullmm && !freed_tables
-case, since this is indicative of the mm going away and so we simply
-avoid reallocating its ASID.
+Ran 25132 total tests in the following environments and test suites.
 
-> >> > But it looks like benchmarks (for the one test-case we have) seem to
-> >> > favour flushing the world over flushing a smaller range.
-> >> 
-> >> Testing on 16MB unmap is possibly not a good benchmark, I didn't run
-> >> it exactly but it looks likely to go beyond the range flush threshold
-> >> and flush the entire PID anyway.
-> > 
-> > If we can get a better idea of what a "good benchmark" might look like (i.e.
-> > something that is representative of the cases in which real workloads are
-> > likely to trigger this path) then we can definitely try to optimise around
-> > that.
-> 
-> Hard to say unfortunately. A smaller unmap range to start with, but
-> even then when you have a TLB over-flushing case, then an unmap micro
-> benchmark is not a great test because you'd like to see more impact of
-> other useful entries being flushed (e.g., you need an actual working
-> set).
+Environments
+--------------
+- dragonboard-410c
+- hi6220-hikey
+- i386
+- juno-r2
+- qemu_arm
+- qemu_arm64
+- qemu_i386
+- qemu_x86_64
+- x15
+- x86
 
-Right, sounds like somebody needs to do some better analysis than what's
-been done so far.
+Test Suites
+-----------
+* build
+* install-android-platform-tools-r2600
+* kselftest
+* libgpiod
+* libhugetlbfs
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-cpuhotplug-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-timers-tests
+* perf
+* spectre-meltdown-checker-test
+* v4l2-compliance
+* ltp-fs-tests
+* network-basic-tests
+* ltp-open-posix-tests
+* kvm-unit-tests
+* kselftest-vsyscall-mode-native
+* kselftest-vsyscall-mode-none
 
-> > In the meantime, I would really like to see this patch land in mainline
-> > since it fixes a regression.
-> 
-> Sorry I didn't provide input earlier. I would like to improve the fix or 
-> at least make an option for archs to provide an optimised way to flush 
-> this case, so it would be nice not to fix archs this way and then have 
-> to change the fix significantly right away.
-
-Please send patches ;)
-
-> But the bug does need to be fixed of course, if there needs to be more
-> thought about it maybe it's best to take this fix for next release.
-
-Agreed.
-
-Will
+--=20
+Linaro LKFT
+https://lkft.linaro.org
