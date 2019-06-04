@@ -2,72 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C751F33BF9
-	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 01:33:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B80E33C54
+	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 02:05:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726163AbfFCXdU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jun 2019 19:33:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38132 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726101AbfFCXdU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 3 Jun 2019 19:33:20 -0400
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 83D372431A;
-        Mon,  3 Jun 2019 23:33:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559604800;
-        bh=nMbjhwrQy5ceP3p5c1t8Ef5q23oPnY223GQrWuxoQxU=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=FILtyccGgJNGxf3uG8k4tNhij5FoWxrUJp7r/D9if+7ey4eAibPlpfcoMl203vnQ/
-         JSPa7wHqn5ujjPAS6QH5abYvH0C9jwvzmm3Fy/2FLM8jXsM50O4pkCREtnL+wNN85n
-         N62jaZmFHmaojPblMyr3DJgzIw2M5nxT7WZHqFVg=
-Subject: Re: [PATCH 4.19 00/32] 4.19.48-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org, shuah <shuah@kernel.org>
-References: <20190603090308.472021390@linuxfoundation.org>
-From:   shuah <shuah@kernel.org>
-Message-ID: <fbbfaeb3-0126-0dbb-c282-6044c2f20f96@kernel.org>
-Date:   Mon, 3 Jun 2019 17:33:19 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.0
+        id S1726211AbfFDAFg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jun 2019 20:05:36 -0400
+Received: from kvm5.telegraphics.com.au ([98.124.60.144]:42236 "EHLO
+        kvm5.telegraphics.com.au" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726102AbfFDAFg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jun 2019 20:05:36 -0400
+Received: from localhost (localhost.localdomain [127.0.0.1])
+        by kvm5.telegraphics.com.au (Postfix) with ESMTP id 885D327E27;
+        Mon,  3 Jun 2019 20:05:33 -0400 (EDT)
+Date:   Tue, 4 Jun 2019 10:05:44 +1000 (AEST)
+From:   Finn Thain <fthain@telegraphics.com.au>
+To:     Michael Schmitz <schmitzmic@gmail.com>
+cc:     Geert Uytterhoeven <geert@linux-m68k.org>,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        scsi <linux-scsi@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        linux-m68k <linux-m68k@lists.linux-m68k.org>
+Subject: Re: [PATCH 5/7] scsi: mac_scsi: Fix pseudo DMA implementation, take
+ 2
+In-Reply-To: <247ed79a-75c7-41fd-0932-0b7701ee5d4e@gmail.com>
+Message-ID: <alpine.LNX.2.21.1906040954330.40@nippy.intranet>
+References: <cover.1559438652.git.fthain@telegraphics.com.au> <c56deeb735545c7942607a93f017bb536f581ae5.1559438652.git.fthain@telegraphics.com.au> <CAMuHMdWxRtJU2aRQQjXzR2mvpfpDezCVu42Eo1eXDsQaPb+j6Q@mail.gmail.com> <alpine.LNX.2.21.1906030903510.20@nippy.intranet>
+ <CAMuHMdUFxQnmJmkr2qm4waTfFA5yfCHAFngyD37cFH6gbbD-Pg@mail.gmail.com> <alpine.LNX.2.21.1906031702220.37@nippy.intranet> <247ed79a-75c7-41fd-0932-0b7701ee5d4e@gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20190603090308.472021390@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/3/19 3:07 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.19.48 release.
-> There are 32 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Tue, 4 Jun 2019, Michael Schmitz wrote:
+
+> Hi Finn,
 > 
-> Responses should be made by Wed 05 Jun 2019 09:02:49 AM UTC.
-> Anything received after that time might be too late.
+> On 3/06/19 7:40 PM, Finn Thain wrote:
+> > 
+> > > There are several other drivers that contain pieces of assembler code.
+> > > 
+> > Does any driver contain assembler code for multiple architectures? I was
+> > trying to avoid that -- though admittedly I don't yet have actual code for
+> > the PDMA implementation for mac_scsi for Nubus PowerMacs.
+> > 
+> I've seen that once, for one of the ESP drivers that were supported on both
+> m68k and ppc (APUS, PPC upgrade to Amiga computers). But that driver was
+> removed long ago (after 2.6?).
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.48-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+> In that case, the assembly file did reside in drivers/scsi/. That still
+> appears to be current practice (see drivers/scsi/arm/acornscsi-io.S).
 > 
 
-Compiled and booted on my test system. No dmesg regressions.
+The presence of that file would be an argument for adding 
+drivers/scsi/m68k/. This seems to be begging the question.
 
-thanks,
--- Shuah
+Since there's no clear policy, I'll combine the two files and avoid the 
+question for now.
 
+-- 
+
+> Cheers,
+> 
+> ??? Michael
+> 
+> 
+> 
