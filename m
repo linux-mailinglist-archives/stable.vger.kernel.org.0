@@ -2,98 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 94FB73432E
-	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 11:30:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B51FD34342
+	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 11:34:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727027AbfFDJaf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Jun 2019 05:30:35 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:34386 "EHLO
-        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727013AbfFDJaf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Jun 2019 05:30:35 -0400
-Received: by atrey.karlin.mff.cuni.cz (Postfix, from userid 512)
-        id 00F4680302; Tue,  4 Jun 2019 11:30:22 +0200 (CEST)
-Date:   Tue, 4 Jun 2019 11:30:32 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Sedat Dilek <sedat.dilek@gmail.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: Re: [PATCH 4.19 29/32] jump_label: move asm goto support test to
- Kconfig
-Message-ID: <20190604093032.GA2689@amd>
-References: <20190603090308.472021390@linuxfoundation.org>
- <20190603090315.474902271@linuxfoundation.org>
+        id S1726933AbfFDJeJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Jun 2019 05:34:09 -0400
+Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:43013 "EHLO
+        wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726918AbfFDJeJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Jun 2019 05:34:09 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id 994CE3C1F;
+        Tue,  4 Jun 2019 05:34:08 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Tue, 04 Jun 2019 05:34:09 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=ZMDEFC
+        E1JYsJbP29tVXHCBGF0zi2e+pY00cgULOQXu4=; b=P/o/vGypLdr5ry40npQELD
+        QI76Y/chVpjHexvEW5pvJsJSCqxhGxKOXPHx/jHqy7wHPX7a6pPDfBgnTsnqf3Da
+        J+mQUP5Lq/kCiZioVhpC0E6ORZorWx8DIwH50GYVNJdyqOhbEYESnWDKlLDGDXKX
+        wJ7YtUpVIla2ln8A1evsgudtzZxstVuH15YFifEt12ZDNwzKOmgLtqPs900GzpAv
+        nS8pQDt9+0ZoH01oODWZzFOttPlTBGmqj2uGVxGNxHUz6AXje7ieqe2CsH1c4aga
+        yJf5Zc+lVuSixVkrHJsPJAhY7XHrSGRe2X6GyJd/riqftPTgY5f+xImICb6Hvq4A
+        ==
+X-ME-Sender: <xms:Dzv2XIP8OoXdjbq0vC27XZaR27E9PcDln-tUwhu-bHhXKzGKShQvyQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrudefledgudejucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuffhomhgrihhnpehlrghunhgthhhprggurdhnvghtnecukfhppeekfedrkeeird
+    ekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgt
+    ohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:Dzv2XJtG63PlWrDEbzlAasMZPZOe7e-skm8IkTtjhhXYfObtSV5qdQ>
+    <xmx:Dzv2XOIhI0rNd14a4PmpjXd0DsOKynGlxIqtBReNIXbX93hA3djxJQ>
+    <xmx:Dzv2XHfSBva6olmpEtgDkTE8tXgqtIbPB_g_2KJFtnpzH4WZjkU0WA>
+    <xmx:EDv2XBynaolui8Ug-9EOwmjZWCN-JPWnkgaGhEJ8sCYM6ulrm2ZYMg>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id C6FF3380087;
+        Tue,  4 Jun 2019 05:34:06 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] ALSA: hda/realtek - Improve the headset mic for Acer Aspire" failed to apply to 4.14-stable tree
+To:     hui.wang@canonical.com, chiu@endlessm.com, drake@endlessm.com,
+        kailang@realtek.com, stable@vger.kernel.org, tiwai@suse.de
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 04 Jun 2019 11:34:04 +0200
+Message-ID: <155964084410076@kroah.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="W/nzBZO5zC0uMSeA"
-Content-Disposition: inline
-In-Reply-To: <20190603090315.474902271@linuxfoundation.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---W/nzBZO5zC0uMSeA
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The patch below does not apply to the 4.14-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-On Mon 2019-06-03 11:08:23, Greg Kroah-Hartman wrote:
-> From: Masahiro Yamada <yamada.masahiro@socionext.com>
->=20
-> commit e9666d10a5677a494260d60d1fa0b73cc7646eb3 upstream.
->=20
-> Currently, CONFIG_JUMP_LABEL just means "I _want_ to use jump label".
->=20
-> The jump label is controlled by HAVE_JUMP_LABEL, which is defined
-> like this:
->=20
->   #if defined(CC_HAVE_ASM_GOTO) && defined(CONFIG_JUMP_LABEL)
->   # define HAVE_JUMP_LABEL
->   #endif
->=20
-> We can improve this by testing 'asm goto' support in Kconfig, then
-> make JUMP_LABEL depend on CC_HAS_ASM_GOTO.
->=20
-> Ugly #ifdef HAVE_JUMP_LABEL will go away, and CONFIG_JUMP_LABEL will
-> match to the real kernel capability.
->=20
-> Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-> Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
-> Tested-by: Sedat Dilek <sedat.dilek@gmail.com>
-> [nc: Fix trivial conflicts in 4.19
->      arch/xtensa/kernel/jump_label.c doesn't exist yet
->      Ensured CC_HAVE_ASM_GOTO and HAVE_JUMP_LABEL were sufficiently
->      eliminated]
-> Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+thanks,
 
-This does not matche stable-kernel rules. It is nice cleanup, but it
-does not really fix any bug (does it?), and resulting patch is too
-big.
+greg k-h
 
-Best regards,
-									Pavel
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
+------------------ original commit in Linus's tree ------------------
 
---W/nzBZO5zC0uMSeA
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+From 9cb40eb184c4220d244a532bd940c6345ad9dbd9 Mon Sep 17 00:00:00 2001
+From: Hui Wang <hui.wang@canonical.com>
+Date: Wed, 29 May 2019 12:41:38 +0800
+Subject: [PATCH] ALSA: hda/realtek - Improve the headset mic for Acer Aspire
+ laptops
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+We met another Acer Aspire laptop which has the problem on the
+headset-mic, the Pin 0x19 is not set the corret configuration for a
+mic and the pin presence can't be detected too after plugging a
+headset. Kailang suggested that we should set the coeff to enable the
+mic and apply the ALC269_FIXUP_LIFEBOOK_EXTMIC. After doing that,
+both headset-mic presence and headset-mic work well.
 
-iEYEARECAAYFAlz2OjgACgkQMOfwapXb+vJg6ACfTJHn2/dpEQHUJGSjB7L709iu
-ob4An3gjfbXgf03/ZaByt6D+YOfo0kYZ
-=grxE
------END PGP SIGNATURE-----
+The existing ALC255_FIXUP_ACER_MIC_NO_PRESENCE set the headset-mic
+jack to be a phantom jack. Now since the jack can support presence
+unsol event, let us imporve it to set the jack to be a normal jack.
 
---W/nzBZO5zC0uMSeA--
+https://bugs.launchpad.net/bugs/1821269
+Fixes: 5824ce8de7b1c ("ALSA: hda/realtek - Add support for Acer Aspire E5-475 headset mic")
+Cc: Chris Chiu <chiu@endlessm.com>
+CC: Daniel Drake <drake@endlessm.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Kailang Yang <kailang@realtek.com>
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index f1bac03e954b..18cb48054e54 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -6223,13 +6223,15 @@ static const struct hda_fixup alc269_fixups[] = {
+ 		.chain_id = ALC269_FIXUP_THINKPAD_ACPI,
+ 	},
+ 	[ALC255_FIXUP_ACER_MIC_NO_PRESENCE] = {
+-		.type = HDA_FIXUP_PINS,
+-		.v.pins = (const struct hda_pintbl[]) {
+-			{ 0x19, 0x01a1913c }, /* use as headset mic, without its own jack detect */
+-			{ }
++		.type = HDA_FIXUP_VERBS,
++		.v.verbs = (const struct hda_verb[]) {
++			/* Enable the Mic */
++			{ 0x20, AC_VERB_SET_COEF_INDEX, 0x45 },
++			{ 0x20, AC_VERB_SET_PROC_COEF, 0x5089 },
++			{}
+ 		},
+ 		.chained = true,
+-		.chain_id = ALC255_FIXUP_HEADSET_MODE
++		.chain_id = ALC269_FIXUP_LIFEBOOK_EXTMIC
+ 	},
+ 	[ALC255_FIXUP_ASUS_MIC_NO_PRESENCE] = {
+ 		.type = HDA_FIXUP_PINS,
+@@ -7273,6 +7275,10 @@ static const struct snd_hda_pin_quirk alc269_pin_fixup_tbl[] = {
+ 		{0x18, 0x02a11030},
+ 		{0x19, 0x0181303F},
+ 		{0x21, 0x0221102f}),
++	SND_HDA_PIN_QUIRK(0x10ec0255, 0x1025, "Acer", ALC255_FIXUP_ACER_MIC_NO_PRESENCE,
++		{0x12, 0x90a60140},
++		{0x14, 0x90170120},
++		{0x21, 0x02211030}),
+ 	SND_HDA_PIN_QUIRK(0x10ec0255, 0x1025, "Acer", ALC255_FIXUP_ACER_MIC_NO_PRESENCE,
+ 		{0x12, 0x90a601c0},
+ 		{0x14, 0x90171120},
+
