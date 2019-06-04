@@ -2,87 +2,145 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E8A6134287
-	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 11:01:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FEC034291
+	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 11:03:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727131AbfFDJBj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Jun 2019 05:01:39 -0400
-Received: from eu-smtp-delivery-151.mimecast.com ([146.101.78.151]:52024 "EHLO
-        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727134AbfFDJBf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Jun 2019 05:01:35 -0400
-Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
- TLS) by relay.mimecast.com with ESMTP id uk-mta-5-JkTxSXOoNISA2RzXYu7j5g-1;
- Tue, 04 Jun 2019 10:01:32 +0100
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
- AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
- Server (TLS) id 15.0.1347.2; Tue, 4 Jun 2019 10:01:32 +0100
-Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
- AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
- Tue, 4 Jun 2019 10:01:32 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Masahiro Yamada' <yamada.masahiro@socionext.com>
-CC:     "linux-kbuild@vger.kernel.org" <linux-kbuild@vger.kernel.org>,
-        "Vineet Gupta" <vgupta@synopsys.com>,
-        Alexey Brodkin <abrodkin@synopsys.com>,
-        "linux-snps-arc@lists.infradead.org" 
-        <linux-snps-arc@lists.infradead.org>,
-        linux-stable <stable@vger.kernel.org>,
-        Michal Marek <michal.lkml@markovi.net>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH] kbuild: use more portable 'command -v' for
- cc-cross-prefix
-Thread-Topic: [PATCH] kbuild: use more portable 'command -v' for
- cc-cross-prefix
-Thread-Index: AQHVGfoc7Nk6FX5Ty02s910sxgLWxaaJxI+g///4bICAACdTsIAA4rqAgABrGkA=
-Date:   Tue, 4 Jun 2019 09:01:31 +0000
-Message-ID: <96b710063de5464ea347bfa1e03308b5@AcuMS.aculab.com>
-References: <20190603104902.23799-1-yamada.masahiro@socionext.com>
- <863c29c5f0214c008fbcbb2aac517a5c@AcuMS.aculab.com>
- <CAK7LNARHR=xv_YxQCkCM7PtW3vpNfXOgZrez0c4HbMX6C-8-uA@mail.gmail.com>
- <810dd6ae018b4a31b70d26fb6b29e48d@AcuMS.aculab.com>
- <CAK7LNAR_A1d5keiCRthNioW3nqkNadJkaCyMR3a5S8WS0jhgNQ@mail.gmail.com>
-In-Reply-To: <CAK7LNAR_A1d5keiCRthNioW3nqkNadJkaCyMR3a5S8WS0jhgNQ@mail.gmail.com>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+        id S1726949AbfFDJDi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Jun 2019 05:03:38 -0400
+Received: from mail-io1-f68.google.com ([209.85.166.68]:41904 "EHLO
+        mail-io1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726918AbfFDJDi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Jun 2019 05:03:38 -0400
+Received: by mail-io1-f68.google.com with SMTP id w25so16679675ioc.8
+        for <stable@vger.kernel.org>; Tue, 04 Jun 2019 02:03:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=PGGbXV/5A7MCMNVCx5qOpkwilQaGa0nkbfgyDMXjqhk=;
+        b=u3a2Cz2deBiyon8ARzeWUiwDJ9HkztDWuFu6cdS5tU6NwVdg4bWKIwjVZ7z2BvVjiu
+         IKrt1CkESgsy6hToEeLtJcBDls0L6IVfPLwKJ3SSztzFpQH9gUcZ60tE5qa9s+Ffm/mI
+         u9QckFWE4Z7VN0lqMo+5++bui54SrU0ZB4oP90fMxhDeKhh41I4ifioyiwTOQyxQyIHZ
+         IcLI0UbtUQXUbhUss8HMP8mqC08Y4YeundfgIxpVfREExq6X4lW1sm0XFc9BNITiHN0h
+         zaNwhBsOzUSOKYlVK22ZGycwq3pt85Hsmn6vCpy8p6DxwGlcz3oTGKU9KjJzM0U40B+8
+         caIA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=PGGbXV/5A7MCMNVCx5qOpkwilQaGa0nkbfgyDMXjqhk=;
+        b=hM9uuwxQwtMCc+MYkwqkpBMYMtvAddXOpRHiK6L6I+O5FYznZVhkg/8wVyTL1mgG+0
+         ZvjuwwJroT2aYqTHOvneZMn1M1ghjTlhLxaURzuKWGs4zug1DQJDyBNcZDRTMb5e44At
+         AWpZDv7ikaZV/bDyC+f0VLqaZ+HCPqtdIYlh9kmUvmWyyBTJmgX1EtQCoc+G1nYAyFBd
+         n5dit/lzNW04rrvf1879NLy0XvKiTqAp6XWX27nMyZCp+6NG+xg6J4V6Eg38j7Qh1h4W
+         NMx3sizdEkAHCZkCY0anYW10MlcHccPYWPKkL9L7ypplzoE5ye4W9d929cMQpG00eCmU
+         sUmw==
+X-Gm-Message-State: APjAAAVBpdaRVqaMFsYbZZorwkkt+IqPfqX2c+tn3ubX8wp4Wdr5tcHD
+        bm+JrmGFpsXOjVfdG1LWZbyWcVWfnbKutcrn4yqfOg==
+X-Google-Smtp-Source: APXvYqz90r6SramMd4jarOogQEIP9u/taErB/EvHUpIyOr9E+Tv7josT73LOSzfzEg4eXnXUSCphNpD9gv5gvKsCLKM=
+X-Received: by 2002:a5d:968e:: with SMTP id m14mr18981733ion.49.1559639017539;
+ Tue, 04 Jun 2019 02:03:37 -0700 (PDT)
 MIME-Version: 1.0
-X-MC-Unique: JkTxSXOoNISA2RzXYu7j5g-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
+References: <20190603223851.GA162395@google.com> <CAKv+Gu8VioGy1h8n0zKAqj+m_PBZdRU+BmJDH7=D7=iEiKRpgw@mail.gmail.com>
+ <20190604074624.GA6840@kroah.com> <CABXOdTeLtgjzL_V5rgsLnwZLaiK+MnL1BfOr8XeGXW8+Ws9zQQ@mail.gmail.com>
+In-Reply-To: <CABXOdTeLtgjzL_V5rgsLnwZLaiK+MnL1BfOr8XeGXW8+Ws9zQQ@mail.gmail.com>
+From:   Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Date:   Tue, 4 Jun 2019 11:03:25 +0200
+Message-ID: <CAKv+Gu-L-XGV8VkqDYzMZQeqQV2gePd7=texrneU0Ds8KJ9H+A@mail.gmail.com>
+Subject: Re: 4e78921ba4dd ("efi/x86/Add missing error handling to old_memmap
+ 1:1 mapping code")
+To:     Guenter Roeck <groeck@google.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Zubin Mithra <zsm@chromium.org>,
+        stable <stable@vger.kernel.org>,
+        Guenter Roeck <groeck@chromium.org>,
+        Gen Zhang <blackgod016574@gmail.com>,
+        Darren Hart <dvhart@infradead.org>,
+        Andy Shevchenko <andy@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-RnJvbTogTWFzYWhpcm8gWWFtYWRhDQo+IFNlbnQ6IDA0IEp1bmUgMjAxOSAwNDozMQ0KLi4uDQo+
-ID4gPiA+IFlvdSBjb3VsZCB1c2U6DQo+ID4gPiA+ICAgICAgICAgJChzaGVsbCBzaCAtYyAiY29t
-bWFuZCAtdiAkKGMpZ2NjIikNCj4gPiA+ID4gb3IgbWF5YmU6DQo+ID4gPiA+ICAgICAgICAgJChz
-aGVsbCBjb21tYW5kJCR7eDorfSAtdiAkKGMpZ2NjKQ0KPiA+ID4NCj4gPiA+DQo+ID4gPiBIb3cg
-YWJvdXQgdGhpcz8NCj4gPiA+DQo+ID4gPiAgICAgICAgICAgJChzaGVsbCA6IH47IGNvbW1hbmQg
-LXYgJChjKWdjYykNCj4gPg0KPiA+IE92ZXJjb21wbGljYXRlZCAuLi4uDQo+ID4NCj4gPiBJJ3Zl
-IG5vdCBsb29rZWQgYXQgdGhlIGxpc3Qgb2YgJ3NwZWNpYWwgY2hhcmFjdGVycycgaW4gbWFrZSwN
-Cj4gPiBidXQgSSBzdXNwZWN0IGFueSB2YXJpYWJsZSBleHBhbnNpb24gaXMgZW5vdWdoLg0KPiA+
-IFNpbmNlICR7eDorfSBhbHdheXMgZXhwYW5kcyB0byB0aGUgZW1wdHkgc3RyaW5nICh3aGV0aGVy
-IG9yDQo+ID4gbm90ICd4JyBpcyBkZWZpbmVkKSBpdCBjYW4ndCBoYXZlIGFueSB1bmZvcnR1bmF0
-ZSBzaWRlIGVmZmVjdHMuDQo+IA0KPiANCj4gUHJvYmFibHksIG15IGV5ZXMgYXJlIHVzZWQgdG8g
-TWFrZWZpbGUuDQo+ICI6IiBpcyBhIG5vLW9wIGNvbW1hbmQsIGFuZCBpdCBpcyB1c2VkIGV2ZXJ5
-d2hlcmUgaW4ga2VybmVsIE1ha2VmaWxlcw0KPiBpbiB0aGUgZm9ybSBvZiAiQDonDQo+IA0KPiBJ
-dCBkZXBlbmRzIG9uIHBlb3BsZSB3aGljaCBzb2x1dGlvbiBzZWVtcyBzaW1wbGVyLg0KPiBTbywg
-dGhpcyBhcmd1bWVudCB0ZW5kcyB0byBlbmQgdXAgd2l0aCBiaWtlc2hlZGluZy4NCg0KSSBhbSBm
-dWxseSBhd2FyZSBvZiAnOicsIGl0IGlzIGEgc2hlbGwgYnVpbHRpbiB0aGF0IGFsd2F5cyByZXR1
-cm4gc3VjY2Vzcy4NClVzdWFsbHkgdXNlZCB3aGVuIHlvdSB3YW50IHRoZSBzaWRlLWVmZmVjdHMg
-b2Ygc3Vic3RpdHV0aW9ucyB3aXRob3V0DQpleGVjdXRpbmcgYW55dGhpbmcgKGVnIDogJHtmb286
-PWJhcn0gKSwgdG8gY2hhbmdlIHRoZSByZXN1bHQgb2YgYQ0Kc2VxdWVuY2Ugb2Ygc2hlbGwgY29t
-bWFuZHMgb3IgYXMgYSBkdW1teSAoZWcgd2hpbGUgOjsgZG8gOjsgZG9uZTsgKQ0KVmVyeSBhbm5v
-eWluZ2x5IGJhc2ggcGFyc2VzICE6IGFzIHNvbWV0aGluZyBvdGhlciB0aGFuICdub3QgdHJ1ZScu
-DQoNCiQoc2hlbGwgY29tbWFuZCQke3g6K30gLXYgJChjKWdjYykgd2lsbCBiZSBtYXJnaW5hbGx5
-IGZhc3Rlcg0KYmVjYXVzZSBpdCBpcyBsZXNzIHBhcnNpbmcuDQoNCglEYXZpZA0KIA0KDQotDQpS
-ZWdpc3RlcmVkIEFkZHJlc3MgTGFrZXNpZGUsIEJyYW1sZXkgUm9hZCwgTW91bnQgRmFybSwgTWls
-dG9uIEtleW5lcywgTUsxIDFQVCwgVUsNClJlZ2lzdHJhdGlvbiBObzogMTM5NzM4NiAoV2FsZXMp
-DQo=
+On Tue, 4 Jun 2019 at 10:52, Guenter Roeck <groeck@google.com> wrote:
+>
+> On Tue, Jun 4, 2019 at 12:46 AM Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > On Tue, Jun 04, 2019 at 09:38:27AM +0200, Ard Biesheuvel wrote:
+> > > On Tue, 4 Jun 2019 at 00:38, Zubin Mithra <zsm@chromium.org> wrote:
+> > > >
+> > > > Hello,
+> > > >
+> > > > CVE-2019-12380 was fixed in the upstream linux kernel with the commit :-
+> > > > * 4e78921ba4dd ("efi/x86/Add missing error handling to old_memmap 1:1 mapping code")
+> > > >
+> > > > Could the patch be applied in order to v4.19.y?
+> > > >
+> > > > Tests run:
+> > > > * Chrome OS tryjob
+> > > >
+> > >
+> > > Unless I am missing something, it seems to me that there is some
+> > > inflation going on when it comes to CVE number assignments.
+> > >
+> > > The code in question only affects systems that are explicitly booted
+> > > with efi=old_map, and the memory allocation occurs so early during the
+> > > boot sequence that even if we fail and handle it gracefully, it is
+> > > highly unlikely that we can get to a point where the system is usable
+> > > at all.
+> > >
+> > > Does Chrome OS boot in EFI mode? Does it use efi=old_map? Is the
+> > > kernel built with 5 level paging enabled? Did you run it on 5 level
+> > > paging hardware?
+> > >
+> > > Or is this just a tick the box exercise?
+> > >
+> > > Also, I am annoyed (does it show? :-))  that nobody mentioned the CVE
+> > > at any point when the patch was under review (not even privately)
+> >
+> > CVEs are almost always asked for _after_ the patch is merged, as the
+> > average fix-to-CVE request timeframe is -100 days.
+> >
+> > Also, for the kernel, CVEs almost mean nothing, so if this really isn't
+> > an issue, I'll not backport this.
+> >
+> > And I really doubt that any chromeos device has 5 level page tables just
+> > yet :)
+> >
+>
+> FWIW, Chrome OS kernels are not only used in Chromebooks nowadays.
+> They are also used in VM images in systems with hundreds of GB of
+> memory. At least some of those may well boot in EFI mode.
 
+Yes, but why would you boot those with efi=old_map, which is an option
+that is only there for compatibility with old and non-standard EFI
+implementations.
+
+> Plus, as
+> also mentioned, we do not (and will not) double-guess CVEs. If anyone
+> has an issue with CVE creation, I would suggest to discuss with the
+> respective bodies, not with us.
+>
+
+Fair enough.
+
+> Zubin, as mentioned before, please hold back on -stable backport
+> requests for CVE fixes. Please apply CVE fixes to our branches
+> directly instead, per the above guidance ("for the kernel, CVEs almost
+> mean nothing"). I'll revise our policy accordingly. Again, sorry for
+> the trouble.
+>
+
+No trouble at all, and apologies for the grumpy tone.
+
+In this particular case, the CVE is highly dubious (imo), since not
+every bug is a vulnerability, and this bug is very difficult to hit
+even on systems which make use of efi=old_map. While that also reduces
+the risk of regressions, pulling this bug into a stable release
+requires justification, and sadly, given the apparent policy issues
+with assigning CVE numbers, the fact that the patch addresses a CVE is
+not sufficient.
