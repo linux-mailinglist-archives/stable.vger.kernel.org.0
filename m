@@ -2,80 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 99CF734472
-	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 12:34:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85D7F34507
+	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 13:03:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727179AbfFDKeZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Jun 2019 06:34:25 -0400
-Received: from mail-qt1-f193.google.com ([209.85.160.193]:42298 "EHLO
-        mail-qt1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727118AbfFDKeZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Jun 2019 06:34:25 -0400
-Received: by mail-qt1-f193.google.com with SMTP id s15so13050099qtk.9
-        for <stable@vger.kernel.org>; Tue, 04 Jun 2019 03:34:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=gpX8Q+g17lho9xUi8FqTbSX1pyKEBHIETjatUwtxLVA=;
-        b=YD6+7uIczNhyCs7lMuvKH6q5xlc8FU4Lojxzw4A3U0+IYJmU/wW17bNC5jXl/4tx0G
-         gNq6X/NzNyEwh7N7qpjyFQltdAhQIOZjGihZ9XrvPEjs3RRELSqPP5DI34SWbB4hsl1w
-         9CKfBQ8ZpYL1joOJelD4AdJ+VE3HDZqsX0ByASRyCvpVTIqpEUwOVQ3+Rcj18QdWS8sG
-         bYHUUX0fJM+8nFvowdbprNyWUyfrkEAtILObR3O6yi3tMv6/pBf+8HRyTDP7nQdUwQuk
-         GslWYQ58lIOyOH9O8opaUDnmTmRdYiV30oL6V1lxs996tAbLSkpgr6nAX1aCM2rJw+6V
-         8GcA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=gpX8Q+g17lho9xUi8FqTbSX1pyKEBHIETjatUwtxLVA=;
-        b=ASqKuxHjnSl7waC7xgbdHFETYhg1X5jirkuOENj/86oWuk9X2hByDW6/Yvqq+0R6FX
-         +/3QSKr0gyL4K9jjiBzop021abti4OCP/p5tPCC9HIiaSYWJ7jQLar4iK6QTQ7++vvdB
-         8NGyFDF1e+sRnLj31IIBV2KSTz/HyXeScIx2l808hVVUSV/3poFpc0wDjVat3/Gq2mI6
-         gTeJeaJRTv/F3lHV9grCwbMz36ttUdWZOksyvF5uWH/e38mNjm+2K45a7U8P8qr6X6d5
-         3aKYIdqs5B58c6qXK7puFv2FNDT7eoCA1azaBgSXdaTkkTBgdeCBJSUIMl9ix4C+a9Xh
-         9dng==
-X-Gm-Message-State: APjAAAXZ4Lb2BkMr5WNgFv9A3JHXeWReGWYbctG5SGV+LpulUBro+HzJ
-        ElBsYKV/WBzMAEj7TwFx62VqwaQZK8zW9Dj8+F8=
-X-Google-Smtp-Source: APXvYqykSL1CPd9Uzsg2k8N6qQvalfZmfeTx7MBOBobkGm98j49489qT0KDbs0nwhMFW0vlU6YCIX2uHrNx7P+KdwqM=
-X-Received: by 2002:ac8:1acf:: with SMTP id h15mr27617977qtk.67.1559644464236;
- Tue, 04 Jun 2019 03:34:24 -0700 (PDT)
+        id S1727280AbfFDLDE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Jun 2019 07:03:04 -0400
+Received: from mx2.suse.de ([195.135.220.15]:39542 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727242AbfFDLDE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 4 Jun 2019 07:03:04 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id 53E51AEFE;
+        Tue,  4 Jun 2019 11:03:03 +0000 (UTC)
+Received: by ds.suse.cz (Postfix, from userid 10065)
+        id 440BFDA85E; Tue,  4 Jun 2019 13:03:55 +0200 (CEST)
+Date:   Tue, 4 Jun 2019 13:03:55 +0200
+From:   David Sterba <dsterba@suse.cz>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org
+Subject: Re: Please revert "btrfs: Honour FITRIM range constraints during
+ free space trim" from all stable trees
+Message-ID: <20190604110355.GX15290@suse.cz>
+Reply-To: dsterba@suse.cz
+References: <20190529112314.GY15290@suse.cz>
+ <20190529113300.GB11952@kroah.com>
+ <20190529115752.GZ15290@suse.cz>
+ <20190604081920.GG6840@kroah.com>
 MIME-Version: 1.0
-Received: by 2002:ac8:242:0:0:0:0:0 with HTTP; Tue, 4 Jun 2019 03:34:23 -0700 (PDT)
-From:   Issouf Adama <mr.issoufadama2013@gmail.com>
-Date:   Tue, 4 Jun 2019 12:34:23 +0200
-Message-ID: <CANuGkUTZ4Vpo4UwokjkBF0U_PtkggDyzoHuqkALtQi1EP7JF4A@mail.gmail.com>
-Subject: Please reply back soon. Thank you.
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190604081920.GG6840@kroah.com>
+User-Agent: Mutt/1.5.23.1 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Friend,
+On Tue, Jun 04, 2019 at 10:19:20AM +0200, Greg Kroah-Hartman wrote:
+> On Wed, May 29, 2019 at 01:57:52PM +0200, David Sterba wrote:
+> > On Wed, May 29, 2019 at 04:33:00AM -0700, Greg Kroah-Hartman wrote:
+> > > On Wed, May 29, 2019 at 01:23:14PM +0200, David Sterba wrote:
+> > > > Hi,
+> > > > 
+> > > > upon closer inspection we found a problem with the patch
+> > > > 
+> > > > "btrfs: Honour FITRIM range constraints during free space trim"
+> > > > 
+> > > > that has been merged to 5.1.4. This could happen with ranged FITRIM
+> > > > where the range is not 'honoured' as it was supposed to.
+> > > > 
+> > > > Please revert it and push in the next stable release so the buggy
+> > > > version is not in the wild for too long.
+> > > > 
+> > > > Affected trees:
+> > > > 
+> > > > 5.0.18
+> > > > 5.1.4
+> > > > 4.9.179
+> > > > 4.19.45
+> > > > 4.14.122
+> > > > 
+> > > > Master branch will have the revert too. Thanks.
+> > > 
+> > > What is the git commit id of the revert in Linus's tree?
+> > 
+> > The commit is not there yet, I'm going to send it with the next update
+> > in a few days for 5.2-rc2.
+> > 
+> > To shorthen the delay I hope it's possible to revert the patches without
+> > the corresponding master commit but if you insist on that I'll send the
+> > pull request today and will let you know the commit id.
+> 
+> Did this ever get reverted in Linus's tree?  I can't seem to find it...
 
-How are you today with your family? Hope fine. Please, it=E2=80=99s my grea=
-t
-pleasure to contact you today.
+The patches 2 and 4 from this patchset
 
-I am Mr. Issouf Adama a banker by profession from Benin Republic.
-Please, I want our bank management to transfer an abandoned sum of Ten
-Million, Five Hundred Thousand United States Dollars (US$10.5M) into
-your bank account. This business is 100% risk free. Your share will be
-40% while 60% will be for me. The transaction will be completed in few
-days and more details will be forwarded to you with copy of my bank
-working ID card, photos and direct phone number immediately I receive
-your urgent response indicating your interest to handle the business
-transaction with me. Please send me the following information for us
-to proceed immediately with the transaction.
+https://patchwork.kernel.org/project/linux-btrfs/list/?series=126297
 
-1) Your Full Name.......................
-2) Your Private Telephone Number........
-3) Your  Receiving Country............
-
-Thank you for your anticipated co-operation.
-
-Yours Sincerely,
-Mr. Issouf Adama
+will implement the equivalent change. Scheduled for merge to 5.2-rc4,
+the patches were not available last week.
