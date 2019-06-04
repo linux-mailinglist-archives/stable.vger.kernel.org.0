@@ -2,96 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A5D2345CC
-	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 13:46:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B4CD345CD
+	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 13:46:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727250AbfFDLqd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Jun 2019 07:46:33 -0400
-Received: from mail-wr1-f67.google.com ([209.85.221.67]:42266 "EHLO
-        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727433AbfFDLqd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Jun 2019 07:46:33 -0400
-Received: by mail-wr1-f67.google.com with SMTP id o12so8353163wrj.9
-        for <stable@vger.kernel.org>; Tue, 04 Jun 2019 04:46:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to:cc;
-        bh=YOjdYwR7sHqhYE5bIaMWfTHA7B/onkn4M3zU+Ab8ggc=;
-        b=ReQ8rlSHEn4ng8iZhBZvUpur3LBv+t8ja/hPfMRdjB+Zo1HDnT2Xbc1zwL3oePRRLa
-         hgqQ4zUu0hI84jR6wV/w7f+HWTKaUd73UlcGDjwITS/Vud/5l12IhpE2aVjKcg4aSX0i
-         /UkXsAOh/ZjIEL8iRf2oWBdUH8Dn1g8+PriacjDlW+UvzN5wCa2YYTJqbAGkYQWHQwBt
-         hqgVdA+r8Ih1hHolLEkcnwYE2F2vkEx6BSohqBMeXh7fFvR4Po5SsDhFXGire72lvIpL
-         fNDHbdKh9biasESxRhq7qF1h7tnscAkkiEPmNXh/9TTSgChulAa4SiOFM1soRkDbB8ke
-         DRog==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:cc;
-        bh=YOjdYwR7sHqhYE5bIaMWfTHA7B/onkn4M3zU+Ab8ggc=;
-        b=LB9BdVn/etQhO94m5kZJE7ISiHP2Yz7ZDqAdgsOF0wbxEDDCbwpuIt93lIbrZg1tsC
-         c7quJ2wUEvYpcw6AYSVf4PMkCY5hl/ModCYsKSbmyH/2H7tIk5UJsHG+xNCe9Qs21DrW
-         eTOG228wYd3+00Ox/oy0iysCvSM4rX0mJV3BCGm+fd9Lfeq1Jlx8w2rhwtQ5g4Tr/4xk
-         VM7B2iUnn0wEx8nGZwnbvzOjI071MB1HH+Z7sZuNIX6JJRcm53VmMYiP3n272CeHBU7j
-         RbAzQ92hLBsJT/cd5Ywapcp9yRxKGVOGl6j3B2EY5HONLojSmrITylvRkK2Hf7Ja9XhY
-         diBw==
-X-Gm-Message-State: APjAAAWI7c/242vqR2OTpwm0NdekZvnrK9RM7hxTqvC98TQs56d60o4X
-        9qWyXQeG5rgsHrqVvXl5ybTcFbbVOkPGtnCBE28=
-X-Google-Smtp-Source: APXvYqzyniBjBrTNVLn9Vcc4isjPlRRivzfw0HJnc1QB+FxI7XoUU+A9kE+49QaG2Z1viQ6JOvZw28YAtZGfRiqv3EE=
-X-Received: by 2002:adf:e9cc:: with SMTP id l12mr6551045wrn.29.1559648791435;
- Tue, 04 Jun 2019 04:46:31 -0700 (PDT)
+        id S1727586AbfFDLqf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Jun 2019 07:46:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43844 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727433AbfFDLqf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 4 Jun 2019 07:46:35 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 40A4A245BC;
+        Tue,  4 Jun 2019 11:46:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1559648794;
+        bh=cc+XBsmoRfD3JUIDmY8ud6VGyswQf8m4jnRyy68Y/mA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=S1Et/BUSNeRW+9m9+SDsUvaD1+04SfCa/IlYKFq9hx5AZjyxFsFONvbdBv8pIziyu
+         XuSgE/wTrz51dKspuUhGydaW9GdXToBW5EMWJAoQcScUY2Xw6rBo1jHV0dUvAMnY7V
+         ZwCHbjEgSU7l93/WzjGqjSZ+WfQMOKBC5+KWd02w=
+Date:   Tue, 4 Jun 2019 13:46:32 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Christian Borntraeger <borntraeger@de.ibm.com>
+Cc:     stable@vger.kernel.org, Thomas Huth <thuth@redhat.com>,
+        Andrew Jones <drjones@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH for 5.1 and older] KVM: s390: Do not report unusabled IDs
+ via KVM_CAP_MAX_VCPU_ID
+Message-ID: <20190604114632.GB13480@kroah.com>
+References: <155963851418943@kroah.com>
+ <20190604091828.39955-1-borntraeger@de.ibm.com>
 MIME-Version: 1.0
-Reply-To: sedat.dilek@gmail.com
-From:   Sedat Dilek <sedat.dilek@gmail.com>
-Date:   Tue, 4 Jun 2019 13:46:20 +0200
-Message-ID: <CA+icZUXaXhvm46tA2aHO=85Lv16Y4=DOnz7OBRyfztp=i0_a5Q@mail.gmail.com>
-Subject: Re: [v5] x86/mm/KASLR: Fix the size of vmemmap section
-To:     Baoquan He <bhe@redhat.com>
-Cc:     stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190604091828.39955-1-borntraeger@de.ibm.com>
+User-Agent: Mutt/1.12.0 (2019-05-25)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ CC me I am not subscribed to linux-stable ML ]
-[ CC Greg and Sasha ]
+On Tue, Jun 04, 2019 at 11:18:28AM +0200, Christian Borntraeger wrote:
+> From: Thomas Huth <thuth@redhat.com>
+> 
+> KVM_CAP_MAX_VCPU_ID is currently always reporting KVM_MAX_VCPU_ID on all
+> architectures. However, on s390x, the amount of usable CPUs is determined
+> during runtime - it is depending on the features of the machine the code
+> is running on. Since we are using the vcpu_id as an index into the SCA
+> structures that are defined by the hardware (see e.g. the sca_add_vcpu()
+> function), it is not only the amount of CPUs that is limited by the hard-
+> ware, but also the range of IDs that we can use.
+> Thus KVM_CAP_MAX_VCPU_ID must be determined during runtime on s390x, too.
+> So the handling of KVM_CAP_MAX_VCPU_ID has to be moved from the common
+> code into the architecture specific code, and on s390x we have to return
+> the same value here as for KVM_CAP_MAX_VCPUS.
+> This problem has been discovered with the kvm_create_max_vcpus selftest.
+> With this change applied, the selftest now passes on s390x, too.
+> 
+> Reviewed-by: Andrew Jones <drjones@redhat.com>
+> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+> Reviewed-by: David Hildenbrand <david@redhat.com>
+> Signed-off-by: Thomas Huth <thuth@redhat.com>
+> Message-Id: <20190523164309.13345-9-thuth@redhat.com>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> [backport to 5.1 and older]
 
-Hi Baoquan,
+Now queued up, but next time, give me a hint and put the git sha1 id of
+the commit in Linus's tree somewhere in here...
 
-that should be s/Fiexes/Fixes for the "Fixes tag".
+thanks,
 
-OLD: Fiexes: eedb92abb9bb ("x86/mm: Make virtual memory layout dynamic
-for CONFIG_X86_5LEVEL=y")
-NEW: Fixes: eedb92abb9bb ("x86/mm: Make virtual memory layout dynamic
-for CONFIG_X86_5LEVEL=y")
-
-Also, you can add...
-
-Cc: stable@vger.kernel.org # v4.19+
-
-...to catch the below.
-
-[ QUOTE ]
-You can see that it was added in kernel 4.17-rc1, as above. Can we just
-apply this patch to stable trees after 4.17?
-
->
-> v5.1.4: Build OK!
-> v5.0.18: Build OK!
-> v4.19.45: Build OK!
-[ /QUOTE ]
-
-I had an early patchset of you tested (which included this one IIRC),
-so feel free to add my...
-
-   Tested-by: Sedat Dilek <sedat.dilek@gmail.com>
-
-Hope this lands in tip or linux-stable Git.
-
-Thanks.
-
-Regards,
-- Sedat -
-
-[1] https://lore.kernel.org/patchwork/patch/1077557/
+greg k-h
