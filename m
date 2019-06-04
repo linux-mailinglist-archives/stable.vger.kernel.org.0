@@ -2,110 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E87BE3538F
-	for <lists+stable@lfdr.de>; Wed,  5 Jun 2019 01:27:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 14ECD35472
+	for <lists+stable@lfdr.de>; Wed,  5 Jun 2019 01:36:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728140AbfFDXZt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Jun 2019 19:25:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37792 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728141AbfFDXZs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 4 Jun 2019 19:25:48 -0400
-Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6940B208CB;
-        Tue,  4 Jun 2019 23:25:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559690748;
-        bh=fjhDZJsyBQxRSiPzjUNxPvagBNxuDS97BMGlYWT8VDQ=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ea4w8eOsPA7F5zlpm84/2A4IIBpdL/DHmJZMhjT/1u1CdnqWwCeKDlALLUmxZffkZ
-         oCK/Z8tp6qB61ayfFQ5UIKpwtMNjQkfextZd05vnK/pii5595LzZ+MwwVTrcHt+KHJ
-         XWSpWLxcHyDo6GR/MWbbO+2DmkCF5C7B0ITcwqfA=
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christian Borntraeger <borntraeger@de.ibm.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 10/10] KVM: s390: fix memory slot handling for KVM_SET_USER_MEMORY_REGION
-Date:   Tue,  4 Jun 2019 19:25:31 -0400
-Message-Id: <20190604232532.7953-10-sashal@kernel.org>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190604232532.7953-1-sashal@kernel.org>
-References: <20190604232532.7953-1-sashal@kernel.org>
+        id S1726695AbfFDXgC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Jun 2019 19:36:02 -0400
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:33124 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726502AbfFDXgC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Jun 2019 19:36:02 -0400
+Received: by mail-lj1-f194.google.com with SMTP id v29so10121984ljv.0
+        for <stable@vger.kernel.org>; Tue, 04 Jun 2019 16:36:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=WV3sJyKzvv2hglik5laJLi6zk95U7YCGm4MZG0UbbBM=;
+        b=doTgsxvdZv8uU0x8XW1L0hFFxk7NVRCh4EcK48wmJsmGLsH6XMlLAb/m9hX5yAKfq/
+         mpAOXL47upaREgDMBi3qMSM8JV9L1dBVgYXWkO08XRJIh04mvW8/RphRVPAe4EgWjIYG
+         dOxwWXAQNwFnvP+7LdEIctpkg0tJPmm6BMtrc=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=WV3sJyKzvv2hglik5laJLi6zk95U7YCGm4MZG0UbbBM=;
+        b=f6nnfLSlRkvSEomUCK4m4QVxs7aKX+e3DjVfpRM3JIJIIE2fept6ljM+617wVihN3T
+         88pAdW0Dj1x7BirvOCrPyAM3/WW5lmbdMegdgKmDTQFCl0GqiDEgn7WtfuvuNFmxHPyB
+         CX9lJAdwrm9TCV4Yh4XNmCB/YPChrgrlVfDjQD92KkTesN70GTVjCwPNMdOKpo7jiAID
+         eiHaqVZIu9S56aE9LBGlAP30SdG6Go9z5EMloQ8CJHlw0XYoTLfBxhTHi7zMZyTAzYYT
+         rwxpWp2CElKqdeurjwx2hi+/zbQdQWI+1uyHSMAomn5JcXVs5d8g1q0LtNIRG3yu3ZSp
+         I8XA==
+X-Gm-Message-State: APjAAAUGBtNQoCLbZ9L30aDr4Aax4BFXa45gG1JxQFjty7b72nNK8oFI
+        i4OxY4sSrU4DqQ1pgunx8bneMxhrGHY=
+X-Google-Smtp-Source: APXvYqwYya9wQF1m8bNwtJLC3vXhcH2yUuWIAzyqAvsb8sW1j6crnnrr5Y2b3bKl8rUxdYX2c86zMg==
+X-Received: by 2002:a2e:568b:: with SMTP id k11mr18796948lje.124.1559691360218;
+        Tue, 04 Jun 2019 16:36:00 -0700 (PDT)
+Received: from mail-lj1-f171.google.com (mail-lj1-f171.google.com. [209.85.208.171])
+        by smtp.gmail.com with ESMTPSA id w25sm2648958lfk.70.2019.06.04.16.35.59
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
+        Tue, 04 Jun 2019 16:35:59 -0700 (PDT)
+Received: by mail-lj1-f171.google.com with SMTP id s21so10759433lji.8
+        for <stable@vger.kernel.org>; Tue, 04 Jun 2019 16:35:59 -0700 (PDT)
+X-Received: by 2002:a2e:5d9c:: with SMTP id v28mr18287829lje.32.1559691358483;
+ Tue, 04 Jun 2019 16:35:58 -0700 (PDT)
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+References: <20190604232443.3417-1-bjorn.andersson@linaro.org>
+In-Reply-To: <20190604232443.3417-1-bjorn.andersson@linaro.org>
+From:   Evan Green <evgreen@chromium.org>
+Date:   Tue, 4 Jun 2019 16:35:21 -0700
+X-Gmail-Original-Message-ID: <CAE=gft7nZNLykioozOJUDitXWc8PgFjDmCucmoz-3wtxzg_4CA@mail.gmail.com>
+Message-ID: <CAE=gft7nZNLykioozOJUDitXWc8PgFjDmCucmoz-3wtxzg_4CA@mail.gmail.com>
+Subject: Re: [PATCH] phy: qcom-qmp: Correct READY_STATUS poll break condition
+To:     Bjorn Andersson <bjorn.andersson@linaro.org>
+Cc:     Kishon Vijay Abraham I <kishon@ti.com>,
+        linux-arm-msm <linux-arm-msm@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
+        Marc Gonzalez <marc.w.gonzalez@free.fr>,
+        Vivek Gautam <vivek.gautam@codeaurora.org>,
+        Stephen Boyd <swboyd@chromium.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+On Tue, Jun 4, 2019 at 4:24 PM Bjorn Andersson
+<bjorn.andersson@linaro.org> wrote:
+>
+> After issuing a PHY_START request to the QMP, the hardware documentation
+> states that the software should wait for the PCS_READY_STATUS to become
+> 1.
+>
+> With the introduction of c9b589791fc1 ("phy: qcom: Utilize UFS reset
+> controller") an additional 1ms delay was introduced between the start
+> request and the check of the status bit. This greatly increases the
+> chances for the hardware to actually becoming ready before the status
+> bit is read.
+>
+> The result can be seen in that UFS PHY enabling is now reported as a
+> failure in 10% of the boots on SDM845, which is a clear regression from
+> the previous rare/occasional failure.
+>
+> This patch fixes the "break condition" of the poll to check for the
+> correct state of the status bit.
+>
+> Unfortunately PCIe on 8996 and 8998 does not specify the mask_pcs_ready
+> register, which means that the code checks a bit that's always 0. So the
+> patch also fixes these, in order to not regress these targets.
+>
+> Cc: stable@vger.kernel.org
+> Cc: Evan Green <evgreen@chromium.org>
+> Cc: Marc Gonzalez <marc.w.gonzalez@free.fr>
+> Cc: Vivek Gautam <vivek.gautam@codeaurora.org>
+> Fixes: 73d7ec899bd8 ("phy: qcom-qmp: Add msm8998 PCIe QMP PHY support")
+> Fixes: e78f3d15e115 ("phy: qcom-qmp: new qmp phy driver for qcom-chipsets")
+> Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 
-[ Upstream commit 19ec166c3f39fe1d3789888a74cc95544ac266d4 ]
+Nice find.
 
-kselftests exposed a problem in the s390 handling for memory slots.
-Right now we only do proper memory slot handling for creation of new
-memory slots. Neither MOVE, nor DELETION are handled properly. Let us
-implement those.
-
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/s390/kvm/kvm-s390.c | 35 +++++++++++++++++++++--------------
- 1 file changed, 21 insertions(+), 14 deletions(-)
-
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 5ddb1debba95..23911ecfbad6 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -2721,21 +2721,28 @@ void kvm_arch_commit_memory_region(struct kvm *kvm,
- 				const struct kvm_memory_slot *new,
- 				enum kvm_mr_change change)
- {
--	int rc;
--
--	/* If the basics of the memslot do not change, we do not want
--	 * to update the gmap. Every update causes several unnecessary
--	 * segment translation exceptions. This is usually handled just
--	 * fine by the normal fault handler + gmap, but it will also
--	 * cause faults on the prefix page of running guest CPUs.
--	 */
--	if (old->userspace_addr == mem->userspace_addr &&
--	    old->base_gfn * PAGE_SIZE == mem->guest_phys_addr &&
--	    old->npages * PAGE_SIZE == mem->memory_size)
--		return;
-+	int rc = 0;
- 
--	rc = gmap_map_segment(kvm->arch.gmap, mem->userspace_addr,
--		mem->guest_phys_addr, mem->memory_size);
-+	switch (change) {
-+	case KVM_MR_DELETE:
-+		rc = gmap_unmap_segment(kvm->arch.gmap, old->base_gfn * PAGE_SIZE,
-+					old->npages * PAGE_SIZE);
-+		break;
-+	case KVM_MR_MOVE:
-+		rc = gmap_unmap_segment(kvm->arch.gmap, old->base_gfn * PAGE_SIZE,
-+					old->npages * PAGE_SIZE);
-+		if (rc)
-+			break;
-+		/* FALLTHROUGH */
-+	case KVM_MR_CREATE:
-+		rc = gmap_map_segment(kvm->arch.gmap, mem->userspace_addr,
-+				      mem->guest_phys_addr, mem->memory_size);
-+		break;
-+	case KVM_MR_FLAGS_ONLY:
-+		break;
-+	default:
-+		WARN(1, "Unknown KVM MR CHANGE: %d\n", change);
-+	}
- 	if (rc)
- 		pr_warn("failed to commit memory region\n");
- 	return;
--- 
-2.20.1
-
+Reviewed-by: Evan Green <evgreen@chromium.org>
