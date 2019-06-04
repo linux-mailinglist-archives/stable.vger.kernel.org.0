@@ -2,145 +2,198 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E3E5733D5D
-	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 05:04:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28AA433D88
+	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 05:31:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726223AbfFDDEJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jun 2019 23:04:09 -0400
-Received: from mx0b-0016f401.pphosted.com ([67.231.156.173]:60704 "EHLO
-        mx0b-0016f401.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726076AbfFDDEJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jun 2019 23:04:09 -0400
-Received: from pps.filterd (m0045851.ppops.net [127.0.0.1])
-        by mx0b-0016f401.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x542tvQK000344;
-        Mon, 3 Jun 2019 20:04:05 -0700
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com; h=from : to : cc :
- subject : date : message-id : references : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=pfpt0818;
- bh=unhx8NRTUbXuqBmrTMa9hXJj0NkRcaeMiEyye/d8ddE=;
- b=GBjCdM45TS/UJGhZk7wp0BvD+vw+SRE4j1y6ODDM8iy2TsnJCfBf/33Hg9y2nLKCzSl1
- Hs+kDyw4awFH5tmzSu7IfRwaybSmU8tlmX+XSe12d1KH1v0kuMdi0h5dSYyPaHNJhm1i
- ZsPb86rjKVYuWweDOwSsj7wc/xQ9e7hdfICgR1SdtiTYJhE+2SbcKfEVGWlFp6BQ0FiY
- 4RH33kNqJ1eQGeCXXYZiHe78HVzejc6bQuzdDgPFBJ+Z4b4xERApVw/vu4oqAZNgrusc
- CpnJU73Utt7+6aoXG7ILHdwcPy+kVV/Hx9LDet9OsOM8Kb4YKnv2FgxgFXGpItZuSEzw VQ== 
-Received: from sc-exch04.marvell.com ([199.233.58.184])
-        by mx0b-0016f401.pphosted.com with ESMTP id 2swejx8cy8-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-SHA384 bits=256 verify=NOT);
-        Mon, 03 Jun 2019 20:04:05 -0700
-Received: from SC-EXCH03.marvell.com (10.93.176.83) by SC-EXCH04.marvell.com
- (10.93.176.84) with Microsoft SMTP Server (TLS) id 15.0.1367.3; Mon, 3 Jun
- 2019 20:04:04 -0700
-Received: from NAM01-SN1-obe.outbound.protection.outlook.com (104.47.32.55) by
- SC-EXCH03.marvell.com (10.93.176.83) with Microsoft SMTP Server (TLS) id
- 15.0.1367.3 via Frontend Transport; Mon, 3 Jun 2019 20:04:04 -0700
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=marvell.onmicrosoft.com; s=selector2-marvell-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=unhx8NRTUbXuqBmrTMa9hXJj0NkRcaeMiEyye/d8ddE=;
- b=IYVmL2spx+KW5rCGXOgWSpZ8h1nucxr4/ckRPIEmWFnSHxGzW/wnAnxCy2FAHlANfkVAg35CTR8bd1X6iUIcwB9ub4crL/KvKnwo2oijHkezm0Fyo2YWgblbJ7ObS29Rd5YdaQw2S2x6cRztSXzz08gHZhfNuMNBx9gO/JZQgKA=
-Received: from MN2PR18MB2637.namprd18.prod.outlook.com (20.179.80.147) by
- MN2PR18MB2752.namprd18.prod.outlook.com (20.179.21.95) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.1943.18; Tue, 4 Jun 2019 03:03:59 +0000
-Received: from MN2PR18MB2637.namprd18.prod.outlook.com
- ([fe80::3c77:9f53:7e47:7eb8]) by MN2PR18MB2637.namprd18.prod.outlook.com
- ([fe80::3c77:9f53:7e47:7eb8%7]) with mapi id 15.20.1943.018; Tue, 4 Jun 2019
- 03:03:59 +0000
-From:   Ganapathi Bhat <gbhat@marvell.com>
-To:     Brian Norris <briannorris@chromium.org>
-CC:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "Amitkumar Karwar" <amitkarwar@gmail.com>,
-        Nishant Sarmukadam <nishants@marvell.com>,
-        Xinming Hu <huxinming820@gmail.com>,
-        "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [EXT] Re: [4.20 PATCH] Revert "mwifiex: restructure
- rx_reorder_tbl_lock usage"
-Thread-Topic: [EXT] Re: [4.20 PATCH] Revert "mwifiex: restructure
- rx_reorder_tbl_lock usage"
-Thread-Index: AQHU1VdpBggtVOS6I0GyhcvAXdDin6aLWDtA
-Date:   Tue, 4 Jun 2019 03:03:59 +0000
-Message-ID: <MN2PR18MB26376D3A660956396D0E60AFA0150@MN2PR18MB2637.namprd18.prod.outlook.com>
-References: <20181130175957.167031-1-briannorris@chromium.org>
- <20190308023401.GA121759@google.com>
-In-Reply-To: <20190308023401.GA121759@google.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [117.241.207.104]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 3f628d0d-b000-48d8-cb20-08d6e8994a77
-x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600148)(711020)(4605104)(1401327)(2017052603328)(7193020);SRVR:MN2PR18MB2752;
-x-ms-traffictypediagnostic: MN2PR18MB2752:
-x-microsoft-antispam-prvs: <MN2PR18MB27527162C73774581B2842DCA0150@MN2PR18MB2752.namprd18.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:9508;
-x-forefront-prvs: 0058ABBBC7
-x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(366004)(376002)(39860400002)(136003)(396003)(346002)(199004)(189003)(66066001)(33656002)(66446008)(68736007)(66476007)(64756008)(81166006)(81156014)(66556008)(76176011)(11346002)(8676002)(8936002)(476003)(446003)(26005)(186003)(25786009)(76116006)(54906003)(73956011)(66946007)(486006)(305945005)(7736002)(6506007)(71190400001)(74316002)(4326008)(55016002)(5660300002)(52536014)(9686003)(53936002)(6436002)(229853002)(14444005)(256004)(71200400001)(86362001)(7696005)(14454004)(6916009)(6116002)(3846002)(316002)(102836004)(99286004)(478600001)(2906002)(6246003);DIR:OUT;SFP:1101;SCL:1;SRVR:MN2PR18MB2752;H:MN2PR18MB2637.namprd18.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
-received-spf: None (protection.outlook.com: marvell.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam-message-info: P8LEtjR4Y6kHJSS9kkMn0nTRulfCP9gmuxGMu0frxW3I4xPsdLj/0bU/ImbXUZIkUcV7DHlAgkJwZgDKcs7g4HBDkexu1aOKvleGjxWus1cCH3bVwaQ2GY0X5xwZSWeuc5Ospu/Zn3/lAiUq/6Ixue8ji0O26yGTMU4KefS9qor0b+hgu3cZ6jUIWo8e+ax3pIAvXOSEc/5FukvLpyeieo8LbZfvL59oIqVBkYowhrF0dkno3fmmcowNKKyPT6EC9roLcUs8x+AmlcDCmSGua27x0vVOsDjqSGc6HxXQnu8FtwTiJisOvP2LGSVM0DRSAKdc2xJtelHS4E1Kt8dCPLfsj9xyjk/LHBFOI5YGKqs7bWvn7byxkMV2ObimYyPrYq1eJRtmbmYNv8ebyyydn08dov1Dssikp0m2H1rWuRQ=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+        id S1726269AbfFDDbT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jun 2019 23:31:19 -0400
+Received: from conssluserg-03.nifty.com ([210.131.2.82]:62181 "EHLO
+        conssluserg-03.nifty.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726136AbfFDDbT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jun 2019 23:31:19 -0400
+Received: from mail-ua1-f45.google.com (mail-ua1-f45.google.com [209.85.222.45]) (authenticated)
+        by conssluserg-03.nifty.com with ESMTP id x543VD43005850;
+        Tue, 4 Jun 2019 12:31:14 +0900
+DKIM-Filter: OpenDKIM Filter v2.10.3 conssluserg-03.nifty.com x543VD43005850
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
+        s=dec2015msa; t=1559619074;
+        bh=p3DMRDqjvLfleLEkftYAKoqonxYhzBlfQ7q3kX1yABI=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=bYi7+isCKertT00fRULzrd7n1xy2ijri8jBhF4Nuyl7kUpCw/8ZnRRUgX0tExvhTo
+         E4HYK5tj6gUIHISOWfCqnjXxMVE9iiN86tnB6+3p6O84sZC9+z4HGKF90/d9a40mPl
+         xAw7v7op9drM7cioGdp91l3WH5pTtCABr9eo/NhqFCPOsVVaoQIS4BX5z40hsuXr69
+         fxi3NAqIb9RX/P+inYWpxCoRMYE353+QoUWxmLWzYTCHHVoJck4SyoM4yIwthQ14tr
+         2RAtKg6dn6Invm5UosRZaD5bAeAee5YjWfpth1jb7U3ij7sy772vHBkeShMilmL0RV
+         6zh/xd9lrEEAQ==
+X-Nifty-SrcIP: [209.85.222.45]
+Received: by mail-ua1-f45.google.com with SMTP id r7so7289311ual.2;
+        Mon, 03 Jun 2019 20:31:14 -0700 (PDT)
+X-Gm-Message-State: APjAAAX2GMMwotR8lgulcmu0BtQxamvrTQKi3iTg/1nrolfw4Fe+iG0h
+        yfqvxGflLNL75ct+I700w5VF7MPMrt1Ejr7O7DI=
+X-Google-Smtp-Source: APXvYqwLg5oKMCsYL63EZGBs62A+uvaH0VNBtZ1VJCZHVnUEm+GXeBoaQbuuPkFiapfGEwirzIOWICLibChewL6wlx8=
+X-Received: by 2002:ab0:234d:: with SMTP id h13mr6406182uao.95.1559619073065;
+ Mon, 03 Jun 2019 20:31:13 -0700 (PDT)
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-Network-Message-Id: 3f628d0d-b000-48d8-cb20-08d6e8994a77
-X-MS-Exchange-CrossTenant-originalarrivaltime: 04 Jun 2019 03:03:59.6029
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 70e1fb47-1155-421d-87fc-2e58f638b6e0
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: gbhat@marvell.com
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR18MB2752
-X-OriginatorOrg: marvell.com
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-06-04_03:,,
- signatures=0
+References: <20190603104902.23799-1-yamada.masahiro@socionext.com>
+ <863c29c5f0214c008fbcbb2aac517a5c@AcuMS.aculab.com> <CAK7LNARHR=xv_YxQCkCM7PtW3vpNfXOgZrez0c4HbMX6C-8-uA@mail.gmail.com>
+ <810dd6ae018b4a31b70d26fb6b29e48d@AcuMS.aculab.com>
+In-Reply-To: <810dd6ae018b4a31b70d26fb6b29e48d@AcuMS.aculab.com>
+From:   Masahiro Yamada <yamada.masahiro@socionext.com>
+Date:   Tue, 4 Jun 2019 12:30:37 +0900
+X-Gmail-Original-Message-ID: <CAK7LNAR_A1d5keiCRthNioW3nqkNadJkaCyMR3a5S8WS0jhgNQ@mail.gmail.com>
+Message-ID: <CAK7LNAR_A1d5keiCRthNioW3nqkNadJkaCyMR3a5S8WS0jhgNQ@mail.gmail.com>
+Subject: Re: [PATCH] kbuild: use more portable 'command -v' for cc-cross-prefix
+To:     David Laight <David.Laight@aculab.com>
+Cc:     "linux-kbuild@vger.kernel.org" <linux-kbuild@vger.kernel.org>,
+        Vineet Gupta <vgupta@synopsys.com>,
+        Alexey Brodkin <abrodkin@synopsys.com>,
+        "linux-snps-arc@lists.infradead.org" 
+        <linux-snps-arc@lists.infradead.org>,
+        linux-stable <stable@vger.kernel.org>,
+        Michal Marek <michal.lkml@markovi.net>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Brian,
+On Mon, Jun 3, 2019 at 10:09 PM David Laight <David.Laight@aculab.com> wrote:
+>
+> From: Masahiro Yamada
+> > Sent: 03 June 2019 12:38
+> > Hi David,
+> >
+> > On Mon, Jun 3, 2019 at 8:14 PM David Laight <David.Laight@aculab.com> wrote:
+> > >
+> > > From: Masahiro Yamada
+> > > > Sent: 03 June 2019 11:49
+> > > >
+> > > > To print the pathname that will be used by shell in the current
+> > > > environment, 'command -v' is a standardized way. [1]
+> > > >
+> > > > 'which' is also often used in scripting, but it is not portable.
+> > > >
+> > > > When I worked on commit bd55f96fa9fc ("kbuild: refactor cc-cross-prefix
+> > > > implementation"), I was eager to use 'command -v' but it did not work.
+> > > > (The reason is explained below.)
+> > > >
+> > > > I kept 'which' as before but got rid of '> /dev/null 2>&1' as I
+> > > > thought it was no longer needed. Sorry, I was wrong.
+> > > >
+> > > > It works well on my Ubuntu machine, but Alexey Brodkin reports annoying
+> > > > warnings from the 'which' on CentOS 7 when the given command is not
+> > > > found in the PATH environment.
+> > > >
+> > > >   $ which foo
+> > > >   which: no foo in (/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin)
+> > > >
+> > > > Given that behavior of 'which' is different on environment, I want
+> > > > to try 'command -v' again.
+> > > >
+> > > > The specification [1] clearly describes the behavior of 'command -v'
+> > > > when the given command is not found:
+> > > >
+> > > >   Otherwise, no output shall be written and the exit status shall reflect
+> > > >   that the name was not found.
+> > > >
+> > > > However, we need a little magic to use 'command -v' from Make.
+> > > >
+> > > > $(shell ...) passes the argument to a subshell for execution, and
+> > > > returns the standard output of the command.
+> > > >
+> > > > Here is a trick. GNU Make may optimize this by executing the command
+> > > > directly instead of forking a subshell, if no shell special characters
+> > > > are found in the command line and omitting the subshell will not
+> > > > change the behavior.
+> > > >
+> > > > In this case, no shell special character is used. So, Make will try
+> > > > to run the command directly. However, 'command' is a shell-builtin
+> > > > command. In fact, Make has a table of shell-builtin commands because
+> > > > it must spawn a subshell to execute them.
+> > > >
+> > > > Until recently, 'command' was missing in the table.
+> > > >
+> > > > This issue was fixed by the following commit:
+> > > >
+> > > > | commit 1af314465e5dfe3e8baa839a32a72e83c04f26ef
+> > > > | Author: Paul Smith <psmith@gnu.org>
+> > > > | Date:   Sun Nov 12 18:10:28 2017 -0500
+> > > > |
+> > > > |     * job.c: Add "command" as a known shell built-in.
+> > > > |
+> > > > |     This is not a POSIX shell built-in but it's common in UNIX shells.
+> > > > |     Reported by Nick Bowler <nbowler@draconx.ca>.
+> > > >
+> > > > This is not included in any released versions of Make yet.
+> > > > (But, some distributions may have back-ported the fix-up.)
+> > > >
+> > > > To trick Make and let it fork the subshell, I added a shell special
+> > > > character '~'. We may be able to get rid of this workaround someday,
+> > > > but it is very far into the future.
+> > > >
+> > > > [1] http://pubs.opengroup.org/onlinepubs/9699919799/utilities/command.html
+> > > >
+> > > > Fixes: bd55f96fa9fc ("kbuild: refactor cc-cross-prefix implementation")
+> > > > Cc: linux-stable <stable@vger.kernel.org> # 5.1
+> > > > Reported-by: Alexey Brodkin <abrodkin@synopsys.com>
+> > > > Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
+> > > > ---
+> > > >
+> > > >  scripts/Kbuild.include | 5 ++++-
+> > > >  1 file changed, 4 insertions(+), 1 deletion(-)
+> > > >
+> > > > diff --git a/scripts/Kbuild.include b/scripts/Kbuild.include
+> > > > index 85d758233483..5a32ca80c3f6 100644
+> > > > --- a/scripts/Kbuild.include
+> > > > +++ b/scripts/Kbuild.include
+> > > > @@ -74,8 +74,11 @@ endef
+> > > >  # Usage: CROSS_COMPILE := $(call cc-cross-prefix, m68k-linux-gnu- m68k-linux-)
+> > > >  # Return first <prefix> where a <prefix>gcc is found in PATH.
+> > > >  # If no gcc found in PATH with listed prefixes return nothing
+> > > > +#
+> > > > +# Note: the special character '~' forces Make to invoke a shell. This workaround
+> > > > +# is needed because this issue was only fixed after GNU Make 4.2.1 release.
+> > > >  cc-cross-prefix = $(firstword $(foreach c, $(filter-out -%, $(1)), \
+> > > > -                                     $(if $(shell which $(c)gcc), $(c))))
+> > > > +                             $(if $(shell command -v $(c)gcc ~), $(c))))
+> > >
+> > > I see a problem here:
+> > >         command -v foo bar
+> > > could be deemed to be an error (extra argument).
+> >
+> > OK, the specification does not allow to pass arguments
+> > with -v.
+> >
+> >
+> > > You could use:
+> > >         $(shell sh -c "command -v $(c)gcc")
+> > > or maybe:
+> > >         $(shell command$${x:+} -v $(c)gcc)
+> >
+> >
+> > How about this?
+> >
+> >           $(shell : ~; command -v $(c)gcc)
+>
+> Overcomplicated ....
+>
+> I've not looked at the list of 'special characters' in make,
+> but I suspect any variable expansion is enough.
+> Since ${x:+} always expands to the empty string (whether or
+> not 'x' is defined) it can't have any unfortunate side effects.
 
-> >    netif_rx_ni+0xe8/0x120
-> >    mwifiex_recv_packet+0xfc/0x10c [mwifiex]
-> >    mwifiex_process_rx_packet+0x1d4/0x238 [mwifiex]
-> >    mwifiex_11n_dispatch_pkt+0x190/0x1ac [mwifiex]
-> >    mwifiex_11n_rx_reorder_pkt+0x28c/0x354 [mwifiex]
->=20
-> TL;DR: the problem was right here ^^^
-> where you started running mwifiex_11n_dispatch_pkt() (via
-> mwifiex_11n_scan_and_dispatch()) while holding a spinlock.
->=20
-> When you do that, you eventually call netif_rx_ni(), which specifically d=
-efers
-> to softirq contexts. Then, if you happen to have your flush timer expirin=
-g just
-> before that, you end up in mwifiex_flush_data(), which also needs that
-> spinlock.
 
-Understood; Thanks for this detail;
+Probably, my eyes are used to Makefile.
+":" is a no-op command, and it is used everywhere in kernel Makefiles
+in the form of "@:'
 
->=20
-> There are a few possible ways to handle this:
-> (a) prevent processing softirqs in that context; e.g., with
->     local_bh_disable(). This seems somewhat of a hack.
->     (Side note: I think most of the locks in this driver really could be
->     spin_lock_bh(), not spin_lock_irqsave() -- we don't really care
->     about hardirq context for 99% of these locks.)
-> (b) restructure so that packet processing (e.g., netif_rx_ni()) is done
->     outside of the spinlock.
->=20
-> It's actually not that hard to do (b). You can just queue your skb's up i=
-n a
-> temporary sk_buff_head list and process them all at once after you've
-> finished processing the reorder table. I have a local patch to do this, a=
-nd I
-> might send it your way if I can give it a bit more testing.
+It depends on people which solution seems simpler.
+So, this argument tends to end up with bikesheding.
 
 
-OK; That will be good; We will run a complete test after the patch; (OR we =
-can work on this, share for review);
 
-Regards,
-Ganapathi
+
+-- 
+Best Regards
+Masahiro Yamada
