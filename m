@@ -2,160 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D5D4034615
-	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 14:00:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5A213462B
+	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 14:05:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727248AbfFDMAx convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 4 Jun 2019 08:00:53 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:59414 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727250AbfFDMAw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 4 Jun 2019 08:00:52 -0400
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 12958C1EB219
-        for <stable@vger.kernel.org>; Tue,  4 Jun 2019 12:00:52 +0000 (UTC)
-Received: from [172.54.208.215] (cpt-0038.paas.prod.upshift.rdu2.redhat.com [10.0.18.103])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id C36EA608A7;
-        Tue,  4 Jun 2019 12:00:51 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        id S1727560AbfFDMFU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Jun 2019 08:05:20 -0400
+Received: from out3-smtp.messagingengine.com ([66.111.4.27]:60953 "EHLO
+        out3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727250AbfFDMFT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Jun 2019 08:05:19 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id D276D21FC1;
+        Tue,  4 Jun 2019 08:05:18 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Tue, 04 Jun 2019 08:05:18 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=LlREBF
+        AUSvjVh4zUGuAofeDC0EQNXYuAb/tAnLSGc9Y=; b=yOsn8luxswEuvMe9HvBunY
+        kCaKQ7OAqFU58RENcyCDuezMktgxdboaAvWcRLBXRrQp0Cp6D0lp3wmrIiMfHEoK
+        /s8MA0X4CU2XobSum4G9YpTnN30MOhJ+IPawORhBJNL2Nu8r51E4EsQ/1ocOs6IV
+        /qP97qjrTDd213ijq72Xe1Mj+1XVg83F8KJT7HWCI45KpKoi5+RbXUAQcDaBOX7e
+        eXzJWttdX+sV+lKZH2XrLVqorkH2u3Ww/P2rOmQ7h4inXWtppV73FDmhUzSJlRMe
+        OwNcpOUn5fGMS/bhhebnmL9KM7UTjJDDAxzSXRS/ljOvxURDnT3GxzX8AXuZYaKg
+        ==
+X-ME-Sender: <xms:fl72XN6J4kbIN48tHdRjiuwYq_fkDdaIRPDNHBSVgq0EFZeLLmBY4A>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrudefledggeekucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:fl72XPIcH_R7FBG8vGRjN6e9E6v8El-feeL_gXWEMFQ4hbyKP8zaEg>
+    <xmx:fl72XPerAzIlRHb5OtbzcK3KaGK6JkMqZuIjuyte4VSC4-PCMgvOyw>
+    <xmx:fl72XKcrw2CucJAC__6yyW1nM3idhTM8ZD8lT7cDX3bAVG9N2CmVcg>
+    <xmx:fl72XIZT5RYE8b9CABBzHsySWyHJacUCaVABclcBJeacgXhHtMf1Ow>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id D6FA680060;
+        Tue,  4 Jun 2019 08:05:17 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] signal/arm64: Use force_sig not force_sig_fault for SIGKILL" failed to apply to 4.19-stable tree
+To:     ebiederm@xmission.com, Dave.Martin@arm.com, james.morse@arm.com,
+        will.deacon@arm.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 04 Jun 2019 14:05:15 +0200
+Message-ID: <1559649915235202@kroah.com>
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.1
-Message-ID: <cki.C81CFCED82.TF7EYUMCZN@redhat.com>
-X-Gitlab-Pipeline-ID: 11445
-X-Gitlab-Pipeline: =?utf-8?q?https=3A//xci32=2Elab=2Eeng=2Erdu2=2Eredhat=2Ec?=
- =?utf-8?q?om/cki-project/cki-pipeline/pipelines/11445?=
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.32]); Tue, 04 Jun 2019 12:00:52 +0000 (UTC)
-Date:   Tue, 4 Jun 2019 08:00:52 -0400
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
 
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
+The patch below does not apply to the 4.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: 2f7d9d47575e - Linux 5.1.7
+thanks,
 
-The results of these automated tests are provided below.
+greg k-h
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
+------------------ original commit in Linus's tree ------------------
 
+From d76cac67db40c172791ce07948367b96a758e45b Mon Sep 17 00:00:00 2001
+From: "Eric W. Biederman" <ebiederm@xmission.com>
+Date: Thu, 23 May 2019 11:11:19 -0500
+Subject: [PATCH] signal/arm64: Use force_sig not force_sig_fault for SIGKILL
 
-We hope that these logs can help you find the problem quickly. For the full
-detail on our testing procedures, please scroll to the bottom of this message.
+I don't think this is userspace visible but SIGKILL does not have
+any si_codes that use the fault member of the siginfo union.  Correct
+this the simple way and call force_sig instead of force_sig_fault when
+the signal is SIGKILL.
 
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
+The two know places where synchronous SIGKILL are generated are
+do_bad_area and fpsimd_save.  The call paths to force_sig_fault are:
+do_bad_area
+  arm64_force_sig_fault
+    force_sig_fault
+force_signal_inject
+  arm64_notify_die
+    arm64_force_sig_fault
+       force_sig_fault
 
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
+Which means correcting this in arm64_force_sig_fault is enough
+to ensure the arm64 code is not misusing the generic code, which
+could lead to maintenance problems later.
 
-Merge testing
--------------
+Cc: stable@vger.kernel.org
+Cc: Dave Martin <Dave.Martin@arm.com>
+Cc: James Morse <james.morse@arm.com>
+Cc: Will Deacon <will.deacon@arm.com>
+Fixes: af40ff687bc9 ("arm64: signal: Ensure si_code is valid for all fault signals")
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
 
-We cloned this repository and checked out the following commit:
-
-  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: 2f7d9d47575e - Linux 5.1.7
-
-
-We then merged the patchset with `git am`:
-
-  sparc64-fix-regression-in-non-hypervisor-tlb-flush-xcall.patch
-  include-linux-bitops.h-sanitize-rotate-primitives.patch
-  xhci-update-bounce-buffer-with-correct-sg-num.patch
-  xhci-use-zu-for-printing-size_t-type.patch
-  xhci-convert-xhci_handshake-to-use-readl_poll_timeout_atomic.patch
-  usb-xhci-avoid-null-pointer-deref-when-bos-field-is-null.patch
-  usbip-usbip_host-fix-bug-sleeping-function-called-from-invalid-context.patch
-  usbip-usbip_host-fix-stub_dev-lock-context-imbalance-regression.patch
-  usb-fix-slab-out-of-bounds-write-in-usb_get_bos_descriptor.patch
-  usb-sisusbvga-fix-oops-in-error-path-of-sisusb_probe.patch
-  usb-add-lpm-quirk-for-surface-dock-gige-adapter.patch
-  usb-rio500-refuse-more-than-one-device-at-a-time.patch
-  usb-rio500-fix-memory-leak-in-close-after-disconnect.patch
-  media-usb-siano-fix-general-protection-fault-in-smsusb.patch
-  media-usb-siano-fix-false-positive-uninitialized-variable-warning.patch
-  media-smsusb-better-handle-optional-alignment.patch
-  brcmfmac-fix-null-pointer-derefence-during-usb-disconnect.patch
-  scsi-zfcp-fix-missing-zfcp_port-reference-put-on-ebusy-from-port_remove.patch
-  scsi-zfcp-fix-to-prevent-port_remove-with-pure-auto-scan-luns-only-sdevs.patch
-  tracing-avoid-memory-leak-in-predicate_parse.patch
-  btrfs-fix-wrong-ctime-and-mtime-of-a-directory-after-log-replay.patch
-  btrfs-fix-race-updating-log-root-item-during-fsync.patch
-  btrfs-fix-fsync-not-persisting-changed-attributes-of-a-directory.patch
-  btrfs-correct-zstd-workspace-manager-lock-to-use-spin_lock_bh.patch
-  btrfs-qgroup-check-bg-while-resuming-relocation-to-avoid-null-pointer-dereference.patch
-  btrfs-incremental-send-fix-file-corruption-when-no-holes-feature-is-enabled.patch
-  btrfs-reloc-also-queue-orphan-reloc-tree-for-cleanup-to-avoid-bug_on.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-  aarch64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-3dde338a1694cd8fe4270d83d074174d02a7c7bd.config
-    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-3dde338a1694cd8fe4270d83d074174d02a7c7bd.tar.gz
-
-  ppc64le:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-3dde338a1694cd8fe4270d83d074174d02a7c7bd.config
-    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-3dde338a1694cd8fe4270d83d074174d02a7c7bd.tar.gz
-
-  s390x:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-3dde338a1694cd8fe4270d83d074174d02a7c7bd.config
-    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-3dde338a1694cd8fe4270d83d074174d02a7c7bd.tar.gz
-
-  x86_64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-3dde338a1694cd8fe4270d83d074174d02a7c7bd.config
-    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-3dde338a1694cd8fe4270d83d074174d02a7c7bd.tar.gz
-
-
-Hardware testing
-----------------
-
-We booted each kernel and ran the following tests:
-
-  aarch64:
-
-    ⚡ Internal infrastructure issues prevented one or more tests from running
-    on this architecture. This is not the fault of the kernel that was tested.
-
-  ppc64le:
-
-    ⚡ Internal infrastructure issues prevented one or more tests from running
-    on this architecture. This is not the fault of the kernel that was tested.
-
-  s390x:
-
-    ⚡ Internal infrastructure issues prevented one or more tests from running
-    on this architecture. This is not the fault of the kernel that was tested.
-
-  x86_64:
-
-    ⚡ Internal infrastructure issues prevented one or more tests from running
-    on this architecture. This is not the fault of the kernel that was tested.
-
-  Test source:
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
+diff --git a/arch/arm64/kernel/traps.c b/arch/arm64/kernel/traps.c
+index e6be1a6efc0a..177c0f6ebabf 100644
+--- a/arch/arm64/kernel/traps.c
++++ b/arch/arm64/kernel/traps.c
+@@ -252,7 +252,10 @@ void arm64_force_sig_fault(int signo, int code, void __user *addr,
+ 			   const char *str)
+ {
+ 	arm64_show_signal(signo, str);
+-	force_sig_fault(signo, code, addr, current);
++	if (signo == SIGKILL)
++		force_sig(SIGKILL, current);
++	else
++		force_sig_fault(signo, code, addr, current);
+ }
+ 
+ void arm64_force_sig_mceerr(int code, void __user *addr, short lsb,
 
