@@ -2,89 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AB673426E
-	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 10:57:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8A6134287
+	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 11:01:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727033AbfFDI5Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Jun 2019 04:57:24 -0400
-Received: from bedivere.hansenpartnership.com ([66.63.167.143]:48840 "EHLO
-        bedivere.hansenpartnership.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726927AbfFDI5Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Jun 2019 04:57:24 -0400
-Received: from localhost (localhost [127.0.0.1])
-        by bedivere.hansenpartnership.com (Postfix) with ESMTP id 1ABE08EE1D8;
-        Tue,  4 Jun 2019 01:57:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=hansenpartnership.com;
-        s=20151216; t=1559638644;
-        bh=wI/8+wiijGgOqLSYHFzdmNaGRkSygv9a+oR+A5uQbEQ=;
-        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
-        b=rfb3INXuVy4qOBudIOjCKyAXVMI684m+PxHEGeKwMGmp8gEHXGZRA6JyeEUZ9c0/H
-         e5CXWketma7GjLRupwrcYJuK0Nxl5pnqMZPaALWCUjCi1h3sMe7r/PfGIwTfBtzB5W
-         b2aD8n3OoevNwekKzuL3YRh6eZ3F2lB83HOGoqEI=
-Received: from bedivere.hansenpartnership.com ([127.0.0.1])
-        by localhost (bedivere.hansenpartnership.com [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id vVbUH0cOyB66; Tue,  4 Jun 2019 01:57:23 -0700 (PDT)
-Received: from jarvis.guest.haifa.ibm.com (unknown [195.110.41.42])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by bedivere.hansenpartnership.com (Postfix) with ESMTPSA id 8921B8EE101;
-        Tue,  4 Jun 2019 01:57:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=hansenpartnership.com;
-        s=20151216; t=1559638643;
-        bh=wI/8+wiijGgOqLSYHFzdmNaGRkSygv9a+oR+A5uQbEQ=;
-        h=Subject:From:To:Cc:Date:In-Reply-To:References:From;
-        b=xUN9j1ybZGq/0Fl2pBKJHXRrazk9uYYwC16X//yILiBdGZMFtElgxzDbIW10F1dGI
-         EPTJZ1M2kM6L9rgoiph1CxRKJoIr2ylDIAJE3kej12ObHS2hd/gghg2HghWz8WO5bW
-         WhQt5hGy8hYOjB3EkU8u9iFo2QeiMmgNL4x3WP4Q=
-Message-ID: <1559638637.3410.3.camel@HansenPartnership.com>
-Subject: Re: [PATCH v2 2/3] ima: don't ignore INTEGRITY_UNKNOWN EVM status
-From:   James Bottomley <James.Bottomley@HansenPartnership.com>
-To:     Roberto Sassu <roberto.sassu@huawei.com>,
-        Mimi Zohar <zohar@linux.ibm.com>, dmitry.kasatkin@huawei.com,
-        mjg59@google.com
-Cc:     linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org, linux-doc@vger.kernel.org,
-        linux-kernel@vger.kernel.org, silviu.vlasceanu@huawei.com,
-        stable@vger.kernel.org
-Date:   Tue, 04 Jun 2019 11:57:17 +0300
-In-Reply-To: <b38d75b1-873a-1630-0148-41c49571531a@huawei.com>
-References: <20190529133035.28724-1-roberto.sassu@huawei.com>
-         <20190529133035.28724-3-roberto.sassu@huawei.com>
-         <1559217621.4008.7.camel@linux.ibm.com>
-         <e6b31aa9-0319-1805-bdfc-3ddde5884494@huawei.com>
-         <1559569401.5052.17.camel@HansenPartnership.com>
-         <3667fbd4-b6ed-6a76-9ff4-84ec3c2dda12@huawei.com>
-         <1559572305.5052.19.camel@HansenPartnership.com>
-         <b38d75b1-873a-1630-0148-41c49571531a@huawei.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.26.6 
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
+        id S1727131AbfFDJBj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Jun 2019 05:01:39 -0400
+Received: from eu-smtp-delivery-151.mimecast.com ([146.101.78.151]:52024 "EHLO
+        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727134AbfFDJBf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Jun 2019 05:01:35 -0400
+Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
+ TLS) by relay.mimecast.com with ESMTP id uk-mta-5-JkTxSXOoNISA2RzXYu7j5g-1;
+ Tue, 04 Jun 2019 10:01:32 +0100
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
+ Server (TLS) id 15.0.1347.2; Tue, 4 Jun 2019 10:01:32 +0100
+Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
+ AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
+ Tue, 4 Jun 2019 10:01:32 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Masahiro Yamada' <yamada.masahiro@socionext.com>
+CC:     "linux-kbuild@vger.kernel.org" <linux-kbuild@vger.kernel.org>,
+        "Vineet Gupta" <vgupta@synopsys.com>,
+        Alexey Brodkin <abrodkin@synopsys.com>,
+        "linux-snps-arc@lists.infradead.org" 
+        <linux-snps-arc@lists.infradead.org>,
+        linux-stable <stable@vger.kernel.org>,
+        Michal Marek <michal.lkml@markovi.net>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] kbuild: use more portable 'command -v' for
+ cc-cross-prefix
+Thread-Topic: [PATCH] kbuild: use more portable 'command -v' for
+ cc-cross-prefix
+Thread-Index: AQHVGfoc7Nk6FX5Ty02s910sxgLWxaaJxI+g///4bICAACdTsIAA4rqAgABrGkA=
+Date:   Tue, 4 Jun 2019 09:01:31 +0000
+Message-ID: <96b710063de5464ea347bfa1e03308b5@AcuMS.aculab.com>
+References: <20190603104902.23799-1-yamada.masahiro@socionext.com>
+ <863c29c5f0214c008fbcbb2aac517a5c@AcuMS.aculab.com>
+ <CAK7LNARHR=xv_YxQCkCM7PtW3vpNfXOgZrez0c4HbMX6C-8-uA@mail.gmail.com>
+ <810dd6ae018b4a31b70d26fb6b29e48d@AcuMS.aculab.com>
+ <CAK7LNAR_A1d5keiCRthNioW3nqkNadJkaCyMR3a5S8WS0jhgNQ@mail.gmail.com>
+In-Reply-To: <CAK7LNAR_A1d5keiCRthNioW3nqkNadJkaCyMR3a5S8WS0jhgNQ@mail.gmail.com>
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
+MIME-Version: 1.0
+X-MC-Unique: JkTxSXOoNISA2RzXYu7j5g-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 2019-06-03 at 16:44 +0200, Roberto Sassu wrote:
-> On 6/3/2019 4:31 PM, James Bottomley wrote:
-> > On Mon, 2019-06-03 at 16:29 +0200, Roberto Sassu wrote:
-[...]
-> > > How would you prevent root in the container from updating
-> > > security.ima?
-> > 
-> > We don't.  We only guarantee immutability for unprivileged
-> > containers, so root can't be inside.
-> 
-> Ok.
-> 
-> Regarding the new behavior, this must be explicitly enabled by adding
-> ima_appraise=enforce-evm or log-evm to the kernel command line.
-> Otherwise, the current behavior is preserved with this patch. Would
-> this be ok?
-
-Sure, as long as it's an opt-in flag, meaning the behaviour of my
-kernels on physical cloud systems doesn't change as I upgrade them, I'm
-fine with that.
-
-James
+RnJvbTogTWFzYWhpcm8gWWFtYWRhDQo+IFNlbnQ6IDA0IEp1bmUgMjAxOSAwNDozMQ0KLi4uDQo+
+ID4gPiA+IFlvdSBjb3VsZCB1c2U6DQo+ID4gPiA+ICAgICAgICAgJChzaGVsbCBzaCAtYyAiY29t
+bWFuZCAtdiAkKGMpZ2NjIikNCj4gPiA+ID4gb3IgbWF5YmU6DQo+ID4gPiA+ICAgICAgICAgJChz
+aGVsbCBjb21tYW5kJCR7eDorfSAtdiAkKGMpZ2NjKQ0KPiA+ID4NCj4gPiA+DQo+ID4gPiBIb3cg
+YWJvdXQgdGhpcz8NCj4gPiA+DQo+ID4gPiAgICAgICAgICAgJChzaGVsbCA6IH47IGNvbW1hbmQg
+LXYgJChjKWdjYykNCj4gPg0KPiA+IE92ZXJjb21wbGljYXRlZCAuLi4uDQo+ID4NCj4gPiBJJ3Zl
+IG5vdCBsb29rZWQgYXQgdGhlIGxpc3Qgb2YgJ3NwZWNpYWwgY2hhcmFjdGVycycgaW4gbWFrZSwN
+Cj4gPiBidXQgSSBzdXNwZWN0IGFueSB2YXJpYWJsZSBleHBhbnNpb24gaXMgZW5vdWdoLg0KPiA+
+IFNpbmNlICR7eDorfSBhbHdheXMgZXhwYW5kcyB0byB0aGUgZW1wdHkgc3RyaW5nICh3aGV0aGVy
+IG9yDQo+ID4gbm90ICd4JyBpcyBkZWZpbmVkKSBpdCBjYW4ndCBoYXZlIGFueSB1bmZvcnR1bmF0
+ZSBzaWRlIGVmZmVjdHMuDQo+IA0KPiANCj4gUHJvYmFibHksIG15IGV5ZXMgYXJlIHVzZWQgdG8g
+TWFrZWZpbGUuDQo+ICI6IiBpcyBhIG5vLW9wIGNvbW1hbmQsIGFuZCBpdCBpcyB1c2VkIGV2ZXJ5
+d2hlcmUgaW4ga2VybmVsIE1ha2VmaWxlcw0KPiBpbiB0aGUgZm9ybSBvZiAiQDonDQo+IA0KPiBJ
+dCBkZXBlbmRzIG9uIHBlb3BsZSB3aGljaCBzb2x1dGlvbiBzZWVtcyBzaW1wbGVyLg0KPiBTbywg
+dGhpcyBhcmd1bWVudCB0ZW5kcyB0byBlbmQgdXAgd2l0aCBiaWtlc2hlZGluZy4NCg0KSSBhbSBm
+dWxseSBhd2FyZSBvZiAnOicsIGl0IGlzIGEgc2hlbGwgYnVpbHRpbiB0aGF0IGFsd2F5cyByZXR1
+cm4gc3VjY2Vzcy4NClVzdWFsbHkgdXNlZCB3aGVuIHlvdSB3YW50IHRoZSBzaWRlLWVmZmVjdHMg
+b2Ygc3Vic3RpdHV0aW9ucyB3aXRob3V0DQpleGVjdXRpbmcgYW55dGhpbmcgKGVnIDogJHtmb286
+PWJhcn0gKSwgdG8gY2hhbmdlIHRoZSByZXN1bHQgb2YgYQ0Kc2VxdWVuY2Ugb2Ygc2hlbGwgY29t
+bWFuZHMgb3IgYXMgYSBkdW1teSAoZWcgd2hpbGUgOjsgZG8gOjsgZG9uZTsgKQ0KVmVyeSBhbm5v
+eWluZ2x5IGJhc2ggcGFyc2VzICE6IGFzIHNvbWV0aGluZyBvdGhlciB0aGFuICdub3QgdHJ1ZScu
+DQoNCiQoc2hlbGwgY29tbWFuZCQke3g6K30gLXYgJChjKWdjYykgd2lsbCBiZSBtYXJnaW5hbGx5
+IGZhc3Rlcg0KYmVjYXVzZSBpdCBpcyBsZXNzIHBhcnNpbmcuDQoNCglEYXZpZA0KIA0KDQotDQpS
+ZWdpc3RlcmVkIEFkZHJlc3MgTGFrZXNpZGUsIEJyYW1sZXkgUm9hZCwgTW91bnQgRmFybSwgTWls
+dG9uIEtleW5lcywgTUsxIDFQVCwgVUsNClJlZ2lzdHJhdGlvbiBObzogMTM5NzM4NiAoV2FsZXMp
+DQo=
 
