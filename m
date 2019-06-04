@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 602D635405
-	for <lists+stable@lfdr.de>; Wed,  5 Jun 2019 01:30:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A39935411
+	for <lists+stable@lfdr.de>; Wed,  5 Jun 2019 01:30:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726664AbfFDXXr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Jun 2019 19:23:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34398 "EHLO mail.kernel.org"
+        id S1727397AbfFDXai (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Jun 2019 19:30:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727346AbfFDXXq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 4 Jun 2019 19:23:46 -0400
+        id S1727350AbfFDXXs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 4 Jun 2019 19:23:48 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E923C20862;
-        Tue,  4 Jun 2019 23:23:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 021DB20859;
+        Tue,  4 Jun 2019 23:23:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559690625;
-        bh=D7/5dMo/UCZnQ0TVCk6RXHAn7vkRkagf2wi01fq/t5Y=;
+        s=default; t=1559690627;
+        bh=Qb7YbNznCW8kC+aVurRGbRKhb6EowYJJu3J1fO63EkM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H6SN4Y7h2EDJsLOVeiZ8C2x+xCZ6gXAxtoIyWirj5VWW2mn6GHuwhlS9+rG8JGfbF
-         VCuKLys/QEwV2jbfVstiP3MFBz4ekoM4lYBQrl53/bpRzbGpcO6n1mRQkrHM+UKy5h
-         c1WW82p6GO2OeFCJcrzP1hSStJoTdSCDCxGqXokg=
+        b=zXW8QS2thY2Lk9t9w9yY26Z8T0w1x2XvOvuyH/KSh/436mGa29yTgQkv2fd8ekaT7
+         Ctu+yj1oPW7szd1iTyRmru4gYWBBsGZzGGHMgFSSaF4LYBcV53gxf4ci8kYnD4wokg
+         n9ulL6jJL55s7EA1FVkaDEIX+YeVM1Wum+s+jisg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Takashi Iwai <tiwai@suse.de>,
-        syzbot+e4c8abb920efa77bace9@syzkaller.appspotmail.com,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 05/36] ALSA: seq: Cover unsubscribe_port() in list_mutex
-Date:   Tue,  4 Jun 2019 19:23:00 -0400
-Message-Id: <20190604232333.7185-5-sashal@kernel.org>
+Cc:     Vasily Gorbik <gor@linux.ibm.com>,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 06/36] s390/kasan: fix strncpy_from_user kasan checks
+Date:   Tue,  4 Jun 2019 19:23:01 -0400
+Message-Id: <20190604232333.7185-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190604232333.7185-1-sashal@kernel.org>
 References: <20190604232333.7185-1-sashal@kernel.org>
@@ -43,39 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-[ Upstream commit 7c32ae35fbf9cffb7aa3736f44dec10c944ca18e ]
+[ Upstream commit 01eb42afb45719cb41bb32c278e068073738899d ]
 
-The call of unsubscribe_port() which manages the group count and
-module refcount from delete_and_unsubscribe_port() looks racy; it's
-not covered by the group list lock, and it's likely a cause of the
-reported unbalance at port deletion.  Let's move the call inside the
-group list_mutex to plug the hole.
+arch/s390/lib/uaccess.c is built without kasan instrumentation. Kasan
+checks are performed explicitly in copy_from_user/copy_to_user
+functions. But since those functions could be inlined, calls from
+files like uaccess.c with instrumentation disabled won't generate
+kasan reports. This is currently the case with strncpy_from_user
+function which was revealed by newly added kasan test. Avoid inlining of
+copy_from_user/copy_to_user when the kernel is built with kasan support
+to make sure kasan checks are fully functional.
 
-Reported-by: syzbot+e4c8abb920efa77bace9@syzkaller.appspotmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/seq/seq_ports.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/s390/include/asm/uaccess.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/sound/core/seq/seq_ports.c b/sound/core/seq/seq_ports.c
-index a31e16cc012e..16289aefb443 100644
---- a/sound/core/seq/seq_ports.c
-+++ b/sound/core/seq/seq_ports.c
-@@ -550,10 +550,10 @@ static void delete_and_unsubscribe_port(struct snd_seq_client *client,
- 		list_del_init(list);
- 	grp->exclusive = 0;
- 	write_unlock_irq(&grp->list_lock);
--	up_write(&grp->list_mutex);
+diff --git a/arch/s390/include/asm/uaccess.h b/arch/s390/include/asm/uaccess.h
+index ad6b91013a05..5332f628c1ed 100644
+--- a/arch/s390/include/asm/uaccess.h
++++ b/arch/s390/include/asm/uaccess.h
+@@ -56,8 +56,10 @@ raw_copy_from_user(void *to, const void __user *from, unsigned long n);
+ unsigned long __must_check
+ raw_copy_to_user(void __user *to, const void *from, unsigned long n);
  
- 	if (!empty)
- 		unsubscribe_port(client, port, grp, &subs->info, ack);
-+	up_write(&grp->list_mutex);
- }
++#ifndef CONFIG_KASAN
+ #define INLINE_COPY_FROM_USER
+ #define INLINE_COPY_TO_USER
++#endif
  
- /* connect two ports */
+ #ifdef CONFIG_HAVE_MARCH_Z10_FEATURES
+ 
 -- 
 2.20.1
 
