@@ -2,99 +2,350 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 87D8A35179
-	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 22:57:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EF41351A9
+	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 23:09:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726416AbfFDU5o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Jun 2019 16:57:44 -0400
-Received: from mail-lf1-f65.google.com ([209.85.167.65]:45700 "EHLO
-        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726354AbfFDU5o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Jun 2019 16:57:44 -0400
-Received: by mail-lf1-f65.google.com with SMTP id u10so10451077lfm.12
-        for <stable@vger.kernel.org>; Tue, 04 Jun 2019 13:57:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=bML0yxEZ55a3hV+DSfUrlsRp9njWmbey5g4KNB1QRmU=;
-        b=m8JrSPi2NL+Zc5vsMANgT2U/1SZgCD8B0/lscDLgOEQXwpC6wvsfjxRPp4e1byjP50
-         95u8vYyxQDNXIdanbRzc/UTb3TzQ9lnqIt2q+x4wzh9u3yZoVdjc5XjDLjyeXgpF/6DT
-         LpszLlezTnx1BEmJGSc87Q0yjP7GWglc+/0cU=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=bML0yxEZ55a3hV+DSfUrlsRp9njWmbey5g4KNB1QRmU=;
-        b=e8QstopRgbsfjnwYz/UrmJ/DnMHVWAUZF7d/JnWxJjRSs4IPK7AI9jlNJ+V/BiVaJO
-         6mCMs6irHZJKsRevBF+cx/ZIqrhlYv0WYFat+ugt5vGomBU+CG7zEu/4hwKaOOB2CCc/
-         XAIopCe4aT6dX2nsuR+XXSzWY20W6u3qgoCraMy65/cpj1Dtth1S7hscKjLPXufNxAH2
-         JuSDDjo1WjPMai82FxU+iV0564vWcfu6v19i+KsNporGhF2c0DkD1qepMU+Qfp9NmPax
-         zdd8Qohxn0wcpazkGffL47pU/WkOOduENjihfxowyQSJTbgDrx8K5Ja6bhJeDTMCTdXy
-         Mnkw==
-X-Gm-Message-State: APjAAAV5YdmNCXD6CnQxGUnez8aVh348156T9gTCUmmiH6wsZQbfU6wC
-        e36ApPVTg0OMe1KKdK8XB5/1x07OYiU=
-X-Google-Smtp-Source: APXvYqzGqv42kw5Ie/dIJmLdwhErRIs1dI9dolwEqVmAuhYIyC5vsW3v9FJ7AddwyLNloIr3T6Aquw==
-X-Received: by 2002:ac2:4899:: with SMTP id x25mr15450101lfc.44.1559681861316;
-        Tue, 04 Jun 2019 13:57:41 -0700 (PDT)
-Received: from mail-lf1-f50.google.com (mail-lf1-f50.google.com. [209.85.167.50])
-        by smtp.gmail.com with ESMTPSA id p27sm412313lfo.16.2019.06.04.13.57.39
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
-        Tue, 04 Jun 2019 13:57:40 -0700 (PDT)
-Received: by mail-lf1-f50.google.com with SMTP id l26so17462111lfh.13
-        for <stable@vger.kernel.org>; Tue, 04 Jun 2019 13:57:39 -0700 (PDT)
-X-Received: by 2002:a19:6e41:: with SMTP id q1mr10011222lfk.20.1559681859360;
- Tue, 04 Jun 2019 13:57:39 -0700 (PDT)
-MIME-Version: 1.0
-References: <20181130175957.167031-1-briannorris@chromium.org>
- <20190308023401.GA121759@google.com> <MN2PR18MB26376D3A660956396D0E60AFA0150@MN2PR18MB2637.namprd18.prod.outlook.com>
-In-Reply-To: <MN2PR18MB26376D3A660956396D0E60AFA0150@MN2PR18MB2637.namprd18.prod.outlook.com>
-From:   Brian Norris <briannorris@chromium.org>
-Date:   Tue, 4 Jun 2019 13:57:27 -0700
-X-Gmail-Original-Message-ID: <CA+ASDXOe8t9b4vwv6_r9B+3MJ8gKZ_6NN8x6mA5X5scWDt7Xzw@mail.gmail.com>
-Message-ID: <CA+ASDXOe8t9b4vwv6_r9B+3MJ8gKZ_6NN8x6mA5X5scWDt7Xzw@mail.gmail.com>
-Subject: Re: [EXT] Re: [4.20 PATCH] Revert "mwifiex: restructure
- rx_reorder_tbl_lock usage"
-To:     Ganapathi Bhat <gbhat@marvell.com>
-Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        Amitkumar Karwar <amitkarwar@gmail.com>,
-        Nishant Sarmukadam <nishants@marvell.com>,
-        Xinming Hu <huxinming820@gmail.com>,
-        "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        id S1726317AbfFDVJk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Jun 2019 17:09:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50820 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726033AbfFDVJk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 4 Jun 2019 17:09:40 -0400
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 311FB2070B;
+        Tue,  4 Jun 2019 21:09:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1559682578;
+        bh=WcJAAtgr3l2hBwjw7gmJCd1fCggxa9XGtuXYktzs7A4=;
+        h=Date:From:To:Subject:From;
+        b=NR92JuykWCybIFn9ELEXZHlBH7J/5sFqlYEH5Ry6TxsskKpL2a4yvr0pGntMLFLYG
+         PMraNr2j9En+ubN6bJSu2JWcV+iB+XcodxvRjev/kI3k7jMwUV65jUydzVsix09k/s
+         dql3TGsSvMvRvhf7kqq2kZiZGjOSewGuS8CdfFLE=
+Date:   Tue, 04 Jun 2019 14:09:37 -0700
+From:   akpm@linux-foundation.org
+To:     arnd@arndb.de, axboe@kernel.dk, dave@stgolabs.net,
+        David.Laight@ACULAB.COM, deepa.kernel@gmail.com, e@80x24.org,
+        ebiederm@xmission.com, jbaron@akamai.com,
+        mm-commits@vger.kernel.org, mtk.manpages@gmail.com,
+        oleg@redhat.com, stable@vger.kernel.org, tglx@linutronix.de,
+        viro@ZenIV.linux.org.uk
+Subject:  +
+ signal-remove-the-wrong-signal_pending-check-in-restore_user_sigmask.patch
+ added to -mm tree
+Message-ID: <20190604210937.2AXXJdhAl%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Ganapathi,
 
-On Mon, Jun 3, 2019 at 8:04 PM Ganapathi Bhat <gbhat@marvell.com> wrote:
-> > There are a few possible ways to handle this:
-> > (a) prevent processing softirqs in that context; e.g., with
-> >     local_bh_disable(). This seems somewhat of a hack.
-> >     (Side note: I think most of the locks in this driver really could be
-> >     spin_lock_bh(), not spin_lock_irqsave() -- we don't really care
-> >     about hardirq context for 99% of these locks.)
-> > (b) restructure so that packet processing (e.g., netif_rx_ni()) is done
-> >     outside of the spinlock.
-> >
-> > It's actually not that hard to do (b). You can just queue your skb's up in a
-> > temporary sk_buff_head list and process them all at once after you've
-> > finished processing the reorder table. I have a local patch to do this, and I
-> > might send it your way if I can give it a bit more testing.
->
-> OK; That will be good; We will run a complete test after the patch; (OR we can work on this, share for review);
+The patch titled
+     Subject: signal: remove the wrong signal_pending() check in restore_user_sigmask()
+has been added to the -mm tree.  Its filename is
+     signal-remove-the-wrong-signal_pending-check-in-restore_user_sigmask.patch
 
-I gave my work another round of testing and submitted it here:
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/signal-remove-the-wrong-signal_pending-check-in-restore_user_sigmask.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/signal-remove-the-wrong-signal_pending-check-in-restore_user_sigmask.patch
 
-https://patchwork.kernel.org/cover/10976089/
-[PATCH 0/2] mwifiex: spinlock usage improvements
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-Feel free to give it a spin. It doesn't completely resolve everything
-you were trying to fix, but I believe it helps nudge things in the
-right direction.
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-Brian
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: Oleg Nesterov <oleg@redhat.com>
+Subject: signal: remove the wrong signal_pending() check in restore_user_sigmask()
+
+This is the minimal fix for stable, I'll send cleanups later.
+
+854a6ed56839a40f6b5 ("signal: Add restore_user_sigmask()") introduced the
+visible change which breaks user-space: a signal temporary unblocked by
+set_user_sigmask() can be delivered even if the caller returns success or
+timeout.
+
+Change restore_user_sigmask() to accept the additional "interrupted"
+argument which should be used instead of signal_pending() check, and
+update the callers.
+
+Eric said:
+
+: For clarity.  I don't think this is required by posix, or fundamentally to
+: remove the races in select.  It is what linux has always done and we have
+: applications who care so I agree this fix is needed.
+: 
+: Further in any case where the semantic change that this patch rolls back
+: (aka where allowing a signal to be delivered and the select like call to
+: complete) would be advantage we can do as well if not better by using
+: signalfd.
+: 
+: Michael is there any chance we can get this guarantee of the linux
+: implementation of pselect and friends clearly documented.  The guarantee
+: that if the system call completes successfully we are guaranteed that no
+: signal that is unblocked by using sigmask will be delivered?
+
+Link: http://lkml.kernel.org/r/20190604134117.GA29963@redhat.com
+Fixes: 854a6ed56839a40f6b5d02a2962f48841482eec4 ("signal: Add restore_user_sigmask()")
+Signed-off-by: Oleg Nesterov <oleg@redhat.com>
+Reported-by: Eric Wong <e@80x24.org>
+Tested-by: Eric Wong <e@80x24.org>
+Acked-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Deepa Dinamani <deepa.kernel@gmail.com>
+Cc: Michael Kerrisk <mtk.manpages@gmail.com>
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Cc: Jason Baron <jbaron@akamai.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Al Viro <viro@ZenIV.linux.org.uk>
+Cc: David Laight <David.Laight@ACULAB.COM>
+Cc: <stable@vger.kernel.org>	[5.0+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ fs/aio.c               |   28 ++++++++++++++++++++--------
+ fs/eventpoll.c         |    4 ++--
+ fs/io_uring.c          |    7 ++++---
+ fs/select.c            |   18 ++++++------------
+ include/linux/signal.h |    2 +-
+ kernel/signal.c        |    5 +++--
+ 6 files changed, 36 insertions(+), 28 deletions(-)
+
+--- a/fs/aio.c~signal-remove-the-wrong-signal_pending-check-in-restore_user_sigmask
++++ a/fs/aio.c
+@@ -2095,6 +2095,7 @@ SYSCALL_DEFINE6(io_pgetevents,
+ 	struct __aio_sigset	ksig = { NULL, };
+ 	sigset_t		ksigmask, sigsaved;
+ 	struct timespec64	ts;
++	bool interrupted;
+ 	int ret;
+ 
+ 	if (timeout && unlikely(get_timespec64(&ts, timeout)))
+@@ -2108,8 +2109,10 @@ SYSCALL_DEFINE6(io_pgetevents,
+ 		return ret;
+ 
+ 	ret = do_io_getevents(ctx_id, min_nr, nr, events, timeout ? &ts : NULL);
+-	restore_user_sigmask(ksig.sigmask, &sigsaved);
+-	if (signal_pending(current) && !ret)
++
++	interrupted = signal_pending(current);
++	restore_user_sigmask(ksig.sigmask, &sigsaved, interrupted);
++	if (interrupted && !ret)
+ 		ret = -ERESTARTNOHAND;
+ 
+ 	return ret;
+@@ -2128,6 +2131,7 @@ SYSCALL_DEFINE6(io_pgetevents_time32,
+ 	struct __aio_sigset	ksig = { NULL, };
+ 	sigset_t		ksigmask, sigsaved;
+ 	struct timespec64	ts;
++	bool interrupted;
+ 	int ret;
+ 
+ 	if (timeout && unlikely(get_old_timespec32(&ts, timeout)))
+@@ -2142,8 +2146,10 @@ SYSCALL_DEFINE6(io_pgetevents_time32,
+ 		return ret;
+ 
+ 	ret = do_io_getevents(ctx_id, min_nr, nr, events, timeout ? &ts : NULL);
+-	restore_user_sigmask(ksig.sigmask, &sigsaved);
+-	if (signal_pending(current) && !ret)
++
++	interrupted = signal_pending(current);
++	restore_user_sigmask(ksig.sigmask, &sigsaved, interrupted);
++	if (interrupted && !ret)
+ 		ret = -ERESTARTNOHAND;
+ 
+ 	return ret;
+@@ -2193,6 +2199,7 @@ COMPAT_SYSCALL_DEFINE6(io_pgetevents,
+ 	struct __compat_aio_sigset ksig = { NULL, };
+ 	sigset_t ksigmask, sigsaved;
+ 	struct timespec64 t;
++	bool interrupted;
+ 	int ret;
+ 
+ 	if (timeout && get_old_timespec32(&t, timeout))
+@@ -2206,8 +2213,10 @@ COMPAT_SYSCALL_DEFINE6(io_pgetevents,
+ 		return ret;
+ 
+ 	ret = do_io_getevents(ctx_id, min_nr, nr, events, timeout ? &t : NULL);
+-	restore_user_sigmask(ksig.sigmask, &sigsaved);
+-	if (signal_pending(current) && !ret)
++
++	interrupted = signal_pending(current);
++	restore_user_sigmask(ksig.sigmask, &sigsaved, interrupted);
++	if (interrupted && !ret)
+ 		ret = -ERESTARTNOHAND;
+ 
+ 	return ret;
+@@ -2226,6 +2235,7 @@ COMPAT_SYSCALL_DEFINE6(io_pgetevents_tim
+ 	struct __compat_aio_sigset ksig = { NULL, };
+ 	sigset_t ksigmask, sigsaved;
+ 	struct timespec64 t;
++	bool interrupted;
+ 	int ret;
+ 
+ 	if (timeout && get_timespec64(&t, timeout))
+@@ -2239,8 +2249,10 @@ COMPAT_SYSCALL_DEFINE6(io_pgetevents_tim
+ 		return ret;
+ 
+ 	ret = do_io_getevents(ctx_id, min_nr, nr, events, timeout ? &t : NULL);
+-	restore_user_sigmask(ksig.sigmask, &sigsaved);
+-	if (signal_pending(current) && !ret)
++
++	interrupted = signal_pending(current);
++	restore_user_sigmask(ksig.sigmask, &sigsaved, interrupted);
++	if (interrupted && !ret)
+ 		ret = -ERESTARTNOHAND;
+ 
+ 	return ret;
+--- a/fs/eventpoll.c~signal-remove-the-wrong-signal_pending-check-in-restore_user_sigmask
++++ a/fs/eventpoll.c
+@@ -2325,7 +2325,7 @@ SYSCALL_DEFINE6(epoll_pwait, int, epfd,
+ 
+ 	error = do_epoll_wait(epfd, events, maxevents, timeout);
+ 
+-	restore_user_sigmask(sigmask, &sigsaved);
++	restore_user_sigmask(sigmask, &sigsaved, error == -EINTR);
+ 
+ 	return error;
+ }
+@@ -2350,7 +2350,7 @@ COMPAT_SYSCALL_DEFINE6(epoll_pwait, int,
+ 
+ 	err = do_epoll_wait(epfd, events, maxevents, timeout);
+ 
+-	restore_user_sigmask(sigmask, &sigsaved);
++	restore_user_sigmask(sigmask, &sigsaved, err == -EINTR);
+ 
+ 	return err;
+ }
+--- a/fs/io_uring.c~signal-remove-the-wrong-signal_pending-check-in-restore_user_sigmask
++++ a/fs/io_uring.c
+@@ -2201,11 +2201,12 @@ static int io_cqring_wait(struct io_ring
+ 	}
+ 
+ 	ret = wait_event_interruptible(ctx->wait, io_cqring_events(ring) >= min_events);
+-	if (ret == -ERESTARTSYS)
+-		ret = -EINTR;
+ 
+ 	if (sig)
+-		restore_user_sigmask(sig, &sigsaved);
++		restore_user_sigmask(sig, &sigsaved, ret == -ERESTARTSYS);
++
++	if (ret == -ERESTARTSYS)
++		ret = -EINTR;
+ 
+ 	return READ_ONCE(ring->r.head) == READ_ONCE(ring->r.tail) ? ret : 0;
+ }
+--- a/fs/select.c~signal-remove-the-wrong-signal_pending-check-in-restore_user_sigmask
++++ a/fs/select.c
+@@ -758,10 +758,9 @@ static long do_pselect(int n, fd_set __u
+ 		return ret;
+ 
+ 	ret = core_sys_select(n, inp, outp, exp, to);
++	restore_user_sigmask(sigmask, &sigsaved, ret == -ERESTARTNOHAND);
+ 	ret = poll_select_copy_remaining(&end_time, tsp, type, ret);
+ 
+-	restore_user_sigmask(sigmask, &sigsaved);
+-
+ 	return ret;
+ }
+ 
+@@ -1106,8 +1105,7 @@ SYSCALL_DEFINE5(ppoll, struct pollfd __u
+ 
+ 	ret = do_sys_poll(ufds, nfds, to);
+ 
+-	restore_user_sigmask(sigmask, &sigsaved);
+-
++	restore_user_sigmask(sigmask, &sigsaved, ret == -EINTR);
+ 	/* We can restart this syscall, usually */
+ 	if (ret == -EINTR)
+ 		ret = -ERESTARTNOHAND;
+@@ -1142,8 +1140,7 @@ SYSCALL_DEFINE5(ppoll_time32, struct pol
+ 
+ 	ret = do_sys_poll(ufds, nfds, to);
+ 
+-	restore_user_sigmask(sigmask, &sigsaved);
+-
++	restore_user_sigmask(sigmask, &sigsaved, ret == -EINTR);
+ 	/* We can restart this syscall, usually */
+ 	if (ret == -EINTR)
+ 		ret = -ERESTARTNOHAND;
+@@ -1350,10 +1347,9 @@ static long do_compat_pselect(int n, com
+ 		return ret;
+ 
+ 	ret = compat_core_sys_select(n, inp, outp, exp, to);
++	restore_user_sigmask(sigmask, &sigsaved, ret == -ERESTARTNOHAND);
+ 	ret = poll_select_copy_remaining(&end_time, tsp, type, ret);
+ 
+-	restore_user_sigmask(sigmask, &sigsaved);
+-
+ 	return ret;
+ }
+ 
+@@ -1425,8 +1421,7 @@ COMPAT_SYSCALL_DEFINE5(ppoll_time32, str
+ 
+ 	ret = do_sys_poll(ufds, nfds, to);
+ 
+-	restore_user_sigmask(sigmask, &sigsaved);
+-
++	restore_user_sigmask(sigmask, &sigsaved, ret == -EINTR);
+ 	/* We can restart this syscall, usually */
+ 	if (ret == -EINTR)
+ 		ret = -ERESTARTNOHAND;
+@@ -1461,8 +1456,7 @@ COMPAT_SYSCALL_DEFINE5(ppoll_time64, str
+ 
+ 	ret = do_sys_poll(ufds, nfds, to);
+ 
+-	restore_user_sigmask(sigmask, &sigsaved);
+-
++	restore_user_sigmask(sigmask, &sigsaved, ret == -EINTR);
+ 	/* We can restart this syscall, usually */
+ 	if (ret == -EINTR)
+ 		ret = -ERESTARTNOHAND;
+--- a/include/linux/signal.h~signal-remove-the-wrong-signal_pending-check-in-restore_user_sigmask
++++ a/include/linux/signal.h
+@@ -276,7 +276,7 @@ extern int sigprocmask(int, sigset_t *,
+ extern int set_user_sigmask(const sigset_t __user *usigmask, sigset_t *set,
+ 	sigset_t *oldset, size_t sigsetsize);
+ extern void restore_user_sigmask(const void __user *usigmask,
+-				 sigset_t *sigsaved);
++				 sigset_t *sigsaved, bool interrupted);
+ extern void set_current_blocked(sigset_t *);
+ extern void __set_current_blocked(const sigset_t *);
+ extern int show_unhandled_signals;
+--- a/kernel/signal.c~signal-remove-the-wrong-signal_pending-check-in-restore_user_sigmask
++++ a/kernel/signal.c
+@@ -2912,7 +2912,8 @@ EXPORT_SYMBOL(set_compat_user_sigmask);
+  * This is useful for syscalls such as ppoll, pselect, io_pgetevents and
+  * epoll_pwait where a new sigmask is passed in from userland for the syscalls.
+  */
+-void restore_user_sigmask(const void __user *usigmask, sigset_t *sigsaved)
++void restore_user_sigmask(const void __user *usigmask, sigset_t *sigsaved,
++				bool interrupted)
+ {
+ 
+ 	if (!usigmask)
+@@ -2922,7 +2923,7 @@ void restore_user_sigmask(const void __u
+ 	 * Restoring sigmask here can lead to delivering signals that the above
+ 	 * syscalls are intended to block because of the sigmask passed in.
+ 	 */
+-	if (signal_pending(current)) {
++	if (interrupted) {
+ 		current->saved_sigmask = *sigsaved;
+ 		set_restore_sigmask();
+ 		return;
+_
+
+Patches currently in -mm which might be from oleg@redhat.com are
+
+signal-remove-the-wrong-signal_pending-check-in-restore_user_sigmask.patch
+
