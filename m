@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A0E83507E
-	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 21:56:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EDAF3507F
+	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 21:56:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726269AbfFDT4W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Jun 2019 15:56:22 -0400
-Received: from amurgeo.ru ([46.227.26.130]:37336 "EHLO amurgeo.ru"
+        id S1726286AbfFDT4u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Jun 2019 15:56:50 -0400
+Received: from amurgeo.ru ([46.227.26.130]:37806 "EHLO amurgeo.ru"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725933AbfFDT4W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 4 Jun 2019 15:56:22 -0400
+        id S1725933AbfFDT4u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 4 Jun 2019 15:56:50 -0400
 Received: from amurgeo.ru (localhost.localdomain [127.0.0.1])
-        by amurgeo.ru (Postfix) with ESMTP id 15A60DC0107;
-        Wed,  5 Jun 2019 04:55:41 +0900 (YAKT)
+        by amurgeo.ru (Postfix) with ESMTP id 5F8CBDC0108;
+        Wed,  5 Jun 2019 04:55:43 +0900 (YAKT)
 Received: from 105.112.106.99
         (SquirrelMail authenticated user director@amurgeo.ru)
         by amurgeo.ru with HTTP;
-        Tue, 4 Jun 2019 21:55:41 +0200
-Message-ID: <1342a8c123732d09e43f4150108b2e23.squirrel@amurgeo.ru>
-Date:   Tue, 4 Jun 2019 21:55:41 +0200
+        Tue, 4 Jun 2019 21:55:43 +0200
+Message-ID: <ea966ede4eb79ed0d5e7731ca450d6a4.squirrel@amurgeo.ru>
+Date:   Tue, 4 Jun 2019 21:55:43 +0200
 Subject: INFORMATION
 From:   "director" <director@amurgeo.ru>
 User-Agent: SquirrelMail/1.4.22
