@@ -2,83 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1358134DCB
-	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 18:37:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D77BB34DD1
+	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 18:38:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727785AbfFDQho (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Jun 2019 12:37:44 -0400
-Received: from mail-qk1-f196.google.com ([209.85.222.196]:36792 "EHLO
-        mail-qk1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727451AbfFDQho (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Jun 2019 12:37:44 -0400
-Received: by mail-qk1-f196.google.com with SMTP id g18so3262506qkl.3;
-        Tue, 04 Jun 2019 09:37:43 -0700 (PDT)
+        id S1727555AbfFDQid (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Jun 2019 12:38:33 -0400
+Received: from mail-pf1-f195.google.com ([209.85.210.195]:44091 "EHLO
+        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727451AbfFDQic (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Jun 2019 12:38:32 -0400
+Received: by mail-pf1-f195.google.com with SMTP id t16so4194967pfe.11
+        for <stable@vger.kernel.org>; Tue, 04 Jun 2019 09:38:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=fRewquvY8ZwDjq8jTQRXdfIeZ2OMugxwKzgTtmSuTds=;
+        b=UpqIWo9T+DQkUI3bhyIj5DJulSKIaQT5ay1o1v1xUQ6q3lBOiTDUIh8ViHWsccJgLU
+         1xPFmLkaZomf6NXxh9SRrdCwG3VWpYUu0yzahpLjHvtvAxQOe8+SLn8i7E9AhksXmzyD
+         sxFI8jOrMmmr2xd4iPDIyD+IQ4m4b+/m+ckwY=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=aE1/cHd8DzTD9FjBXgqCGhUsUZ/Ac0/w2Hl806C0EWM=;
-        b=gBZi01V6we8APcZYiBHBU8npGyh1ko7XZA+weiRBOCKEk6+rZUepKd7at1Y1GJUzXI
-         0HjNgHij9va6VYS6Hd7y37zamsi2pCQftku47zA4pPT/IA1BwWv4Jwt8LLbZ9YB1IpeP
-         u2ZWC9zaVaEiLyfYg5WViwQ0zSesnalr2ivIzzNx2EWnkGSjZKf7EWnGPEFihd6L2w9K
-         qr8vfx9F64jUyMeWhJlD3hcqsbYXT5Iq7S2HRGAg3+u53HnbzvE/10nYD66IYTYjGv1S
-         3lsvpvcoCXM0HI7ffmV//7oFe1/R+FM0fuN8xK7J381tTD6uO987VkqT6rVGC9OPNIOx
-         BFww==
-X-Gm-Message-State: APjAAAWkIaBx2izAtaO3FH0O8D+0u4Tng1tKUTJkjsMFa9IE94swWuKQ
-        +l2/L57qr0WMZLcwA9vOJ98P+cWZqg1xB2+3+ho=
-X-Google-Smtp-Source: APXvYqzfmP62dYOeVk1OlzWSMTrM9bPNziXx52FwlTOC/Ho6r8b/7WoZJpMUG9U+NaP2WQiW5cUyXhoGL5f0SB1c034=
-X-Received: by 2002:a37:a4d3:: with SMTP id n202mr27466154qke.84.1559666262799;
- Tue, 04 Jun 2019 09:37:42 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=fRewquvY8ZwDjq8jTQRXdfIeZ2OMugxwKzgTtmSuTds=;
+        b=g5Z6B8Dp9kF1ArTXhdzFKcupCNBrn5GwtTGRyjWCSsOIH4agKuRGV/we2FnlJjLHJW
+         BBplooFAni+uNZH7i+5LSj0tqxSeK6WUF5tBvVpjEOkBPs2exUpUd1F8zIvm7X9u26Lg
+         QirmVmsunGcn1O8vYadDSjI72kb1qdPtt+/AC4NFzPwCl/f6G4GPeXKbiHU9E2yMn2g9
+         O6269CtP24H9IvdniJqrpdVDn3riJxvYwdLFoJt0n9efY1Mrr5332hyfTqfUTB0PUDF/
+         0vEE81enC4Q2sJ93H29ckbUCTwtdgbw9jAlTccB7qOK0x682OUdkSncRSSyIrN34l7UW
+         +IiQ==
+X-Gm-Message-State: APjAAAV4QXFrkl0C/4AJCpyGKorJCIaGHrLp2P/4+h9qh2BBjDD2iNvg
+        qd4iogAN5HOx8clSTvKMY8H2Dg==
+X-Google-Smtp-Source: APXvYqyZ/dxuNb05lveC1LCusBWC241ktkl1vFV71Puovwx6TjRDI7AEs6gzv2vbzu43zvhgEPlgeg==
+X-Received: by 2002:aa7:8a11:: with SMTP id m17mr40137170pfa.122.1559666312123;
+        Tue, 04 Jun 2019 09:38:32 -0700 (PDT)
+Received: from google.com ([2620:15c:202:201:49ea:b78f:4f04:4d25])
+        by smtp.googlemail.com with ESMTPSA id o15sm24038156pfh.53.2019.06.04.09.38.30
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Tue, 04 Jun 2019 09:38:31 -0700 (PDT)
+Date:   Tue, 4 Jun 2019 09:38:28 -0700
+From:   Zubin Mithra <zsm@chromium.org>
+To:     Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Cc:     stable@vger.kernel.org, gregkh@linuxfoundation.org,
+        groeck@chromium.org, blackgod016574@gmail.com,
+        dvhart@infradead.org, andy@infradead.org, tglx@linutronix.de,
+        mingo@redhat.com, bp@alien8.de
+Subject: Re: 4e78921ba4dd ("efi/x86/Add missing error handling to old_memmap
+ 1:1 mapping code")
+Message-ID: <20190604163826.GA172115@google.com>
+References: <20190603223851.GA162395@google.com>
+ <20190604123432.GA19996@kroah.com>
+ <CAKv+Gu8a77xObE8UPhDZeqzXdm48vxHOqC4resfvRJLFPavgLQ@mail.gmail.com>
 MIME-Version: 1.0
-References: <20190522032144.10995-1-deepa.kernel@gmail.com>
- <20190529161157.GA27659@redhat.com> <20190604134117.GA29963@redhat.com>
-In-Reply-To: <20190604134117.GA29963@redhat.com>
-From:   Arnd Bergmann <arnd@arndb.de>
-Date:   Tue, 4 Jun 2019 18:37:26 +0200
-Message-ID: <CAK8P3a3Dv+hqnQHWU2nG5rB+hGrqbcDC3DUoNGZAzNGJgJwizA@mail.gmail.com>
-Subject: Re: [PATCH] signal: remove the wrong signal_pending() check in restore_user_sigmask()
-To:     Oleg Nesterov <oleg@redhat.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Deepa Dinamani <deepa.kernel@gmail.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        dbueso@suse.de, Jens Axboe <axboe@kernel.dk>,
-        Davidlohr Bueso <dave@stgolabs.net>, e@80x24.org,
-        Jason Baron <jbaron@akamai.com>,
-        Linux FS-devel Mailing List <linux-fsdevel@vger.kernel.org>,
-        linux-aio <linux-aio@kvack.org>, omar.kilani@gmail.com,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "# 3.4.x" <stable@vger.kernel.org>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        David Laight <David.Laight@aculab.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAKv+Gu8a77xObE8UPhDZeqzXdm48vxHOqC4resfvRJLFPavgLQ@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 4, 2019 at 3:41 PM Oleg Nesterov <oleg@redhat.com> wrote:
->
-> This is the minimal fix for stable, I'll send cleanups later.
->
-> The commit 854a6ed56839a40f6b5d02a2962f48841482eec4 ("signal: Add
-> restore_user_sigmask()") introduced the visible change which breaks
-> user-space: a signal temporary unblocked by set_user_sigmask() can
-> be delivered even if the caller returns success or timeout.
->
-> Change restore_user_sigmask() to accept the additional "interrupted"
-> argument which should be used instead of signal_pending() check, and
-> update the callers.
->
-> Reported-by: Eric Wong <e@80x24.org>
-> Fixes: 854a6ed56839a40f6b5d02a2962f48841482eec4 ("signal: Add restore_user_sigmask()")
-> cc: stable@vger.kernel.org (v5.0+)
-> Signed-off-by: Oleg Nesterov <oleg@redhat.com>
+On Tue, Jun 04, 2019 at 03:39:15PM +0200, Ard Biesheuvel wrote:
+> On Tue, 4 Jun 2019 at 14:34, Greg KH <gregkh@linuxfoundation.org> wrote:
+> >
+> > On Mon, Jun 03, 2019 at 03:38:52PM -0700, Zubin Mithra wrote:
+> > > Hello,
+> > >
+> > > CVE-2019-12380 was fixed in the upstream linux kernel with the commit :-
+> > > * 4e78921ba4dd ("efi/x86/Add missing error handling to old_memmap 1:1 mapping code")
+> > >
+> > > Could the patch be applied in order to v4.19.y?
+> >
+> > Now queued up, thanks.
+> >
+> 
+> Given the discussion leading up to this, I'm slightly surprised.
+> 
+> As I alluded to in my questions to Zubin, I am concerned that the
+> testing carried out on this patch has too little coverage, given that
+> a) Chrome OS apparently does not boot in EFI mode
+> b) therefore, Chrome OS there does not use efi=old_map
+> c) Chrome OS hardware does not implement 5 level paging
 
-Acked-by: Arnd Bergmann <arnd@arndb.de>
+I see, yes, I have not done appropriate testing on this patch. Sorry
+about the mistake and the confusion! I'll keep in mind to do more appropriate
+testing from the next patch onwards.
 
-I hope Eric can test this with the original reproducer, or maybe someone
-could create a test case that can be added into LTP.
+Thanks,
+- Zubin
 
-      Arnd
+
+> 
+> I have done all the testing I could before merging the patch, but I
+> would prefer to defer from backporting it until it hits a release. I
+> know some people argue that this still does not provide sufficient
+> coverage, but those are usually not the same people getting emails
+> when their EFI systems no longer boot without any output whatsoever
+> after upgrading from one stable kernel version to the next.
