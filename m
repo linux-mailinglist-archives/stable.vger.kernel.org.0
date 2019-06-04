@@ -2,133 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B51FD34342
-	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 11:34:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2D843434D
+	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 11:37:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726933AbfFDJeJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Jun 2019 05:34:09 -0400
-Received: from wout2-smtp.messagingengine.com ([64.147.123.25]:43013 "EHLO
-        wout2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726918AbfFDJeJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Jun 2019 05:34:09 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 994CE3C1F;
-        Tue,  4 Jun 2019 05:34:08 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Tue, 04 Jun 2019 05:34:09 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=ZMDEFC
-        E1JYsJbP29tVXHCBGF0zi2e+pY00cgULOQXu4=; b=P/o/vGypLdr5ry40npQELD
-        QI76Y/chVpjHexvEW5pvJsJSCqxhGxKOXPHx/jHqy7wHPX7a6pPDfBgnTsnqf3Da
-        J+mQUP5Lq/kCiZioVhpC0E6ORZorWx8DIwH50GYVNJdyqOhbEYESnWDKlLDGDXKX
-        wJ7YtUpVIla2ln8A1evsgudtzZxstVuH15YFifEt12ZDNwzKOmgLtqPs900GzpAv
-        nS8pQDt9+0ZoH01oODWZzFOttPlTBGmqj2uGVxGNxHUz6AXje7ieqe2CsH1c4aga
-        yJf5Zc+lVuSixVkrHJsPJAhY7XHrSGRe2X6GyJd/riqftPTgY5f+xImICb6Hvq4A
-        ==
-X-ME-Sender: <xms:Dzv2XIP8OoXdjbq0vC27XZaR27E9PcDln-tUwhu-bHhXKzGKShQvyQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrudefledgudejucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuffhomhgrihhnpehlrghunhgthhhprggurdhnvghtnecukfhppeekfedrkeeird
-    ekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgt
-    ohhmnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:Dzv2XJtG63PlWrDEbzlAasMZPZOe7e-skm8IkTtjhhXYfObtSV5qdQ>
-    <xmx:Dzv2XOIhI0rNd14a4PmpjXd0DsOKynGlxIqtBReNIXbX93hA3djxJQ>
-    <xmx:Dzv2XHfSBva6olmpEtgDkTE8tXgqtIbPB_g_2KJFtnpzH4WZjkU0WA>
-    <xmx:EDv2XBynaolui8Ug-9EOwmjZWCN-JPWnkgaGhEJ8sCYM6ulrm2ZYMg>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id C6FF3380087;
-        Tue,  4 Jun 2019 05:34:06 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] ALSA: hda/realtek - Improve the headset mic for Acer Aspire" failed to apply to 4.14-stable tree
-To:     hui.wang@canonical.com, chiu@endlessm.com, drake@endlessm.com,
-        kailang@realtek.com, stable@vger.kernel.org, tiwai@suse.de
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 04 Jun 2019 11:34:04 +0200
-Message-ID: <155964084410076@kroah.com>
+        id S1726937AbfFDJhD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Jun 2019 05:37:03 -0400
+Received: from usa-sjc-mx-foss1.foss.arm.com ([217.140.101.70]:38944 "EHLO
+        foss.arm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726918AbfFDJhD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 4 Jun 2019 05:37:03 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.72.51.249])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id A33D680D;
+        Tue,  4 Jun 2019 02:37:02 -0700 (PDT)
+Received: from e103592.cambridge.arm.com (usa-sjc-imap-foss1.foss.arm.com [10.72.51.249])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 904793F246;
+        Tue,  4 Jun 2019 02:37:01 -0700 (PDT)
+Date:   Tue, 4 Jun 2019 10:36:59 +0100
+From:   Dave Martin <Dave.Martin@arm.com>
+To:     Andrew Jones <drjones@redhat.com>
+Cc:     Marc Zyngier <marc.zyngier@arm.com>, kvmarm@lists.cs.columbia.edu,
+        stable@vger.kernel.org, linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH] KVM: arm64: Filter out invalid core register IDs in
+ KVM_GET_REG_LIST
+Message-ID: <20190604093658.GT28398@e103592.cambridge.arm.com>
+References: <1559580727-13444-1-git-send-email-Dave.Martin@arm.com>
+ <20190604092301.26vbijfoapl4whp6@kamzik.brq.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190604092301.26vbijfoapl4whp6@kamzik.brq.redhat.com>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, Jun 04, 2019 at 11:23:01AM +0200, Andrew Jones wrote:
+> On Mon, Jun 03, 2019 at 05:52:07PM +0100, Dave Martin wrote:
+> > Since commit d26c25a9d19b ("arm64: KVM: Tighten guest core register
+> > access from userspace"), KVM_{GET,SET}_ONE_REG rejects register IDs
+> > that do not correspond to a single underlying architectural register.
+> > 
+> > KVM_GET_REG_LIST was not changed to match however: instead, it
+> > simply yields a list of 32-bit register IDs that together cover the
+> > whole kvm_regs struct.  This means that if userspace tries to use
+> > the resulting list of IDs directly to drive calls to KVM_*_ONE_REG,
+> > some of those calls will now fail.
+> > 
+> > This was not the intention.  Instead, iterating KVM_*_ONE_REG over
+> > the list of IDs returned by KVM_GET_REG_LIST should be guaranteed
+> > to work.
+> > 
+> > This patch fixes the problem by splitting validate_core_offset()
+> > into a backend core_reg_size_from_offset() which does all of the
+> > work except for checking that the size field in the register ID
+> > matches, and kvm_arm_copy_reg_indices() and num_core_regs() are
+> > converted to use this to enumerate the valid offsets.
+> > 
+> > kvm_arm_copy_reg_indices() now also sets the register ID size field
+> > appropriately based on the value returned, so the register ID
+> > supplied to userspace is fully qualified for use with the register
+> > access ioctls.
+> 
+> Ah yes, I've seen this issue, but hadn't gotten around to fixing it.
+> 
+> > 
+> > Cc: stable@vger.kernel.org
+> > Fixes: d26c25a9d19b ("arm64: KVM: Tighten guest core register access from userspace")
+> > Signed-off-by: Dave Martin <Dave.Martin@arm.com>
+> > 
+> > ---
+> > 
+> > Changes since v3:
+> 
+> Hmm, I didn't see a v1-v3.
 
-The patch below does not apply to the 4.14-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Looks like I didn't mark v3 as such when posting [1], but this has been
+knocking around for a while.  It was rather low-priority and I hadn't
+got around to testing it previously...
 
-thanks,
 
-greg k-h
+[1] [PATCH] KVM: arm64: Filter out invalid core register IDs in KVM_GET_REG_LIST
+https://lists.cs.columbia.edu/pipermail/kvmarm/2019-April/035417.html
 
------------------- original commit in Linus's tree ------------------
+> > 
+> >  * Rebased onto v5.2-rc1.
+> > 
+> >  * Tested with qemu by migrating from one qemu instance to another on
+> >    ThunderX2.
+> 
+> One of the reasons I was slow to fix this is because QEMU doesn't care
+> about the core registers when it uses KVM_GET_REG_LIST. It just completely
+> skips all core reg indices, so it never finds out that they're invalid.
+> And kvmtool doesn't use KVM_GET_REG_LIST at all. But it's certainly good
+> to fix this.
 
-From 9cb40eb184c4220d244a532bd940c6345ad9dbd9 Mon Sep 17 00:00:00 2001
-From: Hui Wang <hui.wang@canonical.com>
-Date: Wed, 29 May 2019 12:41:38 +0800
-Subject: [PATCH] ALSA: hda/realtek - Improve the headset mic for Acer Aspire
- laptops
+[...]
 
-We met another Acer Aspire laptop which has the problem on the
-headset-mic, the Pin 0x19 is not set the corret configuration for a
-mic and the pin presence can't be detected too after plugging a
-headset. Kailang suggested that we should set the coeff to enable the
-mic and apply the ALC269_FIXUP_LIFEBOOK_EXTMIC. After doing that,
-both headset-mic presence and headset-mic work well.
+> Reviewed-by: Andrew Jones <drjones@redhat.com>
+> 
+> I've also tested this using a kvm selftests test I wrote. I haven't posted
+> that test yet because it needs some cleanup and I planned on getting back
+> to that when getting back to fixing this issue. Anyway, before this patch
+> every other 64-bit core reg index is invalid (because its indexing 32-bits
+> but claiming a size of 64), all fp regs are invalid, and we were even
+> providing a couple indices that mapped to struct padding. After this patch
+> everything is right with the world.
+> 
+> Tested-by: Andrew Jones <drjones@redhat.com>
 
-The existing ALC255_FIXUP_ACER_MIC_NO_PRESENCE set the headset-mic
-jack to be a phantom jack. Now since the jack can support presence
-unsol event, let us imporve it to set the jack to be a normal jack.
-
-https://bugs.launchpad.net/bugs/1821269
-Fixes: 5824ce8de7b1c ("ALSA: hda/realtek - Add support for Acer Aspire E5-475 headset mic")
-Cc: Chris Chiu <chiu@endlessm.com>
-CC: Daniel Drake <drake@endlessm.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Kailang Yang <kailang@realtek.com>
-Signed-off-by: Hui Wang <hui.wang@canonical.com>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index f1bac03e954b..18cb48054e54 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -6223,13 +6223,15 @@ static const struct hda_fixup alc269_fixups[] = {
- 		.chain_id = ALC269_FIXUP_THINKPAD_ACPI,
- 	},
- 	[ALC255_FIXUP_ACER_MIC_NO_PRESENCE] = {
--		.type = HDA_FIXUP_PINS,
--		.v.pins = (const struct hda_pintbl[]) {
--			{ 0x19, 0x01a1913c }, /* use as headset mic, without its own jack detect */
--			{ }
-+		.type = HDA_FIXUP_VERBS,
-+		.v.verbs = (const struct hda_verb[]) {
-+			/* Enable the Mic */
-+			{ 0x20, AC_VERB_SET_COEF_INDEX, 0x45 },
-+			{ 0x20, AC_VERB_SET_PROC_COEF, 0x5089 },
-+			{}
- 		},
- 		.chained = true,
--		.chain_id = ALC255_FIXUP_HEADSET_MODE
-+		.chain_id = ALC269_FIXUP_LIFEBOOK_EXTMIC
- 	},
- 	[ALC255_FIXUP_ASUS_MIC_NO_PRESENCE] = {
- 		.type = HDA_FIXUP_PINS,
-@@ -7273,6 +7275,10 @@ static const struct snd_hda_pin_quirk alc269_pin_fixup_tbl[] = {
- 		{0x18, 0x02a11030},
- 		{0x19, 0x0181303F},
- 		{0x21, 0x0221102f}),
-+	SND_HDA_PIN_QUIRK(0x10ec0255, 0x1025, "Acer", ALC255_FIXUP_ACER_MIC_NO_PRESENCE,
-+		{0x12, 0x90a60140},
-+		{0x14, 0x90170120},
-+		{0x21, 0x02211030}),
- 	SND_HDA_PIN_QUIRK(0x10ec0255, 0x1025, "Acer", ALC255_FIXUP_ACER_MIC_NO_PRESENCE,
- 		{0x12, 0x90a601c0},
- 		{0x14, 0x90171120},
-
+Thanks
+---Dave
