@@ -2,112 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E43733470D
-	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 14:40:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 634D83471E
+	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 14:42:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727672AbfFDMkC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Jun 2019 08:40:02 -0400
-Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:45279 "EHLO
-        wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727580AbfFDMkC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Jun 2019 08:40:02 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id BFADB469;
-        Tue,  4 Jun 2019 08:40:00 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Tue, 04 Jun 2019 08:40:01 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=W8xT99
-        rdy1VvYBpDwYbdj/302YfStsBTX3sbyn4qR3s=; b=TgBay0jplB5IhvRMCg6jYm
-        7wX3UoGQc3hK9Pi/TQmn2wqH7o/63BZTTYAnUdTv6GljsTnn5dh8yFhDGUuqkF/Q
-        4ctzBo+9MtZpJI069P8R5S7f92nvMDgkKd1rbFnIgdjiwJhNN8thpNZjsyE1l3aB
-        jpQPCWQO1inLeGDT7E7J68vzocFse6YLqfj4wuOGR43/Q6mDew8vrs0HuTY9b7k6
-        FhzQZFAdkNugsEqJf9maKAi8opX71GDQV9g+6ZiHiUb6EEtZzceeETJXhq03BS/9
-        ZdoOsb4aI1VuWifT1+TRxYQheTYfTB4byAXbt78ACW+V0OvtN/smyNz5ozNfjZow
-        ==
-X-ME-Sender: <xms:n2b2XELi-O4_Fcp7oH5kAFP-T7Slyt-Hnwp6YDz_oi1x1lWAwUN8eg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrudefledgheehucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtjeenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuffhomhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhgnecukfhppeekfedrke
-    eirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghh
-    rdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:n2b2XLH_-kCYTKDg2OQ-PUD5Rp9G_0qoFjoHpnA2yAuXpO05N9ZoFw>
-    <xmx:n2b2XJw2sxO5alClVmOjIBivuw3NTcGF_h2ZbTdnBTBoKFQvJTLEZg>
-    <xmx:n2b2XIig5Crbii7ZSO8Ryf5vGFdauzzmM8l2zjJpYc5fPCY7pkhIWw>
-    <xmx:oGb2XC9cPI9die1rkMcZC_krWn5m0lPdusu0265yujHczEMPTSTbrw>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 3D86438008E;
-        Tue,  4 Jun 2019 08:39:59 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] drm/fb-helper: generic: Call drm_client_add() after setup is" failed to apply to 4.19-stable tree
-To:     noralf@tronnes.org, daniel.vetter@ffwll.ch
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 04 Jun 2019 14:39:57 +0200
-Message-ID: <1559651997224@kroah.com>
+        id S1727704AbfFDMm4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Jun 2019 08:42:56 -0400
+Received: from mail-wr1-f46.google.com ([209.85.221.46]:42473 "EHLO
+        mail-wr1-f46.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727394AbfFDMm4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Jun 2019 08:42:56 -0400
+Received: by mail-wr1-f46.google.com with SMTP id o12so8545192wrj.9
+        for <stable@vger.kernel.org>; Tue, 04 Jun 2019 05:42:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=3NP078ZMTcwFLvEeNMylESBBzin/sNQeO1WxdnsQwHI=;
+        b=vYQ23a2T1hUNj/TGCOyIyi4Vc91h9IIuX+Eyp9bMF1YQyv53i/x3gxlkZZQLuYeeF4
+         35cvfSSMhq112Zuv1KxQ3JdvGFTP1JhVLHA7bQfQuuGYSpTZrL2j5wrFo2fz8VmEeX/7
+         mdIsM2vgWBr4IGH8HYq2GeLOsGH53TzlBBPDA0YD4pTa7RtXx3h3As+rLvFJw/2mNkV1
+         aaYgQhgCjjHdVxRkh97f8zmwXDK0d8bp1P679MO5OdpjWqqeBkIF9tm4kWtdrWAs02iZ
+         9UnxuInYP3gmtNG/xm0UFTtYCie9W57OD3d5sDh6cx2bvYnUMsJb5oCjMve6/p+lyVWG
+         rE4Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=3NP078ZMTcwFLvEeNMylESBBzin/sNQeO1WxdnsQwHI=;
+        b=Qi7jEkRK8uAInSzhQJYQ0Ph+29claVbwZKODOWbw5ZS/MDP48eYUlbAxqKhEHsFppf
+         UeCcXC880qPQ+cvSlHAcu7BDx0GYN8EjxyrIk1yIRflPYtHUSt/V7ec9G4AFDLAfBLMP
+         e31yyuALwLhh4nmk6OV2ycDwSN3RFbayaFz5SOaidI8FwMRvwFU6YWr3sbaSZqA1k4Ng
+         +k6FT0S4SFW434YLEnxNFrFwL8TynTKZiDmC8y+ewPQiXgDa91R7EDxaoxUJT1OrBbOF
+         H+vNW2g2xaqR7QswLSp1dWNqWWiojwb48zHeoYukuTiQchvZUc9jp074oucl9As18I4P
+         sNjg==
+X-Gm-Message-State: APjAAAXs8tCJ0ojW4SvuR7upddE2kCofXaq7FEHbNCB20XmA9QU7AZl/
+        GcdMmw9rtfZNfwuEdue5R7HTyF9O9Yk3hQ==
+X-Google-Smtp-Source: APXvYqxuxu4ET5fabb8ITi9iGU9xOolFjbx3BH/FwWdSCiRchR43iVW0gjL6XuW2Cu0CkE1C0kMJyA==
+X-Received: by 2002:adf:f041:: with SMTP id t1mr20250017wro.74.1559652174377;
+        Tue, 04 Jun 2019 05:42:54 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id n1sm14976252wrx.39.2019.06.04.05.42.52
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 04 Jun 2019 05:42:52 -0700 (PDT)
+Message-ID: <5cf6674c.1c69fb81.fe733.14ab@mx.google.com>
+Date:   Tue, 04 Jun 2019 05:42:52 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v5.1.7
+X-Kernelci-Branch: linux-5.1.y
+X-Kernelci-Tree: stable
+Subject: stable/linux-5.1.y boot: 67 boots: 0 failed, 67 passed (v5.1.7)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable/linux-5.1.y boot: 67 boots: 0 failed, 67 passed (v5.1.7)
 
-The patch below does not apply to the 4.19-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-5.=
+1.y/kernel/v5.1.7/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-5.1.y/ke=
+rnel/v5.1.7/
 
-thanks,
+Tree: stable
+Branch: linux-5.1.y
+Git Describe: v5.1.7
+Git Commit: 2f7d9d47575e61225bbab561bff9805f422604fe
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 35 unique boards, 16 SoC families, 11 builds out of 209
 
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 6e3f17ee73f7e3c2ef0e2c8fd8624b2ece8ef2c9 Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>
-Date: Mon, 1 Apr 2019 16:13:58 +0200
-Subject: [PATCH] drm/fb-helper: generic: Call drm_client_add() after setup is
- done
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
-Hotplug can happen while drm_fbdev_generic_setup() is running so move
-drm_client_add() call after setup is done to avoid
-drm_fbdev_client_hotplug() running in two threads at the same time.
-
-Fixes: 9060d7f49376 ("drm/fb-helper: Finish the generic fbdev emulation")
-Cc: stable@vger.kernel.org
-Reported-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Signed-off-by: Noralf Trønnes <noralf@tronnes.org>
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190401141358.25309-1-noralf@tronnes.org
-
-diff --git a/drivers/gpu/drm/drm_fb_helper.c b/drivers/gpu/drm/drm_fb_helper.c
-index 0d8384e30e16..84791dd4a90d 100644
---- a/drivers/gpu/drm/drm_fb_helper.c
-+++ b/drivers/gpu/drm/drm_fb_helper.c
-@@ -3312,8 +3312,6 @@ int drm_fbdev_generic_setup(struct drm_device *dev, unsigned int preferred_bpp)
- 		return ret;
- 	}
- 
--	drm_client_add(&fb_helper->client);
--
- 	if (!preferred_bpp)
- 		preferred_bpp = dev->mode_config.preferred_depth;
- 	if (!preferred_bpp)
-@@ -3324,6 +3322,8 @@ int drm_fbdev_generic_setup(struct drm_device *dev, unsigned int preferred_bpp)
- 	if (ret)
- 		DRM_DEV_DEBUG(dev->dev, "client hotplug ret=%d\n", ret);
- 
-+	drm_client_add(&fb_helper->client);
-+
- 	return 0;
- }
- EXPORT_SYMBOL(drm_fbdev_generic_setup);
-
+---
+For more info write to <info@kernelci.org>
