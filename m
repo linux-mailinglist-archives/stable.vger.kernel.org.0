@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EB4C935448
-	for <lists+stable@lfdr.de>; Wed,  5 Jun 2019 01:32:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FF243543A
+	for <lists+stable@lfdr.de>; Wed,  5 Jun 2019 01:32:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727194AbfFDXcS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Jun 2019 19:32:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32860 "EHLO mail.kernel.org"
+        id S1726964AbfFDXWp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Jun 2019 19:22:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32878 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726876AbfFDXWm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 4 Jun 2019 19:22:42 -0400
+        id S1726958AbfFDXWo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 4 Jun 2019 19:22:44 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EF76F208E3;
-        Tue,  4 Jun 2019 23:22:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2536B208C3;
+        Tue,  4 Jun 2019 23:22:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559690561;
-        bh=EJJixapn+OfFqWZNxsdSJTKShf4QSQTWzA0SfKy3OjU=;
+        s=default; t=1559690563;
+        bh=f0Z6bE4pslfnLYWKV/JkyfCCbL7lTs4u6EJu/2wz1DI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=op09FNz/HRjdU5W1lWmh/qQSaWgtus+ET6Gb/7hOy7kTTty2ymGqGHARUWRTggb0w
-         Fm7PHj+J3NoVygN7tJw6HNjGKex6+A2rm60IgscFiyXgXSKFePW0TuUTStjTu11Ngq
-         ua+F7V9ghTxeX25hQkCDkgdtIKmeysGS8zrO66/I=
+        b=pb6xrF07LANPu5Io0Ahtwv+pKbvCAK/LU3ZRHk4evbu0oY79EvVD1BHJEDQ9QMvCY
+         MOa34d6TXUvdS+SRlI/XwW5nzeCY7Gf4Kx1qnugZJn5zwc9UuTd5ptD+/XkODRchMv
+         oy9Xe0kJZNwirUj9TdxcqWghP1uwA6lG1x1gw1W8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     YueHaibing <yuehaibing@huawei.com>,
-        Manish Rangankar <mrangankar@marvell.com>,
+Cc:     James Smart <jsmart2021@gmail.com>,
+        Dick Kennedy <dick.kennedy@broadcom.com>,
+        Bart Van Assche <bvanassche@acm.org>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 17/60] scsi: qedi: remove set but not used variables 'cdev' and 'udev'
-Date:   Tue,  4 Jun 2019 19:21:27 -0400
-Message-Id: <20190604232212.6753-17-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 18/60] scsi: lpfc: resolve lockdep warnings
+Date:   Tue,  4 Jun 2019 19:21:28 -0400
+Message-Id: <20190604232212.6753-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190604232212.6753-1-sashal@kernel.org>
 References: <20190604232212.6753-1-sashal@kernel.org>
@@ -44,48 +45,299 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit d0adee5d12752256ff0c87ad7f002f21fe49d618 ]
+[ Upstream commit e2a8be5696e706a2fce6edd11e5c74ce14cffec0 ]
 
-Fixes gcc '-Wunused-but-set-variable' warning:
+There were a number of erroneous comments and incorrect older lockdep
+checks that were causing a number of warnings.
 
-drivers/scsi/qedi/qedi_iscsi.c: In function 'qedi_ep_connect':
-drivers/scsi/qedi/qedi_iscsi.c:813:23: warning: variable 'udev' set but not used [-Wunused-but-set-variable]
-drivers/scsi/qedi/qedi_iscsi.c:812:18: warning: variable 'cdev' set but not used [-Wunused-but-set-variable]
+Resolve the following:
 
-These have never been used since introduction.
+ - Inconsistent lock state warnings in lpfc_nvme_info_show().
 
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Acked-by: Manish Rangankar <mrangankar@marvell.com>
+ - Fixed comments and code on sequences where ring lock is now held instead
+   of hbalock.
+
+ - Reworked calling sequences around lpfc_sli_iocbq_lookup(). Rather than
+   locking prior to the routine and have routine guess on what lock, take
+   the lock within the routine. The lockdep check becomes unnecessary.
+
+ - Fixed comments and removed erroneous hbalock checks.
+
+Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+CC: Bart Van Assche <bvanassche@acm.org>
+Tested-by: Bart Van Assche <bvanassche@acm.org>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qedi/qedi_iscsi.c | 4 ----
- 1 file changed, 4 deletions(-)
+ drivers/scsi/lpfc/lpfc_attr.c |  5 ++-
+ drivers/scsi/lpfc/lpfc_sli.c  | 84 ++++++++++++++++++++++-------------
+ 2 files changed, 56 insertions(+), 33 deletions(-)
 
-diff --git a/drivers/scsi/qedi/qedi_iscsi.c b/drivers/scsi/qedi/qedi_iscsi.c
-index bf371e7b957d..c3d0d246df14 100644
---- a/drivers/scsi/qedi/qedi_iscsi.c
-+++ b/drivers/scsi/qedi/qedi_iscsi.c
-@@ -809,8 +809,6 @@ qedi_ep_connect(struct Scsi_Host *shost, struct sockaddr *dst_addr,
- 	struct qedi_endpoint *qedi_ep;
- 	struct sockaddr_in *addr;
- 	struct sockaddr_in6 *addr6;
--	struct qed_dev *cdev  =  NULL;
--	struct qedi_uio_dev *udev = NULL;
- 	struct iscsi_path path_req;
- 	u32 msg_type = ISCSI_KEVENT_IF_DOWN;
- 	u32 iscsi_cid = QEDI_CID_RESERVED;
-@@ -830,8 +828,6 @@ qedi_ep_connect(struct Scsi_Host *shost, struct sockaddr *dst_addr,
+diff --git a/drivers/scsi/lpfc/lpfc_attr.c b/drivers/scsi/lpfc/lpfc_attr.c
+index a09a742d7ec1..f30cb0fb9a82 100644
+--- a/drivers/scsi/lpfc/lpfc_attr.c
++++ b/drivers/scsi/lpfc/lpfc_attr.c
+@@ -159,6 +159,7 @@ lpfc_nvme_info_show(struct device *dev, struct device_attribute *attr,
+ 	int i;
+ 	int len = 0;
+ 	char tmp[LPFC_MAX_NVME_INFO_TMP_LEN] = {0};
++	unsigned long iflags = 0;
+ 
+ 	if (!(vport->cfg_enable_fc4_type & LPFC_ENABLE_NVME)) {
+ 		len = scnprintf(buf, PAGE_SIZE, "NVME Disabled\n");
+@@ -357,11 +358,11 @@ lpfc_nvme_info_show(struct device *dev, struct device_attribute *attr,
+ 
+ 	list_for_each_entry(ndlp, &vport->fc_nodes, nlp_listp) {
+ 		nrport = NULL;
+-		spin_lock(&vport->phba->hbalock);
++		spin_lock_irqsave(&vport->phba->hbalock, iflags);
+ 		rport = lpfc_ndlp_get_nrport(ndlp);
+ 		if (rport)
+ 			nrport = rport->remoteport;
+-		spin_unlock(&vport->phba->hbalock);
++		spin_unlock_irqrestore(&vport->phba->hbalock, iflags);
+ 		if (!nrport)
+ 			continue;
+ 
+diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
+index dc933b6d7800..363b21c4255e 100644
+--- a/drivers/scsi/lpfc/lpfc_sli.c
++++ b/drivers/scsi/lpfc/lpfc_sli.c
+@@ -994,15 +994,14 @@ lpfc_cleanup_vports_rrqs(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp)
+  * @ndlp: Targets nodelist pointer for this exchange.
+  * @xritag the xri in the bitmap to test.
+  *
+- * This function is called with hbalock held. This function
+- * returns 0 = rrq not active for this xri
+- *         1 = rrq is valid for this xri.
++ * This function returns:
++ * 0 = rrq not active for this xri
++ * 1 = rrq is valid for this xri.
+  **/
+ int
+ lpfc_test_rrq_active(struct lpfc_hba *phba, struct lpfc_nodelist *ndlp,
+ 			uint16_t  xritag)
+ {
+-	lockdep_assert_held(&phba->hbalock);
+ 	if (!ndlp)
+ 		return 0;
+ 	if (!ndlp->active_rrqs_xri_bitmap)
+@@ -1105,10 +1104,11 @@ lpfc_set_rrq_active(struct lpfc_hba *phba, struct lpfc_nodelist *ndlp,
+  * @phba: Pointer to HBA context object.
+  * @piocb: Pointer to the iocbq.
+  *
+- * This function is called with the ring lock held. This function
+- * gets a new driver sglq object from the sglq list. If the
+- * list is not empty then it is successful, it returns pointer to the newly
+- * allocated sglq object else it returns NULL.
++ * The driver calls this function with either the nvme ls ring lock
++ * or the fc els ring lock held depending on the iocb usage.  This function
++ * gets a new driver sglq object from the sglq list. If the list is not empty
++ * then it is successful, it returns pointer to the newly allocated sglq
++ * object else it returns NULL.
+  **/
+ static struct lpfc_sglq *
+ __lpfc_sli_get_els_sglq(struct lpfc_hba *phba, struct lpfc_iocbq *piocbq)
+@@ -1118,9 +1118,15 @@ __lpfc_sli_get_els_sglq(struct lpfc_hba *phba, struct lpfc_iocbq *piocbq)
+ 	struct lpfc_sglq *start_sglq = NULL;
+ 	struct lpfc_io_buf *lpfc_cmd;
+ 	struct lpfc_nodelist *ndlp;
++	struct lpfc_sli_ring *pring = NULL;
+ 	int found = 0;
+ 
+-	lockdep_assert_held(&phba->hbalock);
++	if (piocbq->iocb_flag & LPFC_IO_NVME_LS)
++		pring =  phba->sli4_hba.nvmels_wq->pring;
++	else
++		pring = lpfc_phba_elsring(phba);
++
++	lockdep_assert_held(&pring->ring_lock);
+ 
+ 	if (piocbq->iocb_flag &  LPFC_IO_FCP) {
+ 		lpfc_cmd = (struct lpfc_io_buf *) piocbq->context1;
+@@ -1563,7 +1569,8 @@ lpfc_sli_ring_map(struct lpfc_hba *phba)
+  * @pring: Pointer to driver SLI ring object.
+  * @piocb: Pointer to the driver iocb object.
+  *
+- * This function is called with hbalock held. The function adds the
++ * The driver calls this function with the hbalock held for SLI3 ports or
++ * the ring lock held for SLI4 ports. The function adds the
+  * new iocb to txcmplq of the given ring. This function always returns
+  * 0. If this function is called for ELS ring, this function checks if
+  * there is a vport associated with the ELS command. This function also
+@@ -1573,7 +1580,10 @@ static int
+ lpfc_sli_ringtxcmpl_put(struct lpfc_hba *phba, struct lpfc_sli_ring *pring,
+ 			struct lpfc_iocbq *piocb)
+ {
+-	lockdep_assert_held(&phba->hbalock);
++	if (phba->sli_rev == LPFC_SLI_REV4)
++		lockdep_assert_held(&pring->ring_lock);
++	else
++		lockdep_assert_held(&phba->hbalock);
+ 
+ 	BUG_ON(!piocb);
+ 
+@@ -2970,8 +2980,8 @@ lpfc_sli_process_unsol_iocb(struct lpfc_hba *phba, struct lpfc_sli_ring *pring,
+  *
+  * This function looks up the iocb_lookup table to get the command iocb
+  * corresponding to the given response iocb using the iotag of the
+- * response iocb. This function is called with the hbalock held
+- * for sli3 devices or the ring_lock for sli4 devices.
++ * response iocb. The driver calls this function with the hbalock held
++ * for SLI3 ports or the ring lock held for SLI4 ports.
+  * This function returns the command iocb object if it finds the command
+  * iocb else returns NULL.
+  **/
+@@ -2982,8 +2992,15 @@ lpfc_sli_iocbq_lookup(struct lpfc_hba *phba,
+ {
+ 	struct lpfc_iocbq *cmd_iocb = NULL;
+ 	uint16_t iotag;
+-	lockdep_assert_held(&phba->hbalock);
++	spinlock_t *temp_lock = NULL;
++	unsigned long iflag = 0;
+ 
++	if (phba->sli_rev == LPFC_SLI_REV4)
++		temp_lock = &pring->ring_lock;
++	else
++		temp_lock = &phba->hbalock;
++
++	spin_lock_irqsave(temp_lock, iflag);
+ 	iotag = prspiocb->iocb.ulpIoTag;
+ 
+ 	if (iotag != 0 && iotag <= phba->sli.last_iotag) {
+@@ -2993,10 +3010,12 @@ lpfc_sli_iocbq_lookup(struct lpfc_hba *phba,
+ 			list_del_init(&cmd_iocb->list);
+ 			cmd_iocb->iocb_flag &= ~LPFC_IO_ON_TXCMPLQ;
+ 			pring->txcmplq_cnt--;
++			spin_unlock_irqrestore(temp_lock, iflag);
+ 			return cmd_iocb;
+ 		}
  	}
  
- 	qedi = iscsi_host_priv(shost);
--	cdev = qedi->cdev;
--	udev = qedi->udev;
++	spin_unlock_irqrestore(temp_lock, iflag);
+ 	lpfc_printf_log(phba, KERN_ERR, LOG_SLI,
+ 			"0317 iotag x%x is out of "
+ 			"range: max iotag x%x wd0 x%x\n",
+@@ -3012,8 +3031,8 @@ lpfc_sli_iocbq_lookup(struct lpfc_hba *phba,
+  * @iotag: IOCB tag.
+  *
+  * This function looks up the iocb_lookup table to get the command iocb
+- * corresponding to the given iotag. This function is called with the
+- * hbalock held.
++ * corresponding to the given iotag. The driver calls this function with
++ * the ring lock held because this function is an SLI4 port only helper.
+  * This function returns the command iocb object if it finds the command
+  * iocb else returns NULL.
+  **/
+@@ -3022,8 +3041,15 @@ lpfc_sli_iocbq_lookup_by_tag(struct lpfc_hba *phba,
+ 			     struct lpfc_sli_ring *pring, uint16_t iotag)
+ {
+ 	struct lpfc_iocbq *cmd_iocb = NULL;
++	spinlock_t *temp_lock = NULL;
++	unsigned long iflag = 0;
  
- 	if (test_bit(QEDI_IN_OFFLINE, &qedi->flags) ||
- 	    test_bit(QEDI_IN_RECOVERY, &qedi->flags)) {
+-	lockdep_assert_held(&phba->hbalock);
++	if (phba->sli_rev == LPFC_SLI_REV4)
++		temp_lock = &pring->ring_lock;
++	else
++		temp_lock = &phba->hbalock;
++
++	spin_lock_irqsave(temp_lock, iflag);
+ 	if (iotag != 0 && iotag <= phba->sli.last_iotag) {
+ 		cmd_iocb = phba->sli.iocbq_lookup[iotag];
+ 		if (cmd_iocb->iocb_flag & LPFC_IO_ON_TXCMPLQ) {
+@@ -3031,10 +3057,12 @@ lpfc_sli_iocbq_lookup_by_tag(struct lpfc_hba *phba,
+ 			list_del_init(&cmd_iocb->list);
+ 			cmd_iocb->iocb_flag &= ~LPFC_IO_ON_TXCMPLQ;
+ 			pring->txcmplq_cnt--;
++			spin_unlock_irqrestore(temp_lock, iflag);
+ 			return cmd_iocb;
+ 		}
+ 	}
+ 
++	spin_unlock_irqrestore(temp_lock, iflag);
+ 	lpfc_printf_log(phba, KERN_ERR, LOG_SLI,
+ 			"0372 iotag x%x lookup error: max iotag (x%x) "
+ 			"iocb_flag x%x\n",
+@@ -3068,17 +3096,7 @@ lpfc_sli_process_sol_iocb(struct lpfc_hba *phba, struct lpfc_sli_ring *pring,
+ 	int rc = 1;
+ 	unsigned long iflag;
+ 
+-	/* Based on the iotag field, get the cmd IOCB from the txcmplq */
+-	if (phba->sli_rev == LPFC_SLI_REV4)
+-		spin_lock_irqsave(&pring->ring_lock, iflag);
+-	else
+-		spin_lock_irqsave(&phba->hbalock, iflag);
+ 	cmdiocbp = lpfc_sli_iocbq_lookup(phba, pring, saveq);
+-	if (phba->sli_rev == LPFC_SLI_REV4)
+-		spin_unlock_irqrestore(&pring->ring_lock, iflag);
+-	else
+-		spin_unlock_irqrestore(&phba->hbalock, iflag);
+-
+ 	if (cmdiocbp) {
+ 		if (cmdiocbp->iocb_cmpl) {
+ 			/*
+@@ -3409,8 +3427,10 @@ lpfc_sli_handle_fast_ring_event(struct lpfc_hba *phba,
+ 				break;
+ 			}
+ 
++			spin_unlock_irqrestore(&phba->hbalock, iflag);
+ 			cmdiocbq = lpfc_sli_iocbq_lookup(phba, pring,
+ 							 &rspiocbq);
++			spin_lock_irqsave(&phba->hbalock, iflag);
+ 			if (unlikely(!cmdiocbq))
+ 				break;
+ 			if (cmdiocbq->iocb_flag & LPFC_DRIVER_ABORTED)
+@@ -3604,9 +3624,12 @@ lpfc_sli_sp_handle_rspiocb(struct lpfc_hba *phba, struct lpfc_sli_ring *pring,
+ 
+ 		case LPFC_ABORT_IOCB:
+ 			cmdiocbp = NULL;
+-			if (irsp->ulpCommand != CMD_XRI_ABORTED_CX)
++			if (irsp->ulpCommand != CMD_XRI_ABORTED_CX) {
++				spin_unlock_irqrestore(&phba->hbalock, iflag);
+ 				cmdiocbp = lpfc_sli_iocbq_lookup(phba, pring,
+ 								 saveq);
++				spin_lock_irqsave(&phba->hbalock, iflag);
++			}
+ 			if (cmdiocbp) {
+ 				/* Call the specified completion routine */
+ 				if (cmdiocbp->iocb_cmpl) {
+@@ -13070,13 +13093,11 @@ lpfc_sli4_els_wcqe_to_rspiocbq(struct lpfc_hba *phba,
+ 		return NULL;
+ 
+ 	wcqe = &irspiocbq->cq_event.cqe.wcqe_cmpl;
+-	spin_lock_irqsave(&pring->ring_lock, iflags);
+ 	pring->stats.iocb_event++;
+ 	/* Look up the ELS command IOCB and create pseudo response IOCB */
+ 	cmdiocbq = lpfc_sli_iocbq_lookup_by_tag(phba, pring,
+ 				bf_get(lpfc_wcqe_c_request_tag, wcqe));
+ 	if (unlikely(!cmdiocbq)) {
+-		spin_unlock_irqrestore(&pring->ring_lock, iflags);
+ 		lpfc_printf_log(phba, KERN_WARNING, LOG_SLI,
+ 				"0386 ELS complete with no corresponding "
+ 				"cmdiocb: 0x%x 0x%x 0x%x 0x%x\n",
+@@ -13086,6 +13107,7 @@ lpfc_sli4_els_wcqe_to_rspiocbq(struct lpfc_hba *phba,
+ 		return NULL;
+ 	}
+ 
++	spin_lock_irqsave(&pring->ring_lock, iflags);
+ 	/* Put the iocb back on the txcmplq */
+ 	lpfc_sli_ringtxcmpl_put(phba, pring, cmdiocbq);
+ 	spin_unlock_irqrestore(&pring->ring_lock, iflags);
+@@ -13856,9 +13878,9 @@ lpfc_sli4_fp_handle_fcp_wcqe(struct lpfc_hba *phba, struct lpfc_queue *cq,
+ 	/* Look up the FCP command IOCB and create pseudo response IOCB */
+ 	spin_lock_irqsave(&pring->ring_lock, iflags);
+ 	pring->stats.iocb_event++;
++	spin_unlock_irqrestore(&pring->ring_lock, iflags);
+ 	cmdiocbq = lpfc_sli_iocbq_lookup_by_tag(phba, pring,
+ 				bf_get(lpfc_wcqe_c_request_tag, wcqe));
+-	spin_unlock_irqrestore(&pring->ring_lock, iflags);
+ 	if (unlikely(!cmdiocbq)) {
+ 		lpfc_printf_log(phba, KERN_WARNING, LOG_SLI,
+ 				"0374 FCP complete with no corresponding "
 -- 
 2.20.1
 
