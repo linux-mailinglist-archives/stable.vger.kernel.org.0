@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E42B63430C
-	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 11:22:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A00C3430D
+	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 11:22:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726948AbfFDJWO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Jun 2019 05:22:14 -0400
-Received: from mail.kmu-office.ch ([178.209.48.109]:44168 "EHLO
+        id S1727008AbfFDJWR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Jun 2019 05:22:17 -0400
+Received: from mail.kmu-office.ch ([178.209.48.109]:44180 "EHLO
         mail.kmu-office.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726877AbfFDJWN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Jun 2019 05:22:13 -0400
+        with ESMTP id S1726877AbfFDJWR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Jun 2019 05:22:17 -0400
 Received: from trochilidae.toradex.int (unknown [46.140.72.82])
-        by mail.kmu-office.ch (Postfix) with ESMTPSA id 3D0205C0169;
-        Tue,  4 Jun 2019 11:22:09 +0200 (CEST)
+        by mail.kmu-office.ch (Postfix) with ESMTPSA id 5B58B5C2901;
+        Tue,  4 Jun 2019 11:22:14 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=agner.ch; s=dkim;
-        t=1559640129;
+        t=1559640134;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:in-reply-to:
-         references; bh=QkMqDMvjhf5q4WW9eZUi9zH/rdyboWNw8AJESUXVoOQ=;
-        b=or5E5hDf0G/NtlZn200gcatQyjgAr1SS3PVMqbQ9A+lqsf5EI3xNrTzYnZvW66hju6AJYN
-        B0TPLQDanY6jicvBnLNfr1KCAFS7yOorkEyrBqEb15AFDYmOimI4pDEKygPMs1Hdm71KWy
-        iZsiDX5X8cXl2cGOzWgQ9QbH1xE2kFM=
+         to:to:cc:cc:mime-version:mime-version:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=IGgbkfMoWb9E6zUaFeCWMQGh6QP3tazP6weEfXzwrzs=;
+        b=unK5R0z4syV533IHrQ5VB1ofbND3m1y8+jxiyupNoVQMINCUa1MngPs1eb/fUFMmGfUZNa
+        0FnSzBDgvwvk1jkHWLAbWM/5VKxFeVDVOjX2P5jLq0ZnX1FLjxv4gerxPBH8MVhH2YLyWC
+        SOz+tEq0NSyG2hZeuCR44bcvDUk7J/Y=
 From:   Stefan Agner <stefan@agner.ch>
 To:     gregkh@linuxfoundation.org
 Cc:     stable@vger.kernel.org,
         Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
         Martin Sebor <msebor@gcc.gnu.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Stefan Agner <stefan@agner.ch>
-Subject: [PATCH BACKPORT 4.14 1/2] Compiler Attributes: add support for __copy (gcc >= 9)
-Date:   Tue,  4 Jun 2019 11:21:59 +0200
-Message-Id: <20190604092200.29545-1-stefan@agner.ch>
+        Jessica Yu <jeyu@kernel.org>, Stefan Agner <stefan@agner.ch>
+Subject: [PATCH BACKPORT 4.14 2/2] include/linux/module.h: copy __init/__exit attrs to init/cleanup_module
+Date:   Tue,  4 Jun 2019 11:22:00 +0200
+Message-Id: <20190604092200.29545-2-stefan@agner.ch>
 X-Mailer: git-send-email 2.21.0
+In-Reply-To: <20190604092200.29545-1-stefan@agner.ch>
+References: <20190604092200.29545-1-stefan@agner.ch>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
@@ -44,93 +45,80 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
 
-[ Upstream commit c0d9782f5b6d7157635ae2fd782a4b27d55a6013
-
-From the GCC manual:
-
-  copy
-  copy(function)
-
-    The copy attribute applies the set of attributes with which function
-    has been declared to the declaration of the function to which
-    the attribute is applied. The attribute is designed for libraries
-    that define aliases or function resolvers that are expected
-    to specify the same set of attributes as their targets. The copy
-    attribute can be used with functions, variables, or types. However,
-    the kind of symbol to which the attribute is applied (either
-    function or variable) must match the kind of symbol to which
-    the argument refers. The copy attribute copies only syntactic and
-    semantic attributes but not attributes that affect a symbol’s
-    linkage or visibility such as alias, visibility, or weak.
-    The deprecated attribute is also not copied.
-
-  https://gcc.gnu.org/onlinedocs/gcc/Common-Function-Attributes.html
+[ Upstream commit a6e60d84989fa0e91db7f236eda40453b0e44afa ]
 
 The upcoming GCC 9 release extends the -Wmissing-attributes warnings
 (enabled by -Wall) to C and aliases: it warns when particular function
-attributes are missing in the aliases but not in their target, e.g.:
+attributes are missing in the aliases but not in their target.
 
-    void __cold f(void) {}
-    void __alias("f") g(void);
+In particular, it triggers for all the init/cleanup_module
+aliases in the kernel (defined by the module_init/exit macros),
+ending up being very noisy.
 
-diagnoses:
+These aliases point to the __init/__exit functions of a module,
+which are defined as __cold (among other attributes). However,
+the aliases themselves do not have the __cold attribute.
 
-    warning: 'g' specifies less restrictive attribute than
-    its target 'f': 'cold' [-Wmissing-attributes]
+Since the compiler behaves differently when compiling a __cold
+function as well as when compiling paths leading to calls
+to __cold functions, the warning is trying to point out
+the possibly-forgotten attribute in the alias.
 
-Using __copy(f) we can copy the __cold attribute from f to g:
+In order to keep the warning enabled, we decided to silence
+this case. Ideally, we would mark the aliases directly
+as __init/__exit. However, there are currently around 132 modules
+in the kernel which are missing __init/__exit in their init/cleanup
+functions (either because they are missing, or for other reasons,
+e.g. the functions being called from somewhere else); and
+a section mismatch is a hard error.
 
-    void __cold f(void) {}
-    void __copy(f) __alias("f") g(void);
+A conservative alternative was to mark the aliases as __cold only.
+However, since we would like to eventually enforce __init/__exit
+to be always marked,  we chose to use the new __copy function
+attribute (introduced by GCC 9 as well to deal with this).
+With it, we copy the attributes used by the target functions
+into the aliases. This way, functions that were not marked
+as __init/__exit won't have their aliases marked either,
+and therefore there won't be a section mismatch.
 
-This attribute is most useful to deal with situations where an alias
-is declared but we don't know the exact attributes the target has.
-
-For instance, in the kernel, the widely used module_init/exit macros
-define the init/cleanup_module aliases, but those cannot be marked
-always as __init/__exit since some modules do not have their
-functions marked as such.
+Note that the warning would go away marking either the extern
+declaration, the definition, or both. However, we only mark
+the definition of the alias, since we do not want callers
+(which only see the declaration) to be compiled as if the function
+was __cold (and therefore the paths leading to those calls
+would be assumed to be unlikely).
 
 Cc: <stable@vger.kernel.org> # 4.14+
+Link: https://lore.kernel.org/lkml/20190123173707.GA16603@gmail.com/
+Link: https://lore.kernel.org/lkml/20190206175627.GA20399@gmail.com/
 Suggested-by: Martin Sebor <msebor@gcc.gnu.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Acked-by: Jessica Yu <jeyu@kernel.org>
 Signed-off-by: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
 Signed-off-by: Stefan Agner <stefan@agner.ch>
 ---
- include/linux/compiler-gcc.h   | 4 ++++
- include/linux/compiler_types.h | 4 ++++
- 2 files changed, 8 insertions(+)
+ include/linux/module.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/compiler-gcc.h b/include/linux/compiler-gcc.h
-index 4816355b9875..6d7ead22c1b4 100644
---- a/include/linux/compiler-gcc.h
-+++ b/include/linux/compiler-gcc.h
-@@ -343,6 +343,10 @@
- #define __designated_init __attribute__((designated_init))
+diff --git a/include/linux/module.h b/include/linux/module.h
+index a9d546c5b9aa..c290de08c830 100644
+--- a/include/linux/module.h
++++ b/include/linux/module.h
+@@ -128,13 +128,13 @@ extern void cleanup_module(void);
+ #define module_init(initfn)					\
+ 	static inline initcall_t __maybe_unused __inittest(void)		\
+ 	{ return initfn; }					\
+-	int init_module(void) __attribute__((alias(#initfn)));
++	int init_module(void) __copy(initfn) __attribute__((alias(#initfn)));
+ 
+ /* This is only required if you want to be unloadable. */
+ #define module_exit(exitfn)					\
+ 	static inline exitcall_t __maybe_unused __exittest(void)		\
+ 	{ return exitfn; }					\
+-	void cleanup_module(void) __attribute__((alias(#exitfn)));
++	void cleanup_module(void) __copy(exitfn) __attribute__((alias(#exitfn)));
+ 
  #endif
  
-+#if GCC_VERSION >= 90100
-+#define __copy(symbol)                 __attribute__((__copy__(symbol)))
-+#endif
-+
- #endif	/* gcc version >= 40000 specific checks */
- 
- #if !defined(__noclone)
-diff --git a/include/linux/compiler_types.h b/include/linux/compiler_types.h
-index 4be464a07612..20112bb1a8f9 100644
---- a/include/linux/compiler_types.h
-+++ b/include/linux/compiler_types.h
-@@ -230,6 +230,10 @@ struct ftrace_likely_data {
- # define __latent_entropy
- #endif
- 
-+#ifndef __copy
-+# define __copy
-+#endif
-+
- #ifndef __randomize_layout
- # define __randomize_layout __designated_init
- #endif
 -- 
 2.21.0
 
