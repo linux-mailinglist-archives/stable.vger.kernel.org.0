@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5634C3536D
-	for <lists+stable@lfdr.de>; Wed,  5 Jun 2019 01:25:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F727353B0
+	for <lists+stable@lfdr.de>; Wed,  5 Jun 2019 01:27:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727845AbfFDXZG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Jun 2019 19:25:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36336 "EHLO mail.kernel.org"
+        id S1727838AbfFDXZF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Jun 2019 19:25:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36466 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726893AbfFDXY6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 4 Jun 2019 19:24:58 -0400
+        id S1727254AbfFDXZC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 4 Jun 2019 19:25:02 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2893620B7C;
-        Tue,  4 Jun 2019 23:24:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 91F0221479;
+        Tue,  4 Jun 2019 23:25:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559690697;
-        bh=DamIEb+50B+9TqbS5cCDTsv/5NkSNk/denlHXKinPfc=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vyjncz82u/BrQ832p1VZ2/JuYgsOk3uUH6n5Vry7FaUBfVWrOqq74Tiqa1YRz5Z9h
-         oy3OFaDJ8YyMcZ0zruQlK86y1T48ThGj4K9o2OP81WgyG0jm1n/ItNthLsKVDVHYaw
-         yj3W0WZbLX35ppC6bRhsMvzoNVqL+dK5+O5K9Xqg=
+        s=default; t=1559690701;
+        bh=1sRlghix7UQiG26B04ER1OhVW0AEu0NTtoqLtYP9Xxs=;
+        h=From:To:Cc:Subject:Date:From;
+        b=fzdVXSAvOMHFs4wcecjN4hME1IHljK/xcUuu4wYLdVpTAxSyuzkhwZvVVS8znJKLq
+         FhqXAd1QqskQvyXftrnLCmBdYq+HeJNXbTOjU8oTJh0RTytUOQjcBI2rbL6dcBvPxf
+         VdsKIXEWeAhaOsEMjUhUrxPk3Vf/PrG999OnBA4I=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christian Borntraeger <borntraeger@de.ibm.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 24/24] KVM: s390: fix memory slot handling for KVM_SET_USER_MEMORY_REGION
-Date:   Tue,  4 Jun 2019 19:24:15 -0400
-Message-Id: <20190604232416.7479-24-sashal@kernel.org>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Borislav Petkov <bp@alien8.de>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 01/17] x86/uaccess, kcov: Disable stack protector
+Date:   Tue,  4 Jun 2019 19:24:42 -0400
+Message-Id: <20190604232459.7745-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190604232416.7479-1-sashal@kernel.org>
-References: <20190604232416.7479-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -43,69 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Borntraeger <borntraeger@de.ibm.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 19ec166c3f39fe1d3789888a74cc95544ac266d4 ]
+[ Upstream commit 40ea97290b08be2e038b31cbb33097d1145e8169 ]
 
-kselftests exposed a problem in the s390 handling for memory slots.
-Right now we only do proper memory slot handling for creation of new
-memory slots. Neither MOVE, nor DELETION are handled properly. Let us
-implement those.
+New tooling noticed this mishap:
 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+  kernel/kcov.o: warning: objtool: write_comp_data()+0x138: call to __stack_chk_fail() with UACCESS enabled
+  kernel/kcov.o: warning: objtool: __sanitizer_cov_trace_pc()+0xd9: call to __stack_chk_fail() with UACCESS enabled
+
+All the other instrumentation (KASAN,UBSAN) also have stack protector
+disabled.
+
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kvm/kvm-s390.c | 35 +++++++++++++++++++++--------------
- 1 file changed, 21 insertions(+), 14 deletions(-)
+ kernel/Makefile | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 4f6adbea592b..66b7b6383d8b 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -3912,21 +3912,28 @@ void kvm_arch_commit_memory_region(struct kvm *kvm,
- 				const struct kvm_memory_slot *new,
- 				enum kvm_mr_change change)
- {
--	int rc;
--
--	/* If the basics of the memslot do not change, we do not want
--	 * to update the gmap. Every update causes several unnecessary
--	 * segment translation exceptions. This is usually handled just
--	 * fine by the normal fault handler + gmap, but it will also
--	 * cause faults on the prefix page of running guest CPUs.
--	 */
--	if (old->userspace_addr == mem->userspace_addr &&
--	    old->base_gfn * PAGE_SIZE == mem->guest_phys_addr &&
--	    old->npages * PAGE_SIZE == mem->memory_size)
--		return;
-+	int rc = 0;
+diff --git a/kernel/Makefile b/kernel/Makefile
+index 314e7d62f5f0..184fa9aa5802 100644
+--- a/kernel/Makefile
++++ b/kernel/Makefile
+@@ -28,6 +28,7 @@ KCOV_INSTRUMENT_extable.o := n
+ # Don't self-instrument.
+ KCOV_INSTRUMENT_kcov.o := n
+ KASAN_SANITIZE_kcov.o := n
++CFLAGS_kcov.o := $(call cc-option, -fno-conserve-stack -fno-stack-protector)
  
--	rc = gmap_map_segment(kvm->arch.gmap, mem->userspace_addr,
--		mem->guest_phys_addr, mem->memory_size);
-+	switch (change) {
-+	case KVM_MR_DELETE:
-+		rc = gmap_unmap_segment(kvm->arch.gmap, old->base_gfn * PAGE_SIZE,
-+					old->npages * PAGE_SIZE);
-+		break;
-+	case KVM_MR_MOVE:
-+		rc = gmap_unmap_segment(kvm->arch.gmap, old->base_gfn * PAGE_SIZE,
-+					old->npages * PAGE_SIZE);
-+		if (rc)
-+			break;
-+		/* FALLTHROUGH */
-+	case KVM_MR_CREATE:
-+		rc = gmap_map_segment(kvm->arch.gmap, mem->userspace_addr,
-+				      mem->guest_phys_addr, mem->memory_size);
-+		break;
-+	case KVM_MR_FLAGS_ONLY:
-+		break;
-+	default:
-+		WARN(1, "Unknown KVM MR CHANGE: %d\n", change);
-+	}
- 	if (rc)
- 		pr_warn("failed to commit memory region\n");
- 	return;
+ # cond_syscall is currently not LTO compatible
+ CFLAGS_sys_ni.o = $(DISABLE_LTO)
 -- 
 2.20.1
 
