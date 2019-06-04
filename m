@@ -2,140 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 36B2533D99
-	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 05:45:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D19F33E8E
+	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 07:48:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726317AbfFDDpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jun 2019 23:45:16 -0400
-Received: from conssluserg-01.nifty.com ([210.131.2.80]:61764 "EHLO
-        conssluserg-01.nifty.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726136AbfFDDpQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jun 2019 23:45:16 -0400
-Received: from mail-ua1-f41.google.com (mail-ua1-f41.google.com [209.85.222.41]) (authenticated)
-        by conssluserg-01.nifty.com with ESMTP id x543j1JO005406;
-        Tue, 4 Jun 2019 12:45:02 +0900
-DKIM-Filter: OpenDKIM Filter v2.10.3 conssluserg-01.nifty.com x543j1JO005406
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
-        s=dec2015msa; t=1559619902;
-        bh=R4DTbEc9ajd/+gLs4R0E3A2qZCd8mpp6nT3mLt/MWL4=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=sSBx0AvDkKyPdfmLobt1FwXeI8jVeiK59RkpnvzCgW1NxC772shGT0Sxc6PAO3Ks8
-         PDpJD75pBEKoT6FtjYqkPmeN7nHHdv/MoXFZ+KkARrl7JX7aMkTjv66C+gvwBFrf1k
-         B8WFehagQofx/8TM/rEZq5ZQsCBBOmcPxP90UVmxzfiuyDbP2A1GnZ1/QcxY8pzP35
-         peOxnzSOfUkm2Oyv22A6p/BEmKU4ophBttj/ymoil1dI3SwP/qqDWA9vS74RKRv/jT
-         /r3Ba2dTESj1A1/ZKgvGfqHlnmrjZUEmgp2ARlAXb79sSmfu3ocxF13RuVLBIBPzcu
-         YPiPeujYRKBIg==
-X-Nifty-SrcIP: [209.85.222.41]
-Received: by mail-ua1-f41.google.com with SMTP id a95so7261755uaa.13;
-        Mon, 03 Jun 2019 20:45:01 -0700 (PDT)
-X-Gm-Message-State: APjAAAUDLD4J7SDn84VESpww0jFOtVdyaxzxZkz3jlvcuRBawx9H1ufg
-        Wa6JAZalYrKRQzhmYB2rT60+g0H5PRFCXvJxdsU=
-X-Google-Smtp-Source: APXvYqzVUiWM/RaTvJFgDXA6xyHBfBmK48S0H0UYyNEUSUfOWS5M4whPygR0UYBlA4pDOL7pjG5Ty1EEttHRqBCTSd8=
-X-Received: by 2002:a9f:24a3:: with SMTP id 32mr13276265uar.109.1559619900888;
- Mon, 03 Jun 2019 20:45:00 -0700 (PDT)
+        id S1726528AbfFDFsO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Jun 2019 01:48:14 -0400
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:45249 "EHLO
+        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726488AbfFDFsO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Jun 2019 01:48:14 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id 5BA42543;
+        Tue,  4 Jun 2019 01:48:13 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Tue, 04 Jun 2019 01:48:13 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:content-transfer-encoding:in-reply-to; s=fm3; bh=T
+        CaT+Fn47+ujhoKgN9BqRZfA99WODN1m/1NIm/vdRH8=; b=oaHBm6XDYjYnIR1+T
+        tDP6lz3rPXXNul0GO6vfZa9L/L0jmBs0+qYGxIQnA08yiWcMtzGgEJlXssupUOWk
+        IXiXTc7PRBQRY8LN2/u5T9nI1Gc58f2Y+HocDeVesocNpudlktWBKYFqrc8DWBYQ
+        5T8byHPpvDvi0U/aqtts5/dEkHgnDE6uwCEI8NtaEUsa7dzTm8LdHXXccCSo5DJd
+        DcpcQZug2TO0gunHcVwPYJBuXCyAEerKpju7cSNY+oK7yNc4D5DLNb/9D9OUB9Lq
+        FvPKvahrP7eOBp/EexPhywS/N8HhKe1+bohaYPKCBirPf/w19szbXlsmREwh9Nik
+        wyn9g==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:in-reply-to:message-id:mime-version:references
+        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm2; bh=TCaT+Fn47+ujhoKgN9BqRZfA99WODN1m/1NIm/vdR
+        H8=; b=GZ1FyG62s1xexwpPe4FC5Q62hK982P/nBwXKoBo/2LnNCaW3a8jrInxUP
+        ARtfThVhX0ddEKj/QQTMSwRy92rmVXFTbqKE7t82LRu10VAo7CZXphwOTw+DW8Rd
+        Ff6DUipkbo5YI4EQOUfzQcWI4d535crAFOp8aLrTINByquHyunwRESbSU+2uFB6k
+        cgSLpRmIDnk+c5uygok/Yf8oWKKuoDv/JTrXuiKjQr4PaI9BFWtBeHsGJu3b/aWO
+        UgINRDDsf1Kww2ql/jndm+FpH1YxGFGlisyuif+OBKgGDDSxBc5DuVD4lSuucuys
+        kJBI0TTvpvIIHNOT32o5xgvUhsrBg==
+X-ME-Sender: <xms:HAb2XMsLzrEelzR63i577txk3SZsU_gm9jfFAIzxFlhZnlgiWT3SXQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrudefkedguddttdcutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
+    enucfjughrpeffhffvuffkfhggtggugfgjfgesthekredttderudenucfhrhhomhepifhr
+    vghgucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecukfhppeekfedrkeeirdekle
+    druddtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+    necuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:HAb2XAXj2CYIhrQEuc_j1ZO71smNpFuZQ4e9xT5nHdm84L8BfVNDcw>
+    <xmx:HAb2XEuofA8-jEtRCO9VuEgl94sirJxZOAau1IFOA77Jler4B0Hw5A>
+    <xmx:HAb2XMUTPjTTGlW_7E7ii5Po8Npe5gmYXiMjtJ5BclMC_k7seX4Qnw>
+    <xmx:HAb2XBl0QRT00X7fZZLlii9NBeVFVwtCGUThSxW0JzJGa7G6Zrt6Aw>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id CEBED380083;
+        Tue,  4 Jun 2019 01:48:11 -0400 (EDT)
+Date:   Tue, 4 Jun 2019 07:48:09 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Juergen Gross <jgross@suse.com>
+Cc:     Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        Prarit Bhargava <prarit@redhat.com>,
+        xen-devel@lists.xenproject.org, stable <stable@vger.kernel.org>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Subject: Re: [stable] xen/pciback: Don't disable PCI_COMMAND on PCI device
+ reset.
+Message-ID: <20190604054809.GA16504@kroah.com>
+References: <1559229415.24330.2.camel@codethink.co.uk>
+ <0e6ebb5c-ff43-6d65-bcba-6ac5e60aa472@oracle.com>
+ <20190603080036.GF7814@kroah.com>
+ <1559563359.24330.8.camel@codethink.co.uk>
+ <d3358f62-3e53-4468-782c-7b4466d34c0a@suse.com>
 MIME-Version: 1.0
-References: <20190603104902.23799-1-yamada.masahiro@socionext.com>
- <3dcacca3f71c46cc98fa64b13a405b59@AcuMS.aculab.com> <CAK7LNATt=P5rHrnK_8PTmjMb+tdtPg2qBgopRUDBFw_fkP2SsQ@mail.gmail.com>
- <1ca8a995328f449fa58f732ebe70e378@AcuMS.aculab.com>
-In-Reply-To: <1ca8a995328f449fa58f732ebe70e378@AcuMS.aculab.com>
-From:   Masahiro Yamada <yamada.masahiro@socionext.com>
-Date:   Tue, 4 Jun 2019 12:44:25 +0900
-X-Gmail-Original-Message-ID: <CAK7LNASwTS+rfZuFFcR7cz2HaOZWMjxhZUToV=74g09J72=osg@mail.gmail.com>
-Message-ID: <CAK7LNASwTS+rfZuFFcR7cz2HaOZWMjxhZUToV=74g09J72=osg@mail.gmail.com>
-Subject: Re: [PATCH] kbuild: use more portable 'command -v' for cc-cross-prefix
-To:     David Laight <David.Laight@aculab.com>
-Cc:     "linux-kbuild@vger.kernel.org" <linux-kbuild@vger.kernel.org>,
-        Vineet Gupta <vgupta@synopsys.com>,
-        Alexey Brodkin <abrodkin@synopsys.com>,
-        "linux-snps-arc@lists.infradead.org" 
-        <linux-snps-arc@lists.infradead.org>,
-        linux-stable <stable@vger.kernel.org>,
-        Michal Marek <michal.lkml@markovi.net>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <d3358f62-3e53-4468-782c-7b4466d34c0a@suse.com>
+User-Agent: Mutt/1.12.0 (2019-05-25)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 3, 2019 at 9:43 PM David Laight <David.Laight@aculab.com> wrote:
->
-> From: Masahiro Yamada
-> > Sent: 03 June 2019 12:45
-> > On Mon, Jun 3, 2019 at 8:16 PM David Laight <David.Laight@aculab.com> wrote:
-> > >
-> > > From: Masahiro Yamada
-> > > > Sent: 03 June 2019 11:49
-> > > >
-> > > > To print the pathname that will be used by shell in the current
-> > > > environment, 'command -v' is a standardized way. [1]
-> > > >
-> > > > 'which' is also often used in scripting, but it is not portable.
-> > >
-> > > All uses of 'which' should be expunged.
-> > > It is a bourne shell script that is trying to emulate a csh builtin.
-> > > It is doomed to fail in corner cases.
-> > > ISTR it has serious problems with shell functions and aliases.
-> >
-> > OK, I do not have time to check it treewide.
-> > I expect somebody will contribute to it.
-> >
-> >
-> >
-> > BTW, I see yet another way to get the command path.
-> >
-> > 'type -path' is bash-specific.
->
-> 'type' itself should be supported by all shells, but the output
-> format (esp for errors) probably varies.
->
-> > Maybe, we should do this too:
-> >
-> > diff --git a/scripts/mkuboot.sh b/scripts/mkuboot.sh
-> > index 4b1fe09e9042..77829ee4268e 100755
-> > --- a/scripts/mkuboot.sh
-> > +++ b/scripts/mkuboot.sh
-> > @@ -1,14 +1,14 @@
-> > -#!/bin/bash
-> > +#!/bin/sh
->
-> /bin/sh might be 'dash' - which is just plain broken in so many ways.
-> Try (IIRC) ${foo%${foo#bar}}
-> It might even be the original SYSV /bin/sh which doesn't support $((expr))
-> or ${foo#bar} - but that may break too much, but $SHELL might fix it.
+On Mon, Jun 03, 2019 at 03:10:55PM +0200, Juergen Gross wrote:
+> On 03/06/2019 14:02, Ben Hutchings wrote:
+> > On Mon, 2019-06-03 at 10:00 +0200, Greg KH wrote:
+> >> On Thu, May 30, 2019 at 07:02:34PM -0700, Konrad Rzeszutek Wilk wrote:
+> >>> On 5/30/19 8:16 AM, Ben Hutchings wrote:
+> >>>> I'm looking at CVE-2015-8553 which is fixed by:
+> >>>>
+> >>>> commit 7681f31ec9cdacab4fd10570be924f2cef6669ba
+> >>>> Author: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+> >>>> Date:   Wed Feb 13 18:21:31 2019 -0500
+> >>>>
+> >>>>      xen/pciback: Don't disable PCI_COMMAND on PCI device reset.
+> >>>>
+> >>>> I'm aware that this change is incompatible with qemu < 2.5, but that's
+> >>>> now quite old.  Do you think it makes sense to apply this change to
+> >>>> some stable branches?
+> >>>>
+> >>>> Ben.
+> >>>>
+> >>>
+> >>> Hey Ben,
+> >>>
+> >>> <shrugs> My opinion is to drop it, but if Juergen thinks it makes sense to
+> >>> backport I am not going to argue.
+> >>
+> >> Ok, I've queued this up now, thanks.
+> > 
+> > Juergen said:
+> > 
+> >> I'm with Konrad here.
+> > 
+> > so unless I'm very confused this should *not* be applied to stable
+> > branches.
+> 
+> "should not" is a little bit hard. I didn't opt for adding it, but I
+> don't object to add it either (like Konrad :-) ).
 
+Ok, I've added it as it does fix a CVE, and if I don't, I'll get odd
+emails 6 months from now asking why I didn't include it...
 
-We cannot use any tool
-if you start to argue like
-"Hey, I know ancient implementation that did not work as expected".
+thanks,
 
-Nobody can cover all corner-cases.
-That's why we have standard.
-
-I think the reliable source is the
-Open Group Specification.
-
-The behavior of /bin/sh is defined here:
-http://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html#tag_18_01
-
-${parameter%[word]} and ${parameter#[word]} are defined,
-so we can use them in /bin/sh scripts.
-
-
-> dash probably has the rather obscure bug in stripping '\n' from $(...)
-> output that I found and fixed in NetBSD's ash may years ago.
-> Try: foo="$(jot -b "" 130)"
-> All 130 '\n' should be deleted.
-> Mostly it fails to delete all the '\n', but it can remove extra ones!
->
->         David
->
-> -
-> Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
-> Registration No: 1397386 (Wales)
-
-
-
--- 
-Best Regards
-Masahiro Yamada
+greg k-h
