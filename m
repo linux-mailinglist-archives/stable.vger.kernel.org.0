@@ -2,248 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7698A3418D
-	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 10:16:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 677E534197
+	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 10:18:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726872AbfFDIQK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Jun 2019 04:16:10 -0400
-Received: from mail-pf1-f194.google.com ([209.85.210.194]:36050 "EHLO
-        mail-pf1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726927AbfFDIQK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Jun 2019 04:16:10 -0400
-Received: by mail-pf1-f194.google.com with SMTP id u22so12220323pfm.3;
-        Tue, 04 Jun 2019 01:16:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=jCHecnT0sYNlMgEQO4s05IEDfcTXYeUHL4Z0ONFa9so=;
-        b=RAGX3I7NlXEhkSEXwbvcJD6bKhPmmqUcDGtJ2G0lsqekmlIwRD6OnieNZIWJjaRurb
-         OhvXnhdArx7K6vTqUkzqtV7d5wLzlysuhNOQOtqzZfXtRKzZgQ953McbxQAS5prJJuTm
-         pNRolY/qDVu/1+29ypKCfd90jC05n1gwGXZdGpS+A+cvRlbwxHHL6ySQ3BFSw11mGWHb
-         FZ19LFlap68nhqXBs77wkPfG+SWIl1FHjGGeRcmHUk5LhSJv0Cm3s11XwxCOkVFk7wvE
-         41RjlgFVt0CsgKnvHcJ6yjzhKQCUKfCrbDzJdG0gMJVqSC1Lw1rlAksS7QF9P1WiZq+c
-         s/+Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=jCHecnT0sYNlMgEQO4s05IEDfcTXYeUHL4Z0ONFa9so=;
-        b=OMw8X7JUe5W7q0vpLEavfkyhzcmIEB+4fwtfw9INEPj5+jKmoCDn9nx5kJvpVwW1of
-         5E1UBSN+r/Sxael/x7brLKfSanSbPcaHT1Dq97KKcHEeyVG2seWNpiEtmT0ztchPWp4p
-         7Wz4o5xYtEaLpR9TajAh8h5/VyoxYQ1AUQT38sxD6eeXjB73g8uiTrEhxnjw0V5SetmM
-         ZPTwXxjwsY/wUJ6vP9PecUmi6yQ3dLTbFr+KJbR7JzqSDNkg4c/+sXGs9gKW4izDpkkc
-         OZejCs1RP5f6fEAOxUBup7ObWKpsmfhDx1RDb+5+JYWkXeMz1GFZnYmd0jnSZZXwvXzk
-         6XoQ==
-X-Gm-Message-State: APjAAAUN9zDqvki5KvyUDA5kNDrYLw6Zy+3aG0RcPQtSei5Vq5LVOOLB
-        uhpTcdIh0zRQOG5KjKmb2Kg=
-X-Google-Smtp-Source: APXvYqzdkxeIJwI3y/8voHOex3X1QneNgzO5Pb81QFjwH3Kphj/oaypdhy/tZMuKtNMVCNdQsNDZ+g==
-X-Received: by 2002:a17:90a:2ec9:: with SMTP id h9mr36459752pjs.130.1559636169132;
-        Tue, 04 Jun 2019 01:16:09 -0700 (PDT)
-Received: from Gentoo ([103.231.91.66])
-        by smtp.gmail.com with ESMTPSA id f21sm37258pjq.2.2019.06.04.01.16.02
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 04 Jun 2019 01:16:07 -0700 (PDT)
-Date:   Tue, 4 Jun 2019 13:45:53 +0530
-From:   Bhaskar Chowdhury <unixbhaskar@gmail.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        torvalds@linux-foundation.org, stable@vger.kernel.org, lwn@lwn.net,
-        Jiri Slaby <jslaby@suse.cz>
-Subject: Re: Linux 5.0.21
-Message-ID: <20190604081553.GB10154@Gentoo>
-References: <20190604073843.GA4985@kroah.com>
+        id S1726793AbfFDISA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Jun 2019 04:18:00 -0400
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:36659 "EHLO
+        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726708AbfFDISA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Jun 2019 04:18:00 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id 8411F2CD1;
+        Tue,  4 Jun 2019 04:17:59 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Tue, 04 Jun 2019 04:17:59 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=oBqdCN
+        lKEUstabUqtHmvui5EG9QAgzMMPivLsTP8Wrc=; b=6OdiZhQBUVk3gjtCtOSjk7
+        7ZETG52mqRVcto1fJRXCo210BHwfI5zrTPqMWRhwE+AvvrJlLpE1sMvRrTPCuoGw
+        rTo6F3e4AuWhhE0B7+8bEGL/R2uPqsKKa8gRET/PCtdhMGmO+RDAEVAIqd+K9yuw
+        lhubSRJK+9YwysDzS9IHNsUvjD4ZGWONBJBrIkicgo83RcsP05xhyPCJacC11Cce
+        xtlL5MbJMxLHZ4B/ycXQDYCkjiIW0R7Dda5d6kCyB+QilV2dlVHqVajVoxMCvGs/
+        gl/xFzqZkKGilTw64F2rvQ1qE9pCb3213ekmvEc9coqMRXONUR0mklIDUcBMO/JA
+        ==
+X-ME-Sender: <xms:Nin2XMBPDrC-AZFhjkBWPHZ9ddcsFCx36fnc1vT9j12GM_DHM4Og3A>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrudefledgtddvucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:Nin2XAFxxZ_qS37wrNJDzu31mHg9JD52HmWYqIhVWL4x82gC_zC4dw>
+    <xmx:Nin2XF7qT-1RQ3W7HjqLL2sQpj-z5TLonkNGEH60nB5ZL-0LACmUyg>
+    <xmx:Nin2XOl25d3ivlCmtM6bEIMQr9uYgeNBspE-uvangPrhac8Fr73LDQ>
+    <xmx:Nyn2XPxv9AgwRgWsBJ7y1PrXn_UnN_h521P8GxH56UezjKvPbQW23w>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 2FD46380089;
+        Tue,  4 Jun 2019 04:17:58 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] Btrfs: incremental send, fix file corruption when no-holes" failed to apply to 4.9-stable tree
+To:     fdmanana@suse.com, dsterba@suse.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 04 Jun 2019 10:17:56 +0200
+Message-ID: <15596362764158@kroah.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="K8nIJk4ghYZn606h"
-Content-Disposition: inline
-In-Reply-To: <20190604073843.GA4985@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---K8nIJk4ghYZn606h
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+The patch below does not apply to the 4.9-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Heads up! this has reached an EOL ...so please move to 5.1 series.
+thanks,
 
-On 09:38 Tue 04 Jun , Greg KH wrote:
->I'm announcing the release of the 5.0.21 kernel.
->
->All users of the 5.0 kernel series must upgrade.
->
->Note, this is the LAST 5.0.y kernel to be released.  It is now
->end-of-life.  Please move to the 5.1.y kernel tree at this point in
->time.
->
->The updated 5.0.y git tree can be found at:
->	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.0.y
->and can be browsed at the normal kernel.org git web browser:
->	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
->
->thanks,
->
->greg k-h
->
->------------
->
-> Makefile                                               |    2
-> drivers/crypto/vmx/ghash.c                             |  212 ++++++-----------
-> drivers/net/bonding/bond_main.c                        |   15 -
-> drivers/net/dsa/mv88e6xxx/chip.c                       |    2
-> drivers/net/ethernet/broadcom/bnxt/bnxt.c              |   19 -
-> drivers/net/ethernet/broadcom/bnxt/bnxt.h              |    6
-> drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c      |    2
-> drivers/net/ethernet/broadcom/bnxt/bnxt_ulp.c          |    2
-> drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_flower.c   |    5
-> drivers/net/ethernet/chelsio/cxgb4/t4_hw.c             |   11
-> drivers/net/ethernet/freescale/fec_main.c              |    2
-> drivers/net/ethernet/marvell/mvneta.c                  |    4
-> drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c        |   10
-> drivers/net/ethernet/mellanox/mlx5/core/en_main.c      |   13 +
-> drivers/net/ethernet/mellanox/mlx5/core/fs_core.c      |    6
-> drivers/net/ethernet/mellanox/mlxsw/spectrum_acl_erp.c |   11
-> drivers/net/ethernet/realtek/r8169.c                   |    3
-> drivers/net/ethernet/stmicro/stmmac/stmmac_ethtool.c   |    4
-> drivers/net/ethernet/stmicro/stmmac/stmmac_main.c      |    8
-> drivers/net/ethernet/stmicro/stmmac/stmmac_mdio.c      |    3
-> drivers/net/phy/marvell10g.c                           |   13 +
-> drivers/net/usb/usbnet.c                               |    6
-> drivers/xen/xen-pciback/pciback_ops.c                  |    2
-> include/linux/siphash.h                                |    5
-> include/net/netns/ipv4.h                               |    2
-> include/uapi/linux/tipc_config.h                       |   10
-> net/core/dev.c                                         |    2
-> net/core/skbuff.c                                      |    6
-> net/ipv4/igmp.c                                        |   47 ++-
-> net/ipv4/ip_output.c                                   |    4
-> net/ipv4/route.c                                       |   12
-> net/ipv6/ip6_output.c                                  |    4
-> net/ipv6/output_core.c                                 |   30 +-
-> net/ipv6/raw.c                                         |    2
-> net/ipv6/route.c                                       |    6
-> net/llc/llc_output.c                                   |    2
-> net/sched/act_api.c                                    |    3
-> net/tipc/core.c                                        |   32 +-
-> net/tipc/subscr.h                                      |    5
-> net/tipc/topsrv.c                                      |   14 -
-> net/tls/tls_device.c                                   |    9
-> 41 files changed, 312 insertions(+), 244 deletions(-)
->
->Andy Duan (1):
->      net: fec: fix the clk mismatch in failed_reset path
->
->Antoine Tenart (1):
->      net: mvpp2: fix bad MVPP2_TXQ_SCHED_TOKEN_CNTR_REG queue value
->
->Chris Packham (1):
->      tipc: Avoid copying bytes beyond the supplied data
->
->Daniel Axtens (1):
->      crypto: vmx - ghash: do nosimd fallback manually
->
->David Ahern (1):
->      ipv6: Fix redirect with VRF
->
->David S. Miller (1):
->      Revert "tipc: fix modprobe tipc failed after switch order of device registration"
->
->Eric Dumazet (5):
->      inet: switch IP ID generator to siphash
->      ipv4/igmp: fix another memory leak in igmpv3_del_delrec()
->      ipv4/igmp: fix build error if !CONFIG_IP_MULTICAST
->      llc: fix skb leak in llc_build_and_send_ui_pkt()
->      net-gro: fix use-after-free read in napi_gro_frags()
->
->Greg Kroah-Hartman (1):
->      Linux 5.0.21
->
->Heiner Kallweit (1):
->      r8169: fix MAC address being lost in PCI D3
->
->Jakub Kicinski (2):
->      net/tls: fix state removal with feature flags off
->      net/tls: don't ignore netdev notifications if no TLS features
->
->Jarod Wilson (1):
->      bonding/802.3ad: fix slave link initialization transition states
->
->Jiri Pirko (1):
->      mlxsw: spectrum_acl: Avoid warning after identical rules insertion
->
->Jisheng Zhang (2):
->      net: mvneta: Fix err code path of probe
->      net: stmmac: fix reset gpio free missing
->
->Junwei Hu (1):
->      tipc: fix modprobe tipc failed after switch order of device registration
->
->Kloetzke Jan (1):
->      usbnet: fix kernel crash after disconnect
->
->Konrad Rzeszutek Wilk (1):
->      xen/pciback: Don't disable PCI_COMMAND on PCI device reset.
->
->Michael Chan (3):
->      bnxt_en: Fix aggregation buffer leak under OOM condition.
->      bnxt_en: Fix possible BUG() condition when calling pci_disable_msix().
->      bnxt_en: Reduce memory usage when running in kdump kernel.
->
->Mike Manning (1):
->      ipv6: Consider sk_bound_dev_if when binding a raw socket to an address
->
->Parav Pandit (2):
->      net/mlx5: Avoid double free in fs init error unwinding path
->      net/mlx5: Allocate root ns memory using kzalloc to match kfree
->
->Raju Rangoju (1):
->      cxgb4: offload VLAN flows regardless of VLAN ethtype
->
->Rasmus Villemoes (1):
->      net: dsa: mv88e6xxx: fix handling of upper half of STATS_TYPE_PORT
->
->Russell King (1):
->      net: phy: marvell10g: report if the PHY fails to boot firmware
->
->Saeed Mahameed (1):
->      net/mlx5e: Disable rxhash when CQE compress is enabled
->
->Tan, Tee Min (1):
->      net: stmmac: fix ethtool flow control not able to get/set
->
->Vishal Kulkarni (1):
->      cxgb4: Revert "cxgb4: Remove SGE_HOST_PAGE_SIZE dependency on page size"
->
->Vlad Buslov (1):
->      net: sched: don't use tc_action->order during action dump
->
->Weifeng Voon (1):
->      net: stmmac: dma channel control register need to be init first
->
->Willem de Bruijn (1):
->      net: correct zerocopy refcnt with udp MSG_MORE
->
+greg k-h
 
+------------------ original commit in Linus's tree ------------------
 
+From 6b1f72e5b82a5c2a4da4d1ebb8cc01913ddbea21 Mon Sep 17 00:00:00 2001
+From: Filipe Manana <fdmanana@suse.com>
+Date: Mon, 20 May 2019 09:55:42 +0100
+Subject: [PATCH] Btrfs: incremental send, fix file corruption when no-holes
+ feature is enabled
 
---K8nIJk4ghYZn606h
-Content-Type: application/pgp-signature; name="signature.asc"
+When using the no-holes feature, if we have a file with prealloc extents
+with a start offset beyond the file's eof, doing an incremental send can
+cause corruption of the file due to incorrect hole detection. Such case
+requires that the prealloc extent(s) exist in both the parent and send
+snapshots, and that a hole is punched into the file that covers all its
+extents that do not cross the eof boundary.
 
------BEGIN PGP SIGNATURE-----
+Example reproducer:
 
-iQEzBAABCAAdFiEEnwF+nWawchZUPOuwsjqdtxFLKRUFAlz2KLgACgkQsjqdtxFL
-KRUf+gf/e/yYQox7coZor7MfMrIQwvS9BmksSZ9DYwF9F63rWz8lzbKTN9pT6hKe
-P8/HFFHq5yy9Yvv9tkCsfa+fpfiTo1eIUWQndVgXH2uqjnlBDSF6HTp8W9EPfxs8
-TqHlzjkr7c4WFkZoj2wNKXufFPXf2gdYjwiEM7/8l95rFwwKctXAR7hHeBuLpJEB
-adc7h8tnmcfthEfJ50UEglQn3aHqKoVtf+bvP9eckc3LMz2Xa4g4DY2DpvDMZRso
-QHFrdzhriRXbwRGhBYsNt3ewejlT/ai94cW4QnDD3fa7sfVmVIkvNapS4lrslnB5
-66wlbz7eAwYdu43eG2KdP1/9eXNRsQ==
-=LeE4
------END PGP SIGNATURE-----
+  $ mkfs.btrfs -f -O no-holes /dev/sdb
+  $ mount /dev/sdb /mnt/sdb
 
---K8nIJk4ghYZn606h--
+  $ xfs_io -f -c "pwrite -S 0xab 0 500K" /mnt/sdb/foobar
+  $ xfs_io -c "falloc -k 1200K 800K" /mnt/sdb/foobar
+
+  $ btrfs subvolume snapshot -r /mnt/sdb /mnt/sdb/base
+
+  $ btrfs send -f /tmp/base.snap /mnt/sdb/base
+
+  $ xfs_io -c "fpunch 0 500K" /mnt/sdb/foobar
+
+  $ btrfs subvolume snapshot -r /mnt/sdb /mnt/sdb/incr
+
+  $ btrfs send -p /mnt/sdb/base -f /tmp/incr.snap /mnt/sdb/incr
+
+  $ md5sum /mnt/sdb/incr/foobar
+  816df6f64deba63b029ca19d880ee10a   /mnt/sdb/incr/foobar
+
+  $ mkfs.btrfs -f /dev/sdc
+  $ mount /dev/sdc /mnt/sdc
+
+  $ btrfs receive -f /tmp/base.snap /mnt/sdc
+  $ btrfs receive -f /tmp/incr.snap /mnt/sdc
+
+  $ md5sum /mnt/sdc/incr/foobar
+  cf2ef71f4a9e90c2f6013ba3b2257ed2   /mnt/sdc/incr/foobar
+
+    --> Different checksum, because the prealloc extent beyond the
+        file's eof confused the hole detection code and it assumed
+        a hole starting at offset 0 and ending at the offset of the
+        prealloc extent (1200Kb) instead of ending at the offset
+        500Kb (the file's size).
+
+Fix this by ensuring we never cross the file's size when issuing the
+write operations for a hole.
+
+Fixes: 16e7549f045d33 ("Btrfs: incompatible format change to remove hole extents")
+CC: stable@vger.kernel.org # 3.14+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+
+diff --git a/fs/btrfs/send.c b/fs/btrfs/send.c
+index dd38dfe174df..ca30b1f06e2d 100644
+--- a/fs/btrfs/send.c
++++ b/fs/btrfs/send.c
+@@ -4999,6 +4999,12 @@ static int send_hole(struct send_ctx *sctx, u64 end)
+ 	if (offset >= sctx->cur_inode_size)
+ 		return 0;
+ 
++	/*
++	 * Don't go beyond the inode's i_size due to prealloc extents that start
++	 * after the i_size.
++	 */
++	end = min_t(u64, end, sctx->cur_inode_size);
++
+ 	if (sctx->flags & BTRFS_SEND_FLAG_NO_FILE_DATA)
+ 		return send_update_extent(sctx, offset, end - offset);
+ 
+
