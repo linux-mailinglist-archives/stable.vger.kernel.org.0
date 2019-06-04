@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 28AA433D88
-	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 05:31:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36B2533D99
+	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 05:45:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726269AbfFDDbT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 3 Jun 2019 23:31:19 -0400
-Received: from conssluserg-03.nifty.com ([210.131.2.82]:62181 "EHLO
-        conssluserg-03.nifty.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726136AbfFDDbT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 3 Jun 2019 23:31:19 -0400
-Received: from mail-ua1-f45.google.com (mail-ua1-f45.google.com [209.85.222.45]) (authenticated)
-        by conssluserg-03.nifty.com with ESMTP id x543VD43005850;
-        Tue, 4 Jun 2019 12:31:14 +0900
-DKIM-Filter: OpenDKIM Filter v2.10.3 conssluserg-03.nifty.com x543VD43005850
+        id S1726317AbfFDDpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 3 Jun 2019 23:45:16 -0400
+Received: from conssluserg-01.nifty.com ([210.131.2.80]:61764 "EHLO
+        conssluserg-01.nifty.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726136AbfFDDpQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 3 Jun 2019 23:45:16 -0400
+Received: from mail-ua1-f41.google.com (mail-ua1-f41.google.com [209.85.222.41]) (authenticated)
+        by conssluserg-01.nifty.com with ESMTP id x543j1JO005406;
+        Tue, 4 Jun 2019 12:45:02 +0900
+DKIM-Filter: OpenDKIM Filter v2.10.3 conssluserg-01.nifty.com x543j1JO005406
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
-        s=dec2015msa; t=1559619074;
-        bh=p3DMRDqjvLfleLEkftYAKoqonxYhzBlfQ7q3kX1yABI=;
+        s=dec2015msa; t=1559619902;
+        bh=R4DTbEc9ajd/+gLs4R0E3A2qZCd8mpp6nT3mLt/MWL4=;
         h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=bYi7+isCKertT00fRULzrd7n1xy2ijri8jBhF4Nuyl7kUpCw/8ZnRRUgX0tExvhTo
-         E4HYK5tj6gUIHISOWfCqnjXxMVE9iiN86tnB6+3p6O84sZC9+z4HGKF90/d9a40mPl
-         xAw7v7op9drM7cioGdp91l3WH5pTtCABr9eo/NhqFCPOsVVaoQIS4BX5z40hsuXr69
-         fxi3NAqIb9RX/P+inYWpxCoRMYE353+QoUWxmLWzYTCHHVoJck4SyoM4yIwthQ14tr
-         2RAtKg6dn6Invm5UosRZaD5bAeAee5YjWfpth1jb7U3ij7sy772vHBkeShMilmL0RV
-         6zh/xd9lrEEAQ==
-X-Nifty-SrcIP: [209.85.222.45]
-Received: by mail-ua1-f45.google.com with SMTP id r7so7289311ual.2;
-        Mon, 03 Jun 2019 20:31:14 -0700 (PDT)
-X-Gm-Message-State: APjAAAX2GMMwotR8lgulcmu0BtQxamvrTQKi3iTg/1nrolfw4Fe+iG0h
-        yfqvxGflLNL75ct+I700w5VF7MPMrt1Ejr7O7DI=
-X-Google-Smtp-Source: APXvYqwLg5oKMCsYL63EZGBs62A+uvaH0VNBtZ1VJCZHVnUEm+GXeBoaQbuuPkFiapfGEwirzIOWICLibChewL6wlx8=
-X-Received: by 2002:ab0:234d:: with SMTP id h13mr6406182uao.95.1559619073065;
- Mon, 03 Jun 2019 20:31:13 -0700 (PDT)
+        b=sSBx0AvDkKyPdfmLobt1FwXeI8jVeiK59RkpnvzCgW1NxC772shGT0Sxc6PAO3Ks8
+         PDpJD75pBEKoT6FtjYqkPmeN7nHHdv/MoXFZ+KkARrl7JX7aMkTjv66C+gvwBFrf1k
+         B8WFehagQofx/8TM/rEZq5ZQsCBBOmcPxP90UVmxzfiuyDbP2A1GnZ1/QcxY8pzP35
+         peOxnzSOfUkm2Oyv22A6p/BEmKU4ophBttj/ymoil1dI3SwP/qqDWA9vS74RKRv/jT
+         /r3Ba2dTESj1A1/ZKgvGfqHlnmrjZUEmgp2ARlAXb79sSmfu3ocxF13RuVLBIBPzcu
+         YPiPeujYRKBIg==
+X-Nifty-SrcIP: [209.85.222.41]
+Received: by mail-ua1-f41.google.com with SMTP id a95so7261755uaa.13;
+        Mon, 03 Jun 2019 20:45:01 -0700 (PDT)
+X-Gm-Message-State: APjAAAUDLD4J7SDn84VESpww0jFOtVdyaxzxZkz3jlvcuRBawx9H1ufg
+        Wa6JAZalYrKRQzhmYB2rT60+g0H5PRFCXvJxdsU=
+X-Google-Smtp-Source: APXvYqzVUiWM/RaTvJFgDXA6xyHBfBmK48S0H0UYyNEUSUfOWS5M4whPygR0UYBlA4pDOL7pjG5Ty1EEttHRqBCTSd8=
+X-Received: by 2002:a9f:24a3:: with SMTP id 32mr13276265uar.109.1559619900888;
+ Mon, 03 Jun 2019 20:45:00 -0700 (PDT)
 MIME-Version: 1.0
 References: <20190603104902.23799-1-yamada.masahiro@socionext.com>
- <863c29c5f0214c008fbcbb2aac517a5c@AcuMS.aculab.com> <CAK7LNARHR=xv_YxQCkCM7PtW3vpNfXOgZrez0c4HbMX6C-8-uA@mail.gmail.com>
- <810dd6ae018b4a31b70d26fb6b29e48d@AcuMS.aculab.com>
-In-Reply-To: <810dd6ae018b4a31b70d26fb6b29e48d@AcuMS.aculab.com>
+ <3dcacca3f71c46cc98fa64b13a405b59@AcuMS.aculab.com> <CAK7LNATt=P5rHrnK_8PTmjMb+tdtPg2qBgopRUDBFw_fkP2SsQ@mail.gmail.com>
+ <1ca8a995328f449fa58f732ebe70e378@AcuMS.aculab.com>
+In-Reply-To: <1ca8a995328f449fa58f732ebe70e378@AcuMS.aculab.com>
 From:   Masahiro Yamada <yamada.masahiro@socionext.com>
-Date:   Tue, 4 Jun 2019 12:30:37 +0900
-X-Gmail-Original-Message-ID: <CAK7LNAR_A1d5keiCRthNioW3nqkNadJkaCyMR3a5S8WS0jhgNQ@mail.gmail.com>
-Message-ID: <CAK7LNAR_A1d5keiCRthNioW3nqkNadJkaCyMR3a5S8WS0jhgNQ@mail.gmail.com>
+Date:   Tue, 4 Jun 2019 12:44:25 +0900
+X-Gmail-Original-Message-ID: <CAK7LNASwTS+rfZuFFcR7cz2HaOZWMjxhZUToV=74g09J72=osg@mail.gmail.com>
+Message-ID: <CAK7LNASwTS+rfZuFFcR7cz2HaOZWMjxhZUToV=74g09J72=osg@mail.gmail.com>
 Subject: Re: [PATCH] kbuild: use more portable 'command -v' for cc-cross-prefix
 To:     David Laight <David.Laight@aculab.com>
 Cc:     "linux-kbuild@vger.kernel.org" <linux-kbuild@vger.kernel.org>,
@@ -58,13 +58,11 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 3, 2019 at 10:09 PM David Laight <David.Laight@aculab.com> wrote:
+On Mon, Jun 3, 2019 at 9:43 PM David Laight <David.Laight@aculab.com> wrote:
 >
 > From: Masahiro Yamada
-> > Sent: 03 June 2019 12:38
-> > Hi David,
-> >
-> > On Mon, Jun 3, 2019 at 8:14 PM David Laight <David.Laight@aculab.com> wrote:
+> > Sent: 03 June 2019 12:45
+> > On Mon, Jun 3, 2019 at 8:16 PM David Laight <David.Laight@aculab.com> wrote:
 > > >
 > > > From: Masahiro Yamada
 > > > > Sent: 03 June 2019 11:49
@@ -73,124 +71,68 @@ On Mon, Jun 3, 2019 at 10:09 PM David Laight <David.Laight@aculab.com> wrote:
 > > > > environment, 'command -v' is a standardized way. [1]
 > > > >
 > > > > 'which' is also often used in scripting, but it is not portable.
-> > > >
-> > > > When I worked on commit bd55f96fa9fc ("kbuild: refactor cc-cross-prefix
-> > > > implementation"), I was eager to use 'command -v' but it did not work.
-> > > > (The reason is explained below.)
-> > > >
-> > > > I kept 'which' as before but got rid of '> /dev/null 2>&1' as I
-> > > > thought it was no longer needed. Sorry, I was wrong.
-> > > >
-> > > > It works well on my Ubuntu machine, but Alexey Brodkin reports annoying
-> > > > warnings from the 'which' on CentOS 7 when the given command is not
-> > > > found in the PATH environment.
-> > > >
-> > > >   $ which foo
-> > > >   which: no foo in (/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin)
-> > > >
-> > > > Given that behavior of 'which' is different on environment, I want
-> > > > to try 'command -v' again.
-> > > >
-> > > > The specification [1] clearly describes the behavior of 'command -v'
-> > > > when the given command is not found:
-> > > >
-> > > >   Otherwise, no output shall be written and the exit status shall reflect
-> > > >   that the name was not found.
-> > > >
-> > > > However, we need a little magic to use 'command -v' from Make.
-> > > >
-> > > > $(shell ...) passes the argument to a subshell for execution, and
-> > > > returns the standard output of the command.
-> > > >
-> > > > Here is a trick. GNU Make may optimize this by executing the command
-> > > > directly instead of forking a subshell, if no shell special characters
-> > > > are found in the command line and omitting the subshell will not
-> > > > change the behavior.
-> > > >
-> > > > In this case, no shell special character is used. So, Make will try
-> > > > to run the command directly. However, 'command' is a shell-builtin
-> > > > command. In fact, Make has a table of shell-builtin commands because
-> > > > it must spawn a subshell to execute them.
-> > > >
-> > > > Until recently, 'command' was missing in the table.
-> > > >
-> > > > This issue was fixed by the following commit:
-> > > >
-> > > > | commit 1af314465e5dfe3e8baa839a32a72e83c04f26ef
-> > > > | Author: Paul Smith <psmith@gnu.org>
-> > > > | Date:   Sun Nov 12 18:10:28 2017 -0500
-> > > > |
-> > > > |     * job.c: Add "command" as a known shell built-in.
-> > > > |
-> > > > |     This is not a POSIX shell built-in but it's common in UNIX shells.
-> > > > |     Reported by Nick Bowler <nbowler@draconx.ca>.
-> > > >
-> > > > This is not included in any released versions of Make yet.
-> > > > (But, some distributions may have back-ported the fix-up.)
-> > > >
-> > > > To trick Make and let it fork the subshell, I added a shell special
-> > > > character '~'. We may be able to get rid of this workaround someday,
-> > > > but it is very far into the future.
-> > > >
-> > > > [1] http://pubs.opengroup.org/onlinepubs/9699919799/utilities/command.html
-> > > >
-> > > > Fixes: bd55f96fa9fc ("kbuild: refactor cc-cross-prefix implementation")
-> > > > Cc: linux-stable <stable@vger.kernel.org> # 5.1
-> > > > Reported-by: Alexey Brodkin <abrodkin@synopsys.com>
-> > > > Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-> > > > ---
-> > > >
-> > > >  scripts/Kbuild.include | 5 ++++-
-> > > >  1 file changed, 4 insertions(+), 1 deletion(-)
-> > > >
-> > > > diff --git a/scripts/Kbuild.include b/scripts/Kbuild.include
-> > > > index 85d758233483..5a32ca80c3f6 100644
-> > > > --- a/scripts/Kbuild.include
-> > > > +++ b/scripts/Kbuild.include
-> > > > @@ -74,8 +74,11 @@ endef
-> > > >  # Usage: CROSS_COMPILE := $(call cc-cross-prefix, m68k-linux-gnu- m68k-linux-)
-> > > >  # Return first <prefix> where a <prefix>gcc is found in PATH.
-> > > >  # If no gcc found in PATH with listed prefixes return nothing
-> > > > +#
-> > > > +# Note: the special character '~' forces Make to invoke a shell. This workaround
-> > > > +# is needed because this issue was only fixed after GNU Make 4.2.1 release.
-> > > >  cc-cross-prefix = $(firstword $(foreach c, $(filter-out -%, $(1)), \
-> > > > -                                     $(if $(shell which $(c)gcc), $(c))))
-> > > > +                             $(if $(shell command -v $(c)gcc ~), $(c))))
 > > >
-> > > I see a problem here:
-> > >         command -v foo bar
-> > > could be deemed to be an error (extra argument).
+> > > All uses of 'which' should be expunged.
+> > > It is a bourne shell script that is trying to emulate a csh builtin.
+> > > It is doomed to fail in corner cases.
+> > > ISTR it has serious problems with shell functions and aliases.
 > >
-> > OK, the specification does not allow to pass arguments
-> > with -v.
-> >
-> >
-> > > You could use:
-> > >         $(shell sh -c "command -v $(c)gcc")
-> > > or maybe:
-> > >         $(shell command$${x:+} -v $(c)gcc)
+> > OK, I do not have time to check it treewide.
+> > I expect somebody will contribute to it.
 > >
 > >
-> > How about this?
 > >
-> >           $(shell : ~; command -v $(c)gcc)
+> > BTW, I see yet another way to get the command path.
+> >
+> > 'type -path' is bash-specific.
 >
-> Overcomplicated ....
+> 'type' itself should be supported by all shells, but the output
+> format (esp for errors) probably varies.
 >
-> I've not looked at the list of 'special characters' in make,
-> but I suspect any variable expansion is enough.
-> Since ${x:+} always expands to the empty string (whether or
-> not 'x' is defined) it can't have any unfortunate side effects.
+> > Maybe, we should do this too:
+> >
+> > diff --git a/scripts/mkuboot.sh b/scripts/mkuboot.sh
+> > index 4b1fe09e9042..77829ee4268e 100755
+> > --- a/scripts/mkuboot.sh
+> > +++ b/scripts/mkuboot.sh
+> > @@ -1,14 +1,14 @@
+> > -#!/bin/bash
+> > +#!/bin/sh
+>
+> /bin/sh might be 'dash' - which is just plain broken in so many ways.
+> Try (IIRC) ${foo%${foo#bar}}
+> It might even be the original SYSV /bin/sh which doesn't support $((expr))
+> or ${foo#bar} - but that may break too much, but $SHELL might fix it.
 
 
-Probably, my eyes are used to Makefile.
-":" is a no-op command, and it is used everywhere in kernel Makefiles
-in the form of "@:'
+We cannot use any tool
+if you start to argue like
+"Hey, I know ancient implementation that did not work as expected".
 
-It depends on people which solution seems simpler.
-So, this argument tends to end up with bikesheding.
+Nobody can cover all corner-cases.
+That's why we have standard.
 
+I think the reliable source is the
+Open Group Specification.
+
+The behavior of /bin/sh is defined here:
+http://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html#tag_18_01
+
+${parameter%[word]} and ${parameter#[word]} are defined,
+so we can use them in /bin/sh scripts.
+
+
+> dash probably has the rather obscure bug in stripping '\n' from $(...)
+> output that I found and fixed in NetBSD's ash may years ago.
+> Try: foo="$(jot -b "" 130)"
+> All 130 '\n' should be deleted.
+> Mostly it fails to delete all the '\n', but it can remove extra ones!
+>
+>         David
+>
+> -
+> Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+> Registration No: 1397386 (Wales)
 
 
 
