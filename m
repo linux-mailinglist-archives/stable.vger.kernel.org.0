@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D516C35406
-	for <lists+stable@lfdr.de>; Wed,  5 Jun 2019 01:30:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F165A3533E
+	for <lists+stable@lfdr.de>; Wed,  5 Jun 2019 01:24:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727370AbfFDXXu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Jun 2019 19:23:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34506 "EHLO mail.kernel.org"
+        id S1727389AbfFDXXw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Jun 2019 19:23:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34532 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727360AbfFDXXu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 4 Jun 2019 19:23:50 -0400
+        id S1727373AbfFDXXv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 4 Jun 2019 19:23:51 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 029A620866;
-        Tue,  4 Jun 2019 23:23:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 105A320862;
+        Tue,  4 Jun 2019 23:23:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559690629;
-        bh=vZAm1DlagK61SXBT7+XWCmAxFWiQPQzJtpbvOqNavPM=;
+        s=default; t=1559690630;
+        bh=2VShnnzsVoYMc4XZkwnYUCfaeAm3shYu+Ux85v3avB0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0jpLYoJbce5A/c1RZlxRPPAwkSXzji0BzBmebg1hsiR5XZBsZXUG5zPd/7ggNGejW
-         1xZMZgAzbKDPOV7kzZjSt7JoSrd6r68VLYKuoQJfodf83S1fM7SNpDSMMUU4D7ukca
-         Q91sQEPdLg3Zc1t8YZ35dAVIBlMPyorQaOHUSl4s=
+        b=MRirj99yHTwh2RY2yab7jwPA+GFkk9qEhER0U6+vGqhltoAqUXNwZaPjju0UNkrhV
+         4jxKRAHwT/XvJ4EaNias121YSvtLaxGiTCieWDtxzvvatjZkCyYssNNjJoifp3mKuU
+         RJ51HLcxzGcSohnYRnSKM59elIKbBmfiVq4piNqg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Young Xiao <YangX92@hotmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        kgdb-bugreport@lists.sourceforge.net
-Subject: [PATCH AUTOSEL 4.19 08/36] Drivers: misc: fix out-of-bounds access in function param_set_kgdbts_var
-Date:   Tue,  4 Jun 2019 19:23:03 -0400
-Message-Id: <20190604232333.7185-8-sashal@kernel.org>
+Cc:     YueHaibing <yuehaibing@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 09/36] configfs: fix possible use-after-free in configfs_register_group
+Date:   Tue,  4 Jun 2019 19:23:04 -0400
+Message-Id: <20190604232333.7185-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190604232333.7185-1-sashal@kernel.org>
 References: <20190604232333.7185-1-sashal@kernel.org>
@@ -44,45 +42,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Young Xiao <YangX92@hotmail.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit b281218ad4311a0342a40cb02fb17a363df08b48 ]
+[ Upstream commit 35399f87e271f7cf3048eab00a421a6519ac8441 ]
 
-There is an out-of-bounds access to "config[len - 1]" array when the
-variable "len" is zero.
+In configfs_register_group(), if create_default_group() failed, we
+forget to unlink the group. It will left a invalid item in the parent list,
+which may trigger the use-after-free issue seen below:
 
-See commit dada6a43b040 ("kgdboc: fix KASAN global-out-of-bounds bug
-in param_set_kgdboc_var()") for details.
+BUG: KASAN: use-after-free in __list_add_valid+0xd4/0xe0 lib/list_debug.c:26
+Read of size 8 at addr ffff8881ef61ae20 by task syz-executor.0/5996
 
-Signed-off-by: Young Xiao <YangX92@hotmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CPU: 1 PID: 5996 Comm: syz-executor.0 Tainted: G         C        5.0.0+ #5
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.10.2-1ubuntu1 04/01/2014
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0xa9/0x10e lib/dump_stack.c:113
+ print_address_description+0x65/0x270 mm/kasan/report.c:187
+ kasan_report+0x149/0x18d mm/kasan/report.c:317
+ __list_add_valid+0xd4/0xe0 lib/list_debug.c:26
+ __list_add include/linux/list.h:60 [inline]
+ list_add_tail include/linux/list.h:93 [inline]
+ link_obj+0xb0/0x190 fs/configfs/dir.c:759
+ link_group+0x1c/0x130 fs/configfs/dir.c:784
+ configfs_register_group+0x56/0x1e0 fs/configfs/dir.c:1751
+ configfs_register_default_group+0x72/0xc0 fs/configfs/dir.c:1834
+ ? 0xffffffffc1be0000
+ iio_sw_trigger_init+0x23/0x1000 [industrialio_sw_trigger]
+ do_one_initcall+0xbc/0x47d init/main.c:887
+ do_init_module+0x1b5/0x547 kernel/module.c:3456
+ load_module+0x6405/0x8c10 kernel/module.c:3804
+ __do_sys_finit_module+0x162/0x190 kernel/module.c:3898
+ do_syscall_64+0x9f/0x450 arch/x86/entry/common.c:290
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x462e99
+Code: f7 d8 64 89 02 b8 ff ff ff ff c3 66 0f 1f 44 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 bc ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007f494ecbcc58 EFLAGS: 00000246 ORIG_RAX: 0000000000000139
+RAX: ffffffffffffffda RBX: 000000000073bf00 RCX: 0000000000462e99
+RDX: 0000000000000000 RSI: 0000000020000180 RDI: 0000000000000003
+RBP: 00007f494ecbcc70 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 00007f494ecbd6bc
+R13: 00000000004bcefa R14: 00000000006f6fb0 R15: 0000000000000004
+
+Allocated by task 5987:
+ set_track mm/kasan/common.c:87 [inline]
+ __kasan_kmalloc.constprop.3+0xa0/0xd0 mm/kasan/common.c:497
+ kmalloc include/linux/slab.h:545 [inline]
+ kzalloc include/linux/slab.h:740 [inline]
+ configfs_register_default_group+0x4c/0xc0 fs/configfs/dir.c:1829
+ 0xffffffffc1bd0023
+ do_one_initcall+0xbc/0x47d init/main.c:887
+ do_init_module+0x1b5/0x547 kernel/module.c:3456
+ load_module+0x6405/0x8c10 kernel/module.c:3804
+ __do_sys_finit_module+0x162/0x190 kernel/module.c:3898
+ do_syscall_64+0x9f/0x450 arch/x86/entry/common.c:290
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+Freed by task 5987:
+ set_track mm/kasan/common.c:87 [inline]
+ __kasan_slab_free+0x130/0x180 mm/kasan/common.c:459
+ slab_free_hook mm/slub.c:1429 [inline]
+ slab_free_freelist_hook mm/slub.c:1456 [inline]
+ slab_free mm/slub.c:3003 [inline]
+ kfree+0xe1/0x270 mm/slub.c:3955
+ configfs_register_default_group+0x9a/0xc0 fs/configfs/dir.c:1836
+ 0xffffffffc1bd0023
+ do_one_initcall+0xbc/0x47d init/main.c:887
+ do_init_module+0x1b5/0x547 kernel/module.c:3456
+ load_module+0x6405/0x8c10 kernel/module.c:3804
+ __do_sys_finit_module+0x162/0x190 kernel/module.c:3898
+ do_syscall_64+0x9f/0x450 arch/x86/entry/common.c:290
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+The buggy address belongs to the object at ffff8881ef61ae00
+ which belongs to the cache kmalloc-192 of size 192
+The buggy address is located 32 bytes inside of
+ 192-byte region [ffff8881ef61ae00, ffff8881ef61aec0)
+The buggy address belongs to the page:
+page:ffffea0007bd8680 count:1 mapcount:0 mapping:ffff8881f6c03000 index:0xffff8881ef61a700
+flags: 0x2fffc0000000200(slab)
+raw: 02fffc0000000200 ffffea0007ca4740 0000000500000005 ffff8881f6c03000
+raw: ffff8881ef61a700 000000008010000c 00000001ffffffff 0000000000000000
+page dumped because: kasan: bad access detected
+
+Memory state around the buggy address:
+ ffff8881ef61ad00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ ffff8881ef61ad80: 00 00 00 00 00 00 00 00 fc fc fc fc fc fc fc fc
+>ffff8881ef61ae00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                               ^
+ ffff8881ef61ae80: fb fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
+ ffff8881ef61af00: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+
+Fixes: 5cf6a51e6062 ("configfs: allow dynamic group creation")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/kgdbts.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/configfs/dir.c | 17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/misc/kgdbts.c b/drivers/misc/kgdbts.c
-index 6193270e7b3d..eb4d90b7d99e 100644
---- a/drivers/misc/kgdbts.c
-+++ b/drivers/misc/kgdbts.c
-@@ -1139,7 +1139,7 @@ static void kgdbts_put_char(u8 chr)
- static int param_set_kgdbts_var(const char *kmessage,
- 				const struct kernel_param *kp)
- {
--	int len = strlen(kmessage);
-+	size_t len = strlen(kmessage);
+diff --git a/fs/configfs/dir.c b/fs/configfs/dir.c
+index 39843fa7e11b..920d350df37b 100644
+--- a/fs/configfs/dir.c
++++ b/fs/configfs/dir.c
+@@ -1755,12 +1755,19 @@ int configfs_register_group(struct config_group *parent_group,
  
- 	if (len >= MAX_CONFIG_LEN) {
- 		printk(KERN_ERR "kgdbts: config string too long\n");
-@@ -1159,7 +1159,7 @@ static int param_set_kgdbts_var(const char *kmessage,
- 
- 	strcpy(config, kmessage);
- 	/* Chop out \n char as a result of echo */
--	if (config[len - 1] == '\n')
-+	if (len && config[len - 1] == '\n')
- 		config[len - 1] = '\0';
- 
- 	/* Go and configure with the new params. */
+ 	inode_lock_nested(d_inode(parent), I_MUTEX_PARENT);
+ 	ret = create_default_group(parent_group, group);
+-	if (!ret) {
+-		spin_lock(&configfs_dirent_lock);
+-		configfs_dir_set_ready(group->cg_item.ci_dentry->d_fsdata);
+-		spin_unlock(&configfs_dirent_lock);
+-	}
++	if (ret)
++		goto err_out;
++
++	spin_lock(&configfs_dirent_lock);
++	configfs_dir_set_ready(group->cg_item.ci_dentry->d_fsdata);
++	spin_unlock(&configfs_dirent_lock);
++	inode_unlock(d_inode(parent));
++	return 0;
++err_out:
+ 	inode_unlock(d_inode(parent));
++	mutex_lock(&subsys->su_mutex);
++	unlink_group(group);
++	mutex_unlock(&subsys->su_mutex);
+ 	return ret;
+ }
+ EXPORT_SYMBOL(configfs_register_group);
 -- 
 2.20.1
 
