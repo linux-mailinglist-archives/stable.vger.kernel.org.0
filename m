@@ -2,279 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9386C34CD0
-	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 18:06:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 939BE34D8D
+	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 18:34:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728207AbfFDQGQ convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 4 Jun 2019 12:06:16 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:36804 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728160AbfFDQGQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 4 Jun 2019 12:06:16 -0400
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 06C313082B63
-        for <stable@vger.kernel.org>; Tue,  4 Jun 2019 16:06:16 +0000 (UTC)
-Received: from [172.54.208.215] (cpt-0038.paas.prod.upshift.rdu2.redhat.com [10.0.18.103])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 7399D600CC;
-        Tue,  4 Jun 2019 16:06:11 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        id S1727801AbfFDQd7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Jun 2019 12:33:59 -0400
+Received: from outils.crapouillou.net ([89.234.176.41]:47148 "EHLO
+        crapouillou.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727795AbfFDQd7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Jun 2019 12:33:59 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=crapouillou.net;
+        s=mail; t=1559666037; h=from:from:sender:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:references; bh=j0HsjNCBgw6fb89AS0Z7APClR+xnsmHO6MK4li8L+Yg=;
+        b=dnheEqEuK7O6vdqyl/0cBNMRU4cw17F0bPm4lIdzfwqPlS/zyW9SIf2s9PnClisWI0PQNA
+        LnUy2qiihxP4YCHu9pkxA8k2GK12dcHGeBUprchnxPOUX3YDqrgfNbqsBZYuTiAk+KH1Ft
+        oHxUNTjM+ks36004qmTWCR0YqqD0oRo=
+From:   Paul Cercueil <paul@crapouillou.net>
+To:     Ralf Baechle <ralf@linux-mips.org>,
+        Paul Burton <paul.burton@mips.com>,
+        James Hogan <jhogan@kernel.org>
+Cc:     Linus Walleij <linus.walleij@linaro.org>, od@zcrc.me,
+        linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Paul Cercueil <paul@crapouillou.net>, stable@vger.kernel.org
+Subject: [PATCH] MIPS: lb60: Fix pin mappings
+Date:   Tue,  4 Jun 2019 18:33:11 +0200
+Message-Id: <20190604163311.19059-1-paul@crapouillou.net>
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.1
-CC:     Jeff Bastian <jbastian@redhat.com>
-Message-ID: <cki.121DAFAFF6.HXXPB0N34P@redhat.com>
-X-Gitlab-Pipeline-ID: 11480
-X-Gitlab-Pipeline: =?utf-8?q?https=3A//xci32=2Elab=2Eeng=2Erdu2=2Eredhat=2Ec?=
- =?utf-8?q?om/cki-project/cki-pipeline/pipelines/11480?=
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.45]); Tue, 04 Jun 2019 16:06:16 +0000 (UTC)
-Date:   Tue, 4 Jun 2019 12:06:16 -0400
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+The pin mappings introduced in commit 636f8ba67fb6
+("MIPS: JZ4740: Qi LB60: Add pinctrl configuration for several drivers")
+are completely wrong. The pinctrl driver name is incorrect, and the
+function and group fields are swapped.
 
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
+Fixes: 636f8ba67fb6 ("MIPS: JZ4740: Qi LB60: Add pinctrl configuration for several drivers")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+---
+ arch/mips/jz4740/board-qi_lb60.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: 2f7d9d47575e - Linux 5.1.7
+diff --git a/arch/mips/jz4740/board-qi_lb60.c b/arch/mips/jz4740/board-qi_lb60.c
+index 071e9d94eea7..daed44ee116d 100644
+--- a/arch/mips/jz4740/board-qi_lb60.c
++++ b/arch/mips/jz4740/board-qi_lb60.c
+@@ -466,27 +466,27 @@ static unsigned long pin_cfg_bias_disable[] = {
+ static struct pinctrl_map pin_map[] __initdata = {
+ 	/* NAND pin configuration */
+ 	PIN_MAP_MUX_GROUP_DEFAULT("jz4740-nand",
+-			"10010000.jz4740-pinctrl", "nand", "nand-cs1"),
++			"10010000.pin-controller", "nand-cs1", "nand"),
+ 
+ 	/* fbdev pin configuration */
+ 	PIN_MAP_MUX_GROUP("jz4740-fb", PINCTRL_STATE_DEFAULT,
+-			"10010000.jz4740-pinctrl", "lcd", "lcd-8bit"),
++			"10010000.pin-controller", "lcd-8bit", "lcd"),
+ 	PIN_MAP_MUX_GROUP("jz4740-fb", PINCTRL_STATE_SLEEP,
+-			"10010000.jz4740-pinctrl", "lcd", "lcd-no-pins"),
++			"10010000.pin-controller", "lcd-no-pins", "lcd"),
+ 
+ 	/* MMC pin configuration */
+ 	PIN_MAP_MUX_GROUP_DEFAULT("jz4740-mmc.0",
+-			"10010000.jz4740-pinctrl", "mmc", "mmc-1bit"),
++			"10010000.pin-controller", "mmc-1bit", "mmc"),
+ 	PIN_MAP_MUX_GROUP_DEFAULT("jz4740-mmc.0",
+-			"10010000.jz4740-pinctrl", "mmc", "mmc-4bit"),
++			"10010000.pin-controller", "mmc-4bit", "mmc"),
+ 	PIN_MAP_CONFIGS_PIN_DEFAULT("jz4740-mmc.0",
+-			"10010000.jz4740-pinctrl", "PD0", pin_cfg_bias_disable),
++			"10010000.pin-controller", "PD0", pin_cfg_bias_disable),
+ 	PIN_MAP_CONFIGS_PIN_DEFAULT("jz4740-mmc.0",
+-			"10010000.jz4740-pinctrl", "PD2", pin_cfg_bias_disable),
++			"10010000.pin-controller", "PD2", pin_cfg_bias_disable),
+ 
+ 	/* PWM pin configuration */
+ 	PIN_MAP_MUX_GROUP_DEFAULT("jz4740-pwm",
+-			"10010000.jz4740-pinctrl", "pwm4", "pwm4"),
++			"10010000.pin-controller", "pwm4", "pwm4"),
+ };
+ 
+ 
+-- 
+2.21.0.593.g511ec345e18
 
-The results of these automated tests are provided below.
-
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Merge testing
--------------
-
-We cloned this repository and checked out the following commit:
-
-  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: 2f7d9d47575e - Linux 5.1.7
-
-
-We then merged the patchset with `git am`:
-
-  sparc64-fix-regression-in-non-hypervisor-tlb-flush-xcall.patch
-  include-linux-bitops.h-sanitize-rotate-primitives.patch
-  xhci-update-bounce-buffer-with-correct-sg-num.patch
-  xhci-use-zu-for-printing-size_t-type.patch
-  xhci-convert-xhci_handshake-to-use-readl_poll_timeout_atomic.patch
-  usb-xhci-avoid-null-pointer-deref-when-bos-field-is-null.patch
-  usbip-usbip_host-fix-bug-sleeping-function-called-from-invalid-context.patch
-  usbip-usbip_host-fix-stub_dev-lock-context-imbalance-regression.patch
-  usb-fix-slab-out-of-bounds-write-in-usb_get_bos_descriptor.patch
-  usb-sisusbvga-fix-oops-in-error-path-of-sisusb_probe.patch
-  usb-add-lpm-quirk-for-surface-dock-gige-adapter.patch
-  usb-rio500-refuse-more-than-one-device-at-a-time.patch
-  usb-rio500-fix-memory-leak-in-close-after-disconnect.patch
-  media-usb-siano-fix-general-protection-fault-in-smsusb.patch
-  media-usb-siano-fix-false-positive-uninitialized-variable-warning.patch
-  media-smsusb-better-handle-optional-alignment.patch
-  brcmfmac-fix-null-pointer-derefence-during-usb-disconnect.patch
-  scsi-zfcp-fix-missing-zfcp_port-reference-put-on-ebusy-from-port_remove.patch
-  scsi-zfcp-fix-to-prevent-port_remove-with-pure-auto-scan-luns-only-sdevs.patch
-  tracing-avoid-memory-leak-in-predicate_parse.patch
-  btrfs-fix-wrong-ctime-and-mtime-of-a-directory-after-log-replay.patch
-  btrfs-fix-race-updating-log-root-item-during-fsync.patch
-  btrfs-fix-fsync-not-persisting-changed-attributes-of-a-directory.patch
-  btrfs-correct-zstd-workspace-manager-lock-to-use-spin_lock_bh.patch
-  btrfs-qgroup-check-bg-while-resuming-relocation-to-avoid-null-pointer-dereference.patch
-  btrfs-incremental-send-fix-file-corruption-when-no-holes-feature-is-enabled.patch
-  btrfs-reloc-also-queue-orphan-reloc-tree-for-cleanup-to-avoid-bug_on.patch
-  iio-dac-ds4422-ds4424-fix-chip-verification.patch
-  iio-adc-ads124-avoid-buffer-overflow.patch
-  iio-adc-modify-npcm-adc-read-reference-voltage.patch
-  iio-adc-ti-ads8688-fix-timestamp-is-not-updated-in-buffer.patch
-  s390-crypto-fix-gcm-aes-s390-selftest-failures.patch
-  s390-crypto-fix-possible-sleep-during-spinlock-aquired.patch
-  kvm-ppc-book3s-hv-xive-do-not-clear-irq-data-of-passthrough-interrupts.patch
-  kvm-ppc-book3s-hv-fix-lockdep-warning-when-entering-guest-on-power9.patch
-  kvm-ppc-book3s-hv-restore-sprg3-in-kvmhv_p9_guest_entry.patch
-  powerpc-perf-fix-mmcra-corruption-by-bhrb_filter.patch
-  powerpc-kexec-fix-loading-of-kernel-initramfs-with-kexec_file_load.patch
-  alsa-line6-assure-canceling-delayed-work-at-disconnection.patch
-  alsa-hda-realtek-set-default-power-save-node-to-0.patch
-  alsa-hda-realtek-improve-the-headset-mic-for-acer-aspire-laptops.patch
-  kvm-s390-do-not-report-unusabled-ids-via-kvm_cap_max_vcpu_id.patch
-  drm-nouveau-i2c-disable-i2c-bus-access-after-fini.patch
-  i2c-mlxcpld-fix-wrong-initialization-order-in-probe.patch
-  i2c-synquacer-fix-synquacer_i2c_doxfer-return-value.patch
-  tty-serial-msm_serial-fix-xon-xoff.patch
-  tty-max310x-fix-external-crystal-register-setup.patch
-  mm-memcg-consider-subtrees-in-memory.events.patch
-  memcg-make-it-work-on-sparse-non-0-node-systems.patch
-  kasan-initialize-tag-to-0xff-in-__kasan_kmalloc.patch
-  kernel-signal.c-trace_signal_deliver-when-signal_group_exit.patch
-  signal-arm64-use-force_sig-not-force_sig_fault-for-sigkill.patch
-  mm-compaction-make-sure-we-isolate-a-valid-pfn.patch
-  arm64-fix-the-arm64_personality-syscall-wrapper-redirection.patch
-  docs-fix-conf.py-for-sphinx-2.0.patch
-  doc-cope-with-the-deprecation-of-autoreporter.patch
-  doc-cope-with-sphinx-logging-deprecations.patch
-  x86-ima-check-efi_runtime_services-before-using.patch
-  ima-fix-wrong-signed-policy-requirement-when-not-appraising.patch
-  ima-show-rules-with-ima_inmask-correctly.patch
-  evm-check-hash-algorithm-passed-to-init_desc.patch
-  clk-imx-imx8mm-fix-int-pll-clk-gate.patch
-  vt-fbcon-deinitialize-resources-in-visual_init-after-failed-memory-allocation.patch
-  serial-sh-sci-disable-dma-for-uart_console.patch
-  staging-vc04_services-prevent-integer-overflow-in-create_pagelist.patch
-  staging-wlan-ng-fix-adapter-initialization-failure.patch
-  cifs-fix-memory-leak-of-pneg_inbuf-on-eopnotsupp-ioctl-case.patch
-  cifs-cifs_read_allocate_pages-don-t-iterate-through-whole-page-array-on-enomem.patch
-  revert-lockd-show-pid-of-lockd-for-remote-locks.patch
-  gcc-plugins-fix-build-failures-under-darwin-host.patch
-  efi-x86-add-missing-error-handling-to-old_memmap-1-1-mapping-code.patch
-  drm-tegra-gem-fix-cpu-cache-maintenance-for-bo-s-allocated-using-get_pages.patch
-  drm-vmwgfx-fix-user-space-handle-equal-to-zero.patch
-  drm-vmwgfx-fix-compat-mode-shader-operation.patch
-  drm-vmwgfx-don-t-send-drm-sysfs-hotplug-events-on-initial-master-set.patch
-  drm-sun4i-fix-sun8i-hdmi-phy-clock-initialization.patch
-  drm-sun4i-fix-sun8i-hdmi-phy-configuration-for-148.5-mhz.patch
-  drm-imx-ipuv3-plane-fix-atomic-update-status-query-for-non-plus-i.mx6q.patch
-  drm-fb-helper-generic-call-drm_client_add-after-setup-is-done.patch
-  drm-atomic-wire-file_priv-through-for-property-changes.patch
-  drm-expose-fb_damage_clips-property-to-atomic-aware-user-space-only.patch
-  drm-rockchip-shutdown-drm-subsystem-on-shutdown.patch
-  drm-lease-make-sure-implicit-planes-are-leased.patch
-  drm-cma-helper-fix-drm_gem_cma_free_object.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-  aarch64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-728e9cdc77a30786b40e7510fd2733de8b0289d2.config
-    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-728e9cdc77a30786b40e7510fd2733de8b0289d2.tar.gz
-
-  ppc64le:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-728e9cdc77a30786b40e7510fd2733de8b0289d2.config
-    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-728e9cdc77a30786b40e7510fd2733de8b0289d2.tar.gz
-
-  s390x:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-728e9cdc77a30786b40e7510fd2733de8b0289d2.config
-    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-728e9cdc77a30786b40e7510fd2733de8b0289d2.tar.gz
-
-  x86_64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-728e9cdc77a30786b40e7510fd2733de8b0289d2.config
-    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-728e9cdc77a30786b40e7510fd2733de8b0289d2.tar.gz
-
-
-Hardware testing
-----------------
-
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ audit: audit testsuite test [4]
-       ✅ httpd: mod_ssl smoke sanity [5]
-       ✅ iotop: sanity [6]
-       ✅ tuned: tune-processes-through-perf [7]
-       ✅ Usex - version 1.9-29 [8]
-       🚧 ✅ stress: stress-ng [9]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [10]
-
-
-  ppc64le:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ audit: audit testsuite test [4]
-       ✅ httpd: mod_ssl smoke sanity [5]
-       ✅ iotop: sanity [6]
-       ✅ tuned: tune-processes-through-perf [7]
-       ✅ Usex - version 1.9-29 [8]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [10]
-
-
-  s390x:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ audit: audit testsuite test [4]
-       ✅ httpd: mod_ssl smoke sanity [5]
-       ✅ iotop: sanity [6]
-       ✅ tuned: tune-processes-through-perf [7]
-       🚧 ❎ stress: stress-ng [9]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [10]
-
-
-  x86_64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ audit: audit testsuite test [4]
-       ✅ httpd: mod_ssl smoke sanity [5]
-       ✅ iotop: sanity [6]
-       ✅ tuned: tune-processes-through-perf [7]
-       ✅ Usex - version 1.9-29 [8]
-       🚧 ✅ stress: stress-ng [9]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [10]
-
-
-  Test source:
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
-    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-
-Waived tests (marked with 🚧)
------------------------------
-This test run included waived tests. Such tests are executed but their results
-are not taken into account. Tests are waived when their results are not
-reliable enough, e.g. when they're just introduced or are being fixed.
