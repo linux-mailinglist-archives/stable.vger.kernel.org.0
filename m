@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B283B3535B
-	for <lists+stable@lfdr.de>; Wed,  5 Jun 2019 01:24:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3280F3535C
+	for <lists+stable@lfdr.de>; Wed,  5 Jun 2019 01:25:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727622AbfFDXYe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Jun 2019 19:24:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35622 "EHLO mail.kernel.org"
+        id S1727042AbfFDXYf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Jun 2019 19:24:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727616AbfFDXYd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 4 Jun 2019 19:24:33 -0400
+        id S1727623AbfFDXYe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 4 Jun 2019 19:24:34 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 812A120863;
-        Tue,  4 Jun 2019 23:24:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 78AF3208C3;
+        Tue,  4 Jun 2019 23:24:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559690673;
-        bh=KlPJQVIC2smGdRAk9m2g+2fmHAi3wzaTNI+3uC6vue0=;
+        s=default; t=1559690674;
+        bh=0xDaq6sf4YN7169JdPWC6VPkMZp1QHIpgS/sexm+Gb4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H7WFdJEh9pBz7ZWrP8dkftUE5+vTmJ5sKxWaLvz5RiP9F11oqp4w0XS8+GSpJb3nV
-         qOjhd/deR3GvFp4FREK1ObspBOwtZ3sIDbG5bJuSae+krpD2trHfdP+qIZQfcejRU8
-         VJpc/wLtCfL9KYWZb2xRfHQiXTYDPya7qi3qRhV4=
+        b=lm1Ug9f/T1L7XB6W6PGlOitRa1VJaONMNE1TYy0rmZV5DRrOq2ypRXtyJmaLN3rVy
+         w5fJJcMw2n7vDot6U72VlM4C1f59TM8pfm4dWKDBFM4lAujf/i6pazyT8HrwBt63Eb
+         Df7wDDlyA6S7r2diZsu7ejYz6hAWn/MdTwDHRZLs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Venkata Narendra Kumar Gutta <vnkgutta@codeaurora.org>,
+Cc:     Young Xiao <YangX92@hotmail.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 07/24] driver core: platform: Fix the usage of platform device name(pdev->name)
-Date:   Tue,  4 Jun 2019 19:23:58 -0400
-Message-Id: <20190604232416.7479-7-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>,
+        kgdb-bugreport@lists.sourceforge.net
+Subject: [PATCH AUTOSEL 4.14 08/24] Drivers: misc: fix out-of-bounds access in function param_set_kgdbts_var
+Date:   Tue,  4 Jun 2019 19:23:59 -0400
+Message-Id: <20190604232416.7479-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190604232416.7479-1-sashal@kernel.org>
 References: <20190604232416.7479-1-sashal@kernel.org>
@@ -43,89 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Venkata Narendra Kumar Gutta <vnkgutta@codeaurora.org>
+From: Young Xiao <YangX92@hotmail.com>
 
-[ Upstream commit edb16da34b084c66763f29bee42b4e6bb33c3d66 ]
+[ Upstream commit b281218ad4311a0342a40cb02fb17a363df08b48 ]
 
-Platform core is using pdev->name as the platform device name to do
-the binding of the devices with the drivers. But, when the platform
-driver overrides the platform device name with dev_set_name(),
-the pdev->name is pointing to a location which is freed and becomes
-an invalid parameter to do the binding match.
+There is an out-of-bounds access to "config[len - 1]" array when the
+variable "len" is zero.
 
-use-after-free instance:
+See commit dada6a43b040 ("kgdboc: fix KASAN global-out-of-bounds bug
+in param_set_kgdboc_var()") for details.
 
-[   33.325013] BUG: KASAN: use-after-free in strcmp+0x8c/0xb0
-[   33.330646] Read of size 1 at addr ffffffc10beae600 by task modprobe
-[   33.339068] CPU: 5 PID: 518 Comm: modprobe Tainted:
-			G S      W  O      4.19.30+ #3
-[   33.346835] Hardware name: MTP (DT)
-[   33.350419] Call trace:
-[   33.352941]  dump_backtrace+0x0/0x3b8
-[   33.356713]  show_stack+0x24/0x30
-[   33.360119]  dump_stack+0x160/0x1d8
-[   33.363709]  print_address_description+0x84/0x2e0
-[   33.368549]  kasan_report+0x26c/0x2d0
-[   33.372322]  __asan_report_load1_noabort+0x2c/0x38
-[   33.377248]  strcmp+0x8c/0xb0
-[   33.380306]  platform_match+0x70/0x1f8
-[   33.384168]  __driver_attach+0x78/0x3a0
-[   33.388111]  bus_for_each_dev+0x13c/0x1b8
-[   33.392237]  driver_attach+0x4c/0x58
-[   33.395910]  bus_add_driver+0x350/0x560
-[   33.399854]  driver_register+0x23c/0x328
-[   33.403886]  __platform_driver_register+0xd0/0xe0
-
-So, use dev_name(&pdev->dev), which fetches the platform device name from
-the kobject(dev->kobj->name) of the device instead of the pdev->name.
-
-Signed-off-by: Venkata Narendra Kumar Gutta <vnkgutta@codeaurora.org>
+Signed-off-by: Young Xiao <YangX92@hotmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/platform.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/misc/kgdbts.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/base/platform.c b/drivers/base/platform.c
-index 9045c5f3734e..080038bbed39 100644
---- a/drivers/base/platform.c
-+++ b/drivers/base/platform.c
-@@ -855,7 +855,7 @@ static ssize_t modalias_show(struct device *dev, struct device_attribute *a,
- 	if (len != -ENODEV)
- 		return len;
+diff --git a/drivers/misc/kgdbts.c b/drivers/misc/kgdbts.c
+index fc7efedbc4be..94cbc5c98cae 100644
+--- a/drivers/misc/kgdbts.c
++++ b/drivers/misc/kgdbts.c
+@@ -1134,7 +1134,7 @@ static void kgdbts_put_char(u8 chr)
  
--	len = snprintf(buf, PAGE_SIZE, "platform:%s\n", pdev->name);
-+	len = snprintf(buf, PAGE_SIZE, "platform:%s\n", dev_name(&pdev->dev));
- 
- 	return (len >= PAGE_SIZE) ? (PAGE_SIZE - 1) : len;
- }
-@@ -931,7 +931,7 @@ static int platform_uevent(struct device *dev, struct kobj_uevent_env *env)
- 		return rc;
- 
- 	add_uevent_var(env, "MODALIAS=%s%s", PLATFORM_MODULE_PREFIX,
--			pdev->name);
-+			dev_name(&pdev->dev));
- 	return 0;
- }
- 
-@@ -940,7 +940,7 @@ static const struct platform_device_id *platform_match_id(
- 			struct platform_device *pdev)
+ static int param_set_kgdbts_var(const char *kmessage, struct kernel_param *kp)
  {
- 	while (id->name[0]) {
--		if (strcmp(pdev->name, id->name) == 0) {
-+		if (strcmp(dev_name(&pdev->dev), id->name) == 0) {
- 			pdev->id_entry = id;
- 			return id;
- 		}
-@@ -984,7 +984,7 @@ static int platform_match(struct device *dev, struct device_driver *drv)
- 		return platform_match_id(pdrv->id_table, pdev) != NULL;
+-	int len = strlen(kmessage);
++	size_t len = strlen(kmessage);
  
- 	/* fall-back to driver name match */
--	return (strcmp(pdev->name, drv->name) == 0);
-+	return (strcmp(dev_name(&pdev->dev), drv->name) == 0);
- }
+ 	if (len >= MAX_CONFIG_LEN) {
+ 		printk(KERN_ERR "kgdbts: config string too long\n");
+@@ -1154,7 +1154,7 @@ static int param_set_kgdbts_var(const char *kmessage, struct kernel_param *kp)
  
- #ifdef CONFIG_PM_SLEEP
+ 	strcpy(config, kmessage);
+ 	/* Chop out \n char as a result of echo */
+-	if (config[len - 1] == '\n')
++	if (len && config[len - 1] == '\n')
+ 		config[len - 1] = '\0';
+ 
+ 	/* Go and configure with the new params. */
 -- 
 2.20.1
 
