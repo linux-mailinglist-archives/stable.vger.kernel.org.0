@@ -2,226 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 64AC5346E3
-	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 14:33:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E937346E9
+	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 14:34:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727714AbfFDMdi convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 4 Jun 2019 08:33:38 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:38414 "EHLO mx1.redhat.com"
+        id S1727394AbfFDMef (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Jun 2019 08:34:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727403AbfFDMdi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 4 Jun 2019 08:33:38 -0400
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1727358AbfFDMef (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 4 Jun 2019 08:34:35 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 7969C8E3C0
-        for <stable@vger.kernel.org>; Tue,  4 Jun 2019 12:33:37 +0000 (UTC)
-Received: from [172.54.208.215] (cpt-0038.paas.prod.upshift.rdu2.redhat.com [10.0.18.103])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id CEDE85B684;
-        Tue,  4 Jun 2019 12:33:34 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        by mail.kernel.org (Postfix) with ESMTPSA id 7D2312231F;
+        Tue,  4 Jun 2019 12:34:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1559651675;
+        bh=JHK28hUSgK/AGhD/1DJUomtda3ejLbkG9w4ZFLAu3+s=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=xn2OKFWlXxVcQzzxdC2xt93oiPzey7H2jDy8F4BtnB3uJO9uN+PaLnQ46gMco2+Ys
+         OwR3zD069rV+qzmrVBDIWMuvBr6VosJ6hqTUI9hz9haQcSysOWUG6aGvRbC8/eZH+U
+         XXgbVW0JRzS50gLr9Zoxs96qRO0t/qlXQUofKHcU=
+Date:   Tue, 4 Jun 2019 14:34:32 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Zubin Mithra <zsm@chromium.org>
+Cc:     stable@vger.kernel.org, groeck@chromium.org,
+        blackgod016574@gmail.com, ard.biesheuvel@linaro.org,
+        dvhart@infradead.org, andy@infradead.org, tglx@linutronix.de,
+        mingo@redhat.com, bp@alien8.de
+Subject: Re: 4e78921ba4dd ("efi/x86/Add missing error handling to old_memmap
+ 1:1 mapping code")
+Message-ID: <20190604123432.GA19996@kroah.com>
+References: <20190603223851.GA162395@google.com>
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.1
-Message-ID: <cki.9D00624ABF.8DNRSMTFAU@redhat.com>
-X-Gitlab-Pipeline-ID: 11464
-X-Gitlab-Pipeline: =?utf-8?q?https=3A//xci32=2Elab=2Eeng=2Erdu2=2Eredhat=2Ec?=
- =?utf-8?q?om/cki-project/cki-pipeline/pipelines/11464?=
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.25]); Tue, 04 Jun 2019 12:33:37 +0000 (UTC)
-Date:   Tue, 4 Jun 2019 08:33:38 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190603223851.GA162395@google.com>
+User-Agent: Mutt/1.12.0 (2019-05-25)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+On Mon, Jun 03, 2019 at 03:38:52PM -0700, Zubin Mithra wrote:
+> Hello,
+> 
+> CVE-2019-12380 was fixed in the upstream linux kernel with the commit :-
+> * 4e78921ba4dd ("efi/x86/Add missing error handling to old_memmap 1:1 mapping code")
+> 
+> Could the patch be applied in order to v4.19.y?
 
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
+Now queued up, thanks.
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: 2f7d9d47575e - Linux 5.1.7
-
-The results of these automated tests are provided below.
-
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
-
-
-We hope that these logs can help you find the problem quickly. For the full
-detail on our testing procedures, please scroll to the bottom of this message.
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Merge testing
--------------
-
-We cloned this repository and checked out the following commit:
-
-  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: 2f7d9d47575e - Linux 5.1.7
-
-
-We then merged the patchset with `git am`:
-
-  sparc64-fix-regression-in-non-hypervisor-tlb-flush-xcall.patch
-  include-linux-bitops.h-sanitize-rotate-primitives.patch
-  xhci-update-bounce-buffer-with-correct-sg-num.patch
-  xhci-use-zu-for-printing-size_t-type.patch
-  xhci-convert-xhci_handshake-to-use-readl_poll_timeout_atomic.patch
-  usb-xhci-avoid-null-pointer-deref-when-bos-field-is-null.patch
-  usbip-usbip_host-fix-bug-sleeping-function-called-from-invalid-context.patch
-  usbip-usbip_host-fix-stub_dev-lock-context-imbalance-regression.patch
-  usb-fix-slab-out-of-bounds-write-in-usb_get_bos_descriptor.patch
-  usb-sisusbvga-fix-oops-in-error-path-of-sisusb_probe.patch
-  usb-add-lpm-quirk-for-surface-dock-gige-adapter.patch
-  usb-rio500-refuse-more-than-one-device-at-a-time.patch
-  usb-rio500-fix-memory-leak-in-close-after-disconnect.patch
-  media-usb-siano-fix-general-protection-fault-in-smsusb.patch
-  media-usb-siano-fix-false-positive-uninitialized-variable-warning.patch
-  media-smsusb-better-handle-optional-alignment.patch
-  brcmfmac-fix-null-pointer-derefence-during-usb-disconnect.patch
-  scsi-zfcp-fix-missing-zfcp_port-reference-put-on-ebusy-from-port_remove.patch
-  scsi-zfcp-fix-to-prevent-port_remove-with-pure-auto-scan-luns-only-sdevs.patch
-  tracing-avoid-memory-leak-in-predicate_parse.patch
-  btrfs-fix-wrong-ctime-and-mtime-of-a-directory-after-log-replay.patch
-  btrfs-fix-race-updating-log-root-item-during-fsync.patch
-  btrfs-fix-fsync-not-persisting-changed-attributes-of-a-directory.patch
-  btrfs-correct-zstd-workspace-manager-lock-to-use-spin_lock_bh.patch
-  btrfs-qgroup-check-bg-while-resuming-relocation-to-avoid-null-pointer-dereference.patch
-  btrfs-incremental-send-fix-file-corruption-when-no-holes-feature-is-enabled.patch
-  btrfs-reloc-also-queue-orphan-reloc-tree-for-cleanup-to-avoid-bug_on.patch
-  iio-dac-ds4422-ds4424-fix-chip-verification.patch
-  iio-adc-ads124-avoid-buffer-overflow.patch
-  iio-adc-modify-npcm-adc-read-reference-voltage.patch
-  iio-adc-ti-ads8688-fix-timestamp-is-not-updated-in-buffer.patch
-  s390-crypto-fix-gcm-aes-s390-selftest-failures.patch
-  s390-crypto-fix-possible-sleep-during-spinlock-aquired.patch
-  kvm-ppc-book3s-hv-xive-do-not-clear-irq-data-of-passthrough-interrupts.patch
-  kvm-ppc-book3s-hv-fix-lockdep-warning-when-entering-guest-on-power9.patch
-  kvm-ppc-book3s-hv-restore-sprg3-in-kvmhv_p9_guest_entry.patch
-  powerpc-perf-fix-mmcra-corruption-by-bhrb_filter.patch
-  powerpc-kexec-fix-loading-of-kernel-initramfs-with-kexec_file_load.patch
-  alsa-line6-assure-canceling-delayed-work-at-disconnection.patch
-  alsa-hda-realtek-set-default-power-save-node-to-0.patch
-  alsa-hda-realtek-improve-the-headset-mic-for-acer-aspire-laptops.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-  aarch64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-59acb1b3b5fffdc3354b4a49ac34ace7c7e3ff98.config
-    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-59acb1b3b5fffdc3354b4a49ac34ace7c7e3ff98.tar.gz
-
-  ppc64le:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-59acb1b3b5fffdc3354b4a49ac34ace7c7e3ff98.config
-    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-59acb1b3b5fffdc3354b4a49ac34ace7c7e3ff98.tar.gz
-
-  s390x:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-59acb1b3b5fffdc3354b4a49ac34ace7c7e3ff98.config
-    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-59acb1b3b5fffdc3354b4a49ac34ace7c7e3ff98.tar.gz
-
-  x86_64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-59acb1b3b5fffdc3354b4a49ac34ace7c7e3ff98.config
-    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-59acb1b3b5fffdc3354b4a49ac34ace7c7e3ff98.tar.gz
-
-
-Hardware testing
-----------------
-
-We booted each kernel and ran the following tests:
-
-  aarch64:
-
-    ⚡ Internal infrastructure issues prevented one or more tests from running
-    on this architecture. This is not the fault of the kernel that was tested.
-
-  ppc64le:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [1]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [2]
-       ✅ Loopdev Sanity [3]
-       ✅ AMTU (Abstract Machine Test Utility) [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ✅ tuned: tune-processes-through-perf [8]
-       ✅ Usex - version 1.9-29 [9]
-
-
-  s390x:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [2]
-       ✅ Loopdev Sanity [3]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ✅ tuned: tune-processes-through-perf [8]
-       🚧 ✅ stress: stress-ng [10]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [1]
-
-
-  x86_64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [1]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [2]
-       ✅ Loopdev Sanity [3]
-       ✅ AMTU (Abstract Machine Test Utility) [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ✅ tuned: tune-processes-through-perf [8]
-       ✅ Usex - version 1.9-29 [9]
-       🚧 ✅ stress: stress-ng [10]
-
-
-  Test source:
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
-
-Waived tests (marked with 🚧)
------------------------------
-This test run included waived tests. Such tests are executed but their results
-are not taken into account. Tests are waived when their results are not
-reliable enough, e.g. when they're just introduced or are being fixed.
+greg k-h
