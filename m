@@ -2,59 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A60A34B9D
-	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 17:08:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D52934BCE
+	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 17:16:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727843AbfFDPIA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Jun 2019 11:08:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36834 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727822AbfFDPH7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 4 Jun 2019 11:07:59 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C00372075B;
-        Tue,  4 Jun 2019 15:07:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559660879;
-        bh=HgdedshKqr1Ys+hFidkotL5bYoiAItmgQsqA7jEQk30=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=EbYBWqZNwXGgXPlJP7cChQNan6XLawsykZD1cBVIFNoWXAmEiWU3borq/vxZo/fkh
-         jeGPuwte7dbWgXpcYpOOhR0MURuEIU0zqwbPon6cAM+pV2ErVfQTNRGS7JIycg218C
-         aEI30xS/K46XQDVdcyxpybul/xl02y8h+Nh8xHdI=
-Date:   Tue, 4 Jun 2019 17:07:56 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Michal Hocko <mhocko@kernel.org>
-Cc:     stable@vger.kernel.org, aarcange@redhat.com,
-        akpm@linux-foundation.org, ben.hutchings@codethink.co.uk,
-        jannh@google.com, jgg@mellanox.com, oleg@redhat.com,
-        peterx@redhat.com, rppt@linux.ibm.com,
-        torvalds@linux-foundation.org, stable-commits@vger.kernel.org
-Subject: Re: Patch "coredump: fix race condition between
- mmget_not_zero()/get_task_mm() and core dumping" has been added to the
- 4.4-stable tree
-Message-ID: <20190604150756.GA24221@kroah.com>
-References: <155965961313615@kroah.com>
- <20190604145216.GJ4669@dhcp22.suse.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190604145216.GJ4669@dhcp22.suse.cz>
-User-Agent: Mutt/1.12.0 (2019-05-25)
+        id S1727912AbfFDPQg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Jun 2019 11:16:36 -0400
+Received: from mx2.suse.de ([195.135.220.15]:39080 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727737AbfFDPQf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 4 Jun 2019 11:16:35 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id 61713ACF5;
+        Tue,  4 Jun 2019 15:16:34 +0000 (UTC)
+From:   Coly Li <colyli@suse.de>
+To:     linux-bcache@vger.kernel.org
+Cc:     linux-block@vger.kernel.org, Coly Li <colyli@suse.de>,
+        stable@vger.kernel.org
+Subject: [PATCH 01/15] Revert "bcache: set CACHE_SET_IO_DISABLE in bch_cached_dev_error()"
+Date:   Tue,  4 Jun 2019 23:16:10 +0800
+Message-Id: <20190604151624.105150-2-colyli@suse.de>
+X-Mailer: git-send-email 2.16.4
+In-Reply-To: <20190604151624.105150-1-colyli@suse.de>
+References: <20190604151624.105150-1-colyli@suse.de>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 04, 2019 at 04:52:31PM +0200, Michal Hocko wrote:
-> Please note that I have posted my backport today
-> http://lkml.kernel.org/r/20190604094953.26688-1-mhocko@kernel.org and it
-> differs from this one. Please have a look!
+This reverts commit 6147305c73e4511ca1a975b766b97a779d442567.
 
-Ah, good point, I just noticed that.  Ben, any thoughts as to the
-difference?
+Although this patch helps the failed bcache device to stop faster when
+too many I/O errors detected on corresponding cached device, setting
+CACHE_SET_IO_DISABLE bit to cache set c->flags was not a good idea. This
+operation will disable all I/Os on cache set, which means other attached
+bcache devices won't work neither.
 
-thanks,
+Without this patch, the failed bcache device can also be stopped
+eventually if internal I/O accomplished (e.g. writeback). Therefore here
+I revert it.
 
-greg k-h
+Fixes: 6147305c73e4 ("bcache: set CACHE_SET_IO_DISABLE in bch_cached_dev_error()")
+Reported-by: Yong Li <mr.liyong@qq.com>
+Signed-off-by: Coly Li <colyli@suse.de>
+Cc: stable@vger.kernel.org
+---
+ drivers/md/bcache/super.c | 17 -----------------
+ 1 file changed, 17 deletions(-)
+
+diff --git a/drivers/md/bcache/super.c b/drivers/md/bcache/super.c
+index 1b63ac876169..eaaa046fd95d 100644
+--- a/drivers/md/bcache/super.c
++++ b/drivers/md/bcache/super.c
+@@ -1437,8 +1437,6 @@ int bch_flash_dev_create(struct cache_set *c, uint64_t size)
+ 
+ bool bch_cached_dev_error(struct cached_dev *dc)
+ {
+-	struct cache_set *c;
+-
+ 	if (!dc || test_bit(BCACHE_DEV_CLOSING, &dc->disk.flags))
+ 		return false;
+ 
+@@ -1449,21 +1447,6 @@ bool bch_cached_dev_error(struct cached_dev *dc)
+ 	pr_err("stop %s: too many IO errors on backing device %s\n",
+ 		dc->disk.disk->disk_name, dc->backing_dev_name);
+ 
+-	/*
+-	 * If the cached device is still attached to a cache set,
+-	 * even dc->io_disable is true and no more I/O requests
+-	 * accepted, cache device internal I/O (writeback scan or
+-	 * garbage collection) may still prevent bcache device from
+-	 * being stopped. So here CACHE_SET_IO_DISABLE should be
+-	 * set to c->flags too, to make the internal I/O to cache
+-	 * device rejected and stopped immediately.
+-	 * If c is NULL, that means the bcache device is not attached
+-	 * to any cache set, then no CACHE_SET_IO_DISABLE bit to set.
+-	 */
+-	c = dc->disk.c;
+-	if (c && test_and_set_bit(CACHE_SET_IO_DISABLE, &c->flags))
+-		pr_info("CACHE_SET_IO_DISABLE already set");
+-
+ 	bcache_device_stop(&dc->disk);
+ 	return true;
+ }
+-- 
+2.16.4
+
