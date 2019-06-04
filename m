@@ -2,76 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DB388340AB
-	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 09:49:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 007D8340B8
+	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 09:52:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726821AbfFDHtd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Jun 2019 03:49:33 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:59176 "EHLO
-        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726637AbfFDHtd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Jun 2019 03:49:33 -0400
-Received: by atrey.karlin.mff.cuni.cz (Postfix, from userid 512)
-        id 3D5AF8030C; Tue,  4 Jun 2019 09:49:21 +0200 (CEST)
-Date:   Tue, 4 Jun 2019 09:49:28 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Chris Packham <chris.packham@alliedtelesis.co.nz>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH 4.19 19/32] tipc: Avoid copying bytes beyond the supplied
- data
-Message-ID: <20190604074928.GA24856@amd>
-References: <20190603090308.472021390@linuxfoundation.org>
- <20190603090313.753666374@linuxfoundation.org>
+        id S1726711AbfFDHwi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Jun 2019 03:52:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49930 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726821AbfFDHwi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 4 Jun 2019 03:52:38 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 39F38248E7;
+        Tue,  4 Jun 2019 07:52:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1559634757;
+        bh=t4hh0ZYbPXADhoKnK97lXTl1L9/uoS+jkawQ1M+S5+8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=aIOqHSiVTsxTwEiJDQC2VlrGeSDLkPR5TjHiU4hpGWbmizikkJ4MzhSJGKcosQJ51
+         IBmLLiB4EYxOD1ahvK3ZFpvGEjJ746USsIw0IFi5Gjgx4JdSl4yU6q2lOT4Z473NZf
+         Fkqk7tOJsvtMxiq9re0GUDnyvBFkSCIBmj1pTUGA=
+Date:   Tue, 4 Jun 2019 09:52:35 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Zubin Mithra <zsm@chromium.org>
+Cc:     stable@vger.kernel.org, groeck@chromium.org,
+        blackgod016574@gmail.com, davem@davemloft.net,
+        kuznet@ms2.inr.ac.ru, yoshfuji@linux-ipv6.org
+Subject: Re: 95baa60a0da8 ("ipv6_sockglue: Fix a missing-check bug in
+ ip6_ra_control()")
+Message-ID: <20190604075235.GD6840@kroah.com>
+References: <20190603173114.GA126543@google.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="7JfCtLOvnd9MIVvH"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190603090313.753666374@linuxfoundation.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+In-Reply-To: <20190603173114.GA126543@google.com>
+User-Agent: Mutt/1.12.0 (2019-05-25)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Jun 03, 2019 at 10:31:15AM -0700, Zubin Mithra wrote:
+> Hello,
+> 
+> CVE-2019-12378 was fixed in the upstream linux kernel with the following commit.
+> * 95baa60a0da8 ("ipv6_sockglue: Fix a missing-check bug in ip6_ra_control()")
 
---7JfCtLOvnd9MIVvH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+A CVE was created for that tiny thing?
 
-Hi!
+Hah, no, I think I'll refuse to apply it just for the very point of it.
+That's something that can not be triggered by normal operations, right?
+It's a bugfix-for-the-theoritical from what I can see...
 
-> From: Chris Packham <chris.packham@alliedtelesis.co.nz>
->=20
-> TLV_SET is called with a data pointer and a len parameter that tells us
-> how many bytes are pointed to by data. When invoking memcpy() we need
-> to careful to only copy len bytes.
+> Could the patch be applied to v4.19.y, v4.14.y, v4.9.y and v4.4.y?
 
-This one misses upstream commit id. AFAICT, patch is upstream and hash is=
-=20
+Why are you ignoring 5.1?
 
-9bbcdb07a53549ed072f03a88a5012e939a64c01
+thanks,
 
-Best regards,
-								Pavel
-							=09
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---7JfCtLOvnd9MIVvH
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAlz2IogACgkQMOfwapXb+vKvMgCdHV64o5WUVlp50seYfQdX+wSv
-yTMAoLANzTQ1eKz95Xd6tqv+r5pLDea8
-=c0T1
------END PGP SIGNATURE-----
-
---7JfCtLOvnd9MIVvH--
+greg k-h
