@@ -2,116 +2,226 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 52B353463A
-	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 14:07:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F052A34642
+	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 14:09:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727409AbfFDMH3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Jun 2019 08:07:29 -0400
-Received: from mail.kmu-office.ch ([178.209.48.109]:46836 "EHLO
-        mail.kmu-office.ch" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727358AbfFDMH3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Jun 2019 08:07:29 -0400
-Received: from webmail.kmu-office.ch (unknown [IPv6:2a02:418:6a02::a3])
-        by mail.kmu-office.ch (Postfix) with ESMTPSA id 397E25C0F7C;
-        Tue,  4 Jun 2019 14:07:25 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=agner.ch; s=dkim;
-        t=1559650045;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=xFkaEp6wH0G/XcBCBcIPdvCJ6RTaX9d+EfEmhcMs+hI=;
-        b=Ak+z5ENDvCWfZTME14bJKDuRVF5JjHZT5XVoDbQ0kMxBD6vp3KZah7GY9Sf/0vW6bRPfgp
-        DYcbaA03vKCKVn68OtYbEeuOFNEvrVkOXcf4XJ5cJyFvYYWP30WEChbS0nYmdSqt8y8fys
-        jKVQLAKrI2ueF7wkynKzaAEsL8hCLpw=
+        id S1726994AbfFDMJv convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 4 Jun 2019 08:09:51 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:48252 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726847AbfFDMJv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 4 Jun 2019 08:09:51 -0400
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id C30432F8BE9
+        for <stable@vger.kernel.org>; Tue,  4 Jun 2019 12:09:50 +0000 (UTC)
+Received: from [172.54.208.215] (cpt-0038.paas.prod.upshift.rdu2.redhat.com [10.0.18.103])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id A32B860C67;
+        Tue,  4 Jun 2019 12:09:47 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Date:   Tue, 04 Jun 2019 14:07:24 +0200
-From:   Stefan Agner <stefan@agner.ch>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org,
-        Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
-        Martin Sebor <msebor@gcc.gnu.org>,
-        Nick Desaulniers <ndesaulniers@google.com>
-Subject: Re: [PATCH BACKPORT 4.14 1/2] Compiler Attributes: add support for
- __copy (gcc >= 9)
-In-Reply-To: <20190604114811.GC13480@kroah.com>
-References: <20190604092200.29545-1-stefan@agner.ch>
- <20190604114811.GC13480@kroah.com>
-Message-ID: <79ed4254c21a3ee7192cdfae7010bf34@agner.ch>
-X-Sender: stefan@agner.ch
-User-Agent: Roundcube Webmail/1.3.7
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.1
+Message-ID: <cki.9D00624ABF.J08IENM4JL@redhat.com>
+X-Gitlab-Pipeline-ID: 11464
+X-Gitlab-Pipeline: =?utf-8?q?https=3A//xci32=2Elab=2Eeng=2Erdu2=2Eredhat=2Ec?=
+ =?utf-8?q?om/cki-project/cki-pipeline/pipelines/11464?=
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.38]); Tue, 04 Jun 2019 12:09:50 +0000 (UTC)
+Date:   Tue, 4 Jun 2019 08:09:51 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 04.06.2019 13:48, Greg KH wrote:
-> On Tue, Jun 04, 2019 at 11:21:59AM +0200, Stefan Agner wrote:
->> From: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
->>
->> [ Upstream commit c0d9782f5b6d7157635ae2fd782a4b27d55a6013
->>
->> >From the GCC manual:
->>
->>   copy
->>   copy(function)
->>
->>     The copy attribute applies the set of attributes with which function
->>     has been declared to the declaration of the function to which
->>     the attribute is applied. The attribute is designed for libraries
->>     that define aliases or function resolvers that are expected
->>     to specify the same set of attributes as their targets. The copy
->>     attribute can be used with functions, variables, or types. However,
->>     the kind of symbol to which the attribute is applied (either
->>     function or variable) must match the kind of symbol to which
->>     the argument refers. The copy attribute copies only syntactic and
->>     semantic attributes but not attributes that affect a symbol’s
->>     linkage or visibility such as alias, visibility, or weak.
->>     The deprecated attribute is also not copied.
->>
->>   https://gcc.gnu.org/onlinedocs/gcc/Common-Function-Attributes.html
->>
->> The upcoming GCC 9 release extends the -Wmissing-attributes warnings
->> (enabled by -Wall) to C and aliases: it warns when particular function
->> attributes are missing in the aliases but not in their target, e.g.:
->>
->>     void __cold f(void) {}
->>     void __alias("f") g(void);
->>
->> diagnoses:
->>
->>     warning: 'g' specifies less restrictive attribute than
->>     its target 'f': 'cold' [-Wmissing-attributes]
->>
->> Using __copy(f) we can copy the __cold attribute from f to g:
->>
->>     void __cold f(void) {}
->>     void __copy(f) __alias("f") g(void);
->>
->> This attribute is most useful to deal with situations where an alias
->> is declared but we don't know the exact attributes the target has.
->>
->> For instance, in the kernel, the widely used module_init/exit macros
->> define the init/cleanup_module aliases, but those cannot be marked
->> always as __init/__exit since some modules do not have their
->> functions marked as such.
->>
->> Cc: <stable@vger.kernel.org> # 4.14+
->> Suggested-by: Martin Sebor <msebor@gcc.gnu.org>
->> Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
->> Signed-off-by: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
->> Signed-off-by: Stefan Agner <stefan@agner.ch>
->> ---
->>  include/linux/compiler-gcc.h   | 4 ++++
->>  include/linux/compiler_types.h | 4 ++++
->>  2 files changed, 8 insertions(+)
-> 
-> Can I get a series of these for 4.19.y as well?  I don't want to apply
-> anything to 4.14 that will regress moving to 4.19.
+Hello,
 
-Make sense, will create a backport for 4.19 too.
+We ran automated tests on a patchset that was proposed for merging into this
+kernel tree. The patches were applied to:
 
---
-Stefan
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+            Commit: 2f7d9d47575e - Linux 5.1.7
+
+The results of these automated tests are provided below.
+
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
+
+
+We hope that these logs can help you find the problem quickly. For the full
+detail on our testing procedures, please scroll to the bottom of this message.
+
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Merge testing
+-------------
+
+We cloned this repository and checked out the following commit:
+
+  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: 2f7d9d47575e - Linux 5.1.7
+
+
+We then merged the patchset with `git am`:
+
+  sparc64-fix-regression-in-non-hypervisor-tlb-flush-xcall.patch
+  include-linux-bitops.h-sanitize-rotate-primitives.patch
+  xhci-update-bounce-buffer-with-correct-sg-num.patch
+  xhci-use-zu-for-printing-size_t-type.patch
+  xhci-convert-xhci_handshake-to-use-readl_poll_timeout_atomic.patch
+  usb-xhci-avoid-null-pointer-deref-when-bos-field-is-null.patch
+  usbip-usbip_host-fix-bug-sleeping-function-called-from-invalid-context.patch
+  usbip-usbip_host-fix-stub_dev-lock-context-imbalance-regression.patch
+  usb-fix-slab-out-of-bounds-write-in-usb_get_bos_descriptor.patch
+  usb-sisusbvga-fix-oops-in-error-path-of-sisusb_probe.patch
+  usb-add-lpm-quirk-for-surface-dock-gige-adapter.patch
+  usb-rio500-refuse-more-than-one-device-at-a-time.patch
+  usb-rio500-fix-memory-leak-in-close-after-disconnect.patch
+  media-usb-siano-fix-general-protection-fault-in-smsusb.patch
+  media-usb-siano-fix-false-positive-uninitialized-variable-warning.patch
+  media-smsusb-better-handle-optional-alignment.patch
+  brcmfmac-fix-null-pointer-derefence-during-usb-disconnect.patch
+  scsi-zfcp-fix-missing-zfcp_port-reference-put-on-ebusy-from-port_remove.patch
+  scsi-zfcp-fix-to-prevent-port_remove-with-pure-auto-scan-luns-only-sdevs.patch
+  tracing-avoid-memory-leak-in-predicate_parse.patch
+  btrfs-fix-wrong-ctime-and-mtime-of-a-directory-after-log-replay.patch
+  btrfs-fix-race-updating-log-root-item-during-fsync.patch
+  btrfs-fix-fsync-not-persisting-changed-attributes-of-a-directory.patch
+  btrfs-correct-zstd-workspace-manager-lock-to-use-spin_lock_bh.patch
+  btrfs-qgroup-check-bg-while-resuming-relocation-to-avoid-null-pointer-dereference.patch
+  btrfs-incremental-send-fix-file-corruption-when-no-holes-feature-is-enabled.patch
+  btrfs-reloc-also-queue-orphan-reloc-tree-for-cleanup-to-avoid-bug_on.patch
+  iio-dac-ds4422-ds4424-fix-chip-verification.patch
+  iio-adc-ads124-avoid-buffer-overflow.patch
+  iio-adc-modify-npcm-adc-read-reference-voltage.patch
+  iio-adc-ti-ads8688-fix-timestamp-is-not-updated-in-buffer.patch
+  s390-crypto-fix-gcm-aes-s390-selftest-failures.patch
+  s390-crypto-fix-possible-sleep-during-spinlock-aquired.patch
+  kvm-ppc-book3s-hv-xive-do-not-clear-irq-data-of-passthrough-interrupts.patch
+  kvm-ppc-book3s-hv-fix-lockdep-warning-when-entering-guest-on-power9.patch
+  kvm-ppc-book3s-hv-restore-sprg3-in-kvmhv_p9_guest_entry.patch
+  powerpc-perf-fix-mmcra-corruption-by-bhrb_filter.patch
+  powerpc-kexec-fix-loading-of-kernel-initramfs-with-kexec_file_load.patch
+  alsa-line6-assure-canceling-delayed-work-at-disconnection.patch
+  alsa-hda-realtek-set-default-power-save-node-to-0.patch
+  alsa-hda-realtek-improve-the-headset-mic-for-acer-aspire-laptops.patch
+
+Compile testing
+---------------
+
+We compiled the kernel for 4 architectures:
+
+  aarch64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-59acb1b3b5fffdc3354b4a49ac34ace7c7e3ff98.config
+    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-59acb1b3b5fffdc3354b4a49ac34ace7c7e3ff98.tar.gz
+
+  ppc64le:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-59acb1b3b5fffdc3354b4a49ac34ace7c7e3ff98.config
+    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-59acb1b3b5fffdc3354b4a49ac34ace7c7e3ff98.tar.gz
+
+  s390x:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-59acb1b3b5fffdc3354b4a49ac34ace7c7e3ff98.config
+    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-59acb1b3b5fffdc3354b4a49ac34ace7c7e3ff98.tar.gz
+
+  x86_64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-59acb1b3b5fffdc3354b4a49ac34ace7c7e3ff98.config
+    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-59acb1b3b5fffdc3354b4a49ac34ace7c7e3ff98.tar.gz
+
+
+Hardware testing
+----------------
+
+We booted each kernel and ran the following tests:
+
+  aarch64:
+
+    ⚡ Internal infrastructure issues prevented one or more tests from running
+    on this architecture. This is not the fault of the kernel that was tested.
+
+  ppc64le:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [1]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ LTP lite [2]
+       ✅ Loopdev Sanity [3]
+       ✅ AMTU (Abstract Machine Test Utility) [4]
+       ✅ audit: audit testsuite test [5]
+       ✅ httpd: mod_ssl smoke sanity [6]
+       ✅ iotop: sanity [7]
+       ✅ tuned: tune-processes-through-perf [8]
+       ✅ Usex - version 1.9-29 [9]
+
+
+  s390x:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ LTP lite [2]
+       ✅ Loopdev Sanity [3]
+       ✅ audit: audit testsuite test [5]
+       ✅ httpd: mod_ssl smoke sanity [6]
+       ✅ iotop: sanity [7]
+       ✅ tuned: tune-processes-through-perf [8]
+       🚧 ✅ stress: stress-ng [10]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [1]
+
+
+  x86_64:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [1]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ LTP lite [2]
+       ✅ Loopdev Sanity [3]
+       ✅ AMTU (Abstract Machine Test Utility) [4]
+       ✅ audit: audit testsuite test [5]
+       ✅ httpd: mod_ssl smoke sanity [6]
+       ✅ iotop: sanity [7]
+       ✅ tuned: tune-processes-through-perf [8]
+       ✅ Usex - version 1.9-29 [9]
+       🚧 ✅ stress: stress-ng [10]
+
+
+  Test source:
+    💚 Pull requests are welcome for new tests or improvements to existing tests!
+    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
+    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
+    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
+    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
+    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
+    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
+    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
+    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
+    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
+    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
+    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
+
+Waived tests (marked with 🚧)
+-----------------------------
+This test run included waived tests. Such tests are executed but their results
+are not taken into account. Tests are waived when their results are not
+reliable enough, e.g. when they're just introduced or are being fixed.
