@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 36C3A34152
-	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 10:14:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C79B34167
+	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 10:15:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726735AbfFDIOd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Jun 2019 04:14:33 -0400
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:58429 "EHLO
+        id S1727133AbfFDIPL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Jun 2019 04:15:11 -0400
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:40121 "EHLO
         wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726637AbfFDIOd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Jun 2019 04:14:33 -0400
+        by vger.kernel.org with ESMTP id S1727118AbfFDIPK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Jun 2019 04:15:10 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id BA8912916;
-        Tue,  4 Jun 2019 04:14:31 -0400 (EDT)
+        by mailout.west.internal (Postfix) with ESMTP id 760862919;
+        Tue,  4 Jun 2019 04:15:09 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Tue, 04 Jun 2019 04:14:32 -0400
+  by compute6.internal (MEProxy); Tue, 04 Jun 2019 04:15:09 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=dbRoQi
-        0jfVUhWMnmCNp/i42XsIcmQB+LxXe8KvO91gM=; b=NUC1wSZ2FqPPOh6eeplZqb
-        owSv2b0L/HReyKckLP7/qmhse9JkJzNQnqL8B8y0JGXcOOI6H0XnFvxSEISulYLR
-        PyHcMln7itJL9UeaNs4fbQq5AtfMQ8zaa8F9xeYBrqSFu66tlznCU5XTOPiZe0Oa
-        nCGnyBQjK5Na8SID1vmaKGTmdkKj0msLTANmMY+SHuyZKA+QF7PauPIXw2V356po
-        Wc4fjPmmIrdcw7RrD5c/WfK5el3pvANFtQsuspXWaL50Aix/4lFjfoHi3BdXzDWP
-        jZPuh4Q/07QmE0kkUXX+GwxXbEv45JXjblU5Q53hLZN71aSUUk8drNqfZx9HzGTQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=1BRnAs
+        2DHvawFs7l+Sq5z8ekpSzYZYDKaNcPSnakFpo=; b=NINaUDkYTaBtQ+ghd/2pSp
+        d8wulgwnhQXxovLjVXfN7meYFCTC+kTMMwocvR4iR2ZYU06phHZZ4l2AT/VU+7W+
+        LlRSOmWV/hhFlTpM6WlEk0QkUh+zJGXLr5wjTQVJstvLy5WMC5Phuy9Ia80PJ919
+        5SjGiD+fEl1NfPASJ7ibKzmfF37Go+XNG8nT0OHb7IeaObADDhSTAsfkammDbbzK
+        RjWQjckMDZJ3Cgd99gKQFcxFuN10MvHhgBT98QR3qpdXJhXU9qhFORXh1C+U6F+v
+        1QcCL/exwnbrOMAVSxyov4PBTQ6R4QJiTg/cKG8Mcl79hsi19AYphJsrxUsj0zjQ
         ==
-X-ME-Sender: <xms:Zyj2XMB9YhjZUNLSwFyWb1L-kjuTG7XyAImetmiP-T4tqDJ_XuZcEw>
+X-ME-Sender: <xms:jCj2XFR0sZ3_tB6I-NkaM6KWGGzE9yphZYIIu0umJ0m6a33g6lm3RQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrudefledgtdduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepud
-X-ME-Proxy: <xmx:Zyj2XIEuEMIFK90uJWWLNDSHQ8CM7E1954INvYiIYy58s5xg0Ymvjw>
-    <xmx:Zyj2XKUM176i0P0MG_sdU4DhVfRi5xxVCmACOg5aei-S4U3EvPpDzw>
-    <xmx:Zyj2XFT6KTxedEX4NXapAVQcVMdqJs6eaRU2hT_6vb2rxgW8HBng7Q>
-    <xmx:Zyj2XJcSx9xFA3CoTvmsdJhxB6u1GDlOMicuEIMd1orn4pzEvBDd5g>
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepvd
+X-ME-Proxy: <xmx:jCj2XLn_E6TEMvoE5nnvysVUkQZhr9_R3PvyM2SCan9wUCn2qogy8g>
+    <xmx:jCj2XNH10WRETgd4lZGwT_zkv94oaQRKMtb6xiilk7cZD5j5G8LlIA>
+    <xmx:jCj2XNJwPi8PW2lYInXS6rR7CP_eFbz8dkwuOHTSUQTlai98GzMxIA>
+    <xmx:jSj2XN1CGX8GhcNLaHDZJOOIjLlHWNwO3qBeE7EykClUcIb3mUGBIg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id C943B8005C;
-        Tue,  4 Jun 2019 04:14:30 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] Btrfs: fix wrong ctime and mtime of a directory after log" failed to apply to 4.4-stable tree
-To:     fdmanana@suse.com, dsterba@suse.com, nborisov@suse.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 8D0B380064;
+        Tue,  4 Jun 2019 04:15:08 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] Btrfs: fix fsync not persisting changed attributes of a" failed to apply to 4.9-stable tree
+To:     fdmanana@suse.com, dsterba@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 04 Jun 2019 10:14:21 +0200
-Message-ID: <155963606171160@kroah.com>
+Date:   Tue, 04 Jun 2019 10:15:07 +0200
+Message-ID: <155963610714289@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -67,16 +67,19 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 5338e43abbab13791144d37fd8846847062351c6 Mon Sep 17 00:00:00 2001
+From 60d9f50308e5df19bc18c2fefab0eba4a843900a Mon Sep 17 00:00:00 2001
 From: Filipe Manana <fdmanana@suse.com>
-Date: Wed, 15 May 2019 16:02:47 +0100
-Subject: [PATCH] Btrfs: fix wrong ctime and mtime of a directory after log
- replay
+Date: Thu, 16 May 2019 15:48:55 +0100
+Subject: [PATCH] Btrfs: fix fsync not persisting changed attributes of a
+ directory
 
-When replaying a log that contains a new file or directory name that needs
-to be added to its parent directory, we end up updating the mtime and the
-ctime of the parent directory to the current time after we have set their
-values to the correct ones (set at fsync time), efectivelly losing them.
+While logging an inode we follow its ancestors and for each one we mark
+it as logged in the current transaction, even if we have not logged it.
+As a consequence if we change an attribute of an ancestor, such as the
+UID or GID for example, and then explicitly fsync it, we end up not
+logging the inode at all despite returning success to user space, which
+results in the attribute being lost if a power failure happens after
+the fsync.
 
 Sample reproducer:
 
@@ -84,61 +87,75 @@ Sample reproducer:
   $ mount /dev/sdb /mnt
 
   $ mkdir /mnt/dir
-  $ touch /mnt/dir/file
+  $ chown 6007:6007 /mnt/dir
 
-  # fsync of the directory is optional, not needed
-  $ xfs_io -c fsync /mnt/dir
+  $ sync
+
+  $ chown 9003:9003 /mnt/dir
+  $ touch /mnt/dir/file
   $ xfs_io -c fsync /mnt/dir/file
 
-  $ stat -c %Y /mnt/dir
-  1557856079
+  # fsync our directory after fsync'ing the new file, should persist the
+  # new values for the uid and gid.
+  $ xfs_io -c fsync /mnt/dir
 
   <power failure>
 
-  $ sleep 3
   $ mount /dev/sdb /mnt
-  $ stat -c %Y /mnt/dir
-  1557856082
+  $ stat -c %u:%g /mnt/dir
+  6007:6007
 
-    --> should have been 1557856079, the mtime is updated to the current
-        time when replaying the log
+    --> should be 9003:9003, the uid and gid were not persisted, despite
+        the explicit fsync on the directory prior to the power failure
 
-Fix this by not updating the mtime and ctime to the current time at
-btrfs_add_link() when we are replaying a log tree.
+Fix this by not updating the logged_trans field of ancestor inodes when
+logging an inode, since we have not logged them. Let only future calls to
+btrfs_log_inode() to mark inodes as logged.
 
 This could be triggered by my recent fsync fuzz tester for fstests, for
 which an fstests patch exists titled "fstests: generic, fsync fuzz tester
 with fsstress".
 
-Fixes: e02119d5a7b43 ("Btrfs: Add a write ahead tree log to optimize synchronous operations")
+Fixes: 12fcfd22fe5b ("Btrfs: tree logging unlink/rename fixes")
 CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
 Signed-off-by: Filipe Manana <fdmanana@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
-index b6d549c993f6..6bebc0ca751d 100644
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -6433,8 +6433,18 @@ int btrfs_add_link(struct btrfs_trans_handle *trans,
- 	btrfs_i_size_write(parent_inode, parent_inode->vfs_inode.i_size +
- 			   name_len * 2);
- 	inode_inc_iversion(&parent_inode->vfs_inode);
--	parent_inode->vfs_inode.i_mtime = parent_inode->vfs_inode.i_ctime =
--		current_time(&parent_inode->vfs_inode);
-+	/*
-+	 * If we are replaying a log tree, we do not want to update the mtime
-+	 * and ctime of the parent directory with the current time, since the
-+	 * log replay procedure is responsible for setting them to their correct
-+	 * values (the ones it had when the fsync was done).
-+	 */
-+	if (!test_bit(BTRFS_FS_LOG_RECOVERING, &root->fs_info->flags)) {
-+		struct timespec64 now = current_time(&parent_inode->vfs_inode);
-+
-+		parent_inode->vfs_inode.i_mtime = now;
-+		parent_inode->vfs_inode.i_ctime = now;
-+	}
- 	ret = btrfs_update_inode(trans, root, &parent_inode->vfs_inode);
- 	if (ret)
- 		btrfs_abort_transaction(trans, ret);
+diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
+index 6c47f6ed3e94..de729acee738 100644
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -5478,7 +5478,6 @@ static noinline int check_parent_dirs_for_sync(struct btrfs_trans_handle *trans,
+ {
+ 	int ret = 0;
+ 	struct dentry *old_parent = NULL;
+-	struct btrfs_inode *orig_inode = inode;
+ 
+ 	/*
+ 	 * for regular files, if its inode is already on disk, we don't
+@@ -5498,16 +5497,6 @@ static noinline int check_parent_dirs_for_sync(struct btrfs_trans_handle *trans,
+ 	}
+ 
+ 	while (1) {
+-		/*
+-		 * If we are logging a directory then we start with our inode,
+-		 * not our parent's inode, so we need to skip setting the
+-		 * logged_trans so that further down in the log code we don't
+-		 * think this inode has already been logged.
+-		 */
+-		if (inode != orig_inode)
+-			inode->logged_trans = trans->transid;
+-		smp_mb();
+-
+ 		if (btrfs_must_commit_transaction(trans, inode)) {
+ 			ret = 1;
+ 			break;
+@@ -6384,7 +6373,6 @@ void btrfs_record_unlink_dir(struct btrfs_trans_handle *trans,
+ 	 * if this directory was already logged any new
+ 	 * names for this file/dir will get recorded
+ 	 */
+-	smp_mb();
+ 	if (dir->logged_trans == trans->transid)
+ 		return;
+ 
 
