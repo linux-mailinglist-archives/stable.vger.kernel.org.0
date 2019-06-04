@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EAC13542A
-	for <lists+stable@lfdr.de>; Wed,  5 Jun 2019 01:31:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD76A35428
+	for <lists+stable@lfdr.de>; Wed,  5 Jun 2019 01:31:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727441AbfFDXbb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Jun 2019 19:31:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33312 "EHLO mail.kernel.org"
+        id S1727436AbfFDXbY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Jun 2019 19:31:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727064AbfFDXW6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 4 Jun 2019 19:22:58 -0400
+        id S1727110AbfFDXW7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 4 Jun 2019 19:22:59 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 635AD208E3;
-        Tue,  4 Jun 2019 23:22:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 81FD520859;
+        Tue,  4 Jun 2019 23:22:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559690578;
-        bh=qqAkKaDS4lL6uII4veNn02iHkQ8Wsm4Bb8JZWisIFWc=;
+        s=default; t=1559690579;
+        bh=cM51D5QoSBQ33n3wnZ0FR9jG2E5nPuSQ6IWklbZuo9k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0pmrcFendHX3htXDFA1yQHlTbIQBjBqmek0B22g3D8hxHH/ubZGqrtNL29wdEYhsL
-         NON3mqlIplypbSlEkVzyv/MRZcH/Yl1160+NeiY5i/cbsdDFJIDx6dWBlrvbiF+QuI
-         awS1GS65XbRpmMMnSbkuWdfndw/4Ck9KjqXbz38Y=
+        b=m/2UJ57KtpjCgrCskdRAobh1a9hGtQZyu8CRPriq3VppFW1qOUJvS6k+FCAghHNpK
+         reU2tyoPVuNI9Szy2HLYF8CKjVs4vRlJXBpHLdZp8dOy0YN4vvS1+pD6K7qMbaRVtl
+         XBLE2qlEt3qkafOaHca9Sp552pCmD78CfB5SxW1Y=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Keith Busch <keith.busch@intel.com>,
-        Ming Lei <ming.lei@redhat.com>, Christoph Hellwig <hch@lst.de>,
+Cc:     Christoph Hellwig <hch@lst.de>,
+        Keith Busch <keith.busch@intel.com>,
+        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
         Sasha Levin <sashal@kernel.org>, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.1 28/60] nvme-pci: Fix controller freeze wait disabling
-Date:   Tue,  4 Jun 2019 19:21:38 -0400
-Message-Id: <20190604232212.6753-28-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 29/60] nvme: fix srcu locking on error return in nvme_get_ns_from_disk
+Date:   Tue,  4 Jun 2019 19:21:39 -0400
+Message-Id: <20190604232212.6753-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190604232212.6753-1-sashal@kernel.org>
 References: <20190604232212.6753-1-sashal@kernel.org>
@@ -43,59 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Keith Busch <keith.busch@intel.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit e43269e6e5c49d7fec599e6bba71963935b0e4ba ]
+[ Upstream commit 100c815cbd56480b3e31518475b04719c363614a ]
 
-If a controller disabling didn't start a freeze, don't wait for the
-operation to complete.
+If we can't get a namespace don't leak the SRCU lock.  nvme_ioctl was
+working around this, but nvme_pr_command wasn't handling this properly.
+Just do what callers would usually expect.
 
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Keith Busch <keith.busch@intel.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Keith Busch <keith.busch@intel.com>
+Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/pci.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/nvme/host/core.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index a90cf5d63aac..4e064aad2b1a 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -2397,7 +2397,7 @@ static void nvme_pci_disable(struct nvme_dev *dev)
- 
- static void nvme_dev_disable(struct nvme_dev *dev, bool shutdown)
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index 8782d86a8ca3..e29c395f44d2 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -1362,9 +1362,14 @@ static struct nvme_ns *nvme_get_ns_from_disk(struct gendisk *disk,
  {
--	bool dead = true;
-+	bool dead = true, freeze = false;
- 	struct pci_dev *pdev = to_pci_dev(dev->dev);
- 
- 	mutex_lock(&dev->shutdown_lock);
-@@ -2405,8 +2405,10 @@ static void nvme_dev_disable(struct nvme_dev *dev, bool shutdown)
- 		u32 csts = readl(dev->bar + NVME_REG_CSTS);
- 
- 		if (dev->ctrl.state == NVME_CTRL_LIVE ||
--		    dev->ctrl.state == NVME_CTRL_RESETTING)
-+		    dev->ctrl.state == NVME_CTRL_RESETTING) {
-+			freeze = true;
- 			nvme_start_freeze(&dev->ctrl);
-+		}
- 		dead = !!((csts & NVME_CSTS_CFS) || !(csts & NVME_CSTS_RDY) ||
- 			pdev->error_state  != pci_channel_io_normal);
+ #ifdef CONFIG_NVME_MULTIPATH
+ 	if (disk->fops == &nvme_ns_head_ops) {
++		struct nvme_ns *ns;
++
+ 		*head = disk->private_data;
+ 		*srcu_idx = srcu_read_lock(&(*head)->srcu);
+-		return nvme_find_path(*head);
++		ns = nvme_find_path(*head);
++		if (!ns)
++			srcu_read_unlock(&(*head)->srcu, *srcu_idx);
++		return ns;
  	}
-@@ -2415,10 +2417,8 @@ static void nvme_dev_disable(struct nvme_dev *dev, bool shutdown)
- 	 * Give the controller a chance to complete all entered requests if
- 	 * doing a safe shutdown.
- 	 */
--	if (!dead) {
--		if (shutdown)
--			nvme_wait_freeze_timeout(&dev->ctrl, NVME_IO_TIMEOUT);
--	}
-+	if (!dead && shutdown && freeze)
-+		nvme_wait_freeze_timeout(&dev->ctrl, NVME_IO_TIMEOUT);
+ #endif
+ 	*head = NULL;
+@@ -1411,9 +1416,9 @@ static int nvme_ioctl(struct block_device *bdev, fmode_t mode,
  
- 	nvme_stop_queues(&dev->ctrl);
- 
+ 	ns = nvme_get_ns_from_disk(bdev->bd_disk, &head, &srcu_idx);
+ 	if (unlikely(!ns))
+-		ret = -EWOULDBLOCK;
+-	else
+-		ret = nvme_ns_ioctl(ns, cmd, arg);
++		return -EWOULDBLOCK;
++
++	ret = nvme_ns_ioctl(ns, cmd, arg);
+ 	nvme_put_ns_from_disk(head, srcu_idx);
+ 	return ret;
+ }
 -- 
 2.20.1
 
