@@ -2,29 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B9BF35096
-	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 22:06:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93558350D5
+	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 22:27:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726211AbfFDUGM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Jun 2019 16:06:12 -0400
-Received: from amurgeo.ru ([46.227.26.130]:38477 "EHLO amurgeo.ru"
+        id S1726238AbfFDU1P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Jun 2019 16:27:15 -0400
+Received: from amurgeo.ru ([46.227.26.130]:42027 "EHLO amurgeo.ru"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726179AbfFDUGL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 4 Jun 2019 16:06:11 -0400
+        id S1726102AbfFDU1O (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 4 Jun 2019 16:27:14 -0400
 Received: from amurgeo.ru (localhost.localdomain [127.0.0.1])
-        by amurgeo.ru (Postfix) with ESMTP id 3BDD2DC0109;
-        Wed,  5 Jun 2019 05:04:46 +0900 (YAKT)
+        by amurgeo.ru (Postfix) with ESMTP id 11609DC00D1;
+        Wed,  5 Jun 2019 05:25:53 +0900 (YAKT)
 Received: from 105.112.106.99
         (SquirrelMail authenticated user director@amurgeo.ru)
         by amurgeo.ru with HTTP;
-        Tue, 4 Jun 2019 22:04:46 +0200
-Message-ID: <41bcb46c1001005ffe47e81b71c67df2.squirrel@amurgeo.ru>
-Date:   Tue, 4 Jun 2019 22:04:46 +0200
+        Tue, 4 Jun 2019 22:25:53 +0200
+Message-ID: <b2ac763095cd43b9091975546d344ee6.squirrel@amurgeo.ru>
+Date:   Tue, 4 Jun 2019 22:25:53 +0200
 Subject: INFORMATION
 From:   "director" <director@amurgeo.ru>
 User-Agent: SquirrelMail/1.4.22
 MIME-Version: 1.0
-Content-Type: multipart/mixed;boundary="----=_20190604220446_17102"
+Content-Type: multipart/mixed;boundary="----=_20190604222553_76331"
 X-Priority: 3 (Normal)
 Importance: Normal
 To:     unlisted-recipients:; (no To-header on input)
@@ -33,12 +33,12 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-------=_20190604220446_17102
+------=_20190604222553_76331
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 8bit
 
 
-------=_20190604220446_17102
+------=_20190604222553_76331
 Content-Type: application/msword; name="WORLD BANK GROUP OFFICIAL PAYMENT
  WITH THE SUM OF (TWO MILLION FIVE HUNDRED THOUSAND BRITISH POUNDS).doc"
 Content-Transfer-Encoding: base64
@@ -12837,6 +12837,6 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 AA==
-------=_20190604220446_17102--
+------=_20190604222553_76331--
 
 
