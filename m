@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B6433543C
-	for <lists+stable@lfdr.de>; Wed,  5 Jun 2019 01:32:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C9F735444
+	for <lists+stable@lfdr.de>; Wed,  5 Jun 2019 01:32:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726974AbfFDXWq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Jun 2019 19:22:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32916 "EHLO mail.kernel.org"
+        id S1726959AbfFDXcH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Jun 2019 19:32:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726959AbfFDXWp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 4 Jun 2019 19:22:45 -0400
+        id S1726967AbfFDXWq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 4 Jun 2019 19:22:46 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5EE6F20B1F;
-        Tue,  4 Jun 2019 23:22:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 91F4820862;
+        Tue,  4 Jun 2019 23:22:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559690564;
-        bh=Cn/3GksDHaeFm4Kju5WqUV7aw6XN+tfHzoHCK/j2FKA=;
+        s=default; t=1559690565;
+        bh=bVL5XE/t5xd48IGr1qdwkcaiwJG1oAw4Msey13+p20w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SpaZYaD3LtsMzkeYODZDCC6DXDBwcTTaIlpR8u6j17zZaO4Np69BUtSuBMN4jCRKZ
-         1yx5Y9irpFM4n1CoFjiEIUvfLghmMCYD3G+I3k7jHsEl8agjTVveLKeNUQEkOkttkK
-         gT0lNQ2wh+o6v5Q3S+bdL9IUCYsdDTAGIacHlYPU=
+        b=mr1bVgQnPwhlyGpCqEFb3/B742c1DTrmQ93tjq17Mi1LMTXp5rdpJ/kI4Q3hevEzA
+         Wkt9KPPCrle7+GYaO84N/CxIFdV8XMhTWgB6vMLRAteFVHqjJPHrfJHyezBjJaajTN
+         Gu44n/ptWuAdn8w4fiK0PX3PAEVjAZ9F4s6xPiNM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     James Smart <jsmart2021@gmail.com>,
@@ -30,9 +30,9 @@ Cc:     James Smart <jsmart2021@gmail.com>,
         Bart Van Assche <bvanassche@acm.org>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 19/60] scsi: lpfc: correct rcu unlock issue in lpfc_nvme_info_show
-Date:   Tue,  4 Jun 2019 19:21:29 -0400
-Message-Id: <20190604232212.6753-19-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 20/60] scsi: lpfc: add check for loss of ndlp when sending RRQ
+Date:   Tue,  4 Jun 2019 19:21:30 -0400
+Message-Id: <20190604232212.6753-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190604232212.6753-1-sashal@kernel.org>
 References: <20190604232212.6753-1-sashal@kernel.org>
@@ -47,10 +47,10 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit 79080d349f7f58a2e86c56043a3d04184d5f294a ]
+[ Upstream commit c8cb261a072c88ca1aff0e804a30db4c7606521b ]
 
-Many of the exit cases were not releasing the rcu read lock.  Corrected the
-exit paths.
+There was a missing qualification of a valid ndlp structure when calling to
+send an RRQ for an abort.  Add the check.
 
 Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
 Signed-off-by: James Smart <jsmart2021@gmail.com>
@@ -58,109 +58,25 @@ Tested-by: Bart Van Assche <bvanassche@acm.org>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_attr.c | 32 +++++++++++++++++++-------------
- 1 file changed, 19 insertions(+), 13 deletions(-)
+ drivers/scsi/lpfc/lpfc_els.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_attr.c b/drivers/scsi/lpfc/lpfc_attr.c
-index f30cb0fb9a82..26a22e41204e 100644
---- a/drivers/scsi/lpfc/lpfc_attr.c
-+++ b/drivers/scsi/lpfc/lpfc_attr.c
-@@ -338,7 +338,7 @@ lpfc_nvme_info_show(struct device *dev, struct device_attribute *attr,
- 		  phba->sli4_hba.io_xri_max,
- 		  lpfc_sli4_get_els_iocb_cnt(phba));
- 	if (strlcat(buf, tmp, PAGE_SIZE) >= PAGE_SIZE)
--		goto buffer_done;
-+		goto rcu_unlock_buf_done;
- 
- 	/* Port state is only one of two values for now. */
- 	if (localport->port_id)
-@@ -354,7 +354,7 @@ lpfc_nvme_info_show(struct device *dev, struct device_attribute *attr,
- 		  wwn_to_u64(vport->fc_nodename.u.wwn),
- 		  localport->port_id, statep);
- 	if (strlcat(buf, tmp, PAGE_SIZE) >= PAGE_SIZE)
--		goto buffer_done;
-+		goto rcu_unlock_buf_done;
- 
- 	list_for_each_entry(ndlp, &vport->fc_nodes, nlp_listp) {
- 		nrport = NULL;
-@@ -381,39 +381,39 @@ lpfc_nvme_info_show(struct device *dev, struct device_attribute *attr,
- 
- 		/* Tab in to show lport ownership. */
- 		if (strlcat(buf, "NVME RPORT       ", PAGE_SIZE) >= PAGE_SIZE)
--			goto buffer_done;
-+			goto rcu_unlock_buf_done;
- 		if (phba->brd_no >= 10) {
- 			if (strlcat(buf, " ", PAGE_SIZE) >= PAGE_SIZE)
--				goto buffer_done;
-+				goto rcu_unlock_buf_done;
- 		}
- 
- 		scnprintf(tmp, sizeof(tmp), "WWPN x%llx ",
- 			  nrport->port_name);
- 		if (strlcat(buf, tmp, PAGE_SIZE) >= PAGE_SIZE)
--			goto buffer_done;
-+			goto rcu_unlock_buf_done;
- 
- 		scnprintf(tmp, sizeof(tmp), "WWNN x%llx ",
- 			  nrport->node_name);
- 		if (strlcat(buf, tmp, PAGE_SIZE) >= PAGE_SIZE)
--			goto buffer_done;
-+			goto rcu_unlock_buf_done;
- 
- 		scnprintf(tmp, sizeof(tmp), "DID x%06x ",
- 			  nrport->port_id);
- 		if (strlcat(buf, tmp, PAGE_SIZE) >= PAGE_SIZE)
--			goto buffer_done;
-+			goto rcu_unlock_buf_done;
- 
- 		/* An NVME rport can have multiple roles. */
- 		if (nrport->port_role & FC_PORT_ROLE_NVME_INITIATOR) {
- 			if (strlcat(buf, "INITIATOR ", PAGE_SIZE) >= PAGE_SIZE)
--				goto buffer_done;
-+				goto rcu_unlock_buf_done;
- 		}
- 		if (nrport->port_role & FC_PORT_ROLE_NVME_TARGET) {
- 			if (strlcat(buf, "TARGET ", PAGE_SIZE) >= PAGE_SIZE)
--				goto buffer_done;
-+				goto rcu_unlock_buf_done;
- 		}
- 		if (nrport->port_role & FC_PORT_ROLE_NVME_DISCOVERY) {
- 			if (strlcat(buf, "DISCSRVC ", PAGE_SIZE) >= PAGE_SIZE)
--				goto buffer_done;
-+				goto rcu_unlock_buf_done;
- 		}
- 		if (nrport->port_role & ~(FC_PORT_ROLE_NVME_INITIATOR |
- 					  FC_PORT_ROLE_NVME_TARGET |
-@@ -421,12 +421,12 @@ lpfc_nvme_info_show(struct device *dev, struct device_attribute *attr,
- 			scnprintf(tmp, sizeof(tmp), "UNKNOWN ROLE x%x",
- 				  nrport->port_role);
- 			if (strlcat(buf, tmp, PAGE_SIZE) >= PAGE_SIZE)
--				goto buffer_done;
-+				goto rcu_unlock_buf_done;
- 		}
- 
- 		scnprintf(tmp, sizeof(tmp), "%s\n", statep);
- 		if (strlcat(buf, tmp, PAGE_SIZE) >= PAGE_SIZE)
--			goto buffer_done;
-+			goto rcu_unlock_buf_done;
- 	}
- 	rcu_read_unlock();
- 
-@@ -488,7 +488,13 @@ lpfc_nvme_info_show(struct device *dev, struct device_attribute *attr,
- 		  atomic_read(&lport->cmpl_fcp_err));
- 	strlcat(buf, tmp, PAGE_SIZE);
- 
--buffer_done:
-+	/* RCU is already unlocked. */
-+	goto buffer_done;
+diff --git a/drivers/scsi/lpfc/lpfc_els.c b/drivers/scsi/lpfc/lpfc_els.c
+index fc077cb87900..965f8a1a8f67 100644
+--- a/drivers/scsi/lpfc/lpfc_els.c
++++ b/drivers/scsi/lpfc/lpfc_els.c
+@@ -7338,7 +7338,10 @@ int
+ lpfc_send_rrq(struct lpfc_hba *phba, struct lpfc_node_rrq *rrq)
+ {
+ 	struct lpfc_nodelist *ndlp = lpfc_findnode_did(rrq->vport,
+-							rrq->nlp_DID);
++						       rrq->nlp_DID);
++	if (!ndlp)
++		return 1;
 +
-+ rcu_unlock_buf_done:
-+	rcu_read_unlock();
-+
-+ buffer_done:
- 	len = strnlen(buf, PAGE_SIZE);
- 
- 	if (unlikely(len >= (PAGE_SIZE - 1))) {
+ 	if (lpfc_test_rrq_active(phba, ndlp, rrq->xritag))
+ 		return lpfc_issue_els_rrq(rrq->vport, ndlp,
+ 					 rrq->nlp_DID, rrq);
 -- 
 2.20.1
 
