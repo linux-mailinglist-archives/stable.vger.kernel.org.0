@@ -2,164 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 81C07341A0
-	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 10:18:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C6E0341A3
+	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 10:19:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726926AbfFDISl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Jun 2019 04:18:41 -0400
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:38711 "EHLO
-        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726732AbfFDISl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Jun 2019 04:18:41 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 7E1F8372;
-        Tue,  4 Jun 2019 04:18:40 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Tue, 04 Jun 2019 04:18:40 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=mhlVfr
-        PfukKItINvaFZcBj0n6u5CNbBkCG90/p/YYpA=; b=6oiaFFLjxqm4w3kKX4fpqD
-        bLaym8Reh2d60DuL6HazvIMHk8val38KR/eJX7QiIj8RkVz95QYXSBvUWhuH03bn
-        IX4ln/Nh63t8lyikxWlwIqvJ1dhTsE2lxoCv4/zQlGG0nNxJsc7XYp2JQjIVbWQ5
-        LE7JIgutjKNm5U0PNwNK6dqVZpdAi9ceTorMGj4Nhvn4f2k11wQDeFiWyG6XFw+1
-        DYUT+x+IIey1hAejxsf0ih7CAyncUUV4pANV+IiQF7th1PrY2csU9cDPPHL1k7Vv
-        4ttXYBiiOhxbv1tqnNIu63u0X7G0hi1zpYUb1fdX+wDY/tK2eymdng6/87TpP6sg
-        ==
-X-ME-Sender: <xms:YCn2XAiDCALGnCutRisq76F-y6PSG3zqfDI1aTi1wcjLUKCsRaX1Gg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrudefledgtddvucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepie
-X-ME-Proxy: <xmx:YCn2XMjfeqX9VkEYH4DOHL37BS-aQtBo9nuFhj25h2TRhXIyX0Wx4g>
-    <xmx:YCn2XAmf0FwMUx7CUU8nDpsTZ9elELUPiA-EEfPalX3yNI-R7pCUyA>
-    <xmx:YCn2XEFp_CvnurcjIHga7gKTwXMjldWLRyOapkVT0dDUZeqJnFQybQ>
-    <xmx:YCn2XLAI_xBzN6oIPfgyvHiCwnNekZXwsWd_q4WXYzyvV3xFqCkI_w>
+        id S1726788AbfFDITX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Jun 2019 04:19:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59078 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726732AbfFDITX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 4 Jun 2019 04:19:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 96BD18005C;
-        Tue,  4 Jun 2019 04:18:39 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] btrfs: Ensure replaced device doesn't have pending chunk" failed to apply to 4.4-stable tree
-To:     nborisov@suse.com, dsterba@suse.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 04 Jun 2019 10:18:32 +0200
-Message-ID: <155963631266185@kroah.com>
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0503924963;
+        Tue,  4 Jun 2019 08:19:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1559636362;
+        bh=xMO9UObsezuXeCIEXeQJ8UXmRjag2Ce/Q6TmtoEVfsU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=tCXvoP3BZRtixZ1awWVxknWGssK1+9t/HTawFEGhW/ip/Z6T7h7jQDcJpY1l4OxwM
+         QHEmosjlqD7FTYxaW1ZvuiNK6OIh0LlGKBObRuarQquLahv/0Eff5QOij95N4hov4t
+         YZdawQRmTUU2tT1s6/IDRescepvpgcHBUzG1J3VA=
+Date:   Tue, 4 Jun 2019 10:19:20 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     David Sterba <dsterba@suse.cz>
+Cc:     stable@vger.kernel.org
+Subject: Re: Please revert "btrfs: Honour FITRIM range constraints during
+ free space trim" from all stable trees
+Message-ID: <20190604081920.GG6840@kroah.com>
+References: <20190529112314.GY15290@suse.cz>
+ <20190529113300.GB11952@kroah.com>
+ <20190529115752.GZ15290@suse.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190529115752.GZ15290@suse.cz>
+User-Agent: Mutt/1.12.0 (2019-05-25)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, May 29, 2019 at 01:57:52PM +0200, David Sterba wrote:
+> On Wed, May 29, 2019 at 04:33:00AM -0700, Greg Kroah-Hartman wrote:
+> > On Wed, May 29, 2019 at 01:23:14PM +0200, David Sterba wrote:
+> > > Hi,
+> > > 
+> > > upon closer inspection we found a problem with the patch
+> > > 
+> > > "btrfs: Honour FITRIM range constraints during free space trim"
+> > > 
+> > > that has been merged to 5.1.4. This could happen with ranged FITRIM
+> > > where the range is not 'honoured' as it was supposed to.
+> > > 
+> > > Please revert it and push in the next stable release so the buggy
+> > > version is not in the wild for too long.
+> > > 
+> > > Affected trees:
+> > > 
+> > > 5.0.18
+> > > 5.1.4
+> > > 4.9.179
+> > > 4.19.45
+> > > 4.14.122
+> > > 
+> > > Master branch will have the revert too. Thanks.
+> > 
+> > What is the git commit id of the revert in Linus's tree?
+> 
+> The commit is not there yet, I'm going to send it with the next update
+> in a few days for 5.2-rc2.
+> 
+> To shorthen the delay I hope it's possible to revert the patches without
+> the corresponding master commit but if you insist on that I'll send the
+> pull request today and will let you know the commit id.
 
-The patch below does not apply to the 4.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Did this ever get reverted in Linus's tree?  I can't seem to find it...
 
 thanks,
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From debd1c065d2037919a7da67baf55cc683fee09f0 Mon Sep 17 00:00:00 2001
-From: Nikolay Borisov <nborisov@suse.com>
-Date: Fri, 17 May 2019 10:44:25 +0300
-Subject: [PATCH] btrfs: Ensure replaced device doesn't have pending chunk
- allocation
-
-Recent FITRIM work, namely bbbf7243d62d ("btrfs: combine device update
-operations during transaction commit") combined the way certain
-operations are recoded in a transaction. As a result an ASSERT was added
-in dev_replace_finish to ensure the new code works correctly.
-Unfortunately I got reports that it's possible to trigger the assert,
-meaning that during a device replace it's possible to have an unfinished
-chunk allocation on the source device.
-
-This is supposed to be prevented by the fact that a transaction is
-committed before finishing the replace oepration and alter acquiring the
-chunk mutex. This is not sufficient since by the time the transaction is
-committed and the chunk mutex acquired it's possible to allocate a chunk
-depending on the workload being executed on the replaced device. This
-bug has been present ever since device replace was introduced but there
-was never code which checks for it.
-
-The correct way to fix is to ensure that there is no pending device
-modification operation when the chunk mutex is acquire and if there is
-repeat transaction commit. Unfortunately it's not possible to just
-exclude the source device from btrfs_fs_devices::dev_alloc_list since
-this causes ENOSPC to be hit in transaction commit.
-
-Fixing that in another way would need to add special cases to handle the
-last writes and forbid new ones. The looped transaction fix is more
-obvious, and can be easily backported. The runtime of dev-replace is
-long so there's no noticeable delay caused by that.
-
-Reported-by: David Sterba <dsterba@suse.com>
-Fixes: 391cd9df81ac ("Btrfs: fix unprotected alloc list insertion during the finishing procedure of replace")
-CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: Nikolay Borisov <nborisov@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-
-diff --git a/fs/btrfs/dev-replace.c b/fs/btrfs/dev-replace.c
-index 55c15f31d00d..ee0989c7e3a9 100644
---- a/fs/btrfs/dev-replace.c
-+++ b/fs/btrfs/dev-replace.c
-@@ -603,17 +603,33 @@ static int btrfs_dev_replace_finishing(struct btrfs_fs_info *fs_info,
- 	}
- 	btrfs_wait_ordered_roots(fs_info, U64_MAX, 0, (u64)-1);
- 
--	trans = btrfs_start_transaction(root, 0);
--	if (IS_ERR(trans)) {
--		mutex_unlock(&dev_replace->lock_finishing_cancel_unmount);
--		return PTR_ERR(trans);
-+	/*
-+	 * We have to use this loop approach because at this point src_device
-+	 * has to be available for transaction commit to complete, yet new
-+	 * chunks shouldn't be allocated on the device.
-+	 */
-+	while (1) {
-+		trans = btrfs_start_transaction(root, 0);
-+		if (IS_ERR(trans)) {
-+			mutex_unlock(&dev_replace->lock_finishing_cancel_unmount);
-+			return PTR_ERR(trans);
-+		}
-+		ret = btrfs_commit_transaction(trans);
-+		WARN_ON(ret);
-+
-+		/* Prevent write_all_supers() during the finishing procedure */
-+		mutex_lock(&fs_info->fs_devices->device_list_mutex);
-+		/* Prevent new chunks being allocated on the source device */
-+		mutex_lock(&fs_info->chunk_mutex);
-+
-+		if (!list_empty(&src_device->post_commit_list)) {
-+			mutex_unlock(&fs_info->fs_devices->device_list_mutex);
-+			mutex_unlock(&fs_info->chunk_mutex);
-+		} else {
-+			break;
-+		}
- 	}
--	ret = btrfs_commit_transaction(trans);
--	WARN_ON(ret);
- 
--	/* keep away write_all_supers() during the finishing procedure */
--	mutex_lock(&fs_info->fs_devices->device_list_mutex);
--	mutex_lock(&fs_info->chunk_mutex);
- 	down_write(&dev_replace->rwsem);
- 	dev_replace->replace_state =
- 		scrub_ret ? BTRFS_IOCTL_DEV_REPLACE_STATE_CANCELED
-@@ -662,7 +678,6 @@ static int btrfs_dev_replace_finishing(struct btrfs_fs_info *fs_info,
- 	btrfs_device_set_disk_total_bytes(tgt_device,
- 					  src_device->disk_total_bytes);
- 	btrfs_device_set_bytes_used(tgt_device, src_device->bytes_used);
--	ASSERT(list_empty(&src_device->post_commit_list));
- 	tgt_device->commit_total_bytes = src_device->commit_total_bytes;
- 	tgt_device->commit_bytes_used = src_device->bytes_used;
- 
-
