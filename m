@@ -2,121 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AA1DA34582
-	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 13:34:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A5D2345CC
+	for <lists+stable@lfdr.de>; Tue,  4 Jun 2019 13:46:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727299AbfFDLe4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Jun 2019 07:34:56 -0400
-Received: from mail-wr1-f43.google.com ([209.85.221.43]:33695 "EHLO
-        mail-wr1-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727239AbfFDLez (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Jun 2019 07:34:55 -0400
-Received: by mail-wr1-f43.google.com with SMTP id n9so3006383wru.0
-        for <stable@vger.kernel.org>; Tue, 04 Jun 2019 04:34:54 -0700 (PDT)
+        id S1727250AbfFDLqd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 4 Jun 2019 07:46:33 -0400
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:42266 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727433AbfFDLqd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 4 Jun 2019 07:46:33 -0400
+Received: by mail-wr1-f67.google.com with SMTP id o12so8353163wrj.9
+        for <stable@vger.kernel.org>; Tue, 04 Jun 2019 04:46:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=2rZHWvyGqw1OojypI8vK5lzY+8EGOlkuPvFCu0lWm+Q=;
-        b=Hd6QunM/1GKLKmm6ArpTVIgrCr0UzYiNvDH+FKGtmN829WBhzzPmn9P9KGKfBQPCmw
-         XiPTjcHkARMABgsF38XbyfXe9PFSb537rT9Nxmml1zIefxhMFMKlSDkbCYd3Q4QmF7rz
-         Z5b5I8nYzHpq28SI8BfnWJ8rBEwSzz9hTzVjg+Uv+kjOsT0jyZi5Gn9vmiucByPejGq/
-         z6F7Jflu/554+3veEMkSwTqjT5GZ1IQOS/yS6ttw1rXc1petD3twgzAqde1Nql1irW/D
-         S8Hc3FsF4msLYwFxOono7F5DSR3i3Tv66HuNVGoa6Ybqgg6ygvnbNh653ntg8uvHT3bR
-         55tg==
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to:cc;
+        bh=YOjdYwR7sHqhYE5bIaMWfTHA7B/onkn4M3zU+Ab8ggc=;
+        b=ReQ8rlSHEn4ng8iZhBZvUpur3LBv+t8ja/hPfMRdjB+Zo1HDnT2Xbc1zwL3oePRRLa
+         hgqQ4zUu0hI84jR6wV/w7f+HWTKaUd73UlcGDjwITS/Vud/5l12IhpE2aVjKcg4aSX0i
+         /UkXsAOh/ZjIEL8iRf2oWBdUH8Dn1g8+PriacjDlW+UvzN5wCa2YYTJqbAGkYQWHQwBt
+         hqgVdA+r8Ih1hHolLEkcnwYE2F2vkEx6BSohqBMeXh7fFvR4Po5SsDhFXGire72lvIpL
+         fNDHbdKh9biasESxRhq7qF1h7tnscAkkiEPmNXh/9TTSgChulAa4SiOFM1soRkDbB8ke
+         DRog==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=2rZHWvyGqw1OojypI8vK5lzY+8EGOlkuPvFCu0lWm+Q=;
-        b=Itjxwr6LkxStYuGtTEUKZli88/GDjiG7rmj7qBiFf4FZQJQb1gPcQXAJ93T15D/sq5
-         l7tX5nZYZ1Fut8ZRJSv2yYpdzzTyBlC3tuo6HUvEYb1S2fW3VHm74lMfYZ84bNT6hOCV
-         YvfeOtTJ+DbKkcauv33Yiz7WFKuRIYn4YL948VbTO9VUHlrrF0clYo/OzM6cxK7vTbSC
-         /EDc7lKRoiZkFU68auKPqihDM3Ez6ul1LfwfwLNr9eP3QIfFAvyB5N5uF4EAqaWMB+28
-         RPcSIFjABHQYyEFyaYjfgK300sB2ty5MyK/JABMW711b4CN9kb6rJeMArziUd6e6VfB4
-         aPYw==
-X-Gm-Message-State: APjAAAWUknpOuCA+i6W02Xa422HAWX9ojszr4kMhLwAxa9hxNQh8IJYZ
-        /zKv+hF06rLe9n7oljSVAoyW6GZ78PCMRw==
-X-Google-Smtp-Source: APXvYqwsZygX37tXS91ouGtVHPn5KiQHd3JDvF9uvoHCEQMX0YjE5gGMOei+E6M47TuFWzlif7Ojiw==
-X-Received: by 2002:a5d:42ca:: with SMTP id t10mr1712147wrr.202.1559648093964;
-        Tue, 04 Jun 2019 04:34:53 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id s127sm13775182wmf.48.2019.06.04.04.34.53
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 04 Jun 2019 04:34:53 -0700 (PDT)
-Message-ID: <5cf6575d.1c69fb81.ccaf1.9c3c@mx.google.com>
-Date:   Tue, 04 Jun 2019 04:34:53 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:cc;
+        bh=YOjdYwR7sHqhYE5bIaMWfTHA7B/onkn4M3zU+Ab8ggc=;
+        b=LB9BdVn/etQhO94m5kZJE7ISiHP2Yz7ZDqAdgsOF0wbxEDDCbwpuIt93lIbrZg1tsC
+         c7quJ2wUEvYpcw6AYSVf4PMkCY5hl/ModCYsKSbmyH/2H7tIk5UJsHG+xNCe9Qs21DrW
+         eTOG228wYd3+00Ox/oy0iysCvSM4rX0mJV3BCGm+fd9Lfeq1Jlx8w2rhwtQ5g4Tr/4xk
+         VM7B2iUnn0wEx8nGZwnbvzOjI071MB1HH+Z7sZuNIX6JJRcm53VmMYiP3n272CeHBU7j
+         RbAzQ92hLBsJT/cd5Ywapcp9yRxKGVOGl6j3B2EY5HONLojSmrITylvRkK2Hf7Ja9XhY
+         diBw==
+X-Gm-Message-State: APjAAAWI7c/242vqR2OTpwm0NdekZvnrK9RM7hxTqvC98TQs56d60o4X
+        9qWyXQeG5rgsHrqVvXl5ybTcFbbVOkPGtnCBE28=
+X-Google-Smtp-Source: APXvYqzyniBjBrTNVLn9Vcc4isjPlRRivzfw0HJnc1QB+FxI7XoUU+A9kE+49QaG2Z1viQ6JOvZw28YAtZGfRiqv3EE=
+X-Received: by 2002:adf:e9cc:: with SMTP id l12mr6551045wrn.29.1559648791435;
+ Tue, 04 Jun 2019 04:46:31 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v5.1.7
-X-Kernelci-Branch: linux-5.1.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-5.1.y boot: 134 boots: 1 failed,
- 122 passed with 11 offline (v5.1.7)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Reply-To: sedat.dilek@gmail.com
+From:   Sedat Dilek <sedat.dilek@gmail.com>
+Date:   Tue, 4 Jun 2019 13:46:20 +0200
+Message-ID: <CA+icZUXaXhvm46tA2aHO=85Lv16Y4=DOnz7OBRyfztp=i0_a5Q@mail.gmail.com>
+Subject: Re: [v5] x86/mm/KASLR: Fix the size of vmemmap section
+To:     Baoquan He <bhe@redhat.com>
+Cc:     stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.1.y boot: 134 boots: 1 failed, 122 passed with 11 offline=
- (v5.1.7)
+[ CC me I am not subscribed to linux-stable ML ]
+[ CC Greg and Sasha ]
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.1.y/kernel/v5.1.7/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.1.y=
-/kernel/v5.1.7/
+Hi Baoquan,
 
-Tree: stable-rc
-Branch: linux-5.1.y
-Git Describe: v5.1.7
-Git Commit: 2f7d9d47575e61225bbab561bff9805f422604fe
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 74 unique boards, 23 SoC families, 14 builds out of 209
+that should be s/Fiexes/Fixes for the "Fixes tag".
 
-Boot Failure Detected:
+OLD: Fiexes: eedb92abb9bb ("x86/mm: Make virtual memory layout dynamic
+for CONFIG_X86_5LEVEL=y")
+NEW: Fixes: eedb92abb9bb ("x86/mm: Make virtual memory layout dynamic
+for CONFIG_X86_5LEVEL=y")
 
-arm:
-    multi_v7_defconfig:
-        gcc-8:
-            bcm4708-smartrg-sr400ac: 1 failed lab
+Also, you can add...
 
-Offline Platforms:
+Cc: stable@vger.kernel.org # v4.19+
 
-arm:
+...to catch the below.
 
-    bcm2835_defconfig:
-        gcc-8
-            bcm2835-rpi-b: 1 offline lab
+[ QUOTE ]
+You can see that it was added in kernel 4.17-rc1, as above. Can we just
+apply this patch to stable trees after 4.17?
 
-    sama5_defconfig:
-        gcc-8
-            at91-sama5d4_xplained: 1 offline lab
-            at91-sama5d4ek: 1 offline lab
+>
+> v5.1.4: Build OK!
+> v5.0.18: Build OK!
+> v4.19.45: Build OK!
+[ /QUOTE ]
 
-    multi_v7_defconfig:
-        gcc-8
-            alpine-db: 1 offline lab
-            at91-sama5d4_xplained: 1 offline lab
-            at91-sama5d4ek: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
+I had an early patchset of you tested (which included this one IIRC),
+so feel free to add my...
 
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
+   Tested-by: Sedat Dilek <sedat.dilek@gmail.com>
 
-arm64:
+Hope this lands in tip or linux-stable Git.
 
-    defconfig:
-        gcc-8
-            apq8016-sbc: 1 offline lab
-            juno-r2: 1 offline lab
-            mt7622-rfb1: 1 offline lab
+Thanks.
 
----
-For more info write to <info@kernelci.org>
+Regards,
+- Sedat -
+
+[1] https://lore.kernel.org/patchwork/patch/1077557/
