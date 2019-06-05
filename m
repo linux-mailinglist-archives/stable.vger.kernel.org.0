@@ -2,84 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 01840362F6
-	for <lists+stable@lfdr.de>; Wed,  5 Jun 2019 19:49:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71360362FA
+	for <lists+stable@lfdr.de>; Wed,  5 Jun 2019 19:50:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726501AbfFERtI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Jun 2019 13:49:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37436 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726240AbfFERtI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 Jun 2019 13:49:08 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D9E5E20866;
-        Wed,  5 Jun 2019 17:49:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559756947;
-        bh=b7nDVwO98Q0vYnNmnAp8NQsKYaTd7xFH8bcBeyCedvY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=K8W1k1KNhRmhYVf0rnu+EonoJ5XvIJKAXJnE+kbwf6IICfkuNcRkq51gE3Ocoe4j7
-         x8e1mqQ4ol8/yvPUFh3LV8tCW56jxcZr7+1EKyi4L/D32Zli7Rt0oTdWCdFiZ3GHCy
-         0Yzw5vuzyoc28WpfG8cpS835b9zDxjOw9UpVz5W8=
-Date:   Wed, 5 Jun 2019 19:49:04 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Todd Kjos <tkjos@google.com>
-Cc:     Todd Kjos <tkjos@android.com>,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        Sasha Levin <Alexander.Levin@microsoft.com>,
-        stable <stable@vger.kernel.org>
-Subject: Re: [stable] binder: fix race between munmap() and direct reclaim
-Message-ID: <20190605174904.GG27700@kroah.com>
-References: <1558991372.2631.10.camel@codethink.co.uk>
- <20190528065131.GA2623@kroah.com>
- <CAHRSSEzopAbeAv4ap9xTrC1nCbpw1ZPrEYEMZOc5W_EcLZaktQ@mail.gmail.com>
- <CAHRSSEw=z4hyHMZV=WYAs_hy6Wp2qRk2mWGRSiXUO49d1SDVfQ@mail.gmail.com>
- <20190604145037.GB5824@kroah.com>
- <CAHRSSEwxB0YRZd5+JAMUew3w2MKEDcf-t4ReRq-b=zTFEYgW1A@mail.gmail.com>
+        id S1726653AbfFERuc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Jun 2019 13:50:32 -0400
+Received: from mail-pl1-f195.google.com ([209.85.214.195]:44430 "EHLO
+        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726240AbfFERub (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Jun 2019 13:50:31 -0400
+Received: by mail-pl1-f195.google.com with SMTP id c5so9958150pll.11
+        for <stable@vger.kernel.org>; Wed, 05 Jun 2019 10:50:31 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=69gfPapSEdMi+yvUYn9H/fvtRsee0abVJTNm1kq4LuQ=;
+        b=pBEWo0NcAk4QU02NxTDdbliP+YTRia8y0ucJJGA7LQ27Dml7fTz0Jj7L+hvksvcg2l
+         +6IqellipsEcoKmeMDdrTqJFm7m0lWacCdNP/p+k0ieaT5Y+8FFdYD3/7betJZ0yMFTR
+         FgJBwbPs28J/ge+AbH9zZeGFNqKupC2AzM0Mm0nWibG0fHrmi7G7q5eBkZjYo0xkr+uc
+         oonNEwzsr1anDnJzm4Md4Wd0hsQklfvAAxHZKgH3bGpylKvdpqtbFRId2W5hfa5wESvZ
+         26WDbHB3TtkefLuqlQ/90mBXhDsrtvXIydkK9xsU6eOy+gWFaMHbAJ5e07OOGRWsKOw9
+         SEyg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=69gfPapSEdMi+yvUYn9H/fvtRsee0abVJTNm1kq4LuQ=;
+        b=dr/f3irRLgpWuHiOE5qpjuyYzhnQCslNGyekFXhptBIFPBcNA+jK7xX3bKX1qDtg51
+         yb3lYxim4qfknEXL6lI03t2/H1idHZn9QaMnhIRz7cLo5ePfon5Jotx6BSajvkZoIymI
+         e3B9+Y8WlGXyGbxDiEcukUbnzAypHX9weTZkPIpMi6GWbjLO66TZfZuiHb+32adIRuih
+         mbXiIXO8hGkhfSctRWeXKnFnXg9BN6M8lhdd9a354PTdybwUsE/njNerxzEPlN9U0mZf
+         WjdVbIUBwBJR2hH4e25EBMCxj9pnROlbPr9egDXhaLfo7mcRi73IzCM0Yc1qa7Zot9rn
+         +PkA==
+X-Gm-Message-State: APjAAAUUh4A5hfLwjQ8buNEZWKmAwqTvQEdKuClKYHu6JT02k5NLN5Kt
+        CGS+91O8ACRfpu5l5v7XjUfjXQG/1pn3NNFvfCpIGg==
+X-Google-Smtp-Source: APXvYqwLtyAX66huw+EWEn7pqEiSvsjOHxjps51TIKjDTCKg+Rlihh78XZh/riSWS22J7XfNQBK0HViRRXtXzVrELs8=
+X-Received: by 2002:a17:902:b696:: with SMTP id c22mr43639929pls.119.1559757030282;
+ Wed, 05 Jun 2019 10:50:30 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAHRSSEwxB0YRZd5+JAMUew3w2MKEDcf-t4ReRq-b=zTFEYgW1A@mail.gmail.com>
-User-Agent: Mutt/1.12.0 (2019-05-25)
+References: <779905244.a0lJJiZRjM@devpool35> <20190605162626.GA31164@kroah.com>
+ <CAKwvOdnegLvkAa+-2uc-GM63HLcucWZtN5OoFvocLs50iLNJLg@mail.gmail.com>
+In-Reply-To: <CAKwvOdnegLvkAa+-2uc-GM63HLcucWZtN5OoFvocLs50iLNJLg@mail.gmail.com>
+From:   Nick Desaulniers <ndesaulniers@google.com>
+Date:   Wed, 5 Jun 2019 10:50:19 -0700
+Message-ID: <CAKwvOdn9g2Z=G_qz84S5xmn2GBNK7T-MWOGYT5C52sP0R=M_-Q@mail.gmail.com>
+Subject: Re: Building arm64 EFI stub with -fpie breaks build of 4.9.x
+ (undefined reference to `__efistub__GLOBAL_OFFSET_TABLE_')
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Rolf Eike Beer <eb@emlix.com>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Matt Fleming <matt@codeblueprint.co.uk>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linux-efi@vger.kernel.org,
+        Linux Kernel Developers List <linux-kernel@vger.kernel.org>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        Matthias Kaehlcke <mka@google.com>,
+        clang-built-linux <clang-built-linux@googlegroups.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jun 05, 2019 at 09:43:53AM -0700, Todd Kjos wrote:
-> On Tue, Jun 4, 2019 at 7:50 AM Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
+On Wed, Jun 5, 2019 at 10:27 AM Nick Desaulniers
+<ndesaulniers@google.com> wrote:
+>
+> On Wed, Jun 5, 2019 at 9:26 AM Greg KH <gregkh@linuxfoundation.org> wrote:
 > >
-> > On Fri, May 31, 2019 at 01:09:53PM -0700, Todd Kjos wrote:
-> > > Greg,
+> > On Wed, Jun 05, 2019 at 05:19:40PM +0200, Rolf Eike Beer wrote:
+> > > I decided to dig out a toy project which uses a DragonBoard 410c. This has
+> > > been "running" with kernel 4.9, which I would keep this way for unrelated
+> > > reasons. The vanilla 4.9 kernel wasn't bootable back then, but it was
+> > > buildable, which was good enough.
 > > >
-> > > I'm really confused. [1] was my submittal to stable for "binder: fix
-> > > race between munmap() and direct reclaim" which I think looks correct.
+> > > Upgrading the kernel to 4.9.180 caused the boot to suddenly fail:
 > > >
-> > > For "binder: fix handling of misaligned binder object", I only
-> > > submitted to LKML [2]. But then I see [3] for 4.14 (that looks
-> > > incorrect as Ben pointed out).
+> > > aarch64-unknown-linux-gnueabi-ld: ./drivers/firmware/efi/libstub/lib.a(arm64-
+> > > stub.stub.o): in function `handle_kernel_image':
+> > > /tmp/e2/build/linux-4.9.139/drivers/firmware/efi/libstub/arm64-stub.c:63:
+> > > undefined reference to `__efistub__GLOBAL_OFFSET_TABLE_'
+> > > aarch64-unknown-linux-gnueabi-ld: ./drivers/firmware/efi/libstub/lib.a(arm64-
+> > > stub.stub.o): relocation R_AARCH64_ADR_PREL_PG_HI21 against symbol
+> > > `__efistub__GLOBAL_OFFSET_TABLE_' which may bind externally can not be used
+> > > when making a shared object; recompile with -fPIC
+> > > /tmp/e2/build/linux-4.9.139/drivers/firmware/efi/libstub/arm64-stub.c:63:
+> > > (.init.text+0xc): dangerous relocation: unsupported relocation
+> > > /tmp/e2/build/linux-4.9.139/Makefile:1001: recipe for target 'vmlinux' failed
+> > > -make[1]: *** [vmlinux] Error 1
 > > >
-> > > So the result is that fix is present in the LTS trees where it is
-> > > needed, but it has the wrong commit message and headline.
+> > > This is caused by commit 27b5ebf61818749b3568354c64a8ec2d9cd5ecca from
+> > > linux-4.9.y (which is 91ee5b21ee026c49e4e7483de69b55b8b47042be), reverting
+> > > this commit fixes the build.
 > > >
-> > > I agree with Ben that the cleanest approach is to revert and apply the
-> > > correct version (to 4.14, 4.19, 5.0). I think the correct version is
-> > > the one I sent [1], but please let me know if you see something I
-> > > screwed up or if you need me to do something.
+> > > This happens with vanilla binutils 2.32 and gcc 8.3.0 as well as 9.1.0. See
+> > > the attached .config for reference.
 > > >
-> > > [1] https://www.spinics.net/lists/stable/msg299033.html
-> > > [2] https://lkml.org/lkml/2019/2/14/1235
-> > > [3] https://lkml.org/lkml/2019/4/30/650
+> > > If you have questions or patches just ping me.
 > >
-> > Can you send me a patch series that fixes things up properly?  I really
-> > don't know exactly what to do here, sorry.
-> 
-> Sent. 2 patches for each of 4.14, 4.19, 5.0 (1/2=revert of bad patch,
-> 2/2 apply good patch). Code ends up the same.
+> > Does Linus's latest tree also fail for you (or 5.1)?
+> >
+> > Nick, do we need to add another fix that is in mainline for this to work
+> > properly?
+> >
+> > thanks,
+> >
+> > greg k-h
+>
+> Doesn't immediately ring any bells for me.
 
-Thanks for that, I'll queue them up soon.
+Upstream commits:
+dd6846d77469 ("arm64: drop linker script hack to hide __efistub_ symbols")
+1212f7a16af4 ("scripts/kallsyms: filter arm64's __efistub_ symbols")
 
-greg k-h
+Look related to __efistub__ prefixes on symbols and aren't in stable
+4.9 (maybe Rolf can try cherry picks of those).
+-- 
+Thanks,
+~Nick Desaulniers
