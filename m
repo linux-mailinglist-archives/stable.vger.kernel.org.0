@@ -2,160 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 080BE365E6
-	for <lists+stable@lfdr.de>; Wed,  5 Jun 2019 22:47:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B4E43365F5
+	for <lists+stable@lfdr.de>; Wed,  5 Jun 2019 22:48:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726635AbfFEUrC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Jun 2019 16:47:02 -0400
-Received: from mail-io1-f65.google.com ([209.85.166.65]:34718 "EHLO
-        mail-io1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726305AbfFEUrC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Jun 2019 16:47:02 -0400
-Received: by mail-io1-f65.google.com with SMTP id k8so84804iot.1
-        for <stable@vger.kernel.org>; Wed, 05 Jun 2019 13:47:01 -0700 (PDT)
+        id S1726648AbfFEUso (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Jun 2019 16:48:44 -0400
+Received: from mail-pf1-f193.google.com ([209.85.210.193]:45662 "EHLO
+        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726528AbfFEUso (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Jun 2019 16:48:44 -0400
+Received: by mail-pf1-f193.google.com with SMTP id s11so18698pfm.12
+        for <stable@vger.kernel.org>; Wed, 05 Jun 2019 13:48:43 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=date:from:to:cc:subject:message-id:mail-followup-to:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=3pjeUYVjfw69zThxe60OAfxMh/Iwew9J9nTiZEKrvC4=;
-        b=A6ZLaCKvlsObiDPdmd5DMoPLA2sP8Mep+cxDU9CtY1lVp1yee1m3Pv70cZ4Ujpcfye
-         ENAmzKQLCSMZyvrl8W9Nshtz5srMFX7/YMcVughDWDMc4S8uEEgFg2KVy+xR/G9RG5LH
-         +WkepgWVAdlPmJDPgS8KwRgQ2cBDs3Wy2BoOUkwwFQjYbMzb8ACE6+OEw7biV5rSgRcZ
-         zoukKe7Wltv6hPtqVT3p9jgPiOJ8JXKBaR4h1GVk8+aWbzo+1IKL3bWEKhgMEneEe45H
-         ioaebU68KS61i1Ftt6jKT4HyeSO0gLhzW1hKc+w748aqBPe4a6mXO3p686DcKbM7oQkN
-         1Qdg==
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=Gf36/FJbmvcIKQB71SoUxqFxDnsf/YtRh42eY1Za4A8=;
+        b=WVI7T+qZtVEnyq5ZQtNNc6p8ErkwczAYREEK8DBsct2+ctCli/t1y+PGIeTMbkm3fo
+         SstGkCzPWEb+Cx6li46d+n9sAQMufEh3WYdaLmWqU9b6lyPJ8lYKCCjcUzoMeJxfosx2
+         drDkUF7J+5+mqVVkquXPaNaVMItINGIoMemq93eMTsMaVY0U6ACrdh9NtYefm357B5PH
+         3w/wOk/4Y9PkD62xH7O573/32c2sugfS5y/ofkpiwKOgU2wPekGDUGQ64Sg8etaLiSGV
+         IAXvSYStLoGg1BznpPh3rJcDmObUGqtNviYlYyljrGyrN2EyPxXuS6RaFg7JmQf0gZh5
+         aqcg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id
-         :mail-followup-to:references:mime-version:content-disposition
-         :in-reply-to:user-agent;
-        bh=3pjeUYVjfw69zThxe60OAfxMh/Iwew9J9nTiZEKrvC4=;
-        b=dhga49NHHtPhGHUIk0PI5ITNDXQja8YBj8Dx7MnI/qzH2mhcf4FJQKAM0zspswGjYE
-         xkqKRFpxA9xWh6erintOHn05wJGWeYmJeg6MxHBMbCpCOsBWYszn8TEBkRd3l+C07DZj
-         jYJuSeNksWCNmU36KXanVS9tQ/7a3ycMBD6IYuP1JsxsOaU5VStJ5ziAGWyod0sSenUL
-         SSJsNZPSxbcpyFE8u5xKzKW2EVL5ZyCXoD7dvqnWdNZgCxmZwdUYQoiA27LpLWVgWaxu
-         bxvaZpBQYFQ+jHKfiqhbWFCjGKi230VupQlC4cWhQfku5++m5ROUCQ88MPCc47dl+2gd
-         TBdA==
-X-Gm-Message-State: APjAAAXGM6yr/tMdEJw148v8H/LAKBUyX79eS3V0Z2mnGE+eQt4NbOZ3
-        6JiX4xV/FRpooMohr5uZd0bYjQ==
-X-Google-Smtp-Source: APXvYqyB3H61cJbQKFRHrEaK0gimYJ722ZUgaEPe2wFuCj2S3w7AvHx4+m6nW9CU0itI5FHf7qfG2Q==
-X-Received: by 2002:a5d:8f9a:: with SMTP id l26mr26967144iol.22.1559767620647;
-        Wed, 05 Jun 2019 13:47:00 -0700 (PDT)
-Received: from localhost (c-75-72-120-115.hsd1.mn.comcast.net. [75.72.120.115])
-        by smtp.gmail.com with ESMTPSA id l14sm196548iol.44.2019.06.05.13.46.59
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Wed, 05 Jun 2019 13:46:59 -0700 (PDT)
-Date:   Wed, 5 Jun 2019 15:46:59 -0500
-From:   Dan Rue <dan.rue@linaro.org>
-To:     Veronika Kabatova <vkabatov@redhat.com>
-Cc:     automated-testing@yoctoproject.org, info@kernelci.org,
-        Tim.Bird@sony.com, khilamn@baylibre.org,
-        syzkaller@googlegroups.com, lkp@lists.01.org,
-        stable@vger.kernel.org, Laura Abbott <labbott@redhat.com>,
-        Eliska Slobodova <eslobodo@redhat.com>,
-        CKI Project <cki-project@redhat.com>
-Subject: Re: CKI hackfest @Plumbers invite
-Message-ID: <20190605204659.npyf7wnmsdlr2bff@xps.therub.org>
-Mail-Followup-To: Veronika Kabatova <vkabatov@redhat.com>,
-        automated-testing@yoctoproject.org, info@kernelci.org,
-        Tim.Bird@sony.com, khilamn@baylibre.org, syzkaller@googlegroups.com,
-        lkp@lists.01.org, stable@vger.kernel.org,
-        Laura Abbott <labbott@redhat.com>,
-        Eliska Slobodova <eslobodo@redhat.com>,
-        CKI Project <cki-project@redhat.com>
-References: <1204558561.21265703.1558449611621.JavaMail.zimbra@redhat.com>
- <1667759567.21267950.1558450452057.JavaMail.zimbra@redhat.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Gf36/FJbmvcIKQB71SoUxqFxDnsf/YtRh42eY1Za4A8=;
+        b=uKVrrqumCUxXy5uYMhC9j0rC6zFa19yUqqU3FltLRgAerUHXs70QvArOFGa5fgIOqZ
+         9+rbfM5WpknYLGmDSabjssqW+CGcqKIAexwH4MU4qoY6gXCcRXjjJyAqXXB2gFeRDVeW
+         s9ZKmjAt01axap+E9wiv7mbTKXZVsx2KcnNRFk3hvJqqdwWYEYf8pgu1CqM6BgEINpqc
+         aWhSVkzWrJcL+oWc+y8Gu5jrXz6piFW8yCosSHMPTvlbaJH2fqhHuEHd83AptM0haJQ8
+         15bv1eDxhxd1gPfGlfNiCxJRog9BBxuN7RITtd/CpuVXjeRJ8j06obz0LXKWqb5PCFDR
+         44sg==
+X-Gm-Message-State: APjAAAUIJUurObZIZKbmY0YYSdLPj3ZOXuNuNXwYH+wwlqy1QZ+uwACe
+        U3CqAVfh3h7b9JP4LS1B66BmK1cHyKSnErhuMAYACA==
+X-Google-Smtp-Source: APXvYqw04eb//flZxwX52rlKUE9uC5FQrN/EPO3Y+b+R/m9mxJBjNW8wJAFNaE/R9u6bPF2yyHx+uo26PEQ6Qbdgmds=
+X-Received: by 2002:a63:52:: with SMTP id 79mr829652pga.381.1559767722964;
+ Wed, 05 Jun 2019 13:48:42 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1667759567.21267950.1558450452057.JavaMail.zimbra@redhat.com>
-User-Agent: NeoMutt/20180716
+References: <779905244.a0lJJiZRjM@devpool35> <20190605162626.GA31164@kroah.com>
+ <CAKv+Gu9QkKwNVpfpQP7uDd2-66jU=qkeA7=0RAoO4TNaSbG+tg@mail.gmail.com>
+In-Reply-To: <CAKv+Gu9QkKwNVpfpQP7uDd2-66jU=qkeA7=0RAoO4TNaSbG+tg@mail.gmail.com>
+From:   Nick Desaulniers <ndesaulniers@google.com>
+Date:   Wed, 5 Jun 2019 13:48:31 -0700
+Message-ID: <CAKwvOdnPcjESFrQRR_=cCVag3ZSnC0nBqF7+LFHrcDArT_segA@mail.gmail.com>
+Subject: Re: Building arm64 EFI stub with -fpie breaks build of 4.9.x
+ (undefined reference to `__efistub__GLOBAL_OFFSET_TABLE_')
+To:     Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Cc:     Greg KH <gregkh@linuxfoundation.org>,
+        Rolf Eike Beer <eb@emlix.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Matt Fleming <matt@codeblueprint.co.uk>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linux-efi <linux-efi@vger.kernel.org>,
+        Linux Kernel Developers List <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        clang-built-linux <clang-built-linux@googlegroups.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 21, 2019 at 10:54:12AM -0400, Veronika Kabatova wrote:
-> Hi,
-> 
-> as some of you have heard, CKI Project is planning hackfest CI meetings after
-> Plumbers conference this year (Sept. 12-13). We would like to invite everyone
-> who has interest in CI for kernel to come and join us.
-> 
-> The early agenda with summary is at the end of the email. If you think there's
-> something important missing let us know! Also let us know in case you'd want to
-> lead any of the sessions, we'd be happy to delegate out some work :)
-> 
-> 
-> Please send us an email as soon as you decide to come and feel free to invite
-> other people who should be present. We are not planning to cap the attendance
-> right now but need to solve the logistics based on the interest. The event is
-> free to attend, no additional registration except letting us know is needed.
-> 
-> Feel free to contact us if you have any questions,
-> Veronika
-> CKI Project
+On Wed, Jun 5, 2019 at 11:42 AM Ard Biesheuvel
+<ard.biesheuvel@linaro.org> wrote:
+> For the record, this is an example of why I think backporting those
+> clang enablement patches is a bad idea.
 
-Hi Veronika! Thanks for organizing this. I plan to attend, and I'm happy
-to help out.
+There's always a risk involved with backports of any kind; more CI
+coverage can help us mitigate some of these risks in an automated
+fashion before we get user reports like this.  I meet with the
+KernelCI folks weekly, so I'll double check on the coverage of the
+stable tree's branches.  The 0day folks are also very responsive and
+I've spoken with them a few times, so I'll try to get to the bottom of
+why this wasn't reported by either of those.
 
-With regard to the agenda, I've been following the '[Ksummit-discuss]
-[MAINTAINERS SUMMIT] Squashing bugs!'[1] thread with interest, as it
-relates especially to 'Getting results to developers/maintainers'. This,
-along with result aggregation, are important areas to focus.
+Also, these patches help keep Android, CrOS, and Google internal
+production kernels closer to their upstream sources.
 
-Dan
+> We can't actually build those
+> kernels with clang, can we? So what is the point? </grumpy>
 
-[1] https://lists.linuxfoundation.org/pipermail/ksummit-discuss/2019-May/006389.html
+Here's last night's build:
+https://travis-ci.com/ClangBuiltLinux/continuous-integration/builds/114388434
 
-> 
-> 
-> -----------------------------------------------------------
-> Here is an early agenda we put together:
-> - Introductions
-> - Common place for upstream results, result publishing in general
->   - The discussion on the mailing list is going strong so we might be able to
->     substitute this session for a different one in case everything is solved by
->     September.
-> - Test result interpretation and bug detection
->   - How to autodetect infrastructure failures, regressions/new bugs and test
->     bugs? How to handle continuous failures due to known bugs in both tests and
->     kernel? What's your solution? Can people always trust the results they
->     receive?
-> - Getting results to developers/maintainers
->   - Aimed at kernel developers and maintainers, share your feedback and
->     expectations.
->   - How much data should be sent in the initial communication vs. a click away
->     in a dashboard? Do you want incremental emails with new results as they come
->     in?
->   - What about adding checks to tested patches in Patchwork when patch series
->     are being tested?
->   - Providing enough data/script to reproduce the failure. What if special HW
->     is needed?
-> - Onboarding new kernel trees to test
->   - Aimed at kernel developers and maintainers.
->   - Which trees are most prone to bring in new problems? Which are the most
->     critical ones? Do you want them to be tested? Which tests do you feel are
->     most beneficial for specific trees or in general?
-> - Security when testing untrusted patches
->   - How do we merge, compile, and test patches that have untrusted code in them
->     and have not yet been reviewed? How do we avoid abuse of systems,
->     information theft, or other damage?
->   - Check out the original patch that sparked the discussion at
->     https://patchwork.ozlabs.org/patch/862123/
-> - Avoiding effort duplication
->   - Food for thought by GregKH
->   - X different CI systems running ${TEST} on latest stable kernel on x86_64
->     might look useless on the first look but is it? AMD/Intel CPUs, different
->     network cards, different graphic drivers, compilers, kernel configuration...
->     How do we distribute the workload to avoid doing the same thing all over
->     again while still running in enough different environments to get the most
->     coverage?
-> - Common hardware pools
->   - Is this something people are interested in? Would be helpful especially for
->     HW that's hard to access, eg. ppc64le or s390x systems. Companies could also
->     sing up to share their HW for testing to ensure kernel works with their
->     products.
+Also, Android and CrOS have shipped X million devices w/ 4.9 kernels
+built with Clang.  I think this number will grow at least one order of
+magnitude imminently.
 
+> Alternatively, we can just revert this patch from 4.9
+
+That would break at least the above devices next time Android and CrOS
+pulled from stable.
+
+> It would be helpful to get a relocation dump (objdump -r) of
+> arm64-stub.o to figure out which symbol needs a 'hidden' annotation to
+> prevent GCC from emitting it as a PIC reference requiring a GOT.
+
+Sounds like the best way forward, as well as having more info on which
+config/toolchain reliably reproduces the issue.
 -- 
-Linaro - Kernel Validation
+Thanks,
+~Nick Desaulniers
