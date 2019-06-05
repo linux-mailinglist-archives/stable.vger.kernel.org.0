@@ -2,96 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 82EB23559E
-	for <lists+stable@lfdr.de>; Wed,  5 Jun 2019 05:20:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4F8F35ABB
+	for <lists+stable@lfdr.de>; Wed,  5 Jun 2019 12:58:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726521AbfFEDUY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 4 Jun 2019 23:20:24 -0400
-Received: from mail-pl1-f195.google.com ([209.85.214.195]:35112 "EHLO
-        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726488AbfFEDUX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 4 Jun 2019 23:20:23 -0400
-Received: by mail-pl1-f195.google.com with SMTP id p1so9153147plo.2
-        for <stable@vger.kernel.org>; Tue, 04 Jun 2019 20:20:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=date:from:to:cc:subject:message-id:mime-version:content-disposition;
-        bh=KQxqODuHQSQtSovTOjbNPCaPMCE8H5PhPgJ8g/Tl5K8=;
-        b=TFBKmpMV7EF0aCUjJUfIw6n8vOUKtCRAD2rjDvT7B3eNZN3+Vynr+gc+weeg3cdbMc
-         GmyvgqAuNBBG5F30zfe4tR37tZbfIpqT9NlHqMQ4ymdtnCAR0m2hmHaBlucR9u8rkpbp
-         CjUbJ1Vd1YSASQHoRe9jClWUn5SVkgcsZTBrs=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
-         :content-disposition;
-        bh=KQxqODuHQSQtSovTOjbNPCaPMCE8H5PhPgJ8g/Tl5K8=;
-        b=g3YV4/UWyDAYCZt4LZFxVYXeons0qJGDuZZgsWzrsnICc3JKi+jk0gpaDeRCT3YPDP
-         WftHrBBuajc4MWSovHgLubcA1y9ARz1yteiEz9a9tnHsdULkCnSZJqA+yHhprH3Fbte4
-         xtaXelHG81iJHYbZzHm1b/P89rUUgyxeyWoIzPg+WzqClyCfVicIHhCcnhy5Gv2qfvYi
-         uKnrcfjcFqsQGOwi2SNHlB5jz/yXj/I8+4QTCMW0fr/BYmi8e75jGMCT6PT9HrCR2+rV
-         /YNfnCHWuNemFAMOuA5/13lmBdWEoajmkTugsr5pxeD7rcYXj3avfnpEpceoP+WbAOhR
-         wZLg==
-X-Gm-Message-State: APjAAAXIYiK0J6y0Kcd9+4llrV31z8p8MUnvmq7yd29qfKyFc3mdAtio
-        8dHVd/5keYCp+61S9by00QovjkS8ZJA=
-X-Google-Smtp-Source: APXvYqykLZu9VnTaUPCU45TKVYxiMnHtmMWT98CP2FahCw+wcqXd2E+4GI9WD2LayUPEOMq8WrJiYA==
-X-Received: by 2002:a17:902:18a:: with SMTP id b10mr40528391plb.277.1559704823277;
-        Tue, 04 Jun 2019 20:20:23 -0700 (PDT)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id o192sm13448583pgo.74.2019.06.04.20.20.22
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Tue, 04 Jun 2019 20:20:22 -0700 (PDT)
-Date:   Tue, 4 Jun 2019 20:20:21 -0700
-From:   Kees Cook <keescook@chromium.org>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     linux-kernel@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Pi-Hsun Shih <pihsun@chromium.org>, stable@vger.kernel.org
-Subject: [GIT PULL] pstore fixes for v5.2-rc4
-Message-ID: <201906042018.72255CAF94@keescook>
+        id S1727188AbfFEK60 convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 5 Jun 2019 06:58:26 -0400
+Received: from mail02.inet.sy ([212.11.196.40]:52467 "HELO mail02.inet.sy"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with SMTP
+        id S1726502AbfFEK60 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 Jun 2019 06:58:26 -0400
+X-Greylist: delayed 17958 seconds by postgrey-1.27 at vger.kernel.org; Wed, 05 Jun 2019 06:58:16 EDT
+Received: from localhost (localhost [127.0.0.1])
+        by mail02.inet.sy (Postfix) with ESMTP id 080071680C0;
+        Wed,  5 Jun 2019 06:26:25 +0300 (EEST)
+X-Virus-Scanned: Debian amavisd-new at mail03.inet.sy
+X-Spam-Flag: NO
+X-Spam-Score: 6.358
+X-Spam-Level: ******
+X-Spam-Status: No, score=6.358 tagged_above=-999 required=7
+        tests=[BAYES_50=0.8, FREEMAIL_FROM=0.001, FREEMAIL_REPLYTO=1,
+        LOTS_OF_MONEY=0.001, MONEY_FRAUD_5=0.001, SPF_FAIL=0.001,
+        SPF_HELO_NONE=0.001, SPOOFED_FREEM_REPTO=2.499,
+        TO_EQ_FM_DOM_SPF_FAIL=0.053, TO_EQ_FM_SPF_FAIL=0.001, US_DOLLARS_3=2]
+        autolearn=unavailable
+Received: from mail02.inet.sy ([127.0.0.1])
+        by localhost (mail02.inet.sy [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id Tk1TX3fPYBiV; Wed,  5 Jun 2019 06:26:24 +0300 (EEST)
+Received: from mail01.inet.sy (mail.inet.sy [212.11.196.115])
+        by mail02.inet.sy (Postfix) with ESMTP id E1A5F1680BE;
+        Wed,  5 Jun 2019 06:26:24 +0300 (EEST)
+Received: from Mail-Exchange.firefite.local (unknown [212.11.218.206])
+        by mail01.inet.sy (Postfix) with ESMTP id 1EBBD8EC025;
+        Wed,  5 Jun 2019 06:27:34 +0300 (EEST)
+Received: from Mail-Exchange.firefite.local (192.168.0.19) by
+ Mail-Exchange.firefite.local (192.168.0.19) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384_P384) id
+ 15.1.1466.3; Wed, 5 Jun 2019 06:26:31 +0300
+Received: from Admin.localhost (105.186.0.15) by Mail-Exchange.firefite.local
+ (192.168.0.19) with Microsoft SMTP Server (version=TLS1_0,
+ cipher=TLS_RSA_WITH_AES_256_CBC_SHA) id 15.1.1466.3 via Frontend Transport;
+ Wed, 5 Jun 2019 06:26:25 +0300
+Content-Type: text/plain; charset="iso-8859-1"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+Content-Description: Mail message body
+Subject: Award Notice
+To:     Recipients <hnkglobalpromo@brew-meister.com>
+From:   "Mrs. Vera Donald" <hnkglobalpromo@brew-meister.com>
+Date:   Wed, 5 Jun 2019 11:26:15 +0800
+Reply-To: <hp-fudiciaryagent@brew-meister.com>
+X-Antivirus: Avast (VPS 190604-6, 06/04/2019), Outbound message
+X-Antivirus-Status: Clean
+Message-ID: <4b951679-c95a-4d23-8da2-956440aa09d0@Mail-Exchange.firefite.local>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Linus,
+We are gleeful to inform you that your e-mail address eventually entered our 2019 online promotion that won you C$3,780,000.00 Canadian Dollars. Claim No:HGP/748/89-3PL. Keep your claim number confidential until claim.
 
-Please pull these pstore fixes for v5.2-rc4. They've been in linux-next
-for a bit now and catch some pstore corner cases found recently.
+Contact our office immediately with details below to commence release of your winning prize by providing your winning details above.
 
-Thanks!
+Mr. Vorst Paxton
+Email: hp-fudiciaryagent@brew-meister.com
+Alternative e-Mail: heinekenglobalpromo@gmail.com
+Office: +1-438-700-9141
 
--Kees
+Congratulations!!!
 
-The following changes since commit a188339ca5a396acc588e5851ed7e19f66b0ebd9:
+Yours Sincerely,
 
-  Linux 5.2-rc1 (2019-05-19 15:47:09 -0700)
+Mrs. Vera Donald
+Head of Award Department
+Heineken Global Promotion
 
-are available in the Git repository at:
+---
+This email has been checked for viruses by Avast antivirus software.
+https://www.avast.com/antivirus
 
-  https://git.kernel.org/pub/scm/linux/kernel/git/kees/linux.git tags/pstore-v5.2-rc4
-
-for you to fetch changes up to 8880fa32c557600f5f624084152668ed3c2ea51e:
-
-  pstore/ram: Run without kernel crash dump region (2019-05-31 01:19:06 -0700)
-
-----------------------------------------------------------------
-pstore fixes for v5.2-rc4
-
-- Avoid NULL deref when unloading/reloading ramoops module (Pi-Hsun Shih)
-- Run ramoops without crash dump region
-
-----------------------------------------------------------------
-Kees Cook (1):
-      pstore/ram: Run without kernel crash dump region
-
-Pi-Hsun Shih (1):
-      pstore: Set tfm to NULL on free_buf_for_compression
-
- fs/pstore/platform.c |  7 +++++--
- fs/pstore/ram.c      | 36 +++++++++++++++++++++++-------------
- 2 files changed, 28 insertions(+), 15 deletions(-)
-
--- 
-Kees Cook
