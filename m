@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 65500359ED
-	for <lists+stable@lfdr.de>; Wed,  5 Jun 2019 11:53:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B66E359EE
+	for <lists+stable@lfdr.de>; Wed,  5 Jun 2019 11:53:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727072AbfFEJxl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Jun 2019 05:53:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54192 "EHLO mail.kernel.org"
+        id S1727079AbfFEJxu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Jun 2019 05:53:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726690AbfFEJxl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 Jun 2019 05:53:41 -0400
+        id S1726690AbfFEJxt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 Jun 2019 05:53:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2B85A206B8;
-        Wed,  5 Jun 2019 09:53:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CAFD0206B8;
+        Wed,  5 Jun 2019 09:53:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559728420;
-        bh=BPT+fsCIustpkh0/ujYhsvBc80RxtJmJZP+ZtCKYDdk=;
+        s=default; t=1559728429;
+        bh=TJlSNgmfD89h3xa59ij5PQMEczQQEoQHFTDvX5TZjQ8=;
         h=Subject:To:From:Date:From;
-        b=lIMcLLusC6a/Yt1t+9Vx+bFqkWwpC1q55INcZ2zgPIVaXnP0YnUF5Z0VRPXUWmXDY
-         8xO35lqeHVFyMFtK0eeOrcKyISRlByjX1Puj+OBDFFi1mfrTVw8uHm16hkVbjsiiCu
-         Un+6Dma7pU/WsWcH6Dl2Ua+60O+XELPGVNtSt/MA=
-Subject: patch "USB: usb-storage: Add new ID to ums-realtek" added to usb-linus
-To:     kai.heng.feng@canonical.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
+        b=aRYHFoXVAhlTM0FhUyuqS5h4ko/hv0Kj2WUgHRsP8ziz56IZZYKQkFZHHCoB45BOS
+         VACuRkx/SJxInAadx5h0J1UZHUqoIMTo/CgvG5/L1N1U9OdJiQ8vOBuE6Wo0beABNS
+         caCvsgl1MzDZQoQeB264dpjCJvBc5lt+QPfCf2bw=
+Subject: patch "USB: Fix chipmunk-like voice when using Logitech C270 for recording" added to usb-linus
+To:     marco@zatta.me, gregkh@linuxfoundation.org, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
 Date:   Wed, 05 Jun 2019 11:53:38 +0200
-Message-ID: <1559728418199135@kroah.com>
+Message-ID: <155972841881147@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +39,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    USB: usb-storage: Add new ID to ums-realtek
+    USB: Fix chipmunk-like voice when using Logitech C270 for recording
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -55,39 +54,42 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 1a6dd3fea131276a4fc44ae77b0f471b0b473577 Mon Sep 17 00:00:00 2001
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Date: Tue, 4 Jun 2019 00:20:49 +0800
-Subject: USB: usb-storage: Add new ID to ums-realtek
+From bd21f0222adab64974b7d1b4b8c7ce6b23e9ea4d Mon Sep 17 00:00:00 2001
+From: Marco Zatta <marco@zatta.me>
+Date: Sat, 1 Jun 2019 09:52:57 +0200
+Subject: USB: Fix chipmunk-like voice when using Logitech C270 for recording
+ audio.
 
-There is one more Realtek card reader requires ums-realtek to work
-correctly.
+This patch fixes the chipmunk-like voice that manifets randomly when
+using the integrated mic of the Logitech Webcam HD C270.
 
-Add the device ID to support it.
+The issue was solved initially for this device by commit 2394d67e446b
+("USB: add RESET_RESUME for webcams shown to be quirky") but it was then
+reintroduced by e387ef5c47dd ("usb: Add USB_QUIRK_RESET_RESUME for all
+Logitech UVC webcams"). This patch is to have the fix back.
 
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Marco Zatta <marco@zatta.me>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/storage/unusual_realtek.h | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/usb/core/quirks.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/usb/storage/unusual_realtek.h b/drivers/usb/storage/unusual_realtek.h
-index 6b2140f966ef..7e14c2d7cf73 100644
---- a/drivers/usb/storage/unusual_realtek.h
-+++ b/drivers/usb/storage/unusual_realtek.h
-@@ -17,6 +17,11 @@ UNUSUAL_DEV(0x0bda, 0x0138, 0x0000, 0x9999,
- 		"USB Card Reader",
- 		USB_SC_DEVICE, USB_PR_DEVICE, init_realtek_cr, 0),
+diff --git a/drivers/usb/core/quirks.c b/drivers/usb/core/quirks.c
+index 6082b008969b..6b6413073584 100644
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -215,6 +215,9 @@ static const struct usb_device_id usb_quirk_list[] = {
+ 	/* Cherry Stream G230 2.0 (G85-231) and 3.0 (G85-232) */
+ 	{ USB_DEVICE(0x046a, 0x0023), .driver_info = USB_QUIRK_RESET_RESUME },
  
-+UNUSUAL_DEV(0x0bda, 0x0153, 0x0000, 0x9999,
-+		"Realtek",
-+		"USB Card Reader",
-+		USB_SC_DEVICE, USB_PR_DEVICE, init_realtek_cr, 0),
++	/* Logitech HD Webcam C270 */
++	{ USB_DEVICE(0x046d, 0x0825), .driver_info = USB_QUIRK_RESET_RESUME },
 +
- UNUSUAL_DEV(0x0bda, 0x0158, 0x0000, 0x9999,
- 		"Realtek",
- 		"USB Card Reader",
+ 	/* Logitech HD Pro Webcams C920, C920-C, C925e and C930e */
+ 	{ USB_DEVICE(0x046d, 0x082d), .driver_info = USB_QUIRK_DELAY_INIT },
+ 	{ USB_DEVICE(0x046d, 0x0841), .driver_info = USB_QUIRK_DELAY_INIT },
 -- 
 2.21.0
 
