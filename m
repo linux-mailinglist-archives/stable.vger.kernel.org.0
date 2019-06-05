@@ -2,103 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2004C364A2
-	for <lists+stable@lfdr.de>; Wed,  5 Jun 2019 21:26:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64BFB3656C
+	for <lists+stable@lfdr.de>; Wed,  5 Jun 2019 22:25:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726572AbfFET0J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Jun 2019 15:26:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37304 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726305AbfFET0J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 Jun 2019 15:26:09 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 05DD0206BB;
-        Wed,  5 Jun 2019 19:26:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559762768;
-        bh=qjRJSmh3TXbUFkpRu9OH/tnhcBCLS0C7KuQKagjLra8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=NSRbGiweAyNiIowFSuyaPZv9m6fEh0QethOFuHIgzVSyCrQe0/jGoxSIwANwjHP9m
-         XE9MOjLOKpnxaXEb4pp/Yv65Q8EPuMLVkFWFTNwLSPYEmGgMCWqrf+DRFnl8qsuxl9
-         JlBdrR5oFCvoby93Y3PJ+Q4yCoc4lkjbfBUmAVmk=
-Date:   Wed, 5 Jun 2019 21:26:06 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Cc:     Rolf Eike Beer <eb@emlix.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Matt Fleming <matt@codeblueprint.co.uk>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linux-efi <linux-efi@vger.kernel.org>,
-        Linux Kernel Developers List <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Subject: Re: Building arm64 EFI stub with -fpie breaks build of 4.9.x
- (undefined reference to `__efistub__GLOBAL_OFFSET_TABLE_')
-Message-ID: <20190605192606.GA9483@kroah.com>
-References: <779905244.a0lJJiZRjM@devpool35>
- <20190605162626.GA31164@kroah.com>
- <CAKv+Gu9QkKwNVpfpQP7uDd2-66jU=qkeA7=0RAoO4TNaSbG+tg@mail.gmail.com>
+        id S1726477AbfFEUZD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Jun 2019 16:25:03 -0400
+Received: from out30-133.freemail.mail.aliyun.com ([115.124.30.133]:37427 "EHLO
+        out30-133.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726464AbfFEUZD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Jun 2019 16:25:03 -0400
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01f04446;MF=bo.liu@linux.alibaba.com;NM=1;PH=DS;RN=5;SR=0;TI=SMTPD_---0TTW4sPz_1559766298;
+Received: from US-160370MP2.local(mailfrom:bo.liu@linux.alibaba.com fp:SMTPD_---0TTW4sPz_1559766298)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Thu, 06 Jun 2019 04:25:00 +0800
+Date:   Wed, 5 Jun 2019 13:24:57 -0700
+From:   Liu Bo <bo.liu@linux.alibaba.com>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Miklos Szeredi <mszeredi@redhat.com>,
+        linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 4.4 23/56] fuse: honor RLIMIT_FSIZE in
+ fuse_file_fallocate
+Message-ID: <20190605202456.2emhy5t26c7mg4f2@US-160370MP2.local>
+Reply-To: bo.liu@linux.alibaba.com
+References: <20190601132600.27427-1-sashal@kernel.org>
+ <20190601132600.27427-23-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAKv+Gu9QkKwNVpfpQP7uDd2-66jU=qkeA7=0RAoO4TNaSbG+tg@mail.gmail.com>
-User-Agent: Mutt/1.12.0 (2019-05-25)
+In-Reply-To: <20190601132600.27427-23-sashal@kernel.org>
+User-Agent: NeoMutt/20180323
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jun 05, 2019 at 08:42:32PM +0200, Ard Biesheuvel wrote:
-> On Wed, 5 Jun 2019 at 18:26, Greg KH <gregkh@linuxfoundation.org> wrote:
-> >
-> > On Wed, Jun 05, 2019 at 05:19:40PM +0200, Rolf Eike Beer wrote:
-> > > I decided to dig out a toy project which uses a DragonBoard 410c. This has
-> > > been "running" with kernel 4.9, which I would keep this way for unrelated
-> > > reasons. The vanilla 4.9 kernel wasn't bootable back then, but it was
-> > > buildable, which was good enough.
-> > >
-> > > Upgrading the kernel to 4.9.180 caused the boot to suddenly fail:
-> > >
-> > > aarch64-unknown-linux-gnueabi-ld: ./drivers/firmware/efi/libstub/lib.a(arm64-
-> > > stub.stub.o): in function `handle_kernel_image':
-> > > /tmp/e2/build/linux-4.9.139/drivers/firmware/efi/libstub/arm64-stub.c:63:
-> > > undefined reference to `__efistub__GLOBAL_OFFSET_TABLE_'
-> > > aarch64-unknown-linux-gnueabi-ld: ./drivers/firmware/efi/libstub/lib.a(arm64-
-> > > stub.stub.o): relocation R_AARCH64_ADR_PREL_PG_HI21 against symbol
-> > > `__efistub__GLOBAL_OFFSET_TABLE_' which may bind externally can not be used
-> > > when making a shared object; recompile with -fPIC
-> > > /tmp/e2/build/linux-4.9.139/drivers/firmware/efi/libstub/arm64-stub.c:63:
-> > > (.init.text+0xc): dangerous relocation: unsupported relocation
-> > > /tmp/e2/build/linux-4.9.139/Makefile:1001: recipe for target 'vmlinux' failed
-> > > -make[1]: *** [vmlinux] Error 1
-> > >
-> > > This is caused by commit 27b5ebf61818749b3568354c64a8ec2d9cd5ecca from
-> > > linux-4.9.y (which is 91ee5b21ee026c49e4e7483de69b55b8b47042be), reverting
-> > > this commit fixes the build.
-> > >
-> > > This happens with vanilla binutils 2.32 and gcc 8.3.0 as well as 9.1.0. See
-> > > the attached .config for reference.
-> > >
-> > > If you have questions or patches just ping me.
-> >
-> > Does Linus's latest tree also fail for you (or 5.1)?
-> >
-> > Nick, do we need to add another fix that is in mainline for this to work
-> > properly?
-> >
+On Sat, Jun 01, 2019 at 09:25:27AM -0400, Sasha Levin wrote:
+> From: Liu Bo <bo.liu@linux.alibaba.com>
 > 
-> For the record, this is an example of why I think backporting those
-> clang enablement patches is a bad idea. We can't actually build those
-> kernels with clang, can we? So what is the point? </grumpy>
+> [ Upstream commit 0cbade024ba501313da3b7e5dd2a188a6bc491b5 ]
+> 
+> fstests generic/228 reported this failure that fuse fallocate does not
+> honor what 'ulimit -f' has set.
+> 
+> This adds the necessary inode_newsize_ok() check.
+> 
+> Signed-off-by: Liu Bo <bo.liu@linux.alibaba.com>
+> Fixes: 05ba1f082300 ("fuse: add FALLOCATE operation")
+> Cc: <stable@vger.kernel.org> # v3.5
+> Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>  fs/fuse/file.c | 7 +++++++
+>  1 file changed, 7 insertions(+)
+> 
+> diff --git a/fs/fuse/file.c b/fs/fuse/file.c
+> index d40c2451487cb..3ba45758e0938 100644
+> --- a/fs/fuse/file.c
+> +++ b/fs/fuse/file.c
+> @@ -2947,6 +2947,13 @@ static long fuse_file_fallocate(struct file *file, int mode, loff_t offset,
+>  		}
+>  	}
+>  
+> +	if (!(mode & FALLOC_FL_KEEP_SIZE) &&
+> +	    offset + length > i_size_read(inode)) {
+> +		err = inode_newsize_ok(inode, offset + length);
+> +		if (err)
+> +			return err;
 
-Yes "we" can.  I do.  Why can't you?
+A later commit [1] was proposed to fix a problem of returning without unlock.
 
-And lots of devices rely on clang support for their kernels, as much as
-I would like to ignore them, I can't :(
+[1]: https://kernel.googlesource.com/pub/scm/linux/kernel/git/mszeredi/fuse/+/35d6fcbb7c3e296a52136347346a698a35af3fda
 
 thanks,
+-liubo
 
-greg k-h
+> +	}
+> +
+>  	if (!(mode & FALLOC_FL_KEEP_SIZE))
+>  		set_bit(FUSE_I_SIZE_UNSTABLE, &fi->state);
+>  
+> -- 
+> 2.20.1
