@@ -2,106 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D0C4D36724
-	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 00:00:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B21A3682C
+	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 01:40:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726535AbfFEWA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Jun 2019 18:00:26 -0400
-Received: from mail-wr1-f49.google.com ([209.85.221.49]:44764 "EHLO
-        mail-wr1-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726305AbfFEWA0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Jun 2019 18:00:26 -0400
-Received: by mail-wr1-f49.google.com with SMTP id w13so268797wru.11
-        for <stable@vger.kernel.org>; Wed, 05 Jun 2019 15:00:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to;
-        bh=aNMcK0do3kPInKfONQircMSRCz2uPcIaebbt7Hl35fs=;
-        b=UfL+EE8Jvw42VbzhYOy3D8GJ9792DZmr3OYCAdpYG/5Vqihvbux6PLEvg5hVtAAFdA
-         9ZhsbY/4qOtG7ZKVsvTclgEguo2ZfoENjNholWRxERhW3qxD66FjWcnIR+2ayfSuhJs4
-         nF3efrjtSYBIqBU9rGVufLkTqNqTJgNXmTDt+Baz4ai1Kcqzb45jTL5RQVURXY3jDiTl
-         /f5rlR26pAgn1F/wTNbP++Z921trljp0dwscpxBM4NsB/7B/LURz7UcRCceB+4lfeXPJ
-         H4Ob6G7VeAnxAHzgbO/a6C2YLnpJdIq6fa5dCYcFQeGTU72mfb5pq6j67ywZQbJZ/uMm
-         1FxQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to;
-        bh=aNMcK0do3kPInKfONQircMSRCz2uPcIaebbt7Hl35fs=;
-        b=Fw2SqqdD5WOeUQalZW9zV15R9y9uGrmYQFAz2fLGkW5tYlPYP/NeQqN80A7VHjurIh
-         HQEVLjBVny+bOsNvsv8pcyqYEgU+wvekpR4bBlVVPnQjebSpy3w20Ngy5qfrACUtWZd/
-         qpPtlR/NWZE20QRBHfWUDHAu5L8HG6jLYY3ArB3zVGaXgceqVg5e94AFIl2edfTwSlsU
-         czWli1ZjBLDRhhr08jJ448gM2uY2HTn3n3OfvqJMjgrXe7vg45OzIhnl3ouwh6kNs6LV
-         IAIRseEhl8mdjh/Iv3ukTvp4wGWqAymJrpn4gsktjpWGS/aBUCA2Qy2H0k234XNwA3xQ
-         Ft0w==
-X-Gm-Message-State: APjAAAVSepcXdIZcfBo5Y6U2zbJ3fy6a5c+Ae2f+S7NSC6DmelKy3+v8
-        RkgQ/Er/QbCk6LEx720CRg4vcuahdjhQqb+rKjw=
-X-Google-Smtp-Source: APXvYqxZHGH9IL3i6QRqyJO42xm8Q3trFKhLS+WZXaEXGf/wU5J92UOvYt+nnAyxV0W5cDTY/2DJgn7Uvs5Gg1ugGw4=
-X-Received: by 2002:adf:c5c1:: with SMTP id v1mr9314283wrg.129.1559772024617;
- Wed, 05 Jun 2019 15:00:24 -0700 (PDT)
-MIME-Version: 1.0
-References: <1204558561.21265703.1558449611621.JavaMail.zimbra@redhat.com>
- <1667759567.21267950.1558450452057.JavaMail.zimbra@redhat.com> <20190605204659.npyf7wnmsdlr2bff@xps.therub.org>
-In-Reply-To: <20190605204659.npyf7wnmsdlr2bff@xps.therub.org>
-From:   Shuah Khan <shuahkhan@gmail.com>
-Date:   Wed, 5 Jun 2019 16:00:13 -0600
-Message-ID: <CAKocOONHHuL2xSBUQx0=pw5AHMG4im=9kv3GrJLrKaH6+wguDw@mail.gmail.com>
-Subject: Re: CKI hackfest @Plumbers invite
-To:     Veronika Kabatova <vkabatov@redhat.com>,
-        automated-testing@yoctoproject.org, info@kernelci.org,
-        Tim.Bird@sony.com, khilamn@baylibre.org,
-        syzkaller@googlegroups.com, lkp@lists.01.org,
-        stable <stable@vger.kernel.org>,
-        Laura Abbott <labbott@redhat.com>,
-        Eliska Slobodova <eslobodo@redhat.com>,
-        CKI Project <cki-project@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
+        id S1726554AbfFEXkh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Jun 2019 19:40:37 -0400
+Received: from heliosphere.sirena.org.uk ([172.104.155.198]:38804 "EHLO
+        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726543AbfFEXkh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Jun 2019 19:40:37 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=sirena.org.uk; s=20170815-heliosphere; h=Date:Message-Id:Subject:To:From:
+        Sender:Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:References:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=bsSczBSFEfDqWg7fP9/1D75MgGf2v+NGPg/Sf5uQPCQ=; b=K+uc0eO8iKednOBVJ3ClFJocj
+        Oc+4XCfLsKrAbN+ALZ2hZIzqeEtpn1lCOulqEkkK4rCwUkkoJ11mj7G6M0bvIMRtDVAEmh56TVfYg
+        fzfMKWh5XEHxhEEbqiK9ZBfJ8wstLhYUpuIprnlz86njzHX9JFtOBfeGB4Pl/h9lUndgY=;
+Received: from cpc102320-sgyl38-2-0-cust46.18-2.cable.virginm.net ([82.37.168.47] helo=optimist)
+        by heliosphere.sirena.org.uk with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.89)
+        (envelope-from <broonie@sirena.org.uk>)
+        id 1hYfWF-00028z-8K; Wed, 05 Jun 2019 23:40:35 +0000
+Received: from broonie by optimist with local (Exim 4.89)
+        (envelope-from <broonie@sirena.org.uk>)
+        id 1hYfWE-0001LY-EU; Thu, 06 Jun 2019 00:40:34 +0100
+From:   Build bot for Mark Brown <broonie@kernel.org>
+To:     kernel-build-reports@lists.linaro.org,
+        linaro-kernel@lists.linaro.org, stable@vger.kernel.org
+Subject: v5.0.21 build: 5 failures 8 warnings (v5.0.21)
+Message-Id: <E1hYfWE-0001LY-EU@optimist>
+Date:   Thu, 06 Jun 2019 00:40:34 +0100
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Veronika,
+Tree/Branch: v5.0.21
+Git describe: v5.0.21
+Commit: fd1594eb70 Linux 5.0.21
 
-On Wed, Jun 5, 2019 at 2:47 PM Dan Rue <dan.rue@linaro.org> wrote:
->
-> On Tue, May 21, 2019 at 10:54:12AM -0400, Veronika Kabatova wrote:
-> > Hi,
-> >
-> > as some of you have heard, CKI Project is planning hackfest CI meetings after
-> > Plumbers conference this year (Sept. 12-13). We would like to invite everyone
-> > who has interest in CI for kernel to come and join us.
-> >
-> > The early agenda with summary is at the end of the email. If you think there's
-> > something important missing let us know! Also let us know in case you'd want to
-> > lead any of the sessions, we'd be happy to delegate out some work :)
-> >
-> >
-> > Please send us an email as soon as you decide to come and feel free to invite
-> > other people who should be present. We are not planning to cap the attendance
-> > right now but need to solve the logistics based on the interest. The event is
-> > free to attend, no additional registration except letting us know is needed.
-> >
+Build Time: 261 min 35 sec
 
-I am going be there and plan to attend.
+Passed:    6 / 11   ( 54.55 %)
+Failed:    5 / 11   ( 45.45 %)
 
-> > Feel free to contact us if you have any questions,
-> > Veronika
-> > CKI Project
->
-> Hi Veronika! Thanks for organizing this. I plan to attend, and I'm happy
-> to help out.
->
-> With regard to the agenda, I've been following the '[Ksummit-discuss]
-> [MAINTAINERS SUMMIT] Squashing bugs!'[1] thread with interest, as it
-> relates especially to 'Getting results to developers/maintainers'. This,
-> along with result aggregation, are important areas to focus.
->
->
-> [1] https://lists.linuxfoundation.org/pipermail/ksummit-discuss/2019-May/006389.html
->
+Errors: 0
+Warnings: 8
+Section Mismatches: 0
 
-Good to know there is an overlap and it makes sense for me to attend. :)
+Failed defconfigs:
+	arm-multi_v5_defconfig
+	arm-multi_v7_defconfig
+	arm-allmodconfig
+	arm-multi_v4t_defconfig
 
-thanks,
--- Shuah
+Errors:
+
+-------------------------------------------------------------------------------
+defconfigs with issues (other than build errors):
+      1 warnings    0 mismatches  : arm64-allmodconfig
+      3 warnings    0 mismatches  : arm-multi_v5_defconfig
+      4 warnings    0 mismatches  : arm-multi_v7_defconfig
+      7 warnings    0 mismatches  : arm-allmodconfig
+      3 warnings    0 mismatches  : arm-multi_v4t_defconfig
+      3 warnings    0 mismatches  : x86_64-allmodconfig
+      1 warnings    0 mismatches  : arm64-defconfig
+
+-------------------------------------------------------------------------------
+
+Warnings Summary: 8
+	  8 ../drivers/regulator/core.c:244:45: warning: array subscript is above array bounds [-Warray-bounds]
+	  5 ../include/linux/spinlock.h:279:3: warning: 'flags' may be used uninitialized in this function [-Wmaybe-uninitialized]
+	  4 ../drivers/regulator/core.c:4798:38: warning: array subscript is above array bounds [-Warray-bounds]
+	  1 ../samples/seccomp/user-trap.c:83:2: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+	  1 ../samples/seccomp/user-trap.c:50:2: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+	  1 ../drivers/staging/erofs/unzip_vle.c:268:29: warning: array subscript is above array bounds [-Warray-bounds]
+	  1 ../drivers/scsi/myrs.c:821:24: warning: 'sshdr.sense_key' may be used uninitialized in this function [-Wmaybe-uninitialized]
+	  1 ../drivers/net/ethernet/mellanox/mlx5/core/en_stats.c:221:1: warning: the frame size of 1096 bytes is larger than 1024 bytes [-Wframe-larger-than=]
+
+
+
+===============================================================================
+Detailed per-defconfig build reports below:
+
+
+-------------------------------------------------------------------------------
+arm64-allmodconfig : PASS, 0 errors, 1 warnings, 0 section mismatches
+
+Warnings:
+	../include/linux/spinlock.h:279:3: warning: 'flags' may be used uninitialized in this function [-Wmaybe-uninitialized]
+
+-------------------------------------------------------------------------------
+arm-multi_v5_defconfig : FAIL, 0 errors, 3 warnings, 0 section mismatches
+
+Warnings:
+	../drivers/regulator/core.c:244:45: warning: array subscript is above array bounds [-Warray-bounds]
+	../drivers/regulator/core.c:244:45: warning: array subscript is above array bounds [-Warray-bounds]
+	../drivers/regulator/core.c:4798:38: warning: array subscript is above array bounds [-Warray-bounds]
+
+-------------------------------------------------------------------------------
+arm-multi_v7_defconfig : FAIL, 0 errors, 4 warnings, 0 section mismatches
+
+Warnings:
+	../drivers/regulator/core.c:244:45: warning: array subscript is above array bounds [-Warray-bounds]
+	../drivers/regulator/core.c:244:45: warning: array subscript is above array bounds [-Warray-bounds]
+	../drivers/regulator/core.c:4798:38: warning: array subscript is above array bounds [-Warray-bounds]
+	../include/linux/spinlock.h:279:3: warning: 'flags' may be used uninitialized in this function [-Wmaybe-uninitialized]
+
+-------------------------------------------------------------------------------
+arm-allmodconfig : FAIL, 0 errors, 7 warnings, 0 section mismatches
+
+Warnings:
+	../drivers/regulator/core.c:244:45: warning: array subscript is above array bounds [-Warray-bounds]
+	../drivers/regulator/core.c:244:45: warning: array subscript is above array bounds [-Warray-bounds]
+	../drivers/regulator/core.c:4798:38: warning: array subscript is above array bounds [-Warray-bounds]
+	../include/linux/spinlock.h:279:3: warning: 'flags' may be used uninitialized in this function [-Wmaybe-uninitialized]
+	../drivers/staging/erofs/unzip_vle.c:268:29: warning: array subscript is above array bounds [-Warray-bounds]
+	../drivers/net/ethernet/mellanox/mlx5/core/en_stats.c:221:1: warning: the frame size of 1096 bytes is larger than 1024 bytes [-Wframe-larger-than=]
+	../drivers/scsi/myrs.c:821:24: warning: 'sshdr.sense_key' may be used uninitialized in this function [-Wmaybe-uninitialized]
+
+-------------------------------------------------------------------------------
+arm-multi_v4t_defconfig : FAIL, 0 errors, 3 warnings, 0 section mismatches
+
+Warnings:
+	../drivers/regulator/core.c:244:45: warning: array subscript is above array bounds [-Warray-bounds]
+	../drivers/regulator/core.c:244:45: warning: array subscript is above array bounds [-Warray-bounds]
+	../drivers/regulator/core.c:4798:38: warning: array subscript is above array bounds [-Warray-bounds]
+
+-------------------------------------------------------------------------------
+x86_64-allmodconfig : PASS, 0 errors, 3 warnings, 0 section mismatches
+
+Warnings:
+	../samples/seccomp/user-trap.c:50:2: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+	../samples/seccomp/user-trap.c:83:2: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+	../include/linux/spinlock.h:279:3: warning: 'flags' may be used uninitialized in this function [-Wmaybe-uninitialized]
+
+-------------------------------------------------------------------------------
+arm64-defconfig : PASS, 0 errors, 1 warnings, 0 section mismatches
+
+Warnings:
+	../include/linux/spinlock.h:279:3: warning: 'flags' may be used uninitialized in this function [-Wmaybe-uninitialized]
+-------------------------------------------------------------------------------
+
+Passed with no errors, warnings or mismatches:
+
+x86_64-allnoconfig
+arm64-allnoconfig
+arm-allnoconfig
+x86_64-defconfig
