@@ -2,88 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E91973612F
-	for <lists+stable@lfdr.de>; Wed,  5 Jun 2019 18:26:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAC3636141
+	for <lists+stable@lfdr.de>; Wed,  5 Jun 2019 18:28:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728642AbfFEQ0a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Jun 2019 12:26:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51062 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726670AbfFEQ0a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 Jun 2019 12:26:30 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 28E37206C3;
-        Wed,  5 Jun 2019 16:26:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559751989;
-        bh=RRuTmiiCL4ohzUXB1ETCVXEBTEd5MWjinBA96qt0pQU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=g70kvZ4hhkO9JA7ZPvRvgVMal9GJL5Xzl89Bc4OOuz56PxzyGYFmwuNsefODsCtjX
-         Za+YWKrYj4KvkKj9Hj92BxVEVwwwblgV7qR7NRrVAnJ8gj/yWUlplWQvU4wSj02WqD
-         Qqer/L58HwWoxDc2SjM0ukfHKXRb/KUHBp6zkoLE=
-Date:   Wed, 5 Jun 2019 18:26:26 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Rolf Eike Beer <eb@emlix.com>,
-        Nick Desaulniers <ndesaulniers@google.com>
-Cc:     Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Matt Fleming <matt@codeblueprint.co.uk>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linux-efi@vger.kernel.org,
-        Linux Kernel Developers List <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org
-Subject: Re: Building arm64 EFI stub with -fpie breaks build of 4.9.x
- (undefined reference to `__efistub__GLOBAL_OFFSET_TABLE_')
-Message-ID: <20190605162626.GA31164@kroah.com>
-References: <779905244.a0lJJiZRjM@devpool35>
+        id S1726829AbfFEQ2r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Jun 2019 12:28:47 -0400
+Received: from mail-ed1-f65.google.com ([209.85.208.65]:40965 "EHLO
+        mail-ed1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726421AbfFEQ2r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Jun 2019 12:28:47 -0400
+Received: by mail-ed1-f65.google.com with SMTP id p15so3328064eds.8
+        for <stable@vger.kernel.org>; Wed, 05 Jun 2019 09:28:46 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=texzsntjPS9Je7YpaNLDNEXRJq4Tev+pqkzAMfzQDk8=;
+        b=cZGMQhQAIx5eeweZgrBddrhncB0a+1Elu/g6H08kjDp56mvgiWWirw/qxrIW82cVA/
+         4hMWAQUeU6P+E0eR4JYWDYz4UvdQhnMRoT6OpLmWwtJIOJ/yfycLQige5CQGusKQL1bj
+         QhuPbPF7xvztv9fP3TNKrvpj3KxuMetyHh6JRDfN8brX5Yai0onBL9O5sHibRZUol8ZV
+         2gOgeHAQ6wYyoeKMz9eeIEuBVDdcr0aC/KhVFL8L7dNoP5Yt1CKuZiVt1VJs/Ak34UZR
+         WsoriThpzi3Gkb890ixP5sUGFQbax2XD4TOOPkpZOSlU3ZQ8tE6etGU7UJ1s6E/cQWPo
+         QXow==
+X-Gm-Message-State: APjAAAVARg41n7MvKIsE7MhJNKBgYmOkBi557vSmOj9Vq7/FtyIITHCh
+        2VvktPPNaytZOsqvGPHaozy8hwUYa1U=
+X-Google-Smtp-Source: APXvYqwNWYkv9AscaU9vSqP5ICOzHT3WGsx1ZaVgmSxe1NnF9O1OaJjhQVtIZJ3s7VgRkv5Ckxs7Tg==
+X-Received: by 2002:a05:6402:1851:: with SMTP id v17mr28574191edy.3.1559752125561;
+        Wed, 05 Jun 2019 09:28:45 -0700 (PDT)
+Received: from shalem.localdomain (84-106-84-65.cable.dynamic.v4.ziggo.nl. [84.106.84.65])
+        by smtp.gmail.com with ESMTPSA id b1sm34003ejo.9.2019.06.05.09.28.43
+        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
+        Wed, 05 Jun 2019 09:28:44 -0700 (PDT)
+Subject: Re: [PATCH 2/2] drm/i915/dsi: Use a fuzzy check for burst mode clock
+ check
+To:     =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>
+Cc:     Daniel Vetter <daniel.vetter@intel.com>,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        intel-gfx <intel-gfx@lists.freedesktop.org>,
+        dri-devel@lists.freedesktop.org, stable@vger.kernel.org
+References: <20190524174028.21659-1-hdegoede@redhat.com>
+ <20190524174028.21659-2-hdegoede@redhat.com>
+ <20190604172936.GH5942@intel.com>
+From:   Hans de Goede <hdegoede@redhat.com>
+Message-ID: <5961343b-f5ed-d55c-689d-0ebc2ee9c661@redhat.com>
+Date:   Wed, 5 Jun 2019 18:28:43 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <779905244.a0lJJiZRjM@devpool35>
-User-Agent: Mutt/1.12.0 (2019-05-25)
+In-Reply-To: <20190604172936.GH5942@intel.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jun 05, 2019 at 05:19:40PM +0200, Rolf Eike Beer wrote:
-> I decided to dig out a toy project which uses a DragonBoard 410c. This has 
-> been "running" with kernel 4.9, which I would keep this way for unrelated 
-> reasons. The vanilla 4.9 kernel wasn't bootable back then, but it was 
-> buildable, which was good enough.
-> 
-> Upgrading the kernel to 4.9.180 caused the boot to suddenly fail:
-> 
-> aarch64-unknown-linux-gnueabi-ld: ./drivers/firmware/efi/libstub/lib.a(arm64-
-> stub.stub.o): in function `handle_kernel_image':
-> /tmp/e2/build/linux-4.9.139/drivers/firmware/efi/libstub/arm64-stub.c:63: 
-> undefined reference to `__efistub__GLOBAL_OFFSET_TABLE_'
-> aarch64-unknown-linux-gnueabi-ld: ./drivers/firmware/efi/libstub/lib.a(arm64-
-> stub.stub.o): relocation R_AARCH64_ADR_PREL_PG_HI21 against symbol 
-> `__efistub__GLOBAL_OFFSET_TABLE_' which may bind externally can not be used 
-> when making a shared object; recompile with -fPIC
-> /tmp/e2/build/linux-4.9.139/drivers/firmware/efi/libstub/arm64-stub.c:63:
-> (.init.text+0xc): dangerous relocation: unsupported relocation
-> /tmp/e2/build/linux-4.9.139/Makefile:1001: recipe for target 'vmlinux' failed
-> -make[1]: *** [vmlinux] Error 1
-> 
-> This is caused by commit 27b5ebf61818749b3568354c64a8ec2d9cd5ecca from 
-> linux-4.9.y (which is 91ee5b21ee026c49e4e7483de69b55b8b47042be), reverting 
-> this commit fixes the build.
-> 
-> This happens with vanilla binutils 2.32 and gcc 8.3.0 as well as 9.1.0. See 
-> the attached .config for reference.
-> 
-> If you have questions or patches just ping me.
+Hi,
 
-Does Linus's latest tree also fail for you (or 5.1)?
+Thank you for the reviews.
 
-Nick, do we need to add another fix that is in mainline for this to work
-properly?
+On 04-06-19 19:29, Ville Syrjälä wrote:
+> On Fri, May 24, 2019 at 07:40:28PM +0200, Hans de Goede wrote:
+>> Prior to this commit we fail to init the DSI panel on the GPD MicroPC:
+>> https://www.indiegogo.com/projects/gpd-micropc-6-inch-handheld-industry-laptop#/
+>>
+>> The problem is intel_dsi_vbt_init() failing with the following error:
+>> *ERROR* Burst mode freq is less than computed
+>>
+>> The pclk in the VBT panel modeline is 70000, together with 24 bpp and
+>> 4 lines this results in a bitrate value of 70000 * 24 / 4 = 420000.
+>> But the target_burst_mode_freq in the VBT is 418000.
+>>
+>> This commit works around this problem by adding an intel_fuzzy_clock_check
+>> when target_burst_mode_freq < bitrate and setting target_burst_mode_freq to
+>> bitrate when that checks succeeds, fixing the panel not working.
+>>
+>> Cc: stable@vger.kernel.org
+>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+>> ---
+>>   drivers/gpu/drm/i915/intel_dsi_vbt.c | 11 +++++++++++
+>>   1 file changed, 11 insertions(+)
+>>
+>> diff --git a/drivers/gpu/drm/i915/intel_dsi_vbt.c b/drivers/gpu/drm/i915/intel_dsi_vbt.c
+>> index 022bf59418df..a2a9b9d0eeaa 100644
+>> --- a/drivers/gpu/drm/i915/intel_dsi_vbt.c
+>> +++ b/drivers/gpu/drm/i915/intel_dsi_vbt.c
+>> @@ -895,6 +895,17 @@ bool intel_dsi_vbt_init(struct intel_dsi *intel_dsi, u16 panel_id)
+>>   		if (mipi_config->target_burst_mode_freq) {
+>>   			u32 bitrate = intel_dsi_bitrate(intel_dsi);
+>>   
+>> +			/*
+>> +			 * Sometimes the VBT contains a slightly lower clock,
+>> +			 * then the bitrate we have calculated, in this case
+>> +			 * just replace it with the calculated bitrate.
+>> +			 */
+>> +			if (mipi_config->target_burst_mode_freq < bitrate &&
+>> +			    intel_fuzzy_clock_check(
+>> +					mipi_config->target_burst_mode_freq,
+>> +					bitrate))
+>> +				mipi_config->target_burst_mode_freq = bitrate;
+> 
+> Maybe should squash these patches together to make the stable
+> backport less painful?
 
-thanks,
+Good idea, done.
 
-greg k-h
+> Anyways, seems OK to me.
+> Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+
+And pushed with your Reviewed-by.
+
+Regards,
+
+Hans
