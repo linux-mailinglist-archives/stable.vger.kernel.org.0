@@ -2,137 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1875F3599E
-	for <lists+stable@lfdr.de>; Wed,  5 Jun 2019 11:25:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40874359A2
+	for <lists+stable@lfdr.de>; Wed,  5 Jun 2019 11:27:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726960AbfFEJZc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Jun 2019 05:25:32 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:54579 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726502AbfFEJZc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 Jun 2019 05:25:32 -0400
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id AAA2283F51;
-        Wed,  5 Jun 2019 09:25:27 +0000 (UTC)
-Received: from dhcp-27-174.brq.redhat.com (unknown [10.43.17.159])
-        by smtp.corp.redhat.com (Postfix) with SMTP id F0156600CC;
-        Wed,  5 Jun 2019 09:25:18 +0000 (UTC)
-Received: by dhcp-27-174.brq.redhat.com (nbSMTP-1.00) for uid 1000
-        oleg@redhat.com; Wed,  5 Jun 2019 11:25:26 +0200 (CEST)
-Date:   Wed, 5 Jun 2019 11:25:17 +0200
-From:   Oleg Nesterov <oleg@redhat.com>
-To:     David Laight <David.Laight@ACULAB.COM>
-Cc:     'Linus Torvalds' <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Deepa Dinamani <deepa.kernel@gmail.com>,
-        Linux List Kernel Mailing <linux-kernel@vger.kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Davidlohr Bueso <dbueso@suse.de>, Jens Axboe <axboe@kernel.dk>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        "e@80x24.org" <e@80x24.org>, Jason Baron <jbaron@akamai.com>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        "linux-aio@kvack.org" <linux-aio@kvack.org>,
-        "omar.kilani@gmail.com" <omar.kilani@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        stable <stable@vger.kernel.org>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [PATCH] signal: remove the wrong signal_pending() check in
- restore_user_sigmask()
-Message-ID: <20190605092516.GC32406@redhat.com>
-References: <20190522032144.10995-1-deepa.kernel@gmail.com>
- <20190529161157.GA27659@redhat.com>
- <20190604134117.GA29963@redhat.com>
- <CAHk-=wjSOh5zmApq2qsNjmY-GMn4CWe9YwdcKPjT+nVoGiDKOQ@mail.gmail.com>
- <263d0e478ee447d9aa10baab0d8673a5@AcuMS.aculab.com>
+        id S1726894AbfFEJ1a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Jun 2019 05:27:30 -0400
+Received: from mx2.suse.de ([195.135.220.15]:33230 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726862AbfFEJ1a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 Jun 2019 05:27:30 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id 19441AEA3;
+        Wed,  5 Jun 2019 09:27:29 +0000 (UTC)
+Received: by quack2.suse.cz (Postfix, from userid 1000)
+        id 556701E3C2F; Wed,  5 Jun 2019 11:27:28 +0200 (CEST)
+Date:   Wed, 5 Jun 2019 11:27:28 +0200
+From:   Jan Kara <jack@suse.cz>
+To:     Dave Chinner <david@fromorbit.com>
+Cc:     Jan Kara <jack@suse.cz>, linux-ext4@vger.kernel.org,
+        Ted Tso <tytso@mit.edu>, linux-mm@kvack.org,
+        linux-fsdevel@vger.kernel.org, Amir Goldstein <amir73il@gmail.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 2/2] ext4: Fix stale data exposure when read races with
+ hole punch
+Message-ID: <20190605092728.GB7433@quack2.suse.cz>
+References: <20190603132155.20600-1-jack@suse.cz>
+ <20190603132155.20600-3-jack@suse.cz>
+ <20190605012551.GJ16786@dread.disaster.area>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <263d0e478ee447d9aa10baab0d8673a5@AcuMS.aculab.com>
-User-Agent: Mutt/1.5.24 (2015-08-30)
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.27]); Wed, 05 Jun 2019 09:25:32 +0000 (UTC)
+In-Reply-To: <20190605012551.GJ16786@dread.disaster.area>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 06/05, David Laight wrote:
->
-> epoll() would have:
-> 	if (restore_user_sigmask(xxx.sigmask, &sigsaved, !ret || ret == -EINTR))
-> 		ret = -EINTR;
+On Wed 05-06-19 11:25:51, Dave Chinner wrote:
+> On Mon, Jun 03, 2019 at 03:21:55PM +0200, Jan Kara wrote:
+> > Hole puching currently evicts pages from page cache and then goes on to
+> > remove blocks from the inode. This happens under both i_mmap_sem and
+> > i_rwsem held exclusively which provides appropriate serialization with
+> > racing page faults. However there is currently nothing that prevents
+> > ordinary read(2) from racing with the hole punch and instantiating page
+> > cache page after hole punching has evicted page cache but before it has
+> > removed blocks from the inode. This page cache page will be mapping soon
+> > to be freed block and that can lead to returning stale data to userspace
+> > or even filesystem corruption.
+> > 
+> > Fix the problem by protecting reads as well as readahead requests with
+> > i_mmap_sem.
+> > 
+> > CC: stable@vger.kernel.org
+> > Reported-by: Amir Goldstein <amir73il@gmail.com>
+> > Signed-off-by: Jan Kara <jack@suse.cz>
+> > ---
+> >  fs/ext4/file.c | 35 +++++++++++++++++++++++++++++++----
+> >  1 file changed, 31 insertions(+), 4 deletions(-)
+> > 
+> > diff --git a/fs/ext4/file.c b/fs/ext4/file.c
+> > index 2c5baa5e8291..a21fa9f8fb5d 100644
+> > --- a/fs/ext4/file.c
+> > +++ b/fs/ext4/file.c
+> > @@ -34,6 +34,17 @@
+> >  #include "xattr.h"
+> >  #include "acl.h"
+> >  
+> > +static ssize_t ext4_file_buffered_read(struct kiocb *iocb, struct iov_iter *to)
+> > +{
+> > +	ssize_t ret;
+> > +	struct inode *inode = file_inode(iocb->ki_filp);
+> > +
+> > +	down_read(&EXT4_I(inode)->i_mmap_sem);
+> > +	ret = generic_file_read_iter(iocb, to);
+> > +	up_read(&EXT4_I(inode)->i_mmap_sem);
+> > +	return ret;
+> 
+> Isn't i_mmap_sem taken in the page fault path? What makes it safe
+> to take here both outside and inside the mmap_sem at the same time?
+> I mean, the whole reason for i_mmap_sem existing is that the inode
+> i_rwsem can't be taken both outside and inside the i_mmap_sem at the
+> same time, so what makes the i_mmap_sem different?
 
-I don't think so but lets discuss this later.
+Drat, you're right that read path may take page fault which will cause lock
+inversion with mmap_sem. Just my xfstests run apparently didn't trigger
+this as I didn't get any lockdep splat. Thanks for catching this!
 
-> I also think it could be simplified if code that loaded the 'user sigmask'
-> saved the old one in 'current->saved_sigmask' (and saved that it had done it).
-> You'd not need 'sigsaved' nor pass the user sigmask address into
-> the restore function.
+								Honza
 
-Heh. apparently you do not read my emails ;)
-
-This is what I proposed in my very 1st email, and I even showed the patch
-and the code with the patch applied twice. Let me do this again.
-
-Let me show the code with the patch applied. I am using epoll_pwait() as an
-example because it looks very simple.
-
-
-	static inline void set_restore_sigmask(void)
-	{
-// WARN_ON(!TIF_SIGPENDING) was removed by this patch
-		current->restore_sigmask = true;
-	}
-
-	int set_xxx(const sigset_t __user *umask, size_t sigsetsize)
-	{
-		sigset_t *kmask;
-
-		if (!umask)
-			return 0;
-		if (sigsetsize != sizeof(sigset_t))
-			return -EINVAL;
-		if (copy_from_user(kmask, umask, sizeof(sigset_t)))
-			return -EFAULT;
-
-// we can safely modify ->saved_sigmask/restore_sigmask, they has no meaning
-// until the syscall returns.
-		set_restore_sigmask();
-		current->saved_sigmask = current->blocked;
-		set_current_blocked(kmask);
-
-		return 0;
-	}
-
-
-	void update_xxx(bool interrupted)
-	{
-// the main reason for this helper is WARN_ON(!TIF_SIGPENDING) which was "moved"
-// from set_restore_sigmask() above.
-		if (interrupted)
-			WARN_ON(!test_thread_flag(TIF_SIGPENDING));
-		else
-			restore_saved_sigmask();
-	}
-
-	SYSCALL_DEFINE6(epoll_pwait, int, epfd, struct epoll_event __user *, events,
-			int, maxevents, int, timeout, const sigset_t __user *, sigmask,
-			size_t, sigsetsize)
-	{
-		int error;
-
-		error = set_xxx(sigmask, sigsetsize);
-		if (error)
-			return error;
-
-		error = do_epoll_wait(epfd, events, maxevents, timeout);
-		update_xxx(error == -EINTR);
-
-		return error;
-	}
-
-Oleg.
-
+-- 
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
