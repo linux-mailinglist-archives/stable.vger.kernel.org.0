@@ -2,104 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 71E6E35934
-	for <lists+stable@lfdr.de>; Wed,  5 Jun 2019 11:03:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D76053593F
+	for <lists+stable@lfdr.de>; Wed,  5 Jun 2019 11:05:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726875AbfFEJC7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Jun 2019 05:02:59 -0400
-Received: from eu-smtp-delivery-151.mimecast.com ([207.82.80.151]:29446 "EHLO
-        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726757AbfFEJC7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Jun 2019 05:02:59 -0400
-Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
- TLS) by relay.mimecast.com with ESMTP id
- uk-mta-38-VxfF2aphNgutSa8OvI8kog-1; Wed, 05 Jun 2019 10:02:56 +0100
-Received: from AcuMS.Aculab.com (fd9f:af1c:a25b::d117) by AcuMS.aculab.com
- (fd9f:af1c:a25b::d117) with Microsoft SMTP Server (TLS) id 15.0.1347.2; Wed,
- 5 Jun 2019 10:02:54 +0100
-Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
- AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
- Wed, 5 Jun 2019 10:02:54 +0100
-From:   David Laight <David.Laight@ACULAB.COM>
-To:     'Linus Torvalds' <torvalds@linux-foundation.org>,
-        Oleg Nesterov <oleg@redhat.com>
-CC:     Andrew Morton <akpm@linux-foundation.org>,
+        id S1726876AbfFEJFF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Jun 2019 05:05:05 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:53592 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726857AbfFEJFE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 Jun 2019 05:05:04 -0400
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 42F9630832C9;
+        Wed,  5 Jun 2019 09:04:59 +0000 (UTC)
+Received: from dhcp-27-174.brq.redhat.com (unknown [10.43.17.159])
+        by smtp.corp.redhat.com (Postfix) with SMTP id F089B5D6A9;
+        Wed,  5 Jun 2019 09:04:55 +0000 (UTC)
+Received: by dhcp-27-174.brq.redhat.com (nbSMTP-1.00) for uid 1000
+        oleg@redhat.com; Wed,  5 Jun 2019 11:04:58 +0200 (CEST)
+Date:   Wed, 5 Jun 2019 11:04:54 +0200
+From:   Oleg Nesterov <oleg@redhat.com>
+To:     "Eric W. Biederman" <ebiederm@xmission.com>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Deepa Dinamani <deepa.kernel@gmail.com>,
         Linux List Kernel Mailing <linux-kernel@vger.kernel.org>,
         Arnd Bergmann <arnd@arndb.de>,
-        "Davidlohr Bueso" <dbueso@suse.de>, Jens Axboe <axboe@kernel.dk>,
-        Davidlohr Bueso <dave@stgolabs.net>,
-        "e@80x24.org" <e@80x24.org>, Jason Baron <jbaron@akamai.com>,
+        Davidlohr Bueso <dbueso@suse.de>, Jens Axboe <axboe@kernel.dk>,
+        Davidlohr Bueso <dave@stgolabs.net>, e@80x24.org,
+        Jason Baron <jbaron@akamai.com>,
         linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        "linux-aio@kvack.org" <linux-aio@kvack.org>,
-        "omar.kilani@gmail.com" <omar.kilani@gmail.com>,
+        linux-aio@kvack.org, omar.kilani@gmail.com,
         Thomas Gleixner <tglx@linutronix.de>,
         stable <stable@vger.kernel.org>,
         Al Viro <viro@zeniv.linux.org.uk>,
-        "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: RE: [PATCH] signal: remove the wrong signal_pending() check in
+        David Laight <David.Laight@aculab.com>
+Subject: Re: [PATCH] signal: remove the wrong signal_pending() check in
  restore_user_sigmask()
-Thread-Topic: [PATCH] signal: remove the wrong signal_pending() check in
- restore_user_sigmask()
-Thread-Index: AQHVGxwzwFf0q/qAAkiR7PRGfFAGAqaMwPEw
-Date:   Wed, 5 Jun 2019 09:02:54 +0000
-Message-ID: <263d0e478ee447d9aa10baab0d8673a5@AcuMS.aculab.com>
+Message-ID: <20190605090453.GB32406@redhat.com>
 References: <20190522032144.10995-1-deepa.kernel@gmail.com>
- <20190529161157.GA27659@redhat.com> <20190604134117.GA29963@redhat.com>
+ <20190529161157.GA27659@redhat.com>
+ <20190604134117.GA29963@redhat.com>
  <CAHk-=wjSOh5zmApq2qsNjmY-GMn4CWe9YwdcKPjT+nVoGiDKOQ@mail.gmail.com>
-In-Reply-To: <CAHk-=wjSOh5zmApq2qsNjmY-GMn4CWe9YwdcKPjT+nVoGiDKOQ@mail.gmail.com>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-ms-exchange-transport-fromentityheader: Hosted
-x-originating-ip: [10.202.205.107]
+ <878sugewok.fsf@xmission.com>
 MIME-Version: 1.0
-X-MC-Unique: VxfF2aphNgutSa8OvI8kog-1
-X-Mimecast-Spam-Score: 0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <878sugewok.fsf@xmission.com>
+User-Agent: Mutt/1.5.24 (2015-08-30)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.44]); Wed, 05 Jun 2019 09:05:04 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-RnJvbTogTGludXMgVG9ydmFsZHMNCj4gU2VudDogMDQgSnVuZSAyMDE5IDIyOjI3DQo+IFVnaC4g
-SSBodGluayB0aGlzIGlzIGNvcnJlY3QsIGJ1dCBJIHdpc2ggd2UgaGFkIGEgYmV0dGVyIGFuZCBt
-b3JlDQo+IGludHVpdGl2ZSBpbnRlcmZhY2UuDQo+IA0KPiBJbiBwYXJ0aWN1bGFyLCBzaW5jZSBy
-ZXN0b3JlX3VzZXJfc2lnbWFzaygpIGJhc2ljYWxseSB3YW50cyB0byBjaGVjaw0KPiBmb3IgInNp
-Z25hbF9wZW5kaW5nKCkiIGFueXdheSAodG8gZGVjaWRlIGlmIHRoZSBtYXNrIHNob3VsZCBiZQ0K
-PiByZXN0b3JlZCBieSBzaWduYWwgaGFuZGxpbmcgb3IgYnkgdGhhdCBmdW5jdGlvbiksIEkgcmVh
-bGx5IGdldCB0aGUNCj4gZmVlbGluZyB0aGF0IGEgbG90IG9mIHRoZXNlIHBhdHRlcm5zIGxpa2UN
-Cj4gDQo+ID4gLSAgICAgICByZXN0b3JlX3VzZXJfc2lnbWFzayhrc2lnLnNpZ21hc2ssICZzaWdz
-YXZlZCk7DQo+ID4gLSAgICAgICBpZiAoc2lnbmFsX3BlbmRpbmcoY3VycmVudCkgJiYgIXJldCkN
-Cj4gPiArDQo+ID4gKyAgICAgICBpbnRlcnJ1cHRlZCA9IHNpZ25hbF9wZW5kaW5nKGN1cnJlbnQp
-Ow0KPiA+ICsgICAgICAgcmVzdG9yZV91c2VyX3NpZ21hc2soa3NpZy5zaWdtYXNrLCAmc2lnc2F2
-ZWQsIGludGVycnVwdGVkKTsNCj4gPiArICAgICAgIGlmIChpbnRlcnJ1cHRlZCAmJiAhcmV0KQ0K
-PiA+ICAgICAgICAgICAgICAgICByZXQgPSAtRVJFU1RBUlROT0hBTkQ7DQo+IA0KPiBhcmUgd3Jv
-bmcgdG8gYmVnaW4gd2l0aCwgYW5kIHdlIHJlYWxseSBzaG91bGQgYWltIGZvciBhbiBpbnRlcmZh
-Y2UNCj4gd2hpY2ggc2F5cyAidGVsbCBtZSB3aGV0aGVyIHlvdSBjb21wbGV0ZWQgdGhlIHN5c3Rl
-bSBjYWxsLCBhbmQgSSdsbA0KPiBnaXZlIHlvdSBhbiBlcnJvciByZXR1cm4gaWYgbm90Ii4NCj4g
-DQo+IEhvdyBhYm91dCB3ZSBtYWtlIHJlc3RvcmVfdXNlcl9zaWdtYXNrKCkgdGFrZSB0d28gcmV0
-dXJuIGNvZGVzOiB0aGUNCj4gJ3JldCcgd2UgYWxyZWFkeSBoYXZlLCBhbmQgdGhlIHJldHVybiB3
-ZSB3b3VsZCBnZXQgaWYgdGhlcmUgaXMgYQ0KPiBzaWduYWwgcGVuZGluZyBhbmQgdydyZSBjdXJy
-ZW50bHkgcmV0dXJuaW5nIHplcm8uDQo+IA0KPiBJT1csIEkgdGhpbmsgdGhlIGFib3ZlIGNvdWxk
-IGJlY29tZQ0KPiANCj4gICAgICAgICByZXQgPSByZXN0b3JlX3VzZXJfc2lnbWFzayhrc2lnLnNp
-Z21hc2ssICZzaWdzYXZlZCwgcmV0LCAtRVJFU1RBUlRIQU5EKTsNCj4gDQo+IGluc3RlYWQgaWYg
-d2UganVzdCBtYWRlIHRoZSByaWdodCBpbnRlcmZhY2UgZGVjaXNpb24uDQoNCkkgdGhpbmsgd2Ug
-c2hvdWxkIHRlbGwgcmVzdG9yZV91c2VyX3NpZ21hc2soKSB3aGV0aGVyIGl0IHNob3VsZA0KY2F1
-c2UgYW55IHNpZ25hbCBoYW5kbGVzIHRvIGJlIHJ1biAodXNpbmcgdGhlIGN1cnJlbnQgbWFzaykN
-CmFuZCBpdCBzaG91bGQgdGVsbCB1cyB3aGV0aGVyIGl0IHdvdWxkIHJ1biBhbnkgKGllIGlmIGl0
-IGRlZmVycmVkDQpyZXN0b3JpbmcgdGhlIG1hc2sgdG8gc3lzY2FsbCBleGl0KS4NCg0KU28gdGhl
-IGFib3ZlIHdvdWxkIChwcm9iYWJseSkgYmU6DQoJaWYgKHJlc3RvcmVfdXNlcl9zaWdtYXNrKGtz
-aWcuc2lnbWFzaywgJnNpZ3NhdmVkLCB0cnVlKSAmJiAhcmV0KQ0KCQlyZXQgPSAtRVJFU1RBUlRO
-T0hBTkQ7DQoNCmVwb2xsKCkgd291bGQgaGF2ZToNCglpZiAocmVzdG9yZV91c2VyX3NpZ21hc2so
-eHh4LnNpZ21hc2ssICZzaWdzYXZlZCwgIXJldCB8fCByZXQgPT0gLUVJTlRSKSkNCgkJcmV0ID0g
-LUVJTlRSOw0KDQpJIGFsc28gdGhpbmsgaXQgY291bGQgYmUgc2ltcGxpZmllZCBpZiBjb2RlIHRo
-YXQgbG9hZGVkIHRoZSAndXNlciBzaWdtYXNrJw0Kc2F2ZWQgdGhlIG9sZCBvbmUgaW4gJ2N1cnJl
-bnQtPnNhdmVkX3NpZ21hc2snIChhbmQgc2F2ZWQgdGhhdCBpdCBoYWQgZG9uZSBpdCkuDQpZb3Un
-ZCBub3QgbmVlZCAnc2lnc2F2ZWQnIG5vciBwYXNzIHRoZSB1c2VyIHNpZ21hc2sgYWRkcmVzcyBp
-bnRvDQp0aGUgcmVzdG9yZSBmdW5jdGlvbi4NCg0KCURhdmlkDQoNCi0NClJlZ2lzdGVyZWQgQWRk
-cmVzcyBMYWtlc2lkZSwgQnJhbWxleSBSb2FkLCBNb3VudCBGYXJtLCBNaWx0b24gS2V5bmVzLCBN
-SzEgMVBULCBVSw0KUmVnaXN0cmF0aW9uIE5vOiAxMzk3Mzg2IChXYWxlcykNCg==
+On 06/04, Eric W. Biederman wrote:
+>
+> >> -       restore_user_sigmask(ksig.sigmask, &sigsaved);
+> >> -       if (signal_pending(current) && !ret)
+> >> +
+> >> +       interrupted = signal_pending(current);
+> >> +       restore_user_sigmask(ksig.sigmask, &sigsaved, interrupted);
+> >> +       if (interrupted && !ret)
+> >>                 ret = -ERESTARTNOHAND;
+> >
+> > are wrong to begin with, and we really should aim for an interface
+> > which says "tell me whether you completed the system call, and I'll
+> > give you an error return if not".
+>
+> The pattern you are pointing out is specific to io_pgetevents and it's
+> variations.  It does look buggy to me but not for the reason you point
+> out, but instead because it does not appear to let a pending signal
+> cause io_pgetevents to return early.
+>
+> I suspect we should fix that and have do_io_getevents return
+> -EINTR or -ERESTARTNOHAND like everyone else.
+
+Exactly. It should not even check signal_pending(). It can rely on
+wait_event_interruptible_hrtimeout().
+
+> So can we please get this fix in and then look at cleaning up and
+> simplifying this code.
+
+Yes ;)
+
+Oleg.
 
