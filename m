@@ -2,120 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AAC3636141
-	for <lists+stable@lfdr.de>; Wed,  5 Jun 2019 18:28:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A17DD36173
+	for <lists+stable@lfdr.de>; Wed,  5 Jun 2019 18:38:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726829AbfFEQ2r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Jun 2019 12:28:47 -0400
-Received: from mail-ed1-f65.google.com ([209.85.208.65]:40965 "EHLO
-        mail-ed1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726421AbfFEQ2r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Jun 2019 12:28:47 -0400
-Received: by mail-ed1-f65.google.com with SMTP id p15so3328064eds.8
-        for <stable@vger.kernel.org>; Wed, 05 Jun 2019 09:28:46 -0700 (PDT)
+        id S1728523AbfFEQiC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Jun 2019 12:38:02 -0400
+Received: from mail-pl1-f196.google.com ([209.85.214.196]:36165 "EHLO
+        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728263AbfFEQiC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Jun 2019 12:38:02 -0400
+Received: by mail-pl1-f196.google.com with SMTP id d21so9893119plr.3
+        for <stable@vger.kernel.org>; Wed, 05 Jun 2019 09:38:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=android.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=6TisYdWDDxStlkadsZZdG4toawp7BkJl+ZYVvOuB8co=;
+        b=Nh80LODwKPQx4engjliWy/Sl4k5NI6dsHEsCgGIYM7auQf9R39O2J/7ZK1766x10w6
+         fquVgmte3Pk9UhxuUorhHT/4KjdB8w0+FnK3YlQlfdLJ1M/vlO8VVV+2WK2hFg7g5pkc
+         5yH9d2eNq8I30HALVAjFZ6nsweoV0sWqvHZEe/0PO3MwtkZnP3vQHfuI1k5NJv7910ED
+         yFI1/GYDpAmtcj6FJGIquqACXwS+3mk8bC4+mTIYyEQ9w2vEMjxKok71l2/hQbv59akV
+         4IUqKJzjFb2ZtCs6ukiDdnWeEm2TWPZLjr4DF72bx2veDsZLkNoU5AmHr/jsHwc6lTfV
+         yBFQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=texzsntjPS9Je7YpaNLDNEXRJq4Tev+pqkzAMfzQDk8=;
-        b=cZGMQhQAIx5eeweZgrBddrhncB0a+1Elu/g6H08kjDp56mvgiWWirw/qxrIW82cVA/
-         4hMWAQUeU6P+E0eR4JYWDYz4UvdQhnMRoT6OpLmWwtJIOJ/yfycLQige5CQGusKQL1bj
-         QhuPbPF7xvztv9fP3TNKrvpj3KxuMetyHh6JRDfN8brX5Yai0onBL9O5sHibRZUol8ZV
-         2gOgeHAQ6wYyoeKMz9eeIEuBVDdcr0aC/KhVFL8L7dNoP5Yt1CKuZiVt1VJs/Ak34UZR
-         WsoriThpzi3Gkb890ixP5sUGFQbax2XD4TOOPkpZOSlU3ZQ8tE6etGU7UJ1s6E/cQWPo
-         QXow==
-X-Gm-Message-State: APjAAAVARg41n7MvKIsE7MhJNKBgYmOkBi557vSmOj9Vq7/FtyIITHCh
-        2VvktPPNaytZOsqvGPHaozy8hwUYa1U=
-X-Google-Smtp-Source: APXvYqwNWYkv9AscaU9vSqP5ICOzHT3WGsx1ZaVgmSxe1NnF9O1OaJjhQVtIZJ3s7VgRkv5Ckxs7Tg==
-X-Received: by 2002:a05:6402:1851:: with SMTP id v17mr28574191edy.3.1559752125561;
-        Wed, 05 Jun 2019 09:28:45 -0700 (PDT)
-Received: from shalem.localdomain (84-106-84-65.cable.dynamic.v4.ziggo.nl. [84.106.84.65])
-        by smtp.gmail.com with ESMTPSA id b1sm34003ejo.9.2019.06.05.09.28.43
-        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
-        Wed, 05 Jun 2019 09:28:44 -0700 (PDT)
-Subject: Re: [PATCH 2/2] drm/i915/dsi: Use a fuzzy check for burst mode clock
- check
-To:     =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?= <ville.syrjala@linux.intel.com>
-Cc:     Daniel Vetter <daniel.vetter@intel.com>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        intel-gfx <intel-gfx@lists.freedesktop.org>,
-        dri-devel@lists.freedesktop.org, stable@vger.kernel.org
-References: <20190524174028.21659-1-hdegoede@redhat.com>
- <20190524174028.21659-2-hdegoede@redhat.com>
- <20190604172936.GH5942@intel.com>
-From:   Hans de Goede <hdegoede@redhat.com>
-Message-ID: <5961343b-f5ed-d55c-689d-0ebc2ee9c661@redhat.com>
-Date:   Wed, 5 Jun 2019 18:28:43 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
+        bh=6TisYdWDDxStlkadsZZdG4toawp7BkJl+ZYVvOuB8co=;
+        b=V+RjmGVCsZmFyAv8rlzPai6umi+B0arA2xoDINBWEjrqA3pJVjmhemUcaVizlQscbc
+         e6ZlMMUHvgS+sCuUXTgVUdLtedxI0Cwd/sp5WwyjRw/JLXZv0JYb5VIOEMww/HRJtnNE
+         KPOjjeXUd7NUfGnXL6ITu6A65pSDb8/vrxvzybCbHrKjdsoZ4Ozd3DCRPSW1LRQnDDWw
+         MXqB3n+Kc0asRfLBLTjwJE2UZm7Uhhv/zWh9pF+BGisp6mwuF3WEqqOjB+3e1JLSqLXP
+         q5r7FOZMooBpz7r4eTt5VvVyppdl+6wW/cvJOpquJDKnUguiiAnb8+w9wuZtHNJWLhcY
+         siOQ==
+X-Gm-Message-State: APjAAAWuOzJ35Dxi4N35XKMWFgHc/5YsGpCK/bvE0vrVQo1A9F6Yfb7T
+        XNrZFC1GyFbwdEuFw22h3MtI7g==
+X-Google-Smtp-Source: APXvYqwQAlDF3LdF4zmws9qIVO8QH9BlWmC+EtHfosdJofiukpn9rh4gWL1a7azn5ANFXMR2+rEC4w==
+X-Received: by 2002:a17:902:9004:: with SMTP id a4mr31841146plp.109.1559752681928;
+        Wed, 05 Jun 2019 09:38:01 -0700 (PDT)
+Received: from ava-linux2.mtv.corp.google.com ([2620:0:1000:1601:6cc0:d41d:b970:fd7])
+        by smtp.googlemail.com with ESMTPSA id 25sm22785908pfp.76.2019.06.05.09.38.00
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 05 Jun 2019 09:38:01 -0700 (PDT)
+From:   Todd Kjos <tkjos@android.com>
+X-Google-Original-From: Todd Kjos <tkjos@google.com>
+To:     tkjos@google.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
+Cc:     ben.hutchings@codethink.co.uk, Alexander.Levin@microsoft.com
+Subject: [PATCH 4.14 1/2] Revert "binder: fix handling of misaligned binder object"
+Date:   Wed,  5 Jun 2019 09:37:45 -0700
+Message-Id: <20190605163746.178413-1-tkjos@google.com>
+X-Mailer: git-send-email 2.22.0.rc1.311.g5d7573a151-goog
 MIME-Version: 1.0
-In-Reply-To: <20190604172936.GH5942@intel.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+This reverts commit 33c6b9ca70a8b066a613e2a3d0331ae8f82aa31a.
 
-Thank you for the reviews.
+The commit message is for a different patch. Reverting and then adding
+the same patch back with the correct commit message.
 
-On 04-06-19 19:29, Ville Syrjälä wrote:
-> On Fri, May 24, 2019 at 07:40:28PM +0200, Hans de Goede wrote:
->> Prior to this commit we fail to init the DSI panel on the GPD MicroPC:
->> https://www.indiegogo.com/projects/gpd-micropc-6-inch-handheld-industry-laptop#/
->>
->> The problem is intel_dsi_vbt_init() failing with the following error:
->> *ERROR* Burst mode freq is less than computed
->>
->> The pclk in the VBT panel modeline is 70000, together with 24 bpp and
->> 4 lines this results in a bitrate value of 70000 * 24 / 4 = 420000.
->> But the target_burst_mode_freq in the VBT is 418000.
->>
->> This commit works around this problem by adding an intel_fuzzy_clock_check
->> when target_burst_mode_freq < bitrate and setting target_burst_mode_freq to
->> bitrate when that checks succeeds, fixing the panel not working.
->>
->> Cc: stable@vger.kernel.org
->> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
->> ---
->>   drivers/gpu/drm/i915/intel_dsi_vbt.c | 11 +++++++++++
->>   1 file changed, 11 insertions(+)
->>
->> diff --git a/drivers/gpu/drm/i915/intel_dsi_vbt.c b/drivers/gpu/drm/i915/intel_dsi_vbt.c
->> index 022bf59418df..a2a9b9d0eeaa 100644
->> --- a/drivers/gpu/drm/i915/intel_dsi_vbt.c
->> +++ b/drivers/gpu/drm/i915/intel_dsi_vbt.c
->> @@ -895,6 +895,17 @@ bool intel_dsi_vbt_init(struct intel_dsi *intel_dsi, u16 panel_id)
->>   		if (mipi_config->target_burst_mode_freq) {
->>   			u32 bitrate = intel_dsi_bitrate(intel_dsi);
->>   
->> +			/*
->> +			 * Sometimes the VBT contains a slightly lower clock,
->> +			 * then the bitrate we have calculated, in this case
->> +			 * just replace it with the calculated bitrate.
->> +			 */
->> +			if (mipi_config->target_burst_mode_freq < bitrate &&
->> +			    intel_fuzzy_clock_check(
->> +					mipi_config->target_burst_mode_freq,
->> +					bitrate))
->> +				mipi_config->target_burst_mode_freq = bitrate;
-> 
-> Maybe should squash these patches together to make the stable
-> backport less painful?
+Cc: stable <stable@vger.kernel.org> # 4.14
+Signed-off-by: Todd Kjos <tkjos@google.com>
+---
+ drivers/android/binder_alloc.c | 18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
 
-Good idea, done.
+diff --git a/drivers/android/binder_alloc.c b/drivers/android/binder_alloc.c
+index e0b0399ff7ec8..b9281f2725a6a 100644
+--- a/drivers/android/binder_alloc.c
++++ b/drivers/android/binder_alloc.c
+@@ -945,13 +945,14 @@ enum lru_status binder_alloc_free_page(struct list_head *item,
+ 
+ 	index = page - alloc->pages;
+ 	page_addr = (uintptr_t)alloc->buffer + index * PAGE_SIZE;
+-
+-	mm = alloc->vma_vm_mm;
+-	if (!mmget_not_zero(mm))
+-		goto err_mmget;
+-	if (!down_write_trylock(&mm->mmap_sem))
+-		goto err_down_write_mmap_sem_failed;
+ 	vma = binder_alloc_get_vma(alloc);
++	if (vma) {
++		if (!mmget_not_zero(alloc->vma_vm_mm))
++			goto err_mmget;
++		mm = alloc->vma_vm_mm;
++		if (!down_write_trylock(&mm->mmap_sem))
++			goto err_down_write_mmap_sem_failed;
++	}
+ 
+ 	list_lru_isolate(lru, item);
+ 	spin_unlock(lock);
+@@ -964,9 +965,10 @@ enum lru_status binder_alloc_free_page(struct list_head *item,
+ 			       PAGE_SIZE);
+ 
+ 		trace_binder_unmap_user_end(alloc, index);
++
++		up_write(&mm->mmap_sem);
++		mmput(mm);
+ 	}
+-	up_write(&mm->mmap_sem);
+-	mmput(mm);
+ 
+ 	trace_binder_unmap_kernel_start(alloc, index);
+ 
+-- 
+2.22.0.rc1.311.g5d7573a151-goog
 
-> Anyways, seems OK to me.
-> Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-
-And pushed with your Reviewed-by.
-
-Regards,
-
-Hans
