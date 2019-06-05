@@ -2,60 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BE33E357AC
-	for <lists+stable@lfdr.de>; Wed,  5 Jun 2019 09:27:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE84535913
+	for <lists+stable@lfdr.de>; Wed,  5 Jun 2019 10:56:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726555AbfFEH1e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Jun 2019 03:27:34 -0400
-Received: from mx2.suse.de ([195.135.220.15]:41152 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726477AbfFEH1e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 Jun 2019 03:27:34 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id EAD78AE08;
-        Wed,  5 Jun 2019 07:27:32 +0000 (UTC)
-From:   Coly Li <colyli@suse.de>
-To:     linux-bcache@vger.kernel.org
-Cc:     linux-block@vger.kernel.org, Coly Li <colyli@suse.de>,
-        stable@vger.kernel.org, Shenghui Wang <shhuiw@foxmail.com>
-Subject: [PATCH 2/6] bcache: Revert "bcache: free heap cache_set->flush_btree in bch_journal_free"
-Date:   Wed,  5 Jun 2019 15:27:14 +0800
-Message-Id: <20190605072718.121379-3-colyli@suse.de>
-X-Mailer: git-send-email 2.16.4
-In-Reply-To: <20190605072718.121379-1-colyli@suse.de>
-References: <20190605072718.121379-1-colyli@suse.de>
+        id S1726762AbfFEI4U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Jun 2019 04:56:20 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:60380 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726708AbfFEI4U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 5 Jun 2019 04:56:20 -0400
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 1C53788307;
+        Wed,  5 Jun 2019 08:56:14 +0000 (UTC)
+Received: from dhcp-27-174.brq.redhat.com (unknown [10.43.17.159])
+        by smtp.corp.redhat.com (Postfix) with SMTP id 76A465D705;
+        Wed,  5 Jun 2019 08:56:06 +0000 (UTC)
+Received: by dhcp-27-174.brq.redhat.com (nbSMTP-1.00) for uid 1000
+        oleg@redhat.com; Wed,  5 Jun 2019 10:56:12 +0200 (CEST)
+Date:   Wed, 5 Jun 2019 10:56:04 +0200
+From:   Oleg Nesterov <oleg@redhat.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Deepa Dinamani <deepa.kernel@gmail.com>,
+        Linux List Kernel Mailing <linux-kernel@vger.kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Davidlohr Bueso <dbueso@suse.de>, Jens Axboe <axboe@kernel.dk>,
+        Davidlohr Bueso <dave@stgolabs.net>, e@80x24.org,
+        Jason Baron <jbaron@akamai.com>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        linux-aio@kvack.org, omar.kilani@gmail.com,
+        Thomas Gleixner <tglx@linutronix.de>,
+        stable <stable@vger.kernel.org>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        David Laight <David.Laight@aculab.com>
+Subject: Re: [PATCH] signal: remove the wrong signal_pending() check in
+ restore_user_sigmask()
+Message-ID: <20190605085604.GA32406@redhat.com>
+References: <20190522032144.10995-1-deepa.kernel@gmail.com>
+ <20190529161157.GA27659@redhat.com>
+ <20190604134117.GA29963@redhat.com>
+ <CAHk-=wjSOh5zmApq2qsNjmY-GMn4CWe9YwdcKPjT+nVoGiDKOQ@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAHk-=wjSOh5zmApq2qsNjmY-GMn4CWe9YwdcKPjT+nVoGiDKOQ@mail.gmail.com>
+User-Agent: Mutt/1.5.24 (2015-08-30)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.28]); Wed, 05 Jun 2019 08:56:19 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This reverts commit 6268dc2c4703aabfb0b35681be709acf4c2826c6.
+On 06/04, Linus Torvalds wrote:
+>
+> On Tue, Jun 4, 2019 at 6:41 AM Oleg Nesterov <oleg@redhat.com> wrote:
+> >
+> > This is the minimal fix for stable, I'll send cleanups later.
+>
+> Ugh. I htink this is correct, but I wish we had a better and more
+> intuitive interface.
 
-This patch depends on commit c4dc2497d50d ("bcache: fix high CPU
-occupancy during journal") which is reverted in previous patch. So
-revert this one too.
+Yes,
 
-Fixes: 6268dc2c4703 ("bcache: free heap cache_set->flush_btree in bch_journal_free")
-Signed-off-by: Coly Li <colyli@suse.de>
-Cc: stable@vger.kernel.org
-Cc: Shenghui Wang <shhuiw@foxmail.com>
----
- drivers/md/bcache/journal.c | 1 -
- 1 file changed, 1 deletion(-)
+> In particular, since restore_user_sigmask() basically wants to check
+> for "signal_pending()" anyway
 
-diff --git a/drivers/md/bcache/journal.c b/drivers/md/bcache/journal.c
-index ce176bbef3fe..76d3770ce484 100644
---- a/drivers/md/bcache/journal.c
-+++ b/drivers/md/bcache/journal.c
-@@ -867,7 +867,6 @@ void bch_journal_free(struct cache_set *c)
- 	free_pages((unsigned long) c->journal.w[1].data, JSET_BITS);
- 	free_pages((unsigned long) c->journal.w[0].data, JSET_BITS);
- 	free_fifo(&c->journal.pin);
--	free_heap(&c->flush_btree);
- }
- 
- int bch_journal_alloc(struct cache_set *c)
--- 
-2.16.4
+No, the caller should check signal_pending() anyway and this is enough.
+
+> > -       restore_user_sigmask(ksig.sigmask, &sigsaved);
+> > -       if (signal_pending(current) && !ret)
+> > +
+> > +       interrupted = signal_pending(current);
+> > +       restore_user_sigmask(ksig.sigmask, &sigsaved, interrupted);
+> > +       if (interrupted && !ret)
+> >                 ret = -ERESTARTNOHAND;
+>
+> are wrong to begin with,
+
+This is fs/aio.c and I have already mentioned that this code doesn't look
+right anyway.
+
+> IOW, I think the above could become
+>
+>         ret = restore_user_sigmask(ksig.sigmask, &sigsaved, ret, -ERESTARTHAND);
+>
+> instead if we just made the right interface decision.
+
+I think this particular code should simply do
+
+		ret = do_io_getevents(...);
+
+		if (ret == -ERESTARTSYS)
+			ret = -EINTR;
+
+		restore_user_sigmask(ret == -EINTR);
+
+However I agree that another helper(s) which takes/returns the error code makes
+sense and I was going to do this. Lets do this step by step, I think we should
+kill sigmask/sigsaved first.
+
+Oleg.
 
