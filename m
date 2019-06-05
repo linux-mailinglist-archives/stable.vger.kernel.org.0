@@ -2,128 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 03EA63617D
-	for <lists+stable@lfdr.de>; Wed,  5 Jun 2019 18:39:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09BDF3618C
+	for <lists+stable@lfdr.de>; Wed,  5 Jun 2019 18:44:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728673AbfFEQjm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Jun 2019 12:39:42 -0400
-Received: from mail-pl1-f196.google.com ([209.85.214.196]:34841 "EHLO
-        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728263AbfFEQjm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 5 Jun 2019 12:39:42 -0400
-Received: by mail-pl1-f196.google.com with SMTP id p1so9883766plo.2
-        for <stable@vger.kernel.org>; Wed, 05 Jun 2019 09:39:42 -0700 (PDT)
+        id S1728678AbfFEQoH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Jun 2019 12:44:07 -0400
+Received: from mail-lf1-f67.google.com ([209.85.167.67]:44008 "EHLO
+        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728263AbfFEQoH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Jun 2019 12:44:07 -0400
+Received: by mail-lf1-f67.google.com with SMTP id j29so5700929lfk.10
+        for <stable@vger.kernel.org>; Wed, 05 Jun 2019 09:44:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=android.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=YOr6z0ZXqJV67ys9T86wrtvPUjR3z2zzHbO2+bSp4sM=;
-        b=ZqhJiARNuxfoi1HIiv9yKhtT3tt0MQ3BT85Vv/D6ssMVchn7kO2vPfPwGuGXV0hulU
-         ufEa32ytOarfcDPwP9U2QefOPBuTnFV2xkupQBZNd8jB5VvF3LpvpFp2SAmkhiqUGxbt
-         ItTfNisYQILlTCAnNuk59+1KfZ/wnTimtZDGBcNQQLFfdIv82MxLhGX0bq6mPbz8vY9E
-         JfjWwGMmy4YfdBvZoMLMiv6Ya2ylvew/Oasx87JdI6+6HG5UXfbv9SkKGvxxpMUq7urf
-         hEcOIZjHqWVFlwpUYhL8HGPMeOFgLW7eG60rBFtjdJqk8X2KrwXEKnrznTorJ8jrAcOO
-         wkZw==
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=krMpKlKKoYqpKupzmqMHmFmdtnKDvJHxVTUUjBLDMQo=;
+        b=v/el4+zZrak6DiRufKzU1TLlUIaV4eE4JiYe1RSOqlJyyFbW2N19kfFwmqxUoNLkQT
+         xWZ9UhnsZz297yQs7ZKrWVfqGcXpZgWhj9cjY4eQpopGlLavAdvXVZS7jsI98vGBtRiT
+         JD951bwStPjVCuE4EgojqL5zJzNCGbykeiGy1F9HyveHIy7FbLrd72FthGvbjzTTx11p
+         QIxMLE9zjkmhZZ+FaPNVx6zaaDrAdS5rFRVRdsO4sbAt2qDGBvul74xVpD/03epFuDVQ
+         KecoCVaoI6N8J9Xwqfh2JE15Slt/vN6iFNgQPuzuhNjWLGydYEVyB8uAoTf/bJYcSxzd
+         24Ag==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=YOr6z0ZXqJV67ys9T86wrtvPUjR3z2zzHbO2+bSp4sM=;
-        b=nZnI+3pfaCUW4ZiQ6eEY5RhQ32VxBiW3L/elCzdsV1wqNXSllIgni+nYLjbWFH/Dr1
-         QwGRrceQzB1Iy+ELsbDtnoJ3FKcF9oRoSWEU9f5dtmRKCFUWh8wq/ZxjOqbPaN8ZBNjj
-         muSaHMDEadLr5SzHiW+kMzKOEQYYgYXUyEtS9Ljd1MDEMlEvJydAi4ladY0AyGohc1zV
-         vXW6zZ1r1inzGAwIYmZxKdx0EjYHZs4SyKDxSCN7yWW/sFWxVFVjMKv7KaDJ0cX82BlN
-         BX9OkEwCQ2E8GBhXC5eW9HStwbghi1NJYPDDLK/ojv0iIGYKpiZhAy+D/Dt/e0kLsyhq
-         mEPg==
-X-Gm-Message-State: APjAAAUw/HmesvHUnc/EWFmU8SKiHQ+OItVUs2swLBBXwLIP2QktNFdV
-        mRRda6poDuhAFJzEba5a2UA0rw==
-X-Google-Smtp-Source: APXvYqyuEo1uJdLQiETlFJDwYKKA6SU7Jdk5vIih0Kme81EpHlvl1ko2xXyDuVOvzFF5olPsDgKKrA==
-X-Received: by 2002:a17:902:e301:: with SMTP id cg1mr25907468plb.184.1559752781815;
-        Wed, 05 Jun 2019 09:39:41 -0700 (PDT)
-Received: from ava-linux2.mtv.corp.google.com ([2620:0:1000:1601:6cc0:d41d:b970:fd7])
-        by smtp.googlemail.com with ESMTPSA id l63sm22493057pfl.181.2019.06.05.09.39.40
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 05 Jun 2019 09:39:41 -0700 (PDT)
-From:   Todd Kjos <tkjos@android.com>
-X-Google-Original-From: Todd Kjos <tkjos@google.com>
-To:     tkjos@google.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-Cc:     ben.hutchings@codethink.co.uk, Alexander.Levin@microsoft.com,
-        Joel Fernandes <joel@joelfernandes.org>
-Subject: [PATCH 5.0 2/2] binder: fix race between munmap() and direct reclaim
-Date:   Wed,  5 Jun 2019 09:39:30 -0700
-Message-Id: <20190605163930.178758-2-tkjos@google.com>
-X-Mailer: git-send-email 2.22.0.rc1.311.g5d7573a151-goog
-In-Reply-To: <20190605163930.178758-1-tkjos@google.com>
-References: <20190605163930.178758-1-tkjos@google.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=krMpKlKKoYqpKupzmqMHmFmdtnKDvJHxVTUUjBLDMQo=;
+        b=LTEgEAwYK3irRBS3wRb3VZQhxZ0QGepuhc0AousHXuSMo8m/6D4nWF4WOzGUjSUndb
+         sfA6XzOnWS3um1FHnV4WCBmpLslMjnPBTrkk8sTuGo4W5MTeeigR+l647s9Wq22pp4Fb
+         CJWODKJgTkLdmWrmNKdHgwQpXFdmNKRhBsr3kf0LfSgHdrW8t6fKB5JJEeEqnJvtIWir
+         7FVH/71LSt/PRk9SdTaL7zUO49mFwvsNdmxzGjTIw0c/AMESunyiim+Oek66mTW0ArU5
+         JP8Hf11eiMghrSH+i5r1RNXgC9JPDV7Y04Y7qPSOZ3qzragUcvj4o6vXWhtIUDnquJKG
+         k04w==
+X-Gm-Message-State: APjAAAVjwVcLDR5yyc4KuZaReF26r5YdKCQYCHWDtgvSY4eZFZo1kHui
+        w0Tq7pGuje5sCR2aCcOzyQAB48QozERoHQ4ckvfM5g==
+X-Google-Smtp-Source: APXvYqw8dAsBJ1S81dS8c24GqXUhUW6XmHjR3RyR4eWGFUhc29Y3St6LYLN1M8eBrC0eygFrPssaqk9Ql+iqDEYXsF8=
+X-Received: by 2002:ac2:53b7:: with SMTP id j23mr7216657lfh.85.1559753044883;
+ Wed, 05 Jun 2019 09:44:04 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <1558991372.2631.10.camel@codethink.co.uk> <20190528065131.GA2623@kroah.com>
+ <CAHRSSEzopAbeAv4ap9xTrC1nCbpw1ZPrEYEMZOc5W_EcLZaktQ@mail.gmail.com>
+ <CAHRSSEw=z4hyHMZV=WYAs_hy6Wp2qRk2mWGRSiXUO49d1SDVfQ@mail.gmail.com> <20190604145037.GB5824@kroah.com>
+In-Reply-To: <20190604145037.GB5824@kroah.com>
+From:   Todd Kjos <tkjos@google.com>
+Date:   Wed, 5 Jun 2019 09:43:53 -0700
+Message-ID: <CAHRSSEwxB0YRZd5+JAMUew3w2MKEDcf-t4ReRq-b=zTFEYgW1A@mail.gmail.com>
+Subject: Re: [stable] binder: fix race between munmap() and direct reclaim
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Todd Kjos <tkjos@android.com>,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        Sasha Levin <Alexander.Levin@microsoft.com>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 5cec2d2e5839f9c0fec319c523a911e0a7fd299f upstream.
+On Tue, Jun 4, 2019 at 7:50 AM Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> On Fri, May 31, 2019 at 01:09:53PM -0700, Todd Kjos wrote:
+> > Greg,
+> >
+> > I'm really confused. [1] was my submittal to stable for "binder: fix
+> > race between munmap() and direct reclaim" which I think looks correct.
+> >
+> > For "binder: fix handling of misaligned binder object", I only
+> > submitted to LKML [2]. But then I see [3] for 4.14 (that looks
+> > incorrect as Ben pointed out).
+> >
+> > So the result is that fix is present in the LTS trees where it is
+> > needed, but it has the wrong commit message and headline.
+> >
+> > I agree with Ben that the cleanest approach is to revert and apply the
+> > correct version (to 4.14, 4.19, 5.0). I think the correct version is
+> > the one I sent [1], but please let me know if you see something I
+> > screwed up or if you need me to do something.
+> >
+> > [1] https://www.spinics.net/lists/stable/msg299033.html
+> > [2] https://lkml.org/lkml/2019/2/14/1235
+> > [3] https://lkml.org/lkml/2019/4/30/650
+>
+> Can you send me a patch series that fixes things up properly?  I really
+> don't know exactly what to do here, sorry.
 
-An munmap() on a binder device causes binder_vma_close() to be called
-which clears the alloc->vma pointer.
+Sent. 2 patches for each of 4.14, 4.19, 5.0 (1/2=revert of bad patch,
+2/2 apply good patch). Code ends up the same.
 
-If direct reclaim causes binder_alloc_free_page() to be called, there
-is a race where alloc->vma is read into a local vma pointer and then
-used later after the mm->mmap_sem is acquired. This can result in
-calling zap_page_range() with an invalid vma which manifests as a
-use-after-free in zap_page_range().
-
-The fix is to check alloc->vma after acquiring the mmap_sem (which we
-were acquiring anyway) and skip zap_page_range() if it has changed
-to NULL.
-
-Signed-off-by: Todd Kjos <tkjos@google.com>
-Reviewed-by: Joel Fernandes (Google) <joel@joelfernandes.org>
-Cc: stable <stable@vger.kernel.org> # 5.0
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/android/binder_alloc.c | 18 ++++++++----------
- 1 file changed, 8 insertions(+), 10 deletions(-)
-
-diff --git a/drivers/android/binder_alloc.c b/drivers/android/binder_alloc.c
-index 022cd80e80cc3..a6e556bf62dff 100644
---- a/drivers/android/binder_alloc.c
-+++ b/drivers/android/binder_alloc.c
-@@ -959,14 +959,13 @@ enum lru_status binder_alloc_free_page(struct list_head *item,
- 
- 	index = page - alloc->pages;
- 	page_addr = (uintptr_t)alloc->buffer + index * PAGE_SIZE;
-+
-+	mm = alloc->vma_vm_mm;
-+	if (!mmget_not_zero(mm))
-+		goto err_mmget;
-+	if (!down_write_trylock(&mm->mmap_sem))
-+		goto err_down_write_mmap_sem_failed;
- 	vma = binder_alloc_get_vma(alloc);
--	if (vma) {
--		if (!mmget_not_zero(alloc->vma_vm_mm))
--			goto err_mmget;
--		mm = alloc->vma_vm_mm;
--		if (!down_write_trylock(&mm->mmap_sem))
--			goto err_down_write_mmap_sem_failed;
--	}
- 
- 	list_lru_isolate(lru, item);
- 	spin_unlock(lock);
-@@ -979,10 +978,9 @@ enum lru_status binder_alloc_free_page(struct list_head *item,
- 			       PAGE_SIZE);
- 
- 		trace_binder_unmap_user_end(alloc, index);
--
--		up_write(&mm->mmap_sem);
--		mmput(mm);
- 	}
-+	up_write(&mm->mmap_sem);
-+	mmput(mm);
- 
- 	trace_binder_unmap_kernel_start(alloc, index);
- 
--- 
-2.22.0.rc1.311.g5d7573a151-goog
-
+-Todd
