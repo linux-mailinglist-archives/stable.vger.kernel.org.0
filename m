@@ -2,172 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E799F37B20
-	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 19:35:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C349E37B44
+	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 19:41:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727425AbfFFRfq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Jun 2019 13:35:46 -0400
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:59740 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726863AbfFFRfq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Jun 2019 13:35:46 -0400
-Received: from localhost (unknown [IPv6:2a01:e0a:2c:6930:5cf4:84a1:2763:fe0d])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: bbrezillon)
-        by bhuna.collabora.co.uk (Postfix) with ESMTPSA id E47C82605F9;
-        Thu,  6 Jun 2019 18:35:43 +0100 (BST)
-Date:   Thu, 6 Jun 2019 19:35:40 +0200
-From:   Boris Brezillon <boris.brezillon@collabora.com>
-To:     Vitor Soares <Vitor.Soares@synopsys.com>
-Cc:     "linux-i3c@lists.infradead.org" <linux-i3c@lists.infradead.org>,
-        "Joao.Pinto@synopsys.com" <Joao.Pinto@synopsys.com>,
-        Boris Brezillon <bbrezillon@kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH v2 1/3] i3c: fix i2c and i3c scl rate by bus mode
-Message-ID: <20190606193540.680d391b@collabora.com>
-In-Reply-To: <13D59CF9CEBAF94592A12E8AE55501350AABE7FC@DE02WEMBXB.internal.synopsys.com>
-References: <cover.1559821227.git.vitor.soares@synopsys.com>
-        <47de89f2335930df0ed6903be9afe6de4f46e503.1559821228.git.vitor.soares@synopsys.com>
-        <20190606161844.4a6b759c@collabora.com>
-        <13D59CF9CEBAF94592A12E8AE55501350AABE7FC@DE02WEMBXB.internal.synopsys.com>
-Organization: Collabora
-X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+        id S1728880AbfFFRls (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Jun 2019 13:41:48 -0400
+Received: from mail-ed1-f67.google.com ([209.85.208.67]:37021 "EHLO
+        mail-ed1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728879AbfFFRls (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Jun 2019 13:41:48 -0400
+Received: by mail-ed1-f67.google.com with SMTP id w13so4517979eds.4;
+        Thu, 06 Jun 2019 10:41:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=ep+lClRkBZiSpttevvAOjGUX9zV5Sv5RO5bhSwT85Pk=;
+        b=KkiW/xNCXMwCGoC0JNOZVCNnHMbJ/x14FhvcKNzpcJUKcIjeNtiHET8JVhVAjuwMdJ
+         31dggq3pab3WtEQzLRDJY2PiXEeEcQvbLaGQv9goeQNKJQNR1c2kyOFx7liWBwrUWbTP
+         +yLr+kPukq/L9Y0PD88z/gRmmLnkT8h/OoOxrG67otwhdlVEkxvBfxgCFSYWrA3an1WP
+         PzFCAOXYQ0JRM4evxnZXGdDgP5wSOrNpDOFOXkVcQG8HzQf3g/cAf6Xyyf8t4T0Vfsvp
+         nKo42//+mE0Ef85esn1p1MCFrToWh6tX9jBLIJOxLOtHELeomS4yyqF+dS6wfFKLzVr9
+         sX8w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=ep+lClRkBZiSpttevvAOjGUX9zV5Sv5RO5bhSwT85Pk=;
+        b=tNsLARheiUV7zuJeWEOsMxahDmN940nrGuqGJ037d96JYuMSt1FS4tENmTG3j7mIhp
+         pjTCkCfyGsQXWIyZyCzZDLXzUtA0W6ux+AcUgpnIuEboIMyl8Wkt4ie9LgpxSZRSWAD0
+         WuILQpProTX0AycOkxQlU5NfDLN5xl25byvQZem49SbD/YaMwfKIHy0WJmmDPr/0R6YY
+         R6l9zcdYoBtR4wHxiu3lk5gpBrDSQlzrEG1iMM61pKnU7uDQ40bEa4MBvU8pSV7qvkte
+         I/FD5sLRVdi77ZOyfsP0q3WJOn1ygUP/TR0LBaA4zDPyN8H9ekYoy05G+MRwtHHUpVGh
+         7KPQ==
+X-Gm-Message-State: APjAAAWumJTqmNUUl1nTIV0dXmLPzxzES7XzREieYSo8KNudm4YwJmwq
+        UjScKyrl4nmiZh8iWnGZVFA=
+X-Google-Smtp-Source: APXvYqzEuo34x7u2AlbsVWYtHPQrMq+07rEWRuM0DtQYflaYgwqqQUbgeZvv9EtRXwXcvI/T8PcrKg==
+X-Received: by 2002:a17:906:13c7:: with SMTP id g7mr43293906ejc.1.1559842906721;
+        Thu, 06 Jun 2019 10:41:46 -0700 (PDT)
+Received: from localhost.localdomain ([2a01:4f9:2b:2b15::2])
+        by smtp.gmail.com with ESMTPSA id w5sm617172edd.19.2019.06.06.10.41.45
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 06 Jun 2019 10:41:46 -0700 (PDT)
+From:   Nathan Chancellor <natechancellor@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Pavel Machek <pavel@denx.de>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        James Smart <james.smart@broadcom.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Nathan Chancellor <natechancellor@gmail.com>
+Subject: [PATCH] scsi: lpfc: Fix backport of faf5a744f4f8 ("scsi: lpfc: avoid uninitialized variable warning")
+Date:   Thu,  6 Jun 2019 10:41:25 -0700
+Message-Id: <20190606174125.4277-1-natechancellor@gmail.com>
+X-Mailer: git-send-email 2.22.0.rc3
+In-Reply-To: <20190606165346.GB3249@kroah.com>
+References: <20190606165346.GB3249@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Patchwork-Bot: notify
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 6 Jun 2019 17:16:55 +0000
-Vitor Soares <Vitor.Soares@synopsys.com> wrote:
+Prior to commit 4c47efc140fa ("scsi: lpfc: Move SCSI and NVME Stats to
+hardware queue structures") upstream, we allocated a cstat structure in
+lpfc_nvme_create_localport. When commit faf5a744f4f8 ("scsi: lpfc: avoid
+uninitialized variable warning") was backported, it was placed after the
+allocation so we leaked memory whenever this function was called and
+that conditional was true (so whenever CONFIG_NVME_FC is disabled).
 
-> From: Boris Brezillon <boris.brezillon@collabora.com>
-> Date: Thu, Jun 06, 2019 at 15:18:44
-> 
-> > On Thu,  6 Jun 2019 16:00:01 +0200
-> > Vitor Soares <Vitor.Soares@synopsys.com> wrote:
-> >   
-> > > Currently the I3C framework limits SCL frequency to FM speed when
-> > > dealing with a mixed slow bus, even if all I2C devices are FM+ capable.
-> > > 
-> > > The core was also not accounting for I3C speed limitations when
-> > > operating in mixed slow mode and was erroneously using FM+ speed as the
-> > > max I2C speed when operating in mixed fast mode.
-> > > 
-> > > Fixes: 3a379bbcea0a ("i3c: Add core I3C infrastructure")
-> > > Signed-off-by: Vitor Soares <vitor.soares@synopsys.com>
-> > > Cc: Boris Brezillon <bbrezillon@kernel.org>
-> > > Cc: <stable@vger.kernel.org>
-> > > Cc: <linux-kernel@vger.kernel.org>
-> > > ---
-> > > Changes in v2:
-> > >   Enhance commit message
-> > >   Add dev_warn() in case user-defined i2c rate doesn't match LVR constraint
-> > >   Add dev_warn() in case user-defined i3c rate lower than i2c rate.
-> > > 
-> > >  drivers/i3c/master.c | 61 +++++++++++++++++++++++++++++++++++++++++-----------
-> > >  1 file changed, 48 insertions(+), 13 deletions(-)
-> > > 
-> > > diff --git a/drivers/i3c/master.c b/drivers/i3c/master.c
-> > > index 5f4bd52..8cd5824 100644
-> > > --- a/drivers/i3c/master.c
-> > > +++ b/drivers/i3c/master.c
-> > > @@ -91,6 +91,12 @@ void i3c_bus_normaluse_unlock(struct i3c_bus *bus)
-> > >  	up_read(&bus->lock);
-> > >  }
-> > >  
-> > > +static struct i3c_master_controller *
-> > > +i3c_bus_to_i3c_master(struct i3c_bus *i3cbus)
-> > > +{
-> > > +	return container_of(i3cbus, struct i3c_master_controller, bus);
-> > > +}
-> > > +
-> > >  static struct i3c_master_controller *dev_to_i3cmaster(struct device *dev)
-> > >  {
-> > >  	return container_of(dev, struct i3c_master_controller, dev);
-> > > @@ -565,20 +571,48 @@ static const struct device_type i3c_masterdev_type = {
-> > >  	.groups	= i3c_masterdev_groups,
-> > >  };
-> > >  
-> > > -int i3c_bus_set_mode(struct i3c_bus *i3cbus, enum i3c_bus_mode mode)
-> > > +int i3c_bus_set_mode(struct i3c_bus *i3cbus, enum i3c_bus_mode mode,
-> > > +		     unsigned long max_i2c_scl_rate)
-> > >  {
-> > > -	i3cbus->mode = mode;
-> > >  
-> > > -	if (!i3cbus->scl_rate.i3c)
-> > > -		i3cbus->scl_rate.i3c = I3C_BUS_TYP_I3C_SCL_RATE;
-> > > +	struct i3c_master_controller *master = i3c_bus_to_i3c_master(i3cbus);
-> > >  
-> > > -	if (!i3cbus->scl_rate.i2c) {
-> > > -		if (i3cbus->mode == I3C_BUS_MODE_MIXED_SLOW)
-> > > -			i3cbus->scl_rate.i2c = I3C_BUS_I2C_FM_SCL_RATE;
-> > > -		else
-> > > -			i3cbus->scl_rate.i2c = I3C_BUS_I2C_FM_PLUS_SCL_RATE;
-> > > +	i3cbus->mode = mode;
-> > > +
-> > > +	switch (i3cbus->mode) {
-> > > +	case I3C_BUS_MODE_PURE:
-> > > +		if (!i3cbus->scl_rate.i3c)
-> > > +			i3cbus->scl_rate.i3c = I3C_BUS_TYP_I3C_SCL_RATE;
-> > > +		break;
-> > > +	case I3C_BUS_MODE_MIXED_FAST:
-> > > +		if (!i3cbus->scl_rate.i3c)
-> > > +			i3cbus->scl_rate.i3c = I3C_BUS_TYP_I3C_SCL_RATE;
-> > > +		if (!i3cbus->scl_rate.i2c)
-> > > +			i3cbus->scl_rate.i2c = max_i2c_scl_rate;
-> > > +		break;
-> > > +	case I3C_BUS_MODE_MIXED_SLOW:
-> > > +		if (!i3cbus->scl_rate.i2c)
-> > > +			i3cbus->scl_rate.i2c = max_i2c_scl_rate;
-> > > +		if (!i3cbus->scl_rate.i3c ||
-> > > +		    i3cbus->scl_rate.i3c > i3cbus->scl_rate.i2c)
-> > > +			i3cbus->scl_rate.i3c = i3cbus->scl_rate.i2c;
-> > > +		break;
-> > > +	default:
-> > > +		return -EINVAL;
-> > >  	}
-> > >  
-> > > +	if (i3cbus->scl_rate.i3c < i3cbus->scl_rate.i2c)
-> > > +		dev_warn(&master->dev,
-> > > +			 "i3c-scl-hz=%ld lower than i2c-scl-hz=%ld\n",
-> > > +			 i3cbus->scl_rate.i3c, i3cbus->scl_rate.i2c);
-> > > +
-> > > +	if (i3cbus->scl_rate.i2c != I3C_BUS_I2C_FM_SCL_RATE &&
-> > > +	    i3cbus->scl_rate.i2c != I3C_BUS_I2C_FM_PLUS_SCL_RATE &&
-> > > +	    i3cbus->mode != I3C_BUS_MODE_PURE)  
-> > 
-> > If you are so strict, there's clearly no point exposing an i2c-scl-hz
-> > property. I'm still not convinced having an i2c rate that's slower than
-> > what the I2C/I3C spec defines as the *typical* rate is a bad thing,   
-> 
-> I'm not been strictive, I just inform the user about that case.
+Move the IS_ENABLED if statement above the allocation since it is not
+needed when the condition is true.
 
-Then use dev_debug() and don't make the trace conditional on
-i2c_rate != typical_rate. The only case where we should warn users
-is i2c_rate > typical_rate, because that might lead to malfunctions.
+Reported-by: Pavel Machek <pavel@denx.de>
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+---
+ drivers/scsi/lpfc/lpfc_nvme.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-> 
-> > just
-> > like I'm not convinced having an I3C rate that's slower than the I2C
-> > one is a problem (it's definitely a weird situation, but there's nothing
-> > preventing that in the spec).  
-> 
-> You agree that there is no point for case where i3c rate < i2c rate yet 
-> you are not convinced.
+diff --git a/drivers/scsi/lpfc/lpfc_nvme.c b/drivers/scsi/lpfc/lpfc_nvme.c
+index 099f70798fdd..645ffb5332b4 100644
+--- a/drivers/scsi/lpfc/lpfc_nvme.c
++++ b/drivers/scsi/lpfc/lpfc_nvme.c
+@@ -2477,14 +2477,14 @@ lpfc_nvme_create_localport(struct lpfc_vport *vport)
+ 	lpfc_nvme_template.max_sgl_segments = phba->cfg_nvme_seg_cnt + 1;
+ 	lpfc_nvme_template.max_hw_queues = phba->cfg_nvme_io_channel;
+ 
++	if (!IS_ENABLED(CONFIG_NVME_FC))
++		return ret;
++
+ 	cstat = kmalloc((sizeof(struct lpfc_nvme_ctrl_stat) *
+ 			phba->cfg_nvme_io_channel), GFP_KERNEL);
+ 	if (!cstat)
+ 		return -ENOMEM;
+ 
+-	if (!IS_ENABLED(CONFIG_NVME_FC))
+-		return ret;
+-
+ 	/* localport is allocated from the stack, but the registration
+ 	 * call allocates heap memory as well as the private area.
+ 	 */
+-- 
+2.22.0.rc3
 
-I didn't say that, there might be use cases where one wants to slow
-down the I3C bus to be able to probe it or use a slower rate when
-things do not work properly. It's rather unlikely to happen, but I
-don't think it deserves a warning message when that's the case.
-
-> Do you thing that will be users for this case?
-> 
-> Anyway, this isn't a high requirement for me. The all point of this patch 
-> is to introduce the limited bus configuration.
-
-And yet, you keep insisting (and ignoring my feedback) on that point :P.
