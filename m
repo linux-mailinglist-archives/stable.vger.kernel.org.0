@@ -2,102 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5260237337
-	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 13:44:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8D8137466
+	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 14:41:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726762AbfFFLoI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Jun 2019 07:44:08 -0400
-Received: from mx1.emlix.com ([188.40.240.192]:36596 "EHLO mx1.emlix.com"
+        id S1727138AbfFFMlc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Jun 2019 08:41:32 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:58238 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727310AbfFFLoI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 6 Jun 2019 07:44:08 -0400
-Received: from mailer.emlix.com (unknown [81.20.119.6])
-        (using TLSv1.2 with cipher ADH-AES256-GCM-SHA384 (256/256 bits))
+        id S1727029AbfFFMlc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 6 Jun 2019 08:41:32 -0400
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mx1.emlix.com (Postfix) with ESMTPS id B865560076;
-        Thu,  6 Jun 2019 13:44:06 +0200 (CEST)
-From:   Rolf Eike Beer <eb@emlix.com>
-To:     Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Cc:     linux-efi@vger.kernel.org, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org, ndesaulniers@google.com
-Subject: Re: [PATCH for-4.9-stable] efi/libstub: Unify command line param parsing
-Date:   Thu, 06 Jun 2019 13:44:06 +0200
-Message-ID: <2196650.4E46qPc46x@devpool35>
-Organization: emlix GmbH
-In-Reply-To: <20190606102513.16321-1-ard.biesheuvel@linaro.org>
-References: <20190606102513.16321-1-ard.biesheuvel@linaro.org>
+        by mx1.redhat.com (Postfix) with ESMTPS id B79F93086273;
+        Thu,  6 Jun 2019 12:41:11 +0000 (UTC)
+Received: from dhcp-27-174.brq.redhat.com (unknown [10.43.17.159])
+        by smtp.corp.redhat.com (Postfix) with SMTP id A935E7D65A;
+        Thu,  6 Jun 2019 12:41:04 +0000 (UTC)
+Received: by dhcp-27-174.brq.redhat.com (nbSMTP-1.00) for uid 1000
+        oleg@redhat.com; Thu,  6 Jun 2019 14:41:11 +0200 (CEST)
+Date:   Thu, 6 Jun 2019 14:41:03 +0200
+From:   Oleg Nesterov <oleg@redhat.com>
+To:     David Laight <David.Laight@ACULAB.COM>
+Cc:     'Linus Torvalds' <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Deepa Dinamani <deepa.kernel@gmail.com>,
+        Linux List Kernel Mailing <linux-kernel@vger.kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Davidlohr Bueso <dbueso@suse.de>, Jens Axboe <axboe@kernel.dk>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        "e@80x24.org" <e@80x24.org>, Jason Baron <jbaron@akamai.com>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        "linux-aio@kvack.org" <linux-aio@kvack.org>,
+        "omar.kilani@gmail.com" <omar.kilani@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        stable <stable@vger.kernel.org>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [PATCH -mm 0/1] signal: simplify
+ set_user_sigmask/restore_user_sigmask
+Message-ID: <20190606124103.GB4691@redhat.com>
+References: <20190522032144.10995-1-deepa.kernel@gmail.com>
+ <20190529161157.GA27659@redhat.com>
+ <20190604134117.GA29963@redhat.com>
+ <20190605155801.GA25165@redhat.com>
+ <CAHk-=wjkNx8u4Mcm5dfSQKYQmLQAv1Z1yGLDZvty7BVSj4eqBA@mail.gmail.com>
+ <1285a2e60e3748d8825b9b0e3500cd28@AcuMS.aculab.com>
+ <20190606110522.GA4691@redhat.com>
+ <6e3eeb101a30431eb111ad739ab5d2b0@AcuMS.aculab.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="nextPart31848172.T2U0eTky2d"; micalg="pgp-sha256"; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <6e3eeb101a30431eb111ad739ab5d2b0@AcuMS.aculab.com>
+User-Agent: Mutt/1.5.24 (2015-08-30)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.49]); Thu, 06 Jun 2019 12:41:32 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---nextPart31848172.T2U0eTky2d
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="UTF-8"
+On 06/06, David Laight wrote:
+>
+> Some of this code is hard to grep through :-)
 
-Ard Biesheuvel wrote:
-> Commit 60f38de7a8d4e816100ceafd1b382df52527bd50 upstream.
->=20
-> Merge the parsing of the command line carried out in arm-stub.c with
-> the handling in efi_parse_options(). Note that this also fixes the
-> missing handling of CONFIG_CMDLINE_FORCE=3Dy, in which case the builtin
-> command line should supersede the one passed by the firmware.
->=20
-> Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-> Cc: Linus Torvalds <torvalds@linux-foundation.org>
-> Cc: Matt Fleming <matt@codeblueprint.co.uk>
-> Cc: Peter Zijlstra <peterz@infradead.org>
-> Cc: Thomas Gleixner <tglx@linutronix.de>
-> Cc: bhe@redhat.com
-> Cc: bhsharma@redhat.com
-> Cc: bp@alien8.de
-> Cc: eugene@hp.com
-> Cc: evgeny.kalugin@intel.com
-> Cc: jhugo@codeaurora.org
-> Cc: leif.lindholm@linaro.org
-> Cc: linux-efi@vger.kernel.org
-> Cc: mark.rutland@arm.com
-> Cc: roy.franz@cavium.com
-> Cc: rruigrok@codeaurora.org
-> Link:
-> http://lkml.kernel.org/r/20170404160910.28115-1-ard.biesheuvel@linaro.org
-> Signed-off-by: Ingo Molnar <mingo@kernel.org>
-> [ardb: fix up merge conflicts with 4.9.180]
-> Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-> ---
-> This fixes the GCC build issue reported by Eike.
->=20
-> Note that testing of arm64 stable kernels should cover
-> CONFIG_RANDOMIZE_BASE, since it has a profound impact on how the kernel
-> binary gets put together.
+I'd suggest to simply read the kernel code once and memorise it, after
+that you will not need to use grep.
 
-Confirmed, this patch works for me on top of 4.9.180.
-=2D-=20
-Rolf Eike Beer, emlix GmbH, http://www.emlix.com
-=46on +49 551 30664-0, Fax +49 551 30664-11
-Gothaer Platz 3, 37083 G=C3=B6ttingen, Germany
-Sitz der Gesellschaft: G=C3=B6ttingen, Amtsgericht G=C3=B6ttingen HR B 3160
-Gesch=C3=A4ftsf=C3=BChrung: Heike Jordan, Dr. Uwe Kracke =E2=80=93 Ust-IdNr=
-=2E: DE 205 198 055
+> > When signal handler returns it does sys_rt_sigreturn() which restores
+> > the original mask saved in uc_sigmask.
+>
+> Does that mean that if 2 signals interrupt epoll_wait() only
+> one of the signal handlers is run?
 
-emlix - smart embedded open source
---nextPart31848172.T2U0eTky2d
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part.
-Content-Transfer-Encoding: 7Bit
+I'll assume that both signals were blocked before syscall and temporary
+unblocked by pselect.
 
------BEGIN PGP SIGNATURE-----
+Quite contrary, they both will be delivered exactly because original mask
+won't be restored until the 1st handler returns.
 
-iLMEAAEIAB0WIQQ/Uctzh31xzAxFCLur5FH7Xu2t/AUCXPj8hgAKCRCr5FH7Xu2t
-/KqvBACxZ44yrgwXFYO5IWDP4c6Gj4rNZNK006TUmmaVB3n7KbmstKkpXivHCuvi
-7hTrt+dMHZhz2uGImeVtHai19TPD0cMTYJ5IvbCBpCCKzMXLSO8iznEGlzDDRhZm
-EGBsQ1AhxH0e65RKZ8cadPHdr10R193FNmW/xIVFnrYQcHKEHg==
-=L3Vj
------END PGP SIGNATURE-----
+Unless, of course, the sigaction->sa_mask of the 1st signal blocks another
+one.
 
---nextPart31848172.T2U0eTky2d--
+Didn't I say you do not read my emails? I have already explained this to
+you in this thread ;)
 
-
+Oleg.
 
