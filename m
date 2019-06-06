@@ -2,85 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 08D033750E
-	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 15:22:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 377C937510
+	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 15:24:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726924AbfFFNWx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Jun 2019 09:22:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51130 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725782AbfFFNWx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 6 Jun 2019 09:22:53 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 96EA520866;
-        Thu,  6 Jun 2019 13:22:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559827372;
-        bh=5DCnBlqkLCaf0QybhtzTbl/dW/HgkItPQ7Y1kIO+cog=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=xqop9KNyMyK39T6+MJ6Y3ZVxBI59s3koY6SaRwBpWEMFhjVm9x0ThRrrMaYyvSpfW
-         lOcY8NbumVbUej6opAk3Xxoj0u+8j7XYDbtCjxg0wPM7kGSYIkAMTy30tw3eAiv6CF
-         hW2eB+UNR/6D7MtU6z3jidFgwo82ejE3nzDToYVo=
-Date:   Thu, 6 Jun 2019 09:22:51 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Cc:     eb@emlix.com, linux-efi@vger.kernel.org,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org,
-        ndesaulniers@google.com
-Subject: Re: [PATCH for-4.9-stable] efi/libstub: Unify command line param
- parsing
-Message-ID: <20190606132251.GK29739@sasha-vm>
-References: <20190606102513.16321-1-ard.biesheuvel@linaro.org>
+        id S1726964AbfFFNYC convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Thu, 6 Jun 2019 09:24:02 -0400
+Received: from eu-smtp-delivery-151.mimecast.com ([207.82.80.151]:30548 "EHLO
+        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726877AbfFFNYC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Jun 2019 09:24:02 -0400
+Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
+ TLS) by relay.mimecast.com with ESMTP id
+ uk-mta-26-kobq2hx2OiCkRXv6U5Q6Sg-1; Thu, 06 Jun 2019 14:23:57 +0100
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b::d117) by AcuMS.aculab.com
+ (fd9f:af1c:a25b::d117) with Microsoft SMTP Server (TLS) id 15.0.1347.2; Thu,
+ 6 Jun 2019 14:23:56 +0100
+Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
+ AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
+ Thu, 6 Jun 2019 14:23:56 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Oleg Nesterov' <oleg@redhat.com>
+CC:     'Linus Torvalds' <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Deepa Dinamani <deepa.kernel@gmail.com>,
+        "Linux List Kernel Mailing" <linux-kernel@vger.kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Davidlohr Bueso <dbueso@suse.de>, Jens Axboe <axboe@kernel.dk>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        "e@80x24.org" <e@80x24.org>, Jason Baron <jbaron@akamai.com>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        "linux-aio@kvack.org" <linux-aio@kvack.org>,
+        "omar.kilani@gmail.com" <omar.kilani@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        stable <stable@vger.kernel.org>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: RE: [PATCH -mm 0/1] signal: simplify
+ set_user_sigmask/restore_user_sigmask
+Thread-Topic: [PATCH -mm 0/1] signal: simplify
+ set_user_sigmask/restore_user_sigmask
+Thread-Index: AQHVG8OiWeMKMn2zNEeA0y96arbBsKaOUFtAgAAW0gCAABcWoIAAA6aAgAAcBEA=
+Date:   Thu, 6 Jun 2019 13:23:56 +0000
+Message-ID: <3070fdaff85d4961a7ad9a3a0da0a4ee@AcuMS.aculab.com>
+References: <20190522032144.10995-1-deepa.kernel@gmail.com>
+ <20190529161157.GA27659@redhat.com> <20190604134117.GA29963@redhat.com>
+ <20190605155801.GA25165@redhat.com>
+ <CAHk-=wjkNx8u4Mcm5dfSQKYQmLQAv1Z1yGLDZvty7BVSj4eqBA@mail.gmail.com>
+ <1285a2e60e3748d8825b9b0e3500cd28@AcuMS.aculab.com>
+ <20190606110522.GA4691@redhat.com>
+ <6e3eeb101a30431eb111ad739ab5d2b0@AcuMS.aculab.com>
+ <20190606124103.GB4691@redhat.com>
+In-Reply-To: <20190606124103.GB4691@redhat.com>
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20190606102513.16321-1-ard.biesheuvel@linaro.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+X-MC-Unique: kobq2hx2OiCkRXv6U5Q6Sg-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jun 06, 2019 at 12:25:13PM +0200, Ard Biesheuvel wrote:
->Commit 60f38de7a8d4e816100ceafd1b382df52527bd50 upstream.
->
->Merge the parsing of the command line carried out in arm-stub.c with
->the handling in efi_parse_options(). Note that this also fixes the
->missing handling of CONFIG_CMDLINE_FORCE=y, in which case the builtin
->command line should supersede the one passed by the firmware.
->
->Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
->Cc: Linus Torvalds <torvalds@linux-foundation.org>
->Cc: Matt Fleming <matt@codeblueprint.co.uk>
->Cc: Peter Zijlstra <peterz@infradead.org>
->Cc: Thomas Gleixner <tglx@linutronix.de>
->Cc: bhe@redhat.com
->Cc: bhsharma@redhat.com
->Cc: bp@alien8.de
->Cc: eugene@hp.com
->Cc: evgeny.kalugin@intel.com
->Cc: jhugo@codeaurora.org
->Cc: leif.lindholm@linaro.org
->Cc: linux-efi@vger.kernel.org
->Cc: mark.rutland@arm.com
->Cc: roy.franz@cavium.com
->Cc: rruigrok@codeaurora.org
->Link: http://lkml.kernel.org/r/20170404160910.28115-1-ard.biesheuvel@linaro.org
->Signed-off-by: Ingo Molnar <mingo@kernel.org>
->[ardb: fix up merge conflicts with 4.9.180]
->Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
->---
->This fixes the GCC build issue reported by Eike.
->
->Note that testing of arm64 stable kernels should cover CONFIG_RANDOMIZE_BASE,
->since it has a profound impact on how the kernel binary gets put together.
+From: Oleg Nesterov
+> Sent: 06 June 2019 13:41
+> On 06/06, David Laight wrote:
+> >
+> > Some of this code is hard to grep through :-)
+> 
+> I'd suggest to simply read the kernel code once and memorise it, after
+> that you will not need to use grep.
 
-Should this fix be applied to 4.9 as well?
+Unfortunately all the available buffer space is full of the SYSV and NetBSD
+kernels, there isn't any room for the Linux one :-)
 
-I see it in 4.14+
+	David
 
---
-Thanks,
-Sasha
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
+
