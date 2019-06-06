@@ -2,115 +2,182 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 735D0375A6
-	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 15:50:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8A0E375E9
+	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 16:00:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726762AbfFFNuR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Jun 2019 09:50:17 -0400
-Received: from mail-eopbgr820087.outbound.protection.outlook.com ([40.107.82.87]:64416
-        "EHLO NAM01-SN1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726014AbfFFNuR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 6 Jun 2019 09:50:17 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vmware.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=9U9qPN8eBrLnpfAo4j6vW6cbd3IdTpKoA7nGNKkMKrk=;
- b=r5xIZ11mZb8KyaaGsGCP3INkvu17mHfyGyAONroV7v4cf7sVmCptfW3/cv05QK62SYIBnfacknA+j187XxZq60RidzX5bUJWxNQL7+QPe2Lnj+uE9gkPDV+5/6J/OeVsenoMKDIrIAhRJrz2JNJWGpXrt8N6dN39YyhmsGLP9cQ=
-Received: from MN2PR05MB6208.namprd05.prod.outlook.com (20.178.241.91) by
- MN2PR05MB6559.namprd05.prod.outlook.com (20.178.246.205) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.1987.3; Thu, 6 Jun 2019 13:50:11 +0000
-Received: from MN2PR05MB6208.namprd05.prod.outlook.com
- ([fe80::fc2c:24b8:4047:a9a0]) by MN2PR05MB6208.namprd05.prod.outlook.com
- ([fe80::fc2c:24b8:4047:a9a0%2]) with mapi id 15.20.1965.011; Thu, 6 Jun 2019
- 13:50:11 +0000
-From:   Ajay Kaher <akaher@vmware.com>
-To:     Jason Gunthorpe <jgg@mellanox.com>
-CC:     "aarcange@redhat.com" <aarcange@redhat.com>,
-        "jannh@google.com" <jannh@google.com>,
-        "oleg@redhat.com" <oleg@redhat.com>,
-        "peterx@redhat.com" <peterx@redhat.com>,
-        "rppt@linux.ibm.com" <rppt@linux.ibm.com>,
-        "mhocko@suse.com" <mhocko@suse.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "srivatsa@csail.mit.edu" <srivatsa@csail.mit.edu>,
-        Alexey Makhalov <amakhalov@vmware.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: [PATCH 1/1] [v4.9.y] coredump: fix race condition between
- mmget_not_zero()/get_task_mm() and core dumping
-Thread-Topic: [PATCH 1/1] [v4.9.y] coredump: fix race condition between
- mmget_not_zero()/get_task_mm() and core dumping
-Thread-Index: AQHVEJKsDwy9S0VSH0qGIlGjrsAD56Z3DMGAgBfSlQD//89xAIAAacmA
-Date:   Thu, 6 Jun 2019 13:50:11 +0000
-Message-ID: <07748D2A-B644-4240-B118-C2F796F7F0ED@vmware.com>
-References: <1558553850-27745-1-git-send-email-akaher@vmware.com>
- <20190522120733.GB6039@mellanox.com>
- <DE6BE512-F3CF-4847-BED0-EE2FCC31DCED@vmware.com>
- <20190606130127.GB17392@mellanox.com>
-In-Reply-To: <20190606130127.GB17392@mellanox.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=akaher@vmware.com; 
-x-originating-ip: [103.19.212.1]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: eda06d98-2ae5-471e-3fca-08d6ea85e557
-x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(5600148)(711020)(4605104)(1401327)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(2017052603328)(7193020);SRVR:MN2PR05MB6559;
-x-ms-traffictypediagnostic: MN2PR05MB6559:
-x-ld-processed: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0,ExtAddr
-x-microsoft-antispam-prvs: <MN2PR05MB6559534DFF036872A4B7AE74BB170@MN2PR05MB6559.namprd05.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:8882;
-x-forefront-prvs: 00603B7EEF
-x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(39860400002)(396003)(366004)(346002)(136003)(376002)(199004)(189003)(476003)(2616005)(6116002)(3846002)(6916009)(11346002)(446003)(86362001)(256004)(54906003)(82746002)(8676002)(33656002)(14454004)(7416002)(81156014)(81166006)(5660300002)(68736007)(316002)(91956017)(66946007)(66476007)(64756008)(66446008)(8936002)(73956011)(2906002)(76116006)(36756003)(66556008)(26005)(4326008)(486006)(6512007)(7736002)(305945005)(478600001)(6246003)(99286004)(6506007)(83716004)(76176011)(25786009)(102836004)(53936002)(6486002)(71190400001)(71200400001)(6436002)(229853002)(66066001)(186003);DIR:OUT;SFP:1101;SCL:1;SRVR:MN2PR05MB6559;H:MN2PR05MB6208.namprd05.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
-received-spf: None (protection.outlook.com: vmware.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam-message-info: B5bbkELmaL0FKyrFjsdAgcB7L50E41RyRFJYvnTWgARLTL43CUl5FAwfBs7360IiUOE0LB43+v0riKlju752aXbP7RBPTNRA5GfGT6hAUTOLobzJcObBIz7uyp6zJ0XPd2YNFiZqLdM+PYHZRsLFGVvZphQPk21CvXFZGQlNkZzKlC8Ds8oSAqltVoTvZJBjPxGB6RaRlDFuIE025EVj1XS2+BLdjJyUS5ADpXW0yMMnh5vtRNbuLpBo2An2gqh5mKCz62VI3MwcmjXTG1BOwqQOebypBYWCC1/vaYELHXiAxrGa8AVipA7X1UlXiFHNPD5MUrCo4nGZw2vVvMj6A4iG9P7aXvGlHgjWW5eQyGd/nfsOBCRzbbir3LePdeVOSZoOZOoEkYV1igd6rMFHtXtbAA4JNygaSnvgY6a2T40=
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <3BEFA09AECA12E43A45F6E5D880A1A4A@namprd05.prod.outlook.com>
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
-X-OriginatorOrg: vmware.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: eda06d98-2ae5-471e-3fca-08d6ea85e557
-X-MS-Exchange-CrossTenant-originalarrivaltime: 06 Jun 2019 13:50:11.8024
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: akaher@vmware.com
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR05MB6559
+        id S1728236AbfFFOAK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Jun 2019 10:00:10 -0400
+Received: from dc2-smtprelay2.synopsys.com ([198.182.61.142]:48084 "EHLO
+        smtprelay-out1.synopsys.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1727009AbfFFOAK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Jun 2019 10:00:10 -0400
+Received: from mailhost.synopsys.com (mdc-mailhost1.synopsys.com [10.225.0.209])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+        (No client certificate requested)
+        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id 7339FC0B9B;
+        Thu,  6 Jun 2019 13:59:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
+        t=1559829588; bh=D7GbiPqmdrQeotVDa2DBsWTpcWpA9vK3PAnxRN5AHO8=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:In-Reply-To:
+         References:From;
+        b=MjN9hDKAQ96DypJ9rgePcFO8rwvlc2m0ahCK99zWvUnwzJ5y01oF7h6jySnThAEFS
+         RmXbfXKOeY4E2RlBHxE3wUyFH37Go0Nvyb1uothYjRerj+7Z/LEJ6OHLbEHS/8dVRh
+         AZhzPsL4KD6ApN5Nu3FJQFkg4dDPRgRYik2GNj9YOQgqTRIFxkkDKKzCMsCMdJQ/G4
+         4bkMz1KNeEy3sQbcd1wKvnlteR7a0+NUrN3qS5V0QP9eSyzPRh80zqkTLBPY2qjorU
+         SF+M0UtMCtAqiMe4jQgnCW+OkhxZvQGHK7D7fnpHRvac0n+ketw3UJwjlhIKmWE01l
+         OMEWmUTGXKK1g==
+Received: from de02.synopsys.com (de02.internal.synopsys.com [10.225.17.21])
+        by mailhost.synopsys.com (Postfix) with ESMTP id EC7F4A005C;
+        Thu,  6 Jun 2019 14:00:07 +0000 (UTC)
+Received: from de02dwia024.internal.synopsys.com (de02dwia024.internal.synopsys.com [10.225.19.81])
+        by de02.synopsys.com (Postfix) with ESMTP id D51793F6CE;
+        Thu,  6 Jun 2019 16:00:07 +0200 (CEST)
+From:   Vitor Soares <Vitor.Soares@synopsys.com>
+To:     linux-i3c@lists.infradead.org
+Cc:     Joao.Pinto@synopsys.com, Vitor Soares <Vitor.Soares@synopsys.com>,
+        Boris Brezillon <bbrezillon@kernel.org>,
+        stable@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [PATCH v2 1/3] i3c: fix i2c and i3c scl rate by bus mode
+Date:   Thu,  6 Jun 2019 16:00:01 +0200
+Message-Id: <47de89f2335930df0ed6903be9afe6de4f46e503.1559821228.git.vitor.soares@synopsys.com>
+X-Mailer: git-send-email 2.7.4
+In-Reply-To: <cover.1559821227.git.vitor.soares@synopsys.com>
+References: <cover.1559821227.git.vitor.soares@synopsys.com>
+In-Reply-To: <cover.1559821227.git.vitor.soares@synopsys.com>
+References: <cover.1559821227.git.vitor.soares@synopsys.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-DQoNCu+7v09uIDA2LzA2LzE5LCA2OjMxIFBNLCAiSmFzb24gR3VudGhvcnBlIiA8amdnQG1lbGxh
-bm94LmNvbT4gd3JvdGU6DQoNCj5PbiBUaHUsIEp1biAwNiwgMjAxOSBhdCAxMDoyNToyM0FNICsw
-MDAwLCBBamF5IEthaGVyIHdyb3RlOg0KPg0KPj4gPiBJIHRoaW5rIGluIHRoaXMga2VybmVsIHRo
-ZSBtbSBoYW5kbGluZyBjb2RlIGZvciBJQiBpcyBpbiB0aHJlZQ0KPj4gPiBkaWZmZXJlbnQgZHJp
-dmVycywgaXQgcHJvYmFibHkgbmVlZHMgdG8gYmUgZml4ZWQgdG9vPw0KPj4gDQo+PiBUaGFua3Mg
-SmFzb24gZm9yIHBvaW50aW5nIHRoaXMuDQo+PiAgIA0KPj4gQ3Jvc3NlZCBjaGVja2VkIHRoZSBs
-b2NraW5nIG9mIG1tYXBfc2VtIGluIElCIGRyaXZlciBjb2RlIG9mIDQuOSB0byA0LjE0IHdpdGgg
-PjUuMA0KPj4gYW5kIGZvdW5kIGl0IHJlcXVpcmVzIHRvIGhhbmRsZSBhdCBmb2xsb3dpbmcgbG9j
-YXRpb25zIG9mIDQuOSBhbmQgNC4xNDoNCj4+IG1seDRfaWJfZGlzYXNzb2NpYXRlX3Vjb250ZXh0
-KCkgb2YgZHJpdmVycy9pbmZpbmliYW5kL2h3L21seDUvbWFpbi5jOg0KPj4gbWx4NV9pYl9kaXNh
-c3NvY2lhdGVfdWNvbnRleHQoKSBvZiBkcml2ZXJzL2luZmluaWJhbmQvaHcvbWx4NC9tYWluLmMN
-Cj4+IA0KPj4gVG8gZml4IGF0IGFib3ZlIGxvY2F0aW9uLCB3b3VsZCB5b3UgbGlrZSBtZSB0byBt
-b2RpZnkgdGhlIG9yaWdpbmFsDQo+PiBwYXRjaCBvciBzdWJtaXQgaW4gYW5vdGhlciBwYXRjaC4N
-Cj4NCj4gSSB0aGluayBpdCBpcyBhIGJhY2twb3J0aW5nIHRoaW5nLCBzbyB5b3Ugc2hvdWxkIHB1
-dCB0aGUgbmV3IHdvcmsgaW4NCj4gdGhpcyBwYXRjaD8gSSdtIG5vdCBzdXJlLg0KDQpPaywgSSB3
-b3VsZCBsaWtlIHRvIHN1Ym1pdCBuZXcgcGF0Y2ggZm9yIG5ldyB3b3JrIGluIDQuMTQsIGFuZCB0
-aGVuDQpiYWNrcG9ydCB0byA0LjksIHNvb24gSSB3aWxsIHN1Ym1pdCBmb3IgcmV2aWV3Lg0KDQpS
-ZS1zdWJtaXR0ZWQgdGhlIHRoaXMgcGF0Y2ggYWdhaW4gYWZ0ZXIgY29ycmVjdGluZyB0aGUgdXBz
-dHJlYW0gY29tbWl0LCBhczoNClN1YjogW1BBVENIIHYyIDEvMV0gW3Y0LjkueV0gY29yZWR1bXA6
-IGZpeCByYWNlIGNvbmRpdGlvbiBiZXR3ZWVuIA0KICAgICAgICAgbW1nZXRfbm90X3plcm8oKS9n
-ZXRfdGFza19tbSgpIGFuZCBjb3JlIGR1bXBpbmcNCg0KUGxlYXNlIHJldmlldy4NCg0KPiBJJ20g
-YWxzbyBzdXJwcmlzZWQgaG5zIGlzbid0IGluIHRoZSBhYm92ZSBsaXN0IG9mIGRyaXZlcnMsIGJ1
-dCBtYXliZQ0KPiBobnMgZGlkbid0IGhhdmUgdGhpcyBzdXBwb3J0IGluIHRoZXNlIGtlcm5lbHMu
-Lg0KDQpJQi0+aG5zIGRvZXNuJ3QgaGF2ZSBhbnkgaW5zdGFuY2Ugb2YgbW1hcF9zZW0gY2hlY2tl
-ZCBmb3IgNC45LTQuMTQuDQoNCj5KYXNvbg0KPg0KDQo=
+Currently the I3C framework limits SCL frequency to FM speed when
+dealing with a mixed slow bus, even if all I2C devices are FM+ capable.
+
+The core was also not accounting for I3C speed limitations when
+operating in mixed slow mode and was erroneously using FM+ speed as the
+max I2C speed when operating in mixed fast mode.
+
+Fixes: 3a379bbcea0a ("i3c: Add core I3C infrastructure")
+Signed-off-by: Vitor Soares <vitor.soares@synopsys.com>
+Cc: Boris Brezillon <bbrezillon@kernel.org>
+Cc: <stable@vger.kernel.org>
+Cc: <linux-kernel@vger.kernel.org>
+---
+Changes in v2:
+  Enhance commit message
+  Add dev_warn() in case user-defined i2c rate doesn't match LVR constraint
+  Add dev_warn() in case user-defined i3c rate lower than i2c rate.
+
+ drivers/i3c/master.c | 61 +++++++++++++++++++++++++++++++++++++++++-----------
+ 1 file changed, 48 insertions(+), 13 deletions(-)
+
+diff --git a/drivers/i3c/master.c b/drivers/i3c/master.c
+index 5f4bd52..8cd5824 100644
+--- a/drivers/i3c/master.c
++++ b/drivers/i3c/master.c
+@@ -91,6 +91,12 @@ void i3c_bus_normaluse_unlock(struct i3c_bus *bus)
+ 	up_read(&bus->lock);
+ }
+ 
++static struct i3c_master_controller *
++i3c_bus_to_i3c_master(struct i3c_bus *i3cbus)
++{
++	return container_of(i3cbus, struct i3c_master_controller, bus);
++}
++
+ static struct i3c_master_controller *dev_to_i3cmaster(struct device *dev)
+ {
+ 	return container_of(dev, struct i3c_master_controller, dev);
+@@ -565,20 +571,48 @@ static const struct device_type i3c_masterdev_type = {
+ 	.groups	= i3c_masterdev_groups,
+ };
+ 
+-int i3c_bus_set_mode(struct i3c_bus *i3cbus, enum i3c_bus_mode mode)
++int i3c_bus_set_mode(struct i3c_bus *i3cbus, enum i3c_bus_mode mode,
++		     unsigned long max_i2c_scl_rate)
+ {
+-	i3cbus->mode = mode;
+ 
+-	if (!i3cbus->scl_rate.i3c)
+-		i3cbus->scl_rate.i3c = I3C_BUS_TYP_I3C_SCL_RATE;
++	struct i3c_master_controller *master = i3c_bus_to_i3c_master(i3cbus);
+ 
+-	if (!i3cbus->scl_rate.i2c) {
+-		if (i3cbus->mode == I3C_BUS_MODE_MIXED_SLOW)
+-			i3cbus->scl_rate.i2c = I3C_BUS_I2C_FM_SCL_RATE;
+-		else
+-			i3cbus->scl_rate.i2c = I3C_BUS_I2C_FM_PLUS_SCL_RATE;
++	i3cbus->mode = mode;
++
++	switch (i3cbus->mode) {
++	case I3C_BUS_MODE_PURE:
++		if (!i3cbus->scl_rate.i3c)
++			i3cbus->scl_rate.i3c = I3C_BUS_TYP_I3C_SCL_RATE;
++		break;
++	case I3C_BUS_MODE_MIXED_FAST:
++		if (!i3cbus->scl_rate.i3c)
++			i3cbus->scl_rate.i3c = I3C_BUS_TYP_I3C_SCL_RATE;
++		if (!i3cbus->scl_rate.i2c)
++			i3cbus->scl_rate.i2c = max_i2c_scl_rate;
++		break;
++	case I3C_BUS_MODE_MIXED_SLOW:
++		if (!i3cbus->scl_rate.i2c)
++			i3cbus->scl_rate.i2c = max_i2c_scl_rate;
++		if (!i3cbus->scl_rate.i3c ||
++		    i3cbus->scl_rate.i3c > i3cbus->scl_rate.i2c)
++			i3cbus->scl_rate.i3c = i3cbus->scl_rate.i2c;
++		break;
++	default:
++		return -EINVAL;
+ 	}
+ 
++	if (i3cbus->scl_rate.i3c < i3cbus->scl_rate.i2c)
++		dev_warn(&master->dev,
++			 "i3c-scl-hz=%ld lower than i2c-scl-hz=%ld\n",
++			 i3cbus->scl_rate.i3c, i3cbus->scl_rate.i2c);
++
++	if (i3cbus->scl_rate.i2c != I3C_BUS_I2C_FM_SCL_RATE &&
++	    i3cbus->scl_rate.i2c != I3C_BUS_I2C_FM_PLUS_SCL_RATE &&
++	    i3cbus->mode != I3C_BUS_MODE_PURE)
++		dev_warn(&master->dev,
++			 "i2c-scl-hz=%ld not defined according MIPI I3C spec\n"
++			 , i3cbus->scl_rate.i2c);
++
+ 	/*
+ 	 * I3C/I2C frequency may have been overridden, check that user-provided
+ 	 * values are not exceeding max possible frequency.
+@@ -1966,9 +2000,6 @@ of_i3c_master_add_i2c_boardinfo(struct i3c_master_controller *master,
+ 	/* LVR is encoded in reg[2]. */
+ 	boardinfo->lvr = reg[2];
+ 
+-	if (boardinfo->lvr & I3C_LVR_I2C_FM_MODE)
+-		master->bus.scl_rate.i2c = I3C_BUS_I2C_FM_SCL_RATE;
+-
+ 	list_add_tail(&boardinfo->node, &master->boardinfo.i2c);
+ 	of_node_get(node);
+ 
+@@ -2417,6 +2448,7 @@ int i3c_master_register(struct i3c_master_controller *master,
+ 			const struct i3c_master_controller_ops *ops,
+ 			bool secondary)
+ {
++	unsigned long i2c_scl_rate = I3C_BUS_I2C_FM_PLUS_SCL_RATE;
+ 	struct i3c_bus *i3cbus = i3c_master_get_bus(master);
+ 	enum i3c_bus_mode mode = I3C_BUS_MODE_PURE;
+ 	struct i2c_dev_boardinfo *i2cbi;
+@@ -2466,9 +2498,12 @@ int i3c_master_register(struct i3c_master_controller *master,
+ 			ret = -EINVAL;
+ 			goto err_put_dev;
+ 		}
++
++		if (i2cbi->lvr & I3C_LVR_I2C_FM_MODE)
++			i2c_scl_rate = I3C_BUS_I2C_FM_SCL_RATE;
+ 	}
+ 
+-	ret = i3c_bus_set_mode(i3cbus, mode);
++	ret = i3c_bus_set_mode(i3cbus, mode, i2c_scl_rate);
+ 	if (ret)
+ 		goto err_put_dev;
+ 
+-- 
+2.7.4
+
