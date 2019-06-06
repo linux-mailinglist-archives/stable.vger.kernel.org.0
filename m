@@ -2,190 +2,182 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 301F937614
-	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 16:09:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 93EF337636
+	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 16:18:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728646AbfFFOJi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Jun 2019 10:09:38 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:38536 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727603AbfFFOJi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 6 Jun 2019 10:09:38 -0400
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1727309AbfFFOSv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Jun 2019 10:18:51 -0400
+Received: from bhuna.collabora.co.uk ([46.235.227.227]:58542 "EHLO
+        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727168AbfFFOSu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Jun 2019 10:18:50 -0400
+Received: from localhost (unknown [IPv6:2a01:e0a:2c:6930:5cf4:84a1:2763:fe0d])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 85681307D95F;
-        Thu,  6 Jun 2019 14:09:22 +0000 (UTC)
-Received: from dhcp-27-174.brq.redhat.com (unknown [10.43.17.159])
-        by smtp.corp.redhat.com (Postfix) with SMTP id 37DB68185;
-        Thu,  6 Jun 2019 14:09:16 +0000 (UTC)
-Received: by dhcp-27-174.brq.redhat.com (nbSMTP-1.00) for uid 1000
-        oleg@redhat.com; Thu,  6 Jun 2019 16:09:22 +0200 (CEST)
-Date:   Thu, 6 Jun 2019 16:09:15 +0200
-From:   Oleg Nesterov <oleg@redhat.com>
-To:     Andrew Morton <akpm@linux-foundation.org>,
-        Deepa Dinamani <deepa.kernel@gmail.com>
-Cc:     linux-kernel@vger.kernel.org, arnd@arndb.de, dbueso@suse.de,
-        axboe@kernel.dk, dave@stgolabs.net, e@80x24.org, jbaron@akamai.com,
-        linux-fsdevel@vger.kernel.org, linux-aio@kvack.org,
-        omar.kilani@gmail.com, tglx@linutronix.de, stable@vger.kernel.org,
-        Al Viro <viro@ZenIV.linux.org.uk>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        David Laight <David.Laight@ACULAB.COM>
-Subject: [PATCH 2/2] select: shift restore_saved_sigmask_unless() into
- poll_select_copy_remaining()
-Message-ID: <20190606140915.GC13440@redhat.com>
-References: <20190522032144.10995-1-deepa.kernel@gmail.com>
- <20190529161157.GA27659@redhat.com>
- <20190604134117.GA29963@redhat.com>
- <20190606140814.GA13440@redhat.com>
+        (Authenticated sender: bbrezillon)
+        by bhuna.collabora.co.uk (Postfix) with ESMTPSA id CE789284BB4;
+        Thu,  6 Jun 2019 15:18:47 +0100 (BST)
+Date:   Thu, 6 Jun 2019 16:18:44 +0200
+From:   Boris Brezillon <boris.brezillon@collabora.com>
+To:     Vitor Soares <Vitor.Soares@synopsys.com>
+Cc:     linux-i3c@lists.infradead.org, Joao.Pinto@synopsys.com,
+        Boris Brezillon <bbrezillon@kernel.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH v2 1/3] i3c: fix i2c and i3c scl rate by bus mode
+Message-ID: <20190606161844.4a6b759c@collabora.com>
+In-Reply-To: <47de89f2335930df0ed6903be9afe6de4f46e503.1559821228.git.vitor.soares@synopsys.com>
+References: <cover.1559821227.git.vitor.soares@synopsys.com>
+        <47de89f2335930df0ed6903be9afe6de4f46e503.1559821228.git.vitor.soares@synopsys.com>
+Organization: Collabora
+X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190606140814.GA13440@redhat.com>
-User-Agent: Mutt/1.5.24 (2015-08-30)
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.48]); Thu, 06 Jun 2019 14:09:38 +0000 (UTC)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Now that restore_saved_sigmask_unless() is always called with the same
-argument right before poll_select_copy_remaining() we can move it into
-poll_select_copy_remaining() and make it the only caller of restore()
-in fs/select.c.
+On Thu,  6 Jun 2019 16:00:01 +0200
+Vitor Soares <Vitor.Soares@synopsys.com> wrote:
 
-The patch also renames poll_select_copy_remaining(), poll_select_finish()
-looks better after this change.
+> Currently the I3C framework limits SCL frequency to FM speed when
+> dealing with a mixed slow bus, even if all I2C devices are FM+ capable.
+> 
+> The core was also not accounting for I3C speed limitations when
+> operating in mixed slow mode and was erroneously using FM+ speed as the
+> max I2C speed when operating in mixed fast mode.
+> 
+> Fixes: 3a379bbcea0a ("i3c: Add core I3C infrastructure")
+> Signed-off-by: Vitor Soares <vitor.soares@synopsys.com>
+> Cc: Boris Brezillon <bbrezillon@kernel.org>
+> Cc: <stable@vger.kernel.org>
+> Cc: <linux-kernel@vger.kernel.org>
+> ---
+> Changes in v2:
+>   Enhance commit message
+>   Add dev_warn() in case user-defined i2c rate doesn't match LVR constraint
+>   Add dev_warn() in case user-defined i3c rate lower than i2c rate.
+> 
+>  drivers/i3c/master.c | 61 +++++++++++++++++++++++++++++++++++++++++-----------
+>  1 file changed, 48 insertions(+), 13 deletions(-)
+> 
+> diff --git a/drivers/i3c/master.c b/drivers/i3c/master.c
+> index 5f4bd52..8cd5824 100644
+> --- a/drivers/i3c/master.c
+> +++ b/drivers/i3c/master.c
+> @@ -91,6 +91,12 @@ void i3c_bus_normaluse_unlock(struct i3c_bus *bus)
+>  	up_read(&bus->lock);
+>  }
+>  
+> +static struct i3c_master_controller *
+> +i3c_bus_to_i3c_master(struct i3c_bus *i3cbus)
+> +{
+> +	return container_of(i3cbus, struct i3c_master_controller, bus);
+> +}
+> +
+>  static struct i3c_master_controller *dev_to_i3cmaster(struct device *dev)
+>  {
+>  	return container_of(dev, struct i3c_master_controller, dev);
+> @@ -565,20 +571,48 @@ static const struct device_type i3c_masterdev_type = {
+>  	.groups	= i3c_masterdev_groups,
+>  };
+>  
+> -int i3c_bus_set_mode(struct i3c_bus *i3cbus, enum i3c_bus_mode mode)
+> +int i3c_bus_set_mode(struct i3c_bus *i3cbus, enum i3c_bus_mode mode,
+> +		     unsigned long max_i2c_scl_rate)
+>  {
+> -	i3cbus->mode = mode;
+>  
+> -	if (!i3cbus->scl_rate.i3c)
+> -		i3cbus->scl_rate.i3c = I3C_BUS_TYP_I3C_SCL_RATE;
+> +	struct i3c_master_controller *master = i3c_bus_to_i3c_master(i3cbus);
+>  
+> -	if (!i3cbus->scl_rate.i2c) {
+> -		if (i3cbus->mode == I3C_BUS_MODE_MIXED_SLOW)
+> -			i3cbus->scl_rate.i2c = I3C_BUS_I2C_FM_SCL_RATE;
+> -		else
+> -			i3cbus->scl_rate.i2c = I3C_BUS_I2C_FM_PLUS_SCL_RATE;
+> +	i3cbus->mode = mode;
+> +
+> +	switch (i3cbus->mode) {
+> +	case I3C_BUS_MODE_PURE:
+> +		if (!i3cbus->scl_rate.i3c)
+> +			i3cbus->scl_rate.i3c = I3C_BUS_TYP_I3C_SCL_RATE;
+> +		break;
+> +	case I3C_BUS_MODE_MIXED_FAST:
+> +		if (!i3cbus->scl_rate.i3c)
+> +			i3cbus->scl_rate.i3c = I3C_BUS_TYP_I3C_SCL_RATE;
+> +		if (!i3cbus->scl_rate.i2c)
+> +			i3cbus->scl_rate.i2c = max_i2c_scl_rate;
+> +		break;
+> +	case I3C_BUS_MODE_MIXED_SLOW:
+> +		if (!i3cbus->scl_rate.i2c)
+> +			i3cbus->scl_rate.i2c = max_i2c_scl_rate;
+> +		if (!i3cbus->scl_rate.i3c ||
+> +		    i3cbus->scl_rate.i3c > i3cbus->scl_rate.i2c)
+> +			i3cbus->scl_rate.i3c = i3cbus->scl_rate.i2c;
+> +		break;
+> +	default:
+> +		return -EINVAL;
+>  	}
+>  
+> +	if (i3cbus->scl_rate.i3c < i3cbus->scl_rate.i2c)
+> +		dev_warn(&master->dev,
+> +			 "i3c-scl-hz=%ld lower than i2c-scl-hz=%ld\n",
+> +			 i3cbus->scl_rate.i3c, i3cbus->scl_rate.i2c);
+> +
+> +	if (i3cbus->scl_rate.i2c != I3C_BUS_I2C_FM_SCL_RATE &&
+> +	    i3cbus->scl_rate.i2c != I3C_BUS_I2C_FM_PLUS_SCL_RATE &&
+> +	    i3cbus->mode != I3C_BUS_MODE_PURE)
 
-kern_select() doesn't use set_user_sigmask(), so in this case
-poll_select_finish() does restore_saved_sigmask_unless() "for no reason".
-But this won't hurt, and WARN_ON(!TIF_SIGPENDING) is still valid.
+If you are so strict, there's clearly no point exposing an i2c-scl-hz
+property. I'm still not convinced having an i2c rate that's slower than
+what the I2C/I3C spec defines as the *typical* rate is a bad thing, just
+like I'm not convinced having an I3C rate that's slower than the I2C
+one is a problem (it's definitely a weird situation, but there's nothing
+preventing that in the spec).
 
-Signed-off-by: Oleg Nesterov <oleg@redhat.com>
----
- fs/select.c | 46 +++++++++++++---------------------------------
- 1 file changed, 13 insertions(+), 33 deletions(-)
+> +		dev_warn(&master->dev,
+> +			 "i2c-scl-hz=%ld not defined according MIPI I3C spec\n"
+> +			 , i3cbus->scl_rate.i2c);
 
-diff --git a/fs/select.c b/fs/select.c
-index 57712c3..51ceec2 100644
---- a/fs/select.c
-+++ b/fs/select.c
-@@ -294,12 +294,14 @@ enum poll_time_type {
- 	PT_OLD_TIMESPEC = 3,
- };
- 
--static int poll_select_copy_remaining(struct timespec64 *end_time,
--				      void __user *p,
--				      enum poll_time_type pt_type, int ret)
-+static int poll_select_finish(struct timespec64 *end_time,
-+			      void __user *p,
-+			      enum poll_time_type pt_type, int ret)
- {
- 	struct timespec64 rts;
- 
-+	restore_saved_sigmask_unless(ret == -ERESTARTNOHAND);
-+
- 	if (!p)
- 		return ret;
- 
-@@ -714,9 +716,7 @@ static int kern_select(int n, fd_set __user *inp, fd_set __user *outp,
- 	}
- 
- 	ret = core_sys_select(n, inp, outp, exp, to);
--	ret = poll_select_copy_remaining(&end_time, tvp, PT_TIMEVAL, ret);
--
--	return ret;
-+	return poll_select_finish(&end_time, tvp, PT_TIMEVAL, ret);
- }
- 
- SYSCALL_DEFINE5(select, int, n, fd_set __user *, inp, fd_set __user *, outp,
-@@ -757,10 +757,7 @@ static long do_pselect(int n, fd_set __user *inp, fd_set __user *outp,
- 		return ret;
- 
- 	ret = core_sys_select(n, inp, outp, exp, to);
--	restore_saved_sigmask_unless(ret == -ERESTARTNOHAND);
--	ret = poll_select_copy_remaining(&end_time, tsp, type, ret);
--
--	return ret;
-+	return poll_select_finish(&end_time, tsp, type, ret);
- }
- 
- /*
-@@ -1102,10 +1099,7 @@ SYSCALL_DEFINE5(ppoll, struct pollfd __user *, ufds, unsigned int, nfds,
- 		return ret;
- 
- 	ret = do_sys_poll(ufds, nfds, to);
--	restore_saved_sigmask_unless(ret == -ERESTARTNOHAND);
--	ret = poll_select_copy_remaining(&end_time, tsp, PT_TIMESPEC, ret);
--
--	return ret;
-+	return poll_select_finish(&end_time, tsp, PT_TIMESPEC, ret);
- }
- 
- #if defined(CONFIG_COMPAT_32BIT_TIME) && !defined(CONFIG_64BIT)
-@@ -1131,10 +1125,7 @@ SYSCALL_DEFINE5(ppoll_time32, struct pollfd __user *, ufds, unsigned int, nfds,
- 		return ret;
- 
- 	ret = do_sys_poll(ufds, nfds, to);
--	restore_saved_sigmask_unless(ret == -ERESTARTNOHAND);
--	ret = poll_select_copy_remaining(&end_time, tsp, PT_OLD_TIMESPEC, ret);
--
--	return ret;
-+	return poll_select_finish(&end_time, tsp, PT_OLD_TIMESPEC, ret);
- }
- #endif
- 
-@@ -1271,9 +1262,7 @@ static int do_compat_select(int n, compat_ulong_t __user *inp,
- 	}
- 
- 	ret = compat_core_sys_select(n, inp, outp, exp, to);
--	ret = poll_select_copy_remaining(&end_time, tvp, PT_OLD_TIMEVAL, ret);
--
--	return ret;
-+	return poll_select_finish(&end_time, tvp, PT_OLD_TIMEVAL, ret);
- }
- 
- COMPAT_SYSCALL_DEFINE5(select, int, n, compat_ulong_t __user *, inp,
-@@ -1333,10 +1322,7 @@ static long do_compat_pselect(int n, compat_ulong_t __user *inp,
- 		return ret;
- 
- 	ret = compat_core_sys_select(n, inp, outp, exp, to);
--	restore_saved_sigmask_unless(ret == -ERESTARTNOHAND);
--	ret = poll_select_copy_remaining(&end_time, tsp, type, ret);
--
--	return ret;
-+	return poll_select_finish(&end_time, tsp, type, ret);
- }
- 
- COMPAT_SYSCALL_DEFINE6(pselect6_time64, int, n, compat_ulong_t __user *, inp,
-@@ -1405,10 +1391,7 @@ COMPAT_SYSCALL_DEFINE5(ppoll_time32, struct pollfd __user *, ufds,
- 		return ret;
- 
- 	ret = do_sys_poll(ufds, nfds, to);
--	restore_saved_sigmask_unless(ret == -ERESTARTNOHAND);
--	ret = poll_select_copy_remaining(&end_time, tsp, PT_OLD_TIMESPEC, ret);
--
--	return ret;
-+	return poll_select_finish(&end_time, tsp, PT_OLD_TIMESPEC, ret);
- }
- #endif
- 
-@@ -1434,10 +1417,7 @@ COMPAT_SYSCALL_DEFINE5(ppoll_time64, struct pollfd __user *, ufds,
- 		return ret;
- 
- 	ret = do_sys_poll(ufds, nfds, to);
--	restore_saved_sigmask_unless(ret == -ERESTARTNOHAND);
--	ret = poll_select_copy_remaining(&end_time, tsp, PT_TIMESPEC, ret);
--
--	return ret;
-+	return poll_select_finish(&end_time, tsp, PT_TIMESPEC, ret);
- }
- 
- #endif
--- 
-2.5.0
+The comma should be on the previous line.
 
+> +
+>  	/*
+>  	 * I3C/I2C frequency may have been overridden, check that user-provided
+>  	 * values are not exceeding max possible frequency.
+> @@ -1966,9 +2000,6 @@ of_i3c_master_add_i2c_boardinfo(struct i3c_master_controller *master,
+>  	/* LVR is encoded in reg[2]. */
+>  	boardinfo->lvr = reg[2];
+>  
+> -	if (boardinfo->lvr & I3C_LVR_I2C_FM_MODE)
+> -		master->bus.scl_rate.i2c = I3C_BUS_I2C_FM_SCL_RATE;
+> -
+>  	list_add_tail(&boardinfo->node, &master->boardinfo.i2c);
+>  	of_node_get(node);
+>  
+> @@ -2417,6 +2448,7 @@ int i3c_master_register(struct i3c_master_controller *master,
+>  			const struct i3c_master_controller_ops *ops,
+>  			bool secondary)
+>  {
+> +	unsigned long i2c_scl_rate = I3C_BUS_I2C_FM_PLUS_SCL_RATE;
+>  	struct i3c_bus *i3cbus = i3c_master_get_bus(master);
+>  	enum i3c_bus_mode mode = I3C_BUS_MODE_PURE;
+>  	struct i2c_dev_boardinfo *i2cbi;
+> @@ -2466,9 +2498,12 @@ int i3c_master_register(struct i3c_master_controller *master,
+>  			ret = -EINVAL;
+>  			goto err_put_dev;
+>  		}
+> +
+> +		if (i2cbi->lvr & I3C_LVR_I2C_FM_MODE)
+> +			i2c_scl_rate = I3C_BUS_I2C_FM_SCL_RATE;
+>  	}
+>  
+> -	ret = i3c_bus_set_mode(i3cbus, mode);
+> +	ret = i3c_bus_set_mode(i3cbus, mode, i2c_scl_rate);
+>  	if (ret)
+>  		goto err_put_dev;
+>  
 
