@@ -2,122 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2344B372E8
-	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 13:31:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77A83372DE
+	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 13:31:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727230AbfFFLak (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Jun 2019 07:30:40 -0400
-Received: from lhrrgout.huawei.com ([185.176.76.210]:32989 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727296AbfFFLak (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 6 Jun 2019 07:30:40 -0400
-Received: from lhreml705-cah.china.huawei.com (unknown [172.18.7.108])
-        by Forcepoint Email with ESMTP id A3EEDA022841E334D138;
-        Thu,  6 Jun 2019 12:30:38 +0100 (IST)
-Received: from roberto-HP-EliteDesk-800-G2-DM-65W.huawei.com (10.204.65.154)
- by smtpsuk.huawei.com (10.201.108.46) with Microsoft SMTP Server (TLS) id
- 14.3.408.0; Thu, 6 Jun 2019 12:30:30 +0100
-From:   Roberto Sassu <roberto.sassu@huawei.com>
-To:     <zohar@linux.ibm.com>, <dmitry.kasatkin@huawei.com>,
-        <mjg59@google.com>
-CC:     <linux-integrity@vger.kernel.org>,
-        <linux-security-module@vger.kernel.org>,
-        <linux-doc@vger.kernel.org>, <stable@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <silviu.vlasceanu@huawei.com>,
-        Roberto Sassu <roberto.sassu@huawei.com>
-Subject: [PATCH v3 2/2] ima: add enforce-evm and log-evm modes to strictly check EVM status
-Date:   Thu, 6 Jun 2019 13:26:20 +0200
-Message-ID: <20190606112620.26488-3-roberto.sassu@huawei.com>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20190606112620.26488-1-roberto.sassu@huawei.com>
-References: <20190606112620.26488-1-roberto.sassu@huawei.com>
+        id S1726926AbfFFL3z convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Thu, 6 Jun 2019 07:29:55 -0400
+Received: from eu-smtp-delivery-151.mimecast.com ([146.101.78.151]:59808 "EHLO
+        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727420AbfFFL3y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Jun 2019 07:29:54 -0400
+Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
+ TLS) by relay.mimecast.com with ESMTP id
+ uk-mta-55-JlKKsqqGP-m_DvJJhUs1bQ-1; Thu, 06 Jun 2019 12:29:50 +0100
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
+ Server (TLS) id 15.0.1347.2; Thu, 6 Jun 2019 12:29:49 +0100
+Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
+ AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
+ Thu, 6 Jun 2019 12:29:49 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Oleg Nesterov' <oleg@redhat.com>
+CC:     'Linus Torvalds' <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Deepa Dinamani <deepa.kernel@gmail.com>,
+        "Linux List Kernel Mailing" <linux-kernel@vger.kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Davidlohr Bueso <dbueso@suse.de>, Jens Axboe <axboe@kernel.dk>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        "e@80x24.org" <e@80x24.org>, Jason Baron <jbaron@akamai.com>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        "linux-aio@kvack.org" <linux-aio@kvack.org>,
+        "omar.kilani@gmail.com" <omar.kilani@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        stable <stable@vger.kernel.org>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: RE: [PATCH -mm 0/1] signal: simplify
+ set_user_sigmask/restore_user_sigmask
+Thread-Topic: [PATCH -mm 0/1] signal: simplify
+ set_user_sigmask/restore_user_sigmask
+Thread-Index: AQHVG8OiWeMKMn2zNEeA0y96arbBsKaOUFtAgAAW0gCAABcWoA==
+Date:   Thu, 6 Jun 2019 11:29:49 +0000
+Message-ID: <6e3eeb101a30431eb111ad739ab5d2b0@AcuMS.aculab.com>
+References: <20190522032144.10995-1-deepa.kernel@gmail.com>
+ <20190529161157.GA27659@redhat.com> <20190604134117.GA29963@redhat.com>
+ <20190605155801.GA25165@redhat.com>
+ <CAHk-=wjkNx8u4Mcm5dfSQKYQmLQAv1Z1yGLDZvty7BVSj4eqBA@mail.gmail.com>
+ <1285a2e60e3748d8825b9b0e3500cd28@AcuMS.aculab.com>
+ <20190606110522.GA4691@redhat.com>
+In-Reply-To: <20190606110522.GA4691@redhat.com>
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.204.65.154]
-X-CFilter-Loop: Reflected
+X-MC-Unique: JlKKsqqGP-m_DvJJhUs1bQ-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-IMA and EVM have been designed as two independent subsystems: the first for
-checking the integrity of file data; the second for checking file metadata.
-Making them independent allows users to adopt them incrementally.
+From: Oleg Nesterov
+> Sent: 06 June 2019 12:05
+> On 06/06, David Laight wrote:
+> >
+> > If a signal handler is called, I presume that the trampoline
+> > calls back into the kernel to get further handlers called
+> > and to finally restore the original signal mask?
+> 
+> See sigmask_to_save(), this is what the kernel records in uc.uc_sigmask
+> before the signal handler runs, after that current->saved_sigmask has no
+> meaning.
 
-The point of intersection is in IMA-Appraisal, which calls
-evm_verifyxattr() to ensure that security.ima wasn't modified during an
-offline attack. The design choice, to ensure incremental adoption, was to
-continue appraisal verification if evm_verifyxattr() returns
-INTEGRITY_UNKNOWN. This value is returned when EVM is not enabled in the
-kernel configuration, or if the HMAC key has not been loaded yet.
+Some of this code is hard to grep through :-)
 
-Although this choice appears legitimate, it might not be suitable for
-hardened systems, where the administrator expects that access is denied if
-there is any error. An attacker could intentionally delete the EVM keys
-from the system and set the file digest in security.ima to the actual file
-digest so that the final appraisal status is INTEGRITY_PASS.
+> When signal handler returns it does sys_rt_sigreturn() which restores
+> the original mask saved in uc_sigmask.
 
-This patch allows such hardened systems to strictly enforce an access
-control policy based on the validity of signatures/HMACs, by introducing
-two new values for the ima_appraise= kernel option: enforce-evm and
-log-evm.
+Does that mean that if 2 signals interrupt epoll_wait() only
+one of the signal handlers is run?
 
-Fixes: 2fe5d6def1672 ("ima: integrity appraisal extension")
-Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-Cc: stable@vger.kernel.org
----
- Documentation/admin-guide/kernel-parameters.txt | 3 ++-
- security/integrity/ima/ima_appraise.c           | 8 ++++++++
- 2 files changed, 10 insertions(+), 1 deletion(-)
+	David
 
-diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
-index fe5cde58c11b..0585194ca736 100644
---- a/Documentation/admin-guide/kernel-parameters.txt
-+++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -1587,7 +1587,8 @@
- 			Set number of hash buckets for inode cache.
- 
- 	ima_appraise=	[IMA] appraise integrity measurements
--			Format: { "off" | "enforce" | "fix" | "log" }
-+			Format: { "off" | "enforce" | "fix" | "log" |
-+				  "enforce-evm" | "log-evm" }
- 			default: "enforce"
- 
- 	ima_appraise_tcb [IMA] Deprecated.  Use ima_policy= instead.
-diff --git a/security/integrity/ima/ima_appraise.c b/security/integrity/ima/ima_appraise.c
-index 5fb7127bbe68..afef06e10fb9 100644
---- a/security/integrity/ima/ima_appraise.c
-+++ b/security/integrity/ima/ima_appraise.c
-@@ -18,6 +18,7 @@
- 
- #include "ima.h"
- 
-+static bool ima_appraise_req_evm __ro_after_init;
- static int __init default_appraise_setup(char *str)
- {
- #ifdef CONFIG_IMA_APPRAISE_BOOTPARAM
-@@ -28,6 +29,9 @@ static int __init default_appraise_setup(char *str)
- 	else if (strncmp(str, "fix", 3) == 0)
- 		ima_appraise = IMA_APPRAISE_FIX;
- #endif
-+	if (strcmp(str, "enforce-evm") == 0 ||
-+	    strcmp(str, "log-evm") == 0)
-+		ima_appraise_req_evm = true;
- 	return 1;
- }
- 
-@@ -245,7 +249,11 @@ int ima_appraise_measurement(enum ima_hooks func,
- 	switch (status) {
- 	case INTEGRITY_PASS:
- 	case INTEGRITY_PASS_IMMUTABLE:
-+		break;
- 	case INTEGRITY_UNKNOWN:
-+		if (ima_appraise_req_evm &&
-+		    xattr_value->type != EVM_IMA_XATTR_DIGSIG)
-+			goto out;
- 		break;
- 	case INTEGRITY_NOXATTRS:	/* No EVM protected xattrs. */
- 	case INTEGRITY_NOLABEL:		/* No security.evm xattr. */
--- 
-2.17.1
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
 
