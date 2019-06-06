@@ -2,100 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A64137488
-	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 14:53:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C692B374B7
+	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 15:01:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726922AbfFFMx0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Jun 2019 08:53:26 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:50137 "EHLO
-        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726822AbfFFMx0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Jun 2019 08:53:26 -0400
-Received: by atrey.karlin.mff.cuni.cz (Postfix, from userid 512)
-        id E1AF980262; Thu,  6 Jun 2019 14:53:13 +0200 (CEST)
-Date:   Thu, 6 Jun 2019 14:53:23 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Arnd Bergmann <arnd@arndb.de>,
-        James Smart <james.smart@broadcom.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 4.19 237/276] scsi: lpfc: avoid uninitialized variable
- warning
-Message-ID: <20190606125323.GC27432@amd>
-References: <20190530030523.133519668@linuxfoundation.org>
- <20190530030539.944220603@linuxfoundation.org>
+        id S1727064AbfFFNBE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Jun 2019 09:01:04 -0400
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:36655 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726092AbfFFNBE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Jun 2019 09:01:04 -0400
+Received: by mail-wm1-f68.google.com with SMTP id u8so2347492wmm.1
+        for <stable@vger.kernel.org>; Thu, 06 Jun 2019 06:01:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=surgut.co.uk; s=google;
+        h=sender:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=ybXb/jnfS9f1fII5E7PwPCfGODKC3fugkDh59k3ef3g=;
+        b=HpAJM0bcSkIwEsihEGbmENgIesQSRWPHlLq5y3CRN11+FyN7wYJNTl5gl3yEh3Toqc
+         g1GbQsFrc/Lovp8APS7cFHqGaJBQ72fGqoKVZcUOFUc8vYE+lAGrA36Zjj0DZBFq6s2j
+         KCse1OxYb7uQF0G1yuwaT1/iXMRwTp/io0xxw=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
+         :mime-version:content-transfer-encoding;
+        bh=ybXb/jnfS9f1fII5E7PwPCfGODKC3fugkDh59k3ef3g=;
+        b=gQAUi2RfueqUqVvBo7ZQ1G9uTwy8kMhNm6vDAdjuOv5ur82QLOoZFmUn3QmA7RF9n6
+         Ip7ce9R0e3PD49XPvEJ9SD8F8jD7KWFn7eiuMJWQ2rYADbQaDS1beHIfW2D5UG9lxfpt
+         HgpCMyxtFwBqV5aVz4Q7MRQj9SsjVl9Ej6HeD/PHOrkF0ezFb1praldsfiIU2Ub20VUa
+         XqJTzHA+fyZcM3RfzCmF2vYxpeKrRJtq3Xvaa4PHs0qnJ27hui6CprrCS0eG+41cWRDc
+         SpZQJ/zGthECN0R6DQKcj+aE/0+kbZNitUB5T5qB+1vEoaAbWbSEm5SgkrouTW/meCpp
+         qEUg==
+X-Gm-Message-State: APjAAAWBjskQTziiwu8edCMSw7DsItiJREV24JiO1Q+PCtN9W70dCq/M
+        /N3mr5FLYHcFEdLW4K/JYgnJYinqVknrEQ==
+X-Google-Smtp-Source: APXvYqwdoljEyQU7m9QpBEeUo5sCqQfF8p32N0fk5GYjjwsHT3+zbwXiF098orMEmIWQ37K3N+bpQQ==
+X-Received: by 2002:a1c:e90f:: with SMTP id q15mr13318094wmc.89.1559826062336;
+        Thu, 06 Jun 2019 06:01:02 -0700 (PDT)
+Received: from localhost (9.a.8.f.7.f.e.f.f.f.2.3.f.4.a.1.1.4.e.1.c.6.e.d.0.b.8.0.1.0.0.2.ip6.arpa. [2001:8b0:de6c:1e41:1a4f:32ff:fef7:f8a9])
+        by smtp.gmail.com with ESMTPSA id 34sm1179008wre.32.2019.06.06.06.01.01
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Thu, 06 Jun 2019 06:01:01 -0700 (PDT)
+From:   Dimitri John Ledkov <xnox@ubuntu.com>
+To:     kernel-team@lists.ubuntu.com
+Cc:     Paulo Alcantara <paulo@paulo.ac>, stable@vger.kernel.org,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Paul Moore <paul@paul-moore.com>
+Subject: [SRU][Bionic][PATCH] selinux: use kernel linux/socket.h for genheaders and mdp
+Date:   Thu,  6 Jun 2019 14:01:00 +0100
+Message-Id: <20190606130100.30278-1-xnox@ubuntu.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="adJ1OR3c6QgCpb/j"
-Content-Disposition: inline
-In-Reply-To: <20190530030539.944220603@linuxfoundation.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Paulo Alcantara <paulo@paulo.ac>
 
---adJ1OR3c6QgCpb/j
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+BugLink: https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1823429
 
-Hi!
+When compiling genheaders and mdp from a newer host kernel, the
+following error happens:
 
-> [ Upstream commit faf5a744f4f8d76e7c03912b5cd381ac8045f6ec ]
->=20
-> clang -Wuninitialized incorrectly sees a variable being used without
-> initialization:
->=20
-> drivers/scsi/lpfc/lpfc_nvme.c:2102:37: error: variable 'localport' is uni=
-nitialized when used here
->       [-Werror,-Wuninitialized]
->                 lport =3D (struct lpfc_nvme_lport *)localport->private;
->                                                   ^~~~~~~~~
-> drivers/scsi/lpfc/lpfc_nvme.c:2059:38: note: initialize the variable 'loc=
-alport' to silence this warning
->         struct nvme_fc_local_port *localport;
->                                             ^
->                                              =3D NULL
-> 1 error generated.
->=20
-> This is clearly in dead code, as the condition leading up to it is always
-> false when CONFIG_NVME_FC is disabled, and the variable is always
-> initialized when nvme_fc_register_localport() got called successfully.
->=20
-> Change the preprocessor conditional to the equivalent C construct, which
-> makes the code more readable and gets rid of the warning.
+    In file included from scripts/selinux/genheaders/genheaders.c:18:
+    ./security/selinux/include/classmap.h:238:2: error: #error New
+    address family defined, please update secclass_map.  #error New
+    address family defined, please update secclass_map.  ^~~~~
+    make[3]: *** [scripts/Makefile.host:107:
+    scripts/selinux/genheaders/genheaders] Error 1 make[2]: ***
+    [scripts/Makefile.build:599: scripts/selinux/genheaders] Error 2
+    make[1]: *** [scripts/Makefile.build:599: scripts/selinux] Error 2
+    make[1]: *** Waiting for unfinished jobs....
 
-Unfortunately, this missed "else" branch where the code was freeing
-the memory with kfree(cstat)... so this introduces a memory leak.
+Instead of relying on the host definition, include linux/socket.h in
+classmap.h to have PF_MAX.
 
-Best regards,
-									Pavel
+Cc: stable@vger.kernel.org
+Signed-off-by: Paulo Alcantara <paulo@paulo.ac>
+Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
+[PM: manually merge in mdp.c, subject line tweaks]
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+(cherry picked from commit dfbd199a7cfe3e3cd8531e1353cdbd7175bfbc5e)
+Signed-off-by: Dimitri John Ledkov <xnox@ubuntu.com>
+---
+ scripts/selinux/genheaders/genheaders.c | 1 -
+ scripts/selinux/mdp/mdp.c               | 1 -
+ security/selinux/include/classmap.h     | 1 +
+ 3 files changed, 1 insertion(+), 2 deletions(-)
 
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-> Acked-by: James Smart <james.smart@broadcom.com>
-> Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
+diff --git a/scripts/selinux/genheaders/genheaders.c b/scripts/selinux/genheaders/genheaders.c
+index fa48fabcb330..3cc4893d98cc 100644
+--- a/scripts/selinux/genheaders/genheaders.c
++++ b/scripts/selinux/genheaders/genheaders.c
+@@ -9,7 +9,6 @@
+ #include <string.h>
+ #include <errno.h>
+ #include <ctype.h>
+-#include <sys/socket.h>
+ 
+ struct security_class_mapping {
+ 	const char *name;
+diff --git a/scripts/selinux/mdp/mdp.c b/scripts/selinux/mdp/mdp.c
+index ffe8179f5d41..c29fa4a6228d 100644
+--- a/scripts/selinux/mdp/mdp.c
++++ b/scripts/selinux/mdp/mdp.c
+@@ -32,7 +32,6 @@
+ #include <stdlib.h>
+ #include <unistd.h>
+ #include <string.h>
+-#include <sys/socket.h>
+ 
+ static void usage(char *name)
+ {
+diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
+index acdee7795297..5ae315ab060b 100644
+--- a/security/selinux/include/classmap.h
++++ b/security/selinux/include/classmap.h
+@@ -1,5 +1,6 @@
+ /* SPDX-License-Identifier: GPL-2.0 */
+ #include <linux/capability.h>
++#include <linux/socket.h>
+ 
+ #define COMMON_FILE_SOCK_PERMS "ioctl", "read", "write", "create", \
+     "getattr", "setattr", "lock", "relabelfrom", "relabelto", "append", "map"
+-- 
+2.20.1
 
-
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---adJ1OR3c6QgCpb/j
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAlz5DMMACgkQMOfwapXb+vL9mgCfWykgy5M4WHThY/CXqMxs9B8y
-7BcAnikxGH2w2GgBe5Ox/uWDPPO4yA9q
-=n/8A
------END PGP SIGNATURE-----
-
---adJ1OR3c6QgCpb/j--
