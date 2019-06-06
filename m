@@ -2,120 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D96FC36F59
-	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 11:01:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10CE536F6B
+	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 11:05:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727668AbfFFJBk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Jun 2019 05:01:40 -0400
-Received: from mail-it1-f194.google.com ([209.85.166.194]:51555 "EHLO
-        mail-it1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727667AbfFFJBk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Jun 2019 05:01:40 -0400
-Received: by mail-it1-f194.google.com with SMTP id m3so2012321itl.1
-        for <stable@vger.kernel.org>; Thu, 06 Jun 2019 02:01:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=dv2WG1P4LjGl9htxi8ki1M85cFA09s4aSi2ztouswF0=;
-        b=zzYruU5/yv3X3MlFghh/z+xye0n/tQWAIaEqAwbUGoDidiM9qML6aHBOgqhV64UbjT
-         RPSYJHLYgx82k45AhD85pqDyd/wsfRBQQGaqe6jJqGAKjdnRiidIdTB8+n7ZRLnpp6Cb
-         004JCYY+4uRtsRlkJClJ+DmEhhfgLjT2NpaD3bxEM54y2NB1NEpwCx/z4igTkr8cOHdZ
-         aCynjpFrCtSVugnDA6MKNsWNgQ8WB9b/w27bzJtgkf75OY8NnK0vPhxTeK2YoYRuqPJj
-         7CW4QZL7KTco3/9La0nnjcaQMuDNIylHUVsg+XqO3xwuMhlQk+H0D8CAdMG05y4FrzRl
-         d2dA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=dv2WG1P4LjGl9htxi8ki1M85cFA09s4aSi2ztouswF0=;
-        b=r/0wzxIqYG9C9wkYg5S5VhCIIj+MzS40NjY1Ksm+qtUonV8t9VlN8mpgIC5VSvR5w6
-         pomixMTXkPi4H2SFuLGSRh1WTTdwrjrlGGXqfk/ozpAxpJnxH13XL+ygRYyPf1tCpHxC
-         F8M9cZS7DW3PQqe68/kMk/gxKggb7bXosJgM5m0E47A3rXNoEPBttOTqvrJMnoWB5f9z
-         Q8aIx9NQcWDaWE2patmJHnbOZ/4kOT9D6sIdhDtONNrCeSR38+lAW9MI0DOUy1QDa/qg
-         jEddRWdJ9RLYI4GuzI4TPAjxR3PrJN1f/KOVBh/wq4lKx0AqzwQYj8olreBQDd0adphc
-         u0xA==
-X-Gm-Message-State: APjAAAWW6FB+qzh+8m1L87E0nPLbOfde2MplG7al6f8vaWVbV99Y5sFF
-        GIe6IJa/M15KHB5gkOPpUAg7UOhjKEftUNp5LucVCA==
-X-Google-Smtp-Source: APXvYqwToJWtoVVGRYuxXLAxq/qFM4S6nRzLQkRyaXZ8ORDXXXZqh/aB/0OMI7vljblumoE5aJmqEm+rvCIjADZ+owU=
-X-Received: by 2002:a05:660c:44a:: with SMTP id d10mr9193730itl.153.1559811699927;
- Thu, 06 Jun 2019 02:01:39 -0700 (PDT)
-MIME-Version: 1.0
-References: <779905244.a0lJJiZRjM@devpool35> <20190605162626.GA31164@kroah.com>
- <8696846.WsthzzWoxp@devpool35> <1993275.kHlTELq40E@devpool35>
-In-Reply-To: <1993275.kHlTELq40E@devpool35>
-From:   Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Date:   Thu, 6 Jun 2019 11:01:26 +0200
-Message-ID: <CAKv+Gu9oq+LseNvB9h1u+Q7QVOJFJwm_RyE1dMRgeVuL6D9fNQ@mail.gmail.com>
-Subject: Re: Building arm64 EFI stub with -fpie breaks build of 4.9.x
- (undefined reference to `__efistub__GLOBAL_OFFSET_TABLE_')
-To:     Rolf Eike Beer <eb@emlix.com>
-Cc:     Greg KH <gregkh@linuxfoundation.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Matt Fleming <matt@codeblueprint.co.uk>,
-        Peter Zijlstra <peterz@infradead.org>,
+        id S1727664AbfFFJF0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Jun 2019 05:05:26 -0400
+Received: from eu-smtp-delivery-151.mimecast.com ([207.82.80.151]:48640 "EHLO
+        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727458AbfFFJFZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Jun 2019 05:05:25 -0400
+Received: from AcuMS.aculab.com (156.67.243.126 [156.67.243.126]) (Using
+ TLS) by relay.mimecast.com with ESMTP id
+ uk-mta-40-6UGy0nLHMBKpA3Kyw3XgcA-1; Thu, 06 Jun 2019 10:05:22 +0100
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:43c:695e:880f:8750) with Microsoft SMTP
+ Server (TLS) id 15.0.1347.2; Thu, 6 Jun 2019 10:05:21 +0100
+Received: from AcuMS.Aculab.com ([fe80::43c:695e:880f:8750]) by
+ AcuMS.aculab.com ([fe80::43c:695e:880f:8750%12]) with mapi id 15.00.1347.000;
+ Thu, 6 Jun 2019 10:05:21 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Linus Torvalds' <torvalds@linux-foundation.org>,
+        Oleg Nesterov <oleg@redhat.com>
+CC:     Andrew Morton <akpm@linux-foundation.org>,
+        Deepa Dinamani <deepa.kernel@gmail.com>,
+        Linux List Kernel Mailing <linux-kernel@vger.kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "Davidlohr Bueso" <dbueso@suse.de>, Jens Axboe <axboe@kernel.dk>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        "e@80x24.org" <e@80x24.org>, Jason Baron <jbaron@akamai.com>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        "linux-aio@kvack.org" <linux-aio@kvack.org>,
+        "omar.kilani@gmail.com" <omar.kilani@gmail.com>,
         Thomas Gleixner <tglx@linutronix.de>,
-        linux-efi <linux-efi@vger.kernel.org>,
-        Linux Kernel Developers List <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        stable <stable@vger.kernel.org>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: RE: [PATCH -mm 0/1] signal: simplify
+ set_user_sigmask/restore_user_sigmask
+Thread-Topic: [PATCH -mm 0/1] signal: simplify
+ set_user_sigmask/restore_user_sigmask
+Thread-Index: AQHVG8OiWeMKMn2zNEeA0y96arbBsKaOUFtA
+Date:   Thu, 6 Jun 2019 09:05:21 +0000
+Message-ID: <1285a2e60e3748d8825b9b0e3500cd28@AcuMS.aculab.com>
+References: <20190522032144.10995-1-deepa.kernel@gmail.com>
+ <20190529161157.GA27659@redhat.com> <20190604134117.GA29963@redhat.com>
+ <20190605155801.GA25165@redhat.com>
+ <CAHk-=wjkNx8u4Mcm5dfSQKYQmLQAv1Z1yGLDZvty7BVSj4eqBA@mail.gmail.com>
+In-Reply-To: <CAHk-=wjkNx8u4Mcm5dfSQKYQmLQAv1Z1yGLDZvty7BVSj4eqBA@mail.gmail.com>
+Accept-Language: en-GB, en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
+MIME-Version: 1.0
+X-MC-Unique: 6UGy0nLHMBKpA3Kyw3XgcA-1
+X-Mimecast-Spam-Score: 0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 6 Jun 2019 at 09:50, Rolf Eike Beer <eb@emlix.com> wrote:
->
-> Am Donnerstag, 6. Juni 2019, 09:38:41 CEST schrieb Rolf Eike Beer:
-> > Greg KH wrote:
-> > > On Wed, Jun 05, 2019 at 05:19:40PM +0200, Rolf Eike Beer wrote:
-> > > > I decided to dig out a toy project which uses a DragonBoard 410c. This
-> > > > has
-> > > > been "running" with kernel 4.9, which I would keep this way for
-> > > > unrelated
-> > > > reasons. The vanilla 4.9 kernel wasn't bootable back then, but it was
-> > > > buildable, which was good enough.
-> > > >
-> > > > Upgrading the kernel to 4.9.180 caused the boot to suddenly fail:
-> > > >
-> > > > aarch64-unknown-linux-gnueabi-ld:
-> > > > ./drivers/firmware/efi/libstub/lib.a(arm64- stub.stub.o): in function
-> > > > `handle_kernel_image':
-> > > > /tmp/e2/build/linux-4.9.139/drivers/firmware/efi/libstub/arm64-stub.c:63
-> > > > :
-> > > > undefined reference to `__efistub__GLOBAL_OFFSET_TABLE_'
-> > > > aarch64-unknown-linux-gnueabi-ld:
-> > > > ./drivers/firmware/efi/libstub/lib.a(arm64- stub.stub.o): relocation
-> > > > R_AARCH64_ADR_PREL_PG_HI21 against symbol
-> > > > `__efistub__GLOBAL_OFFSET_TABLE_' which may bind externally can not be
-> > > > used when making a shared object; recompile with -fPIC
-> > > > /tmp/e2/build/linux-4.9.139/drivers/firmware/efi/libstub/arm64-stub.c:63
-> > > > :
-> > > > (.init.text+0xc): dangerous relocation: unsupported relocation
-> > > > /tmp/e2/build/linux-4.9.139/Makefile:1001: recipe for target 'vmlinux'
-> > > > failed -make[1]: *** [vmlinux] Error 1
-> > > >
-> > > > This is caused by commit 27b5ebf61818749b3568354c64a8ec2d9cd5ecca from
-> > > > linux-4.9.y (which is 91ee5b21ee026c49e4e7483de69b55b8b47042be),
-> > > > reverting
-> > > > this commit fixes the build.
-> > > >
-> > > > This happens with vanilla binutils 2.32 and gcc 8.3.0 as well as 9.1.0.
-> > > > See
-> > > > the attached .config for reference.
-> > > >
-> > > > If you have questions or patches just ping me.
-> > >
-> > > Does Linus's latest tree also fail for you (or 5.1)?
-> >
-> > 5.1.7 with the same config as before and "make olddefconfig" builds for me.
->
-> Just for the fun of it: both 4.19 and 4.19.48 also work.
->
+RnJvbTogTGludXMgVG9ydmFsZHMNCj4gU2VudDogMDUgSnVuZSAyMDE5IDE4OjI1DQo+IE9uIFdl
+ZCwgSnVuIDUsIDIwMTkgYXQgODo1OCBBTSBPbGVnIE5lc3Rlcm92IDxvbGVnQHJlZGhhdC5jb20+
+IHdyb3RlOg0KPiA+DQo+ID4gVG8gc2ltcGxpZnkgdGhlIHJldmlldywgcGxlYXNlIHNlZSB0aGUg
+Y29kZSB3aXRoIHRoaXMgcGF0Y2ggYXBwbGllZC4NCj4gPiBJIGFtIHVzaW5nIGVwb2xsX3B3YWl0
+KCkgYXMgYW4gZXhhbXBsZSBiZWNhdXNlIGl0IGxvb2tzIHZlcnkgc2ltcGxlLg0KPiANCj4gSSBs
+aWtlIGl0Lg0KPiANCj4gSG93ZXZlci4NCj4gDQo+IEkgdGhpbmsgSSdkIGxpa2UgaXQgZXZlbiBt
+b3JlIGlmIHdlIGp1c3Qgc2FpZCAid2UgZG9uJ3QgbmVlZA0KPiByZXN0b3JlX3NhdmVkX3NpZ21h
+c2sgQVQgQUxMIi4NCj4gDQo+IFdoaWNoIHdvdWxkIGJlIGZhaXJseSBlYXN5IHRvIGRvIHdpdGgg
+c29tZXRoaW5nIGxpa2UgdGhlIGF0dGFjaGVkLi4uDQoNClRoYXQgd291bGQgYWx3YXlzIGNhbGwg
+dGhlIHNpZ25hbCBoYW5kbGVycyBldmVuIHdoZW4gRUlOVFIgd2Fzbid0DQpiZWluZyByZXR1cm5l
+ZCAod2hpY2ggSSB0aGluayBvdWdodCB0byBoYXBwZW4gLi4uKS4NClRoZSByZWFsIHB1cnBvc2Ug
+b2YgcmVzdG9yZV9zYXZlZF9zaWdtYXNrKCkgaXMgdG8gc3RvcCBzaWduYWwNCmhhbmRsZXJzIHRo
+YXQgYXJlIGVuYWJsZWQgYnkgdGhlIHRlbXBvcmFyeSBtYXNrIGJlaW5nIGNhbGxlZC4NCg0KSWYg
+YSBzaWduYWwgaGFuZGxlciBpcyBjYWxsZWQsIEkgcHJlc3VtZSB0aGF0IHRoZSB0cmFtcG9saW5l
+DQpjYWxscyBiYWNrIGludG8gdGhlIGtlcm5lbCB0byBnZXQgZnVydGhlciBoYW5kbGVycyBjYWxs
+ZWQNCmFuZCB0byBmaW5hbGx5IHJlc3RvcmUgdGhlIG9yaWdpbmFsIHNpZ25hbCBtYXNrPw0KDQpX
+aGF0IGhhcHBlbnMgaWYgYSBzaWduYWwgaGFuZGxlciBjYWxscyBzb21ldGhpbmcgdGhhdA0Kd291
+bGQgbm9ybWFsbHkgd3JpdGUgdG8gY3VycmVudC0+c2F2ZWRfc2lnbWFzaz8NCg0KCURhdmlkDQoN
+Ci0NClJlZ2lzdGVyZWQgQWRkcmVzcyBMYWtlc2lkZSwgQnJhbWxleSBSb2FkLCBNb3VudCBGYXJt
+LCBNaWx0b24gS2V5bmVzLCBNSzEgMVBULCBVSw0KUmVnaXN0cmF0aW9uIE5vOiAxMzk3Mzg2IChX
+YWxlcykNCg==
 
-Thanks Rolf
-
-Could you please check whether patch
-60f38de7a8d4e816100ceafd1b382df52527bd50 applies cleanly, and whether
-it fixes the problem? Thanks.
