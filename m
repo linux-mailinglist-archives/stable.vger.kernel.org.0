@@ -2,212 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 18D40374F2
-	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 15:16:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08D033750E
+	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 15:22:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726958AbfFFNQL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Jun 2019 09:16:11 -0400
-Received: from mx1.emlix.com ([188.40.240.192]:36960 "EHLO mx1.emlix.com"
+        id S1726924AbfFFNWx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Jun 2019 09:22:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726157AbfFFNQL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 6 Jun 2019 09:16:11 -0400
-Received: from mailer.emlix.com (unknown [81.20.119.6])
-        (using TLSv1.2 with cipher ADH-AES256-GCM-SHA384 (256/256 bits))
+        id S1725782AbfFFNWx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 6 Jun 2019 09:22:53 -0400
+Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mx1.emlix.com (Postfix) with ESMTPS id B23E860076;
-        Thu,  6 Jun 2019 15:16:07 +0200 (CEST)
-From:   Rolf Eike Beer <eb@emlix.com>
-To:     stable@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org,
-        Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-Subject: Linux 4.9.180 build fails with gcc 9 and 'cleanup_module' specifies less restrictive attribute than its target =?UTF-8?B?4oCm?=
-Date:   Thu, 06 Jun 2019 15:16:03 +0200
-Message-ID: <259986242.BvXPX32bHu@devpool35>
-Organization: emlix GmbH
+        by mail.kernel.org (Postfix) with ESMTPSA id 96EA520866;
+        Thu,  6 Jun 2019 13:22:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1559827372;
+        bh=5DCnBlqkLCaf0QybhtzTbl/dW/HgkItPQ7Y1kIO+cog=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=xqop9KNyMyK39T6+MJ6Y3ZVxBI59s3koY6SaRwBpWEMFhjVm9x0ThRrrMaYyvSpfW
+         lOcY8NbumVbUej6opAk3Xxoj0u+8j7XYDbtCjxg0wPM7kGSYIkAMTy30tw3eAiv6CF
+         hW2eB+UNR/6D7MtU6z3jidFgwo82ejE3nzDToYVo=
+Date:   Thu, 6 Jun 2019 09:22:51 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Cc:     eb@emlix.com, linux-efi@vger.kernel.org,
+        gregkh@linuxfoundation.org, stable@vger.kernel.org,
+        ndesaulniers@google.com
+Subject: Re: [PATCH for-4.9-stable] efi/libstub: Unify command line param
+ parsing
+Message-ID: <20190606132251.GK29739@sasha-vm>
+References: <20190606102513.16321-1-ard.biesheuvel@linaro.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="nextPart1874232.lpsZmVzLgH"; micalg="pgp-sha256"; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20190606102513.16321-1-ard.biesheuvel@linaro.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---nextPart1874232.lpsZmVzLgH
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="UTF-8"
+On Thu, Jun 06, 2019 at 12:25:13PM +0200, Ard Biesheuvel wrote:
+>Commit 60f38de7a8d4e816100ceafd1b382df52527bd50 upstream.
+>
+>Merge the parsing of the command line carried out in arm-stub.c with
+>the handling in efi_parse_options(). Note that this also fixes the
+>missing handling of CONFIG_CMDLINE_FORCE=y, in which case the builtin
+>command line should supersede the one passed by the firmware.
+>
+>Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+>Cc: Linus Torvalds <torvalds@linux-foundation.org>
+>Cc: Matt Fleming <matt@codeblueprint.co.uk>
+>Cc: Peter Zijlstra <peterz@infradead.org>
+>Cc: Thomas Gleixner <tglx@linutronix.de>
+>Cc: bhe@redhat.com
+>Cc: bhsharma@redhat.com
+>Cc: bp@alien8.de
+>Cc: eugene@hp.com
+>Cc: evgeny.kalugin@intel.com
+>Cc: jhugo@codeaurora.org
+>Cc: leif.lindholm@linaro.org
+>Cc: linux-efi@vger.kernel.org
+>Cc: mark.rutland@arm.com
+>Cc: roy.franz@cavium.com
+>Cc: rruigrok@codeaurora.org
+>Link: http://lkml.kernel.org/r/20170404160910.28115-1-ard.biesheuvel@linaro.org
+>Signed-off-by: Ingo Molnar <mingo@kernel.org>
+>[ardb: fix up merge conflicts with 4.9.180]
+>Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+>---
+>This fixes the GCC build issue reported by Eike.
+>
+>Note that testing of arm64 stable kernels should cover CONFIG_RANDOMIZE_BASE,
+>since it has a profound impact on how the kernel binary gets put together.
 
-I have at least these 2 instances:
+Should this fix be applied to 4.9 as well?
 
+I see it in 4.14+
 
-In file included from /tmp/e2/build/linux-4.9.180/include/drm/drm_vma_manag=
-er.h:28,
-                 from /tmp/e2/build/linux-4.9.180/include/drm/drmP.h:78,
-                 from /tmp/e2/build/linux-4.9.180/include/drm/drm_modeset_h=
-elper.h:26,
-                 from /tmp/e2/build/linux-4.9.180/include/drm/drm_atomic_he=
-lper.h:33,
-                 from /tmp/e2/build/linux-4.9.180/drivers/gpu/drm/tilcdc/ti=
-lcdc_drv.c:24:
-/tmp/e2/build/linux-4.9.180/include/linux/module.h:138:7: error: 'cleanup_m=
-odule' specifies less restrictive attribute than its target 'tilcdc_drm_fin=
-i': 'cold' [-Werror=3Dmissing-attributes]
-  138 |  void cleanup_module(void) __attribute__((alias(#exitfn)));
-      |       ^~~~~~~~~~~~~~
-/tmp/e2/build/linux-4.9.180/drivers/gpu/drm/tilcdc/tilcdc_drv.c:757:1: note=
-: in expansion of macro 'module_exit'
-  757 | module_exit(tilcdc_drm_fini);
-      | ^~~~~~~~~~~
-/tmp/e2/build/linux-4.9.180/drivers/gpu/drm/tilcdc/tilcdc_drv.c:748:20: not=
-e: 'cleanup_module' target declared here
-  748 | static void __exit tilcdc_drm_fini(void)
-      |                    ^~~~~~~~~~~~~~~
-In file included from /tmp/e2/build/linux-4.9.180/include/drm/drm_vma_manag=
-er.h:28,
-                 from /tmp/e2/build/linux-4.9.180/include/drm/drmP.h:78,
-                 from /tmp/e2/build/linux-4.9.180/include/drm/drm_modeset_h=
-elper.h:26,
-                 from /tmp/e2/build/linux-4.9.180/include/drm/drm_atomic_he=
-lper.h:33,
-                 from /tmp/e2/build/linux-4.9.180/drivers/gpu/drm/tilcdc/ti=
-lcdc_drv.c:24:
-/tmp/e2/build/linux-4.9.180/include/linux/module.h:132:6: error: 'init_modu=
-le' specifies less restrictive attribute than its target 'tilcdc_drm_init':=
- 'cold' [-Werror=3Dmissing-attributes]
-  132 |  int init_module(void) __attribute__((alias(#initfn)));
-      |      ^~~~~~~~~~~
-/tmp/e2/build/linux-4.9.180/drivers/gpu/drm/tilcdc/tilcdc_drv.c:756:1: note=
-: in expansion of macro 'module_init'
-  756 | module_init(tilcdc_drm_init);
-      | ^~~~~~~~~~~
-/tmp/e2/build/linux-4.9.180/drivers/gpu/drm/tilcdc/tilcdc_drv.c:740:19: not=
-e: 'init_module' target declared here
-  740 | static int __init tilcdc_drm_init(void)
-      |                   ^~~~~~~~~~~~~~~
-
-
-
-In file included from /tmp/e2/build/linux-4.9.180/arch/powerpc/platforms/52=
-xx/mpc52xx_lpbfifo.c:17:
-/tmp/e2/build/linux-4.9.180/include/linux/module.h:138:7: error: 'cleanup_m=
-odule' specifies less restrictive attribute than its target 'mpc52xx_lpbfif=
-o_driver_exit': 'cold' [-Werror=3Dmissing-attributes]
-  138 |  void cleanup_module(void) __attribute__((alias(#exitfn)));
-      |       ^~~~~~~~~~~~~~
-/tmp/e2/build/linux-4.9.180/include/linux/device.h:1360:1: note: in expansi=
-on of macro 'module_exit'
- 1360 | module_exit(__driver##_exit);
-      | ^~~~~~~~~~~
-/tmp/e2/build/linux-4.9.180/include/linux/platform_device.h:228:2: note: in=
- expansion of macro 'module_driver'
-  228 |  module_driver(__platform_driver, platform_driver_register, \
-      |  ^~~~~~~~~~~~~
-/tmp/e2/build/linux-4.9.180/arch/powerpc/platforms/52xx/mpc52xx_lpbfifo.c:5=
-81:1: note: in expansion of macro 'module_platform_driver'
-  581 | module_platform_driver(mpc52xx_lpbfifo_driver);
-      | ^~~~~~~~~~~~~~~~~~~~~~
-In file included from /tmp/e2/build/linux-4.9.180/arch/powerpc/include/asm/=
-io.h:27,
-                 from /tmp/e2/build/linux-4.9.180/include/linux/io.h:25,
-                 from /tmp/e2/build/linux-4.9.180/include/linux/irq.h:24,
-                 from /tmp/e2/build/linux-4.9.180/arch/powerpc/include/asm/=
-hardirq.h:5,
-                 from /tmp/e2/build/linux-4.9.180/include/linux/hardirq.h:8,
-                 from /tmp/e2/build/linux-4.9.180/include/linux/interrupt.h=
-:12,
-                 from /tmp/e2/build/linux-4.9.180/arch/powerpc/platforms/52=
-xx/mpc52xx_lpbfifo.c:12:
-/tmp/e2/build/linux-4.9.180/arch/powerpc/platforms/52xx/mpc52xx_lpbfifo.c:5=
-81:24: note: 'cleanup_module' target declared here
-  581 | module_platform_driver(mpc52xx_lpbfifo_driver);
-      |                        ^~~~~~~~~~~~~~~~~~~~~~
-/tmp/e2/build/linux-4.9.180/include/linux/device.h:1356:20: note: in defini=
-tion of macro 'module_driver'
- 1356 | static void __exit __driver##_exit(void) \
-      |                    ^~~~~~~~
-/tmp/e2/build/linux-4.9.180/arch/powerpc/platforms/52xx/mpc52xx_lpbfifo.c:5=
-81:1: note: in expansion of macro 'module_platform_driver'
-  581 | module_platform_driver(mpc52xx_lpbfifo_driver);
-      | ^~~~~~~~~~~~~~~~~~~~~~
-In file included from /tmp/e2/build/linux-4.9.180/arch/powerpc/platforms/52=
-xx/mpc52xx_lpbfifo.c:17:
-/tmp/e2/build/linux-4.9.180/include/linux/module.h:132:6: error: 'init_modu=
-le' specifies less restrictive attribute than its target 'mpc52xx_lpbfifo_d=
-river_init': 'cold' [-Werror=3Dmissing-attributes]
-  132 |  int init_module(void) __attribute__((alias(#initfn)));
-      |      ^~~~~~~~~~~
-/tmp/e2/build/linux-4.9.180/include/linux/device.h:1355:1: note: in expansi=
-on of macro 'module_init'
- 1355 | module_init(__driver##_init); \
-      | ^~~~~~~~~~~
-/tmp/e2/build/linux-4.9.180/include/linux/platform_device.h:228:2: note: in=
- expansion of macro 'module_driver'
-  228 |  module_driver(__platform_driver, platform_driver_register, \
-      |  ^~~~~~~~~~~~~
-/tmp/e2/build/linux-4.9.180/arch/powerpc/platforms/52xx/mpc52xx_lpbfifo.c:5=
-81:1: note: in expansion of macro 'module_platform_driver'
-  581 | module_platform_driver(mpc52xx_lpbfifo_driver);
-      | ^~~~~~~~~~~~~~~~~~~~~~
-In file included from /tmp/e2/build/linux-4.9.180/arch/powerpc/include/asm/=
-io.h:27,
-                 from /tmp/e2/build/linux-4.9.180/include/linux/io.h:25,
-                 from /tmp/e2/build/linux-4.9.180/include/linux/irq.h:24,
-                 from /tmp/e2/build/linux-4.9.180/arch/powerpc/include/asm/=
-hardirq.h:5,
-                 from /tmp/e2/build/linux-4.9.180/include/linux/hardirq.h:8,
-                 from /tmp/e2/build/linux-4.9.180/include/linux/interrupt.h=
-:12,
-                 from /tmp/e2/build/linux-4.9.180/arch/powerpc/platforms/52=
-xx/mpc52xx_lpbfifo.c:12:
-/tmp/e2/build/linux-4.9.180/arch/powerpc/platforms/52xx/mpc52xx_lpbfifo.c:5=
-81:24: note: 'init_module' target declared here
-  581 | module_platform_driver(mpc52xx_lpbfifo_driver);
-      |                        ^~~~~~~~~~~~~~~~~~~~~~
-/tmp/e2/build/linux-4.9.180/include/linux/device.h:1351:19: note: in defini=
-tion of macro 'module_driver'
- 1351 | static int __init __driver##_init(void) \
-      |                   ^~~~~~~~
-/tmp/e2/build/linux-4.9.180/arch/powerpc/platforms/52xx/mpc52xx_lpbfifo.c:5=
-81:1: note: in expansion of macro 'module_platform_driver'
-  581 | module_platform_driver(mpc52xx_lpbfifo_driver);
-      | ^~~~~~~~~~~~~~~~~~~~~~
-
-
-So this needs a6e60d84989fa0e91db7f236eda40453b0e44afa, which needs=20
-c0d9782f5b6d7157635ae2fd782a4b27d55a6013, which can't be applied cleanly=20
-because a3f8a30f3f0079c7edfc72e329eee8594fb3e3cb is missing in 4.9.
-
-I have applied a6e60d84989fa0e91db7f236eda40453b0e44afa and modified it to=
-=20
-directly use __attribute__((__copy__(initfn))) and (exitfn), which fixes th=
-e=20
-build for me.
-
-Greetings,
-
-Eike
-=2D-=20
-Rolf Eike Beer, emlix GmbH, http://www.emlix.com
-=46on +49 551 30664-0, Fax +49 551 30664-11
-Gothaer Platz 3, 37083 G=C3=B6ttingen, Germany
-Sitz der Gesellschaft: G=C3=B6ttingen, Amtsgericht G=C3=B6ttingen HR B 3160
-Gesch=C3=A4ftsf=C3=BChrung: Heike Jordan, Dr. Uwe Kracke =E2=80=93 Ust-IdNr=
-=2E: DE 205 198 055
-
-emlix - smart embedded open source
---nextPart1874232.lpsZmVzLgH
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part.
-Content-Transfer-Encoding: 7Bit
-
------BEGIN PGP SIGNATURE-----
-
-iLMEAAEIAB0WIQQ/Uctzh31xzAxFCLur5FH7Xu2t/AUCXPkSEwAKCRCr5FH7Xu2t
-/P0UA/0XEEE4SV1K9Al7Kp/Z6zR+qxR0yf9Q2txh7aiTE8mSU3ZIbe3Lhv8pp6Ba
-Mtq0rPwTkVUe1LlxVfrSGOERfzqCQ6VEJLtBLcUhWwCBZCE6kkA2TdlHp3bViSYd
-D6xZTXffWUVq/tgrRaYrMXH4bRIXSV+YRT2xpuYT9ZYn6fls9A==
-=lCyW
------END PGP SIGNATURE-----
-
---nextPart1874232.lpsZmVzLgH--
-
-
-
+--
+Thanks,
+Sasha
