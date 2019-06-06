@@ -2,247 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 602E537707
-	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 16:43:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8BB93771F
+	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 16:50:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728949AbfFFOns (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Jun 2019 10:43:48 -0400
-Received: from mga06.intel.com ([134.134.136.31]:17433 "EHLO mga06.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727309AbfFFOns (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 6 Jun 2019 10:43:48 -0400
-X-Amp-Result: UNSCANNABLE
-X-Amp-File-Uploaded: False
-Received: from fmsmga002.fm.intel.com ([10.253.24.26])
-  by orsmga104.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 06 Jun 2019 07:43:47 -0700
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.63,559,1557212400"; 
-   d="scan'208";a="182329464"
-Received: from ideak-desk.fi.intel.com ([10.237.72.204])
-  by fmsmga002.fm.intel.com with ESMTP; 06 Jun 2019 07:43:45 -0700
-Date:   Thu, 6 Jun 2019 17:43:43 +0300
-From:   Imre Deak <imre.deak@intel.com>
-To:     Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-Cc:     intel-gfx@lists.freedesktop.org,
-        Daniel Vetter <daniel.vetter@ffwll.ch>, zardam@gmail.com,
-        stable@vger.kernel.org
-Subject: Re: [Intel-gfx] [PATCH 2/7] drm/i915/sdvo: Implement proper HDMI
- audio support for SDVO
-Message-ID: <20190606144343.GD4301@ideak-desk.fi.intel.com>
-Reply-To: imre.deak@intel.com
-References: <20190409144054.24561-1-ville.syrjala@linux.intel.com>
- <20190409144054.24561-3-ville.syrjala@linux.intel.com>
- <20190409200010.GZ3888@intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+        id S1727603AbfFFOuR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Jun 2019 10:50:17 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:36298 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1728508AbfFFOuR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Jun 2019 10:50:17 -0400
+Received: from pps.filterd (m0098419.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.27/8.16.0.27) with SMTP id x56EZVab098772
+        for <stable@vger.kernel.org>; Thu, 6 Jun 2019 10:50:16 -0400
+Received: from e06smtp03.uk.ibm.com (e06smtp03.uk.ibm.com [195.75.94.99])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 2sy41vu5rg-1
+        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=NOT)
+        for <stable@vger.kernel.org>; Thu, 06 Jun 2019 10:50:15 -0400
+Received: from localhost
+        by e06smtp03.uk.ibm.com with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted
+        for <stable@vger.kernel.org> from <zohar@linux.ibm.com>;
+        Thu, 6 Jun 2019 15:50:13 +0100
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (9.149.109.196)
+        by e06smtp03.uk.ibm.com (192.168.101.133) with IBM ESMTP SMTP Gateway: Authorized Use Only! Violators will be prosecuted;
+        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256/256)
+        Thu, 6 Jun 2019 15:50:09 +0100
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id x56Eo82q45809782
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Thu, 6 Jun 2019 14:50:08 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 765A94C058;
+        Thu,  6 Jun 2019 14:50:08 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4AAF74C044;
+        Thu,  6 Jun 2019 14:50:07 +0000 (GMT)
+Received: from localhost.localdomain (unknown [9.80.80.30])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Thu,  6 Jun 2019 14:50:07 +0000 (GMT)
+Subject: Re: [PATCH v3 0/2] ima/evm fixes for v5.2
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Roberto Sassu <roberto.sassu@huawei.com>,
+        dmitry.kasatkin@huawei.com, mjg59@google.com
+Cc:     linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org, linux-doc@vger.kernel.org,
+        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        silviu.vlasceanu@huawei.com
+Date:   Thu, 06 Jun 2019 10:49:56 -0400
+In-Reply-To: <3711f387-3aef-9fbb-1bb4-dded6807b033@huawei.com>
+References: <20190606112620.26488-1-roberto.sassu@huawei.com>
+         <3711f387-3aef-9fbb-1bb4-dded6807b033@huawei.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.20.5 (3.20.5-1.fc24) 
+Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20190409200010.GZ3888@intel.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+X-TM-AS-GCONF: 00
+x-cbid: 19060614-0012-0000-0000-00000325A790
+X-IBM-AV-DETECTION: SAVI=unused REMOTE=unused XFE=unused
+x-cbparentid: 19060614-0013-0000-0000-0000215E8FBB
+Message-Id: <1559832596.4278.124.camel@linux.ibm.com>
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:,, definitions=2019-06-06_11:,,
+ signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ malwarescore=0 suspectscore=0 phishscore=0 bulkscore=0 spamscore=0
+ clxscore=1015 lowpriorityscore=0 mlxscore=0 impostorscore=0
+ mlxlogscore=999 adultscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.0.1-1810050000 definitions=main-1906060102
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Apr 09, 2019 at 11:00:10PM +0300, Ville Syrjälä wrote:
-> On Tue, Apr 09, 2019 at 05:40:49PM +0300, Ville Syrjala wrote:
-> > From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+On Thu, 2019-06-06 at 13:43 +0200, Roberto Sassu wrote:
+> On 6/6/2019 1:26 PM, Roberto Sassu wrote:
+> > Previous versions included the patch 'ima: don't ignore INTEGRITY_UNKNOWN
+> > EVM status'. However, I realized that this patch cannot be accepted alone
+> > because IMA-Appraisal would deny access to new files created during the
+> > boot. With the current behavior, those files are accessible because they
+> > have a valid security.ima (not protected by EVM) created after the first
+> > write.
 > > 
-> > Our SDVO audio support is pretty bogus. We can't push audio over the
-> > SDVO bus, so trying to enable audio in the SDVO control register doesn't
-> > do anything. In fact it looks like the SDVO encoder will always mix in
-> > the audio coming over HDA, and there's no (at least documented) way to
-> > disable that from our side. So HDMI audio does work currently but only by
-> > luck really. What is missing though is the ELD.
+> > A solution for this problem is to initialize EVM very early with a random
+> > key. Access to created files will be granted, even with the strict
+> > appraisal, because after the first write those files will have both
+> > security.ima and security.evm (HMAC calculated with the random key).
+> > 
+> > Strict appraisal will work only if it is done with signatures until the
+> > persistent HMAC key is loaded.
 > 
-> Hmm. Looks like I forgot to update this text after the gen3 bug was
-> reported. The situation is that audio works on gen4 by luck. On gen3
-> it got broken by the referenced commit since we no longer enable
-> HDMI encoding on the SDVO device (that will stop audio transmission
-> entirely).
+> Changelog
 > 
-> > 
-> > To pass the ELD to the audio driver we need to write it to magic buffer
-> > in the SDVO encoder hardware which then gets pulled out via HDA in the
-> > other end. Ie. pretty much the same thing we had for native HDMI before
-> > we started to just pass the ELD between the drivers. This sort of
-> > explains why we even have that silly hardware buffer with native HDMI.
-> > 
-> > $ cat /proc/asound/card0/eld#1.0
-> > -monitor_present		0
-> > -eld_valid		0
-> > +monitor_present		1
-> > +eld_valid		1
-> > +monitor_name		LG TV
-> > +connection_type		HDMI
-> > +...
-> > 
-> > This also fixes our state readout since we can now query the SDVO
-> > encoder about the state of the "ELD valid" and "presence detect"
-> > bits. As mentioned those don't actually control whether audio
-> > gets sent over the HDMI cable, but it's the best we can do.
-> > 
-> > Cc: stable@vger.kernel.org
-> > Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-> > Cc: zardam@gmail.com
-> > Tested-by: zardam@gmail.com
-> > Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=108976
-> > Fixes: de44e256b92c ("drm/i915/sdvo: Shut up state checker with hdmi cards on gen3")
-> > Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> v2:
+> - remove patch 1/3 (evm: check hash algorithm passed to init_desc());
+>    already accepted
+> - remove patch 3/3 (ima: show rules with IMA_INMASK correctly);
+>    already accepted
+> - add new patch (evm: add option to set a random HMAC key at early boot)
+> - patch 2/3: modify patch description
 
-Matches the sdvo specs and bspec (SDVO_AUDIO_ENABLE is a reserved/MBZ
-bit on GEN3,3.5, and on GEN4 it's probably HDMI specific, since there is
-no audio traffic over the SDVO bus):
+Roberto, as I tried explaining previously, this feature is not a
+simple bug fix. Â These patches, if upstreamed, will be upstreamed the
+normal way, during an open window. Â Whether they are classified as a
+bug fix has yet to be decided.
 
-Reviewed-by: Imre Deak <imre.deak@intel.com>
+Please stop Cc'ing stable. Â If I don't Cc stable before sending the pull request, then Greg and Sasha have been really good about deciding which patches should be backported. Â (Please refer to the comment on "Cc'ing stable" in section "5) Select the recipients for your patch" in Documentation/process/submitting-patches.rst.)
 
-Btw, is it guaranteed that we have a valid ELD when
-force_audio == HDMI_AUDIO_ON ?
+I'll review these patches, but in the future please use an appropriate patch set cover letter title in the subject line.
 
-> > ---
-> >  drivers/gpu/drm/i915/intel_sdvo.c      | 58 +++++++++++++++++++++-----
-> >  drivers/gpu/drm/i915/intel_sdvo_regs.h |  3 ++
-> >  2 files changed, 50 insertions(+), 11 deletions(-)
-> > 
-> > diff --git a/drivers/gpu/drm/i915/intel_sdvo.c b/drivers/gpu/drm/i915/intel_sdvo.c
-> > index 61db07244296..7f64352a3413 100644
-> > --- a/drivers/gpu/drm/i915/intel_sdvo.c
-> > +++ b/drivers/gpu/drm/i915/intel_sdvo.c
-> > @@ -916,6 +916,13 @@ static bool intel_sdvo_set_colorimetry(struct intel_sdvo *intel_sdvo,
-> >  	return intel_sdvo_set_value(intel_sdvo, SDVO_CMD_SET_COLORIMETRY, &mode, 1);
-> >  }
-> >  
-> > +static bool intel_sdvo_set_audio_state(struct intel_sdvo *intel_sdvo,
-> > +				       u8 audio_state)
-> > +{
-> > +	return intel_sdvo_set_value(intel_sdvo, SDVO_CMD_SET_AUDIO_STAT,
-> > +				    &audio_state, 1);
-> > +}
-> > +
-> >  #if 0
-> >  static void intel_sdvo_dump_hdmi_buf(struct intel_sdvo *intel_sdvo)
-> >  {
-> > @@ -1487,11 +1494,6 @@ static void intel_sdvo_pre_enable(struct intel_encoder *intel_encoder,
-> >  	else
-> >  		sdvox |= SDVO_PIPE_SEL(crtc->pipe);
-> >  
-> > -	if (crtc_state->has_audio) {
-> > -		WARN_ON_ONCE(INTEL_GEN(dev_priv) < 4);
-> > -		sdvox |= SDVO_AUDIO_ENABLE;
-> > -	}
-> > -
-> >  	if (INTEL_GEN(dev_priv) >= 4) {
-> >  		/* done in crtc_mode_set as the dpll_md reg must be written early */
-> >  	} else if (IS_I945G(dev_priv) || IS_I945GM(dev_priv) ||
-> > @@ -1635,8 +1637,13 @@ static void intel_sdvo_get_config(struct intel_encoder *encoder,
-> >  	if (sdvox & HDMI_COLOR_RANGE_16_235)
-> >  		pipe_config->limited_color_range = true;
-> >  
-> > -	if (sdvox & SDVO_AUDIO_ENABLE)
-> > -		pipe_config->has_audio = true;
-> > +	if (intel_sdvo_get_value(intel_sdvo, SDVO_CMD_GET_AUDIO_STAT,
-> > +				 &val, 1)) {
-> > +		u8 mask = SDVO_AUDIO_ELD_VALID | SDVO_AUDIO_PRESENCE_DETECT;
-> > +
-> > +		if ((val & mask) == mask)
-> > +			pipe_config->has_audio = true;
-> > +	}
-> >  
-> >  	if (intel_sdvo_get_value(intel_sdvo, SDVO_CMD_GET_ENCODE,
-> >  				 &val, 1)) {
-> > @@ -1647,6 +1654,32 @@ static void intel_sdvo_get_config(struct intel_encoder *encoder,
-> >  	intel_sdvo_get_avi_infoframe(intel_sdvo, pipe_config);
-> >  }
-> >  
-> > +static void intel_sdvo_disable_audio(struct intel_sdvo *intel_sdvo)
-> > +{
-> > +	intel_sdvo_set_audio_state(intel_sdvo, 0);
-> > +}
-> > +
-> > +static void intel_sdvo_enable_audio(struct intel_sdvo *intel_sdvo,
-> > +				    const struct intel_crtc_state *crtc_state,
-> > +				    const struct drm_connector_state *conn_state)
-> > +{
-> > +	const struct drm_display_mode *adjusted_mode =
-> > +		&crtc_state->base.adjusted_mode;
-> > +	struct drm_connector *connector = conn_state->connector;
-> > +	u8 *eld = connector->eld;
-> > +
-> > +	eld[6] = drm_av_sync_delay(connector, adjusted_mode) / 2;
-> > +
-> > +	intel_sdvo_set_audio_state(intel_sdvo, 0);
-> > +
-> > +	intel_sdvo_write_infoframe(intel_sdvo, SDVO_HBUF_INDEX_ELD,
-> > +				   SDVO_HBUF_TX_DISABLED,
-> > +				   eld, drm_eld_size(eld));
-> > +
-> > +	intel_sdvo_set_audio_state(intel_sdvo, SDVO_AUDIO_ELD_VALID |
-> > +				   SDVO_AUDIO_PRESENCE_DETECT);
-> > +}
-> > +
-> >  static void intel_disable_sdvo(struct intel_encoder *encoder,
-> >  			       const struct intel_crtc_state *old_crtc_state,
-> >  			       const struct drm_connector_state *conn_state)
-> > @@ -1656,6 +1689,9 @@ static void intel_disable_sdvo(struct intel_encoder *encoder,
-> >  	struct intel_crtc *crtc = to_intel_crtc(old_crtc_state->base.crtc);
-> >  	u32 temp;
-> >  
-> > +	if (old_crtc_state->has_audio)
-> > +		intel_sdvo_disable_audio(intel_sdvo);
-> > +
-> >  	intel_sdvo_set_active_outputs(intel_sdvo, 0);
-> >  	if (0)
-> >  		intel_sdvo_set_encoder_power_state(intel_sdvo,
-> > @@ -1741,6 +1777,9 @@ static void intel_enable_sdvo(struct intel_encoder *encoder,
-> >  		intel_sdvo_set_encoder_power_state(intel_sdvo,
-> >  						   DRM_MODE_DPMS_ON);
-> >  	intel_sdvo_set_active_outputs(intel_sdvo, intel_sdvo->attached_output);
-> > +
-> > +	if (pipe_config->has_audio)
-> > +		intel_sdvo_enable_audio(intel_sdvo, pipe_config, conn_state);
-> >  }
-> >  
-> >  static enum drm_mode_status
-> > @@ -2603,7 +2642,6 @@ static bool
-> >  intel_sdvo_dvi_init(struct intel_sdvo *intel_sdvo, int device)
-> >  {
-> >  	struct drm_encoder *encoder = &intel_sdvo->base.base;
-> > -	struct drm_i915_private *dev_priv = to_i915(encoder->dev);
-> >  	struct drm_connector *connector;
-> >  	struct intel_encoder *intel_encoder = to_intel_encoder(encoder);
-> >  	struct intel_connector *intel_connector;
-> > @@ -2640,9 +2678,7 @@ intel_sdvo_dvi_init(struct intel_sdvo *intel_sdvo, int device)
-> >  	encoder->encoder_type = DRM_MODE_ENCODER_TMDS;
-> >  	connector->connector_type = DRM_MODE_CONNECTOR_DVID;
-> >  
-> > -	/* gen3 doesn't do the hdmi bits in the SDVO register */
-> > -	if (INTEL_GEN(dev_priv) >= 4 &&
-> > -	    intel_sdvo_is_hdmi_connector(intel_sdvo, device)) {
-> > +	if (intel_sdvo_is_hdmi_connector(intel_sdvo, device)) {
-> >  		connector->connector_type = DRM_MODE_CONNECTOR_HDMIA;
-> >  		intel_sdvo_connector->is_hdmi = true;
-> >  	}
-> > diff --git a/drivers/gpu/drm/i915/intel_sdvo_regs.h b/drivers/gpu/drm/i915/intel_sdvo_regs.h
-> > index db0ed499268a..e9ba3b047f93 100644
-> > --- a/drivers/gpu/drm/i915/intel_sdvo_regs.h
-> > +++ b/drivers/gpu/drm/i915/intel_sdvo_regs.h
-> > @@ -707,6 +707,9 @@ struct intel_sdvo_enhancements_arg {
-> >  #define SDVO_CMD_GET_AUDIO_ENCRYPT_PREFER 0x90
-> >  #define SDVO_CMD_SET_AUDIO_STAT		0x91
-> >  #define SDVO_CMD_GET_AUDIO_STAT		0x92
-> > +  #define SDVO_AUDIO_ELD_VALID		(1 << 0)
-> > +  #define SDVO_AUDIO_PRESENCE_DETECT	(1 << 1)
-> > +  #define SDVO_AUDIO_CP_READY		(1 << 2)
-> >  #define SDVO_CMD_SET_HBUF_INDEX		0x93
-> >    #define SDVO_HBUF_INDEX_ELD		0
-> >    #define SDVO_HBUF_INDEX_AVI_IF	1
-> > -- 
-> > 2.21.0
+thanks,
+
+Mimi
+
+
 > 
-> -- 
-> Ville Syrjälä
-> Intel
-> _______________________________________________
-> Intel-gfx mailing list
-> Intel-gfx@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/intel-gfx
+> v1:
+> - remove patch 2/4 (evm: reset status in evm_inode_post_setattr()); file
+>    attributes cannot be set if the signature is portable and immutable
+> - patch 3/4: add __ro_after_init to ima_appraise_req_evm variable
+>    declaration
+> - patch 3/4: remove ima_appraise_req_evm kernel option and introduce
+>    'enforce-evm' and 'log-evm' as possible values for ima_appraise=
+> - remove patch 4/4 (ima: only audit failed appraisal verifications)
+> - add new patch (ima: show rules with IMA_INMASK correctly)
+> 
+> 
+> > Roberto Sassu (2):
+> >    evm: add option to set a random HMAC key at early boot
+> >    ima: add enforce-evm and log-evm modes to strictly check EVM status
+> > 
+> >   .../admin-guide/kernel-parameters.txt         | 11 ++--
+> >   security/integrity/evm/evm.h                  | 10 +++-
+> >   security/integrity/evm/evm_crypto.c           | 57 ++++++++++++++++---
+> >   security/integrity/evm/evm_main.c             | 41 ++++++++++---
+> >   security/integrity/ima/ima_appraise.c         |  8 +++
+> >   security/integrity/integrity.h                |  1 +
+> >   6 files changed, 106 insertions(+), 22 deletions(-)
+> > 
+> 
+
