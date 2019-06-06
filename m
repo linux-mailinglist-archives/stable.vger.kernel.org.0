@@ -2,176 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 74B59369F7
-	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 04:28:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62F0F36A21
+	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 04:43:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726541AbfFFC17 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 5 Jun 2019 22:27:59 -0400
-Received: from szxga05-in.huawei.com ([45.249.212.191]:17670 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726519AbfFFC17 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 5 Jun 2019 22:27:59 -0400
-Received: from DGGEMS403-HUB.china.huawei.com (unknown [172.30.72.60])
-        by Forcepoint Email with ESMTP id CB12AFC5FDCF910FA20D;
-        Thu,  6 Jun 2019 10:27:56 +0800 (CST)
-Received: from huawei.com (10.67.188.14) by DGGEMS403-HUB.china.huawei.com
- (10.3.19.203) with Microsoft SMTP Server id 14.3.439.0; Thu, 6 Jun 2019
- 10:27:48 +0800
-From:   xiaoqian <xiaoqian9@huawei.com>
-To:     <linux@armlinux.org.uk>, <rafael.j.wysocki@intel.com>,
-        <ebiederm@xmission.com>, <rppt@linux.ibm.com>, <pmladek@suse.com>,
-        <bhelgaas@google.com>, <sakari.ailus@linux.intel.com>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <gregkh@linuxfoundation.org>
-CC:     <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>,
-        <xiaoqian9@huawei.com>
-Subject: [PATCH] alignment:fetch pc-instr before irq_enable
-Date:   Thu, 6 Jun 2019 10:26:33 +0800
-Message-ID: <1559787993-34923-1-git-send-email-xiaoqian9@huawei.com>
-X-Mailer: git-send-email 1.8.5.6
+        id S1726427AbfFFCnj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 5 Jun 2019 22:43:39 -0400
+Received: from mo-csw1115.securemx.jp ([210.130.202.157]:49226 "EHLO
+        mo-csw.securemx.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725783AbfFFCni (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 5 Jun 2019 22:43:38 -0400
+Received: by mo-csw.securemx.jp (mx-mo-csw1115) id x562hQs0023370; Thu, 6 Jun 2019 11:43:26 +0900
+X-Iguazu-Qid: 2wHHWpDcgq4H6jEfhI
+X-Iguazu-QSIG: v=2; s=0; t=1559789006; q=2wHHWpDcgq4H6jEfhI; m=W+IncDPj0BJJf8hYVTSQIwWszc5uFsusuKLRllCK0zc=
+Received: from imx12.toshiba.co.jp (imx12.toshiba.co.jp [61.202.160.132])
+        by relay.securemx.jp (mx-mr1111) id x562hO32007187;
+        Thu, 6 Jun 2019 11:43:25 +0900
+Received: from enc02.toshiba.co.jp ([61.202.160.51])
+        by imx12.toshiba.co.jp  with ESMTP id x562hO5s029115;
+        Thu, 6 Jun 2019 11:43:24 +0900 (JST)
+Received: from hop101.toshiba.co.jp ([133.199.85.107])
+        by enc02.toshiba.co.jp  with ESMTP id x562hO8l003141;
+        Thu, 6 Jun 2019 11:43:24 +0900
+From:   Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+To:     stable@vger.kernel.org
+Cc:     Peter Chen <peter.chen@nxp.com>,
+        "Felipe F . Tonello" <eu@felipetonello.com>,
+        Felipe Balbi <felipe.balbi@linux.intel.com>,
+        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+Subject: [PATCH for 4.4.y] usb: gadget: fix request length error for isoc transfer
+Date:   Thu,  6 Jun 2019 11:43:09 +0900
+X-TSB-HOP: ON
+Message-Id: <20190606024309.14309-1-nobuhiro1.iwamatsu@toshiba.co.jp>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.67.188.14]
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When the instruction code under PC address is read through
-_probe_kernel_read in do_alignment,if the pte page corresponding
-to the code segment of PC address is reclaimed exactly at this time,
-the address mapping cannot be reconstructed because page fault_disable()
-is executed in _probe_kernel_read function,and the failure to obtain
-the instruction code of PC finally results in the unsuccessful repair
-operation.
-Thus we can modify the implementation of reading user-mode PC instruction
-before local_irq_enable to avoid the above risk.
-At the same time, adjust the sequence of code processing and optimize the
-process.
+From: Peter Chen <peter.chen@nxp.com>
 
-Signed-off-by: xiaoqian <xiaoqian9@huawei.com>
-Cc: stable@vger.kernel.org
+commit 982555fc26f9d8bcdbd5f9db0378fe0682eb4188 upstream.
+
+For isoc endpoint descriptor, the wMaxPacketSize is not real max packet
+size (see Table 9-13. Standard Endpoint Descriptor, USB 2.0 specifcation),
+it may contain the number of packet, so the real max packet should be
+ep->desc->wMaxPacketSize && 0x7ff.
+
+Cc: Felipe F. Tonello <eu@felipetonello.com>
+Cc: Felipe Balbi <felipe.balbi@linux.intel.com>
+Fixes: 16b114a6d797 ("usb: gadget: fix usb_ep_align_maybe
+  endianness and new usb_ep_align")
+
+Signed-off-by: Peter Chen <peter.chen@nxp.com>
+Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+[iwamatsu: Fix Fixes tag]
+Signed-off-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
 ---
- arch/arm/mm/alignment.c | 81 +++++++++++++++++++++++++++++++++----------------
- 1 file changed, 55 insertions(+), 26 deletions(-)
+ include/linux/usb/gadget.h | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/mm/alignment.c b/arch/arm/mm/alignment.c
-index e376883ab35b..4124b9ce3c70 100644
---- a/arch/arm/mm/alignment.c
-+++ b/arch/arm/mm/alignment.c
-@@ -76,6 +76,11 @@
- #define IS_T32(hi16) \
- 	(((hi16) & 0xe000) == 0xe000 && ((hi16) & 0x1800))
- 
-+#define INVALID_INSTR_MODE     0
-+#define ARM_INSTR_MODE         1
-+#define THUMB_INSTR_MODE       2
-+#define THUMB2_INSTR_MODE      3
+diff --git a/include/linux/usb/gadget.h b/include/linux/usb/gadget.h
+index 7e84aac39ade..667e7f9fd877 100644
+--- a/include/linux/usb/gadget.h
++++ b/include/linux/usb/gadget.h
+@@ -671,7 +671,9 @@ static inline struct usb_gadget *dev_to_usb_gadget(struct device *dev)
+  */
+ static inline size_t usb_ep_align(struct usb_ep *ep, size_t len)
+ {
+-	return round_up(len, (size_t)le16_to_cpu(ep->desc->wMaxPacketSize));
++	int max_packet_size = (size_t)usb_endpoint_maxp(ep->desc) & 0x7ff;
 +
- static unsigned long ai_user;
- static unsigned long ai_sys;
- static void *ai_sys_last_pc;
-@@ -705,6 +710,48 @@ thumb2arm(u16 tinstr)
- 	}
++	return round_up(len, max_packet_size);
  }
  
-+static unsigned int
-+fetch_usr_pc_instr(struct pt_regs *regs, unsigned long *pc_instrptr)
-+{
-+	unsigned int fault;
-+	unsigned long instrptr;
-+	unsigned long instr_mode = INVALID_INSTR_MODE;
-+
-+	instrptr = instruction_pointer(regs);
-+
-+	if (thumb_mode(regs)) {
-+		u16 tinstr = 0;
-+		u16 *ptr = (u16 *)(instrptr & ~1);
-+
-+		fault = probe_kernel_address(ptr, tinstr);
-+		if (!fault) {
-+			tinstr = __mem_to_opcode_thumb16(tinstr);
-+			if (cpu_architecture() >= CPU_ARCH_ARMv7 &&
-+			    IS_T32(tinstr)) {
-+				/* Thumb-2 32-bit */
-+				u16 tinstr2 = 0;
-+
-+				fault = probe_kernel_address(ptr + 1, tinstr2);
-+				if (!fault) {
-+					tinstr2 = __mem_to_opcode_thumb16(tinstr2);
-+					*pc_instrptr = __opcode_thumb32_compose(tinstr, tinstr2);
-+					instr_mode = THUMB2_INSTR_MODE;
-+				}
-+			} else {
-+				*pc_instrptr = thumb2arm(tinstr);
-+				instr_mode = THUMB_INSTR_MODE;
-+			}
-+		}
-+	} else {
-+		fault = probe_kernel_address((void *)instrptr, *pc_instrptr);
-+		if (!fault) {
-+			*pc_instrptr = __mem_to_opcode_arm(*pc_instrptr);
-+			instr_mode = ARM_INSTR_MODE;
-+		}
-+	}
-+	return instr_mode;
-+}
-+
- /*
-  * Convert Thumb-2 32 bit LDM, STM, LDRD, STRD to equivalent instruction
-  * handlable by ARM alignment handler, also find the corresponding handler,
-@@ -775,42 +822,24 @@ do_alignment(unsigned long addr, unsigned int fsr, struct pt_regs *regs)
- 	unsigned long instr = 0, instrptr;
- 	int (*handler)(unsigned long addr, unsigned long instr, struct pt_regs *regs);
- 	unsigned int type;
--	unsigned int fault;
- 	u16 tinstr = 0;
- 	int isize = 4;
- 	int thumb2_32b = 0;
-+	unsigned long pc_instr_mode;
-+
-+	pc_instr_mode = fetch_usr_pc_instr(regs, &instr);
- 
- 	if (interrupts_enabled(regs))
- 		local_irq_enable();
- 
- 	instrptr = instruction_pointer(regs);
--
--	if (thumb_mode(regs)) {
--		u16 *ptr = (u16 *)(instrptr & ~1);
--		fault = probe_kernel_address(ptr, tinstr);
--		tinstr = __mem_to_opcode_thumb16(tinstr);
--		if (!fault) {
--			if (cpu_architecture() >= CPU_ARCH_ARMv7 &&
--			    IS_T32(tinstr)) {
--				/* Thumb-2 32-bit */
--				u16 tinst2 = 0;
--				fault = probe_kernel_address(ptr + 1, tinst2);
--				tinst2 = __mem_to_opcode_thumb16(tinst2);
--				instr = __opcode_thumb32_compose(tinstr, tinst2);
--				thumb2_32b = 1;
--			} else {
--				isize = 2;
--				instr = thumb2arm(tinstr);
--			}
--		}
--	} else {
--		fault = probe_kernel_address((void *)instrptr, instr);
--		instr = __mem_to_opcode_arm(instr);
--	}
--
--	if (fault) {
-+	if (pc_instr_mode == INVALID_INSTR_MODE) {
- 		type = TYPE_FAULT;
- 		goto bad_or_fault;
-+	} else if (pc_instr_mode == THUMB_INSTR_MODE) {
-+		isize = 2;
-+	} else if (pc_instr_mode == THUMB2_INSTR_MODE) {
-+		thumb2_32b = 1;
- 	}
- 
- 	if (user_mode(regs))
+ /**
 -- 
-2.12.3
+2.20.1
 
