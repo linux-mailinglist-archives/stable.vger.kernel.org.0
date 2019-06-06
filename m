@@ -2,96 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AA3937340
-	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 13:44:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5260237337
+	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 13:44:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727371AbfFFLoS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Jun 2019 07:44:18 -0400
-Received: from lhrrgout.huawei.com ([185.176.76.210]:32990 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727157AbfFFLoS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 6 Jun 2019 07:44:18 -0400
-Received: from LHREML712-CAH.china.huawei.com (unknown [172.18.7.106])
-        by Forcepoint Email with ESMTP id B9CDA6C53C31372D7D72;
-        Thu,  6 Jun 2019 12:44:15 +0100 (IST)
-Received: from [10.220.96.108] (10.220.96.108) by smtpsuk.huawei.com
- (10.201.108.35) with Microsoft SMTP Server (TLS) id 14.3.408.0; Thu, 6 Jun
- 2019 12:43:51 +0100
-Subject: Re: [PATCH v3 0/2] ima/evm fixes for v5.2
-To:     <zohar@linux.ibm.com>, <dmitry.kasatkin@huawei.com>,
-        <mjg59@google.com>
-CC:     <linux-integrity@vger.kernel.org>,
-        <linux-security-module@vger.kernel.org>,
-        <linux-doc@vger.kernel.org>, <stable@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <silviu.vlasceanu@huawei.com>
-References: <20190606112620.26488-1-roberto.sassu@huawei.com>
-From:   Roberto Sassu <roberto.sassu@huawei.com>
-Message-ID: <3711f387-3aef-9fbb-1bb4-dded6807b033@huawei.com>
-Date:   Thu, 6 Jun 2019 13:43:58 +0200
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.3.0
+        id S1726762AbfFFLoI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Jun 2019 07:44:08 -0400
+Received: from mx1.emlix.com ([188.40.240.192]:36596 "EHLO mx1.emlix.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727310AbfFFLoI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 6 Jun 2019 07:44:08 -0400
+Received: from mailer.emlix.com (unknown [81.20.119.6])
+        (using TLSv1.2 with cipher ADH-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mx1.emlix.com (Postfix) with ESMTPS id B865560076;
+        Thu,  6 Jun 2019 13:44:06 +0200 (CEST)
+From:   Rolf Eike Beer <eb@emlix.com>
+To:     Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Cc:     linux-efi@vger.kernel.org, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org, ndesaulniers@google.com
+Subject: Re: [PATCH for-4.9-stable] efi/libstub: Unify command line param parsing
+Date:   Thu, 06 Jun 2019 13:44:06 +0200
+Message-ID: <2196650.4E46qPc46x@devpool35>
+Organization: emlix GmbH
+In-Reply-To: <20190606102513.16321-1-ard.biesheuvel@linaro.org>
+References: <20190606102513.16321-1-ard.biesheuvel@linaro.org>
 MIME-Version: 1.0
-In-Reply-To: <20190606112620.26488-1-roberto.sassu@huawei.com>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.220.96.108]
-X-CFilter-Loop: Reflected
+Content-Type: multipart/signed; boundary="nextPart31848172.T2U0eTky2d"; micalg="pgp-sha256"; protocol="application/pgp-signature"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/6/2019 1:26 PM, Roberto Sassu wrote:
-> Previous versions included the patch 'ima: don't ignore INTEGRITY_UNKNOWN
-> EVM status'. However, I realized that this patch cannot be accepted alone
-> because IMA-Appraisal would deny access to new files created during the
-> boot. With the current behavior, those files are accessible because they
-> have a valid security.ima (not protected by EVM) created after the first
-> write.
-> 
-> A solution for this problem is to initialize EVM very early with a random
-> key. Access to created files will be granted, even with the strict
-> appraisal, because after the first write those files will have both
-> security.ima and security.evm (HMAC calculated with the random key).
-> 
-> Strict appraisal will work only if it is done with signatures until the
-> persistent HMAC key is loaded.
+--nextPart31848172.T2U0eTky2d
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="UTF-8"
 
-Changelog
+Ard Biesheuvel wrote:
+> Commit 60f38de7a8d4e816100ceafd1b382df52527bd50 upstream.
+>=20
+> Merge the parsing of the command line carried out in arm-stub.c with
+> the handling in efi_parse_options(). Note that this also fixes the
+> missing handling of CONFIG_CMDLINE_FORCE=3Dy, in which case the builtin
+> command line should supersede the one passed by the firmware.
+>=20
+> Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+> Cc: Linus Torvalds <torvalds@linux-foundation.org>
+> Cc: Matt Fleming <matt@codeblueprint.co.uk>
+> Cc: Peter Zijlstra <peterz@infradead.org>
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Cc: bhe@redhat.com
+> Cc: bhsharma@redhat.com
+> Cc: bp@alien8.de
+> Cc: eugene@hp.com
+> Cc: evgeny.kalugin@intel.com
+> Cc: jhugo@codeaurora.org
+> Cc: leif.lindholm@linaro.org
+> Cc: linux-efi@vger.kernel.org
+> Cc: mark.rutland@arm.com
+> Cc: roy.franz@cavium.com
+> Cc: rruigrok@codeaurora.org
+> Link:
+> http://lkml.kernel.org/r/20170404160910.28115-1-ard.biesheuvel@linaro.org
+> Signed-off-by: Ingo Molnar <mingo@kernel.org>
+> [ardb: fix up merge conflicts with 4.9.180]
+> Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+> ---
+> This fixes the GCC build issue reported by Eike.
+>=20
+> Note that testing of arm64 stable kernels should cover
+> CONFIG_RANDOMIZE_BASE, since it has a profound impact on how the kernel
+> binary gets put together.
 
-v2:
-- remove patch 1/3 (evm: check hash algorithm passed to init_desc());
-   already accepted
-- remove patch 3/3 (ima: show rules with IMA_INMASK correctly);
-   already accepted
-- add new patch (evm: add option to set a random HMAC key at early boot)
-- patch 2/3: modify patch description
+Confirmed, this patch works for me on top of 4.9.180.
+=2D-=20
+Rolf Eike Beer, emlix GmbH, http://www.emlix.com
+=46on +49 551 30664-0, Fax +49 551 30664-11
+Gothaer Platz 3, 37083 G=C3=B6ttingen, Germany
+Sitz der Gesellschaft: G=C3=B6ttingen, Amtsgericht G=C3=B6ttingen HR B 3160
+Gesch=C3=A4ftsf=C3=BChrung: Heike Jordan, Dr. Uwe Kracke =E2=80=93 Ust-IdNr=
+=2E: DE 205 198 055
 
-v1:
-- remove patch 2/4 (evm: reset status in evm_inode_post_setattr()); file
-   attributes cannot be set if the signature is portable and immutable
-- patch 3/4: add __ro_after_init to ima_appraise_req_evm variable
-   declaration
-- patch 3/4: remove ima_appraise_req_evm kernel option and introduce
-   'enforce-evm' and 'log-evm' as possible values for ima_appraise=
-- remove patch 4/4 (ima: only audit failed appraisal verifications)
-- add new patch (ima: show rules with IMA_INMASK correctly)
+emlix - smart embedded open source
+--nextPart31848172.T2U0eTky2d
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part.
+Content-Transfer-Encoding: 7Bit
+
+-----BEGIN PGP SIGNATURE-----
+
+iLMEAAEIAB0WIQQ/Uctzh31xzAxFCLur5FH7Xu2t/AUCXPj8hgAKCRCr5FH7Xu2t
+/KqvBACxZ44yrgwXFYO5IWDP4c6Gj4rNZNK006TUmmaVB3n7KbmstKkpXivHCuvi
+7hTrt+dMHZhz2uGImeVtHai19TPD0cMTYJ5IvbCBpCCKzMXLSO8iznEGlzDDRhZm
+EGBsQ1AhxH0e65RKZ8cadPHdr10R193FNmW/xIVFnrYQcHKEHg==
+=L3Vj
+-----END PGP SIGNATURE-----
+
+--nextPart31848172.T2U0eTky2d--
 
 
-> Roberto Sassu (2):
->    evm: add option to set a random HMAC key at early boot
->    ima: add enforce-evm and log-evm modes to strictly check EVM status
-> 
->   .../admin-guide/kernel-parameters.txt         | 11 ++--
->   security/integrity/evm/evm.h                  | 10 +++-
->   security/integrity/evm/evm_crypto.c           | 57 ++++++++++++++++---
->   security/integrity/evm/evm_main.c             | 41 ++++++++++---
->   security/integrity/ima/ima_appraise.c         |  8 +++
->   security/integrity/integrity.h                |  1 +
->   6 files changed, 106 insertions(+), 22 deletions(-)
-> 
 
--- 
-HUAWEI TECHNOLOGIES Duesseldorf GmbH, HRB 56063
-Managing Director: Bo PENG, Jian LI, Yanli SHI
