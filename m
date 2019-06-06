@@ -2,129 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C692B374B7
-	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 15:01:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F964374B9
+	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 15:01:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727064AbfFFNBE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Jun 2019 09:01:04 -0400
-Received: from mail-wm1-f68.google.com ([209.85.128.68]:36655 "EHLO
-        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726092AbfFFNBE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Jun 2019 09:01:04 -0400
-Received: by mail-wm1-f68.google.com with SMTP id u8so2347492wmm.1
-        for <stable@vger.kernel.org>; Thu, 06 Jun 2019 06:01:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=surgut.co.uk; s=google;
-        h=sender:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=ybXb/jnfS9f1fII5E7PwPCfGODKC3fugkDh59k3ef3g=;
-        b=HpAJM0bcSkIwEsihEGbmENgIesQSRWPHlLq5y3CRN11+FyN7wYJNTl5gl3yEh3Toqc
-         g1GbQsFrc/Lovp8APS7cFHqGaJBQ72fGqoKVZcUOFUc8vYE+lAGrA36Zjj0DZBFq6s2j
-         KCse1OxYb7uQF0G1yuwaT1/iXMRwTp/io0xxw=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
-         :mime-version:content-transfer-encoding;
-        bh=ybXb/jnfS9f1fII5E7PwPCfGODKC3fugkDh59k3ef3g=;
-        b=gQAUi2RfueqUqVvBo7ZQ1G9uTwy8kMhNm6vDAdjuOv5ur82QLOoZFmUn3QmA7RF9n6
-         Ip7ce9R0e3PD49XPvEJ9SD8F8jD7KWFn7eiuMJWQ2rYADbQaDS1beHIfW2D5UG9lxfpt
-         HgpCMyxtFwBqV5aVz4Q7MRQj9SsjVl9Ej6HeD/PHOrkF0ezFb1praldsfiIU2Ub20VUa
-         XqJTzHA+fyZcM3RfzCmF2vYxpeKrRJtq3Xvaa4PHs0qnJ27hui6CprrCS0eG+41cWRDc
-         SpZQJ/zGthECN0R6DQKcj+aE/0+kbZNitUB5T5qB+1vEoaAbWbSEm5SgkrouTW/meCpp
-         qEUg==
-X-Gm-Message-State: APjAAAWBjskQTziiwu8edCMSw7DsItiJREV24JiO1Q+PCtN9W70dCq/M
-        /N3mr5FLYHcFEdLW4K/JYgnJYinqVknrEQ==
-X-Google-Smtp-Source: APXvYqwdoljEyQU7m9QpBEeUo5sCqQfF8p32N0fk5GYjjwsHT3+zbwXiF098orMEmIWQ37K3N+bpQQ==
-X-Received: by 2002:a1c:e90f:: with SMTP id q15mr13318094wmc.89.1559826062336;
-        Thu, 06 Jun 2019 06:01:02 -0700 (PDT)
-Received: from localhost (9.a.8.f.7.f.e.f.f.f.2.3.f.4.a.1.1.4.e.1.c.6.e.d.0.b.8.0.1.0.0.2.ip6.arpa. [2001:8b0:de6c:1e41:1a4f:32ff:fef7:f8a9])
-        by smtp.gmail.com with ESMTPSA id 34sm1179008wre.32.2019.06.06.06.01.01
-        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Thu, 06 Jun 2019 06:01:01 -0700 (PDT)
-From:   Dimitri John Ledkov <xnox@ubuntu.com>
-To:     kernel-team@lists.ubuntu.com
-Cc:     Paulo Alcantara <paulo@paulo.ac>, stable@vger.kernel.org,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Paul Moore <paul@paul-moore.com>
-Subject: [SRU][Bionic][PATCH] selinux: use kernel linux/socket.h for genheaders and mdp
-Date:   Thu,  6 Jun 2019 14:01:00 +0100
-Message-Id: <20190606130100.30278-1-xnox@ubuntu.com>
-X-Mailer: git-send-email 2.20.1
+        id S1727029AbfFFNBh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Jun 2019 09:01:37 -0400
+Received: from mail-eopbgr10083.outbound.protection.outlook.com ([40.107.1.83]:19460
+        "EHLO EUR02-HE1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1725782AbfFFNBg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 6 Jun 2019 09:01:36 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=q/WnmgBcJhT3SSzKXOgtauV/nEVUb62EQFPYO6FBknQ=;
+ b=JjATmDZJWcrdmZoJyaZuGcVpqut6Qr/z4D8NHz49b5ziX9PATYpBesbgqwSFJF4OgX6+IKwhPVANrypYFweCO9vK1Taw3rxTv5vsCp1kWaNtcHLh4Z1JK9TlbrM4YJKCKgCdmG6dY0G1b7Y2vN1nNykn+971imE1IbALISeD8ZA=
+Received: from VI1PR05MB4141.eurprd05.prod.outlook.com (10.171.182.144) by
+ VI1PR05MB4944.eurprd05.prod.outlook.com (20.177.51.29) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.1965.12; Thu, 6 Jun 2019 13:01:32 +0000
+Received: from VI1PR05MB4141.eurprd05.prod.outlook.com
+ ([fe80::c16d:129:4a40:9ba1]) by VI1PR05MB4141.eurprd05.prod.outlook.com
+ ([fe80::c16d:129:4a40:9ba1%6]) with mapi id 15.20.1965.011; Thu, 6 Jun 2019
+ 13:01:32 +0000
+From:   Jason Gunthorpe <jgg@mellanox.com>
+To:     Ajay Kaher <akaher@vmware.com>
+CC:     "aarcange@redhat.com" <aarcange@redhat.com>,
+        "jannh@google.com" <jannh@google.com>,
+        "oleg@redhat.com" <oleg@redhat.com>,
+        "peterx@redhat.com" <peterx@redhat.com>,
+        "rppt@linux.ibm.com" <rppt@linux.ibm.com>,
+        "mhocko@suse.com" <mhocko@suse.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "srivatsa@csail.mit.edu" <srivatsa@csail.mit.edu>,
+        Alexey Makhalov <amakhalov@vmware.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH 1/1] [v4.9.y] coredump: fix race condition between
+ mmget_not_zero()/get_task_mm() and core dumping
+Thread-Topic: [PATCH 1/1] [v4.9.y] coredump: fix race condition between
+ mmget_not_zero()/get_task_mm() and core dumping
+Thread-Index: AQHVEJKtcd31BZJBuUaA08iiqIL6fqZ3DLqAgBd2bICAACubgA==
+Date:   Thu, 6 Jun 2019 13:01:32 +0000
+Message-ID: <20190606130127.GB17392@mellanox.com>
+References: <1558553850-27745-1-git-send-email-akaher@vmware.com>
+ <20190522120733.GB6039@mellanox.com>
+ <DE6BE512-F3CF-4847-BED0-EE2FCC31DCED@vmware.com>
+In-Reply-To: <DE6BE512-F3CF-4847-BED0-EE2FCC31DCED@vmware.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-clientproxiedby: YTOPR0101CA0001.CANPRD01.PROD.OUTLOOK.COM
+ (2603:10b6:b00:15::14) To VI1PR05MB4141.eurprd05.prod.outlook.com
+ (2603:10a6:803:4d::16)
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=jgg@mellanox.com; 
+x-ms-exchange-messagesentrepresentingtype: 1
+x-originating-ip: [156.34.55.100]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 21476aef-a671-45e4-dd48-08d6ea7f18e1
+x-ms-office365-filtering-ht: Tenant
+x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600148)(711020)(4605104)(1401327)(4618075)(2017052603328)(7193020);SRVR:VI1PR05MB4944;
+x-ms-traffictypediagnostic: VI1PR05MB4944:
+x-microsoft-antispam-prvs: <VI1PR05MB4944E00004577B6FB882352ECF170@VI1PR05MB4944.eurprd05.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:7691;
+x-forefront-prvs: 00603B7EEF
+x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(376002)(366004)(136003)(396003)(39860400002)(346002)(199004)(189003)(25786009)(66946007)(11346002)(476003)(2616005)(186003)(4326008)(99286004)(81166006)(81156014)(64756008)(66476007)(86362001)(52116002)(316002)(8936002)(2906002)(486006)(66446008)(229853002)(73956011)(76176011)(66556008)(478600001)(68736007)(102836004)(256004)(5660300002)(386003)(66066001)(6506007)(26005)(6916009)(33656002)(4744005)(53936002)(8676002)(1076003)(6246003)(7736002)(71200400001)(71190400001)(14454004)(6512007)(6116002)(36756003)(6436002)(446003)(54906003)(7416002)(3846002)(6486002)(305945005);DIR:OUT;SFP:1101;SCL:1;SRVR:VI1PR05MB4944;H:VI1PR05MB4141.eurprd05.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
+received-spf: None (protection.outlook.com: mellanox.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam-message-info: /w0lz7Q7rj2fDUm7YcEXA+e3iwYnMFS/Ya6w95UzxGlpMCIASUOTMB1bnmi7rCJ2nPSbA2+sa2KS6sTBbvyG2Ervx5nq0HPQOeBbVMQAMddMz6k2RHuXN80Y9LVUOed86r5m9DYXOjHrn8bYBgOg9t3VLYDexx7KM3lCF4nSMP0UScJaztB1veDtSjThkPAYZ8sh2DWEXV0CUjVPU6Woq3y2Cso0HqDMUkbInSeDcp/Y9to6uvAT2mmOCN70t1yuo0wGNfCXfYS6whEbkTgqY4cDCMwCjvoGpgry2YDKrGX3s8RD6N6Yss/OsLDghK1m126Qx0I5+EUhkiqY34Cn8RvbCllSs43sOu11bIj/x1BxXxLVaoCnoXVjh0xsb/VmvBfUq5oHL9umvfusvxlwoRmKtaHKZzpatzicmUlzj6g=
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <ED4578F884E61144B06559C8BE7FBAD0@eurprd05.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-OriginatorOrg: Mellanox.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 21476aef-a671-45e4-dd48-08d6ea7f18e1
+X-MS-Exchange-CrossTenant-originalarrivaltime: 06 Jun 2019 13:01:32.1273
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: a652971c-7d2e-4d9b-a6a4-d149256f461b
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: jgg@mellanox.com
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI1PR05MB4944
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paulo Alcantara <paulo@paulo.ac>
+On Thu, Jun 06, 2019 at 10:25:23AM +0000, Ajay Kaher wrote:
 
-BugLink: https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1823429
+> > I think in this kernel the mm handling code for IB is in three
+> > different drivers, it probably needs to be fixed too?
+>=20
+> Thanks Jason for pointing this.
+>  =20
+> Crossed checked the locking of mmap_sem in IB driver code of 4.9 to 4.14 =
+with >5.0
+> and found it requires to handle at following locations of 4.9 and 4.14:
+> mlx4_ib_disassociate_ucontext() of drivers/infiniband/hw/mlx5/main.c:
+> mlx5_ib_disassociate_ucontext() of drivers/infiniband/hw/mlx4/main.c
+>=20
+> To fix at above location, would you like me to modify the original
+> patch or submit in another patch.
 
-When compiling genheaders and mdp from a newer host kernel, the
-following error happens:
+I think it is a backporting thing, so you should put the new work in
+this patch? I'm not sure.
 
-    In file included from scripts/selinux/genheaders/genheaders.c:18:
-    ./security/selinux/include/classmap.h:238:2: error: #error New
-    address family defined, please update secclass_map.  #error New
-    address family defined, please update secclass_map.  ^~~~~
-    make[3]: *** [scripts/Makefile.host:107:
-    scripts/selinux/genheaders/genheaders] Error 1 make[2]: ***
-    [scripts/Makefile.build:599: scripts/selinux/genheaders] Error 2
-    make[1]: *** [scripts/Makefile.build:599: scripts/selinux] Error 2
-    make[1]: *** Waiting for unfinished jobs....
+I'm also surprised hns isn't in the above list of drivers, but maybe
+hns didn't have this support in these kernels..
 
-Instead of relying on the host definition, include linux/socket.h in
-classmap.h to have PF_MAX.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Paulo Alcantara <paulo@paulo.ac>
-Acked-by: Stephen Smalley <sds@tycho.nsa.gov>
-[PM: manually merge in mdp.c, subject line tweaks]
-Signed-off-by: Paul Moore <paul@paul-moore.com>
-(cherry picked from commit dfbd199a7cfe3e3cd8531e1353cdbd7175bfbc5e)
-Signed-off-by: Dimitri John Ledkov <xnox@ubuntu.com>
----
- scripts/selinux/genheaders/genheaders.c | 1 -
- scripts/selinux/mdp/mdp.c               | 1 -
- security/selinux/include/classmap.h     | 1 +
- 3 files changed, 1 insertion(+), 2 deletions(-)
-
-diff --git a/scripts/selinux/genheaders/genheaders.c b/scripts/selinux/genheaders/genheaders.c
-index fa48fabcb330..3cc4893d98cc 100644
---- a/scripts/selinux/genheaders/genheaders.c
-+++ b/scripts/selinux/genheaders/genheaders.c
-@@ -9,7 +9,6 @@
- #include <string.h>
- #include <errno.h>
- #include <ctype.h>
--#include <sys/socket.h>
- 
- struct security_class_mapping {
- 	const char *name;
-diff --git a/scripts/selinux/mdp/mdp.c b/scripts/selinux/mdp/mdp.c
-index ffe8179f5d41..c29fa4a6228d 100644
---- a/scripts/selinux/mdp/mdp.c
-+++ b/scripts/selinux/mdp/mdp.c
-@@ -32,7 +32,6 @@
- #include <stdlib.h>
- #include <unistd.h>
- #include <string.h>
--#include <sys/socket.h>
- 
- static void usage(char *name)
- {
-diff --git a/security/selinux/include/classmap.h b/security/selinux/include/classmap.h
-index acdee7795297..5ae315ab060b 100644
---- a/security/selinux/include/classmap.h
-+++ b/security/selinux/include/classmap.h
-@@ -1,5 +1,6 @@
- /* SPDX-License-Identifier: GPL-2.0 */
- #include <linux/capability.h>
-+#include <linux/socket.h>
- 
- #define COMMON_FILE_SOCK_PERMS "ioctl", "read", "write", "create", \
-     "getattr", "setattr", "lock", "relabelfrom", "relabelto", "append", "map"
--- 
-2.20.1
-
+Jason
