@@ -2,169 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3658436AA7
-	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 06:14:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57D1436C43
+	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 08:30:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725784AbfFFEOo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Jun 2019 00:14:44 -0400
-Received: from conuserg-10.nifty.com ([210.131.2.77]:16852 "EHLO
-        conuserg-10.nifty.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725769AbfFFEOo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Jun 2019 00:14:44 -0400
-Received: from localhost.localdomain (p14092-ipngnfx01kyoto.kyoto.ocn.ne.jp [153.142.97.92]) (authenticated)
-        by conuserg-10.nifty.com with ESMTP id x564E4Qs005398;
-        Thu, 6 Jun 2019 13:14:05 +0900
-DKIM-Filter: OpenDKIM Filter v2.10.3 conuserg-10.nifty.com x564E4Qs005398
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nifty.com;
-        s=dec2015msa; t=1559794445;
-        bh=eOW16+d0QVQdHAamLUOsKECw5DUQ5PBLfUUOO0b6ZzQ=;
-        h=From:To:Cc:Subject:Date:From;
-        b=reAxSQwSioU2yzfjgnrkOgsrJeRIs7XXXhszdvHGP2vZG+gttaqbwOqUbb2zJF/ow
-         VuDDIO0dy6qTjfd2vBOiewvimiYDF/7M9sZ5TTo/ihk9/Fs+gxpk6sGyC88WLqMN/X
-         VImXUPh20VpzfnqyBMWGmEU9RqBA8Tj34liKmpJjkL5nfV4aLnxH2kIbU5ASs6uGau
-         relTlvYRPIT6LHOwJ+crhgDsxhYtwjexB54qt59zFn9INGigelRlxprIh89Z0VwZRr
-         gw57c9u1v1PQwFbxf+A4RLg4jVKAnFJIG00ft5TTxfitr6N0t2lVvX3zFYV8gGcK6u
-         t5rfS+Jzt33yw==
-X-Nifty-SrcIP: [153.142.97.92]
-From:   Masahiro Yamada <yamada.masahiro@socionext.com>
-To:     linux-kbuild@vger.kernel.org
-Cc:     David Laight <David.Laight@aculab.com>,
-        Alexey Brodkin <abrodkin@synopsys.com>,
-        Vineet Gupta <vgupta@synopsys.com>,
-        linux-snps-arc@lists.infradead.org,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        linux-stable <stable@vger.kernel.org>,
-        Michal Marek <michal.lkml@markovi.net>,
-        linux-kernel@vger.kernel.org
-Subject: [PATCH v2] kbuild: use more portable 'command -v' for cc-cross-prefix
-Date:   Thu,  6 Jun 2019 13:13:58 +0900
-Message-Id: <20190606041358.22757-1-yamada.masahiro@socionext.com>
-X-Mailer: git-send-email 2.17.1
+        id S1725267AbfFFGak (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Jun 2019 02:30:40 -0400
+Received: from bhuna.collabora.co.uk ([46.235.227.227]:55516 "EHLO
+        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725769AbfFFGak (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Jun 2019 02:30:40 -0400
+Received: from [127.0.0.1] (localhost [127.0.0.1])
+        (Authenticated sender: tomeu)
+        with ESMTPSA id 01F11263955
+Subject: Re: CKI hackfest @Plumbers invite
+To:     kernelci@groups.io, vkabatov@redhat.com,
+        automated-testing@yoctoproject.org, info@kernelci.org,
+        Tim.Bird@sony.com, khilamn@baylibre.org,
+        syzkaller@googlegroups.com, lkp@lists.01.org,
+        stable@vger.kernel.org, Laura Abbott <labbott@redhat.com>
+Cc:     Eliska Slobodova <eslobodo@redhat.com>,
+        CKI Project <cki-project@redhat.com>
+References: <1667759567.21267950.1558450452057.JavaMail.zimbra@redhat.com>
+From:   Tomeu Vizoso <tomeu.vizoso@collabora.com>
+Message-ID: <1e8552db-8e7e-100a-2b2d-e2d41cd0c9be@collabora.com>
+Date:   Thu, 6 Jun 2019 08:30:35 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
+MIME-Version: 1.0
+In-Reply-To: <1667759567.21267950.1558450452057.JavaMail.zimbra@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-To print the pathname that will be used by shell in the current
-environment, 'command -v' is a standardized way. [1]
+On 5/21/19 4:54 PM, Veronika Kabatova wrote:
+> Hi,
+> 
+> as some of you have heard, CKI Project is planning hackfest CI meetings after
+> Plumbers conference this year (Sept. 12-13). We would like to invite everyone
+> who has interest in CI for kernel to come and join us.
+> 
+> The early agenda with summary is at the end of the email. If you think there's
+> something important missing let us know! Also let us know in case you'd want to
+> lead any of the sessions, we'd be happy to delegate out some work :)
+> 
+> 
+> Please send us an email as soon as you decide to come and feel free to invite
+> other people who should be present. We are not planning to cap the attendance
+> right now but need to solve the logistics based on the interest. The event is
+> free to attend, no additional registration except letting us know is needed.
 
-'which' is also often used in scripts, but it is less portable.
+Hi Veronika, I would like to be there.
 
-When I worked on commit bd55f96fa9fc ("kbuild: refactor cc-cross-prefix
-implementation"), I was eager to use 'command -v' but it did not work.
-(The reason is explained below.)
+Cheers,
 
-I kept 'which' as before but got rid of '> /dev/null 2>&1' as I
-thought it was no longer needed. Sorry, I was wrong.
+Tomeu
 
-It works well on my Ubuntu machine, but Alexey Brodkin reports noisy
-warnings on CentOS7 when 'which' fails to find the given command in
-the PATH environment.
-
-  $ which foo
-  which: no foo in (/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin)
-
-Given that behavior of 'which' depends on system (and it may not be
-installed by default), I want to try 'command -v' once again.
-
-The specification [1] clearly describes the behavior of 'command -v'
-when the given command is not found:
-
-  Otherwise, no output shall be written and the exit status shall reflect
-  that the name was not found.
-
-However, we need a little magic to use 'command -v' from Make.
-
-$(shell ...) passes the argument to a subshell for execution, and
-returns the standard output of the command.
-
-Here is a trick. GNU Make may optimize this by executing the command
-directly instead of forking a subshell, if no shell special characters
-are found in the command and omitting the subshell will not change the
-behavior.
-
-In this case, no shell special character is used. So, Make will try
-to run it directly. However, 'command' is a shell-builtin command,
-then Make would fail to find it in the PATH environment:
-
-  $ make ARCH=m68k defconfig
-  make: command: Command not found
-  make: command: Command not found
-  make: command: Command not found
-
-In fact, Make has a table of shell-builtin commands because it must
-ask the shell to execute them.
-
-Until recently, 'command' was missing in the table.
-
-This issue was fixed by the following commit:
-
-| commit 1af314465e5dfe3e8baa839a32a72e83c04f26ef
-| Author: Paul Smith <psmith@gnu.org>
-| Date:   Sun Nov 12 18:10:28 2017 -0500
-|
-|     * job.c: Add "command" as a known shell built-in.
-|
-|     This is not a POSIX shell built-in but it's common in UNIX shells.
-|     Reported by Nick Bowler <nbowler@draconx.ca>.
-
-Because the latest release is GNU Make 4.2.1 in 2016, this commit is
-not included in any released versions. (But some distributions may
-have back-ported it.)
-
-We need to trick Make to spawn a subshell. There are various ways to
-do so:
-
- 1) Use a shell special character '~' as dummy
-
-    $(shell : ~; command -v $(c)gcc)
-
- 2) Use a variable reference, which always expands to the empty string
-    (suggested by David Laight)
-
-    $(shell command$${x:+} -v $(c)gcc)
-
- 3) Use redirect
-
-    $(shell command -v $(c)gcc 2>/dev/null)
-
-I chose 3) to not confuse people. The stderr would not be polluted
-anyway, but it will provide extra safety, and is easy to understand.
-
-Tested on Make 3.81, 3.82, 4.0, 4.1, 4.2, 4.2.1
-
-[1] http://pubs.opengroup.org/onlinepubs/9699919799/utilities/command.html
-
-Fixes: bd55f96fa9fc ("kbuild: refactor cc-cross-prefix implementation")
-Cc: linux-stable <stable@vger.kernel.org> # 5.1
-Reported-by: Alexey Brodkin <abrodkin@synopsys.com>
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-Tested-by: Alexey Brodkin <abrodkin@synopsys.com>
----
-
-Changes in v2:
-  - Use dummy redirect
-
- scripts/Kbuild.include | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
-
-diff --git a/scripts/Kbuild.include b/scripts/Kbuild.include
-index 85d758233483..fd8aa314c156 100644
---- a/scripts/Kbuild.include
-+++ b/scripts/Kbuild.include
-@@ -74,8 +74,11 @@ endef
- # Usage: CROSS_COMPILE := $(call cc-cross-prefix, m68k-linux-gnu- m68k-linux-)
- # Return first <prefix> where a <prefix>gcc is found in PATH.
- # If no gcc found in PATH with listed prefixes return nothing
-+#
-+# Note: 2>/dev/null is here to force Make to invoke a shell. This workaround
-+# is needed because this issue was only fixed after GNU Make 4.2.1 release.
- cc-cross-prefix = $(firstword $(foreach c, $(filter-out -%, $(1)), \
--					$(if $(shell which $(c)gcc), $(c))))
-+			$(if $(shell command -v $(c)gcc 2>/dev/null), $(c))))
- 
- # output directory for tests below
- TMPOUT := $(if $(KBUILD_EXTMOD),$(firstword $(KBUILD_EXTMOD))/)
--- 
-2.17.1
-
+> Feel free to contact us if you have any questions,
+> Veronika
+> CKI Project
+> 
+> 
+> -----------------------------------------------------------
+> Here is an early agenda we put together:
+> - Introductions
+> - Common place for upstream results, result publishing in general
+>    - The discussion on the mailing list is going strong so we might be able to
+>      substitute this session for a different one in case everything is solved by
+>      September.
+> - Test result interpretation and bug detection
+>    - How to autodetect infrastructure failures, regressions/new bugs and test
+>      bugs? How to handle continuous failures due to known bugs in both tests and
+>      kernel? What's your solution? Can people always trust the results they
+>      receive?
+> - Getting results to developers/maintainers
+>    - Aimed at kernel developers and maintainers, share your feedback and
+>      expectations.
+>    - How much data should be sent in the initial communication vs. a click away
+>      in a dashboard? Do you want incremental emails with new results as they come
+>      in?
+>    - What about adding checks to tested patches in Patchwork when patch series
+>      are being tested?
+>    - Providing enough data/script to reproduce the failure. What if special HW
+>      is needed?
+> - Onboarding new kernel trees to test
+>    - Aimed at kernel developers and maintainers.
+>    - Which trees are most prone to bring in new problems? Which are the most
+>      critical ones? Do you want them to be tested? Which tests do you feel are
+>      most beneficial for specific trees or in general?
+> - Security when testing untrusted patches
+>    - How do we merge, compile, and test patches that have untrusted code in them
+>      and have not yet been reviewed? How do we avoid abuse of systems,
+>      information theft, or other damage?
+>    - Check out the original patch that sparked the discussion at
+>      https://patchwork.ozlabs.org/patch/862123/
+> - Avoiding effort duplication
+>    - Food for thought by GregKH
+>    - X different CI systems running ${TEST} on latest stable kernel on x86_64
+>      might look useless on the first look but is it? AMD/Intel CPUs, different
+>      network cards, different graphic drivers, compilers, kernel configuration...
+>      How do we distribute the workload to avoid doing the same thing all over
+>      again while still running in enough different environments to get the most
+>      coverage?
+> - Common hardware pools
+>    - Is this something people are interested in? Would be helpful especially for
+>      HW that's hard to access, eg. ppc64le or s390x systems. Companies could also
+>      sing up to share their HW for testing to ensure kernel works with their
+>      products.
+> 
+> -=-=-=-=-=-=-=-=-=-=-=-
+> Groups.io Links: You receive all messages sent to this group.
+> 
+> View/Reply Online (#404): https://groups.io/g/kernelci/message/404
+> Mute This Topic: https://groups.io/mt/31697554/925689
+> Group Owner: kernelci+owner@groups.io
+> Unsubscribe: https://groups.io/g/kernelci/unsub  [tomeu.vizoso@collabora.com]
+> -=-=-=-=-=-=-=-=-=-=-=-
+> 
