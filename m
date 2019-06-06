@@ -2,127 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DA0F837111
-	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 12:00:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B61F437184
+	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 12:22:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727825AbfFFKA2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Jun 2019 06:00:28 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:39720 "EHLO mx1.redhat.com"
+        id S1728350AbfFFKWY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Jun 2019 06:22:24 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:60226 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726972AbfFFKA1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 6 Jun 2019 06:00:27 -0400
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        id S1727469AbfFFKWY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 6 Jun 2019 06:22:24 -0400
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id A7AA33092641;
-        Thu,  6 Jun 2019 10:00:18 +0000 (UTC)
-Received: from colo-mx.corp.redhat.com (colo-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.20])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 8C8B72A313;
-        Thu,  6 Jun 2019 10:00:17 +0000 (UTC)
-Received: from zmail19.collab.prod.int.phx2.redhat.com (zmail19.collab.prod.int.phx2.redhat.com [10.5.83.22])
-        by colo-mx.corp.redhat.com (Postfix) with ESMTP id 598031806B15;
-        Thu,  6 Jun 2019 10:00:16 +0000 (UTC)
-Date:   Thu, 6 Jun 2019 06:00:15 -0400 (EDT)
-From:   Veronika Kabatova <vkabatov@redhat.com>
-To:     Shuah Khan <shuahkhan@gmail.com>, Dan Rue <dan.rue@linaro.org>
-Cc:     automated-testing@yoctoproject.org, info@kernelci.org,
-        Tim Bird <Tim.Bird@sony.com>, syzkaller@googlegroups.com,
-        lkp@lists.01.org, stable <stable@vger.kernel.org>,
-        Laura Abbott <labbott@redhat.com>,
-        Eliska Slobodova <eslobodo@redhat.com>,
-        CKI Project <cki-project@redhat.com>
-Message-ID: <60016207.24115690.1559815215556.JavaMail.zimbra@redhat.com>
-In-Reply-To: <CAKocOONHHuL2xSBUQx0=pw5AHMG4im=9kv3GrJLrKaH6+wguDw@mail.gmail.com>
-References: <1204558561.21265703.1558449611621.JavaMail.zimbra@redhat.com> <1667759567.21267950.1558450452057.JavaMail.zimbra@redhat.com> <20190605204659.npyf7wnmsdlr2bff@xps.therub.org> <CAKocOONHHuL2xSBUQx0=pw5AHMG4im=9kv3GrJLrKaH6+wguDw@mail.gmail.com>
-Subject: Re: CKI hackfest @Plumbers invite
+        by mx1.redhat.com (Postfix) with ESMTPS id 4E50F30872D2;
+        Thu,  6 Jun 2019 10:22:13 +0000 (UTC)
+Received: from dhcp-27-174.brq.redhat.com (unknown [10.43.17.159])
+        by smtp.corp.redhat.com (Postfix) with SMTP id B97096918F;
+        Thu,  6 Jun 2019 10:22:05 +0000 (UTC)
+Received: by dhcp-27-174.brq.redhat.com (nbSMTP-1.00) for uid 1000
+        oleg@redhat.com; Thu,  6 Jun 2019 12:22:11 +0200 (CEST)
+Date:   Thu, 6 Jun 2019 12:22:03 +0200
+From:   Oleg Nesterov <oleg@redhat.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Deepa Dinamani <deepa.kernel@gmail.com>,
+        Linux List Kernel Mailing <linux-kernel@vger.kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Davidlohr Bueso <dbueso@suse.de>, Jens Axboe <axboe@kernel.dk>,
+        Davidlohr Bueso <dave@stgolabs.net>, e@80x24.org,
+        Jason Baron <jbaron@akamai.com>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        linux-aio@kvack.org, omar.kilani@gmail.com,
+        Thomas Gleixner <tglx@linutronix.de>,
+        stable <stable@vger.kernel.org>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        David Laight <David.Laight@aculab.com>
+Subject: Re: [PATCH -mm 0/1] signal: simplify
+ set_user_sigmask/restore_user_sigmask
+Message-ID: <20190606102203.GA31870@redhat.com>
+References: <20190522032144.10995-1-deepa.kernel@gmail.com>
+ <20190529161157.GA27659@redhat.com>
+ <20190604134117.GA29963@redhat.com>
+ <20190605155801.GA25165@redhat.com>
+ <CAHk-=wjkNx8u4Mcm5dfSQKYQmLQAv1Z1yGLDZvty7BVSj4eqBA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.40.205.124, 10.4.195.22]
-Thread-Topic: CKI hackfest @Plumbers invite
-Thread-Index: sXk4dxVD2bH3h6XwrT7jRkVqYxyISA==
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.43]); Thu, 06 Jun 2019 10:00:27 +0000 (UTC)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAHk-=wjkNx8u4Mcm5dfSQKYQmLQAv1Z1yGLDZvty7BVSj4eqBA@mail.gmail.com>
+User-Agent: Mutt/1.5.24 (2015-08-30)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.47]); Thu, 06 Jun 2019 10:22:24 +0000 (UTC)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-Added you both to the list :)
-
------ Original Message -----
-> From: "Shuah Khan" <shuahkhan@gmail.com>
-> To: "Veronika Kabatova" <vkabatov@redhat.com>, automated-testing@yoctoproject.org, info@kernelci.org, "Tim Bird"
-> <Tim.Bird@sony.com>, khilamn@baylibre.org, syzkaller@googlegroups.com, lkp@lists.01.org, "stable"
-> <stable@vger.kernel.org>, "Laura Abbott" <labbott@redhat.com>, "Eliska Slobodova" <eslobodo@redhat.com>, "CKI
-> Project" <cki-project@redhat.com>
-> Sent: Thursday, June 6, 2019 12:00:13 AM
-> Subject: Re: CKI hackfest @Plumbers invite
-> 
-> Hi Veronika,
-> 
-> On Wed, Jun 5, 2019 at 2:47 PM Dan Rue <dan.rue@linaro.org> wrote:
+On 06/05, Linus Torvalds wrote:
+>
+> On Wed, Jun 5, 2019 at 8:58 AM Oleg Nesterov <oleg@redhat.com> wrote:
 > >
-> > On Tue, May 21, 2019 at 10:54:12AM -0400, Veronika Kabatova wrote:
-> > > Hi,
-> > >
-> > > as some of you have heard, CKI Project is planning hackfest CI meetings
-> > > after
-> > > Plumbers conference this year (Sept. 12-13). We would like to invite
-> > > everyone
-> > > who has interest in CI for kernel to come and join us.
-> > >
-> > > The early agenda with summary is at the end of the email. If you think
-> > > there's
-> > > something important missing let us know! Also let us know in case you'd
-> > > want to
-> > > lead any of the sessions, we'd be happy to delegate out some work :)
-> > >
-> > >
-> > > Please send us an email as soon as you decide to come and feel free to
-> > > invite
-> > > other people who should be present. We are not planning to cap the
-> > > attendance
-> > > right now but need to solve the logistics based on the interest. The
-> > > event is
-> > > free to attend, no additional registration except letting us know is
-> > > needed.
-> > >
-> 
-> I am going be there and plan to attend.
-> 
-> > > Feel free to contact us if you have any questions,
-> > > Veronika
-> > > CKI Project
-> >
-> > Hi Veronika! Thanks for organizing this. I plan to attend, and I'm happy
-> > to help out.
-> >
-> > With regard to the agenda, I've been following the '[Ksummit-discuss]
-> > [MAINTAINERS SUMMIT] Squashing bugs!'[1] thread with interest, as it
-> > relates especially to 'Getting results to developers/maintainers'. This,
-> > along with result aggregation, are important areas to focus.
-> >
-> >
-> > [1]
-> > https://lists.linuxfoundation.org/pipermail/ksummit-discuss/2019-May/006389.html
-> >
-> 
-> Good to know there is an overlap and it makes sense for me to attend. :)
-> 
+> > To simplify the review, please see the code with this patch applied.
+> > I am using epoll_pwait() as an example because it looks very simple.
+>
+> I like it.
+>
+> However.
+>
+> I think I'd like it even more if we just said "we don't need
+> restore_saved_sigmask AT ALL".
+  ^^^^^^^^^^^^^^^^^^^^^
 
-I've been pointed to this thread just yesterday (thanks Laura!) and I agree
-you bring up interesting topics in there. In fact, the "Getting results out"
-topic Dan mentioned has the reproducibility of the failures as one of the
-agenda items.
+Did you mean restore_saved_sigmask_unless() introduced by this patch?
 
-There definitely *is* an overlap in some of the topics and we'd be excited
-to have you both there to talk more!
+If yes:
 
-Veronika
+> Which would be fairly easy to do with something like the attached...
 
-> thanks,
-> -- Shuah
-> 
+I don't think so,
+
+> --- a/arch/x86/entry/common.c
+> +++ b/arch/x86/entry/common.c
+> @@ -160,7 +160,7 @@ static void exit_to_usermode_loop(struct pt_regs *regs, u32 cached_flags)
+>  			klp_update_patch_state(current);
+>
+>  		/* deal with pending signal delivery */
+> -		if (cached_flags & _TIF_SIGPENDING)
+> +		if (cached_flags & (_TIF_SIGPENDING | _TIF_RESTORE_SIGMASK))
+>  			do_signal(regs);
+
+...
+
+> --- a/kernel/signal.c
+> +++ b/kernel/signal.c
+> @@ -2877,6 +2877,7 @@ int set_user_sigmask(const sigset_t __user *usigmask, sigset_t *set,
+>
+>  	*oldset = current->blocked;
+>  	set_current_blocked(set);
+> +	set_thread_flag(TIF_RESTORE_SIGMASK);
+
+This will re-introduce the problem fixed by the previous patch.
+
+Yes, do_signal() does restore_saved_sigmask() at the end, but only if
+get_signal() returns false.
+
+This means that restore_saved_sigmask()->set_current_blocked(saved_mask) should
+restore ->blocked (and may be clear TIF_SIGPENDING) before ret-from-syscall.
+
+Or I misunderstood?
+
+Oleg.
+
