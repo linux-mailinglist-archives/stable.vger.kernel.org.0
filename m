@@ -2,144 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 749C537029
-	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 11:41:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C422137034
+	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 11:41:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727867AbfFFJlC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Jun 2019 05:41:02 -0400
-Received: from mx1.emlix.com ([188.40.240.192]:36146 "EHLO mx1.emlix.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727359AbfFFJlC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 6 Jun 2019 05:41:02 -0400
-Received: from mailer.emlix.com (unknown [81.20.119.6])
-        (using TLSv1.2 with cipher ADH-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mx1.emlix.com (Postfix) with ESMTPS id 6503E600A1;
-        Thu,  6 Jun 2019 11:40:59 +0200 (CEST)
-From:   Rolf Eike Beer <eb@emlix.com>
-To:     Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Cc:     Greg KH <gregkh@linuxfoundation.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Matt Fleming <matt@codeblueprint.co.uk>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linux-efi <linux-efi@vger.kernel.org>,
-        Linux Kernel Developers List <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Subject: Re: Building arm64 EFI stub with -fpie breaks build of 4.9.x (undefined reference to `__efistub__GLOBAL_OFFSET_TABLE_')
-Date:   Thu, 06 Jun 2019 11:40:55 +0200
-Message-ID: <2433398.iiuBUrR0On@devpool35>
-Organization: emlix GmbH
-In-Reply-To: <CAKv+Gu9oq+LseNvB9h1u+Q7QVOJFJwm_RyE1dMRgeVuL6D9fNQ@mail.gmail.com>
-References: <779905244.a0lJJiZRjM@devpool35> <1993275.kHlTELq40E@devpool35> <CAKv+Gu9oq+LseNvB9h1u+Q7QVOJFJwm_RyE1dMRgeVuL6D9fNQ@mail.gmail.com>
+        id S1727901AbfFFJlf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Jun 2019 05:41:35 -0400
+Received: from sonic306-1.consmr.mail.bf2.yahoo.com ([74.6.132.40]:36797 "EHLO
+        sonic306-1.consmr.mail.bf2.yahoo.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727875AbfFFJlf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Jun 2019 05:41:35 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yahoo.com; s=s2048; t=1559814093; bh=tPMFdTY+0vCEHEJdls+8ad0RGQoZkRGbQBF0vnIRvYg=; h=Date:From:Reply-To:Subject:References:From:Subject; b=DeklLekNnGuNs8kOucuRZOZGAu7xE2R79KA1sEHfYFeiAVvBmjlhCnihfv7hPcvqUawJxmXz5TZbu2Fa0gkZ5e3kPWb2xu3uGJ/3dqV/x3Jk6Ch6w8JMEfRIVRkkaIg0HCOsjKx27XYXBGJLScpPl9PyTyhB8zG62kRWhBnfchZIp9pTpWerM9MHnVCXn73gxWJ1+bUelGxKKA0K/6JwitMxaQzfwR4mMnFXx819BED/I+WEwj97l1DhFaXHN3uHAo2razub/3FTElJFdctz1bgiOC3XJQBDi2Ceq3aYfwucv0JNNo+53Pc49qyCj07z8hbNkRzPQ6YcEKnfpu2YDA==
+X-YMail-OSG: ri53uuwVM1k1Bfm3YnKgcmN9EkPYqRB1Uvwl.2FR8J5LbFdGG6gRbEUp0NSbqo.
+ rsLSsRZwpeeKtHm8QLVujvTki4nMqzec023Y9a_CTbLJXZqG8OY939F3IUxEpLotfVy0oCvsaegs
+ 0AG_jaVQqZ89CwwRxCMbRJkcgW3LdmogDPyzbIDVwfe_OLX.W1TE4SgA3iWVpPMDbmM3gwWfCSYd
+ XU2mR5Ov9qKZnu7h1_PLmQsEQulfA_DDb6iZuQ7m_1GkfIrZykWR1F3XchAI5h26oO7KjR70FTFi
+ kp1Ot1MAFrCKriNFj8i_EZTrkGkYPSddcqzgAK6N_r9oeasyjKoYLAkeKfj63AEG_psHrrE21nIw
+ yUISvFHDMToN3BFLUVLVo_ikMOUOnI6BkZ6jBTLQON13QOAmaOf29WLZQRRr8jP5JzN1sRtgjpRA
+ OFAXZCxSVlwUq69qYlMVYAMMV5LxANWY_pc.bFNFVqOjyE8wSX1Hx7g0oyISqZWQAls9IMFPu8U2
+ 9Uwh.A665l9nPXN2DWza_ZL9GEaou.mpGvBAz5qgpYSGQrs6Zl379vHyWnoBJ6SyHdmkMlFUtx3P
+ vf5YCC2NmkzOWgouLWXAHOUmij0C5dwxvINFiWRkOZZuD7pJ_lzBPcXgQlcc.xqZXZfcBdm51ENq
+ OXJSYbhHmaF2pYuY9MtcIE8KENnD.5LiejMXlFV7y0xzIfkprQbe8juBxunGhdvqQRG_QSlbS4KO
+ zvLUQPkKps9fCChM0uj.4R1qVimmnGPkbUp_wOL1pKgkGQUiZF8H.WaqCLONlh8dOlpOsJIpoTeG
+ dVLQKA2MQZIBrj707PTa88TiOWGnNF8gj4s4OoM6KgbWwYEwHSHPbxWo2iJ3xlGZBmiTaZ7bHriL
+ 8i3HzFB91acyAuOvX5iNfN8mVP3YecCPMCMWghf0aUZubKNr2rPQ9CuprvkRKGQViHchKbUOen3D
+ EAQACKNh2evG09cav_zZZRvTDbjgifNSzP4KYHlgDVCP_VmL6rgxKy8G4nQM.PldZ0e5fmVzHdZh
+ 5UwMaRxdsUKi4nbwm7UuEG.HU_uTHxblFnZ_.0CPtO57Y8cpTbJydMORIRFcEB4pAvf36ClA9ZxU
+ jY6xxD3glkDmnoUo1cjsMnKSafMa8nWy2FH85Va4JP.4UBr.jOLRAhVVxm.XVXgjsCGojVr9ebem
+ gqhQI8bcirF.B_PzGkPWaA69.AjDTqFuu57CdIjvA2BQvuGpOVJiicpLu1A--
+Received: from sonic.gate.mail.ne1.yahoo.com by sonic306.consmr.mail.bf2.yahoo.com with HTTP; Thu, 6 Jun 2019 09:41:33 +0000
+Date:   Thu, 6 Jun 2019 09:41:31 +0000 (UTC)
+From:   DR Rhama David Benson <bensondrrdavid@gmail.com>
+Reply-To: DR Rhama David Benson <bdrrhamadavid221@gmail.com>
+Message-ID: <1722587008.734547.1559814091823@mail.yahoo.com>
+Subject: Please read carefully,
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="nextPart1867592.6WJ3IrGa0d"; micalg="pgp-sha256"; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+References: <1722587008.734547.1559814091823.ref@mail.yahoo.com>
+X-Mailer: WebService/1.1.13797 YahooMailBasic Mozilla/5.0 (Windows NT 6.1; rv:67.0) Gecko/20100101 Firefox/67.0
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---nextPart1867592.6WJ3IrGa0d
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="UTF-8"
-
-Ard Biesheuvel wrote:
-> On Thu, 6 Jun 2019 at 09:50, Rolf Eike Beer <eb@emlix.com> wrote:
-> > Am Donnerstag, 6. Juni 2019, 09:38:41 CEST schrieb Rolf Eike Beer:
-> > > Greg KH wrote:
-> > > > On Wed, Jun 05, 2019 at 05:19:40PM +0200, Rolf Eike Beer wrote:
-> > > > > I decided to dig out a toy project which uses a DragonBoard 410c.
-> > > > > This
-> > > > > has
-> > > > > been "running" with kernel 4.9, which I would keep this way for
-> > > > > unrelated
-> > > > > reasons. The vanilla 4.9 kernel wasn't bootable back then, but it
-> > > > > was
-> > > > > buildable, which was good enough.
-> > > > >=20
-> > > > > Upgrading the kernel to 4.9.180 caused the boot to suddenly fail:
-> > > > >=20
-> > > > > aarch64-unknown-linux-gnueabi-ld:
-> > > > > ./drivers/firmware/efi/libstub/lib.a(arm64- stub.stub.o): in
-> > > > > function
-> > > > > `handle_kernel_image':
-> > > > > /tmp/e2/build/linux-4.9.139/drivers/firmware/efi/libstub/arm64-st=
-ub.
-> > > > > c:63
-> > > > >=20
-> > > > > undefined reference to `__efistub__GLOBAL_OFFSET_TABLE_'
-> > > > > aarch64-unknown-linux-gnueabi-ld:
-> > > > > ./drivers/firmware/efi/libstub/lib.a(arm64- stub.stub.o): relocat=
-ion
-> > > > > R_AARCH64_ADR_PREL_PG_HI21 against symbol
-> > > > > `__efistub__GLOBAL_OFFSET_TABLE_' which may bind externally can n=
-ot
-> > > > > be
-> > > > > used when making a shared object; recompile with -fPIC
-> > > > > /tmp/e2/build/linux-4.9.139/drivers/firmware/efi/libstub/arm64-st=
-ub.
-> > > > > c:63
-> > > > >=20
-> > > > > (.init.text+0xc): dangerous relocation: unsupported relocation
-> > > > > /tmp/e2/build/linux-4.9.139/Makefile:1001: recipe for target
-> > > > > 'vmlinux'
-> > > > > failed -make[1]: *** [vmlinux] Error 1
-> > > > >=20
-> > > > > This is caused by commit 27b5ebf61818749b3568354c64a8ec2d9cd5ecca
-> > > > > from
-> > > > > linux-4.9.y (which is 91ee5b21ee026c49e4e7483de69b55b8b47042be),
-> > > > > reverting
-> > > > > this commit fixes the build.
-> > > > >=20
-> > > > > This happens with vanilla binutils 2.32 and gcc 8.3.0 as well as
-> > > > > 9.1.0.
-> > > > > See
-> > > > > the attached .config for reference.
-> > > > >=20
-> > > > > If you have questions or patches just ping me.
-> > > >=20
-> > > > Does Linus's latest tree also fail for you (or 5.1)?
-> > >=20
-> > > 5.1.7 with the same config as before and "make olddefconfig" builds f=
-or
-> > > me.
-> >=20
-> > Just for the fun of it: both 4.19 and 4.19.48 also work.
-
-> Could you please check whether patch
-> 60f38de7a8d4e816100ceafd1b382df52527bd50 applies cleanly, and whether
-> it fixes the problem? Thanks.
-
-The part in drivers/firmware/efi/libstub/arm-stub.c needs to be applied by=
-=20
-hand, but afterwards things build fine.
-
-Eike
-=2D-=20
-Rolf Eike Beer, emlix GmbH, http://www.emlix.com
-=46on +49 551 30664-0, Fax +49 551 30664-11
-Gothaer Platz 3, 37083 G=C3=B6ttingen, Germany
-Sitz der Gesellschaft: G=C3=B6ttingen, Amtsgericht G=C3=B6ttingen HR B 3160
-Gesch=C3=A4ftsf=C3=BChrung: Heike Jordan, Dr. Uwe Kracke =E2=80=93 Ust-IdNr=
-=2E: DE 205 198 055
-
-emlix - smart embedded open source
---nextPart1867592.6WJ3IrGa0d
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part.
-Content-Transfer-Encoding: 7Bit
-
------BEGIN PGP SIGNATURE-----
-
-iLMEAAEIAB0WIQQ/Uctzh31xzAxFCLur5FH7Xu2t/AUCXPjfpwAKCRCr5FH7Xu2t
-/BzjA/9Pd3USy15vnfffsX50V3lfJ/gubyNSje0W25gGCPDqVoehWg/KfXRZea1s
-0fPwkDaZ36+B1eQxa9PBqmYOm3+XcuM+/rOp1/7EBagM6SXZxlPzuIMgM4+i3+CG
-eq/Xgow6Dpz7ewh/OLubSZFoCN57J8e/VQTl2lTRMpDZh1+8dQ==
-=yAuE
------END PGP SIGNATURE-----
-
---nextPart1867592.6WJ3IrGa0d--
 
 
+From: Dr Rhama David Benson,
+Please read carefully,
 
+This message might meet you in utmost surprise. However, it's just my
+urgent need for foreign partner that made me to contact you for this
+transaction. I got your contact from yahoo tourist search while I was
+searching for a foreign partner. I am assured of your capability and
+reliability to champion this business opportunity when I prayed about
+you.
+
+I am a banker by profession in Burkina-Faso, West Africa and currently
+holding the post of manager in account and auditing department in our
+bank. I have the opportunity of transferring the left over funds ($
+5.5 Million Dollars) belonging to our deceased customer who died along
+with his entire family in a plane crash
+
+Hence; I am inviting you for a business deal where this money can be
+shared between us in the ratio of 60/40 if you agree to my business
+proposal. Further details of the transfer will be forwarded to you as
+soon as I receive your return mail as soon as you receive this letter.
+
+Please indicate your willingness by sending the below information for
+more clarification and easy communication.
+For more details, Contact me for more details.
+
+(1) YOUR FULL NAME...............................
+(2) YOUR AGE AND SEX............................
+(3) YOUR CONTACT ADDRESS..................
+(4) YOUR PRIVATE PHONE N0..........
+(5) FAX NUMBER..............
+(6) YOUR COUNTRY OF ORIGIN..................
+(7) YOUR OCCUPATION.........................
+
+Trusting to hear from you immediately.
+Thanks & Best Regards,
+ Dr Rhama David Benson.
