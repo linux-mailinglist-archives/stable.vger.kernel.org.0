@@ -2,104 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D19C537546
-	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 15:33:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 735D0375A6
+	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 15:50:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727337AbfFFNdR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Jun 2019 09:33:17 -0400
-Received: from mail-io1-f67.google.com ([209.85.166.67]:33402 "EHLO
-        mail-io1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726924AbfFFNdR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Jun 2019 09:33:17 -0400
-Received: by mail-io1-f67.google.com with SMTP id u13so214017iop.0
-        for <stable@vger.kernel.org>; Thu, 06 Jun 2019 06:33:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=LICG7LyYRegHk0gizJ6+YVphD3sD9b2EcqyptANH5VA=;
-        b=Bm3HuTgbxiIuolrksAP1v2xaxhmqw5HyJBzy6tZ5ISlQGhaD5dlCKhPSqCZAmfCdBT
-         Y3nhADXbKk2+RNsEYDvIw8JHYnKW8wY/EXIbUl5V9RO3w3r3k/0ArS+dbbFYuwSAxvIz
-         8HjmC2BA8210Snce8YOVqRxcOQNcsMq6XpGv/pguY/U51uc+qVcEy6kAp7ohCG5rlVFM
-         fny/iJ1HtG+VwHAsCJ3V4wC2cztSOCEheL3HbrVmTyPsLb9l2UK25I7iPVyj7MJX6AEq
-         KxMAUtB7jkBAED+6JmJoaoHAzO3diul0+1ie7BCl95lIIzSJOiE+aUh+yMaC7nxNmZ07
-         7bBg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=LICG7LyYRegHk0gizJ6+YVphD3sD9b2EcqyptANH5VA=;
-        b=BaS/iXRUttQY0POGNs7R/yruL5FZHrX+qdBKswX23rUJTDAzzWVoHJ25rhz1a1+5D3
-         +HLZNAqLJ6w1X4Ew3KnZd+PN3aRZliV3VJV5Hbtoqc4UDEj7bSxKq+ig9XMSl3W7za1U
-         1Qs5DKEZpkq7xaUrRVsn15wySDcRokW5D7Ru/I7IeqYz9MHaDBPQNt2MQc0/ptovx+w/
-         kyQw33Vqp+4OtIsCho0anoHCTSJZvEnVKWEy5XorVmG3BUrkeEd9QbGvnqF/CiIa8E1s
-         IviguylqgizWadXdioDpPbeATsdjGHvNmnvHJ0wrjmYr9tb1TiyBG8fLgOa41OavuOtN
-         4M7Q==
-X-Gm-Message-State: APjAAAXRl41LC7FT83sGC4E2ePcG630/tFHgYgBpBWnAj12zxUe6DESM
-        n2VAZ10cbdVfsqUB/MtpKhTmcedaXil/+bh31H2gLA==
-X-Google-Smtp-Source: APXvYqwg/wQ503rZeaJrQAOciNpTBMRROOthsgSwvYIMNByaFY9/2AK5WES9V4+EyRwvZU1NOn2o9P4VzHHhmEi6OxY=
-X-Received: by 2002:a5d:968e:: with SMTP id m14mr200099ion.49.1559827996395;
- Thu, 06 Jun 2019 06:33:16 -0700 (PDT)
+        id S1726762AbfFFNuR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Jun 2019 09:50:17 -0400
+Received: from mail-eopbgr820087.outbound.protection.outlook.com ([40.107.82.87]:64416
+        "EHLO NAM01-SN1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1726014AbfFFNuR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 6 Jun 2019 09:50:17 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vmware.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=9U9qPN8eBrLnpfAo4j6vW6cbd3IdTpKoA7nGNKkMKrk=;
+ b=r5xIZ11mZb8KyaaGsGCP3INkvu17mHfyGyAONroV7v4cf7sVmCptfW3/cv05QK62SYIBnfacknA+j187XxZq60RidzX5bUJWxNQL7+QPe2Lnj+uE9gkPDV+5/6J/OeVsenoMKDIrIAhRJrz2JNJWGpXrt8N6dN39YyhmsGLP9cQ=
+Received: from MN2PR05MB6208.namprd05.prod.outlook.com (20.178.241.91) by
+ MN2PR05MB6559.namprd05.prod.outlook.com (20.178.246.205) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.1987.3; Thu, 6 Jun 2019 13:50:11 +0000
+Received: from MN2PR05MB6208.namprd05.prod.outlook.com
+ ([fe80::fc2c:24b8:4047:a9a0]) by MN2PR05MB6208.namprd05.prod.outlook.com
+ ([fe80::fc2c:24b8:4047:a9a0%2]) with mapi id 15.20.1965.011; Thu, 6 Jun 2019
+ 13:50:11 +0000
+From:   Ajay Kaher <akaher@vmware.com>
+To:     Jason Gunthorpe <jgg@mellanox.com>
+CC:     "aarcange@redhat.com" <aarcange@redhat.com>,
+        "jannh@google.com" <jannh@google.com>,
+        "oleg@redhat.com" <oleg@redhat.com>,
+        "peterx@redhat.com" <peterx@redhat.com>,
+        "rppt@linux.ibm.com" <rppt@linux.ibm.com>,
+        "mhocko@suse.com" <mhocko@suse.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "srivatsa@csail.mit.edu" <srivatsa@csail.mit.edu>,
+        Alexey Makhalov <amakhalov@vmware.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH 1/1] [v4.9.y] coredump: fix race condition between
+ mmget_not_zero()/get_task_mm() and core dumping
+Thread-Topic: [PATCH 1/1] [v4.9.y] coredump: fix race condition between
+ mmget_not_zero()/get_task_mm() and core dumping
+Thread-Index: AQHVEJKsDwy9S0VSH0qGIlGjrsAD56Z3DMGAgBfSlQD//89xAIAAacmA
+Date:   Thu, 6 Jun 2019 13:50:11 +0000
+Message-ID: <07748D2A-B644-4240-B118-C2F796F7F0ED@vmware.com>
+References: <1558553850-27745-1-git-send-email-akaher@vmware.com>
+ <20190522120733.GB6039@mellanox.com>
+ <DE6BE512-F3CF-4847-BED0-EE2FCC31DCED@vmware.com>
+ <20190606130127.GB17392@mellanox.com>
+In-Reply-To: <20190606130127.GB17392@mellanox.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=akaher@vmware.com; 
+x-originating-ip: [103.19.212.1]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: eda06d98-2ae5-471e-3fca-08d6ea85e557
+x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(5600148)(711020)(4605104)(1401327)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(2017052603328)(7193020);SRVR:MN2PR05MB6559;
+x-ms-traffictypediagnostic: MN2PR05MB6559:
+x-ld-processed: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0,ExtAddr
+x-microsoft-antispam-prvs: <MN2PR05MB6559534DFF036872A4B7AE74BB170@MN2PR05MB6559.namprd05.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:8882;
+x-forefront-prvs: 00603B7EEF
+x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(39860400002)(396003)(366004)(346002)(136003)(376002)(199004)(189003)(476003)(2616005)(6116002)(3846002)(6916009)(11346002)(446003)(86362001)(256004)(54906003)(82746002)(8676002)(33656002)(14454004)(7416002)(81156014)(81166006)(5660300002)(68736007)(316002)(91956017)(66946007)(66476007)(64756008)(66446008)(8936002)(73956011)(2906002)(76116006)(36756003)(66556008)(26005)(4326008)(486006)(6512007)(7736002)(305945005)(478600001)(6246003)(99286004)(6506007)(83716004)(76176011)(25786009)(102836004)(53936002)(6486002)(71190400001)(71200400001)(6436002)(229853002)(66066001)(186003);DIR:OUT;SFP:1101;SCL:1;SRVR:MN2PR05MB6559;H:MN2PR05MB6208.namprd05.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
+received-spf: None (protection.outlook.com: vmware.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam-message-info: B5bbkELmaL0FKyrFjsdAgcB7L50E41RyRFJYvnTWgARLTL43CUl5FAwfBs7360IiUOE0LB43+v0riKlju752aXbP7RBPTNRA5GfGT6hAUTOLobzJcObBIz7uyp6zJ0XPd2YNFiZqLdM+PYHZRsLFGVvZphQPk21CvXFZGQlNkZzKlC8Ds8oSAqltVoTvZJBjPxGB6RaRlDFuIE025EVj1XS2+BLdjJyUS5ADpXW0yMMnh5vtRNbuLpBo2An2gqh5mKCz62VI3MwcmjXTG1BOwqQOebypBYWCC1/vaYELHXiAxrGa8AVipA7X1UlXiFHNPD5MUrCo4nGZw2vVvMj6A4iG9P7aXvGlHgjWW5eQyGd/nfsOBCRzbbir3LePdeVOSZoOZOoEkYV1igd6rMFHtXtbAA4JNygaSnvgY6a2T40=
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <3BEFA09AECA12E43A45F6E5D880A1A4A@namprd05.prod.outlook.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-References: <20190606102513.16321-1-ard.biesheuvel@linaro.org> <20190606132251.GK29739@sasha-vm>
-In-Reply-To: <20190606132251.GK29739@sasha-vm>
-From:   Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Date:   Thu, 6 Jun 2019 15:33:04 +0200
-Message-ID: <CAKv+Gu-5ePLME942n9Dy139Tv-d=spfNrD_XcRkURpZdkukAag@mail.gmail.com>
-Subject: Re: [PATCH for-4.9-stable] efi/libstub: Unify command line param parsing
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Rolf Eike Beer <eb@emlix.com>,
-        linux-efi <linux-efi@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable <stable@vger.kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>
-Content-Type: text/plain; charset="UTF-8"
+X-OriginatorOrg: vmware.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: eda06d98-2ae5-471e-3fca-08d6ea85e557
+X-MS-Exchange-CrossTenant-originalarrivaltime: 06 Jun 2019 13:50:11.8024
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: akaher@vmware.com
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR05MB6559
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 6 Jun 2019 at 15:22, Sasha Levin <sashal@kernel.org> wrote:
->
-> On Thu, Jun 06, 2019 at 12:25:13PM +0200, Ard Biesheuvel wrote:
-> >Commit 60f38de7a8d4e816100ceafd1b382df52527bd50 upstream.
-> >
-> >Merge the parsing of the command line carried out in arm-stub.c with
-> >the handling in efi_parse_options(). Note that this also fixes the
-> >missing handling of CONFIG_CMDLINE_FORCE=y, in which case the builtin
-> >command line should supersede the one passed by the firmware.
-> >
-> >Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-> >Cc: Linus Torvalds <torvalds@linux-foundation.org>
-> >Cc: Matt Fleming <matt@codeblueprint.co.uk>
-> >Cc: Peter Zijlstra <peterz@infradead.org>
-> >Cc: Thomas Gleixner <tglx@linutronix.de>
-> >Cc: bhe@redhat.com
-> >Cc: bhsharma@redhat.com
-> >Cc: bp@alien8.de
-> >Cc: eugene@hp.com
-> >Cc: evgeny.kalugin@intel.com
-> >Cc: jhugo@codeaurora.org
-> >Cc: leif.lindholm@linaro.org
-> >Cc: linux-efi@vger.kernel.org
-> >Cc: mark.rutland@arm.com
-> >Cc: roy.franz@cavium.com
-> >Cc: rruigrok@codeaurora.org
-> >Link: http://lkml.kernel.org/r/20170404160910.28115-1-ard.biesheuvel@linaro.org
-> >Signed-off-by: Ingo Molnar <mingo@kernel.org>
-> >[ardb: fix up merge conflicts with 4.9.180]
-> >Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-> >---
-> >This fixes the GCC build issue reported by Eike.
-> >
-> >Note that testing of arm64 stable kernels should cover CONFIG_RANDOMIZE_BASE,
-> >since it has a profound impact on how the kernel binary gets put together.
->
-> Should this fix be applied to 4.9 as well?
->
-> I see it in 4.14+
->
-
-I don't understand this question. The fix is proposed for v4.9 because
-it fixes a build error with GCC that was caused by a backport of one
-of the clang enablement patches.
+DQoNCu+7v09uIDA2LzA2LzE5LCA2OjMxIFBNLCAiSmFzb24gR3VudGhvcnBlIiA8amdnQG1lbGxh
+bm94LmNvbT4gd3JvdGU6DQoNCj5PbiBUaHUsIEp1biAwNiwgMjAxOSBhdCAxMDoyNToyM0FNICsw
+MDAwLCBBamF5IEthaGVyIHdyb3RlOg0KPg0KPj4gPiBJIHRoaW5rIGluIHRoaXMga2VybmVsIHRo
+ZSBtbSBoYW5kbGluZyBjb2RlIGZvciBJQiBpcyBpbiB0aHJlZQ0KPj4gPiBkaWZmZXJlbnQgZHJp
+dmVycywgaXQgcHJvYmFibHkgbmVlZHMgdG8gYmUgZml4ZWQgdG9vPw0KPj4gDQo+PiBUaGFua3Mg
+SmFzb24gZm9yIHBvaW50aW5nIHRoaXMuDQo+PiAgIA0KPj4gQ3Jvc3NlZCBjaGVja2VkIHRoZSBs
+b2NraW5nIG9mIG1tYXBfc2VtIGluIElCIGRyaXZlciBjb2RlIG9mIDQuOSB0byA0LjE0IHdpdGgg
+PjUuMA0KPj4gYW5kIGZvdW5kIGl0IHJlcXVpcmVzIHRvIGhhbmRsZSBhdCBmb2xsb3dpbmcgbG9j
+YXRpb25zIG9mIDQuOSBhbmQgNC4xNDoNCj4+IG1seDRfaWJfZGlzYXNzb2NpYXRlX3Vjb250ZXh0
+KCkgb2YgZHJpdmVycy9pbmZpbmliYW5kL2h3L21seDUvbWFpbi5jOg0KPj4gbWx4NV9pYl9kaXNh
+c3NvY2lhdGVfdWNvbnRleHQoKSBvZiBkcml2ZXJzL2luZmluaWJhbmQvaHcvbWx4NC9tYWluLmMN
+Cj4+IA0KPj4gVG8gZml4IGF0IGFib3ZlIGxvY2F0aW9uLCB3b3VsZCB5b3UgbGlrZSBtZSB0byBt
+b2RpZnkgdGhlIG9yaWdpbmFsDQo+PiBwYXRjaCBvciBzdWJtaXQgaW4gYW5vdGhlciBwYXRjaC4N
+Cj4NCj4gSSB0aGluayBpdCBpcyBhIGJhY2twb3J0aW5nIHRoaW5nLCBzbyB5b3Ugc2hvdWxkIHB1
+dCB0aGUgbmV3IHdvcmsgaW4NCj4gdGhpcyBwYXRjaD8gSSdtIG5vdCBzdXJlLg0KDQpPaywgSSB3
+b3VsZCBsaWtlIHRvIHN1Ym1pdCBuZXcgcGF0Y2ggZm9yIG5ldyB3b3JrIGluIDQuMTQsIGFuZCB0
+aGVuDQpiYWNrcG9ydCB0byA0LjksIHNvb24gSSB3aWxsIHN1Ym1pdCBmb3IgcmV2aWV3Lg0KDQpS
+ZS1zdWJtaXR0ZWQgdGhlIHRoaXMgcGF0Y2ggYWdhaW4gYWZ0ZXIgY29ycmVjdGluZyB0aGUgdXBz
+dHJlYW0gY29tbWl0LCBhczoNClN1YjogW1BBVENIIHYyIDEvMV0gW3Y0LjkueV0gY29yZWR1bXA6
+IGZpeCByYWNlIGNvbmRpdGlvbiBiZXR3ZWVuIA0KICAgICAgICAgbW1nZXRfbm90X3plcm8oKS9n
+ZXRfdGFza19tbSgpIGFuZCBjb3JlIGR1bXBpbmcNCg0KUGxlYXNlIHJldmlldy4NCg0KPiBJJ20g
+YWxzbyBzdXJwcmlzZWQgaG5zIGlzbid0IGluIHRoZSBhYm92ZSBsaXN0IG9mIGRyaXZlcnMsIGJ1
+dCBtYXliZQ0KPiBobnMgZGlkbid0IGhhdmUgdGhpcyBzdXBwb3J0IGluIHRoZXNlIGtlcm5lbHMu
+Lg0KDQpJQi0+aG5zIGRvZXNuJ3QgaGF2ZSBhbnkgaW5zdGFuY2Ugb2YgbW1hcF9zZW0gY2hlY2tl
+ZCBmb3IgNC45LTQuMTQuDQoNCj5KYXNvbg0KPg0KDQo=
