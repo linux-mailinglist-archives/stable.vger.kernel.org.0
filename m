@@ -2,99 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AD82437CE0
-	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 20:58:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F186F37CE1
+	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 20:59:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727068AbfFFS64 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Jun 2019 14:58:56 -0400
-Received: from shadbolt.e.decadent.org.uk ([88.96.1.126]:41396 "EHLO
-        shadbolt.e.decadent.org.uk" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726762AbfFFS64 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Jun 2019 14:58:56 -0400
-Received: from [167.98.27.226] (helo=deadeye)
-        by shadbolt.decadent.org.uk with esmtps (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.89)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1hYxb9-0003Ws-U8; Thu, 06 Jun 2019 19:58:52 +0100
-Received: from ben by deadeye with local (Exim 4.92)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1hYxb8-0007s6-QA; Thu, 06 Jun 2019 19:58:50 +0100
-Message-ID: <69e47f52ec342b6c70c1cae6cd0140a51a713752.camel@decadent.org.uk>
-Subject: Re: 425aa0e1d015 ("ip_sockglue: Fix missing-check bug in
- ip_ra_control()")
-From:   Ben Hutchings <ben@decadent.org.uk>
-To:     Zubin Mithra <zsm@chromium.org>, stable@vger.kernel.org
-Cc:     gregkh@linuxfoundation.org, groeck@chromium.org,
-        blackgod016574@gmail.com, davem@davemloft.net,
-        kuznet@ms2.inr.ac.ru, jmorris@namei.org, yoshfuji@linux-ipv6.org,
-        kaber@trash.net
-Date:   Thu, 06 Jun 2019 19:58:35 +0100
-In-Reply-To: <20190603230239.GA168284@google.com>
-References: <20190603230239.GA168284@google.com>
-Content-Type: multipart/signed; micalg="pgp-sha512";
-        protocol="application/pgp-signature"; boundary="=-ewz7wmQAJfdAc6SwDq22"
-User-Agent: Evolution 3.30.5-1 
+        id S1727189AbfFFS7H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Jun 2019 14:59:07 -0400
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:51985 "EHLO
+        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726762AbfFFS7H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Jun 2019 14:59:07 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id D481F21B74;
+        Thu,  6 Jun 2019 14:59:03 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Thu, 06 Jun 2019 14:59:03 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm1; bh=lfVVPYYE1zv8TPS6RZylhPPQeAB
+        r/4SHxam1e1BQ+X4=; b=iCmlnLrgVPO1ZUWYo3Ggic1AWJmeSjmpEGe7KnI/8T4
+        +tXaunSDf/9OiKqK8g/Z6/yDAG/wjs4RzzCzLw+hOWHdeEhKggV1Tgam4xZQ27QL
+        qtZpMCu4u2RMYchy06qJ+j/2gHirVYlzfDx7kLE46fExO6SlYcwGoNgsyZmwNu9C
+        6hyFYPeKMGQNLU5+nCwI47sb5NGnUaFM1ZLEW6+i6UzDDKzwsH2vmfHJT8BBrOf9
+        YnvbntTMw304XleX32Dwd8U7p0yHA7aAYYMF7SiOPf9S/EYw1B7zWmjr7kTIMjvb
+        yu4vx5ebdrMzEINmsL+7hwhpp/CyuwtOmJDEk4zOm5Q==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=lfVVPY
+        YE1zv8TPS6RZylhPPQeABr/4SHxam1e1BQ+X4=; b=194SDOaqYobC0CsuIt+2jK
+        Wj0HWqAJxIviRefNsECqxnxvSnlwHaQogNAGsV/bWwlLBo1OCmKNAYX2ffiPDlez
+        tuCNTmhewFvVvDKBerMQgIndZzNazJeqSMnGgBQIin/tT2lgmakSn2JDC3+TLnvU
+        Z+T43/cJ5ztKx8MXQLLXWRlMzlBlGIsFIq9+aK2NaYzzWKiBw0mum0fY/3L1KG9x
+        95urwGUWd9zhtRNgr68YXHqVh+IcJTc3nNzZcA6xTGnn0WTp4OWMxWcE3HJM8Xl4
+        EyPcMaQEyUAG282eutxbQpihxkJciATNF1ve4LL3/SmggvKnM65yFFUcU+kVvXyg
+        ==
+X-ME-Sender: <xms:d2L5XBfeMwlYGwz9hC2V3EKRYt4ivOZdCxhM0k4fKRtwmRKYIM_Qfw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrudeggedgudeffecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
+    enucfjughrpeffhffvuffkfhggtggujggfsehttdertddtredvnecuhfhrohhmpefirhgv
+    ghcumffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucfkphepkeefrdekiedrkeelrd
+    dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
+    ucevlhhushhtvghrufhiiigvpedt
+X-ME-Proxy: <xmx:d2L5XPJ6MzNiHPBBKqPSXV_858uT_Vc3K3Iy4AP6WSE1AjND0NA0oA>
+    <xmx:d2L5XGHjeVAU-PkMgr82QdI4UeOLF4SxOiKgG1hfKNSmMsgq5XroXA>
+    <xmx:d2L5XP5KY94tsqMRwicGkSf9-4d4AQn04KL7IUHRbar-6l0yQsEQqA>
+    <xmx:d2L5XLzNQCU5xjN2HXb9B8EOyZhr1mM6Cn3pcWg4jx_0vC94E7CgBw>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id E28EB80060;
+        Thu,  6 Jun 2019 14:59:02 -0400 (EDT)
+Date:   Thu, 6 Jun 2019 20:59:00 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
+Cc:     Rolf Eike Beer <eb@emlix.com>, stable@vger.kernel.org,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 4.9.180 build fails =?utf-8?Q?wi?=
+ =?utf-8?Q?th_gcc_9_and_'cleanup=5Fmodule'_specifies_less_restrictive_attr?=
+ =?utf-8?Q?ibute_than_its_target_=E2=80=A6?=
+Message-ID: <20190606185900.GA19937@kroah.com>
+References: <259986242.BvXPX32bHu@devpool35>
+ <20190606152746.GB21921@kroah.com>
+ <20190606152902.GC21921@kroah.com>
+ <CANiq72nfFqYkiYgKJ1UZV3Mx2C3wzu_7TRtXFn=iafNt+Oc_2g@mail.gmail.com>
 MIME-Version: 1.0
-X-SA-Exim-Connect-IP: 167.98.27.226
-X-SA-Exim-Mail-From: ben@decadent.org.uk
-X-SA-Exim-Scanned: No (on shadbolt.decadent.org.uk); SAEximRunCond expanded to false
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CANiq72nfFqYkiYgKJ1UZV3Mx2C3wzu_7TRtXFn=iafNt+Oc_2g@mail.gmail.com>
+User-Agent: Mutt/1.12.0 (2019-05-25)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Jun 06, 2019 at 08:25:28PM +0200, Miguel Ojeda wrote:
+> On Thu, Jun 6, 2019 at 5:29 PM Greg KH <greg@kroah.com> wrote:
+> >
+> > And if you want this, you should look at how the backports to 4.14.y
+> > worked, they did not include a3f8a30f3f00 ("Compiler Attributes: use
+> > feature checks instead of version checks"), as that gets really messy...
+> 
+> I am confused -- I interpreted Rolf's message as reporting that he
+> already successfully built 4.9 by applying a6e60d84989f
+> ("include/linux/module.h: copy __init/__exit attrs to
+> init/cleanup_module") and manually fixing it up. But maybe I am
+> completely wrong... :-)
 
---=-ewz7wmQAJfdAc6SwDq22
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+"manually fixing it up" means "hacked it to pieces" to me, I have no
+idea what the end result really was :)
 
-On Mon, 2019-06-03 at 16:02 -0700, Zubin Mithra wrote:
-> Hello,
->=20
-> CVE-2019-12381 was fixed in the upstream linux kernel with the commit :-
-> * 425aa0e1d015 ("ip_sockglue: Fix missing-check bug in ip_ra_control()")
->=20
-> Could the patch be applied in order to v4.19.y, v4.14.y, v4.9.y and v4.4.=
-y ?
->=20
-> Tests run:
-> * Chrome OS tryjobs
+If someone wants to send me some patches I can actually apply, that
+would be best...
 
-This doesn't fix a security vulnerability.  There already was a check
-for allocation failure before dereferencing the returned pointer; it
-just wasn't in the most obvious place.
+thanks,
 
-I've requested rejection of this CVE, and several other invalid reports
-from the same person.
-
-Ben.
-
---=20
-Ben Hutchings
-Experience is what causes a person to make new mistakes
-instead of old ones.
-
-
-
---=-ewz7wmQAJfdAc6SwDq22
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAlz5YlwACgkQ57/I7JWG
-EQkvBhAA1IW9L8a4Qn2X/JqEo1W+S5a5nRTVcXx7bTVcQYMMIpj2kgLoSV6ifhUP
-JB8qxdBBfHKuaHtApdHoMqJynCO4SHJLzxuOokdCRtMC+6ho+jc+9NWhnqq01YBW
-hoRxqPnAr8JCE8CBKypCK0WKkKJbKhIBmHJaonIp8nbBHIMG/2Vq/4qmJUwnlnHO
-KBP0hgaLC598tvchLnanFDYrTMH/SwR/eixbipUGS45mMa7dY6Cy725xTa5VknOJ
-U0/f/zAu5sFb4TrT5LNb+V9iCUcN9dOt6vLs2guctCa55NzM8QTzN7cDZoAt7kgS
-YEFjHmWpRqKEDYjeR818kH7Z5LwcqPx6ZtewwHWpbaI3BReqKLzWLjKz0Q7aReyp
-QZY5Obeipd5buJlc2Jhl/6kRGQJUVAc1i6n1OG0JFrAGQfAd0O6hb6pcsqC9gw6J
-4Yoxhxa1W5+3G0XmeAcB5sx1+RIobDh+EL1TBZppX7IUIHybPBJKbamL8QnzI3vY
-jGPDhJHFo+WJiCNcL74yAxJaLyygcwuR+YMxbCTr981Tx6+1WK15DRoxfyYgmjOi
-evu0LPW80ZM0NGWo7e+kWn0vcBKTuArwddQuRGJGafb6YMhbpfX7OsXcfCFCMYCy
-z1PyQcRDDlmFi9lSXAsEeYdyiyjrVXPMwgXP5rfCImcmmBl+pUo=
-=gRo3
------END PGP SIGNATURE-----
-
---=-ewz7wmQAJfdAc6SwDq22--
+greg k-h
