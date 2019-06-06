@@ -2,113 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 85D3F3752A
-	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 15:26:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D19C537546
+	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 15:33:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726870AbfFFN0K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Jun 2019 09:26:10 -0400
-Received: from userp2130.oracle.com ([156.151.31.86]:58718 "EHLO
-        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726757AbfFFN0K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Jun 2019 09:26:10 -0400
-Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
-        by userp2130.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x56DNd4R038667;
-        Thu, 6 Jun 2019 13:26:08 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=content-type :
- mime-version : subject : from : in-reply-to : date : cc :
- content-transfer-encoding : message-id : references : to;
- s=corp-2018-07-02; bh=+Mmlxdj1V1YMOrnR4VkSM4eNX0rGFDdXYJljRNOAD7U=;
- b=IImgjTpu4sPpuL9Q1RMaJQZxNk52Ww4kdzwLOqwFlDiiSJZYYfMAs0wi/8VRZZqd0fOa
- JkUyyF5Ts8Ec5FSCkXH5Cng7Y7rC5OZYZEQCB1CFVkCXP1B33xpTfSQh3TUlOUPT5Aho
- lbqyG1Ln11ZYSck/urswGU71r7gVROjWn7dygebRJV04MN1ZyqNhqAHSVwFEGH1Mq8IP
- g/NaTIpD7TJ+fBzbB1wGjSwAzrXETfa1LDWpah6jC+9QkKJYESqsgoQWXrLlP1wcgmZj
- txUOiUYGmIDIlfd5AZ4IaZvvCW3NXsHaqx069OJdv3YwOm5D/cl+lswqhZOg8+wgYNDF 2g== 
-Received: from userp3020.oracle.com (userp3020.oracle.com [156.151.31.79])
-        by userp2130.oracle.com with ESMTP id 2sugstree1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 06 Jun 2019 13:26:07 +0000
-Received: from pps.filterd (userp3020.oracle.com [127.0.0.1])
-        by userp3020.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x56DN71T070621;
-        Thu, 6 Jun 2019 13:24:07 GMT
-Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
-        by userp3020.oracle.com with ESMTP id 2swnharfy2-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 06 Jun 2019 13:24:07 +0000
-Received: from abhmp0004.oracle.com (abhmp0004.oracle.com [141.146.116.10])
-        by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id x56DO6Tk001707;
-        Thu, 6 Jun 2019 13:24:06 GMT
-Received: from anon-dhcp-171.1015granger.net (/68.61.232.219)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Thu, 06 Jun 2019 06:24:06 -0700
-Content-Type: text/plain;
-        charset=utf-8
-Mime-Version: 1.0 (Mac OS X Mail 12.4 \(3445.104.11\))
-Subject: Re: [PATCH RFC] svcrdma: Ignore source port when computing DRC hash
-From:   Chuck Lever <chuck.lever@oracle.com>
-In-Reply-To: <20190606130804.19EE32070B@mail.kernel.org>
-Date:   Thu, 6 Jun 2019 09:24:04 -0400
-Cc:     linux-rdma@vger.kernel.org,
-        Linux NFS Mailing List <linux-nfs@vger.kernel.org>,
-        stable@vger.kernel.org
-Content-Transfer-Encoding: quoted-printable
-Message-Id: <BD1CF3FF-887A-4204-AE3F-D48D51442E70@oracle.com>
-References: <20190605121518.2150.26479.stgit@klimt.1015granger.net>
- <20190606130804.19EE32070B@mail.kernel.org>
+        id S1727337AbfFFNdR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Jun 2019 09:33:17 -0400
+Received: from mail-io1-f67.google.com ([209.85.166.67]:33402 "EHLO
+        mail-io1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726924AbfFFNdR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Jun 2019 09:33:17 -0400
+Received: by mail-io1-f67.google.com with SMTP id u13so214017iop.0
+        for <stable@vger.kernel.org>; Thu, 06 Jun 2019 06:33:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=LICG7LyYRegHk0gizJ6+YVphD3sD9b2EcqyptANH5VA=;
+        b=Bm3HuTgbxiIuolrksAP1v2xaxhmqw5HyJBzy6tZ5ISlQGhaD5dlCKhPSqCZAmfCdBT
+         Y3nhADXbKk2+RNsEYDvIw8JHYnKW8wY/EXIbUl5V9RO3w3r3k/0ArS+dbbFYuwSAxvIz
+         8HjmC2BA8210Snce8YOVqRxcOQNcsMq6XpGv/pguY/U51uc+qVcEy6kAp7ohCG5rlVFM
+         fny/iJ1HtG+VwHAsCJ3V4wC2cztSOCEheL3HbrVmTyPsLb9l2UK25I7iPVyj7MJX6AEq
+         KxMAUtB7jkBAED+6JmJoaoHAzO3diul0+1ie7BCl95lIIzSJOiE+aUh+yMaC7nxNmZ07
+         7bBg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=LICG7LyYRegHk0gizJ6+YVphD3sD9b2EcqyptANH5VA=;
+        b=BaS/iXRUttQY0POGNs7R/yruL5FZHrX+qdBKswX23rUJTDAzzWVoHJ25rhz1a1+5D3
+         +HLZNAqLJ6w1X4Ew3KnZd+PN3aRZliV3VJV5Hbtoqc4UDEj7bSxKq+ig9XMSl3W7za1U
+         1Qs5DKEZpkq7xaUrRVsn15wySDcRokW5D7Ru/I7IeqYz9MHaDBPQNt2MQc0/ptovx+w/
+         kyQw33Vqp+4OtIsCho0anoHCTSJZvEnVKWEy5XorVmG3BUrkeEd9QbGvnqF/CiIa8E1s
+         IviguylqgizWadXdioDpPbeATsdjGHvNmnvHJ0wrjmYr9tb1TiyBG8fLgOa41OavuOtN
+         4M7Q==
+X-Gm-Message-State: APjAAAXRl41LC7FT83sGC4E2ePcG630/tFHgYgBpBWnAj12zxUe6DESM
+        n2VAZ10cbdVfsqUB/MtpKhTmcedaXil/+bh31H2gLA==
+X-Google-Smtp-Source: APXvYqwg/wQ503rZeaJrQAOciNpTBMRROOthsgSwvYIMNByaFY9/2AK5WES9V4+EyRwvZU1NOn2o9P4VzHHhmEi6OxY=
+X-Received: by 2002:a5d:968e:: with SMTP id m14mr200099ion.49.1559827996395;
+ Thu, 06 Jun 2019 06:33:16 -0700 (PDT)
+MIME-Version: 1.0
+References: <20190606102513.16321-1-ard.biesheuvel@linaro.org> <20190606132251.GK29739@sasha-vm>
+In-Reply-To: <20190606132251.GK29739@sasha-vm>
+From:   Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Date:   Thu, 6 Jun 2019 15:33:04 +0200
+Message-ID: <CAKv+Gu-5ePLME942n9Dy139Tv-d=spfNrD_XcRkURpZdkukAag@mail.gmail.com>
+Subject: Re: [PATCH for-4.9-stable] efi/libstub: Unify command line param parsing
 To:     Sasha Levin <sashal@kernel.org>
-X-Mailer: Apple Mail (2.3445.104.11)
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9279 signatures=668687
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
- phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.0.1-1810050000 definitions=main-1906060096
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9279 signatures=668687
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
- suspectscore=0 phishscore=0 bulkscore=0 spamscore=0 clxscore=1011
- lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=999 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1810050000
- definitions=main-1906060096
+Cc:     Rolf Eike Beer <eb@emlix.com>,
+        linux-efi <linux-efi@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable <stable@vger.kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, 6 Jun 2019 at 15:22, Sasha Levin <sashal@kernel.org> wrote:
+>
+> On Thu, Jun 06, 2019 at 12:25:13PM +0200, Ard Biesheuvel wrote:
+> >Commit 60f38de7a8d4e816100ceafd1b382df52527bd50 upstream.
+> >
+> >Merge the parsing of the command line carried out in arm-stub.c with
+> >the handling in efi_parse_options(). Note that this also fixes the
+> >missing handling of CONFIG_CMDLINE_FORCE=y, in which case the builtin
+> >command line should supersede the one passed by the firmware.
+> >
+> >Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+> >Cc: Linus Torvalds <torvalds@linux-foundation.org>
+> >Cc: Matt Fleming <matt@codeblueprint.co.uk>
+> >Cc: Peter Zijlstra <peterz@infradead.org>
+> >Cc: Thomas Gleixner <tglx@linutronix.de>
+> >Cc: bhe@redhat.com
+> >Cc: bhsharma@redhat.com
+> >Cc: bp@alien8.de
+> >Cc: eugene@hp.com
+> >Cc: evgeny.kalugin@intel.com
+> >Cc: jhugo@codeaurora.org
+> >Cc: leif.lindholm@linaro.org
+> >Cc: linux-efi@vger.kernel.org
+> >Cc: mark.rutland@arm.com
+> >Cc: roy.franz@cavium.com
+> >Cc: rruigrok@codeaurora.org
+> >Link: http://lkml.kernel.org/r/20170404160910.28115-1-ard.biesheuvel@linaro.org
+> >Signed-off-by: Ingo Molnar <mingo@kernel.org>
+> >[ardb: fix up merge conflicts with 4.9.180]
+> >Signed-off-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+> >---
+> >This fixes the GCC build issue reported by Eike.
+> >
+> >Note that testing of arm64 stable kernels should cover CONFIG_RANDOMIZE_BASE,
+> >since it has a profound impact on how the kernel binary gets put together.
+>
+> Should this fix be applied to 4.9 as well?
+>
+> I see it in 4.14+
+>
 
-
-> On Jun 6, 2019, at 9:08 AM, Sasha Levin <sashal@kernel.org> wrote:
->=20
-> Hi,
->=20
-> [This is an automated email]
->=20
-> This commit has been processed because it contains a -stable tag.
-> The stable tag indicates that it's relevant for the following trees: =
-all
->=20
-> The bot has tested the following trees: v5.1.7, v5.0.21, v4.19.48, =
-v4.14.123, v4.9.180, v4.4.180.
->=20
-> v5.1.7: Build OK!
-> v5.0.21: Build OK!
-> v4.19.48: Build OK!
-> v4.14.123: Build OK!
-> v4.9.180: Build failed! Errors:
->    net/sunrpc/xprtrdma/svc_rdma_transport.c:712:2: error: implicit =
-declaration of function =E2=80=98rpc_set_port=E2=80=99; did you mean =
-=E2=80=98rpc_net_ns=E2=80=99? [-Werror=3Dimplicit-function-declaration]
->=20
-> v4.4.180: Build failed! Errors:
->    net/sunrpc/xprtrdma/svc_rdma_transport.c:635:2: error: implicit =
-declaration of function =E2=80=98rpc_set_port=E2=80=99; did you mean =
-=E2=80=98rpc_net_ns=E2=80=99? [-Werror=3Dimplicit-function-declaration]
->=20
->=20
-> How should we proceed with this patch?
-
-If the review completes without objection, I will resubmit
-this patch with an updated Cc: . Thanks for testing!
-
---
-Chuck Lever
-
-
-
+I don't understand this question. The fix is proposed for v4.9 because
+it fixes a build error with GCC that was caused by a backport of one
+of the clang enablement patches.
