@@ -2,258 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E5D436D5F
-	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 09:32:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0E3E36D6F
+	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 09:38:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725947AbfFFHct convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Thu, 6 Jun 2019 03:32:49 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:55840 "EHLO mx1.redhat.com"
+        id S1726140AbfFFHis (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Jun 2019 03:38:48 -0400
+Received: from mx1.emlix.com ([188.40.240.192]:35430 "EHLO mx1.emlix.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725782AbfFFHct (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 6 Jun 2019 03:32:49 -0400
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1725769AbfFFHis (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 6 Jun 2019 03:38:48 -0400
+Received: from mailer.emlix.com (unknown [81.20.119.6])
+        (using TLSv1.2 with cipher ADH-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 9D8312F8BFE
-        for <stable@vger.kernel.org>; Thu,  6 Jun 2019 07:32:48 +0000 (UTC)
-Received: from [172.54.141.148] (cpt-large-cpu-05.paas.prod.upshift.rdu2.redhat.com [10.0.18.78])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 47642619DD;
-        Thu,  6 Jun 2019 07:32:46 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        by mx1.emlix.com (Postfix) with ESMTPS id 30E24602BA;
+        Thu,  6 Jun 2019 09:38:45 +0200 (CEST)
+From:   Rolf Eike Beer <eb@emlix.com>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Nick Desaulniers <ndesaulniers@google.com>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Matt Fleming <matt@codeblueprint.co.uk>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linux-efi@vger.kernel.org,
+        Linux Kernel Developers List <linux-kernel@vger.kernel.org>,
+        stable@vger.kernel.org
+Subject: Re: Building arm64 EFI stub with -fpie breaks build of 4.9.x (undefined reference to `__efistub__GLOBAL_OFFSET_TABLE_')
+Date:   Thu, 06 Jun 2019 09:38:41 +0200
+Message-ID: <8696846.WsthzzWoxp@devpool35>
+Organization: emlix GmbH
+In-Reply-To: <20190605162626.GA31164@kroah.com>
+References: <779905244.a0lJJiZRjM@devpool35> <20190605162626.GA31164@kroah.com>
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-4.19
-Message-ID: <cki.4E36312879.OMHNSK1X5Z@redhat.com>
-X-Gitlab-Pipeline-ID: 11602
-X-Gitlab-Pipeline: =?utf-8?q?https=3A//xci32=2Elab=2Eeng=2Erdu2=2Eredhat=2Ec?=
- =?utf-8?q?om/cki-project/cki-pipeline/pipelines/11602?=
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.38]); Thu, 06 Jun 2019 07:32:48 +0000 (UTC)
-Date:   Thu, 6 Jun 2019 03:32:49 -0400
+Content-Type: multipart/signed; boundary="nextPart6100540.dV2z5JSdMG"; micalg="pgp-sha256"; protocol="application/pgp-signature"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+--nextPart6100540.dV2z5JSdMG
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="UTF-8"
 
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
+Greg KH wrote:
+> On Wed, Jun 05, 2019 at 05:19:40PM +0200, Rolf Eike Beer wrote:
+> > I decided to dig out a toy project which uses a DragonBoard 410c. This =
+has
+> > been "running" with kernel 4.9, which I would keep this way for unrelat=
+ed
+> > reasons. The vanilla 4.9 kernel wasn't bootable back then, but it was
+> > buildable, which was good enough.
+> >=20
+> > Upgrading the kernel to 4.9.180 caused the boot to suddenly fail:
+> >=20
+> > aarch64-unknown-linux-gnueabi-ld:
+> > ./drivers/firmware/efi/libstub/lib.a(arm64- stub.stub.o): in function
+> > `handle_kernel_image':
+> > /tmp/e2/build/linux-4.9.139/drivers/firmware/efi/libstub/arm64-stub.c:6=
+3:
+> > undefined reference to `__efistub__GLOBAL_OFFSET_TABLE_'
+> > aarch64-unknown-linux-gnueabi-ld:
+> > ./drivers/firmware/efi/libstub/lib.a(arm64- stub.stub.o): relocation
+> > R_AARCH64_ADR_PREL_PG_HI21 against symbol
+> > `__efistub__GLOBAL_OFFSET_TABLE_' which may bind externally can not be
+> > used when making a shared object; recompile with -fPIC
+> > /tmp/e2/build/linux-4.9.139/drivers/firmware/efi/libstub/arm64-stub.c:6=
+3:
+> > (.init.text+0xc): dangerous relocation: unsupported relocation
+> > /tmp/e2/build/linux-4.9.139/Makefile:1001: recipe for target 'vmlinux'
+> > failed -make[1]: *** [vmlinux] Error 1
+> >=20
+> > This is caused by commit 27b5ebf61818749b3568354c64a8ec2d9cd5ecca from
+> > linux-4.9.y (which is 91ee5b21ee026c49e4e7483de69b55b8b47042be), revert=
+ing
+> > this commit fixes the build.
+> >=20
+> > This happens with vanilla binutils 2.32 and gcc 8.3.0 as well as 9.1.0.
+> > See
+> > the attached .config for reference.
+> >=20
+> > If you have questions or patches just ping me.
+>=20
+> Does Linus's latest tree also fail for you (or 5.1)?
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: e109a984cf38 - Linux 4.19.48
+5.1.7 with the same config as before and "make olddefconfig" builds for me.
 
-The results of these automated tests are provided below.
+Eike
+=2D-=20
+Rolf Eike Beer, emlix GmbH, http://www.emlix.com
+=46on +49 551 30664-0, Fax +49 551 30664-11
+Gothaer Platz 3, 37083 G=C3=B6ttingen, Germany
+Sitz der Gesellschaft: G=C3=B6ttingen, Amtsgericht G=C3=B6ttingen HR B 3160
+Gesch=C3=A4ftsf=C3=BChrung: Heike Jordan, Dr. Uwe Kracke =E2=80=93 Ust-IdNr=
+=2E: DE 205 198 055
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
+emlix - smart embedded open source
+--nextPart6100540.dV2z5JSdMG
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part.
+Content-Transfer-Encoding: 7Bit
 
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
+-----BEGIN PGP SIGNATURE-----
 
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
+iLMEAAEIAB0WIQQ/Uctzh31xzAxFCLur5FH7Xu2t/AUCXPjDAQAKCRCr5FH7Xu2t
+/Pl6BACfD5jQd+TumD4sWaBGoQsHiYGBBixaf/rbCWtituWSjO/lhxnHM7JNGGhU
+nwqqGrCEw9HpBR5bUXCTpgfF7C11ZD8nXYlDTwBIBWH7HKYFBaGrub8PXCyiZH9v
+cyC8ctpHj9k/PeZ+tLq+Aie9x4uIlKJVgfTHwAygDH4CD5j5mg==
+=WMEf
+-----END PGP SIGNATURE-----
 
-Merge testing
--------------
-
-We cloned this repository and checked out the following commit:
-
-  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: e109a984cf38 - Linux 4.19.48
-
-
-We then merged the patchset with `git am`:
-
-  sparc64-fix-regression-in-non-hypervisor-tlb-flush-xcall.patch
-  include-linux-bitops.h-sanitize-rotate-primitives.patch
-  xhci-update-bounce-buffer-with-correct-sg-num.patch
-  xhci-use-zu-for-printing-size_t-type.patch
-  xhci-convert-xhci_handshake-to-use-readl_poll_timeout_atomic.patch
-  usb-xhci-avoid-null-pointer-deref-when-bos-field-is-null.patch
-  usbip-usbip_host-fix-bug-sleeping-function-called-from-invalid-context.patch
-  usbip-usbip_host-fix-stub_dev-lock-context-imbalance-regression.patch
-  usb-fix-slab-out-of-bounds-write-in-usb_get_bos_descriptor.patch
-  usb-sisusbvga-fix-oops-in-error-path-of-sisusb_probe.patch
-  usb-add-lpm-quirk-for-surface-dock-gige-adapter.patch
-  usb-rio500-refuse-more-than-one-device-at-a-time.patch
-  usb-rio500-fix-memory-leak-in-close-after-disconnect.patch
-  media-usb-siano-fix-general-protection-fault-in-smsusb.patch
-  media-usb-siano-fix-false-positive-uninitialized-variable-warning.patch
-  media-smsusb-better-handle-optional-alignment.patch
-  brcmfmac-fix-null-pointer-derefence-during-usb-disconnect.patch
-  scsi-zfcp-fix-missing-zfcp_port-reference-put-on-ebusy-from-port_remove.patch
-  scsi-zfcp-fix-to-prevent-port_remove-with-pure-auto-scan-luns-only-sdevs.patch
-  tracing-avoid-memory-leak-in-predicate_parse.patch
-  btrfs-fix-wrong-ctime-and-mtime-of-a-directory-after-log-replay.patch
-  btrfs-fix-race-updating-log-root-item-during-fsync.patch
-  btrfs-fix-fsync-not-persisting-changed-attributes-of-a-directory.patch
-  btrfs-incremental-send-fix-file-corruption-when-no-holes-feature-is-enabled.patch
-  iio-dac-ds4422-ds4424-fix-chip-verification.patch
-  iio-adc-ti-ads8688-fix-timestamp-is-not-updated-in-buffer.patch
-  s390-crypto-fix-gcm-aes-s390-selftest-failures.patch
-  s390-crypto-fix-possible-sleep-during-spinlock-aquired.patch
-  kvm-ppc-book3s-hv-xive-do-not-clear-irq-data-of-passthrough-interrupts.patch
-  powerpc-perf-fix-mmcra-corruption-by-bhrb_filter.patch
-  alsa-line6-assure-canceling-delayed-work-at-disconnection.patch
-  alsa-hda-realtek-set-default-power-save-node-to-0.patch
-  alsa-hda-realtek-improve-the-headset-mic-for-acer-aspire-laptops.patch
-  kvm-s390-do-not-report-unusabled-ids-via-kvm_cap_max_vcpu_id.patch
-  drm-nouveau-i2c-disable-i2c-bus-access-after-fini.patch
-  i2c-mlxcpld-fix-wrong-initialization-order-in-probe.patch
-  i2c-synquacer-fix-synquacer_i2c_doxfer-return-value.patch
-  tty-serial-msm_serial-fix-xon-xoff.patch
-  tty-max310x-fix-external-crystal-register-setup.patch
-  memcg-make-it-work-on-sparse-non-0-node-systems.patch
-  kernel-signal.c-trace_signal_deliver-when-signal_group_exit.patch
-  arm64-fix-the-arm64_personality-syscall-wrapper-redirection.patch
-  docs-fix-conf.py-for-sphinx-2.0.patch
-  doc-cope-with-the-deprecation-of-autoreporter.patch
-  doc-cope-with-sphinx-logging-deprecations.patch
-  ima-show-rules-with-ima_inmask-correctly.patch
-  evm-check-hash-algorithm-passed-to-init_desc.patch
-  vt-fbcon-deinitialize-resources-in-visual_init-after-failed-memory-allocation.patch
-  serial-sh-sci-disable-dma-for-uart_console.patch
-  staging-vc04_services-prevent-integer-overflow-in-create_pagelist.patch
-  staging-wlan-ng-fix-adapter-initialization-failure.patch
-  cifs-fix-memory-leak-of-pneg_inbuf-on-eopnotsupp-ioctl-case.patch
-  cifs-cifs_read_allocate_pages-don-t-iterate-through-whole-page-array-on-enomem.patch
-  revert-lockd-show-pid-of-lockd-for-remote-locks.patch
-  gcc-plugins-fix-build-failures-under-darwin-host.patch
-  drm-tegra-gem-fix-cpu-cache-maintenance-for-bo-s-allocated-using-get_pages.patch
-  drm-vmwgfx-don-t-send-drm-sysfs-hotplug-events-on-initial-master-set.patch
-  drm-sun4i-fix-sun8i-hdmi-phy-clock-initialization.patch
-  drm-sun4i-fix-sun8i-hdmi-phy-configuration-for-148.5-mhz.patch
-  drm-rockchip-shutdown-drm-subsystem-on-shutdown.patch
-  drm-lease-make-sure-implicit-planes-are-leased.patch
-  compiler-attributes-add-support-for-__copy-gcc-9.patch
-  include-linux-module.h-copy-__init-__exit-attrs-to-init-cleanup_module.patch
-  revert-x86-build-move-_etext-to-actual-end-of-.text.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-  aarch64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-5a3f8f1b14986a709683dd1752f3f23964e6af85.config
-    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-5a3f8f1b14986a709683dd1752f3f23964e6af85.tar.gz
-
-  ppc64le:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-5a3f8f1b14986a709683dd1752f3f23964e6af85.config
-    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-5a3f8f1b14986a709683dd1752f3f23964e6af85.tar.gz
-
-  s390x:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-5a3f8f1b14986a709683dd1752f3f23964e6af85.config
-    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-5a3f8f1b14986a709683dd1752f3f23964e6af85.tar.gz
-
-  x86_64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-5a3f8f1b14986a709683dd1752f3f23964e6af85.config
-    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-5a3f8f1b14986a709683dd1752f3f23964e6af85.tar.gz
+--nextPart6100540.dV2z5JSdMG--
 
 
-Hardware testing
-----------------
 
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [1]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [2]
-       ✅ Loopdev Sanity [3]
-       ✅ AMTU (Abstract Machine Test Utility) [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ✅ tuned: tune-processes-through-perf [8]
-       ✅ Usex - version 1.9-29 [9]
-       🚧 ✅ stress: stress-ng [10]
-
-
-  ppc64le:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [1]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [2]
-       ✅ Loopdev Sanity [3]
-       ✅ AMTU (Abstract Machine Test Utility) [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ✅ tuned: tune-processes-through-perf [8]
-       ✅ Usex - version 1.9-29 [9]
-
-
-  s390x:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [2]
-       ✅ Loopdev Sanity [3]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ✅ tuned: tune-processes-through-perf [8]
-       🚧 ✅ stress: stress-ng [10]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [1]
-
-
-  x86_64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [2]
-       ✅ Loopdev Sanity [3]
-       ✅ AMTU (Abstract Machine Test Utility) [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ✅ tuned: tune-processes-through-perf [8]
-       ✅ Usex - version 1.9-29 [9]
-       🚧 ✅ stress: stress-ng [10]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [1]
-
-
-  Test source:
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
-
-Waived tests (marked with 🚧)
------------------------------
-This test run included waived tests. Such tests are executed but their results
-are not taken into account. Tests are waived when their results are not
-reliable enough, e.g. when they're just introduced or are being fixed.
