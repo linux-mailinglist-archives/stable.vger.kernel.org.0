@@ -2,182 +2,247 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 93EF337636
-	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 16:18:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 602E537707
+	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 16:43:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727309AbfFFOSv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Jun 2019 10:18:51 -0400
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:58542 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727168AbfFFOSu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Jun 2019 10:18:50 -0400
-Received: from localhost (unknown [IPv6:2a01:e0a:2c:6930:5cf4:84a1:2763:fe0d])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: bbrezillon)
-        by bhuna.collabora.co.uk (Postfix) with ESMTPSA id CE789284BB4;
-        Thu,  6 Jun 2019 15:18:47 +0100 (BST)
-Date:   Thu, 6 Jun 2019 16:18:44 +0200
-From:   Boris Brezillon <boris.brezillon@collabora.com>
-To:     Vitor Soares <Vitor.Soares@synopsys.com>
-Cc:     linux-i3c@lists.infradead.org, Joao.Pinto@synopsys.com,
-        Boris Brezillon <bbrezillon@kernel.org>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v2 1/3] i3c: fix i2c and i3c scl rate by bus mode
-Message-ID: <20190606161844.4a6b759c@collabora.com>
-In-Reply-To: <47de89f2335930df0ed6903be9afe6de4f46e503.1559821228.git.vitor.soares@synopsys.com>
-References: <cover.1559821227.git.vitor.soares@synopsys.com>
-        <47de89f2335930df0ed6903be9afe6de4f46e503.1559821228.git.vitor.soares@synopsys.com>
-Organization: Collabora
-X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+        id S1728949AbfFFOns (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Jun 2019 10:43:48 -0400
+Received: from mga06.intel.com ([134.134.136.31]:17433 "EHLO mga06.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727309AbfFFOns (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 6 Jun 2019 10:43:48 -0400
+X-Amp-Result: UNSCANNABLE
+X-Amp-File-Uploaded: False
+Received: from fmsmga002.fm.intel.com ([10.253.24.26])
+  by orsmga104.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 06 Jun 2019 07:43:47 -0700
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.63,559,1557212400"; 
+   d="scan'208";a="182329464"
+Received: from ideak-desk.fi.intel.com ([10.237.72.204])
+  by fmsmga002.fm.intel.com with ESMTP; 06 Jun 2019 07:43:45 -0700
+Date:   Thu, 6 Jun 2019 17:43:43 +0300
+From:   Imre Deak <imre.deak@intel.com>
+To:     Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
+Cc:     intel-gfx@lists.freedesktop.org,
+        Daniel Vetter <daniel.vetter@ffwll.ch>, zardam@gmail.com,
+        stable@vger.kernel.org
+Subject: Re: [Intel-gfx] [PATCH 2/7] drm/i915/sdvo: Implement proper HDMI
+ audio support for SDVO
+Message-ID: <20190606144343.GD4301@ideak-desk.fi.intel.com>
+Reply-To: imre.deak@intel.com
+References: <20190409144054.24561-1-ville.syrjala@linux.intel.com>
+ <20190409144054.24561-3-ville.syrjala@linux.intel.com>
+ <20190409200010.GZ3888@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190409200010.GZ3888@intel.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu,  6 Jun 2019 16:00:01 +0200
-Vitor Soares <Vitor.Soares@synopsys.com> wrote:
-
-> Currently the I3C framework limits SCL frequency to FM speed when
-> dealing with a mixed slow bus, even if all I2C devices are FM+ capable.
+On Tue, Apr 09, 2019 at 11:00:10PM +0300, Ville Syrjälä wrote:
+> On Tue, Apr 09, 2019 at 05:40:49PM +0300, Ville Syrjala wrote:
+> > From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> > 
+> > Our SDVO audio support is pretty bogus. We can't push audio over the
+> > SDVO bus, so trying to enable audio in the SDVO control register doesn't
+> > do anything. In fact it looks like the SDVO encoder will always mix in
+> > the audio coming over HDA, and there's no (at least documented) way to
+> > disable that from our side. So HDMI audio does work currently but only by
+> > luck really. What is missing though is the ELD.
 > 
-> The core was also not accounting for I3C speed limitations when
-> operating in mixed slow mode and was erroneously using FM+ speed as the
-> max I2C speed when operating in mixed fast mode.
+> Hmm. Looks like I forgot to update this text after the gen3 bug was
+> reported. The situation is that audio works on gen4 by luck. On gen3
+> it got broken by the referenced commit since we no longer enable
+> HDMI encoding on the SDVO device (that will stop audio transmission
+> entirely).
 > 
-> Fixes: 3a379bbcea0a ("i3c: Add core I3C infrastructure")
-> Signed-off-by: Vitor Soares <vitor.soares@synopsys.com>
-> Cc: Boris Brezillon <bbrezillon@kernel.org>
-> Cc: <stable@vger.kernel.org>
-> Cc: <linux-kernel@vger.kernel.org>
-> ---
-> Changes in v2:
->   Enhance commit message
->   Add dev_warn() in case user-defined i2c rate doesn't match LVR constraint
->   Add dev_warn() in case user-defined i3c rate lower than i2c rate.
+> > 
+> > To pass the ELD to the audio driver we need to write it to magic buffer
+> > in the SDVO encoder hardware which then gets pulled out via HDA in the
+> > other end. Ie. pretty much the same thing we had for native HDMI before
+> > we started to just pass the ELD between the drivers. This sort of
+> > explains why we even have that silly hardware buffer with native HDMI.
+> > 
+> > $ cat /proc/asound/card0/eld#1.0
+> > -monitor_present		0
+> > -eld_valid		0
+> > +monitor_present		1
+> > +eld_valid		1
+> > +monitor_name		LG TV
+> > +connection_type		HDMI
+> > +...
+> > 
+> > This also fixes our state readout since we can now query the SDVO
+> > encoder about the state of the "ELD valid" and "presence detect"
+> > bits. As mentioned those don't actually control whether audio
+> > gets sent over the HDMI cable, but it's the best we can do.
+> > 
+> > Cc: stable@vger.kernel.org
+> > Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+> > Cc: zardam@gmail.com
+> > Tested-by: zardam@gmail.com
+> > Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=108976
+> > Fixes: de44e256b92c ("drm/i915/sdvo: Shut up state checker with hdmi cards on gen3")
+> > Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+
+Matches the sdvo specs and bspec (SDVO_AUDIO_ENABLE is a reserved/MBZ
+bit on GEN3,3.5, and on GEN4 it's probably HDMI specific, since there is
+no audio traffic over the SDVO bus):
+
+Reviewed-by: Imre Deak <imre.deak@intel.com>
+
+Btw, is it guaranteed that we have a valid ELD when
+force_audio == HDMI_AUDIO_ON ?
+
+> > ---
+> >  drivers/gpu/drm/i915/intel_sdvo.c      | 58 +++++++++++++++++++++-----
+> >  drivers/gpu/drm/i915/intel_sdvo_regs.h |  3 ++
+> >  2 files changed, 50 insertions(+), 11 deletions(-)
+> > 
+> > diff --git a/drivers/gpu/drm/i915/intel_sdvo.c b/drivers/gpu/drm/i915/intel_sdvo.c
+> > index 61db07244296..7f64352a3413 100644
+> > --- a/drivers/gpu/drm/i915/intel_sdvo.c
+> > +++ b/drivers/gpu/drm/i915/intel_sdvo.c
+> > @@ -916,6 +916,13 @@ static bool intel_sdvo_set_colorimetry(struct intel_sdvo *intel_sdvo,
+> >  	return intel_sdvo_set_value(intel_sdvo, SDVO_CMD_SET_COLORIMETRY, &mode, 1);
+> >  }
+> >  
+> > +static bool intel_sdvo_set_audio_state(struct intel_sdvo *intel_sdvo,
+> > +				       u8 audio_state)
+> > +{
+> > +	return intel_sdvo_set_value(intel_sdvo, SDVO_CMD_SET_AUDIO_STAT,
+> > +				    &audio_state, 1);
+> > +}
+> > +
+> >  #if 0
+> >  static void intel_sdvo_dump_hdmi_buf(struct intel_sdvo *intel_sdvo)
+> >  {
+> > @@ -1487,11 +1494,6 @@ static void intel_sdvo_pre_enable(struct intel_encoder *intel_encoder,
+> >  	else
+> >  		sdvox |= SDVO_PIPE_SEL(crtc->pipe);
+> >  
+> > -	if (crtc_state->has_audio) {
+> > -		WARN_ON_ONCE(INTEL_GEN(dev_priv) < 4);
+> > -		sdvox |= SDVO_AUDIO_ENABLE;
+> > -	}
+> > -
+> >  	if (INTEL_GEN(dev_priv) >= 4) {
+> >  		/* done in crtc_mode_set as the dpll_md reg must be written early */
+> >  	} else if (IS_I945G(dev_priv) || IS_I945GM(dev_priv) ||
+> > @@ -1635,8 +1637,13 @@ static void intel_sdvo_get_config(struct intel_encoder *encoder,
+> >  	if (sdvox & HDMI_COLOR_RANGE_16_235)
+> >  		pipe_config->limited_color_range = true;
+> >  
+> > -	if (sdvox & SDVO_AUDIO_ENABLE)
+> > -		pipe_config->has_audio = true;
+> > +	if (intel_sdvo_get_value(intel_sdvo, SDVO_CMD_GET_AUDIO_STAT,
+> > +				 &val, 1)) {
+> > +		u8 mask = SDVO_AUDIO_ELD_VALID | SDVO_AUDIO_PRESENCE_DETECT;
+> > +
+> > +		if ((val & mask) == mask)
+> > +			pipe_config->has_audio = true;
+> > +	}
+> >  
+> >  	if (intel_sdvo_get_value(intel_sdvo, SDVO_CMD_GET_ENCODE,
+> >  				 &val, 1)) {
+> > @@ -1647,6 +1654,32 @@ static void intel_sdvo_get_config(struct intel_encoder *encoder,
+> >  	intel_sdvo_get_avi_infoframe(intel_sdvo, pipe_config);
+> >  }
+> >  
+> > +static void intel_sdvo_disable_audio(struct intel_sdvo *intel_sdvo)
+> > +{
+> > +	intel_sdvo_set_audio_state(intel_sdvo, 0);
+> > +}
+> > +
+> > +static void intel_sdvo_enable_audio(struct intel_sdvo *intel_sdvo,
+> > +				    const struct intel_crtc_state *crtc_state,
+> > +				    const struct drm_connector_state *conn_state)
+> > +{
+> > +	const struct drm_display_mode *adjusted_mode =
+> > +		&crtc_state->base.adjusted_mode;
+> > +	struct drm_connector *connector = conn_state->connector;
+> > +	u8 *eld = connector->eld;
+> > +
+> > +	eld[6] = drm_av_sync_delay(connector, adjusted_mode) / 2;
+> > +
+> > +	intel_sdvo_set_audio_state(intel_sdvo, 0);
+> > +
+> > +	intel_sdvo_write_infoframe(intel_sdvo, SDVO_HBUF_INDEX_ELD,
+> > +				   SDVO_HBUF_TX_DISABLED,
+> > +				   eld, drm_eld_size(eld));
+> > +
+> > +	intel_sdvo_set_audio_state(intel_sdvo, SDVO_AUDIO_ELD_VALID |
+> > +				   SDVO_AUDIO_PRESENCE_DETECT);
+> > +}
+> > +
+> >  static void intel_disable_sdvo(struct intel_encoder *encoder,
+> >  			       const struct intel_crtc_state *old_crtc_state,
+> >  			       const struct drm_connector_state *conn_state)
+> > @@ -1656,6 +1689,9 @@ static void intel_disable_sdvo(struct intel_encoder *encoder,
+> >  	struct intel_crtc *crtc = to_intel_crtc(old_crtc_state->base.crtc);
+> >  	u32 temp;
+> >  
+> > +	if (old_crtc_state->has_audio)
+> > +		intel_sdvo_disable_audio(intel_sdvo);
+> > +
+> >  	intel_sdvo_set_active_outputs(intel_sdvo, 0);
+> >  	if (0)
+> >  		intel_sdvo_set_encoder_power_state(intel_sdvo,
+> > @@ -1741,6 +1777,9 @@ static void intel_enable_sdvo(struct intel_encoder *encoder,
+> >  		intel_sdvo_set_encoder_power_state(intel_sdvo,
+> >  						   DRM_MODE_DPMS_ON);
+> >  	intel_sdvo_set_active_outputs(intel_sdvo, intel_sdvo->attached_output);
+> > +
+> > +	if (pipe_config->has_audio)
+> > +		intel_sdvo_enable_audio(intel_sdvo, pipe_config, conn_state);
+> >  }
+> >  
+> >  static enum drm_mode_status
+> > @@ -2603,7 +2642,6 @@ static bool
+> >  intel_sdvo_dvi_init(struct intel_sdvo *intel_sdvo, int device)
+> >  {
+> >  	struct drm_encoder *encoder = &intel_sdvo->base.base;
+> > -	struct drm_i915_private *dev_priv = to_i915(encoder->dev);
+> >  	struct drm_connector *connector;
+> >  	struct intel_encoder *intel_encoder = to_intel_encoder(encoder);
+> >  	struct intel_connector *intel_connector;
+> > @@ -2640,9 +2678,7 @@ intel_sdvo_dvi_init(struct intel_sdvo *intel_sdvo, int device)
+> >  	encoder->encoder_type = DRM_MODE_ENCODER_TMDS;
+> >  	connector->connector_type = DRM_MODE_CONNECTOR_DVID;
+> >  
+> > -	/* gen3 doesn't do the hdmi bits in the SDVO register */
+> > -	if (INTEL_GEN(dev_priv) >= 4 &&
+> > -	    intel_sdvo_is_hdmi_connector(intel_sdvo, device)) {
+> > +	if (intel_sdvo_is_hdmi_connector(intel_sdvo, device)) {
+> >  		connector->connector_type = DRM_MODE_CONNECTOR_HDMIA;
+> >  		intel_sdvo_connector->is_hdmi = true;
+> >  	}
+> > diff --git a/drivers/gpu/drm/i915/intel_sdvo_regs.h b/drivers/gpu/drm/i915/intel_sdvo_regs.h
+> > index db0ed499268a..e9ba3b047f93 100644
+> > --- a/drivers/gpu/drm/i915/intel_sdvo_regs.h
+> > +++ b/drivers/gpu/drm/i915/intel_sdvo_regs.h
+> > @@ -707,6 +707,9 @@ struct intel_sdvo_enhancements_arg {
+> >  #define SDVO_CMD_GET_AUDIO_ENCRYPT_PREFER 0x90
+> >  #define SDVO_CMD_SET_AUDIO_STAT		0x91
+> >  #define SDVO_CMD_GET_AUDIO_STAT		0x92
+> > +  #define SDVO_AUDIO_ELD_VALID		(1 << 0)
+> > +  #define SDVO_AUDIO_PRESENCE_DETECT	(1 << 1)
+> > +  #define SDVO_AUDIO_CP_READY		(1 << 2)
+> >  #define SDVO_CMD_SET_HBUF_INDEX		0x93
+> >    #define SDVO_HBUF_INDEX_ELD		0
+> >    #define SDVO_HBUF_INDEX_AVI_IF	1
+> > -- 
+> > 2.21.0
 > 
->  drivers/i3c/master.c | 61 +++++++++++++++++++++++++++++++++++++++++-----------
->  1 file changed, 48 insertions(+), 13 deletions(-)
-> 
-> diff --git a/drivers/i3c/master.c b/drivers/i3c/master.c
-> index 5f4bd52..8cd5824 100644
-> --- a/drivers/i3c/master.c
-> +++ b/drivers/i3c/master.c
-> @@ -91,6 +91,12 @@ void i3c_bus_normaluse_unlock(struct i3c_bus *bus)
->  	up_read(&bus->lock);
->  }
->  
-> +static struct i3c_master_controller *
-> +i3c_bus_to_i3c_master(struct i3c_bus *i3cbus)
-> +{
-> +	return container_of(i3cbus, struct i3c_master_controller, bus);
-> +}
-> +
->  static struct i3c_master_controller *dev_to_i3cmaster(struct device *dev)
->  {
->  	return container_of(dev, struct i3c_master_controller, dev);
-> @@ -565,20 +571,48 @@ static const struct device_type i3c_masterdev_type = {
->  	.groups	= i3c_masterdev_groups,
->  };
->  
-> -int i3c_bus_set_mode(struct i3c_bus *i3cbus, enum i3c_bus_mode mode)
-> +int i3c_bus_set_mode(struct i3c_bus *i3cbus, enum i3c_bus_mode mode,
-> +		     unsigned long max_i2c_scl_rate)
->  {
-> -	i3cbus->mode = mode;
->  
-> -	if (!i3cbus->scl_rate.i3c)
-> -		i3cbus->scl_rate.i3c = I3C_BUS_TYP_I3C_SCL_RATE;
-> +	struct i3c_master_controller *master = i3c_bus_to_i3c_master(i3cbus);
->  
-> -	if (!i3cbus->scl_rate.i2c) {
-> -		if (i3cbus->mode == I3C_BUS_MODE_MIXED_SLOW)
-> -			i3cbus->scl_rate.i2c = I3C_BUS_I2C_FM_SCL_RATE;
-> -		else
-> -			i3cbus->scl_rate.i2c = I3C_BUS_I2C_FM_PLUS_SCL_RATE;
-> +	i3cbus->mode = mode;
-> +
-> +	switch (i3cbus->mode) {
-> +	case I3C_BUS_MODE_PURE:
-> +		if (!i3cbus->scl_rate.i3c)
-> +			i3cbus->scl_rate.i3c = I3C_BUS_TYP_I3C_SCL_RATE;
-> +		break;
-> +	case I3C_BUS_MODE_MIXED_FAST:
-> +		if (!i3cbus->scl_rate.i3c)
-> +			i3cbus->scl_rate.i3c = I3C_BUS_TYP_I3C_SCL_RATE;
-> +		if (!i3cbus->scl_rate.i2c)
-> +			i3cbus->scl_rate.i2c = max_i2c_scl_rate;
-> +		break;
-> +	case I3C_BUS_MODE_MIXED_SLOW:
-> +		if (!i3cbus->scl_rate.i2c)
-> +			i3cbus->scl_rate.i2c = max_i2c_scl_rate;
-> +		if (!i3cbus->scl_rate.i3c ||
-> +		    i3cbus->scl_rate.i3c > i3cbus->scl_rate.i2c)
-> +			i3cbus->scl_rate.i3c = i3cbus->scl_rate.i2c;
-> +		break;
-> +	default:
-> +		return -EINVAL;
->  	}
->  
-> +	if (i3cbus->scl_rate.i3c < i3cbus->scl_rate.i2c)
-> +		dev_warn(&master->dev,
-> +			 "i3c-scl-hz=%ld lower than i2c-scl-hz=%ld\n",
-> +			 i3cbus->scl_rate.i3c, i3cbus->scl_rate.i2c);
-> +
-> +	if (i3cbus->scl_rate.i2c != I3C_BUS_I2C_FM_SCL_RATE &&
-> +	    i3cbus->scl_rate.i2c != I3C_BUS_I2C_FM_PLUS_SCL_RATE &&
-> +	    i3cbus->mode != I3C_BUS_MODE_PURE)
-
-If you are so strict, there's clearly no point exposing an i2c-scl-hz
-property. I'm still not convinced having an i2c rate that's slower than
-what the I2C/I3C spec defines as the *typical* rate is a bad thing, just
-like I'm not convinced having an I3C rate that's slower than the I2C
-one is a problem (it's definitely a weird situation, but there's nothing
-preventing that in the spec).
-
-> +		dev_warn(&master->dev,
-> +			 "i2c-scl-hz=%ld not defined according MIPI I3C spec\n"
-> +			 , i3cbus->scl_rate.i2c);
-
-The comma should be on the previous line.
-
-> +
->  	/*
->  	 * I3C/I2C frequency may have been overridden, check that user-provided
->  	 * values are not exceeding max possible frequency.
-> @@ -1966,9 +2000,6 @@ of_i3c_master_add_i2c_boardinfo(struct i3c_master_controller *master,
->  	/* LVR is encoded in reg[2]. */
->  	boardinfo->lvr = reg[2];
->  
-> -	if (boardinfo->lvr & I3C_LVR_I2C_FM_MODE)
-> -		master->bus.scl_rate.i2c = I3C_BUS_I2C_FM_SCL_RATE;
-> -
->  	list_add_tail(&boardinfo->node, &master->boardinfo.i2c);
->  	of_node_get(node);
->  
-> @@ -2417,6 +2448,7 @@ int i3c_master_register(struct i3c_master_controller *master,
->  			const struct i3c_master_controller_ops *ops,
->  			bool secondary)
->  {
-> +	unsigned long i2c_scl_rate = I3C_BUS_I2C_FM_PLUS_SCL_RATE;
->  	struct i3c_bus *i3cbus = i3c_master_get_bus(master);
->  	enum i3c_bus_mode mode = I3C_BUS_MODE_PURE;
->  	struct i2c_dev_boardinfo *i2cbi;
-> @@ -2466,9 +2498,12 @@ int i3c_master_register(struct i3c_master_controller *master,
->  			ret = -EINVAL;
->  			goto err_put_dev;
->  		}
-> +
-> +		if (i2cbi->lvr & I3C_LVR_I2C_FM_MODE)
-> +			i2c_scl_rate = I3C_BUS_I2C_FM_SCL_RATE;
->  	}
->  
-> -	ret = i3c_bus_set_mode(i3cbus, mode);
-> +	ret = i3c_bus_set_mode(i3cbus, mode, i2c_scl_rate);
->  	if (ret)
->  		goto err_put_dev;
->  
-
+> -- 
+> Ville Syrjälä
+> Intel
+> _______________________________________________
+> Intel-gfx mailing list
+> Intel-gfx@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/intel-gfx
