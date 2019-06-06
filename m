@@ -2,83 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9953A37280
-	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 13:09:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 038F23728F
+	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 13:14:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726324AbfFFLJH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Jun 2019 07:09:07 -0400
-Received: from heliosphere.sirena.org.uk ([172.104.155.198]:36732 "EHLO
-        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726551AbfFFLJH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Jun 2019 07:09:07 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=sirena.org.uk; s=20170815-heliosphere; h=In-Reply-To:Content-Type:
-        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=8HLd9JfLzNp3j/Ww/0ajqXlDQSqJ4MQGDWhWmcwKoLQ=; b=Lqnp5L662FQjdKBlDy8mFpcTa
-        6/ZRLhaN9Vzz/1YgTKPCI7WfBzvEEGClDkLMOHDnWMlgCG9r4AhnCw372kHUieHKQ4ik1uRn8RtZa
-        V+h36C2PsbCrHz7GjAooDD5ETYTY+zATwJc3NXHxbU/zxGtLu+NGqrRCIAQ4w3a8pfFbY=;
-Received: from [2001:470:1f1d:6b5:7e7a:91ff:fede:4a45] (helo=finisterre.sirena.org.uk)
-        by heliosphere.sirena.org.uk with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.89)
-        (envelope-from <broonie@sirena.org.uk>)
-        id 1hYqGN-0005Ox-Gl; Thu, 06 Jun 2019 11:08:55 +0000
-Received: by finisterre.sirena.org.uk (Postfix, from userid 1000)
-        id CD311440046; Thu,  6 Jun 2019 12:08:54 +0100 (BST)
-Date:   Thu, 6 Jun 2019 12:08:54 +0100
-From:   Mark Brown <broonie@kernel.org>
-To:     kernelci@groups.io, vkabatov@redhat.com
-Cc:     automated-testing@yoctoproject.org, info@kernelci.org,
-        Tim.Bird@sony.com, khilamn@baylibre.org,
-        syzkaller@googlegroups.com, lkp@lists.01.org,
-        stable@vger.kernel.org, Laura Abbott <labbott@redhat.com>,
-        Eliska Slobodova <eslobodo@redhat.com>,
-        CKI Project <cki-project@redhat.com>
-Subject: Re: CKI hackfest @Plumbers invite
-Message-ID: <20190606110854.GA2456@sirena.org.uk>
-References: <1204558561.21265703.1558449611621.JavaMail.zimbra@redhat.com>
- <1667759567.21267950.1558450452057.JavaMail.zimbra@redhat.com>
+        id S1726805AbfFFLOa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Jun 2019 07:14:30 -0400
+Received: from mail-vs1-f67.google.com ([209.85.217.67]:36522 "EHLO
+        mail-vs1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726092AbfFFLOa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Jun 2019 07:14:30 -0400
+Received: by mail-vs1-f67.google.com with SMTP id l20so963853vsp.3;
+        Thu, 06 Jun 2019 04:14:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:reply-to:from:date:message-id
+         :subject:to:cc:content-transfer-encoding;
+        bh=L5FE5LHOBYJ1vqOcaxoTV/ufmCOkGPMOAnLLWxUn+gY=;
+        b=j6waIAVh+7I7LbSs6indYXCkDPotzrrRDLsA+F4sDLBWtJL3TsPuG6Cfix8X5jhydi
+         1nHBjeU8sKI9aBx02rKHi/WWzd5a44li70bDN1jADnMsjHfcqFgX7EIOWI/Rsvw0TzUO
+         SV5dXi4T+fhJdsIu+dpmPfzSmPNbfpgqLNt9dojAR685jhKeUMLlYhXOw5GAM3Vbrols
+         bHNs84nmGkIVOUORoXRALz0koH31pfqIf14kQh4mlryyIhBkTBgyCu0dhUBHqCvTXSfO
+         4yOZ9To+JFs1e7F9f51G9MKcthaaWtthW+1jj9jn32Jv2OGfaLP5O5IZiQ3L4kv3RCGS
+         O9vw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:reply-to
+         :from:date:message-id:subject:to:cc:content-transfer-encoding;
+        bh=L5FE5LHOBYJ1vqOcaxoTV/ufmCOkGPMOAnLLWxUn+gY=;
+        b=JK4OZG1CAeIUCLqvDFcfJM5/81C2OOyqbMM/2L5JpY82ef23aMibp7xIrTVrxxEqdV
+         a3k/5GhnvQFiPGfA/sYYO80KykDb/pllLb9gS/SI5PdFHEuQogMoh2RDENRg/uH2XyDi
+         cba5Dj9/5RGJQyql0q2mbAN7O7Lkq+wGOUE5rtz2pwlHEnSFdkBjuJb0czd1oog7stC+
+         qIKCCutW2kmbFPa5YLjP2R9Xnz2r0lJEEWOWU+NKGWNYW1KERwdQGdU02Z3KRbJRNBoj
+         /nLTSH2DWmaI6D1TWey77elZl0nRIv7HRZkvRfq82GcGcjojNA479iBEJ6MhnIKNPu0P
+         CEGw==
+X-Gm-Message-State: APjAAAXbQZb5KCcGX4MKQjAkXainacNVXSjT8m4+dtVI9X2RMcxyKALF
+        yskaYvlAKhLWMwh4YJ1IQoqOmGYGrN1Zii4V+JJ2zA==
+X-Google-Smtp-Source: APXvYqy9uzi9cGdb1ix/cem/VdxXMljSqCtPw43u5DGU7D9Nn12APz7z2DBpxQr/ZH15do8OGNwsevWPMle40YMAzJc=
+X-Received: by 2002:a67:d990:: with SMTP id u16mr765451vsj.95.1559819669355;
+ Thu, 06 Jun 2019 04:14:29 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="TX8FgYyhBart40Z+"
-Content-Disposition: inline
-In-Reply-To: <1667759567.21267950.1558450452057.JavaMail.zimbra@redhat.com>
-X-Cookie: The other line moves faster.
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <20190606075444.15481-1-naohiro.aota@wdc.com>
+In-Reply-To: <20190606075444.15481-1-naohiro.aota@wdc.com>
+Reply-To: fdmanana@gmail.com
+From:   Filipe Manana <fdmanana@gmail.com>
+Date:   Thu, 6 Jun 2019 12:14:18 +0100
+Message-ID: <CAL3q7H6ZD=SCcj_dOB6b+8xPTXpq5dTv58Mb4C4qPn1Cx9XOtA@mail.gmail.com>
+Subject: Re: [PATCH] btrfs: start readahead also in seed devices
+To:     Naohiro Aota <naohiro.aota@wdc.com>
+Cc:     linux-btrfs <linux-btrfs@vger.kernel.org>,
+        David Sterba <dsterba@suse.com>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Jun 6, 2019 at 8:56 AM Naohiro Aota <naohiro.aota@wdc.com> wrote:
+>
+> Currently, btrfs does not consult seed devices to start readahead. As a
+> result, if readahead zone is added to the seed devices, btrfs_reada_wait(=
+)
+> indefinitely wait for the reada_ctl to finish.
+>
+> You can reproduce the hung by modifying btrfs/163 to have larger initial
+> file size (e.g. xfs_io pwrite 4M instead of current 256K).
 
---TX8FgYyhBart40Z+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Are you planning on submitting a patch for the test case as well, so
+that it writes at least 4Mb?
+Would be useful to have.
 
-On Tue, May 21, 2019 at 10:54:12AM -0400, Veronika Kabatova wrote:
+>
+> Fixes: 7414a03fbf9e ("btrfs: initial readahead code and prototypes")
+> Cc: stable@vger.kernel.org # 3.2+: ce7791ffee1e: Btrfs: fix race between =
+readahead and device replace/removal
+> Cc: stable@vger.kernel.org # 3.2+
+> Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
 
-> Please send us an email as soon as you decide to come and feel free to invite
-> other people who should be present. We are not planning to cap the attendance
-> right now but need to solve the logistics based on the interest. The event is
-> free to attend, no additional registration except letting us know is needed.
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
 
-Still waiting for final confirmation but I expect to be there too.
+Looks good, thanks.
 
---TX8FgYyhBart40Z+
-Content-Type: application/pgp-signature; name="signature.asc"
+> ---
+>  fs/btrfs/reada.c | 5 +++++
+>  1 file changed, 5 insertions(+)
+>
+> diff --git a/fs/btrfs/reada.c b/fs/btrfs/reada.c
+> index 10d9589001a9..bb5bd49573b4 100644
+> --- a/fs/btrfs/reada.c
+> +++ b/fs/btrfs/reada.c
+> @@ -747,6 +747,7 @@ static void __reada_start_machine(struct btrfs_fs_inf=
+o *fs_info)
+>         u64 total =3D 0;
+>         int i;
+>
+> +again:
+>         do {
+>                 enqueued =3D 0;
+>                 mutex_lock(&fs_devices->device_list_mutex);
+> @@ -758,6 +759,10 @@ static void __reada_start_machine(struct btrfs_fs_in=
+fo *fs_info)
+>                 mutex_unlock(&fs_devices->device_list_mutex);
+>                 total +=3D enqueued;
+>         } while (enqueued && total < 10000);
+> +       if (fs_devices->seed) {
+> +               fs_devices =3D fs_devices->seed;
+> +               goto again;
+> +       }
+>
+>         if (enqueued =3D=3D 0)
+>                 return;
+> --
+> 2.21.0
+>
 
------BEGIN PGP SIGNATURE-----
 
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAlz49EUACgkQJNaLcl1U
-h9CYsAf/aiwQZHazs8MUhIwkhJfy+r0rVycvNkGu6nYneFsquqUxcqesqjhpU6AP
-Nm42VWXg7A24QcsTVjle0wnlYMLKis7/tbauyh/Wa7udwVPqd0oVwM8xpX4su5dl
-O62CdeQED//7cYlm4WKksr+rx4F2Ulz7F9yUnG15ITGT6az1gEhTYFjWqtpDr9BF
-Hu8uQIpjX812CyRPKteBF1moVtnjJbe+LYEeygzRxJ7+6dsVArsrF7osT63kZStB
-I5tNHbhKaXVQ8zqVEzTXbsw1iwpaeiPKwpkB0W41WsGwoEJ4t/VYPp1ZOz6AkwTO
-GJRtu6H2BL4HHoVy6KnBiXwcKYjLGg==
-=JHIE
------END PGP SIGNATURE-----
+--=20
+Filipe David Manana,
 
---TX8FgYyhBart40Z+--
+=E2=80=9CWhether you think you can, or you think you can't =E2=80=94 you're=
+ right.=E2=80=9D
