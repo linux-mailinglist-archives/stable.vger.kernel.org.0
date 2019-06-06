@@ -2,68 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C60137DAC
-	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 21:54:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2793437DBB
+	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 21:55:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727676AbfFFTyd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Jun 2019 15:54:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33600 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727240AbfFFTyd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 6 Jun 2019 15:54:33 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 236C020872;
-        Thu,  6 Jun 2019 19:54:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559850872;
-        bh=66WsNXowRab9p9S5MUiX0WYjcQJB5kg1QYxRp1zFqvQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Eh2LVpjxCU1McUw64x1zv9MzZCGWScqWK+Ab2PhDcZpN0lxqqVZiDBbMI3p0lB1OD
-         2bcVtasojNvv4dD2aTcMYwlqVy4wCpHcqdG91w/9SDaDE2nMjo4q5qQySYSxN8c1wl
-         sKV9uLRA5Qktbk0GHQ65UNExZcCpqSfuixD7uMHI=
-Date:   Thu, 6 Jun 2019 21:54:30 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Phil Elwell <phil@raspberrypi.org>, stable@vger.kernel.org
-Subject: Re: Dynamic overlay failure in 4.19 & 4.20
-Message-ID: <20190606195430.GA27447@kroah.com>
-References: <45e99a24-efb9-5473-2e57-14411537dc9f@raspberrypi.org>
- <2da582d1-11eb-3680-33f2-3a5c139613a8@raspberrypi.org>
- <20190605175059.GA29747@kroah.com>
- <20190606011422.GG29739@sasha-vm>
+        id S1728015AbfFFTzN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Jun 2019 15:55:13 -0400
+Received: from mx2.suse.de ([195.135.220.15]:56808 "EHLO mx1.suse.de"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727512AbfFFTzN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 6 Jun 2019 15:55:13 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.220.254])
+        by mx1.suse.de (Postfix) with ESMTP id DACD6AD8A;
+        Thu,  6 Jun 2019 19:55:11 +0000 (UTC)
+Date:   Thu, 6 Jun 2019 21:55:05 +0200
+From:   Michal Hocko <mhocko@kernel.org>
+To:     Ajay Kaher <akaher@vmware.com>
+Cc:     Stable tree <stable@vger.kernel.org>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Jann Horn <jannh@google.com>, Oleg Nesterov <oleg@redhat.com>,
+        Peter Xu <peterx@redhat.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Jason Gunthorpe <jgg@mellanox.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        Srivatsa Bhat <srivatsab@vmware.com>
+Subject: Re: [RFC PATCH stable-4.4] coredump: fix race condition between
+ mmget_not_zero()/get_task_mm() and core dumping
+Message-ID: <20190606195505.GA7047@dhcp22.suse.cz>
+References: <5756B041-C0A8-4178-9F5B-7CBF7A554E31@vmware.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190606011422.GG29739@sasha-vm>
-User-Agent: Mutt/1.12.0 (2019-05-25)
+In-Reply-To: <5756B041-C0A8-4178-9F5B-7CBF7A554E31@vmware.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jun 05, 2019 at 09:14:22PM -0400, Sasha Levin wrote:
-> On Wed, Jun 05, 2019 at 07:50:59PM +0200, Greg Kroah-Hartman wrote:
-> > On Wed, Jun 05, 2019 at 01:02:18PM +0100, Phil Elwell wrote:
-> > > Hi,
-> > > 
-> > > I think patch f96278810150 ("of: overlay: set node fields from
-> > > properties when add new overlay node") should be back-ported to 4.19,
-> > > for the reasons outlined below (briefly: without it, overlay fragments
-> > > that define phandles will appear to merged successfully, but they do
-> > > so without those phandles, causing any references to them to break).
+On Thu 06-06-19 19:42:20, Ajay Kaher wrote:
+> 
+> > From: Andrea Arcangeli <aarcange@redhat.com>
+> >
+> > Upstream 04f5866e41fb70690e28397487d8bd8eea7d712a commit.
+> >
+> >
+> > Signed-off-by: Michal Hocko <mhocko@suse.com>
+> > ---
+> > Hi,
+> > this is based on the backport I have done for out 4.4 based distribution
+> > kernel. Please double check that I haven't missed anything before
+> > applying to the stable tree. I have also CCed Joel for the binder part
+> > which is not in the current upstream anymore but I believe it needs the
+> > check as well.
+> >
+> > Review feedback welcome.
+> >
+> > drivers/android/binder.c |  6 ++++++
+> > fs/proc/task_mmu.c       | 18 ++++++++++++++++++
+> > fs/userfaultfd.c         | 10 ++++++++--
+> > include/linux/mm.h       | 21 +++++++++++++++++++++
+> > mm/huge_memory.c         |  2 +-
+> > mm/mmap.c                |  7 ++++++-
+> > 6 files changed, 60 insertions(+), 4 deletions(-)
+> >
+> > diff --git a/drivers/android/binder.c b/drivers/android/binder.c
+> > index 260ce0e60187..1fb1cddbd19a 100644
+> > --- a/drivers/android/binder.c
+> > +++ b/drivers/android/binder.c
+> > @@ -570,6 +570,12 @@ static int binder_update_page_range(struct binder_proc *proc, int allocate,
 > > 
-> > That patch does not properly apply to the 4.19.y tree.  Can you provide
-> > a working backport that I can queue up to resolve this?
+> > 	if (mm) {
+> > 		down_write(&mm->mmap_sem);
+> > +		if (!mmget_still_valid(mm)) {
+> > +			if (allocate == 0)
+> > +				goto free_range;
 > 
-> Greg,
-> 
-> That patch has contextual dependencies on 6f75118800 ("of: overlay:
-> validate overlay properties #address-cells and #size-cells"), I think it
-> would make sense to take 6f75118800 and then f96278810150 rather than a
-> backport.
+> Please cross check, free_range: should not end-up with modifications in vma.
 
-That works better, I have now done this, thanks.
+A review from a binder expert is definitely due but this function
+clearly modifies the vma. Maybe the mapping is not really that important
+because the coredump would simply not see the new mapping and therefore
+"only" generate an incomplete/corrupted dump rather than leak an
+information. I went with a "just to be sure" approach and add the check
+to all locations which might be operating on a remote mm and modify the
+address space.
 
-greg k-h
+-- 
+Michal Hocko
+SUSE Labs
