@@ -2,279 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C0D737D14
-	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 21:15:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C96037D2B
+	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 21:23:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728831AbfFFTP1 convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Thu, 6 Jun 2019 15:15:27 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:46136 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728504AbfFFTP1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 6 Jun 2019 15:15:27 -0400
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id EBDA9307CB5F
-        for <stable@vger.kernel.org>; Thu,  6 Jun 2019 19:15:26 +0000 (UTC)
-Received: from [172.54.141.148] (cpt-large-cpu-05.paas.prod.upshift.rdu2.redhat.com [10.0.18.78])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 857A316935;
-        Thu,  6 Jun 2019 19:15:24 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        id S1728504AbfFFTXE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Jun 2019 15:23:04 -0400
+Received: from mail-pf1-f195.google.com ([209.85.210.195]:42069 "EHLO
+        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729053AbfFFTXB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Jun 2019 15:23:01 -0400
+Received: by mail-pf1-f195.google.com with SMTP id q10so2086487pff.9
+        for <stable@vger.kernel.org>; Thu, 06 Jun 2019 12:23:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=broadcom.com; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-transfer-encoding:content-language;
+        bh=+S0wcX87X5waHh8++2TADiUtaixAR2MJn95+UMpUzAk=;
+        b=hbOr96z/lV1V2iEqt9jxbsE6ILd7Bs3hopfYNeYNzpr452iz+JGuknFUGvylLoGbf6
+         PaKmhDAXZZzR+RiA8JzSZtuPTOTt8ZLSVVYCnw5gxbH5RSfZMBUb7NZXKdzNd2qEggev
+         A7ULi3KbHZ+irfw1cDar/VzedEmemzkFTTeGM=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-transfer-encoding
+         :content-language;
+        bh=+S0wcX87X5waHh8++2TADiUtaixAR2MJn95+UMpUzAk=;
+        b=HzAirQQhxKh/IJJQr2p+QQRqXbphI182KEwqXUPJe587m9Fr0uAYcoG512/6+QHg8m
+         0tYYnEjPnwG/xDyHlY3r7X4Vttzx1a+t4i1wLshP97lsjJm1xcyTuioUwZwuZTGgekIu
+         jNC4SKGvjg9YKNMXArVkHS2AbZqoez3uGolWh2PDJvnaxyeVcpd31miHXzz1iWuRvxTl
+         CbzGlSEzh6avpI+lSiPhh0cvHNvKo6nzCJqxffix9ZjjK7d6fFmJ5cHKC/rQMpcMMzjs
+         MLxDx5uReaZ1PMH5FteFIXX5JlZTcZB9DBCg8DCgmapu4RUi8sE5VOdqHIlA34Xi+QFo
+         asug==
+X-Gm-Message-State: APjAAAW2AuMsMrTLgmiGdgNCRsJuySjnGD6aX48EwMBc14o2+3IlOuu5
+        FLouYIWxUCQhNIeU5WH2Mv6nOw==
+X-Google-Smtp-Source: APXvYqw6/H0bTzmD1NtNFdjKXRgiTyCLyusI7VLYczAQnMPAF5yw1qPTSosMoYo5kE9VEEJioyBovw==
+X-Received: by 2002:a63:2ad2:: with SMTP id q201mr139088pgq.94.1559848980654;
+        Thu, 06 Jun 2019 12:23:00 -0700 (PDT)
+Received: from [10.69.37.149] ([192.19.223.252])
+        by smtp.gmail.com with ESMTPSA id j13sm3262132pfh.13.2019.06.06.12.22.57
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 06 Jun 2019 12:23:00 -0700 (PDT)
+Subject: Re: [PATCH] scsi: lpfc: Fix backport of faf5a744f4f8 ("scsi: lpfc:
+ avoid uninitialized variable warning")
+To:     Nathan Chancellor <natechancellor@gmail.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Pavel Machek <pavel@denx.de>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+References: <20190606165346.GB3249@kroah.com>
+ <20190606174125.4277-1-natechancellor@gmail.com>
+From:   James Smart <james.smart@broadcom.com>
+Message-ID: <de9bab03-437f-d4ab-df93-5f36b4216f03@broadcom.com>
+Date:   Thu, 6 Jun 2019 12:22:55 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.0
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.1
-Message-ID: <cki.EC1AEC095A.YAXVGK1H1L@redhat.com>
-X-Gitlab-Pipeline-ID: 11675
-X-Gitlab-Pipeline: =?utf-8?q?https=3A//xci32=2Elab=2Eeng=2Erdu2=2Eredhat=2Ec?=
- =?utf-8?q?om/cki-project/cki-pipeline/pipelines/11675?=
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.42]); Thu, 06 Jun 2019 19:15:26 +0000 (UTC)
-Date:   Thu, 6 Jun 2019 15:15:27 -0400
+In-Reply-To: <20190606174125.4277-1-natechancellor@gmail.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+On 6/6/2019 10:41 AM, Nathan Chancellor wrote:
+> Prior to commit 4c47efc140fa ("scsi: lpfc: Move SCSI and NVME Stats to
+> hardware queue structures") upstream, we allocated a cstat structure in
+> lpfc_nvme_create_localport. When commit faf5a744f4f8 ("scsi: lpfc: avoid
+> uninitialized variable warning") was backported, it was placed after the
+> allocation so we leaked memory whenever this function was called and
+> that conditional was true (so whenever CONFIG_NVME_FC is disabled).
+>
+> Move the IS_ENABLED if statement above the allocation since it is not
+> needed when the condition is true.
+>
+> Reported-by: Pavel Machek <pavel@denx.de>
+> Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+> ---
+>   drivers/scsi/lpfc/lpfc_nvme.c | 6 +++---
+>   1 file changed, 3 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/scsi/lpfc/lpfc_nvme.c b/drivers/scsi/lpfc/lpfc_nvme.c
+> index 099f70798fdd..645ffb5332b4 100644
+> --- a/drivers/scsi/lpfc/lpfc_nvme.c
+> +++ b/drivers/scsi/lpfc/lpfc_nvme.c
+> @@ -2477,14 +2477,14 @@ lpfc_nvme_create_localport(struct lpfc_vport *vport)
+>   	lpfc_nvme_template.max_sgl_segments = phba->cfg_nvme_seg_cnt + 1;
+>   	lpfc_nvme_template.max_hw_queues = phba->cfg_nvme_io_channel;
+>   
+> +	if (!IS_ENABLED(CONFIG_NVME_FC))
+> +		return ret;
+> +
+>   	cstat = kmalloc((sizeof(struct lpfc_nvme_ctrl_stat) *
+>   			phba->cfg_nvme_io_channel), GFP_KERNEL);
+>   	if (!cstat)
+>   		return -ENOMEM;
+>   
+> -	if (!IS_ENABLED(CONFIG_NVME_FC))
+> -		return ret;
+> -
+>   	/* localport is allocated from the stack, but the registration
+>   	 * call allocates heap memory as well as the private area.
+>   	 */
 
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
-
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: 2f7d9d47575e - Linux 5.1.7
-
-The results of these automated tests are provided below.
-
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Merge testing
--------------
-
-We cloned this repository and checked out the following commit:
-
-  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: 2f7d9d47575e - Linux 5.1.7
-
-
-We then merged the patchset with `git am`:
-
-  sparc64-fix-regression-in-non-hypervisor-tlb-flush-xcall.patch
-  include-linux-bitops.h-sanitize-rotate-primitives.patch
-  xhci-update-bounce-buffer-with-correct-sg-num.patch
-  xhci-use-zu-for-printing-size_t-type.patch
-  xhci-convert-xhci_handshake-to-use-readl_poll_timeout_atomic.patch
-  usb-xhci-avoid-null-pointer-deref-when-bos-field-is-null.patch
-  usbip-usbip_host-fix-bug-sleeping-function-called-from-invalid-context.patch
-  usbip-usbip_host-fix-stub_dev-lock-context-imbalance-regression.patch
-  usb-fix-slab-out-of-bounds-write-in-usb_get_bos_descriptor.patch
-  usb-sisusbvga-fix-oops-in-error-path-of-sisusb_probe.patch
-  usb-add-lpm-quirk-for-surface-dock-gige-adapter.patch
-  usb-rio500-refuse-more-than-one-device-at-a-time.patch
-  usb-rio500-fix-memory-leak-in-close-after-disconnect.patch
-  media-usb-siano-fix-general-protection-fault-in-smsusb.patch
-  media-usb-siano-fix-false-positive-uninitialized-variable-warning.patch
-  media-smsusb-better-handle-optional-alignment.patch
-  brcmfmac-fix-null-pointer-derefence-during-usb-disconnect.patch
-  scsi-zfcp-fix-missing-zfcp_port-reference-put-on-ebusy-from-port_remove.patch
-  scsi-zfcp-fix-to-prevent-port_remove-with-pure-auto-scan-luns-only-sdevs.patch
-  tracing-avoid-memory-leak-in-predicate_parse.patch
-  btrfs-fix-wrong-ctime-and-mtime-of-a-directory-after-log-replay.patch
-  btrfs-fix-race-updating-log-root-item-during-fsync.patch
-  btrfs-fix-fsync-not-persisting-changed-attributes-of-a-directory.patch
-  btrfs-correct-zstd-workspace-manager-lock-to-use-spin_lock_bh.patch
-  btrfs-qgroup-check-bg-while-resuming-relocation-to-avoid-null-pointer-dereference.patch
-  btrfs-incremental-send-fix-file-corruption-when-no-holes-feature-is-enabled.patch
-  btrfs-reloc-also-queue-orphan-reloc-tree-for-cleanup-to-avoid-bug_on.patch
-  iio-dac-ds4422-ds4424-fix-chip-verification.patch
-  iio-adc-ads124-avoid-buffer-overflow.patch
-  iio-adc-modify-npcm-adc-read-reference-voltage.patch
-  iio-adc-ti-ads8688-fix-timestamp-is-not-updated-in-buffer.patch
-  s390-crypto-fix-gcm-aes-s390-selftest-failures.patch
-  s390-crypto-fix-possible-sleep-during-spinlock-aquired.patch
-  kvm-ppc-book3s-hv-xive-do-not-clear-irq-data-of-passthrough-interrupts.patch
-  kvm-ppc-book3s-hv-fix-lockdep-warning-when-entering-guest-on-power9.patch
-  kvm-ppc-book3s-hv-restore-sprg3-in-kvmhv_p9_guest_entry.patch
-  powerpc-perf-fix-mmcra-corruption-by-bhrb_filter.patch
-  powerpc-kexec-fix-loading-of-kernel-initramfs-with-kexec_file_load.patch
-  alsa-line6-assure-canceling-delayed-work-at-disconnection.patch
-  alsa-hda-realtek-set-default-power-save-node-to-0.patch
-  alsa-hda-realtek-improve-the-headset-mic-for-acer-aspire-laptops.patch
-  kvm-s390-do-not-report-unusabled-ids-via-kvm_cap_max_vcpu_id.patch
-  drm-nouveau-i2c-disable-i2c-bus-access-after-fini.patch
-  i2c-mlxcpld-fix-wrong-initialization-order-in-probe.patch
-  i2c-synquacer-fix-synquacer_i2c_doxfer-return-value.patch
-  tty-serial-msm_serial-fix-xon-xoff.patch
-  tty-max310x-fix-external-crystal-register-setup.patch
-  mm-memcg-consider-subtrees-in-memory.events.patch
-  memcg-make-it-work-on-sparse-non-0-node-systems.patch
-  kasan-initialize-tag-to-0xff-in-__kasan_kmalloc.patch
-  kernel-signal.c-trace_signal_deliver-when-signal_group_exit.patch
-  signal-arm64-use-force_sig-not-force_sig_fault-for-sigkill.patch
-  mm-compaction-make-sure-we-isolate-a-valid-pfn.patch
-  arm64-fix-the-arm64_personality-syscall-wrapper-redirection.patch
-  docs-fix-conf.py-for-sphinx-2.0.patch
-  doc-cope-with-the-deprecation-of-autoreporter.patch
-  doc-cope-with-sphinx-logging-deprecations.patch
-  x86-ima-check-efi_runtime_services-before-using.patch
-  ima-fix-wrong-signed-policy-requirement-when-not-appraising.patch
-  ima-show-rules-with-ima_inmask-correctly.patch
-  evm-check-hash-algorithm-passed-to-init_desc.patch
-  clk-imx-imx8mm-fix-int-pll-clk-gate.patch
-  vt-fbcon-deinitialize-resources-in-visual_init-after-failed-memory-allocation.patch
-  serial-sh-sci-disable-dma-for-uart_console.patch
-  staging-vc04_services-prevent-integer-overflow-in-create_pagelist.patch
-  staging-wlan-ng-fix-adapter-initialization-failure.patch
-  cifs-fix-memory-leak-of-pneg_inbuf-on-eopnotsupp-ioctl-case.patch
-  cifs-cifs_read_allocate_pages-don-t-iterate-through-whole-page-array-on-enomem.patch
-  revert-lockd-show-pid-of-lockd-for-remote-locks.patch
-  gcc-plugins-fix-build-failures-under-darwin-host.patch
-  drm-tegra-gem-fix-cpu-cache-maintenance-for-bo-s-allocated-using-get_pages.patch
-  drm-vmwgfx-fix-user-space-handle-equal-to-zero.patch
-  drm-vmwgfx-fix-compat-mode-shader-operation.patch
-  drm-vmwgfx-don-t-send-drm-sysfs-hotplug-events-on-initial-master-set.patch
-  drm-sun4i-fix-sun8i-hdmi-phy-clock-initialization.patch
-  drm-sun4i-fix-sun8i-hdmi-phy-configuration-for-148.5-mhz.patch
-  drm-imx-ipuv3-plane-fix-atomic-update-status-query-for-non-plus-i.mx6q.patch
-  drm-fb-helper-generic-call-drm_client_add-after-setup-is-done.patch
-  drm-atomic-wire-file_priv-through-for-property-changes.patch
-  drm-expose-fb_damage_clips-property-to-atomic-aware-user-space-only.patch
-  drm-rockchip-shutdown-drm-subsystem-on-shutdown.patch
-  drm-lease-make-sure-implicit-planes-are-leased.patch
-  drm-cma-helper-fix-drm_gem_cma_free_object.patch
-  revert-x86-build-move-_etext-to-actual-end-of-.text.patch
-  x86-kprobes-set-instruction-page-as-executable.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-  aarch64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-3a1e56aa46a334165d63e6416b8bf794b965eaf6.config
-    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-3a1e56aa46a334165d63e6416b8bf794b965eaf6.tar.gz
-
-  ppc64le:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-3a1e56aa46a334165d63e6416b8bf794b965eaf6.config
-    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-3a1e56aa46a334165d63e6416b8bf794b965eaf6.tar.gz
-
-  s390x:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-3a1e56aa46a334165d63e6416b8bf794b965eaf6.config
-    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-3a1e56aa46a334165d63e6416b8bf794b965eaf6.tar.gz
-
-  x86_64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-3a1e56aa46a334165d63e6416b8bf794b965eaf6.config
-    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-3a1e56aa46a334165d63e6416b8bf794b965eaf6.tar.gz
+Reviewed-by: James Smart <james.smart@broadcom.com>
 
 
-Hardware testing
-----------------
-
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [1]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [2]
-       ✅ Loopdev Sanity [3]
-       ✅ AMTU (Abstract Machine Test Utility) [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ✅ tuned: tune-processes-through-perf [8]
-       ✅ Usex - version 1.9-29 [9]
-       🚧 ✅ stress: stress-ng [10]
-
-
-  ppc64le:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [1]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [2]
-       ✅ Loopdev Sanity [3]
-       ✅ AMTU (Abstract Machine Test Utility) [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ✅ tuned: tune-processes-through-perf [8]
-       ✅ Usex - version 1.9-29 [9]
-
-
-  s390x:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [1]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [2]
-       ✅ Loopdev Sanity [3]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ✅ tuned: tune-processes-through-perf [8]
-       🚧 ✅ stress: stress-ng [10]
-
-
-  x86_64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [2]
-       ✅ Loopdev Sanity [3]
-       ✅ AMTU (Abstract Machine Test Utility) [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ✅ tuned: tune-processes-through-perf [8]
-       ✅ Usex - version 1.9-29 [9]
-       🚧 ✅ stress: stress-ng [10]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [1]
-
-
-  Test source:
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
-
-Waived tests (marked with 🚧)
------------------------------
-This test run included waived tests. Such tests are executed but their results
-are not taken into account. Tests are waived when their results are not
-reliable enough, e.g. when they're just introduced or are being fixed.
