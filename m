@@ -2,105 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B9AF036CFC
-	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 09:08:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA10D36D1A
+	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 09:11:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726157AbfFFHIK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Jun 2019 03:08:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43036 "EHLO mail.kernel.org"
+        id S1726173AbfFFHLK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Jun 2019 03:11:10 -0400
+Received: from mx1.emlix.com ([188.40.240.192]:35320 "EHLO mx1.emlix.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725782AbfFFHIK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 6 Jun 2019 03:08:10 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1725782AbfFFHLK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 6 Jun 2019 03:11:10 -0400
+Received: from mailer.emlix.com (unknown [81.20.119.6])
+        (using TLSv1.2 with cipher ADH-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B3CDA2083D;
-        Thu,  6 Jun 2019 07:08:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559804889;
-        bh=sOq1aIPwoGF1dlKwf8g6qXJnPdLXODwo9qjIaiPRjr4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=VmXsfdmVy+fYk40zwh0ypfxRSF+bHgzmqyKHAiM+pwFTnrkAYrmCy4z6OTf5t0zFp
-         +i6i3PMpxynsI4LQIarHQz/erzaloaH+NgO6vu4I8GL0Ug4OinVxnYitknMlGd1KDv
-         5OIG5iFXvxUcXdZFqCU1PpD43K9Fp16HZ8wVeVgo=
-Date:   Thu, 6 Jun 2019 09:08:07 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Cc:     Nick Desaulniers <ndesaulniers@google.com>,
-        Rolf Eike Beer <eb@emlix.com>,
+        by mx1.emlix.com (Postfix) with ESMTPS id C9A44600C2;
+        Thu,  6 Jun 2019 09:11:07 +0200 (CEST)
+From:   Rolf Eike Beer <eb@emlix.com>
+To:     Nick Desaulniers <ndesaulniers@google.com>
+Cc:     Greg KH <gregkh@linuxfoundation.org>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Matt Fleming <matt@codeblueprint.co.uk>,
         Peter Zijlstra <peterz@infradead.org>,
         Thomas Gleixner <tglx@linutronix.de>,
-        linux-efi <linux-efi@vger.kernel.org>,
+        linux-efi@vger.kernel.org,
         Linux Kernel Developers List <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
+        stable@vger.kernel.org, Matthias Kaehlcke <mka@google.com>,
         clang-built-linux <clang-built-linux@googlegroups.com>
-Subject: Re: Building arm64 EFI stub with -fpie breaks build of 4.9.x
- (undefined reference to `__efistub__GLOBAL_OFFSET_TABLE_')
-Message-ID: <20190606070807.GA17985@kroah.com>
-References: <779905244.a0lJJiZRjM@devpool35>
- <20190605162626.GA31164@kroah.com>
- <CAKv+Gu9QkKwNVpfpQP7uDd2-66jU=qkeA7=0RAoO4TNaSbG+tg@mail.gmail.com>
- <CAKwvOdnPcjESFrQRR_=cCVag3ZSnC0nBqF7+LFHrcDArT_segA@mail.gmail.com>
- <CAKv+Gu9Leaq_s2kVNzHx+zkdKFXgQVkouN3M56u5nou5WX=cKg@mail.gmail.com>
+Subject: Re: Building arm64 EFI stub with -fpie breaks build of 4.9.x (undefined reference to `__efistub__GLOBAL_OFFSET_TABLE_')
+Date:   Thu, 06 Jun 2019 09:11:00 +0200
+Message-ID: <2102708.6BiaULqomI@devpool35>
+Organization: emlix GmbH
+In-Reply-To: <CAKwvOdn9g2Z=G_qz84S5xmn2GBNK7T-MWOGYT5C52sP0R=M_-Q@mail.gmail.com>
+References: <779905244.a0lJJiZRjM@devpool35> <CAKwvOdnegLvkAa+-2uc-GM63HLcucWZtN5OoFvocLs50iLNJLg@mail.gmail.com> <CAKwvOdn9g2Z=G_qz84S5xmn2GBNK7T-MWOGYT5C52sP0R=M_-Q@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAKv+Gu9Leaq_s2kVNzHx+zkdKFXgQVkouN3M56u5nou5WX=cKg@mail.gmail.com>
-User-Agent: Mutt/1.12.0 (2019-05-25)
+Content-Type: multipart/signed; boundary="nextPart7089195.FZj7tgPdUX"; micalg="pgp-sha256"; protocol="application/pgp-signature"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jun 06, 2019 at 08:55:29AM +0200, Ard Biesheuvel wrote:
-> On Wed, 5 Jun 2019 at 22:48, Nick Desaulniers <ndesaulniers@google.com> wrote:
-> >
-> > On Wed, Jun 5, 2019 at 11:42 AM Ard Biesheuvel
-> > <ard.biesheuvel@linaro.org> wrote:
-> > > For the record, this is an example of why I think backporting those
-> > > clang enablement patches is a bad idea.
-> >
-> > There's always a risk involved with backports of any kind; more CI
-> > coverage can help us mitigate some of these risks in an automated
-> > fashion before we get user reports like this.  I meet with the
-> > KernelCI folks weekly, so I'll double check on the coverage of the
-> > stable tree's branches.  The 0day folks are also very responsive and
-> > I've spoken with them a few times, so I'll try to get to the bottom of
-> > why this wasn't reported by either of those.
-> >
-> > Also, these patches help keep Android, CrOS, and Google internal
-> > production kernels closer to their upstream sources.
-> >
-> > > We can't actually build those
-> > > kernels with clang, can we? So what is the point? </grumpy>
-> >
-> > Here's last night's build:
-> > https://travis-ci.com/ClangBuiltLinux/continuous-integration/builds/114388434
-> >
-> 
-> If you are saying that plain upstream 4.9-stable defconfig can be
-> built with Clang, then I am pleasantly surprised.
+--nextPart7089195.FZj7tgPdUX
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="UTF-8"
 
-I know some specific configs can, there's no rule that I know of that
-'defconfig' support is required.  But then again, it might also work,
-try it and see :)
+Nick Desaulniers wrote:
+> On Wed, Jun 5, 2019 at 10:27 AM Nick Desaulniers
+>=20
+> <ndesaulniers@google.com> wrote:
+> > On Wed, Jun 5, 2019 at 9:26 AM Greg KH <gregkh@linuxfoundation.org> wro=
+te:
+> > > On Wed, Jun 05, 2019 at 05:19:40PM +0200, Rolf Eike Beer wrote:
+> > > > I decided to dig out a toy project which uses a DragonBoard 410c. T=
+his
+> > > > has
+> > > > been "running" with kernel 4.9, which I would keep this way for
+> > > > unrelated
+> > > > reasons. The vanilla 4.9 kernel wasn't bootable back then, but it w=
+as
+> > > > buildable, which was good enough.
+> > > >=20
+> > > > Upgrading the kernel to 4.9.180 caused the boot to suddenly fail:
+> > > >=20
+> > > > aarch64-unknown-linux-gnueabi-ld:
+> > > > ./drivers/firmware/efi/libstub/lib.a(arm64- stub.stub.o): in functi=
+on
+> > > > `handle_kernel_image':
+> > > > /tmp/e2/build/linux-4.9.139/drivers/firmware/efi/libstub/arm64-stub=
+=2Ec:
+> > > > 63:
+> > > > undefined reference to `__efistub__GLOBAL_OFFSET_TABLE_'
+> > > > aarch64-unknown-linux-gnueabi-ld:
+> > > > ./drivers/firmware/efi/libstub/lib.a(arm64- stub.stub.o): relocation
+> > > > R_AARCH64_ADR_PREL_PG_HI21 against symbol
+> > > > `__efistub__GLOBAL_OFFSET_TABLE_' which may bind externally can not
+> > > > be used when making a shared object; recompile with -fPIC
+> > > > /tmp/e2/build/linux-4.9.139/drivers/firmware/efi/libstub/arm64-stub=
+=2Ec:
+> > > > 63:
+> > > > (.init.text+0xc): dangerous relocation: unsupported relocation
+> > > > /tmp/e2/build/linux-4.9.139/Makefile:1001: recipe for target 'vmlin=
+ux'
+> > > > failed -make[1]: *** [vmlinux] Error 1
+> > > >=20
+> > > > This is caused by commit 27b5ebf61818749b3568354c64a8ec2d9cd5ecca f=
+rom
+> > > > linux-4.9.y (which is 91ee5b21ee026c49e4e7483de69b55b8b47042be),
+> > > > reverting
+> > > > this commit fixes the build.
+> > > >=20
+> > > > This happens with vanilla binutils 2.32 and gcc 8.3.0 as well as
+> > > > 9.1.0. See
+> > > > the attached .config for reference.
+> > > >=20
+> > > > If you have questions or patches just ping me.
+> > >=20
+> > > Does Linus's latest tree also fail for you (or 5.1)?
+> > >=20
+> > > Nick, do we need to add another fix that is in mainline for this to w=
+ork
+> > > properly?
+> > >=20
+> > > thanks,
+> > >=20
+> > > greg k-h
+> >=20
+> > Doesn't immediately ring any bells for me.
+>=20
+> Upstream commits:
+> dd6846d77469 ("arm64: drop linker script hack to hide __efistub_ symbols")
+> 1212f7a16af4 ("scripts/kallsyms: filter arm64's __efistub_ symbols")
+>=20
+> Look related to __efistub__ prefixes on symbols and aren't in stable
+> 4.9 (maybe Rolf can try cherry picks of those).
 
-> > Also, Android and CrOS have shipped X million devices w/ 4.9 kernels
-> > built with Clang.  I think this number will grow at least one order of
-> > magnitude imminently.
-> >
-> 
-> I know that (since you keep reminding me :-)), but obviously, Google
-> does not care about changes that regress GCC support.
+I now have cherry-picked these commits:
 
-What are you talking about?  Bugs happen all the time, what specifically
-did "Google" do to break gcc support?  If you are referring to this
-patch, and it is a regression, of course I will revert it.  But note
-that gcc and 4.9 works just fine for all of the other users right now,
-remember we do do a lot of testing of these releases.
+dd6846d77469
+fdfb69a72522e97f9105a6d39a5be0a465951ed8
+1212f7a16af4
+56067812d5b0e737ac2063e94a50f76b810d6ca3
 
-thanks,
+The 2 additional ones were needed as dependencies of the others. Nothing of=
+=20
+this has helped.
 
-greg k-h
+Eike
+=2D-=20
+Rolf Eike Beer, emlix GmbH, http://www.emlix.com
+=46on +49 551 30664-0, Fax +49 551 30664-11
+Gothaer Platz 3, 37083 G=C3=B6ttingen, Germany
+Sitz der Gesellschaft: G=C3=B6ttingen, Amtsgericht G=C3=B6ttingen HR B 3160
+Gesch=C3=A4ftsf=C3=BChrung: Heike Jordan, Dr. Uwe Kracke =E2=80=93 Ust-IdNr=
+=2E: DE 205 198 055
+
+emlix - smart embedded open source
+--nextPart7089195.FZj7tgPdUX
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part.
+Content-Transfer-Encoding: 7Bit
+
+-----BEGIN PGP SIGNATURE-----
+
+iLMEAAEIAB0WIQQ/Uctzh31xzAxFCLur5FH7Xu2t/AUCXPi8hAAKCRCr5FH7Xu2t
+/ASKA/0ZByRKigRbwENTAwUqfHXS/Jco9PmokTrfRNv8S/uptVPQMGqmOKBNpdIl
+keSVa2on12JHM7zjZAgKDMMNy4MYenNb3vjqbRZ7VFVoWLvChSCc1FkZlqRygjnP
+gFjS/VrmfrngI63i2/CcCTwL/UWJfl7L7R/GFCPZYwlJ9sb0kw==
+=mekT
+-----END PGP SIGNATURE-----
+
+--nextPart7089195.FZj7tgPdUX--
+
+
+
