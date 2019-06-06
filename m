@@ -2,123 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F056436DC7
-	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 09:50:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFA9136DDB
+	for <lists+stable@lfdr.de>; Thu,  6 Jun 2019 09:54:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726066AbfFFHug (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Jun 2019 03:50:36 -0400
-Received: from mx1.emlix.com ([188.40.240.192]:35496 "EHLO mx1.emlix.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725769AbfFFHug (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 6 Jun 2019 03:50:36 -0400
-Received: from mailer.emlix.com (unknown [81.20.119.6])
-        (using TLSv1.2 with cipher ADH-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mx1.emlix.com (Postfix) with ESMTPS id 682CE5FEF4;
-        Thu,  6 Jun 2019 09:50:32 +0200 (CEST)
-From:   Rolf Eike Beer <eb@emlix.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Nick Desaulniers <ndesaulniers@google.com>,
-        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Matt Fleming <matt@codeblueprint.co.uk>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linux-efi@vger.kernel.org,
-        Linux Kernel Developers List <linux-kernel@vger.kernel.org>,
-        stable@vger.kernel.org
-Subject: Re: Building arm64 EFI stub with -fpie breaks build of 4.9.x (undefined reference to `__efistub__GLOBAL_OFFSET_TABLE_')
-Date:   Thu, 06 Jun 2019 09:50:28 +0200
-Message-ID: <1993275.kHlTELq40E@devpool35>
-Organization: emlix GmbH
-In-Reply-To: <8696846.WsthzzWoxp@devpool35>
-References: <779905244.a0lJJiZRjM@devpool35> <20190605162626.GA31164@kroah.com> <8696846.WsthzzWoxp@devpool35>
+        id S1726821AbfFFHyy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 6 Jun 2019 03:54:54 -0400
+Received: from esa3.hgst.iphmx.com ([216.71.153.141]:3158 "EHLO
+        esa3.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725267AbfFFHyx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 6 Jun 2019 03:54:53 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+  t=1559807694; x=1591343694;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=F4RsOkcrGOWpBQZgmCctN2wD3H9blPOhMwrNxs6NmGc=;
+  b=m0Tgxc4u80GTqCpz4boKpOv1s0/IW8q/QFomnRATu7lQF+VjFJbCwsMR
+   1BiSSLqTFnJBfEdzU1Ge+qnPmdTG4O4Qc7AXVEJihQcHHc1lCUOxhWkaB
+   NEyIFQCrPsu8wyPXds+k40ogaL/MKmF3WJjfJZDx59Z4UXYkoW7k2JTje
+   RuElTu8rX51cHnsXYOoFaZk8H0CS/lWxpWwmVcAdfYZQJORpJqI+ZgmA/
+   jU3xzLLkR5hGKEMNVd12EKzzTlr4LddReSwg+xAcCzpVaopC1v11cEVLs
+   aidHCL5MBxKqXB+lrXcOKA8m5mTG7S7WZc+h/2QzoG9r1SThUdYkDMVEJ
+   A==;
+X-IronPort-AV: E=Sophos;i="5.63,558,1557158400"; 
+   d="scan'208";a="114878920"
+Received: from h199-255-45-15.hgst.com (HELO uls-op-cesaep02.wdc.com) ([199.255.45.15])
+  by ob1.hgst.iphmx.com with ESMTP; 06 Jun 2019 15:54:53 +0800
+IronPort-SDR: 5auJKlu7TkLwgA9p7z3j2yc9UjAzM1ghG2M0qcnNpEETTj/MHcUyOZ0DuKlO75+tBVky2DMzSt
+ 4ukXM1NzuDnshrsOdv/JMyqRa+FRYnNgl1G7Qfze+1hQWeupIlb+CvK48qu6KIFiziHCh35zKF
+ s8naIqG9quvxQZ7C6qFCdQoFvQf0tc8vfWG9KGKV7OmzT0IdUErrUz9+QkNzdOYKskTRQSXO/k
+ GA6Slq/2nt+gaGzDYGZhpAi9psZvj9XlPXid2t6zPgp+nCoatRqUtZvsQhwzTfqkwBiiSvGbv2
+ cUxLQJKjU3vW254cKbHHW4g7
+Received: from uls-op-cesaip01.wdc.com ([10.248.3.36])
+  by uls-op-cesaep02.wdc.com with ESMTP; 06 Jun 2019 00:32:12 -0700
+IronPort-SDR: z5dYjSjfY4jzPNAhGn5mkBmqzlX25eagVPZCyEb+MFC0R6zvlgOab16q8n+lBanwRFtEFgIczP
+ j5sskO2kFqkJ+4tF1GD3X2YVgldPaMb7fBWe1yYj/MKyGjAr0B4mMU3gO0zIOLhvNG4JQfnqPD
+ aAHFmlzF43XkwsJf+yRL/FunVPJtCQRtxgKNI5JhTONn/rDtip8hJoE3Jh5VOIbveu0DiR6Pm8
+ 8QMvCixRlJnDkD4EFwXGHgUSLH658n8Ny6yrhs5amMo+DBG2D/nWHCapILm6Zd9pr9nSXo5HYT
+ yJ8=
+Received: from naota.dhcp.fujisawa.hgst.com (HELO naota.fujisawa.hgst.com) ([10.149.53.115])
+  by uls-op-cesaip01.wdc.com with ESMTP; 06 Jun 2019 00:54:53 -0700
+From:   Naohiro Aota <naohiro.aota@wdc.com>
+To:     linux-btrfs@vger.kernel.org
+Cc:     David Sterba <dsterba@suse.com>,
+        Naohiro Aota <naohiro.aota@wdc.com>, stable@vger.kernel.org
+Subject: [PATCH] btrfs: start readahead also in seed devices
+Date:   Thu,  6 Jun 2019 16:54:44 +0900
+Message-Id: <20190606075444.15481-1-naohiro.aota@wdc.com>
+X-Mailer: git-send-email 2.21.0
 MIME-Version: 1.0
-Content-Type: multipart/signed; boundary="nextPart1591061.3d5M5jyMvB"; micalg="pgp-sha256"; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---nextPart1591061.3d5M5jyMvB
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset="UTF-8"
+Currently, btrfs does not consult seed devices to start readahead. As a
+result, if readahead zone is added to the seed devices, btrfs_reada_wait()
+indefinitely wait for the reada_ctl to finish.
 
-Am Donnerstag, 6. Juni 2019, 09:38:41 CEST schrieb Rolf Eike Beer:
-> Greg KH wrote:
-> > On Wed, Jun 05, 2019 at 05:19:40PM +0200, Rolf Eike Beer wrote:
-> > > I decided to dig out a toy project which uses a DragonBoard 410c. This
-> > > has
-> > > been "running" with kernel 4.9, which I would keep this way for
-> > > unrelated
-> > > reasons. The vanilla 4.9 kernel wasn't bootable back then, but it was
-> > > buildable, which was good enough.
-> > >=20
-> > > Upgrading the kernel to 4.9.180 caused the boot to suddenly fail:
-> > >=20
-> > > aarch64-unknown-linux-gnueabi-ld:
-> > > ./drivers/firmware/efi/libstub/lib.a(arm64- stub.stub.o): in function
-> > > `handle_kernel_image':
-> > > /tmp/e2/build/linux-4.9.139/drivers/firmware/efi/libstub/arm64-stub.c=
-:63
-> > > :
-> > > undefined reference to `__efistub__GLOBAL_OFFSET_TABLE_'
-> > > aarch64-unknown-linux-gnueabi-ld:
-> > > ./drivers/firmware/efi/libstub/lib.a(arm64- stub.stub.o): relocation
-> > > R_AARCH64_ADR_PREL_PG_HI21 against symbol
-> > > `__efistub__GLOBAL_OFFSET_TABLE_' which may bind externally can not be
-> > > used when making a shared object; recompile with -fPIC
-> > > /tmp/e2/build/linux-4.9.139/drivers/firmware/efi/libstub/arm64-stub.c=
-:63
-> > > :
-> > > (.init.text+0xc): dangerous relocation: unsupported relocation
-> > > /tmp/e2/build/linux-4.9.139/Makefile:1001: recipe for target 'vmlinux'
-> > > failed -make[1]: *** [vmlinux] Error 1
-> > >=20
-> > > This is caused by commit 27b5ebf61818749b3568354c64a8ec2d9cd5ecca from
-> > > linux-4.9.y (which is 91ee5b21ee026c49e4e7483de69b55b8b47042be),
-> > > reverting
-> > > this commit fixes the build.
-> > >=20
-> > > This happens with vanilla binutils 2.32 and gcc 8.3.0 as well as 9.1.=
-0.
-> > > See
-> > > the attached .config for reference.
-> > >=20
-> > > If you have questions or patches just ping me.
-> >=20
-> > Does Linus's latest tree also fail for you (or 5.1)?
->=20
-> 5.1.7 with the same config as before and "make olddefconfig" builds for m=
-e.
+You can reproduce the hung by modifying btrfs/163 to have larger initial
+file size (e.g. xfs_io pwrite 4M instead of current 256K).
 
-Just for the fun of it: both 4.19 and 4.19.48 also work.
+Fixes: 7414a03fbf9e ("btrfs: initial readahead code and prototypes")
+Cc: stable@vger.kernel.org # 3.2+: ce7791ffee1e: Btrfs: fix race between readahead and device replace/removal
+Cc: stable@vger.kernel.org # 3.2+
+Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
+---
+ fs/btrfs/reada.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-Eike
-=2D-=20
-Rolf Eike Beer, emlix GmbH, http://www.emlix.com
-=46on +49 551 30664-0, Fax +49 551 30664-11
-Gothaer Platz 3, 37083 G=C3=B6ttingen, Germany
-Sitz der Gesellschaft: G=C3=B6ttingen, Amtsgericht G=C3=B6ttingen HR B 3160
-Gesch=C3=A4ftsf=C3=BChrung: Heike Jordan, Dr. Uwe Kracke =E2=80=93 Ust-IdNr=
-=2E: DE 205 198 055
-
-emlix - smart embedded open source
---nextPart1591061.3d5M5jyMvB
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part.
-Content-Transfer-Encoding: 7Bit
-
------BEGIN PGP SIGNATURE-----
-
-iLMEAAEIAB0WIQQ/Uctzh31xzAxFCLur5FH7Xu2t/AUCXPjFxAAKCRCr5FH7Xu2t
-/OBSA/47p/vGbW1UKIGGe/7d+N1E9CRBcLYFYWf5EEgUsLww0G/yCYKscdy6m8g2
-5lyCJtCwrJn7+1nMnTIcmu8oZh5vWR9TsOpXoH2QsRHgcAsp+xFiLvJgemMYysk8
-rZEwzXGe9u5vVieSC2t7bythhrVsHjqOdUJqm+7Lw84dAAbJCw==
-=ZwaA
------END PGP SIGNATURE-----
-
---nextPart1591061.3d5M5jyMvB--
-
-
+diff --git a/fs/btrfs/reada.c b/fs/btrfs/reada.c
+index 10d9589001a9..bb5bd49573b4 100644
+--- a/fs/btrfs/reada.c
++++ b/fs/btrfs/reada.c
+@@ -747,6 +747,7 @@ static void __reada_start_machine(struct btrfs_fs_info *fs_info)
+ 	u64 total = 0;
+ 	int i;
+ 
++again:
+ 	do {
+ 		enqueued = 0;
+ 		mutex_lock(&fs_devices->device_list_mutex);
+@@ -758,6 +759,10 @@ static void __reada_start_machine(struct btrfs_fs_info *fs_info)
+ 		mutex_unlock(&fs_devices->device_list_mutex);
+ 		total += enqueued;
+ 	} while (enqueued && total < 10000);
++	if (fs_devices->seed) {
++		fs_devices = fs_devices->seed;
++		goto again;
++	}
+ 
+ 	if (enqueued == 0)
+ 		return;
+-- 
+2.21.0
 
