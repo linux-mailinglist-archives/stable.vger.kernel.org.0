@@ -2,155 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2ABA939796
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 23:17:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 780FE397EA
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 23:39:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730775AbfFGVRv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 17:17:51 -0400
-Received: from terminus.zytor.com ([198.137.202.136]:52349 "EHLO
-        terminus.zytor.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730700AbfFGVRv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Jun 2019 17:17:51 -0400
-Received: from terminus.zytor.com (localhost [127.0.0.1])
-        by terminus.zytor.com (8.15.2/8.15.2) with ESMTPS id x57LH0iB2663557
-        (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NO);
-        Fri, 7 Jun 2019 14:17:00 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 terminus.zytor.com x57LH0iB2663557
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-        s=2019051801; t=1559942220;
-        bh=pcspIWbcUasCbDigRJvUefjE0KNrFLcytvAjYwz6uk0=;
-        h=Date:From:Cc:Reply-To:In-Reply-To:References:To:Subject:From;
-        b=NZOPM/kSi4JSgPYd26hf9iebwQ+ZKu+6edt7WZ4o4ITqi7j9KBdtAEcqyoUOANUwY
-         XI/VwzdazqApSHUNcTfNxXSbb2hX36VvnV6bQsQvtteidGjrPKNGMTxNyMgNHs2hl7
-         msoYtCOivEUO0TcRzm8CXLZ533nVpMnM5AhgGJNurFcSIGbLDc6YOzrOt9bnkRcuJ0
-         i7/ZOMQKeHL+ZzaPT/b1Ydv0EaS5js975tAKB0jII0cF7QIdPsMyRIhAxFAKhYyzkY
-         4n0j6AtiLp+oOsefrSpOrULLQ9KeGi6YF43silL96Bp955XfO1bZgYNJJiGzl5++xb
-         SRRFK4stWPOxw==
-Received: (from tipbot@localhost)
-        by terminus.zytor.com (8.15.2/8.15.2/Submit) id x57LGxHn2663554;
-        Fri, 7 Jun 2019 14:16:59 -0700
-Date:   Fri, 7 Jun 2019 14:16:59 -0700
-X-Authentication-Warning: terminus.zytor.com: tipbot set sender to tipbot@zytor.com using -f
-From:   tip-bot for Baoquan He <tipbot@zytor.com>
-Message-ID: <tip-00e5a2bbcc31d5fea853f8daeba0f06c1c88c3ff@git.kernel.org>
-Cc:     keescook@chromium.org, kirill@linux.intel.com,
-        dave.hansen@linux.intel.com, bp@suse.de, luto@kernel.org,
-        hpa@zytor.com, x86@kernel.org, linux-kernel@vger.kernel.org,
-        peterz@infradead.org, tglx@linutronix.de, bhe@redhat.com,
-        mingo@kernel.org, stable@vger.kernel.org
-Reply-To: tglx@linutronix.de, stable@vger.kernel.org, mingo@kernel.org,
-          bhe@redhat.com, x86@kernel.org, linux-kernel@vger.kernel.org,
-          peterz@infradead.org, keescook@chromium.org, bp@suse.de,
-          luto@kernel.org, hpa@zytor.com, kirill@linux.intel.com,
-          dave.hansen@linux.intel.com
-In-Reply-To: <20190523025744.3756-1-bhe@redhat.com>
-References: <20190523025744.3756-1-bhe@redhat.com>
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip:x86/urgent] x86/mm/KASLR: Compute the size of the vmemmap
- section properly
-Git-Commit-ID: 00e5a2bbcc31d5fea853f8daeba0f06c1c88c3ff
-X-Mailer: tip-git-log-daemon
-Robot-ID: <tip-bot.git.kernel.org>
-Robot-Unsubscribe: Contact <mailto:hpa@kernel.org> to get blacklisted from
- these emails
+        id S1731363AbfFGVjZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 17:39:25 -0400
+Received: from mail-wr1-f43.google.com ([209.85.221.43]:36469 "EHLO
+        mail-wr1-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731372AbfFGVjY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Jun 2019 17:39:24 -0400
+Received: by mail-wr1-f43.google.com with SMTP id n4so3508918wrs.3
+        for <stable@vger.kernel.org>; Fri, 07 Jun 2019 14:39:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=575d0z980F6D59BozeRQW6fBFMUbOJp40diByIuLzg4=;
+        b=gfdyf2RSyk29L3hjscHoQ9PADm7gWEB9wgheKy25PGagkmUKhDi97QQB56At5FbSza
+         Ew5zn+PwrdWyLQ4nwoi4Cu/VxTq/BWydB4+k+EccthtK7V2GszgZjoFoQ5vMf6dVM1AT
+         5ZMLdTTCmf3A2phcs15Dc0CkR8xpF34QEQ87gGLwgqjlAgsGjEZHTL2X4Fq5NEl18Bae
+         /g/VRMVdcRgaihGUIawg4cmGRHW7Gm1tjF1i88kKHl/RPutM7dshEIzzzkZNMYBON2AF
+         ZF6tZfJcWRkrvPukNv09jwOhyEMGcW8KD9HvbqX0QS7/z1WFj3lQS4x8aMQ5yO6Z8zTI
+         7EWw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=575d0z980F6D59BozeRQW6fBFMUbOJp40diByIuLzg4=;
+        b=qiRnzJ6fWTo0yhg6wvfP+fdgsoDQuY9RRcViWRrZUPujAs6QF0xqb0m05szJaeN1Y6
+         KD9t+qTN0tne72P4oVYoUFc+7jYtPZUqS1Wy3KuKClA/dMBkqKTXF1Ed7huNjjRRnTkm
+         X7gAzJr6s4K++UBmO3qKrzFxMgpH+yN1LpbrnoOxXKrLXkmEznFOLjc7NhhZMnqvPVdx
+         0KASiK/t2DfC3wY4bkX/1TqqMQO7P630j1BWJNM5nntIPQB4clAiuarngp9TB56r/yBa
+         x25xe+JdUel4QJM8sBE7PrraWUymJUQOBjpK/AXmCHdQxbs9PN7a4Kp6ANHnVPKMjBOl
+         7+Cw==
+X-Gm-Message-State: APjAAAXX9ShXk/rhyMlO94Zft+vxtyrHkutanCdvjbaDlW3OCuldFzyP
+        Xova0gLHbxNutzotOKrr+bLRGXmVQQ2Ziw==
+X-Google-Smtp-Source: APXvYqyfuFQal3MnFw2Uv8xSj9zPAwTZ8UgbBkJSqjP5xj3Urd+cTJYFJUHvoU5v4+hraJdALfkhXQ==
+X-Received: by 2002:adf:de08:: with SMTP id b8mr3255306wrm.248.1559943563190;
+        Fri, 07 Jun 2019 14:39:23 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id x8sm3044585wmc.5.2019.06.07.14.39.22
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 07 Jun 2019 14:39:22 -0700 (PDT)
+Message-ID: <5cfad98a.1c69fb81.9d3e.2ffb@mx.google.com>
+Date:   Fri, 07 Jun 2019 14:39:22 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain; charset=UTF-8
-Content-Disposition: inline
-X-Spam-Status: No, score=-2.5 required=5.0 tests=ALL_TRUSTED,BAYES_00,
-        DATE_IN_FUTURE_96_Q,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF
-        autolearn=no autolearn_force=no version=3.4.2
-X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on terminus.zytor.com
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v5.1.7-86-gcef30fd8e063
+X-Kernelci-Branch: linux-5.1.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-5.1.y boot: 139 boots: 2 failed,
+ 136 passed with 1 offline (v5.1.7-86-gcef30fd8e063)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit-ID:  00e5a2bbcc31d5fea853f8daeba0f06c1c88c3ff
-Gitweb:     https://git.kernel.org/tip/00e5a2bbcc31d5fea853f8daeba0f06c1c88c3ff
-Author:     Baoquan He <bhe@redhat.com>
-AuthorDate: Thu, 23 May 2019 10:57:44 +0800
-Committer:  Borislav Petkov <bp@suse.de>
-CommitDate: Fri, 7 Jun 2019 23:12:13 +0200
+stable-rc/linux-5.1.y boot: 139 boots: 2 failed, 136 passed with 1 offline =
+(v5.1.7-86-gcef30fd8e063)
 
-x86/mm/KASLR: Compute the size of the vmemmap section properly
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-5.1.y/kernel/v5.1.7-86-gcef30fd8e063/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.1.y=
+/kernel/v5.1.7-86-gcef30fd8e063/
 
-The size of the vmemmap section is hardcoded to 1 TB to support the
-maximum amount of system RAM in 4-level paging mode - 64 TB.
+Tree: stable-rc
+Branch: linux-5.1.y
+Git Describe: v5.1.7-86-gcef30fd8e063
+Git Commit: cef30fd8e063aacee3601ac8df2c4d1c5980b759
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 77 unique boards, 23 SoC families, 14 builds out of 209
 
-However, 1 TB is not enough for vmemmap in 5-level paging mode. Assuming
-the size of struct page is 64 Bytes, to support 4 PB system RAM in 5-level,
-64 TB of vmemmap area is needed:
+Boot Regressions Detected:
 
-  4 * 1000^5 PB / 4096 bytes page size * 64 bytes per page struct / 1000^4 TB = 62.5 TB.
+arm64:
 
-This hardcoding may cause vmemmap to corrupt the following
-cpu_entry_area section, if KASLR puts vmemmap very close to it and the
-actual vmemmap size is bigger than 1 TB.
+    defconfig:
+        gcc-8:
+          meson-gxbb-p200:
+              lab-baylibre: new failure (last pass: v5.1.7-86-g0765c25688d0)
 
-So calculate the actual size of the vmemmap region needed and then align
-it up to 1 TB boundary.
+Boot Failures Detected:
 
-In 4-level paging mode it is always 1 TB. In 5-level it's adjusted on
-demand. The current code reserves 0.5 PB for vmemmap on 5-level. With
-this change, the space can be saved and thus used to increase entropy
-for the randomization.
+arm:
+    multi_v7_defconfig:
+        gcc-8:
+            bcm4708-smartrg-sr400ac: 1 failed lab
 
- [ bp: Spell out how the 64 TB needed for vmemmap is computed and massage commit
-   message. ]
+arm64:
+    defconfig:
+        gcc-8:
+            meson-gxbb-p200: 1 failed lab
 
-Fixes: eedb92abb9bb ("x86/mm: Make virtual memory layout dynamic for CONFIG_X86_5LEVEL=y")
-Signed-off-by: Baoquan He <bhe@redhat.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Acked-by: Kirill A. Shutemov <kirill@linux.intel.com>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: kirill.shutemov@linux.intel.com
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: stable <stable@vger.kernel.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: x86-ml <x86@kernel.org>
-Link: https://lkml.kernel.org/r/20190523025744.3756-1-bhe@redhat.com
+Offline Platforms:
+
+arm64:
+
+    defconfig:
+        gcc-8
+            meson-gxl-s905x-khadas-vim: 1 offline lab
+
 ---
- arch/x86/mm/kaslr.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
-
-diff --git a/arch/x86/mm/kaslr.c b/arch/x86/mm/kaslr.c
-index dc3f058bdf9b..dc6182eecefa 100644
---- a/arch/x86/mm/kaslr.c
-+++ b/arch/x86/mm/kaslr.c
-@@ -52,7 +52,7 @@ static __initdata struct kaslr_memory_region {
- } kaslr_regions[] = {
- 	{ &page_offset_base, 0 },
- 	{ &vmalloc_base, 0 },
--	{ &vmemmap_base, 1 },
-+	{ &vmemmap_base, 0 },
- };
- 
- /* Get size in bytes used by the memory region */
-@@ -78,6 +78,7 @@ void __init kernel_randomize_memory(void)
- 	unsigned long rand, memory_tb;
- 	struct rnd_state rand_state;
- 	unsigned long remain_entropy;
-+	unsigned long vmemmap_size;
- 
- 	vaddr_start = pgtable_l5_enabled() ? __PAGE_OFFSET_BASE_L5 : __PAGE_OFFSET_BASE_L4;
- 	vaddr = vaddr_start;
-@@ -109,6 +110,14 @@ void __init kernel_randomize_memory(void)
- 	if (memory_tb < kaslr_regions[0].size_tb)
- 		kaslr_regions[0].size_tb = memory_tb;
- 
-+	/*
-+	 * Calculate the vmemmap region size in TBs, aligned to a TB
-+	 * boundary.
-+	 */
-+	vmemmap_size = (kaslr_regions[0].size_tb << (TB_SHIFT - PAGE_SHIFT)) *
-+			sizeof(struct page);
-+	kaslr_regions[2].size_tb = DIV_ROUND_UP(vmemmap_size, 1UL << TB_SHIFT);
-+
- 	/* Calculate entropy available between regions */
- 	remain_entropy = vaddr_end - vaddr_start;
- 	for (i = 0; i < ARRAY_SIZE(kaslr_regions); i++)
+For more info write to <info@kernelci.org>
