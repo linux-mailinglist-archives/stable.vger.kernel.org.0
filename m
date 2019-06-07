@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B216E3917D
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 18:00:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FC02390A7
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:54:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730679AbfFGQAK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 12:00:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50080 "EHLO mail.kernel.org"
+        id S1731557AbfFGPrP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 11:47:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730062AbfFGPkm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 11:40:42 -0400
+        id S1730463AbfFGPrN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 11:47:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C769A214D8;
-        Fri,  7 Jun 2019 15:40:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B68C12146E;
+        Fri,  7 Jun 2019 15:47:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559922042;
-        bh=gKNAFyK22tYRKB11/vHXTkanklIh/BMUv2eXKW5ZH8k=;
+        s=default; t=1559922433;
+        bh=s+XULX9M2ULkq4flk6w+HdW3arulMDehw9kDqnwWEy4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n1GjCgY+MAJQUEUNsrBDNxPXn4I+3FhoKksahGjpKa2Ua4AIMbJQuXTapf/gzMxom
-         IyEjysBhI7jriehWdznOvonsVy5SEM1BxvyCB8K+64S3WJehWcIQgL3OKjLAy8S5Ca
-         lItpATvDz5IfKMdIN8Y2C7Qd37dv5usPIx1CbHec=
+        b=kJuEvnzryFs41KiIS3n37+HwksYCNXDSF7cOXsfcj9HFkwQWvd/nyDeYz6yF1mCS0
+         Ufr0Lz8jjW3IAk6As/6nHgk3nR/WSwgbPbEcVEfAdD+p2nEVKkx5VX/fT1FmA2BDu9
+         eOD0VQc4vRKSl32NW/NANijLFlNdXulmpekLcROs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
-        Maxime Chevallier <maxime.chevallier@bootlin.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 16/69] net: phy: marvell10g: report if the PHY fails to boot firmware
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        syzbot+35f04d136fc975a70da4@syzkaller.appspotmail.com
+Subject: [PATCH 5.1 12/85] USB: rio500: refuse more than one device at a time
 Date:   Fri,  7 Jun 2019 17:38:57 +0200
-Message-Id: <20190607153850.300582175@linuxfoundation.org>
+Message-Id: <20190607153850.658706965@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190607153848.271562617@linuxfoundation.org>
-References: <20190607153848.271562617@linuxfoundation.org>
+In-Reply-To: <20190607153849.101321647@linuxfoundation.org>
+References: <20190607153849.101321647@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,58 +43,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+From: Oliver Neukum <oneukum@suse.com>
 
-[ Upstream commit 3d3ced2ec5d71b99d72ae6910fbdf890bc2eccf0 ]
+commit 3864d33943b4a76c6e64616280e98d2410b1190f upstream.
 
-Some boards do not have the PHY firmware programmed in the 3310's flash,
-which leads to the PHY not working as expected.  Warn the user when the
-PHY fails to boot the firmware and refuse to initialise.
+This driver is using a global variable. It cannot handle more than
+one device at a time. The issue has been existing since the dawn
+of the driver.
 
-Fixes: 20b2af32ff3f ("net: phy: add Marvell Alaska X 88X3310 10Gigabit PHY support")
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Tested-by: Maxime Chevallier <maxime.chevallier@bootlin.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Reported-by: syzbot+35f04d136fc975a70da4@syzkaller.appspotmail.com
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/phy/marvell10g.c |   14 ++++++++++++++
- 1 file changed, 14 insertions(+)
 
---- a/drivers/net/phy/marvell10g.c
-+++ b/drivers/net/phy/marvell10g.c
-@@ -19,6 +19,9 @@
- #include <linux/marvell_phy.h>
- 
- enum {
-+	MV_PMA_BOOT		= 0xc050,
-+	MV_PMA_BOOT_FATAL	= BIT(0),
-+
- 	MV_PCS_BASE_T		= 0x0000,
- 	MV_PCS_BASE_R		= 0x1000,
- 	MV_PCS_1000BASEX	= 0x2000,
-@@ -59,11 +62,22 @@ static int mv3310_modify(struct phy_devi
- static int mv3310_probe(struct phy_device *phydev)
+---
+ drivers/usb/misc/rio500.c |   24 ++++++++++++++++++------
+ 1 file changed, 18 insertions(+), 6 deletions(-)
+
+--- a/drivers/usb/misc/rio500.c
++++ b/drivers/usb/misc/rio500.c
+@@ -447,15 +447,23 @@ static int probe_rio(struct usb_interfac
  {
- 	u32 mmd_mask = MDIO_DEVS_PMAPMD | MDIO_DEVS_AN;
-+	int ret;
+ 	struct usb_device *dev = interface_to_usbdev(intf);
+ 	struct rio_usb_data *rio = &rio_instance;
+-	int retval;
++	int retval = 0;
  
- 	if (!phydev->is_c45 ||
- 	    (phydev->c45_ids.devices_in_package & mmd_mask) != mmd_mask)
- 		return -ENODEV;
- 
-+	ret = phy_read_mmd(phydev, MDIO_MMD_PMAPMD, MV_PMA_BOOT);
-+	if (ret < 0)
-+		return ret;
-+
-+	if (ret & MV_PMA_BOOT_FATAL) {
-+		dev_warn(&phydev->mdio.dev,
-+			 "PHY failed to boot firmware, status=%04x\n", ret);
-+		return -ENODEV;
+-	dev_info(&intf->dev, "USB Rio found at address %d\n", dev->devnum);
++	mutex_lock(&rio500_mutex);
++	if (rio->present) {
++		dev_info(&intf->dev, "Second USB Rio at address %d refused\n", dev->devnum);
++		retval = -EBUSY;
++		goto bail_out;
++	} else {
++		dev_info(&intf->dev, "USB Rio found at address %d\n", dev->devnum);
 +	}
-+
- 	return 0;
+ 
+ 	retval = usb_register_dev(intf, &usb_rio_class);
+ 	if (retval) {
+ 		dev_err(&dev->dev,
+ 			"Not able to get a minor for this device.\n");
+-		return -ENOMEM;
++		retval = -ENOMEM;
++		goto bail_out;
+ 	}
+ 
+ 	rio->rio_dev = dev;
+@@ -464,7 +472,8 @@ static int probe_rio(struct usb_interfac
+ 		dev_err(&dev->dev,
+ 			"probe_rio: Not enough memory for the output buffer\n");
+ 		usb_deregister_dev(intf, &usb_rio_class);
+-		return -ENOMEM;
++		retval = -ENOMEM;
++		goto bail_out;
+ 	}
+ 	dev_dbg(&intf->dev, "obuf address:%p\n", rio->obuf);
+ 
+@@ -473,7 +482,8 @@ static int probe_rio(struct usb_interfac
+ 			"probe_rio: Not enough memory for the input buffer\n");
+ 		usb_deregister_dev(intf, &usb_rio_class);
+ 		kfree(rio->obuf);
+-		return -ENOMEM;
++		retval = -ENOMEM;
++		goto bail_out;
+ 	}
+ 	dev_dbg(&intf->dev, "ibuf address:%p\n", rio->ibuf);
+ 
+@@ -481,8 +491,10 @@ static int probe_rio(struct usb_interfac
+ 
+ 	usb_set_intfdata (intf, rio);
+ 	rio->present = 1;
++bail_out:
++	mutex_unlock(&rio500_mutex);
+ 
+-	return 0;
++	return retval;
  }
  
+ static void disconnect_rio(struct usb_interface *intf)
 
 
