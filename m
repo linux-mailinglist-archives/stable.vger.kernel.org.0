@@ -2,43 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F6EA39153
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:59:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B73A939130
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:59:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729843AbfFGP6w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 11:58:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52844 "EHLO mail.kernel.org"
+        id S1729322AbfFGPmY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 11:42:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730536AbfFGPmT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 11:42:19 -0400
+        id S1730512AbfFGPmW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 11:42:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 535282133D;
-        Fri,  7 Jun 2019 15:42:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 550E02147A;
+        Fri,  7 Jun 2019 15:42:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559922138;
-        bh=C0byHfkf1G8xmbejHAIrwBPScn8p+xmOkNkFaPbHxSM=;
+        s=default; t=1559922141;
+        bh=K+5bd6fJvvBu5PYuyR40E8AsVzhI4d5StAL0HDet8hw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mz/cSUed6dIHL8eN1m+nzV6Bd599rBNzYOXZEtD+3IdWPQJ1q3jmAvW3L/t/7o7b+
-         zw6Bs+yeJ20asPhAb1JoPNxXTasRuiQjtN2pnHy7KsoheVVB6ZIOSQ+Lkb6MVs2621
-         b6/UL7+fTaYkB3QzBh4CJnBBSjD9uYQdMBxh8VFU=
+        b=0NUzi6cy39aTmd9kJoJk5xKLnhrtulT9X2CkRbJG3tPQ5JoNwEqD0p/lI9xa5po3Y
+         CN82v3umW1pwLzfGxzn/pHBkYxmSK0wRd1/7XqX1pZc+ZmZyHg4SFw7w0uj4VyUogZ
+         lrqbDOOBjnQW2yot6cKOE8wRkaIDBR5tOxUHsUBY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhenliang Wei <weizhenliang@huawei.com>,
-        Christian Brauner <christian@brauner.io>,
-        Oleg Nesterov <oleg@redhat.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Ivan Delalande <colona@arista.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Deepa Dinamani <deepa.kernel@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 51/69] kernel/signal.c: trace_signal_deliver when signal_group_exit
-Date:   Fri,  7 Jun 2019 17:39:32 +0200
-Message-Id: <20190607153854.589064785@linuxfoundation.org>
+        stable@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>
+Subject: [PATCH 4.14 52/69] docs: Fix conf.py for Sphinx 2.0
+Date:   Fri,  7 Jun 2019 17:39:33 +0200
+Message-Id: <20190607153854.682187993@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190607153848.271562617@linuxfoundation.org>
 References: <20190607153848.271562617@linuxfoundation.org>
@@ -51,50 +42,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhenliang Wei <weizhenliang@huawei.com>
+From: Jonathan Corbet <corbet@lwn.net>
 
-commit 98af37d624ed8c83f1953b1b6b2f6866011fc064 upstream.
+commit 3bc8088464712fdcb078eefb68837ccfcc413c88 upstream.
 
-In the fixes commit, removing SIGKILL from each thread signal mask and
-executing "goto fatal" directly will skip the call to
-"trace_signal_deliver".  At this point, the delivery tracking of the
-SIGKILL signal will be inaccurate.
+Our version check in Documentation/conf.py never envisioned a world where
+Sphinx moved beyond 1.x.  Now that the unthinkable has happened, fix our
+version check to handle higher version numbers correctly.
 
-Therefore, we need to add trace_signal_deliver before "goto fatal" after
-executing sigdelset.
-
-Note: SEND_SIG_NOINFO matches the fact that SIGKILL doesn't have any info.
-
-Link: http://lkml.kernel.org/r/20190425025812.91424-1-weizhenliang@huawei.com
-Fixes: cf43a757fd4944 ("signal: Restore the stop PTRACE_EVENT_EXIT")
-Signed-off-by: Zhenliang Wei <weizhenliang@huawei.com>
-Reviewed-by: Christian Brauner <christian@brauner.io>
-Reviewed-by: Oleg Nesterov <oleg@redhat.com>
-Cc: Eric W. Biederman <ebiederm@xmission.com>
-Cc: Ivan Delalande <colona@arista.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Deepa Dinamani <deepa.kernel@gmail.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Jonathan Corbet <corbet@lwn.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/signal.c |    2 ++
- 1 file changed, 2 insertions(+)
+ Documentation/conf.py |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/kernel/signal.c
-+++ b/kernel/signal.c
-@@ -2271,6 +2271,8 @@ relock:
- 	if (signal_group_exit(signal)) {
- 		ksig->info.si_signo = signr = SIGKILL;
- 		sigdelset(&current->pending.signal, SIGKILL);
-+		trace_signal_deliver(SIGKILL, SEND_SIG_NOINFO,
-+				&sighand->action[SIGKILL - 1]);
- 		recalc_sigpending();
- 		goto fatal;
- 	}
+--- a/Documentation/conf.py
++++ b/Documentation/conf.py
+@@ -37,7 +37,7 @@ needs_sphinx = '1.3'
+ extensions = ['kerneldoc', 'rstFlatTable', 'kernel_include', 'cdomain', 'kfigure']
+ 
+ # The name of the math extension changed on Sphinx 1.4
+-if major == 1 and minor > 3:
++if (major == 1 and minor > 3) or (major > 1):
+     extensions.append("sphinx.ext.imgmath")
+ else:
+     extensions.append("sphinx.ext.pngmath")
 
 
