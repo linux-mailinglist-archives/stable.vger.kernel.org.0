@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7537738FAE
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:44:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 093D7390A1
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:53:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729701AbfFGPoM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 11:44:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55588 "EHLO mail.kernel.org"
+        id S1731653AbfFGPrs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 11:47:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731006AbfFGPoL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 11:44:11 -0400
+        id S1731013AbfFGPrs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 11:47:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7DC0E21473;
-        Fri,  7 Jun 2019 15:44:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 64EB621479;
+        Fri,  7 Jun 2019 15:47:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559922251;
-        bh=W6xo+delCARrCU+q5zL+cVPpYq5+gW8De2j8AiJ23+I=;
+        s=default; t=1559922466;
+        bh=9WT/rB/Ezo0N1ESpJFMbYP8t1NUshoRV/moKdpkH0p0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pfIDAzZ6+0RJ1u1GkAoSpmqT8vGnDFpWvA5aw7RutdpBN9+BVuCJqQOx6lC4YixEJ
-         ZLTXN2ZqXD5EIod3FyrV9kNr7/pLOBXbiaFR8klutIvos1YReM6PWIEbXwFDKGfml2
-         5Q/uYEF7MNqqRRFgGWPseBwfDmzjMdcCm+feGQJI=
+        b=0tyPDQMBtEkt6S2CizNTP2Ufg/2h3HECyPQvABxIOmI3l3hQuqrEhWS3AdIjl60ho
+         YfvP7q6arG4+1HWcZWcCZ4JG3WA7AXnanImWiUJxDHsC66OiR0ZAlYyeok6V6GbvWv
+         AnYOk8z7emQ5PzBal59BbUZd6SBJtKYDjzmak/Fc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+6b8e0fb820e570c59e19@syzkaller.appspotmail.com,
-        Tomas Bortoli <tomasbortoli@gmail.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.19 20/73] tracing: Avoid memory leak in predicate_parse()
-Date:   Fri,  7 Jun 2019 17:39:07 +0200
-Message-Id: <20190607153851.180927639@linuxfoundation.org>
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.1 23/85] Btrfs: fix fsync not persisting changed attributes of a directory
+Date:   Fri,  7 Jun 2019 17:39:08 +0200
+Message-Id: <20190607153852.115641915@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190607153848.669070800@linuxfoundation.org>
-References: <20190607153848.669070800@linuxfoundation.org>
+In-Reply-To: <20190607153849.101321647@linuxfoundation.org>
+References: <20190607153849.101321647@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,53 +43,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomas Bortoli <tomasbortoli@gmail.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit dfb4a6f2191a80c8b790117d0ff592fd712d3296 upstream.
+commit 60d9f50308e5df19bc18c2fefab0eba4a843900a upstream.
 
-In case of errors, predicate_parse() goes to the out_free label
-to free memory and to return an error code.
+While logging an inode we follow its ancestors and for each one we mark
+it as logged in the current transaction, even if we have not logged it.
+As a consequence if we change an attribute of an ancestor, such as the
+UID or GID for example, and then explicitly fsync it, we end up not
+logging the inode at all despite returning success to user space, which
+results in the attribute being lost if a power failure happens after
+the fsync.
 
-However, predicate_parse() does not free the predicates of the
-temporary prog_stack array, thence leaking them.
+Sample reproducer:
 
-Link: http://lkml.kernel.org/r/20190528154338.29976-1-tomasbortoli@gmail.com
+  $ mkfs.btrfs -f /dev/sdb
+  $ mount /dev/sdb /mnt
 
-Cc: stable@vger.kernel.org
-Fixes: 80765597bc587 ("tracing: Rewrite filter logic to be simpler and faster")
-Reported-by: syzbot+6b8e0fb820e570c59e19@syzkaller.appspotmail.com
-Signed-off-by: Tomas Bortoli <tomasbortoli@gmail.com>
-[ Added protection around freeing prog_stack[i].pred ]
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+  $ mkdir /mnt/dir
+  $ chown 6007:6007 /mnt/dir
+
+  $ sync
+
+  $ chown 9003:9003 /mnt/dir
+  $ touch /mnt/dir/file
+  $ xfs_io -c fsync /mnt/dir/file
+
+  # fsync our directory after fsync'ing the new file, should persist the
+  # new values for the uid and gid.
+  $ xfs_io -c fsync /mnt/dir
+
+  <power failure>
+
+  $ mount /dev/sdb /mnt
+  $ stat -c %u:%g /mnt/dir
+  6007:6007
+
+    --> should be 9003:9003, the uid and gid were not persisted, despite
+        the explicit fsync on the directory prior to the power failure
+
+Fix this by not updating the logged_trans field of ancestor inodes when
+logging an inode, since we have not logged them. Let only future calls to
+btrfs_log_inode() to mark inodes as logged.
+
+This could be triggered by my recent fsync fuzz tester for fstests, for
+which an fstests patch exists titled "fstests: generic, fsync fuzz tester
+with fsstress".
+
+Fixes: 12fcfd22fe5b ("Btrfs: tree logging unlink/rename fixes")
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/trace/trace_events_filter.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ fs/btrfs/tree-log.c |   12 ------------
+ 1 file changed, 12 deletions(-)
 
---- a/kernel/trace/trace_events_filter.c
-+++ b/kernel/trace/trace_events_filter.c
-@@ -427,7 +427,7 @@ predicate_parse(const char *str, int nr_
- 	op_stack = kmalloc_array(nr_parens, sizeof(*op_stack), GFP_KERNEL);
- 	if (!op_stack)
- 		return ERR_PTR(-ENOMEM);
--	prog_stack = kmalloc_array(nr_preds, sizeof(*prog_stack), GFP_KERNEL);
-+	prog_stack = kcalloc(nr_preds, sizeof(*prog_stack), GFP_KERNEL);
- 	if (!prog_stack) {
- 		parse_error(pe, -ENOMEM, 0);
- 		goto out_free;
-@@ -576,7 +576,11 @@ predicate_parse(const char *str, int nr_
- out_free:
- 	kfree(op_stack);
- 	kfree(inverts);
--	kfree(prog_stack);
-+	if (prog_stack) {
-+		for (i = 0; prog_stack[i].pred; i++)
-+			kfree(prog_stack[i].pred);
-+		kfree(prog_stack);
-+	}
- 	return ERR_PTR(ret);
- }
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -5469,7 +5469,6 @@ static noinline int check_parent_dirs_fo
+ {
+ 	int ret = 0;
+ 	struct dentry *old_parent = NULL;
+-	struct btrfs_inode *orig_inode = inode;
+ 
+ 	/*
+ 	 * for regular files, if its inode is already on disk, we don't
+@@ -5489,16 +5488,6 @@ static noinline int check_parent_dirs_fo
+ 	}
+ 
+ 	while (1) {
+-		/*
+-		 * If we are logging a directory then we start with our inode,
+-		 * not our parent's inode, so we need to skip setting the
+-		 * logged_trans so that further down in the log code we don't
+-		 * think this inode has already been logged.
+-		 */
+-		if (inode != orig_inode)
+-			inode->logged_trans = trans->transid;
+-		smp_mb();
+-
+ 		if (btrfs_must_commit_transaction(trans, inode)) {
+ 			ret = 1;
+ 			break;
+@@ -6227,7 +6216,6 @@ void btrfs_record_unlink_dir(struct btrf
+ 	 * if this directory was already logged any new
+ 	 * names for this file/dir will get recorded
+ 	 */
+-	smp_mb();
+ 	if (dir->logged_trans == trans->transid)
+ 		return;
  
 
 
