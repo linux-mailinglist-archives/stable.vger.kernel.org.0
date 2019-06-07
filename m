@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A026390F1
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:56:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C6D6A38FBD
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:46:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731128AbfFGPon (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 11:44:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56266 "EHLO mail.kernel.org"
+        id S1731126AbfFGPoq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 11:44:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56338 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731126AbfFGPom (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 11:44:42 -0400
+        id S1731135AbfFGPoq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 11:44:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9AE612133D;
-        Fri,  7 Jun 2019 15:44:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 509032146E;
+        Fri,  7 Jun 2019 15:44:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559922282;
-        bh=7+mU74GXrbpCUDKfGhZsLZkVwFWMioX8PzYR9FHW0TE=;
+        s=default; t=1559922284;
+        bh=Bw0g5FLiG92QgvG8Pgr5tS+MqI1u4cPdgbtJLo51+TM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wTSXpzeGtIgJv2vXRCuyqa2TxaZPp/xDQcEupac/z11tlcBnST+xdAbRHAoIugAJy
-         vHooiQV1TsrntuLS/nqhWqzKWgjr1+WRi1hCG6Rp3dVNGaNQYvPXMwTHPvWN94FfF8
-         NuWWoM+wGg5cIsCIZNKnxZ/4DFlBsWv0wI5LeivU=
+        b=gqPnd312GgEh8oZdqy8lTbYQk5BuHI+Ul9p5J9TXvnNIrGdtz9C0Kv0muMtLJVFuK
+         +5VeDJw1A2Q6xOGATNpQ7++TRRlrcFKgaNc7CE8vH9QrTd8uXYnGRTvvrwB2/adx/H
+         fIw/aHjTMI3prSe4xeYMY9vqxT8JryIAXgyHTFjE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Ravi Bangoria <ravi.bangoria@linux.ibm.com>,
-        Madhavan Srinivasan <maddy@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.19 30/73] powerpc/perf: Fix MMCRA corruption by bhrb_filter
-Date:   Fri,  7 Jun 2019 17:39:17 +0200
-Message-Id: <20190607153852.422822358@linuxfoundation.org>
+        syzbot+5255458d5e0a2b10bbb9@syzkaller.appspotmail.com,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 31/73] ALSA: line6: Assure canceling delayed work at disconnection
+Date:   Fri,  7 Jun 2019 17:39:18 +0200
+Message-Id: <20190607153852.547645726@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190607153848.669070800@linuxfoundation.org>
 References: <20190607153848.669070800@linuxfoundation.org>
@@ -45,106 +44,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 3202e35ec1c8fc19cea24253ff83edf702a60a02 upstream.
+commit 0b074ab7fc0d575247b9cc9f93bb7e007ca38840 upstream.
 
-Consider a scenario where user creates two events:
+The current code performs the cancel of a delayed work at the late
+stage of disconnection procedure, which may lead to the access to the
+already cleared state.
 
-  1st event:
-    attr.sample_type |= PERF_SAMPLE_BRANCH_STACK;
-    attr.branch_sample_type = PERF_SAMPLE_BRANCH_ANY;
-    fd = perf_event_open(attr, 0, 1, -1, 0);
+This patch assures to call cancel_delayed_work_sync() at the beginning
+of the disconnection procedure for avoiding that race.  The delayed
+work object is now assigned in the common line6 object instead of its
+derivative, so that we can call cancel_delayed_work_sync().
 
-  This sets cpuhw->bhrb_filter to 0 and returns valid fd.
+Along with the change, the startup function is called via the new
+callback instead.  This will make it easier to port other LINE6
+drivers to use the delayed work for startup in later patches.
 
-  2nd event:
-    attr.sample_type |= PERF_SAMPLE_BRANCH_STACK;
-    attr.branch_sample_type = PERF_SAMPLE_BRANCH_CALL;
-    fd = perf_event_open(attr, 0, 1, -1, 0);
-
-  It overrides cpuhw->bhrb_filter to -1 and returns with error.
-
-Now if power_pmu_enable() gets called by any path other than
-power_pmu_add(), ppmu->config_bhrb(-1) will set MMCRA to -1.
-
-Fixes: 3925f46bb590 ("powerpc/perf: Enable branch stack sampling framework")
-Cc: stable@vger.kernel.org # v3.10+
-Signed-off-by: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
-Reviewed-by: Madhavan Srinivasan <maddy@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Reported-by: syzbot+5255458d5e0a2b10bbb9@syzkaller.appspotmail.com
+Fixes: 7f84ff68be05 ("ALSA: line6: toneport: Fix broken usage of timer for delayed execution")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/perf/core-book3s.c |    6 ++++--
- arch/powerpc/perf/power8-pmu.c  |    3 +++
- arch/powerpc/perf/power9-pmu.c  |    3 +++
- 3 files changed, 10 insertions(+), 2 deletions(-)
+ sound/usb/line6/driver.c   |   12 ++++++++++++
+ sound/usb/line6/driver.h   |    4 ++++
+ sound/usb/line6/toneport.c |   15 +++------------
+ 3 files changed, 19 insertions(+), 12 deletions(-)
 
---- a/arch/powerpc/perf/core-book3s.c
-+++ b/arch/powerpc/perf/core-book3s.c
-@@ -1827,6 +1827,7 @@ static int power_pmu_event_init(struct p
- 	int n;
- 	int err;
- 	struct cpu_hw_events *cpuhw;
-+	u64 bhrb_filter;
+--- a/sound/usb/line6/driver.c
++++ b/sound/usb/line6/driver.c
+@@ -720,6 +720,15 @@ static int line6_init_cap_control(struct
+ 	return 0;
+ }
  
- 	if (!ppmu)
- 		return -ENOENT;
-@@ -1932,13 +1933,14 @@ static int power_pmu_event_init(struct p
- 	err = power_check_constraints(cpuhw, events, cflags, n + 1);
- 
- 	if (has_branch_stack(event)) {
--		cpuhw->bhrb_filter = ppmu->bhrb_filter_map(
-+		bhrb_filter = ppmu->bhrb_filter_map(
- 					event->attr.branch_sample_type);
- 
--		if (cpuhw->bhrb_filter == -1) {
-+		if (bhrb_filter == -1) {
- 			put_cpu_var(cpu_hw_events);
- 			return -EOPNOTSUPP;
- 		}
-+		cpuhw->bhrb_filter = bhrb_filter;
- 	}
- 
- 	put_cpu_var(cpu_hw_events);
---- a/arch/powerpc/perf/power8-pmu.c
-+++ b/arch/powerpc/perf/power8-pmu.c
-@@ -29,6 +29,7 @@ enum {
- #define	POWER8_MMCRA_IFM1		0x0000000040000000UL
- #define	POWER8_MMCRA_IFM2		0x0000000080000000UL
- #define	POWER8_MMCRA_IFM3		0x00000000C0000000UL
-+#define	POWER8_MMCRA_BHRB_MASK		0x00000000C0000000UL
- 
++static void line6_startup_work(struct work_struct *work)
++{
++	struct usb_line6 *line6 =
++		container_of(work, struct usb_line6, startup_work.work);
++
++	if (line6->startup)
++		line6->startup(line6);
++}
++
  /*
-  * Raw event encoding for PowerISA v2.07 (Power8):
-@@ -243,6 +244,8 @@ static u64 power8_bhrb_filter_map(u64 br
+ 	Probe USB device.
+ */
+@@ -755,6 +764,7 @@ int line6_probe(struct usb_interface *in
+ 	line6->properties = properties;
+ 	line6->usbdev = usbdev;
+ 	line6->ifcdev = &interface->dev;
++	INIT_DELAYED_WORK(&line6->startup_work, line6_startup_work);
  
- static void power8_config_bhrb(u64 pmu_bhrb_filter)
- {
-+	pmu_bhrb_filter &= POWER8_MMCRA_BHRB_MASK;
+ 	strcpy(card->id, properties->id);
+ 	strcpy(card->driver, driver_name);
+@@ -825,6 +835,8 @@ void line6_disconnect(struct usb_interfa
+ 	if (WARN_ON(usbdev != line6->usbdev))
+ 		return;
+ 
++	cancel_delayed_work(&line6->startup_work);
 +
- 	/* Enable BHRB filter in PMU */
- 	mtspr(SPRN_MMCRA, (mfspr(SPRN_MMCRA) | pmu_bhrb_filter));
- }
---- a/arch/powerpc/perf/power9-pmu.c
-+++ b/arch/powerpc/perf/power9-pmu.c
-@@ -100,6 +100,7 @@ enum {
- #define POWER9_MMCRA_IFM1		0x0000000040000000UL
- #define POWER9_MMCRA_IFM2		0x0000000080000000UL
- #define POWER9_MMCRA_IFM3		0x00000000C0000000UL
-+#define POWER9_MMCRA_BHRB_MASK		0x00000000C0000000UL
+ 	if (line6->urb_listen != NULL)
+ 		line6_stop_listen(line6);
  
- /* Nasty Power9 specific hack */
- #define PVR_POWER9_CUMULUS		0x00002000
-@@ -308,6 +309,8 @@ static u64 power9_bhrb_filter_map(u64 br
+--- a/sound/usb/line6/driver.h
++++ b/sound/usb/line6/driver.h
+@@ -178,11 +178,15 @@ struct usb_line6 {
+ 			fifo;
+ 	} messages;
  
- static void power9_config_bhrb(u64 pmu_bhrb_filter)
- {
-+	pmu_bhrb_filter &= POWER9_MMCRA_BHRB_MASK;
++	/* Work for delayed PCM startup */
++	struct delayed_work startup_work;
 +
- 	/* Enable BHRB filter in PMU */
- 	mtspr(SPRN_MMCRA, (mfspr(SPRN_MMCRA) | pmu_bhrb_filter));
+ 	/* If MIDI is supported, buffer_message contains the pre-processed data;
+ 	 * otherwise the data is only in urb_listen (buffer_incoming).
+ 	 */
+ 	void (*process_message)(struct usb_line6 *);
+ 	void (*disconnect)(struct usb_line6 *line6);
++	void (*startup)(struct usb_line6 *line6);
+ };
+ 
+ extern char *line6_alloc_sysex_buffer(struct usb_line6 *line6, int code1,
+--- a/sound/usb/line6/toneport.c
++++ b/sound/usb/line6/toneport.c
+@@ -54,9 +54,6 @@ struct usb_line6_toneport {
+ 	/* Firmware version (x 100) */
+ 	u8 firmware_version;
+ 
+-	/* Work for delayed PCM startup */
+-	struct delayed_work pcm_work;
+-
+ 	/* Device type */
+ 	enum line6_device_type type;
+ 
+@@ -241,12 +238,8 @@ static int snd_toneport_source_put(struc
+ 	return 1;
  }
+ 
+-static void toneport_start_pcm(struct work_struct *work)
++static void toneport_startup(struct usb_line6 *line6)
+ {
+-	struct usb_line6_toneport *toneport =
+-		container_of(work, struct usb_line6_toneport, pcm_work.work);
+-	struct usb_line6 *line6 = &toneport->line6;
+-
+ 	line6_pcm_acquire(line6->line6pcm, LINE6_STREAM_MONITOR, true);
+ }
+ 
+@@ -394,7 +387,7 @@ static int toneport_setup(struct usb_lin
+ 	if (toneport_has_led(toneport))
+ 		toneport_update_led(toneport);
+ 
+-	schedule_delayed_work(&toneport->pcm_work,
++	schedule_delayed_work(&toneport->line6.startup_work,
+ 			      msecs_to_jiffies(TONEPORT_PCM_DELAY * 1000));
+ 	return 0;
+ }
+@@ -407,8 +400,6 @@ static void line6_toneport_disconnect(st
+ 	struct usb_line6_toneport *toneport =
+ 		(struct usb_line6_toneport *)line6;
+ 
+-	cancel_delayed_work_sync(&toneport->pcm_work);
+-
+ 	if (toneport_has_led(toneport))
+ 		toneport_remove_leds(toneport);
+ }
+@@ -424,9 +415,9 @@ static int toneport_init(struct usb_line
+ 	struct usb_line6_toneport *toneport =  (struct usb_line6_toneport *) line6;
+ 
+ 	toneport->type = id->driver_info;
+-	INIT_DELAYED_WORK(&toneport->pcm_work, toneport_start_pcm);
+ 
+ 	line6->disconnect = line6_toneport_disconnect;
++	line6->startup = toneport_startup;
+ 
+ 	/* initialize PCM subsystem: */
+ 	err = line6_init_pcm(line6, &toneport_pcm_properties);
 
 
