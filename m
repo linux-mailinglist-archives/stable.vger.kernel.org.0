@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AF4A439166
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:59:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74B0A3910E
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:57:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730349AbfFGPli (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 11:41:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51640 "EHLO mail.kernel.org"
+        id S1729723AbfFGP4O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 11:56:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56070 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730344AbfFGPli (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 11:41:38 -0400
+        id S1731102AbfFGPoe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 11:44:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DCD98212F5;
-        Fri,  7 Jun 2019 15:41:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 00C45212F5;
+        Fri,  7 Jun 2019 15:44:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559922097;
-        bh=9pQV96GQ5yaR3ppCHishu8Pql1cXDN8GY/jBzvaDq3U=;
+        s=default; t=1559922273;
+        bh=2YaMuI3RJKFG5nQj8FFJEYnNadIMoqYra8uLWOutnmU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gPMdvX8RqXbLg7DyNMPu794UiNCwdzLf2/gx7W4RdryNRrTu1YvTNkDsZJ8v8KtfV
-         K9uFn+NZFuIyaKUHFaZcQJIeZ8z2GRP+FJRZnneeb/ZUBzfQ557my/5V/47dTU97wq
-         LxSaibmpvFyRhXDTT4QpZrRSDDc4fvo7BwuQLT1Y=
+        b=fkdlIbswzYIWB6lbwgpBzfsmdXxzeoG4XX7HQLdHy+5tRFU99k9BAcrLlvdRj74CW
+         vywwhUcnSkBC7EgpiL+laJEuQD9lKtTywN3+bKpddlejx40duWc+zI5mtdKyVVdUO8
+         4+phs4gKdHch2w88C/xAW8lqFtCFAkpEmIgW23/o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Johan Hovold <johan@kernel.org>,
-        syzbot+53f029db71c19a47325a@syzkaller.appspotmail.com
-Subject: [PATCH 4.14 34/69] media: usb: siano: Fix general protection fault in smsusb
+        stable@vger.kernel.org,
+        Harald Freudenberger <freude@linux.ibm.com>,
+        Julian Wiedmann <jwi@linux.ibm.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: [PATCH 4.19 28/73] s390/crypto: fix possible sleep during spinlock aquired
 Date:   Fri,  7 Jun 2019 17:39:15 +0200
-Message-Id: <20190607153852.588533064@linuxfoundation.org>
+Message-Id: <20190607153852.183416788@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190607153848.271562617@linuxfoundation.org>
-References: <20190607153848.271562617@linuxfoundation.org>
+In-Reply-To: <20190607153848.669070800@linuxfoundation.org>
+References: <20190607153848.669070800@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,90 +45,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Harald Freudenberger <freude@linux.ibm.com>
 
-commit 31e0456de5be379b10fea0fa94a681057114a96e upstream.
+commit 1c2c7029c008922d4d48902cc386250502e73d51 upstream.
 
-The syzkaller USB fuzzer found a general-protection-fault bug in the
-smsusb part of the Siano DVB driver.  The fault occurs during probe
-because the driver assumes without checking that the device has both
-IN and OUT endpoints and the IN endpoint is ep1.
+This patch fixes a complain about possible sleep during
+spinlock aquired
+"BUG: sleeping function called from invalid context at
+include/crypto/algapi.h:426"
+for the ctr(aes) and ctr(des) s390 specific ciphers.
 
-By slightly rearranging the driver's initialization code, we can make
-the appropriate checks early on and thus avoid the problem.  If the
-expected endpoints aren't present, the new code safely returns -ENODEV
-from the probe routine.
+Instead of using a spinlock this patch introduces a mutex
+which is save to be held in sleeping context. Please note
+a deadlock is not possible as mutex_trylock() is used.
 
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Reported-and-tested-by: syzbot+53f029db71c19a47325a@syzkaller.appspotmail.com
-CC: <stable@vger.kernel.org>
-Reviewed-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Harald Freudenberger <freude@linux.ibm.com>
+Reported-by: Julian Wiedmann <jwi@linux.ibm.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/usb/siano/smsusb.c |   33 ++++++++++++++++++++-------------
- 1 file changed, 20 insertions(+), 13 deletions(-)
+ arch/s390/crypto/aes_s390.c |    8 ++++----
+ arch/s390/crypto/des_s390.c |    7 ++++---
+ 2 files changed, 8 insertions(+), 7 deletions(-)
 
---- a/drivers/media/usb/siano/smsusb.c
-+++ b/drivers/media/usb/siano/smsusb.c
-@@ -402,6 +402,7 @@ static int smsusb_init_device(struct usb
- 	struct smsusb_device_t *dev;
- 	void *mdev;
- 	int i, rc;
-+	int in_maxp;
+--- a/arch/s390/crypto/aes_s390.c
++++ b/arch/s390/crypto/aes_s390.c
+@@ -27,14 +27,14 @@
+ #include <linux/module.h>
+ #include <linux/cpufeature.h>
+ #include <linux/init.h>
+-#include <linux/spinlock.h>
++#include <linux/mutex.h>
+ #include <linux/fips.h>
+ #include <linux/string.h>
+ #include <crypto/xts.h>
+ #include <asm/cpacf.h>
  
- 	/* create device object */
- 	dev = kzalloc(sizeof(struct smsusb_device_t), GFP_KERNEL);
-@@ -413,6 +414,24 @@ static int smsusb_init_device(struct usb
- 	dev->udev = interface_to_usbdev(intf);
- 	dev->state = SMSUSB_DISCONNECTED;
+ static u8 *ctrblk;
+-static DEFINE_SPINLOCK(ctrblk_lock);
++static DEFINE_MUTEX(ctrblk_lock);
  
-+	for (i = 0; i < intf->cur_altsetting->desc.bNumEndpoints; i++) {
-+		struct usb_endpoint_descriptor *desc =
-+				&intf->cur_altsetting->endpoint[i].desc;
-+
-+		if (desc->bEndpointAddress & USB_DIR_IN) {
-+			dev->in_ep = desc->bEndpointAddress;
-+			in_maxp = usb_endpoint_maxp(desc);
-+		} else {
-+			dev->out_ep = desc->bEndpointAddress;
-+		}
-+	}
-+
-+	pr_debug("in_ep = %02x, out_ep = %02x\n", dev->in_ep, dev->out_ep);
-+	if (!dev->in_ep || !dev->out_ep) {	/* Missing endpoints? */
-+		smsusb_term_device(intf);
-+		return -ENODEV;
-+	}
-+
- 	params.device_type = sms_get_board(board_id)->type;
+ static cpacf_mask_t km_functions, kmc_functions, kmctr_functions,
+ 		    kma_functions;
+@@ -698,7 +698,7 @@ static int ctr_aes_crypt(struct blkciphe
+ 	unsigned int n, nbytes;
+ 	int ret, locked;
  
- 	switch (params.device_type) {
-@@ -427,24 +446,12 @@ static int smsusb_init_device(struct usb
- 		/* fall-thru */
- 	default:
- 		dev->buffer_size = USB2_BUFFER_SIZE;
--		dev->response_alignment =
--		    le16_to_cpu(dev->udev->ep_in[1]->desc.wMaxPacketSize) -
--		    sizeof(struct sms_msg_hdr);
-+		dev->response_alignment = in_maxp - sizeof(struct sms_msg_hdr);
+-	locked = spin_trylock(&ctrblk_lock);
++	locked = mutex_trylock(&ctrblk_lock);
  
- 		params.flags |= SMS_DEVICE_FAMILY2;
- 		break;
+ 	ret = blkcipher_walk_virt_block(desc, walk, AES_BLOCK_SIZE);
+ 	while ((nbytes = walk->nbytes) >= AES_BLOCK_SIZE) {
+@@ -716,7 +716,7 @@ static int ctr_aes_crypt(struct blkciphe
+ 		ret = blkcipher_walk_done(desc, walk, nbytes - n);
  	}
+ 	if (locked)
+-		spin_unlock(&ctrblk_lock);
++		mutex_unlock(&ctrblk_lock);
+ 	/*
+ 	 * final block may be < AES_BLOCK_SIZE, copy only nbytes
+ 	 */
+--- a/arch/s390/crypto/des_s390.c
++++ b/arch/s390/crypto/des_s390.c
+@@ -14,6 +14,7 @@
+ #include <linux/cpufeature.h>
+ #include <linux/crypto.h>
+ #include <linux/fips.h>
++#include <linux/mutex.h>
+ #include <crypto/algapi.h>
+ #include <crypto/des.h>
+ #include <asm/cpacf.h>
+@@ -21,7 +22,7 @@
+ #define DES3_KEY_SIZE	(3 * DES_KEY_SIZE)
  
--	for (i = 0; i < intf->cur_altsetting->desc.bNumEndpoints; i++) {
--		if (intf->cur_altsetting->endpoint[i].desc. bEndpointAddress & USB_DIR_IN)
--			dev->in_ep = intf->cur_altsetting->endpoint[i].desc.bEndpointAddress;
--		else
--			dev->out_ep = intf->cur_altsetting->endpoint[i].desc.bEndpointAddress;
--	}
--
--	pr_debug("in_ep = %02x, out_ep = %02x\n",
--		dev->in_ep, dev->out_ep);
--
- 	params.device = &dev->udev->dev;
- 	params.buffer_size = dev->buffer_size;
- 	params.num_buffers = MAX_BUFFERS;
+ static u8 *ctrblk;
+-static DEFINE_SPINLOCK(ctrblk_lock);
++static DEFINE_MUTEX(ctrblk_lock);
+ 
+ static cpacf_mask_t km_functions, kmc_functions, kmctr_functions;
+ 
+@@ -387,7 +388,7 @@ static int ctr_desall_crypt(struct blkci
+ 	unsigned int n, nbytes;
+ 	int ret, locked;
+ 
+-	locked = spin_trylock(&ctrblk_lock);
++	locked = mutex_trylock(&ctrblk_lock);
+ 
+ 	ret = blkcipher_walk_virt_block(desc, walk, DES_BLOCK_SIZE);
+ 	while ((nbytes = walk->nbytes) >= DES_BLOCK_SIZE) {
+@@ -404,7 +405,7 @@ static int ctr_desall_crypt(struct blkci
+ 		ret = blkcipher_walk_done(desc, walk, nbytes - n);
+ 	}
+ 	if (locked)
+-		spin_unlock(&ctrblk_lock);
++		mutex_unlock(&ctrblk_lock);
+ 	/* final block may be < DES_BLOCK_SIZE, copy only nbytes */
+ 	if (nbytes) {
+ 		cpacf_kmctr(fc, ctx->key, buf, walk->src.virt.addr,
 
 
