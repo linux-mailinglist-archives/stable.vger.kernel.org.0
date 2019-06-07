@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 145D039161
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:59:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16C2C390BB
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:54:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730429AbfFGPl4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 11:41:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52148 "EHLO mail.kernel.org"
+        id S1731508AbfFGPrD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 11:47:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59686 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729349AbfFGPlz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 11:41:55 -0400
+        id S1731504AbfFGPrD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 11:47:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8AFF121473;
-        Fri,  7 Jun 2019 15:41:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 94C842147A;
+        Fri,  7 Jun 2019 15:47:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559922115;
-        bh=7Dwi07MGBO9U6N2e0LqhLrsjBz2fdKOnllJzj59RAsw=;
+        s=default; t=1559922422;
+        bh=Av7qk+XXhXvULeVJk0bNx7YqD+M42bGGZrRJlYuPqZk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SlW8rUwcP9GlBDyW8kAxZ52cG4bCN/XNI7XgwkcwidXV9riPJKtrm6FgFOVmuOZ2m
-         PmA6P1QUJnNJNDopzWzBFR5Swfinn8/3dl+xLhZA3bHwPjRsaERvYKe0AeIvROeYCN
-         +wDsk6ETRnWDAEh/DJFPQ3wpIubrSMQG9ij80yM8=
+        b=GfFDaA6BwRrI0kDKuXCHGYb1XoolP9lt5oVkOR7qQ1PEeUxzxowXoreH5b/+qHE/s
+         h/L22BdlDdidFYx/QONNbbRqS9ZdPmHYTqLksNvZ3gabNJfJ+7dtfMBolRpW9UdGGo
+         PcUQIg5O42JdtK3ylMZboryiTw9R/qxkECp0VK5c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.14 40/69] Btrfs: fix race updating log root item during fsync
-Date:   Fri,  7 Jun 2019 17:39:21 +0200
-Message-Id: <20190607153853.310094093@linuxfoundation.org>
+        stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
+        Ben Skeggs <bskeggs@redhat.com>
+Subject: [PATCH 4.19 35/73] drm/nouveau/i2c: Disable i2c bus access after ->fini()
+Date:   Fri,  7 Jun 2019 17:39:22 +0200
+Message-Id: <20190607153853.012042229@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190607153848.271562617@linuxfoundation.org>
-References: <20190607153848.271562617@linuxfoundation.org>
+In-Reply-To: <20190607153848.669070800@linuxfoundation.org>
+References: <20190607153848.669070800@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,125 +43,265 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Lyude Paul <lyude@redhat.com>
 
-commit 06989c799f04810f6876900d4760c0edda369cf7 upstream.
+commit 342406e4fbba9a174125fbfe6aeac3d64ef90f76 upstream.
 
-When syncing the log, the final phase of a fsync operation, we need to
-either create a log root's item or update the existing item in the log
-tree of log roots, and that depends on the current value of the log
-root's log_transid - if it's 1 we need to create the log root item,
-otherwise it must exist already and we update it. Since there is no
-synchronization between updating the log_transid and checking it for
-deciding whether the log root's item needs to be created or updated, we
-end up with a tiny race window that results in attempts to update the
-item to fail because the item was not yet created:
+For a while, we've had the problem of i2c bus access not grabbing
+a runtime PM ref when it's being used in userspace by i2c-dev, resulting
+in nouveau spamming the kernel log with errors if anything attempts to
+access the i2c bus while the GPU is in runtime suspend. An example:
 
-              CPU 1                                    CPU 2
+[  130.078386] nouveau 0000:01:00.0: i2c: aux 000d: begin idle timeout ffffffff
 
-  btrfs_sync_log()
+Since the GPU is in runtime suspend, the MMIO region that the i2c bus is
+on isn't accessible. On x86, the standard behavior for accessing an
+unavailable MMIO region is to just return ~0.
 
-    lock root->log_mutex
+Except, that turned out to be a lie. While computers with a clean
+concious will return ~0 in this scenario, some machines will actually
+completely hang a CPU on certian bad MMIO accesses. This was witnessed
+with someone's Lenovo ThinkPad P50, where sensors-detect attempting to
+access the i2c bus while the GPU was suspended would result in a CPU
+hang:
 
-    set log root's log_transid to 1
-
-    unlock root->log_mutex
-
-                                               btrfs_sync_log()
-
-                                                 lock root->log_mutex
-
-                                                 sets log root's
-                                                 log_transid to 2
-
-                                                 unlock root->log_mutex
-
-    update_log_root()
-
-      sees log root's log_transid
-      with a value of 2
-
-        calls btrfs_update_root(),
-        which fails with -EUCLEAN
-        and causes transaction abort
-
-Until recently the race lead to a BUG_ON at btrfs_update_root(), but after
-the recent commit 7ac1e464c4d47 ("btrfs: Don't panic when we can't find a
-root key") we just abort the current transaction.
-
-A sample trace of the BUG_ON() on a SLE12 kernel:
-
-  ------------[ cut here ]------------
-  kernel BUG at ../fs/btrfs/root-tree.c:157!
-  Oops: Exception in kernel mode, sig: 5 [#1]
-  SMP NR_CPUS=2048 NUMA pSeries
-  (...)
-  Supported: Yes, External
-  CPU: 78 PID: 76303 Comm: rtas_errd Tainted: G                 X 4.4.156-94.57-default #1
-  task: c00000ffa906d010 ti: c00000ff42b08000 task.ti: c00000ff42b08000
-  NIP: d000000036ae5cdc LR: d000000036ae5cd8 CTR: 0000000000000000
-  REGS: c00000ff42b0b860 TRAP: 0700   Tainted: G                 X  (4.4.156-94.57-default)
-  MSR: 8000000002029033 <SF,VEC,EE,ME,IR,DR,RI,LE>  CR: 22444484  XER: 20000000
-  CFAR: d000000036aba66c SOFTE: 1
-  GPR00: d000000036ae5cd8 c00000ff42b0bae0 d000000036bda220 0000000000000054
-  GPR04: 0000000000000001 0000000000000000 c00007ffff8d37c8 0000000000000000
-  GPR08: c000000000e19c00 0000000000000000 0000000000000000 3736343438312079
-  GPR12: 3930373337303434 c000000007a3a800 00000000007fffff 0000000000000023
-  GPR16: c00000ffa9d26028 c00000ffa9d261f8 0000000000000010 c00000ffa9d2ab28
-  GPR20: c00000ff42b0bc48 0000000000000001 c00000ff9f0d9888 0000000000000001
-  GPR24: c00000ffa9d26000 c00000ffa9d261e8 c00000ffa9d2a800 c00000ff9f0d9888
-  GPR28: c00000ffa9d26028 c00000ffa9d2aa98 0000000000000001 c00000ffa98f5b20
-  NIP [d000000036ae5cdc] btrfs_update_root+0x25c/0x4e0 [btrfs]
-  LR [d000000036ae5cd8] btrfs_update_root+0x258/0x4e0 [btrfs]
+  CPU: 5 PID: 12438 Comm: sensors-detect Not tainted 5.0.0-0.rc4.git3.1.fc30.x86_64 #1
+  Hardware name: LENOVO 20EQS64N17/20EQS64N17, BIOS N1EET74W (1.47 ) 11/21/2017
+  RIP: 0010:ioread32+0x2b/0x30
+  Code: 81 ff ff ff 03 00 77 20 48 81 ff 00 00 01 00 76 05 0f b7 d7 ed c3
+  48 c7 c6 e1 0c 36 96 e8 2d ff ff ff b8 ff ff ff ff c3 8b 07 <c3> 0f 1f
+  40 00 49 89 f0 48 81 fe ff ff 03 00 76 04 40 88 3e c3 48
+  RSP: 0018:ffffaac3c5007b48 EFLAGS: 00000292 ORIG_RAX: ffffffffffffff13
+  RAX: 0000000001111000 RBX: 0000000001111000 RCX: 0000043017a97186
+  RDX: 0000000000000aaa RSI: 0000000000000005 RDI: ffffaac3c400e4e4
+  RBP: ffff9e6443902c00 R08: ffffaac3c400e4e4 R09: ffffaac3c5007be7
+  R10: 0000000000000004 R11: 0000000000000001 R12: ffff9e6445dd0000
+  R13: 000000000000e4e4 R14: 00000000000003c4 R15: 0000000000000000
+  FS:  00007f253155a740(0000) GS:ffff9e644f600000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 00005630d1500358 CR3: 0000000417c44006 CR4: 00000000003606e0
+  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
   Call Trace:
-  [c00000ff42b0bae0] [d000000036ae5cd8] btrfs_update_root+0x258/0x4e0 [btrfs] (unreliable)
-  [c00000ff42b0bba0] [d000000036b53610] btrfs_sync_log+0x2d0/0xc60 [btrfs]
-  [c00000ff42b0bce0] [d000000036b1785c] btrfs_sync_file+0x44c/0x4e0 [btrfs]
-  [c00000ff42b0bd80] [c00000000032e300] vfs_fsync_range+0x70/0x120
-  [c00000ff42b0bdd0] [c00000000032e44c] do_fsync+0x5c/0xb0
-  [c00000ff42b0be10] [c00000000032e8dc] SyS_fdatasync+0x2c/0x40
-  [c00000ff42b0be30] [c000000000009488] system_call+0x3c/0x100
-  Instruction dump:
-  7f43d378 4bffebb9 60000000 88d90008 3d220000 e8b90000 3b390009 e87a01f0
-  e8898e08 e8f90000 4bfd48e5 60000000 <0fe00000> e95b0060 39200004 394a0ea0
-  ---[ end trace 8f2dc8f919cabab8 ]---
+   g94_i2c_aux_xfer+0x326/0x850 [nouveau]
+   nvkm_i2c_aux_i2c_xfer+0x9e/0x140 [nouveau]
+   __i2c_transfer+0x14b/0x620
+   i2c_smbus_xfer_emulated+0x159/0x680
+   ? _raw_spin_unlock_irqrestore+0x1/0x60
+   ? rt_mutex_slowlock.constprop.0+0x13d/0x1e0
+   ? __lock_is_held+0x59/0xa0
+   __i2c_smbus_xfer+0x138/0x5a0
+   i2c_smbus_xfer+0x4f/0x80
+   i2cdev_ioctl_smbus+0x162/0x2d0 [i2c_dev]
+   i2cdev_ioctl+0x1db/0x2c0 [i2c_dev]
+   do_vfs_ioctl+0x408/0x750
+   ksys_ioctl+0x5e/0x90
+   __x64_sys_ioctl+0x16/0x20
+   do_syscall_64+0x60/0x1e0
+   entry_SYSCALL_64_after_hwframe+0x49/0xbe
+  RIP: 0033:0x7f25317f546b
+  Code: 0f 1e fa 48 8b 05 1d da 0c 00 64 c7 00 26 00 00 00 48 c7 c0 ff ff
+  ff ff c3 66 0f 1f 44 00 00 f3 0f 1e fa b8 10 00 00 00 0f 05 <48> 3d 01
+  f0 ff ff 73 01 c3 48 8b 0d ed d9 0c 00 f7 d8 64 89 01 48
+  RSP: 002b:00007ffc88caab68 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+  RAX: ffffffffffffffda RBX: 00005630d0fe7260 RCX: 00007f25317f546b
+  RDX: 00005630d1598e80 RSI: 0000000000000720 RDI: 0000000000000003
+  RBP: 00005630d155b968 R08: 0000000000000001 R09: 00005630d15a1da0
+  R10: 0000000000000070 R11: 0000000000000246 R12: 00005630d1598e80
+  R13: 00005630d12f3d28 R14: 0000000000000720 R15: 00005630d12f3ce0
+  watchdog: BUG: soft lockup - CPU#5 stuck for 23s! [sensors-detect:12438]
 
-So fix this by doing the check of log_transid and updating or creating the
-log root's item while holding the root's log_mutex.
+Yikes! While I wanted to try to make it so that accessing an i2c bus on
+nouveau would wake up the GPU as needed, airlied pointed out that pretty
+much any usecase for userspace accessing an i2c bus on a GPU (mainly for
+the DDC brightness control that some displays have) is going to only be
+useful while there's at least one display enabled on the GPU anyway, and
+the GPU never sleeps while there's displays running.
 
-Fixes: 7237f1833601d ("Btrfs: fix tree logs parallel sync")
-CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Since teaching the i2c bus to wake up the GPU on userspace accesses is a
+good deal more difficult than it might seem, mostly due to the fact that
+we have to use the i2c bus during runtime resume of the GPU, we instead
+opt for the easiest solution: don't let userspace access i2c busses on
+the GPU at all while it's in runtime suspend.
+
+Changes since v1:
+* Also disable i2c busses that run over DP AUX
+
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/tree-log.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/nouveau/include/nvkm/subdev/i2c.h |    2 +
+ drivers/gpu/drm/nouveau/nvkm/subdev/i2c/aux.c     |   26 +++++++++++++++++++++-
+ drivers/gpu/drm/nouveau/nvkm/subdev/i2c/aux.h     |    2 +
+ drivers/gpu/drm/nouveau/nvkm/subdev/i2c/base.c    |   15 ++++++++++++
+ drivers/gpu/drm/nouveau/nvkm/subdev/i2c/bus.c     |   21 ++++++++++++++++-
+ drivers/gpu/drm/nouveau/nvkm/subdev/i2c/bus.h     |    1 
+ 6 files changed, 65 insertions(+), 2 deletions(-)
 
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -2907,6 +2907,12 @@ int btrfs_sync_log(struct btrfs_trans_ha
- 	log->log_transid = root->log_transid;
- 	root->log_start_pid = 0;
- 	/*
-+	 * Update or create log root item under the root's log_mutex to prevent
-+	 * races with concurrent log syncs that can lead to failure to update
-+	 * log root item because it was not created yet.
-+	 */
-+	ret = update_log_root(trans, log);
-+	/*
- 	 * IO has been started, blocks of the log tree have WRITTEN flag set
- 	 * in their headers. new modifications of the log will be written to
- 	 * new positions. so it's safe to allow log writers to go in.
-@@ -2925,8 +2931,6 @@ int btrfs_sync_log(struct btrfs_trans_ha
+--- a/drivers/gpu/drm/nouveau/include/nvkm/subdev/i2c.h
++++ b/drivers/gpu/drm/nouveau/include/nvkm/subdev/i2c.h
+@@ -38,6 +38,7 @@ struct nvkm_i2c_bus {
+ 	struct mutex mutex;
+ 	struct list_head head;
+ 	struct i2c_adapter i2c;
++	u8 enabled;
+ };
  
- 	mutex_unlock(&log_root_tree->log_mutex);
+ int nvkm_i2c_bus_acquire(struct nvkm_i2c_bus *);
+@@ -57,6 +58,7 @@ struct nvkm_i2c_aux {
+ 	struct mutex mutex;
+ 	struct list_head head;
+ 	struct i2c_adapter i2c;
++	u8 enabled;
  
--	ret = update_log_root(trans, log);
--
- 	mutex_lock(&log_root_tree->log_mutex);
- 	if (atomic_dec_and_test(&log_root_tree->log_writers)) {
- 		/*
+ 	u32 intr;
+ };
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/aux.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/aux.c
+@@ -105,9 +105,15 @@ nvkm_i2c_aux_acquire(struct nvkm_i2c_aux
+ {
+ 	struct nvkm_i2c_pad *pad = aux->pad;
+ 	int ret;
++
+ 	AUX_TRACE(aux, "acquire");
+ 	mutex_lock(&aux->mutex);
+-	ret = nvkm_i2c_pad_acquire(pad, NVKM_I2C_PAD_AUX);
++
++	if (aux->enabled)
++		ret = nvkm_i2c_pad_acquire(pad, NVKM_I2C_PAD_AUX);
++	else
++		ret = -EIO;
++
+ 	if (ret)
+ 		mutex_unlock(&aux->mutex);
+ 	return ret;
+@@ -145,6 +151,24 @@ nvkm_i2c_aux_del(struct nvkm_i2c_aux **p
+ 	}
+ }
+ 
++void
++nvkm_i2c_aux_init(struct nvkm_i2c_aux *aux)
++{
++	AUX_TRACE(aux, "init");
++	mutex_lock(&aux->mutex);
++	aux->enabled = true;
++	mutex_unlock(&aux->mutex);
++}
++
++void
++nvkm_i2c_aux_fini(struct nvkm_i2c_aux *aux)
++{
++	AUX_TRACE(aux, "fini");
++	mutex_lock(&aux->mutex);
++	aux->enabled = false;
++	mutex_unlock(&aux->mutex);
++}
++
+ int
+ nvkm_i2c_aux_ctor(const struct nvkm_i2c_aux_func *func,
+ 		  struct nvkm_i2c_pad *pad, int id,
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/aux.h
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/aux.h
+@@ -16,6 +16,8 @@ int nvkm_i2c_aux_ctor(const struct nvkm_
+ int nvkm_i2c_aux_new_(const struct nvkm_i2c_aux_func *, struct nvkm_i2c_pad *,
+ 		      int id, struct nvkm_i2c_aux **);
+ void nvkm_i2c_aux_del(struct nvkm_i2c_aux **);
++void nvkm_i2c_aux_init(struct nvkm_i2c_aux *);
++void nvkm_i2c_aux_fini(struct nvkm_i2c_aux *);
+ int nvkm_i2c_aux_xfer(struct nvkm_i2c_aux *, bool retry, u8 type,
+ 		      u32 addr, u8 *data, u8 *size);
+ 
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/base.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/base.c
+@@ -160,8 +160,18 @@ nvkm_i2c_fini(struct nvkm_subdev *subdev
+ {
+ 	struct nvkm_i2c *i2c = nvkm_i2c(subdev);
+ 	struct nvkm_i2c_pad *pad;
++	struct nvkm_i2c_bus *bus;
++	struct nvkm_i2c_aux *aux;
+ 	u32 mask;
+ 
++	list_for_each_entry(aux, &i2c->aux, head) {
++		nvkm_i2c_aux_fini(aux);
++	}
++
++	list_for_each_entry(bus, &i2c->bus, head) {
++		nvkm_i2c_bus_fini(bus);
++	}
++
+ 	if ((mask = (1 << i2c->func->aux) - 1), i2c->func->aux_stat) {
+ 		i2c->func->aux_mask(i2c, NVKM_I2C_ANY, mask, 0);
+ 		i2c->func->aux_stat(i2c, &mask, &mask, &mask, &mask);
+@@ -180,6 +190,7 @@ nvkm_i2c_init(struct nvkm_subdev *subdev
+ 	struct nvkm_i2c *i2c = nvkm_i2c(subdev);
+ 	struct nvkm_i2c_bus *bus;
+ 	struct nvkm_i2c_pad *pad;
++	struct nvkm_i2c_aux *aux;
+ 
+ 	list_for_each_entry(pad, &i2c->pad, head) {
+ 		nvkm_i2c_pad_init(pad);
+@@ -189,6 +200,10 @@ nvkm_i2c_init(struct nvkm_subdev *subdev
+ 		nvkm_i2c_bus_init(bus);
+ 	}
+ 
++	list_for_each_entry(aux, &i2c->aux, head) {
++		nvkm_i2c_aux_init(aux);
++	}
++
+ 	return 0;
+ }
+ 
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/bus.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/bus.c
+@@ -110,6 +110,19 @@ nvkm_i2c_bus_init(struct nvkm_i2c_bus *b
+ 	BUS_TRACE(bus, "init");
+ 	if (bus->func->init)
+ 		bus->func->init(bus);
++
++	mutex_lock(&bus->mutex);
++	bus->enabled = true;
++	mutex_unlock(&bus->mutex);
++}
++
++void
++nvkm_i2c_bus_fini(struct nvkm_i2c_bus *bus)
++{
++	BUS_TRACE(bus, "fini");
++	mutex_lock(&bus->mutex);
++	bus->enabled = false;
++	mutex_unlock(&bus->mutex);
+ }
+ 
+ void
+@@ -126,9 +139,15 @@ nvkm_i2c_bus_acquire(struct nvkm_i2c_bus
+ {
+ 	struct nvkm_i2c_pad *pad = bus->pad;
+ 	int ret;
++
+ 	BUS_TRACE(bus, "acquire");
+ 	mutex_lock(&bus->mutex);
+-	ret = nvkm_i2c_pad_acquire(pad, NVKM_I2C_PAD_I2C);
++
++	if (bus->enabled)
++		ret = nvkm_i2c_pad_acquire(pad, NVKM_I2C_PAD_I2C);
++	else
++		ret = -EIO;
++
+ 	if (ret)
+ 		mutex_unlock(&bus->mutex);
+ 	return ret;
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/bus.h
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/bus.h
+@@ -18,6 +18,7 @@ int nvkm_i2c_bus_new_(const struct nvkm_
+ 		      int id, struct nvkm_i2c_bus **);
+ void nvkm_i2c_bus_del(struct nvkm_i2c_bus **);
+ void nvkm_i2c_bus_init(struct nvkm_i2c_bus *);
++void nvkm_i2c_bus_fini(struct nvkm_i2c_bus *);
+ 
+ int nvkm_i2c_bit_xfer(struct nvkm_i2c_bus *, struct i2c_msg *, int);
+ 
 
 
