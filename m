@@ -2,90 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C71E39639
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 21:54:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FEEB39653
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 22:00:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729325AbfFGTyb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 15:54:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59446 "EHLO mail.kernel.org"
+        id S1731132AbfFGUAg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 16:00:36 -0400
+Received: from mga05.intel.com ([192.55.52.43]:60493 "EHLO mga05.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729241AbfFGTyb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 15:54:31 -0400
-Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 81E7D208C3;
-        Fri,  7 Jun 2019 19:54:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559937270;
-        bh=8psQmUHD9luxI22nFWbQOgpTZfWDCb9IM6SP1Gb6RuE=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=TANt56tMnGHGSeTHxg2W5Nga6u0fq8FsdWYmLcrlsCGA2NGsA2mQH36A8hsYaUQl7
-         PvF+FiSUc0fahikKKGkO11OQ4+xLKsQjmAxNlLOFaGKdbVX69LqoznlxnaXcFMOm0G
-         NPbdjRpokmMR23+zPVRWYusaOBotEgcPCbhlQMLI=
-Date:   Fri, 7 Jun 2019 12:54:30 -0700
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     Dan Williams <dan.j.williams@intel.com>
-Cc:     stable <stable@vger.kernel.org>, Linux MM <linux-mm@kvack.org>,
-        linux-nvdimm <linux-nvdimm@lists.01.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Oscar Salvador <osalvador@suse.de>,
-        Michal Hocko <mhocko@suse.com>
-Subject: Re: [PATCH v9 11/12] libnvdimm/pfn: Fix fsdax-mode namespace
- info-block zero-fields
-Message-Id: <20190607125430.81e63cd56590ab3fea37a635@linux-foundation.org>
-In-Reply-To: <CAPcyv4hHs75hYs+Ye+NHHiU31C6CnBqCFdo=2c5seN7kvxKOrw@mail.gmail.com>
-References: <155977186863.2443951.9036044808311959913.stgit@dwillia2-desk3.amr.corp.intel.com>
-        <155977193862.2443951.10284714500308539570.stgit@dwillia2-desk3.amr.corp.intel.com>
-        <20190606144643.4f3363db9499ebbf8f76e62e@linux-foundation.org>
-        <CAPcyv4hHs75hYs+Ye+NHHiU31C6CnBqCFdo=2c5seN7kvxKOrw@mail.gmail.com>
-X-Mailer: Sylpheed 3.5.1 (GTK+ 2.24.31; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+        id S1728727AbfFGUAg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 16:00:36 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga006.fm.intel.com ([10.253.24.20])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 07 Jun 2019 13:00:36 -0700
+X-ExtLoop1: 1
+Received: from jderrick-mobl.amr.corp.intel.com ([10.232.115.162])
+  by fmsmga006.fm.intel.com with ESMTP; 07 Jun 2019 13:00:35 -0700
+From:   Jon Derrick <jonathan.derrick@intel.com>
+To:     <linux-pci@vger.kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Cc:     Bjorn Helgaas <helgaas@kernel.org>,
+        Keith Busch <keith.busch@intel.com>,
+        Jon Derrick <jonathan.derrick@intel.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] PCI/VMD: Fix config addressing with bus offsets
+Date:   Fri,  7 Jun 2019 14:00:34 -0600
+Message-Id: <20190607200034.19562-1-jonathan.derrick@intel.com>
+X-Mailer: git-send-email 2.20.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 6 Jun 2019 15:06:26 -0700 Dan Williams <dan.j.williams@intel.com> wrote:
+VMD config space addressing relies on mapping the BDF of the target into
+the VMD config bar. When using bus number offsets to number the VMD
+domain, the offset needs to be ignored in order to correctly map devices
+to their config space.
 
-> On Thu, Jun 6, 2019 at 2:46 PM Andrew Morton <akpm@linux-foundation.org> wrote:
-> >
-> > On Wed, 05 Jun 2019 14:58:58 -0700 Dan Williams <dan.j.williams@intel.com> wrote:
-> >
-> > > At namespace creation time there is the potential for the "expected to
-> > > be zero" fields of a 'pfn' info-block to be filled with indeterminate
-> > > data. While the kernel buffer is zeroed on allocation it is immediately
-> > > overwritten by nd_pfn_validate() filling it with the current contents of
-> > > the on-media info-block location. For fields like, 'flags' and the
-> > > 'padding' it potentially means that future implementations can not rely
-> > > on those fields being zero.
-> > >
-> > > In preparation to stop using the 'start_pad' and 'end_trunc' fields for
-> > > section alignment, arrange for fields that are not explicitly
-> > > initialized to be guaranteed zero. Bump the minor version to indicate it
-> > > is safe to assume the 'padding' and 'flags' are zero. Otherwise, this
-> > > corruption is expected to benign since all other critical fields are
-> > > explicitly initialized.
-> > >
-> > > Fixes: 32ab0a3f5170 ("libnvdimm, pmem: 'struct page' for pmem")
-> > > Cc: <stable@vger.kernel.org>
-> > > Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-> >
-> > The cc:stable in [11/12] seems odd.  Is this independent of the other
-> > patches?  If so, shouldn't it be a standalone thing which can be
-> > prioritized?
-> >
-> 
-> The cc: stable is about spreading this new policy to as many kernels
-> as possible not fixing an issue in those kernels. It's not until patch
-> 12 "libnvdimm/pfn: Stop padding pmem namespaces to section alignment"
-> as all previous kernel do initialize all fields.
-> 
-> I'd be ok to drop that cc: stable, my concern is distros that somehow
-> pickup and backport patch 12 and miss patch 11.
+Fixes: 2a5a9c9a20f9 ("PCI: vmd: Add offset to bus numbers if necessary")
+Cc: <stable@vger.kernel.org> # v4.18+
+Signed-off-by: Jon Derrick <jonathan.derrick@intel.com>
+---
+ drivers/pci/controller/vmd.c | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
-Could you please propose a changelog paragraph which explains all this
-to those who will be considering this patch for backports?
+diff --git a/drivers/pci/controller/vmd.c b/drivers/pci/controller/vmd.c
+index 999a5509e57e..6c80b9098dd0 100644
+--- a/drivers/pci/controller/vmd.c
++++ b/drivers/pci/controller/vmd.c
+@@ -94,6 +94,7 @@ struct vmd_dev {
+ 	struct resource		resources[3];
+ 	struct irq_domain	*irq_domain;
+ 	struct pci_bus		*bus;
++	u8			busn_start;
+ 
+ 	struct dma_map_ops	dma_ops;
+ 	struct dma_domain	dma_domain;
+@@ -440,7 +441,8 @@ static char __iomem *vmd_cfg_addr(struct vmd_dev *vmd, struct pci_bus *bus,
+ 				  unsigned int devfn, int reg, int len)
+ {
+ 	char __iomem *addr = vmd->cfgbar +
+-			     (bus->number << 20) + (devfn << 12) + reg;
++			     ((bus->number - vmd->busn_start) << 20) +
++			     (devfn << 12) + reg;
+ 
+ 	if ((addr - vmd->cfgbar) + len >=
+ 	    resource_size(&vmd->dev->resource[VMD_CFGBAR]))
+@@ -563,7 +565,7 @@ static int vmd_enable_domain(struct vmd_dev *vmd, unsigned long features)
+ 	unsigned long flags;
+ 	LIST_HEAD(resources);
+ 	resource_size_t offset[2] = {0};
+-	resource_size_t membar2_offset = 0x2000, busn_start = 0;
++	resource_size_t membar2_offset = 0x2000;
+ 	struct pci_bus *child;
+ 
+ 	/*
+@@ -606,14 +608,14 @@ static int vmd_enable_domain(struct vmd_dev *vmd, unsigned long features)
+ 		pci_read_config_dword(vmd->dev, PCI_REG_VMCONFIG, &vmconfig);
+ 		if (BUS_RESTRICT_CAP(vmcap) &&
+ 		    (BUS_RESTRICT_CFG(vmconfig) == 0x1))
+-			busn_start = 128;
++			vmd->busn_start = 128;
+ 	}
+ 
+ 	res = &vmd->dev->resource[VMD_CFGBAR];
+ 	vmd->resources[0] = (struct resource) {
+ 		.name  = "VMD CFGBAR",
+-		.start = busn_start,
+-		.end   = busn_start + (resource_size(res) >> 20) - 1,
++		.start = vmd->busn_start,
++		.end   = vmd->busn_start + (resource_size(res) >> 20) - 1,
+ 		.flags = IORESOURCE_BUS | IORESOURCE_PCI_FIXED,
+ 	};
+ 
+@@ -681,8 +683,8 @@ static int vmd_enable_domain(struct vmd_dev *vmd, unsigned long features)
+ 	pci_add_resource_offset(&resources, &vmd->resources[1], offset[0]);
+ 	pci_add_resource_offset(&resources, &vmd->resources[2], offset[1]);
+ 
+-	vmd->bus = pci_create_root_bus(&vmd->dev->dev, busn_start, &vmd_ops,
+-				       sd, &resources);
++	vmd->bus = pci_create_root_bus(&vmd->dev->dev, vmd->busn_start,
++				       &vmd_ops, sd, &resources);
+ 	if (!vmd->bus) {
+ 		pci_free_resource_list(&resources);
+ 		irq_domain_remove(vmd->irq_domain);
+-- 
+2.20.1
 
