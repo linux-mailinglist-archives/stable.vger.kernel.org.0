@@ -2,137 +2,161 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 831653959C
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 21:29:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D656C395B9
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 21:31:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730273AbfFGT3z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 15:29:55 -0400
-Received: from mail-wm1-f66.google.com ([209.85.128.66]:51931 "EHLO
-        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730234AbfFGT3x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Jun 2019 15:29:53 -0400
-Received: by mail-wm1-f66.google.com with SMTP id f10so3131086wmb.1
-        for <stable@vger.kernel.org>; Fri, 07 Jun 2019 12:29:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:in-reply-to
-         :references:subject:to:from:cc;
-        bh=Ap2p4K3FsBhUMMLvzSSv6qGy6XWuBL+FfMivSOfqOJ8=;
-        b=s5AxgnMWDpn6CtYOzZSF9hjBWFmPBtZaEZn0wUfZIB7ELojrTR2LQUSgfegfbL9hWK
-         Dyu9kPxMVZdWzl0DYg0V0CGOqtDpDT2twfBZY6ZzcMt3RxybrsXK7JkmS99AwXFyW3vh
-         N1gycoyii5hZ5NUKE+8fJMrVPAQ3L/lyx+ycwDCrCL1SggRk2tI5Rd9ynSFe+KipGN2F
-         S//K6f2VOJiBAT94rAHPOPDGyr3m3nJwnZUN5EU69AuDqoG8bZtqIiswvsOMEXQOOyA6
-         0Pyax0QZsW777YthmhXgjXo0tsgQQQ9Gs8sbL09h2tWwi/9Lk9XVkVT6Pl4Xcl2LSRNj
-         d14w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:in-reply-to:references:subject:to:from:cc;
-        bh=Ap2p4K3FsBhUMMLvzSSv6qGy6XWuBL+FfMivSOfqOJ8=;
-        b=WtlwqGLWIfuHANaG/ajQtR459DveY7nrdgEmu95qQRHXf7a7WskvMh3fZ/G26WjJMf
-         qdRZVU/0flGSm3bAxiOJjpjgSw5MDxZUPaBHHDtDdnfiDo+KuFjQ316lq2NyepsqsewY
-         Cz86PZ6Kq7BaSB1X3ki+F4Am7S5OtJE3fN5fjfHtG4K/kVwTYr+qUug8mM7TWMUFB79Z
-         TfMkdTXawsvmBBfKn98paFdtqgY+68A52bkFDBoUGpaTucm2IJSf8Hby3zkCv05348cD
-         2GYzoRPUUaa6BfP2XJ+dPwrdIPcqVfZHzlPN/bxWqXjBW0oo/wsr4VJOQz9RzLP0gZZz
-         Bnlw==
-X-Gm-Message-State: APjAAAX346Q/menncXPOZLCzx8rPSA6crcbkRQsZbS1vpdq6kRIl7aCp
-        RRVVhMKusQUaYSTyRwmh+uYoSjY3DDz9Lw==
-X-Google-Smtp-Source: APXvYqzg8rN4XO2cEWlxa8W8vpTbdCYD+U6tzRJD13uX0yolhaXKgzY6lmmpxqR+wy8yGJR9WOBlcA==
-X-Received: by 2002:a1c:6a17:: with SMTP id f23mr4626066wmc.91.1559935791212;
-        Fri, 07 Jun 2019 12:29:51 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id 128sm2810695wme.12.2019.06.07.12.29.49
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 07 Jun 2019 12:29:49 -0700 (PDT)
-Message-ID: <5cfabb2d.1c69fb81.8cb0f.1984@mx.google.com>
-Date:   Fri, 07 Jun 2019 12:29:49 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.19.48-73-gbcc090cdcd34
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Tree: stable-rc
-In-Reply-To: <20190607153848.669070800@linuxfoundation.org>
-References: <20190607153848.669070800@linuxfoundation.org>
-Subject: Re: [PATCH 4.19 00/73] 4.19.49-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        id S1729137AbfFGTbh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 15:31:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44118 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1729081AbfFGTbg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 15:31:36 -0400
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net [73.231.172.41])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id D6EE8208C0;
+        Fri,  7 Jun 2019 19:31:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1559935895;
+        bh=Gw/usvqp0v9ko/hEk7q90tRdkSd9aS+WSEKpShrB/7s=;
+        h=Date:From:To:Subject:From;
+        b=M8UPI8gBdo+BaY6Z7cez3BbnwyK3VJajklphD7sarTKuG4JQ769VUOD9h8GUtfQvN
+         gvjendSNK65PjAkKDi1NghVhV3C2tgVU7udAz3vuE7d2cO0u+ujVp2p5XBg42EOr/F
+         egTJlVom+2LQ/6zIoiU8KeIpvJ7VvX66/xznPKuU=
+Date:   Fri, 07 Jun 2019 12:31:34 -0700
+From:   akpm@linux-foundation.org
+To:     aarcange@redhat.com, hughd@google.com, jannh@google.com,
+        jgg@mellanox.com, kirill.shutemov@linux.intel.com, mhocko@suse.com,
+        mike.kravetz@oracle.com, mm-commits@vger.kernel.org,
+        oleg@redhat.com, peterx@redhat.com, rppt@linux.vnet.ibm.com,
         stable@vger.kernel.org
+Subject:  +
+ =?US-ASCII?Q?coredump-fix-race-condition-between-collapse=5Fhuge=5Fpag?=
+ =?US-ASCII?Q?e-and-core-dumping.patch?= added to -mm tree
+Message-ID: <20190607193134.P_CPE0lVe%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y boot: 123 boots: 0 failed, 112 passed with 10 offlin=
-e, 1 conflict (v4.19.48-73-gbcc090cdcd34)
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.19.y/kernel/v4.19.48-73-gbcc090cdcd34/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
-y/kernel/v4.19.48-73-gbcc090cdcd34/
+The patch titled
+     Subject: coredump: fix race condition between collapse_huge_page() and core dumping
+has been added to the -mm tree.  Its filename is
+     coredump-fix-race-condition-between-collapse_huge_page-and-core-dumping.patch
 
-Tree: stable-rc
-Branch: linux-4.19.y
-Git Describe: v4.19.48-73-gbcc090cdcd34
-Git Commit: bcc090cdcd3453e60d078bbce0f28dc4ebb8d79d
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 68 unique boards, 23 SoC families, 14 builds out of 206
+This patch should soon appear at
+    http://ozlabs.org/~akpm/mmots/broken-out/coredump-fix-race-condition-between-collapse_huge_page-and-core-dumping.patch
+and later at
+    http://ozlabs.org/~akpm/mmotm/broken-out/coredump-fix-race-condition-between-collapse_huge_page-and-core-dumping.patch
 
-Boot Regressions Detected:
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-arm64:
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
-    defconfig:
-        gcc-8:
-          meson-gxl-s905x-khadas-vim:
-              lab-baylibre-seattle: new failure (last pass: v4.19.48)
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
-Offline Platforms:
+------------------------------------------------------
+From: Andrea Arcangeli <aarcange@redhat.com>
+Subject: coredump: fix race condition between collapse_huge_page() and core dumping
 
-arm:
+When fixing the race conditions between the coredump and the mmap_sem
+holders outside the context of the process, we focused on
+mmget_not_zero()/get_task_mm() callers in 04f5866e41fb70 ("coredump: fix
+race condition between mmget_not_zero()/get_task_mm() and core dumping"),
+but those aren't the only cases where the mmap_sem can be taken outside of
+the context of the process as Michal Hocko noticed while backporting that
+commit to older -stable kernels.
 
-    bcm2835_defconfig:
-        gcc-8
-            bcm2835-rpi-b: 1 offline lab
+If mmgrab() is called in the context of the process, but then the mm_count
+reference is transferred outside the context of the process, that can also
+be a problem if the mmap_sem has to be taken for writing through that
+mm_count reference.
 
-    sama5_defconfig:
-        gcc-8
-            at91-sama5d4_xplained: 1 offline lab
+khugepaged registration calls mmgrab() in the context of the process, but
+the mmap_sem for writing is taken later in the context of the khugepaged
+kernel thread.
 
-    multi_v7_defconfig:
-        gcc-8
-            alpine-db: 1 offline lab
-            at91-sama5d4_xplained: 1 offline lab
-            socfpga_cyclone5_de0_sockit: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
+collapse_huge_page() after taking the mmap_sem for writing doesn't modify
+any vma, so it's not obvious that it could cause a problem to the
+coredump, but it happens to modify the pmd in a way that breaks an
+invariant that pmd_trans_huge_lock() relies upon.  collapse_huge_page()
+needs the mmap_sem for writing just to block concurrent page faults that
+call pmd_trans_huge_lock().
 
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
+Specifically the invariant that "!pmd_trans_huge()" cannot become a
+"pmd_trans_huge()" doesn't hold while collapse_huge_page() runs.
 
-arm64:
+The coredump will call __get_user_pages() without mmap_sem for reading,
+which eventually can invoke a lockless page fault which will need a
+functional pmd_trans_huge_lock().
 
-    defconfig:
-        gcc-8
-            apq8016-sbc: 1 offline lab
-            juno-r2: 1 offline lab
-            mt7622-rfb1: 1 offline lab
+So collapse_huge_page() needs to use mmget_still_valid() to check it's not
+running concurrently with the coredump...  as long as the coredump can
+invoke page faults without holding the mmap_sem for reading.
 
-Conflicting Boot Failure Detected: (These likely are not failures as other =
-labs are reporting PASS. Needs review.)
+This has "Fixes: khugepaged" to facilitate backporting, but in my view
+it's more a bug in the coredump code that will eventually have to be
+rewritten to stop invoking page faults without the mmap_sem for reading. 
+So the long term plan is still to drop all mmget_still_valid().
 
-arm64:
-    defconfig:
-        meson-gxl-s905x-khadas-vim:
-            lab-baylibre-seattle: FAIL (gcc-8)
-            lab-baylibre: PASS (gcc-8)
-
+Link: http://lkml.kernel.org/r/20190607161558.32104-1-aarcange@redhat.com
+Fixes: ba76149f47d8 ("thp: khugepaged")
+Signed-off-by: Andrea Arcangeli <aarcange@redhat.com>
+Reported-by: Michal Hocko <mhocko@suse.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Oleg Nesterov <oleg@redhat.com>
+Cc: Jann Horn <jannh@google.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Peter Xu <peterx@redhat.com>
+Cc: Jason Gunthorpe <jgg@mellanox.com>
+Cc: "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
-For more info write to <info@kernelci.org>
+
+ include/linux/sched/mm.h |    4 ++++
+ mm/khugepaged.c          |    3 +++
+ 2 files changed, 7 insertions(+)
+
+--- a/include/linux/sched/mm.h~coredump-fix-race-condition-between-collapse_huge_page-and-core-dumping
++++ a/include/linux/sched/mm.h
+@@ -54,6 +54,10 @@ static inline void mmdrop(struct mm_stru
+  * followed by taking the mmap_sem for writing before modifying the
+  * vmas or anything the coredump pretends not to change from under it.
+  *
++ * It also has to be called when mmgrab() is used in the context of
++ * the process, but then the mm_count refcount is transferred outside
++ * the context of the process to run down_write() on that pinned mm.
++ *
+  * NOTE: find_extend_vma() called from GUP context is the only place
+  * that can modify the "mm" (notably the vm_start/end) under mmap_sem
+  * for reading and outside the context of the process, so it is also
+--- a/mm/khugepaged.c~coredump-fix-race-condition-between-collapse_huge_page-and-core-dumping
++++ a/mm/khugepaged.c
+@@ -1004,6 +1004,9 @@ static void collapse_huge_page(struct mm
+ 	 * handled by the anon_vma lock + PG_lock.
+ 	 */
+ 	down_write(&mm->mmap_sem);
++	result = SCAN_ANY_PROCESS;
++	if (!mmget_still_valid(mm))
++		goto out;
+ 	result = hugepage_vma_revalidate(mm, address, &vma);
+ 	if (result)
+ 		goto out;
+_
+
+Patches currently in -mm which might be from aarcange@redhat.com are
+
+coredump-fix-race-condition-between-collapse_huge_page-and-core-dumping.patch
+
