@@ -2,30 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EA6139783
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 23:15:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BC0539787
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 23:16:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731250AbfFGVPz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 17:15:55 -0400
-Received: from metis.ext.pengutronix.de ([85.220.165.71]:38645 "EHLO
+        id S1731270AbfFGVQA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 17:16:00 -0400
+Received: from metis.ext.pengutronix.de ([85.220.165.71]:53437 "EHLO
         metis.ext.pengutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731265AbfFGVPz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Jun 2019 17:15:55 -0400
+        with ESMTP id S1731300AbfFGVP7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Jun 2019 17:15:59 -0400
 Received: from heimdall.vpn.pengutronix.de ([2001:67c:670:205:1d::14] helo=blackshift.org)
         by metis.ext.pengutronix.de with esmtp (Exim 4.89)
         (envelope-from <mkl@pengutronix.de>)
-        id 1hZMDE-00006I-Ju; Fri, 07 Jun 2019 23:15:48 +0200
+        id 1hZMDK-00006I-29; Fri, 07 Jun 2019 23:15:54 +0200
 From:   Marc Kleine-Budde <mkl@pengutronix.de>
 To:     netdev@vger.kernel.org
 Cc:     davem@davemloft.net, linux-can@vger.kernel.org,
-        kernel@pengutronix.de, Anssi Hannula <anssi.hannula@bitwise.fi>,
-        Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>,
-        Michal Simek <michal.simek@xilinx.com>,
+        kernel@pengutronix.de, Willem de Bruijn <willemb@google.com>,
+        syzbot+a90604060cb40f5bdd16@syzkaller.appspotmail.com,
         linux-stable <stable@vger.kernel.org>,
         Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 3/9] can: xilinx_can: use correct bittiming_const for CAN FD core
-Date:   Fri,  7 Jun 2019 23:15:35 +0200
-Message-Id: <20190607211541.16095-4-mkl@pengutronix.de>
+Subject: [PATCH 9/9] can: purge socket error queue on sock destruct
+Date:   Fri,  7 Jun 2019 23:15:41 +0200
+Message-Id: <20190607211541.16095-10-mkl@pengutronix.de>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190607211541.16095-1-mkl@pengutronix.de>
 References: <20190607211541.16095-1-mkl@pengutronix.de>
@@ -40,41 +39,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anssi Hannula <anssi.hannula@bitwise.fi>
+From: Willem de Bruijn <willemb@google.com>
 
-Commit 9e5f1b273e6a ("can: xilinx_can: add support for Xilinx CAN FD
-core") added a new can_bittiming_const structure for CAN FD cores that
-support larger values for tseg1, tseg2, and sjw than previous Xilinx CAN
-cores, but the commit did not actually take that into use.
+CAN supports software tx timestamps as of the below commit. Purge
+any queued timestamp packets on socket destroy.
 
-Fix that.
-
-Tested with CAN FD core on a ZynqMP board.
-
-Fixes: 9e5f1b273e6a ("can: xilinx_can: add support for Xilinx CAN FD core")
-Reported-by: Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
-Signed-off-by: Anssi Hannula <anssi.hannula@bitwise.fi>
-Cc: Michal Simek <michal.simek@xilinx.com>
-Reviewed-by: Shubhrajyoti Datta <shubhrajyoti.datta@gmail.com>
+Fixes: 51f31cabe3ce ("ip: support for TX timestamps on UDP and RAW sockets")
+Reported-by: syzbot+a90604060cb40f5bdd16@syzkaller.appspotmail.com
+Signed-off-by: Willem de Bruijn <willemb@google.com>
 Cc: linux-stable <stable@vger.kernel.org>
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 ---
- drivers/net/can/xilinx_can.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/can/af_can.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/can/xilinx_can.c b/drivers/net/can/xilinx_can.c
-index f2024404b8d6..63203ff452b5 100644
---- a/drivers/net/can/xilinx_can.c
-+++ b/drivers/net/can/xilinx_can.c
-@@ -1435,7 +1435,7 @@ static const struct xcan_devtype_data xcan_canfd_data = {
- 		 XCAN_FLAG_RXMNF |
- 		 XCAN_FLAG_TX_MAILBOXES |
- 		 XCAN_FLAG_RX_FIFO_MULTI,
--	.bittiming_const = &xcan_bittiming_const,
-+	.bittiming_const = &xcan_bittiming_const_canfd,
- 	.btr_ts2_shift = XCAN_BTR_TS2_SHIFT_CANFD,
- 	.btr_sjw_shift = XCAN_BTR_SJW_SHIFT_CANFD,
- 	.bus_clk_name = "s_axi_aclk",
+diff --git a/net/can/af_can.c b/net/can/af_can.c
+index 743470680127..80281ef2ccbd 100644
+--- a/net/can/af_can.c
++++ b/net/can/af_can.c
+@@ -99,6 +99,7 @@ EXPORT_SYMBOL(can_ioctl);
+ static void can_sock_destruct(struct sock *sk)
+ {
+ 	skb_queue_purge(&sk->sk_receive_queue);
++	skb_queue_purge(&sk->sk_error_queue);
+ }
+ 
+ static const struct can_proto *can_get_proto(int protocol)
 -- 
 2.20.1
 
