@@ -2,118 +2,221 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 41E0938E8B
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:10:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EEBEA38E99
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:10:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729642AbfFGPJo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 11:09:44 -0400
-Received: from mail-io1-f68.google.com ([209.85.166.68]:34278 "EHLO
-        mail-io1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729485AbfFGPJn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Jun 2019 11:09:43 -0400
-Received: by mail-io1-f68.google.com with SMTP id k8so1676780iot.1
-        for <stable@vger.kernel.org>; Fri, 07 Jun 2019 08:09:42 -0700 (PDT)
+        id S1728724AbfFGPK0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 11:10:26 -0400
+Received: from mail-ed1-f65.google.com ([209.85.208.65]:39730 "EHLO
+        mail-ed1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729875AbfFGPK0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Jun 2019 11:10:26 -0400
+Received: by mail-ed1-f65.google.com with SMTP id m10so3499281edv.6
+        for <stable@vger.kernel.org>; Fri, 07 Jun 2019 08:10:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=nSNwEwVBB35crYOfAcA03OB3tW5Yj6TRGwmQgBYzS/M=;
-        b=XNeJTWv5IXSPKxj4O4Mhj3ddn0md3FRvFIIWRXJE8yJDd7Ys9oWZo1L5YVOYAWERSg
-         nt6UPyZCSw5l/L9g1sx0bJXO+XoJOUTcB5+fPaFnQfDzH4h0BXIekTVxh29osI+nndYh
-         89KgZAmKZSRHoBH7RCHlinKsP3GvccK957wV0=
+        d=ffwll.ch; s=google;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to
+         :user-agent;
+        bh=x8tgX7GxOWk4zkmfV9eOh7llWMCmcqIg/K0VpKzqFHc=;
+        b=bLCcGrQbnNLVOggqGnU2+2vr2zijK5I3m6mQVTvTJBQfakPw7HwC/03QFiS/PCMolZ
+         MI5j2av4X4dHRbisnuy5VcyqZgf6B82xv+aRZ7F0n4LjRbrVx51Pdc9K8Sfs19z9rC2x
+         /vQpzg37Plu1NadO2qPBNTBOQmmaml4MZOGHw=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=nSNwEwVBB35crYOfAcA03OB3tW5Yj6TRGwmQgBYzS/M=;
-        b=CkTRXt3tCfu8sd8dzBrXForxdl3ZX9Tr51LWAaCNoaM80bQFzAKuLko42o5XkDmtAG
-         GZ/feiDMVKr56rhSlGOkpLGj7SgMQ3kWf2Xn6or9XEWOs8jEoqyjuTktyBBpOjvzj90E
-         GODkCFLqBRdVNRKfUYyDXIq31iwhq1go3YJAQaR5GtjKNK5BfLCJaAIUosJJl+BAn1pn
-         9P9DxmccX9VwJc0YCOdxbstXuoggKfj1hZBm0B3O/Zeg4n0tQnT8JMy1RJu8+PPMR4YL
-         bEFicR86iB6AQaDD/uhIeVgrKwZgd8M4oSkge19zzcR0p5Pi/T/Rl/bT/2i9+Y7pX4el
-         jeGQ==
-X-Gm-Message-State: APjAAAVcSEiEW5fx1qIe+fQ9ZRPy1F0yUU36oim+cWtbIPdaYs8qI6Td
-        HN5iZU8H7aJ0wMUhydQeCi2Hxey19WQ=
-X-Google-Smtp-Source: APXvYqyW6B2wOvOecFlG2mITPEe2w5lg9jY4kRnMerz4ianEgdiRXHs5XvSzoFo24bSwJ0ZIeXJ8/A==
-X-Received: by 2002:a5d:91cc:: with SMTP id k12mr1218202ior.131.1559920182413;
-        Fri, 07 Jun 2019 08:09:42 -0700 (PDT)
-Received: from mail-it1-f176.google.com (mail-it1-f176.google.com. [209.85.166.176])
-        by smtp.gmail.com with ESMTPSA id x78sm999586ita.44.2019.06.07.08.09.40
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
-        Fri, 07 Jun 2019 08:09:40 -0700 (PDT)
-Received: by mail-it1-f176.google.com with SMTP id a186so3236903itg.0
-        for <stable@vger.kernel.org>; Fri, 07 Jun 2019 08:09:40 -0700 (PDT)
-X-Received: by 2002:a24:b106:: with SMTP id o6mr3886319itf.97.1559920180064;
- Fri, 07 Jun 2019 08:09:40 -0700 (PDT)
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition
+         :content-transfer-encoding:in-reply-to:user-agent;
+        bh=x8tgX7GxOWk4zkmfV9eOh7llWMCmcqIg/K0VpKzqFHc=;
+        b=fOo7sZf/uTMv0dznwt3cSO6blk7eYcoqeoStM0g9tKExTxBPI5e/3U/0vyc+L4+Kak
+         1v/DLZ+d40PAZGGix4vCYTsgLFL+3u5//UizhmMvuVZFAOMAtNYNQug2MwR5ikP8lmTC
+         Eg3MO3CW9gnZtFloGGz8EUa0KPlGRBEIkAma/d4zBD++VX+RBiMj+cA175+3yizkk6jA
+         js4uIhGhhE6tCq8D3qtNdTWnvmAYH1tFfOcDoAeyS2MQlQIQgO55pTkOHWgY8W3cZzUS
+         /VaSMuia7xCa7hNGI4hqe2jHHg0d4IJYW24IV2/dydcj2ettgu+et9V7coZV6tRzwJ/I
+         s8Vg==
+X-Gm-Message-State: APjAAAVx0zilk4EZHsqQIW3eb8GQrqbapemF9Uw3H+/CTm3bcwFHRf6S
+        RzmBOKpHEt6rySZpc+xQi5YzUKi95nY=
+X-Google-Smtp-Source: APXvYqzk6Nj13tec5Eq8pnk5r8g21UTe2h9jirlV97a+URiIIR9NI1OyympteOxPHlh3s2N/nz37Ow==
+X-Received: by 2002:a17:906:5399:: with SMTP id g25mr31629549ejo.247.1559920224318;
+        Fri, 07 Jun 2019 08:10:24 -0700 (PDT)
+Received: from phenom.ffwll.local ([2a02:168:569e:0:3106:d637:d723:e855])
+        by smtp.gmail.com with ESMTPSA id t3sm424749ejk.56.2019.06.07.08.10.23
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Fri, 07 Jun 2019 08:10:23 -0700 (PDT)
+Date:   Fri, 7 Jun 2019 17:10:21 +0200
+From:   Daniel Vetter <daniel@ffwll.ch>
+To:     Jani Nikula <jani.nikula@intel.com>
+Cc:     intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        Paul Wise <pabs3@bonedaddy.net>,
+        Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@cs.helsinki.fi>,
+        stable@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Ville =?iso-8859-1?Q?Syrj=E4l=E4?= 
+        <ville.syrjala@linux.intel.com>,
+        Harish Chegondi <harish.chegondi@intel.com>
+Subject: Re: [PATCH 2/2] drm: add fallback override/firmware EDID modes
+ workaround
+Message-ID: <20190607151021.GJ21222@phenom.ffwll.local>
+References: <20190607110513.12072-1-jani.nikula@intel.com>
+ <20190607110513.12072-2-jani.nikula@intel.com>
 MIME-Version: 1.0
-References: <lsq.1549201507.384106140@decadent.org.uk> <lsq.1549201508.623062416@decadent.org.uk>
-In-Reply-To: <lsq.1549201508.623062416@decadent.org.uk>
-From:   Doug Anderson <dianders@chromium.org>
-Date:   Fri, 7 Jun 2019 08:09:27 -0700
-X-Gmail-Original-Message-ID: <CAD=FV=U263K-OEdnDzL=4oxLHXTkqgQygYCup=jSCRGvv+vMsw@mail.gmail.com>
-Message-ID: <CAD=FV=U263K-OEdnDzL=4oxLHXTkqgQygYCup=jSCRGvv+vMsw@mail.gmail.com>
-Subject: Re: [PATCH 3.16 025/305] media: uvcvideo: Fix uvc_alloc_entity()
- allocation alignment
-To:     "stable@vger.kernel.org" <stable@vger.kernel.org>
-Cc:     LKML <linux-kernel@vger.kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Denis Kirjanov <kda@linux-powerpc.org>,
-        Nadav Amit <namit@vmware.com>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Ben Hutchings <ben@decadent.org.uk>,
-        Tomasz Figa <tfiga@chromium.org>,
-        Guenter Roeck <groeck@chromium.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190607110513.12072-2-jani.nikula@intel.com>
+X-Operating-System: Linux phenom 4.14.0-3-amd64 
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On Fri, Jun 07, 2019 at 02:05:13PM +0300, Jani Nikula wrote:
+> We've moved the override and firmware EDID (simply "override EDID" from
+> now on) handling to the low level drm_do_get_edid() function in order to
+> transparently use the override throughout the stack. The idea is that
+> you get the override EDID via the ->get_modes() hook.
+> 
+> Unfortunately, there are scenarios where the DDC probe in drm_get_edid()
+> called via ->get_modes() fails, although the preceding ->detect()
+> succeeds.
+> 
+> In the case reported by Paul Wise, the ->detect() hook,
+> intel_crt_detect(), relies on hotplug detect, bypassing the DDC. In the
+> case reported by Ilpo Järvinen, there is no ->detect() hook, which is
+> interpreted as connected. The subsequent DDC probe reached via
+> ->get_modes() fails, and we don't even look at the override EDID,
+> resulting in no modes being added.
+> 
+> Because drm_get_edid() is used via ->detect() all over the place, we
+> can't trivially remove the DDC probe, as it leads to override EDID
+> effectively meaning connector forcing. The goal is that connector
+> forcing and override EDID remain orthogonal.
+> 
+> Generally, the underlying problem here is the conflation of ->detect()
+> and ->get_modes() via drm_get_edid(). The former should just detect, and
+> the latter should just get the modes, typically via reading the EDID. As
+> long as drm_get_edid() is used in ->detect(), it needs to retain the DDC
+> probe. Or such users need to have a separate DDC probe step first.
+> 
+> Work around the regression by falling back to a separate attempt at
+> getting the override EDID at drm_helper_probe_single_connector_modes()
+> level. With a working DDC and override EDID, it'll never be called; the
+> override EDID will come via ->get_modes(). There will still be a failing
+> DDC probe attempt in the cases that require the fallback.
 
-On Sun, Feb 3, 2019 at 5:50 AM Ben Hutchings <ben@decadent.org.uk> wrote:
->
-> 3.16.63-rc1 review patch.  If anyone has any objections, please let me know.
->
-> ------------------
->
-> From: Nadav Amit <namit@vmware.com>
->
-> commit 89dd34caf73e28018c58cd193751e41b1f8bdc56 upstream.
->
-> The use of ALIGN() in uvc_alloc_entity() is incorrect, since the size of
-> (entity->pads) is not a power of two. As a stop-gap, until a better
-> solution is adapted, use roundup() instead.
->
-> Found by a static assertion. Compile-tested only.
->
-> Fixes: 4ffc2d89f38a ("uvcvideo: Register subdevices for each entity")
->
-> Signed-off-by: Nadav Amit <namit@vmware.com>
-> Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-> Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-> Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+I think we should also highlight here that EDID caching between ->detect
+and ->get_modes is a further complicating concern, which is why making
+drm_do_get_edid magically dtrt between ->detect and ->get_modes doesn't
+work either.
+
+Aside from that nit I think this covers our lengthy discussion completely.
+
+> Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=107583
+> Reported-by: Paul Wise <pabs3@bonedaddy.net>
+> Cc: Paul Wise <pabs3@bonedaddy.net>
+> References: http://mid.mail-archive.com/alpine.DEB.2.20.1905262211270.24390@whs-18.cs.helsinki.fi
+> Reported-by: Ilpo Järvinen <ilpo.jarvinen@cs.helsinki.fi>
+> Cc: Ilpo Järvinen <ilpo.jarvinen@cs.helsinki.fi>
+> References: 15f080f08d48 ("drm/edid: respect connector force for drm_get_edid ddc probe")
+> Fixes: 53fd40a90f3c ("drm: handle override and firmware EDID at drm_do_get_edid() level")
+> Cc: <stable@vger.kernel.org> # v4.15+
+> Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+> Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> Cc: Harish Chegondi <harish.chegondi@intel.com>
+> Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+
+As discussed on irc, we need tested-by here from the reporters since
+there's way too many losing and frustrangingly few winning moves here.
+
+With all that, on the series:
+
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+
+Thanks a lot for slogging through all this and pondering all the options
+and implications!
+
+Cheers, Daniel
 > ---
->  drivers/media/usb/uvc/uvc_driver.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> --- a/drivers/media/usb/uvc/uvc_driver.c
-> +++ b/drivers/media/usb/uvc/uvc_driver.c
-> @@ -826,7 +826,7 @@ static struct uvc_entity *uvc_alloc_enti
->         unsigned int size;
->         unsigned int i;
->
-> -       extra_size = ALIGN(extra_size, sizeof(*entity->pads));
-> +       extra_size = roundup(extra_size, sizeof(*entity->pads));
->         num_inputs = (type & UVC_TERM_OUTPUT) ? num_pads : num_pads - 1;
->         size = sizeof(*entity) + extra_size + sizeof(*entity->pads) * num_pads
->              + num_inputs;
+>  drivers/gpu/drm/drm_edid.c         | 29 +++++++++++++++++++++++++++++
+>  drivers/gpu/drm/drm_probe_helper.c |  7 +++++++
+>  include/drm/drm_edid.h             |  1 +
+>  3 files changed, 37 insertions(+)
+> 
+> diff --git a/drivers/gpu/drm/drm_edid.c b/drivers/gpu/drm/drm_edid.c
+> index c59a1e8c5ada..780146bfc225 100644
+> --- a/drivers/gpu/drm/drm_edid.c
+> +++ b/drivers/gpu/drm/drm_edid.c
+> @@ -1587,6 +1587,35 @@ static struct edid *drm_get_override_edid(struct drm_connector *connector)
+>  	return IS_ERR(override) ? NULL : override;
+>  }
+>  
+> +/**
+> + * drm_add_override_edid_modes - add modes from override/firmware EDID
+> + * @connector: connector we're probing
+> + *
+> + * Add modes from the override/firmware EDID, if available. Only to be used from
+> + * drm_helper_probe_single_connector_modes() as a fallback for when DDC probe
+> + * failed during drm_get_edid() and caused the override/firmware EDID to be
+> + * skipped.
+> + *
+> + * Return: The number of modes added or 0 if we couldn't find any.
+> + */
+> +int drm_add_override_edid_modes(struct drm_connector *connector)
+> +{
+> +	struct edid *override;
+> +	int num_modes = 0;
+> +
+> +	override = drm_get_override_edid(connector);
+> +	if (override) {
+> +		num_modes = drm_add_edid_modes(connector, override);
+> +		kfree(override);
+> +
+> +		DRM_DEBUG_KMS("[CONNECTOR:%d:%s] adding %d modes via fallback override/firmware EDID\n",
+> +			      connector->base.id, connector->name, num_modes);
+> +	}
+> +
+> +	return num_modes;
+> +}
+> +EXPORT_SYMBOL(drm_add_override_edid_modes);
+> +
+>  /**
+>   * drm_do_get_edid - get EDID data using a custom EDID block read function
+>   * @connector: connector we're probing
+> diff --git a/drivers/gpu/drm/drm_probe_helper.c b/drivers/gpu/drm/drm_probe_helper.c
+> index 01e243f1ea94..ef2c468205a2 100644
+> --- a/drivers/gpu/drm/drm_probe_helper.c
+> +++ b/drivers/gpu/drm/drm_probe_helper.c
+> @@ -480,6 +480,13 @@ int drm_helper_probe_single_connector_modes(struct drm_connector *connector,
+>  
+>  	count = (*connector_funcs->get_modes)(connector);
+>  
+> +	/*
+> +	 * Fallback for when DDC probe failed in drm_get_edid() and thus skipped
+> +	 * override/firmware EDID.
+> +	 */
+> +	if (count == 0 && connector->status == connector_status_connected)
+> +		count = drm_add_override_edid_modes(connector);
+> +
+>  	if (count == 0 && connector->status == connector_status_connected)
+>  		count = drm_add_modes_noedid(connector, 1024, 768);
+>  	count += drm_helper_probe_add_cmdline_mode(connector);
+> diff --git a/include/drm/drm_edid.h b/include/drm/drm_edid.h
+> index 88b63801f9db..b9719418c3d2 100644
+> --- a/include/drm/drm_edid.h
+> +++ b/include/drm/drm_edid.h
+> @@ -478,6 +478,7 @@ struct edid *drm_get_edid_switcheroo(struct drm_connector *connector,
+>  				     struct i2c_adapter *adapter);
+>  struct edid *drm_edid_duplicate(const struct edid *edid);
+>  int drm_add_edid_modes(struct drm_connector *connector, struct edid *edid);
+> +int drm_add_override_edid_modes(struct drm_connector *connector);
+>  
+>  u8 drm_match_cea_mode(const struct drm_display_mode *to_match);
+>  enum hdmi_picture_aspect drm_get_cea_aspect_ratio(const u8 video_code);
+> -- 
+> 2.20.1
+> 
 
-Funny that this commit made its way to 3.16 but didn't make its way to
-4.19 (at least checking 4.19.43).  I haven't seen any actual crashes
-caused by the lack of this commit but it seems like the kind of thing
-we probably want picked back to other stable kernels too.
-
--Doug
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
