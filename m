@@ -2,99 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FDD6391F9
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 18:27:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36FBF391FF
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 18:28:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730200AbfFGQ1Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 12:27:25 -0400
-Received: from mail-pf1-f193.google.com ([209.85.210.193]:33689 "EHLO
-        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729986AbfFGQ1Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Jun 2019 12:27:24 -0400
-Received: by mail-pf1-f193.google.com with SMTP id x15so1500988pfq.0;
-        Fri, 07 Jun 2019 09:27:24 -0700 (PDT)
+        id S1729986AbfFGQ2L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 12:28:11 -0400
+Received: from mail-io1-f68.google.com ([209.85.166.68]:37102 "EHLO
+        mail-io1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730459AbfFGQ2K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Jun 2019 12:28:10 -0400
+Received: by mail-io1-f68.google.com with SMTP id e5so1875477iok.4
+        for <stable@vger.kernel.org>; Fri, 07 Jun 2019 09:28:10 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=XeJqlljc/DcLq2LdbRfl+U/1KHhpI1pBfv141U86JNE=;
-        b=Qhq/mLyLAI7Qa/kMeTNNjcQ72HN58L7rQT+3pEMsGf8qr7lbiVkMDxcOlOwsStT3xO
-         64KGhtkoeSzULWWdF3jK5PyizRW2chVl8nJMYGm7F/oYJbjzgHsXKTDFGkOwZFmXJnv/
-         rID8nW7NexiZ2capUgEyOgcykdsnBJY4ykx02XWkFVvugaXQ+dUmOW/fY1PJy/kmeBmi
-         XzJSPiqrtWI0sZ7s0SnKnRSnM60t0FLRlEXFY1c6ElvEsX5M0R/+zTqGzUAVx/4Rx7Pp
-         7jiseyNbGSG+kGmfB+5aKDn5/ZdRcQCzIdrrJHKP0TCgWqU/fT7KkoGSXi73bmx8SIli
-         VuNw==
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=EpFmn1nFZ0dZQ5WZgQhumGKYIchPn+/iQPxpM1BzFNE=;
+        b=JLwTu3aJRP9gycJQP7ZPtZIpjmejCZj0mQQ5gEC3OgtEGZvWWCyyzKwejcjP42mSdz
+         FkUrzw62J93jtqUiLcFKo6JmfwuD7+Ec34RSo27brx2qKcagn2GbMLFPwwcLFuEF3GWs
+         xnxMHWP+khfuFPi2Mc1skBwFKhM7JElyipzy4iK8RhT05/ivvdzrZvy0r7tTLMHlAdfk
+         pedHv+rKhk5Oovptbdmlz+LA+EPYLrumUnsOc8pHUnlNKlVhOBibXO6biG7Cey+Ue/i/
+         RvDYkhpiB7y31Qt2t8vOwwQXu+En0JJ249PbqjE3PUsPA3HFiEAEDvvvQANVgpAfINbG
+         ydmw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to:user-agent;
-        bh=XeJqlljc/DcLq2LdbRfl+U/1KHhpI1pBfv141U86JNE=;
-        b=MClbN61NC5PkfOtmi/+mKYj2RUtHqfo5MSIjCjEZfXU1arlj4SZQN5J82PtUqD5AR0
-         UwceuNDkZRgvva+vaAkMNgmrLzZjGlR0sYCMYYZV7ha1SVNTbPHJhSlxngWY7TsWISXr
-         Sp/sqVf1jnNmA4uQKK2pZ86MBV1r02915mfHqLlLfxAsilZz8gqusFH9KWyvQDHteKS3
-         1DQHVmgdafbug8wb4rUD8PpqOGlFDmgB7554L7mNbpBBuJixY4jruJW/0fFUd4ZbxzI1
-         DMfcCSj/9NiqqCOAQnAHmEDJsbwg05ZW3idXsqLEQSqkMRp+5YTu93JIglacDGGFtLgI
-         u7tA==
-X-Gm-Message-State: APjAAAUDr3A8RRjUo7gWYsi7YEOqQ800B9WoSyF+Ayrw3A77mIgP+xHb
-        0+bgeHzOvyiAzwyZSpr5Tqk=
-X-Google-Smtp-Source: APXvYqxdYUr51nh4UeWcmVb6oKc95oIfUDQiXlMIvmhxL2RNewwBvTldXS38KcN5oRHmID4SatYnKA==
-X-Received: by 2002:a63:fb01:: with SMTP id o1mr3659036pgh.410.1559924844088;
-        Fri, 07 Jun 2019 09:27:24 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id e26sm2796782pfn.94.2019.06.07.09.27.22
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 07 Jun 2019 09:27:23 -0700 (PDT)
-Date:   Fri, 7 Jun 2019 09:27:22 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 4.14 00/69] 4.14.124-stable review
-Message-ID: <20190607162722.GA21998@roeck-us.net>
-References: <20190607153848.271562617@linuxfoundation.org>
- <20190607161102.GA19615@roeck-us.net>
- <20190607161627.GA9920@kroah.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=EpFmn1nFZ0dZQ5WZgQhumGKYIchPn+/iQPxpM1BzFNE=;
+        b=WVLWj9xtTExxmTglYeYxbAHg39HeR94xsthPuKG0Kq2PbanaiTBwkxAmhU377Fiy1u
+         4InHwolPo51X0fBFx1eFMC2YHCO8/Z9DG711jml1ldj9dpuKG3BWEveWRlDSpGRKA2q2
+         W9IAoAqW3vKU1qSl2dez7TrJQU5s742xqzvNItM8WXiA/uCzNXHUi/UZpvBuBycP0lAD
+         Yv7NiBJQr29UHTILdqlKqCY6jJOHfywP3aOKEAD9dx5xleg6U+qvEweYtMfJlxMXzhjl
+         u9eZmXJ5VfQRRRsQ6YaxH31o++zqoo032SFsgMlA7kR+SwLMl4pxfkB3stWkGoYbnsmk
+         LTNw==
+X-Gm-Message-State: APjAAAW5IBEmESGcV6aDDjEfEmtcBlDADd9VHM4Wg2W4EJfshw12bXt7
+        SQdv1CHZFGvkfofX34X0eSI7Em96R2By7nbBlEOnWQ==
+X-Google-Smtp-Source: APXvYqyQYikL4RZlDGhQBnuPmlm6VOLftCYgDGAltauOlBa43AqXFzZ9QXKqkJ2L5VHywV5Y2vB6g+k1U+zQ51wFSsg=
+X-Received: by 2002:a6b:e711:: with SMTP id b17mr32766988ioh.3.1559924889193;
+ Fri, 07 Jun 2019 09:28:09 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190607161627.GA9920@kroah.com>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+References: <1204558561.21265703.1558449611621.JavaMail.zimbra@redhat.com>
+ <1667759567.21267950.1558450452057.JavaMail.zimbra@redhat.com>
+ <20190605204659.npyf7wnmsdlr2bff@xps.therub.org> <CAKocOONHHuL2xSBUQx0=pw5AHMG4im=9kv3GrJLrKaH6+wguDw@mail.gmail.com>
+In-Reply-To: <CAKocOONHHuL2xSBUQx0=pw5AHMG4im=9kv3GrJLrKaH6+wguDw@mail.gmail.com>
+From:   Dmitry Vyukov <dvyukov@google.com>
+Date:   Fri, 7 Jun 2019 18:27:57 +0200
+Message-ID: <CACT4Y+YFHZhm0pwoZdXSXtG4z1wHPOC9hG-RvRy=3szteEe6XA@mail.gmail.com>
+Subject: Re: CKI hackfest @Plumbers invite
+To:     Shuah Khan <shuahkhan@gmail.com>
+Cc:     Veronika Kabatova <vkabatov@redhat.com>,
+        automated-testing@yoctoproject.org, info@kernelci.org,
+        Tim Bird <Tim.Bird@sony.com>, khilamn@baylibre.org,
+        syzkaller <syzkaller@googlegroups.com>, lkp@lists.01.org,
+        stable <stable@vger.kernel.org>,
+        Laura Abbott <labbott@redhat.com>,
+        Eliska Slobodova <eslobodo@redhat.com>,
+        CKI Project <cki-project@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jun 07, 2019 at 06:16:27PM +0200, Greg Kroah-Hartman wrote:
-> On Fri, Jun 07, 2019 at 09:11:02AM -0700, Guenter Roeck wrote:
-> > On Fri, Jun 07, 2019 at 05:38:41PM +0200, Greg Kroah-Hartman wrote:
-> > > This is the start of the stable review cycle for the 4.14.124 release.
-> > > There are 69 patches in this series, all will be posted as a response
-> > > to this one.  If anyone has any issues with these being applied, please
-> > > let me know.
-> > > 
-> > > Responses should be made by Sun 09 Jun 2019 03:37:08 PM UTC.
-> > > Anything received after that time might be too late.
+On Thu, Jun 6, 2019 at 12:00 AM Shuah Khan <shuahkhan@gmail.com> wrote:
+>
+> Hi Veronika,
+>
+> On Wed, Jun 5, 2019 at 2:47 PM Dan Rue <dan.rue@linaro.org> wrote:
+> >
+> > On Tue, May 21, 2019 at 10:54:12AM -0400, Veronika Kabatova wrote:
+> > > Hi,
 > > >
-> > 
-> > fs/btrfs/inode.c: In function 'btrfs_add_link':
-> > fs/btrfs/inode.c:6590:27: error: invalid initializer
-> >    struct timespec64 now = current_time(&parent_inode->vfs_inode);
-> >                            ^~~~~~~~~~~~
-> > fs/btrfs/inode.c:6592:35: error: incompatible types when assigning to type 'struct timespec' from type 'struct timespec64'
-> >    parent_inode->vfs_inode.i_mtime = now;
-> >                                    ^
-> > fs/btrfs/inode.c:6593:35: error: incompatible types when assigning to type 'struct timespec' from type 'struct timespec64'
-> >    parent_inode->vfs_inode.i_ctime = now;
-> >                                    ^
-> 
-> What arch?  This builds for me here.  odd...
-> 
+> > > as some of you have heard, CKI Project is planning hackfest CI meetings after
+> > > Plumbers conference this year (Sept. 12-13). We would like to invite everyone
+> > > who has interest in CI for kernel to come and join us.
+> > >
+> > > The early agenda with summary is at the end of the email. If you think there's
+> > > something important missing let us know! Also let us know in case you'd want to
+> > > lead any of the sessions, we'd be happy to delegate out some work :)
+> > >
+> > >
+> > > Please send us an email as soon as you decide to come and feel free to invite
+> > > other people who should be present. We are not planning to cap the attendance
+> > > right now but need to solve the logistics based on the interest. The event is
+> > > free to attend, no additional registration except letting us know is needed.
+> > >
+>
+> I am going be there and plan to attend.
+>
+> > > Feel free to contact us if you have any questions,
+> > > Veronika
+> > > CKI Project
+> >
+> > Hi Veronika! Thanks for organizing this. I plan to attend, and I'm happy
+> > to help out.
+> >
+> > With regard to the agenda, I've been following the '[Ksummit-discuss]
+> > [MAINTAINERS SUMMIT] Squashing bugs!'[1] thread with interest, as it
+> > relates especially to 'Getting results to developers/maintainers'. This,
+> > along with result aggregation, are important areas to focus.
+> >
+> >
+> > [1] https://lists.linuxfoundation.org/pipermail/ksummit-discuss/2019-May/006389.html
+> >
+>
+> Good to know there is an overlap and it makes sense for me to attend. :)
 
-arm, i386, m68k, mips, parisc, xtensa, ppc, sh4
+Hi Shuah,
 
-It was originally seen with v4.14.123-69-gcc46c1204f89 last night,
-but I confirmed that v4.14.123-70-g94c5316fb246 is still affected.
+Oh, and I did not even know about
+https://lists.linuxfoundation.org/pipermail/ksummit-discuss/2019-May/006389.html
+How can I be kept in the loop/provide inputs/receive
+feedback/discussion summary?
 
-Guenter
+Thanks
