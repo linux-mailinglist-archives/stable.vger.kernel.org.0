@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E49A338FD7
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:47:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E0E73902B
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:49:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730601AbfFGPqF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 11:46:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58136 "EHLO mail.kernel.org"
+        id S1731999AbfFGPti (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 11:49:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731332AbfFGPqB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 11:46:01 -0400
+        id S1731983AbfFGPth (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 11:49:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B807C21479;
-        Fri,  7 Jun 2019 15:46:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A2E5A2147A;
+        Fri,  7 Jun 2019 15:49:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559922361;
-        bh=lpVnHrOhXnHDWbDmDmFCylcgs7yZIyvru+8hMUgC59k=;
+        s=default; t=1559922577;
+        bh=4CJuhXHiVHLwn//QvJbFWxdV9qoHj3F4tHEXDE50kSo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QleyKyPkxIRYnSXeFqQMoxsCyK/CtRkQJmdjfYc/x0W2TV1SnaCT020UrZfHTywl/
-         h7mgvDXN4lGRDlFNq9FuSAh+a6i0kW2eXqcID9QrIoQUCsi2vaqR0W3BDxaqSolsq7
-         uOa5s4ejbGUKnTwx90dHGsGrK96OmslBmIrUCedY=
+        b=CmAOuuKRn/YJhwHCYYgqjUHFPPrSJswli27AC6lCgDxEnO1/xDKQFEvVLvAidiKXF
+         XfaOQODhuQgkkzX7vXYmUXwtDJ80Z21N2tFYpR8XxOuVoaxXHI4oDD7dMzpNm1Jc74
+         RF/A/ElHNriElNe4o6mkOkaqz0jGLLionu3FB1Ug=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jernej Skrabec <jernej.skrabec@siol.net>,
-        Maxime Ripard <maxime.ripard@bootlin.com>
-Subject: [PATCH 4.19 59/73] drm/sun4i: Fix sun8i HDMI PHY configuration for > 148.5 MHz
+        stable@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
+        Mimi Zohar <zohar@linux.ibm.com>
+Subject: [PATCH 5.1 61/85] evm: check hash algorithm passed to init_desc()
 Date:   Fri,  7 Jun 2019 17:39:46 +0200
-Message-Id: <20190607153855.582846992@linuxfoundation.org>
+Message-Id: <20190607153856.191954590@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190607153848.669070800@linuxfoundation.org>
-References: <20190607153848.669070800@linuxfoundation.org>
+In-Reply-To: <20190607153849.101321647@linuxfoundation.org>
+References: <20190607153849.101321647@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,37 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jernej Skrabec <jernej.skrabec@siol.net>
+From: Roberto Sassu <roberto.sassu@huawei.com>
 
-commit 831adffb3b7b8df4c8e20b7b00843129fb87a166 upstream.
+commit 221be106d75c1b511973301542f47d6000d0b63e upstream.
 
-Vendor provided documentation says that EMP bits should be set to 3 for
-pixel clocks greater than 148.5 MHz.
+This patch prevents memory access beyond the evm_tfm array by checking the
+validity of the index (hash algorithm) passed to init_desc(). The hash
+algorithm can be arbitrarily set if the security.ima xattr type is not
+EVM_XATTR_HMAC.
 
-Fix that.
-
-Cc: stable@vger.kernel.org # 4.17+
-Fixes: 4f86e81748fe ("drm/sun4i: Add support for H3 HDMI PHY variant")
-Signed-off-by: Jernej Skrabec <jernej.skrabec@siol.net>
-Signed-off-by: Maxime Ripard <maxime.ripard@bootlin.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190514204337.11068-3-jernej.skrabec@siol.net
+Fixes: 5feeb61183dde ("evm: Allow non-SHA1 digital signatures")
+Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/sun4i/sun8i_hdmi_phy.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ security/integrity/evm/evm_crypto.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/gpu/drm/sun4i/sun8i_hdmi_phy.c
-+++ b/drivers/gpu/drm/sun4i/sun8i_hdmi_phy.c
-@@ -177,7 +177,8 @@ static int sun8i_hdmi_phy_config_h3(stru
- 				 SUN8I_HDMI_PHY_ANA_CFG2_REG_BIGSW |
- 				 SUN8I_HDMI_PHY_ANA_CFG2_REG_SLV(4);
- 		ana_cfg3_init |= SUN8I_HDMI_PHY_ANA_CFG3_REG_AMPCK(9) |
--				 SUN8I_HDMI_PHY_ANA_CFG3_REG_AMP(13);
-+				 SUN8I_HDMI_PHY_ANA_CFG3_REG_AMP(13) |
-+				 SUN8I_HDMI_PHY_ANA_CFG3_REG_EMP(3);
+--- a/security/integrity/evm/evm_crypto.c
++++ b/security/integrity/evm/evm_crypto.c
+@@ -89,6 +89,9 @@ static struct shash_desc *init_desc(char
+ 		tfm = &hmac_tfm;
+ 		algo = evm_hmac;
+ 	} else {
++		if (hash_algo >= HASH_ALGO__LAST)
++			return ERR_PTR(-EINVAL);
++
+ 		tfm = &evm_tfm[hash_algo];
+ 		algo = hash_algo_name[hash_algo];
  	}
- 
- 	regmap_update_bits(phy->regs, SUN8I_HDMI_PHY_ANA_CFG1_REG,
 
 
