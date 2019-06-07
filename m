@@ -2,47 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B07E38FAD
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:44:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3CE338F77
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:42:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730991AbfFGPoK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 11:44:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55524 "EHLO mail.kernel.org"
+        id S1730448AbfFGPmB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 11:42:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52320 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730986AbfFGPoJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 11:44:09 -0400
+        id S1730416AbfFGPmA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 11:42:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D762D2133D;
-        Fri,  7 Jun 2019 15:44:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BBEDE2133D;
+        Fri,  7 Jun 2019 15:41:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559922248;
-        bh=K297D0p4T/W6MxFo5zeCKRUJ8tjjJc5kbFmbLBKZkhE=;
+        s=default; t=1559922120;
+        bh=cgBfD8u9cSMxS93P8T3sKF2WamQHBf60rbEgKWXCVzU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mwOUiNhWrOvXRduaYo4Wm/NDAxQn8jrbBfyGfBIqKDZJY9hmqQ2hp/jcy7dUOSwWb
-         x0RIbok9faMq6iC4Pcm7xjzEBiS3MVDgjXl5U/AyaLsVy8/52ujbmOdfWaMDQEqbvj
-         ypp24VcoA5UmQdji2oXy8euUANIlZ0Uwd8okzBYk=
+        b=E8R2aFB9ZbladUw3/PrD1/O/+6ANOKzRpqZS0i/7r382ruTdQDrz+0Lr0UAxeImJR
+         pAyC9/Mga1hhe7kTL0Csa3Dk6kC9/G8CsDpNylzo26ey2NcZdd79zzt5KbojGTPHDE
+         JXqHlayBf3pldbL7+Lf5YuTWZOAcm7Mp/Gb7rO1k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Ido Schimmel <idosch@mellanox.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Vadim Pasternak <vadimp@mellanox.com>,
-        Andrey Ryabinin <aryabinin@virtuozzo.com>,
-        Jacek Anaszewski <jacek.anaszewski@gmail.com>,
-        Pavel Machek <pavel@ucw.cz>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Matthias Kaehlcke <mka@chromium.org>
-Subject: [PATCH 4.19 02/73] include/linux/bitops.h: sanitize rotate primitives
+        Chris Packham <chris.packham@alliedtelesis.co.nz>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 08/69] tipc: Avoid copying bytes beyond the supplied data
 Date:   Fri,  7 Jun 2019 17:38:49 +0200
-Message-Id: <20190607153848.955759584@linuxfoundation.org>
+Message-Id: <20190607153849.294133655@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190607153848.669070800@linuxfoundation.org>
-References: <20190607153848.669070800@linuxfoundation.org>
+In-Reply-To: <20190607153848.271562617@linuxfoundation.org>
+References: <20190607153848.271562617@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,133 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+From: Chris Packham <chris.packham@alliedtelesis.co.nz>
 
-commit ef4d6f6b275c498f8e5626c99dbeefdc5027f843 upstream.
+TLV_SET is called with a data pointer and a len parameter that tells us
+how many bytes are pointed to by data. When invoking memcpy() we need
+to careful to only copy len bytes.
 
-The ror32 implementation (word >> shift) | (word << (32 - shift) has
-undefined behaviour if shift is outside the [1, 31] range.  Similarly
-for the 64 bit variants.  Most callers pass a compile-time constant
-(naturally in that range), but there's an UBSAN report that these may
-actually be called with a shift count of 0.
+Previously we would copy TLV_LENGTH(len) bytes which would copy an extra
+4 bytes past the end of the data pointer which newer GCC versions
+complain about.
 
-Instead of special-casing that, we can make them DTRT for all values of
-shift while also avoiding UB.  For some reason, this was already partly
-done for rol32 (which was well-defined for [0, 31]).  gcc 8 recognizes
-these patterns as rotates, so for example
+ In file included from test.c:17:
+ In function 'TLV_SET',
+     inlined from 'test' at test.c:186:5:
+ /usr/include/linux/tipc_config.h:317:3:
+ warning: 'memcpy' forming offset [33, 36] is out of the bounds [0, 32]
+ of object 'bearer_name' with type 'char[32]' [-Warray-bounds]
+     memcpy(TLV_DATA(tlv_ptr), data, tlv_len);
+     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ test.c: In function 'test':
+ test.c::161:10: note:
+ 'bearer_name' declared here
+     char bearer_name[TIPC_MAX_BEARER_NAME];
+          ^~~~~~~~~~~
 
-  __u32 rol32(__u32 word, unsigned int shift)
-  {
-	return (word << (shift & 31)) | (word >> ((-shift) & 31));
-  }
+We still want to ensure any padding bytes at the end are initialised, do
+this with a explicit memset() rather than copy bytes past the end of
+data. Apply the same logic to TCM_SET.
 
-compiles to
-
-0000000000000020 <rol32>:
-  20:   89 f8                   mov    %edi,%eax
-  22:   89 f1                   mov    %esi,%ecx
-  24:   d3 c0                   rol    %cl,%eax
-  26:   c3                      retq
-
-Older compilers unfortunately do not do as well, but this only affects
-the small minority of users that don't pass constants.
-
-Due to integer promotions, ro[lr]8 were already well-defined for shifts
-in [0, 8], and ro[lr]16 were mostly well-defined for shifts in [0, 16]
-(only mostly - u16 gets promoted to _signed_ int, so if bit 15 is set,
-word << 16 is undefined).  For consistency, update those as well.
-
-Link: http://lkml.kernel.org/r/20190410211906.2190-1-linux@rasmusvillemoes.dk
-Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Reported-by: Ido Schimmel <idosch@mellanox.com>
-Tested-by: Ido Schimmel <idosch@mellanox.com>
-Reviewed-by: Will Deacon <will.deacon@arm.com>
-Cc: Vadim Pasternak <vadimp@mellanox.com>
-Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Cc: Jacek Anaszewski <jacek.anaszewski@gmail.com>
-Cc: Pavel Machek <pavel@ucw.cz>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
+Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- include/linux/bitops.h |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ include/uapi/linux/tipc_config.h |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/include/linux/bitops.h
-+++ b/include/linux/bitops.h
-@@ -60,7 +60,7 @@ static __always_inline unsigned long hwe
-  */
- static inline __u64 rol64(__u64 word, unsigned int shift)
- {
--	return (word << shift) | (word >> (64 - shift));
-+	return (word << (shift & 63)) | (word >> ((-shift) & 63));
+--- a/include/uapi/linux/tipc_config.h
++++ b/include/uapi/linux/tipc_config.h
+@@ -302,8 +302,10 @@ static inline int TLV_SET(void *tlv, __u
+ 	tlv_ptr = (struct tlv_desc *)tlv;
+ 	tlv_ptr->tlv_type = htons(type);
+ 	tlv_ptr->tlv_len  = htons(tlv_len);
+-	if (len && data)
+-		memcpy(TLV_DATA(tlv_ptr), data, tlv_len);
++	if (len && data) {
++		memcpy(TLV_DATA(tlv_ptr), data, len);
++		memset(TLV_DATA(tlv_ptr) + len, 0, TLV_SPACE(len) - tlv_len);
++	}
+ 	return TLV_SPACE(len);
  }
  
- /**
-@@ -70,7 +70,7 @@ static inline __u64 rol64(__u64 word, un
-  */
- static inline __u64 ror64(__u64 word, unsigned int shift)
- {
--	return (word >> shift) | (word << (64 - shift));
-+	return (word >> (shift & 63)) | (word << ((-shift) & 63));
+@@ -400,8 +402,10 @@ static inline int TCM_SET(void *msg, __u
+ 	tcm_hdr->tcm_len   = htonl(msg_len);
+ 	tcm_hdr->tcm_type  = htons(cmd);
+ 	tcm_hdr->tcm_flags = htons(flags);
+-	if (data_len && data)
++	if (data_len && data) {
+ 		memcpy(TCM_DATA(msg), data, data_len);
++		memset(TCM_DATA(msg) + data_len, 0, TCM_SPACE(data_len) - msg_len);
++	}
+ 	return TCM_SPACE(data_len);
  }
  
- /**
-@@ -80,7 +80,7 @@ static inline __u64 ror64(__u64 word, un
-  */
- static inline __u32 rol32(__u32 word, unsigned int shift)
- {
--	return (word << shift) | (word >> ((-shift) & 31));
-+	return (word << (shift & 31)) | (word >> ((-shift) & 31));
- }
- 
- /**
-@@ -90,7 +90,7 @@ static inline __u32 rol32(__u32 word, un
-  */
- static inline __u32 ror32(__u32 word, unsigned int shift)
- {
--	return (word >> shift) | (word << (32 - shift));
-+	return (word >> (shift & 31)) | (word << ((-shift) & 31));
- }
- 
- /**
-@@ -100,7 +100,7 @@ static inline __u32 ror32(__u32 word, un
-  */
- static inline __u16 rol16(__u16 word, unsigned int shift)
- {
--	return (word << shift) | (word >> (16 - shift));
-+	return (word << (shift & 15)) | (word >> ((-shift) & 15));
- }
- 
- /**
-@@ -110,7 +110,7 @@ static inline __u16 rol16(__u16 word, un
-  */
- static inline __u16 ror16(__u16 word, unsigned int shift)
- {
--	return (word >> shift) | (word << (16 - shift));
-+	return (word >> (shift & 15)) | (word << ((-shift) & 15));
- }
- 
- /**
-@@ -120,7 +120,7 @@ static inline __u16 ror16(__u16 word, un
-  */
- static inline __u8 rol8(__u8 word, unsigned int shift)
- {
--	return (word << shift) | (word >> (8 - shift));
-+	return (word << (shift & 7)) | (word >> ((-shift) & 7));
- }
- 
- /**
-@@ -130,7 +130,7 @@ static inline __u8 rol8(__u8 word, unsig
-  */
- static inline __u8 ror8(__u8 word, unsigned int shift)
- {
--	return (word >> shift) | (word << (8 - shift));
-+	return (word >> (shift & 7)) | (word << ((-shift) & 7));
- }
- 
- /**
 
 
