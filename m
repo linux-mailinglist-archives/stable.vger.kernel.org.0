@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A41D1390E9
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:55:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BE11390DB
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:55:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730068AbfFGPzp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 11:55:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57080 "EHLO mail.kernel.org"
+        id S1729081AbfFGPzT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 11:55:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730611AbfFGPpQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 11:45:16 -0400
+        id S1731293AbfFGPpq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 11:45:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 299582146E;
-        Fri,  7 Jun 2019 15:45:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B3A0C2147A;
+        Fri,  7 Jun 2019 15:45:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559922315;
-        bh=gbnX3ywF0e3V1x5CbjGk84uFpatjER0sEXlbfyLEBoI=;
+        s=default; t=1559922346;
+        bh=noMDM0+G7fvAYTkP+qTa1fHN6gTn8pJOT/sFJUBXcqQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SzPuMVGB9yk+OvPv3lwS6dVnWJ6AMVXY38F2mBdPKL8vhf2/OGGS5dKoRuv79Q6Ip
-         m325kbRGbRSZ3GMfH2aYvnTPhz8AJE8/29Q5xXc40JO5apqjKhgo5dvZPiXtpKma84
-         9nPPb1ghbp8bF4nfSX2k58Xq6Qq3yGBTpf5EJfvc=
+        b=WlLsq4TeJOAmaLUvo8r6Ymw7jSOAgAJWOc3Ab6Dh2Cb1544r/FxbDrGVrVAtTAKTM
+         OyyjRscfDVwk6e3BrgSEelCntoSSvLXNO9M9d2neO6gp/GPYXZcAPkL5UvcaIBwJKe
+         gJ4ZhpvfdiAFZrpra0mAkvxS7lETjiYaY9xO8ATc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vadim Pasternak <vadimp@mellanox.com>,
-        Wolfram Sang <wsa@the-dreams.de>, stable@kernel.org
-Subject: [PATCH 4.19 36/73] i2c: mlxcpld: Fix wrong initialization order in probe
-Date:   Fri,  7 Jun 2019 17:39:23 +0200
-Message-Id: <20190607153853.136918240@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Okamoto Satoru <okamoto.satoru@socionext.com>,
+        Masahisa Kojima <masahisa.kojima@linaro.org>,
+        Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Wolfram Sang <wsa@the-dreams.de>
+Subject: [PATCH 4.19 37/73] i2c: synquacer: fix synquacer_i2c_doxfer() return value
+Date:   Fri,  7 Jun 2019 17:39:24 +0200
+Message-Id: <20190607153853.262623656@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190607153848.669070800@linuxfoundation.org>
 References: <20190607153848.669070800@linuxfoundation.org>
@@ -43,44 +46,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vadim Pasternak <vadimp@mellanox.com>
+From: Masahisa Kojima <masahisa.kojima@linaro.org>
 
-commit 13067ef73f337336e3149f5bb9f3fd05fe7f87a0 upstream.
+commit ff9378904d9d7a3fcb8406604e089e535e357b1d upstream.
 
-Fix wrong order in probing routine initialization - field `base_addr'
-is used before it's initialized. Move assignment of 'priv->base_addr`
-to the beginning, prior the call to mlxcpld_i2c_read_comm().
-Wrong order caused the first read of capability register to be executed
-at wrong offset 0x0 instead of 0x2000. By chance it was a "good
-garbage" at 0x0 offset.
+master_xfer should return the number of messages successfully
+processed.
 
-Fixes: 313ce648b5a4 ("i2c: mlxcpld: Add support for extended transaction length for i2c-mlxcpld")
-Signed-off-by: Vadim Pasternak <vadimp@mellanox.com>
+Fixes: 0d676a6c4390 ("i2c: add support for Socionext SynQuacer I2C controller")
+Cc: <stable@vger.kernel.org> # v4.19+
+Signed-off-by: Okamoto Satoru <okamoto.satoru@socionext.com>
+Signed-off-by: Masahisa Kojima <masahisa.kojima@linaro.org>
+Acked-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
 Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/i2c/busses/i2c-mlxcpld.c |    2 +-
+ drivers/i2c/busses/i2c-synquacer.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/i2c/busses/i2c-mlxcpld.c
-+++ b/drivers/i2c/busses/i2c-mlxcpld.c
-@@ -503,6 +503,7 @@ static int mlxcpld_i2c_probe(struct plat
- 	platform_set_drvdata(pdev, priv);
+--- a/drivers/i2c/busses/i2c-synquacer.c
++++ b/drivers/i2c/busses/i2c-synquacer.c
+@@ -356,7 +356,7 @@ static int synquacer_i2c_doxfer(struct s
+ 	/* wait 2 clock periods to ensure the stop has been through the bus */
+ 	udelay(DIV_ROUND_UP(2 * 1000, i2c->speed_khz));
  
- 	priv->dev = &pdev->dev;
-+	priv->base_addr = MLXPLAT_CPLD_LPC_I2C_BASE_ADDR;
+-	return 0;
++	return ret;
+ }
  
- 	/* Register with i2c layer */
- 	mlxcpld_i2c_adapter.timeout = usecs_to_jiffies(MLXCPLD_I2C_XFER_TO);
-@@ -518,7 +519,6 @@ static int mlxcpld_i2c_probe(struct plat
- 		mlxcpld_i2c_adapter.nr = pdev->id;
- 	priv->adap = mlxcpld_i2c_adapter;
- 	priv->adap.dev.parent = &pdev->dev;
--	priv->base_addr = MLXPLAT_CPLD_LPC_I2C_BASE_ADDR;
- 	i2c_set_adapdata(&priv->adap, priv);
- 
- 	err = i2c_add_numbered_adapter(&priv->adap);
+ static irqreturn_t synquacer_i2c_isr(int irq, void *dev_id)
 
 
