@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DEEAD3910F
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:57:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47ACB3906F
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:52:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730577AbfFGP4U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 11:56:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55956 "EHLO mail.kernel.org"
+        id S1732019AbfFGPtp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 11:49:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731091AbfFGPo2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 11:44:28 -0400
+        id S1732000AbfFGPtp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 11:49:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 735E22146E;
-        Fri,  7 Jun 2019 15:44:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 744FA20657;
+        Fri,  7 Jun 2019 15:49:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559922268;
-        bh=9E2EX28Bw3gXuclGEY/bIpxg/tuh2wZhNIhvZVgFgtU=;
+        s=default; t=1559922584;
+        bh=PrD6rkDeS7M9HCGKUpTzQI8+wV+CQLqM8IBUuPREUzI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TvJeqlZVb4Fg8Lnsen9ItRxmDV5E8fmutke74rehTPPUB3qyRghZmdQOVXcRo+Vck
-         lcFPWJD5UmmpO7+XOPv4z93q5y9t49Y4BIpHupn7ypeJk4X4Cayax1MC+TbBTxef20
-         EL+q6gdwI0I8ekdpkpplJk+DjJdacmFMl54k291w=
+        b=AA44OzIt0DCKcd22X5jqk4NUqY+7Ls+cZKgP5ZlO/w4rC7Sk9p1J8/H7CRtoeezLT
+         3A/jH/VNvfbhj0uB5AktvNNjUC/uvq/IdTlM5D11ZhiOQWdRNXN1zN0p0Z4ccv4qLW
+         W1KtxyXnv6EqxGx81y96j+TRSUkQ1JZjurKnIpWo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Nyekjaer <sean@geanix.com>,
-        Stable@vger.kernel.org,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Vincent=20Stehl=C3=A9?= <vincent.stehle@laposte.net>,
+        Mukesh Ojha <mojha@codeaurora.org>,
+        Dan Murphy <dmurphy@ti.com>, Stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.19 26/73] iio: adc: ti-ads8688: fix timestamp is not updated in buffer
-Date:   Fri,  7 Jun 2019 17:39:13 +0200
-Message-Id: <20190607153851.952023814@linuxfoundation.org>
+Subject: [PATCH 5.1 29/85] iio: adc: ads124: avoid buffer overflow
+Date:   Fri,  7 Jun 2019 17:39:14 +0200
+Message-Id: <20190607153852.884905919@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190607153848.669070800@linuxfoundation.org>
-References: <20190607153848.669070800@linuxfoundation.org>
+In-Reply-To: <20190607153849.101321647@linuxfoundation.org>
+References: <20190607153849.101321647@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,33 +46,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Nyekjaer <sean@geanix.com>
+From: Vincent Stehlé <vincent.stehle@laposte.net>
 
-commit e6d12298310fa1dc11f1d747e05b168016057fdd upstream.
+commit 0db8aa49a97e7f40852a64fd35abcc1292a7c365 upstream.
 
-When using the hrtimer iio trigger timestamp isn't updated.
-If we use iio_get_time_ns it is updated correctly.
+When initializing the priv->data array starting from index 1, there is one
+less element to consider than when initializing the full array.
 
-Fixes: 2a86487786b5c ("iio: adc: ti-ads8688: add trigger and buffer support")
-Signed-off-by: Sean Nyekjaer <sean@geanix.com>
+Fixes: e717f8c6dfec8f76 ("iio: adc: Add the TI ads124s08 ADC code")
+Signed-off-by: Vincent Stehlé <vincent.stehle@laposte.net>
+Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
+Reviewed-by: Dan Murphy <dmurphy@ti.com>
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/iio/adc/ti-ads8688.c |    2 +-
+ drivers/iio/adc/ti-ads124s08.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/iio/adc/ti-ads8688.c
-+++ b/drivers/iio/adc/ti-ads8688.c
-@@ -397,7 +397,7 @@ static irqreturn_t ads8688_trigger_handl
- 	}
+--- a/drivers/iio/adc/ti-ads124s08.c
++++ b/drivers/iio/adc/ti-ads124s08.c
+@@ -202,7 +202,7 @@ static int ads124s_read(struct iio_dev *
+ 	};
  
- 	iio_push_to_buffers_with_timestamp(indio_dev, buffer,
--			pf->timestamp);
-+			iio_get_time_ns(indio_dev));
+ 	priv->data[0] = ADS124S08_CMD_RDATA;
+-	memset(&priv->data[1], ADS124S08_CMD_NOP, sizeof(priv->data));
++	memset(&priv->data[1], ADS124S08_CMD_NOP, sizeof(priv->data) - 1);
  
- 	iio_trigger_notify_done(indio_dev->trig);
- 
+ 	ret = spi_sync_transfer(priv->spi, t, ARRAY_SIZE(t));
+ 	if (ret < 0)
 
 
