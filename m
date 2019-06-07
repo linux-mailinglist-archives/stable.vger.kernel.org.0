@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8747539176
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 18:00:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23E3F38FF5
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:47:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730145AbfFGPku (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 11:40:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50202 "EHLO mail.kernel.org"
+        id S1731561AbfFGPrU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 11:47:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730135AbfFGPkr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 11:40:47 -0400
+        id S1730463AbfFGPrU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 11:47:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F0FC4212F5;
-        Fri,  7 Jun 2019 15:40:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 747832146E;
+        Fri,  7 Jun 2019 15:47:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559922047;
-        bh=s5XUr4oAMYMkO/L1yXi+KcIP++cyMJwnAPtD+Pi+5qY=;
+        s=default; t=1559922439;
+        bh=cEwxy+p93aAQTBHP4ueFy+hajAV9ZCUFUg1vG8WkOFI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A73obezVzLQOzOnBO1YFSvuZlyTcGahv3TulGmPqgDJT7Y0MdHfGqrSbWl+RVm4kT
-         yuxmFQrEjrkhpOdoy/t3Mn0JD/cryH7exKxe3fQ7eESgMWVbjao/FrTAE9KrXJBlqw
-         6A5Chut4y59hJMZuKUMnQDVE+YP4/E5R002/pmL0=
+        b=COt4DylaKjBa5zyyV3yyBrLs9UxOZ8cjDwEbfPB+nobPIFpzbAsh9TVe3/y8JQFxC
+         LcmQ+rW6pTutev/TIonSeiDcba+o6/aHyrfZSR1FX15KOA8i1maDfossoHkPx6a4QD
+         94lZdlRJBcpbzdX5wMqvUw8E6NL82SG5DdjOyJm8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
-        Prarit Bhargava <prarit@redhat.com>,
-        Juergen Gross <jgross@suse.com>,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>
-Subject: [PATCH 4.14 18/69] xen/pciback: Dont disable PCI_COMMAND on PCI device reset.
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Johan Hovold <johan@kernel.org>,
+        syzbot+53f029db71c19a47325a@syzkaller.appspotmail.com
+Subject: [PATCH 5.1 14/85] media: usb: siano: Fix general protection fault in smsusb
 Date:   Fri,  7 Jun 2019 17:38:59 +0200
-Message-Id: <20190607153850.560174860@linuxfoundation.org>
+Message-Id: <20190607153850.921557026@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190607153848.271562617@linuxfoundation.org>
-References: <20190607153848.271562617@linuxfoundation.org>
+In-Reply-To: <20190607153849.101321647@linuxfoundation.org>
+References: <20190607153849.101321647@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,56 +44,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-commit 7681f31ec9cdacab4fd10570be924f2cef6669ba upstream.
+commit 31e0456de5be379b10fea0fa94a681057114a96e upstream.
 
-There is no need for this at all. Worst it means that if
-the guest tries to write to BARs it could lead (on certain
-platforms) to PCI SERR errors.
+The syzkaller USB fuzzer found a general-protection-fault bug in the
+smsusb part of the Siano DVB driver.  The fault occurs during probe
+because the driver assumes without checking that the device has both
+IN and OUT endpoints and the IN endpoint is ep1.
 
-Please note that with af6fc858a35b90e89ea7a7ee58e66628c55c776b
-"xen-pciback: limit guest control of command register"
-a guest is still allowed to enable those control bits (safely), but
-is not allowed to disable them and that therefore a well behaved
-frontend which enables things before using them will still
-function correctly.
+By slightly rearranging the driver's initialization code, we can make
+the appropriate checks early on and thus avoid the problem.  If the
+expected endpoints aren't present, the new code safely returns -ENODEV
+from the probe routine.
 
-This is done via an write to the configuration register 0x4 which
-triggers on the backend side:
-command_write
-  \- pci_enable_device
-     \- pci_enable_device_flags
-        \- do_pci_enable_device
-           \- pcibios_enable_device
-              \-pci_enable_resourcess
-                [which enables the PCI_COMMAND_MEMORY|PCI_COMMAND_IO]
-
-However guests (and drivers) which don't do this could cause
-problems, including the security issues which XSA-120 sought
-to address.
-
-Reported-by: Jan Beulich <jbeulich@suse.com>
-Signed-off-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Reviewed-by: Prarit Bhargava <prarit@redhat.com>
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Cc: Ben Hutchings <ben.hutchings@codethink.co.uk>
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Reported-and-tested-by: syzbot+53f029db71c19a47325a@syzkaller.appspotmail.com
+CC: <stable@vger.kernel.org>
+Reviewed-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/xen/xen-pciback/pciback_ops.c |    2 --
- 1 file changed, 2 deletions(-)
+ drivers/media/usb/siano/smsusb.c |   33 ++++++++++++++++++++-------------
+ 1 file changed, 20 insertions(+), 13 deletions(-)
 
---- a/drivers/xen/xen-pciback/pciback_ops.c
-+++ b/drivers/xen/xen-pciback/pciback_ops.c
-@@ -127,8 +127,6 @@ void xen_pcibk_reset_device(struct pci_d
- 		if (pci_is_enabled(dev))
- 			pci_disable_device(dev);
+--- a/drivers/media/usb/siano/smsusb.c
++++ b/drivers/media/usb/siano/smsusb.c
+@@ -400,6 +400,7 @@ static int smsusb_init_device(struct usb
+ 	struct smsusb_device_t *dev;
+ 	void *mdev;
+ 	int i, rc;
++	int in_maxp;
  
--		pci_write_config_word(dev, PCI_COMMAND, 0);
+ 	/* create device object */
+ 	dev = kzalloc(sizeof(struct smsusb_device_t), GFP_KERNEL);
+@@ -411,6 +412,24 @@ static int smsusb_init_device(struct usb
+ 	dev->udev = interface_to_usbdev(intf);
+ 	dev->state = SMSUSB_DISCONNECTED;
+ 
++	for (i = 0; i < intf->cur_altsetting->desc.bNumEndpoints; i++) {
++		struct usb_endpoint_descriptor *desc =
++				&intf->cur_altsetting->endpoint[i].desc;
++
++		if (desc->bEndpointAddress & USB_DIR_IN) {
++			dev->in_ep = desc->bEndpointAddress;
++			in_maxp = usb_endpoint_maxp(desc);
++		} else {
++			dev->out_ep = desc->bEndpointAddress;
++		}
++	}
++
++	pr_debug("in_ep = %02x, out_ep = %02x\n", dev->in_ep, dev->out_ep);
++	if (!dev->in_ep || !dev->out_ep) {	/* Missing endpoints? */
++		smsusb_term_device(intf);
++		return -ENODEV;
++	}
++
+ 	params.device_type = sms_get_board(board_id)->type;
+ 
+ 	switch (params.device_type) {
+@@ -425,24 +444,12 @@ static int smsusb_init_device(struct usb
+ 		/* fall-thru */
+ 	default:
+ 		dev->buffer_size = USB2_BUFFER_SIZE;
+-		dev->response_alignment =
+-		    le16_to_cpu(dev->udev->ep_in[1]->desc.wMaxPacketSize) -
+-		    sizeof(struct sms_msg_hdr);
++		dev->response_alignment = in_maxp - sizeof(struct sms_msg_hdr);
+ 
+ 		params.flags |= SMS_DEVICE_FAMILY2;
+ 		break;
+ 	}
+ 
+-	for (i = 0; i < intf->cur_altsetting->desc.bNumEndpoints; i++) {
+-		if (intf->cur_altsetting->endpoint[i].desc. bEndpointAddress & USB_DIR_IN)
+-			dev->in_ep = intf->cur_altsetting->endpoint[i].desc.bEndpointAddress;
+-		else
+-			dev->out_ep = intf->cur_altsetting->endpoint[i].desc.bEndpointAddress;
+-	}
 -
- 		dev->is_busmaster = 0;
- 	} else {
- 		pci_read_config_word(dev, PCI_COMMAND, &cmd);
+-	pr_debug("in_ep = %02x, out_ep = %02x\n",
+-		dev->in_ep, dev->out_ep);
+-
+ 	params.device = &dev->udev->dev;
+ 	params.usb_device = dev->udev;
+ 	params.buffer_size = dev->buffer_size;
 
 
