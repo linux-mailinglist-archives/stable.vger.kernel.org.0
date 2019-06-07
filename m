@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A62C390EB
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:55:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8FA138FF2
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:47:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728942AbfFGPpL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 11:45:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56894 "EHLO mail.kernel.org"
+        id S1731517AbfFGPrJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 11:47:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728897AbfFGPpI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 11:45:08 -0400
+        id S1730449AbfFGPrI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 11:47:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 20A222146E;
-        Fri,  7 Jun 2019 15:45:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2FA0F21707;
+        Fri,  7 Jun 2019 15:47:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559922307;
-        bh=txodAzOAtfpatqpTdhPDZNQpFJd9mfh2YwqLom6pNKI=;
+        s=default; t=1559922427;
+        bh=ynQAkxST+KdBn8isNpaw+38jRg7gcKpliyVmwBR2Z9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sYa20e+0jCQ+uzuqcsyZhoFtNd8vSKO/kE35PxBD+QRbDj+O2DCWO86xDqxyYkLRe
-         i3VyXma5g6wpjzpjVcQ+2p4gMYtsvmw4k7akZqrKtjTXYu6H+miegDvi60z9Rh0X9p
-         yiGF2voS7XFGJYCPNaGhgQwXyzQbxAhOk34IrzXs=
+        b=0WuXjDDYazb1RZuEajGLysJUh7PZfZRC/ggoi/GH71XWoIFk6lmFvjyc+r8uxsw8O
+         udmc7MX6Wac4o9xwOaouVhnbV0gKXeJavYq9VxFXjrVJUphNtPrvtKCidxlqjhi4gK
+         N7g+VaTFNk3Kf+TVOvCWTQcEKJtQSSALzVl4Ibmo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>
-Subject: [PATCH 4.19 08/73] usbip: usbip_host: fix stub_dev lock context imbalance regression
+        stable@vger.kernel.org, oliver Neukum <oneukum@suse.com>,
+        syzbot+a0cbdbd6d169020c8959@syzkaller.appspotmail.com
+Subject: [PATCH 5.1 10/85] USB: sisusbvga: fix oops in error path of sisusb_probe
 Date:   Fri,  7 Jun 2019 17:38:55 +0200
-Message-Id: <20190607153849.692371178@linuxfoundation.org>
+Message-Id: <20190607153850.394409601@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190607153848.669070800@linuxfoundation.org>
-References: <20190607153848.669070800@linuxfoundation.org>
+In-Reply-To: <20190607153849.101321647@linuxfoundation.org>
+References: <20190607153849.101321647@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,151 +43,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit 3ea3091f1bd8586125848c62be295910e9802af0 upstream.
+commit 9a5729f68d3a82786aea110b1bfe610be318f80a upstream.
 
-Fix the following sparse context imbalance regression introduced in
-a patch that fixed sleeping function called from invalid context bug.
+The pointer used to log a failure of usb_register_dev() must
+be set before the error is logged.
 
-kbuild test robot reported on:
+v2: fix that minor is not available before registration
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git  usb-linus
-
-Regressions in current branch:
-
-drivers/usb/usbip/stub_dev.c:399:9: sparse: sparse: context imbalance in 'stub_probe' - different lock contexts for basic block
-drivers/usb/usbip/stub_dev.c:418:13: sparse: sparse: context imbalance in 'stub_disconnect' - different lock contexts for basic block
-drivers/usb/usbip/stub_dev.c:464:1-10: second lock on line 476
-
-Error ids grouped by kconfigs:
-
-recent_errors
-├── i386-allmodconfig
-│   └── drivers-usb-usbip-stub_dev.c:second-lock-on-line
-├── x86_64-allmodconfig
-│   ├── drivers-usb-usbip-stub_dev.c:sparse:sparse:context-imbalance-in-stub_disconnect-different-lock-contexts-for-basic-block
-│   └── drivers-usb-usbip-stub_dev.c:sparse:sparse:context-imbalance-in-stub_probe-different-lock-contexts-for-basic-block
-└── x86_64-allyesconfig
-    └── drivers-usb-usbip-stub_dev.c:second-lock-on-line
-
-This is a real problem in an error leg where spin_lock() is called on an
-already held lock.
-
-Fix the imbalance in stub_probe() and stub_disconnect().
-
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Fixes: 0c9e8b3cad65 ("usbip: usbip_host: fix BUG: sleeping function called from invalid context")
+Signed-off-by: oliver Neukum <oneukum@suse.com>
+Reported-by: syzbot+a0cbdbd6d169020c8959@syzkaller.appspotmail.com
+Fixes: 7b5cd5fefbe02 ("USB: SisUSB2VGA: Convert printk to dev_* macros")
 Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/usbip/stub_dev.c |   36 +++++++++++++++++++++++-------------
- 1 file changed, 23 insertions(+), 13 deletions(-)
+ drivers/usb/misc/sisusbvga/sisusb.c |   15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
 
---- a/drivers/usb/usbip/stub_dev.c
-+++ b/drivers/usb/usbip/stub_dev.c
-@@ -326,14 +326,17 @@ static int stub_probe(struct usb_device
- 		 * See driver_probe_device() in driver/base/dd.c
- 		 */
- 		rc = -ENODEV;
--		goto sdev_free;
-+		if (!busid_priv)
-+			goto sdev_free;
+--- a/drivers/usb/misc/sisusbvga/sisusb.c
++++ b/drivers/usb/misc/sisusbvga/sisusb.c
+@@ -3029,6 +3029,13 @@ static int sisusb_probe(struct usb_inter
+ 
+ 	mutex_init(&(sisusb->lock));
+ 
++	sisusb->sisusb_dev = dev;
++	sisusb->vrambase   = SISUSB_PCI_MEMBASE;
++	sisusb->mmiobase   = SISUSB_PCI_MMIOBASE;
++	sisusb->mmiosize   = SISUSB_PCI_MMIOSIZE;
++	sisusb->ioportbase = SISUSB_PCI_IOPORTBASE;
++	/* Everything else is zero */
 +
-+		goto call_put_busid_priv;
+ 	/* Register device */
+ 	retval = usb_register_dev(intf, &usb_sisusb_class);
+ 	if (retval) {
+@@ -3039,13 +3046,7 @@ static int sisusb_probe(struct usb_inter
+ 		goto error_1;
  	}
  
- 	if (udev->descriptor.bDeviceClass == USB_CLASS_HUB) {
- 		dev_dbg(&udev->dev, "%s is a usb hub device... skip!\n",
- 			 udev_busid);
- 		rc = -ENODEV;
--		goto sdev_free;
-+		goto call_put_busid_priv;
- 	}
+-	sisusb->sisusb_dev = dev;
+-	sisusb->minor      = intf->minor;
+-	sisusb->vrambase   = SISUSB_PCI_MEMBASE;
+-	sisusb->mmiobase   = SISUSB_PCI_MMIOBASE;
+-	sisusb->mmiosize   = SISUSB_PCI_MMIOSIZE;
+-	sisusb->ioportbase = SISUSB_PCI_IOPORTBASE;
+-	/* Everything else is zero */
++	sisusb->minor = intf->minor;
  
- 	if (!strcmp(udev->bus->bus_name, "vhci_hcd")) {
-@@ -342,7 +345,7 @@ static int stub_probe(struct usb_device
- 			udev_busid);
- 
- 		rc = -ENODEV;
--		goto sdev_free;
-+		goto call_put_busid_priv;
- 	}
- 
- 
-@@ -361,6 +364,9 @@ static int stub_probe(struct usb_device
- 	save_status = busid_priv->status;
- 	busid_priv->status = STUB_BUSID_ALLOC;
- 
-+	/* release the busid_lock */
-+	put_busid_priv(busid_priv);
-+
- 	/*
- 	 * Claim this hub port.
- 	 * It doesn't matter what value we pass as owner
-@@ -373,9 +379,6 @@ static int stub_probe(struct usb_device
- 		goto err_port;
- 	}
- 
--	/* release the busid_lock */
--	put_busid_priv(busid_priv);
--
- 	rc = stub_add_files(&udev->dev);
- 	if (rc) {
- 		dev_err(&udev->dev, "stub_add_files for %s\n", udev_busid);
-@@ -395,11 +398,17 @@ err_port:
- 	spin_lock(&busid_priv->busid_lock);
- 	busid_priv->sdev = NULL;
- 	busid_priv->status = save_status;
--sdev_free:
--	stub_device_free(sdev);
-+	spin_unlock(&busid_priv->busid_lock);
-+	/* lock is released - go to free */
-+	goto sdev_free;
-+
-+call_put_busid_priv:
- 	/* release the busid_lock */
- 	put_busid_priv(busid_priv);
- 
-+sdev_free:
-+	stub_device_free(sdev);
-+
- 	return rc;
- }
- 
-@@ -435,7 +444,9 @@ static void stub_disconnect(struct usb_d
- 	/* get stub_device */
- 	if (!sdev) {
- 		dev_err(&udev->dev, "could not get device");
--		goto call_put_busid_priv;
-+		/* release busid_lock */
-+		put_busid_priv(busid_priv);
-+		return;
- 	}
- 
- 	dev_set_drvdata(&udev->dev, NULL);
-@@ -465,7 +476,7 @@ static void stub_disconnect(struct usb_d
- 	if (!busid_priv->shutdown_busid)
- 		busid_priv->shutdown_busid = 1;
- 	/* release busid_lock */
--	put_busid_priv(busid_priv);
-+	spin_unlock(&busid_priv->busid_lock);
- 
- 	/* shutdown the current connection */
- 	shutdown_busid(busid_priv);
-@@ -480,10 +491,9 @@ static void stub_disconnect(struct usb_d
- 
- 	if (busid_priv->status == STUB_BUSID_ALLOC)
- 		busid_priv->status = STUB_BUSID_ADDED;
--
--call_put_busid_priv:
- 	/* release busid_lock */
--	put_busid_priv(busid_priv);
-+	spin_unlock(&busid_priv->busid_lock);
-+	return;
- }
- 
- #ifdef CONFIG_PM
+ 	/* Allocate buffers */
+ 	sisusb->ibufsize = SISUSB_IBUF_SIZE;
 
 
