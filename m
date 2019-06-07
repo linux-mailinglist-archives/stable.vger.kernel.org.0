@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 39B36390D2
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:55:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED6D739057
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:51:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730882AbfFGPzH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 11:55:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58378 "EHLO mail.kernel.org"
+        id S1732183AbfFGPuc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 11:50:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729081AbfFGPqM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 11:46:12 -0400
+        id S1732180AbfFGPuc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 11:50:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 36C172146E;
-        Fri,  7 Jun 2019 15:46:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 746CC2146E;
+        Fri,  7 Jun 2019 15:50:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559922371;
-        bh=h8L1fHHv0PmMKSwcjjosZJbb9cXUGRghgh47iXuH/mU=;
+        s=default; t=1559922631;
+        bh=g4i+fi4Vs91vZ8wIpfeHykjEmLh+K4yC8YFE2eDSh0U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pLAKZebP0JaAddFcuGfpcvTXx4FWMK4eR8HOHu0tPEnwsOXo33tlZ7xXq905aG3yi
-         aAIewyO/5VfeQNKTYH2X3kkDT6y0pymOVbmG7A9rRW+9Spf9NMa97k7D66lu2ufcKf
-         At9gedyujZKwMzfiiTCs5dUam8gSkZA0clF79WLo=
+        b=LugEjVEkNLQcF+QMSXFfXAIKSM4+dxMooA67uVSk6wXs73mBo293Gz0YiVz4QFcU5
+         qdElvQUITxvg1KZFq5w08hFtszcnFI1d5nf94LZHKvg8oyeAtskQ+55G4LXMzNmnil
+         JHIWSiCbkmhcxJAlbd30esLPCPdQt8rjIvBh3X4Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Sebor <msebor@gcc.gnu.org>,
-        Jessica Yu <jeyu@kernel.org>,
-        Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
-        Stefan Agner <stefan@agner.ch>
-Subject: [PATCH 4.19 63/73] include/linux/module.h: copy __init/__exit attrs to init/cleanup_module
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [PATCH 5.1 65/85] staging: vc04_services: prevent integer overflow in create_pagelist()
 Date:   Fri,  7 Jun 2019 17:39:50 +0200
-Message-Id: <20190607153855.988988986@linuxfoundation.org>
+Message-Id: <20190607153856.517114940@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190607153848.669070800@linuxfoundation.org>
-References: <20190607153848.669070800@linuxfoundation.org>
+In-Reply-To: <20190607153849.101321647@linuxfoundation.org>
+References: <20190607153849.101321647@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,80 +42,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit a6e60d84989fa0e91db7f236eda40453b0e44afa upstream.
+commit ca641bae6da977d638458e78cd1487b6160a2718 upstream.
 
-The upcoming GCC 9 release extends the -Wmissing-attributes warnings
-(enabled by -Wall) to C and aliases: it warns when particular function
-attributes are missing in the aliases but not in their target.
+The create_pagelist() "count" parameter comes from the user in
+vchiq_ioctl() and it could overflow.  If you look at how create_page()
+is called in vchiq_prepare_bulk_data(), then the "size" variable is an
+int so it doesn't make sense to allow negatives or larger than INT_MAX.
 
-In particular, it triggers for all the init/cleanup_module
-aliases in the kernel (defined by the module_init/exit macros),
-ending up being very noisy.
+I don't know this code terribly well, but I believe that typical values
+of "count" are typically quite low and I don't think this check will
+affect normal valid uses at all.
 
-These aliases point to the __init/__exit functions of a module,
-which are defined as __cold (among other attributes). However,
-the aliases themselves do not have the __cold attribute.
+The "pagelist_size" calculation can also overflow on 32 bit systems, but
+not on 64 bit systems.  I have added an integer overflow check for that
+as well.
 
-Since the compiler behaves differently when compiling a __cold
-function as well as when compiling paths leading to calls
-to __cold functions, the warning is trying to point out
-the possibly-forgotten attribute in the alias.
+The Raspberry PI doesn't offer the same level of memory protection that
+x86 does so these sorts of bugs are probably not super critical to fix.
 
-In order to keep the warning enabled, we decided to silence
-this case. Ideally, we would mark the aliases directly
-as __init/__exit. However, there are currently around 132 modules
-in the kernel which are missing __init/__exit in their init/cleanup
-functions (either because they are missing, or for other reasons,
-e.g. the functions being called from somewhere else); and
-a section mismatch is a hard error.
-
-A conservative alternative was to mark the aliases as __cold only.
-However, since we would like to eventually enforce __init/__exit
-to be always marked,  we chose to use the new __copy function
-attribute (introduced by GCC 9 as well to deal with this).
-With it, we copy the attributes used by the target functions
-into the aliases. This way, functions that were not marked
-as __init/__exit won't have their aliases marked either,
-and therefore there won't be a section mismatch.
-
-Note that the warning would go away marking either the extern
-declaration, the definition, or both. However, we only mark
-the definition of the alias, since we do not want callers
-(which only see the declaration) to be compiled as if the function
-was __cold (and therefore the paths leading to those calls
-would be assumed to be unlikely).
-
-Link: https://lore.kernel.org/lkml/20190123173707.GA16603@gmail.com/
-Link: https://lore.kernel.org/lkml/20190206175627.GA20399@gmail.com/
-Suggested-by: Martin Sebor <msebor@gcc.gnu.org>
-Acked-by: Jessica Yu <jeyu@kernel.org>
-Signed-off-by: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-Signed-off-by: Stefan Agner <stefan@agner.ch>
+Fixes: 71bad7f08641 ("staging: add bcm2708 vchiq driver")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/module.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/staging/vc04_services/interface/vchiq_arm/vchiq_2835_arm.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/include/linux/module.h
-+++ b/include/linux/module.h
-@@ -130,13 +130,13 @@ extern void cleanup_module(void);
- #define module_init(initfn)					\
- 	static inline initcall_t __maybe_unused __inittest(void)		\
- 	{ return initfn; }					\
--	int init_module(void) __attribute__((alias(#initfn)));
-+	int init_module(void) __copy(initfn) __attribute__((alias(#initfn)));
+--- a/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_2835_arm.c
++++ b/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_2835_arm.c
+@@ -398,9 +398,18 @@ create_pagelist(char __user *buf, size_t
+ 	int dma_buffers;
+ 	dma_addr_t dma_addr;
  
- /* This is only required if you want to be unloadable. */
- #define module_exit(exitfn)					\
- 	static inline exitcall_t __maybe_unused __exittest(void)		\
- 	{ return exitfn; }					\
--	void cleanup_module(void) __attribute__((alias(#exitfn)));
-+	void cleanup_module(void) __copy(exitfn) __attribute__((alias(#exitfn)));
++	if (count >= INT_MAX - PAGE_SIZE)
++		return NULL;
++
+ 	offset = ((unsigned int)(unsigned long)buf & (PAGE_SIZE - 1));
+ 	num_pages = DIV_ROUND_UP(count + offset, PAGE_SIZE);
  
- #endif
- 
++	if (num_pages > (SIZE_MAX - sizeof(struct pagelist) -
++			 sizeof(struct vchiq_pagelist_info)) /
++			(sizeof(u32) + sizeof(pages[0]) +
++			 sizeof(struct scatterlist)))
++		return NULL;
++
+ 	pagelist_size = sizeof(struct pagelist) +
+ 			(num_pages * sizeof(u32)) +
+ 			(num_pages * sizeof(pages[0]) +
 
 
