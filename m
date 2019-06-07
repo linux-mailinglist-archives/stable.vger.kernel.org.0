@@ -2,107 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D9395393C8
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 19:59:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BE2C393EB
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 20:05:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730728AbfFGR7X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 13:59:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36558 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730210AbfFGR7X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 13:59:23 -0400
-Received: from kernel.org (unknown [104.132.0.74])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6D5F5208C0;
-        Fri,  7 Jun 2019 17:59:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559930362;
-        bh=9dKMZGCodIC7GBJF2KTazZroE2B9B8QOzrgq3LpSTsQ=;
-        h=In-Reply-To:References:To:From:Subject:Cc:Date:From;
-        b=XfxpMEW6MNIwAhNik2mOzmu24+FyFp1A0uIkPo4OOO1D/9Ahk2YJUYbZwD0O9zBtn
-         QAoVzL/Dqg/4eXuX9bHK0ezkVRuJncdkBsJ7JrDMJAaDJ2o5ycXYr4yU+AIQcWtHLh
-         DTVFeJtIA/PeklsvZn15h5uskwVM/3/96b0yt+9w=
-Content-Type: text/plain; charset="utf-8"
+        id S1729996AbfFGSFe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 14:05:34 -0400
+Received: from mail-lf1-f66.google.com ([209.85.167.66]:34739 "EHLO
+        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1729817AbfFGSFe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Jun 2019 14:05:34 -0400
+Received: by mail-lf1-f66.google.com with SMTP id y198so2308510lfa.1
+        for <stable@vger.kernel.org>; Fri, 07 Jun 2019 11:05:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=4AvJFyeYPhoZ4OqCr1dphehPV0ub1oVxmCWbJKgWsTI=;
+        b=d315/RM0DaMH44my3nNzmVmEhTs+nmHZuuQf+pKqz9YU+VjDMhvTt+Yvh514Ss3VZ3
+         osVtbUYyVCFBmdkSg2kW5jq84b2tec/7sH0g88lborkaDjwnEQCiquJ2Gjh042t4qJRK
+         O0Z2hoSc9g3XgDPMu2hQ/afW7OGSyKvzIuScc=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=4AvJFyeYPhoZ4OqCr1dphehPV0ub1oVxmCWbJKgWsTI=;
+        b=VVCTTwa1LxzhcB6HFONcN3GuD4hWG53c/yiHPQeTTlaRoRZH8L511N+YmVGeKvJCub
+         8SIGtsX0C/a8l9WMuVsJoY0DQqPcyQ+EqenQ+fm89maR03uEIR+iUcLK29yZLgrZZ9Vl
+         76W7c1FXGDNunJ7fXM88PTCGpYpWhrtap2K6iM1JA9h0vZnCyM2i6XEmXDdkOZt4UODM
+         igwVcBGEVIBAX0iLUwypo+RjcqlPmXnLG43AXfWv2cfQuo0Ko7sQZfepX1y2LWW5fdTn
+         lgHNdAteOJWLvH19DGXvOd2p33siEnXoMP1BS52hmW52BM2wGl01bpxREqJEbomWA114
+         My9A==
+X-Gm-Message-State: APjAAAUBkzn9wb3UCuHcYCcOh/7KlgVtCXoF7A9LyZZJmfAVKHpitCK4
+        2eEqkiYs5Lfq2jRiCgUo8nNiixEqp/M=
+X-Google-Smtp-Source: APXvYqzWBByNw4vv5laHYhQSe7JfD+GfQ2r9QHltVo6kt1Xy8DbtdK/3EJe+2Ac70AvVigB//2wlsA==
+X-Received: by 2002:a19:6e41:: with SMTP id q1mr19862272lfk.20.1559930731500;
+        Fri, 07 Jun 2019 11:05:31 -0700 (PDT)
+Received: from mail-lf1-f48.google.com (mail-lf1-f48.google.com. [209.85.167.48])
+        by smtp.gmail.com with ESMTPSA id a25sm513610lfc.28.2019.06.07.11.05.29
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
+        Fri, 07 Jun 2019 11:05:29 -0700 (PDT)
+Received: by mail-lf1-f48.google.com with SMTP id q26so2302436lfc.3
+        for <stable@vger.kernel.org>; Fri, 07 Jun 2019 11:05:29 -0700 (PDT)
+X-Received: by 2002:a19:2d41:: with SMTP id t1mr27328138lft.79.1559930729175;
+ Fri, 07 Jun 2019 11:05:29 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <1559877112-21064-1-git-send-email-weiyi.lu@mediatek.com>
-References: <1559877112-21064-1-git-send-email-weiyi.lu@mediatek.com>
-To:     Matthias Brugger <matthias.bgg@gmail.com>,
-        Nicolas Boichat <drinkcat@chromium.org>,
-        Rob Herring <robh@kernel.org>, Weiyi Lu <weiyi.lu@mediatek.com>
-From:   Stephen Boyd <sboyd@kernel.org>
-Subject: Re: [PATCH v1] clk: mediatek: mt8183: Register 13MHz clock earlier for clocksource
-Cc:     James Liao <jamesjj.liao@mediatek.com>,
-        Fan Chen <fan.chen@mediatek.com>,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-mediatek@lists.infradead.org, linux-clk@vger.kernel.org,
-        srv_heupstream@mediatek.com, stable@vger.kernel.org,
-        Weiyi Lu <weiyi.lu@mediatek.com>,
-        Dehui Sun <dehui.sun@mediatek.com>
-User-Agent: alot/0.8.1
-Date:   Fri, 07 Jun 2019 10:59:21 -0700
-Message-Id: <20190607175922.6D5F5208C0@mail.kernel.org>
+References: <20190522032144.10995-1-deepa.kernel@gmail.com>
+ <20190529161157.GA27659@redhat.com> <20190604134117.GA29963@redhat.com>
+ <20190606140814.GA13440@redhat.com> <20190606140852.GB13440@redhat.com>
+In-Reply-To: <20190606140852.GB13440@redhat.com>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Fri, 7 Jun 2019 11:05:13 -0700
+X-Gmail-Original-Message-ID: <CAHk-=wjTWSra20otC3tEGrpHJL3xhUFFe0+-7bZjUpibjwKjzg@mail.gmail.com>
+Message-ID: <CAHk-=wjTWSra20otC3tEGrpHJL3xhUFFe0+-7bZjUpibjwKjzg@mail.gmail.com>
+Subject: Re: [PATCH 1/2] select: change do_poll() to return -ERESTARTNOHAND
+ rather than -EINTR
+To:     Oleg Nesterov <oleg@redhat.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Deepa Dinamani <deepa.kernel@gmail.com>,
+        Linux List Kernel Mailing <linux-kernel@vger.kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Davidlohr Bueso <dbueso@suse.de>, Jens Axboe <axboe@kernel.dk>,
+        Davidlohr Bueso <dave@stgolabs.net>, Eric Wong <e@80x24.org>,
+        Jason Baron <jbaron@akamai.com>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        linux-aio@kvack.org, omar.kilani@gmail.com,
+        Thomas Gleixner <tglx@linutronix.de>,
+        stable <stable@vger.kernel.org>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        David Laight <David.Laight@aculab.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Quoting Weiyi Lu (2019-06-06 20:11:52)
-> diff --git a/drivers/clk/mediatek/clk-mt8183.c b/drivers/clk/mediatek/clk=
--mt8183.c
-> index 9d86510..a8f50bc 100644
-> --- a/drivers/clk/mediatek/clk-mt8183.c
-> +++ b/drivers/clk/mediatek/clk-mt8183.c
-> @@ -1167,37 +1169,62 @@ static int clk_mt8183_apmixed_probe(struct platfo=
-rm_device *pdev)
->         return of_clk_add_provider(node, of_clk_src_onecell_get, clk_data=
-);
->  }
-> =20
-> +static struct clk_onecell_data *top_clk_data;
-> +
-> +static void clk_mt8183_top_init_early(struct device_node *node)
-> +{
-> +       int i;
-> +
-> +       if (!top_clk_data) {
+On Thu, Jun 6, 2019 at 7:09 AM Oleg Nesterov <oleg@redhat.com> wrote:
+>
+> do_poll() returns -EINTR if interrupted and after that all its callers
+> have to translate it into -ERESTARTNOHAND. Change do_poll() to return
+> -ERESTARTNOHAND and update (simplify) the callers.
 
-Is this function ever called more than once? I believe the answer is no
-so this check should be removed.
+Ack.
 
-> +               top_clk_data =3D mtk_alloc_clk_data(CLK_TOP_NR_CLK);
-> +
-> +               for (i =3D 0; i < CLK_TOP_NR_CLK; i++)
-> +                       top_clk_data->clks[i] =3D ERR_PTR(-EPROBE_DEFER);
-> +       }
-> +
-> +       mtk_clk_register_factors(top_early_divs, ARRAY_SIZE(top_early_div=
-s),
-> +                       top_clk_data);
-> +
-> +       of_clk_add_provider(node, of_clk_src_onecell_get, top_clk_data);
-> +}
-> +
-> +CLK_OF_DECLARE_DRIVER(mt8183_topckgen, "mediatek,mt8183-topckgen",
-> +                       clk_mt8183_top_init_early);
-> +
->  static int clk_mt8183_top_probe(struct platform_device *pdev)
->  {
->         struct resource *res =3D platform_get_resource(pdev, IORESOURCE_M=
-EM, 0);
->         void __iomem *base;
-> -       struct clk_onecell_data *clk_data;
->         struct device_node *node =3D pdev->dev.of_node;
-> =20
->         base =3D devm_ioremap_resource(&pdev->dev, res);
->         if (IS_ERR(base))
->                 return PTR_ERR(base);
-> =20
-> -       clk_data =3D mtk_alloc_clk_data(CLK_TOP_NR_CLK);
-> +       if (!top_clk_data)
-> +               top_clk_data =3D mtk_alloc_clk_data(CLK_TOP_NR_CLK);
+The *right* return value will actually be then chosen by
+poll_select_copy_remaining(), which will turn ERESTARTNOHAND to EINTR
+when it can't update the timeout.
 
-And then this can be removed because top_clk_data must be allocated at
-this point.
+Except for the cases that use restart_block and do that instead and
+don't have the whole timeout restart issue as a result.
 
+              Linus
