@@ -2,86 +2,261 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 92ECC3928B
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 18:53:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 557C3392E9
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 19:18:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729172AbfFGQxj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 12:53:39 -0400
-Received: from mail-qt1-f172.google.com ([209.85.160.172]:44313 "EHLO
-        mail-qt1-f172.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729675AbfFGQxj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Jun 2019 12:53:39 -0400
-Received: by mail-qt1-f172.google.com with SMTP id x47so3016024qtk.11
-        for <stable@vger.kernel.org>; Fri, 07 Jun 2019 09:53:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ziepe.ca; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=hbP4NV39kfwqjrM2uVAjAMMSDLVSDPZSh63Bx7Di41A=;
-        b=SedHDblfYrrUma4FlQdqKB/gELJZG1KOj+Ttw2tWF6B/MVKt+8XBlPva9dl/QGS2sK
-         JBqBOSCTUC0rzvk8jQ9OKU0oVy8enAgclmWltEvUP8vXzAmM5uF+gDtAFCQesUfTbIu4
-         QCfPq92pa7wuFnRX9dax2gLTHAAGsCZQGjoW0TFT+xKUIkioPOOjqUvX+1SgxpReQ5BL
-         QbArLLMLp7L6Sv5Ru6TDbSHWkwpnY+SABDWSd4bl/1M/AwS07+ebfUB4/6hYVLDLfOfu
-         RCvZXawiBKVlvNBJ9+UwTGyX1+Lr7B60cyo5UUwDedalFdo5rncMXFSvRXzVcnoqbIyh
-         d2MA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=hbP4NV39kfwqjrM2uVAjAMMSDLVSDPZSh63Bx7Di41A=;
-        b=HK8aEOvtAusIEWA1XNlIvGtEQlrCWk+9kfsy9NTJucGQJXxVytububGAggAH7QJHce
-         VyZvCTXYsrjAM/ByrBOfw7ibdWsyOtym/vSb7eYKr/1N0N8QLLNjA/UAu5SxKMoZBoSb
-         KNrjADtfIXF8Hi7Pk/ECkafLAq3TAK4k4NwsN+/3Kja8iJEx9vATm+ms8Rpxgb1MudFw
-         bC+BIHy+DTNH2BbQ9AzPawz5pVZz6R9wGBCiqlNQ211Nm/uDFpwYtWTg1ZbzdjLe2bbQ
-         garKonMP8aU475NEbS633lWyXcgO9TfCZ+VuVgNvcFUhg/91PWgmwcmwzuh7waX7R0ch
-         Plbg==
-X-Gm-Message-State: APjAAAU9sHjKk+712M8QV8/j1R0m2/e8duaeJxkC6kplr+IieKSyHDXh
-        tWgm3Q9x058h0w+X2TTJLP5UhmCYSwf1MA==
-X-Google-Smtp-Source: APXvYqzhzJQ4ETZ7wJZxSTF/BgzunvU6O7pRFTiYvUpBHGu+wQzrfYbo2Ob9g2EpJmCwGTlM0k1nQg==
-X-Received: by 2002:aed:2fe7:: with SMTP id m94mr45205851qtd.191.1559926418598;
-        Fri, 07 Jun 2019 09:53:38 -0700 (PDT)
-Received: from ziepe.ca (hlfxns017vw-156-34-55-100.dhcp-dynamic.fibreop.ns.bellaliant.net. [156.34.55.100])
-        by smtp.gmail.com with ESMTPSA id 39sm1490220qtx.71.2019.06.07.09.53.38
-        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
-        Fri, 07 Jun 2019 09:53:38 -0700 (PDT)
-Received: from jgg by mlx.ziepe.ca with local (Exim 4.90_1)
-        (envelope-from <jgg@ziepe.ca>)
-        id 1hZI7V-0005qA-Qh; Fri, 07 Jun 2019 13:53:37 -0300
-Date:   Fri, 7 Jun 2019 13:53:37 -0300
-From:   Jason Gunthorpe <jgg@ziepe.ca>
-To:     Bart Van Assche <bvanassche@acm.org>
-Cc:     Leon Romanovsky <leonro@mellanox.com>,
-        Doug Ledford <dledford@redhat.com>, linux-rdma@vger.kernel.org,
-        Laurence Oberman <loberman@redhat.com>, stable@vger.kernel.org
-Subject: Re: [PATCH, RESEND] RDMA/srp: Accept again source addresses that do
- not have a port number
-Message-ID: <20190607165337.GB22304@ziepe.ca>
-References: <20190529163831.138926-1-bvanassche@acm.org>
+        id S1730570AbfFGRSl convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 7 Jun 2019 13:18:41 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:35034 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1728618AbfFGRSk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 13:18:40 -0400
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id ECF96223892
+        for <stable@vger.kernel.org>; Fri,  7 Jun 2019 17:18:39 +0000 (UTC)
+Received: from [172.54.141.148] (cpt-large-cpu-05.paas.prod.upshift.rdu2.redhat.com [10.0.18.78])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 803B987DB;
+        Fri,  7 Jun 2019 17:18:37 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190529163831.138926-1-bvanassche@acm.org>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-4.19
+Message-ID: <cki.B65495FC1C.X7JVH40XFI@redhat.com>
+X-Gitlab-Pipeline-ID: 11771
+X-Gitlab-Pipeline: =?utf-8?q?https=3A//xci32=2Elab=2Eeng=2Erdu2=2Eredhat=2Ec?=
+ =?utf-8?q?om/cki-project/cki-pipeline/pipelines/11771?=
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.39]); Fri, 07 Jun 2019 17:18:39 +0000 (UTC)
+Date:   Fri, 7 Jun 2019 13:18:40 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 29, 2019 at 09:38:31AM -0700, Bart Van Assche wrote:
-> The function srp_parse_in() is used both for parsing source address
-> specifications and for target address specifications. Target addresses
-> must have a port number. Having to specify a port number for source
-> addresses is inconvenient. Make sure that srp_parse_in() supports again
-> parsing addresses with no port number.
-> 
-> Cc: Laurence Oberman <loberman@redhat.com>
-> Cc: <stable@vger.kernel.org>
-> Fixes: c62adb7def71 ("IB/srp: Fix IPv6 address parsing") # v4.17.
-> Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-> ---
->  drivers/infiniband/ulp/srp/ib_srp.c | 21 +++++++++++++++------
->  1 file changed, 15 insertions(+), 6 deletions(-)
+Hello,
 
-Applied to for-next, thanks
+We ran automated tests on a patchset that was proposed for merging into this
+kernel tree. The patches were applied to:
 
-Jason
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+            Commit: e109a984cf38 - Linux 4.19.48
+
+The results of these automated tests are provided below.
+
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
+
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Merge testing
+-------------
+
+We cloned this repository and checked out the following commit:
+
+  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: e109a984cf38 - Linux 4.19.48
+
+
+We then merged the patchset with `git am`:
+
+  sparc64-fix-regression-in-non-hypervisor-tlb-flush-xcall.patch
+  include-linux-bitops.h-sanitize-rotate-primitives.patch
+  xhci-update-bounce-buffer-with-correct-sg-num.patch
+  xhci-use-zu-for-printing-size_t-type.patch
+  xhci-convert-xhci_handshake-to-use-readl_poll_timeout_atomic.patch
+  usb-xhci-avoid-null-pointer-deref-when-bos-field-is-null.patch
+  usbip-usbip_host-fix-bug-sleeping-function-called-from-invalid-context.patch
+  usbip-usbip_host-fix-stub_dev-lock-context-imbalance-regression.patch
+  usb-fix-slab-out-of-bounds-write-in-usb_get_bos_descriptor.patch
+  usb-sisusbvga-fix-oops-in-error-path-of-sisusb_probe.patch
+  usb-add-lpm-quirk-for-surface-dock-gige-adapter.patch
+  usb-rio500-refuse-more-than-one-device-at-a-time.patch
+  usb-rio500-fix-memory-leak-in-close-after-disconnect.patch
+  media-usb-siano-fix-general-protection-fault-in-smsusb.patch
+  media-usb-siano-fix-false-positive-uninitialized-variable-warning.patch
+  media-smsusb-better-handle-optional-alignment.patch
+  brcmfmac-fix-null-pointer-derefence-during-usb-disconnect.patch
+  scsi-zfcp-fix-missing-zfcp_port-reference-put-on-ebusy-from-port_remove.patch
+  scsi-zfcp-fix-to-prevent-port_remove-with-pure-auto-scan-luns-only-sdevs.patch
+  tracing-avoid-memory-leak-in-predicate_parse.patch
+  btrfs-fix-wrong-ctime-and-mtime-of-a-directory-after-log-replay.patch
+  btrfs-fix-race-updating-log-root-item-during-fsync.patch
+  btrfs-fix-fsync-not-persisting-changed-attributes-of-a-directory.patch
+  btrfs-incremental-send-fix-file-corruption-when-no-holes-feature-is-enabled.patch
+  iio-dac-ds4422-ds4424-fix-chip-verification.patch
+  iio-adc-ti-ads8688-fix-timestamp-is-not-updated-in-buffer.patch
+  s390-crypto-fix-gcm-aes-s390-selftest-failures.patch
+  s390-crypto-fix-possible-sleep-during-spinlock-aquired.patch
+  kvm-ppc-book3s-hv-xive-do-not-clear-irq-data-of-passthrough-interrupts.patch
+  powerpc-perf-fix-mmcra-corruption-by-bhrb_filter.patch
+  alsa-line6-assure-canceling-delayed-work-at-disconnection.patch
+  alsa-hda-realtek-set-default-power-save-node-to-0.patch
+  alsa-hda-realtek-improve-the-headset-mic-for-acer-aspire-laptops.patch
+  kvm-s390-do-not-report-unusabled-ids-via-kvm_cap_max_vcpu_id.patch
+  drm-nouveau-i2c-disable-i2c-bus-access-after-fini.patch
+  i2c-mlxcpld-fix-wrong-initialization-order-in-probe.patch
+  i2c-synquacer-fix-synquacer_i2c_doxfer-return-value.patch
+  tty-serial-msm_serial-fix-xon-xoff.patch
+  tty-max310x-fix-external-crystal-register-setup.patch
+  memcg-make-it-work-on-sparse-non-0-node-systems.patch
+  kernel-signal.c-trace_signal_deliver-when-signal_group_exit.patch
+  arm64-fix-the-arm64_personality-syscall-wrapper-redirection.patch
+  docs-fix-conf.py-for-sphinx-2.0.patch
+  doc-cope-with-the-deprecation-of-autoreporter.patch
+  doc-cope-with-sphinx-logging-deprecations.patch
+  ima-show-rules-with-ima_inmask-correctly.patch
+  evm-check-hash-algorithm-passed-to-init_desc.patch
+  vt-fbcon-deinitialize-resources-in-visual_init-after-failed-memory-allocation.patch
+  serial-sh-sci-disable-dma-for-uart_console.patch
+  staging-vc04_services-prevent-integer-overflow-in-create_pagelist.patch
+  staging-wlan-ng-fix-adapter-initialization-failure.patch
+  cifs-fix-memory-leak-of-pneg_inbuf-on-eopnotsupp-ioctl-case.patch
+  cifs-cifs_read_allocate_pages-don-t-iterate-through-whole-page-array-on-enomem.patch
+  revert-lockd-show-pid-of-lockd-for-remote-locks.patch
+  gcc-plugins-fix-build-failures-under-darwin-host.patch
+  drm-tegra-gem-fix-cpu-cache-maintenance-for-bo-s-allocated-using-get_pages.patch
+  drm-vmwgfx-don-t-send-drm-sysfs-hotplug-events-on-initial-master-set.patch
+  drm-sun4i-fix-sun8i-hdmi-phy-clock-initialization.patch
+  drm-sun4i-fix-sun8i-hdmi-phy-configuration-for-148.5-mhz.patch
+  drm-rockchip-shutdown-drm-subsystem-on-shutdown.patch
+  drm-lease-make-sure-implicit-planes-are-leased.patch
+  compiler-attributes-add-support-for-__copy-gcc-9.patch
+  include-linux-module.h-copy-__init-__exit-attrs-to-init-cleanup_module.patch
+  revert-x86-build-move-_etext-to-actual-end-of-.text.patch
+  revert-binder-fix-handling-of-misaligned-binder-object.patch
+  binder-fix-race-between-munmap-and-direct-reclaim.patch
+  x86-ftrace-do-not-call-function-graph-from-dynamic-t.patch
+  x86-ftrace-set-trampoline-pages-as-executable.patch
+  x86-kprobes-set-instruction-page-as-executable.patch
+  scsi-lpfc-fix-backport-of-faf5a744f4f8-scsi-lpfc-avoid-uninitialized-variable-warning.patch
+  of-overlay-validate-overlay-properties-address-cells-and-size-cells.patch
+  of-overlay-set-node-fields-from-properties-when-add-new-overlay-node.patch
+  media-uvcvideo-fix-uvc_alloc_entity-allocation-alignment.patch
+
+Compile testing
+---------------
+
+We compiled the kernel for 4 architectures:
+
+  aarch64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-0b5958fab0250a14391d12fe0679d4bb68bf72bb.config
+    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-0b5958fab0250a14391d12fe0679d4bb68bf72bb.tar.gz
+
+  ppc64le:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-0b5958fab0250a14391d12fe0679d4bb68bf72bb.config
+    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-0b5958fab0250a14391d12fe0679d4bb68bf72bb.tar.gz
+
+  s390x:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-0b5958fab0250a14391d12fe0679d4bb68bf72bb.config
+    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-0b5958fab0250a14391d12fe0679d4bb68bf72bb.tar.gz
+
+  x86_64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-0b5958fab0250a14391d12fe0679d4bb68bf72bb.config
+    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-0b5958fab0250a14391d12fe0679d4bb68bf72bb.tar.gz
+
+
+Hardware testing
+----------------
+
+We booted each kernel and ran the following tests:
+
+  aarch64:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [1]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ LTP lite [2]
+       ✅ Loopdev Sanity [3]
+       ✅ AMTU (Abstract Machine Test Utility) [4]
+       ✅ audit: audit testsuite test [5]
+       ✅ httpd: mod_ssl smoke sanity [6]
+       ✅ iotop: sanity [7]
+       ✅ tuned: tune-processes-through-perf [8]
+       ✅ Usex - version 1.9-29 [9]
+       ✅ storage: SCSI VPD [10]
+
+
+  ppc64le:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [1]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ LTP lite [2]
+       ✅ Loopdev Sanity [3]
+       ✅ AMTU (Abstract Machine Test Utility) [4]
+       ✅ audit: audit testsuite test [5]
+       ✅ httpd: mod_ssl smoke sanity [6]
+       ✅ iotop: sanity [7]
+       ✅ tuned: tune-processes-through-perf [8]
+       ✅ Usex - version 1.9-29 [9]
+
+
+  s390x:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ LTP lite [2]
+       ✅ Loopdev Sanity [3]
+       ✅ audit: audit testsuite test [5]
+       ✅ httpd: mod_ssl smoke sanity [6]
+       ✅ iotop: sanity [7]
+       ✅ tuned: tune-processes-through-perf [8]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [1]
+
+
+  x86_64:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [1]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ LTP lite [2]
+       ✅ Loopdev Sanity [3]
+       ✅ AMTU (Abstract Machine Test Utility) [4]
+       ✅ audit: audit testsuite test [5]
+       ✅ httpd: mod_ssl smoke sanity [6]
+       ✅ iotop: sanity [7]
+       ✅ tuned: tune-processes-through-perf [8]
+       ✅ Usex - version 1.9-29 [9]
+       ✅ storage: SCSI VPD [10]
+
+
+  Test source:
+    💚 Pull requests are welcome for new tests or improvements to existing tests!
+    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
+    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
+    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
+    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
+    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
+    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
+    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
+    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
+    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
+    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
+    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/scsi/vpd
+
