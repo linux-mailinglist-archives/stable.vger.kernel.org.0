@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C3CE338F77
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:42:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 360343909E
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:53:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730448AbfFGPmB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 11:42:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52320 "EHLO mail.kernel.org"
+        id S1731791AbfFGPxY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 11:53:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32852 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730416AbfFGPmA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 11:42:00 -0400
+        id S1730581AbfFGPrz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 11:47:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BBEDE2133D;
-        Fri,  7 Jun 2019 15:41:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B196220657;
+        Fri,  7 Jun 2019 15:47:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559922120;
-        bh=cgBfD8u9cSMxS93P8T3sKF2WamQHBf60rbEgKWXCVzU=;
+        s=default; t=1559922475;
+        bh=obaZKxvXgYEdqf/Y6HZ6mDMmMasYi5YEMaOeTMivmS8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E8R2aFB9ZbladUw3/PrD1/O/+6ANOKzRpqZS0i/7r382ruTdQDrz+0Lr0UAxeImJR
-         pAyC9/Mga1hhe7kTL0Csa3Dk6kC9/G8CsDpNylzo26ey2NcZdd79zzt5KbojGTPHDE
-         JXqHlayBf3pldbL7+Lf5YuTWZOAcm7Mp/Gb7rO1k=
+        b=ZEnYOK5I5X/8XA+6aLWk0YkrZqMl213NoXpRXN74n4a9uGVqlXN3qAKpfnL85veAU
+         V3kop+UsKTO4TWIjsLIQ44XTQSKKQ9iWHhehNGiLOQzchKtkriG/vBr5EtQUpIDCHM
+         is5n6zteVnd1xFesliVmS3ZF+dhSEJ8ERIkkmwvg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Chris Packham <chris.packham@alliedtelesis.co.nz>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 08/69] tipc: Avoid copying bytes beyond the supplied data
-Date:   Fri,  7 Jun 2019 17:38:49 +0200
-Message-Id: <20190607153849.294133655@linuxfoundation.org>
+        stable@vger.kernel.org, Andrey Smirnov <andrew.smirnov@gmail.com>,
+        Raul E Rangel <rrangel@chromium.org>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.1 05/85] xhci: Convert xhci_handshake() to use readl_poll_timeout_atomic()
+Date:   Fri,  7 Jun 2019 17:38:50 +0200
+Message-Id: <20190607153849.732847881@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190607153848.271562617@linuxfoundation.org>
-References: <20190607153848.271562617@linuxfoundation.org>
+In-Reply-To: <20190607153849.101321647@linuxfoundation.org>
+References: <20190607153849.101321647@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,67 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Packham <chris.packham@alliedtelesis.co.nz>
+From: Andrey Smirnov <andrew.smirnov@gmail.com>
 
-TLV_SET is called with a data pointer and a len parameter that tells us
-how many bytes are pointed to by data. When invoking memcpy() we need
-to careful to only copy len bytes.
+commit f7fac17ca925faa03fc5eb854c081a24075f8bad upstream.
 
-Previously we would copy TLV_LENGTH(len) bytes which would copy an extra
-4 bytes past the end of the data pointer which newer GCC versions
-complain about.
+Xhci_handshake() implements the algorithm already captured by
+readl_poll_timeout_atomic(). Convert the former to use the latter to
+avoid repetition.
 
- In file included from test.c:17:
- In function 'TLV_SET',
-     inlined from 'test' at test.c:186:5:
- /usr/include/linux/tipc_config.h:317:3:
- warning: 'memcpy' forming offset [33, 36] is out of the bounds [0, 32]
- of object 'bearer_name' with type 'char[32]' [-Warray-bounds]
-     memcpy(TLV_DATA(tlv_ptr), data, tlv_len);
-     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- test.c: In function 'test':
- test.c::161:10: note:
- 'bearer_name' declared here
-     char bearer_name[TIPC_MAX_BEARER_NAME];
-          ^~~~~~~~~~~
+Turned out this patch also fixes a bug on the AMD Stoneyridge platform
+where usleep(1) sometimes takes over 10ms.
+This means a 5 second timeout can easily take over 15 seconds which will
+trigger the watchdog and reboot the system.
 
-We still want to ensure any padding bytes at the end are initialised, do
-this with a explicit memset() rather than copy bytes past the end of
-data. Apply the same logic to TCM_SET.
-
-Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+[Add info about patch fixing a bug to commit message -Mathias]
+Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
+Tested-by: Raul E Rangel <rrangel@chromium.org>
+Reviewed-by: Raul E Rangel <rrangel@chromium.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- include/uapi/linux/tipc_config.h |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/include/uapi/linux/tipc_config.h
-+++ b/include/uapi/linux/tipc_config.h
-@@ -302,8 +302,10 @@ static inline int TLV_SET(void *tlv, __u
- 	tlv_ptr = (struct tlv_desc *)tlv;
- 	tlv_ptr->tlv_type = htons(type);
- 	tlv_ptr->tlv_len  = htons(tlv_len);
--	if (len && data)
--		memcpy(TLV_DATA(tlv_ptr), data, tlv_len);
-+	if (len && data) {
-+		memcpy(TLV_DATA(tlv_ptr), data, len);
-+		memset(TLV_DATA(tlv_ptr) + len, 0, TLV_SPACE(len) - tlv_len);
-+	}
- 	return TLV_SPACE(len);
+---
+ drivers/usb/host/xhci.c |   22 ++++++++++------------
+ 1 file changed, 10 insertions(+), 12 deletions(-)
+
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -9,6 +9,7 @@
+  */
+ 
+ #include <linux/pci.h>
++#include <linux/iopoll.h>
+ #include <linux/irq.h>
+ #include <linux/log2.h>
+ #include <linux/module.h>
+@@ -52,7 +53,6 @@ static bool td_on_ring(struct xhci_td *t
+ 	return false;
  }
  
-@@ -400,8 +402,10 @@ static inline int TCM_SET(void *msg, __u
- 	tcm_hdr->tcm_len   = htonl(msg_len);
- 	tcm_hdr->tcm_type  = htons(cmd);
- 	tcm_hdr->tcm_flags = htons(flags);
--	if (data_len && data)
-+	if (data_len && data) {
- 		memcpy(TCM_DATA(msg), data, data_len);
-+		memset(TCM_DATA(msg) + data_len, 0, TCM_SPACE(data_len) - msg_len);
-+	}
- 	return TCM_SPACE(data_len);
+-/* TODO: copied from ehci-hcd.c - can this be refactored? */
+ /*
+  * xhci_handshake - spin reading hc until handshake completes or fails
+  * @ptr: address of hc register to be read
+@@ -69,18 +69,16 @@ static bool td_on_ring(struct xhci_td *t
+ int xhci_handshake(void __iomem *ptr, u32 mask, u32 done, int usec)
+ {
+ 	u32	result;
++	int	ret;
+ 
+-	do {
+-		result = readl(ptr);
+-		if (result == ~(u32)0)		/* card removed */
+-			return -ENODEV;
+-		result &= mask;
+-		if (result == done)
+-			return 0;
+-		udelay(1);
+-		usec--;
+-	} while (usec > 0);
+-	return -ETIMEDOUT;
++	ret = readl_poll_timeout_atomic(ptr, result,
++					(result & mask) == done ||
++					result == U32_MAX,
++					1, usec);
++	if (result == U32_MAX)		/* card removed */
++		return -ENODEV;
++
++	return ret;
  }
  
+ /*
 
 
