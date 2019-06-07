@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B6A82390AC
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:54:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63A5339170
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:59:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731612AbfFGPrf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 11:47:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60494 "EHLO mail.kernel.org"
+        id S1729783AbfFGPlF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 11:41:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50656 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731608AbfFGPre (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 11:47:34 -0400
+        id S1730198AbfFGPlE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 11:41:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E521220657;
-        Fri,  7 Jun 2019 15:47:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F6B02146E;
+        Fri,  7 Jun 2019 15:41:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559922453;
-        bh=fVyXiQZJdltf5uOI6XaSx1k+DhcKGMAHrEr3Is3ELgk=;
+        s=default; t=1559922063;
+        bh=qxZ9rMqJ8eG6DGpDo67Bytw4sJ6TMxqP6+C9DYjK+XY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R5bN0YpOrcZ5nqxEs8Q6IURL+BkV6AEsk7EUCT2kX5wXfffzRDCT9rsMfvKAlW2v6
-         rJLezdOUL/IrdMBX9BH8vVlqeMsPcWYtkVAcM3Rsp6nSGRbdUBr+lhDmBab8bt4GWy
-         TnNDqVu7RhMDoVGm+8p87aTNV6dQK27ZXGtkgwwo=
+        b=S8vBlVUvJDYblG8Yf9SaFwUUf9GaQrOFGoPtTmvdQ9+nOjwBd0Jwi69vd9E9nGOhF
+         fVfu8YVslITTczbcshUF5o4FlX1fosNyMBBLj73QsRXh88O8+qqXYBi9nQDlawfIr5
+         k4w+0rdczlMqVB5kIhVy4fSPAGYGJqFbV8hD0IvE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steffen Maier <maier@linux.ibm.com>,
-        Benjamin Block <bblock@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.1 19/85] scsi: zfcp: fix to prevent port_remove with pure auto scan LUNs (only sdevs)
+        stable@vger.kernel.org, Henry Lin <henryl@nvidia.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 4.14 23/69] xhci: update bounce buffer with correct sg num
 Date:   Fri,  7 Jun 2019 17:39:04 +0200
-Message-Id: <20190607153851.579724583@linuxfoundation.org>
+Message-Id: <20190607153851.228812132@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190607153849.101321647@linuxfoundation.org>
-References: <20190607153849.101321647@linuxfoundation.org>
+In-Reply-To: <20190607153848.271562617@linuxfoundation.org>
+References: <20190607153848.271562617@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,186 +43,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steffen Maier <maier@linux.ibm.com>
+From: Henry Lin <henryl@nvidia.com>
 
-commit ef4021fe5fd77ced0323cede27979d80a56211ca upstream.
+commit 597c56e372dab2c7f79b8d700aad3a5deebf9d1b upstream.
 
-When the user tries to remove a zfcp port via sysfs, we only rejected it if
-there are zfcp unit children under the port. With purely automatically
-scanned LUNs there are no zfcp units but only SCSI devices. In such cases,
-the port_remove erroneously continued. We close the port and this
-implicitly closes all LUNs under the port. The SCSI devices survive with
-their private zfcp_scsi_dev still holding a reference to the "removed"
-zfcp_port (still allocated but invisible in sysfs) [zfcp_get_port_by_wwpn
-in zfcp_scsi_slave_alloc]. This is not a problem as long as the fc_rport
-stays blocked. Once (auto) port scan brings back the removed port, we
-unblock its fc_rport again by design.  However, there is no mechanism that
-would recover (open) the LUNs under the port (no "ersfs_3" without
-zfcp_unit [zfcp_erp_strategy_followup_success]).  Any pending or new I/O to
-such LUN leads to repeated:
+This change fixes a data corruption issue occurred on USB hard disk for
+the case that bounce buffer is used during transferring data.
 
-  Done: NEEDS_RETRY Result: hostbyte=DID_IMM_RETRY driverbyte=DRIVER_OK
+While updating data between sg list and bounce buffer, current
+implementation passes mapped sg number (urb->num_mapped_sgs) to
+sg_pcopy_from_buffer() and sg_pcopy_to_buffer(). This causes data
+not get copied if target buffer is located in the elements after
+mapped sg elements. This change passes sg number for full list to
+fix issue.
 
-See also v4.10 commit 6f2ce1c6af37 ("scsi: zfcp: fix rport unblock race
-with LUN recovery"). Even a manual LUN recovery
-(echo 0 > /sys/bus/scsi/devices/H:C:T:L/zfcp_failed)
-does not help, as the LUN links to the old "removed" port which remains
-to lack ZFCP_STATUS_COMMON_RUNNING [zfcp_erp_required_act].
-The only workaround is to first ensure that the fc_rport is blocked
-(e.g. port_remove again in case it was re-discovered by (auto) port scan),
-then delete the SCSI devices, and finally re-discover by (auto) port scan.
-The port scan includes an fc_rport unblock, which in turn triggers
-a new scan on the scsi target to freshly get new pure auto scan LUNs.
+Besides, for copying data from bounce buffer, calling dma_unmap_single()
+on the bounce buffer before copying data to sg list can avoid cache issue.
 
-Fix this by rejecting port_remove also if there are SCSI devices
-(even without any zfcp_unit) under this port. Re-use mechanics from v3.7
-commit d99b601b6338 ("[SCSI] zfcp: restore refcount check on port_remove").
-However, we have to give up zfcp_sysfs_port_units_mutex earlier in unit_add
-to prevent a deadlock with scsi_host scan taking shost->scan_mutex first
-and then zfcp_sysfs_port_units_mutex now in our zfcp_scsi_slave_alloc().
-
-Signed-off-by: Steffen Maier <maier@linux.ibm.com>
-Fixes: b62a8d9b45b9 ("[SCSI] zfcp: Use SCSI device data zfcp scsi dev instead of zfcp unit")
-Fixes: f8210e34887e ("[SCSI] zfcp: Allow midlayer to scan for LUNs when running in NPIV mode")
-Cc: <stable@vger.kernel.org> #2.6.37+
-Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: f9c589e142d0 ("xhci: TD-fragment, align the unsplittable case with a bounce buffer")
+Cc: <stable@vger.kernel.org> # v4.8+
+Signed-off-by: Henry Lin <henryl@nvidia.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/s390/scsi/zfcp_ext.h   |    1 
- drivers/s390/scsi/zfcp_scsi.c  |    9 ++++++
- drivers/s390/scsi/zfcp_sysfs.c |   54 ++++++++++++++++++++++++++++++++++++-----
- drivers/s390/scsi/zfcp_unit.c  |    8 +++++-
- 4 files changed, 65 insertions(+), 7 deletions(-)
+ drivers/usb/host/xhci-ring.c |   17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
---- a/drivers/s390/scsi/zfcp_ext.h
-+++ b/drivers/s390/scsi/zfcp_ext.h
-@@ -167,6 +167,7 @@ extern const struct attribute_group *zfc
- extern struct mutex zfcp_sysfs_port_units_mutex;
- extern struct device_attribute *zfcp_sysfs_sdev_attrs[];
- extern struct device_attribute *zfcp_sysfs_shost_attrs[];
-+bool zfcp_sysfs_port_is_removing(const struct zfcp_port *const port);
+--- a/drivers/usb/host/xhci-ring.c
++++ b/drivers/usb/host/xhci-ring.c
+@@ -667,6 +667,7 @@ static void xhci_unmap_td_bounce_buffer(
+ 	struct device *dev = xhci_to_hcd(xhci)->self.controller;
+ 	struct xhci_segment *seg = td->bounce_seg;
+ 	struct urb *urb = td->urb;
++	size_t len;
  
- /* zfcp_unit.c */
- extern int zfcp_unit_add(struct zfcp_port *, u64);
---- a/drivers/s390/scsi/zfcp_scsi.c
-+++ b/drivers/s390/scsi/zfcp_scsi.c
-@@ -129,6 +129,15 @@ static int zfcp_scsi_slave_alloc(struct
- 
- 	zfcp_sdev->erp_action.port = port;
- 
-+	mutex_lock(&zfcp_sysfs_port_units_mutex);
-+	if (zfcp_sysfs_port_is_removing(port)) {
-+		/* port is already gone */
-+		mutex_unlock(&zfcp_sysfs_port_units_mutex);
-+		put_device(&port->dev); /* undo zfcp_get_port_by_wwpn() */
-+		return -ENXIO;
-+	}
-+	mutex_unlock(&zfcp_sysfs_port_units_mutex);
-+
- 	unit = zfcp_unit_find(port, zfcp_scsi_dev_lun(sdev));
- 	if (unit)
- 		put_device(&unit->dev);
---- a/drivers/s390/scsi/zfcp_sysfs.c
-+++ b/drivers/s390/scsi/zfcp_sysfs.c
-@@ -235,6 +235,53 @@ static ZFCP_DEV_ATTR(adapter, port_resca
- 
- DEFINE_MUTEX(zfcp_sysfs_port_units_mutex);
- 
-+static void zfcp_sysfs_port_set_removing(struct zfcp_port *const port)
-+{
-+	lockdep_assert_held(&zfcp_sysfs_port_units_mutex);
-+	atomic_set(&port->units, -1);
-+}
-+
-+bool zfcp_sysfs_port_is_removing(const struct zfcp_port *const port)
-+{
-+	lockdep_assert_held(&zfcp_sysfs_port_units_mutex);
-+	return atomic_read(&port->units) == -1;
-+}
-+
-+static bool zfcp_sysfs_port_in_use(struct zfcp_port *const port)
-+{
-+	struct zfcp_adapter *const adapter = port->adapter;
-+	unsigned long flags;
-+	struct scsi_device *sdev;
-+	bool in_use = true;
-+
-+	mutex_lock(&zfcp_sysfs_port_units_mutex);
-+	if (atomic_read(&port->units) > 0)
-+		goto unlock_port_units_mutex; /* zfcp_unit(s) under port */
-+
-+	spin_lock_irqsave(adapter->scsi_host->host_lock, flags);
-+	__shost_for_each_device(sdev, adapter->scsi_host) {
-+		const struct zfcp_scsi_dev *zsdev = sdev_to_zfcp(sdev);
-+
-+		if (sdev->sdev_state == SDEV_DEL ||
-+		    sdev->sdev_state == SDEV_CANCEL)
-+			continue;
-+		if (zsdev->port != port)
-+			continue;
-+		/* alive scsi_device under port of interest */
-+		goto unlock_host_lock;
-+	}
-+
-+	/* port is about to be removed, so no more unit_add or slave_alloc */
-+	zfcp_sysfs_port_set_removing(port);
-+	in_use = false;
-+
-+unlock_host_lock:
-+	spin_unlock_irqrestore(adapter->scsi_host->host_lock, flags);
-+unlock_port_units_mutex:
-+	mutex_unlock(&zfcp_sysfs_port_units_mutex);
-+	return in_use;
-+}
-+
- static ssize_t zfcp_sysfs_port_remove_store(struct device *dev,
- 					    struct device_attribute *attr,
- 					    const char *buf, size_t count)
-@@ -257,16 +304,11 @@ static ssize_t zfcp_sysfs_port_remove_st
- 	else
- 		retval = 0;
- 
--	mutex_lock(&zfcp_sysfs_port_units_mutex);
--	if (atomic_read(&port->units) > 0) {
-+	if (zfcp_sysfs_port_in_use(port)) {
- 		retval = -EBUSY;
--		mutex_unlock(&zfcp_sysfs_port_units_mutex);
- 		put_device(&port->dev); /* undo zfcp_get_port_by_wwpn() */
- 		goto out;
+ 	if (!ring || !seg || !urb)
+ 		return;
+@@ -677,11 +678,14 @@ static void xhci_unmap_td_bounce_buffer(
+ 		return;
  	}
--	/* port is about to be removed, so no more unit_add */
--	atomic_set(&port->units, -1);
--	mutex_unlock(&zfcp_sysfs_port_units_mutex);
  
- 	write_lock_irq(&adapter->port_list_lock);
- 	list_del(&port->list);
---- a/drivers/s390/scsi/zfcp_unit.c
-+++ b/drivers/s390/scsi/zfcp_unit.c
-@@ -124,7 +124,7 @@ int zfcp_unit_add(struct zfcp_port *port
- 	int retval = 0;
+-	/* for in tranfers we need to copy the data from bounce to sg */
+-	sg_pcopy_from_buffer(urb->sg, urb->num_mapped_sgs, seg->bounce_buf,
+-			     seg->bounce_len, seg->bounce_offs);
+ 	dma_unmap_single(dev, seg->bounce_dma, ring->bounce_buf_len,
+ 			 DMA_FROM_DEVICE);
++	/* for in tranfers we need to copy the data from bounce to sg */
++	len = sg_pcopy_from_buffer(urb->sg, urb->num_sgs, seg->bounce_buf,
++			     seg->bounce_len, seg->bounce_offs);
++	if (len != seg->bounce_len)
++		xhci_warn(xhci, "WARN Wrong bounce buffer read length: %ld != %d\n",
++				len, seg->bounce_len);
+ 	seg->bounce_len = 0;
+ 	seg->bounce_offs = 0;
+ }
+@@ -3186,6 +3190,7 @@ static int xhci_align_td(struct xhci_hcd
+ 	unsigned int unalign;
+ 	unsigned int max_pkt;
+ 	u32 new_buff_len;
++	size_t len;
  
- 	mutex_lock(&zfcp_sysfs_port_units_mutex);
--	if (atomic_read(&port->units) == -1) {
-+	if (zfcp_sysfs_port_is_removing(port)) {
- 		/* port is already gone */
- 		retval = -ENODEV;
- 		goto out;
-@@ -168,8 +168,14 @@ int zfcp_unit_add(struct zfcp_port *port
- 	write_lock_irq(&port->unit_list_lock);
- 	list_add_tail(&unit->list, &port->unit_list);
- 	write_unlock_irq(&port->unit_list_lock);
-+	/*
-+	 * lock order: shost->scan_mutex before zfcp_sysfs_port_units_mutex
-+	 * due to      zfcp_unit_scsi_scan() => zfcp_scsi_slave_alloc()
-+	 */
-+	mutex_unlock(&zfcp_sysfs_port_units_mutex);
+ 	max_pkt = usb_endpoint_maxp(&urb->ep->desc);
+ 	unalign = (enqd_len + *trb_buff_len) % max_pkt;
+@@ -3216,8 +3221,12 @@ static int xhci_align_td(struct xhci_hcd
  
- 	zfcp_unit_scsi_scan(unit);
-+	return retval;
- 
- out:
- 	mutex_unlock(&zfcp_sysfs_port_units_mutex);
+ 	/* create a max max_pkt sized bounce buffer pointed to by last trb */
+ 	if (usb_urb_dir_out(urb)) {
+-		sg_pcopy_to_buffer(urb->sg, urb->num_mapped_sgs,
++		len = sg_pcopy_to_buffer(urb->sg, urb->num_sgs,
+ 				   seg->bounce_buf, new_buff_len, enqd_len);
++		if (len != seg->bounce_len)
++			xhci_warn(xhci,
++				"WARN Wrong bounce buffer write length: %ld != %d\n",
++				len, seg->bounce_len);
+ 		seg->bounce_dma = dma_map_single(dev, seg->bounce_buf,
+ 						 max_pkt, DMA_TO_DEVICE);
+ 	} else {
 
 
