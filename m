@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D12A3916C
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:59:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E95B39103
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:57:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730270AbfFGPlT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 11:41:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51062 "EHLO mail.kernel.org"
+        id S1730226AbfFGPoS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 11:44:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55692 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729325AbfFGPlS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 11:41:18 -0400
+        id S1729761AbfFGPoR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 11:44:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EC61C212F5;
-        Fri,  7 Jun 2019 15:41:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2CFA22133D;
+        Fri,  7 Jun 2019 15:44:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559922077;
-        bh=YLT6PZzhz5CbO5aRKc8oe50qorQ6mekAjquFK2H4gNc=;
+        s=default; t=1559922256;
+        bh=9IMUKYg37DtSQU0lEGNAr7Q/o9dEQwhYrt1h/7V6ipk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UX3H9aB7V66w6KNaciGdp2Mn2G1Z3fYff9mzOoSIJJwS7FMRR3u+cgF7eV1SzkIlY
-         qvPvkGyyW1ez9gQbkzWVMQd5XHlXZ4uLBZiEx9AbRvqO6EfXQVA67CPWnI7MzyBNbK
-         ycQeCJk9t0n5ekWybq9HiyqOz+vlyd7vJ2g6QilM=
+        b=hEMchG+F9jYJZ3djc09oPQZlZyEP3R91GdhMeZycAPredHZPYEt0Yp9bi2mWKbOck
+         x6jxAHDk3+KeyZjtuhzNJKChMl9eMf6kQpHftWYc9WIFrCSyWo6TJkZVJ30OlI+vYu
+         YhyJUNawkKdVwCYCaWNJkkDS64vViGJ1zE876ND0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>
-Subject: [PATCH 4.14 28/69] usbip: usbip_host: fix stub_dev lock context imbalance regression
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.19 22/73] Btrfs: fix race updating log root item during fsync
 Date:   Fri,  7 Jun 2019 17:39:09 +0200
-Message-Id: <20190607153851.849485269@linuxfoundation.org>
+Message-Id: <20190607153851.457035495@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190607153848.271562617@linuxfoundation.org>
-References: <20190607153848.271562617@linuxfoundation.org>
+In-Reply-To: <20190607153848.669070800@linuxfoundation.org>
+References: <20190607153848.669070800@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,151 +43,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 3ea3091f1bd8586125848c62be295910e9802af0 upstream.
+commit 06989c799f04810f6876900d4760c0edda369cf7 upstream.
 
-Fix the following sparse context imbalance regression introduced in
-a patch that fixed sleeping function called from invalid context bug.
+When syncing the log, the final phase of a fsync operation, we need to
+either create a log root's item or update the existing item in the log
+tree of log roots, and that depends on the current value of the log
+root's log_transid - if it's 1 we need to create the log root item,
+otherwise it must exist already and we update it. Since there is no
+synchronization between updating the log_transid and checking it for
+deciding whether the log root's item needs to be created or updated, we
+end up with a tiny race window that results in attempts to update the
+item to fail because the item was not yet created:
 
-kbuild test robot reported on:
+              CPU 1                                    CPU 2
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git  usb-linus
+  btrfs_sync_log()
 
-Regressions in current branch:
+    lock root->log_mutex
 
-drivers/usb/usbip/stub_dev.c:399:9: sparse: sparse: context imbalance in 'stub_probe' - different lock contexts for basic block
-drivers/usb/usbip/stub_dev.c:418:13: sparse: sparse: context imbalance in 'stub_disconnect' - different lock contexts for basic block
-drivers/usb/usbip/stub_dev.c:464:1-10: second lock on line 476
+    set log root's log_transid to 1
 
-Error ids grouped by kconfigs:
+    unlock root->log_mutex
 
-recent_errors
-├── i386-allmodconfig
-│   └── drivers-usb-usbip-stub_dev.c:second-lock-on-line
-├── x86_64-allmodconfig
-│   ├── drivers-usb-usbip-stub_dev.c:sparse:sparse:context-imbalance-in-stub_disconnect-different-lock-contexts-for-basic-block
-│   └── drivers-usb-usbip-stub_dev.c:sparse:sparse:context-imbalance-in-stub_probe-different-lock-contexts-for-basic-block
-└── x86_64-allyesconfig
-    └── drivers-usb-usbip-stub_dev.c:second-lock-on-line
+                                               btrfs_sync_log()
 
-This is a real problem in an error leg where spin_lock() is called on an
-already held lock.
+                                                 lock root->log_mutex
 
-Fix the imbalance in stub_probe() and stub_disconnect().
+                                                 sets log root's
+                                                 log_transid to 2
 
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Fixes: 0c9e8b3cad65 ("usbip: usbip_host: fix BUG: sleeping function called from invalid context")
-Cc: stable <stable@vger.kernel.org>
+                                                 unlock root->log_mutex
+
+    update_log_root()
+
+      sees log root's log_transid
+      with a value of 2
+
+        calls btrfs_update_root(),
+        which fails with -EUCLEAN
+        and causes transaction abort
+
+Until recently the race lead to a BUG_ON at btrfs_update_root(), but after
+the recent commit 7ac1e464c4d47 ("btrfs: Don't panic when we can't find a
+root key") we just abort the current transaction.
+
+A sample trace of the BUG_ON() on a SLE12 kernel:
+
+  ------------[ cut here ]------------
+  kernel BUG at ../fs/btrfs/root-tree.c:157!
+  Oops: Exception in kernel mode, sig: 5 [#1]
+  SMP NR_CPUS=2048 NUMA pSeries
+  (...)
+  Supported: Yes, External
+  CPU: 78 PID: 76303 Comm: rtas_errd Tainted: G                 X 4.4.156-94.57-default #1
+  task: c00000ffa906d010 ti: c00000ff42b08000 task.ti: c00000ff42b08000
+  NIP: d000000036ae5cdc LR: d000000036ae5cd8 CTR: 0000000000000000
+  REGS: c00000ff42b0b860 TRAP: 0700   Tainted: G                 X  (4.4.156-94.57-default)
+  MSR: 8000000002029033 <SF,VEC,EE,ME,IR,DR,RI,LE>  CR: 22444484  XER: 20000000
+  CFAR: d000000036aba66c SOFTE: 1
+  GPR00: d000000036ae5cd8 c00000ff42b0bae0 d000000036bda220 0000000000000054
+  GPR04: 0000000000000001 0000000000000000 c00007ffff8d37c8 0000000000000000
+  GPR08: c000000000e19c00 0000000000000000 0000000000000000 3736343438312079
+  GPR12: 3930373337303434 c000000007a3a800 00000000007fffff 0000000000000023
+  GPR16: c00000ffa9d26028 c00000ffa9d261f8 0000000000000010 c00000ffa9d2ab28
+  GPR20: c00000ff42b0bc48 0000000000000001 c00000ff9f0d9888 0000000000000001
+  GPR24: c00000ffa9d26000 c00000ffa9d261e8 c00000ffa9d2a800 c00000ff9f0d9888
+  GPR28: c00000ffa9d26028 c00000ffa9d2aa98 0000000000000001 c00000ffa98f5b20
+  NIP [d000000036ae5cdc] btrfs_update_root+0x25c/0x4e0 [btrfs]
+  LR [d000000036ae5cd8] btrfs_update_root+0x258/0x4e0 [btrfs]
+  Call Trace:
+  [c00000ff42b0bae0] [d000000036ae5cd8] btrfs_update_root+0x258/0x4e0 [btrfs] (unreliable)
+  [c00000ff42b0bba0] [d000000036b53610] btrfs_sync_log+0x2d0/0xc60 [btrfs]
+  [c00000ff42b0bce0] [d000000036b1785c] btrfs_sync_file+0x44c/0x4e0 [btrfs]
+  [c00000ff42b0bd80] [c00000000032e300] vfs_fsync_range+0x70/0x120
+  [c00000ff42b0bdd0] [c00000000032e44c] do_fsync+0x5c/0xb0
+  [c00000ff42b0be10] [c00000000032e8dc] SyS_fdatasync+0x2c/0x40
+  [c00000ff42b0be30] [c000000000009488] system_call+0x3c/0x100
+  Instruction dump:
+  7f43d378 4bffebb9 60000000 88d90008 3d220000 e8b90000 3b390009 e87a01f0
+  e8898e08 e8f90000 4bfd48e5 60000000 <0fe00000> e95b0060 39200004 394a0ea0
+  ---[ end trace 8f2dc8f919cabab8 ]---
+
+So fix this by doing the check of log_transid and updating or creating the
+log root's item while holding the root's log_mutex.
+
+Fixes: 7237f1833601d ("Btrfs: fix tree logs parallel sync")
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/usbip/stub_dev.c |   36 +++++++++++++++++++++++-------------
- 1 file changed, 23 insertions(+), 13 deletions(-)
+ fs/btrfs/tree-log.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/usbip/stub_dev.c
-+++ b/drivers/usb/usbip/stub_dev.c
-@@ -340,14 +340,17 @@ static int stub_probe(struct usb_device
- 		 * See driver_probe_device() in driver/base/dd.c
- 		 */
- 		rc = -ENODEV;
--		goto sdev_free;
-+		if (!busid_priv)
-+			goto sdev_free;
-+
-+		goto call_put_busid_priv;
- 	}
- 
- 	if (udev->descriptor.bDeviceClass == USB_CLASS_HUB) {
- 		dev_dbg(&udev->dev, "%s is a usb hub device... skip!\n",
- 			 udev_busid);
- 		rc = -ENODEV;
--		goto sdev_free;
-+		goto call_put_busid_priv;
- 	}
- 
- 	if (!strcmp(udev->bus->bus_name, "vhci_hcd")) {
-@@ -356,7 +359,7 @@ static int stub_probe(struct usb_device
- 			udev_busid);
- 
- 		rc = -ENODEV;
--		goto sdev_free;
-+		goto call_put_busid_priv;
- 	}
- 
- 
-@@ -375,6 +378,9 @@ static int stub_probe(struct usb_device
- 	save_status = busid_priv->status;
- 	busid_priv->status = STUB_BUSID_ALLOC;
- 
-+	/* release the busid_lock */
-+	put_busid_priv(busid_priv);
-+
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -3038,6 +3038,12 @@ int btrfs_sync_log(struct btrfs_trans_ha
+ 	log->log_transid = root->log_transid;
+ 	root->log_start_pid = 0;
  	/*
- 	 * Claim this hub port.
- 	 * It doesn't matter what value we pass as owner
-@@ -387,9 +393,6 @@ static int stub_probe(struct usb_device
- 		goto err_port;
- 	}
++	 * Update or create log root item under the root's log_mutex to prevent
++	 * races with concurrent log syncs that can lead to failure to update
++	 * log root item because it was not created yet.
++	 */
++	ret = update_log_root(trans, log);
++	/*
+ 	 * IO has been started, blocks of the log tree have WRITTEN flag set
+ 	 * in their headers. new modifications of the log will be written to
+ 	 * new positions. so it's safe to allow log writers to go in.
+@@ -3056,8 +3062,6 @@ int btrfs_sync_log(struct btrfs_trans_ha
  
--	/* release the busid_lock */
--	put_busid_priv(busid_priv);
+ 	mutex_unlock(&log_root_tree->log_mutex);
+ 
+-	ret = update_log_root(trans, log);
 -
- 	rc = stub_add_files(&udev->dev);
- 	if (rc) {
- 		dev_err(&udev->dev, "stub_add_files for %s\n", udev_busid);
-@@ -409,11 +412,17 @@ err_port:
- 	spin_lock(&busid_priv->busid_lock);
- 	busid_priv->sdev = NULL;
- 	busid_priv->status = save_status;
--sdev_free:
--	stub_device_free(sdev);
-+	spin_unlock(&busid_priv->busid_lock);
-+	/* lock is released - go to free */
-+	goto sdev_free;
-+
-+call_put_busid_priv:
- 	/* release the busid_lock */
- 	put_busid_priv(busid_priv);
- 
-+sdev_free:
-+	stub_device_free(sdev);
-+
- 	return rc;
- }
- 
-@@ -449,7 +458,9 @@ static void stub_disconnect(struct usb_d
- 	/* get stub_device */
- 	if (!sdev) {
- 		dev_err(&udev->dev, "could not get device");
--		goto call_put_busid_priv;
-+		/* release busid_lock */
-+		put_busid_priv(busid_priv);
-+		return;
- 	}
- 
- 	dev_set_drvdata(&udev->dev, NULL);
-@@ -479,7 +490,7 @@ static void stub_disconnect(struct usb_d
- 	if (!busid_priv->shutdown_busid)
- 		busid_priv->shutdown_busid = 1;
- 	/* release busid_lock */
--	put_busid_priv(busid_priv);
-+	spin_unlock(&busid_priv->busid_lock);
- 
- 	/* shutdown the current connection */
- 	shutdown_busid(busid_priv);
-@@ -494,10 +505,9 @@ static void stub_disconnect(struct usb_d
- 
- 	if (busid_priv->status == STUB_BUSID_ALLOC)
- 		busid_priv->status = STUB_BUSID_ADDED;
--
--call_put_busid_priv:
- 	/* release busid_lock */
--	put_busid_priv(busid_priv);
-+	spin_unlock(&busid_priv->busid_lock);
-+	return;
- }
- 
- #ifdef CONFIG_PM
+ 	mutex_lock(&log_root_tree->log_mutex);
+ 	if (atomic_dec_and_test(&log_root_tree->log_writers)) {
+ 		/* atomic_dec_and_test implies a barrier */
 
 
