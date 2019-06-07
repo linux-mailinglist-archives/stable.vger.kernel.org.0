@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A1B9D38FE3
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:47:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6339C390C5
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:54:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730799AbfFGPqf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 11:46:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58962 "EHLO mail.kernel.org"
+        id S1731441AbfFGPqi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 11:46:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59030 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731421AbfFGPqe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 11:46:34 -0400
+        id S1731437AbfFGPqh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 11:46:37 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 75670212F5;
-        Fri,  7 Jun 2019 15:46:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1F6D72146E;
+        Fri,  7 Jun 2019 15:46:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559922394;
-        bh=8QlJJdFA43+I5a1OP0oP2z71pKHVQ6ZQmOOq+9J9Ni8=;
+        s=default; t=1559922396;
+        bh=GlWOorS1xItpTubUtbbteEcDFsKw9k0MWsdCTC4hn88=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t9y2g8wOKSinzFUm/J0GxiWCchqOqhpYP6yg9GoeGpH7gD1OJzlsZKxdby4qzzQ7n
-         j2Gf2S2fAga3zFI0qhjWRNkiQ6rm/8pVrwQSzXe6JSF65WLDdaw5j+G5ILAcsfM0Af
-         eEEkO/SXIEWrtxl3fjKpv1Q4gFV9eljGf1EPnV50=
+        b=0ZamvVMKOX0i8KQcv4nNmXJjSvFGheDJNvyk4yi7cjkMpf20vpJeWs8fEG3Sjj5mR
+         0jxQN3AG9U5VCNHNf98V6jBGS3YpNH0KnX4KLTBJ5gR8MqLyx6Ki3EXtnJfAQ/S0Hi
+         mnJo3ZxKMuPLdVs3GvXfUuJ8lw/7wlZJzJQM5e/M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Machek <pavel@denx.de>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        James Smart <james.smart@broadcom.com>
-Subject: [PATCH 4.19 70/73] scsi: lpfc: Fix backport of faf5a744f4f8 ("scsi: lpfc: avoid uninitialized variable warning")
-Date:   Fri,  7 Jun 2019 17:39:57 +0200
-Message-Id: <20190607153856.615668534@linuxfoundation.org>
+        stable@vger.kernel.org, Alan Tull <atull@kernel.org>,
+        Frank Rowand <frank.rowand@sony.com>
+Subject: [PATCH 4.19 71/73] of: overlay: validate overlay properties #address-cells and #size-cells
+Date:   Fri,  7 Jun 2019 17:39:58 +0200
+Message-Id: <20190607153856.691091191@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190607153848.669070800@linuxfoundation.org>
 References: <20190607153848.669070800@linuxfoundation.org>
@@ -44,45 +43,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <natechancellor@gmail.com>
+From: Frank Rowand <frank.rowand@sony.com>
 
-Prior to commit 4c47efc140fa ("scsi: lpfc: Move SCSI and NVME Stats to
-hardware queue structures") upstream, we allocated a cstat structure in
-lpfc_nvme_create_localport. When commit faf5a744f4f8 ("scsi: lpfc: avoid
-uninitialized variable warning") was backported, it was placed after the
-allocation so we leaked memory whenever this function was called and
-that conditional was true (so whenever CONFIG_NVME_FC is disabled).
+commit 6f75118800acf77f8ad6afec61ca1b2349ade371 upstream.
 
-Move the IS_ENABLED if statement above the allocation since it is not
-needed when the condition is true.
+If overlay properties #address-cells or #size-cells are already in
+the live devicetree for any given node, then the values in the
+overlay must match the values in the live tree.
 
-Reported-by: Pavel Machek <pavel@denx.de>
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-Reviewed-by: James Smart <james.smart@broadcom.com>
+If the properties are already in the live tree then there is no
+need to create a changeset entry to add them since they must
+have the same value.  This reduces the memory used by the
+changeset and eliminates a possible memory leak.
+
+Tested-by: Alan Tull <atull@kernel.org>
+Signed-off-by: Frank Rowand <frank.rowand@sony.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/scsi/lpfc/lpfc_nvme.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/scsi/lpfc/lpfc_nvme.c
-+++ b/drivers/scsi/lpfc/lpfc_nvme.c
-@@ -2477,14 +2477,14 @@ lpfc_nvme_create_localport(struct lpfc_v
- 	lpfc_nvme_template.max_sgl_segments = phba->cfg_nvme_seg_cnt + 1;
- 	lpfc_nvme_template.max_hw_queues = phba->cfg_nvme_io_channel;
+---
+ drivers/of/overlay.c |   32 +++++++++++++++++++++++++++++---
+ include/linux/of.h   |    6 ++++++
+ 2 files changed, 35 insertions(+), 3 deletions(-)
+
+--- a/drivers/of/overlay.c
++++ b/drivers/of/overlay.c
+@@ -287,7 +287,12 @@ err_free_target_path:
+  * @target may be either in the live devicetree or in a new subtree that
+  * is contained in the changeset.
+  *
+- * Some special properties are not updated (no error returned).
++ * Some special properties are not added or updated (no error returned):
++ * "name", "phandle", "linux,phandle".
++ *
++ * Properties "#address-cells" and "#size-cells" are not updated if they
++ * are already in the live tree, but if present in the live tree, the values
++ * in the overlay must match the values in the live tree.
+  *
+  * Update of property in symbols node is not allowed.
+  *
+@@ -300,6 +305,7 @@ static int add_changeset_property(struct
+ {
+ 	struct property *new_prop = NULL, *prop;
+ 	int ret = 0;
++	bool check_for_non_overlay_node = false;
  
-+	if (!IS_ENABLED(CONFIG_NVME_FC))
-+		return ret;
-+
- 	cstat = kmalloc((sizeof(struct lpfc_nvme_ctrl_stat) *
- 			phba->cfg_nvme_io_channel), GFP_KERNEL);
- 	if (!cstat)
+ 	if (!of_prop_cmp(overlay_prop->name, "name") ||
+ 	    !of_prop_cmp(overlay_prop->name, "phandle") ||
+@@ -322,12 +328,32 @@ static int add_changeset_property(struct
+ 	if (!new_prop)
  		return -ENOMEM;
  
--	if (!IS_ENABLED(CONFIG_NVME_FC))
--		return ret;
--
- 	/* localport is allocated from the stack, but the registration
- 	 * call allocates heap memory as well as the private area.
- 	 */
+-	if (!prop)
++	if (!prop) {
++		check_for_non_overlay_node = true;
+ 		ret = of_changeset_add_property(&ovcs->cset, target->np,
+ 						new_prop);
+-	else
++	} else if (!of_prop_cmp(prop->name, "#address-cells")) {
++		if (!of_prop_val_eq(prop, new_prop)) {
++			pr_err("ERROR: changing value of #address-cells is not allowed in %pOF\n",
++			       target->np);
++			ret = -EINVAL;
++		}
++	} else if (!of_prop_cmp(prop->name, "#size-cells")) {
++		if (!of_prop_val_eq(prop, new_prop)) {
++			pr_err("ERROR: changing value of #size-cells is not allowed in %pOF\n",
++			       target->np);
++			ret = -EINVAL;
++		}
++	} else {
++		check_for_non_overlay_node = true;
+ 		ret = of_changeset_update_property(&ovcs->cset, target->np,
+ 						   new_prop);
++	}
++
++	if (check_for_non_overlay_node &&
++	    !of_node_check_flag(target->np, OF_OVERLAY))
++		pr_err("WARNING: memory leak will occur if overlay removed, property: %pOF/%s\n",
++		       target->np, new_prop->name);
+ 
+ 	if (ret) {
+ 		kfree(new_prop->name);
+--- a/include/linux/of.h
++++ b/include/linux/of.h
+@@ -968,6 +968,12 @@ static inline int of_cpu_node_to_id(stru
+ #define of_node_cmp(s1, s2)		strcasecmp((s1), (s2))
+ #endif
+ 
++static inline int of_prop_val_eq(struct property *p1, struct property *p2)
++{
++	return p1->length == p2->length &&
++	       !memcmp(p1->value, p2->value, (size_t)p1->length);
++}
++
+ #if defined(CONFIG_OF) && defined(CONFIG_NUMA)
+ extern int of_node_to_nid(struct device_node *np);
+ #else
 
 
