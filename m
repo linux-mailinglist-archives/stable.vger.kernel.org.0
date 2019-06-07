@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B1BD3912D
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:59:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D629F39091
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:53:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730517AbfFGPmR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 11:42:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52766 "EHLO mail.kernel.org"
+        id S1731110AbfFGPs2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 11:48:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730515AbfFGPmQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 11:42:16 -0400
+        id S1729595AbfFGPs0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 11:48:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D96632146E;
-        Fri,  7 Jun 2019 15:42:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A160B2146E;
+        Fri,  7 Jun 2019 15:48:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559922136;
-        bh=RjarfynonucbbUomEkYxKJcu/RBYzEt4rAvdZKxpgLc=;
+        s=default; t=1559922506;
+        bh=cwnOVLmKEpvRBFH0Ig6PE4Oh87H1P0aBPwbVLs1vVGI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sJ6MwBRtZg6NTdPt+Nt+HHwWF/cUb78FvGehSK0F+oeRXQ2w/NiympanJJm0yrVbu
-         3FBzCNztitr9akO9jEEWij/pNwQdb9thK5c+sSk9KxVCi81734mYKhN3Bj5nQjO2Tm
-         YJ/fjrdcCds5wmoOLdcrZUJp1A6JtfeIUk/R+XRw=
+        b=xW6pz3zv5LCueT4gtQPdEBEv38P0PzckQapYO8jOV3yRUeSOdwn5bj3TP7W0EYdRt
+         BTfhRUmZar8DUwrVtUxOPm8Dm7T81ap8Rah45wrmbdBIOlzUElVfwTf0PRIbxPYv9r
+         iqr/JaIWfypi5ueDuYL2A8g+IuHaGiyqu1/V0NN4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.14 42/69] Btrfs: incremental send, fix file corruption when no-holes feature is enabled
+        stable@vger.kernel.org,
+        Thiago Jung Bauermann <bauerman@linux.ibm.com>,
+        Dave Young <dyoung@redhat.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.1 38/85] powerpc/kexec: Fix loading of kernel + initramfs with kexec_file_load()
 Date:   Fri,  7 Jun 2019 17:39:23 +0200
-Message-Id: <20190607153853.568519609@linuxfoundation.org>
+Message-Id: <20190607153853.944107768@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190607153848.271562617@linuxfoundation.org>
-References: <20190607153848.271562617@linuxfoundation.org>
+In-Reply-To: <20190607153849.101321647@linuxfoundation.org>
+References: <20190607153849.101321647@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,80 +45,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Thiago Jung Bauermann <bauerman@linux.ibm.com>
 
-commit 6b1f72e5b82a5c2a4da4d1ebb8cc01913ddbea21 upstream.
+commit 8b909e3548706cbebc0a676067b81aadda57f47e upstream.
 
-When using the no-holes feature, if we have a file with prealloc extents
-with a start offset beyond the file's eof, doing an incremental send can
-cause corruption of the file due to incorrect hole detection. Such case
-requires that the prealloc extent(s) exist in both the parent and send
-snapshots, and that a hole is punched into the file that covers all its
-extents that do not cross the eof boundary.
+Commit b6664ba42f14 ("s390, kexec_file: drop arch_kexec_mem_walk()")
+changed kexec_add_buffer() to skip searching for a memory location if
+kexec_buf.mem is already set, and use the address that is there.
 
-Example reproducer:
+In powerpc code we reuse a kexec_buf variable for loading both the
+kernel and the initramfs by resetting some of the fields between those
+uses, but not mem. This causes kexec_add_buffer() to try to load the
+kernel at the same address where initramfs will be loaded, which is
+naturally rejected:
 
-  $ mkfs.btrfs -f -O no-holes /dev/sdb
-  $ mount /dev/sdb /mnt/sdb
+  # kexec -s -l --initrd initramfs vmlinuz
+  kexec_file_load failed: Invalid argument
 
-  $ xfs_io -f -c "pwrite -S 0xab 0 500K" /mnt/sdb/foobar
-  $ xfs_io -c "falloc -k 1200K 800K" /mnt/sdb/foobar
+Setting the mem field before every call to kexec_add_buffer() fixes
+this regression.
 
-  $ btrfs subvolume snapshot -r /mnt/sdb /mnt/sdb/base
-
-  $ btrfs send -f /tmp/base.snap /mnt/sdb/base
-
-  $ xfs_io -c "fpunch 0 500K" /mnt/sdb/foobar
-
-  $ btrfs subvolume snapshot -r /mnt/sdb /mnt/sdb/incr
-
-  $ btrfs send -p /mnt/sdb/base -f /tmp/incr.snap /mnt/sdb/incr
-
-  $ md5sum /mnt/sdb/incr/foobar
-  816df6f64deba63b029ca19d880ee10a   /mnt/sdb/incr/foobar
-
-  $ mkfs.btrfs -f /dev/sdc
-  $ mount /dev/sdc /mnt/sdc
-
-  $ btrfs receive -f /tmp/base.snap /mnt/sdc
-  $ btrfs receive -f /tmp/incr.snap /mnt/sdc
-
-  $ md5sum /mnt/sdc/incr/foobar
-  cf2ef71f4a9e90c2f6013ba3b2257ed2   /mnt/sdc/incr/foobar
-
-    --> Different checksum, because the prealloc extent beyond the
-        file's eof confused the hole detection code and it assumed
-        a hole starting at offset 0 and ending at the offset of the
-        prealloc extent (1200Kb) instead of ending at the offset
-        500Kb (the file's size).
-
-Fix this by ensuring we never cross the file's size when issuing the
-write operations for a hole.
-
-Fixes: 16e7549f045d33 ("Btrfs: incompatible format change to remove hole extents")
-CC: stable@vger.kernel.org # 3.14+
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: b6664ba42f14 ("s390, kexec_file: drop arch_kexec_mem_walk()")
+Cc: stable@vger.kernel.org # v5.0+
+Signed-off-by: Thiago Jung Bauermann <bauerman@linux.ibm.com>
+Reviewed-by: Dave Young <dyoung@redhat.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/send.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/powerpc/kernel/kexec_elf_64.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/fs/btrfs/send.c
-+++ b/fs/btrfs/send.c
-@@ -5013,6 +5013,12 @@ static int send_hole(struct send_ctx *sc
- 	u64 len;
- 	int ret = 0;
+--- a/arch/powerpc/kernel/kexec_elf_64.c
++++ b/arch/powerpc/kernel/kexec_elf_64.c
+@@ -547,6 +547,7 @@ static int elf_exec_load(struct kimage *
+ 		kbuf.memsz = phdr->p_memsz;
+ 		kbuf.buf_align = phdr->p_align;
+ 		kbuf.buf_min = phdr->p_paddr + base;
++		kbuf.mem = KEXEC_BUF_MEM_UNKNOWN;
+ 		ret = kexec_add_buffer(&kbuf);
+ 		if (ret)
+ 			goto out;
+@@ -581,7 +582,8 @@ static void *elf64_load(struct kimage *i
+ 	struct kexec_buf kbuf = { .image = image, .buf_min = 0,
+ 				  .buf_max = ppc64_rma_size };
+ 	struct kexec_buf pbuf = { .image = image, .buf_min = 0,
+-				  .buf_max = ppc64_rma_size, .top_down = true };
++				  .buf_max = ppc64_rma_size, .top_down = true,
++				  .mem = KEXEC_BUF_MEM_UNKNOWN };
  
-+	/*
-+	 * Don't go beyond the inode's i_size due to prealloc extents that start
-+	 * after the i_size.
-+	 */
-+	end = min_t(u64, end, sctx->cur_inode_size);
-+
- 	if (sctx->flags & BTRFS_SEND_FLAG_NO_FILE_DATA)
- 		return send_update_extent(sctx, offset, end - offset);
- 
+ 	ret = build_elf_exec_info(kernel_buf, kernel_len, &ehdr, &elf_info);
+ 	if (ret)
+@@ -606,6 +608,7 @@ static void *elf64_load(struct kimage *i
+ 		kbuf.bufsz = kbuf.memsz = initrd_len;
+ 		kbuf.buf_align = PAGE_SIZE;
+ 		kbuf.top_down = false;
++		kbuf.mem = KEXEC_BUF_MEM_UNKNOWN;
+ 		ret = kexec_add_buffer(&kbuf);
+ 		if (ret)
+ 			goto out;
+@@ -638,6 +641,7 @@ static void *elf64_load(struct kimage *i
+ 	kbuf.bufsz = kbuf.memsz = fdt_size;
+ 	kbuf.buf_align = PAGE_SIZE;
+ 	kbuf.top_down = true;
++	kbuf.mem = KEXEC_BUF_MEM_UNKNOWN;
+ 	ret = kexec_add_buffer(&kbuf);
+ 	if (ret)
+ 		goto out;
 
 
