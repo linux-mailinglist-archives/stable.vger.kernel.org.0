@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8254639056
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:51:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B37739041
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:50:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730447AbfFGPuX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 11:50:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37080 "EHLO mail.kernel.org"
+        id S1730951AbfFGPuY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 11:50:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730951AbfFGPuW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 11:50:22 -0400
+        id S1732152AbfFGPuY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 11:50:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 57CC620840;
-        Fri,  7 Jun 2019 15:50:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4592C2146E;
+        Fri,  7 Jun 2019 15:50:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559922620;
-        bh=hGiZwCLJZ5kXx2cEqrIQ0M0cdug7o1WlyxRzqNq1Bog=;
+        s=default; t=1559922623;
+        bh=W6Db8lBWnXHqNrj3xxZr4wuuS7uIPEOM6o1rpghWhfM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CfBN9L6pqbAGv1V8e2NZy+qbG/WAxjq609HgXbaGTFUB8xlAY+7nRAk1G13bc66UB
-         r2dUCz/Lj5RxF/LQ/JjEL/uns9N/QMn/m7c55cstOVbuMucwSdnitHWn8PD24DJwg8
-         PFQOEKcPNDs8ItRLxL+jp+QLczSJSUnXlf1zdTro=
+        b=nUpqTPOJXmsvM/B4JQhhKzwZgXSYzzBUvAU4dFyhNixiERbxDbstV6G7crqqAKkjh
+         tUmADpo8N1z1TL7wo6MjysN3qpAi9+6eOjg1ZEz6FdJj3bJvLWBWd3uccUXFh+GOto
+         KS2KVKVVrAYdUATHbKqpn/dNXoLEkBUTE/xWDBPU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Keith Packard <keithp@keithp.com>,
-        Dave Airlie <airlied@redhat.com>,
-        Daniel Vetter <daniel.vetter@intel.com>
-Subject: [PATCH 5.1 79/85] drm/atomic: Wire file_priv through for property changes
-Date:   Fri,  7 Jun 2019 17:40:04 +0200
-Message-Id: <20190607153857.733115350@linuxfoundation.org>
+        stable@vger.kernel.org, Deepak Rawat <drawat@vmware.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH 5.1 80/85] drm: Expose "FB_DAMAGE_CLIPS" property to atomic aware user-space only
+Date:   Fri,  7 Jun 2019 17:40:05 +0200
+Message-Id: <20190607153857.802928084@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190607153849.101321647@linuxfoundation.org>
 References: <20190607153849.101321647@linuxfoundation.org>
@@ -44,167 +43,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
+From: Deepak Rawat <drawat@vmware.com>
 
-commit 36e4523aaf4a35de963e190064b53839fa131653 upstream.
+commit c8f005684c98f4d9942baec13ad98054dbf312a0 upstream.
 
-We need this to make sure lessees can only connect their
-plane/connectors to crtc objects they own. And note that this is
-irrespective of whether the lessor is atomic or not, lessor cannot
-prevent lessees from enabling atomic.
+Plane property "FB_DAMAGE_CLIPS" can only be used by atomic aware
+user-space, so no point exposing it otherwise.
 
-Cc: stable@vger.kernel.org
-Cc: Keith Packard <keithp@keithp.com>
-Reviewed-by: Dave Airlie <airlied@redhat.com>
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190228144910.26488-7-daniel.vetter@ffwll.ch
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Deepak Rawat <drawat@vmware.com>
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Fixes: d3b21767821e ("drm: Add a new plane property to send damage during plane update")
+Link: https://patchwork.freedesktop.org/patch/msgid/20190415172814.9840-1-drawat@vmware.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/drm_atomic_uapi.c   |   32 +++++++++++++++++++-------------
- drivers/gpu/drm/drm_crtc_internal.h |    1 +
- drivers/gpu/drm/drm_mode_object.c   |    5 +++--
- 3 files changed, 23 insertions(+), 15 deletions(-)
+ drivers/gpu/drm/drm_mode_config.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/drm_atomic_uapi.c
-+++ b/drivers/gpu/drm/drm_atomic_uapi.c
-@@ -512,8 +512,8 @@ drm_atomic_crtc_get_property(struct drm_
- }
+--- a/drivers/gpu/drm/drm_mode_config.c
++++ b/drivers/gpu/drm/drm_mode_config.c
+@@ -297,8 +297,9 @@ static int drm_mode_create_standard_prop
+ 		return -ENOMEM;
+ 	dev->mode_config.prop_crtc_id = prop;
  
- static int drm_atomic_plane_set_property(struct drm_plane *plane,
--		struct drm_plane_state *state, struct drm_property *property,
--		uint64_t val)
-+		struct drm_plane_state *state, struct drm_file *file_priv,
-+		struct drm_property *property, uint64_t val)
- {
- 	struct drm_device *dev = plane->dev;
- 	struct drm_mode_config *config = &dev->mode_config;
-@@ -521,7 +521,8 @@ static int drm_atomic_plane_set_property
- 	int ret;
- 
- 	if (property == config->prop_fb_id) {
--		struct drm_framebuffer *fb = drm_framebuffer_lookup(dev, NULL, val);
-+		struct drm_framebuffer *fb;
-+		fb = drm_framebuffer_lookup(dev, file_priv, val);
- 		drm_atomic_set_fb_for_plane(state, fb);
- 		if (fb)
- 			drm_framebuffer_put(fb);
-@@ -537,7 +538,7 @@ static int drm_atomic_plane_set_property
- 			return -EINVAL;
- 
- 	} else if (property == config->prop_crtc_id) {
--		struct drm_crtc *crtc = drm_crtc_find(dev, NULL, val);
-+		struct drm_crtc *crtc = drm_crtc_find(dev, file_priv, val);
- 		return drm_atomic_set_crtc_for_plane(state, crtc);
- 	} else if (property == config->prop_crtc_x) {
- 		state->crtc_x = U642I64(val);
-@@ -681,14 +682,14 @@ static int drm_atomic_set_writeback_fb_f
- }
- 
- static int drm_atomic_connector_set_property(struct drm_connector *connector,
--		struct drm_connector_state *state, struct drm_property *property,
--		uint64_t val)
-+		struct drm_connector_state *state, struct drm_file *file_priv,
-+		struct drm_property *property, uint64_t val)
- {
- 	struct drm_device *dev = connector->dev;
- 	struct drm_mode_config *config = &dev->mode_config;
- 
- 	if (property == config->prop_crtc_id) {
--		struct drm_crtc *crtc = drm_crtc_find(dev, NULL, val);
-+		struct drm_crtc *crtc = drm_crtc_find(dev, file_priv, val);
- 		return drm_atomic_set_crtc_for_connector(state, crtc);
- 	} else if (property == config->dpms_property) {
- 		/* setting DPMS property requires special handling, which
-@@ -747,8 +748,10 @@ static int drm_atomic_connector_set_prop
- 		}
- 		state->content_protection = val;
- 	} else if (property == config->writeback_fb_id_property) {
--		struct drm_framebuffer *fb = drm_framebuffer_lookup(dev, NULL, val);
--		int ret = drm_atomic_set_writeback_fb_for_connector(state, fb);
-+		struct drm_framebuffer *fb;
-+		int ret;
-+		fb = drm_framebuffer_lookup(dev, file_priv, val);
-+		ret = drm_atomic_set_writeback_fb_for_connector(state, fb);
- 		if (fb)
- 			drm_framebuffer_put(fb);
- 		return ret;
-@@ -943,6 +946,7 @@ out:
- }
- 
- int drm_atomic_set_property(struct drm_atomic_state *state,
-+			    struct drm_file *file_priv,
- 			    struct drm_mode_object *obj,
- 			    struct drm_property *prop,
- 			    uint64_t prop_value)
-@@ -965,7 +969,8 @@ int drm_atomic_set_property(struct drm_a
- 		}
- 
- 		ret = drm_atomic_connector_set_property(connector,
--				connector_state, prop, prop_value);
-+				connector_state, file_priv,
-+				prop, prop_value);
- 		break;
- 	}
- 	case DRM_MODE_OBJECT_CRTC: {
-@@ -993,7 +998,8 @@ int drm_atomic_set_property(struct drm_a
- 		}
- 
- 		ret = drm_atomic_plane_set_property(plane,
--				plane_state, prop, prop_value);
-+				plane_state, file_priv,
-+				prop, prop_value);
- 		break;
- 	}
- 	default:
-@@ -1365,8 +1371,8 @@ retry:
- 				goto out;
- 			}
- 
--			ret = drm_atomic_set_property(state, obj, prop,
--						      prop_value);
-+			ret = drm_atomic_set_property(state, file_priv,
-+						      obj, prop, prop_value);
- 			if (ret) {
- 				drm_mode_object_put(obj);
- 				goto out;
---- a/drivers/gpu/drm/drm_crtc_internal.h
-+++ b/drivers/gpu/drm/drm_crtc_internal.h
-@@ -214,6 +214,7 @@ int drm_atomic_connector_commit_dpms(str
- 				     struct drm_connector *connector,
- 				     int mode);
- int drm_atomic_set_property(struct drm_atomic_state *state,
-+			    struct drm_file *file_priv,
- 			    struct drm_mode_object *obj,
- 			    struct drm_property *prop,
- 			    uint64_t prop_value);
---- a/drivers/gpu/drm/drm_mode_object.c
-+++ b/drivers/gpu/drm/drm_mode_object.c
-@@ -451,6 +451,7 @@ static int set_property_legacy(struct dr
- }
- 
- static int set_property_atomic(struct drm_mode_object *obj,
-+			       struct drm_file *file_priv,
- 			       struct drm_property *prop,
- 			       uint64_t prop_value)
- {
-@@ -477,7 +478,7 @@ retry:
- 						       obj_to_connector(obj),
- 						       prop_value);
- 	} else {
--		ret = drm_atomic_set_property(state, obj, prop, prop_value);
-+		ret = drm_atomic_set_property(state, file_priv, obj, prop, prop_value);
- 		if (ret)
- 			goto out;
- 		ret = drm_atomic_commit(state);
-@@ -520,7 +521,7 @@ int drm_mode_obj_set_property_ioctl(stru
- 		goto out_unref;
- 
- 	if (drm_drv_uses_atomic_modeset(property->dev))
--		ret = set_property_atomic(arg_obj, property, arg->value);
-+		ret = set_property_atomic(arg_obj, file_priv, property, arg->value);
- 	else
- 		ret = set_property_legacy(arg_obj, property, arg->value);
- 
+-	prop = drm_property_create(dev, DRM_MODE_PROP_BLOB, "FB_DAMAGE_CLIPS",
+-				   0);
++	prop = drm_property_create(dev,
++			DRM_MODE_PROP_ATOMIC | DRM_MODE_PROP_BLOB,
++			"FB_DAMAGE_CLIPS", 0);
+ 	if (!prop)
+ 		return -ENOMEM;
+ 	dev->mode_config.prop_fb_damage_clips = prop;
 
 
