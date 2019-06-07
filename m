@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D416F38FF0
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:47:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40B1B39086
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:52:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731500AbfFGPrB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 11:47:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59602 "EHLO mail.kernel.org"
+        id S1730417AbfFGPs4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 11:48:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731494AbfFGPrA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 11:47:00 -0400
+        id S1731854AbfFGPsv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 11:48:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9C85421473;
-        Fri,  7 Jun 2019 15:46:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9088020840;
+        Fri,  7 Jun 2019 15:48:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559922419;
-        bh=W6EXKwO2WLwrLah4By7DIUZSSEhhHmOZCXmMzKqlDxo=;
+        s=default; t=1559922531;
+        bh=qsBYCJp0T9BTNFdojWwxp9gA8fp2Y3KEZMWRQhokJBQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FwQbpfVq7zSZS6ss8afD8PcXZ0pA+ZyTmxtX6rD4wE3BfjsdYHSFOdzoC+jorF9cF
-         GcRF+x9geCTynMp8WLF+A3gZXrv3RaJyDp7J/xc/FjQmQa9bwVjC4zMAmtgn65//lC
-         VAvF0/R8W85WPEwSEFBbBlJl2rUaV+Mqgg5sMBzQ=
+        b=twolFrTcwe3XRwuvPYoWqy39Am+u1ABg6xmrS+RHaz6zgO/hnNyDPDd2+giSa9Eoz
+         dOW1yS2oRmonHk/VSvs3CbpddaSWg/7tTni3WZ27l5cY92NsFfxKb0jg3Hn0ourgng
+         fdYDrsPd/bTkhALkpJu+S/gXR/k1E6SKFoOlyvN4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>
-Subject: [PATCH 4.19 44/73] doc: Cope with the deprecation of AutoReporter
+        stable@vger.kernel.org,
+        Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Stephen Boyd <swboyd@chromium.org>
+Subject: [PATCH 5.1 46/85] tty: serial: msm_serial: Fix XON/XOFF
 Date:   Fri,  7 Jun 2019 17:39:31 +0200
-Message-Id: <20190607153854.067859834@linuxfoundation.org>
+Message-Id: <20190607153854.732886196@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190607153848.669070800@linuxfoundation.org>
-References: <20190607153848.669070800@linuxfoundation.org>
+In-Reply-To: <20190607153849.101321647@linuxfoundation.org>
+References: <20190607153849.101321647@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,83 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Corbet <corbet@lwn.net>
+From: Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>
 
-commit 2404dad1f67f8917e30fc22a85e0dbcc85b99955 upstream.
+commit 61c0e37950b88bad590056286c1d766b1f167f4e upstream.
 
-AutoReporter is going away; recent versions of sphinx emit a warning like:
+When the tty layer requests the uart to throttle, the current code
+executing in msm_serial will trigger "Bad mode in Error Handler" and
+generate an invalid stack frame in pstore before rebooting (that is if
+pstore is indeed configured: otherwise the user shall just notice a
+reboot with no further information dumped to the console).
 
-  Documentation/sphinx/kerneldoc.py:125:
-      RemovedInSphinx20Warning: AutodocReporter is now deprecated.
-      Use sphinx.util.docutils.switch_source_input() instead.
+This patch replaces the PIO byte accessor with the word accessor
+already used in PIO mode.
 
-Make the switch.  But switch_source_input() only showed up in 1.7, so we
-have to do ugly version checks to keep things working in older versions.
-
+Fixes: 68252424a7c7 ("tty: serial: msm: Support big-endian CPUs")
 Cc: stable@vger.kernel.org
-Signed-off-by: Jonathan Corbet <corbet@lwn.net>
+Signed-off-by: Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- Documentation/sphinx/kerneldoc.py |   34 ++++++++++++++++++++++++++--------
- 1 file changed, 26 insertions(+), 8 deletions(-)
+ drivers/tty/serial/msm_serial.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/Documentation/sphinx/kerneldoc.py
-+++ b/Documentation/sphinx/kerneldoc.py
-@@ -37,7 +37,17 @@ import glob
- from docutils import nodes, statemachine
- from docutils.statemachine import ViewList
- from docutils.parsers.rst import directives, Directive
--from sphinx.ext.autodoc import AutodocReporter
+--- a/drivers/tty/serial/msm_serial.c
++++ b/drivers/tty/serial/msm_serial.c
+@@ -860,6 +860,7 @@ static void msm_handle_tx(struct uart_po
+ 	struct circ_buf *xmit = &msm_port->uart.state->xmit;
+ 	struct msm_dma *dma = &msm_port->tx_dma;
+ 	unsigned int pio_count, dma_count, dma_min;
++	char buf[4] = { 0 };
+ 	void __iomem *tf;
+ 	int err = 0;
+ 
+@@ -869,10 +870,12 @@ static void msm_handle_tx(struct uart_po
+ 		else
+ 			tf = port->membase + UART_TF;
+ 
++		buf[0] = port->x_char;
 +
-+#
-+# AutodocReporter is only good up to Sphinx 1.7
-+#
-+import sphinx
-+
-+Use_SSI = sphinx.__version__[:3] >= '1.7'
-+if Use_SSI:
-+    from sphinx.util.docutils import switch_source_input
-+else:
-+    from sphinx.ext.autodoc import AutodocReporter
+ 		if (msm_port->is_uartdm)
+ 			msm_reset_dm_count(port, 1);
  
- __version__  = '1.0'
- 
-@@ -121,13 +131,7 @@ class KernelDocDirective(Directive):
-                     lineoffset += 1
- 
-             node = nodes.section()
--            buf = self.state.memo.title_styles, self.state.memo.section_level, self.state.memo.reporter
--            self.state.memo.reporter = AutodocReporter(result, self.state.memo.reporter)
--            self.state.memo.title_styles, self.state.memo.section_level = [], 0
--            try:
--                self.state.nested_parse(result, 0, node, match_titles=1)
--            finally:
--                self.state.memo.title_styles, self.state.memo.section_level, self.state.memo.reporter = buf
-+            self.do_parse(result, node)
- 
-             return node.children
- 
-@@ -136,6 +140,20 @@ class KernelDocDirective(Directive):
-                          (" ".join(cmd), str(e)))
-             return [nodes.error(None, nodes.paragraph(text = "kernel-doc missing"))]
- 
-+    def do_parse(self, result, node):
-+        if Use_SSI:
-+            with switch_source_input(self.state, result):
-+                self.state.nested_parse(result, 0, node, match_titles=1)
-+        else:
-+            save = self.state.memo.title_styles, self.state.memo.section_level, self.state.memo.reporter
-+            self.state.memo.reporter = AutodocReporter(result, self.state.memo.reporter)
-+            self.state.memo.title_styles, self.state.memo.section_level = [], 0
-+            try:
-+                self.state.nested_parse(result, 0, node, match_titles=1)
-+            finally:
-+                self.state.memo.title_styles, self.state.memo.section_level, self.state.memo.reporter = save
-+
-+
- def setup(app):
-     app.add_config_value('kerneldoc_bin', None, 'env')
-     app.add_config_value('kerneldoc_srctree', None, 'env')
+-		iowrite8_rep(tf, &port->x_char, 1);
++		iowrite32_rep(tf, buf, 1);
+ 		port->icount.tx++;
+ 		port->x_char = 0;
+ 		return;
 
 
