@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D45D138F97
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:44:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5980B38FDA
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:47:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730769AbfFGPnK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 11:43:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54208 "EHLO mail.kernel.org"
+        id S1731332AbfFGPqK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 11:46:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730784AbfFGPnK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 11:43:10 -0400
+        id S1730632AbfFGPqK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 11:46:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E2E2221479;
-        Fri,  7 Jun 2019 15:43:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8CE92212F5;
+        Fri,  7 Jun 2019 15:46:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559922189;
-        bh=ihWvF9ruba1hnYDVsjmjftpcIcaGfogWK5Jvvp4ATI8=;
+        s=default; t=1559922369;
+        bh=GnmitQ/FmhUl1iQbeJpEQmDM6jx8+AikL4E/B9gvUfw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ysno1vbX22c9k4NCVY6wjIEXzBi9Jipoa4a+SFkLvv9tBSvNf7wIwlnqQ4neS0Ii0
-         RUBelejSwCnOsMHVxjK2iV/EmaXYhZ2QEnN6xU45wsJec9KCCTxfamC21qbMuZf5dG
-         +W35aiJbej54KtKavJXDrwhfH+I76BIiB7I1Buow=
+        b=qjm40VFZmaaZzjIQJcCdq6udW1VbiOrM/zD6xxFEN9bvF8xvnVZwM8b8egN/nX0Pc
+         pv47YppUeDnRseXsoP5IlK7HBnvtzAJtkiB1APAcCyMLwpB1NoP1qhEwpMp/xT7pmK
+         +Q0d8CQXfM03VbeUOI5IXAZitWnIhMhRIXP94wf0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "ben.hutchings@codethink.co.uk, Alexander.Levin@microsoft.com, Joel
-        Fernandes" <joel@joelfernandes.org>,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        Todd Kjos <tkjos@google.com>,
-        Joel Fernandes <joel@joelfernandes.org>
-Subject: [PATCH 4.14 68/69] binder: fix race between munmap() and direct reclaim
+        stable@vger.kernel.org, Martin Sebor <msebor@gcc.gnu.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
+        Stefan Agner <stefan@agner.ch>
+Subject: [PATCH 4.19 62/73] Compiler Attributes: add support for __copy (gcc >= 9)
 Date:   Fri,  7 Jun 2019 17:39:49 +0200
-Message-Id: <20190607153856.182759891@linuxfoundation.org>
+Message-Id: <20190607153855.885568110@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190607153848.271562617@linuxfoundation.org>
-References: <20190607153848.271562617@linuxfoundation.org>
+In-Reply-To: <20190607153848.669070800@linuxfoundation.org>
+References: <20190607153848.669070800@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,67 +45,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Todd Kjos <tkjos@android.com>
+From: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
 
-commit 5cec2d2e5839f9c0fec319c523a911e0a7fd299f upstream.
+commit c0d9782f5b6d7157635ae2fd782a4b27d55a6013 upstream.
 
-An munmap() on a binder device causes binder_vma_close() to be called
-which clears the alloc->vma pointer.
+>From the GCC manual:
 
-If direct reclaim causes binder_alloc_free_page() to be called, there
-is a race where alloc->vma is read into a local vma pointer and then
-used later after the mm->mmap_sem is acquired. This can result in
-calling zap_page_range() with an invalid vma which manifests as a
-use-after-free in zap_page_range().
+  copy
+  copy(function)
 
-The fix is to check alloc->vma after acquiring the mmap_sem (which we
-were acquiring anyway) and skip zap_page_range() if it has changed
-to NULL.
+    The copy attribute applies the set of attributes with which function
+    has been declared to the declaration of the function to which
+    the attribute is applied. The attribute is designed for libraries
+    that define aliases or function resolvers that are expected
+    to specify the same set of attributes as their targets. The copy
+    attribute can be used with functions, variables, or types. However,
+    the kind of symbol to which the attribute is applied (either
+    function or variable) must match the kind of symbol to which
+    the argument refers. The copy attribute copies only syntactic and
+    semantic attributes but not attributes that affect a symbol’s
+    linkage or visibility such as alias, visibility, or weak.
+    The deprecated attribute is also not copied.
 
-Cc: Ben Hutchings <ben.hutchings@codethink.co.uk>
-Signed-off-by: Todd Kjos <tkjos@google.com>
-Reviewed-by: Joel Fernandes (Google) <joel@joelfernandes.org>
-Cc: stable <stable@vger.kernel.org> # 4.14
+  https://gcc.gnu.org/onlinedocs/gcc/Common-Function-Attributes.html
+
+The upcoming GCC 9 release extends the -Wmissing-attributes warnings
+(enabled by -Wall) to C and aliases: it warns when particular function
+attributes are missing in the aliases but not in their target, e.g.:
+
+    void __cold f(void) {}
+    void __alias("f") g(void);
+
+diagnoses:
+
+    warning: 'g' specifies less restrictive attribute than
+    its target 'f': 'cold' [-Wmissing-attributes]
+
+Using __copy(f) we can copy the __cold attribute from f to g:
+
+    void __cold f(void) {}
+    void __copy(f) __alias("f") g(void);
+
+This attribute is most useful to deal with situations where an alias
+is declared but we don't know the exact attributes the target has.
+
+For instance, in the kernel, the widely used module_init/exit macros
+define the init/cleanup_module aliases, but those cannot be marked
+always as __init/__exit since some modules do not have their
+functions marked as such.
+
+Suggested-by: Martin Sebor <msebor@gcc.gnu.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
+Signed-off-by: Stefan Agner <stefan@agner.ch>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/android/binder_alloc.c |   18 ++++++++----------
- 1 file changed, 8 insertions(+), 10 deletions(-)
 
---- a/drivers/android/binder_alloc.c
-+++ b/drivers/android/binder_alloc.c
-@@ -945,14 +945,13 @@ enum lru_status binder_alloc_free_page(s
+---
+ include/linux/compiler-gcc.h   |    4 ++++
+ include/linux/compiler_types.h |    4 ++++
+ 2 files changed, 8 insertions(+)
+
+--- a/include/linux/compiler-gcc.h
++++ b/include/linux/compiler-gcc.h
+@@ -201,6 +201,10 @@
+ #define COMPILER_HAS_GENERIC_BUILTIN_OVERFLOW 1
+ #endif
  
- 	index = page - alloc->pages;
- 	page_addr = (uintptr_t)alloc->buffer + index * PAGE_SIZE;
++#if GCC_VERSION >= 90100
++#define __copy(symbol)                 __attribute__((__copy__(symbol)))
++#endif
 +
-+	mm = alloc->vma_vm_mm;
-+	if (!mmget_not_zero(mm))
-+		goto err_mmget;
-+	if (!down_write_trylock(&mm->mmap_sem))
-+		goto err_down_write_mmap_sem_failed;
- 	vma = binder_alloc_get_vma(alloc);
--	if (vma) {
--		if (!mmget_not_zero(alloc->vma_vm_mm))
--			goto err_mmget;
--		mm = alloc->vma_vm_mm;
--		if (!down_write_trylock(&mm->mmap_sem))
--			goto err_down_write_mmap_sem_failed;
--	}
+ #if !defined(__noclone)
+ #define __noclone	/* not needed */
+ #endif
+--- a/include/linux/compiler_types.h
++++ b/include/linux/compiler_types.h
+@@ -180,6 +180,10 @@ struct ftrace_likely_data {
+ #define __diag_GCC(version, severity, string)
+ #endif
  
- 	list_lru_isolate(lru, item);
- 	spin_unlock(lock);
-@@ -965,10 +964,9 @@ enum lru_status binder_alloc_free_page(s
- 			       PAGE_SIZE);
- 
- 		trace_binder_unmap_user_end(alloc, index);
--
--		up_write(&mm->mmap_sem);
--		mmput(mm);
- 	}
-+	up_write(&mm->mmap_sem);
-+	mmput(mm);
- 
- 	trace_binder_unmap_kernel_start(alloc, index);
++#ifndef __copy
++# define __copy(symbol)
++#endif
++
+ #define __diag_push()	__diag(push)
+ #define __diag_pop()	__diag(pop)
  
 
 
