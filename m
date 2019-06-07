@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 59E473905C
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:51:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 993FF390C9
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:54:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732244AbfFGPu4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 11:50:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38032 "EHLO mail.kernel.org"
+        id S1729981AbfFGPq1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 11:46:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58686 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732236AbfFGPuw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 11:50:52 -0400
+        id S1730573AbfFGPq0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 11:46:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 455F320657;
-        Fri,  7 Jun 2019 15:50:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA0F221479;
+        Fri,  7 Jun 2019 15:46:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559922651;
-        bh=e2KFDJLz9Lsataaan3BzvauG6mpgnuRbx5NYfA9C6yU=;
+        s=default; t=1559922385;
+        bh=kfMIMiKoeQQI6r3rC53yIBk9J8jiX9+NW1XjqgxSPUs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NLFv+rvhQe/htccakmn4Z/kXnv1YW6NroOD0tjem2r7ReAkZdVD0BuL6gSbwRVDVT
-         C2offBboZ4zh7nfBT39ZFMd1zsB7UAw5Kg5YgYn08pH4g4pwbuebs0rG3+wXAc/6JH
-         fzTaLjk0HKp20MkAT+JD1J2T5pmRrqL5zJyHIj5Q=
+        b=O3TgJeuESlpwtGIPNU6jU2eE2udxdy0hVyMnJgRpoUtMCSADZj/AUythAeO3Gn7+q
+         VdIppSsxgY+ZiIYhInDT5O3kiLlKZNfQkR2nnRLkP6aEEbKnk2neu58Y4JUDRwbd4W
+         uQvh4vN0y8oBSX0TgZXNgaNGdn354k4oDL9hFwW0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Benjamin Coddington <bcodding@redhat.com>,
-        XueWei Zhang <xueweiz@google.com>,
-        "J. Bruce Fields" <bfields@redhat.com>
-Subject: [PATCH 5.1 69/85] Revert "lockd: Show pid of lockd for remote locks"
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>, x86@kernel.org,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 67/73] x86/ftrace: Do not call function graph from dynamic trampolines
 Date:   Fri,  7 Jun 2019 17:39:54 +0200
-Message-Id: <20190607153856.848666652@linuxfoundation.org>
+Message-Id: <20190607153856.353446303@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190607153849.101321647@linuxfoundation.org>
-References: <20190607153849.101321647@linuxfoundation.org>
+In-Reply-To: <20190607153848.669070800@linuxfoundation.org>
+References: <20190607153848.669070800@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,68 +46,171 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Coddington <bcodding@redhat.com>
+[ Upstream commit d2a68c4effd821f0871d20368f76b609349c8a3b ]
 
-commit 141731d15d6eb2fd9aaefbf9b935ce86ae243074 upstream.
+Since commit 79922b8009c07 ("ftrace: Optimize function graph to be
+called directly"), dynamic trampolines should not be calling the
+function graph tracer at the end. If they do, it could cause the function
+graph tracer to trace functions that it filtered out.
 
-This reverts most of commit b8eee0e90f97 ("lockd: Show pid of lockd for
-remote locks"), which caused remote locks to not be differentiated between
-remote processes for NLM.
+Right now it does not cause a problem because there's a test to check if
+the function graph tracer is attached to the same function as the
+function tracer, which for now is true. But the function graph tracer is
+undergoing changes that can make this no longer true which will cause
+the function graph tracer to trace other functions.
 
-We retain the fixup for setting the client's fl_pid to a negative value.
+ For example:
 
-Fixes: b8eee0e90f97 ("lockd: Show pid of lockd for remote locks")
-Cc: stable@vger.kernel.org
+ # cd /sys/kernel/tracing/
+ # echo do_IRQ > set_ftrace_filter
+ # mkdir instances/foo
+ # echo ip_rcv > instances/foo/set_ftrace_filter
+ # echo function_graph > current_tracer
+ # echo function > instances/foo/current_tracer
 
-Signed-off-by: Benjamin Coddington <bcodding@redhat.com>
-Reviewed-by: XueWei Zhang <xueweiz@google.com>
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Would cause the function graph tracer to trace both do_IRQ and ip_rcv,
+if the current tests change.
 
+As the current tests prevent this from being a problem, this code does
+not need to be backported. But it does make the code cleaner.
+
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: x86@kernel.org
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/lockd/xdr.c  |    4 ++--
- fs/lockd/xdr4.c |    4 ++--
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ arch/x86/kernel/ftrace.c    | 41 ++++++++++++++++++++-----------------
+ arch/x86/kernel/ftrace_64.S |  8 ++++----
+ 2 files changed, 26 insertions(+), 23 deletions(-)
 
---- a/fs/lockd/xdr.c
-+++ b/fs/lockd/xdr.c
-@@ -127,7 +127,7 @@ nlm_decode_lock(__be32 *p, struct nlm_lo
+diff --git a/arch/x86/kernel/ftrace.c b/arch/x86/kernel/ftrace.c
+index 4d2a401c178b..38c798b1dbd2 100644
+--- a/arch/x86/kernel/ftrace.c
++++ b/arch/x86/kernel/ftrace.c
+@@ -752,18 +752,20 @@ union ftrace_op_code_union {
+ 	} __attribute__((packed));
+ };
  
- 	locks_init_lock(fl);
- 	fl->fl_owner = current->files;
--	fl->fl_pid   = current->tgid;
-+	fl->fl_pid   = (pid_t)lock->svid;
- 	fl->fl_flags = FL_POSIX;
- 	fl->fl_type  = F_RDLCK;		/* as good as anything else */
- 	start = ntohl(*p++);
-@@ -269,7 +269,7 @@ nlmsvc_decode_shareargs(struct svc_rqst
- 	memset(lock, 0, sizeof(*lock));
- 	locks_init_lock(&lock->fl);
- 	lock->svid = ~(u32) 0;
--	lock->fl.fl_pid = current->tgid;
-+	lock->fl.fl_pid = (pid_t)lock->svid;
++#define RET_SIZE		1
++
+ static unsigned long
+ create_trampoline(struct ftrace_ops *ops, unsigned int *tramp_size)
+ {
+-	unsigned const char *jmp;
+ 	unsigned long start_offset;
+ 	unsigned long end_offset;
+ 	unsigned long op_offset;
+ 	unsigned long offset;
+ 	unsigned long size;
+-	unsigned long ip;
++	unsigned long retq;
+ 	unsigned long *ptr;
+ 	void *trampoline;
++	void *ip;
+ 	/* 48 8b 15 <offset> is movq <offset>(%rip), %rdx */
+ 	unsigned const char op_ref[] = { 0x48, 0x8b, 0x15 };
+ 	union ftrace_op_code_union op_ptr;
+@@ -783,27 +785,27 @@ create_trampoline(struct ftrace_ops *ops, unsigned int *tramp_size)
  
- 	if (!(p = nlm_decode_cookie(p, &argp->cookie))
- 	 || !(p = xdr_decode_string_inplace(p, &lock->caller,
---- a/fs/lockd/xdr4.c
-+++ b/fs/lockd/xdr4.c
-@@ -119,7 +119,7 @@ nlm4_decode_lock(__be32 *p, struct nlm_l
+ 	/*
+ 	 * Allocate enough size to store the ftrace_caller code,
+-	 * the jmp to ftrace_epilogue, as well as the address of
+-	 * the ftrace_ops this trampoline is used for.
++	 * the iret , as well as the address of the ftrace_ops this
++	 * trampoline is used for.
+ 	 */
+-	trampoline = alloc_tramp(size + MCOUNT_INSN_SIZE + sizeof(void *));
++	trampoline = alloc_tramp(size + RET_SIZE + sizeof(void *));
+ 	if (!trampoline)
+ 		return 0;
  
- 	locks_init_lock(fl);
- 	fl->fl_owner = current->files;
--	fl->fl_pid   = current->tgid;
-+	fl->fl_pid   = (pid_t)lock->svid;
- 	fl->fl_flags = FL_POSIX;
- 	fl->fl_type  = F_RDLCK;		/* as good as anything else */
- 	p = xdr_decode_hyper(p, &start);
-@@ -266,7 +266,7 @@ nlm4svc_decode_shareargs(struct svc_rqst
- 	memset(lock, 0, sizeof(*lock));
- 	locks_init_lock(&lock->fl);
- 	lock->svid = ~(u32) 0;
--	lock->fl.fl_pid = current->tgid;
-+	lock->fl.fl_pid = (pid_t)lock->svid;
+-	*tramp_size = size + MCOUNT_INSN_SIZE + sizeof(void *);
++	*tramp_size = size + RET_SIZE + sizeof(void *);
  
- 	if (!(p = nlm4_decode_cookie(p, &argp->cookie))
- 	 || !(p = xdr_decode_string_inplace(p, &lock->caller,
+ 	/* Copy ftrace_caller onto the trampoline memory */
+ 	ret = probe_kernel_read(trampoline, (void *)start_offset, size);
+-	if (WARN_ON(ret < 0)) {
+-		tramp_free(trampoline, *tramp_size);
+-		return 0;
+-	}
++	if (WARN_ON(ret < 0))
++		goto fail;
+ 
+-	ip = (unsigned long)trampoline + size;
++	ip = trampoline + size;
+ 
+-	/* The trampoline ends with a jmp to ftrace_epilogue */
+-	jmp = ftrace_jmp_replace(ip, (unsigned long)ftrace_epilogue);
+-	memcpy(trampoline + size, jmp, MCOUNT_INSN_SIZE);
++	/* The trampoline ends with ret(q) */
++	retq = (unsigned long)ftrace_stub;
++	ret = probe_kernel_read(ip, (void *)retq, RET_SIZE);
++	if (WARN_ON(ret < 0))
++		goto fail;
+ 
+ 	/*
+ 	 * The address of the ftrace_ops that is used for this trampoline
+@@ -813,17 +815,15 @@ create_trampoline(struct ftrace_ops *ops, unsigned int *tramp_size)
+ 	 * the global function_trace_op variable.
+ 	 */
+ 
+-	ptr = (unsigned long *)(trampoline + size + MCOUNT_INSN_SIZE);
++	ptr = (unsigned long *)(trampoline + size + RET_SIZE);
+ 	*ptr = (unsigned long)ops;
+ 
+ 	op_offset -= start_offset;
+ 	memcpy(&op_ptr, trampoline + op_offset, OP_REF_SIZE);
+ 
+ 	/* Are we pointing to the reference? */
+-	if (WARN_ON(memcmp(op_ptr.op, op_ref, 3) != 0)) {
+-		tramp_free(trampoline, *tramp_size);
+-		return 0;
+-	}
++	if (WARN_ON(memcmp(op_ptr.op, op_ref, 3) != 0))
++		goto fail;
+ 
+ 	/* Load the contents of ptr into the callback parameter */
+ 	offset = (unsigned long)ptr;
+@@ -838,6 +838,9 @@ create_trampoline(struct ftrace_ops *ops, unsigned int *tramp_size)
+ 	ops->flags |= FTRACE_OPS_FL_ALLOC_TRAMP;
+ 
+ 	return (unsigned long)trampoline;
++fail:
++	tramp_free(trampoline, *tramp_size);
++	return 0;
+ }
+ 
+ static unsigned long calc_trampoline_call_offset(bool save_regs)
+diff --git a/arch/x86/kernel/ftrace_64.S b/arch/x86/kernel/ftrace_64.S
+index 91b2cff4b79a..75f2b36b41a6 100644
+--- a/arch/x86/kernel/ftrace_64.S
++++ b/arch/x86/kernel/ftrace_64.S
+@@ -171,9 +171,6 @@ GLOBAL(ftrace_call)
+ 	restore_mcount_regs
+ 
+ 	/*
+-	 * The copied trampoline must call ftrace_epilogue as it
+-	 * still may need to call the function graph tracer.
+-	 *
+ 	 * The code up to this label is copied into trampolines so
+ 	 * think twice before adding any new code or changing the
+ 	 * layout here.
+@@ -185,7 +182,10 @@ GLOBAL(ftrace_graph_call)
+ 	jmp ftrace_stub
+ #endif
+ 
+-/* This is weak to keep gas from relaxing the jumps */
++/*
++ * This is weak to keep gas from relaxing the jumps.
++ * It is also used to copy the retq for trampolines.
++ */
+ WEAK(ftrace_stub)
+ 	retq
+ ENDPROC(ftrace_caller)
+-- 
+2.20.1
+
 
 
