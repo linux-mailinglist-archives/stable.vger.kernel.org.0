@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6353F38A29
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 14:25:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C686A38A2D
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 14:25:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728816AbfFGMZh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 08:25:37 -0400
-Received: from mga07.intel.com ([134.134.136.100]:39615 "EHLO mga07.intel.com"
+        id S1728907AbfFGMZq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 08:25:46 -0400
+Received: from mga07.intel.com ([134.134.136.100]:39619 "EHLO mga07.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728526AbfFGMZg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 08:25:36 -0400
+        id S1728597AbfFGMZp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 08:25:45 -0400
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by orsmga105.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 07 Jun 2019 05:25:36 -0700
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by orsmga105.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 07 Jun 2019 05:25:44 -0700
 X-ExtLoop1: 1
 Received: from sedona.ch.intel.com ([10.2.136.157])
-  by fmsmga008.fm.intel.com with ESMTP; 07 Jun 2019 05:25:35 -0700
+  by orsmga004.jf.intel.com with ESMTP; 07 Jun 2019 05:25:42 -0700
 Received: from awfm-01.aw.intel.com (awfm-01.aw.intel.com [10.228.212.213])
-        by sedona.ch.intel.com (8.14.3/8.14.3/Standard MailSET/Hub) with ESMTP id x57CPXnv062822;
-        Fri, 7 Jun 2019 05:25:34 -0700
+        by sedona.ch.intel.com (8.14.3/8.14.3/Standard MailSET/Hub) with ESMTP id x57CPdoO062826;
+        Fri, 7 Jun 2019 05:25:40 -0700
 Received: from awfm-01.aw.intel.com (localhost [127.0.0.1])
-        by awfm-01.aw.intel.com (8.14.7/8.14.7) with ESMTP id x57CPVAv158521;
-        Fri, 7 Jun 2019 08:25:32 -0400
-Subject: [PATCH for-rc 2/3] IB/hfi1: Close PSM sdma_progress sleep window
+        by awfm-01.aw.intel.com (8.14.7/8.14.7) with ESMTP id x57CPcUF158531;
+        Fri, 7 Jun 2019 08:25:38 -0400
+Subject: [PATCH for-rc 3/3] IB/hfi1: Correct tid qp rcd to match verbs
+ context
 From:   Dennis Dalessandro <dennis.dalessandro@intel.com>
 To:     jgg@ziepe.ca, dledford@redhat.com
 Cc:     linux-rdma@vger.kernel.org,
         Mike Marciniszyn <mike.marciniszyn@intel.com>,
-        stable@vger.kernel.org, Gary Leshner <Gary.S.Leshner@intel.com>
-Date:   Fri, 07 Jun 2019 08:25:31 -0400
-Message-ID: <20190607122531.158478.35392.stgit@awfm-01.aw.intel.com>
+        stable@vger.kernel.org, Kaike Wan <kaike.wan@intel.com>
+Date:   Fri, 07 Jun 2019 08:25:38 -0400
+Message-ID: <20190607122538.158478.62945.stgit@awfm-01.aw.intel.com>
 In-Reply-To: <20190607113807.157915.48581.stgit@awfm-01.aw.intel.com>
 References: <20190607113807.157915.48581.stgit@awfm-01.aw.intel.com>
 User-Agent: StGit/0.17.1-dirty
@@ -45,81 +46,116 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mike Marciniszyn <mike.marciniszyn@intel.com>
 
-The call to sdma_progress() is called outside the wait lock.
+The qp priv rcd pointer doesn't match the context being
+used for verbs causing issues when 9B and kdeth packets
+are processed by different receive contexts and hence
+different CPUs.
 
-In this case, there is a race condition where sdma_progress() can return
-false and the sdma_engine can idle.  If that happens, there will be no
-more sdma interrupts to cause the wakeup and the user_sdma xmit will hang.
+When running on different CPUs the following panic can
+occur:
+[476262.398106] WARNING: CPU: 3 PID: 2584 at lib/list_debug.c:59 __list_del_entry+0xa1/0xd0
+[476262.398109] list_del corruption. prev->next should be ffff9a7ac31f7a30, but was ffff9a7c3bc89230
+[476262.398266] CPU: 3 PID: 2584 Comm: z_wr_iss Kdump: loaded Tainted: P           OE  ------------   3.10.0-862.2.3.el7_lustre.x86_64 #1
+[476262.398272] Call Trace:
+[476262.398277]  <IRQ>  [<ffffffffb7b0d78e>] dump_stack+0x19/0x1b
+[476262.398314]  [<ffffffffb74916d8>] __warn+0xd8/0x100
+[476262.398317]  [<ffffffffb749175f>] warn_slowpath_fmt+0x5f/0x80
+[476262.398320]  [<ffffffffb7768671>] __list_del_entry+0xa1/0xd0
+[476262.398402]  [<ffffffffc0c7a945>] process_rcv_qp_work+0xb5/0x160 [hfi1]
+[476262.398424]  [<ffffffffc0c7bc2b>] handle_receive_interrupt_nodma_rtail+0x20b/0x2b0 [hfi1]
+[476262.398438]  [<ffffffffc0c70683>] receive_context_interrupt+0x23/0x40 [hfi1]
+[476262.398447]  [<ffffffffb7540a94>] __handle_irq_event_percpu+0x44/0x1c0
+[476262.398450]  [<ffffffffb7540c42>] handle_irq_event_percpu+0x32/0x80
+[476262.398454]  [<ffffffffb7540ccc>] handle_irq_event+0x3c/0x60
+[476262.398460]  [<ffffffffb7543a1f>] handle_edge_irq+0x7f/0x150
+[476262.398469]  [<ffffffffb742d504>] handle_irq+0xe4/0x1a0
+[476262.398475]  [<ffffffffb7b23f7d>] do_IRQ+0x4d/0xf0
+[476262.398481]  [<ffffffffb7b16362>] common_interrupt+0x162/0x162
+[476262.398482]  <EOI>  [<ffffffffb775a326>] ? memcpy+0x6/0x110
+[476262.398645]  [<ffffffffc109210d>] ? abd_copy_from_buf_off_cb+0x1d/0x30 [zfs]
+[476262.398678]  [<ffffffffc10920f0>] ? abd_copy_to_buf_off_cb+0x30/0x30 [zfs]
+[476262.398696]  [<ffffffffc1093257>] abd_iterate_func+0x97/0x120 [zfs]
+[476262.398710]  [<ffffffffc10934d9>] abd_copy_from_buf_off+0x39/0x60 [zfs]
+[476262.398726]  [<ffffffffc109b828>] arc_write_ready+0x178/0x300 [zfs]
+[476262.398732]  [<ffffffffb7b11032>] ? mutex_lock+0x12/0x2f
+[476262.398734]  [<ffffffffb7b11032>] ? mutex_lock+0x12/0x2f
+[476262.398837]  [<ffffffffc1164d05>] zio_ready+0x65/0x3d0 [zfs]
+[476262.398884]  [<ffffffffc04d725e>] ? tsd_get_by_thread+0x2e/0x50 [spl]
+[476262.398893]  [<ffffffffc04d1318>] ? taskq_member+0x18/0x30 [spl]
+[476262.398968]  [<ffffffffc115ef22>] zio_execute+0xa2/0x100 [zfs]
+[476262.398982]  [<ffffffffc04d1d2c>] taskq_thread+0x2ac/0x4f0 [spl]
+[476262.399001]  [<ffffffffb74cee80>] ? wake_up_state+0x20/0x20
+[476262.399043]  [<ffffffffc115ee80>] ? zio_taskq_member.isra.7.constprop.10+0x80/0x80 [zfs]
+[476262.399055]  [<ffffffffc04d1a80>] ? taskq_thread_spawn+0x60/0x60 [spl]
+[476262.399067]  [<ffffffffb74bae31>] kthread+0xd1/0xe0
+[476262.399072]  [<ffffffffb74bad60>] ? insert_kthread_work+0x40/0x40
+[476262.399082]  [<ffffffffb7b1f5f7>] ret_from_fork_nospec_begin+0x21/0x21
+[476262.399087]  [<ffffffffb74bad60>] ? insert_kthread_work+0x40/0x40
 
-Fix by moving the lock to enclose the sdma_progress() call.
+Fix by reading the map entry in the same manner as the
+hardware so that the kdeth and verbs contexts match.
 
-Also, delete busycount. The need for this was removed by:
-commit bcad29137a97 ("IB/hfi1: Serve the most starved iowait entry first")
-
+Fixes: 5190f052a365 ("IB/hfi1: Allow the driver to initialize QP priv struct")
 Cc: <stable@vger.kernel.org>
-Fixes: 7724105686e7 ("IB/hfi1: add driver files")
-Reviewed-by: Gary Leshner <Gary.S.Leshner@intel.com>
+Reviewed-by: Kaike Wan <kaike.wan@intel.com>
 Signed-off-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
 Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
 ---
- drivers/infiniband/hw/hfi1/user_sdma.c |   12 ++++--------
- drivers/infiniband/hw/hfi1/user_sdma.h |    1 -
- 2 files changed, 4 insertions(+), 9 deletions(-)
+ drivers/infiniband/hw/hfi1/chip.c     |   13 +++++++++++++
+ drivers/infiniband/hw/hfi1/chip.h     |    1 +
+ drivers/infiniband/hw/hfi1/tid_rdma.c |    5 ++---
+ 3 files changed, 16 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hfi1/user_sdma.c b/drivers/infiniband/hw/hfi1/user_sdma.c
-index 8bfbc6d..fd754a1 100644
---- a/drivers/infiniband/hw/hfi1/user_sdma.c
-+++ b/drivers/infiniband/hw/hfi1/user_sdma.c
-@@ -130,20 +130,16 @@ static int defer_packet_queue(
- {
- 	struct hfi1_user_sdma_pkt_q *pq =
- 		container_of(wait->iow, struct hfi1_user_sdma_pkt_q, busy);
--	struct user_sdma_txreq *tx =
--		container_of(txreq, struct user_sdma_txreq, txreq);
- 
--	if (sdma_progress(sde, seq, txreq)) {
--		if (tx->busycount++ < MAX_DEFER_RETRY_COUNT)
--			goto eagain;
--	}
-+	write_seqlock(&sde->waitlock);
-+	if (sdma_progress(sde, seq, txreq))
-+		goto eagain;
- 	/*
- 	 * We are assuming that if the list is enqueued somewhere, it
- 	 * is to the dmawait list since that is the only place where
- 	 * it is supposed to be enqueued.
- 	 */
- 	xchg(&pq->state, SDMA_PKT_Q_DEFERRED);
--	write_seqlock(&sde->waitlock);
- 	if (list_empty(&pq->busy.list)) {
- 		iowait_get_priority(&pq->busy);
- 		iowait_queue(pkts_sent, &pq->busy, &sde->dmawait);
-@@ -151,6 +147,7 @@ static int defer_packet_queue(
- 	write_sequnlock(&sde->waitlock);
- 	return -EBUSY;
- eagain:
-+	write_sequnlock(&sde->waitlock);
- 	return -EAGAIN;
+diff --git a/drivers/infiniband/hw/hfi1/chip.c b/drivers/infiniband/hw/hfi1/chip.c
+index 4221a99e..674f62a 100644
+--- a/drivers/infiniband/hw/hfi1/chip.c
++++ b/drivers/infiniband/hw/hfi1/chip.c
+@@ -14032,6 +14032,19 @@ static void init_kdeth_qp(struct hfi1_devdata *dd)
  }
  
-@@ -804,7 +801,6 @@ static int user_sdma_send_pkts(struct user_sdma_request *req, u16 maxpkts)
+ /**
++ * hfi1_get_qp_map
++ * @dd: device data
++ * @idx: index to read
++ */
++u8 hfi1_get_qp_map(struct hfi1_devdata *dd, u8 idx)
++{
++	u64 reg = read_csr(dd, RCV_QP_MAP_TABLE + (idx / 8) * 8);
++
++	reg >>= (idx % 8) * 8;
++	return (u8)reg;
++}
++
++/**
+  * init_qpmap_table
+  * @dd - device data
+  * @first_ctxt - first context
+diff --git a/drivers/infiniband/hw/hfi1/chip.h b/drivers/infiniband/hw/hfi1/chip.h
+index 4e6c355..b76cf81 100644
+--- a/drivers/infiniband/hw/hfi1/chip.h
++++ b/drivers/infiniband/hw/hfi1/chip.h
+@@ -1445,6 +1445,7 @@ int hfi1_set_ctxt_pkey(struct hfi1_devdata *dd, struct hfi1_ctxtdata *ctxt,
+ void remap_intr(struct hfi1_devdata *dd, int isrc, int msix_intr);
+ void remap_sdma_interrupts(struct hfi1_devdata *dd, int engine, int msix_intr);
+ void reset_interrupts(struct hfi1_devdata *dd);
++u8 hfi1_get_qp_map(struct hfi1_devdata *dd, u8 idx);
  
- 		tx->flags = 0;
- 		tx->req = req;
--		tx->busycount = 0;
- 		INIT_LIST_HEAD(&tx->list);
- 
- 		/*
-diff --git a/drivers/infiniband/hw/hfi1/user_sdma.h b/drivers/infiniband/hw/hfi1/user_sdma.h
-index 14dfd75..4d8510b0 100644
---- a/drivers/infiniband/hw/hfi1/user_sdma.h
-+++ b/drivers/infiniband/hw/hfi1/user_sdma.h
-@@ -245,7 +245,6 @@ struct user_sdma_txreq {
- 	struct list_head list;
- 	struct user_sdma_request *req;
- 	u16 flags;
--	unsigned int busycount;
- 	u16 seqnum;
- };
+ /*
+  * Interrupt source table.
+diff --git a/drivers/infiniband/hw/hfi1/tid_rdma.c b/drivers/infiniband/hw/hfi1/tid_rdma.c
+index 6fb9303..d77276d 100644
+--- a/drivers/infiniband/hw/hfi1/tid_rdma.c
++++ b/drivers/infiniband/hw/hfi1/tid_rdma.c
+@@ -312,9 +312,8 @@ static struct hfi1_ctxtdata *qp_to_rcd(struct rvt_dev_info *rdi,
+ 	if (qp->ibqp.qp_num == 0)
+ 		ctxt = 0;
+ 	else
+-		ctxt = ((qp->ibqp.qp_num >> dd->qos_shift) %
+-			(dd->n_krcv_queues - 1)) + 1;
+-
++		ctxt = hfi1_get_qp_map(dd,
++				       (u8)(qp->ibqp.qp_num >> dd->qos_shift));
+ 	return dd->rcd[ctxt];
+ }
  
 
