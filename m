@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C45F639144
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:59:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7B0A390B8
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:54:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730859AbfFGPn1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 11:43:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54606 "EHLO mail.kernel.org"
+        id S1730869AbfFGPqy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 11:46:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59474 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729770AbfFGPn1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 11:43:27 -0400
+        id S1730653AbfFGPqx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 11:46:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B3DC12146E;
-        Fri,  7 Jun 2019 15:43:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D2C8721479;
+        Fri,  7 Jun 2019 15:46:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559922206;
-        bh=op1gChslQGxNPa936LUqZEqpWuej5GsHZdQxDraDVkw=;
+        s=default; t=1559922413;
+        bh=2nSs+r0mkSEPa95yznIxQ/o92NaL/HmVqSOrpeVP8Es=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TRoFRKu6TYSDfOQUQCdW4yLfvlFufaKA4B8If+o8u8mrX1VOlGDM+XCyAFv0AEuSt
-         FimCE7BR78l/vJDdIUmFwywaEIOobWC/0hQInQLoHMGoVKuvgrk08T7l69DGwAsQf9
-         eBXIsfMBaHI6Q5rbn1HXfcy7Yno7huh54nvgbSQI=
+        b=sf/YpG96WgEmWDxg0u9Kw04CUtDZKebI+08trFSV/KdKUVk3kSKZOjTkp2AeuVLH6
+         qKcaeG6rxVYRscI/YHE5esi2jkIJ5nYkI1PyFtwx+wWXbFFs1gE7M2IVU8A90XBSWd
+         ITBNhdssP8L2b7GNkrB2wXHVGajdPEOVbAHJFTzg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Stephen Boyd <swboyd@chromium.org>
-Subject: [PATCH 4.14 48/69] tty: serial: msm_serial: Fix XON/XOFF
+        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>
+Subject: [PATCH 4.19 42/73] arm64: Fix the arm64_personality() syscall wrapper redirection
 Date:   Fri,  7 Jun 2019 17:39:29 +0200
-Message-Id: <20190607153854.275715769@linuxfoundation.org>
+Message-Id: <20190607153853.845450203@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190607153848.271562617@linuxfoundation.org>
-References: <20190607153848.271562617@linuxfoundation.org>
+In-Reply-To: <20190607153848.669070800@linuxfoundation.org>
+References: <20190607153848.669070800@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,53 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>
+From: Catalin Marinas <catalin.marinas@arm.com>
 
-commit 61c0e37950b88bad590056286c1d766b1f167f4e upstream.
+commit 00377277166bac6939d8f72b429301369acaf2d8 upstream.
 
-When the tty layer requests the uart to throttle, the current code
-executing in msm_serial will trigger "Bad mode in Error Handler" and
-generate an invalid stack frame in pstore before rebooting (that is if
-pstore is indeed configured: otherwise the user shall just notice a
-reboot with no further information dumped to the console).
+Following commit 4378a7d4be30 ("arm64: implement syscall wrappers"), the
+syscall function names gained the '__arm64_' prefix. Ensure that we
+have the correct #define for redirecting a default syscall through a
+wrapper.
 
-This patch replaces the PIO byte accessor with the word accessor
-already used in PIO mode.
-
-Fixes: 68252424a7c7 ("tty: serial: msm: Support big-endian CPUs")
-Cc: stable@vger.kernel.org
-Signed-off-by: Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Fixes: 4378a7d4be30 ("arm64: implement syscall wrappers")
+Cc: <stable@vger.kernel.org> # 4.19.x-
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/serial/msm_serial.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/arm64/kernel/sys.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/tty/serial/msm_serial.c
-+++ b/drivers/tty/serial/msm_serial.c
-@@ -868,6 +868,7 @@ static void msm_handle_tx(struct uart_po
- 	struct circ_buf *xmit = &msm_port->uart.state->xmit;
- 	struct msm_dma *dma = &msm_port->tx_dma;
- 	unsigned int pio_count, dma_count, dma_min;
-+	char buf[4] = { 0 };
- 	void __iomem *tf;
- 	int err = 0;
+--- a/arch/arm64/kernel/sys.c
++++ b/arch/arm64/kernel/sys.c
+@@ -50,7 +50,7 @@ SYSCALL_DEFINE1(arm64_personality, unsig
+ /*
+  * Wrappers to pass the pt_regs argument.
+  */
+-#define sys_personality		sys_arm64_personality
++#define __arm64_sys_personality		__arm64_sys_arm64_personality
  
-@@ -877,10 +878,12 @@ static void msm_handle_tx(struct uart_po
- 		else
- 			tf = port->membase + UART_TF;
- 
-+		buf[0] = port->x_char;
-+
- 		if (msm_port->is_uartdm)
- 			msm_reset_dm_count(port, 1);
- 
--		iowrite8_rep(tf, &port->x_char, 1);
-+		iowrite32_rep(tf, buf, 1);
- 		port->icount.tx++;
- 		port->x_char = 0;
- 		return;
+ asmlinkage long sys_ni_syscall(const struct pt_regs *);
+ #define __arm64_sys_ni_syscall	sys_ni_syscall
 
 
