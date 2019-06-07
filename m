@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AA52E390DE
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:55:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8392239136
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:59:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731284AbfFGPpo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 11:45:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57734 "EHLO mail.kernel.org"
+        id S1730652AbfFGPmp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 11:42:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731238AbfFGPpo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 11:45:44 -0400
+        id S1730648AbfFGPmp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 11:42:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1E75F2146E;
-        Fri,  7 Jun 2019 15:45:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA83C214AF;
+        Fri,  7 Jun 2019 15:42:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559922343;
+        s=default; t=1559922164;
         bh=e2KFDJLz9Lsataaan3BzvauG6mpgnuRbx5NYfA9C6yU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dN45bn++TSBXT+q2wQjJIEs9sK1qVl8M8ddZ1D5rWv/ob3gV2M4Q1tOearuEvlqNh
-         LvEWeNOVOok8DkAtCrtd9Rp2NHf+RquGrqy0z7tN4jwr16+8buf5i8besf3pDXMVjn
-         j7mbCINzSTGuvCNt/iZ1n7gHivr2upIYsidyFt7M=
+        b=e9Bf0kvCZnJe9P+77jhg1+y6O6VcUhjH5Dg9gILyHxj+uuiyVrMaxddTPUn5Lw06v
+         KTsr/DmxLfwAfStkHH0Iape8+rSDdDjJ81Zr007TadHDQVGH6MMnBZ+uBXR6ZIrbqH
+         V0ssVhH/EK2YmkCx70rxeyXlgdxFTCVqXc8uaB+w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Benjamin Coddington <bcodding@redhat.com>,
         XueWei Zhang <xueweiz@google.com>,
         "J. Bruce Fields" <bfields@redhat.com>
-Subject: [PATCH 4.19 54/73] Revert "lockd: Show pid of lockd for remote locks"
+Subject: [PATCH 4.14 60/69] Revert "lockd: Show pid of lockd for remote locks"
 Date:   Fri,  7 Jun 2019 17:39:41 +0200
-Message-Id: <20190607153855.089223436@linuxfoundation.org>
+Message-Id: <20190607153855.452656175@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190607153848.669070800@linuxfoundation.org>
-References: <20190607153848.669070800@linuxfoundation.org>
+In-Reply-To: <20190607153848.271562617@linuxfoundation.org>
+References: <20190607153848.271562617@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
