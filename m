@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 360343909E
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:53:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB20B390EF
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:56:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731791AbfFGPxY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 11:53:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32852 "EHLO mail.kernel.org"
+        id S1731116AbfFGPok (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 11:44:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730581AbfFGPrz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 11:47:55 -0400
+        id S1730379AbfFGPok (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 11:44:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B196220657;
-        Fri,  7 Jun 2019 15:47:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 816CF2146E;
+        Fri,  7 Jun 2019 15:44:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559922475;
-        bh=obaZKxvXgYEdqf/Y6HZ6mDMmMasYi5YEMaOeTMivmS8=;
+        s=default; t=1559922279;
+        bh=9J0yNPBijp9CKjVl5XU7MV5vKc+bAeRutjTRMItWFdE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZEnYOK5I5X/8XA+6aLWk0YkrZqMl213NoXpRXN74n4a9uGVqlXN3qAKpfnL85veAU
-         V3kop+UsKTO4TWIjsLIQ44XTQSKKQ9iWHhehNGiLOQzchKtkriG/vBr5EtQUpIDCHM
-         is5n6zteVnd1xFesliVmS3ZF+dhSEJ8ERIkkmwvg=
+        b=rZsxUpnvH7ZuuugJe3/T2Vo4njusM3tj77theqU/yTUR0w3TvxhGD0SDi/JFkqPoi
+         o4RSxhJcv87pO3cCKFLy/gNPDEIxFR3zqa+OIs6X4CdOUp1ijEYv/Eqmvx7I9SNLWQ
+         eWzYKPOzZYtHOjhMH48d3KAtP0MDxmOQPN3HMxG8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrey Smirnov <andrew.smirnov@gmail.com>,
-        Raul E Rangel <rrangel@chromium.org>,
+        stable@vger.kernel.org, Henry Lin <henryl@nvidia.com>,
         Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.1 05/85] xhci: Convert xhci_handshake() to use readl_poll_timeout_atomic()
+Subject: [PATCH 4.19 03/73] xhci: update bounce buffer with correct sg num
 Date:   Fri,  7 Jun 2019 17:38:50 +0200
-Message-Id: <20190607153849.732847881@linuxfoundation.org>
+Message-Id: <20190607153849.070712216@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190607153849.101321647@linuxfoundation.org>
-References: <20190607153849.101321647@linuxfoundation.org>
+In-Reply-To: <20190607153848.669070800@linuxfoundation.org>
+References: <20190607153848.669070800@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,76 +43,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Smirnov <andrew.smirnov@gmail.com>
+From: Henry Lin <henryl@nvidia.com>
 
-commit f7fac17ca925faa03fc5eb854c081a24075f8bad upstream.
+commit 597c56e372dab2c7f79b8d700aad3a5deebf9d1b upstream.
 
-Xhci_handshake() implements the algorithm already captured by
-readl_poll_timeout_atomic(). Convert the former to use the latter to
-avoid repetition.
+This change fixes a data corruption issue occurred on USB hard disk for
+the case that bounce buffer is used during transferring data.
 
-Turned out this patch also fixes a bug on the AMD Stoneyridge platform
-where usleep(1) sometimes takes over 10ms.
-This means a 5 second timeout can easily take over 15 seconds which will
-trigger the watchdog and reboot the system.
+While updating data between sg list and bounce buffer, current
+implementation passes mapped sg number (urb->num_mapped_sgs) to
+sg_pcopy_from_buffer() and sg_pcopy_to_buffer(). This causes data
+not get copied if target buffer is located in the elements after
+mapped sg elements. This change passes sg number for full list to
+fix issue.
 
-[Add info about patch fixing a bug to commit message -Mathias]
-Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
-Tested-by: Raul E Rangel <rrangel@chromium.org>
-Reviewed-by: Raul E Rangel <rrangel@chromium.org>
-Cc: <stable@vger.kernel.org>
+Besides, for copying data from bounce buffer, calling dma_unmap_single()
+on the bounce buffer before copying data to sg list can avoid cache issue.
+
+Fixes: f9c589e142d0 ("xhci: TD-fragment, align the unsplittable case with a bounce buffer")
+Cc: <stable@vger.kernel.org> # v4.8+
+Signed-off-by: Henry Lin <henryl@nvidia.com>
 Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/host/xhci.c |   22 ++++++++++------------
- 1 file changed, 10 insertions(+), 12 deletions(-)
+ drivers/usb/host/xhci-ring.c |   17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -9,6 +9,7 @@
-  */
+--- a/drivers/usb/host/xhci-ring.c
++++ b/drivers/usb/host/xhci-ring.c
+@@ -656,6 +656,7 @@ static void xhci_unmap_td_bounce_buffer(
+ 	struct device *dev = xhci_to_hcd(xhci)->self.controller;
+ 	struct xhci_segment *seg = td->bounce_seg;
+ 	struct urb *urb = td->urb;
++	size_t len;
  
- #include <linux/pci.h>
-+#include <linux/iopoll.h>
- #include <linux/irq.h>
- #include <linux/log2.h>
- #include <linux/module.h>
-@@ -52,7 +53,6 @@ static bool td_on_ring(struct xhci_td *t
- 	return false;
+ 	if (!ring || !seg || !urb)
+ 		return;
+@@ -666,11 +667,14 @@ static void xhci_unmap_td_bounce_buffer(
+ 		return;
+ 	}
+ 
+-	/* for in tranfers we need to copy the data from bounce to sg */
+-	sg_pcopy_from_buffer(urb->sg, urb->num_mapped_sgs, seg->bounce_buf,
+-			     seg->bounce_len, seg->bounce_offs);
+ 	dma_unmap_single(dev, seg->bounce_dma, ring->bounce_buf_len,
+ 			 DMA_FROM_DEVICE);
++	/* for in tranfers we need to copy the data from bounce to sg */
++	len = sg_pcopy_from_buffer(urb->sg, urb->num_sgs, seg->bounce_buf,
++			     seg->bounce_len, seg->bounce_offs);
++	if (len != seg->bounce_len)
++		xhci_warn(xhci, "WARN Wrong bounce buffer read length: %ld != %d\n",
++				len, seg->bounce_len);
+ 	seg->bounce_len = 0;
+ 	seg->bounce_offs = 0;
  }
+@@ -3104,6 +3108,7 @@ static int xhci_align_td(struct xhci_hcd
+ 	unsigned int unalign;
+ 	unsigned int max_pkt;
+ 	u32 new_buff_len;
++	size_t len;
  
--/* TODO: copied from ehci-hcd.c - can this be refactored? */
- /*
-  * xhci_handshake - spin reading hc until handshake completes or fails
-  * @ptr: address of hc register to be read
-@@ -69,18 +69,16 @@ static bool td_on_ring(struct xhci_td *t
- int xhci_handshake(void __iomem *ptr, u32 mask, u32 done, int usec)
- {
- 	u32	result;
-+	int	ret;
+ 	max_pkt = usb_endpoint_maxp(&urb->ep->desc);
+ 	unalign = (enqd_len + *trb_buff_len) % max_pkt;
+@@ -3134,8 +3139,12 @@ static int xhci_align_td(struct xhci_hcd
  
--	do {
--		result = readl(ptr);
--		if (result == ~(u32)0)		/* card removed */
--			return -ENODEV;
--		result &= mask;
--		if (result == done)
--			return 0;
--		udelay(1);
--		usec--;
--	} while (usec > 0);
--	return -ETIMEDOUT;
-+	ret = readl_poll_timeout_atomic(ptr, result,
-+					(result & mask) == done ||
-+					result == U32_MAX,
-+					1, usec);
-+	if (result == U32_MAX)		/* card removed */
-+		return -ENODEV;
-+
-+	return ret;
- }
- 
- /*
+ 	/* create a max max_pkt sized bounce buffer pointed to by last trb */
+ 	if (usb_urb_dir_out(urb)) {
+-		sg_pcopy_to_buffer(urb->sg, urb->num_mapped_sgs,
++		len = sg_pcopy_to_buffer(urb->sg, urb->num_sgs,
+ 				   seg->bounce_buf, new_buff_len, enqd_len);
++		if (len != seg->bounce_len)
++			xhci_warn(xhci,
++				"WARN Wrong bounce buffer write length: %ld != %d\n",
++				len, seg->bounce_len);
+ 		seg->bounce_dma = dma_map_single(dev, seg->bounce_buf,
+ 						 max_pkt, DMA_TO_DEVICE);
+ 	} else {
 
 
