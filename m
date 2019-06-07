@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F1F8A39177
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 18:00:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76DCB390FA
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:57:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729837AbfFGPky (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 11:40:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50312 "EHLO mail.kernel.org"
+        id S1730946AbfFGPny (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 11:43:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55152 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730135AbfFGPky (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 11:40:54 -0400
+        id S1730926AbfFGPnw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 11:43:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2AA182133D;
-        Fri,  7 Jun 2019 15:40:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2723821473;
+        Fri,  7 Jun 2019 15:43:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559922052;
-        bh=5NxK3QZ4xXv0053/H9qoIGNYWfFSdPg+TupU4k+I13s=;
+        s=default; t=1559922231;
+        bh=9wttimcAbMpK68R7BeU2GG+WPg83nliWOxkX2HqdCeo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EUqBSv+/ro2oenqXmWnE3iALsxmBZyzQ7xhyocVtP5024dlWyj9Nb4o4bIjU9E/kt
-         oHXrRN1DIhWKQvQ5sI85oT1pWWkeJOmouAJd+O0S2VrpKQoIlJoScueZ9543Pr8CTH
-         KrPubBaqtE7UcuYFAw5PynZ46K+oWUylOJmnOGRw=
+        b=aLb6riDr+TQmQjjy/qG4eoGfj+e3vEohVgi0dUbP+bpo6o/CfnXgHdSoOQhnPfmg8
+         8AxMi2e1HpcKwtlED4UM3b+R5ULhu4q1bOyTT3nlYAiUhsUjNgMMJZeF+hTMqh1OJz
+         Nw2CkY3hNBRAkYoxMzGY8FZJtuJ1GE0bxpuNjqCU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Junwei Hu <hujunwei4@huawei.com>,
-        Wang Wang <wangwang2@huawei.com>,
-        syzbot+1e8114b61079bfe9cbc5@syzkaller.appspotmail.com,
-        Kang Zhou <zhoukang7@huawei.com>,
-        Suanming Mou <mousuanming@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 20/69] tipc: fix modprobe tipc failed after switch order of device registration
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Johan Hovold <johan@kernel.org>,
+        syzbot+53f029db71c19a47325a@syzkaller.appspotmail.com
+Subject: [PATCH 4.19 14/73] media: usb: siano: Fix general protection fault in smsusb
 Date:   Fri,  7 Jun 2019 17:39:01 +0200
-Message-Id: <20190607153850.851689067@linuxfoundation.org>
+Message-Id: <20190607153850.398890971@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190607153848.271562617@linuxfoundation.org>
-References: <20190607153848.271562617@linuxfoundation.org>
+In-Reply-To: <20190607153848.669070800@linuxfoundation.org>
+References: <20190607153848.669070800@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,161 +44,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Junwei Hu <hujunwei4@huawei.com>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-commit 526f5b851a96566803ee4bee60d0a34df56c77f8 upstream.
+commit 31e0456de5be379b10fea0fa94a681057114a96e upstream.
 
-Error message printed:
-modprobe: ERROR: could not insert 'tipc': Address family not
-supported by protocol.
-when modprobe tipc after the following patch: switch order of
-device registration, commit 7e27e8d6130c
-("tipc: switch order of device registration to fix a crash")
+The syzkaller USB fuzzer found a general-protection-fault bug in the
+smsusb part of the Siano DVB driver.  The fault occurs during probe
+because the driver assumes without checking that the device has both
+IN and OUT endpoints and the IN endpoint is ep1.
 
-Because sock_create_kern(net, AF_TIPC, ...) called by
-tipc_topsrv_create_listener() in the initialization process
-of tipc_init_net(), so tipc_socket_init() must be execute before that.
-Meanwhile, tipc_net_id need to be initialized when sock_create()
-called, and tipc_socket_init() is no need to be called for each namespace.
+By slightly rearranging the driver's initialization code, we can make
+the appropriate checks early on and thus avoid the problem.  If the
+expected endpoints aren't present, the new code safely returns -ENODEV
+from the probe routine.
 
-I add a variable tipc_topsrv_net_ops, and split the
-register_pernet_subsys() of tipc into two parts, and split
-tipc_socket_init() with initialization of pernet params.
-
-By the way, I fixed resources rollback error when tipc_bcast_init()
-failed in tipc_init_net().
-
-Fixes: 7e27e8d6130c ("tipc: switch order of device registration to fix a crash")
-Signed-off-by: Junwei Hu <hujunwei4@huawei.com>
-Reported-by: Wang Wang <wangwang2@huawei.com>
-Reported-by: syzbot+1e8114b61079bfe9cbc5@syzkaller.appspotmail.com
-Reviewed-by: Kang Zhou <zhoukang7@huawei.com>
-Reviewed-by: Suanming Mou <mousuanming@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Reported-and-tested-by: syzbot+53f029db71c19a47325a@syzkaller.appspotmail.com
+CC: <stable@vger.kernel.org>
+Reviewed-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- net/tipc/core.c   |   18 ++++++++++++------
- net/tipc/subscr.c |   14 ++++++++++++--
- net/tipc/subscr.h |    5 +++--
- 3 files changed, 27 insertions(+), 10 deletions(-)
+ drivers/media/usb/siano/smsusb.c |   33 ++++++++++++++++++++-------------
+ 1 file changed, 20 insertions(+), 13 deletions(-)
 
---- a/net/tipc/core.c
-+++ b/net/tipc/core.c
-@@ -71,9 +71,6 @@ static int __net_init tipc_init_net(stru
- 		goto out_nametbl;
+--- a/drivers/media/usb/siano/smsusb.c
++++ b/drivers/media/usb/siano/smsusb.c
+@@ -401,6 +401,7 @@ static int smsusb_init_device(struct usb
+ 	struct smsusb_device_t *dev;
+ 	void *mdev;
+ 	int i, rc;
++	int in_maxp;
  
- 	INIT_LIST_HEAD(&tn->dist_queue);
--	err = tipc_topsrv_start(net);
--	if (err)
--		goto out_subscr;
+ 	/* create device object */
+ 	dev = kzalloc(sizeof(struct smsusb_device_t), GFP_KERNEL);
+@@ -412,6 +413,24 @@ static int smsusb_init_device(struct usb
+ 	dev->udev = interface_to_usbdev(intf);
+ 	dev->state = SMSUSB_DISCONNECTED;
  
- 	err = tipc_bcast_init(net);
- 	if (err)
-@@ -82,8 +79,6 @@ static int __net_init tipc_init_net(stru
- 	return 0;
- 
- out_bclink:
--	tipc_bcast_stop(net);
--out_subscr:
- 	tipc_nametbl_stop(net);
- out_nametbl:
- 	tipc_sk_rht_destroy(net);
-@@ -93,7 +88,6 @@ out_sk_rht:
- 
- static void __net_exit tipc_exit_net(struct net *net)
- {
--	tipc_topsrv_stop(net);
- 	tipc_net_stop(net);
- 	tipc_bcast_stop(net);
- 	tipc_nametbl_stop(net);
-@@ -107,6 +101,11 @@ static struct pernet_operations tipc_net
- 	.size = sizeof(struct tipc_net),
- };
- 
-+static struct pernet_operations tipc_topsrv_net_ops = {
-+	.init = tipc_topsrv_init_net,
-+	.exit = tipc_topsrv_exit_net,
-+};
++	for (i = 0; i < intf->cur_altsetting->desc.bNumEndpoints; i++) {
++		struct usb_endpoint_descriptor *desc =
++				&intf->cur_altsetting->endpoint[i].desc;
 +
- static int __init tipc_init(void)
- {
- 	int err;
-@@ -137,6 +136,10 @@ static int __init tipc_init(void)
- 	if (err)
- 		goto out_socket;
- 
-+	err = register_pernet_subsys(&tipc_topsrv_net_ops);
-+	if (err)
-+		goto out_pernet_topsrv;
++		if (desc->bEndpointAddress & USB_DIR_IN) {
++			dev->in_ep = desc->bEndpointAddress;
++			in_maxp = usb_endpoint_maxp(desc);
++		} else {
++			dev->out_ep = desc->bEndpointAddress;
++		}
++	}
 +
- 	err = tipc_bearer_setup();
- 	if (err)
- 		goto out_bearer;
-@@ -144,6 +147,8 @@ static int __init tipc_init(void)
- 	pr_info("Started in single node mode\n");
- 	return 0;
- out_bearer:
-+	unregister_pernet_subsys(&tipc_topsrv_net_ops);
-+out_pernet_topsrv:
- 	tipc_socket_stop();
- out_socket:
- 	unregister_pernet_subsys(&tipc_net_ops);
-@@ -161,6 +166,7 @@ out_netlink:
- static void __exit tipc_exit(void)
- {
- 	tipc_bearer_cleanup();
-+	unregister_pernet_subsys(&tipc_topsrv_net_ops);
- 	tipc_socket_stop();
- 	unregister_pernet_subsys(&tipc_net_ops);
- 	tipc_netlink_stop();
---- a/net/tipc/subscr.c
-+++ b/net/tipc/subscr.c
-@@ -344,7 +344,7 @@ static void *tipc_subscrb_connect_cb(int
- 	return (void *)tipc_subscrb_create(conid);
- }
- 
--int tipc_topsrv_start(struct net *net)
-+static int tipc_topsrv_start(struct net *net)
- {
- 	struct tipc_net *tn = net_generic(net, tipc_net_id);
- 	const char name[] = "topology_server";
-@@ -382,7 +382,7 @@ int tipc_topsrv_start(struct net *net)
- 	return tipc_server_start(topsrv);
- }
- 
--void tipc_topsrv_stop(struct net *net)
-+static void tipc_topsrv_stop(struct net *net)
- {
- 	struct tipc_net *tn = net_generic(net, tipc_net_id);
- 	struct tipc_server *topsrv = tn->topsrv;
-@@ -391,3 +391,13 @@ void tipc_topsrv_stop(struct net *net)
- 	kfree(topsrv->saddr);
- 	kfree(topsrv);
- }
++	pr_debug("in_ep = %02x, out_ep = %02x\n", dev->in_ep, dev->out_ep);
++	if (!dev->in_ep || !dev->out_ep) {	/* Missing endpoints? */
++		smsusb_term_device(intf);
++		return -ENODEV;
++	}
 +
-+int __net_init tipc_topsrv_init_net(struct net *net)
-+{
-+	return tipc_topsrv_start(net);
-+}
-+
-+void __net_exit tipc_topsrv_exit_net(struct net *net)
-+{
-+	tipc_topsrv_stop(net);
-+}
---- a/net/tipc/subscr.h
-+++ b/net/tipc/subscr.h
-@@ -75,8 +75,9 @@ void tipc_subscrp_report_overlap(struct
- void tipc_subscrp_convert_seq(struct tipc_name_seq *in, int swap,
- 			      struct tipc_name_seq *out);
- u32 tipc_subscrp_convert_seq_type(u32 type, int swap);
--int tipc_topsrv_start(struct net *net);
--void tipc_topsrv_stop(struct net *net);
-+
-+int __net_init tipc_topsrv_init_net(struct net *net);
-+void __net_exit tipc_topsrv_exit_net(struct net *net);
+ 	params.device_type = sms_get_board(board_id)->type;
  
- void tipc_subscrp_put(struct tipc_subscription *subscription);
- void tipc_subscrp_get(struct tipc_subscription *subscription);
+ 	switch (params.device_type) {
+@@ -426,24 +445,12 @@ static int smsusb_init_device(struct usb
+ 		/* fall-thru */
+ 	default:
+ 		dev->buffer_size = USB2_BUFFER_SIZE;
+-		dev->response_alignment =
+-		    le16_to_cpu(dev->udev->ep_in[1]->desc.wMaxPacketSize) -
+-		    sizeof(struct sms_msg_hdr);
++		dev->response_alignment = in_maxp - sizeof(struct sms_msg_hdr);
+ 
+ 		params.flags |= SMS_DEVICE_FAMILY2;
+ 		break;
+ 	}
+ 
+-	for (i = 0; i < intf->cur_altsetting->desc.bNumEndpoints; i++) {
+-		if (intf->cur_altsetting->endpoint[i].desc. bEndpointAddress & USB_DIR_IN)
+-			dev->in_ep = intf->cur_altsetting->endpoint[i].desc.bEndpointAddress;
+-		else
+-			dev->out_ep = intf->cur_altsetting->endpoint[i].desc.bEndpointAddress;
+-	}
+-
+-	pr_debug("in_ep = %02x, out_ep = %02x\n",
+-		dev->in_ep, dev->out_ep);
+-
+ 	params.device = &dev->udev->dev;
+ 	params.usb_device = dev->udev;
+ 	params.buffer_size = dev->buffer_size;
 
 
