@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D164439139
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:59:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3593639079
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:52:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730683AbfFGPmx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 11:42:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53758 "EHLO mail.kernel.org"
+        id S1731952AbfFGPt3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 11:49:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730676AbfFGPmx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 11:42:53 -0400
+        id S1731965AbfFGPt2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 11:49:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F1FE9212F5;
-        Fri,  7 Jun 2019 15:42:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D94FB21473;
+        Fri,  7 Jun 2019 15:49:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559922172;
-        bh=4dRqwOCNbDrUOH84RUkkjW9jPHaTGW3Y2CIITnQ3V0Y=;
+        s=default; t=1559922568;
+        bh=w9mbrg/9IYmvfv8hDeatHsg1Bwq8llFRl8Ea1mJVDsY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=myacOi7eH4Bq9UdNuQXoKv3Q9uv+NjCThzSS2Z6XDbKkgD0vURYp6sF6WPvBaRx+V
-         3GCWVeX3mA4cuLVuWLqd4G1p5dPI79SCNjwFMbo0YpuOhRFQPzBI0Dr8fj1gVN6prD
-         u8Pj7jg1P6bv5q6pFTJvLAt97S38I1djPIouBX5w=
+        b=OYHsIEZXU89271m5P3D96Vh+2E8ptKbZn+Ly5eXu+VIkwXiIPnIx1RJs5K1Hrq4Gy
+         ykaW3R4jTG75yDaN6wmcvdP76QaLbddl8b4WBHs3mQUP3zS9aisstiYxDBPRW+AsKf
+         t9YaLqBohYKmWJBb2/+goor0LkXheZrC76n4M/QE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Hellstrom <thellstrom@vmware.com>,
-        Deepak Rawat <drawat@vmware.com>
-Subject: [PATCH 4.14 62/69] drm/vmwgfx: Dont send drm sysfs hotplug events on initial master set
+        stable@vger.kernel.org, Scott Wood <swood@redhat.com>,
+        Mimi Zohar <zohar@linux.ibm.com>
+Subject: [PATCH 5.1 58/85] x86/ima: Check EFI_RUNTIME_SERVICES before using
 Date:   Fri,  7 Jun 2019 17:39:43 +0200
-Message-Id: <20190607153855.651941146@linuxfoundation.org>
+Message-Id: <20190607153855.914553406@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190607153848.271562617@linuxfoundation.org>
-References: <20190607153848.271562617@linuxfoundation.org>
+In-Reply-To: <20190607153849.101321647@linuxfoundation.org>
+References: <20190607153849.101321647@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,40 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Hellstrom <thellstrom@vmware.com>
+From: Scott Wood <swood@redhat.com>
 
-commit 63cb44441826e842b7285575b96db631cc9f2505 upstream.
+commit 558b523d46289f111d53d7c42211069063be5985 upstream.
 
-This may confuse user-space clients like plymouth that opens a drm
-file descriptor as a result of a hotplug event and then generates a
-new event...
+Checking efi_enabled(EFI_BOOT) is not sufficient to ensure that
+EFI runtime services are available, e.g. if efi=noruntime is used.
 
-Cc: <stable@vger.kernel.org>
-Fixes: 5ea1734827bb ("drm/vmwgfx: Send a hotplug event at master_set")
-Signed-off-by: Thomas Hellstrom <thellstrom@vmware.com>
-Reviewed-by: Deepak Rawat <drawat@vmware.com>
+Without this, I get an oops on a PREEMPT_RT kernel where efi=noruntime is
+the default.
+
+Fixes: 399574c64eaf94e8 ("x86/ima: retry detecting secure boot mode")
+Cc: stable@vger.kernel.org  (linux-5.0)
+Signed-off-by: Scott Wood <swood@redhat.com>
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/vmwgfx/vmwgfx_drv.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ arch/x86/kernel/ima_arch.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_drv.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_drv.c
-@@ -1245,7 +1245,13 @@ static int vmw_master_set(struct drm_dev
- 	}
+--- a/arch/x86/kernel/ima_arch.c
++++ b/arch/x86/kernel/ima_arch.c
+@@ -17,6 +17,11 @@ static enum efi_secureboot_mode get_sb_m
  
- 	dev_priv->active_master = vmaster;
--	drm_sysfs_hotplug_event(dev);
+ 	size = sizeof(secboot);
+ 
++	if (!efi_enabled(EFI_RUNTIME_SERVICES)) {
++		pr_info("ima: secureboot mode unknown, no efi\n");
++		return efi_secureboot_mode_unknown;
++	}
 +
-+	/*
-+	 * Inform a new master that the layout may have changed while
-+	 * it was gone.
-+	 */
-+	if (!from_open)
-+		drm_sysfs_hotplug_event(dev);
- 
- 	return 0;
- }
+ 	/* Get variable contents into buffer */
+ 	status = efi.get_variable(efi_SecureBoot_name, &efi_variable_guid,
+ 				  NULL, &size, &secboot);
 
 
