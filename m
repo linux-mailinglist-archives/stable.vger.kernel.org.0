@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A7CFF3903D
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:50:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0104838FEA
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:47:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730037AbfFGPuL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 11:50:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36734 "EHLO mail.kernel.org"
+        id S1730807AbfFGPqp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 11:46:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732119AbfFGPuK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 11:50:10 -0400
+        id S1729835AbfFGPqm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 11:46:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 25A4420840;
-        Fri,  7 Jun 2019 15:50:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AA2172147A;
+        Fri,  7 Jun 2019 15:46:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559922609;
-        bh=j49jvOBp4+Atxs7E5AnQIQU7c00poykEF7SSl93LRDA=;
+        s=default; t=1559922402;
+        bh=fODzMbhwNCnU9KZWF0dDSMSCfi+Kpxj4SJk1wz8uYx0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=usIWJFgRZT4Nrxcx1G41hW1VO6KRl9b8DlyqgpdsBh/yNGTxEW/W3nGnkEmCHJJX+
-         jouH2z5+Nx+rJJMCrWgysg7KyEUy1Yv0f8RsZoaaGaufklY/K7Gyd0mB+M5MdeWf8B
-         0EUIvPcRFVqlssFiAV6VBN4yoxhLFT/xFcPwf0rk=
+        b=KnhWR2OpPI4vleykwtki9CHaRiMxBDrC/WdsGFj+A8BoLGgeH2uAQMWVzg7aKBNbD
+         t9DXL6C45MaG2FzTb9zI9yYVTgM7Bk5QIeN8mY0xZwGzPJlfMToJWJFGq90Eu8mnyF
+         p21iwzgQrQDuRKv4qJ1dS7JVE33w1CDS3v7KAcUI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jernej Skrabec <jernej.skrabec@siol.net>,
-        Maxime Ripard <maxime.ripard@bootlin.com>
-Subject: [PATCH 5.1 75/85] drm/sun4i: Fix sun8i HDMI PHY clock initialization
+        stable@vger.kernel.org, Nadav Amit <namit@vmware.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Doug Anderson <dianders@chromium.org>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.19 73/73] media: uvcvideo: Fix uvc_alloc_entity() allocation alignment
 Date:   Fri,  7 Jun 2019 17:40:00 +0200
-Message-Id: <20190607153857.370585718@linuxfoundation.org>
+Message-Id: <20190607153856.880547199@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190607153849.101321647@linuxfoundation.org>
-References: <20190607153849.101321647@linuxfoundation.org>
+In-Reply-To: <20190607153848.669070800@linuxfoundation.org>
+References: <20190607153848.669070800@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,86 +46,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jernej Skrabec <jernej.skrabec@siol.net>
+From: Nadav Amit <namit@vmware.com>
 
-commit 8a943c6021ba8b95a36c842327e468df1fddd4a7 upstream.
+commit 89dd34caf73e28018c58cd193751e41b1f8bdc56 upstream.
 
-Current code initializes HDMI PHY clock driver before reset line is
-deasserted and clocks enabled. Because of that, initial readout of
-clock divider is incorrect (0 instead of 2). This causes any clock
-rate with divider 1 (register value 0) to be set incorrectly.
+The use of ALIGN() in uvc_alloc_entity() is incorrect, since the size of
+(entity->pads) is not a power of two. As a stop-gap, until a better
+solution is adapted, use roundup() instead.
 
-Fix this by moving initialization of HDMI PHY clock driver after reset
-line is deasserted and clocks enabled.
+Found by a static assertion. Compile-tested only.
 
-Cc: stable@vger.kernel.org # 4.17+
-Fixes: 4f86e81748fe ("drm/sun4i: Add support for H3 HDMI PHY variant")
-Signed-off-by: Jernej Skrabec <jernej.skrabec@siol.net>
-Signed-off-by: Maxime Ripard <maxime.ripard@bootlin.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190514204337.11068-2-jernej.skrabec@siol.net
+Fixes: 4ffc2d89f38a ("uvcvideo: Register subdevices for each entity")
+
+Signed-off-by: Nadav Amit <namit@vmware.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Cc: Doug Anderson <dianders@chromium.org>
+Cc: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/sun4i/sun8i_hdmi_phy.c |   26 ++++++++++++++------------
- 1 file changed, 14 insertions(+), 12 deletions(-)
+ drivers/media/usb/uvc/uvc_driver.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/sun4i/sun8i_hdmi_phy.c
-+++ b/drivers/gpu/drm/sun4i/sun8i_hdmi_phy.c
-@@ -672,22 +672,13 @@ int sun8i_hdmi_phy_probe(struct sun8i_dw
- 				goto err_put_clk_pll0;
- 			}
- 		}
--
--		ret = sun8i_phy_clk_create(phy, dev,
--					   phy->variant->has_second_pll);
--		if (ret) {
--			dev_err(dev, "Couldn't create the PHY clock\n");
--			goto err_put_clk_pll1;
--		}
--
--		clk_prepare_enable(phy->clk_phy);
- 	}
+--- a/drivers/media/usb/uvc/uvc_driver.c
++++ b/drivers/media/usb/uvc/uvc_driver.c
+@@ -914,7 +914,7 @@ static struct uvc_entity *uvc_alloc_enti
+ 	unsigned int size;
+ 	unsigned int i;
  
- 	phy->rst_phy = of_reset_control_get_shared(node, "phy");
- 	if (IS_ERR(phy->rst_phy)) {
- 		dev_err(dev, "Could not get phy reset control\n");
- 		ret = PTR_ERR(phy->rst_phy);
--		goto err_disable_clk_phy;
-+		goto err_put_clk_pll1;
- 	}
- 
- 	ret = reset_control_deassert(phy->rst_phy);
-@@ -708,18 +699,29 @@ int sun8i_hdmi_phy_probe(struct sun8i_dw
- 		goto err_disable_clk_bus;
- 	}
- 
-+	if (phy->variant->has_phy_clk) {
-+		ret = sun8i_phy_clk_create(phy, dev,
-+					   phy->variant->has_second_pll);
-+		if (ret) {
-+			dev_err(dev, "Couldn't create the PHY clock\n");
-+			goto err_disable_clk_mod;
-+		}
-+
-+		clk_prepare_enable(phy->clk_phy);
-+	}
-+
- 	hdmi->phy = phy;
- 
- 	return 0;
- 
-+err_disable_clk_mod:
-+	clk_disable_unprepare(phy->clk_mod);
- err_disable_clk_bus:
- 	clk_disable_unprepare(phy->clk_bus);
- err_deassert_rst_phy:
- 	reset_control_assert(phy->rst_phy);
- err_put_rst_phy:
- 	reset_control_put(phy->rst_phy);
--err_disable_clk_phy:
--	clk_disable_unprepare(phy->clk_phy);
- err_put_clk_pll1:
- 	clk_put(phy->clk_pll1);
- err_put_clk_pll0:
+-	extra_size = ALIGN(extra_size, sizeof(*entity->pads));
++	extra_size = roundup(extra_size, sizeof(*entity->pads));
+ 	num_inputs = (type & UVC_TERM_OUTPUT) ? num_pads : num_pads - 1;
+ 	size = sizeof(*entity) + extra_size + sizeof(*entity->pads) * num_pads
+ 	     + num_inputs;
 
 
