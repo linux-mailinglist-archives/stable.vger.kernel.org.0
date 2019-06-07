@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6339C390C5
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:54:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BC4839068
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:51:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731441AbfFGPqi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 11:46:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59030 "EHLO mail.kernel.org"
+        id S1731686AbfFGPuF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 11:50:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36554 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731437AbfFGPqh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 11:46:37 -0400
+        id S1731220AbfFGPuE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 11:50:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1F6D72146E;
-        Fri,  7 Jun 2019 15:46:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 738CF2146E;
+        Fri,  7 Jun 2019 15:50:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559922396;
-        bh=GlWOorS1xItpTubUtbbteEcDFsKw9k0MWsdCTC4hn88=;
+        s=default; t=1559922604;
+        bh=DnNeCLQx4HO+1hlXeb/DClw5HFQxojEBibonIOcjEjc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0ZamvVMKOX0i8KQcv4nNmXJjSvFGheDJNvyk4yi7cjkMpf20vpJeWs8fEG3Sjj5mR
-         0jxQN3AG9U5VCNHNf98V6jBGS3YpNH0KnX4KLTBJ5gR8MqLyx6Ki3EXtnJfAQ/S0Hi
-         mnJo3ZxKMuPLdVs3GvXfUuJ8lw/7wlZJzJQM5e/M=
+        b=eVGlYuOC572qdy/ZQ33jufeubRMIAO4HYFzy2fZcqqk9lR4k21LwN+bJl06M99QQW
+         6YDo9uED81jb3JU4hzw0mbMBY6j7T1T87w0QnUFsxCusBJMvxvPasQaxwCbrHZwHkO
+         IQ4vNVpV5VVMXKa0q3iyXv6KpToJGSli1gl+x2VI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Tull <atull@kernel.org>,
-        Frank Rowand <frank.rowand@sony.com>
-Subject: [PATCH 4.19 71/73] of: overlay: validate overlay properties #address-cells and #size-cells
+        stable@vger.kernel.org, Thomas Hellstrom <thellstrom@vmware.com>,
+        Brian Paul <brianp@vmware.com>
+Subject: [PATCH 5.1 73/85] drm/vmwgfx: Fix compat mode shader operation
 Date:   Fri,  7 Jun 2019 17:39:58 +0200
-Message-Id: <20190607153856.691091191@linuxfoundation.org>
+Message-Id: <20190607153857.196916937@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190607153848.669070800@linuxfoundation.org>
-References: <20190607153848.669070800@linuxfoundation.org>
+In-Reply-To: <20190607153849.101321647@linuxfoundation.org>
+References: <20190607153849.101321647@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,101 +43,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frank Rowand <frank.rowand@sony.com>
+From: Thomas Hellstrom <thellstrom@vmware.com>
 
-commit 6f75118800acf77f8ad6afec61ca1b2349ade371 upstream.
+commit e41c20cf50a8a7d0dfa337a7530590aacef4193b upstream.
 
-If overlay properties #address-cells or #size-cells are already in
-the live devicetree for any given node, then the values in the
-overlay must match the values in the live tree.
+In compat mode, we allowed host-backed user-space with guest-backed
+kernel / device. In this mode, set shader commands was broken since
+no relocations were emitted. Fix this.
 
-If the properties are already in the live tree then there is no
-need to create a changeset entry to add them since they must
-have the same value.  This reduces the memory used by the
-changeset and eliminates a possible memory leak.
-
-Tested-by: Alan Tull <atull@kernel.org>
-Signed-off-by: Frank Rowand <frank.rowand@sony.com>
+Cc: <stable@vger.kernel.org>
+Fixes: e8c66efbfe3a ("drm/vmwgfx: Make user resource lookups reference-free during validation")
+Signed-off-by: Thomas Hellstrom <thellstrom@vmware.com>
+Reviewed-by: Brian Paul <brianp@vmware.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/of/overlay.c |   32 +++++++++++++++++++++++++++++---
- include/linux/of.h   |    6 ++++++
- 2 files changed, 35 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
---- a/drivers/of/overlay.c
-+++ b/drivers/of/overlay.c
-@@ -287,7 +287,12 @@ err_free_target_path:
-  * @target may be either in the live devicetree or in a new subtree that
-  * is contained in the changeset.
-  *
-- * Some special properties are not updated (no error returned).
-+ * Some special properties are not added or updated (no error returned):
-+ * "name", "phandle", "linux,phandle".
-+ *
-+ * Properties "#address-cells" and "#size-cells" are not updated if they
-+ * are already in the live tree, but if present in the live tree, the values
-+ * in the overlay must match the values in the live tree.
-  *
-  * Update of property in symbols node is not allowed.
-  *
-@@ -300,6 +305,7 @@ static int add_changeset_property(struct
- {
- 	struct property *new_prop = NULL, *prop;
- 	int ret = 0;
-+	bool check_for_non_overlay_node = false;
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c
+@@ -2129,6 +2129,11 @@ static int vmw_cmd_set_shader(struct vmw
+ 		return 0;
  
- 	if (!of_prop_cmp(overlay_prop->name, "name") ||
- 	    !of_prop_cmp(overlay_prop->name, "phandle") ||
-@@ -322,12 +328,32 @@ static int add_changeset_property(struct
- 	if (!new_prop)
- 		return -ENOMEM;
- 
--	if (!prop)
-+	if (!prop) {
-+		check_for_non_overlay_node = true;
- 		ret = of_changeset_add_property(&ovcs->cset, target->np,
- 						new_prop);
--	else
-+	} else if (!of_prop_cmp(prop->name, "#address-cells")) {
-+		if (!of_prop_val_eq(prop, new_prop)) {
-+			pr_err("ERROR: changing value of #address-cells is not allowed in %pOF\n",
-+			       target->np);
-+			ret = -EINVAL;
-+		}
-+	} else if (!of_prop_cmp(prop->name, "#size-cells")) {
-+		if (!of_prop_val_eq(prop, new_prop)) {
-+			pr_err("ERROR: changing value of #size-cells is not allowed in %pOF\n",
-+			       target->np);
-+			ret = -EINVAL;
-+		}
-+	} else {
-+		check_for_non_overlay_node = true;
- 		ret = of_changeset_update_property(&ovcs->cset, target->np,
- 						   new_prop);
-+	}
+ 	if (cmd->body.shid != SVGA3D_INVALID_ID) {
++		/*
++		 * This is the compat shader path - Per device guest-backed
++		 * shaders, but user-space thinks it's per context host-
++		 * backed shaders.
++		 */
+ 		res = vmw_shader_lookup(vmw_context_res_man(ctx),
+ 					cmd->body.shid,
+ 					cmd->body.type);
+@@ -2137,6 +2142,14 @@ static int vmw_cmd_set_shader(struct vmw
+ 			ret = vmw_execbuf_res_noctx_val_add(sw_context, res);
+ 			if (unlikely(ret != 0))
+ 				return ret;
 +
-+	if (check_for_non_overlay_node &&
-+	    !of_node_check_flag(target->np, OF_OVERLAY))
-+		pr_err("WARNING: memory leak will occur if overlay removed, property: %pOF/%s\n",
-+		       target->np, new_prop->name);
++			ret = vmw_resource_relocation_add
++				(sw_context, res,
++				 vmw_ptr_diff(sw_context->buf_start,
++					      &cmd->body.shid),
++				 vmw_res_rel_normal);
++			if (unlikely(ret != 0))
++				return ret;
+ 		}
+ 	}
  
- 	if (ret) {
- 		kfree(new_prop->name);
---- a/include/linux/of.h
-+++ b/include/linux/of.h
-@@ -968,6 +968,12 @@ static inline int of_cpu_node_to_id(stru
- #define of_node_cmp(s1, s2)		strcasecmp((s1), (s2))
- #endif
- 
-+static inline int of_prop_val_eq(struct property *p1, struct property *p2)
-+{
-+	return p1->length == p2->length &&
-+	       !memcmp(p1->value, p2->value, (size_t)p1->length);
-+}
-+
- #if defined(CONFIG_OF) && defined(CONFIG_NUMA)
- extern int of_node_to_nid(struct device_node *np);
- #else
 
 
