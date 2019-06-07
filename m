@@ -2,46 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A238239082
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:52:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19EFE38F85
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:42:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731328AbfFGPtH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 11:49:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34772 "EHLO mail.kernel.org"
+        id S1730595AbfFGPmb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 11:42:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731869AbfFGPtG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 11:49:06 -0400
+        id S1730589AbfFGPma (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 11:42:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB55E2146E;
-        Fri,  7 Jun 2019 15:49:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A82482147A;
+        Fri,  7 Jun 2019 15:42:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559922545;
-        bh=WL3vxbjU1dMtEmiUSmXm5+93WXu+jB8JtsEPTQopDYQ=;
+        s=default; t=1559922150;
+        bh=cYTjEnrGVJZwA7HlPblYMwwrw9L/XU5fNTXJgOmLX+g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N56H/X7ijZaXuJK+oqQ1eKiOdbWg50ZSbb0dkYzswxP94Zb5cgRejVZJFX9M5r9TL
-         QHeh0Jltkrdvm4oGzi4RD6SVPZH45KngbjU+3eaaa/kpb4Zt6kmPdlNXzMV90VqqxS
-         J1YTXfD6Hx8jz9PI9KdlSF4lwLBJOUEc1mVw2bDw=
+        b=TIh385MMhXyxBSJAZ+egsryg1nyeXlNWIZZ9AvB3eF4bZT5l6z1njSNFJkkmBKCpp
+         WC5nPLr8lKZbV3VFtcc579UJRjKVxAdsOeUdgPUIu8scVNRfJXcZN9syO4keYFXse3
+         677Fd/B8HRlf1iD3O9i+VhgmSq6Xbcv6RunVWhy8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhenliang Wei <weizhenliang@huawei.com>,
-        Christian Brauner <christian@brauner.io>,
-        Oleg Nesterov <oleg@redhat.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Ivan Delalande <colona@arista.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Deepa Dinamani <deepa.kernel@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.1 51/85] kernel/signal.c: trace_signal_deliver when signal_group_exit
+        stable@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
+        Mimi Zohar <zohar@linux.ibm.com>
+Subject: [PATCH 4.14 55/69] ima: show rules with IMA_INMASK correctly
 Date:   Fri,  7 Jun 2019 17:39:36 +0200
-Message-Id: <20190607153855.208382412@linuxfoundation.org>
+Message-Id: <20190607153854.952094064@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190607153849.101321647@linuxfoundation.org>
-References: <20190607153849.101321647@linuxfoundation.org>
+In-Reply-To: <20190607153848.271562617@linuxfoundation.org>
+References: <20190607153848.271562617@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,50 +43,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhenliang Wei <weizhenliang@huawei.com>
+From: Roberto Sassu <roberto.sassu@huawei.com>
 
-commit 98af37d624ed8c83f1953b1b6b2f6866011fc064 upstream.
+commit 8cdc23a3d9ec0944000ad43bad588e36afdc38cd upstream.
 
-In the fixes commit, removing SIGKILL from each thread signal mask and
-executing "goto fatal" directly will skip the call to
-"trace_signal_deliver".  At this point, the delivery tracking of the
-SIGKILL signal will be inaccurate.
+Show the '^' character when a policy rule has flag IMA_INMASK.
 
-Therefore, we need to add trace_signal_deliver before "goto fatal" after
-executing sigdelset.
-
-Note: SEND_SIG_NOINFO matches the fact that SIGKILL doesn't have any info.
-
-Link: http://lkml.kernel.org/r/20190425025812.91424-1-weizhenliang@huawei.com
-Fixes: cf43a757fd4944 ("signal: Restore the stop PTRACE_EVENT_EXIT")
-Signed-off-by: Zhenliang Wei <weizhenliang@huawei.com>
-Reviewed-by: Christian Brauner <christian@brauner.io>
-Reviewed-by: Oleg Nesterov <oleg@redhat.com>
-Cc: Eric W. Biederman <ebiederm@xmission.com>
-Cc: Ivan Delalande <colona@arista.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Deepa Dinamani <deepa.kernel@gmail.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 80eae209d63ac ("IMA: allow reading back the current IMA policy")
+Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- kernel/signal.c |    2 ++
- 1 file changed, 2 insertions(+)
+ security/integrity/ima/ima_policy.c |   21 ++++++++++++---------
+ 1 file changed, 12 insertions(+), 9 deletions(-)
 
---- a/kernel/signal.c
-+++ b/kernel/signal.c
-@@ -2441,6 +2441,8 @@ relock:
- 	if (signal_group_exit(signal)) {
- 		ksig->info.si_signo = signr = SIGKILL;
- 		sigdelset(&current->pending.signal, SIGKILL);
-+		trace_signal_deliver(SIGKILL, SEND_SIG_NOINFO,
-+				&sighand->action[SIGKILL - 1]);
- 		recalc_sigpending();
- 		goto fatal;
+--- a/security/integrity/ima/ima_policy.c
++++ b/security/integrity/ima/ima_policy.c
+@@ -964,10 +964,10 @@ enum {
+ };
+ 
+ static const char *const mask_tokens[] = {
+-	"MAY_EXEC",
+-	"MAY_WRITE",
+-	"MAY_READ",
+-	"MAY_APPEND"
++	"^MAY_EXEC",
++	"^MAY_WRITE",
++	"^MAY_READ",
++	"^MAY_APPEND"
+ };
+ 
+ #define __ima_hook_stringify(str)	(#str),
+@@ -1027,6 +1027,7 @@ int ima_policy_show(struct seq_file *m,
+ 	struct ima_rule_entry *entry = v;
+ 	int i;
+ 	char tbuf[64] = {0,};
++	int offset = 0;
+ 
+ 	rcu_read_lock();
+ 
+@@ -1046,15 +1047,17 @@ int ima_policy_show(struct seq_file *m,
+ 	if (entry->flags & IMA_FUNC)
+ 		policy_func_show(m, entry->func);
+ 
+-	if (entry->flags & IMA_MASK) {
++	if ((entry->flags & IMA_MASK) || (entry->flags & IMA_INMASK)) {
++		if (entry->flags & IMA_MASK)
++			offset = 1;
+ 		if (entry->mask & MAY_EXEC)
+-			seq_printf(m, pt(Opt_mask), mt(mask_exec));
++			seq_printf(m, pt(Opt_mask), mt(mask_exec) + offset);
+ 		if (entry->mask & MAY_WRITE)
+-			seq_printf(m, pt(Opt_mask), mt(mask_write));
++			seq_printf(m, pt(Opt_mask), mt(mask_write) + offset);
+ 		if (entry->mask & MAY_READ)
+-			seq_printf(m, pt(Opt_mask), mt(mask_read));
++			seq_printf(m, pt(Opt_mask), mt(mask_read) + offset);
+ 		if (entry->mask & MAY_APPEND)
+-			seq_printf(m, pt(Opt_mask), mt(mask_append));
++			seq_printf(m, pt(Opt_mask), mt(mask_append) + offset);
+ 		seq_puts(m, " ");
  	}
+ 
 
 
