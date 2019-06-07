@@ -2,111 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 780FE397EA
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 23:39:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1787397EB
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 23:40:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731363AbfFGVjZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 17:39:25 -0400
-Received: from mail-wr1-f43.google.com ([209.85.221.43]:36469 "EHLO
-        mail-wr1-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731372AbfFGVjY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Jun 2019 17:39:24 -0400
-Received: by mail-wr1-f43.google.com with SMTP id n4so3508918wrs.3
-        for <stable@vger.kernel.org>; Fri, 07 Jun 2019 14:39:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=575d0z980F6D59BozeRQW6fBFMUbOJp40diByIuLzg4=;
-        b=gfdyf2RSyk29L3hjscHoQ9PADm7gWEB9wgheKy25PGagkmUKhDi97QQB56At5FbSza
-         Ew5zn+PwrdWyLQ4nwoi4Cu/VxTq/BWydB4+k+EccthtK7V2GszgZjoFoQ5vMf6dVM1AT
-         5ZMLdTTCmf3A2phcs15Dc0CkR8xpF34QEQ87gGLwgqjlAgsGjEZHTL2X4Fq5NEl18Bae
-         /g/VRMVdcRgaihGUIawg4cmGRHW7Gm1tjF1i88kKHl/RPutM7dshEIzzzkZNMYBON2AF
-         ZF6tZfJcWRkrvPukNv09jwOhyEMGcW8KD9HvbqX0QS7/z1WFj3lQS4x8aMQ5yO6Z8zTI
-         7EWw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=575d0z980F6D59BozeRQW6fBFMUbOJp40diByIuLzg4=;
-        b=qiRnzJ6fWTo0yhg6wvfP+fdgsoDQuY9RRcViWRrZUPujAs6QF0xqb0m05szJaeN1Y6
-         KD9t+qTN0tne72P4oVYoUFc+7jYtPZUqS1Wy3KuKClA/dMBkqKTXF1Ed7huNjjRRnTkm
-         X7gAzJr6s4K++UBmO3qKrzFxMgpH+yN1LpbrnoOxXKrLXkmEznFOLjc7NhhZMnqvPVdx
-         0KASiK/t2DfC3wY4bkX/1TqqMQO7P630j1BWJNM5nntIPQB4clAiuarngp9TB56r/yBa
-         x25xe+JdUel4QJM8sBE7PrraWUymJUQOBjpK/AXmCHdQxbs9PN7a4Kp6ANHnVPKMjBOl
-         7+Cw==
-X-Gm-Message-State: APjAAAXX9ShXk/rhyMlO94Zft+vxtyrHkutanCdvjbaDlW3OCuldFzyP
-        Xova0gLHbxNutzotOKrr+bLRGXmVQQ2Ziw==
-X-Google-Smtp-Source: APXvYqyfuFQal3MnFw2Uv8xSj9zPAwTZ8UgbBkJSqjP5xj3Urd+cTJYFJUHvoU5v4+hraJdALfkhXQ==
-X-Received: by 2002:adf:de08:: with SMTP id b8mr3255306wrm.248.1559943563190;
-        Fri, 07 Jun 2019 14:39:23 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id x8sm3044585wmc.5.2019.06.07.14.39.22
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 07 Jun 2019 14:39:22 -0700 (PDT)
-Message-ID: <5cfad98a.1c69fb81.9d3e.2ffb@mx.google.com>
-Date:   Fri, 07 Jun 2019 14:39:22 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1730931AbfFGVkM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 17:40:12 -0400
+Received: from out01.mta.xmission.com ([166.70.13.231]:52404 "EHLO
+        out01.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730180AbfFGVkL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Jun 2019 17:40:11 -0400
+Received: from in01.mta.xmission.com ([166.70.13.51])
+        by out01.mta.xmission.com with esmtps (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.87)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1hZMam-0007jO-8x; Fri, 07 Jun 2019 15:40:08 -0600
+Received: from ip72-206-97-68.om.om.cox.net ([72.206.97.68] helo=x220.xmission.com)
+        by in01.mta.xmission.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        (Exim 4.87)
+        (envelope-from <ebiederm@xmission.com>)
+        id 1hZMak-00082z-Rz; Fri, 07 Jun 2019 15:40:07 -0600
+From:   ebiederm@xmission.com (Eric W. Biederman)
+To:     Oleg Nesterov <oleg@redhat.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Deepa Dinamani <deepa.kernel@gmail.com>,
+        linux-kernel@vger.kernel.org, arnd@arndb.de, dbueso@suse.de,
+        axboe@kernel.dk, dave@stgolabs.net, e@80x24.org, jbaron@akamai.com,
+        linux-fsdevel@vger.kernel.org, linux-aio@kvack.org,
+        omar.kilani@gmail.com, tglx@linutronix.de, stable@vger.kernel.org,
+        Al Viro <viro@ZenIV.linux.org.uk>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        David Laight <David.Laight@ACULAB.COM>,
+        <linux-arch@vger.kernel.org>
+References: <20190522032144.10995-1-deepa.kernel@gmail.com>
+        <20190529161157.GA27659@redhat.com>
+        <20190604134117.GA29963@redhat.com>
+        <20190606140814.GA13440@redhat.com>
+Date:   Fri, 07 Jun 2019 16:39:54 -0500
+In-Reply-To: <20190606140814.GA13440@redhat.com> (Oleg Nesterov's message of
+        "Thu, 6 Jun 2019 16:08:14 +0200")
+Message-ID: <87k1dxaxcl.fsf_-_@xmission.com>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/25.1 (gnu/linux)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v5.1.7-86-gcef30fd8e063
-X-Kernelci-Branch: linux-5.1.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-5.1.y boot: 139 boots: 2 failed,
- 136 passed with 1 offline (v5.1.7-86-gcef30fd8e063)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain
+X-XM-SPF: eid=1hZMak-00082z-Rz;;;mid=<87k1dxaxcl.fsf_-_@xmission.com>;;;hst=in01.mta.xmission.com;;;ip=72.206.97.68;;;frm=ebiederm@xmission.com;;;spf=neutral
+X-XM-AID: U2FsdGVkX1/Ncj5b4HEVUXN16mr/5Fc1PInrICo6P5o=
+X-SA-Exim-Connect-IP: 72.206.97.68
+X-SA-Exim-Mail-From: ebiederm@xmission.com
+X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on sa04.xmission.com
+X-Spam-Level: *
+X-Spam-Status: No, score=1.3 required=8.0 tests=ALL_TRUSTED,BAYES_50,
+        DCC_CHECK_NEGATIVE,T_TooManySym_01,XMNoVowels autolearn=disabled
+        version=3.4.2
+X-Spam-Report: * -1.0 ALL_TRUSTED Passed through trusted hosts only via SMTP
+        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+        *      [score: 0.5000]
+        *  1.5 XMNoVowels Alpha-numberic number with no vowels
+        * -0.0 DCC_CHECK_NEGATIVE Not listed in DCC
+        *      [sa04 1397; Body=1 Fuz1=1 Fuz2=1]
+        *  0.0 T_TooManySym_01 4+ unique symbols in subject
+X-Spam-DCC: XMission; sa04 1397; Body=1 Fuz1=1 Fuz2=1 
+X-Spam-Combo: *;Oleg Nesterov <oleg@redhat.com>
+X-Spam-Relay-Country: 
+X-Spam-Timing: total 745 ms - load_scoreonly_sql: 0.04 (0.0%),
+        signal_user_changed: 2.6 (0.3%), b_tie_ro: 1.78 (0.2%), parse: 0.82
+        (0.1%), extract_message_metadata: 3.0 (0.4%), get_uri_detail_list:
+        1.26 (0.2%), tests_pri_-1000: 4.1 (0.6%), tests_pri_-950: 1.24 (0.2%),
+        tests_pri_-900: 1.00 (0.1%), tests_pri_-90: 30 (4.0%), check_bayes: 28
+        (3.8%), b_tokenize: 8 (1.1%), b_tok_get_all: 8 (1.1%), b_comp_prob:
+        2.3 (0.3%), b_tok_touch_all: 8 (1.0%), b_finish: 0.57 (0.1%),
+        tests_pri_0: 679 (91.2%), check_dkim_signature: 0.55 (0.1%),
+        check_dkim_adsp: 1.99 (0.3%), poll_dns_idle: 0.39 (0.1%),
+        tests_pri_10: 2.6 (0.3%), tests_pri_500: 13 (1.8%), rewrite_mail: 0.00
+        (0.0%)
+Subject: [RFC PATCH 0/5]: Removing saved_sigmask
+X-Spam-Flag: No
+X-SA-Exim-Version: 4.2.1 (built Thu, 05 May 2016 13:38:54 -0600)
+X-SA-Exim-Scanned: Yes (on in01.mta.xmission.com)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.1.y boot: 139 boots: 2 failed, 136 passed with 1 offline =
-(v5.1.7-86-gcef30fd8e063)
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.1.y/kernel/v5.1.7-86-gcef30fd8e063/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.1.y=
-/kernel/v5.1.7-86-gcef30fd8e063/
+While reviewing Oleg's patches I realized a bunch of the logic around
+saved_sigmask was redundant.  So I dug just to see what I could see.
 
-Tree: stable-rc
-Branch: linux-5.1.y
-Git Describe: v5.1.7-86-gcef30fd8e063
-Git Commit: cef30fd8e063aacee3601ac8df2c4d1c5980b759
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 77 unique boards, 23 SoC families, 14 builds out of 209
+I turns out that real_blocked and saved_sigmask were different
+implementations of the same idea for slightly different purposes.
+Which means we only need either real_blocked or saved_sigmask.
 
-Boot Regressions Detected:
+I chose real_blocked as it has just a little bit of code associated
+with it to disable optimizations on the signal sending path that do
+not apply to blocked signals.
 
-arm64:
+I did a little bit of cleanup of the users.  Modified the core to keep
+real_blocked in sync with blocked except while a clever system call that
+like pselect or sigtimedwait is running.
 
-    defconfig:
-        gcc-8:
-          meson-gxbb-p200:
-              lab-baylibre: new failure (last pass: v5.1.7-86-g0765c25688d0)
+After the dust cleared this allowed restore_sigmask and all of the logic
+to keep it valid to be removed entirely.
 
-Boot Failures Detected:
+I have only done the most cursory of testing at this point.  Does anyone
+have any thoughts in cleaning up the code in this direction?
 
-arm:
-    multi_v7_defconfig:
-        gcc-8:
-            bcm4708-smartrg-sr400ac: 1 failed lab
+Eric W. Biederman (5):
+      signal: Teach sigsuspend to use set_user_sigmask
+      signal/kvm:  Stop using sigprocmask in kvm_sigset_(activate|deactivate)
+      signal: Always keep real_blocked in sync with blocked
+      signal: Remove saved_sigmask
+      signal: Remove the unnecessary restore_sigmask flag
 
-arm64:
-    defconfig:
-        gcc-8:
-            meson-gxbb-p200: 1 failed lab
+ arch/arc/include/asm/thread_info.h       |  1 -
+ arch/arm/include/asm/thread_info.h       |  1 -
+ arch/arm64/include/asm/thread_info.h     |  1 -
+ arch/c6x/include/asm/thread_info.h       |  1 -
+ arch/csky/include/asm/thread_info.h      |  2 -
+ arch/h8300/include/asm/thread_info.h     |  1 -
+ arch/hexagon/include/asm/thread_info.h   |  1 -
+ arch/m68k/include/asm/thread_info.h      |  1 -
+ arch/mips/include/asm/thread_info.h      |  1 -
+ arch/nds32/include/asm/thread_info.h     |  2 -
+ arch/nios2/include/asm/thread_info.h     |  2 -
+ arch/riscv/include/asm/thread_info.h     |  1 -
+ arch/s390/include/asm/thread_info.h      |  1 -
+ arch/sparc/include/asm/thread_info_32.h  |  1 -
+ arch/um/include/asm/thread_info.h        |  1 -
+ arch/unicore32/include/asm/thread_info.h |  1 -
+ arch/xtensa/include/asm/thread_info.h    |  1 -
+ include/linux/sched.h                    |  5 --
+ include/linux/sched/signal.h             | 84 +-------------------------------
+ kernel/ptrace.c                          | 15 ++----
+ kernel/signal.c                          | 56 +++++++++------------
+ virt/kvm/kvm_main.c                      | 11 +----
+ 22 files changed, 31 insertions(+), 160 deletions(-)
 
-Offline Platforms:
-
-arm64:
-
-    defconfig:
-        gcc-8
-            meson-gxl-s905x-khadas-vim: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+Eric
