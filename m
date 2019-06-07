@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 63A5339170
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:59:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AAEE390FC
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:57:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729783AbfFGPlF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 11:41:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50656 "EHLO mail.kernel.org"
+        id S1729709AbfFGPoB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 11:44:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730198AbfFGPlE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 11:41:04 -0400
+        id S1730131AbfFGPoB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 11:44:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1F6B02146E;
-        Fri,  7 Jun 2019 15:41:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5661921473;
+        Fri,  7 Jun 2019 15:43:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559922063;
-        bh=qxZ9rMqJ8eG6DGpDo67Bytw4sJ6TMxqP6+C9DYjK+XY=;
+        s=default; t=1559922239;
+        bh=GGLiWNkOsnUPhqMyXkl8oyKfXBjlI/FAvMosob7SZdI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S8vBlVUvJDYblG8Yf9SaFwUUf9GaQrOFGoPtTmvdQ9+nOjwBd0Jwi69vd9E9nGOhF
-         fVfu8YVslITTczbcshUF5o4FlX1fosNyMBBLj73QsRXh88O8+qqXYBi9nQDlawfIr5
-         k4w+0rdczlMqVB5kIhVy4fSPAGYGJqFbV8hD0IvE=
+        b=eR0LByqZ+F+3Tra0HV++jw2dGb7TX0YMpF62ughPbVC/SM8fgZYmubEob5BocdEjw
+         G/KcpOhDSocFkgmxbBLAorrSsC3iU2hWzDJQ3LtgD6ahkprf92vbE8GTASZeEn2Z+y
+         4u5twcoLOzN3D5a/oiCsLIF2YNg3kTDiyNOLPYAk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Henry Lin <henryl@nvidia.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 4.14 23/69] xhci: update bounce buffer with correct sg num
+        stable@vger.kernel.org,
+        Piotr Figiel <p.figiel@camlintechnologies.com>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.19 17/73] brcmfmac: fix NULL pointer derefence during USB disconnect
 Date:   Fri,  7 Jun 2019 17:39:04 +0200
-Message-Id: <20190607153851.228812132@linuxfoundation.org>
+Message-Id: <20190607153850.822740133@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190607153848.271562617@linuxfoundation.org>
-References: <20190607153848.271562617@linuxfoundation.org>
+In-Reply-To: <20190607153848.669070800@linuxfoundation.org>
+References: <20190607153848.669070800@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,82 +44,223 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Henry Lin <henryl@nvidia.com>
+From: Piotr Figiel <p.figiel@camlintechnologies.com>
 
-commit 597c56e372dab2c7f79b8d700aad3a5deebf9d1b upstream.
+commit 5cdb0ef6144f47440850553579aa923c20a63f23 upstream.
 
-This change fixes a data corruption issue occurred on USB hard disk for
-the case that bounce buffer is used during transferring data.
+In case USB disconnect happens at the moment transmitting workqueue is in
+progress the underlying interface may be gone causing a NULL pointer
+dereference. Add synchronization of the workqueue destruction with the
+detach implementation in core so that the transmitting workqueue is stopped
+during detach before the interfaces are removed.
 
-While updating data between sg list and bounce buffer, current
-implementation passes mapped sg number (urb->num_mapped_sgs) to
-sg_pcopy_from_buffer() and sg_pcopy_to_buffer(). This causes data
-not get copied if target buffer is located in the elements after
-mapped sg elements. This change passes sg number for full list to
-fix issue.
+Fix following Oops:
 
-Besides, for copying data from bounce buffer, calling dma_unmap_single()
-on the bounce buffer before copying data to sg list can avoid cache issue.
+Unable to handle kernel NULL pointer dereference at virtual address 00000008
+pgd = 9e6a802d
+[00000008] *pgd=00000000
+Internal error: Oops: 5 [#1] PREEMPT SMP ARM
+Modules linked in: nf_log_ipv4 nf_log_common xt_LOG xt_limit iptable_mangle
+xt_connmark xt_tcpudp xt_conntrack nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4
+iptable_filter ip_tables x_tables usb_f_mass_storage usb_f_rndis u_ether
+usb_serial_simple usbserial cdc_acm brcmfmac brcmutil smsc95xx usbnet
+ci_hdrc_imx ci_hdrc ulpi usbmisc_imx 8250_exar 8250_pci 8250 8250_base
+libcomposite configfs udc_core
+CPU: 0 PID: 7 Comm: kworker/u8:0 Not tainted 4.19.23-00076-g03740aa-dirty #102
+Hardware name: Freescale i.MX6 Quad/DualLite (Device Tree)
+Workqueue: brcmf_fws_wq brcmf_fws_dequeue_worker [brcmfmac]
+PC is at brcmf_txfinalize+0x34/0x90 [brcmfmac]
+LR is at brcmf_fws_dequeue_worker+0x218/0x33c [brcmfmac]
+pc : [<7f0dee64>]    lr : [<7f0e4140>]    psr: 60010093
+sp : ee8abef0  ip : 00000000  fp : edf38000
+r10: ffffffed  r9 : edf38970  r8 : edf38004
+r7 : edf3e970  r6 : 00000000  r5 : ede69000  r4 : 00000000
+r3 : 00000a97  r2 : 00000000  r1 : 0000888e  r0 : ede69000
+Flags: nZCv  IRQs off  FIQs on  Mode SVC_32  ISA ARM  Segment none
+Control: 10c5387d  Table: 7d03c04a  DAC: 00000051
+Process kworker/u8:0 (pid: 7, stack limit = 0x24ec3e04)
+Stack: (0xee8abef0 to 0xee8ac000)
+bee0:                                     ede69000 00000000 ed56c3e0 7f0e4140
+bf00: 00000001 00000000 edf38004 edf3e99c ed56c3e0 80d03d00 edfea43a edf3e970
+bf20: ee809880 ee804200 ee971100 00000000 edf3e974 00000000 ee804200 80135a70
+bf40: 80d03d00 ee804218 ee809880 ee809894 ee804200 80d03d00 ee804218 ee8aa000
+bf60: 00000088 80135d5c 00000000 ee829f00 ee829dc0 00000000 ee809880 80135d30
+bf80: ee829f1c ee873eac 00000000 8013b1a0 ee829dc0 8013b07c 00000000 00000000
+bfa0: 00000000 00000000 00000000 801010e8 00000000 00000000 00000000 00000000
+bfc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+bfe0: 00000000 00000000 00000000 00000000 00000013 00000000 00000000 00000000
+[<7f0dee64>] (brcmf_txfinalize [brcmfmac]) from [<7f0e4140>] (brcmf_fws_dequeue_worker+0x218/0x33c [brcmfmac])
+[<7f0e4140>] (brcmf_fws_dequeue_worker [brcmfmac]) from [<80135a70>] (process_one_work+0x138/0x3f8)
+[<80135a70>] (process_one_work) from [<80135d5c>] (worker_thread+0x2c/0x554)
+[<80135d5c>] (worker_thread) from [<8013b1a0>] (kthread+0x124/0x154)
+[<8013b1a0>] (kthread) from [<801010e8>] (ret_from_fork+0x14/0x2c)
+Exception stack(0xee8abfb0 to 0xee8abff8)
+bfa0:                                     00000000 00000000 00000000 00000000
+bfc0: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+bfe0: 00000000 00000000 00000000 00000000 00000013 00000000
+Code: e1530001 0a000007 e3560000 e1a00005 (05942008)
+---[ end trace 079239dd31c86e90 ]---
 
-Fixes: f9c589e142d0 ("xhci: TD-fragment, align the unsplittable case with a bounce buffer")
-Cc: <stable@vger.kernel.org> # v4.8+
-Signed-off-by: Henry Lin <henryl@nvidia.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Signed-off-by: Piotr Figiel <p.figiel@camlintechnologies.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/host/xhci-ring.c |   17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/bcdc.c     |   11 ++++++--
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/bcdc.h     |    6 +++-
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c     |    4 ++-
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwsignal.c |   16 +++++++++---
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwsignal.h |    3 +-
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/proto.c    |   10 ++++++-
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/proto.h    |    3 +-
+ 7 files changed, 40 insertions(+), 13 deletions(-)
 
---- a/drivers/usb/host/xhci-ring.c
-+++ b/drivers/usb/host/xhci-ring.c
-@@ -667,6 +667,7 @@ static void xhci_unmap_td_bounce_buffer(
- 	struct device *dev = xhci_to_hcd(xhci)->self.controller;
- 	struct xhci_segment *seg = td->bounce_seg;
- 	struct urb *urb = td->urb;
-+	size_t len;
- 
- 	if (!ring || !seg || !urb)
- 		return;
-@@ -677,11 +678,14 @@ static void xhci_unmap_td_bounce_buffer(
- 		return;
- 	}
- 
--	/* for in tranfers we need to copy the data from bounce to sg */
--	sg_pcopy_from_buffer(urb->sg, urb->num_mapped_sgs, seg->bounce_buf,
--			     seg->bounce_len, seg->bounce_offs);
- 	dma_unmap_single(dev, seg->bounce_dma, ring->bounce_buf_len,
- 			 DMA_FROM_DEVICE);
-+	/* for in tranfers we need to copy the data from bounce to sg */
-+	len = sg_pcopy_from_buffer(urb->sg, urb->num_sgs, seg->bounce_buf,
-+			     seg->bounce_len, seg->bounce_offs);
-+	if (len != seg->bounce_len)
-+		xhci_warn(xhci, "WARN Wrong bounce buffer read length: %ld != %d\n",
-+				len, seg->bounce_len);
- 	seg->bounce_len = 0;
- 	seg->bounce_offs = 0;
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bcdc.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bcdc.c
+@@ -490,11 +490,18 @@ fail:
+ 	return -ENOMEM;
  }
-@@ -3186,6 +3190,7 @@ static int xhci_align_td(struct xhci_hcd
- 	unsigned int unalign;
- 	unsigned int max_pkt;
- 	u32 new_buff_len;
-+	size_t len;
  
- 	max_pkt = usb_endpoint_maxp(&urb->ep->desc);
- 	unalign = (enqd_len + *trb_buff_len) % max_pkt;
-@@ -3216,8 +3221,12 @@ static int xhci_align_td(struct xhci_hcd
+-void brcmf_proto_bcdc_detach(struct brcmf_pub *drvr)
++void brcmf_proto_bcdc_detach_pre_delif(struct brcmf_pub *drvr)
++{
++	struct brcmf_bcdc *bcdc = drvr->proto->pd;
++
++	brcmf_fws_detach_pre_delif(bcdc->fws);
++}
++
++void brcmf_proto_bcdc_detach_post_delif(struct brcmf_pub *drvr)
+ {
+ 	struct brcmf_bcdc *bcdc = drvr->proto->pd;
  
- 	/* create a max max_pkt sized bounce buffer pointed to by last trb */
- 	if (usb_urb_dir_out(urb)) {
--		sg_pcopy_to_buffer(urb->sg, urb->num_mapped_sgs,
-+		len = sg_pcopy_to_buffer(urb->sg, urb->num_sgs,
- 				   seg->bounce_buf, new_buff_len, enqd_len);
-+		if (len != seg->bounce_len)
-+			xhci_warn(xhci,
-+				"WARN Wrong bounce buffer write length: %ld != %d\n",
-+				len, seg->bounce_len);
- 		seg->bounce_dma = dma_map_single(dev, seg->bounce_buf,
- 						 max_pkt, DMA_TO_DEVICE);
- 	} else {
+ 	drvr->proto->pd = NULL;
+-	brcmf_fws_detach(bcdc->fws);
++	brcmf_fws_detach_post_delif(bcdc->fws);
+ 	kfree(bcdc);
+ }
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bcdc.h
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bcdc.h
+@@ -18,14 +18,16 @@
+ 
+ #ifdef CONFIG_BRCMFMAC_PROTO_BCDC
+ int brcmf_proto_bcdc_attach(struct brcmf_pub *drvr);
+-void brcmf_proto_bcdc_detach(struct brcmf_pub *drvr);
++void brcmf_proto_bcdc_detach_pre_delif(struct brcmf_pub *drvr);
++void brcmf_proto_bcdc_detach_post_delif(struct brcmf_pub *drvr);
+ void brcmf_proto_bcdc_txflowblock(struct device *dev, bool state);
+ void brcmf_proto_bcdc_txcomplete(struct device *dev, struct sk_buff *txp,
+ 				 bool success);
+ struct brcmf_fws_info *drvr_to_fws(struct brcmf_pub *drvr);
+ #else
+ static inline int brcmf_proto_bcdc_attach(struct brcmf_pub *drvr) { return 0; }
+-static inline void brcmf_proto_bcdc_detach(struct brcmf_pub *drvr) {}
++static void brcmf_proto_bcdc_detach_pre_delif(struct brcmf_pub *drvr) {};
++static inline void brcmf_proto_bcdc_detach_post_delif(struct brcmf_pub *drvr) {}
+ #endif
+ 
+ #endif /* BRCMFMAC_BCDC_H */
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
+@@ -1244,6 +1244,8 @@ void brcmf_detach(struct device *dev)
+ 
+ 	brcmf_bus_change_state(bus_if, BRCMF_BUS_DOWN);
+ 
++	brcmf_proto_detach_pre_delif(drvr);
++
+ 	/* make sure primary interface removed last */
+ 	for (i = BRCMF_MAX_IFS-1; i > -1; i--)
+ 		brcmf_remove_interface(drvr->iflist[i], false);
+@@ -1253,7 +1255,7 @@ void brcmf_detach(struct device *dev)
+ 
+ 	brcmf_bus_stop(drvr->bus_if);
+ 
+-	brcmf_proto_detach(drvr);
++	brcmf_proto_detach_post_delif(drvr);
+ 
+ 	bus_if->drvr = NULL;
+ 	wiphy_free(drvr->wiphy);
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwsignal.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwsignal.c
+@@ -2410,17 +2410,25 @@ struct brcmf_fws_info *brcmf_fws_attach(
+ 	return fws;
+ 
+ fail:
+-	brcmf_fws_detach(fws);
++	brcmf_fws_detach_pre_delif(fws);
++	brcmf_fws_detach_post_delif(fws);
+ 	return ERR_PTR(rc);
+ }
+ 
+-void brcmf_fws_detach(struct brcmf_fws_info *fws)
++void brcmf_fws_detach_pre_delif(struct brcmf_fws_info *fws)
+ {
+ 	if (!fws)
+ 		return;
+-
+-	if (fws->fws_wq)
++	if (fws->fws_wq) {
+ 		destroy_workqueue(fws->fws_wq);
++		fws->fws_wq = NULL;
++	}
++}
++
++void brcmf_fws_detach_post_delif(struct brcmf_fws_info *fws)
++{
++	if (!fws)
++		return;
+ 
+ 	/* cleanup */
+ 	brcmf_fws_lock(fws);
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwsignal.h
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/fwsignal.h
+@@ -19,7 +19,8 @@
+ #define FWSIGNAL_H_
+ 
+ struct brcmf_fws_info *brcmf_fws_attach(struct brcmf_pub *drvr);
+-void brcmf_fws_detach(struct brcmf_fws_info *fws);
++void brcmf_fws_detach_pre_delif(struct brcmf_fws_info *fws);
++void brcmf_fws_detach_post_delif(struct brcmf_fws_info *fws);
+ void brcmf_fws_debugfs_create(struct brcmf_pub *drvr);
+ bool brcmf_fws_queue_skbs(struct brcmf_fws_info *fws);
+ bool brcmf_fws_fc_active(struct brcmf_fws_info *fws);
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/proto.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/proto.c
+@@ -67,16 +67,22 @@ fail:
+ 	return -ENOMEM;
+ }
+ 
+-void brcmf_proto_detach(struct brcmf_pub *drvr)
++void brcmf_proto_detach_post_delif(struct brcmf_pub *drvr)
+ {
+ 	brcmf_dbg(TRACE, "Enter\n");
+ 
+ 	if (drvr->proto) {
+ 		if (drvr->bus_if->proto_type == BRCMF_PROTO_BCDC)
+-			brcmf_proto_bcdc_detach(drvr);
++			brcmf_proto_bcdc_detach_post_delif(drvr);
+ 		else if (drvr->bus_if->proto_type == BRCMF_PROTO_MSGBUF)
+ 			brcmf_proto_msgbuf_detach(drvr);
+ 		kfree(drvr->proto);
+ 		drvr->proto = NULL;
+ 	}
+ }
++
++void brcmf_proto_detach_pre_delif(struct brcmf_pub *drvr)
++{
++	if (drvr->proto && drvr->bus_if->proto_type == BRCMF_PROTO_BCDC)
++		brcmf_proto_bcdc_detach_pre_delif(drvr);
++}
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/proto.h
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/proto.h
+@@ -54,7 +54,8 @@ struct brcmf_proto {
+ 
+ 
+ int brcmf_proto_attach(struct brcmf_pub *drvr);
+-void brcmf_proto_detach(struct brcmf_pub *drvr);
++void brcmf_proto_detach_pre_delif(struct brcmf_pub *drvr);
++void brcmf_proto_detach_post_delif(struct brcmf_pub *drvr);
+ 
+ static inline int brcmf_proto_hdrpull(struct brcmf_pub *drvr, bool do_fws,
+ 				      struct sk_buff *skb,
 
 
