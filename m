@@ -2,43 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EF7D38FDC
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:47:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 781C639049
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:50:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731360AbfFGPqQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 11:46:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58452 "EHLO mail.kernel.org"
+        id S1732213AbfFGPur (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 11:50:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731355AbfFGPqO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 11:46:14 -0400
+        id S1732203AbfFGPuq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 11:50:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C3A4D212F5;
-        Fri,  7 Jun 2019 15:46:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A7DE820657;
+        Fri,  7 Jun 2019 15:50:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559922374;
-        bh=cEvAHdLnGrikmcdwQTsTvbK6efKqvwf8/wwRsHU/Pxk=;
+        s=default; t=1559922646;
+        bh=dzU4Naa1BU9a6lDIQVkvDeJjFIH9R7FRWsW9clpnOqo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qz3Q/XKzKamBEVcy/BxegMgSCtnUEag4azEgBajEX0jojn41+P3hY7xy7al0u17pU
-         oyAlOQYqZNaEcR7hp0z8rzYT+kQUF8udxekgVzZ9XD+EBhaoppDXQ1nTWyjGTS6Jot
-         lJUTLifvl5PdXOgc/8uN6pDqglXGXD9Xc61LvZuI=
+        b=MPhce/0kCqSCDoxBQXa0lVe0gMeN4xyDC+bmFhbFlJPi16mLu+xh5zqaW1FuH3xlm
+         8h0OyABJy0QPOa6u4FaA/dQSX2SV+zlEr7b3GS9+ACGiLsZEq9s/aEoGes8LzdMkSu
+         w3aWeRZ5f97kIJN29NfvbHtLOTJs1o1yH92GxWCI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sami Tolvanen <samitolvanen@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Borislav Petkov <bp@suse.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Alec Ari <neotheuser@gmail.com>, Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH 4.19 64/73] Revert "x86/build: Move _etext to actual end of .text"
-Date:   Fri,  7 Jun 2019 17:39:51 +0200
-Message-Id: <20190607153856.076256900@linuxfoundation.org>
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.1 67/85] cifs: fix memory leak of pneg_inbuf on -EOPNOTSUPP ioctl case
+Date:   Fri,  7 Jun 2019 17:39:52 +0200
+Message-Id: <20190607153856.681728320@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190607153848.669070800@linuxfoundation.org>
-References: <20190607153848.669070800@linuxfoundation.org>
+In-Reply-To: <20190607153849.101321647@linuxfoundation.org>
+References: <20190607153849.101321647@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,42 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Colin Ian King <colin.king@canonical.com>
 
-This reverts commit 392bef709659abea614abfe53cf228e7a59876a4.
+commit 210782038b54ec8e9059a3c12d6f6ae173efa3a9 upstream.
 
-It seems to cause lots of problems when using the gold linker, and no
-one really needs this at the moment, so just revert it from the stable
-trees.
+Currently in the case where SMB2_ioctl returns the -EOPNOTSUPP error
+there is a memory leak of pneg_inbuf. Fix this by returning via
+the out_free_inbuf exit path that will perform the relevant kfree.
 
-Cc: Sami Tolvanen <samitolvanen@google.com>
-Reported-by: Kees Cook <keescook@chromium.org>
-Cc: Borislav Petkov <bp@suse.de>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Reported-by: Alec Ari <neotheuser@gmail.com>
-Cc: Ingo Molnar <mingo@kernel.org>
+Addresses-Coverity: ("Resource leak")
+Fixes: 969ae8e8d4ee ("cifs: Accept validate negotiate if server return NT_STATUS_NOT_SUPPORTED")
+CC: Stable <stable@vger.kernel.org> # v5.1+
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/x86/kernel/vmlinux.lds.S |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/arch/x86/kernel/vmlinux.lds.S
-+++ b/arch/x86/kernel/vmlinux.lds.S
-@@ -151,10 +151,10 @@ SECTIONS
- 		*(.text.__x86.indirect_thunk)
- 		__indirect_thunk_end = .;
- #endif
--	} :text = 0x9090
- 
--	/* End of text section */
--	_etext = .;
-+		/* End of text section */
-+		_etext = .;
-+	} :text = 0x9090
- 
- 	NOTES :text :note
- 
+---
+ fs/cifs/smb2pdu.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+--- a/fs/cifs/smb2pdu.c
++++ b/fs/cifs/smb2pdu.c
+@@ -1013,7 +1013,8 @@ int smb3_validate_negotiate(const unsign
+ 		 * not supported error. Client should accept it.
+ 		 */
+ 		cifs_dbg(VFS, "Server does not support validate negotiate\n");
+-		return 0;
++		rc = 0;
++		goto out_free_inbuf;
+ 	} else if (rc != 0) {
+ 		cifs_dbg(VFS, "validate protocol negotiate failed: %d\n", rc);
+ 		rc = -EIO;
 
 
