@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B0C438F6F
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:41:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A026390F1
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:56:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729878AbfFGPlp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 11:41:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51826 "EHLO mail.kernel.org"
+        id S1731128AbfFGPon (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 11:44:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730344AbfFGPlo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 11:41:44 -0400
+        id S1731126AbfFGPom (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 11:44:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 206C2212F5;
-        Fri,  7 Jun 2019 15:41:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9AE612133D;
+        Fri,  7 Jun 2019 15:44:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559922103;
-        bh=W4xXiCNpUlaK05IXKCxUYEQDrxsvb0sVGBlb/OnFcPs=;
+        s=default; t=1559922282;
+        bh=7+mU74GXrbpCUDKfGhZsLZkVwFWMioX8PzYR9FHW0TE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ITmj3j7oWU8dwVp16Ake9PU4Qa3PqSvkBzsRPav133u5sv2IAJCB+k6c9XEeyrpMt
-         x25jxceC6A876Hot8aAP1acPtUWfs0L16c/OKJyJ6uphpfC31CfzNaaR07AISTjfG/
-         IBUlAUk2MwLvUSEZDQnH/LtlGqIsIou224GYRZ5k=
+        b=wTSXpzeGtIgJv2vXRCuyqa2TxaZPp/xDQcEupac/z11tlcBnST+xdAbRHAoIugAJy
+         vHooiQV1TsrntuLS/nqhWqzKWgjr1+WRi1hCG6Rp3dVNGaNQYvPXMwTHPvWN94FfF8
+         NuWWoM+wGg5cIsCIZNKnxZ/4DFlBsWv0wI5LeivU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 4.14 36/69] media: smsusb: better handle optional alignment
+        Ravi Bangoria <ravi.bangoria@linux.ibm.com>,
+        Madhavan Srinivasan <maddy@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.19 30/73] powerpc/perf: Fix MMCRA corruption by bhrb_filter
 Date:   Fri,  7 Jun 2019 17:39:17 +0200
-Message-Id: <20190607153852.830984643@linuxfoundation.org>
+Message-Id: <20190607153852.422822358@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190607153848.271562617@linuxfoundation.org>
-References: <20190607153848.271562617@linuxfoundation.org>
+In-Reply-To: <20190607153848.669070800@linuxfoundation.org>
+References: <20190607153848.669070800@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,72 +45,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+From: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
 
-commit a47686636d84eaec5c9c6e84bd5f96bed34d526d upstream.
+commit 3202e35ec1c8fc19cea24253ff83edf702a60a02 upstream.
 
-Most Siano devices require an alignment for the response.
+Consider a scenario where user creates two events:
 
-Changeset f3be52b0056a ("media: usb: siano: Fix general protection fault in smsusb")
-changed the logic with gets such aligment, but it now produces a
-sparce warning:
+  1st event:
+    attr.sample_type |= PERF_SAMPLE_BRANCH_STACK;
+    attr.branch_sample_type = PERF_SAMPLE_BRANCH_ANY;
+    fd = perf_event_open(attr, 0, 1, -1, 0);
 
-drivers/media/usb/siano/smsusb.c: In function 'smsusb_init_device':
-drivers/media/usb/siano/smsusb.c:447:37: warning: 'in_maxp' may be used uninitialized in this function [-Wmaybe-uninitialized]
-  447 |   dev->response_alignment = in_maxp - sizeof(struct sms_msg_hdr);
-      |                             ~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  This sets cpuhw->bhrb_filter to 0 and returns valid fd.
 
-The sparse message itself is bogus, but a broken (or fake) USB
-eeprom could produce a negative value for response_alignment.
+  2nd event:
+    attr.sample_type |= PERF_SAMPLE_BRANCH_STACK;
+    attr.branch_sample_type = PERF_SAMPLE_BRANCH_CALL;
+    fd = perf_event_open(attr, 0, 1, -1, 0);
 
-So, change the code in order to check if the result is not
-negative.
+  It overrides cpuhw->bhrb_filter to -1 and returns with error.
 
-Fixes: 31e0456de5be ("media: usb: siano: Fix general protection fault in smsusb")
-CC: <stable@vger.kernel.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Now if power_pmu_enable() gets called by any path other than
+power_pmu_add(), ppmu->config_bhrb(-1) will set MMCRA to -1.
+
+Fixes: 3925f46bb590 ("powerpc/perf: Enable branch stack sampling framework")
+Cc: stable@vger.kernel.org # v3.10+
+Signed-off-by: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
+Reviewed-by: Madhavan Srinivasan <maddy@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/usb/siano/smsusb.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/powerpc/perf/core-book3s.c |    6 ++++--
+ arch/powerpc/perf/power8-pmu.c  |    3 +++
+ arch/powerpc/perf/power9-pmu.c  |    3 +++
+ 3 files changed, 10 insertions(+), 2 deletions(-)
 
---- a/drivers/media/usb/siano/smsusb.c
-+++ b/drivers/media/usb/siano/smsusb.c
-@@ -402,7 +402,7 @@ static int smsusb_init_device(struct usb
- 	struct smsusb_device_t *dev;
- 	void *mdev;
- 	int i, rc;
--	int in_maxp = 0;
-+	int align = 0;
+--- a/arch/powerpc/perf/core-book3s.c
++++ b/arch/powerpc/perf/core-book3s.c
+@@ -1827,6 +1827,7 @@ static int power_pmu_event_init(struct p
+ 	int n;
+ 	int err;
+ 	struct cpu_hw_events *cpuhw;
++	u64 bhrb_filter;
  
- 	/* create device object */
- 	dev = kzalloc(sizeof(struct smsusb_device_t), GFP_KERNEL);
-@@ -420,14 +420,14 @@ static int smsusb_init_device(struct usb
+ 	if (!ppmu)
+ 		return -ENOENT;
+@@ -1932,13 +1933,14 @@ static int power_pmu_event_init(struct p
+ 	err = power_check_constraints(cpuhw, events, cflags, n + 1);
  
- 		if (desc->bEndpointAddress & USB_DIR_IN) {
- 			dev->in_ep = desc->bEndpointAddress;
--			in_maxp = usb_endpoint_maxp(desc);
-+			align = usb_endpoint_maxp(desc) - sizeof(struct sms_msg_hdr);
- 		} else {
- 			dev->out_ep = desc->bEndpointAddress;
+ 	if (has_branch_stack(event)) {
+-		cpuhw->bhrb_filter = ppmu->bhrb_filter_map(
++		bhrb_filter = ppmu->bhrb_filter_map(
+ 					event->attr.branch_sample_type);
+ 
+-		if (cpuhw->bhrb_filter == -1) {
++		if (bhrb_filter == -1) {
+ 			put_cpu_var(cpu_hw_events);
+ 			return -EOPNOTSUPP;
  		}
++		cpuhw->bhrb_filter = bhrb_filter;
  	}
  
- 	pr_debug("in_ep = %02x, out_ep = %02x\n", dev->in_ep, dev->out_ep);
--	if (!dev->in_ep || !dev->out_ep) {	/* Missing endpoints? */
-+	if (!dev->in_ep || !dev->out_ep || align < 0) {  /* Missing endpoints? */
- 		smsusb_term_device(intf);
- 		return -ENODEV;
- 	}
-@@ -446,7 +446,7 @@ static int smsusb_init_device(struct usb
- 		/* fall-thru */
- 	default:
- 		dev->buffer_size = USB2_BUFFER_SIZE;
--		dev->response_alignment = in_maxp - sizeof(struct sms_msg_hdr);
-+		dev->response_alignment = align;
+ 	put_cpu_var(cpu_hw_events);
+--- a/arch/powerpc/perf/power8-pmu.c
++++ b/arch/powerpc/perf/power8-pmu.c
+@@ -29,6 +29,7 @@ enum {
+ #define	POWER8_MMCRA_IFM1		0x0000000040000000UL
+ #define	POWER8_MMCRA_IFM2		0x0000000080000000UL
+ #define	POWER8_MMCRA_IFM3		0x00000000C0000000UL
++#define	POWER8_MMCRA_BHRB_MASK		0x00000000C0000000UL
  
- 		params.flags |= SMS_DEVICE_FAMILY2;
- 		break;
+ /*
+  * Raw event encoding for PowerISA v2.07 (Power8):
+@@ -243,6 +244,8 @@ static u64 power8_bhrb_filter_map(u64 br
+ 
+ static void power8_config_bhrb(u64 pmu_bhrb_filter)
+ {
++	pmu_bhrb_filter &= POWER8_MMCRA_BHRB_MASK;
++
+ 	/* Enable BHRB filter in PMU */
+ 	mtspr(SPRN_MMCRA, (mfspr(SPRN_MMCRA) | pmu_bhrb_filter));
+ }
+--- a/arch/powerpc/perf/power9-pmu.c
++++ b/arch/powerpc/perf/power9-pmu.c
+@@ -100,6 +100,7 @@ enum {
+ #define POWER9_MMCRA_IFM1		0x0000000040000000UL
+ #define POWER9_MMCRA_IFM2		0x0000000080000000UL
+ #define POWER9_MMCRA_IFM3		0x00000000C0000000UL
++#define POWER9_MMCRA_BHRB_MASK		0x00000000C0000000UL
+ 
+ /* Nasty Power9 specific hack */
+ #define PVR_POWER9_CUMULUS		0x00002000
+@@ -308,6 +309,8 @@ static u64 power9_bhrb_filter_map(u64 br
+ 
+ static void power9_config_bhrb(u64 pmu_bhrb_filter)
+ {
++	pmu_bhrb_filter &= POWER9_MMCRA_BHRB_MASK;
++
+ 	/* Enable BHRB filter in PMU */
+ 	mtspr(SPRN_MMCRA, (mfspr(SPRN_MMCRA) | pmu_bhrb_filter));
+ }
 
 
