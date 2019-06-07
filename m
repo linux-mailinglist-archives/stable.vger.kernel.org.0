@@ -2,165 +2,269 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DDBE0381F5
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 01:51:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CAB673822F
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 02:33:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726917AbfFFXva (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 6 Jun 2019 19:51:30 -0400
-Received: from heliosphere.sirena.org.uk ([172.104.155.198]:46508 "EHLO
-        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726609AbfFFXva (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 6 Jun 2019 19:51:30 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=sirena.org.uk; s=20170815-heliosphere; h=Date:Message-Id:Subject:To:From:
-        Sender:Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:References:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=7WA/zDWtu83SwSKbuJmqelAzChMPjRBeh/fIYxmCchM=; b=gIB37IG18ETCEYsTQK6jcKfQn
-        MJUFaR2JUw5wvXeKWItfJtVSYJSrUcsfUFkXsUum8ROCH1hWo76iOz5TgkiNEwPpSmSTgx0fDNXS8
-        fu/JtEiTMakMAtkgjuGKTWB/RFedl1Zo7gzVSHHNlkpq+VyW48zHv9/buH8DgX5v6tLmM=;
-Received: from cpc102320-sgyl38-2-0-cust46.18-2.cable.virginm.net ([82.37.168.47] helo=optimist)
-        by heliosphere.sirena.org.uk with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.89)
-        (envelope-from <broonie@sirena.org.uk>)
-        id 1hZ2AK-0007xQ-AE; Thu, 06 Jun 2019 23:51:28 +0000
-Received: from broonie by optimist with local (Exim 4.89)
-        (envelope-from <broonie@sirena.org.uk>)
-        id 1hZ2AJ-0006KS-Gv; Fri, 07 Jun 2019 00:51:27 +0100
-From:   Build bot for Mark Brown <broonie@kernel.org>
-To:     kernel-build-reports@lists.linaro.org,
-        linaro-kernel@lists.linaro.org, stable@vger.kernel.org
-Subject: v5.1.7 build: 5 failures 10 warnings (v5.1.7)
-Message-Id: <E1hZ2AJ-0006KS-Gv@optimist>
-Date:   Fri, 07 Jun 2019 00:51:27 +0100
+        id S1726757AbfFGAdo convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Thu, 6 Jun 2019 20:33:44 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:57870 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725784AbfFGAdo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 6 Jun 2019 20:33:44 -0400
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 6F6396749D
+        for <stable@vger.kernel.org>; Fri,  7 Jun 2019 00:33:43 +0000 (UTC)
+Received: from [172.54.141.148] (cpt-large-cpu-05.paas.prod.upshift.rdu2.redhat.com [10.0.18.78])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 482475C2FF;
+        Fri,  7 Jun 2019 00:33:40 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+MIME-Version: 1.0
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-4.19
+Message-ID: <cki.C1770C8276.J0S143WT85@redhat.com>
+X-Gitlab-Pipeline-ID: 11701
+X-Gitlab-Pipeline: =?utf-8?q?https=3A//xci32=2Elab=2Eeng=2Erdu2=2Eredhat=2Ec?=
+ =?utf-8?q?om/cki-project/cki-pipeline/pipelines/11701?=
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.30]); Fri, 07 Jun 2019 00:33:43 +0000 (UTC)
+Date:   Thu, 6 Jun 2019 20:33:44 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Tree/Branch: v5.1.7
-Git describe: v5.1.7
-Commit: 2f7d9d4757 Linux 5.1.7
+Hello,
 
-Build Time: 262 min 15 sec
+We ran automated tests on a patchset that was proposed for merging into this
+kernel tree. The patches were applied to:
 
-Passed:    6 / 11   ( 54.55 %)
-Failed:    5 / 11   ( 45.45 %)
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+            Commit: e109a984cf38 - Linux 4.19.48
 
-Errors: 0
-Warnings: 10
-Section Mismatches: 0
+The results of these automated tests are provided below.
 
-Failed defconfigs:
-	arm-multi_v5_defconfig
-	arm-multi_v7_defconfig
-	arm-allmodconfig
-	arm-multi_v4t_defconfig
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
 
-Errors:
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
 
--------------------------------------------------------------------------------
-defconfigs with issues (other than build errors):
-      1 warnings    0 mismatches  : arm64-allmodconfig
-      5 warnings    0 mismatches  : arm-multi_v5_defconfig
-      5 warnings    0 mismatches  : arm-multi_v7_defconfig
-      9 warnings    0 mismatches  : arm-allmodconfig
-      5 warnings    0 mismatches  : arm-multi_v4t_defconfig
-      3 warnings    0 mismatches  : x86_64-allmodconfig
-      1 warnings    0 mismatches  : arm64-defconfig
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
 
--------------------------------------------------------------------------------
+Merge testing
+-------------
 
-Warnings Summary: 10
-	  8 ../drivers/regulator/core.c:234:45: warning: array subscript is above array bounds [-Warray-bounds]
-	  5 ../include/linux/spinlock.h:279:3: warning: 'flags' may be used uninitialized in this function [-Wmaybe-uninitialized]
-	  4 ../drivers/regulator/core.c:4761:38: warning: array subscript is above array bounds [-Warray-bounds]
-	  3 ../arch/arm/mm/init.c:471:13: warning: unused variable 'itcm_end' [-Wunused-variable]
-	  3 ../arch/arm/mm/init.c:470:13: warning: unused variable 'dtcm_end' [-Wunused-variable]
-	  2 ../drivers/i2c/busses/i2c-sh_mobile.c:399:26: warning: 'data' may be used uninitialized in this function [-Wmaybe-uninitialized]
-	  1 ../samples/seccomp/user-trap.c:83:2: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
-	  1 ../samples/seccomp/user-trap.c:50:2: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
-	  1 ../drivers/staging/erofs/unzip_vle.c:263:29: warning: array subscript is above array bounds [-Warray-bounds]
-	  1 ../drivers/scsi/myrs.c:821:24: warning: 'sshdr.sense_key' may be used uninitialized in this function [-Wmaybe-uninitialized]
+We cloned this repository and checked out the following commit:
+
+  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: e109a984cf38 - Linux 4.19.48
 
 
+We then merged the patchset with `git am`:
 
-===============================================================================
-Detailed per-defconfig build reports below:
+  sparc64-fix-regression-in-non-hypervisor-tlb-flush-xcall.patch
+  include-linux-bitops.h-sanitize-rotate-primitives.patch
+  xhci-update-bounce-buffer-with-correct-sg-num.patch
+  xhci-use-zu-for-printing-size_t-type.patch
+  xhci-convert-xhci_handshake-to-use-readl_poll_timeout_atomic.patch
+  usb-xhci-avoid-null-pointer-deref-when-bos-field-is-null.patch
+  usbip-usbip_host-fix-bug-sleeping-function-called-from-invalid-context.patch
+  usbip-usbip_host-fix-stub_dev-lock-context-imbalance-regression.patch
+  usb-fix-slab-out-of-bounds-write-in-usb_get_bos_descriptor.patch
+  usb-sisusbvga-fix-oops-in-error-path-of-sisusb_probe.patch
+  usb-add-lpm-quirk-for-surface-dock-gige-adapter.patch
+  usb-rio500-refuse-more-than-one-device-at-a-time.patch
+  usb-rio500-fix-memory-leak-in-close-after-disconnect.patch
+  media-usb-siano-fix-general-protection-fault-in-smsusb.patch
+  media-usb-siano-fix-false-positive-uninitialized-variable-warning.patch
+  media-smsusb-better-handle-optional-alignment.patch
+  brcmfmac-fix-null-pointer-derefence-during-usb-disconnect.patch
+  scsi-zfcp-fix-missing-zfcp_port-reference-put-on-ebusy-from-port_remove.patch
+  scsi-zfcp-fix-to-prevent-port_remove-with-pure-auto-scan-luns-only-sdevs.patch
+  tracing-avoid-memory-leak-in-predicate_parse.patch
+  btrfs-fix-wrong-ctime-and-mtime-of-a-directory-after-log-replay.patch
+  btrfs-fix-race-updating-log-root-item-during-fsync.patch
+  btrfs-fix-fsync-not-persisting-changed-attributes-of-a-directory.patch
+  btrfs-incremental-send-fix-file-corruption-when-no-holes-feature-is-enabled.patch
+  iio-dac-ds4422-ds4424-fix-chip-verification.patch
+  iio-adc-ti-ads8688-fix-timestamp-is-not-updated-in-buffer.patch
+  s390-crypto-fix-gcm-aes-s390-selftest-failures.patch
+  s390-crypto-fix-possible-sleep-during-spinlock-aquired.patch
+  kvm-ppc-book3s-hv-xive-do-not-clear-irq-data-of-passthrough-interrupts.patch
+  powerpc-perf-fix-mmcra-corruption-by-bhrb_filter.patch
+  alsa-line6-assure-canceling-delayed-work-at-disconnection.patch
+  alsa-hda-realtek-set-default-power-save-node-to-0.patch
+  alsa-hda-realtek-improve-the-headset-mic-for-acer-aspire-laptops.patch
+  kvm-s390-do-not-report-unusabled-ids-via-kvm_cap_max_vcpu_id.patch
+  drm-nouveau-i2c-disable-i2c-bus-access-after-fini.patch
+  i2c-mlxcpld-fix-wrong-initialization-order-in-probe.patch
+  i2c-synquacer-fix-synquacer_i2c_doxfer-return-value.patch
+  tty-serial-msm_serial-fix-xon-xoff.patch
+  tty-max310x-fix-external-crystal-register-setup.patch
+  memcg-make-it-work-on-sparse-non-0-node-systems.patch
+  kernel-signal.c-trace_signal_deliver-when-signal_group_exit.patch
+  arm64-fix-the-arm64_personality-syscall-wrapper-redirection.patch
+  docs-fix-conf.py-for-sphinx-2.0.patch
+  doc-cope-with-the-deprecation-of-autoreporter.patch
+  doc-cope-with-sphinx-logging-deprecations.patch
+  ima-show-rules-with-ima_inmask-correctly.patch
+  evm-check-hash-algorithm-passed-to-init_desc.patch
+  vt-fbcon-deinitialize-resources-in-visual_init-after-failed-memory-allocation.patch
+  serial-sh-sci-disable-dma-for-uart_console.patch
+  staging-vc04_services-prevent-integer-overflow-in-create_pagelist.patch
+  staging-wlan-ng-fix-adapter-initialization-failure.patch
+  cifs-fix-memory-leak-of-pneg_inbuf-on-eopnotsupp-ioctl-case.patch
+  cifs-cifs_read_allocate_pages-don-t-iterate-through-whole-page-array-on-enomem.patch
+  revert-lockd-show-pid-of-lockd-for-remote-locks.patch
+  gcc-plugins-fix-build-failures-under-darwin-host.patch
+  drm-tegra-gem-fix-cpu-cache-maintenance-for-bo-s-allocated-using-get_pages.patch
+  drm-vmwgfx-don-t-send-drm-sysfs-hotplug-events-on-initial-master-set.patch
+  drm-sun4i-fix-sun8i-hdmi-phy-clock-initialization.patch
+  drm-sun4i-fix-sun8i-hdmi-phy-configuration-for-148.5-mhz.patch
+  drm-rockchip-shutdown-drm-subsystem-on-shutdown.patch
+  drm-lease-make-sure-implicit-planes-are-leased.patch
+  compiler-attributes-add-support-for-__copy-gcc-9.patch
+  include-linux-module.h-copy-__init-__exit-attrs-to-init-cleanup_module.patch
+  revert-x86-build-move-_etext-to-actual-end-of-.text.patch
+  revert-binder-fix-handling-of-misaligned-binder-object.patch
+  binder-fix-race-between-munmap-and-direct-reclaim.patch
+  x86-ftrace-do-not-call-function-graph-from-dynamic-t.patch
+  x86-ftrace-set-trampoline-pages-as-executable.patch
+  x86-kprobes-set-instruction-page-as-executable.patch
+  scsi-lpfc-fix-backport-of-faf5a744f4f8-scsi-lpfc-avoid-uninitialized-variable-warning.patch
+  of-overlay-validate-overlay-properties-address-cells-and-size-cells.patch
+  of-overlay-set-node-fields-from-properties-when-add-new-overlay-node.patch
+
+Compile testing
+---------------
+
+We compiled the kernel for 4 architectures:
+
+  aarch64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-3b11312734a42d29c2ea07169c819946a69dbe7b.config
+    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-3b11312734a42d29c2ea07169c819946a69dbe7b.tar.gz
+
+  ppc64le:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-3b11312734a42d29c2ea07169c819946a69dbe7b.config
+    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-3b11312734a42d29c2ea07169c819946a69dbe7b.tar.gz
+
+  s390x:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-3b11312734a42d29c2ea07169c819946a69dbe7b.config
+    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-3b11312734a42d29c2ea07169c819946a69dbe7b.tar.gz
+
+  x86_64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-3b11312734a42d29c2ea07169c819946a69dbe7b.config
+    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-3b11312734a42d29c2ea07169c819946a69dbe7b.tar.gz
 
 
--------------------------------------------------------------------------------
-arm64-allmodconfig : PASS, 0 errors, 1 warnings, 0 section mismatches
+Hardware testing
+----------------
 
-Warnings:
-	../include/linux/spinlock.h:279:3: warning: 'flags' may be used uninitialized in this function [-Wmaybe-uninitialized]
+We booted each kernel and ran the following tests:
 
--------------------------------------------------------------------------------
-arm-multi_v5_defconfig : FAIL, 0 errors, 5 warnings, 0 section mismatches
+  aarch64:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ Loopdev Sanity [2]
+       ✅ AMTU (Abstract Machine Test Utility) [3]
+       ✅ audit: audit testsuite test [4]
+       ✅ httpd: mod_ssl smoke sanity [5]
+       ✅ iotop: sanity [6]
+       ✅ tuned: tune-processes-through-perf [7]
+       ✅ Usex - version 1.9-29 [8]
+       ✅ storage: SCSI VPD [9]
+       🚧 ✅ stress: stress-ng [10]
 
-Warnings:
-	../arch/arm/mm/init.c:471:13: warning: unused variable 'itcm_end' [-Wunused-variable]
-	../arch/arm/mm/init.c:470:13: warning: unused variable 'dtcm_end' [-Wunused-variable]
-	../drivers/regulator/core.c:234:45: warning: array subscript is above array bounds [-Warray-bounds]
-	../drivers/regulator/core.c:234:45: warning: array subscript is above array bounds [-Warray-bounds]
-	../drivers/regulator/core.c:4761:38: warning: array subscript is above array bounds [-Warray-bounds]
+    Host 2:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [11]
 
--------------------------------------------------------------------------------
-arm-multi_v7_defconfig : FAIL, 0 errors, 5 warnings, 0 section mismatches
 
-Warnings:
-	../drivers/i2c/busses/i2c-sh_mobile.c:399:26: warning: 'data' may be used uninitialized in this function [-Wmaybe-uninitialized]
-	../drivers/regulator/core.c:234:45: warning: array subscript is above array bounds [-Warray-bounds]
-	../drivers/regulator/core.c:234:45: warning: array subscript is above array bounds [-Warray-bounds]
-	../drivers/regulator/core.c:4761:38: warning: array subscript is above array bounds [-Warray-bounds]
-	../include/linux/spinlock.h:279:3: warning: 'flags' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  ppc64le:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ Loopdev Sanity [2]
+       ✅ AMTU (Abstract Machine Test Utility) [3]
+       ✅ audit: audit testsuite test [4]
+       ✅ httpd: mod_ssl smoke sanity [5]
+       ✅ iotop: sanity [6]
+       ✅ tuned: tune-processes-through-perf [7]
+       ✅ Usex - version 1.9-29 [8]
 
--------------------------------------------------------------------------------
-arm-allmodconfig : FAIL, 0 errors, 9 warnings, 0 section mismatches
+    Host 2:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [11]
 
-Warnings:
-	../arch/arm/mm/init.c:471:13: warning: unused variable 'itcm_end' [-Wunused-variable]
-	../arch/arm/mm/init.c:470:13: warning: unused variable 'dtcm_end' [-Wunused-variable]
-	../drivers/i2c/busses/i2c-sh_mobile.c:399:26: warning: 'data' may be used uninitialized in this function [-Wmaybe-uninitialized]
-	../drivers/regulator/core.c:234:45: warning: array subscript is above array bounds [-Warray-bounds]
-	../drivers/regulator/core.c:234:45: warning: array subscript is above array bounds [-Warray-bounds]
-	../drivers/regulator/core.c:4761:38: warning: array subscript is above array bounds [-Warray-bounds]
-	../drivers/staging/erofs/unzip_vle.c:263:29: warning: array subscript is above array bounds [-Warray-bounds]
-	../include/linux/spinlock.h:279:3: warning: 'flags' may be used uninitialized in this function [-Wmaybe-uninitialized]
-	../drivers/scsi/myrs.c:821:24: warning: 'sshdr.sense_key' may be used uninitialized in this function [-Wmaybe-uninitialized]
 
--------------------------------------------------------------------------------
-arm-multi_v4t_defconfig : FAIL, 0 errors, 5 warnings, 0 section mismatches
+  s390x:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [11]
 
-Warnings:
-	../arch/arm/mm/init.c:471:13: warning: unused variable 'itcm_end' [-Wunused-variable]
-	../arch/arm/mm/init.c:470:13: warning: unused variable 'dtcm_end' [-Wunused-variable]
-	../drivers/regulator/core.c:234:45: warning: array subscript is above array bounds [-Warray-bounds]
-	../drivers/regulator/core.c:234:45: warning: array subscript is above array bounds [-Warray-bounds]
-	../drivers/regulator/core.c:4761:38: warning: array subscript is above array bounds [-Warray-bounds]
+    Host 2:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ Loopdev Sanity [2]
+       ✅ audit: audit testsuite test [4]
+       ✅ httpd: mod_ssl smoke sanity [5]
+       ✅ iotop: sanity [6]
+       ✅ tuned: tune-processes-through-perf [7]
+       🚧 ✅ stress: stress-ng [10]
 
--------------------------------------------------------------------------------
-x86_64-allmodconfig : PASS, 0 errors, 3 warnings, 0 section mismatches
 
-Warnings:
-	../samples/seccomp/user-trap.c:50:2: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
-	../samples/seccomp/user-trap.c:83:2: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
-	../include/linux/spinlock.h:279:3: warning: 'flags' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  x86_64:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ Loopdev Sanity [2]
+       ✅ AMTU (Abstract Machine Test Utility) [3]
+       ✅ audit: audit testsuite test [4]
+       ✅ httpd: mod_ssl smoke sanity [5]
+       ✅ iotop: sanity [6]
+       ✅ tuned: tune-processes-through-perf [7]
+       ✅ Usex - version 1.9-29 [8]
+       ✅ storage: SCSI VPD [9]
+       🚧 ✅ stress: stress-ng [10]
 
--------------------------------------------------------------------------------
-arm64-defconfig : PASS, 0 errors, 1 warnings, 0 section mismatches
+    Host 2:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [11]
 
-Warnings:
-	../include/linux/spinlock.h:279:3: warning: 'flags' may be used uninitialized in this function [-Wmaybe-uninitialized]
--------------------------------------------------------------------------------
 
-Passed with no errors, warnings or mismatches:
+  Test source:
+    💚 Pull requests are welcome for new tests or improvements to existing tests!
+    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
+    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
+    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
+    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
+    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
+    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
+    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
+    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
+    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
+    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/scsi/vpd
+    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#stress/stress-ng
+    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
 
-x86_64-allnoconfig
-arm64-allnoconfig
-arm-allnoconfig
-x86_64-defconfig
-close failed in file object destructor:
-sys.excepthook is missing
-lost sys.stderr
+Waived tests (marked with 🚧)
+-----------------------------
+This test run included waived tests. Such tests are executed but their results
+are not taken into account. Tests are waived when their results are not
+reliable enough, e.g. when they're just introduced or are being fixed.
