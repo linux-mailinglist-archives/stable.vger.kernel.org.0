@@ -2,42 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EA640390BD
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:54:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8113B38FFC
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:47:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731523AbfFGPrF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 11:47:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59752 "EHLO mail.kernel.org"
+        id S1730971AbfFGPrh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 11:47:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731517AbfFGPrF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 11:47:05 -0400
+        id S1731614AbfFGPrg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 11:47:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2EB1521479;
-        Fri,  7 Jun 2019 15:47:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6031420840;
+        Fri,  7 Jun 2019 15:47:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559922424;
-        bh=LPrwfWoEtjOZcQQ3V6qTsG9X0ClXaj1tQXm/lMn4NSk=;
+        s=default; t=1559922455;
+        bh=Pi5yHasHMgeu2QvWr7VaMKhy6jin9E6VyDbRwY+jviU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D/KJxyDOWP/IQevPSczKziHjvoHA1kpcHSe1HBHMzd15pSt4hznig/N8yj7lcdjM0
-         iBjBx9NRNwoHiUm3rREQKsBleTPdYspHxH2Gg/+PmvQePIK4JEkw4QLeLnt4rtA6oo
-         JNQhy94BeWUnFQlWky2vb96YmVTqPDr8G8EsNLOk=
+        b=IQLylgvjMBMbIjaQtaRNUMQWQIAcT48SKDk0Ritw6XHZGL2Cf0eu+Ersfuy7LgwbX
+         ky7G822PQYWlW1uV1j+dRwyDTlOsBhvPEG0i9v+9Fd4TAa54a0fOAjet8wicr9/GiD
+         nVzPrKDXVcF7CJTmp4h5Mo9RRq/LkqQ0Kw4QdHJY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Meelis Roos <mroos@linux.ee>,
-        James Clarke <jrtc27@jrtc27.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.1 01/85] sparc64: Fix regression in non-hypervisor TLB flush xcall
-Date:   Fri,  7 Jun 2019 17:38:46 +0200
-Message-Id: <20190607153849.282077170@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Ido Schimmel <idosch@mellanox.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Vadim Pasternak <vadimp@mellanox.com>,
+        Andrey Ryabinin <aryabinin@virtuozzo.com>,
+        Jacek Anaszewski <jacek.anaszewski@gmail.com>,
+        Pavel Machek <pavel@ucw.cz>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.1 02/85] include/linux/bitops.h: sanitize rotate primitives
+Date:   Fri,  7 Jun 2019 17:38:47 +0200
+Message-Id: <20190607153849.392582074@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190607153849.101321647@linuxfoundation.org>
 References: <20190607153849.101321647@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,47 +51,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Clarke <jrtc27@jrtc27.com>
+From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 
-commit d3c976c14ad8af421134c428b0a89ff8dd3bd8f8 upstream.
+commit ef4d6f6b275c498f8e5626c99dbeefdc5027f843 upstream.
 
-Previously, %g2 would end up with the value PAGE_SIZE, but after the
-commit mentioned below it ends up with the value 1 due to being reused
-for a different purpose. We need it to be PAGE_SIZE as we use it to step
-through pages in our demap loop, otherwise we set different flags in the
-low 12 bits of the address written to, thereby doing things other than a
-nucleus page flush.
+The ror32 implementation (word >> shift) | (word << (32 - shift) has
+undefined behaviour if shift is outside the [1, 31] range.  Similarly
+for the 64 bit variants.  Most callers pass a compile-time constant
+(naturally in that range), but there's an UBSAN report that these may
+actually be called with a shift count of 0.
 
-Fixes: a74ad5e660a9 ("sparc64: Handle extremely large kernel TLB range flushes more gracefully.")
-Reported-by: Meelis Roos <mroos@linux.ee>
-Tested-by: Meelis Roos <mroos@linux.ee>
-Signed-off-by: James Clarke <jrtc27@jrtc27.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Instead of special-casing that, we can make them DTRT for all values of
+shift while also avoiding UB.  For some reason, this was already partly
+done for rol32 (which was well-defined for [0, 31]).  gcc 8 recognizes
+these patterns as rotates, so for example
+
+  __u32 rol32(__u32 word, unsigned int shift)
+  {
+	return (word << (shift & 31)) | (word >> ((-shift) & 31));
+  }
+
+compiles to
+
+0000000000000020 <rol32>:
+  20:   89 f8                   mov    %edi,%eax
+  22:   89 f1                   mov    %esi,%ecx
+  24:   d3 c0                   rol    %cl,%eax
+  26:   c3                      retq
+
+Older compilers unfortunately do not do as well, but this only affects
+the small minority of users that don't pass constants.
+
+Due to integer promotions, ro[lr]8 were already well-defined for shifts
+in [0, 8], and ro[lr]16 were mostly well-defined for shifts in [0, 16]
+(only mostly - u16 gets promoted to _signed_ int, so if bit 15 is set,
+word << 16 is undefined).  For consistency, update those as well.
+
+Link: http://lkml.kernel.org/r/20190410211906.2190-1-linux@rasmusvillemoes.dk
+Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Reported-by: Ido Schimmel <idosch@mellanox.com>
+Tested-by: Ido Schimmel <idosch@mellanox.com>
+Reviewed-by: Will Deacon <will.deacon@arm.com>
+Cc: Vadim Pasternak <vadimp@mellanox.com>
+Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Cc: Jacek Anaszewski <jacek.anaszewski@gmail.com>
+Cc: Pavel Machek <pavel@ucw.cz>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/sparc/mm/ultra.S |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ include/linux/bitops.h |   16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
---- a/arch/sparc/mm/ultra.S
-+++ b/arch/sparc/mm/ultra.S
-@@ -587,7 +587,7 @@ xcall_flush_tlb_kernel_range:	/* 44 insn
- 	sub		%g7, %g1, %g3
- 	srlx		%g3, 18, %g2
- 	brnz,pn		%g2, 2f
--	 add		%g2, 1, %g2
-+	 sethi		%hi(PAGE_SIZE), %g2
- 	sub		%g3, %g2, %g3
- 	or		%g1, 0x20, %g1		! Nucleus
- 1:	stxa		%g0, [%g1 + %g3] ASI_DMMU_DEMAP
-@@ -751,7 +751,7 @@ __cheetah_xcall_flush_tlb_kernel_range:
- 	sub		%g7, %g1, %g3
- 	srlx		%g3, 18, %g2
- 	brnz,pn		%g2, 2f
--	 add		%g2, 1, %g2
-+	 sethi		%hi(PAGE_SIZE), %g2
- 	sub		%g3, %g2, %g3
- 	or		%g1, 0x20, %g1		! Nucleus
- 1:	stxa		%g0, [%g1 + %g3] ASI_DMMU_DEMAP
+--- a/include/linux/bitops.h
++++ b/include/linux/bitops.h
+@@ -60,7 +60,7 @@ static __always_inline unsigned long hwe
+  */
+ static inline __u64 rol64(__u64 word, unsigned int shift)
+ {
+-	return (word << shift) | (word >> (64 - shift));
++	return (word << (shift & 63)) | (word >> ((-shift) & 63));
+ }
+ 
+ /**
+@@ -70,7 +70,7 @@ static inline __u64 rol64(__u64 word, un
+  */
+ static inline __u64 ror64(__u64 word, unsigned int shift)
+ {
+-	return (word >> shift) | (word << (64 - shift));
++	return (word >> (shift & 63)) | (word << ((-shift) & 63));
+ }
+ 
+ /**
+@@ -80,7 +80,7 @@ static inline __u64 ror64(__u64 word, un
+  */
+ static inline __u32 rol32(__u32 word, unsigned int shift)
+ {
+-	return (word << shift) | (word >> ((-shift) & 31));
++	return (word << (shift & 31)) | (word >> ((-shift) & 31));
+ }
+ 
+ /**
+@@ -90,7 +90,7 @@ static inline __u32 rol32(__u32 word, un
+  */
+ static inline __u32 ror32(__u32 word, unsigned int shift)
+ {
+-	return (word >> shift) | (word << (32 - shift));
++	return (word >> (shift & 31)) | (word << ((-shift) & 31));
+ }
+ 
+ /**
+@@ -100,7 +100,7 @@ static inline __u32 ror32(__u32 word, un
+  */
+ static inline __u16 rol16(__u16 word, unsigned int shift)
+ {
+-	return (word << shift) | (word >> (16 - shift));
++	return (word << (shift & 15)) | (word >> ((-shift) & 15));
+ }
+ 
+ /**
+@@ -110,7 +110,7 @@ static inline __u16 rol16(__u16 word, un
+  */
+ static inline __u16 ror16(__u16 word, unsigned int shift)
+ {
+-	return (word >> shift) | (word << (16 - shift));
++	return (word >> (shift & 15)) | (word << ((-shift) & 15));
+ }
+ 
+ /**
+@@ -120,7 +120,7 @@ static inline __u16 ror16(__u16 word, un
+  */
+ static inline __u8 rol8(__u8 word, unsigned int shift)
+ {
+-	return (word << shift) | (word >> (8 - shift));
++	return (word << (shift & 7)) | (word >> ((-shift) & 7));
+ }
+ 
+ /**
+@@ -130,7 +130,7 @@ static inline __u8 rol8(__u8 word, unsig
+  */
+ static inline __u8 ror8(__u8 word, unsigned int shift)
+ {
+-	return (word >> shift) | (word << (8 - shift));
++	return (word >> (shift & 7)) | (word << ((-shift) & 7));
+ }
+ 
+ /**
 
 
