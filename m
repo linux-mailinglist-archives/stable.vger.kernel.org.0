@@ -2,39 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EF6CE38FFF
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:47:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B07E38FAD
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:44:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731671AbfFGPrx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 11:47:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32786 "EHLO mail.kernel.org"
+        id S1730991AbfFGPoK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 11:44:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731673AbfFGPrx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 11:47:53 -0400
+        id S1730986AbfFGPoJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 11:44:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1163720840;
-        Fri,  7 Jun 2019 15:47:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D762D2133D;
+        Fri,  7 Jun 2019 15:44:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559922472;
-        bh=wViOljgZtm+H26Raybi8SLAy6i/pBM+z1XUyk8HomXA=;
+        s=default; t=1559922248;
+        bh=K297D0p4T/W6MxFo5zeCKRUJ8tjjJc5kbFmbLBKZkhE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n/AuWjGqG1nFsqai9/ITPhTdZUDEaj1E7EdLzXiyY885RkC0+iJk2vkvu4RWEcn2v
-         nqx680SJBxyIi4pbiGcPspMDsEZ1vVE1FgR3hBezyyblLGGwnNISZU6nxlnu0R/gTR
-         sppA24pBPCQVf6SqtG9n/wZ2TPzZKIYbi/Sg5QnQ=
+        b=mwOUiNhWrOvXRduaYo4Wm/NDAxQn8jrbBfyGfBIqKDZJY9hmqQ2hp/jcy7dUOSwWb
+         x0RIbok9faMq6iC4Pcm7xjzEBiS3MVDgjXl5U/AyaLsVy8/52ujbmOdfWaMDQEqbvj
+         ypp24VcoA5UmQdji2oXy8euUANIlZ0Uwd8okzBYk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.1 04/85] xhci: Use %zu for printing size_t type
+        stable@vger.kernel.org,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Ido Schimmel <idosch@mellanox.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Vadim Pasternak <vadimp@mellanox.com>,
+        Andrey Ryabinin <aryabinin@virtuozzo.com>,
+        Jacek Anaszewski <jacek.anaszewski@gmail.com>,
+        Pavel Machek <pavel@ucw.cz>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Matthias Kaehlcke <mka@chromium.org>
+Subject: [PATCH 4.19 02/73] include/linux/bitops.h: sanitize rotate primitives
 Date:   Fri,  7 Jun 2019 17:38:49 +0200
-Message-Id: <20190607153849.627035785@linuxfoundation.org>
+Message-Id: <20190607153848.955759584@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190607153849.101321647@linuxfoundation.org>
-References: <20190607153849.101321647@linuxfoundation.org>
+In-Reply-To: <20190607153848.669070800@linuxfoundation.org>
+References: <20190607153848.669070800@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,47 +52,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@gmail.com>
+From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 
-commit c1a145a3ed9a40f3b6145feb97789e8eb49c5566 upstream.
+commit ef4d6f6b275c498f8e5626c99dbeefdc5027f843 upstream.
 
-Commit 597c56e372da ("xhci: update bounce buffer with correct sg num")
-caused the following build warnings:
+The ror32 implementation (word >> shift) | (word << (32 - shift) has
+undefined behaviour if shift is outside the [1, 31] range.  Similarly
+for the 64 bit variants.  Most callers pass a compile-time constant
+(naturally in that range), but there's an UBSAN report that these may
+actually be called with a shift count of 0.
 
-drivers/usb/host/xhci-ring.c:676:19: warning: format '%ld' expects argument of type 'long int', but argument 3 has type 'size_t {aka unsigned int}' [-Wformat=]
+Instead of special-casing that, we can make them DTRT for all values of
+shift while also avoiding UB.  For some reason, this was already partly
+done for rol32 (which was well-defined for [0, 31]).  gcc 8 recognizes
+these patterns as rotates, so for example
 
-Use %zu for printing size_t type in order to fix the warnings.
+  __u32 rol32(__u32 word, unsigned int shift)
+  {
+	return (word << (shift & 31)) | (word >> ((-shift) & 31));
+  }
 
-Fixes: 597c56e372da ("xhci: update bounce buffer with correct sg num")
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Fabio Estevam <festevam@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+compiles to
+
+0000000000000020 <rol32>:
+  20:   89 f8                   mov    %edi,%eax
+  22:   89 f1                   mov    %esi,%ecx
+  24:   d3 c0                   rol    %cl,%eax
+  26:   c3                      retq
+
+Older compilers unfortunately do not do as well, but this only affects
+the small minority of users that don't pass constants.
+
+Due to integer promotions, ro[lr]8 were already well-defined for shifts
+in [0, 8], and ro[lr]16 were mostly well-defined for shifts in [0, 16]
+(only mostly - u16 gets promoted to _signed_ int, so if bit 15 is set,
+word << 16 is undefined).  For consistency, update those as well.
+
+Link: http://lkml.kernel.org/r/20190410211906.2190-1-linux@rasmusvillemoes.dk
+Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Reported-by: Ido Schimmel <idosch@mellanox.com>
+Tested-by: Ido Schimmel <idosch@mellanox.com>
+Reviewed-by: Will Deacon <will.deacon@arm.com>
+Cc: Vadim Pasternak <vadimp@mellanox.com>
+Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Cc: Jacek Anaszewski <jacek.anaszewski@gmail.com>
+Cc: Pavel Machek <pavel@ucw.cz>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/host/xhci-ring.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ include/linux/bitops.h |   16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
---- a/drivers/usb/host/xhci-ring.c
-+++ b/drivers/usb/host/xhci-ring.c
-@@ -673,7 +673,7 @@ static void xhci_unmap_td_bounce_buffer(
- 	len = sg_pcopy_from_buffer(urb->sg, urb->num_sgs, seg->bounce_buf,
- 			     seg->bounce_len, seg->bounce_offs);
- 	if (len != seg->bounce_len)
--		xhci_warn(xhci, "WARN Wrong bounce buffer read length: %ld != %d\n",
-+		xhci_warn(xhci, "WARN Wrong bounce buffer read length: %zu != %d\n",
- 				len, seg->bounce_len);
- 	seg->bounce_len = 0;
- 	seg->bounce_offs = 0;
-@@ -3162,7 +3162,7 @@ static int xhci_align_td(struct xhci_hcd
- 				   seg->bounce_buf, new_buff_len, enqd_len);
- 		if (len != seg->bounce_len)
- 			xhci_warn(xhci,
--				"WARN Wrong bounce buffer write length: %ld != %d\n",
-+				"WARN Wrong bounce buffer write length: %zu != %d\n",
- 				len, seg->bounce_len);
- 		seg->bounce_dma = dma_map_single(dev, seg->bounce_buf,
- 						 max_pkt, DMA_TO_DEVICE);
+--- a/include/linux/bitops.h
++++ b/include/linux/bitops.h
+@@ -60,7 +60,7 @@ static __always_inline unsigned long hwe
+  */
+ static inline __u64 rol64(__u64 word, unsigned int shift)
+ {
+-	return (word << shift) | (word >> (64 - shift));
++	return (word << (shift & 63)) | (word >> ((-shift) & 63));
+ }
+ 
+ /**
+@@ -70,7 +70,7 @@ static inline __u64 rol64(__u64 word, un
+  */
+ static inline __u64 ror64(__u64 word, unsigned int shift)
+ {
+-	return (word >> shift) | (word << (64 - shift));
++	return (word >> (shift & 63)) | (word << ((-shift) & 63));
+ }
+ 
+ /**
+@@ -80,7 +80,7 @@ static inline __u64 ror64(__u64 word, un
+  */
+ static inline __u32 rol32(__u32 word, unsigned int shift)
+ {
+-	return (word << shift) | (word >> ((-shift) & 31));
++	return (word << (shift & 31)) | (word >> ((-shift) & 31));
+ }
+ 
+ /**
+@@ -90,7 +90,7 @@ static inline __u32 rol32(__u32 word, un
+  */
+ static inline __u32 ror32(__u32 word, unsigned int shift)
+ {
+-	return (word >> shift) | (word << (32 - shift));
++	return (word >> (shift & 31)) | (word << ((-shift) & 31));
+ }
+ 
+ /**
+@@ -100,7 +100,7 @@ static inline __u32 ror32(__u32 word, un
+  */
+ static inline __u16 rol16(__u16 word, unsigned int shift)
+ {
+-	return (word << shift) | (word >> (16 - shift));
++	return (word << (shift & 15)) | (word >> ((-shift) & 15));
+ }
+ 
+ /**
+@@ -110,7 +110,7 @@ static inline __u16 rol16(__u16 word, un
+  */
+ static inline __u16 ror16(__u16 word, unsigned int shift)
+ {
+-	return (word >> shift) | (word << (16 - shift));
++	return (word >> (shift & 15)) | (word << ((-shift) & 15));
+ }
+ 
+ /**
+@@ -120,7 +120,7 @@ static inline __u16 ror16(__u16 word, un
+  */
+ static inline __u8 rol8(__u8 word, unsigned int shift)
+ {
+-	return (word << shift) | (word >> (8 - shift));
++	return (word << (shift & 7)) | (word >> ((-shift) & 7));
+ }
+ 
+ /**
+@@ -130,7 +130,7 @@ static inline __u8 rol8(__u8 word, unsig
+  */
+ static inline __u8 ror8(__u8 word, unsigned int shift)
+ {
+-	return (word >> shift) | (word << (8 - shift));
++	return (word >> (shift & 7)) | (word << ((-shift) & 7));
+ }
+ 
+ /**
 
 
