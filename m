@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A223F39123
+	by mail.lfdr.de (Postfix) with ESMTP id 36CD039122
 	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:57:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728618AbfFGPnp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 11:43:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54992 "EHLO mail.kernel.org"
+        id S1730932AbfFGPnr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 11:43:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730064AbfFGPno (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 11:43:44 -0400
+        id S1730926AbfFGPnq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 11:43:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5595A212F5;
-        Fri,  7 Jun 2019 15:43:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EF0052146E;
+        Fri,  7 Jun 2019 15:43:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559922223;
-        bh=9Cr2eEImjg0qZSqiW4nAV3TcuXNzBTcC42JIUg/G0Ts=;
+        s=default; t=1559922226;
+        bh=s+XULX9M2ULkq4flk6w+HdW3arulMDehw9kDqnwWEy4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hqxi9+TqOBTwr+MPVeJlIn/oOhZy3FaUD83dDPnOlJelQ3xPOefzvnei1IgIS9WdI
-         DcYtSHP/PHe5mo9iecmRIlTHzLz1epSaZ+TcXrrfiZDtz/pOauwkz/whXWZaYTqq29
-         0XK4hIP0HdL70XYE5M0upbAl0WR6PXGxFMy9PUno=
+        b=hWYSEK0zLVW07ND2Lt/q4KZBOSPHHHDz23Pe4WeS6tLLUEMUyCIzdt03h8RBm8biR
+         ysyDTrB5iiz6I+xy1jNzbVpMMkAImmusHHNeDRUKFn1RfAAkZ4Ra0tG8AsST/z7ez2
+         KLyXhQplGaWDtiqQr3RXmwcYzK1PG6QJdgWNU8W8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maximilian Luz <luzmaximilian@gmail.com>
-Subject: [PATCH 4.19 11/73] USB: Add LPM quirk for Surface Dock GigE adapter
-Date:   Fri,  7 Jun 2019 17:38:58 +0200
-Message-Id: <20190607153850.052448910@linuxfoundation.org>
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
+        syzbot+35f04d136fc975a70da4@syzkaller.appspotmail.com
+Subject: [PATCH 4.19 12/73] USB: rio500: refuse more than one device at a time
+Date:   Fri,  7 Jun 2019 17:38:59 +0200
+Message-Id: <20190607153850.166306051@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190607153848.669070800@linuxfoundation.org>
 References: <20190607153848.669070800@linuxfoundation.org>
@@ -42,37 +43,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maximilian Luz <luzmaximilian@gmail.com>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit ea261113385ac0a71c2838185f39e8452d54b152 upstream.
+commit 3864d33943b4a76c6e64616280e98d2410b1190f upstream.
 
-Without USB_QUIRK_NO_LPM ethernet will not work and rtl8152 will
-complain with
+This driver is using a global variable. It cannot handle more than
+one device at a time. The issue has been existing since the dawn
+of the driver.
 
-    r8152 <device...>: Stop submitting intr, status -71
-
-Adding the quirk resolves this. As the dock is externally powered, this
-should not have any drawbacks.
-
-Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Reported-by: syzbot+35f04d136fc975a70da4@syzkaller.appspotmail.com
 Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/core/quirks.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/misc/rio500.c |   24 ++++++++++++++++++------
+ 1 file changed, 18 insertions(+), 6 deletions(-)
 
---- a/drivers/usb/core/quirks.c
-+++ b/drivers/usb/core/quirks.c
-@@ -209,6 +209,9 @@ static const struct usb_device_id usb_qu
- 	/* Microsoft LifeCam-VX700 v2.0 */
- 	{ USB_DEVICE(0x045e, 0x0770), .driver_info = USB_QUIRK_RESET_RESUME },
+--- a/drivers/usb/misc/rio500.c
++++ b/drivers/usb/misc/rio500.c
+@@ -447,15 +447,23 @@ static int probe_rio(struct usb_interfac
+ {
+ 	struct usb_device *dev = interface_to_usbdev(intf);
+ 	struct rio_usb_data *rio = &rio_instance;
+-	int retval;
++	int retval = 0;
  
-+	/* Microsoft Surface Dock Ethernet (RTL8153 GigE) */
-+	{ USB_DEVICE(0x045e, 0x07c6), .driver_info = USB_QUIRK_NO_LPM },
-+
- 	/* Cherry Stream G230 2.0 (G85-231) and 3.0 (G85-232) */
- 	{ USB_DEVICE(0x046a, 0x0023), .driver_info = USB_QUIRK_RESET_RESUME },
+-	dev_info(&intf->dev, "USB Rio found at address %d\n", dev->devnum);
++	mutex_lock(&rio500_mutex);
++	if (rio->present) {
++		dev_info(&intf->dev, "Second USB Rio at address %d refused\n", dev->devnum);
++		retval = -EBUSY;
++		goto bail_out;
++	} else {
++		dev_info(&intf->dev, "USB Rio found at address %d\n", dev->devnum);
++	}
  
+ 	retval = usb_register_dev(intf, &usb_rio_class);
+ 	if (retval) {
+ 		dev_err(&dev->dev,
+ 			"Not able to get a minor for this device.\n");
+-		return -ENOMEM;
++		retval = -ENOMEM;
++		goto bail_out;
+ 	}
+ 
+ 	rio->rio_dev = dev;
+@@ -464,7 +472,8 @@ static int probe_rio(struct usb_interfac
+ 		dev_err(&dev->dev,
+ 			"probe_rio: Not enough memory for the output buffer\n");
+ 		usb_deregister_dev(intf, &usb_rio_class);
+-		return -ENOMEM;
++		retval = -ENOMEM;
++		goto bail_out;
+ 	}
+ 	dev_dbg(&intf->dev, "obuf address:%p\n", rio->obuf);
+ 
+@@ -473,7 +482,8 @@ static int probe_rio(struct usb_interfac
+ 			"probe_rio: Not enough memory for the input buffer\n");
+ 		usb_deregister_dev(intf, &usb_rio_class);
+ 		kfree(rio->obuf);
+-		return -ENOMEM;
++		retval = -ENOMEM;
++		goto bail_out;
+ 	}
+ 	dev_dbg(&intf->dev, "ibuf address:%p\n", rio->ibuf);
+ 
+@@ -481,8 +491,10 @@ static int probe_rio(struct usb_interfac
+ 
+ 	usb_set_intfdata (intf, rio);
+ 	rio->present = 1;
++bail_out:
++	mutex_unlock(&rio500_mutex);
+ 
+-	return 0;
++	return retval;
+ }
+ 
+ static void disconnect_rio(struct usb_interface *intf)
 
 
