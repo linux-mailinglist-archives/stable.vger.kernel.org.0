@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 087DE390A3
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:53:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B9F33916F
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:59:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731639AbfFGPro (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 11:47:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60734 "EHLO mail.kernel.org"
+        id S1730231AbfFGPlK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 11:41:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730970AbfFGPrm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 11:47:42 -0400
+        id S1730198AbfFGPlJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 11:41:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CB1C820840;
-        Fri,  7 Jun 2019 15:47:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A3F8721473;
+        Fri,  7 Jun 2019 15:41:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559922461;
-        bh=0cNahbLEwEq/Hfurk0qJRHCEeT2djCndh/ch06pjDlQ=;
+        s=default; t=1559922069;
+        bh=bdchFBGelyjrQhZP75ch+5StzXsh7Me+0soDNYTxoSU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BJaK5BNvtelddXtHFUSmQeVKl1E2bhcn6i6p0TRF1o9gbkVoLvjDwEYmecZpQQELu
-         k/V1ZqCCk67bQ4qaFkq7/pT6d5TkYJd7Y4WIV91x9ElyhnZMG7uF/OK8rzwlGBfzvZ
-         xPsaoXCAreen1iSWqDencfmNmqfcIm6Itl2+eeBQ=
+        b=Yx0Dhlz7c7W4F6tWOS0rG1PLaMyopBSDLZQPnovUXq0df91fW7Va4YSj4vR9rPezE
+         QVBycLype1WLGPrA4jlOrtfU4ey0/echY/k/UehuhJfB5caoDxUSuIpVOKgXQN3jji
+         UvUOLRKVk3guJ36kVr42yYpZepeuDQf+gIDLTniM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.1 21/85] Btrfs: fix wrong ctime and mtime of a directory after log replay
+        stable@vger.kernel.org, Andrey Smirnov <andrew.smirnov@gmail.com>,
+        Raul E Rangel <rrangel@chromium.org>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 4.14 25/69] xhci: Convert xhci_handshake() to use readl_poll_timeout_atomic()
 Date:   Fri,  7 Jun 2019 17:39:06 +0200
-Message-Id: <20190607153851.854751490@linuxfoundation.org>
+Message-Id: <20190607153851.495996005@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190607153849.101321647@linuxfoundation.org>
-References: <20190607153849.101321647@linuxfoundation.org>
+In-Reply-To: <20190607153848.271562617@linuxfoundation.org>
+References: <20190607153848.271562617@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,80 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Andrey Smirnov <andrew.smirnov@gmail.com>
 
-commit 5338e43abbab13791144d37fd8846847062351c6 upstream.
+commit f7fac17ca925faa03fc5eb854c081a24075f8bad upstream.
 
-When replaying a log that contains a new file or directory name that needs
-to be added to its parent directory, we end up updating the mtime and the
-ctime of the parent directory to the current time after we have set their
-values to the correct ones (set at fsync time), efectivelly losing them.
+Xhci_handshake() implements the algorithm already captured by
+readl_poll_timeout_atomic(). Convert the former to use the latter to
+avoid repetition.
 
-Sample reproducer:
+Turned out this patch also fixes a bug on the AMD Stoneyridge platform
+where usleep(1) sometimes takes over 10ms.
+This means a 5 second timeout can easily take over 15 seconds which will
+trigger the watchdog and reboot the system.
 
-  $ mkfs.btrfs -f /dev/sdb
-  $ mount /dev/sdb /mnt
-
-  $ mkdir /mnt/dir
-  $ touch /mnt/dir/file
-
-  # fsync of the directory is optional, not needed
-  $ xfs_io -c fsync /mnt/dir
-  $ xfs_io -c fsync /mnt/dir/file
-
-  $ stat -c %Y /mnt/dir
-  1557856079
-
-  <power failure>
-
-  $ sleep 3
-  $ mount /dev/sdb /mnt
-  $ stat -c %Y /mnt/dir
-  1557856082
-
-    --> should have been 1557856079, the mtime is updated to the current
-        time when replaying the log
-
-Fix this by not updating the mtime and ctime to the current time at
-btrfs_add_link() when we are replaying a log tree.
-
-This could be triggered by my recent fsync fuzz tester for fstests, for
-which an fstests patch exists titled "fstests: generic, fsync fuzz tester
-with fsstress".
-
-Fixes: e02119d5a7b43 ("Btrfs: Add a write ahead tree log to optimize synchronous operations")
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+[Add info about patch fixing a bug to commit message -Mathias]
+Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
+Tested-by: Raul E Rangel <rrangel@chromium.org>
+Reviewed-by: Raul E Rangel <rrangel@chromium.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/btrfs/inode.c |   14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ drivers/usb/host/xhci.c |   22 ++++++++++------------
+ 1 file changed, 10 insertions(+), 12 deletions(-)
 
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -6396,8 +6396,18 @@ int btrfs_add_link(struct btrfs_trans_ha
- 	btrfs_i_size_write(parent_inode, parent_inode->vfs_inode.i_size +
- 			   name_len * 2);
- 	inode_inc_iversion(&parent_inode->vfs_inode);
--	parent_inode->vfs_inode.i_mtime = parent_inode->vfs_inode.i_ctime =
--		current_time(&parent_inode->vfs_inode);
-+	/*
-+	 * If we are replaying a log tree, we do not want to update the mtime
-+	 * and ctime of the parent directory with the current time, since the
-+	 * log replay procedure is responsible for setting them to their correct
-+	 * values (the ones it had when the fsync was done).
-+	 */
-+	if (!test_bit(BTRFS_FS_LOG_RECOVERING, &root->fs_info->flags)) {
-+		struct timespec64 now = current_time(&parent_inode->vfs_inode);
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -21,6 +21,7 @@
+  */
+ 
+ #include <linux/pci.h>
++#include <linux/iopoll.h>
+ #include <linux/irq.h>
+ #include <linux/log2.h>
+ #include <linux/module.h>
+@@ -62,7 +63,6 @@ static bool td_on_ring(struct xhci_td *t
+ 	return false;
+ }
+ 
+-/* TODO: copied from ehci-hcd.c - can this be refactored? */
+ /*
+  * xhci_handshake - spin reading hc until handshake completes or fails
+  * @ptr: address of hc register to be read
+@@ -79,18 +79,16 @@ static bool td_on_ring(struct xhci_td *t
+ int xhci_handshake(void __iomem *ptr, u32 mask, u32 done, int usec)
+ {
+ 	u32	result;
++	int	ret;
+ 
+-	do {
+-		result = readl(ptr);
+-		if (result == ~(u32)0)		/* card removed */
+-			return -ENODEV;
+-		result &= mask;
+-		if (result == done)
+-			return 0;
+-		udelay(1);
+-		usec--;
+-	} while (usec > 0);
+-	return -ETIMEDOUT;
++	ret = readl_poll_timeout_atomic(ptr, result,
++					(result & mask) == done ||
++					result == U32_MAX,
++					1, usec);
++	if (result == U32_MAX)		/* card removed */
++		return -ENODEV;
 +
-+		parent_inode->vfs_inode.i_mtime = now;
-+		parent_inode->vfs_inode.i_ctime = now;
-+	}
- 	ret = btrfs_update_inode(trans, root, &parent_inode->vfs_inode);
- 	if (ret)
- 		btrfs_abort_transaction(trans, ret);
++	return ret;
+ }
+ 
+ /*
 
 
