@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AB20B390EF
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:56:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB4B63915E
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:59:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731116AbfFGPok (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 11:44:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56210 "EHLO mail.kernel.org"
+        id S1730458AbfFGPmE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 11:42:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730379AbfFGPok (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 11:44:40 -0400
+        id S1729577AbfFGPmD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 11:42:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 816CF2146E;
-        Fri,  7 Jun 2019 15:44:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 58F5321479;
+        Fri,  7 Jun 2019 15:42:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559922279;
-        bh=9J0yNPBijp9CKjVl5XU7MV5vKc+bAeRutjTRMItWFdE=;
+        s=default; t=1559922122;
+        bh=INNwVElMXrU1EFqZcOcaC0iqeEpAiqts1z3iYUUbs+Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rZsxUpnvH7ZuuugJe3/T2Vo4njusM3tj77theqU/yTUR0w3TvxhGD0SDi/JFkqPoi
-         o4RSxhJcv87pO3cCKFLy/gNPDEIxFR3zqa+OIs6X4CdOUp1ijEYv/Eqmvx7I9SNLWQ
-         eWzYKPOzZYtHOjhMH48d3KAtP0MDxmOQPN3HMxG8=
+        b=aeWZ/XJALopiWCh95a92TwNIyAmBdYKyf3t5M5uVS61x5D497TOgPL9I/7pwllvJ1
+         5HDO8p2V7D+cZt6MKG0kOh/UL37PbQmE2t2cAYiib9f4BbecyemA0er5omWfZxk1l2
+         sQizusqsmNUWtuI+z/uomTiCct0MAlM27WQ8L8K4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Henry Lin <henryl@nvidia.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 4.19 03/73] xhci: update bounce buffer with correct sg num
+        stable@vger.kernel.org, Parav Pandit <parav@mellanox.com>,
+        Daniel Jurgens <danielj@mellanox.com>,
+        Mark Bloch <markb@mellanox.com>,
+        Saeed Mahameed <saeedm@mellanox.com>
+Subject: [PATCH 4.14 09/69] net/mlx5: Allocate root ns memory using kzalloc to match kfree
 Date:   Fri,  7 Jun 2019 17:38:50 +0200
-Message-Id: <20190607153849.070712216@linuxfoundation.org>
+Message-Id: <20190607153849.422451977@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190607153848.669070800@linuxfoundation.org>
-References: <20190607153848.669070800@linuxfoundation.org>
+In-Reply-To: <20190607153848.271562617@linuxfoundation.org>
+References: <20190607153848.271562617@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,82 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Henry Lin <henryl@nvidia.com>
+From: Parav Pandit <parav@mellanox.com>
 
-commit 597c56e372dab2c7f79b8d700aad3a5deebf9d1b upstream.
+[ Upstream commit 25fa506b70cadb580c1e9cbd836d6417276d4bcd ]
 
-This change fixes a data corruption issue occurred on USB hard disk for
-the case that bounce buffer is used during transferring data.
+root ns is yet another fs core node which is freed using kfree() by
+tree_put_node().
+Rest of the other fs core objects are also allocated using kmalloc
+variants.
 
-While updating data between sg list and bounce buffer, current
-implementation passes mapped sg number (urb->num_mapped_sgs) to
-sg_pcopy_from_buffer() and sg_pcopy_to_buffer(). This causes data
-not get copied if target buffer is located in the elements after
-mapped sg elements. This change passes sg number for full list to
-fix issue.
+However, root ns memory is allocated using kvzalloc().
+Hence allocate root ns memory using kzalloc().
 
-Besides, for copying data from bounce buffer, calling dma_unmap_single()
-on the bounce buffer before copying data to sg list can avoid cache issue.
-
-Fixes: f9c589e142d0 ("xhci: TD-fragment, align the unsplittable case with a bounce buffer")
-Cc: <stable@vger.kernel.org> # v4.8+
-Signed-off-by: Henry Lin <henryl@nvidia.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Fixes: 2530236303d9e ("net/mlx5_core: Flow steering tree initialization")
+Signed-off-by: Parav Pandit <parav@mellanox.com>
+Reviewed-by: Daniel Jurgens <danielj@mellanox.com>
+Reviewed-by: Mark Bloch <markb@mellanox.com>
+Signed-off-by: Saeed Mahameed <saeedm@mellanox.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/usb/host/xhci-ring.c |   17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/fs_core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/host/xhci-ring.c
-+++ b/drivers/usb/host/xhci-ring.c
-@@ -656,6 +656,7 @@ static void xhci_unmap_td_bounce_buffer(
- 	struct device *dev = xhci_to_hcd(xhci)->self.controller;
- 	struct xhci_segment *seg = td->bounce_seg;
- 	struct urb *urb = td->urb;
-+	size_t len;
+--- a/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/fs_core.c
+@@ -1960,7 +1960,7 @@ static struct mlx5_flow_root_namespace *
+ 	struct mlx5_flow_namespace *ns;
  
- 	if (!ring || !seg || !urb)
- 		return;
-@@ -666,11 +667,14 @@ static void xhci_unmap_td_bounce_buffer(
- 		return;
- 	}
+ 	/* Create the root namespace */
+-	root_ns = kvzalloc(sizeof(*root_ns), GFP_KERNEL);
++	root_ns = kzalloc(sizeof(*root_ns), GFP_KERNEL);
+ 	if (!root_ns)
+ 		return NULL;
  
--	/* for in tranfers we need to copy the data from bounce to sg */
--	sg_pcopy_from_buffer(urb->sg, urb->num_mapped_sgs, seg->bounce_buf,
--			     seg->bounce_len, seg->bounce_offs);
- 	dma_unmap_single(dev, seg->bounce_dma, ring->bounce_buf_len,
- 			 DMA_FROM_DEVICE);
-+	/* for in tranfers we need to copy the data from bounce to sg */
-+	len = sg_pcopy_from_buffer(urb->sg, urb->num_sgs, seg->bounce_buf,
-+			     seg->bounce_len, seg->bounce_offs);
-+	if (len != seg->bounce_len)
-+		xhci_warn(xhci, "WARN Wrong bounce buffer read length: %ld != %d\n",
-+				len, seg->bounce_len);
- 	seg->bounce_len = 0;
- 	seg->bounce_offs = 0;
- }
-@@ -3104,6 +3108,7 @@ static int xhci_align_td(struct xhci_hcd
- 	unsigned int unalign;
- 	unsigned int max_pkt;
- 	u32 new_buff_len;
-+	size_t len;
- 
- 	max_pkt = usb_endpoint_maxp(&urb->ep->desc);
- 	unalign = (enqd_len + *trb_buff_len) % max_pkt;
-@@ -3134,8 +3139,12 @@ static int xhci_align_td(struct xhci_hcd
- 
- 	/* create a max max_pkt sized bounce buffer pointed to by last trb */
- 	if (usb_urb_dir_out(urb)) {
--		sg_pcopy_to_buffer(urb->sg, urb->num_mapped_sgs,
-+		len = sg_pcopy_to_buffer(urb->sg, urb->num_sgs,
- 				   seg->bounce_buf, new_buff_len, enqd_len);
-+		if (len != seg->bounce_len)
-+			xhci_warn(xhci,
-+				"WARN Wrong bounce buffer write length: %ld != %d\n",
-+				len, seg->bounce_len);
- 		seg->bounce_dma = dma_map_single(dev, seg->bounce_buf,
- 						 max_pkt, DMA_TO_DEVICE);
- 	} else {
 
 
