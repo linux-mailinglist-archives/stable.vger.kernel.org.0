@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AFDA238F50
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:40:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00DA63912C
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:59:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730039AbfFGPk1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 11:40:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49592 "EHLO mail.kernel.org"
+        id S1730522AbfFGPmR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 11:42:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728783AbfFGPk0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 11:40:26 -0400
+        id S1730512AbfFGPmO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 11:42:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DAD0520840;
-        Fri,  7 Jun 2019 15:40:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D4DBA212F5;
+        Fri,  7 Jun 2019 15:42:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559922026;
-        bh=Tu1jLYk41rN3icIKDcHiqaa1kMYEw7AOF/WFlKAypHg=;
+        s=default; t=1559922133;
+        bh=yvSmm+w6lX77wNa90A/+99wgzkko2UVyotwyWPTNxgc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2J8GYcKQoNcSS38tWiTl9gHeqoEBBIThYjVkjBL8OfkhTRX2u1dZkbu6sEI/w4zAc
-         uoNI9UcrXhvks1FvuMkgjBLcXHPbn5HAcP9PzUbMy7lAvlU+zqco+YpIw/t4b04T0p
-         tqXfaOnh+EDzjcoSOj+CELV4J/gf+aRCneo8dgvA=
+        b=1a1XLRVMxkMG8LxsLY4udAcM8gQTPam6vuwXWIsg2MyNpgXf57ZskuDG728VYdm7/
+         ATEKH1ykDQP0AJWqYu87GrtggPoVKtzj8St1Rm6nh37k4pC0k0IXFFovO8n22WoLCL
+         CwT4fGV3eagcSad7w2m+yHQDmY/s9jMavNdoVd0U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mike Manning <mmanning@vyatta.att-mail.com>,
-        David Ahern <dsahern@gmail.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 02/69] ipv6: Consider sk_bound_dev_if when binding a raw socket to an address
-Date:   Fri,  7 Jun 2019 17:38:43 +0200
-Message-Id: <20190607153848.551262124@linuxfoundation.org>
+Subject: [PATCH 4.14 03/69] llc: fix skb leak in llc_build_and_send_ui_pkt()
+Date:   Fri,  7 Jun 2019 17:38:44 +0200
+Message-Id: <20190607153848.673330020@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190607153848.271562617@linuxfoundation.org>
 References: <20190607153848.271562617@linuxfoundation.org>
@@ -45,37 +44,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Manning <mmanning@vyatta.att-mail.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 72f7cfab6f93a8ea825fab8ccfb016d064269f7f ]
+[ Upstream commit 8fb44d60d4142cd2a440620cd291d346e23c131e ]
 
-IPv6 does not consider if the socket is bound to a device when binding
-to an address. The result is that a socket can be bound to eth0 and
-then bound to the address of eth1. If the device is a VRF, the result
-is that a socket can only be bound to an address in the default VRF.
+If llc_mac_hdr_init() returns an error, we must drop the skb
+since no llc_build_and_send_ui_pkt() caller will take care of this.
 
-Resolve by considering the device if sk_bound_dev_if is set.
+BUG: memory leak
+unreferenced object 0xffff8881202b6800 (size 2048):
+  comm "syz-executor907", pid 7074, jiffies 4294943781 (age 8.590s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    1a 00 07 40 00 00 00 00 00 00 00 00 00 00 00 00  ...@............
+  backtrace:
+    [<00000000e25b5abe>] kmemleak_alloc_recursive include/linux/kmemleak.h:55 [inline]
+    [<00000000e25b5abe>] slab_post_alloc_hook mm/slab.h:439 [inline]
+    [<00000000e25b5abe>] slab_alloc mm/slab.c:3326 [inline]
+    [<00000000e25b5abe>] __do_kmalloc mm/slab.c:3658 [inline]
+    [<00000000e25b5abe>] __kmalloc+0x161/0x2c0 mm/slab.c:3669
+    [<00000000a1ae188a>] kmalloc include/linux/slab.h:552 [inline]
+    [<00000000a1ae188a>] sk_prot_alloc+0xd6/0x170 net/core/sock.c:1608
+    [<00000000ded25bbe>] sk_alloc+0x35/0x2f0 net/core/sock.c:1662
+    [<000000002ecae075>] llc_sk_alloc+0x35/0x170 net/llc/llc_conn.c:950
+    [<00000000551f7c47>] llc_ui_create+0x7b/0x140 net/llc/af_llc.c:173
+    [<0000000029027f0e>] __sock_create+0x164/0x250 net/socket.c:1430
+    [<000000008bdec225>] sock_create net/socket.c:1481 [inline]
+    [<000000008bdec225>] __sys_socket+0x69/0x110 net/socket.c:1523
+    [<00000000b6439228>] __do_sys_socket net/socket.c:1532 [inline]
+    [<00000000b6439228>] __se_sys_socket net/socket.c:1530 [inline]
+    [<00000000b6439228>] __x64_sys_socket+0x1e/0x30 net/socket.c:1530
+    [<00000000cec820c1>] do_syscall_64+0x76/0x1a0 arch/x86/entry/common.c:301
+    [<000000000c32554f>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Signed-off-by: Mike Manning <mmanning@vyatta.att-mail.com>
-Reviewed-by: David Ahern <dsahern@gmail.com>
-Tested-by: David Ahern <dsahern@gmail.com>
+BUG: memory leak
+unreferenced object 0xffff88811d750d00 (size 224):
+  comm "syz-executor907", pid 7074, jiffies 4294943781 (age 8.600s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 f0 0c 24 81 88 ff ff 00 68 2b 20 81 88 ff ff  ...$.....h+ ....
+  backtrace:
+    [<0000000053026172>] kmemleak_alloc_recursive include/linux/kmemleak.h:55 [inline]
+    [<0000000053026172>] slab_post_alloc_hook mm/slab.h:439 [inline]
+    [<0000000053026172>] slab_alloc_node mm/slab.c:3269 [inline]
+    [<0000000053026172>] kmem_cache_alloc_node+0x153/0x2a0 mm/slab.c:3579
+    [<00000000fa8f3c30>] __alloc_skb+0x6e/0x210 net/core/skbuff.c:198
+    [<00000000d96fdafb>] alloc_skb include/linux/skbuff.h:1058 [inline]
+    [<00000000d96fdafb>] alloc_skb_with_frags+0x5f/0x250 net/core/skbuff.c:5327
+    [<000000000a34a2e7>] sock_alloc_send_pskb+0x269/0x2a0 net/core/sock.c:2225
+    [<00000000ee39999b>] sock_alloc_send_skb+0x32/0x40 net/core/sock.c:2242
+    [<00000000e034d810>] llc_ui_sendmsg+0x10a/0x540 net/llc/af_llc.c:933
+    [<00000000c0bc8445>] sock_sendmsg_nosec net/socket.c:652 [inline]
+    [<00000000c0bc8445>] sock_sendmsg+0x54/0x70 net/socket.c:671
+    [<000000003b687167>] __sys_sendto+0x148/0x1f0 net/socket.c:1964
+    [<00000000922d78d9>] __do_sys_sendto net/socket.c:1976 [inline]
+    [<00000000922d78d9>] __se_sys_sendto net/socket.c:1972 [inline]
+    [<00000000922d78d9>] __x64_sys_sendto+0x2a/0x30 net/socket.c:1972
+    [<00000000cec820c1>] do_syscall_64+0x76/0x1a0 arch/x86/entry/common.c:301
+    [<000000000c32554f>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/raw.c |    2 ++
+ net/llc/llc_output.c |    2 ++
  1 file changed, 2 insertions(+)
 
---- a/net/ipv6/raw.c
-+++ b/net/ipv6/raw.c
-@@ -288,7 +288,9 @@ static int rawv6_bind(struct sock *sk, s
- 			/* Binding to link-local address requires an interface */
- 			if (!sk->sk_bound_dev_if)
- 				goto out_unlock;
-+		}
+--- a/net/llc/llc_output.c
++++ b/net/llc/llc_output.c
+@@ -72,6 +72,8 @@ int llc_build_and_send_ui_pkt(struct llc
+ 	rc = llc_mac_hdr_init(skb, skb->dev->dev_addr, dmac);
+ 	if (likely(!rc))
+ 		rc = dev_queue_xmit(skb);
++	else
++		kfree_skb(skb);
+ 	return rc;
+ }
  
-+		if (sk->sk_bound_dev_if) {
- 			err = -ENODEV;
- 			dev = dev_get_by_index_rcu(sock_net(sk),
- 						   sk->sk_bound_dev_if);
 
 
