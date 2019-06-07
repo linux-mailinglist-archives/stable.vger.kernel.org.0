@@ -2,91 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 67E62385AC
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 09:47:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 535A73849C
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 08:52:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726668AbfFGHrw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 03:47:52 -0400
-Received: from smtp1.iitb.ac.in ([103.21.127.13]:49716 "EHLO smtp1.iitb.ac.in"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727356AbfFGHrv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 03:47:51 -0400
-Received: from ldns2.iitb.ac.in (ldns2.iitb.ac.in [10.200.12.2])
-        by smtp1.iitb.ac.in (Postfix) with SMTP id 8D3F6103D745
-        for <stable@vger.kernel.org>; Fri,  7 Jun 2019 12:02:14 +0530 (IST)
-Received: (qmail 32253 invoked by uid 510); 7 Jun 2019 12:02:06 +0530
-X-Qmail-Scanner-Diagnostics: from 10.200.1.25 by ldns2 (envelope-from <rws@aero.iitb.ac.in>, uid 501) with qmail-scanner-2.11
- spamassassin: 3.4.1. mhr: 1.0. {clamdscan: 0.100.0/25472} 
- Clear:RC:1(10.200.1.25):SA:0(1.5/7.0):. Processed in 3.223095 secs; 07 Jun 2019 12:02:06 +0530
-X-Spam-Checker-Version: SpamAssassin 3.4.1 (2015-04-28) on ldns2.iitb.ac.in
-X-Spam-Level: *
-X-Spam-Status: No, score=1.5 required=7.0 tests=BAYES_50,IITB_ORIG,
-        MISSING_HEADERS,PROPER_IITB_MSGID autolearn=disabled version=3.4.1
-X-Spam-Pyzor: Reported 1 times.
-X-Envelope-From: rws@aero.iitb.ac.in
-X-Qmail-Scanner-Mime-Attachments: |
-X-Qmail-Scanner-Zip-Files: |
-Received: from unknown (HELO ldns2.iitb.ac.in) (10.200.1.25)
-  by ldns2.iitb.ac.in with SMTP; 7 Jun 2019 12:02:03 +0530
-Received: from vayu.aero.iitb.ac.in (vayu.aero.iitb.ac.in [10.101.1.1])
-        by ldns2.iitb.ac.in (Postfix) with ESMTP id E507834194A;
-        Fri,  7 Jun 2019 12:01:54 +0530 (IST)
-Received: from localhost (localhost [127.0.0.1])
-        by vayu.aero.iitb.ac.in (Postfix) with ESMTP id C66148902E548;
-        Fri,  7 Jun 2019 12:01:54 +0530 (IST)
-Received: from vayu.aero.iitb.ac.in ([127.0.0.1])
-        by localhost (vayu.aero.iitb.ac.in [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id Dsp2o8aWBuLF; Fri,  7 Jun 2019 12:01:54 +0530 (IST)
-Received: from localhost (localhost [127.0.0.1])
-        by vayu.aero.iitb.ac.in (Postfix) with ESMTP id CBA298902E540;
-        Fri,  7 Jun 2019 12:01:53 +0530 (IST)
-X-Virus-Scanned: amavisd-new at aero.iitb.ac.in
-Received: from vayu.aero.iitb.ac.in ([127.0.0.1])
-        by localhost (vayu.aero.iitb.ac.in [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id XJzHEtFw4Nf5; Fri,  7 Jun 2019 12:01:53 +0530 (IST)
-Received: from vayu.aero.iitb.ac.in (vayu.aero.iitb.ac.in [10.101.1.1])
-        by vayu.aero.iitb.ac.in (Postfix) with ESMTP id 752AD8902E537;
-        Fri,  7 Jun 2019 12:01:49 +0530 (IST)
-Date:   Fri, 7 Jun 2019 12:01:49 +0530 (IST)
-From:   Martins Henry <rws@aero.iitb.ac.in>
-Message-ID: <630023291.60470.1559889109394.JavaMail.zimbra@aero.iitb.ac.in>
-Subject: Thanks and I wait for your answer
+        id S1726891AbfFGGwy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 02:52:54 -0400
+Received: from mail-wr1-f43.google.com ([209.85.221.43]:39140 "EHLO
+        mail-wr1-f43.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726825AbfFGGwy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Jun 2019 02:52:54 -0400
+Received: by mail-wr1-f43.google.com with SMTP id x4so955552wrt.6
+        for <stable@vger.kernel.org>; Thu, 06 Jun 2019 23:52:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=S3c+M62aKGXOmk1aiwpnFHX0m7JAIendNAEPmuKM/a4=;
+        b=00p38/LgW9a9+E4Y/jaI/JCRDk8xTmFjGBT6HQc7HeDUpZiCAGTzEZuGnYk3MPRZIt
+         czvPcA2dQhqJ+d1A32bkC3N8SG/H0z38z33MJ4S8CmSGW+aD1Xscmvn7tvmrKMOVa8lx
+         25Kx5RqT8vVSjP6XlGRRbgSHUQPMHHLFt09zAdqtZSuggNeGSwMBlLlpjEN+hHiZ1Nlc
+         bYinZjEUmW01u2h2wDaYVLJdT+OiELAvke2yccIM/YVG6VlGGtStCFBwDnpxpD6Z5VL9
+         kUtlKHcGyjqLGUIqfeyf25Z7zWGh2f1y1qLacwYmYvdQzcsu6BxbYAmhwTI6Mc4agyGj
+         6DFA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=S3c+M62aKGXOmk1aiwpnFHX0m7JAIendNAEPmuKM/a4=;
+        b=gHip0u6iiuB2F3BjIdh8axTgYqFhO9E9cP70wfZHtM7zaVLVlzrxqDIW9h2Gc5LX9o
+         kqHA7tbj4TYTF3XFPB8Uz4xH23O3ne380dPEgmLPyJk0hnX5ef5b5uBadaA7PplCve5f
+         RdB02tX3BFc5ulvpqgyZfIiLV2K3imwzbwxlntRZVlnfrHm4Tf8WEgA+/v75aeXj343d
+         vc198GOmryhxV7e6kroY3ST988VVq72iLO8Tz/ovKy5wiwtu94LPYBffvF/JURBTVckK
+         C2vCFaZd6aHkiNcO2ryveLTPrcE3byP0q4OEIF3yC0ZTnV0chx+kTPWcdEl+VdC928BI
+         kmlA==
+X-Gm-Message-State: APjAAAUozccSjCZa2jtSD6DbVDOMN+5J6d59jJibHmwkqUGcpuJC9PPy
+        rApKScIr0jxfOVWnoOh9geNTjOprVtqpPA==
+X-Google-Smtp-Source: APXvYqw+Ve8DnU5pTo+CUzLpG/CPnKxAHZYDzB/6Tl+RkYMm2LmqMqIZ3vuUAb5vdSosx5lETaxJsQ==
+X-Received: by 2002:a05:6000:146:: with SMTP id r6mr18899539wrx.237.1559890372443;
+        Thu, 06 Jun 2019 23:52:52 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id t140sm3852184wmt.0.2019.06.06.23.52.51
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 06 Jun 2019 23:52:51 -0700 (PDT)
+Message-ID: <5cfa09c3.1c69fb81.c38cc.7604@mx.google.com>
+Date:   Thu, 06 Jun 2019 23:52:51 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.101.1.5]
-X-Mailer: Zimbra 8.8.12_GA_3803 (ZimbraWebClient - FF11 (Win)/8.8.12_GA_3794)
-Thread-Index: Z4di5DXkV78PrTTCqXhStc9XBmMYjg==
-Thread-Topic: Thanks and I wait for your answer
-To:     unlisted-recipients:; (no To-header on input)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.4.180-229-g093d40b46ce9
+X-Kernelci-Branch: linux-4.4.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.4.y boot: 48 boots: 1 failed,
+ 39 passed with 7 offline, 1 conflict (v4.4.180-229-g093d40b46ce9)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+stable-rc/linux-4.4.y boot: 48 boots: 1 failed, 39 passed with 7 offline, 1=
+ conflict (v4.4.180-229-g093d40b46ce9)
 
-I am Martin Henry, An American Citizen; I am the personal secretary to
-Mr. Donald Railton, the controller of a Lottery Company. Please I am
-having big problem now, I have a 6yrs old daughter who has leukemia, a
-disease of the blood, and she needs a bone marrow transplant or she
-will die.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.180-229-g093d40b46ce9/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.180-229-g093d40b46ce9/
 
-Please I am only asking for your help and you will benefit from it
-also. As an insider with Lottery Firm, working as the personal
-secretary to the controller, I want you to send me your name to play,
-I have some numbers that are going to win, stored in his secret data
-system in the office. The Lottery is an online entry with credit card
-anywhere with a name and address. All I want you to do is to send your
-name to play it and I will send confirmation to you.
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.180-229-g093d40b46ce9
+Git Commit: 093d40b46ce9a5ac6b88629afc3a37686500ad4d
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 35 unique boards, 13 SoC families, 13 builds out of 190
 
-I will play with my card on your name and the Prize will be shared
-equally between us. Immediately the results are released they will
-contact you for payment as the oversea winner. The lotto can be played
-with 9.00 dollars, or 50 dollars but the prize will be Millions.
-Remember that I am playing on your name with my card; I just want to
-front you for this, because I need this money to save the life of my
-little daughter.
+Boot Regressions Detected:
 
-Thanks and I wait for your answer
-Martin Henry.
+x86_64:
+
+    x86_64_defconfig:
+        gcc-8:
+          qemu:
+              lab-baylibre: new failure (last pass: v4.4.180-180-g600dd7440=
+a0c)
+
+Boot Failure Detected:
+
+arm64:
+    defconfig:
+        gcc-8:
+            qcom-qdf2400: 1 failed lab
+
+Offline Platforms:
+
+arm:
+
+    exynos_defconfig:
+        gcc-8
+            exynos5800-peach-pi: 1 offline lab
+
+    bcm2835_defconfig:
+        gcc-8
+            bcm2835-rpi-b: 1 offline lab
+
+    sama5_defconfig:
+        gcc-8
+            at91-sama5d4_xplained: 1 offline lab
+
+    sunxi_defconfig:
+        gcc-8
+            sun5i-r8-chip: 1 offline lab
+
+    davinci_all_defconfig:
+        gcc-8
+            da850-evm: 1 offline lab
+            dm365evm,legacy: 1 offline lab
+
+arm64:
+
+    defconfig:
+        gcc-8
+            apq8016-sbc: 1 offline lab
+
+Conflicting Boot Failure Detected: (These likely are not failures as other =
+labs are reporting PASS. Needs review.)
+
+x86_64:
+    x86_64_defconfig:
+        qemu:
+            lab-drue: PASS (gcc-8)
+            lab-baylibre: FAIL (gcc-8)
+            lab-collabora: PASS (gcc-8)
+            lab-linaro-lkft: PASS (gcc-8)
+            lab-mhart: PASS (gcc-8)
+
+---
+For more info write to <info@kernelci.org>
