@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3854E3901F
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:49:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90C8D390E2
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:55:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731503AbfFGPtO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 11:49:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34840 "EHLO mail.kernel.org"
+        id S1730735AbfFGPpe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 11:45:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57506 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730322AbfFGPtI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 11:49:08 -0400
+        id S1731238AbfFGPpd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 11:45:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3D93D20840;
-        Fri,  7 Jun 2019 15:49:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EE069214C6;
+        Fri,  7 Jun 2019 15:45:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559922547;
-        bh=i0rXYPA+kVCel0/TEtRCT7TCNOUBC00D8dg5+vPFZVM=;
+        s=default; t=1559922332;
+        bh=wsqz7EIRFCO/oHDKIPRVpgBSk95KuV0Y+1Ux2HmXFmQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yg/GydUXPV57Zl30K3rhHzJBSimE4qeCQOieDE8R8hKXeBND0vrYvl9li8d8sCWsR
-         WpJ3DiscoYmetB3mJKOIaI0N/HIH/Wg0OifJmwGebROiayfGjUl9K/4F81/QxmLFLH
-         OssJJMi16vF8TggUR3nd2/ihEvH82KOjMroOoVQY=
+        b=sna4t1q/rN6xwnaMBWrX1Njb1p+ju1FG6rXEdOH5oOREqFn8Z8fajvOEbIfexH/M9
+         vYSUrQaEXx3b7xZJ2FfMAGIVS0TswSa97xkXkK+bnq4puoUn/0qwohm4Mw+hKhSAEM
+         tIbgJ2kEvBw1PTDawllA/dMbZ9VJLPNoU6JgDWys=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Martin <Dave.Martin@arm.com>,
-        James Morse <james.morse@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 5.1 52/85] signal/arm64: Use force_sig not force_sig_fault for SIGKILL
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [PATCH 4.19 50/73] staging: vc04_services: prevent integer overflow in create_pagelist()
 Date:   Fri,  7 Jun 2019 17:39:37 +0200
-Message-Id: <20190607153855.329078761@linuxfoundation.org>
+Message-Id: <20190607153854.691840870@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190607153849.101321647@linuxfoundation.org>
-References: <20190607153849.101321647@linuxfoundation.org>
+In-Reply-To: <20190607153848.669070800@linuxfoundation.org>
+References: <20190607153848.669070800@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,55 +42,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric W. Biederman <ebiederm@xmission.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit d76cac67db40c172791ce07948367b96a758e45b upstream.
+commit ca641bae6da977d638458e78cd1487b6160a2718 upstream.
 
-I don't think this is userspace visible but SIGKILL does not have
-any si_codes that use the fault member of the siginfo union.  Correct
-this the simple way and call force_sig instead of force_sig_fault when
-the signal is SIGKILL.
+The create_pagelist() "count" parameter comes from the user in
+vchiq_ioctl() and it could overflow.  If you look at how create_page()
+is called in vchiq_prepare_bulk_data(), then the "size" variable is an
+int so it doesn't make sense to allow negatives or larger than INT_MAX.
 
-The two know places where synchronous SIGKILL are generated are
-do_bad_area and fpsimd_save.  The call paths to force_sig_fault are:
-do_bad_area
-  arm64_force_sig_fault
-    force_sig_fault
-force_signal_inject
-  arm64_notify_die
-    arm64_force_sig_fault
-       force_sig_fault
+I don't know this code terribly well, but I believe that typical values
+of "count" are typically quite low and I don't think this check will
+affect normal valid uses at all.
 
-Which means correcting this in arm64_force_sig_fault is enough
-to ensure the arm64 code is not misusing the generic code, which
-could lead to maintenance problems later.
+The "pagelist_size" calculation can also overflow on 32 bit systems, but
+not on 64 bit systems.  I have added an integer overflow check for that
+as well.
 
-Cc: stable@vger.kernel.org
-Cc: Dave Martin <Dave.Martin@arm.com>
-Cc: James Morse <james.morse@arm.com>
-Cc: Will Deacon <will.deacon@arm.com>
-Fixes: af40ff687bc9 ("arm64: signal: Ensure si_code is valid for all fault signals")
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
+The Raspberry PI doesn't offer the same level of memory protection that
+x86 does so these sorts of bugs are probably not super critical to fix.
+
+Fixes: 71bad7f08641 ("staging: add bcm2708 vchiq driver")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/arm64/kernel/traps.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/staging/vc04_services/interface/vchiq_arm/vchiq_2835_arm.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/arch/arm64/kernel/traps.c
-+++ b/arch/arm64/kernel/traps.c
-@@ -256,7 +256,10 @@ void arm64_force_sig_fault(int signo, in
- 			   const char *str)
- {
- 	arm64_show_signal(signo, str);
--	force_sig_fault(signo, code, addr, current);
-+	if (signo == SIGKILL)
-+		force_sig(SIGKILL, current);
-+	else
-+		force_sig_fault(signo, code, addr, current);
- }
+--- a/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_2835_arm.c
++++ b/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_2835_arm.c
+@@ -410,9 +410,18 @@ create_pagelist(char __user *buf, size_t
+ 	int dma_buffers;
+ 	dma_addr_t dma_addr;
  
- void arm64_force_sig_mceerr(int code, void __user *addr, short lsb,
++	if (count >= INT_MAX - PAGE_SIZE)
++		return NULL;
++
+ 	offset = ((unsigned int)(unsigned long)buf & (PAGE_SIZE - 1));
+ 	num_pages = DIV_ROUND_UP(count + offset, PAGE_SIZE);
+ 
++	if (num_pages > (SIZE_MAX - sizeof(PAGELIST_T) -
++			 sizeof(struct vchiq_pagelist_info)) /
++			(sizeof(u32) + sizeof(pages[0]) +
++			 sizeof(struct scatterlist)))
++		return NULL;
++
+ 	pagelist_size = sizeof(PAGELIST_T) +
+ 			(num_pages * sizeof(u32)) +
+ 			(num_pages * sizeof(pages[0]) +
 
 
