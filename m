@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2034338F57
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:40:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 439AB39098
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:53:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730084AbfFGPkh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 11:40:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49866 "EHLO mail.kernel.org"
+        id S1731721AbfFGPsH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 11:48:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33154 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730060AbfFGPke (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 11:40:34 -0400
+        id S1731718AbfFGPsG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 11:48:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0323F212F5;
-        Fri,  7 Jun 2019 15:40:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C4E4420657;
+        Fri,  7 Jun 2019 15:48:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559922034;
-        bh=45gD81aEuc2GoekQ+XhrD7Viw1/b8XnxKzkW+pKl7Rw=;
+        s=default; t=1559922486;
+        bh=4F552kNBN2ZbTyA9sXoc9rQGnJafrCmEpxl5/AF5lc8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0S+pQoaGW7mE/7nRxy6EuFTKvBGJy2SyxDqaFAIEm1MHiD+0LiTDg7eYzIkj6Gj7M
-         ifBZR5UR3CvdAmAC98MmLmscFpE2haKtIClwr5o2sBoUHRjmqtX4ayxXC6hWbp6pMA
-         EA9p+Ox4DllgNkNXNndgEJVki1Cq4v9mCjlgQpmA=
+        b=nZ7ATjirm+g+4Sl/KseqFVTO4N/o2OqDu5dUGXARkmQV7VriNn2rEyc1oHXUVNtv9
+         kFTmbaLoPDAoOTBhpqeCi+gysHIgF77qFgWjVXKQiRSzreEeOAMKNdPIKzvL6ZkOo1
+         /mhmMcw815AwqVyFZ29QrCRh96xLXY4DkIJC9zVk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Rasmus Villemoes <rasmus.villemoes@prevas.dk>,
-        Vivien Didelot <vivien.didelot@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 13/69] net: dsa: mv88e6xxx: fix handling of upper half of STATS_TYPE_PORT
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        syzbot+71f1e64501a309fcc012@syzkaller.appspotmail.com
+Subject: [PATCH 5.1 09/85] USB: Fix slab-out-of-bounds write in usb_get_bos_descriptor
 Date:   Fri,  7 Jun 2019 17:38:54 +0200
-Message-Id: <20190607153849.924720306@linuxfoundation.org>
+Message-Id: <20190607153850.268456638@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190607153848.271562617@linuxfoundation.org>
-References: <20190607153848.271562617@linuxfoundation.org>
+In-Reply-To: <20190607153849.101321647@linuxfoundation.org>
+References: <20190607153849.101321647@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,33 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-[ Upstream commit 84b3fd1fc9592d431e23b077e692fa4e3fd0f086 ]
+commit a03ff54460817c76105f81f3aa8ef655759ccc9a upstream.
 
-Currently, the upper half of a 4-byte STATS_TYPE_PORT statistic ends
-up in bits 47:32 of the return value, instead of bits 31:16 as they
-should.
+The syzkaller USB fuzzer found a slab-out-of-bounds write bug in the
+USB core, caused by a failure to check the actual size of a BOS
+descriptor.  This patch adds a check to make sure the descriptor is at
+least as large as it is supposed to be, so that the code doesn't
+inadvertently access memory beyond the end of the allocated region
+when assigning to dev->bos->desc->bNumDeviceCaps later on.
 
-Fixes: 6e46e2d821bb ("net: dsa: mv88e6xxx: Fix u64 statistics")
-Signed-off-by: Rasmus Villemoes <rasmus.villemoes@prevas.dk>
-Reviewed-by: Vivien Didelot <vivien.didelot@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Reported-and-tested-by: syzbot+71f1e64501a309fcc012@syzkaller.appspotmail.com
+CC: <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/dsa/mv88e6xxx/chip.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/dsa/mv88e6xxx/chip.c
-+++ b/drivers/net/dsa/mv88e6xxx/chip.c
-@@ -624,7 +624,7 @@ static uint64_t _mv88e6xxx_get_ethtool_s
- 			err = mv88e6xxx_port_read(chip, port, s->reg + 1, &reg);
- 			if (err)
- 				return UINT64_MAX;
--			high = reg;
-+			low |= ((u32)reg) << 16;
- 		}
- 		break;
- 	case STATS_TYPE_BANK1:
+---
+ drivers/usb/core/config.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- a/drivers/usb/core/config.c
++++ b/drivers/usb/core/config.c
+@@ -932,8 +932,8 @@ int usb_get_bos_descriptor(struct usb_de
+ 
+ 	/* Get BOS descriptor */
+ 	ret = usb_get_descriptor(dev, USB_DT_BOS, 0, bos, USB_DT_BOS_SIZE);
+-	if (ret < USB_DT_BOS_SIZE) {
+-		dev_err(ddev, "unable to get BOS descriptor\n");
++	if (ret < USB_DT_BOS_SIZE || bos->bLength < USB_DT_BOS_SIZE) {
++		dev_err(ddev, "unable to get BOS descriptor or descriptor too short\n");
+ 		if (ret >= 0)
+ 			ret = -ENOMSG;
+ 		kfree(bos);
 
 
