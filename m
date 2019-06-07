@@ -2,79 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 315E73984E
-	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 00:11:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D408B3987E
+	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 00:21:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729345AbfFGWLD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 18:11:03 -0400
-Received: from mail-lf1-f65.google.com ([209.85.167.65]:40576 "EHLO
-        mail-lf1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1729904AbfFGWLD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Jun 2019 18:11:03 -0400
-Received: by mail-lf1-f65.google.com with SMTP id a9so2708764lff.7
-        for <stable@vger.kernel.org>; Fri, 07 Jun 2019 15:11:02 -0700 (PDT)
+        id S1729653AbfFGWVc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 18:21:32 -0400
+Received: from mail-wr1-f53.google.com ([209.85.221.53]:42626 "EHLO
+        mail-wr1-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730361AbfFGWVc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Jun 2019 18:21:32 -0400
+Received: by mail-wr1-f53.google.com with SMTP id x17so3543238wrl.9
+        for <stable@vger.kernel.org>; Fri, 07 Jun 2019 15:21:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=wwd43iQ+uxpnBtPTqymsT6s+8HUa61yC8t5RUF2PcZU=;
-        b=cx5trC4enXjixaDKj6Ievop4mO8XN9hgO9aAR04Q7aLPSDJ2c8Q6GPk2HH8EC/ErF0
-         7MJ7D8Th748v7WMTnI63ah8gmGDXq0TkGf0uJ1v/q/g/zzZU3mmkwBkVYZE1sB8w1+Mf
-         hASuZE/FTdqh3tRERGLesm/E3MnKbdXjC6lgCDZgIVjNnHUuOF3/kjmlNSijoiE1Oi6F
-         6BxGVHxQaCMURQYR9jvt9oSgPaAFcvuDitqQjzpTRn9VB4Sg97qRzuS61nw2tl9Mowoj
-         1tw9aHeC2Kb374as6WteoD0b9grq85chn9lJWbzEMwWrqkKHorAlIPnTz5cLF2GYFJAD
-         X4Dw==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=in4XTbb2PbeHsOP5GimQeEwJqQ8dnlMe9grq5mDnu1A=;
+        b=SBmDqtiD4YaO95dtv5uESGEL9I2ceL/+gkzME+DFf1NeY2/UDxzUchaP/GvimFWGbd
+         EX+L9DCwCr7RhET4VO3QmYsnnNwS0E85q/enWasuZ9DWIfj+GYQR91prDxaPluKQG3hT
+         31jZNf/V0cR5xaz4tmf4FDSfdSRo9ODMwwkuBQWyhch1xQso3a1YQKD0+VTi0GHlmUGq
+         7/WoLVmP6wbkE0Er75oHZSESoksJjOARpSFU/HJurYOt3l0nJWS11hAAGJ3Q+U9hh/51
+         eqgAUhjWNpX2XlR05qizkHpg+h4Rip22kylCgHyPzwsdCyvDYcjZR7ockhcVhFtU0SDD
+         FxBg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=wwd43iQ+uxpnBtPTqymsT6s+8HUa61yC8t5RUF2PcZU=;
-        b=Pw2hvWRMU1xJg8vnJZ5O/K+BTbNi3jNZTwPKPP0auTivFwe6s3X933kd7BRoAU8suB
-         toifaBSexLzUkm6yH+jzhW30MgTjNUin1KRqepJQAVkENXL68DoopyyM/Zn34M8dSQzw
-         vGapQfOb7DoM7ekrLiL7QQz2W1HSsA8KGqQkYRbnO1sgdlcRG+ybtfPhPtUQj8WQdnl8
-         KtCgdk5UkI7pvFDW556bsnol7UBQNV2YIv8vJC1eCT3Uh/E2TEqu4j6JsLb5cs2K6K2d
-         HpYcZ0P8G1JXJm4qyGeEO5VFU5p6UDNUGBLXA9ySl93tAq1pfljSPhpjLt2jrOOuzy2d
-         pw0Q==
-X-Gm-Message-State: APjAAAWKqOkfZoiaD+5SQyU24Kw4QPbFQLVEiQueZBB6fY59j2mn6AM2
-        tjOMRgUOsCWxv62EdmXRCYRyumJeCm0dl/gfytiGJg==
-X-Google-Smtp-Source: APXvYqzlzk1opCrnSZLf1NClG2hmLjUWMYvMv5LilcvGaMM1NvQ27Pl0x01y4ezRphDXsdt6wF8raMS/qpaHuG1ixW0=
-X-Received: by 2002:a19:7616:: with SMTP id c22mr23929383lff.115.1559945461842;
- Fri, 07 Jun 2019 15:11:01 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=in4XTbb2PbeHsOP5GimQeEwJqQ8dnlMe9grq5mDnu1A=;
+        b=Qx2Cw3FGTKPnASzrY+YajsnpMWCmTqn7MKcMqmm/yzU46bniPEUYhekDtjuCJy1Lx8
+         zjAfNPYBFF0YTkeSYIZNh0cs0dMiVof1oq2kH1AKb5KNoUUEh4hh4Oro95djZ74Ctlcj
+         sSRpA5dmFxKqmLyDUYvYtsMv5jpy5DEApcrDJQsrniaMCKuq/bynyzEQs2Rh5gO+icZV
+         bFe4rjb51zE626bqQoKmJW5b/anjmk1wm+IIqLi6pi792Xrv1cNzwokATK3wt6ToXYep
+         zqdaVRsbCoM0Yb+y5qqVWGWg2Y+J4khjXlTYBlrQrpAvPYTGOUPchXi6sG6//EOqMynA
+         qhPA==
+X-Gm-Message-State: APjAAAXvDV9vQEPzYAfjCXI6MXV3XcIq6AhKV+1M3Gtt+U9az64j7OvU
+        63CE4FTfgDA3xjFcihEsrauWXxb97OhdGw==
+X-Google-Smtp-Source: APXvYqx8gBGqBwVv4GM7q4srbUFCBeHuudETFDOPa/IS3L2obiaEit/GO2Jbr1fNsV7eFkOPUAXNcw==
+X-Received: by 2002:adf:afd5:: with SMTP id y21mr34587983wrd.12.1559946091114;
+        Fri, 07 Jun 2019 15:21:31 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id y16sm2784973wru.28.2019.06.07.15.21.30
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 07 Jun 2019 15:21:30 -0700 (PDT)
+Message-ID: <5cfae36a.1c69fb81.ad9ef.1a25@mx.google.com>
+Date:   Fri, 07 Jun 2019 15:21:30 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20190604163311.19059-1-paul@crapouillou.net>
-In-Reply-To: <20190604163311.19059-1-paul@crapouillou.net>
-From:   Linus Walleij <linus.walleij@linaro.org>
-Date:   Sat, 8 Jun 2019 00:10:54 +0200
-Message-ID: <CACRpkdbKg22OyViYhXS=Vyps=2zQ_dmm23Xr8+dBp+uwwjheuQ@mail.gmail.com>
-Subject: Re: [PATCH] MIPS: lb60: Fix pin mappings
-To:     Paul Cercueil <paul@crapouillou.net>
-Cc:     Ralf Baechle <ralf@linux-mips.org>,
-        Paul Burton <paul.burton@mips.com>,
-        James Hogan <jhogan@kernel.org>, od@zcrc.me,
-        linux-mips@vger.kernel.org,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.4.180-230-g17950b5be27c
+X-Kernelci-Branch: linux-4.4.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.4.y boot: 50 boots: 1 failed,
+ 49 passed (v4.4.180-230-g17950b5be27c)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 4, 2019 at 6:34 PM Paul Cercueil <paul@crapouillou.net> wrote:
+stable-rc/linux-4.4.y boot: 50 boots: 1 failed, 49 passed (v4.4.180-230-g17=
+950b5be27c)
 
-> The pin mappings introduced in commit 636f8ba67fb6
-> ("MIPS: JZ4740: Qi LB60: Add pinctrl configuration for several drivers")
-> are completely wrong. The pinctrl driver name is incorrect, and the
-> function and group fields are swapped.
->
-> Fixes: 636f8ba67fb6 ("MIPS: JZ4740: Qi LB60: Add pinctrl configuration for several drivers")
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.4.y/kernel/v4.4.180-230-g17950b5be27c/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
+/kernel/v4.4.180-230-g17950b5be27c/
 
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Tree: stable-rc
+Branch: linux-4.4.y
+Git Describe: v4.4.180-230-g17950b5be27c
+Git Commit: 17950b5be27cc26dcc48dd3f8cb9a71ba650a6b3
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 35 unique boards, 13 SoC families, 13 builds out of 190
 
-Such things happen. Are you planning to phase all the board files over
-to use devicetree eventually?
+Boot Failure Detected:
 
-Yours,
-Linus Walleij
+arm64:
+    defconfig:
+        gcc-8:
+            qcom-qdf2400: 1 failed lab
+
+---
+For more info write to <info@kernelci.org>
