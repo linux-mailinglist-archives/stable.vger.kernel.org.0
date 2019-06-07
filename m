@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE39439137
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:59:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABDF53900D
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:48:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729539AbfFGPmt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 11:42:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53624 "EHLO mail.kernel.org"
+        id S1729595AbfFGPsa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 11:48:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730648AbfFGPms (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 11:42:48 -0400
+        id S1731787AbfFGPs3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 11:48:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 712262133D;
-        Fri,  7 Jun 2019 15:42:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 457A820657;
+        Fri,  7 Jun 2019 15:48:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559922167;
-        bh=gMret565oDV/8YYIMBUMZAKLDq/7uEvnyea6Tyw8BxQ=;
+        s=default; t=1559922508;
+        bh=Bw0g5FLiG92QgvG8Pgr5tS+MqI1u4cPdgbtJLo51+TM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b/vAfZrJSnTrfJFcMQ3xXK/bP8myAb6SnxSkZeAIynSD5/1J+rWIje3ubZkZwtnQQ
-         /pLN8FBTdEEy2QmxBr61D7aUvqPKBBg0LLo9vWwEQUMqMpzeo/uw9pIBFZAPDfHl/7
-         BqyVImqHXeT3rG+vzNgJHimjUE1qlLeGt5I4YO04=
+        b=RUGX3E5z6gw1i+LOTKLFzJ4PAIRsDAIHh6V6ANxfFP1M5Ip+VtyYCsNYI30aztxbg
+         juUh274SjHq20apQsHxEOz3SByy2aKJsnhHXm5UHmMj92cci7y49pqm0gYJEAQkVx0
+         8AAwxvoZIzhffRCx7LBtE39kzIEWAdBbAC8N6wbA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
-        Greg Kurz <groug@kaod.org>, Paul Mackerras <paulus@ozlabs.org>
-Subject: [PATCH 4.14 43/69] KVM: PPC: Book3S HV: XIVE: Do not clear IRQ data of passthrough interrupts
+        syzbot+5255458d5e0a2b10bbb9@syzkaller.appspotmail.com,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.1 39/85] ALSA: line6: Assure canceling delayed work at disconnection
 Date:   Fri,  7 Jun 2019 17:39:24 +0200
-Message-Id: <20190607153853.706568304@linuxfoundation.org>
+Message-Id: <20190607153854.054308547@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190607153848.271562617@linuxfoundation.org>
-References: <20190607153848.271562617@linuxfoundation.org>
+In-Reply-To: <20190607153849.101321647@linuxfoundation.org>
+References: <20190607153849.101321647@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,96 +44,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cédric Le Goater <clg@kaod.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit ef9740204051d0e00f5402fe96cf3a43ddd2bbbf upstream.
+commit 0b074ab7fc0d575247b9cc9f93bb7e007ca38840 upstream.
 
-The passthrough interrupts are defined at the host level and their IRQ
-data should not be cleared unless specifically deconfigured (shutdown)
-by the host. They differ from the IPI interrupts which are allocated
-by the XIVE KVM device and reserved to the guest usage only.
+The current code performs the cancel of a delayed work at the late
+stage of disconnection procedure, which may lead to the access to the
+already cleared state.
 
-This fixes a host crash when destroying a VM in which a PCI adapter
-was passed-through. In this case, the interrupt is cleared and freed
-by the KVM device and then shutdown by vfio at the host level.
+This patch assures to call cancel_delayed_work_sync() at the beginning
+of the disconnection procedure for avoiding that race.  The delayed
+work object is now assigned in the common line6 object instead of its
+derivative, so that we can call cancel_delayed_work_sync().
 
-[ 1007.360265] BUG: Kernel NULL pointer dereference at 0x00000d00
-[ 1007.360285] Faulting instruction address: 0xc00000000009da34
-[ 1007.360296] Oops: Kernel access of bad area, sig: 7 [#1]
-[ 1007.360303] LE PAGE_SIZE=64K MMU=Radix MMU=Hash SMP NR_CPUS=2048 NUMA PowerNV
-[ 1007.360314] Modules linked in: vhost_net vhost iptable_mangle ipt_MASQUERADE iptable_nat nf_nat xt_conntrack nf_conntrack nf_defrag_ipv4 ipt_REJECT nf_reject_ipv4 tun bridge stp llc kvm_hv kvm xt_tcpudp iptable_filter squashfs fuse binfmt_misc vmx_crypto ib_iser rdma_cm iw_cm ib_cm libiscsi scsi_transport_iscsi nfsd ip_tables x_tables autofs4 btrfs zstd_decompress zstd_compress lzo_compress raid10 raid456 async_raid6_recov async_memcpy async_pq async_xor async_tx xor raid6_pq multipath mlx5_ib ib_uverbs ib_core crc32c_vpmsum mlx5_core
-[ 1007.360425] CPU: 9 PID: 15576 Comm: CPU 18/KVM Kdump: loaded Not tainted 5.1.0-gad7e7d0ef #4
-[ 1007.360454] NIP:  c00000000009da34 LR: c00000000009e50c CTR: c00000000009e5d0
-[ 1007.360482] REGS: c000007f24ccf330 TRAP: 0300   Not tainted  (5.1.0-gad7e7d0ef)
-[ 1007.360500] MSR:  900000000280b033 <SF,HV,VEC,VSX,EE,FP,ME,IR,DR,RI,LE>  CR: 24002484  XER: 00000000
-[ 1007.360532] CFAR: c00000000009da10 DAR: 0000000000000d00 DSISR: 00080000 IRQMASK: 1
-[ 1007.360532] GPR00: c00000000009e62c c000007f24ccf5c0 c000000001510600 c000007fe7f947c0
-[ 1007.360532] GPR04: 0000000000000d00 0000000000000000 0000000000000000 c000005eff02d200
-[ 1007.360532] GPR08: 0000000000400000 0000000000000000 0000000000000000 fffffffffffffffd
-[ 1007.360532] GPR12: c00000000009e5d0 c000007fffff7b00 0000000000000031 000000012c345718
-[ 1007.360532] GPR16: 0000000000000000 0000000000000008 0000000000418004 0000000000040100
-[ 1007.360532] GPR20: 0000000000000000 0000000008430000 00000000003c0000 0000000000000027
-[ 1007.360532] GPR24: 00000000000000ff 0000000000000000 00000000000000ff c000007faa90d98c
-[ 1007.360532] GPR28: c000007faa90da40 00000000000fe040 ffffffffffffffff c000007fe7f947c0
-[ 1007.360689] NIP [c00000000009da34] xive_esb_read+0x34/0x120
-[ 1007.360706] LR [c00000000009e50c] xive_do_source_set_mask.part.0+0x2c/0x50
-[ 1007.360732] Call Trace:
-[ 1007.360738] [c000007f24ccf5c0] [c000000000a6383c] snooze_loop+0x15c/0x270 (unreliable)
-[ 1007.360775] [c000007f24ccf5f0] [c00000000009e62c] xive_irq_shutdown+0x5c/0xe0
-[ 1007.360795] [c000007f24ccf630] [c00000000019e4a0] irq_shutdown+0x60/0xe0
-[ 1007.360813] [c000007f24ccf660] [c000000000198c44] __free_irq+0x3a4/0x420
-[ 1007.360831] [c000007f24ccf700] [c000000000198dc8] free_irq+0x78/0xe0
-[ 1007.360849] [c000007f24ccf730] [c00000000096c5a8] vfio_msi_set_vector_signal+0xa8/0x350
-[ 1007.360878] [c000007f24ccf7f0] [c00000000096c938] vfio_msi_set_block+0xe8/0x1e0
-[ 1007.360899] [c000007f24ccf850] [c00000000096cae0] vfio_msi_disable+0xb0/0x110
-[ 1007.360912] [c000007f24ccf8a0] [c00000000096cd04] vfio_pci_set_msi_trigger+0x1c4/0x3d0
-[ 1007.360922] [c000007f24ccf910] [c00000000096d910] vfio_pci_set_irqs_ioctl+0xa0/0x170
-[ 1007.360941] [c000007f24ccf930] [c00000000096b400] vfio_pci_disable+0x80/0x5e0
-[ 1007.360963] [c000007f24ccfa10] [c00000000096b9bc] vfio_pci_release+0x5c/0x90
-[ 1007.360991] [c000007f24ccfa40] [c000000000963a9c] vfio_device_fops_release+0x3c/0x70
-[ 1007.361012] [c000007f24ccfa70] [c0000000003b5668] __fput+0xc8/0x2b0
-[ 1007.361040] [c000007f24ccfac0] [c0000000001409b0] task_work_run+0x140/0x1b0
-[ 1007.361059] [c000007f24ccfb20] [c000000000118f8c] do_exit+0x3ac/0xd00
-[ 1007.361076] [c000007f24ccfc00] [c0000000001199b0] do_group_exit+0x60/0x100
-[ 1007.361094] [c000007f24ccfc40] [c00000000012b514] get_signal+0x1a4/0x8f0
-[ 1007.361112] [c000007f24ccfd30] [c000000000021cc8] do_notify_resume+0x1a8/0x430
-[ 1007.361141] [c000007f24ccfe20] [c00000000000e444] ret_from_except_lite+0x70/0x74
-[ 1007.361159] Instruction dump:
-[ 1007.361175] 38422c00 e9230000 712a0004 41820010 548a2036 7d442378 78840020 71290020
-[ 1007.361194] 4082004c e9230010 7c892214 7c0004ac <e9240000> 0c090000 4c00012c 792a0022
+Along with the change, the startup function is called via the new
+callback instead.  This will make it easier to port other LINE6
+drivers to use the delayed work for startup in later patches.
 
-Cc: stable@vger.kernel.org # v4.12+
-Fixes: 5af50993850a ("KVM: PPC: Book3S HV: Native usage of the XIVE interrupt controller")
-Signed-off-by: Cédric Le Goater <clg@kaod.org>
-Signed-off-by: Greg Kurz <groug@kaod.org>
-Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
+Reported-by: syzbot+5255458d5e0a2b10bbb9@syzkaller.appspotmail.com
+Fixes: 7f84ff68be05 ("ALSA: line6: toneport: Fix broken usage of timer for delayed execution")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kvm/book3s_xive.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/usb/line6/driver.c   |   12 ++++++++++++
+ sound/usb/line6/driver.h   |    4 ++++
+ sound/usb/line6/toneport.c |   15 +++------------
+ 3 files changed, 19 insertions(+), 12 deletions(-)
 
---- a/arch/powerpc/kvm/book3s_xive.c
-+++ b/arch/powerpc/kvm/book3s_xive.c
-@@ -1675,7 +1675,6 @@ static void kvmppc_xive_cleanup_irq(u32
- {
- 	xive_vm_esb_load(xd, XIVE_ESB_SET_PQ_01);
- 	xive_native_configure_irq(hw_num, 0, MASKED, 0);
--	xive_cleanup_irq_data(xd);
+--- a/sound/usb/line6/driver.c
++++ b/sound/usb/line6/driver.c
+@@ -720,6 +720,15 @@ static int line6_init_cap_control(struct
+ 	return 0;
  }
  
- static void kvmppc_xive_free_sources(struct kvmppc_xive_src_block *sb)
-@@ -1689,9 +1688,10 @@ static void kvmppc_xive_free_sources(str
- 			continue;
++static void line6_startup_work(struct work_struct *work)
++{
++	struct usb_line6 *line6 =
++		container_of(work, struct usb_line6, startup_work.work);
++
++	if (line6->startup)
++		line6->startup(line6);
++}
++
+ /*
+ 	Probe USB device.
+ */
+@@ -755,6 +764,7 @@ int line6_probe(struct usb_interface *in
+ 	line6->properties = properties;
+ 	line6->usbdev = usbdev;
+ 	line6->ifcdev = &interface->dev;
++	INIT_DELAYED_WORK(&line6->startup_work, line6_startup_work);
  
- 		kvmppc_xive_cleanup_irq(state->ipi_number, &state->ipi_data);
-+		xive_cleanup_irq_data(&state->ipi_data);
- 		xive_native_free_irq(state->ipi_number);
+ 	strcpy(card->id, properties->id);
+ 	strcpy(card->driver, driver_name);
+@@ -825,6 +835,8 @@ void line6_disconnect(struct usb_interfa
+ 	if (WARN_ON(usbdev != line6->usbdev))
+ 		return;
  
--		/* Pass-through, cleanup too */
-+		/* Pass-through, cleanup too but keep IRQ hw data */
- 		if (state->pt_number)
- 			kvmppc_xive_cleanup_irq(state->pt_number, state->pt_data);
++	cancel_delayed_work(&line6->startup_work);
++
+ 	if (line6->urb_listen != NULL)
+ 		line6_stop_listen(line6);
  
+--- a/sound/usb/line6/driver.h
++++ b/sound/usb/line6/driver.h
+@@ -178,11 +178,15 @@ struct usb_line6 {
+ 			fifo;
+ 	} messages;
+ 
++	/* Work for delayed PCM startup */
++	struct delayed_work startup_work;
++
+ 	/* If MIDI is supported, buffer_message contains the pre-processed data;
+ 	 * otherwise the data is only in urb_listen (buffer_incoming).
+ 	 */
+ 	void (*process_message)(struct usb_line6 *);
+ 	void (*disconnect)(struct usb_line6 *line6);
++	void (*startup)(struct usb_line6 *line6);
+ };
+ 
+ extern char *line6_alloc_sysex_buffer(struct usb_line6 *line6, int code1,
+--- a/sound/usb/line6/toneport.c
++++ b/sound/usb/line6/toneport.c
+@@ -54,9 +54,6 @@ struct usb_line6_toneport {
+ 	/* Firmware version (x 100) */
+ 	u8 firmware_version;
+ 
+-	/* Work for delayed PCM startup */
+-	struct delayed_work pcm_work;
+-
+ 	/* Device type */
+ 	enum line6_device_type type;
+ 
+@@ -241,12 +238,8 @@ static int snd_toneport_source_put(struc
+ 	return 1;
+ }
+ 
+-static void toneport_start_pcm(struct work_struct *work)
++static void toneport_startup(struct usb_line6 *line6)
+ {
+-	struct usb_line6_toneport *toneport =
+-		container_of(work, struct usb_line6_toneport, pcm_work.work);
+-	struct usb_line6 *line6 = &toneport->line6;
+-
+ 	line6_pcm_acquire(line6->line6pcm, LINE6_STREAM_MONITOR, true);
+ }
+ 
+@@ -394,7 +387,7 @@ static int toneport_setup(struct usb_lin
+ 	if (toneport_has_led(toneport))
+ 		toneport_update_led(toneport);
+ 
+-	schedule_delayed_work(&toneport->pcm_work,
++	schedule_delayed_work(&toneport->line6.startup_work,
+ 			      msecs_to_jiffies(TONEPORT_PCM_DELAY * 1000));
+ 	return 0;
+ }
+@@ -407,8 +400,6 @@ static void line6_toneport_disconnect(st
+ 	struct usb_line6_toneport *toneport =
+ 		(struct usb_line6_toneport *)line6;
+ 
+-	cancel_delayed_work_sync(&toneport->pcm_work);
+-
+ 	if (toneport_has_led(toneport))
+ 		toneport_remove_leds(toneport);
+ }
+@@ -424,9 +415,9 @@ static int toneport_init(struct usb_line
+ 	struct usb_line6_toneport *toneport =  (struct usb_line6_toneport *) line6;
+ 
+ 	toneport->type = id->driver_info;
+-	INIT_DELAYED_WORK(&toneport->pcm_work, toneport_start_pcm);
+ 
+ 	line6->disconnect = line6_toneport_disconnect;
++	line6->startup = toneport_startup;
+ 
+ 	/* initialize PCM subsystem: */
+ 	err = line6_init_pcm(line6, &toneport_pcm_properties);
 
 
