@@ -2,89 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D408B3987E
-	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 00:21:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CA6A399CF
+	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 02:01:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729653AbfFGWVc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 18:21:32 -0400
-Received: from mail-wr1-f53.google.com ([209.85.221.53]:42626 "EHLO
-        mail-wr1-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730361AbfFGWVc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 7 Jun 2019 18:21:32 -0400
-Received: by mail-wr1-f53.google.com with SMTP id x17so3543238wrl.9
-        for <stable@vger.kernel.org>; Fri, 07 Jun 2019 15:21:31 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=in4XTbb2PbeHsOP5GimQeEwJqQ8dnlMe9grq5mDnu1A=;
-        b=SBmDqtiD4YaO95dtv5uESGEL9I2ceL/+gkzME+DFf1NeY2/UDxzUchaP/GvimFWGbd
-         EX+L9DCwCr7RhET4VO3QmYsnnNwS0E85q/enWasuZ9DWIfj+GYQR91prDxaPluKQG3hT
-         31jZNf/V0cR5xaz4tmf4FDSfdSRo9ODMwwkuBQWyhch1xQso3a1YQKD0+VTi0GHlmUGq
-         7/WoLVmP6wbkE0Er75oHZSESoksJjOARpSFU/HJurYOt3l0nJWS11hAAGJ3Q+U9hh/51
-         eqgAUhjWNpX2XlR05qizkHpg+h4Rip22kylCgHyPzwsdCyvDYcjZR7ockhcVhFtU0SDD
-         FxBg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=in4XTbb2PbeHsOP5GimQeEwJqQ8dnlMe9grq5mDnu1A=;
-        b=Qx2Cw3FGTKPnASzrY+YajsnpMWCmTqn7MKcMqmm/yzU46bniPEUYhekDtjuCJy1Lx8
-         zjAfNPYBFF0YTkeSYIZNh0cs0dMiVof1oq2kH1AKb5KNoUUEh4hh4Oro95djZ74Ctlcj
-         sSRpA5dmFxKqmLyDUYvYtsMv5jpy5DEApcrDJQsrniaMCKuq/bynyzEQs2Rh5gO+icZV
-         bFe4rjb51zE626bqQoKmJW5b/anjmk1wm+IIqLi6pi792Xrv1cNzwokATK3wt6ToXYep
-         zqdaVRsbCoM0Yb+y5qqVWGWg2Y+J4khjXlTYBlrQrpAvPYTGOUPchXi6sG6//EOqMynA
-         qhPA==
-X-Gm-Message-State: APjAAAXvDV9vQEPzYAfjCXI6MXV3XcIq6AhKV+1M3Gtt+U9az64j7OvU
-        63CE4FTfgDA3xjFcihEsrauWXxb97OhdGw==
-X-Google-Smtp-Source: APXvYqx8gBGqBwVv4GM7q4srbUFCBeHuudETFDOPa/IS3L2obiaEit/GO2Jbr1fNsV7eFkOPUAXNcw==
-X-Received: by 2002:adf:afd5:: with SMTP id y21mr34587983wrd.12.1559946091114;
-        Fri, 07 Jun 2019 15:21:31 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id y16sm2784973wru.28.2019.06.07.15.21.30
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 07 Jun 2019 15:21:30 -0700 (PDT)
-Message-ID: <5cfae36a.1c69fb81.ad9ef.1a25@mx.google.com>
-Date:   Fri, 07 Jun 2019 15:21:30 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1730816AbfFHABx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 20:01:53 -0400
+Received: from mx.aristanetworks.com ([162.210.129.12]:34130 "EHLO
+        smtp.aristanetworks.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730402AbfFHABx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 7 Jun 2019 20:01:53 -0400
+X-Greylist: delayed 434 seconds by postgrey-1.27 at vger.kernel.org; Fri, 07 Jun 2019 20:01:52 EDT
+Received: from smtp.aristanetworks.com (localhost [127.0.0.1])
+        by smtp.aristanetworks.com (Postfix) with ESMTP id 9613941B0E6;
+        Fri,  7 Jun 2019 16:55:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arista.com;
+        s=Arista-A; t=1559951703;
+        bh=Dzi853M92v2Ur/j9OKyDN0xQRvNGtOcZnl2jafJyGXg=;
+        h=Date:To:Subject:From;
+        b=nWtDsrfIRM/wiwsrLsub34vRPFtw0gCM7EgmI8sJ3DzNoIPhxPkN9jfxq2nV/kNjI
+         +Q+kmJE+kG5EvzNaEfSusNpkwv+qb0HS1BKJ9iW70tZ/25o3fZG3RVPsbUg2sKHW0Y
+         u40S7yh34zzOMrrO70QFd1NH8k7ac806zA88jf4BCZLW3ep1MqHCGvXOsTuKpl/+ne
+         qsm/ptGOF3INDeQVRePJD+JC9TXHSYX2Vo+Clz6aTFIl+D+CsTBdFEwxPaT79iOa6u
+         +L5gYS6cNHBUvBuEEfbmMeOt6gPzBwvojqIKsaAQVbnEXiZ5uJ2krewlpHjQpoSylv
+         oc1+PU22VZRMg==
+Received: from us180.sjc.aristanetworks.com (us180.sjc.aristanetworks.com [172.25.230.4])
+        by smtp.aristanetworks.com (Postfix) with ESMTP id 9484341B0E5;
+        Fri,  7 Jun 2019 16:55:03 -0700 (PDT)
+Received: by us180.sjc.aristanetworks.com (Postfix, from userid 10189)
+        id CFF3F95C0244; Fri,  7 Jun 2019 16:54:37 -0700 (PDT)
+Date:   Fri, 07 Jun 2019 16:54:37 -0700
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        gregkh@linuxfoundation.org, fruggeri@arista.com, namit@vmware.com
+Subject: kprobe: kernel panic in 4.19.47
+User-Agent: Heirloom mailx 12.5 7/5/10
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.4.180-230-g17950b5be27c
-X-Kernelci-Branch: linux-4.4.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.4.y boot: 50 boots: 1 failed,
- 49 passed (v4.4.180-230-g17950b5be27c)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <20190607235437.CFF3F95C0244@us180.sjc.aristanetworks.com>
+From:   fruggeri@arista.com (Francesco Ruggeri)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y boot: 50 boots: 1 failed, 49 passed (v4.4.180-230-g17=
-950b5be27c)
+I see the following kernel panic in 4.19.47 as soon as I hit a kprobe.
+In this case it happened right after
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.4.y/kernel/v4.4.180-230-g17950b5be27c/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.180-230-g17950b5be27c/
+# cd /sys/kernel/debug/tracing/
+# echo >trace
+# echo 'p rollback_registered_many' >kprobe_events 
+# echo 1 >events/kprobes/enable 
+# ip netns add dummy
+# ip netns del dummy
 
-Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.180-230-g17950b5be27c
-Git Commit: 17950b5be27cc26dcc48dd3f8cb9a71ba650a6b3
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 35 unique boards, 13 SoC families, 13 builds out of 190
+but I have also seen it with other functions, or when I used kernel modules
+to install kprobes.
+I bisected to 
 
-Boot Failure Detected:
+8715ce033e [ "x86/modules: Avoid breaking W^X while loading modules" ]
 
-arm64:
-    defconfig:
-        gcc-8:
-            qcom-qdf2400: 1 failed lab
+in 4.19.47 (upstream commit f2c65fb322 in v5.2-rc1).
 
----
-For more info write to <info@kernelci.org>
+Thanks,
+Francesco
+
+[  151.067082] kernel tried to execute NX-protected page - exploit attempt? (uid: 0)
+[  151.074631] BUG: unable to handle kernel paging request at ffffffffa000f000
+[  151.081661] PGD 200a067 P4D 200a067 PUD 200b063 PMD 1038324067 PTE 800000101cb73161
+[  151.089396] Oops: 0011 [#1] SMP
+[  151.092603] CPU: 12 PID: 1831 Comm: kworker/u64:1 Kdump: loaded Not tainted 4.19.47-12345018.AroraKernel419.fc18.x86_64 #1
+[  151.103696] Hardware name: Supermicro X9DRT/X9DRT, BIOS 3.0 06/28/2013
+[  151.110298] Workqueue: netns cleanup_net
+[  151.114297] RIP: 0010:0xffffffffa000f000
+[  151.118286] Code: Bad RIP value.
+[  151.121562] RSP: 0018:ffffc90007947d60 EFLAGS: 00010206
+[  151.126835] RAX: ffff88901cbf8070 RBX: ffffc90007947d88 RCX: ffff88901cbf8070
+[  151.134033] RDX: ffffc90007947d88 RSI: ffffc90007947d88 RDI: ffffc90007947d88
+[  151.141226] RBP: ffffc90007947d78 R08: 0000000000000001 R09: 0000000000020cc0
+[  151.148429] R10: ffffc900063ebe08 R11: 0000000000026cdc R12: ffffc90007947d88
+[  151.155630] R13: ffffc90007947e38 R14: ffff88901cbc8110 R15: ffffc90007947e10
+[  151.162817] FS:  0000000000000000(0000) GS:ffff88a03f900000(0000) knlGS:0000000000000000
+[  151.170964] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  151.176986] CR2: ffffffffa000efd6 CR3: 0000000002009006 CR4: 00000000000606e0
+[  151.184403] Call Trace:
+[  151.187150]  ? rollback_registered_many+0x5/0x3bc
+[  151.192123]  ? unregister_netdevice_many+0x1a/0x79
+[  151.197177]  default_device_exit_batch+0x137/0x15f
+[  151.202231]  ? __wake_up_sync+0x12/0x12
+[  151.206345]  ops_exit_list+0x29/0x53
+[  151.210181]  cleanup_net+0x189/0x240
+[  151.214030]  process_one_work+0x174/0x280
+[  151.218319]  ? rescuer_thread+0x277/0x277
+[  151.222610]  worker_thread+0x1b5/0x264
+[  151.226639]  ? rescuer_thread+0x277/0x277
+[  151.230922]  kthread+0xf5/0xfa
+[  151.234239]  ? kthread_cancel_delayed_work_sync+0x15/0x15
+[  151.239906]  ret_from_fork+0x1f/0x30
+[  151.243751] Modules linked in: ipt_MASQUERADE nf_conntrack_netlink iptable_filter xt_addrtype xt_conntrack br_netfilter bridge stp llc macvlan sg coretemp x86_pkg_temp_thermal ip6table_filter ip6_tables ghash_clmulni_intel pcbc bonding aesni_intel kvm_intel aes_x86_64 crypto_simd kvm igb cryptd irqbypass glue_helper iTCO_wdt ioatdma iTCO_vendor_support hwmon joydev i2c_i801 i2c_algo_bit ipmi_si i2c_core pcc_cpufreq lpc_ich mfd_core ipmi_msghandler fuse dca pcspkr xt_multiport iptable_nat nf_nat_ipv4 ip_tables nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 x_tables tun loop 8021q raid456 async_raid6_recov async_memcpy libcrc32c async_pq async_xor xor async_tx raid6_pq raid1 raid0 isci libsas ehci_pci crc32c_intel ehci_hcd scsi_transport_sas wmi autofs4
+[  151.312827] CR2: ffffffffa000f000
+
