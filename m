@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C63539135
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:59:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31DED39021
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:49:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730630AbfFGPmm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 11:42:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53484 "EHLO mail.kernel.org"
+        id S1731930AbfFGPtU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 11:49:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730619AbfFGPml (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 11:42:41 -0400
+        id S1731919AbfFGPtT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 11:49:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C3C072146E;
-        Fri,  7 Jun 2019 15:42:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DDF8F214C6;
+        Fri,  7 Jun 2019 15:49:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559922161;
-        bh=XPEOkHCh4obrQalMRa36nSieAg7AtoM3I/8pbi0P6rw=;
+        s=default; t=1559922559;
+        bh=y1bzMfbqPphPMtnUPCsYu7EnJPvPqvUKBEnwiVmJSs0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mh8PPYO2xDzTvBRrnUY4ldZhtae8a5d6mTXZ8dJMj+Q8pvsnk19Soi7SUrdKGE8HN
-         lxFxhe2tz5LF7vinJhgtMduoKNkboa3qvH2X4DXPSpQbnXWod9m9EHyxkNCTrsd7lx
-         1+LXBkhnRQA+QCgEEF0Pq/iai6mEaGRQtFtYepvk=
+        b=GCfFWAOzVm5F5dBuflX1QK+o0T48hzHS5grzTSmfFDFrSlBDfMYbuioDO/WhpCAJK
+         r+lEpLTXvQbY2VCH34imxnkKkcFY1GHjjN2r7+L2wZOLQehg27cB7CpqwuqvIuJ3tU
+         uIS7luxljI1WjwCTtwUPHeWDMDeDswct3pLKR4r4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Roberto Bergantinos Corpas <rbergant@redhat.com>,
-        Pavel Shilovsky <pshilov@microsoft.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 4.14 59/69] CIFS: cifs_read_allocate_pages: dont iterate through whole page array on ENOMEM
+        stable@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>
+Subject: [PATCH 5.1 55/85] docs: Fix conf.py for Sphinx 2.0
 Date:   Fri,  7 Jun 2019 17:39:40 +0200
-Message-Id: <20190607153855.358636577@linuxfoundation.org>
+Message-Id: <20190607153855.621855313@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190607153848.271562617@linuxfoundation.org>
-References: <20190607153848.271562617@linuxfoundation.org>
+In-Reply-To: <20190607153849.101321647@linuxfoundation.org>
+References: <20190607153849.101321647@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +42,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roberto Bergantinos Corpas <rbergant@redhat.com>
+From: Jonathan Corbet <corbet@lwn.net>
 
-commit 31fad7d41e73731f05b8053d17078638cf850fa6 upstream.
+commit 3bc8088464712fdcb078eefb68837ccfcc413c88 upstream.
 
- In cifs_read_allocate_pages, in case of ENOMEM, we go through
-whole rdata->pages array but we have failed the allocation before
-nr_pages, therefore we may end up calling put_page with NULL
-pointer, causing oops
+Our version check in Documentation/conf.py never envisioned a world where
+Sphinx moved beyond 1.x.  Now that the unthinkable has happened, fix our
+version check to handle higher version numbers correctly.
 
-Signed-off-by: Roberto Bergantinos Corpas <rbergant@redhat.com>
-Acked-by: Pavel Shilovsky <pshilov@microsoft.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-CC: Stable <stable@vger.kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Jonathan Corbet <corbet@lwn.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/cifs/file.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ Documentation/conf.py |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/cifs/file.c
-+++ b/fs/cifs/file.c
-@@ -2984,7 +2984,9 @@ cifs_read_allocate_pages(struct cifs_rea
- 	}
+--- a/Documentation/conf.py
++++ b/Documentation/conf.py
+@@ -37,7 +37,7 @@ needs_sphinx = '1.3'
+ extensions = ['kerneldoc', 'rstFlatTable', 'kernel_include', 'cdomain', 'kfigure', 'sphinx.ext.ifconfig']
  
- 	if (rc) {
--		for (i = 0; i < nr_pages; i++) {
-+		unsigned int nr_page_failed = i;
-+
-+		for (i = 0; i < nr_page_failed; i++) {
- 			put_page(rdata->pages[i]);
- 			rdata->pages[i] = NULL;
- 		}
+ # The name of the math extension changed on Sphinx 1.4
+-if major == 1 and minor > 3:
++if (major == 1 and minor > 3) or (major > 1):
+     extensions.append("sphinx.ext.imgmath")
+ else:
+     extensions.append("sphinx.ext.pngmath")
 
 
