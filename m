@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3316739029
-	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:49:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D341739150
+	for <lists+stable@lfdr.de>; Fri,  7 Jun 2019 17:59:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730330AbfFGPtf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 11:49:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35598 "EHLO mail.kernel.org"
+        id S1730394AbfFGP6S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 7 Jun 2019 11:58:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731983AbfFGPte (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 11:49:34 -0400
+        id S1730732AbfFGPnB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 7 Jun 2019 11:43:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0B74C20840;
-        Fri,  7 Jun 2019 15:49:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7AB372146F;
+        Fri,  7 Jun 2019 15:43:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559922573;
-        bh=6SKreW8A/rijOlLBCupg5FdbBGnRGcupoXGZRHcXZe0=;
+        s=default; t=1559922181;
+        bh=Q4JXfggz8nyiMRed+rl0trD9mJdD12aw0OQPXh78few=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P2EKkZoC8vHACrv8k2xuJCd2Qcntp8tneSwLqEdtHaKreycz5Cq9rry1jjIRZZkfA
-         q5j38F0/pvgOjcUcxWWQ+uw6SdTizzdWh13rBoUmFwnrf9pIiYn0wAwgYPG6dzGnPM
-         bmTUojmnZuFlcymX5OqfMZJfpN/tpfRThCqSRAnE=
+        b=cWHdL1BySpBErB5kJ+GULgXzz0djS8qmfW9XgWW3zfEjT/oSrNmM6oi4Wy03GEfgb
+         IGp6vTK+Xu+Mbo5wtUferJ71Sze/sC9S0e6MhWJTPHBrY8b6yfVCkXQl6mKEZbrZgx
+         T2hZtdSJJY7v4tD3+JmrtXf43508djsVB4xCoFQ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
-        Mimi Zohar <zohar@linux.ibm.com>
-Subject: [PATCH 5.1 60/85] ima: show rules with IMA_INMASK correctly
-Date:   Fri,  7 Jun 2019 17:39:45 +0200
-Message-Id: <20190607153856.094748565@linuxfoundation.org>
+        stable@vger.kernel.org, Martin Sebor <msebor@gcc.gnu.org>,
+        Jessica Yu <jeyu@kernel.org>,
+        Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
+        Stefan Agner <stefan@agner.ch>
+Subject: [PATCH 4.14 65/69] include/linux/module.h: copy __init/__exit attrs to init/cleanup_module
+Date:   Fri,  7 Jun 2019 17:39:46 +0200
+Message-Id: <20190607153855.920043978@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190607153849.101321647@linuxfoundation.org>
-References: <20190607153849.101321647@linuxfoundation.org>
+In-Reply-To: <20190607153848.271562617@linuxfoundation.org>
+References: <20190607153848.271562617@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,69 +45,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roberto Sassu <roberto.sassu@huawei.com>
+From: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
 
-commit 8cdc23a3d9ec0944000ad43bad588e36afdc38cd upstream.
+commit a6e60d84989fa0e91db7f236eda40453b0e44afa upstream.
 
-Show the '^' character when a policy rule has flag IMA_INMASK.
+The upcoming GCC 9 release extends the -Wmissing-attributes warnings
+(enabled by -Wall) to C and aliases: it warns when particular function
+attributes are missing in the aliases but not in their target.
 
-Fixes: 80eae209d63ac ("IMA: allow reading back the current IMA policy")
-Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Mimi Zohar <zohar@linux.ibm.com>
+In particular, it triggers for all the init/cleanup_module
+aliases in the kernel (defined by the module_init/exit macros),
+ending up being very noisy.
+
+These aliases point to the __init/__exit functions of a module,
+which are defined as __cold (among other attributes). However,
+the aliases themselves do not have the __cold attribute.
+
+Since the compiler behaves differently when compiling a __cold
+function as well as when compiling paths leading to calls
+to __cold functions, the warning is trying to point out
+the possibly-forgotten attribute in the alias.
+
+In order to keep the warning enabled, we decided to silence
+this case. Ideally, we would mark the aliases directly
+as __init/__exit. However, there are currently around 132 modules
+in the kernel which are missing __init/__exit in their init/cleanup
+functions (either because they are missing, or for other reasons,
+e.g. the functions being called from somewhere else); and
+a section mismatch is a hard error.
+
+A conservative alternative was to mark the aliases as __cold only.
+However, since we would like to eventually enforce __init/__exit
+to be always marked,  we chose to use the new __copy function
+attribute (introduced by GCC 9 as well to deal with this).
+With it, we copy the attributes used by the target functions
+into the aliases. This way, functions that were not marked
+as __init/__exit won't have their aliases marked either,
+and therefore there won't be a section mismatch.
+
+Note that the warning would go away marking either the extern
+declaration, the definition, or both. However, we only mark
+the definition of the alias, since we do not want callers
+(which only see the declaration) to be compiled as if the function
+was __cold (and therefore the paths leading to those calls
+would be assumed to be unlikely).
+
+Link: https://lore.kernel.org/lkml/20190123173707.GA16603@gmail.com/
+Link: https://lore.kernel.org/lkml/20190206175627.GA20399@gmail.com/
+Suggested-by: Martin Sebor <msebor@gcc.gnu.org>
+Acked-by: Jessica Yu <jeyu@kernel.org>
+Signed-off-by: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
+Signed-off-by: Stefan Agner <stefan@agner.ch>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- security/integrity/ima/ima_policy.c |   21 ++++++++++++---------
- 1 file changed, 12 insertions(+), 9 deletions(-)
+ include/linux/module.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/security/integrity/ima/ima_policy.c
-+++ b/security/integrity/ima/ima_policy.c
-@@ -1147,10 +1147,10 @@ enum {
- };
+--- a/include/linux/module.h
++++ b/include/linux/module.h
+@@ -128,13 +128,13 @@ extern void cleanup_module(void);
+ #define module_init(initfn)					\
+ 	static inline initcall_t __maybe_unused __inittest(void)		\
+ 	{ return initfn; }					\
+-	int init_module(void) __attribute__((alias(#initfn)));
++	int init_module(void) __copy(initfn) __attribute__((alias(#initfn)));
  
- static const char *const mask_tokens[] = {
--	"MAY_EXEC",
--	"MAY_WRITE",
--	"MAY_READ",
--	"MAY_APPEND"
-+	"^MAY_EXEC",
-+	"^MAY_WRITE",
-+	"^MAY_READ",
-+	"^MAY_APPEND"
- };
+ /* This is only required if you want to be unloadable. */
+ #define module_exit(exitfn)					\
+ 	static inline exitcall_t __maybe_unused __exittest(void)		\
+ 	{ return exitfn; }					\
+-	void cleanup_module(void) __attribute__((alias(#exitfn)));
++	void cleanup_module(void) __copy(exitfn) __attribute__((alias(#exitfn)));
  
- #define __ima_hook_stringify(str)	(#str),
-@@ -1210,6 +1210,7 @@ int ima_policy_show(struct seq_file *m,
- 	struct ima_rule_entry *entry = v;
- 	int i;
- 	char tbuf[64] = {0,};
-+	int offset = 0;
- 
- 	rcu_read_lock();
- 
-@@ -1233,15 +1234,17 @@ int ima_policy_show(struct seq_file *m,
- 	if (entry->flags & IMA_FUNC)
- 		policy_func_show(m, entry->func);
- 
--	if (entry->flags & IMA_MASK) {
-+	if ((entry->flags & IMA_MASK) || (entry->flags & IMA_INMASK)) {
-+		if (entry->flags & IMA_MASK)
-+			offset = 1;
- 		if (entry->mask & MAY_EXEC)
--			seq_printf(m, pt(Opt_mask), mt(mask_exec));
-+			seq_printf(m, pt(Opt_mask), mt(mask_exec) + offset);
- 		if (entry->mask & MAY_WRITE)
--			seq_printf(m, pt(Opt_mask), mt(mask_write));
-+			seq_printf(m, pt(Opt_mask), mt(mask_write) + offset);
- 		if (entry->mask & MAY_READ)
--			seq_printf(m, pt(Opt_mask), mt(mask_read));
-+			seq_printf(m, pt(Opt_mask), mt(mask_read) + offset);
- 		if (entry->mask & MAY_APPEND)
--			seq_printf(m, pt(Opt_mask), mt(mask_append));
-+			seq_printf(m, pt(Opt_mask), mt(mask_append) + offset);
- 		seq_puts(m, " ");
- 	}
+ #endif
  
 
 
