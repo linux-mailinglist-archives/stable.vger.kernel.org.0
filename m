@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 878CC39EED
-	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 13:53:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BB3C39ED5
+	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 13:52:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726860AbfFHLwP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Jun 2019 07:52:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35964 "EHLO mail.kernel.org"
+        id S1728782AbfFHLwJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Jun 2019 07:52:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728913AbfFHLrS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 8 Jun 2019 07:47:18 -0400
+        id S1728564AbfFHLrU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 8 Jun 2019 07:47:20 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DCADA21537;
-        Sat,  8 Jun 2019 11:47:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E3759216F4;
+        Sat,  8 Jun 2019 11:47:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559994437;
-        bh=ugUySFmSmxgk0l+L3c6rCvDBw8Ve0Z51DyJfgMwjbVo=;
+        s=default; t=1559994439;
+        bh=HO/aZsGPvxzUP/FabbJfcPAsKmdrz1tdOimGqy0FJWQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V72MzVUcJt+MLUHcO4R3pOwtXy3igbGsQ/ewe7yiV5G2vnBkH+YjEX53bDoqcR12G
-         DSKCFE/NoVLWGFVZ3MfDOSE1TywHZaklT8jQ1vFP9dW7hqhE96dYp2LLgn11EWFL7Y
-         ZIQ/muxVhJw+BOeKGa4nzgzyGKUqiwgUOoAP+ccA=
+        b=yHOrfup7igrKMxWB3LwlSL5rrgcjHuaXu86C4k+EyDE9yG71tastESn4OpgIRcIbh
+         OPAyhCTJAbEQ1FH/Jt0qnKu4gKU/F/KhNGDG79Fv90qasdbOL3s7+qATTFreGmHagB
+         PwkVTxump3JilhQb7VsdA0Zu0rhDijllhssVpE78=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Peter Zijlstra <peterz@infradead.org>,
@@ -36,9 +36,9 @@ Cc:     Peter Zijlstra <peterz@infradead.org>,
         Vince Weaver <vincent.weaver@maine.edu>, acme@kernel.org,
         mark.rutland@arm.com, namhyung@kernel.org,
         Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 11/31] perf/ring_buffer: Add ordering to rb->nest increment
-Date:   Sat,  8 Jun 2019 07:46:22 -0400
-Message-Id: <20190608114646.9415-11-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 12/31] perf/ring-buffer: Always use {READ,WRITE}_ONCE() for rb->user_page data
+Date:   Sat,  8 Jun 2019 07:46:23 -0400
+Message-Id: <20190608114646.9415-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190608114646.9415-1-sashal@kernel.org>
 References: <20190608114646.9415-1-sashal@kernel.org>
@@ -53,16 +53,11 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-[ Upstream commit 3f9fbe9bd86c534eba2faf5d840fd44c6049f50e ]
+[ Upstream commit 4d839dd9e4356bbacf3eb0ab13a549b83b008c21 ]
 
-Similar to how decrementing rb->next too early can cause data_head to
-(temporarily) be observed to go backward, so too can this happen when
-we increment too late.
-
-This barrier() ensures the rb->head load happens after the increment,
-both the one in the 'goto again' path, as the one from
-perf_output_get_handle() -- albeit very unlikely to matter for the
-latter.
+We must use {READ,WRITE}_ONCE() on rb->user_page data such that
+concurrent usage will see whole values. A few key sites were missing
+this.
 
 Suggested-by: Yabin Cui <yabinc@google.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
@@ -77,34 +72,45 @@ Cc: Vince Weaver <vincent.weaver@maine.edu>
 Cc: acme@kernel.org
 Cc: mark.rutland@arm.com
 Cc: namhyung@kernel.org
-Fixes: ef60777c9abd ("perf: Optimize the perf_output() path by removing IRQ-disables")
-Link: http://lkml.kernel.org/r/20190517115418.309516009@infradead.org
+Fixes: 7b732a750477 ("perf_counter: new output ABI - part 1")
+Link: http://lkml.kernel.org/r/20190517115418.394192145@infradead.org
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/events/ring_buffer.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ kernel/events/ring_buffer.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/kernel/events/ring_buffer.c b/kernel/events/ring_buffer.c
-index fde853270c09..aef2af80a927 100644
+index aef2af80a927..f3a69a4f0d57 100644
 --- a/kernel/events/ring_buffer.c
 +++ b/kernel/events/ring_buffer.c
-@@ -49,6 +49,15 @@ static void perf_output_put_handle(struct perf_output_handle *handle)
- 	unsigned long head;
- 
- again:
-+	/*
-+	 * In order to avoid publishing a head value that goes backwards,
-+	 * we must ensure the load of @rb->head happens after we've
-+	 * incremented @rb->nest.
-+	 *
-+	 * Otherwise we can observe a @rb->head value before one published
-+	 * by an IRQ/NMI happening between the load and the increment.
-+	 */
-+	barrier();
- 	head = local_read(&rb->head);
+@@ -101,7 +101,7 @@ static void perf_output_put_handle(struct perf_output_handle *handle)
+ 	 * See perf_output_begin().
+ 	 */
+ 	smp_wmb(); /* B, matches C */
+-	rb->user_page->data_head = head;
++	WRITE_ONCE(rb->user_page->data_head, head);
  
  	/*
+ 	 * We must publish the head before decrementing the nest count,
+@@ -489,7 +489,7 @@ void perf_aux_output_end(struct perf_output_handle *handle, unsigned long size)
+ 		                     handle->aux_flags);
+ 	}
+ 
+-	rb->user_page->aux_head = rb->aux_head;
++	WRITE_ONCE(rb->user_page->aux_head, rb->aux_head);
+ 	if (rb_need_aux_wakeup(rb))
+ 		wakeup = true;
+ 
+@@ -520,7 +520,7 @@ int perf_aux_output_skip(struct perf_output_handle *handle, unsigned long size)
+ 
+ 	rb->aux_head += size;
+ 
+-	rb->user_page->aux_head = rb->aux_head;
++	WRITE_ONCE(rb->user_page->aux_head, rb->aux_head);
+ 	if (rb_need_aux_wakeup(rb)) {
+ 		perf_output_wakeup(handle);
+ 		handle->wakeup = rb->aux_wakeup + rb->aux_watermark;
 -- 
 2.20.1
 
