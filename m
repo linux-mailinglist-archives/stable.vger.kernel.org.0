@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B6E739DD3
-	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 13:44:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E996539DDE
+	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 13:44:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728153AbfFHLoY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Jun 2019 07:44:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33426 "EHLO mail.kernel.org"
+        id S1728969AbfFHLor (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Jun 2019 07:44:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728132AbfFHLoY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 8 Jun 2019 07:44:24 -0400
+        id S1728578AbfFHLoh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 8 Jun 2019 07:44:37 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 72D9F214AF;
-        Sat,  8 Jun 2019 11:44:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 685EA214AF;
+        Sat,  8 Jun 2019 11:44:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559994263;
-        bh=0RdBvR7NS4NcK/RtuYqQMlazgPB8lT4PeYgDNtn3YGc=;
+        s=default; t=1559994276;
+        bh=fDNyOUPjelSpPgLUi2TrZQecZSYzHvaqm4qqfpsOkfI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mOetf323Rk/y6ZPCtcFUppCgUlt4/5cvxJVs94vMJkdVXdFkDzNkVSh6YlOw6fvJM
-         6sTD+uByeXaudajizlC+ZUjbpzO18Bfjy8hkDC+ZTjfpRrytiywD8DOcfYdpIIQr+D
-         S8BuXKl9tao/NRj8BDpadrpE/zOjQeuIX6ZjrEew=
+        b=1FQLym4OSZvOqf46bar6aKyi1+kS6OUrRPXOTxr6yqFFf5DtwOlbv2gUpI46VaNuP
+         mwmM1fvYuZl1ThiHMAFM0FsWDSSJv4nDXKytYP7FjNrNUxjXDQGjmPEGm5ye+kwD6V
+         4/RyiFFqTIeTS/kQ6WotTsKgRnPXB806RbjjklPQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thomas Richter <tmricht@linux.ibm.com>,
-        Hendrik Brueckner <brueckner@linux.ibm.com>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+Cc:     Randy Dunlap <rdunlap@infradead.org>,
+        kbuild test robot <lkp@intel.com>,
+        Tony Luck <tony.luck@intel.com>,
+        Fenghua Yu <fenghua.yu@intel.com>, linux-ia64@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 32/49] perf record: Fix s390 missing module symbol and warning for non-root users
-Date:   Sat,  8 Jun 2019 07:42:13 -0400
-Message-Id: <20190608114232.8731-32-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 33/49] ia64: fix build errors by exporting paddr_to_nid()
+Date:   Sat,  8 Jun 2019 07:42:14 -0400
+Message-Id: <20190608114232.8731-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190608114232.8731-1-sashal@kernel.org>
 References: <20190608114232.8731-1-sashal@kernel.org>
@@ -45,102 +46,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Richter <tmricht@linux.ibm.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 6738028dd57df064b969d8392c943ef3b3ae705d ]
+[ Upstream commit 9a626c4a6326da4433a0d4d4a8a7d1571caf1ed3 ]
 
-Command 'perf record' and 'perf report' on a system without kernel
-debuginfo packages uses /proc/kallsyms and /proc/modules to find
-addresses for kernel and module symbols. On x86 this works for root and
-non-root users.
+Fix build errors on ia64 when DISCONTIGMEM=y and NUMA=y by
+exporting paddr_to_nid().
 
-On s390, when invoked as non-root user, many of the following warnings
-are shown and module symbols are missing:
+Fixes these build errors:
 
-    proc/{kallsyms,modules} inconsistency while looking for
-        "[sha1_s390]" module!
+ERROR: "paddr_to_nid" [sound/core/snd-pcm.ko] undefined!
+ERROR: "paddr_to_nid" [net/sunrpc/sunrpc.ko] undefined!
+ERROR: "paddr_to_nid" [fs/cifs/cifs.ko] undefined!
+ERROR: "paddr_to_nid" [drivers/video/fbdev/core/fb.ko] undefined!
+ERROR: "paddr_to_nid" [drivers/usb/mon/usbmon.ko] undefined!
+ERROR: "paddr_to_nid" [drivers/usb/core/usbcore.ko] undefined!
+ERROR: "paddr_to_nid" [drivers/md/raid1.ko] undefined!
+ERROR: "paddr_to_nid" [drivers/md/dm-mod.ko] undefined!
+ERROR: "paddr_to_nid" [drivers/md/dm-crypt.ko] undefined!
+ERROR: "paddr_to_nid" [drivers/md/dm-bufio.ko] undefined!
+ERROR: "paddr_to_nid" [drivers/ide/ide-core.ko] undefined!
+ERROR: "paddr_to_nid" [drivers/ide/ide-cd_mod.ko] undefined!
+ERROR: "paddr_to_nid" [drivers/gpu/drm/drm.ko] undefined!
+ERROR: "paddr_to_nid" [drivers/char/agp/agpgart.ko] undefined!
+ERROR: "paddr_to_nid" [drivers/block/nbd.ko] undefined!
+ERROR: "paddr_to_nid" [drivers/block/loop.ko] undefined!
+ERROR: "paddr_to_nid" [drivers/block/brd.ko] undefined!
+ERROR: "paddr_to_nid" [crypto/ccm.ko] undefined!
 
-Command 'perf record' creates a list of module start addresses by
-parsing the output of /proc/modules and creates a PERF_RECORD_MMAP
-record for the kernel and each module. The following function call
-sequence is executed:
-
-  machine__create_kernel_maps
-    machine__create_module
-      modules__parse
-        machine__create_module --> for each line in /proc/modules
-          arch__fix_module_text_start
-
-Function arch__fix_module_text_start() is s390 specific. It opens
-file /sys/module/<name>/sections/.text to extract the module's .text
-section start address. On s390 the module loader prepends a header
-before the first section, whereas on x86 the module's text section
-address is identical the the module's load address.
-
-However module section files are root readable only. For non-root the
-read operation fails and machine__create_module() returns an error.
-Command perf record does not generate any PERF_RECORD_MMAP record
-for loaded modules. Later command perf report complains about missing
-module maps.
-
-To fix this function arch__fix_module_text_start() always returns
-success. For root users there is no change, for non-root users
-the module's load address is used as module's text start address
-(the prepended header then counts as part of the text section).
-
-This enable non-root users to use module symbols and avoid the
-warning when perf report is executed.
-
-Output before:
-
-  [tmricht@m83lp54 perf]$ ./perf report -D | fgrep MMAP
-  0 0x168 [0x50]: PERF_RECORD_MMAP ... x [kernel.kallsyms]_text
-
-Output after:
-
-  [tmricht@m83lp54 perf]$ ./perf report -D | fgrep MMAP
-  0 0x168 [0x50]: PERF_RECORD_MMAP ... x [kernel.kallsyms]_text
-  0 0x1b8 [0x98]: PERF_RECORD_MMAP ... x /lib/modules/.../autofs4.ko.xz
-  0 0x250 [0xa8]: PERF_RECORD_MMAP ... x /lib/modules/.../sha_common.ko.xz
-  0 0x2f8 [0x98]: PERF_RECORD_MMAP ... x /lib/modules/.../des_generic.ko.xz
-
-Signed-off-by: Thomas Richter <tmricht@linux.ibm.com>
-Reviewed-by: Hendrik Brueckner <brueckner@linux.ibm.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Link: http://lkml.kernel.org/r/20190522144601.50763-4-tmricht@linux.ibm.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Tony Luck <tony.luck@intel.com>
+Cc: Fenghua Yu <fenghua.yu@intel.com>
+Cc: linux-ia64@vger.kernel.org
+Signed-off-by: Tony Luck <tony.luck@intel.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/arch/s390/util/machine.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ arch/ia64/mm/numa.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/tools/perf/arch/s390/util/machine.c b/tools/perf/arch/s390/util/machine.c
-index 0b2054007314..a19690a17291 100644
---- a/tools/perf/arch/s390/util/machine.c
-+++ b/tools/perf/arch/s390/util/machine.c
-@@ -5,16 +5,19 @@
- #include "util.h"
- #include "machine.h"
- #include "api/fs/fs.h"
-+#include "debug.h"
+diff --git a/arch/ia64/mm/numa.c b/arch/ia64/mm/numa.c
+index aa19b7ac8222..476c7b4be378 100644
+--- a/arch/ia64/mm/numa.c
++++ b/arch/ia64/mm/numa.c
+@@ -49,6 +49,7 @@ paddr_to_nid(unsigned long paddr)
  
- int arch__fix_module_text_start(u64 *start, const char *name)
- {
-+	u64 m_start = *start;
- 	char path[PATH_MAX];
- 
- 	snprintf(path, PATH_MAX, "module/%.*s/sections/.text",
- 				(int)strlen(name) - 2, name + 1);
--
--	if (sysfs__read_ull(path, (unsigned long long *)start) < 0)
--		return -1;
-+	if (sysfs__read_ull(path, (unsigned long long *)start) < 0) {
-+		pr_debug2("Using module %s start:%#lx\n", path, m_start);
-+		*start = m_start;
-+	}
- 
- 	return 0;
+ 	return (i < num_node_memblks) ? node_memblk[i].nid : (num_node_memblks ? -1 : 0);
  }
++EXPORT_SYMBOL(paddr_to_nid);
+ 
+ #if defined(CONFIG_SPARSEMEM) && defined(CONFIG_NUMA)
+ /*
 -- 
 2.20.1
 
