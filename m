@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E4ECD39F15
-	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 13:54:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B14E039F10
+	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 13:53:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727777AbfFHLx7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Jun 2019 07:53:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57886 "EHLO mail.kernel.org"
+        id S1727705AbfFHLki (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Jun 2019 07:40:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727665AbfFHLkf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 8 Jun 2019 07:40:35 -0400
+        id S1727676AbfFHLkh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 8 Jun 2019 07:40:37 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A3E67214AF;
-        Sat,  8 Jun 2019 11:40:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C3E1E208C0;
+        Sat,  8 Jun 2019 11:40:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559994035;
-        bh=w5aQZhf7HlqizMDPAz0KOrvr2Obgz/W68H+SknGP92c=;
+        s=default; t=1559994036;
+        bh=Av4HY/0Q8NsA0c/favFMI7/QIDxKXvn8c7LgQSJ9lWk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uYPY3tvXWmJU1wxMqhsR/N9KlOam57+wsT9visuTn532JVPyI9Fl1SP1+DIbm3ooV
-         ig6izqBQAfSz9DIn4ssYfEh5X6TDnDAmdg8invI4JwWqefNAAud/bBSJI7wa0BaSgt
-         kSu15+ux1qBuznb07vknmDxgDwyqahwTWw2Xht9E=
+        b=udkZPYId9FlQ0E1Zgz6va6KCyX25WUyY/kKYKY8JCk3iWSbvsGB+kWI9eNS2NtACY
+         wd7yijoP2diQzOzrkHjikT1IuqI1yBXEMlapYFxcH/klxwJvrxdsP4M1MDR4sQJRLu
+         Z7RJOBVziMSLc5Q16HmOQ9nt4gXf1JWUfLfIPis8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        linux-fsdevel@vger.kernel.org, linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 29/70] io_uring: Fix __io_uring_register() false success
-Date:   Sat,  8 Jun 2019 07:39:08 -0400
-Message-Id: <20190608113950.8033-29-sashal@kernel.org>
+Cc:     Ioana Radulescu <ruxandra.radulescu@nxp.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.1 30/70] dpaa2-eth: Fix potential spectre issue
+Date:   Sat,  8 Jun 2019 07:39:09 -0400
+Message-Id: <20190608113950.8033-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190608113950.8033-1-sashal@kernel.org>
 References: <20190608113950.8033-1-sashal@kernel.org>
@@ -43,33 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Ioana Radulescu <ruxandra.radulescu@nxp.com>
 
-[ Upstream commit a278682dad37fd2f8d2f30d8e84e376a856ab472 ]
+[ Upstream commit 5a20a093d965560f632b2ec325f8876918f78165 ]
 
-If io_copy_iov() fails, it will break the loop and report success,
-albeit partially completed operation.
+Smatch reports a potential spectre vulnerability in the dpaa2-eth
+driver, where the value of rxnfc->fs.location (which is provided
+from user-space) is used as index in an array.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Add a call to array_index_nospec() to sanitize the access.
+
+Signed-off-by: Ioana Radulescu <ruxandra.radulescu@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/freescale/dpaa2/dpaa2-ethtool.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 30a5687a17b6..69ff94558758 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -2505,7 +2505,7 @@ static int io_sqe_buffer_register(struct io_ring_ctx *ctx, void __user *arg,
+diff --git a/drivers/net/ethernet/freescale/dpaa2/dpaa2-ethtool.c b/drivers/net/ethernet/freescale/dpaa2/dpaa2-ethtool.c
+index 591dfcf76adb..0610fc0bebc2 100644
+--- a/drivers/net/ethernet/freescale/dpaa2/dpaa2-ethtool.c
++++ b/drivers/net/ethernet/freescale/dpaa2/dpaa2-ethtool.c
+@@ -4,6 +4,7 @@
+  */
  
- 		ret = io_copy_iov(ctx, &iov, arg, i);
- 		if (ret)
--			break;
-+			goto err;
+ #include <linux/net_tstamp.h>
++#include <linux/nospec.h>
  
- 		/*
- 		 * Don't impose further limits on the size and buffer
+ #include "dpni.h"	/* DPNI_LINK_OPT_* */
+ #include "dpaa2-eth.h"
+@@ -589,6 +590,8 @@ static int dpaa2_eth_get_rxnfc(struct net_device *net_dev,
+ 	case ETHTOOL_GRXCLSRULE:
+ 		if (rxnfc->fs.location >= max_rules)
+ 			return -EINVAL;
++		rxnfc->fs.location = array_index_nospec(rxnfc->fs.location,
++							max_rules);
+ 		if (!priv->cls_rules[rxnfc->fs.location].in_use)
+ 			return -EINVAL;
+ 		rxnfc->fs = priv->cls_rules[rxnfc->fs.location].fs;
 -- 
 2.20.1
 
