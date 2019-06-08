@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CD3D39D88
-	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 13:43:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F03539D8F
+	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 13:43:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727259AbfFHLla (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Jun 2019 07:41:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58774 "EHLO mail.kernel.org"
+        id S1728227AbfFHLlm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Jun 2019 07:41:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728149AbfFHLlY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 8 Jun 2019 07:41:24 -0400
+        id S1728214AbfFHLlm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 8 Jun 2019 07:41:42 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D27B1214D8;
-        Sat,  8 Jun 2019 11:41:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 77B49214AF;
+        Sat,  8 Jun 2019 11:41:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559994083;
-        bh=lAKfE8nLhpz2DXzAudynrNUtfh9uXCTBu1CWgk2rz3A=;
+        s=default; t=1559994101;
+        bh=P8w6/Cwz4mwp85ulO1bL7leDulXyhT/8ea6HkJTtEdk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vtjNu9RUtkYsoGy5Ll2K5CSwmNo/Fdks9XA+FHldmq+/tNtqU22MwG8s6fw3nhM1u
-         I9UJUVT0C+NZPs3uk2rc4zl6p+J+fwHqCLV0S5QOH+DwZPmTy4WKpVvHPT4IYW9cyB
-         f1jgdu6x/wm+GJeoiHy6HuMVpt0TumTZg8x/Ev7c=
+        b=bQlCdqbwSeTXDoHNCSP/IfITBnOxjhwVXwhTf9QS6XWfNDx/6uQ7h6prKjgbtN8D5
+         Gu6sglqF0XVXxJrkIlzUSY1b+2b5jeFNex30on/KcMV68ImXc78YZB9CyF1hXvcyVL
+         uMUAov/2OX5YWQILVusn0BIJZKtwyF7eRG3YfgbQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Paul Mackerras <paulus@ozlabs.org>,
-        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
-        Sasha Levin <sashal@kernel.org>, kvm-ppc@vger.kernel.org,
-        linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.1 54/70] KVM: PPC: Book3S HV: Don't take kvm->lock around kvm_for_each_vcpu
-Date:   Sat,  8 Jun 2019 07:39:33 -0400
-Message-Id: <20190608113950.8033-54-sashal@kernel.org>
+Cc:     Geert Uytterhoeven <geert@linux-m68k.org>,
+        Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 55/70] ALSA: fireface: Use ULL suffixes for 64-bit constants
+Date:   Sat,  8 Jun 2019 07:39:34 -0400
+Message-Id: <20190608113950.8033-55-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190608113950.8033-1-sashal@kernel.org>
 References: <20190608113950.8033-1-sashal@kernel.org>
@@ -45,65 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Mackerras <paulus@ozlabs.org>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
 
-[ Upstream commit 5a3f49364c3ffa1107bd88f8292406e98c5d206c ]
+[ Upstream commit 6954158a16404e7091cea494cd0a435ca2f90388 ]
 
-Currently the HV KVM code takes the kvm->lock around calls to
-kvm_for_each_vcpu() and kvm_get_vcpu_by_id() (which can call
-kvm_for_each_vcpu() internally).  However, that leads to a lock
-order inversion problem, because these are called in contexts where
-the vcpu mutex is held, but the vcpu mutexes nest within kvm->lock
-according to Documentation/virtual/kvm/locking.txt.  Hence there
-is a possibility of deadlock.
+With gcc 4.1:
 
-To fix this, we simply don't take the kvm->lock mutex around these
-calls.  This is safe because the implementations of kvm_for_each_vcpu()
-and kvm_get_vcpu_by_id() have been designed to be able to be called
-locklessly.
+    sound/firewire/fireface/ff-protocol-latter.c: In function ‘latter_switch_fetching_mode’:
+    sound/firewire/fireface/ff-protocol-latter.c:97: warning: integer constant is too large for ‘long’ type
+    sound/firewire/fireface/ff-protocol-latter.c: In function ‘latter_begin_session’:
+    sound/firewire/fireface/ff-protocol-latter.c:170: warning: integer constant is too large for ‘long’ type
+    sound/firewire/fireface/ff-protocol-latter.c:197: warning: integer constant is too large for ‘long’ type
+    sound/firewire/fireface/ff-protocol-latter.c:205: warning: integer constant is too large for ‘long’ type
+    sound/firewire/fireface/ff-protocol-latter.c: In function ‘latter_finish_session’:
+    sound/firewire/fireface/ff-protocol-latter.c:214: warning: integer constant is too large for ‘long’ type
 
-Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
-Reviewed-by: Cédric Le Goater <clg@kaod.org>
-Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
+Fix this by adding the missing "ULL" suffixes.
+Add the same suffix to the last constant, to maintain consistency.
+
+Fixes: fd1cc9de64c2ca6c ("ALSA: fireface: add support for Fireface UCX")
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Reviewed-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kvm/book3s_hv.c | 9 +--------
- 1 file changed, 1 insertion(+), 8 deletions(-)
+ sound/firewire/fireface/ff-protocol-latter.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/arch/powerpc/kvm/book3s_hv.c b/arch/powerpc/kvm/book3s_hv.c
-index 4519c55ba19d..bea595c94cfc 100644
---- a/arch/powerpc/kvm/book3s_hv.c
-+++ b/arch/powerpc/kvm/book3s_hv.c
-@@ -445,12 +445,7 @@ static void kvmppc_dump_regs(struct kvm_vcpu *vcpu)
+diff --git a/sound/firewire/fireface/ff-protocol-latter.c b/sound/firewire/fireface/ff-protocol-latter.c
+index c8236ff89b7f..b30d02d359b1 100644
+--- a/sound/firewire/fireface/ff-protocol-latter.c
++++ b/sound/firewire/fireface/ff-protocol-latter.c
+@@ -9,11 +9,11 @@
  
- static struct kvm_vcpu *kvmppc_find_vcpu(struct kvm *kvm, int id)
- {
--	struct kvm_vcpu *ret;
--
--	mutex_lock(&kvm->lock);
--	ret = kvm_get_vcpu_by_id(kvm, id);
--	mutex_unlock(&kvm->lock);
--	return ret;
-+	return kvm_get_vcpu_by_id(kvm, id);
- }
+ #include "ff.h"
  
- static void init_vpa(struct kvm_vcpu *vcpu, struct lppaca *vpa)
-@@ -1502,7 +1497,6 @@ static void kvmppc_set_lpcr(struct kvm_vcpu *vcpu, u64 new_lpcr,
- 	struct kvmppc_vcore *vc = vcpu->arch.vcore;
- 	u64 mask;
+-#define LATTER_STF		0xffff00000004
+-#define LATTER_ISOC_CHANNELS	0xffff00000008
+-#define LATTER_ISOC_START	0xffff0000000c
+-#define LATTER_FETCH_MODE	0xffff00000010
+-#define LATTER_SYNC_STATUS	0x0000801c0000
++#define LATTER_STF		0xffff00000004ULL
++#define LATTER_ISOC_CHANNELS	0xffff00000008ULL
++#define LATTER_ISOC_START	0xffff0000000cULL
++#define LATTER_FETCH_MODE	0xffff00000010ULL
++#define LATTER_SYNC_STATUS	0x0000801c0000ULL
  
--	mutex_lock(&kvm->lock);
- 	spin_lock(&vc->lock);
- 	/*
- 	 * If ILE (interrupt little-endian) has changed, update the
-@@ -1542,7 +1536,6 @@ static void kvmppc_set_lpcr(struct kvm_vcpu *vcpu, u64 new_lpcr,
- 		mask &= 0xFFFFFFFF;
- 	vc->lpcr = (vc->lpcr & ~mask) | (new_lpcr & mask);
- 	spin_unlock(&vc->lock);
--	mutex_unlock(&kvm->lock);
- }
- 
- static int kvmppc_get_one_reg_hv(struct kvm_vcpu *vcpu, u64 id,
+ static int parse_clock_bits(u32 data, unsigned int *rate,
+ 			    enum snd_ff_clock_src *src)
 -- 
 2.20.1
 
