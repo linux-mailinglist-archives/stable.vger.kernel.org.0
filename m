@@ -2,37 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C03139EE3
-	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 13:53:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A74239E28
+	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 13:47:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727912AbfFHLqt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Jun 2019 07:46:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35466 "EHLO mail.kernel.org"
+        id S1728467AbfFHLqw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Jun 2019 07:46:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727607AbfFHLqs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 8 Jun 2019 07:46:48 -0400
+        id S1728476AbfFHLqv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 8 Jun 2019 07:46:51 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 87F24214AF;
-        Sat,  8 Jun 2019 11:46:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A688D214D8;
+        Sat,  8 Jun 2019 11:46:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559994408;
-        bh=SODLOIdn9sI8wnlrPYxT8P0mdlJbHUjtV6JnXpCdjGU=;
-        h=From:To:Cc:Subject:Date:From;
-        b=zJsJ4KfVeDuxRb+iCEQjwV2KK3hv/J9VOGhE2uQtN3nd6W8FSRGfVJSn4OBjuawgs
-         QzY0AC+h7ufZBBuMoDBPZSwP9ADqdxjNLvZtX6HcHjYnVTiRla0cYIKt9/+2DOTQhu
-         ZIfcaZWU2YZu1T8rlgOZVJe3/VlkuO5OanOsHvmI=
+        s=default; t=1559994409;
+        bh=ZGey+YzeXdJWiYBdpIjysHnXbZF0uJO5xtb/pOlBo+I=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=H3W5hjR8J6EvzZRjofyBQAAf1GtqCVxWtdRskdN0rkQLXB8tsAYfb/SdIffh0UuY0
+         BpZ2+jV2LmzJcp+u5w5TtSjXeP9X0s90I0W+v2kzty/JaCjFX57BHxVni1TDnuLDc0
+         OQXn8FUTxhjWBj4t5+kdj4PgbKMk1fqHJoY7Cqm4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
-        Stefan Wahren <stefan.wahren@i2se.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, devel@driverdev.osuosl.org
-Subject: [PATCH AUTOSEL 4.14 01/31] Staging: vc04_services: Fix a couple error codes
-Date:   Sat,  8 Jun 2019 07:46:12 -0400
-Message-Id: <20190608114646.9415-1-sashal@kernel.org>
+Cc:     Stephane Eranian <eranian@google.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vince Weaver <vincent.weaver@maine.edu>, kan.liang@intel.com,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 02/31] perf/x86/intel/ds: Fix EVENT vs. UEVENT PEBS constraints
+Date:   Sat,  8 Jun 2019 07:46:13 -0400
+Message-Id: <20190608114646.9415-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190608114646.9415-1-sashal@kernel.org>
+References: <20190608114646.9415-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,44 +50,153 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Stephane Eranian <eranian@google.com>
 
-[ Upstream commit ca4e4efbefbbdde0a7bb3023ea08d491f4daf9b9 ]
+[ Upstream commit 23e3983a466cd540ffdd2bbc6e0c51e31934f941 ]
 
-These are accidentally returning positive EINVAL instead of negative
--EINVAL.  Some of the callers treat positive values as success.
+This patch fixes an bug revealed by the following commit:
 
-Fixes: 7b3ad5abf027 ("staging: Import the BCM2835 MMAL-based V4L2 camera driver.")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Stefan Wahren <stefan.wahren@i2se.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  6b89d4c1ae85 ("perf/x86/intel: Fix INTEL_FLAGS_EVENT_CONSTRAINT* masking")
+
+That patch modified INTEL_FLAGS_EVENT_CONSTRAINT() to only look at the event code
+when matching a constraint. If code+umask were needed, then the
+INTEL_FLAGS_UEVENT_CONSTRAINT() macro was needed instead.
+This broke with some of the constraints for PEBS events.
+
+Several of them, including the one used for cycles:p, cycles:pp, cycles:ppp
+fell in that category and caused the event to be rejected in PEBS mode.
+In other words, on some platforms a cmdline such as:
+
+  $ perf top -e cycles:pp
+
+would fail with -EINVAL.
+
+This patch fixes this bug by properly using INTEL_FLAGS_UEVENT_CONSTRAINT()
+when needed in the PEBS constraint tables.
+
+Reported-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Stephane Eranian <eranian@google.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Vince Weaver <vincent.weaver@maine.edu>
+Cc: kan.liang@intel.com
+Link: http://lkml.kernel.org/r/20190521005246.423-1-eranian@google.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/vc04_services/bcm2835-camera/controls.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/events/intel/ds.c | 28 ++++++++++++++--------------
+ 1 file changed, 14 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/staging/vc04_services/bcm2835-camera/controls.c b/drivers/staging/vc04_services/bcm2835-camera/controls.c
-index 77a5d6f4e1eb..8a242f609d3b 100644
---- a/drivers/staging/vc04_services/bcm2835-camera/controls.c
-+++ b/drivers/staging/vc04_services/bcm2835-camera/controls.c
-@@ -579,7 +579,7 @@ static int ctrl_set_image_effect(struct bm2835_mmal_dev *dev,
- 				dev->colourfx.enable ? "true" : "false",
- 				dev->colourfx.u, dev->colourfx.v,
- 				ret, (ret == 0 ? 0 : -EINVAL));
--	return (ret == 0 ? 0 : EINVAL);
-+	return (ret == 0 ? 0 : -EINVAL);
- }
+diff --git a/arch/x86/events/intel/ds.c b/arch/x86/events/intel/ds.c
+index 25386be0d757..3310f9f6c3e1 100644
+--- a/arch/x86/events/intel/ds.c
++++ b/arch/x86/events/intel/ds.c
+@@ -681,7 +681,7 @@ struct event_constraint intel_core2_pebs_event_constraints[] = {
+ 	INTEL_FLAGS_UEVENT_CONSTRAINT(0x1fc7, 0x1), /* SIMD_INST_RETURED.ANY */
+ 	INTEL_FLAGS_EVENT_CONSTRAINT(0xcb, 0x1),    /* MEM_LOAD_RETIRED.* */
+ 	/* INST_RETIRED.ANY_P, inv=1, cmask=16 (cycles:p). */
+-	INTEL_FLAGS_EVENT_CONSTRAINT(0x108000c0, 0x01),
++	INTEL_FLAGS_UEVENT_CONSTRAINT(0x108000c0, 0x01),
+ 	EVENT_CONSTRAINT_END
+ };
  
- static int ctrl_set_colfx(struct bm2835_mmal_dev *dev,
-@@ -603,7 +603,7 @@ static int ctrl_set_colfx(struct bm2835_mmal_dev *dev,
- 		 "%s: After: mmal_ctrl:%p ctrl id:0x%x ctrl val:%d ret %d(%d)\n",
- 			__func__, mmal_ctrl, ctrl->id, ctrl->val, ret,
- 			(ret == 0 ? 0 : -EINVAL));
--	return (ret == 0 ? 0 : EINVAL);
-+	return (ret == 0 ? 0 : -EINVAL);
- }
+@@ -690,7 +690,7 @@ struct event_constraint intel_atom_pebs_event_constraints[] = {
+ 	INTEL_FLAGS_UEVENT_CONSTRAINT(0x00c5, 0x1), /* MISPREDICTED_BRANCH_RETIRED */
+ 	INTEL_FLAGS_EVENT_CONSTRAINT(0xcb, 0x1),    /* MEM_LOAD_RETIRED.* */
+ 	/* INST_RETIRED.ANY_P, inv=1, cmask=16 (cycles:p). */
+-	INTEL_FLAGS_EVENT_CONSTRAINT(0x108000c0, 0x01),
++	INTEL_FLAGS_UEVENT_CONSTRAINT(0x108000c0, 0x01),
+ 	/* Allow all events as PEBS with no flags */
+ 	INTEL_ALL_EVENT_CONSTRAINT(0, 0x1),
+ 	EVENT_CONSTRAINT_END
+@@ -698,7 +698,7 @@ struct event_constraint intel_atom_pebs_event_constraints[] = {
  
- static int ctrl_set_bitrate(struct bm2835_mmal_dev *dev,
+ struct event_constraint intel_slm_pebs_event_constraints[] = {
+ 	/* INST_RETIRED.ANY_P, inv=1, cmask=16 (cycles:p). */
+-	INTEL_FLAGS_EVENT_CONSTRAINT(0x108000c0, 0x1),
++	INTEL_FLAGS_UEVENT_CONSTRAINT(0x108000c0, 0x1),
+ 	/* Allow all events as PEBS with no flags */
+ 	INTEL_ALL_EVENT_CONSTRAINT(0, 0x1),
+ 	EVENT_CONSTRAINT_END
+@@ -729,7 +729,7 @@ struct event_constraint intel_nehalem_pebs_event_constraints[] = {
+ 	INTEL_FLAGS_EVENT_CONSTRAINT(0xcb, 0xf),    /* MEM_LOAD_RETIRED.* */
+ 	INTEL_FLAGS_EVENT_CONSTRAINT(0xf7, 0xf),    /* FP_ASSIST.* */
+ 	/* INST_RETIRED.ANY_P, inv=1, cmask=16 (cycles:p). */
+-	INTEL_FLAGS_EVENT_CONSTRAINT(0x108000c0, 0x0f),
++	INTEL_FLAGS_UEVENT_CONSTRAINT(0x108000c0, 0x0f),
+ 	EVENT_CONSTRAINT_END
+ };
+ 
+@@ -746,7 +746,7 @@ struct event_constraint intel_westmere_pebs_event_constraints[] = {
+ 	INTEL_FLAGS_EVENT_CONSTRAINT(0xcb, 0xf),    /* MEM_LOAD_RETIRED.* */
+ 	INTEL_FLAGS_EVENT_CONSTRAINT(0xf7, 0xf),    /* FP_ASSIST.* */
+ 	/* INST_RETIRED.ANY_P, inv=1, cmask=16 (cycles:p). */
+-	INTEL_FLAGS_EVENT_CONSTRAINT(0x108000c0, 0x0f),
++	INTEL_FLAGS_UEVENT_CONSTRAINT(0x108000c0, 0x0f),
+ 	EVENT_CONSTRAINT_END
+ };
+ 
+@@ -755,7 +755,7 @@ struct event_constraint intel_snb_pebs_event_constraints[] = {
+ 	INTEL_PLD_CONSTRAINT(0x01cd, 0x8),    /* MEM_TRANS_RETIRED.LAT_ABOVE_THR */
+ 	INTEL_PST_CONSTRAINT(0x02cd, 0x8),    /* MEM_TRANS_RETIRED.PRECISE_STORES */
+ 	/* UOPS_RETIRED.ALL, inv=1, cmask=16 (cycles:p). */
+-	INTEL_FLAGS_EVENT_CONSTRAINT(0x108001c2, 0xf),
++	INTEL_FLAGS_UEVENT_CONSTRAINT(0x108001c2, 0xf),
+         INTEL_EXCLEVT_CONSTRAINT(0xd0, 0xf),    /* MEM_UOP_RETIRED.* */
+         INTEL_EXCLEVT_CONSTRAINT(0xd1, 0xf),    /* MEM_LOAD_UOPS_RETIRED.* */
+         INTEL_EXCLEVT_CONSTRAINT(0xd2, 0xf),    /* MEM_LOAD_UOPS_LLC_HIT_RETIRED.* */
+@@ -770,9 +770,9 @@ struct event_constraint intel_ivb_pebs_event_constraints[] = {
+         INTEL_PLD_CONSTRAINT(0x01cd, 0x8),    /* MEM_TRANS_RETIRED.LAT_ABOVE_THR */
+ 	INTEL_PST_CONSTRAINT(0x02cd, 0x8),    /* MEM_TRANS_RETIRED.PRECISE_STORES */
+ 	/* UOPS_RETIRED.ALL, inv=1, cmask=16 (cycles:p). */
+-	INTEL_FLAGS_EVENT_CONSTRAINT(0x108001c2, 0xf),
++	INTEL_FLAGS_UEVENT_CONSTRAINT(0x108001c2, 0xf),
+ 	/* INST_RETIRED.PREC_DIST, inv=1, cmask=16 (cycles:ppp). */
+-	INTEL_FLAGS_EVENT_CONSTRAINT(0x108001c0, 0x2),
++	INTEL_FLAGS_UEVENT_CONSTRAINT(0x108001c0, 0x2),
+ 	INTEL_EXCLEVT_CONSTRAINT(0xd0, 0xf),    /* MEM_UOP_RETIRED.* */
+ 	INTEL_EXCLEVT_CONSTRAINT(0xd1, 0xf),    /* MEM_LOAD_UOPS_RETIRED.* */
+ 	INTEL_EXCLEVT_CONSTRAINT(0xd2, 0xf),    /* MEM_LOAD_UOPS_LLC_HIT_RETIRED.* */
+@@ -786,9 +786,9 @@ struct event_constraint intel_hsw_pebs_event_constraints[] = {
+ 	INTEL_FLAGS_UEVENT_CONSTRAINT(0x01c0, 0x2), /* INST_RETIRED.PRECDIST */
+ 	INTEL_PLD_CONSTRAINT(0x01cd, 0xf),    /* MEM_TRANS_RETIRED.* */
+ 	/* UOPS_RETIRED.ALL, inv=1, cmask=16 (cycles:p). */
+-	INTEL_FLAGS_EVENT_CONSTRAINT(0x108001c2, 0xf),
++	INTEL_FLAGS_UEVENT_CONSTRAINT(0x108001c2, 0xf),
+ 	/* INST_RETIRED.PREC_DIST, inv=1, cmask=16 (cycles:ppp). */
+-	INTEL_FLAGS_EVENT_CONSTRAINT(0x108001c0, 0x2),
++	INTEL_FLAGS_UEVENT_CONSTRAINT(0x108001c0, 0x2),
+ 	INTEL_FLAGS_UEVENT_CONSTRAINT_DATALA_NA(0x01c2, 0xf), /* UOPS_RETIRED.ALL */
+ 	INTEL_FLAGS_UEVENT_CONSTRAINT_DATALA_XLD(0x11d0, 0xf), /* MEM_UOPS_RETIRED.STLB_MISS_LOADS */
+ 	INTEL_FLAGS_UEVENT_CONSTRAINT_DATALA_XLD(0x21d0, 0xf), /* MEM_UOPS_RETIRED.LOCK_LOADS */
+@@ -809,9 +809,9 @@ struct event_constraint intel_bdw_pebs_event_constraints[] = {
+ 	INTEL_FLAGS_UEVENT_CONSTRAINT(0x01c0, 0x2), /* INST_RETIRED.PRECDIST */
+ 	INTEL_PLD_CONSTRAINT(0x01cd, 0xf),    /* MEM_TRANS_RETIRED.* */
+ 	/* UOPS_RETIRED.ALL, inv=1, cmask=16 (cycles:p). */
+-	INTEL_FLAGS_EVENT_CONSTRAINT(0x108001c2, 0xf),
++	INTEL_FLAGS_UEVENT_CONSTRAINT(0x108001c2, 0xf),
+ 	/* INST_RETIRED.PREC_DIST, inv=1, cmask=16 (cycles:ppp). */
+-	INTEL_FLAGS_EVENT_CONSTRAINT(0x108001c0, 0x2),
++	INTEL_FLAGS_UEVENT_CONSTRAINT(0x108001c0, 0x2),
+ 	INTEL_FLAGS_UEVENT_CONSTRAINT_DATALA_NA(0x01c2, 0xf), /* UOPS_RETIRED.ALL */
+ 	INTEL_FLAGS_UEVENT_CONSTRAINT_DATALA_LD(0x11d0, 0xf), /* MEM_UOPS_RETIRED.STLB_MISS_LOADS */
+ 	INTEL_FLAGS_UEVENT_CONSTRAINT_DATALA_LD(0x21d0, 0xf), /* MEM_UOPS_RETIRED.LOCK_LOADS */
+@@ -832,9 +832,9 @@ struct event_constraint intel_bdw_pebs_event_constraints[] = {
+ struct event_constraint intel_skl_pebs_event_constraints[] = {
+ 	INTEL_FLAGS_UEVENT_CONSTRAINT(0x1c0, 0x2),	/* INST_RETIRED.PREC_DIST */
+ 	/* INST_RETIRED.PREC_DIST, inv=1, cmask=16 (cycles:ppp). */
+-	INTEL_FLAGS_EVENT_CONSTRAINT(0x108001c0, 0x2),
++	INTEL_FLAGS_UEVENT_CONSTRAINT(0x108001c0, 0x2),
+ 	/* INST_RETIRED.TOTAL_CYCLES_PS (inv=1, cmask=16) (cycles:p). */
+-	INTEL_FLAGS_EVENT_CONSTRAINT(0x108000c0, 0x0f),
++	INTEL_FLAGS_UEVENT_CONSTRAINT(0x108000c0, 0x0f),
+ 	INTEL_PLD_CONSTRAINT(0x1cd, 0xf),		      /* MEM_TRANS_RETIRED.* */
+ 	INTEL_FLAGS_UEVENT_CONSTRAINT_DATALA_LD(0x11d0, 0xf), /* MEM_INST_RETIRED.STLB_MISS_LOADS */
+ 	INTEL_FLAGS_UEVENT_CONSTRAINT_DATALA_ST(0x12d0, 0xf), /* MEM_INST_RETIRED.STLB_MISS_STORES */
 -- 
 2.20.1
 
