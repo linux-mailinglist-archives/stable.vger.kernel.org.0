@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C6BD439EC4
-	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 13:52:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F71039EC1
+	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 13:52:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729044AbfFHLrk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Jun 2019 07:47:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36376 "EHLO mail.kernel.org"
+        id S1729282AbfFHLve (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Jun 2019 07:51:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728934AbfFHLrj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 8 Jun 2019 07:47:39 -0400
+        id S1728739AbfFHLrl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 8 Jun 2019 07:47:41 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3899C2168B;
-        Sat,  8 Jun 2019 11:47:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9330B216F4;
+        Sat,  8 Jun 2019 11:47:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559994459;
-        bh=fDNyOUPjelSpPgLUi2TrZQecZSYzHvaqm4qqfpsOkfI=;
+        s=default; t=1559994460;
+        bh=SeiYGK0Nx4Bm4T/JsZxr9gZrK8198XvhlkZWNXqBbEw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ez1jfK3RR0a31lQ8kK0cgXD/vBjFph106dM+dMgb2SunUQ8bBSRbQm3a2lRPyGpqJ
-         7bysJQZdfsB5oGXfnmZRYHbcfLb0YrVHUTz9XnysVnRzcevV8tUZuhF2EBTsUtA5q0
-         Akerfg5cdXTtnnjX5ch969Y2BtINVwuKQCCwe3zU=
+        b=h0xy5zWfkE3LK5v/T4TmjZeFHQvohTd0R4KGdC9C78ZP05pG/L3c/8i6tdp7djwgf
+         hkSbJ2qI1dbRAk+cDb67j+Ik7yKOVDcX4He7ffZga007krkfvBAlEDByqf/x7pKLWq
+         W9a7yrSrSyrU5XT/+r97XkocBKJX93vX8R9cPDjs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Randy Dunlap <rdunlap@infradead.org>,
-        kbuild test robot <lkp@intel.com>,
-        Tony Luck <tony.luck@intel.com>,
-        Fenghua Yu <fenghua.yu@intel.com>, linux-ia64@vger.kernel.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 22/31] ia64: fix build errors by exporting paddr_to_nid()
-Date:   Sat,  8 Jun 2019 07:46:33 -0400
-Message-Id: <20190608114646.9415-22-sashal@kernel.org>
+Cc:     Paul Mackerras <paulus@ozlabs.org>,
+        Sasha Levin <sashal@kernel.org>, kvm-ppc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.14 23/31] KVM: PPC: Book3S: Use new mutex to synchronize access to rtas token list
+Date:   Sat,  8 Jun 2019 07:46:34 -0400
+Message-Id: <20190608114646.9415-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190608114646.9415-1-sashal@kernel.org>
 References: <20190608114646.9415-1-sashal@kernel.org>
@@ -46,58 +43,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Paul Mackerras <paulus@ozlabs.org>
 
-[ Upstream commit 9a626c4a6326da4433a0d4d4a8a7d1571caf1ed3 ]
+[ Upstream commit 1659e27d2bc1ef47b6d031abe01b467f18cb72d9 ]
 
-Fix build errors on ia64 when DISCONTIGMEM=y and NUMA=y by
-exporting paddr_to_nid().
+Currently the Book 3S KVM code uses kvm->lock to synchronize access
+to the kvm->arch.rtas_tokens list.  Because this list is scanned
+inside kvmppc_rtas_hcall(), which is called with the vcpu mutex held,
+taking kvm->lock cause a lock inversion problem, which could lead to
+a deadlock.
 
-Fixes these build errors:
+To fix this, we add a new mutex, kvm->arch.rtas_token_lock, which nests
+inside the vcpu mutexes, and use that instead of kvm->lock when
+accessing the rtas token list.
 
-ERROR: "paddr_to_nid" [sound/core/snd-pcm.ko] undefined!
-ERROR: "paddr_to_nid" [net/sunrpc/sunrpc.ko] undefined!
-ERROR: "paddr_to_nid" [fs/cifs/cifs.ko] undefined!
-ERROR: "paddr_to_nid" [drivers/video/fbdev/core/fb.ko] undefined!
-ERROR: "paddr_to_nid" [drivers/usb/mon/usbmon.ko] undefined!
-ERROR: "paddr_to_nid" [drivers/usb/core/usbcore.ko] undefined!
-ERROR: "paddr_to_nid" [drivers/md/raid1.ko] undefined!
-ERROR: "paddr_to_nid" [drivers/md/dm-mod.ko] undefined!
-ERROR: "paddr_to_nid" [drivers/md/dm-crypt.ko] undefined!
-ERROR: "paddr_to_nid" [drivers/md/dm-bufio.ko] undefined!
-ERROR: "paddr_to_nid" [drivers/ide/ide-core.ko] undefined!
-ERROR: "paddr_to_nid" [drivers/ide/ide-cd_mod.ko] undefined!
-ERROR: "paddr_to_nid" [drivers/gpu/drm/drm.ko] undefined!
-ERROR: "paddr_to_nid" [drivers/char/agp/agpgart.ko] undefined!
-ERROR: "paddr_to_nid" [drivers/block/nbd.ko] undefined!
-ERROR: "paddr_to_nid" [drivers/block/loop.ko] undefined!
-ERROR: "paddr_to_nid" [drivers/block/brd.ko] undefined!
-ERROR: "paddr_to_nid" [crypto/ccm.ko] undefined!
+This removes the lockdep_assert_held() in kvmppc_rtas_tokens_free().
+At this point we don't hold the new mutex, but that is OK because
+kvmppc_rtas_tokens_free() is only called when the whole VM is being
+destroyed, and at that point nothing can be looking up a token in
+the list.
 
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: Fenghua Yu <fenghua.yu@intel.com>
-Cc: linux-ia64@vger.kernel.org
-Signed-off-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/ia64/mm/numa.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/powerpc/include/asm/kvm_host.h |  1 +
+ arch/powerpc/kvm/book3s.c           |  1 +
+ arch/powerpc/kvm/book3s_rtas.c      | 14 ++++++--------
+ 3 files changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/arch/ia64/mm/numa.c b/arch/ia64/mm/numa.c
-index aa19b7ac8222..476c7b4be378 100644
---- a/arch/ia64/mm/numa.c
-+++ b/arch/ia64/mm/numa.c
-@@ -49,6 +49,7 @@ paddr_to_nid(unsigned long paddr)
+diff --git a/arch/powerpc/include/asm/kvm_host.h b/arch/powerpc/include/asm/kvm_host.h
+index e3ba58f64c3d..5070b34b12fd 100644
+--- a/arch/powerpc/include/asm/kvm_host.h
++++ b/arch/powerpc/include/asm/kvm_host.h
+@@ -296,6 +296,7 @@ struct kvm_arch {
+ #ifdef CONFIG_PPC_BOOK3S_64
+ 	struct list_head spapr_tce_tables;
+ 	struct list_head rtas_tokens;
++	struct mutex rtas_token_lock;
+ 	DECLARE_BITMAP(enabled_hcalls, MAX_HCALL_OPCODE/4 + 1);
+ #endif
+ #ifdef CONFIG_KVM_MPIC
+diff --git a/arch/powerpc/kvm/book3s.c b/arch/powerpc/kvm/book3s.c
+index 72d977e30952..d38280b01ef0 100644
+--- a/arch/powerpc/kvm/book3s.c
++++ b/arch/powerpc/kvm/book3s.c
+@@ -836,6 +836,7 @@ int kvmppc_core_init_vm(struct kvm *kvm)
+ #ifdef CONFIG_PPC64
+ 	INIT_LIST_HEAD_RCU(&kvm->arch.spapr_tce_tables);
+ 	INIT_LIST_HEAD(&kvm->arch.rtas_tokens);
++	mutex_init(&kvm->arch.rtas_token_lock);
+ #endif
  
- 	return (i < num_node_memblks) ? node_memblk[i].nid : (num_node_memblks ? -1 : 0);
+ 	return kvm->arch.kvm_ops->init_vm(kvm);
+diff --git a/arch/powerpc/kvm/book3s_rtas.c b/arch/powerpc/kvm/book3s_rtas.c
+index 2d3b2b1cc272..8f2355138f80 100644
+--- a/arch/powerpc/kvm/book3s_rtas.c
++++ b/arch/powerpc/kvm/book3s_rtas.c
+@@ -146,7 +146,7 @@ static int rtas_token_undefine(struct kvm *kvm, char *name)
+ {
+ 	struct rtas_token_definition *d, *tmp;
+ 
+-	lockdep_assert_held(&kvm->lock);
++	lockdep_assert_held(&kvm->arch.rtas_token_lock);
+ 
+ 	list_for_each_entry_safe(d, tmp, &kvm->arch.rtas_tokens, list) {
+ 		if (rtas_name_matches(d->handler->name, name)) {
+@@ -167,7 +167,7 @@ static int rtas_token_define(struct kvm *kvm, char *name, u64 token)
+ 	bool found;
+ 	int i;
+ 
+-	lockdep_assert_held(&kvm->lock);
++	lockdep_assert_held(&kvm->arch.rtas_token_lock);
+ 
+ 	list_for_each_entry(d, &kvm->arch.rtas_tokens, list) {
+ 		if (d->token == token)
+@@ -206,14 +206,14 @@ int kvm_vm_ioctl_rtas_define_token(struct kvm *kvm, void __user *argp)
+ 	if (copy_from_user(&args, argp, sizeof(args)))
+ 		return -EFAULT;
+ 
+-	mutex_lock(&kvm->lock);
++	mutex_lock(&kvm->arch.rtas_token_lock);
+ 
+ 	if (args.token)
+ 		rc = rtas_token_define(kvm, args.name, args.token);
+ 	else
+ 		rc = rtas_token_undefine(kvm, args.name);
+ 
+-	mutex_unlock(&kvm->lock);
++	mutex_unlock(&kvm->arch.rtas_token_lock);
+ 
+ 	return rc;
  }
-+EXPORT_SYMBOL(paddr_to_nid);
+@@ -245,7 +245,7 @@ int kvmppc_rtas_hcall(struct kvm_vcpu *vcpu)
+ 	orig_rets = args.rets;
+ 	args.rets = &args.args[be32_to_cpu(args.nargs)];
  
- #if defined(CONFIG_SPARSEMEM) && defined(CONFIG_NUMA)
- /*
+-	mutex_lock(&vcpu->kvm->lock);
++	mutex_lock(&vcpu->kvm->arch.rtas_token_lock);
+ 
+ 	rc = -ENOENT;
+ 	list_for_each_entry(d, &vcpu->kvm->arch.rtas_tokens, list) {
+@@ -256,7 +256,7 @@ int kvmppc_rtas_hcall(struct kvm_vcpu *vcpu)
+ 		}
+ 	}
+ 
+-	mutex_unlock(&vcpu->kvm->lock);
++	mutex_unlock(&vcpu->kvm->arch.rtas_token_lock);
+ 
+ 	if (rc == 0) {
+ 		args.rets = orig_rets;
+@@ -282,8 +282,6 @@ void kvmppc_rtas_tokens_free(struct kvm *kvm)
+ {
+ 	struct rtas_token_definition *d, *tmp;
+ 
+-	lockdep_assert_held(&kvm->lock);
+-
+ 	list_for_each_entry_safe(d, tmp, &kvm->arch.rtas_tokens, list) {
+ 		list_del(&d->list);
+ 		kfree(d);
 -- 
 2.20.1
 
