@@ -2,88 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D514F3A080
-	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 17:40:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6412D3A087
+	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 17:49:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727074AbfFHPk3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Jun 2019 11:40:29 -0400
-Received: from smtp.bonedaddy.net ([45.33.94.42]:49934 "EHLO
-        smtp.bonedaddy.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727035AbfFHPk2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 8 Jun 2019 11:40:28 -0400
-Received: from chianamo (n58-108-67-123.per1.wa.optusnet.com.au [58.108.67.123])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: pabs3@bonedaddy.net)
-        by smtp.bonedaddy.net (Postfix) with ESMTPSA id 11D28180044;
-        Sat,  8 Jun 2019 11:40:24 -0400 (EDT)
-Message-ID: <5c61b516222261594aca5e6eb8fbf38fcaefe0ec.camel@bonedaddy.net>
-Subject: Re: [PATCH 2/2] drm: add fallback override/firmware EDID modes
- workaround
-From:   Paul Wise <pabs3@bonedaddy.net>
-To:     Daniel Vetter <daniel@ffwll.ch>,
-        Jani Nikula <jani.nikula@intel.com>
-Cc:     intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-        Ilpo =?ISO-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@cs.helsinki.fi>,
-        stable@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Ville =?ISO-8859-1?Q?Syrj=E4l=E4?= 
-        <ville.syrjala@linux.intel.com>,
-        Harish Chegondi <harish.chegondi@intel.com>
-In-Reply-To: <24d1a13799ae7e0331ff668d9b170c4920d7d762.camel@bonedaddy.net>
-References: <20190607110513.12072-1-jani.nikula@intel.com>
-         <20190607110513.12072-2-jani.nikula@intel.com>
-         <20190607151021.GJ21222@phenom.ffwll.local>
-         <24d1a13799ae7e0331ff668d9b170c4920d7d762.camel@bonedaddy.net>
-Content-Type: multipart/signed; micalg="pgp-sha512";
-        protocol="application/pgp-signature"; boundary="=-kOOwBpdc/ZHVwtVwc55x"
-Date:   Sat, 08 Jun 2019 23:40:21 +0800
+        id S1727159AbfFHPtb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Jun 2019 11:49:31 -0400
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:54296 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727035AbfFHPtb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 8 Jun 2019 11:49:31 -0400
+Received: by mail-wm1-f68.google.com with SMTP id g135so4755944wme.4
+        for <stable@vger.kernel.org>; Sat, 08 Jun 2019 08:49:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=pHGpvWmmPQbNLDzox15I+1ID77/pKQSuG/kdotxbyDU=;
+        b=WASMWQOV449j6tB3p0A0/w6doEQNsdmkTUh2Em/dCmvDZGH+AFjH/0xfLUnOy4vnOJ
+         +NxHs2xkACypdPpWxlpNh5CdqlxgpD0+kxTeIfnAHToKGvG4vNK5jcPPBz/84/0R5EpN
+         a8eBOsN74Ewx24z6rPfLyccmm70d5HMKeq/8FlN5DleNTHLtk8eS28ZwmBlze7Dy3aLC
+         882HzvMH2uxtDc5o3wqOfTCuyzvHf8t6ABjUA+coKI43dxf7cjh/9T1BOS0uhmtjqnMs
+         3dGbVibYg8MbZ1KbjdS0bJIw2x9XR5UEExcDmObcah1GE0V0CK7LIOhvLdYM0LTVQ3jE
+         wzIw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=pHGpvWmmPQbNLDzox15I+1ID77/pKQSuG/kdotxbyDU=;
+        b=TfGgn9gznW81fVSg/klbgCysMPppzK0meKosH1ddx/NoM8hT3zNbVxVP982RgxqXXq
+         LkudG9trwIdVoa7SV+XllMLGO41Pxl3TAsQjvYcK2K+ZLE0iQnPc0PnEeXaVJHv9sMUT
+         OFAprJ8FUGyWmoP2wN6ZdwQk9Ejgpu/WqCTVspKu8w/V9rjgl69nheod7vHVULORYPf8
+         PmgZDU421zjqw3/fXlOUyRvHUHbFvwiFS/QVyFD2iBbjL1TXSUoqf/4DaiNCgLI/xo+D
+         PuhAHAWDN/1dhDV189RYPTmcsI012BOe1zywpAFZeZe1nCMQvusLj+UiZUhq5lcdr8uh
+         dEXA==
+X-Gm-Message-State: APjAAAUYdbQ7UIdLE+tCubyVfCiWjtS8mi5YQaR5WJ0TidGjk88pEwaV
+        M+Ioa1W5Z2UCs2vupT/5ti0=
+X-Google-Smtp-Source: APXvYqycBoqoeEyOepgzUUEhO7PeTzhQAiQxVYa7XDbaHP/LpMntISaLNlf5G7tefxqocz0Y/LxHsA==
+X-Received: by 2002:a1c:a6d3:: with SMTP id p202mr7872682wme.26.1560008969746;
+        Sat, 08 Jun 2019 08:49:29 -0700 (PDT)
+Received: from zhanggen-UX430UQ ([108.61.173.19])
+        by smtp.gmail.com with ESMTPSA id z6sm6556673wrw.2.2019.06.08.08.49.21
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 08 Jun 2019 08:49:29 -0700 (PDT)
+Date:   Sat, 8 Jun 2019 23:49:14 +0800
+From:   Gen Zhang <blackgod016574@gmail.com>
+To:     Ben Hutchings <ben@decadent.org.uk>
+Cc:     Zubin Mithra <zsm@chromium.org>, stable@vger.kernel.org,
+        gregkh@linuxfoundation.org, groeck@chromium.org,
+        davem@davemloft.net, kuznet@ms2.inr.ac.ru, jmorris@namei.org,
+        yoshfuji@linux-ipv6.org, kaber@trash.net
+Subject: Re: 425aa0e1d015 ("ip_sockglue: Fix missing-check bug in
+ ip_ra_control()")
+Message-ID: <20190608154914.GA3449@zhanggen-UX430UQ>
+References: <20190603230239.GA168284@google.com>
+ <69e47f52ec342b6c70c1cae6cd0140a51a713752.camel@decadent.org.uk>
+ <20190607024115.GA4196@zhanggen-UX430UQ>
+ <b1c9339054e583569888243331c0c7dd28591410.camel@decadent.org.uk>
 MIME-Version: 1.0
-User-Agent: Evolution 3.30.5-1.1 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <b1c9339054e583569888243331c0c7dd28591410.camel@decadent.org.uk>
+User-Agent: Mutt/1.5.24 (2015-08-30)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, Jun 07, 2019 at 02:02:09PM +0100, Ben Hutchings wrote:
+> On Fri, 2019-06-07 at 10:41 +0800, Gen Zhang wrote:
+> > On Thu, Jun 06, 2019 at 07:58:35PM +0100, Ben Hutchings wrote:
+> > > On Mon, 2019-06-03 at 16:02 -0700, Zubin Mithra wrote:
+> > > > Hello,
+> > > > 
+> > > > CVE-2019-12381 was fixed in the upstream linux kernel with the commit :-
+> > > > * 425aa0e1d015 ("ip_sockglue: Fix missing-check bug in ip_ra_control()")
+> > > > 
+> > > > Could the patch be applied in order to v4.19.y, v4.14.y, v4.9.y and v4.4.y ?
+> > > > 
+> > > > Tests run:
+> > > > * Chrome OS tryjobs
+> > > 
+> > > This doesn't fix a security vulnerability.  There already was a check
+> > > for allocation failure before dereferencing the returned pointer; it
+> > > just wasn't in the most obvious place.
+> > > 
+> > > I've requested rejection of this CVE, and several other invalid reports
+> > > from the same person.
+> > And where did this 'invalid' come from? Did any maintainers claimed the 
+> > patch 'invalid' or something? I am confused...
+> 
+> I'm not saying the patch is invalid.  It makes the code clearer and
+> seems to result in returning a more appropriate error code.  So I don't
+> disagree with the patch, only the claim that it's fixing a security
+> issue.
+> 
+> My requests to reject the CVE assignments were made using MITRE's web
+> form.
+Well, I see. Thanks for your comments.
 
---=-kOOwBpdc/ZHVwtVwc55x
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Thanks
+Gen
+> 
+> Ben.
+> 
+> -- 
+> Ben Hutchings
+> Life would be so much easier if we could look at the source code.
+> 
+> 
 
-On Sat, 2019-06-08 at 13:10 +0800, Paul Wise wrote:
-
-> I'll test that it also works with an nVidia GPU & noveau drivers
-> later today once that system is available.
-
-Same results as with the Intel GPU:
-
-Correct screen resolution but missing EDID override data.
-
---=20
-bye,
-pabs
-
-https://bonedaddy.net/pabs3/
-
---=-kOOwBpdc/ZHVwtVwc55x
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEYQsotVz8/kXqG1Y7MRa6Xp/6aaMFAlz71uEACgkQMRa6Xp/6
-aaMgCw/9EDgCzD7xCdK8YXcalOTEB5H+MIokDGLI18mh0EmU/VR+WweEZ0Ml9qEK
-dHW3SJYvd36WvHX0YLxGEugUdGz8wu+fLx4oiX/tOecQLE+ZKqw+1v+wSuBoSPqH
-DDc8Lpyj+PQ134o3wgbVUgTkNKUkJP4DrNYL3E5mKee/FyDGNvqjxPc99EA306by
-TahoNY1UTIS+to+edHcxjPkDI0dZ9zaXNsnVLMRF/oKjZBSHSP4ytAhNy8ZHWTO1
-UNZqWUg2ySbzgIkwii0SnmjY0NrFMY1nPSB+Di2XO3z2yPbvE7AjjM5ZYdu53buk
-CTyN6PscYTlbNT5PlTnQAxM7agRNZbGBY7G9lKpPcb7gye45fDw+VSsbteRMKNql
-MTUa/+rUI5bjvmVsxCfkVC5913/WYouRGfLyXbgKu5FFsR6hFJyUqK2SRpyQpd0x
-+q4aNi14cSscqooOyout7cAyafHHlaO9hESywfbaXTJ9HvN/ebr8a8wiQbpwR1sh
-YPxkURbPbEn7w/S/p3gugfMULPWGajUlg/5rNFS8eWds7QC8JqD/E2TL+5ZSXLl/
-ke9HgXdmJnLEg/mGqZfMbfXcIxINT7So6KpXttVjNW7n+sJ+pXCuivKYAdsNOUav
-srL8tHLYIVoWR650jPvHtyulKcK//nBN5/l3zqNoCCUcfXe0cuo=
-=mGZA
------END PGP SIGNATURE-----
-
---=-kOOwBpdc/ZHVwtVwc55x--
 
