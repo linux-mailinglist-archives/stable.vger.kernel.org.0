@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 99A6B39D53
-	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 13:40:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 661E339F44
+	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 13:55:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727206AbfFHLj6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Jun 2019 07:39:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56998 "EHLO mail.kernel.org"
+        id S1727223AbfFHLkA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Jun 2019 07:40:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727100AbfFHLj5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 8 Jun 2019 07:39:57 -0400
+        id S1727210AbfFHLj7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 8 Jun 2019 07:39:59 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 83E1921530;
-        Sat,  8 Jun 2019 11:39:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EB1DA214C6;
+        Sat,  8 Jun 2019 11:39:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559993997;
-        bh=H1tVuLnPNysLon5VS2w3HimbFqbOZX0S9uOUa3IMepU=;
+        s=default; t=1559993998;
+        bh=Cc9QeE+vfVmX61/UnF1YtxWvha4NlWEhKtuGb1GNbSw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qLhNstgdT98NSzjmUABTpFsbF22DIGYAmp+sDKeT7EJfnC1SNuOma297ceQSVLooh
-         RYd99kCc4abY2Zxk1OaM/fhO1vwRyQaFAwdf0HOUBIou5CtJmL0/6dQONrP+rYskgW
-         IAvD9pmmWQ/tq8ur5KEJDlOpUFC0xUkCsJk+hQIs=
+        b=DLz6pnazXAWrnaf84A/vwPiXUnHTN1K6l36yKH8Zv43g+Ec5hLdYEFRX3BPEnvV31
+         eV/PAK7bZAt4GImyxCDiTaM/R5jKBkbZNOPq93Ot6HGjyn6PGEH1qXw/j4K/eNT1Pt
+         hFdo6qYBNi16B2ynDQ7Y13M5dxn2na1kE7UVWroY=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chengguang Xu <cgxu519@gmail.com>, Chao Yu <yuchao0@huawei.com>,
-        Gao Xiang <gaoxiang25@huawei.com>,
+Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
+        Stefan Wahren <stefan.wahren@i2se.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>, devel@driverdev.osuosl.org
-Subject: [PATCH AUTOSEL 5.1 05/70] staging: erofs: set sb->s_root to NULL when failing from __getname()
-Date:   Sat,  8 Jun 2019 07:38:44 -0400
-Message-Id: <20190608113950.8033-5-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 06/70] Staging: vc04_services: Fix a couple error codes
+Date:   Sat,  8 Jun 2019 07:38:45 -0400
+Message-Id: <20190608113950.8033-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190608113950.8033-1-sashal@kernel.org>
 References: <20190608113950.8033-1-sashal@kernel.org>
@@ -44,35 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengguang Xu <cgxu519@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit f2dcb8841e6b155da098edae09125859ef7e853d ]
+[ Upstream commit ca4e4efbefbbdde0a7bb3023ea08d491f4daf9b9 ]
 
-Set sb->s_root to NULL when failing from __getname(),
-so that we can avoid double dput and unnecessary operations
-in generic_shutdown_super().
+These are accidentally returning positive EINVAL instead of negative
+-EINVAL.  Some of the callers treat positive values as success.
 
-Signed-off-by: Chengguang Xu <cgxu519@gmail.com>
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Reviewed-by: Gao Xiang <gaoxiang25@huawei.com>
+Fixes: 7b3ad5abf027 ("staging: Import the BCM2835 MMAL-based V4L2 camera driver.")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Stefan Wahren <stefan.wahren@i2se.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/erofs/super.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/staging/vc04_services/bcm2835-camera/controls.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
-index 15c784fba879..c8981662a49b 100644
---- a/drivers/staging/erofs/super.c
-+++ b/drivers/staging/erofs/super.c
-@@ -459,6 +459,7 @@ static int erofs_read_super(struct super_block *sb,
- 	 */
- err_devname:
- 	dput(sb->s_root);
-+	sb->s_root = NULL;
- err_iget:
- #ifdef EROFS_FS_HAS_MANAGED_CACHE
- 	iput(sbi->managed_cache);
+diff --git a/drivers/staging/vc04_services/bcm2835-camera/controls.c b/drivers/staging/vc04_services/bcm2835-camera/controls.c
+index a2c55cb2192a..52f3c4be5ff8 100644
+--- a/drivers/staging/vc04_services/bcm2835-camera/controls.c
++++ b/drivers/staging/vc04_services/bcm2835-camera/controls.c
+@@ -576,7 +576,7 @@ exit:
+ 				dev->colourfx.enable ? "true" : "false",
+ 				dev->colourfx.u, dev->colourfx.v,
+ 				ret, (ret == 0 ? 0 : -EINVAL));
+-	return (ret == 0 ? 0 : EINVAL);
++	return (ret == 0 ? 0 : -EINVAL);
+ }
+ 
+ static int ctrl_set_colfx(struct bm2835_mmal_dev *dev,
+@@ -600,7 +600,7 @@ static int ctrl_set_colfx(struct bm2835_mmal_dev *dev,
+ 		 "%s: After: mmal_ctrl:%p ctrl id:0x%x ctrl val:%d ret %d(%d)\n",
+ 			__func__, mmal_ctrl, ctrl->id, ctrl->val, ret,
+ 			(ret == 0 ? 0 : -EINVAL));
+-	return (ret == 0 ? 0 : EINVAL);
++	return (ret == 0 ? 0 : -EINVAL);
+ }
+ 
+ static int ctrl_set_bitrate(struct bm2835_mmal_dev *dev,
 -- 
 2.20.1
 
