@@ -2,38 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AB8E939E9A
-	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 13:51:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2F4F39E4F
+	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 13:48:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729632AbfFHLs0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Jun 2019 07:48:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37162 "EHLO mail.kernel.org"
+        id S1729647AbfFHLs2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Jun 2019 07:48:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727675AbfFHLsZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 8 Jun 2019 07:48:25 -0400
+        id S1728995AbfFHLs2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 8 Jun 2019 07:48:28 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B0D1216FD;
-        Sat,  8 Jun 2019 11:48:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A8087214AF;
+        Sat,  8 Jun 2019 11:48:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559994505;
-        bh=YntNBn8zkYQ2utLEVUx+pG7XxnLayxLCz5AZlQ+gEo0=;
+        s=default; t=1559994507;
+        bh=wQyL4LjmjDawgepeRfytkLoolpiBmgFOk14i/KzOLxI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V9yEWxTANQ5dfO35IWHX2WiHLl/V/evxIBlDCpKEH2QCCqYDb2vdSKF+yJPZNbumk
-         fQHtnUHBIlxVPZ5DVaJ3WBFxsivuQme/mOuMRwFV9REPW+coWfFK6D7i2jjEf6Tswr
-         i9peTA/GaY+V9VTU16czge6onRS5G3HODnhEFId8=
+        b=fqSF4pK+anlCysfWwR1HvGUM0xoHkylG/ceMwoUGnMFeUHXm09UoyuHeSJFo5V0uY
+         mYOeRnLROBNHaIsXT3ojwmef/f+4CQKY0z3VybAyQZLAe5vK8vFIz26jgSruTTvxh1
+         CVgv+BUnG99+cCD+Fs38tb5vpgBE0pGyLawbagO8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sahitya Tummala <stummala@codeaurora.org>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 10/20] configfs: Fix use-after-free when accessing sd->s_dentry
-Date:   Sat,  8 Jun 2019 07:47:46 -0400
-Message-Id: <20190608114756.9742-10-sashal@kernel.org>
+Cc:     Shawn Landden <shawn@git.icu>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Wang Nan <wangnan0@huawei.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 11/20] perf data: Fix 'strncat may truncate' build failure with recent gcc
+Date:   Sat,  8 Jun 2019 07:47:47 -0400
+Message-Id: <20190608114756.9742-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190608114756.9742-1-sashal@kernel.org>
 References: <20190608114756.9742-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -42,58 +48,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sahitya Tummala <stummala@codeaurora.org>
+From: Shawn Landden <shawn@git.icu>
 
-[ Upstream commit f6122ed2a4f9c9c1c073ddf6308d1b2ac10e0781 ]
+[ Upstream commit 97acec7df172cd1e450f81f5e293c0aa145a2797 ]
 
-In the vfs_statx() context, during path lookup, the dentry gets
-added to sd->s_dentry via configfs_attach_attr(). In the end,
-vfs_statx() kills the dentry by calling path_put(), which invokes
-configfs_d_iput(). Ideally, this dentry must be removed from
-sd->s_dentry but it doesn't if the sd->s_count >= 3. As a result,
-sd->s_dentry is holding reference to a stale dentry pointer whose
-memory is already freed up. This results in use-after-free issue,
-when this stale sd->s_dentry is accessed later in
-configfs_readdir() path.
+This strncat() is safe because the buffer was allocated with zalloc(),
+however gcc doesn't know that. Since the string always has 4 non-null
+bytes, just use memcpy() here.
 
-This issue can be easily reproduced, by running the LTP test case -
-sh fs_racer_file_list.sh /config
-(https://github.com/linux-test-project/ltp/blob/master/testcases/kernel/fs/racer/fs_racer_file_list.sh)
+    CC       /home/shawn/linux/tools/perf/util/data-convert-bt.o
+  In file included from /usr/include/string.h:494,
+                   from /home/shawn/linux/tools/lib/traceevent/event-parse.h:27,
+                   from util/data-convert-bt.c:22:
+  In function ‘strncat’,
+      inlined from ‘string_set_value’ at util/data-convert-bt.c:274:4:
+  /usr/include/powerpc64le-linux-gnu/bits/string_fortified.h:136:10: error: ‘__builtin_strncat’ output may be truncated copying 4 bytes from a string of length 4 [-Werror=stringop-truncation]
+    136 |   return __builtin___strncat_chk (__dest, __src, __len, __bos (__dest));
+        |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Fixes: 76ae281f6307 ('configfs: fix race between dentry put and lookup')
-Signed-off-by: Sahitya Tummala <stummala@codeaurora.org>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Shawn Landden <shawn@git.icu>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Wang Nan <wangnan0@huawei.com>
+LPU-Reference: 20190518183238.10954-1-shawn@git.icu
+Link: https://lkml.kernel.org/n/tip-289f1jice17ta7tr3tstm9jm@git.kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/configfs/dir.c | 14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
+ tools/perf/util/data-convert-bt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/configfs/dir.c b/fs/configfs/dir.c
-index d2a1a79fa324..4930a3a211f3 100644
---- a/fs/configfs/dir.c
-+++ b/fs/configfs/dir.c
-@@ -58,15 +58,13 @@ static void configfs_d_iput(struct dentry * dentry,
- 	if (sd) {
- 		/* Coordinate with configfs_readdir */
- 		spin_lock(&configfs_dirent_lock);
--		/* Coordinate with configfs_attach_attr where will increase
--		 * sd->s_count and update sd->s_dentry to new allocated one.
--		 * Only set sd->dentry to null when this dentry is the only
--		 * sd owner.
--		 * If not do so, configfs_d_iput may run just after
--		 * configfs_attach_attr and set sd->s_dentry to null
--		 * even it's still in use.
-+		/*
-+		 * Set sd->s_dentry to null only when this dentry is the one
-+		 * that is going to be killed.  Otherwise configfs_d_iput may
-+		 * run just after configfs_attach_attr and set sd->s_dentry to
-+		 * NULL even it's still in use.
- 		 */
--		if (atomic_read(&sd->s_count) <= 2)
-+		if (sd->s_dentry == dentry)
- 			sd->s_dentry = NULL;
- 
- 		spin_unlock(&configfs_dirent_lock);
+diff --git a/tools/perf/util/data-convert-bt.c b/tools/perf/util/data-convert-bt.c
+index 7123f4de32cc..226f4312b8f3 100644
+--- a/tools/perf/util/data-convert-bt.c
++++ b/tools/perf/util/data-convert-bt.c
+@@ -265,7 +265,7 @@ static int string_set_value(struct bt_ctf_field *field, const char *string)
+ 				if (i > 0)
+ 					strncpy(buffer, string, i);
+ 			}
+-			strncat(buffer + p, numstr, 4);
++			memcpy(buffer + p, numstr, 4);
+ 			p += 3;
+ 		}
+ 	}
 -- 
 2.20.1
 
