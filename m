@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4116B39E36
-	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 13:47:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 295DC39ECC
+	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 13:52:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728365AbfFHLr0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Jun 2019 07:47:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36116 "EHLO mail.kernel.org"
+        id S1729254AbfFHLr3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Jun 2019 07:47:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729233AbfFHLrZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 8 Jun 2019 07:47:25 -0400
+        id S1729229AbfFHLr3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 8 Jun 2019 07:47:29 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F298521530;
-        Sat,  8 Jun 2019 11:47:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C6AF82171F;
+        Sat,  8 Jun 2019 11:47:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559994444;
-        bh=2hXKE5D9c+8naLVRZy80JT2Dh17PpGbYanYln6RyBPA=;
+        s=default; t=1559994447;
+        bh=MaGGx6LGuENlbrd9elqbccGtSmUluGQg5szD+oz0nro=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k61BY1+rH7ub4Lk4Oi2RUrG9bmhtB+P2+gTS/9FLSDL42W3aQdfUy9UWodUs+q3zO
-         NRMT09RHYZWBan8IKTlzuxFL9dm93ZJtls+Y0rlONe92bZ8Dm/K4PvZxdCPisZ1Sq6
-         7zFHsDeKC71CPb8BBr+MkMG9wDx9qSJv8DbHHkjo=
+        b=DjmMQgOAHV/pQkxa6KgFZlFc1k/50/PxYy4oLBWAp1bstTLauWqyZpjTxJ6kcgLzS
+         46KBnhyq/v2RmnH8Vjg7+/Qx0DjyKzsBdA0Q2juAYBeRguEJykylduRnJbWap2PAMd
+         ZmQz2hS4DcKHt21Hxozvq/vFDeMD3q2SQou820uA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Keith Busch <keith.busch@intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 15/31] PCI: PM: Avoid possible suspend-to-idle issue
-Date:   Sat,  8 Jun 2019 07:46:26 -0400
-Message-Id: <20190608114646.9415-15-sashal@kernel.org>
+Cc:     Dmitry Bogdanov <dmitry.bogdanov@aquantia.com>,
+        Igor Russkikh <igor.russkikh@aquantia.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 16/31] net: aquantia: fix LRO with FCS error
+Date:   Sat,  8 Jun 2019 07:46:27 -0400
+Message-Id: <20190608114646.9415-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190608114646.9415-1-sashal@kernel.org>
 References: <20190608114646.9415-1-sashal@kernel.org>
@@ -44,87 +44,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+From: Dmitry Bogdanov <dmitry.bogdanov@aquantia.com>
 
-[ Upstream commit d491f2b75237ef37d8867830ab7fad8d9659e853 ]
+[ Upstream commit eaeb3b7494ba9159323814a8ce8af06a9277d99b ]
 
-If a PCI driver leaves the device handled by it in D0 and calls
-pci_save_state() on the device in its ->suspend() or ->suspend_late()
-callback, it can expect the device to stay in D0 over the whole
-s2idle cycle.  However, that may not be the case if there is a
-spurious wakeup while the system is suspended, because in that case
-pci_pm_suspend_noirq() will run again after pci_pm_resume_noirq()
-which calls pci_restore_state(), via pci_pm_default_resume_early(),
-so state_saved is cleared and the second iteration of
-pci_pm_suspend_noirq() will invoke pci_prepare_to_sleep() which
-may change the power state of the device.
+Driver stops producing skbs on ring if a packet with FCS error
+was coalesced into LRO session. Ring gets hang forever.
 
-To avoid that, add a new internal flag, skip_bus_pm, that will be set
-by pci_pm_suspend_noirq() when it runs for the first time during the
-given system suspend-resume cycle if the state of the device has
-been saved already and the device is still in D0.  Setting that flag
-will cause the next iterations of pci_pm_suspend_noirq() to set
-state_saved for pci_pm_resume_noirq(), so that it always restores the
-device state from the originally saved data, and avoid calling
-pci_prepare_to_sleep() for the device.
+Thats a logical error in driver processing descriptors:
+When rx_stat indicates MAC Error, next pointer and eop flags
+are not filled. This confuses driver so it waits for descriptor 0
+to be filled by HW.
 
-Fixes: 33e4f80ee69b ("ACPI / PM: Ignore spurious SCI wakeups from suspend-to-idle")
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Reviewed-by: Keith Busch <keith.busch@intel.com>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Solution is fill next pointer and eop flag even for packets with FCS error.
+
+Fixes: bab6de8fd180b ("net: ethernet: aquantia: Atlantic A0 and B0 specific functions.")
+Signed-off-by: Igor Russkikh <igor.russkikh@aquantia.com>
+Signed-off-by: Dmitry Bogdanov <dmitry.bogdanov@aquantia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pci-driver.c | 17 ++++++++++++++++-
- include/linux/pci.h      |  1 +
- 2 files changed, 17 insertions(+), 1 deletion(-)
+ .../aquantia/atlantic/hw_atl/hw_atl_b0.c      | 61 ++++++++++---------
+ 1 file changed, 32 insertions(+), 29 deletions(-)
 
-diff --git a/drivers/pci/pci-driver.c b/drivers/pci/pci-driver.c
-index ea69b4dbab66..f5d66335fe53 100644
---- a/drivers/pci/pci-driver.c
-+++ b/drivers/pci/pci-driver.c
-@@ -726,6 +726,8 @@ static int pci_pm_suspend(struct device *dev)
- 	struct pci_dev *pci_dev = to_pci_dev(dev);
- 	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
- 
-+	pci_dev->skip_bus_pm = false;
+diff --git a/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_b0.c b/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_b0.c
+index f4b3554b0b67..236325f48ec9 100644
+--- a/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_b0.c
++++ b/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_b0.c
+@@ -683,38 +683,41 @@ static int hw_atl_b0_hw_ring_rx_receive(struct aq_hw_s *self,
+ 		if (is_err || rxd_wb->type & 0x1000U) {
+ 			/* status error or DMA error */
+ 			buff->is_error = 1U;
+-		} else {
+-			if (self->aq_nic_cfg->is_rss) {
+-				/* last 4 byte */
+-				u16 rss_type = rxd_wb->type & 0xFU;
+-
+-				if (rss_type && rss_type < 0x8U) {
+-					buff->is_hash_l4 = (rss_type == 0x4 ||
+-					rss_type == 0x5);
+-					buff->rss_hash = rxd_wb->rss_hash;
+-				}
++		}
++		if (self->aq_nic_cfg->is_rss) {
++			/* last 4 byte */
++			u16 rss_type = rxd_wb->type & 0xFU;
 +
- 	if (pci_has_legacy_pm_support(pci_dev))
- 		return pci_legacy_suspend(dev, PMSG_SUSPEND);
++			if (rss_type && rss_type < 0x8U) {
++				buff->is_hash_l4 = (rss_type == 0x4 ||
++				rss_type == 0x5);
++				buff->rss_hash = rxd_wb->rss_hash;
+ 			}
++		}
  
-@@ -799,7 +801,20 @@ static int pci_pm_suspend_noirq(struct device *dev)
+-			if (HW_ATL_B0_RXD_WB_STAT2_EOP & rxd_wb->status) {
+-				buff->len = rxd_wb->pkt_len %
+-					AQ_CFG_RX_FRAME_MAX;
+-				buff->len = buff->len ?
+-					buff->len : AQ_CFG_RX_FRAME_MAX;
+-				buff->next = 0U;
+-				buff->is_eop = 1U;
++		if (HW_ATL_B0_RXD_WB_STAT2_EOP & rxd_wb->status) {
++			buff->len = rxd_wb->pkt_len %
++				AQ_CFG_RX_FRAME_MAX;
++			buff->len = buff->len ?
++				buff->len : AQ_CFG_RX_FRAME_MAX;
++			buff->next = 0U;
++			buff->is_eop = 1U;
++		} else {
++			buff->len =
++				rxd_wb->pkt_len > AQ_CFG_RX_FRAME_MAX ?
++				AQ_CFG_RX_FRAME_MAX : rxd_wb->pkt_len;
++
++			if (HW_ATL_B0_RXD_WB_STAT2_RSCCNT &
++				rxd_wb->status) {
++				/* LRO */
++				buff->next = rxd_wb->next_desc_ptr;
++				++ring->stats.rx.lro_packets;
+ 			} else {
+-				if (HW_ATL_B0_RXD_WB_STAT2_RSCCNT &
+-					rxd_wb->status) {
+-					/* LRO */
+-					buff->next = rxd_wb->next_desc_ptr;
+-					++ring->stats.rx.lro_packets;
+-				} else {
+-					/* jumbo */
+-					buff->next =
+-						aq_ring_next_dx(ring,
+-								ring->hw_head);
+-					++ring->stats.rx.jumbo_packets;
+-				}
++				/* jumbo */
++				buff->next =
++					aq_ring_next_dx(ring,
++							ring->hw_head);
++				++ring->stats.rx.jumbo_packets;
+ 			}
  		}
  	}
- 
--	if (!pci_dev->state_saved) {
-+	if (pci_dev->skip_bus_pm) {
-+		/*
-+		 * The function is running for the second time in a row without
-+		 * going through full resume, which is possible only during
-+		 * suspend-to-idle in a spurious wakeup case.  Moreover, the
-+		 * device was originally left in D0, so its power state should
-+		 * not be changed here and the device register values saved
-+		 * originally should be restored on resume again.
-+		 */
-+		pci_dev->state_saved = true;
-+	} else if (pci_dev->state_saved) {
-+		if (pci_dev->current_state == PCI_D0)
-+			pci_dev->skip_bus_pm = true;
-+	} else {
- 		pci_save_state(pci_dev);
- 		if (pci_power_manageable(pci_dev))
- 			pci_prepare_to_sleep(pci_dev);
-diff --git a/include/linux/pci.h b/include/linux/pci.h
-index 59f4d10568c6..430f3c335446 100644
---- a/include/linux/pci.h
-+++ b/include/linux/pci.h
-@@ -346,6 +346,7 @@ struct pci_dev {
- 						   D3cold, not set for devices
- 						   powered on/off by the
- 						   corresponding bridge */
-+	unsigned int	skip_bus_pm:1;	/* Internal: Skip bus-level PM */
- 	unsigned int	ignore_hotplug:1;	/* Ignore hotplug events */
- 	unsigned int	hotplug_user_indicators:1; /* SlotCtl indicators
- 						      controlled exclusively by
 -- 
 2.20.1
 
