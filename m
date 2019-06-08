@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C3C6639DF5
-	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 13:45:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1459A39DFB
+	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 13:45:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728183AbfFHLp3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Jun 2019 07:45:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34370 "EHLO mail.kernel.org"
+        id S1728325AbfFHLpf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Jun 2019 07:45:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728114AbfFHLp3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 8 Jun 2019 07:45:29 -0400
+        id S1727598AbfFHLpe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 8 Jun 2019 07:45:34 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5D873214AF;
-        Sat,  8 Jun 2019 11:45:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D4EB5214D8;
+        Sat,  8 Jun 2019 11:45:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559994328;
-        bh=84FQkrjgk+F6fnawr5M97IZfzH5TzOl/DxXN2hZpQRY=;
+        s=default; t=1559994333;
+        bh=aTAjHWnmhBwOH3nrTA/x1z+5nFP+4mKcGJ6YvIg1hFE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UpeMLbG1MjO2cJ2c95z0Y4ZsGG3gHEjkKfsOL+Q18hQvjtePV0TQLmLA5PaXS/czt
-         rDwmUAj5Myo2QEEUJv51VoAoaBGqhgIg3wrF1wHfs21GDkxOhisg7TGvfQ8KIzrKy+
-         pp/dZhjYBpSsmUN4UpscSrhTQ6q6XiMQQNbyOI+U=
+        b=g60DYRQq/UheYBRq8vgPy7zRU3I5n1eHpvz5W4Y9SLov41cUVrwOUfJn5agSzJsUL
+         VGidpNPRtzIWt26KT60+qSyv/l4FG9UJCSogc3XkKAoB1hq+RWqi9qIUJwojniSWyA
+         /P7/8gR4RRcpPSKKlPb+ermynlCzdU0ql/H4anlo=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ross Lagerwall <ross.lagerwall@citrix.com>,
-        Juergen Gross <jgross@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 35/49] xenbus: Avoid deadlock during suspend due to open transactions
-Date:   Sat,  8 Jun 2019 07:42:16 -0400
-Message-Id: <20190608114232.8731-35-sashal@kernel.org>
+Cc:     Paul Mackerras <paulus@ozlabs.org>,
+        Sasha Levin <sashal@kernel.org>, kvm-ppc@vger.kernel.org,
+        linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.19 36/49] KVM: PPC: Book3S: Use new mutex to synchronize access to rtas token list
+Date:   Sat,  8 Jun 2019 07:42:17 -0400
+Message-Id: <20190608114232.8731-36-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190608114232.8731-1-sashal@kernel.org>
 References: <20190608114232.8731-1-sashal@kernel.org>
@@ -44,161 +43,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ross Lagerwall <ross.lagerwall@citrix.com>
+From: Paul Mackerras <paulus@ozlabs.org>
 
-[ Upstream commit d10e0cc113c9e1b64b5c6e3db37b5c839794f3df ]
+[ Upstream commit 1659e27d2bc1ef47b6d031abe01b467f18cb72d9 ]
 
-During a suspend/resume, the xenwatch thread waits for all outstanding
-xenstore requests and transactions to complete. This does not work
-correctly for transactions started by userspace because it waits for
-them to complete after freezing userspace threads which means the
-transactions have no way of completing, resulting in a deadlock. This is
-trivial to reproduce by running this script and then suspending the VM:
+Currently the Book 3S KVM code uses kvm->lock to synchronize access
+to the kvm->arch.rtas_tokens list.  Because this list is scanned
+inside kvmppc_rtas_hcall(), which is called with the vcpu mutex held,
+taking kvm->lock cause a lock inversion problem, which could lead to
+a deadlock.
 
-    import pyxs, time
-    c = pyxs.client.Client(xen_bus_path="/dev/xen/xenbus")
-    c.connect()
-    c.transaction()
-    time.sleep(3600)
+To fix this, we add a new mutex, kvm->arch.rtas_token_lock, which nests
+inside the vcpu mutexes, and use that instead of kvm->lock when
+accessing the rtas token list.
 
-Even if this deadlock were resolved, misbehaving userspace should not
-prevent a VM from being migrated. So, instead of waiting for these
-transactions to complete before suspending, store the current generation
-id for each transaction when it is started. The global generation id is
-incremented during resume. If the caller commits the transaction and the
-generation id does not match the current generation id, return EAGAIN so
-that they try again. If the transaction was instead discarded, return OK
-since no changes were made anyway.
+This removes the lockdep_assert_held() in kvmppc_rtas_tokens_free().
+At this point we don't hold the new mutex, but that is OK because
+kvmppc_rtas_tokens_free() is only called when the whole VM is being
+destroyed, and at that point nothing can be looking up a token in
+the list.
 
-This only affects users of the xenbus file interface. In-kernel users of
-xenbus are assumed to be well-behaved and complete all transactions
-before freezing.
-
-Signed-off-by: Ross Lagerwall <ross.lagerwall@citrix.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Signed-off-by: Paul Mackerras <paulus@ozlabs.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/xenbus/xenbus.h              |  3 +++
- drivers/xen/xenbus/xenbus_dev_frontend.c | 18 ++++++++++++++++++
- drivers/xen/xenbus/xenbus_xs.c           |  7 +++++--
- 3 files changed, 26 insertions(+), 2 deletions(-)
+ arch/powerpc/include/asm/kvm_host.h |  1 +
+ arch/powerpc/kvm/book3s.c           |  1 +
+ arch/powerpc/kvm/book3s_rtas.c      | 14 ++++++--------
+ 3 files changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/xen/xenbus/xenbus.h b/drivers/xen/xenbus/xenbus.h
-index 092981171df1..d75a2385b37c 100644
---- a/drivers/xen/xenbus/xenbus.h
-+++ b/drivers/xen/xenbus/xenbus.h
-@@ -83,6 +83,7 @@ struct xb_req_data {
- 	int num_vecs;
- 	int err;
- 	enum xb_req_state state;
-+	bool user_req;
- 	void (*cb)(struct xb_req_data *);
- 	void *par;
- };
-@@ -133,4 +134,6 @@ void xenbus_ring_ops_init(void);
- int xenbus_dev_request_and_reply(struct xsd_sockmsg *msg, void *par);
- void xenbus_dev_queue_reply(struct xb_req_data *req);
- 
-+extern unsigned int xb_dev_generation_id;
-+
+diff --git a/arch/powerpc/include/asm/kvm_host.h b/arch/powerpc/include/asm/kvm_host.h
+index bccc5051249e..2b6049e83970 100644
+--- a/arch/powerpc/include/asm/kvm_host.h
++++ b/arch/powerpc/include/asm/kvm_host.h
+@@ -299,6 +299,7 @@ struct kvm_arch {
+ #ifdef CONFIG_PPC_BOOK3S_64
+ 	struct list_head spapr_tce_tables;
+ 	struct list_head rtas_tokens;
++	struct mutex rtas_token_lock;
+ 	DECLARE_BITMAP(enabled_hcalls, MAX_HCALL_OPCODE/4 + 1);
  #endif
-diff --git a/drivers/xen/xenbus/xenbus_dev_frontend.c b/drivers/xen/xenbus/xenbus_dev_frontend.c
-index 0782ff3c2273..39c63152a358 100644
---- a/drivers/xen/xenbus/xenbus_dev_frontend.c
-+++ b/drivers/xen/xenbus/xenbus_dev_frontend.c
-@@ -62,6 +62,8 @@
+ #ifdef CONFIG_KVM_MPIC
+diff --git a/arch/powerpc/kvm/book3s.c b/arch/powerpc/kvm/book3s.c
+index 87348e498c89..281f074581a3 100644
+--- a/arch/powerpc/kvm/book3s.c
++++ b/arch/powerpc/kvm/book3s.c
+@@ -840,6 +840,7 @@ int kvmppc_core_init_vm(struct kvm *kvm)
+ #ifdef CONFIG_PPC64
+ 	INIT_LIST_HEAD_RCU(&kvm->arch.spapr_tce_tables);
+ 	INIT_LIST_HEAD(&kvm->arch.rtas_tokens);
++	mutex_init(&kvm->arch.rtas_token_lock);
+ #endif
  
- #include "xenbus.h"
- 
-+unsigned int xb_dev_generation_id;
-+
- /*
-  * An element of a list of outstanding transactions, for which we're
-  * still waiting a reply.
-@@ -69,6 +71,7 @@
- struct xenbus_transaction_holder {
- 	struct list_head list;
- 	struct xenbus_transaction handle;
-+	unsigned int generation_id;
- };
- 
- /*
-@@ -441,6 +444,7 @@ static int xenbus_write_transaction(unsigned msg_type,
- 			rc = -ENOMEM;
- 			goto out;
- 		}
-+		trans->generation_id = xb_dev_generation_id;
- 		list_add(&trans->list, &u->transactions);
- 	} else if (msg->hdr.tx_id != 0 &&
- 		   !xenbus_get_transaction(u, msg->hdr.tx_id))
-@@ -449,6 +453,20 @@ static int xenbus_write_transaction(unsigned msg_type,
- 		 !(msg->hdr.len == 2 &&
- 		   (!strcmp(msg->body, "T") || !strcmp(msg->body, "F"))))
- 		return xenbus_command_reply(u, XS_ERROR, "EINVAL");
-+	else if (msg_type == XS_TRANSACTION_END) {
-+		trans = xenbus_get_transaction(u, msg->hdr.tx_id);
-+		if (trans && trans->generation_id != xb_dev_generation_id) {
-+			list_del(&trans->list);
-+			kfree(trans);
-+			if (!strcmp(msg->body, "T"))
-+				return xenbus_command_reply(u, XS_ERROR,
-+							    "EAGAIN");
-+			else
-+				return xenbus_command_reply(u,
-+							    XS_TRANSACTION_END,
-+							    "OK");
-+		}
-+	}
- 
- 	rc = xenbus_dev_request_and_reply(&msg->hdr, u);
- 	if (rc && trans) {
-diff --git a/drivers/xen/xenbus/xenbus_xs.c b/drivers/xen/xenbus/xenbus_xs.c
-index 49a3874ae6bb..ddc18da61834 100644
---- a/drivers/xen/xenbus/xenbus_xs.c
-+++ b/drivers/xen/xenbus/xenbus_xs.c
-@@ -105,6 +105,7 @@ static void xs_suspend_enter(void)
- 
- static void xs_suspend_exit(void)
+ 	return kvm->arch.kvm_ops->init_vm(kvm);
+diff --git a/arch/powerpc/kvm/book3s_rtas.c b/arch/powerpc/kvm/book3s_rtas.c
+index 2d3b2b1cc272..8f2355138f80 100644
+--- a/arch/powerpc/kvm/book3s_rtas.c
++++ b/arch/powerpc/kvm/book3s_rtas.c
+@@ -146,7 +146,7 @@ static int rtas_token_undefine(struct kvm *kvm, char *name)
  {
-+	xb_dev_generation_id++;
- 	spin_lock(&xs_state_lock);
- 	xs_suspend_active--;
- 	spin_unlock(&xs_state_lock);
-@@ -125,7 +126,7 @@ static uint32_t xs_request_enter(struct xb_req_data *req)
- 		spin_lock(&xs_state_lock);
+ 	struct rtas_token_definition *d, *tmp;
+ 
+-	lockdep_assert_held(&kvm->lock);
++	lockdep_assert_held(&kvm->arch.rtas_token_lock);
+ 
+ 	list_for_each_entry_safe(d, tmp, &kvm->arch.rtas_tokens, list) {
+ 		if (rtas_name_matches(d->handler->name, name)) {
+@@ -167,7 +167,7 @@ static int rtas_token_define(struct kvm *kvm, char *name, u64 token)
+ 	bool found;
+ 	int i;
+ 
+-	lockdep_assert_held(&kvm->lock);
++	lockdep_assert_held(&kvm->arch.rtas_token_lock);
+ 
+ 	list_for_each_entry(d, &kvm->arch.rtas_tokens, list) {
+ 		if (d->token == token)
+@@ -206,14 +206,14 @@ int kvm_vm_ioctl_rtas_define_token(struct kvm *kvm, void __user *argp)
+ 	if (copy_from_user(&args, argp, sizeof(args)))
+ 		return -EFAULT;
+ 
+-	mutex_lock(&kvm->lock);
++	mutex_lock(&kvm->arch.rtas_token_lock);
+ 
+ 	if (args.token)
+ 		rc = rtas_token_define(kvm, args.name, args.token);
+ 	else
+ 		rc = rtas_token_undefine(kvm, args.name);
+ 
+-	mutex_unlock(&kvm->lock);
++	mutex_unlock(&kvm->arch.rtas_token_lock);
+ 
+ 	return rc;
+ }
+@@ -245,7 +245,7 @@ int kvmppc_rtas_hcall(struct kvm_vcpu *vcpu)
+ 	orig_rets = args.rets;
+ 	args.rets = &args.args[be32_to_cpu(args.nargs)];
+ 
+-	mutex_lock(&vcpu->kvm->lock);
++	mutex_lock(&vcpu->kvm->arch.rtas_token_lock);
+ 
+ 	rc = -ENOENT;
+ 	list_for_each_entry(d, &vcpu->kvm->arch.rtas_tokens, list) {
+@@ -256,7 +256,7 @@ int kvmppc_rtas_hcall(struct kvm_vcpu *vcpu)
+ 		}
  	}
  
--	if (req->type == XS_TRANSACTION_START)
-+	if (req->type == XS_TRANSACTION_START && !req->user_req)
- 		xs_state_users++;
- 	xs_state_users++;
- 	rq_id = xs_request_id++;
-@@ -140,7 +141,7 @@ void xs_request_exit(struct xb_req_data *req)
- 	spin_lock(&xs_state_lock);
- 	xs_state_users--;
- 	if ((req->type == XS_TRANSACTION_START && req->msg.type == XS_ERROR) ||
--	    (req->type == XS_TRANSACTION_END &&
-+	    (req->type == XS_TRANSACTION_END && !req->user_req &&
- 	     !WARN_ON_ONCE(req->msg.type == XS_ERROR &&
- 			   !strcmp(req->body, "ENOENT"))))
- 		xs_state_users--;
-@@ -286,6 +287,7 @@ int xenbus_dev_request_and_reply(struct xsd_sockmsg *msg, void *par)
- 	req->num_vecs = 1;
- 	req->cb = xenbus_dev_queue_reply;
- 	req->par = par;
-+	req->user_req = true;
+-	mutex_unlock(&vcpu->kvm->lock);
++	mutex_unlock(&vcpu->kvm->arch.rtas_token_lock);
  
- 	xs_send(req, msg);
+ 	if (rc == 0) {
+ 		args.rets = orig_rets;
+@@ -282,8 +282,6 @@ void kvmppc_rtas_tokens_free(struct kvm *kvm)
+ {
+ 	struct rtas_token_definition *d, *tmp;
  
-@@ -313,6 +315,7 @@ static void *xs_talkv(struct xenbus_transaction t,
- 	req->vec = iovec;
- 	req->num_vecs = num_vecs;
- 	req->cb = xs_wake_up;
-+	req->user_req = false;
- 
- 	msg.req_id = 0;
- 	msg.tx_id = t.id;
+-	lockdep_assert_held(&kvm->lock);
+-
+ 	list_for_each_entry_safe(d, tmp, &kvm->arch.rtas_tokens, list) {
+ 		list_del(&d->list);
+ 		kfree(d);
 -- 
 2.20.1
 
