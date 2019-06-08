@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AB4BC39EAF
-	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 13:51:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB8E939E9A
+	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 13:51:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727408AbfFHLuo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Jun 2019 07:50:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37146 "EHLO mail.kernel.org"
+        id S1729632AbfFHLs0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Jun 2019 07:48:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37162 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729613AbfFHLsY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 8 Jun 2019 07:48:24 -0400
+        id S1727675AbfFHLsZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 8 Jun 2019 07:48:25 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 76E7C214AF;
-        Sat,  8 Jun 2019 11:48:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7B0D1216FD;
+        Sat,  8 Jun 2019 11:48:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559994504;
-        bh=d+YqoHbqw30cU7RL+Ka8NpXNIPY8m8LzQcwZPp9UdTY=;
+        s=default; t=1559994505;
+        bh=YntNBn8zkYQ2utLEVUx+pG7XxnLayxLCz5AZlQ+gEo0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lqfQuaLIfGJ8fm23476SbGV8bv8z0YZF87atL1AgKht4Fh+NT6bvG6Lbge2hH+bAF
-         ZAqgHqP1KXEVDkV+YuCthefFeB0MWnUdulGbW1jTrl0jtrS7oWTv8nvyOVrqOPXFDv
-         JyJYqX+B1JhUq8kD3b5hz59Xdhc0TEj0W+OAKMro=
+        b=V9yEWxTANQ5dfO35IWHX2WiHLl/V/evxIBlDCpKEH2QCCqYDb2vdSKF+yJPZNbumk
+         fQHtnUHBIlxVPZ5DVaJ3WBFxsivuQme/mOuMRwFV9REPW+coWfFK6D7i2jjEf6Tswr
+         i9peTA/GaY+V9VTU16czge6onRS5G3HODnhEFId8=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yingjoe Chen <yingjoe.chen@mediatek.com>,
-        Wolfram Sang <wsa@the-dreams.de>,
-        Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 09/20] i2c: dev: fix potential memory leak in i2cdev_ioctl_rdwr
-Date:   Sat,  8 Jun 2019 07:47:45 -0400
-Message-Id: <20190608114756.9742-9-sashal@kernel.org>
+Cc:     Sahitya Tummala <stummala@codeaurora.org>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 10/20] configfs: Fix use-after-free when accessing sd->s_dentry
+Date:   Sat,  8 Jun 2019 07:47:46 -0400
+Message-Id: <20190608114756.9742-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190608114756.9742-1-sashal@kernel.org>
 References: <20190608114756.9742-1-sashal@kernel.org>
@@ -43,33 +42,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yingjoe Chen <yingjoe.chen@mediatek.com>
+From: Sahitya Tummala <stummala@codeaurora.org>
 
-[ Upstream commit a0692f0eef91354b62c2b4c94954536536be5425 ]
+[ Upstream commit f6122ed2a4f9c9c1c073ddf6308d1b2ac10e0781 ]
 
-If I2C_M_RECV_LEN check failed, msgs[i].buf allocated by memdup_user
-will not be freed. Pump index up so it will be freed.
+In the vfs_statx() context, during path lookup, the dentry gets
+added to sd->s_dentry via configfs_attach_attr(). In the end,
+vfs_statx() kills the dentry by calling path_put(), which invokes
+configfs_d_iput(). Ideally, this dentry must be removed from
+sd->s_dentry but it doesn't if the sd->s_count >= 3. As a result,
+sd->s_dentry is holding reference to a stale dentry pointer whose
+memory is already freed up. This results in use-after-free issue,
+when this stale sd->s_dentry is accessed later in
+configfs_readdir() path.
 
-Fixes: 838bfa6049fb ("i2c-dev: Add support for I2C_M_RECV_LEN")
-Signed-off-by: Yingjoe Chen <yingjoe.chen@mediatek.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+This issue can be easily reproduced, by running the LTP test case -
+sh fs_racer_file_list.sh /config
+(https://github.com/linux-test-project/ltp/blob/master/testcases/kernel/fs/racer/fs_racer_file_list.sh)
+
+Fixes: 76ae281f6307 ('configfs: fix race between dentry put and lookup')
+Signed-off-by: Sahitya Tummala <stummala@codeaurora.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/i2c-dev.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/configfs/dir.c | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
-index 00e8e675cbeb..eaa312bc3a3c 100644
---- a/drivers/i2c/i2c-dev.c
-+++ b/drivers/i2c/i2c-dev.c
-@@ -297,6 +297,7 @@ static noinline int i2cdev_ioctl_rdwr(struct i2c_client *client,
- 			    rdwr_pa[i].buf[0] < 1 ||
- 			    rdwr_pa[i].len < rdwr_pa[i].buf[0] +
- 					     I2C_SMBUS_BLOCK_MAX) {
-+				i++;
- 				res = -EINVAL;
- 				break;
- 			}
+diff --git a/fs/configfs/dir.c b/fs/configfs/dir.c
+index d2a1a79fa324..4930a3a211f3 100644
+--- a/fs/configfs/dir.c
++++ b/fs/configfs/dir.c
+@@ -58,15 +58,13 @@ static void configfs_d_iput(struct dentry * dentry,
+ 	if (sd) {
+ 		/* Coordinate with configfs_readdir */
+ 		spin_lock(&configfs_dirent_lock);
+-		/* Coordinate with configfs_attach_attr where will increase
+-		 * sd->s_count and update sd->s_dentry to new allocated one.
+-		 * Only set sd->dentry to null when this dentry is the only
+-		 * sd owner.
+-		 * If not do so, configfs_d_iput may run just after
+-		 * configfs_attach_attr and set sd->s_dentry to null
+-		 * even it's still in use.
++		/*
++		 * Set sd->s_dentry to null only when this dentry is the one
++		 * that is going to be killed.  Otherwise configfs_d_iput may
++		 * run just after configfs_attach_attr and set sd->s_dentry to
++		 * NULL even it's still in use.
+ 		 */
+-		if (atomic_read(&sd->s_count) <= 2)
++		if (sd->s_dentry == dentry)
+ 			sd->s_dentry = NULL;
+ 
+ 		spin_unlock(&configfs_dirent_lock);
 -- 
 2.20.1
 
