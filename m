@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C843639F07
-	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 13:53:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E64DC39F05
+	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 13:53:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727841AbfFHLkp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Jun 2019 07:40:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58000 "EHLO mail.kernel.org"
+        id S1727850AbfFHLkq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Jun 2019 07:40:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727828AbfFHLko (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 8 Jun 2019 07:40:44 -0400
+        id S1727837AbfFHLkp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 8 Jun 2019 07:40:45 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 496B0208C0;
-        Sat,  8 Jun 2019 11:40:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 68891214AF;
+        Sat,  8 Jun 2019 11:40:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559994044;
-        bh=7Z2DzOh+8oJ31IHPYXWF/N8KjvSI+2Z9iVCB+0PL2A4=;
+        s=default; t=1559994045;
+        bh=5WrzRmktvtoacaifBKzTHnPxqni8nLRu1tw6NXnlKWE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CqZpprrTBlNq+3CDrajgdqK47AH6r1wLu6h8rPdt1HUXs6i62ks/FeS45SL4oprzh
-         zftUMyMoluWm3UuSlID8ZP6p+hd8HBLU9DTOjWu8YLCZr/yx0CEGtuhpG+oTckp34I
-         910ZFKMTpI0ch7oBC7vxFek38scyU+BATAby2We0=
+        b=KoiPA0B6i6DcHDragFgA7nIHoApOcXq+r1PqNfZLR7/G3w2h3np7o8yy9H0N4oSCb
+         Nudyj0j9EEx/8X2Z2CO0V46K3deDZs+Fx5+g06pKhMZgtxk4JT15ysOkOf5YfcVsn0
+         9CkkwJRaAOVryie8wqkDg4TSCHvNiJF/y/WxKsok=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Keith Busch <keith.busch@intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 34/70] PCI: PM: Avoid possible suspend-to-idle issue
-Date:   Sat,  8 Jun 2019 07:39:13 -0400
-Message-Id: <20190608113950.8033-34-sashal@kernel.org>
+Cc:     Jan Kara <jack@suse.cz>,
+        syzbot+10007d66ca02b08f0e60@syzkaller.appspotmail.com,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.1 35/70] loop: Don't change loop device under exclusive opener
+Date:   Sat,  8 Jun 2019 07:39:14 -0400
+Message-Id: <20190608113950.8033-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190608113950.8033-1-sashal@kernel.org>
 References: <20190608113950.8033-1-sashal@kernel.org>
@@ -44,87 +44,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit d491f2b75237ef37d8867830ab7fad8d9659e853 ]
+[ Upstream commit 33ec3e53e7b1869d7851e59e126bdb0fe0bd1982 ]
 
-If a PCI driver leaves the device handled by it in D0 and calls
-pci_save_state() on the device in its ->suspend() or ->suspend_late()
-callback, it can expect the device to stay in D0 over the whole
-s2idle cycle.  However, that may not be the case if there is a
-spurious wakeup while the system is suspended, because in that case
-pci_pm_suspend_noirq() will run again after pci_pm_resume_noirq()
-which calls pci_restore_state(), via pci_pm_default_resume_early(),
-so state_saved is cleared and the second iteration of
-pci_pm_suspend_noirq() will invoke pci_prepare_to_sleep() which
-may change the power state of the device.
+Loop module allows calling LOOP_SET_FD while there are other openers of
+the loop device. Even exclusive ones. This can lead to weird
+consequences such as kernel deadlocks like:
 
-To avoid that, add a new internal flag, skip_bus_pm, that will be set
-by pci_pm_suspend_noirq() when it runs for the first time during the
-given system suspend-resume cycle if the state of the device has
-been saved already and the device is still in D0.  Setting that flag
-will cause the next iterations of pci_pm_suspend_noirq() to set
-state_saved for pci_pm_resume_noirq(), so that it always restores the
-device state from the originally saved data, and avoid calling
-pci_prepare_to_sleep() for the device.
+mount_bdev()				lo_ioctl()
+  udf_fill_super()
+    udf_load_vrs()
+      sb_set_blocksize() - sets desired block size B
+      udf_tread()
+        sb_bread()
+          __bread_gfp(bdev, block, B)
+					  loop_set_fd()
+					    set_blocksize()
+            - now __getblk_slow() indefinitely loops because B != bdev
+              block size
 
-Fixes: 33e4f80ee69b ("ACPI / PM: Ignore spurious SCI wakeups from suspend-to-idle")
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Reviewed-by: Keith Busch <keith.busch@intel.com>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Fix the problem by disallowing LOOP_SET_FD ioctl when there are
+exclusive openers of a loop device.
+
+[Deliberately chosen not to CC stable as a user with priviledges to
+trigger this race has other means of taking the system down and this
+has a potential of breaking some weird userspace setup]
+
+Reported-and-tested-by: syzbot+10007d66ca02b08f0e60@syzkaller.appspotmail.com
+Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pci-driver.c | 17 ++++++++++++++++-
- include/linux/pci.h      |  1 +
- 2 files changed, 17 insertions(+), 1 deletion(-)
+ drivers/block/loop.c | 18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pci/pci-driver.c b/drivers/pci/pci-driver.c
-index 71853befd435..6375c2f32ba1 100644
---- a/drivers/pci/pci-driver.c
-+++ b/drivers/pci/pci-driver.c
-@@ -734,6 +734,8 @@ static int pci_pm_suspend(struct device *dev)
- 	struct pci_dev *pci_dev = to_pci_dev(dev);
- 	const struct dev_pm_ops *pm = dev->driver ? dev->driver->pm : NULL;
+diff --git a/drivers/block/loop.c b/drivers/block/loop.c
+index bf1c61cab8eb..21349a17f7f5 100644
+--- a/drivers/block/loop.c
++++ b/drivers/block/loop.c
+@@ -919,9 +919,20 @@ static int loop_set_fd(struct loop_device *lo, fmode_t mode,
+ 	if (!file)
+ 		goto out;
  
-+	pci_dev->skip_bus_pm = false;
++	/*
++	 * If we don't hold exclusive handle for the device, upgrade to it
++	 * here to avoid changing device under exclusive owner.
++	 */
++	if (!(mode & FMODE_EXCL)) {
++		bdgrab(bdev);
++		error = blkdev_get(bdev, mode | FMODE_EXCL, loop_set_fd);
++		if (error)
++			goto out_putf;
++	}
 +
- 	if (pci_has_legacy_pm_support(pci_dev))
- 		return pci_legacy_suspend(dev, PMSG_SUSPEND);
+ 	error = mutex_lock_killable(&loop_ctl_mutex);
+ 	if (error)
+-		goto out_putf;
++		goto out_bdev;
  
-@@ -827,7 +829,20 @@ static int pci_pm_suspend_noirq(struct device *dev)
- 		}
- 	}
+ 	error = -EBUSY;
+ 	if (lo->lo_state != Lo_unbound)
+@@ -985,10 +996,15 @@ static int loop_set_fd(struct loop_device *lo, fmode_t mode,
+ 	mutex_unlock(&loop_ctl_mutex);
+ 	if (partscan)
+ 		loop_reread_partitions(lo, bdev);
++	if (!(mode & FMODE_EXCL))
++		blkdev_put(bdev, mode | FMODE_EXCL);
+ 	return 0;
  
--	if (!pci_dev->state_saved) {
-+	if (pci_dev->skip_bus_pm) {
-+		/*
-+		 * The function is running for the second time in a row without
-+		 * going through full resume, which is possible only during
-+		 * suspend-to-idle in a spurious wakeup case.  Moreover, the
-+		 * device was originally left in D0, so its power state should
-+		 * not be changed here and the device register values saved
-+		 * originally should be restored on resume again.
-+		 */
-+		pci_dev->state_saved = true;
-+	} else if (pci_dev->state_saved) {
-+		if (pci_dev->current_state == PCI_D0)
-+			pci_dev->skip_bus_pm = true;
-+	} else {
- 		pci_save_state(pci_dev);
- 		if (pci_power_manageable(pci_dev))
- 			pci_prepare_to_sleep(pci_dev);
-diff --git a/include/linux/pci.h b/include/linux/pci.h
-index 2c056a7a728a..1ad70686f62e 100644
---- a/include/linux/pci.h
-+++ b/include/linux/pci.h
-@@ -344,6 +344,7 @@ struct pci_dev {
- 						   D3cold, not set for devices
- 						   powered on/off by the
- 						   corresponding bridge */
-+	unsigned int	skip_bus_pm:1;	/* Internal: Skip bus-level PM */
- 	unsigned int	ignore_hotplug:1;	/* Ignore hotplug events */
- 	unsigned int	hotplug_user_indicators:1; /* SlotCtl indicators
- 						      controlled exclusively by
+ out_unlock:
+ 	mutex_unlock(&loop_ctl_mutex);
++out_bdev:
++	if (!(mode & FMODE_EXCL))
++		blkdev_put(bdev, mode | FMODE_EXCL);
+ out_putf:
+ 	fput(file);
+ out:
 -- 
 2.20.1
 
