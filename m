@@ -2,201 +2,167 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3816939B97
-	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 09:54:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF51439BBF
+	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 10:15:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727091AbfFHHy5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Jun 2019 03:54:57 -0400
-Received: from mail-lf1-f68.google.com ([209.85.167.68]:40308 "EHLO
-        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727244AbfFHHyz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 8 Jun 2019 03:54:55 -0400
-Received: by mail-lf1-f68.google.com with SMTP id a9so3254107lff.7
-        for <stable@vger.kernel.org>; Sat, 08 Jun 2019 00:54:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=G7zE5DHgudNt5dsF6CsBxWN91KsOd/Kmfm8hMmncNRg=;
-        b=riyB48steJX3fiicN0tXXs2mmIgCpBl0i1kmP1E2/eU7SUd6wdXVieh92yyOu9CX8o
-         dih1K2WA/a9JZU5/R891YA/xbXc5qu7f6PRAFY5GxcT3YcBMyPnWcD5f74n2O5ujQUDM
-         J3+uCsjD8g6KHhscQrcR53Qv8Y4NcbNyMk9Ff40ZXILfXeADiPFlkjZeUZPhqlUMRdwg
-         CHiYJptY6VdECmvlvCGsQdVVZZaxAcNtAjVi2qVm37jvErn29ptXrnor9ykCyDzwyeAv
-         aCTe3jPd7AhUIf8mw3Iujnfed83VsXf4s25xSRO+UORoYdatwRpT7OHQZzeQ0odkFffu
-         1OFQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=G7zE5DHgudNt5dsF6CsBxWN91KsOd/Kmfm8hMmncNRg=;
-        b=HbhU1w6it0ejbn27jmK+FLg5aItCXvo262KtEVUiQnxObnpd982w2MR6gO8uSCl/L2
-         kGdVuy9lvxViuGwuE7dFqAykaYtCivAue+1R7Zk9Cm5cN1jPv6sz7c5Iby3dWNB6Wt/x
-         uFBtaMs+Ppkhw2pdk7ShC+roCxlK14FzlXjB0xu0v0IOtJIXoIVsp/BjQK1gbUQ9r6gx
-         tOvyUEybJXwGm3l3KPZ/9aVPlar0PT6aEktJMfS6LFb2W6VVY4nLQH4rlzDhywiws5ra
-         K65a45GXyG7STUlcxXqOgvgzc1Ts6HERRcEvsN2IKH1vJ7MB0m3VzzBNgqA4pCk3pxl2
-         IjLA==
-X-Gm-Message-State: APjAAAVaxZwMPJ7YryHkJmtMP4vlvHko/nlaIvRdmZAPNyMDk1OCrIb1
-        DsF6aMPyfnDf572ctJbGdbfCrIFPGUIS6zaMFLr/Gw==
-X-Google-Smtp-Source: APXvYqxva82rvwJJmktaaj7ZhGgKjh2/vkmeE3Rxu3UcDCTnTNG055ZaW/ATHhX4WOpgmQPubEiXFJOBY0rm6ogMa3k=
-X-Received: by 2002:ac2:4ace:: with SMTP id m14mr21063196lfp.99.1559980492829;
- Sat, 08 Jun 2019 00:54:52 -0700 (PDT)
+        id S1726595AbfFHIPt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Jun 2019 04:15:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48320 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725809AbfFHIPs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 8 Jun 2019 04:15:48 -0400
+Received: from localhost (unknown [37.142.3.125])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7F689214AE;
+        Sat,  8 Jun 2019 08:15:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1559981747;
+        bh=+fIMrvePbI5yDYH3qDsNTRsCEXZWnpBoeKnnxMc8TjA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Qi02LV5iIUGdxLJy0FdX1iSC98jqpOieBqfiFHBTtmiNpcPkQulYajST2LoFr/WTP
+         GGvosr49hpkb7kXnW8bLM3ssmhVFvwA+khMTfKJn4SHAeSfHd0VJR+aYxAxcdj+Sr3
+         TdUzaGjbfe2EjhLYHURitItHDd39dcvmJArWm46A=
+Date:   Sat, 8 Jun 2019 11:15:33 +0300
+From:   Leon Romanovsky <leon@kernel.org>
+To:     Dennis Dalessandro <dennis.dalessandro@intel.com>
+Cc:     jgg@ziepe.ca, dledford@redhat.com, linux-rdma@vger.kernel.org,
+        Mike Marciniszyn <mike.marciniszyn@intel.com>,
+        stable@vger.kernel.org, Kaike Wan <kaike.wan@intel.com>
+Subject: Re: [PATCH for-rc 3/3] IB/hfi1: Correct tid qp rcd to match verbs
+ context
+Message-ID: <20190608081533.GO5261@mtr-leonro.mtl.com>
+References: <20190607113807.157915.48581.stgit@awfm-01.aw.intel.com>
+ <20190607122538.158478.62945.stgit@awfm-01.aw.intel.com>
 MIME-Version: 1.0
-References: <20190607153849.101321647@linuxfoundation.org>
-In-Reply-To: <20190607153849.101321647@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Sat, 8 Jun 2019 13:24:41 +0530
-Message-ID: <CA+G9fYvu0nXEmayFX5CkH8wE+y+6Ya7QmtMCHP7b0sTMKw=brg@mail.gmail.com>
-Subject: Re: [PATCH 5.1 00/85] 5.1.8-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>,
-        lkft-triage@lists.linaro.org,
-        linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190607122538.158478.62945.stgit@awfm-01.aw.intel.com>
+User-Agent: Mutt/1.11.4 (2019-03-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 7 Jun 2019 at 21:18, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
+On Fri, Jun 07, 2019 at 08:25:38AM -0400, Dennis Dalessandro wrote:
+> From: Mike Marciniszyn <mike.marciniszyn@intel.com>
 >
-> This is the start of the stable review cycle for the 5.1.8 release.
-> There are 85 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+> The qp priv rcd pointer doesn't match the context being
+> used for verbs causing issues when 9B and kdeth packets
+> are processed by different receive contexts and hence
+> different CPUs.
 >
-> Responses should be made by Sun 09 Jun 2019 03:37:09 PM UTC.
-> Anything received after that time might be too late.
+> When running on different CPUs the following panic can
+> occur:
+> [476262.398106] WARNING: CPU: 3 PID: 2584 at lib/list_debug.c:59 __list_del_entry+0xa1/0xd0
+> [476262.398109] list_del corruption. prev->next should be ffff9a7ac31f7a30, but was ffff9a7c3bc89230
+> [476262.398266] CPU: 3 PID: 2584 Comm: z_wr_iss Kdump: loaded Tainted: P           OE  ------------   3.10.0-862.2.3.el7_lustre.x86_64 #1
+> [476262.398272] Call Trace:
+> [476262.398277]  <IRQ>  [<ffffffffb7b0d78e>] dump_stack+0x19/0x1b
+> [476262.398314]  [<ffffffffb74916d8>] __warn+0xd8/0x100
+> [476262.398317]  [<ffffffffb749175f>] warn_slowpath_fmt+0x5f/0x80
+> [476262.398320]  [<ffffffffb7768671>] __list_del_entry+0xa1/0xd0
+> [476262.398402]  [<ffffffffc0c7a945>] process_rcv_qp_work+0xb5/0x160 [hfi1]
+> [476262.398424]  [<ffffffffc0c7bc2b>] handle_receive_interrupt_nodma_rtail+0x20b/0x2b0 [hfi1]
+> [476262.398438]  [<ffffffffc0c70683>] receive_context_interrupt+0x23/0x40 [hfi1]
+> [476262.398447]  [<ffffffffb7540a94>] __handle_irq_event_percpu+0x44/0x1c0
+> [476262.398450]  [<ffffffffb7540c42>] handle_irq_event_percpu+0x32/0x80
+> [476262.398454]  [<ffffffffb7540ccc>] handle_irq_event+0x3c/0x60
+> [476262.398460]  [<ffffffffb7543a1f>] handle_edge_irq+0x7f/0x150
+> [476262.398469]  [<ffffffffb742d504>] handle_irq+0xe4/0x1a0
+> [476262.398475]  [<ffffffffb7b23f7d>] do_IRQ+0x4d/0xf0
+> [476262.398481]  [<ffffffffb7b16362>] common_interrupt+0x162/0x162
+> [476262.398482]  <EOI>  [<ffffffffb775a326>] ? memcpy+0x6/0x110
+> [476262.398645]  [<ffffffffc109210d>] ? abd_copy_from_buf_off_cb+0x1d/0x30 [zfs]
+> [476262.398678]  [<ffffffffc10920f0>] ? abd_copy_to_buf_off_cb+0x30/0x30 [zfs]
+> [476262.398696]  [<ffffffffc1093257>] abd_iterate_func+0x97/0x120 [zfs]
+> [476262.398710]  [<ffffffffc10934d9>] abd_copy_from_buf_off+0x39/0x60 [zfs]
+> [476262.398726]  [<ffffffffc109b828>] arc_write_ready+0x178/0x300 [zfs]
+> [476262.398732]  [<ffffffffb7b11032>] ? mutex_lock+0x12/0x2f
+> [476262.398734]  [<ffffffffb7b11032>] ? mutex_lock+0x12/0x2f
+> [476262.398837]  [<ffffffffc1164d05>] zio_ready+0x65/0x3d0 [zfs]
+> [476262.398884]  [<ffffffffc04d725e>] ? tsd_get_by_thread+0x2e/0x50 [spl]
+> [476262.398893]  [<ffffffffc04d1318>] ? taskq_member+0x18/0x30 [spl]
+> [476262.398968]  [<ffffffffc115ef22>] zio_execute+0xa2/0x100 [zfs]
+> [476262.398982]  [<ffffffffc04d1d2c>] taskq_thread+0x2ac/0x4f0 [spl]
+> [476262.399001]  [<ffffffffb74cee80>] ? wake_up_state+0x20/0x20
+> [476262.399043]  [<ffffffffc115ee80>] ? zio_taskq_member.isra.7.constprop.10+0x80/0x80 [zfs]
+> [476262.399055]  [<ffffffffc04d1a80>] ? taskq_thread_spawn+0x60/0x60 [spl]
+> [476262.399067]  [<ffffffffb74bae31>] kthread+0xd1/0xe0
+> [476262.399072]  [<ffffffffb74bad60>] ? insert_kthread_work+0x40/0x40
+> [476262.399082]  [<ffffffffb7b1f5f7>] ret_from_fork_nospec_begin+0x21/0x21
+> [476262.399087]  [<ffffffffb74bad60>] ? insert_kthread_work+0x40/0x40
 >
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.1.8-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.1.y
-> and the diffstat can be found below.
+> Fix by reading the map entry in the same manner as the
+> hardware so that the kdeth and verbs contexts match.
 >
-> thanks,
+> Fixes: 5190f052a365 ("IB/hfi1: Allow the driver to initialize QP priv struct")
+> Cc: <stable@vger.kernel.org>
+> Reviewed-by: Kaike Wan <kaike.wan@intel.com>
+> Signed-off-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
+> Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
+> ---
+>  drivers/infiniband/hw/hfi1/chip.c     |   13 +++++++++++++
+>  drivers/infiniband/hw/hfi1/chip.h     |    1 +
+>  drivers/infiniband/hw/hfi1/tid_rdma.c |    5 ++---
+>  3 files changed, 16 insertions(+), 3 deletions(-)
 >
-> greg k-h
+> diff --git a/drivers/infiniband/hw/hfi1/chip.c b/drivers/infiniband/hw/hfi1/chip.c
+> index 4221a99e..674f62a 100644
+> --- a/drivers/infiniband/hw/hfi1/chip.c
+> +++ b/drivers/infiniband/hw/hfi1/chip.c
+> @@ -14032,6 +14032,19 @@ static void init_kdeth_qp(struct hfi1_devdata *dd)
+>  }
 >
+>  /**
+> + * hfi1_get_qp_map
+> + * @dd: device data
+> + * @idx: index to read
+> + */
+> +u8 hfi1_get_qp_map(struct hfi1_devdata *dd, u8 idx)
+> +{
+> +	u64 reg = read_csr(dd, RCV_QP_MAP_TABLE + (idx / 8) * 8);
+> +
+> +	reg >>= (idx % 8) * 8;
+> +	return (u8)reg;
+> +}
+> +
+> +/**
+>   * init_qpmap_table
+>   * @dd - device data
+>   * @first_ctxt - first context
+> diff --git a/drivers/infiniband/hw/hfi1/chip.h b/drivers/infiniband/hw/hfi1/chip.h
+> index 4e6c355..b76cf81 100644
+> --- a/drivers/infiniband/hw/hfi1/chip.h
+> +++ b/drivers/infiniband/hw/hfi1/chip.h
+> @@ -1445,6 +1445,7 @@ int hfi1_set_ctxt_pkey(struct hfi1_devdata *dd, struct hfi1_ctxtdata *ctxt,
+>  void remap_intr(struct hfi1_devdata *dd, int isrc, int msix_intr);
+>  void remap_sdma_interrupts(struct hfi1_devdata *dd, int engine, int msix_intr);
+>  void reset_interrupts(struct hfi1_devdata *dd);
+> +u8 hfi1_get_qp_map(struct hfi1_devdata *dd, u8 idx);
+>
+>  /*
+>   * Interrupt source table.
+> diff --git a/drivers/infiniband/hw/hfi1/tid_rdma.c b/drivers/infiniband/hw/hfi1/tid_rdma.c
+> index 6fb9303..d77276d 100644
+> --- a/drivers/infiniband/hw/hfi1/tid_rdma.c
+> +++ b/drivers/infiniband/hw/hfi1/tid_rdma.c
+> @@ -312,9 +312,8 @@ static struct hfi1_ctxtdata *qp_to_rcd(struct rvt_dev_info *rdi,
+>  	if (qp->ibqp.qp_num == 0)
+>  		ctxt = 0;
+>  	else
+> -		ctxt = ((qp->ibqp.qp_num >> dd->qos_shift) %
+> -			(dd->n_krcv_queues - 1)) + 1;
+> -
+> +		ctxt = hfi1_get_qp_map(dd,
+> +				       (u8)(qp->ibqp.qp_num >> dd->qos_shift));
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+It is one time use functions, why don't you handle this (u8) casting
+inside of hfi1_get_qp_map()?
 
-NOTE:
-selftest sources version updated to 5.1
-Following test cases reported pass after upgrade
-  kselftest:
-    * bpf_test_libbpf.sh
-    * bpf_test_select_reuseport
-    * bpf_test_tcpbpf_user
-    * bpf_test_verifier
-    * seccomp_seccomp_bpf
-    * timers_set-timer-lat
+Thanks
 
-Few kselftest test cases reported failure and we are investigating.
-    * bpf_test_netcnt
-    * net_ip_defrag.sh
-    * net_xfrm_policy.sh
-    * timestamping_txtimestamp.sh
-    * tpm2_test_smoke.sh
-    * tpm2_test_space.sh
-    * ...
-
-LTP version upgrade to 20190517
-New test case tgkill03 is an intermittent failure reported on qemu devices.
-Following test cases reported failures and we are investigating
-    * ioctl_ns05
-    * ioctl_ns06
-    * aio02
-    * acct01
-
-Summary
-------------------------------------------------------------------------
-
-kernel: 5.1.8-rc1
-git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stab=
-le-rc.git
-git branch: linux-5.1.y
-git commit: cef30fd8e063aacee3601ac8df2c4d1c5980b759
-git describe: v5.1.7-86-gcef30fd8e063
-Test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-5.1-oe/bui=
-ld/v5.1.7-86-gcef30fd8e063
-
-No regressions (compared to build v5.1.7)
-
-
-Fixes (compared to build v5.1.7)
-------------------------------------------------------------------------
-  kselftest:
-    * bpf_test_libbpf.sh
-    * bpf_test_select_reuseport
-    * bpf_test_tcpbpf_user
-    * bpf_test_verifier
-    * seccomp_seccomp_bpf
-    * timers_set-timer-lat
-
-Ran 16135 total tests in the following environments and test suites.
-
-Environments
---------------
-- dragonboard-410c
-- hi6220-hikey
-- i386
-- juno-r2
-- qemu_arm
-- qemu_arm64
-- qemu_i386
-- qemu_x86_64
-- x15
-- x86
-
-Test Suites
------------
-* build
-* install-android-platform-tools-r2600
-* kselftest
-* libgpiod
-* libhugetlbfs
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-cpuhotplug-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-timers-tests
-* network-basic-tests
-* perf
-* spectre-meltdown-checker-test
-* v4l2-compliance
-* ltp-fs-tests
-* ltp-open-posix-tests
-* kselftest-vsyscall-mode-native
-* kselftest-vsyscall-mode-none
-* kvm-unit-tests
-
---=20
-Linaro LKFT
-https://lkft.linaro.org
+>  	return dd->rcd[ctxt];
+>  }
+>
+>
