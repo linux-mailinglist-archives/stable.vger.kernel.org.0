@@ -2,113 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6412D3A087
-	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 17:49:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62C293A142
+	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 20:45:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727159AbfFHPtb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Jun 2019 11:49:31 -0400
-Received: from mail-wm1-f68.google.com ([209.85.128.68]:54296 "EHLO
-        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727035AbfFHPtb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 8 Jun 2019 11:49:31 -0400
-Received: by mail-wm1-f68.google.com with SMTP id g135so4755944wme.4
-        for <stable@vger.kernel.org>; Sat, 08 Jun 2019 08:49:30 -0700 (PDT)
+        id S1727283AbfFHSp0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Jun 2019 14:45:26 -0400
+Received: from mail-pf1-f195.google.com ([209.85.210.195]:34502 "EHLO
+        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727250AbfFHSp0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 8 Jun 2019 14:45:26 -0400
+Received: by mail-pf1-f195.google.com with SMTP id c85so2998081pfc.1;
+        Sat, 08 Jun 2019 11:45:26 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=pHGpvWmmPQbNLDzox15I+1ID77/pKQSuG/kdotxbyDU=;
-        b=WASMWQOV449j6tB3p0A0/w6doEQNsdmkTUh2Em/dCmvDZGH+AFjH/0xfLUnOy4vnOJ
-         +NxHs2xkACypdPpWxlpNh5CdqlxgpD0+kxTeIfnAHToKGvG4vNK5jcPPBz/84/0R5EpN
-         a8eBOsN74Ewx24z6rPfLyccmm70d5HMKeq/8FlN5DleNTHLtk8eS28ZwmBlze7Dy3aLC
-         882HzvMH2uxtDc5o3wqOfTCuyzvHf8t6ABjUA+coKI43dxf7cjh/9T1BOS0uhmtjqnMs
-         3dGbVibYg8MbZ1KbjdS0bJIw2x9XR5UEExcDmObcah1GE0V0CK7LIOhvLdYM0LTVQ3jE
-         wzIw==
+        h=sender:subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=7PjkCPjoL2hWYTELSvYcvdztcod3RrOPu7wFgE1q5Q0=;
+        b=P2dK8K8JdJM0J5qgdHa1InsMpwb0V+VnJinOE/1fo/Tpwybvt1lDT0QPd9uUfr0eYp
+         a4589QVLm1iHxMzzL+O2CCSAyewZ98gl6DnkhtVzym8k8j0UraQRNcFZzZJI05T/b6bV
+         SZGjRwO4I5taLS8TuhEmLHGDs8pXi79ZtSkpvy+o7YExWL4ekC4lMXZ38dXbHObPkK5A
+         gPaslKHe4tYbcQ0QXffxlxUWqWfDFcW2QX+XC8vaQSdmH5ue225ffSk6ICHYKlkMCSxT
+         tNqzfCUoTn8p6M/SwODyJW1YqAJirRsMz+a3pfQzYwN5cELVAxO5t59tcGO6qUPqVEDR
+         PMzA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=pHGpvWmmPQbNLDzox15I+1ID77/pKQSuG/kdotxbyDU=;
-        b=TfGgn9gznW81fVSg/klbgCysMPppzK0meKosH1ddx/NoM8hT3zNbVxVP982RgxqXXq
-         LkudG9trwIdVoa7SV+XllMLGO41Pxl3TAsQjvYcK2K+ZLE0iQnPc0PnEeXaVJHv9sMUT
-         OFAprJ8FUGyWmoP2wN6ZdwQk9Ejgpu/WqCTVspKu8w/V9rjgl69nheod7vHVULORYPf8
-         PmgZDU421zjqw3/fXlOUyRvHUHbFvwiFS/QVyFD2iBbjL1TXSUoqf/4DaiNCgLI/xo+D
-         PuhAHAWDN/1dhDV189RYPTmcsI012BOe1zywpAFZeZe1nCMQvusLj+UiZUhq5lcdr8uh
-         dEXA==
-X-Gm-Message-State: APjAAAUYdbQ7UIdLE+tCubyVfCiWjtS8mi5YQaR5WJ0TidGjk88pEwaV
-        M+Ioa1W5Z2UCs2vupT/5ti0=
-X-Google-Smtp-Source: APXvYqycBoqoeEyOepgzUUEhO7PeTzhQAiQxVYa7XDbaHP/LpMntISaLNlf5G7tefxqocz0Y/LxHsA==
-X-Received: by 2002:a1c:a6d3:: with SMTP id p202mr7872682wme.26.1560008969746;
-        Sat, 08 Jun 2019 08:49:29 -0700 (PDT)
-Received: from zhanggen-UX430UQ ([108.61.173.19])
-        by smtp.gmail.com with ESMTPSA id z6sm6556673wrw.2.2019.06.08.08.49.21
+        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=7PjkCPjoL2hWYTELSvYcvdztcod3RrOPu7wFgE1q5Q0=;
+        b=CW0ajyVlKCjomA0z++dR4BwXNwdF/00R0vuUNTxn0119KjvPAoyzMkZ2Dj1nbcaqg4
+         lj0GFnO6kLKEvMOEZtB+z/fIwe/H8LKWM8iwBqGIvCd8AF9oZIPi2KPH8DWH3QJD83C4
+         eblsb3yO/cwAYbMo22KjTBJ1SCDJS+iLQzCdb8mndwob5PfuDL3+YXaKydNKYOKNXTyK
+         2SdMKHpX6SHBKMxdwETSdhBReCvpnIeqq5X6XEp0A5M0v6K1l/tTMgL79JHb1avZa6II
+         nH1lBZVd+zwqm+9Re3YT4fCECJakdQDi6MxbcSlprqrFfgGJEchqKvxi2selQMxcQiZB
+         d53w==
+X-Gm-Message-State: APjAAAX4naAMsHgMLfnB0vCWi3sT7pxTmCs2XZtGY/vkUO0f0cAXb4T2
+        yjEK3oe1kaTVhhf00vTkp4+HTAAM
+X-Google-Smtp-Source: APXvYqxfJtcwZ8Z/JQK44Pusl+4rZFe9UyZjrB/VTTzj0MBfqZaQidkw5+ePEvJ4uPGLF7PXzYzBZw==
+X-Received: by 2002:a63:445b:: with SMTP id t27mr8460790pgk.56.1560019525408;
+        Sat, 08 Jun 2019 11:45:25 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id m8sm12228653pff.137.2019.06.08.11.45.23
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 08 Jun 2019 08:49:29 -0700 (PDT)
-Date:   Sat, 8 Jun 2019 23:49:14 +0800
-From:   Gen Zhang <blackgod016574@gmail.com>
-To:     Ben Hutchings <ben@decadent.org.uk>
-Cc:     Zubin Mithra <zsm@chromium.org>, stable@vger.kernel.org,
-        gregkh@linuxfoundation.org, groeck@chromium.org,
-        davem@davemloft.net, kuznet@ms2.inr.ac.ru, jmorris@namei.org,
-        yoshfuji@linux-ipv6.org, kaber@trash.net
-Subject: Re: 425aa0e1d015 ("ip_sockglue: Fix missing-check bug in
- ip_ra_control()")
-Message-ID: <20190608154914.GA3449@zhanggen-UX430UQ>
-References: <20190603230239.GA168284@google.com>
- <69e47f52ec342b6c70c1cae6cd0140a51a713752.camel@decadent.org.uk>
- <20190607024115.GA4196@zhanggen-UX430UQ>
- <b1c9339054e583569888243331c0c7dd28591410.camel@decadent.org.uk>
+        Sat, 08 Jun 2019 11:45:24 -0700 (PDT)
+Subject: Re: [PATCH 4.14 00/69] 4.14.124-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+References: <20190607153848.271562617@linuxfoundation.org>
+From:   Guenter Roeck <linux@roeck-us.net>
+Message-ID: <55ac92e4-7395-9437-76f8-00f03837aabd@roeck-us.net>
+Date:   Sat, 8 Jun 2019 11:45:22 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b1c9339054e583569888243331c0c7dd28591410.camel@decadent.org.uk>
-User-Agent: Mutt/1.5.24 (2015-08-30)
+In-Reply-To: <20190607153848.271562617@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jun 07, 2019 at 02:02:09PM +0100, Ben Hutchings wrote:
-> On Fri, 2019-06-07 at 10:41 +0800, Gen Zhang wrote:
-> > On Thu, Jun 06, 2019 at 07:58:35PM +0100, Ben Hutchings wrote:
-> > > On Mon, 2019-06-03 at 16:02 -0700, Zubin Mithra wrote:
-> > > > Hello,
-> > > > 
-> > > > CVE-2019-12381 was fixed in the upstream linux kernel with the commit :-
-> > > > * 425aa0e1d015 ("ip_sockglue: Fix missing-check bug in ip_ra_control()")
-> > > > 
-> > > > Could the patch be applied in order to v4.19.y, v4.14.y, v4.9.y and v4.4.y ?
-> > > > 
-> > > > Tests run:
-> > > > * Chrome OS tryjobs
-> > > 
-> > > This doesn't fix a security vulnerability.  There already was a check
-> > > for allocation failure before dereferencing the returned pointer; it
-> > > just wasn't in the most obvious place.
-> > > 
-> > > I've requested rejection of this CVE, and several other invalid reports
-> > > from the same person.
-> > And where did this 'invalid' come from? Did any maintainers claimed the 
-> > patch 'invalid' or something? I am confused...
+On 6/7/19 8:38 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.14.124 release.
+> There are 69 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> I'm not saying the patch is invalid.  It makes the code clearer and
-> seems to result in returning a more appropriate error code.  So I don't
-> disagree with the patch, only the claim that it's fixing a security
-> issue.
-> 
-> My requests to reject the CVE assignments were made using MITRE's web
-> form.
-Well, I see. Thanks for your comments.
-
-Thanks
-Gen
-> 
-> Ben.
-> 
-> -- 
-> Ben Hutchings
-> Life would be so much easier if we could look at the source code.
-> 
+> Responses should be made by Sun 09 Jun 2019 03:37:08 PM UTC.
+> Anything received after that time might be too late.
 > 
 
+Build results:
+	total: 172 pass: 172 fail: 0
+Qemu test results:
+	total: 333 pass: 333 fail: 0
 
+Guenter
