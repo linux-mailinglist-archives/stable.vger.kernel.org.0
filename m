@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5193B39E95
-	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 13:51:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B845239E98
+	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 13:51:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729560AbfFHLsW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Jun 2019 07:48:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37092 "EHLO mail.kernel.org"
+        id S1729596AbfFHLsY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Jun 2019 07:48:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728642AbfFHLsV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 8 Jun 2019 07:48:21 -0400
+        id S1729583AbfFHLsX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 8 Jun 2019 07:48:23 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9B3E82173E;
-        Sat,  8 Jun 2019 11:48:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5EBFB216FD;
+        Sat,  8 Jun 2019 11:48:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559994500;
-        bh=ROP1spatBqCkFyvKcEZrycGls/aiVO8NuBYtlutysBM=;
+        s=default; t=1559994503;
+        bh=8F5r7ZgB2gD6Rrc7gkB+b3iBZdok2ASmpbLtrCpoJ8w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xspOfLwnM5HSnIOFGJNuMUSlQhlpHGEG424+dZy9YJDP6Bopyc4C/R1TU318rwT+5
-         a/QzVjfVIcZoi5ecD6hIyJ4AnLlatzD7YBBRvc4iherd3yrbWn8PRhxjjO676seCkj
-         zm9hxOjUYnRDpsPnrvQROYC0pGdz/Tq5JSry4GCg=
+        b=btoMh/IrvlxxYOx69cHiWuHWvUHRdekn11dOWkF1Pr300PoIY/2g1dZsxe4x/rkUY
+         WM+oVQlSCwxr6u8Qkkp8UL0muQzc7e8H2oAoWeP02pwyFFF+vuorhhOBI9b4w10K5B
+         tdOqSHT1MWmBrMM7jzWbQsQ1t3J2E2as9xQTk5OM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Randy Dunlap <rdunlap@infradead.org>,
-        kbuild test robot <lkp@intel.com>,
-        linux-gpio@vger.kernel.org,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Michael Hennerich <michael.hennerich@analog.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 07/20] gpio: fix gpio-adp5588 build errors
-Date:   Sat,  8 Jun 2019 07:47:43 -0400
-Message-Id: <20190608114756.9742-7-sashal@kernel.org>
+Cc:     Kees Cook <keescook@chromium.org>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
+        linux-parisc@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 08/20] net: tulip: de4x5: Drop redundant MODULE_DEVICE_TABLE()
+Date:   Sat,  8 Jun 2019 07:47:44 -0400
+Message-Id: <20190608114756.9742-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190608114756.9742-1-sashal@kernel.org>
 References: <20190608114756.9742-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -48,51 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit e9646f0f5bb62b7d43f0968f39d536cfe7123b53 ]
+[ Upstream commit 3e66b7cc50ef921121babc91487e1fb98af1ba6e ]
 
-The gpio-adp5588 driver uses interfaces that are provided by
-GPIOLIB_IRQCHIP, so select that symbol in its Kconfig entry.
+Building with Clang reports the redundant use of MODULE_DEVICE_TABLE():
 
-Fixes these build errors:
+drivers/net/ethernet/dec/tulip/de4x5.c:2110:1: error: redefinition of '__mod_eisa__de4x5_eisa_ids_device_table'
+MODULE_DEVICE_TABLE(eisa, de4x5_eisa_ids);
+^
+./include/linux/module.h:229:21: note: expanded from macro 'MODULE_DEVICE_TABLE'
+extern typeof(name) __mod_##type##__##name##_device_table               \
+                    ^
+<scratch space>:90:1: note: expanded from here
+__mod_eisa__de4x5_eisa_ids_device_table
+^
+drivers/net/ethernet/dec/tulip/de4x5.c:2100:1: note: previous definition is here
+MODULE_DEVICE_TABLE(eisa, de4x5_eisa_ids);
+^
+./include/linux/module.h:229:21: note: expanded from macro 'MODULE_DEVICE_TABLE'
+extern typeof(name) __mod_##type##__##name##_device_table               \
+                    ^
+<scratch space>:85:1: note: expanded from here
+__mod_eisa__de4x5_eisa_ids_device_table
+^
 
-../drivers/gpio/gpio-adp5588.c: In function ‘adp5588_irq_handler’:
-../drivers/gpio/gpio-adp5588.c:266:26: error: ‘struct gpio_chip’ has no member named ‘irq’
-            dev->gpio_chip.irq.domain, gpio));
-                          ^
-../drivers/gpio/gpio-adp5588.c: In function ‘adp5588_irq_setup’:
-../drivers/gpio/gpio-adp5588.c:298:2: error: implicit declaration of function ‘gpiochip_irqchip_add_nested’ [-Werror=implicit-function-declaration]
-  ret = gpiochip_irqchip_add_nested(&dev->gpio_chip,
-  ^
-../drivers/gpio/gpio-adp5588.c:307:2: error: implicit declaration of function ‘gpiochip_set_nested_irqchip’ [-Werror=implicit-function-declaration]
-  gpiochip_set_nested_irqchip(&dev->gpio_chip,
-  ^
+This drops the one further from the table definition to match the common
+use of MODULE_DEVICE_TABLE().
 
-Fixes: 459773ae8dbb ("gpio: adp5588-gpio: support interrupt controller")
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: linux-gpio@vger.kernel.org
-Reviewed-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Acked-by: Michael Hennerich <michael.hennerich@analog.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: 07563c711fbc ("EISA bus MODALIAS attributes support")
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/dec/tulip/de4x5.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
-index 12d417a4d4a8..b992badb99dd 100644
---- a/drivers/gpio/Kconfig
-+++ b/drivers/gpio/Kconfig
-@@ -670,6 +670,7 @@ config GPIO_ADP5588
- config GPIO_ADP5588_IRQ
- 	bool "Interrupt controller support for ADP5588"
- 	depends on GPIO_ADP5588=y
-+	select GPIOLIB_IRQCHIP
- 	help
- 	  Say yes here to enable the adp5588 to be used as an interrupt
- 	  controller. It requires the driver to be built in the kernel.
+diff --git a/drivers/net/ethernet/dec/tulip/de4x5.c b/drivers/net/ethernet/dec/tulip/de4x5.c
+index 6620fc861c47..005c79b5b3f0 100644
+--- a/drivers/net/ethernet/dec/tulip/de4x5.c
++++ b/drivers/net/ethernet/dec/tulip/de4x5.c
+@@ -2109,7 +2109,6 @@ static struct eisa_driver de4x5_eisa_driver = {
+ 		.remove  = de4x5_eisa_remove,
+         }
+ };
+-MODULE_DEVICE_TABLE(eisa, de4x5_eisa_ids);
+ #endif
+ 
+ #ifdef CONFIG_PCI
 -- 
 2.20.1
 
