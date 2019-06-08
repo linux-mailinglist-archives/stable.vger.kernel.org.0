@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0141539F20
-	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 13:54:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2740C39D63
+	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 13:40:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729233AbfFHLyP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Jun 2019 07:54:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57700 "EHLO mail.kernel.org"
+        id S1727622AbfFHLkc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Jun 2019 07:40:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727593AbfFHLk2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 8 Jun 2019 07:40:28 -0400
+        id S1727619AbfFHLka (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 8 Jun 2019 07:40:30 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 97D0D214D8;
-        Sat,  8 Jun 2019 11:40:26 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7AD3C208C0;
+        Sat,  8 Jun 2019 11:40:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559994028;
-        bh=a9I70xwLS7R3+Udl38mB14hZZ9HzBcjQc768eaqP9MI=;
+        s=default; t=1559994029;
+        bh=7x2JGtosWDwAxw5vBQaT3/UwDLUEVTiisVZXso3N02c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dt22n4zHfDLdYCPjujiGbfBkmdwesJmE9/V3+b1GGss9+58OSD7+RBROBjQDp6RN4
-         6Zch+zIOi2TrswcnA65HQNp5IhrtpS6F6U06KJ/Wy0BAMHgm5KELSy1tHzfl9sm6IS
-         Me9+dNKE0htePI9UjGqAjTvltaiY/OEl61Q4z56k=
+        b=vbej/PcIAV1CaqhFoVZ9bOhr46/aWmsbmk3NUfoKd7Oa8HhQ74Lf7mOXsqqJqn1oL
+         2A7zHExbCo7yrF8cL5irJAp5ZDNYl0ne4UInBqpTdr4uZQCOOSSnNyS4VGqiHglG1Z
+         NRjLsNg2eBFRuNk0IQOq1fVaxMqoLBUEX6IHezgA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Peter Zijlstra <peterz@infradead.org>,
-        Yabin Cui <yabinc@google.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Stephane Eranian <eranian@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vince Weaver <vincent.weaver@maine.edu>, acme@kernel.org,
-        mark.rutland@arm.com, namhyung@kernel.org,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.1 23/70] perf/ring-buffer: Always use {READ,WRITE}_ONCE() for rb->user_page data
-Date:   Sat,  8 Jun 2019 07:39:02 -0400
-Message-Id: <20190608113950.8033-23-sashal@kernel.org>
+Cc:     Randy Dunlap <rdunlap@infradead.org>,
+        kbuild test robot <lkp@intel.com>,
+        linux-gpio@vger.kernel.org,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Michael Hennerich <michael.hennerich@analog.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 24/70] gpio: fix gpio-adp5588 build errors
+Date:   Sat,  8 Jun 2019 07:39:03 -0400
+Message-Id: <20190608113950.8033-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190608113950.8033-1-sashal@kernel.org>
 References: <20190608113950.8033-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -51,66 +48,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 4d839dd9e4356bbacf3eb0ab13a549b83b008c21 ]
+[ Upstream commit e9646f0f5bb62b7d43f0968f39d536cfe7123b53 ]
 
-We must use {READ,WRITE}_ONCE() on rb->user_page data such that
-concurrent usage will see whole values. A few key sites were missing
-this.
+The gpio-adp5588 driver uses interfaces that are provided by
+GPIOLIB_IRQCHIP, so select that symbol in its Kconfig entry.
 
-Suggested-by: Yabin Cui <yabinc@google.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vince Weaver <vincent.weaver@maine.edu>
-Cc: acme@kernel.org
-Cc: mark.rutland@arm.com
-Cc: namhyung@kernel.org
-Fixes: 7b732a750477 ("perf_counter: new output ABI - part 1")
-Link: http://lkml.kernel.org/r/20190517115418.394192145@infradead.org
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Fixes these build errors:
+
+../drivers/gpio/gpio-adp5588.c: In function ‘adp5588_irq_handler’:
+../drivers/gpio/gpio-adp5588.c:266:26: error: ‘struct gpio_chip’ has no member named ‘irq’
+            dev->gpio_chip.irq.domain, gpio));
+                          ^
+../drivers/gpio/gpio-adp5588.c: In function ‘adp5588_irq_setup’:
+../drivers/gpio/gpio-adp5588.c:298:2: error: implicit declaration of function ‘gpiochip_irqchip_add_nested’ [-Werror=implicit-function-declaration]
+  ret = gpiochip_irqchip_add_nested(&dev->gpio_chip,
+  ^
+../drivers/gpio/gpio-adp5588.c:307:2: error: implicit declaration of function ‘gpiochip_set_nested_irqchip’ [-Werror=implicit-function-declaration]
+  gpiochip_set_nested_irqchip(&dev->gpio_chip,
+  ^
+
+Fixes: 459773ae8dbb ("gpio: adp5588-gpio: support interrupt controller")
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: linux-gpio@vger.kernel.org
+Reviewed-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Acked-by: Michael Hennerich <michael.hennerich@analog.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/events/ring_buffer.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/gpio/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/events/ring_buffer.c b/kernel/events/ring_buffer.c
-index 4b5f8d932400..7a0c73e4b3eb 100644
---- a/kernel/events/ring_buffer.c
-+++ b/kernel/events/ring_buffer.c
-@@ -100,7 +100,7 @@ again:
- 	 * See perf_output_begin().
- 	 */
- 	smp_wmb(); /* B, matches C */
--	rb->user_page->data_head = head;
-+	WRITE_ONCE(rb->user_page->data_head, head);
- 
- 	/*
- 	 * We must publish the head before decrementing the nest count,
-@@ -496,7 +496,7 @@ void perf_aux_output_end(struct perf_output_handle *handle, unsigned long size)
- 		perf_event_aux_event(handle->event, aux_head, size,
- 				     handle->aux_flags);
- 
--	rb->user_page->aux_head = rb->aux_head;
-+	WRITE_ONCE(rb->user_page->aux_head, rb->aux_head);
- 	if (rb_need_aux_wakeup(rb))
- 		wakeup = true;
- 
-@@ -528,7 +528,7 @@ int perf_aux_output_skip(struct perf_output_handle *handle, unsigned long size)
- 
- 	rb->aux_head += size;
- 
--	rb->user_page->aux_head = rb->aux_head;
-+	WRITE_ONCE(rb->user_page->aux_head, rb->aux_head);
- 	if (rb_need_aux_wakeup(rb)) {
- 		perf_output_wakeup(handle);
- 		handle->wakeup = rb->aux_wakeup + rb->aux_watermark;
+diff --git a/drivers/gpio/Kconfig b/drivers/gpio/Kconfig
+index 3f50526a771f..864a1ba7aa3a 100644
+--- a/drivers/gpio/Kconfig
++++ b/drivers/gpio/Kconfig
+@@ -824,6 +824,7 @@ config GPIO_ADP5588
+ config GPIO_ADP5588_IRQ
+ 	bool "Interrupt controller support for ADP5588"
+ 	depends on GPIO_ADP5588=y
++	select GPIOLIB_IRQCHIP
+ 	help
+ 	  Say yes here to enable the adp5588 to be used as an interrupt
+ 	  controller. It requires the driver to be built in the kernel.
 -- 
 2.20.1
 
