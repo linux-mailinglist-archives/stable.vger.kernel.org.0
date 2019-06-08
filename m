@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6342F39F32
-	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 13:55:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F6B739F2E
+	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 13:55:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727376AbfFHLkN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Jun 2019 07:40:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57306 "EHLO mail.kernel.org"
+        id S1727835AbfFHLy4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Jun 2019 07:54:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57362 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727368AbfFHLkM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 8 Jun 2019 07:40:12 -0400
+        id S1727387AbfFHLkN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 8 Jun 2019 07:40:13 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 29082214DA;
-        Sat,  8 Jun 2019 11:40:11 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 742A8214D8;
+        Sat,  8 Jun 2019 11:40:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559994012;
-        bh=9OHKxlOu0OcMXy6Rvg73TkXgsUQWNl1t0sYS7fFm8y0=;
+        s=default; t=1559994013;
+        bh=8r8ka3Dy5ssf2HI4AWlbCTlh4KKtCZC2Pzs6vACDIiE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F3SxtI+eR6H01Hc7lVWk0CEbe/CGUlK37Qry0W0RhmW5Cf3kxZL+Z/xs0cSo/UIy6
-         kCzrEGUDaWHAyOlBbfLdO5JiEKRGLAAVCntuM+wq9DO/SjqMcplsu7x25Z1H/jIJcX
-         ITulAjMMDL0Gaw4w4kNRDApNNaGFSSsP788yTZS4=
+        b=fh88KPAef2L/SR18dG27yn98hmwSamt2in2XQPK+yyvnJMb2A8DVPI3FOqsYe6Dfs
+         bCZWS+NRHGJuBD6CsSIJZe2bGoAarwV3B6Y1Y/ByL9PWFNaGyR9x1UnXkFb46TiD43
+         WgMHpRWenzH280Sv3p2Whj3GM8CuwlhXWXgcMH+0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Florian Westphal <fw@strlen.de>,
-        Marc Haber <mh+netdev@zugschlus.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>,
-        netfilter-devel@vger.kernel.org, coreteam@netfilter.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 15/70] netfilter: nat: fix udp checksum corruption
-Date:   Sat,  8 Jun 2019 07:38:54 -0400
-Message-Id: <20190608113950.8033-15-sashal@kernel.org>
+Cc:     Tony Lindgren <tony@atomide.com>, Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-omap@vger.kernel.org,
+        linux-clk@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.1 16/70] clk: ti: clkctrl: Fix clkdm_clk handling
+Date:   Sat,  8 Jun 2019 07:38:55 -0400
+Message-Id: <20190608113950.8033-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190608113950.8033-1-sashal@kernel.org>
 References: <20190608113950.8033-1-sashal@kernel.org>
@@ -46,36 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Tony Lindgren <tony@atomide.com>
 
-[ Upstream commit 6bac76db1da3cb162c425d58ae421486f8e43955 ]
+[ Upstream commit 1cc54078d104f5b4d7e9f8d55362efa5a8daffdb ]
 
-Due to copy&paste error nf_nat_mangle_udp_packet passes IPPROTO_TCP,
-resulting in incorrect udp checksum when payload had to be mangled.
+We need to always call clkdm_clk_enable() and clkdm_clk_disable() even
+the clkctrl clock(s) enabled for the domain do not have any gate register
+bits. Otherwise clockdomains may never get enabled except when devices get
+probed with the legacy "ti,hwmods" devicetree property.
 
-Fixes: dac3fe72596f9 ("netfilter: nat: remove csum_recalc hook")
-Reported-by: Marc Haber <mh+netdev@zugschlus.de>
-Tested-by: Marc Haber <mh+netdev@zugschlus.de>
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 88a172526c32 ("clk: ti: add support for clkctrl clocks")
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_nat_helper.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/clk/ti/clkctrl.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/net/netfilter/nf_nat_helper.c b/net/netfilter/nf_nat_helper.c
-index ccc06f7539d7..53aeb12b70fb 100644
---- a/net/netfilter/nf_nat_helper.c
-+++ b/net/netfilter/nf_nat_helper.c
-@@ -170,7 +170,7 @@ nf_nat_mangle_udp_packet(struct sk_buff *skb,
- 	if (!udph->check && skb->ip_summed != CHECKSUM_PARTIAL)
- 		return true;
+diff --git a/drivers/clk/ti/clkctrl.c b/drivers/clk/ti/clkctrl.c
+index 639f515e08f0..3325ee43bcc1 100644
+--- a/drivers/clk/ti/clkctrl.c
++++ b/drivers/clk/ti/clkctrl.c
+@@ -137,9 +137,6 @@ static int _omap4_clkctrl_clk_enable(struct clk_hw *hw)
+ 	int ret;
+ 	union omap4_timeout timeout = { 0 };
  
--	nf_nat_csum_recalc(skb, nf_ct_l3num(ct), IPPROTO_TCP,
-+	nf_nat_csum_recalc(skb, nf_ct_l3num(ct), IPPROTO_UDP,
- 			   udph, &udph->check, datalen, oldlen);
+-	if (!clk->enable_bit)
+-		return 0;
+-
+ 	if (clk->clkdm) {
+ 		ret = ti_clk_ll_ops->clkdm_clk_enable(clk->clkdm, hw->clk);
+ 		if (ret) {
+@@ -151,6 +148,9 @@ static int _omap4_clkctrl_clk_enable(struct clk_hw *hw)
+ 		}
+ 	}
  
- 	return true;
++	if (!clk->enable_bit)
++		return 0;
++
+ 	val = ti_clk_ll_ops->clk_readl(&clk->enable_reg);
+ 
+ 	val &= ~OMAP4_MODULEMODE_MASK;
+@@ -179,7 +179,7 @@ static void _omap4_clkctrl_clk_disable(struct clk_hw *hw)
+ 	union omap4_timeout timeout = { 0 };
+ 
+ 	if (!clk->enable_bit)
+-		return;
++		goto exit;
+ 
+ 	val = ti_clk_ll_ops->clk_readl(&clk->enable_reg);
+ 
 -- 
 2.20.1
 
