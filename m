@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F03539D8F
-	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 13:43:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8E9C39D92
+	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 13:43:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728227AbfFHLlm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Jun 2019 07:41:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58976 "EHLO mail.kernel.org"
+        id S1727418AbfFHLlq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Jun 2019 07:41:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728214AbfFHLlm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 8 Jun 2019 07:41:42 -0400
+        id S1728214AbfFHLlp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 8 Jun 2019 07:41:45 -0400
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 77B49214AF;
-        Sat,  8 Jun 2019 11:41:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 56110214D8;
+        Sat,  8 Jun 2019 11:41:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1559994101;
-        bh=P8w6/Cwz4mwp85ulO1bL7leDulXyhT/8ea6HkJTtEdk=;
+        s=default; t=1559994105;
+        bh=/w28zriEqwe1WglR1jS3OgJX6iXfDf02/uFj40uayrI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bQlCdqbwSeTXDoHNCSP/IfITBnOxjhwVXwhTf9QS6XWfNDx/6uQ7h6prKjgbtN8D5
-         Gu6sglqF0XVXxJrkIlzUSY1b+2b5jeFNex30on/KcMV68ImXc78YZB9CyF1hXvcyVL
-         uMUAov/2OX5YWQILVusn0BIJZKtwyF7eRG3YfgbQ=
+        b=kh8jVQMgw9PHeHeV3GZZ9DYmLmLY8f3fcyn9KKk9bnJJnpCyRFeK7zFsC6f+NN3HC
+         SQ5kYfIw8TtGatkyBjhCSuDIpaCWXMwlrStcSHnY23CGR/tLuXQuTgbk+vD/wSwbrf
+         Ld3M7pIseGMW/PkqJssXcMztu4FYMTymCrgj+WWk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Geert Uytterhoeven <geert@linux-m68k.org>,
-        Takashi Sakamoto <o-takashi@sakamocchi.jp>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.1 55/70] ALSA: fireface: Use ULL suffixes for 64-bit constants
-Date:   Sat,  8 Jun 2019 07:39:34 -0400
-Message-Id: <20190608113950.8033-55-sashal@kernel.org>
+Cc:     Sami Tolvanen <samitolvanen@google.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 56/70] arm64: fix syscall_fn_t type
+Date:   Sat,  8 Jun 2019 07:39:35 -0400
+Message-Id: <20190608113950.8033-56-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190608113950.8033-1-sashal@kernel.org>
 References: <20190608113950.8033-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,54 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+From: Sami Tolvanen <samitolvanen@google.com>
 
-[ Upstream commit 6954158a16404e7091cea494cd0a435ca2f90388 ]
+[ Upstream commit 8ef8f368ce72b5e17f7c1f1ef15c38dcfd0fef64 ]
 
-With gcc 4.1:
+Syscall wrappers in <asm/syscall_wrapper.h> use const struct pt_regs *
+as the argument type. Use const in syscall_fn_t as well to fix indirect
+call type mismatches with Control-Flow Integrity checking.
 
-    sound/firewire/fireface/ff-protocol-latter.c: In function ‘latter_switch_fetching_mode’:
-    sound/firewire/fireface/ff-protocol-latter.c:97: warning: integer constant is too large for ‘long’ type
-    sound/firewire/fireface/ff-protocol-latter.c: In function ‘latter_begin_session’:
-    sound/firewire/fireface/ff-protocol-latter.c:170: warning: integer constant is too large for ‘long’ type
-    sound/firewire/fireface/ff-protocol-latter.c:197: warning: integer constant is too large for ‘long’ type
-    sound/firewire/fireface/ff-protocol-latter.c:205: warning: integer constant is too large for ‘long’ type
-    sound/firewire/fireface/ff-protocol-latter.c: In function ‘latter_finish_session’:
-    sound/firewire/fireface/ff-protocol-latter.c:214: warning: integer constant is too large for ‘long’ type
-
-Fix this by adding the missing "ULL" suffixes.
-Add the same suffix to the last constant, to maintain consistency.
-
-Fixes: fd1cc9de64c2ca6c ("ALSA: fireface: add support for Fireface UCX")
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Reviewed-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sami Tolvanen <samitolvanen@google.com>
+Reviewed-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/firewire/fireface/ff-protocol-latter.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ arch/arm64/include/asm/syscall.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/firewire/fireface/ff-protocol-latter.c b/sound/firewire/fireface/ff-protocol-latter.c
-index c8236ff89b7f..b30d02d359b1 100644
---- a/sound/firewire/fireface/ff-protocol-latter.c
-+++ b/sound/firewire/fireface/ff-protocol-latter.c
-@@ -9,11 +9,11 @@
+diff --git a/arch/arm64/include/asm/syscall.h b/arch/arm64/include/asm/syscall.h
+index a179df3674a1..6206ab9bfcfc 100644
+--- a/arch/arm64/include/asm/syscall.h
++++ b/arch/arm64/include/asm/syscall.h
+@@ -20,7 +20,7 @@
+ #include <linux/compat.h>
+ #include <linux/err.h>
  
- #include "ff.h"
+-typedef long (*syscall_fn_t)(struct pt_regs *regs);
++typedef long (*syscall_fn_t)(const struct pt_regs *regs);
  
--#define LATTER_STF		0xffff00000004
--#define LATTER_ISOC_CHANNELS	0xffff00000008
--#define LATTER_ISOC_START	0xffff0000000c
--#define LATTER_FETCH_MODE	0xffff00000010
--#define LATTER_SYNC_STATUS	0x0000801c0000
-+#define LATTER_STF		0xffff00000004ULL
-+#define LATTER_ISOC_CHANNELS	0xffff00000008ULL
-+#define LATTER_ISOC_START	0xffff0000000cULL
-+#define LATTER_FETCH_MODE	0xffff00000010ULL
-+#define LATTER_SYNC_STATUS	0x0000801c0000ULL
+ extern const syscall_fn_t sys_call_table[];
  
- static int parse_clock_bits(u32 data, unsigned int *rate,
- 			    enum snd_ff_clock_src *src)
 -- 
 2.20.1
 
