@@ -2,71 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 43B2439A18
-	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 04:14:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D01E039B40
+	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 07:10:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729573AbfFHCOI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 7 Jun 2019 22:14:08 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:34216 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728860AbfFHCOI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 7 Jun 2019 22:14:08 -0400
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1725768AbfFHFK6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Jun 2019 01:10:58 -0400
+Received: from smtp.bonedaddy.net ([45.33.94.42]:41256 "EHLO
+        smtp.bonedaddy.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725804AbfFHFK6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 8 Jun 2019 01:10:58 -0400
+Received: from chianamo (n58-108-67-123.per1.wa.optusnet.com.au [58.108.67.123])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id C5D9730842A8;
-        Sat,  8 Jun 2019 02:14:07 +0000 (UTC)
-Received: from localhost (ovpn-12-31.pek2.redhat.com [10.72.12.31])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 0F9236085B;
-        Sat,  8 Jun 2019 02:14:06 +0000 (UTC)
-Date:   Sat, 8 Jun 2019 10:14:04 +0800
-From:   Baoquan He <bhe@redhat.com>
-To:     tglx@linutronix.de, stable@vger.kernel.org, mingo@kernel.org,
-        x86@kernel.org, linux-kernel@vger.kernel.org, peterz@infradead.org,
-        keescook@chromium.org, bp@suse.de, luto@kernel.org, hpa@zytor.com,
-        kirill@linux.intel.com, dave.hansen@linux.intel.com
-Cc:     linux-tip-commits@vger.kernel.org
-Subject: Re: [tip:x86/urgent] x86/mm/KASLR: Compute the size of the vmemmap
- section properly
-Message-ID: <20190608021404.GA26148@MiWiFi-R3L-srv>
-References: <20190523025744.3756-1-bhe@redhat.com>
- <tip-00e5a2bbcc31d5fea853f8daeba0f06c1c88c3ff@git.kernel.org>
+        (Authenticated sender: pabs3@bonedaddy.net)
+        by smtp.bonedaddy.net (Postfix) with ESMTPSA id C49E6180041;
+        Sat,  8 Jun 2019 01:10:54 -0400 (EDT)
+Message-ID: <24d1a13799ae7e0331ff668d9b170c4920d7d762.camel@bonedaddy.net>
+Subject: Re: [PATCH 2/2] drm: add fallback override/firmware EDID modes
+ workaround
+From:   Paul Wise <pabs3@bonedaddy.net>
+To:     Daniel Vetter <daniel@ffwll.ch>,
+        Jani Nikula <jani.nikula@intel.com>
+Cc:     intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+        Ilpo =?ISO-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@cs.helsinki.fi>,
+        stable@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Ville =?ISO-8859-1?Q?Syrj=E4l=E4?= 
+        <ville.syrjala@linux.intel.com>,
+        Harish Chegondi <harish.chegondi@intel.com>
+In-Reply-To: <20190607151021.GJ21222@phenom.ffwll.local>
+References: <20190607110513.12072-1-jani.nikula@intel.com>
+         <20190607110513.12072-2-jani.nikula@intel.com>
+         <20190607151021.GJ21222@phenom.ffwll.local>
+Content-Type: multipart/signed; micalg="pgp-sha512";
+        protocol="application/pgp-signature"; boundary="=-bpYT9ku/9oKoEROB5ndj"
+Date:   Sat, 08 Jun 2019 13:10:51 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <tip-00e5a2bbcc31d5fea853f8daeba0f06c1c88c3ff@git.kernel.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.40]); Sat, 08 Jun 2019 02:14:08 +0000 (UTC)
+User-Agent: Evolution 3.30.5-1.1 
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 06/07/19 at 02:16pm, tip-bot for Baoquan He wrote:
-> Commit-ID:  00e5a2bbcc31d5fea853f8daeba0f06c1c88c3ff
-> Gitweb:     https://git.kernel.org/tip/00e5a2bbcc31d5fea853f8daeba0f06c1c88c3ff
-> Author:     Baoquan He <bhe@redhat.com>
-> AuthorDate: Thu, 23 May 2019 10:57:44 +0800
-> Committer:  Borislav Petkov <bp@suse.de>
-> CommitDate: Fri, 7 Jun 2019 23:12:13 +0200
-> 
-> x86/mm/KASLR: Compute the size of the vmemmap section properly
-> 
-> The size of the vmemmap section is hardcoded to 1 TB to support the
-> maximum amount of system RAM in 4-level paging mode - 64 TB.
-> 
-> However, 1 TB is not enough for vmemmap in 5-level paging mode. Assuming
-> the size of struct page is 64 Bytes, to support 4 PB system RAM in 5-level,
-> 64 TB of vmemmap area is needed:
-> 
->   4 * 1000^5 PB / 4096 bytes page size * 64 bytes per page struct / 1000^4 TB = 62.5 TB.
 
-Thanks for picking this, Boris.
+--=-bpYT9ku/9oKoEROB5ndj
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Here, 4PB = 4*2^50 = 4*1024^5, the vmemmap should be 64 TB, am I right?
+On Fri, 2019-06-07 at 17:10 +0200, Daniel Vetter wrote:
 
-> 
-> This hardcoding may cause vmemmap to corrupt the following
-> cpu_entry_area section, if KASLR puts vmemmap very close to it and the
-> actual vmemmap size is bigger than 1 TB.
+> As discussed on irc, we need tested-by here from the reporters since
+> there's way too many losing and frustrangingly few winning moves here.
+
+Tested-by: Paul Wise <pabs3@bonedaddy.net>
+
+I've tested these two patches on top of Linux v5.2-rc3 and the EDID
+override works correctly on an Intel Ironlake GPU with a monitor that
+lost its EDID a while ago.
+
+I'll test that it also works with an nVidia GPU & noveau drivers later
+today once that system is available.
+
+https://patchwork.freedesktop.org/series/61764/
+
+--=20
+bye,
+pabs
+
+https://bonedaddy.net/pabs3/
+
+--=-bpYT9ku/9oKoEROB5ndj
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEYQsotVz8/kXqG1Y7MRa6Xp/6aaMFAlz7Q1cACgkQMRa6Xp/6
+aaMi+Q//UJMU9LZGRUgS7CLCu9aZDIbXy5nZ9tGjVhJKxx/mHsfFRsxMIrxBt0pV
+bisxaCn+zL8aqY/vWRpNL/EdHyl7R5pSmpxuOrKb/GX0vBk9bO40IwEJu9QdHWgQ
+oL0TXkUAHa4erVFNJIqQ/+Zm6bXjlD85rpRGFqaPffhHxD5gdwmZh0nd2kEjIC3/
+zlpdfE6Ip5vxLUzFt0hwcqmbSLp9YHL+XlGySwV27aG3HucVxp6eZl8hms3q/GPk
+0PTpfZfZRVb/u3DIoB/hdgMn0RiKPdoYJ7/QT6g2mhA0gvK36mdz/0LAOhG5BstZ
+LhKHTJZsZWnEBk+i5hkGbNGnPmfaCrG5H5qnl2u6Zi+illfLQ1P8tRbN9iRL2YVp
+9l2d2CRCqcq42ANglgjXNS46DlnessW9JWY9GBph4n6RWm4WPHL96H8swpLClCWV
+4PJOG8tLGfcATGdEZY42Id8VYTA+csEwe1GT7MaP4/gqbBqcuLoa7xwAdmZZV/H/
+mxcwWuf6uyUIFXR2UDNFySw5g6Z+OLduVoKwj7ZZIbqcGyIlH80eq4jEUnfoliP0
+P9kk3OD3/QWOfEg0ImFFqRR3v/yAvc71aj4oTXmg4HM8O6OnUaVsdE83AQxPv9/f
+gWYMxt+yVPNke7cNyMqxa88dN1664HH0yxU0MldnySf0ST7hD+E=
+=hCLl
+-----END PGP SIGNATURE-----
+
+--=-bpYT9ku/9oKoEROB5ndj--
+
