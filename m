@@ -2,106 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F5CB39FF4
-	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 15:39:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 299C33A029
+	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 16:05:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727073AbfFHNjR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Jun 2019 09:39:17 -0400
-Received: from mail-lf1-f66.google.com ([209.85.167.66]:35806 "EHLO
-        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727053AbfFHNjR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 8 Jun 2019 09:39:17 -0400
-Received: by mail-lf1-f66.google.com with SMTP id a25so3642147lfg.2
-        for <stable@vger.kernel.org>; Sat, 08 Jun 2019 06:39:15 -0700 (PDT)
+        id S1727009AbfFHOFm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Jun 2019 10:05:42 -0400
+Received: from mail-wr1-f52.google.com ([209.85.221.52]:36429 "EHLO
+        mail-wr1-f52.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726227AbfFHOFm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 8 Jun 2019 10:05:42 -0400
+Received: by mail-wr1-f52.google.com with SMTP id n4so4865314wrs.3
+        for <stable@vger.kernel.org>; Sat, 08 Jun 2019 07:05:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=JaGfI81Q6JWentYKTaA21VCz1itFIbwix5ValIQhLRo=;
-        b=Q7bt4G1t1KViB/8r4h/mB6s5nvWvP6n39uTn3jjJwd1YD9HwleTCbDepVlDxE9B86X
-         s4mA+AZYxExH9Bpo5MAj3MA0uk/6D1PyQdyZ/oa/Es1txynnCK14ZeuXdc/fKIze3dau
-         RzEjWeK+3jaFFwkcJh8HJ3fd/dVq7wpz8FCXzzcHshq6IZ4Tang+OhGCKb7DTboZzpw4
-         DnZs1atzNNFGGJDrL12OO0fVuYdVWLB4zfqAOq7hghafntvVPIE0/5S/5AksrXmAqy5j
-         98oEh/x99VIumnSByE/qis2Xk0wCIJXDh3x+gDZ2EnGIP0raof2bM4Wmp1Q2pLHnaIiZ
-         aJyA==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=X9QCSRVrKe7SgyAUE/yAaL7V9mTkl9b7I3Mu2D8VEP4=;
+        b=ZgXGsHgas8yCNrJL9r5Oa3KcZerPxswtjOEVhX+U3uZSyKdxAtm3LRxPdKxyguy/UZ
+         f2UhpiTc7dCQRXo3mezaHiWqQY/SDos3fN/vFcYLGR8AOdO3zsyBOXOF33wAtfo2xAY0
+         hUocwC6rOAP52Lw2f4EWXB9kJGskYmXvPDqTfyZqYLdUoIIbWNu+rrthoqS0I7C+DUMe
+         zwqvCcGTaBxacvDHyN8PBAX9954nczm6wVtn3mAMVlbKGyOdZyT54/X4nFwjL8+5OytH
+         QZE/3jaGIHo0CSH4fl4cZqOt2R6TqazQaCEIL5hRv6xh6nMEYXOhXLkT4+OB8gUBvxeD
+         GbbQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=JaGfI81Q6JWentYKTaA21VCz1itFIbwix5ValIQhLRo=;
-        b=TjS4rB6Dx0Dl9AeNdokgzNpCP1UODq5wRm1ATv2pPRdPJPHC1829wST8MKPKDph3ot
-         Vp5HmHiid3Ka/lONkeu9TWm7zXWlWJ0H+VCYoKqmLjt2wgaLf0PGDzBX/Zjhu7tSF37g
-         y/krTcmnyiwYy7DmNjl3QFHEiRACZQ6HTIp7vGssSKYLVQJyAd4P/ZDSa4Ozob72chr0
-         JZ2vw1a941AC3zJ4xQuo3ES0hosFtcYv09NvdJeR9waWabCX2F9zmtVNwFmoxHwOsWCr
-         kr6EEQcpDLK6QVj2SwAaRxU6wzW3K8OVhKz7Wyu8DEPeEZfGjwW0UKq/LCzMTr+e4b5O
-         xjmg==
-X-Gm-Message-State: APjAAAWAfXAZIqNtoO2Hrkl6i/QGAkQu4YKiuoPelh1hsM3FpDaY29wH
-        geW/HQBV+8O7jlOr85NW6+Yf08gMSmZkPd+mwOkvxA==
-X-Google-Smtp-Source: APXvYqx9DRqAoMXbndPx1CEggSgZL21g/MbLBj7GYirci7ZrLdGpXGWI6SxNqAVUlDZjQ3Lg3/H/RoVBLot41av1Y2A=
-X-Received: by 2002:ac2:5382:: with SMTP id g2mr28947388lfh.92.1560001155176;
- Sat, 08 Jun 2019 06:39:15 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=X9QCSRVrKe7SgyAUE/yAaL7V9mTkl9b7I3Mu2D8VEP4=;
+        b=Ccp3Negr5jtl6yMCBlMlIpNGR6odsFNR0vsk5ufZ/+V9MbAba3xypfLkJOb8VhkDE7
+         4mKMnbzACoBtlC0jldYdyhpocpyZbICHk/Ll0RLQLg/l74Nw7rDpynRXnh+szU6ql6A6
+         X9DI6F+aSXaEkFrBDMfsj+DUyogzyPE+C+jJryAh1r3eeGH/ldcyrdwuQs4dCXFIMw9d
+         jXC2FEa29x1siGX+8QoDZnDIfPgQWffgkyBf4qFFqlofzmjLnbEYpv5FZumTZ/zRxNR8
+         Wh9xBXAkX/y8BB5RdT8b7Is1fb8QZpdtxrHvAha7mRPxzym9UvPNJNkxeXlrCIcuE+05
+         JPOw==
+X-Gm-Message-State: APjAAAWWvL90068xqGsvwv9jeV3SNhedDq8NcwQRF78n+0Y/EyMTZJZH
+        Bka17rQXmCOXCa2zcmgSBQrigwdmzVRRKA==
+X-Google-Smtp-Source: APXvYqx8d9dUUVIz6VhfCZZ6Ky0am+iCWtaf0ixgO2oZx5iF+pZyriy2ys5cqs3lFi3KgyR6+sul9w==
+X-Received: by 2002:adf:e309:: with SMTP id b9mr5607718wrj.135.1560002740977;
+        Sat, 08 Jun 2019 07:05:40 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id o185sm6204094wmo.45.2019.06.08.07.05.39
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Sat, 08 Jun 2019 07:05:40 -0700 (PDT)
+Message-ID: <5cfbc0b4.1c69fb81.2d932.6b33@mx.google.com>
+Date:   Sat, 08 Jun 2019 07:05:40 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20190604163311.19059-1-paul@crapouillou.net> <CACRpkdbKg22OyViYhXS=Vyps=2zQ_dmm23Xr8+dBp+uwwjheuQ@mail.gmail.com>
- <1559988846.1815.1@crapouillou.net>
-In-Reply-To: <1559988846.1815.1@crapouillou.net>
-From:   Linus Walleij <linus.walleij@linaro.org>
-Date:   Sat, 8 Jun 2019 15:39:07 +0200
-Message-ID: <CACRpkdbKWC7ULFjN1c5axg5FBeeWWXCsbbQi2ks4+5tg07Br-g@mail.gmail.com>
-Subject: Re: [PATCH] MIPS: lb60: Fix pin mappings
-To:     Paul Cercueil <paul@crapouillou.net>,
-        Andrew Morton <akpm@linux-foundation.org>
-Cc:     Ralf Baechle <ralf@linux-mips.org>,
-        Paul Burton <paul.burton@mips.com>,
-        James Hogan <jhogan@kernel.org>, od@zcrc.me,
-        linux-mips@vger.kernel.org,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.14.123-70-g396e28a10fff
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.14.y boot: 116 boots: 0 failed,
+ 114 passed with 1 offline, 1 untried/unknown (v4.14.123-70-g396e28a10fff)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Jun 8, 2019 at 12:14 PM Paul Cercueil <paul@crapouillou.net> wrote:
-> Le sam. 8 juin 2019 =C3=A0 0:10, Linus Walleij <linus.walleij@linaro.org>=
- a
-> =C3=A9crit :
-> > On Tue, Jun 4, 2019 at 6:34 PM Paul Cercueil <paul@crapouillou.net>
-> > wrote:
-> >
-> >>  The pin mappings introduced in commit 636f8ba67fb6
-> >>  ("MIPS: JZ4740: Qi LB60: Add pinctrl configuration for several
-> >> drivers")
-> >>  are completely wrong. The pinctrl driver name is incorrect, and the
-> >>  function and group fields are swapped.
-> >>
-> >>  Fixes: 636f8ba67fb6 ("MIPS: JZ4740: Qi LB60: Add pinctrl
-> >> configuration for several drivers")
-> >>  Cc: <stable@vger.kernel.org>
-> >>  Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-> >
-> > Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-> >
-> > Such things happen. Are you planning to phase all the board files over
-> > to use devicetree eventually?
->
-> Yes, that's definitely what's planned; right now the blockers are
-> patchsets [1] and [2]. [1] is ignored by everybody because there's no
-> maintainer for drivers/memory/. [2] is a year-long effort that still
-> doesn't show me the light at the end of the tunnel.
->
-> [1] https://lkml.org/lkml/2019/6/4/743
-> [2] https://lkml.org/lkml/2019/5/21/679
+stable-rc/linux-4.14.y boot: 116 boots: 0 failed, 114 passed with 1 offline=
+, 1 untried/unknown (v4.14.123-70-g396e28a10fff)
 
-What? That's unacceptable, the last resort is usually to send the
-patches to Andrew Morton (whether fair or not) when nothing gets
-applied.
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.14.y/kernel/v4.14.123-70-g396e28a10fff/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.123-70-g396e28a10fff/
 
-In this case I would however encourage the MIPS maintainer to
-simply queue this stuff in the MIPS tree as blocking his arch work
-if not merged, Ralf would you consider just queueing this?
-I do not think the other Linus would mind.
+Tree: stable-rc
+Branch: linux-4.14.y
+Git Describe: v4.14.123-70-g396e28a10fff
+Git Commit: 396e28a10fffc503c28b113c1e867b8e3684a98a
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 61 unique boards, 23 SoC families, 14 builds out of 192
 
-Yours,
-Linus Walleij
+Offline Platforms:
+
+arm64:
+
+    defconfig:
+        gcc-8
+            meson-gxl-s905x-khadas-vim: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
