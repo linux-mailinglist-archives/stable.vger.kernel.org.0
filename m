@@ -2,95 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0619F39B53
-	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 07:48:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 197CD39B7C
+	for <lists+stable@lfdr.de>; Sat,  8 Jun 2019 09:13:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730058AbfFHFsi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 8 Jun 2019 01:48:38 -0400
-Received: from smtp.bonedaddy.net ([45.33.94.42]:41408 "EHLO
-        smtp.bonedaddy.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730056AbfFHFsi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 8 Jun 2019 01:48:38 -0400
-Received: from chianamo (n58-108-67-123.per1.wa.optusnet.com.au [58.108.67.123])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: pabs3@bonedaddy.net)
-        by smtp.bonedaddy.net (Postfix) with ESMTPSA id 10C00180045;
-        Sat,  8 Jun 2019 01:48:33 -0400 (EDT)
-Message-ID: <0667fc81810f2da5110c7da00963c93da90a6cd7.camel@bonedaddy.net>
-Subject: Re: [PATCH 2/2] drm: add fallback override/firmware EDID modes
- workaround
-From:   Paul Wise <pabs3@bonedaddy.net>
-To:     Daniel Vetter <daniel@ffwll.ch>,
-        Jani Nikula <jani.nikula@intel.com>
-Cc:     intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-        Ilpo =?ISO-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@cs.helsinki.fi>,
-        stable@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Ville =?ISO-8859-1?Q?Syrj=E4l=E4?= 
-        <ville.syrjala@linux.intel.com>,
-        Harish Chegondi <harish.chegondi@intel.com>
-In-Reply-To: <24d1a13799ae7e0331ff668d9b170c4920d7d762.camel@bonedaddy.net>
-References: <20190607110513.12072-1-jani.nikula@intel.com>
-         <20190607110513.12072-2-jani.nikula@intel.com>
-         <20190607151021.GJ21222@phenom.ffwll.local>
-         <24d1a13799ae7e0331ff668d9b170c4920d7d762.camel@bonedaddy.net>
-Content-Type: multipart/signed; micalg="pgp-sha512";
-        protocol="application/pgp-signature"; boundary="=-gCmOviOCfWkL5Vf5iN5c"
-Date:   Sat, 08 Jun 2019 13:48:30 +0800
+        id S1726648AbfFHHNo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 8 Jun 2019 03:13:44 -0400
+Received: from mail-lj1-f195.google.com ([209.85.208.195]:38709 "EHLO
+        mail-lj1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726567AbfFHHNo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 8 Jun 2019 03:13:44 -0400
+Received: by mail-lj1-f195.google.com with SMTP id o13so3607444lji.5
+        for <stable@vger.kernel.org>; Sat, 08 Jun 2019 00:13:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=DegCVmGIdd0bLWL8bA/nsvYbcUC9KgI6I8cADXdqPho=;
+        b=Wsud5zYlPvfWDBl2yhnNC7ok6cBEDBcBXxxLGFBcGkEFEBv/7kPpcCPNBJt/GDoz2t
+         YTCmuFmNoj3oT9tjVAb4LnIOAkJAiDVjrO3WaUa5dGXRfl8Af/ljGlRHqAN4z6qWHF23
+         1LdDpK4ClPi9GaNDGXumiwke6q+5i0eAcDpOOZX6bDCdnKSfmavGTayjR6dV2Vxwd+M7
+         AGzL0SHaU9/s7uVirttj27vdXUIOxxmTlUHNYBxH9dotNILbM8DBUIzIXOE4l7T8T3hO
+         GBnFDynfhXR8CM4sjJN6QjRpE1U87h36uKQKsmdevfFtPwM+ZfKWHrc8cFjoJlRXvdZH
+         jX/w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=DegCVmGIdd0bLWL8bA/nsvYbcUC9KgI6I8cADXdqPho=;
+        b=DD3HQV2AB7V2C9YTVbaOitupEvSCGmf9LTL4JEM+he7tTv+cT/MknL86TTlNBfIdPH
+         XviiR1MaIgI/J8RyPmuen5XtqEUJoAvduo7ywFuYX/7nzo2IXp5f0+XcC9ivfZzb4Dd8
+         BOEhGeOVu413pvCZiiossGJMpS6dWql3IMa2yurfUxnkJ5u7+74i08a42FzlQExgKMU8
+         qbFAOtkrm1YpipKOgtmbABmaIDJI7P2W4lyv01j+fvAu0iUYZpkBu27DUgTrpBFz5Mor
+         H/QNy4geA0uxnQscrR01bVlIs1N/gB4gze1TK2wjYqtM+ujQCMOm3d4UNSTbuMt+UFvY
+         KJfw==
+X-Gm-Message-State: APjAAAWffecch0iztn0SjH4An1bUbNUvFYsfR4RoTcQtA2n5CgmGMakC
+        4WyA+4pGGIeLluLNHIyjc6Qj6Xa3WFWY1L+LbTP1SA==
+X-Google-Smtp-Source: APXvYqyKv5fkqvShFOYSR0yEMa8+LXGoV/8oU6hLRVakSWiNWIqbdBNLWpLiaEG/rKoIbph8ziLNaH657x76oNKFsHk=
+X-Received: by 2002:a2e:81c4:: with SMTP id s4mr18170669ljg.182.1559978022100;
+ Sat, 08 Jun 2019 00:13:42 -0700 (PDT)
 MIME-Version: 1.0
-User-Agent: Evolution 3.30.5-1.1 
+References: <20190607153848.271562617@linuxfoundation.org>
+In-Reply-To: <20190607153848.271562617@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Sat, 8 Jun 2019 12:43:31 +0530
+Message-ID: <CA+G9fYtmR8mtSzxLzKjCuKaWzd=zzyFKnUG0pG69+EkEpRQA0A@mail.gmail.com>
+Subject: Re: [PATCH 4.14 00/69] 4.14.124-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>, fdmanana@suse.com
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>,
+        lkft-triage@lists.linaro.org,
+        linux- stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, 7 Jun 2019 at 21:10, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.14.124 release.
+> There are 69 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Sun 09 Jun 2019 03:37:08 PM UTC.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.124-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
---=-gCmOviOCfWkL5Vf5iN5c
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+compile kernel module failed for arm and i386.
 
-On Sat, 2019-06-08 at 13:10 +0800, Paul Wise wrote:
+> Filipe Manana <fdmanana@suse.com>
+>     Btrfs: incremental send, fix file corruption when no-holes feature is enabled
+>
+> Filipe Manana <fdmanana@suse.com>
+>     Btrfs: fix fsync not persisting changed attributes of a directory
+>
+> Filipe Manana <fdmanana@suse.com>
+>     Btrfs: fix race updating log root item during fsync
+>
+> Filipe Manana <fdmanana@suse.com>
+>     Btrfs: fix wrong ctime and mtime of a directory after log replay
 
-> I've tested these two patches on top of Linux v5.2-rc3 and the EDID
-> override works correctly on an Intel Ironlake GPU with a monitor that
-> lost its EDID a while ago.
+fs/btrfs/inode.c: In function 'btrfs_add_link':
+fs/btrfs/inode.c:6590:27: error: invalid initializer
+  struct timespec64 now = current_time(&parent_inode->vfs_inode);
+                          ^~~~~~~~~~~~
+fs/btrfs/inode.c:6592:35: error: incompatible types when assigning to
+type 'struct timespec' from type 'struct timespec64'
+  parent_inode->vfs_inode.i_mtime = now;
+                                  ^
+fs/btrfs/inode.c:6593:35: error: incompatible types when assigning to
+type 'struct timespec' from type 'struct timespec64'
+  parent_inode->vfs_inode.i_ctime = now;
+                                  ^
 
-While testing I noticed a couple of things:
+Full build log link,
+https://ci.linaro.org/job/openembedded-lkft-linux-stable-rc-4.14/487/DISTRO=lkft,MACHINE=intel-core2-32,label=docker-lkft/consoleText
 
-While everything the GUI is the correct resolution, GNOME is unable to
-identify the monitor vendor or model. This is a regression from the
-previous edid override functionality. It looks like this is because the
-edid file in /sys is not populated with the EDID override data.
-
-I got a crash due to null pointer dereference at one point, I'll try to
-track down when this happens.
-
---=20
-bye,
-pabs
-
-https://bonedaddy.net/pabs3/
-
---=-gCmOviOCfWkL5Vf5iN5c
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEYQsotVz8/kXqG1Y7MRa6Xp/6aaMFAlz7TCsACgkQMRa6Xp/6
-aaNqGhAAna9/HB08ZoGq/hpmTWLlR7LzL7iAV4ooRMur8rg8hSxZ4OQFewlsIkZ1
-O3LveyPZJXqkc/higW/xwtnkhI4qq4W3IvwhTYwRkPiEVhnoi1wTuGlSa75mO/lt
-VTDse6tRtVZGdFjs19aeIg3lslOzVfZt7GlX4XWggipQ2jvA0MY7g92OWaRsc04r
-ogcN/ygzrM94m13IubI+2lFDl0AC6rAmbzjtiz5Rqwv/OzkhTZ2spJhj/ILm8dVQ
-Q7B7QD6717FDShJ0M9XmqSA2M3amUIeqdDXfDns2dC/7ncZPOUYpPVZ6nbp77Mao
-pLaDh38zFhEFHCf+bUl1AdNsRkFylgKRwVrV3Y/z4F76fg5wAtZ6i2zuUzxY7xta
-QUT6a17irglQAxxzln+wx5hPBFxycD5dHBuxZE2WxTcmsz503ZjLSKS1lNTMrV+U
-gulP3UufxJnEpOAbO6BAjSp/3rwCjCDVDZBwGFDiImbbA3E5I4g+y4SmKGiei2cn
-kxcoY9DTdG+V5RI+pqKMFA+8FsmV3P8W89OyMZPbbyakug5/rCIiPO8Qebsmg3X6
-87dGX7z1OgvHNaPpvnQgSyb8OlkSyn9Y/up2hoehYgtQHwkTrx3Du/hg2cmPG2E5
-VmEz2jFYAI/KHB0uPIkTmX9/OqFsetoXPuaIAKiPsVVOaeTugo8=
-=Kmhb
------END PGP SIGNATURE-----
-
---=-gCmOviOCfWkL5Vf5iN5c--
-
+-- 
+Linaro LKFT
+https://lkft.linaro.org
