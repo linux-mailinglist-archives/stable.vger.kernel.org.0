@@ -2,227 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 584553A489
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 11:44:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42E553A48B
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 11:44:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727982AbfFIJof convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Sun, 9 Jun 2019 05:44:35 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:50274 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727979AbfFIJof (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 05:44:35 -0400
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id E028D368E6
-        for <stable@vger.kernel.org>; Sun,  9 Jun 2019 09:44:34 +0000 (UTC)
-Received: from [172.54.141.148] (cpt-large-cpu-05.paas.prod.upshift.rdu2.redhat.com [10.0.18.78])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 8BC165D9E2;
-        Sun,  9 Jun 2019 09:44:32 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        id S1727984AbfFIJov (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 05:44:51 -0400
+Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:59453 "EHLO
+        wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727979AbfFIJov (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Jun 2019 05:44:51 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id 98D923D4;
+        Sun,  9 Jun 2019 05:44:50 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Sun, 09 Jun 2019 05:44:50 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=lRYnu0
+        Gk5iKMIsow8QablQxHk/9CQsrXxlQWvU0w8p0=; b=cQx/S1C9ZBWWW1hT0HnExV
+        KjUF6Pk1OoVO4bVV2cWv+P5FvpUpO67H9YjCbpVDYZsiSAexBQedfjEZeLYoBSMz
+        iPIdojy4NhTabfcSXWiR0lpA9Orw9SWNzcUG7JvitCRuJnHqrX7Ia+uA6hGklOcG
+        BvPhvWaAIy81JfbgAgYsDo3bXt+o8fzgy/LEjSXWy+eYVcfibcdtoAaFsWdwULdR
+        yBTOB0P1vermcR8kINe+s/Dc7U5N/LO5MN3Noo/HIQf+fK0TAtaPE1k28yzud99i
+        K1gXbenoLXWVVBTeooMn/G2iHix0p4824XWy3M/lVAc6j61qcFVs92/EL9xxS3Rw
+        ==
+X-ME-Sender: <xms:EtX8XKBs5AUzeX4d7NDjavmkCEQys8MXlI30U63bNwCK1xvyDnT9jg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrudehtddgvddtucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepud
+X-ME-Proxy: <xmx:EtX8XMtSIm6X7NJAyDihVYGYQzUrE7iY7kP5TLmBtaHVxXG1gQjh-w>
+    <xmx:EtX8XE60bBcVoYYDoHRWf8klrw_BKQk3AkzOEd_om0RQRhT2U6so5g>
+    <xmx:EtX8XGf_H89VBpTA0lDD75DRH5zeHl9HsdftSBaBQ6qOH25C6erdAg>
+    <xmx:EtX8XD927a-ybuN8DAGjaqEqGcQOxoGIN4gdV3QclZh4NZLKKt6yxg>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 6D231380087;
+        Sun,  9 Jun 2019 05:44:49 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] SUNRPC fix regression in umount of a secure mount" failed to apply to 4.14-stable tree
+To:     kolga@netapp.com, Anna.Schumaker@Netapp.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sun, 09 Jun 2019 11:44:39 +0200
+Message-ID: <1560073479187217@kroah.com>
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-4.19
-Message-ID: <cki.C36889B92B.K31C2VLMZ7@redhat.com>
-X-Gitlab-Pipeline-ID: 11855
-X-Gitlab-Pipeline: =?utf-8?q?https=3A//xci32=2Elab=2Eeng=2Erdu2=2Eredhat=2Ec?=
- =?utf-8?q?om/cki-project/cki-pipeline/pipelines/11855?=
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.30]); Sun, 09 Jun 2019 09:44:34 +0000 (UTC)
-Date:   Sun, 9 Jun 2019 05:44:35 -0400
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
 
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
+The patch below does not apply to the 4.14-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: bb7b450e61a1 - Linux 4.19.49
+thanks,
 
-The results of these automated tests are provided below.
+greg k-h
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
+------------------ original commit in Linus's tree ------------------
 
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
+From ec6017d9035986a36de064f48a63245930bfad6f Mon Sep 17 00:00:00 2001
+From: Olga Kornievskaia <kolga@netapp.com>
+Date: Wed, 29 May 2019 10:46:00 -0400
+Subject: [PATCH] SUNRPC fix regression in umount of a secure mount
 
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
+If call_status returns ENOTCONN, we need to re-establish the connection
+state after. Otherwise the client goes into an infinite loop of call_encode,
+call_transmit, call_status (ENOTCONN), call_encode.
 
-Merge testing
--------------
+Fixes: c8485e4d63 ("SUNRPC: Handle ECONNREFUSED correctly in xprt_transmit()")
+Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
+Cc: stable@vger.kernel.org # v2.6.29+
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 
-We cloned this repository and checked out the following commit:
+diff --git a/net/sunrpc/clnt.c b/net/sunrpc/clnt.c
+index d6e57da56c94..94a653be8e25 100644
+--- a/net/sunrpc/clnt.c
++++ b/net/sunrpc/clnt.c
+@@ -2288,13 +2288,13 @@ call_status(struct rpc_task *task)
+ 	case -ECONNREFUSED:
+ 	case -ECONNRESET:
+ 	case -ECONNABORTED:
++	case -ENOTCONN:
+ 		rpc_force_rebind(clnt);
+ 		/* fall through */
+ 	case -EADDRINUSE:
+ 		rpc_delay(task, 3*HZ);
+ 		/* fall through */
+ 	case -EPIPE:
+-	case -ENOTCONN:
+ 	case -EAGAIN:
+ 		break;
+ 	case -EIO:
 
-  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: bb7b450e61a1 - Linux 4.19.49
-
-
-We then merged the patchset with `git am`:
-
-  cls_matchall-avoid-panic-when-receiving-a-packet-before-filter-set.patch
-  ethtool-fix-potential-userspace-buffer-overflow.patch
-  fix-memory-leak-in-sctp_process_init.patch
-  ipv4-not-do-cache-for-local-delivery-if-bc_forwarding-is-enabled.patch
-  ipv6-fix-the-check-before-getting-the-cookie-in-rt6_get_cookie.patch
-  neighbor-call-__ipv4_neigh_lookup_noref-in-neigh_xmit.patch
-  net-ethernet-ti-cpsw_ethtool-fix-ethtool-ring-param-set.patch
-  net-mlx4_en-ethtool-remove-unsupported-sfp-eeprom-high-pages-query.patch
-  net-mvpp2-use-strscpy-to-handle-stat-strings.patch
-  net-rds-fix-memory-leak-in-rds_ib_flush_mr_pool.patch
-  net-sfp-read-eeprom-in-maximum-16-byte-increments.patch
-  net-tls-replace-the-sleeping-lock-around-rx-resync-with-a-bit-lock.patch
-  packet-unconditionally-free-po-rollover.patch
-  pktgen-do-not-sleep-with-the-thread-lock-held.patch
-  revert-fib_rules-return-0-directly-if-an-exactly-same-rule-exists-when-nlm_f_excl-not-supplied.patch
-  ipv6-use-read_once-for-inet-hdrincl-as-in-ipv4.patch
-  ipv6-fix-efault-on-sendto-with-icmpv6-and-hdrincl.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-  aarch64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-b7ef079b6894d962d90a76cc5d1e3ddb8bc076f3.config
-    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-b7ef079b6894d962d90a76cc5d1e3ddb8bc076f3.tar.gz
-
-  ppc64le:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-b7ef079b6894d962d90a76cc5d1e3ddb8bc076f3.config
-    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-b7ef079b6894d962d90a76cc5d1e3ddb8bc076f3.tar.gz
-
-  s390x:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-b7ef079b6894d962d90a76cc5d1e3ddb8bc076f3.config
-    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-b7ef079b6894d962d90a76cc5d1e3ddb8bc076f3.tar.gz
-
-  x86_64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-b7ef079b6894d962d90a76cc5d1e3ddb8bc076f3.config
-    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-b7ef079b6894d962d90a76cc5d1e3ddb8bc076f3.tar.gz
-
-
-Hardware testing
-----------------
-
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [1]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ Ethernet drivers sanity [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ✅ tuned: tune-processes-through-perf [8]
-       🚧 ✅ Networking socket: fuzz [9]
-       🚧 ✅ Networking sctp-auth: sockopts test [10]
-       🚧 ✅ Networking route: pmtu [11]
-       🚧 ✅ Networking route_func: local [12]
-       🚧 ✅ Networking route_func: forward [12]
-
-
-  ppc64le:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ Ethernet drivers sanity [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ✅ tuned: tune-processes-through-perf [8]
-       🚧 ✅ Networking socket: fuzz [9]
-       🚧 ✅ Networking sctp-auth: sockopts test [10]
-       🚧 ✅ Networking route: pmtu [11]
-       🚧 ✅ Networking route_func: local [12]
-       🚧 ✅ Networking route_func: forward [12]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [1]
-
-
-  s390x:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [1]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [2]
-       ✅ Ethernet drivers sanity [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ✅ tuned: tune-processes-through-perf [8]
-       🚧 ✅ Networking socket: fuzz [9]
-       🚧 ✅ Networking sctp-auth: sockopts test [10]
-       🚧 ✅ Networking route: pmtu [11]
-       🚧 ✅ Networking route_func: local [12]
-       🚧 ✅ Networking route_func: forward [12]
-
-
-  x86_64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [1]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ Ethernet drivers sanity [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ✅ tuned: tune-processes-through-perf [8]
-       🚧 ✅ Networking socket: fuzz [9]
-       🚧 ✅ Networking sctp-auth: sockopts test [10]
-       🚧 ✅ Networking route: pmtu [11]
-       🚧 ✅ Networking route_func: local [12]
-       🚧 ✅ Networking route_func: forward [12]
-
-
-  Test source:
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
-    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/sctp/auth/sockopts
-    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/route/pmtu
-    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/route/route_func
-
-Waived tests (marked with 🚧)
------------------------------
-This test run included waived tests. Such tests are executed but their results
-are not taken into account. Tests are waived when their results are not
-reliable enough, e.g. when they're just introduced or are being fixed.
