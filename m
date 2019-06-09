@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C4193A765
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 18:49:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D1CFA3A79F
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 18:52:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731425AbfFIQtQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:49:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48632 "EHLO mail.kernel.org"
+        id S1731958AbfFIQvd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:51:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51896 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731390AbfFIQtP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:49:15 -0400
+        id S1731955AbfFIQvc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:51:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 99346206DF;
-        Sun,  9 Jun 2019 16:49:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 545842070B;
+        Sun,  9 Jun 2019 16:51:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560098954;
-        bh=gcCgrMDtogtv9S02H5nZ1BGnkLNi/H29ZWVzYhJvc4U=;
+        s=default; t=1560099091;
+        bh=XbF+Fbw0YUo7hx0ywMUR4QLETQp349Wrkcg+6+6D23A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tu+33DG9jMIcuBceM49/1tysMdDK4Dl+6O3xBlY2KPOtl1hrp6bZSR8TLTP8S/ypJ
-         Cihxv1eclND3UPOqrIQtrP7glQSkSRVnqvVxvT/o06R5K3bH4ORyhWl9WeGMGXEjtf
-         /FSyuZt0zv07mc0tYXqEIhSPIkDZtu8SQ5GYTsF8=
+        b=TLgotTfFn1r9O9a71eImyg1Cxw79OAIdCAh524AfqUz2jyvNXVfFwP1XE3F7pjfX/
+         hvs/ke/2VgnVMu+Iis4ZNhhgePNtDvc5OjPOHJfnm2yddeV6mneKruIzy2DFUANyNt
+         TCj8TJRpNwHca/tgIRTi6RquNNtUfQwsJsGbdBnw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        Helen Koike <helen.koike@collabora.com>,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Subject: [PATCH 4.19 49/51] drm: dont block fb changes for async plane updates
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [PATCH 4.14 24/35] genwqe: Prevent an integer overflow in the ioctl
 Date:   Sun,  9 Jun 2019 18:42:30 +0200
-Message-Id: <20190609164130.817119906@linuxfoundation.org>
+Message-Id: <20190609164126.953325734@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.123076536@linuxfoundation.org>
-References: <20190609164127.123076536@linuxfoundation.org>
+In-Reply-To: <20190609164125.377368385@linuxfoundation.org>
+References: <20190609164125.377368385@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,132 +42,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helen Koike <helen.koike@collabora.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 89a4aac0ab0e6f5eea10d7bf4869dd15c3de2cd4 upstream.
+commit 110080cea0d0e4dfdb0b536e7f8a5633ead6a781 upstream.
 
-In the case of a normal sync update, the preparation of framebuffers (be
-it calling drm_atomic_helper_prepare_planes() or doing setups with
-drm_framebuffer_get()) are performed in the new_state and the respective
-cleanups are performed in the old_state.
+There are a couple potential integer overflows here.
 
-In the case of async updates, the preparation is also done in the
-new_state but the cleanups are done in the new_state (because updates
-are performed in place, i.e. in the current state).
+	round_up(m->size + (m->addr & ~PAGE_MASK), PAGE_SIZE);
 
-The current code blocks async udpates when the fb is changed, turning
-async updates into sync updates, slowing down cursor updates and
-introducing regressions in igt tests with errors of type:
+The first thing is that the "m->size + (...)" addition could overflow,
+and the second is that round_up() overflows to zero if the result is
+within PAGE_SIZE of the type max.
 
-"CRITICAL: completed 97 cursor updated in a period of 30 flips, we
-expect to complete approximately 15360 updates, with the threshold set
-at 7680"
+In this code, the "m->size" variable is an u64 but we're saving the
+result in "map_size" which is an unsigned long and genwqe_user_vmap()
+takes an unsigned long as well.  So I have used ULONG_MAX as the upper
+bound.  From a practical perspective unsigned long is fine/better than
+trying to change all the types to u64.
 
-Fb changes in async updates were prevented to avoid the following scenario:
-
-- Async update, oldfb = NULL, newfb = fb1, prepare fb1, cleanup fb1
-- Async update, oldfb = fb1, newfb = fb2, prepare fb2, cleanup fb2
-- Non-async commit, oldfb = fb2, newfb = fb1, prepare fb1, cleanup fb2 (wrong)
-Where we have a single call to prepare fb2 but double cleanup call to fb2.
-
-To solve the above problems, instead of blocking async fb changes, we
-place the old framebuffer in the new_state object, so when the code
-performs cleanups in the new_state it will cleanup the old_fb and we
-will have the following scenario instead:
-
-- Async update, oldfb = NULL, newfb = fb1, prepare fb1, no cleanup
-- Async update, oldfb = fb1, newfb = fb2, prepare fb2, cleanup fb1
-- Non-async commit, oldfb = fb2, newfb = fb1, prepare fb1, cleanup fb2
-
-Where calls to prepare/cleanup are balanced.
-
-Cc: <stable@vger.kernel.org> # v4.14+
-Fixes: 25dc194b34dd ("drm: Block fb changes for async plane updates")
-Suggested-by: Boris Brezillon <boris.brezillon@collabora.com>
-Signed-off-by: Helen Koike <helen.koike@collabora.com>
-Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
-Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190603165610.24614-6-helen.koike@collabora.com
+Fixes: eaf4722d4645 ("GenWQE Character device and DDCB queue")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/drm_atomic_helper.c      |   22 ++++++++++++----------
- include/drm/drm_modeset_helper_vtables.h |    8 ++++++++
- 2 files changed, 20 insertions(+), 10 deletions(-)
+ drivers/misc/genwqe/card_dev.c   |    2 ++
+ drivers/misc/genwqe/card_utils.c |    4 ++++
+ 2 files changed, 6 insertions(+)
 
---- a/drivers/gpu/drm/drm_atomic_helper.c
-+++ b/drivers/gpu/drm/drm_atomic_helper.c
-@@ -1573,15 +1573,6 @@ int drm_atomic_helper_async_check(struct
- 	if (old_plane_state->fb != new_plane_state->fb)
+--- a/drivers/misc/genwqe/card_dev.c
++++ b/drivers/misc/genwqe/card_dev.c
+@@ -782,6 +782,8 @@ static int genwqe_pin_mem(struct genwqe_
+ 
+ 	if ((m->addr == 0x0) || (m->size == 0))
  		return -EINVAL;
++	if (m->size > ULONG_MAX - PAGE_SIZE - (m->addr & ~PAGE_MASK))
++		return -EINVAL;
  
--	/*
--	 * FIXME: Since prepare_fb and cleanup_fb are always called on
--	 * the new_plane_state for async updates we need to block framebuffer
--	 * changes. This prevents use of a fb that's been cleaned up and
--	 * double cleanups from occuring.
--	 */
--	if (old_plane_state->fb != new_plane_state->fb)
--		return -EINVAL;
--
- 	funcs = plane->helper_private;
- 	if (!funcs->atomic_async_update)
- 		return -EINVAL;
-@@ -1612,6 +1603,8 @@ EXPORT_SYMBOL(drm_atomic_helper_async_ch
-  * drm_atomic_async_check() succeeds. Async commits are not supposed to swap
-  * the states like normal sync commits, but just do in-place changes on the
-  * current state.
-+ *
-+ * TODO: Implement full swap instead of doing in-place changes.
-  */
- void drm_atomic_helper_async_commit(struct drm_device *dev,
- 				    struct drm_atomic_state *state)
-@@ -1622,6 +1615,9 @@ void drm_atomic_helper_async_commit(stru
- 	int i;
+ 	map_addr = (m->addr & PAGE_MASK);
+ 	map_size = round_up(m->size + (m->addr & ~PAGE_MASK), PAGE_SIZE);
+--- a/drivers/misc/genwqe/card_utils.c
++++ b/drivers/misc/genwqe/card_utils.c
+@@ -582,6 +582,10 @@ int genwqe_user_vmap(struct genwqe_dev *
+ 	/* determine space needed for page_list. */
+ 	data = (unsigned long)uaddr;
+ 	offs = offset_in_page(data);
++	if (size > ULONG_MAX - PAGE_SIZE - offs) {
++		m->size = 0;	/* mark unused and not added */
++		return -EINVAL;
++	}
+ 	m->nr_pages = DIV_ROUND_UP(offs + size, PAGE_SIZE);
  
- 	for_each_new_plane_in_state(state, plane, plane_state, i) {
-+		struct drm_framebuffer *new_fb = plane_state->fb;
-+		struct drm_framebuffer *old_fb = plane->state->fb;
-+
- 		funcs = plane->helper_private;
- 		funcs->atomic_async_update(plane, plane_state);
- 
-@@ -1630,11 +1626,17 @@ void drm_atomic_helper_async_commit(stru
- 		 * plane->state in-place, make sure at least common
- 		 * properties have been properly updated.
- 		 */
--		WARN_ON_ONCE(plane->state->fb != plane_state->fb);
-+		WARN_ON_ONCE(plane->state->fb != new_fb);
- 		WARN_ON_ONCE(plane->state->crtc_x != plane_state->crtc_x);
- 		WARN_ON_ONCE(plane->state->crtc_y != plane_state->crtc_y);
- 		WARN_ON_ONCE(plane->state->src_x != plane_state->src_x);
- 		WARN_ON_ONCE(plane->state->src_y != plane_state->src_y);
-+
-+		/*
-+		 * Make sure the FBs have been swapped so that cleanups in the
-+		 * new_state performs a cleanup in the old FB.
-+		 */
-+		WARN_ON_ONCE(plane_state->fb != old_fb);
- 	}
- }
- EXPORT_SYMBOL(drm_atomic_helper_async_commit);
---- a/include/drm/drm_modeset_helper_vtables.h
-+++ b/include/drm/drm_modeset_helper_vtables.h
-@@ -1174,6 +1174,14 @@ struct drm_plane_helper_funcs {
- 	 * current one with the new plane configurations in the new
- 	 * plane_state.
- 	 *
-+	 * Drivers should also swap the framebuffers between current plane
-+	 * state (&drm_plane.state) and new_state.
-+	 * This is required since cleanup for async commits is performed on
-+	 * the new state, rather than old state like for traditional commits.
-+	 * Since we want to give up the reference on the current (old) fb
-+	 * instead of our brand new one, swap them in the driver during the
-+	 * async commit.
-+	 *
- 	 * FIXME:
- 	 *  - It only works for single plane updates
- 	 *  - Async Pageflips are not supported yet
+ 	m->page_list = kcalloc(m->nr_pages,
 
 
