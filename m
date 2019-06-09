@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D989C3AAA1
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:20:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 76E173A732
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 18:47:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730903AbfFIQri (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:47:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46338 "EHLO mail.kernel.org"
+        id S1729814AbfFIQrN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:47:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730891AbfFIQrh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:47:37 -0400
+        id S1729053AbfFIQrN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:47:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1765C206DF;
-        Sun,  9 Jun 2019 16:47:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C1BFC2081C;
+        Sun,  9 Jun 2019 16:47:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560098856;
-        bh=dsuY3ika3pM2TpW6IhoPArLRbVaGg/raG5jngM0Jwrw=;
+        s=default; t=1560098832;
+        bh=vaYwb1577dLTm2yh/ziP4tzrtY8aiMNv6GGrTDhWrVI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pwGKyYHU1CQPhpP21tq4/HdVEEK2TlUqyyQKPUta56z7DzVSnZfFSjtmm3N2ujVUR
-         G3XbFHSorEIPU9UpOSVgDmjk2foxCmIRvnWBwpOsKWQ4zOsNEmuAhVLxa5ujJ0FGuJ
-         D88h79LgXSPRiKnR51vAteOB6FyMCxxP6zaj0h5A=
+        b=W6pGPu7nLMYdcpDRenkrHDzhJcIP5YOfJ/SzdF6R7yEZ5+LoXCHrp/9ZBVDTzYV2H
+         Qrr0YA9IFWZL9/DntfsDmhy4veqs7PHxgdmNlrG2Uv7bVreAwWw0JAyuDpnOmKg6hm
+         E+LtlfudAXYV8yjnNxQkNk/m2o8ZGxy6LfA0tRCg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Yaro Slav <yaro330@gmail.com>,
-        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <zenczykowski@gmail.com>,
-        Hangbin Liu <liuhangbin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 14/51] Revert "fib_rules: return 0 directly if an exactly same rule exists when NLM_F_EXCL not supplied"
+        stable@vger.kernel.org, Ian Jackson <ian.jackson@citrix.com>,
+        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
+        Juergen Gross <jgross@suse.com>,
+        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Subject: [PATCH 5.1 44/70] xen-blkfront: switch kcalloc to kvcalloc for large array allocation
 Date:   Sun,  9 Jun 2019 18:41:55 +0200
-Message-Id: <20190609164127.924633657@linuxfoundation.org>
+Message-Id: <20190609164131.025191741@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.123076536@linuxfoundation.org>
-References: <20190609164127.123076536@linuxfoundation.org>
+In-Reply-To: <20190609164127.541128197@linuxfoundation.org>
+References: <20190609164127.541128197@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,45 +46,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+From: Roger Pau Monne <roger.pau@citrix.com>
 
-[ Upstream commit 4970b42d5c362bf873982db7d93245c5281e58f4 ]
+commit 1d5c76e66433382a1e170d1d5845bb0fed7467aa upstream.
 
-This reverts commit e9919a24d3022f72bcadc407e73a6ef17093a849.
+There's no reason to request physically contiguous memory for those
+allocations.
 
-Nathan reported the new behaviour breaks Android, as Android just add
-new rules and delete old ones.
+[boris: added CC to stable]
 
-If we return 0 without adding dup rules, Android will remove the new
-added rules and causing system to soft-reboot.
-
-Fixes: e9919a24d302 ("fib_rules: return 0 directly if an exactly same rule exists when NLM_F_EXCL not supplied")
-Reported-by: Nathan Chancellor <natechancellor@gmail.com>
-Reported-by: Yaro Slav <yaro330@gmail.com>
-Reported-by: Maciej Żenczykowski <zenczykowski@gmail.com>
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Tested-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: stable@vger.kernel.org
+Reported-by: Ian Jackson <ian.jackson@citrix.com>
+Signed-off-by: Roger Pau Monné <roger.pau@citrix.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Acked-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/core/fib_rules.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/net/core/fib_rules.c
-+++ b/net/core/fib_rules.c
-@@ -756,9 +756,9 @@ int fib_nl_newrule(struct sk_buff *skb,
- 	if (err)
- 		goto errout;
+---
+ drivers/block/xen-blkfront.c |   38 +++++++++++++++++++-------------------
+ 1 file changed, 19 insertions(+), 19 deletions(-)
+
+--- a/drivers/block/xen-blkfront.c
++++ b/drivers/block/xen-blkfront.c
+@@ -1310,11 +1310,11 @@ static void blkif_free_ring(struct blkfr
+ 		}
  
--	if (rule_exists(ops, frh, tb, rule)) {
--		if (nlh->nlmsg_flags & NLM_F_EXCL)
--			err = -EEXIST;
-+	if ((nlh->nlmsg_flags & NLM_F_EXCL) &&
-+	    rule_exists(ops, frh, tb, rule)) {
-+		err = -EEXIST;
- 		goto errout_free;
+ free_shadow:
+-		kfree(rinfo->shadow[i].grants_used);
++		kvfree(rinfo->shadow[i].grants_used);
+ 		rinfo->shadow[i].grants_used = NULL;
+-		kfree(rinfo->shadow[i].indirect_grants);
++		kvfree(rinfo->shadow[i].indirect_grants);
+ 		rinfo->shadow[i].indirect_grants = NULL;
+-		kfree(rinfo->shadow[i].sg);
++		kvfree(rinfo->shadow[i].sg);
+ 		rinfo->shadow[i].sg = NULL;
  	}
  
+@@ -1353,7 +1353,7 @@ static void blkif_free(struct blkfront_i
+ 	for (i = 0; i < info->nr_rings; i++)
+ 		blkif_free_ring(&info->rinfo[i]);
+ 
+-	kfree(info->rinfo);
++	kvfree(info->rinfo);
+ 	info->rinfo = NULL;
+ 	info->nr_rings = 0;
+ }
+@@ -1914,9 +1914,9 @@ static int negotiate_mq(struct blkfront_
+ 	if (!info->nr_rings)
+ 		info->nr_rings = 1;
+ 
+-	info->rinfo = kcalloc(info->nr_rings,
+-			      sizeof(struct blkfront_ring_info),
+-			      GFP_KERNEL);
++	info->rinfo = kvcalloc(info->nr_rings,
++			       sizeof(struct blkfront_ring_info),
++			       GFP_KERNEL);
+ 	if (!info->rinfo) {
+ 		xenbus_dev_fatal(info->xbdev, -ENOMEM, "allocating ring_info structure");
+ 		info->nr_rings = 0;
+@@ -2232,17 +2232,17 @@ static int blkfront_setup_indirect(struc
+ 
+ 	for (i = 0; i < BLK_RING_SIZE(info); i++) {
+ 		rinfo->shadow[i].grants_used =
+-			kcalloc(grants,
+-				sizeof(rinfo->shadow[i].grants_used[0]),
+-				GFP_NOIO);
+-		rinfo->shadow[i].sg = kcalloc(psegs,
+-					      sizeof(rinfo->shadow[i].sg[0]),
+-					      GFP_NOIO);
++			kvcalloc(grants,
++				 sizeof(rinfo->shadow[i].grants_used[0]),
++				 GFP_NOIO);
++		rinfo->shadow[i].sg = kvcalloc(psegs,
++					       sizeof(rinfo->shadow[i].sg[0]),
++					       GFP_NOIO);
+ 		if (info->max_indirect_segments)
+ 			rinfo->shadow[i].indirect_grants =
+-				kcalloc(INDIRECT_GREFS(grants),
+-					sizeof(rinfo->shadow[i].indirect_grants[0]),
+-					GFP_NOIO);
++				kvcalloc(INDIRECT_GREFS(grants),
++					 sizeof(rinfo->shadow[i].indirect_grants[0]),
++					 GFP_NOIO);
+ 		if ((rinfo->shadow[i].grants_used == NULL) ||
+ 			(rinfo->shadow[i].sg == NULL) ||
+ 		     (info->max_indirect_segments &&
+@@ -2256,11 +2256,11 @@ static int blkfront_setup_indirect(struc
+ 
+ out_of_memory:
+ 	for (i = 0; i < BLK_RING_SIZE(info); i++) {
+-		kfree(rinfo->shadow[i].grants_used);
++		kvfree(rinfo->shadow[i].grants_used);
+ 		rinfo->shadow[i].grants_used = NULL;
+-		kfree(rinfo->shadow[i].sg);
++		kvfree(rinfo->shadow[i].sg);
+ 		rinfo->shadow[i].sg = NULL;
+-		kfree(rinfo->shadow[i].indirect_grants);
++		kvfree(rinfo->shadow[i].indirect_grants);
+ 		rinfo->shadow[i].indirect_grants = NULL;
+ 	}
+ 	if (!list_empty(&rinfo->indirect_pages)) {
 
 
