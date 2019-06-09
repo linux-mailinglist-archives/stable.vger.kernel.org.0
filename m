@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 792BE3AA6B
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:19:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 980A33A8E3
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:05:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729093AbfFIRSL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 13:18:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50752 "EHLO mail.kernel.org"
+        id S2388380AbfFIRFT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 13:05:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731780AbfFIQuq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:50:46 -0400
+        id S2388788AbfFIRFS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 13:05:18 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8344A206DF;
-        Sun,  9 Jun 2019 16:50:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0374220833;
+        Sun,  9 Jun 2019 17:05:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099046;
-        bh=D97dp07vttzcT0zf2mnUVwJdjWopWxsQ2RzFPrziyTk=;
+        s=default; t=1560099918;
+        bh=j/4mj41txbokL6sWtov/J2R9lrvZFfKMACDs23RHENM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qGcdeAQ+OWWAZrlhUXYnnGHMi4qzKKfToh7wjPJFxODMeWJ+YizSROaDc2SQWCnqK
-         yXJM7p6ufwr7HaIrPSibGX62kI3dtmMotPe7sI+XFSvZgHofhjKh6FVAI/F6mBSiNu
-         h5wSMFRpdRMCrqcz5GIHrEHP034uRw6rGR4IeOXU=
+        b=MpZn3YoqjytMmjN3m8OQEPZhZk7zIXWZtwkXFi15kWjQD7AQaRIm1er3JQzqCg7wB
+         zkhKzQL0ubgua82/klhfXa97bscpxswoYggs9JnYElUSqM1OfFrOURNBYBwwNRpWqI
+         0saOc5ba/UrcLAVDBK/o/UyO1RzPsZ5IFa9VINd0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 4.14 28/35] drm/amdgpu/psp: move psp version specific function pointers to early_init
-Date:   Sun,  9 Jun 2019 18:42:34 +0200
-Message-Id: <20190609164127.152712044@linuxfoundation.org>
+        Roberto Bergantinos Corpas <rbergant@redhat.com>,
+        Pavel Shilovsky <pshilov@microsoft.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 4.4 213/241] CIFS: cifs_read_allocate_pages: dont iterate through whole page array on ENOMEM
+Date:   Sun,  9 Jun 2019 18:42:35 +0200
+Message-Id: <20190609164154.817633029@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164125.377368385@linuxfoundation.org>
-References: <20190609164125.377368385@linuxfoundation.org>
+In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
+References: <20190609164147.729157653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,60 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: Roberto Bergantinos Corpas <rbergant@redhat.com>
 
-commit 9d6fea5744d6798353f37ac42a8a653a2607ca69 upstream.
+commit 31fad7d41e73731f05b8053d17078638cf850fa6 upstream.
 
-In case we need to use them for GPU reset prior initializing the
-asic.  Fixes a crash if the driver attempts to reset the GPU at driver
-load time.
+ In cifs_read_allocate_pages, in case of ENOMEM, we go through
+whole rdata->pages array but we have failed the allocation before
+nr_pages, therefore we may end up calling put_page with NULL
+pointer, causing oops
 
-Acked-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Signed-off-by: Roberto Bergantinos Corpas <rbergant@redhat.com>
+Acked-by: Pavel Shilovsky <pshilov@microsoft.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+CC: Stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c |   19 ++++++++++---------
- 1 file changed, 10 insertions(+), 9 deletions(-)
+ fs/cifs/file.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
-@@ -37,18 +37,10 @@ static void psp_set_funcs(struct amdgpu_
- static int psp_early_init(void *handle)
- {
- 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
-+	struct psp_context *psp = &adev->psp;
+--- a/fs/cifs/file.c
++++ b/fs/cifs/file.c
+@@ -2829,7 +2829,9 @@ cifs_read_allocate_pages(struct cifs_rea
+ 	}
  
- 	psp_set_funcs(adev);
- 
--	return 0;
--}
--
--static int psp_sw_init(void *handle)
--{
--	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
--	struct psp_context *psp = &adev->psp;
--	int ret;
--
- 	switch (adev->asic_type) {
- 	case CHIP_VEGA10:
- 		psp->init_microcode = psp_v3_1_init_microcode;
-@@ -79,6 +71,15 @@ static int psp_sw_init(void *handle)
- 
- 	psp->adev = adev;
- 
-+	return 0;
-+}
+ 	if (rc) {
+-		for (i = 0; i < nr_pages; i++) {
++		unsigned int nr_page_failed = i;
 +
-+static int psp_sw_init(void *handle)
-+{
-+	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
-+	struct psp_context *psp = &adev->psp;
-+	int ret;
-+
- 	ret = psp_init_microcode(psp);
- 	if (ret) {
- 		DRM_ERROR("Failed to load psp firmware!\n");
++		for (i = 0; i < nr_page_failed; i++) {
+ 			put_page(rdata->pages[i]);
+ 			rdata->pages[i] = NULL;
+ 		}
 
 
