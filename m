@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BB5ED3A775
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 18:50:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 141E33AA0E
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:16:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729537AbfFIQtv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:49:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49520 "EHLO mail.kernel.org"
+        id S1732385AbfFIQxZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:53:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54620 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731593AbfFIQtv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:49:51 -0400
+        id S1732369AbfFIQxX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:53:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2E07A206C3;
-        Sun,  9 Jun 2019 16:49:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5805A2081C;
+        Sun,  9 Jun 2019 16:53:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560098990;
-        bh=cgsLR0MP9TO4l+0FwmXy4OKV3YkT2NYbYQJA/LEHspU=;
+        s=default; t=1560099202;
+        bh=2c8aXEmfdOficMgeHQ9sugJX/+g4av4j23I9qZXa3nI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vzW2SMmNknF8fp8W4m1pAIx6DfR6q6+4hwf8WZycLAclg52Ro2YuEKgRYlVg8O2k2
-         42pMkhK3ZGGTqFKIKrJulZcAGZwlz4ZNIYElD+i3g+yt6XvPAg7tQcDsoASnFnwKbQ
-         r9fT8k7aebcda/LcWSCYUEytgWl3BC6RCfcJAKHk=
+        b=u0/PZNPS7HcD1S9nZloMAE+zeydboLWciUV92hJaYTurEIMZ6u384AQZr+oMBOBLu
+         Zd1HFDX0pvuf2AuhB5ERC0zGUeGjMhxUdlERds4hidPJGVLFQ3Ck0CKeph3qc52NWz
+         A4epikxZMjqzVCurbrxptD4mEyUerdDTIOI5Rm2o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianlin Shi <jishi@redhat.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 10/35] ipv6: fix the check before getting the cookie in rt6_get_cookie
+        stable@vger.kernel.org,
+        Roberto Bergantinos Corpas <rbergant@redhat.com>,
+        Pavel Shilovsky <pshilov@microsoft.com>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 4.9 46/83] CIFS: cifs_read_allocate_pages: dont iterate through whole page array on ENOMEM
 Date:   Sun,  9 Jun 2019 18:42:16 +0200
-Message-Id: <20190609164126.099374565@linuxfoundation.org>
+Message-Id: <20190609164131.857689875@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164125.377368385@linuxfoundation.org>
-References: <20190609164125.377368385@linuxfoundation.org>
+In-Reply-To: <20190609164127.843327870@linuxfoundation.org>
+References: <20190609164127.843327870@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Roberto Bergantinos Corpas <rbergant@redhat.com>
 
-[ Upstream commit b7999b07726c16974ba9ca3bb9fe98ecbec5f81c ]
+commit 31fad7d41e73731f05b8053d17078638cf850fa6 upstream.
 
-In Jianlin's testing, netperf was broken with 'Connection reset by peer',
-as the cookie check failed in rt6_check() and ip6_dst_check() always
-returned NULL.
+ In cifs_read_allocate_pages, in case of ENOMEM, we go through
+whole rdata->pages array but we have failed the allocation before
+nr_pages, therefore we may end up calling put_page with NULL
+pointer, causing oops
 
-It's caused by Commit 93531c674315 ("net/ipv6: separate handling of FIB
-entries from dst based routes"), where the cookie can be got only when
-'c1'(see below) for setting dst_cookie whereas rt6_check() is called
-when !'c1' for checking dst_cookie, as we can see in ip6_dst_check().
-
-Since in ip6_dst_check() both rt6_dst_from_check() (c1) and rt6_check()
-(!c1) will check the 'from' cookie, this patch is to remove the c1 check
-in rt6_get_cookie(), so that the dst_cookie can always be set properly.
-
-c1:
-  (rt->rt6i_flags & RTF_PCPU || unlikely(!list_empty(&rt->rt6i_uncached)))
-
-Fixes: 93531c674315 ("net/ipv6: separate handling of FIB entries from dst based routes")
-Reported-by: Jianlin Shi <jishi@redhat.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Roberto Bergantinos Corpas <rbergant@redhat.com>
+Acked-by: Pavel Shilovsky <pshilov@microsoft.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+CC: Stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- include/net/ip6_fib.h |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/include/net/ip6_fib.h
-+++ b/include/net/ip6_fib.h
-@@ -199,8 +199,7 @@ static inline u32 rt6_get_cookie(const s
- {
- 	u32 cookie = 0;
+---
+ fs/cifs/file.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+--- a/fs/cifs/file.c
++++ b/fs/cifs/file.c
+@@ -2892,7 +2892,9 @@ cifs_read_allocate_pages(struct cifs_rea
+ 	}
  
--	if (rt->rt6i_flags & RTF_PCPU ||
--	    (unlikely(!list_empty(&rt->rt6i_uncached)) && rt->dst.from))
-+	if (rt->dst.from)
- 		rt = (struct rt6_info *)(rt->dst.from);
- 
- 	rt6_get_cookie_safe(rt, &cookie);
+ 	if (rc) {
+-		for (i = 0; i < nr_pages; i++) {
++		unsigned int nr_page_failed = i;
++
++		for (i = 0; i < nr_page_failed; i++) {
+ 			put_page(rdata->pages[i]);
+ 			rdata->pages[i] = NULL;
+ 		}
 
 
