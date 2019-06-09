@@ -2,44 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 97C303A979
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:11:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F55F3A873
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:01:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733180AbfFIRAn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 13:00:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37400 "EHLO mail.kernel.org"
+        id S1733189AbfFIRAr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 13:00:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387911AbfFIRAn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 13:00:43 -0400
+        id S2387919AbfFIRAq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 13:00:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E863920868;
-        Sun,  9 Jun 2019 17:00:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C6F1D206C3;
+        Sun,  9 Jun 2019 17:00:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099642;
-        bh=iQ9cgGFXSrFXhBiNT/DWPtoJeGoh0CSSX69C0dALbLo=;
+        s=default; t=1560099645;
+        bh=vnZJgNZ9jlYbTXLl69W5+idmHF7MuJXjjyWh57e0aY4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NWoDsypW5cWJElimzYLVd1R/IXfmoVa03in3kLJSK94Oam/Sic0qZwGGl0JKcH0J8
-         NjeTUBEMMAmJfe2ew79f8IHvoukVHOdEQ+LZ+eSV0sSzIiEyMZj5Ro9yxiKLIiVJnh
-         Dbwjc2f5onVUUBhk0VNm6lc7u6pu7qifw+GfTRkA=
+        b=xSnvC22ALWOpqwPPqwlJrgA88em4sllqvn7zrkuBfggfcoLIHuhzgMk5977Hveas8
+         1B0Y5t59I/VaiUpNIZrrQ983plUqVA5spJ5eq8kUooklBCpcBAubNG4WiBcN1L+xDL
+         MURib/R9P3lxmk6Pg2a50q/S6oVay0XPUQJdQsv0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolai Stange <nstange@suse.de>,
-        Jiri Kosina <jkosina@suse.cz>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Andy Lutomirski <luto@kernel.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Frederic Weisbecker <fweisbec@gmail.com>,
-        Joerg Roedel <jroedel@suse.de>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
+        Thomas Gleixner <tglx@linutronix.de>, luto@kernel.org,
         Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 113/241] x86/mm: Remove in_nmi() warning from 64-bit implementation of vmalloc_fault()
-Date:   Sun,  9 Jun 2019 18:40:55 +0200
-Message-Id: <20190609164151.056749491@linuxfoundation.org>
+Subject: [PATCH 4.4 114/241] mm/uaccess: Use unsigned long to placate UBSAN warnings on older GCC versions
+Date:   Sun,  9 Jun 2019 18:40:56 +0200
+Message-Id: <20190609164151.085399691@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
 References: <20190609164147.729157653@linuxfoundation.org>
@@ -52,59 +46,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a65c88e16f32aa9ef2e8caa68ea5c29bd5eb0ff0 ]
+[ Upstream commit 29da93fea3ea39ab9b12270cc6be1b70ef201c9e ]
 
-In-NMI warnings have been added to vmalloc_fault() via:
+Randy reported objtool triggered on his (GCC-7.4) build:
 
-  ebc8827f75 ("x86: Barf when vmalloc and kmemcheck faults happen in NMI")
+  lib/strncpy_from_user.o: warning: objtool: strncpy_from_user()+0x315: call to __ubsan_handle_add_overflow() with UACCESS enabled
+  lib/strnlen_user.o: warning: objtool: strnlen_user()+0x337: call to __ubsan_handle_sub_overflow() with UACCESS enabled
 
-back in the time when our NMI entry code could not cope with nested NMIs.
+This is due to UBSAN generating signed-overflow-UB warnings where it
+should not. Prior to GCC-8 UBSAN ignored -fwrapv (which the kernel
+uses through -fno-strict-overflow).
 
-These days, it's perfectly fine to take a fault in NMI context and we
-don't have to care about the fact that IRET from the fault handler might
-cause NMI nesting.
+Make the functions use 'unsigned long' throughout.
 
-This warning has already been removed from 32-bit implementation of
-vmalloc_fault() in:
-
-  6863ea0cda8 ("x86/mm: Remove in_nmi() warning from vmalloc_fault()")
-
-but the 64-bit version was omitted.
-
-Remove the bogus warning also from 64-bit implementation of vmalloc_fault().
-
-Reported-by: Nicolai Stange <nstange@suse.de>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Frederic Weisbecker <fweisbec@gmail.com>
-Cc: Joerg Roedel <jroedel@suse.de>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Reported-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Randy Dunlap <rdunlap@infradead.org> # build-tested
+Acked-by: Linus Torvalds <torvalds@linux-foundation.org>
 Cc: Peter Zijlstra <peterz@infradead.org>
 Cc: Thomas Gleixner <tglx@linutronix.de>
-Fixes: 6863ea0cda8 ("x86/mm: Remove in_nmi() warning from vmalloc_fault()")
-Link: http://lkml.kernel.org/r/nycvar.YFH.7.76.1904240902280.9803@cbobk.fhfr.pm
+Cc: luto@kernel.org
+Link: http://lkml.kernel.org/r/20190424072208.754094071@infradead.org
 Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/mm/fault.c | 2 --
- 1 file changed, 2 deletions(-)
+ lib/strncpy_from_user.c | 5 +++--
+ lib/strnlen_user.c      | 4 ++--
+ 2 files changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/arch/x86/mm/fault.c b/arch/x86/mm/fault.c
-index c4dffae5d9390..462c5c30b9a21 100644
---- a/arch/x86/mm/fault.c
-+++ b/arch/x86/mm/fault.c
-@@ -373,8 +373,6 @@ static noinline int vmalloc_fault(unsigned long address)
- 	if (!(address >= VMALLOC_START && address < VMALLOC_END))
- 		return -1;
+diff --git a/lib/strncpy_from_user.c b/lib/strncpy_from_user.c
+index e0af6ff73d146..f8b1e3cb716b9 100644
+--- a/lib/strncpy_from_user.c
++++ b/lib/strncpy_from_user.c
+@@ -20,10 +20,11 @@
+  * hit it), 'max' is the address space maximum (and we return
+  * -EFAULT if we hit it).
+  */
+-static inline long do_strncpy_from_user(char *dst, const char __user *src, long count, unsigned long max)
++static inline long do_strncpy_from_user(char *dst, const char __user *src,
++					unsigned long count, unsigned long max)
+ {
+ 	const struct word_at_a_time constants = WORD_AT_A_TIME_CONSTANTS;
+-	long res = 0;
++	unsigned long res = 0;
  
--	WARN_ON_ONCE(in_nmi());
--
  	/*
- 	 * Copy kernel mappings over when needed. This can also
- 	 * happen within a race in page table update. In the later
+ 	 * Truncate 'max' to the user-specified limit, so that
+diff --git a/lib/strnlen_user.c b/lib/strnlen_user.c
+index 3a5f2b366d84e..1c87bfa63db7f 100644
+--- a/lib/strnlen_user.c
++++ b/lib/strnlen_user.c
+@@ -27,7 +27,7 @@
+ static inline long do_strnlen_user(const char __user *src, unsigned long count, unsigned long max)
+ {
+ 	const struct word_at_a_time constants = WORD_AT_A_TIME_CONSTANTS;
+-	long align, res = 0;
++	unsigned long align, res = 0;
+ 	unsigned long c;
+ 
+ 	/*
+@@ -41,7 +41,7 @@ static inline long do_strnlen_user(const char __user *src, unsigned long count,
+ 	 * Do everything aligned. But that means that we
+ 	 * need to also expand the maximum..
+ 	 */
+-	align = (sizeof(long) - 1) & (unsigned long)src;
++	align = (sizeof(unsigned long) - 1) & (unsigned long)src;
+ 	src -= align;
+ 	max += align;
+ 
 -- 
 2.20.1
 
