@@ -2,200 +2,236 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EE8B83A496
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 11:59:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 892FB3A498
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 12:02:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727979AbfFIJ7o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 05:59:44 -0400
-Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:54721 "EHLO
-        wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727853AbfFIJ7n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Jun 2019 05:59:43 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 7D45D3BD;
-        Sun,  9 Jun 2019 05:59:42 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Sun, 09 Jun 2019 05:59:42 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=PHBJEU
-        BMVRI1hTL9zW5Cdd58Dkkq+aq+nfzfbghUBNk=; b=biZ5AtaFV5cF/Q6YpAZ2FM
-        6h1RZC/gBp32fP1REI5Y4GiTu92eNrF8zVgb5y7ScEj8losFDFWOX25xFCPwiuTq
-        Zgf8u3zUcYwtvCddZ7dRGEP9XsarJ0A3sP696XH4hLsND9RFosk/t6rH0Mtpt/9J
-        2y6MeNSDLma414LPA/UPniFvRQxDshbd8LMcRDOC14+ubirwLm31DggDvcJlQpZF
-        3kol0VVhprmGGNbbZvoYDM7p23UjTqWptBsA+Tjr8Us5R+QUZZsvbRxJdd1ofZN7
-        XbaTmKlQsriSl/UvRrmdDEvwFbryeE9Rl+SYiA425S9ClkAn7bJ9CiV+K6tWBmRA
-        ==
-X-ME-Sender: <xms:jdj8XLNS1XPh8AUkvbWNZ0alCXOyIqX1vwzNUnqf1y9t3i3T4VQMfQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrudehtddgvdefucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:jdj8XBWfrYkKQuSGSGBggpjOHjjVehUouwRBQru5guU8F87PP7ejGw>
-    <xmx:jdj8XIIeS9GBwdGHLDe1VuEOhu4fHCo0ayZPFBB9eHUXVUiMQfZI7A>
-    <xmx:jdj8XK1SWR0GKGVkUKl_1enPbkRRXYoYGnG32uKCUyJug6sEgclPow>
-    <xmx:jtj8XEEJULyrGzYzDoCAUuO7Y5WUZxFfHX-WNUNDA5dovp6PoacdgQ>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id E0FD48005B;
-        Sun,  9 Jun 2019 05:59:40 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] nvme-tcp: fix queue mapping when queue count is limited" failed to apply to 5.1-stable tree
-To:     sagi@grimberg.me, james.r.harris@intel.com, roys@lightbitslabs.com,
-        stable@vger.kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 09 Jun 2019 11:59:39 +0200
-Message-ID: <156007437978189@kroah.com>
+        id S1727853AbfFIKCy convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Sun, 9 Jun 2019 06:02:54 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:44458 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727039AbfFIKCy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 06:02:54 -0400
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id C64478762E
+        for <stable@vger.kernel.org>; Sun,  9 Jun 2019 10:02:53 +0000 (UTC)
+Received: from [172.54.141.148] (cpt-large-cpu-05.paas.prod.upshift.rdu2.redhat.com [10.0.18.78])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 6830F100194A;
+        Sun,  9 Jun 2019 10:02:51 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.1
+Message-ID: <cki.EB25654166.KWK4MJU8I1@redhat.com>
+X-Gitlab-Pipeline-ID: 11856
+X-Gitlab-Pipeline: =?utf-8?q?https=3A//xci32=2Elab=2Eeng=2Erdu2=2Eredhat=2Ec?=
+ =?utf-8?q?om/cki-project/cki-pipeline/pipelines/11856?=
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.26]); Sun, 09 Jun 2019 10:02:53 +0000 (UTC)
+Date:   Sun, 9 Jun 2019 06:02:54 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hello,
 
-The patch below does not apply to the 5.1-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+We ran automated tests on a patchset that was proposed for merging into this
+kernel tree. The patches were applied to:
 
-thanks,
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+            Commit: 937cc0cc22a2 - Linux 5.1.8
 
-greg k-h
+The results of these automated tests are provided below.
 
------------------- original commit in Linus's tree ------------------
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
 
-From 6486199378a505c58fddc47459631235c9fb7638 Mon Sep 17 00:00:00 2001
-From: Sagi Grimberg <sagi@grimberg.me>
-Date: Tue, 28 May 2019 22:49:05 -0700
-Subject: [PATCH] nvme-tcp: fix queue mapping when queue count is limited
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
 
-When the controller supports less queues than requested, we
-should make sure that queue mapping does the right thing and
-not assume that all queues are available. This fixes a crash
-when the controller supports less queues than requested.
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
 
-The rules are:
-1. if no write queues are requested, we assign the available queues
-   to the default queue map. The default and read queue maps share the
-   existing queues.
-2. if write queues are requested:
-  - first make sure that read queue map gets the requested
-    nr_io_queues count
-  - then grant the default queue map the minimum between the requested
-    nr_write_queues and the remaining queues. If there are no available
-    queues to dedicate to the default queue map, fallback to (1) and
-    share all the queues in the existing queue map.
+Merge testing
+-------------
 
-Also, provide a log indication on how we constructed the different
-queue maps.
+We cloned this repository and checked out the following commit:
 
-Reported-by: Harris, James R <james.r.harris@intel.com>
-Tested-by: Jim Harris <james.r.harris@intel.com>
-Cc: <stable@vger.kernel.org> # v5.0+
-Suggested-by: Roy Shterman <roys@lightbitslabs.com>
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: 937cc0cc22a2 - Linux 5.1.8
 
-diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
-index 2b107a1d152b..08a2501b9357 100644
---- a/drivers/nvme/host/tcp.c
-+++ b/drivers/nvme/host/tcp.c
-@@ -111,6 +111,7 @@ struct nvme_tcp_ctrl {
- 	struct work_struct	err_work;
- 	struct delayed_work	connect_work;
- 	struct nvme_tcp_request async_req;
-+	u32			io_queues[HCTX_MAX_TYPES];
- };
- 
- static LIST_HEAD(nvme_tcp_ctrl_list);
-@@ -1564,6 +1565,35 @@ static unsigned int nvme_tcp_nr_io_queues(struct nvme_ctrl *ctrl)
- 	return nr_io_queues;
- }
- 
-+static void nvme_tcp_set_io_queues(struct nvme_ctrl *nctrl,
-+		unsigned int nr_io_queues)
-+{
-+	struct nvme_tcp_ctrl *ctrl = to_tcp_ctrl(nctrl);
-+	struct nvmf_ctrl_options *opts = nctrl->opts;
-+
-+	if (opts->nr_write_queues && opts->nr_io_queues < nr_io_queues) {
-+		/*
-+		 * separate read/write queues
-+		 * hand out dedicated default queues only after we have
-+		 * sufficient read queues.
-+		 */
-+		ctrl->io_queues[HCTX_TYPE_READ] = opts->nr_io_queues;
-+		nr_io_queues -= ctrl->io_queues[HCTX_TYPE_READ];
-+		ctrl->io_queues[HCTX_TYPE_DEFAULT] =
-+			min(opts->nr_write_queues, nr_io_queues);
-+		nr_io_queues -= ctrl->io_queues[HCTX_TYPE_DEFAULT];
-+	} else {
-+		/*
-+		 * shared read/write queues
-+		 * either no write queues were requested, or we don't have
-+		 * sufficient queue count to have dedicated default queues.
-+		 */
-+		ctrl->io_queues[HCTX_TYPE_DEFAULT] =
-+			min(opts->nr_io_queues, nr_io_queues);
-+		nr_io_queues -= ctrl->io_queues[HCTX_TYPE_DEFAULT];
-+	}
-+}
-+
- static int nvme_tcp_alloc_io_queues(struct nvme_ctrl *ctrl)
- {
- 	unsigned int nr_io_queues;
-@@ -1581,6 +1611,8 @@ static int nvme_tcp_alloc_io_queues(struct nvme_ctrl *ctrl)
- 	dev_info(ctrl->device,
- 		"creating %d I/O queues.\n", nr_io_queues);
- 
-+	nvme_tcp_set_io_queues(ctrl, nr_io_queues);
-+
- 	return __nvme_tcp_alloc_io_queues(ctrl);
- }
- 
-@@ -2089,23 +2121,34 @@ static blk_status_t nvme_tcp_queue_rq(struct blk_mq_hw_ctx *hctx,
- static int nvme_tcp_map_queues(struct blk_mq_tag_set *set)
- {
- 	struct nvme_tcp_ctrl *ctrl = set->driver_data;
-+	struct nvmf_ctrl_options *opts = ctrl->ctrl.opts;
- 
--	set->map[HCTX_TYPE_DEFAULT].queue_offset = 0;
--	set->map[HCTX_TYPE_READ].nr_queues = ctrl->ctrl.opts->nr_io_queues;
--	if (ctrl->ctrl.opts->nr_write_queues) {
-+	if (opts->nr_write_queues && ctrl->io_queues[HCTX_TYPE_READ]) {
- 		/* separate read/write queues */
- 		set->map[HCTX_TYPE_DEFAULT].nr_queues =
--				ctrl->ctrl.opts->nr_write_queues;
-+			ctrl->io_queues[HCTX_TYPE_DEFAULT];
-+		set->map[HCTX_TYPE_DEFAULT].queue_offset = 0;
-+		set->map[HCTX_TYPE_READ].nr_queues =
-+			ctrl->io_queues[HCTX_TYPE_READ];
- 		set->map[HCTX_TYPE_READ].queue_offset =
--				ctrl->ctrl.opts->nr_write_queues;
-+			ctrl->io_queues[HCTX_TYPE_DEFAULT];
- 	} else {
--		/* mixed read/write queues */
-+		/* shared read/write queues */
- 		set->map[HCTX_TYPE_DEFAULT].nr_queues =
--				ctrl->ctrl.opts->nr_io_queues;
-+			ctrl->io_queues[HCTX_TYPE_DEFAULT];
-+		set->map[HCTX_TYPE_DEFAULT].queue_offset = 0;
-+		set->map[HCTX_TYPE_READ].nr_queues =
-+			ctrl->io_queues[HCTX_TYPE_DEFAULT];
- 		set->map[HCTX_TYPE_READ].queue_offset = 0;
- 	}
- 	blk_mq_map_queues(&set->map[HCTX_TYPE_DEFAULT]);
- 	blk_mq_map_queues(&set->map[HCTX_TYPE_READ]);
-+
-+	dev_info(ctrl->ctrl.device,
-+		"mapped %d/%d default/read queues.\n",
-+		ctrl->io_queues[HCTX_TYPE_DEFAULT],
-+		ctrl->io_queues[HCTX_TYPE_READ]);
-+
- 	return 0;
- }
- 
 
+We then merged the patchset with `git am`:
+
+  ethtool-fix-potential-userspace-buffer-overflow.patch
+  fix-memory-leak-in-sctp_process_init.patch
+  ipv4-not-do-cache-for-local-delivery-if-bc_forwarding-is-enabled.patch
+  ipv6-fix-the-check-before-getting-the-cookie-in-rt6_get_cookie.patch
+  net-ethernet-ti-cpsw_ethtool-fix-ethtool-ring-param-set.patch
+  net-mvpp2-use-strscpy-to-handle-stat-strings.patch
+  net-rds-fix-memory-leak-in-rds_ib_flush_mr_pool.patch
+  net-sfp-read-eeprom-in-maximum-16-byte-increments.patch
+  packet-unconditionally-free-po-rollover.patch
+  pktgen-do-not-sleep-with-the-thread-lock-held.patch
+  revert-fib_rules-return-0-directly-if-an-exactly-same-rule-exists-when-nlm_f_excl-not-supplied.patch
+  udp-only-choose-unbound-udp-socket-for-multicast-when-not-in-a-vrf.patch
+  ipv6-use-read_once-for-inet-hdrincl-as-in-ipv4.patch
+  ipv6-fix-efault-on-sendto-with-icmpv6-and-hdrincl.patch
+  net-aquantia-fix-wol-configuration-not-applied-sometimes.patch
+  neighbor-reset-gc_entries-counter-if-new-entry-is-released-before-insert.patch
+  neighbor-call-__ipv4_neigh_lookup_noref-in-neigh_xmit.patch
+  cls_matchall-avoid-panic-when-receiving-a-packet-before-filter-set.patch
+  ipmr_base-do-not-reset-index-in-mr_table_dump.patch
+  net-mlx4_en-ethtool-remove-unsupported-sfp-eeprom-high-pages-query.patch
+  net-tls-replace-the-sleeping-lock-around-rx-resync-with-a-bit-lock.patch
+
+Compile testing
+---------------
+
+We compiled the kernel for 4 architectures:
+
+  aarch64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-45601abfd4383769d9dffcb215d09e934434ccc7.config
+    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-45601abfd4383769d9dffcb215d09e934434ccc7.tar.gz
+
+  ppc64le:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-45601abfd4383769d9dffcb215d09e934434ccc7.config
+    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-45601abfd4383769d9dffcb215d09e934434ccc7.tar.gz
+
+  s390x:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-45601abfd4383769d9dffcb215d09e934434ccc7.config
+    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-45601abfd4383769d9dffcb215d09e934434ccc7.tar.gz
+
+  x86_64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-45601abfd4383769d9dffcb215d09e934434ccc7.config
+    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-45601abfd4383769d9dffcb215d09e934434ccc7.tar.gz
+
+
+Hardware testing
+----------------
+
+We booted each kernel and ran the following tests:
+
+  aarch64:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [1]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ LTP lite [2]
+       ✅ AMTU (Abstract Machine Test Utility) [3]
+       ✅ Ethernet drivers sanity [4]
+       ✅ audit: audit testsuite test [5]
+       ✅ httpd: mod_ssl smoke sanity [6]
+       ✅ iotop: sanity [7]
+       ✅ tuned: tune-processes-through-perf [8]
+       🚧 ✅ Networking socket: fuzz [9]
+       🚧 ✅ Networking sctp-auth: sockopts test [10]
+       🚧 ✅ Networking route: pmtu [11]
+       🚧 ✅ Networking route_func: local [12]
+       🚧 ✅ Networking route_func: forward [12]
+       🚧 ✅ Networking UDP: socket [13]
+
+
+  ppc64le:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [1]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ LTP lite [2]
+       ✅ AMTU (Abstract Machine Test Utility) [3]
+       ✅ Ethernet drivers sanity [4]
+       ✅ audit: audit testsuite test [5]
+       ✅ httpd: mod_ssl smoke sanity [6]
+       ✅ iotop: sanity [7]
+       ✅ tuned: tune-processes-through-perf [8]
+       🚧 ✅ Networking socket: fuzz [9]
+       🚧 ✅ Networking sctp-auth: sockopts test [10]
+       🚧 ✅ Networking route: pmtu [11]
+       🚧 ✅ Networking route_func: local [12]
+       🚧 ✅ Networking route_func: forward [12]
+       🚧 ✅ Networking UDP: socket [13]
+
+
+  s390x:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [1]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ LTP lite [2]
+       ✅ Ethernet drivers sanity [4]
+       ✅ audit: audit testsuite test [5]
+       ✅ httpd: mod_ssl smoke sanity [6]
+       ✅ iotop: sanity [7]
+       ✅ tuned: tune-processes-through-perf [8]
+       🚧 ✅ Networking socket: fuzz [9]
+       🚧 ✅ Networking sctp-auth: sockopts test [10]
+       🚧 ✅ Networking route: pmtu [11]
+       🚧 ✅ Networking route_func: local [12]
+       🚧 ✅ Networking route_func: forward [12]
+       🚧 ✅ Networking UDP: socket [13]
+
+
+  x86_64:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ LTP lite [2]
+       ✅ AMTU (Abstract Machine Test Utility) [3]
+       ✅ Ethernet drivers sanity [4]
+       ✅ audit: audit testsuite test [5]
+       ✅ httpd: mod_ssl smoke sanity [6]
+       ✅ iotop: sanity [7]
+       ✅ tuned: tune-processes-through-perf [8]
+       🚧 ✅ Networking socket: fuzz [9]
+       🚧 ✅ Networking sctp-auth: sockopts test [10]
+       🚧 ✅ Networking route: pmtu [11]
+       🚧 ✅ Networking route_func: local [12]
+       🚧 ✅ Networking route_func: forward [12]
+       🚧 ✅ Networking UDP: socket [13]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [1]
+
+
+  Test source:
+    💚 Pull requests are welcome for new tests or improvements to existing tests!
+    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
+    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
+    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
+    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
+    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
+    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
+    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
+    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
+    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
+    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
+    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/sctp/auth/sockopts
+    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/route/pmtu
+    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/route/route_func
+    [13]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/udp/udp_socket
+
+Waived tests (marked with 🚧)
+-----------------------------
+This test run included waived tests. Such tests are executed but their results
+are not taken into account. Tests are waived when their results are not
+reliable enough, e.g. when they're just introduced or are being fixed.
