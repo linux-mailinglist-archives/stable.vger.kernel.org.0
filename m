@@ -2,43 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EDA8A3A929
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:08:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE4BF3AA03
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:15:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388589AbfFIRHq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 13:07:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45446 "EHLO mail.kernel.org"
+        id S1732712AbfFIQyx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:54:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388931AbfFIRF6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 13:05:58 -0400
+        id S1732708AbfFIQyx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:54:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AB783206C3;
-        Sun,  9 Jun 2019 17:05:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 26EA5205ED;
+        Sun,  9 Jun 2019 16:54:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099958;
-        bh=CfTl+fpW6LjVBvYMIX4vzX8rNYYe/sXxr5dMJWGW3Ko=;
+        s=default; t=1560099292;
+        bh=bwNRaFD4cBIb82TqxNQk0+q3hsSU/34MkZ2gWox8Ktg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bX18AZYACaBhJ1c/IwSneT2i6mTAeaJmAoHIHudGMzJ7ru9abD1kY8QjTSFtLc8bs
-         hVBJLgoYJxco3fXmxAI0ucK1gwBBQv09kn0jP9RvJ7jqMqz/4YZ7feC7T1ZZIyhGX3
-         sq+RdXxIcUNbTTZ+AVROQNgPKyN5d+ITvImpisSo=
+        b=GQUzgd/g9wIsrTgu7RYhJpXclLIcCLyVkOQ3vkcj8xJuLUMTyyrp+dc0c03eh2tJp
+         ghHdbbzZ6bxSjWQD3PPbn4Set+XUQDaKNXjkRt3OC2xzpneVICNaueNzzDcgOG2IAj
+         AUYSbghN6928hu7wDrAypZgtTTNqmktMfkYWnGRg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sami Tolvanen <samitolvanen@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Borislav Petkov <bp@suse.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Alec Ari <neotheuser@gmail.com>, Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH 4.4 225/241] Revert "x86/build: Move _etext to actual end of .text"
-Date:   Sun,  9 Jun 2019 18:42:47 +0200
-Message-Id: <20190609164155.196404269@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
+Subject: [PATCH 4.9 78/83] drm/gma500/cdv: Check vbt config bits when detecting lvds panels
+Date:   Sun,  9 Jun 2019 18:42:48 +0200
+Message-Id: <20190609164134.599134597@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
-References: <20190609164147.729157653@linuxfoundation.org>
+In-Reply-To: <20190609164127.843327870@linuxfoundation.org>
+References: <20190609164127.843327870@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,42 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
 
-This reverts commit 392bef709659abea614abfe53cf228e7a59876a4.
+commit 7c420636860a719049fae9403e2c87804f53bdde upstream.
 
-It seems to cause lots of problems when using the gold linker, and no
-one really needs this at the moment, so just revert it from the stable
-trees.
+Some machines have an lvds child device in vbt even though a panel is
+not attached. To make detection more reliable we now also check the lvds
+config bits available in the vbt.
 
-Cc: Sami Tolvanen <samitolvanen@google.com>
-Reported-by: Kees Cook <keescook@chromium.org>
-Cc: Borislav Petkov <bp@suse.de>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Reported-by: Alec Ari <neotheuser@gmail.com>
-Cc: Ingo Molnar <mingo@kernel.org>
+Bugzilla: https://bugzilla.redhat.com/show_bug.cgi?id=1665766
+Cc: stable@vger.kernel.org
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190416114607.1072-1-patrik.r.jakobsson@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/x86/kernel/vmlinux.lds.S |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/arch/x86/kernel/vmlinux.lds.S
-+++ b/arch/x86/kernel/vmlinux.lds.S
-@@ -110,10 +110,10 @@ SECTIONS
- 		*(.text.__x86.indirect_thunk)
- 		__indirect_thunk_end = .;
- #endif
--	} :text = 0x9090
+---
+ drivers/gpu/drm/gma500/cdv_intel_lvds.c |    3 +++
+ drivers/gpu/drm/gma500/intel_bios.c     |    3 +++
+ drivers/gpu/drm/gma500/psb_drv.h        |    1 +
+ 3 files changed, 7 insertions(+)
+
+--- a/drivers/gpu/drm/gma500/cdv_intel_lvds.c
++++ b/drivers/gpu/drm/gma500/cdv_intel_lvds.c
+@@ -609,6 +609,9 @@ void cdv_intel_lvds_init(struct drm_devi
+ 	int pipe;
+ 	u8 pin;
  
--	/* End of text section */
--	_etext = .;
-+		/* End of text section */
-+		_etext = .;
-+	} :text = 0x9090
++	if (!dev_priv->lvds_enabled_in_vbt)
++		return;
++
+ 	pin = GMBUS_PORT_PANEL;
+ 	if (!lvds_is_present_in_vbt(dev, &pin)) {
+ 		DRM_DEBUG_KMS("LVDS is not present in VBT\n");
+--- a/drivers/gpu/drm/gma500/intel_bios.c
++++ b/drivers/gpu/drm/gma500/intel_bios.c
+@@ -436,6 +436,9 @@ parse_driver_features(struct drm_psb_pri
+ 	if (driver->lvds_config == BDB_DRIVER_FEATURE_EDP)
+ 		dev_priv->edp.support = 1;
  
- 	NOTES :text :note
++	dev_priv->lvds_enabled_in_vbt = driver->lvds_config != 0;
++	DRM_DEBUG_KMS("LVDS VBT config bits: 0x%x\n", driver->lvds_config);
++
+ 	/* This bit means to use 96Mhz for DPLL_A or not */
+ 	if (driver->primary_lfp_id)
+ 		dev_priv->dplla_96mhz = true;
+--- a/drivers/gpu/drm/gma500/psb_drv.h
++++ b/drivers/gpu/drm/gma500/psb_drv.h
+@@ -538,6 +538,7 @@ struct drm_psb_private {
+ 	int lvds_ssc_freq;
+ 	bool is_lvds_on;
+ 	bool is_mipi_on;
++	bool lvds_enabled_in_vbt;
+ 	u32 mipi_ctrl_display;
  
+ 	unsigned int core_freq;
 
 
