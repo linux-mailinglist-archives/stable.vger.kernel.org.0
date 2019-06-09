@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C4E473A8DD
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:05:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C4193A765
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 18:49:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388133AbfFIRFG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 13:05:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44178 "EHLO mail.kernel.org"
+        id S1731425AbfFIQtQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:49:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388753AbfFIRFG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 13:05:06 -0400
+        id S1731390AbfFIQtP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:49:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C9EFB206DF;
-        Sun,  9 Jun 2019 17:05:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 99346206DF;
+        Sun,  9 Jun 2019 16:49:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099904;
-        bh=eQ3MzPimuYsAc51Vf2nqnt7PITcqpqeYjU1IlnuoSz8=;
+        s=default; t=1560098954;
+        bh=gcCgrMDtogtv9S02H5nZ1BGnkLNi/H29ZWVzYhJvc4U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h/YwVyUvdtQMeMXFKlcTquwPDmnT4xX4HR3KQrjicjIpU4TVok2bILmaB9wJeU3c2
-         q/dFJlvRjlPTC/b3dhepRI3KwNvKJ61lsOQUxA2Y0dYxe+6Jrl9e/4fy+Mu3aDg5PS
-         Mys6CPCmB7GI7PxLqU6+nRZKJtYJNgzHPYZkkYBM=
+        b=tu+33DG9jMIcuBceM49/1tysMdDK4Dl+6O3xBlY2KPOtl1hrp6bZSR8TLTP8S/ypJ
+         Cihxv1eclND3UPOqrIQtrP7glQSkSRVnqvVxvT/o06R5K3bH4ORyhWl9WeGMGXEjtf
+         /FSyuZt0zv07mc0tYXqEIhSPIkDZtu8SQ5GYTsF8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
-        Ben Skeggs <bskeggs@redhat.com>
-Subject: [PATCH 4.4 208/241] drm/nouveau/i2c: Disable i2c bus access after ->fini()
+        stable@vger.kernel.org,
+        Boris Brezillon <boris.brezillon@collabora.com>,
+        Helen Koike <helen.koike@collabora.com>,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Subject: [PATCH 4.19 49/51] drm: dont block fb changes for async plane updates
 Date:   Sun,  9 Jun 2019 18:42:30 +0200
-Message-Id: <20190609164154.657998599@linuxfoundation.org>
+Message-Id: <20190609164130.817119906@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
-References: <20190609164147.729157653@linuxfoundation.org>
+In-Reply-To: <20190609164127.123076536@linuxfoundation.org>
+References: <20190609164127.123076536@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,265 +45,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lyude Paul <lyude@redhat.com>
+From: Helen Koike <helen.koike@collabora.com>
 
-commit 342406e4fbba9a174125fbfe6aeac3d64ef90f76 upstream.
+commit 89a4aac0ab0e6f5eea10d7bf4869dd15c3de2cd4 upstream.
 
-For a while, we've had the problem of i2c bus access not grabbing
-a runtime PM ref when it's being used in userspace by i2c-dev, resulting
-in nouveau spamming the kernel log with errors if anything attempts to
-access the i2c bus while the GPU is in runtime suspend. An example:
+In the case of a normal sync update, the preparation of framebuffers (be
+it calling drm_atomic_helper_prepare_planes() or doing setups with
+drm_framebuffer_get()) are performed in the new_state and the respective
+cleanups are performed in the old_state.
 
-[  130.078386] nouveau 0000:01:00.0: i2c: aux 000d: begin idle timeout ffffffff
+In the case of async updates, the preparation is also done in the
+new_state but the cleanups are done in the new_state (because updates
+are performed in place, i.e. in the current state).
 
-Since the GPU is in runtime suspend, the MMIO region that the i2c bus is
-on isn't accessible. On x86, the standard behavior for accessing an
-unavailable MMIO region is to just return ~0.
+The current code blocks async udpates when the fb is changed, turning
+async updates into sync updates, slowing down cursor updates and
+introducing regressions in igt tests with errors of type:
 
-Except, that turned out to be a lie. While computers with a clean
-concious will return ~0 in this scenario, some machines will actually
-completely hang a CPU on certian bad MMIO accesses. This was witnessed
-with someone's Lenovo ThinkPad P50, where sensors-detect attempting to
-access the i2c bus while the GPU was suspended would result in a CPU
-hang:
+"CRITICAL: completed 97 cursor updated in a period of 30 flips, we
+expect to complete approximately 15360 updates, with the threshold set
+at 7680"
 
-  CPU: 5 PID: 12438 Comm: sensors-detect Not tainted 5.0.0-0.rc4.git3.1.fc30.x86_64 #1
-  Hardware name: LENOVO 20EQS64N17/20EQS64N17, BIOS N1EET74W (1.47 ) 11/21/2017
-  RIP: 0010:ioread32+0x2b/0x30
-  Code: 81 ff ff ff 03 00 77 20 48 81 ff 00 00 01 00 76 05 0f b7 d7 ed c3
-  48 c7 c6 e1 0c 36 96 e8 2d ff ff ff b8 ff ff ff ff c3 8b 07 <c3> 0f 1f
-  40 00 49 89 f0 48 81 fe ff ff 03 00 76 04 40 88 3e c3 48
-  RSP: 0018:ffffaac3c5007b48 EFLAGS: 00000292 ORIG_RAX: ffffffffffffff13
-  RAX: 0000000001111000 RBX: 0000000001111000 RCX: 0000043017a97186
-  RDX: 0000000000000aaa RSI: 0000000000000005 RDI: ffffaac3c400e4e4
-  RBP: ffff9e6443902c00 R08: ffffaac3c400e4e4 R09: ffffaac3c5007be7
-  R10: 0000000000000004 R11: 0000000000000001 R12: ffff9e6445dd0000
-  R13: 000000000000e4e4 R14: 00000000000003c4 R15: 0000000000000000
-  FS:  00007f253155a740(0000) GS:ffff9e644f600000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 00005630d1500358 CR3: 0000000417c44006 CR4: 00000000003606e0
-  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  Call Trace:
-   g94_i2c_aux_xfer+0x326/0x850 [nouveau]
-   nvkm_i2c_aux_i2c_xfer+0x9e/0x140 [nouveau]
-   __i2c_transfer+0x14b/0x620
-   i2c_smbus_xfer_emulated+0x159/0x680
-   ? _raw_spin_unlock_irqrestore+0x1/0x60
-   ? rt_mutex_slowlock.constprop.0+0x13d/0x1e0
-   ? __lock_is_held+0x59/0xa0
-   __i2c_smbus_xfer+0x138/0x5a0
-   i2c_smbus_xfer+0x4f/0x80
-   i2cdev_ioctl_smbus+0x162/0x2d0 [i2c_dev]
-   i2cdev_ioctl+0x1db/0x2c0 [i2c_dev]
-   do_vfs_ioctl+0x408/0x750
-   ksys_ioctl+0x5e/0x90
-   __x64_sys_ioctl+0x16/0x20
-   do_syscall_64+0x60/0x1e0
-   entry_SYSCALL_64_after_hwframe+0x49/0xbe
-  RIP: 0033:0x7f25317f546b
-  Code: 0f 1e fa 48 8b 05 1d da 0c 00 64 c7 00 26 00 00 00 48 c7 c0 ff ff
-  ff ff c3 66 0f 1f 44 00 00 f3 0f 1e fa b8 10 00 00 00 0f 05 <48> 3d 01
-  f0 ff ff 73 01 c3 48 8b 0d ed d9 0c 00 f7 d8 64 89 01 48
-  RSP: 002b:00007ffc88caab68 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-  RAX: ffffffffffffffda RBX: 00005630d0fe7260 RCX: 00007f25317f546b
-  RDX: 00005630d1598e80 RSI: 0000000000000720 RDI: 0000000000000003
-  RBP: 00005630d155b968 R08: 0000000000000001 R09: 00005630d15a1da0
-  R10: 0000000000000070 R11: 0000000000000246 R12: 00005630d1598e80
-  R13: 00005630d12f3d28 R14: 0000000000000720 R15: 00005630d12f3ce0
-  watchdog: BUG: soft lockup - CPU#5 stuck for 23s! [sensors-detect:12438]
+Fb changes in async updates were prevented to avoid the following scenario:
 
-Yikes! While I wanted to try to make it so that accessing an i2c bus on
-nouveau would wake up the GPU as needed, airlied pointed out that pretty
-much any usecase for userspace accessing an i2c bus on a GPU (mainly for
-the DDC brightness control that some displays have) is going to only be
-useful while there's at least one display enabled on the GPU anyway, and
-the GPU never sleeps while there's displays running.
+- Async update, oldfb = NULL, newfb = fb1, prepare fb1, cleanup fb1
+- Async update, oldfb = fb1, newfb = fb2, prepare fb2, cleanup fb2
+- Non-async commit, oldfb = fb2, newfb = fb1, prepare fb1, cleanup fb2 (wrong)
+Where we have a single call to prepare fb2 but double cleanup call to fb2.
 
-Since teaching the i2c bus to wake up the GPU on userspace accesses is a
-good deal more difficult than it might seem, mostly due to the fact that
-we have to use the i2c bus during runtime resume of the GPU, we instead
-opt for the easiest solution: don't let userspace access i2c busses on
-the GPU at all while it's in runtime suspend.
+To solve the above problems, instead of blocking async fb changes, we
+place the old framebuffer in the new_state object, so when the code
+performs cleanups in the new_state it will cleanup the old_fb and we
+will have the following scenario instead:
 
-Changes since v1:
-* Also disable i2c busses that run over DP AUX
+- Async update, oldfb = NULL, newfb = fb1, prepare fb1, no cleanup
+- Async update, oldfb = fb1, newfb = fb2, prepare fb2, cleanup fb1
+- Non-async commit, oldfb = fb2, newfb = fb1, prepare fb1, cleanup fb2
 
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+Where calls to prepare/cleanup are balanced.
+
+Cc: <stable@vger.kernel.org> # v4.14+
+Fixes: 25dc194b34dd ("drm: Block fb changes for async plane updates")
+Suggested-by: Boris Brezillon <boris.brezillon@collabora.com>
+Signed-off-by: Helen Koike <helen.koike@collabora.com>
+Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
+Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190603165610.24614-6-helen.koike@collabora.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/nouveau/include/nvkm/subdev/i2c.h |    2 +
- drivers/gpu/drm/nouveau/nvkm/subdev/i2c/aux.c     |   26 +++++++++++++++++++++-
- drivers/gpu/drm/nouveau/nvkm/subdev/i2c/aux.h     |    2 +
- drivers/gpu/drm/nouveau/nvkm/subdev/i2c/base.c    |   15 ++++++++++++
- drivers/gpu/drm/nouveau/nvkm/subdev/i2c/bus.c     |   21 ++++++++++++++++-
- drivers/gpu/drm/nouveau/nvkm/subdev/i2c/bus.h     |    1 
- 6 files changed, 65 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/drm_atomic_helper.c      |   22 ++++++++++++----------
+ include/drm/drm_modeset_helper_vtables.h |    8 ++++++++
+ 2 files changed, 20 insertions(+), 10 deletions(-)
 
---- a/drivers/gpu/drm/nouveau/include/nvkm/subdev/i2c.h
-+++ b/drivers/gpu/drm/nouveau/include/nvkm/subdev/i2c.h
-@@ -37,6 +37,7 @@ struct nvkm_i2c_bus {
- 	struct mutex mutex;
- 	struct list_head head;
- 	struct i2c_adapter i2c;
-+	u8 enabled;
- };
+--- a/drivers/gpu/drm/drm_atomic_helper.c
++++ b/drivers/gpu/drm/drm_atomic_helper.c
+@@ -1573,15 +1573,6 @@ int drm_atomic_helper_async_check(struct
+ 	if (old_plane_state->fb != new_plane_state->fb)
+ 		return -EINVAL;
  
- int nvkm_i2c_bus_acquire(struct nvkm_i2c_bus *);
-@@ -56,6 +57,7 @@ struct nvkm_i2c_aux {
- 	struct mutex mutex;
- 	struct list_head head;
- 	struct i2c_adapter i2c;
-+	u8 enabled;
+-	/*
+-	 * FIXME: Since prepare_fb and cleanup_fb are always called on
+-	 * the new_plane_state for async updates we need to block framebuffer
+-	 * changes. This prevents use of a fb that's been cleaned up and
+-	 * double cleanups from occuring.
+-	 */
+-	if (old_plane_state->fb != new_plane_state->fb)
+-		return -EINVAL;
+-
+ 	funcs = plane->helper_private;
+ 	if (!funcs->atomic_async_update)
+ 		return -EINVAL;
+@@ -1612,6 +1603,8 @@ EXPORT_SYMBOL(drm_atomic_helper_async_ch
+  * drm_atomic_async_check() succeeds. Async commits are not supposed to swap
+  * the states like normal sync commits, but just do in-place changes on the
+  * current state.
++ *
++ * TODO: Implement full swap instead of doing in-place changes.
+  */
+ void drm_atomic_helper_async_commit(struct drm_device *dev,
+ 				    struct drm_atomic_state *state)
+@@ -1622,6 +1615,9 @@ void drm_atomic_helper_async_commit(stru
+ 	int i;
  
- 	u32 intr;
- };
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/aux.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/aux.c
-@@ -105,9 +105,15 @@ nvkm_i2c_aux_acquire(struct nvkm_i2c_aux
- {
- 	struct nvkm_i2c_pad *pad = aux->pad;
- 	int ret;
+ 	for_each_new_plane_in_state(state, plane, plane_state, i) {
++		struct drm_framebuffer *new_fb = plane_state->fb;
++		struct drm_framebuffer *old_fb = plane->state->fb;
 +
- 	AUX_TRACE(aux, "acquire");
- 	mutex_lock(&aux->mutex);
--	ret = nvkm_i2c_pad_acquire(pad, NVKM_I2C_PAD_AUX);
+ 		funcs = plane->helper_private;
+ 		funcs->atomic_async_update(plane, plane_state);
+ 
+@@ -1630,11 +1626,17 @@ void drm_atomic_helper_async_commit(stru
+ 		 * plane->state in-place, make sure at least common
+ 		 * properties have been properly updated.
+ 		 */
+-		WARN_ON_ONCE(plane->state->fb != plane_state->fb);
++		WARN_ON_ONCE(plane->state->fb != new_fb);
+ 		WARN_ON_ONCE(plane->state->crtc_x != plane_state->crtc_x);
+ 		WARN_ON_ONCE(plane->state->crtc_y != plane_state->crtc_y);
+ 		WARN_ON_ONCE(plane->state->src_x != plane_state->src_x);
+ 		WARN_ON_ONCE(plane->state->src_y != plane_state->src_y);
 +
-+	if (aux->enabled)
-+		ret = nvkm_i2c_pad_acquire(pad, NVKM_I2C_PAD_AUX);
-+	else
-+		ret = -EIO;
-+
- 	if (ret)
- 		mutex_unlock(&aux->mutex);
- 	return ret;
-@@ -141,6 +147,24 @@ nvkm_i2c_aux_del(struct nvkm_i2c_aux **p
++		/*
++		 * Make sure the FBs have been swapped so that cleanups in the
++		 * new_state performs a cleanup in the old FB.
++		 */
++		WARN_ON_ONCE(plane_state->fb != old_fb);
  	}
  }
- 
-+void
-+nvkm_i2c_aux_init(struct nvkm_i2c_aux *aux)
-+{
-+	AUX_TRACE(aux, "init");
-+	mutex_lock(&aux->mutex);
-+	aux->enabled = true;
-+	mutex_unlock(&aux->mutex);
-+}
-+
-+void
-+nvkm_i2c_aux_fini(struct nvkm_i2c_aux *aux)
-+{
-+	AUX_TRACE(aux, "fini");
-+	mutex_lock(&aux->mutex);
-+	aux->enabled = false;
-+	mutex_unlock(&aux->mutex);
-+}
-+
- int
- nvkm_i2c_aux_ctor(const struct nvkm_i2c_aux_func *func,
- 		  struct nvkm_i2c_pad *pad, int id,
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/aux.h
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/aux.h
-@@ -14,6 +14,8 @@ int nvkm_i2c_aux_ctor(const struct nvkm_
- int nvkm_i2c_aux_new_(const struct nvkm_i2c_aux_func *, struct nvkm_i2c_pad *,
- 		      int id, struct nvkm_i2c_aux **);
- void nvkm_i2c_aux_del(struct nvkm_i2c_aux **);
-+void nvkm_i2c_aux_init(struct nvkm_i2c_aux *);
-+void nvkm_i2c_aux_fini(struct nvkm_i2c_aux *);
- int nvkm_i2c_aux_xfer(struct nvkm_i2c_aux *, bool retry, u8 type,
- 		      u32 addr, u8 *data, u8 size);
- 
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/base.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/base.c
-@@ -160,8 +160,18 @@ nvkm_i2c_fini(struct nvkm_subdev *subdev
- {
- 	struct nvkm_i2c *i2c = nvkm_i2c(subdev);
- 	struct nvkm_i2c_pad *pad;
-+	struct nvkm_i2c_bus *bus;
-+	struct nvkm_i2c_aux *aux;
- 	u32 mask;
- 
-+	list_for_each_entry(aux, &i2c->aux, head) {
-+		nvkm_i2c_aux_fini(aux);
-+	}
-+
-+	list_for_each_entry(bus, &i2c->bus, head) {
-+		nvkm_i2c_bus_fini(bus);
-+	}
-+
- 	if ((mask = (1 << i2c->func->aux) - 1), i2c->func->aux_stat) {
- 		i2c->func->aux_mask(i2c, NVKM_I2C_ANY, mask, 0);
- 		i2c->func->aux_stat(i2c, &mask, &mask, &mask, &mask);
-@@ -180,6 +190,7 @@ nvkm_i2c_init(struct nvkm_subdev *subdev
- 	struct nvkm_i2c *i2c = nvkm_i2c(subdev);
- 	struct nvkm_i2c_bus *bus;
- 	struct nvkm_i2c_pad *pad;
-+	struct nvkm_i2c_aux *aux;
- 
- 	list_for_each_entry(pad, &i2c->pad, head) {
- 		nvkm_i2c_pad_init(pad);
-@@ -189,6 +200,10 @@ nvkm_i2c_init(struct nvkm_subdev *subdev
- 		nvkm_i2c_bus_init(bus);
- 	}
- 
-+	list_for_each_entry(aux, &i2c->aux, head) {
-+		nvkm_i2c_aux_init(aux);
-+	}
-+
- 	return 0;
- }
- 
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/bus.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/bus.c
-@@ -110,6 +110,19 @@ nvkm_i2c_bus_init(struct nvkm_i2c_bus *b
- 	BUS_TRACE(bus, "init");
- 	if (bus->func->init)
- 		bus->func->init(bus);
-+
-+	mutex_lock(&bus->mutex);
-+	bus->enabled = true;
-+	mutex_unlock(&bus->mutex);
-+}
-+
-+void
-+nvkm_i2c_bus_fini(struct nvkm_i2c_bus *bus)
-+{
-+	BUS_TRACE(bus, "fini");
-+	mutex_lock(&bus->mutex);
-+	bus->enabled = false;
-+	mutex_unlock(&bus->mutex);
- }
- 
- void
-@@ -126,9 +139,15 @@ nvkm_i2c_bus_acquire(struct nvkm_i2c_bus
- {
- 	struct nvkm_i2c_pad *pad = bus->pad;
- 	int ret;
-+
- 	BUS_TRACE(bus, "acquire");
- 	mutex_lock(&bus->mutex);
--	ret = nvkm_i2c_pad_acquire(pad, NVKM_I2C_PAD_I2C);
-+
-+	if (bus->enabled)
-+		ret = nvkm_i2c_pad_acquire(pad, NVKM_I2C_PAD_I2C);
-+	else
-+		ret = -EIO;
-+
- 	if (ret)
- 		mutex_unlock(&bus->mutex);
- 	return ret;
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/bus.h
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/i2c/bus.h
-@@ -17,6 +17,7 @@ int nvkm_i2c_bus_new_(const struct nvkm_
- 		      int id, struct nvkm_i2c_bus **);
- void nvkm_i2c_bus_del(struct nvkm_i2c_bus **);
- void nvkm_i2c_bus_init(struct nvkm_i2c_bus *);
-+void nvkm_i2c_bus_fini(struct nvkm_i2c_bus *);
- 
- int nvkm_i2c_bit_xfer(struct nvkm_i2c_bus *, struct i2c_msg *, int);
- 
+ EXPORT_SYMBOL(drm_atomic_helper_async_commit);
+--- a/include/drm/drm_modeset_helper_vtables.h
++++ b/include/drm/drm_modeset_helper_vtables.h
+@@ -1174,6 +1174,14 @@ struct drm_plane_helper_funcs {
+ 	 * current one with the new plane configurations in the new
+ 	 * plane_state.
+ 	 *
++	 * Drivers should also swap the framebuffers between current plane
++	 * state (&drm_plane.state) and new_state.
++	 * This is required since cleanup for async commits is performed on
++	 * the new state, rather than old state like for traditional commits.
++	 * Since we want to give up the reference on the current (old) fb
++	 * instead of our brand new one, swap them in the driver during the
++	 * async commit.
++	 *
+ 	 * FIXME:
+ 	 *  - It only works for single plane updates
+ 	 *  - Async Pageflips are not supported yet
 
 
