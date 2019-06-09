@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 435943A8DE
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:05:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E14403A788
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 18:51:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388200AbfFIRFI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 13:05:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44222 "EHLO mail.kernel.org"
+        id S1731735AbfFIQue (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:50:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732669AbfFIRFH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 13:05:07 -0400
+        id S1731200AbfFIQud (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:50:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C4E2C204EC;
-        Sun,  9 Jun 2019 17:05:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9FB082070B;
+        Sun,  9 Jun 2019 16:50:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099907;
-        bh=ufoUUvz40p+JRfFWrFlIUNPByU6JsfaNP2u3RKqSqDo=;
+        s=default; t=1560099033;
+        bh=+6Rdq5w3wp1P6tGkrvd3YaT2CBY7QDquzepJZLwu7c4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OD03GMSNcRQ36QT4QERQlzWRrFaLS1oHlSCg88BnLXO6cKALTb2e0Ov6KPdM3Fcpb
-         YUwbwBo7MakeHCnRaWtrLx0ypus1qAMewfq+l3bYILUINhK8ia4k/c5ZFlmtz3krsw
-         mSUyTjm2d3LNdu6hplMohOiD1h8+a7fWvw1/DZe0=
+        b=net8a0qawjRJf7FVwrJTj2AAv7NeLmevpbrylOaZ08A3sT5YMAHhJkcQjtSEi47hn
+         QtzO0F4OMS/zsFfyyrhdCctBE8pdJ6BZvoZ59mihm0Db8ydWv4xVtZCJgkCe9szgmy
+         k8XGxGmmHqqNWaeAqJa1aqQPe4bstlJKt976Si+A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Stephen Boyd <swboyd@chromium.org>
-Subject: [PATCH 4.4 209/241] tty: serial: msm_serial: Fix XON/XOFF
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [PATCH 4.14 25/35] test_firmware: Use correct snprintf() limit
 Date:   Sun,  9 Jun 2019 18:42:31 +0200
-Message-Id: <20190609164154.690351299@linuxfoundation.org>
+Message-Id: <20190609164127.010750878@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
-References: <20190609164147.729157653@linuxfoundation.org>
+In-Reply-To: <20190609164125.377368385@linuxfoundation.org>
+References: <20190609164125.377368385@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,53 +42,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 61c0e37950b88bad590056286c1d766b1f167f4e upstream.
+commit bd17cc5a20ae9aaa3ed775f360b75ff93cd66a1d upstream.
 
-When the tty layer requests the uart to throttle, the current code
-executing in msm_serial will trigger "Bad mode in Error Handler" and
-generate an invalid stack frame in pstore before rebooting (that is if
-pstore is indeed configured: otherwise the user shall just notice a
-reboot with no further information dumped to the console).
+The limit here is supposed to be how much of the page is left, but it's
+just using PAGE_SIZE as the limit.
 
-This patch replaces the PIO byte accessor with the word accessor
-already used in PIO mode.
+The other thing to remember is that snprintf() returns the number of
+bytes which would have been copied if we had had enough room.  So that
+means that if we run out of space then this code would end up passing a
+negative value as the limit and the kernel would print an error message.
+I have change the code to use scnprintf() which returns the number of
+bytes that were successfully printed (not counting the NUL terminator).
 
-Fixes: 68252424a7c7 ("tty: serial: msm: Support big-endian CPUs")
-Cc: stable@vger.kernel.org
-Signed-off-by: Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Fixes: c92316bf8e94 ("test_firmware: add batched firmware tests")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/serial/msm_serial.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ lib/test_firmware.c |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
---- a/drivers/tty/serial/msm_serial.c
-+++ b/drivers/tty/serial/msm_serial.c
-@@ -703,6 +703,7 @@ static void msm_handle_tx(struct uart_po
- 	struct circ_buf *xmit = &msm_port->uart.state->xmit;
- 	struct msm_dma *dma = &msm_port->tx_dma;
- 	unsigned int pio_count, dma_count, dma_min;
-+	char buf[4] = { 0 };
- 	void __iomem *tf;
- 	int err = 0;
+--- a/lib/test_firmware.c
++++ b/lib/test_firmware.c
+@@ -222,30 +222,30 @@ static ssize_t config_show(struct device
  
-@@ -712,10 +713,12 @@ static void msm_handle_tx(struct uart_po
- 		else
- 			tf = port->membase + UART_TF;
+ 	mutex_lock(&test_fw_mutex);
  
-+		buf[0] = port->x_char;
-+
- 		if (msm_port->is_uartdm)
- 			msm_reset_dm_count(port, 1);
+-	len += snprintf(buf, PAGE_SIZE,
++	len += scnprintf(buf, PAGE_SIZE - len,
+ 			"Custom trigger configuration for: %s\n",
+ 			dev_name(dev));
  
--		iowrite8_rep(tf, &port->x_char, 1);
-+		iowrite32_rep(tf, buf, 1);
- 		port->icount.tx++;
- 		port->x_char = 0;
- 		return;
+ 	if (test_fw_config->name)
+-		len += snprintf(buf+len, PAGE_SIZE,
++		len += scnprintf(buf+len, PAGE_SIZE - len,
+ 				"name:\t%s\n",
+ 				test_fw_config->name);
+ 	else
+-		len += snprintf(buf+len, PAGE_SIZE,
++		len += scnprintf(buf+len, PAGE_SIZE - len,
+ 				"name:\tEMTPY\n");
+ 
+-	len += snprintf(buf+len, PAGE_SIZE,
++	len += scnprintf(buf+len, PAGE_SIZE - len,
+ 			"num_requests:\t%u\n", test_fw_config->num_requests);
+ 
+-	len += snprintf(buf+len, PAGE_SIZE,
++	len += scnprintf(buf+len, PAGE_SIZE - len,
+ 			"send_uevent:\t\t%s\n",
+ 			test_fw_config->send_uevent ?
+ 			"FW_ACTION_HOTPLUG" :
+ 			"FW_ACTION_NOHOTPLUG");
+-	len += snprintf(buf+len, PAGE_SIZE,
++	len += scnprintf(buf+len, PAGE_SIZE - len,
+ 			"sync_direct:\t\t%s\n",
+ 			test_fw_config->sync_direct ? "true" : "false");
+-	len += snprintf(buf+len, PAGE_SIZE,
++	len += scnprintf(buf+len, PAGE_SIZE - len,
+ 			"read_fw_idx:\t%u\n", test_fw_config->read_fw_idx);
+ 
+ 	mutex_unlock(&test_fw_mutex);
 
 
