@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FD9A3AA1A
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:16:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EF693AA4D
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:18:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732049AbfFIQx5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:53:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55402 "EHLO mail.kernel.org"
+        id S1727697AbfFIQvY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:51:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732505AbfFIQx5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:53:57 -0400
+        id S1728512AbfFIQvY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:51:24 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DACB62081C;
-        Sun,  9 Jun 2019 16:53:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 170D42070B;
+        Sun,  9 Jun 2019 16:51:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099236;
-        bh=7Z2eSdjGURg30XUUYIo4u7JEH8kXWqo29Oy1NRh4YyU=;
+        s=default; t=1560099083;
+        bh=TJCm5AsGVKgzsrO8Flov/50oIA64VW2TAdaGPxGaYm0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y2rQg2NUttk6u4rmIDBGCNtmYLaLUNT/RNcB4YzvGxvLuwT19HPmMYTAIZ9Akrp4H
-         XKCQpp5+tKyvJP0PoTR4ZLac/ojElJL2D0UmhiUiD5RedQ2OrJrab7ulVNbNxOs05w
-         SSU5FeAR3W4DP3xKnHbfEY8hYKInqPhnqO3BYPDg=
+        b=GOMz/sFk3z1bS9koZ9U2xuxboNBDvCdj5WxvkpEKvAfBHLXwKGUOmfxx3J64fU41Y
+         Kz4KoRS4xfX9XUrGInOfo1iGaI4dL3h3X+wZp1myOblpQ+F0GpuBWS+i3tWAK4PvaO
+         eaH6VS07PScMTz0Uf61gFFrnKw+eDTgmwXe02K1o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>
-Subject: [PATCH 4.9 57/83] mm: prevent get_user_pages() from overflowing page refcount
+        stable@vger.kernel.org, Paul Burton <paul.burton@mips.com>,
+        Julien Cristau <jcristau@debian.org>,
+        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <f4bug@amsat.org>,
+        YunQiang Su <ysu@wavecomp.com>, linux-mips@vger.kernel.org
+Subject: [PATCH 4.14 21/35] MIPS: Bounds check virt_addr_valid
 Date:   Sun,  9 Jun 2019 18:42:27 +0200
-Message-Id: <20190609164132.774263938@linuxfoundation.org>
+Message-Id: <20190609164126.752755650@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.843327870@linuxfoundation.org>
-References: <20190609164127.843327870@linuxfoundation.org>
+In-Reply-To: <20190609164125.377368385@linuxfoundation.org>
+References: <20190609164125.377368385@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,172 +45,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Paul Burton <paul.burton@mips.com>
 
-commit 8fde12ca79aff9b5ba951fce1a2641901b8d8e64 upstream.
+commit 074a1e1167afd82c26f6d03a9a8b997d564bb241 upstream.
 
-If the page refcount wraps around past zero, it will be freed while
-there are still four billion references to it.  One of the possible
-avenues for an attacker to try to make this happen is by doing direct IO
-on a page multiple times.  This patch makes get_user_pages() refuse to
-take a new page reference if there are already more than two billion
-references to the page.
+The virt_addr_valid() function is meant to return true iff
+virt_to_page() will return a valid struct page reference. This is true
+iff the address provided is found within the unmapped address range
+between PAGE_OFFSET & MAP_BASE, but we don't currently check for that
+condition. Instead we simply mask the address to obtain what will be a
+physical address if the virtual address is indeed in the desired range,
+shift it to form a PFN & then call pfn_valid(). This can incorrectly
+return true if called with a virtual address which, after masking,
+happens to form a physical address corresponding to a valid PFN.
 
-Reported-by: Jann Horn <jannh@google.com>
-Acked-by: Matthew Wilcox <willy@infradead.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-[bwh: Backported to 4.9:
- - Add the "err" variable in follow_hugetlb_page()
- - Adjust context]
-Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
+For example we may vmalloc an address in the kernel mapped region
+starting a MAP_BASE & obtain the virtual address:
+
+  addr = 0xc000000000002000
+
+When masked by virt_to_phys(), which uses __pa() & in turn CPHYSADDR(),
+we obtain the following (bogus) physical address:
+
+  addr = 0x2000
+
+In a common system with PHYS_OFFSET=0 this will correspond to a valid
+struct page which should really be accessed by virtual address
+PAGE_OFFSET+0x2000, causing virt_addr_valid() to incorrectly return 1
+indicating that the original address corresponds to a struct page.
+
+This is equivalent to the ARM64 change made in commit ca219452c6b8
+("arm64: Correctly bounds check virt_addr_valid").
+
+This fixes fallout when hardened usercopy is enabled caused by the
+related commit 517e1fbeb65f ("mm/usercopy: Drop extra
+is_vmalloc_or_module() check") which removed a check for the vmalloc
+range that was present from the introduction of the hardened usercopy
+feature.
+
+Signed-off-by: Paul Burton <paul.burton@mips.com>
+Reported-by: Julien Cristau <jcristau@debian.org>
+Reviewed-by: Philippe Mathieu-Daudé <f4bug@amsat.org>
+Tested-by: YunQiang Su <ysu@wavecomp.com>
+URL: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=929366
+Cc: stable@vger.kernel.org # v4.12+
+Cc: linux-mips@vger.kernel.org
+Cc: Yunqiang Su <ysu@wavecomp.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- mm/gup.c     |   45 ++++++++++++++++++++++++++++++++++-----------
- mm/hugetlb.c |   16 +++++++++++++++-
- 2 files changed, 49 insertions(+), 12 deletions(-)
 
---- a/mm/gup.c
-+++ b/mm/gup.c
-@@ -153,7 +153,10 @@ retry:
- 	}
+---
+ arch/mips/mm/mmap.c |    5 +++++
+ 1 file changed, 5 insertions(+)
+
+--- a/arch/mips/mm/mmap.c
++++ b/arch/mips/mm/mmap.c
+@@ -203,6 +203,11 @@ unsigned long arch_randomize_brk(struct
  
- 	if (flags & FOLL_GET) {
--		get_page(page);
-+		if (unlikely(!try_get_page(page))) {
-+			page = ERR_PTR(-ENOMEM);
-+			goto out;
-+		}
- 
- 		/* drop the pgmap reference now that we hold the page */
- 		if (pgmap) {
-@@ -292,7 +295,10 @@ struct page *follow_page_mask(struct vm_
- 			if (pmd_trans_unstable(pmd))
- 				ret = -EBUSY;
- 		} else {
--			get_page(page);
-+			if (unlikely(!try_get_page(page))) {
-+				spin_unlock(ptl);
-+				return ERR_PTR(-ENOMEM);
-+			}
- 			spin_unlock(ptl);
- 			lock_page(page);
- 			ret = split_huge_page(page);
-@@ -348,7 +354,10 @@ static int get_gate_page(struct mm_struc
- 			goto unmap;
- 		*page = pte_page(*pte);
- 	}
--	get_page(*page);
-+	if (unlikely(!try_get_page(*page))) {
-+		ret = -ENOMEM;
-+		goto unmap;
-+	}
- out:
- 	ret = 0;
- unmap:
-@@ -1231,6 +1240,20 @@ struct page *get_dump_page(unsigned long
-  */
- #ifdef CONFIG_HAVE_GENERIC_RCU_GUP
- 
-+/*
-+ * Return the compund head page with ref appropriately incremented,
-+ * or NULL if that failed.
-+ */
-+static inline struct page *try_get_compound_head(struct page *page, int refs)
-+{
-+	struct page *head = compound_head(page);
-+	if (WARN_ON_ONCE(page_ref_count(head) < 0))
-+		return NULL;
-+	if (unlikely(!page_cache_add_speculative(head, refs)))
-+		return NULL;
-+	return head;
-+}
+ int __virt_addr_valid(const volatile void *kaddr)
+ {
++	unsigned long vaddr = (unsigned long)vaddr;
 +
- #ifdef __HAVE_ARCH_PTE_SPECIAL
- static int gup_pte_range(pmd_t pmd, unsigned long addr, unsigned long end,
- 			 int write, struct page **pages, int *nr)
-@@ -1263,9 +1286,9 @@ static int gup_pte_range(pmd_t pmd, unsi
- 
- 		VM_BUG_ON(!pfn_valid(pte_pfn(pte)));
- 		page = pte_page(pte);
--		head = compound_head(page);
- 
--		if (!page_cache_get_speculative(head))
-+		head = try_get_compound_head(page, 1);
-+		if (!head)
- 			goto pte_unmap;
- 
- 		if (unlikely(pte_val(pte) != pte_val(*ptep))) {
-@@ -1321,8 +1344,8 @@ static int gup_huge_pmd(pmd_t orig, pmd_
- 		refs++;
- 	} while (addr += PAGE_SIZE, addr != end);
- 
--	head = compound_head(pmd_page(orig));
--	if (!page_cache_add_speculative(head, refs)) {
-+	head = try_get_compound_head(pmd_page(orig), refs);
-+	if (!head) {
- 		*nr -= refs;
- 		return 0;
- 	}
-@@ -1355,8 +1378,8 @@ static int gup_huge_pud(pud_t orig, pud_
- 		refs++;
- 	} while (addr += PAGE_SIZE, addr != end);
- 
--	head = compound_head(pud_page(orig));
--	if (!page_cache_add_speculative(head, refs)) {
-+	head = try_get_compound_head(pud_page(orig), refs);
-+	if (!head) {
- 		*nr -= refs;
- 		return 0;
- 	}
-@@ -1390,8 +1413,8 @@ static int gup_huge_pgd(pgd_t orig, pgd_
- 		refs++;
- 	} while (addr += PAGE_SIZE, addr != end);
- 
--	head = compound_head(pgd_page(orig));
--	if (!page_cache_add_speculative(head, refs)) {
-+	head = try_get_compound_head(pgd_page(orig), refs);
-+	if (!head) {
- 		*nr -= refs;
- 		return 0;
- 	}
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -3984,6 +3984,7 @@ long follow_hugetlb_page(struct mm_struc
- 	unsigned long vaddr = *position;
- 	unsigned long remainder = *nr_pages;
- 	struct hstate *h = hstate_vma(vma);
-+	int err = -EFAULT;
- 
- 	while (vaddr < vma->vm_end && remainder) {
- 		pte_t *pte;
-@@ -4055,6 +4056,19 @@ long follow_hugetlb_page(struct mm_struc
- 
- 		pfn_offset = (vaddr & ~huge_page_mask(h)) >> PAGE_SHIFT;
- 		page = pte_page(huge_ptep_get(pte));
++	if ((vaddr < PAGE_OFFSET) || (vaddr >= MAP_BASE))
++		return 0;
 +
-+		/*
-+		 * Instead of doing 'try_get_page()' below in the same_page
-+		 * loop, just check the count once here.
-+		 */
-+		if (unlikely(page_count(page) <= 0)) {
-+			if (pages) {
-+				spin_unlock(ptl);
-+				remainder = 0;
-+				err = -ENOMEM;
-+				break;
-+			}
-+		}
- same_page:
- 		if (pages) {
- 			pages[i] = mem_map_offset(page, pfn_offset);
-@@ -4081,7 +4095,7 @@ same_page:
- 	*nr_pages = remainder;
- 	*position = vaddr;
- 
--	return i ? i : -EFAULT;
-+	return i ? i : err;
+ 	return pfn_valid(PFN_DOWN(virt_to_phys(kaddr)));
  }
- 
- #ifndef __HAVE_ARCH_FLUSH_HUGETLB_TLB_RANGE
+ EXPORT_SYMBOL_GPL(__virt_addr_valid);
 
 
