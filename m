@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A09C3AA4B
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:18:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C26433A931
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:08:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729643AbfFIQvR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:51:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51284 "EHLO mail.kernel.org"
+        id S2388868AbfFIRFj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 13:05:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730616AbfFIQvI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:51:08 -0400
+        id S2388860AbfFIRFj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 13:05:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 98DCA208C0;
-        Sun,  9 Jun 2019 16:51:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A94FF206DF;
+        Sun,  9 Jun 2019 17:05:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099067;
-        bh=X2s9JHcJ1W0JyaE0VhdQykJrt+FC1MxF3eyLR/M2EH0=;
+        s=default; t=1560099938;
+        bh=Q6TwShbaRr93ReNGInj9mWSnKJYeANtyn3UYp8dwIFY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gMJxnUGN6wgwqp2ND2AcRnXyx2U82qcUjK1Vs3KbCT/vL1lX3vaEq+3pslOZpGgx4
-         BIeqYpCcBCj5JebQNtIuY94WGb3SAebe87D5NYfY0rqxvbgHR7IJV8pGaUEk1aWGmT
-         zhxguzqkPpVZepaHs/goA6aDqXi/aYUfFxATOeoc=
+        b=qmQtdGmIaKIaOBDOptrMx+wQOqrspwcq6oEsA53jVydl9a3FPXssndkpc4ym5+n/q
+         Mf6puVkXqHfBkG6535tvGzSoLWLu05n1OgkSar5dlcqwbGZp8IChl/21pSPtyNXvXv
+         BTxWgupk2h8SW5FZWjdv6ZPAgppzUL7y0/agAda8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kirill Smelkov <kirr@nexedi.com>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 4.14 35/35] fuse: Add FOPEN_STREAM to use stream_open()
+        stable@vger.kernel.org,
+        Pieter-Paul Giesberts <pieter-paul.giesberts@broadcom.com>,
+        Franky Lin <franky.lin@broadcom.com>,
+        Arend van Spriel <arend@broadcom.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>
+Subject: [PATCH 4.4 219/241] brcmfmac: screening firmware event packet
 Date:   Sun,  9 Jun 2019 18:42:41 +0200
-Message-Id: <20190609164127.532009984@linuxfoundation.org>
+Message-Id: <20190609164155.000453636@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164125.377368385@linuxfoundation.org>
-References: <20190609164125.377368385@linuxfoundation.org>
+In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
+References: <20190609164147.729157653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,87 +47,312 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kirill Smelkov <kirr@nexedi.com>
+From: Franky Lin <franky.lin@broadcom.com>
 
-commit bbd84f33652f852ce5992d65db4d020aba21f882 upstream.
+commit c56caa9db8abbbfb9e31325e0897705aa897db37 upstream.
 
-Starting from commit 9c225f2655e3 ("vfs: atomic f_pos accesses as per
-POSIX") files opened even via nonseekable_open gate read and write via lock
-and do not allow them to be run simultaneously. This can create read vs
-write deadlock if a filesystem is trying to implement a socket-like file
-which is intended to be simultaneously used for both read and write from
-filesystem client.  See commit 10dce8af3422 ("fs: stream_open - opener for
-stream-like files so that read and write can run simultaneously without
-deadlock") for details and e.g. commit 581d21a2d02a ("xenbus: fix deadlock
-on writes to /proc/xen/xenbus") for a similar deadlock example on
-/proc/xen/xenbus.
+Firmware uses asynchronized events as a communication method to the
+host. The event packets are marked as ETH_P_LINK_CTL protocol type. For
+SDIO and PCIe bus, this kind of packets are delivered through virtual
+event channel not data channel. This patch adds a screening logic to
+make sure the event handler only processes the events coming from the
+correct channel.
 
-To avoid such deadlock it was tempting to adjust fuse_finish_open to use
-stream_open instead of nonseekable_open on just FOPEN_NONSEEKABLE flags,
-but grepping through Debian codesearch shows users of FOPEN_NONSEEKABLE,
-and in particular GVFS which actually uses offset in its read and write
-handlers
-
-	https://codesearch.debian.net/search?q=-%3Enonseekable+%3D
-	https://gitlab.gnome.org/GNOME/gvfs/blob/1.40.0-6-gcbc54396/client/gvfsfusedaemon.c#L1080
-	https://gitlab.gnome.org/GNOME/gvfs/blob/1.40.0-6-gcbc54396/client/gvfsfusedaemon.c#L1247-1346
-	https://gitlab.gnome.org/GNOME/gvfs/blob/1.40.0-6-gcbc54396/client/gvfsfusedaemon.c#L1399-1481
-
-so if we would do such a change it will break a real user.
-
-Add another flag (FOPEN_STREAM) for filesystem servers to indicate that the
-opened handler is having stream-like semantics; does not use file position
-and thus the kernel is free to issue simultaneous read and write request on
-opened file handle.
-
-This patch together with stream_open() should be added to stable kernels
-starting from v3.14+. This will allow to patch OSSPD and other FUSE
-filesystems that provide stream-like files to return FOPEN_STREAM |
-FOPEN_NONSEEKABLE in open handler and this way avoid the deadlock on all
-kernel versions. This should work because fuse_finish_open ignores unknown
-open flags returned from a filesystem and so passing FOPEN_STREAM to a
-kernel that is not aware of this flag cannot hurt. In turn the kernel that
-is not aware of FOPEN_STREAM will be < v3.14 where just FOPEN_NONSEEKABLE
-is sufficient to implement streams without read vs write deadlock.
-
-Cc: stable@vger.kernel.org # v3.14+
-Signed-off-by: Kirill Smelkov <kirr@nexedi.com>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Reviewed-by: Pieter-Paul Giesberts <pieter-paul.giesberts@broadcom.com>
+Signed-off-by: Franky Lin <franky.lin@broadcom.com>
+Signed-off-by: Arend van Spriel <arend@broadcom.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+[bwh: Backported to 4.4 adjust filenames]
+Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-
 ---
- fs/fuse/file.c            |    4 +++-
- include/uapi/linux/fuse.h |    2 ++
- 2 files changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/wireless/brcm80211/brcmfmac/bus.h    |    4 +-
+ drivers/net/wireless/brcm80211/brcmfmac/core.c   |   46 ++++++++++++++++++-----
+ drivers/net/wireless/brcm80211/brcmfmac/core.h   |    3 +
+ drivers/net/wireless/brcm80211/brcmfmac/msgbuf.c |   42 ++++++++++++---------
+ drivers/net/wireless/brcm80211/brcmfmac/sdio.c   |   32 ++++++++++++----
+ drivers/net/wireless/brcm80211/brcmfmac/usb.c    |    2 -
+ 6 files changed, 90 insertions(+), 39 deletions(-)
 
---- a/fs/fuse/file.c
-+++ b/fs/fuse/file.c
-@@ -178,7 +178,9 @@ void fuse_finish_open(struct inode *inod
- 		file->f_op = &fuse_direct_io_file_operations;
- 	if (!(ff->open_flags & FOPEN_KEEP_CACHE))
- 		invalidate_inode_pages2(inode->i_mapping);
--	if (ff->open_flags & FOPEN_NONSEEKABLE)
-+	if (ff->open_flags & FOPEN_STREAM)
-+		stream_open(inode, file);
-+	else if (ff->open_flags & FOPEN_NONSEEKABLE)
- 		nonseekable_open(inode, file);
- 	if (fc->atomic_o_trunc && (file->f_flags & O_TRUNC)) {
- 		struct fuse_inode *fi = get_fuse_inode(inode);
---- a/include/uapi/linux/fuse.h
-+++ b/include/uapi/linux/fuse.h
-@@ -216,10 +216,12 @@ struct fuse_file_lock {
-  * FOPEN_DIRECT_IO: bypass page cache for this open file
-  * FOPEN_KEEP_CACHE: don't invalidate the data cache on open
-  * FOPEN_NONSEEKABLE: the file is not seekable
-+ * FOPEN_STREAM: the file is stream-like (no file position at all)
-  */
- #define FOPEN_DIRECT_IO		(1 << 0)
- #define FOPEN_KEEP_CACHE	(1 << 1)
- #define FOPEN_NONSEEKABLE	(1 << 2)
-+#define FOPEN_STREAM		(1 << 4)
+--- a/drivers/net/wireless/brcm80211/brcmfmac/bus.h
++++ b/drivers/net/wireless/brcm80211/brcmfmac/bus.h
+@@ -214,7 +214,9 @@ bool brcmf_c_prec_enq(struct device *dev
+ 		      int prec);
  
- /**
-  * INIT request/reply flags
+ /* Receive frame for delivery to OS.  Callee disposes of rxp. */
+-void brcmf_rx_frame(struct device *dev, struct sk_buff *rxp);
++void brcmf_rx_frame(struct device *dev, struct sk_buff *rxp, bool handle_evnt);
++/* Receive async event packet from firmware. Callee disposes of rxp. */
++void brcmf_rx_event(struct device *dev, struct sk_buff *rxp);
+ 
+ /* Indication from bus module regarding presence/insertion of dongle. */
+ int brcmf_attach(struct device *dev);
+--- a/drivers/net/wireless/brcm80211/brcmfmac/core.c
++++ b/drivers/net/wireless/brcm80211/brcmfmac/core.c
+@@ -301,16 +301,17 @@ void brcmf_txflowblock(struct device *de
+ 	brcmf_fws_bus_blocked(drvr, state);
+ }
+ 
+-void brcmf_netif_rx(struct brcmf_if *ifp, struct sk_buff *skb)
++void brcmf_netif_rx(struct brcmf_if *ifp, struct sk_buff *skb,
++		    bool handle_event)
+ {
+-	skb->dev = ifp->ndev;
+-	skb->protocol = eth_type_trans(skb, skb->dev);
++	skb->protocol = eth_type_trans(skb, ifp->ndev);
+ 
+ 	if (skb->pkt_type == PACKET_MULTICAST)
+ 		ifp->stats.multicast++;
+ 
+ 	/* Process special event packets */
+-	brcmf_fweh_process_skb(ifp->drvr, skb);
++	if (handle_event)
++		brcmf_fweh_process_skb(ifp->drvr, skb);
+ 
+ 	if (!(ifp->ndev->flags & IFF_UP)) {
+ 		brcmu_pkt_buf_free_skb(skb);
+@@ -371,7 +372,7 @@ static void brcmf_rxreorder_process_info
+ 	/* validate flags and flow id */
+ 	if (flags == 0xFF) {
+ 		brcmf_err("invalid flags...so ignore this packet\n");
+-		brcmf_netif_rx(ifp, pkt);
++		brcmf_netif_rx(ifp, pkt, false);
+ 		return;
+ 	}
+ 
+@@ -383,7 +384,7 @@ static void brcmf_rxreorder_process_info
+ 		if (rfi == NULL) {
+ 			brcmf_dbg(INFO, "received flags to cleanup, but no flow (%d) yet\n",
+ 				  flow_id);
+-			brcmf_netif_rx(ifp, pkt);
++			brcmf_netif_rx(ifp, pkt, false);
+ 			return;
+ 		}
+ 
+@@ -408,7 +409,7 @@ static void brcmf_rxreorder_process_info
+ 		rfi = kzalloc(buf_size, GFP_ATOMIC);
+ 		if (rfi == NULL) {
+ 			brcmf_err("failed to alloc buffer\n");
+-			brcmf_netif_rx(ifp, pkt);
++			brcmf_netif_rx(ifp, pkt, false);
+ 			return;
+ 		}
+ 
+@@ -522,11 +523,11 @@ static void brcmf_rxreorder_process_info
+ netif_rx:
+ 	skb_queue_walk_safe(&reorder_list, pkt, pnext) {
+ 		__skb_unlink(pkt, &reorder_list);
+-		brcmf_netif_rx(ifp, pkt);
++		brcmf_netif_rx(ifp, pkt, false);
+ 	}
+ }
+ 
+-void brcmf_rx_frame(struct device *dev, struct sk_buff *skb)
++void brcmf_rx_frame(struct device *dev, struct sk_buff *skb, bool handle_evnt)
+ {
+ 	struct brcmf_if *ifp;
+ 	struct brcmf_bus *bus_if = dev_get_drvdata(dev);
+@@ -550,7 +551,32 @@ void brcmf_rx_frame(struct device *dev,
+ 	if (rd->reorder)
+ 		brcmf_rxreorder_process_info(ifp, rd->reorder, skb);
+ 	else
+-		brcmf_netif_rx(ifp, skb);
++		brcmf_netif_rx(ifp, skb, handle_evnt);
++}
++
++void brcmf_rx_event(struct device *dev, struct sk_buff *skb)
++{
++	struct brcmf_if *ifp;
++	struct brcmf_bus *bus_if = dev_get_drvdata(dev);
++	struct brcmf_pub *drvr = bus_if->drvr;
++	int ret;
++
++	brcmf_dbg(EVENT, "Enter: %s: rxp=%p\n", dev_name(dev), skb);
++
++	/* process and remove protocol-specific header */
++	ret = brcmf_proto_hdrpull(drvr, true, skb, &ifp);
++
++	if (ret || !ifp || !ifp->ndev) {
++		if (ret != -ENODATA && ifp)
++			ifp->stats.rx_errors++;
++		brcmu_pkt_buf_free_skb(skb);
++		return;
++	}
++
++	skb->protocol = eth_type_trans(skb, ifp->ndev);
++
++	brcmf_fweh_process_skb(ifp->drvr, skb);
++	brcmu_pkt_buf_free_skb(skb);
+ }
+ 
+ void brcmf_txfinalize(struct brcmf_if *ifp, struct sk_buff *txp, bool success)
+--- a/drivers/net/wireless/brcm80211/brcmfmac/core.h
++++ b/drivers/net/wireless/brcm80211/brcmfmac/core.h
+@@ -215,7 +215,8 @@ int brcmf_get_next_free_bsscfgidx(struct
+ void brcmf_txflowblock_if(struct brcmf_if *ifp,
+ 			  enum brcmf_netif_stop_reason reason, bool state);
+ void brcmf_txfinalize(struct brcmf_if *ifp, struct sk_buff *txp, bool success);
+-void brcmf_netif_rx(struct brcmf_if *ifp, struct sk_buff *skb);
++void brcmf_netif_rx(struct brcmf_if *ifp, struct sk_buff *skb,
++		    bool handle_event);
+ void brcmf_net_setcarrier(struct brcmf_if *ifp, bool on);
+ 
+ #endif /* BRCMFMAC_CORE_H */
+--- a/drivers/net/wireless/brcm80211/brcmfmac/msgbuf.c
++++ b/drivers/net/wireless/brcm80211/brcmfmac/msgbuf.c
+@@ -20,6 +20,7 @@
+ 
+ #include <linux/types.h>
+ #include <linux/netdevice.h>
++#include <linux/etherdevice.h>
+ 
+ #include <brcmu_utils.h>
+ #include <brcmu_wifi.h>
+@@ -1076,28 +1077,13 @@ static void brcmf_msgbuf_rxbuf_event_pos
+ }
+ 
+ 
+-static void
+-brcmf_msgbuf_rx_skb(struct brcmf_msgbuf *msgbuf, struct sk_buff *skb,
+-		    u8 ifidx)
+-{
+-	struct brcmf_if *ifp;
+-
+-	ifp = brcmf_get_ifp(msgbuf->drvr, ifidx);
+-	if (!ifp || !ifp->ndev) {
+-		brcmf_err("Received pkt for invalid ifidx %d\n", ifidx);
+-		brcmu_pkt_buf_free_skb(skb);
+-		return;
+-	}
+-	brcmf_netif_rx(ifp, skb);
+-}
+-
+-
+ static void brcmf_msgbuf_process_event(struct brcmf_msgbuf *msgbuf, void *buf)
+ {
+ 	struct msgbuf_rx_event *event;
+ 	u32 idx;
+ 	u16 buflen;
+ 	struct sk_buff *skb;
++	struct brcmf_if *ifp;
+ 
+ 	event = (struct msgbuf_rx_event *)buf;
+ 	idx = le32_to_cpu(event->msg.request_id);
+@@ -1117,7 +1103,19 @@ static void brcmf_msgbuf_process_event(s
+ 
+ 	skb_trim(skb, buflen);
+ 
+-	brcmf_msgbuf_rx_skb(msgbuf, skb, event->msg.ifidx);
++	ifp = brcmf_get_ifp(msgbuf->drvr, event->msg.ifidx);
++	if (!ifp || !ifp->ndev) {
++		brcmf_err("Received pkt for invalid ifidx %d\n",
++			  event->msg.ifidx);
++		goto exit;
++	}
++
++	skb->protocol = eth_type_trans(skb, ifp->ndev);
++
++	brcmf_fweh_process_skb(ifp->drvr, skb);
++
++exit:
++	brcmu_pkt_buf_free_skb(skb);
+ }
+ 
+ 
+@@ -1129,6 +1127,7 @@ brcmf_msgbuf_process_rx_complete(struct
+ 	u16 data_offset;
+ 	u16 buflen;
+ 	u32 idx;
++	struct brcmf_if *ifp;
+ 
+ 	brcmf_msgbuf_update_rxbufpost_count(msgbuf, 1);
+ 
+@@ -1149,7 +1148,14 @@ brcmf_msgbuf_process_rx_complete(struct
+ 
+ 	skb_trim(skb, buflen);
+ 
+-	brcmf_msgbuf_rx_skb(msgbuf, skb, rx_complete->msg.ifidx);
++	ifp = brcmf_get_ifp(msgbuf->drvr, rx_complete->msg.ifidx);
++	if (!ifp || !ifp->ndev) {
++		brcmf_err("Received pkt for invalid ifidx %d\n",
++			  rx_complete->msg.ifidx);
++		brcmu_pkt_buf_free_skb(skb);
++		return;
++	}
++	brcmf_netif_rx(ifp, skb, false);
+ }
+ 
+ 
+--- a/drivers/net/wireless/brcm80211/brcmfmac/sdio.c
++++ b/drivers/net/wireless/brcm80211/brcmfmac/sdio.c
+@@ -1394,6 +1394,17 @@ static inline u8 brcmf_sdio_getdatoffset
+ 	return (u8)((hdrvalue & SDPCM_DOFFSET_MASK) >> SDPCM_DOFFSET_SHIFT);
+ }
+ 
++static inline bool brcmf_sdio_fromevntchan(u8 *swheader)
++{
++	u32 hdrvalue;
++	u8 ret;
++
++	hdrvalue = *(u32 *)swheader;
++	ret = (u8)((hdrvalue & SDPCM_CHANNEL_MASK) >> SDPCM_CHANNEL_SHIFT);
++
++	return (ret == SDPCM_EVENT_CHANNEL);
++}
++
+ static int brcmf_sdio_hdparse(struct brcmf_sdio *bus, u8 *header,
+ 			      struct brcmf_sdio_hdrinfo *rd,
+ 			      enum brcmf_sdio_frmtype type)
+@@ -1754,7 +1765,11 @@ static u8 brcmf_sdio_rxglom(struct brcmf
+ 					   pfirst->len, pfirst->next,
+ 					   pfirst->prev);
+ 			skb_unlink(pfirst, &bus->glom);
+-			brcmf_rx_frame(bus->sdiodev->dev, pfirst);
++			if (brcmf_sdio_fromevntchan(pfirst->data))
++				brcmf_rx_event(bus->sdiodev->dev, pfirst);
++			else
++				brcmf_rx_frame(bus->sdiodev->dev, pfirst,
++					       false);
+ 			bus->sdcnt.rxglompkts++;
+ 		}
+ 
+@@ -2081,18 +2096,19 @@ static uint brcmf_sdio_readframes(struct
+ 		__skb_trim(pkt, rd->len);
+ 		skb_pull(pkt, rd->dat_offset);
+ 
++		if (pkt->len == 0)
++			brcmu_pkt_buf_free_skb(pkt);
++		else if (rd->channel == SDPCM_EVENT_CHANNEL)
++			brcmf_rx_event(bus->sdiodev->dev, pkt);
++		else
++			brcmf_rx_frame(bus->sdiodev->dev, pkt,
++				       false);
++
+ 		/* prepare the descriptor for the next read */
+ 		rd->len = rd->len_nxtfrm << 4;
+ 		rd->len_nxtfrm = 0;
+ 		/* treat all packet as event if we don't know */
+ 		rd->channel = SDPCM_EVENT_CHANNEL;
+-
+-		if (pkt->len == 0) {
+-			brcmu_pkt_buf_free_skb(pkt);
+-			continue;
+-		}
+-
+-		brcmf_rx_frame(bus->sdiodev->dev, pkt);
+ 	}
+ 
+ 	rxcount = maxframes - rxleft;
+--- a/drivers/net/wireless/brcm80211/brcmfmac/usb.c
++++ b/drivers/net/wireless/brcm80211/brcmfmac/usb.c
+@@ -502,7 +502,7 @@ static void brcmf_usb_rx_complete(struct
+ 
+ 	if (devinfo->bus_pub.state == BRCMFMAC_USB_STATE_UP) {
+ 		skb_put(skb, urb->actual_length);
+-		brcmf_rx_frame(devinfo->dev, skb);
++		brcmf_rx_frame(devinfo->dev, skb, true);
+ 		brcmf_usb_rx_refill(devinfo, req);
+ 	} else {
+ 		brcmu_pkt_buf_free_skb(skb);
 
 
