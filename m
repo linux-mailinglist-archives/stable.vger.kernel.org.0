@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 939753AAAA
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:21:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 426393AA75
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:19:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729605AbfFIQqu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:46:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45198 "EHLO mail.kernel.org"
+        id S1730293AbfFIRSo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 13:18:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730623AbfFIQqs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:46:48 -0400
+        id S1730688AbfFIQt4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:49:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1BD2920833;
-        Sun,  9 Jun 2019 16:46:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B64912070B;
+        Sun,  9 Jun 2019 16:49:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560098807;
-        bh=bwyXJV/i6Cz9wgQVlQ1/RRjYKJRmf1/4zAy7S3ziSJc=;
+        s=default; t=1560098996;
+        bh=42DJW4Kw49EhY4VALJHfBdke1/pS2UWL8RMU1bZKiS0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CeAGYSl+4Ca2nzIgf623k4xNwmBmU8SCjV1B2u7TMj59x97IPxqP7WYFv/7SPEVsS
-         fqBZW90S/fBU0gWly5M7zZy3LUO4X39L5uqV2d2g5zeZ2y6RHgMJPZ07WjvzIgECjo
-         0/pXEq0ELfgRHPfBDCW+w2/Z8qFbR0NvcF8IxlFA=
+        b=rcC4o9v6XQrgs5jQpl0u9oQgrYzHYMy6lfxZ1xMXgEcHcePmB/sbcVI+r95LjV2z2
+         X7e4Y7OasVHXuG4pdCBexTbnPhx8KPsD6CzZHMX+lbJf3bJEWYyWfw0Mmkakjvm/MJ
+         db8lS0ijWZkuR95UB6TIgPyN48vkBHYHRP9I/SiU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        Helen Koike <helen.koike@collabora.com>,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Subject: [PATCH 5.1 67/70] drm: dont block fb changes for async plane updates
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Yaro Slav <yaro330@gmail.com>,
+        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <zenczykowski@gmail.com>,
+        Hangbin Liu <liuhangbin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 12/35] Revert "fib_rules: return 0 directly if an exactly same rule exists when NLM_F_EXCL not supplied"
 Date:   Sun,  9 Jun 2019 18:42:18 +0200
-Message-Id: <20190609164133.034738995@linuxfoundation.org>
+Message-Id: <20190609164126.207758005@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.541128197@linuxfoundation.org>
-References: <20190609164127.541128197@linuxfoundation.org>
+In-Reply-To: <20190609164125.377368385@linuxfoundation.org>
+References: <20190609164125.377368385@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,132 +47,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helen Koike <helen.koike@collabora.com>
+From: Hangbin Liu <liuhangbin@gmail.com>
 
-commit 89a4aac0ab0e6f5eea10d7bf4869dd15c3de2cd4 upstream.
+[ Upstream commit 4970b42d5c362bf873982db7d93245c5281e58f4 ]
 
-In the case of a normal sync update, the preparation of framebuffers (be
-it calling drm_atomic_helper_prepare_planes() or doing setups with
-drm_framebuffer_get()) are performed in the new_state and the respective
-cleanups are performed in the old_state.
+This reverts commit e9919a24d3022f72bcadc407e73a6ef17093a849.
 
-In the case of async updates, the preparation is also done in the
-new_state but the cleanups are done in the new_state (because updates
-are performed in place, i.e. in the current state).
+Nathan reported the new behaviour breaks Android, as Android just add
+new rules and delete old ones.
 
-The current code blocks async udpates when the fb is changed, turning
-async updates into sync updates, slowing down cursor updates and
-introducing regressions in igt tests with errors of type:
+If we return 0 without adding dup rules, Android will remove the new
+added rules and causing system to soft-reboot.
 
-"CRITICAL: completed 97 cursor updated in a period of 30 flips, we
-expect to complete approximately 15360 updates, with the threshold set
-at 7680"
-
-Fb changes in async updates were prevented to avoid the following scenario:
-
-- Async update, oldfb = NULL, newfb = fb1, prepare fb1, cleanup fb1
-- Async update, oldfb = fb1, newfb = fb2, prepare fb2, cleanup fb2
-- Non-async commit, oldfb = fb2, newfb = fb1, prepare fb1, cleanup fb2 (wrong)
-Where we have a single call to prepare fb2 but double cleanup call to fb2.
-
-To solve the above problems, instead of blocking async fb changes, we
-place the old framebuffer in the new_state object, so when the code
-performs cleanups in the new_state it will cleanup the old_fb and we
-will have the following scenario instead:
-
-- Async update, oldfb = NULL, newfb = fb1, prepare fb1, no cleanup
-- Async update, oldfb = fb1, newfb = fb2, prepare fb2, cleanup fb1
-- Non-async commit, oldfb = fb2, newfb = fb1, prepare fb1, cleanup fb2
-
-Where calls to prepare/cleanup are balanced.
-
-Cc: <stable@vger.kernel.org> # v4.14+
-Fixes: 25dc194b34dd ("drm: Block fb changes for async plane updates")
-Suggested-by: Boris Brezillon <boris.brezillon@collabora.com>
-Signed-off-by: Helen Koike <helen.koike@collabora.com>
-Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
-Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190603165610.24614-6-helen.koike@collabora.com
+Fixes: e9919a24d302 ("fib_rules: return 0 directly if an exactly same rule exists when NLM_F_EXCL not supplied")
+Reported-by: Nathan Chancellor <natechancellor@gmail.com>
+Reported-by: Yaro Slav <yaro330@gmail.com>
+Reported-by: Maciej Żenczykowski <zenczykowski@gmail.com>
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Tested-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/gpu/drm/drm_atomic_helper.c      |   22 ++++++++++++----------
- include/drm/drm_modeset_helper_vtables.h |    8 ++++++++
- 2 files changed, 20 insertions(+), 10 deletions(-)
+ net/core/fib_rules.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/gpu/drm/drm_atomic_helper.c
-+++ b/drivers/gpu/drm/drm_atomic_helper.c
-@@ -1607,15 +1607,6 @@ int drm_atomic_helper_async_check(struct
- 	    old_plane_state->crtc != new_plane_state->crtc)
- 		return -EINVAL;
- 
--	/*
--	 * FIXME: Since prepare_fb and cleanup_fb are always called on
--	 * the new_plane_state for async updates we need to block framebuffer
--	 * changes. This prevents use of a fb that's been cleaned up and
--	 * double cleanups from occuring.
--	 */
--	if (old_plane_state->fb != new_plane_state->fb)
--		return -EINVAL;
--
- 	funcs = plane->helper_private;
- 	if (!funcs->atomic_async_update)
- 		return -EINVAL;
-@@ -1646,6 +1637,8 @@ EXPORT_SYMBOL(drm_atomic_helper_async_ch
-  * drm_atomic_async_check() succeeds. Async commits are not supposed to swap
-  * the states like normal sync commits, but just do in-place changes on the
-  * current state.
-+ *
-+ * TODO: Implement full swap instead of doing in-place changes.
-  */
- void drm_atomic_helper_async_commit(struct drm_device *dev,
- 				    struct drm_atomic_state *state)
-@@ -1656,6 +1649,9 @@ void drm_atomic_helper_async_commit(stru
- 	int i;
- 
- 	for_each_new_plane_in_state(state, plane, plane_state, i) {
-+		struct drm_framebuffer *new_fb = plane_state->fb;
-+		struct drm_framebuffer *old_fb = plane->state->fb;
-+
- 		funcs = plane->helper_private;
- 		funcs->atomic_async_update(plane, plane_state);
- 
-@@ -1664,11 +1660,17 @@ void drm_atomic_helper_async_commit(stru
- 		 * plane->state in-place, make sure at least common
- 		 * properties have been properly updated.
- 		 */
--		WARN_ON_ONCE(plane->state->fb != plane_state->fb);
-+		WARN_ON_ONCE(plane->state->fb != new_fb);
- 		WARN_ON_ONCE(plane->state->crtc_x != plane_state->crtc_x);
- 		WARN_ON_ONCE(plane->state->crtc_y != plane_state->crtc_y);
- 		WARN_ON_ONCE(plane->state->src_x != plane_state->src_x);
- 		WARN_ON_ONCE(plane->state->src_y != plane_state->src_y);
-+
-+		/*
-+		 * Make sure the FBs have been swapped so that cleanups in the
-+		 * new_state performs a cleanup in the old FB.
-+		 */
-+		WARN_ON_ONCE(plane_state->fb != old_fb);
+--- a/net/core/fib_rules.c
++++ b/net/core/fib_rules.c
+@@ -563,9 +563,9 @@ int fib_nl_newrule(struct sk_buff *skb,
+ 		rule->uid_range = fib_kuid_range_unset;
  	}
- }
- EXPORT_SYMBOL(drm_atomic_helper_async_commit);
---- a/include/drm/drm_modeset_helper_vtables.h
-+++ b/include/drm/drm_modeset_helper_vtables.h
-@@ -1178,6 +1178,14 @@ struct drm_plane_helper_funcs {
- 	 * current one with the new plane configurations in the new
- 	 * plane_state.
- 	 *
-+	 * Drivers should also swap the framebuffers between current plane
-+	 * state (&drm_plane.state) and new_state.
-+	 * This is required since cleanup for async commits is performed on
-+	 * the new state, rather than old state like for traditional commits.
-+	 * Since we want to give up the reference on the current (old) fb
-+	 * instead of our brand new one, swap them in the driver during the
-+	 * async commit.
-+	 *
- 	 * FIXME:
- 	 *  - It only works for single plane updates
- 	 *  - Async Pageflips are not supported yet
+ 
+-	if (rule_exists(ops, frh, tb, rule)) {
+-		if (nlh->nlmsg_flags & NLM_F_EXCL)
+-			err = -EEXIST;
++	if ((nlh->nlmsg_flags & NLM_F_EXCL) &&
++	    rule_exists(ops, frh, tb, rule)) {
++		err = -EEXIST;
+ 		goto errout_free;
+ 	}
+ 
 
 
