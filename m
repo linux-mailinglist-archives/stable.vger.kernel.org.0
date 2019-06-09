@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A50DF3AA89
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:19:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB92C3A9F9
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:15:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731380AbfFIQtJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:49:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48492 "EHLO mail.kernel.org"
+        id S1732455AbfFIQzm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:55:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729661AbfFIQtI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:49:08 -0400
+        id S1732405AbfFIQzl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:55:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 004002070B;
-        Sun,  9 Jun 2019 16:49:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F0DEE205ED;
+        Sun,  9 Jun 2019 16:55:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560098948;
-        bh=3snimYtLiW81QvdIBMukURLkhku++669pMJK/Z942Rw=;
+        s=default; t=1560099340;
+        bh=TUjWsTfMduK7v9gPMGJ65AtAY2GrkaAhifPh/vuGr6g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lv5lgMaGMA2j0v1iovgeEDCh5oRmF5isNngFZKzin0BlxI8519IbXtLFJ8sIXXhZg
-         9A7+WrVkdQzPORFMgk7YBBkNjdKsWppPeTbViE+A1ymiFmDw/I/CsxnIkEH26sAg9w
-         t1W54AC9J6JJuvPGlhW9N/NMii/U4QeFUsYEMXfs=
+        b=zYcesKZ6mgxXVaqektyRTHMvQvuXVzqM5n8Ty2KPo4qnthnWRxpY28JHw9zJQkNHD
+         kiu3k3rYprg3t0v88dCmgTLYF7cSbB6RxIJtvFt1/j4w264uajDRH5ev9EhBpPhz1O
+         A31a0zeO4ZD7l6S23R1XU9j/e0dxvxkKp/uS00Fc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paulo Zanoni <paulo.r.zanoni@intel.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Daniel Drake <drake@endlessm.com>,
-        Jian-Hong Pan <jian-hong@endlessm.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Subject: [PATCH 4.19 47/51] drm/i915/fbc: disable framebuffer compression on GeminiLake
+        stable@vger.kernel.org, Matthew Wilcox <willy@infradead.org>,
+        Jann Horn <jannh@google.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>
+Subject: [PATCH 4.9 58/83] mm: make page ref count overflow check tighter and more explicit
 Date:   Sun,  9 Jun 2019 18:42:28 +0200
-Message-Id: <20190609164130.583496940@linuxfoundation.org>
+Message-Id: <20190609164132.850661394@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.123076536@linuxfoundation.org>
-References: <20190609164127.123076536@linuxfoundation.org>
+In-Reply-To: <20190609164127.843327870@linuxfoundation.org>
+References: <20190609164127.843327870@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,49 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Drake <drake@endlessm.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit 396dd8143bdd94bd1c358a228a631c8c895a1126 upstream.
+commit f958d7b528b1b40c44cfda5eabe2d82760d868c3 upstream.
 
-On many (all?) the Gemini Lake systems we work with, there is frequent
-momentary graphical corruption at the top of the screen, and it seems
-that disabling framebuffer compression can avoid this.
+We have a VM_BUG_ON() to check that the page reference count doesn't
+underflow (or get close to overflow) by checking the sign of the count.
 
-The ticket was reported 6 months ago and has already affected a
-multitude of users, without any real progress being made. So, lets
-disable framebuffer compression on GeminiLake until a solution is found.
+That's all fine, but we actually want to allow people to use a "get page
+ref unless it's already very high" helper function, and we want that one
+to use the sign of the page ref (without triggering this VM_BUG_ON).
 
-Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=108085
-Fixes: fd7d6c5c8f3e ("drm/i915: enable FBC on gen9+ too")
-Cc: Paulo Zanoni <paulo.r.zanoni@intel.com>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Jani Nikula <jani.nikula@linux.intel.com>
-Cc: <stable@vger.kernel.org> # v4.11+
-Reviewed-by: Paulo Zanoni <paulo.r.zanoni@intel.com>
-Signed-off-by: Daniel Drake <drake@endlessm.com>
-Signed-off-by: Jian-Hong Pan <jian-hong@endlessm.com>
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190423092810.28359-1-jian-hong@endlessm.com
-(cherry picked from commit 1d25724b41fad7eeb2c3058a5c8190d6ece73e08)
-Signed-off-by: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Change the VM_BUG_ON to only check for small underflows (or _very_ close
+to overflowing), and ignore overflows which have strayed into negative
+territory.
+
+Acked-by: Matthew Wilcox <willy@infradead.org>
+Cc: Jann Horn <jannh@google.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/gpu/drm/i915/intel_fbc.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ include/linux/mm.h |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/i915/intel_fbc.c
-+++ b/drivers/gpu/drm/i915/intel_fbc.c
-@@ -1267,6 +1267,10 @@ static int intel_sanitize_fbc_option(str
- 	if (!HAS_FBC(dev_priv))
- 		return 0;
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -763,6 +763,10 @@ static inline bool is_zone_device_page(c
+ }
+ #endif
  
-+	/* https://bugs.freedesktop.org/show_bug.cgi?id=108085 */
-+	if (IS_GEMINILAKE(dev_priv))
-+		return 0;
++/* 127: arbitrary random number, small enough to assemble well */
++#define page_ref_zero_or_close_to_overflow(page) \
++	((unsigned int) page_ref_count(page) + 127u <= 127u)
 +
- 	if (IS_BROADWELL(dev_priv) || INTEL_GEN(dev_priv) >= 9)
- 		return 1;
+ static inline void get_page(struct page *page)
+ {
+ 	page = compound_head(page);
+@@ -770,7 +774,7 @@ static inline void get_page(struct page
+ 	 * Getting a normal page or the head of a compound page
+ 	 * requires to already have an elevated page->_refcount.
+ 	 */
+-	VM_BUG_ON_PAGE(page_ref_count(page) <= 0, page);
++	VM_BUG_ON_PAGE(page_ref_zero_or_close_to_overflow(page), page);
+ 	page_ref_inc(page);
  
+ 	if (unlikely(is_zone_device_page(page)))
 
 
