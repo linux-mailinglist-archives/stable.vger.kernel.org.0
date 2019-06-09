@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 25C8E3A820
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 18:57:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 966CA3A9E5
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:14:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733113AbfFIQ5J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:57:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59956 "EHLO mail.kernel.org"
+        id S1733124AbfFIQ5L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:57:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733109AbfFIQ5I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:57:08 -0400
+        id S1733121AbfFIQ5L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:57:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9A9BA204EC;
-        Sun,  9 Jun 2019 16:57:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 520D120840;
+        Sun,  9 Jun 2019 16:57:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099428;
-        bh=RXOYdZgAg8uBpOhZ2AXd+Mg9uicbVNKzUTZocOfzsvQ=;
+        s=default; t=1560099430;
+        bh=/pIo0pbZ5dvuVjf8AdRgDj+IjW75lkMisHZCMXWEGOg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cu82sS9puGfBf3EvwfxePINEHMHxJtsj8hslQ4KbAbm/ZD+i2X3Lb4wmu2Rt+y6FD
-         LEJE5iqzEJWi+y80r2rVi0GT9bETLubcsv+nz8L2u3pPZ9mH1YVa7/WRGkTy2T6I0+
-         kWoipZCRD5/YKEEiNstBwtcG9ma00cWT+y1WGLW4=
+        b=fvd9TRrLTHVy8wpeuzJVfBBiYvMo2g4G2rid0Tpae/KLRbJNU/btMcIGGu5vkkqvR
+         tanycK6Xncy62QXFeRJhNd+RET/Xh5oG8XzxYy9ByRGMroF3bRoc26xRKlzD06B/MH
+         5XRIYqiTnvGSz9duPGyYIBHS2yNbHk6MahggHm0g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Junwei Hu <hujunwei4@huawei.com>,
         Wang Wang <wangwang2@huawei.com>,
-        Xiaogang Wang <wangxiaogang3@huawei.com>,
+        Kang Zhou <zhoukang7@huawei.com>,
+        Suanming Mou <mousuanming@huawei.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 035/241] tipc: switch order of device registration to fix a crash
-Date:   Sun,  9 Jun 2019 18:39:37 +0200
-Message-Id: <20190609164148.789841113@linuxfoundation.org>
+Subject: [PATCH 4.4 036/241] tipc: fix modprobe tipc failed after switch order of device registration
+Date:   Sun,  9 Jun 2019 18:39:38 +0200
+Message-Id: <20190609164148.817617035@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
 References: <20190609164147.729157653@linuxfoundation.org>
@@ -47,36 +48,27 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Junwei Hu <hujunwei4@huawei.com>
 
-[ Upstream commit 7e27e8d6130c5e88fac9ddec4249f7f2337fe7f8 ]
+[ Upstream commit 532b0f7ece4cb2ffd24dc723ddf55242d1188e5e ]
 
-When tipc is loaded while many processes try to create a TIPC socket,
-a crash occurs:
- PANIC: Unable to handle kernel paging request at virtual
- address "dfff20000000021d"
- pc : tipc_sk_create+0x374/0x1180 [tipc]
- lr : tipc_sk_create+0x374/0x1180 [tipc]
-   Exception class = DABT (current EL), IL = 32 bits
- Call trace:
-  tipc_sk_create+0x374/0x1180 [tipc]
-  __sock_create+0x1cc/0x408
-  __sys_socket+0xec/0x1f0
-  __arm64_sys_socket+0x74/0xa8
- ...
+Error message printed:
+modprobe: ERROR: could not insert 'tipc': Address family not
+supported by protocol.
+when modprobe tipc after the following patch: switch order of
+device registration, commit 7e27e8d6130c
+("tipc: switch order of device registration to fix a crash")
 
-This is due to race between sock_create and unfinished
-register_pernet_device. tipc_sk_insert tries to do
-"net_generic(net, tipc_net_id)".
-but tipc_net_id is not initialized yet.
+Because sock_create_kern(net, AF_TIPC, ...) is called by
+tipc_topsrv_create_listener() in the initialization process
+of tipc_net_ops, tipc_socket_init() must be execute before that.
 
-So switch the order of the two to close the race.
+I move tipc_socket_init() into function tipc_init_net().
 
-This can be reproduced with multiple processes doing socket(AF_TIPC, ...)
-and one process doing module removal.
-
-Fixes: a62fbccecd62 ("tipc: make subscriber server support net namespace")
+Fixes: 7e27e8d6130c
+("tipc: switch order of device registration to fix a crash")
 Signed-off-by: Junwei Hu <hujunwei4@huawei.com>
 Reported-by: Wang Wang <wangwang2@huawei.com>
-Reviewed-by: Xiaogang Wang <wangxiaogang3@huawei.com>
+Reviewed-by: Kang Zhou <zhoukang7@huawei.com>
+Reviewed-by: Suanming Mou <mousuanming@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
@@ -85,54 +77,61 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/net/tipc/core.c
 +++ b/net/tipc/core.c
-@@ -126,10 +126,6 @@ static int __init tipc_init(void)
- 	if (err)
- 		goto out_netlink_compat;
- 
--	err = tipc_socket_init();
--	if (err)
--		goto out_socket;
--
- 	err = tipc_register_sysctl();
- 	if (err)
- 		goto out_sysctl;
-@@ -138,6 +134,10 @@ static int __init tipc_init(void)
- 	if (err)
- 		goto out_pernet;
+@@ -61,6 +61,10 @@ static int __net_init tipc_init_net(stru
+ 	INIT_LIST_HEAD(&tn->node_list);
+ 	spin_lock_init(&tn->node_list_lock);
  
 +	err = tipc_socket_init();
 +	if (err)
 +		goto out_socket;
 +
+ 	err = tipc_sk_rht_init(net);
+ 	if (err)
+ 		goto out_sk_rht;
+@@ -87,6 +91,8 @@ out_subscr:
+ out_nametbl:
+ 	tipc_sk_rht_destroy(net);
+ out_sk_rht:
++	tipc_socket_stop();
++out_socket:
+ 	return err;
+ }
+ 
+@@ -97,6 +103,7 @@ static void __net_exit tipc_exit_net(str
+ 	tipc_bcast_stop(net);
+ 	tipc_nametbl_stop(net);
+ 	tipc_sk_rht_destroy(net);
++	tipc_socket_stop();
+ }
+ 
+ static struct pernet_operations tipc_net_ops = {
+@@ -134,10 +141,6 @@ static int __init tipc_init(void)
+ 	if (err)
+ 		goto out_pernet;
+ 
+-	err = tipc_socket_init();
+-	if (err)
+-		goto out_socket;
+-
  	err = tipc_bearer_setup();
  	if (err)
  		goto out_bearer;
-@@ -145,12 +145,12 @@ static int __init tipc_init(void)
+@@ -145,8 +148,6 @@ static int __init tipc_init(void)
  	pr_info("Started in single node mode\n");
  	return 0;
  out_bearer:
-+	tipc_socket_stop();
-+out_socket:
+-	tipc_socket_stop();
+-out_socket:
  	unregister_pernet_subsys(&tipc_net_ops);
  out_pernet:
  	tipc_unregister_sysctl();
- out_sysctl:
--	tipc_socket_stop();
--out_socket:
- 	tipc_netlink_compat_stop();
- out_netlink_compat:
- 	tipc_netlink_stop();
-@@ -162,10 +162,10 @@ out_netlink:
+@@ -162,7 +163,6 @@ out_netlink:
  static void __exit tipc_exit(void)
  {
  	tipc_bearer_cleanup();
-+	tipc_socket_stop();
+-	tipc_socket_stop();
  	unregister_pernet_subsys(&tipc_net_ops);
  	tipc_netlink_stop();
  	tipc_netlink_compat_stop();
--	tipc_socket_stop();
- 	tipc_unregister_sysctl();
- 
- 	pr_info("Deactivated\n");
 
 
