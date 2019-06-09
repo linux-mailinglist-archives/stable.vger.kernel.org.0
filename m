@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 61B563A8DA
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:05:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FD9A3AA1A
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:16:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388722AbfFIRE7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 13:04:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43962 "EHLO mail.kernel.org"
+        id S1732049AbfFIQx5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:53:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387899AbfFIRE5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 13:04:57 -0400
+        id S1732505AbfFIQx5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:53:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8DA52204EC;
-        Sun,  9 Jun 2019 17:04:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DACB62081C;
+        Sun,  9 Jun 2019 16:53:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099896;
-        bh=0vDeY41+O595UL1/ZQDEp9fOXTUTD2vKZz7tWD/OJt4=;
+        s=default; t=1560099236;
+        bh=7Z2eSdjGURg30XUUYIo4u7JEH8kXWqo29Oy1NRh4YyU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TRXQX7ognbp+LbK8aoLkbbH+8ye3HnlDjVJcIZmOhaEhWgRqknkpScs+KqmKJnGFd
-         KbWu8M5CiqA5cKzHfJ8dAQ598nuyCED21esjrKyFS3AAwy4So3SZ2KyJvkOvAA4RG6
-         1BHi5fd6sTLuLmEuym2GRkzpzyUp0k4/8lZlwQ+Q=
+        b=y2rQg2NUttk6u4rmIDBGCNtmYLaLUNT/RNcB4YzvGxvLuwT19HPmMYTAIZ9Akrp4H
+         XKCQpp5+tKyvJP0PoTR4ZLac/ojElJL2D0UmhiUiD5RedQ2OrJrab7ulVNbNxOs05w
+         SSU5FeAR3W4DP3xKnHbfEY8hYKInqPhnqO3BYPDg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steffen Maier <maier@linux.ibm.com>,
-        Benjamin Block <bblock@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.4 205/241] scsi: zfcp: fix to prevent port_remove with pure auto scan LUNs (only sdevs)
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Ben Hutchings <ben.hutchings@codethink.co.uk>
+Subject: [PATCH 4.9 57/83] mm: prevent get_user_pages() from overflowing page refcount
 Date:   Sun,  9 Jun 2019 18:42:27 +0200
-Message-Id: <20190609164154.543955884@linuxfoundation.org>
+Message-Id: <20190609164132.774263938@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
-References: <20190609164147.729157653@linuxfoundation.org>
+In-Reply-To: <20190609164127.843327870@linuxfoundation.org>
+References: <20190609164127.843327870@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,186 +45,172 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steffen Maier <maier@linux.ibm.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit ef4021fe5fd77ced0323cede27979d80a56211ca upstream.
+commit 8fde12ca79aff9b5ba951fce1a2641901b8d8e64 upstream.
 
-When the user tries to remove a zfcp port via sysfs, we only rejected it if
-there are zfcp unit children under the port. With purely automatically
-scanned LUNs there are no zfcp units but only SCSI devices. In such cases,
-the port_remove erroneously continued. We close the port and this
-implicitly closes all LUNs under the port. The SCSI devices survive with
-their private zfcp_scsi_dev still holding a reference to the "removed"
-zfcp_port (still allocated but invisible in sysfs) [zfcp_get_port_by_wwpn
-in zfcp_scsi_slave_alloc]. This is not a problem as long as the fc_rport
-stays blocked. Once (auto) port scan brings back the removed port, we
-unblock its fc_rport again by design.  However, there is no mechanism that
-would recover (open) the LUNs under the port (no "ersfs_3" without
-zfcp_unit [zfcp_erp_strategy_followup_success]).  Any pending or new I/O to
-such LUN leads to repeated:
+If the page refcount wraps around past zero, it will be freed while
+there are still four billion references to it.  One of the possible
+avenues for an attacker to try to make this happen is by doing direct IO
+on a page multiple times.  This patch makes get_user_pages() refuse to
+take a new page reference if there are already more than two billion
+references to the page.
 
-  Done: NEEDS_RETRY Result: hostbyte=DID_IMM_RETRY driverbyte=DRIVER_OK
-
-See also v4.10 commit 6f2ce1c6af37 ("scsi: zfcp: fix rport unblock race
-with LUN recovery"). Even a manual LUN recovery
-(echo 0 > /sys/bus/scsi/devices/H:C:T:L/zfcp_failed)
-does not help, as the LUN links to the old "removed" port which remains
-to lack ZFCP_STATUS_COMMON_RUNNING [zfcp_erp_required_act].
-The only workaround is to first ensure that the fc_rport is blocked
-(e.g. port_remove again in case it was re-discovered by (auto) port scan),
-then delete the SCSI devices, and finally re-discover by (auto) port scan.
-The port scan includes an fc_rport unblock, which in turn triggers
-a new scan on the scsi target to freshly get new pure auto scan LUNs.
-
-Fix this by rejecting port_remove also if there are SCSI devices
-(even without any zfcp_unit) under this port. Re-use mechanics from v3.7
-commit d99b601b6338 ("[SCSI] zfcp: restore refcount check on port_remove").
-However, we have to give up zfcp_sysfs_port_units_mutex earlier in unit_add
-to prevent a deadlock with scsi_host scan taking shost->scan_mutex first
-and then zfcp_sysfs_port_units_mutex now in our zfcp_scsi_slave_alloc().
-
-Signed-off-by: Steffen Maier <maier@linux.ibm.com>
-Fixes: b62a8d9b45b9 ("[SCSI] zfcp: Use SCSI device data zfcp scsi dev instead of zfcp unit")
-Fixes: f8210e34887e ("[SCSI] zfcp: Allow midlayer to scan for LUNs when running in NPIV mode")
-Cc: <stable@vger.kernel.org> #2.6.37+
-Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reported-by: Jann Horn <jannh@google.com>
+Acked-by: Matthew Wilcox <willy@infradead.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+[bwh: Backported to 4.9:
+ - Add the "err" variable in follow_hugetlb_page()
+ - Adjust context]
+Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/s390/scsi/zfcp_ext.h   |    1 
- drivers/s390/scsi/zfcp_scsi.c  |    9 ++++++
- drivers/s390/scsi/zfcp_sysfs.c |   54 ++++++++++++++++++++++++++++++++++++-----
- drivers/s390/scsi/zfcp_unit.c  |    8 +++++-
- 4 files changed, 65 insertions(+), 7 deletions(-)
+ mm/gup.c     |   45 ++++++++++++++++++++++++++++++++++-----------
+ mm/hugetlb.c |   16 +++++++++++++++-
+ 2 files changed, 49 insertions(+), 12 deletions(-)
 
---- a/drivers/s390/scsi/zfcp_ext.h
-+++ b/drivers/s390/scsi/zfcp_ext.h
-@@ -161,6 +161,7 @@ extern const struct attribute_group *zfc
- extern struct mutex zfcp_sysfs_port_units_mutex;
- extern struct device_attribute *zfcp_sysfs_sdev_attrs[];
- extern struct device_attribute *zfcp_sysfs_shost_attrs[];
-+bool zfcp_sysfs_port_is_removing(const struct zfcp_port *const port);
- 
- /* zfcp_unit.c */
- extern int zfcp_unit_add(struct zfcp_port *, u64);
---- a/drivers/s390/scsi/zfcp_scsi.c
-+++ b/drivers/s390/scsi/zfcp_scsi.c
-@@ -124,6 +124,15 @@ static int zfcp_scsi_slave_alloc(struct
- 
- 	zfcp_sdev->erp_action.port = port;
- 
-+	mutex_lock(&zfcp_sysfs_port_units_mutex);
-+	if (zfcp_sysfs_port_is_removing(port)) {
-+		/* port is already gone */
-+		mutex_unlock(&zfcp_sysfs_port_units_mutex);
-+		put_device(&port->dev); /* undo zfcp_get_port_by_wwpn() */
-+		return -ENXIO;
-+	}
-+	mutex_unlock(&zfcp_sysfs_port_units_mutex);
-+
- 	unit = zfcp_unit_find(port, zfcp_scsi_dev_lun(sdev));
- 	if (unit)
- 		put_device(&unit->dev);
---- a/drivers/s390/scsi/zfcp_sysfs.c
-+++ b/drivers/s390/scsi/zfcp_sysfs.c
-@@ -237,6 +237,53 @@ static ZFCP_DEV_ATTR(adapter, port_resca
- 
- DEFINE_MUTEX(zfcp_sysfs_port_units_mutex);
- 
-+static void zfcp_sysfs_port_set_removing(struct zfcp_port *const port)
-+{
-+	lockdep_assert_held(&zfcp_sysfs_port_units_mutex);
-+	atomic_set(&port->units, -1);
-+}
-+
-+bool zfcp_sysfs_port_is_removing(const struct zfcp_port *const port)
-+{
-+	lockdep_assert_held(&zfcp_sysfs_port_units_mutex);
-+	return atomic_read(&port->units) == -1;
-+}
-+
-+static bool zfcp_sysfs_port_in_use(struct zfcp_port *const port)
-+{
-+	struct zfcp_adapter *const adapter = port->adapter;
-+	unsigned long flags;
-+	struct scsi_device *sdev;
-+	bool in_use = true;
-+
-+	mutex_lock(&zfcp_sysfs_port_units_mutex);
-+	if (atomic_read(&port->units) > 0)
-+		goto unlock_port_units_mutex; /* zfcp_unit(s) under port */
-+
-+	spin_lock_irqsave(adapter->scsi_host->host_lock, flags);
-+	__shost_for_each_device(sdev, adapter->scsi_host) {
-+		const struct zfcp_scsi_dev *zsdev = sdev_to_zfcp(sdev);
-+
-+		if (sdev->sdev_state == SDEV_DEL ||
-+		    sdev->sdev_state == SDEV_CANCEL)
-+			continue;
-+		if (zsdev->port != port)
-+			continue;
-+		/* alive scsi_device under port of interest */
-+		goto unlock_host_lock;
-+	}
-+
-+	/* port is about to be removed, so no more unit_add or slave_alloc */
-+	zfcp_sysfs_port_set_removing(port);
-+	in_use = false;
-+
-+unlock_host_lock:
-+	spin_unlock_irqrestore(adapter->scsi_host->host_lock, flags);
-+unlock_port_units_mutex:
-+	mutex_unlock(&zfcp_sysfs_port_units_mutex);
-+	return in_use;
-+}
-+
- static ssize_t zfcp_sysfs_port_remove_store(struct device *dev,
- 					    struct device_attribute *attr,
- 					    const char *buf, size_t count)
-@@ -259,16 +306,11 @@ static ssize_t zfcp_sysfs_port_remove_st
- 	else
- 		retval = 0;
- 
--	mutex_lock(&zfcp_sysfs_port_units_mutex);
--	if (atomic_read(&port->units) > 0) {
-+	if (zfcp_sysfs_port_in_use(port)) {
- 		retval = -EBUSY;
--		mutex_unlock(&zfcp_sysfs_port_units_mutex);
- 		put_device(&port->dev); /* undo zfcp_get_port_by_wwpn() */
- 		goto out;
+--- a/mm/gup.c
++++ b/mm/gup.c
+@@ -153,7 +153,10 @@ retry:
  	}
--	/* port is about to be removed, so no more unit_add */
--	atomic_set(&port->units, -1);
--	mutex_unlock(&zfcp_sysfs_port_units_mutex);
  
- 	write_lock_irq(&adapter->port_list_lock);
- 	list_del(&port->list);
---- a/drivers/s390/scsi/zfcp_unit.c
-+++ b/drivers/s390/scsi/zfcp_unit.c
-@@ -122,7 +122,7 @@ int zfcp_unit_add(struct zfcp_port *port
- 	int retval = 0;
+ 	if (flags & FOLL_GET) {
+-		get_page(page);
++		if (unlikely(!try_get_page(page))) {
++			page = ERR_PTR(-ENOMEM);
++			goto out;
++		}
  
- 	mutex_lock(&zfcp_sysfs_port_units_mutex);
--	if (atomic_read(&port->units) == -1) {
-+	if (zfcp_sysfs_port_is_removing(port)) {
- 		/* port is already gone */
- 		retval = -ENODEV;
- 		goto out;
-@@ -166,8 +166,14 @@ int zfcp_unit_add(struct zfcp_port *port
- 	write_lock_irq(&port->unit_list_lock);
- 	list_add_tail(&unit->list, &port->unit_list);
- 	write_unlock_irq(&port->unit_list_lock);
-+	/*
-+	 * lock order: shost->scan_mutex before zfcp_sysfs_port_units_mutex
-+	 * due to      zfcp_unit_scsi_scan() => zfcp_scsi_slave_alloc()
-+	 */
-+	mutex_unlock(&zfcp_sysfs_port_units_mutex);
- 
- 	zfcp_unit_scsi_scan(unit);
-+	return retval;
- 
+ 		/* drop the pgmap reference now that we hold the page */
+ 		if (pgmap) {
+@@ -292,7 +295,10 @@ struct page *follow_page_mask(struct vm_
+ 			if (pmd_trans_unstable(pmd))
+ 				ret = -EBUSY;
+ 		} else {
+-			get_page(page);
++			if (unlikely(!try_get_page(page))) {
++				spin_unlock(ptl);
++				return ERR_PTR(-ENOMEM);
++			}
+ 			spin_unlock(ptl);
+ 			lock_page(page);
+ 			ret = split_huge_page(page);
+@@ -348,7 +354,10 @@ static int get_gate_page(struct mm_struc
+ 			goto unmap;
+ 		*page = pte_page(*pte);
+ 	}
+-	get_page(*page);
++	if (unlikely(!try_get_page(*page))) {
++		ret = -ENOMEM;
++		goto unmap;
++	}
  out:
- 	mutex_unlock(&zfcp_sysfs_port_units_mutex);
+ 	ret = 0;
+ unmap:
+@@ -1231,6 +1240,20 @@ struct page *get_dump_page(unsigned long
+  */
+ #ifdef CONFIG_HAVE_GENERIC_RCU_GUP
+ 
++/*
++ * Return the compund head page with ref appropriately incremented,
++ * or NULL if that failed.
++ */
++static inline struct page *try_get_compound_head(struct page *page, int refs)
++{
++	struct page *head = compound_head(page);
++	if (WARN_ON_ONCE(page_ref_count(head) < 0))
++		return NULL;
++	if (unlikely(!page_cache_add_speculative(head, refs)))
++		return NULL;
++	return head;
++}
++
+ #ifdef __HAVE_ARCH_PTE_SPECIAL
+ static int gup_pte_range(pmd_t pmd, unsigned long addr, unsigned long end,
+ 			 int write, struct page **pages, int *nr)
+@@ -1263,9 +1286,9 @@ static int gup_pte_range(pmd_t pmd, unsi
+ 
+ 		VM_BUG_ON(!pfn_valid(pte_pfn(pte)));
+ 		page = pte_page(pte);
+-		head = compound_head(page);
+ 
+-		if (!page_cache_get_speculative(head))
++		head = try_get_compound_head(page, 1);
++		if (!head)
+ 			goto pte_unmap;
+ 
+ 		if (unlikely(pte_val(pte) != pte_val(*ptep))) {
+@@ -1321,8 +1344,8 @@ static int gup_huge_pmd(pmd_t orig, pmd_
+ 		refs++;
+ 	} while (addr += PAGE_SIZE, addr != end);
+ 
+-	head = compound_head(pmd_page(orig));
+-	if (!page_cache_add_speculative(head, refs)) {
++	head = try_get_compound_head(pmd_page(orig), refs);
++	if (!head) {
+ 		*nr -= refs;
+ 		return 0;
+ 	}
+@@ -1355,8 +1378,8 @@ static int gup_huge_pud(pud_t orig, pud_
+ 		refs++;
+ 	} while (addr += PAGE_SIZE, addr != end);
+ 
+-	head = compound_head(pud_page(orig));
+-	if (!page_cache_add_speculative(head, refs)) {
++	head = try_get_compound_head(pud_page(orig), refs);
++	if (!head) {
+ 		*nr -= refs;
+ 		return 0;
+ 	}
+@@ -1390,8 +1413,8 @@ static int gup_huge_pgd(pgd_t orig, pgd_
+ 		refs++;
+ 	} while (addr += PAGE_SIZE, addr != end);
+ 
+-	head = compound_head(pgd_page(orig));
+-	if (!page_cache_add_speculative(head, refs)) {
++	head = try_get_compound_head(pgd_page(orig), refs);
++	if (!head) {
+ 		*nr -= refs;
+ 		return 0;
+ 	}
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -3984,6 +3984,7 @@ long follow_hugetlb_page(struct mm_struc
+ 	unsigned long vaddr = *position;
+ 	unsigned long remainder = *nr_pages;
+ 	struct hstate *h = hstate_vma(vma);
++	int err = -EFAULT;
+ 
+ 	while (vaddr < vma->vm_end && remainder) {
+ 		pte_t *pte;
+@@ -4055,6 +4056,19 @@ long follow_hugetlb_page(struct mm_struc
+ 
+ 		pfn_offset = (vaddr & ~huge_page_mask(h)) >> PAGE_SHIFT;
+ 		page = pte_page(huge_ptep_get(pte));
++
++		/*
++		 * Instead of doing 'try_get_page()' below in the same_page
++		 * loop, just check the count once here.
++		 */
++		if (unlikely(page_count(page) <= 0)) {
++			if (pages) {
++				spin_unlock(ptl);
++				remainder = 0;
++				err = -ENOMEM;
++				break;
++			}
++		}
+ same_page:
+ 		if (pages) {
+ 			pages[i] = mem_map_offset(page, pfn_offset);
+@@ -4081,7 +4095,7 @@ same_page:
+ 	*nr_pages = remainder;
+ 	*position = vaddr;
+ 
+-	return i ? i : -EFAULT;
++	return i ? i : err;
+ }
+ 
+ #ifndef __HAVE_ARCH_FLUSH_HUGETLB_TLB_RANGE
 
 
