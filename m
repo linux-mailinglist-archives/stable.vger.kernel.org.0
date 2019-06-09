@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 404743A6E8
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 18:44:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C0F13A94C
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:09:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729242AbfFIQoZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:44:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41482 "EHLO mail.kernel.org"
+        id S2388580AbfFIREO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 13:04:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729226AbfFIQoW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:44:22 -0400
+        id S2388577AbfFIREO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 13:04:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B6A8C2083D;
-        Sun,  9 Jun 2019 16:44:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1CD47206DF;
+        Sun,  9 Jun 2019 17:04:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560098662;
-        bh=IbZY1wu0VIF6IEEECk34YajSJdzWdpQU43F8PIme+90=;
+        s=default; t=1560099853;
+        bh=sdK1Xn6v9YbWQEGAiClWqejKazMG/VXN5F69IhQH0JM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cmDgqHXNvtrmrOuqGrMlErWQtWjmSZMrS9fJ/DvwJbsiEq7xU7ETxIklNc5rtbj9U
-         ilBZX2HHcePsHiNjtmrCQTKG2MgaSkfTMzNqlI4bsIUyJHQz7U3MItCDfOfh2kP9wC
-         Ba9T8RfuIlNtL1n5wLIr39keIVFsoELgJowdQg8g=
+        b=NpRdEmAtvJi7DtcT5WUN6b0uiyCYC0Orgc3k88UOhF9gSxqSyj14sl5uZOiAC3rLK
+         DXIOdRHQoUZ61dLeiGxf9JALTwlCsuPl8xHLChxL8mFo2KyNbNcFW5fAHVNguvA/ng
+         0S7n1J/9sQ/dW1L4OwBt9cP+x7d7BNY8CNzA1NKY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Kumlien <ian.kumlien@gmail.com>,
-        Alan Maguire <alan.maguire@oracle.com>,
-        David Ahern <dsahern@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.1 16/70] neighbor: Reset gc_entries counter if new entry is released before insert
+        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        linuxppc-dev@lists.ozlabs.org, linux-pm@vger.kernel.org,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 145/241] cpufreq/pasemi: fix possible object reference leak
 Date:   Sun,  9 Jun 2019 18:41:27 +0200
-Message-Id: <20190609164128.410311194@linuxfoundation.org>
+Message-Id: <20190609164151.967723685@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.541128197@linuxfoundation.org>
-References: <20190609164127.541128197@linuxfoundation.org>
+In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
+References: <20190609164147.729157653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,42 +46,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Ahern <dsahern@gmail.com>
+[ Upstream commit a9acc26b75f652f697e02a9febe2ab0da648a571 ]
 
-[ Upstream commit 64c6f4bbca748c3b2101469a76d88b7cd1c00476 ]
+The call to of_get_cpu_node returns a node pointer with refcount
+incremented thus it must be explicitly decremented after the last
+usage.
 
-Ian and Alan both reported seeing overflows after upgrades to 5.x kernels:
-  neighbour: arp_cache: neighbor table overflow!
+Detected by coccinelle with the following warnings:
+./drivers/cpufreq/pasemi-cpufreq.c:212:1-7: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 147, but without a corresponding object release within this function.
+./drivers/cpufreq/pasemi-cpufreq.c:220:1-7: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 147, but without a corresponding object release within this function.
 
-Alan's mpls script helped get to the bottom of this bug. When a new entry
-is created the gc_entries counter is bumped in neigh_alloc to check if a
-new one is allowed to be created. ___neigh_create then searches for an
-existing entry before inserting the just allocated one. If an entry
-already exists, the new one is dropped in favor of the existing one. In
-this case the cleanup path needs to drop the gc_entries counter. There
-is no memory leak, only a counter leak.
-
-Fixes: 58956317c8d ("neighbor: Improve garbage collection")
-Reported-by: Ian Kumlien <ian.kumlien@gmail.com>
-Reported-by: Alan Maguire <alan.maguire@oracle.com>
-Signed-off-by: David Ahern <dsahern@gmail.com>
-Tested-by: Alan Maguire <alan.maguire@oracle.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Viresh Kumar <viresh.kumar@linaro.org>
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-pm@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/neighbour.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/cpufreq/pasemi-cpufreq.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/core/neighbour.c
-+++ b/net/core/neighbour.c
-@@ -663,6 +663,8 @@ out:
- out_tbl_unlock:
- 	write_unlock_bh(&tbl->lock);
- out_neigh_release:
-+	if (!exempt_from_gc)
-+		atomic_dec(&tbl->gc_entries);
- 	neigh_release(n);
- 	goto out;
- }
+diff --git a/drivers/cpufreq/pasemi-cpufreq.c b/drivers/cpufreq/pasemi-cpufreq.c
+index 35dd4d7ffee08..58c933f483004 100644
+--- a/drivers/cpufreq/pasemi-cpufreq.c
++++ b/drivers/cpufreq/pasemi-cpufreq.c
+@@ -146,6 +146,7 @@ static int pas_cpufreq_cpu_init(struct cpufreq_policy *policy)
+ 
+ 	cpu = of_get_cpu_node(policy->cpu, NULL);
+ 
++	of_node_put(cpu);
+ 	if (!cpu)
+ 		goto out;
+ 
+-- 
+2.20.1
+
 
 
