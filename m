@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C711B3A98A
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:12:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 512FF3AAD7
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:23:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388193AbfFIRCL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 13:02:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39898 "EHLO mail.kernel.org"
+        id S1729265AbfFIQo0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:44:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388203AbfFIRCK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 13:02:10 -0400
+        id S1729206AbfFIQoZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:44:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 035F1204EC;
-        Sun,  9 Jun 2019 17:02:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5C3C420833;
+        Sun,  9 Jun 2019 16:44:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099729;
-        bh=JNOjyPgmgTSyte7PAbhbkFvqDoZLFEsnxxrNq7rCH/M=;
+        s=default; t=1560098664;
+        bh=+p/j7VtJkxXKygDn9Ou6xbFo1HpAs874xIRoz5BVtpE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T0bHODP+ETbiacs0GPjmXjtNiRRL79IJqddFv9FzFr55sPsn0GawI97KO2hoNbIBv
-         TO1lSaMbtE08BQAwNC1LqP1TOZ5P+wZGkpkGg4+YvqqkpQ/pZgVgyVuGTgVovG5xkJ
-         UO5+m+xlp3h9zJfOwGJnjILn/voX0+ZUKisu5gNU=
+        b=Ai+8LBSL708LuVtTTGoTUaoscI9YxqMqd8N4M4k1hGHUTepfE5kpn4ADGD3e/y5p/
+         viD7JsYzF06srTMVPj4DURtV/vqs3ReYiskVD0yP8PBCx7Ji2Qu/UtC1KGGaYdXeic
+         mRl31I7h+SOmS/5EPs2XKVjxVpNqRR6Ze9Ey7y3U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        linux-pm@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 146/241] cpufreq: pmac32: fix possible object reference leak
+        stable@vger.kernel.org, Alan Maguire <alan.maguire@oracle.com>,
+        David Ahern <dsahern@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.1 17/70] neighbor: Call __ipv4_neigh_lookup_noref in neigh_xmit
 Date:   Sun,  9 Jun 2019 18:41:28 +0200
-Message-Id: <20190609164151.995736751@linuxfoundation.org>
+Message-Id: <20190609164128.497688325@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
-References: <20190609164147.729157653@linuxfoundation.org>
+In-Reply-To: <20190609164127.541128197@linuxfoundation.org>
+References: <20190609164127.541128197@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,54 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 8d10dc28a9ea6e8c02e825dab28699f3c72b02d9 ]
+From: David Ahern <dsahern@gmail.com>
 
-The call to of_find_node_by_name returns a node pointer with refcount
-incremented thus it must be explicitly decremented after the last
-usage.
+[ Upstream commit 4b2a2bfeb3f056461a90bd621e8bd7d03fa47f60 ]
 
-Detected by coccinelle with the following warnings:
-./drivers/cpufreq/pmac32-cpufreq.c:557:2-8: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 552, but without a corresponding object release within this function.
-./drivers/cpufreq/pmac32-cpufreq.c:569:1-7: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 552, but without a corresponding object release within this function.
-./drivers/cpufreq/pmac32-cpufreq.c:598:1-7: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 587, but without a corresponding object release within this function.
+Commit cd9ff4de0107 changed the key for IFF_POINTOPOINT devices to
+INADDR_ANY but neigh_xmit which is used for MPLS encapsulations was not
+updated to use the altered key. The result is that every packet Tx does
+a lookup on the gateway address which does not find an entry, a new one
+is created only to find the existing one in the table right before the
+insert since arp_constructor was updated to reset the primary key. This
+is seen in the allocs and destroys counters:
+    ip -s -4 ntable show | head -10 | grep alloc
 
-Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
-Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
-Cc: Viresh Kumar <viresh.kumar@linaro.org>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: linux-pm@vger.kernel.org
-Cc: linuxppc-dev@lists.ozlabs.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+which increase for each packet showing the unnecessary overhread.
+
+Fix by having neigh_xmit use __ipv4_neigh_lookup_noref for NEIGH_ARP_TABLE.
+
+Fixes: cd9ff4de0107 ("ipv4: Make neigh lookup keys for loopback/point-to-point devices be INADDR_ANY")
+Reported-by: Alan Maguire <alan.maguire@oracle.com>
+Signed-off-by: David Ahern <dsahern@gmail.com>
+Tested-by: Alan Maguire <alan.maguire@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/cpufreq/pmac32-cpufreq.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/core/neighbour.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/cpufreq/pmac32-cpufreq.c b/drivers/cpufreq/pmac32-cpufreq.c
-index 1f49d97a70ea1..14928e0dc3265 100644
---- a/drivers/cpufreq/pmac32-cpufreq.c
-+++ b/drivers/cpufreq/pmac32-cpufreq.c
-@@ -549,6 +549,7 @@ static int pmac_cpufreq_init_7447A(struct device_node *cpunode)
- 	volt_gpio_np = of_find_node_by_name(NULL, "cpu-vcore-select");
- 	if (volt_gpio_np)
- 		voltage_gpio = read_gpio(volt_gpio_np);
-+	of_node_put(volt_gpio_np);
- 	if (!voltage_gpio){
- 		printk(KERN_ERR "cpufreq: missing cpu-vcore-select gpio\n");
- 		return 1;
-@@ -585,6 +586,7 @@ static int pmac_cpufreq_init_750FX(struct device_node *cpunode)
- 	if (volt_gpio_np)
- 		voltage_gpio = read_gpio(volt_gpio_np);
- 
-+	of_node_put(volt_gpio_np);
- 	pvr = mfspr(SPRN_PVR);
- 	has_cpu_l2lve = !((pvr & 0xf00) == 0x100);
- 
--- 
-2.20.1
-
+--- a/net/core/neighbour.c
++++ b/net/core/neighbour.c
+@@ -31,6 +31,7 @@
+ #include <linux/times.h>
+ #include <net/net_namespace.h>
+ #include <net/neighbour.h>
++#include <net/arp.h>
+ #include <net/dst.h>
+ #include <net/sock.h>
+ #include <net/netevent.h>
+@@ -2984,7 +2985,13 @@ int neigh_xmit(int index, struct net_dev
+ 		if (!tbl)
+ 			goto out;
+ 		rcu_read_lock_bh();
+-		neigh = __neigh_lookup_noref(tbl, addr, dev);
++		if (index == NEIGH_ARP_TABLE) {
++			u32 key = *((u32 *)addr);
++
++			neigh = __ipv4_neigh_lookup_noref(dev, key);
++		} else {
++			neigh = __neigh_lookup_noref(tbl, addr, dev);
++		}
+ 		if (!neigh)
+ 			neigh = __neigh_create(tbl, addr, dev, false);
+ 		err = PTR_ERR(neigh);
 
 
