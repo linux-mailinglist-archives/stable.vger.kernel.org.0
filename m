@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 667E23AAD5
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:23:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B6F23A951
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:09:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729150AbfFIQoV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:44:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41432 "EHLO mail.kernel.org"
+        id S2388196AbfFIREM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 13:04:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729206AbfFIQoU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:44:20 -0400
+        id S2388188AbfFIREL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 13:04:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2979320833;
-        Sun,  9 Jun 2019 16:44:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 79733204EC;
+        Sun,  9 Jun 2019 17:04:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560098659;
-        bh=vM+XpS86ehyLhuMx/xsTgBStL6Ffh2kI8sFMlWGzlhU=;
+        s=default; t=1560099851;
+        bh=/9gO1owKbVSEM1J1l/p0XqI3NOncT/RkO+xEAx1EsGc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NEL9YnRD5OTQzxaVcGH7GoF7ezmIGbYiulF+nPjKpgGwPekykfAVgxSgsLp2WeG+m
-         L4z41DEeJ4H5iVi8Aowts57hfAj9s7wRnV2R+K7L3uxAvlPDxcrmpRXPI/+PpCSe+s
-         tjwXDHOdLOAy9ZY4lCGOeAMFcSW4Ff7awhOIWKB8=
+        b=AdpFGPE1PKAWq1Hsyg1lLwMf1Qb1kdlCmf2JDKgdSrQi8MOyGtLIWa9SLgLHp55dA
+         tGp2ayb66YWEpfd1gz0zlT0J92hIiXuFeLl3QLS0Wp5egNiS7BYQBQ8mRbtGMUg8YX
+         EpnzM84Gn8LPJ/ERNlbGPH4A8QMsfl67Z6c8WuzQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nikita Danilov <nikita.danilov@aquantia.com>,
-        Igor Russkikh <igor.russkikh@aquantia.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.1 15/70] net: aquantia: fix wol configuration not applied sometimes
+        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
+        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        linux-pm@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 144/241] cpufreq: ppc_cbe: fix possible object reference leak
 Date:   Sun,  9 Jun 2019 18:41:26 +0200
-Message-Id: <20190609164128.353423890@linuxfoundation.org>
+Message-Id: <20190609164151.938049205@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.541128197@linuxfoundation.org>
-References: <20190609164127.541128197@linuxfoundation.org>
+In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
+References: <20190609164147.729157653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,82 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikita Danilov <nikita.danilov@aquantia.com>
+[ Upstream commit 233298032803f2802fe99892d0de4ab653bfece4 ]
 
-[ Upstream commit 930b9a0543385d4eb8ef887e88cf84d95a844577 ]
+The call to of_get_cpu_node returns a node pointer with refcount
+incremented thus it must be explicitly decremented after the last
+usage.
 
-WoL magic packet configuration sometimes does not work due to
-couple of leakages found.
+Detected by coccinelle with the following warnings:
+./drivers/cpufreq/ppc_cbe_cpufreq.c:89:2-8: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 76, but without a corresponding object release within this function.
+./drivers/cpufreq/ppc_cbe_cpufreq.c:89:2-8: ERROR: missing of_node_put; acquired a node pointer with refcount incremented on line 76, but without a corresponding object release within this function.
 
-Mainly there was a regression introduced during readx_poll refactoring.
-
-Next, fw request waiting time was too small. Sometimes that
-caused sleep proxy config function to return with an error
-and to skip WoL configuration.
-At last, WoL data were passed to FW from not clean buffer.
-That could cause FW to accept garbage as a random configuration data.
-
-Fixes: 6a7f2277313b ("net: aquantia: replace AQ_HW_WAIT_FOR with readx_poll_timeout_atomic")
-Signed-off-by: Nikita Danilov <nikita.danilov@aquantia.com>
-Signed-off-by: Igor Russkikh <igor.russkikh@aquantia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Viresh Kumar <viresh.kumar@linaro.org>
+Cc: linux-pm@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_utils.c      |   14 +++++-----
- drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_utils_fw2x.c |    4 ++
- 2 files changed, 10 insertions(+), 8 deletions(-)
+ drivers/cpufreq/ppc_cbe_cpufreq.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_utils.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_utils.c
-@@ -335,13 +335,13 @@ static int hw_atl_utils_fw_upload_dwords
- {
- 	u32 val;
- 	int err = 0;
--	bool is_locked;
+diff --git a/drivers/cpufreq/ppc_cbe_cpufreq.c b/drivers/cpufreq/ppc_cbe_cpufreq.c
+index 5a4c5a639f618..2eaeebcc93afe 100644
+--- a/drivers/cpufreq/ppc_cbe_cpufreq.c
++++ b/drivers/cpufreq/ppc_cbe_cpufreq.c
+@@ -86,6 +86,7 @@ static int cbe_cpufreq_cpu_init(struct cpufreq_policy *policy)
+ 	if (!cbe_get_cpu_pmd_regs(policy->cpu) ||
+ 	    !cbe_get_cpu_mic_tm_regs(policy->cpu)) {
+ 		pr_info("invalid CBE regs pointers for cpufreq\n");
++		of_node_put(cpu);
+ 		return -EINVAL;
+ 	}
  
--	is_locked = hw_atl_sem_ram_get(self);
--	if (!is_locked) {
--		err = -ETIME;
-+	err = readx_poll_timeout_atomic(hw_atl_sem_ram_get, self,
-+					val, val == 1U,
-+					10U, 100000U);
-+	if (err < 0)
- 		goto err_exit;
--	}
-+
- 	if (IS_CHIP_FEATURE(REVISION_B1)) {
- 		u32 offset = 0;
- 
-@@ -353,8 +353,8 @@ static int hw_atl_utils_fw_upload_dwords
- 			/* 1000 times by 10us = 10ms */
- 			err = readx_poll_timeout_atomic(hw_atl_scrpad12_get,
- 							self, val,
--							(val & 0xF0000000) ==
--							 0x80000000,
-+							(val & 0xF0000000) !=
-+							0x80000000,
- 							10U, 10000U);
- 		}
- 	} else {
---- a/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_utils_fw2x.c
-+++ b/drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_utils_fw2x.c
-@@ -349,7 +349,7 @@ static int aq_fw2x_set_sleep_proxy(struc
- 	err = readx_poll_timeout_atomic(aq_fw2x_state2_get,
- 					self, val,
- 					val & HW_ATL_FW2X_CTRL_SLEEP_PROXY,
--					1U, 10000U);
-+					1U, 100000U);
- 
- err_exit:
- 	return err;
-@@ -369,6 +369,8 @@ static int aq_fw2x_set_wol_params(struct
- 
- 	msg = (struct fw2x_msg_wol *)rpc;
- 
-+	memset(msg, 0, sizeof(*msg));
-+
- 	msg->msg_id = HAL_ATLANTIC_UTILS_FW2X_MSG_WOL;
- 	msg->magic_packet_enabled = true;
- 	memcpy(msg->hw_addr, mac, ETH_ALEN);
+-- 
+2.20.1
+
 
 
