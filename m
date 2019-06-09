@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C132C3A7B1
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 18:53:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C18DC3A6F2
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 18:45:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731381AbfFIQwR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:52:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53044 "EHLO mail.kernel.org"
+        id S1729476AbfFIQou (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:44:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732154AbfFIQwQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:52:16 -0400
+        id S1729457AbfFIQor (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:44:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 96AF3206BB;
-        Sun,  9 Jun 2019 16:52:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D63DC2084A;
+        Sun,  9 Jun 2019 16:44:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099136;
-        bh=uA1XUY8Y9JhDRjVcaTRxjH3VmToFHsV8hi0Ve44fnq4=;
+        s=default; t=1560098686;
+        bh=M7LJnhvvvtA9Zwb4nMxS0ANRE6HLPg0e+nHjz18Pyjw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jqGvNbrzxUip7dqQ0xT8vr7RuO5igPsQbDRb6InlQYMuZeSmiiW7BwtPRl/Ja1j1R
-         Z6/+NO6qnEmeOZBQ4fywRIXyy5GMUClz9jA6B4m8AKOcBvMVSnj263lypzaWBC/frW
-         gW7xcMWiFwhw8hpLfMjhfFmAa9BX3yduWPTcx0Ag=
+        b=NcrjyGruYyseEeGl8glnWqeFBbuFDNDlOksq3CHtgFZ7VuX1uzwnLzEyssTjOHpd3
+         uIYuSSZM3hzKAwyTD6CqmWAt2btO44yuTySTiFhinXTxwuiRPmKV/rrjC/QiK9U66B
+         KQcKXT1LHK9yeSl8sFxDH+YVkfsRQYBYfaXVUr+8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 04/83] net-gro: fix use-after-free read in napi_gro_frags()
-Date:   Sun,  9 Jun 2019 18:41:34 +0200
-Message-Id: <20190609164128.066835650@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>,
+        Vineet Gupta <vgupta@synopsys.com>
+Subject: [PATCH 5.1 24/70] ARC: mm: SIGSEGV userspace trying to access kernel virtual memory
+Date:   Sun,  9 Jun 2019 18:41:35 +0200
+Message-Id: <20190609164129.046993468@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.843327870@linuxfoundation.org>
-References: <20190609164127.843327870@linuxfoundation.org>
+In-Reply-To: <20190609164127.541128197@linuxfoundation.org>
+References: <20190609164127.541128197@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,69 +44,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
 
-[ Upstream commit a4270d6795b0580287453ea55974d948393e66ef ]
+commit a8c715b4dd73c26a81a9cc8dc792aa715d8b4bb2 upstream.
 
-If a network driver provides to napi_gro_frags() an
-skb with a page fragment of exactly 14 bytes, the call
-to gro_pull_from_frag0() will 'consume' the fragment
-by calling skb_frag_unref(skb, 0), and the page might
-be freed and reused.
+As of today if userspace process tries to access a kernel virtual addres
+(0x7000_0000 to 0x7ffff_ffff) such that a legit kernel mapping already
+exists, that process hangs instead of being killed with SIGSEGV
 
-Reading eth->h_proto at the end of napi_frags_skb() might
-read mangled data, or crash under specific debugging features.
+Fix that by ensuring that do_page_fault() handles kenrel vaddr only if
+in kernel mode.
 
-BUG: KASAN: use-after-free in napi_frags_skb net/core/dev.c:5833 [inline]
-BUG: KASAN: use-after-free in napi_gro_frags+0xc6f/0xd10 net/core/dev.c:5841
-Read of size 2 at addr ffff88809366840c by task syz-executor599/8957
+And given this, we can also simplify the code a bit. Now a vmalloc fault
+implies kernel mode so its failure (for some reason) can reuse the
+@no_context label and we can remove @bad_area_nosemaphore.
 
-CPU: 1 PID: 8957 Comm: syz-executor599 Not tainted 5.2.0-rc1+ #32
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x172/0x1f0 lib/dump_stack.c:113
- print_address_description.cold+0x7c/0x20d mm/kasan/report.c:188
- __kasan_report.cold+0x1b/0x40 mm/kasan/report.c:317
- kasan_report+0x12/0x20 mm/kasan/common.c:614
- __asan_report_load_n_noabort+0xf/0x20 mm/kasan/generic_report.c:142
- napi_frags_skb net/core/dev.c:5833 [inline]
- napi_gro_frags+0xc6f/0xd10 net/core/dev.c:5841
- tun_get_user+0x2f3c/0x3ff0 drivers/net/tun.c:1991
- tun_chr_write_iter+0xbd/0x156 drivers/net/tun.c:2037
- call_write_iter include/linux/fs.h:1872 [inline]
- do_iter_readv_writev+0x5f8/0x8f0 fs/read_write.c:693
- do_iter_write fs/read_write.c:970 [inline]
- do_iter_write+0x184/0x610 fs/read_write.c:951
- vfs_writev+0x1b3/0x2f0 fs/read_write.c:1015
- do_writev+0x15b/0x330 fs/read_write.c:1058
+Reproduce user test for original problem:
 
-Fixes: a50e233c50db ("net-gro: restore frag0 optimization")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+------------------------>8-----------------
+ #include <stdlib.h>
+ #include <stdint.h>
+
+ int main(int argc, char *argv[])
+ {
+ 	volatile uint32_t temp;
+
+ 	temp = *(uint32_t *)(0x70000000);
+ }
+------------------------>8-----------------
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/core/dev.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -4828,7 +4828,6 @@ static struct sk_buff *napi_frags_skb(st
- 	skb_reset_mac_header(skb);
- 	skb_gro_reset_offset(skb);
+---
+ arch/arc/mm/fault.c |    9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
+
+--- a/arch/arc/mm/fault.c
++++ b/arch/arc/mm/fault.c
+@@ -66,7 +66,7 @@ void do_page_fault(unsigned long address
+ 	struct vm_area_struct *vma = NULL;
+ 	struct task_struct *tsk = current;
+ 	struct mm_struct *mm = tsk->mm;
+-	int si_code = 0;
++	int si_code = SEGV_MAPERR;
+ 	int ret;
+ 	vm_fault_t fault;
+ 	int write = regs->ecr_cause & ECR_C_PROTV_STORE;  /* ST/EX */
+@@ -81,16 +81,14 @@ void do_page_fault(unsigned long address
+ 	 * only copy the information from the master page table,
+ 	 * nothing more.
+ 	 */
+-	if (address >= VMALLOC_START) {
++	if (address >= VMALLOC_START && !user_mode(regs)) {
+ 		ret = handle_kernel_vaddr_fault(address);
+ 		if (unlikely(ret))
+-			goto bad_area_nosemaphore;
++			goto no_context;
+ 		else
+ 			return;
+ 	}
  
--	eth = skb_gro_header_fast(skb, 0);
- 	if (unlikely(skb_gro_header_hard(skb, hlen))) {
- 		eth = skb_gro_header_slow(skb, hlen, 0);
- 		if (unlikely(!eth)) {
-@@ -4838,6 +4837,7 @@ static struct sk_buff *napi_frags_skb(st
- 			return NULL;
- 		}
- 	} else {
-+		eth = (const struct ethhdr *)skb->data;
- 		gro_pull_from_frag0(skb, hlen);
- 		NAPI_GRO_CB(skb)->frag0 += hlen;
- 		NAPI_GRO_CB(skb)->frag0_len -= hlen;
+-	si_code = SEGV_MAPERR;
+-
+ 	/*
+ 	 * If we're in an interrupt or have no user
+ 	 * context, we must not take the fault..
+@@ -198,7 +196,6 @@ good_area:
+ bad_area:
+ 	up_read(&mm->mmap_sem);
+ 
+-bad_area_nosemaphore:
+ 	/* User mode accesses just cause a SIGSEGV */
+ 	if (user_mode(regs)) {
+ 		tsk->thread.fault_address = address;
 
 
