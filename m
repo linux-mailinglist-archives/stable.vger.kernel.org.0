@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 130243A738
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 18:47:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EA6A3A72F
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 18:47:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730843AbfFIQr1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:47:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46104 "EHLO mail.kernel.org"
+        id S1730767AbfFIQrI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:47:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730839AbfFIQr0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:47:26 -0400
+        id S1730735AbfFIQrH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:47:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 76C95205ED;
-        Sun,  9 Jun 2019 16:47:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A70F42081C;
+        Sun,  9 Jun 2019 16:47:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560098845;
-        bh=CTjBzB+KJIVMPus7iBajhkmtdUk36gXw7ErqSCDYUOs=;
+        s=default; t=1560098827;
+        bh=Nggsw0KzbLBQhB1nqN+J0wSd06FmF8uIhVN1dpIoAP0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m+iR1uO2yQm0uVQupat/I07OuGlrMxYDrBa8vcioljaVXQMkbaPDYj2MRn+LifvIA
-         ucCLILMVwtzz/5RBbAEsR+fkIPqGeM6WRv6SbLC3XpAoJNF/zAnldqf+fVVTyq57L6
-         Ea8Y1yRG8Fa88RGf+M0VBAOwM1Yp82DsYe72IJjc=
+        b=b6GMxDfIBdLkoPjro0icDS69hJGICT096QJ9gRl00SibbMqJEM8tka4iQW3z4Yspl
+         ipGkyi7dks877C9BnKeJJCLOiE2144jleoPvxDkuIQPLx1p+xVFSLmM0YNa8NStjix
+         i5Pdd3UeEo8sT9JWg/3zhGTz+Hrfvjtsw+GfqR+4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, syzbot <syzkaller@googlegroups.com>,
-        Willem de Bruijn <willemb@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dmitry Vyukov <dvyukov@google.com>
-Subject: [PATCH 4.19 12/51] packet: unconditionally free po->rollover
+        stable@vger.kernel.org, Janosch Frank <frankja@linux.ibm.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@de.ibm.com>
+Subject: [PATCH 5.1 42/70] s390/mm: fix address space detection in exception handling
 Date:   Sun,  9 Jun 2019 18:41:53 +0200
-Message-Id: <20190609164127.826684331@linuxfoundation.org>
+Message-Id: <20190609164130.814053228@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.123076536@linuxfoundation.org>
-References: <20190609164127.123076536@linuxfoundation.org>
+In-Reply-To: <20190609164127.541128197@linuxfoundation.org>
+References: <20190609164127.541128197@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willem de Bruijn <willemb@google.com>
+From: Gerald Schaefer <gerald.schaefer@de.ibm.com>
 
-[ Upstream commit afa0925c6fcc6a8f610e996ca09bc3215048033c ]
+commit 962f0af83c239c0aef05639631e871c874b00f99 upstream.
 
-Rollover used to use a complex RCU mechanism for assignment, which had
-a race condition. The below patch fixed the bug and greatly simplified
-the logic.
+Commit 0aaba41b58bc ("s390: remove all code using the access register
+mode") removed access register mode from the kernel, and also from the
+address space detection logic. However, user space could still switch
+to access register mode (trans_exc_code == 1), and exceptions in that
+mode would not be correctly assigned.
 
-The feature depends on fanout, but the state is private to the socket.
-Fanout_release returns f only when the last member leaves and the
-fanout struct is to be freed.
+Fix this by adding a check for trans_exc_code == 1 to get_fault_type(),
+and remove the wrong comment line before that function.
 
-Destroy rollover unconditionally, regardless of fanout state.
-
-Fixes: 57f015f5eccf2 ("packet: fix crash in fanout_demux_rollover()")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Diagnosed-by: Dmitry Vyukov <dvyukov@google.com>
-Signed-off-by: Willem de Bruijn <willemb@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 0aaba41b58bc ("s390: remove all code using the access register mode")
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: <stable@vger.kernel.org> # v4.15+
+Signed-off-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/packet/af_packet.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/packet/af_packet.c
-+++ b/net/packet/af_packet.c
-@@ -3017,8 +3017,8 @@ static int packet_release(struct socket
+---
+ arch/s390/mm/fault.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+--- a/arch/s390/mm/fault.c
++++ b/arch/s390/mm/fault.c
+@@ -83,7 +83,6 @@ static inline int notify_page_fault(stru
  
- 	synchronize_net();
- 
-+	kfree(po->rollover);
- 	if (f) {
--		kfree(po->rollover);
- 		fanout_release_data(f);
- 		kfree(f);
+ /*
+  * Find out which address space caused the exception.
+- * Access register mode is impossible, ignore space == 3.
+  */
+ static inline enum fault_type get_fault_type(struct pt_regs *regs)
+ {
+@@ -108,6 +107,10 @@ static inline enum fault_type get_fault_
+ 		}
+ 		return VDSO_FAULT;
  	}
++	if (trans_exc_code == 1) {
++		/* access register mode, not used in the kernel */
++		return USER_FAULT;
++	}
+ 	/* home space exception -> access via kernel ASCE */
+ 	return KERNEL_FAULT;
+ }
 
 
