@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 34A293A9A9
+	by mail.lfdr.de (Postfix) with ESMTP id A842F3A9AA
 	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:13:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387539AbfFIQ6u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:58:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34278 "EHLO mail.kernel.org"
+        id S1732481AbfFIQ6x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:58:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732449AbfFIQ6u (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:58:50 -0400
+        id S1732775AbfFIQ6w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:58:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 28659204EC;
-        Sun,  9 Jun 2019 16:58:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C32B320833;
+        Sun,  9 Jun 2019 16:58:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099529;
-        bh=hUrbPY7IN/rpIaxZKcAD7a2dpTEBENJLSDw7TYuQIG0=;
+        s=default; t=1560099532;
+        bh=qLAEovgYB/pUNzZ7v7oRR5Izfdc4Tkjh16+YMHLw77Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1om3Zk5I6ut4E6cRhKre+wsWMkr1kY9oaNokLBxxErORP0KWOKXyxzN+PW8n4cnJs
-         R6Wo7N83Ow7P/ZLCfsOJx812tcdQ+J90jL+tAUBwWQ7NP0mU2T/yp2uRORw0SDBs51
-         E+fQhoB1pSBX331zfNqgA4v7HDHEU0ECgkxwYxkw=
+        b=ZMgxMxUK3Gkgk9uVV03IFzmFx2VrBGAlxqTweyt9gQJ2FABjmIA7kBkMZrYdzMS+F
+         gIw5+rH8HSY7swIegbVF2qAjZ3GUb+4KjFshObgdRPWYH0WXIbo43hs3jGturg3UiT
+         DWqCSS1sGvpfoHM8cvFQHiJ0kHs074aL88p5i5ks=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>,
-        Nigel Croxon <ncroxon@redhat.com>, Xiao Ni <xni@redhat.com>,
+        Nigel Croxon <ncroxon@redhat.com>,
         Song Liu <songliubraving@fb.com>
-Subject: [PATCH 4.4 072/241] Revert "Dont jump to compute_result state from check_result state"
-Date:   Sun,  9 Jun 2019 18:40:14 +0200
-Message-Id: <20190609164149.850042067@linuxfoundation.org>
+Subject: [PATCH 4.4 073/241] md/raid: raid5 preserve the writeback action after the parity check
+Date:   Sun,  9 Jun 2019 18:40:15 +0200
+Message-Id: <20190609164149.882476432@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
 References: <20190609164147.729157653@linuxfoundation.org>
@@ -44,54 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Song Liu <songliubraving@fb.com>
+From: Nigel Croxon <ncroxon@redhat.com>
 
-commit a25d8c327bb41742dbd59f8c545f59f3b9c39983 upstream.
+commit b2176a1dfb518d870ee073445d27055fea64dfb8 upstream.
 
-This reverts commit 4f4fd7c5798bbdd5a03a60f6269cf1177fbd11ef.
+The problem is that any 'uptodate' vs 'disks' check is not precise
+in this path. Put a "WARN_ON(!test_bit(R5_UPTODATE, &dev->flags)" on the
+device that might try to kick off writes and then skip the action.
+Better to prevent the raid driver from taking unexpected action *and* keep
+the system alive vs killing the machine with BUG_ON.
 
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Nigel Croxon <ncroxon@redhat.com>
-Cc: Xiao Ni <xni@redhat.com>
+Note: fixed warning reported by kbuild test robot <lkp@intel.com>
+
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Nigel Croxon <ncroxon@redhat.com>
 Signed-off-by: Song Liu <songliubraving@fb.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/md/raid5.c |   19 +++++++++++++++----
- 1 file changed, 15 insertions(+), 4 deletions(-)
+ drivers/md/raid5.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
 --- a/drivers/md/raid5.c
 +++ b/drivers/md/raid5.c
-@@ -3897,15 +3897,26 @@ static void handle_parity_checks6(struct
- 	case check_state_check_result:
- 		sh->check_state = check_state_idle;
- 
--		if (s->failed > 1)
--			break;
- 		/* handle a successful check operation, if parity is correct
- 		 * we are done.  Otherwise update the mismatch count and repair
- 		 * parity if !MD_RECOVERY_CHECK
+@@ -3861,7 +3861,7 @@ static void handle_parity_checks6(struct
+ 		/* now write out any block on a failed drive,
+ 		 * or P or Q if they were recomputed
  		 */
- 		if (sh->ops.zero_sum_result == 0) {
--			/* Any parity checked was correct */
--			set_bit(STRIPE_INSYNC, &sh->state);
-+			/* both parities are correct */
-+			if (!s->failed)
-+				set_bit(STRIPE_INSYNC, &sh->state);
-+			else {
-+				/* in contrast to the raid5 case we can validate
-+				 * parity, but still have a failure to write
-+				 * back
-+				 */
-+				sh->check_state = check_state_compute_result;
-+				/* Returning at this point means that we may go
-+				 * off and bring p and/or q uptodate again so
-+				 * we make sure to check zero_sum_result again
-+				 * to verify if p or q need writeback
-+				 */
-+			}
- 		} else {
- 			atomic64_add(STRIPE_SECTORS, &conf->mddev->resync_mismatches);
- 			if (test_bit(MD_RECOVERY_CHECK, &conf->mddev->recovery))
+-		BUG_ON(s->uptodate < disks - 1); /* We don't need Q to recover */
++		dev = NULL;
+ 		if (s->failed == 2) {
+ 			dev = &sh->dev[s->failed_num[1]];
+ 			s->locked++;
+@@ -3886,6 +3886,14 @@ static void handle_parity_checks6(struct
+ 			set_bit(R5_LOCKED, &dev->flags);
+ 			set_bit(R5_Wantwrite, &dev->flags);
+ 		}
++		if (WARN_ONCE(dev && !test_bit(R5_UPTODATE, &dev->flags),
++			      "%s: disk%td not up to date\n",
++			      mdname(conf->mddev),
++			      dev - (struct r5dev *) &sh->dev)) {
++			clear_bit(R5_LOCKED, &dev->flags);
++			clear_bit(R5_Wantwrite, &dev->flags);
++			s->locked--;
++		}
+ 		clear_bit(STRIPE_DEGRADED, &sh->state);
+ 
+ 		set_bit(STRIPE_INSYNC, &sh->state);
 
 
