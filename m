@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 451B83A7E7
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 18:55:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82AF03A91E
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:07:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732315AbfFIQzC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:55:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56938 "EHLO mail.kernel.org"
+        id S1729386AbfFIRGV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 13:06:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732726AbfFIQy7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:54:59 -0400
+        id S2388588AbfFIRGV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 13:06:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E47C0206BB;
-        Sun,  9 Jun 2019 16:54:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5029D204EC;
+        Sun,  9 Jun 2019 17:06:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099298;
-        bh=nCnfGX5yZs5PaQHkOfdYyZZA8GG57QB1c5RcTkz5vrc=;
+        s=default; t=1560099980;
+        bh=dbiKq53ZEdnYqOxVXfRDsv9rp54xWHJH215bvi/pXPY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZaaMv/OnjmofPP2IIKIinAWzDsydQr6Ps3JFUcLXI4/m+mnxqRxo0BrGuPqlsGwjl
-         cVRjSygTQJXQ6uo4V86QrWvUb+XOB+1xb8icV3edjoGt0BzC2uUcsBXOiHkb650HOC
-         bFT6iHXV5BZE2nOW14m8hnnskehEhlOZ9/M0EqCo=
+        b=2N98+dLwzRCBDXIJWKoacstGDJTFIl/aHx5vXYvL4OE3+50BEVh1eXdXrgqXDyK1g
+         YhdGaxWgL7z66UsZK3KM1DEIiKP5sMyWwT2YezbcBgqdM/NqWneCZ8GNdwYm7hm8x0
+         M1ctXJz0ImVnKev/eW/ki2zCWOjvwMboXZDrhl7Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Subject: [PATCH 4.9 80/83] drm/i915: Fix I915_EXEC_RING_MASK
+        stable@vger.kernel.org, Nadav Amit <namit@vmware.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Doug Anderson <dianders@chromium.org>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.4 228/241] media: uvcvideo: Fix uvc_alloc_entity() allocation alignment
 Date:   Sun,  9 Jun 2019 18:42:50 +0200
-Message-Id: <20190609164134.763326048@linuxfoundation.org>
+Message-Id: <20190609164155.298801610@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.843327870@linuxfoundation.org>
-References: <20190609164127.843327870@linuxfoundation.org>
+In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
+References: <20190609164147.729157653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,38 +46,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
+From: Nadav Amit <namit@vmware.com>
 
-commit d90c06d57027203f73021bb7ddb30b800d65c636 upstream.
+commit 89dd34caf73e28018c58cd193751e41b1f8bdc56 upstream.
 
-This was supposed to be a mask of all known rings, but it is being used
-by execbuffer to filter out invalid rings, and so is instead mapping high
-unused values onto valid rings. Instead of a mask of all known rings,
-we need it to be the mask of all possible rings.
+The use of ALIGN() in uvc_alloc_entity() is incorrect, since the size of
+(entity->pads) is not a power of two. As a stop-gap, until a better
+solution is adapted, use roundup() instead.
 
-Fixes: 549f7365820a ("drm/i915: Enable SandyBridge blitter ring")
-Fixes: de1add360522 ("drm/i915: Decouple execbuf uAPI from internal implementation")
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Cc: <stable@vger.kernel.org> # v4.6+
-Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190301140404.26690-21-chris@chris-wilson.co.uk
+Found by a static assertion. Compile-tested only.
+
+Fixes: 4ffc2d89f38a ("uvcvideo: Register subdevices for each entity")
+
+Signed-off-by: Nadav Amit <namit@vmware.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Cc: Doug Anderson <dianders@chromium.org>
+Cc: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/uapi/drm/i915_drm.h |    2 +-
+ drivers/media/usb/uvc/uvc_driver.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/uapi/drm/i915_drm.h
-+++ b/include/uapi/drm/i915_drm.h
-@@ -756,7 +756,7 @@ struct drm_i915_gem_execbuffer2 {
- 	__u32 num_cliprects;
- 	/** This is a struct drm_clip_rect *cliprects */
- 	__u64 cliprects_ptr;
--#define I915_EXEC_RING_MASK              (7<<0)
-+#define I915_EXEC_RING_MASK              (0x3f)
- #define I915_EXEC_DEFAULT                (0<<0)
- #define I915_EXEC_RENDER                 (1<<0)
- #define I915_EXEC_BSD                    (2<<0)
+--- a/drivers/media/usb/uvc/uvc_driver.c
++++ b/drivers/media/usb/uvc/uvc_driver.c
+@@ -868,7 +868,7 @@ static struct uvc_entity *uvc_alloc_enti
+ 	unsigned int size;
+ 	unsigned int i;
+ 
+-	extra_size = ALIGN(extra_size, sizeof(*entity->pads));
++	extra_size = roundup(extra_size, sizeof(*entity->pads));
+ 	num_inputs = (type & UVC_TERM_OUTPUT) ? num_pads : num_pads - 1;
+ 	size = sizeof(*entity) + extra_size + sizeof(*entity->pads) * num_pads
+ 	     + num_inputs;
 
 
