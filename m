@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B62793AAB1
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:21:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 371213A75B
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 18:49:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731634AbfFIRUm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 13:20:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45448 "EHLO mail.kernel.org"
+        id S1730097AbfFIQsy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:48:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729678AbfFIQq7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:46:59 -0400
+        id S1731334AbfFIQsy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:48:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5F5C720833;
-        Sun,  9 Jun 2019 16:46:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ADE86205ED;
+        Sun,  9 Jun 2019 16:48:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560098818;
-        bh=+DdyUJJARkx/BvERWHEtustyPlb2PjQGw2nsot5s5Uc=;
+        s=default; t=1560098934;
+        bh=E2Rdlv7uSDPtJzLGVT8UvHslPJ1nncPg72gVgMTpO0Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FZQAB4lOvZRExp0DvX0PvrpxfvwKwYMQL6ezzrWIHRcVcQ7xBsCb2yd/q+RhTErxa
-         gBou9PDTIQIg7cMWArRzpBKbYsCdcAsbc07BRvbQCT5Rv7ypm3GI+IeCI4KjvaGHzs
-         0xfZVsOs2thr87Bd2rVtQZW8n3r6sOxo5ROKNFHI=
+        b=O2r/Uu9ZbbJX0xUdcGx0556HGECzYPMO6a0cRBi6lQUAnKxr1ckybgkZeXoJ9GQjU
+         uvtU/iqyY3RLOCboULMwcIHkY9qAiBrwg+7qIqK8BWBonxzbflP4ZOyo8U7Sphb1Oq
+         0Ga8JKIjqnCLRRSrT4XDr0W6HN+c3guC3OMVxiRM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>,
-        Pavel Machek <pavel@ucw.cz>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.1 39/70] x86/power: Fix nosmt vs hibernation triple fault during resume
-Date:   Sun,  9 Jun 2019 18:41:50 +0200
-Message-Id: <20190609164130.488111346@linuxfoundation.org>
+        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
+        Andrew Lunn <andrew@lunn.ch>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 10/51] net: sfp: read eeprom in maximum 16 byte increments
+Date:   Sun,  9 Jun 2019 18:41:51 +0200
+Message-Id: <20190609164127.735353425@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.541128197@linuxfoundation.org>
-References: <20190609164127.541128197@linuxfoundation.org>
+In-Reply-To: <20190609164127.123076536@linuxfoundation.org>
+References: <20190609164127.123076536@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,187 +44,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Kosina <jkosina@suse.cz>
+From: Russell King <rmk+kernel@armlinux.org.uk>
 
-commit ec527c318036a65a083ef68d8ba95789d2212246 upstream.
+[ Upstream commit 28e74a7cfd6403f0d1c0f8b10b45d6fae37b227e ]
 
-As explained in
+Some SFP modules do not like reads longer than 16 bytes, so read the
+EEPROM in chunks of 16 bytes at a time.  This behaviour is not specified
+in the SFP MSAs, which specifies:
 
-	0cc3cd21657b ("cpu/hotplug: Boot HT siblings at least once")
+ "The serial interface uses the 2-wire serial CMOS E2PROM protocol
+  defined for the ATMEL AT24C01A/02/04 family of components."
 
-we always, no matter what, have to bring up x86 HT siblings during boot at
-least once in order to avoid first MCE bringing the system to its knees.
+and
 
-That means that whenever 'nosmt' is supplied on the kernel command-line,
-all the HT siblings are as a result sitting in mwait or cpudile after
-going through the online-offline cycle at least once.
+ "As long as the SFP+ receives an acknowledge, it shall serially clock
+  out sequential data words. The sequence is terminated when the host
+  responds with a NACK and a STOP instead of an acknowledge."
 
-This causes a serious issue though when a kernel, which saw 'nosmt' on its
-commandline, is going to perform resume from hibernation: if the resume
-from the hibernated image is successful, cr3 is flipped in order to point
-to the address space of the kernel that is being resumed, which in turn
-means that all the HT siblings are all of a sudden mwaiting on address
-which is no longer valid.
+We must avoid breaking a read across a 16-bit quantity in the diagnostic
+page, thankfully all 16-bit quantities in that page are naturally
+aligned.
 
-That results in triple fault shortly after cr3 is switched, and machine
-reboots.
-
-Fix this by always waking up all the SMT siblings before initiating the
-'restore from hibernation' process; this guarantees that all the HT
-siblings will be properly carried over to the resumed kernel waiting in
-resume_play_dead(), and acted upon accordingly afterwards, based on the
-target kernel configuration.
-
-Symmetricaly, the resumed kernel has to push the SMT siblings to mwait
-again in case it has SMT disabled; this means it has to online all
-the siblings when resuming (so that they come out of hlt) and offline
-them again to let them reach mwait.
-
-Cc: 4.19+ <stable@vger.kernel.org> # v4.19+
-Debugged-by: Thomas Gleixner <tglx@linutronix.de>
-Fixes: 0cc3cd21657b ("cpu/hotplug: Boot HT siblings at least once")
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Acked-by: Pavel Machek <pavel@ucw.cz>
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/x86/power/cpu.c       |   10 ++++++++++
- arch/x86/power/hibernate.c |   33 +++++++++++++++++++++++++++++++++
- include/linux/cpu.h        |    4 ++++
- kernel/cpu.c               |    4 ++--
- kernel/power/hibernate.c   |    9 +++++++++
- 5 files changed, 58 insertions(+), 2 deletions(-)
+ drivers/net/phy/sfp.c |   24 ++++++++++++++++++++----
+ 1 file changed, 20 insertions(+), 4 deletions(-)
 
---- a/arch/x86/power/cpu.c
-+++ b/arch/x86/power/cpu.c
-@@ -299,7 +299,17 @@ int hibernate_resume_nonboot_cpu_disable
- 	 * address in its instruction pointer may not be possible to resolve
- 	 * any more at that point (the page tables used by it previously may
- 	 * have been overwritten by hibernate image data).
-+	 *
-+	 * First, make sure that we wake up all the potentially disabled SMT
-+	 * threads which have been initially brought up and then put into
-+	 * mwait/cpuidle sleep.
-+	 * Those will be put to proper (not interfering with hibernation
-+	 * resume) sleep afterwards, and the resumed kernel will decide itself
-+	 * what to do with them.
- 	 */
-+	ret = cpuhp_smt_enable();
-+	if (ret)
-+		return ret;
- 	smp_ops.play_dead = resume_play_dead;
- 	ret = disable_nonboot_cpus();
- 	smp_ops.play_dead = play_dead;
---- a/arch/x86/power/hibernate.c
-+++ b/arch/x86/power/hibernate.c
-@@ -11,6 +11,7 @@
- #include <linux/suspend.h>
- #include <linux/scatterlist.h>
- #include <linux/kdebug.h>
-+#include <linux/cpu.h>
+--- a/drivers/net/phy/sfp.c
++++ b/drivers/net/phy/sfp.c
+@@ -280,6 +280,7 @@ static int sfp_i2c_read(struct sfp *sfp,
+ {
+ 	struct i2c_msg msgs[2];
+ 	u8 bus_addr = a2 ? 0x51 : 0x50;
++	size_t this_len;
+ 	int ret;
  
- #include <crypto/hash.h>
+ 	msgs[0].addr = bus_addr;
+@@ -291,11 +292,26 @@ static int sfp_i2c_read(struct sfp *sfp,
+ 	msgs[1].len = len;
+ 	msgs[1].buf = buf;
  
-@@ -246,3 +247,35 @@ out:
- 	__flush_tlb_all();
- 	return 0;
- }
+-	ret = i2c_transfer(sfp->i2c, msgs, ARRAY_SIZE(msgs));
+-	if (ret < 0)
+-		return ret;
++	while (len) {
++		this_len = len;
++		if (this_len > 16)
++			this_len = 16;
+ 
+-	return ret == ARRAY_SIZE(msgs) ? len : 0;
++		msgs[1].len = this_len;
 +
-+int arch_resume_nosmt(void)
-+{
-+	int ret = 0;
-+	/*
-+	 * We reached this while coming out of hibernation. This means
-+	 * that SMT siblings are sleeping in hlt, as mwait is not safe
-+	 * against control transition during resume (see comment in
-+	 * hibernate_resume_nonboot_cpu_disable()).
-+	 *
-+	 * If the resumed kernel has SMT disabled, we have to take all the
-+	 * SMT siblings out of hlt, and offline them again so that they
-+	 * end up in mwait proper.
-+	 *
-+	 * Called with hotplug disabled.
-+	 */
-+	cpu_hotplug_enable();
-+	if (cpu_smt_control == CPU_SMT_DISABLED ||
-+			cpu_smt_control == CPU_SMT_FORCE_DISABLED) {
-+		enum cpuhp_smt_control old = cpu_smt_control;
++		ret = i2c_transfer(sfp->i2c, msgs, ARRAY_SIZE(msgs));
++		if (ret < 0)
++			return ret;
 +
-+		ret = cpuhp_smt_enable();
-+		if (ret)
-+			goto out;
-+		ret = cpuhp_smt_disable(old);
-+		if (ret)
-+			goto out;
++		if (ret != ARRAY_SIZE(msgs))
++			break;
++
++		msgs[1].buf += this_len;
++		dev_addr += this_len;
++		len -= this_len;
 +	}
-+out:
-+	cpu_hotplug_disable();
-+	return ret;
-+}
---- a/include/linux/cpu.h
-+++ b/include/linux/cpu.h
-@@ -183,10 +183,14 @@ enum cpuhp_smt_control {
- extern enum cpuhp_smt_control cpu_smt_control;
- extern void cpu_smt_disable(bool force);
- extern void cpu_smt_check_topology(void);
-+extern int cpuhp_smt_enable(void);
-+extern int cpuhp_smt_disable(enum cpuhp_smt_control ctrlval);
- #else
- # define cpu_smt_control		(CPU_SMT_ENABLED)
- static inline void cpu_smt_disable(bool force) { }
- static inline void cpu_smt_check_topology(void) { }
-+static inline int cpuhp_smt_enable(void) { return 0; }
-+static inline int cpuhp_smt_disable(enum cpuhp_smt_control ctrlval) { return 0; }
- #endif
- 
- /*
---- a/kernel/cpu.c
-+++ b/kernel/cpu.c
-@@ -2064,7 +2064,7 @@ static void cpuhp_online_cpu_device(unsi
- 	kobject_uevent(&dev->kobj, KOBJ_ONLINE);
- }
- 
--static int cpuhp_smt_disable(enum cpuhp_smt_control ctrlval)
-+int cpuhp_smt_disable(enum cpuhp_smt_control ctrlval)
- {
- 	int cpu, ret = 0;
- 
-@@ -2096,7 +2096,7 @@ static int cpuhp_smt_disable(enum cpuhp_
- 	return ret;
- }
- 
--static int cpuhp_smt_enable(void)
-+int cpuhp_smt_enable(void)
- {
- 	int cpu, ret = 0;
- 
---- a/kernel/power/hibernate.c
-+++ b/kernel/power/hibernate.c
-@@ -258,6 +258,11 @@ void swsusp_show_speed(ktime_t start, kt
- 		(kps % 1000) / 10);
- }
- 
-+__weak int arch_resume_nosmt(void)
-+{
-+	return 0;
-+}
 +
- /**
-  * create_image - Create a hibernation image.
-  * @platform_mode: Whether or not to use the platform driver.
-@@ -325,6 +330,10 @@ static int create_image(int platform_mod
-  Enable_cpus:
- 	enable_nonboot_cpus();
++	return msgs[1].buf - (u8 *)buf;
+ }
  
-+	/* Allow architectures to do nosmt-specific post-resume dances */
-+	if (!in_suspend)
-+		error = arch_resume_nosmt();
-+
-  Platform_finish:
- 	platform_finish(platform_mode);
- 
+ static int sfp_i2c_write(struct sfp *sfp, bool a2, u8 dev_addr, void *buf,
 
 
