@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DB883AA73
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:19:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F71B3A942
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:09:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731105AbfFIQuJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:50:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49904 "EHLO mail.kernel.org"
+        id S2387990AbfFIRI3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 13:08:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44578 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731623AbfFIQuI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:50:08 -0400
+        id S2388792AbfFIRFV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 13:05:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2CBCD205ED;
-        Sun,  9 Jun 2019 16:50:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9805620840;
+        Sun,  9 Jun 2019 17:05:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099007;
-        bh=k8CGv8f5XE7Kbg6pDU4ISW3mz33GDZH/BES2sdt2JlM=;
+        s=default; t=1560099921;
+        bh=kL1q/lU+/bRizIv45MNQUtcNYGhXhofDOHIwussB6Dg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FQxFxDgY5PMbulX+XgpW4mWNuDn/wpc9fUGxb6zXEDMqXq1aTEXi8FG3rtsWgnaPs
-         pYVqr/PpQsl41ejvDAo6UQhJm8UzoU00BFplCgje2wcghUufmZLpKs+PhofdHgw/iW
-         Id+N4gosh742+Owv92TSgSqjwH9CHDM7WwKFqxGY=
+        b=vJjwmkd4NBNZQDkMa/HLaiEWtfR53ByeeG8DPdjI2PS4fr4cGJP8rdohBQTp03iNy
+         Rq8x5RuypDnbl9t2HzuKF6lub8XPJid8m6NylAaOEPcwpGqzCjfm9EfZXOkXKPpCaX
+         74Vgrh4lNK1dDCHsHvV7GLMxUobPUpbskstsnYK0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Maguire <alan.maguire@oracle.com>,
-        David Ahern <dsahern@gmail.com>,
+        stable@vger.kernel.org,
+        Antoine Tenart <antoine.tenart@bootlin.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 03/35] neighbor: Call __ipv4_neigh_lookup_noref in neigh_xmit
+Subject: [PATCH 4.4 187/241] net: mvpp2: fix bad MVPP2_TXQ_SCHED_TOKEN_CNTR_REG queue value
 Date:   Sun,  9 Jun 2019 18:42:09 +0200
-Message-Id: <20190609164125.756810906@linuxfoundation.org>
+Message-Id: <20190609164153.295518859@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164125.377368385@linuxfoundation.org>
-References: <20190609164125.377368385@linuxfoundation.org>
+In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
+References: <20190609164147.729157653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,57 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Ahern <dsahern@gmail.com>
+From: Antoine Tenart <antoine.tenart@bootlin.com>
 
-[ Upstream commit 4b2a2bfeb3f056461a90bd621e8bd7d03fa47f60 ]
+[ Upstream commit 21808437214637952b61beaba6034d97880fbeb3 ]
 
-Commit cd9ff4de0107 changed the key for IFF_POINTOPOINT devices to
-INADDR_ANY but neigh_xmit which is used for MPLS encapsulations was not
-updated to use the altered key. The result is that every packet Tx does
-a lookup on the gateway address which does not find an entry, a new one
-is created only to find the existing one in the table right before the
-insert since arp_constructor was updated to reset the primary key. This
-is seen in the allocs and destroys counters:
-    ip -s -4 ntable show | head -10 | grep alloc
+MVPP2_TXQ_SCHED_TOKEN_CNTR_REG() expects the logical queue id but
+the current code is passing the global tx queue offset, so it ends
+up writing to unknown registers (between 0x8280 and 0x82fc, which
+seemed to be unused by the hardware). This fixes the issue by using
+the logical queue id instead.
 
-which increase for each packet showing the unnecessary overhread.
-
-Fix by having neigh_xmit use __ipv4_neigh_lookup_noref for NEIGH_ARP_TABLE.
-
-Fixes: cd9ff4de0107 ("ipv4: Make neigh lookup keys for loopback/point-to-point devices be INADDR_ANY")
-Reported-by: Alan Maguire <alan.maguire@oracle.com>
-Signed-off-by: David Ahern <dsahern@gmail.com>
-Tested-by: Alan Maguire <alan.maguire@oracle.com>
+Fixes: 3f518509dedc ("ethernet: Add new driver for Marvell Armada 375 network unit")
+Signed-off-by: Antoine Tenart <antoine.tenart@bootlin.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/neighbour.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/marvell/mvpp2.c |   10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
---- a/net/core/neighbour.c
-+++ b/net/core/neighbour.c
-@@ -30,6 +30,7 @@
- #include <linux/times.h>
- #include <net/net_namespace.h>
- #include <net/neighbour.h>
-+#include <net/arp.h>
- #include <net/dst.h>
- #include <net/sock.h>
- #include <net/netevent.h>
-@@ -2528,7 +2529,13 @@ int neigh_xmit(int index, struct net_dev
- 		if (!tbl)
- 			goto out;
- 		rcu_read_lock_bh();
--		neigh = __neigh_lookup_noref(tbl, addr, dev);
-+		if (index == NEIGH_ARP_TABLE) {
-+			u32 key = *((u32 *)addr);
-+
-+			neigh = __ipv4_neigh_lookup_noref(dev, key);
-+		} else {
-+			neigh = __neigh_lookup_noref(tbl, addr, dev);
-+		}
- 		if (!neigh)
- 			neigh = __neigh_create(tbl, addr, dev, false);
- 		err = PTR_ERR(neigh);
+--- a/drivers/net/ethernet/marvell/mvpp2.c
++++ b/drivers/net/ethernet/marvell/mvpp2.c
+@@ -3940,7 +3940,7 @@ static inline void mvpp2_gmac_max_rx_siz
+ /* Set defaults to the MVPP2 port */
+ static void mvpp2_defaults_set(struct mvpp2_port *port)
+ {
+-	int tx_port_num, val, queue, ptxq, lrxq;
++	int tx_port_num, val, queue, lrxq;
+ 
+ 	/* Configure port to loopback if needed */
+ 	if (port->flags & MVPP2_F_LOOPBACK)
+@@ -3960,11 +3960,9 @@ static void mvpp2_defaults_set(struct mv
+ 	mvpp2_write(port->priv, MVPP2_TXP_SCHED_CMD_1_REG, 0);
+ 
+ 	/* Close bandwidth for all queues */
+-	for (queue = 0; queue < MVPP2_MAX_TXQ; queue++) {
+-		ptxq = mvpp2_txq_phys(port->id, queue);
++	for (queue = 0; queue < MVPP2_MAX_TXQ; queue++)
+ 		mvpp2_write(port->priv,
+-			    MVPP2_TXQ_SCHED_TOKEN_CNTR_REG(ptxq), 0);
+-	}
++			    MVPP2_TXQ_SCHED_TOKEN_CNTR_REG(queue), 0);
+ 
+ 	/* Set refill period to 1 usec, refill tokens
+ 	 * and bucket size to maximum
+@@ -4722,7 +4720,7 @@ static void mvpp2_txq_deinit(struct mvpp
+ 	txq->descs_phys        = 0;
+ 
+ 	/* Set minimum bandwidth for disabled TXQs */
+-	mvpp2_write(port->priv, MVPP2_TXQ_SCHED_TOKEN_CNTR_REG(txq->id), 0);
++	mvpp2_write(port->priv, MVPP2_TXQ_SCHED_TOKEN_CNTR_REG(txq->log_id), 0);
+ 
+ 	/* Set Tx descriptors queue starting address and size */
+ 	mvpp2_write(port->priv, MVPP2_TXQ_NUM_REG, txq->id);
 
 
