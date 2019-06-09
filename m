@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F050F3A93D
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:08:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 974283AA4E
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:18:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388288AbfFIRE5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 13:04:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43882 "EHLO mail.kernel.org"
+        id S1729543AbfFIQvY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:51:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388722AbfFIREx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 13:04:53 -0400
+        id S1731902AbfFIQvV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:51:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6957A204EC;
-        Sun,  9 Jun 2019 17:04:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 08A7B206C3;
+        Sun,  9 Jun 2019 16:51:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099892;
-        bh=CGsfm0pjwW+BoITzq0cXBgUjb7RKs9sosgFqZJdzihk=;
+        s=default; t=1560099080;
+        bh=jONbMhxkr6W4rPbHBLgX21C+FnpnJTZvahlGCIpnRAI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1GLMtMUQdn/4KKGWICaNIm5caJPe93pOQOa6lb5bPTChtdVySnuRH5RpHo38GtVJG
-         QT63pDc2VgeWSS03VHvkZvAXB+9bJQ1wUYIapUS8GNEodo0jlaYgEQwNVSNLs8sdcN
-         s8lWZDoAO5LIFACIC7ubnJUjDtKC2wZWxk3CdN64=
+        b=TEfFNMUHjlkIXZxg0owQ3TvlZ0PnEIWJad5xcNQVp1vhJtQVg9oTcxAcyRf8c/n2B
+         JB3XJf1UMgjRPuDHlOT/RShXMwjX8RQx54LDB49NEwRwqSRC0ALGpxRVKPE+adZZdb
+         somTnsuh2P44SQDaFjQwJ1x/tLYW6ujS74oxsjAQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steffen Maier <maier@linux.ibm.com>,
-        Jens Remus <jremus@linux.ibm.com>,
-        Benjamin Block <bblock@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.4 204/241] scsi: zfcp: fix missing zfcp_port reference put on -EBUSY from port_remove
+        stable@vger.kernel.org, Robert Hancock <hancock@sedsystems.ca>,
+        Michal Simek <michal.simek@xilinx.com>,
+        Wolfram Sang <wsa@the-dreams.de>, stable@kernel.org
+Subject: [PATCH 4.14 20/35] i2c: xiic: Add max_read_len quirk
 Date:   Sun,  9 Jun 2019 18:42:26 +0200
-Message-Id: <20190609164154.482235314@linuxfoundation.org>
+Message-Id: <20190609164126.695268540@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
-References: <20190609164147.729157653@linuxfoundation.org>
+In-Reply-To: <20190609164125.377368385@linuxfoundation.org>
+References: <20190609164125.377368385@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,35 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steffen Maier <maier@linux.ibm.com>
+From: Robert Hancock <hancock@sedsystems.ca>
 
-commit d27e5e07f9c49bf2a6a4ef254ce531c1b4fb5a38 upstream.
+commit 49b809586730a77b57ce620b2f9689de765d790b upstream.
 
-With this early return due to zfcp_unit child(ren), we don't use the
-zfcp_port reference from the earlier zfcp_get_port_by_wwpn() anymore and
-need to put it.
+This driver does not support reading more than 255 bytes at once because
+the register for storing the number of bytes to read is only 8 bits. Add
+a max_read_len quirk to enforce this.
 
-Signed-off-by: Steffen Maier <maier@linux.ibm.com>
-Fixes: d99b601b6338 ("[SCSI] zfcp: restore refcount check on port_remove")
-Cc: <stable@vger.kernel.org> #3.7+
-Reviewed-by: Jens Remus <jremus@linux.ibm.com>
-Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+This was found when using this driver with the SFP driver, which was
+previously reading all 256 bytes in the SFP EEPROM in one transaction.
+This caused a bunch of hard-to-debug errors in the xiic driver since the
+driver/logic was treating the number of bytes to read as zero.
+Rejecting transactions that aren't supported at least allows the problem
+to be diagnosed more easily.
+
+Signed-off-by: Robert Hancock <hancock@sedsystems.ca>
+Reviewed-by: Michal Simek <michal.simek@xilinx.com>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/s390/scsi/zfcp_sysfs.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/i2c/busses/i2c-xiic.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/s390/scsi/zfcp_sysfs.c
-+++ b/drivers/s390/scsi/zfcp_sysfs.c
-@@ -263,6 +263,7 @@ static ssize_t zfcp_sysfs_port_remove_st
- 	if (atomic_read(&port->units) > 0) {
- 		retval = -EBUSY;
- 		mutex_unlock(&zfcp_sysfs_port_units_mutex);
-+		put_device(&port->dev); /* undo zfcp_get_port_by_wwpn() */
- 		goto out;
- 	}
- 	/* port is about to be removed, so no more unit_add */
+--- a/drivers/i2c/busses/i2c-xiic.c
++++ b/drivers/i2c/busses/i2c-xiic.c
+@@ -725,11 +725,16 @@ static const struct i2c_algorithm xiic_a
+ 	.functionality = xiic_func,
+ };
+ 
++static const struct i2c_adapter_quirks xiic_quirks = {
++	.max_read_len = 255,
++};
++
+ static const struct i2c_adapter xiic_adapter = {
+ 	.owner = THIS_MODULE,
+ 	.name = DRIVER_NAME,
+ 	.class = I2C_CLASS_DEPRECATED,
+ 	.algo = &xiic_algorithm,
++	.quirks = &xiic_quirks,
+ };
+ 
+ 
 
 
