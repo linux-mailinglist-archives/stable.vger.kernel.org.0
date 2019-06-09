@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 033543AAB6
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:21:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A60F63A740
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 18:48:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730165AbfFIQp4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:45:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43896 "EHLO mail.kernel.org"
+        id S1731035AbfFIQrz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:47:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730153AbfFIQpz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:45:55 -0400
+        id S1730968AbfFIQrx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:47:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A4A2F2083D;
-        Sun,  9 Jun 2019 16:45:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1E1DD206C3;
+        Sun,  9 Jun 2019 16:47:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560098755;
-        bh=Mjf7Rt6iqYHloLb1/9Qpabwbah0SAIVcdVrP/WMBHPw=;
+        s=default; t=1560098872;
+        bh=QCtxU2sR28pkPYBHfyAgs8ZVRZgw/+3pheZ7fz1NubI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=khT2CwfpxnTOiSgnwt/EK28J4NVrKY1QKQdFhqZW98vf2xS79vrppnOG752oD45T6
-         UqOZD4CeNABqmV51SveXrLlzhjtwCCYTIO1dc5z1xJyiEOAbctoOSTz7VIQlRCy8L1
-         J+rkwHsJSZ5NyuxJMc5vPBjmBcy7NgilcG6OAimc=
+        b=1UcUHyrDibmlP2rB5MB/bF7/3+NONSbtb/iu8q2XKyu2Cx3X0K6rinGs1A4Ag7KPf
+         Lu/uPMq3EEFsZbP/gfd+5AafR5IDyZUlAiadx/AASPzyACl8XgdnKy/aQ3d+bBFQl7
+         hKiDWx8/RifDCRMtmYbY9byADfJt4CCV+E7HpDic=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        Helen Koike <helen.koike@collabora.com>
-Subject: [PATCH 5.1 50/70] drm/vc4: fix fb references in async update
+        stable@vger.kernel.org, Yihao Wu <wuyihao@linux.alibaba.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>
+Subject: [PATCH 4.19 20/51] NFSv4.1: Again fix a race where CB_NOTIFY_LOCK fails to wake a waiter
 Date:   Sun,  9 Jun 2019 18:42:01 +0200
-Message-Id: <20190609164131.618666447@linuxfoundation.org>
+Message-Id: <20190609164128.246232064@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.541128197@linuxfoundation.org>
-References: <20190609164127.541128197@linuxfoundation.org>
+In-Reply-To: <20190609164127.123076536@linuxfoundation.org>
+References: <20190609164127.123076536@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +44,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helen Koike <helen.koike@collabora.com>
+From: Yihao Wu <wuyihao@linux.alibaba.com>
 
-commit c16b85559dcfb5a348cc085a7b4c75ed49b05e2c upstream.
+commit 52b042ab9948cc367b61f9ca9c18603aa7813c3a upstream.
 
-Async update callbacks are expected to set the old_fb in the new_state
-so prepare/cleanup framebuffers are balanced.
+Commit b7dbcc0e433f "NFSv4.1: Fix a race where CB_NOTIFY_LOCK fails to wake a waiter"
+found this bug. However it didn't fix it.
 
-Calling drm_atomic_set_fb_for_plane() (which gets a reference of the new
-fb and put the old fb) is not required, as it's taken care by
-drm_mode_cursor_universal() when calling drm_atomic_helper_update_plane().
+This commit replaces schedule_timeout() with wait_woken() and
+default_wake_function() with woken_wake_function() in function
+nfs4_retry_setlk() and nfs4_wake_lock_waiter(). wait_woken() uses
+memory barriers in its implementation to avoid potential race condition
+when putting a process into sleeping state and then waking it up.
 
-Cc: <stable@vger.kernel.org> # v4.19+
-Fixes: 539c320bfa97 ("drm/vc4: update cursors asynchronously through atomic")
-Suggested-by: Boris Brezillon <boris.brezillon@collabora.com>
-Signed-off-by: Helen Koike <helen.koike@collabora.com>
-Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
-Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190603165610.24614-5-helen.koike@collabora.com
+Fixes: a1d617d8f134 ("nfs: allow blocking locks to be awoken by lock callbacks")
+Cc: stable@vger.kernel.org #4.9+
+Signed-off-by: Yihao Wu <wuyihao@linux.alibaba.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/vc4/vc4_plane.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfs/nfs4proc.c |   24 +++++++-----------------
+ 1 file changed, 7 insertions(+), 17 deletions(-)
 
---- a/drivers/gpu/drm/vc4/vc4_plane.c
-+++ b/drivers/gpu/drm/vc4/vc4_plane.c
-@@ -968,7 +968,7 @@ static void vc4_plane_atomic_async_updat
- {
- 	struct vc4_plane_state *vc4_state, *new_vc4_state;
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -6850,7 +6850,6 @@ struct nfs4_lock_waiter {
+ 	struct task_struct	*task;
+ 	struct inode		*inode;
+ 	struct nfs_lowner	*owner;
+-	bool			notified;
+ };
  
--	drm_atomic_set_fb_for_plane(plane->state, state->fb);
-+	swap(plane->state->fb, state->fb);
- 	plane->state->crtc_x = state->crtc_x;
- 	plane->state->crtc_y = state->crtc_y;
- 	plane->state->crtc_w = state->crtc_w;
+ static int
+@@ -6872,13 +6871,13 @@ nfs4_wake_lock_waiter(wait_queue_entry_t
+ 		/* Make sure it's for the right inode */
+ 		if (nfs_compare_fh(NFS_FH(waiter->inode), &cbnl->cbnl_fh))
+ 			return 0;
+-
+-		waiter->notified = true;
+ 	}
+ 
+ 	/* override "private" so we can use default_wake_function */
+ 	wait->private = waiter->task;
+-	ret = autoremove_wake_function(wait, mode, flags, key);
++	ret = woken_wake_function(wait, mode, flags, key);
++	if (ret)
++		list_del_init(&wait->entry);
+ 	wait->private = waiter;
+ 	return ret;
+ }
+@@ -6887,7 +6886,6 @@ static int
+ nfs4_retry_setlk(struct nfs4_state *state, int cmd, struct file_lock *request)
+ {
+ 	int status = -ERESTARTSYS;
+-	unsigned long flags;
+ 	struct nfs4_lock_state *lsp = request->fl_u.nfs4_fl.owner;
+ 	struct nfs_server *server = NFS_SERVER(state->inode);
+ 	struct nfs_client *clp = server->nfs_client;
+@@ -6897,8 +6895,7 @@ nfs4_retry_setlk(struct nfs4_state *stat
+ 				    .s_dev = server->s_dev };
+ 	struct nfs4_lock_waiter waiter = { .task  = current,
+ 					   .inode = state->inode,
+-					   .owner = &owner,
+-					   .notified = false };
++					   .owner = &owner};
+ 	wait_queue_entry_t wait;
+ 
+ 	/* Don't bother with waitqueue if we don't expect a callback */
+@@ -6911,21 +6908,14 @@ nfs4_retry_setlk(struct nfs4_state *stat
+ 	add_wait_queue(q, &wait);
+ 
+ 	while(!signalled()) {
+-		waiter.notified = false;
+ 		status = nfs4_proc_setlk(state, cmd, request);
+ 		if ((status != -EAGAIN) || IS_SETLK(cmd))
+ 			break;
+ 
+ 		status = -ERESTARTSYS;
+-		spin_lock_irqsave(&q->lock, flags);
+-		if (waiter.notified) {
+-			spin_unlock_irqrestore(&q->lock, flags);
+-			continue;
+-		}
+-		set_current_state(TASK_INTERRUPTIBLE);
+-		spin_unlock_irqrestore(&q->lock, flags);
+-
+-		freezable_schedule_timeout(NFS4_LOCK_MAXTIMEOUT);
++		freezer_do_not_count();
++		wait_woken(&wait, TASK_INTERRUPTIBLE, NFS4_LOCK_MAXTIMEOUT);
++		freezer_count();
+ 	}
+ 
+ 	finish_wait(q, &wait);
 
 
