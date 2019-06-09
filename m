@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A0C83A9EF
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:14:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A46FB3A9EE
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:14:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732971AbfFIQ40 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:56:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58930 "EHLO mail.kernel.org"
+        id S1732601AbfFIQ4c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:56:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59096 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730524AbfFIQ40 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:56:26 -0400
+        id S1732614AbfFIQ4c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:56:32 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 21717206C3;
-        Sun,  9 Jun 2019 16:56:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D8E86206C3;
+        Sun,  9 Jun 2019 16:56:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099385;
-        bh=Mwn0la2kKALrzVnHw/CUt7sGtRZAX3FCIjjG4eCZ6b4=;
+        s=default; t=1560099391;
+        bh=SJ3bvGNHGX5MTf8QAP45iUrPWgiuSOwtd791qLhdx14=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jbe9ZCZP6bFNU46fZmRwfmQV/Gk89kA+bB7AxRTjpOSyhwemrM9pOK/vAxofL6mJB
-         Dh5JPw9hlpxEmrRUCL+XZurHr/OjoedVIdkYxV1LOdNM5EiUhhC/mHMz541ve0Y283
-         YeP926n65lf0dO/Ly/eBjfApTlLJV80oTajgZfhw=
+        b=mXFJ+79LUTqht0y4qHv4KZl8nmDyXBfYaYI+zM+ogXbMjRiPvs+NfKH9C1k8MERsP
+         zErDyQ1ekx9SGU6ohlArHi3KjlN0vrcWlJNjP7LAMkT49nsKzE8v8sN8Q68YagPf36
+         FSysoM1F9YhdAVjh+z4KSjr12+c6SWAwxnCGyncU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin Willi <martin@strongswan.org>,
-        Eric Biggers <ebiggers@google.com>,
+        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
         Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.4 024/241] crypto: chacha20poly1305 - set cra_name correctly
-Date:   Sun,  9 Jun 2019 18:39:26 +0200
-Message-Id: <20190609164148.477719416@linuxfoundation.org>
+Subject: [PATCH 4.4 025/241] crypto: salsa20 - dont access already-freed walk.iv
+Date:   Sun,  9 Jun 2019 18:39:27 +0200
+Message-Id: <20190609164148.506134155@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
 References: <20190609164147.729157653@linuxfoundation.org>
@@ -46,45 +45,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Biggers <ebiggers@google.com>
 
-commit 5e27f38f1f3f45a0c938299c3a34a2d2db77165a upstream.
+commit edaf28e996af69222b2cb40455dbb5459c2b875a upstream.
 
-If the rfc7539 template is instantiated with specific implementations,
-e.g. "rfc7539(chacha20-generic,poly1305-generic)" rather than
-"rfc7539(chacha20,poly1305)", then the implementation names end up
-included in the instance's cra_name.  This is incorrect because it then
-prevents all users from allocating "rfc7539(chacha20,poly1305)", if the
-highest priority implementations of chacha20 and poly1305 were selected.
-Also, the self-tests aren't run on an instance allocated in this way.
+If the user-provided IV needs to be aligned to the algorithm's
+alignmask, then skcipher_walk_virt() copies the IV into a new aligned
+buffer walk.iv.  But skcipher_walk_virt() can fail afterwards, and then
+if the caller unconditionally accesses walk.iv, it's a use-after-free.
 
-Fix it by setting the instance's cra_name from the underlying
-algorithms' actual cra_names, rather than from the requested names.
-This matches what other templates do.
+salsa20-generic doesn't set an alignmask, so currently it isn't affected
+by this despite unconditionally accessing walk.iv.  However this is more
+subtle than desired, and it was actually broken prior to the alignmask
+being removed by commit b62b3db76f73 ("crypto: salsa20-generic - cleanup
+and convert to skcipher API").
 
-Fixes: 71ebc4d1b27d ("crypto: chacha20poly1305 - Add a ChaCha20-Poly1305 AEAD construction, RFC7539")
-Cc: <stable@vger.kernel.org> # v4.2+
-Cc: Martin Willi <martin@strongswan.org>
+Since salsa20-generic does not update the IV and does not need any IV
+alignment, update it to use req->iv instead of walk.iv.
+
+Fixes: 2407d60872dd ("[CRYPTO] salsa20: Salsa20 stream cipher")
+Cc: stable@vger.kernel.org
 Signed-off-by: Eric Biggers <ebiggers@google.com>
-Reviewed-by: Martin Willi <martin@strongswan.org>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 
 ---
- crypto/chacha20poly1305.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ crypto/salsa20_generic.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/crypto/chacha20poly1305.c
-+++ b/crypto/chacha20poly1305.c
-@@ -637,8 +637,8 @@ static int chachapoly_create(struct cryp
+--- a/crypto/salsa20_generic.c
++++ b/crypto/salsa20_generic.c
+@@ -186,7 +186,7 @@ static int encrypt(struct blkcipher_desc
+ 	blkcipher_walk_init(&walk, dst, src, nbytes);
+ 	err = blkcipher_walk_virt_block(desc, &walk, 64);
  
- 	err = -ENAMETOOLONG;
- 	if (snprintf(inst->alg.base.cra_name, CRYPTO_MAX_ALG_NAME,
--		     "%s(%s,%s)", name, chacha_name,
--		     poly_name) >= CRYPTO_MAX_ALG_NAME)
-+		     "%s(%s,%s)", name, chacha->cra_name,
-+		     poly->cra_name) >= CRYPTO_MAX_ALG_NAME)
- 		goto out_drop_chacha;
- 	if (snprintf(inst->alg.base.cra_driver_name, CRYPTO_MAX_ALG_NAME,
- 		     "%s(%s,%s)", name, chacha->cra_driver_name,
+-	salsa20_ivsetup(ctx, walk.iv);
++	salsa20_ivsetup(ctx, desc->info);
+ 
+ 	while (walk.nbytes >= 64) {
+ 		salsa20_encrypt_bytes(ctx, walk.dst.virt.addr,
 
 
