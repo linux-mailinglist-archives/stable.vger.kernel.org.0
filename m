@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C27073A7FA
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 18:56:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3A623A9CE
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:13:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732425AbfFIQzx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:55:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58148 "EHLO mail.kernel.org"
+        id S1733234AbfFIQ5p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:57:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60866 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732833AbfFIQzw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:55:52 -0400
+        id S1733230AbfFIQ5o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:57:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4C3EE205ED;
-        Sun,  9 Jun 2019 16:55:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C7035206DF;
+        Sun,  9 Jun 2019 16:57:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099351;
-        bh=8DLSMNvxxJg60bZxRy/z/6lvhV6vgNwT30e9acB2jIA=;
+        s=default; t=1560099464;
+        bh=NELJ4Hu6YiJbJlmxwVlRRrxhcEXBUQ4E/XUnMCsrArw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vkVn8XqeD7KSzfqTwiuZRutc/PD03vmtKCHhUzwIGutco9Lt0QK816K479BTraZ9k
-         ne3dDSFZELOXchWcYcRT97ze4AR8amtXfanaguBP34JY2biOFKdTtxMUQrt0oIgWT8
-         pg1OoKnWVKH2fxqO7XhouoOHpqRh/wQmcbsb8ugc=
+        b=QNCZOsBZrH3ts+STNvbAZgc4fE1KHvtIqLeoQaDP3cMR6AtoFinjGkLHToFdf+b8G
+         BhR5gZ3+mXLciWf3IcaOPuwJIHJ5R8UDzZOsh3ubnLoXtYu8eIWUCOFqJZm30QyHZO
+         N2aWyjelGVdYP7h4ooQiEqJE3N1ASc9f6C2Fvhfo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Ondrej=20Mosn=C3=A1=C4=8Dek?= <omosnacek@gmail.com>,
-        Daniel Axtens <dja@axtens.net>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Tim Chen <tim.c.chen@linux.intel.com>,
+        Eric Biggers <ebiggers@google.com>,
         Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 4.4 004/241] crypto: vmx - fix copy-paste error in CTR mode
-Date:   Sun,  9 Jun 2019 18:39:06 +0200
-Message-Id: <20190609164147.913935145@linuxfoundation.org>
+Subject: [PATCH 4.4 005/241] crypto: crct10dif-generic - fix use via crypto_shash_digest()
+Date:   Sun,  9 Jun 2019 18:39:07 +0200
+Message-Id: <20190609164147.943020718@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
 References: <20190609164147.729157653@linuxfoundation.org>
@@ -46,53 +44,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Axtens <dja@axtens.net>
+From: Eric Biggers <ebiggers@google.com>
 
-commit dcf7b48212c0fab7df69e84fab22d6cb7c8c0fb9 upstream.
+commit 307508d1072979f4435416f87936f87eaeb82054 upstream.
 
-The original assembly imported from OpenSSL has two copy-paste
-errors in handling CTR mode. When dealing with a 2 or 3 block tail,
-the code branches to the CBC decryption exit path, rather than to
-the CTR exit path.
+The ->digest() method of crct10dif-generic reads the current CRC value
+from the shash_desc context.  But this value is uninitialized, causing
+crypto_shash_digest() to compute the wrong result.  Fix it.
 
-This leads to corruption of the IV, which leads to subsequent blocks
-being corrupted.
+Probably this wasn't noticed before because lib/crc-t10dif.c only uses
+crypto_shash_update(), not crypto_shash_digest().  Likewise,
+crypto_shash_digest() is not yet tested by the crypto self-tests because
+those only test the ahash API which only uses shash init/update/final.
 
-This can be detected with libkcapi test suite, which is available at
-https://github.com/smuellerDD/libkcapi
+This bug was detected by my patches that improve testmgr to fuzz
+algorithms against their generic implementation.
 
-Reported-by: Ondrej Mosnáček <omosnacek@gmail.com>
-Fixes: 5c380d623ed3 ("crypto: vmx - Add support for VMS instructions by ASM")
-Cc: stable@vger.kernel.org
-Signed-off-by: Daniel Axtens <dja@axtens.net>
-Tested-by: Michael Ellerman <mpe@ellerman.id.au>
-Tested-by: Ondrej Mosnacek <omosnacek@gmail.com>
+Fixes: 2d31e518a428 ("crypto: crct10dif - Wrap crc_t10dif function all to use crypto transform framework")
+Cc: <stable@vger.kernel.org> # v3.11+
+Cc: Tim Chen <tim.c.chen@linux.intel.com>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/vmx/aesp8-ppc.pl |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ crypto/crct10dif_generic.c |   11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
 
---- a/drivers/crypto/vmx/aesp8-ppc.pl
-+++ b/drivers/crypto/vmx/aesp8-ppc.pl
-@@ -1795,7 +1795,7 @@ Lctr32_enc8x_three:
- 	stvx_u		$out1,$x10,$out
- 	stvx_u		$out2,$x20,$out
- 	addi		$out,$out,0x30
--	b		Lcbc_dec8x_done
-+	b		Lctr32_enc8x_done
+--- a/crypto/crct10dif_generic.c
++++ b/crypto/crct10dif_generic.c
+@@ -65,10 +65,9 @@ static int chksum_final(struct shash_des
+ 	return 0;
+ }
  
- .align	5
- Lctr32_enc8x_two:
-@@ -1807,7 +1807,7 @@ Lctr32_enc8x_two:
- 	stvx_u		$out0,$x00,$out
- 	stvx_u		$out1,$x10,$out
- 	addi		$out,$out,0x20
--	b		Lcbc_dec8x_done
-+	b		Lctr32_enc8x_done
+-static int __chksum_finup(__u16 *crcp, const u8 *data, unsigned int len,
+-			u8 *out)
++static int __chksum_finup(__u16 crc, const u8 *data, unsigned int len, u8 *out)
+ {
+-	*(__u16 *)out = crc_t10dif_generic(*crcp, data, len);
++	*(__u16 *)out = crc_t10dif_generic(crc, data, len);
+ 	return 0;
+ }
  
- .align	5
- Lctr32_enc8x_one:
+@@ -77,15 +76,13 @@ static int chksum_finup(struct shash_des
+ {
+ 	struct chksum_desc_ctx *ctx = shash_desc_ctx(desc);
+ 
+-	return __chksum_finup(&ctx->crc, data, len, out);
++	return __chksum_finup(ctx->crc, data, len, out);
+ }
+ 
+ static int chksum_digest(struct shash_desc *desc, const u8 *data,
+ 			 unsigned int length, u8 *out)
+ {
+-	struct chksum_desc_ctx *ctx = shash_desc_ctx(desc);
+-
+-	return __chksum_finup(&ctx->crc, data, length, out);
++	return __chksum_finup(0, data, length, out);
+ }
+ 
+ static struct shash_alg alg = {
 
 
