@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 195E33AA41
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:18:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8E613A7CC
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 18:54:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729765AbfFIQu0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:50:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50280 "EHLO mail.kernel.org"
+        id S1732383AbfFIQxY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:53:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731715AbfFIQuZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:50:25 -0400
+        id S1731713AbfFIQxU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:53:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 230A7207E0;
-        Sun,  9 Jun 2019 16:50:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 398612081C;
+        Sun,  9 Jun 2019 16:53:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099024;
-        bh=uB5oQ6bH3HcUn2NASKWxGUvIkIh26igzAHWj7XzqOvY=;
+        s=default; t=1560099199;
+        bh=9c6gTPPLhc//uMtT9TCigZWOvEZ7xOphkK8zOKNZCGQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rkb/WEraPyN1u0k1jUcPrs8ZcsusQ+XsaALgVHwd5Q8hjIsuVESBOevt3vOiSqPTF
-         XPT90uDaHRLLFZo8QAgBB1RNzS3xtTcmkhanVGD6Myt5neSVJ7qVttrpW+V75yMipf
-         r2TtnqFREn+aqjOMOH0idI/q5g4Ejqd2PS3SWKKU=
+        b=A5xS3yOOBzbaiLWiBX4i2bIJVGKw39gktNbKncMw7JGOjCP0CDHN5+SytLlRsoKRH
+         5GBqDsQfLmw8bPMUNu/lLFMzqxHfOf5PjPkv5jA9VRO7GLUBtC4ghfkymR1BWfuxSx
+         uNzRxLHtzBEwts/EmbGmxySWcYj7LHeW34ZvE+9s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 09/35] net: sfp: read eeprom in maximum 16 byte increments
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [PATCH 4.9 45/83] staging: vc04_services: prevent integer overflow in create_pagelist()
 Date:   Sun,  9 Jun 2019 18:42:15 +0200
-Message-Id: <20190609164126.046628834@linuxfoundation.org>
+Message-Id: <20190609164131.760341489@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164125.377368385@linuxfoundation.org>
-References: <20190609164125.377368385@linuxfoundation.org>
+In-Reply-To: <20190609164127.843327870@linuxfoundation.org>
+References: <20190609164127.843327870@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,75 +42,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 28e74a7cfd6403f0d1c0f8b10b45d6fae37b227e ]
+commit ca641bae6da977d638458e78cd1487b6160a2718 upstream.
 
-Some SFP modules do not like reads longer than 16 bytes, so read the
-EEPROM in chunks of 16 bytes at a time.  This behaviour is not specified
-in the SFP MSAs, which specifies:
+The create_pagelist() "count" parameter comes from the user in
+vchiq_ioctl() and it could overflow.  If you look at how create_page()
+is called in vchiq_prepare_bulk_data(), then the "size" variable is an
+int so it doesn't make sense to allow negatives or larger than INT_MAX.
 
- "The serial interface uses the 2-wire serial CMOS E2PROM protocol
-  defined for the ATMEL AT24C01A/02/04 family of components."
+I don't know this code terribly well, but I believe that typical values
+of "count" are typically quite low and I don't think this check will
+affect normal valid uses at all.
 
-and
+The "pagelist_size" calculation can also overflow on 32 bit systems, but
+not on 64 bit systems.  I have added an integer overflow check for that
+as well.
 
- "As long as the SFP+ receives an acknowledge, it shall serially clock
-  out sequential data words. The sequence is terminated when the host
-  responds with a NACK and a STOP instead of an acknowledge."
+The Raspberry PI doesn't offer the same level of memory protection that
+x86 does so these sorts of bugs are probably not super critical to fix.
 
-We must avoid breaking a read across a 16-bit quantity in the diagnostic
-page, thankfully all 16-bit quantities in that page are naturally
-aligned.
-
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 71bad7f08641 ("staging: add bcm2708 vchiq driver")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/phy/sfp.c |   24 ++++++++++++++++++++----
- 1 file changed, 20 insertions(+), 4 deletions(-)
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
---- a/drivers/net/phy/sfp.c
-+++ b/drivers/net/phy/sfp.c
-@@ -168,6 +168,7 @@ static int sfp__i2c_read(struct i2c_adap
- 	void *buf, size_t len)
- {
- 	struct i2c_msg msgs[2];
-+	size_t this_len;
- 	int ret;
+---
+ drivers/staging/vc04_services/interface/vchiq_arm/vchiq_2835_arm.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+--- a/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_2835_arm.c
++++ b/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_2835_arm.c
+@@ -381,9 +381,18 @@ create_pagelist(char __user *buf, size_t
+ 	int run, addridx, actual_pages;
+         unsigned long *need_release;
  
- 	msgs[0].addr = bus_addr;
-@@ -179,11 +180,26 @@ static int sfp__i2c_read(struct i2c_adap
- 	msgs[1].len = len;
- 	msgs[1].buf = buf;
++	if (count >= INT_MAX - PAGE_SIZE)
++		return NULL;
++
+ 	offset = (unsigned int)buf & (PAGE_SIZE - 1);
+ 	num_pages = (count + offset + PAGE_SIZE - 1) / PAGE_SIZE;
  
--	ret = i2c_transfer(i2c, msgs, ARRAY_SIZE(msgs));
--	if (ret < 0)
--		return ret;
-+	while (len) {
-+		this_len = len;
-+		if (this_len > 16)
-+			this_len = 16;
++	if (num_pages > (SIZE_MAX - sizeof(PAGELIST_T) -
++			 sizeof(struct vchiq_pagelist_info)) /
++			(sizeof(u32) + sizeof(pages[0]) +
++			 sizeof(struct scatterlist)))
++		return NULL;
++
+ 	*ppagelist = NULL;
  
--	return ret == ARRAY_SIZE(msgs) ? len : 0;
-+		msgs[1].len = this_len;
-+
-+		ret = i2c_transfer(i2c, msgs, ARRAY_SIZE(msgs));
-+		if (ret < 0)
-+			return ret;
-+
-+		if (ret != ARRAY_SIZE(msgs))
-+			break;
-+
-+		msgs[1].buf += this_len;
-+		dev_addr += this_len;
-+		len -= this_len;
-+	}
-+
-+	return msgs[1].buf - (u8 *)buf;
- }
- 
- static int sfp_i2c_read(struct sfp *sfp, bool a2, u8 addr, void *buf,
+ 	/* Allocate enough storage to hold the page pointers and the page
 
 
