@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 607BD3A70E
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 18:46:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B073D3A8B8
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:03:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730093AbfFIQpt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:45:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43664 "EHLO mail.kernel.org"
+        id S2388080AbfFIRDh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 13:03:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730067AbfFIQpp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:45:45 -0400
+        id S2388064AbfFIRDg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 13:03:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C5E420833;
-        Sun,  9 Jun 2019 16:45:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 48177204EC;
+        Sun,  9 Jun 2019 17:03:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560098744;
-        bh=RraCkwXdzglEq/7vdS33A/72ye87OZQO/agCNTF+Lok=;
+        s=default; t=1560099815;
+        bh=TZN9iRhipWXcbbEe+RiuGRmbFeYdckX4c8MXkXvOds0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mp4dQCYs54Rq1SQU5rqgb+Yj6VQoAW7JdIKwW42h1JPm3XC6EYLt86X7sRPyre9OJ
-         56fHvmGLXpCFt0URSACnUBKeRRZLRebH+SItshPOXOK9h+iZOsQljegc/Vu0h/W15W
-         YwQh4CqKMK0p4xIyb2JPvZjUsR6MnThlnwozaZTc=
+        b=WxA0SuoCse7zlRdIU+zRBmi4J1JjLDVkQK8GA1FE4Z/yNQxHtoVw2QxtIk/sfAOT1
+         NojfT0PQdXUQLuGYU0HqLCVW+0WkC3UGGezjBEkttwAZIfQE/NAuCv8+j1E8I57qqV
+         /Ik9FFIUvUtw2t9MBvyC3EPXgtT+NS46lH45O2kY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Burton <paul.burton@mips.com>,
-        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <f4bug@amsat.org>,
-        Kevin Hilman <khilman@baylibre.com>, linux-mips@vger.kernel.org
-Subject: [PATCH 5.1 46/70] MIPS: pistachio: Build uImage.gz by default
+        stable@vger.kernel.org, Dick Kennedy <dick.kennedy@broadcom.com>,
+        James Smart <jsmart2021@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 175/241] scsi: lpfc: Fix SLI3 commands being issued on SLI4 devices
 Date:   Sun,  9 Jun 2019 18:41:57 +0200
-Message-Id: <20190609164131.226499200@linuxfoundation.org>
+Message-Id: <20190609164152.865584477@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.541128197@linuxfoundation.org>
-References: <20190609164127.541128197@linuxfoundation.org>
+In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
+References: <20190609164147.729157653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,44 +45,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Burton <paul.burton@mips.com>
+[ Upstream commit c95a3b4b0fb8d351e2329a96f87c4fc96a149505 ]
 
-commit e4f2d1af7163becb181419af9dece9206001e0a6 upstream.
+During debug, it was seen that the driver is issuing commands specific to
+SLI3 on SLI4 devices. Although the adapter correctly rejected the command,
+this should not be done.
 
-The pistachio platform uses the U-Boot bootloader & generally boots a
-kernel in the uImage format. As such it's useful to build one when
-building the kernel, but to do so currently requires the user to
-manually specify a uImage target on the make command line.
+Revise the code to stop sending these commands on a SLI4 adapter.
 
-Make uImage.gz the pistachio platform's default build target, so that
-the default is to build a kernel image that we can actually boot on a
-board such as the MIPS Creator Ci40.
-
-Marked for stable backport as far as v4.1 where pistachio support was
-introduced. This is primarily useful for CI systems such as kernelci.org
-which will benefit from us building a suitable image which can then be
-booted as part of automated testing, extending our test coverage to the
-affected stable branches.
-
-Signed-off-by: Paul Burton <paul.burton@mips.com>
-Reviewed-by: Philippe Mathieu-Daudé <f4bug@amsat.org>
-Reviewed-by: Kevin Hilman <khilman@baylibre.com>
-Tested-by: Kevin Hilman <khilman@baylibre.com>
-URL: https://groups.io/g/kernelci/message/388
-Cc: stable@vger.kernel.org # v4.1+
-Cc: linux-mips@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Dick Kennedy <dick.kennedy@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/pistachio/Platform |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/scsi/lpfc/lpfc_hbadisc.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
---- a/arch/mips/pistachio/Platform
-+++ b/arch/mips/pistachio/Platform
-@@ -6,3 +6,4 @@ cflags-$(CONFIG_MACH_PISTACHIO)		+=				\
- 		-I$(srctree)/arch/mips/include/asm/mach-pistachio
- load-$(CONFIG_MACH_PISTACHIO)		+= 0xffffffff80400000
- zload-$(CONFIG_MACH_PISTACHIO)		+= 0xffffffff81000000
-+all-$(CONFIG_MACH_PISTACHIO)		:= uImage.gz
+diff --git a/drivers/scsi/lpfc/lpfc_hbadisc.c b/drivers/scsi/lpfc/lpfc_hbadisc.c
+index 4131addfb8729..a67950908db17 100644
+--- a/drivers/scsi/lpfc/lpfc_hbadisc.c
++++ b/drivers/scsi/lpfc/lpfc_hbadisc.c
+@@ -902,7 +902,11 @@ lpfc_linkdown(struct lpfc_hba *phba)
+ 			lpfc_linkdown_port(vports[i]);
+ 		}
+ 	lpfc_destroy_vport_work_array(phba, vports);
+-	/* Clean up any firmware default rpi's */
++
++	/* Clean up any SLI3 firmware default rpi's */
++	if (phba->sli_rev > LPFC_SLI_REV3)
++		goto skip_unreg_did;
++
+ 	mb = mempool_alloc(phba->mbox_mem_pool, GFP_KERNEL);
+ 	if (mb) {
+ 		lpfc_unreg_did(phba, 0xffff, LPFC_UNREG_ALL_DFLT_RPIS, mb);
+@@ -914,6 +918,7 @@ lpfc_linkdown(struct lpfc_hba *phba)
+ 		}
+ 	}
+ 
++ skip_unreg_did:
+ 	/* Setup myDID for link up if we are in pt2pt mode */
+ 	if (phba->pport->fc_flag & FC_PT2PT) {
+ 		phba->pport->fc_myDID = 0;
+@@ -4647,6 +4652,10 @@ lpfc_unreg_default_rpis(struct lpfc_vport *vport)
+ 	LPFC_MBOXQ_t     *mbox;
+ 	int rc;
+ 
++	/* Unreg DID is an SLI3 operation. */
++	if (phba->sli_rev > LPFC_SLI_REV3)
++		return;
++
+ 	mbox = mempool_alloc(phba->mbox_mem_pool, GFP_KERNEL);
+ 	if (mbox) {
+ 		lpfc_unreg_did(phba, vport->vpi, LPFC_UNREG_ALL_DFLT_RPIS,
+-- 
+2.20.1
+
 
 
