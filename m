@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DB4F63AACA
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:21:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BAA9C3A98C
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:12:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729913AbfFIQpc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:45:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43316 "EHLO mail.kernel.org"
+        id S2388204AbfFIRCM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 13:02:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729906AbfFIQpb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:45:31 -0400
+        id S2388197AbfFIRCH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 13:02:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9AD302081C;
-        Sun,  9 Jun 2019 16:45:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 72B93206DF;
+        Sun,  9 Jun 2019 17:02:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560098731;
-        bh=zscYZ7OpHrYkSXLWm/g6hkpoajMFBmOE1MoQzGHx6WU=;
+        s=default; t=1560099726;
+        bh=cUOQWn5WeOO5C2d4/1sFxufHKsFKwSesPfLkcaF011Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F+/affbIGcdbQRQj4DD71ojex5R9bQ+WFlPMn/dt46nr9hqMz+bmrw58/6FEhPlB6
-         N2LRiV7WFhkSEhfF2UIysUix8jwMTFR50Qtu3imPlkz04E3qA/sAuW2cIHBiVN3lSh
-         7hn64PLk41QQtR8Xj8K3o26BGtsAnxvVYNKyJMDE=
+        b=N0HeocPOVtonDebkj+FWHzqtu5RlWB9KQ2TQDAhJmXoFrDVHGGLNpUvIl5h+wWT0z
+         hDpJDR68NXGVF2/9jZoEbSzMp0r9+OSvT/ZZkNpyCFNAFAx821VP2ZKSs65fW8vobL
+         N5VNltxOQV4CO5MEfSVY5T+/MtQi6UyvPKLtbjOo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.1 08/70] net: sfp: read eeprom in maximum 16 byte increments
+        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 137/241] scsi: libsas: Do discovery on empty PHY to update PHY info
 Date:   Sun,  9 Jun 2019 18:41:19 +0200
-Message-Id: <20190609164127.948003960@linuxfoundation.org>
+Message-Id: <20190609164151.745938786@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.541128197@linuxfoundation.org>
-References: <20190609164127.541128197@linuxfoundation.org>
+In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
+References: <20190609164147.729157653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,75 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <rmk+kernel@armlinux.org.uk>
+[ Upstream commit d8649fc1c5e40e691d589ed825998c36a947491c ]
 
-[ Upstream commit 28e74a7cfd6403f0d1c0f8b10b45d6fae37b227e ]
+When we discover the PHY is empty in sas_rediscover_dev(), the PHY
+information (like negotiated linkrate) is not updated.
 
-Some SFP modules do not like reads longer than 16 bytes, so read the
-EEPROM in chunks of 16 bytes at a time.  This behaviour is not specified
-in the SFP MSAs, which specifies:
+As such, for a user examining sysfs for that PHY, they would see
+incorrect values:
 
- "The serial interface uses the 2-wire serial CMOS E2PROM protocol
-  defined for the ATMEL AT24C01A/02/04 family of components."
+root@(none)$ cd /sys/class/sas_phy/phy-0:0:20
+root@(none)$ more negotiated_linkrate
+3.0 Gbit
+root@(none)$ echo 0 > enable
+root@(none)$ more negotiated_linkrate
+3.0 Gbit
 
-and
+So fix this, simply discover the PHY again, even though we know it's empty;
+in the above example, this gives us:
 
- "As long as the SFP+ receives an acknowledge, it shall serially clock
-  out sequential data words. The sequence is terminated when the host
-  responds with a NACK and a STOP instead of an acknowledge."
+root@(none)$ more negotiated_linkrate
+Phy disabled
 
-We must avoid breaking a read across a 16-bit quantity in the diagnostic
-page, thankfully all 16-bit quantities in that page are naturally
-aligned.
+We must do this after unregistering the device associated with the PHY
+(in sas_unregister_devs_sas_addr()).
 
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/sfp.c |   24 ++++++++++++++++++++----
- 1 file changed, 20 insertions(+), 4 deletions(-)
+ drivers/scsi/libsas/sas_expander.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/net/phy/sfp.c
-+++ b/drivers/net/phy/sfp.c
-@@ -281,6 +281,7 @@ static int sfp_i2c_read(struct sfp *sfp,
- {
- 	struct i2c_msg msgs[2];
- 	u8 bus_addr = a2 ? 0x51 : 0x50;
-+	size_t this_len;
- 	int ret;
- 
- 	msgs[0].addr = bus_addr;
-@@ -292,11 +293,26 @@ static int sfp_i2c_read(struct sfp *sfp,
- 	msgs[1].len = len;
- 	msgs[1].buf = buf;
- 
--	ret = i2c_transfer(sfp->i2c, msgs, ARRAY_SIZE(msgs));
--	if (ret < 0)
--		return ret;
-+	while (len) {
-+		this_len = len;
-+		if (this_len > 16)
-+			this_len = 16;
- 
--	return ret == ARRAY_SIZE(msgs) ? len : 0;
-+		msgs[1].len = this_len;
-+
-+		ret = i2c_transfer(sfp->i2c, msgs, ARRAY_SIZE(msgs));
-+		if (ret < 0)
-+			return ret;
-+
-+		if (ret != ARRAY_SIZE(msgs))
-+			break;
-+
-+		msgs[1].buf += this_len;
-+		dev_addr += this_len;
-+		len -= this_len;
-+	}
-+
-+	return msgs[1].buf - (u8 *)buf;
- }
- 
- static int sfp_i2c_write(struct sfp *sfp, bool a2, u8 dev_addr, void *buf,
+diff --git a/drivers/scsi/libsas/sas_expander.c b/drivers/scsi/libsas/sas_expander.c
+index 1a6f65db615e8..ee1f9ee995e53 100644
+--- a/drivers/scsi/libsas/sas_expander.c
++++ b/drivers/scsi/libsas/sas_expander.c
+@@ -2027,6 +2027,11 @@ static int sas_rediscover_dev(struct domain_device *dev, int phy_id, bool last)
+ 	if ((SAS_ADDR(sas_addr) == 0) || (res == -ECOMM)) {
+ 		phy->phy_state = PHY_EMPTY;
+ 		sas_unregister_devs_sas_addr(dev, phy_id, last);
++		/*
++		 * Even though the PHY is empty, for convenience we discover
++		 * the PHY to update the PHY info, like negotiated linkrate.
++		 */
++		sas_ex_phy_discover(dev, phy_id);
+ 		return res;
+ 	} else if (SAS_ADDR(sas_addr) == SAS_ADDR(phy->attached_sas_addr) &&
+ 		   dev_type_flutter(type, phy->attached_dev_type)) {
+-- 
+2.20.1
+
 
 
