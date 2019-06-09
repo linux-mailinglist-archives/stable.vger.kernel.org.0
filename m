@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 289243AA84
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:19:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFDD53A94B
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:09:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731263AbfFIQsl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:48:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47846 "EHLO mail.kernel.org"
+        id S2388327AbfFIRJE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 13:09:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731232AbfFIQsk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:48:40 -0400
+        id S2387804AbfFIREW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 13:04:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B5799206C3;
-        Sun,  9 Jun 2019 16:48:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9189C20868;
+        Sun,  9 Jun 2019 17:04:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560098920;
-        bh=c/h5LsyEMrg8LMhNb60YT3K6SWopq5tpLSzjqwcrkdQ=;
+        s=default; t=1560099862;
+        bh=t4JQrWETUCvI1PDLC+Gj2NlQoZwI/rUV1gGkZUpklA8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hS/7FOggIOFtGyGR8TCCaaHqdWStk9gk41Bzj27i1W7dOA94lLUUCJXyGPYv7lxoR
-         9zHWR7Zy5WLbIe/pvMeFAUS9OgMVhZvg0cjih35UJfahKdDF64naqGohaFSlsfpiWM
-         kdyP1oiTBbUzfehUBW0qolgD0Qn4SbEbXhOt/LEE=
+        b=1AbXGtiVC/cTFVxsLWO0oftOPOsPlVAeIKr2caYtFj7UYvDXXMAgQIU+Hqqa2Opgw
+         QDikYftIyHscVlTsfLlnGlH4JsMAPY5X+KXe9pl0IJbN+n+SDm5QmpUljvdR/az1nX
+         0OIgP1ZYtoYe5Zx9XQ1SOaNE2ByVLKPKWHVV30fc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [PATCH 4.19 35/51] genwqe: Prevent an integer overflow in the ioctl
+        stable@vger.kernel.org, Andrey Smirnov <andrew.smirnov@gmail.com>,
+        Raul E Rangel <rrangel@chromium.org>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 4.4 194/241] xhci: Convert xhci_handshake() to use readl_poll_timeout_atomic()
 Date:   Sun,  9 Jun 2019 18:42:16 +0200
-Message-Id: <20190609164129.413681866@linuxfoundation.org>
+Message-Id: <20190609164153.558202861@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.123076536@linuxfoundation.org>
-References: <20190609164127.123076536@linuxfoundation.org>
+In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
+References: <20190609164147.729157653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,57 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Andrey Smirnov <andrew.smirnov@gmail.com>
 
-commit 110080cea0d0e4dfdb0b536e7f8a5633ead6a781 upstream.
+commit f7fac17ca925faa03fc5eb854c081a24075f8bad upstream.
 
-There are a couple potential integer overflows here.
+Xhci_handshake() implements the algorithm already captured by
+readl_poll_timeout_atomic(). Convert the former to use the latter to
+avoid repetition.
 
-	round_up(m->size + (m->addr & ~PAGE_MASK), PAGE_SIZE);
+Turned out this patch also fixes a bug on the AMD Stoneyridge platform
+where usleep(1) sometimes takes over 10ms.
+This means a 5 second timeout can easily take over 15 seconds which will
+trigger the watchdog and reboot the system.
 
-The first thing is that the "m->size + (...)" addition could overflow,
-and the second is that round_up() overflows to zero if the result is
-within PAGE_SIZE of the type max.
-
-In this code, the "m->size" variable is an u64 but we're saving the
-result in "map_size" which is an unsigned long and genwqe_user_vmap()
-takes an unsigned long as well.  So I have used ULONG_MAX as the upper
-bound.  From a practical perspective unsigned long is fine/better than
-trying to change all the types to u64.
-
-Fixes: eaf4722d4645 ("GenWQE Character device and DDCB queue")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: stable <stable@vger.kernel.org>
+[Add info about patch fixing a bug to commit message -Mathias]
+Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
+Tested-by: Raul E Rangel <rrangel@chromium.org>
+Reviewed-by: Raul E Rangel <rrangel@chromium.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/misc/genwqe/card_dev.c   |    2 ++
- drivers/misc/genwqe/card_utils.c |    4 ++++
- 2 files changed, 6 insertions(+)
+ drivers/usb/host/xhci.c |   22 ++++++++++------------
+ 1 file changed, 10 insertions(+), 12 deletions(-)
 
---- a/drivers/misc/genwqe/card_dev.c
-+++ b/drivers/misc/genwqe/card_dev.c
-@@ -780,6 +780,8 @@ static int genwqe_pin_mem(struct genwqe_
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -21,6 +21,7 @@
+  */
  
- 	if ((m->addr == 0x0) || (m->size == 0))
- 		return -EINVAL;
-+	if (m->size > ULONG_MAX - PAGE_SIZE - (m->addr & ~PAGE_MASK))
-+		return -EINVAL;
+ #include <linux/pci.h>
++#include <linux/iopoll.h>
+ #include <linux/irq.h>
+ #include <linux/log2.h>
+ #include <linux/module.h>
+@@ -46,7 +47,6 @@ static unsigned int quirks;
+ module_param(quirks, uint, S_IRUGO);
+ MODULE_PARM_DESC(quirks, "Bit flags for quirks to be enabled as default");
  
- 	map_addr = (m->addr & PAGE_MASK);
- 	map_size = round_up(m->size + (m->addr & ~PAGE_MASK), PAGE_SIZE);
---- a/drivers/misc/genwqe/card_utils.c
-+++ b/drivers/misc/genwqe/card_utils.c
-@@ -587,6 +587,10 @@ int genwqe_user_vmap(struct genwqe_dev *
- 	/* determine space needed for page_list. */
- 	data = (unsigned long)uaddr;
- 	offs = offset_in_page(data);
-+	if (size > ULONG_MAX - PAGE_SIZE - offs) {
-+		m->size = 0;	/* mark unused and not added */
-+		return -EINVAL;
-+	}
- 	m->nr_pages = DIV_ROUND_UP(offs + size, PAGE_SIZE);
+-/* TODO: copied from ehci-hcd.c - can this be refactored? */
+ /*
+  * xhci_handshake - spin reading hc until handshake completes or fails
+  * @ptr: address of hc register to be read
+@@ -63,18 +63,16 @@ MODULE_PARM_DESC(quirks, "Bit flags for
+ int xhci_handshake(void __iomem *ptr, u32 mask, u32 done, int usec)
+ {
+ 	u32	result;
++	int	ret;
  
- 	m->page_list = kcalloc(m->nr_pages,
+-	do {
+-		result = readl(ptr);
+-		if (result == ~(u32)0)		/* card removed */
+-			return -ENODEV;
+-		result &= mask;
+-		if (result == done)
+-			return 0;
+-		udelay(1);
+-		usec--;
+-	} while (usec > 0);
+-	return -ETIMEDOUT;
++	ret = readl_poll_timeout_atomic(ptr, result,
++					(result & mask) == done ||
++					result == U32_MAX,
++					1, usec);
++	if (result == U32_MAX)		/* card removed */
++		return -ENODEV;
++
++	return ret;
+ }
+ 
+ /*
 
 
