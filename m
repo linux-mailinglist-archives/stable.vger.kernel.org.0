@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E7E73AA92
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:19:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 865203AAB5
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:21:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731164AbfFIQsV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:48:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47392 "EHLO mail.kernel.org"
+        id S1730415AbfFIQqX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:46:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44528 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729778AbfFIQsU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:48:20 -0400
+        id S1730408AbfFIQqW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:46:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C23D7206DF;
-        Sun,  9 Jun 2019 16:48:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 960672081C;
+        Sun,  9 Jun 2019 16:46:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560098900;
-        bh=djcMLwIfe/22lcru6QrlwMZ98x837/yYlP/0xOJ48ow=;
+        s=default; t=1560098782;
+        bh=DOB7Gu/i1IrhgR/2HX0dobI4dpLhFxiR70LS3rymbao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VFx7FCYaXpX8yydFEq97I06v1UytuhKwguHeb3cT99bDof7lG+gHUQxXUeuJVnRoZ
-         5gBUE4UwfaVoi/llt+HPUxCFUddbqjmZaE4j8j8NeRZk59sXLEUh5d9hYjYs8qPOZf
-         J7MmoiMfYtFQtH8v5G3PqraFKQ/+YyrTHeII0uzM=
+        b=kw/DqYX4Ch9BORFYAb2/c5K1nmyFxnE+Q2hlNFJaJeTusKzHj668vBtU5rNjY/cnD
+         99nxBVPRuJ8iO6lgRhVk1aSeLPc2vycK3ALVr9zwbmcHyDogSOVwQ1Up0fjig9bHiw
+         CtOhziFkSQx8Y0M3NJz1jlL3CXACMNNSdf6Tq1Ls=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Hancock <hancock@sedsystems.ca>,
-        Michal Simek <michal.simek@xilinx.com>,
-        Wolfram Sang <wsa@the-dreams.de>, stable@kernel.org
-Subject: [PATCH 4.19 29/51] i2c: xiic: Add max_read_len quirk
+        stable@vger.kernel.org, Aaron Liu <aaron.liu@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.1 59/70] drm/amdgpu: remove ATPX_DGPU_REQ_POWER_FOR_DISPLAYS check when hotplug-in
 Date:   Sun,  9 Jun 2019 18:42:10 +0200
-Message-Id: <20190609164128.917244197@linuxfoundation.org>
+Message-Id: <20190609164132.419056084@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.123076536@linuxfoundation.org>
-References: <20190609164127.123076536@linuxfoundation.org>
+In-Reply-To: <20190609164127.541128197@linuxfoundation.org>
+References: <20190609164127.541128197@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,49 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Hancock <hancock@sedsystems.ca>
+From: Aaron Liu <aaron.liu@amd.com>
 
-commit 49b809586730a77b57ce620b2f9689de765d790b upstream.
+commit bdb1ccb080dafc1b4224873a5b759ff85a7d1c10 upstream.
 
-This driver does not support reading more than 255 bytes at once because
-the register for storing the number of bytes to read is only 8 bits. Add
-a max_read_len quirk to enforce this.
+In amdgpu_atif_handler, when hotplug event received, remove
+ATPX_DGPU_REQ_POWER_FOR_DISPLAYS check. This bit's check will cause missing
+system resume.
 
-This was found when using this driver with the SFP driver, which was
-previously reading all 256 bytes in the SFP EEPROM in one transaction.
-This caused a bunch of hard-to-debug errors in the xiic driver since the
-driver/logic was treating the number of bytes to read as zero.
-Rejecting transactions that aren't supported at least allows the problem
-to be diagnosed more easily.
-
-Signed-off-by: Robert Hancock <hancock@sedsystems.ca>
-Reviewed-by: Michal Simek <michal.simek@xilinx.com>
-Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
-Cc: stable@kernel.org
+Signed-off-by: Aaron Liu <aaron.liu@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/i2c/busses/i2c-xiic.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/i2c/busses/i2c-xiic.c
-+++ b/drivers/i2c/busses/i2c-xiic.c
-@@ -718,11 +718,16 @@ static const struct i2c_algorithm xiic_a
- 	.functionality = xiic_func,
- };
- 
-+static const struct i2c_adapter_quirks xiic_quirks = {
-+	.max_read_len = 255,
-+};
-+
- static const struct i2c_adapter xiic_adapter = {
- 	.owner = THIS_MODULE,
- 	.name = DRIVER_NAME,
- 	.class = I2C_CLASS_DEPRECATED,
- 	.algo = &xiic_algorithm,
-+	.quirks = &xiic_quirks,
- };
- 
- 
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c
+@@ -464,8 +464,7 @@ static int amdgpu_atif_handler(struct am
+ 			}
+ 		}
+ 		if (req.pending & ATIF_DGPU_DISPLAY_EVENT) {
+-			if ((adev->flags & AMD_IS_PX) &&
+-			    amdgpu_atpx_dgpu_req_power_for_displays()) {
++			if (adev->flags & AMD_IS_PX) {
+ 				pm_runtime_get_sync(adev->ddev->dev);
+ 				/* Just fire off a uevent and let userspace tell us what to do */
+ 				drm_helper_hpd_irq_event(adev->ddev);
 
 
