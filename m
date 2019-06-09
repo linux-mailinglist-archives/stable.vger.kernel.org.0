@@ -2,39 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 63F8E3A71E
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 18:47:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34F0B3A7C9
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 18:53:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730461AbfFIQqc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:46:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44742 "EHLO mail.kernel.org"
+        id S1731100AbfFIQxO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:53:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730494AbfFIQqb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:46:31 -0400
+        id S1732366AbfFIQxO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:53:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 18A6F208C0;
-        Sun,  9 Jun 2019 16:46:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 77CE3206BB;
+        Sun,  9 Jun 2019 16:53:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560098790;
-        bh=JXCwo4P12ejwZfDdBCGPxvuki+mBfnKuDkGCDec2tas=;
+        s=default; t=1560099194;
+        bh=+SaQOnpuc3KYK1Uzlk7Tb/UZnbTi3fsoVUAx8VBchwk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CdSt/F1KlAD/dTLvrDCnXdrwdT+CRk+T6bHut+4XUiVfty0Ob34U4/mljQBSCce/g
-         6BhscWTTwJ0JlPVRet7X1gFdeRTYQmHJeRoM02M5catm5nsVt7W6QBiU941fYa7Pgs
-         3teytZwHpOgO18oWzZUyWRN7nPKkH3NdO3l6IOf8=
+        b=RcHwUWYIGHLlN4JlcNrOPsuCzJdFTCDH+/mPwdg03mKcffA5G6cKjw7ohdXbDSmbU
+         WljSsqwpbKXqG3g0U87bMsUAdfwU/eG0zCDtPF91jVon7aoplncS7+WTxDo7kWAAYW
+         B5hFPx0phB22C040U8bRy4BmgFRQ4b+G9NjmXN3s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Harry Wentland <harry.wentland@amd.com>,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.1 62/70] drm/amd/display: Add ASICREV_IS_PICASSO
+        stable@vger.kernel.org, Zhenliang Wei <weizhenliang@huawei.com>,
+        Christian Brauner <christian@brauner.io>,
+        Oleg Nesterov <oleg@redhat.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Ivan Delalande <colona@arista.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Deepa Dinamani <deepa.kernel@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.9 43/83] kernel/signal.c: trace_signal_deliver when signal_group_exit
 Date:   Sun,  9 Jun 2019 18:42:13 +0200
-Message-Id: <20190609164132.659204346@linuxfoundation.org>
+Message-Id: <20190609164131.563594039@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.541128197@linuxfoundation.org>
-References: <20190609164127.541128197@linuxfoundation.org>
+In-Reply-To: <20190609164127.843327870@linuxfoundation.org>
+References: <20190609164127.843327870@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +51,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harry Wentland <harry.wentland@amd.com>
+From: Zhenliang Wei <weizhenliang@huawei.com>
 
-commit ada637e70f96862ff5ba20a169506b58cf567db9 upstream.
+commit 98af37d624ed8c83f1953b1b6b2f6866011fc064 upstream.
 
-[WHY]
-We only want to load DMCU FW on Picasso and Raven 2, not on Raven 1.
+In the fixes commit, removing SIGKILL from each thread signal mask and
+executing "goto fatal" directly will skip the call to
+"trace_signal_deliver".  At this point, the delivery tracking of the
+SIGKILL signal will be inaccurate.
 
-Signed-off-by: Harry Wentland <harry.wentland@amd.com>
-Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Therefore, we need to add trace_signal_deliver before "goto fatal" after
+executing sigdelset.
+
+Note: SEND_SIG_NOINFO matches the fact that SIGKILL doesn't have any info.
+
+Link: http://lkml.kernel.org/r/20190425025812.91424-1-weizhenliang@huawei.com
+Fixes: cf43a757fd4944 ("signal: Restore the stop PTRACE_EVENT_EXIT")
+Signed-off-by: Zhenliang Wei <weizhenliang@huawei.com>
+Reviewed-by: Christian Brauner <christian@brauner.io>
+Reviewed-by: Oleg Nesterov <oleg@redhat.com>
+Cc: Eric W. Biederman <ebiederm@xmission.com>
+Cc: Ivan Delalande <colona@arista.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Deepa Dinamani <deepa.kernel@gmail.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/amd/display/include/dal_asic_id.h |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ kernel/signal.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/gpu/drm/amd/display/include/dal_asic_id.h
-+++ b/drivers/gpu/drm/amd/display/include/dal_asic_id.h
-@@ -138,13 +138,14 @@
- #endif
- #define RAVEN_UNKNOWN 0xFF
- 
--#if defined(CONFIG_DRM_AMD_DC_DCN1_01)
--#define ASICREV_IS_RAVEN2(eChipRev) ((eChipRev >= RAVEN2_A0) && (eChipRev < 0xF0))
--#endif /* DCN1_01 */
- #define ASIC_REV_IS_RAVEN(eChipRev) ((eChipRev >= RAVEN_A0) && eChipRev < RAVEN_UNKNOWN)
- #define RAVEN1_F0 0xF0
- #define ASICREV_IS_RV1_F0(eChipRev) ((eChipRev >= RAVEN1_F0) && (eChipRev < RAVEN_UNKNOWN))
- 
-+#if defined(CONFIG_DRM_AMD_DC_DCN1_01)
-+#define ASICREV_IS_PICASSO(eChipRev) ((eChipRev >= PICASSO_A0) && (eChipRev < RAVEN2_A0))
-+#define ASICREV_IS_RAVEN2(eChipRev) ((eChipRev >= RAVEN2_A0) && (eChipRev < 0xF0))
-+#endif /* DCN1_01 */
- 
- #define FAMILY_RV 142 /* DCN 1*/
- 
+--- a/kernel/signal.c
++++ b/kernel/signal.c
+@@ -2244,6 +2244,8 @@ relock:
+ 	if (signal_group_exit(signal)) {
+ 		ksig->info.si_signo = signr = SIGKILL;
+ 		sigdelset(&current->pending.signal, SIGKILL);
++		trace_signal_deliver(SIGKILL, SEND_SIG_NOINFO,
++				&sighand->action[SIGKILL - 1]);
+ 		recalc_sigpending();
+ 		goto fatal;
+ 	}
 
 
