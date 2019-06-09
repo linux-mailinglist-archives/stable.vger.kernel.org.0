@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 901A83AA67
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:18:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 685313AADE
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:23:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732215AbfFIQw1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:52:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53318 "EHLO mail.kernel.org"
+        id S1729514AbfFIQo6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:44:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42314 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731394AbfFIQw1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:52:27 -0400
+        id S1729541AbfFIQoz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:44:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 07B62205ED;
-        Sun,  9 Jun 2019 16:52:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5E67620840;
+        Sun,  9 Jun 2019 16:44:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099146;
-        bh=0CV3ykOXup43iLMZFuI/xSseBucsOMh+EuMa+csKPtA=;
+        s=default; t=1560098694;
+        bh=4HJOMs1unhwor+6znmJULHNg5Dxzi/hapt9PN24JadI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a24cj2KtUqX77zB/LpBQWrIZCHTDsiNnhzE9nnZIKeud3kC14EMhiRT+jJ6sNnVTr
-         xPnZ6HfvDVTZTSYAHEZ4MEGoukdH2IQlJ+kiQl4VaKCTMebSIfm9BuTRn63Tc8R1oG
-         tRO37ExoneLrEpdt6p6LCgC+Cl8oKDj/FMN/oWSg=
+        b=IZtxKwMcNnJccpgXIJyFLZ1/XfTlh3swiUbyKbydzKLnMwFh4M6VzcLldyvGScybD
+         AcTJClnjA0bjoiJwKab9nr9G4UGEy65Hpus1UMcjHkAo0AJ/Le5EqM4EPJCjbPL7vY
+         zmOv0gaWmQ/TAHuGbZ5bSFzMqb1c/wuBCCRVYOBg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rakesh Hemnani <rhemnani@fb.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 08/83] bnxt_en: Fix aggregation buffer leak under OOM condition.
+        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>
+Subject: [PATCH 5.1 27/70] SUNRPC fix regression in umount of a secure mount
 Date:   Sun,  9 Jun 2019 18:41:38 +0200
-Message-Id: <20190609164128.290853125@linuxfoundation.org>
+Message-Id: <20190609164129.289731833@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.843327870@linuxfoundation.org>
-References: <20190609164127.843327870@linuxfoundation.org>
+In-Reply-To: <20190609164127.541128197@linuxfoundation.org>
+References: <20190609164127.541128197@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+From: Olga Kornievskaia <kolga@netapp.com>
 
-[ Upstream commit 296d5b54163964b7ae536b8b57dfbd21d4e868e1 ]
+commit ec6017d9035986a36de064f48a63245930bfad6f upstream.
 
-For every RX packet, the driver replenishes all buffers used for that
-packet and puts them back into the RX ring and RX aggregation ring.
-In one code path where the RX packet has one RX buffer and one or more
-aggregation buffers, we missed recycling the aggregation buffer(s) if
-we are unable to allocate a new SKB buffer.  This leads to the
-aggregation ring slowly running out of buffers over time.  Fix it
-by properly recycling the aggregation buffers.
+If call_status returns ENOTCONN, we need to re-establish the connection
+state after. Otherwise the client goes into an infinite loop of call_encode,
+call_transmit, call_status (ENOTCONN), call_encode.
 
-Fixes: c0c050c58d84 ("bnxt_en: New Broadcom ethernet driver.")
-Reported-by: Rakesh Hemnani <rhemnani@fb.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: c8485e4d63 ("SUNRPC: Handle ECONNREFUSED correctly in xprt_transmit()")
+Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
+Cc: stable@vger.kernel.org # v2.6.29+
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/broadcom/bnxt/bnxt.c |    2 ++
- 1 file changed, 2 insertions(+)
 
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -1425,6 +1425,8 @@ static int bnxt_rx_pkt(struct bnxt *bp,
- 		skb = bnxt_copy_skb(bnapi, data, len, dma_addr);
- 		bnxt_reuse_rx_data(rxr, cons, data);
- 		if (!skb) {
-+			if (agg_bufs)
-+				bnxt_reuse_rx_agg_bufs(bnapi, cp_cons, agg_bufs);
- 			rc = -ENOMEM;
- 			goto next_rx;
- 		}
+---
+ net/sunrpc/clnt.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/net/sunrpc/clnt.c
++++ b/net/sunrpc/clnt.c
+@@ -2260,13 +2260,13 @@ call_status(struct rpc_task *task)
+ 	case -ECONNREFUSED:
+ 	case -ECONNRESET:
+ 	case -ECONNABORTED:
++	case -ENOTCONN:
+ 		rpc_force_rebind(clnt);
+ 		/* fall through */
+ 	case -EADDRINUSE:
+ 		rpc_delay(task, 3*HZ);
+ 		/* fall through */
+ 	case -EPIPE:
+-	case -ENOTCONN:
+ 	case -EAGAIN:
+ 		break;
+ 	case -EIO:
 
 
