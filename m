@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 849103AA69
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:19:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B91B43A96A
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:10:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732250AbfFIQwj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:52:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53530 "EHLO mail.kernel.org"
+        id S2388463AbfFIRJ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 13:09:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732239AbfFIQwf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:52:35 -0400
+        id S2388413AbfFIRDZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 13:03:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 196D9205ED;
-        Sun,  9 Jun 2019 16:52:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C6998204EC;
+        Sun,  9 Jun 2019 17:03:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099154;
-        bh=oy9SgvTgrXOvvCWL9PBmLvliks1+yZDfJ8ery3etdGg=;
+        s=default; t=1560099805;
+        bh=2GIXIYzyc2bRJV1VoIiHwA6B1C2BcKL3dkvr9OdC9Lo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C5QzHE5hlf77/9tVkrpOrvQykiY/ZK0epxeu8T6vEe+Zxj+iMghbmiCWG7H5nnbKx
-         4ivrBhGixYlmYbbJpo4ABUesf2vF4GxQvPYNbYuRwlEPus4YGLS6wlf9YJbK3HuosI
-         QXW8VI/ylbHZAyNlEtC/Xj4Q7ZvLs+BHfVFjNatw=
+        b=zIID524Wc3wfygNndNEIq6s+Y8wvG55piU7TIQC3nRFdtv7tX761M+6velq+PY/Xu
+         nCBKOwcmtVS72/vVmPCUfzljxrVRqxFgZ3OI9c6P6pnNNxEnX0uKLepizvzTkSI/Lk
+         Q3H93r8BobAHWDQRkgw5m6cyF1MwSJritWivh+s0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrey Smirnov <andrew.smirnov@gmail.com>,
-        Raul E Rangel <rrangel@chromium.org>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 4.9 22/83] xhci: Convert xhci_handshake() to use readl_poll_timeout_atomic()
-Date:   Sun,  9 Jun 2019 18:41:52 +0200
-Message-Id: <20190609164129.398178303@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 171/241] scsi: qla4xxx: avoid freeing unallocated dma memory
+Date:   Sun,  9 Jun 2019 18:41:53 +0200
+Message-Id: <20190609164152.724720064@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.843327870@linuxfoundation.org>
-References: <20190609164127.843327870@linuxfoundation.org>
+In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
+References: <20190609164147.729157653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,76 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Smirnov <andrew.smirnov@gmail.com>
+[ Upstream commit 608f729c31d4caf52216ea00d20092a80959256d ]
 
-commit f7fac17ca925faa03fc5eb854c081a24075f8bad upstream.
+Clang -Wuninitialized notices that on is_qla40XX we never allocate any DMA
+memory in get_fw_boot_info() but attempt to free it anyway:
 
-Xhci_handshake() implements the algorithm already captured by
-readl_poll_timeout_atomic(). Convert the former to use the latter to
-avoid repetition.
+drivers/scsi/qla4xxx/ql4_os.c:5915:7: error: variable 'buf_dma' is used uninitialized whenever 'if' condition is false
+      [-Werror,-Wsometimes-uninitialized]
+                if (!(val & 0x07)) {
+                    ^~~~~~~~~~~~~
+drivers/scsi/qla4xxx/ql4_os.c:5985:47: note: uninitialized use occurs here
+        dma_free_coherent(&ha->pdev->dev, size, buf, buf_dma);
+                                                     ^~~~~~~
+drivers/scsi/qla4xxx/ql4_os.c:5915:3: note: remove the 'if' if its condition is always true
+                if (!(val & 0x07)) {
+                ^~~~~~~~~~~~~~~~~~~
+drivers/scsi/qla4xxx/ql4_os.c:5885:20: note: initialize the variable 'buf_dma' to silence this warning
+        dma_addr_t buf_dma;
+                          ^
+                           = 0
 
-Turned out this patch also fixes a bug on the AMD Stoneyridge platform
-where usleep(1) sometimes takes over 10ms.
-This means a 5 second timeout can easily take over 15 seconds which will
-trigger the watchdog and reboot the system.
+Skip the call to dma_free_coherent() here.
 
-[Add info about patch fixing a bug to commit message -Mathias]
-Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
-Tested-by: Raul E Rangel <rrangel@chromium.org>
-Reviewed-by: Raul E Rangel <rrangel@chromium.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 2a991c215978 ("[SCSI] qla4xxx: Boot from SAN support for open-iscsi")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci.c |   22 ++++++++++------------
- 1 file changed, 10 insertions(+), 12 deletions(-)
+ drivers/scsi/qla4xxx/ql4_os.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -21,6 +21,7 @@
-  */
- 
- #include <linux/pci.h>
-+#include <linux/iopoll.h>
- #include <linux/irq.h>
- #include <linux/log2.h>
- #include <linux/module.h>
-@@ -47,7 +48,6 @@ static unsigned int quirks;
- module_param(quirks, uint, S_IRUGO);
- MODULE_PARM_DESC(quirks, "Bit flags for quirks to be enabled as default");
- 
--/* TODO: copied from ehci-hcd.c - can this be refactored? */
- /*
-  * xhci_handshake - spin reading hc until handshake completes or fails
-  * @ptr: address of hc register to be read
-@@ -64,18 +64,16 @@ MODULE_PARM_DESC(quirks, "Bit flags for
- int xhci_handshake(void __iomem *ptr, u32 mask, u32 done, int usec)
- {
- 	u32	result;
-+	int	ret;
- 
--	do {
--		result = readl(ptr);
--		if (result == ~(u32)0)		/* card removed */
--			return -ENODEV;
--		result &= mask;
--		if (result == done)
--			return 0;
--		udelay(1);
--		usec--;
--	} while (usec > 0);
--	return -ETIMEDOUT;
-+	ret = readl_poll_timeout_atomic(ptr, result,
-+					(result & mask) == done ||
-+					result == U32_MAX,
-+					1, usec);
-+	if (result == U32_MAX)		/* card removed */
-+		return -ENODEV;
-+
-+	return ret;
- }
- 
- /*
+diff --git a/drivers/scsi/qla4xxx/ql4_os.c b/drivers/scsi/qla4xxx/ql4_os.c
+index c158967b59d7b..d220b4f691c77 100644
+--- a/drivers/scsi/qla4xxx/ql4_os.c
++++ b/drivers/scsi/qla4xxx/ql4_os.c
+@@ -5939,7 +5939,7 @@ static int get_fw_boot_info(struct scsi_qla_host *ha, uint16_t ddb_index[])
+ 		val = rd_nvram_byte(ha, sec_addr);
+ 		if (val & BIT_7)
+ 			ddb_index[1] = (val & 0x7f);
+-
++		goto exit_boot_info;
+ 	} else if (is_qla80XX(ha)) {
+ 		buf = dma_alloc_coherent(&ha->pdev->dev, size,
+ 					 &buf_dma, GFP_KERNEL);
+-- 
+2.20.1
+
 
 
