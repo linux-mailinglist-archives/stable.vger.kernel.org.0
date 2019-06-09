@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C3483AAD9
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:23:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED0003A984
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:11:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729328AbfFIQof (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:44:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41728 "EHLO mail.kernel.org"
+        id S2387691AbfFIRBk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 13:01:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729354AbfFIQoe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:44:34 -0400
+        id S2388107AbfFIRBj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 13:01:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 28C5E20833;
-        Sun,  9 Jun 2019 16:44:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 98FDC206C3;
+        Sun,  9 Jun 2019 17:01:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560098672;
-        bh=Cp2uECuwOeGPDjVMSYrZzAlare/2fg5aOUeUdcM2Uv4=;
+        s=default; t=1560099699;
+        bh=J4uwusvLtrICANSHTWdP5KgOtyuG4ox8q63z/IbzCHk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a4o9GdYzhU7tUDgsv5uQn4Bv7JPsR5BIpNQz+tJvCDPWmnqD60orrY67oJi1cR4Ue
-         JP5ZmJlhqD4/TpTtTe+l79Iy4pRXBts/7pC6VNyqYVVM5M0fqyImqC+AprFO/TMCTx
-         1Qzc1SWr1maub5AmTjJUT5niA9pvEDaRPbb+OcLM=
+        b=fhPAWUKFycyNT68Ni+Kg96nNTzru87PVT4R0b4EZq4lYX15xlFpTHRZ4XXWdvzZ1D
+         5Y9FQ4GF/mFM+FPOSMidSasxk3BJPyC6JUtYed4FGnNJR4DPlnfhN4MeEnV0dZE7OF
+         EmIyZmYAHIkCB+f8BWI1ogxzos8uXYPagVL9F38E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Neil Horman <nhorman@tuxdriver.com>,
-        syzbot+f7e9153b037eac9b1df8@syzkaller.appspotmail.com,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org
-Subject: [PATCH 5.1 02/70] Fix memory leak in sctp_process_init
-Date:   Sun,  9 Jun 2019 18:41:13 +0200
-Message-Id: <20190609164127.659541917@linuxfoundation.org>
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 132/241] hwmon: (vt1211) Use request_muxed_region for Super-IO accesses
+Date:   Sun,  9 Jun 2019 18:41:14 +0200
+Message-Id: <20190609164151.608346696@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.541128197@linuxfoundation.org>
-References: <20190609164127.541128197@linuxfoundation.org>
+In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
+References: <20190609164147.729157653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,125 +43,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neil Horman <nhorman@tuxdriver.com>
+[ Upstream commit 14b97ba5c20056102b3dd22696bf17b057e60976 ]
 
-[ Upstream commit 0a8dd9f67cd0da7dc284f48b032ce00db1a68791 ]
+Super-IO accesses may fail on a system with no or unmapped LPC bus.
 
-syzbot found the following leak in sctp_process_init
-BUG: memory leak
-unreferenced object 0xffff88810ef68400 (size 1024):
-  comm "syz-executor273", pid 7046, jiffies 4294945598 (age 28.770s)
-  hex dump (first 32 bytes):
-    1d de 28 8d de 0b 1b e3 b5 c2 f9 68 fd 1a 97 25  ..(........h...%
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<00000000a02cebbd>] kmemleak_alloc_recursive include/linux/kmemleak.h:55
-[inline]
-    [<00000000a02cebbd>] slab_post_alloc_hook mm/slab.h:439 [inline]
-    [<00000000a02cebbd>] slab_alloc mm/slab.c:3326 [inline]
-    [<00000000a02cebbd>] __do_kmalloc mm/slab.c:3658 [inline]
-    [<00000000a02cebbd>] __kmalloc_track_caller+0x15d/0x2c0 mm/slab.c:3675
-    [<000000009e6245e6>] kmemdup+0x27/0x60 mm/util.c:119
-    [<00000000dfdc5d2d>] kmemdup include/linux/string.h:432 [inline]
-    [<00000000dfdc5d2d>] sctp_process_init+0xa7e/0xc20
-net/sctp/sm_make_chunk.c:2437
-    [<00000000b58b62f8>] sctp_cmd_process_init net/sctp/sm_sideeffect.c:682
-[inline]
-    [<00000000b58b62f8>] sctp_cmd_interpreter net/sctp/sm_sideeffect.c:1384
-[inline]
-    [<00000000b58b62f8>] sctp_side_effects net/sctp/sm_sideeffect.c:1194
-[inline]
-    [<00000000b58b62f8>] sctp_do_sm+0xbdc/0x1d60 net/sctp/sm_sideeffect.c:1165
-    [<0000000044e11f96>] sctp_assoc_bh_rcv+0x13c/0x200
-net/sctp/associola.c:1074
-    [<00000000ec43804d>] sctp_inq_push+0x7f/0xb0 net/sctp/inqueue.c:95
-    [<00000000726aa954>] sctp_backlog_rcv+0x5e/0x2a0 net/sctp/input.c:354
-    [<00000000d9e249a8>] sk_backlog_rcv include/net/sock.h:950 [inline]
-    [<00000000d9e249a8>] __release_sock+0xab/0x110 net/core/sock.c:2418
-    [<00000000acae44fa>] release_sock+0x37/0xd0 net/core/sock.c:2934
-    [<00000000963cc9ae>] sctp_sendmsg+0x2c0/0x990 net/sctp/socket.c:2122
-    [<00000000a7fc7565>] inet_sendmsg+0x64/0x120 net/ipv4/af_inet.c:802
-    [<00000000b732cbd3>] sock_sendmsg_nosec net/socket.c:652 [inline]
-    [<00000000b732cbd3>] sock_sendmsg+0x54/0x70 net/socket.c:671
-    [<00000000274c57ab>] ___sys_sendmsg+0x393/0x3c0 net/socket.c:2292
-    [<000000008252aedb>] __sys_sendmsg+0x80/0xf0 net/socket.c:2330
-    [<00000000f7bf23d1>] __do_sys_sendmsg net/socket.c:2339 [inline]
-    [<00000000f7bf23d1>] __se_sys_sendmsg net/socket.c:2337 [inline]
-    [<00000000f7bf23d1>] __x64_sys_sendmsg+0x23/0x30 net/socket.c:2337
-    [<00000000a8b4131f>] do_syscall_64+0x76/0x1a0 arch/x86/entry/common.c:3
+Also, other drivers may attempt to access the LPC bus at the same time,
+resulting in undefined behavior.
 
-The problem was that the peer.cookie value points to an skb allocated
-area on the first pass through this function, at which point it is
-overwritten with a heap allocated value, but in certain cases, where a
-COOKIE_ECHO chunk is included in the packet, a second pass through
-sctp_process_init is made, where the cookie value is re-allocated,
-leaking the first allocation.
+Use request_muxed_region() to ensure that IO access on the requested
+address space is supported, and to ensure that access by multiple drivers
+is synchronized.
 
-Fix is to always allocate the cookie value, and free it when we are done
-using it.
-
-Signed-off-by: Neil Horman <nhorman@tuxdriver.com>
-Reported-by: syzbot+f7e9153b037eac9b1df8@syzkaller.appspotmail.com
-CC: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-CC: "David S. Miller" <davem@davemloft.net>
-CC: netdev@vger.kernel.org
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 2219cd81a6cd ("hwmon/vt1211: Add probing of alternate config index port")
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/sm_make_chunk.c |   13 +++----------
- net/sctp/sm_sideeffect.c |    5 +++++
- 2 files changed, 8 insertions(+), 10 deletions(-)
+ drivers/hwmon/vt1211.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
---- a/net/sctp/sm_make_chunk.c
-+++ b/net/sctp/sm_make_chunk.c
-@@ -2329,7 +2329,6 @@ int sctp_process_init(struct sctp_associ
- 	union sctp_addr addr;
- 	struct sctp_af *af;
- 	int src_match = 0;
--	char *cookie;
+diff --git a/drivers/hwmon/vt1211.c b/drivers/hwmon/vt1211.c
+index 3a6bfa51cb94f..95d5e8ec8b7fc 100644
+--- a/drivers/hwmon/vt1211.c
++++ b/drivers/hwmon/vt1211.c
+@@ -226,15 +226,21 @@ static inline void superio_select(int sio_cip, int ldn)
+ 	outb(ldn, sio_cip + 1);
+ }
  
- 	/* We must include the address that the INIT packet came from.
- 	 * This is the only address that matters for an INIT packet.
-@@ -2433,14 +2432,6 @@ int sctp_process_init(struct sctp_associ
- 	/* Peer Rwnd   : Current calculated value of the peer's rwnd.  */
- 	asoc->peer.rwnd = asoc->peer.i.a_rwnd;
- 
--	/* Copy cookie in case we need to resend COOKIE-ECHO. */
--	cookie = asoc->peer.cookie;
--	if (cookie) {
--		asoc->peer.cookie = kmemdup(cookie, asoc->peer.cookie_len, gfp);
--		if (!asoc->peer.cookie)
--			goto clean_up;
--	}
--
- 	/* RFC 2960 7.2.1 The initial value of ssthresh MAY be arbitrarily
- 	 * high (for example, implementations MAY use the size of the receiver
- 	 * advertised window).
-@@ -2609,7 +2600,9 @@ do_addr_param:
- 	case SCTP_PARAM_STATE_COOKIE:
- 		asoc->peer.cookie_len =
- 			ntohs(param.p->length) - sizeof(struct sctp_paramhdr);
--		asoc->peer.cookie = param.cookie->body;
-+		asoc->peer.cookie = kmemdup(param.cookie->body, asoc->peer.cookie_len, gfp);
-+		if (!asoc->peer.cookie)
-+			retval = 0;
- 		break;
- 
- 	case SCTP_PARAM_HEARTBEAT_INFO:
---- a/net/sctp/sm_sideeffect.c
-+++ b/net/sctp/sm_sideeffect.c
-@@ -898,6 +898,11 @@ static void sctp_cmd_new_state(struct sc
- 						asoc->rto_initial;
- 	}
- 
-+	if (sctp_state(asoc, ESTABLISHED)) {
-+		kfree(asoc->peer.cookie);
-+		asoc->peer.cookie = NULL;
-+	}
+-static inline void superio_enter(int sio_cip)
++static inline int superio_enter(int sio_cip)
+ {
++	if (!request_muxed_region(sio_cip, 2, DRVNAME))
++		return -EBUSY;
 +
- 	if (sctp_state(asoc, ESTABLISHED) ||
- 	    sctp_state(asoc, CLOSED) ||
- 	    sctp_state(asoc, SHUTDOWN_RECEIVED)) {
+ 	outb(0x87, sio_cip);
+ 	outb(0x87, sio_cip);
++
++	return 0;
+ }
+ 
+ static inline void superio_exit(int sio_cip)
+ {
+ 	outb(0xaa, sio_cip);
++	release_region(sio_cip, 2);
+ }
+ 
+ /* ---------------------------------------------------------------------
+@@ -1282,11 +1288,14 @@ static int __init vt1211_device_add(unsigned short address)
+ 
+ static int __init vt1211_find(int sio_cip, unsigned short *address)
+ {
+-	int err = -ENODEV;
++	int err;
+ 	int devid;
+ 
+-	superio_enter(sio_cip);
++	err = superio_enter(sio_cip);
++	if (err)
++		return err;
+ 
++	err = -ENODEV;
+ 	devid = force_id ? force_id : superio_inb(sio_cip, SIO_VT1211_DEVID);
+ 	if (devid != SIO_VT1211_ID)
+ 		goto EXIT;
+-- 
+2.20.1
+
 
 
