@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 281AF3A9AB
+	by mail.lfdr.de (Postfix) with ESMTP id 9B3A93A9AC
 	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:13:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387575AbfFIQ7A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:59:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34488 "EHLO mail.kernel.org"
+        id S2387589AbfFIQ7B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:59:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732775AbfFIQ67 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:58:59 -0400
+        id S1732775AbfFIQ7B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:59:01 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B9B84207E0;
-        Sun,  9 Jun 2019 16:58:57 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7EC162081C;
+        Sun,  9 Jun 2019 16:59:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099538;
-        bh=8a0EsAMS8bFTkPkp4ApwbHUXiaDh5qCTKRyWLlGhSpI=;
+        s=default; t=1560099541;
+        bh=Ys1U/wNoxtp4S6eaEoyjGFy2cSHnHtqSlbiN071H884=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BUzJifvGJPrfTkZVXysOCJLLOPf8HFve1U8UFlxuRjAljbvnr5lR6rrsT2vgY2Lnv
-         ENZ21TKFlca8I5DljhaHGqN0Ta0XPU+ACf85YzVTwmP0UqJwmGzDpBY0YG19//UxtM
-         gSCCtXXhIFzPM0v3n0NDMyRLOzU7M6iGBcI+eIvE=
+        b=x39AQBD4VSORnK/ZS+/kTROhbQGbnSsplKJ+I6CIkiU2BXXbK22dGh95KYb0gq3Iu
+         pYp/V6zgFvth1bxYpHKYaI4PTVUekHWZ2urAzy2sBAGMlHz5E79AvIzEKO704DK9FD
+         mfDXqyGZL5uhZ5AKNP9kGQxo8+zBYPqfSqCfmfd4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>,
-        Yifeng Li <tomli@tomli.me>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        "Gustavo A. R. Silva" <gustavo@embeddedor.com>,
-        Kees Cook <keescook@chromium.org>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Subject: [PATCH 4.4 075/241] fbdev: sm712fb: fix memory frequency by avoiding a switch/case fallthrough
-Date:   Sun,  9 Jun 2019 18:40:17 +0200
-Message-Id: <20190609164149.936716585@linuxfoundation.org>
+        stable@vger.kernel.org, Ira Weiny <ira.weiny@intel.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
+        stable@kernel.org
+Subject: [PATCH 4.4 076/241] ext4: do not delete unlinked inode from orphan list on failed truncate
+Date:   Sun,  9 Jun 2019 18:40:18 +0200
+Message-Id: <20190609164149.964444188@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
 References: <20190609164147.729157653@linuxfoundation.org>
@@ -47,46 +44,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yifeng Li <tomli@tomli.me>
+From: Jan Kara <jack@suse.cz>
 
-commit 9dc20113988b9a75ea6b3abd68dc45e2d73ccdab upstream.
+commit ee0ed02ca93ef1ecf8963ad96638795d55af2c14 upstream.
 
-A fallthrough in switch/case was introduced in f627caf55b8e ("fbdev:
-sm712fb: fix crashes and garbled display during DPMS modesetting"),
-due to my copy-paste error, which would cause the memory clock frequency
-for SM720 to be programmed to SM712.
+It is possible that unlinked inode enters ext4_setattr() (e.g. if
+somebody calls ftruncate(2) on unlinked but still open file). In such
+case we should not delete the inode from the orphan list if truncate
+fails. Note that this is mostly a theoretical concern as filesystem is
+corrupted if we reach this path anyway but let's be consistent in our
+orphan handling.
 
-Since it only reprograms the clock to a different frequency, it's only
-a benign issue without visible side-effect, so it also evaded Sudip
-Mukherjee's code review and regression tests. scripts/checkpatch.pl
-also failed to discover the issue, possibly due to nested switch
-statements.
-
-This issue was found by Stephen Rothwell by building linux-next with
--Wimplicit-fallthrough.
-
-Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
-Fixes: f627caf55b8e ("fbdev: sm712fb: fix crashes and garbled display during DPMS modesetting")
-Signed-off-by: Yifeng Li <tomli@tomli.me>
-Cc: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Cc: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Cc: Kees Cook <keescook@chromium.org>
-Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Reviewed-by: Ira Weiny <ira.weiny@intel.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/video/fbdev/sm712fb.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/ext4/inode.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/video/fbdev/sm712fb.c
-+++ b/drivers/video/fbdev/sm712fb.c
-@@ -898,6 +898,7 @@ static int smtc_blank(int blank_mode, st
- 		case 0x712:
- 			smtc_seqw(0x6a, 0x16);
- 			smtc_seqw(0x6b, 0x02);
-+			break;
- 		case 0x720:
- 			smtc_seqw(0x6a, 0x0d);
- 			smtc_seqw(0x6b, 0x02);
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -4944,7 +4944,7 @@ int ext4_setattr(struct dentry *dentry,
+ 			up_write(&EXT4_I(inode)->i_data_sem);
+ 			ext4_journal_stop(handle);
+ 			if (error) {
+-				if (orphan)
++				if (orphan && inode->i_nlink)
+ 					ext4_orphan_del(NULL, inode);
+ 				goto err_out;
+ 			}
 
 
