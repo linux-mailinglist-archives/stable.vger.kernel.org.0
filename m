@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B7B9C3A9F5
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:15:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33EE43A8E0
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:05:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732766AbfFIQzU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:55:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57400 "EHLO mail.kernel.org"
+        id S2387749AbfFIRFL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 13:05:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732748AbfFIQzT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:55:19 -0400
+        id S2388155AbfFIRFK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 13:05:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 98BC2207E0;
-        Sun,  9 Jun 2019 16:55:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 68000204EC;
+        Sun,  9 Jun 2019 17:05:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099319;
-        bh=lTiKP8Sokrx2urBRTyq5x4MBbdM2mVCqeQs98ICc6i8=;
+        s=default; t=1560099909;
+        bh=04tc5K5pMkFcIKUQX04iMtZ9qekNA1F2dV6qUpFv4ew=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h5BVxtHT8Sl7f15lJLC9QqG8yHPpw//QXz5LpUw9VWOm5ALofPLy6hGWGhec844Xi
-         IElgodtRGYuClN/UDFkxe11ugbAMob5gvYcrVXjkbo7SXOYkFVwwCGjuK+OCtwrW5k
-         RHgc2LlfjG0XGaViwqf5E2Hf5boZkEMysl8vnATc=
+        b=nGAiTG/0SBG/hsLyv0Op+pJ4iyuOsinlsLFpyulpSeXGoOefXlgshkqvGKLtI9KdS
+         sUfdKXUB3zZbnQTsIo0dRWCzCngTlNMJ1aSfa9s3O4arU0OvoY1sF9I6B0QQZearsG
+         goy0XrbExnpsErSIDyqCwqxtuveQzbYHjp/aeAyQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vivien Didelot <vivien.didelot@gmail.com>,
-        Michal Kubecek <mkubecek@suse.cz>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 62/83] ethtool: fix potential userspace buffer overflow
+        stable@vger.kernel.org,
+        Joe Burmeister <joe.burmeister@devtank.co.uk>
+Subject: [PATCH 4.4 210/241] tty: max310x: Fix external crystal register setup
 Date:   Sun,  9 Jun 2019 18:42:32 +0200
-Message-Id: <20190609164133.122061942@linuxfoundation.org>
+Message-Id: <20190609164154.724819740@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.843327870@linuxfoundation.org>
-References: <20190609164127.843327870@linuxfoundation.org>
+In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
+References: <20190609164147.729157653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,54 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vivien Didelot <vivien.didelot@gmail.com>
+From: Joe Burmeister <joe.burmeister@devtank.co.uk>
 
-[ Upstream commit 0ee4e76937d69128a6a66861ba393ebdc2ffc8a2 ]
+commit 5d24f455c182d5116dd5db8e1dc501115ecc9c2c upstream.
 
-ethtool_get_regs() allocates a buffer of size ops->get_regs_len(),
-and pass it to the kernel driver via ops->get_regs() for filling.
+The datasheet states:
 
-There is no restriction about what the kernel drivers can or cannot do
-with the open ethtool_regs structure. They usually set regs->version
-and ignore regs->len or set it to the same size as ops->get_regs_len().
+  Bit 4: ClockEnSet the ClockEn bit high to enable an external clocking
+(crystal or clock generator at XIN). Set the ClockEn bit to 0 to disable
+clocking
+  Bit 1: CrystalEnSet the CrystalEn bit high to enable the crystal
+oscillator. When using an external clock source at XIN, CrystalEn must
+be set low.
 
-But if userspace allocates a smaller buffer for the registers dump,
-we would cause a userspace buffer overflow in the final copy_to_user()
-call, which uses the regs.len value potentially reset by the driver.
+The bit 4, MAX310X_CLKSRC_EXTCLK_BIT, should be set and was not.
 
-To fix this, make this case obvious and store regs.len before calling
-ops->get_regs(), to only copy as much data as requested by userspace,
-up to the value returned by ops->get_regs_len().
+This was required to make the MAX3107 with an external crystal on our
+board able to send or receive data.
 
-While at it, remove the redundant check for non-null regbuf.
-
-Signed-off-by: Vivien Didelot <vivien.didelot@gmail.com>
-Reviewed-by: Michal Kubecek <mkubecek@suse.cz>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Joe Burmeister <joe.burmeister@devtank.co.uk>
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/core/ethtool.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/net/core/ethtool.c
-+++ b/net/core/ethtool.c
-@@ -1390,13 +1390,16 @@ static int ethtool_get_regs(struct net_d
- 			return -ENOMEM;
+---
+ drivers/tty/serial/max310x.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/drivers/tty/serial/max310x.c
++++ b/drivers/tty/serial/max310x.c
+@@ -571,7 +571,7 @@ static int max310x_set_ref_clk(struct ma
  	}
  
-+	if (regs.len < reglen)
-+		reglen = regs.len;
-+
- 	ops->get_regs(dev, &regs, regbuf);
+ 	/* Configure clock source */
+-	clksrc = xtal ? MAX310X_CLKSRC_CRYST_BIT : MAX310X_CLKSRC_EXTCLK_BIT;
++	clksrc = MAX310X_CLKSRC_EXTCLK_BIT | (xtal ? MAX310X_CLKSRC_CRYST_BIT : 0);
  
- 	ret = -EFAULT;
- 	if (copy_to_user(useraddr, &regs, sizeof(regs)))
- 		goto out;
- 	useraddr += offsetof(struct ethtool_regs, data);
--	if (regbuf && copy_to_user(useraddr, regbuf, regs.len))
-+	if (copy_to_user(useraddr, regbuf, reglen))
- 		goto out;
- 	ret = 0;
- 
+ 	/* Configure PLL */
+ 	if (pllcfg) {
 
 
