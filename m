@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A5563AA66
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:18:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DB713A6F5
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 18:45:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731698AbfFIQw0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:52:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53236 "EHLO mail.kernel.org"
+        id S1729533AbfFIQox (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:44:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42218 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732188AbfFIQwY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:52:24 -0400
+        id S1729514AbfFIQow (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:44:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 642B8204EC;
-        Sun,  9 Jun 2019 16:52:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 75F1120840;
+        Sun,  9 Jun 2019 16:44:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099143;
-        bh=WO/xY2whLhZsYeG3CtK+RlKKS6z8EIAXONDnC5MVslk=;
+        s=default; t=1560098691;
+        bh=9UUGcHoVFBJb1hC5DKU9fRP3Za3xd6vxQoLCV0oxCkA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PBfoRpIuumpP4kOQsUGfpw5jON1uVTPdPaqUsCScLs3SPHP/fzoW+9qxshAVn9woy
-         mU6pZm1VwYxT69l7bXSBiP7hRIEaYEnfPFsrY8UF7V/q6TEDX0AGhmz6KB9tW+W217
-         i78dUjPmI4JeV3FjhV7a4SyILQem7R+wRdGm2Otk=
+        b=f3tjcrN+VYLI69vLLRdh4fNVNnXaGFIWlrdJuQ4B4PefsbDbNtKcFdO318lQp8bSy
+         VtCYtaSvlVL8dzqwsXjJ4ABI7hmLF+c1gUxucdHhMT1pSubojH3sJaeSETtbuRv1qI
+         wn5ViX9bSSBxkloATzs5H/h7z97KAc//ggdznJOE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Chris Packham <chris.packham@alliedtelesis.co.nz>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 07/83] tipc: Avoid copying bytes beyond the supplied data
+        stable@vger.kernel.org, Sven Schnelle <svens@stackframe.org>,
+        Carlo Pisani <carlojpisani@gmail.com>,
+        Helge Deller <deller@gmx.de>
+Subject: [PATCH 5.1 26/70] parisc: Fix crash due alternative coding for NP iopdir_fdc bit
 Date:   Sun,  9 Jun 2019 18:41:37 +0200
-Message-Id: <20190609164128.247977077@linuxfoundation.org>
+Message-Id: <20190609164129.205408449@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.843327870@linuxfoundation.org>
-References: <20190609164127.843327870@linuxfoundation.org>
+In-Reply-To: <20190609164127.541128197@linuxfoundation.org>
+References: <20190609164127.541128197@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,67 +44,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Packham <chris.packham@alliedtelesis.co.nz>
+From: Helge Deller <deller@gmx.de>
 
-TLV_SET is called with a data pointer and a len parameter that tells us
-how many bytes are pointed to by data. When invoking memcpy() we need
-to careful to only copy len bytes.
+commit 527a1d1ede98479bf90c31a64822107ac7e6d276 upstream.
 
-Previously we would copy TLV_LENGTH(len) bytes which would copy an extra
-4 bytes past the end of the data pointer which newer GCC versions
-complain about.
+According to the found documentation, data cache flushes and sync
+instructions are needed on the PCX-U+ (PA8200, e.g. C200/C240)
+platforms, while PCX-W (PA8500, e.g. C360) platforms aparently don't
+need those flushes when changing the IO PDIR data structures.
 
- In file included from test.c:17:
- In function 'TLV_SET',
-     inlined from 'test' at test.c:186:5:
- /usr/include/linux/tipc_config.h:317:3:
- warning: 'memcpy' forming offset [33, 36] is out of the bounds [0, 32]
- of object 'bearer_name' with type 'char[32]' [-Warray-bounds]
-     memcpy(TLV_DATA(tlv_ptr), data, tlv_len);
-     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
- test.c: In function 'test':
- test.c::161:10: note:
- 'bearer_name' declared here
-     char bearer_name[TIPC_MAX_BEARER_NAME];
-          ^~~~~~~~~~~
+We have no documentation for PCX-W+ (PA8600) and PCX-W2 (PA8700) CPUs,
+but Carlo Pisani reported that his C3600 machine (PA8600, PCX-W+) fails
+when the fdc instructions were removed. His firmware didn't set the NIOP
+bit, so one may assume it's a firmware bug since other C3750 machines
+had the bit set.
 
-We still want to ensure any padding bytes at the end are initialised, do
-this with a explicit memset() rather than copy bytes past the end of
-data. Apply the same logic to TCM_SET.
+Even if documentation (as mentioned above) states that PCX-W (PA8500,
+e.g.  J5000) does not need fdc flushes, Sven could show that an Adaptec
+29320A PCI-X SCSI controller reliably failed on a dd command during the
+first five minutes in his J5000 when fdc flushes were missing.
 
-Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Going forward, we will now NOT replace the fdc and sync assembler
+instructions by NOPS if:
+a) the NP iopdir_fdc bit was set by firmware, or
+b) we find a CPU up to and including a PCX-W+ (PA8600).
+
+This fixes the HPMC crashes on a C240 and C36XX machines. For other
+machines we rely on the firmware to set the bit when needed.
+
+In case one finds HPMC issues, people could try to boot their machines
+with the "no-alternatives" kernel option to turn off any alternative
+patching.
+
+Reported-by: Sven Schnelle <svens@stackframe.org>
+Reported-by: Carlo Pisani <carlojpisani@gmail.com>
+Tested-by: Sven Schnelle <svens@stackframe.org>
+Fixes: 3847dab77421 ("parisc: Add alternative coding infrastructure")
+Signed-off-by: Helge Deller <deller@gmx.de>
+Cc: stable@vger.kernel.org # 5.0+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- include/uapi/linux/tipc_config.h |   10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/include/uapi/linux/tipc_config.h
-+++ b/include/uapi/linux/tipc_config.h
-@@ -301,8 +301,10 @@ static inline int TLV_SET(void *tlv, __u
- 	tlv_ptr = (struct tlv_desc *)tlv;
- 	tlv_ptr->tlv_type = htons(type);
- 	tlv_ptr->tlv_len  = htons(tlv_len);
--	if (len && data)
--		memcpy(TLV_DATA(tlv_ptr), data, tlv_len);
-+	if (len && data) {
-+		memcpy(TLV_DATA(tlv_ptr), data, len);
-+		memset(TLV_DATA(tlv_ptr) + len, 0, TLV_SPACE(len) - tlv_len);
-+	}
- 	return TLV_SPACE(len);
- }
+---
+ arch/parisc/kernel/alternative.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+--- a/arch/parisc/kernel/alternative.c
++++ b/arch/parisc/kernel/alternative.c
+@@ -56,7 +56,8 @@ void __init_or_module apply_alternatives
+ 		 * time IO-PDIR is changed in Ike/Astro.
+ 		 */
+ 		if ((cond & ALT_COND_NO_IOC_FDC) &&
+-			(boot_cpu_data.pdc.capabilities & PDC_MODEL_IOPDIR_FDC))
++			((boot_cpu_data.cpu_type <= pcxw_) ||
++			 (boot_cpu_data.pdc.capabilities & PDC_MODEL_IOPDIR_FDC)))
+ 			continue;
  
-@@ -399,8 +401,10 @@ static inline int TCM_SET(void *msg, __u
- 	tcm_hdr->tcm_len   = htonl(msg_len);
- 	tcm_hdr->tcm_type  = htons(cmd);
- 	tcm_hdr->tcm_flags = htons(flags);
--	if (data_len && data)
-+	if (data_len && data) {
- 		memcpy(TCM_DATA(msg), data, data_len);
-+		memset(TCM_DATA(msg) + data_len, 0, TCM_SPACE(data_len) - msg_len);
-+	}
- 	return TCM_SPACE(data_len);
- }
- 
+ 		/* Want to replace pdtlb by a pdtlb,l instruction? */
 
 
