@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 00C7C3AA47
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:18:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56C213AA23
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:16:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731831AbfFIQvA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:51:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50978 "EHLO mail.kernel.org"
+        id S1732141AbfFIQyW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:54:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731826AbfFIQu5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:50:57 -0400
+        id S1732583AbfFIQyW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:54:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 16FD8205ED;
-        Sun,  9 Jun 2019 16:50:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6BF4B206BB;
+        Sun,  9 Jun 2019 16:54:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099056;
-        bh=+ffkygEXS9IF6JTPeHnhNmCIkKljbnqV2d1KZQBZGMc=;
+        s=default; t=1560099261;
+        bh=GaK5bodEMpnjuCxoFdhWYcoPSFD4LwikbbsaoZE2hbw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0pAOq9JWFVfkRDUNhEh1DBxUit6HtwUy3sR+J1TUZkbRjI/ctzsWWQ+wn9uIhYSRk
-         Av+hFrVGrZp3WFDck+ICqJBUzrsnoi4RiqJRd+U2NWBwxJ9smbqjYTuOZxjqQnFw9d
-         4nxev5WEnmx5EvGuUf84euhpM6ZYxjktukdF39kE=
+        b=K/woSCit+hJMkfmrhuvQFgd68Dx3ec+5z/ZXzlGJVeU/8wEEUERY8qFSTUXpADX8O
+         QZg4CTrGIPHvA7xe7jHi61iksJHGvy3/397IjMZ2weR/v8gNHaDsSEUSErMtJOuQ2f
+         ZTyqTQustKgzCuStxzLxOhMCv3Tk6axX7rLVv08M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>,
-        Li RongQing <lirongqing@baidu.com>,
-        Wang Li <wangli39@baidu.com>, Zhang Yu <zhangyu31@baidu.com>
-Subject: [PATCH 4.14 32/35] TTY: serial_core, add ->install
+        stable@vger.kernel.org, Olivier Matz <olivier.matz@6wind.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 68/83] ipv6: use READ_ONCE() for inet->hdrincl as in ipv4
 Date:   Sun,  9 Jun 2019 18:42:38 +0200
-Message-Id: <20190609164127.374966523@linuxfoundation.org>
+Message-Id: <20190609164133.591210838@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164125.377368385@linuxfoundation.org>
-References: <20190609164125.377368385@linuxfoundation.org>
+In-Reply-To: <20190609164127.843327870@linuxfoundation.org>
+References: <20190609164127.843327870@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,125 +43,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby <jslaby@suse.cz>
+From: Olivier Matz <olivier.matz@6wind.com>
 
-commit 4cdd17ba1dff20ffc99fdbd2e6f0201fc7fe67df upstream.
+[ Upstream commit 59e3e4b52663a9d97efbce7307f62e4bc5c9ce91 ]
 
-We need to compute the uart state only on the first open. This is
-usually what is done in the ->install hook. serial_core used to do this
-in ->open on every open. So move it to ->install.
+As it was done in commit 8f659a03a0ba ("net: ipv4: fix for a race
+condition in raw_sendmsg") and commit 20b50d79974e ("net: ipv4: emulate
+READ_ONCE() on ->hdrincl bit-field in raw_sendmsg()") for ipv4, copy the
+value of inet->hdrincl in a local variable, to avoid introducing a race
+condition in the next commit.
 
-As a side effect, it ensures the state is set properly in the window
-after tty_init_dev is called, but before uart_open. This fixes a bunch
-of races between tty_open and flush_to_ldisc we were dealing with
-recently.
-
-One of such bugs was attempted to fix in commit fedb5760648a (serial:
-fix race between flush_to_ldisc and tty_open), but it only took care of
-a couple of functions (uart_start and uart_unthrottle).  I was able to
-reproduce the crash on a SLE system, but in uart_write_room which is
-also called from flush_to_ldisc via process_echoes. I was *unable* to
-reproduce the bug locally. It is due to having this patch in my queue
-since 2012!
-
- general protection fault: 0000 [#1] SMP KASAN PTI
- CPU: 1 PID: 5 Comm: kworker/u4:0 Tainted: G             L 4.12.14-396-default #1 SLE15-SP1 (unreleased)
- Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-0-ga698c89-prebuilt.qemu.org 04/01/2014
- Workqueue: events_unbound flush_to_ldisc
- task: ffff8800427d8040 task.stack: ffff8800427f0000
- RIP: 0010:uart_write_room+0xc4/0x590
- RSP: 0018:ffff8800427f7088 EFLAGS: 00010202
- RAX: dffffc0000000000 RBX: 0000000000000000 RCX: 0000000000000000
- RDX: 000000000000002f RSI: 00000000000000ee RDI: ffff88003888bd90
- RBP: ffffffffb9545850 R08: 0000000000000001 R09: 0000000000000400
- R10: ffff8800427d825c R11: 000000000000006e R12: 1ffff100084fee12
- R13: ffffc900004c5000 R14: ffff88003888bb28 R15: 0000000000000178
- FS:  0000000000000000(0000) GS:ffff880043300000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 0000561da0794148 CR3: 000000000ebf4000 CR4: 00000000000006e0
- Call Trace:
-  tty_write_room+0x6d/0xc0
-  __process_echoes+0x55/0x870
-  n_tty_receive_buf_common+0x105e/0x26d0
-  tty_ldisc_receive_buf+0xb7/0x1c0
-  tty_port_default_receive_buf+0x107/0x180
-  flush_to_ldisc+0x35d/0x5c0
-...
-
-0 in rbx means tty->driver_data is NULL in uart_write_room. 0x178 is
-tried to be dereferenced (0x178 >> 3 is 0x2f in rdx) at
-uart_write_room+0xc4. 0x178 is exactly (struct uart_state *)NULL->refcount
-used in uart_port_lock from uart_write_room.
-
-So revert the upstream commit here as my local patch should fix the
-whole family.
-
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Cc: Li RongQing <lirongqing@baidu.com>
-Cc: Wang Li <wangli39@baidu.com>
-Cc: Zhang Yu <zhangyu31@baidu.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Olivier Matz <olivier.matz@6wind.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/tty/serial/serial_core.c |   24 +++++++++++++-----------
- 1 file changed, 13 insertions(+), 11 deletions(-)
+ net/ipv6/raw.c |   12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
---- a/drivers/tty/serial/serial_core.c
-+++ b/drivers/tty/serial/serial_core.c
-@@ -143,9 +143,6 @@ static void uart_start(struct tty_struct
- 	struct uart_port *port;
- 	unsigned long flags;
+--- a/net/ipv6/raw.c
++++ b/net/ipv6/raw.c
+@@ -774,6 +774,7 @@ static int rawv6_sendmsg(struct sock *sk
+ 	struct sockcm_cookie sockc;
+ 	struct ipcm6_cookie ipc6;
+ 	int addr_len = msg->msg_namelen;
++	int hdrincl;
+ 	u16 proto;
+ 	int err;
  
--	if (!state)
--		return;
--
- 	port = uart_port_lock(state, flags);
- 	__uart_start(tty);
- 	uart_port_unlock(port, flags);
-@@ -1731,11 +1728,8 @@ static void uart_dtr_rts(struct tty_port
-  */
- static int uart_open(struct tty_struct *tty, struct file *filp)
- {
--	struct uart_driver *drv = tty->driver->driver_state;
--	int retval, line = tty->index;
--	struct uart_state *state = drv->state + line;
--
--	tty->driver_data = state;
-+	struct uart_state *state = tty->driver_data;
-+	int retval;
+@@ -787,6 +788,13 @@ static int rawv6_sendmsg(struct sock *sk
+ 	if (msg->msg_flags & MSG_OOB)
+ 		return -EOPNOTSUPP;
  
- 	retval = tty_port_open(&state->port, tty, filp);
- 	if (retval > 0)
-@@ -2418,9 +2412,6 @@ static void uart_poll_put_char(struct tt
- 	struct uart_state *state = drv->state + line;
- 	struct uart_port *port;
- 
--	if (!state)
--		return;
--
- 	port = uart_port_ref(state);
- 	if (!port)
- 		return;
-@@ -2432,7 +2423,18 @@ static void uart_poll_put_char(struct tt
- }
- #endif
- 
-+static int uart_install(struct tty_driver *driver, struct tty_struct *tty)
-+{
-+	struct uart_driver *drv = driver->driver_state;
-+	struct uart_state *state = drv->state + tty->index;
++	/* hdrincl should be READ_ONCE(inet->hdrincl)
++	 * but READ_ONCE() doesn't work with bit fields.
++	 * Doing this indirectly yields the same result.
++	 */
++	hdrincl = inet->hdrincl;
++	hdrincl = READ_ONCE(hdrincl);
 +
-+	tty->driver_data = state;
-+
-+	return tty_standard_install(driver, tty);
-+}
-+
- static const struct tty_operations uart_ops = {
-+	.install	= uart_install,
- 	.open		= uart_open,
- 	.close		= uart_close,
- 	.write		= uart_write,
+ 	/*
+ 	 *	Get and verify the address.
+ 	 */
+@@ -904,7 +912,7 @@ static int rawv6_sendmsg(struct sock *sk
+ 		fl6.flowi6_oif = np->ucast_oif;
+ 	security_sk_classify_flow(sk, flowi6_to_flowi(&fl6));
+ 
+-	if (inet->hdrincl)
++	if (hdrincl)
+ 		fl6.flowi6_flags |= FLOWI_FLAG_KNOWN_NH;
+ 
+ 	if (ipc6.tclass < 0)
+@@ -927,7 +935,7 @@ static int rawv6_sendmsg(struct sock *sk
+ 		goto do_confirm;
+ 
+ back_from_confirm:
+-	if (inet->hdrincl)
++	if (hdrincl)
+ 		err = rawv6_send_hdrinc(sk, msg, len, &fl6, &dst, msg->msg_flags);
+ 	else {
+ 		ipc6.opt = opt;
 
 
