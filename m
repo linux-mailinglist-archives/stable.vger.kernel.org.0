@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 631813A48D
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 11:44:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA48B3A48F
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 11:45:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728051AbfFIJoz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 05:44:55 -0400
-Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:36887 "EHLO
+        id S1728061AbfFIJpl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 05:45:41 -0400
+Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:49271 "EHLO
         wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727979AbfFIJoz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Jun 2019 05:44:55 -0400
+        by vger.kernel.org with ESMTP id S1727979AbfFIJpl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Jun 2019 05:45:41 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 5D9133D4;
-        Sun,  9 Jun 2019 05:44:54 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sun, 09 Jun 2019 05:44:54 -0400
+        by mailout.west.internal (Postfix) with ESMTP id 3A8202A4;
+        Sun,  9 Jun 2019 05:45:40 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Sun, 09 Jun 2019 05:45:40 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=p4n6AE
-        7GP6p6dZmGeY3yt/UWwQvO8E0gBj73ZkruKDk=; b=kkE6ylW1tgfu5YMK2mI3ve
-        nmlVFR+SaVj44dmEQtHznHlTdFvWIBKKINg4sMLS8OACZPI1aFrJeOrfo/dGxovY
-        qLj00X27rzWsdMQ4wi5k/t4K5r8CVZ6rY+5ZISS8pSkzrNnslKqpDCFB+LrieJ5D
-        GOzpmIacNxcQhO+FZcsZmMbIGYuhj/pRh/ASanjgvCVVqGicXxakauPkEDbORCDC
-        18hQl3bVbkC/Mr/4dRmN+/LMYT/GYddG2C8DxEBwrSBIjIXtRW+tzO3lbgLFnfca
-        zaYqM/dMbyLpgVWInvy9RP0j3HMwv3feBKnfcDPuQ3N8fdp9WJNC6Rp30lWX1L8A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=z9xanv
+        BtZldIUygkecLC4/LMpk3QHvCLySc/Cy1UZxU=; b=itG+bsBCA88HS6fPF33bRJ
+        f69PHVCXkM+YNbUUAkKZwycX3zLc98LGYQEfHne4lHTx+7qX7G1E6R4IQMXt7Ms2
+        nr1fcaDnmjylurGEPS9ycDC+cLUeUiUEp3oPbGua2l23StKJhDxzZuuHKOAzOViF
+        +GJJ+oXpEx4xeqw8FZeUHC+uGNcZGc3+ZnjVUSe6TBr5GqxXOT5xdFZBjO9LusQc
+        eAz7PR8cRftAkvS57/BkyZmwaWwNDoudzznm5XnKYqwhxrB2Lv8O73fb4A2zIqVx
+        jPeQWPUbU8wExKocUp26MN9pEBqMnLcwMMu5qUC3r+ekh1QLfw9lpjIB6tOfiW1w
         ==
-X-ME-Sender: <xms:FdX8XNkJJhSPAVNnxh5mpKwBbzIj5aC9uKvqTxZrpgkoZZ60U12Xzg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrudehtddgvddtucetufdoteggodetrfdotf
+X-ME-Sender: <xms:Q9X8XLIlqTZTqck7cXXKetvwYMEuN_lPsn7itE6EYPmLckMFx9pW0g>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrudehtddgvdduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepud
-X-ME-Proxy: <xmx:FdX8XIum-SOUCHnJY1M0YA-_d-huUCziTJ2Gkvd3xGPGo1XI4zCZHA>
-    <xmx:FdX8XA_S6AVwqCG9saCzKGz3K3mfiJuajaLJpSL2KwKyMevmOMD0tw>
-    <xmx:FdX8XJyhX0CT9TvIH0HMhSOiqKU3OaIcmr3hHYz1jfDn0zbIBUq_ww>
-    <xmx:FdX8XJRb1S_H5rVoV0Wtd7PDe7d1LyAHwxLn1jfFdteWjcgd1e1HFw>
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:Q9X8XDbuH_tc-ntWzy9pM3LLSq9LUjiu0ky1nMYiBThqlUP0y5_2aQ>
+    <xmx:Q9X8XOvdD8wdM4AZN52aJyADzB4FR_jH8iHSCDTBXGkJmecRkwCv2A>
+    <xmx:Q9X8XIuoxZHc6WYTU9G7z2uSjBs9kJ0yipgpE8txZvlofKzWZTdPOQ>
+    <xmx:Q9X8XAbCf7jNiqn4zb9UabzuVuG7v3duk7mGBaESHfj7U32GFjAyLA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 73497380086;
-        Sun,  9 Jun 2019 05:44:53 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] SUNRPC fix regression in umount of a secure mount" failed to apply to 4.4-stable tree
-To:     kolga@netapp.com, Anna.Schumaker@Netapp.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id 386A08005B;
+        Sun,  9 Jun 2019 05:45:39 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] ovl: support the FS_IOC_FS[SG]ETXATTR ioctls" failed to apply to 4.19-stable tree
+To:     amir73il@gmail.com, david@fromorbit.com, mszeredi@redhat.com,
+        stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 09 Jun 2019 11:44:40 +0200
-Message-ID: <15600734809372@kroah.com>
+Date:   Sun, 09 Jun 2019 11:45:29 +0200
+Message-ID: <156007352917012@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -67,37 +68,59 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From ec6017d9035986a36de064f48a63245930bfad6f Mon Sep 17 00:00:00 2001
-From: Olga Kornievskaia <kolga@netapp.com>
-Date: Wed, 29 May 2019 10:46:00 -0400
-Subject: [PATCH] SUNRPC fix regression in umount of a secure mount
+From b21d9c435f935014d3e3fa6914f2e4fbabb0e94d Mon Sep 17 00:00:00 2001
+From: Amir Goldstein <amir73il@gmail.com>
+Date: Sun, 26 May 2019 09:28:25 +0300
+Subject: [PATCH] ovl: support the FS_IOC_FS[SG]ETXATTR ioctls
 
-If call_status returns ENOTCONN, we need to re-establish the connection
-state after. Otherwise the client goes into an infinite loop of call_encode,
-call_transmit, call_status (ENOTCONN), call_encode.
+They are the extended version of FS_IOC_FS[SG]ETFLAGS ioctls.
+xfs_io -c "chattr <flags>" uses the new ioctls for setting flags.
 
-Fixes: c8485e4d63 ("SUNRPC: Handle ECONNREFUSED correctly in xprt_transmit()")
-Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
-Cc: stable@vger.kernel.org # v2.6.29+
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+This used to work in kernel pre v4.19, before stacked file ops
+introduced the ovl_ioctl whitelist.
 
-diff --git a/net/sunrpc/clnt.c b/net/sunrpc/clnt.c
-index d6e57da56c94..94a653be8e25 100644
---- a/net/sunrpc/clnt.c
-+++ b/net/sunrpc/clnt.c
-@@ -2288,13 +2288,13 @@ call_status(struct rpc_task *task)
- 	case -ECONNREFUSED:
- 	case -ECONNRESET:
- 	case -ECONNABORTED:
-+	case -ENOTCONN:
- 		rpc_force_rebind(clnt);
- 		/* fall through */
- 	case -EADDRINUSE:
- 		rpc_delay(task, 3*HZ);
- 		/* fall through */
- 	case -EPIPE:
--	case -ENOTCONN:
- 	case -EAGAIN:
+Reported-by: Dave Chinner <david@fromorbit.com>
+Fixes: d1d04ef8572b ("ovl: stack file ops")
+Cc: <stable@vger.kernel.org> # v4.19
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+
+diff --git a/fs/overlayfs/file.c b/fs/overlayfs/file.c
+index 540a8b845145..340a6ad45914 100644
+--- a/fs/overlayfs/file.c
++++ b/fs/overlayfs/file.c
+@@ -426,7 +426,8 @@ static unsigned int ovl_get_inode_flags(struct inode *inode)
+ 	return ovl_iflags;
+ }
+ 
+-static long ovl_ioctl_set_flags(struct file *file, unsigned long arg)
++static long ovl_ioctl_set_flags(struct file *file, unsigned int cmd,
++				unsigned long arg)
+ {
+ 	long ret;
+ 	struct inode *inode = file_inode(file);
+@@ -456,7 +457,7 @@ static long ovl_ioctl_set_flags(struct file *file, unsigned long arg)
+ 	if (ret)
+ 		goto unlock;
+ 
+-	ret = ovl_real_ioctl(file, FS_IOC_SETFLAGS, arg);
++	ret = ovl_real_ioctl(file, cmd, arg);
+ 
+ 	ovl_copyflags(ovl_inode_real(inode), inode);
+ unlock:
+@@ -474,11 +475,13 @@ static long ovl_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ 
+ 	switch (cmd) {
+ 	case FS_IOC_GETFLAGS:
++	case FS_IOC_FSGETXATTR:
+ 		ret = ovl_real_ioctl(file, cmd, arg);
  		break;
- 	case -EIO:
+ 
+ 	case FS_IOC_SETFLAGS:
+-		ret = ovl_ioctl_set_flags(file, arg);
++	case FS_IOC_FSSETXATTR:
++		ret = ovl_ioctl_set_flags(file, cmd, arg);
+ 		break;
+ 
+ 	default:
 
