@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A6BB3A6E3
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 18:44:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E47B3A957
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:09:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729136AbfFIQoM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:44:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41196 "EHLO mail.kernel.org"
+        id S1728617AbfFIRJV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 13:09:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42720 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729135AbfFIQoL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:44:11 -0400
+        id S2388549AbfFIREF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 13:04:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B71732081C;
-        Sun,  9 Jun 2019 16:44:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D9C14206C3;
+        Sun,  9 Jun 2019 17:04:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560098651;
-        bh=I7Kk0Jin7ZsRnXf5hqPiwaGo5gOFhZwM88vfYT0Ko5Q=;
+        s=default; t=1560099845;
+        bh=dtCy8NxLywADGR3g1b1WIkbIHMEPVPieh+HB0Gs1iyI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aWrKsOQ/HUaq9U/vtS67y5Eg9Z92pDDiPCqjsD9st4vOueuzJiSeoQpiCm8e9ZI7E
-         thuKxwoiCHwBpftoyJi+xDvCm2FcGllnZDfjJVaxF4rap/F5hFONoyK6sulfeWGbzJ
-         E9U8MSH4Z9HN+uyeGHS+T1AupA1uq7NhUs5l80sU=
+        b=ujUO1S49uyOhw49FcuIM11aU7ZDgKS57zUlaQl3YSDBPuAvDyS1Kwx3xiR4eBHQqJ
+         65RV4PN/86/CRNsOY/3OWLthGyMiUDqy3+JBOGoHx9jPubqft49jeRUvH1GyzZopVA
+         weIc/xuSTHFqzLrgqShh1ItPzuSThZs22W0+fTK0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tim Beale <timbeale@catalyst.net.nz>,
-        David Ahern <dsahern@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.1 12/70] udp: only choose unbound UDP socket for multicast when not in a VRF
-Date:   Sun,  9 Jun 2019 18:41:23 +0200
-Message-Id: <20190609164128.181383274@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 142/241] extcon: arizona: Disable mic detect if running when driver is removed
+Date:   Sun,  9 Jun 2019 18:41:24 +0200
+Message-Id: <20190609164151.883673434@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.541128197@linuxfoundation.org>
-References: <20190609164127.541128197@linuxfoundation.org>
+In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
+References: <20190609164147.729157653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tim Beale <timbeale@catalyst.net.nz>
+[ Upstream commit 00053de52231117ddc154042549f2256183ffb86 ]
 
-[ Upstream commit 82ba25c6de200d7a9e9c970c998cdd6dfa8637ae ]
+Microphone detection provides the button detection features on the
+Arizona CODECs as such it will be running if the jack is currently
+inserted. If the driver is unbound whilst the jack is still inserted
+this will cause warnings from the regulator framework as the MICVDD
+regulator is put but was never disabled.
 
-By default, packets received in another VRF should not be passed to an
-unbound socket in the default VRF. This patch updates the IPv4 UDP
-multicast logic to match the unicast VRF logic (in compute_score()),
-as well as the IPv6 mcast logic (in __udp_v6_is_mcast_sock()).
+Correct this by disabling microphone detection on driver removal and if
+the microphone detection was running disable the regulator and put the
+runtime reference that was currently held.
 
-The particular case I noticed was DHCP discover packets going
-to the 255.255.255.255 address, which are handled by
-__udp4_lib_mcast_deliver(). The previous code meant that running
-multiple different DHCP server or relay agent instances across VRFs
-did not work correctly - any server/relay agent in the default VRF
-received DHCP discover packets for all other VRFs.
-
-Fixes: 6da5b0f027a8 ("net: ensure unbound datagram socket to be chosen when not in a VRF")
-Signed-off-by: Tim Beale <timbeale@catalyst.net.nz>
-Reviewed-by: David Ahern <dsahern@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Signed-off-by: Chanwoo Choi <cw00.choi@samsung.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/udp.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/extcon/extcon-arizona.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/net/ipv4/udp.c
-+++ b/net/ipv4/udp.c
-@@ -538,8 +538,7 @@ static inline bool __udp_is_mcast_sock(s
- 	    (inet->inet_dport != rmt_port && inet->inet_dport) ||
- 	    (inet->inet_rcv_saddr && inet->inet_rcv_saddr != loc_addr) ||
- 	    ipv6_only_sock(sk) ||
--	    (sk->sk_bound_dev_if && sk->sk_bound_dev_if != dif &&
--	     sk->sk_bound_dev_if != sdif))
-+	    !udp_sk_bound_dev_eq(net, sk->sk_bound_dev_if, dif, sdif))
- 		return false;
- 	if (!ip_mc_sf_allow(sk, loc_addr, rmt_addr, dif, sdif))
- 		return false;
+diff --git a/drivers/extcon/extcon-arizona.c b/drivers/extcon/extcon-arizona.c
+index e4890dd4fefd6..38fb212e58ee8 100644
+--- a/drivers/extcon/extcon-arizona.c
++++ b/drivers/extcon/extcon-arizona.c
+@@ -1616,6 +1616,16 @@ static int arizona_extcon_remove(struct platform_device *pdev)
+ 	struct arizona_extcon_info *info = platform_get_drvdata(pdev);
+ 	struct arizona *arizona = info->arizona;
+ 	int jack_irq_rise, jack_irq_fall;
++	bool change;
++
++	regmap_update_bits_check(arizona->regmap, ARIZONA_MIC_DETECT_1,
++				 ARIZONA_MICD_ENA, 0,
++				 &change);
++
++	if (change) {
++		regulator_disable(info->micvdd);
++		pm_runtime_put(info->dev);
++	}
+ 
+ 	gpiod_put(info->micd_pol_gpio);
+ 
+-- 
+2.20.1
+
 
 
