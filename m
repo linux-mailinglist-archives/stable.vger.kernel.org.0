@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B7093A8A8
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:03:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65C3C3AA58
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:18:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388290AbfFIRCu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 13:02:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40854 "EHLO mail.kernel.org"
+        id S1731997AbfFIQvl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:51:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388302AbfFIRCr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 13:02:47 -0400
+        id S1731994AbfFIQvl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:51:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D7FC7204EC;
-        Sun,  9 Jun 2019 17:02:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F741205ED;
+        Sun,  9 Jun 2019 16:51:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099766;
-        bh=HvJL7t2idgccN7TE0yztFjS3HveqVYCdJcj2hPPEAWo=;
+        s=default; t=1560099100;
+        bh=6Ajabuw9ON+eshjxs/JE69Gi3UxizKO+uTGIS/9UZe4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cwEDYWt8fLq5kPQI4b+vWeaIDurasVakP8bm6/VSUZuXX3Ggs2MIxlkiXB72MDMV6
-         StAK67VsVGkh8Oi0oLWYm7u/17Ryg/eV9W6dAPY+A7MbAXV+HyjSI3a7KZtPYjd3J6
-         F9NsVxOtZV/IIFtiXLfhBGbV9F4HQ3FQGeIetC28=
+        b=TkAl4slx/mw0L7RiMi38pUyDls72nZuf2RFrLt0ZMH1pwgho3tQpgXYzouK/+izGz
+         HdyUFfiInPO/b1W86Jw0folFYjVtDpSz/IJrYiaZ2ksauqbWQlAcjK6KgR2LtCFXSn
+         oLCnR4A5z3ojCHtgO1EHn6bIiVNL7jtjtRxwERXw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Yang <wen.yang99@zte.com.cn>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        linux-arm-kernel@lists.infradead.org,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 158/241] arm64: cpu_ops: fix a leaked reference by adding missing of_node_put
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        kbuild test robot <lkp@intel.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 10/83] ipv4/igmp: fix build error if !CONFIG_IP_MULTICAST
 Date:   Sun,  9 Jun 2019 18:41:40 +0200
-Message-Id: <20190609164152.326381415@linuxfoundation.org>
+Message-Id: <20190609164128.423181141@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
-References: <20190609164147.729157653@linuxfoundation.org>
+In-Reply-To: <20190609164127.843327870@linuxfoundation.org>
+References: <20190609164127.843327870@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,43 +44,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 92606ec9285fb84cd9b5943df23f07d741384bfc ]
+From: Eric Dumazet <edumazet@google.com>
 
-The call to of_get_next_child returns a node pointer with refcount
-incremented thus it must be explicitly decremented after the last
-usage.
+[ Upstream commit 903869bd10e6719b9df6718e785be7ec725df59f ]
 
-Detected by coccinelle with the following warnings:
-  ./arch/arm64/kernel/cpu_ops.c:102:1-7: ERROR: missing of_node_put;
-  acquired a node pointer with refcount incremented on line 69, but
-  without a corresponding object release within this function.
+ip_sf_list_clear_all() needs to be defined even if !CONFIG_IP_MULTICAST
 
-Signed-off-by: Wen Yang <wen.yang99@zte.com.cn>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 3580d04aa674 ("ipv4/igmp: fix another memory leak in igmpv3_del_delrec()")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/cpu_ops.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/ipv4/igmp.c |   22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
 
-diff --git a/arch/arm64/kernel/cpu_ops.c b/arch/arm64/kernel/cpu_ops.c
-index b6bd7d4477683..fbd6aead48e10 100644
---- a/arch/arm64/kernel/cpu_ops.c
-+++ b/arch/arm64/kernel/cpu_ops.c
-@@ -73,6 +73,7 @@ static const char *__init cpu_read_enable_method(int cpu)
- 				pr_err("%s: missing enable-method property\n",
- 					dn->full_name);
- 		}
-+		of_node_put(dn);
- 	} else {
- 		enable_method = acpi_get_enable_method(cpu);
- 		if (!enable_method)
--- 
-2.20.1
-
+--- a/net/ipv4/igmp.c
++++ b/net/ipv4/igmp.c
+@@ -190,6 +190,17 @@ static void ip_ma_put(struct ip_mc_list
+ 	     pmc != NULL;					\
+ 	     pmc = rtnl_dereference(pmc->next_rcu))
+ 
++static void ip_sf_list_clear_all(struct ip_sf_list *psf)
++{
++	struct ip_sf_list *next;
++
++	while (psf) {
++		next = psf->sf_next;
++		kfree(psf);
++		psf = next;
++	}
++}
++
+ #ifdef CONFIG_IP_MULTICAST
+ 
+ /*
+@@ -635,17 +646,6 @@ static void igmpv3_clear_zeros(struct ip
+ 	}
+ }
+ 
+-static void ip_sf_list_clear_all(struct ip_sf_list *psf)
+-{
+-	struct ip_sf_list *next;
+-
+-	while (psf) {
+-		next = psf->sf_next;
+-		kfree(psf);
+-		psf = next;
+-	}
+-}
+-
+ static void kfree_pmc(struct ip_mc_list *pmc)
+ {
+ 	ip_sf_list_clear_all(pmc->sources);
 
 
