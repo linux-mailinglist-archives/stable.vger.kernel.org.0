@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 234763A882
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:01:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D3CB3A97F
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:11:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388001AbfFIRBS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 13:01:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38456 "EHLO mail.kernel.org"
+        id S2387417AbfFIRBW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 13:01:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388027AbfFIRBS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 13:01:18 -0400
+        id S1730461AbfFIRBV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 13:01:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6EA4B206DF;
-        Sun,  9 Jun 2019 17:01:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1D1FA206C3;
+        Sun,  9 Jun 2019 17:01:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099677;
-        bh=gMAUeHEHtlExpVdA5CbOXjavyx+aJZ6/pDH6KaSR1HM=;
+        s=default; t=1560099680;
+        bh=bDqKyMfXVgcsYBF/9J7WMcrOgZDjwR1isac/Sf0O1+0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aflDVcnzBGsU2V06RX4lMJRRU0Jj26F9tsDtTOLANnXAFP4qiTMkVKYzP8WRO3e5d
-         8DETLsGtmLpveKzb9aUic5T+MTt8j4VB/nYcMZ/+drirS6fimzUIFTRqMWcOx1eaE8
-         lcbOMJiqAXe2A8DXMmIWjOTg5YlJFCPBGs34as2k=
+        b=g2m5wdjQwUq77d+IiRGV6rOqyFNQp1U8DwzVeU/oJ3LpWf29cViBZ7eVrvzU15bPT
+         U5LBcqbRjycuLmqjxYwK8oZuXiJmZlm5RiYWkRy+J7WX7amRHE6bf6BFRWnYkJOC2J
+         YU0nUC63jVk7kOlw/sd7Xb0JWj5dqNAbOMBVGWhw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Lynch <nathanl@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 125/241] powerpc/numa: improve control of topology updates
-Date:   Sun,  9 Jun 2019 18:41:07 +0200
-Message-Id: <20190609164151.413451064@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Konstantin Khlebnikov <khlebnikov@yandex-team.ru>,
+        Peter Zijlstra <a.p.zijlstra@chello.nl>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 126/241] sched/core: Check quota and period overflow at usec to nsec conversion
+Date:   Sun,  9 Jun 2019 18:41:08 +0200
+Message-Id: <20190609164151.441155572@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
 References: <20190609164147.729157653@linuxfoundation.org>
@@ -44,79 +48,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2d4d9b308f8f8dec68f6dbbff18c68ec7c6bd26f ]
+[ Upstream commit 1a8b4540db732ca16c9e43ac7c08b1b8f0b252d8 ]
 
-When booted with "topology_updates=no", or when "off" is written to
-/proc/powerpc/topology_updates, NUMA reassignments are inhibited for
-PRRN and VPHN events. However, migration and suspend unconditionally
-re-enable reassignments via start_topology_update(). This is
-incoherent.
+Large values could overflow u64 and pass following sanity checks.
 
-Check the topology_updates_enabled flag in
-start/stop_topology_update() so that callers of those APIs need not be
-aware of whether reassignments are enabled. This allows the
-administrative decision on reassignments to remain in force across
-migrations and suspensions.
+ # echo 18446744073750000 > cpu.cfs_period_us
+ # cat cpu.cfs_period_us
+ 40448
 
-Signed-off-by: Nathan Lynch <nathanl@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+ # echo 18446744073750000 > cpu.cfs_quota_us
+ # cat cpu.cfs_quota_us
+ 40448
+
+After this patch they will fail with -EINVAL.
+
+Signed-off-by: Konstantin Khlebnikov <khlebnikov@yandex-team.ru>
+Acked-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: http://lkml.kernel.org/r/155125502079.293431.3947497929372138600.stgit@buzz
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/mm/numa.c | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ kernel/sched/core.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/mm/numa.c b/arch/powerpc/mm/numa.c
-index bb3df222ae71f..215bff2b84703 100644
---- a/arch/powerpc/mm/numa.c
-+++ b/arch/powerpc/mm/numa.c
-@@ -1611,6 +1611,9 @@ int start_topology_update(void)
- {
- 	int rc = 0;
- 
-+	if (!topology_updates_enabled)
-+		return 0;
-+
- 	if (firmware_has_feature(FW_FEATURE_PRRN)) {
- 		if (!prrn_enabled) {
- 			prrn_enabled = 1;
-@@ -1640,6 +1643,9 @@ int stop_topology_update(void)
- {
- 	int rc = 0;
- 
-+	if (!topology_updates_enabled)
-+		return 0;
-+
- 	if (prrn_enabled) {
- 		prrn_enabled = 0;
- #ifdef CONFIG_SMP
-@@ -1685,11 +1691,13 @@ static ssize_t topology_write(struct file *file, const char __user *buf,
- 
- 	kbuf[read_len] = '\0';
- 
--	if (!strncmp(kbuf, "on", 2))
-+	if (!strncmp(kbuf, "on", 2)) {
-+		topology_updates_enabled = true;
- 		start_topology_update();
--	else if (!strncmp(kbuf, "off", 3))
-+	} else if (!strncmp(kbuf, "off", 3)) {
- 		stop_topology_update();
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index d35a7d528ea66..1ef2fb4bbd6bd 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -8460,8 +8460,10 @@ int tg_set_cfs_quota(struct task_group *tg, long cfs_quota_us)
+ 	period = ktime_to_ns(tg->cfs_bandwidth.period);
+ 	if (cfs_quota_us < 0)
+ 		quota = RUNTIME_INF;
 -	else
-+		topology_updates_enabled = false;
-+	} else
- 		return -EINVAL;
++	else if ((u64)cfs_quota_us <= U64_MAX / NSEC_PER_USEC)
+ 		quota = (u64)cfs_quota_us * NSEC_PER_USEC;
++	else
++		return -EINVAL;
  
- 	return count;
-@@ -1704,9 +1712,7 @@ static const struct file_operations topology_ops = {
- 
- static int topology_update_init(void)
+ 	return tg_set_cfs_bandwidth(tg, period, quota);
+ }
+@@ -8483,6 +8485,9 @@ int tg_set_cfs_period(struct task_group *tg, long cfs_period_us)
  {
--	/* Do not poll for changes if disabled at boot */
--	if (topology_updates_enabled)
--		start_topology_update();
-+	start_topology_update();
+ 	u64 quota, period;
  
- 	if (!proc_create("powerpc/topology_updates", 0644, NULL, &topology_ops))
- 		return -ENOMEM;
++	if ((u64)cfs_period_us > U64_MAX / NSEC_PER_USEC)
++		return -EINVAL;
++
+ 	period = (u64)cfs_period_us * NSEC_PER_USEC;
+ 	quota = tg->cfs_bandwidth.quota;
+ 
 -- 
 2.20.1
 
