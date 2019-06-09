@@ -2,50 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EEAC83A690
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 17:09:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86D2D3A692
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 17:09:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728765AbfFIPJP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 11:09:15 -0400
+        id S1728825AbfFIPJR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 11:09:17 -0400
 Received: from mail180-16.suw31.mandrillapp.com ([198.2.180.16]:27524 "EHLO
         mail180-16.suw31.mandrillapp.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728635AbfFIPJP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Jun 2019 11:09:15 -0400
-X-Greylist: delayed 903 seconds by postgrey-1.27 at vger.kernel.org; Sun, 09 Jun 2019 11:09:14 EDT
+        by vger.kernel.org with ESMTP id S1728634AbfFIPJR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Jun 2019 11:09:17 -0400
+X-Greylist: delayed 904 seconds by postgrey-1.27 at vger.kernel.org; Sun, 09 Jun 2019 11:09:15 EDT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; s=mandrill; d=nexedi.com;
  h=From:Subject:To:Cc:Message-Id:In-Reply-To:References:Date:MIME-Version:Content-Type:Content-Transfer-Encoding; i=kirr@nexedi.com;
- bh=/BfBSryqLYb5jb5bpRRHljjnFOtlnTlngD5C6CvtqbY=;
- b=qFSXQ6pDZC+nY/hdbfr5fvDe5lbPoljR6DJp8IExfKfoIO30Ro9Vx12uJCholZ506pdedAcVXBXf
-   N38khWKHSVsMDthFeZVY9tP5G8SvC8FRbLiamBxXrjeZi9663qHnz2WEndmL5NfN3dXkX1ldG03j
-   TqdgLqkavpFlDLuWRzE=
-Received: from pmta03.mandrill.prod.suw01.rsglab.com (127.0.0.1) by mail180-16.suw31.mandrillapp.com id hvkghk22sc0v for <stable@vger.kernel.org>; Sun, 9 Jun 2019 14:39:11 +0000 (envelope-from <bounce-md_31050260.5cfd1a0f.v1-aaef654507304d72ac570fb87cba4019@mandrillapp.com>)
+ bh=dm0aK3M64H+SXVlIii//Ha6Kj1rTeiHz47q5OrGWw5I=;
+ b=lWQNDbOHYfk+5KWBuM0d4nBmxsEb6pfthv+ug4h1qOYa9HuodBqzAPcochW0tKf3OYIp9fepZvZJ
+   S+Gd8/ktZVSeCR+WH5NaHzR172kZb74WZL0E6l0MtwDZkQZZU0LSJuh+qvBoIwLeu8+xkbhNbs3t
+   /uYzcn5+RpAx3unOGHg=
+Received: from pmta03.mandrill.prod.suw01.rsglab.com (127.0.0.1) by mail180-16.suw31.mandrillapp.com id hvkghm22sc0t for <stable@vger.kernel.org>; Sun, 9 Jun 2019 14:39:11 +0000 (envelope-from <bounce-md_31050260.5cfd1a0f.v1-7d45b6e31d4241b7bd9c30f6ee497e6a@mandrillapp.com>)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mandrillapp.com; 
  i=@mandrillapp.com; q=dns/txt; s=mandrill; t=1560091151; h=From : 
  Subject : To : Cc : Message-Id : In-Reply-To : References : Date : 
  MIME-Version : Content-Type : Content-Transfer-Encoding : From : 
  Subject : Date : X-Mandrill-User : List-Unsubscribe; 
- bh=/BfBSryqLYb5jb5bpRRHljjnFOtlnTlngD5C6CvtqbY=; 
- b=b/FGotSQP82p2oY40N3pue71956qmO3FOivDu6nLcutRBJfpMEFlNQ63X7QQ9P99D7n5HO
- 1DFjOz2FcK8mvyqsQ6dMv7Dqs4OnQEQWlELaDgS5qXACdETtprRo1vlwZEvxHbjXHUBwDfwV
- 03zM89jPpFe+vysKL5O5BIMxizjnc=
+ bh=dm0aK3M64H+SXVlIii//Ha6Kj1rTeiHz47q5OrGWw5I=; 
+ b=YKBFK0I4+27uroGTxJ9kDHCYkkOZ9dOUqphzy/V7Get2zCE+oUTDcpmzDrK8fAWtzvJI/K
+ S8/tZHnaJxaDpub1HTzUm0y5NRoHneg8m0tUD4iKguGU0xPWHdsEb9rQ+ePhGS+9Qt7rycsg
+ N3O+xi01jC16pRMPnlK8uDKzd4qUs=
 From:   Kirill Smelkov <kirr@nexedi.com>
-Subject: [PATCH 4.4 2/2] fuse: Add FOPEN_STREAM to use stream_open()
-Received: from [87.98.221.171] by mandrillapp.com id aaef654507304d72ac570fb87cba4019; Sun, 09 Jun 2019 14:39:11 +0000
+Subject: [PATCH 3.16 2/2] fuse: Add FOPEN_STREAM to use stream_open()
+Received: from [87.98.221.171] by mandrillapp.com id 7d45b6e31d4241b7bd9c30f6ee497e6a; Sun, 09 Jun 2019 14:39:11 +0000
 X-Mailer: git-send-email 2.20.1
-To:     <stable@vger.kernel.org>
+To:     <stable@vger.kernel.org>, Ben Hutchings <ben@decadent.org.uk>
 Cc:     Sasha Levin <sashal@kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Ben Hutchings <ben@decadent.org.uk>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Miklos Szeredi <miklos@szeredi.hu>,
         <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         Kirill Smelkov <kirr@nexedi.com>,
         Miklos Szeredi <mszeredi@redhat.com>
-Message-Id: <20190609132443.9420-3-kirr@nexedi.com>
-In-Reply-To: <20190609132443.9420-1-kirr@nexedi.com>
-References: <20190609132443.9420-1-kirr@nexedi.com>
+Message-Id: <20190609135607.9840-3-kirr@nexedi.com>
+In-Reply-To: <20190609135607.9840-1-kirr@nexedi.com>
+References: <20190609135607.9840-1-kirr@nexedi.com>
 X-Report-Abuse: Please forward a copy of this message, including all headers, to abuse@mandrill.com
-X-Report-Abuse: You can also report abuse here: http://mandrillapp.com/contact/abuse?id=31050260.aaef654507304d72ac570fb87cba4019
+X-Report-Abuse: You can also report abuse here: http://mandrillapp.com/contact/abuse?id=31050260.7d45b6e31d4241b7bd9c30f6ee497e6a
 X-Mandrill-User: md_31050260
 Date:   Sun, 09 Jun 2019 14:39:11 +0000
 MIME-Version: 1.0
@@ -106,10 +105,10 @@ Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
  2 files changed, 5 insertions(+), 1 deletion(-)
 
 diff --git a/fs/fuse/file.c b/fs/fuse/file.c
-index d40c2451487c..cf50020f9f27 100644
+index bc8f5de48fd9..69e471b042a6 100644
 --- a/fs/fuse/file.c
 +++ b/fs/fuse/file.c
-@@ -178,7 +178,9 @@ void fuse_finish_open(struct inode *inode, struct file *file)
+@@ -214,7 +214,9 @@ void fuse_finish_open(struct inode *inode, struct file *file)
  		file->f_op = &fuse_direct_io_file_operations;
  	if (!(ff->open_flags & FOPEN_KEEP_CACHE))
  		invalidate_inode_pages2(inode->i_mapping);
@@ -121,7 +120,7 @@ index d40c2451487c..cf50020f9f27 100644
  	if (fc->atomic_o_trunc && (file->f_flags & O_TRUNC)) {
  		struct fuse_inode *fi = get_fuse_inode(inode);
 diff --git a/include/uapi/linux/fuse.h b/include/uapi/linux/fuse.h
-index c9aca042e61d..d3a5cf3b5446 100644
+index 25084a052a1e..cff91b018953 100644
 --- a/include/uapi/linux/fuse.h
 +++ b/include/uapi/linux/fuse.h
 @@ -205,10 +205,12 @@ struct fuse_file_lock {
