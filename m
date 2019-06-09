@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 64BBF3AAD0
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:22:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12FDB3A88D
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:02:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730334AbfFIRV6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 13:21:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42564 "EHLO mail.kernel.org"
+        id S2387461AbfFIRBn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 13:01:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39140 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729621AbfFIQpD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:45:03 -0400
+        id S2388107AbfFIRBm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 13:01:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7A2CE20840;
-        Sun,  9 Jun 2019 16:45:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 564D2206DF;
+        Sun,  9 Jun 2019 17:01:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560098703;
-        bh=Bzxt5NMfeLaE9vx9o2lwazsyI1QEqtzUSCM57Sf5CY0=;
+        s=default; t=1560099701;
+        bh=Ss3/1aNf6BV0NDPMl7bx6++BVlpIDWzqubpvj80s7W0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HJ7P6EQfE8ykmE2hhwxft1CJrWRk8xNVhtQU6DzNhlYeMVWRbM8KYdaa9bHljcHaP
-         e7Yth5ti0W/0ZXDD/NY8YFpbtvJ1X1OST677KatCbO2SvyFXkyVuxbLrc1JnM7HM3l
-         ovXeHW4A1YIfHOjgirVtBsvCRW9vlnHgQtQ2uzFY=
+        b=kKpqk4r6DXF6dhqOic2eBrHOmhTrI+lAtN8fTcW5PIad/2oF3hIg/9AEjJKkZL1gD
+         wEpZCmrGGCL9i9ac9zCdPLzzr3+gDYDOEVR6Ti+Y9dl2J3oCmw84A73WUHWr+DL62S
+         gHFRilLnWzmTmXrZs6QAbOu06g2fX8GCvGJdioIY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianlin Shi <jishi@redhat.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.1 03/70] ipv4: not do cache for local delivery if bc_forwarding is enabled
-Date:   Sun,  9 Jun 2019 18:41:14 +0200
-Message-Id: <20190609164127.734831392@linuxfoundation.org>
+        stable@vger.kernel.org, Kefeng Wang <wangkefeng.wang@huawei.com>,
+        John Garry <john.garry@huawei.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 133/241] hwmon: (smsc47m1) Use request_muxed_region for Super-IO accesses
+Date:   Sun,  9 Jun 2019 18:41:15 +0200
+Message-Id: <20190609164151.635341098@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.541128197@linuxfoundation.org>
-References: <20190609164127.541128197@linuxfoundation.org>
+In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
+References: <20190609164147.729157653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,85 +45,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+[ Upstream commit d6410408ad2a798c4cc685252c1baa713be0ad69 ]
 
-[ Upstream commit 0a90478b93a46bdcd56ba33c37566a993e455d54 ]
+Super-IO accesses may fail on a system with no or unmapped LPC bus.
 
-With the topo:
+Also, other drivers may attempt to access the LPC bus at the same time,
+resulting in undefined behavior.
 
-    h1 ---| rp1            |
-          |     route  rp3 |--- h3 (192.168.200.1)
-    h2 ---| rp2            |
+Use request_muxed_region() to ensure that IO access on the requested
+address space is supported, and to ensure that access by multiple drivers
+is synchronized.
 
-If rp1 bc_forwarding is set while rp2 bc_forwarding is not, after
-doing "ping 192.168.200.255" on h1, then ping 192.168.200.255 on
-h2, and the packets can still be forwared.
-
-This issue was caused by the input route cache. It should only do
-the cache for either bc forwarding or local delivery. Otherwise,
-local delivery can use the route cache for bc forwarding of other
-interfaces.
-
-This patch is to fix it by not doing cache for local delivery if
-all.bc_forwarding is enabled.
-
-Note that we don't fix it by checking route cache local flag after
-rt_cache_valid() in "local_input:" and "ip_mkroute_input", as the
-common route code shouldn't be touched for bc_forwarding.
-
-Fixes: 5cbf777cfdf6 ("route: add support for directed broadcast forwarding")
-Reported-by: Jianlin Shi <jishi@redhat.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 8d5d45fb1468 ("I2C: Move hwmon drivers (2/3)")
+Reported-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Reported-by: John Garry <john.garry@huawei.com>
+Cc: John Garry <john.garry@huawei.com>
+Acked-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/route.c |   22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ drivers/hwmon/smsc47m1.c | 28 +++++++++++++++++++---------
+ 1 file changed, 19 insertions(+), 9 deletions(-)
 
---- a/net/ipv4/route.c
-+++ b/net/ipv4/route.c
-@@ -1954,7 +1954,7 @@ static int ip_route_input_slow(struct sk
- 	u32		itag = 0;
- 	struct rtable	*rth;
- 	struct flowi4	fl4;
--	bool do_cache;
-+	bool do_cache = true;
+diff --git a/drivers/hwmon/smsc47m1.c b/drivers/hwmon/smsc47m1.c
+index 5d323186d2c10..d24df0c50bea4 100644
+--- a/drivers/hwmon/smsc47m1.c
++++ b/drivers/hwmon/smsc47m1.c
+@@ -73,16 +73,21 @@ superio_inb(int reg)
+ /* logical device for fans is 0x0A */
+ #define superio_select() superio_outb(0x07, 0x0A)
  
- 	/* IP on this device is disabled. */
+-static inline void
++static inline int
+ superio_enter(void)
+ {
++	if (!request_muxed_region(REG, 2, DRVNAME))
++		return -EBUSY;
++
+ 	outb(0x55, REG);
++	return 0;
+ }
  
-@@ -2031,6 +2031,9 @@ static int ip_route_input_slow(struct sk
- 	if (res->type == RTN_BROADCAST) {
- 		if (IN_DEV_BFORWARD(in_dev))
- 			goto make_route;
-+		/* not do cache if bc_forwarding is enabled */
-+		if (IPV4_DEVCONF_ALL(net, BC_FORWARDING))
-+			do_cache = false;
- 		goto brd_input;
+ static inline void
+ superio_exit(void)
+ {
+ 	outb(0xAA, REG);
++	release_region(REG, 2);
+ }
+ 
+ #define SUPERIO_REG_ACT		0x30
+@@ -531,8 +536,12 @@ static int __init smsc47m1_find(struct smsc47m1_sio_data *sio_data)
+ {
+ 	u8 val;
+ 	unsigned short addr;
++	int err;
++
++	err = superio_enter();
++	if (err)
++		return err;
+ 
+-	superio_enter();
+ 	val = force_id ? force_id : superio_inb(SUPERIO_REG_DEVID);
+ 
+ 	/*
+@@ -608,13 +617,14 @@ static int __init smsc47m1_find(struct smsc47m1_sio_data *sio_data)
+ static void smsc47m1_restore(const struct smsc47m1_sio_data *sio_data)
+ {
+ 	if ((sio_data->activate & 0x01) == 0) {
+-		superio_enter();
+-		superio_select();
+-
+-		pr_info("Disabling device\n");
+-		superio_outb(SUPERIO_REG_ACT, sio_data->activate);
+-
+-		superio_exit();
++		if (!superio_enter()) {
++			superio_select();
++			pr_info("Disabling device\n");
++			superio_outb(SUPERIO_REG_ACT, sio_data->activate);
++			superio_exit();
++		} else {
++			pr_warn("Failed to disable device\n");
++		}
  	}
+ }
  
-@@ -2068,16 +2071,13 @@ brd_input:
- 	RT_CACHE_STAT_INC(in_brd);
- 
- local_input:
--	do_cache = false;
--	if (res->fi) {
--		if (!itag) {
--			rth = rcu_dereference(FIB_RES_NH(*res).nh_rth_input);
--			if (rt_cache_valid(rth)) {
--				skb_dst_set_noref(skb, &rth->dst);
--				err = 0;
--				goto out;
--			}
--			do_cache = true;
-+	do_cache &= res->fi && !itag;
-+	if (do_cache) {
-+		rth = rcu_dereference(FIB_RES_NH(*res).nh_rth_input);
-+		if (rt_cache_valid(rth)) {
-+			skb_dst_set_noref(skb, &rth->dst);
-+			err = 0;
-+			goto out;
- 		}
- 	}
- 
+-- 
+2.20.1
+
 
 
