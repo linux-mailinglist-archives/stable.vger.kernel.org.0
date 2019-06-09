@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C67303A960
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:10:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 551EB3A759
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 18:49:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388391AbfFIRDW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 13:03:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41628 "EHLO mail.kernel.org"
+        id S1731300AbfFIQsx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:48:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388367AbfFIRDR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 13:03:17 -0400
+        id S1730097AbfFIQsw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:48:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7A3FC20840;
-        Sun,  9 Jun 2019 17:03:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1C9ED205ED;
+        Sun,  9 Jun 2019 16:48:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099797;
-        bh=v5+OdRiroJNePL+EMSWqYBpZD6+2xfylolszboFxqXU=;
+        s=default; t=1560098931;
+        bh=g75Sm/xoGHFxBj4nYNq3+J9XqVcsXYBwcfM3Lm26yAg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bB5q47QC3PnO/54wxQQdkZQyDJchgT6J7Q1fJvo3gB8LnrcGyDsO08nyaUVR7F+2H
-         Hsy1/Fo9050iENQ1Hk/P4+sZ6D/PAQB7ra3HhB7XwP/xmL53C8pePXNv+y4ravdRi/
-         uAe/eLjCC0vWDHuXYA4bLfrdqg4xTXAJjGEWMGwM=
+        b=OOGPYk2R+ozotSZM7KEtrkDt4+L3hikiEAfVzRW3Ite4bO5BZ4byj6DDHb3EwgC+Q
+         HtIWljfTUIMSOsMd/2cUimx35qYxZRjAl7RWXNvNtx/LNwgdPk1odIwaaWPmCqcl7T
+         LAotkqMs5Kmnaieu7IKX3UreFGsNKEfNWTa3stn8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 168/241] tty: ipwireless: fix missing checks for ioremap
+        stable@vger.kernel.org, Zhu Yanjun <yanjun.zhu@oracle.com>,
+        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 09/51] net: rds: fix memory leak in rds_ib_flush_mr_pool
 Date:   Sun,  9 Jun 2019 18:41:50 +0200
-Message-Id: <20190609164152.626825312@linuxfoundation.org>
+Message-Id: <20190609164127.631681340@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
-References: <20190609164147.729157653@linuxfoundation.org>
+In-Reply-To: <20190609164127.123076536@linuxfoundation.org>
+References: <20190609164127.123076536@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,49 +44,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 1bbb1c318cd8a3a39e8c3e2e83d5e90542d6c3e3 ]
+From: Zhu Yanjun <yanjun.zhu@oracle.com>
 
-ipw->attr_memory and ipw->common_memory are assigned with the
-return value of ioremap. ioremap may fail, but no checks
-are enforced. The fix inserts the checks to avoid potential
-NULL pointer dereferences.
+[ Upstream commit 85cb928787eab6a2f4ca9d2a798b6f3bed53ced1 ]
 
-Signed-off-by: Kangjie Lu <kjlu@umn.edu>
-Reviewed-by: David Sterba <dsterba@suse.com>
+When the following tests last for several hours, the problem will occur.
+
+Server:
+    rds-stress -r 1.1.1.16 -D 1M
+Client:
+    rds-stress -r 1.1.1.14 -s 1.1.1.16 -D 1M -T 30
+
+The following will occur.
+
+"
+Starting up....
+tsks   tx/s   rx/s  tx+rx K/s    mbi K/s    mbo K/s tx us/c   rtt us cpu
+%
+  1      0      0       0.00       0.00       0.00    0.00 0.00 -1.00
+  1      0      0       0.00       0.00       0.00    0.00 0.00 -1.00
+  1      0      0       0.00       0.00       0.00    0.00 0.00 -1.00
+  1      0      0       0.00       0.00       0.00    0.00 0.00 -1.00
+"
+>From vmcore, we can find that clean_list is NULL.
+
+>From the source code, rds_mr_flushd calls rds_ib_mr_pool_flush_worker.
+Then rds_ib_mr_pool_flush_worker calls
+"
+ rds_ib_flush_mr_pool(pool, 0, NULL);
+"
+Then in function
+"
+int rds_ib_flush_mr_pool(struct rds_ib_mr_pool *pool,
+                         int free_all, struct rds_ib_mr **ibmr_ret)
+"
+ibmr_ret is NULL.
+
+In the source code,
+"
+...
+list_to_llist_nodes(pool, &unmap_list, &clean_nodes, &clean_tail);
+if (ibmr_ret)
+        *ibmr_ret = llist_entry(clean_nodes, struct rds_ib_mr, llnode);
+
+/* more than one entry in llist nodes */
+if (clean_nodes->next)
+        llist_add_batch(clean_nodes->next, clean_tail, &pool->clean_list);
+...
+"
+When ibmr_ret is NULL, llist_entry is not executed. clean_nodes->next
+instead of clean_nodes is added in clean_list.
+So clean_nodes is discarded. It can not be used again.
+The workqueue is executed periodically. So more and more clean_nodes are
+discarded. Finally the clean_list is NULL.
+Then this problem will occur.
+
+Fixes: 1bc144b62524 ("net, rds, Replace xlist in net/rds/xlist.h with llist")
+Signed-off-by: Zhu Yanjun <yanjun.zhu@oracle.com>
+Acked-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/ipwireless/main.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ net/rds/ib_rdma.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/tty/ipwireless/main.c b/drivers/tty/ipwireless/main.c
-index 655c7948261c7..2fa4f91234693 100644
---- a/drivers/tty/ipwireless/main.c
-+++ b/drivers/tty/ipwireless/main.c
-@@ -113,6 +113,10 @@ static int ipwireless_probe(struct pcmcia_device *p_dev, void *priv_data)
+--- a/net/rds/ib_rdma.c
++++ b/net/rds/ib_rdma.c
+@@ -428,12 +428,14 @@ int rds_ib_flush_mr_pool(struct rds_ib_m
+ 		wait_clean_list_grace();
  
- 	ipw->common_memory = ioremap(p_dev->resource[2]->start,
- 				resource_size(p_dev->resource[2]));
-+	if (!ipw->common_memory) {
-+		ret = -ENOMEM;
-+		goto exit1;
-+	}
- 	if (!request_mem_region(p_dev->resource[2]->start,
- 				resource_size(p_dev->resource[2]),
- 				IPWIRELESS_PCCARD_NAME)) {
-@@ -133,6 +137,10 @@ static int ipwireless_probe(struct pcmcia_device *p_dev, void *priv_data)
+ 		list_to_llist_nodes(pool, &unmap_list, &clean_nodes, &clean_tail);
+-		if (ibmr_ret)
++		if (ibmr_ret) {
+ 			*ibmr_ret = llist_entry(clean_nodes, struct rds_ib_mr, llnode);
+-
++			clean_nodes = clean_nodes->next;
++		}
+ 		/* more than one entry in llist nodes */
+-		if (clean_nodes->next)
+-			llist_add_batch(clean_nodes->next, clean_tail, &pool->clean_list);
++		if (clean_nodes)
++			llist_add_batch(clean_nodes, clean_tail,
++					&pool->clean_list);
  
- 	ipw->attr_memory = ioremap(p_dev->resource[3]->start,
- 				resource_size(p_dev->resource[3]));
-+	if (!ipw->attr_memory) {
-+		ret = -ENOMEM;
-+		goto exit3;
-+	}
- 	if (!request_mem_region(p_dev->resource[3]->start,
- 				resource_size(p_dev->resource[3]),
- 				IPWIRELESS_PCCARD_NAME)) {
--- 
-2.20.1
-
+ 	}
+ 
 
 
