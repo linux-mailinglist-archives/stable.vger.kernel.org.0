@@ -2,42 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A4883A8F1
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:06:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E5D43AA09
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:15:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388920AbfFIRF4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 13:05:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45358 "EHLO mail.kernel.org"
+        id S1732663AbfFIQyp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:54:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56546 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388881AbfFIRF4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 13:05:56 -0400
+        id S1732683AbfFIQyo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:54:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A806A207E0;
-        Sun,  9 Jun 2019 17:05:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 96BBC205ED;
+        Sun,  9 Jun 2019 16:54:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099955;
-        bh=UrUdY3htt2uLO4vYCHCd8aGmfEbM3Tw+iyZJf2diBbY=;
+        s=default; t=1560099284;
+        bh=ZelLAq095nPzT9U+ik2QCM4aygITCEP6x05Ax+TYATc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GqGQ6UP8aUawLzOaBA4z6wMnAP+jvvJUEGi9R8Ee8KZmm8A1GxgL5XtFD8Jb2+6Rd
-         nUmM1N4dX9y0/Wrzlh4HPTnhN6xBsb16Tp/mk4oiErZIimP5VAEWJJM+10kNVrxVTT
-         04Io3ldj1+R+kdN+0FKdCZGrtGnBEnUWhqrvMFbk=
+        b=wln66yJHN6atG1uw+LkuY9I1JBnmEgUGXrYUiRYPBqpjSwHloa7dcU7/viJXZSdJP
+         wW0enRIu3p+e8lHAWXvh9COPUl85Uj3BzbuSKOmLYkuQn3SWDbqQzG+Wc5hFQu4O8q
+         2bRN9xaYZ5WtrHqK9h0TO5ljrydI1YmjUS2M/Yso=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oleg Nesterov <oleg@redhat.com>,
-        Andrea Arcangeli <aarcange@redhat.com>,
-        Michal Hocko <mhocko@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>
-Subject: [PATCH 4.4 224/241] userfaultfd: dont pin the user memory in userfaultfd_file_create()
+        stable@vger.kernel.org,
+        =?UTF-8?q?Petr=20=C5=A0tetiar?= <ynezz@true.cz>,
+        Kevin ldir Darbyshire-Bryant <ldir@darbyshire-bryant.me.uk>,
+        John Crispin <john@phrozen.org>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Paul Burton <paul.burton@mips.com>, linux-mips@vger.kernel.org,
+        Ralf Baechle <ralf@linux-mips.org>,
+        James Hogan <jhogan@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Jason Cooper <jason@lakedaemon.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 76/83] Revert "MIPS: perf: ath79: Fix perfcount IRQ assignment"
 Date:   Sun,  9 Jun 2019 18:42:46 +0200
-Message-Id: <20190609164155.163544955@linuxfoundation.org>
+Message-Id: <20190609164134.390310228@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
-References: <20190609164147.729157653@linuxfoundation.org>
+In-Reply-To: <20190609164127.843327870@linuxfoundation.org>
+References: <20190609164127.843327870@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,177 +52,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleg Nesterov <oleg@redhat.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit d2005e3f41d4f9299e2df6a967c8beb5086967a9 upstream.
+This reverts commit f9b1baac265600a61d36ebaf9ba657119303b5b5 which is
+commit a1e8783db8e0d58891681bc1e6d9ada66eae8e20 upstream.
 
-userfaultfd_file_create() increments mm->mm_users; this means that the
-memory won't be unmapped/freed if mm owner exits/execs, and UFFDIO_COPY
-after that can populate the orphaned mm more.
+Petr writes:
+	Karl has reported to me today, that he's experiencing weird
+	reboot hang on his devices with 4.9.180 kernel and that he has
+	bisected it down to my backported patch.
 
-Change userfaultfd_file_create() and userfaultfd_ctx_put() to use
-mm->mm_count to pin mm_struct.  This means that
-atomic_inc_not_zero(mm->mm_users) is needed when we are going to
-actually play with this memory.  Except handle_userfault() path doesn't
-need this, the caller must already have a reference.
+	I would like to kindly ask you for removal of this patch.  This
+	patch should be reverted from all stable kernels up to 5.1,
+	because perf counters were not broken on those kernels, and this
+	patch won't work on the ath79 legacy IRQ code anyway, it needs
+	new irqchip driver which was enabled on ath79 with commit
+	51fa4f8912c0 ("MIPS: ath79: drop legacy IRQ code").
 
-The patch adds the new trivial helper, mmget_not_zero(), it can have
-more users.
-
-Link: http://lkml.kernel.org/r/20160516172254.GA8595@redhat.com
-Signed-off-by: Oleg Nesterov <oleg@redhat.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Michal Hocko <mhocko@kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
+Reported-by: Petr Štetiar <ynezz@true.cz>
+Cc: Kevin 'ldir' Darbyshire-Bryant <ldir@darbyshire-bryant.me.uk>
+Cc: John Crispin <john@phrozen.org>
+Cc: Marc Zyngier <marc.zyngier@arm.com>
+Cc: Paul Burton <paul.burton@mips.com>
+Cc: linux-mips@vger.kernel.org
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: James Hogan <jhogan@kernel.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Jason Cooper <jason@lakedaemon.net>
+Cc: Sasha Levin <sashal@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/userfaultfd.c      |   41 ++++++++++++++++++++++++++++-------------
- include/linux/sched.h |    7 ++++++-
- 2 files changed, 34 insertions(+), 14 deletions(-)
+ arch/mips/ath79/setup.c          |    6 ++++++
+ drivers/irqchip/irq-ath79-misc.c |   11 -----------
+ 2 files changed, 6 insertions(+), 11 deletions(-)
 
---- a/fs/userfaultfd.c
-+++ b/fs/userfaultfd.c
-@@ -137,7 +137,7 @@ static void userfaultfd_ctx_put(struct u
- 		VM_BUG_ON(waitqueue_active(&ctx->fault_wqh));
- 		VM_BUG_ON(spin_is_locked(&ctx->fd_wqh.lock));
- 		VM_BUG_ON(waitqueue_active(&ctx->fd_wqh));
--		mmput(ctx->mm);
-+		mmdrop(ctx->mm);
- 		kmem_cache_free(userfaultfd_ctx_cachep, ctx);
- 	}
- }
-@@ -434,6 +434,9 @@ static int userfaultfd_release(struct in
- 
- 	ACCESS_ONCE(ctx->released) = true;
- 
-+	if (!mmget_not_zero(mm))
-+		goto wakeup;
-+
- 	/*
- 	 * Flush page faults out of all CPUs. NOTE: all page faults
- 	 * must be retried without returning VM_FAULT_SIGBUS if
-@@ -466,7 +469,8 @@ static int userfaultfd_release(struct in
- 		vma->vm_userfaultfd_ctx = NULL_VM_UFFD_CTX;
- 	}
- 	up_write(&mm->mmap_sem);
--
-+	mmput(mm);
-+wakeup:
- 	/*
- 	 * After no new page faults can wait on this fault_*wqh, flush
- 	 * the last page faults that may have been already waiting on
-@@ -760,10 +764,12 @@ static int userfaultfd_register(struct u
- 	start = uffdio_register.range.start;
- 	end = start + uffdio_register.range.len;
- 
-+	ret = -ENOMEM;
-+	if (!mmget_not_zero(mm))
-+		goto out;
-+
- 	down_write(&mm->mmap_sem);
- 	vma = find_vma_prev(mm, start, &prev);
--
--	ret = -ENOMEM;
- 	if (!vma)
- 		goto out_unlock;
- 
-@@ -864,6 +870,7 @@ static int userfaultfd_register(struct u
- 	} while (vma && vma->vm_start < end);
- out_unlock:
- 	up_write(&mm->mmap_sem);
-+	mmput(mm);
- 	if (!ret) {
- 		/*
- 		 * Now that we scanned all vmas we can already tell
-@@ -902,10 +909,12 @@ static int userfaultfd_unregister(struct
- 	start = uffdio_unregister.start;
- 	end = start + uffdio_unregister.len;
- 
-+	ret = -ENOMEM;
-+	if (!mmget_not_zero(mm))
-+		goto out;
-+
- 	down_write(&mm->mmap_sem);
- 	vma = find_vma_prev(mm, start, &prev);
--
--	ret = -ENOMEM;
- 	if (!vma)
- 		goto out_unlock;
- 
-@@ -998,6 +1007,7 @@ static int userfaultfd_unregister(struct
- 	} while (vma && vma->vm_start < end);
- out_unlock:
- 	up_write(&mm->mmap_sem);
-+	mmput(mm);
- out:
- 	return ret;
- }
-@@ -1067,9 +1077,11 @@ static int userfaultfd_copy(struct userf
- 		goto out;
- 	if (uffdio_copy.mode & ~UFFDIO_COPY_MODE_DONTWAKE)
- 		goto out;
--
--	ret = mcopy_atomic(ctx->mm, uffdio_copy.dst, uffdio_copy.src,
--			   uffdio_copy.len);
-+	if (mmget_not_zero(ctx->mm)) {
-+		ret = mcopy_atomic(ctx->mm, uffdio_copy.dst, uffdio_copy.src,
-+				   uffdio_copy.len);
-+		mmput(ctx->mm);
-+	}
- 	if (unlikely(put_user(ret, &user_uffdio_copy->copy)))
- 		return -EFAULT;
- 	if (ret < 0)
-@@ -1110,8 +1122,11 @@ static int userfaultfd_zeropage(struct u
- 	if (uffdio_zeropage.mode & ~UFFDIO_ZEROPAGE_MODE_DONTWAKE)
- 		goto out;
- 
--	ret = mfill_zeropage(ctx->mm, uffdio_zeropage.range.start,
--			     uffdio_zeropage.range.len);
-+	if (mmget_not_zero(ctx->mm)) {
-+		ret = mfill_zeropage(ctx->mm, uffdio_zeropage.range.start,
-+				     uffdio_zeropage.range.len);
-+		mmput(ctx->mm);
-+	}
- 	if (unlikely(put_user(ret, &user_uffdio_zeropage->zeropage)))
- 		return -EFAULT;
- 	if (ret < 0)
-@@ -1289,12 +1304,12 @@ static struct file *userfaultfd_file_cre
- 	ctx->released = false;
- 	ctx->mm = current->mm;
- 	/* prevent the mm struct to be freed */
--	atomic_inc(&ctx->mm->mm_users);
-+	atomic_inc(&ctx->mm->mm_count);
- 
- 	file = anon_inode_getfile("[userfaultfd]", &userfaultfd_fops, ctx,
- 				  O_RDWR | (flags & UFFD_SHARED_FCNTL_FLAGS));
- 	if (IS_ERR(file)) {
--		mmput(ctx->mm);
-+		mmdrop(ctx->mm);
- 		kmem_cache_free(userfaultfd_ctx_cachep, ctx);
- 	}
- out:
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -2614,12 +2614,17 @@ extern struct mm_struct * mm_alloc(void)
- 
- /* mmdrop drops the mm and the page tables */
- extern void __mmdrop(struct mm_struct *);
--static inline void mmdrop(struct mm_struct * mm)
-+static inline void mmdrop(struct mm_struct *mm)
- {
- 	if (unlikely(atomic_dec_and_test(&mm->mm_count)))
- 		__mmdrop(mm);
+--- a/arch/mips/ath79/setup.c
++++ b/arch/mips/ath79/setup.c
+@@ -183,6 +183,12 @@ const char *get_system_type(void)
+ 	return ath79_sys_type;
  }
  
-+static inline bool mmget_not_zero(struct mm_struct *mm)
++int get_c0_perfcount_int(void)
 +{
-+	return atomic_inc_not_zero(&mm->mm_users);
++	return ATH79_MISC_IRQ(5);
 +}
++EXPORT_SYMBOL_GPL(get_c0_perfcount_int);
 +
- /* mmput gets rid of the mappings and all user-space */
- extern void mmput(struct mm_struct *);
- /* Grab a reference to a task's mm, if it is not already going away */
+ unsigned int get_c0_compare_int(void)
+ {
+ 	return CP0_LEGACY_COMPARE_IRQ;
+--- a/drivers/irqchip/irq-ath79-misc.c
++++ b/drivers/irqchip/irq-ath79-misc.c
+@@ -22,15 +22,6 @@
+ #define AR71XX_RESET_REG_MISC_INT_ENABLE	4
+ 
+ #define ATH79_MISC_IRQ_COUNT			32
+-#define ATH79_MISC_PERF_IRQ			5
+-
+-static int ath79_perfcount_irq;
+-
+-int get_c0_perfcount_int(void)
+-{
+-	return ath79_perfcount_irq;
+-}
+-EXPORT_SYMBOL_GPL(get_c0_perfcount_int);
+ 
+ static void ath79_misc_irq_handler(struct irq_desc *desc)
+ {
+@@ -122,8 +113,6 @@ static void __init ath79_misc_intc_domai
+ {
+ 	void __iomem *base = domain->host_data;
+ 
+-	ath79_perfcount_irq = irq_create_mapping(domain, ATH79_MISC_PERF_IRQ);
+-
+ 	/* Disable and clear all interrupts */
+ 	__raw_writel(0, base + AR71XX_RESET_REG_MISC_INT_ENABLE);
+ 	__raw_writel(0, base + AR71XX_RESET_REG_MISC_INT_STATUS);
 
 
