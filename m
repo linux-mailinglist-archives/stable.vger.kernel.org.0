@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 759783AA54
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:18:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D637C3A78A
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 18:51:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731969AbfFIQvf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:51:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51986 "EHLO mail.kernel.org"
+        id S1731200AbfFIQul (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:50:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731967AbfFIQvf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:51:35 -0400
+        id S1731731AbfFIQua (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:50:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5254120840;
-        Sun,  9 Jun 2019 16:51:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A01A0206DF;
+        Sun,  9 Jun 2019 16:50:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099094;
-        bh=GLP0+RZM/cxX0XznA1xTTCFuzjQJbaxieRi83J0s7pk=;
+        s=default; t=1560099030;
+        bh=vDL9p9nzS5Xtfyd1kVhUcL7tNjY01X5WTJe5ER2lxtY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gf1l9MH6D4HOItikrQV9jRMuRDQRGTlPzkZ5pFiyJi68IqMfO8eZp8ZPghsiXe9WH
-         fkBIGeyt/PhvAJjjG/r9lUWdc5JVZkLTOMPVJmf74l64RJVG/vdkinWga0wheznNAj
-         kYHKlbKQRvMPFtZtRCVgvSu66Gtg0zDrQyxTJ0Ck=
+        b=tjJEzpK9i6/T0iAWK3eOuLHwkfrdx7Z75Ry3/q/xnnLcyuPA2pQ3vZW1u8MoCTIcX
+         9mtHtdgL/xInSc2MdialTa3oyseoFgZyhS+S1zSdiDPjqLneXS2Hd28fs5DsQbfyQe
+         n3p1HllaKBUTWJPjSB9pT8sSo/Gh6uNnHmFAqNio=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Liu Bo <bo.liu@linux.alibaba.com>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 4.14 15/35] fuse: fallocate: fix return with locked inode
-Date:   Sun,  9 Jun 2019 18:42:21 +0200
-Message-Id: <20190609164126.383573160@linuxfoundation.org>
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>
+Subject: [PATCH 4.14 16/35] pstore: Remove needless lock during console writes
+Date:   Sun,  9 Jun 2019 18:42:22 +0200
+Message-Id: <20190609164126.457142600@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190609164125.377368385@linuxfoundation.org>
 References: <20190609164125.377368385@linuxfoundation.org>
@@ -45,36 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miklos Szeredi <mszeredi@redhat.com>
+From: Kees Cook <keescook@chromium.org>
 
-commit 35d6fcbb7c3e296a52136347346a698a35af3fda upstream.
+commit b77fa617a2ff4d6beccad3d3d4b3a1f2d10368aa upstream.
 
-Do the proper cleanup in case the size check fails.
+Since the console writer does not use the preallocated crash dump buffer
+any more, there is no reason to perform locking around it.
 
-Tested with xfstests:generic/228
-
-Reported-by: kbuild test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Fixes: 0cbade024ba5 ("fuse: honor RLIMIT_FSIZE in fuse_file_fallocate")
-Cc: Liu Bo <bo.liu@linux.alibaba.com>
-Cc: <stable@vger.kernel.org> # v3.5
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Fixes: 70ad35db3321 ("pstore: Convert console write to use ->write_buf")
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Joel Fernandes (Google) <joel@joelfernandes.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/fuse/file.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/pstore/platform.c |   29 ++++++-----------------------
+ 1 file changed, 6 insertions(+), 23 deletions(-)
 
---- a/fs/fuse/file.c
-+++ b/fs/fuse/file.c
-@@ -2978,7 +2978,7 @@ static long fuse_file_fallocate(struct f
- 	    offset + length > i_size_read(inode)) {
- 		err = inode_newsize_ok(inode, offset + length);
- 		if (err)
--			return err;
-+			goto out;
- 	}
+--- a/fs/pstore/platform.c
++++ b/fs/pstore/platform.c
+@@ -597,31 +597,14 @@ static void pstore_unregister_kmsg(void)
+ #ifdef CONFIG_PSTORE_CONSOLE
+ static void pstore_console_write(struct console *con, const char *s, unsigned c)
+ {
+-	const char *e = s + c;
++	struct pstore_record record;
  
- 	if (!(mode & FALLOC_FL_KEEP_SIZE))
+-	while (s < e) {
+-		struct pstore_record record;
+-		unsigned long flags;
++	pstore_record_init(&record, psinfo);
++	record.type = PSTORE_TYPE_CONSOLE;
+ 
+-		pstore_record_init(&record, psinfo);
+-		record.type = PSTORE_TYPE_CONSOLE;
+-
+-		if (c > psinfo->bufsize)
+-			c = psinfo->bufsize;
+-
+-		if (oops_in_progress) {
+-			if (!spin_trylock_irqsave(&psinfo->buf_lock, flags))
+-				break;
+-		} else {
+-			spin_lock_irqsave(&psinfo->buf_lock, flags);
+-		}
+-		record.buf = (char *)s;
+-		record.size = c;
+-		psinfo->write(&record);
+-		spin_unlock_irqrestore(&psinfo->buf_lock, flags);
+-		s += c;
+-		c = e - s;
+-	}
++	record.buf = (char *)s;
++	record.size = c;
++	psinfo->write(&record);
+ }
+ 
+ static struct console pstore_console = {
 
 
