@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ADEDD3AA34
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:16:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 056983A925
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:08:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730109AbfFIRQb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 13:16:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54336 "EHLO mail.kernel.org"
+        id S2388971AbfFIRGK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 13:06:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45732 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732361AbfFIQxM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:53:12 -0400
+        id S2388966AbfFIRGK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 13:06:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F0698204EC;
-        Sun,  9 Jun 2019 16:53:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 04E81206C3;
+        Sun,  9 Jun 2019 17:06:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099191;
-        bh=mbF+KuK+ApjVYtSxZYdGvM0Yw3p8xtLnmmhXydfoIWM=;
+        s=default; t=1560099969;
+        bh=NLnvptziKAVZuk6uzcgGO5PsE1kFu57e/1dpLuPkxJQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KqnzJp6XK4qz9gn7YlRpq79ngN5jDEYEnXznj/D2evcC/hL8SNN+O2q+senddS9p9
-         E3Vz4kTO89pYssNZZjAeDuZDtoVzEbkSIrqrHUqaOoLjoTbIlUJS27W9+YVolJfkHD
-         Ty8MW2cvloe6dQ8GmZc/JUvLtxZ4YkV8Dfubxxoc=
+        b=gL83iQAbaBRCwvzQ3DnPXeu2VFkY2KWUlzPlw3aVvRZS1JChx1acjt0k7plcBZFJd
+         B9rcVyvBRJzhMBJQzjiezcAelF/xLUGrCapr12KYktRvsOA4a8/67aUSBXaeo89Myz
+         DOGHMn6+4vXM10Axe3aW/s2cu1LFN8RgxNvbX9PE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>,
-        Michal Hocko <mhocko@suse.com>,
-        Vladimir Davydov <vdavydov.dev@gmail.com>,
-        Shakeel Butt <shakeelb@google.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 42/83] memcg: make it work on sparse non-0-node systems
-Date:   Sun,  9 Jun 2019 18:42:12 +0200
-Message-Id: <20190609164131.478973899@linuxfoundation.org>
+        stable@vger.kernel.org, Junwei Hu <hujunwei4@huawei.com>,
+        Wang Wang <wangwang2@huawei.com>,
+        syzbot+1e8114b61079bfe9cbc5@syzkaller.appspotmail.com,
+        Kang Zhou <zhoukang7@huawei.com>,
+        Suanming Mou <mousuanming@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 191/241] tipc: fix modprobe tipc failed after switch order of device registration -v2
+Date:   Sun,  9 Jun 2019 18:42:13 +0200
+Message-Id: <20190609164153.444441687@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.843327870@linuxfoundation.org>
-References: <20190609164127.843327870@linuxfoundation.org>
+In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
+References: <20190609164147.729157653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,97 +47,160 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby <jslaby@suse.cz>
+From: Junwei Hu <hujunwei4@huawei.com>
 
-commit 3e8589963773a5c23e2f1fe4bcad0e9a90b7f471 upstream.
+commit 526f5b851a96566803ee4bee60d0a34df56c77f8 upstream.
 
-We have a single node system with node 0 disabled:
-  Scanning NUMA topology in Northbridge 24
-  Number of physical nodes 2
-  Skipping disabled node 0
-  Node 1 MemBase 0000000000000000 Limit 00000000fbff0000
-  NODE_DATA(1) allocated [mem 0xfbfda000-0xfbfeffff]
+Error message printed:
+modprobe: ERROR: could not insert 'tipc': Address family not
+supported by protocol.
+when modprobe tipc after the following patch: switch order of
+device registration, commit 7e27e8d6130c
+("tipc: switch order of device registration to fix a crash")
 
-This causes crashes in memcg when system boots:
-  BUG: unable to handle kernel NULL pointer dereference at 0000000000000008
-  #PF error: [normal kernel read fault]
-...
-  RIP: 0010:list_lru_add+0x94/0x170
-...
-  Call Trace:
-   d_lru_add+0x44/0x50
-   dput.part.34+0xfc/0x110
-   __fput+0x108/0x230
-   task_work_run+0x9f/0xc0
-   exit_to_usermode_loop+0xf5/0x100
+Because sock_create_kern(net, AF_TIPC, ...) called by
+tipc_topsrv_create_listener() in the initialization process
+of tipc_init_net(), so tipc_socket_init() must be execute before that.
+Meanwhile, tipc_net_id need to be initialized when sock_create()
+called, and tipc_socket_init() is no need to be called for each namespace.
 
-It is reproducible as far as 4.12.  I did not try older kernels.  You have
-to have a new enough systemd, e.g.  241 (the reason is unknown -- was not
-investigated).  Cannot be reproduced with systemd 234.
+I add a variable tipc_topsrv_net_ops, and split the
+register_pernet_subsys() of tipc into two parts, and split
+tipc_socket_init() with initialization of pernet params.
 
-The system crashes because the size of lru array is never updated in
-memcg_update_all_list_lrus and the reads are past the zero-sized array,
-causing dereferences of random memory.
+By the way, I fixed resources rollback error when tipc_bcast_init()
+failed in tipc_init_net().
 
-The root cause are list_lru_memcg_aware checks in the list_lru code.  The
-test in list_lru_memcg_aware is broken: it assumes node 0 is always
-present, but it is not true on some systems as can be seen above.
-
-So fix this by avoiding checks on node 0.  Remember the memcg-awareness by
-a bool flag in struct list_lru.
-
-Link: http://lkml.kernel.org/r/20190522091940.3615-1-jslaby@suse.cz
-Fixes: 60d3fd32a7a9 ("list_lru: introduce per-memcg lists")
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Suggested-by: Vladimir Davydov <vdavydov.dev@gmail.com>
-Acked-by: Vladimir Davydov <vdavydov.dev@gmail.com>
-Reviewed-by: Shakeel Butt <shakeelb@google.com>
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 7e27e8d6130c ("tipc: switch order of device registration to fix a crash")
+Signed-off-by: Junwei Hu <hujunwei4@huawei.com>
+Reported-by: Wang Wang <wangwang2@huawei.com>
+Reported-by: syzbot+1e8114b61079bfe9cbc5@syzkaller.appspotmail.com
+Reviewed-by: Kang Zhou <zhoukang7@huawei.com>
+Reviewed-by: Suanming Mou <mousuanming@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/list_lru.h |    1 +
- mm/list_lru.c            |    8 +++-----
- 2 files changed, 4 insertions(+), 5 deletions(-)
+ net/tipc/core.c   |   18 ++++++++++++------
+ net/tipc/subscr.c |   14 ++++++++++++--
+ net/tipc/subscr.h |    5 +++--
+ 3 files changed, 27 insertions(+), 10 deletions(-)
 
---- a/include/linux/list_lru.h
-+++ b/include/linux/list_lru.h
-@@ -51,6 +51,7 @@ struct list_lru {
- 	struct list_lru_node	*node;
- #if defined(CONFIG_MEMCG) && !defined(CONFIG_SLOB)
- 	struct list_head	list;
-+	bool			memcg_aware;
- #endif
+--- a/net/tipc/core.c
++++ b/net/tipc/core.c
+@@ -70,9 +70,6 @@ static int __net_init tipc_init_net(stru
+ 		goto out_nametbl;
+ 
+ 	INIT_LIST_HEAD(&tn->dist_queue);
+-	err = tipc_topsrv_start(net);
+-	if (err)
+-		goto out_subscr;
+ 
+ 	err = tipc_bcast_init(net);
+ 	if (err)
+@@ -81,8 +78,6 @@ static int __net_init tipc_init_net(stru
+ 	return 0;
+ 
+ out_bclink:
+-	tipc_bcast_stop(net);
+-out_subscr:
+ 	tipc_nametbl_stop(net);
+ out_nametbl:
+ 	tipc_sk_rht_destroy(net);
+@@ -92,7 +87,6 @@ out_sk_rht:
+ 
+ static void __net_exit tipc_exit_net(struct net *net)
+ {
+-	tipc_topsrv_stop(net);
+ 	tipc_net_stop(net);
+ 	tipc_bcast_stop(net);
+ 	tipc_nametbl_stop(net);
+@@ -106,6 +100,11 @@ static struct pernet_operations tipc_net
+ 	.size = sizeof(struct tipc_net),
  };
  
---- a/mm/list_lru.c
-+++ b/mm/list_lru.c
-@@ -42,11 +42,7 @@ static void list_lru_unregister(struct l
- #if defined(CONFIG_MEMCG) && !defined(CONFIG_SLOB)
- static inline bool list_lru_memcg_aware(struct list_lru *lru)
++static struct pernet_operations tipc_topsrv_net_ops = {
++	.init = tipc_topsrv_init_net,
++	.exit = tipc_topsrv_exit_net,
++};
++
+ static int __init tipc_init(void)
  {
--	/*
--	 * This needs node 0 to be always present, even
--	 * in the systems supporting sparse numa ids.
--	 */
--	return !!lru->node[0].memcg_lrus;
-+	return lru->memcg_aware;
+ 	int err;
+@@ -138,6 +137,10 @@ static int __init tipc_init(void)
+ 	if (err)
+ 		goto out_socket;
+ 
++	err = register_pernet_subsys(&tipc_topsrv_net_ops);
++	if (err)
++		goto out_pernet_topsrv;
++
+ 	err = tipc_bearer_setup();
+ 	if (err)
+ 		goto out_bearer;
+@@ -145,6 +148,8 @@ static int __init tipc_init(void)
+ 	pr_info("Started in single node mode\n");
+ 	return 0;
+ out_bearer:
++	unregister_pernet_subsys(&tipc_topsrv_net_ops);
++out_pernet_topsrv:
+ 	tipc_socket_stop();
+ out_socket:
+ 	unregister_pernet_subsys(&tipc_net_ops);
+@@ -162,6 +167,7 @@ out_netlink:
+ static void __exit tipc_exit(void)
+ {
+ 	tipc_bearer_cleanup();
++	unregister_pernet_subsys(&tipc_topsrv_net_ops);
+ 	tipc_socket_stop();
+ 	unregister_pernet_subsys(&tipc_net_ops);
+ 	tipc_netlink_stop();
+--- a/net/tipc/subscr.c
++++ b/net/tipc/subscr.c
+@@ -306,7 +306,7 @@ static void *tipc_subscrb_connect_cb(int
+ 	return (void *)tipc_subscrb_create(conid);
  }
  
- static inline struct list_lru_one *
-@@ -389,6 +385,8 @@ static int memcg_init_list_lru(struct li
+-int tipc_topsrv_start(struct net *net)
++static int tipc_topsrv_start(struct net *net)
  {
- 	int i;
+ 	struct tipc_net *tn = net_generic(net, tipc_net_id);
+ 	const char name[] = "topology_server";
+@@ -344,7 +344,7 @@ int tipc_topsrv_start(struct net *net)
+ 	return tipc_server_start(topsrv);
+ }
  
-+	lru->memcg_aware = memcg_aware;
+-void tipc_topsrv_stop(struct net *net)
++static void tipc_topsrv_stop(struct net *net)
+ {
+ 	struct tipc_net *tn = net_generic(net, tipc_net_id);
+ 	struct tipc_server *topsrv = tn->topsrv;
+@@ -353,3 +353,13 @@ void tipc_topsrv_stop(struct net *net)
+ 	kfree(topsrv->saddr);
+ 	kfree(topsrv);
+ }
 +
- 	if (!memcg_aware)
- 		return 0;
++int __net_init tipc_topsrv_init_net(struct net *net)
++{
++	return tipc_topsrv_start(net);
++}
++
++void __net_exit tipc_topsrv_exit_net(struct net *net)
++{
++	tipc_topsrv_stop(net);
++}
+--- a/net/tipc/subscr.h
++++ b/net/tipc/subscr.h
+@@ -77,7 +77,8 @@ int tipc_subscrp_check_overlap(struct ti
+ void tipc_subscrp_report_overlap(struct tipc_subscription *sub,
+ 				 u32 found_lower, u32 found_upper, u32 event,
+ 				 u32 port_ref, u32 node, int must);
+-int tipc_topsrv_start(struct net *net);
+-void tipc_topsrv_stop(struct net *net);
++
++int __net_init tipc_topsrv_init_net(struct net *net);
++void __net_exit tipc_topsrv_exit_net(struct net *net);
  
+ #endif
 
 
