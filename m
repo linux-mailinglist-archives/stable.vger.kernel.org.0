@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D5B283A964
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:10:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD00D3AA12
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:16:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387792AbfFIRD3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 13:03:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41842 "EHLO mail.kernel.org"
+        id S1732444AbfFIQxi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:53:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388418AbfFIRD3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 13:03:29 -0400
+        id S1732436AbfFIQxi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:53:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 73E3B20833;
-        Sun,  9 Jun 2019 17:03:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 256FD204EC;
+        Sun,  9 Jun 2019 16:53:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099807;
-        bh=6c0JvXqW24/fFraJcbdkf9/+JGz+n4y9+ZrlOB6V2lE=;
+        s=default; t=1560099216;
+        bh=KdqCi4A+q87RVCI02o2Piv1Un/YorawiD7zmBDJL/KU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qXOFsDb7Dxhle7a1+KB0bhYZGdttMhdKXEv8M5vZQUKEPjo3VZh0k+kt7PuuMvxEz
-         QccrBHDCE81NHX8bvF39K0u4qsif+vHj249KRI2HFfgbOo8hkq8/TCAG75VpvkDIqJ
-         hqz/X6TLRDux+mTmQm4UbaIJw9DvOILuUdcYlJA4=
+        b=VCNyXMjvqUUNdazhqQivJFFOd6cdeR9A/47Z7/bbnFTaaU1VdT/sGk+bkib5W7p1i
+         IZCLAnNlerpMqeK6dvZfLA75pVs4/AHQFEueRZfWZwQHmEydud9yheHakcqWe8/fpH
+         h5YajH17e812T+HkeKj5/vj5MaxbZnp9XVJFxWdY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        James Hutchinson <jahutchinson99@googlemail.com>,
-        Antti Palosaari <crope@iki.fi>, Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 172/241] media: m88ds3103: serialize reset messages in m88ds3103_set_frontend
+        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>
+Subject: [PATCH 4.9 24/83] usbip: usbip_host: fix BUG: sleeping function called from invalid context
 Date:   Sun,  9 Jun 2019 18:41:54 +0200
-Message-Id: <20190609164152.757399090@linuxfoundation.org>
+Message-Id: <20190609164129.597089766@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
-References: <20190609164147.729157653@linuxfoundation.org>
+In-Reply-To: <20190609164127.843327870@linuxfoundation.org>
+References: <20190609164127.843327870@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,102 +42,242 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 981fbe3da20a6f35f17977453bce7dfc1664d74f ]
+From: Shuah Khan <skhan@linuxfoundation.org>
 
-Ref: https://bugzilla.kernel.org/show_bug.cgi?id=199323
+commit 0c9e8b3cad654bfc499c10b652fbf8f0b890af8f upstream.
 
-Users are experiencing problems with the DVBSky S960/S960C USB devices
-since the following commit:
+stub_probe() and stub_disconnect() call functions which could call
+sleeping function in invalid context whil holding busid_lock.
 
-9d659ae: ("locking/mutex: Add lock handoff to avoid starvation")
+Fix the problem by refining the lock holds to short critical sections
+to change the busid_priv fields. This fix restructures the code to
+limit the lock holds in stub_probe() and stub_disconnect().
 
-The device malfunctions after running for an indeterminable period of
-time, and the problem can only be cleared by rebooting the machine.
+stub_probe():
 
-It is possible to encourage the problem to surface by blocking the
-signal to the LNB.
+[15217.927028] BUG: sleeping function called from invalid context at mm/slab.h:418
+[15217.927038] in_atomic(): 1, irqs_disabled(): 0, pid: 29087, name: usbip
+[15217.927044] 5 locks held by usbip/29087:
+[15217.927047]  #0: 0000000091647f28 (sb_writers#6){....}, at: vfs_write+0x191/0x1c0
+[15217.927062]  #1: 000000008f9ba75b (&of->mutex){....}, at: kernfs_fop_write+0xf7/0x1b0
+[15217.927072]  #2: 00000000872e5b4b (&dev->mutex){....}, at: __device_driver_lock+0x3b/0x50
+[15217.927082]  #3: 00000000e74ececc (&dev->mutex){....}, at: __device_driver_lock+0x46/0x50
+[15217.927090]  #4: 00000000b20abbe0 (&(&busid_table[i].busid_lock)->rlock){....}, at: get_busid_priv+0x48/0x60 [usbip_host]
+[15217.927103] CPU: 3 PID: 29087 Comm: usbip Tainted: G        W         5.1.0-rc6+ #40
+[15217.927106] Hardware name: Dell Inc. OptiPlex 790/0HY9JP, BIOS A18 09/24/2013
+[15217.927109] Call Trace:
+[15217.927118]  dump_stack+0x63/0x85
+[15217.927127]  ___might_sleep+0xff/0x120
+[15217.927133]  __might_sleep+0x4a/0x80
+[15217.927143]  kmem_cache_alloc_trace+0x1aa/0x210
+[15217.927156]  stub_probe+0xe8/0x440 [usbip_host]
+[15217.927171]  usb_probe_device+0x34/0x70
 
-Further debugging revealed the cause of the problem.
+stub_disconnect():
 
-In the following capture:
-- thread #1325 is running m88ds3103_set_frontend
-- thread #42 is running ts2020_stat_work
+[15279.182478] BUG: sleeping function called from invalid context at kernel/locking/mutex.c:908
+[15279.182487] in_atomic(): 1, irqs_disabled(): 0, pid: 29114, name: usbip
+[15279.182492] 5 locks held by usbip/29114:
+[15279.182494]  #0: 0000000091647f28 (sb_writers#6){....}, at: vfs_write+0x191/0x1c0
+[15279.182506]  #1: 00000000702cf0f3 (&of->mutex){....}, at: kernfs_fop_write+0xf7/0x1b0
+[15279.182514]  #2: 00000000872e5b4b (&dev->mutex){....}, at: __device_driver_lock+0x3b/0x50
+[15279.182522]  #3: 00000000e74ececc (&dev->mutex){....}, at: __device_driver_lock+0x46/0x50
+[15279.182529]  #4: 00000000b20abbe0 (&(&busid_table[i].busid_lock)->rlock){....}, at: get_busid_priv+0x48/0x60 [usbip_host]
+[15279.182541] CPU: 0 PID: 29114 Comm: usbip Tainted: G        W         5.1.0-rc6+ #40
+[15279.182543] Hardware name: Dell Inc. OptiPlex 790/0HY9JP, BIOS A18 09/24/2013
+[15279.182546] Call Trace:
+[15279.182554]  dump_stack+0x63/0x85
+[15279.182561]  ___might_sleep+0xff/0x120
+[15279.182566]  __might_sleep+0x4a/0x80
+[15279.182574]  __mutex_lock+0x55/0x950
+[15279.182582]  ? get_busid_priv+0x48/0x60 [usbip_host]
+[15279.182587]  ? reacquire_held_locks+0xec/0x1a0
+[15279.182591]  ? get_busid_priv+0x48/0x60 [usbip_host]
+[15279.182597]  ? find_held_lock+0x94/0xa0
+[15279.182609]  mutex_lock_nested+0x1b/0x20
+[15279.182614]  ? mutex_lock_nested+0x1b/0x20
+[15279.182618]  kernfs_remove_by_name_ns+0x2a/0x90
+[15279.182625]  sysfs_remove_file_ns+0x15/0x20
+[15279.182629]  device_remove_file+0x19/0x20
+[15279.182634]  stub_disconnect+0x6d/0x180 [usbip_host]
+[15279.182643]  usb_unbind_device+0x27/0x60
 
-a> [1325] usb 1-1: dvb_usb_v2_generic_io: >>> 08 68 02 07 80
-   [1325] usb 1-1: dvb_usb_v2_generic_io: <<< 08
-   [42] usb 1-1: dvb_usb_v2_generic_io: >>> 09 01 01 68 3f
-   [42] usb 1-1: dvb_usb_v2_generic_io: <<< 08 ff
-   [42] usb 1-1: dvb_usb_v2_generic_io: >>> 08 68 02 03 11
-   [42] usb 1-1: dvb_usb_v2_generic_io: <<< 07
-   [42] usb 1-1: dvb_usb_v2_generic_io: >>> 09 01 01 60 3d
-   [42] usb 1-1: dvb_usb_v2_generic_io: <<< 07 ff
-b> [1325] usb 1-1: dvb_usb_v2_generic_io: >>> 08 68 02 07 00
-   [1325] usb 1-1: dvb_usb_v2_generic_io: <<< 07
-   [42] usb 1-1: dvb_usb_v2_generic_io: >>> 08 68 02 03 11
-   [42] usb 1-1: dvb_usb_v2_generic_io: <<< 07
-   [42] usb 1-1: dvb_usb_v2_generic_io: >>> 09 01 01 60 21
-   [42] usb 1-1: dvb_usb_v2_generic_io: <<< 07 ff
-   [42] usb 1-1: dvb_usb_v2_generic_io: >>> 08 68 02 03 11
-   [42] usb 1-1: dvb_usb_v2_generic_io: <<< 07
-   [42] usb 1-1: dvb_usb_v2_generic_io: >>> 09 01 01 60 66
-   [42] usb 1-1: dvb_usb_v2_generic_io: <<< 07 ff
-   [1325] usb 1-1: dvb_usb_v2_generic_io: >>> 08 68 02 03 11
-   [1325] usb 1-1: dvb_usb_v2_generic_io: <<< 07
-   [1325] usb 1-1: dvb_usb_v2_generic_io: >>> 08 60 02 10 0b
-   [1325] usb 1-1: dvb_usb_v2_generic_io: <<< 07
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Two i2c messages are sent to perform a reset in m88ds3103_set_frontend:
-
-  a. 0x07, 0x80
-  b. 0x07, 0x00
-
-However, as shown in the capture, the regmap mutex is being handed over
-to another thread (ts2020_stat_work) in between these two messages.
-
->From here, the device responds to every i2c message with an 07 message,
-and will only return to normal operation following a power cycle.
-
-Use regmap_multi_reg_write to group the two reset messages, ensuring
-both are processed before the regmap mutex is unlocked.
-
-Signed-off-by: James Hutchinson <jahutchinson99@googlemail.com>
-Reviewed-by: Antti Palosaari <crope@iki.fi>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/dvb-frontends/m88ds3103.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ drivers/usb/usbip/stub_dev.c |   65 ++++++++++++++++++++++++++++---------------
+ 1 file changed, 43 insertions(+), 22 deletions(-)
 
-diff --git a/drivers/media/dvb-frontends/m88ds3103.c b/drivers/media/dvb-frontends/m88ds3103.c
-index d14d075ab1d63..9f0956e739a45 100644
---- a/drivers/media/dvb-frontends/m88ds3103.c
-+++ b/drivers/media/dvb-frontends/m88ds3103.c
-@@ -309,6 +309,9 @@ static int m88ds3103_set_frontend(struct dvb_frontend *fe)
- 	u16 u16tmp, divide_ratio = 0;
- 	u32 tuner_frequency, target_mclk;
- 	s32 s32tmp;
-+	static const struct reg_sequence reset_buf[] = {
-+		{0x07, 0x80}, {0x07, 0x00}
-+	};
+--- a/drivers/usb/usbip/stub_dev.c
++++ b/drivers/usb/usbip/stub_dev.c
+@@ -315,9 +315,17 @@ static int stub_probe(struct usb_device
+ 	const char *udev_busid = dev_name(&udev->dev);
+ 	struct bus_id_priv *busid_priv;
+ 	int rc = 0;
++	char save_status;
  
- 	dev_dbg(&client->dev,
- 		"delivery_system=%d modulation=%d frequency=%u symbol_rate=%d inversion=%d pilot=%d rolloff=%d\n",
-@@ -321,11 +324,7 @@ static int m88ds3103_set_frontend(struct dvb_frontend *fe)
+ 	dev_dbg(&udev->dev, "Enter probe\n");
+ 
++	/* Not sure if this is our device. Allocate here to avoid
++	 * calling alloc while holding busid_table lock.
++	 */
++	sdev = stub_device_alloc(udev);
++	if (!sdev)
++		return -ENOMEM;
++
+ 	/* check we should claim or not by busid_table */
+ 	busid_priv = get_busid_priv(udev_busid);
+ 	if (!busid_priv || (busid_priv->status == STUB_BUSID_REMOV) ||
+@@ -332,14 +340,14 @@ static int stub_probe(struct usb_device
+ 		 * See driver_probe_device() in driver/base/dd.c
+ 		 */
+ 		rc = -ENODEV;
+-		goto call_put_busid_priv;
++		goto sdev_free;
  	}
  
- 	/* reset */
--	ret = regmap_write(dev->regmap, 0x07, 0x80);
--	if (ret)
--		goto err;
--
--	ret = regmap_write(dev->regmap, 0x07, 0x00);
-+	ret = regmap_multi_reg_write(dev->regmap, reset_buf, 2);
- 	if (ret)
- 		goto err;
+ 	if (udev->descriptor.bDeviceClass == USB_CLASS_HUB) {
+ 		dev_dbg(&udev->dev, "%s is a usb hub device... skip!\n",
+ 			 udev_busid);
+ 		rc = -ENODEV;
+-		goto call_put_busid_priv;
++		goto sdev_free;
+ 	}
  
--- 
-2.20.1
-
+ 	if (!strcmp(udev->bus->bus_name, "vhci_hcd")) {
+@@ -348,15 +356,9 @@ static int stub_probe(struct usb_device
+ 			udev_busid);
+ 
+ 		rc = -ENODEV;
+-		goto call_put_busid_priv;
++		goto sdev_free;
+ 	}
+ 
+-	/* ok, this is my device */
+-	sdev = stub_device_alloc(udev);
+-	if (!sdev) {
+-		rc = -ENOMEM;
+-		goto call_put_busid_priv;
+-	}
+ 
+ 	dev_info(&udev->dev,
+ 		"usbip-host: register new device (bus %u dev %u)\n",
+@@ -366,9 +368,13 @@ static int stub_probe(struct usb_device
+ 
+ 	/* set private data to usb_device */
+ 	dev_set_drvdata(&udev->dev, sdev);
++
+ 	busid_priv->sdev = sdev;
+ 	busid_priv->udev = udev;
+ 
++	save_status = busid_priv->status;
++	busid_priv->status = STUB_BUSID_ALLOC;
++
+ 	/*
+ 	 * Claim this hub port.
+ 	 * It doesn't matter what value we pass as owner
+@@ -381,15 +387,16 @@ static int stub_probe(struct usb_device
+ 		goto err_port;
+ 	}
+ 
++	/* release the busid_lock */
++	put_busid_priv(busid_priv);
++
+ 	rc = stub_add_files(&udev->dev);
+ 	if (rc) {
+ 		dev_err(&udev->dev, "stub_add_files for %s\n", udev_busid);
+ 		goto err_files;
+ 	}
+-	busid_priv->status = STUB_BUSID_ALLOC;
+ 
+-	rc = 0;
+-	goto call_put_busid_priv;
++	return 0;
+ 
+ err_files:
+ 	usb_hub_release_port(udev->parent, udev->portnum,
+@@ -398,23 +405,24 @@ err_port:
+ 	dev_set_drvdata(&udev->dev, NULL);
+ 	usb_put_dev(udev);
+ 
++	/* we already have busid_priv, just lock busid_lock */
++	spin_lock(&busid_priv->busid_lock);
+ 	busid_priv->sdev = NULL;
++	busid_priv->status = save_status;
++sdev_free:
+ 	stub_device_free(sdev);
+-
+-call_put_busid_priv:
++	/* release the busid_lock */
+ 	put_busid_priv(busid_priv);
++
+ 	return rc;
+ }
+ 
+ static void shutdown_busid(struct bus_id_priv *busid_priv)
+ {
+-	if (busid_priv->sdev && !busid_priv->shutdown_busid) {
+-		busid_priv->shutdown_busid = 1;
+-		usbip_event_add(&busid_priv->sdev->ud, SDEV_EVENT_REMOVED);
++	usbip_event_add(&busid_priv->sdev->ud, SDEV_EVENT_REMOVED);
+ 
+-		/* wait for the stop of the event handler */
+-		usbip_stop_eh(&busid_priv->sdev->ud);
+-	}
++	/* wait for the stop of the event handler */
++	usbip_stop_eh(&busid_priv->sdev->ud);
+ }
+ 
+ /*
+@@ -446,6 +454,9 @@ static void stub_disconnect(struct usb_d
+ 
+ 	dev_set_drvdata(&udev->dev, NULL);
+ 
++	/* release busid_lock before call to remove device files */
++	put_busid_priv(busid_priv);
++
+ 	/*
+ 	 * NOTE: rx/tx threads are invoked for each usb_device.
+ 	 */
+@@ -456,18 +467,27 @@ static void stub_disconnect(struct usb_d
+ 				  (struct usb_dev_state *) udev);
+ 	if (rc) {
+ 		dev_dbg(&udev->dev, "unable to release port\n");
+-		goto call_put_busid_priv;
++		return;
+ 	}
+ 
+ 	/* If usb reset is called from event handler */
+ 	if (usbip_in_eh(current))
+-		goto call_put_busid_priv;
++		return;
++
++	/* we already have busid_priv, just lock busid_lock */
++	spin_lock(&busid_priv->busid_lock);
++	if (!busid_priv->shutdown_busid)
++		busid_priv->shutdown_busid = 1;
++	/* release busid_lock */
++	put_busid_priv(busid_priv);
+ 
+ 	/* shutdown the current connection */
+ 	shutdown_busid(busid_priv);
+ 
+ 	usb_put_dev(sdev->udev);
+ 
++	/* we already have busid_priv, just lock busid_lock */
++	spin_lock(&busid_priv->busid_lock);
+ 	/* free sdev */
+ 	busid_priv->sdev = NULL;
+ 	stub_device_free(sdev);
+@@ -476,6 +496,7 @@ static void stub_disconnect(struct usb_d
+ 		busid_priv->status = STUB_BUSID_ADDED;
+ 
+ call_put_busid_priv:
++	/* release busid_lock */
+ 	put_busid_priv(busid_priv);
+ }
+ 
 
 
