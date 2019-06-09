@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F01203AAC5
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:21:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C58763A968
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:10:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730071AbfFIQpt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:45:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43714 "EHLO mail.kernel.org"
+        id S2388481AbfFIRJr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 13:09:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730033AbfFIQps (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:45:48 -0400
+        id S2388463AbfFIRDl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 13:03:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id CFE7C20833;
-        Sun,  9 Jun 2019 16:45:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 94DEC20833;
+        Sun,  9 Jun 2019 17:03:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560098747;
-        bh=3QIcKu0AVrUSUlmPC59YAtlLMAzQkttuqt2FFBAOSwc=;
+        s=default; t=1560099821;
+        bh=8GEr4uKyNXcs4DBb5QPvThQ+/XRsU5jXGbSZSVRvmfE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zEBEtNTn1N6NIvsz9kBY84ySVtzWqMRe3vTPwDoJD+Fu18SH32hyza7KGI/fMmprx
-         7HvgKJVDFDNsHMn5dbYjRRK/0tScv2YeBDOz/a3H1neeS6IIYjgJADDhawp3cTh5gR
-         2GgW6HNTs80ui+g5YnVoWBRR5XdR78hfBODXDkks=
+        b=JMSsuIXbvN/sEw2DeR4CWa7Uf5oDoOiZ+zvokLAv0WmfOmNtDTA1wH/bKQ0MkQv36
+         a4WekSSNML5p+QX/nmPDacVpzfE5fMHWR7V3qs3/a4X7lbEUQCdubhvi4iqRuL4wag
+         Kn6ZlrrXbLNiodgccvXY2Mrxc1CrMz+I4zYB6lfc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [PATCH 5.1 47/70] genwqe: Prevent an integer overflow in the ioctl
+        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 176/241] spi : spi-topcliff-pch: Fix to handle empty DMA buffers
 Date:   Sun,  9 Jun 2019 18:41:58 +0200
-Message-Id: <20190609164131.329221760@linuxfoundation.org>
+Message-Id: <20190609164152.905895707@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.541128197@linuxfoundation.org>
-References: <20190609164127.541128197@linuxfoundation.org>
+In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
+References: <20190609164147.729157653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,57 +44,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+[ Upstream commit f37d8e67f39e6d3eaf4cc5471e8a3d21209843c6 ]
 
-commit 110080cea0d0e4dfdb0b536e7f8a5633ead6a781 upstream.
+pch_alloc_dma_buf allocated tx, rx DMA buffers which can fail. Further,
+these buffers are used without a check. The patch checks for these
+failures and sends the error upstream.
 
-There are a couple potential integer overflows here.
-
-	round_up(m->size + (m->addr & ~PAGE_MASK), PAGE_SIZE);
-
-The first thing is that the "m->size + (...)" addition could overflow,
-and the second is that round_up() overflows to zero if the result is
-within PAGE_SIZE of the type max.
-
-In this code, the "m->size" variable is an u64 but we're saving the
-result in "map_size" which is an unsigned long and genwqe_user_vmap()
-takes an unsigned long as well.  So I have used ULONG_MAX as the upper
-bound.  From a practical perspective unsigned long is fine/better than
-trying to change all the types to u64.
-
-Fixes: eaf4722d4645 ("GenWQE Character device and DDCB queue")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Aditya Pakki <pakki001@umn.edu>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/genwqe/card_dev.c   |    2 ++
- drivers/misc/genwqe/card_utils.c |    4 ++++
- 2 files changed, 6 insertions(+)
+ drivers/spi/spi-topcliff-pch.c | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
---- a/drivers/misc/genwqe/card_dev.c
-+++ b/drivers/misc/genwqe/card_dev.c
-@@ -780,6 +780,8 @@ static int genwqe_pin_mem(struct genwqe_
+diff --git a/drivers/spi/spi-topcliff-pch.c b/drivers/spi/spi-topcliff-pch.c
+index 93dfcee0f987b..9f30a4ab2004a 100644
+--- a/drivers/spi/spi-topcliff-pch.c
++++ b/drivers/spi/spi-topcliff-pch.c
+@@ -1326,18 +1326,27 @@ static void pch_free_dma_buf(struct pch_spi_board_data *board_dat,
+ 	return;
+ }
  
- 	if ((m->addr == 0x0) || (m->size == 0))
- 		return -EINVAL;
-+	if (m->size > ULONG_MAX - PAGE_SIZE - (m->addr & ~PAGE_MASK))
-+		return -EINVAL;
+-static void pch_alloc_dma_buf(struct pch_spi_board_data *board_dat,
++static int pch_alloc_dma_buf(struct pch_spi_board_data *board_dat,
+ 			      struct pch_spi_data *data)
+ {
+ 	struct pch_spi_dma_ctrl *dma;
++	int ret;
  
- 	map_addr = (m->addr & PAGE_MASK);
- 	map_size = round_up(m->size + (m->addr & ~PAGE_MASK), PAGE_SIZE);
---- a/drivers/misc/genwqe/card_utils.c
-+++ b/drivers/misc/genwqe/card_utils.c
-@@ -586,6 +586,10 @@ int genwqe_user_vmap(struct genwqe_dev *
- 	/* determine space needed for page_list. */
- 	data = (unsigned long)uaddr;
- 	offs = offset_in_page(data);
-+	if (size > ULONG_MAX - PAGE_SIZE - offs) {
-+		m->size = 0;	/* mark unused and not added */
-+		return -EINVAL;
-+	}
- 	m->nr_pages = DIV_ROUND_UP(offs + size, PAGE_SIZE);
+ 	dma = &data->dma;
++	ret = 0;
+ 	/* Get Consistent memory for Tx DMA */
+ 	dma->tx_buf_virt = dma_alloc_coherent(&board_dat->pdev->dev,
+ 				PCH_BUF_SIZE, &dma->tx_buf_dma, GFP_KERNEL);
++	if (!dma->tx_buf_virt)
++		ret = -ENOMEM;
++
+ 	/* Get Consistent memory for Rx DMA */
+ 	dma->rx_buf_virt = dma_alloc_coherent(&board_dat->pdev->dev,
+ 				PCH_BUF_SIZE, &dma->rx_buf_dma, GFP_KERNEL);
++	if (!dma->rx_buf_virt)
++		ret = -ENOMEM;
++
++	return ret;
+ }
  
- 	m->page_list = kcalloc(m->nr_pages,
+ static int pch_spi_pd_probe(struct platform_device *plat_dev)
+@@ -1414,7 +1423,9 @@ static int pch_spi_pd_probe(struct platform_device *plat_dev)
+ 
+ 	if (use_dma) {
+ 		dev_info(&plat_dev->dev, "Use DMA for data transfers\n");
+-		pch_alloc_dma_buf(board_dat, data);
++		ret = pch_alloc_dma_buf(board_dat, data);
++		if (ret)
++			goto err_spi_register_master;
+ 	}
+ 
+ 	ret = spi_register_master(master);
+-- 
+2.20.1
+
 
 
