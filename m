@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 551EB3A759
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 18:49:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B62793AAB1
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:21:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731300AbfFIQsx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:48:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48078 "EHLO mail.kernel.org"
+        id S1731634AbfFIRUm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 13:20:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45448 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730097AbfFIQsw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:48:52 -0400
+        id S1729678AbfFIQq7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:46:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1C9ED205ED;
-        Sun,  9 Jun 2019 16:48:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5F5C720833;
+        Sun,  9 Jun 2019 16:46:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560098931;
-        bh=g75Sm/xoGHFxBj4nYNq3+J9XqVcsXYBwcfM3Lm26yAg=;
+        s=default; t=1560098818;
+        bh=+DdyUJJARkx/BvERWHEtustyPlb2PjQGw2nsot5s5Uc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OOGPYk2R+ozotSZM7KEtrkDt4+L3hikiEAfVzRW3Ite4bO5BZ4byj6DDHb3EwgC+Q
-         HtIWljfTUIMSOsMd/2cUimx35qYxZRjAl7RWXNvNtx/LNwgdPk1odIwaaWPmCqcl7T
-         LAotkqMs5Kmnaieu7IKX3UreFGsNKEfNWTa3stn8=
+        b=FZQAB4lOvZRExp0DvX0PvrpxfvwKwYMQL6ezzrWIHRcVcQ7xBsCb2yd/q+RhTErxa
+         gBou9PDTIQIg7cMWArRzpBKbYsCdcAsbc07BRvbQCT5Rv7ypm3GI+IeCI4KjvaGHzs
+         0xfZVsOs2thr87Bd2rVtQZW8n3r6sOxo5ROKNFHI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhu Yanjun <yanjun.zhu@oracle.com>,
-        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 09/51] net: rds: fix memory leak in rds_ib_flush_mr_pool
+        stable@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>,
+        Pavel Machek <pavel@ucw.cz>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Josh Poimboeuf <jpoimboe@redhat.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.1 39/70] x86/power: Fix nosmt vs hibernation triple fault during resume
 Date:   Sun,  9 Jun 2019 18:41:50 +0200
-Message-Id: <20190609164127.631681340@linuxfoundation.org>
+Message-Id: <20190609164130.488111346@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.123076536@linuxfoundation.org>
-References: <20190609164127.123076536@linuxfoundation.org>
+In-Reply-To: <20190609164127.541128197@linuxfoundation.org>
+References: <20190609164127.541128197@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,90 +46,187 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhu Yanjun <yanjun.zhu@oracle.com>
+From: Jiri Kosina <jkosina@suse.cz>
 
-[ Upstream commit 85cb928787eab6a2f4ca9d2a798b6f3bed53ced1 ]
+commit ec527c318036a65a083ef68d8ba95789d2212246 upstream.
 
-When the following tests last for several hours, the problem will occur.
+As explained in
 
-Server:
-    rds-stress -r 1.1.1.16 -D 1M
-Client:
-    rds-stress -r 1.1.1.14 -s 1.1.1.16 -D 1M -T 30
+	0cc3cd21657b ("cpu/hotplug: Boot HT siblings at least once")
 
-The following will occur.
+we always, no matter what, have to bring up x86 HT siblings during boot at
+least once in order to avoid first MCE bringing the system to its knees.
 
-"
-Starting up....
-tsks   tx/s   rx/s  tx+rx K/s    mbi K/s    mbo K/s tx us/c   rtt us cpu
-%
-  1      0      0       0.00       0.00       0.00    0.00 0.00 -1.00
-  1      0      0       0.00       0.00       0.00    0.00 0.00 -1.00
-  1      0      0       0.00       0.00       0.00    0.00 0.00 -1.00
-  1      0      0       0.00       0.00       0.00    0.00 0.00 -1.00
-"
->From vmcore, we can find that clean_list is NULL.
+That means that whenever 'nosmt' is supplied on the kernel command-line,
+all the HT siblings are as a result sitting in mwait or cpudile after
+going through the online-offline cycle at least once.
 
->From the source code, rds_mr_flushd calls rds_ib_mr_pool_flush_worker.
-Then rds_ib_mr_pool_flush_worker calls
-"
- rds_ib_flush_mr_pool(pool, 0, NULL);
-"
-Then in function
-"
-int rds_ib_flush_mr_pool(struct rds_ib_mr_pool *pool,
-                         int free_all, struct rds_ib_mr **ibmr_ret)
-"
-ibmr_ret is NULL.
+This causes a serious issue though when a kernel, which saw 'nosmt' on its
+commandline, is going to perform resume from hibernation: if the resume
+from the hibernated image is successful, cr3 is flipped in order to point
+to the address space of the kernel that is being resumed, which in turn
+means that all the HT siblings are all of a sudden mwaiting on address
+which is no longer valid.
 
-In the source code,
-"
-...
-list_to_llist_nodes(pool, &unmap_list, &clean_nodes, &clean_tail);
-if (ibmr_ret)
-        *ibmr_ret = llist_entry(clean_nodes, struct rds_ib_mr, llnode);
+That results in triple fault shortly after cr3 is switched, and machine
+reboots.
 
-/* more than one entry in llist nodes */
-if (clean_nodes->next)
-        llist_add_batch(clean_nodes->next, clean_tail, &pool->clean_list);
-...
-"
-When ibmr_ret is NULL, llist_entry is not executed. clean_nodes->next
-instead of clean_nodes is added in clean_list.
-So clean_nodes is discarded. It can not be used again.
-The workqueue is executed periodically. So more and more clean_nodes are
-discarded. Finally the clean_list is NULL.
-Then this problem will occur.
+Fix this by always waking up all the SMT siblings before initiating the
+'restore from hibernation' process; this guarantees that all the HT
+siblings will be properly carried over to the resumed kernel waiting in
+resume_play_dead(), and acted upon accordingly afterwards, based on the
+target kernel configuration.
 
-Fixes: 1bc144b62524 ("net, rds, Replace xlist in net/rds/xlist.h with llist")
-Signed-off-by: Zhu Yanjun <yanjun.zhu@oracle.com>
-Acked-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Symmetricaly, the resumed kernel has to push the SMT siblings to mwait
+again in case it has SMT disabled; this means it has to online all
+the siblings when resuming (so that they come out of hlt) and offline
+them again to let them reach mwait.
+
+Cc: 4.19+ <stable@vger.kernel.org> # v4.19+
+Debugged-by: Thomas Gleixner <tglx@linutronix.de>
+Fixes: 0cc3cd21657b ("cpu/hotplug: Boot HT siblings at least once")
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Acked-by: Pavel Machek <pavel@ucw.cz>
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+Reviewed-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/rds/ib_rdma.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
 
---- a/net/rds/ib_rdma.c
-+++ b/net/rds/ib_rdma.c
-@@ -428,12 +428,14 @@ int rds_ib_flush_mr_pool(struct rds_ib_m
- 		wait_clean_list_grace();
+---
+ arch/x86/power/cpu.c       |   10 ++++++++++
+ arch/x86/power/hibernate.c |   33 +++++++++++++++++++++++++++++++++
+ include/linux/cpu.h        |    4 ++++
+ kernel/cpu.c               |    4 ++--
+ kernel/power/hibernate.c   |    9 +++++++++
+ 5 files changed, 58 insertions(+), 2 deletions(-)
+
+--- a/arch/x86/power/cpu.c
++++ b/arch/x86/power/cpu.c
+@@ -299,7 +299,17 @@ int hibernate_resume_nonboot_cpu_disable
+ 	 * address in its instruction pointer may not be possible to resolve
+ 	 * any more at that point (the page tables used by it previously may
+ 	 * have been overwritten by hibernate image data).
++	 *
++	 * First, make sure that we wake up all the potentially disabled SMT
++	 * threads which have been initially brought up and then put into
++	 * mwait/cpuidle sleep.
++	 * Those will be put to proper (not interfering with hibernation
++	 * resume) sleep afterwards, and the resumed kernel will decide itself
++	 * what to do with them.
+ 	 */
++	ret = cpuhp_smt_enable();
++	if (ret)
++		return ret;
+ 	smp_ops.play_dead = resume_play_dead;
+ 	ret = disable_nonboot_cpus();
+ 	smp_ops.play_dead = play_dead;
+--- a/arch/x86/power/hibernate.c
++++ b/arch/x86/power/hibernate.c
+@@ -11,6 +11,7 @@
+ #include <linux/suspend.h>
+ #include <linux/scatterlist.h>
+ #include <linux/kdebug.h>
++#include <linux/cpu.h>
  
- 		list_to_llist_nodes(pool, &unmap_list, &clean_nodes, &clean_tail);
--		if (ibmr_ret)
-+		if (ibmr_ret) {
- 			*ibmr_ret = llist_entry(clean_nodes, struct rds_ib_mr, llnode);
--
-+			clean_nodes = clean_nodes->next;
-+		}
- 		/* more than one entry in llist nodes */
--		if (clean_nodes->next)
--			llist_add_batch(clean_nodes->next, clean_tail, &pool->clean_list);
-+		if (clean_nodes)
-+			llist_add_batch(clean_nodes, clean_tail,
-+					&pool->clean_list);
+ #include <crypto/hash.h>
  
- 	}
+@@ -246,3 +247,35 @@ out:
+ 	__flush_tlb_all();
+ 	return 0;
+ }
++
++int arch_resume_nosmt(void)
++{
++	int ret = 0;
++	/*
++	 * We reached this while coming out of hibernation. This means
++	 * that SMT siblings are sleeping in hlt, as mwait is not safe
++	 * against control transition during resume (see comment in
++	 * hibernate_resume_nonboot_cpu_disable()).
++	 *
++	 * If the resumed kernel has SMT disabled, we have to take all the
++	 * SMT siblings out of hlt, and offline them again so that they
++	 * end up in mwait proper.
++	 *
++	 * Called with hotplug disabled.
++	 */
++	cpu_hotplug_enable();
++	if (cpu_smt_control == CPU_SMT_DISABLED ||
++			cpu_smt_control == CPU_SMT_FORCE_DISABLED) {
++		enum cpuhp_smt_control old = cpu_smt_control;
++
++		ret = cpuhp_smt_enable();
++		if (ret)
++			goto out;
++		ret = cpuhp_smt_disable(old);
++		if (ret)
++			goto out;
++	}
++out:
++	cpu_hotplug_disable();
++	return ret;
++}
+--- a/include/linux/cpu.h
++++ b/include/linux/cpu.h
+@@ -183,10 +183,14 @@ enum cpuhp_smt_control {
+ extern enum cpuhp_smt_control cpu_smt_control;
+ extern void cpu_smt_disable(bool force);
+ extern void cpu_smt_check_topology(void);
++extern int cpuhp_smt_enable(void);
++extern int cpuhp_smt_disable(enum cpuhp_smt_control ctrlval);
+ #else
+ # define cpu_smt_control		(CPU_SMT_ENABLED)
+ static inline void cpu_smt_disable(bool force) { }
+ static inline void cpu_smt_check_topology(void) { }
++static inline int cpuhp_smt_enable(void) { return 0; }
++static inline int cpuhp_smt_disable(enum cpuhp_smt_control ctrlval) { return 0; }
+ #endif
+ 
+ /*
+--- a/kernel/cpu.c
++++ b/kernel/cpu.c
+@@ -2064,7 +2064,7 @@ static void cpuhp_online_cpu_device(unsi
+ 	kobject_uevent(&dev->kobj, KOBJ_ONLINE);
+ }
+ 
+-static int cpuhp_smt_disable(enum cpuhp_smt_control ctrlval)
++int cpuhp_smt_disable(enum cpuhp_smt_control ctrlval)
+ {
+ 	int cpu, ret = 0;
+ 
+@@ -2096,7 +2096,7 @@ static int cpuhp_smt_disable(enum cpuhp_
+ 	return ret;
+ }
+ 
+-static int cpuhp_smt_enable(void)
++int cpuhp_smt_enable(void)
+ {
+ 	int cpu, ret = 0;
+ 
+--- a/kernel/power/hibernate.c
++++ b/kernel/power/hibernate.c
+@@ -258,6 +258,11 @@ void swsusp_show_speed(ktime_t start, kt
+ 		(kps % 1000) / 10);
+ }
+ 
++__weak int arch_resume_nosmt(void)
++{
++	return 0;
++}
++
+ /**
+  * create_image - Create a hibernation image.
+  * @platform_mode: Whether or not to use the platform driver.
+@@ -325,6 +330,10 @@ static int create_image(int platform_mod
+  Enable_cpus:
+ 	enable_nonboot_cpus();
+ 
++	/* Allow architectures to do nosmt-specific post-resume dances */
++	if (!in_suspend)
++		error = arch_resume_nosmt();
++
+  Platform_finish:
+ 	platform_finish(platform_mode);
  
 
 
