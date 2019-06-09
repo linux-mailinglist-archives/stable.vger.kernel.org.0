@@ -2,61 +2,227 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7ADCD3A47A
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 11:24:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 584553A489
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 11:44:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727884AbfFIJYA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 05:24:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55566 "EHLO mail.kernel.org"
+        id S1727982AbfFIJof convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Sun, 9 Jun 2019 05:44:35 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:50274 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727720AbfFIJYA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 05:24:00 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S1727979AbfFIJof (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 05:44:35 -0400
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6EDCE206C3;
-        Sun,  9 Jun 2019 09:23:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560072239;
-        bh=fmbEwiFPfBE/4ljvIMlu0PjPee4XYlS/QlhQ8WuALwU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=LdGuBiOdRRlu3mJtVwRY1EA4gEl7tZ2cNyaWWLhyI6Q7jvqiyZ4aGyui1TuocnFKm
-         1+ewmNC+LI9dtKe6OBN3h53OAZ+7LO2aGwmnX/NiFJeL4by7LVJPXig2qIz2QpSOv+
-         Bv+ti7aTSZ8x0G3scc40vMUWBMtfzcqx1tvUyjgQ=
-Date:   Sun, 9 Jun 2019 11:23:57 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Christian Lamparter <chunkeey@gmail.com>
-Cc:     Stable <stable@vger.kernel.org>
-Subject: Re: add "mtd: spinand: macronix: Fix ECC Status Read" to 4.19
-Message-ID: <20190609092357.GA15619@kroah.com>
-References: <3914666.MqBd33HHaW@debian64>
+        by mx1.redhat.com (Postfix) with ESMTPS id E028D368E6
+        for <stable@vger.kernel.org>; Sun,  9 Jun 2019 09:44:34 +0000 (UTC)
+Received: from [172.54.141.148] (cpt-large-cpu-05.paas.prod.upshift.rdu2.redhat.com [10.0.18.78])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 8BC165D9E2;
+        Sun,  9 Jun 2019 09:44:32 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3914666.MqBd33HHaW@debian64>
-User-Agent: Mutt/1.12.0 (2019-05-25)
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-4.19
+Message-ID: <cki.C36889B92B.K31C2VLMZ7@redhat.com>
+X-Gitlab-Pipeline-ID: 11855
+X-Gitlab-Pipeline: =?utf-8?q?https=3A//xci32=2Elab=2Eeng=2Erdu2=2Eredhat=2Ec?=
+ =?utf-8?q?om/cki-project/cki-pipeline/pipelines/11855?=
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.30]); Sun, 09 Jun 2019 09:44:34 +0000 (UTC)
+Date:   Sun, 9 Jun 2019 05:44:35 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Jun 09, 2019 at 10:56:56AM +0200, Christian Lamparter wrote:
-> Hello,
-> 
-> please add this patch
-> 
-> Subject: mtd: spinand: macronix: Fix ECC Status Read
-> commit f4cb4d7b46f6409382fd981eec9556e1f3c1dc5d [0]
-> Author: Emil Lenngren <emil.lenngren@gmail.com>
-> Date:   Thu Dec 20 13:46:58 2018 +0100
-> 
-> to the stable release of 4.19.
-> 
-> Regards,
-> Christian
-> 
-> [0] <https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=f4cb4d7b46f6409382fd981eec9556e1f3c1dc5d>
-> 
-> 
+Hello,
 
-Now queued up, thanks!
+We ran automated tests on a patchset that was proposed for merging into this
+kernel tree. The patches were applied to:
+
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+            Commit: bb7b450e61a1 - Linux 4.19.49
+
+The results of these automated tests are provided below.
+
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
+
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Merge testing
+-------------
+
+We cloned this repository and checked out the following commit:
+
+  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: bb7b450e61a1 - Linux 4.19.49
+
+
+We then merged the patchset with `git am`:
+
+  cls_matchall-avoid-panic-when-receiving-a-packet-before-filter-set.patch
+  ethtool-fix-potential-userspace-buffer-overflow.patch
+  fix-memory-leak-in-sctp_process_init.patch
+  ipv4-not-do-cache-for-local-delivery-if-bc_forwarding-is-enabled.patch
+  ipv6-fix-the-check-before-getting-the-cookie-in-rt6_get_cookie.patch
+  neighbor-call-__ipv4_neigh_lookup_noref-in-neigh_xmit.patch
+  net-ethernet-ti-cpsw_ethtool-fix-ethtool-ring-param-set.patch
+  net-mlx4_en-ethtool-remove-unsupported-sfp-eeprom-high-pages-query.patch
+  net-mvpp2-use-strscpy-to-handle-stat-strings.patch
+  net-rds-fix-memory-leak-in-rds_ib_flush_mr_pool.patch
+  net-sfp-read-eeprom-in-maximum-16-byte-increments.patch
+  net-tls-replace-the-sleeping-lock-around-rx-resync-with-a-bit-lock.patch
+  packet-unconditionally-free-po-rollover.patch
+  pktgen-do-not-sleep-with-the-thread-lock-held.patch
+  revert-fib_rules-return-0-directly-if-an-exactly-same-rule-exists-when-nlm_f_excl-not-supplied.patch
+  ipv6-use-read_once-for-inet-hdrincl-as-in-ipv4.patch
+  ipv6-fix-efault-on-sendto-with-icmpv6-and-hdrincl.patch
+
+Compile testing
+---------------
+
+We compiled the kernel for 4 architectures:
+
+  aarch64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-b7ef079b6894d962d90a76cc5d1e3ddb8bc076f3.config
+    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-b7ef079b6894d962d90a76cc5d1e3ddb8bc076f3.tar.gz
+
+  ppc64le:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-b7ef079b6894d962d90a76cc5d1e3ddb8bc076f3.config
+    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-b7ef079b6894d962d90a76cc5d1e3ddb8bc076f3.tar.gz
+
+  s390x:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-b7ef079b6894d962d90a76cc5d1e3ddb8bc076f3.config
+    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-b7ef079b6894d962d90a76cc5d1e3ddb8bc076f3.tar.gz
+
+  x86_64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-b7ef079b6894d962d90a76cc5d1e3ddb8bc076f3.config
+    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-b7ef079b6894d962d90a76cc5d1e3ddb8bc076f3.tar.gz
+
+
+Hardware testing
+----------------
+
+We booted each kernel and ran the following tests:
+
+  aarch64:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [1]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ LTP lite [2]
+       ✅ AMTU (Abstract Machine Test Utility) [3]
+       ✅ Ethernet drivers sanity [4]
+       ✅ audit: audit testsuite test [5]
+       ✅ httpd: mod_ssl smoke sanity [6]
+       ✅ iotop: sanity [7]
+       ✅ tuned: tune-processes-through-perf [8]
+       🚧 ✅ Networking socket: fuzz [9]
+       🚧 ✅ Networking sctp-auth: sockopts test [10]
+       🚧 ✅ Networking route: pmtu [11]
+       🚧 ✅ Networking route_func: local [12]
+       🚧 ✅ Networking route_func: forward [12]
+
+
+  ppc64le:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ LTP lite [2]
+       ✅ AMTU (Abstract Machine Test Utility) [3]
+       ✅ Ethernet drivers sanity [4]
+       ✅ audit: audit testsuite test [5]
+       ✅ httpd: mod_ssl smoke sanity [6]
+       ✅ iotop: sanity [7]
+       ✅ tuned: tune-processes-through-perf [8]
+       🚧 ✅ Networking socket: fuzz [9]
+       🚧 ✅ Networking sctp-auth: sockopts test [10]
+       🚧 ✅ Networking route: pmtu [11]
+       🚧 ✅ Networking route_func: local [12]
+       🚧 ✅ Networking route_func: forward [12]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [1]
+
+
+  s390x:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [1]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ LTP lite [2]
+       ✅ Ethernet drivers sanity [4]
+       ✅ audit: audit testsuite test [5]
+       ✅ httpd: mod_ssl smoke sanity [6]
+       ✅ iotop: sanity [7]
+       ✅ tuned: tune-processes-through-perf [8]
+       🚧 ✅ Networking socket: fuzz [9]
+       🚧 ✅ Networking sctp-auth: sockopts test [10]
+       🚧 ✅ Networking route: pmtu [11]
+       🚧 ✅ Networking route_func: local [12]
+       🚧 ✅ Networking route_func: forward [12]
+
+
+  x86_64:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [1]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ LTP lite [2]
+       ✅ AMTU (Abstract Machine Test Utility) [3]
+       ✅ Ethernet drivers sanity [4]
+       ✅ audit: audit testsuite test [5]
+       ✅ httpd: mod_ssl smoke sanity [6]
+       ✅ iotop: sanity [7]
+       ✅ tuned: tune-processes-through-perf [8]
+       🚧 ✅ Networking socket: fuzz [9]
+       🚧 ✅ Networking sctp-auth: sockopts test [10]
+       🚧 ✅ Networking route: pmtu [11]
+       🚧 ✅ Networking route_func: local [12]
+       🚧 ✅ Networking route_func: forward [12]
+
+
+  Test source:
+    💚 Pull requests are welcome for new tests or improvements to existing tests!
+    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
+    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
+    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
+    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
+    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
+    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
+    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
+    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
+    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
+    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
+    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/sctp/auth/sockopts
+    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/route/pmtu
+    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/route/route_func
+
+Waived tests (marked with 🚧)
+-----------------------------
+This test run included waived tests. Such tests are executed but their results
+are not taken into account. Tests are waived when their results are not
+reliable enough, e.g. when they're just introduced or are being fixed.
