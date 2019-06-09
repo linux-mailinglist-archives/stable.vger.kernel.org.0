@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DFAF3A745
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 18:48:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E39F3A7BF
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 18:53:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731064AbfFIQsH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:48:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47040 "EHLO mail.kernel.org"
+        id S1732301AbfFIQwv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:52:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731091AbfFIQsG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:48:06 -0400
+        id S1731609AbfFIQwu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:52:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B2AAF205ED;
-        Sun,  9 Jun 2019 16:48:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5EC71205ED;
+        Sun,  9 Jun 2019 16:52:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560098886;
-        bh=4qmowM5JJpBMNXkmUPasC4LAMw1lFmnjPbSvlw/hn1M=;
+        s=default; t=1560099168;
+        bh=6nUJMnrcF0rfhVy+CDEFM9FPGt0EsLHQRwi0yNZWpPU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=an8bSv0nY7IL1mK6op70OZb/mKtyktJyaVnX8oOmVSqewZaf/7kG3VzAsE3rbWhCh
-         UmqnnVomnnX4ezuG29d5xfBUahEP7Bv1l6zyWrFgt//znkq4M292M3rMEkJRBoPXQw
-         rgo2/p4SsuAywFZjspf4qEA2K0oPNIeeW0aNUHU8=
+        b=KzYoOchcrimp90v/tIDZxoHb6a8RqwsLETQmTsOrcb4kIEL5zEnXOCohl7Vo79XzA
+         ypdFbM31y6OCuSWXrXKw90wMT0EICjV76h5t5WCdQomvJ76ski/g6tYrz/OvjVrrdH
+         eV6rgeKd4y6Xw3ccHGRC5YAsHjg72owa7zFiE6RE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 4.19 24/51] pstore: Convert buf_lock to semaphore
+        stable@vger.kernel.org, Steffen Maier <maier@linux.ibm.com>,
+        Benjamin Block <bblock@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.9 35/83] scsi: zfcp: fix to prevent port_remove with pure auto scan LUNs (only sdevs)
 Date:   Sun,  9 Jun 2019 18:42:05 +0200
-Message-Id: <20190609164128.532925182@linuxfoundation.org>
+Message-Id: <20190609164130.738835778@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.123076536@linuxfoundation.org>
-References: <20190609164127.123076536@linuxfoundation.org>
+In-Reply-To: <20190609164127.843327870@linuxfoundation.org>
+References: <20190609164127.843327870@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,242 +44,186 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Steffen Maier <maier@linux.ibm.com>
 
-commit ea84b580b95521644429cc6748b6c2bf27c8b0f3 upstream.
+commit ef4021fe5fd77ced0323cede27979d80a56211ca upstream.
 
-Instead of running with interrupts disabled, use a semaphore. This should
-make it easier for backends that may need to sleep (e.g. EFI) when
-performing a write:
+When the user tries to remove a zfcp port via sysfs, we only rejected it if
+there are zfcp unit children under the port. With purely automatically
+scanned LUNs there are no zfcp units but only SCSI devices. In such cases,
+the port_remove erroneously continued. We close the port and this
+implicitly closes all LUNs under the port. The SCSI devices survive with
+their private zfcp_scsi_dev still holding a reference to the "removed"
+zfcp_port (still allocated but invisible in sysfs) [zfcp_get_port_by_wwpn
+in zfcp_scsi_slave_alloc]. This is not a problem as long as the fc_rport
+stays blocked. Once (auto) port scan brings back the removed port, we
+unblock its fc_rport again by design.  However, there is no mechanism that
+would recover (open) the LUNs under the port (no "ersfs_3" without
+zfcp_unit [zfcp_erp_strategy_followup_success]).  Any pending or new I/O to
+such LUN leads to repeated:
 
-|BUG: sleeping function called from invalid context at kernel/sched/completion.c:99
-|in_atomic(): 1, irqs_disabled(): 1, pid: 2236, name: sig-xstate-bum
-|Preemption disabled at:
-|[<ffffffff99d60512>] pstore_dump+0x72/0x330
-|CPU: 26 PID: 2236 Comm: sig-xstate-bum Tainted: G      D           4.20.0-rc3 #45
-|Call Trace:
-| dump_stack+0x4f/0x6a
-| ___might_sleep.cold.91+0xd3/0xe4
-| __might_sleep+0x50/0x90
-| wait_for_completion+0x32/0x130
-| virt_efi_query_variable_info+0x14e/0x160
-| efi_query_variable_store+0x51/0x1a0
-| efivar_entry_set_safe+0xa3/0x1b0
-| efi_pstore_write+0x109/0x140
-| pstore_dump+0x11c/0x330
-| kmsg_dump+0xa4/0xd0
-| oops_exit+0x22/0x30
-...
+  Done: NEEDS_RETRY Result: hostbyte=DID_IMM_RETRY driverbyte=DRIVER_OK
 
-Reported-by: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Fixes: 21b3ddd39fee ("efi: Don't use spinlocks for efi vars")
-Signed-off-by: Kees Cook <keescook@chromium.org>
+See also v4.10 commit 6f2ce1c6af37 ("scsi: zfcp: fix rport unblock race
+with LUN recovery"). Even a manual LUN recovery
+(echo 0 > /sys/bus/scsi/devices/H:C:T:L/zfcp_failed)
+does not help, as the LUN links to the old "removed" port which remains
+to lack ZFCP_STATUS_COMMON_RUNNING [zfcp_erp_required_act].
+The only workaround is to first ensure that the fc_rport is blocked
+(e.g. port_remove again in case it was re-discovered by (auto) port scan),
+then delete the SCSI devices, and finally re-discover by (auto) port scan.
+The port scan includes an fc_rport unblock, which in turn triggers
+a new scan on the scsi target to freshly get new pure auto scan LUNs.
+
+Fix this by rejecting port_remove also if there are SCSI devices
+(even without any zfcp_unit) under this port. Re-use mechanics from v3.7
+commit d99b601b6338 ("[SCSI] zfcp: restore refcount check on port_remove").
+However, we have to give up zfcp_sysfs_port_units_mutex earlier in unit_add
+to prevent a deadlock with scsi_host scan taking shost->scan_mutex first
+and then zfcp_sysfs_port_units_mutex now in our zfcp_scsi_slave_alloc().
+
+Signed-off-by: Steffen Maier <maier@linux.ibm.com>
+Fixes: b62a8d9b45b9 ("[SCSI] zfcp: Use SCSI device data zfcp scsi dev instead of zfcp unit")
+Fixes: f8210e34887e ("[SCSI] zfcp: Allow midlayer to scan for LUNs when running in NPIV mode")
+Cc: <stable@vger.kernel.org> #2.6.37+
+Reviewed-by: Benjamin Block <bblock@linux.ibm.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/powerpc/kernel/nvram_64.c    |    2 -
- drivers/acpi/apei/erst.c          |    1 
- drivers/firmware/efi/efi-pstore.c |    4 ---
- fs/pstore/platform.c              |   44 +++++++++++++++++++-------------------
- fs/pstore/ram.c                   |    1 
- include/linux/pstore.h            |    7 ++----
- 6 files changed, 27 insertions(+), 32 deletions(-)
+ drivers/s390/scsi/zfcp_ext.h   |    1 
+ drivers/s390/scsi/zfcp_scsi.c  |    9 ++++++
+ drivers/s390/scsi/zfcp_sysfs.c |   54 ++++++++++++++++++++++++++++++++++++-----
+ drivers/s390/scsi/zfcp_unit.c  |    8 +++++-
+ 4 files changed, 65 insertions(+), 7 deletions(-)
 
---- a/arch/powerpc/kernel/nvram_64.c
-+++ b/arch/powerpc/kernel/nvram_64.c
-@@ -563,8 +563,6 @@ static int nvram_pstore_init(void)
- 	nvram_pstore_info.buf = oops_data;
- 	nvram_pstore_info.bufsize = oops_data_sz;
+--- a/drivers/s390/scsi/zfcp_ext.h
++++ b/drivers/s390/scsi/zfcp_ext.h
+@@ -161,6 +161,7 @@ extern const struct attribute_group *zfc
+ extern struct mutex zfcp_sysfs_port_units_mutex;
+ extern struct device_attribute *zfcp_sysfs_sdev_attrs[];
+ extern struct device_attribute *zfcp_sysfs_shost_attrs[];
++bool zfcp_sysfs_port_is_removing(const struct zfcp_port *const port);
  
--	spin_lock_init(&nvram_pstore_info.buf_lock);
--
- 	rc = pstore_register(&nvram_pstore_info);
- 	if (rc && (rc != -EPERM))
- 		/* Print error only when pstore.backend == nvram */
---- a/drivers/acpi/apei/erst.c
-+++ b/drivers/acpi/apei/erst.c
-@@ -1176,7 +1176,6 @@ static int __init erst_init(void)
- 	"Error Record Serialization Table (ERST) support is initialized.\n");
+ /* zfcp_unit.c */
+ extern int zfcp_unit_add(struct zfcp_port *, u64);
+--- a/drivers/s390/scsi/zfcp_scsi.c
++++ b/drivers/s390/scsi/zfcp_scsi.c
+@@ -124,6 +124,15 @@ static int zfcp_scsi_slave_alloc(struct
  
- 	buf = kmalloc(erst_erange.size, GFP_KERNEL);
--	spin_lock_init(&erst_info.buf_lock);
- 	if (buf) {
- 		erst_info.buf = buf + sizeof(struct cper_pstore_record);
- 		erst_info.bufsize = erst_erange.size -
---- a/drivers/firmware/efi/efi-pstore.c
-+++ b/drivers/firmware/efi/efi-pstore.c
-@@ -259,8 +259,7 @@ static int efi_pstore_write(struct pstor
- 		efi_name[i] = name[i];
+ 	zfcp_sdev->erp_action.port = port;
  
- 	ret = efivar_entry_set_safe(efi_name, vendor, PSTORE_EFI_ATTRIBUTES,
--			      !pstore_cannot_block_path(record->reason),
--			      record->size, record->psi->buf);
-+			      preemptible(), record->size, record->psi->buf);
- 
- 	if (record->reason == KMSG_DUMP_OOPS)
- 		efivar_run_worker();
-@@ -369,7 +368,6 @@ static __init int efivars_pstore_init(vo
- 		return -ENOMEM;
- 
- 	efi_pstore_info.bufsize = 1024;
--	spin_lock_init(&efi_pstore_info.buf_lock);
- 
- 	if (pstore_register(&efi_pstore_info)) {
- 		kfree(efi_pstore_info.buf);
---- a/fs/pstore/platform.c
-+++ b/fs/pstore/platform.c
-@@ -124,26 +124,27 @@ static const char *get_reason_str(enum k
- 	}
- }
- 
--bool pstore_cannot_block_path(enum kmsg_dump_reason reason)
-+/*
-+ * Should pstore_dump() wait for a concurrent pstore_dump()? If
-+ * not, the current pstore_dump() will report a failure to dump
-+ * and return.
-+ */
-+static bool pstore_cannot_wait(enum kmsg_dump_reason reason)
- {
--	/*
--	 * In case of NMI path, pstore shouldn't be blocked
--	 * regardless of reason.
--	 */
-+	/* In NMI path, pstore shouldn't block regardless of reason. */
- 	if (in_nmi())
- 		return true;
- 
- 	switch (reason) {
- 	/* In panic case, other cpus are stopped by smp_send_stop(). */
- 	case KMSG_DUMP_PANIC:
--	/* Emergency restart shouldn't be blocked by spin lock. */
-+	/* Emergency restart shouldn't be blocked. */
- 	case KMSG_DUMP_EMERG:
- 		return true;
- 	default:
- 		return false;
- 	}
- }
--EXPORT_SYMBOL_GPL(pstore_cannot_block_path);
- 
- #if IS_ENABLED(CONFIG_PSTORE_DEFLATE_COMPRESS)
- static int zbufsize_deflate(size_t size)
-@@ -378,23 +379,23 @@ static void pstore_dump(struct kmsg_dump
- 	unsigned long	total = 0;
- 	const char	*why;
- 	unsigned int	part = 1;
--	unsigned long	flags = 0;
--	int		is_locked;
- 	int		ret;
- 
- 	why = get_reason_str(reason);
- 
--	if (pstore_cannot_block_path(reason)) {
--		is_locked = spin_trylock_irqsave(&psinfo->buf_lock, flags);
--		if (!is_locked) {
--			pr_err("pstore dump routine blocked in %s path, may corrupt error record\n"
--				       , in_nmi() ? "NMI" : why);
-+	if (down_trylock(&psinfo->buf_lock)) {
-+		/* Failed to acquire lock: give up if we cannot wait. */
-+		if (pstore_cannot_wait(reason)) {
-+			pr_err("dump skipped in %s path: may corrupt error record\n",
-+				in_nmi() ? "NMI" : why);
-+			return;
-+		}
-+		if (down_interruptible(&psinfo->buf_lock)) {
-+			pr_err("could not grab semaphore?!\n");
- 			return;
- 		}
--	} else {
--		spin_lock_irqsave(&psinfo->buf_lock, flags);
--		is_locked = 1;
- 	}
++	mutex_lock(&zfcp_sysfs_port_units_mutex);
++	if (zfcp_sysfs_port_is_removing(port)) {
++		/* port is already gone */
++		mutex_unlock(&zfcp_sysfs_port_units_mutex);
++		put_device(&port->dev); /* undo zfcp_get_port_by_wwpn() */
++		return -ENXIO;
++	}
++	mutex_unlock(&zfcp_sysfs_port_units_mutex);
 +
- 	oopscount++;
- 	while (total < kmsg_bytes) {
- 		char *dst;
-@@ -411,7 +412,7 @@ static void pstore_dump(struct kmsg_dump
- 		record.part = part;
- 		record.buf = psinfo->buf;
+ 	unit = zfcp_unit_find(port, zfcp_scsi_dev_lun(sdev));
+ 	if (unit)
+ 		put_device(&unit->dev);
+--- a/drivers/s390/scsi/zfcp_sysfs.c
++++ b/drivers/s390/scsi/zfcp_sysfs.c
+@@ -237,6 +237,53 @@ static ZFCP_DEV_ATTR(adapter, port_resca
  
--		if (big_oops_buf && is_locked) {
-+		if (big_oops_buf) {
- 			dst = big_oops_buf;
- 			dst_size = big_oops_buf_sz;
- 		} else {
-@@ -429,7 +430,7 @@ static void pstore_dump(struct kmsg_dump
- 					  dst_size, &dump_size))
- 			break;
+ DEFINE_MUTEX(zfcp_sysfs_port_units_mutex);
  
--		if (big_oops_buf && is_locked) {
-+		if (big_oops_buf) {
- 			zipped_len = pstore_compress(dst, psinfo->buf,
- 						header_size + dump_size,
- 						psinfo->bufsize);
-@@ -452,8 +453,8 @@ static void pstore_dump(struct kmsg_dump
- 		total += record.size;
- 		part++;
- 	}
--	if (is_locked)
--		spin_unlock_irqrestore(&psinfo->buf_lock, flags);
++static void zfcp_sysfs_port_set_removing(struct zfcp_port *const port)
++{
++	lockdep_assert_held(&zfcp_sysfs_port_units_mutex);
++	atomic_set(&port->units, -1);
++}
 +
-+	up(&psinfo->buf_lock);
- }
++bool zfcp_sysfs_port_is_removing(const struct zfcp_port *const port)
++{
++	lockdep_assert_held(&zfcp_sysfs_port_units_mutex);
++	return atomic_read(&port->units) == -1;
++}
++
++static bool zfcp_sysfs_port_in_use(struct zfcp_port *const port)
++{
++	struct zfcp_adapter *const adapter = port->adapter;
++	unsigned long flags;
++	struct scsi_device *sdev;
++	bool in_use = true;
++
++	mutex_lock(&zfcp_sysfs_port_units_mutex);
++	if (atomic_read(&port->units) > 0)
++		goto unlock_port_units_mutex; /* zfcp_unit(s) under port */
++
++	spin_lock_irqsave(adapter->scsi_host->host_lock, flags);
++	__shost_for_each_device(sdev, adapter->scsi_host) {
++		const struct zfcp_scsi_dev *zsdev = sdev_to_zfcp(sdev);
++
++		if (sdev->sdev_state == SDEV_DEL ||
++		    sdev->sdev_state == SDEV_CANCEL)
++			continue;
++		if (zsdev->port != port)
++			continue;
++		/* alive scsi_device under port of interest */
++		goto unlock_host_lock;
++	}
++
++	/* port is about to be removed, so no more unit_add or slave_alloc */
++	zfcp_sysfs_port_set_removing(port);
++	in_use = false;
++
++unlock_host_lock:
++	spin_unlock_irqrestore(adapter->scsi_host->host_lock, flags);
++unlock_port_units_mutex:
++	mutex_unlock(&zfcp_sysfs_port_units_mutex);
++	return in_use;
++}
++
+ static ssize_t zfcp_sysfs_port_remove_store(struct device *dev,
+ 					    struct device_attribute *attr,
+ 					    const char *buf, size_t count)
+@@ -259,16 +306,11 @@ static ssize_t zfcp_sysfs_port_remove_st
+ 	else
+ 		retval = 0;
  
- static struct kmsg_dumper pstore_dumper = {
-@@ -572,6 +573,7 @@ int pstore_register(struct pstore_info *
- 		psi->write_user = pstore_write_user_compat;
- 	psinfo = psi;
- 	mutex_init(&psinfo->read_mutex);
-+	sema_init(&psinfo->buf_lock, 1);
- 	spin_unlock(&pstore_lock);
- 
- 	if (owner && !try_module_get(owner)) {
---- a/fs/pstore/ram.c
-+++ b/fs/pstore/ram.c
-@@ -814,7 +814,6 @@ static int ramoops_probe(struct platform
- 		err = -ENOMEM;
- 		goto fail_clear;
+-	mutex_lock(&zfcp_sysfs_port_units_mutex);
+-	if (atomic_read(&port->units) > 0) {
++	if (zfcp_sysfs_port_in_use(port)) {
+ 		retval = -EBUSY;
+-		mutex_unlock(&zfcp_sysfs_port_units_mutex);
+ 		put_device(&port->dev); /* undo zfcp_get_port_by_wwpn() */
+ 		goto out;
  	}
--	spin_lock_init(&cxt->pstore.buf_lock);
+-	/* port is about to be removed, so no more unit_add */
+-	atomic_set(&port->units, -1);
+-	mutex_unlock(&zfcp_sysfs_port_units_mutex);
  
- 	cxt->pstore.flags = PSTORE_FLAGS_DMESG;
- 	if (cxt->console_size)
---- a/include/linux/pstore.h
-+++ b/include/linux/pstore.h
-@@ -26,7 +26,7 @@
- #include <linux/errno.h>
- #include <linux/kmsg_dump.h>
- #include <linux/mutex.h>
--#include <linux/spinlock.h>
-+#include <linux/semaphore.h>
- #include <linux/time.h>
- #include <linux/types.h>
+ 	write_lock_irq(&adapter->port_list_lock);
+ 	list_del(&port->list);
+--- a/drivers/s390/scsi/zfcp_unit.c
++++ b/drivers/s390/scsi/zfcp_unit.c
+@@ -123,7 +123,7 @@ int zfcp_unit_add(struct zfcp_port *port
+ 	int retval = 0;
  
-@@ -88,7 +88,7 @@ struct pstore_record {
-  * @owner:	module which is repsonsible for this backend driver
-  * @name:	name of the backend driver
-  *
-- * @buf_lock:	spinlock to serialize access to @buf
-+ * @buf_lock:	semaphore to serialize access to @buf
-  * @buf:	preallocated crash dump buffer
-  * @bufsize:	size of @buf available for crash dump bytes (must match
-  *		smallest number of bytes available for writing to a
-@@ -173,7 +173,7 @@ struct pstore_info {
- 	struct module	*owner;
- 	char		*name;
+ 	mutex_lock(&zfcp_sysfs_port_units_mutex);
+-	if (atomic_read(&port->units) == -1) {
++	if (zfcp_sysfs_port_is_removing(port)) {
+ 		/* port is already gone */
+ 		retval = -ENODEV;
+ 		goto out;
+@@ -167,8 +167,14 @@ int zfcp_unit_add(struct zfcp_port *port
+ 	write_lock_irq(&port->unit_list_lock);
+ 	list_add_tail(&unit->list, &port->unit_list);
+ 	write_unlock_irq(&port->unit_list_lock);
++	/*
++	 * lock order: shost->scan_mutex before zfcp_sysfs_port_units_mutex
++	 * due to      zfcp_unit_scsi_scan() => zfcp_scsi_slave_alloc()
++	 */
++	mutex_unlock(&zfcp_sysfs_port_units_mutex);
  
--	spinlock_t	buf_lock;
-+	struct semaphore buf_lock;
- 	char		*buf;
- 	size_t		bufsize;
+ 	zfcp_unit_scsi_scan(unit);
++	return retval;
  
-@@ -199,7 +199,6 @@ struct pstore_info {
- 
- extern int pstore_register(struct pstore_info *);
- extern void pstore_unregister(struct pstore_info *);
--extern bool pstore_cannot_block_path(enum kmsg_dump_reason reason);
- 
- struct pstore_ftrace_record {
- 	unsigned long ip;
+ out:
+ 	mutex_unlock(&zfcp_sysfs_port_units_mutex);
 
 
