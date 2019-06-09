@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 04CF83AA6A
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:19:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20FC23A8BE
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:03:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731442AbfFIQwj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:52:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53608 "EHLO mail.kernel.org"
+        id S2388485AbfFIRDu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 13:03:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731420AbfFIQwi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:52:38 -0400
+        id S2388129AbfFIRDt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 13:03:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 081CD205ED;
-        Sun,  9 Jun 2019 16:52:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 60B8C204EC;
+        Sun,  9 Jun 2019 17:03:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099157;
-        bh=9pQV96GQ5yaR3ppCHishu8Pql1cXDN8GY/jBzvaDq3U=;
+        s=default; t=1560099828;
+        bh=Cc03y/FLkW+XjKbTR0OyOAu1ys85Aey1WV9FRu4aPE4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B8UzKRs9BrZEvuTQ56O33WvpOAGDey2D1jSysYTxvCUUdvSGhLoduc96LUamGarMw
-         Fpg62sEmH8Kj40yVej594YBuXS7XatlW6W8EJMPZ5ynlXt0xSXHnfqps7mNB5mjd0q
-         rXMrdailXoXGe5RaF30r7O//dJ9jSGVIzBaHVZsU=
+        b=j6kfO+ZkrBU5CjqyfemoDzJ59tTaJXtuaq+vFs9nFu3mSJdDilsG4Ptb9QHr0HSx4
+         yY3CZt70ayDn2M5YugW/g1BOfuVtD2729d9vXGBOwtrhPg9sdikOCbbrY7npZhFNlD
+         wk1Pmm6LoFYHVbSSiIOUAyyW10i7Pd4pEKrUMjEI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Johan Hovold <johan@kernel.org>,
-        syzbot+53f029db71c19a47325a@syzkaller.appspotmail.com
-Subject: [PATCH 4.9 31/83] media: usb: siano: Fix general protection fault in smsusb
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Peter Ujfalusi <peter.ujfalusi@ti.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 179/241] ASoC: davinci-mcasp: Fix clang warning without CONFIG_PM
 Date:   Sun,  9 Jun 2019 18:42:01 +0200
-Message-Id: <20190609164130.323240519@linuxfoundation.org>
+Message-Id: <20190609164153.010600829@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.843327870@linuxfoundation.org>
-References: <20190609164127.843327870@linuxfoundation.org>
+In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
+References: <20190609164147.729157653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,90 +46,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+[ Upstream commit 8ca5104715cfd14254ea5aecc390ae583b707607 ]
 
-commit 31e0456de5be379b10fea0fa94a681057114a96e upstream.
+Building with clang shows a variable that is only used by the
+suspend/resume functions but defined outside of their #ifdef block:
 
-The syzkaller USB fuzzer found a general-protection-fault bug in the
-smsusb part of the Siano DVB driver.  The fault occurs during probe
-because the driver assumes without checking that the device has both
-IN and OUT endpoints and the IN endpoint is ep1.
+sound/soc/ti/davinci-mcasp.c:48:12: error: variable 'context_regs' is not needed and will not be emitted
 
-By slightly rearranging the driver's initialization code, we can make
-the appropriate checks early on and thus avoid the problem.  If the
-expected endpoints aren't present, the new code safely returns -ENODEV
-from the probe routine.
+We commonly fix these by marking the PM functions as __maybe_unused,
+but here that would grow the davinci_mcasp structure, so instead
+add another #ifdef here.
 
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Reported-and-tested-by: syzbot+53f029db71c19a47325a@syzkaller.appspotmail.com
-CC: <stable@vger.kernel.org>
-Reviewed-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 1cc0c054f380 ("ASoC: davinci-mcasp: Convert the context save/restore to use array")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/siano/smsusb.c |   33 ++++++++++++++++++++-------------
- 1 file changed, 20 insertions(+), 13 deletions(-)
+ sound/soc/davinci/davinci-mcasp.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/media/usb/siano/smsusb.c
-+++ b/drivers/media/usb/siano/smsusb.c
-@@ -402,6 +402,7 @@ static int smsusb_init_device(struct usb
- 	struct smsusb_device_t *dev;
- 	void *mdev;
- 	int i, rc;
-+	int in_maxp;
+diff --git a/sound/soc/davinci/davinci-mcasp.c b/sound/soc/davinci/davinci-mcasp.c
+index 2ccb8bccc9d4c..512ec25c9ead1 100644
+--- a/sound/soc/davinci/davinci-mcasp.c
++++ b/sound/soc/davinci/davinci-mcasp.c
+@@ -43,6 +43,7 @@
  
- 	/* create device object */
- 	dev = kzalloc(sizeof(struct smsusb_device_t), GFP_KERNEL);
-@@ -413,6 +414,24 @@ static int smsusb_init_device(struct usb
- 	dev->udev = interface_to_usbdev(intf);
- 	dev->state = SMSUSB_DISCONNECTED;
+ #define MCASP_MAX_AFIFO_DEPTH	64
  
-+	for (i = 0; i < intf->cur_altsetting->desc.bNumEndpoints; i++) {
-+		struct usb_endpoint_descriptor *desc =
-+				&intf->cur_altsetting->endpoint[i].desc;
-+
-+		if (desc->bEndpointAddress & USB_DIR_IN) {
-+			dev->in_ep = desc->bEndpointAddress;
-+			in_maxp = usb_endpoint_maxp(desc);
-+		} else {
-+			dev->out_ep = desc->bEndpointAddress;
-+		}
-+	}
-+
-+	pr_debug("in_ep = %02x, out_ep = %02x\n", dev->in_ep, dev->out_ep);
-+	if (!dev->in_ep || !dev->out_ep) {	/* Missing endpoints? */
-+		smsusb_term_device(intf);
-+		return -ENODEV;
-+	}
-+
- 	params.device_type = sms_get_board(board_id)->type;
++#ifdef CONFIG_PM
+ static u32 context_regs[] = {
+ 	DAVINCI_MCASP_TXFMCTL_REG,
+ 	DAVINCI_MCASP_RXFMCTL_REG,
+@@ -65,6 +66,7 @@ struct davinci_mcasp_context {
+ 	u32	*xrsr_regs; /* for serializer configuration */
+ 	bool	pm_state;
+ };
++#endif
  
- 	switch (params.device_type) {
-@@ -427,24 +446,12 @@ static int smsusb_init_device(struct usb
- 		/* fall-thru */
- 	default:
- 		dev->buffer_size = USB2_BUFFER_SIZE;
--		dev->response_alignment =
--		    le16_to_cpu(dev->udev->ep_in[1]->desc.wMaxPacketSize) -
--		    sizeof(struct sms_msg_hdr);
-+		dev->response_alignment = in_maxp - sizeof(struct sms_msg_hdr);
- 
- 		params.flags |= SMS_DEVICE_FAMILY2;
- 		break;
- 	}
- 
--	for (i = 0; i < intf->cur_altsetting->desc.bNumEndpoints; i++) {
--		if (intf->cur_altsetting->endpoint[i].desc. bEndpointAddress & USB_DIR_IN)
--			dev->in_ep = intf->cur_altsetting->endpoint[i].desc.bEndpointAddress;
--		else
--			dev->out_ep = intf->cur_altsetting->endpoint[i].desc.bEndpointAddress;
--	}
--
--	pr_debug("in_ep = %02x, out_ep = %02x\n",
--		dev->in_ep, dev->out_ep);
--
- 	params.device = &dev->udev->dev;
- 	params.buffer_size = dev->buffer_size;
- 	params.num_buffers = MAX_BUFFERS;
+ struct davinci_mcasp_ruledata {
+ 	struct davinci_mcasp *mcasp;
+-- 
+2.20.1
+
 
 
