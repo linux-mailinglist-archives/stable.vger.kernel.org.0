@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 517423A48A
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 11:44:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 631813A48D
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 11:44:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728014AbfFIJon (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 05:44:43 -0400
-Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:57465 "EHLO
+        id S1728051AbfFIJoz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 05:44:55 -0400
+Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:36887 "EHLO
         wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727979AbfFIJon (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Jun 2019 05:44:43 -0400
+        by vger.kernel.org with ESMTP id S1727979AbfFIJoz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Jun 2019 05:44:55 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 353E53D4;
-        Sun,  9 Jun 2019 05:44:42 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Sun, 09 Jun 2019 05:44:42 -0400
+        by mailout.west.internal (Postfix) with ESMTP id 5D9133D4;
+        Sun,  9 Jun 2019 05:44:54 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Sun, 09 Jun 2019 05:44:54 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=aTe3+a
-        si2nqE1V6A/GIG8XwFPoGtjh7Xuh564YvyRmg=; b=frQTY4AUp59Y3MhNink1vD
-        u71pP95yFswdlzEhtAPcqLlTrwDZi0FFcRx/xa/9BHE0QKsDHW1cNwf3tFGXQKx+
-        X9GG8QLjtx7+SjrXoycV+BM8qDfiRszAitl0mY7lcyz6yIag+m+BrfHiUmroERW8
-        u6aROpNSiOiOSt1Qq8UmIVe2kT2lnxA3ICNkgD/sTdWBBe6x03fJmPQLFZN1dRcI
-        dnij9Ee3hQLvApLBiLBfZxbk4KT7Y+AVlenmzgCE/v8VwSrwXom25whab10JYeBh
-        0I9iAotR+ZLtbUUfKOkEbSOYEGtn/jge4doApqsUov66ycFptbEgZbPCu2UY1L9A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=p4n6AE
+        7GP6p6dZmGeY3yt/UWwQvO8E0gBj73ZkruKDk=; b=kkE6ylW1tgfu5YMK2mI3ve
+        nmlVFR+SaVj44dmEQtHznHlTdFvWIBKKINg4sMLS8OACZPI1aFrJeOrfo/dGxovY
+        qLj00X27rzWsdMQ4wi5k/t4K5r8CVZ6rY+5ZISS8pSkzrNnslKqpDCFB+LrieJ5D
+        GOzpmIacNxcQhO+FZcsZmMbIGYuhj/pRh/ASanjgvCVVqGicXxakauPkEDbORCDC
+        18hQl3bVbkC/Mr/4dRmN+/LMYT/GYddG2C8DxEBwrSBIjIXtRW+tzO3lbgLFnfca
+        zaYqM/dMbyLpgVWInvy9RP0j3HMwv3feBKnfcDPuQ3N8fdp9WJNC6Rp30lWX1L8A
         ==
-X-ME-Sender: <xms:CdX8XFMWrOttB9b5Ughvj7B7dYbVwX_-Qeq6E2V4OC8jI1AtO97GOA>
+X-ME-Sender: <xms:FdX8XNkJJhSPAVNnxh5mpKwBbzIj5aC9uKvqTxZrpgkoZZ60U12Xzg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrudehtddgvddtucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:CdX8XMMI_SNa3yR6rIHyL8N5jUuGgVcIK14NU1Ikb0PssYGlrs6-tQ>
-    <xmx:CdX8XPTZCpgVjrFUz8v-5PtyaFifM7SO4l2NJiKkCWTlHBKnA6ZKwg>
-    <xmx:CdX8XGAOXxB9sbzg3xCcbJHYx9SVg3Wmv-QIZiiJfhHHzGFGKgZAwA>
-    <xmx:CdX8XNB-oqaEgl3yBSK1ajoFC0YvDLVTxMAwnNoZFlDlao4JyHyfPQ>
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepud
+X-ME-Proxy: <xmx:FdX8XIum-SOUCHnJY1M0YA-_d-huUCziTJ2Gkvd3xGPGo1XI4zCZHA>
+    <xmx:FdX8XA_S6AVwqCG9saCzKGz3K3mfiJuajaLJpSL2KwKyMevmOMD0tw>
+    <xmx:FdX8XJyhX0CT9TvIH0HMhSOiqKU3OaIcmr3hHYz1jfDn0zbIBUq_ww>
+    <xmx:FdX8XJRb1S_H5rVoV0Wtd7PDe7d1LyAHwxLn1jfFdteWjcgd1e1HFw>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 0706080060;
-        Sun,  9 Jun 2019 05:44:40 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] SUNRPC fix regression in umount of a secure mount" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 73497380086;
+        Sun,  9 Jun 2019 05:44:53 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] SUNRPC fix regression in umount of a secure mount" failed to apply to 4.4-stable tree
 To:     kolga@netapp.com, Anna.Schumaker@Netapp.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 09 Jun 2019 11:44:39 +0200
-Message-ID: <156007347916760@kroah.com>
+Date:   Sun, 09 Jun 2019 11:44:40 +0200
+Message-ID: <15600734809372@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
