@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 946B93AA9E
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:20:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DA363AA20
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:16:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729800AbfFIQru (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:47:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46588 "EHLO mail.kernel.org"
+        id S1732560AbfFIQyR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:54:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55824 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730968AbfFIQrr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:47:47 -0400
+        id S1732163AbfFIQyO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:54:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B25EC206C3;
-        Sun,  9 Jun 2019 16:47:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 17683206BB;
+        Sun,  9 Jun 2019 16:54:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560098867;
-        bh=fwsJwNFaon2R+lR5nFdFKSyG4R4Y2sVc0fxcUZG60+4=;
+        s=default; t=1560099253;
+        bh=89GpvrFgzcN4Wj9MAnyH0h18e4NiL3Ko+h4Lw6xvsNU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uu9K6O7KArsoWMx/COkDeWFOEGmOfZma4SMP50njvvzSCZs98pSBJbF2KZgw+CJWw
-         amOjrvrlLFlU7wvbHX9Y6XRfrz+vniH88xC5VlG8XCk7DY8oM4paqPTRy871tFmfjp
-         Tcmdq0lzmGxQSTaVaW/qq5KUzKZq6XbhtN/kWYOE=
+        b=xxbFPUFMBCKh5FZZnXV5xW1aXhOp+lIcGSU/LRhbLqoyUxdkvUvpHrHtTSJo2vm8+
+         MKpXdB15fimpEMnLncXy+iOtnJPq4DVgi9nnW+8ViJa5ceFyusfkGATrj8MAR2paOk
+         fpGm48XMqDkeLv3lIU04dkPuVKqnSV6LeQxPV0Ew=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
-        stable@kernel.org, Boqun Feng <boqun.feng@gmail.com>,
-        "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 18/51] rcu: locking and unlocking need to always be at least barriers
-Date:   Sun,  9 Jun 2019 18:41:59 +0200
-Message-Id: <20190609164128.133131668@linuxfoundation.org>
+        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>
+Subject: [PATCH 4.9 30/83] USB: rio500: fix memory leak in close after disconnect
+Date:   Sun,  9 Jun 2019 18:42:00 +0200
+Message-Id: <20190609164130.215498292@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.123076536@linuxfoundation.org>
-References: <20190609164127.123076536@linuxfoundation.org>
+In-Reply-To: <20190609164127.843327870@linuxfoundation.org>
+References: <20190609164127.843327870@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,67 +42,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Oliver Neukum <oneukum@suse.com>
 
-commit 66be4e66a7f422128748e3c3ef6ee72b20a6197b upstream.
+commit e0feb73428b69322dd5caae90b0207de369b5575 upstream.
 
-Herbert Xu pointed out that commit bb73c52bad36 ("rcu: Don't disable
-preemption for Tiny and Tree RCU readers") was incorrect in making the
-preempt_disable/enable() be conditional on CONFIG_PREEMPT_COUNT.
+If a disconnected device is closed, rio_close() must free
+the buffers.
 
-If CONFIG_PREEMPT_COUNT isn't enabled, the preemption enable/disable is
-a no-op, but still is a compiler barrier.
-
-And RCU locking still _needs_ that compiler barrier.
-
-It is simply fundamentally not true that RCU locking would be a complete
-no-op: we still need to guarantee (for example) that things that can
-trap and cause preemption cannot migrate into the RCU locked region.
-
-The way we do that is by making it a barrier.
-
-See for example commit 386afc91144b ("spinlocks and preemption points
-need to be at least compiler barriers") from back in 2013 that had
-similar issues with spinlocks that become no-ops on UP: they must still
-constrain the compiler from moving other operations into the critical
-region.
-
-Now, it is true that a lot of RCU operations already use READ_ONCE() and
-WRITE_ONCE() (which in practice likely would never be re-ordered wrt
-anything remotely interesting), but it is also true that that is not
-globally the case, and that it's not even necessarily always possible
-(ie bitfields etc).
-
-Reported-by: Herbert Xu <herbert@gondor.apana.org.au>
-Fixes: bb73c52bad36 ("rcu: Don't disable preemption for Tiny and Tree RCU readers")
-Cc: stable@kernel.org
-Cc: Boqun Feng <boqun.feng@gmail.com>
-Cc: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Oliver Neukum <oneukum@suse.com>
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/rcupdate.h |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/usb/misc/rio500.c |   17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
---- a/include/linux/rcupdate.h
-+++ b/include/linux/rcupdate.h
-@@ -78,14 +78,12 @@ void synchronize_rcu(void);
- 
- static inline void __rcu_read_lock(void)
+--- a/drivers/usb/misc/rio500.c
++++ b/drivers/usb/misc/rio500.c
+@@ -103,9 +103,22 @@ static int close_rio(struct inode *inode
  {
--	if (IS_ENABLED(CONFIG_PREEMPT_COUNT))
--		preempt_disable();
-+	preempt_disable();
+ 	struct rio_usb_data *rio = &rio_instance;
+ 
+-	rio->isopen = 0;
++	/* against disconnect() */
++	mutex_lock(&rio500_mutex);
++	mutex_lock(&(rio->lock));
+ 
+-	dev_info(&rio->rio_dev->dev, "Rio closed.\n");
++	rio->isopen = 0;
++	if (!rio->present) {
++		/* cleanup has been delayed */
++		kfree(rio->ibuf);
++		kfree(rio->obuf);
++		rio->ibuf = NULL;
++		rio->obuf = NULL;
++	} else {
++		dev_info(&rio->rio_dev->dev, "Rio closed.\n");
++	}
++	mutex_unlock(&(rio->lock));
++	mutex_unlock(&rio500_mutex);
+ 	return 0;
  }
  
- static inline void __rcu_read_unlock(void)
- {
--	if (IS_ENABLED(CONFIG_PREEMPT_COUNT))
--		preempt_enable();
-+	preempt_enable();
- }
- 
- static inline void synchronize_rcu(void)
 
 
