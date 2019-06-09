@@ -2,96 +2,151 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B8F5D3A4AE
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 12:29:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 385E13A4AF
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 12:29:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727984AbfFIK3T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727039AbfFIK3T (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 9 Jun 2019 06:29:19 -0400
-Received: from out2-smtp.messagingengine.com ([66.111.4.26]:51393 "EHLO
-        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727039AbfFIK3T (ORCPT
+Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:54513 "EHLO
+        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727853AbfFIK3T (ORCPT
         <rfc822;stable@vger.kernel.org>); Sun, 9 Jun 2019 06:29:19 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.nyi.internal (Postfix) with ESMTP id 5425621E3E;
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.west.internal (Postfix) with ESMTP id A1A9E3DF;
         Sun,  9 Jun 2019 06:29:18 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Sun, 09 Jun 2019 06:29:18 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sakamocchi.jp;
-         h=from:to:cc:subject:date:message-id:mime-version
-        :content-transfer-encoding; s=fm1; bh=QLRpEhb6FyE9oJCXalev4ADuAG
-        sI7bOmvY4IuabcQxQ=; b=n5DKxvFbq+rS0JSvFx89N7e7inTkqGVBeineJFMfFs
-        KNm7aXe5V7lo+OJYSzgZ1b3slHz2rUrk0eL1jWudTflrPoWVXqcJZzPwiFgNxCRW
-        lczWhNAC/+5tpumaEeYYogVCkz3n0kwwgFa03tCTbX/sXw5X0GAY8wLXl5Et38Gk
-        8/us/B/Lj0nYUzn/YXQ71Hmb7oYAy0YwbgPSphkulDzzd1HZ+bzy/tpAi/7F4Rf8
-        MUZ9s6Zo3RA7T5iVWoQTeFg5wh53kk31oufRhISEYQB525hZHt2AylNTGM/DznNO
-        D57Q6yn46RmK8e/7cC33eiaYUsiy9o0P8P1MusTST5Vw==
+  by compute6.internal (MEProxy); Sun, 09 Jun 2019 06:29:19 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:date:from
-        :message-id:mime-version:subject:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=QLRpEhb6FyE9oJCXa
-        lev4ADuAGsI7bOmvY4IuabcQxQ=; b=wU98CDIEjKQYfpi6JXcgeSh/LYacz5KNR
-        BtxB7xoDumvIFSQQ/U5RSxP2k1qxKlGlNrIB/UJR+vatm9PkzlbOnSGC6SUwpLC3
-        +SwF/fKkDUAbs2i92EqGnD1KhgebarlJnY4x6yJ3W8Ab0zU089/c0qCY/yjIj17A
-        0nkYeJ32fROHewXXH3qX9+RhU08cq+0CxMj5EXf8IhzkfMnNW4Bv1lBlQtkGWqgp
-        0Pu56geORCtZgpaU/GpeS/Ru11ebZg3puD+hblZQG0UCsBWJTH3XarJUZk950Wlm
-        U/DKfyc8t4kgQOBP2/Ar34QjUtQPF32/J8XFxEPjluN9TSYMvscGQ==
-X-ME-Sender: <xms:fN_8XHGsIGlYi3_nIxbFWv4M3jkWPHMbV9qDru44wwDf27KfRRk6EQ>
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=TZL1Pf
+        DAdhVhBUZoibb5GtNRJWQCZssK1cCaCj3oQsc=; b=1w1JHPHP2/qzkPfufupDI3
+        mwXO7oJo843ISTfvUKF9VFWI1zNbYpNGKF5IbIvEnPEpklTHpqDEPrC3ggg+TuEQ
+        8HYB2LOmXfdLNKy+dnTZtFDmtiZ1hbcTKq1HNhHSXflecfFDWlfNobbXWvI6ekvz
+        YrOKJs9Lt7mDNunJVL8t+qGKpWwdD4KASj9x4hhBLFXQApkMV+Yxvex9wI4VHy5Q
+        t9OzQu7xI1welreMBti/9rRHZgxtbnVZfBLVS6vIroNB8MtFhmf01gREbXMeKJxh
+        s9/SPa2wS6TpHHPlQfvpCjOeswlS9Fq98+R+tcpw0teAP+uB9/FJcyhuu6PssMeg
+        ==
+X-ME-Sender: <xms:fd_8XJVJcUR_GEYhhPNq86JnylSxFUdxcqdiJ5DS1vvjsgDzjSJALA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrudehtddgvdelucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgggfestdekredtre
-    dttdenucfhrhhomhepvfgrkhgrshhhihcuufgrkhgrmhhothhouceoohdqthgrkhgrshhh
-    ihesshgrkhgrmhhotggthhhirdhjpheqnecukfhppedugedrfedrjeehrddukedunecurf
-    grrhgrmhepmhgrihhlfhhrohhmpehoqdhtrghkrghshhhisehsrghkrghmohgttghhihdr
-    jhhpnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:fN_8XInnJ7Ui1OBVWKU7zRO97JxiDaSMxOA00ghVipaT-FOifhcf0g>
-    <xmx:fN_8XEKY-f3YgQLvgwpZNrN3yUFXFftK0FckjCmOUayhlF6P9aor4A>
-    <xmx:fN_8XJYp6Anvkv-7yTeqHI0onk4Ttu1BWgj6g2PDQsftL0bHpPX2zQ>
-    <xmx:ft_8XD3Q70lGEN7ZmHFZJQOdWzLyCLf4Nr9IaB70_1Mvd4Kl2BfpLw>
-Received: from localhost.localdomain (ae075181.dynamic.ppp.asahi-net.or.jp [14.3.75.181])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 5C0A780065;
-        Sun,  9 Jun 2019 06:29:15 -0400 (EDT)
-From:   Takashi Sakamoto <o-takashi@sakamocchi.jp>
-To:     clemens@ladisch.de, tiwai@suse.de
-Cc:     alsa-devel@alsa-project.org, stable@vger.kernel.org
-Subject: [PATCH] ALSA: oxfw: allow PCM capture for Stanton SCS.1m
-Date:   Sun,  9 Jun 2019 19:29:12 +0900
-Message-Id: <20190609102912.9717-1-o-takashi@sakamocchi.jp>
-X-Mailer: git-send-email 2.20.1
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtjeenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuffhomhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhgnecukfhppeekfedrke
+    eirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghh
+    rdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:fd_8XA2AK7_a3woc-IGH9LnmRX5402ZFtrsqM8ImEo_2RE_ojVy6Fw>
+    <xmx:fd_8XAR7Df1o7bcr4w1Hetxb9jIuuar_e4_SSdD5USVoat7btKrGow>
+    <xmx:fd_8XMSAXdq5xl8wggMVe5hAm1pHO7SgKO-4qBMdg3gxb_MTEabOsw>
+    <xmx:ft_8XC-22sP12gPvDE0T5rhO-C7iF4xPYyZsRJYlmDMQ9EIdhrf9LA>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id 5BB1B80062;
+        Sun,  9 Jun 2019 06:29:17 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] drm/i915: Fix fastset vs. pfit on/off on HSW EDP transcoder" failed to apply to 5.1-stable tree
+To:     ville.syrjala@linux.intel.com, hdegoede@redhat.com,
+        joonas.lahtinen@linux.intel.com, maarten.lankhorst@linux.intel.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sun, 09 Jun 2019 12:29:15 +0200
+Message-ID: <15600761551228@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Stanton SCS.1m can transfer isochronous packet with Multi Bit Linear
-Audio data channels, therefore it allows software to capture PCM
-substream. However, ALSA oxfw driver doesn't.
 
-This commit changes the driver to add one PCM substream for capture
-direction.
+The patch below does not apply to the 5.1-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Fixes: de5126cc3c0b ("ALSA: oxfw: add stream format quirk for SCS.1 models")
-Cc: <stable@vger.kernel.org> # v4.5+
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
----
- sound/firewire/oxfw/oxfw.c | 3 ---
- 1 file changed, 3 deletions(-)
+thanks,
 
-diff --git a/sound/firewire/oxfw/oxfw.c b/sound/firewire/oxfw/oxfw.c
-index 3d27f3378d5d..b4bef574929d 100644
---- a/sound/firewire/oxfw/oxfw.c
-+++ b/sound/firewire/oxfw/oxfw.c
-@@ -148,9 +148,6 @@ static int detect_quirks(struct snd_oxfw *oxfw)
- 		oxfw->midi_input_ports = 0;
- 		oxfw->midi_output_ports = 0;
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From da471250706e2f103a1627d1d279c9de44325993 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= <ville.syrjala@linux.intel.com>
+Date: Thu, 25 Apr 2019 19:29:05 +0300
+Subject: [PATCH] drm/i915: Fix fastset vs. pfit on/off on HSW EDP transcoder
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+On HSW the pipe A panel fitter lives inside the display power well,
+and the input MUX for the EDP transcoder needs to be configured
+appropriately to route the data through the power well as needed.
+Changing the MUX setting is not allowed while the pipe is active,
+so we need to force a full modeset whenever we need to change it.
+
+Currently we may end up doing a fastset which won't change the
+MUX settings, but it will drop the power well reference, and that
+kills the pipe.
+
+Cc: stable@vger.kernel.org
+Cc: Hans de Goede <hdegoede@redhat.com>
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Fixes: d19f958db23c ("drm/i915: Enable fastset for non-boot modesets.")
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190425162906.5242-1-ville.syrjala@linux.intel.com
+Reviewed-by: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+(cherry picked from commit 13b7648b7eab7e8259a2fb267b498bd9eba81ca0)
+Signed-off-by: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+
+diff --git a/drivers/gpu/drm/i915/intel_display.c b/drivers/gpu/drm/i915/intel_display.c
+index 3bd40a4a6739..5098228f1302 100644
+--- a/drivers/gpu/drm/i915/intel_display.c
++++ b/drivers/gpu/drm/i915/intel_display.c
+@@ -12082,6 +12082,7 @@ intel_pipe_config_compare(struct drm_i915_private *dev_priv,
+ 			  struct intel_crtc_state *pipe_config,
+ 			  bool adjust)
+ {
++	struct intel_crtc *crtc = to_intel_crtc(current_config->base.crtc);
+ 	bool ret = true;
+ 	bool fixup_inherited = adjust &&
+ 		(current_config->base.mode.private_flags & I915_MODE_FLAG_INHERITED) &&
+@@ -12303,6 +12304,14 @@ intel_pipe_config_compare(struct drm_i915_private *dev_priv,
+ 		PIPE_CONF_CHECK_X(gmch_pfit.pgm_ratios);
+ 	PIPE_CONF_CHECK_X(gmch_pfit.lvds_border_bits);
  
--		/* Output stream exists but no data channels are useful. */
--		oxfw->has_output = false;
--
- 		return snd_oxfw_scs1x_add(oxfw);
++	/*
++	 * Changing the EDP transcoder input mux
++	 * (A_ONOFF vs. A_ON) requires a full modeset.
++	 */
++	if (IS_HASWELL(dev_priv) && crtc->pipe == PIPE_A &&
++	    current_config->cpu_transcoder == TRANSCODER_EDP)
++		PIPE_CONF_CHECK_BOOL(pch_pfit.enabled);
++
+ 	if (!adjust) {
+ 		PIPE_CONF_CHECK_I(pipe_src_w);
+ 		PIPE_CONF_CHECK_I(pipe_src_h);
+diff --git a/drivers/gpu/drm/i915/intel_pipe_crc.c b/drivers/gpu/drm/i915/intel_pipe_crc.c
+index e94b5b1bc1b7..e7c7be4911c1 100644
+--- a/drivers/gpu/drm/i915/intel_pipe_crc.c
++++ b/drivers/gpu/drm/i915/intel_pipe_crc.c
+@@ -311,10 +311,17 @@ intel_crtc_crc_setup_workarounds(struct intel_crtc *crtc, bool enable)
+ 	pipe_config->base.mode_changed = pipe_config->has_psr;
+ 	pipe_config->crc_enabled = enable;
+ 
+-	if (IS_HASWELL(dev_priv) && crtc->pipe == PIPE_A) {
++	if (IS_HASWELL(dev_priv) &&
++	    pipe_config->base.active && crtc->pipe == PIPE_A &&
++	    pipe_config->cpu_transcoder == TRANSCODER_EDP) {
++		bool old_need_power_well = pipe_config->pch_pfit.enabled ||
++			pipe_config->pch_pfit.force_thru;
++		bool new_need_power_well = pipe_config->pch_pfit.enabled ||
++			enable;
++
+ 		pipe_config->pch_pfit.force_thru = enable;
+-		if (pipe_config->cpu_transcoder == TRANSCODER_EDP &&
+-		    pipe_config->pch_pfit.enabled != enable)
++
++		if (old_need_power_well != new_need_power_well)
+ 			pipe_config->base.connectors_changed = true;
  	}
  
--- 
-2.20.1
 
