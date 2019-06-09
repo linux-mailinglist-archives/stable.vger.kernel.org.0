@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CF7643AA32
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:16:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD8EC3AA78
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:19:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729084AbfFIRQY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 13:16:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54704 "EHLO mail.kernel.org"
+        id S1731566AbfFIQtp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:49:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732390AbfFIQxZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:53:25 -0400
+        id S1731562AbfFIQtp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:49:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F16D0206C3;
-        Sun,  9 Jun 2019 16:53:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 833922070B;
+        Sun,  9 Jun 2019 16:49:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099205;
-        bh=hNB1wprvtxnjsYwue8uW3eaTDIfm1Io0/AFQvzzbeUM=;
+        s=default; t=1560098985;
+        bh=ywlPNhe9q6s7xmSEoV4kIeU8IFY4qdBlUrpk7UcgrWw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iDOneP5vaHXyS3nHNfjW/NzCN9iI1ii62vdZeCENB1PP81DiMRyi1oTrneix3MtTY
-         oPza9dhaxXd5XcCr3TGSRLQv/lVUXn83SjMH/q7uMJgkQ4HQBe6xX9b1AZ4RNDRXru
-         R4gtAizs7zeWbZyErWAa8FaubmrWZdZgjUqvFvyg=
+        b=Oo3gHVpeN9E58Ffe4iH8ueGzAoMlFDV4HgQ1ng7+7wxKuFMVfp3GKk3Utv8DrJsro
+         TLcZ6NuIvbjmtTgZrfHLruhy8H7C6+gRnP61sTZW6w7vSRob2OcPu+w5njpc0/9Bed
+         HI0Mo2OAdMVYoK3Grc1/PJAZEDplZbrzdBdZ14QM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        "H. Nikolaus Schaller" <hns@goldelico.com>
-Subject: [PATCH 4.9 47/83] gcc-plugins: Fix build failures under Darwin host
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>
+Subject: [PATCH 4.19 36/51] test_firmware: Use correct snprintf() limit
 Date:   Sun,  9 Jun 2019 18:42:17 +0200
-Message-Id: <20190609164131.941678976@linuxfoundation.org>
+Message-Id: <20190609164129.496329390@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.843327870@linuxfoundation.org>
-References: <20190609164127.843327870@linuxfoundation.org>
+In-Reply-To: <20190609164127.123076536@linuxfoundation.org>
+References: <20190609164127.123076536@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,52 +42,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 7210e060155b9cf557fb13128353c3e494fa5ed3 upstream.
+commit bd17cc5a20ae9aaa3ed775f360b75ff93cd66a1d upstream.
 
-The gcc-common.h file did not take into account certain macros that
-might have already been defined in the build environment. This updates
-the header to avoid redefining the macros, as seen on a Darwin host
-using gcc 4.9.2:
+The limit here is supposed to be how much of the page is left, but it's
+just using PAGE_SIZE as the limit.
 
- HOSTCXX -fPIC scripts/gcc-plugins/arm_ssp_per_task_plugin.o - due to: scripts/gcc-plugins/gcc-common.h
-In file included from scripts/gcc-plugins/arm_ssp_per_task_plugin.c:3:0:
-scripts/gcc-plugins/gcc-common.h:153:0: warning: "__unused" redefined
-^
-In file included from /usr/include/stdio.h:64:0,
-                from /Users/hns/Documents/Projects/QuantumSTEP/System/Library/Frameworks/System.framework/Versions-jessie/x86_64-apple-darwin15.0.0/gcc/arm-linux-gnueabi/bin/../lib/gcc/arm-linux-gnueabi/4.9.2/plugin/include/system.h:40,
-                from /Users/hns/Documents/Projects/QuantumSTEP/System/Library/Frameworks/System.framework/Versions-jessie/x86_64-apple-darwin15.0.0/gcc/arm-linux-gnueabi/bin/../lib/gcc/arm-linux-gnueabi/4.9.2/plugin/include/gcc-plugin.h:28,
-                from /Users/hns/Documents/Projects/QuantumSTEP/System/Library/Frameworks/System.framework/Versions-jessie/x86_64-apple-darwin15.0.0/gcc/arm-linux-gnueabi/bin/../lib/gcc/arm-linux-gnueabi/4.9.2/plugin/include/plugin.h:23,
-                from scripts/gcc-plugins/gcc-common.h:9,
-                from scripts/gcc-plugins/arm_ssp_per_task_plugin.c:3:
-/usr/include/sys/cdefs.h:161:0: note: this is the location of the previous definition
-^
+The other thing to remember is that snprintf() returns the number of
+bytes which would have been copied if we had had enough room.  So that
+means that if we run out of space then this code would end up passing a
+negative value as the limit and the kernel would print an error message.
+I have change the code to use scnprintf() which returns the number of
+bytes that were successfully printed (not counting the NUL terminator).
 
-Reported-and-tested-by: "H. Nikolaus Schaller" <hns@goldelico.com>
-Fixes: 189af4657186 ("ARM: smp: add support for per-task stack canaries")
-Cc: stable@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
+Fixes: c92316bf8e94 ("test_firmware: add batched firmware tests")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- scripts/gcc-plugins/gcc-common.h |    4 ++++
- 1 file changed, 4 insertions(+)
+ lib/test_firmware.c |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
---- a/scripts/gcc-plugins/gcc-common.h
-+++ b/scripts/gcc-plugins/gcc-common.h
-@@ -135,8 +135,12 @@ extern void print_gimple_expr(FILE *, gi
- extern void dump_gimple_stmt(pretty_printer *, gimple, int, int);
- #endif
+--- a/lib/test_firmware.c
++++ b/lib/test_firmware.c
+@@ -223,30 +223,30 @@ static ssize_t config_show(struct device
  
-+#ifndef __unused
- #define __unused __attribute__((__unused__))
-+#endif
-+#ifndef __visible
- #define __visible __attribute__((visibility("default")))
-+#endif
+ 	mutex_lock(&test_fw_mutex);
  
- #define DECL_NAME_POINTER(node) IDENTIFIER_POINTER(DECL_NAME(node))
- #define DECL_NAME_LENGTH(node) IDENTIFIER_LENGTH(DECL_NAME(node))
+-	len += snprintf(buf, PAGE_SIZE,
++	len += scnprintf(buf, PAGE_SIZE - len,
+ 			"Custom trigger configuration for: %s\n",
+ 			dev_name(dev));
+ 
+ 	if (test_fw_config->name)
+-		len += snprintf(buf+len, PAGE_SIZE,
++		len += scnprintf(buf+len, PAGE_SIZE - len,
+ 				"name:\t%s\n",
+ 				test_fw_config->name);
+ 	else
+-		len += snprintf(buf+len, PAGE_SIZE,
++		len += scnprintf(buf+len, PAGE_SIZE - len,
+ 				"name:\tEMTPY\n");
+ 
+-	len += snprintf(buf+len, PAGE_SIZE,
++	len += scnprintf(buf+len, PAGE_SIZE - len,
+ 			"num_requests:\t%u\n", test_fw_config->num_requests);
+ 
+-	len += snprintf(buf+len, PAGE_SIZE,
++	len += scnprintf(buf+len, PAGE_SIZE - len,
+ 			"send_uevent:\t\t%s\n",
+ 			test_fw_config->send_uevent ?
+ 			"FW_ACTION_HOTPLUG" :
+ 			"FW_ACTION_NOHOTPLUG");
+-	len += snprintf(buf+len, PAGE_SIZE,
++	len += scnprintf(buf+len, PAGE_SIZE - len,
+ 			"sync_direct:\t\t%s\n",
+ 			test_fw_config->sync_direct ? "true" : "false");
+-	len += snprintf(buf+len, PAGE_SIZE,
++	len += scnprintf(buf+len, PAGE_SIZE - len,
+ 			"read_fw_idx:\t%u\n", test_fw_config->read_fw_idx);
+ 
+ 	mutex_unlock(&test_fw_mutex);
 
 
