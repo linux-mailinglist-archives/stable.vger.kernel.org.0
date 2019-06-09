@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 43DD73A646
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 15:56:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 320BF3A64B
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 15:57:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728802AbfFIN4q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 09:56:46 -0400
+        id S1728921AbfFIN5D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 09:57:03 -0400
 Received: from mail177-30.suw61.mandrillapp.com ([198.2.177.30]:27120 "EHLO
         mail177-30.suw61.mandrillapp.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728791AbfFIN4q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Jun 2019 09:56:46 -0400
-X-Greylist: delayed 908 seconds by postgrey-1.27 at vger.kernel.org; Sun, 09 Jun 2019 09:56:45 EDT
+        by vger.kernel.org with ESMTP id S1728591AbfFIN5C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Jun 2019 09:57:02 -0400
+X-Greylist: delayed 921 seconds by postgrey-1.27 at vger.kernel.org; Sun, 09 Jun 2019 09:56:59 EDT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; s=mandrill; d=nexedi.com;
  h=From:Subject:To:Cc:Message-Id:In-Reply-To:References:Date:MIME-Version:Content-Type:Content-Transfer-Encoding; i=kirr@nexedi.com;
- bh=KZQ0mF8wK0NxP72MeUszgd9qIpekgTg1ASFI3Cl3c6Y=;
- b=mhySr1dRGvfQw9MdNoColEGB/iF/Bo3om4xb7kwN+BGgc+4eFZZwjTjY6DKGH4WskXXe6axnYsTl
-   goXIPvV+dzzRbmav05f5MmQBbW5/cdTGgDAlSM9XEmiRXTunnirnbLDX07DC6+xj+51lLt9+SzxM
-   Fwp5iinsNksTo3Z0+ro=
-Received: from pmta06.mandrill.prod.suw01.rsglab.com (127.0.0.1) by mail177-30.suw61.mandrillapp.com id hvk81q22rtkr for <stable@vger.kernel.org>; Sun, 9 Jun 2019 13:39:09 +0000 (envelope-from <bounce-md_31050260.5cfd0bfc.v1-1f3f54582fc841b88a22192eef1f7ab3@mandrillapp.com>)
+ bh=ySr4Nrr+89DHcvxITmE7xFf/aeGkap9445ywRZ8FnQs=;
+ b=XEpVrFcCdjAAQ9ngV0dJ9wOyXgbRGmn+H20FYvUVFhlzKtPsGPBOmYQltAXj2GU5Oa+pznKdb6Ae
+   T9w/B8+8HXobQpyvkxRUQ7HNAJ9VzRu54Ev6d0NETLG6kfbudTuXiShRDTDumcCFMywIj/Da2MjR
+   hyefh/wTxEs90gbBsX4=
+Received: from pmta06.mandrill.prod.suw01.rsglab.com (127.0.0.1) by mail177-30.suw61.mandrillapp.com id hvk82m22rtkk for <stable@vger.kernel.org>; Sun, 9 Jun 2019 13:39:10 +0000 (envelope-from <bounce-md_31050260.5cfd0bfe.v1-e6f62f77552644a3940fb89fc952ef98@mandrillapp.com>)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mandrillapp.com; 
- i=@mandrillapp.com; q=dns/txt; s=mandrill; t=1560087548; h=From : 
+ i=@mandrillapp.com; q=dns/txt; s=mandrill; t=1560087550; h=From : 
  Subject : To : Cc : Message-Id : In-Reply-To : References : Date : 
  MIME-Version : Content-Type : Content-Transfer-Encoding : From : 
  Subject : Date : X-Mandrill-User : List-Unsubscribe; 
- bh=KZQ0mF8wK0NxP72MeUszgd9qIpekgTg1ASFI3Cl3c6Y=; 
- b=j/GaMu/8JXV05OUtHeb+69dPFC3jf6vbvPcky34H2Vs6r1oYwmKqaQqM/niPGxb9ZOIsSC
- yJ0YYoBNN83y294pTAYkuyzEWDbuUkrofHbRcmmBgXmOvGwnIamNevGTS+LW31GvvTd5DTkY
- Jb+d2NpumE3g/zR7ThKyk6ZAo+8kw=
+ bh=ySr4Nrr+89DHcvxITmE7xFf/aeGkap9445ywRZ8FnQs=; 
+ b=eS5SsA6CCNU6YppaV3P8q59XoVGGp4EDEsCPvtJLt40AwsXthvkN8lVzM2tY2yo1E4Uaa1
+ qDmm4K+7rerLibWpItwm+VJuLYjzg5OcGi7x7IvnxniFE5OAVtjc/JyQvZLW5FdHYsdREqlz
+ UwWo+KakmIvB2IKOUhsP2VDzKmAVM=
 From:   Kirill Smelkov <kirr@nexedi.com>
-Subject: [PATCH 3.18 1/2] fs: stream_open - opener for stream-like files so that read and write can run simultaneously without deadlock
-Received: from [87.98.221.171] by mandrillapp.com id 1f3f54582fc841b88a22192eef1f7ab3; Sun, 09 Jun 2019 13:39:08 +0000
+Subject: [PATCH 4.4 1/2] fs: stream_open - opener for stream-like files so that read and write can run simultaneously without deadlock
+Received: from [87.98.221.171] by mandrillapp.com id e6f62f77552644a3940fb89fc952ef98; Sun, 09 Jun 2019 13:39:10 +0000
 X-Mailer: git-send-email 2.20.1
 To:     <stable@vger.kernel.org>
 Cc:     Sasha Levin <sashal@kernel.org>,
@@ -50,13 +50,13 @@ Cc:     Sasha Levin <sashal@kernel.org>,
         Julia Lawall <Julia.Lawall@lip6.fr>,
         Nikolaus Rath <Nikolaus@rath.org>,
         Han-Wen Nienhuys <hanwen@google.com>
-Message-Id: <20190609133501.7873-2-kirr@nexedi.com>
-In-Reply-To: <20190609133501.7873-1-kirr@nexedi.com>
-References: <20190609133501.7873-1-kirr@nexedi.com>
+Message-Id: <20190609132443.9420-2-kirr@nexedi.com>
+In-Reply-To: <20190609132443.9420-1-kirr@nexedi.com>
+References: <20190609132443.9420-1-kirr@nexedi.com>
 X-Report-Abuse: Please forward a copy of this message, including all headers, to abuse@mandrill.com
-X-Report-Abuse: You can also report abuse here: http://mandrillapp.com/contact/abuse?id=31050260.1f3f54582fc841b88a22192eef1f7ab3
+X-Report-Abuse: You can also report abuse here: http://mandrillapp.com/contact/abuse?id=31050260.e6f62f77552644a3940fb89fc952ef98
 X-Mandrill-User: md_31050260
-Date:   Sun, 09 Jun 2019 13:39:08 +0000
+Date:   Sun, 09 Jun 2019 13:39:10 +0000
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
@@ -67,10 +67,10 @@ X-Mailing-List: stable@vger.kernel.org
 
 [ commit 10dce8af34226d90fa56746a934f8da5dcdba3df upstream.
 
-  while porting to 3.18 xenbus conflict was trivially resolved in a way
+  while porting to 4.4 xenbus conflict was trivially resolved in a way
   that actually fixes /proc/xen/xenbus deadlock introduced in 3.14,
   because original upstream commit 581d21a2d02a to fix xenbus deadlock
-  was not included into 3.18 . ]
+  was not included into 4.4 . ]
 
 Commit 9c225f2655e3 ("vfs: atomic f_pos accesses as per POSIX") added
 locking for file.f_pos access and in particular made concurrent read and
@@ -257,7 +257,7 @@ Cc: Nikolaus Rath <Nikolaus@rath.org>
 Cc: Han-Wen Nienhuys <hanwen@google.com>
 Signed-off-by: Kirill Smelkov <kirr@nexedi.com>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-[ backport to 3.18: actually fixed deadlock on /proc/xen/xenbus as 581d21a2d02a was not backported to 3.18 ]
+[ backport to 4.4: actually fixed deadlock on /proc/xen/xenbus as 581d21a2d02a was not backported to 4.4 ]
 ---
  drivers/xen/xenbus/xenbus_dev_frontend.c |   2 +-
  fs/open.c                                |  18 ++
@@ -281,10 +281,10 @@ index 816a0e08ef10..d7591efa7775 100644
  	u = kzalloc(sizeof(*u), GFP_KERNEL);
  	if (u == NULL)
 diff --git a/fs/open.c b/fs/open.c
-index 1651f35d50f5..f38b2a83b9fe 100644
+index fbc5c7b230b3..6cf516156111 100644
 --- a/fs/open.c
 +++ b/fs/open.c
-@@ -1126,3 +1126,21 @@ int nonseekable_open(struct inode *inode, struct file *filp)
+@@ -1152,3 +1152,21 @@ int nonseekable_open(struct inode *inode, struct file *filp)
  }
  
  EXPORT_SYMBOL(nonseekable_open);
@@ -307,10 +307,10 @@ index 1651f35d50f5..f38b2a83b9fe 100644
 +
 +EXPORT_SYMBOL(stream_open);
 diff --git a/fs/read_write.c b/fs/read_write.c
-index 1afb99c33c63..54d6ba4dae73 100644
+index 16e554ba885d..7b175b9134ec 100644
 --- a/fs/read_write.c
 +++ b/fs/read_write.c
-@@ -551,12 +551,13 @@ EXPORT_SYMBOL(vfs_write);
+@@ -553,12 +553,13 @@ EXPORT_SYMBOL(vfs_write);
  
  static inline loff_t file_pos_read(struct file *file)
  {
@@ -327,10 +327,10 @@ index 1afb99c33c63..54d6ba4dae73 100644
  
  SYSCALL_DEFINE3(read, unsigned int, fd, char __user *, buf, size_t, count)
 diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 2a41353033d3..988cac4e741c 100644
+index 13277d2715df..26c4bf47cc99 100644
 --- a/include/linux/fs.h
 +++ b/include/linux/fs.h
-@@ -133,6 +133,9 @@ typedef void (dio_iodone_t)(struct kiocb *iocb, loff_t offset,
+@@ -140,6 +140,9 @@ typedef void (dax_iodone_t)(struct buffer_head *bh_map, int uptodate);
  /* Has write method(s) */
  #define FMODE_CAN_WRITE         ((__force fmode_t)0x40000)
  
@@ -338,16 +338,16 @@ index 2a41353033d3..988cac4e741c 100644
 +#define FMODE_STREAM		((__force fmode_t)0x200000)
 +
  /* File was opened by fanotify and shouldn't generate fanotify events */
- #define FMODE_NONOTIFY		((__force fmode_t)0x1000000)
+ #define FMODE_NONOTIFY		((__force fmode_t)0x4000000)
  
-@@ -2499,6 +2502,7 @@ extern loff_t fixed_size_llseek(struct file *file, loff_t offset,
+@@ -2706,6 +2709,7 @@ extern loff_t fixed_size_llseek(struct file *file, loff_t offset,
  		int whence, loff_t size);
  extern int generic_file_open(struct inode * inode, struct file * filp);
  extern int nonseekable_open(struct inode * inode, struct file * filp);
 +extern int stream_open(struct inode * inode, struct file * filp);
  
- #ifdef CONFIG_FS_XIP
- extern ssize_t xip_file_read(struct file *filp, char __user *buf, size_t len,
+ #ifdef CONFIG_BLOCK
+ typedef void (dio_submit_t)(int rw, struct bio *bio, struct inode *inode,
 diff --git a/scripts/coccinelle/api/stream_open.cocci b/scripts/coccinelle/api/stream_open.cocci
 new file mode 100644
 index 000000000000..350145da7669
