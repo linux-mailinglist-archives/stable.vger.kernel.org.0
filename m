@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FDA53AABF
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:21:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E7E73AA92
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:19:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730390AbfFIQqU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:46:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44462 "EHLO mail.kernel.org"
+        id S1731164AbfFIQsV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:48:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730378AbfFIQqU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:46:20 -0400
+        id S1729778AbfFIQsU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:48:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0BDBE2081C;
-        Sun,  9 Jun 2019 16:46:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C23D7206DF;
+        Sun,  9 Jun 2019 16:48:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560098779;
-        bh=fIxqYThSnapEoKSJ2Ap6NB2shYUwrrsqk9BnSRTnqb4=;
+        s=default; t=1560098900;
+        bh=djcMLwIfe/22lcru6QrlwMZ98x837/yYlP/0xOJ48ow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AxK99zTGyQXxiUca3b6219HjIyaN1gi8ATBLdRxYExKOxYBAQnoz/MtKMZH1uVv3E
-         DEqyk2kRwwghK39kL7afNFZQWoP5ImkKfn/JtbfLmGP/zv6Pe5bsw+15ClZ9EyoZn4
-         3qj7ekQiliVKvm1X+ABaMYsK8WQLH2XpYUL+5G5I=
+        b=VFx7FCYaXpX8yydFEq97I06v1UytuhKwguHeb3cT99bDof7lG+gHUQxXUeuJVnRoZ
+         5gBUE4UwfaVoi/llt+HPUxCFUddbqjmZaE4j8j8NeRZk59sXLEUh5d9hYjYs8qPOZf
+         J7MmoiMfYtFQtH8v5G3PqraFKQ/+YyrTHeII0uzM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Dufresne <dufresnep@gmail.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.1 58/70] drm/radeon: prefer lower reference dividers
-Date:   Sun,  9 Jun 2019 18:42:09 +0200
-Message-Id: <20190609164132.337762193@linuxfoundation.org>
+        stable@vger.kernel.org, Robert Hancock <hancock@sedsystems.ca>,
+        Michal Simek <michal.simek@xilinx.com>,
+        Wolfram Sang <wsa@the-dreams.de>, stable@kernel.org
+Subject: [PATCH 4.19 29/51] i2c: xiic: Add max_read_len quirk
+Date:   Sun,  9 Jun 2019 18:42:10 +0200
+Message-Id: <20190609164128.917244197@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.541128197@linuxfoundation.org>
-References: <20190609164127.541128197@linuxfoundation.org>
+In-Reply-To: <20190609164127.123076536@linuxfoundation.org>
+References: <20190609164127.123076536@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,41 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian König <christian.koenig@amd.com>
+From: Robert Hancock <hancock@sedsystems.ca>
 
-commit 2e26ccb119bde03584be53406bbd22e711b0d6e6 upstream.
+commit 49b809586730a77b57ce620b2f9689de765d790b upstream.
 
-Instead of the closest reference divider prefer the lowest,
-this fixes flickering issues on HP Compaq nx9420.
+This driver does not support reading more than 255 bytes at once because
+the register for storing the number of bytes to read is only 8 bits. Add
+a max_read_len quirk to enforce this.
 
-Bugs: https://bugs.freedesktop.org/show_bug.cgi?id=108514
-Suggested-by: Paul Dufresne <dufresnep@gmail.com>
-Signed-off-by: Christian König <christian.koenig@amd.com>
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+This was found when using this driver with the SFP driver, which was
+previously reading all 256 bytes in the SFP EEPROM in one transaction.
+This caused a bunch of hard-to-debug errors in the xiic driver since the
+driver/logic was treating the number of bytes to read as zero.
+Rejecting transactions that aren't supported at least allows the problem
+to be diagnosed more easily.
+
+Signed-off-by: Robert Hancock <hancock@sedsystems.ca>
+Reviewed-by: Michal Simek <michal.simek@xilinx.com>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/radeon/radeon_display.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-xiic.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/gpu/drm/radeon/radeon_display.c
-+++ b/drivers/gpu/drm/radeon/radeon_display.c
-@@ -922,12 +922,12 @@ static void avivo_get_fb_ref_div(unsigne
- 	ref_div_max = max(min(100 / post_div, ref_div_max), 1u);
+--- a/drivers/i2c/busses/i2c-xiic.c
++++ b/drivers/i2c/busses/i2c-xiic.c
+@@ -718,11 +718,16 @@ static const struct i2c_algorithm xiic_a
+ 	.functionality = xiic_func,
+ };
  
- 	/* get matching reference and feedback divider */
--	*ref_div = min(max(DIV_ROUND_CLOSEST(den, post_div), 1u), ref_div_max);
-+	*ref_div = min(max(den/post_div, 1u), ref_div_max);
- 	*fb_div = DIV_ROUND_CLOSEST(nom * *ref_div * post_div, den);
++static const struct i2c_adapter_quirks xiic_quirks = {
++	.max_read_len = 255,
++};
++
+ static const struct i2c_adapter xiic_adapter = {
+ 	.owner = THIS_MODULE,
+ 	.name = DRIVER_NAME,
+ 	.class = I2C_CLASS_DEPRECATED,
+ 	.algo = &xiic_algorithm,
++	.quirks = &xiic_quirks,
+ };
  
- 	/* limit fb divider to its maximum */
- 	if (*fb_div > fb_div_max) {
--		*ref_div = DIV_ROUND_CLOSEST(*ref_div * fb_div_max, *fb_div);
-+		*ref_div = (*ref_div * fb_div_max)/(*fb_div);
- 		*fb_div = fb_div_max;
- 	}
- }
+ 
 
 
