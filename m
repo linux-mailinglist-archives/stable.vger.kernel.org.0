@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C5FB3A985
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:11:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87F0B3A704
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 18:46:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387724AbfFIRBu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 13:01:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39288 "EHLO mail.kernel.org"
+        id S1729873AbfFIQpa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:45:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43246 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388131AbfFIRBr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 13:01:47 -0400
+        id S1729030AbfFIQp3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:45:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A741E20843;
-        Sun,  9 Jun 2019 17:01:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 02EED2083D;
+        Sun,  9 Jun 2019 16:45:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099707;
-        bh=wo7KJCLYN64lUMeRiuI5l/Ol11RFSGVvd64QwJiY/4o=;
+        s=default; t=1560098728;
+        bh=g75Sm/xoGHFxBj4nYNq3+J9XqVcsXYBwcfM3Lm26yAg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WfX9lGX20Z3lcOccQJHhCLNrOcJfvnAyfrftql+qM0XfcXa6rlDUeV6CCWINLi5SL
-         HAaN04m3vc8PUZdJ5ZWkba3sNyXnY62eRLaDr82yCGdmqeO36+f5WpPVrEnJ/lUE/N
-         oxGaI1b5O9IO1kcpv4ApMEXMYnkMGvgEN74rzGZk=
+        b=Xn+u2qJX2eW8xz3bXOij+h4GUimj2u/748z8kMVKFIocBpI9WHpPxK/m0Y+e3eOJ8
+         oJRjM2TmS5kI38MJYg/t/t16VnMHmSCWZPegSdbujZPRlULYPF/gdxwFFes1kMUHjE
+         UhSwRQqApkgsquPoTJTmXBkPiWmC7GvUq1KCLj0A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kefeng Wang <wangkefeng.wang@huawei.com>,
-        John Garry <john.garry@huawei.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 135/241] hwmon: (pc87427) Use request_muxed_region for Super-IO accesses
-Date:   Sun,  9 Jun 2019 18:41:17 +0200
-Message-Id: <20190609164151.689850673@linuxfoundation.org>
+        stable@vger.kernel.org, Zhu Yanjun <yanjun.zhu@oracle.com>,
+        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.1 07/70] net: rds: fix memory leak in rds_ib_flush_mr_pool
+Date:   Sun,  9 Jun 2019 18:41:18 +0200
+Message-Id: <20190609164127.885921304@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
-References: <20190609164147.729157653@linuxfoundation.org>
+In-Reply-To: <20190609164127.541128197@linuxfoundation.org>
+References: <20190609164127.541128197@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,69 +44,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 755a9b0f8aaa5639ba5671ca50080852babb89ce ]
+From: Zhu Yanjun <yanjun.zhu@oracle.com>
 
-Super-IO accesses may fail on a system with no or unmapped LPC bus.
+[ Upstream commit 85cb928787eab6a2f4ca9d2a798b6f3bed53ced1 ]
 
-Also, other drivers may attempt to access the LPC bus at the same time,
-resulting in undefined behavior.
+When the following tests last for several hours, the problem will occur.
 
-Use request_muxed_region() to ensure that IO access on the requested
-address space is supported, and to ensure that access by multiple drivers
-is synchronized.
+Server:
+    rds-stress -r 1.1.1.16 -D 1M
+Client:
+    rds-stress -r 1.1.1.14 -s 1.1.1.16 -D 1M -T 30
 
-Fixes: ba224e2c4f0a7 ("hwmon: New PC87427 hardware monitoring driver")
-Reported-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Reported-by: John Garry <john.garry@huawei.com>
-Cc: John Garry <john.garry@huawei.com>
-Acked-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The following will occur.
+
+"
+Starting up....
+tsks   tx/s   rx/s  tx+rx K/s    mbi K/s    mbo K/s tx us/c   rtt us cpu
+%
+  1      0      0       0.00       0.00       0.00    0.00 0.00 -1.00
+  1      0      0       0.00       0.00       0.00    0.00 0.00 -1.00
+  1      0      0       0.00       0.00       0.00    0.00 0.00 -1.00
+  1      0      0       0.00       0.00       0.00    0.00 0.00 -1.00
+"
+>From vmcore, we can find that clean_list is NULL.
+
+>From the source code, rds_mr_flushd calls rds_ib_mr_pool_flush_worker.
+Then rds_ib_mr_pool_flush_worker calls
+"
+ rds_ib_flush_mr_pool(pool, 0, NULL);
+"
+Then in function
+"
+int rds_ib_flush_mr_pool(struct rds_ib_mr_pool *pool,
+                         int free_all, struct rds_ib_mr **ibmr_ret)
+"
+ibmr_ret is NULL.
+
+In the source code,
+"
+...
+list_to_llist_nodes(pool, &unmap_list, &clean_nodes, &clean_tail);
+if (ibmr_ret)
+        *ibmr_ret = llist_entry(clean_nodes, struct rds_ib_mr, llnode);
+
+/* more than one entry in llist nodes */
+if (clean_nodes->next)
+        llist_add_batch(clean_nodes->next, clean_tail, &pool->clean_list);
+...
+"
+When ibmr_ret is NULL, llist_entry is not executed. clean_nodes->next
+instead of clean_nodes is added in clean_list.
+So clean_nodes is discarded. It can not be used again.
+The workqueue is executed periodically. So more and more clean_nodes are
+discarded. Finally the clean_list is NULL.
+Then this problem will occur.
+
+Fixes: 1bc144b62524 ("net, rds, Replace xlist in net/rds/xlist.h with llist")
+Signed-off-by: Zhu Yanjun <yanjun.zhu@oracle.com>
+Acked-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwmon/pc87427.c | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ net/rds/ib_rdma.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hwmon/pc87427.c b/drivers/hwmon/pc87427.c
-index cb9fdd37bd0d9..2b5b8c3de8fce 100644
---- a/drivers/hwmon/pc87427.c
-+++ b/drivers/hwmon/pc87427.c
-@@ -106,6 +106,13 @@ static const char *logdev_str[2] = { DRVNAME " FMC", DRVNAME " HMC" };
- #define LD_IN		1
- #define LD_TEMP		1
+--- a/net/rds/ib_rdma.c
++++ b/net/rds/ib_rdma.c
+@@ -428,12 +428,14 @@ int rds_ib_flush_mr_pool(struct rds_ib_m
+ 		wait_clean_list_grace();
  
-+static inline int superio_enter(int sioaddr)
-+{
-+	if (!request_muxed_region(sioaddr, 2, DRVNAME))
-+		return -EBUSY;
-+	return 0;
-+}
-+
- static inline void superio_outb(int sioaddr, int reg, int val)
- {
- 	outb(reg, sioaddr);
-@@ -122,6 +129,7 @@ static inline void superio_exit(int sioaddr)
- {
- 	outb(0x02, sioaddr);
- 	outb(0x02, sioaddr + 1);
-+	release_region(sioaddr, 2);
- }
+ 		list_to_llist_nodes(pool, &unmap_list, &clean_nodes, &clean_tail);
+-		if (ibmr_ret)
++		if (ibmr_ret) {
+ 			*ibmr_ret = llist_entry(clean_nodes, struct rds_ib_mr, llnode);
+-
++			clean_nodes = clean_nodes->next;
++		}
+ 		/* more than one entry in llist nodes */
+-		if (clean_nodes->next)
+-			llist_add_batch(clean_nodes->next, clean_tail, &pool->clean_list);
++		if (clean_nodes)
++			llist_add_batch(clean_nodes, clean_tail,
++					&pool->clean_list);
  
- /*
-@@ -1220,7 +1228,11 @@ static int __init pc87427_find(int sioaddr, struct pc87427_sio_data *sio_data)
- {
- 	u16 val;
- 	u8 cfg, cfg_b;
--	int i, err = 0;
-+	int i, err;
-+
-+	err = superio_enter(sioaddr);
-+	if (err)
-+		return err;
+ 	}
  
- 	/* Identify device */
- 	val = force_id ? force_id : superio_inb(sioaddr, SIOREG_DEVID);
--- 
-2.20.1
-
 
 
