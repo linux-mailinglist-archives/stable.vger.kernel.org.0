@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 87C873A852
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 18:59:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DB2A3A9AF
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:13:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387622AbfFIQ7K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:59:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34814 "EHLO mail.kernel.org"
+        id S1733127AbfFIQ7N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:59:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34886 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387620AbfFIQ7J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:59:09 -0400
+        id S2387628AbfFIQ7M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:59:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A910D2081C;
-        Sun,  9 Jun 2019 16:59:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA569207E0;
+        Sun,  9 Jun 2019 16:59:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099549;
-        bh=qKTnaaciZEPFd4Ws7n2MMLts6KGjRfyCVx80ut2XR4Q=;
+        s=default; t=1560099552;
+        bh=w5VgwM7rZfhCRKwWQy5d3tZcoubBYlFs0mrr95QMj1g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MHgG3nj7MEZXK+WPmXMRkLFcVYHJODBQGcqYDJSl/2pD7G8oFqAKTq7nu61cxUzPR
-         Ly4Wu5Zq6MKr31Kp4HdCpQxzuoIxgl9kSlYl7zShUXLfzX7CfN3jLIsodPiTqQuXSr
-         TRnNpYvKjFsFPPu1uU4dHRoFyqEhQRj6WTGXA/KM=
+        b=LLqIk/xwRYaQN/FcyWdl8ofBF8B1sUfXzSjyXAaaj7+6xQnrE1zYfCZFA4cAHEyOV
+         Nd25nfSoudvTFHkK8HGoeeEjdftNGpX8It0zmjxi2Y+GzSjQ5InByHEn9MuRlUil2H
+         jqPD75KBgotXexrJxir/VL6YNh8u4iS6LvOpO0SA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.4 079/241] Revert "scsi: sd: Keep disk read-only when re-reading partition"
-Date:   Sun,  9 Jun 2019 18:40:21 +0200
-Message-Id: <20190609164150.050102308@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Axtens <dja@axtens.net>,
+        Nayna Jain <nayna@linux.ibm.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 4.4 080/241] crypto: vmx - CTR: always increment IV as quadword
+Date:   Sun,  9 Jun 2019 18:40:22 +0200
+Message-Id: <20190609164150.081536665@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
 References: <20190609164147.729157653@linuxfoundation.org>
@@ -43,51 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin K. Petersen <martin.petersen@oracle.com>
+From: Daniel Axtens <dja@axtens.net>
 
-commit 8acf608e602f6ec38b7cc37b04c80f1ce9a1a6cc upstream.
+commit 009b30ac7444c17fae34c4f435ebce8e8e2b3250 upstream.
 
-This reverts commit 20bd1d026aacc5399464f8328f305985c493cde3.
+The kernel self-tests picked up an issue with CTR mode:
+alg: skcipher: p8_aes_ctr encryption test failed (wrong result) on test vector 3, cfg="uneven misaligned splits, may sleep"
 
-This patch introduced regressions for devices that come online in
-read-only state and subsequently switch to read-write.
+Test vector 3 has an IV of FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFD, so
+after 3 increments it should wrap around to 0.
 
-Given how the partition code is currently implemented it is not
-possible to persist the read-only flag across a device revalidate
-call. This may need to get addressed in the future since it is common
-for user applications to proactively call BLKRRPART.
+In the aesp8-ppc code from OpenSSL, there are two paths that
+increment IVs: the bulk (8 at a time) path, and the individual
+path which is used when there are fewer than 8 AES blocks to
+process.
 
-Reverting this commit will re-introduce a regression where a
-device-initiated revalidate event will cause the admin state to be
-forgotten. A separate patch will address this issue.
+In the bulk path, the IV is incremented with vadduqm: "Vector
+Add Unsigned Quadword Modulo", which does 128-bit addition.
 
-Fixes: 20bd1d026aac ("scsi: sd: Keep disk read-only when re-reading partition")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+In the individual path, however, the IV is incremented with
+vadduwm: "Vector Add Unsigned Word Modulo", which instead
+does 4 32-bit additions. Thus the IV would instead become
+FFFFFFFFFFFFFFFFFFFFFFFF00000000, throwing off the result.
+
+Use vadduqm.
+
+This was probably a typo originally, what with q and w being
+adjacent. It is a pretty narrow edge case: I am really
+impressed by the quality of the kernel self-tests!
+
+Fixes: 5c380d623ed3 ("crypto: vmx - Add support for VMS instructions by ASM")
+Cc: stable@vger.kernel.org
+Signed-off-by: Daniel Axtens <dja@axtens.net>
+Acked-by: Nayna Jain <nayna@linux.ibm.com>
+Tested-by: Nayna Jain <nayna@linux.ibm.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/scsi/sd.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/crypto/vmx/aesp8-ppc.pl |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/scsi/sd.c
-+++ b/drivers/scsi/sd.c
-@@ -2396,7 +2396,6 @@ sd_read_write_protect_flag(struct scsi_d
- 	int res;
- 	struct scsi_device *sdp = sdkp->device;
- 	struct scsi_mode_data data;
--	int disk_ro = get_disk_ro(sdkp->disk);
- 	int old_wp = sdkp->write_prot;
+--- a/drivers/crypto/vmx/aesp8-ppc.pl
++++ b/drivers/crypto/vmx/aesp8-ppc.pl
+@@ -1298,7 +1298,7 @@ Loop_ctr32_enc:
+ 	addi		$idx,$idx,16
+ 	bdnz		Loop_ctr32_enc
  
- 	set_disk_ro(sdkp->disk, 0);
-@@ -2437,7 +2436,7 @@ sd_read_write_protect_flag(struct scsi_d
- 			  "Test WP failed, assume Write Enabled\n");
- 	} else {
- 		sdkp->write_prot = ((data.device_specific & 0x80) != 0);
--		set_disk_ro(sdkp->disk, sdkp->write_prot || disk_ro);
-+		set_disk_ro(sdkp->disk, sdkp->write_prot);
- 		if (sdkp->first_scan || old_wp != sdkp->write_prot) {
- 			sd_printk(KERN_NOTICE, sdkp, "Write Protect is %s\n",
- 				  sdkp->write_prot ? "on" : "off");
+-	vadduwm		$ivec,$ivec,$one
++	vadduqm		$ivec,$ivec,$one
+ 	 vmr		$dat,$inptail
+ 	 lvx		$inptail,0,$inp
+ 	 addi		$inp,$inp,16
 
 
