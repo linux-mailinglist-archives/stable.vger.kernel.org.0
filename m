@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B6A63A74D
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 18:48:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BE473AAB4
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:21:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728635AbfFIQs1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:48:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47434 "EHLO mail.kernel.org"
+        id S1730432AbfFIQq0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:46:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731181AbfFIQsX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:48:23 -0400
+        id S1730426AbfFIQqZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:46:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D5B8A205ED;
-        Sun,  9 Jun 2019 16:48:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8BD342081C;
+        Sun,  9 Jun 2019 16:46:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560098903;
-        bh=s+85UkDRD4Gmb7EflBa5nFb+DWD4qiK/bjOx8AjW+6Y=;
+        s=default; t=1560098785;
+        bh=ROIPTP72i2EtjIl4JUnQR11SQqZXGgz2RDHIzQPV2EM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TlI2QwfDdq+Plaj+thedd/v6NMok1/ZkOFxG+QnSSdbYuyIOiCdUiZ3gaUevPBfIl
-         FK9KFDBF/fJMtPoNvLpt5eKd9aNCpRP9r2+iz2op5nUnKQjPj0nERgmmgCoAMyhDEg
-         Bq3bPCoNadRCUePAuvlQ3J8c6LyX/UynpkPLiDjo=
+        b=YP1CeFeJEcFHDhXis58jnfCOncGS9FmNdfAZ55NdJ9oBfbFpl8qY8xZ/qhUobJu4l
+         PPau9uoetCpsQU1wf+8Qfm7H5MNohmm0s4i6P9rLG0pIFbjBKKuCxPSFWt3tyV8o0N
+         ifz688aG75ioUGL3dqQL0Wvi6K8NvEbKYWBhNPlI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Janosch Frank <frankja@linux.ibm.com>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Subject: [PATCH 4.19 30/51] s390/mm: fix address space detection in exception handling
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Subject: [PATCH 5.1 60/70] drm/i915: Fix I915_EXEC_RING_MASK
 Date:   Sun,  9 Jun 2019 18:42:11 +0200
-Message-Id: <20190609164128.993661015@linuxfoundation.org>
+Message-Id: <20190609164132.502693982@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.123076536@linuxfoundation.org>
-References: <20190609164127.123076536@linuxfoundation.org>
+In-Reply-To: <20190609164127.541128197@linuxfoundation.org>
+References: <20190609164127.541128197@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,51 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-commit 962f0af83c239c0aef05639631e871c874b00f99 upstream.
+commit d90c06d57027203f73021bb7ddb30b800d65c636 upstream.
 
-Commit 0aaba41b58bc ("s390: remove all code using the access register
-mode") removed access register mode from the kernel, and also from the
-address space detection logic. However, user space could still switch
-to access register mode (trans_exc_code == 1), and exceptions in that
-mode would not be correctly assigned.
+This was supposed to be a mask of all known rings, but it is being used
+by execbuffer to filter out invalid rings, and so is instead mapping high
+unused values onto valid rings. Instead of a mask of all known rings,
+we need it to be the mask of all possible rings.
 
-Fix this by adding a check for trans_exc_code == 1 to get_fault_type(),
-and remove the wrong comment line before that function.
-
-Fixes: 0aaba41b58bc ("s390: remove all code using the access register mode")
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: <stable@vger.kernel.org> # v4.15+
-Signed-off-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
-Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Fixes: 549f7365820a ("drm/i915: Enable SandyBridge blitter ring")
+Fixes: de1add360522 ("drm/i915: Decouple execbuf uAPI from internal implementation")
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Cc: <stable@vger.kernel.org> # v4.6+
+Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190301140404.26690-21-chris@chris-wilson.co.uk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- arch/s390/mm/fault.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ include/uapi/drm/i915_drm.h |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/s390/mm/fault.c
-+++ b/arch/s390/mm/fault.c
-@@ -107,7 +107,6 @@ void bust_spinlocks(int yes)
- 
- /*
-  * Find out which address space caused the exception.
-- * Access register mode is impossible, ignore space == 3.
-  */
- static inline enum fault_type get_fault_type(struct pt_regs *regs)
- {
-@@ -132,6 +131,10 @@ static inline enum fault_type get_fault_
- 		}
- 		return VDSO_FAULT;
- 	}
-+	if (trans_exc_code == 1) {
-+		/* access register mode, not used in the kernel */
-+		return USER_FAULT;
-+	}
- 	/* home space exception -> access via kernel ASCE */
- 	return KERNEL_FAULT;
- }
+--- a/include/uapi/drm/i915_drm.h
++++ b/include/uapi/drm/i915_drm.h
+@@ -972,7 +972,7 @@ struct drm_i915_gem_execbuffer2 {
+ 	 * struct drm_i915_gem_exec_fence *fences.
+ 	 */
+ 	__u64 cliprects_ptr;
+-#define I915_EXEC_RING_MASK              (7<<0)
++#define I915_EXEC_RING_MASK              (0x3f)
+ #define I915_EXEC_DEFAULT                (0<<0)
+ #define I915_EXEC_RENDER                 (1<<0)
+ #define I915_EXEC_BSD                    (2<<0)
 
 
