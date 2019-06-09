@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ABAB83A96C
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:10:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A88C23A8B1
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:03:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729997AbfFIRKJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 13:10:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41372 "EHLO mail.kernel.org"
+        id S1732692AbfFIRDM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 13:03:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41516 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388353AbfFIRDG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 13:03:06 -0400
+        id S2388367AbfFIRDL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 13:03:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 47F822084A;
-        Sun,  9 Jun 2019 17:03:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C3DD02084A;
+        Sun,  9 Jun 2019 17:03:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099785;
-        bh=EgEBR+LW7aPityi0nSX6jest/8qVjEOqYTWihBjxUd0=;
+        s=default; t=1560099791;
+        bh=jv/8gljX84a+VucxrOBDI2DmiV4NZyXg7ZLVkX1FFF0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tn2+/SeroSMLjocoLTSOkPsVShq1wPfZdolesAS3Vgg7vKCfKX3MyvRgjuAMaXqbZ
-         pnHZqhTnbyYfOkayBxm/ob/s2RATsOqsNSSpG3yjwzveAoDc1H+SQs/7gSyiW61MOR
-         OJZM/cQhOANKo0Z8EzpjzUwBVyE/ZFv6nSEh5S0I=
+        b=v6loinIpda8HWXsJQBVFz3LFCzMv3UkEyqdj34X8Kgojg1tRTPUd1Gl6Xbe4i48Ds
+         vDlMJbensrmgrVcmlcVxnrxh2LfHmy8rNGCdA921lkDghTJPSYklIkSL0S644pI/S+
+         2/Gag8pw9NhyrRusYNl3c3Aw6YryYUiCRAPXBwZA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sowjanya Komatineni <skomatineni@nvidia.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 165/241] spi: tegra114: reset controller on probe
-Date:   Sun,  9 Jun 2019 18:41:47 +0200
-Message-Id: <20190609164152.537157471@linuxfoundation.org>
+Subject: [PATCH 4.4 166/241] media: wl128x: prevent two potential buffer overflows
+Date:   Sun,  9 Jun 2019 18:41:48 +0200
+Message-Id: <20190609164152.566439086@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
 References: <20190609164147.729157653@linuxfoundation.org>
@@ -45,104 +45,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 019194933339b3e9b486639c8cb3692020844d65 ]
+[ Upstream commit 9c2ccc324b3a6cbc865ab8b3e1a09e93d3c8ade9 ]
 
-Fixes: SPI driver can be built as module so perform SPI controller reset
-on probe to make sure it is in valid state before initiating transfer.
+Smatch marks skb->data as untrusted so it warns that "evt_hdr->dlen"
+can copy up to 255 bytes and we only have room for two bytes.  Even
+if this comes from the firmware and we trust it, the new policy
+generally is just to fix it as kernel hardenning.
 
-Signed-off-by: Sowjanya Komatineni <skomatineni@nvidia.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
+I can't test this code so I tried to be very conservative.  I considered
+not allowing "evt_hdr->dlen == 1" because it doesn't initialize the
+whole variable but in the end I decided to allow it and manually
+initialized "asic_id" and "asic_ver" to zero.
+
+Fixes: e8454ff7b9a4 ("[media] drivers:media:radio: wl128x: FM Driver Common sources")
+
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-tegra114.c | 32 ++++++++++++++++++--------------
- 1 file changed, 18 insertions(+), 14 deletions(-)
+ drivers/media/radio/wl128x/fmdrv_common.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/spi/spi-tegra114.c b/drivers/spi/spi-tegra114.c
-index 73779cecc3bbc..705f515863d4f 100644
---- a/drivers/spi/spi-tegra114.c
-+++ b/drivers/spi/spi-tegra114.c
-@@ -1067,27 +1067,19 @@ static int tegra_spi_probe(struct platform_device *pdev)
- 
- 	spi_irq = platform_get_irq(pdev, 0);
- 	tspi->irq = spi_irq;
--	ret = request_threaded_irq(tspi->irq, tegra_spi_isr,
--			tegra_spi_isr_thread, IRQF_ONESHOT,
--			dev_name(&pdev->dev), tspi);
--	if (ret < 0) {
--		dev_err(&pdev->dev, "Failed to register ISR for IRQ %d\n",
--					tspi->irq);
--		goto exit_free_master;
--	}
- 
- 	tspi->clk = devm_clk_get(&pdev->dev, "spi");
- 	if (IS_ERR(tspi->clk)) {
- 		dev_err(&pdev->dev, "can not get clock\n");
- 		ret = PTR_ERR(tspi->clk);
--		goto exit_free_irq;
-+		goto exit_free_master;
+diff --git a/drivers/media/radio/wl128x/fmdrv_common.c b/drivers/media/radio/wl128x/fmdrv_common.c
+index ebc73b0342496..51639a3f7abe4 100644
+--- a/drivers/media/radio/wl128x/fmdrv_common.c
++++ b/drivers/media/radio/wl128x/fmdrv_common.c
+@@ -494,7 +494,8 @@ int fmc_send_cmd(struct fmdev *fmdev, u8 fm_op, u16 type, void *payload,
+ 		return -EIO;
  	}
+ 	/* Send response data to caller */
+-	if (response != NULL && response_len != NULL && evt_hdr->dlen) {
++	if (response != NULL && response_len != NULL && evt_hdr->dlen &&
++	    evt_hdr->dlen <= payload_len) {
+ 		/* Skip header info and copy only response data */
+ 		skb_pull(skb, sizeof(struct fm_event_msg_hdr));
+ 		memcpy(response, skb->data, evt_hdr->dlen);
+@@ -590,6 +591,8 @@ static void fm_irq_handle_flag_getcmd_resp(struct fmdev *fmdev)
+ 		return;
  
- 	tspi->rst = devm_reset_control_get(&pdev->dev, "spi");
- 	if (IS_ERR(tspi->rst)) {
- 		dev_err(&pdev->dev, "can not get reset\n");
- 		ret = PTR_ERR(tspi->rst);
--		goto exit_free_irq;
-+		goto exit_free_master;
- 	}
+ 	fm_evt_hdr = (void *)skb->data;
++	if (fm_evt_hdr->dlen > sizeof(fmdev->irq_info.flag))
++		return;
  
- 	tspi->max_buf_size = SPI_FIFO_DEPTH << 2;
-@@ -1095,7 +1087,7 @@ static int tegra_spi_probe(struct platform_device *pdev)
+ 	/* Skip header info and copy only response data */
+ 	skb_pull(skb, sizeof(struct fm_event_msg_hdr));
+@@ -1315,7 +1318,7 @@ static int load_default_rx_configuration(struct fmdev *fmdev)
+ static int fm_power_up(struct fmdev *fmdev, u8 mode)
+ {
+ 	u16 payload;
+-	__be16 asic_id, asic_ver;
++	__be16 asic_id = 0, asic_ver = 0;
+ 	int resp_len, ret;
+ 	u8 fw_name[50];
  
- 	ret = tegra_spi_init_dma_param(tspi, true);
- 	if (ret < 0)
--		goto exit_free_irq;
-+		goto exit_free_master;
- 	ret = tegra_spi_init_dma_param(tspi, false);
- 	if (ret < 0)
- 		goto exit_rx_dma_free;
-@@ -1117,18 +1109,32 @@ static int tegra_spi_probe(struct platform_device *pdev)
- 		dev_err(&pdev->dev, "pm runtime get failed, e = %d\n", ret);
- 		goto exit_pm_disable;
- 	}
-+
-+	reset_control_assert(tspi->rst);
-+	udelay(2);
-+	reset_control_deassert(tspi->rst);
- 	tspi->def_command1_reg  = SPI_M_S;
- 	tegra_spi_writel(tspi, tspi->def_command1_reg, SPI_COMMAND1);
- 	pm_runtime_put(&pdev->dev);
-+	ret = request_threaded_irq(tspi->irq, tegra_spi_isr,
-+				   tegra_spi_isr_thread, IRQF_ONESHOT,
-+				   dev_name(&pdev->dev), tspi);
-+	if (ret < 0) {
-+		dev_err(&pdev->dev, "Failed to register ISR for IRQ %d\n",
-+			tspi->irq);
-+		goto exit_pm_disable;
-+	}
- 
- 	master->dev.of_node = pdev->dev.of_node;
- 	ret = devm_spi_register_master(&pdev->dev, master);
- 	if (ret < 0) {
- 		dev_err(&pdev->dev, "can not register to master err %d\n", ret);
--		goto exit_pm_disable;
-+		goto exit_free_irq;
- 	}
- 	return ret;
- 
-+exit_free_irq:
-+	free_irq(spi_irq, tspi);
- exit_pm_disable:
- 	pm_runtime_disable(&pdev->dev);
- 	if (!pm_runtime_status_suspended(&pdev->dev))
-@@ -1136,8 +1142,6 @@ static int tegra_spi_probe(struct platform_device *pdev)
- 	tegra_spi_deinit_dma_param(tspi, false);
- exit_rx_dma_free:
- 	tegra_spi_deinit_dma_param(tspi, true);
--exit_free_irq:
--	free_irq(spi_irq, tspi);
- exit_free_master:
- 	spi_master_put(master);
- 	return ret;
 -- 
 2.20.1
 
