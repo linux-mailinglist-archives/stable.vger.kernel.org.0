@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AB92C3A9F9
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:15:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 727F93A944
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:09:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732455AbfFIQzm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:55:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57838 "EHLO mail.kernel.org"
+        id S2387855AbfFIRIk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 13:08:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44040 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732405AbfFIQzl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:55:41 -0400
+        id S2388113AbfFIRE7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 13:04:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id F0DEE205ED;
-        Sun,  9 Jun 2019 16:55:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4A598206DF;
+        Sun,  9 Jun 2019 17:04:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099340;
-        bh=TUjWsTfMduK7v9gPMGJ65AtAY2GrkaAhifPh/vuGr6g=;
+        s=default; t=1560099898;
+        bh=CkffsS+huaV4RQeN14UG7VgyjdnmKVytsU4D2+QETGE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zYcesKZ6mgxXVaqektyRTHMvQvuXVzqM5n8Ty2KPo4qnthnWRxpY28JHw9zJQkNHD
-         kiu3k3rYprg3t0v88dCmgTLYF7cSbB6RxIJtvFt1/j4w264uajDRH5ev9EhBpPhz1O
-         A31a0zeO4ZD7l6S23R1XU9j/e0dxvxkKp/uS00Fc=
+        b=aTydgQ33UgsEsBGEOmjkqfQ6AtXepyMXgjIHLpoC8KcIx31J26oLJApElbVlexPEB
+         Xl41sWrHiK0XaV6PgCdJZtQVjKbTOXjZfEk53MGWMJ9vGrsxR8aNkLWm/k+405dD5g
+         HL8oTx/ORNPgOeoNNLAMCeQpVLA3t//kg2gHWx8M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Matthew Wilcox <willy@infradead.org>,
-        Jann Horn <jannh@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Ben Hutchings <ben.hutchings@codethink.co.uk>
-Subject: [PATCH 4.9 58/83] mm: make page ref count overflow check tighter and more explicit
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 4.4 206/241] Btrfs: fix race updating log root item during fsync
 Date:   Sun,  9 Jun 2019 18:42:28 +0200
-Message-Id: <20190609164132.850661394@linuxfoundation.org>
+Message-Id: <20190609164154.583999275@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.843327870@linuxfoundation.org>
-References: <20190609164127.843327870@linuxfoundation.org>
+In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
+References: <20190609164147.729157653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +43,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit f958d7b528b1b40c44cfda5eabe2d82760d868c3 upstream.
+commit 06989c799f04810f6876900d4760c0edda369cf7 upstream.
 
-We have a VM_BUG_ON() to check that the page reference count doesn't
-underflow (or get close to overflow) by checking the sign of the count.
+When syncing the log, the final phase of a fsync operation, we need to
+either create a log root's item or update the existing item in the log
+tree of log roots, and that depends on the current value of the log
+root's log_transid - if it's 1 we need to create the log root item,
+otherwise it must exist already and we update it. Since there is no
+synchronization between updating the log_transid and checking it for
+deciding whether the log root's item needs to be created or updated, we
+end up with a tiny race window that results in attempts to update the
+item to fail because the item was not yet created:
 
-That's all fine, but we actually want to allow people to use a "get page
-ref unless it's already very high" helper function, and we want that one
-to use the sign of the page ref (without triggering this VM_BUG_ON).
+              CPU 1                                    CPU 2
 
-Change the VM_BUG_ON to only check for small underflows (or _very_ close
-to overflowing), and ignore overflows which have strayed into negative
-territory.
+  btrfs_sync_log()
 
-Acked-by: Matthew Wilcox <willy@infradead.org>
-Cc: Jann Horn <jannh@google.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
+    lock root->log_mutex
+
+    set log root's log_transid to 1
+
+    unlock root->log_mutex
+
+                                               btrfs_sync_log()
+
+                                                 lock root->log_mutex
+
+                                                 sets log root's
+                                                 log_transid to 2
+
+                                                 unlock root->log_mutex
+
+    update_log_root()
+
+      sees log root's log_transid
+      with a value of 2
+
+        calls btrfs_update_root(),
+        which fails with -EUCLEAN
+        and causes transaction abort
+
+Until recently the race lead to a BUG_ON at btrfs_update_root(), but after
+the recent commit 7ac1e464c4d47 ("btrfs: Don't panic when we can't find a
+root key") we just abort the current transaction.
+
+A sample trace of the BUG_ON() on a SLE12 kernel:
+
+  ------------[ cut here ]------------
+  kernel BUG at ../fs/btrfs/root-tree.c:157!
+  Oops: Exception in kernel mode, sig: 5 [#1]
+  SMP NR_CPUS=2048 NUMA pSeries
+  (...)
+  Supported: Yes, External
+  CPU: 78 PID: 76303 Comm: rtas_errd Tainted: G                 X 4.4.156-94.57-default #1
+  task: c00000ffa906d010 ti: c00000ff42b08000 task.ti: c00000ff42b08000
+  NIP: d000000036ae5cdc LR: d000000036ae5cd8 CTR: 0000000000000000
+  REGS: c00000ff42b0b860 TRAP: 0700   Tainted: G                 X  (4.4.156-94.57-default)
+  MSR: 8000000002029033 <SF,VEC,EE,ME,IR,DR,RI,LE>  CR: 22444484  XER: 20000000
+  CFAR: d000000036aba66c SOFTE: 1
+  GPR00: d000000036ae5cd8 c00000ff42b0bae0 d000000036bda220 0000000000000054
+  GPR04: 0000000000000001 0000000000000000 c00007ffff8d37c8 0000000000000000
+  GPR08: c000000000e19c00 0000000000000000 0000000000000000 3736343438312079
+  GPR12: 3930373337303434 c000000007a3a800 00000000007fffff 0000000000000023
+  GPR16: c00000ffa9d26028 c00000ffa9d261f8 0000000000000010 c00000ffa9d2ab28
+  GPR20: c00000ff42b0bc48 0000000000000001 c00000ff9f0d9888 0000000000000001
+  GPR24: c00000ffa9d26000 c00000ffa9d261e8 c00000ffa9d2a800 c00000ff9f0d9888
+  GPR28: c00000ffa9d26028 c00000ffa9d2aa98 0000000000000001 c00000ffa98f5b20
+  NIP [d000000036ae5cdc] btrfs_update_root+0x25c/0x4e0 [btrfs]
+  LR [d000000036ae5cd8] btrfs_update_root+0x258/0x4e0 [btrfs]
+  Call Trace:
+  [c00000ff42b0bae0] [d000000036ae5cd8] btrfs_update_root+0x258/0x4e0 [btrfs] (unreliable)
+  [c00000ff42b0bba0] [d000000036b53610] btrfs_sync_log+0x2d0/0xc60 [btrfs]
+  [c00000ff42b0bce0] [d000000036b1785c] btrfs_sync_file+0x44c/0x4e0 [btrfs]
+  [c00000ff42b0bd80] [c00000000032e300] vfs_fsync_range+0x70/0x120
+  [c00000ff42b0bdd0] [c00000000032e44c] do_fsync+0x5c/0xb0
+  [c00000ff42b0be10] [c00000000032e8dc] SyS_fdatasync+0x2c/0x40
+  [c00000ff42b0be30] [c000000000009488] system_call+0x3c/0x100
+  Instruction dump:
+  7f43d378 4bffebb9 60000000 88d90008 3d220000 e8b90000 3b390009 e87a01f0
+  e8898e08 e8f90000 4bfd48e5 60000000 <0fe00000> e95b0060 39200004 394a0ea0
+  ---[ end trace 8f2dc8f919cabab8 ]---
+
+So fix this by doing the check of log_transid and updating or creating the
+log root's item while holding the root's log_mutex.
+
+Fixes: 7237f1833601d ("Btrfs: fix tree logs parallel sync")
+CC: stable@vger.kernel.org # 4.4+
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- include/linux/mm.h |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -763,6 +763,10 @@ static inline bool is_zone_device_page(c
- }
- #endif
+---
+ fs/btrfs/tree-log.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
+
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -2809,6 +2809,12 @@ int btrfs_sync_log(struct btrfs_trans_ha
+ 	log->log_transid = root->log_transid;
+ 	root->log_start_pid = 0;
+ 	/*
++	 * Update or create log root item under the root's log_mutex to prevent
++	 * races with concurrent log syncs that can lead to failure to update
++	 * log root item because it was not created yet.
++	 */
++	ret = update_log_root(trans, log);
++	/*
+ 	 * IO has been started, blocks of the log tree have WRITTEN flag set
+ 	 * in their headers. new modifications of the log will be written to
+ 	 * new positions. so it's safe to allow log writers to go in.
+@@ -2827,8 +2833,6 @@ int btrfs_sync_log(struct btrfs_trans_ha
  
-+/* 127: arbitrary random number, small enough to assemble well */
-+#define page_ref_zero_or_close_to_overflow(page) \
-+	((unsigned int) page_ref_count(page) + 127u <= 127u)
-+
- static inline void get_page(struct page *page)
- {
- 	page = compound_head(page);
-@@ -770,7 +774,7 @@ static inline void get_page(struct page
- 	 * Getting a normal page or the head of a compound page
- 	 * requires to already have an elevated page->_refcount.
- 	 */
--	VM_BUG_ON_PAGE(page_ref_count(page) <= 0, page);
-+	VM_BUG_ON_PAGE(page_ref_zero_or_close_to_overflow(page), page);
- 	page_ref_inc(page);
+ 	mutex_unlock(&log_root_tree->log_mutex);
  
- 	if (unlikely(is_zone_device_page(page)))
+-	ret = update_log_root(trans, log);
+-
+ 	mutex_lock(&log_root_tree->log_mutex);
+ 	if (atomic_dec_and_test(&log_root_tree->log_writers)) {
+ 		/*
 
 
