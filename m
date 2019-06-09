@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AC9AB3A935
+	by mail.lfdr.de (Postfix) with ESMTP id 37B373A934
 	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:08:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388216AbfFIRFe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2388825AbfFIRFe (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 9 Jun 2019 13:05:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44794 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:44846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388831AbfFIRFa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 13:05:30 -0400
+        id S2388423AbfFIRFd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 13:05:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7011020843;
-        Sun,  9 Jun 2019 17:05:29 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0E2B0206C3;
+        Sun,  9 Jun 2019 17:05:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099929;
-        bh=yypGrqrxjEQ7y+K2xAwxm4B2ziaK9OEcEM3gMtFVeXQ=;
+        s=default; t=1560099932;
+        bh=agtC4ZKvCXiD09LkBMOirdyQMeA1+xMR2WblZ6cln/s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RWvcYZqa9EsjE1xDBgU7486y1dPO+5CCZf2WsoNmc4H5kTewDIVYYCsHqPXaaIT7Y
-         SziZwkEMI9+U3kYlyeE9x9qUes/Tk2HNNQl8nsDozJgXuQrGcdpkGBq85z0m/Pk9lH
-         0GwPJTtHP4lzNSTsqEIokru2a0qM9ZnbHNfvwmeQ=
+        b=dzuPRQ5AJ/yXofeY7PP955+uY+22mwbtZVGC1otRz22wgfKaBSY7iLVayW2G1b9fG
+         vawXLPQQvYWhgC7/KlPFDeafWFpo+FgTeN5BhAKkA2uRthUHqDtkF/kRozodYsxkF3
+         dJ/O981aMd+FOwRjts1rW/Dcrmklu5sCc14amI+c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Daniel Axtens <dja@axtens.net>,
+        Eric Dumazet <edumazet@google.com>,
         "David S. Miller" <davem@davemloft.net>,
         Ben Hutchings <ben.hutchings@codethink.co.uk>
-Subject: [PATCH 4.4 216/241] net: create skb_gso_validate_mac_len()
-Date:   Sun,  9 Jun 2019 18:42:38 +0200
-Message-Id: <20190609164154.908348867@linuxfoundation.org>
+Subject: [PATCH 4.4 217/241] bnx2x: disable GSO where gso_size is too big for hardware
+Date:   Sun,  9 Jun 2019 18:42:39 +0200
+Message-Id: <20190609164154.935768309@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
 References: <20190609164147.729157653@linuxfoundation.org>
@@ -46,84 +47,56 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Daniel Axtens <dja@axtens.net>
 
-commit 2b16f048729bf35e6c28a40cbfad07239f9dcd90 upstream.
+commit 8914a595110a6eca69a5e275b323f5d09e18f4f9 upstream.
 
-If you take a GSO skb, and split it into packets, will the MAC
-length (L2 + L3 + L4 headers + payload) of those packets be small
-enough to fit within a given length?
+If a bnx2x card is passed a GSO packet with a gso_size larger than
+~9700 bytes, it will cause a firmware error that will bring the card
+down:
 
-Move skb_gso_mac_seglen() to skbuff.h with other related functions
-like skb_gso_network_seglen() so we can use it, and then create
-skb_gso_validate_mac_len to do the full calculation.
+bnx2x: [bnx2x_attn_int_deasserted3:4323(enP24p1s0f0)]MC assert!
+bnx2x: [bnx2x_mc_assert:720(enP24p1s0f0)]XSTORM_ASSERT_LIST_INDEX 0x2
+bnx2x: [bnx2x_mc_assert:736(enP24p1s0f0)]XSTORM_ASSERT_INDEX 0x0 = 0x00000000 0x25e43e47 0x00463e01 0x00010052
+bnx2x: [bnx2x_mc_assert:750(enP24p1s0f0)]Chip Revision: everest3, FW Version: 7_13_1
+... (dump of values continues) ...
+
+Detect when the mac length of a GSO packet is greater than the maximum
+packet size (9700 bytes) and disable GSO.
 
 Signed-off-by: Daniel Axtens <dja@axtens.net>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-[bwh: Backported to 4.4: There is no GSO_BY_FRAGS case to handle, so
- skb_gso_validate_mac_len() becomes a trivial comparison. Put it inline in
- <linux/skbuff.h>.]
 Signed-off-by: Ben Hutchings <ben.hutchings@codethink.co.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/skbuff.h |   30 ++++++++++++++++++++++++++++++
- net/sched/sch_tbf.c    |   10 ----------
- 2 files changed, 30 insertions(+), 10 deletions(-)
+ drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c |   18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
---- a/include/linux/skbuff.h
-+++ b/include/linux/skbuff.h
-@@ -3664,5 +3664,35 @@ static inline unsigned int skb_gso_netwo
- 	return hdr_len + skb_gso_transport_seglen(skb);
- }
- 
-+/**
-+ * skb_gso_mac_seglen - Return length of individual segments of a gso packet
-+ *
-+ * @skb: GSO skb
-+ *
-+ * skb_gso_mac_seglen is used to determine the real size of the
-+ * individual segments, including MAC/L2, Layer3 (IP, IPv6) and L4
-+ * headers (TCP/UDP).
-+ */
-+static inline unsigned int skb_gso_mac_seglen(const struct sk_buff *skb)
-+{
-+	unsigned int hdr_len = skb_transport_header(skb) - skb_mac_header(skb);
-+	return hdr_len + skb_gso_transport_seglen(skb);
-+}
+--- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c
++++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c
+@@ -12824,6 +12824,24 @@ static netdev_features_t bnx2x_features_
+ 					      struct net_device *dev,
+ 					      netdev_features_t features)
+ {
++	/*
++	 * A skb with gso_size + header length > 9700 will cause a
++	 * firmware panic. Drop GSO support.
++	 *
++	 * Eventually the upper layer should not pass these packets down.
++	 *
++	 * For speed, if the gso_size is <= 9000, assume there will
++	 * not be 700 bytes of headers and pass it through. Only do a
++	 * full (slow) validation if the gso_size is > 9000.
++	 *
++	 * (Due to the way SKB_BY_FRAGS works this will also do a full
++	 * validation in that case.)
++	 */
++	if (unlikely(skb_is_gso(skb) &&
++		     (skb_shinfo(skb)->gso_size > 9000) &&
++		     !skb_gso_validate_mac_len(skb, 9700)))
++		features &= ~NETIF_F_GSO_MASK;
 +
-+/**
-+ * skb_gso_validate_mac_len - Will a split GSO skb fit in a given length?
-+ *
-+ * @skb: GSO skb
-+ * @len: length to validate against
-+ *
-+ * skb_gso_validate_mac_len validates if a given skb will fit a wanted
-+ * length once split, including L2, L3 and L4 headers and the payload.
-+ */
-+static inline bool
-+skb_gso_validate_mac_len(const struct sk_buff *skb, unsigned int len)
-+{
-+	return skb_gso_mac_seglen(skb) <= len;
-+}
-+
- #endif	/* __KERNEL__ */
- #endif	/* _LINUX_SKBUFF_H */
---- a/net/sched/sch_tbf.c
-+++ b/net/sched/sch_tbf.c
-@@ -142,16 +142,6 @@ static u64 psched_ns_t2l(const struct ps
- 	return len;
+ 	features = vlan_features_check(skb, features);
+ 	return vxlan_features_check(skb, features);
  }
- 
--/*
-- * Return length of individual segments of a gso packet,
-- * including all headers (MAC, IP, TCP/UDP)
-- */
--static unsigned int skb_gso_mac_seglen(const struct sk_buff *skb)
--{
--	unsigned int hdr_len = skb_transport_header(skb) - skb_mac_header(skb);
--	return hdr_len + skb_gso_transport_seglen(skb);
--}
--
- /* GSO packet is too big, segment it so that tbf can transmit
-  * each segment in time
-  */
 
 
