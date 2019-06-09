@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AB92D3A723
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 18:47:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF2383A95E
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:10:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730528AbfFIQqk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:46:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44958 "EHLO mail.kernel.org"
+        id S2388378AbfFIRDR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 13:03:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41580 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730554AbfFIQqj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:46:39 -0400
+        id S2388371AbfFIRDO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 13:03:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 761722081C;
-        Sun,  9 Jun 2019 16:46:38 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D02792145D;
+        Sun,  9 Jun 2019 17:03:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560098798;
-        bh=Gg4ME2opx0ls3JAG2sUjjvBheibBOhlnUuLj5kIo0Ak=;
+        s=default; t=1560099794;
+        bh=fMtF6+aAcAGG8CmxQdMXRhxL2ZRsH3RGfrlSmREcy9M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IvVu9DvvWEzsxiBdpWIJ1pq4mRBylzThVXVAjNkhlPZi6L2jKOAKDaOL5YjYlHssj
-         cQWzXTzZftUMhi57vaID7kcZDIDe/v0FEKwrIqadZgea5frgXBNpAgCHAUVvqq5eac
-         heDTZQ+9GpPWWHIA4gfbMUvbGKYWt3juLlHF6CYs=
+        b=DybVEg9ushhLcxM1Zfm+qhf45Er7SlMsqS/LLVcqJ5ddLIzPf+mCzNNbyXbjGqdt0
+         PpZnWzNAGJyAnH9GxEcZ+JykM7Zzp+735JTx2okBHoFENkydRqm1Gxd7pgpl6PrDw3
+         ny9+0liiq6/JjC9klK1WCY4g7Mk5FMbclXaDisHw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Faiz Abbas <faiz_abbas@ti.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.1 38/70] mmc: sdhci_am654: Fix SLOTTYPE write
+        stable@vger.kernel.org, siliu@redhat.com,
+        Pankaj Gupta <pagupta@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 167/241] virtio_console: initialize vtermno value for ports
 Date:   Sun,  9 Jun 2019 18:41:49 +0200
-Message-Id: <20190609164130.391292539@linuxfoundation.org>
+Message-Id: <20190609164152.596927769@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.541128197@linuxfoundation.org>
-References: <20190609164127.541128197@linuxfoundation.org>
+In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
+References: <20190609164147.729157653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,33 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Faiz Abbas <faiz_abbas@ti.com>
+[ Upstream commit 4b0a2c5ff7215206ea6135a405f17c5f6fca7d00 ]
 
-commit 7397993145872c74871ab2aa7fa26a427144088a upstream.
+For regular serial ports we do not initialize value of vtermno
+variable. A garbage value is assigned for non console ports.
+The value can be observed as a random integer with [1].
 
-In the call to regmap_update_bits() for SLOTTYPE, the mask and value
-fields are exchanged. Fix this.
+[1] vim /sys/kernel/debug/virtio-ports/vport*p*
 
-Signed-off-by: Faiz Abbas <faiz_abbas@ti.com>
-Fixes: 41fd4caeb00b ("mmc: sdhci_am654: Add Initial Support for AM654 SDHCI driver")
-Cc: stable@vger.kernel.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+This patch initialize the value of vtermno for console serial
+ports to '1' and regular serial ports are initiaized to '0'.
+
+Reported-by: siliu@redhat.com
+Signed-off-by: Pankaj Gupta <pagupta@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/sdhci_am654.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/char/virtio_console.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/mmc/host/sdhci_am654.c
-+++ b/drivers/mmc/host/sdhci_am654.c
-@@ -209,7 +209,7 @@ static int sdhci_am654_init(struct sdhci
- 		ctl_cfg_2 = SLOTTYPE_EMBEDDED;
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index 2aca689061e1f..df9eab91c2d25 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -76,7 +76,7 @@ struct ports_driver_data {
+ 	/* All the console devices handled by this driver */
+ 	struct list_head consoles;
+ };
+-static struct ports_driver_data pdrvdata;
++static struct ports_driver_data pdrvdata = { .next_vtermno = 1};
  
- 	regmap_update_bits(sdhci_am654->base, CTL_CFG_2,
--			   ctl_cfg_2, SLOTTYPE_MASK);
-+			   SLOTTYPE_MASK, ctl_cfg_2);
+ static DEFINE_SPINLOCK(pdrvdata_lock);
+ static DECLARE_COMPLETION(early_console_added);
+@@ -1419,6 +1419,7 @@ static int add_port(struct ports_device *portdev, u32 id)
+ 	port->async_queue = NULL;
  
- 	return sdhci_add_host(host);
- }
+ 	port->cons.ws.ws_row = port->cons.ws.ws_col = 0;
++	port->cons.vtermno = 0;
+ 
+ 	port->host_connected = port->guest_connected = false;
+ 	port->stats = (struct port_stats) { 0 };
+-- 
+2.20.1
+
 
 
