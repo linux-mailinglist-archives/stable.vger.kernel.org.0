@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B90D23AA1D
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:16:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CBD0B3AAA3
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:20:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732540AbfFIQyI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:54:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55622 "EHLO mail.kernel.org"
+        id S1730940AbfFIQrn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:47:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732529AbfFIQyF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:54:05 -0400
+        id S1730939AbfFIQrm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:47:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 38ADA206BB;
-        Sun,  9 Jun 2019 16:54:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 721EE205ED;
+        Sun,  9 Jun 2019 16:47:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099244;
-        bh=D0PW0N1prNDaAqH8AodtPwEokDA9gqUJBSfCTMVS6Fc=;
+        s=default; t=1560098862;
+        bh=OqvP9woF8ECqBdVZ3k7mXpqfVs5nkqmEytl5NQhJctU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qnOfNRpFslIGo4eQHRX7UhwYzk8q6CWTrtHa4eUqWqtCv+/pIVNBNBCVzK2SaDm8N
-         SprnW5otXd0bl/nvhA5ajggmjfS3QhFTP6E3YjadSi21lEz6tyLQ84kYHQZoMKeQWY
-         Yb0VjYjKI/ghBWyC9zZHf8fMmo3D11wLl3uejbvQ=
+        b=EDPCT5kG2nhsb7iYLuJ2IGHF26r34fIDG8PDS8R60xrrs3rYjwyqQ83rVQuwrH/2I
+         fRMALUYfFzmfNhTfYcdFA/XT7Fydi/3zYnQDYq3bxVE4kd0Eec09rXt3Z/2+qpKWoU
+         B51/hlmncSGfHorlOxi0HIK/brsvBt+OjpDy4LsQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, oliver Neukum <oneukum@suse.com>,
-        syzbot+a0cbdbd6d169020c8959@syzkaller.appspotmail.com
-Subject: [PATCH 4.9 27/83] USB: sisusbvga: fix oops in error path of sisusb_probe
+        stable@vger.kernel.org, Olivier Matz <olivier.matz@6wind.com>,
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 16/51] ipv6: fix EFAULT on sendto with icmpv6 and hdrincl
 Date:   Sun,  9 Jun 2019 18:41:57 +0200
-Message-Id: <20190609164129.891408469@linuxfoundation.org>
+Message-Id: <20190609164128.016820208@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.843327870@linuxfoundation.org>
-References: <20190609164127.843327870@linuxfoundation.org>
+In-Reply-To: <20190609164127.123076536@linuxfoundation.org>
+References: <20190609164127.123076536@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,55 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Olivier Matz <olivier.matz@6wind.com>
 
-commit 9a5729f68d3a82786aea110b1bfe610be318f80a upstream.
+[ Upstream commit b9aa52c4cb457e7416cc0c95f475e72ef4a61336 ]
 
-The pointer used to log a failure of usb_register_dev() must
-be set before the error is logged.
+The following code returns EFAULT (Bad address):
 
-v2: fix that minor is not available before registration
+  s = socket(AF_INET6, SOCK_RAW, IPPROTO_ICMPV6);
+  setsockopt(s, SOL_IPV6, IPV6_HDRINCL, 1);
+  sendto(ipv6_icmp6_packet, addr);   /* returns -1, errno = EFAULT */
 
-Signed-off-by: oliver Neukum <oneukum@suse.com>
-Reported-by: syzbot+a0cbdbd6d169020c8959@syzkaller.appspotmail.com
-Fixes: 7b5cd5fefbe02 ("USB: SisUSB2VGA: Convert printk to dev_* macros")
-Cc: stable <stable@vger.kernel.org>
+The IPv4 equivalent code works. A workaround is to use IPPROTO_RAW
+instead of IPPROTO_ICMPV6.
+
+The failure happens because 2 bytes are eaten from the msghdr by
+rawv6_probe_proto_opt() starting from commit 19e3c66b52ca ("ipv6
+equivalent of "ipv4: Avoid reading user iov twice after
+raw_probe_proto_opt""), but at that time it was not a problem because
+IPV6_HDRINCL was not yet introduced.
+
+Only eat these 2 bytes if hdrincl == 0.
+
+Fixes: 715f504b1189 ("ipv6: add IPV6_HDRINCL option for raw sockets")
+Signed-off-by: Olivier Matz <olivier.matz@6wind.com>
+Acked-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/usb/misc/sisusbvga/sisusb.c |   15 ++++++++-------
- 1 file changed, 8 insertions(+), 7 deletions(-)
+ net/ipv6/raw.c |   13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
---- a/drivers/usb/misc/sisusbvga/sisusb.c
-+++ b/drivers/usb/misc/sisusbvga/sisusb.c
-@@ -3041,6 +3041,13 @@ static int sisusb_probe(struct usb_inter
+--- a/net/ipv6/raw.c
++++ b/net/ipv6/raw.c
+@@ -894,11 +894,14 @@ static int rawv6_sendmsg(struct sock *sk
+ 	opt = ipv6_fixup_options(&opt_space, opt);
  
- 	mutex_init(&(sisusb->lock));
- 
-+	sisusb->sisusb_dev = dev;
-+	sisusb->vrambase   = SISUSB_PCI_MEMBASE;
-+	sisusb->mmiobase   = SISUSB_PCI_MMIOBASE;
-+	sisusb->mmiosize   = SISUSB_PCI_MMIOSIZE;
-+	sisusb->ioportbase = SISUSB_PCI_IOPORTBASE;
-+	/* Everything else is zero */
+ 	fl6.flowi6_proto = proto;
+-	rfv.msg = msg;
+-	rfv.hlen = 0;
+-	err = rawv6_probe_proto_opt(&rfv, &fl6);
+-	if (err)
+-		goto out;
 +
- 	/* Register device */
- 	retval = usb_register_dev(intf, &usb_sisusb_class);
- 	if (retval) {
-@@ -3051,13 +3058,7 @@ static int sisusb_probe(struct usb_inter
- 		goto error_1;
- 	}
++	if (!hdrincl) {
++		rfv.msg = msg;
++		rfv.hlen = 0;
++		err = rawv6_probe_proto_opt(&rfv, &fl6);
++		if (err)
++			goto out;
++	}
  
--	sisusb->sisusb_dev = dev;
--	sisusb->minor      = intf->minor;
--	sisusb->vrambase   = SISUSB_PCI_MEMBASE;
--	sisusb->mmiobase   = SISUSB_PCI_MMIOBASE;
--	sisusb->mmiosize   = SISUSB_PCI_MMIOSIZE;
--	sisusb->ioportbase = SISUSB_PCI_IOPORTBASE;
--	/* Everything else is zero */
-+	sisusb->minor = intf->minor;
- 
- 	/* Allocate buffers */
- 	sisusb->ibufsize = SISUSB_IBUF_SIZE;
+ 	if (!ipv6_addr_any(daddr))
+ 		fl6.daddr = *daddr;
 
 
