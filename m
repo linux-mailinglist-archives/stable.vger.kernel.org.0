@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B48953AA98
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:20:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C65F3A953
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:09:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731049AbfFIQr7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:47:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46776 "EHLO mail.kernel.org"
+        id S2388509AbfFIRDw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 13:03:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729963AbfFIQrz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:47:55 -0400
+        id S2387428AbfFIRDw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 13:03:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B0664205ED;
-        Sun,  9 Jun 2019 16:47:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F0583206C3;
+        Sun,  9 Jun 2019 17:03:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560098875;
-        bh=5Gn3cKXeLvaaV9cKG5BUsjf22qJuT6vgfoenKD8ddLE=;
+        s=default; t=1560099831;
+        bh=JO0QbtSHoY1Um2a6MXI0+F0H3TgAbnA9vxq3qMoPyDk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x/im7NW30Gcg+VMjMuCuDNKX68zVI0ViOl8ZFE9s3N/s04ih9NHcAnU0qqD8Q4ZXc
-         y/7m4tPNnYo70feZQswfqzYQ4oKmKgqXJRlJUjMHtEj+vEWEihQp0EOOrf3G4DVjkH
-         CGlRSM4sTl8EUK0o87dsOgVuD920nr+sSOyvUcPQ=
+        b=ZkdK9K3X0I/GaNIjDUDDmrwTZMN16ypyp8xYAMOllPBN71XnPWH6SuOxHoAOxrjrr
+         MByIWYGnBZNDNMhnwXClL9hMlscmW5MFAn1D+qo6WBuL3mgKjPXAWCBpmgXcbmhk4r
+         1pbJLi34xd31rSdz11v1+ZW4GqF23/s24zDFBj4w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yihao Wu <wuyihao@linux.alibaba.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Anna Schumaker <Anna.Schumaker@Netapp.com>
-Subject: [PATCH 4.19 21/51] NFSv4.1: Fix bug only first CB_NOTIFY_LOCK is handled
+        stable@vger.kernel.org,
+        Mike Manning <mmanning@vyatta.att-mail.com>,
+        David Ahern <dsahern@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 180/241] ipv6: Consider sk_bound_dev_if when binding a raw socket to an address
 Date:   Sun,  9 Jun 2019 18:42:02 +0200
-Message-Id: <20190609164128.316056941@linuxfoundation.org>
+Message-Id: <20190609164153.046442483@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.123076536@linuxfoundation.org>
-References: <20190609164127.123076536@linuxfoundation.org>
+In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
+References: <20190609164147.729157653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,54 +45,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yihao Wu <wuyihao@linux.alibaba.com>
+From: Mike Manning <mmanning@vyatta.att-mail.com>
 
-commit ba851a39c9703f09684a541885ed176f8fb7c868 upstream.
+[ Upstream commit 72f7cfab6f93a8ea825fab8ccfb016d064269f7f ]
 
-When a waiter is waked by CB_NOTIFY_LOCK, it will retry
-nfs4_proc_setlk(). The waiter may fail to nfs4_proc_setlk() and sleep
-again. However, the waiter is already removed from clp->cl_lock_waitq
-when handling CB_NOTIFY_LOCK in nfs4_wake_lock_waiter(). So any
-subsequent CB_NOTIFY_LOCK won't wake this waiter anymore. We should
-put the waiter back to clp->cl_lock_waitq before retrying.
+IPv6 does not consider if the socket is bound to a device when binding
+to an address. The result is that a socket can be bound to eth0 and
+then bound to the address of eth1. If the device is a VRF, the result
+is that a socket can only be bound to an address in the default VRF.
 
-Cc: stable@vger.kernel.org #4.9+
-Signed-off-by: Yihao Wu <wuyihao@linux.alibaba.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Resolve by considering the device if sk_bound_dev_if is set.
+
+Signed-off-by: Mike Manning <mmanning@vyatta.att-mail.com>
+Reviewed-by: David Ahern <dsahern@gmail.com>
+Tested-by: David Ahern <dsahern@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- fs/nfs/nfs4proc.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ net/ipv6/raw.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -6905,20 +6905,22 @@ nfs4_retry_setlk(struct nfs4_state *stat
- 	init_wait(&wait);
- 	wait.private = &waiter;
- 	wait.func = nfs4_wake_lock_waiter;
--	add_wait_queue(q, &wait);
- 
- 	while(!signalled()) {
-+		add_wait_queue(q, &wait);
- 		status = nfs4_proc_setlk(state, cmd, request);
--		if ((status != -EAGAIN) || IS_SETLK(cmd))
-+		if ((status != -EAGAIN) || IS_SETLK(cmd)) {
-+			finish_wait(q, &wait);
- 			break;
+--- a/net/ipv6/raw.c
++++ b/net/ipv6/raw.c
+@@ -283,7 +283,9 @@ static int rawv6_bind(struct sock *sk, s
+ 			/* Binding to link-local address requires an interface */
+ 			if (!sk->sk_bound_dev_if)
+ 				goto out_unlock;
 +		}
  
- 		status = -ERESTARTSYS;
- 		freezer_do_not_count();
- 		wait_woken(&wait, TASK_INTERRUPTIBLE, NFS4_LOCK_MAXTIMEOUT);
- 		freezer_count();
-+		finish_wait(q, &wait);
- 	}
- 
--	finish_wait(q, &wait);
- 	return status;
- }
- #else /* !CONFIG_NFS_V4_1 */
++		if (sk->sk_bound_dev_if) {
+ 			err = -ENODEV;
+ 			dev = dev_get_by_index_rcu(sock_net(sk),
+ 						   sk->sk_bound_dev_if);
 
 
