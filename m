@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DCC53A9D4
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:13:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BC203A9D6
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:13:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733311AbfFIQ6H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:58:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33176 "EHLO mail.kernel.org"
+        id S1732903AbfFIQ6M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:58:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1733308AbfFIQ6G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:58:06 -0400
+        id S2387409AbfFIQ6J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:58:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8234A206C3;
-        Sun,  9 Jun 2019 16:58:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2DDA1207E0;
+        Sun,  9 Jun 2019 16:58:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099486;
-        bh=W9Ag10+xxei71bKLap18jNaWILItJ50KCnQ6bKmksNk=;
+        s=default; t=1560099488;
+        bh=YBMr8ol5ddUzuPtejLpdxwDOqyjzDxIYdtVrFGBFFaU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=weAjgyYUXbhhz9JjMyyFGuXRXTIidvK2iugF4Xaaa2K3fq1N5ogCfI2CAJO7pzcP6
-         EC9jYt+fS3qOsDvhwMg02CkV31KURdNoiTHEzphEwwGf0ZEZgLa7R8zsBEG+8tLNgI
-         /y9JR+TGYO6fVRdV544TDJG7Mk4K6eS17yseurBQ=
+        b=E2P7/CxbvtP+nqvcyzRXKaQblVPE7GJY6EoPpqFtaBHErAed/KOdwOg0/nK5yH3zY
+         URT/MNx0SEaVHtRUs9Kc+Ba9DFOw/wuK8Cs0Z24NhBRedxSNCVGzD7j9JqmdCGA9P6
+         b0xH26GRfmL50RGGOEuishTJLKBIsXQD7WT5Ew/s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
         Teddy Wang <teddy.wang@siliconmotion.com>,
         Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Subject: [PATCH 4.4 058/241] fbdev: sm712fb: fix crashes during framebuffer writes by correctly mapping VRAM
-Date:   Sun,  9 Jun 2019 18:40:00 +0200
-Message-Id: <20190609164149.448823611@linuxfoundation.org>
+Subject: [PATCH 4.4 059/241] fbdev: sm712fb: fix support for 1024x768-16 mode
+Date:   Sun,  9 Jun 2019 18:40:01 +0200
+Message-Id: <20190609164149.477704955@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
 References: <20190609164147.729157653@linuxfoundation.org>
@@ -47,31 +47,14 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yifeng Li <tomli@tomli.me>
 
-commit 9e0e59993df0601cddb95c4f6c61aa3d5e753c00 upstream.
+commit 6053d3a4793e5bde6299ac5388e76a3bf679ff65 upstream.
 
-On a Thinkpad s30 (Pentium III / i440MX, Lynx3DM), running fbtest or X
-will crash the machine instantly, because the VRAM/framebuffer is not
-mapped correctly.
+In order to support the 1024x600 panel on Yeeloong Loongson MIPS
+laptop, the original 1024x768-16 table was modified to 1024x600-16,
+without leaving the original. It causes problem on x86 laptop as
+the 1024x768-16 support was still claimed but not working.
 
-On SM712, the framebuffer starts at the beginning of address space, but
-SM720's framebuffer starts at the 1 MiB offset from the beginning. However,
-sm712fb fails to take this into account, as a result, writing to the
-framebuffer will destroy all the registers and kill the system immediately.
-Another problem is the driver assumes 8 MiB of VRAM for SM720, but some
-SM720 system, such as this IBM Thinkpad, only has 4 MiB of VRAM.
-
-Fix this problem by removing the hardcoded VRAM size, adding a function to
-query the amount of VRAM from register MCR76 on SM720, and adding proper
-framebuffer offset.
-
-Please note that the memory map may have additional problems on Big-Endian
-system, which is not available for testing by myself. But I highly suspect
-that the original code is also broken on Big-Endian machines for SM720, so
-at least we are not making the problem worse. More, the driver also assumed
-SM710/SM712 has 4 MiB of VRAM, but it has a 2 MiB version as well, and used
-in earlier laptops, such as IBM Thinkpad 240X, the driver would probably
-crash on them. I've never seen one of those machines and cannot fix it, but
-I have documented these problems in the comments.
+Fix it by introducing the 1024x768-16 mode.
 
 Signed-off-by: Yifeng Li <tomli@tomli.me>
 Tested-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
@@ -81,111 +64,76 @@ Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/video/fbdev/sm712.h   |    5 ----
- drivers/video/fbdev/sm712fb.c |   48 ++++++++++++++++++++++++++++++++++++++----
- 2 files changed, 44 insertions(+), 9 deletions(-)
+ drivers/video/fbdev/sm712fb.c |   59 ++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 59 insertions(+)
 
---- a/drivers/video/fbdev/sm712.h
-+++ b/drivers/video/fbdev/sm712.h
-@@ -19,11 +19,6 @@
- #define SCREEN_Y_RES      600
- #define SCREEN_BPP        16
- 
--/*Assume SM712 graphics chip has 4MB VRAM */
--#define SM712_VIDEOMEMORYSIZE	  0x00400000
--/*Assume SM722 graphics chip has 8MB VRAM */
--#define SM722_VIDEOMEMORYSIZE	  0x00800000
--
- #define dac_reg	(0x3c8)
- #define dac_val	(0x3c9)
- 
 --- a/drivers/video/fbdev/sm712fb.c
 +++ b/drivers/video/fbdev/sm712fb.c
-@@ -1328,6 +1328,11 @@ static int smtc_map_smem(struct smtcfb_i
- {
- 	sfb->fb->fix.smem_start = pci_resource_start(pdev, 0);
- 
-+	if (sfb->chip_id == 0x720)
-+		/* on SM720, the framebuffer starts at the 1 MB offset */
-+		sfb->fb->fix.smem_start += 0x00200000;
-+
-+	/* XXX: is it safe for SM720 on Big-Endian? */
- 	if (sfb->fb->var.bits_per_pixel == 32)
- 		sfb->fb->fix.smem_start += big_addr;
- 
-@@ -1365,12 +1370,45 @@ static inline void sm7xx_init_hw(void)
- 	outb_p(0x11, 0x3c5);
- }
- 
-+static u_long sm7xx_vram_probe(struct smtcfb_info *sfb)
-+{
-+	u8 vram;
-+
-+	switch (sfb->chip_id) {
-+	case 0x710:
-+	case 0x712:
-+		/*
-+		 * Assume SM712 graphics chip has 4MB VRAM.
-+		 *
-+		 * FIXME: SM712 can have 2MB VRAM, which is used on earlier
-+		 * laptops, such as IBM Thinkpad 240X. This driver would
-+		 * probably crash on those machines. If anyone gets one of
-+		 * those and is willing to help, run "git blame" and send me
-+		 * an E-mail.
-+		 */
-+		return 0x00400000;
-+	case 0x720:
-+		outb_p(0x76, 0x3c4);
-+		vram = inb_p(0x3c5) >> 6;
-+
-+		if (vram == 0x00)
-+			return 0x00800000;  /* 8 MB */
-+		else if (vram == 0x01)
-+			return 0x01000000;  /* 16 MB */
-+		else if (vram == 0x02)
-+			return 0x00400000;  /* illegal, fallback to 4 MB */
-+		else if (vram == 0x03)
-+			return 0x00400000;  /* 4 MB */
-+	}
-+	return 0;  /* unknown hardware */
-+}
-+
- static int smtcfb_pci_probe(struct pci_dev *pdev,
- 			    const struct pci_device_id *ent)
- {
- 	struct smtcfb_info *sfb;
- 	struct fb_info *info;
--	u_long smem_size = 0x00800000;	/* default 8MB */
-+	u_long smem_size;
- 	int err;
- 	unsigned long mmio_base;
- 
-@@ -1427,12 +1465,15 @@ static int smtcfb_pci_probe(struct pci_d
- 	mmio_base = pci_resource_start(pdev, 0);
- 	pci_read_config_byte(pdev, PCI_REVISION_ID, &sfb->chip_rev_id);
- 
-+	smem_size = sm7xx_vram_probe(sfb);
-+	dev_info(&pdev->dev, "%lu MiB of VRAM detected.\n",
-+					smem_size / 1048576);
-+
- 	switch (sfb->chip_id) {
- 	case 0x710:
- 	case 0x712:
- 		sfb->fb->fix.mmio_start = mmio_base + 0x00400000;
- 		sfb->fb->fix.mmio_len = 0x00400000;
--		smem_size = SM712_VIDEOMEMORYSIZE;
- 		sfb->lfb = ioremap(mmio_base, mmio_addr);
- 		if (!sfb->lfb) {
- 			dev_err(&pdev->dev,
-@@ -1464,8 +1505,7 @@ static int smtcfb_pci_probe(struct pci_d
- 	case 0x720:
- 		sfb->fb->fix.mmio_start = mmio_base;
- 		sfb->fb->fix.mmio_len = 0x00200000;
--		smem_size = SM722_VIDEOMEMORYSIZE;
--		sfb->dp_regs = ioremap(mmio_base, 0x00a00000);
-+		sfb->dp_regs = ioremap(mmio_base, 0x00200000 + smem_size);
- 		sfb->lfb = sfb->dp_regs + 0x00200000;
- 		sfb->mmio = (smtc_regbaseaddress =
- 		    sfb->dp_regs + 0x000c0000);
+@@ -530,6 +530,65 @@ static const struct modeinit vgamode[] =
+ 			0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x15, 0x03,
+ 		},
+ 	},
++	{	/*  1024 x 768  16Bpp  60Hz */
++		1024, 768, 16, 60,
++		/*  Init_MISC */
++		0xEB,
++		{	/*  Init_SR0_SR4 */
++			0x03, 0x01, 0x0F, 0x03, 0x0E,
++		},
++		{	/*  Init_SR10_SR24 */
++			0xF3, 0xB6, 0xC0, 0xDD, 0x00, 0x0E, 0x17, 0x2C,
++			0x99, 0x02, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00,
++			0xC4, 0x30, 0x02, 0x01, 0x01,
++		},
++		{	/*  Init_SR30_SR75 */
++			0x38, 0x03, 0x20, 0x09, 0xC0, 0x3A, 0x3A, 0x3A,
++			0x3A, 0x3A, 0x3A, 0x3A, 0x00, 0x00, 0x03, 0xFF,
++			0x00, 0xFC, 0x00, 0x00, 0x20, 0x18, 0x00, 0xFC,
++			0x20, 0x0C, 0x44, 0x20, 0x00, 0x00, 0x00, 0x3A,
++			0x06, 0x68, 0xA7, 0x7F, 0x83, 0x24, 0xFF, 0x03,
++			0x0F, 0x60, 0x59, 0x3A, 0x3A, 0x00, 0x00, 0x3A,
++			0x01, 0x80, 0x7E, 0x1A, 0x1A, 0x00, 0x00, 0x00,
++			0x50, 0x03, 0x74, 0x14, 0x3B, 0x0D, 0x09, 0x02,
++			0x04, 0x45, 0x30, 0x30, 0x40, 0x20,
++		},
++		{	/*  Init_SR80_SR93 */
++			0xFF, 0x07, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x3A,
++			0xF7, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0x3A, 0x3A,
++			0x00, 0x00, 0x00, 0x00,
++		},
++		{	/*  Init_SRA0_SRAF */
++			0x00, 0xFB, 0x9F, 0x01, 0x00, 0xED, 0xED, 0xED,
++			0x7B, 0xFB, 0xFF, 0xFF, 0x97, 0xEF, 0xBF, 0xDF,
++		},
++		{	/*  Init_GR00_GR08 */
++			0x00, 0x00, 0x00, 0x00, 0x00, 0x40, 0x05, 0x0F,
++			0xFF,
++		},
++		{	/*  Init_AR00_AR14 */
++			0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
++			0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
++			0x41, 0x00, 0x0F, 0x00, 0x00,
++		},
++		{	/*  Init_CR00_CR18 */
++			0xA3, 0x7F, 0x7F, 0x00, 0x85, 0x16, 0x24, 0xF5,
++			0x00, 0x60, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
++			0x03, 0x09, 0xFF, 0x80, 0x40, 0xFF, 0x00, 0xE3,
++			0xFF,
++		},
++		{	/*  Init_CR30_CR4D */
++			0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0x02, 0x20,
++			0x00, 0x00, 0x00, 0x40, 0x00, 0xFF, 0xBF, 0xFF,
++			0xA3, 0x7F, 0x00, 0x86, 0x15, 0x24, 0xFF, 0x00,
++			0x01, 0x07, 0xE5, 0x20, 0x7F, 0xFF,
++		},
++		{	/*  Init_CR90_CRA7 */
++			0x55, 0xD9, 0x5D, 0xE1, 0x86, 0x1B, 0x8E, 0x26,
++			0xDA, 0x8D, 0xDE, 0x94, 0x00, 0x00, 0x18, 0x00,
++			0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x15, 0x03,
++		},
++	},
+ 	{	/*  mode#5: 1024 x 768  24Bpp  60Hz */
+ 		1024, 768, 24, 60,
+ 		/*  Init_MISC */
 
 
