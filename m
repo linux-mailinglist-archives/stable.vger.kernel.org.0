@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D2103A95C
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:10:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B074D3AA87
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:19:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388302AbfFIRC4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 13:02:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41100 "EHLO mail.kernel.org"
+        id S1731366AbfFIQtC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:49:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48290 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388328AbfFIRC4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 13:02:56 -0400
+        id S1730166AbfFIQtA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:49:00 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 13BFA212F5;
-        Sun,  9 Jun 2019 17:02:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 467CE205ED;
+        Sun,  9 Jun 2019 16:48:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099774;
-        bh=t/NdbxeV71+mFzOAr7RDuesFYIu+muv8mr/fCfGlYGE=;
+        s=default; t=1560098939;
+        bh=Cp2uECuwOeGPDjVMSYrZzAlare/2fg5aOUeUdcM2Uv4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HU1vIL0eoO8OgE1798ol56set5Rr3Z1/4JTfEk0E6Jv5Ty0wJjkDOwlB2LVIwVqyq
-         fJzRCrIlwyveY+lhHw0LpdqvSDQDqI5IjuuoOgo6kTGHVvsOdof+Abg4XGpIxOHUPr
-         GLgGeeAtfRsNcHZzLHf3BcUjuqzEJohJLKk6AO3s=
+        b=rDbJvmtca6V8KZLJz3fAP68AEvoptkhQ1guCWhL55UXcTB78yrgjO0qM5q1Af6SwI
+         Dzp1Fh1GSaH7LcKKz8OyBMEmvPOW0cmGMsKAvOr6LsfUDg1Lq+odH3E8dUO2KI0Rdp
+         SI1rvKSnOb44NEG+hGG3RJvkMJsy8ZxVTqFZuUd0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicolas Saenz Julienne <nsaenzjulienne@suse.de>,
-        Terry Junge <terry.junge@poly.com>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 161/241] HID: core: move Usage Page concatenation to Main item
+        stable@vger.kernel.org, Neil Horman <nhorman@tuxdriver.com>,
+        syzbot+f7e9153b037eac9b1df8@syzkaller.appspotmail.com,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org
+Subject: [PATCH 4.19 02/51] Fix memory leak in sctp_process_init
 Date:   Sun,  9 Jun 2019 18:41:43 +0200
-Message-Id: <20190609164152.418849487@linuxfoundation.org>
+Message-Id: <20190609164127.262205526@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
-References: <20190609164147.729157653@linuxfoundation.org>
+In-Reply-To: <20190609164127.123076536@linuxfoundation.org>
+References: <20190609164127.123076536@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,148 +45,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 58e75155009cc800005629955d3482f36a1e0eec ]
+From: Neil Horman <nhorman@tuxdriver.com>
 
-As seen on some USB wireless keyboards manufactured by Primax, the HID
-parser was using some assumptions that are not always true. In this case
-it's s the fact that, inside the scope of a main item, an Usage Page
-will always precede an Usage.
+[ Upstream commit 0a8dd9f67cd0da7dc284f48b032ce00db1a68791 ]
 
-The spec is not pretty clear as 6.2.2.7 states "Any usage that follows
-is interpreted as a Usage ID and concatenated with the Usage Page".
-While 6.2.2.8 states "When the parser encounters a main item it
-concatenates the last declared Usage Page with a Usage to form a
-complete usage value." Being somewhat contradictory it was decided to
-match Window's implementation, which follows 6.2.2.8.
+syzbot found the following leak in sctp_process_init
+BUG: memory leak
+unreferenced object 0xffff88810ef68400 (size 1024):
+  comm "syz-executor273", pid 7046, jiffies 4294945598 (age 28.770s)
+  hex dump (first 32 bytes):
+    1d de 28 8d de 0b 1b e3 b5 c2 f9 68 fd 1a 97 25  ..(........h...%
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<00000000a02cebbd>] kmemleak_alloc_recursive include/linux/kmemleak.h:55
+[inline]
+    [<00000000a02cebbd>] slab_post_alloc_hook mm/slab.h:439 [inline]
+    [<00000000a02cebbd>] slab_alloc mm/slab.c:3326 [inline]
+    [<00000000a02cebbd>] __do_kmalloc mm/slab.c:3658 [inline]
+    [<00000000a02cebbd>] __kmalloc_track_caller+0x15d/0x2c0 mm/slab.c:3675
+    [<000000009e6245e6>] kmemdup+0x27/0x60 mm/util.c:119
+    [<00000000dfdc5d2d>] kmemdup include/linux/string.h:432 [inline]
+    [<00000000dfdc5d2d>] sctp_process_init+0xa7e/0xc20
+net/sctp/sm_make_chunk.c:2437
+    [<00000000b58b62f8>] sctp_cmd_process_init net/sctp/sm_sideeffect.c:682
+[inline]
+    [<00000000b58b62f8>] sctp_cmd_interpreter net/sctp/sm_sideeffect.c:1384
+[inline]
+    [<00000000b58b62f8>] sctp_side_effects net/sctp/sm_sideeffect.c:1194
+[inline]
+    [<00000000b58b62f8>] sctp_do_sm+0xbdc/0x1d60 net/sctp/sm_sideeffect.c:1165
+    [<0000000044e11f96>] sctp_assoc_bh_rcv+0x13c/0x200
+net/sctp/associola.c:1074
+    [<00000000ec43804d>] sctp_inq_push+0x7f/0xb0 net/sctp/inqueue.c:95
+    [<00000000726aa954>] sctp_backlog_rcv+0x5e/0x2a0 net/sctp/input.c:354
+    [<00000000d9e249a8>] sk_backlog_rcv include/net/sock.h:950 [inline]
+    [<00000000d9e249a8>] __release_sock+0xab/0x110 net/core/sock.c:2418
+    [<00000000acae44fa>] release_sock+0x37/0xd0 net/core/sock.c:2934
+    [<00000000963cc9ae>] sctp_sendmsg+0x2c0/0x990 net/sctp/socket.c:2122
+    [<00000000a7fc7565>] inet_sendmsg+0x64/0x120 net/ipv4/af_inet.c:802
+    [<00000000b732cbd3>] sock_sendmsg_nosec net/socket.c:652 [inline]
+    [<00000000b732cbd3>] sock_sendmsg+0x54/0x70 net/socket.c:671
+    [<00000000274c57ab>] ___sys_sendmsg+0x393/0x3c0 net/socket.c:2292
+    [<000000008252aedb>] __sys_sendmsg+0x80/0xf0 net/socket.c:2330
+    [<00000000f7bf23d1>] __do_sys_sendmsg net/socket.c:2339 [inline]
+    [<00000000f7bf23d1>] __se_sys_sendmsg net/socket.c:2337 [inline]
+    [<00000000f7bf23d1>] __x64_sys_sendmsg+0x23/0x30 net/socket.c:2337
+    [<00000000a8b4131f>] do_syscall_64+0x76/0x1a0 arch/x86/entry/common.c:3
 
-In summary, the patch moves the Usage Page concatenation from the local
-item parsing function to the main item parsing function.
+The problem was that the peer.cookie value points to an skb allocated
+area on the first pass through this function, at which point it is
+overwritten with a heap allocated value, but in certain cases, where a
+COOKIE_ECHO chunk is included in the packet, a second pass through
+sctp_process_init is made, where the cookie value is re-allocated,
+leaking the first allocation.
 
-Signed-off-by: Nicolas Saenz Julienne <nsaenzjulienne@suse.de>
-Reviewed-by: Terry Junge <terry.junge@poly.com>
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix is to always allocate the cookie value, and free it when we are done
+using it.
+
+Signed-off-by: Neil Horman <nhorman@tuxdriver.com>
+Reported-by: syzbot+f7e9153b037eac9b1df8@syzkaller.appspotmail.com
+CC: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+CC: "David S. Miller" <davem@davemloft.net>
+CC: netdev@vger.kernel.org
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/hid-core.c | 36 ++++++++++++++++++++++++------------
- include/linux/hid.h    |  1 +
- 2 files changed, 25 insertions(+), 12 deletions(-)
+ net/sctp/sm_make_chunk.c |   13 +++----------
+ net/sctp/sm_sideeffect.c |    5 +++++
+ 2 files changed, 8 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 4564ecf711815..9b2b41d683dea 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -200,13 +200,14 @@ static unsigned hid_lookup_collection(struct hid_parser *parser, unsigned type)
-  * Add a usage to the temporary parser table.
-  */
+--- a/net/sctp/sm_make_chunk.c
++++ b/net/sctp/sm_make_chunk.c
+@@ -2329,7 +2329,6 @@ int sctp_process_init(struct sctp_associ
+ 	union sctp_addr addr;
+ 	struct sctp_af *af;
+ 	int src_match = 0;
+-	char *cookie;
  
--static int hid_add_usage(struct hid_parser *parser, unsigned usage)
-+static int hid_add_usage(struct hid_parser *parser, unsigned usage, u8 size)
- {
- 	if (parser->local.usage_index >= HID_MAX_USAGES) {
- 		hid_err(parser->device, "usage index exceeded\n");
- 		return -1;
+ 	/* We must include the address that the INIT packet came from.
+ 	 * This is the only address that matters for an INIT packet.
+@@ -2433,14 +2432,6 @@ int sctp_process_init(struct sctp_associ
+ 	/* Peer Rwnd   : Current calculated value of the peer's rwnd.  */
+ 	asoc->peer.rwnd = asoc->peer.i.a_rwnd;
+ 
+-	/* Copy cookie in case we need to resend COOKIE-ECHO. */
+-	cookie = asoc->peer.cookie;
+-	if (cookie) {
+-		asoc->peer.cookie = kmemdup(cookie, asoc->peer.cookie_len, gfp);
+-		if (!asoc->peer.cookie)
+-			goto clean_up;
+-	}
+-
+ 	/* RFC 2960 7.2.1 The initial value of ssthresh MAY be arbitrarily
+ 	 * high (for example, implementations MAY use the size of the receiver
+ 	 * advertised window).
+@@ -2609,7 +2600,9 @@ do_addr_param:
+ 	case SCTP_PARAM_STATE_COOKIE:
+ 		asoc->peer.cookie_len =
+ 			ntohs(param.p->length) - sizeof(struct sctp_paramhdr);
+-		asoc->peer.cookie = param.cookie->body;
++		asoc->peer.cookie = kmemdup(param.cookie->body, asoc->peer.cookie_len, gfp);
++		if (!asoc->peer.cookie)
++			retval = 0;
+ 		break;
+ 
+ 	case SCTP_PARAM_HEARTBEAT_INFO:
+--- a/net/sctp/sm_sideeffect.c
++++ b/net/sctp/sm_sideeffect.c
+@@ -898,6 +898,11 @@ static void sctp_cmd_new_state(struct sc
+ 						asoc->rto_initial;
  	}
- 	parser->local.usage[parser->local.usage_index] = usage;
-+	parser->local.usage_size[parser->local.usage_index] = size;
- 	parser->local.collection_index[parser->local.usage_index] =
- 		parser->collection_stack_ptr ?
- 		parser->collection_stack[parser->collection_stack_ptr - 1] : 0;
-@@ -463,10 +464,7 @@ static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
- 			return 0;
- 		}
  
--		if (item->size <= 2)
--			data = (parser->global.usage_page << 16) + data;
--
--		return hid_add_usage(parser, data);
-+		return hid_add_usage(parser, data, item->size);
- 
- 	case HID_LOCAL_ITEM_TAG_USAGE_MINIMUM:
- 
-@@ -475,9 +473,6 @@ static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
- 			return 0;
- 		}
- 
--		if (item->size <= 2)
--			data = (parser->global.usage_page << 16) + data;
--
- 		parser->local.usage_minimum = data;
- 		return 0;
- 
-@@ -488,9 +483,6 @@ static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
- 			return 0;
- 		}
- 
--		if (item->size <= 2)
--			data = (parser->global.usage_page << 16) + data;
--
- 		count = data - parser->local.usage_minimum;
- 		if (count + parser->local.usage_index >= HID_MAX_USAGES) {
- 			/*
-@@ -510,7 +502,7 @@ static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
- 		}
- 
- 		for (n = parser->local.usage_minimum; n <= data; n++)
--			if (hid_add_usage(parser, n)) {
-+			if (hid_add_usage(parser, n, item->size)) {
- 				dbg_hid("hid_add_usage failed\n");
- 				return -1;
- 			}
-@@ -524,6 +516,22 @@ static int hid_parser_local(struct hid_parser *parser, struct hid_item *item)
- 	return 0;
- }
- 
-+/*
-+ * Concatenate Usage Pages into Usages where relevant:
-+ * As per specification, 6.2.2.8: "When the parser encounters a main item it
-+ * concatenates the last declared Usage Page with a Usage to form a complete
-+ * usage value."
-+ */
++	if (sctp_state(asoc, ESTABLISHED)) {
++		kfree(asoc->peer.cookie);
++		asoc->peer.cookie = NULL;
++	}
 +
-+static void hid_concatenate_usage_page(struct hid_parser *parser)
-+{
-+	int i;
-+
-+	for (i = 0; i < parser->local.usage_index; i++)
-+		if (parser->local.usage_size[i] <= 2)
-+			parser->local.usage[i] += parser->global.usage_page << 16;
-+}
-+
- /*
-  * Process a main item.
-  */
-@@ -533,6 +541,8 @@ static int hid_parser_main(struct hid_parser *parser, struct hid_item *item)
- 	__u32 data;
- 	int ret;
- 
-+	hid_concatenate_usage_page(parser);
-+
- 	data = item_udata(item);
- 
- 	switch (item->tag) {
-@@ -746,6 +756,8 @@ static int hid_scan_main(struct hid_parser *parser, struct hid_item *item)
- 	__u32 data;
- 	int i;
- 
-+	hid_concatenate_usage_page(parser);
-+
- 	data = item_udata(item);
- 
- 	switch (item->tag) {
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index fd86687f81196..5f31318851366 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -372,6 +372,7 @@ struct hid_global {
- 
- struct hid_local {
- 	unsigned usage[HID_MAX_USAGES]; /* usage array */
-+	u8 usage_size[HID_MAX_USAGES]; /* usage size array */
- 	unsigned collection_index[HID_MAX_USAGES]; /* collection index array */
- 	unsigned usage_index;
- 	unsigned usage_minimum;
--- 
-2.20.1
-
+ 	if (sctp_state(asoc, ESTABLISHED) ||
+ 	    sctp_state(asoc, CLOSED) ||
+ 	    sctp_state(asoc, SHUTDOWN_RECEIVED)) {
 
 
