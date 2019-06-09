@@ -2,46 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 253C93A8E2
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:05:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F36F53A7F3
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 18:55:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388779AbfFIRFQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 13:05:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44432 "EHLO mail.kernel.org"
+        id S1730769AbfFIQz0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:55:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388776AbfFIRFP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 13:05:15 -0400
+        id S1732773AbfFIQzZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:55:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EA860206DF;
-        Sun,  9 Jun 2019 17:05:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C1B94205ED;
+        Sun,  9 Jun 2019 16:55:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099915;
-        bh=+SaQOnpuc3KYK1Uzlk7Tb/UZnbTi3fsoVUAx8VBchwk=;
+        s=default; t=1560099324;
+        bh=5DAdWmU4+rn2k8pRq7sq3fuN1ox/Q3VzobqIHTsLe5s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rnpQ0yASeneioNk+zWwVCUympFR6+oH6jvM+0c46h8zP/K91s0VgdzL7ZAkOiiFiX
-         XQJX39ZrfP8xzdtyRMv4A2lK9mho4ysO5BA24Xyg403cjWMgk2nrNs3F/04DDqkEZP
-         NiMkK+dU18X6fRFiRy0QRv61imqCUlusSjWYkn70=
+        b=f3oCGWnp9FyacGViekqc4DRyn9QtkAISfw0VmCAH75pIJrdiC2KgFLKLOrfQs70QT
+         /Cok2vRcejkTKnnQPg9Uv12aGbG4eb8JZ0eW9jin6YSAWqRuY1pV5ZHk4rrjQehBNX
+         ttG0+m5geX0iSqdf1Baq0LGyFH0poJWX9SqJwtg4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhenliang Wei <weizhenliang@huawei.com>,
-        Christian Brauner <christian@brauner.io>,
-        Oleg Nesterov <oleg@redhat.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Ivan Delalande <colona@arista.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Deepa Dinamani <deepa.kernel@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.4 212/241] kernel/signal.c: trace_signal_deliver when signal_group_exit
+        stable@vger.kernel.org, Erez Alfasi <ereza@mellanox.com>,
+        Tariq Toukan <tariqt@mellanox.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 64/83] net/mlx4_en: ethtool, Remove unsupported SFP EEPROM high pages query
 Date:   Sun,  9 Jun 2019 18:42:34 +0200
-Message-Id: <20190609164154.784342867@linuxfoundation.org>
+Message-Id: <20190609164133.262881400@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
-References: <20190609164147.729157653@linuxfoundation.org>
+In-Reply-To: <20190609164127.843327870@linuxfoundation.org>
+References: <20190609164127.843327870@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,50 +44,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhenliang Wei <weizhenliang@huawei.com>
+From: Erez Alfasi <ereza@mellanox.com>
 
-commit 98af37d624ed8c83f1953b1b6b2f6866011fc064 upstream.
+[ Upstream commit 135dd9594f127c8a82d141c3c8430e9e2143216a ]
 
-In the fixes commit, removing SIGKILL from each thread signal mask and
-executing "goto fatal" directly will skip the call to
-"trace_signal_deliver".  At this point, the delivery tracking of the
-SIGKILL signal will be inaccurate.
+Querying EEPROM high pages data for SFP module is currently
+not supported by our driver but is still tried, resulting in
+invalid FW queries.
 
-Therefore, we need to add trace_signal_deliver before "goto fatal" after
-executing sigdelset.
+Set the EEPROM ethtool data length to 256 for SFP module to
+limit the reading for page 0 only and prevent invalid FW queries.
 
-Note: SEND_SIG_NOINFO matches the fact that SIGKILL doesn't have any info.
-
-Link: http://lkml.kernel.org/r/20190425025812.91424-1-weizhenliang@huawei.com
-Fixes: cf43a757fd4944 ("signal: Restore the stop PTRACE_EVENT_EXIT")
-Signed-off-by: Zhenliang Wei <weizhenliang@huawei.com>
-Reviewed-by: Christian Brauner <christian@brauner.io>
-Reviewed-by: Oleg Nesterov <oleg@redhat.com>
-Cc: Eric W. Biederman <ebiederm@xmission.com>
-Cc: Ivan Delalande <colona@arista.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Deepa Dinamani <deepa.kernel@gmail.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 7202da8b7f71 ("ethtool, net/mlx4_en: Cable info, get_module_info/eeprom ethtool support")
+Signed-off-by: Erez Alfasi <ereza@mellanox.com>
+Signed-off-by: Tariq Toukan <tariqt@mellanox.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- kernel/signal.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/mellanox/mlx4/en_ethtool.c |    4 +++-
+ drivers/net/ethernet/mellanox/mlx4/port.c       |    5 -----
+ 2 files changed, 3 insertions(+), 6 deletions(-)
 
---- a/kernel/signal.c
-+++ b/kernel/signal.c
-@@ -2244,6 +2244,8 @@ relock:
- 	if (signal_group_exit(signal)) {
- 		ksig->info.si_signo = signr = SIGKILL;
- 		sigdelset(&current->pending.signal, SIGKILL);
-+		trace_signal_deliver(SIGKILL, SEND_SIG_NOINFO,
-+				&sighand->action[SIGKILL - 1]);
- 		recalc_sigpending();
- 		goto fatal;
- 	}
+--- a/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
++++ b/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
+@@ -1930,6 +1930,8 @@ static int mlx4_en_set_tunable(struct ne
+ 	return ret;
+ }
+ 
++#define MLX4_EEPROM_PAGE_LEN 256
++
+ static int mlx4_en_get_module_info(struct net_device *dev,
+ 				   struct ethtool_modinfo *modinfo)
+ {
+@@ -1964,7 +1966,7 @@ static int mlx4_en_get_module_info(struc
+ 		break;
+ 	case MLX4_MODULE_ID_SFP:
+ 		modinfo->type = ETH_MODULE_SFF_8472;
+-		modinfo->eeprom_len = ETH_MODULE_SFF_8472_LEN;
++		modinfo->eeprom_len = MLX4_EEPROM_PAGE_LEN;
+ 		break;
+ 	default:
+ 		return -ENOSYS;
+--- a/drivers/net/ethernet/mellanox/mlx4/port.c
++++ b/drivers/net/ethernet/mellanox/mlx4/port.c
+@@ -1960,11 +1960,6 @@ int mlx4_get_module_info(struct mlx4_dev
+ 		size -= offset + size - I2C_PAGE_SIZE;
+ 
+ 	i2c_addr = I2C_ADDR_LOW;
+-	if (offset >= I2C_PAGE_SIZE) {
+-		/* Reset offset to high page */
+-		i2c_addr = I2C_ADDR_HIGH;
+-		offset -= I2C_PAGE_SIZE;
+-	}
+ 
+ 	cable_info = (struct mlx4_cable_info *)inmad->data;
+ 	cable_info->dev_mem_address = cpu_to_be16(offset);
 
 
