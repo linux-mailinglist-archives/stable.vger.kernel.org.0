@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B3F93AAC1
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:21:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A0783AA97
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:20:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729464AbfFIRV2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 13:21:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43842 "EHLO mail.kernel.org"
+        id S1729829AbfFIQru (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:47:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730126AbfFIQpx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:45:53 -0400
+        id S1730996AbfFIQru (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:47:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0A81B20833;
-        Sun,  9 Jun 2019 16:45:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 65F24205ED;
+        Sun,  9 Jun 2019 16:47:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560098752;
-        bh=2hmnF4XbiYzaLjNdH4KcV6WLN+C49zVKNABkve9f/FQ=;
+        s=default; t=1560098869;
+        bh=g+hd2iLdmdvsV99V+ur7k869hgf102FOOHf4hvs7/pY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w5Gz4pWRM3DVCfHJuw56GPkRk99/kRBuSgdiRCFMd/IFX3835aWyRWD6oM1cJAYw9
-         y9dkAXCJL2+c+LOkBMgBYacFOZUqNBCzxv6je0C5VpmAvs8hI9SJNpJ6zLsi+Gfsok
-         +jVgFOMcMgN1cS6MuNpTfqcBO+a8/uwSeXdFGPpQ=
+        b=oVvcCxuzsteB+bPXH4YeVFokZKxcyghpSwBVfxyWtgzvV8xa5fHF0RyxZ5SLAxEd5
+         AWwdGzFU44KF6dmYfkN2avmAmmBC6ifxc0mDALATeThZUPXqPr434FmH9PJBjFEbag
+         K13x9y8B+zI04bPDHPDsmtbCD7m55lkNPUzv/TT8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Helen Koike <helen.koike@collabora.com>,
-        Boris Brezillon <boris.brezillon@collabora.com>
-Subject: [PATCH 5.1 49/70] drm/rockchip: fix fb references in async update
+        stable@vger.kernel.org, John David Anglin <dave.anglin@bell.net>,
+        Helge Deller <deller@gmx.de>
+Subject: [PATCH 4.19 19/51] parisc: Use implicit space register selection for loading the coherence index of I/O pdirs
 Date:   Sun,  9 Jun 2019 18:42:00 +0200
-Message-Id: <20190609164131.535974639@linuxfoundation.org>
+Message-Id: <20190609164128.193493141@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.541128197@linuxfoundation.org>
-References: <20190609164127.541128197@linuxfoundation.org>
+In-Reply-To: <20190609164127.123076536@linuxfoundation.org>
+References: <20190609164127.123076536@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,117 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helen Koike <helen.koike@collabora.com>
+From: John David Anglin <dave.anglin@bell.net>
 
-commit d985a3533274ef7dd1ccb25cb05a72259b25268f upstream.
+commit 63923d2c3800919774f5c651d503d1dd2adaddd5 upstream.
 
-In the case of async update, modifications are done in place, i.e. in the
-current plane state, so the new_state is prepared and the new_state is
-cleaned up (instead of the old_state, unlike what happens in a
-normal sync update).
-To cleanup the old_fb properly, it needs to be placed in the new_state
-in the end of async_update, so cleanup call will unreference the old_fb
-correctly.
+We only support I/O to kernel space. Using %sr1 to load the coherence
+index may be racy unless interrupts are disabled. This patch changes the
+code used to load the coherence index to use implicit space register
+selection. This saves one instruction and eliminates the race.
 
-Also, the previous code had a:
+Tested on rp3440, c8000 and c3750.
 
-	plane_state = plane->funcs->atomic_duplicate_state(plane);
-	...
-	swap(plane_state, plane->state);
-
-	if (plane->state->fb && plane->state->fb != new_state->fb) {
-	...
-	}
-
-Which was wrong, as the fb were just assigned to be equal, so this if
-statement nevers evaluates to true.
-
-Another details is that the function drm_crtc_vblank_get() can only be
-called when vop->is_enabled is true, otherwise it has no effect and
-trows a WARN_ON().
-
-Calling drm_atomic_set_fb_for_plane() (which get a referent of the new
-fb and pus the old fb) is not required, as it is taken care by
-drm_mode_cursor_universal() when calling
-drm_atomic_helper_update_plane().
-
-Fixes: 15609559a834 ("drm/rockchip: update cursors asynchronously through atomic.")
-Cc: <stable@vger.kernel.org> # v4.20+
-Signed-off-by: Helen Koike <helen.koike@collabora.com>
-Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190603165610.24614-2-helen.koike@collabora.com
+Signed-off-by: John David Anglin <dave.anglin@bell.net>
+Cc: stable@vger.kernel.org
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/rockchip/rockchip_drm_vop.c |   49 ++++++++++++++--------------
- 1 file changed, 25 insertions(+), 24 deletions(-)
+ drivers/parisc/ccio-dma.c  |    4 +---
+ drivers/parisc/sba_iommu.c |    3 +--
+ 2 files changed, 2 insertions(+), 5 deletions(-)
 
---- a/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
-+++ b/drivers/gpu/drm/rockchip/rockchip_drm_vop.c
-@@ -924,29 +924,17 @@ static void vop_plane_atomic_async_updat
- 					  struct drm_plane_state *new_state)
- {
- 	struct vop *vop = to_vop(plane->state->crtc);
--	struct drm_plane_state *plane_state;
-+	struct drm_framebuffer *old_fb = plane->state->fb;
+--- a/drivers/parisc/ccio-dma.c
++++ b/drivers/parisc/ccio-dma.c
+@@ -565,8 +565,6 @@ ccio_io_pdir_entry(u64 *pdir_ptr, space_
+ 	/* We currently only support kernel addresses */
+ 	BUG_ON(sid != KERNEL_SPACE);
  
--	plane_state = plane->funcs->atomic_duplicate_state(plane);
--	plane_state->crtc_x = new_state->crtc_x;
--	plane_state->crtc_y = new_state->crtc_y;
--	plane_state->crtc_h = new_state->crtc_h;
--	plane_state->crtc_w = new_state->crtc_w;
--	plane_state->src_x = new_state->src_x;
--	plane_state->src_y = new_state->src_y;
--	plane_state->src_h = new_state->src_h;
--	plane_state->src_w = new_state->src_w;
+-	mtsp(sid,1);
 -
--	if (plane_state->fb != new_state->fb)
--		drm_atomic_set_fb_for_plane(plane_state, new_state->fb);
--
--	swap(plane_state, plane->state);
--
--	if (plane->state->fb && plane->state->fb != new_state->fb) {
--		drm_framebuffer_get(plane->state->fb);
--		WARN_ON(drm_crtc_vblank_get(plane->state->crtc) != 0);
--		drm_flip_work_queue(&vop->fb_unref_work, plane->state->fb);
--		set_bit(VOP_PENDING_FB_UNREF, &vop->pending);
--	}
-+	plane->state->crtc_x = new_state->crtc_x;
-+	plane->state->crtc_y = new_state->crtc_y;
-+	plane->state->crtc_h = new_state->crtc_h;
-+	plane->state->crtc_w = new_state->crtc_w;
-+	plane->state->src_x = new_state->src_x;
-+	plane->state->src_y = new_state->src_y;
-+	plane->state->src_h = new_state->src_h;
-+	plane->state->src_w = new_state->src_w;
-+	swap(plane->state->fb, new_state->fb);
+ 	/*
+ 	** WORD 1 - low order word
+ 	** "hints" parm includes the VALID bit!
+@@ -597,7 +595,7 @@ ccio_io_pdir_entry(u64 *pdir_ptr, space_
+ 	** Grab virtual index [0:11]
+ 	** Deposit virt_idx bits into I/O PDIR word
+ 	*/
+-	asm volatile ("lci %%r0(%%sr1, %1), %0" : "=r" (ci) : "r" (vba));
++	asm volatile ("lci %%r0(%1), %0" : "=r" (ci) : "r" (vba));
+ 	asm volatile ("extru %1,19,12,%0" : "+r" (ci) : "r" (ci));
+ 	asm volatile ("depw  %1,15,12,%0" : "+r" (pa) : "r" (ci));
  
- 	if (vop->is_enabled) {
- 		rockchip_drm_psr_inhibit_get_state(new_state->state);
-@@ -955,9 +943,22 @@ static void vop_plane_atomic_async_updat
- 		vop_cfg_done(vop);
- 		spin_unlock(&vop->reg_lock);
- 		rockchip_drm_psr_inhibit_put_state(new_state->state);
--	}
+--- a/drivers/parisc/sba_iommu.c
++++ b/drivers/parisc/sba_iommu.c
+@@ -575,8 +575,7 @@ sba_io_pdir_entry(u64 *pdir_ptr, space_t
+ 	pa = virt_to_phys(vba);
+ 	pa &= IOVP_MASK;
  
--	plane->funcs->atomic_destroy_state(plane, plane_state);
-+		/*
-+		 * A scanout can still be occurring, so we can't drop the
-+		 * reference to the old framebuffer. To solve this we get a
-+		 * reference to old_fb and set a worker to release it later.
-+		 * FIXME: if we perform 500 async_update calls before the
-+		 * vblank, then we can have 500 different framebuffers waiting
-+		 * to be released.
-+		 */
-+		if (old_fb && plane->state->fb != old_fb) {
-+			drm_framebuffer_get(old_fb);
-+			WARN_ON(drm_crtc_vblank_get(plane->state->crtc) != 0);
-+			drm_flip_work_queue(&vop->fb_unref_work, old_fb);
-+			set_bit(VOP_PENDING_FB_UNREF, &vop->pending);
-+		}
-+	}
- }
+-	mtsp(sid,1);
+-	asm("lci 0(%%sr1, %1), %0" : "=r" (ci) : "r" (vba));
++	asm("lci 0(%1), %0" : "=r" (ci) : "r" (vba));
+ 	pa |= (ci >> PAGE_SHIFT) & 0xff;  /* move CI (8 bits) into lowest byte */
  
- static const struct drm_plane_helper_funcs plane_helper_funcs = {
+ 	pa |= SBA_PDIR_VALID_BIT;	/* set "valid" bit */
 
 
