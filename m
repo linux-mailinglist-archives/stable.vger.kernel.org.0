@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B93F3A6FF
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 18:46:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06FD73A88F
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:02:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729757AbfFIQpV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:45:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43026 "EHLO mail.kernel.org"
+        id S1732571AbfFIRBq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 13:01:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39222 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729784AbfFIQpU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:45:20 -0400
+        id S2388124AbfFIRBp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 13:01:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 63C252084A;
-        Sun,  9 Jun 2019 16:45:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F2E1207E0;
+        Sun,  9 Jun 2019 17:01:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560098719;
-        bh=kP0Yut2/zuLHJBMavSITCKW027Z7R1PEPQXGNPspRks=;
+        s=default; t=1560099704;
+        bh=zabL5YfqfgkOhrTRcXafw5T08OQA8mRkWoJ70DYQGDc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZVM3Y0qW1kz5ChfCVFaxnTrcJ9IdpznLWUp1UduSdYoSL5k0eqTylVrWJb2g2y3QA
-         xgwAd2Qh25z9/bZOpubJeUWcwaPbcYZ26PNsoFebLnxSUbTV/+LhUyiCzblqkeiD1c
-         Ci0+550wfhN9s7uh8LN7IKA4d4VYNKiG1qvFD6A4=
+        b=kE5D3TfyrsAqYY1oJtbF7qFJG7fx+Lw49/Ayb1jHMZesVcwT+eW34MyBu+Yd0bt5i
+         h8Dj9EJRxIP2gdA6NbAabGULto4g98alzf7VbPffvfIHo0scKm2mlbjqV1usjc+kkI
+         EaSArS0lP7XoXAoq4F6eHvoNK87eck+aCJDT8t7o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianlin Shi <jishi@redhat.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.1 04/70] ipv6: fix the check before getting the cookie in rt6_get_cookie
-Date:   Sun,  9 Jun 2019 18:41:15 +0200
-Message-Id: <20190609164127.773346412@linuxfoundation.org>
+        stable@vger.kernel.org, Kefeng Wang <wangkefeng.wang@huawei.com>,
+        John Garry <john.garry@huawei.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 134/241] hwmon: (smsc47b397) Use request_muxed_region for Super-IO accesses
+Date:   Sun,  9 Jun 2019 18:41:16 +0200
+Message-Id: <20190609164151.662324680@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.541128197@linuxfoundation.org>
-References: <20190609164127.541128197@linuxfoundation.org>
+In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
+References: <20190609164147.729157653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +45,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+[ Upstream commit 8c0826756744c0ac1df600a5e4cca1a341b13101 ]
 
-[ Upstream commit b7999b07726c16974ba9ca3bb9fe98ecbec5f81c ]
+Super-IO accesses may fail on a system with no or unmapped LPC bus.
 
-In Jianlin's testing, netperf was broken with 'Connection reset by peer',
-as the cookie check failed in rt6_check() and ip6_dst_check() always
-returned NULL.
+Also, other drivers may attempt to access the LPC bus at the same time,
+resulting in undefined behavior.
 
-It's caused by Commit 93531c674315 ("net/ipv6: separate handling of FIB
-entries from dst based routes"), where the cookie can be got only when
-'c1'(see below) for setting dst_cookie whereas rt6_check() is called
-when !'c1' for checking dst_cookie, as we can see in ip6_dst_check().
+Use request_muxed_region() to ensure that IO access on the requested
+address space is supported, and to ensure that access by multiple drivers
+is synchronized.
 
-Since in ip6_dst_check() both rt6_dst_from_check() (c1) and rt6_check()
-(!c1) will check the 'from' cookie, this patch is to remove the c1 check
-in rt6_get_cookie(), so that the dst_cookie can always be set properly.
-
-c1:
-  (rt->rt6i_flags & RTF_PCPU || unlikely(!list_empty(&rt->rt6i_uncached)))
-
-Fixes: 93531c674315 ("net/ipv6: separate handling of FIB entries from dst based routes")
-Reported-by: Jianlin Shi <jishi@redhat.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 8d5d45fb1468 ("I2C: Move hwmon drivers (2/3)")
+Reported-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Reported-by: John Garry <john.garry@huawei.com>
+Cc: John Garry <john.garry@huawei.com>
+Acked-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/ip6_fib.h |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/hwmon/smsc47b397.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
---- a/include/net/ip6_fib.h
-+++ b/include/net/ip6_fib.h
-@@ -259,8 +259,7 @@ static inline u32 rt6_get_cookie(const s
- 	rcu_read_lock();
+diff --git a/drivers/hwmon/smsc47b397.c b/drivers/hwmon/smsc47b397.c
+index 6bd2007565603..cbdb5c4991ae3 100644
+--- a/drivers/hwmon/smsc47b397.c
++++ b/drivers/hwmon/smsc47b397.c
+@@ -72,14 +72,19 @@ static inline void superio_select(int ld)
+ 	superio_outb(0x07, ld);
+ }
  
- 	from = rcu_dereference(rt->from);
--	if (from && (rt->rt6i_flags & RTF_PCPU ||
--	    unlikely(!list_empty(&rt->rt6i_uncached))))
-+	if (from)
- 		fib6_get_cookie_safe(from, &cookie);
+-static inline void superio_enter(void)
++static inline int superio_enter(void)
+ {
++	if (!request_muxed_region(REG, 2, DRVNAME))
++		return -EBUSY;
++
+ 	outb(0x55, REG);
++	return 0;
+ }
  
- 	rcu_read_unlock();
+ static inline void superio_exit(void)
+ {
+ 	outb(0xAA, REG);
++	release_region(REG, 2);
+ }
+ 
+ #define SUPERIO_REG_DEVID	0x20
+@@ -300,8 +305,12 @@ static int __init smsc47b397_find(void)
+ 	u8 id, rev;
+ 	char *name;
+ 	unsigned short addr;
++	int err;
++
++	err = superio_enter();
++	if (err)
++		return err;
+ 
+-	superio_enter();
+ 	id = force_id ? force_id : superio_inb(SUPERIO_REG_DEVID);
+ 
+ 	switch (id) {
+-- 
+2.20.1
+
 
 
