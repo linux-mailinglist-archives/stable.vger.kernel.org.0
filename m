@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DDD3A3AA9F
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:20:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E19C3AA2C
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:16:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730486AbfFIRUO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 13:20:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46518 "EHLO mail.kernel.org"
+        id S1729975AbfFIRPt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 13:15:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730139AbfFIQrp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:47:45 -0400
+        id S1732538AbfFIQyI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:54:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1DAD7205ED;
-        Sun,  9 Jun 2019 16:47:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5CA94206BB;
+        Sun,  9 Jun 2019 16:54:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560098864;
-        bh=3dLa8NimBsKucGoDE8GB6eGxCqZMLfx7ATcmD0+iWdQ=;
+        s=default; t=1560099247;
+        bh=PHC6wVTNr/ilVN+aLfu0QMFCGVE1NOjtBg+sd/FYZzI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dOmZgAON47Z7H5WW3AUUFt2VzostV4vwT8HiJnwEOjVhZGmylkCUi6rI19z47ots+
-         ycOmE3kDQ5qLAiEg29VepsRg5xR+mUDEnm2yJ5MveU5dQ9WbXJZy37Un4mMjZ+WdFw
-         ooDb9QMf3sJcAHa9D44cBGyw4gQ6ekn36iOk3RwE=
+        b=RQQfvQuAg5SNG2ICWGyfQyi3gxIcZnKxzcnhlcx8dMW0wL/NG/E9RS7HvlIL/4OPz
+         9jq1XnSzYQgxr9URkLRRcRbovtK/7Y+CXzQpCG1GRoJ4ilWHmn2fR2lqhGaDrjfWxL
+         rsJ/n9660CrHqkx0WVuNs/Rk5/meCpqicreTpM5Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Emil Lenngren <emil.lenngren@gmail.com>,
-        Boris Brezillon <boris.brezillon@bootlin.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Christian Lamparter <chunkeey@gmail.com>
-Subject: [PATCH 4.19 17/51] mtd: spinand: macronix: Fix ECC Status Read
+        stable@vger.kernel.org, Maximilian Luz <luzmaximilian@gmail.com>
+Subject: [PATCH 4.9 28/83] USB: Add LPM quirk for Surface Dock GigE adapter
 Date:   Sun,  9 Jun 2019 18:41:58 +0200
-Message-Id: <20190609164128.063229742@linuxfoundation.org>
+Message-Id: <20190609164129.996434973@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.123076536@linuxfoundation.org>
-References: <20190609164127.123076536@linuxfoundation.org>
+In-Reply-To: <20190609164127.843327870@linuxfoundation.org>
+References: <20190609164127.843327870@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,46 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Emil Lenngren <emil.lenngren@gmail.com>
+From: Maximilian Luz <luzmaximilian@gmail.com>
 
-commit f4cb4d7b46f6409382fd981eec9556e1f3c1dc5d upstream.
+commit ea261113385ac0a71c2838185f39e8452d54b152 upstream.
 
-The datasheet specifies the upper four bits are reserved.
-Testing on real hardware shows that these bits can indeed be nonzero.
+Without USB_QUIRK_NO_LPM ethernet will not work and rtl8152 will
+complain with
 
-Signed-off-by: Emil Lenngren <emil.lenngren@gmail.com>
-Reviewed-by: Boris Brezillon <boris.brezillon@bootlin.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Cc: Christian Lamparter <chunkeey@gmail.com>
+    r8152 <device...>: Stop submitting intr, status -71
+
+Adding the quirk resolves this. As the dock is externally powered, this
+should not have any drawbacks.
+
+Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/mtd/nand/spi/macronix.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/usb/core/quirks.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/mtd/nand/spi/macronix.c
-+++ b/drivers/mtd/nand/spi/macronix.c
-@@ -10,6 +10,7 @@
- #include <linux/mtd/spinand.h>
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -64,6 +64,9 @@ static const struct usb_device_id usb_qu
+ 	/* Microsoft LifeCam-VX700 v2.0 */
+ 	{ USB_DEVICE(0x045e, 0x0770), .driver_info = USB_QUIRK_RESET_RESUME },
  
- #define SPINAND_MFR_MACRONIX		0xC2
-+#define MACRONIX_ECCSR_MASK		0x0F
- 
- static SPINAND_OP_VARIANTS(read_cache_variants,
- 		SPINAND_PAGE_READ_FROM_CACHE_X4_OP(0, 1, NULL, 0),
-@@ -55,7 +56,12 @@ static int mx35lf1ge4ab_get_eccsr(struct
- 					  SPI_MEM_OP_DUMMY(1, 1),
- 					  SPI_MEM_OP_DATA_IN(1, eccsr, 1));
- 
--	return spi_mem_exec_op(spinand->spimem, &op);
-+	int ret = spi_mem_exec_op(spinand->spimem, &op);
-+	if (ret)
-+		return ret;
++	/* Microsoft Surface Dock Ethernet (RTL8153 GigE) */
++	{ USB_DEVICE(0x045e, 0x07c6), .driver_info = USB_QUIRK_NO_LPM },
 +
-+	*eccsr &= MACRONIX_ECCSR_MASK;
-+	return 0;
- }
+ 	/* Cherry Stream G230 2.0 (G85-231) and 3.0 (G85-232) */
+ 	{ USB_DEVICE(0x046a, 0x0023), .driver_info = USB_QUIRK_RESET_RESUME },
  
- static int mx35lf1ge4ab_ecc_get_status(struct spinand_device *spinand,
 
 
