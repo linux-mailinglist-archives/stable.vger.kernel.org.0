@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A8E613A7CC
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 18:54:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB5ED3A775
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 18:50:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732383AbfFIQxY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:53:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54546 "EHLO mail.kernel.org"
+        id S1729537AbfFIQtv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:49:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731713AbfFIQxU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:53:20 -0400
+        id S1731593AbfFIQtv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:49:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 398612081C;
-        Sun,  9 Jun 2019 16:53:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2E07A206C3;
+        Sun,  9 Jun 2019 16:49:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099199;
-        bh=9c6gTPPLhc//uMtT9TCigZWOvEZ7xOphkK8zOKNZCGQ=;
+        s=default; t=1560098990;
+        bh=cgsLR0MP9TO4l+0FwmXy4OKV3YkT2NYbYQJA/LEHspU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A5xS3yOOBzbaiLWiBX4i2bIJVGKw39gktNbKncMw7JGOjCP0CDHN5+SytLlRsoKRH
-         5GBqDsQfLmw8bPMUNu/lLFMzqxHfOf5PjPkv5jA9VRO7GLUBtC4ghfkymR1BWfuxSx
-         uNzRxLHtzBEwts/EmbGmxySWcYj7LHeW34ZvE+9s=
+        b=vzW2SMmNknF8fp8W4m1pAIx6DfR6q6+4hwf8WZycLAclg52Ro2YuEKgRYlVg8O2k2
+         42pMkhK3ZGGTqFKIKrJulZcAGZwlz4ZNIYElD+i3g+yt6XvPAg7tQcDsoASnFnwKbQ
+         r9fT8k7aebcda/LcWSCYUEytgWl3BC6RCfcJAKHk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [PATCH 4.9 45/83] staging: vc04_services: prevent integer overflow in create_pagelist()
-Date:   Sun,  9 Jun 2019 18:42:15 +0200
-Message-Id: <20190609164131.760341489@linuxfoundation.org>
+        stable@vger.kernel.org, Jianlin Shi <jishi@redhat.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 10/35] ipv6: fix the check before getting the cookie in rt6_get_cookie
+Date:   Sun,  9 Jun 2019 18:42:16 +0200
+Message-Id: <20190609164126.099374565@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.843327870@linuxfoundation.org>
-References: <20190609164127.843327870@linuxfoundation.org>
+In-Reply-To: <20190609164125.377368385@linuxfoundation.org>
+References: <20190609164125.377368385@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,56 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit ca641bae6da977d638458e78cd1487b6160a2718 upstream.
+[ Upstream commit b7999b07726c16974ba9ca3bb9fe98ecbec5f81c ]
 
-The create_pagelist() "count" parameter comes from the user in
-vchiq_ioctl() and it could overflow.  If you look at how create_page()
-is called in vchiq_prepare_bulk_data(), then the "size" variable is an
-int so it doesn't make sense to allow negatives or larger than INT_MAX.
+In Jianlin's testing, netperf was broken with 'Connection reset by peer',
+as the cookie check failed in rt6_check() and ip6_dst_check() always
+returned NULL.
 
-I don't know this code terribly well, but I believe that typical values
-of "count" are typically quite low and I don't think this check will
-affect normal valid uses at all.
+It's caused by Commit 93531c674315 ("net/ipv6: separate handling of FIB
+entries from dst based routes"), where the cookie can be got only when
+'c1'(see below) for setting dst_cookie whereas rt6_check() is called
+when !'c1' for checking dst_cookie, as we can see in ip6_dst_check().
 
-The "pagelist_size" calculation can also overflow on 32 bit systems, but
-not on 64 bit systems.  I have added an integer overflow check for that
-as well.
+Since in ip6_dst_check() both rt6_dst_from_check() (c1) and rt6_check()
+(!c1) will check the 'from' cookie, this patch is to remove the c1 check
+in rt6_get_cookie(), so that the dst_cookie can always be set properly.
 
-The Raspberry PI doesn't offer the same level of memory protection that
-x86 does so these sorts of bugs are probably not super critical to fix.
+c1:
+  (rt->rt6i_flags & RTF_PCPU || unlikely(!list_empty(&rt->rt6i_uncached)))
 
-Fixes: 71bad7f08641 ("staging: add bcm2708 vchiq driver")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: stable <stable@vger.kernel.org>
+Fixes: 93531c674315 ("net/ipv6: separate handling of FIB entries from dst based routes")
+Reported-by: Jianlin Shi <jishi@redhat.com>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/staging/vc04_services/interface/vchiq_arm/vchiq_2835_arm.c |    9 +++++++++
- 1 file changed, 9 insertions(+)
+ include/net/ip6_fib.h |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_2835_arm.c
-+++ b/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_2835_arm.c
-@@ -381,9 +381,18 @@ create_pagelist(char __user *buf, size_t
- 	int run, addridx, actual_pages;
-         unsigned long *need_release;
+--- a/include/net/ip6_fib.h
++++ b/include/net/ip6_fib.h
+@@ -199,8 +199,7 @@ static inline u32 rt6_get_cookie(const s
+ {
+ 	u32 cookie = 0;
  
-+	if (count >= INT_MAX - PAGE_SIZE)
-+		return NULL;
-+
- 	offset = (unsigned int)buf & (PAGE_SIZE - 1);
- 	num_pages = (count + offset + PAGE_SIZE - 1) / PAGE_SIZE;
+-	if (rt->rt6i_flags & RTF_PCPU ||
+-	    (unlikely(!list_empty(&rt->rt6i_uncached)) && rt->dst.from))
++	if (rt->dst.from)
+ 		rt = (struct rt6_info *)(rt->dst.from);
  
-+	if (num_pages > (SIZE_MAX - sizeof(PAGELIST_T) -
-+			 sizeof(struct vchiq_pagelist_info)) /
-+			(sizeof(u32) + sizeof(pages[0]) +
-+			 sizeof(struct scatterlist)))
-+		return NULL;
-+
- 	*ppagelist = NULL;
- 
- 	/* Allocate enough storage to hold the page pointers and the page
+ 	rt6_get_cookie_safe(rt, &cookie);
 
 
