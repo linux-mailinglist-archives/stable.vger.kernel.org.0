@@ -2,43 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E12673AA22
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:16:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25A6F3AA8A
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:19:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731521AbfFIQyV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:54:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55936 "EHLO mail.kernel.org"
+        id S1731427AbfFIQtQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:49:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48564 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732574AbfFIQyT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:54:19 -0400
+        id S1731412AbfFIQtL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:49:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA545204EC;
-        Sun,  9 Jun 2019 16:54:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A7127206DF;
+        Sun,  9 Jun 2019 16:49:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099259;
-        bh=XXAVISAqyT7WLSXlmPvehZaHAV45vUBD1NaiHN9s+Ko=;
+        s=default; t=1560098951;
+        bh=gDN3Royv62WSTTTpPYuCAZqOoHLWjI5lA2MMTSlDF8o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EryxZZcVAd/wsGZEtoNk1RQh8GDTxNq3xEVe2np6wTiwm2fPWBF6Ci6+d3Rx4IxIt
-         P7AlnvY9QmrO9K3lWTCba3j/Q6HynMPn/6kVc2UGdQMue85hyTDOjvYg75iLQgMMh/
-         hPJKnc1cXQBN6UGmU8IlPrbVMfeBR/vJzNANMpUM=
+        b=q0VodXEDqY1Eoies2fsFmQxqByhQEfQiqn+t+G82FAX7xEu9H18NkVrkYG4C0Nm8M
+         YLPX1M/6LXQdzyCcKHBizvm5XZ6WgBxEJCSncZ9FRzbkfwi/gr9Mk+lO4w1sgeLWD0
+         gFtRVtjzrnqQhRuPY5iMoKkPQenaDoevm3RPn4VM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sami Tolvanen <samitolvanen@google.com>,
-        Kees Cook <keescook@chromium.org>,
-        Borislav Petkov <bp@suse.de>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Alec Ari <neotheuser@gmail.com>, Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH 4.9 59/83] Revert "x86/build: Move _etext to actual end of .text"
+        stable@vger.kernel.org, Jani Nikula <jani.nikula@intel.com>,
+        Jonathan Corbet <corbet@lwn.net>
+Subject: [PATCH 4.19 48/51] drm/i915: Maintain consistent documentation subsection ordering
 Date:   Sun,  9 Jun 2019 18:42:29 +0200
-Message-Id: <20190609164132.916806087@linuxfoundation.org>
+Message-Id: <20190609164130.697342252@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.843327870@linuxfoundation.org>
-References: <20190609164127.843327870@linuxfoundation.org>
+In-Reply-To: <20190609164127.123076536@linuxfoundation.org>
+References: <20190609164127.123076536@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,42 +43,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Jonathan Corbet <corbet@lwn.net>
 
-This reverts commit 392bef709659abea614abfe53cf228e7a59876a4.
+commit 551bd3368a7b3cfef01edaade8970948d178d40a upstream.
 
-It seems to cause lots of problems when using the gold linker, and no
-one really needs this at the moment, so just revert it from the stable
-trees.
+With Sphinx 2.0 (or prior versions with the deprecation warnings fixed) the
+docs build fails with:
 
-Cc: Sami Tolvanen <samitolvanen@google.com>
-Reported-by: Kees Cook <keescook@chromium.org>
-Cc: Borislav Petkov <bp@suse.de>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Reported-by: Alec Ari <neotheuser@gmail.com>
-Cc: Ingo Molnar <mingo@kernel.org>
+  Documentation/gpu/i915.rst:403: WARNING: Title level inconsistent:
+
+  Global GTT Fence Handling
+  ~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  reST markup error:
+  Documentation/gpu/i915.rst:403: (SEVERE/4) Title level inconsistent:
+
+I "fixed" it by changing the subsections in i915.rst, but that didn't seem
+like the correct change.  It turns out that a couple of i915 files create
+their own subsections in kerneldoc comments using apostrophes as the
+heading marker:
+
+  Layout
+  ''''''
+
+That breaks the normal subsection marker ordering, and newer Sphinx is
+rather more strict about enforcing that ordering.  So fix the offending
+comments to make Sphinx happy.
+
+(This is unfortunate, in that kerneldoc comments shouldn't need to be aware
+of where they might be included in the heading hierarchy, but I don't see
+a better way around it).
+
+Cc: stable@vger.kernel.org  # v4.14+
+Acked-by: Jani Nikula <jani.nikula@intel.com>
+Signed-off-by: Jonathan Corbet <corbet@lwn.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/x86/kernel/vmlinux.lds.S |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/arch/x86/kernel/vmlinux.lds.S
-+++ b/arch/x86/kernel/vmlinux.lds.S
-@@ -111,10 +111,10 @@ SECTIONS
- 		*(.text.__x86.indirect_thunk)
- 		__indirect_thunk_end = .;
- #endif
--	} :text = 0x9090
- 
--	/* End of text section */
--	_etext = .;
-+		/* End of text section */
-+		_etext = .;
-+	} :text = 0x9090
- 
- 	NOTES :text :note
- 
+---
+ drivers/gpu/drm/i915/i915_reg.h          |    6 +++---
+ drivers/gpu/drm/i915/intel_workarounds.c |    2 +-
+ 2 files changed, 4 insertions(+), 4 deletions(-)
+
+--- a/drivers/gpu/drm/i915/i915_reg.h
++++ b/drivers/gpu/drm/i915/i915_reg.h
+@@ -32,7 +32,7 @@
+  * macros. Do **not** mass change existing definitions just to update the style.
+  *
+  * Layout
+- * ''''''
++ * ~~~~~~
+  *
+  * Keep helper macros near the top. For example, _PIPE() and friends.
+  *
+@@ -78,7 +78,7 @@
+  * style. Use lower case in hexadecimal values.
+  *
+  * Naming
+- * ''''''
++ * ~~~~~~
+  *
+  * Try to name registers according to the specs. If the register name changes in
+  * the specs from platform to another, stick to the original name.
+@@ -96,7 +96,7 @@
+  * suffix to the name. For example, ``_SKL`` or ``_GEN8``.
+  *
+  * Examples
+- * ''''''''
++ * ~~~~~~~~
+  *
+  * (Note that the values in the example are indented using spaces instead of
+  * TABs to avoid misalignment in generated documentation. Use TABs in the
+--- a/drivers/gpu/drm/i915/intel_workarounds.c
++++ b/drivers/gpu/drm/i915/intel_workarounds.c
+@@ -37,7 +37,7 @@
+  *    costly and simplifies things. We can revisit this in the future.
+  *
+  * Layout
+- * ''''''
++ * ~~~~~~
+  *
+  * Keep things in this file ordered by WA type, as per the above (context, GT,
+  * display, register whitelist, batchbuffer). Then, inside each type, keep the
 
 
