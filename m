@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1049B3A971
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:10:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 678C13AACE
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:22:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731128AbfFIRKY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 13:10:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40912 "EHLO mail.kernel.org"
+        id S1729644AbfFIQpH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:45:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387630AbfFIRCu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 13:02:50 -0400
+        id S1729590AbfFIQpG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:45:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B895F206C3;
-        Sun,  9 Jun 2019 17:02:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 773432145D;
+        Sun,  9 Jun 2019 16:45:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099769;
-        bh=XjZM19HsHA3AL/XZJvRGvAdfoEQZhw+DsvrY4c2CoAE=;
+        s=default; t=1560098705;
+        bh=JdUzlv4TObo/slAwFsxFXuX8Bv/1SQfiN8q6c86HR1k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bfannJtVtqQSRh/YE2NlV2Kb/P8N0IJQg0T2QD0nm8t+iVinfcKiuXpxCBu0EUIUW
-         B1kHbJq4w9fYNjjZ8gEn8hQDHrBFBdFMAAofywten98Uf7Hyp8nlh8npFywcjbCOq/
-         /92iPErFTbgzWC1Ibivt8SDhSJOTKlvct+XL0w8Q=
+        b=mWoeE5xyyjWtNdHc4QfwsXkZaHiXc0anaJWXqLEwKuJ5rNJKc3DNP3AXy6pz90vXZ
+         evtIAiXdfxX1EOhWytKcEKdhW6ndO372DGsBfDfsD8e2eVATu0ynRh91YJY2ly+a07
+         U78yIgIIcyYcxkFd8v0bGC9rplGZWExiwX6DItl8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 159/241] x86/ia32: Fix ia32_restore_sigcontext() AC leak
+        stable@vger.kernel.org, Yihao Wu <wuyihao@linux.alibaba.com>,
+        Jeff Layton <jlayton@kernel.org>,
+        Anna Schumaker <Anna.Schumaker@Netapp.com>
+Subject: [PATCH 5.1 30/70] NFSv4.1: Fix bug only first CB_NOTIFY_LOCK is handled
 Date:   Sun,  9 Jun 2019 18:41:41 +0200
-Message-Id: <20190609164152.354047157@linuxfoundation.org>
+Message-Id: <20190609164129.571095091@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
-References: <20190609164147.729157653@linuxfoundation.org>
+In-Reply-To: <20190609164127.541128197@linuxfoundation.org>
+References: <20190609164127.541128197@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,87 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 67a0514afdbb8b2fc70b771b8c77661a9cb9d3a9 ]
+From: Yihao Wu <wuyihao@linux.alibaba.com>
 
-Objtool spotted that we call native_load_gs_index() with AC set.
-Re-arrange the code to avoid that.
+commit ba851a39c9703f09684a541885ed176f8fb7c868 upstream.
 
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+When a waiter is waked by CB_NOTIFY_LOCK, it will retry
+nfs4_proc_setlk(). The waiter may fail to nfs4_proc_setlk() and sleep
+again. However, the waiter is already removed from clp->cl_lock_waitq
+when handling CB_NOTIFY_LOCK in nfs4_wake_lock_waiter(). So any
+subsequent CB_NOTIFY_LOCK won't wake this waiter anymore. We should
+put the waiter back to clp->cl_lock_waitq before retrying.
+
+Cc: stable@vger.kernel.org #4.9+
+Signed-off-by: Yihao Wu <wuyihao@linux.alibaba.com>
+Reviewed-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- arch/x86/ia32/ia32_signal.c | 29 +++++++++++++++++------------
- 1 file changed, 17 insertions(+), 12 deletions(-)
+ fs/nfs/nfs4proc.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/ia32/ia32_signal.c b/arch/x86/ia32/ia32_signal.c
-index 0552884da18db..a7b9acd709dbc 100644
---- a/arch/x86/ia32/ia32_signal.c
-+++ b/arch/x86/ia32/ia32_signal.c
-@@ -60,9 +60,8 @@
- } while (0)
+--- a/fs/nfs/nfs4proc.c
++++ b/fs/nfs/nfs4proc.c
+@@ -6922,20 +6922,22 @@ nfs4_retry_setlk(struct nfs4_state *stat
+ 	init_wait(&wait);
+ 	wait.private = &waiter;
+ 	wait.func = nfs4_wake_lock_waiter;
+-	add_wait_queue(q, &wait);
  
- #define RELOAD_SEG(seg)		{		\
--	unsigned int pre = GET_SEG(seg);	\
-+	unsigned int pre = (seg) | 3;		\
- 	unsigned int cur = get_user_seg(seg);	\
--	pre |= 3;				\
- 	if (pre != cur)				\
- 		set_user_seg(seg, pre);		\
+ 	while(!signalled()) {
++		add_wait_queue(q, &wait);
+ 		status = nfs4_proc_setlk(state, cmd, request);
+-		if ((status != -EAGAIN) || IS_SETLK(cmd))
++		if ((status != -EAGAIN) || IS_SETLK(cmd)) {
++			finish_wait(q, &wait);
+ 			break;
++		}
+ 
+ 		status = -ERESTARTSYS;
+ 		freezer_do_not_count();
+ 		wait_woken(&wait, TASK_INTERRUPTIBLE, NFS4_LOCK_MAXTIMEOUT);
+ 		freezer_count();
++		finish_wait(q, &wait);
+ 	}
+ 
+-	finish_wait(q, &wait);
+ 	return status;
  }
-@@ -71,6 +70,7 @@ static int ia32_restore_sigcontext(struct pt_regs *regs,
- 				   struct sigcontext_32 __user *sc)
- {
- 	unsigned int tmpflags, err = 0;
-+	u16 gs, fs, es, ds;
- 	void __user *buf;
- 	u32 tmp;
- 
-@@ -78,16 +78,10 @@ static int ia32_restore_sigcontext(struct pt_regs *regs,
- 	current->restart_block.fn = do_no_restart_syscall;
- 
- 	get_user_try {
--		/*
--		 * Reload fs and gs if they have changed in the signal
--		 * handler.  This does not handle long fs/gs base changes in
--		 * the handler, but does not clobber them at least in the
--		 * normal case.
--		 */
--		RELOAD_SEG(gs);
--		RELOAD_SEG(fs);
--		RELOAD_SEG(ds);
--		RELOAD_SEG(es);
-+		gs = GET_SEG(gs);
-+		fs = GET_SEG(fs);
-+		ds = GET_SEG(ds);
-+		es = GET_SEG(es);
- 
- 		COPY(di); COPY(si); COPY(bp); COPY(sp); COPY(bx);
- 		COPY(dx); COPY(cx); COPY(ip); COPY(ax);
-@@ -105,6 +99,17 @@ static int ia32_restore_sigcontext(struct pt_regs *regs,
- 		buf = compat_ptr(tmp);
- 	} get_user_catch(err);
- 
-+	/*
-+	 * Reload fs and gs if they have changed in the signal
-+	 * handler.  This does not handle long fs/gs base changes in
-+	 * the handler, but does not clobber them at least in the
-+	 * normal case.
-+	 */
-+	RELOAD_SEG(gs);
-+	RELOAD_SEG(fs);
-+	RELOAD_SEG(ds);
-+	RELOAD_SEG(es);
-+
- 	err |= fpu__restore_sig(buf, 1);
- 
- 	force_iret();
--- 
-2.20.1
-
+ #else /* !CONFIG_NFS_V4_1 */
 
 
