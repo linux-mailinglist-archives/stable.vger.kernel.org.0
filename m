@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A30F3AA8B
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:19:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 435943A8DE
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:05:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730759AbfFIQtR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:49:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48708 "EHLO mail.kernel.org"
+        id S2388200AbfFIRFI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 13:05:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44222 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731428AbfFIQtR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:49:17 -0400
+        id S1732669AbfFIRFH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 13:05:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4490D206C3;
-        Sun,  9 Jun 2019 16:49:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C4E2C204EC;
+        Sun,  9 Jun 2019 17:05:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560098956;
-        bh=S74SuA89s3V4anDQnukivwqwDzCaQwnGacnKXxfMN4E=;
+        s=default; t=1560099907;
+        bh=ufoUUvz40p+JRfFWrFlIUNPByU6JsfaNP2u3RKqSqDo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HEaSYtE3qo/egGjgMRulBJG3eWH4lHhRKLytCTNlkThJG0lT2gMZo7Z6cCnsniOHx
-         eRlVWjhFc1nNwIFsyve34Losh9v5yevqU/uH+k11kGRoage+cnYdKNiwjlxEo9hzq+
-         WMS0mh4Ft8oJGujo3sjSFqLa61jut5j9d/BzWalw=
+        b=OD03GMSNcRQ36QT4QERQlzWRrFaLS1oHlSCg88BnLXO6cKALTb2e0Ov6KPdM3Fcpb
+         YUwbwBo7MakeHCnRaWtrLx0ypus1qAMewfq+l3bYILUINhK8ia4k/c5ZFlmtz3krsw
+         mSUyTjm2d3LNdu6hplMohOiD1h8+a7fWvw1/DZe0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Tina Zhang <tina.zhang@intel.com>
-Subject: [PATCH 4.19 50/51] drm/i915/gvt: Initialize intel_gvt_gtt_entry in stack
+        stable@vger.kernel.org,
+        Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Stephen Boyd <swboyd@chromium.org>
+Subject: [PATCH 4.4 209/241] tty: serial: msm_serial: Fix XON/XOFF
 Date:   Sun,  9 Jun 2019 18:42:31 +0200
-Message-Id: <20190609164130.939106753@linuxfoundation.org>
+Message-Id: <20190609164154.690351299@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.123076536@linuxfoundation.org>
-References: <20190609164127.123076536@linuxfoundation.org>
+In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
+References: <20190609164147.729157653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,63 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tina Zhang <tina.zhang@intel.com>
+From: Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>
 
-commit 387a4c2b55291b37e245c840813bd8a8bd06ed49 upstream.
+commit 61c0e37950b88bad590056286c1d766b1f167f4e upstream.
 
-Stack struct intel_gvt_gtt_entry value needs to be initialized before
-being used, as the fields may contain garbage values.
+When the tty layer requests the uart to throttle, the current code
+executing in msm_serial will trigger "Bad mode in Error Handler" and
+generate an invalid stack frame in pstore before rebooting (that is if
+pstore is indeed configured: otherwise the user shall just notice a
+reboot with no further information dumped to the console).
 
-W/o this patch, set_ggtt_entry prints:
--------------------------------------
-274.046840: set_ggtt_entry: vgpu1:set ggtt entry 0x9bed8000ffffe900
-274.046846: set_ggtt_entry: vgpu1:set ggtt entry 0xe55df001
-274.046852: set_ggtt_entry: vgpu1:set ggtt entry 0x9bed8000ffffe900
+This patch replaces the PIO byte accessor with the word accessor
+already used in PIO mode.
 
-0x9bed8000 is the stack grabage.
-
-W/ this patch, set_ggtt_entry prints:
-------------------------------------
-274.046840: set_ggtt_entry: vgpu1:set ggtt entry 0xffffe900
-274.046846: set_ggtt_entry: vgpu1:set ggtt entry 0xe55df001
-274.046852: set_ggtt_entry: vgpu1:set ggtt entry 0xffffe900
-
-v2:
-- Initialize during declaration. (Zhenyu)
-
-Fixes: 7598e8700e9a ("drm/i915/gvt: Missed to cancel dma map for ggtt entries")
-Cc: stable@vger.kernel.org # v4.20+
-Cc: Zhenyu Wang <zhenyuw@linux.intel.com>
-Reviewed-by: Zhenyu Wang <zhenyuw@linux.intel.com>
-Signed-off-by: Tina Zhang <tina.zhang@intel.com>
-Signed-off-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+Fixes: 68252424a7c7 ("tty: serial: msm: Support big-endian CPUs")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/i915/gvt/gtt.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/tty/serial/msm_serial.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/i915/gvt/gtt.c
-+++ b/drivers/gpu/drm/i915/gvt/gtt.c
-@@ -2161,7 +2161,8 @@ static int emulate_ggtt_mmio_write(struc
- 	struct intel_gvt_gtt_pte_ops *ops = gvt->gtt.pte_ops;
- 	unsigned long g_gtt_index = off >> info->gtt_entry_size_shift;
- 	unsigned long gma, gfn;
--	struct intel_gvt_gtt_entry e, m;
-+	struct intel_gvt_gtt_entry e = {.val64 = 0, .type = GTT_TYPE_GGTT_PTE};
-+	struct intel_gvt_gtt_entry m = {.val64 = 0, .type = GTT_TYPE_GGTT_PTE};
- 	dma_addr_t dma_addr;
- 	int ret;
+--- a/drivers/tty/serial/msm_serial.c
++++ b/drivers/tty/serial/msm_serial.c
+@@ -703,6 +703,7 @@ static void msm_handle_tx(struct uart_po
+ 	struct circ_buf *xmit = &msm_port->uart.state->xmit;
+ 	struct msm_dma *dma = &msm_port->tx_dma;
+ 	unsigned int pio_count, dma_count, dma_min;
++	char buf[4] = { 0 };
+ 	void __iomem *tf;
+ 	int err = 0;
  
-@@ -2237,7 +2238,8 @@ static int emulate_ggtt_mmio_write(struc
+@@ -712,10 +713,12 @@ static void msm_handle_tx(struct uart_po
+ 		else
+ 			tf = port->membase + UART_TF;
  
- 	if (ops->test_present(&e)) {
- 		gfn = ops->get_pfn(&e);
--		m = e;
-+		m.val64 = e.val64;
-+		m.type = e.type;
++		buf[0] = port->x_char;
++
+ 		if (msm_port->is_uartdm)
+ 			msm_reset_dm_count(port, 1);
  
- 		/* one PTE update may be issued in multiple writes and the
- 		 * first write may not construct a valid gfn
+-		iowrite8_rep(tf, &port->x_char, 1);
++		iowrite32_rep(tf, buf, 1);
+ 		port->icount.tx++;
+ 		port->x_char = 0;
+ 		return;
 
 
