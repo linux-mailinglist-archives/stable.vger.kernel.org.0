@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 20FC23A8BE
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:03:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 033543AAB6
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:21:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388485AbfFIRDu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 13:03:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42304 "EHLO mail.kernel.org"
+        id S1730165AbfFIQp4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:45:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43896 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388129AbfFIRDt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 13:03:49 -0400
+        id S1730153AbfFIQpz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:45:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 60B8C204EC;
-        Sun,  9 Jun 2019 17:03:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A4A2F2083D;
+        Sun,  9 Jun 2019 16:45:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099828;
-        bh=Cc03y/FLkW+XjKbTR0OyOAu1ys85Aey1WV9FRu4aPE4=;
+        s=default; t=1560098755;
+        bh=Mjf7Rt6iqYHloLb1/9Qpabwbah0SAIVcdVrP/WMBHPw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j6kfO+ZkrBU5CjqyfemoDzJ59tTaJXtuaq+vFs9nFu3mSJdDilsG4Ptb9QHr0HSx4
-         yY3CZt70ayDn2M5YugW/g1BOfuVtD2729d9vXGBOwtrhPg9sdikOCbbrY7npZhFNlD
-         wk1Pmm6LoFYHVbSSiIOUAyyW10i7Pd4pEKrUMjEI=
+        b=khT2CwfpxnTOiSgnwt/EK28J4NVrKY1QKQdFhqZW98vf2xS79vrppnOG752oD45T6
+         UqOZD4CeNABqmV51SveXrLlzhjtwCCYTIO1dc5z1xJyiEOAbctoOSTz7VIQlRCy8L1
+         J+rkwHsJSZ5NyuxJMc5vPBjmBcy7NgilcG6OAimc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Peter Ujfalusi <peter.ujfalusi@ti.com>,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 179/241] ASoC: davinci-mcasp: Fix clang warning without CONFIG_PM
+        stable@vger.kernel.org,
+        Boris Brezillon <boris.brezillon@collabora.com>,
+        Helen Koike <helen.koike@collabora.com>
+Subject: [PATCH 5.1 50/70] drm/vc4: fix fb references in async update
 Date:   Sun,  9 Jun 2019 18:42:01 +0200
-Message-Id: <20190609164153.010600829@linuxfoundation.org>
+Message-Id: <20190609164131.618666447@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
-References: <20190609164147.729157653@linuxfoundation.org>
+In-Reply-To: <20190609164127.541128197@linuxfoundation.org>
+References: <20190609164127.541128197@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,49 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 8ca5104715cfd14254ea5aecc390ae583b707607 ]
+From: Helen Koike <helen.koike@collabora.com>
 
-Building with clang shows a variable that is only used by the
-suspend/resume functions but defined outside of their #ifdef block:
+commit c16b85559dcfb5a348cc085a7b4c75ed49b05e2c upstream.
 
-sound/soc/ti/davinci-mcasp.c:48:12: error: variable 'context_regs' is not needed and will not be emitted
+Async update callbacks are expected to set the old_fb in the new_state
+so prepare/cleanup framebuffers are balanced.
 
-We commonly fix these by marking the PM functions as __maybe_unused,
-but here that would grow the davinci_mcasp structure, so instead
-add another #ifdef here.
+Calling drm_atomic_set_fb_for_plane() (which gets a reference of the new
+fb and put the old fb) is not required, as it's taken care by
+drm_mode_cursor_universal() when calling drm_atomic_helper_update_plane().
 
-Fixes: 1cc0c054f380 ("ASoC: davinci-mcasp: Convert the context save/restore to use array")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org> # v4.19+
+Fixes: 539c320bfa97 ("drm/vc4: update cursors asynchronously through atomic")
+Suggested-by: Boris Brezillon <boris.brezillon@collabora.com>
+Signed-off-by: Helen Koike <helen.koike@collabora.com>
+Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
+Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190603165610.24614-5-helen.koike@collabora.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- sound/soc/davinci/davinci-mcasp.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/vc4/vc4_plane.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/davinci/davinci-mcasp.c b/sound/soc/davinci/davinci-mcasp.c
-index 2ccb8bccc9d4c..512ec25c9ead1 100644
---- a/sound/soc/davinci/davinci-mcasp.c
-+++ b/sound/soc/davinci/davinci-mcasp.c
-@@ -43,6 +43,7 @@
+--- a/drivers/gpu/drm/vc4/vc4_plane.c
++++ b/drivers/gpu/drm/vc4/vc4_plane.c
+@@ -968,7 +968,7 @@ static void vc4_plane_atomic_async_updat
+ {
+ 	struct vc4_plane_state *vc4_state, *new_vc4_state;
  
- #define MCASP_MAX_AFIFO_DEPTH	64
- 
-+#ifdef CONFIG_PM
- static u32 context_regs[] = {
- 	DAVINCI_MCASP_TXFMCTL_REG,
- 	DAVINCI_MCASP_RXFMCTL_REG,
-@@ -65,6 +66,7 @@ struct davinci_mcasp_context {
- 	u32	*xrsr_regs; /* for serializer configuration */
- 	bool	pm_state;
- };
-+#endif
- 
- struct davinci_mcasp_ruledata {
- 	struct davinci_mcasp *mcasp;
--- 
-2.20.1
-
+-	drm_atomic_set_fb_for_plane(plane->state, state->fb);
++	swap(plane->state->fb, state->fb);
+ 	plane->state->crtc_x = state->crtc_x;
+ 	plane->state->crtc_y = state->crtc_y;
+ 	plane->state->crtc_w = state->crtc_w;
 
 
