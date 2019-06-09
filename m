@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C67E33A72A
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 18:47:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23D163AA7B
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:19:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730694AbfFIQq5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:46:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45374 "EHLO mail.kernel.org"
+        id S1730844AbfFIQt3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:49:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48980 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730686AbfFIQq5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:46:57 -0400
+        id S1731458AbfFIQt3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:49:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 65E5F2081C;
-        Sun,  9 Jun 2019 16:46:55 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 899DD20840;
+        Sun,  9 Jun 2019 16:49:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560098815;
-        bh=Eis6heOs73XTHxMj9u1B8PECl107rlwe7UWYK2RSzCw=;
+        s=default; t=1560098968;
+        bh=1c+o3/7V0O751Ht5MWn9iPWJGyCBzUlkNbK9RaDe2H8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D1fWQihOfw0fNfN6Az6zVBAE7ajTazVDFSOGS3f8eJnSVH7xf4lFBPUGJydyo5Pdb
-         cOX4XELyDiMb3SZYNTtGN4TEC06P17oY0upOMw8Cdnw5cNHM9f18nqMrkcsy0sQKfl
-         kQ78H09R5Qw6+Q9LrQx1O6V6JvM5rIIXk1S4G3cQ=
+        b=DdE3Qtd4EdvzdDZmPhm5oCWqAHBX/uR5dAjtlonLzimXM/4Z1mhUUm8EJ9d2vYbjD
+         B2Dd3wE9kSukvjXEb7EnQrzzZpjPuYqMZ/hoGarb8CQnLD6g9c83iwjwy1t54MJVTN
+         y3Iit+vftbhM0OVRuh81uKUcHvq6ClNu8gFYSbcM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>,
-        Li RongQing <lirongqing@baidu.com>,
-        Wang Li <wangli39@baidu.com>, Zhang Yu <zhangyu31@baidu.com>
-Subject: [PATCH 5.1 70/70] TTY: serial_core, add ->install
+        stable@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Dave Airlie <airlied@redhat.com>
+Subject: [PATCH 4.19 40/51] drm/nouveau: add kconfig option to turn off nouveau legacy contexts. (v3)
 Date:   Sun,  9 Jun 2019 18:42:21 +0200
-Message-Id: <20190609164133.249548765@linuxfoundation.org>
+Message-Id: <20190609164129.889291936@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.541128197@linuxfoundation.org>
-References: <20190609164127.541128197@linuxfoundation.org>
+In-Reply-To: <20190609164127.123076536@linuxfoundation.org>
+References: <20190609164127.123076536@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,131 +43,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby <jslaby@suse.cz>
+From: Dave Airlie <airlied@redhat.com>
 
-commit 4cdd17ba1dff20ffc99fdbd2e6f0201fc7fe67df upstream.
+commit b30a43ac7132cdda833ac4b13dd1ebd35ace14b7 upstream.
 
-We need to compute the uart state only on the first open. This is
-usually what is done in the ->install hook. serial_core used to do this
-in ->open on every open. So move it to ->install.
+There was a nouveau DDX that relied on legacy context ioctls to work,
+but we fixed it years ago, give distros that have a modern DDX the
+option to break the uAPI and close the mess of holes that legacy
+context support is.
 
-As a side effect, it ensures the state is set properly in the window
-after tty_init_dev is called, but before uart_open. This fixes a bunch
-of races between tty_open and flush_to_ldisc we were dealing with
-recently.
+Full context of the story:
 
-One of such bugs was attempted to fix in commit fedb5760648a (serial:
-fix race between flush_to_ldisc and tty_open), but it only took care of
-a couple of functions (uart_start and uart_unthrottle).  I was able to
-reproduce the crash on a SLE system, but in uart_write_room which is
-also called from flush_to_ldisc via process_echoes. I was *unable* to
-reproduce the bug locally. It is due to having this patch in my queue
-since 2012!
+commit 0e975980d435d58df2d430d688b8c18778b42218
+Author: Peter Antoine <peter.antoine@intel.com>
+Date:   Tue Jun 23 08:18:49 2015 +0100
 
- general protection fault: 0000 [#1] SMP KASAN PTI
- CPU: 1 PID: 5 Comm: kworker/u4:0 Tainted: G             L 4.12.14-396-default #1 SLE15-SP1 (unreleased)
- Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.0-0-ga698c89-prebuilt.qemu.org 04/01/2014
- Workqueue: events_unbound flush_to_ldisc
- task: ffff8800427d8040 task.stack: ffff8800427f0000
- RIP: 0010:uart_write_room+0xc4/0x590
- RSP: 0018:ffff8800427f7088 EFLAGS: 00010202
- RAX: dffffc0000000000 RBX: 0000000000000000 RCX: 0000000000000000
- RDX: 000000000000002f RSI: 00000000000000ee RDI: ffff88003888bd90
- RBP: ffffffffb9545850 R08: 0000000000000001 R09: 0000000000000400
- R10: ffff8800427d825c R11: 000000000000006e R12: 1ffff100084fee12
- R13: ffffc900004c5000 R14: ffff88003888bb28 R15: 0000000000000178
- FS:  0000000000000000(0000) GS:ffff880043300000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 0000561da0794148 CR3: 000000000ebf4000 CR4: 00000000000006e0
- Call Trace:
-  tty_write_room+0x6d/0xc0
-  __process_echoes+0x55/0x870
-  n_tty_receive_buf_common+0x105e/0x26d0
-  tty_ldisc_receive_buf+0xb7/0x1c0
-  tty_port_default_receive_buf+0x107/0x180
-  flush_to_ldisc+0x35d/0x5c0
-...
+    drm: Turn off Legacy Context Functions
 
-0 in rbx means tty->driver_data is NULL in uart_write_room. 0x178 is
-tried to be dereferenced (0x178 >> 3 is 0x2f in rdx) at
-uart_write_room+0xc4. 0x178 is exactly (struct uart_state *)NULL->refcount
-used in uart_port_lock from uart_write_room.
+    The context functions are not used by the i915 driver and should not
+    be used by modeset drivers. These driver functions contain several bugs
+    and security holes. This change makes these functions optional can be
+    turned on by a setting, they are turned off by default for modeset
+    driver with the exception of the nouvea driver that may require them with
+    an old version of libdrm.
 
-So revert the upstream commit here as my local patch should fix the
-whole family.
+    The previous attempt was
 
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Cc: Li RongQing <lirongqing@baidu.com>
-Cc: Wang Li <wangli39@baidu.com>
-Cc: Zhang Yu <zhangyu31@baidu.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: stable <stable@vger.kernel.org>
+    commit 7c510133d93dd6f15ca040733ba7b2891ed61fd1
+    Author: Daniel Vetter <daniel.vetter@ffwll.ch>
+    Date:   Thu Aug 8 15:41:21 2013 +0200
+
+        drm: mark context support as a legacy subsystem
+
+    but this had to be reverted
+
+    commit c21eb21cb50d58e7cbdcb8b9e7ff68b85cfa5095
+    Author: Dave Airlie <airlied@redhat.com>
+    Date:   Fri Sep 20 08:32:59 2013 +1000
+
+        Revert "drm: mark context support as a legacy subsystem"
+
+    v2: remove returns from void function, and formatting (Daniel Vetter)
+
+    v3:
+    - s/Nova/nouveau/ in the commit message, and add references to the
+      previous attempts
+    - drop the part touching the drm hw lock, that should be a separate
+      patch.
+
+    Signed-off-by: Peter Antoine <peter.antoine@intel.com> (v2)
+    Cc: Peter Antoine <peter.antoine@intel.com> (v2)
+    Reviewed-by: Peter Antoine <peter.antoine@intel.com>
+    Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+
+v2: move DRM_VM dependency into legacy config.
+v3: fix missing dep (kbuild robot)
+
+Cc: stable@vger.kernel.org
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Signed-off-by: Dave Airlie <airlied@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/serial/serial_core.c |   24 +++++++++++++-----------
- 1 file changed, 13 insertions(+), 11 deletions(-)
+ drivers/gpu/drm/nouveau/Kconfig       |   13 ++++++++++++-
+ drivers/gpu/drm/nouveau/nouveau_drm.c |    7 +++++--
+ 2 files changed, 17 insertions(+), 3 deletions(-)
 
---- a/drivers/tty/serial/serial_core.c
-+++ b/drivers/tty/serial/serial_core.c
-@@ -130,9 +130,6 @@ static void uart_start(struct tty_struct
- 	struct uart_port *port;
- 	unsigned long flags;
+--- a/drivers/gpu/drm/nouveau/Kconfig
++++ b/drivers/gpu/drm/nouveau/Kconfig
+@@ -16,10 +16,21 @@ config DRM_NOUVEAU
+ 	select INPUT if ACPI && X86
+ 	select THERMAL if ACPI && X86
+ 	select ACPI_VIDEO if ACPI && X86
+-	select DRM_VM
+ 	help
+ 	  Choose this option for open-source NVIDIA support.
  
--	if (!state)
--		return;
--
- 	port = uart_port_lock(state, flags);
- 	__uart_start(tty);
- 	uart_port_unlock(port, flags);
-@@ -730,9 +727,6 @@ static void uart_unthrottle(struct tty_s
- 	upstat_t mask = UPSTAT_SYNC_FIFO;
- 	struct uart_port *port;
- 
--	if (!state)
--		return;
--
- 	port = uart_port_ref(state);
- 	if (!port)
- 		return;
-@@ -1747,6 +1741,16 @@ static void uart_dtr_rts(struct tty_port
- 	uart_port_deref(uport);
- }
- 
-+static int uart_install(struct tty_driver *driver, struct tty_struct *tty)
-+{
-+	struct uart_driver *drv = driver->driver_state;
-+	struct uart_state *state = drv->state + tty->index;
++config NOUVEAU_LEGACY_CTX_SUPPORT
++	bool "Nouveau legacy context support"
++	depends on DRM_NOUVEAU
++	select DRM_VM
++	default y
++	help
++	  There was a version of the nouveau DDX that relied on legacy
++	  ctx ioctls not erroring out. But that was back in time a long
++	  ways, so offer a way to disable it now. For uapi compat with
++	  old nouveau ddx this should be on by default, but modern distros
++	  should consider turning it off.
 +
-+	tty->driver_data = state;
-+
-+	return tty_standard_install(driver, tty);
-+}
-+
- /*
-  * Calls to uart_open are serialised by the tty_lock in
-  *   drivers/tty/tty_io.c:tty_open()
-@@ -1759,11 +1763,8 @@ static void uart_dtr_rts(struct tty_port
-  */
- static int uart_open(struct tty_struct *tty, struct file *filp)
- {
--	struct uart_driver *drv = tty->driver->driver_state;
--	int retval, line = tty->index;
--	struct uart_state *state = drv->state + line;
--
--	tty->driver_data = state;
-+	struct uart_state *state = tty->driver_data;
-+	int retval;
+ config NOUVEAU_PLATFORM_DRIVER
+ 	bool "Nouveau (NVIDIA) SoC GPUs"
+ 	depends on DRM_NOUVEAU && ARCH_TEGRA
+--- a/drivers/gpu/drm/nouveau/nouveau_drm.c
++++ b/drivers/gpu/drm/nouveau/nouveau_drm.c
+@@ -1015,8 +1015,11 @@ nouveau_driver_fops = {
+ static struct drm_driver
+ driver_stub = {
+ 	.driver_features =
+-		DRIVER_GEM | DRIVER_MODESET | DRIVER_PRIME | DRIVER_RENDER |
+-		DRIVER_KMS_LEGACY_CONTEXT,
++		DRIVER_GEM | DRIVER_MODESET | DRIVER_PRIME | DRIVER_RENDER
++#if defined(CONFIG_NOUVEAU_LEGACY_CTX_SUPPORT)
++		| DRIVER_KMS_LEGACY_CONTEXT
++#endif
++		,
  
- 	retval = tty_port_open(&state->port, tty, filp);
- 	if (retval > 0)
-@@ -2448,6 +2449,7 @@ static void uart_poll_put_char(struct tt
- #endif
- 
- static const struct tty_operations uart_ops = {
-+	.install	= uart_install,
- 	.open		= uart_open,
- 	.close		= uart_close,
- 	.write		= uart_write,
+ 	.load = nouveau_drm_load,
+ 	.unload = nouveau_drm_unload,
 
 
