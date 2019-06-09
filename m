@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E5F5A3AAD4
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:23:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8C463A966
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:10:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729085AbfFIQoJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:44:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41096 "EHLO mail.kernel.org"
+        id S2388455AbfFIRDj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 13:03:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42096 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728858AbfFIQoJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:44:09 -0400
+        id S2388448AbfFIRDi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 13:03:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 18CC52081C;
-        Sun,  9 Jun 2019 16:44:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DF6D6206C3;
+        Sun,  9 Jun 2019 17:03:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560098648;
-        bh=dsuY3ika3pM2TpW6IhoPArLRbVaGg/raG5jngM0Jwrw=;
+        s=default; t=1560099818;
+        bh=5ixMBIq1+roRVC3r4/nZrw1E/YkRIL6fVkkxoQk5dnA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=clO6FwkA0HgHcVnI4iNdNCcn7VJiYwNO78Ne6pf6MnR1uQpABLbCUxGs4KICHPawy
-         Q/iPQXvoRBipyis/irTCPViZA4/XQfWTSlGSAYDl23ohgPw98eZ/G6NmI6tDDv9Y/p
-         s0X6SDut8gWiAbFFpru9RlhiJ8jqKZkuFjVaNqyE=
+        b=VtrS1lzn1lwjCDs6R2Lr/R9b4Hzu7R0Q77qKA6mr8JzSvOfFnFf4goDgSnXaRcZBG
+         zQ0NFwEcgXDXF9TbUDTaowsWFMDNCcwvLw5d0iBK8Bku5N+GpyO8gpdl2GZt4X7rSy
+         8XOf3UTa4ewztKonv7aRlThO7kS80SvxVr/CKzDc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nathan Chancellor <natechancellor@gmail.com>,
-        Yaro Slav <yaro330@gmail.com>,
-        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <zenczykowski@gmail.com>,
-        Hangbin Liu <liuhangbin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.1 11/70] Revert "fib_rules: return 0 directly if an exactly same rule exists when NLM_F_EXCL not supplied"
+        stable@vger.kernel.org, Yinbo Zhu <yinbo.zhu@nxp.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 140/241] mmc: sdhci-of-esdhc: add erratum eSDHC-A001 and A-008358 support
 Date:   Sun,  9 Jun 2019 18:41:22 +0200
-Message-Id: <20190609164128.113500257@linuxfoundation.org>
+Message-Id: <20190609164151.828510409@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.541128197@linuxfoundation.org>
-References: <20190609164127.541128197@linuxfoundation.org>
+In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
+References: <20190609164147.729157653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,45 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangbin Liu <liuhangbin@gmail.com>
+[ Upstream commit 05cb6b2a66fa7837211a060878e91be5eb10cb07 ]
 
-[ Upstream commit 4970b42d5c362bf873982db7d93245c5281e58f4 ]
+eSDHC-A001: The data timeout counter (SYSCTL[DTOCV]) is not
+reliable for DTOCV values 0x4(2^17 SD clock), 0x8(2^21 SD clock),
+and 0xC(2^25 SD clock). The data timeout counter can count from
+2^13–2^27, but for values 2^17, 2^21, and 2^25, the timeout
+counter counts for only 2^13 SD clocks.
+A-008358: The data timeout counter value loaded into the timeout
+counter is less than expected and can result into early timeout
+error in case of eSDHC data transactions. The table below shows
+the expected vs actual timeout period for different values of
+SYSCTL[DTOCV]:
+these two erratum has the same quirk to control it, and set
+SDHCI_QUIRK_RESET_AFTER_REQUEST to fix above issue.
 
-This reverts commit e9919a24d3022f72bcadc407e73a6ef17093a849.
-
-Nathan reported the new behaviour breaks Android, as Android just add
-new rules and delete old ones.
-
-If we return 0 without adding dup rules, Android will remove the new
-added rules and causing system to soft-reboot.
-
-Fixes: e9919a24d302 ("fib_rules: return 0 directly if an exactly same rule exists when NLM_F_EXCL not supplied")
-Reported-by: Nathan Chancellor <natechancellor@gmail.com>
-Reported-by: Yaro Slav <yaro330@gmail.com>
-Reported-by: Maciej Żenczykowski <zenczykowski@gmail.com>
-Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
-Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
-Tested-by: Nathan Chancellor <natechancellor@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Yinbo Zhu <yinbo.zhu@nxp.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/fib_rules.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/mmc/host/sdhci-of-esdhc.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/net/core/fib_rules.c
-+++ b/net/core/fib_rules.c
-@@ -756,9 +756,9 @@ int fib_nl_newrule(struct sk_buff *skb,
- 	if (err)
- 		goto errout;
+diff --git a/drivers/mmc/host/sdhci-of-esdhc.c b/drivers/mmc/host/sdhci-of-esdhc.c
+index a5a11e7ab53b4..356b294c93c9e 100644
+--- a/drivers/mmc/host/sdhci-of-esdhc.c
++++ b/drivers/mmc/host/sdhci-of-esdhc.c
+@@ -624,8 +624,10 @@ static int sdhci_esdhc_probe(struct platform_device *pdev)
+ 	if (esdhc->vendor_ver > VENDOR_V_22)
+ 		host->quirks &= ~SDHCI_QUIRK_NO_BUSY_IRQ;
  
--	if (rule_exists(ops, frh, tb, rule)) {
--		if (nlh->nlmsg_flags & NLM_F_EXCL)
--			err = -EEXIST;
-+	if ((nlh->nlmsg_flags & NLM_F_EXCL) &&
-+	    rule_exists(ops, frh, tb, rule)) {
-+		err = -EEXIST;
- 		goto errout_free;
- 	}
+-	if (of_find_compatible_node(NULL, NULL, "fsl,p2020-esdhc"))
++	if (of_find_compatible_node(NULL, NULL, "fsl,p2020-esdhc")) {
+ 		host->quirks2 |= SDHCI_QUIRK_RESET_AFTER_REQUEST;
++		host->quirks2 |= SDHCI_QUIRK_BROKEN_TIMEOUT_VAL;
++	}
  
+ 	if (of_device_is_compatible(np, "fsl,p5040-esdhc") ||
+ 	    of_device_is_compatible(np, "fsl,p5020-esdhc") ||
+-- 
+2.20.1
+
 
 
