@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E5B53AA91
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:19:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E301A3AA6E
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:19:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731208AbfFIRTo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 13:19:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47502 "EHLO mail.kernel.org"
+        id S1731780AbfFIRSY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 13:18:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729778AbfFIQs0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:48:26 -0400
+        id S1730714AbfFIQuR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:50:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 72AD8206C3;
-        Sun,  9 Jun 2019 16:48:25 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C3AEF205ED;
+        Sun,  9 Jun 2019 16:50:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560098905;
-        bh=vaYwb1577dLTm2yh/ziP4tzrtY8aiMNv6GGrTDhWrVI=;
+        s=default; t=1560099016;
+        bh=b+Z7kJ9902Wg5ePJjIatCOem4xOZ6h93vApjdrjhpb4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2ieNprXqVxYDDCeykioF/m3dx/v7dthPblPzDvyglSTiKGCpP7QzUO6Xs/d2Sp06P
-         SrNSXBd4BbYh+bYa6L4E2Qf9+2WShxiX8xNBHmi+4yKZo+StCIzz3uYLmi9NYqBIqX
-         ZzYMLOWaXtFC91bb2dqP+wyGTAZ9lQcDxmKN2OTU=
+        b=YrHUVRT69a71nX1IZwMoaRssDyVbB/+eYvzJPAjcIXquTD3MbUt8zTmhwBCiiZzLZ
+         OYVDpTfDagoKZoa8QMPw4e3Hn46z+dqoJwNmpJlif0GzBEsIvC58GQODXBY2oxcGNN
+         DZkMUp9kbeaYaveJAZkpx/miuQ4yyCrmX9xnh6Xc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ian Jackson <ian.jackson@citrix.com>,
-        =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>,
-        Juergen Gross <jgross@suse.com>,
-        Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Subject: [PATCH 4.19 31/51] xen-blkfront: switch kcalloc to kvcalloc for large array allocation
+        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Matteo Croce <mcroce@redhat.com>
+Subject: [PATCH 4.14 06/35] pktgen: do not sleep with the thread lock held.
 Date:   Sun,  9 Jun 2019 18:42:12 +0200
-Message-Id: <20190609164129.060139900@linuxfoundation.org>
+Message-Id: <20190609164125.879662152@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.123076536@linuxfoundation.org>
-References: <20190609164127.123076536@linuxfoundation.org>
+In-Reply-To: <20190609164125.377368385@linuxfoundation.org>
+References: <20190609164125.377368385@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,107 +44,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roger Pau Monne <roger.pau@citrix.com>
+From: Paolo Abeni <pabeni@redhat.com>
 
-commit 1d5c76e66433382a1e170d1d5845bb0fed7467aa upstream.
+[ Upstream commit 720f1de4021f09898b8c8443f3b3e995991b6e3a ]
 
-There's no reason to request physically contiguous memory for those
-allocations.
+Currently, the process issuing a "start" command on the pktgen procfs
+interface, acquires the pktgen thread lock and never release it, until
+all pktgen threads are completed. The above can blocks indefinitely any
+other pktgen command and any (even unrelated) netdevice removal - as
+the pktgen netdev notifier acquires the same lock.
 
-[boris: added CC to stable]
+The issue is demonstrated by the following script, reported by Matteo:
 
-Cc: stable@vger.kernel.org
-Reported-by: Ian Jackson <ian.jackson@citrix.com>
-Signed-off-by: Roger Pau Monné <roger.pau@citrix.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
-Acked-by: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+ip -b - <<'EOF'
+	link add type dummy
+	link add type veth
+	link set dummy0 up
+EOF
+modprobe pktgen
+echo reset >/proc/net/pktgen/pgctrl
+{
+	echo rem_device_all
+	echo add_device dummy0
+} >/proc/net/pktgen/kpktgend_0
+echo count 0 >/proc/net/pktgen/dummy0
+echo start >/proc/net/pktgen/pgctrl &
+sleep 1
+rmmod veth
+
+Fix the above releasing the thread lock around the sleep call.
+
+Additionally we must prevent racing with forcefull rmmod - as the
+thread lock no more protects from them. Instead, acquire a self-reference
+before waiting for any thread. As a side effect, running
+
+rmmod pktgen
+
+while some thread is running now fails with "module in use" error,
+before this patch such command hanged indefinitely.
+
+Note: the issue predates the commit reported in the fixes tag, but
+this fix can't be applied before the mentioned commit.
+
+v1 -> v2:
+ - no need to check for thread existence after flipping the lock,
+   pktgen threads are freed only at net exit time
+ -
+
+Fixes: 6146e6a43b35 ("[PKTGEN]: Removes thread_{un,}lock() macros.")
+Reported-and-tested-by: Matteo Croce <mcroce@redhat.com>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/block/xen-blkfront.c |   38 +++++++++++++++++++-------------------
- 1 file changed, 19 insertions(+), 19 deletions(-)
+ net/core/pktgen.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/drivers/block/xen-blkfront.c
-+++ b/drivers/block/xen-blkfront.c
-@@ -1310,11 +1310,11 @@ static void blkif_free_ring(struct blkfr
- 		}
+--- a/net/core/pktgen.c
++++ b/net/core/pktgen.c
+@@ -3149,7 +3149,13 @@ static int pktgen_wait_thread_run(struct
+ {
+ 	while (thread_is_running(t)) {
  
- free_shadow:
--		kfree(rinfo->shadow[i].grants_used);
-+		kvfree(rinfo->shadow[i].grants_used);
- 		rinfo->shadow[i].grants_used = NULL;
--		kfree(rinfo->shadow[i].indirect_grants);
-+		kvfree(rinfo->shadow[i].indirect_grants);
- 		rinfo->shadow[i].indirect_grants = NULL;
--		kfree(rinfo->shadow[i].sg);
-+		kvfree(rinfo->shadow[i].sg);
- 		rinfo->shadow[i].sg = NULL;
- 	}
++		/* note: 't' will still be around even after the unlock/lock
++		 * cycle because pktgen_thread threads are only cleared at
++		 * net exit
++		 */
++		mutex_unlock(&pktgen_thread_lock);
+ 		msleep_interruptible(100);
++		mutex_lock(&pktgen_thread_lock);
  
-@@ -1353,7 +1353,7 @@ static void blkif_free(struct blkfront_i
- 	for (i = 0; i < info->nr_rings; i++)
- 		blkif_free_ring(&info->rinfo[i]);
+ 		if (signal_pending(current))
+ 			goto signal;
+@@ -3164,6 +3170,10 @@ static int pktgen_wait_all_threads_run(s
+ 	struct pktgen_thread *t;
+ 	int sig = 1;
  
--	kfree(info->rinfo);
-+	kvfree(info->rinfo);
- 	info->rinfo = NULL;
- 	info->nr_rings = 0;
++	/* prevent from racing with rmmod */
++	if (!try_module_get(THIS_MODULE))
++		return sig;
++
+ 	mutex_lock(&pktgen_thread_lock);
+ 
+ 	list_for_each_entry(t, &pn->pktgen_threads, th_list) {
+@@ -3177,6 +3187,7 @@ static int pktgen_wait_all_threads_run(s
+ 			t->control |= (T_STOP);
+ 
+ 	mutex_unlock(&pktgen_thread_lock);
++	module_put(THIS_MODULE);
+ 	return sig;
  }
-@@ -1914,9 +1914,9 @@ static int negotiate_mq(struct blkfront_
- 	if (!info->nr_rings)
- 		info->nr_rings = 1;
  
--	info->rinfo = kcalloc(info->nr_rings,
--			      sizeof(struct blkfront_ring_info),
--			      GFP_KERNEL);
-+	info->rinfo = kvcalloc(info->nr_rings,
-+			       sizeof(struct blkfront_ring_info),
-+			       GFP_KERNEL);
- 	if (!info->rinfo) {
- 		xenbus_dev_fatal(info->xbdev, -ENOMEM, "allocating ring_info structure");
- 		info->nr_rings = 0;
-@@ -2232,17 +2232,17 @@ static int blkfront_setup_indirect(struc
- 
- 	for (i = 0; i < BLK_RING_SIZE(info); i++) {
- 		rinfo->shadow[i].grants_used =
--			kcalloc(grants,
--				sizeof(rinfo->shadow[i].grants_used[0]),
--				GFP_NOIO);
--		rinfo->shadow[i].sg = kcalloc(psegs,
--					      sizeof(rinfo->shadow[i].sg[0]),
--					      GFP_NOIO);
-+			kvcalloc(grants,
-+				 sizeof(rinfo->shadow[i].grants_used[0]),
-+				 GFP_NOIO);
-+		rinfo->shadow[i].sg = kvcalloc(psegs,
-+					       sizeof(rinfo->shadow[i].sg[0]),
-+					       GFP_NOIO);
- 		if (info->max_indirect_segments)
- 			rinfo->shadow[i].indirect_grants =
--				kcalloc(INDIRECT_GREFS(grants),
--					sizeof(rinfo->shadow[i].indirect_grants[0]),
--					GFP_NOIO);
-+				kvcalloc(INDIRECT_GREFS(grants),
-+					 sizeof(rinfo->shadow[i].indirect_grants[0]),
-+					 GFP_NOIO);
- 		if ((rinfo->shadow[i].grants_used == NULL) ||
- 			(rinfo->shadow[i].sg == NULL) ||
- 		     (info->max_indirect_segments &&
-@@ -2256,11 +2256,11 @@ static int blkfront_setup_indirect(struc
- 
- out_of_memory:
- 	for (i = 0; i < BLK_RING_SIZE(info); i++) {
--		kfree(rinfo->shadow[i].grants_used);
-+		kvfree(rinfo->shadow[i].grants_used);
- 		rinfo->shadow[i].grants_used = NULL;
--		kfree(rinfo->shadow[i].sg);
-+		kvfree(rinfo->shadow[i].sg);
- 		rinfo->shadow[i].sg = NULL;
--		kfree(rinfo->shadow[i].indirect_grants);
-+		kvfree(rinfo->shadow[i].indirect_grants);
- 		rinfo->shadow[i].indirect_grants = NULL;
- 	}
- 	if (!list_empty(&rinfo->indirect_pages)) {
 
 
