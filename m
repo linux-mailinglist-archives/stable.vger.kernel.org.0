@@ -2,270 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 69D1B3A650
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 16:04:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 956163A693
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 17:09:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727649AbfFIOEU convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Sun, 9 Jun 2019 10:04:20 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:47396 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727500AbfFIOEU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 10:04:20 -0400
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id AE43458E33
-        for <stable@vger.kernel.org>; Sun,  9 Jun 2019 14:04:19 +0000 (UTC)
-Received: from [172.54.141.148] (cpt-large-cpu-05.paas.prod.upshift.rdu2.redhat.com [10.0.18.78])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 5093A1001B01;
-        Sun,  9 Jun 2019 14:04:17 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        id S1728838AbfFIPJR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 11:09:17 -0400
+Received: from mail177-30.suw61.mandrillapp.com ([198.2.177.30]:1459 "EHLO
+        mail177-30.suw61.mandrillapp.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728635AbfFIPJR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Jun 2019 11:09:17 -0400
+X-Greylist: delayed 905 seconds by postgrey-1.27 at vger.kernel.org; Sun, 09 Jun 2019 11:09:16 EDT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; s=mandrill; d=nexedi.com;
+ h=From:Subject:To:Cc:Message-Id:Date:MIME-Version:Content-Type:Content-Transfer-Encoding; i=kirr@nexedi.com;
+ bh=8NPqAV0ieNyzOZGqpqAKuzdt9sBdqoIrZdZwXwFyY0o=;
+ b=cQBqirYDzK4WLeUCvzFufikk28TzueqdPZ6/ya9pdyMSRgK4zxgGBECUiefHfGQA3AaiSeb5Rkcn
+   ihEHc19KaObtFoWD2phpyNHnFkCHjFzAWmqL5/VhG034SL/aQ1s8OoSiwprQrgPlQOLFQHtYeKoe
+   3cqVl58uU6P7m8b27is=
+Received: from pmta06.mandrill.prod.suw01.rsglab.com (127.0.0.1) by mail177-30.suw61.mandrillapp.com id hvkgho22rtkh for <stable@vger.kernel.org>; Sun, 9 Jun 2019 14:39:11 +0000 (envelope-from <bounce-md_31050260.5cfd1a0e.v1-4764b6a258ea430197d2cde79bedd610@mandrillapp.com>)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mandrillapp.com; 
+ i=@mandrillapp.com; q=dns/txt; s=mandrill; t=1560091150; h=From : 
+ Subject : To : Cc : Message-Id : Date : MIME-Version : Content-Type : 
+ Content-Transfer-Encoding : From : Subject : Date : X-Mandrill-User : 
+ List-Unsubscribe; bh=8NPqAV0ieNyzOZGqpqAKuzdt9sBdqoIrZdZwXwFyY0o=; 
+ b=PqdSFNStpZWVKzun49Tin+TtRtQASGXS6ld0Ii0nk+qynga6iqs+gYeG+HiUA3t5uuvB2G
+ sSIlsJVCUwRwIDaoU5nQ+GrxlmC9kNy5AcVVeR41ELutapulct0zYPxt3ID4fQcSdSvYLT21
+ SIX2PF5fE24ypqUVfRMjtuymgOm9E=
+From:   Kirill Smelkov <kirr@nexedi.com>
+Subject: [PATCH 3.18 0/2] Fix FUSE read/write deadlock on stream-like files
+Received: from [87.98.221.171] by mandrillapp.com id 4764b6a258ea430197d2cde79bedd610; Sun, 09 Jun 2019 14:39:10 +0000
+X-Mailer: git-send-email 2.20.1
+To:     <stable@vger.kernel.org>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Ben Hutchings <ben@decadent.org.uk>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Miklos Szeredi <miklos@szeredi.hu>,
+        <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        Kirill Smelkov <kirr@nexedi.com>
+Message-Id: <20190609133501.7873-1-kirr@nexedi.com>
+X-Report-Abuse: Please forward a copy of this message, including all headers, to abuse@mandrill.com
+X-Report-Abuse: You can also report abuse here: http://mandrillapp.com/contact/abuse?id=31050260.4764b6a258ea430197d2cde79bedd610
+X-Mandrill-User: md_31050260
+Date:   Sun, 09 Jun 2019 14:39:10 +0000
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-4.19
-Message-ID: <cki.383A3BBCC3.N8B1G9SQED@redhat.com>
-X-Gitlab-Pipeline-ID: 11864
-X-Gitlab-Pipeline: =?utf-8?q?https=3A//xci32=2Elab=2Eeng=2Erdu2=2Eredhat=2Ec?=
- =?utf-8?q?om/cki-project/cki-pipeline/pipelines/11864?=
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.39]); Sun, 09 Jun 2019 14:04:19 +0000 (UTC)
-Date:   Sun, 9 Jun 2019 10:04:20 -0400
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+Hello stable team,
 
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
+Please consider applying the following 2 patches to Linux-3.18 stable
+tree. The patches fix regression introduced in 3.14 where both read and
+write started to run under lock taken, which resulted in FUSE (and many
+other drivers) deadlocks for cases where stream-like files are used with
+read and write being run simultaneously.
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: bb7b450e61a1 - Linux 4.19.49
+Please see complete problem description in upstream commit 10dce8af3422
+("fs: stream_open - opener for stream-like files so that read and write
+can run simultaneously without deadlock").
 
-The results of these automated tests are provided below.
+The actual FUSE fix (upstream commit bbd84f33652f "fuse: Add
+FOPEN_STREAM to use stream_open()") was merged into 5.2 with `Cc:
+stable@vger.kernel.org # v3.14+` mark and is already included into 5.1,
+5.0 and 4.19 stable trees. However for some reason it is not (yet ?)
+included into 4.14, 4.9, 4.4, 3.18 and 3.16 trees.
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
+The patches fix a real problem into which my FUSE filesystem ran, and
+which also likely affects OSSPD (full details are in the patches
+description). Please consider including the fixes into 3.18 (as well as
+into other stable trees - I'm sending corresponding series separately -
+- one per tree).
 
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
+Thanks beforehand,
+Kirill
 
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
+P.S. the patches have been already a bit discussed in stable context some
+time ago:
 
-Merge testing
--------------
+https://lore.kernel.org/linux-fsdevel/CAHk-=wgh234SyBG810=vB360PCzVkAhQRqGg8aFdATZd+daCFw@mail.gmail.com/
+https://lore.kernel.org/linux-fsdevel/20190424183012.GB3798@deco.navytux.spb.ru/
+https://lore.kernel.org/linux-fsdevel/20190424191652.GE3798@deco.navytux.spb.ru/
+...
 
-We cloned this repository and checked out the following commit:
+Kirill Smelkov (2):
+  fs: stream_open - opener for stream-like files so that read and write can run simultaneously without deadlock
+  fuse: Add FOPEN_STREAM to use stream_open()
 
-  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: bb7b450e61a1 - Linux 4.19.49
+ drivers/xen/xenbus/xenbus_dev_frontend.c |   2 +-
+ fs/fuse/file.c                           |   4 +-
+ fs/open.c                                |  18 ++
+ fs/read_write.c                          |   5 +-
+ include/linux/fs.h                       |   4 +
+ include/uapi/linux/fuse.h                |   2 +
+ scripts/coccinelle/api/stream_open.cocci | 363 +++++++++++++++++++++++
+ 7 files changed, 394 insertions(+), 4 deletions(-)
+ create mode 100644 scripts/coccinelle/api/stream_open.cocci
 
-
-We then merged the patchset with `git am`:
-
-  ethtool-fix-potential-userspace-buffer-overflow.patch
-  fix-memory-leak-in-sctp_process_init.patch
-  ipv4-not-do-cache-for-local-delivery-if-bc_forwarding-is-enabled.patch
-  ipv6-fix-the-check-before-getting-the-cookie-in-rt6_get_cookie.patch
-  neighbor-call-__ipv4_neigh_lookup_noref-in-neigh_xmit.patch
-  net-ethernet-ti-cpsw_ethtool-fix-ethtool-ring-param-set.patch
-  net-mlx4_en-ethtool-remove-unsupported-sfp-eeprom-high-pages-query.patch
-  net-mvpp2-use-strscpy-to-handle-stat-strings.patch
-  net-rds-fix-memory-leak-in-rds_ib_flush_mr_pool.patch
-  net-sfp-read-eeprom-in-maximum-16-byte-increments.patch
-  net-tls-replace-the-sleeping-lock-around-rx-resync-with-a-bit-lock.patch
-  packet-unconditionally-free-po-rollover.patch
-  pktgen-do-not-sleep-with-the-thread-lock-held.patch
-  revert-fib_rules-return-0-directly-if-an-exactly-same-rule-exists-when-nlm_f_excl-not-supplied.patch
-  ipv6-use-read_once-for-inet-hdrincl-as-in-ipv4.patch
-  ipv6-fix-efault-on-sendto-with-icmpv6-and-hdrincl.patch
-  mtd-spinand-macronix-fix-ecc-status-read.patch
-  rcu-locking-and-unlocking-need-to-always-be-at-least-barriers.patch
-  parisc-use-implicit-space-register-selection-for-loading-the-coherence-index-of-i-o-pdirs.patch
-  nfsv4.1-again-fix-a-race-where-cb_notify_lock-fails-to-wake-a-waiter.patch
-  nfsv4.1-fix-bug-only-first-cb_notify_lock-is-handled.patch
-  fuse-fallocate-fix-return-with-locked-inode.patch
-  pstore-remove-needless-lock-during-console-writes.patch
-  pstore-convert-buf_lock-to-semaphore.patch
-  pstore-set-tfm-to-null-on-free_buf_for_compression.patch
-  pstore-ram-run-without-kernel-crash-dump-region.patch
-  x86-power-fix-nosmt-vs-hibernation-triple-fault-during-resume.patch
-  x86-insn-eval-fix-use-after-free-access-to-ldt-entry.patch
-  i2c-xiic-add-max_read_len-quirk.patch
-  s390-mm-fix-address-space-detection-in-exception-handling.patch
-  xen-blkfront-switch-kcalloc-to-kvcalloc-for-large-array-allocation.patch
-  mips-bounds-check-virt_addr_valid.patch
-  mips-pistachio-build-uimage.gz-by-default.patch
-  revert-mips-perf-ath79-fix-perfcount-irq-assignment.patch
-  genwqe-prevent-an-integer-overflow-in-the-ioctl.patch
-  test_firmware-use-correct-snprintf-limit.patch
-  drm-gma500-cdv-check-vbt-config-bits-when-detecting-lvds-panels.patch
-  drm-msm-fix-fb-references-in-async-update.patch
-  drm-add-non-desktop-quirk-for-valve-hmds.patch
-  drm-nouveau-add-kconfig-option-to-turn-off-nouveau-legacy-contexts.-v3.patch
-  drm-add-non-desktop-quirks-to-sensics-and-osvr-headsets.patch
-  drm-amdgpu-psp-move-psp-version-specific-function-pointers-to-early_init.patch
-  drm-radeon-prefer-lower-reference-dividers.patch
-  drm-amdgpu-remove-atpx_dgpu_req_power_for_displays-check-when-hotplug-in.patch
-  drm-i915-fix-i915_exec_ring_mask.patch
-  drm-amdgpu-soc15-skip-reset-on-init.patch
-  drm-i915-fbc-disable-framebuffer-compression-on-geminilake.patch
-  drm-i915-maintain-consistent-documentation-subsection-ordering.patch
-  drm-don-t-block-fb-changes-for-async-plane-updates.patch
-  drm-i915-gvt-initialize-intel_gvt_gtt_entry-in-stack.patch
-  tty-serial_core-add-install.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-  aarch64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-255468f221f563c06a728f3fcce8fede5d583ca7.config
-    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-255468f221f563c06a728f3fcce8fede5d583ca7.tar.gz
-
-  ppc64le:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-255468f221f563c06a728f3fcce8fede5d583ca7.config
-    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-255468f221f563c06a728f3fcce8fede5d583ca7.tar.gz
-
-  s390x:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-255468f221f563c06a728f3fcce8fede5d583ca7.config
-    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-255468f221f563c06a728f3fcce8fede5d583ca7.tar.gz
-
-  x86_64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-255468f221f563c06a728f3fcce8fede5d583ca7.config
-    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-255468f221f563c06a728f3fcce8fede5d583ca7.tar.gz
-
-
-Hardware testing
-----------------
-
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ Ethernet drivers sanity [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ✅ tuned: tune-processes-through-perf [8]
-       ✅ Usex - version 1.9-29 [9]
-       🚧 ✅ Networking socket: fuzz [10]
-       🚧 ✅ Networking sctp-auth: sockopts test [11]
-       🚧 ✅ Networking route: pmtu [12]
-       🚧 ✅ Networking route_func: local [13]
-       🚧 ✅ Networking route_func: forward [13]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [14]
-
-
-  ppc64le:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [14]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ Ethernet drivers sanity [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ✅ tuned: tune-processes-through-perf [8]
-       ✅ Usex - version 1.9-29 [9]
-       🚧 ✅ Networking socket: fuzz [10]
-       🚧 ✅ Networking sctp-auth: sockopts test [11]
-       🚧 ✅ Networking route: pmtu [12]
-       🚧 ✅ Networking route_func: local [13]
-       🚧 ✅ Networking route_func: forward [13]
-
-
-  s390x:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [14]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ Ethernet drivers sanity [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ✅ tuned: tune-processes-through-perf [8]
-       🚧 ✅ Networking socket: fuzz [10]
-       🚧 ✅ Networking sctp-auth: sockopts test [11]
-       🚧 ✅ Networking route: pmtu [12]
-       🚧 ✅ Networking route_func: local [13]
-       🚧 ✅ Networking route_func: forward [13]
-
-
-  x86_64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ Ethernet drivers sanity [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ✅ tuned: tune-processes-through-perf [8]
-       ✅ Usex - version 1.9-29 [9]
-       🚧 ✅ Networking socket: fuzz [10]
-       🚧 ✅ Networking sctp-auth: sockopts test [11]
-       🚧 ✅ Networking route: pmtu [12]
-       🚧 ✅ Networking route_func: local [13]
-       🚧 ✅ Networking route_func: forward [13]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [14]
-
-
-  Test source:
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
-    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/sctp/auth/sockopts
-    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/route/pmtu
-    [13]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/route/route_func
-    [14]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-
-Waived tests (marked with 🚧)
------------------------------
-This test run included waived tests. Such tests are executed but their results
-are not taken into account. Tests are waived when their results are not
-reliable enough, e.g. when they're just introduced or are being fixed.
+-- 
+2.20.1
