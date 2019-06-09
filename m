@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B2F63A90B
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:07:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A5563A913
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:07:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388081AbfFIRGz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 13:06:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46840 "EHLO mail.kernel.org"
+        id S1729199AbfFIRHM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 13:07:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46904 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388593AbfFIRGw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 13:06:52 -0400
+        id S2387771AbfFIRGz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 13:06:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 049AB204EC;
-        Sun,  9 Jun 2019 17:06:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 27D9C204EC;
+        Sun,  9 Jun 2019 17:06:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560100011;
-        bh=PPDd01SnKCTX+qaPrXkqMKAY1LtNfCiWQRkPUp2Nom0=;
+        s=default; t=1560100014;
+        bh=lelvo0io8nkp8qWK8JdAYNl7dl/qXAIZPC9tzGmuaNI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=02s0jGg6livpjCUKqCzCjmHW4QYaMmi9/6+ZVOEcQE1rMPbsTWa+qZ17i36+YWdyK
-         9X+Hi9pimro1wkuU6ViazxqbkyXXB4ZSXZpcYSTuckmVuAqd61xWOSAUSljNsY989K
-         /ssW0dalrWXWvNU8QdvgZdQi92PU1RWu2EkEVlg8=
+        b=JfXgpSu9cGylMQgvqLV2Hhz7TR99egM18L2wONkL84LNdGQao49QvrDLWEk0qrCLh
+         ey6HIG1WG0ajZ4MUtm/cHvsRrx+l0aFcBULNh8PsO7p4NHWA4iLMbMSA9onwr65ick
+         e2QbbEwh2Mckj2CzSEDG+QerHpG+ZeOBYhKFQe3A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
-        stable@kernel.org, Boqun Feng <boqun.feng@gmail.com>,
-        "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.4 234/241] rcu: locking and unlocking need to always be at least barriers
-Date:   Sun,  9 Jun 2019 18:42:56 +0200
-Message-Id: <20190609164155.511875733@linuxfoundation.org>
+        stable@vger.kernel.org, John David Anglin <dave.anglin@bell.net>,
+        Helge Deller <deller@gmx.de>
+Subject: [PATCH 4.4 235/241] parisc: Use implicit space register selection for loading the coherence index of I/O pdirs
+Date:   Sun,  9 Jun 2019 18:42:57 +0200
+Message-Id: <20190609164155.546256729@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
 References: <20190609164147.729157653@linuxfoundation.org>
@@ -45,67 +43,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: John David Anglin <dave.anglin@bell.net>
 
-commit 66be4e66a7f422128748e3c3ef6ee72b20a6197b upstream.
+commit 63923d2c3800919774f5c651d503d1dd2adaddd5 upstream.
 
-Herbert Xu pointed out that commit bb73c52bad36 ("rcu: Don't disable
-preemption for Tiny and Tree RCU readers") was incorrect in making the
-preempt_disable/enable() be conditional on CONFIG_PREEMPT_COUNT.
+We only support I/O to kernel space. Using %sr1 to load the coherence
+index may be racy unless interrupts are disabled. This patch changes the
+code used to load the coherence index to use implicit space register
+selection. This saves one instruction and eliminates the race.
 
-If CONFIG_PREEMPT_COUNT isn't enabled, the preemption enable/disable is
-a no-op, but still is a compiler barrier.
+Tested on rp3440, c8000 and c3750.
 
-And RCU locking still _needs_ that compiler barrier.
-
-It is simply fundamentally not true that RCU locking would be a complete
-no-op: we still need to guarantee (for example) that things that can
-trap and cause preemption cannot migrate into the RCU locked region.
-
-The way we do that is by making it a barrier.
-
-See for example commit 386afc91144b ("spinlocks and preemption points
-need to be at least compiler barriers") from back in 2013 that had
-similar issues with spinlocks that become no-ops on UP: they must still
-constrain the compiler from moving other operations into the critical
-region.
-
-Now, it is true that a lot of RCU operations already use READ_ONCE() and
-WRITE_ONCE() (which in practice likely would never be re-ordered wrt
-anything remotely interesting), but it is also true that that is not
-globally the case, and that it's not even necessarily always possible
-(ie bitfields etc).
-
-Reported-by: Herbert Xu <herbert@gondor.apana.org.au>
-Fixes: bb73c52bad36 ("rcu: Don't disable preemption for Tiny and Tree RCU readers")
-Cc: stable@kernel.org
-Cc: Boqun Feng <boqun.feng@gmail.com>
-Cc: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: John David Anglin <dave.anglin@bell.net>
+Cc: stable@vger.kernel.org
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- include/linux/rcupdate.h |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/parisc/ccio-dma.c  |    4 +---
+ drivers/parisc/sba_iommu.c |    3 +--
+ 2 files changed, 2 insertions(+), 5 deletions(-)
 
---- a/include/linux/rcupdate.h
-+++ b/include/linux/rcupdate.h
-@@ -297,14 +297,12 @@ void synchronize_rcu(void);
+--- a/drivers/parisc/ccio-dma.c
++++ b/drivers/parisc/ccio-dma.c
+@@ -563,8 +563,6 @@ ccio_io_pdir_entry(u64 *pdir_ptr, space_
+ 	/* We currently only support kernel addresses */
+ 	BUG_ON(sid != KERNEL_SPACE);
  
- static inline void __rcu_read_lock(void)
- {
--	if (IS_ENABLED(CONFIG_PREEMPT_COUNT))
--		preempt_disable();
-+	preempt_disable();
- }
+-	mtsp(sid,1);
+-
+ 	/*
+ 	** WORD 1 - low order word
+ 	** "hints" parm includes the VALID bit!
+@@ -595,7 +593,7 @@ ccio_io_pdir_entry(u64 *pdir_ptr, space_
+ 	** Grab virtual index [0:11]
+ 	** Deposit virt_idx bits into I/O PDIR word
+ 	*/
+-	asm volatile ("lci %%r0(%%sr1, %1), %0" : "=r" (ci) : "r" (vba));
++	asm volatile ("lci %%r0(%1), %0" : "=r" (ci) : "r" (vba));
+ 	asm volatile ("extru %1,19,12,%0" : "+r" (ci) : "r" (ci));
+ 	asm volatile ("depw  %1,15,12,%0" : "+r" (pa) : "r" (ci));
  
- static inline void __rcu_read_unlock(void)
- {
--	if (IS_ENABLED(CONFIG_PREEMPT_COUNT))
--		preempt_enable();
-+	preempt_enable();
- }
+--- a/drivers/parisc/sba_iommu.c
++++ b/drivers/parisc/sba_iommu.c
+@@ -573,8 +573,7 @@ sba_io_pdir_entry(u64 *pdir_ptr, space_t
+ 	pa = virt_to_phys(vba);
+ 	pa &= IOVP_MASK;
  
- static inline void synchronize_rcu(void)
+-	mtsp(sid,1);
+-	asm("lci 0(%%sr1, %1), %0" : "=r" (ci) : "r" (vba));
++	asm("lci 0(%1), %0" : "=r" (ci) : "r" (vba));
+ 	pa |= (ci >> PAGE_SHIFT) & 0xff;  /* move CI (8 bits) into lowest byte */
+ 
+ 	pa |= SBA_PDIR_VALID_BIT;	/* set "valid" bit */
 
 
