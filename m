@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 87F6D3A7C7
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 18:53:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B6A63A74D
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 18:48:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732353AbfFIQxJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:53:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54292 "EHLO mail.kernel.org"
+        id S1728635AbfFIQs1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:48:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732351AbfFIQxI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:53:08 -0400
+        id S1731181AbfFIQsX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:48:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E0F42204EC;
-        Sun,  9 Jun 2019 16:53:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D5B8A205ED;
+        Sun,  9 Jun 2019 16:48:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099188;
-        bh=uyIkaYx4Do60DeM1Fok7P3O2zNsV3shDL6HrAbissfE=;
+        s=default; t=1560098903;
+        bh=s+85UkDRD4Gmb7EflBa5nFb+DWD4qiK/bjOx8AjW+6Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YxognPBUsw4mwLVo9q2nj0vHhvZ3QQN76XE/YyyJMBILH/saAdDWxA/ZnycfswhGn
-         fdjPuULwTz1xBVtGD1DiuaitB3QbSAfF+DueSQtTnm/QjILI0ao9FK+1rPwa1u80fp
-         7L/8ys60gJAbd5gEcMUvY0WXGYKYTW90odN8qKkU=
+        b=TlI2QwfDdq+Plaj+thedd/v6NMok1/ZkOFxG+QnSSdbYuyIOiCdUiZ3gaUevPBfIl
+         FK9KFDBF/fJMtPoNvLpt5eKd9aNCpRP9r2+iz2op5nUnKQjPj0nERgmmgCoAMyhDEg
+         Bq3bPCoNadRCUePAuvlQ3J8c6LyX/UynpkPLiDjo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Joe Burmeister <joe.burmeister@devtank.co.uk>
-Subject: [PATCH 4.9 41/83] tty: max310x: Fix external crystal register setup
+        stable@vger.kernel.org, Janosch Frank <frankja@linux.ibm.com>,
+        Heiko Carstens <heiko.carstens@de.ibm.com>,
+        Gerald Schaefer <gerald.schaefer@de.ibm.com>
+Subject: [PATCH 4.19 30/51] s390/mm: fix address space detection in exception handling
 Date:   Sun,  9 Jun 2019 18:42:11 +0200
-Message-Id: <20190609164131.392566346@linuxfoundation.org>
+Message-Id: <20190609164128.993661015@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.843327870@linuxfoundation.org>
-References: <20190609164127.843327870@linuxfoundation.org>
+In-Reply-To: <20190609164127.123076536@linuxfoundation.org>
+References: <20190609164127.123076536@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,42 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joe Burmeister <joe.burmeister@devtank.co.uk>
+From: Gerald Schaefer <gerald.schaefer@de.ibm.com>
 
-commit 5d24f455c182d5116dd5db8e1dc501115ecc9c2c upstream.
+commit 962f0af83c239c0aef05639631e871c874b00f99 upstream.
 
-The datasheet states:
+Commit 0aaba41b58bc ("s390: remove all code using the access register
+mode") removed access register mode from the kernel, and also from the
+address space detection logic. However, user space could still switch
+to access register mode (trans_exc_code == 1), and exceptions in that
+mode would not be correctly assigned.
 
-  Bit 4: ClockEnSet the ClockEn bit high to enable an external clocking
-(crystal or clock generator at XIN). Set the ClockEn bit to 0 to disable
-clocking
-  Bit 1: CrystalEnSet the CrystalEn bit high to enable the crystal
-oscillator. When using an external clock source at XIN, CrystalEn must
-be set low.
+Fix this by adding a check for trans_exc_code == 1 to get_fault_type(),
+and remove the wrong comment line before that function.
 
-The bit 4, MAX310X_CLKSRC_EXTCLK_BIT, should be set and was not.
-
-This was required to make the MAX3107 with an external crystal on our
-board able to send or receive data.
-
-Signed-off-by: Joe Burmeister <joe.burmeister@devtank.co.uk>
-Cc: stable <stable@vger.kernel.org>
+Fixes: 0aaba41b58bc ("s390: remove all code using the access register mode")
+Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
+Reviewed-by: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: <stable@vger.kernel.org> # v4.15+
+Signed-off-by: Gerald Schaefer <gerald.schaefer@de.ibm.com>
+Signed-off-by: Heiko Carstens <heiko.carstens@de.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/tty/serial/max310x.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/s390/mm/fault.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/tty/serial/max310x.c
-+++ b/drivers/tty/serial/max310x.c
-@@ -579,7 +579,7 @@ static int max310x_set_ref_clk(struct ma
+--- a/arch/s390/mm/fault.c
++++ b/arch/s390/mm/fault.c
+@@ -107,7 +107,6 @@ void bust_spinlocks(int yes)
+ 
+ /*
+  * Find out which address space caused the exception.
+- * Access register mode is impossible, ignore space == 3.
+  */
+ static inline enum fault_type get_fault_type(struct pt_regs *regs)
+ {
+@@ -132,6 +131,10 @@ static inline enum fault_type get_fault_
+ 		}
+ 		return VDSO_FAULT;
  	}
- 
- 	/* Configure clock source */
--	clksrc = xtal ? MAX310X_CLKSRC_CRYST_BIT : MAX310X_CLKSRC_EXTCLK_BIT;
-+	clksrc = MAX310X_CLKSRC_EXTCLK_BIT | (xtal ? MAX310X_CLKSRC_CRYST_BIT : 0);
- 
- 	/* Configure PLL */
- 	if (pllcfg) {
++	if (trans_exc_code == 1) {
++		/* access register mode, not used in the kernel */
++		return USER_FAULT;
++	}
+ 	/* home space exception -> access via kernel ASCE */
+ 	return KERNEL_FAULT;
+ }
 
 
