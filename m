@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BD9873A8BB
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:03:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 946B93AA9E
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:20:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388476AbfFIRDp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 13:03:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42206 "EHLO mail.kernel.org"
+        id S1729800AbfFIQru (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:47:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388473AbfFIRDo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 13:03:44 -0400
+        id S1730968AbfFIQrr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:47:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 34697204EC;
-        Sun,  9 Jun 2019 17:03:43 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B25EC206C3;
+        Sun,  9 Jun 2019 16:47:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099823;
-        bh=odSzfNYLgGwh+HeY6bVD3ucvuPMWfg1Li9wkAhYdllY=;
+        s=default; t=1560098867;
+        bh=fwsJwNFaon2R+lR5nFdFKSyG4R4Y2sVc0fxcUZG60+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LJHwlz8uPjGXEqhoVWDS3/uC3zrRTEgAJYtMP0k50oOJt0LXxEhLlbwcYVqKASVjB
-         UTvKDwp8KcCS16YVjMhdPad28BU9nUbRR2PJx0TT+lro+rlE33/UgGBZnX8OHgzl51
-         q8JH+Bb6fmKZ6d/LYhnMUh4dl2MNd0BCczr3bFZc=
+        b=Uu9K6O7KArsoWMx/COkDeWFOEGmOfZma4SMP50njvvzSCZs98pSBJbF2KZgw+CJWw
+         amOjrvrlLFlU7wvbHX9Y6XRfrz+vniH88xC5VlG8XCk7DY8oM4paqPTRy871tFmfjp
+         Tcmdq0lzmGxQSTaVaW/qq5KUzKZq6XbhtN/kWYOE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 177/241] spi: rspi: Fix sequencer reset during initialization
+        stable@vger.kernel.org, Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@kernel.org, Boqun Feng <boqun.feng@gmail.com>,
+        "Paul E. McKenney" <paulmck@linux.vnet.ibm.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 18/51] rcu: locking and unlocking need to always be at least barriers
 Date:   Sun,  9 Jun 2019 18:41:59 +0200
-Message-Id: <20190609164152.940621719@linuxfoundation.org>
+Message-Id: <20190609164128.133131668@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
-References: <20190609164147.729157653@linuxfoundation.org>
+In-Reply-To: <20190609164127.123076536@linuxfoundation.org>
+References: <20190609164127.123076536@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,59 +45,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 26843bb128590edd7eba1ad7ce22e4b9f1066ce3 ]
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-While the sequencer is reset after each SPI message since commit
-880c6d114fd79a69 ("spi: rspi: Add support for Quad and Dual SPI
-Transfers on QSPI"), it was never reset for the first message, thus
-relying on reset state or bootloader settings.
+commit 66be4e66a7f422128748e3c3ef6ee72b20a6197b upstream.
 
-Fix this by initializing it explicitly during configuration.
+Herbert Xu pointed out that commit bb73c52bad36 ("rcu: Don't disable
+preemption for Tiny and Tree RCU readers") was incorrect in making the
+preempt_disable/enable() be conditional on CONFIG_PREEMPT_COUNT.
 
-Fixes: 0b2182ddac4b8837 ("spi: add support for Renesas RSPI")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+If CONFIG_PREEMPT_COUNT isn't enabled, the preemption enable/disable is
+a no-op, but still is a compiler barrier.
+
+And RCU locking still _needs_ that compiler barrier.
+
+It is simply fundamentally not true that RCU locking would be a complete
+no-op: we still need to guarantee (for example) that things that can
+trap and cause preemption cannot migrate into the RCU locked region.
+
+The way we do that is by making it a barrier.
+
+See for example commit 386afc91144b ("spinlocks and preemption points
+need to be at least compiler barriers") from back in 2013 that had
+similar issues with spinlocks that become no-ops on UP: they must still
+constrain the compiler from moving other operations into the critical
+region.
+
+Now, it is true that a lot of RCU operations already use READ_ONCE() and
+WRITE_ONCE() (which in practice likely would never be re-ordered wrt
+anything remotely interesting), but it is also true that that is not
+globally the case, and that it's not even necessarily always possible
+(ie bitfields etc).
+
+Reported-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: bb73c52bad36 ("rcu: Don't disable preemption for Tiny and Tree RCU readers")
+Cc: stable@kernel.org
+Cc: Boqun Feng <boqun.feng@gmail.com>
+Cc: Paul E. McKenney <paulmck@linux.vnet.ibm.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/spi/spi-rspi.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ include/linux/rcupdate.h |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/spi/spi-rspi.c b/drivers/spi/spi-rspi.c
-index 9882d93e7566d..0556259377f77 100644
---- a/drivers/spi/spi-rspi.c
-+++ b/drivers/spi/spi-rspi.c
-@@ -279,7 +279,8 @@ static int rspi_set_config_register(struct rspi_data *rspi, int access_size)
- 	/* Sets parity, interrupt mask */
- 	rspi_write8(rspi, 0x00, RSPI_SPCR2);
+--- a/include/linux/rcupdate.h
++++ b/include/linux/rcupdate.h
+@@ -78,14 +78,12 @@ void synchronize_rcu(void);
  
--	/* Sets SPCMD */
-+	/* Resets sequencer */
-+	rspi_write8(rspi, 0, RSPI_SPSCR);
- 	rspi->spcmd |= SPCMD_SPB_8_TO_16(access_size);
- 	rspi_write16(rspi, rspi->spcmd, RSPI_SPCMD0);
+ static inline void __rcu_read_lock(void)
+ {
+-	if (IS_ENABLED(CONFIG_PREEMPT_COUNT))
+-		preempt_disable();
++	preempt_disable();
+ }
  
-@@ -313,7 +314,8 @@ static int rspi_rz_set_config_register(struct rspi_data *rspi, int access_size)
- 	rspi_write8(rspi, 0x00, RSPI_SSLND);
- 	rspi_write8(rspi, 0x00, RSPI_SPND);
+ static inline void __rcu_read_unlock(void)
+ {
+-	if (IS_ENABLED(CONFIG_PREEMPT_COUNT))
+-		preempt_enable();
++	preempt_enable();
+ }
  
--	/* Sets SPCMD */
-+	/* Resets sequencer */
-+	rspi_write8(rspi, 0, RSPI_SPSCR);
- 	rspi->spcmd |= SPCMD_SPB_8_TO_16(access_size);
- 	rspi_write16(rspi, rspi->spcmd, RSPI_SPCMD0);
- 
-@@ -364,7 +366,8 @@ static int qspi_set_config_register(struct rspi_data *rspi, int access_size)
- 	/* Sets buffer to allow normal operation */
- 	rspi_write8(rspi, 0x00, QSPI_SPBFCR);
- 
--	/* Sets SPCMD */
-+	/* Resets sequencer */
-+	rspi_write8(rspi, 0, RSPI_SPSCR);
- 	rspi_write16(rspi, rspi->spcmd, RSPI_SPCMD0);
- 
- 	/* Enables SPI function in master mode */
--- 
-2.20.1
-
+ static inline void synchronize_rcu(void)
 
 
