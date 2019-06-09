@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 86D2D3A692
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 17:09:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 386093A696
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 17:09:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728825AbfFIPJR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 11:09:17 -0400
-Received: from mail180-16.suw31.mandrillapp.com ([198.2.180.16]:27524 "EHLO
-        mail180-16.suw31.mandrillapp.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1728634AbfFIPJR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Jun 2019 11:09:17 -0400
-X-Greylist: delayed 904 seconds by postgrey-1.27 at vger.kernel.org; Sun, 09 Jun 2019 11:09:15 EDT
+        id S1728678AbfFIPJV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 11:09:21 -0400
+Received: from mail177-30.suw61.mandrillapp.com ([198.2.177.30]:1459 "EHLO
+        mail177-30.suw61.mandrillapp.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1728635AbfFIPJS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Jun 2019 11:09:18 -0400
+X-Greylist: delayed 907 seconds by postgrey-1.27 at vger.kernel.org; Sun, 09 Jun 2019 11:09:18 EDT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; s=mandrill; d=nexedi.com;
  h=From:Subject:To:Cc:Message-Id:In-Reply-To:References:Date:MIME-Version:Content-Type:Content-Transfer-Encoding; i=kirr@nexedi.com;
- bh=dm0aK3M64H+SXVlIii//Ha6Kj1rTeiHz47q5OrGWw5I=;
- b=lWQNDbOHYfk+5KWBuM0d4nBmxsEb6pfthv+ug4h1qOYa9HuodBqzAPcochW0tKf3OYIp9fepZvZJ
-   S+Gd8/ktZVSeCR+WH5NaHzR172kZb74WZL0E6l0MtwDZkQZZU0LSJuh+qvBoIwLeu8+xkbhNbs3t
-   /uYzcn5+RpAx3unOGHg=
-Received: from pmta03.mandrill.prod.suw01.rsglab.com (127.0.0.1) by mail180-16.suw31.mandrillapp.com id hvkghm22sc0t for <stable@vger.kernel.org>; Sun, 9 Jun 2019 14:39:11 +0000 (envelope-from <bounce-md_31050260.5cfd1a0f.v1-7d45b6e31d4241b7bd9c30f6ee497e6a@mandrillapp.com>)
+ bh=pRMqkOl1p8QfMWqYJsnpMckdAW/Dp8IHbsU3uG7cRlY=;
+ b=g/iJjnzveRbHZsc8NyENcYfKEUIN2GUEF5kd9tLzu6xHw2HD1Qp6AHYzmOIuMUjFr5UnFwrLXHd/
+   +FqCeMhX3Ycf3CfWPtFjxxPpNXNAqBzLhp3DxEDSyf5s09LfGfQ8DfQTdhi0YPzST6XA7vKubgw/
+   vL3QvJAwBohEj/TN8PI=
+Received: from pmta06.mandrill.prod.suw01.rsglab.com (127.0.0.1) by mail177-30.suw61.mandrillapp.com id hvkghs22rtkl for <stable@vger.kernel.org>; Sun, 9 Jun 2019 14:39:58 +0000 (envelope-from <bounce-md_31050260.5cfd1a3e.v1-f8815a67f8124409b75076e031013022@mandrillapp.com>)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mandrillapp.com; 
- i=@mandrillapp.com; q=dns/txt; s=mandrill; t=1560091151; h=From : 
+ i=@mandrillapp.com; q=dns/txt; s=mandrill; t=1560091198; h=From : 
  Subject : To : Cc : Message-Id : In-Reply-To : References : Date : 
  MIME-Version : Content-Type : Content-Transfer-Encoding : From : 
  Subject : Date : X-Mandrill-User : List-Unsubscribe; 
- bh=dm0aK3M64H+SXVlIii//Ha6Kj1rTeiHz47q5OrGWw5I=; 
- b=YKBFK0I4+27uroGTxJ9kDHCYkkOZ9dOUqphzy/V7Get2zCE+oUTDcpmzDrK8fAWtzvJI/K
- S8/tZHnaJxaDpub1HTzUm0y5NRoHneg8m0tUD4iKguGU0xPWHdsEb9rQ+ePhGS+9Qt7rycsg
- N3O+xi01jC16pRMPnlK8uDKzd4qUs=
+ bh=pRMqkOl1p8QfMWqYJsnpMckdAW/Dp8IHbsU3uG7cRlY=; 
+ b=Owlu2+uB5HGbayZiu/OQf/Cxvf2R2OHJVlxnmCA4IVviy/JNC9hNJ8voWv6QUoyyPr1r9m
+ g20snG+nfTne6K5rwckFUyVgF/RoScCgS38epJe/4Ja5YAclStkXo+O+8Rvw1Huo/xpbk19d
+ Z81qJ4lV0PAZJkX3IVLLx9M9v8g+Q=
 From:   Kirill Smelkov <kirr@nexedi.com>
-Subject: [PATCH 3.16 2/2] fuse: Add FOPEN_STREAM to use stream_open()
-Received: from [87.98.221.171] by mandrillapp.com id 7d45b6e31d4241b7bd9c30f6ee497e6a; Sun, 09 Jun 2019 14:39:11 +0000
+Subject: [PATCH 3.18 2/2] fuse: Add FOPEN_STREAM to use stream_open()
+Received: from [87.98.221.171] by mandrillapp.com id f8815a67f8124409b75076e031013022; Sun, 09 Jun 2019 14:39:58 +0000
 X-Mailer: git-send-email 2.20.1
-To:     <stable@vger.kernel.org>, Ben Hutchings <ben@decadent.org.uk>
+To:     <stable@vger.kernel.org>
 Cc:     Sasha Levin <sashal@kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Ben Hutchings <ben@decadent.org.uk>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Miklos Szeredi <miklos@szeredi.hu>,
         <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         Kirill Smelkov <kirr@nexedi.com>,
         Miklos Szeredi <mszeredi@redhat.com>
-Message-Id: <20190609135607.9840-3-kirr@nexedi.com>
-In-Reply-To: <20190609135607.9840-1-kirr@nexedi.com>
-References: <20190609135607.9840-1-kirr@nexedi.com>
+Message-Id: <20190609133501.7873-3-kirr@nexedi.com>
+In-Reply-To: <20190609133501.7873-1-kirr@nexedi.com>
+References: <20190609133501.7873-1-kirr@nexedi.com>
 X-Report-Abuse: Please forward a copy of this message, including all headers, to abuse@mandrill.com
-X-Report-Abuse: You can also report abuse here: http://mandrillapp.com/contact/abuse?id=31050260.7d45b6e31d4241b7bd9c30f6ee497e6a
+X-Report-Abuse: You can also report abuse here: http://mandrillapp.com/contact/abuse?id=31050260.f8815a67f8124409b75076e031013022
 X-Mandrill-User: md_31050260
-Date:   Sun, 09 Jun 2019 14:39:11 +0000
+Date:   Sun, 09 Jun 2019 14:39:58 +0000
 MIME-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
@@ -105,10 +106,10 @@ Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
  2 files changed, 5 insertions(+), 1 deletion(-)
 
 diff --git a/fs/fuse/file.c b/fs/fuse/file.c
-index bc8f5de48fd9..69e471b042a6 100644
+index d4dbea657656..b85a32be5c92 100644
 --- a/fs/fuse/file.c
 +++ b/fs/fuse/file.c
-@@ -214,7 +214,9 @@ void fuse_finish_open(struct inode *inode, struct file *file)
+@@ -213,7 +213,9 @@ void fuse_finish_open(struct inode *inode, struct file *file)
  		file->f_op = &fuse_direct_io_file_operations;
  	if (!(ff->open_flags & FOPEN_KEEP_CACHE))
  		invalidate_inode_pages2(inode->i_mapping);
