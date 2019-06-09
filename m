@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 37D243AA77
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:19:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3CF83AABC
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:21:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729571AbfFIQtt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:49:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49480 "EHLO mail.kernel.org"
+        id S1730355AbfFIQqR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:46:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731028AbfFIQts (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:49:48 -0400
+        id S1730337AbfFIQqO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:46:14 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8C9722081C;
-        Sun,  9 Jun 2019 16:49:47 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 730C32081C;
+        Sun,  9 Jun 2019 16:46:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560098988;
-        bh=mJGX79p76rVdVlJMSD5PUw98T0fLpIIBGD5Wr7UkL2s=;
+        s=default; t=1560098774;
+        bh=xZk6V8W47holid3x8sEAl6DZJWT45f42r7gly3AseKY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1Jn4R42QoORjvPxqpVZdk2fMd1D80btBvKhq7PldCdfHZqwTAmtKoOdJoMZsXh9K2
-         l0gd64rH89s9t0qAZQGhArWDyUPc/tFyIL0WIN+SvC07/pgMKkxeaqLUEPJfan9ncI
-         /YuVs7NbSTYMW+qg49NeGDC2uIPF9aoqt6/Sz2v4=
+        b=GQ18AyBjCnfSORN4gXbYQ8iRohdH0bv+pvNM7o/1asCIyMPNCW0xCFLZDtLkWgfpl
+         Q9xUVTJeG3EVrDW1JKBvttIqS4/EG0xqdFDExH9hrYDc1vX4hYFEuhLiIGv8ieMEFI
+         OJgpqdaahKBsFbgCxZ/bmFU8jrjSxMwUtxkJbgpE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vivien Didelot <vivien.didelot@gmail.com>,
-        Michal Kubecek <mkubecek@suse.cz>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 01/35] ethtool: fix potential userspace buffer overflow
+        stable@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Mario Kleiner <mario.kleiner.de@gmail.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.1 56/70] drm: Fix timestamp docs for variable refresh properties.
 Date:   Sun,  9 Jun 2019 18:42:07 +0200
-Message-Id: <20190609164125.657132872@linuxfoundation.org>
+Message-Id: <20190609164132.173948370@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164125.377368385@linuxfoundation.org>
-References: <20190609164125.377368385@linuxfoundation.org>
+In-Reply-To: <20190609164127.541128197@linuxfoundation.org>
+References: <20190609164127.541128197@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,54 +45,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vivien Didelot <vivien.didelot@gmail.com>
+From: Mario Kleiner <mario.kleiner.de@gmail.com>
 
-[ Upstream commit 0ee4e76937d69128a6a66861ba393ebdc2ffc8a2 ]
+commit 0cbd0adc4429930567083d18cc8c0fbc5f635d96 upstream.
 
-ethtool_get_regs() allocates a buffer of size ops->get_regs_len(),
-and pass it to the kernel driver via ops->get_regs() for filling.
+As discussed with Nicholas and Daniel Vetter (patchwork
+link to discussion below), the VRR timestamping behaviour
+produced utterly useless and bogus vblank/pageflip
+timestamps. We have found a way to fix this and provide
+sane behaviour.
 
-There is no restriction about what the kernel drivers can or cannot do
-with the open ethtool_regs structure. They usually set regs->version
-and ignore regs->len or set it to the same size as ops->get_regs_len().
+As of Linux 5.2, the amdgpu driver will be able to
+provide exactly the same vblank / pageflip timestamp
+semantic in variable refresh rate mode as in standard
+fixed refresh rate mode. This is achieved by deferring
+core vblank handling (drm_crtc_handle_vblank()) until
+the end of front porch, and also defer the sending of
+pageflip completion events until end of front porch,
+when we can safely compute correct pageflip/vblank
+timestamps.
 
-But if userspace allocates a smaller buffer for the registers dump,
-we would cause a userspace buffer overflow in the final copy_to_user()
-call, which uses the regs.len value potentially reset by the driver.
+The same approach will be possible for other VRR
+capable kms drivers, so we can actually have sane
+and useful timestamps in VRR mode.
 
-To fix this, make this case obvious and store regs.len before calling
-ops->get_regs(), to only copy as much data as requested by userspace,
-up to the value returned by ops->get_regs_len().
+This patch removes the section of the docs that
+describes the broken timestamp behaviour present
+in Linux 5.0/5.1.
 
-While at it, remove the redundant check for non-null regbuf.
-
-Signed-off-by: Vivien Didelot <vivien.didelot@gmail.com>
-Reviewed-by: Michal Kubecek <mkubecek@suse.cz>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: ab7a664f7a2d ("drm: Document variable refresh properties")
+Link: https://patchwork.freedesktop.org/patch/285333/
+Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Signed-off-by: Mario Kleiner <mario.kleiner.de@gmail.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190418060157.18968-1-mario.kleiner.de@gmail.com
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/core/ethtool.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/net/core/ethtool.c
-+++ b/net/core/ethtool.c
-@@ -1402,13 +1402,16 @@ static int ethtool_get_regs(struct net_d
- 			return -ENOMEM;
- 	}
+---
+ drivers/gpu/drm/drm_connector.c |    6 ------
+ 1 file changed, 6 deletions(-)
+
+--- a/drivers/gpu/drm/drm_connector.c
++++ b/drivers/gpu/drm/drm_connector.c
+@@ -1385,12 +1385,6 @@ EXPORT_SYMBOL(drm_mode_create_scaling_mo
+  *
+  *	The driver may place further restrictions within these minimum
+  *	and maximum bounds.
+- *
+- *	The semantics for the vertical blank timestamp differ when
+- *	variable refresh rate is active. The vertical blank timestamp
+- *	is defined to be an estimate using the current mode's fixed
+- *	refresh rate timings. The semantics for the page-flip event
+- *	timestamp remain the same.
+  */
  
-+	if (regs.len < reglen)
-+		reglen = regs.len;
-+
- 	ops->get_regs(dev, &regs, regbuf);
- 
- 	ret = -EFAULT;
- 	if (copy_to_user(useraddr, &regs, sizeof(regs)))
- 		goto out;
- 	useraddr += offsetof(struct ethtool_regs, data);
--	if (regbuf && copy_to_user(useraddr, regbuf, regs.len))
-+	if (copy_to_user(useraddr, regbuf, reglen))
- 		goto out;
- 	ret = 0;
- 
+ /**
 
 
