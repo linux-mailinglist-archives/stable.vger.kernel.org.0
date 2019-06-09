@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CA6673A815
+	by mail.lfdr.de (Postfix) with ESMTP id 612623A813
 	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 18:57:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733020AbfFIQ4o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1732668AbfFIQ4o (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 9 Jun 2019 12:56:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59316 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:59376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732651AbfFIQ4k (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:56:40 -0400
+        id S1732675AbfFIQ4n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:56:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6DC23205ED;
-        Sun,  9 Jun 2019 16:56:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1FFC1204EC;
+        Sun,  9 Jun 2019 16:56:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099399;
-        bh=3sIAlWKWwPUuJjwC0HO+q/XgjnhSqDSZGdpjme2YpkU=;
+        s=default; t=1560099402;
+        bh=ISzGiHCBv8wniRLyahJSfJFScHVAsSJgClPxPxkgjSg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cgp2TP5nJEckplASU2tbr0kP1+aslzj97ZmUkrz7z/EhHeDmoI4zjBvQ9TuCfZZ74
-         vumURT6afBRZJ/jwbqXMHVPCzTlozgNJFrPdXmebtrCfek+F8b3Ua2gAZ4sU/4B2Ln
-         +6uFFw0uHXaL0Xb6k1uTmzkOSk9wfmoaT7XfYvfM=
+        b=M6AwRXqVpyDAzu9SvnYWqfe3MfnPTI05du+j8eKO4Z80qmDmJfW1FMQvn2VqTzSFc
+         mt8DYcjKAIlOWtCmrNJWy2lOIW/AYHS/G1yJhVFgmKNPjYnIV5bd3Wu7Ap0QAgv4HU
+         qJ12ox04WpQaT5OotZvEjHwu1KWM9bhk0SLXrSRs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiufei Xue <jiufei.xue@linux.alibaba.com>,
-        Tejun Heo <tj@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.4 028/241] fs/writeback.c: use rcu_barrier() to wait for inflight wb switches going into workqueue when umount
-Date:   Sun,  9 Jun 2019 18:39:30 +0200
-Message-Id: <20190609164148.590888517@linuxfoundation.org>
+        stable@vger.kernel.org, Sriram Rajagopalan <sriramr@arista.com>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org
+Subject: [PATCH 4.4 029/241] ext4: zero out the unused memory region in the extent tree block
+Date:   Sun,  9 Jun 2019 18:39:31 +0200
+Message-Id: <20190609164148.621401348@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
 References: <20190609164147.729157653@linuxfoundation.org>
@@ -45,75 +43,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiufei Xue <jiufei.xue@linux.alibaba.com>
+From: Sriram Rajagopalan <sriramr@arista.com>
 
-commit ec084de929e419e51bcdafaafe567d9e7d0273b7 upstream.
+commit 592acbf16821288ecdc4192c47e3774a4c48bb64 upstream.
 
-synchronize_rcu() didn't wait for call_rcu() callbacks, so inode wb
-switch may not go to the workqueue after synchronize_rcu().  Thus
-previous scheduled switches was not finished even flushing the
-workqueue, which will cause a NULL pointer dereferenced followed below.
+This commit zeroes out the unused memory region in the buffer_head
+corresponding to the extent metablock after writing the extent header
+and the corresponding extent node entries.
 
-  VFS: Busy inodes after unmount of vdd. Self-destruct in 5 seconds.  Have a nice day...
-  BUG: unable to handle kernel NULL pointer dereference at 0000000000000278
-    evict+0xb3/0x180
-    iput+0x1b0/0x230
-    inode_switch_wbs_work_fn+0x3c0/0x6a0
-    worker_thread+0x4e/0x490
-    ? process_one_work+0x410/0x410
-    kthread+0xe6/0x100
-    ret_from_fork+0x39/0x50
+This is done to prevent random uninitialized data from getting into
+the filesystem when the extent block is synced.
 
-Replace the synchronize_rcu() call with a rcu_barrier() to wait for all
-pending callbacks to finish.  And inc isw_nr_in_flight after call_rcu()
-in inode_switch_wbs() to make more sense.
+This fixes CVE-2019-11833.
 
-Link: http://lkml.kernel.org/r/20190429024108.54150-1-jiufei.xue@linux.alibaba.com
-Signed-off-by: Jiufei Xue <jiufei.xue@linux.alibaba.com>
-Acked-by: Tejun Heo <tj@kernel.org>
-Suggested-by: Tejun Heo <tj@kernel.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sriram Rajagopalan <sriramr@arista.com>
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- fs/fs-writeback.c |   11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ fs/ext4/extents.c |   17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
---- a/fs/fs-writeback.c
-+++ b/fs/fs-writeback.c
-@@ -530,8 +530,6 @@ static void inode_switch_wbs(struct inod
- 	ihold(inode);
- 	isw->inode = inode;
+--- a/fs/ext4/extents.c
++++ b/fs/ext4/extents.c
+@@ -1049,6 +1049,7 @@ static int ext4_ext_split(handle_t *hand
+ 	__le32 border;
+ 	ext4_fsblk_t *ablocks = NULL; /* array of allocated blocks */
+ 	int err = 0;
++	size_t ext_size = 0;
  
--	atomic_inc(&isw_nr_in_flight);
--
- 	/*
- 	 * In addition to synchronizing among switchers, I_WB_SWITCH tells
- 	 * the RCU protected stat update paths to grab the mapping's
-@@ -539,6 +537,9 @@ static void inode_switch_wbs(struct inod
- 	 * Let's continue after I_WB_SWITCH is guaranteed to be visible.
- 	 */
- 	call_rcu(&isw->rcu_head, inode_switch_wbs_rcu_fn);
-+
-+	atomic_inc(&isw_nr_in_flight);
-+
- 	goto out_unlock;
- 
- out_free:
-@@ -910,7 +911,11 @@ restart:
- void cgroup_writeback_umount(void)
- {
- 	if (atomic_read(&isw_nr_in_flight)) {
--		synchronize_rcu();
-+		/*
-+		 * Use rcu_barrier() to wait for all pending callbacks to
-+		 * ensure that all in-flight wb switches are in the workqueue.
-+		 */
-+		rcu_barrier();
- 		flush_workqueue(isw_wq);
+ 	/* make decision: where to split? */
+ 	/* FIXME: now decision is simplest: at current extent */
+@@ -1140,6 +1141,10 @@ static int ext4_ext_split(handle_t *hand
+ 		le16_add_cpu(&neh->eh_entries, m);
  	}
- }
+ 
++	/* zero out unused area in the extent block */
++	ext_size = sizeof(struct ext4_extent_header) +
++		sizeof(struct ext4_extent) * le16_to_cpu(neh->eh_entries);
++	memset(bh->b_data + ext_size, 0, inode->i_sb->s_blocksize - ext_size);
+ 	ext4_extent_block_csum_set(inode, neh);
+ 	set_buffer_uptodate(bh);
+ 	unlock_buffer(bh);
+@@ -1219,6 +1224,11 @@ static int ext4_ext_split(handle_t *hand
+ 				sizeof(struct ext4_extent_idx) * m);
+ 			le16_add_cpu(&neh->eh_entries, m);
+ 		}
++		/* zero out unused area in the extent block */
++		ext_size = sizeof(struct ext4_extent_header) +
++		   (sizeof(struct ext4_extent) * le16_to_cpu(neh->eh_entries));
++		memset(bh->b_data + ext_size, 0,
++			inode->i_sb->s_blocksize - ext_size);
+ 		ext4_extent_block_csum_set(inode, neh);
+ 		set_buffer_uptodate(bh);
+ 		unlock_buffer(bh);
+@@ -1284,6 +1294,7 @@ static int ext4_ext_grow_indepth(handle_
+ 	ext4_fsblk_t newblock, goal = 0;
+ 	struct ext4_super_block *es = EXT4_SB(inode->i_sb)->s_es;
+ 	int err = 0;
++	size_t ext_size = 0;
+ 
+ 	/* Try to prepend new index to old one */
+ 	if (ext_depth(inode))
+@@ -1309,9 +1320,11 @@ static int ext4_ext_grow_indepth(handle_
+ 		goto out;
+ 	}
+ 
++	ext_size = sizeof(EXT4_I(inode)->i_data);
+ 	/* move top-level index/leaf into new block */
+-	memmove(bh->b_data, EXT4_I(inode)->i_data,
+-		sizeof(EXT4_I(inode)->i_data));
++	memmove(bh->b_data, EXT4_I(inode)->i_data, ext_size);
++	/* zero out unused area in the extent block */
++	memset(bh->b_data + ext_size, 0, inode->i_sb->s_blocksize - ext_size);
+ 
+ 	/* set size of new block */
+ 	neh = ext_block_hdr(bh);
 
 
