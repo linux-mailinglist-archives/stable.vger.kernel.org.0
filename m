@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A5563A913
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:07:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09E233A90D
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:07:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729199AbfFIRHM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 13:07:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46904 "EHLO mail.kernel.org"
+        id S2388451AbfFIRG6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 13:06:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46956 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387771AbfFIRGz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 13:06:55 -0400
+        id S2388593AbfFIRG5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 13:06:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 27D9C204EC;
-        Sun,  9 Jun 2019 17:06:53 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id CA44B204EC;
+        Sun,  9 Jun 2019 17:06:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560100014;
-        bh=lelvo0io8nkp8qWK8JdAYNl7dl/qXAIZPC9tzGmuaNI=;
+        s=default; t=1560100017;
+        bh=4R8I0anYL8C+6celks3uMq5Egv2NRBLlrT7oH8hkW/Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JfXgpSu9cGylMQgvqLV2Hhz7TR99egM18L2wONkL84LNdGQao49QvrDLWEk0qrCLh
-         ey6HIG1WG0ajZ4MUtm/cHvsRrx+l0aFcBULNh8PsO7p4NHWA4iLMbMSA9onwr65ick
-         e2QbbEwh2Mckj2CzSEDG+QerHpG+ZeOBYhKFQe3A=
+        b=2nRSwVZSrAzc16/7tWSq6m0VZsaQe0v0rt2ZWD1/liWSYDItMAT5LKsvgKKPN6Zx+
+         8XXvA0BOc7RBTKxo8ixS0ENujEb6QimbkGrIsprgWW0RHqTfVE1CpMscDj4prMCufx
+         kOw2RYqwH0NSVtCjvVYVLofLL3N/ezHozbLxT8ok=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John David Anglin <dave.anglin@bell.net>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 4.4 235/241] parisc: Use implicit space register selection for loading the coherence index of I/O pdirs
-Date:   Sun,  9 Jun 2019 18:42:57 +0200
-Message-Id: <20190609164155.546256729@linuxfoundation.org>
+        stable@vger.kernel.org, kbuild test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Liu Bo <bo.liu@linux.alibaba.com>,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 4.4 236/241] fuse: fallocate: fix return with locked inode
+Date:   Sun,  9 Jun 2019 18:42:58 +0200
+Message-Id: <20190609164155.580504874@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
 References: <20190609164147.729157653@linuxfoundation.org>
@@ -43,58 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John David Anglin <dave.anglin@bell.net>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-commit 63923d2c3800919774f5c651d503d1dd2adaddd5 upstream.
+commit 35d6fcbb7c3e296a52136347346a698a35af3fda upstream.
 
-We only support I/O to kernel space. Using %sr1 to load the coherence
-index may be racy unless interrupts are disabled. This patch changes the
-code used to load the coherence index to use implicit space register
-selection. This saves one instruction and eliminates the race.
+Do the proper cleanup in case the size check fails.
 
-Tested on rp3440, c8000 and c3750.
+Tested with xfstests:generic/228
 
-Signed-off-by: John David Anglin <dave.anglin@bell.net>
-Cc: stable@vger.kernel.org
-Signed-off-by: Helge Deller <deller@gmx.de>
+Reported-by: kbuild test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Fixes: 0cbade024ba5 ("fuse: honor RLIMIT_FSIZE in fuse_file_fallocate")
+Cc: Liu Bo <bo.liu@linux.alibaba.com>
+Cc: <stable@vger.kernel.org> # v3.5
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/parisc/ccio-dma.c  |    4 +---
- drivers/parisc/sba_iommu.c |    3 +--
- 2 files changed, 2 insertions(+), 5 deletions(-)
+ fs/fuse/file.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/parisc/ccio-dma.c
-+++ b/drivers/parisc/ccio-dma.c
-@@ -563,8 +563,6 @@ ccio_io_pdir_entry(u64 *pdir_ptr, space_
- 	/* We currently only support kernel addresses */
- 	BUG_ON(sid != KERNEL_SPACE);
+--- a/fs/fuse/file.c
++++ b/fs/fuse/file.c
+@@ -2951,7 +2951,7 @@ static long fuse_file_fallocate(struct f
+ 	    offset + length > i_size_read(inode)) {
+ 		err = inode_newsize_ok(inode, offset + length);
+ 		if (err)
+-			return err;
++			goto out;
+ 	}
  
--	mtsp(sid,1);
--
- 	/*
- 	** WORD 1 - low order word
- 	** "hints" parm includes the VALID bit!
-@@ -595,7 +593,7 @@ ccio_io_pdir_entry(u64 *pdir_ptr, space_
- 	** Grab virtual index [0:11]
- 	** Deposit virt_idx bits into I/O PDIR word
- 	*/
--	asm volatile ("lci %%r0(%%sr1, %1), %0" : "=r" (ci) : "r" (vba));
-+	asm volatile ("lci %%r0(%1), %0" : "=r" (ci) : "r" (vba));
- 	asm volatile ("extru %1,19,12,%0" : "+r" (ci) : "r" (ci));
- 	asm volatile ("depw  %1,15,12,%0" : "+r" (pa) : "r" (ci));
- 
---- a/drivers/parisc/sba_iommu.c
-+++ b/drivers/parisc/sba_iommu.c
-@@ -573,8 +573,7 @@ sba_io_pdir_entry(u64 *pdir_ptr, space_t
- 	pa = virt_to_phys(vba);
- 	pa &= IOVP_MASK;
- 
--	mtsp(sid,1);
--	asm("lci 0(%%sr1, %1), %0" : "=r" (ci) : "r" (vba));
-+	asm("lci 0(%1), %0" : "=r" (ci) : "r" (vba));
- 	pa |= (ci >> PAGE_SHIFT) & 0xff;  /* move CI (8 bits) into lowest byte */
- 
- 	pa |= SBA_PDIR_VALID_BIT;	/* set "valid" bit */
+ 	if (!(mode & FALLOC_FL_KEEP_SIZE))
 
 
