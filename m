@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 395A43A4B0
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 12:30:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 47B2D3A4B1
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 12:30:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728014AbfFIKaJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 06:30:09 -0400
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:36555 "EHLO
-        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1727853AbfFIKaJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Jun 2019 06:30:09 -0400
+        id S1728023AbfFIKaa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 06:30:30 -0400
+Received: from out2-smtp.messagingengine.com ([66.111.4.26]:36307 "EHLO
+        out2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1727853AbfFIKaa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Jun 2019 06:30:30 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 76F7E3EE;
-        Sun,  9 Jun 2019 06:30:07 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sun, 09 Jun 2019 06:30:07 -0400
+        by mailout.nyi.internal (Postfix) with ESMTP id 9B30021F48;
+        Sun,  9 Jun 2019 06:30:29 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Sun, 09 Jun 2019 06:30:29 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=MKeMCs
-        m3PHLpN4mOGB3fZ0A3fQAyIK2rTOyl1+UIijQ=; b=uWo04kwztryR6iZdQR2+gS
-        JfrDVGUvJfoEwYMPirseGXuDut72ozIS0C/rhbGVqzN3TrX27OGS0sIbfC9goYDX
-        mncHaVpKVuSXA8P7ZV/3r2aK7itlDfKhUJiUApsg3jVaUJAuzcCq+sl5r+12NZcw
-        v9JD2rhzL4GEQx+aqhkuKsM5WMSP/1ePP2yookXDFBLCtw1jraFoHuoDX/KTX6pZ
-        f2PqkGEuvqQXLohbRJYnGK9yT62l0tt6/i4G9iFI89tE0HNJpPos4G8m2efb5ahc
-        9x/ziN1cXyvMc8E/qH+CTXuPHFYfW32GQR6S9s6NjHQVMU7w/XJ6y+XyOa7+gY1Q
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=zf5p2E
+        /y+IChb8QcepUs+8lrOH9MXHjKOAiGsnnBf4E=; b=nlUCUCDxQqbomkjb4eEVgS
+        qc2RpoXWMobiiOKmeiU6InqobgNxPZH3RyeKHj0MHiYm9gqNU57TTiUp5NMW+3ny
+        V7A/4kOJX00dCtEUkjW48XTul0KyNzB+gFQFTJM1EX10OZJPyTk0B+0xkiyp0hjy
+        JskjU+qUknyCkZvjqk41haloiWsLC5a74NqYQJnrLpV5fS/fB24VgLn/n30PMSki
+        AUZH14Sf4Z/3Oqi/tcqpuf7b8pBC/aAgLiO9XE9mA0RrD3yE9P/u4aeU6XmBiTKh
+        T/1X/mLULahVJhSdkSpwqz3UOclEgevfd73+nP1KdPR9i5yFm/tftmExiQ0qF6eA
         ==
-X-ME-Sender: <xms:rt_8XPGq7MOu4S3Jez9onruHqrK7ByTsq-i9U2KGTt5IPE6u-iTHWg>
+X-ME-Sender: <xms:xd_8XF9mFYC7EW3g2oSFLWWjSDiLNBqOxPcCQ21uK68ZhqL8bdPOfA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrudehtddgvdelucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:rt_8XIGEE57dnukiug5Whp-8Q1e1eD8Q4U_Ya-Of9F6_VCOzlr2T0Q>
-    <xmx:rt_8XD4itXuw2PH6GuNgCaPhUu-gBuw96M-ntJWf6agohlZQawfwsw>
-    <xmx:rt_8XDFH8a2ndwd4OXaAzSINEBT7aMlEyAobEExjZxJobMW44DlHpg>
-    <xmx:r9_8XOVNUT7hd-kgD_eIybRnqW4yzBv8ZOVS5jSpNMKI81t_9HvVgQ>
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepud
+X-ME-Proxy: <xmx:xd_8XFbATJGP3f14mN2RnhxImqWQ92FcnVVEKzHIkFJzu68HaRwWrA>
+    <xmx:xd_8XNuBC1IZijNxbh9Q7c-bPCqxae7VOpSJZpXuAOeur_sFZeOWTg>
+    <xmx:xd_8XKZTn7NBJe2K492JLkoRX-YMeM_nTyxSyzf2EQt9gxZcL3YoXA>
+    <xmx:xd_8XIF_fOHrTEni_Pn-VtarIlp6d7FVOHU21zMoPDYmstIwNR2mFQ>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id C307B38008A;
-        Sun,  9 Jun 2019 06:30:05 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] drm/i915: Maintain consistent documentation subsection" failed to apply to 4.14-stable tree
-To:     corbet@lwn.net, jani.nikula@intel.com
+        by mail.messagingengine.com (Postfix) with ESMTPA id B4CED8005C;
+        Sun,  9 Jun 2019 06:30:28 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] drm/amd/display: Don't load DMCU for Raven 1 (v2)" failed to apply to 5.1-stable tree
+To:     harry.wentland@amd.com, alexander.deucher@amd.com,
+        nicholas.kazlauskas@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 09 Jun 2019 12:30:03 +0200
-Message-ID: <15600762031173@kroah.com>
+Date:   Sun, 09 Jun 2019 12:30:26 +0200
+Message-ID: <1560076226130132@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +57,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.1-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -67,85 +68,62 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 551bd3368a7b3cfef01edaade8970948d178d40a Mon Sep 17 00:00:00 2001
-From: Jonathan Corbet <corbet@lwn.net>
-Date: Thu, 23 May 2019 10:06:46 -0600
-Subject: [PATCH] drm/i915: Maintain consistent documentation subsection
- ordering
+From c08e56c647ba8e4964ffc9e43360f16c9740337e Mon Sep 17 00:00:00 2001
+From: Harry Wentland <harry.wentland@amd.com>
+Date: Mon, 29 Apr 2019 09:39:15 -0400
+Subject: [PATCH] drm/amd/display: Don't load DMCU for Raven 1 (v2)
 
-With Sphinx 2.0 (or prior versions with the deprecation warnings fixed) the
-docs build fails with:
+[WHY]
+Some early Raven boards had a bad SBIOS that doesn't play nicely with
+the DMCU FW. We thought the issues were fixed by ignoring errors on DMCU
+load but that doesn't seem to be the case. We've still seen reports of
+users unable to boot their systems at all.
 
-  Documentation/gpu/i915.rst:403: WARNING: Title level inconsistent:
+[HOW]
+Disable DMCU load on Raven 1. Only load it for Raven 2 and Picasso.
 
-  Global GTT Fence Handling
-  ~~~~~~~~~~~~~~~~~~~~~~~~~
+v2: Fix ifdef (Alex)
 
-  reST markup error:
-  Documentation/gpu/i915.rst:403: (SEVERE/4) Title level inconsistent:
+Signed-off-by: Harry Wentland <harry.wentland@amd.com>
+Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 
-I "fixed" it by changing the subsections in i915.rst, but that didn't seem
-like the correct change.  It turns out that a couple of i915 files create
-their own subsections in kerneldoc comments using apostrophes as the
-heading marker:
-
-  Layout
-  ''''''
-
-That breaks the normal subsection marker ordering, and newer Sphinx is
-rather more strict about enforcing that ordering.  So fix the offending
-comments to make Sphinx happy.
-
-(This is unfortunate, in that kerneldoc comments shouldn't need to be aware
-of where they might be included in the heading hierarchy, but I don't see
-a better way around it).
-
-Cc: stable@vger.kernel.org  # v4.14+
-Acked-by: Jani Nikula <jani.nikula@intel.com>
-Signed-off-by: Jonathan Corbet <corbet@lwn.net>
-
-diff --git a/drivers/gpu/drm/i915/i915_reg.h b/drivers/gpu/drm/i915/i915_reg.h
-index b74824f0b5b1..249d35c12a75 100644
---- a/drivers/gpu/drm/i915/i915_reg.h
-+++ b/drivers/gpu/drm/i915/i915_reg.h
-@@ -35,7 +35,7 @@
-  * macros. Do **not** mass change existing definitions just to update the style.
-  *
-  * Layout
-- * ''''''
-+ * ~~~~~~
-  *
-  * Keep helper macros near the top. For example, _PIPE() and friends.
-  *
-@@ -79,7 +79,7 @@
-  * style. Use lower case in hexadecimal values.
-  *
-  * Naming
-- * ''''''
-+ * ~~~~~~
-  *
-  * Try to name registers according to the specs. If the register name changes in
-  * the specs from platform to another, stick to the original name.
-@@ -97,7 +97,7 @@
-  * suffix to the name. For example, ``_SKL`` or ``_GEN8``.
-  *
-  * Examples
-- * ''''''''
-+ * ~~~~~~~~
-  *
-  * (Note that the values in the example are indented using spaces instead of
-  * TABs to avoid misalignment in generated documentation. Use TABs in the
-diff --git a/drivers/gpu/drm/i915/intel_workarounds.c b/drivers/gpu/drm/i915/intel_workarounds.c
-index 9682dd575152..6decd432f4d3 100644
---- a/drivers/gpu/drm/i915/intel_workarounds.c
-+++ b/drivers/gpu/drm/i915/intel_workarounds.c
-@@ -37,7 +37,7 @@
-  *    costly and simplifies things. We can revisit this in the future.
-  *
-  * Layout
-- * ''''''
-+ * ~~~~~~
-  *
-  * Keep things in this file ordered by WA type, as per the above (context, GT,
-  * display, register whitelist, batchbuffer). Then, inside each type, keep the
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index 995f9df66142..bcb1a93c0b4c 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -29,6 +29,7 @@
+ #include "dm_services_types.h"
+ #include "dc.h"
+ #include "dc/inc/core_types.h"
++#include "dal_asic_id.h"
+ 
+ #include "vid.h"
+ #include "amdgpu.h"
+@@ -640,7 +641,7 @@ static void amdgpu_dm_fini(struct amdgpu_device *adev)
+ 
+ static int load_dmcu_fw(struct amdgpu_device *adev)
+ {
+-	const char *fw_name_dmcu;
++	const char *fw_name_dmcu = NULL;
+ 	int r;
+ 	const struct dmcu_firmware_header_v1_0 *hdr;
+ 
+@@ -663,7 +664,14 @@ static int load_dmcu_fw(struct amdgpu_device *adev)
+ 	case CHIP_VEGA20:
+ 		return 0;
+ 	case CHIP_RAVEN:
+-		fw_name_dmcu = FIRMWARE_RAVEN_DMCU;
++#if defined(CONFIG_DRM_AMD_DC_DCN1_01)
++		if (ASICREV_IS_PICASSO(adev->external_rev_id))
++			fw_name_dmcu = FIRMWARE_RAVEN_DMCU;
++		else if (ASICREV_IS_RAVEN2(adev->external_rev_id))
++			fw_name_dmcu = FIRMWARE_RAVEN_DMCU;
++		else
++#endif
++			return 0;
+ 		break;
+ 	default:
+ 		DRM_ERROR("Unsupported ASIC type: 0x%X\n", adev->asic_type);
 
