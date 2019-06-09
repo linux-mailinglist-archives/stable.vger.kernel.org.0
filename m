@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 70E203AAA0
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:20:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BCEEC3A8B6
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:03:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729954AbfFIQrf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:47:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46276 "EHLO mail.kernel.org"
+        id S2388432AbfFIRDb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 13:03:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730881AbfFIQrf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:47:35 -0400
+        id S2388429AbfFIRDb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 13:03:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7A3D42145D;
-        Sun,  9 Jun 2019 16:47:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1D79A204EC;
+        Sun,  9 Jun 2019 17:03:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560098854;
-        bh=9lxHmmF1tLB8UR7q4NKCCLTiVUByphdknOQMJDU8YxQ=;
+        s=default; t=1560099810;
+        bh=+kIEXJMeTP1KdmW/tnGqQswG8llJuLBkzgOSww3SMcs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b6tlbs39f/BDkiB9NPD4Z5GRO5wK59337+l9ZW+m//5TuSKghPbbyTcWrtsapM2PO
-         25oqDIFI7jZU5yP8AX5KiWBSfz/FzOOpwEhKfcYFIcNCDWBKegL7G0QIdMaKe8k2/Z
-         9ldmNiBpGdgOCFAucSMzgFXxIvgtKBMvjtvUM1PA=
+        b=kCXrPfawbIxKx7U8aGzUcJbU28eRugLfh6RiilpkcrsLLPGSzXlUzx9NDnFHzfC28
+         /lv5BxRE7zSkI67mbMwzonB3H9LV3e1wCMIawxE9JLn0GcFhqbKiTJ7x5lZdQVlRvn
+         f29OJK1NlTdP9UMtY9PmW/D3NiS3tLNHGgbSI+0s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Matteo Croce <mcroce@redhat.com>
-Subject: [PATCH 4.19 13/51] pktgen: do not sleep with the thread lock held.
-Date:   Sun,  9 Jun 2019 18:41:54 +0200
-Message-Id: <20190609164127.874060734@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 173/241] media: go7007: avoid clang frame overflow warning with KASAN
+Date:   Sun,  9 Jun 2019 18:41:55 +0200
+Message-Id: <20190609164152.790981313@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.123076536@linuxfoundation.org>
-References: <20190609164127.123076536@linuxfoundation.org>
+In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
+References: <20190609164147.729157653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,96 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+[ Upstream commit ed713a4a1367aca5c0f2f329579465db00c17995 ]
 
-[ Upstream commit 720f1de4021f09898b8c8443f3b3e995991b6e3a ]
+clang-8 warns about one function here when KASAN is enabled, even
+without the 'asan-stack' option:
 
-Currently, the process issuing a "start" command on the pktgen procfs
-interface, acquires the pktgen thread lock and never release it, until
-all pktgen threads are completed. The above can blocks indefinitely any
-other pktgen command and any (even unrelated) netdevice removal - as
-the pktgen netdev notifier acquires the same lock.
+drivers/media/usb/go7007/go7007-fw.c:1551:5: warning: stack frame size of 2656 bytes in function
 
-The issue is demonstrated by the following script, reported by Matteo:
+I have reported this issue in the llvm bugzilla, but to make
+it work with the clang-8 release, a small annotation is still
+needed.
 
-ip -b - <<'EOF'
-	link add type dummy
-	link add type veth
-	link set dummy0 up
-EOF
-modprobe pktgen
-echo reset >/proc/net/pktgen/pgctrl
-{
-	echo rem_device_all
-	echo add_device dummy0
-} >/proc/net/pktgen/kpktgend_0
-echo count 0 >/proc/net/pktgen/dummy0
-echo start >/proc/net/pktgen/pgctrl &
-sleep 1
-rmmod veth
+Link: https://bugs.llvm.org/show_bug.cgi?id=38809
 
-Fix the above releasing the thread lock around the sleep call.
-
-Additionally we must prevent racing with forcefull rmmod - as the
-thread lock no more protects from them. Instead, acquire a self-reference
-before waiting for any thread. As a side effect, running
-
-rmmod pktgen
-
-while some thread is running now fails with "module in use" error,
-before this patch such command hanged indefinitely.
-
-Note: the issue predates the commit reported in the fixes tag, but
-this fix can't be applied before the mentioned commit.
-
-v1 -> v2:
- - no need to check for thread existence after flipping the lock,
-   pktgen threads are freed only at net exit time
- -
-
-Fixes: 6146e6a43b35 ("[PKTGEN]: Removes thread_{un,}lock() macros.")
-Reported-and-tested-by: Matteo Croce <mcroce@redhat.com>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+[hverkuil-cisco@xs4all.nl: fix checkpatch warning]
+Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/pktgen.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/media/usb/go7007/go7007-fw.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/core/pktgen.c
-+++ b/net/core/pktgen.c
-@@ -3065,7 +3065,13 @@ static int pktgen_wait_thread_run(struct
- {
- 	while (thread_is_running(t)) {
- 
-+		/* note: 't' will still be around even after the unlock/lock
-+		 * cycle because pktgen_thread threads are only cleared at
-+		 * net exit
-+		 */
-+		mutex_unlock(&pktgen_thread_lock);
- 		msleep_interruptible(100);
-+		mutex_lock(&pktgen_thread_lock);
- 
- 		if (signal_pending(current))
- 			goto signal;
-@@ -3080,6 +3086,10 @@ static int pktgen_wait_all_threads_run(s
- 	struct pktgen_thread *t;
- 	int sig = 1;
- 
-+	/* prevent from racing with rmmod */
-+	if (!try_module_get(THIS_MODULE))
-+		return sig;
-+
- 	mutex_lock(&pktgen_thread_lock);
- 
- 	list_for_each_entry(t, &pn->pktgen_threads, th_list) {
-@@ -3093,6 +3103,7 @@ static int pktgen_wait_all_threads_run(s
- 			t->control |= (T_STOP);
- 
- 	mutex_unlock(&pktgen_thread_lock);
-+	module_put(THIS_MODULE);
- 	return sig;
+diff --git a/drivers/media/usb/go7007/go7007-fw.c b/drivers/media/usb/go7007/go7007-fw.c
+index 60bf5f0644d11..a5efcd4f7b4f5 100644
+--- a/drivers/media/usb/go7007/go7007-fw.c
++++ b/drivers/media/usb/go7007/go7007-fw.c
+@@ -1499,8 +1499,8 @@ static int modet_to_package(struct go7007 *go, __le16 *code, int space)
+ 	return cnt;
  }
  
+-static int do_special(struct go7007 *go, u16 type, __le16 *code, int space,
+-			int *framelen)
++static noinline_for_stack int do_special(struct go7007 *go, u16 type,
++					 __le16 *code, int space, int *framelen)
+ {
+ 	switch (type) {
+ 	case SPECIAL_FRM_HEAD:
+-- 
+2.20.1
+
 
 
