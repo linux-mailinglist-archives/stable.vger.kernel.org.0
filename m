@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DD00D3AA12
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:16:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DEAD3A92A
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:08:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732444AbfFIQxi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:53:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54952 "EHLO mail.kernel.org"
+        id S2388801AbfFIRHr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 13:07:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47988 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1732436AbfFIQxi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:53:38 -0400
+        id S2388751AbfFIRHr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 13:07:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 256FD204EC;
-        Sun,  9 Jun 2019 16:53:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D4821205F4;
+        Sun,  9 Jun 2019 17:07:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099216;
-        bh=KdqCi4A+q87RVCI02o2Piv1Un/YorawiD7zmBDJL/KU=;
+        s=default; t=1560100066;
+        bh=23axblYHinbgnmdYaUFFt2A1buYUfE62lykn/XH6DWE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VCNyXMjvqUUNdazhqQivJFFOd6cdeR9A/47Z7/bbnFTaaU1VdT/sGk+bkib5W7p1i
-         IZCLAnNlerpMqeK6dvZfLA75pVs4/AHQFEueRZfWZwQHmEydud9yheHakcqWe8/fpH
-         h5YajH17e812T+HkeKj5/vj5MaxbZnp9XVJFxWdY=
+        b=eS2+KAZqXr8xwTEpsOFJQm0vEa0/cDzT4LzhZxEd/TRaGFNxzf1WxFviyJsPmIeJD
+         p3M0n9rrRSOtaPwspd09Fw4tF+/Up+kBJfVBgzLQFF4alWqrddzDRk1oO52UBe2Oh7
+         RhNFwZmF4JWNOhAKLnnLgClngGtT8Sp3LCTo47kY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>
-Subject: [PATCH 4.9 24/83] usbip: usbip_host: fix BUG: sleeping function called from invalid context
+        stable@vger.kernel.org,
+        "Harris, James R" <james.r.harris@intel.com>,
+        Max Gurtovoy <maxg@mellanox.com>,
+        Sagi Grimberg <sagi@grimberg.me>
+Subject: [PATCH 5.1 43/70] nvme-rdma: fix queue mapping when queue count is limited
 Date:   Sun,  9 Jun 2019 18:41:54 +0200
-Message-Id: <20190609164129.597089766@linuxfoundation.org>
+Message-Id: <20190609164130.922394717@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.843327870@linuxfoundation.org>
-References: <20190609164127.843327870@linuxfoundation.org>
+In-Reply-To: <20190609164127.541128197@linuxfoundation.org>
+References: <20190609164127.541128197@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,241 +45,181 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Sagi Grimberg <sagi@grimberg.me>
 
-commit 0c9e8b3cad654bfc499c10b652fbf8f0b890af8f upstream.
+commit 5651cd3c43368873d0787b52acb2e0e08f3c5da4 upstream.
 
-stub_probe() and stub_disconnect() call functions which could call
-sleeping function in invalid context whil holding busid_lock.
+When the controller supports less queues than requested, we
+should make sure that queue mapping does the right thing and
+not assume that all queues are available. This fixes a crash
+when the controller supports less queues than requested.
 
-Fix the problem by refining the lock holds to short critical sections
-to change the busid_priv fields. This fix restructures the code to
-limit the lock holds in stub_probe() and stub_disconnect().
+The rules are:
+1. if no write/poll queues are requested, we assign the available queues
+   to the default queue map. The default and read queue maps share the
+   existing queues.
+2. if write queues are requested:
+  - first make sure that read queue map gets the requested
+    nr_io_queues count
+  - then grant the default queue map the minimum between the requested
+    nr_write_queues and the remaining queues. If there are no available
+    queues to dedicate to the default queue map, fallback to (1) and
+    share all the queues in the existing queue map.
+3. if poll queues are requested:
+  - map the remaining queues to the poll queue map.
 
-stub_probe():
+Also, provide a log indication on how we constructed the different
+queue maps.
 
-[15217.927028] BUG: sleeping function called from invalid context at mm/slab.h:418
-[15217.927038] in_atomic(): 1, irqs_disabled(): 0, pid: 29087, name: usbip
-[15217.927044] 5 locks held by usbip/29087:
-[15217.927047]  #0: 0000000091647f28 (sb_writers#6){....}, at: vfs_write+0x191/0x1c0
-[15217.927062]  #1: 000000008f9ba75b (&of->mutex){....}, at: kernfs_fop_write+0xf7/0x1b0
-[15217.927072]  #2: 00000000872e5b4b (&dev->mutex){....}, at: __device_driver_lock+0x3b/0x50
-[15217.927082]  #3: 00000000e74ececc (&dev->mutex){....}, at: __device_driver_lock+0x46/0x50
-[15217.927090]  #4: 00000000b20abbe0 (&(&busid_table[i].busid_lock)->rlock){....}, at: get_busid_priv+0x48/0x60 [usbip_host]
-[15217.927103] CPU: 3 PID: 29087 Comm: usbip Tainted: G        W         5.1.0-rc6+ #40
-[15217.927106] Hardware name: Dell Inc. OptiPlex 790/0HY9JP, BIOS A18 09/24/2013
-[15217.927109] Call Trace:
-[15217.927118]  dump_stack+0x63/0x85
-[15217.927127]  ___might_sleep+0xff/0x120
-[15217.927133]  __might_sleep+0x4a/0x80
-[15217.927143]  kmem_cache_alloc_trace+0x1aa/0x210
-[15217.927156]  stub_probe+0xe8/0x440 [usbip_host]
-[15217.927171]  usb_probe_device+0x34/0x70
-
-stub_disconnect():
-
-[15279.182478] BUG: sleeping function called from invalid context at kernel/locking/mutex.c:908
-[15279.182487] in_atomic(): 1, irqs_disabled(): 0, pid: 29114, name: usbip
-[15279.182492] 5 locks held by usbip/29114:
-[15279.182494]  #0: 0000000091647f28 (sb_writers#6){....}, at: vfs_write+0x191/0x1c0
-[15279.182506]  #1: 00000000702cf0f3 (&of->mutex){....}, at: kernfs_fop_write+0xf7/0x1b0
-[15279.182514]  #2: 00000000872e5b4b (&dev->mutex){....}, at: __device_driver_lock+0x3b/0x50
-[15279.182522]  #3: 00000000e74ececc (&dev->mutex){....}, at: __device_driver_lock+0x46/0x50
-[15279.182529]  #4: 00000000b20abbe0 (&(&busid_table[i].busid_lock)->rlock){....}, at: get_busid_priv+0x48/0x60 [usbip_host]
-[15279.182541] CPU: 0 PID: 29114 Comm: usbip Tainted: G        W         5.1.0-rc6+ #40
-[15279.182543] Hardware name: Dell Inc. OptiPlex 790/0HY9JP, BIOS A18 09/24/2013
-[15279.182546] Call Trace:
-[15279.182554]  dump_stack+0x63/0x85
-[15279.182561]  ___might_sleep+0xff/0x120
-[15279.182566]  __might_sleep+0x4a/0x80
-[15279.182574]  __mutex_lock+0x55/0x950
-[15279.182582]  ? get_busid_priv+0x48/0x60 [usbip_host]
-[15279.182587]  ? reacquire_held_locks+0xec/0x1a0
-[15279.182591]  ? get_busid_priv+0x48/0x60 [usbip_host]
-[15279.182597]  ? find_held_lock+0x94/0xa0
-[15279.182609]  mutex_lock_nested+0x1b/0x20
-[15279.182614]  ? mutex_lock_nested+0x1b/0x20
-[15279.182618]  kernfs_remove_by_name_ns+0x2a/0x90
-[15279.182625]  sysfs_remove_file_ns+0x15/0x20
-[15279.182629]  device_remove_file+0x19/0x20
-[15279.182634]  stub_disconnect+0x6d/0x180 [usbip_host]
-[15279.182643]  usb_unbind_device+0x27/0x60
-
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Cc: stable <stable@vger.kernel.org>
+Reported-by: Harris, James R <james.r.harris@intel.com>
+Reviewed-by: Max Gurtovoy <maxg@mellanox.com>
+Tested-by: Jim Harris <james.r.harris@intel.com>
+Cc: <stable@vger.kernel.org> # v5.0+
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/usb/usbip/stub_dev.c |   65 ++++++++++++++++++++++++++++---------------
- 1 file changed, 43 insertions(+), 22 deletions(-)
+ drivers/nvme/host/rdma.c |   99 ++++++++++++++++++++++++++++-------------------
+ 1 file changed, 61 insertions(+), 38 deletions(-)
 
---- a/drivers/usb/usbip/stub_dev.c
-+++ b/drivers/usb/usbip/stub_dev.c
-@@ -315,9 +315,17 @@ static int stub_probe(struct usb_device
- 	const char *udev_busid = dev_name(&udev->dev);
- 	struct bus_id_priv *busid_priv;
- 	int rc = 0;
-+	char save_status;
- 
- 	dev_dbg(&udev->dev, "Enter probe\n");
- 
-+	/* Not sure if this is our device. Allocate here to avoid
-+	 * calling alloc while holding busid_table lock.
-+	 */
-+	sdev = stub_device_alloc(udev);
-+	if (!sdev)
-+		return -ENOMEM;
-+
- 	/* check we should claim or not by busid_table */
- 	busid_priv = get_busid_priv(udev_busid);
- 	if (!busid_priv || (busid_priv->status == STUB_BUSID_REMOV) ||
-@@ -332,14 +340,14 @@ static int stub_probe(struct usb_device
- 		 * See driver_probe_device() in driver/base/dd.c
- 		 */
- 		rc = -ENODEV;
--		goto call_put_busid_priv;
-+		goto sdev_free;
- 	}
- 
- 	if (udev->descriptor.bDeviceClass == USB_CLASS_HUB) {
- 		dev_dbg(&udev->dev, "%s is a usb hub device... skip!\n",
- 			 udev_busid);
- 		rc = -ENODEV;
--		goto call_put_busid_priv;
-+		goto sdev_free;
- 	}
- 
- 	if (!strcmp(udev->bus->bus_name, "vhci_hcd")) {
-@@ -348,15 +356,9 @@ static int stub_probe(struct usb_device
- 			udev_busid);
- 
- 		rc = -ENODEV;
--		goto call_put_busid_priv;
-+		goto sdev_free;
- 	}
- 
--	/* ok, this is my device */
--	sdev = stub_device_alloc(udev);
--	if (!sdev) {
--		rc = -ENOMEM;
--		goto call_put_busid_priv;
--	}
- 
- 	dev_info(&udev->dev,
- 		"usbip-host: register new device (bus %u dev %u)\n",
-@@ -366,9 +368,13 @@ static int stub_probe(struct usb_device
- 
- 	/* set private data to usb_device */
- 	dev_set_drvdata(&udev->dev, sdev);
-+
- 	busid_priv->sdev = sdev;
- 	busid_priv->udev = udev;
- 
-+	save_status = busid_priv->status;
-+	busid_priv->status = STUB_BUSID_ALLOC;
-+
- 	/*
- 	 * Claim this hub port.
- 	 * It doesn't matter what value we pass as owner
-@@ -381,15 +387,16 @@ static int stub_probe(struct usb_device
- 		goto err_port;
- 	}
- 
-+	/* release the busid_lock */
-+	put_busid_priv(busid_priv);
-+
- 	rc = stub_add_files(&udev->dev);
- 	if (rc) {
- 		dev_err(&udev->dev, "stub_add_files for %s\n", udev_busid);
- 		goto err_files;
- 	}
--	busid_priv->status = STUB_BUSID_ALLOC;
- 
--	rc = 0;
--	goto call_put_busid_priv;
-+	return 0;
- 
- err_files:
- 	usb_hub_release_port(udev->parent, udev->portnum,
-@@ -398,23 +405,24 @@ err_port:
- 	dev_set_drvdata(&udev->dev, NULL);
- 	usb_put_dev(udev);
- 
-+	/* we already have busid_priv, just lock busid_lock */
-+	spin_lock(&busid_priv->busid_lock);
- 	busid_priv->sdev = NULL;
-+	busid_priv->status = save_status;
-+sdev_free:
- 	stub_device_free(sdev);
--
--call_put_busid_priv:
-+	/* release the busid_lock */
- 	put_busid_priv(busid_priv);
-+
- 	return rc;
- }
- 
- static void shutdown_busid(struct bus_id_priv *busid_priv)
+--- a/drivers/nvme/host/rdma.c
++++ b/drivers/nvme/host/rdma.c
+@@ -641,34 +641,16 @@ static int nvme_rdma_alloc_io_queues(str
  {
--	if (busid_priv->sdev && !busid_priv->shutdown_busid) {
--		busid_priv->shutdown_busid = 1;
--		usbip_event_add(&busid_priv->sdev->ud, SDEV_EVENT_REMOVED);
-+	usbip_event_add(&busid_priv->sdev->ud, SDEV_EVENT_REMOVED);
+ 	struct nvmf_ctrl_options *opts = ctrl->ctrl.opts;
+ 	struct ib_device *ibdev = ctrl->device->dev;
+-	unsigned int nr_io_queues;
++	unsigned int nr_io_queues, nr_default_queues;
++	unsigned int nr_read_queues, nr_poll_queues;
+ 	int i, ret;
  
--		/* wait for the stop of the event handler */
--		usbip_stop_eh(&busid_priv->sdev->ud);
+-	nr_io_queues = min(opts->nr_io_queues, num_online_cpus());
+-
+-	/*
+-	 * we map queues according to the device irq vectors for
+-	 * optimal locality so we don't need more queues than
+-	 * completion vectors.
+-	 */
+-	nr_io_queues = min_t(unsigned int, nr_io_queues,
+-				ibdev->num_comp_vectors);
+-
+-	if (opts->nr_write_queues) {
+-		ctrl->io_queues[HCTX_TYPE_DEFAULT] =
+-				min(opts->nr_write_queues, nr_io_queues);
+-		nr_io_queues += ctrl->io_queues[HCTX_TYPE_DEFAULT];
+-	} else {
+-		ctrl->io_queues[HCTX_TYPE_DEFAULT] = nr_io_queues;
 -	}
-+	/* wait for the stop of the event handler */
-+	usbip_stop_eh(&busid_priv->sdev->ud);
- }
+-
+-	ctrl->io_queues[HCTX_TYPE_READ] = nr_io_queues;
+-
+-	if (opts->nr_poll_queues) {
+-		ctrl->io_queues[HCTX_TYPE_POLL] =
+-			min(opts->nr_poll_queues, num_online_cpus());
+-		nr_io_queues += ctrl->io_queues[HCTX_TYPE_POLL];
+-	}
++	nr_read_queues = min_t(unsigned int, ibdev->num_comp_vectors,
++				min(opts->nr_io_queues, num_online_cpus()));
++	nr_default_queues =  min_t(unsigned int, ibdev->num_comp_vectors,
++				min(opts->nr_write_queues, num_online_cpus()));
++	nr_poll_queues = min(opts->nr_poll_queues, num_online_cpus());
++	nr_io_queues = nr_read_queues + nr_default_queues + nr_poll_queues;
  
- /*
-@@ -446,6 +454,9 @@ static void stub_disconnect(struct usb_d
+ 	ret = nvme_set_queue_count(&ctrl->ctrl, &nr_io_queues);
+ 	if (ret)
+@@ -681,6 +663,34 @@ static int nvme_rdma_alloc_io_queues(str
+ 	dev_info(ctrl->ctrl.device,
+ 		"creating %d I/O queues.\n", nr_io_queues);
  
- 	dev_set_drvdata(&udev->dev, NULL);
- 
-+	/* release busid_lock before call to remove device files */
-+	put_busid_priv(busid_priv);
++	if (opts->nr_write_queues && nr_read_queues < nr_io_queues) {
++		/*
++		 * separate read/write queues
++		 * hand out dedicated default queues only after we have
++		 * sufficient read queues.
++		 */
++		ctrl->io_queues[HCTX_TYPE_READ] = nr_read_queues;
++		nr_io_queues -= ctrl->io_queues[HCTX_TYPE_READ];
++		ctrl->io_queues[HCTX_TYPE_DEFAULT] =
++			min(nr_default_queues, nr_io_queues);
++		nr_io_queues -= ctrl->io_queues[HCTX_TYPE_DEFAULT];
++	} else {
++		/*
++		 * shared read/write queues
++		 * either no write queues were requested, or we don't have
++		 * sufficient queue count to have dedicated default queues.
++		 */
++		ctrl->io_queues[HCTX_TYPE_DEFAULT] =
++			min(nr_read_queues, nr_io_queues);
++		nr_io_queues -= ctrl->io_queues[HCTX_TYPE_DEFAULT];
++	}
 +
- 	/*
- 	 * NOTE: rx/tx threads are invoked for each usb_device.
- 	 */
-@@ -456,18 +467,27 @@ static void stub_disconnect(struct usb_d
- 				  (struct usb_dev_state *) udev);
- 	if (rc) {
- 		dev_dbg(&udev->dev, "unable to release port\n");
--		goto call_put_busid_priv;
-+		return;
++	if (opts->nr_poll_queues && nr_io_queues) {
++		/* map dedicated poll queues only if we have queues left */
++		ctrl->io_queues[HCTX_TYPE_POLL] =
++			min(nr_poll_queues, nr_io_queues);
++	}
++
+ 	for (i = 1; i < ctrl->ctrl.queue_count; i++) {
+ 		ret = nvme_rdma_alloc_queue(ctrl, i,
+ 				ctrl->ctrl.sqsize + 1);
+@@ -1787,17 +1797,24 @@ static void nvme_rdma_complete_rq(struct
+ static int nvme_rdma_map_queues(struct blk_mq_tag_set *set)
+ {
+ 	struct nvme_rdma_ctrl *ctrl = set->driver_data;
++	struct nvmf_ctrl_options *opts = ctrl->ctrl.opts;
+ 
+-	set->map[HCTX_TYPE_DEFAULT].queue_offset = 0;
+-	set->map[HCTX_TYPE_DEFAULT].nr_queues =
+-			ctrl->io_queues[HCTX_TYPE_DEFAULT];
+-	set->map[HCTX_TYPE_READ].nr_queues = ctrl->io_queues[HCTX_TYPE_READ];
+-	if (ctrl->ctrl.opts->nr_write_queues) {
++	if (opts->nr_write_queues && ctrl->io_queues[HCTX_TYPE_READ]) {
+ 		/* separate read/write queues */
++		set->map[HCTX_TYPE_DEFAULT].nr_queues =
++			ctrl->io_queues[HCTX_TYPE_DEFAULT];
++		set->map[HCTX_TYPE_DEFAULT].queue_offset = 0;
++		set->map[HCTX_TYPE_READ].nr_queues =
++			ctrl->io_queues[HCTX_TYPE_READ];
+ 		set->map[HCTX_TYPE_READ].queue_offset =
+-				ctrl->io_queues[HCTX_TYPE_DEFAULT];
++			ctrl->io_queues[HCTX_TYPE_DEFAULT];
+ 	} else {
+-		/* mixed read/write queues */
++		/* shared read/write queues */
++		set->map[HCTX_TYPE_DEFAULT].nr_queues =
++			ctrl->io_queues[HCTX_TYPE_DEFAULT];
++		set->map[HCTX_TYPE_DEFAULT].queue_offset = 0;
++		set->map[HCTX_TYPE_READ].nr_queues =
++			ctrl->io_queues[HCTX_TYPE_DEFAULT];
+ 		set->map[HCTX_TYPE_READ].queue_offset = 0;
  	}
+ 	blk_mq_rdma_map_queues(&set->map[HCTX_TYPE_DEFAULT],
+@@ -1805,16 +1822,22 @@ static int nvme_rdma_map_queues(struct b
+ 	blk_mq_rdma_map_queues(&set->map[HCTX_TYPE_READ],
+ 			ctrl->device->dev, 0);
  
- 	/* If usb reset is called from event handler */
- 	if (usbip_in_eh(current))
--		goto call_put_busid_priv;
-+		return;
+-	if (ctrl->ctrl.opts->nr_poll_queues) {
++	if (opts->nr_poll_queues && ctrl->io_queues[HCTX_TYPE_POLL]) {
++		/* map dedicated poll queues only if we have queues left */
+ 		set->map[HCTX_TYPE_POLL].nr_queues =
+ 				ctrl->io_queues[HCTX_TYPE_POLL];
+ 		set->map[HCTX_TYPE_POLL].queue_offset =
+-				ctrl->io_queues[HCTX_TYPE_DEFAULT];
+-		if (ctrl->ctrl.opts->nr_write_queues)
+-			set->map[HCTX_TYPE_POLL].queue_offset +=
+-				ctrl->io_queues[HCTX_TYPE_READ];
++			ctrl->io_queues[HCTX_TYPE_DEFAULT] +
++			ctrl->io_queues[HCTX_TYPE_READ];
+ 		blk_mq_map_queues(&set->map[HCTX_TYPE_POLL]);
+ 	}
 +
-+	/* we already have busid_priv, just lock busid_lock */
-+	spin_lock(&busid_priv->busid_lock);
-+	if (!busid_priv->shutdown_busid)
-+		busid_priv->shutdown_busid = 1;
-+	/* release busid_lock */
-+	put_busid_priv(busid_priv);
- 
- 	/* shutdown the current connection */
- 	shutdown_busid(busid_priv);
- 
- 	usb_put_dev(sdev->udev);
- 
-+	/* we already have busid_priv, just lock busid_lock */
-+	spin_lock(&busid_priv->busid_lock);
- 	/* free sdev */
- 	busid_priv->sdev = NULL;
- 	stub_device_free(sdev);
-@@ -476,6 +496,7 @@ static void stub_disconnect(struct usb_d
- 		busid_priv->status = STUB_BUSID_ADDED;
- 
- call_put_busid_priv:
-+	/* release busid_lock */
- 	put_busid_priv(busid_priv);
++	dev_info(ctrl->ctrl.device,
++		"mapped %d/%d/%d default/read/poll queues.\n",
++		ctrl->io_queues[HCTX_TYPE_DEFAULT],
++		ctrl->io_queues[HCTX_TYPE_READ],
++		ctrl->io_queues[HCTX_TYPE_POLL]);
++
+ 	return 0;
  }
  
 
