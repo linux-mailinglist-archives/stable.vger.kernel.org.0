@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B074D3AA87
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:19:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C36D33AA5D
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:18:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731366AbfFIQtC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:49:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48290 "EHLO mail.kernel.org"
+        id S1732042AbfFIQvu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:51:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730166AbfFIQtA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:49:00 -0400
+        id S1732041AbfFIQvt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:51:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 467CE205ED;
-        Sun,  9 Jun 2019 16:48:59 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5B41C205ED;
+        Sun,  9 Jun 2019 16:51:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560098939;
-        bh=Cp2uECuwOeGPDjVMSYrZzAlare/2fg5aOUeUdcM2Uv4=;
+        s=default; t=1560099108;
+        bh=SvWGAvkxgjmODqnVbmP7KfjW3rewC18TXRFmwzS63VY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rDbJvmtca6V8KZLJz3fAP68AEvoptkhQ1guCWhL55UXcTB78yrgjO0qM5q1Af6SwI
-         Dzp1Fh1GSaH7LcKKz8OyBMEmvPOW0cmGMsKAvOr6LsfUDg1Lq+odH3E8dUO2KI0Rdp
-         SI1rvKSnOb44NEG+hGG3RJvkMJsy8ZxVTqFZuUd0=
+        b=XMI8z6A13Vw6aSvMFGm3YV64oufF3IABUQE3ZNY3ic1+IDSl32kahXLoHchyPmU3J
+         i1VgxEhxCsbDBc2+LZz1RPZ/2BHq+zZxtQezVpqu72KlpdbLcOZnOYQSUql23jEo8s
+         0BQgaPa+s8SZYno7120vBDnw5ls6f35FKbvI9uIY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Neil Horman <nhorman@tuxdriver.com>,
-        syzbot+f7e9153b037eac9b1df8@syzkaller.appspotmail.com,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org
-Subject: [PATCH 4.19 02/51] Fix memory leak in sctp_process_init
+        stable@vger.kernel.org,
+        Antoine Tenart <antoine.tenart@bootlin.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 13/83] net: mvpp2: fix bad MVPP2_TXQ_SCHED_TOKEN_CNTR_REG queue value
 Date:   Sun,  9 Jun 2019 18:41:43 +0200
-Message-Id: <20190609164127.262205526@linuxfoundation.org>
+Message-Id: <20190609164128.650983310@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.123076536@linuxfoundation.org>
-References: <20190609164127.123076536@linuxfoundation.org>
+In-Reply-To: <20190609164127.843327870@linuxfoundation.org>
+References: <20190609164127.843327870@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,125 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neil Horman <nhorman@tuxdriver.com>
+From: Antoine Tenart <antoine.tenart@bootlin.com>
 
-[ Upstream commit 0a8dd9f67cd0da7dc284f48b032ce00db1a68791 ]
+[ Upstream commit 21808437214637952b61beaba6034d97880fbeb3 ]
 
-syzbot found the following leak in sctp_process_init
-BUG: memory leak
-unreferenced object 0xffff88810ef68400 (size 1024):
-  comm "syz-executor273", pid 7046, jiffies 4294945598 (age 28.770s)
-  hex dump (first 32 bytes):
-    1d de 28 8d de 0b 1b e3 b5 c2 f9 68 fd 1a 97 25  ..(........h...%
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<00000000a02cebbd>] kmemleak_alloc_recursive include/linux/kmemleak.h:55
-[inline]
-    [<00000000a02cebbd>] slab_post_alloc_hook mm/slab.h:439 [inline]
-    [<00000000a02cebbd>] slab_alloc mm/slab.c:3326 [inline]
-    [<00000000a02cebbd>] __do_kmalloc mm/slab.c:3658 [inline]
-    [<00000000a02cebbd>] __kmalloc_track_caller+0x15d/0x2c0 mm/slab.c:3675
-    [<000000009e6245e6>] kmemdup+0x27/0x60 mm/util.c:119
-    [<00000000dfdc5d2d>] kmemdup include/linux/string.h:432 [inline]
-    [<00000000dfdc5d2d>] sctp_process_init+0xa7e/0xc20
-net/sctp/sm_make_chunk.c:2437
-    [<00000000b58b62f8>] sctp_cmd_process_init net/sctp/sm_sideeffect.c:682
-[inline]
-    [<00000000b58b62f8>] sctp_cmd_interpreter net/sctp/sm_sideeffect.c:1384
-[inline]
-    [<00000000b58b62f8>] sctp_side_effects net/sctp/sm_sideeffect.c:1194
-[inline]
-    [<00000000b58b62f8>] sctp_do_sm+0xbdc/0x1d60 net/sctp/sm_sideeffect.c:1165
-    [<0000000044e11f96>] sctp_assoc_bh_rcv+0x13c/0x200
-net/sctp/associola.c:1074
-    [<00000000ec43804d>] sctp_inq_push+0x7f/0xb0 net/sctp/inqueue.c:95
-    [<00000000726aa954>] sctp_backlog_rcv+0x5e/0x2a0 net/sctp/input.c:354
-    [<00000000d9e249a8>] sk_backlog_rcv include/net/sock.h:950 [inline]
-    [<00000000d9e249a8>] __release_sock+0xab/0x110 net/core/sock.c:2418
-    [<00000000acae44fa>] release_sock+0x37/0xd0 net/core/sock.c:2934
-    [<00000000963cc9ae>] sctp_sendmsg+0x2c0/0x990 net/sctp/socket.c:2122
-    [<00000000a7fc7565>] inet_sendmsg+0x64/0x120 net/ipv4/af_inet.c:802
-    [<00000000b732cbd3>] sock_sendmsg_nosec net/socket.c:652 [inline]
-    [<00000000b732cbd3>] sock_sendmsg+0x54/0x70 net/socket.c:671
-    [<00000000274c57ab>] ___sys_sendmsg+0x393/0x3c0 net/socket.c:2292
-    [<000000008252aedb>] __sys_sendmsg+0x80/0xf0 net/socket.c:2330
-    [<00000000f7bf23d1>] __do_sys_sendmsg net/socket.c:2339 [inline]
-    [<00000000f7bf23d1>] __se_sys_sendmsg net/socket.c:2337 [inline]
-    [<00000000f7bf23d1>] __x64_sys_sendmsg+0x23/0x30 net/socket.c:2337
-    [<00000000a8b4131f>] do_syscall_64+0x76/0x1a0 arch/x86/entry/common.c:3
+MVPP2_TXQ_SCHED_TOKEN_CNTR_REG() expects the logical queue id but
+the current code is passing the global tx queue offset, so it ends
+up writing to unknown registers (between 0x8280 and 0x82fc, which
+seemed to be unused by the hardware). This fixes the issue by using
+the logical queue id instead.
 
-The problem was that the peer.cookie value points to an skb allocated
-area on the first pass through this function, at which point it is
-overwritten with a heap allocated value, but in certain cases, where a
-COOKIE_ECHO chunk is included in the packet, a second pass through
-sctp_process_init is made, where the cookie value is re-allocated,
-leaking the first allocation.
-
-Fix is to always allocate the cookie value, and free it when we are done
-using it.
-
-Signed-off-by: Neil Horman <nhorman@tuxdriver.com>
-Reported-by: syzbot+f7e9153b037eac9b1df8@syzkaller.appspotmail.com
-CC: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-CC: "David S. Miller" <davem@davemloft.net>
-CC: netdev@vger.kernel.org
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Fixes: 3f518509dedc ("ethernet: Add new driver for Marvell Armada 375 network unit")
+Signed-off-by: Antoine Tenart <antoine.tenart@bootlin.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sctp/sm_make_chunk.c |   13 +++----------
- net/sctp/sm_sideeffect.c |    5 +++++
- 2 files changed, 8 insertions(+), 10 deletions(-)
+ drivers/net/ethernet/marvell/mvpp2.c |   10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
 
---- a/net/sctp/sm_make_chunk.c
-+++ b/net/sctp/sm_make_chunk.c
-@@ -2329,7 +2329,6 @@ int sctp_process_init(struct sctp_associ
- 	union sctp_addr addr;
- 	struct sctp_af *af;
- 	int src_match = 0;
--	char *cookie;
+--- a/drivers/net/ethernet/marvell/mvpp2.c
++++ b/drivers/net/ethernet/marvell/mvpp2.c
+@@ -3938,7 +3938,7 @@ static inline void mvpp2_gmac_max_rx_siz
+ /* Set defaults to the MVPP2 port */
+ static void mvpp2_defaults_set(struct mvpp2_port *port)
+ {
+-	int tx_port_num, val, queue, ptxq, lrxq;
++	int tx_port_num, val, queue, lrxq;
  
- 	/* We must include the address that the INIT packet came from.
- 	 * This is the only address that matters for an INIT packet.
-@@ -2433,14 +2432,6 @@ int sctp_process_init(struct sctp_associ
- 	/* Peer Rwnd   : Current calculated value of the peer's rwnd.  */
- 	asoc->peer.rwnd = asoc->peer.i.a_rwnd;
+ 	/* Configure port to loopback if needed */
+ 	if (port->flags & MVPP2_F_LOOPBACK)
+@@ -3958,11 +3958,9 @@ static void mvpp2_defaults_set(struct mv
+ 	mvpp2_write(port->priv, MVPP2_TXP_SCHED_CMD_1_REG, 0);
  
--	/* Copy cookie in case we need to resend COOKIE-ECHO. */
--	cookie = asoc->peer.cookie;
--	if (cookie) {
--		asoc->peer.cookie = kmemdup(cookie, asoc->peer.cookie_len, gfp);
--		if (!asoc->peer.cookie)
--			goto clean_up;
+ 	/* Close bandwidth for all queues */
+-	for (queue = 0; queue < MVPP2_MAX_TXQ; queue++) {
+-		ptxq = mvpp2_txq_phys(port->id, queue);
++	for (queue = 0; queue < MVPP2_MAX_TXQ; queue++)
+ 		mvpp2_write(port->priv,
+-			    MVPP2_TXQ_SCHED_TOKEN_CNTR_REG(ptxq), 0);
 -	}
--
- 	/* RFC 2960 7.2.1 The initial value of ssthresh MAY be arbitrarily
- 	 * high (for example, implementations MAY use the size of the receiver
- 	 * advertised window).
-@@ -2609,7 +2600,9 @@ do_addr_param:
- 	case SCTP_PARAM_STATE_COOKIE:
- 		asoc->peer.cookie_len =
- 			ntohs(param.p->length) - sizeof(struct sctp_paramhdr);
--		asoc->peer.cookie = param.cookie->body;
-+		asoc->peer.cookie = kmemdup(param.cookie->body, asoc->peer.cookie_len, gfp);
-+		if (!asoc->peer.cookie)
-+			retval = 0;
- 		break;
++			    MVPP2_TXQ_SCHED_TOKEN_CNTR_REG(queue), 0);
  
- 	case SCTP_PARAM_HEARTBEAT_INFO:
---- a/net/sctp/sm_sideeffect.c
-+++ b/net/sctp/sm_sideeffect.c
-@@ -898,6 +898,11 @@ static void sctp_cmd_new_state(struct sc
- 						asoc->rto_initial;
- 	}
+ 	/* Set refill period to 1 usec, refill tokens
+ 	 * and bucket size to maximum
+@@ -4709,7 +4707,7 @@ static void mvpp2_txq_deinit(struct mvpp
+ 	txq->descs_phys        = 0;
  
-+	if (sctp_state(asoc, ESTABLISHED)) {
-+		kfree(asoc->peer.cookie);
-+		asoc->peer.cookie = NULL;
-+	}
-+
- 	if (sctp_state(asoc, ESTABLISHED) ||
- 	    sctp_state(asoc, CLOSED) ||
- 	    sctp_state(asoc, SHUTDOWN_RECEIVED)) {
+ 	/* Set minimum bandwidth for disabled TXQs */
+-	mvpp2_write(port->priv, MVPP2_TXQ_SCHED_TOKEN_CNTR_REG(txq->id), 0);
++	mvpp2_write(port->priv, MVPP2_TXQ_SCHED_TOKEN_CNTR_REG(txq->log_id), 0);
+ 
+ 	/* Set Tx descriptors queue starting address and size */
+ 	mvpp2_write(port->priv, MVPP2_TXQ_NUM_REG, txq->id);
 
 
