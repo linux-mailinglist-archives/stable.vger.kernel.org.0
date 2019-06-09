@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BBD93A75D
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 18:49:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F9AE3AAAE
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:21:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730640AbfFIQs6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:48:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48218 "EHLO mail.kernel.org"
+        id S1730743AbfFIQrG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:47:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45602 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730621AbfFIQs6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:48:58 -0400
+        id S1730735AbfFIQrF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:47:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A1E60206DF;
-        Sun,  9 Jun 2019 16:48:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F1C22208E3;
+        Sun,  9 Jun 2019 16:47:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560098937;
-        bh=Bnd+mMgOBX1KeCWE8jI4UST0VG/GhJDpOYXXzZEG3TI=;
+        s=default; t=1560098824;
+        bh=djcMLwIfe/22lcru6QrlwMZ98x837/yYlP/0xOJ48ow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OBuHRB+82Jd3GFLpE3prrEyIPy54r0FLbR++heGQTrdN3gQs18m+L/0OdZRMrGF5r
-         SQ8n7/GAksNtc00mPOLNhPJLW8WE4+ioVZ7K6Vw0Q3pFnbgE7HXu8YkxRL74qjKhXW
-         az8mLDiGM2cBPLA/pPCOMKjznrdk5bRh6FQ4nIeU=
+        b=LgaWbpPpe34bq96A61o1XHKMe08SuGd/BwMp5FrZ1K+ckBRRX4Mno5/dweNjhOJqs
+         aEm6BSet/dLC5j1eBdubwTYHzmyFbA4T4SPyH0HbVsGqC7rP3uAEy/PjjqgzoJWMsg
+         jeU+Allul09M3l8b99S+GxBP1lPwhlXBnFaYOMIk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 11/51] net/tls: replace the sleeping lock around RX resync with a bit lock
+        stable@vger.kernel.org, Robert Hancock <hancock@sedsystems.ca>,
+        Michal Simek <michal.simek@xilinx.com>,
+        Wolfram Sang <wsa@the-dreams.de>, stable@kernel.org
+Subject: [PATCH 5.1 41/70] i2c: xiic: Add max_read_len quirk
 Date:   Sun,  9 Jun 2019 18:41:52 +0200
-Message-Id: <20190609164127.781645551@linuxfoundation.org>
+Message-Id: <20190609164130.702915045@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.123076536@linuxfoundation.org>
-References: <20190609164127.123076536@linuxfoundation.org>
+In-Reply-To: <20190609164127.541128197@linuxfoundation.org>
+References: <20190609164127.541128197@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,96 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <jakub.kicinski@netronome.com>
+From: Robert Hancock <hancock@sedsystems.ca>
 
-[ Upstream commit e52972c11d6b1262964db96d65934196db621685 ]
+commit 49b809586730a77b57ce620b2f9689de765d790b upstream.
 
-Commit 38030d7cb779 ("net/tls: avoid NULL-deref on resync during device removal")
-tried to fix a potential NULL-dereference by taking the
-context rwsem.  Unfortunately the RX resync may get called
-from soft IRQ, so we can't use the rwsem to protect from
-the device disappearing.  Because we are guaranteed there
-can be only one resync at a time (it's called from strparser)
-use a bit to indicate resync is busy and make device
-removal wait for the bit to get cleared.
+This driver does not support reading more than 255 bytes at once because
+the register for storing the number of bytes to read is only 8 bits. Add
+a max_read_len quirk to enforce this.
 
-Note that there is a leftover "flags" field in struct
-tls_context already.
+This was found when using this driver with the SFP driver, which was
+previously reading all 256 bytes in the SFP EEPROM in one transaction.
+This caused a bunch of hard-to-debug errors in the xiic driver since the
+driver/logic was treating the number of bytes to read as zero.
+Rejecting transactions that aren't supported at least allows the problem
+to be diagnosed more easily.
 
-Fixes: 4799ac81e52a ("tls: Add rx inline crypto offload")
-Signed-off-by: Jakub Kicinski <jakub.kicinski@netronome.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Robert Hancock <hancock@sedsystems.ca>
+Reviewed-by: Michal Simek <michal.simek@xilinx.com>
+Signed-off-by: Wolfram Sang <wsa@the-dreams.de>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- include/net/tls.h    |    4 ++++
- net/tls/tls_device.c |   27 +++++++++++++++++++++------
- 2 files changed, 25 insertions(+), 6 deletions(-)
 
---- a/include/net/tls.h
-+++ b/include/net/tls.h
-@@ -161,6 +161,10 @@ enum {
- 	TLS_PENDING_CLOSED_RECORD
+---
+ drivers/i2c/busses/i2c-xiic.c |    5 +++++
+ 1 file changed, 5 insertions(+)
+
+--- a/drivers/i2c/busses/i2c-xiic.c
++++ b/drivers/i2c/busses/i2c-xiic.c
+@@ -718,11 +718,16 @@ static const struct i2c_algorithm xiic_a
+ 	.functionality = xiic_func,
  };
  
-+enum tls_context_flags {
-+	TLS_RX_SYNC_RUNNING = 0,
++static const struct i2c_adapter_quirks xiic_quirks = {
++	.max_read_len = 255,
 +};
 +
- struct cipher_context {
- 	u16 prepend_size;
- 	u16 tag_size;
---- a/net/tls/tls_device.c
-+++ b/net/tls/tls_device.c
-@@ -545,10 +545,22 @@ static int tls_device_push_pending_recor
- 	return tls_push_data(sk, &msg_iter, 0, flags, TLS_RECORD_TYPE_DATA);
- }
+ static const struct i2c_adapter xiic_adapter = {
+ 	.owner = THIS_MODULE,
+ 	.name = DRIVER_NAME,
+ 	.class = I2C_CLASS_DEPRECATED,
+ 	.algo = &xiic_algorithm,
++	.quirks = &xiic_quirks,
+ };
  
-+static void tls_device_resync_rx(struct tls_context *tls_ctx,
-+				 struct sock *sk, u32 seq, u64 rcd_sn)
-+{
-+	struct net_device *netdev;
-+
-+	if (WARN_ON(test_and_set_bit(TLS_RX_SYNC_RUNNING, &tls_ctx->flags)))
-+		return;
-+	netdev = READ_ONCE(tls_ctx->netdev);
-+	if (netdev)
-+		netdev->tlsdev_ops->tls_dev_resync_rx(netdev, sk, seq, rcd_sn);
-+	clear_bit_unlock(TLS_RX_SYNC_RUNNING, &tls_ctx->flags);
-+}
-+
- void handle_device_resync(struct sock *sk, u32 seq, u64 rcd_sn)
- {
- 	struct tls_context *tls_ctx = tls_get_ctx(sk);
--	struct net_device *netdev = tls_ctx->netdev;
- 	struct tls_offload_context_rx *rx_ctx;
- 	u32 is_req_pending;
- 	s64 resync_req;
-@@ -563,10 +575,10 @@ void handle_device_resync(struct sock *s
- 	is_req_pending = resync_req;
- 
- 	if (unlikely(is_req_pending) && req_seq == seq &&
--	    atomic64_try_cmpxchg(&rx_ctx->resync_req, &resync_req, 0))
--		netdev->tlsdev_ops->tls_dev_resync_rx(netdev, sk,
--						      seq + TLS_HEADER_SIZE - 1,
--						      rcd_sn);
-+	    atomic64_try_cmpxchg(&rx_ctx->resync_req, &resync_req, 0)) {
-+		seq += TLS_HEADER_SIZE - 1;
-+		tls_device_resync_rx(tls_ctx, sk, seq, rcd_sn);
-+	}
- }
- 
- static int tls_device_reencrypt(struct sock *sk, struct sk_buff *skb)
-@@ -954,7 +966,10 @@ static int tls_device_down(struct net_de
- 		if (ctx->rx_conf == TLS_HW)
- 			netdev->tlsdev_ops->tls_dev_del(netdev, ctx,
- 							TLS_OFFLOAD_CTX_DIR_RX);
--		ctx->netdev = NULL;
-+		WRITE_ONCE(ctx->netdev, NULL);
-+		smp_mb__before_atomic(); /* pairs with test_and_set_bit() */
-+		while (test_bit(TLS_RX_SYNC_RUNNING, &ctx->flags))
-+			usleep_range(10, 200);
- 		dev_put(netdev);
- 		list_del_init(&ctx->list);
  
 
 
