@@ -2,38 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E7E973A728
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 18:47:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28F423A7CF
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 18:54:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730635AbfFIQqw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:46:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45264 "EHLO mail.kernel.org"
+        id S1731771AbfFIQxc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:53:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729372AbfFIQqu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:46:50 -0400
+        id S1732421AbfFIQxb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:53:31 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB9FD2081C;
-        Sun,  9 Jun 2019 16:46:49 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7313C206DF;
+        Sun,  9 Jun 2019 16:53:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560098810;
-        bh=LAkGr4EgD4E2m/XRLemu6Xn8VLu+aT9IPjGDC9kYBMA=;
+        s=default; t=1560099210;
+        bh=Qnqvb0bwuWUZl0on7p+Ii6HsgQVKN92+YuGzCQm/g3Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=18tXHqAN5d0iGbnbsc1SHJZJBzZ6Bqg6PG+VWN9qA501cqUtG/5+0MmRgvG/j1qx7
-         zl6WvGPs1dhmy5BdbYIWpIkFYzbMwBaHoFkIQBmTAulXCrq8lpbHEq5aL7TFjlFV1d
-         BNVhFckm2SyhFibbB6JuwExL5FNK6DOWM5pyWaLU=
+        b=tMNA3X3rgn3o+MYEKQvLS6hIVrWGCBrEFCcKfOu9r7R1xT3AlnVcaF3imgD19ILcx
+         jLPATeWvI9AvEbchTrwjyf6q0e7qbID7+Sfp3nfQIi/dRta3fHKtwvpwFwRqMCyQZd
+         ZHKfAK5/TjeAusPQxjPArsOOqjWYLu22J+eTo218=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Tina Zhang <tina.zhang@intel.com>
-Subject: [PATCH 5.1 68/70] drm/i915/gvt: Initialize intel_gvt_gtt_entry in stack
+        stable@vger.kernel.org,
+        Hante Meuleman <hante.meuleman@broadcom.com>,
+        Pieter-Paul Giesberts <pieter-paul.giesberts@broadcom.com>,
+        Franky Lin <franky.lin@broadcom.com>,
+        Arend van Spriel <arend.vanspriel@broadcom.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.9 49/83] brcmfmac: add length checks in scheduled scan result handler
 Date:   Sun,  9 Jun 2019 18:42:19 +0200
-Message-Id: <20190609164133.097697965@linuxfoundation.org>
+Message-Id: <20190609164132.115944698@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.541128197@linuxfoundation.org>
-References: <20190609164127.541128197@linuxfoundation.org>
+In-Reply-To: <20190609164127.843327870@linuxfoundation.org>
+References: <20190609164127.843327870@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,63 +48,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tina Zhang <tina.zhang@intel.com>
+From: Arend Van Spriel <arend.vanspriel@broadcom.com>
 
-commit 387a4c2b55291b37e245c840813bd8a8bd06ed49 upstream.
+commit 4835f37e3bafc138f8bfa3cbed2920dd56fed283 upstream.
 
-Stack struct intel_gvt_gtt_entry value needs to be initialized before
-being used, as the fields may contain garbage values.
+Assure the event data buffer is long enough to hold the array
+of netinfo items and that SSID length does not exceed the maximum
+of 32 characters as per 802.11 spec.
 
-W/o this patch, set_ggtt_entry prints:
--------------------------------------
-274.046840: set_ggtt_entry: vgpu1:set ggtt entry 0x9bed8000ffffe900
-274.046846: set_ggtt_entry: vgpu1:set ggtt entry 0xe55df001
-274.046852: set_ggtt_entry: vgpu1:set ggtt entry 0x9bed8000ffffe900
-
-0x9bed8000 is the stack grabage.
-
-W/ this patch, set_ggtt_entry prints:
-------------------------------------
-274.046840: set_ggtt_entry: vgpu1:set ggtt entry 0xffffe900
-274.046846: set_ggtt_entry: vgpu1:set ggtt entry 0xe55df001
-274.046852: set_ggtt_entry: vgpu1:set ggtt entry 0xffffe900
-
-v2:
-- Initialize during declaration. (Zhenyu)
-
-Fixes: 7598e8700e9a ("drm/i915/gvt: Missed to cancel dma map for ggtt entries")
-Cc: stable@vger.kernel.org # v4.20+
-Cc: Zhenyu Wang <zhenyuw@linux.intel.com>
-Reviewed-by: Zhenyu Wang <zhenyuw@linux.intel.com>
-Signed-off-by: Tina Zhang <tina.zhang@intel.com>
-Signed-off-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+Reviewed-by: Hante Meuleman <hante.meuleman@broadcom.com>
+Reviewed-by: Pieter-Paul Giesberts <pieter-paul.giesberts@broadcom.com>
+Reviewed-by: Franky Lin <franky.lin@broadcom.com>
+Signed-off-by: Arend van Spriel <arend.vanspriel@broadcom.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+[bwh: Backported to 4.9:
+ - Move the assignment to "data" along with the assignment to "netinfo_start"
+   that depends on it
+ - Adjust context, indentation]
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/gpu/drm/i915/gvt/gtt.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c |   14 +++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
---- a/drivers/gpu/drm/i915/gvt/gtt.c
-+++ b/drivers/gpu/drm/i915/gvt/gtt.c
-@@ -2178,7 +2178,8 @@ static int emulate_ggtt_mmio_write(struc
- 	struct intel_gvt_gtt_pte_ops *ops = gvt->gtt.pte_ops;
- 	unsigned long g_gtt_index = off >> info->gtt_entry_size_shift;
- 	unsigned long gma, gfn;
--	struct intel_gvt_gtt_entry e, m;
-+	struct intel_gvt_gtt_entry e = {.val64 = 0, .type = GTT_TYPE_GGTT_PTE};
-+	struct intel_gvt_gtt_entry m = {.val64 = 0, .type = GTT_TYPE_GGTT_PTE};
- 	dma_addr_t dma_addr;
- 	int ret;
- 	struct intel_gvt_partial_pte *partial_pte, *pos, *n;
-@@ -2245,7 +2246,8 @@ static int emulate_ggtt_mmio_write(struc
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
+@@ -3220,6 +3220,7 @@ brcmf_notify_sched_scan_results(struct b
+ 	struct brcmf_pno_scanresults_le *pfn_result;
+ 	u32 result_count;
+ 	u32 status;
++	u32 datalen;
  
- 	if (!partial_update && (ops->test_present(&e))) {
- 		gfn = ops->get_pfn(&e);
--		m = e;
-+		m.val64 = e.val64;
-+		m.type = e.type;
+ 	brcmf_dbg(SCAN, "Enter\n");
  
- 		/* one PTE update may be issued in multiple writes and the
- 		 * first write may not construct a valid gfn
+@@ -3245,6 +3246,14 @@ brcmf_notify_sched_scan_results(struct b
+ 	if (result_count > 0) {
+ 		int i;
+ 
++		data += sizeof(struct brcmf_pno_scanresults_le);
++		netinfo_start = (struct brcmf_pno_net_info_le *)data;
++		datalen = e->datalen - ((void *)netinfo_start - (void *)pfn_result);
++		if (datalen < result_count * sizeof(*netinfo)) {
++			brcmf_err("insufficient event data\n");
++			goto out_err;
++		}
++
+ 		request = kzalloc(sizeof(*request), GFP_KERNEL);
+ 		ssid = kcalloc(result_count, sizeof(*ssid), GFP_KERNEL);
+ 		channel = kcalloc(result_count, sizeof(*channel), GFP_KERNEL);
+@@ -3254,9 +3263,6 @@ brcmf_notify_sched_scan_results(struct b
+ 		}
+ 
+ 		request->wiphy = wiphy;
+-		data += sizeof(struct brcmf_pno_scanresults_le);
+-		netinfo_start = (struct brcmf_pno_net_info_le *)data;
+-
+ 		for (i = 0; i < result_count; i++) {
+ 			netinfo = &netinfo_start[i];
+ 			if (!netinfo) {
+@@ -3266,6 +3272,8 @@ brcmf_notify_sched_scan_results(struct b
+ 				goto out_err;
+ 			}
+ 
++			if (netinfo->SSID_len > IEEE80211_MAX_SSID_LEN)
++				netinfo->SSID_len = IEEE80211_MAX_SSID_LEN;
+ 			brcmf_dbg(SCAN, "SSID:%s Channel:%d\n",
+ 				  netinfo->SSID, netinfo->channel);
+ 			memcpy(ssid[i].ssid, netinfo->SSID, netinfo->SSID_len);
 
 
