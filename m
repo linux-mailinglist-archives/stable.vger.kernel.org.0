@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DB093A8D6
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:05:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0470F3A76F
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 18:49:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388281AbfFIREs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 13:04:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43714 "EHLO mail.kernel.org"
+        id S1729163AbfFIQtk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:49:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388289AbfFIREs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 13:04:48 -0400
+        id S1731542AbfFIQtj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:49:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C45A6204EC;
-        Sun,  9 Jun 2019 17:04:46 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DA6032081C;
+        Sun,  9 Jun 2019 16:49:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099887;
-        bh=MErpZRocSh2ipP8uyRp8yZBNS4sbDd6GHH8QtIKzUhY=;
+        s=default; t=1560098979;
+        bh=eCRaHGJFhY2nzo79UaoF4vUkbqpYqJCKP6GgncYNDBE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z6lWDQUWoSSxSLvhUiNhAY08KAjmgZLu3goM4XWXZFQezC/U6AhVrmkGvRyNUl+28
-         zp3mYlvzN+8qtvfAsEBRbDLsjnW0qoaMgPs9QMVhhnDg6uTyFxo0TjYTLYolXYV2zi
-         EZmGz8pc3j0bZFz5gSZ1DDL/0aP1vwUmd3gdZ/wk=
+        b=tzwu8p3WQtFySls2AT+WdYlOrt1y/Nvz46Jryq99oMrSRZW2PBK1E5cSwSXYN07Wz
+         ZHJtwPsQv4+pXr9+KQ9NNC1fUjL0PlfPttCpt2ingAC70dBtjtq+W4p9cqLPYD469H
+         fIVSjSJCCy2smIYk5S/AcyoisD3jvGDp4Qe9DvDg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Subject: [PATCH 4.4 203/241] media: smsusb: better handle optional alignment
+        stable@vger.kernel.org, Aaron Liu <aaron.liu@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 4.19 44/51] drm/amdgpu: remove ATPX_DGPU_REQ_POWER_FOR_DISPLAYS check when hotplug-in
 Date:   Sun,  9 Jun 2019 18:42:25 +0200
-Message-Id: <20190609164154.243240840@linuxfoundation.org>
+Message-Id: <20190609164130.293240190@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
-References: <20190609164147.729157653@linuxfoundation.org>
+In-Reply-To: <20190609164127.123076536@linuxfoundation.org>
+References: <20190609164127.123076536@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,72 +43,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+From: Aaron Liu <aaron.liu@amd.com>
 
-commit a47686636d84eaec5c9c6e84bd5f96bed34d526d upstream.
+commit bdb1ccb080dafc1b4224873a5b759ff85a7d1c10 upstream.
 
-Most Siano devices require an alignment for the response.
+In amdgpu_atif_handler, when hotplug event received, remove
+ATPX_DGPU_REQ_POWER_FOR_DISPLAYS check. This bit's check will cause missing
+system resume.
 
-Changeset f3be52b0056a ("media: usb: siano: Fix general protection fault in smsusb")
-changed the logic with gets such aligment, but it now produces a
-sparce warning:
-
-drivers/media/usb/siano/smsusb.c: In function 'smsusb_init_device':
-drivers/media/usb/siano/smsusb.c:447:37: warning: 'in_maxp' may be used uninitialized in this function [-Wmaybe-uninitialized]
-  447 |   dev->response_alignment = in_maxp - sizeof(struct sms_msg_hdr);
-      |                             ~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The sparse message itself is bogus, but a broken (or fake) USB
-eeprom could produce a negative value for response_alignment.
-
-So, change the code in order to check if the result is not
-negative.
-
-Fixes: 31e0456de5be ("media: usb: siano: Fix general protection fault in smsusb")
-CC: <stable@vger.kernel.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Aaron Liu <aaron.liu@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/media/usb/siano/smsusb.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/media/usb/siano/smsusb.c
-+++ b/drivers/media/usb/siano/smsusb.c
-@@ -391,7 +391,7 @@ static int smsusb_init_device(struct usb
- 	struct smsusb_device_t *dev;
- 	void *mdev;
- 	int i, rc;
--	int in_maxp = 0;
-+	int align = 0;
- 
- 	/* create device object */
- 	dev = kzalloc(sizeof(struct smsusb_device_t), GFP_KERNEL);
-@@ -409,14 +409,14 @@ static int smsusb_init_device(struct usb
- 
- 		if (desc->bEndpointAddress & USB_DIR_IN) {
- 			dev->in_ep = desc->bEndpointAddress;
--			in_maxp = usb_endpoint_maxp(desc);
-+			align = usb_endpoint_maxp(desc) - sizeof(struct sms_msg_hdr);
- 		} else {
- 			dev->out_ep = desc->bEndpointAddress;
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c
+@@ -416,8 +416,7 @@ static int amdgpu_atif_handler(struct am
+ 			}
  		}
- 	}
- 
- 	pr_debug("in_ep = %02x, out_ep = %02x\n", dev->in_ep, dev->out_ep);
--	if (!dev->in_ep || !dev->out_ep) {	/* Missing endpoints? */
-+	if (!dev->in_ep || !dev->out_ep || align < 0) {  /* Missing endpoints? */
- 		smsusb_term_device(intf);
- 		return -ENODEV;
- 	}
-@@ -435,7 +435,7 @@ static int smsusb_init_device(struct usb
- 		/* fall-thru */
- 	default:
- 		dev->buffer_size = USB2_BUFFER_SIZE;
--		dev->response_alignment = in_maxp - sizeof(struct sms_msg_hdr);
-+		dev->response_alignment = align;
- 
- 		params.flags |= SMS_DEVICE_FAMILY2;
- 		break;
+ 		if (req.pending & ATIF_DGPU_DISPLAY_EVENT) {
+-			if ((adev->flags & AMD_IS_PX) &&
+-			    amdgpu_atpx_dgpu_req_power_for_displays()) {
++			if (adev->flags & AMD_IS_PX) {
+ 				pm_runtime_get_sync(adev->ddev->dev);
+ 				/* Just fire off a uevent and let userspace tell us what to do */
+ 				drm_helper_hpd_irq_event(adev->ddev);
 
 
