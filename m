@@ -2,39 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E301A3AA6E
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:19:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADEDD3AA34
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:16:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731780AbfFIRSY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 13:18:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50052 "EHLO mail.kernel.org"
+        id S1730109AbfFIRQb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 13:16:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54336 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730714AbfFIQuR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:50:17 -0400
+        id S1732361AbfFIQxM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:53:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C3AEF205ED;
-        Sun,  9 Jun 2019 16:50:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F0698204EC;
+        Sun,  9 Jun 2019 16:53:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099016;
-        bh=b+Z7kJ9902Wg5ePJjIatCOem4xOZ6h93vApjdrjhpb4=;
+        s=default; t=1560099191;
+        bh=mbF+KuK+ApjVYtSxZYdGvM0Yw3p8xtLnmmhXydfoIWM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YrHUVRT69a71nX1IZwMoaRssDyVbB/+eYvzJPAjcIXquTD3MbUt8zTmhwBCiiZzLZ
-         OYVDpTfDagoKZoa8QMPw4e3Hn46z+dqoJwNmpJlif0GzBEsIvC58GQODXBY2oxcGNN
-         DZkMUp9kbeaYaveJAZkpx/miuQ4yyCrmX9xnh6Xc=
+        b=KqnzJp6XK4qz9gn7YlRpq79ngN5jDEYEnXznj/D2evcC/hL8SNN+O2q+senddS9p9
+         E3Vz4kTO89pYssNZZjAeDuZDtoVzEbkSIrqrHUqaOoLjoTbIlUJS27W9+YVolJfkHD
+         Ty8MW2cvloe6dQ8GmZc/JUvLtxZ4YkV8Dfubxxoc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Matteo Croce <mcroce@redhat.com>
-Subject: [PATCH 4.14 06/35] pktgen: do not sleep with the thread lock held.
+        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>,
+        Michal Hocko <mhocko@suse.com>,
+        Vladimir Davydov <vdavydov.dev@gmail.com>,
+        Shakeel Butt <shakeelb@google.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.9 42/83] memcg: make it work on sparse non-0-node systems
 Date:   Sun,  9 Jun 2019 18:42:12 +0200
-Message-Id: <20190609164125.879662152@linuxfoundation.org>
+Message-Id: <20190609164131.478973899@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164125.377368385@linuxfoundation.org>
-References: <20190609164125.377368385@linuxfoundation.org>
+In-Reply-To: <20190609164127.843327870@linuxfoundation.org>
+References: <20190609164127.843327870@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,96 +49,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: Jiri Slaby <jslaby@suse.cz>
 
-[ Upstream commit 720f1de4021f09898b8c8443f3b3e995991b6e3a ]
+commit 3e8589963773a5c23e2f1fe4bcad0e9a90b7f471 upstream.
 
-Currently, the process issuing a "start" command on the pktgen procfs
-interface, acquires the pktgen thread lock and never release it, until
-all pktgen threads are completed. The above can blocks indefinitely any
-other pktgen command and any (even unrelated) netdevice removal - as
-the pktgen netdev notifier acquires the same lock.
+We have a single node system with node 0 disabled:
+  Scanning NUMA topology in Northbridge 24
+  Number of physical nodes 2
+  Skipping disabled node 0
+  Node 1 MemBase 0000000000000000 Limit 00000000fbff0000
+  NODE_DATA(1) allocated [mem 0xfbfda000-0xfbfeffff]
 
-The issue is demonstrated by the following script, reported by Matteo:
+This causes crashes in memcg when system boots:
+  BUG: unable to handle kernel NULL pointer dereference at 0000000000000008
+  #PF error: [normal kernel read fault]
+...
+  RIP: 0010:list_lru_add+0x94/0x170
+...
+  Call Trace:
+   d_lru_add+0x44/0x50
+   dput.part.34+0xfc/0x110
+   __fput+0x108/0x230
+   task_work_run+0x9f/0xc0
+   exit_to_usermode_loop+0xf5/0x100
 
-ip -b - <<'EOF'
-	link add type dummy
-	link add type veth
-	link set dummy0 up
-EOF
-modprobe pktgen
-echo reset >/proc/net/pktgen/pgctrl
-{
-	echo rem_device_all
-	echo add_device dummy0
-} >/proc/net/pktgen/kpktgend_0
-echo count 0 >/proc/net/pktgen/dummy0
-echo start >/proc/net/pktgen/pgctrl &
-sleep 1
-rmmod veth
+It is reproducible as far as 4.12.  I did not try older kernels.  You have
+to have a new enough systemd, e.g.  241 (the reason is unknown -- was not
+investigated).  Cannot be reproduced with systemd 234.
 
-Fix the above releasing the thread lock around the sleep call.
+The system crashes because the size of lru array is never updated in
+memcg_update_all_list_lrus and the reads are past the zero-sized array,
+causing dereferences of random memory.
 
-Additionally we must prevent racing with forcefull rmmod - as the
-thread lock no more protects from them. Instead, acquire a self-reference
-before waiting for any thread. As a side effect, running
+The root cause are list_lru_memcg_aware checks in the list_lru code.  The
+test in list_lru_memcg_aware is broken: it assumes node 0 is always
+present, but it is not true on some systems as can be seen above.
 
-rmmod pktgen
+So fix this by avoiding checks on node 0.  Remember the memcg-awareness by
+a bool flag in struct list_lru.
 
-while some thread is running now fails with "module in use" error,
-before this patch such command hanged indefinitely.
-
-Note: the issue predates the commit reported in the fixes tag, but
-this fix can't be applied before the mentioned commit.
-
-v1 -> v2:
- - no need to check for thread existence after flipping the lock,
-   pktgen threads are freed only at net exit time
- -
-
-Fixes: 6146e6a43b35 ("[PKTGEN]: Removes thread_{un,}lock() macros.")
-Reported-and-tested-by: Matteo Croce <mcroce@redhat.com>
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: http://lkml.kernel.org/r/20190522091940.3615-1-jslaby@suse.cz
+Fixes: 60d3fd32a7a9 ("list_lru: introduce per-memcg lists")
+Signed-off-by: Jiri Slaby <jslaby@suse.cz>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Suggested-by: Vladimir Davydov <vdavydov.dev@gmail.com>
+Acked-by: Vladimir Davydov <vdavydov.dev@gmail.com>
+Reviewed-by: Shakeel Butt <shakeelb@google.com>
+Cc: Johannes Weiner <hannes@cmpxchg.org>
+Cc: Raghavendra K T <raghavendra.kt@linux.vnet.ibm.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/core/pktgen.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
 
---- a/net/core/pktgen.c
-+++ b/net/core/pktgen.c
-@@ -3149,7 +3149,13 @@ static int pktgen_wait_thread_run(struct
+---
+ include/linux/list_lru.h |    1 +
+ mm/list_lru.c            |    8 +++-----
+ 2 files changed, 4 insertions(+), 5 deletions(-)
+
+--- a/include/linux/list_lru.h
++++ b/include/linux/list_lru.h
+@@ -51,6 +51,7 @@ struct list_lru {
+ 	struct list_lru_node	*node;
+ #if defined(CONFIG_MEMCG) && !defined(CONFIG_SLOB)
+ 	struct list_head	list;
++	bool			memcg_aware;
+ #endif
+ };
+ 
+--- a/mm/list_lru.c
++++ b/mm/list_lru.c
+@@ -42,11 +42,7 @@ static void list_lru_unregister(struct l
+ #if defined(CONFIG_MEMCG) && !defined(CONFIG_SLOB)
+ static inline bool list_lru_memcg_aware(struct list_lru *lru)
  {
- 	while (thread_is_running(t)) {
- 
-+		/* note: 't' will still be around even after the unlock/lock
-+		 * cycle because pktgen_thread threads are only cleared at
-+		 * net exit
-+		 */
-+		mutex_unlock(&pktgen_thread_lock);
- 		msleep_interruptible(100);
-+		mutex_lock(&pktgen_thread_lock);
- 
- 		if (signal_pending(current))
- 			goto signal;
-@@ -3164,6 +3170,10 @@ static int pktgen_wait_all_threads_run(s
- 	struct pktgen_thread *t;
- 	int sig = 1;
- 
-+	/* prevent from racing with rmmod */
-+	if (!try_module_get(THIS_MODULE))
-+		return sig;
-+
- 	mutex_lock(&pktgen_thread_lock);
- 
- 	list_for_each_entry(t, &pn->pktgen_threads, th_list) {
-@@ -3177,6 +3187,7 @@ static int pktgen_wait_all_threads_run(s
- 			t->control |= (T_STOP);
- 
- 	mutex_unlock(&pktgen_thread_lock);
-+	module_put(THIS_MODULE);
- 	return sig;
+-	/*
+-	 * This needs node 0 to be always present, even
+-	 * in the systems supporting sparse numa ids.
+-	 */
+-	return !!lru->node[0].memcg_lrus;
++	return lru->memcg_aware;
  }
+ 
+ static inline struct list_lru_one *
+@@ -389,6 +385,8 @@ static int memcg_init_list_lru(struct li
+ {
+ 	int i;
+ 
++	lru->memcg_aware = memcg_aware;
++
+ 	if (!memcg_aware)
+ 		return 0;
  
 
 
