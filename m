@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F71B3A942
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:09:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FDA53AABF
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:21:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387990AbfFIRI3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 13:08:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44578 "EHLO mail.kernel.org"
+        id S1730390AbfFIQqU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 12:46:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388792AbfFIRFV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 13:05:21 -0400
+        id S1730378AbfFIQqU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 12:46:20 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9805620840;
-        Sun,  9 Jun 2019 17:05:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0BDBE2081C;
+        Sun,  9 Jun 2019 16:46:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099921;
-        bh=kL1q/lU+/bRizIv45MNQUtcNYGhXhofDOHIwussB6Dg=;
+        s=default; t=1560098779;
+        bh=fIxqYThSnapEoKSJ2Ap6NB2shYUwrrsqk9BnSRTnqb4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vJjwmkd4NBNZQDkMa/HLaiEWtfR53ByeeG8DPdjI2PS4fr4cGJP8rdohBQTp03iNy
-         Rq8x5RuypDnbl9t2HzuKF6lub8XPJid8m6NylAaOEPcwpGqzCjfm9EfZXOkXKPpCaX
-         74Vgrh4lNK1dDCHsHvV7GLMxUobPUpbskstsnYK0=
+        b=AxK99zTGyQXxiUca3b6219HjIyaN1gi8ATBLdRxYExKOxYBAQnoz/MtKMZH1uVv3E
+         DEqyk2kRwwghK39kL7afNFZQWoP5ImkKfn/JtbfLmGP/zv6Pe5bsw+15ClZ9EyoZn4
+         3qj7ekQiliVKvm1X+ABaMYsK8WQLH2XpYUL+5G5I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Antoine Tenart <antoine.tenart@bootlin.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 187/241] net: mvpp2: fix bad MVPP2_TXQ_SCHED_TOKEN_CNTR_REG queue value
+        stable@vger.kernel.org, Paul Dufresne <dufresnep@gmail.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.1 58/70] drm/radeon: prefer lower reference dividers
 Date:   Sun,  9 Jun 2019 18:42:09 +0200
-Message-Id: <20190609164153.295518859@linuxfoundation.org>
+Message-Id: <20190609164132.337762193@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
-References: <20190609164147.729157653@linuxfoundation.org>
+In-Reply-To: <20190609164127.541128197@linuxfoundation.org>
+References: <20190609164127.541128197@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,57 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Antoine Tenart <antoine.tenart@bootlin.com>
+From: Christian König <christian.koenig@amd.com>
 
-[ Upstream commit 21808437214637952b61beaba6034d97880fbeb3 ]
+commit 2e26ccb119bde03584be53406bbd22e711b0d6e6 upstream.
 
-MVPP2_TXQ_SCHED_TOKEN_CNTR_REG() expects the logical queue id but
-the current code is passing the global tx queue offset, so it ends
-up writing to unknown registers (between 0x8280 and 0x82fc, which
-seemed to be unused by the hardware). This fixes the issue by using
-the logical queue id instead.
+Instead of the closest reference divider prefer the lowest,
+this fixes flickering issues on HP Compaq nx9420.
 
-Fixes: 3f518509dedc ("ethernet: Add new driver for Marvell Armada 375 network unit")
-Signed-off-by: Antoine Tenart <antoine.tenart@bootlin.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Bugs: https://bugs.freedesktop.org/show_bug.cgi?id=108514
+Suggested-by: Paul Dufresne <dufresnep@gmail.com>
+Signed-off-by: Christian König <christian.koenig@amd.com>
+Acked-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/net/ethernet/marvell/mvpp2.c |   10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
 
---- a/drivers/net/ethernet/marvell/mvpp2.c
-+++ b/drivers/net/ethernet/marvell/mvpp2.c
-@@ -3940,7 +3940,7 @@ static inline void mvpp2_gmac_max_rx_siz
- /* Set defaults to the MVPP2 port */
- static void mvpp2_defaults_set(struct mvpp2_port *port)
- {
--	int tx_port_num, val, queue, ptxq, lrxq;
-+	int tx_port_num, val, queue, lrxq;
+---
+ drivers/gpu/drm/radeon/radeon_display.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+--- a/drivers/gpu/drm/radeon/radeon_display.c
++++ b/drivers/gpu/drm/radeon/radeon_display.c
+@@ -922,12 +922,12 @@ static void avivo_get_fb_ref_div(unsigne
+ 	ref_div_max = max(min(100 / post_div, ref_div_max), 1u);
  
- 	/* Configure port to loopback if needed */
- 	if (port->flags & MVPP2_F_LOOPBACK)
-@@ -3960,11 +3960,9 @@ static void mvpp2_defaults_set(struct mv
- 	mvpp2_write(port->priv, MVPP2_TXP_SCHED_CMD_1_REG, 0);
+ 	/* get matching reference and feedback divider */
+-	*ref_div = min(max(DIV_ROUND_CLOSEST(den, post_div), 1u), ref_div_max);
++	*ref_div = min(max(den/post_div, 1u), ref_div_max);
+ 	*fb_div = DIV_ROUND_CLOSEST(nom * *ref_div * post_div, den);
  
- 	/* Close bandwidth for all queues */
--	for (queue = 0; queue < MVPP2_MAX_TXQ; queue++) {
--		ptxq = mvpp2_txq_phys(port->id, queue);
-+	for (queue = 0; queue < MVPP2_MAX_TXQ; queue++)
- 		mvpp2_write(port->priv,
--			    MVPP2_TXQ_SCHED_TOKEN_CNTR_REG(ptxq), 0);
--	}
-+			    MVPP2_TXQ_SCHED_TOKEN_CNTR_REG(queue), 0);
- 
- 	/* Set refill period to 1 usec, refill tokens
- 	 * and bucket size to maximum
-@@ -4722,7 +4720,7 @@ static void mvpp2_txq_deinit(struct mvpp
- 	txq->descs_phys        = 0;
- 
- 	/* Set minimum bandwidth for disabled TXQs */
--	mvpp2_write(port->priv, MVPP2_TXQ_SCHED_TOKEN_CNTR_REG(txq->id), 0);
-+	mvpp2_write(port->priv, MVPP2_TXQ_SCHED_TOKEN_CNTR_REG(txq->log_id), 0);
- 
- 	/* Set Tx descriptors queue starting address and size */
- 	mvpp2_write(port->priv, MVPP2_TXQ_NUM_REG, txq->id);
+ 	/* limit fb divider to its maximum */
+ 	if (*fb_div > fb_div_max) {
+-		*ref_div = DIV_ROUND_CLOSEST(*ref_div * fb_div_max, *fb_div);
++		*ref_div = (*ref_div * fb_div_max)/(*fb_div);
+ 		*fb_div = fb_div_max;
+ 	}
+ }
 
 
