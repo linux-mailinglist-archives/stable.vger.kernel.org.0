@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 74E2D3AAAC
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:21:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D99993A947
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:09:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730661AbfFIQqy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:46:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45320 "EHLO mail.kernel.org"
+        id S2388644AbfFIREe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 13:04:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730652AbfFIQqx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:46:53 -0400
+        id S2388631AbfFIREd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 13:04:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C0E882081C;
-        Sun,  9 Jun 2019 16:46:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DE36220833;
+        Sun,  9 Jun 2019 17:04:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560098813;
-        bh=w3fLyttRot9PQvpvJqENFjdubh78MZQDTHQmwl0Id0c=;
+        s=default; t=1560099873;
+        bh=PHC6wVTNr/ilVN+aLfu0QMFCGVE1NOjtBg+sd/FYZzI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RyOLAU0UtPB/3llJ0GqnZTDpDQI2X/N3UgcNXpQkMoRTheftOTBn0nKHS+OAM2+By
-         SlfXU3Y7mDCmsmEUhHZr8xnVBJI6GwUi3qmlvv8hejmNrOll5mZuzLl5xV+A4rZK0w
-         SQvjcWfot51Sb209tx/qsBWKhDxRW5IckpdixSIg=
+        b=WwDE+Z/pDU6nwLa9jOvaAqh92FosCHA7bPPxl16S6XCL9H1512ED+dFZCPKbnbnQn
+         gSw0I3ObJ7jT8dtDX8+1ipjLrXd4eDu2Gs6tptJ2VpgcQijOBKlEdUU3WA6Dw2S8ct
+         Sv568Zb3cNxaYHvUz3GdhRp62zF0T7YoaOyJ7z+k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        Helen Koike <helen.koike@collabora.com>,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Subject: [PATCH 5.1 69/70] drm/amd: fix fb references in async update
+        stable@vger.kernel.org, Maximilian Luz <luzmaximilian@gmail.com>
+Subject: [PATCH 4.4 198/241] USB: Add LPM quirk for Surface Dock GigE adapter
 Date:   Sun,  9 Jun 2019 18:42:20 +0200
-Message-Id: <20190609164133.176089569@linuxfoundation.org>
+Message-Id: <20190609164153.705490862@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.541128197@linuxfoundation.org>
-References: <20190609164127.541128197@linuxfoundation.org>
+In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
+References: <20190609164147.729157653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helen Koike <helen.koike@collabora.com>
+From: Maximilian Luz <luzmaximilian@gmail.com>
 
-commit 332af874db929f92931727bfe191b2c666438c81 upstream.
+commit ea261113385ac0a71c2838185f39e8452d54b152 upstream.
 
-Async update callbacks are expected to set the old_fb in the new_state
-so prepare/cleanup framebuffers are balanced.
+Without USB_QUIRK_NO_LPM ethernet will not work and rtl8152 will
+complain with
 
-Calling drm_atomic_set_fb_for_plane() (which gets a reference of the new
-fb and put the old fb) is not required, as it's taken care by
-drm_mode_cursor_universal() when calling drm_atomic_helper_update_plane().
+    r8152 <device...>: Stop submitting intr, status -71
 
-Cc: <stable@vger.kernel.org> # v4.20+
-Fixes: 674e78acae0d ("drm/amd/display: Add fast path for cursor plane updates")
-Suggested-by: Boris Brezillon <boris.brezillon@collabora.com>
-Signed-off-by: Helen Koike <helen.koike@collabora.com>
-Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190603165610.24614-3-helen.koike@collabora.com
+Adding the quirk resolves this. As the dock is externally powered, this
+should not have any drawbacks.
+
+Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/usb/core/quirks.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -3789,8 +3789,7 @@ static void dm_plane_atomic_async_update
- 	struct drm_plane_state *old_state =
- 		drm_atomic_get_old_plane_state(new_state->state, plane);
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -64,6 +64,9 @@ static const struct usb_device_id usb_qu
+ 	/* Microsoft LifeCam-VX700 v2.0 */
+ 	{ USB_DEVICE(0x045e, 0x0770), .driver_info = USB_QUIRK_RESET_RESUME },
  
--	if (plane->state->fb != new_state->fb)
--		drm_atomic_set_fb_for_plane(plane->state, new_state->fb);
-+	swap(plane->state->fb, new_state->fb);
++	/* Microsoft Surface Dock Ethernet (RTL8153 GigE) */
++	{ USB_DEVICE(0x045e, 0x07c6), .driver_info = USB_QUIRK_NO_LPM },
++
+ 	/* Cherry Stream G230 2.0 (G85-231) and 3.0 (G85-232) */
+ 	{ USB_DEVICE(0x046a, 0x0023), .driver_info = USB_QUIRK_RESET_RESUME },
  
- 	plane->state->src_x = new_state->src_x;
- 	plane->state->src_y = new_state->src_y;
 
 
