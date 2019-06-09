@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E9D0E3A6DF
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 18:44:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A65F3A995
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:12:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728868AbfFIQoE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:44:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40956 "EHLO mail.kernel.org"
+        id S1726950AbfFIRLO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 13:11:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38938 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728858AbfFIQoD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:44:03 -0400
+        id S1733133AbfFIRBe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 13:01:34 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B18E72081C;
-        Sun,  9 Jun 2019 16:44:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5A9F120868;
+        Sun,  9 Jun 2019 17:01:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560098643;
-        bh=4z+CNzBm9U/1F/ScUJeAfwdnRGEeNt33hnqlxDsl0AI=;
+        s=default; t=1560099693;
+        bh=lnr7WKWDC06I1cPV045ulpop/x38GR84FYHwtpV3j18=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KLEKMKwx3k2oP/mtssXmj0GGKRcYAEXqxnu+/cMjVnfTUff1f7PEWyToziXJRphlu
-         Vrxva/raaZL1ig3siBzri2r36dl2NjKn1Zmct5sw7509bp4i90vwGRR69LSRkOWJ3i
-         8mxuuW/WGYwkMiiFcDIw8DT5RiDxp2RevspnZi9c=
+        b=Ph4EMCQ+XwZYUoVxg9McfWN1gWmiUxw3wLQVF8g40zxr/NqEYpi53SQTBsW4kFlPV
+         9k1WyM8NqWDj2jhDDx6iiDmbBNwLdw5vq51Zrp6S+XTMNUiJzw6DmSy2+J9ojt1Dlh
+         UJJqKdZ7V7rxqEKPSrym4hGmXEJ0JC33q7fU63Eo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vivien Didelot <vivien.didelot@gmail.com>,
-        Michal Kubecek <mkubecek@suse.cz>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.1 01/70] ethtool: fix potential userspace buffer overflow
+        stable@vger.kernel.org,
+        Nicholas Nunley <nicholas.d.nunley@intel.com>,
+        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 130/241] i40e: dont allow changes to HW VLAN stripping on active port VLANs
 Date:   Sun,  9 Jun 2019 18:41:12 +0200
-Message-Id: <20190609164127.613168840@linuxfoundation.org>
+Message-Id: <20190609164151.550219288@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.541128197@linuxfoundation.org>
-References: <20190609164127.541128197@linuxfoundation.org>
+In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
+References: <20190609164147.729157653@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,54 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vivien Didelot <vivien.didelot@gmail.com>
+[ Upstream commit bfb0ebed53857cfc57f11c63fa3689940d71c1c8 ]
 
-[ Upstream commit 0ee4e76937d69128a6a66861ba393ebdc2ffc8a2 ]
+Modifying the VLAN stripping options when a port VLAN is configured
+will break traffic for the VSI, and conceptually doesn't make sense,
+so don't allow this.
 
-ethtool_get_regs() allocates a buffer of size ops->get_regs_len(),
-and pass it to the kernel driver via ops->get_regs() for filling.
-
-There is no restriction about what the kernel drivers can or cannot do
-with the open ethtool_regs structure. They usually set regs->version
-and ignore regs->len or set it to the same size as ops->get_regs_len().
-
-But if userspace allocates a smaller buffer for the registers dump,
-we would cause a userspace buffer overflow in the final copy_to_user()
-call, which uses the regs.len value potentially reset by the driver.
-
-To fix this, make this case obvious and store regs.len before calling
-ops->get_regs(), to only copy as much data as requested by userspace,
-up to the value returned by ops->get_regs_len().
-
-While at it, remove the redundant check for non-null regbuf.
-
-Signed-off-by: Vivien Didelot <vivien.didelot@gmail.com>
-Reviewed-by: Michal Kubecek <mkubecek@suse.cz>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Nicholas Nunley <nicholas.d.nunley@intel.com>
+Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/ethtool.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/net/core/ethtool.c
-+++ b/net/core/ethtool.c
-@@ -1358,13 +1358,16 @@ static int ethtool_get_regs(struct net_d
- 	if (!regbuf)
- 		return -ENOMEM;
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index 06b38f50980c5..22c43a776c6cd 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -2263,6 +2263,10 @@ void i40e_vlan_stripping_enable(struct i40e_vsi *vsi)
+ 	struct i40e_vsi_context ctxt;
+ 	i40e_status ret;
  
-+	if (regs.len < reglen)
-+		reglen = regs.len;
++	/* Don't modify stripping options if a port VLAN is active */
++	if (vsi->info.pvid)
++		return;
 +
- 	ops->get_regs(dev, &regs, regbuf);
+ 	if ((vsi->info.valid_sections &
+ 	     cpu_to_le16(I40E_AQ_VSI_PROP_VLAN_VALID)) &&
+ 	    ((vsi->info.port_vlan_flags & I40E_AQ_VSI_PVLAN_MODE_MASK) == 0))
+@@ -2293,6 +2297,10 @@ void i40e_vlan_stripping_disable(struct i40e_vsi *vsi)
+ 	struct i40e_vsi_context ctxt;
+ 	i40e_status ret;
  
- 	ret = -EFAULT;
- 	if (copy_to_user(useraddr, &regs, sizeof(regs)))
- 		goto out;
- 	useraddr += offsetof(struct ethtool_regs, data);
--	if (regbuf && copy_to_user(useraddr, regbuf, regs.len))
-+	if (copy_to_user(useraddr, regbuf, reglen))
- 		goto out;
- 	ret = 0;
- 
++	/* Don't modify stripping options if a port VLAN is active */
++	if (vsi->info.pvid)
++		return;
++
+ 	if ((vsi->info.valid_sections &
+ 	     cpu_to_le16(I40E_AQ_VSI_PROP_VLAN_VALID)) &&
+ 	    ((vsi->info.port_vlan_flags & I40E_AQ_VSI_PVLAN_EMOD_MASK) ==
+-- 
+2.20.1
+
 
 
