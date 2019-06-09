@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 034C23A906
+	by mail.lfdr.de (Postfix) with ESMTP id D5EBB3A908
 	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:07:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388658AbfFIRGr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 13:06:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46704 "EHLO mail.kernel.org"
+        id S2389081AbfFIRGv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 13:06:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46782 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2388593AbfFIRGq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 13:06:46 -0400
+        id S2389080AbfFIRGu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 13:06:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7D2AF206C3;
-        Sun,  9 Jun 2019 17:06:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 76568206C3;
+        Sun,  9 Jun 2019 17:06:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560100006;
-        bh=iuPuEw6k/qLj6HTpc+dIvdDWh6PQgc0U6t6HGluGMdk=;
+        s=default; t=1560100009;
+        bh=N7PZHLiWb70dpaJlXs3/4LXNRMPDUpXcsZOp8K+eHTQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wUpzMrzyu7hYUkVkBFQScvpm6ghka4O0VcLTatKqSvnrH7Czx/Gnil9DJf7vxM65B
-         SF497F2J/P/bNp1rFgeIStEJ4f2IuFTjh7jchqtmtPyFbljwVqHH/43RN6/wFx+Yf1
-         FXcwVVVw5HmnMRhANbtUm/X/9JVZjVkOZLvoQJuc=
+        b=mnYrssde4/dCYx2v6rlckViQoI72ubuMOnyC40X8XrfBxWJfgqIwKzWqAdryGiEnR
+         wvKQ+sYGxYoxutYi+zKoM30pcsq08UQqf7/EKq4QJT3q8Kr3XtgA3TJNi72mgb/N/e
+         snVhJh5oAr7eWJ/NtO4MTRe0k7ScIxYTZ7ItBNMs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhu Yanjun <yanjun.zhu@oracle.com>,
-        Santosh Shilimkar <santosh.shilimkar@oracle.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 232/241] net: rds: fix memory leak in rds_ib_flush_mr_pool
-Date:   Sun,  9 Jun 2019 18:42:54 +0200
-Message-Id: <20190609164155.436277890@linuxfoundation.org>
+        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Matteo Croce <mcroce@redhat.com>
+Subject: [PATCH 4.4 233/241] pktgen: do not sleep with the thread lock held.
+Date:   Sun,  9 Jun 2019 18:42:55 +0200
+Message-Id: <20190609164155.470544630@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
 References: <20190609164147.729157653@linuxfoundation.org>
@@ -44,90 +44,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhu Yanjun <yanjun.zhu@oracle.com>
+From: Paolo Abeni <pabeni@redhat.com>
 
-[ Upstream commit 85cb928787eab6a2f4ca9d2a798b6f3bed53ced1 ]
+[ Upstream commit 720f1de4021f09898b8c8443f3b3e995991b6e3a ]
 
-When the following tests last for several hours, the problem will occur.
+Currently, the process issuing a "start" command on the pktgen procfs
+interface, acquires the pktgen thread lock and never release it, until
+all pktgen threads are completed. The above can blocks indefinitely any
+other pktgen command and any (even unrelated) netdevice removal - as
+the pktgen netdev notifier acquires the same lock.
 
-Server:
-    rds-stress -r 1.1.1.16 -D 1M
-Client:
-    rds-stress -r 1.1.1.14 -s 1.1.1.16 -D 1M -T 30
+The issue is demonstrated by the following script, reported by Matteo:
 
-The following will occur.
+ip -b - <<'EOF'
+	link add type dummy
+	link add type veth
+	link set dummy0 up
+EOF
+modprobe pktgen
+echo reset >/proc/net/pktgen/pgctrl
+{
+	echo rem_device_all
+	echo add_device dummy0
+} >/proc/net/pktgen/kpktgend_0
+echo count 0 >/proc/net/pktgen/dummy0
+echo start >/proc/net/pktgen/pgctrl &
+sleep 1
+rmmod veth
 
-"
-Starting up....
-tsks   tx/s   rx/s  tx+rx K/s    mbi K/s    mbo K/s tx us/c   rtt us cpu
-%
-  1      0      0       0.00       0.00       0.00    0.00 0.00 -1.00
-  1      0      0       0.00       0.00       0.00    0.00 0.00 -1.00
-  1      0      0       0.00       0.00       0.00    0.00 0.00 -1.00
-  1      0      0       0.00       0.00       0.00    0.00 0.00 -1.00
-"
->From vmcore, we can find that clean_list is NULL.
+Fix the above releasing the thread lock around the sleep call.
 
->From the source code, rds_mr_flushd calls rds_ib_mr_pool_flush_worker.
-Then rds_ib_mr_pool_flush_worker calls
-"
- rds_ib_flush_mr_pool(pool, 0, NULL);
-"
-Then in function
-"
-int rds_ib_flush_mr_pool(struct rds_ib_mr_pool *pool,
-                         int free_all, struct rds_ib_mr **ibmr_ret)
-"
-ibmr_ret is NULL.
+Additionally we must prevent racing with forcefull rmmod - as the
+thread lock no more protects from them. Instead, acquire a self-reference
+before waiting for any thread. As a side effect, running
 
-In the source code,
-"
-...
-list_to_llist_nodes(pool, &unmap_list, &clean_nodes, &clean_tail);
-if (ibmr_ret)
-        *ibmr_ret = llist_entry(clean_nodes, struct rds_ib_mr, llnode);
+rmmod pktgen
 
-/* more than one entry in llist nodes */
-if (clean_nodes->next)
-        llist_add_batch(clean_nodes->next, clean_tail, &pool->clean_list);
-...
-"
-When ibmr_ret is NULL, llist_entry is not executed. clean_nodes->next
-instead of clean_nodes is added in clean_list.
-So clean_nodes is discarded. It can not be used again.
-The workqueue is executed periodically. So more and more clean_nodes are
-discarded. Finally the clean_list is NULL.
-Then this problem will occur.
+while some thread is running now fails with "module in use" error,
+before this patch such command hanged indefinitely.
 
-Fixes: 1bc144b62524 ("net, rds, Replace xlist in net/rds/xlist.h with llist")
-Signed-off-by: Zhu Yanjun <yanjun.zhu@oracle.com>
-Acked-by: Santosh Shilimkar <santosh.shilimkar@oracle.com>
+Note: the issue predates the commit reported in the fixes tag, but
+this fix can't be applied before the mentioned commit.
+
+v1 -> v2:
+ - no need to check for thread existence after flipping the lock,
+   pktgen threads are freed only at net exit time
+ -
+
+Fixes: 6146e6a43b35 ("[PKTGEN]: Removes thread_{un,}lock() macros.")
+Reported-and-tested-by: Matteo Croce <mcroce@redhat.com>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/rds/ib_rdma.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ net/core/pktgen.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/net/rds/ib_rdma.c
-+++ b/net/rds/ib_rdma.c
-@@ -725,12 +725,14 @@ static int rds_ib_flush_mr_pool(struct r
- 		wait_clean_list_grace();
+--- a/net/core/pktgen.c
++++ b/net/core/pktgen.c
+@@ -3139,7 +3139,13 @@ static int pktgen_wait_thread_run(struct
+ {
+ 	while (thread_is_running(t)) {
  
- 		list_to_llist_nodes(pool, &unmap_list, &clean_nodes, &clean_tail);
--		if (ibmr_ret)
-+		if (ibmr_ret) {
- 			*ibmr_ret = llist_entry(clean_nodes, struct rds_ib_mr, llnode);
--
-+			clean_nodes = clean_nodes->next;
-+		}
- 		/* more than one entry in llist nodes */
--		if (clean_nodes->next)
--			llist_add_batch(clean_nodes->next, clean_tail, &pool->clean_list);
-+		if (clean_nodes)
-+			llist_add_batch(clean_nodes, clean_tail,
-+					&pool->clean_list);
++		/* note: 't' will still be around even after the unlock/lock
++		 * cycle because pktgen_thread threads are only cleared at
++		 * net exit
++		 */
++		mutex_unlock(&pktgen_thread_lock);
+ 		msleep_interruptible(100);
++		mutex_lock(&pktgen_thread_lock);
  
- 	}
+ 		if (signal_pending(current))
+ 			goto signal;
+@@ -3154,6 +3160,10 @@ static int pktgen_wait_all_threads_run(s
+ 	struct pktgen_thread *t;
+ 	int sig = 1;
+ 
++	/* prevent from racing with rmmod */
++	if (!try_module_get(THIS_MODULE))
++		return sig;
++
+ 	mutex_lock(&pktgen_thread_lock);
+ 
+ 	list_for_each_entry(t, &pn->pktgen_threads, th_list) {
+@@ -3167,6 +3177,7 @@ static int pktgen_wait_all_threads_run(s
+ 			t->control |= (T_STOP);
+ 
+ 	mutex_unlock(&pktgen_thread_lock);
++	module_put(THIS_MODULE);
+ 	return sig;
+ }
  
 
 
