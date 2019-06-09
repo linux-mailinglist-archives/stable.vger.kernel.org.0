@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A0C63A9BC
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:13:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 887623A864
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:00:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733074AbfFIRAH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1732914AbfFIRAH (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 9 Jun 2019 13:00:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36280 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:36356 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2387774AbfFIRAD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 13:00:03 -0400
+        id S1733060AbfFIRAG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 13:00:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B424E2084A;
-        Sun,  9 Jun 2019 17:00:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 62015208C0;
+        Sun,  9 Jun 2019 17:00:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560099603;
-        bh=9PYpEDZLRhbi7YVmJolHM37nqF9o+1KmaP4pr3hYhsM=;
+        s=default; t=1560099605;
+        bh=/S59m0CzpcjCSiQrTxnr1llmebHj+C0q8Wm5C6GKvZk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D3OmlFJpP2nyM0J6STJWEBVwtur54yqypjwP6pDwP9EIULiJj6fM7M64vDceT5pLL
-         qTAHnE4j+XZqHiVgE6V2GMYkuB39rt7rbmoGCkcRyZs+yt8Df/lULWxq9wmq0wWuyW
-         +JBPfrSio+8V7XWpHcPCslmd/buMIX2MVBiYa5dc=
+        b=BWZluH0VDlRiUC8bZqC68dK1GXMH0U1zjg1bB03+TLrQetGXYauMm+xuO9REi2iT7
+         bsKyalAdpgfKmZaDAxnE1tfeFzNMcIbpL/T7psiJFDM//gx2YDx2xV8UjhgQXDtm2f
+         2vqAT4TywR8TDWG1MXPFi5fWTdtTF8NlC6KXsNTM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Van Asbroeck <TheSven73@gmail.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        stable@vger.kernel.org, Mariusz Bialonczyk <manio@skyboo.net>,
+        Jean-Francois Dagenais <jeff.dagenais@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 100/241] rtc: 88pm860x: prevent use-after-free on device remove
-Date:   Sun,  9 Jun 2019 18:40:42 +0200
-Message-Id: <20190609164150.681387111@linuxfoundation.org>
+Subject: [PATCH 4.4 101/241] w1: fix the resume command API
+Date:   Sun,  9 Jun 2019 18:40:43 +0200
+Message-Id: <20190609164150.710401945@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
 In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
 References: <20190609164147.729157653@linuxfoundation.org>
@@ -44,42 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f22b1ba15ee5785aa028384ebf77dd39e8e47b70 ]
+[ Upstream commit 62909da8aca048ecf9fbd7e484e5100608f40a63 ]
 
-The device's remove() attempts to shut down the delayed_work scheduled
-on the kernel-global workqueue by calling flush_scheduled_work().
+>From the DS2408 datasheet [1]:
+"Resume Command function checks the status of the RC flag and, if it is set,
+ directly transfers control to the control functions, similar to a Skip ROM
+ command. The only way to set the RC flag is through successfully executing
+ the Match ROM, Search ROM, Conditional Search ROM, or Overdrive-Match ROM
+ command"
 
-Unfortunately, flush_scheduled_work() does not prevent the delayed_work
-from re-scheduling itself. The delayed_work might run after the device
-has been removed, and touch the already de-allocated info structure.
-This is a potential use-after-free.
+The function currently works perfectly fine in a multidrop bus, but when we
+have only a single slave connected, then only a Skip ROM is used and Match
+ROM is not called at all. This is leading to problems e.g. with single one
+DS2408 connected, as the Resume Command is not working properly and the
+device is responding with failing results after the Resume Command.
 
-Fix by calling cancel_delayed_work_sync() during remove(): this ensures
-that the delayed work is properly cancelled, is no longer running, and
-is not able to re-schedule itself.
+This commit is fixing this by using a Skip ROM instead in those cases.
+The bandwidth / performance advantage is exactly the same.
 
-This issue was detected with the help of Coccinelle.
+Refs:
+[1] https://datasheets.maximintegrated.com/en/ds/DS2408.pdf
 
-Signed-off-by: Sven Van Asbroeck <TheSven73@gmail.com>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Mariusz Bialonczyk <manio@skyboo.net>
+Reviewed-by: Jean-Francois Dagenais <jeff.dagenais@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-88pm860x.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/w1/w1_io.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/rtc/rtc-88pm860x.c b/drivers/rtc/rtc-88pm860x.c
-index 19e53b3b8e005..166faae3a59cd 100644
---- a/drivers/rtc/rtc-88pm860x.c
-+++ b/drivers/rtc/rtc-88pm860x.c
-@@ -414,7 +414,7 @@ static int pm860x_rtc_remove(struct platform_device *pdev)
- 	struct pm860x_rtc_info *info = platform_get_drvdata(pdev);
+diff --git a/drivers/w1/w1_io.c b/drivers/w1/w1_io.c
+index 282092421cc9e..1a9d9ec8db4df 100644
+--- a/drivers/w1/w1_io.c
++++ b/drivers/w1/w1_io.c
+@@ -437,8 +437,7 @@ int w1_reset_resume_command(struct w1_master *dev)
+ 	if (w1_reset_bus(dev))
+ 		return -1;
  
- #ifdef VRTC_CALIBRATION
--	flush_scheduled_work();
-+	cancel_delayed_work_sync(&info->calib_work);
- 	/* disable measurement */
- 	pm860x_set_bits(info->i2c, PM8607_MEAS_EN2, MEAS2_VRTC, 0);
- #endif	/* VRTC_CALIBRATION */
+-	/* This will make only the last matched slave perform a skip ROM. */
+-	w1_write_8(dev, W1_RESUME_CMD);
++	w1_write_8(dev, dev->slave_count > 1 ? W1_RESUME_CMD : W1_SKIP_ROM);
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(w1_reset_resume_command);
 -- 
 2.20.1
 
