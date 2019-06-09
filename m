@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 152983A726
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 18:47:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C37D3A94A
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:09:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729547AbfFIQqq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 12:46:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45112 "EHLO mail.kernel.org"
+        id S2388610AbfFIRE0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 13:04:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730609AbfFIQqp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:46:45 -0400
+        id S2388596AbfFIRE0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 13:04:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 316722081C;
-        Sun,  9 Jun 2019 16:46:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3F79A20843;
+        Sun,  9 Jun 2019 17:04:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560098804;
-        bh=gDN3Royv62WSTTTpPYuCAZqOoHLWjI5lA2MMTSlDF8o=;
+        s=default; t=1560099864;
+        bh=RSRL9D5E5vNCKyeoCW+KoL+t6DWx9zlZpkWe1vD7Eo4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QtH8pbnN6r4UIVgsXy7peffjrWToHcaiFPj9YZd/FvwsEobo1VuOErfYqG8uNUTxX
-         YpCOy1oY7h5zWPf18VKISQPMSjIz2Tr+PYqawMM4gIr3lbvefNcrLEX2hlezO3yu6x
-         6wU14vpcOQmU+pSfI5z4MM15ppfYKyEccKOVolFs=
+        b=slSlhBbCUQOm7GoeoozDmd1UYCS4ar7IVCdvi71vRqyJ3Vf/MQIM5Hhr8rylvg/U9
+         SReWeQyMu2VSaHhCKWAtYmsFw8dt45CGTwzd1hXzsWUu+88pusjoo7Yvy/AMIHO+Ju
+         7RP3S0eYamFrVacD6KzRShQ5/UYvEoP53VbznhF0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jani Nikula <jani.nikula@intel.com>,
-        Jonathan Corbet <corbet@lwn.net>
-Subject: [PATCH 5.1 66/70] drm/i915: Maintain consistent documentation subsection ordering
+        stable@vger.kernel.org, Carsten Schmid <carsten_schmid@mentor.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 4.4 195/241] usb: xhci: avoid null pointer deref when bos field is NULL
 Date:   Sun,  9 Jun 2019 18:42:17 +0200
-Message-Id: <20190609164132.953760538@linuxfoundation.org>
+Message-Id: <20190609164153.595215582@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.541128197@linuxfoundation.org>
-References: <20190609164127.541128197@linuxfoundation.org>
+In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
+References: <20190609164147.729157653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,86 +43,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Corbet <corbet@lwn.net>
+From: Carsten Schmid <carsten_schmid@mentor.com>
 
-commit 551bd3368a7b3cfef01edaade8970948d178d40a upstream.
+commit 7aa1bb2ffd84d6b9b5f546b079bb15cd0ab6e76e upstream.
 
-With Sphinx 2.0 (or prior versions with the deprecation warnings fixed) the
-docs build fails with:
+With defective USB sticks we see the following error happen:
+usb 1-3: new high-speed USB device number 6 using xhci_hcd
+usb 1-3: device descriptor read/64, error -71
+usb 1-3: device descriptor read/64, error -71
+usb 1-3: new high-speed USB device number 7 using xhci_hcd
+usb 1-3: device descriptor read/64, error -71
+usb 1-3: unable to get BOS descriptor set
+usb 1-3: New USB device found, idVendor=0781, idProduct=5581
+usb 1-3: New USB device strings: Mfr=1, Product=2, SerialNumber=3
+...
+BUG: unable to handle kernel NULL pointer dereference at 0000000000000008
 
-  Documentation/gpu/i915.rst:403: WARNING: Title level inconsistent:
+This comes from the following place:
+[ 1660.215380] IP: xhci_set_usb2_hardware_lpm+0xdf/0x3d0 [xhci_hcd]
+[ 1660.222092] PGD 0 P4D 0
+[ 1660.224918] Oops: 0000 [#1] PREEMPT SMP NOPTI
+[ 1660.425520] CPU: 1 PID: 38 Comm: kworker/1:1 Tainted: P     U  W  O    4.14.67-apl #1
+[ 1660.434277] Workqueue: usb_hub_wq hub_event [usbcore]
+[ 1660.439918] task: ffffa295b6ae4c80 task.stack: ffffad4580150000
+[ 1660.446532] RIP: 0010:xhci_set_usb2_hardware_lpm+0xdf/0x3d0 [xhci_hcd]
+[ 1660.453821] RSP: 0018:ffffad4580153c70 EFLAGS: 00010046
+[ 1660.459655] RAX: 0000000000000000 RBX: ffffa295b4d7c000 RCX: 0000000000000002
+[ 1660.467625] RDX: 0000000000000002 RSI: ffffffff984a55b2 RDI: ffffffff984a55b2
+[ 1660.475586] RBP: ffffad4580153cc8 R08: 0000000000d6520a R09: 0000000000000001
+[ 1660.483556] R10: ffffad4580a004a0 R11: 0000000000000286 R12: ffffa295b4d7c000
+[ 1660.491525] R13: 0000000000010648 R14: ffffa295a84e1800 R15: 0000000000000000
+[ 1660.499494] FS:  0000000000000000(0000) GS:ffffa295bfc80000(0000) knlGS:0000000000000000
+[ 1660.508530] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ 1660.514947] CR2: 0000000000000008 CR3: 000000025a114000 CR4: 00000000003406a0
+[ 1660.522917] Call Trace:
+[ 1660.525657]  usb_set_usb2_hardware_lpm+0x3d/0x70 [usbcore]
+[ 1660.531792]  usb_disable_device+0x242/0x260 [usbcore]
+[ 1660.537439]  usb_disconnect+0xc1/0x2b0 [usbcore]
+[ 1660.542600]  hub_event+0x596/0x18f0 [usbcore]
+[ 1660.547467]  ? trace_preempt_on+0xdf/0x100
+[ 1660.552040]  ? process_one_work+0x1c1/0x410
+[ 1660.556708]  process_one_work+0x1d2/0x410
+[ 1660.561184]  ? preempt_count_add.part.3+0x21/0x60
+[ 1660.566436]  worker_thread+0x2d/0x3f0
+[ 1660.570522]  kthread+0x122/0x140
+[ 1660.574123]  ? process_one_work+0x410/0x410
+[ 1660.578792]  ? kthread_create_on_node+0x60/0x60
+[ 1660.583849]  ret_from_fork+0x3a/0x50
+[ 1660.587839] Code: 00 49 89 c3 49 8b 84 24 50 16 00 00 8d 4a ff 48 8d 04 c8 48 89 ca 4c 8b 10 45 8b 6a 04 48 8b 00 48 89 45 c0 49 8b 86 80 03 00 00 <48> 8b 40 08 8b 40 03 0f 1f 44 00 00 45 85 ff 0f 84 81 01 00 00
+[ 1660.608980] RIP: xhci_set_usb2_hardware_lpm+0xdf/0x3d0 [xhci_hcd] RSP: ffffad4580153c70
+[ 1660.617921] CR2: 0000000000000008
 
-  Global GTT Fence Handling
-  ~~~~~~~~~~~~~~~~~~~~~~~~~
+Tracking this down shows that udev->bos is NULL in the following code:
+(xhci.c, in xhci_set_usb2_hardware_lpm)
+	field = le32_to_cpu(udev->bos->ext_cap->bmAttributes);  <<<<<<< here
 
-  reST markup error:
-  Documentation/gpu/i915.rst:403: (SEVERE/4) Title level inconsistent:
+	xhci_dbg(xhci, "%s port %d USB2 hardware LPM\n",
+			enable ? "enable" : "disable", port_num + 1);
 
-I "fixed" it by changing the subsections in i915.rst, but that didn't seem
-like the correct change.  It turns out that a couple of i915 files create
-their own subsections in kerneldoc comments using apostrophes as the
-heading marker:
+	if (enable) {
+		/* Host supports BESL timeout instead of HIRD */
+		if (udev->usb2_hw_lpm_besl_capable) {
+			/* if device doesn't have a preferred BESL value use a
+			 * default one which works with mixed HIRD and BESL
+			 * systems. See XHCI_DEFAULT_BESL definition in xhci.h
+			 */
+			if ((field & USB_BESL_SUPPORT) &&
+			    (field & USB_BESL_BASELINE_VALID))
+				hird = USB_GET_BESL_BASELINE(field);
+			else
+				hird = udev->l1_params.besl;
 
-  Layout
-  ''''''
+The failing case is when disabling LPM. So it is sufficient to avoid
+access to udev->bos by moving the instruction into the "enable" clause.
 
-That breaks the normal subsection marker ordering, and newer Sphinx is
-rather more strict about enforcing that ordering.  So fix the offending
-comments to make Sphinx happy.
-
-(This is unfortunate, in that kerneldoc comments shouldn't need to be aware
-of where they might be included in the heading hierarchy, but I don't see
-a better way around it).
-
-Cc: stable@vger.kernel.org  # v4.14+
-Acked-by: Jani Nikula <jani.nikula@intel.com>
-Signed-off-by: Jonathan Corbet <corbet@lwn.net>
+Cc: Stable <stable@vger.kernel.org>
+Signed-off-by: Carsten Schmid <carsten_schmid@mentor.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/gpu/drm/i915/i915_reg.h          |    6 +++---
- drivers/gpu/drm/i915/intel_workarounds.c |    2 +-
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/usb/host/xhci.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/i915/i915_reg.h
-+++ b/drivers/gpu/drm/i915/i915_reg.h
-@@ -32,7 +32,7 @@
-  * macros. Do **not** mass change existing definitions just to update the style.
-  *
-  * Layout
-- * ''''''
-+ * ~~~~~~
-  *
-  * Keep helper macros near the top. For example, _PIPE() and friends.
-  *
-@@ -78,7 +78,7 @@
-  * style. Use lower case in hexadecimal values.
-  *
-  * Naming
-- * ''''''
-+ * ~~~~~~
-  *
-  * Try to name registers according to the specs. If the register name changes in
-  * the specs from platform to another, stick to the original name.
-@@ -96,7 +96,7 @@
-  * suffix to the name. For example, ``_SKL`` or ``_GEN8``.
-  *
-  * Examples
-- * ''''''''
-+ * ~~~~~~~~
-  *
-  * (Note that the values in the example are indented using spaces instead of
-  * TABs to avoid misalignment in generated documentation. Use TABs in the
---- a/drivers/gpu/drm/i915/intel_workarounds.c
-+++ b/drivers/gpu/drm/i915/intel_workarounds.c
-@@ -37,7 +37,7 @@
-  *    costly and simplifies things. We can revisit this in the future.
-  *
-  * Layout
-- * ''''''
-+ * ~~~~~~
-  *
-  * Keep things in this file ordered by WA type, as per the above (context, GT,
-  * display, register whitelist, batchbuffer). Then, inside each type, keep the
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -4191,7 +4191,6 @@ int xhci_set_usb2_hardware_lpm(struct us
+ 	pm_addr = port_array[port_num] + PORTPMSC;
+ 	pm_val = readl(pm_addr);
+ 	hlpm_addr = port_array[port_num] + PORTHLPMC;
+-	field = le32_to_cpu(udev->bos->ext_cap->bmAttributes);
+ 
+ 	xhci_dbg(xhci, "%s port %d USB2 hardware LPM\n",
+ 			enable ? "enable" : "disable", port_num + 1);
+@@ -4203,6 +4202,7 @@ int xhci_set_usb2_hardware_lpm(struct us
+ 			 * default one which works with mixed HIRD and BESL
+ 			 * systems. See XHCI_DEFAULT_BESL definition in xhci.h
+ 			 */
++			field = le32_to_cpu(udev->bos->ext_cap->bmAttributes);
+ 			if ((field & USB_BESL_SUPPORT) &&
+ 			    (field & USB_BESL_BASELINE_VALID))
+ 				hird = USB_GET_BESL_BASELINE(field);
 
 
