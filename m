@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A8E93AAE2
-	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:23:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10B053A950
+	for <lists+stable@lfdr.de>; Sun,  9 Jun 2019 19:09:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729961AbfFIRWb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 13:22:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41368 "EHLO mail.kernel.org"
+        id S2388558AbfFIREJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 13:04:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42776 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729135AbfFIQoR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 9 Jun 2019 12:44:17 -0400
+        id S2388543AbfFIREI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 9 Jun 2019 13:04:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 80AB12083D;
-        Sun,  9 Jun 2019 16:44:16 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 82586204EC;
+        Sun,  9 Jun 2019 17:04:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560098657;
-        bh=ILBiED/nfE5AzbiBFDaFnu6kol9RSV5XGITdIeCvWfk=;
+        s=default; t=1560099848;
+        bh=znFL7krxnAtQKb0YeVjDyTYArkXpnF0QQBKi7kjZNRk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QgAlTO8QXZQrkCpUPhKDY/ow4GmPGRXsyOrGMFenmh8BPnsKf457QPjafcJ+ifU4O
-         MEEV9n9hfqm753+17eYWjbxu1EhCbLrUL/AS6FXYbWEYxYNkza0yTy+bZDXZXxnGws
-         T5ohdYVYJLAjCYOvvJIRsrM/vQmoyA7rHXbQHT9g=
+        b=Zw2NI/67hrGJJvndtvNUh5P4C6SVUVAaT0lIK5p2kwqiySmKGuZ0Rm/z97ZVH3tzN
+         F182KET8whs8RW71iggA1949IViP4cdsxZjx0rzJuzSBHx1Wx+3QcI16lEo2QFUku8
+         jhhLFwq96lHcnSG7XuLrLn7X2XuG8KIa5gvTZsVw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Olivier Matz <olivier.matz@6wind.com>,
-        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.1 14/70] ipv6: fix EFAULT on sendto with icmpv6 and hdrincl
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Sebastian Ott <sebott@linux.ibm.com>,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 143/241] s390: cio: fix cio_irb declaration
 Date:   Sun,  9 Jun 2019 18:41:25 +0200
-Message-Id: <20190609164128.293608314@linuxfoundation.org>
+Message-Id: <20190609164151.911104770@linuxfoundation.org>
 X-Mailer: git-send-email 2.21.0
-In-Reply-To: <20190609164127.541128197@linuxfoundation.org>
-References: <20190609164127.541128197@linuxfoundation.org>
+In-Reply-To: <20190609164147.729157653@linuxfoundation.org>
+References: <20190609164147.729157653@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,57 +46,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olivier Matz <olivier.matz@6wind.com>
+[ Upstream commit e91012ee855ad9f5ef2ab106a3de51db93fe4d0c ]
 
-[ Upstream commit b9aa52c4cb457e7416cc0c95f475e72ef4a61336 ]
+clang points out that the declaration of cio_irb does not match the
+definition exactly, it is missing the alignment attribute:
 
-The following code returns EFAULT (Bad address):
+../drivers/s390/cio/cio.c:50:1: warning: section does not match previous declaration [-Wsection]
+DEFINE_PER_CPU_ALIGNED(struct irb, cio_irb);
+^
+../include/linux/percpu-defs.h:150:2: note: expanded from macro 'DEFINE_PER_CPU_ALIGNED'
+        DEFINE_PER_CPU_SECTION(type, name, PER_CPU_ALIGNED_SECTION)     \
+        ^
+../include/linux/percpu-defs.h:93:9: note: expanded from macro 'DEFINE_PER_CPU_SECTION'
+        extern __PCPU_ATTRS(sec) __typeof__(type) name;                 \
+               ^
+../include/linux/percpu-defs.h:49:26: note: expanded from macro '__PCPU_ATTRS'
+        __percpu __attribute__((section(PER_CPU_BASE_SECTION sec)))     \
+                                ^
+../drivers/s390/cio/cio.h:118:1: note: previous attribute is here
+DECLARE_PER_CPU(struct irb, cio_irb);
+^
+../include/linux/percpu-defs.h:111:2: note: expanded from macro 'DECLARE_PER_CPU'
+        DECLARE_PER_CPU_SECTION(type, name, "")
+        ^
+../include/linux/percpu-defs.h:87:9: note: expanded from macro 'DECLARE_PER_CPU_SECTION'
+        extern __PCPU_ATTRS(sec) __typeof__(type) name
+               ^
+../include/linux/percpu-defs.h:49:26: note: expanded from macro '__PCPU_ATTRS'
+        __percpu __attribute__((section(PER_CPU_BASE_SECTION sec)))     \
+                                ^
+Use DECLARE_PER_CPU_ALIGNED() here, to make the two match.
 
-  s = socket(AF_INET6, SOCK_RAW, IPPROTO_ICMPV6);
-  setsockopt(s, SOL_IPV6, IPV6_HDRINCL, 1);
-  sendto(ipv6_icmp6_packet, addr);   /* returns -1, errno = EFAULT */
-
-The IPv4 equivalent code works. A workaround is to use IPPROTO_RAW
-instead of IPPROTO_ICMPV6.
-
-The failure happens because 2 bytes are eaten from the msghdr by
-rawv6_probe_proto_opt() starting from commit 19e3c66b52ca ("ipv6
-equivalent of "ipv4: Avoid reading user iov twice after
-raw_probe_proto_opt""), but at that time it was not a problem because
-IPV6_HDRINCL was not yet introduced.
-
-Only eat these 2 bytes if hdrincl == 0.
-
-Fixes: 715f504b1189 ("ipv6: add IPV6_HDRINCL option for raw sockets")
-Signed-off-by: Olivier Matz <olivier.matz@6wind.com>
-Acked-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Signed-off-by: Sebastian Ott <sebott@linux.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/raw.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/s390/cio/cio.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/ipv6/raw.c
-+++ b/net/ipv6/raw.c
-@@ -895,11 +895,14 @@ static int rawv6_sendmsg(struct sock *sk
- 	opt = ipv6_fixup_options(&opt_space, opt);
+diff --git a/drivers/s390/cio/cio.h b/drivers/s390/cio/cio.h
+index a01376ae17493..fdb87520543fe 100644
+--- a/drivers/s390/cio/cio.h
++++ b/drivers/s390/cio/cio.h
+@@ -102,7 +102,7 @@ struct subchannel {
+ 	struct schib_config config;
+ } __attribute__ ((aligned(8)));
  
- 	fl6.flowi6_proto = proto;
--	rfv.msg = msg;
--	rfv.hlen = 0;
--	err = rawv6_probe_proto_opt(&rfv, &fl6);
--	if (err)
--		goto out;
-+
-+	if (!hdrincl) {
-+		rfv.msg = msg;
-+		rfv.hlen = 0;
-+		err = rawv6_probe_proto_opt(&rfv, &fl6);
-+		if (err)
-+			goto out;
-+	}
+-DECLARE_PER_CPU(struct irb, cio_irb);
++DECLARE_PER_CPU_ALIGNED(struct irb, cio_irb);
  
- 	if (!ipv6_addr_any(daddr))
- 		fl6.daddr = *daddr;
+ #define to_subchannel(n) container_of(n, struct subchannel, dev)
+ 
+-- 
+2.20.1
+
 
 
