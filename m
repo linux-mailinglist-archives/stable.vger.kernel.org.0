@@ -2,146 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AEB593ACD9
-	for <lists+stable@lfdr.de>; Mon, 10 Jun 2019 04:16:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A29683AD07
+	for <lists+stable@lfdr.de>; Mon, 10 Jun 2019 04:34:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730216AbfFJCQ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 22:16:29 -0400
-Received: from mailgw01.mediatek.com ([210.61.82.183]:54986 "EHLO
-        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S1729916AbfFJCQ3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Jun 2019 22:16:29 -0400
-X-UUID: 5169d795564c46f4a8375034bc4c54da-20190610
-X-UUID: 5169d795564c46f4a8375034bc4c54da-20190610
-Received: from mtkcas07.mediatek.inc [(172.21.101.84)] by mailgw01.mediatek.com
-        (envelope-from <weiyi.lu@mediatek.com>)
-        (mhqrelay.mediatek.com ESMTP with TLS)
-        with ESMTP id 1210668403; Mon, 10 Jun 2019 10:16:17 +0800
-Received: from mtkcas09.mediatek.inc (172.21.101.178) by
- mtkmbs02n2.mediatek.inc (172.21.101.101) with Microsoft SMTP Server (TLS) id
- 15.0.1395.4; Mon, 10 Jun 2019 10:16:15 +0800
-Received: from mtksdccf07.mediatek.inc (172.21.84.99) by mtkcas09.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1395.4 via Frontend
- Transport; Mon, 10 Jun 2019 10:16:15 +0800
-From:   Weiyi Lu <weiyi.lu@mediatek.com>
-To:     Nicolas Boichat <drinkcat@chromium.org>,
-        Matthias Brugger <matthias.bgg@gmail.com>,
-        Stephen Boyd <sboyd@kernel.org>, Rob Herring <robh@kernel.org>
-CC:     James Liao <jamesjj.liao@mediatek.com>,
-        Fan Chen <fan.chen@mediatek.com>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>,
-        <linux-mediatek@lists.infradead.org>, <linux-clk@vger.kernel.org>,
-        <srv_heupstream@mediatek.com>, <stable@vger.kernel.org>,
-        Weiyi Lu <weiyi.lu@mediatek.com>,
-        Dehui Sun <dehui.sun@mediatek.com>
-Subject: [PATCH v2] clk: mediatek: mt8183: Register 13MHz clock earlier for clocksource
-Date:   Mon, 10 Jun 2019 10:16:09 +0800
-Message-ID: <1560132969-1960-1-git-send-email-weiyi.lu@mediatek.com>
-X-Mailer: git-send-email 1.8.1.1.dirty
+        id S1730278AbfFJCeH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 22:34:07 -0400
+Received: from mail-ed1-f67.google.com ([209.85.208.67]:37378 "EHLO
+        mail-ed1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730055AbfFJCeE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Jun 2019 22:34:04 -0400
+Received: by mail-ed1-f67.google.com with SMTP id w13so12198200eds.4
+        for <stable@vger.kernel.org>; Sun, 09 Jun 2019 19:34:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=afKgTHmsyagHLmYfWGsSLRAHwZWSCleIZNkXxK90uPY=;
+        b=fawIqtj7htmk9JLOUC28S3iKNbxX4HMtjGN+MuVQUAVuCjMhYUz6VWwQ727OC2TTt4
+         W5z42Nj1T8lmxR/j7JX2G/xkWIznAEh54U6SciR/Py1AiQQ97VIHcIfNhg7M+zqeL7gK
+         izRcmPWT4FC06S8MN1aWWe825DOKTmxJM7433UVz2/MiCaj8Sz4LpRPzK7PDdPsyVETN
+         QR4AJ6dqdo+Lu1gSRb3uPqLcByPZNMcPQHqBtKIumdmVs7248ruDEZxzggK8rE72NPxk
+         oCxocsJ0+FYyrkeVnrDf1c2D/DC+TFx/SVnL9hSuiS3a/m0iWaGSv3k+BBZlFXVajXAB
+         JwBw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=afKgTHmsyagHLmYfWGsSLRAHwZWSCleIZNkXxK90uPY=;
+        b=LbD+vtOuOjMflpDOBfhx6+Z3P8/nzmX11DQuREGULPRlVgUYIRPyyL0g7PrqAv5/Xp
+         erCQ4jWaX5G034dk4+LJjMjWO3KyfW5vESSUHCqHMTHwlEryRq1cObIciVU9t8XV4Fk8
+         bnE4hPlWs88JhX4zHe0t6fKNvzUk6cXOm95FgkwLTgkkLjAB7+Nr6MFBmQMg+NKtQG0y
+         bYtGIykNMQh6vVp46p+cEk7zBPFkwrTjP50DBEXaKHRbZzvDxJ5XP3qWZD62lktZrkhl
+         C2aGoZ7fTrhDUWVwWJIimmdL0aVVsbhyMFBZomgifmiVKejvsE9ugZSlGZrlnpDj09QI
+         4ZAA==
+X-Gm-Message-State: APjAAAVUKYWuRi6LVIPCIhilwuQfpZ8+t95f4W9z34P/7HYkqbIz602J
+        l1IKkAJQgoIAELGwEJ+iIXrkbgOl4w1CqkGkrf7MrQ==
+X-Google-Smtp-Source: APXvYqyZ4zJSQrjpclg/tB88jotg/Lr0qMzgyhbyLXcOThxD7RIRBMYssHeHhkPCoz1e8x5WG9KYWcH5HQbN/vEAUJ0=
+X-Received: by 2002:a50:ec1a:: with SMTP id g26mr71250547edr.174.1560134042811;
+ Sun, 09 Jun 2019 19:34:02 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain
-X-TM-SNTS-SMTP: CAC1BC70DE426AEAA8E799500347601E8B809F99947FB5D622F96AFBA05C332B2000:8
-X-MTK:  N
+References: <20190605111412.3461-1-zhang.chunyan@linaro.org> <20190606010857.GF29739@sasha-vm>
+In-Reply-To: <20190606010857.GF29739@sasha-vm>
+From:   Chunyan Zhang <zhang.chunyan@linaro.org>
+Date:   Mon, 10 Jun 2019 10:33:51 +0800
+Message-ID: <CAG2=9p_6Rk4oUu0hWKdzHNxRg=Hsboz=vYwsmfagmuCHzEKMOg@mail.gmail.com>
+Subject: Re: [BACKPORT 4.4.y] PM / sleep: prohibit devices probing during suspend/hibernation
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Grygorii Strashko <grygorii.Strashko@ti.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Chunyan Zhang <zhang.lyra@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The 13MHz clock should be registered before clocksource driver is
-initialized. Use CLK_OF_DECLARE_DRIVER() to guarantee.
+On Thu, 6 Jun 2019 at 09:08, Sasha Levin <sashal@kernel.org> wrote:
+>
+> On Wed, Jun 05, 2019 at 07:14:12PM +0800, Chunyan Zhang wrote:
+> >From: "Strashko, Grygorii" <grygorii.strashko@ti.com>
+> >
+> >[ Upstream commit 013c074f8642d8e815ad670601f8e27155a74b57 ]
+> >
+> >It is unsafe [1] if probing of devices will happen during suspend or
+> >hibernation and system behavior will be unpredictable in this case.
+> >So, let's prohibit device's probing in dpm_prepare() and defer their
+> >probing instead. The normal behavior will be restored in
+> >dpm_complete().
+> >
+> >This patch introduces new DD core APIs:
+> > device_block_probing()
+> >   It will disable probing of devices and defer their probes instead.
+> > device_unblock_probing()
+> >   It will restore normal behavior and trigger re-probing of deferred
+> >   devices.
+> >
+> >[1] https://lkml.org/lkml/2015/9/11/554
+> >
+> >Signed-off-by: Grygorii Strashko <grygorii.strashko@ti.com>
+> >Acked-by: Pavel Machek <pavel@ucw.cz>
+> >Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> >Signed-off-by: Chunyan Zhang <zhang.chunyan@linaro.org>
+>
+> This patch had to be fixed a few times (see 015bb5e134 and 9a2a5a638f8),
+> we can't just take it as is.
+>
+> It might be just simpler to move to a newer kernel at this point.
 
-Signed-off-by: Weiyi Lu <weiyi.lu@mediatek.com>
----
- drivers/clk/mediatek/clk-mt8183.c | 46 +++++++++++++++++++++++++++++----------
- 1 file changed, 34 insertions(+), 12 deletions(-)
+Thanks for the information and suggestion!
 
-diff --git a/drivers/clk/mediatek/clk-mt8183.c b/drivers/clk/mediatek/clk-mt8183.c
-index 9d86510..bc01611 100644
---- a/drivers/clk/mediatek/clk-mt8183.c
-+++ b/drivers/clk/mediatek/clk-mt8183.c
-@@ -25,9 +25,11 @@
- 	FIXED_CLK(CLK_TOP_UNIVP_192M, "univpll_192m", "univpll", 192000000),
- };
- 
-+static const struct mtk_fixed_factor top_early_divs[] = {
-+	FACTOR(CLK_TOP_CLK13M, "clk13m", "clk26m", 1, 2),
-+};
-+
- static const struct mtk_fixed_factor top_divs[] = {
--	FACTOR(CLK_TOP_CLK13M, "clk13m", "clk26m", 1,
--		2),
- 	FACTOR(CLK_TOP_F26M_CK_D2, "csw_f26m_ck_d2", "clk26m", 1,
- 		2),
- 	FACTOR(CLK_TOP_SYSPLL_CK, "syspll_ck", "mainpll", 1,
-@@ -1167,37 +1169,57 @@ static int clk_mt8183_apmixed_probe(struct platform_device *pdev)
- 	return of_clk_add_provider(node, of_clk_src_onecell_get, clk_data);
- }
- 
-+static struct clk_onecell_data *top_clk_data;
-+
-+static void clk_mt8183_top_init_early(struct device_node *node)
-+{
-+	int i;
-+
-+	top_clk_data = mtk_alloc_clk_data(CLK_TOP_NR_CLK);
-+
-+	for (i = 0; i < CLK_TOP_NR_CLK; i++)
-+		top_clk_data->clks[i] = ERR_PTR(-EPROBE_DEFER);
-+
-+	mtk_clk_register_factors(top_early_divs, ARRAY_SIZE(top_early_divs),
-+			top_clk_data);
-+
-+	of_clk_add_provider(node, of_clk_src_onecell_get, top_clk_data);
-+}
-+
-+CLK_OF_DECLARE_DRIVER(mt8183_topckgen, "mediatek,mt8183-topckgen",
-+			clk_mt8183_top_init_early);
-+
- static int clk_mt8183_top_probe(struct platform_device *pdev)
- {
- 	struct resource *res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	void __iomem *base;
--	struct clk_onecell_data *clk_data;
- 	struct device_node *node = pdev->dev.of_node;
- 
- 	base = devm_ioremap_resource(&pdev->dev, res);
- 	if (IS_ERR(base))
- 		return PTR_ERR(base);
- 
--	clk_data = mtk_alloc_clk_data(CLK_TOP_NR_CLK);
--
- 	mtk_clk_register_fixed_clks(top_fixed_clks, ARRAY_SIZE(top_fixed_clks),
--		clk_data);
-+		top_clk_data);
-+
-+	mtk_clk_register_factors(top_early_divs, ARRAY_SIZE(top_early_divs),
-+		top_clk_data);
- 
--	mtk_clk_register_factors(top_divs, ARRAY_SIZE(top_divs), clk_data);
-+	mtk_clk_register_factors(top_divs, ARRAY_SIZE(top_divs), top_clk_data);
- 
- 	mtk_clk_register_muxes(top_muxes, ARRAY_SIZE(top_muxes),
--		node, &mt8183_clk_lock, clk_data);
-+		node, &mt8183_clk_lock, top_clk_data);
- 
- 	mtk_clk_register_composites(top_aud_muxes, ARRAY_SIZE(top_aud_muxes),
--		base, &mt8183_clk_lock, clk_data);
-+		base, &mt8183_clk_lock, top_clk_data);
- 
- 	mtk_clk_register_composites(top_aud_divs, ARRAY_SIZE(top_aud_divs),
--		base, &mt8183_clk_lock, clk_data);
-+		base, &mt8183_clk_lock, top_clk_data);
- 
- 	mtk_clk_register_gates(node, top_clks, ARRAY_SIZE(top_clks),
--		clk_data);
-+		top_clk_data);
- 
--	return of_clk_add_provider(node, of_clk_src_onecell_get, clk_data);
-+	return of_clk_add_provider(node, of_clk_src_onecell_get, top_clk_data);
- }
- 
- static int clk_mt8183_infra_probe(struct platform_device *pdev)
--- 
-1.8.1.1.dirty
+Chunyan
 
+>
+> --
+> Thanks,
+> Sasha
