@@ -2,79 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D4C1E3BDA5
-	for <lists+stable@lfdr.de>; Mon, 10 Jun 2019 22:43:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5DAC3B53E
+	for <lists+stable@lfdr.de>; Mon, 10 Jun 2019 14:52:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389429AbfFJUlv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jun 2019 16:41:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54112 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389342AbfFJUlv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Jun 2019 16:41:51 -0400
-Received: from localhost (unknown [131.107.159.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8D06D206E0;
-        Mon, 10 Jun 2019 20:41:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560199310;
-        bh=vco3alXsyEZ3Pf5L4IM4jawZgEBKBnLdOEd0A2F9uNs=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=oyQLbBoHoiAnjleVvS98BsHm+66HpWwU0Upke5n6n6KCGMh+9x9AKoW1vHUlxMgx5
-         aR94ZzbummD7T6nuRKrSX5ILuhMCqYd8b0Fq8XNUnYjTIS8L5IGjdPvKzNcHKTeA7l
-         f5+Y7f4UfBGFkzilVhFUUvce4QJlpASJLh7+gL+c=
-Date:   Mon, 10 Jun 2019 16:41:50 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Sagi Grimberg <sagi@grimberg.me>
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH stable-5.0+ 2/3] nvme-tcp: fix possible null deref on a
- timed out io queue connect
-Message-ID: <20190610204150.GA1655@sasha-vm>
-References: <20190610045826.13176-1-sagi@grimberg.me>
- <20190610045826.13176-2-sagi@grimberg.me>
+        id S2389439AbfFJMwH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jun 2019 08:52:07 -0400
+Received: from ex13-edg-ou-001.vmware.com ([208.91.0.189]:26243 "EHLO
+        EX13-EDG-OU-001.vmware.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2388373AbfFJMwH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jun 2019 08:52:07 -0400
+Received: from sc9-mailhost3.vmware.com (10.113.161.73) by
+ EX13-EDG-OU-001.vmware.com (10.113.208.155) with Microsoft SMTP Server id
+ 15.0.1156.6; Mon, 10 Jun 2019 05:51:59 -0700
+Received: from akaher-lnx-dev.eng.vmware.com (unknown [10.110.19.203])
+        by sc9-mailhost3.vmware.com (Postfix) with ESMTP id 6C6AE40E0B;
+        Mon, 10 Jun 2019 05:52:01 -0700 (PDT)
+From:   Ajay Kaher <akaher@vmware.com>
+To:     <aarcange@redhat.com>, <jannh@google.com>, <oleg@redhat.com>,
+        <peterx@redhat.com>, <rppt@linux.ibm.com>, <jgg@mellanox.com>,
+        <mhocko@suse.com>
+CC:     <yishaih@mellanox.com>, <dledford@redhat.com>,
+        <sean.hefty@intel.com>, <hal.rosenstock@gmail.com>,
+        <matanb@mellanox.com>, <leonro@mellanox.com>,
+        <linux-rdma@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <stable@vger.kernel.org>, <akaher@vmware.com>,
+        <srivatsab@vmware.com>, <amakhalov@vmware.com>
+Subject: [PATCH] [v4.14.y] infiniband: fix race condition between infiniband mlx4, mlx5  driver and core dumping
+Date:   Tue, 11 Jun 2019 02:22:17 +0530
+Message-ID: <1560199937-23476-1-git-send-email-akaher@vmware.com>
+X-Mailer: git-send-email 2.7.4
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20190610045826.13176-2-sagi@grimberg.me>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Type: text/plain
+Received-SPF: None (EX13-EDG-OU-001.vmware.com: akaher@vmware.com does not
+ designate permitted sender hosts)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Jun 09, 2019 at 09:58:25PM -0700, Sagi Grimberg wrote:
->Upstream commit: Fixes: d10325e5a9ca ("nvme-tcp: fix possible null deref
->on a timed out io queue connect"
+This patch is the extension of following upstream commit to fix
+the race condition between get_task_mm() and core dumping
+for IB->mlx4 and IB->mlx5 drivers:
 
-Upstream commit here is f34e25898a608 :)
+commit 04f5866e41fb ("coredump: fix race condition between
+mmget_not_zero()/get_task_mm() and core dumping")'
 
---
-Thanks,
-Sasha
+Thanks to Jason for pointing this.
 
->If I/O queue connect times out, we might have freed the queue socket
->already, so check for that on the error path in nvme_tcp_start_queue.
->
->Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
->Signed-off-by: Christoph Hellwig <hch@lst.de>
->---
-> drivers/nvme/host/tcp.c | 3 ++-
-> 1 file changed, 2 insertions(+), 1 deletion(-)
->
->diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
->index 2405bb9c63cc..2b107a1d152b 100644
->--- a/drivers/nvme/host/tcp.c
->+++ b/drivers/nvme/host/tcp.c
->@@ -1423,7 +1423,8 @@ static int nvme_tcp_start_queue(struct nvme_ctrl *nctrl, int idx)
-> 	if (!ret) {
-> 		set_bit(NVME_TCP_Q_LIVE, &ctrl->queues[idx].flags);
-> 	} else {
->-		__nvme_tcp_stop_queue(&ctrl->queues[idx]);
->+		if (test_bit(NVME_TCP_Q_ALLOCATED, &ctrl->queues[idx].flags))
->+			__nvme_tcp_stop_queue(&ctrl->queues[idx]);
-> 		dev_err(nctrl->device,
-> 			"failed to connect queue: %d ret=%d\n", idx, ret);
-> 	}
->-- 
->2.17.1
->
+Signed-off-by: Ajay Kaher <akaher@vmware.com>
+---
+ drivers/infiniband/hw/mlx4/main.c | 4 +++-
+ drivers/infiniband/hw/mlx5/main.c | 3 +++
+ 2 files changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/infiniband/hw/mlx4/main.c b/drivers/infiniband/hw/mlx4/main.c
+index e2beb18..0299c06 100644
+--- a/drivers/infiniband/hw/mlx4/main.c
++++ b/drivers/infiniband/hw/mlx4/main.c
+@@ -1197,6 +1197,8 @@ static void mlx4_ib_disassociate_ucontext(struct ib_ucontext *ibcontext)
+ 	 * mlx4_ib_vma_close().
+ 	 */
+ 	down_write(&owning_mm->mmap_sem);
++	if (!mmget_still_valid(owning_mm))
++		goto skip_mm;
+ 	for (i = 0; i < HW_BAR_COUNT; i++) {
+ 		vma = context->hw_bar_info[i].vma;
+ 		if (!vma)
+@@ -1215,7 +1217,7 @@ static void mlx4_ib_disassociate_ucontext(struct ib_ucontext *ibcontext)
+ 		/* context going to be destroyed, should not access ops any more */
+ 		context->hw_bar_info[i].vma->vm_ops = NULL;
+ 	}
+-
++skip_mm:
+ 	up_write(&owning_mm->mmap_sem);
+ 	mmput(owning_mm);
+ 	put_task_struct(owning_process);
+diff --git a/drivers/infiniband/hw/mlx5/main.c b/drivers/infiniband/hw/mlx5/main.c
+index 13a9206..3fbe396 100644
+--- a/drivers/infiniband/hw/mlx5/main.c
++++ b/drivers/infiniband/hw/mlx5/main.c
+@@ -1646,6 +1646,8 @@ static void mlx5_ib_disassociate_ucontext(struct ib_ucontext *ibcontext)
+ 	 * mlx5_ib_vma_close.
+ 	 */
+ 	down_write(&owning_mm->mmap_sem);
++	if (!mmget_still_valid(owning_mm))
++		goto skip_mm;
+ 	mutex_lock(&context->vma_private_list_mutex);
+ 	list_for_each_entry_safe(vma_private, n, &context->vma_private_list,
+ 				 list) {
+@@ -1662,6 +1664,7 @@ static void mlx5_ib_disassociate_ucontext(struct ib_ucontext *ibcontext)
+ 		kfree(vma_private);
+ 	}
+ 	mutex_unlock(&context->vma_private_list_mutex);
++skip_mm:
+ 	up_write(&owning_mm->mmap_sem);
+ 	mmput(owning_mm);
+ 	put_task_struct(owning_process);
+-- 
+2.7.4
+
