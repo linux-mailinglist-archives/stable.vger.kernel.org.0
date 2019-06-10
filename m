@@ -2,128 +2,178 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B7693B1E8
-	for <lists+stable@lfdr.de>; Mon, 10 Jun 2019 11:24:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3F533B20E
+	for <lists+stable@lfdr.de>; Mon, 10 Jun 2019 11:27:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388056AbfFJJYg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jun 2019 05:24:36 -0400
-Received: from mail-yb1-f194.google.com ([209.85.219.194]:35277 "EHLO
-        mail-yb1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387977AbfFJJYg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jun 2019 05:24:36 -0400
-Received: by mail-yb1-f194.google.com with SMTP id v17so3511480ybm.2
-        for <stable@vger.kernel.org>; Mon, 10 Jun 2019 02:24:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=khO1SLIe7Pb5igRNUl6rWXpYibKKMysc9faceUzNlKw=;
-        b=aszxghNBfVsqQ/OSpwyotsd8kLsXwiE1U3tutqRsLrzP+Dbhk6N2KUa42HhWShwzeS
-         8CHWopDW/ou8UTDPw1xEQXh/uvx/+d3ak/jeWx+hHX8+zhNibd9Ug5R9gH98ihPvMqzI
-         u5vhZlGIOH9S859M17PGFCryxW5kEADeDPPysac8bycBdO6tL8pebViOk0l2x2kUHPSV
-         LpR/BB4YOsVxo3necfmCxdZpoYQLzYWgf7ODzmVtWQuucR4philcR23ukwuEgON7+A+m
-         de6zddZpWaChlYGI8Nejj9R0Wh/CfY04hvh0dK9MbclBL+nohFxpGx5Z3+XFuEVYoB13
-         4F7g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=khO1SLIe7Pb5igRNUl6rWXpYibKKMysc9faceUzNlKw=;
-        b=A4HG4fmaKtk1sQYjiCP1uE+ZS7NC9i+4FNgn2JtYY6E7sG4cfLSan9SoUxZlrPkWid
-         6ab/fmPLoCl78v6EWxXiie3Pa0jfLI0as6U7kkHNqcEIAktshsLWtAlF20iz3uUdYuOz
-         /wMW5DW+iQRAx2XnYz/eAfjvLKCtZiXoQgKmiqn+4aucwD+dAsObXiT1gtQcsvmcNhWa
-         Dkkd1X87aHjOd2K29O+M1mueTWjpU4Ct1H+uaFvi88Gvgd3gw8Xxzr/EaPbrLaGbPjt8
-         ZELqMd1uqTNmgQ9vF7OyI9rI7gOjElEdy6X275QmttXSogI7U4nri1YsaJa1g+yWkHhg
-         vB4g==
-X-Gm-Message-State: APjAAAWfyPDmKiD4rZuKmTgBRoU14H9AvKGXMtRONw/2YVGSlK+K0EsX
-        9jBd3CuB6gehVVmcVYQstILSiEIApNh0tGiEBes=
-X-Google-Smtp-Source: APXvYqx87uspIl6U0okSyUF+4ytFyBzG7ndfWZoz9Uu4Wa7jNIeyvLU/bHyN3D0t7glbSXHd0hr5XvXK9OsSV2WRsYU=
-X-Received: by 2002:a25:d817:: with SMTP id p23mr31983680ybg.190.1560158675418;
- Mon, 10 Jun 2019 02:24:35 -0700 (PDT)
+        id S2388100AbfFJJ16 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jun 2019 05:27:58 -0400
+Received: from mga17.intel.com ([192.55.52.151]:2500 "EHLO mga17.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2388033AbfFJJ16 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Jun 2019 05:27:58 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 10 Jun 2019 02:27:58 -0700
+X-ExtLoop1: 1
+Received: from jnikula-mobl3.fi.intel.com (HELO localhost) ([10.237.66.150])
+  by fmsmga001.fm.intel.com with ESMTP; 10 Jun 2019 02:27:54 -0700
+From:   Jani Nikula <jani.nikula@intel.com>
+To:     Jani Nikula <jani.nikula@intel.com>,
+        intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Cc:     Daniel Vetter <daniel.vetter@ffwll.ch>, stable@vger.kernel.org,
+        Paul Wise <pabs3@bonedaddy.net>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@cs.helsinki.fi>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Harish Chegondi <harish.chegondi@intel.com>
+Subject: [PATCH v2] drm: add fallback override/firmware EDID modes workaround
+Date:   Mon, 10 Jun 2019 12:30:54 +0300
+Message-Id: <20190610093054.28445-1-jani.nikula@intel.com>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190607110513.12072-2-jani.nikula@intel.com>
+References: <20190607110513.12072-2-jani.nikula@intel.com>
 MIME-Version: 1.0
-Received: by 2002:a25:d106:0:0:0:0:0 with HTTP; Mon, 10 Jun 2019 02:24:35
- -0700 (PDT)
-Reply-To: kone.umon@gmail.com
-From:   SANOU ROSE <sara.quttara@gmail.com>
-Date:   Mon, 10 Jun 2019 09:24:35 +0000
-Message-ID: <CADUcce186KNsvWDDaBkWyniiS4cHKicrDbdMvXTE_mkOL3shDA@mail.gmail.com>
-Subject: Best Regards,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+We've moved the override and firmware EDID (simply "override EDID" from
+now on) handling to the low level drm_do_get_edid() function in order to
+transparently use the override throughout the stack. The idea is that
+you get the override EDID via the ->get_modes() hook.
 
-I have received your contact details through online searching as a
-good match for future business that will make both of us very happy!
-Allow me to introduce  myself properly, my name is Mrs Sanou Rose, I
-am currently the regional manager of BIB Bank Burkina Faso. Although I
-am American by birth, I have been based here in Burkina for almost 14
-years now!
+Unfortunately, there are scenarios where the DDC probe in drm_get_edid()
+called via ->get_modes() fails, although the preceding ->detect()
+succeeds.
 
-I understand that this message must seem quite strange but I assure
-you, if my sources are correct, together we will be able to ensure the
-success of my proposal.
+In the case reported by Paul Wise, the ->detect() hook,
+intel_crt_detect(), relies on hotplug detect, bypassing the DDC. In the
+case reported by Ilpo Järvinen, there is no ->detect() hook, which is
+interpreted as connected. The subsequent DDC probe reached via
+->get_modes() fails, and we don't even look at the override EDID,
+resulting in no modes being added.
 
-As the Regional Bank Manager, it is part of my job to send financial
-reports to my head office Burkina, over the course of 2017 =E2=80=93 2018 I
-was looking at the years  fiscal report=E2=80=99s and I discovered that the
-branch that I am managing has funds that are not accounted for
-according to my head office. I have taken certain steps to  make sure
-that these funds will also go undetected on all accounts. I have set
-this up so it will be risk free and like I said, if my sources are
-correct about you, everything will go perfectly.
+Because drm_get_edid() is used via ->detect() all over the place, we
+can't trivially remove the DDC probe, as it leads to override EDID
+effectively meaning connector forcing. The goal is that connector
+forcing and override EDID remain orthogonal.
 
-Currently the funds are in =E2=80=9Cescrow=E2=80=9D without a beneficiary, =
-basically
-put, the account is waiting for me to add a beneficiary to the account
-to allow the funds to be transferred as soon as our =E2=80=9Cwork=E2=80=9D =
-is
-complete!
+Generally, the underlying problem here is the conflation of ->detect()
+and ->get_modes() via drm_get_edid(). The former should just detect, and
+the latter should just get the modes, typically via reading the EDID. As
+long as drm_get_edid() is used in ->detect(), it needs to retain the DDC
+probe. Or such users need to have a separate DDC probe step first.
 
-As I am sure you are aware, I cannot be seen to be connected directly
-to these funds, that would cause too many issues and risks for myself,
-hence why I am contacting you. As long as I have a third party (you)
-that I would be able to add as a beneficiary, we have open and clear
-communication together, both of us will be able to walk
+The EDID caching between ->detect() and ->get_modes() done by some
+drivers is a further complication that prevents us from making
+drm_do_get_edid() adapt to the two cases.
 
-away more than happy and both with a new friend for life, I am sure!
+Work around the regression by falling back to a separate attempt at
+getting the override EDID at drm_helper_probe_single_connector_modes()
+level. With a working DDC and override EDID, it'll never be called; the
+override EDID will come via ->get_modes(). There will still be a failing
+DDC probe attempt in the cases that require the fallback.
 
-I am in contact with several other potential prospects that my sources
-have informed me would also be a successful match, so a quick response
-would be in your best interest if you would like to proceed and
-receive further details.
+v2:
+- Call drm_connector_update_edid_property (Paul)
+- Update commit message about EDID caching (Daniel)
 
-=3D=3D =3D=3D =3D=3D =3D=3D =3D=3D =3D=3D =3D=3D =3D=3D =3D=3D =3D=3D =3D=
-=3D =3D=3D =3D=3D =3D=3D =3D=3D =3D=3D =3D=3D =3D=3D =3D=3D =3D=3D =3D=3D =
-=3D=3D =3D=3D
-=3D=3D =3D=3D =3D=3D =3D=3D =3D=3D =3D=3D =3D=3D =3D=3D
+Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=107583
+Reported-by: Paul Wise <pabs3@bonedaddy.net>
+Cc: Paul Wise <pabs3@bonedaddy.net>
+References: http://mid.mail-archive.com/alpine.DEB.2.20.1905262211270.24390@whs-18.cs.helsinki.fi
+Reported-by: Ilpo Järvinen <ilpo.jarvinen@cs.helsinki.fi>
+Cc: Ilpo Järvinen <ilpo.jarvinen@cs.helsinki.fi>
+Suggested-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+References: 15f080f08d48 ("drm/edid: respect connector force for drm_get_edid ddc probe")
+Fixes: 53fd40a90f3c ("drm: handle override and firmware EDID at drm_do_get_edid() level")
+Cc: <stable@vger.kernel.org> # v4.15+
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Cc: Harish Chegondi <harish.chegondi@intel.com>
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+---
+ drivers/gpu/drm/drm_edid.c         | 30 ++++++++++++++++++++++++++++++
+ drivers/gpu/drm/drm_probe_helper.c |  7 +++++++
+ include/drm/drm_edid.h             |  1 +
+ 3 files changed, 38 insertions(+)
 
-If you are interested to hear more details, please fill in the
-information below:
+diff --git a/drivers/gpu/drm/drm_edid.c b/drivers/gpu/drm/drm_edid.c
+index c59a1e8c5ada..9d8f2b952004 100644
+--- a/drivers/gpu/drm/drm_edid.c
++++ b/drivers/gpu/drm/drm_edid.c
+@@ -1587,6 +1587,36 @@ static struct edid *drm_get_override_edid(struct drm_connector *connector)
+ 	return IS_ERR(override) ? NULL : override;
+ }
+ 
++/**
++ * drm_add_override_edid_modes - add modes from override/firmware EDID
++ * @connector: connector we're probing
++ *
++ * Add modes from the override/firmware EDID, if available. Only to be used from
++ * drm_helper_probe_single_connector_modes() as a fallback for when DDC probe
++ * failed during drm_get_edid() and caused the override/firmware EDID to be
++ * skipped.
++ *
++ * Return: The number of modes added or 0 if we couldn't find any.
++ */
++int drm_add_override_edid_modes(struct drm_connector *connector)
++{
++	struct edid *override;
++	int num_modes = 0;
++
++	override = drm_get_override_edid(connector);
++	if (override) {
++		drm_connector_update_edid_property(connector, override);
++		num_modes = drm_add_edid_modes(connector, override);
++		kfree(override);
++
++		DRM_DEBUG_KMS("[CONNECTOR:%d:%s] adding %d modes via fallback override/firmware EDID\n",
++			      connector->base.id, connector->name, num_modes);
++	}
++
++	return num_modes;
++}
++EXPORT_SYMBOL(drm_add_override_edid_modes);
++
+ /**
+  * drm_do_get_edid - get EDID data using a custom EDID block read function
+  * @connector: connector we're probing
+diff --git a/drivers/gpu/drm/drm_probe_helper.c b/drivers/gpu/drm/drm_probe_helper.c
+index 01e243f1ea94..ef2c468205a2 100644
+--- a/drivers/gpu/drm/drm_probe_helper.c
++++ b/drivers/gpu/drm/drm_probe_helper.c
+@@ -480,6 +480,13 @@ int drm_helper_probe_single_connector_modes(struct drm_connector *connector,
+ 
+ 	count = (*connector_funcs->get_modes)(connector);
+ 
++	/*
++	 * Fallback for when DDC probe failed in drm_get_edid() and thus skipped
++	 * override/firmware EDID.
++	 */
++	if (count == 0 && connector->status == connector_status_connected)
++		count = drm_add_override_edid_modes(connector);
++
+ 	if (count == 0 && connector->status == connector_status_connected)
+ 		count = drm_add_modes_noedid(connector, 1024, 768);
+ 	count += drm_helper_probe_add_cmdline_mode(connector);
+diff --git a/include/drm/drm_edid.h b/include/drm/drm_edid.h
+index 88b63801f9db..b9719418c3d2 100644
+--- a/include/drm/drm_edid.h
++++ b/include/drm/drm_edid.h
+@@ -478,6 +478,7 @@ struct edid *drm_get_edid_switcheroo(struct drm_connector *connector,
+ 				     struct i2c_adapter *adapter);
+ struct edid *drm_edid_duplicate(const struct edid *edid);
+ int drm_add_edid_modes(struct drm_connector *connector, struct edid *edid);
++int drm_add_override_edid_modes(struct drm_connector *connector);
+ 
+ u8 drm_match_cea_mode(const struct drm_display_mode *to_match);
+ enum hdmi_picture_aspect drm_get_cea_aspect_ratio(const u8 video_code);
+-- 
+2.20.1
 
-First Name
-
-Last Name
-
-Phone Number
-
-Email
-
-
-I will use these details as an initial confirmation, if several of my
-prospects shall send me a response, I will slowly narrow down the
-process to find the best option possible to complete the transactions.
-
-I appreciate your timely response and I look forward to being in
-further contact with you along our venture.
-
-Have a great day!
-
-Best Regards,
-
-Mrs Sanou Rose
