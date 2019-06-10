@@ -2,80 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E35923B5CB
-	for <lists+stable@lfdr.de>; Mon, 10 Jun 2019 15:10:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF4DF3B5DD
+	for <lists+stable@lfdr.de>; Mon, 10 Jun 2019 15:19:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390235AbfFJNKM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jun 2019 09:10:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51126 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390052AbfFJNKM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Jun 2019 09:10:12 -0400
-Received: from localhost (unknown [37.142.3.125])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B85D920679;
-        Mon, 10 Jun 2019 13:10:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560172211;
-        bh=XjHZp31gFE7ARYByVLbUxEVbPCKvDSu2e3FtszFnNNo=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=s7/ysCgJ5RAdWpl1xKc9C2N8wgftk31FSnaiqa+j86MV9TQrz8gKDtcCl9kpFBLJg
-         8iPMIH3Fs/eEXTcmwjuEmaqRmM89ke07oEQKNqA4Ikjs28VKFtS2vBJM3Aa8zDSxsQ
-         ppoXNRwSVXYAaaLhvyFy8QyO85mdhr1C/gkWnLgs=
-Date:   Mon, 10 Jun 2019 16:10:07 +0300
-From:   Leon Romanovsky <leon@kernel.org>
-To:     "Marciniszyn, Mike" <mike.marciniszyn@intel.com>
-Cc:     "Dalessandro, Dennis" <dennis.dalessandro@intel.com>,
-        "jgg@ziepe.ca" <jgg@ziepe.ca>,
-        "dledford@redhat.com" <dledford@redhat.com>,
-        "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "Wan, Kaike" <kaike.wan@intel.com>
-Subject: Re: [PATCH for-rc 3/3] IB/hfi1: Correct tid qp rcd to match verbs
- context
-Message-ID: <20190610131007.GW6369@mtr-leonro.mtl.com>
-References: <20190607113807.157915.48581.stgit@awfm-01.aw.intel.com>
- <20190607122538.158478.62945.stgit@awfm-01.aw.intel.com>
- <20190608081533.GO5261@mtr-leonro.mtl.com>
- <32E1700B9017364D9B60AED9960492BC70DA2848@fmsmsx120.amr.corp.intel.com>
+        id S2390107AbfFJNTJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jun 2019 09:19:09 -0400
+Received: from bhuna.collabora.co.uk ([46.235.227.227]:57266 "EHLO
+        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388848AbfFJNTI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jun 2019 09:19:08 -0400
+Received: from [127.0.0.1] (localhost [127.0.0.1])
+        (Authenticated sender: koike)
+        with ESMTPSA id 8868A261136
+From:   Helen Koike <helen.koike@collabora.com>
+To:     stable@vger.kernel.org
+Cc:     dri-devel@lists.freedesktop.org, kernel@collabora.com,
+        gregkh@linuxfoundation.org
+Subject: [PATCH v5] drm/vc4: fix fb references in async update
+Date:   Mon, 10 Jun 2019 10:18:59 -0300
+Message-Id: <20190610131859.7616-1-helen.koike@collabora.com>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <156007492924468@kroah.com>
+References: <156007492924468@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <32E1700B9017364D9B60AED9960492BC70DA2848@fmsmsx120.amr.corp.intel.com>
-User-Agent: Mutt/1.11.4 (2019-03-13)
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 10, 2019 at 01:03:54PM +0000, Marciniszyn, Mike wrote:
-> > > diff --git a/drivers/infiniband/hw/hfi1/tid_rdma.c
-> > b/drivers/infiniband/hw/hfi1/tid_rdma.c
-> > > index 6fb9303..d77276d 100644
-> > > --- a/drivers/infiniband/hw/hfi1/tid_rdma.c
-> > > +++ b/drivers/infiniband/hw/hfi1/tid_rdma.c
-> > > @@ -312,9 +312,8 @@ static struct hfi1_ctxtdata *qp_to_rcd(struct
-> > rvt_dev_info *rdi,
-> > >  	if (qp->ibqp.qp_num == 0)
-> > >  		ctxt = 0;
-> > >  	else
-> > > -		ctxt = ((qp->ibqp.qp_num >> dd->qos_shift) %
-> > > -			(dd->n_krcv_queues - 1)) + 1;
-> > > -
-> > > +		ctxt = hfi1_get_qp_map(dd,
-> > > +				       (u8)(qp->ibqp.qp_num >> dd-
-> > >qos_shift));
-> >
-> > It is one time use functions, why don't you handle this (u8) casting
-> > inside of hfi1_get_qp_map()?
-> >
->
-> I assume the suggestion is to remove the u8 cast at the call site?
+commit c16b85559dcfb5a348cc085a7b4c75ed49b05e2c upstream.
 
-Yes, sorry for not being clear.
+Async update callbacks are expected to set the old_fb in the new_state
+so prepare/cleanup framebuffers are balanced.
 
->
-> The function return value already is a u8 and there is a cast of the 64 bit CSR read result.
->
-> Mike
+Calling drm_atomic_set_fb_for_plane() (which gets a reference of the new
+fb and put the old fb) is not required, as it's taken care by
+drm_mode_cursor_universal() when calling drm_atomic_helper_update_plane().
+
+Cc: <stable@vger.kernel.org> # v4.19+
+Fixes: 539c320bfa97 ("drm/vc4: update cursors asynchronously through atomic")
+Suggested-by: Boris Brezillon <boris.brezillon@collabora.com>
+Signed-off-by: Helen Koike <helen.koike@collabora.com>
+Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
+Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20190603165610.24614-5-helen.koike@collabora.com
+---
+
+Hi,
+
+This patch failed to apply on kernel stable v4.19, I'm re-sending it
+fixing the conflict.
+
+Thanks
+Helen
+
+ drivers/gpu/drm/vc4/vc4_plane.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/gpu/drm/vc4/vc4_plane.c b/drivers/gpu/drm/vc4/vc4_plane.c
+index ab39315c9078..39e608271263 100644
+--- a/drivers/gpu/drm/vc4/vc4_plane.c
++++ b/drivers/gpu/drm/vc4/vc4_plane.c
+@@ -818,6 +818,7 @@ static void vc4_plane_atomic_async_update(struct drm_plane *plane,
+ 		drm_atomic_set_fb_for_plane(plane->state, state->fb);
+ 	}
+ 
++	swap(plane->state->fb, state->fb);
+ 	/* Set the cursor's position on the screen.  This is the
+ 	 * expected change from the drm_mode_cursor_universal()
+ 	 * helper.
+-- 
+2.20.1
+
