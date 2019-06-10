@@ -2,63 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 19FAF3AC9B
-	for <lists+stable@lfdr.de>; Mon, 10 Jun 2019 03:02:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C2A7F3AC9F
+	for <lists+stable@lfdr.de>; Mon, 10 Jun 2019 03:10:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729703AbfFJBCV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 9 Jun 2019 21:02:21 -0400
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:45875 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725933AbfFJBCV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 9 Jun 2019 21:02:21 -0400
-Received: by mail-wr1-f65.google.com with SMTP id f9so7382650wre.12
-        for <stable@vger.kernel.org>; Sun, 09 Jun 2019 18:02:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=c7a+iTARpPtcXlNBzI7Azx8pgdVCmUSXoS0TruQDLJg=;
-        b=q527BPI1QxYQJvGeFDaQUmBwV7bC1M5NZcQ5WotKj3cJSfthvVgsUJu/XxDl3BGOFz
-         GCsRk4bWp/3IGHhRg2wl/GnSZWBk0oRAfJNDrzgvOTFchOBAK+zQSL6APCZfaXiiF4tj
-         TXDztt68Tiy1Mpq+fXS0SzOAFBYKkbvVyrb2sdfCG2t+3LXKypukww9OuK2QzkNN9u0V
-         cWWIJGnXITxvefzHWFuQjZia3IAKWQIinzH7xXTNQg8b1aQkKUyWi9hpKWOBcgKVX7DO
-         aFnN0H742QltM/RHMHa2CcgYUt5dwESLCUage7kiuVHla+68HGlliscJLbeVGYLzi+Qt
-         SHPA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=c7a+iTARpPtcXlNBzI7Azx8pgdVCmUSXoS0TruQDLJg=;
-        b=e838/L7Uz1UKyzq58HiYPwQDKV+M5HbiaMjjZst7zLhWxKKssvzsiuOdzKZPtiqoV+
-         IUh+Cnz7u64iqesd2uJSXPazqW+6WADt9zuO4flIKEJv8QwJaBOkfRw3dlrVMLLl6kZ7
-         pyTeBZvEXbplC3r+BLc8g3O7TAT3VUZL++5YUSL0sfR3GL7d/mb7DVHCLWajYqOrvndb
-         B44rmbXIv5Y1gzpcne46aB2H8NCKi3SQkPLYVAHf0KqJA1J8soVypiSdccZt9XoztzAD
-         1msHhlGcl9QOb6azM69EeyCYdVnv/SLN9obylimB8Hbqcy7ZvnY6wzEMsc3zr6YUKkIC
-         dNBw==
-X-Gm-Message-State: APjAAAW6OvnuP3D+s74Cj8PnkZ6o+yzqHE2tUlASYoS9HwDOHqVs5tkk
-        CA3GW51+xmbWqt0m4PCO8aj6F4DVzhicN+OyNobYIltn
-X-Google-Smtp-Source: APXvYqxXHAGsQm/2VnAM4MbCeepQ0merV+KQMCGbkvWOC1H3xllyTHWY4zQBuebkqJVqiBoGlC9Q/7K/lExbHX/DC/A=
-X-Received: by 2002:adf:8183:: with SMTP id 3mr28983000wra.181.1560128539866;
- Sun, 09 Jun 2019 18:02:19 -0700 (PDT)
+        id S1729819AbfFJBKl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 9 Jun 2019 21:10:41 -0400
+Received: from mo-csw1514.securemx.jp ([210.130.202.153]:48400 "EHLO
+        mo-csw.securemx.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725933AbfFJBKl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 9 Jun 2019 21:10:41 -0400
+Received: by mo-csw.securemx.jp (mx-mo-csw1514) id x5A1AUBL030841; Mon, 10 Jun 2019 10:10:30 +0900
+X-Iguazu-Qid: 34trJGGSgoJWdfxbTO
+X-Iguazu-QSIG: v=2; s=0; t=1560129029; q=34trJGGSgoJWdfxbTO; m=aIrqk9CdBBughxTo19QPF+oC/4yEyVt+H0wlgc4JEC0=
+Received: from imx2.toshiba.co.jp (imx2.toshiba.co.jp [106.186.93.51])
+        by relay.securemx.jp (mx-mr1510) id x5A1ASfc035108;
+        Mon, 10 Jun 2019 10:10:29 +0900
+Received: from enc01.localdomain ([106.186.93.100])
+        by imx2.toshiba.co.jp  with ESMTP id x5A1ASBg004576;
+        Mon, 10 Jun 2019 10:10:28 +0900 (JST)
+Received: from hop001.toshiba.co.jp ([133.199.164.63])
+        by enc01.localdomain  with ESMTP id x5A1AS6h021925;
+        Mon, 10 Jun 2019 10:10:28 +0900
+Date:   Mon, 10 Jun 2019 10:10:25 +0900
+From:   Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Alan Maguire <alan.maguire@oracle.com>,
+        David Ahern <dsahern@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH 4.14 03/35] neighbor: Call __ipv4_neigh_lookup_noref in
+ neigh_xmit
+X-TSB-HOP: ON
+Message-ID: <20190610011024.utn5fft7nocabqxb@toshiba.co.jp>
+References: <20190609164125.377368385@linuxfoundation.org>
+ <20190609164125.756810906@linuxfoundation.org>
 MIME-Version: 1.0
-Received: by 2002:a1c:cc09:0:0:0:0:0 with HTTP; Sun, 9 Jun 2019 18:02:19 -0700 (PDT)
-Reply-To: linakarim60@gmail.com
-From:   Lina Karim <chandrineabdalla123@gmail.com>
-Date:   Mon, 10 Jun 2019 01:02:19 +0000
-Message-ID: <CA+2hzXsyKPyu+efY8L7GDGhVH1Lys9=XvmB3R=fa6kBO+S9gxw@mail.gmail.com>
-Subject: Hello Dear
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190609164125.756810906@linuxfoundation.org>
+User-Agent: NeoMutt/20180716
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Dear,
+Hi,
 
-This is Miss Lina Karim, How are you today hope all is well with you,
-please I will need your urgent attention
+On Sun, Jun 09, 2019 at 06:42:09PM +0200, Greg Kroah-Hartman wrote:
+> From: David Ahern <dsahern@gmail.com>
+> 
+> [ Upstream commit 4b2a2bfeb3f056461a90bd621e8bd7d03fa47f60 ]
+> 
+> Commit cd9ff4de0107 changed the key for IFF_POINTOPOINT devices to
+> INADDR_ANY but neigh_xmit which is used for MPLS encapsulations was not
+> updated to use the altered key. The result is that every packet Tx does
+> a lookup on the gateway address which does not find an entry, a new one
+> is created only to find the existing one in the table right before the
+> insert since arp_constructor was updated to reset the primary key. This
+> is seen in the allocs and destroys counters:
+>     ip -s -4 ntable show | head -10 | grep alloc
+> 
+> which increase for each packet showing the unnecessary overhread.
+> 
+> Fix by having neigh_xmit use __ipv4_neigh_lookup_noref for NEIGH_ARP_TABLE.
+> 
+> Fixes: cd9ff4de0107 ("ipv4: Make neigh lookup keys for loopback/point-to-point devices be INADDR_ANY")
+> Reported-by: Alan Maguire <alan.maguire@oracle.com>
+> Signed-off-by: David Ahern <dsahern@gmail.com>
+> Tested-by: Alan Maguire <alan.maguire@oracle.com>
+> Signed-off-by: David S. Miller <davem@davemloft.net>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> ---
 
-regarding this important discussion kindly write me back here :
-linakarim60@gmail.com: for more details,
-Thanks,
-Miss Lina Karim
+This commit also requires the following commit:
+
+commit 9b3040a6aafd7898ece7fc7efcbca71e42aa8069
+Author: David Ahern <dsahern@gmail.com>
+Date:   Sun May 5 11:16:20 2019 -0700
+
+    ipv4: Define __ipv4_neigh_lookup_noref when CONFIG_INET is disabled
+
+    Define __ipv4_neigh_lookup_noref to return NULL when CONFIG_INET is disabled.
+
+    Fixes: 4b2a2bfeb3f0 ("neighbor: Call __ipv4_neigh_lookup_noref in neigh_xmit")
+    Reported-by: kbuild test robot <lkp@intel.com>
+    Signed-off-by: David Ahern <dsahern@gmail.com>
+    Signed-off-by: David S. Miller <davem@davemloft.net>
+
+And this is also necessary for 4.4.y, 4.14.y, 4.19.y and 5.1.y.
+Please apply this commit.
+
+Best regards,
+  Nobuhiro
