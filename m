@@ -2,91 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D1C43B0A7
-	for <lists+stable@lfdr.de>; Mon, 10 Jun 2019 10:21:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EC943B0BB
+	for <lists+stable@lfdr.de>; Mon, 10 Jun 2019 10:29:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387862AbfFJIVQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jun 2019 04:21:16 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:53535 "EHLO
-        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387825AbfFJIVQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jun 2019 04:21:16 -0400
-Received: by atrey.karlin.mff.cuni.cz (Postfix, from userid 512)
-        id CD59080266; Mon, 10 Jun 2019 10:21:02 +0200 (CEST)
-Date:   Mon, 10 Jun 2019 10:21:12 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Vivien Didelot <vivien.didelot@gmail.com>,
-        Michal Kubecek <mkubecek@suse.cz>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH 4.19 01/51] ethtool: fix potential userspace buffer
- overflow
-Message-ID: <20190610082112.GA8783@amd>
-References: <20190609164127.123076536@linuxfoundation.org>
- <20190609164127.215699992@linuxfoundation.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="C7zPtVaVf+AK4Oqc"
-Content-Disposition: inline
-In-Reply-To: <20190609164127.215699992@linuxfoundation.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+        id S2387753AbfFJI3t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jun 2019 04:29:49 -0400
+Received: from heliosphere.sirena.org.uk ([172.104.155.198]:41332 "EHLO
+        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387702AbfFJI3t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jun 2019 04:29:49 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=sirena.org.uk; s=20170815-heliosphere; h=Date:Message-Id:Subject:To:From:
+        Sender:Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:References:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=t5edaO4CsZ+Ar+2JDAMDir6vhKMlIzKVCg4h90UMhtA=; b=e1IFcLHEuknYxZ3zfd6PyEye1
+        XQv4YFhfLeQCnhX5UR6aO56CJBU5FEgrbLCtX54OXzBi3j//FppGgEp8D7sdi/SonGoFmpE09Tczx
+        48kW2nBB7hT/n2KOB/1TdWdKjvATDWPxeI09k2mnYXEjgVygaWfqiibhOOAT1qWBQc+Jw=;
+Received: from cpc102320-sgyl38-2-0-cust46.18-2.cable.virginm.net ([82.37.168.47] helo=optimist)
+        by heliosphere.sirena.org.uk with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.89)
+        (envelope-from <broonie@sirena.org.uk>)
+        id 1haFgX-00053B-Ly; Mon, 10 Jun 2019 08:29:45 +0000
+Received: from broonie by optimist with local (Exim 4.89)
+        (envelope-from <broonie@sirena.org.uk>)
+        id 1haFgW-0005KX-Ro; Mon, 10 Jun 2019 09:29:44 +0100
+From:   Build bot for Mark Brown <broonie@kernel.org>
+To:     kernel-build-reports@lists.linaro.org,
+        linaro-kernel@lists.linaro.org, stable@vger.kernel.org
+Subject: v5.1.8 build: 0 failures 10 warnings (v5.1.8)
+Message-Id: <E1haFgW-0005KX-Ro@optimist>
+Date:   Mon, 10 Jun 2019 09:29:44 +0100
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Tree/Branch: v5.1.8
+Git describe: v5.1.8
+Commit: 937cc0cc22 Linux 5.1.8
 
---C7zPtVaVf+AK4Oqc
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Build Time: 135 min 24 sec
 
-Hi!
+Passed:   11 / 11   (100.00 %)
+Failed:    0 / 11   (  0.00 %)
 
-> From: Vivien Didelot <vivien.didelot@gmail.com>
->=20
-> [ Upstream commit 0ee4e76937d69128a6a66861ba393ebdc2ffc8a2 ]
->=20
-> ethtool_get_regs() allocates a buffer of size ops->get_regs_len(),
-> and pass it to the kernel driver via ops->get_regs() for filling.
->=20
-> There is no restriction about what the kernel drivers can or cannot do
-> with the open ethtool_regs structure. They usually set regs->version
-> and ignore regs->len or set it to the same size as ops->get_regs_len().
->=20
-> But if userspace allocates a smaller buffer for the registers dump,
-> we would cause a userspace buffer overflow in the final copy_to_user()
-> call, which uses the regs.len value potentially reset by the driver.
->=20
-> To fix this, make this case obvious and store regs.len before calling
-> ops->get_regs(), to only copy as much data as requested by userspace,
-> up to the value returned by ops->get_regs_len().
->=20
-> While at it, remove the redundant check for non-null regbuf.
+Errors: 0
+Warnings: 10
+Section Mismatches: 0
 
-Mainline differs from 4.19-stable here, and while the non-null check
-is redundant in -mainline, it does not seem to be redundant in
--stable.
+-------------------------------------------------------------------------------
+defconfigs with issues (other than build errors):
+      1 warnings    0 mismatches  : arm64-allmodconfig
+      5 warnings    0 mismatches  : arm-multi_v5_defconfig
+      5 warnings    0 mismatches  : arm-multi_v7_defconfig
+      9 warnings    0 mismatches  : arm-allmodconfig
+      5 warnings    0 mismatches  : arm-multi_v4t_defconfig
+      3 warnings    0 mismatches  : x86_64-allmodconfig
+      1 warnings    0 mismatches  : arm64-defconfig
 
-In stable, if get_regs_len() returns < 0, we'll pass it to vzalloc.
+-------------------------------------------------------------------------------
 
-									Pavel
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
+Warnings Summary: 10
+	  8 ../drivers/regulator/core.c:234:45: warning: array subscript is above array bounds [-Warray-bounds]
+	  5 ../include/linux/spinlock.h:279:3: warning: 'flags' may be used uninitialized in this function [-Wmaybe-uninitialized]
+	  4 ../drivers/regulator/core.c:4761:38: warning: array subscript is above array bounds [-Warray-bounds]
+	  3 ../arch/arm/mm/init.c:471:13: warning: unused variable 'itcm_end' [-Wunused-variable]
+	  3 ../arch/arm/mm/init.c:470:13: warning: unused variable 'dtcm_end' [-Wunused-variable]
+	  2 ../drivers/i2c/busses/i2c-sh_mobile.c:399:26: warning: 'data' may be used uninitialized in this function [-Wmaybe-uninitialized]
+	  1 ../samples/seccomp/user-trap.c:83:2: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+	  1 ../samples/seccomp/user-trap.c:50:2: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+	  1 ../drivers/staging/erofs/unzip_vle.c:263:29: warning: array subscript is above array bounds [-Warray-bounds]
+	  1 ../drivers/scsi/myrs.c:821:24: warning: 'sshdr.sense_key' may be used uninitialized in this function [-Wmaybe-uninitialized]
 
---C7zPtVaVf+AK4Oqc
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
 
-iEYEARECAAYFAlz+EvgACgkQMOfwapXb+vLYDwCgpANVlxjsNizDo5i0pIDWsa3G
-eWMAn04kn8dXdTe1HBOZbl9QHOw8fKHg
-=3qAG
------END PGP SIGNATURE-----
+===============================================================================
+Detailed per-defconfig build reports below:
 
---C7zPtVaVf+AK4Oqc--
+
+-------------------------------------------------------------------------------
+arm64-allmodconfig : PASS, 0 errors, 1 warnings, 0 section mismatches
+
+Warnings:
+	../include/linux/spinlock.h:279:3: warning: 'flags' may be used uninitialized in this function [-Wmaybe-uninitialized]
+
+-------------------------------------------------------------------------------
+arm-multi_v5_defconfig : PASS, 0 errors, 5 warnings, 0 section mismatches
+
+Warnings:
+	../arch/arm/mm/init.c:471:13: warning: unused variable 'itcm_end' [-Wunused-variable]
+	../arch/arm/mm/init.c:470:13: warning: unused variable 'dtcm_end' [-Wunused-variable]
+	../drivers/regulator/core.c:234:45: warning: array subscript is above array bounds [-Warray-bounds]
+	../drivers/regulator/core.c:234:45: warning: array subscript is above array bounds [-Warray-bounds]
+	../drivers/regulator/core.c:4761:38: warning: array subscript is above array bounds [-Warray-bounds]
+
+-------------------------------------------------------------------------------
+arm-multi_v7_defconfig : PASS, 0 errors, 5 warnings, 0 section mismatches
+
+Warnings:
+	../drivers/i2c/busses/i2c-sh_mobile.c:399:26: warning: 'data' may be used uninitialized in this function [-Wmaybe-uninitialized]
+	../drivers/regulator/core.c:234:45: warning: array subscript is above array bounds [-Warray-bounds]
+	../drivers/regulator/core.c:234:45: warning: array subscript is above array bounds [-Warray-bounds]
+	../drivers/regulator/core.c:4761:38: warning: array subscript is above array bounds [-Warray-bounds]
+	../include/linux/spinlock.h:279:3: warning: 'flags' may be used uninitialized in this function [-Wmaybe-uninitialized]
+
+-------------------------------------------------------------------------------
+arm-allmodconfig : PASS, 0 errors, 9 warnings, 0 section mismatches
+
+Warnings:
+	../arch/arm/mm/init.c:471:13: warning: unused variable 'itcm_end' [-Wunused-variable]
+	../arch/arm/mm/init.c:470:13: warning: unused variable 'dtcm_end' [-Wunused-variable]
+	../drivers/i2c/busses/i2c-sh_mobile.c:399:26: warning: 'data' may be used uninitialized in this function [-Wmaybe-uninitialized]
+	../drivers/regulator/core.c:234:45: warning: array subscript is above array bounds [-Warray-bounds]
+	../drivers/regulator/core.c:234:45: warning: array subscript is above array bounds [-Warray-bounds]
+	../drivers/regulator/core.c:4761:38: warning: array subscript is above array bounds [-Warray-bounds]
+	../drivers/staging/erofs/unzip_vle.c:263:29: warning: array subscript is above array bounds [-Warray-bounds]
+	../include/linux/spinlock.h:279:3: warning: 'flags' may be used uninitialized in this function [-Wmaybe-uninitialized]
+	../drivers/scsi/myrs.c:821:24: warning: 'sshdr.sense_key' may be used uninitialized in this function [-Wmaybe-uninitialized]
+
+-------------------------------------------------------------------------------
+arm-multi_v4t_defconfig : PASS, 0 errors, 5 warnings, 0 section mismatches
+
+Warnings:
+	../arch/arm/mm/init.c:471:13: warning: unused variable 'itcm_end' [-Wunused-variable]
+	../arch/arm/mm/init.c:470:13: warning: unused variable 'dtcm_end' [-Wunused-variable]
+	../drivers/regulator/core.c:234:45: warning: array subscript is above array bounds [-Warray-bounds]
+	../drivers/regulator/core.c:234:45: warning: array subscript is above array bounds [-Warray-bounds]
+	../drivers/regulator/core.c:4761:38: warning: array subscript is above array bounds [-Warray-bounds]
+
+-------------------------------------------------------------------------------
+x86_64-allmodconfig : PASS, 0 errors, 3 warnings, 0 section mismatches
+
+Warnings:
+	../samples/seccomp/user-trap.c:50:2: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+	../samples/seccomp/user-trap.c:83:2: warning: dereferencing type-punned pointer will break strict-aliasing rules [-Wstrict-aliasing]
+	../include/linux/spinlock.h:279:3: warning: 'flags' may be used uninitialized in this function [-Wmaybe-uninitialized]
+
+-------------------------------------------------------------------------------
+arm64-defconfig : PASS, 0 errors, 1 warnings, 0 section mismatches
+
+Warnings:
+	../include/linux/spinlock.h:279:3: warning: 'flags' may be used uninitialized in this function [-Wmaybe-uninitialized]
+-------------------------------------------------------------------------------
+
+Passed with no errors, warnings or mismatches:
+
+x86_64-allnoconfig
+arm64-allnoconfig
+arm-allnoconfig
+x86_64-defconfig
