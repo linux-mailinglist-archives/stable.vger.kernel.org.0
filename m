@@ -2,173 +2,166 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A0093BE84
-	for <lists+stable@lfdr.de>; Mon, 10 Jun 2019 23:24:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64D183BEC2
+	for <lists+stable@lfdr.de>; Mon, 10 Jun 2019 23:36:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390066AbfFJVXA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jun 2019 17:23:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42536 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389998AbfFJVXA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Jun 2019 17:23:00 -0400
-Received: from akpm3.svl.corp.google.com (unknown [104.133.8.65])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 303692086A;
-        Mon, 10 Jun 2019 21:22:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560201779;
-        bh=lYsty5lAJZDiEBmDPO3+LxlwxYpvFf7vL7crNBUq2nY=;
-        h=Date:From:To:Subject:From;
-        b=I0H5+rEkZf5V1686fmIlEt6U4W9XJUxSdEPQC/4kiVxG9XodbEyZVWHx7TpJy6zH8
-         cZqYYeDEhm7S3tcFxdeCX8sePp0+rXZLpzkLvnSsFjLAMB7VmGfmFForXX2aOzUUKe
-         lpGpmhjKR/JRwTx84w/pywe2fwdmDUkjuhhpk6cA=
-Date:   Mon, 10 Jun 2019 14:22:58 -0700
-From:   akpm@linux-foundation.org
-To:     mm-commits@vger.kernel.org, xishi.qiuxishi@alibaba-inc.com,
-        stable@vger.kernel.org, qiuxu.zhuo@intel.com,
-        mike.kravetz@oracle.com, mhocko@kernel.org, jerry.t.chen@intel.com,
-        n-horiguchi@ah.jp.nec.com
-Subject:  +
- mm-hugetlb-soft-offline-dissolve_free_huge_page-return-zero-on-pagehuge.patch
- added to -mm tree
-Message-ID: <20190610212258.WXMnW%akpm@linux-foundation.org>
-User-Agent: s-nail v14.9.10
+        id S2389799AbfFJVgl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jun 2019 17:36:41 -0400
+Received: from mail-lf1-f67.google.com ([209.85.167.67]:35183 "EHLO
+        mail-lf1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2389193AbfFJVgk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jun 2019 17:36:40 -0400
+Received: by mail-lf1-f67.google.com with SMTP id a25so7721964lfg.2;
+        Mon, 10 Jun 2019 14:36:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=2Rej20kkjw1s6/NuDHFu1LSDaaDgc1B6na4Qh5mIGHs=;
+        b=L6Eh5bpPWDqJrRce6jr/YH8nhvi/ovn0+AYXzz5QTitpTydy6iYBFM2uCaoCPxy8MR
+         7BMOYGbzvodQO+yyCeR65DhQivdRkCq4Jp+aiq+GGsHi+fATvmwgir/fm4SN7MY8wkfS
+         NfRDuIBdcD7GJncvmlEpCD3hOX6MW4FMVLOXx/ZeARuAYNRCY1K6jMlAMxOsbYZ0adNG
+         UvEShVw09af4P+j1qFD0AGR1rJ5Et8WdYoFA2VlUGjr87WcZCFoR4uVdf/WchsljKjTW
+         pbVqpVamEJz+CMEee//5x14YRccws585QDEd/+vowv0UD6/v4QCqALx5NbQpmULiJCEO
+         R5og==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=2Rej20kkjw1s6/NuDHFu1LSDaaDgc1B6na4Qh5mIGHs=;
+        b=byDCRiFsxKPemnGuYIRzdNqOxDxNR2QuKGpBtNfINA6Dy10FRsoasmStZTu6S4PuEP
+         8l+UMn0DuiZSF79Hg+qa/y275hb8ORwbMWke2NtBv2uBfZ7dgqj1fWpCFbyRFiS3f/fU
+         zMvbcUmumPA1dGRIVnNfXCjoAzC5Wncwggqq5X4hjwab4YVVUOV0eRNXvereimCscvTT
+         GFbi9J0jsZzs3nV3jyTBermc+EJ7gq51U2lx3JPgfOzstv549YHVOrmbgZH6udV5Wv65
+         BA7xL/53VU2ICzYJDu4N3M3oMUCPJHY33LG2EvB8MmPHBzDJzofKT79mBSRxM0V68T6k
+         BEyQ==
+X-Gm-Message-State: APjAAAWO7ualVPqNLP8Cef3K65EQDXaXOaMkXE198rfJccArJKW7XE5R
+        mNTFAtdBk+W+8c0G1KFVHMXKgrXguSce4qLpog==
+X-Google-Smtp-Source: APXvYqz54F65u6CC5duv+2R12GYljJD63jzmRJrt6QlWfV7LDv+uhHtjZ4Gevb5DD6itm52SgZ2gCAFTbh1GzNV1ZEA=
+X-Received: by 2002:a05:6512:1d2:: with SMTP id f18mr35036178lfp.173.1560202598429;
+ Mon, 10 Jun 2019 14:36:38 -0700 (PDT)
+MIME-Version: 1.0
+References: <20190605003838.13101-1-lsahlber@redhat.com>
+In-Reply-To: <20190605003838.13101-1-lsahlber@redhat.com>
+From:   Pavel Shilovsky <piastryyy@gmail.com>
+Date:   Mon, 10 Jun 2019 14:36:27 -0700
+Message-ID: <CAKywueRYC2dm83zWCgrOVJc7J5s+UdMh-5NnF0sUOJ69NQ3qvQ@mail.gmail.com>
+Subject: Re: [PATCH] cifs: add spinlock for the openFileList to cifsInodeInfo
+To:     Ronnie Sahlberg <lsahlber@redhat.com>
+Cc:     linux-cifs <linux-cifs@vger.kernel.org>,
+        Steve French <smfrench@gmail.com>,
+        Stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+=D0=B2=D1=82, 4 =D0=B8=D1=8E=D0=BD. 2019 =D0=B3. =D0=B2 17:42, Ronnie Sahlb=
+erg <lsahlber@redhat.com>:
+>
+> We can not depend on the tcon->open_file_lock here since in multiuser mod=
+e
+> we may have the same file/inode open via multiple different tcons.
+>
+> The current code is race prone and will crash if one user deletes a file
+> at the same time a different user opens/create the file.
+>
+> To avoid this we need to have a spinlock attached to the inode and not th=
+e tcon.
+>
+> RHBZ:  1580165
+>
+> CC: Stable <stable@vger.kernel.org>
+> Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
+> ---
+>  fs/cifs/cifsfs.c   | 1 +
+>  fs/cifs/cifsglob.h | 1 +
+>  fs/cifs/file.c     | 8 ++++++--
+>  3 files changed, 8 insertions(+), 2 deletions(-)
+>
+> diff --git a/fs/cifs/cifsfs.c b/fs/cifs/cifsfs.c
+> index f5fcd6360056..65d9771e49f9 100644
+> --- a/fs/cifs/cifsfs.c
+> +++ b/fs/cifs/cifsfs.c
+> @@ -303,6 +303,7 @@ cifs_alloc_inode(struct super_block *sb)
+>         cifs_inode->uniqueid =3D 0;
+>         cifs_inode->createtime =3D 0;
+>         cifs_inode->epoch =3D 0;
+> +       spin_lock_init(&cifs_inode->open_file_lock);
+>         generate_random_uuid(cifs_inode->lease_key);
+>
+>         /*
+> diff --git a/fs/cifs/cifsglob.h b/fs/cifs/cifsglob.h
+> index 334ff5f9c3f3..733ddd5fd480 100644
+> --- a/fs/cifs/cifsglob.h
+> +++ b/fs/cifs/cifsglob.h
+> @@ -1377,6 +1377,7 @@ struct cifsInodeInfo {
+>         struct rw_semaphore lock_sem;   /* protect the fields above */
+>         /* BB add in lists for dirty pages i.e. write caching info for op=
+lock */
+>         struct list_head openFileList;
+> +       spinlock_t      open_file_lock; /* protects openFileList */
+>         __u32 cifsAttrs; /* e.g. DOS archive bit, sparse, compressed, sys=
+tem */
+>         unsigned int oplock;            /* oplock/lease level we have */
+>         unsigned int epoch;             /* used to track lease state chan=
+ges */
+> diff --git a/fs/cifs/file.c b/fs/cifs/file.c
+> index 06e27ac6d82c..97090693d182 100644
+> --- a/fs/cifs/file.c
+> +++ b/fs/cifs/file.c
+> @@ -338,10 +338,12 @@ cifs_new_fileinfo(struct cifs_fid *fid, struct file=
+ *file,
+>         atomic_inc(&tcon->num_local_opens);
+>
+>         /* if readable file instance put first in list*/
+> +       spin_lock(&cinode->open_file_lock);
+>         if (file->f_mode & FMODE_READ)
+>                 list_add(&cfile->flist, &cinode->openFileList);
+>         else
+>                 list_add_tail(&cfile->flist, &cinode->openFileList);
+> +       spin_unlock(&cinode->open_file_lock);
+>         spin_unlock(&tcon->open_file_lock);
+>
+>         if (fid->purge_cache)
+> @@ -413,7 +415,9 @@ void _cifsFileInfo_put(struct cifsFileInfo *cifs_file=
+, bool wait_oplock_handler)
+>         cifs_add_pending_open_locked(&fid, cifs_file->tlink, &open);
+>
+>         /* remove it from the lists */
+> +       spin_lock(&cifsi->open_file_lock);
+>         list_del(&cifs_file->flist);
+> +       spin_unlock(&cifsi->open_file_lock);
+>         list_del(&cifs_file->tlist);
+>         atomic_dec(&tcon->num_local_opens);
+>
+> @@ -1950,9 +1954,9 @@ cifs_get_writable_file(struct cifsInodeInfo *cifs_i=
+node, bool fsuid_only,
+>                         return 0;
+>                 }
+>
+> -               spin_lock(&tcon->open_file_lock);
+> +               spin_lock(&cifs_inode->open_file_lock);
+>                 list_move_tail(&inv_file->flist, &cifs_inode->openFileLis=
+t);
+> -               spin_unlock(&tcon->open_file_lock);
+> +               spin_unlock(&cifs_inode->open_file_lock);
+>                 cifsFileInfo_put(inv_file);
+>                 ++refind;
+>                 inv_file =3D NULL;
+> --
+> 2.13.6
+>
 
-The patch titled
-     Subject: mm: hugetlb: soft-offline: dissolve_free_huge_page() return zero on !PageHuge
-has been added to the -mm tree.  Its filename is
-     mm-hugetlb-soft-offline-dissolve_free_huge_page-return-zero-on-pagehuge.patch
+Thanks for the patch. Looks good to me.
 
-This patch should soon appear at
-    http://ozlabs.org/~akpm/mmots/broken-out/mm-hugetlb-soft-offline-dissolve_free_huge_page-return-zero-on-pagehuge.patch
-and later at
-    http://ozlabs.org/~akpm/mmotm/broken-out/mm-hugetlb-soft-offline-dissolve_free_huge_page-return-zero-on-pagehuge.patch
+Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+I would only add a comment telling what an order of the locks should
+be: cifs_tcon.open_file_lock and then cifsInodeInfo.open_file_lock.
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
-
-------------------------------------------------------
-From: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
-Subject: mm: hugetlb: soft-offline: dissolve_free_huge_page() return zero on !PageHuge
-
-madvise(MADV_SOFT_OFFLINE) often returns -EBUSY when calling soft offline
-for hugepages with overcommitting enabled.  That was caused by the
-suboptimal code in current soft-offline code.  See the following part:
-
-    ret = migrate_pages(&pagelist, new_page, NULL, MPOL_MF_MOVE_ALL,
-                            MIGRATE_SYNC, MR_MEMORY_FAILURE);
-    if (ret) {
-            ...
-    } else {
-            /*
-             * We set PG_hwpoison only when the migration source hugepage
-             * was successfully dissolved, because otherwise hwpoisoned
-             * hugepage remains on free hugepage list, then userspace will
-             * find it as SIGBUS by allocation failure. That's not expected
-             * in soft-offlining.
-             */
-            ret = dissolve_free_huge_page(page);
-            if (!ret) {
-                    if (set_hwpoison_free_buddy_page(page))
-                            num_poisoned_pages_inc();
-            }
-    }
-    return ret;
-
-Here dissolve_free_huge_page() returns -EBUSY if the migration source page
-was freed into buddy in migrate_pages(), but even in that case we actually
-has a chance that set_hwpoison_free_buddy_page() succeeds.  So that means
-current code gives up offlining too early now.
-
-dissolve_free_huge_page() checks that a given hugepage is suitable for
-dissolving, where we should return success for !PageHuge() case because
-the given hugepage is considered as already dissolved.
-
-This change also affects other callers of dissolve_free_huge_page(), which
-are cleaned up together.
-
-Link: http://lkml.kernel.org/r/1560154686-18497-3-git-send-email-n-horiguchi@ah.jp.nec.com
-Fixes: 6bc9b56433b76 ("mm: fix race on soft-offlining")
-Signed-off-by: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
-Reported-by: Chen, Jerry T <jerry.t.chen@intel.com>
-Tested-by: Chen, Jerry T <jerry.t.chen@intel.com>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Xishi Qiu <xishi.qiuxishi@alibaba-inc.com>
-Cc: "Chen, Jerry T" <jerry.t.chen@intel.com>
-Cc: "Zhuo, Qiuxu" <qiuxu.zhuo@intel.com>
-Cc: <stable@vger.kernel.org>	[4.19+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/hugetlb.c        |   15 +++++++++------
- mm/memory-failure.c |    5 +----
- 2 files changed, 10 insertions(+), 10 deletions(-)
-
---- a/mm/hugetlb.c~mm-hugetlb-soft-offline-dissolve_free_huge_page-return-zero-on-pagehuge
-+++ a/mm/hugetlb.c
-@@ -1519,7 +1519,12 @@ int dissolve_free_huge_page(struct page
- 	int rc = -EBUSY;
- 
- 	spin_lock(&hugetlb_lock);
--	if (PageHuge(page) && !page_count(page)) {
-+	if (!PageHuge(page)) {
-+		rc = 0;
-+		goto out;
-+	}
-+
-+	if (!page_count(page)) {
- 		struct page *head = compound_head(page);
- 		struct hstate *h = page_hstate(head);
- 		int nid = page_to_nid(head);
-@@ -1564,11 +1569,9 @@ int dissolve_free_huge_pages(unsigned lo
- 
- 	for (pfn = start_pfn; pfn < end_pfn; pfn += 1 << minimum_order) {
- 		page = pfn_to_page(pfn);
--		if (PageHuge(page) && !page_count(page)) {
--			rc = dissolve_free_huge_page(page);
--			if (rc)
--				break;
--		}
-+		rc = dissolve_free_huge_page(page);
-+		if (rc)
-+			break;
- 	}
- 
- 	return rc;
---- a/mm/memory-failure.c~mm-hugetlb-soft-offline-dissolve_free_huge_page-return-zero-on-pagehuge
-+++ a/mm/memory-failure.c
-@@ -1856,11 +1856,8 @@ static int soft_offline_in_use_page(stru
- 
- static int soft_offline_free_page(struct page *page)
- {
--	int rc = 0;
--	struct page *head = compound_head(page);
-+	int rc = dissolve_free_huge_page(page);
- 
--	if (PageHuge(head))
--		rc = dissolve_free_huge_page(page);
- 	if (!rc) {
- 		if (set_hwpoison_free_buddy_page(page))
- 			num_poisoned_pages_inc();
-_
-
-Patches currently in -mm which might be from n-horiguchi@ah.jp.nec.com are
-
-mm-soft-offline-return-ebusy-if-set_hwpoison_free_buddy_page-fails.patch
-mm-hugetlb-soft-offline-dissolve_free_huge_page-return-zero-on-pagehuge.patch
-
+--
+Best regards,
+Pavel Shilovsky
