@@ -2,87 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B22E3B791
-	for <lists+stable@lfdr.de>; Mon, 10 Jun 2019 16:39:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E20F3B799
+	for <lists+stable@lfdr.de>; Mon, 10 Jun 2019 16:41:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389910AbfFJOjV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jun 2019 10:39:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38864 "EHLO mail.kernel.org"
+        id S2390889AbfFJOlo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jun 2019 10:41:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40488 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2389601AbfFJOjV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Jun 2019 10:39:21 -0400
+        id S2389520AbfFJOlo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Jun 2019 10:41:44 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1445E20679;
-        Mon, 10 Jun 2019 14:39:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6229E2085A;
+        Mon, 10 Jun 2019 14:41:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560177560;
-        bh=sDxKOMqNl6mcejMEg2pPUogSHoYRL4p1v1GrqXN51Ok=;
+        s=default; t=1560177703;
+        bh=FokFmznO3hyjBT8LK5KtRnNef6UscRIFRtkTmxIJrmQ=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=exg2YVBfbp1cinQhKi3ma2vPMu1fCBEcHgv60Ky2/tVOpO6w0iqC+g2T6AQBusDxJ
-         1f4BS+/24Z/Jcu8rI1mvMDSmzPFhfy38Mp8Gap2uPOJF98OiKUNBmMqwCIoPsxr/p/
-         gPd3VYDEGhsno06YkBsilrW5vYtNsm8Nuqs58rz0=
-Date:   Mon, 10 Jun 2019 16:39:18 +0200
+        b=g8Qo5WmIqFD1faasY7A/hAKgeI9tnxPlxIqa55wfHQgTNzcnno5Uzs3xN04BF50UU
+         hgUc6Ae/i+nO6c2JYCqoZ7cZdW7FG+s9+/GTqa+MWggonJAmLP/4kvodu9ayALzsS7
+         sSdAE8wS4jybXI5y/423thBYHffoH/EBF93kVJrY=
+Date:   Mon, 10 Jun 2019 16:41:41 +0200
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Thomas Backlund <tmb@mageia.org>
-Cc:     Jonathan Corbet <corbet@lwn.net>, Jiri Slaby <jslaby@suse.cz>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 5.1 56/85] doc: Cope with the deprecation of AutoReporter
-Message-ID: <20190610143918.GA31086@kroah.com>
-References: <20190607153849.101321647@linuxfoundation.org>
- <20190607153855.717899507@linuxfoundation.org>
- <1fbb40df-d420-9f10-34a9-340b3156eb7c@suse.cz>
- <20190610073119.GB20470@kroah.com>
- <f20b3005-53f8-607a-e995-741836b3f5f0@suse.cz>
- <20190610074840.GB24746@kroah.com>
- <20190610063340.051ee13b@lwn.net>
- <20190610140528.GA18627@kroah.com>
- <f53d2786-a857-d69c-2ead-6e4c19708d6c@mageia.org>
+To:     Pavel Machek <pavel@denx.de>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Amber Lin <Amber.Lin@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: Re: [PATCH 4.19 46/51] drm/amdgpu/soc15: skip reset on init
+Message-ID: <20190610144141.GB31086@kroah.com>
+References: <20190609164127.123076536@linuxfoundation.org>
+ <20190609164130.489004849@linuxfoundation.org>
+ <20190610143146.GA19565@amd>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <f53d2786-a857-d69c-2ead-6e4c19708d6c@mageia.org>
+In-Reply-To: <20190610143146.GA19565@amd>
 User-Agent: Mutt/1.12.0 (2019-05-25)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 10, 2019 at 05:27:39PM +0300, Thomas Backlund wrote:
-> Den 10-06-2019 kl. 17:05, skrev Greg Kroah-Hartman:
-> > On Mon, Jun 10, 2019 at 06:33:40AM -0600, Jonathan Corbet wrote:
-> > > On Mon, 10 Jun 2019 09:48:40 +0200
-> > > Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> > > 
-> > > > Hm, 2.1 here:
-> > > > 	Running Sphinx v2.1.0
-> > > > perhaps Tumbleweed needs to update?  :)
-> > > 
-> > > Heh...trying 2.1 is still on my list of things to do ... :)
-> > > 
-> > > > Anyway, this should not be breaking, if Jon doesn't have any ideas, I'll
-> > > > just drop these changes.
-> > > 
-> > > The fix for that is 551bd3368a7b (drm/i915: Maintain consistent
-> > > documentation subsection ordering) which was also marked for stable.  Jiri,
-> > > do you somehow not have that one?
+On Mon, Jun 10, 2019 at 04:31:46PM +0200, Pavel Machek wrote:
+> Hi!
+> 
+> > From: Alex Deucher <alexander.deucher@amd.com>
 > > 
-> > It's part of this series, which is probably why it works for me.  Don't
-> > know why it doesn't work for Jiri, unless he is cherry-picking things?
+> > commit 5887a59961e2295c5b02f39dbc0ecf9212709b7b upstream.
 > > 
+> > Not necessary on soc15 and breaks driver reload on server cards.
 > 
-> Actualliy it is not.
+> > --- a/drivers/gpu/drm/amd/amdgpu/soc15.c
+> > +++ b/drivers/gpu/drm/amd/amdgpu/soc15.c
+> > @@ -495,6 +495,11 @@ int soc15_set_ip_blocks(struct amdgpu_de
+> >  		return -EINVAL;
+> >  	}
+> >  
+> > +	/* Just return false for soc15 GPUs.  Reset does not seem to
+> > +	 * be necessary.
+> > +	 */
+> > +	return false;
+> > +
+> >  	if (adev->flags & AMD_IS_APU)
+> >  		adev->nbio_funcs = &nbio_v7_0_funcs;
+> >  	else if (adev->asic_type == CHIP_VEGA20)
 > 
-> This patch Jiri responded to / points out to break stuff is part of 5.1.8,
-> but the fix in in review queue for 5.1.9 :
+> Something is seriously wrong here.
 > 
-> https://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git/diff/queue-5.1/drm-i915-maintain-consistent-documentation-subsection-ordering.patch?id=29167bff7a1c0d79dda104c44c262b0bc4cd6644
+> Upstream commit goes to soc15_need_reset_on_init() and creates dead
+> variable and quite a bit of dead code. Is that intended?
+> 
+> But this stable version... goes to different function, and returns
+> false in function returning 0/-EINVAL, simulating success. New place
+> does not seem right; it seems like patch misplaced it.
 
-Ah, that makes more sense, and is why my build works for me :)
+Ah, good catch!  This happened in the 4.14.y tree, so I had to drop the
+patch from there, for some reason I missed checking the 4.19.y backport
+(I had validated that 5.1.y got it right.)
 
-Jiri, wait a few days and this will get fixed...
-
-thanks,
+Now dropped from the queue, thanks!
 
 greg k-h
