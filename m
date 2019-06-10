@@ -2,116 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 826343B8EF
-	for <lists+stable@lfdr.de>; Mon, 10 Jun 2019 18:05:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C187A3B9A3
+	for <lists+stable@lfdr.de>; Mon, 10 Jun 2019 18:37:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403958AbfFJQFc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jun 2019 12:05:32 -0400
-Received: from mail-eopbgr40040.outbound.protection.outlook.com ([40.107.4.40]:21553
-        "EHLO EUR03-DB5-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S2403847AbfFJQFc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Jun 2019 12:05:32 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Mellanox.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=M+VzdtUPNs0Qsr8q4rBSwfK18f19SNMd3ZofZrRSFwU=;
- b=P6xSAZNkK3OGIMOvqppZt3JQ5OwYdewNtk0i/ZvKptQFrhz9ZYum1xZLodbwPHTcY21vIZ3RFnt6XtJnuLwv0Tw7fazpLUVn4gqUhU2TZWLgvwkPqGBSIU4jEOXD8zzq6YyH6dF65c2tWj7fXVFzHe24vOFWMHWx4a8FMWn0gjk=
-Received: from AM0PR05MB4130.eurprd05.prod.outlook.com (52.134.90.143) by
- AM0PR05MB4387.eurprd05.prod.outlook.com (52.134.93.146) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.1965.13; Mon, 10 Jun 2019 16:05:27 +0000
-Received: from AM0PR05MB4130.eurprd05.prod.outlook.com
- ([fe80::4825:8958:8055:def7]) by AM0PR05MB4130.eurprd05.prod.outlook.com
- ([fe80::4825:8958:8055:def7%3]) with mapi id 15.20.1965.017; Mon, 10 Jun 2019
- 16:05:27 +0000
-From:   Jason Gunthorpe <jgg@mellanox.com>
-To:     Ajay Kaher <akaher@vmware.com>
-CC:     "aarcange@redhat.com" <aarcange@redhat.com>,
-        "jannh@google.com" <jannh@google.com>,
-        "oleg@redhat.com" <oleg@redhat.com>,
-        "peterx@redhat.com" <peterx@redhat.com>,
-        "rppt@linux.ibm.com" <rppt@linux.ibm.com>,
-        "mhocko@suse.com" <mhocko@suse.com>,
-        Yishai Hadas <yishaih@mellanox.com>,
-        "dledford@redhat.com" <dledford@redhat.com>,
-        "sean.hefty@intel.com" <sean.hefty@intel.com>,
-        "hal.rosenstock@gmail.com" <hal.rosenstock@gmail.com>,
-        Matan Barak <matanb@mellanox.com>,
-        Leon Romanovsky <leonro@mellanox.com>,
-        "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "srivatsab@vmware.com" <srivatsab@vmware.com>,
-        "amakhalov@vmware.com" <amakhalov@vmware.com>
-Subject: Re: [PATCH] [v4.14.y] infiniband: fix race condition between
- infiniband mlx4, mlx5  driver and core dumping
-Thread-Topic: [PATCH] [v4.14.y] infiniband: fix race condition between
- infiniband mlx4, mlx5  driver and core dumping
-Thread-Index: AQHVH4tSEyCAUrGWFkaDJIPiIklE3KaVDYWA
-Date:   Mon, 10 Jun 2019 16:05:27 +0000
-Message-ID: <20190610160521.GJ18446@mellanox.com>
-References: <1560199937-23476-1-git-send-email-akaher@vmware.com>
-In-Reply-To: <1560199937-23476-1-git-send-email-akaher@vmware.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-clientproxiedby: YQXPR0101CA0057.CANPRD01.PROD.OUTLOOK.COM
- (2603:10b6:c00:14::34) To AM0PR05MB4130.eurprd05.prod.outlook.com
- (2603:10a6:208:57::15)
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=jgg@mellanox.com; 
-x-ms-exchange-messagesentrepresentingtype: 1
-x-originating-ip: [156.34.55.100]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 50b390ed-c575-46b9-9608-08d6edbd73f4
-x-ms-office365-filtering-ht: Tenant
-x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600148)(711020)(4605104)(1401327)(4618075)(2017052603328)(7193020);SRVR:AM0PR05MB4387;
-x-ms-traffictypediagnostic: AM0PR05MB4387:
-x-ld-processed: a652971c-7d2e-4d9b-a6a4-d149256f461b,ExtAddr
-x-microsoft-antispam-prvs: <AM0PR05MB43878D40173CE641A9CBE923CF130@AM0PR05MB4387.eurprd05.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:407;
-x-forefront-prvs: 0064B3273C
-x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(136003)(366004)(346002)(396003)(39860400002)(376002)(189003)(199004)(316002)(25786009)(2616005)(476003)(486006)(99286004)(76176011)(4326008)(66066001)(478600001)(52116002)(36756003)(11346002)(446003)(66946007)(186003)(6512007)(66476007)(26005)(6486002)(229853002)(66446008)(64756008)(386003)(6506007)(66556008)(53936002)(102836004)(73956011)(68736007)(54906003)(6916009)(6436002)(305945005)(256004)(81166006)(7736002)(8936002)(2906002)(7416002)(8676002)(81156014)(6246003)(71190400001)(71200400001)(14444005)(6116002)(3846002)(86362001)(33656002)(1076003)(4744005)(5660300002)(14454004);DIR:OUT;SFP:1101;SCL:1;SRVR:AM0PR05MB4387;H:AM0PR05MB4130.eurprd05.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
-received-spf: None (protection.outlook.com: mellanox.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam-message-info: bp4pf/ZhjjpDCrnkLAHxQYc8bmcaqUIuLJmZgCW7sSfE04lwuE87VB1mBe+PB0Tp8EmTRGPcSDvzC/AJu6LXSC+Acn2axArpNOkw8ZsMBnteopEX1TaCl8ODKJFuRaQCescMNcQxBFgGExq0+X0BVjctxO2NNKSnO09/8S6Crc17Y8MlxcIVG8EZtPJ5DlcSiOh+zdls1RJY5vFLZ070loEyup1PKKgNRZswCNWhc0bW2BPQmMdbPcEYkIXIW6g1N7O+WtqIxaACXLZbI1HkBpvPV8kNK3TajxsrB9MqFAf5wzrEx1p/Ekw/d2EzhZ9Cvad1jBDH184KJV9mDBIjvRc5iBTEzaOV1fn8N598QuCnqj1lW1Fqtb9T52mIG6fDvWQUql3gDS1Py50taMeoTUBy5BMC19UqKu4Yh8UqrIw=
-Content-Type: text/plain; charset="us-ascii"
-Content-ID: <ACA6821CDC8397409049C57892C1C405@eurprd05.prod.outlook.com>
-Content-Transfer-Encoding: quoted-printable
+        id S1728069AbfFJQhr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jun 2019 12:37:47 -0400
+Received: from mail-yw1-f68.google.com ([209.85.161.68]:35489 "EHLO
+        mail-yw1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726890AbfFJQhr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jun 2019 12:37:47 -0400
+Received: by mail-yw1-f68.google.com with SMTP id k128so4033795ywf.2
+        for <stable@vger.kernel.org>; Mon, 10 Jun 2019 09:37:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=aOFiUdkOMHFPP1JFHyd9EZSoZ9ZJzLLs7VhME5W52fc=;
+        b=lm3SKqLnVenu9yDGmq4xiYeKEOnPe7WdWjMUs56uuFR9gYY9/HfMqjLFEoegiob0UJ
+         T+MMTWNA2GABXeczdfvD8or1A+votIr9dNJOJEFv+fr6n5hySJLhtnwbBFNZ7w2Sd3oO
+         TINt941lq91TfXYD8A0RN8qww7/1Ob4+ZtKwM8iG6eyL/fopsAuBdqcvCdWI8BLFfYvG
+         Eaok2iWfNJMpjjfyZzONIiTqSkSuouGzNIZiIgkvrxSaBbq0vhFLzvQa4uih8HnmF16J
+         r0U6SbEXoKIUyzLznXcnmHXG9tT+QRqvwQYitXGljMXESDcLKsmO11lLI8QNc0Z33rfT
+         RsFw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=aOFiUdkOMHFPP1JFHyd9EZSoZ9ZJzLLs7VhME5W52fc=;
+        b=VPTEON8dwX0eYlZatBO8Ev0e7DV6JVfNt6m8Jy2SZLYUbkSbOMRjguNjOU/CzYOFtk
+         7w4mGLQvohNG0ae1/uMVwhi3Ht/X4FX6bI264kMGq1eLuu0AIQ4fFtKgy0PqATRObAmU
+         BCgV7JvWDJprnkc81nqZa5A/NxB7cRKiKA79pryolCkQz8FXpHmnUkK6jmJEhIvkUXaY
+         jF/KgMmtwbl/EhyoL3bGcLRXn8cSdY66k00BFSSgRvmEujA2jdFd9v4GmUwBEHe5IqS9
+         L3ZEE516lxiI+1qs7eAS9IvcFfLNCg1SdMfbNd+tETcYMJ9oB0Jm9hfwjd2QAs9V5Qn7
+         3cQg==
+X-Gm-Message-State: APjAAAWGr8aZNOP0rGYcbazF/qKXOH0Rsgud3EaDjq6lbWk2rA1MWQzK
+        FNCaSVKs3Abp+qrL+K00tWfWLeYmce8iOP97v2Q=
+X-Google-Smtp-Source: APXvYqzzVT5Jp1vw1jd7xsoHIqE40MSGecKHV1yp4J9RhnXtnlwTRLum+tg0ePr0ZWyGRChknryM200lIK/6qWS6tnU=
+X-Received: by 2002:a81:374c:: with SMTP id e73mr27877500ywa.379.1560184666281;
+ Mon, 10 Jun 2019 09:37:46 -0700 (PDT)
 MIME-Version: 1.0
-X-OriginatorOrg: Mellanox.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 50b390ed-c575-46b9-9608-08d6edbd73f4
-X-MS-Exchange-CrossTenant-originalarrivaltime: 10 Jun 2019 16:05:27.3182
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: a652971c-7d2e-4d9b-a6a4-d149256f461b
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: jgg@mellanox.com
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM0PR05MB4387
+References: <20190608135717.8472-2-amir73il@gmail.com> <20190610151836.5E2A3207E0@mail.kernel.org>
+In-Reply-To: <20190610151836.5E2A3207E0@mail.kernel.org>
+From:   Amir Goldstein <amir73il@gmail.com>
+Date:   Mon, 10 Jun 2019 19:37:35 +0300
+Message-ID: <CAOQ4uxiFKamOUnJNo9x16F4ex0KF_Wgstph-BTH7-KK5xM9usw@mail.gmail.com>
+Subject: Re: [PATCH 1/2] vfs: replace i_readcount with a biased i_count
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Miklos Szeredi <miklos@szeredi.hu>,
+        "J . Bruce Fields" <bfields@fieldses.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 11, 2019 at 02:22:17AM +0530, Ajay Kaher wrote:
-> This patch is the extension of following upstream commit to fix
-> the race condition between get_task_mm() and core dumping
-> for IB->mlx4 and IB->mlx5 drivers:
->=20
-> commit 04f5866e41fb ("coredump: fix race condition between
-> mmget_not_zero()/get_task_mm() and core dumping")'
->=20
-> Thanks to Jason for pointing this.
->=20
-> Signed-off-by: Ajay Kaher <akaher@vmware.com>
-> ---
->  drivers/infiniband/hw/mlx4/main.c | 4 +++-
->  drivers/infiniband/hw/mlx5/main.c | 3 +++
->  2 files changed, 6 insertions(+), 1 deletion(-)
+On Mon, Jun 10, 2019 at 6:18 PM Sasha Levin <sashal@kernel.org> wrote:
+>
+> Hi,
+>
+> [This is an automated email]
+>
+> This commit has been processed because it contains a -stable tag.
+> The stable tag indicates that it's relevant for the following trees: 4.19+
+>
+> The bot has tested the following trees: v5.1.7, v4.19.48.
+>
+> v5.1.7: Failed to apply! Possible dependencies:
+>     fdb0da89f4ba ("new inode method: ->free_inode()")
+>
+> v4.19.48: Failed to apply! Possible dependencies:
+>     1a16dbaf798c ("Document d_splice_alias() calling conventions for ->lookup() users.")
+>     fdb0da89f4ba ("new inode method: ->free_inode()")
+>
+>
+> How should we proceed with this patch?
+>
 
-Acked-by: Jason Gunthorpe <jgg@mellanox.com>
+I will take care of backporting once patch is merged.
 
-Jason
+Thanks,
+Amir.
