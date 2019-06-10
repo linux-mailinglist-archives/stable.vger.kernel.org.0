@@ -2,73 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 484A33B7A1
-	for <lists+stable@lfdr.de>; Mon, 10 Jun 2019 16:42:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E693E3B766
+	for <lists+stable@lfdr.de>; Mon, 10 Jun 2019 16:31:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389267AbfFJOmr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jun 2019 10:42:47 -0400
-Received: from mx2.yrkesakademin.fi ([85.134.45.195]:9580 "EHLO
-        mx2.yrkesakademin.fi" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2389178AbfFJOmq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jun 2019 10:42:46 -0400
-X-Greylist: delayed 902 seconds by postgrey-1.27 at vger.kernel.org; Mon, 10 Jun 2019 10:42:45 EDT
-Subject: Re: [PATCH 5.1 56/85] doc: Cope with the deprecation of AutoReporter
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jonathan Corbet <corbet@lwn.net>
-CC:     Jiri Slaby <jslaby@suse.cz>, <linux-kernel@vger.kernel.org>,
-        <stable@vger.kernel.org>
-References: <20190607153849.101321647@linuxfoundation.org>
- <20190607153855.717899507@linuxfoundation.org>
- <1fbb40df-d420-9f10-34a9-340b3156eb7c@suse.cz>
- <20190610073119.GB20470@kroah.com>
- <f20b3005-53f8-607a-e995-741836b3f5f0@suse.cz>
- <20190610074840.GB24746@kroah.com> <20190610063340.051ee13b@lwn.net>
- <20190610140528.GA18627@kroah.com>
-From:   Thomas Backlund <tmb@mageia.org>
-Message-ID: <f53d2786-a857-d69c-2ead-6e4c19708d6c@mageia.org>
-Date:   Mon, 10 Jun 2019 17:27:39 +0300
+        id S2389176AbfFJObq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jun 2019 10:31:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33162 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2388996AbfFJObp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Jun 2019 10:31:45 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 861A7207E0;
+        Mon, 10 Jun 2019 14:31:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1560177105;
+        bh=JbOZq/OUPvqCz+7KbPlnCvQjhT5ER3arsd1kTKlWD1Q=;
+        h=Subject:To:From:Date:From;
+        b=2HUcabbw6F6Dt3Ta8powh7bvAfmisMfhDkY+ssti0RK7whxDlnbd9kDEazmS9a8/F
+         h/h84zFhgA2/Tb2LZI0IgGPjq3ZfwOiBJg6BTpTHY1fCS5N5Lv/ZgE93vzLDPVx7th
+         ZaBlov0lJUnOWlgkjOMI3e9mUu0d+/qxz2qcZRdg=
+Subject: patch "USB: serial: option: add support for Simcom SIM7500/SIM7600 RNDIS" added to usb-linus
+To:     jorgen.storvist@gmail.com, johan@kernel.org, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 10 Jun 2019 16:31:42 +0200
+Message-ID: <1560177102148137@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <20190610140528.GA18627@kroah.com>
-Content-Type: text/plain; charset="windows-1252"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-WatchGuard-Spam-ID: str=0001.0A0C020A.5CFE6C66.0018,ss=1,re=0.000,recu=0.000,reip=0.000,cl=1,cld=1,fgs=0
-X-WatchGuard-Spam-Score: 0, clean; 0, virus threat unknown
-X-WatchGuard-Mail-Client-IP: 85.134.45.195
-X-WatchGuard-Mail-From: tmb@mageia.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Den 10-06-2019 kl. 17:05, skrev Greg Kroah-Hartman:
-> On Mon, Jun 10, 2019 at 06:33:40AM -0600, Jonathan Corbet wrote:
->> On Mon, 10 Jun 2019 09:48:40 +0200
->> Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
->>
->>> Hm, 2.1 here:
->>> 	Running Sphinx v2.1.0
->>> perhaps Tumbleweed needs to update?  :)
->>
->> Heh...trying 2.1 is still on my list of things to do ... :)
->>
->>> Anyway, this should not be breaking, if Jon doesn't have any ideas, I'll
->>> just drop these changes.
->>
->> The fix for that is 551bd3368a7b (drm/i915: Maintain consistent
->> documentation subsection ordering) which was also marked for stable.  Jiri,
->> do you somehow not have that one?
-> 
-> It's part of this series, which is probably why it works for me.  Don't
-> know why it doesn't work for Jiri, unless he is cherry-picking things?
-> 
 
-Actualliy it is not.
+This is a note to let you know that I've just added the patch titled
 
-This patch Jiri responded to / points out to break stuff is part of 
-5.1.8, but the fix in in review queue for 5.1.9 :
+    USB: serial: option: add support for Simcom SIM7500/SIM7600 RNDIS
 
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git/diff/queue-5.1/drm-i915-maintain-consistent-documentation-subsection-ordering.patch?id=29167bff7a1c0d79dda104c44c262b0bc4cd6644
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
 
---
-Thomas
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From 5417a7e482962952e622eabd60cd3600dd65dedf Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?J=C3=B6rgen=20Storvist?= <jorgen.storvist@gmail.com>
+Date: Mon, 13 May 2019 18:37:52 +0200
+Subject: USB: serial: option: add support for Simcom SIM7500/SIM7600 RNDIS
+ mode
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Added IDs for Simcom SIM7500/SIM7600 series cellular module in RNDIS
+mode. Reserved the interface for ADB.
+
+T:  Bus=03 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  7 Spd=480 MxCh= 0
+D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=1e0e ProdID=9011 Rev=03.18
+S:  Manufacturer=SimTech, Incorporated
+S:  Product=SimTech, Incorporated
+S:  SerialNumber=0123456789ABCDEF
+C:  #Ifs= 8 Cfg#= 1 Atr=a0 MxPwr=500mA
+I:  If#=0x0 Alt= 0 #EPs= 1 Cls=02(commc) Sub=02 Prot=ff Driver=rndis_host
+I:  If#=0x1 Alt= 0 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=rndis_host
+I:  If#=0x2 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#=0x4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#=0x5 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#=0x6 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+I:  If#=0x7 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=42 Prot=01 Driver=(none)
+
+Signed-off-by: Jörgen Storvist <jorgen.storvist@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+---
+ drivers/usb/serial/option.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/usb/serial/option.c b/drivers/usb/serial/option.c
+index 83869065b802..100a5c0ec3e7 100644
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1772,6 +1772,8 @@ static const struct usb_device_id option_ids[] = {
+ 	{ USB_DEVICE(ALINK_VENDOR_ID, SIMCOM_PRODUCT_SIM7100E),
+ 	  .driver_info = RSVD(5) | RSVD(6) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(0x1e0e, 0x9003, 0xff) },	/* Simcom SIM7500/SIM7600 MBIM mode */
++	{ USB_DEVICE_INTERFACE_CLASS(0x1e0e, 0x9011, 0xff),	/* Simcom SIM7500/SIM7600 RNDIS mode */
++	  .driver_info = RSVD(7) },
+ 	{ USB_DEVICE(ALCATEL_VENDOR_ID, ALCATEL_PRODUCT_X060S_X200),
+ 	  .driver_info = NCTRL(0) | NCTRL(1) | RSVD(4) },
+ 	{ USB_DEVICE(ALCATEL_VENDOR_ID, ALCATEL_PRODUCT_X220_X500D),
+-- 
+2.22.0
+
+
