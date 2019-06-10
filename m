@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A5323B76C
+	by mail.lfdr.de (Postfix) with ESMTP id E47DC3B76D
 	for <lists+stable@lfdr.de>; Mon, 10 Jun 2019 16:31:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2403908AbfFJOby (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jun 2019 10:31:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33310 "EHLO mail.kernel.org"
+        id S2403910AbfFJOb5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jun 2019 10:31:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2403864AbfFJOby (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Jun 2019 10:31:54 -0400
+        id S2403864AbfFJOb4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Jun 2019 10:31:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E5D79207E0;
-        Mon, 10 Jun 2019 14:31:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 81876208E3;
+        Mon, 10 Jun 2019 14:31:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560177113;
-        bh=XfF59qIKVIhiJ3JCve3MmkB30DxW0mf/8b/FsgcgBwI=;
+        s=default; t=1560177116;
+        bh=tufJKS4VMZLSCEMOZZ5uhssbl3eGBwgPrdMvwhAhaAg=;
         h=Subject:To:From:Date:From;
-        b=mBWv3WUG8WgW8nUKkgLjfB47pj2i0Ltq1gQ+hqekDSDeWxEcNAQWIXDvscw71g/rP
-         yrvQmuLsYyysjywQ473E27gB/9XMU8OMYn2i6aRgSqTkGRxk4a2UBRjy+NaG6nef7e
-         O0ggQmFs8QMBxxKXKRyCfiz134zbLUlmJkY2Wpvw=
-Subject: patch "USB: serial: pl2303: add Allied Telesis VT-Kit3" added to usb-linus
-To:     chris.packham@alliedtelesis.co.nz, johan@kernel.org,
-        stable@vger.kernel.org
+        b=F2gUPliFsL7YLH7dtn5sEEcREp6yINsMykYcSKTypA31Biiarv+BJDKiT9EkbyI6T
+         p5+OhhY0Nq5aTpmoiPl4gcOkeHpQy/zvwEokaW0ebFaYXkrVwlw0SAbpOxBZkY6Kc1
+         KQjKP3lqmWciLqdgL0tnAUuPGKnHdxR3Lq1KrfLA=
+Subject: patch "USB: serial: option: add Telit 0x1260 and 0x1261 compositions" added to usb-linus
+To:     dnlplm@gmail.com, johan@kernel.org, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 10 Jun 2019 16:31:42 +0200
-Message-ID: <156017710220338@kroah.com>
+Date:   Mon, 10 Jun 2019 16:31:43 +0200
+Message-ID: <15601771038179@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +39,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    USB: serial: pl2303: add Allied Telesis VT-Kit3
+    USB: serial: option: add Telit 0x1260 and 0x1261 compositions
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -55,45 +54,35 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From c5f81656a18b271976a86724dadd8344e54de74e Mon Sep 17 00:00:00 2001
-From: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Date: Tue, 14 May 2019 17:35:42 +1200
-Subject: USB: serial: pl2303: add Allied Telesis VT-Kit3
+From f3dfd4072c3ee6e287f501a18b5718b185d6a940 Mon Sep 17 00:00:00 2001
+From: Daniele Palmas <dnlplm@gmail.com>
+Date: Wed, 15 May 2019 17:27:49 +0200
+Subject: USB: serial: option: add Telit 0x1260 and 0x1261 compositions
 
-This is adds the vendor and device id for the AT-VT-Kit3 which is a
-pl2303-based device.
+Added support for Telit LE910Cx 0x1260 and 0x1261 compositions.
 
-Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
 Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
- drivers/usb/serial/pl2303.c | 1 +
- drivers/usb/serial/pl2303.h | 3 +++
- 2 files changed, 4 insertions(+)
+ drivers/usb/serial/option.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/usb/serial/pl2303.c b/drivers/usb/serial/pl2303.c
-index 55122ac84518..d7abde14b3cf 100644
---- a/drivers/usb/serial/pl2303.c
-+++ b/drivers/usb/serial/pl2303.c
-@@ -106,6 +106,7 @@ static const struct usb_device_id id_table[] = {
- 	{ USB_DEVICE(SANWA_VENDOR_ID, SANWA_PRODUCT_ID) },
- 	{ USB_DEVICE(ADLINK_VENDOR_ID, ADLINK_ND6530_PRODUCT_ID) },
- 	{ USB_DEVICE(SMART_VENDOR_ID, SMART_PRODUCT_ID) },
-+	{ USB_DEVICE(AT_VENDOR_ID, AT_VTKIT3_PRODUCT_ID) },
- 	{ }					/* Terminating entry */
- };
- 
-diff --git a/drivers/usb/serial/pl2303.h b/drivers/usb/serial/pl2303.h
-index 559941ca884d..b0175f17d1a2 100644
---- a/drivers/usb/serial/pl2303.h
-+++ b/drivers/usb/serial/pl2303.h
-@@ -155,3 +155,6 @@
- #define SMART_VENDOR_ID	0x0b8c
- #define SMART_PRODUCT_ID	0x2303
- 
-+/* Allied Telesis VT-Kit3 */
-+#define AT_VENDOR_ID		0x0caa
-+#define AT_VTKIT3_PRODUCT_ID	0x3001
+diff --git a/drivers/usb/serial/option.c b/drivers/usb/serial/option.c
+index 100a5c0ec3e7..a0aaf0635359 100644
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1171,6 +1171,10 @@ static const struct usb_device_id option_ids[] = {
+ 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, TELIT_PRODUCT_LE920A4_1213, 0xff) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, TELIT_PRODUCT_LE920A4_1214),
+ 	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) | RSVD(3) },
++	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1260),
++	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
++	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1261),
++	  .driver_info = NCTRL(0) | RSVD(1) | RSVD(2) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, 0x1900),				/* Telit LN940 (QMI) */
+ 	  .driver_info = NCTRL(0) | RSVD(1) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1901, 0xff),	/* Telit LN940 (MBIM) */
 -- 
 2.22.0
 
