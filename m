@@ -2,72 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E9743BEE8
-	for <lists+stable@lfdr.de>; Mon, 10 Jun 2019 23:49:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E4963BEEC
+	for <lists+stable@lfdr.de>; Mon, 10 Jun 2019 23:50:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728453AbfFJVtG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jun 2019 17:49:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56140 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726556AbfFJVtG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Jun 2019 17:49:06 -0400
-Received: from [192.168.1.112] (c-24-9-64-241.hsd1.co.comcast.net [24.9.64.241])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5ED7320859;
-        Mon, 10 Jun 2019 21:49:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560203345;
-        bh=uPFHjqLTdJFsdVAbHYokoiNQcEqSEdSi7LpTrL//Q6g=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=a10GXHYLqBxJjxn9CZi9jpyeTO5bAKbqZhYTD/ou3vdttLQb89kw+SMTS7OgHlg45
-         9q42FvVpJk/Vf7AD3MXZFdx4yZk855odBMUrvx/JJZC2bIdrZ/rFsrd98RrbyR6CiV
-         E80fNuUx9N57OAAHGS0WI64onPpdroSX3Skg2Xpo=
-Subject: Re: [PATCH 4.9 00/83] 4.9.181-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org, shuah <shuah@kernel.org>
-References: <20190609164127.843327870@linuxfoundation.org>
-From:   shuah <shuah@kernel.org>
-Message-ID: <acefd433-24e4-cc32-4008-8d3f6fc65634@kernel.org>
-Date:   Mon, 10 Jun 2019 15:49:04 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.0
+        id S1728692AbfFJVtz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jun 2019 17:49:55 -0400
+Received: from mx.aristanetworks.com ([162.210.129.12]:11515 "EHLO
+        smtp.aristanetworks.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726556AbfFJVtz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jun 2019 17:49:55 -0400
+Received: from smtp.aristanetworks.com (localhost [127.0.0.1])
+        by smtp.aristanetworks.com (Postfix) with ESMTP id E862441C563;
+        Mon, 10 Jun 2019 14:50:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arista.com;
+        s=Arista-A; t=1560203420;
+        bh=SDUUrT3RcmDg9hRVIrJ4rtuNmtlz5wGHFXGKRoT5qvg=;
+        h=Date:To:Subject:From;
+        b=N1u0tdk+5JhKTazLCB5efNPr45odSOjNj7H70c8TZ73yKAHrLZ0aUVHIGkqy+e0tz
+         3Y3jZIKwcbNV6c/cen3xxioAyhL+9OfimaGuFOHwlhyEk+bDInYCzB+YU/s9qGTfFy
+         F/HnyKNjwj1c8YPOa4IDd2VW0oMzq2Z/OYNt5AF3HmGnwuj6JiOukFcKg1rhiKV+pD
+         0je5lz0odpkfS4zVkFh61HdEMCiCzRkVo6W6J2+I35uxSlhA3AckKMGVPmX3rP2Ty6
+         D55Oz+hyIOSMsfQbgp477ClvVmwPYLycv1N9V9W1BrvQAMHK11ze36qbvGS/CLbdT9
+         SdWYukF/LDvEQ==
+Received: from us180.sjc.aristanetworks.com (us180.sjc.aristanetworks.com [172.25.230.4])
+        by smtp.aristanetworks.com (Postfix) with ESMTP id E51B941C562;
+        Mon, 10 Jun 2019 14:50:20 -0700 (PDT)
+Received: by us180.sjc.aristanetworks.com (Postfix, from userid 10189)
+        id 694BA95C1DF4; Mon, 10 Jun 2019 14:49:54 -0700 (PDT)
+Date:   Mon, 10 Jun 2019 14:49:54 -0700
+To:     fruggeri@arista.com, gtertych@cisco.com, gwendal@chromium.org,
+        bvanassche@acm.org, linux-block@vger.kernel.org, axboe@kernel.dk,
+        stable@vger.kernel.org, jaegeuk@kernel.org
+Subject: Re: [PATCH v2] loop: avoid EAGAIN, if offset or block size are
+ changed
+User-Agent: Heirloom mailx 12.5 7/5/10
 MIME-Version: 1.0
-In-Reply-To: <20190609164127.843327870@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <20190610214954.694BA95C1DF4@us180.sjc.aristanetworks.com>
+From:   fruggeri@arista.com (Francesco Ruggeri)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/9/19 10:41 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.9.181 release.
-> There are 83 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+> This patch tries to avoid EAGAIN due to nrpages!=0 that was originally trying
+> to drop stale pages resulting in wrong data access.
+> Report: https://bugs.chromium.org/p/chromium/issues/detail?id=938958#c38
 > 
-> Responses should be made by Tue 11 Jun 2019 04:39:58 PM UTC.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.181-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+> Cc: <stable@vger.kernel.org>
+> Cc: Jens Axboe <axboe@kernel.dk>
+> Cc: linux-block@vger.kernel.org
+> Cc: Bart Van Assche <bvanassche@acm.org>
+> Fixes: 5db470e229e2 ("loop: drop caches if offset or block_size are changed")
+> Reported-by: Gwendal Grignou <gwendal@chromium.org>
+> Reported-by: grygorii tertychnyi <gtertych@cisco.com>
+> Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+> ---
+> v2 from v1:
+>  - remove obsolete jump
 
-Compiled and booted on my test system. No dmesg regressions.
+FWIW, after applying this patch to 4.19.47, losetup is not failing any
+more for me.
 
-thanks,
--- Shuah
+Thanks,
+Francesco Ruggeri
+
 
