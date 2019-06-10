@@ -2,89 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DD81C3B9BB
-	for <lists+stable@lfdr.de>; Mon, 10 Jun 2019 18:39:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F4F03BBA5
+	for <lists+stable@lfdr.de>; Mon, 10 Jun 2019 20:08:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387700AbfFJQiw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jun 2019 12:38:52 -0400
-Received: from mail-yb1-f196.google.com ([209.85.219.196]:41678 "EHLO
-        mail-yb1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387699AbfFJQiw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jun 2019 12:38:52 -0400
-Received: by mail-yb1-f196.google.com with SMTP id d2so4000843ybh.8
-        for <stable@vger.kernel.org>; Mon, 10 Jun 2019 09:38:51 -0700 (PDT)
+        id S2388744AbfFJSIN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jun 2019 14:08:13 -0400
+Received: from mail-pl1-f177.google.com ([209.85.214.177]:44989 "EHLO
+        mail-pl1-f177.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2388573AbfFJSIN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jun 2019 14:08:13 -0400
+Received: by mail-pl1-f177.google.com with SMTP id t7so1352317plr.11
+        for <stable@vger.kernel.org>; Mon, 10 Jun 2019 11:08:13 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=FBMp7TmgEAndVg9ZGIumN5zqLiZweIyBFUM062p7dNA=;
-        b=NdObCYDSBiujYyMQRNy4vTu5pt1yLzii9n+Sjkd5OecibtPnvSGSwk/YTEQ543BGBM
-         q7X5M/anW3U9dA4KbMRdkN0IDFjiwV0OOe8UG0YViQJizI/FDZ0a+l9p71OMkufd2RBG
-         5Jch31coJob6QwDiK7ZIt8PduXvBuyjuhHlHEyb3y8RhI3YzBXvkOTQQ805AcE2TSlUb
-         IzvACvOIReU6ag+0GupvHgXJ9vNhxaHxpQEoPUQZlI2JThdiALf4REmQtNc+ce/Xso/y
-         ZaBmdU0mSn0uBxNcEFz4nFWQaj9mmyzV96dcBisStvWzRom4O53ql3o9CWs9RNLynZ8M
-         kLOw==
+        d=chromium.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=PWEt9HQVUTjdXyvPcFRPdZkrJA6gt1ypvb9OiD54haw=;
+        b=m05Wwy0jIZJKLRyF13/YcNdtLrOHx5h7nWMHF9m+T9xCyWMkfT6K0ihA7gXMFqmQPS
+         H3Ha8+tyYf8odJ4qV763XqqAW1Q6AYq0SAlytlJWbmN+La495QG4ycgSBkUMoPS5lhvv
+         zCjRaS2c9XylyFjMdmdZW42RIH6wOI3cjmNus=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=FBMp7TmgEAndVg9ZGIumN5zqLiZweIyBFUM062p7dNA=;
-        b=iCzew12XtBWi1CDKDNVB0MAH7GOn7p0LftdQHiRWbt/QOQ3xSlTjAejzZzjj8URVwb
-         cyE9yzl1vKPnvK9M6nr7nY0XSV4f9if6x7zduG2Cs0qtRzSzoBZsrgrQAc9TNeMH3IdL
-         y9MB9H9KbX0eJdGnd8Hmks3XXFDASkf9zxPqj5A0tBV/m5kJ3FvNah9gS+aV8ABhXtaE
-         nY2eB8NL7jmPT2LAJmOQyy4i86dvBe4QmN7z+wycaqY6sRe/Ua6fVi290PXGCx2K/tuU
-         sbyFB+dq70tr7ishnE/FpumLJo5o7wbyRhko3AOD3ISWAJAFSJeXVXw2zUgXbQw5VAsx
-         A9ig==
-X-Gm-Message-State: APjAAAWmdMY8HD4l3E/fgVLfrNEoGSXmjZ+hyeTolur3T951Jp9rrEFp
-        juYBMgxhptriHKh0BVSDhm0C+mGKpZ5tWzTwt7SJ86t3
-X-Google-Smtp-Source: APXvYqwFtid+Aiyknz+Yy3CSQoPUlKQnZfZXJzzFoAAMLnOp3V8dhJnlLsWsUAT7ktP1J00uLwfJ1nq7xn+9icDNkXE=
-X-Received: by 2002:a25:86c1:: with SMTP id y1mr22277486ybm.45.1560184731139;
- Mon, 10 Jun 2019 09:38:51 -0700 (PDT)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=PWEt9HQVUTjdXyvPcFRPdZkrJA6gt1ypvb9OiD54haw=;
+        b=fmyvy8Po4Bd/g+eqk2OcnZKc2bN2mCshs4cDLKV2m3wFA7sZGpq+JnXdTts7vJ/0zQ
+         pGx0x4KYcve8A5YBP0RXkrS/FEzS/kOL7tJsQoso33ioC73oN6lEo+Y3369aiW0tuf4W
+         V+lkx7wlsFrk/kSqT73zKJngYdqtBBtFlAjoFm4pwzLYT77wEVlj1cyr1wDBwo1HbGyA
+         WK6qvpevaYOIAi9/hdZF2NPl+FmCC6+e9hWFCJ4/K46h5Tn8LMKzEulS9M66VhDgiG7/
+         5iGEvPDiDLk8J3aiww1vBioKDusele0aB0QSXHmZCDQzoLj2lJb8/p+IiEec+WTP9oJg
+         INyA==
+X-Gm-Message-State: APjAAAXn16i/l+9oGgV6PP8ki2SH5wa4ZrzULa7/VWG1S3ax0CaXdsmC
+        Qv1jhOq3StrUPEhqUh4lzV8paukDWMM=
+X-Google-Smtp-Source: APXvYqxWxVsQFAivl6Le/33KPqE3RobY+lHbY35xBTBhqtimnjH9NK06LY0X3ZJGZ8vn2cOUh8fUmg==
+X-Received: by 2002:a17:902:ac82:: with SMTP id h2mr1461124plr.303.1560190092700;
+        Mon, 10 Jun 2019 11:08:12 -0700 (PDT)
+Received: from www.outflux.net (173-164-112-133-Oregon.hfc.comcastbusiness.net. [173.164.112.133])
+        by smtp.gmail.com with ESMTPSA id y133sm12422255pfb.28.2019.06.10.11.08.11
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Mon, 10 Jun 2019 11:08:11 -0700 (PDT)
+Date:   Mon, 10 Jun 2019 11:08:10 -0700
+From:   Kees Cook <keescook@chromium.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Yaro Slav <yaro330@gmail.com>, stable@vger.kernel.org
+Subject: Re: pstore backports to 4.14
+Message-ID: <201906101107.9089BE9D@keescook>
+References: <201905310055.F37C37E@keescook>
+ <20190609095005.GA20602@kroah.com>
 MIME-Version: 1.0
-References: <20190608135717.8472-3-amir73il@gmail.com> <20190610151835.2FFC12089E@mail.kernel.org>
-In-Reply-To: <20190610151835.2FFC12089E@mail.kernel.org>
-From:   Amir Goldstein <amir73il@gmail.com>
-Date:   Mon, 10 Jun 2019 19:38:40 +0300
-Message-ID: <CAOQ4uxikmecWmOPzvuV6tU6fSNygitp856HRCG98rdxXKyhxVw@mail.gmail.com>
-Subject: Re: [PATCH 2/2] locks: eliminate false positive conflicts for write lease
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Miklos Szeredi <miklos@szeredi.hu>,
-        "J . Bruce Fields" <bfields@fieldses.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190609095005.GA20602@kroah.com>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 10, 2019 at 6:18 PM Sasha Levin <sashal@kernel.org> wrote:
->
-> Hi,
->
-> [This is an automated email]
->
-> This commit has been processed because it contains a -stable tag.
-> The stable tag indicates that it's relevant for the following trees: 4.19=
-+
->
-> The bot has tested the following trees: v5.1.7, v4.19.48.
->
-> v5.1.7: Build failed! Errors:
->     fs/locks.c:1784:27: error: implicit declaration of function =E2=80=98=
-i_readcount_read=E2=80=99; did you mean =E2=80=98i_readcount_dec=E2=80=99? =
-[-Werror=3Dimplicit-function-declaration]
->
-> v4.19.48: Failed to apply! Possible dependencies:
->     7bbd1fc0e9f1 ("fs/locks: remove unnecessary white space.")
->     d6367d624137 ("fs/locks: use properly initialized file_lock when unlo=
-cking.")
->
->
-> How should we proceed with this patch?
->
+On Sun, Jun 09, 2019 at 11:50:05AM +0200, Greg Kroah-Hartman wrote:
+> On Fri, May 31, 2019 at 01:06:15AM -0700, Kees Cook wrote:
+> > Hi Greg,
+> > 
+> > Can you please add these two pstore fixes to 4.14 please? They are
+> > prerequisites for another fix I'll be sending to Linus soon that'll
+> > be needed in 4.14 (to fix the bug Yaro ran into).
+> > 
+> > b77fa617a2ff ("pstore: Remove needless lock during console writes")
+> > ea84b580b955 ("pstore: Convert buf_lock to semaphore")
+> 
+> These also were needed in 4.19, so queued up to both trees now, thanks.
 
-I will take care of backporting once patch is merged.
+Okay, sounds good. Thanks!
 
-Thanks,
-Amir.
+-- 
+Kees Cook
