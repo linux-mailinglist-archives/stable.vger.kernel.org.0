@@ -2,175 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A3F823AE5E
-	for <lists+stable@lfdr.de>; Mon, 10 Jun 2019 06:58:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BBC73AEC3
+	for <lists+stable@lfdr.de>; Mon, 10 Jun 2019 07:53:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387452AbfFJE63 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jun 2019 00:58:29 -0400
-Received: from bombadil.infradead.org ([198.137.202.133]:53080 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387466AbfFJE63 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jun 2019 00:58:29 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20170209; h=References:In-Reply-To:Message-Id:
-        Date:Subject:To:From:Sender:Reply-To:Cc:MIME-Version:Content-Type:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=IY4zcsvWzZDpSp8lem+EUilTuMlYO8DQw4JeGdscBvA=; b=FWHJ+fI2FVRlxNjvxWiztF/Mf
-        O4JLZPob+q7YSw652LnAvSDa8+4SwUZ03HDRA7yhNm+3g+N5QYSD4f0TL75RGPK4raSpSvFlQGkzY
-        z2hC6ZdxC6QhyRrxvl+RK0CAkDsAgreSqozZsZPMipwJ7LYEpNoayul6endgJNJsAzZJrYPAkXw54
-        39rpLdGC24BhY/1lkwpeaN+roAuXAZunS3rPwchien+3Km1JzggvePxWxLDOfd2WRQAt/ba+UMr6A
-        nj2CEbiSJa8vdwIhRvhH9OexyRAcjLNNuU7GMM5NFATgQT82H6jpHmaDAuhrWnhG7hGU+0qpjoPeo
-        5p74iFenA==;
-Received: from [2601:647:4800:973f:619c:52d9:37be:b7bd] (helo=bombadil.infradead.org)
-        by bombadil.infradead.org with esmtpsa (Exim 4.92 #3 (Red Hat Linux))
-        id 1haCO4-0000I0-PQ
-        for stable@vger.kernel.org; Mon, 10 Jun 2019 04:58:28 +0000
-From:   Sagi Grimberg <sagi@grimberg.me>
-To:     stable@vger.kernel.org
-Subject: [PATCH stable-5.0+ 3/3] nvme-tcp: fix queue mapping when queue count is limited
-Date:   Sun,  9 Jun 2019 21:58:26 -0700
-Message-Id: <20190610045826.13176-3-sagi@grimberg.me>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20190610045826.13176-1-sagi@grimberg.me>
-References: <20190610045826.13176-1-sagi@grimberg.me>
+        id S2387464AbfFJFxn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jun 2019 01:53:43 -0400
+Received: from wnew3-smtp.messagingengine.com ([64.147.123.17]:40937 "EHLO
+        wnew3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S2387553AbfFJFxm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jun 2019 01:53:42 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailnew.west.internal (Postfix) with ESMTP id A25F753B;
+        Mon, 10 Jun 2019 01:53:40 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Mon, 10 Jun 2019 01:53:41 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm1; bh=73FhgraWVSKzZSRxr/hRTV6FPo7
+        e3zeeTj9HLIcXJQk=; b=WUqIHic7WiL1tl6Nzsn4mc6zoGABOQ4wN1sSg+/DfpX
+        eDR9LyWtAtAK7bmMv/djfvbd/hxQYLSyPTFiCJkSs7pwDA+k0zuHVPMzJFJSgHw3
+        /fxWavwxOH3ScjpJAJcV7enQ5mGX6eyxmbH1KHNrqvNU+GGf0HAk9BC/3UZIthby
+        L3w32R3fMKTTMA3CAt9oGM/50vrm7/R8XdtMg7+h5yRoA1DVwP7da0vwbZ3fgpVj
+        w6dw19Dx/eXaZLNh+dzO4XULbgjKZnLoNEGvzcvkXyiMerr3w9jFAF6nBmjVFpDL
+        hYNE1f6sH3iWw4pOsFv54YefTGgSGxYs09yyI9ca+/A==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=73Fhgr
+        aWVSKzZSRxr/hRTV6FPo7e3zeeTj9HLIcXJQk=; b=tM2nXGqRR33HPPT5EI0HZc
+        F2cn6be9K0q2Zjy4ZtdN/jZyWSurdUkeJm28RoaoW1Y7aG4bNc1BgfPxhwZQhTWr
+        a3pP3gra77bTM4OOXH/lvsM8CEH9Uh3MRhb/+qyySxJ1w6emC8GCFxCZfmppaltT
+        PPpPBOvA3cbnw4RRrX9q62YiHf8w7lkQy2mpVZTQ1w6gLBprtnMRAeSuOX+m3ENw
+        AO/pfg62LPJp45hErJg78UgXMpKF3JZ2UI12n6BHLYlbw1TtwhXDezjHa+BuShqe
+        E6DWRzzPyaz9t1iITcWvgf0ut9YGi4P12WFgePoV0N+42zSWfKHzdTuWikXUC42w
+        ==
+X-ME-Sender: <xms:Y_D9XCL4I63YDmymPGTmvFniACribIhS_R6G5-uDS-stD5U9uiud2g>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrudehuddguddttdcutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
+    enucfjughrpeffhffvuffkfhggtggujggfsehttdertddtredvnecuhfhrohhmpefirhgv
+    ghcumffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucffohhmrghinhepkhgvrhhnvg
+    hlrdhorhhgnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhf
+    rhhomhepghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:Y_D9XOYnvOUd54PI8pGbhMxykVnXYJoVVA1jQDiGLi5bu_LxxAdbFQ>
+    <xmx:Y_D9XNuNqNrVA0By10jYs1YGzm7VKi_8-jFV6QrdieaPayeCbkjS0Q>
+    <xmx:Y_D9XLsxGkhl8c6f5z_dsQOPItDQrZTLeRVHXYq0k2JG537PpwG_nA>
+    <xmx:ZPD9XFjGPjsUFuN9HmlXy1yi4HeYj3ADgjRU_n7EbK-YkbPp0OVaLICzGg4>
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        by mail.messagingengine.com (Postfix) with ESMTPA id B6E34380073;
+        Mon, 10 Jun 2019 01:53:38 -0400 (EDT)
+Date:   Mon, 10 Jun 2019 07:53:37 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Weiyi Lu <weiyi.lu@mediatek.com>
+Cc:     Nicolas Boichat <drinkcat@chromium.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        Stephen Boyd <sboyd@kernel.org>, Rob Herring <robh@kernel.org>,
+        James Liao <jamesjj.liao@mediatek.com>,
+        Fan Chen <fan.chen@mediatek.com>,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        linux-mediatek@lists.infradead.org, linux-clk@vger.kernel.org,
+        srv_heupstream@mediatek.com, stable@vger.kernel.org,
+        Dehui Sun <dehui.sun@mediatek.com>
+Subject: Re: [PATCH v2] clk: mediatek: mt8183: Register 13MHz clock earlier
+ for clocksource
+Message-ID: <20190610055337.GB13825@kroah.com>
+References: <1560132969-1960-1-git-send-email-weiyi.lu@mediatek.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1560132969-1960-1-git-send-email-weiyi.lu@mediatek.com>
+User-Agent: Mutt/1.12.0 (2019-05-25)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Upstream commit: 0ddbb30d5acc ("nvme-tcp: fix queue mapping when queue
-count is limited")
+On Mon, Jun 10, 2019 at 10:16:09AM +0800, Weiyi Lu wrote:
+> The 13MHz clock should be registered before clocksource driver is
+> initialized. Use CLK_OF_DECLARE_DRIVER() to guarantee.
+> 
+> Signed-off-by: Weiyi Lu <weiyi.lu@mediatek.com>
+> ---
+>  drivers/clk/mediatek/clk-mt8183.c | 46 +++++++++++++++++++++++++++++----------
+>  1 file changed, 34 insertions(+), 12 deletions(-)
 
-When the controller supports less queues than requested, we
-should make sure that queue mapping does the right thing and
-not assume that all queues are available. This fixes a crash
-when the controller supports less queues than requested.
+<formletter>
 
-The rules are:
-1. if no write queues are requested, we assign the available queues
-   to the default queue map. The default and read queue maps share the
-   existing queues.
-2. if write queues are requested:
-  - first make sure that read queue map gets the requested
-    nr_io_queues count
-  - then grant the default queue map the minimum between the requested
-    nr_write_queues and the remaining queues. If there are no available
-    queues to dedicate to the default queue map, fallback to (1) and
-    share all the queues in the existing queue map.
+This is not the correct way to submit patches for inclusion in the
+stable kernel tree.  Please read:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for how to do this properly.
 
-Also, provide a log indication on how we constructed the different
-queue maps.
-
-Reported-by: Harris, James R <james.r.harris@intel.com>
-Tested-by: Jim Harris <james.r.harris@intel.com>
-Cc: <stable@vger.kernel.org> # v5.0+
-Suggested-by: Roy Shterman <roys@lightbitslabs.com>
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
----
- drivers/nvme/host/tcp.c | 57 ++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 50 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
-index 2b107a1d152b..08a2501b9357 100644
---- a/drivers/nvme/host/tcp.c
-+++ b/drivers/nvme/host/tcp.c
-@@ -111,6 +111,7 @@ struct nvme_tcp_ctrl {
- 	struct work_struct	err_work;
- 	struct delayed_work	connect_work;
- 	struct nvme_tcp_request async_req;
-+	u32			io_queues[HCTX_MAX_TYPES];
- };
- 
- static LIST_HEAD(nvme_tcp_ctrl_list);
-@@ -1564,6 +1565,35 @@ static unsigned int nvme_tcp_nr_io_queues(struct nvme_ctrl *ctrl)
- 	return nr_io_queues;
- }
- 
-+static void nvme_tcp_set_io_queues(struct nvme_ctrl *nctrl,
-+		unsigned int nr_io_queues)
-+{
-+	struct nvme_tcp_ctrl *ctrl = to_tcp_ctrl(nctrl);
-+	struct nvmf_ctrl_options *opts = nctrl->opts;
-+
-+	if (opts->nr_write_queues && opts->nr_io_queues < nr_io_queues) {
-+		/*
-+		 * separate read/write queues
-+		 * hand out dedicated default queues only after we have
-+		 * sufficient read queues.
-+		 */
-+		ctrl->io_queues[HCTX_TYPE_READ] = opts->nr_io_queues;
-+		nr_io_queues -= ctrl->io_queues[HCTX_TYPE_READ];
-+		ctrl->io_queues[HCTX_TYPE_DEFAULT] =
-+			min(opts->nr_write_queues, nr_io_queues);
-+		nr_io_queues -= ctrl->io_queues[HCTX_TYPE_DEFAULT];
-+	} else {
-+		/*
-+		 * shared read/write queues
-+		 * either no write queues were requested, or we don't have
-+		 * sufficient queue count to have dedicated default queues.
-+		 */
-+		ctrl->io_queues[HCTX_TYPE_DEFAULT] =
-+			min(opts->nr_io_queues, nr_io_queues);
-+		nr_io_queues -= ctrl->io_queues[HCTX_TYPE_DEFAULT];
-+	}
-+}
-+
- static int nvme_tcp_alloc_io_queues(struct nvme_ctrl *ctrl)
- {
- 	unsigned int nr_io_queues;
-@@ -1581,6 +1611,8 @@ static int nvme_tcp_alloc_io_queues(struct nvme_ctrl *ctrl)
- 	dev_info(ctrl->device,
- 		"creating %d I/O queues.\n", nr_io_queues);
- 
-+	nvme_tcp_set_io_queues(ctrl, nr_io_queues);
-+
- 	return __nvme_tcp_alloc_io_queues(ctrl);
- }
- 
-@@ -2089,23 +2121,34 @@ static blk_status_t nvme_tcp_queue_rq(struct blk_mq_hw_ctx *hctx,
- static int nvme_tcp_map_queues(struct blk_mq_tag_set *set)
- {
- 	struct nvme_tcp_ctrl *ctrl = set->driver_data;
-+	struct nvmf_ctrl_options *opts = ctrl->ctrl.opts;
- 
--	set->map[HCTX_TYPE_DEFAULT].queue_offset = 0;
--	set->map[HCTX_TYPE_READ].nr_queues = ctrl->ctrl.opts->nr_io_queues;
--	if (ctrl->ctrl.opts->nr_write_queues) {
-+	if (opts->nr_write_queues && ctrl->io_queues[HCTX_TYPE_READ]) {
- 		/* separate read/write queues */
- 		set->map[HCTX_TYPE_DEFAULT].nr_queues =
--				ctrl->ctrl.opts->nr_write_queues;
-+			ctrl->io_queues[HCTX_TYPE_DEFAULT];
-+		set->map[HCTX_TYPE_DEFAULT].queue_offset = 0;
-+		set->map[HCTX_TYPE_READ].nr_queues =
-+			ctrl->io_queues[HCTX_TYPE_READ];
- 		set->map[HCTX_TYPE_READ].queue_offset =
--				ctrl->ctrl.opts->nr_write_queues;
-+			ctrl->io_queues[HCTX_TYPE_DEFAULT];
- 	} else {
--		/* mixed read/write queues */
-+		/* shared read/write queues */
- 		set->map[HCTX_TYPE_DEFAULT].nr_queues =
--				ctrl->ctrl.opts->nr_io_queues;
-+			ctrl->io_queues[HCTX_TYPE_DEFAULT];
-+		set->map[HCTX_TYPE_DEFAULT].queue_offset = 0;
-+		set->map[HCTX_TYPE_READ].nr_queues =
-+			ctrl->io_queues[HCTX_TYPE_DEFAULT];
- 		set->map[HCTX_TYPE_READ].queue_offset = 0;
- 	}
- 	blk_mq_map_queues(&set->map[HCTX_TYPE_DEFAULT]);
- 	blk_mq_map_queues(&set->map[HCTX_TYPE_READ]);
-+
-+	dev_info(ctrl->ctrl.device,
-+		"mapped %d/%d default/read queues.\n",
-+		ctrl->io_queues[HCTX_TYPE_DEFAULT],
-+		ctrl->io_queues[HCTX_TYPE_READ]);
-+
- 	return 0;
- }
- 
--- 
-2.17.1
-
+</formletter>
