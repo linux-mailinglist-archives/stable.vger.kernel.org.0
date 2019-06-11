@@ -2,373 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8430F41832
-	for <lists+stable@lfdr.de>; Wed, 12 Jun 2019 00:32:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C0574185B
+	for <lists+stable@lfdr.de>; Wed, 12 Jun 2019 00:44:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405349AbfFKWcp convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 11 Jun 2019 18:32:45 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:48006 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404718AbfFKWcp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 11 Jun 2019 18:32:45 -0400
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id E53F73082E03
-        for <stable@vger.kernel.org>; Tue, 11 Jun 2019 22:32:44 +0000 (UTC)
-Received: from [172.54.212.135] (cpt-0039.paas.prod.upshift.rdu2.redhat.com [10.0.18.123])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 58DD610018F9;
-        Tue, 11 Jun 2019 22:32:42 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        id S2406846AbfFKWnw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Jun 2019 18:43:52 -0400
+Received: from mail-eopbgr730116.outbound.protection.outlook.com ([40.107.73.116]:31686
+        "EHLO NAM05-DM3-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S2388277AbfFKWnw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 11 Jun 2019 18:43:52 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=wavesemi.onmicrosoft.com; s=selector1-wavesemi-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=IFUo8KsZ//Iljw1bk5KEFdmtygtVYJ4THbCVnjjBviE=;
+ b=nXq2T2JZ+MQnshxlKb5aeqycFQHh8D+TyEN4bOWQqp7vqaU9Qxf5nlTwUP0yVS/ZiopndixLGEApY3Hx+oTan6NzGikkx3Zt0SVh4VaajM4sk0bSSwQweYHvrKiEdkMKM7PpPFVwsP69yxHc4tsugGUxMC+qQYCsSMcX2sUn8ao=
+Received: from CY4PR2201MB1272.namprd22.prod.outlook.com (10.171.214.23) by
+ CY4PR2201MB1368.namprd22.prod.outlook.com (10.171.214.137) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.1965.14; Tue, 11 Jun 2019 22:43:49 +0000
+Received: from CY4PR2201MB1272.namprd22.prod.outlook.com
+ ([fe80::d571:f49f:6a5c:4962]) by CY4PR2201MB1272.namprd22.prod.outlook.com
+ ([fe80::d571:f49f:6a5c:4962%7]) with mapi id 15.20.1965.017; Tue, 11 Jun 2019
+ 22:43:49 +0000
+From:   Paul Burton <paul.burton@mips.com>
+To:     Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+CC:     Hauke Mehrtens <hauke@hauke-m.de>,
+        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
+        Paul Burton <pburton@wavecomp.com>,
+        Julien Cristau <jcristau@debian.org>,
+        Yunqiang Su <ysu@wavecomp.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH 1/2] MIPS: Bounds check virt_addr_valid
+Thread-Topic: [PATCH 1/2] MIPS: Bounds check virt_addr_valid
+Thread-Index: AQHVFXd9GkRqXxEIYUuNu8zTlmfmBqaVoRSAgACQ2YCAAPFmgA==
+Date:   Tue, 11 Jun 2019 22:43:49 +0000
+Message-ID: <20190611224347.zo4ulzyohrkhbyyu@pburton-laptop>
+References: <20190528170444.1557-1-paul.burton@mips.com>
+ <9e5c6f1a-b4a9-dbae-6314-aeb08f31c8aa@hauke-m.de>
+ <20190611081947.GA11513@alpha.franken.de>
+In-Reply-To: <20190611081947.GA11513@alpha.franken.de>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-clientproxiedby: BYAPR11CA0079.namprd11.prod.outlook.com
+ (2603:10b6:a03:f4::20) To CY4PR2201MB1272.namprd22.prod.outlook.com
+ (2603:10b6:910:6e::23)
+user-agent: NeoMutt/20180716
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=pburton@wavecomp.com; 
+x-ms-exchange-messagesentrepresentingtype: 1
+x-originating-ip: [12.94.197.246]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 291d69d0-1c12-4619-7ff5-08d6eebe450b
+x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600148)(711020)(4605104)(1401327)(2017052603328)(7193020);SRVR:CY4PR2201MB1368;
+x-ms-traffictypediagnostic: CY4PR2201MB1368:
+x-ms-exchange-purlcount: 1
+x-microsoft-antispam-prvs: <CY4PR2201MB1368D5FF9C872BBF096BBAE2C1ED0@CY4PR2201MB1368.namprd22.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:6108;
+x-forefront-prvs: 006546F32A
+x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(7916004)(136003)(39850400004)(346002)(396003)(376002)(366004)(199004)(189003)(7736002)(66946007)(81166006)(73956011)(33716001)(81156014)(8936002)(256004)(64756008)(66556008)(68736007)(66446008)(8676002)(66476007)(52116002)(6916009)(4326008)(44832011)(1076003)(25786009)(99286004)(5660300002)(14454004)(9686003)(6512007)(54906003)(478600001)(58126008)(16799955002)(42882007)(966005)(71200400001)(71190400001)(316002)(6116002)(476003)(446003)(26005)(66066001)(6486002)(6246003)(186003)(76176011)(53546011)(6506007)(6306002)(2906002)(6436002)(229853002)(305945005)(11346002)(386003)(102836004)(486006)(53936002)(347745004)(3846002);DIR:OUT;SFP:1102;SCL:1;SRVR:CY4PR2201MB1368;H:CY4PR2201MB1272.namprd22.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
+received-spf: None (protection.outlook.com: wavecomp.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam-message-info: S4noukOT7x5OrXB5ucZaOpHsyQ17EXfLciIw1ElpO5rzHXt97QBvTOyT6nuwVKhncXPKPIxNsvmvV6Fi3hGRF4KUtYxtBzg5vWhxoXaUmyp7JeyeZ7J/vEK3QUn0AvsztWE0B5GzPJUJ2l1lB56U37rh3ilD8mum8KY7jTzuarnd9IHNMMxZmvcv599rPhfBjici8XF4PSF3IuUKUWylzDFeNH3Oyt6Q1TYU00USmnPgxp1hZ1T27+lPWxj9CAYJMCUibDkCWf+HHHaP48q1zI9hAqQrL4nqG3tX+XAvdfQFg54wZDxozsJNIdpsnpMxK5x12DiKM7Fo20ZKI3BBQ//eMqDxXQoXUNwSx7cT/gmfUR6wvnOd1sqJYzTlkBJGvnViSHyVrcimsve/ix8Z448by7behS+dxsqGDKKxfLc=
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <4D7AECCCC17AB34E9C0CCEDE0FF92E44@namprd22.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.1
-Message-ID: <cki.71457CEB1D.EVQGHXBFYI@redhat.com>
-X-Gitlab-Pipeline-ID: 12101
-X-Gitlab-Pipeline: =?utf-8?q?https=3A//xci32=2Elab=2Eeng=2Erdu2=2Eredhat=2Ec?=
- =?utf-8?q?om/cki-project/cki-pipeline/pipelines/12101?=
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.46]); Tue, 11 Jun 2019 22:32:44 +0000 (UTC)
-Date:   Tue, 11 Jun 2019 18:32:45 -0400
+X-OriginatorOrg: mips.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 291d69d0-1c12-4619-7ff5-08d6eebe450b
+X-MS-Exchange-CrossTenant-originalarrivaltime: 11 Jun 2019 22:43:49.5217
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 463607d3-1db3-40a0-8a29-970c56230104
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: pburton@wavecomp.com
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY4PR2201MB1368
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+Hi Hauke & Thomas,
 
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
+On Tue, Jun 11, 2019 at 10:19:47AM +0200, Thomas Bogendoerfer wrote:
+> On Tue, Jun 11, 2019 at 01:41:21AM +0200, Hauke Mehrtens wrote:
+> > On 5/28/19 7:05 PM, Paul Burton wrote:
+> > > diff --git a/arch/mips/mm/mmap.c b/arch/mips/mm/mmap.c
+> > > index 2f616ebeb7e0..7755a1fad05a 100644
+> > > --- a/arch/mips/mm/mmap.c
+> > > +++ b/arch/mips/mm/mmap.c
+> > > @@ -203,6 +203,11 @@ unsigned long arch_randomize_brk(struct mm_struc=
+t *mm)
+> > > =20
+> > >  int __virt_addr_valid(const volatile void *kaddr)
+> > >  {
+> > > +	unsigned long vaddr =3D (unsigned long)vaddr;
+>=20
+> the second vaddr should be better kaddr
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: 2df16141a2c4 - Linux 5.1.9
+D'oh..! Right you are...
 
-The results of these automated tests are provided below.
+Returning false all the time is enough to silence the hardened usercopy
+warnings but clearly not the right behaviour.
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
+> > Someone complained that this compiled to a constant "return 0" for him:
+> > https://bugs.openwrt.org/index.php?do=3Ddetails&task_id=3D2305#comment6=
+554
+> >=20
+> > I just checked this on a unmodified 5.2-rc4 with the xway_defconfig and
+> > I get this:
+> >=20
+> > 0001915c <__virt_addr_valid>:
+> >    1915c:       03e00008        jr      ra
+> >    19160:       00001025        move    v0,zero
+> >=20
+> > Is this intended?
+>=20
+> I don't think so. Interesting what the compiler decides to do here.
 
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
+Yes, this is equivalent to using uninitialized_var() but I'm surprised
+the code got discarded entirely...
 
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Merge testing
--------------
-
-We cloned this repository and checked out the following commit:
-
-  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: 2df16141a2c4 - Linux 5.1.9
-
-
-We then merged the patchset with `git am`:
-
-  revert-drm-allow-render-capable-master-with-drm_auth.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  media-rockchip-vpu-fix-re-order-probe-error-remove-p.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  media-rockchip-vpu-add-missing-dont_use_autosuspend-.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  rapidio-fix-a-null-pointer-dereference-when-create_w.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  fs-fat-file.c-issue-flush-after-the-writeback-of-fat.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  sysctl-return-einval-if-val-violates-minmax.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  ipc-prevent-lockup-on-alloc_msg-and-free_msg.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  drm-msm-correct-attempted-null-pointer-dereference-i.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  drm-pl111-initialize-clock-spinlock-early.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  mm-mprotect.c-fix-compilation-warning-because-of-unu.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  arm-prevent-tracing-ipi_cpu_backtrace.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  mm-hmm-select-mmu-notifier-when-selecting-hmm.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  hugetlbfs-on-restore-reserve-error-path-retain-subpo.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  mm-memory_hotplug-release-memory-resource-after-arch.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  mem-hotplug-fix-node-spanned-pages-when-we-have-a-no.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  mm-cma.c-fix-crash-on-cma-allocation-if-bitmap-alloc.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  initramfs-free-initrd-memory-if-opening-initrd.image.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  mm-compaction.c-fix-an-undefined-behaviour.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  mm-memory_hotplug.c-fix-the-wrong-usage-of-n_high_me.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  mm-cma.c-fix-the-bitmap-status-to-show-failed-alloca.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  mm-page_mkclean-vs-madv_dontneed-race.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  mm-cma_debug.c-fix-the-break-condition-in-cma_maxchu.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  mm-slab.c-fix-an-infinite-loop-in-leaks_show.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  kernel-sys.c-prctl-fix-false-positive-in-validate_pr.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  thermal-rcar_gen3_thermal-disable-interrupt-in-.remo.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  drivers-thermal-tsens-don-t-print-error-message-on-e.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  mfd-tps65912-spi-add-missing-of-table-registration.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  mfd-intel-lpss-set-the-device-in-reset-state-when-in.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  drm-nouveau-disp-dp-respect-sink-limits-when-selecti.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  mfd-twl6040-fix-device-init-errors-for-accctl-regist.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  perf-x86-intel-allow-pebs-multi-entry-in-watermark-m.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  drm-nouveau-kms-gf119-gp10x-push-headsetcontroloutpu.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  drm-nouveau-fix-duplication-of-nv50_head_atom-struct.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  drm-bridge-adv7511-fix-low-refresh-rate-selection.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  objtool-don-t-use-ignore-flag-for-fake-jumps.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  drm-nouveau-kms-gv100-fix-spurious-window-immediate-.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  bpf-fix-undefined-behavior-in-narrow-load-handling.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  edac-mpc85xx-prevent-building-as-a-module.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  pwm-meson-use-the-spin-lock-only-to-protect-register.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  mailbox-stm32-ipcc-check-invalid-irq.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  ntp-allow-tai-utc-offset-to-be-set-to-zero.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  f2fs-fix-to-avoid-panic-in-do_recover_data.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  f2fs-fix-to-avoid-panic-in-f2fs_inplace_write_data.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  f2fs-fix-error-path-of-recovery.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  f2fs-fix-to-avoid-panic-in-f2fs_remove_inode_page.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  f2fs-fix-to-do-sanity-check-on-free-nid.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  f2fs-fix-to-clear-dirty-inode-in-error-path-of-f2fs_.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  f2fs-fix-to-avoid-panic-in-dec_valid_block_count.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  f2fs-fix-to-use-inline-space-only-if-inline_xattr-is.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  f2fs-fix-to-avoid-panic-in-dec_valid_node_count.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  f2fs-fix-to-do-sanity-check-on-valid-block-count-of-.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  f2fs-fix-to-avoid-deadloop-in-foreground-gc.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  f2fs-fix-to-retrieve-inline-xattr-space.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  f2fs-fix-to-do-checksum-even-if-inode-page-is-uptoda.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  media-atmel-atmel-isc-fix-asd-memory-allocation.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  percpu-remove-spurious-lock-dependency-between-percp.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  configfs-fix-possible-use-after-free-in-configfs_reg.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  uml-fix-a-boot-splat-wrt-use-of-cpu_all_mask.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  pci-dwc-free-msi-in-dw_pcie_host_init-error-path.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  pci-dwc-free-msi-irq-page-in-dw_pcie_free_msi.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  fbcon-don-t-reset-logo_shown-when-logo-is-currently-.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  ovl-do-not-generate-duplicate-fsnotify-events-for-fa.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  mmc-mmci-prevent-polling-for-busy-detection-in-irq-c.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  netfilter-nf_flow_table-fix-missing-error-check-for-.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  netfilter-nf_conntrack_h323-restore-boundary-check-c.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  mips-make-sure-dt-memory-regions-are-valid.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  netfilter-nf_tables-fix-base-chain-stat-rcu_derefere.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  watchdog-imx2_wdt-fix-set_timeout-for-big-timeout-va.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  watchdog-fix-compile-time-error-of-pretimeout-govern.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  blk-mq-move-cancel-of-requeue_work-into-blk_mq_relea.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  iommu-vt-d-set-intel_iommu_gfx_mapped-correctly.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  vfio-pci-nvlink2-fix-potential-vma-leak.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  misc-pci_endpoint_test-fix-test_reg_bar-to-be-update.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  pci-designware-ep-use-aligned-atu-window-for-raising.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  nvme-pci-unquiesce-admin-queue-on-shutdown.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  nvme-pci-shutdown-on-timeout-during-deletion.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  netfilter-nf_flow_table-check-ttl-value-in-flow-offl.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  netfilter-nf_flow_table-fix-netdev-refcnt-leak.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  alsa-hda-register-irq-handler-after-the-chip-initial.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  powerpc-pseries-track-lmb-nid-instead-of-using-devic.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  arm64-defconfig-update-ufshcd-for-hi3660-soc.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  iommu-vt-d-don-t-request-page-request-irq-under-dmar.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  nvmem-core-fix-read-buffer-in-place.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  nvmem-sunxi_sid-support-sid-on-a83t-and-h5.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  fuse-require-dev-fuse-reads-to-have-enough-buffer-ca.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  fuse-retrieve-cap-requested-size-to-negotiated-max_w.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  nfsd-allow-fh_want_write-to-be-called-twice.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  nfsd-avoid-uninitialized-variable-warning.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  vfio-fix-warning-do-not-call-blocking-ops-when-task_.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  iommu-arm-smmu-v3-don-t-disable-smmu-in-kdump-kernel.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  switchtec-fix-unintended-mask-of-mrpc-event.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  net-thunderbolt-unregister-thunderboltip-protocol-ha.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  x86-pci-fix-pci-irq-routing-table-memory-leak.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  soc-tegra-pmc-remove-reset-sysfs-entries-on-error.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  i40e-queues-are-reserved-despite-invalid-argument-er.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  power-supply-cpcap-battery-fix-signed-counter-sample.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  platform-chrome-cros_ec_proto-check-for-null-transfe.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  pci-keystone-invoke-phy_reset-api-before-enabling-ph.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  pci-keystone-prevent-arm32-specific-code-to-be-compi.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  soc-mediatek-pwrap-zero-initialize-rdata-in-pwrap_in.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  clk-rockchip-turn-on-aclk_dmac1-for-suspend-on-rk328.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  usb-ohci-da8xx-disable-the-regulator-if-the-overcurr.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  iommu-vt-d-flush-iotlb-for-untrusted-device-in-time.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  soc-rockchip-set-the-proper-pwm-for-rk3288.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  arm64-dts-imx8mq-mark-iomuxc_gpr-as-i.mx6q-compatibl.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  arm-dts-imx51-specify-imx5_clk_ipg-as-ahb-clock-to-s.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  arm-dts-imx50-specify-imx5_clk_ipg-as-ahb-clock-to-s.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  arm-dts-imx53-specify-imx5_clk_ipg-as-ahb-clock-to-s.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  arm-dts-imx6sx-specify-imx6sx_clk_ipg-as-ahb-clock-t.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  arm-dts-imx6sll-specify-imx6sll_clk_ipg-as-ipg-clock.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  arm-dts-imx7d-specify-imx7d_clk_ipg-as-ipg-clock-to-.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  arm-dts-imx6ul-specify-imx6ul_clk_ipg-as-ipg-clock-t.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  arm-dts-imx6sx-specify-imx6sx_clk_ipg-as-ipg-clock-t.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  arm-dts-imx6qdl-specify-imx6qdl_clk_ipg-as-ipg-clock.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  pci-rpadlpar-fix-leaked-device_node-references-in-ad.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  drm-amd-display-disable-link-before-changing-link-se.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  drm-amd-display-use-plane-color_space-for-dpp-if-spe.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  alsa-seq-protect-in-kernel-ioctl-calls-with-mutex.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  arm-omap2-pm33xx-core-do-not-turn-off-cefuse-as-ppa-.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  pinctrl-pinctrl-intel-move-gpio-suspend-resume-to-no.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  platform-x86-intel_pmc_ipc-adding-error-handling.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  power-supply-max14656-fix-potential-use-before-alloc.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  f2fs-fix-potential-recursive-call-when-enabling-data.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  net-hns3-return-0-and-print-warning-when-hit-duplica.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  pci-dwc-remove-default-msi-initialization-for-platfo.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  pci-rcar-fix-a-potential-null-pointer-dereference.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  pci-rcar-fix-64bit-msi-message-address-handling.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  scsi-qla2xxx-reset-the-fcf_async_-sent-active-flags.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  input-goodix-add-gt5663-ctp-support.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  video-hgafb-fix-potential-null-pointer-dereference.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  video-imsttfb-fix-potential-null-pointer-dereference.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  block-bfq-increase-idling-for-weight-raised-queues.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  pci-xilinx-check-for-__get_free_pages-failure.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  arm64-dts-qcom-qcs404-fix-regulator-supply-names.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  gpio-gpio-omap-add-check-for-off-wake-capable-gpios.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  gpio-gpio-omap-limit-errata-1.101-handling-to-wkup-d.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  ice-add-missing-case-in-print_link_msg-for-printing-.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  media-v4l2-ctrl-v4l2_ctrl_request_setup-returns-with.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  batman-adv-adjust-name-for-batadv_dat_send_data.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  ice-enable-lan_en-for-the-right-recipes.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  ice-do-not-set-lb_en-for-prune-switch-rules.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  dmaengine-idma64-use-actual-device-for-dma-transfers.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  pwm-tiehrpwm-update-shadow-register-for-disabling-pw.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  media-v4l2-fwnode-defaults-may-not-override-endpoint.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  arm-dts-exynos-always-enable-necessary-apio_1v8-and-.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  pwm-fix-deadlock-warning-when-removing-pwm-device.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  arm-exynos-fix-undefined-instruction-during-exynos54.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  usb-typec-fusb302-check-vconn-is-off-when-we-start-t.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  soc-renesas-identify-r-car-m3-w-es1.3.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  arm-shmobile-porter-enable-r-car-gen2-regulator-quir.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  gpio-vf610-do-not-share-irq_chip.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  percpu-do-not-search-past-bitmap-when-allocating-an-.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-  aarch64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-8cbd7f8a930799684a07f3a1e5fb811607a413a3.config
-    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-8cbd7f8a930799684a07f3a1e5fb811607a413a3.tar.gz
-
-  ppc64le:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-8cbd7f8a930799684a07f3a1e5fb811607a413a3.config
-    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-8cbd7f8a930799684a07f3a1e5fb811607a413a3.tar.gz
-
-  s390x:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-8cbd7f8a930799684a07f3a1e5fb811607a413a3.config
-    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-8cbd7f8a930799684a07f3a1e5fb811607a413a3.tar.gz
-
-  x86_64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-8cbd7f8a930799684a07f3a1e5fb811607a413a3.config
-    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-8cbd7f8a930799684a07f3a1e5fb811607a413a3.tar.gz
-
-
-Hardware testing
-----------------
-
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ Ethernet drivers sanity [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ✅ tuned: tune-processes-through-perf [8]
-       ✅ Usex - version 1.9-29 [9]
-       ✅ lvm thinp sanity [10]
-       🚧 ✅ Networking socket: fuzz [11]
-       🚧 ✅ storage: SCSI VPD [12]
-       🚧 ✅ storage: software RAID testing [13]
-       🚧 ✅ Libhugetlbfs - version 2.2.1 [14]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ xfstests: xfs [15]
-       ✅ selinux-policy: serge-testsuite [16]
-
-
-  ppc64le:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ xfstests: xfs [15]
-       ✅ selinux-policy: serge-testsuite [16]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ Ethernet drivers sanity [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ✅ tuned: tune-processes-through-perf [8]
-       ✅ Usex - version 1.9-29 [9]
-       ✅ lvm thinp sanity [10]
-       🚧 ✅ Networking socket: fuzz [11]
-       🚧 ✅ storage: software RAID testing [13]
-       🚧 ✅ Libhugetlbfs - version 2.2.1 [14]
-
-
-  s390x:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ Ethernet drivers sanity [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ✅ tuned: tune-processes-through-perf [8]
-       ✅ lvm thinp sanity [10]
-       🚧 ✅ Networking socket: fuzz [11]
-       🚧 ✅ storage: software RAID testing [13]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [16]
-
-
-  x86_64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ Ethernet drivers sanity [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ✅ tuned: tune-processes-through-perf [8]
-       ✅ Usex - version 1.9-29 [9]
-       ✅ lvm thinp sanity [10]
-       🚧 ✅ Networking socket: fuzz [11]
-       🚧 ✅ storage: SCSI VPD [12]
-       🚧 ✅ storage: software RAID testing [13]
-       🚧 ✅ Libhugetlbfs - version 2.2.1 [14]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ xfstests: xfs [15]
-       ✅ selinux-policy: serge-testsuite [16]
-
-
-  Test source:
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/lvm/thinp/sanity
-    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
-    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/scsi/vpd
-    [13]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/swraid/trim
-    [14]: https://github.com/CKI-project/tests-beaker/archive/master.zip#vm/hugepage/libhugetlbfs
-    [15]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/filesystems/xfs/xfstests
-    [16]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-
-Waived tests (marked with 🚧)
------------------------------
-This test run included waived tests. Such tests are executed but their results
-are not taken into account. Tests are waived when their results are not
-reliable enough, e.g. when they're just introduced or are being fixed.
+Thanks,
+    Paul
