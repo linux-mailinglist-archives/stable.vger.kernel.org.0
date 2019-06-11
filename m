@@ -2,91 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ADEB83D468
-	for <lists+stable@lfdr.de>; Tue, 11 Jun 2019 19:40:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A290F3D564
+	for <lists+stable@lfdr.de>; Tue, 11 Jun 2019 20:22:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406529AbfFKRkK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Jun 2019 13:40:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39824 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2406516AbfFKRkK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 11 Jun 2019 13:40:10 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5ADC121734;
-        Tue, 11 Jun 2019 17:40:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560274809;
-        bh=7PcY0EB4mUu+r7OtLkjmpV2IMEEFbqL3M5c9HsmDC2o=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=hilj4TLKJUBRur0VtMtD1jRI59k82d/x3tlS47V0p3Ewyq6faSWP2wRMyjZeeiKNv
-         JHsuqb9RSeMTtIIJlQHRxgbSPXWliKarZrjZ5KnaKoy0mHJomejexmT8s/T/51J3hz
-         JFkxQODOJOqrOoV0cLrC6i8lLgQS1ECa5Hegm4Rg=
-Date:   Tue, 11 Jun 2019 19:40:06 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc:     Sven Joachim <svenjoac@gmx.de>, stable <stable@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Dave Airlie <airlied@redhat.com>
-Subject: Re: Linux 5.1.9 build failure with
- CONFIG_NOUVEAU_LEGACY_CTX_SUPPORT=n
-Message-ID: <20190611174006.GB31662@kroah.com>
-References: <87k1dsjkdo.fsf@turtle.gmx.de>
- <20190611153656.GA5084@kroah.com>
- <CAKMK7uH_3P3pYkJ9Ua4hOFno5UiQ4p-rdWu9tPO75MxGCbyXSA@mail.gmail.com>
+        id S2407029AbfFKSWW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Jun 2019 14:22:22 -0400
+Received: from mail-wr1-f49.google.com ([209.85.221.49]:41887 "EHLO
+        mail-wr1-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2405802AbfFKSWW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Jun 2019 14:22:22 -0400
+Received: by mail-wr1-f49.google.com with SMTP id c2so14110230wrm.8
+        for <stable@vger.kernel.org>; Tue, 11 Jun 2019 11:22:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=yKrcUwqgbpT0LrwHCa6jpgsKgZ59zietLV5GF3HitCo=;
+        b=EiimeU3mbyswsEmWk1RJfef+BLfzUEKYeQbO9KaMQj9exWGbc/hsOMjw68JCh443zk
+         iDFSlkyfVBVzKZrn/LOKk4RJ87yc8OhYSm5u/YOi1XSzuLky5RdtB9ntvNqnIBtpQcC1
+         OOmJoKa2fMj0qJuwkYPbfzI/vMFG3oy4tjo7uB3Z+j3mlqclruqiN/EM7DkVioSGBJmy
+         puOYf0H6jAC6edqtcSFAmmcVpv4Q6+erFCsH1ONcLUDg5VBlMsSsvGPJWSwws0KIVGTv
+         /ZQLQiZtWn7A4MWZmHE6tdHCPXte4Ng0bMm+4Wq5wg49mM9O5R0QP+R/iWT97RgSNc3g
+         cMzw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=yKrcUwqgbpT0LrwHCa6jpgsKgZ59zietLV5GF3HitCo=;
+        b=T+kvODYN8L3iVY0GuNWx5k18h6045H0pmg3aOF/TsQI6Dy+LMUvZnhz5JTs4LlW5O8
+         L5f8Ss7UUg/c3WX1z7ptR8Wu3XBcTRCmx4rdIUovEAHAt9ZKc5VhkhV+aaKWpsoml7uY
+         scFxYQlSjZ+tjVwdJ3nggubjBESWgEwUPhrNwcontBdsxLEQ6ndnRZl1j/VEfSQwf0zP
+         Tc+ZMEJGV0hpwN7440Avaz+kpDHwSeP1CbpJm0idO1EI8ZZSIhe/FPlLleoLoDQ48G9F
+         MQNFBSBcMFj4PinKSyM0kYQ+JOVTIaGIz9akFMIkORqg44J5VGC+iJm41vxiuRogCcE5
+         Ihmg==
+X-Gm-Message-State: APjAAAUyCIaGlBO+spImAQeUZd1y2l0SjzLrFoyirWFY85cRhA2xC/6a
+        FCWigKxYyw//60C5bBJoTShFXU3439TNTA==
+X-Google-Smtp-Source: APXvYqx2YRlxFI1gfR0luV4ITiz+PRwXj/Qm3y2Sc2e8q5CtO6t2LmnhLiwIxrBfrtV6tvtASGLbGA==
+X-Received: by 2002:a5d:67cd:: with SMTP id n13mr38488223wrw.138.1560277340777;
+        Tue, 11 Jun 2019 11:22:20 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id n1sm14219028wrx.39.2019.06.11.11.22.20
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 11 Jun 2019 11:22:20 -0700 (PDT)
+Message-ID: <5cfff15c.1c69fb81.15320.0ee6@mx.google.com>
+Date:   Tue, 11 Jun 2019 11:22:20 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAKMK7uH_3P3pYkJ9Ua4hOFno5UiQ4p-rdWu9tPO75MxGCbyXSA@mail.gmail.com>
-User-Agent: Mutt/1.12.0 (2019-05-25)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.19.50
+X-Kernelci-Branch: linux-4.19.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.19.y boot: 129 boots: 1 failed,
+ 126 passed with 1 offline, 1 untried/unknown (v4.19.50)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 11, 2019 at 07:33:16PM +0200, Daniel Vetter wrote:
-> On Tue, Jun 11, 2019 at 5:37 PM Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> > On Tue, Jun 11, 2019 at 03:56:35PM +0200, Sven Joachim wrote:
-> > > Commit 1e07d63749 ("drm/nouveau: add kconfig option to turn off nouveau
-> > > legacy contexts. (v3)") has caused a build failure for me when I
-> > > actually tried that option (CONFIG_NOUVEAU_LEGACY_CTX_SUPPORT=n):
-> > >
-> > > ,----
-> > > | Kernel: arch/x86/boot/bzImage is ready  (#1)
-> > > |   Building modules, stage 2.
-> > > |   MODPOST 290 modules
-> > > | ERROR: "drm_legacy_mmap" [drivers/gpu/drm/nouveau/nouveau.ko] undefined!
-> > > | scripts/Makefile.modpost:91: recipe for target '__modpost' failed
-> > > `----
-> 
-> Calling drm_legacy_mmap is definitely not a great idea. I think either
-> we need a custom patch to remove that out on older kernels, or maybe
-> even #ifdef if you want to be super paranoid about breaking stuff ...
-> 
-> > > Upstream does not have that problem, as commit bed2dd8421 ("drm/ttm:
-> > > Quick-test mmap offset in ttm_bo_mmap()") has removed the use of
-> > > drm_legacy_mmap from nouveau_ttm.c.  Unfortunately that commit does not
-> > > apply in 5.1.9.
-> > >
-> > > Most likely 4.19.50 and 4.14.125 are also affected, I haven't tested
-> > > them yet.
-> >
-> > They probably are.
-> >
-> > Should I just revert this patch in the stable tree, or add some other
-> > patch (like the one pointed out here, which seems an odd patch for
-> > stable...)
-> 
-> ... or backport the above patch, that should be save to do too. Not
-> sure what stable folks prefer?
+stable-rc/linux-4.19.y boot: 129 boots: 1 failed, 126 passed with 1 offline=
+, 1 untried/unknown (v4.19.50)
 
-The above patch does not apply to all of the stable branches, so how
-about I just revert this?  People can live with this option not able to
-turn off for now, and if they really want it, they can use a newer
-kernel, right?
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.19.y/kernel/v4.19.50/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.19.=
+y/kernel/v4.19.50/
 
-thanks,
+Tree: stable-rc
+Branch: linux-4.19.y
+Git Describe: v4.19.50
+Git Commit: 768292d053619b2725b846ed2bf556bf40f43de2
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 71 unique boards, 24 SoC families, 15 builds out of 206
 
-greg k-h
+Boot Failure Detected:
+
+arm64:
+    defconfig:
+        gcc-8:
+            meson-gxm-khadas-vim2: 1 failed lab
+
+Offline Platforms:
+
+mips:
+
+    pistachio_defconfig:
+        gcc-8
+            pistachio_marduk: 1 offline lab
+
+---
+For more info write to <info@kernelci.org>
