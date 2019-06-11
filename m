@@ -2,59 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FEBC3C16C
-	for <lists+stable@lfdr.de>; Tue, 11 Jun 2019 05:02:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2ECC73C1F2
+	for <lists+stable@lfdr.de>; Tue, 11 Jun 2019 06:05:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390791AbfFKDCH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jun 2019 23:02:07 -0400
-Received: from szxga06-in.huawei.com ([45.249.212.32]:36392 "EHLO huawei.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S2390717AbfFKDCH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Jun 2019 23:02:07 -0400
-Received: from DGGEMS402-HUB.china.huawei.com (unknown [172.30.72.58])
-        by Forcepoint Email with ESMTP id 299CDA84DA002391A8D3;
-        Tue, 11 Jun 2019 11:02:05 +0800 (CST)
-Received: from [10.134.22.195] (10.134.22.195) by smtp.huawei.com
- (10.3.19.202) with Microsoft SMTP Server (TLS) id 14.3.439.0; Tue, 11 Jun
- 2019 11:01:59 +0800
-Subject: Re: [PATCH v2 1/2] staging: erofs: add requirements field in
- superblock
-To:     Gao Xiang <gaoxiang25@huawei.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <devel@driverdev.osuosl.org>
-CC:     LKML <linux-kernel@vger.kernel.org>,
-        <linux-erofs@lists.ozlabs.org>, "Chao Yu" <chao@kernel.org>,
-        Miao Xie <miaoxie@huawei.com>, <weidu.du@huawei.com>,
-        Fang Wei <fangwei1@huawei.com>, <stable@vger.kernel.org>
-References: <20190611024220.86121-1-gaoxiang25@huawei.com>
-From:   Chao Yu <yuchao0@huawei.com>
-Message-ID: <9e0cb4bb-6ffe-95fb-c892-e321bc94f14a@huawei.com>
-Date:   Tue, 11 Jun 2019 11:01:58 +0800
-User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:52.0) Gecko/20100101
- Thunderbird/52.9.1
+        id S1729000AbfFKEFO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Jun 2019 00:05:14 -0400
+Received: from kvm5.telegraphics.com.au ([98.124.60.144]:32892 "EHLO
+        kvm5.telegraphics.com.au" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726431AbfFKEFN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Jun 2019 00:05:13 -0400
+Received: from localhost (localhost.localdomain [127.0.0.1])
+        by kvm5.telegraphics.com.au (Postfix) with ESMTP id 8538022A5E;
+        Tue, 11 Jun 2019 00:05:08 -0400 (EDT)
+Date:   Tue, 11 Jun 2019 14:05:13 +1000 (AEST)
+From:   Finn Thain <fthain@telegraphics.com.au>
+To:     Sasha Levin <sashal@kernel.org>
+cc:     "James E.J. Bottomley" <jejb@linux.ibm.com>, stable@vger.kernel.org
+Subject: Re: [PATCH v2 5/7] scsi: mac_scsi: Fix pseudo DMA implementation,
+ take 2
+In-Reply-To: <20190610151838.C12F020859@mail.kernel.org>
+Message-ID: <alpine.LNX.2.21.1906111401340.203@nippy.intranet>
+References: <62e2c6d87f091669718584461fcb76546ecf58d5.1560043151.git.fthain@telegraphics.com.au> <20190610151838.C12F020859@mail.kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <20190611024220.86121-1-gaoxiang25@huawei.com>
-Content-Type: text/plain; charset="windows-1252"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.134.22.195]
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=US-ASCII
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2019/6/11 10:42, Gao Xiang wrote:
-> There are some backward incompatible features pending
-> for months, mainly due to on-disk format expensions.
-> 
-> However, we should ensure that it cannot be mounted with
-> old kernels. Otherwise, it will causes unexpected behaviors.
-> 
-> Fixes: ba2b77a82022 ("staging: erofs: add super block operations")
-> Cc: <stable@vger.kernel.org> # 4.19+
-> Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
+On Mon, 10 Jun 2019, Sasha Levin wrote:
 
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
+> Hi,
+> 
+> [This is an automated email]
+> 
+> This commit has been processed because it contains a "Fixes:" tag,
+> fixing commit: 3a0f64bfa907 mac_scsi: Fix pseudo DMA implementation.
+> 
+> The bot has tested the following trees: v5.1.7, v4.19.48, v4.14.123, v4.9.180.
+> 
+> v5.1.7: Build OK!
+> v4.19.48: Build OK!
+> v4.14.123: Build OK!
+> v4.9.180: Failed to apply! Possible dependencies:
+>     25894d1f98ae ("scsi: ncr5380: Improve hostdata struct member alignment and cache-ability")
+>     4a98f896bf2c ("scsi: ncr5380: Use correct types for DMA routines")
+>     61e1ce588b10 ("scsi: ncr5380: Use correct types for device register accessors")
+>     820682b1b34e ("scsi: ncr5380: Store IO ports and addresses in host private data")
+>     abd12b09292c ("scsi: atari_scsi: Make device register accessors re-entrant")
+>     b61bacbc2bf5 ("scsi: g_NCR5380: Merge g_NCR5380 and g_NCR5380_mmio drivers")
+>     d4408dd7ecff ("scsi: ncr5380: Simplify register polling limit")
+>     d5d37a0ab13b ("scsi: ncr5380: Pass hostdata pointer to register polling routines")
+> 
+> 
+> How should we proceed with this patch?
+> 
 
-Thanks,
+
+Please don't backport to v4.9.y.
+
+I added a Cc header in the hope of avoiding this question (Cc: 
+stable@vger.kernel.org # v4.14+) but it appears that this bot doesn't work 
+that way.
+
+For this particular platform, v4.9.y would need quite a few patches to 
+bring it up to the same level of stability and functionality as v4.14.y or 
+v4.19.y. I don't really want to pursue that so I drew the line at v4.14.y.
+
+Thanks.
+
+-- 
+
+> --
+> Thanks,
+> Sasha
+> 
