@@ -2,97 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CE5E04191E
-	for <lists+stable@lfdr.de>; Wed, 12 Jun 2019 01:47:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A81DA41929
+	for <lists+stable@lfdr.de>; Wed, 12 Jun 2019 01:52:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390488AbfFKXrL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Jun 2019 19:47:11 -0400
-Received: from mail-pf1-f196.google.com ([209.85.210.196]:39406 "EHLO
-        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2387864AbfFKXrK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Jun 2019 19:47:10 -0400
-Received: by mail-pf1-f196.google.com with SMTP id j2so8427359pfe.6;
-        Tue, 11 Jun 2019 16:47:10 -0700 (PDT)
+        id S2405317AbfFKXwe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Jun 2019 19:52:34 -0400
+Received: from mail-lj1-f193.google.com ([209.85.208.193]:36607 "EHLO
+        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2404808AbfFKXwe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Jun 2019 19:52:34 -0400
+Received: by mail-lj1-f193.google.com with SMTP id i21so13392687ljj.3;
+        Tue, 11 Jun 2019 16:52:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-transfer-encoding:content-language;
-        bh=0w5PyTbJcE+7PtxzV1JAmmnhaz4mbqsIEXxhrO8y/nc=;
-        b=awiuQUI9gAtnyBWDyPM2oiviNP96T4I/xvCOoYN8SvRkrI3hkL7yO40eUmXFWK9NXe
-         n25uEimbmgQMRIUwQDsK7uB9FzGqunzfIyhc9Jpja6faHqQNVtUUILNUmMz4VmvWRbcU
-         88M/QCEJG6n31wDtCi6remU5Gm015Z5iHY4lep5y2jXRhNQ2tHjYYf2RrT1Izv7cW7lD
-         zCjccDTXUo6rX3ThwVJzKbu5GhA9LE0PSUSLx7oW5AjqKRJTWrE3hXGOFuRkD/Sxa8Yy
-         a/sgSvbiRJU6W7/jOIq9kmxRuHZKgbQvDGHDqPeGBnYxPp1FDtXz8gSEjgLvy1OQygxU
-         7K9w==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=VENOP9kl7lg5KwAxIPCouDt1b8Ws7sAjlClYwMccvkk=;
+        b=fivEwC5hnXqUGk5603e1MnAG/mADaygUOmV3PIsZ3IMYL75ryOgDvU7uHsFxpYB0go
+         ieMR00vOGpQREHjn2+aej3foTWeEL3oQOrFc69YRAikto9jTKa5n7QaX6nkzZaH04dMG
+         /Kkwk34cl9BDmFIfJg9XRni4Qo8z3YM10s16+wF7IBqeaAGYbAfvR4uF1mgTQUt+VCUk
+         JNfkMxauM0kWVmOd/nhtZ65BRuvrKL8yXxafKLbdN/cPj8WSDbLXgj7DaCFKNUP+4vag
+         OZfTARhoXxcb1AvwVTUjlYcYtIke/qT5kk6MFaI+9kKSkap21v2vtI8iyN/Ndb/GeaUI
+         elrg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-transfer-encoding
-         :content-language;
-        bh=0w5PyTbJcE+7PtxzV1JAmmnhaz4mbqsIEXxhrO8y/nc=;
-        b=ojhq0ImAOWHYNHMvv2yf4vIPSM3yGybHm25YLgg5PEDqV3HWW5t92V7kqInaM9AFPU
-         IFseO40qHFu1PfAsOBpZq1cTis8vZaEsHPdcmCl2yxPQ/gQsFBHVcLGCr/Z6A0OCX2o+
-         PrydeHt1QmwPxLxRiEO0LRyhIFENo54ZEoItKRFtPbp+/WpoEpuGuG9D9P4iWxDi6CfW
-         FlmVV5jIO7oVldSc9RvRg/eaxM/X9KnFG/Z1cuLV+lsBe2KfDX7waq+yi2vqEbbHL1mM
-         mwLPWmKNPcDlgbDu7OFBBeAUZJZ+0oBgTXAF6Fd45m+VTwZ36evFxBWThLa+Q79hk+SE
-         GQ4Q==
-X-Gm-Message-State: APjAAAVHGqmsT5bcbtbjUdEY96D3jXhzzoyIrc7JXYwtGigaIGDPCkYH
-        1QsmuB/ULpzu75l6YDpFH78AD4Ds
-X-Google-Smtp-Source: APXvYqzeIvJOr5WW9SHcd0aMEUsnXezqVeQDxfD8PoMhsBB0v0thKDyGBWGxNbX7Bc3gVOUf0GtrAg==
-X-Received: by 2002:a62:2e46:: with SMTP id u67mr82884329pfu.206.1560296830006;
-        Tue, 11 Jun 2019 16:47:10 -0700 (PDT)
-Received: from ?IPv6:2001:df0:0:200c:cd5b:7c57:228c:7f0a? ([2001:df0:0:200c:cd5b:7c57:228c:7f0a])
-        by smtp.gmail.com with ESMTPSA id e4sm21818015pgi.80.2019.06.11.16.47.02
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 11 Jun 2019 16:47:08 -0700 (PDT)
-Subject: Re: [PATCH v2 2/7] scsi: NCR5380: Always re-enable reselection
- interrupt
-To:     Finn Thain <fthain@telegraphics.com.au>
-Cc:     "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-References: <cover.1560043151.git.fthain@telegraphics.com.au>
- <61f0c0f6aaf8fa96bf3dade5475615b2cfbc8846.1560043151.git.fthain@telegraphics.com.au>
- <58081aba-4e77-3c8e-847e-0698cf80e426@gmail.com>
- <alpine.LNX.2.21.1906111926330.25@nippy.intranet>
-From:   Michael Schmitz <schmitzmic@gmail.com>
-Message-ID: <9c61076b-81f7-dc7b-0103-1e2e56072453@gmail.com>
-Date:   Wed, 12 Jun 2019 11:46:59 +1200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=VENOP9kl7lg5KwAxIPCouDt1b8Ws7sAjlClYwMccvkk=;
+        b=tnn2U1BPIHnGsX35BNNfY8F8MTT9Py6tZCkWykF8oaNEHYhWk7KTtyQZPVdQiaIHmh
+         kSGbx5GoXUw1cijh6sT/BfRpUJPw3g3H9G0SA86/a1xwYAmsVcB187dzsF+iro2zAI+a
+         GTT/LAUa6kpvE0JdC8Pw9G4t5vPygTBGaV4FfuPGjV5HYYRpsj9GYEeRw9UYAeVfvhc+
+         auaQ9AzXmWn9YkWX3hSpqXG8DvaBS5FNQW/KIjxk9F1CVm0c20PeHOmyfLEiFxvtYOKp
+         +zz0rMw6Puuaf3x0drYM7ITCDzeFUdsy9kiKsVHS9ouws7tf0ehbFXVp+KxMKY+/MGYQ
+         TkNA==
+X-Gm-Message-State: APjAAAUvEY8927VCBvekud4Z9Wvf8jtZhAozs3kWcYssgBlQ5MCTrlRA
+        BKQ8EZd0GEGxPr2LQ452WWA8cnpxaqruwj5ECw==
+X-Google-Smtp-Source: APXvYqwXKEnifxG0ZulJwDSBVavjHGiiNqpCp4KHpEscPy7916h+xxeL2bSqWfzEtRZLpQ8+dBbewxnKzU3w1FUEGok=
+X-Received: by 2002:a2e:9e8e:: with SMTP id f14mr17661324ljk.120.1560297152242;
+ Tue, 11 Jun 2019 16:52:32 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <alpine.LNX.2.21.1906111926330.25@nippy.intranet>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
+References: <20190605001534.28278-1-lsahlber@redhat.com>
+In-Reply-To: <20190605001534.28278-1-lsahlber@redhat.com>
+From:   Pavel Shilovsky <piastryyy@gmail.com>
+Date:   Tue, 11 Jun 2019 16:52:21 -0700
+Message-ID: <CAKywueSpgeVf4cR+yeHxRHuzt5RV9p_1Vsea_jH_qH98-+EYhA@mail.gmail.com>
+Subject: Re: [PATCH] cifs: fix panic in smb2_reconnect
+To:     Ronnie Sahlberg <lsahlber@redhat.com>
+Cc:     linux-cifs <linux-cifs@vger.kernel.org>,
+        Steve French <smfrench@gmail.com>,
+        Stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Finn,
-
-On 11/06/19 9:33 PM, Finn Thain wrote:
-> On Tue, 11 Jun 2019, Michael Schmitz wrote:
+=D0=B2=D1=82, 4 =D0=B8=D1=8E=D0=BD. 2019 =D0=B3. =D0=B2 17:16, Ronnie Sahlb=
+erg <lsahlber@redhat.com>:
 >
->> Hi Finn,
->>
->> IIRC I'd tested that change as well - didn't change broken target
->> behaviour but no regressions in other respects. Add my tested-by if
->> needed.
->>
-> Unfortunately I can't confirm that this is the same patch as the one you
-> tested as I no longer have that commit. But Stan did test a wide variety
-> of targets and I'm confident that the reselection code path was covered.
+> RH Bugzilla: 1702264
 >
-No matter - patch applied cleanly to what I'm running on my Falcon, and 
-works just fine for now (stresstest will take a few hours to complete). 
-And that'll thoroughly exercise the reselection code path, from what 
-we've seen before.
+> We need to protect so that the call to smb2_reconnect() in
+> smb2_reconnect_server() does not end up freeing the session
+> because it can lead to a use after free and crash.
+>
+> Reviewed-by: Aurelien Aptel <aaptel@suse.com>
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
+> ---
+>  fs/cifs/smb2pdu.c | 10 +++++++++-
+>  1 file changed, 9 insertions(+), 1 deletion(-)
+>
+> diff --git a/fs/cifs/smb2pdu.c b/fs/cifs/smb2pdu.c
+> index 565b60b62f4d..ab8dc73d2282 100644
+> --- a/fs/cifs/smb2pdu.c
+> +++ b/fs/cifs/smb2pdu.c
+> @@ -3113,9 +3113,14 @@ void smb2_reconnect_server(struct work_struct *wor=
+k)
+>                                 tcon_exist =3D true;
+>                         }
+>                 }
+> +               /*
+> +                * IPC has the same lifetime as its session and uses its
+> +                * refcount.
+> +                */
+>                 if (ses->tcon_ipc && ses->tcon_ipc->need_reconnect) {
+>                         list_add_tail(&ses->tcon_ipc->rlist, &tmp_list);
+>                         tcon_exist =3D true;
+> +                       ses->ses_count++;
+>                 }
+>         }
+>         /*
+> @@ -3134,7 +3139,10 @@ void smb2_reconnect_server(struct work_struct *wor=
+k)
+>                 else
+>                         resched =3D true;
+>                 list_del_init(&tcon->rlist);
+> -               cifs_put_tcon(tcon);
+> +               if (tcon->ipc)
+> +                       cifs_put_smb_ses(tcon->ses);
+> +               else
+> +                       cifs_put_tcon(tcon);
+>         }
+>
+>         cifs_dbg(FYI, "Reconnecting tcons finished\n");
+> --
+> 2.13.6
+>
 
-Cheers,
+Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
 
-     Michael
-
-
+--
+Best regards,
+Pavel Shilovsky
