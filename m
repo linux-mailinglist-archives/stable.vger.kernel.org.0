@@ -2,118 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B9673C14D
-	for <lists+stable@lfdr.de>; Tue, 11 Jun 2019 04:40:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 998453C150
+	for <lists+stable@lfdr.de>; Tue, 11 Jun 2019 04:43:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390755AbfFKCkP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jun 2019 22:40:15 -0400
-Received: from ozlabs.ru ([107.173.13.209]:45294 "EHLO ozlabs.ru"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390244AbfFKCkO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 10 Jun 2019 22:40:14 -0400
-X-Greylist: delayed 543 seconds by postgrey-1.27 at vger.kernel.org; Mon, 10 Jun 2019 22:40:14 EDT
-Received: from fstn1-p1.ozlabs.ibm.com (localhost [IPv6:::1])
-        by ozlabs.ru (Postfix) with ESMTP id 57A47AE80040;
-        Mon, 10 Jun 2019 22:31:08 -0400 (EDT)
-From:   Alexey Kardashevskiy <aik@ozlabs.ru>
-To:     linuxppc-dev@lists.ozlabs.org
-Cc:     Alexey Kardashevskiy <aik@ozlabs.ru>,
-        David Gibson <david@gibson.dropbear.id.au>,
-        kvm-ppc@vger.kernel.org, Alistair Popple <alistair@popple.id.au>,
-        Sam Bobroff <sbobroff@linux.ibm.com>,
-        Jose Ricardo Ziviani <joserz@linux.ibm.com>,
-        Daniel Henrique Barboza <danielhb413@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Paul Mackerras <paulus@samba.org>,
-        Oliver O'Halloran <oohall@gmail.com>,
-        Russell Currey <ruscur@russell.cc>, stable@vger.kernel.org
-Subject: [PATCH kernel] powerpc/powernv/ioda: Fix race in TCE level allocation
-Date:   Tue, 11 Jun 2019 12:31:03 +1000
-Message-Id: <20190611023103.86977-1-aik@ozlabs.ru>
+        id S2390244AbfFKCnS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jun 2019 22:43:18 -0400
+Received: from szxga06-in.huawei.com ([45.249.212.32]:44136 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S2390461AbfFKCnR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Jun 2019 22:43:17 -0400
+Received: from DGGEMS412-HUB.china.huawei.com (unknown [172.30.72.58])
+        by Forcepoint Email with ESMTP id 87F4069DBA60105D8B68;
+        Tue, 11 Jun 2019 10:43:15 +0800 (CST)
+Received: from architecture4.huawei.com (10.140.130.215) by smtp.huawei.com
+ (10.3.19.212) with Microsoft SMTP Server (TLS) id 14.3.439.0; Tue, 11 Jun
+ 2019 10:43:06 +0800
+From:   Gao Xiang <gaoxiang25@huawei.com>
+To:     Chao Yu <yuchao0@huawei.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <devel@driverdev.osuosl.org>
+CC:     LKML <linux-kernel@vger.kernel.org>,
+        <linux-erofs@lists.ozlabs.org>, "Chao Yu" <chao@kernel.org>,
+        Miao Xie <miaoxie@huawei.com>, <weidu.du@huawei.com>,
+        Fang Wei <fangwei1@huawei.com>,
+        Gao Xiang <gaoxiang25@huawei.com>, <stable@vger.kernel.org>
+Subject: [PATCH v2 1/2] staging: erofs: add requirements field in superblock
+Date:   Tue, 11 Jun 2019 10:42:19 +0800
+Message-ID: <20190611024220.86121-1-gaoxiang25@huawei.com>
 X-Mailer: git-send-email 2.17.1
+MIME-Version: 1.0
+Content-Type: text/plain
+X-Originating-IP: [10.140.130.215]
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-pnv_tce() returns a pointer to a TCE entry and originally a TCE table
-would be pre-allocated. For the default case of 2GB window the table
-needs only a single level and that is fine. However if more levels are
-requested, it is possible to get a race when 2 threads want a pointer
-to a TCE entry from the same page of TCEs.
+There are some backward incompatible features pending
+for months, mainly due to on-disk format expensions.
 
-This adds a spinlock to handle the race. The alloc==true case is not
-possible in the real mode so spinlock is safe for KVM as well.
+However, we should ensure that it cannot be mounted with
+old kernels. Otherwise, it will causes unexpected behaviors.
 
-CC: stable@vger.kernel.org # v4.19+
-Fixes: a68bd1267b72 ("powerpc/powernv/ioda: Allocate indirect TCE levels on demand")
-Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+Fixes: ba2b77a82022 ("staging: erofs: add super block operations")
+Cc: <stable@vger.kernel.org> # 4.19+
+Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
 ---
+change log v2:
+ - update printed message
 
-This fixes EEH's from
-https://patchwork.ozlabs.org/project/linuxppc-dev/list/?series=110810
+ drivers/staging/erofs/erofs_fs.h | 13 ++++++++++---
+ drivers/staging/erofs/super.c    | 17 +++++++++++++++++
+ 2 files changed, 27 insertions(+), 3 deletions(-)
 
-
----
- arch/powerpc/include/asm/iommu.h              |  1 +
- arch/powerpc/platforms/powernv/pci-ioda-tce.c | 21 ++++++++++++-------
- 2 files changed, 14 insertions(+), 8 deletions(-)
-
-diff --git a/arch/powerpc/include/asm/iommu.h b/arch/powerpc/include/asm/iommu.h
-index 2c1845e5e851..1825b4cc0097 100644
---- a/arch/powerpc/include/asm/iommu.h
-+++ b/arch/powerpc/include/asm/iommu.h
-@@ -111,6 +111,7 @@ struct iommu_table {
- 	struct iommu_table_ops *it_ops;
- 	struct kref    it_kref;
- 	int it_nid;
-+	spinlock_t it_lock;
- };
+diff --git a/drivers/staging/erofs/erofs_fs.h b/drivers/staging/erofs/erofs_fs.h
+index fa52898df006..8ddb2b3e7d39 100644
+--- a/drivers/staging/erofs/erofs_fs.h
++++ b/drivers/staging/erofs/erofs_fs.h
+@@ -17,10 +17,16 @@
+ #define EROFS_SUPER_MAGIC_V1    0xE0F5E1E2
+ #define EROFS_SUPER_OFFSET      1024
  
- #define IOMMU_TABLE_USERSPACE_ENTRY_RO(tbl, entry) \
-diff --git a/arch/powerpc/platforms/powernv/pci-ioda-tce.c b/arch/powerpc/platforms/powernv/pci-ioda-tce.c
-index e28f03e1eb5e..9a19d61e2b12 100644
---- a/arch/powerpc/platforms/powernv/pci-ioda-tce.c
-+++ b/arch/powerpc/platforms/powernv/pci-ioda-tce.c
-@@ -29,6 +29,7 @@ void pnv_pci_setup_iommu_table(struct iommu_table *tbl,
- 	tbl->it_size = tce_size >> 3;
- 	tbl->it_busno = 0;
- 	tbl->it_type = TCE_PCI;
-+	spin_lock_init(&tbl->it_lock);
++/*
++ * Any bits that aren't in EROFS_ALL_REQUIREMENTS should be
++ * incompatible with this kernel version.
++ */
++#define EROFS_ALL_REQUIREMENTS  0
++
+ struct erofs_super_block {
+ /*  0 */__le32 magic;           /* in the little endian */
+ /*  4 */__le32 checksum;        /* crc32c(super_block) */
+-/*  8 */__le32 features;
++/*  8 */__le32 features;        /* (aka. feature_compat) */
+ /* 12 */__u8 blkszbits;         /* support block_size == PAGE_SIZE only */
+ /* 13 */__u8 reserved;
+ 
+@@ -34,9 +40,10 @@ struct erofs_super_block {
+ /* 44 */__le32 xattr_blkaddr;
+ /* 48 */__u8 uuid[16];          /* 128-bit uuid for volume */
+ /* 64 */__u8 volume_name[16];   /* volume name */
++/* 80 */__le32 requirements;    /* (aka. feature_incompat) */
+ 
+-/* 80 */__u8 reserved2[48];     /* 128 bytes */
+-} __packed;
++/* 84 */__u8 reserved2[44];
++} __packed;                     /* 128 bytes */
+ 
+ /*
+  * erofs inode data mapping:
+diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
+index f580d4ef77a1..fdcf65b3e52d 100644
+--- a/drivers/staging/erofs/super.c
++++ b/drivers/staging/erofs/super.c
+@@ -71,6 +71,20 @@ static void free_inode(struct inode *inode)
+ 	kmem_cache_free(erofs_inode_cachep, vi);
  }
  
- static __be64 *pnv_alloc_tce_level(int nid, unsigned int shift)
-@@ -60,18 +61,22 @@ static __be64 *pnv_tce(struct iommu_table *tbl, bool user, long idx, bool alloc)
- 		unsigned long tce;
++static bool check_layout_compatibility(struct super_block *sb,
++				       struct erofs_super_block *layout)
++{
++	const unsigned int requirements = le32_to_cpu(layout->requirements);
++
++	/* check if current kernel meets all mandatory requirements */
++	if (requirements & (~EROFS_ALL_REQUIREMENTS)) {
++		errln("unidentified requirements %x, please upgrade kernel version",
++		      requirements & ~EROFS_ALL_REQUIREMENTS);
++		return false;
++	}
++	return true;
++}
++
+ static int superblock_read(struct super_block *sb)
+ {
+ 	struct erofs_sb_info *sbi;
+@@ -104,6 +118,9 @@ static int superblock_read(struct super_block *sb)
+ 		goto out;
+ 	}
  
- 		if (tmp[n] == 0) {
--			__be64 *tmp2;
--
- 			if (!alloc)
- 				return NULL;
- 
--			tmp2 = pnv_alloc_tce_level(tbl->it_nid,
--					ilog2(tbl->it_level_size) + 3);
--			if (!tmp2)
--				return NULL;
-+			spin_lock(&tbl->it_lock);
-+			if (tmp[n] == 0) {
-+				__be64 *tmp2;
- 
--			tmp[n] = cpu_to_be64(__pa(tmp2) |
--					TCE_PCI_READ | TCE_PCI_WRITE);
-+				tmp2 = pnv_alloc_tce_level(tbl->it_nid,
-+						ilog2(tbl->it_level_size) + 3);
-+				if (tmp2)
-+					tmp[n] = cpu_to_be64(__pa(tmp2) |
-+						TCE_PCI_READ | TCE_PCI_WRITE);
-+			}
-+			spin_unlock(&tbl->it_lock);
-+			if (tmp[n] == 0)
-+				return NULL;
- 		}
- 		tce = be64_to_cpu(tmp[n]);
- 
++	if (!check_layout_compatibility(sb, layout))
++		goto out;
++
+ 	sbi->blocks = le32_to_cpu(layout->blocks);
+ 	sbi->meta_blkaddr = le32_to_cpu(layout->meta_blkaddr);
+ #ifdef CONFIG_EROFS_FS_XATTR
 -- 
 2.17.1
 
