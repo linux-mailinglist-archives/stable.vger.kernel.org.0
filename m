@@ -2,80 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1694E3D0FB
-	for <lists+stable@lfdr.de>; Tue, 11 Jun 2019 17:37:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 022C73D0FD
+	for <lists+stable@lfdr.de>; Tue, 11 Jun 2019 17:37:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388277AbfFKPgm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Jun 2019 11:36:42 -0400
-Received: from mail-wm1-f41.google.com ([209.85.128.41]:40187 "EHLO
-        mail-wm1-f41.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2388863AbfFKPgm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Jun 2019 11:36:42 -0400
-Received: by mail-wm1-f41.google.com with SMTP id v19so3422747wmj.5
-        for <stable@vger.kernel.org>; Tue, 11 Jun 2019 08:36:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=1GWEv8FCBxWI9nauzK2b7kpjUTYGqenC3xKdDbI0CQY=;
-        b=A85wTUId71HvfFjbf71l3QI6qn2E40HxlkXKY9Xa/Jzz0/DBvYKyGcRx+y/1uBr/Et
-         D9gQYLZri8TEqFVrAERGf7D5rE3kaH1pgnf9Wq4h7pN/ZuzZmTQOpq9a0Av98MwZu9Iv
-         TRNOP/EuctAsxYHk16Zn7qLqHAxmN8ilSMlJjBr/9CxXCb+YXuC/DlbE+q37cJfpiwzG
-         YNI/pJydHCXltRP7bcde4TE6dfDLeaBHt2VBPjjVN0dHC60kKAPLKfFTdaMeIJhqbN0u
-         6U/Jp8drJDm1YZYRjAuZ3FCEB+Ua8QKFIy4S7aWbHShhRPjqbO5B1PQifxGsB4fqAId/
-         3Fyg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=1GWEv8FCBxWI9nauzK2b7kpjUTYGqenC3xKdDbI0CQY=;
-        b=bC7ks/POYSruFWxeaWWyyjk3SJgJRNJR4uT0hDsOSO436Yl9Rzp0wLj9cJDEpUdQy8
-         iDBJ/srhOqq3XRZBvRqI7ayFgOeiN7l0uczx2IKO/XyM6q5beKWtZ19zZsEcYHvkVTOm
-         RINDUxPEcZEhInFy7N+YucNpkqVI+MPIhS8pGXS4POEmJRdIJNI7/r5wz22V5Boj/4ql
-         XTwIUuPtXvobPW2XOaHWp0Spwd0rkIPGALpD70BtnJ5l7ndvj7SXRUJ3Q1AhVGFzeroO
-         +RDk+hzqPXvHX1FuYUz+I4HyL3c2n/cDI4meRpZETa0Eq4nTCPg5Pg9PDU5Jkz/+hIe3
-         XPjQ==
-X-Gm-Message-State: APjAAAVuBmTFOXszKDKUyHJjzqvXxGuv7Ph6tlDHmUrIPWcepsscPxdu
-        9QNVGcEQpSJJLZcwfU/DTDHlFkvsSse6Yg==
-X-Google-Smtp-Source: APXvYqwuhCY45VySb8cd8dlVwi5i2KFsyQaKde3IgEXuZ9cK30bHQRnfOycENFmXsb6hNjV2nA+goQ==
-X-Received: by 2002:a1c:c011:: with SMTP id q17mr18638921wmf.105.1560267400113;
-        Tue, 11 Jun 2019 08:36:40 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id w23sm2661566wmc.38.2019.06.11.08.36.39
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 11 Jun 2019 08:36:39 -0700 (PDT)
-Message-ID: <5cffca87.1c69fb81.f8b2.f389@mx.google.com>
-Date:   Tue, 11 Jun 2019 08:36:39 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S2390295AbfFKPhB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Jun 2019 11:37:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60540 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S2388863AbfFKPhB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 11 Jun 2019 11:37:01 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 56409208E3;
+        Tue, 11 Jun 2019 15:37:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1560267420;
+        bh=fEoHYLUoUcY9d8GXrqmAIqvlneWazjqtSYZ7U9oX254=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=L+HewiuH18Tn8PTXdwxGf11Sd+J2LlpmhDkd6ygLY6Iu1mKKOQHQnlsHmCPMsubcm
+         uPzFSSJqL/U/01GKsriiICUZzR90OKciN7m2VNHDAhxuD4QY3foY7q/9jxkjP7xuBR
+         V+Y1I/XKnIxmNNXSXQPRUkI2awrv2XIb0lnrKZ0A=
+Date:   Tue, 11 Jun 2019 17:36:56 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Sven Joachim <svenjoac@gmx.de>
+Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Dave Airlie <airlied@redhat.com>
+Subject: Re: Linux 5.1.9 build failure with
+ CONFIG_NOUVEAU_LEGACY_CTX_SUPPORT=n
+Message-ID: <20190611153656.GA5084@kroah.com>
+References: <87k1dsjkdo.fsf@turtle.gmx.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.9.181
-X-Kernelci-Branch: linux-4.9.y
-X-Kernelci-Tree: stable
-Subject: stable/linux-4.9.y boot: 47 boots: 0 failed, 47 passed (v4.9.181)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87k1dsjkdo.fsf@turtle.gmx.de>
+User-Agent: Mutt/1.12.0 (2019-05-25)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.9.y boot: 47 boots: 0 failed, 47 passed (v4.9.181)
+On Tue, Jun 11, 2019 at 03:56:35PM +0200, Sven Joachim wrote:
+> Commit 1e07d63749 ("drm/nouveau: add kconfig option to turn off nouveau
+> legacy contexts. (v3)") has caused a build failure for me when I
+> actually tried that option (CONFIG_NOUVEAU_LEGACY_CTX_SUPPORT=n):
+> 
+> ,----
+> | Kernel: arch/x86/boot/bzImage is ready  (#1)
+> |   Building modules, stage 2.
+> |   MODPOST 290 modules
+> | ERROR: "drm_legacy_mmap" [drivers/gpu/drm/nouveau/nouveau.ko] undefined!
+> | scripts/Makefile.modpost:91: recipe for target '__modpost' failed
+> `----
+> 
+> Upstream does not have that problem, as commit bed2dd8421 ("drm/ttm:
+> Quick-test mmap offset in ttm_bo_mmap()") has removed the use of
+> drm_legacy_mmap from nouveau_ttm.c.  Unfortunately that commit does not
+> apply in 5.1.9.
+> 
+> Most likely 4.19.50 and 4.14.125 are also affected, I haven't tested
+> them yet.
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
-9.y/kernel/v4.9.181/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.9.y/ke=
-rnel/v4.9.181/
+They probably are.
 
-Tree: stable
-Branch: linux-4.9.y
-Git Describe: v4.9.181
-Git Commit: 3ffb2407c545c389a872c3eb12e09eab34432b12
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 22 unique boards, 16 SoC families, 11 builds out of 197
+Should I just revert this patch in the stable tree, or add some other
+patch (like the one pointed out here, which seems an odd patch for
+stable...)
 
----
-For more info write to <info@kernelci.org>
+thanks,
+
+greg k-h
