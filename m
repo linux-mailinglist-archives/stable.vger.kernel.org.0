@@ -2,87 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 68C563D1BE
-	for <lists+stable@lfdr.de>; Tue, 11 Jun 2019 18:08:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADC893D1DB
+	for <lists+stable@lfdr.de>; Tue, 11 Jun 2019 18:10:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391600AbfFKQIo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Jun 2019 12:08:44 -0400
-Received: from mail-wm1-f67.google.com ([209.85.128.67]:52874 "EHLO
-        mail-wm1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2391497AbfFKQIo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Jun 2019 12:08:44 -0400
-Received: by mail-wm1-f67.google.com with SMTP id s3so3587712wms.2
-        for <stable@vger.kernel.org>; Tue, 11 Jun 2019 09:08:42 -0700 (PDT)
+        id S2389804AbfFKQJ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Jun 2019 12:09:56 -0400
+Received: from mail-qt1-f196.google.com ([209.85.160.196]:41911 "EHLO
+        mail-qt1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2387814AbfFKQJz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Jun 2019 12:09:55 -0400
+Received: by mail-qt1-f196.google.com with SMTP id 33so7030922qtr.8
+        for <stable@vger.kernel.org>; Tue, 11 Jun 2019 09:09:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=pMhH1RLEi2JE+SGX9evp3J/JkMl0W+s9fPHDwrc+CD8=;
-        b=ERHe+Z1M3OEsdNeonoQM/hN2bSvq79p7Pg663z0efqZQmKYyZ8xkgRU9C++z0pMbmq
-         pDUesgPnJ2szv22R1whJoeOtUVpGzxcehb5UtCbz92IH+PJ3r/ywoirIdr8dFmp2YQSW
-         EG3Z5YH9NlR/XIsPMyYnRIl05GuFUCFLBHP0T4fwcoL52qX4TnnjGaGE7BSUrbQZUZC4
-         LWbVpYxyUv6m2EJpRCD6vlSwiSIAIelcQaDzHru1UjuJrl4/g7lUBxecEVXwHeK7tisn
-         amy0UjbxfALusXu+30DpuAlh2Wf2WZ3G54PiATxbofOQxZI2WTCF80sAlu4I7JhsxEIz
-         U9Gw==
+        d=ziepe.ca; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=3hSlsAiA/hDUqHiRtfh2cpeKlg/PwN4WvDHlolf/AOI=;
+        b=Db2yvx3YXP6UuCGmniyKf+PFxhHroMwyT7YK5KTiH1ccD1Cs8+HOdfg64N5wLaakY7
+         QrNC8UQXLAm+6TOGzysWg6EP5h8uKOCnjUUBRF5APZS5o5nI8WwS0QQ4Zv6lktdH1XeM
+         O5oMTfY4re5ccZ1SuITPVRBWlfxyGWpUK0EWtJb8B6ZriwZbfeud5z3P/h3ooo092ORw
+         /eDZaZ0e+fXFm75teuKF8oVHITASuUKXRSXHLyOaopfgTyEnaPMi0MgEJDGri2wWGI4H
+         KL0XwK6lEnIP0isYs4ibFSODW7Qr+HthMM5wb0tvxzDYmkqs1uFHPXfDZAYG0HjZiFOF
+         Jxwg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=pMhH1RLEi2JE+SGX9evp3J/JkMl0W+s9fPHDwrc+CD8=;
-        b=mSLcKNcQnEAZgq1Bp/j8Y/KiGcf2UvBcZ5n9wyJctMok5Lo5XfvZpdS/K38JyXoI64
-         1ceaoF4YSUNfuvnU+cSuDDMWmy08oyp//4DHr33wE9aQqCzZGLtku6W4xjek/9SGgE7P
-         jsr3Tw5CT4/OmPK4rNm4bbPKUFXK8RJR34ipM3gbjJyzc5exHahi3h/G4tSL9UqW83GU
-         ZVT3mb0UsO6o47hU84NyeGau7YWHHWqmdlgNkoJCSg1x+xWv9VYNKSIZZgn3ic26XBr2
-         /GUElqdoAv2ZAwdpyzNZY1jyfmMN/9nQxC8nc53PzyBMbxba9wp8ZCCP3Tp9ya4fsGEs
-         51+g==
-X-Gm-Message-State: APjAAAWCH2u1Yzcv+BLznkl+sj0wx18n2YUkfjOfCnthVCGFL8zyheR8
-        VONtV33uKpYe12Lo6/eN3w5HM+gH+ouLeQ==
-X-Google-Smtp-Source: APXvYqz+kVc1pbaTZFf2qB8JKb8M1GShPnNKKO9ZRfl/UOI5yllF2jurBptAWvOJPvUTm7bDOeI8iQ==
-X-Received: by 2002:a1c:4184:: with SMTP id o126mr18377694wma.68.1560269321716;
-        Tue, 11 Jun 2019 09:08:41 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id f26sm3181927wmh.8.2019.06.11.09.08.39
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 11 Jun 2019 09:08:40 -0700 (PDT)
-Message-ID: <5cffd208.1c69fb81.7daf7.27bb@mx.google.com>
-Date:   Tue, 11 Jun 2019 09:08:40 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=3hSlsAiA/hDUqHiRtfh2cpeKlg/PwN4WvDHlolf/AOI=;
+        b=Z11CFdte6aubAJeupTPvyoDJAYxneIwA2Cl2BxG6FExj8AlK/lRnRGNLi8f3IZr62h
+         Xz1QF960KJZZCimeDHQIY9h5ZmAiNPW8LJx1GnerI7uHXk8bNwKXzEJ++ipOnjNmSVYb
+         C2HIYDh7JNoGJdNBBmnK5zN7NGZypwqdOZwR88kyNrYi6Kt4aqHjsh2sDT2uuU5ZclQq
+         Vh20WAq/xUhhbi5BNc0q1uDOHiFuLWs6v6Cye/C+HqixfkJXNT4Gv85lNfotUSv8wJsl
+         LWynFaVTQ7N5Srt/T70i6d2XmDmwLFM7ePyvHggufmYzdNNGlFxanDy5DZtMK8ty5qiP
+         1kGQ==
+X-Gm-Message-State: APjAAAUe6lS2Ikrp3fnGih5r73I5/QbRSz02W1ATBY1O1Ob7WYCRBPmq
+        0/9up0VWtlTZa+D6vhqBo0jchg==
+X-Google-Smtp-Source: APXvYqySxNeFQLolYkYidFXc6FTUp2Gff/U9Q/sFv1z+7kpIPiksTjRwOYozBy20ZoFzSS4C1wREmg==
+X-Received: by 2002:ac8:21f2:: with SMTP id 47mr51673974qtz.38.1560269394894;
+        Tue, 11 Jun 2019 09:09:54 -0700 (PDT)
+Received: from ziepe.ca (hlfxns017vw-156-34-55-100.dhcp-dynamic.fibreop.ns.bellaliant.net. [156.34.55.100])
+        by smtp.gmail.com with ESMTPSA id m6sm6851775qte.17.2019.06.11.09.09.54
+        (version=TLS1_2 cipher=ECDHE-RSA-CHACHA20-POLY1305 bits=256/256);
+        Tue, 11 Jun 2019 09:09:54 -0700 (PDT)
+Received: from jgg by mlx.ziepe.ca with local (Exim 4.90_1)
+        (envelope-from <jgg@ziepe.ca>)
+        id 1hajLN-000624-LS; Tue, 11 Jun 2019 13:09:53 -0300
+From:   Jason Gunthorpe <jgg@ziepe.ca>
+To:     linux-rdma@vger.kernel.org, Moni Shoua <monis@mellanox.com>
+Cc:     Jason Gunthorpe <jgg@mellanox.com>, stable@vger.kernel.org
+Subject: [PATCH] RDMA/odp: Fix missed unlock in non-blocking invalidate_start
+Date:   Tue, 11 Jun 2019 13:09:51 -0300
+Message-Id: <20190611160951.23135-1-jgg@ziepe.ca>
+X-Mailer: git-send-email 2.21.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.19.50
-X-Kernelci-Branch: linux-4.19.y
-X-Kernelci-Tree: stable
-Subject: stable/linux-4.19.y boot: 67 boots: 1 failed, 66 passed (v4.19.50)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.19.y boot: 67 boots: 1 failed, 66 passed (v4.19.50)
+From: Jason Gunthorpe <jgg@mellanox.com>
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
-19.y/kernel/v4.19.50/
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.19.y/k=
-ernel/v4.19.50/
+If invalidate_start returns with EAGAIN then the umem_rwsem needs to be
+unlocked as no invalidate_end will be called.
 
-Tree: stable
-Branch: linux-4.19.y
-Git Describe: v4.19.50
-Git Commit: 768292d053619b2725b846ed2bf556bf40f43de2
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
-Tested: 35 unique boards, 15 SoC families, 11 builds out of 206
-
-Boot Failure Detected:
-
-arm64:
-    defconfig:
-        gcc-8:
-            meson-gxm-khadas-vim2: 1 failed lab
-
+Cc: <stable@vger.kernel.org>
+Fixes: ca748c39ea3f ("RDMA/umem: Get rid of per_mm->notifier_count")
+Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 ---
-For more info write to <info@kernelci.org>
+ drivers/infiniband/core/umem_odp.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/infiniband/core/umem_odp.c b/drivers/infiniband/core/umem_odp.c
+index f962b5bbfa40e4..e4b13a32692a97 100644
+--- a/drivers/infiniband/core/umem_odp.c
++++ b/drivers/infiniband/core/umem_odp.c
+@@ -151,6 +151,7 @@ static int ib_umem_notifier_invalidate_range_start(struct mmu_notifier *mn,
+ {
+ 	struct ib_ucontext_per_mm *per_mm =
+ 		container_of(mn, struct ib_ucontext_per_mm, mn);
++	int rc;
+ 
+ 	if (mmu_notifier_range_blockable(range))
+ 		down_read(&per_mm->umem_rwsem);
+@@ -167,11 +168,14 @@ static int ib_umem_notifier_invalidate_range_start(struct mmu_notifier *mn,
+ 		return 0;
+ 	}
+ 
+-	return rbt_ib_umem_for_each_in_range(&per_mm->umem_tree, range->start,
+-					     range->end,
+-					     invalidate_range_start_trampoline,
+-					     mmu_notifier_range_blockable(range),
+-					     NULL);
++	rc = rbt_ib_umem_for_each_in_range(&per_mm->umem_tree, range->start,
++					   range->end,
++					   invalidate_range_start_trampoline,
++					   mmu_notifier_range_blockable(range),
++					   NULL);
++	if (rc)
++		up_read(&per_mm->umem_rwsem);
++	return rc;
+ }
+ 
+ static int invalidate_range_end_trampoline(struct ib_umem_odp *item, u64 start,
+-- 
+2.21.0
+
