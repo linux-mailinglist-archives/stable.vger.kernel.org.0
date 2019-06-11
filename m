@@ -2,64 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BB7E53C6FC
-	for <lists+stable@lfdr.de>; Tue, 11 Jun 2019 11:07:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86D143C742
+	for <lists+stable@lfdr.de>; Tue, 11 Jun 2019 11:33:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404634AbfFKJGE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Jun 2019 05:06:04 -0400
-Received: from mail-ot1-f67.google.com ([209.85.210.67]:32822 "EHLO
-        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2404619AbfFKJGE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Jun 2019 05:06:04 -0400
-Received: by mail-ot1-f67.google.com with SMTP id p4so7925914oti.0
-        for <stable@vger.kernel.org>; Tue, 11 Jun 2019 02:06:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ffwll.ch; s=google;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=rwXJ0N12YFLwa3eVVBLbd7agid8j+bBmrKd/BuMAQiU=;
-        b=DsUPLa7LCfch9zRy/io0G7X75mksebnmHPsCdAHYt9k7o48Xp45CvOqTXFWAuZSz7P
-         9ghAVBrDBjTT9piadvsFYmZiLgAcunqzMT49u4pChgIOR4ziZN03szKDxIgf0BcKs14x
-         f1wrIQFRbwDDw/NH60x4yMljZyH2If4elyyVw=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=rwXJ0N12YFLwa3eVVBLbd7agid8j+bBmrKd/BuMAQiU=;
-        b=XZ8c9n/Y3jWNKMvpraqKupn46mf5ETl4c+YYtkbi+WDOnd5Ws8lG4g/QtgJQl4LVNi
-         ynt7HO5G5QvDTC/qhq2rGLCY3OTmsEIoKBbj9szNc8UIvE1UBMM6WcwnF5A6zkonuqjB
-         /SePBSssq02PRFYgpTjjTwAmyFsoNZ+eYUZFny8zMoF61YTPZbn+XD9f3oFIrq6TureE
-         VpO0/wenBrPIN3y/pVP8AnwCDvVfEEbMBVwPLksa8J8MsuqdC8HBkLlZCPBc1wCMyadU
-         X6Mg1voFrZWMcX5NeuUtiDOztKYQ04saJY68q+8rFuv7/55EeTUkq4FQSHwbVJxmqnXT
-         cWuQ==
-X-Gm-Message-State: APjAAAVFColldgD8SbA8tT+sTE56a+G+hg0VBmjCs5rsBiLN8NP24WkU
-        MZgMglySzEFTeb23//8MDH1HpLFFBjM0NKUUkY1WNKr8TVM=
-X-Google-Smtp-Source: APXvYqwt5kZU7hIpkWm84uXzdUMrPiTBicmCiNGzeSrhCoNIMPJy4+6RoWMUsldwEhyEIw/4xp2QBOwFT1bi+jIWYPo=
-X-Received: by 2002:a05:6830:4b:: with SMTP id d11mr32393993otp.106.1560243963973;
- Tue, 11 Jun 2019 02:06:03 -0700 (PDT)
+        id S2404433AbfFKJdh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Jun 2019 05:33:37 -0400
+Received: from kvm5.telegraphics.com.au ([98.124.60.144]:35740 "EHLO
+        kvm5.telegraphics.com.au" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2404137AbfFKJdh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Jun 2019 05:33:37 -0400
+Received: from localhost (localhost.localdomain [127.0.0.1])
+        by kvm5.telegraphics.com.au (Postfix) with ESMTP id 8B17722915;
+        Tue, 11 Jun 2019 05:33:33 -0400 (EDT)
+Date:   Tue, 11 Jun 2019 19:33:38 +1000 (AEST)
+From:   Finn Thain <fthain@telegraphics.com.au>
+To:     Michael Schmitz <schmitzmic@gmail.com>
+cc:     "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v2 2/7] scsi: NCR5380: Always re-enable reselection
+ interrupt
+In-Reply-To: <58081aba-4e77-3c8e-847e-0698cf80e426@gmail.com>
+Message-ID: <alpine.LNX.2.21.1906111926330.25@nippy.intranet>
+References: <cover.1560043151.git.fthain@telegraphics.com.au> <61f0c0f6aaf8fa96bf3dade5475615b2cfbc8846.1560043151.git.fthain@telegraphics.com.au> <58081aba-4e77-3c8e-847e-0698cf80e426@gmail.com>
 MIME-Version: 1.0
-From:   Daniel Vetter <daniel.vetter@ffwll.ch>
-Date:   Tue, 11 Jun 2019 11:05:52 +0200
-Message-ID: <CAKMK7uHXF-ZyVjz1UTOZvSn_TxXMFwjiDz8cYGmwzzpWHNcTyw@mail.gmail.com>
-Subject: 5.1 backport request
-To:     stable <stable@vger.kernel.org>, Dave Airlie <airlied@linux.ie>
-Cc:     =?UTF-8?Q?Michel_D=C3=A4nzer?= <michel.daenzer@amd.com>,
-        dri-devel <dri-devel@lists.freedesktop.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi stable team,
+On Tue, 11 Jun 2019, Michael Schmitz wrote:
 
-Please backport dbb92471674a ("Revert "drm: allow render capable
-master with DRM_AUTH ioctls"") to 5.1, we accidentally forgot the Cc:
-stable and Fixes: line for that revert. Thanks to Michel for spotting
-this.
+> Hi Finn,
+> 
+> IIRC I'd tested that change as well - didn't change broken target 
+> behaviour but no regressions in other respects. Add my tested-by if 
+> needed.
+> 
 
-Dave, for next time around there's $ dim fixes $broken_sha1
+Unfortunately I can't confirm that this is the same patch as the one you 
+tested as I no longer have that commit. But Stan did test a wide variety 
+of targets and I'm confident that the reselection code path was covered.
 
-Thanks, Daniel
 -- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-+41 (0) 79 365 57 48 - http://blog.ffwll.ch
+
+> Cheers,
+> 
+> 	Michael
+> 
+> 
+> Am 09.06.2019 um 13:19 schrieb Finn Thain:
+> > The reselection interrupt gets disabled during selection and must be
+> > re-enabled when hostdata->connected becomes NULL. If it isn't re-enabled
+> > a disconnected command may time-out or the target may wedge the bus while
+> > trying to reselect the host. This can happen after a command is aborted.
+> > 
+> > Fix this by enabling the reselection interrupt in NCR5380_main() after
+> > calls to NCR5380_select() and NCR5380_information_transfer() return.
+> > 
+> > Cc: Michael Schmitz <schmitzmic@gmail.com>
+> > Cc: stable@vger.kernel.org # v4.9+
+> > Fixes: 8b00c3d5d40d ("ncr5380: Implement new eh_abort_handler")
+> > Tested-by: Stan Johnson <userm57@yahoo.com>
+> > Signed-off-by: Finn Thain <fthain@telegraphics.com.au>
+> > ---
+> >  drivers/scsi/NCR5380.c | 12 ++----------
+> >  1 file changed, 2 insertions(+), 10 deletions(-)
+> > 
+> > diff --git a/drivers/scsi/NCR5380.c b/drivers/scsi/NCR5380.c
+> > index fe0535affc14..08e3ea8159b3 100644
+> > --- a/drivers/scsi/NCR5380.c
+> > +++ b/drivers/scsi/NCR5380.c
+> > @@ -709,6 +709,8 @@ static void NCR5380_main(struct work_struct *work)
+> >  			NCR5380_information_transfer(instance);
+> >  			done = 0;
+> >  		}
+> > +		if (!hostdata->connected)
+> > +			NCR5380_write(SELECT_ENABLE_REG, hostdata->id_mask);
+> >  		spin_unlock_irq(&hostdata->lock);
+> >  		if (!done)
+> >  			cond_resched();
+> > @@ -1110,8 +1112,6 @@ static bool NCR5380_select(struct Scsi_Host *instance,
+> > struct scsi_cmnd *cmd)
+> >  		spin_lock_irq(&hostdata->lock);
+> >  		NCR5380_write(INITIATOR_COMMAND_REG, ICR_BASE);
+> >  		NCR5380_reselect(instance);
+> > -		if (!hostdata->connected)
+> > -			NCR5380_write(SELECT_ENABLE_REG, hostdata->id_mask);
+> >  		shost_printk(KERN_ERR, instance, "reselection after won
+> > arbitration?\n");
+> >  		goto out;
+> >  	}
+> > @@ -1119,7 +1119,6 @@ static bool NCR5380_select(struct Scsi_Host *instance,
+> > struct scsi_cmnd *cmd)
+> >  	if (err < 0) {
+> >  		spin_lock_irq(&hostdata->lock);
+> >  		NCR5380_write(INITIATOR_COMMAND_REG, ICR_BASE);
+> > -		NCR5380_write(SELECT_ENABLE_REG, hostdata->id_mask);
+> > 
+> >  		/* Can't touch cmd if it has been reclaimed by the scsi ML */
+> >  		if (!hostdata->selecting)
+> > @@ -1157,7 +1156,6 @@ static bool NCR5380_select(struct Scsi_Host *instance,
+> > struct scsi_cmnd *cmd)
+> >  	if (err < 0) {
+> >  		shost_printk(KERN_ERR, instance, "select: REQ timeout\n");
+> >  		NCR5380_write(INITIATOR_COMMAND_REG, ICR_BASE);
+> > -		NCR5380_write(SELECT_ENABLE_REG, hostdata->id_mask);
+> >  		goto out;
+> >  	}
+> >  	if (!hostdata->selecting) {
+> > @@ -1826,9 +1824,6 @@ static void NCR5380_information_transfer(struct
+> > Scsi_Host *instance)
+> >  					 */
+> >  					NCR5380_write(TARGET_COMMAND_REG, 0);
+> > 
+> > -					/* Enable reselect interrupts */
+> > -					NCR5380_write(SELECT_ENABLE_REG,
+> > hostdata->id_mask);
+> > -
+> >  					maybe_release_dma_irq(instance);
+> >  					return;
+> >  				case MESSAGE_REJECT:
+> > @@ -1860,8 +1855,6 @@ static void NCR5380_information_transfer(struct
+> > Scsi_Host *instance)
+> >  					 */
+> >  					NCR5380_write(TARGET_COMMAND_REG, 0);
+> > 
+> > -					/* Enable reselect interrupts */
+> > -					NCR5380_write(SELECT_ENABLE_REG,
+> > hostdata->id_mask);
+> >  #ifdef SUN3_SCSI_VME
+> >  					dregs->csr |= CSR_DMA_ENABLE;
+> >  #endif
+> > @@ -1964,7 +1957,6 @@ static void NCR5380_information_transfer(struct
+> > Scsi_Host *instance)
+> >  					cmd->result = DID_ERROR << 16;
+> >  					complete_cmd(instance, cmd);
+> >  					maybe_release_dma_irq(instance);
+> > -					NCR5380_write(SELECT_ENABLE_REG,
+> > hostdata->id_mask);
+> >  					return;
+> >  				}
+> >  				msgout = NOP;
+> > 
+> 
