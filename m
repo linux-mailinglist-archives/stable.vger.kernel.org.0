@@ -2,102 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 28D513C596
-	for <lists+stable@lfdr.de>; Tue, 11 Jun 2019 10:08:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77A623C70F
+	for <lists+stable@lfdr.de>; Tue, 11 Jun 2019 11:12:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404476AbfFKIHX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Jun 2019 04:07:23 -0400
-Received: from mail-wr1-f66.google.com ([209.85.221.66]:33429 "EHLO
-        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2404418AbfFKIHW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Jun 2019 04:07:22 -0400
-Received: by mail-wr1-f66.google.com with SMTP id n9so11908331wru.0
-        for <stable@vger.kernel.org>; Tue, 11 Jun 2019 01:07:21 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=WHWrvmaz/r/uPs6ClZNwktNqPw2BVBCjeEDlthzgcU8=;
-        b=ThvCe97m9x3fNv5MMl2EmuFGDEcebNW349cEQ3vDVV5Kbrvq4m/SjQbdibdbYBHBbA
-         HGhuEUFmox6uPpCZ8EfOPl+4xaJDs92XOobbS+LMGlwFXVpjJ8lTgDIYVN/NXbNkzx6g
-         sR4aI2TttttQFflUqZPNdT38EQ/vTPuK7Qle1TjWXkjgwk/0ahzUWGShCKojS+qBWmrL
-         peeQyIxKZZd7avtrs4fXOmjHCc73tmlDy6Hsf+dLI8Jyle9yoybZFjmPRAjcD5l6Q6kw
-         h6plq3+ud9aNdZ6VTgTMJFezijBRSxPhoGUzs5FLa5oGPOts48Om+Bq+9d8yFW3gNIIz
-         kH/g==
-X-Gm-Message-State: APjAAAXb4ILEG8ONWtdLbJHD8IN79tABFE/wvJtv7mSgsCSQMY/rYNDi
-        D9JPzUupYKStYAMsQDX8wqdsSA==
-X-Google-Smtp-Source: APXvYqwJCH1RG30C5HPYM3/363CUgEAM/3wWHHRnQ6oWWiIQBXXHTJfBuRDit6IqiagJ6r3cK6D2dg==
-X-Received: by 2002:adf:b643:: with SMTP id i3mr20919171wre.284.1560240441294;
-        Tue, 11 Jun 2019 01:07:21 -0700 (PDT)
-Received: from localhost.localdomain.com (nat-pool-brq-t.redhat.com. [213.175.37.10])
-        by smtp.gmail.com with ESMTPSA id h90sm29632411wrh.15.2019.06.11.01.07.20
-        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Tue, 11 Jun 2019 01:07:20 -0700 (PDT)
-From:   Ondrej Mosnacek <omosnace@redhat.com>
-To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
-Cc:     linux-audit@redhat.com, stable@vger.kernel.org
-Subject: [PATCH] selinux: log raw contexts as untrusted strings
-Date:   Tue, 11 Jun 2019 10:07:19 +0200
-Message-Id: <20190611080719.28625-1-omosnace@redhat.com>
-X-Mailer: git-send-email 2.20.1
+        id S1728846AbfFKJML (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Jun 2019 05:12:11 -0400
+Received: from elvis.franken.de ([193.175.24.41]:54846 "EHLO elvis.franken.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727642AbfFKJML (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 11 Jun 2019 05:12:11 -0400
+X-Greylist: delayed 2723 seconds by postgrey-1.27 at vger.kernel.org; Tue, 11 Jun 2019 05:12:10 EDT
+Received: from uucp (helo=alpha)
+        by elvis.franken.de with local-bsmtp (Exim 3.36 #1)
+        id 1hac79-0005BB-00; Tue, 11 Jun 2019 10:26:43 +0200
+Received: by alpha.franken.de (Postfix, from userid 1000)
+        id 95458C0408; Tue, 11 Jun 2019 10:19:47 +0200 (CEST)
+Date:   Tue, 11 Jun 2019 10:19:47 +0200
+From:   Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+To:     Hauke Mehrtens <hauke@hauke-m.de>
+Cc:     Paul Burton <paul.burton@mips.com>,
+        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
+        Paul Burton <pburton@wavecomp.com>,
+        Julien Cristau <jcristau@debian.org>,
+        Yunqiang Su <ysu@wavecomp.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH 1/2] MIPS: Bounds check virt_addr_valid
+Message-ID: <20190611081947.GA11513@alpha.franken.de>
+References: <20190528170444.1557-1-paul.burton@mips.com>
+ <9e5c6f1a-b4a9-dbae-6314-aeb08f31c8aa@hauke-m.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9e5c6f1a-b4a9-dbae-6314-aeb08f31c8aa@hauke-m.de>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-These strings may come from untrusted sources (e.g. file xattrs) so they
-need to be properly escaped.
+On Tue, Jun 11, 2019 at 01:41:21AM +0200, Hauke Mehrtens wrote:
+> On 5/28/19 7:05 PM, Paul Burton wrote:
+> > ---
+> > 
+> >  arch/mips/mm/mmap.c | 5 +++++
+> >  1 file changed, 5 insertions(+)
+> > 
+> > diff --git a/arch/mips/mm/mmap.c b/arch/mips/mm/mmap.c
+> > index 2f616ebeb7e0..7755a1fad05a 100644
+> > --- a/arch/mips/mm/mmap.c
+> > +++ b/arch/mips/mm/mmap.c
+> > @@ -203,6 +203,11 @@ unsigned long arch_randomize_brk(struct mm_struct *mm)
+> >  
+> >  int __virt_addr_valid(const volatile void *kaddr)
+> >  {
+> > +	unsigned long vaddr = (unsigned long)vaddr;
 
-Reproducer:
-    # setenforce 0
-    # touch /tmp/test
-    # setfattr -n security.selinux -v 'kuřecí řízek' /tmp/test
-    # runcon system_u:system_r:sshd_t:s0 cat /tmp/test
-    (look at the generated AVCs)
+the second vaddr should be better kaddr
 
-Actual result:
-    type=AVC [...] trawcon=kuřecí řízek
+> > +
+> > +	if ((vaddr < PAGE_OFFSET) || (vaddr >= MAP_BASE))
+> > +		return 0;
+> > +
+> >  	return pfn_valid(PFN_DOWN(virt_to_phys(kaddr)));
+> >  }
+> >  EXPORT_SYMBOL_GPL(__virt_addr_valid);
+> > 
+> 
+> Someone complained that this compiled to a constant "return 0" for him:
+> https://bugs.openwrt.org/index.php?do=details&task_id=2305#comment6554
+> 
+> I just checked this on a unmodified 5.2-rc4 with the xway_defconfig and
+> I get this:
+> 
+> 0001915c <__virt_addr_valid>:
+>    1915c:       03e00008        jr      ra
+>    19160:       00001025        move    v0,zero
+> 
+> Is this intended?
 
-Expected result:
-    type=AVC [...] trawcon=6B75C5996563C3AD20C599C3AD7A656B
+I don't think so. Interesting what the compiler decides to do here.
 
-Fixes: fede148324c3 ("selinux: log invalid contexts in AVCs")
-Cc: stable@vger.kernel.org # v5.1+
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
----
- security/selinux/avc.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+Thomas.
 
-diff --git a/security/selinux/avc.c b/security/selinux/avc.c
-index 8346a4f7c5d7..a99be508f93d 100644
---- a/security/selinux/avc.c
-+++ b/security/selinux/avc.c
-@@ -739,14 +739,20 @@ static void avc_audit_post_callback(struct audit_buffer *ab, void *a)
- 	rc = security_sid_to_context_inval(sad->state, sad->ssid, &scontext,
- 					   &scontext_len);
- 	if (!rc && scontext) {
--		audit_log_format(ab, " srawcon=%s", scontext);
-+		if (scontext_len && scontext[scontext_len - 1] == '\0')
-+			scontext_len--;
-+		audit_log_format(ab, " srawcon=");
-+		audit_log_n_untrustedstring(ab, scontext, scontext_len);
- 		kfree(scontext);
- 	}
- 
- 	rc = security_sid_to_context_inval(sad->state, sad->tsid, &scontext,
- 					   &scontext_len);
- 	if (!rc && scontext) {
--		audit_log_format(ab, " trawcon=%s", scontext);
-+		if (scontext_len && scontext[scontext_len - 1] == '\0')
-+			scontext_len--;
-+		audit_log_format(ab, " trawcon=");
-+		audit_log_n_untrustedstring(ab, scontext, scontext_len);
- 		kfree(scontext);
- 	}
- }
 -- 
-2.20.1
-
+Crap can work. Given enough thrust pigs will fly, but it's not necessarily a
+good idea.                                                [ RFC1925, 2.3 ]
