@@ -2,32 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 253034190A
-	for <lists+stable@lfdr.de>; Wed, 12 Jun 2019 01:40:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06CFC4190D
+	for <lists+stable@lfdr.de>; Wed, 12 Jun 2019 01:40:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408209AbfFKXkM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Jun 2019 19:40:12 -0400
-Received: from mga17.intel.com ([192.55.52.151]:43216 "EHLO mga17.intel.com"
+        id S2408222AbfFKXkR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Jun 2019 19:40:17 -0400
+Received: from mga14.intel.com ([192.55.52.115]:16775 "EHLO mga14.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405380AbfFKXkL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 11 Jun 2019 19:40:11 -0400
+        id S2405380AbfFKXkQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 11 Jun 2019 19:40:16 -0400
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from fmsmga005.fm.intel.com ([10.253.24.32])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 11 Jun 2019 16:40:10 -0700
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 11 Jun 2019 16:40:16 -0700
 X-ExtLoop1: 1
 Received: from dwillia2-desk3.jf.intel.com (HELO dwillia2-desk3.amr.corp.intel.com) ([10.54.39.16])
-  by fmsmga005.fm.intel.com with ESMTP; 11 Jun 2019 16:40:10 -0700
-Subject: [PATCH 2/6] libnvdimm/bus: Prevent duplicate device_unregister()
- calls
+  by fmsmga004.fm.intel.com with ESMTP; 11 Jun 2019 16:40:16 -0700
+Subject: [PATCH 3/6] libnvdimm/region: Register badblocks before namespaces
 From:   Dan Williams <dan.j.williams@intel.com>
 To:     linux-nvdimm@lists.01.org
-Cc:     Jane Chu <jane.chu@oracle.com>,
-        Erwin Tsaur <erwin.tsaur@oracle.com>, stable@vger.kernel.org,
-        peterz@infradead.org, vishal.l.verma@intel.com,
-        linux-kernel@vger.kernel.org
-Date:   Tue, 11 Jun 2019 16:25:54 -0700
-Message-ID: <156029555412.419799.17084493871021141653.stgit@dwillia2-desk3.amr.corp.intel.com>
+Cc:     stable@vger.kernel.org, Vishal Verma <vishal.l.verma@intel.com>,
+        peterz@infradead.org, linux-kernel@vger.kernel.org
+Date:   Tue, 11 Jun 2019 16:25:59 -0700
+Message-ID: <156029555941.419799.6074744061405561526.stgit@dwillia2-desk3.amr.corp.intel.com>
 In-Reply-To: <156029554317.419799.1324389595953183385.stgit@dwillia2-desk3.amr.corp.intel.com>
 References: <156029554317.419799.1324389595953183385.stgit@dwillia2-desk3.amr.corp.intel.com>
 User-Agent: StGit/0.18-2-gc94f
@@ -39,86 +36,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-A multithreaded namespace creation/destruction stress test currently
-fails with signatures like the following:
+Namespace activation expects to be able to reference region badblocks.
+The following warning sometimes triggers when asynchronous namespace
+activation races in front of the completion of namespace probing. Move
+all possible namespace probing after region badblocks initialization.
 
-    sysfs group 'power' not found for kobject 'dax1.1'
-    RIP: 0010:sysfs_remove_group+0x76/0x80
+Otherwise, lockdep sometimes catches the uninitialized state of the
+badblocks seqlock with stack trace signatures like:
+
+    INFO: trying to register non-static key.
+    pmem2: detected capacity change from 0 to 136365211648
+    the code is fine but needs lockdep annotation.
+    turning off the locking correctness validator.
+    CPU: 9 PID: 358 Comm: kworker/u80:5 Tainted: G           OE     5.2.0-rc4+ #3382
+    Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 0.0.0 02/06/2015
+    Workqueue: events_unbound async_run_entry_fn
     Call Trace:
-     device_del+0x73/0x370
-     device_unregister+0x16/0x50
-     nd_async_device_unregister+0x1e/0x30 [libnvdimm]
-     async_run_entry_fn+0x39/0x160
-     process_one_work+0x23c/0x5e0
-     worker_thread+0x3c/0x390
+     dump_stack+0x85/0xc0
+    pmem1.12: detected capacity change from 0 to 8589934592
+     register_lock_class+0x56a/0x570
+     ? check_object+0x140/0x270
+     __lock_acquire+0x80/0x1710
+     ? __mutex_lock+0x39d/0x910
+     lock_acquire+0x9e/0x180
+     ? nd_pfn_validate+0x28f/0x440 [libnvdimm]
+     badblocks_check+0x93/0x1f0
+     ? nd_pfn_validate+0x28f/0x440 [libnvdimm]
+     nd_pfn_validate+0x28f/0x440 [libnvdimm]
+     ? lockdep_hardirqs_on+0xf0/0x180
+     nd_dax_probe+0x9a/0x120 [libnvdimm]
+     nd_pmem_probe+0x6d/0x180 [nd_pmem]
+     nvdimm_bus_probe+0x90/0x2c0 [libnvdimm]
 
-    BUG: kernel NULL pointer dereference, address: 0000000000000020
-    RIP: 0010:klist_put+0x1b/0x6c
-    Call Trace:
-     klist_del+0xe/0x10
-     device_del+0x8a/0x2c9
-     ? __switch_to_asm+0x34/0x70
-     ? __switch_to_asm+0x40/0x70
-     device_unregister+0x44/0x4f
-     nd_async_device_unregister+0x22/0x2d [libnvdimm]
-     async_run_entry_fn+0x47/0x15a
-     process_one_work+0x1a2/0x2eb
-     worker_thread+0x1b8/0x26e
-
-Use the kill_device() helper to atomically resolve the race of multiple
-threads issuing kill, device_unregister(), requests.
-
-Reported-by: Jane Chu <jane.chu@oracle.com>
-Reported-by: Erwin Tsaur <erwin.tsaur@oracle.com>
-Fixes: 4d88a97aa9e8 ("libnvdimm, nvdimm: dimm driver and base libnvdimm device-driver...")
+Fixes: 48af2f7e52f4 ("libnvdimm, pfn: during init, clear errors...")
 Cc: <stable@vger.kernel.org>
-Link: https://github.com/pmem/ndctl/issues/96
+Cc: Vishal Verma <vishal.l.verma@intel.com>
 Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 ---
- drivers/nvdimm/bus.c |   25 +++++++++++++++++++++++++
- 1 file changed, 25 insertions(+)
+ drivers/nvdimm/region.c |   22 +++++++++++-----------
+ 1 file changed, 11 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/nvdimm/bus.c b/drivers/nvdimm/bus.c
-index 2dca3034fee0..42713b210f51 100644
---- a/drivers/nvdimm/bus.c
-+++ b/drivers/nvdimm/bus.c
-@@ -547,13 +547,38 @@ EXPORT_SYMBOL(nd_device_register);
+diff --git a/drivers/nvdimm/region.c b/drivers/nvdimm/region.c
+index ef46cc3a71ae..488c47ac4c4a 100644
+--- a/drivers/nvdimm/region.c
++++ b/drivers/nvdimm/region.c
+@@ -34,17 +34,6 @@ static int nd_region_probe(struct device *dev)
+ 	if (rc)
+ 		return rc;
  
- void nd_device_unregister(struct device *dev, enum nd_async_mode mode)
- {
-+	bool killed;
+-	rc = nd_region_register_namespaces(nd_region, &err);
+-	if (rc < 0)
+-		return rc;
+-
+-	ndrd = dev_get_drvdata(dev);
+-	ndrd->ns_active = rc;
+-	ndrd->ns_count = rc + err;
+-
+-	if (rc && err && rc == err)
+-		return -ENODEV;
+-
+ 	if (is_nd_pmem(&nd_region->dev)) {
+ 		struct resource ndr_res;
+ 
+@@ -60,6 +49,17 @@ static int nd_region_probe(struct device *dev)
+ 		nvdimm_badblocks_populate(nd_region, &nd_region->bb, &ndr_res);
+ 	}
+ 
++	rc = nd_region_register_namespaces(nd_region, &err);
++	if (rc < 0)
++		return rc;
 +
- 	switch (mode) {
- 	case ND_ASYNC:
-+		/*
-+		 * In the async case this is being triggered with the
-+		 * device lock held and the unregistration work needs to
-+		 * be moved out of line iff this is thread has won the
-+		 * race to schedule the deletion.
-+		 */
-+		if (!kill_device(dev))
-+			return;
++	ndrd = dev_get_drvdata(dev);
++	ndrd->ns_active = rc;
++	ndrd->ns_count = rc + err;
 +
- 		get_device(dev);
- 		async_schedule_domain(nd_async_device_unregister, dev,
- 				&nd_async_domain);
- 		break;
- 	case ND_SYNC:
-+		/*
-+		 * In the sync case the device is being unregistered due
-+		 * to a state change of the parent. Claim the kill state
-+		 * to synchronize against other unregistration requests,
-+		 * or otherwise let the async path handle it if the
-+		 * unregistration was already queued.
-+		 */
-+		device_lock(dev);
-+		killed = kill_device(dev);
-+		device_unlock(dev);
++	if (rc && err && rc == err)
++		return -ENODEV;
 +
-+		if (!killed)
-+			return;
-+
- 		nd_synchronize();
- 		device_unregister(dev);
- 		break;
+ 	nd_region->btt_seed = nd_btt_create(nd_region);
+ 	nd_region->pfn_seed = nd_pfn_create(nd_region);
+ 	nd_region->dax_seed = nd_dax_create(nd_region);
 
