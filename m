@@ -2,62 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D67143C6C6
-	for <lists+stable@lfdr.de>; Tue, 11 Jun 2019 10:58:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB7E53C6FC
+	for <lists+stable@lfdr.de>; Tue, 11 Jun 2019 11:07:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404175AbfFKI5x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Jun 2019 04:57:53 -0400
-Received: from mailgw02.mediatek.com ([210.61.82.184]:48161 "EHLO
-        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S2403860AbfFKI5x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Jun 2019 04:57:53 -0400
-X-UUID: 8737291545af4a25a83004087cd57632-20190611
-X-UUID: 8737291545af4a25a83004087cd57632-20190611
-Received: from mtkexhb01.mediatek.inc [(172.21.101.102)] by mailgw02.mediatek.com
-        (envelope-from <miles.chen@mediatek.com>)
-        (mhqrelay.mediatek.com ESMTP with TLS)
-        with ESMTP id 123505408; Tue, 11 Jun 2019 16:57:49 +0800
-Received: from mtkcas09.mediatek.inc (172.21.101.178) by
- mtkmbs01n2.mediatek.inc (172.21.101.79) with Microsoft SMTP Server (TLS) id
- 15.0.1395.4; Tue, 11 Jun 2019 16:57:47 +0800
-Received: from [172.21.77.33] (172.21.77.33) by mtkcas09.mediatek.inc
- (172.21.101.73) with Microsoft SMTP Server id 15.0.1395.4 via Frontend
- Transport; Tue, 11 Jun 2019 16:57:47 +0800
-Message-ID: <1560243467.26425.8.camel@mtkswgap22>
-Subject: backport commit ("739f79fc9db1 mm: memcontrol: fix NULL pointer
- crash in test_clear_page_writeback()") to linux-4.9-stable
-From:   Miles Chen <miles.chen@mediatek.com>
-To:     <stable@vger.kernel.org>
-Date:   Tue, 11 Jun 2019 16:57:47 +0800
-Content-Type: text/plain; charset="UTF-8"
-X-Mailer: Evolution 3.2.3-0ubuntu6 
-Content-Transfer-Encoding: 7bit
+        id S2404634AbfFKJGE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Jun 2019 05:06:04 -0400
+Received: from mail-ot1-f67.google.com ([209.85.210.67]:32822 "EHLO
+        mail-ot1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2404619AbfFKJGE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Jun 2019 05:06:04 -0400
+Received: by mail-ot1-f67.google.com with SMTP id p4so7925914oti.0
+        for <stable@vger.kernel.org>; Tue, 11 Jun 2019 02:06:04 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ffwll.ch; s=google;
+        h=mime-version:from:date:message-id:subject:to:cc;
+        bh=rwXJ0N12YFLwa3eVVBLbd7agid8j+bBmrKd/BuMAQiU=;
+        b=DsUPLa7LCfch9zRy/io0G7X75mksebnmHPsCdAHYt9k7o48Xp45CvOqTXFWAuZSz7P
+         9ghAVBrDBjTT9piadvsFYmZiLgAcunqzMT49u4pChgIOR4ziZN03szKDxIgf0BcKs14x
+         f1wrIQFRbwDDw/NH60x4yMljZyH2If4elyyVw=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
+        bh=rwXJ0N12YFLwa3eVVBLbd7agid8j+bBmrKd/BuMAQiU=;
+        b=XZ8c9n/Y3jWNKMvpraqKupn46mf5ETl4c+YYtkbi+WDOnd5Ws8lG4g/QtgJQl4LVNi
+         ynt7HO5G5QvDTC/qhq2rGLCY3OTmsEIoKBbj9szNc8UIvE1UBMM6WcwnF5A6zkonuqjB
+         /SePBSssq02PRFYgpTjjTwAmyFsoNZ+eYUZFny8zMoF61YTPZbn+XD9f3oFIrq6TureE
+         VpO0/wenBrPIN3y/pVP8AnwCDvVfEEbMBVwPLksa8J8MsuqdC8HBkLlZCPBc1wCMyadU
+         X6Mg1voFrZWMcX5NeuUtiDOztKYQ04saJY68q+8rFuv7/55EeTUkq4FQSHwbVJxmqnXT
+         cWuQ==
+X-Gm-Message-State: APjAAAVFColldgD8SbA8tT+sTE56a+G+hg0VBmjCs5rsBiLN8NP24WkU
+        MZgMglySzEFTeb23//8MDH1HpLFFBjM0NKUUkY1WNKr8TVM=
+X-Google-Smtp-Source: APXvYqwt5kZU7hIpkWm84uXzdUMrPiTBicmCiNGzeSrhCoNIMPJy4+6RoWMUsldwEhyEIw/4xp2QBOwFT1bi+jIWYPo=
+X-Received: by 2002:a05:6830:4b:: with SMTP id d11mr32393993otp.106.1560243963973;
+ Tue, 11 Jun 2019 02:06:03 -0700 (PDT)
 MIME-Version: 1.0
-X-TM-SNTS-SMTP: CB434C939143A001C1147AC3D8D5BEBC62491F1DF9E6E909BAF8261579A04E1C2000:8
-X-MTK:  N
+From:   Daniel Vetter <daniel.vetter@ffwll.ch>
+Date:   Tue, 11 Jun 2019 11:05:52 +0200
+Message-ID: <CAKMK7uHXF-ZyVjz1UTOZvSn_TxXMFwjiDz8cYGmwzzpWHNcTyw@mail.gmail.com>
+Subject: 5.1 backport request
+To:     stable <stable@vger.kernel.org>, Dave Airlie <airlied@linux.ie>
+Cc:     =?UTF-8?Q?Michel_D=C3=A4nzer?= <michel.daenzer@amd.com>,
+        dri-devel <dri-devel@lists.freedesktop.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi reviewers,
+Hi stable team,
 
-I suggest to backport commit "739f79fc9db1 mm: memcontrol: fix NULL
-pointer crash in test_clear_page_writeback()" to linux-4.9 stable tree.
+Please backport dbb92471674a ("Revert "drm: allow render capable
+master with DRM_AUTH ioctls"") to 5.1, we accidentally forgot the Cc:
+stable and Fixes: line for that revert. Thanks to Michel for spotting
+this.
 
-This email reports a NULL pointer crash in test_clear_page_writeback()
-in android common kernel-4.9. There is a fix ("739f79fc9db1 mm:
-memcontrol: fix NULL pointer crash in test_clear_page_writeback()") in
-kernel-4.13.
+Dave, for next time around there's $ dim fixes $broken_sha1
 
-
-commit: 739f79fc9db1b38f96b5a5109b247a650fbebf6d
-subject: mm: memcontrol: fix NULL pointer crash in
-test_clear_page_writeback()
-kernel version to apply to: Linux-4.9
-
-cheers,
-Miles
-
-
-
+Thanks, Daniel
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
++41 (0) 79 365 57 48 - http://blog.ffwll.ch
