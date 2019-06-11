@@ -2,60 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C2203D205
-	for <lists+stable@lfdr.de>; Tue, 11 Jun 2019 18:17:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C4FD3D209
+	for <lists+stable@lfdr.de>; Tue, 11 Jun 2019 18:18:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405448AbfFKQRn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Jun 2019 12:17:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47710 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405444AbfFKQRn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 11 Jun 2019 12:17:43 -0400
-Received: from localhost (unknown [216.243.17.14])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9D82321721;
-        Tue, 11 Jun 2019 16:17:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560269862;
-        bh=SWVECJtPFEvqQO8yMuYNIoOw/mE4FzHyMzRH3Ntn/ak=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=LqeMCTAtnX2fcO8tlSSDzvk3Q9Sctw9zZiq+k0n2Wg6dC03xvhxbWuulQ+3gCQwYS
-         4qAVdxLAshS7kVPc1MrQPDdkJDJ5einybJhwwYxDGiRY4ooWJXHeu4xX8GrnvxbBl/
-         PnyYVM6O4NnlioiIqF9qIVcfoj1GDzGB2k/RS5Go=
-Date:   Tue, 11 Jun 2019 12:17:42 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc:     stable <stable@vger.kernel.org>, Dave Airlie <airlied@linux.ie>,
-        Michel =?iso-8859-1?Q?D=E4nzer?= <michel.daenzer@amd.com>,
-        dri-devel <dri-devel@lists.freedesktop.org>
-Subject: Re: 5.1 backport request
-Message-ID: <20190611161742.GA1513@sasha-vm>
-References: <CAKMK7uHXF-ZyVjz1UTOZvSn_TxXMFwjiDz8cYGmwzzpWHNcTyw@mail.gmail.com>
+        id S2405575AbfFKQSg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Jun 2019 12:18:36 -0400
+Received: from mail-wr1-f48.google.com ([209.85.221.48]:35802 "EHLO
+        mail-wr1-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2405444AbfFKQSg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Jun 2019 12:18:36 -0400
+Received: by mail-wr1-f48.google.com with SMTP id m3so13756886wrv.2
+        for <stable@vger.kernel.org>; Tue, 11 Jun 2019 09:18:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=KKk+GtYCX/lvp9RZ+mUx12Jo9yBTyU50oo4UKIdm45s=;
+        b=z0e1/Laa+ojv0EnpwcDklAggL398HMc+oTgsIQNczdjZ5LSTECNII2UG1xNEoSy1vo
+         2i2TxVQ5TpvgXHfLRe66ZE/sdezpN6m0d/ypBpQ+hsfnwHam6Q1JRhEPEkBRXJvSdRF3
+         6thzXftBV7/QB6/ukVWNiYXz1quC7oYld2nSOzOwJWhn2i0qaPVjoO+jxqi0dssFe1WV
+         FDt7096z4kSFKhvlqsVvnPoVhiinJiR9nJe56xwPAiyRBNR+QAlxN7x6JkjZiOhpIT37
+         6wiy/bum3HobiYG1xTymBsZE0adXDmclsVuhack7UcvaQXlQZUH+LnRsVhVrmLL4beHT
+         IM7A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=KKk+GtYCX/lvp9RZ+mUx12Jo9yBTyU50oo4UKIdm45s=;
+        b=Gk/4LvQYaQfdKXly+BsuCYapUaclsiYP+iMqDe7FmsAdjJYlfZ+sKGq5itQjQ52Zvl
+         Z5nLJgYEa+G5xsQlxbjfT89jeZXUg6eo5gENvsh57uen4ch1QEmfIzjZPGyrcV1B1of4
+         bBvz4fytfcttSpTGwpIV/cpNkf5mu3yuyvgyS8RgwoxgRNazLcCMwRQTzCaBEv0QnsZJ
+         MQ/sthNN0iITQbgK4B57iDq+UkHz0meC8FCEJt+30bqCBK9nh4AlK01RSmG5Mfu3vpMY
+         XTl6uhcIrbrF8f11JcW/ROOcKGS9iFgf4hEoAS7BHJDtUSTgGjwS+hekzig5YZ7An3Lp
+         wrIQ==
+X-Gm-Message-State: APjAAAUbD8UelQG+G/evxQdBSs34cne178E5iGlg0vH3IGhnZuXP+fmR
+        7TGWAa3jQ9gvNtGeHwlHO4F949nR7NuUaw==
+X-Google-Smtp-Source: APXvYqz7cMg3dDJL+SQhN7OwQuwSwZDlp2uh2x1bWDwPsnsH8uv830KX0kwWx9e+fv1O9ywRoNKiHA==
+X-Received: by 2002:a5d:514d:: with SMTP id u13mr34125365wrt.77.1560269914888;
+        Tue, 11 Jun 2019 09:18:34 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id c24sm3257305wmb.21.2019.06.11.09.18.34
+        for <stable@vger.kernel.org>
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 11 Jun 2019 09:18:34 -0700 (PDT)
+Message-ID: <5cffd45a.1c69fb81.9f43d.3058@mx.google.com>
+Date:   Tue, 11 Jun 2019 09:18:34 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <CAKMK7uHXF-ZyVjz1UTOZvSn_TxXMFwjiDz8cYGmwzzpWHNcTyw@mail.gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.14.125
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Tree: stable
+Subject: stable/linux-4.14.y boot: 59 boots: 0 failed,
+ 58 passed with 1 untried/unknown (v4.14.125)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 11, 2019 at 11:05:52AM +0200, Daniel Vetter wrote:
->Hi stable team,
->
->Please backport dbb92471674a ("Revert "drm: allow render capable
->master with DRM_AUTH ioctls"") to 5.1, we accidentally forgot the Cc:
->stable and Fixes: line for that revert. Thanks to Michel for spotting
->this.
->
->Dave, for next time around there's $ dim fixes $broken_sha1
->
->Thanks, Daniel
+stable/linux-4.14.y boot: 59 boots: 0 failed, 58 passed with 1 untried/unkn=
+own (v4.14.125)
 
-Queued up for 5.1, thank you!
+Full Boot Summary: https://kernelci.org/boot/all/job/stable/branch/linux-4.=
+14.y/kernel/v4.14.125/
+Full Build Summary: https://kernelci.org/build/stable/branch/linux-4.14.y/k=
+ernel/v4.14.125/
 
---
-Thanks,
-Sasha
+Tree: stable
+Branch: linux-4.14.y
+Git Describe: v4.14.125
+Git Commit: 2bf3258a12af6508d9c0cf17bfa895c5650d2dbb
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e.git
+Tested: 30 unique boards, 16 SoC families, 11 builds out of 201
+
+---
+For more info write to <info@kernelci.org>
