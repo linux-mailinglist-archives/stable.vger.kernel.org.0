@@ -2,401 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 72429417E1
-	for <lists+stable@lfdr.de>; Wed, 12 Jun 2019 00:05:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F14741806
+	for <lists+stable@lfdr.de>; Wed, 12 Jun 2019 00:22:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2407783AbfFKWFy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Jun 2019 18:05:54 -0400
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:39839 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2405693AbfFKWFy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Jun 2019 18:05:54 -0400
-Received: by mail-pg1-f194.google.com with SMTP id 196so7721469pgc.6;
-        Tue, 11 Jun 2019 15:05:54 -0700 (PDT)
+        id S2390376AbfFKWWH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Jun 2019 18:22:07 -0400
+Received: from mail-eopbgr790124.outbound.protection.outlook.com ([40.107.79.124]:46880
+        "EHLO NAM03-CO1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S2388875AbfFKWWH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 11 Jun 2019 18:22:07 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to:user-agent;
-        bh=7Wu3ARWeH0N7tMt1ULZZNE7ACTA3vj+7p8RwO0mXW5w=;
-        b=cw/jpUmZPy5WIozptgv1dLvq21qcwEnTRtUAwOYGSm8xakqKYkhw4MzJTkpsKcdiVv
-         nhnv+JQ+K9aOZv6VDKz5akN67BbsE1BVPTm4Jg11L6iSuy8FnE0r6F4AGHcQE+4OER7I
-         R+V6bM/Gf++ogpksD0Lrq5FjI3Xb3o6zZZNyuYu1dYyqiroQciAdk146P4a/i3m45lK3
-         Ps92NzLf88ecEIyYjEkegnubTdClKRdykwIxpfSzafscqNPJrL+vP8VBjF5dAbkld29b
-         tcZb9P3fbgQcAAuxoJdeyFQ0whAYP7YSqgvLQ7IPFGGVak1Ncn6sAKs5uXOUhvyuMN9R
-         8SKg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to:user-agent;
-        bh=7Wu3ARWeH0N7tMt1ULZZNE7ACTA3vj+7p8RwO0mXW5w=;
-        b=ieYo7FSLCoF1ayByU5+5a6Eg8aIH7TRGqc/jWH7BwjaHV4gFUTaUiHc8ePRgNbQDbS
-         lzX4xCWfIEfxRlH3Iwwlb89VxSzp2Os4UY7UENHEprHXxplkfTNonTEUjg4u25UwX5tL
-         aQtUALGXzYP/EsB7RkWN9K6C8xXTysfbo0AK/U9GP0vgr/v6ZOxXARPUpRNWyL8vkH0F
-         JnMz3J6LLP0eOwsk32nJhaQglLJOQM2kiVkRf9l8gdeA6Xjnf4miJnc7zJmU4jfC/6I9
-         Ha34jRT14Oqod08gvWVpie8zo2GxQlhnYgBJDSa/+TswkfsXXTFjMOpTmx0XvxSk8QH5
-         Fdaw==
-X-Gm-Message-State: APjAAAWlmOTb4HXEHRILDoSuyZPFvO0AmFArm02NrR/P/4mvHgAINfwg
-        kFQjW3BRE0+CpTbcPzZoHnDuT4mfBzw=
-X-Google-Smtp-Source: APXvYqxK4WMjsYHhhCkb6FuyOpwZP2pK536VKANCAbkbu6AdxNgE0aALhBVcSrwVRyz3YaCCCQU0PQ==
-X-Received: by 2002:a17:90a:2561:: with SMTP id j88mr29223979pje.121.1560290753643;
-        Tue, 11 Jun 2019 15:05:53 -0700 (PDT)
-Received: from Gentoo ([103.231.90.171])
-        by smtp.gmail.com with ESMTPSA id s66sm28242812pgs.87.2019.06.11.15.05.46
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 11 Jun 2019 15:05:52 -0700 (PDT)
-Date:   Wed, 12 Jun 2019 03:35:36 +0530
-From:   Bhaskar Chowdhury <unixbhaskar@gmail.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org,
-        Andrew Morton <akpm@linux-foundation.org>,
-        torvalds@linux-foundation.org, stable@vger.kernel.org, lwn@lwn.net,
-        Jiri Slaby <jslaby@suse.cz>
-Subject: Re: Linux 5.1.9
-Message-ID: <20190611220536.GA19727@Gentoo>
-References: <20190611133418.GA17369@kroah.com>
+ d=wavesemi.onmicrosoft.com; s=selector1-wavesemi-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=jEF0/6YRrQuQVDsC/LUq3vTX4iCJP/zqnEoMtQr5dtU=;
+ b=Z4u6UOoXVojazErlg7umafdQlfL3avZaAs6dNZjRU8EKciQvzQgS/k25/UoE3UtAvJ/Bb7smyxrIurDZvJysaHPI8HqnFYDBZIBCf9fDDI6i52BJE5EYpS7Ml7JWkTCQDO1JpenXmQ3MYZVl8ql/NhQ7sqQ27ZIq2gqWwny/P2M=
+Received: from CY4PR2201MB1272.namprd22.prod.outlook.com (10.171.214.23) by
+ CY4PR2201MB1367.namprd22.prod.outlook.com (10.171.217.22) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.1965.14; Tue, 11 Jun 2019 22:22:03 +0000
+Received: from CY4PR2201MB1272.namprd22.prod.outlook.com
+ ([fe80::d571:f49f:6a5c:4962]) by CY4PR2201MB1272.namprd22.prod.outlook.com
+ ([fe80::d571:f49f:6a5c:4962%7]) with mapi id 15.20.1965.017; Tue, 11 Jun 2019
+ 22:22:03 +0000
+From:   Paul Burton <paul.burton@mips.com>
+To:     Paul Cercueil <paul@crapouillou.net>
+CC:     Ralf Baechle <ralf@linux-mips.org>,
+        Paul Burton <pburton@wavecomp.com>,
+        James Hogan <jhogan@kernel.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        "od@zcrc.me" <od@zcrc.me>,
+        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        Paul Cercueil <paul@crapouillou.net>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>
+Subject: Re: [PATCH] MIPS: lb60: Fix pin mappings
+Thread-Topic: [PATCH] MIPS: lb60: Fix pin mappings
+Thread-Index: AQHVGvNR1qZ4gQD8hE2mZTClh06Tw6aXEkgA
+Date:   Tue, 11 Jun 2019 22:22:03 +0000
+Message-ID: <CY4PR2201MB1272B762656C4EFB45D0D026C1ED0@CY4PR2201MB1272.namprd22.prod.outlook.com>
+References: <20190604163311.19059-1-paul@crapouillou.net>
+In-Reply-To: <20190604163311.19059-1-paul@crapouillou.net>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-clientproxiedby: BYAPR11CA0068.namprd11.prod.outlook.com
+ (2603:10b6:a03:80::45) To CY4PR2201MB1272.namprd22.prod.outlook.com
+ (2603:10b6:910:6e::23)
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=pburton@wavecomp.com; 
+x-ms-exchange-messagesentrepresentingtype: 1
+x-originating-ip: [12.94.197.246]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: ce5b07b3-7861-42d3-2dc1-08d6eebb3ab1
+x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600148)(711020)(4605104)(1401327)(2017052603328)(7193020);SRVR:CY4PR2201MB1367;
+x-ms-traffictypediagnostic: CY4PR2201MB1367:
+x-microsoft-antispam-prvs: <CY4PR2201MB13675059F4E2458D78285E72C1ED0@CY4PR2201MB1367.namprd22.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:6108;
+x-forefront-prvs: 006546F32A
+x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(136003)(39850400004)(376002)(346002)(396003)(366004)(199004)(189003)(81156014)(446003)(2906002)(8676002)(81166006)(486006)(305945005)(7736002)(4744005)(6916009)(478600001)(476003)(11346002)(14454004)(44832011)(66446008)(5660300002)(66556008)(64756008)(66476007)(66946007)(68736007)(52536014)(8936002)(73956011)(6116002)(3846002)(74316002)(256004)(42882007)(71200400001)(71190400001)(26005)(9686003)(6246003)(4326008)(102836004)(99286004)(55016002)(25786009)(54906003)(52116002)(6436002)(53936002)(7696005)(316002)(186003)(76176011)(6506007)(386003)(229853002)(66066001)(33656002);DIR:OUT;SFP:1102;SCL:1;SRVR:CY4PR2201MB1367;H:CY4PR2201MB1272.namprd22.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
+received-spf: None (protection.outlook.com: wavecomp.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam-message-info: 4n9VVHNEk1u3ZLYYxQXW4Whr+OJtjUtzS0NtuVzTasCOjsh8ENXb93u8E2Nsdr7YCk4bElROKsTEo+ehVTbydlQbejE8ECyxROVu+1kszYUjPt8kamJp6DwXnT7rcoOLqsf5wO11GQZdkrV5P7n4K1nRnY59ynh9K42E6Trnj140WpzBj6R+TBkS9uLK8nkiBfEx4cpzun49QahUm30XGZtKoa3wHmTm19whkdKn0UqgaTbB75OtpUSJuIvEWVs8iowscYaumYnRCtQDB7PYnPmcPjzSiOn5rohqaoI1iPo/ihM5I13aj9t5jyp6+h2IN1zjPgq+XgH6ZXBfz26cjUfDzFh+fzEfpHvTtR3FCDzO0lM/r0gDK1NKxBq5FAF9NLB6PjJv58cF7gWvptLCImuGmXSV408DEE/ejap7t44=
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="5vNYLRcllDrimb99"
-Content-Disposition: inline
-In-Reply-To: <20190611133418.GA17369@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+X-OriginatorOrg: mips.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: ce5b07b3-7861-42d3-2dc1-08d6eebb3ab1
+X-MS-Exchange-CrossTenant-originalarrivaltime: 11 Jun 2019 22:22:03.3991
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 463607d3-1db3-40a0-8a29-970c56230104
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: pburton@wavecomp.com
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY4PR2201MB1367
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
---5vNYLRcllDrimb99
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Thanks, a bunch Greg!
-
-On 15:34 Tue 11 Jun , Greg KH wrote:
->I'm announcing the release of the 5.1.9 kernel.
->
->All users of the 5.1 kernel series must upgrade.
->
->The updated 5.1.y git tree can be found at:
->	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git lin=
-ux-5.1.y
->and can be browsed at the normal kernel.org git web browser:
->	https://git.kernel.org/?p=3Dlinux/kernel/git/stable/linux-stable.git;a=3D=
-summary
->
->thanks,
->
->greg k-h
->
->------------
->
-> Makefile                                                          |    2
-> arch/arc/mm/fault.c                                               |    9
-> arch/mips/mm/mmap.c                                               |    5
-> arch/mips/pistachio/Platform                                      |    1
-> arch/parisc/kernel/alternative.c                                  |    3
-> arch/s390/mm/fault.c                                              |    5
-> arch/x86/lib/insn-eval.c                                          |   47 =
-++--
-> arch/x86/power/cpu.c                                              |   10 +
-> arch/x86/power/hibernate.c                                        |   33 =
-+++
-> drivers/block/xen-blkfront.c                                      |   38 =
-+--
-> drivers/gpu/drm/amd/amdgpu/amdgpu_acpi.c                          |    3
-> drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c                           |   19 +
-> drivers/gpu/drm/amd/amdgpu/amdgpu_vce.c                           |    4
-> drivers/gpu/drm/amd/amdgpu/soc15.c                                |    5
-> drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c                 |    3
-> drivers/gpu/drm/amd/display/include/dal_asic_id.h                 |    7
-> drivers/gpu/drm/drm_atomic_helper.c                               |   22 =
-+-
-> drivers/gpu/drm/drm_connector.c                                   |    6
-> drivers/gpu/drm/drm_edid.c                                        |   25 =
-++
-> drivers/gpu/drm/gma500/cdv_intel_lvds.c                           |    3
-> drivers/gpu/drm/gma500/intel_bios.c                               |    3
-> drivers/gpu/drm/gma500/psb_drv.h                                  |    1
-> drivers/gpu/drm/i915/gvt/gtt.c                                    |    6
-> drivers/gpu/drm/i915/gvt/scheduler.c                              |   19 +
-> drivers/gpu/drm/i915/i915_reg.h                                   |    6
-> drivers/gpu/drm/i915/intel_fbc.c                                  |    4
-> drivers/gpu/drm/i915/intel_workarounds.c                          |    2
-> drivers/gpu/drm/msm/disp/mdp5/mdp5_plane.c                        |    4
-> drivers/gpu/drm/nouveau/Kconfig                                   |   13 +
-> drivers/gpu/drm/nouveau/nouveau_drm.c                             |    7
-> drivers/gpu/drm/radeon/radeon_display.c                           |    4
-> drivers/gpu/drm/rockchip/rockchip_drm_vop.c                       |   51 =
-++---
-> drivers/gpu/drm/vc4/vc4_plane.c                                   |    2
-> drivers/i2c/busses/i2c-xiic.c                                     |    5
-> drivers/memstick/core/mspro_block.c                               |   13 -
-> drivers/misc/genwqe/card_dev.c                                    |    2
-> drivers/misc/genwqe/card_utils.c                                  |    4
-> drivers/misc/habanalabs/debugfs.c                                 |   60 =
-+-----
-> drivers/mmc/host/sdhci_am654.c                                    |    2
-> drivers/mmc/host/tmio_mmc_core.c                                  |    3
-> drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_utils.c      |   14 -
-> drivers/net/ethernet/aquantia/atlantic/hw_atl/hw_atl_utils_fw2x.c |    4
-> drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c                   |    4
-> drivers/net/ethernet/mellanox/mlx4/en_ethtool.c                   |    4
-> drivers/net/ethernet/mellanox/mlx4/port.c                         |    5
-> drivers/net/ethernet/ti/cpsw.c                                    |    1
-> drivers/net/phy/sfp.c                                             |   24 =
-++
-> drivers/nvme/host/rdma.c                                          |   99 =
-++++++----
-> drivers/parisc/ccio-dma.c                                         |    4
-> drivers/parisc/sba_iommu.c                                        |    3
-> drivers/tty/serial/serial_core.c                                  |   24 =
-+-
-> fs/fuse/file.c                                                    |   14 +
-> fs/nfs/nfs4proc.c                                                 |   32 =
-+--
-> fs/pstore/platform.c                                              |    7
-> fs/pstore/ram.c                                                   |   36 =
-++-
-> include/drm/drm_modeset_helper_vtables.h                          |    8
-> include/linux/cpu.h                                               |    4
-> include/linux/rcupdate.h                                          |    6
-> include/net/arp.h                                                 |    8
-> include/net/ip6_fib.h                                             |    3
-> include/net/tls.h                                                 |    4
-> include/uapi/drm/i915_drm.h                                       |    2
-> kernel/cpu.c                                                      |    4
-> kernel/power/hibernate.c                                          |    9
-> lib/test_firmware.c                                               |   14 -
-> net/core/ethtool.c                                                |    5
-> net/core/fib_rules.c                                              |    6
-> net/core/neighbour.c                                              |   11 +
-> net/core/pktgen.c                                                 |   11 +
-> net/ipv4/ipmr_base.c                                              |    3
-> net/ipv4/route.c                                                  |   22 =
-+-
-> net/ipv4/udp.c                                                    |    3
-> net/ipv6/raw.c                                                    |   25 =
-+-
-> net/packet/af_packet.c                                            |    2
-> net/rds/ib_rdma.c                                                 |   10 -
-> net/sched/cls_matchall.c                                          |    3
-> net/sctp/sm_make_chunk.c                                          |   13 -
-> net/sctp/sm_sideeffect.c                                          |    5
-> net/sunrpc/clnt.c                                                 |   30 =
-+--
-> net/tls/tls_device.c                                              |   27 =
-++
-> scripts/Kbuild.include                                            |    7
-> 81 files changed, 619 insertions(+), 362 deletions(-)
->
->Aaron Liu (1):
->      drm/amdgpu: remove ATPX_DGPU_REQ_POWER_FOR_DISPLAYS check when hotpl=
-ug-in
->
->Alex Deucher (2):
->      drm/amdgpu/psp: move psp version specific function pointers to early=
-_init
->      drm/amdgpu/soc15: skip reset on init
->
->Andres Rodriguez (1):
->      drm: add non-desktop quirk for Valve HMDs
->
->Chris Wilson (1):
->      drm/i915: Fix I915_EXEC_RING_MASK
->
->Christian K=F6nig (1):
->      drm/radeon: prefer lower reference dividers
->
->Dan Carpenter (3):
->      memstick: mspro_block: Fix an error code in mspro_block_issue_req()
->      genwqe: Prevent an integer overflow in the ioctl
->      test_firmware: Use correct snprintf() limit
->
->Daniel Drake (1):
->      drm/i915/fbc: disable framebuffer compression on GeminiLake
->
->Dave Airlie (1):
->      drm/nouveau: add kconfig option to turn off nouveau legacy contexts.=
- (v3)
->
->David Ahern (4):
->      neighbor: Reset gc_entries counter if new entry is released before i=
-nsert
->      neighbor: Call __ipv4_neigh_lookup_noref in neigh_xmit
->      ipmr_base: Do not reset index in mr_table_dump
->      ipv4: Define __ipv4_neigh_lookup_noref when CONFIG_INET is disabled
->
->Erez Alfasi (1):
->      net/mlx4_en: ethtool, Remove unsupported SFP EEPROM high pages query
->
->Eugeniy Paltsev (1):
->      ARC: mm: SIGSEGV userspace trying to access kernel virtual memory
->
->Faiz Abbas (1):
->      mmc: sdhci_am654: Fix SLOTTYPE write
->
->Gerald Schaefer (1):
->      s390/mm: fix address space detection in exception handling
->
->Greg Kroah-Hartman (1):
->      Linux 5.1.9
->
->Hangbin Liu (1):
->      Revert "fib_rules: return 0 directly if an exactly same rule exists =
-when NLM_F_EXCL not supplied"
->
->Harry Wentland (1):
->      drm/amd/display: Add ASICREV_IS_PICASSO
->
->Helen Koike (5):
->      drm/rockchip: fix fb references in async update
->      drm/vc4: fix fb references in async update
->      drm/msm: fix fb references in async update
->      drm: don't block fb changes for async plane updates
->      drm/amd: fix fb references in async update
->
->Helge Deller (1):
->      parisc: Fix crash due alternative coding for NP iopdir_fdc bit
->
->Ivan Khoronzhuk (1):
->      net: ethernet: ti: cpsw_ethtool: fix ethtool ring param set
->
->Jakub Kicinski (1):
->      net/tls: replace the sleeping lock around RX resync with a bit lock
->
->Jann Horn (2):
->      habanalabs: fix debugfs code
->      x86/insn-eval: Fix use-after-free access to LDT entry
->
->Jiri Kosina (1):
->      x86/power: Fix 'nosmt' vs hibernation triple fault during resume
->
->Jiri Slaby (1):
->      TTY: serial_core, add ->install
->
->John David Anglin (1):
->      parisc: Use implicit space register selection for loading the cohere=
-nce index of I/O pdirs
->
->Jonathan Corbet (1):
->      drm/i915: Maintain consistent documentation subsection ordering
->
->Kees Cook (1):
->      pstore/ram: Run without kernel crash dump region
->
->Linus Torvalds (1):
->      rcu: locking and unlocking need to always be at least barriers
->
->Louis Li (1):
->      drm/amdgpu: fix ring test failure issue during s3 in vce 3.0 (V2)
->
->Mario Kleiner (1):
->      drm: Fix timestamp docs for variable refresh properties.
->
->Masahiro Yamada (1):
->      kbuild: use more portable 'command -v' for cc-cross-prefix
->
->Matteo Croce (1):
->      cls_matchall: avoid panic when receiving a packet before filter set
->
->Maxime Chevallier (1):
->      net: mvpp2: Use strscpy to handle stat strings
->
->Miklos Szeredi (2):
->      fuse: fallocate: fix return with locked inode
->      fuse: fix copy_file_range() in the writeback case
->
->Neil Horman (1):
->      Fix memory leak in sctp_process_init
->
->Nikita Danilov (1):
->      net: aquantia: fix wol configuration not applied sometimes
->
->Olga Kornievskaia (1):
->      SUNRPC fix regression in umount of a secure mount
->
->Olivier Matz (2):
->      ipv6: use READ_ONCE() for inet->hdrincl as in ipv4
->      ipv6: fix EFAULT on sendto with icmpv6 and hdrincl
->
->Paolo Abeni (1):
->      pktgen: do not sleep with the thread lock held.
->
->Patrik Jakobsson (1):
->      drm/gma500/cdv: Check vbt config bits when detecting lvds panels
->
->Paul Burton (2):
->      MIPS: Bounds check virt_addr_valid
->      MIPS: pistachio: Build uImage.gz by default
->
->Pi-Hsun Shih (1):
->      pstore: Set tfm to NULL on free_buf_for_compression
->
->Robert Hancock (1):
->      i2c: xiic: Add max_read_len quirk
->
->Roger Pau Monne (1):
->      xen-blkfront: switch kcalloc to kvcalloc for large array allocation
->
->Russell King (1):
->      net: sfp: read eeprom in maximum 16 byte increments
->
->Ryan Pavlik (1):
->      drm: add non-desktop quirks to Sensics and OSVR headsets.
->
->Sagi Grimberg (1):
->      nvme-rdma: fix queue mapping when queue count is limited
->
->Takeshi Saito (1):
->      mmc: tmio: fix SCC error handling to avoid false positive CRC error
->
->Tim Beale (1):
->      udp: only choose unbound UDP socket for multicast when not in a VRF
->
->Tina Zhang (1):
->      drm/i915/gvt: Initialize intel_gvt_gtt_entry in stack
->
->Trond Myklebust (1):
->      SUNRPC: Fix a use after free when a server rejects the RPCSEC_GSS cr=
-edential
->
->Vivien Didelot (1):
->      ethtool: fix potential userspace buffer overflow
->
->Weinan (1):
->      drm/i915/gvt: emit init breadcrumb for gvt request
->
->Willem de Bruijn (1):
->      packet: unconditionally free po->rollover
->
->Xin Long (2):
->      ipv4: not do cache for local delivery if bc_forwarding is enabled
->      ipv6: fix the check before getting the cookie in rt6_get_cookie
->
->Yihao Wu (2):
->      NFSv4.1: Again fix a race where CB_NOTIFY_LOCK fails to wake a waiter
->      NFSv4.1: Fix bug only first CB_NOTIFY_LOCK is handled
->
->Zhu Yanjun (1):
->      net: rds: fix memory leak in rds_ib_flush_mr_pool
->
-
-
-
---5vNYLRcllDrimb99
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCAAdFiEEnwF+nWawchZUPOuwsjqdtxFLKRUFAl0AJakACgkQsjqdtxFL
-KRWDfwf8CrLg4gx6SuuxyIfXgfK/FCXEY0wD4+Ci1qD5odRgaXctm2/2WFeWAU1L
-a8oNQM6RSoBcX8gQqbcU5hGNcoWzRzsrR3m1QJM6ry4+2wEQ/4QfFydE3rimIbup
-EAVBBKbwwKNgatV74onCFTS3PpxNwJBzMdqmCHoRGMZdgFGU3Q3GrG1a3IEyz+mi
-TFEv7opsNStsKidc9YjB0CDhiVv91H+mrIrbm5WMObHKMdQ1mmGIJmX8h1If3p4V
-iurb3URV50LIZOsmgrKVwF5vHbdmrCXUQ1MNGw5CPfrMhn/EkFFMuhydVwn3DRnd
-LRcZpZQl3clAC+8Dw2+LfzamXR9emw==
-=RTpQ
------END PGP SIGNATURE-----
-
---5vNYLRcllDrimb99--
+SGVsbG8sDQoNClBhdWwgQ2VyY3VlaWwgd3JvdGU6DQo+IFRoZSBwaW4gbWFwcGluZ3MgaW50cm9k
+dWNlZCBpbiBjb21taXQgNjM2ZjhiYTY3ZmI2DQo+ICgiTUlQUzogSlo0NzQwOiBRaSBMQjYwOiBB
+ZGQgcGluY3RybCBjb25maWd1cmF0aW9uIGZvciBzZXZlcmFsIGRyaXZlcnMiKQ0KPiBhcmUgY29t
+cGxldGVseSB3cm9uZy4gVGhlIHBpbmN0cmwgZHJpdmVyIG5hbWUgaXMgaW5jb3JyZWN0LCBhbmQg
+dGhlDQo+IGZ1bmN0aW9uIGFuZCBncm91cCBmaWVsZHMgYXJlIHN3YXBwZWQuDQo+IA0KPiBGaXhl
+czogNjM2ZjhiYTY3ZmI2ICgiTUlQUzogSlo0NzQwOiBRaSBMQjYwOiBBZGQgcGluY3RybCBjb25m
+aWd1cmF0aW9uIGZvciBzZXZlcmFsIGRyaXZlcnMiKQ0KPiBDYzogPHN0YWJsZUB2Z2VyLmtlcm5l
+bC5vcmc+DQo+IFNpZ25lZC1vZmYtYnk6IFBhdWwgQ2VyY3VlaWwgPHBhdWxAY3JhcG91aWxsb3Uu
+bmV0Pg0KPiBSZXZpZXdlZC1ieTogTGludXMgV2FsbGVpaiA8bGludXMud2FsbGVpakBsaW5hcm8u
+b3JnPg0KDQpBcHBsaWVkIHRvIG1pcHMtbmV4dC4NCg0KVGhhbmtzLA0KICAgIFBhdWwNCg0KWyBU
+aGlzIG1lc3NhZ2Ugd2FzIGF1dG8tZ2VuZXJhdGVkOyBpZiB5b3UgYmVsaWV2ZSBhbnl0aGluZyBp
+cyBpbmNvcnJlY3QNCiAgdGhlbiBwbGVhc2UgZW1haWwgcGF1bC5idXJ0b25AbWlwcy5jb20gdG8g
+cmVwb3J0IGl0LiBdDQo=
