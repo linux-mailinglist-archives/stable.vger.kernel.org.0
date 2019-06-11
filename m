@@ -2,113 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 317653C32C
-	for <lists+stable@lfdr.de>; Tue, 11 Jun 2019 07:08:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 708163C4DD
+	for <lists+stable@lfdr.de>; Tue, 11 Jun 2019 09:22:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390485AbfFKFIp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Jun 2019 01:08:45 -0400
-Received: from ozlabs.ru ([107.173.13.209]:55931 "EHLO ozlabs.ru"
+        id S2404282AbfFKHUS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Jun 2019 03:20:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390539AbfFKFIp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 11 Jun 2019 01:08:45 -0400
-Received: from fstn1-p1.ozlabs.ibm.com (localhost [IPv6:::1])
-        by ozlabs.ru (Postfix) with ESMTP id 95A5DAE80040;
-        Tue, 11 Jun 2019 01:08:41 -0400 (EDT)
-From:   Alexey Kardashevskiy <aik@ozlabs.ru>
-To:     linuxppc-dev@lists.ozlabs.org
-Cc:     Alexey Kardashevskiy <aik@ozlabs.ru>,
-        David Gibson <david@gibson.dropbear.id.au>,
-        kvm-ppc@vger.kernel.org, Alistair Popple <alistair@popple.id.au>,
-        Reza Arbab <arbab@linux.ibm.com>,
-        Sam Bobroff <sbobroff@linux.ibm.com>,
-        Jose Ricardo Ziviani <joserz@linux.ibm.com>,
-        Daniel Henrique Barboza <danielhb413@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Paul Mackerras <paulus@samba.org>,
-        Oliver O'Halloran <oohall@gmail.com>,
-        Russell Currey <ruscur@russell.cc>, stable@vger.kernel.org
-Subject: [PATCH kernel v2] powerpc/powernv/ioda: Fix race in TCE level allocation
-Date:   Tue, 11 Jun 2019 15:08:38 +1000
-Message-Id: <20190611050838.124094-1-aik@ozlabs.ru>
-X-Mailer: git-send-email 2.17.1
+        id S2404279AbfFKHUS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 11 Jun 2019 03:20:18 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6854D2086D;
+        Tue, 11 Jun 2019 07:20:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1560237617;
+        bh=A6Gg0KGw/+9WbdgZDB3FBl1rwLrEFluqXrCtKVr6q5Y=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=rp4s/cwTvhpotEafDiSCBxwwG57+Tz0FM/y63j/l51/Pvcd1VU0nP2Sg7UaM9/9uT
+         +CGfIOgDoQ3hDtpBrh6w2lvzUNe/FQUONWZKQYQvf2BIVlTMS4e+L1fDf+y1k0+maB
+         HQ23nMK4FbV2Oz+a0uepd2AngQUCG0iVo3pVraGQ=
+Date:   Tue, 11 Jun 2019 09:20:10 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Pavel Shilovskiy <pshilov@microsoft.com>
+Cc:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Christoph Probst <kernel@probst.it>,
+        Steven French <Steven.French@microsoft.com>
+Subject: Re: [PATCH 4.4 041/241] cifs: fix strcat buffer overflow and reduce
+ raciness in smb21_set_oplock_level()
+Message-ID: <20190611072010.GA10581@kroah.com>
+References: <20190609164147.729157653@linuxfoundation.org>
+ <20190609164148.958546130@linuxfoundation.org>
+ <BYAPR21MB130347F749FFEC7025DA5710B6130@BYAPR21MB1303.namprd21.prod.outlook.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <BYAPR21MB130347F749FFEC7025DA5710B6130@BYAPR21MB1303.namprd21.prod.outlook.com>
+User-Agent: Mutt/1.12.0 (2019-05-25)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-pnv_tce() returns a pointer to a TCE entry and originally a TCE table
-would be pre-allocated. For the default case of 2GB window the table
-needs only a single level and that is fine. However if more levels are
-requested, it is possible to get a race when 2 threads want a pointer
-to a TCE entry from the same page of TCEs.
+On Mon, Jun 10, 2019 at 07:13:24PM +0000, Pavel Shilovskiy wrote:
+> 
+> -----Original Message-----
+> From: Greg Kroah-Hartman <gregkh@linuxfoundation.org> 
+> Sent: Sunday, June 9, 2019 9:40 AM
+> To: linux-kernel@vger.kernel.org
+> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>; stable@vger.kernel.org; Christoph Probst <kernel@probst.it>; Pavel Shilovskiy <pshilov@microsoft.com>; Steven French <Steven.French@microsoft.com>
+> Subject: [PATCH 4.4 041/241] cifs: fix strcat buffer overflow and reduce raciness in smb21_set_oplock_level()
+> 
+> From: Christoph Probst <kernel@probst.it>
+> 
+> commit 6a54b2e002c9d00b398d35724c79f9fe0d9b38fb upstream.
+> 
+> Change strcat to strncpy in the "None" case to fix a buffer overflow when cinode->oplock is reset to 0 by another thread accessing the same cinode. It is never valid to append "None" to any other message.
+> 
+> Consolidate multiple writes to cinode->oplock to reduce raciness.
+> 
+> Signed-off-by: Christoph Probst <kernel@probst.it>
+> Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
+> Signed-off-by: Steve French <stfrench@microsoft.com>
+> CC: Stable <stable@vger.kernel.org>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> --------------------------------
+> 
+> Hi Greg,
+> 
+> This patch has been queued for 4.4.y and has already been merged into
+> 5.1.y (5.1.5). Are you going to apply it to other stable kernels: 4.9,
+> 4.14, 4.19?
 
-This adds cmpxchg to handle the race. Note that once a TCE is non-zero,
-it cannot become zero again.
+It is already in the 4.9.179, 4.14.122, 4.19.46, 5.0.19, and 5.1.5
+released kernels.  So I don't think I can merge it into them again :)
 
-CC: stable@vger.kernel.org # v4.19+
-Fixes: a68bd1267b72 ("powerpc/powernv/ioda: Allocate indirect TCE levels on demand")
-Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
----
+thanks,
 
-The race occurs about 30 times in the first 3 minutes of copying files
-via rsync and that's about it.
-
-This fixes EEH's from
-https://patchwork.ozlabs.org/project/linuxppc-dev/list/?series=110810
-
----
-Changes:
-v2:
-* replaced spin_lock with cmpxchg+readonce
----
- arch/powerpc/platforms/powernv/pci-ioda-tce.c | 18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
-
-diff --git a/arch/powerpc/platforms/powernv/pci-ioda-tce.c b/arch/powerpc/platforms/powernv/pci-ioda-tce.c
-index e28f03e1eb5e..8d6569590161 100644
---- a/arch/powerpc/platforms/powernv/pci-ioda-tce.c
-+++ b/arch/powerpc/platforms/powernv/pci-ioda-tce.c
-@@ -48,6 +48,9 @@ static __be64 *pnv_alloc_tce_level(int nid, unsigned int shift)
- 	return addr;
- }
- 
-+static void pnv_pci_ioda2_table_do_free_pages(__be64 *addr,
-+		unsigned long size, unsigned int levels);
-+
- static __be64 *pnv_tce(struct iommu_table *tbl, bool user, long idx, bool alloc)
- {
- 	__be64 *tmp = user ? tbl->it_userspace : (__be64 *) tbl->it_base;
-@@ -57,9 +60,9 @@ static __be64 *pnv_tce(struct iommu_table *tbl, bool user, long idx, bool alloc)
- 
- 	while (level) {
- 		int n = (idx & mask) >> (level * shift);
--		unsigned long tce;
-+		unsigned long oldtce, tce = be64_to_cpu(READ_ONCE(tmp[n]));
- 
--		if (tmp[n] == 0) {
-+		if (!tce) {
- 			__be64 *tmp2;
- 
- 			if (!alloc)
-@@ -70,10 +73,15 @@ static __be64 *pnv_tce(struct iommu_table *tbl, bool user, long idx, bool alloc)
- 			if (!tmp2)
- 				return NULL;
- 
--			tmp[n] = cpu_to_be64(__pa(tmp2) |
--					TCE_PCI_READ | TCE_PCI_WRITE);
-+			tce = __pa(tmp2) | TCE_PCI_READ | TCE_PCI_WRITE;
-+			oldtce = be64_to_cpu(cmpxchg(&tmp[n], 0,
-+					cpu_to_be64(tce)));
-+			if (oldtce) {
-+				pnv_pci_ioda2_table_do_free_pages(tmp2,
-+					ilog2(tbl->it_level_size) + 3, 1);
-+				tce = oldtce;
-+			}
- 		}
--		tce = be64_to_cpu(tmp[n]);
- 
- 		tmp = __va(tce & ~(TCE_PCI_READ | TCE_PCI_WRITE));
- 		idx &= ~mask;
--- 
-2.17.1
-
+greg k-h
