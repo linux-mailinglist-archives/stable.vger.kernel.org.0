@@ -2,335 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A729A41714
-	for <lists+stable@lfdr.de>; Tue, 11 Jun 2019 23:45:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBA30417DE
+	for <lists+stable@lfdr.de>; Wed, 12 Jun 2019 00:04:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405127AbfFKVpL convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 11 Jun 2019 17:45:11 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:54610 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404730AbfFKVpL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 11 Jun 2019 17:45:11 -0400
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 5D8AC30832C9
-        for <stable@vger.kernel.org>; Tue, 11 Jun 2019 21:45:10 +0000 (UTC)
-Received: from [172.54.212.135] (cpt-0039.paas.prod.upshift.rdu2.redhat.com [10.0.18.123])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id B568D5D721;
-        Tue, 11 Jun 2019 21:45:07 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        id S2407758AbfFKWEs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Jun 2019 18:04:48 -0400
+Received: from mail-eopbgr770120.outbound.protection.outlook.com ([40.107.77.120]:27206
+        "EHLO NAM02-SN1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S2405561AbfFKWEr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 11 Jun 2019 18:04:47 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=wavesemi.onmicrosoft.com; s=selector1-wavesemi-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=RYlqfgTDbNmEATouxYpaVla38xRVYG5Congtrf73+1o=;
+ b=bSN5Qv5YSvd9+5EgL9ykIQUh0XEkVudovlLAWegWn8FiPwPdPTGX+YMxg67feOZjNK4tQhzVT2GgZ/Ms3GhVjv1AktIPSgUERg6IX4BvK15tD4oep2ozZFh9HGqECkjRenZUj38gP6O/Bz2rwdlDlleqJAGi6VAaypNeVUrqRXk=
+Received: from MWHPR2201MB1277.namprd22.prod.outlook.com (10.172.60.12) by
+ MWHPR2201MB1232.namprd22.prod.outlook.com (10.174.160.7) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.1987.11; Tue, 11 Jun 2019 22:04:43 +0000
+Received: from MWHPR2201MB1277.namprd22.prod.outlook.com
+ ([fe80::6975:b632:c85b:9e40]) by MWHPR2201MB1277.namprd22.prod.outlook.com
+ ([fe80::6975:b632:c85b:9e40%2]) with mapi id 15.20.1987.010; Tue, 11 Jun 2019
+ 22:04:43 +0000
+From:   Paul Burton <paul.burton@mips.com>
+To:     Linus Walleij <linus.walleij@linaro.org>
+CC:     Paul Cercueil <paul@crapouillou.net>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        James Hogan <jhogan@kernel.org>, "od@zcrc.me" <od@zcrc.me>,
+        "linux-mips@vger.kernel.org" <linux-mips@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Subject: Re: [PATCH] MIPS: lb60: Fix pin mappings
+Thread-Topic: [PATCH] MIPS: lb60: Fix pin mappings
+Thread-Index: AQHVGvNR1qZ4gQD8hE2mZTClh06Tw6aQxdgAgADKEACAADlIgIAFREAA
+Date:   Tue, 11 Jun 2019 22:04:43 +0000
+Message-ID: <20190611220441.2u4udxfmyjcdio65@pburton-laptop>
+References: <20190604163311.19059-1-paul@crapouillou.net>
+ <CACRpkdbKg22OyViYhXS=Vyps=2zQ_dmm23Xr8+dBp+uwwjheuQ@mail.gmail.com>
+ <1559988846.1815.1@crapouillou.net>
+ <CACRpkdbKWC7ULFjN1c5axg5FBeeWWXCsbbQi2ks4+5tg07Br-g@mail.gmail.com>
+In-Reply-To: <CACRpkdbKWC7ULFjN1c5axg5FBeeWWXCsbbQi2ks4+5tg07Br-g@mail.gmail.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-clientproxiedby: BYAPR08CA0040.namprd08.prod.outlook.com
+ (2603:10b6:a03:117::17) To MWHPR2201MB1277.namprd22.prod.outlook.com
+ (2603:10b6:301:18::12)
+user-agent: NeoMutt/20180716
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=pburton@wavecomp.com; 
+x-ms-exchange-messagesentrepresentingtype: 1
+x-originating-ip: [12.94.197.246]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: b14cf263-0b25-40c6-8647-08d6eeb8cec8
+x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(5600148)(711020)(4605104)(1401327)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(2017052603328)(7193020);SRVR:MWHPR2201MB1232;
+x-ms-traffictypediagnostic: MWHPR2201MB1232:
+x-ms-exchange-purlcount: 2
+x-microsoft-antispam-prvs: <MWHPR2201MB1232DC0383DEC206DADFA553C1ED0@MWHPR2201MB1232.namprd22.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:10000;
+x-forefront-prvs: 006546F32A
+x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(7916004)(346002)(39840400004)(366004)(136003)(396003)(376002)(189003)(199004)(2906002)(54906003)(6116002)(58126008)(229853002)(44832011)(256004)(33716001)(6486002)(316002)(3846002)(71190400001)(71200400001)(1076003)(6436002)(99286004)(478600001)(6506007)(386003)(66066001)(102836004)(486006)(4326008)(76176011)(6916009)(25786009)(6246003)(186003)(966005)(68736007)(81156014)(8676002)(81166006)(8936002)(5660300002)(26005)(9686003)(305945005)(14454004)(52116002)(446003)(7736002)(6306002)(11346002)(6512007)(73956011)(66556008)(66946007)(66446008)(66476007)(476003)(64756008)(42882007)(53936002);DIR:OUT;SFP:1102;SCL:1;SRVR:MWHPR2201MB1232;H:MWHPR2201MB1277.namprd22.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
+received-spf: None (protection.outlook.com: wavecomp.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam-message-info: ex1oY5d4bn9ob86Bk/ikGdn2i4Fow9qCN3KbfemaFa7IQMfSFyN5aIJFMHUR/yLHVf8GDl/80AyFXpNLnqTH3eAGoh5nIWXJNBjC0yypP3gi6wwCL5shrRfOLPv6420BM+trItsYe/cK4OpaFf+g1QvuDZbjVzTUidZCibreA2Sty0YH3BrBkPFzKrc/WwS7FCkGDckkaHJ3GW094/Ga4DdQqRDGlPnKbTAeKU5CXjIhG55w3ZOGo+7gk1Mw2rgqC/56DoQyoJORNpeIaITO0K2EQCr7LuEoDOjNMOo3hsu7fUn45++JL6lM6xj6TKNo9n756jZcoNcWkgdv6gMb2Yk9cmcQ8Qk/5ao38qQy+Egpl/lYX340phVsCLYeln3ZmLeJR6JlElXB9/oRvlvVfMsXyXUugpnk/kWnLQFSGbI=
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <292DA4A93A9B544C8AA0339A409B757D@namprd22.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-4.19
-Message-ID: <cki.D6DFF69C47.C0FB7QBD49@redhat.com>
-X-Gitlab-Pipeline-ID: 12100
-X-Gitlab-Pipeline: =?utf-8?q?https=3A//xci32=2Elab=2Eeng=2Erdu2=2Eredhat=2Ec?=
- =?utf-8?q?om/cki-project/cki-pipeline/pipelines/12100?=
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.44]); Tue, 11 Jun 2019 21:45:10 +0000 (UTC)
-Date:   Tue, 11 Jun 2019 17:45:11 -0400
+X-OriginatorOrg: mips.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: b14cf263-0b25-40c6-8647-08d6eeb8cec8
+X-MS-Exchange-CrossTenant-originalarrivaltime: 11 Jun 2019 22:04:43.5669
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 463607d3-1db3-40a0-8a29-970c56230104
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: pburton@wavecomp.com
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MWHPR2201MB1232
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+Hi Linus / Paul,
 
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
+On Sat, Jun 08, 2019 at 03:39:07PM +0200, Linus Walleij wrote:
+> > Yes, that's definitely what's planned; right now the blockers are
+> > patchsets [1] and [2]. [1] is ignored by everybody because there's no
+> > maintainer for drivers/memory/. [2] is a year-long effort that still
+> > doesn't show me the light at the end of the tunnel.
+> >
+> > [1] https://lkml.org/lkml/2019/6/4/743
+> > [2] https://lkml.org/lkml/2019/5/21/679
+>=20
+> What? That's unacceptable, the last resort is usually to send the
+> patches to Andrew Morton (whether fair or not) when nothing gets
+> applied.
+>=20
+> In this case I would however encourage the MIPS maintainer to
+> simply queue this stuff in the MIPS tree as blocking his arch work
+> if not merged, Ralf would you consider just queueing this?
+> I do not think the other Linus would mind.
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: 768292d05361 - Linux 4.19.50
+I'd be happy to queue up [1] in mips-next, it looks pretty innocuous.
 
-The results of these automated tests are provided below.
+I can definitely feel Paul's pain on [2], but I see v12 is still getting
+feedback so...
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Merge testing
--------------
-
-We cloned this repository and checked out the following commit:
-
-  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: 768292d05361 - Linux 4.19.50
-
-
-We then merged the patchset with `git am`:
-
-  rapidio-fix-a-null-pointer-dereference-when-create_w.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  fs-fat-file.c-issue-flush-after-the-writeback-of-fat.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  sysctl-return-einval-if-val-violates-minmax.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  ipc-prevent-lockup-on-alloc_msg-and-free_msg.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  drm-pl111-initialize-clock-spinlock-early.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  arm-prevent-tracing-ipi_cpu_backtrace.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  mm-hmm-select-mmu-notifier-when-selecting-hmm.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  hugetlbfs-on-restore-reserve-error-path-retain-subpo.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  mem-hotplug-fix-node-spanned-pages-when-we-have-a-no.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  mm-cma.c-fix-crash-on-cma-allocation-if-bitmap-alloc.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  initramfs-free-initrd-memory-if-opening-initrd.image.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  mm-cma.c-fix-the-bitmap-status-to-show-failed-alloca.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  mm-page_mkclean-vs-madv_dontneed-race.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  mm-cma_debug.c-fix-the-break-condition-in-cma_maxchu.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  mm-slab.c-fix-an-infinite-loop-in-leaks_show.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  kernel-sys.c-prctl-fix-false-positive-in-validate_pr.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  thermal-rcar_gen3_thermal-disable-interrupt-in-.remo.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  drivers-thermal-tsens-don-t-print-error-message-on-e.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  mfd-tps65912-spi-add-missing-of-table-registration.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  mfd-intel-lpss-set-the-device-in-reset-state-when-in.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  drm-nouveau-disp-dp-respect-sink-limits-when-selecti.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  mfd-twl6040-fix-device-init-errors-for-accctl-regist.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  perf-x86-intel-allow-pebs-multi-entry-in-watermark-m.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  drm-nouveau-kms-gf119-gp10x-push-headsetcontroloutpu.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  drm-bridge-adv7511-fix-low-refresh-rate-selection.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  objtool-don-t-use-ignore-flag-for-fake-jumps.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  drm-nouveau-kms-gv100-fix-spurious-window-immediate-.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  bpf-fix-undefined-behavior-in-narrow-load-handling.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  edac-mpc85xx-prevent-building-as-a-module.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  pwm-meson-use-the-spin-lock-only-to-protect-register.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  mailbox-stm32-ipcc-check-invalid-irq.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  ntp-allow-tai-utc-offset-to-be-set-to-zero.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  f2fs-fix-to-avoid-panic-in-do_recover_data.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  f2fs-fix-to-avoid-panic-in-f2fs_inplace_write_data.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  f2fs-fix-to-avoid-panic-in-f2fs_remove_inode_page.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  f2fs-fix-to-do-sanity-check-on-free-nid.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  f2fs-fix-to-clear-dirty-inode-in-error-path-of-f2fs_.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  f2fs-fix-to-avoid-panic-in-dec_valid_block_count.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  f2fs-fix-to-use-inline-space-only-if-inline_xattr-is.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  f2fs-fix-to-do-sanity-check-on-valid-block-count-of-.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  f2fs-fix-to-do-checksum-even-if-inode-page-is-uptoda.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  percpu-remove-spurious-lock-dependency-between-percp.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  configfs-fix-possible-use-after-free-in-configfs_reg.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  uml-fix-a-boot-splat-wrt-use-of-cpu_all_mask.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  pci-dwc-free-msi-in-dw_pcie_host_init-error-path.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  pci-dwc-free-msi-irq-page-in-dw_pcie_free_msi.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  ovl-do-not-generate-duplicate-fsnotify-events-for-fa.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  mmc-mmci-prevent-polling-for-busy-detection-in-irq-c.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  netfilter-nf_flow_table-fix-missing-error-check-for-.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  netfilter-nf_conntrack_h323-restore-boundary-check-c.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  mips-make-sure-dt-memory-regions-are-valid.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  netfilter-nf_tables-fix-base-chain-stat-rcu_derefere.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  watchdog-imx2_wdt-fix-set_timeout-for-big-timeout-va.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  watchdog-fix-compile-time-error-of-pretimeout-govern.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  blk-mq-move-cancel-of-requeue_work-into-blk_mq_relea.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  iommu-vt-d-set-intel_iommu_gfx_mapped-correctly.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  misc-pci_endpoint_test-fix-test_reg_bar-to-be-update.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  pci-designware-ep-use-aligned-atu-window-for-raising.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  nvme-pci-unquiesce-admin-queue-on-shutdown.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  nvme-pci-shutdown-on-timeout-during-deletion.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  netfilter-nf_flow_table-check-ttl-value-in-flow-offl.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  netfilter-nf_flow_table-fix-netdev-refcnt-leak.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  alsa-hda-register-irq-handler-after-the-chip-initial.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  nvmem-core-fix-read-buffer-in-place.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  nvmem-sunxi_sid-support-sid-on-a83t-and-h5.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  fuse-require-dev-fuse-reads-to-have-enough-buffer-ca.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  fuse-retrieve-cap-requested-size-to-negotiated-max_w.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  nfsd-allow-fh_want_write-to-be-called-twice.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  nfsd-avoid-uninitialized-variable-warning.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  vfio-fix-warning-do-not-call-blocking-ops-when-task_.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  iommu-arm-smmu-v3-don-t-disable-smmu-in-kdump-kernel.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  switchtec-fix-unintended-mask-of-mrpc-event.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  net-thunderbolt-unregister-thunderboltip-protocol-ha.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  x86-pci-fix-pci-irq-routing-table-memory-leak.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  i40e-queues-are-reserved-despite-invalid-argument-er.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  platform-chrome-cros_ec_proto-check-for-null-transfe.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  pci-keystone-prevent-arm32-specific-code-to-be-compi.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  soc-mediatek-pwrap-zero-initialize-rdata-in-pwrap_in.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  clk-rockchip-turn-on-aclk_dmac1-for-suspend-on-rk328.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  soc-rockchip-set-the-proper-pwm-for-rk3288.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  arm-dts-imx51-specify-imx5_clk_ipg-as-ahb-clock-to-s.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  arm-dts-imx50-specify-imx5_clk_ipg-as-ahb-clock-to-s.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  arm-dts-imx53-specify-imx5_clk_ipg-as-ahb-clock-to-s.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  arm-dts-imx6sx-specify-imx6sx_clk_ipg-as-ahb-clock-t.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  arm-dts-imx6sll-specify-imx6sll_clk_ipg-as-ipg-clock.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  arm-dts-imx7d-specify-imx7d_clk_ipg-as-ipg-clock-to-.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  arm-dts-imx6ul-specify-imx6ul_clk_ipg-as-ipg-clock-t.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  arm-dts-imx6sx-specify-imx6sx_clk_ipg-as-ipg-clock-t.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  arm-dts-imx6qdl-specify-imx6qdl_clk_ipg-as-ipg-clock.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  pci-rpadlpar-fix-leaked-device_node-references-in-ad.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  drm-amd-display-use-plane-color_space-for-dpp-if-spe.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  alsa-seq-protect-in-kernel-ioctl-calls-with-mutex.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  arm-omap2-pm33xx-core-do-not-turn-off-cefuse-as-ppa-.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  platform-x86-intel_pmc_ipc-adding-error-handling.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  power-supply-max14656-fix-potential-use-before-alloc.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  net-hns3-return-0-and-print-warning-when-hit-duplica.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  pci-rcar-fix-a-potential-null-pointer-dereference.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  pci-rcar-fix-64bit-msi-message-address-handling.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  scsi-qla2xxx-reset-the-fcf_async_-sent-active-flags.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  video-hgafb-fix-potential-null-pointer-dereference.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  video-imsttfb-fix-potential-null-pointer-dereference.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  block-bfq-increase-idling-for-weight-raised-queues.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  pci-xilinx-check-for-__get_free_pages-failure.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  gpio-gpio-omap-add-check-for-off-wake-capable-gpios.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  ice-add-missing-case-in-print_link_msg-for-printing-.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  dmaengine-idma64-use-actual-device-for-dma-transfers.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  pwm-tiehrpwm-update-shadow-register-for-disabling-pw.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  arm-dts-exynos-always-enable-necessary-apio_1v8-and-.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  pwm-fix-deadlock-warning-when-removing-pwm-device.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  arm-exynos-fix-undefined-instruction-during-exynos54.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  usb-typec-fusb302-check-vconn-is-off-when-we-start-t.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  soc-renesas-identify-r-car-m3-w-es1.3.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  gpio-vf610-do-not-share-irq_chip.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-  percpu-do-not-search-past-bitmap-when-allocating-an-.patch?id=6453637588c41c5dbaf4395c6a5156e0914ffc55
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-  aarch64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-f1ad9b677b78b010a8eacf3c7fdaec4bc117db36.config
-    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-f1ad9b677b78b010a8eacf3c7fdaec4bc117db36.tar.gz
-
-  ppc64le:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-f1ad9b677b78b010a8eacf3c7fdaec4bc117db36.config
-    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-f1ad9b677b78b010a8eacf3c7fdaec4bc117db36.tar.gz
-
-  s390x:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-f1ad9b677b78b010a8eacf3c7fdaec4bc117db36.config
-    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-f1ad9b677b78b010a8eacf3c7fdaec4bc117db36.tar.gz
-
-  x86_64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-f1ad9b677b78b010a8eacf3c7fdaec4bc117db36.config
-    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-f1ad9b677b78b010a8eacf3c7fdaec4bc117db36.tar.gz
-
-
-Hardware testing
-----------------
-
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ Ethernet drivers sanity [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ✅ tuned: tune-processes-through-perf [8]
-       ✅ Usex - version 1.9-29 [9]
-       ✅ lvm thinp sanity [10]
-       🚧 ✅ Networking socket: fuzz [11]
-       🚧 ✅ storage: SCSI VPD [12]
-       🚧 ✅ storage: software RAID testing [13]
-       🚧 ✅ Libhugetlbfs - version 2.2.1 [14]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ xfstests: xfs [15]
-       ✅ selinux-policy: serge-testsuite [16]
-
-
-  ppc64le:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ xfstests: xfs [15]
-       ✅ selinux-policy: serge-testsuite [16]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ Ethernet drivers sanity [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ✅ tuned: tune-processes-through-perf [8]
-       ✅ Usex - version 1.9-29 [9]
-       ✅ lvm thinp sanity [10]
-       🚧 ✅ Networking socket: fuzz [11]
-       🚧 ✅ storage: software RAID testing [13]
-       🚧 ✅ Libhugetlbfs - version 2.2.1 [14]
-
-
-  s390x:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [16]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ Ethernet drivers sanity [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ✅ tuned: tune-processes-through-perf [8]
-       ✅ lvm thinp sanity [10]
-       🚧 ✅ Networking socket: fuzz [11]
-       🚧 ✅ storage: software RAID testing [13]
-
-
-  x86_64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ Ethernet drivers sanity [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ✅ tuned: tune-processes-through-perf [8]
-       ✅ Usex - version 1.9-29 [9]
-       ✅ lvm thinp sanity [10]
-       🚧 ✅ Networking socket: fuzz [11]
-       🚧 ✅ storage: SCSI VPD [12]
-       🚧 ✅ storage: software RAID testing [13]
-       🚧 ✅ Libhugetlbfs - version 2.2.1 [14]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ xfstests: xfs [15]
-       ✅ selinux-policy: serge-testsuite [16]
-
-
-  Test source:
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/lvm/thinp/sanity
-    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
-    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/scsi/vpd
-    [13]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/swraid/trim
-    [14]: https://github.com/CKI-project/tests-beaker/archive/master.zip#vm/hugepage/libhugetlbfs
-    [15]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/filesystems/xfs/xfstests
-    [16]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-
-Waived tests (marked with 🚧)
------------------------------
-This test run included waived tests. Such tests are executed but their results
-are not taken into account. Tests are waived when their results are not
-reliable enough, e.g. when they're just introduced or are being fixed.
+Thanks,
+    Paul
