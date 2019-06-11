@@ -2,71 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CD7223C4F2
-	for <lists+stable@lfdr.de>; Tue, 11 Jun 2019 09:22:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28D513C596
+	for <lists+stable@lfdr.de>; Tue, 11 Jun 2019 10:08:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2404148AbfFKHVw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Jun 2019 03:21:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53306 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404144AbfFKHVw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 11 Jun 2019 03:21:52 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 96F2E2086D;
-        Tue, 11 Jun 2019 07:21:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560237712;
-        bh=fLu1hpslSz6m7EpFnbEn6tLDYatqy6ymCd8Apolhonw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Yj8uuboaPFnzK7h6DjT4oWkDww5eixMUfBzqqg9wLK93JeZYuvsxeNKnZzvYsGfJY
-         1XpvsvQVW+AQquYwwGVw37f5tmTaHUwpRiCS+wJtRxZGPg4Lu+djH6nbc0W1tY3mCs
-         2kqWi6nrVIi5ToJ+aKNVc8d69p/SQ9WkkDmvxKzM=
-Date:   Tue, 11 Jun 2019 09:21:49 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     shuah <shuah@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org
-Subject: Re: [PATCH 5.1 00/70] 5.1.9-stable review
-Message-ID: <20190611072149.GB10581@kroah.com>
-References: <20190609164127.541128197@linuxfoundation.org>
- <6708fcff-8a84-5756-bc68-0de47397ab91@kernel.org>
+        id S2404476AbfFKIHX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Jun 2019 04:07:23 -0400
+Received: from mail-wr1-f66.google.com ([209.85.221.66]:33429 "EHLO
+        mail-wr1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2404418AbfFKIHW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Jun 2019 04:07:22 -0400
+Received: by mail-wr1-f66.google.com with SMTP id n9so11908331wru.0
+        for <stable@vger.kernel.org>; Tue, 11 Jun 2019 01:07:21 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=WHWrvmaz/r/uPs6ClZNwktNqPw2BVBCjeEDlthzgcU8=;
+        b=ThvCe97m9x3fNv5MMl2EmuFGDEcebNW349cEQ3vDVV5Kbrvq4m/SjQbdibdbYBHBbA
+         HGhuEUFmox6uPpCZ8EfOPl+4xaJDs92XOobbS+LMGlwFXVpjJ8lTgDIYVN/NXbNkzx6g
+         sR4aI2TttttQFflUqZPNdT38EQ/vTPuK7Qle1TjWXkjgwk/0ahzUWGShCKojS+qBWmrL
+         peeQyIxKZZd7avtrs4fXOmjHCc73tmlDy6Hsf+dLI8Jyle9yoybZFjmPRAjcD5l6Q6kw
+         h6plq3+ud9aNdZ6VTgTMJFezijBRSxPhoGUzs5FLa5oGPOts48Om+Bq+9d8yFW3gNIIz
+         kH/g==
+X-Gm-Message-State: APjAAAXb4ILEG8ONWtdLbJHD8IN79tABFE/wvJtv7mSgsCSQMY/rYNDi
+        D9JPzUupYKStYAMsQDX8wqdsSA==
+X-Google-Smtp-Source: APXvYqwJCH1RG30C5HPYM3/363CUgEAM/3wWHHRnQ6oWWiIQBXXHTJfBuRDit6IqiagJ6r3cK6D2dg==
+X-Received: by 2002:adf:b643:: with SMTP id i3mr20919171wre.284.1560240441294;
+        Tue, 11 Jun 2019 01:07:21 -0700 (PDT)
+Received: from localhost.localdomain.com (nat-pool-brq-t.redhat.com. [213.175.37.10])
+        by smtp.gmail.com with ESMTPSA id h90sm29632411wrh.15.2019.06.11.01.07.20
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Tue, 11 Jun 2019 01:07:20 -0700 (PDT)
+From:   Ondrej Mosnacek <omosnace@redhat.com>
+To:     selinux@vger.kernel.org, Paul Moore <paul@paul-moore.com>
+Cc:     linux-audit@redhat.com, stable@vger.kernel.org
+Subject: [PATCH] selinux: log raw contexts as untrusted strings
+Date:   Tue, 11 Jun 2019 10:07:19 +0200
+Message-Id: <20190611080719.28625-1-omosnace@redhat.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <6708fcff-8a84-5756-bc68-0de47397ab91@kernel.org>
-User-Agent: Mutt/1.12.0 (2019-05-25)
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 10, 2019 at 04:01:41PM -0600, shuah wrote:
-> On 6/9/19 10:41 AM, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.1.9 release.
-> > There are 70 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Tue 11 Jun 2019 04:40:04 PM UTC.
-> > Anything received after that time might be too late.
-> > 
-> > The whole patch series can be found in one patch at:
-> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.1.9-rc1.gz
-> > or in the git tree and branch at:
-> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.1.y
-> > and the diffstat can be found below.
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> > 
-> 
-> Compiled and booted on my test system. No dmesg regressions.
+These strings may come from untrusted sources (e.g. file xattrs) so they
+need to be properly escaped.
 
-Thanks for testing all of these and letting me know.
+Reproducer:
+    # setenforce 0
+    # touch /tmp/test
+    # setfattr -n security.selinux -v 'kuřecí řízek' /tmp/test
+    # runcon system_u:system_r:sshd_t:s0 cat /tmp/test
+    (look at the generated AVCs)
 
-greg k-h
+Actual result:
+    type=AVC [...] trawcon=kuřecí řízek
+
+Expected result:
+    type=AVC [...] trawcon=6B75C5996563C3AD20C599C3AD7A656B
+
+Fixes: fede148324c3 ("selinux: log invalid contexts in AVCs")
+Cc: stable@vger.kernel.org # v5.1+
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+---
+ security/selinux/avc.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
+
+diff --git a/security/selinux/avc.c b/security/selinux/avc.c
+index 8346a4f7c5d7..a99be508f93d 100644
+--- a/security/selinux/avc.c
++++ b/security/selinux/avc.c
+@@ -739,14 +739,20 @@ static void avc_audit_post_callback(struct audit_buffer *ab, void *a)
+ 	rc = security_sid_to_context_inval(sad->state, sad->ssid, &scontext,
+ 					   &scontext_len);
+ 	if (!rc && scontext) {
+-		audit_log_format(ab, " srawcon=%s", scontext);
++		if (scontext_len && scontext[scontext_len - 1] == '\0')
++			scontext_len--;
++		audit_log_format(ab, " srawcon=");
++		audit_log_n_untrustedstring(ab, scontext, scontext_len);
+ 		kfree(scontext);
+ 	}
+ 
+ 	rc = security_sid_to_context_inval(sad->state, sad->tsid, &scontext,
+ 					   &scontext_len);
+ 	if (!rc && scontext) {
+-		audit_log_format(ab, " trawcon=%s", scontext);
++		if (scontext_len && scontext[scontext_len - 1] == '\0')
++			scontext_len--;
++		audit_log_format(ab, " trawcon=");
++		audit_log_n_untrustedstring(ab, scontext, scontext_len);
+ 		kfree(scontext);
+ 	}
+ }
+-- 
+2.20.1
+
