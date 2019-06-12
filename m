@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CA6B741A59
-	for <lists+stable@lfdr.de>; Wed, 12 Jun 2019 04:24:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5180141A93
+	for <lists+stable@lfdr.de>; Wed, 12 Jun 2019 05:11:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405826AbfFLCX5 convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 11 Jun 2019 22:23:57 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:15588 "EHLO mx1.redhat.com"
+        id S2406911AbfFLDLo convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Tue, 11 Jun 2019 23:11:44 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:47860 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2405684AbfFLCX5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 11 Jun 2019 22:23:57 -0400
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        id S2404957AbfFLDLo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 11 Jun 2019 23:11:44 -0400
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 4F1CF3082E03
-        for <stable@vger.kernel.org>; Wed, 12 Jun 2019 02:23:56 +0000 (UTC)
+        by mx1.redhat.com (Postfix) with ESMTPS id 91FD05AFE3
+        for <stable@vger.kernel.org>; Wed, 12 Jun 2019 03:11:43 +0000 (UTC)
 Received: from [172.54.212.135] (cpt-0039.paas.prod.upshift.rdu2.redhat.com [10.0.18.123])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id D03BC60C9D;
-        Wed, 12 Jun 2019 02:23:53 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 1B4E069193;
+        Wed, 12 Jun 2019 03:11:41 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
 From:   CKI Project <cki-project@redhat.com>
 To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-4.19
-Message-ID: <cki.2A39666997.Z0QIUO6HDM@redhat.com>
-X-Gitlab-Pipeline-ID: 12122
+Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.1
+Message-ID: <cki.321452BED8.IZHPOHAU7J@redhat.com>
+X-Gitlab-Pipeline-ID: 12123
 X-Gitlab-Pipeline: =?utf-8?q?https=3A//xci32=2Elab=2Eeng=2Erdu2=2Eredhat=2Ec?=
- =?utf-8?q?om/cki-project/cki-pipeline/pipelines/12122?=
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.46]); Wed, 12 Jun 2019 02:23:56 +0000 (UTC)
-Date:   Tue, 11 Jun 2019 22:23:57 -0400
+ =?utf-8?q?om/cki-project/cki-pipeline/pipelines/12123?=
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.39]); Wed, 12 Jun 2019 03:11:43 +0000 (UTC)
+Date:   Tue, 11 Jun 2019 23:11:44 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -43,7 +43,7 @@ We ran automated tests on a patchset that was proposed for merging into this
 kernel tree. The patches were applied to:
 
        Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: 768292d05361 - Linux 4.19.50
+            Commit: 2df16141a2c4 - Linux 5.1.9
 
 The results of these automated tests are provided below.
 
@@ -68,22 +68,30 @@ Merge testing
 We cloned this repository and checked out the following commit:
 
   Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: 768292d05361 - Linux 4.19.50
+  Commit: 2df16141a2c4 - Linux 5.1.9
 
 
 We then merged the patchset with `git am`:
 
+  revert-drm-allow-render-capable-master-with-drm_auth.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
+  media-rockchip-vpu-fix-re-order-probe-error-remove-p.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
+  media-rockchip-vpu-add-missing-dont_use_autosuspend-.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   rapidio-fix-a-null-pointer-dereference-when-create_w.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   fs-fat-file.c-issue-flush-after-the-writeback-of-fat.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   sysctl-return-einval-if-val-violates-minmax.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   ipc-prevent-lockup-on-alloc_msg-and-free_msg.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
+  drm-msm-correct-attempted-null-pointer-dereference-i.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   drm-pl111-initialize-clock-spinlock-early.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
+  mm-mprotect.c-fix-compilation-warning-because-of-unu.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   arm-prevent-tracing-ipi_cpu_backtrace.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   mm-hmm-select-mmu-notifier-when-selecting-hmm.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   hugetlbfs-on-restore-reserve-error-path-retain-subpo.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
+  mm-memory_hotplug-release-memory-resource-after-arch.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   mem-hotplug-fix-node-spanned-pages-when-we-have-a-no.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   mm-cma.c-fix-crash-on-cma-allocation-if-bitmap-alloc.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   initramfs-free-initrd-memory-if-opening-initrd.image.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
+  mm-compaction.c-fix-an-undefined-behaviour.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
+  mm-memory_hotplug.c-fix-the-wrong-usage-of-n_high_me.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   mm-cma.c-fix-the-bitmap-status-to-show-failed-alloca.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   mm-page_mkclean-vs-madv_dontneed-race.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   mm-cma_debug.c-fix-the-break-condition-in-cma_maxchu.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
@@ -97,6 +105,7 @@ We then merged the patchset with `git am`:
   mfd-twl6040-fix-device-init-errors-for-accctl-regist.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   perf-x86-intel-allow-pebs-multi-entry-in-watermark-m.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   drm-nouveau-kms-gf119-gp10x-push-headsetcontroloutpu.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
+  drm-nouveau-fix-duplication-of-nv50_head_atom-struct.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   drm-bridge-adv7511-fix-low-refresh-rate-selection.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   objtool-don-t-use-ignore-flag-for-fake-jumps.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   drm-nouveau-kms-gv100-fix-spurious-window-immediate-.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
@@ -107,18 +116,24 @@ We then merged the patchset with `git am`:
   ntp-allow-tai-utc-offset-to-be-set-to-zero.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   f2fs-fix-to-avoid-panic-in-do_recover_data.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   f2fs-fix-to-avoid-panic-in-f2fs_inplace_write_data.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
+  f2fs-fix-error-path-of-recovery.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   f2fs-fix-to-avoid-panic-in-f2fs_remove_inode_page.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   f2fs-fix-to-do-sanity-check-on-free-nid.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   f2fs-fix-to-clear-dirty-inode-in-error-path-of-f2fs_.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   f2fs-fix-to-avoid-panic-in-dec_valid_block_count.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   f2fs-fix-to-use-inline-space-only-if-inline_xattr-is.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
+  f2fs-fix-to-avoid-panic-in-dec_valid_node_count.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   f2fs-fix-to-do-sanity-check-on-valid-block-count-of-.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
+  f2fs-fix-to-avoid-deadloop-in-foreground-gc.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
+  f2fs-fix-to-retrieve-inline-xattr-space.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   f2fs-fix-to-do-checksum-even-if-inode-page-is-uptoda.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
+  media-atmel-atmel-isc-fix-asd-memory-allocation.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   percpu-remove-spurious-lock-dependency-between-percp.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   configfs-fix-possible-use-after-free-in-configfs_reg.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   uml-fix-a-boot-splat-wrt-use-of-cpu_all_mask.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   pci-dwc-free-msi-in-dw_pcie_host_init-error-path.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   pci-dwc-free-msi-irq-page-in-dw_pcie_free_msi.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
+  fbcon-don-t-reset-logo_shown-when-logo-is-currently-.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   ovl-do-not-generate-duplicate-fsnotify-events-for-fa.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   mmc-mmci-prevent-polling-for-busy-detection-in-irq-c.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   netfilter-nf_flow_table-fix-missing-error-check-for-.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
@@ -129,6 +144,7 @@ We then merged the patchset with `git am`:
   watchdog-fix-compile-time-error-of-pretimeout-govern.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   blk-mq-move-cancel-of-requeue_work-into-blk_mq_relea.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   iommu-vt-d-set-intel_iommu_gfx_mapped-correctly.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
+  vfio-pci-nvlink2-fix-potential-vma-leak.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   misc-pci_endpoint_test-fix-test_reg_bar-to-be-update.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   pci-designware-ep-use-aligned-atu-window-for-raising.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   nvme-pci-unquiesce-admin-queue-on-shutdown.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
@@ -136,6 +152,9 @@ We then merged the patchset with `git am`:
   netfilter-nf_flow_table-check-ttl-value-in-flow-offl.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   netfilter-nf_flow_table-fix-netdev-refcnt-leak.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   alsa-hda-register-irq-handler-after-the-chip-initial.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
+  powerpc-pseries-track-lmb-nid-instead-of-using-devic.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
+  arm64-defconfig-update-ufshcd-for-hi3660-soc.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
+  iommu-vt-d-don-t-request-page-request-irq-under-dmar.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   nvmem-core-fix-read-buffer-in-place.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   nvmem-sunxi_sid-support-sid-on-a83t-and-h5.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   fuse-retrieve-cap-requested-size-to-negotiated-max_w.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
@@ -146,12 +165,18 @@ We then merged the patchset with `git am`:
   switchtec-fix-unintended-mask-of-mrpc-event.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   net-thunderbolt-unregister-thunderboltip-protocol-ha.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   x86-pci-fix-pci-irq-routing-table-memory-leak.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
+  soc-tegra-pmc-remove-reset-sysfs-entries-on-error.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   i40e-queues-are-reserved-despite-invalid-argument-er.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
+  power-supply-cpcap-battery-fix-signed-counter-sample.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   platform-chrome-cros_ec_proto-check-for-null-transfe.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
+  pci-keystone-invoke-phy_reset-api-before-enabling-ph.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   pci-keystone-prevent-arm32-specific-code-to-be-compi.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   soc-mediatek-pwrap-zero-initialize-rdata-in-pwrap_in.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   clk-rockchip-turn-on-aclk_dmac1-for-suspend-on-rk328.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
+  usb-ohci-da8xx-disable-the-regulator-if-the-overcurr.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
+  iommu-vt-d-flush-iotlb-for-untrusted-device-in-time.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   soc-rockchip-set-the-proper-pwm-for-rk3288.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
+  arm64-dts-imx8mq-mark-iomuxc_gpr-as-i.mx6q-compatibl.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   arm-dts-imx51-specify-imx5_clk_ipg-as-ahb-clock-to-s.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   arm-dts-imx50-specify-imx5_clk_ipg-as-ahb-clock-to-s.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   arm-dts-imx53-specify-imx5_clk_ipg-as-ahb-clock-to-s.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
@@ -162,28 +187,41 @@ We then merged the patchset with `git am`:
   arm-dts-imx6sx-specify-imx6sx_clk_ipg-as-ipg-clock-t.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   arm-dts-imx6qdl-specify-imx6qdl_clk_ipg-as-ipg-clock.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   pci-rpadlpar-fix-leaked-device_node-references-in-ad.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
+  drm-amd-display-disable-link-before-changing-link-se.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   drm-amd-display-use-plane-color_space-for-dpp-if-spe.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   alsa-seq-protect-in-kernel-ioctl-calls-with-mutex.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   arm-omap2-pm33xx-core-do-not-turn-off-cefuse-as-ppa-.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
+  pinctrl-pinctrl-intel-move-gpio-suspend-resume-to-no.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   platform-x86-intel_pmc_ipc-adding-error-handling.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   power-supply-max14656-fix-potential-use-before-alloc.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
+  f2fs-fix-potential-recursive-call-when-enabling-data.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   net-hns3-return-0-and-print-warning-when-hit-duplica.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
+  pci-dwc-remove-default-msi-initialization-for-platfo.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   pci-rcar-fix-a-potential-null-pointer-dereference.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   pci-rcar-fix-64bit-msi-message-address-handling.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   scsi-qla2xxx-reset-the-fcf_async_-sent-active-flags.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
+  input-goodix-add-gt5663-ctp-support.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   video-hgafb-fix-potential-null-pointer-dereference.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   video-imsttfb-fix-potential-null-pointer-dereference.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   block-bfq-increase-idling-for-weight-raised-queues.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   pci-xilinx-check-for-__get_free_pages-failure.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
+  arm64-dts-qcom-qcs404-fix-regulator-supply-names.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   gpio-gpio-omap-add-check-for-off-wake-capable-gpios.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
+  gpio-gpio-omap-limit-errata-1.101-handling-to-wkup-d.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   ice-add-missing-case-in-print_link_msg-for-printing-.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
+  media-v4l2-ctrl-v4l2_ctrl_request_setup-returns-with.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
+  batman-adv-adjust-name-for-batadv_dat_send_data.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
+  ice-enable-lan_en-for-the-right-recipes.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
+  ice-do-not-set-lb_en-for-prune-switch-rules.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   dmaengine-idma64-use-actual-device-for-dma-transfers.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   pwm-tiehrpwm-update-shadow-register-for-disabling-pw.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
+  media-v4l2-fwnode-defaults-may-not-override-endpoint.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   arm-dts-exynos-always-enable-necessary-apio_1v8-and-.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   pwm-fix-deadlock-warning-when-removing-pwm-device.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   arm-exynos-fix-undefined-instruction-during-exynos54.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   usb-typec-fusb302-check-vconn-is-off-when-we-start-t.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   soc-renesas-identify-r-car-m3-w-es1.3.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
+  arm-shmobile-porter-enable-r-car-gen2-regulator-quir.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   gpio-vf610-do-not-share-irq_chip.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
   percpu-do-not-search-past-bitmap-when-allocating-an-.patch?id=92b9533991497aa165ae88cee0ac8f684ec54d7d
 
@@ -194,23 +232,23 @@ We compiled the kernel for 4 architectures:
 
   aarch64:
     build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-3b1bd29cf9cfd3a03104dfb957ea71327caa75b0.config
-    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-3b1bd29cf9cfd3a03104dfb957ea71327caa75b0.tar.gz
+    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-939e4e3d55c6bbd85efca131cfa76fd9ca60cff8.config
+    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-939e4e3d55c6bbd85efca131cfa76fd9ca60cff8.tar.gz
 
   ppc64le:
     build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-3b1bd29cf9cfd3a03104dfb957ea71327caa75b0.config
-    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-3b1bd29cf9cfd3a03104dfb957ea71327caa75b0.tar.gz
+    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-939e4e3d55c6bbd85efca131cfa76fd9ca60cff8.config
+    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-939e4e3d55c6bbd85efca131cfa76fd9ca60cff8.tar.gz
 
   s390x:
     build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-3b1bd29cf9cfd3a03104dfb957ea71327caa75b0.config
-    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-3b1bd29cf9cfd3a03104dfb957ea71327caa75b0.tar.gz
+    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-939e4e3d55c6bbd85efca131cfa76fd9ca60cff8.config
+    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-939e4e3d55c6bbd85efca131cfa76fd9ca60cff8.tar.gz
 
   x86_64:
     build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-3b1bd29cf9cfd3a03104dfb957ea71327caa75b0.config
-    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-3b1bd29cf9cfd3a03104dfb957ea71327caa75b0.tar.gz
+    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-939e4e3d55c6bbd85efca131cfa76fd9ca60cff8.config
+    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-939e4e3d55c6bbd85efca131cfa76fd9ca60cff8.tar.gz
 
 
 Hardware testing
@@ -268,10 +306,6 @@ We booted each kernel and ran the following tests:
   s390x:
     Host 1:
        ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [2]
-
-    Host 2:
-       ✅ Boot test [0]
        ✅ LTP lite [3]
        ✅ Loopdev Sanity [4]
        ✅ Ethernet drivers sanity [6]
@@ -282,6 +316,10 @@ We booted each kernel and ran the following tests:
        ✅ lvm thinp sanity [12]
        🚧 ✅ Networking socket: fuzz [13]
        🚧 ✅ storage: software RAID testing [15]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [2]
 
 
   x86_64:
