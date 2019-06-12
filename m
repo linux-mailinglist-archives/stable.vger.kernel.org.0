@@ -2,91 +2,277 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F4E641B91
-	for <lists+stable@lfdr.de>; Wed, 12 Jun 2019 07:33:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66D1341BFC
+	for <lists+stable@lfdr.de>; Wed, 12 Jun 2019 08:09:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725807AbfFLFdE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Jun 2019 01:33:04 -0400
-Received: from mail-ed1-f68.google.com ([209.85.208.68]:41149 "EHLO
-        mail-ed1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726593AbfFLFdE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Jun 2019 01:33:04 -0400
-Received: by mail-ed1-f68.google.com with SMTP id p15so23683836eds.8
-        for <stable@vger.kernel.org>; Tue, 11 Jun 2019 22:33:03 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=0kzCUHZ+JYHSTECyKvtArsrCIaPlOml0LMhBZ62fOBQ=;
-        b=rvCQOCVJrmELZ6nCfInVoF926QNRI89j6U6fV0IY9lzpz+LW25JDHS/xdTzo4Hbiw4
-         hQUHHDdjD14fuj/p2gLSxKNwgzeJi1c5DSj6UOHuh6Hdg6KNHSqZzEAplwXqLkDkE9Co
-         m4HaaxqIJ8NDyVhw4vrMF++LZJo/b97PjXqlPz8jdy4cO0Jqdics07wx+5kr6kRVgVQB
-         n/KGD2ByHhQzHd27NtHmjIsNNHRJQE98Jmn/hBsgaU1dsqp35Yq9tkS8YQCQRgPim/1J
-         nF467t/yI/+uO65OQEjYClttrA736C2hzxrRuu97NfkSpktUyXeBZrHMUJhP2/9PLZfh
-         IOpA==
-X-Gm-Message-State: APjAAAU2dDDjd0wblPXvT0htE701a00m10hG4phKcEhOcLE5Z5MoY749
-        cfwC81ANouc+lzZ5s3ICmZorGAYpk+A=
-X-Google-Smtp-Source: APXvYqzSVYA1VAvZMc3w2pPlGPDS91ZKHiAQwhFqCpDOxLmo3yQ4uz4s35vV9zY9mK+u3QQ7hvLzyA==
-X-Received: by 2002:a50:8b9d:: with SMTP id m29mr49827138edm.248.1560317582307;
-        Tue, 11 Jun 2019 22:33:02 -0700 (PDT)
-Received: from shalem.localdomain (84-106-84-65.cable.dynamic.v4.ziggo.nl. [84.106.84.65])
-        by smtp.gmail.com with ESMTPSA id w1sm670991ejv.69.2019.06.11.22.33.01
-        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
-        Tue, 11 Jun 2019 22:33:01 -0700 (PDT)
-Subject: Re: [PATCH] libata: Extend quirks for the ST1000LM024 drives with
- NOLPM quirk
-To:     "Martin K. Petersen" <martin.petersen@oracle.com>
-Cc:     Jens Axboe <axboe@kernel.dk>, linux-ide@vger.kernel.org,
-        stable@vger.kernel.org
-References: <20190611143259.28647-1-hdegoede@redhat.com>
- <yq1d0jjeaj6.fsf@oracle.com>
-From:   Hans de Goede <hdegoede@redhat.com>
-Message-ID: <be8260f7-cb3c-36b1-22d7-edc6b2657512@redhat.com>
-Date:   Wed, 12 Jun 2019 07:33:00 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
+        id S1730781AbfFLGJW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Jun 2019 02:09:22 -0400
+Received: from ste-pvt-msa1.bahnhof.se ([213.80.101.70]:26234 "EHLO
+        ste-pvt-msa1.bahnhof.se" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726538AbfFLGJW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Jun 2019 02:09:22 -0400
+X-Greylist: delayed 320 seconds by postgrey-1.27 at vger.kernel.org; Wed, 12 Jun 2019 02:09:21 EDT
+Received: from localhost (localhost [127.0.0.1])
+        by ste-pvt-msa1.bahnhof.se (Postfix) with ESMTP id D40373F42A;
+        Wed, 12 Jun 2019 08:03:58 +0200 (CEST)
+Authentication-Results: ste-pvt-msa1.bahnhof.se;
+        dkim=pass (1024-bit key; unprotected) header.d=vmwopensource.org header.i=@vmwopensource.org header.b=EgK3CBR5;
+        dkim-atps=neutral
+X-Virus-Scanned: Debian amavisd-new at bahnhof.se
+X-Spam-Flag: NO
+X-Spam-Score: -3.1
+X-Spam-Level: 
+X-Spam-Status: No, score=-3.1 tagged_above=-999 required=6.31
+        tests=[ALL_TRUSTED=-1, BAYES_00=-1.9, DKIM_SIGNED=0.1,
+        DKIM_VALID=-0.1, DKIM_VALID_AU=-0.1, DKIM_VALID_EF=-0.1]
+        autolearn=ham autolearn_force=no
+Received: from ste-pvt-msa1.bahnhof.se ([127.0.0.1])
+        by localhost (ste-pvt-msa1.bahnhof.se [127.0.0.1]) (amavisd-new, port 10024)
+        with ESMTP id YctaeOzgSsAX; Wed, 12 Jun 2019 08:03:47 +0200 (CEST)
+Received: from mail1.shipmail.org (h-205-35.A357.priv.bahnhof.se [155.4.205.35])
+        (Authenticated sender: mb878879)
+        by ste-pvt-msa1.bahnhof.se (Postfix) with ESMTPA id 438C43F38D;
+        Wed, 12 Jun 2019 08:03:47 +0200 (CEST)
+Received: from localhost.localdomain.localdomain (h-205-35.A357.priv.bahnhof.se [155.4.205.35])
+        by mail1.shipmail.org (Postfix) with ESMTPSA id B7E783619AF;
+        Wed, 12 Jun 2019 08:03:46 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=vmwopensource.org;
+        s=mail; t=1560319426;
+        bh=YbMIoe9/YFOZVZSi25taho2tJvhJOZwEFR/iguNGPXc=;
+        h=From:To:Cc:Subject:Date:From;
+        b=EgK3CBR5o3gqfVhe0y8Na5pDpzscQmnuEkMG8K5EbpnMEV7/87HAXHVeT560rCyBZ
+         dFhlJgja3Xt+RHVpRUQjpPDVAKBromKI67JwUJyri7fXks0vprQboOdPE74/Y89kPj
+         POgCDWwBJ+JzAM1ZOWlfzZ5Wal8K6jcHYNfPK7K4=
+From:   =?UTF-8?q?Thomas=20Hellstr=C3=B6m=20=28VMware=29?= 
+        <thellstrom@vmwopensource.org>
+To:     dri-devel@lists.freedesktop.org
+Cc:     Thomas Hellstrom <thellstrom@vmware.com>, stable@vger.kernel.org,
+        Deepak Rawat <drawat@vmware.com>
+Subject: [PATCH 1/2] drm/vmwgfx: Use the backdoor port if the HB port is not available
+Date:   Wed, 12 Jun 2019 08:03:17 +0200
+Message-Id: <20190612060318.42151-1-thellstrom@vmwopensource.org>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-In-Reply-To: <yq1d0jjeaj6.fsf@oracle.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+From: Thomas Hellstrom <thellstrom@vmware.com>
 
-On 12-06-19 05:40, Martin K. Petersen wrote:
-> 
-> Hans,
-> 
->> -	/* drives which fail FPDMA_AA activation (some may freeze afterwards) */
->> -	{ "ST1000LM024 HN-M101MBB", "2AR10001",	ATA_HORKAGE_BROKEN_FPDMA_AA },
->> -	{ "ST1000LM024 HN-M101MBB", "2BA30001",	ATA_HORKAGE_BROKEN_FPDMA_AA },
->> +	/* drives which fail FPDMA_AA activation (some may freeze afterwards)
->> +	   the ST disks also have LPM issues */
->> +	{ "ST1000LM024 HN-M101MBB", "2AR10001",	ATA_HORKAGE_BROKEN_FPDMA_AA |
->> +						ATA_HORKAGE_NOLPM, },
->> +	{ "ST1000LM024 HN-M101MBB", "2BA30001",	ATA_HORKAGE_BROKEN_FPDMA_AA |
->> +						ATA_HORKAGE_NOLPM, },
-> 
-> Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
-> 
-> Slightly orthogonal, and I know it's been discussed before, but I think
-> it would be worth considering just blacklisting all firmware revs for
-> this model.
-> 
-> There were several firmware releases for these drives. And while it's
-> conceivable that post-2BA30001 may fix the issues, I think it's safe to
-> say that all the intermediate releases between the two we have are
-> equally broken.
+The HB port may not be available for various reasons. Either it has been
+disabled by a config option or by the hypervisor for other reasons.
+In that case, make sure we have a backup plan and use the backdoor port
+instead with a performance penalty.
 
-Dropping the firmware version sounds reasonable to me. Do you want me to
-send a follow-up patch doing this?
+Cc: stable@vger.kernel.org
+Fixes: 89da76fde68d ("drm/vmwgfx: Add VMWare host messaging capability")
+Signed-off-by: Thomas Hellstrom <thellstrom@vmware.com>
+Reviewed-by: Deepak Rawat <drawat@vmware.com>
+---
+ drivers/gpu/drm/vmwgfx/vmwgfx_msg.c | 146 ++++++++++++++++++++++------
+ 1 file changed, 117 insertions(+), 29 deletions(-)
 
-Regards,
-
-Hans
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c b/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c
+index 8b9270f31409..e4e09d47c5c0 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_msg.c
+@@ -136,6 +136,114 @@ static int vmw_close_channel(struct rpc_channel *channel)
+ 	return 0;
+ }
+ 
++/**
++ * vmw_port_hb_out - Send the message payload either through the
++ * high-bandwidth port if available, or through the backdoor otherwise.
++ * @channel: The rpc channel.
++ * @msg: NULL-terminated message.
++ * @hb: Whether the high-bandwidth port is available.
++ *
++ * Return: The port status.
++ */
++static unsigned long vmw_port_hb_out(struct rpc_channel *channel,
++				     const char *msg, bool hb)
++{
++	unsigned long si, di, eax, ebx, ecx, edx;
++	unsigned long msg_len = strlen(msg);
++
++	if (hb) {
++		unsigned long bp = channel->cookie_high;
++
++		si = (uintptr_t) msg;
++		di = channel->cookie_low;
++
++		VMW_PORT_HB_OUT(
++			(MESSAGE_STATUS_SUCCESS << 16) | VMW_PORT_CMD_HB_MSG,
++			msg_len, si, di,
++			VMW_HYPERVISOR_HB_PORT | (channel->channel_id << 16),
++			VMW_HYPERVISOR_MAGIC, bp,
++			eax, ebx, ecx, edx, si, di);
++
++		return ebx;
++	}
++
++	/* HB port not available. Send the message 4 bytes at a time. */
++	ecx = MESSAGE_STATUS_SUCCESS << 16;
++	while (msg_len && (HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS)) {
++		unsigned int bytes = min_t(size_t, msg_len, 4);
++		unsigned long word = 0;
++
++		memcpy(&word, msg, bytes);
++		msg_len -= bytes;
++		msg += bytes;
++		si = channel->cookie_high;
++		di = channel->cookie_low;
++
++		VMW_PORT(VMW_PORT_CMD_MSG | (MSG_TYPE_SENDPAYLOAD << 16),
++			 word, si, di,
++			 VMW_HYPERVISOR_PORT | (channel->channel_id << 16),
++			 VMW_HYPERVISOR_MAGIC,
++			 eax, ebx, ecx, edx, si, di);
++	}
++
++	return ecx;
++}
++
++/**
++ * vmw_port_hb_in - Receive the message payload either through the
++ * high-bandwidth port if available, or through the backdoor otherwise.
++ * @channel: The rpc channel.
++ * @reply: Pointer to buffer holding reply.
++ * @reply_len: Length of the reply.
++ * @hb: Whether the high-bandwidth port is available.
++ *
++ * Return: The port status.
++ */
++static unsigned long vmw_port_hb_in(struct rpc_channel *channel, char *reply,
++				    unsigned long reply_len, bool hb)
++{
++	unsigned long si, di, eax, ebx, ecx, edx;
++
++	if (hb) {
++		unsigned long bp = channel->cookie_low;
++
++		si = channel->cookie_high;
++		di = (uintptr_t) reply;
++
++		VMW_PORT_HB_IN(
++			(MESSAGE_STATUS_SUCCESS << 16) | VMW_PORT_CMD_HB_MSG,
++			reply_len, si, di,
++			VMW_HYPERVISOR_HB_PORT | (channel->channel_id << 16),
++			VMW_HYPERVISOR_MAGIC, bp,
++			eax, ebx, ecx, edx, si, di);
++
++		return ebx;
++	}
++
++	/* HB port not available. Retrieve the message 4 bytes at a time. */
++	ecx = MESSAGE_STATUS_SUCCESS << 16;
++	while (reply_len) {
++		unsigned int bytes = min_t(unsigned long, reply_len, 4);
++
++		si = channel->cookie_high;
++		di = channel->cookie_low;
++
++		VMW_PORT(VMW_PORT_CMD_MSG | (MSG_TYPE_RECVPAYLOAD << 16),
++			 MESSAGE_STATUS_SUCCESS, si, di,
++			 VMW_HYPERVISOR_PORT | (channel->channel_id << 16),
++			 VMW_HYPERVISOR_MAGIC,
++			 eax, ebx, ecx, edx, si, di);
++
++		if ((HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS) == 0)
++			break;
++
++		memcpy(reply, &ebx, bytes);
++		reply_len -= bytes;
++		reply += bytes;
++	}
++
++	return ecx;
++}
+ 
+ 
+ /**
+@@ -148,11 +256,10 @@ static int vmw_close_channel(struct rpc_channel *channel)
+  */
+ static int vmw_send_msg(struct rpc_channel *channel, const char *msg)
+ {
+-	unsigned long eax, ebx, ecx, edx, si, di, bp;
++	unsigned long eax, ebx, ecx, edx, si, di;
+ 	size_t msg_len = strlen(msg);
+ 	int retries = 0;
+ 
+-
+ 	while (retries < RETRIES) {
+ 		retries++;
+ 
+@@ -166,23 +273,14 @@ static int vmw_send_msg(struct rpc_channel *channel, const char *msg)
+ 			VMW_HYPERVISOR_MAGIC,
+ 			eax, ebx, ecx, edx, si, di);
+ 
+-		if ((HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS) == 0 ||
+-		    (HIGH_WORD(ecx) & MESSAGE_STATUS_HB) == 0) {
+-			/* Expected success + high-bandwidth. Give up. */
++		if ((HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS) == 0) {
++			/* Expected success. Give up. */
+ 			return -EINVAL;
+ 		}
+ 
+ 		/* Send msg */
+-		si  = (uintptr_t) msg;
+-		di  = channel->cookie_low;
+-		bp  = channel->cookie_high;
+-
+-		VMW_PORT_HB_OUT(
+-			(MESSAGE_STATUS_SUCCESS << 16) | VMW_PORT_CMD_HB_MSG,
+-			msg_len, si, di,
+-			VMW_HYPERVISOR_HB_PORT | (channel->channel_id << 16),
+-			VMW_HYPERVISOR_MAGIC, bp,
+-			eax, ebx, ecx, edx, si, di);
++		ebx = vmw_port_hb_out(channel, msg,
++				      !!(HIGH_WORD(ecx) & MESSAGE_STATUS_HB));
+ 
+ 		if ((HIGH_WORD(ebx) & MESSAGE_STATUS_SUCCESS) != 0) {
+ 			return 0;
+@@ -211,7 +309,7 @@ STACK_FRAME_NON_STANDARD(vmw_send_msg);
+ static int vmw_recv_msg(struct rpc_channel *channel, void **msg,
+ 			size_t *msg_len)
+ {
+-	unsigned long eax, ebx, ecx, edx, si, di, bp;
++	unsigned long eax, ebx, ecx, edx, si, di;
+ 	char *reply;
+ 	size_t reply_len;
+ 	int retries = 0;
+@@ -233,8 +331,7 @@ static int vmw_recv_msg(struct rpc_channel *channel, void **msg,
+ 			VMW_HYPERVISOR_MAGIC,
+ 			eax, ebx, ecx, edx, si, di);
+ 
+-		if ((HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS) == 0 ||
+-		    (HIGH_WORD(ecx) & MESSAGE_STATUS_HB) == 0) {
++		if ((HIGH_WORD(ecx) & MESSAGE_STATUS_SUCCESS) == 0) {
+ 			DRM_ERROR("Failed to get reply size for host message.\n");
+ 			return -EINVAL;
+ 		}
+@@ -252,17 +349,8 @@ static int vmw_recv_msg(struct rpc_channel *channel, void **msg,
+ 
+ 
+ 		/* Receive buffer */
+-		si  = channel->cookie_high;
+-		di  = (uintptr_t) reply;
+-		bp  = channel->cookie_low;
+-
+-		VMW_PORT_HB_IN(
+-			(MESSAGE_STATUS_SUCCESS << 16) | VMW_PORT_CMD_HB_MSG,
+-			reply_len, si, di,
+-			VMW_HYPERVISOR_HB_PORT | (channel->channel_id << 16),
+-			VMW_HYPERVISOR_MAGIC, bp,
+-			eax, ebx, ecx, edx, si, di);
+-
++		ebx = vmw_port_hb_in(channel, reply, reply_len,
++				     !!(HIGH_WORD(ecx) & MESSAGE_STATUS_HB));
+ 		if ((HIGH_WORD(ebx) & MESSAGE_STATUS_SUCCESS) == 0) {
+ 			kfree(reply);
+ 
+-- 
+2.20.1
 
