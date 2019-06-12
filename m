@@ -2,183 +2,325 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CB99E4238B
-	for <lists+stable@lfdr.de>; Wed, 12 Jun 2019 13:10:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E215F423D6
+	for <lists+stable@lfdr.de>; Wed, 12 Jun 2019 13:17:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405826AbfFLLKx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Jun 2019 07:10:53 -0400
-Received: from esa6.hgst.iphmx.com ([216.71.154.45]:44033 "EHLO
-        esa6.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2405228AbfFLLKw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Jun 2019 07:10:52 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1560337852; x=1591873852;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=9C6nIktpk58mQRmm8zfZNQ7uCehIhtK/t7hhQxTYMHw=;
-  b=FY1cpK0thv10e+0Jc/7FDMHKxm+UZtjbTqv5usTD0Cjr9GrieFTGuXIJ
-   MmzLSdfLxdcVZ8p9GZR9QfMUwBNJoo1IlqXP1I3OsG/wl01JF58iV3uMS
-   MW53pkhhF/Q/uSq1200VQstD/TF6YiB7OjBSRsnh1AmTdX4y76TvpSK5e
-   PWw+0N6w2WE+g53/rJtlWrRudFt46t0d4YqyRwc16RF+ZGfT9SQZaPFi/
-   zLFffBOSi10dvp1oT8EPSZWeKlPsdgNg9ZnPg2PUzkX1qo0O8FeHStarR
-   3Pwi+4BnnBUYLhGj6CF8uorDiGlPXrqZ+NARWaHp+pjTjQ2BtOYCxIfCq
-   Q==;
-X-IronPort-AV: E=Sophos;i="5.63,365,1557158400"; 
-   d="scan'208";a="112021876"
-Received: from mail-sn1nam02lp2058.outbound.protection.outlook.com (HELO NAM02-SN1-obe.outbound.protection.outlook.com) ([104.47.36.58])
-  by ob1.hgst.iphmx.com with ESMTP; 12 Jun 2019 19:10:51 +0800
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=6Rpl6Q+aF8kLDJ4LtRAXjIUXsVHZkf9URmOHSSGWIMI=;
- b=aMNpf06NYMKqToRFSpvwDJyKj5SWcHdwbUeKpACB39F+Si5SwO43bJ6pt0lcbX9f/0jNMUg+q4xLAL6lbk88GDPkOtM6iJuI2aJlqHflm9Boqk1w0J+n6f4HYfT13+E3IDqabaGHzPDh8YwAR2pFZzppDJ57LysLVeGpsJEVdbs=
-Received: from SN6PR04MB4925.namprd04.prod.outlook.com (52.135.114.82) by
- SN6PR04MB4080.namprd04.prod.outlook.com (52.135.82.153) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.1965.13; Wed, 12 Jun 2019 11:10:49 +0000
-Received: from SN6PR04MB4925.namprd04.prod.outlook.com
- ([fe80::6d99:14d9:3fa:f530]) by SN6PR04MB4925.namprd04.prod.outlook.com
- ([fe80::6d99:14d9:3fa:f530%6]) with mapi id 15.20.1965.017; Wed, 12 Jun 2019
- 11:10:49 +0000
-From:   Avri Altman <Avri.Altman@wdc.com>
-To:     Stanley Chu <stanley.chu@mediatek.com>,
-        "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>,
-        "martin.petersen@oracle.com" <martin.petersen@oracle.com>,
-        "alim.akhtar@samsung.com" <alim.akhtar@samsung.com>,
-        "pedrom.sousa@synopsys.com" <pedrom.sousa@synopsys.com>
-CC:     "linux-mediatek@lists.infradead.org" 
-        <linux-mediatek@lists.infradead.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        "matthias.bgg@gmail.com" <matthias.bgg@gmail.com>,
-        "evgreen@chromium.org" <evgreen@chromium.org>,
-        "beanhuo@micron.com" <beanhuo@micron.com>,
-        "marc.w.gonzalez@free.fr" <marc.w.gonzalez@free.fr>,
-        "ygardi@codeaurora.org" <ygardi@codeaurora.org>,
-        "subhashj@codeaurora.org" <subhashj@codeaurora.org>,
-        "kuohong.wang@mediatek.com" <kuohong.wang@mediatek.com>,
-        "peter.wang@mediatek.com" <peter.wang@mediatek.com>,
-        "chun-hung.wu@mediatek.com" <chun-hung.wu@mediatek.com>,
-        "andy.teng@mediatek.com" <andy.teng@mediatek.com>,
+        id S1726529AbfFLLRK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Jun 2019 07:17:10 -0400
+Received: from dc2-smtprelay2.synopsys.com ([198.182.61.142]:38690 "EHLO
+        smtprelay-out1.synopsys.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S1725681AbfFLLRJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Jun 2019 07:17:09 -0400
+Received: from mailhost.synopsys.com (dc2-mailhost2.synopsys.com [10.12.135.162])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+        (No client certificate requested)
+        by smtprelay-out1.synopsys.com (Postfix) with ESMTPS id E1522C219F;
+        Wed, 12 Jun 2019 11:17:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=synopsys.com; s=mail;
+        t=1560338229; bh=MgO1bCwTyZhK5DHVoaxM5GS/xjDRbELuQhJKQkJgSEo=;
+        h=From:To:CC:Subject:Date:References:In-Reply-To:From;
+        b=E+blSl1+ItvoHyQZSgtYRvRXpBLIs8FSA88M6GV8mFIKvOOFUlGJiQ/MWfGIz0u6q
+         00dtbrvIeVPlR6Ob/Bd72fRT2WeLK8dPnW86zt2jU2IjhHfjWIVkSzfjNFQ9VZnCTb
+         lQyFWNqWkTehWx7IuP4cW9CMSkuC38ci3HOSV6mIEH6Ge7t5zJLIk+0E1GnMA2zeum
+         QFGZDEVAePOaRiLbZ4v892vaB8xJU+Bf85pcS17aJp3YES8qtib18YqUmQBv5iwrdL
+         yB0P8/6hqbRLdSWtAh9DbOJHifXDRdxkVhbPZK9IGV4wMk2Xa3/87mN6FoFPf7TqyM
+         oiXTJVGp9Asfg==
+Received: from US01WXQAHTC1.internal.synopsys.com (us01wxqahtc1.internal.synopsys.com [10.12.238.230])
+        (using TLSv1.2 with cipher AES128-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by mailhost.synopsys.com (Postfix) with ESMTPS id 8368FA009B;
+        Wed, 12 Jun 2019 11:17:08 +0000 (UTC)
+Received: from DE02WEHTCA.internal.synopsys.com (10.225.19.92) by
+ US01WXQAHTC1.internal.synopsys.com (10.12.238.230) with Microsoft SMTP Server
+ (TLS) id 14.3.408.0; Wed, 12 Jun 2019 04:16:37 -0700
+Received: from DE02WEMBXB.internal.synopsys.com ([fe80::95ce:118a:8321:a099])
+ by DE02WEHTCA.internal.synopsys.com ([::1]) with mapi id 14.03.0415.000; Wed,
+ 12 Jun 2019 13:16:35 +0200
+From:   Vitor Soares <Vitor.Soares@synopsys.com>
+To:     Boris Brezillon <boris.brezillon@collabora.com>,
+        Vitor Soares <Vitor.Soares@synopsys.com>
+CC:     "linux-i3c@lists.infradead.org" <linux-i3c@lists.infradead.org>,
+        "Joao.Pinto@synopsys.com" <Joao.Pinto@synopsys.com>,
+        Boris Brezillon <bbrezillon@kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
         "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH v1] scsi: ufs: Avoid runtime suspend possibly being
- blocked forever
-Thread-Topic: [PATCH v1] scsi: ufs: Avoid runtime suspend possibly being
- blocked forever
-Thread-Index: AQHVIPJij1mAYSBJOESW3uchKAIpIaaX3D1Q
-Date:   Wed, 12 Jun 2019 11:10:49 +0000
-Message-ID: <SN6PR04MB492546256F8F8635E7EE60C2FCEC0@SN6PR04MB4925.namprd04.prod.outlook.com>
-References: <1560325326-1598-1-git-send-email-stanley.chu@mediatek.com>
-In-Reply-To: <1560325326-1598-1-git-send-email-stanley.chu@mediatek.com>
+Subject: RE: [PATCH v3 1/3] i3c: fix i2c and i3c scl rate by bus mode
+Thread-Topic: [PATCH v3 1/3] i3c: fix i2c and i3c scl rate by bus mode
+Thread-Index: AQHVIF7tXczCemTY50qlGHD151vpyqaXajaAgABfUkA=
+Date:   Wed, 12 Jun 2019 11:16:34 +0000
+Message-ID: <13D59CF9CEBAF94592A12E8AE55501350AABEC91@DE02WEMBXB.internal.synopsys.com>
+References: <cover.1560261604.git.vitor.soares@synopsys.com>
+        <b39923bda3625a5c6874755ae81cdfe85fb5abef.1560261604.git.vitor.soares@synopsys.com>
+ <20190612081533.2cf9e12a@collabora.com>
+In-Reply-To: <20190612081533.2cf9e12a@collabora.com>
 Accept-Language: en-US
 Content-Language: en-US
 X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=Avri.Altman@wdc.com; 
-x-originating-ip: [212.25.79.133]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 12e24cc3-2da4-43aa-48ac-08d6ef26a03d
-x-ms-office365-filtering-ht: Tenant
-x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600148)(711020)(4605104)(1401327)(4618075)(2017052603328)(7193020);SRVR:SN6PR04MB4080;
-x-ms-traffictypediagnostic: SN6PR04MB4080:
-wdcipoutbound: EOP-TRUE
-x-microsoft-antispam-prvs: <SN6PR04MB40809A3446AEDE13E777B343FCEC0@SN6PR04MB4080.namprd04.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:8882;
-x-forefront-prvs: 0066D63CE6
-x-forefront-antispam-report: SFV:NSPM;SFS:(10019020)(376002)(136003)(39860400002)(346002)(366004)(396003)(199004)(189003)(316002)(2906002)(476003)(33656002)(229853002)(76176011)(15650500001)(11346002)(486006)(446003)(72206003)(7736002)(305945005)(74316002)(6246003)(6506007)(2501003)(3846002)(110136005)(102836004)(5660300002)(6116002)(64756008)(478600001)(66476007)(66446008)(14454004)(66556008)(6436002)(73956011)(2201001)(256004)(66946007)(55016002)(76116006)(25786009)(99286004)(8676002)(14444005)(186003)(7416002)(4326008)(81156014)(52536014)(8936002)(81166006)(54906003)(68736007)(7696005)(66066001)(26005)(53936002)(9686003)(86362001)(71190400001)(71200400001);DIR:OUT;SFP:1102;SCL:1;SRVR:SN6PR04MB4080;H:SN6PR04MB4925.namprd04.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;A:1;MX:1;
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam-message-info: sfHRWHkjg7wmUSjFUIEQlvQXM9Lgy2h3ZWI8AMMON/CsT8oshw7paqCJejmLGRjy9N+q/TNQhAqpkYj5YKPvEdU+VPiEAmQe1djbaZdZjrTmbWD56GVdsQOrQW6LumzTImFp35JJFDoN0i2KntXcJww0/jq/yolMEIuooWeDQkjIr2NUM4q7Io6zHSscg8+GkF0Ud9RNlsj0UJGVYipWeNdjfx3fteMxG8nBz/ffAjs7nz94ulp6MVpSHqzq1PYr+r7YGGtT9yqY5VGPgrC2H2YTVNXHBmKERnAgakD61FguaddKcYK/Is/qoMvGmHXahDYER2VI7byyehtdpqNEyAOv2xXRxrq8DNq0nt74TYmBNpBZKu2uX0Nx6qm2sthznY4Vhvo4O1MYPX3LxvOMDltnH5qV/rq4BMEXMGq5FI4=
+x-dg-ref: =?us-ascii?Q?PG1ldGE+PGF0IG5tPSJib2R5LnR4dCIgcD0iYzpcdXNlcnNcc29hcmVzXGFw?=
+ =?us-ascii?Q?cGRhdGFccm9hbWluZ1wwOWQ4NDliNi0zMmQzLTRhNDAtODVlZS02Yjg0YmEy?=
+ =?us-ascii?Q?OWUzNWJcbXNnc1xtc2ctODY3YTBiYTktOGQwMy0xMWU5LTgyNDYtYjgwOGNm?=
+ =?us-ascii?Q?NTlkN2ZjXGFtZS10ZXN0XDg2N2EwYmFhLThkMDMtMTFlOS04MjQ2LWI4MDhj?=
+ =?us-ascii?Q?ZjU5ZDdmY2JvZHkudHh0IiBzej0iNjYwMiIgdD0iMTMyMDQ4MTE3OTMwNTA4?=
+ =?us-ascii?Q?NDY1IiBoPSJoalZaTStBejhsb2dTaldBZ1pObm9VZUIrZWc9IiBpZD0iIiBi?=
+ =?us-ascii?Q?bD0iMCIgYm89IjEiIGNpPSJjQUFBQUVSSFUxUlNSVUZOQ2dVQUFCUUpBQUN4?=
+ =?us-ascii?Q?d0lGS0VDSFZBY2VrUEhkUDVwREZ4NlE4ZDAvbWtNVU9BQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBSEFBQUFDa0NBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?RUFBUUFCQUFBQVZ6ZGhHZ0FBQUFBQUFBQUFBQUFBQUo0QUFBQm1BR2tBYmdC?=
+ =?us-ascii?Q?aEFHNEFZd0JsQUY4QWNBQnNBR0VBYmdCdUFHa0FiZ0JuQUY4QWR3QmhBSFFB?=
+ =?us-ascii?Q?WlFCeUFHMEFZUUJ5QUdzQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFF?=
+ =?us-ascii?Q?QUFBQUFBQUFBQWdBQUFBQUFuZ0FBQUdZQWJ3QjFBRzRBWkFCeUFIa0FYd0J3?=
+ =?us-ascii?Q?QUdFQWNnQjBBRzRBWlFCeUFITUFYd0JuQUdZQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBUUFBQUFBQUFBQUNBQUFB?=
+ =?us-ascii?Q?QUFDZUFBQUFaZ0J2QUhVQWJnQmtBSElBZVFCZkFIQUFZUUJ5QUhRQWJnQmxB?=
+ =?us-ascii?Q?SElBY3dCZkFITUFZUUJ0QUhNQWRRQnVBR2NBWHdCakFHOEFiZ0JtQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQkFBQUFBQUFBQUFJQUFBQUFBSjRBQUFCbUFHOEFk?=
+ =?us-ascii?Q?UUJ1QUdRQWNnQjVBRjhBY0FCaEFISUFkQUJ1QUdVQWNnQnpBRjhBY3dCaEFH?=
+ =?us-ascii?Q?MEFjd0IxQUc0QVp3QmZBSElBWlFCekFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUVBQUFBQUFBQUFBZ0FBQUFBQW5nQUFBR1lBYndCMUFHNEFaQUJ5QUhrQVh3?=
+ =?us-ascii?Q?QndBR0VBY2dCMEFHNEFaUUJ5QUhNQVh3QnpBRzBBYVFCakFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFRQUFBQUFBQUFBQ0FB?=
+ =?us-ascii?Q?QUFBQUNlQUFBQVpnQnZBSFVBYmdCa0FISUFlUUJmQUhBQVlRQnlBSFFBYmdC?=
+ =?us-ascii?Q?bEFISUFjd0JmQUhNQWRBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFCQUFBQUFBQUFBQUlBQUFBQUFKNEFBQUJtQUc4?=
+ =?us-ascii?Q?QWRRQnVBR1FBY2dCNUFGOEFjQUJoQUhJQWRBQnVBR1VBY2dCekFGOEFkQUJ6?=
+ =?us-ascii?Q?QUcwQVl3QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBRUFBQUFBQUFBQUFnQUFBQUFBbmdBQUFHWUFid0IxQUc0QVpBQnlBSGtB?=
+ =?us-ascii?Q?WHdCd0FHRUFjZ0IwQUc0QVpRQnlBSE1BWHdCMUFHMEFZd0FBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQVFBQUFBQUFBQUFD?=
+ =?us-ascii?Q?QUFBQUFBQ2VBQUFBWndCMEFITUFYd0J3QUhJQWJ3QmtBSFVBWXdCMEFGOEFk?=
+ =?us-ascii?Q?QUJ5QUdFQWFRQnVBR2tBYmdCbkFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUJBQUFBQUFBQUFBSUFBQUFBQUo0QUFBQnpB?=
+ =?us-ascii?Q?R0VBYkFCbEFITUFYd0JoQUdNQVl3QnZBSFVBYmdCMEFGOEFjQUJzQUdFQWJn?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFFQUFBQUFBQUFBQWdBQUFBQUFuZ0FBQUhNQVlRQnNBR1VBY3dCZkFI?=
+ =?us-ascii?Q?RUFkUUJ2QUhRQVpRQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBUUFBQUFBQUFB?=
+ =?us-ascii?Q?QUNBQUFBQUFDZUFBQUFjd0J1QUhBQWN3QmZBR3dBYVFCakFHVUFiZ0J6QUdV?=
+ =?us-ascii?Q?QVh3QjBBR1VBY2dCdEFGOEFNUUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQkFBQUFBQUFBQUFJQUFBQUFBSjRBQUFC?=
+ =?us-ascii?Q?ekFHNEFjQUJ6QUY4QWJBQnBBR01BWlFCdUFITUFaUUJmQUhRQVpRQnlBRzBB?=
+ =?us-ascii?Q?WHdCekFIUUFkUUJrQUdVQWJnQjBBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUVBQUFBQUFBQUFBZ0FBQUFBQW5nQUFBSFlBWndCZkFHc0FaUUI1?=
+ =?us-ascii?Q?QUhjQWJ3QnlBR1FBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFB?=
+ =?us-ascii?Q?QUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFBQUFRQUFBQUFB?=
+ =?us-ascii?Q?QUFBQ0FBQUFBQUE9Ii8+PC9tZXRhPg=3D=3D?=
+x-originating-ip: [10.107.19.137]
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-X-OriginatorOrg: wdc.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 12e24cc3-2da4-43aa-48ac-08d6ef26a03d
-X-MS-Exchange-CrossTenant-originalarrivaltime: 12 Jun 2019 11:10:49.3951
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: b61c8803-16f3-4c35-9b17-6f65f441df86
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: Avri.Altman@wdc.com
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN6PR04MB4080
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+From: Boris Brezillon <boris.brezillon@collabora.com>
+Date: Wed, Jun 12, 2019 at 07:15:33
+
+> On Tue, 11 Jun 2019 16:06:43 +0200
+> Vitor Soares <Vitor.Soares@synopsys.com> wrote:
+>=20
+> > Currently the I3C framework limits SCL frequency to FM speed when
+> > dealing with a mixed slow bus, even if all I2C devices are FM+ capable.
+> >=20
+> > The core was also not accounting for I3C speed limitations when
+> > operating in mixed slow mode and was erroneously using FM+ speed as the
+> > max I2C speed when operating in mixed fast mode.
+> >=20
+> > Fixes: 3a379bbcea0a ("i3c: Add core I3C infrastructure")
+> > Signed-off-by: Vitor Soares <vitor.soares@synopsys.com>
+> > Cc: Boris Brezillon <bbrezillon@kernel.org>
+> > Cc: <stable@vger.kernel.org>
+> > Cc: <linux-kernel@vger.kernel.org>
+> > ---
+> > Changes in v3:
+> >   Change dev_warn() to dev_dbg()
+> >=20
+> > Changes in v2:
+> >   Enhance commit message
+> >   Add dev_warn() in case user-defined i2c rate doesn't match LVR constr=
+aint
+> >   Add dev_warn() in case user-defined i3c rate lower than i2c rate
+> >=20
+> >  drivers/i3c/master.c | 61 +++++++++++++++++++++++++++++++++++++++++---=
+--------
+> >  1 file changed, 48 insertions(+), 13 deletions(-)
+> >=20
+> > diff --git a/drivers/i3c/master.c b/drivers/i3c/master.c
+> > index 5f4bd52..f8e580e 100644
+> > --- a/drivers/i3c/master.c
+> > +++ b/drivers/i3c/master.c
+> > @@ -91,6 +91,12 @@ void i3c_bus_normaluse_unlock(struct i3c_bus *bus)
+> >  	up_read(&bus->lock);
+> >  }
+> > =20
+> > +static struct i3c_master_controller *
+> > +i3c_bus_to_i3c_master(struct i3c_bus *i3cbus)
+> > +{
+> > +	return container_of(i3cbus, struct i3c_master_controller, bus);
+> > +}
+> > +
+> >  static struct i3c_master_controller *dev_to_i3cmaster(struct device *d=
+ev)
+> >  {
+> >  	return container_of(dev, struct i3c_master_controller, dev);
+> > @@ -565,20 +571,48 @@ static const struct device_type i3c_masterdev_typ=
+e =3D {
+> >  	.groups	=3D i3c_masterdev_groups,
+> >  };
+> > =20
+> > -int i3c_bus_set_mode(struct i3c_bus *i3cbus, enum i3c_bus_mode mode)
+> > +int i3c_bus_set_mode(struct i3c_bus *i3cbus, enum i3c_bus_mode mode,
+> > +		     unsigned long max_i2c_scl_rate)
+> >  {
+> > -	i3cbus->mode =3D mode;
+> > =20
+> > -	if (!i3cbus->scl_rate.i3c)
+> > -		i3cbus->scl_rate.i3c =3D I3C_BUS_TYP_I3C_SCL_RATE;
+> > +	struct i3c_master_controller *master =3D i3c_bus_to_i3c_master(i3cbus=
+);
+> > =20
+> > -	if (!i3cbus->scl_rate.i2c) {
+> > -		if (i3cbus->mode =3D=3D I3C_BUS_MODE_MIXED_SLOW)
+> > -			i3cbus->scl_rate.i2c =3D I3C_BUS_I2C_FM_SCL_RATE;
+> > -		else
+> > -			i3cbus->scl_rate.i2c =3D I3C_BUS_I2C_FM_PLUS_SCL_RATE;
+> > +	i3cbus->mode =3D mode;
+> > +
+> > +	switch (i3cbus->mode) {
+> > +	case I3C_BUS_MODE_PURE:
+> > +		if (!i3cbus->scl_rate.i3c)
+> > +			i3cbus->scl_rate.i3c =3D I3C_BUS_TYP_I3C_SCL_RATE;
+> > +		break;
+> > +	case I3C_BUS_MODE_MIXED_FAST:
+> > +		if (!i3cbus->scl_rate.i3c)
+> > +			i3cbus->scl_rate.i3c =3D I3C_BUS_TYP_I3C_SCL_RATE;
+> > +		if (!i3cbus->scl_rate.i2c)
+> > +			i3cbus->scl_rate.i2c =3D max_i2c_scl_rate;
+> > +		break;
+> > +	case I3C_BUS_MODE_MIXED_SLOW:
+> > +		if (!i3cbus->scl_rate.i2c)
+> > +			i3cbus->scl_rate.i2c =3D max_i2c_scl_rate;
+> > +		if (!i3cbus->scl_rate.i3c ||
+> > +		    i3cbus->scl_rate.i3c > i3cbus->scl_rate.i2c)
+> > +			i3cbus->scl_rate.i3c =3D i3cbus->scl_rate.i2c;
+> > +		break;
+> > +	default:
+> > +		return -EINVAL;
+> >  	}
+> > =20
+> > +	if (i3cbus->scl_rate.i3c < i3cbus->scl_rate.i2c)
+> > +		dev_dbg(&master->dev,
+> > +			"i3c-scl-hz=3D%ld lower than i2c-scl-hz=3D%ld\n",
+> > +			i3cbus->scl_rate.i3c, i3cbus->scl_rate.i2c);
+> > +
+> > +	if (i3cbus->scl_rate.i2c !=3D I3C_BUS_I2C_FM_SCL_RATE &&
+> > +	    i3cbus->scl_rate.i2c !=3D I3C_BUS_I2C_FM_PLUS_SCL_RATE &&
+> > +	    i3cbus->mode !=3D I3C_BUS_MODE_PURE)
+> > +		dev_dbg(&master->dev,
+> > +			"i2c-scl-hz=3D%ld not defined according MIPI I3C spec\n",
+> > +			i3cbus->scl_rate.i2c);
+> > +
+>=20
+> Again, that's not what I suggested, so I'll write it down:
+>=20
+> 	dev_dbg(&master->dev, "i2c-scl =3D %ld Hz i3c-scl =3D %ld Hz\n",
+> 		i3cbus->scl_rate.i2c, i3cbus->scl_rate.i3c);
+>=20
+
+I'm not ok with that change. The reasons are:
+  i3cbus->scl_rate.i3c < i3cbus->scl_rate.i2c is an abnormal use case. As=20
+discuss early it can be cause by a wrong DT definition or just for=20
+testing purposes.
+
+  i3cbus->scl_rate.i2c !=3D I3C_BUS_I2C_FM_SCL_RATE && i3cbus->scl_rate.i2c=
+=20
+!=3D I3C_BUS_I2C_FM_PLUS_SCL_RATE, the MIPI I3C Spec v1.0 clearly says that=
+=20
+all I2C devices on the bus shall have a LVR register and thus support FM=20
+or FM+ modes.
+By  definition a FM bus works at 400kHz and a FM+ bus 1MHz.
+And for slaves, a FM device works up to 400kHz and a FM+ device works up=20
+to 1MHz respectively.
+
+Apart of that, if the I2C device support you can use a custom higher or=20
+lower rate, yet not defined according MIPI I3C spec.
+
+> dev_dbg() is not printed by default, so it's just fine to have a trace
+> that prints the I3C and I2C rate unconditionally.
+
+I'm ok to change the way that user is notified and I think that is here=20
+the problem.
+Maybe the best is to change the first dev_dbg() to dev_warn() and the=20
+second dev_info().
 
 >=20
-> UFS runtime suspend can be triggered after pm_runtime_enable()
-> is invoked in ufshcd_pltfrm_init(). However if the first runtime
-> suspend is triggered before binding ufs_hba structure to ufs
-> device structure via platform_set_drvdata(), then UFS runtime
-> suspend will be no longer triggered in the future because its
-> dev->power.runtime_error was set in the first triggering and does
-> not have any chance to be cleared.
->=20
-> To be more clear, dev->power.runtime_error is set if hba is NULL
-> in ufshcd_runtime_suspend() which returns -EINVAL to rpm_callback()
-> where dev->power.runtime_error is set as -EINVAL. In this case, any
-> future rpm_suspend() for UFS device fails because
-> rpm_check_suspend_allowed() fails due to non-zero
-> dev->power.runtime_error.
->=20
-> To resolve this issue, make sure the first UFS runtime suspend
-> get valid "hba" in ufshcd_runtime_suspend(): Enable UFS runtime PM
-> only after hba is successfully bound to UFS device structure.
->=20
-> Fixes: e3ce73d (scsi: ufs: fix bugs related to null pointer access and ar=
-ray size)
-This code was inserted before platform_set_drvdata  in
-6269473 [SCSI] ufs: Add runtime PM support for UFS host controller driver.
-Why do you point to e3ce73d?
+> >  	/*
+> >  	 * I3C/I2C frequency may have been overridden, check that user-provid=
+ed
+> >  	 * values are not exceeding max possible frequency.
+> > @@ -1966,9 +2000,6 @@ of_i3c_master_add_i2c_boardinfo(struct i3c_master=
+_controller *master,
+> >  	/* LVR is encoded in reg[2]. */
+> >  	boardinfo->lvr =3D reg[2];
+> > =20
+> > -	if (boardinfo->lvr & I3C_LVR_I2C_FM_MODE)
+> > -		master->bus.scl_rate.i2c =3D I3C_BUS_I2C_FM_SCL_RATE;
+> > -
+> >  	list_add_tail(&boardinfo->node, &master->boardinfo.i2c);
+> >  	of_node_get(node);
+> > =20
+> > @@ -2417,6 +2448,7 @@ int i3c_master_register(struct i3c_master_control=
+ler *master,
+> >  			const struct i3c_master_controller_ops *ops,
+> >  			bool secondary)
+> >  {
+> > +	unsigned long i2c_scl_rate =3D I3C_BUS_I2C_FM_PLUS_SCL_RATE;
+> >  	struct i3c_bus *i3cbus =3D i3c_master_get_bus(master);
+> >  	enum i3c_bus_mode mode =3D I3C_BUS_MODE_PURE;
+> >  	struct i2c_dev_boardinfo *i2cbi;
+> > @@ -2466,9 +2498,12 @@ int i3c_master_register(struct i3c_master_contro=
+ller *master,
+> >  			ret =3D -EINVAL;
+> >  			goto err_put_dev;
+> >  		}
+> > +
+> > +		if (i2cbi->lvr & I3C_LVR_I2C_FM_MODE)
+> > +			i2c_scl_rate =3D I3C_BUS_I2C_FM_SCL_RATE;
+> >  	}
+> > =20
+> > -	ret =3D i3c_bus_set_mode(i3cbus, mode);
+> > +	ret =3D i3c_bus_set_mode(i3cbus, mode, i2c_scl_rate);
+> >  	if (ret)
+> >  		goto err_put_dev;
+> > =20
 
-Thanks,
-Avri
-
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
-> ---
->  drivers/scsi/ufs/ufshcd-pltfrm.c | 11 ++++-------
->  1 file changed, 4 insertions(+), 7 deletions(-)
->=20
-> diff --git a/drivers/scsi/ufs/ufshcd-pltfrm.c b/drivers/scsi/ufs/ufshcd-p=
-ltfrm.c
-> index 8a74ec30c3d2..d7d521b394c3 100644
-> --- a/drivers/scsi/ufs/ufshcd-pltfrm.c
-> +++ b/drivers/scsi/ufs/ufshcd-pltfrm.c
-> @@ -430,24 +430,21 @@ int ufshcd_pltfrm_init(struct platform_device
-> *pdev,
->  		goto dealloc_host;
->  	}
->=20
-> -	pm_runtime_set_active(&pdev->dev);
-> -	pm_runtime_enable(&pdev->dev);
-> -
->  	ufshcd_init_lanes_per_dir(hba);
->=20
->  	err =3D ufshcd_init(hba, mmio_base, irq);
->  	if (err) {
->  		dev_err(dev, "Initialization failed\n");
-> -		goto out_disable_rpm;
-> +		goto dealloc_host;
->  	}
->=20
->  	platform_set_drvdata(pdev, hba);
->=20
-> +	pm_runtime_set_active(&pdev->dev);
-> +	pm_runtime_enable(&pdev->dev);
-> +
->  	return 0;
->=20
-> -out_disable_rpm:
-> -	pm_runtime_disable(&pdev->dev);
-> -	pm_runtime_set_suspended(&pdev->dev);
->  dealloc_host:
->  	ufshcd_dealloc_host(hba);
->  out:
-> --
-> 2.18.0
 
