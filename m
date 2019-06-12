@@ -2,117 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 96ADA427D9
-	for <lists+stable@lfdr.de>; Wed, 12 Jun 2019 15:42:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C79742852
+	for <lists+stable@lfdr.de>; Wed, 12 Jun 2019 16:03:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2408598AbfFLNl7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Jun 2019 09:41:59 -0400
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:38229 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2408476AbfFLNl6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Jun 2019 09:41:58 -0400
-Received: by mail-wr1-f68.google.com with SMTP id d18so16962909wrs.5
-        for <stable@vger.kernel.org>; Wed, 12 Jun 2019 06:41:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:reply-to:from:date:message-id
-         :subject:to:cc;
-        bh=NYybLtq9m6yUgkNdbGZJ5+yrh+mLC51AZVXepgcsKKM=;
-        b=nl8+JLo0WqM06iOKpvxn4irZjrHjATdIhZmFrCX57aBzLcUdJ0pR239n9HgaS7THbH
-         Y+FR6L5fGkWg0vLDH58eXQc2SBUGhK/BWUvTFRryo6dv3F5/tWCW23iuLDxVpsYKrjGg
-         cvQHOEjpFLgVdPmA3RS0o8tQy7BUuIym8n3dVJp2ucUxt3qjbHOJVjk0BEYSTqMqRsc9
-         tN9tnwOWm7kxedLGemI21rw47/R1A+PydE9vS1fm774WLI6lgNCyKmoTJgs2yGcUK4P8
-         gFx97CWIoGBCK29rp/52pTjAgQvoITOJO9nBR51AcCm9etekQypZCTcIwbPSZn1Jr4pQ
-         dl4Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:reply-to
-         :from:date:message-id:subject:to:cc;
-        bh=NYybLtq9m6yUgkNdbGZJ5+yrh+mLC51AZVXepgcsKKM=;
-        b=dYCZoZ6X0fY0vvci/yCgOT35RsiWQOOjnZzmVf5DDYgaQsdmxqHfrRpc0YdVIlAZV6
-         J8y5qYyvupZn8Z95nvcF/O+5aP65oxnxrsaF3Dfa/8wxfIGJd+EoP9uB8U03xy6mNWdW
-         p4jnHSvo1uUSuoYSTpLPM6UyAcNbkxyYc547GC33jxOkuAME3R0DtIbQO0WNp4fG3DWP
-         VbTFp4sE2lxyHIC+3i4Uro8y35RHY8x1fiHnDQBoYp94NVgUsFi708RlW6oZuRWq9JkL
-         qHoWn8tAUC6u1577tOzwOsgk8bbhrPnAEL/Ilr1+nw9lRf+X1Aef+/c2qaquSuTNpKzB
-         N2Ug==
-X-Gm-Message-State: APjAAAW91WmkpUJ+jB0yRBno3tDiTCw4N+izX/eMUqjWA5UCipGTrgeN
-        YaUMDVFoNTbndET62TF90QmvqNFzVDoxvHpSTdOCLci5
-X-Google-Smtp-Source: APXvYqxrjX0Ikkz8FzlEI6M9ADnfxZASQs5qzH6W3P5+xhrtcW+kHZ4Ul4U9D4OktfYQ714DXYxMglgNBajn4wLGlBk=
-X-Received: by 2002:adf:e9cc:: with SMTP id l12mr7583376wrn.29.1560346916449;
- Wed, 12 Jun 2019 06:41:56 -0700 (PDT)
-MIME-Version: 1.0
-References: <CA+icZUXaXhvm46tA2aHO=85Lv16Y4=DOnz7OBRyfztp=i0_a5Q@mail.gmail.com>
- <20190612101519.GM26148@MiWiFi-R3L-srv> <CA+icZUV78MPyLRie4MWa0PZ-UObpG33gmZhFfHD1rFsTqV7vnw@mail.gmail.com>
- <20190612131922.GO26148@MiWiFi-R3L-srv> <20190612132306.GA28802@MiWiFi-R3L-srv>
-In-Reply-To: <20190612132306.GA28802@MiWiFi-R3L-srv>
-Reply-To: sedat.dilek@gmail.com
-From:   Sedat Dilek <sedat.dilek@gmail.com>
-Date:   Wed, 12 Jun 2019 15:41:45 +0200
-Message-ID: <CA+icZUVjj=9uj77aUwJsO9haRNWWGe4xKYdyJUOscT=Dq8Y-Hw@mail.gmail.com>
-Subject: Re: [v5] x86/mm/KASLR: Fix the size of vmemmap section
-To:     Baoquan He <bhe@redhat.com>
-Cc:     stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+        id S2407758AbfFLODh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Jun 2019 10:03:37 -0400
+Received: from mailgw02.mediatek.com ([210.61.82.184]:8991 "EHLO
+        mailgw02.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S2407368AbfFLODh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Jun 2019 10:03:37 -0400
+X-UUID: 0ec276bfe8ac41e39318012d65bb6cff-20190612
+X-UUID: 0ec276bfe8ac41e39318012d65bb6cff-20190612
+Received: from mtkcas06.mediatek.inc [(172.21.101.30)] by mailgw02.mediatek.com
+        (envelope-from <stanley.chu@mediatek.com>)
+        (mhqrelay.mediatek.com ESMTP with TLS)
+        with ESMTP id 1598698959; Wed, 12 Jun 2019 22:03:32 +0800
+Received: from mtkcas07.mediatek.inc (172.21.101.84) by
+ mtkmbs02n2.mediatek.inc (172.21.101.101) with Microsoft SMTP Server (TLS) id
+ 15.0.1395.4; Wed, 12 Jun 2019 22:03:24 +0800
+Received: from [172.21.77.33] (172.21.77.33) by mtkcas07.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1395.4 via Frontend
+ Transport; Wed, 12 Jun 2019 22:03:23 +0800
+Message-ID: <1560348204.19782.6.camel@mtkswgap22>
+Subject: RE: [PATCH v1] scsi: ufs: Avoid runtime suspend possibly being
+ blocked forever
+From:   Stanley Chu <stanley.chu@mediatek.com>
+To:     Avri Altman <Avri.Altman@wdc.com>
+CC:     "linux-scsi@vger.kernel.org" <linux-scsi@vger.kernel.org>,
+        "martin.petersen@oracle.com" <martin.petersen@oracle.com>,
+        "alim.akhtar@samsung.com" <alim.akhtar@samsung.com>,
+        "pedrom.sousa@synopsys.com" <pedrom.sousa@synopsys.com>,
+        "linux-mediatek@lists.infradead.org" 
+        <linux-mediatek@lists.infradead.org>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "matthias.bgg@gmail.com" <matthias.bgg@gmail.com>,
+        "evgreen@chromium.org" <evgreen@chromium.org>,
+        "beanhuo@micron.com" <beanhuo@micron.com>,
+        "marc.w.gonzalez@free.fr" <marc.w.gonzalez@free.fr>,
+        "ygardi@codeaurora.org" <ygardi@codeaurora.org>,
+        "subhashj@codeaurora.org" <subhashj@codeaurora.org>,
+        "kuohong.wang@mediatek.com" <kuohong.wang@mediatek.com>,
+        "peter.wang@mediatek.com" <peter.wang@mediatek.com>,
+        "chun-hung.wu@mediatek.com" <chun-hung.wu@mediatek.com>,
+        "andy.teng@mediatek.com" <andy.teng@mediatek.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        <stanley.chu@mediatek.com>
+Date:   Wed, 12 Jun 2019 22:03:24 +0800
+In-Reply-To: <SN6PR04MB492546256F8F8635E7EE60C2FCEC0@SN6PR04MB4925.namprd04.prod.outlook.com>
+References: <1560325326-1598-1-git-send-email-stanley.chu@mediatek.com>
+         <SN6PR04MB492546256F8F8635E7EE60C2FCEC0@SN6PR04MB4925.namprd04.prod.outlook.com>
 Content-Type: text/plain; charset="UTF-8"
+X-Mailer: Evolution 3.2.3-0ubuntu6 
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-TM-SNTS-SMTP: 4018B39517CC99ADF846BD09B0727C651F76F30778E15F902E6C0D2819EA72F62000:8
+X-MTK:  N
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jun 12, 2019 at 3:23 PM Baoquan He <bhe@redhat.com> wrote:
-[...]
-> > > I have applied the patch set from [0] and booted into the new kernel.
-> > >
-> > > But I have set...
-> > >
-> > > CONFIG_PGTABLE_LEVELS=4
-> > > # CONFIG_X86_5LEVEL is not set
-> > >
-> > > To test this I need CONFIG_X86_5LEVEL=y?
-> > > Best two kernels with and without your patch.
-> >
-> > Yeah, with CONFIG_X86_5LEVEL=y.
-> >
-> > In fact I didn't have chance to trigger the issue to reproduce, then
-> > apply this patch to fix. As you know, the machine with large memory is
-> > too few. This is a code bug, so I just run the level 4 kernel and level
-> > 5 kernel to test the basic functionality.
-> >
-> > If you have machine owning RAM 64 TB, and it supports 5-level, you can
->                              ~~~~
->                             Here, I meant owning RAM larger than 64 TB
->
-> > build two kernels w and w/o this patch, it's easy to reproduce.
-> >
+Hi Avri,
 
-Hi Baoquan,
+On Wed, 2019-06-12 at 11:10 +0000, Avri Altman wrote:
+> Hi,
+> 
+> > 
+> > UFS runtime suspend can be triggered after pm_runtime_enable()
+> > is invoked in ufshcd_pltfrm_init(). However if the first runtime
+> > suspend is triggered before binding ufs_hba structure to ufs
+> > device structure via platform_set_drvdata(), then UFS runtime
+> > suspend will be no longer triggered in the future because its
+> > dev->power.runtime_error was set in the first triggering and does
+> > not have any chance to be cleared.
+> > 
+> > To be more clear, dev->power.runtime_error is set if hba is NULL
+> > in ufshcd_runtime_suspend() which returns -EINVAL to rpm_callback()
+> > where dev->power.runtime_error is set as -EINVAL. In this case, any
+> > future rpm_suspend() for UFS device fails because
+> > rpm_check_suspend_allowed() fails due to non-zero
+> > dev->power.runtime_error.
+> > 
+> > To resolve this issue, make sure the first UFS runtime suspend
+> > get valid "hba" in ufshcd_runtime_suspend(): Enable UFS runtime PM
+> > only after hba is successfully bound to UFS device structure.
+> > 
+> > Fixes: e3ce73d (scsi: ufs: fix bugs related to null pointer access and array size)
+> This code was inserted before platform_set_drvdata  in
+> 6269473 [SCSI] ufs: Add runtime PM support for UFS host controller driver.
+> Why do you point to e3ce73d?
 
-No, I have no 64-TB-machine here.
+e3ce73d (scsi: ufs: fix bugs related to null pointer access and array
+size) changed the returned value from 0 to -EINVAL in case of NULL "hba"
+in ufshcd_runtime_suspend().
 
-I have seen that the Kconfig help text [0] says...
+But you are right, above patch may do the right thing, and the real root
+cause is the incorrect timing of pm_runtime_enable().
 
- See Documentation/x86/x86_64/5level-paging.txt for more
- information.
+I will fix commit message in next version.
 
-That should be s/5level-paging.txt/5level-paging.rst.
-I can send a patch if you like.
-
-Can you look at the text of [1] - are the informations up2date?
+> 
+> Thanks,
+> Avri
 
 Thanks.
-
-Regards,
-- Sedat -
+Stanley
 
 
-
-
-
-[0] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/arch/x86/Kconfig#n1481
-[1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/x86/x86_64/5level-paging.rst
-
-> > >
-> > > - Sedat -
-> > >
-> > > [0] https://git.kernel.org/pub/scm/linux/kernel/git/tip/tip.git/commit/?h=x86/urgent&id=00e5a2bbcc31d5fea853f8daeba0f06c1c88c3ff
-> > > [1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/x86/x86_64/5level-paging.rst
