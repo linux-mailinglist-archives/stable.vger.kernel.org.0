@@ -2,64 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D650D42670
-	for <lists+stable@lfdr.de>; Wed, 12 Jun 2019 14:49:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99DF742676
+	for <lists+stable@lfdr.de>; Wed, 12 Jun 2019 14:49:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2409153AbfFLMsh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Jun 2019 08:48:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40540 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2404447AbfFLMsh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 Jun 2019 08:48:37 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2C059208C2;
-        Wed, 12 Jun 2019 12:48:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560343716;
-        bh=T7e+N0eXDbEngt69yByxL9+F/rITTlRQEha/KbhDUzU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=rnKLtEAxRvOXqVMO6zK2mIXacAPITo3KQhYEuhfGoWoMVunscMyXuGd7Nq5OXjggV
-         qBDRLNsev8IXy5q5A8Y7w8nTpJ1jCG3zSLPTeoslA8Uq0m8ajpYWmQ4wtt5/Qbeftm
-         d+TSHxnSvWhHAl4yYzos/HgVfRh+Hwgm3mg+5Zb8=
-Date:   Wed, 12 Jun 2019 14:48:34 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Guilherme Piccoli <gpiccoli@canonical.com>
-Cc:     stable@vger.kernel.org, sashal@kernel.org,
-        Song Liu <songliubraving@fb.com>,
-        linux-raid <linux-raid@vger.kernel.org>,
-        Jens Axboe <axboe@kernel.dk>, Ming Lei <ming.lei@redhat.com>,
-        Song Liu <liu.song.a23@gmail.com>,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Subject: Re: [PATCH 2/2] md/raid0: Do not bypass blocking queue entered for
- raid0 bios
-Message-ID: <20190612124834.GA27918@kroah.com>
-References: <20190523172345.1861077-1-songliubraving@fb.com>
- <20190523172345.1861077-2-songliubraving@fb.com>
- <CAHD1Q_wraiFkLP72pFfGhON+KZe7yo3ktXvsAA40QVcXvzviSA@mail.gmail.com>
+        id S2404447AbfFLMsz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Jun 2019 08:48:55 -0400
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:39912 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2409159AbfFLMsz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Jun 2019 08:48:55 -0400
+Received: by mail-wr1-f67.google.com with SMTP id x4so14122675wrt.6
+        for <stable@vger.kernel.org>; Wed, 12 Jun 2019 05:48:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:reply-to:from:date:message-id
+         :subject:to:cc;
+        bh=xJU2/H18MN7+U2ogcBvPSPl5vHNLD0/uzihF5VFtkOQ=;
+        b=G+BkaDrPTJM7MWQYuyi0VNLC6TFlQgNcPrfD3qNg2RCgYPiSTYm+TsrvO8IcjEYlKo
+         dnygx899pv2ZaOqveDfJYHUmA7eYEIBK60XPt2A9t5qnUrnZDV4kXbtDHXY65EqyxVcQ
+         cpPyxiUCsGjqlNAIh0o9YQL56BMg86ejDOvAtPMm+OqbuCpB1Squ1NwTr8bqXwTm1Wxy
+         aj1BIbS9nk4r69fCp/HYGN+4FqaZ4oc8b/Y4JqFpa4S+UHNuSYwp1UNXu1JDux1/jyem
+         +lrj7XKiTReL0VuzYvsWFz8E+n1EVaBcUjapBQ7I3vFcxGeYP4i2lE8H4igPtG5zIKT5
+         nkeA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:reply-to
+         :from:date:message-id:subject:to:cc;
+        bh=xJU2/H18MN7+U2ogcBvPSPl5vHNLD0/uzihF5VFtkOQ=;
+        b=uhBAhk3iLm/YLHwpLg0/SqD+fqVvUF9WKfgV9sK7HZ2Cf25NYMnYAs2+oZTjT8yrMP
+         Td7BRdcTEB8jktA2QnnHXQjiKbUYw+bRDQE7kaOVRHlq+ZNpVmaMVjlStKs79clGXOGA
+         zxmPLJT6DrMlV2s12YcKt2M424mRzzXZmE4SjPMjAv7XidNJPlI9Un/fNd2D0xzsahTz
+         WdiRygeF/Oova0eWEuY8xPJ/7WrtBMWcRJAbnVt6BsazuTEQ9NGt4i0/KnKIP1f9BDD8
+         0RugBCxjCDoIjQmeQafDu2t2VHEiJw7OYv8F+zi20mnZaJgJnH1FjE9jhOkddEq82cx6
+         MDSg==
+X-Gm-Message-State: APjAAAWr5PiH+zADO/SHkifi7bEeABxN4A3svSTLS+bKr1Px0le47Bz3
+        2wmGDDCxDu9qyU1j04pUwjitnv7zUR+b8RUgAQ0=
+X-Google-Smtp-Source: APXvYqzqHgaQRZQ/3jfM6Ga9BsEMnAlgJQ7E+sgHmNx4Lq74djQw0Du826+QkQbQDt06utUMoMtKR+HVcthzgmEKdCk=
+X-Received: by 2002:adf:efc8:: with SMTP id i8mr27183597wrp.220.1560343733387;
+ Wed, 12 Jun 2019 05:48:53 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAHD1Q_wraiFkLP72pFfGhON+KZe7yo3ktXvsAA40QVcXvzviSA@mail.gmail.com>
-User-Agent: Mutt/1.12.0 (2019-05-25)
+References: <CA+icZUXaXhvm46tA2aHO=85Lv16Y4=DOnz7OBRyfztp=i0_a5Q@mail.gmail.com>
+ <20190612101519.GM26148@MiWiFi-R3L-srv>
+In-Reply-To: <20190612101519.GM26148@MiWiFi-R3L-srv>
+Reply-To: sedat.dilek@gmail.com
+From:   Sedat Dilek <sedat.dilek@gmail.com>
+Date:   Wed, 12 Jun 2019 14:48:42 +0200
+Message-ID: <CA+icZUV78MPyLRie4MWa0PZ-UObpG33gmZhFfHD1rFsTqV7vnw@mail.gmail.com>
+Subject: Re: [v5] x86/mm/KASLR: Fix the size of vmemmap section
+To:     Baoquan He <bhe@redhat.com>
+Cc:     stable@vger.kernel.org, Sasha Levin <sashal@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jun 12, 2019 at 09:40:17AM -0300, Guilherme Piccoli wrote:
-> Hi Greg and Sasha, is there any news about these patches?
+On Wed, Jun 12, 2019 at 12:15 PM Baoquan He <bhe@redhat.com> wrote:
+>
+> On 06/04/19 at 01:46pm, Sedat Dilek wrote:
+> > [ CC me I am not subscribed to linux-stable ML ]
+> > [ CC Greg and Sasha ]
+> >
+> > Hi Baoquan,
+> >
+> > that should be s/Fiexes/Fixes for the "Fixes tag".
+> >
+> > OLD: Fiexes: eedb92abb9bb ("x86/mm: Make virtual memory layout dynamic
+> > for CONFIG_X86_5LEVEL=y")
+> > NEW: Fixes: eedb92abb9bb ("x86/mm: Make virtual memory layout dynamic
+> > for CONFIG_X86_5LEVEL=y")
+> >
+> > Also, you can add...
+> >
+> > Cc: stable@vger.kernel.org # v4.19+
+> >
+> > ...to catch the below.
+> >
+> > [ QUOTE ]
+> > You can see that it was added in kernel 4.17-rc1, as above. Can we just
+> > apply this patch to stable trees after 4.17?
+>
+> Oops, I just noticed this mail today, sorry.
+>
+> Boris has picked it into tip/x86/urgent. It should be in linus's tree
+> very soon. Appreciate your help anyway.
+>
 
-What patches?
+I have applied the patch set from [0] and booted into the new kernel.
 
-> Just checked the stable branches 5.1.y and 5.0.y, they seem not merged.
+But I have set...
 
-Are they merged in Linus's tree?  What are the git commit ids?
+CONFIG_PGTABLE_LEVELS=4
+# CONFIG_X86_5LEVEL is not set
 
-I have no record of these patches in my queue at the moment, sorry.  If
-these were a backport, please resend them in the proper format.
+To test this I need CONFIG_X86_5LEVEL=y?
+Best two kernels with and without your patch.
 
-thanks,
+- Sedat -
 
-greg k-h
+[0] https://git.kernel.org/pub/scm/linux/kernel/git/tip/tip.git/commit/?h=x86/urgent&id=00e5a2bbcc31d5fea853f8daeba0f06c1c88c3ff
+[1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/x86/x86_64/5level-paging.rst
+
+> Thanks
+> Baoquan
+>
+> >
+> > >
+> > > v5.1.4: Build OK!
+> > > v5.0.18: Build OK!
+> > > v4.19.45: Build OK!
+> > [ /QUOTE ]
+> >
+> > I had an early patchset of you tested (which included this one IIRC),
+> > so feel free to add my...
+> >
+> >    Tested-by: Sedat Dilek <sedat.dilek@gmail.com>
+> >
+> > Hope this lands in tip or linux-stable Git.
+> >
+> > Thanks.
+> >
+> > Regards,
+> > - Sedat -
+> >
+> > [1] https://lore.kernel.org/patchwork/patch/1077557/
