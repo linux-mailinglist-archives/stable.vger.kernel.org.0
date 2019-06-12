@@ -2,112 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 357BA42A29
-	for <lists+stable@lfdr.de>; Wed, 12 Jun 2019 17:02:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E57242AAC
+	for <lists+stable@lfdr.de>; Wed, 12 Jun 2019 17:19:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728946AbfFLPBr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Jun 2019 11:01:47 -0400
-Received: from mail-lf1-f68.google.com ([209.85.167.68]:41711 "EHLO
-        mail-lf1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726776AbfFLPBq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Jun 2019 11:01:46 -0400
-Received: by mail-lf1-f68.google.com with SMTP id 136so12386126lfa.8
-        for <stable@vger.kernel.org>; Wed, 12 Jun 2019 08:01:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=HHCDrti6hZOHHFd1mpKnLx73brcB9mCERSd3hAVv5pE=;
-        b=KkwQ3OChlT1SGhZHjb9KzgGArXdQ0Dq/std7lS1DpML+cI6hpP/WBT4ne8hr2hmYkw
-         PqYf+g1JoepAjFhtN4AONq2Y9oe/QcsF5s7ZEMjrhzjPzEuTX8Wzpfb5AdborLNmQsHE
-         8p3d6NsfYZIW5C3BrbDXWCiymcil4LNea/80AlG9Uvfu0Q0MjoLG2viuI3z4cBnH5yef
-         b4TUUqzUa2BIu7E0XcaUUOitQIlHSTF3sSaurPeWkDEnDZ9yzW7We8sXG1uQADJmkSD9
-         6IF5aJ+vpR50hNyD/iQwdoUXgukc7tCtqIlGYiRFZuCtzWj5TuItQF//y37eSc/spbTY
-         CR+Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=HHCDrti6hZOHHFd1mpKnLx73brcB9mCERSd3hAVv5pE=;
-        b=RO8O7ZUUJH5IVlJe5jGeSGVv32B8qqoG0NNSPPrYze2UC+CkmEXHHUqTclLqBWwBdg
-         KqVTqs6JyF7Rvqps5XncSOo0l9WTZfcGYf19b/Nc7YB7w/kZKlcXfVFGObtw6HxneIpl
-         BsjJVxg/ayCz12GMofSIhpvKTFwwsfJpwpWsvs1f8jqDtbhl16jkSHs8EQ+0sdpV0StB
-         zd2ZJSK/MxQfQaIP/cv8gz5vvu/jvBwl4pPMKMxlZzegOe3WvuVX2JkYMdGPiLXF0uyp
-         n2dMpHulz1omaP8oQ8MmojYJMJRgVMsSdNkMEzUbFaJV1PLKN2TyvQHIL/gj/Dl5JRpT
-         YUeg==
-X-Gm-Message-State: APjAAAVLqxbaMei3PScaRjO1au6ji3vXvmBxubM11mvWG7cPAS/mBikO
-        6PI97fFJmnIXvcY7WcYtUa8qzNGdcOQTLTBpF8xP
-X-Google-Smtp-Source: APXvYqzUa4qPIMP44F+BRabfYCSqJIepdYV6MTPHD6iv/GuQEMcoUX0OYLpUf6gPQK1dgHDLAI0smjWtlweRABY8wvI=
-X-Received: by 2002:a19:230e:: with SMTP id j14mr2053068lfj.13.1560351704859;
- Wed, 12 Jun 2019 08:01:44 -0700 (PDT)
+        id S1731322AbfFLPTX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Jun 2019 11:19:23 -0400
+Received: from mailgw01.mediatek.com ([210.61.82.183]:63575 "EHLO
+        mailgw01.mediatek.com" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S1727419AbfFLPTX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Jun 2019 11:19:23 -0400
+X-UUID: 59f437fa7ced4ef4b30133056feeb33a-20190612
+X-UUID: 59f437fa7ced4ef4b30133056feeb33a-20190612
+Received: from mtkexhb01.mediatek.inc [(172.21.101.102)] by mailgw01.mediatek.com
+        (envelope-from <stanley.chu@mediatek.com>)
+        (mhqrelay.mediatek.com ESMTP with TLS)
+        with ESMTP id 892612023; Wed, 12 Jun 2019 23:19:09 +0800
+Received: from MTKCAS06.mediatek.inc (172.21.101.30) by
+ mtkmbs02n1.mediatek.inc (172.21.101.77) with Microsoft SMTP Server (TLS) id
+ 15.0.1395.4; Wed, 12 Jun 2019 23:19:07 +0800
+Received: from mtkswgap22.mediatek.inc (172.21.77.33) by MTKCAS06.mediatek.inc
+ (172.21.101.73) with Microsoft SMTP Server id 15.0.1395.4 via Frontend
+ Transport; Wed, 12 Jun 2019 23:19:07 +0800
+From:   Stanley Chu <stanley.chu@mediatek.com>
+To:     <linux-scsi@vger.kernel.org>, <martin.petersen@oracle.com>,
+        <avri.altman@wdc.com>, <alim.akhtar@samsung.com>,
+        <pedrom.sousa@synopsys.com>
+CC:     <linux-mediatek@lists.infradead.org>,
+        <linux-arm-kernel@lists.infradead.org>, <matthias.bgg@gmail.com>,
+        <evgreen@chromium.org>, <beanhuo@micron.com>,
+        <marc.w.gonzalez@free.fr>, <ygardi@codeaurora.org>,
+        <subhashj@codeaurora.org>, <sthumma@codeaurora.org>,
+        <kuohong.wang@mediatek.com>, <peter.wang@mediatek.com>,
+        <chun-hung.wu@mediatek.com>, <andy.teng@mediatek.com>,
+        Stanley Chu <stanley.chu@mediatek.com>,
+        <stable@vger.kernel.org>
+Subject: [PATCH v2] scsi: ufs: Avoid runtime suspend possibly being blocked forever
+Date:   Wed, 12 Jun 2019 23:19:05 +0800
+Message-ID: <1560352745-24681-1-git-send-email-stanley.chu@mediatek.com>
+X-Mailer: git-send-email 1.7.9.5
 MIME-Version: 1.0
-References: <20190611080719.28625-1-omosnace@redhat.com> <CAHC9VhSXZp6QierOGRBXmyUf=pT3Y4mf=78AmQAquuQ8-WBSGw@mail.gmail.com>
- <CAFqZXNsD06JYYNmpOYyGrxLHCfvVyUSJMZ3mRTWG5-b2Ws7zQw@mail.gmail.com>
-In-Reply-To: <CAFqZXNsD06JYYNmpOYyGrxLHCfvVyUSJMZ3mRTWG5-b2Ws7zQw@mail.gmail.com>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Wed, 12 Jun 2019 11:01:33 -0400
-Message-ID: <CAHC9VhSs4pEDL+fSFCqd4xNLqXgEQ42Qh0p2uhePnbx9ZuxwgQ@mail.gmail.com>
-Subject: Re: [PATCH] selinux: log raw contexts as untrusted strings
-To:     Ondrej Mosnacek <omosnace@redhat.com>
-Cc:     selinux@vger.kernel.org,
-        Linux-Audit Mailing List <linux-audit@redhat.com>,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain
+X-MTK:  N
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jun 12, 2019 at 3:37 AM Ondrej Mosnacek <omosnace@redhat.com> wrote=
-:
-> On Wed, Jun 12, 2019 at 12:56 AM Paul Moore <paul@paul-moore.com> wrote:
-> > On Tue, Jun 11, 2019 at 4:07 AM Ondrej Mosnacek <omosnace@redhat.com> w=
-rote:
-> > > These strings may come from untrusted sources (e.g. file xattrs) so t=
-hey
-> > > need to be properly escaped.
-> > >
-> > > Reproducer:
-> > >     # setenforce 0
-> > >     # touch /tmp/test
-> > >     # setfattr -n security.selinux -v 'ku=C5=99ec=C3=AD =C5=99=C3=ADz=
-ek' /tmp/test
-> > >     # runcon system_u:system_r:sshd_t:s0 cat /tmp/test
-> > >     (look at the generated AVCs)
-> > >
-> > > Actual result:
-> > >     type=3DAVC [...] trawcon=3Dku=C5=99ec=C3=AD =C5=99=C3=ADzek
-> > >
-> > > Expected result:
-> > >     type=3DAVC [...] trawcon=3D6B75C5996563C3AD20C599C3AD7A656B
-> > >
-> > > Fixes: fede148324c3 ("selinux: log invalid contexts in AVCs")
-> > > Cc: stable@vger.kernel.org # v5.1+
-> > > Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-> > > ---
-> > >  security/selinux/avc.c | 10 ++++++++--
-> > >  1 file changed, 8 insertions(+), 2 deletions(-)
-> >
-> > Thanks, the patch looks fine to me, but it is borderline -stable
-> > material in my opinion.  I'll add it to the stable-5.2 branch, but in
-> > the future I would prefer if you left the stable marking off patches
-> > and sent a reply discussing *why* this should go to stable so we can
-> > discuss it.  I realize Greg likes to pull a lot of stuff into stable,
-> > but I try to be a bit more conservative about what gets marked.  Even
-> > the simplest fix can still break things :)
->
-> OK, I was a bit unsure whether to mark it as stable or not and
-> eventually inclined to do so... I'll try be more careful about it in
-> the future.
+UFS runtime suspend can be triggered after pm_runtime_enable()
+is invoked in ufshcd_pltfrm_init(). However if the first runtime
+suspend is triggered before binding ufs_hba structure to ufs
+device structure via platform_set_drvdata(), then UFS runtime
+suspend will be no longer triggered in the future because its
+dev->power.runtime_error was set in the first triggering and does
+not have any chance to be cleared.
 
-If it makes you feel better, it's not that big of a deal, I just felt
-it was worth mentioning since we've been doing a bit of a "best
-practices for submitting SELinux kernel patches" on the mailing list
-lately and I felt this was worth mentioning.  The basic idea is that I
-think marking something for stable shouldn't be taken lightly and it
-is worth a discussion, even if it is short.
+To be more clear, dev->power.runtime_error is set if hba is NULL
+in ufshcd_runtime_suspend() which returns -EINVAL to rpm_callback()
+where dev->power.runtime_error is set as -EINVAL. In this case, any
+future rpm_suspend() for UFS device fails because
+rpm_check_suspend_allowed() fails due to non-zero
+dev->power.runtime_error.
 
---=20
-paul moore
-www.paul-moore.com
+To resolve this issue, make sure the first UFS runtime suspend
+get valid "hba" in ufshcd_runtime_suspend(): Enable UFS runtime PM
+only after hba is successfully bound to UFS device structure.
+
+Fixes: 62694735ca95 ([SCSI] ufs: Add runtime PM support for UFS host controller driver)
+Cc: stable@vger.kernel.org
+Signed-off-by: Stanley Chu <stanley.chu@mediatek.com>
+---
+ drivers/scsi/ufs/ufshcd-pltfrm.c | 11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/scsi/ufs/ufshcd-pltfrm.c b/drivers/scsi/ufs/ufshcd-pltfrm.c
+index 8a74ec30c3d2..d7d521b394c3 100644
+--- a/drivers/scsi/ufs/ufshcd-pltfrm.c
++++ b/drivers/scsi/ufs/ufshcd-pltfrm.c
+@@ -430,24 +430,21 @@ int ufshcd_pltfrm_init(struct platform_device *pdev,
+ 		goto dealloc_host;
+ 	}
+ 
+-	pm_runtime_set_active(&pdev->dev);
+-	pm_runtime_enable(&pdev->dev);
+-
+ 	ufshcd_init_lanes_per_dir(hba);
+ 
+ 	err = ufshcd_init(hba, mmio_base, irq);
+ 	if (err) {
+ 		dev_err(dev, "Initialization failed\n");
+-		goto out_disable_rpm;
++		goto dealloc_host;
+ 	}
+ 
+ 	platform_set_drvdata(pdev, hba);
+ 
++	pm_runtime_set_active(&pdev->dev);
++	pm_runtime_enable(&pdev->dev);
++
+ 	return 0;
+ 
+-out_disable_rpm:
+-	pm_runtime_disable(&pdev->dev);
+-	pm_runtime_set_suspended(&pdev->dev);
+ dealloc_host:
+ 	ufshcd_dealloc_host(hba);
+ out:
+-- 
+2.18.0
+
