@@ -2,117 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A81DA41929
-	for <lists+stable@lfdr.de>; Wed, 12 Jun 2019 01:52:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9011941A10
+	for <lists+stable@lfdr.de>; Wed, 12 Jun 2019 03:52:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2405317AbfFKXwe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Jun 2019 19:52:34 -0400
-Received: from mail-lj1-f193.google.com ([209.85.208.193]:36607 "EHLO
-        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2404808AbfFKXwe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Jun 2019 19:52:34 -0400
-Received: by mail-lj1-f193.google.com with SMTP id i21so13392687ljj.3;
-        Tue, 11 Jun 2019 16:52:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=VENOP9kl7lg5KwAxIPCouDt1b8Ws7sAjlClYwMccvkk=;
-        b=fivEwC5hnXqUGk5603e1MnAG/mADaygUOmV3PIsZ3IMYL75ryOgDvU7uHsFxpYB0go
-         ieMR00vOGpQREHjn2+aej3foTWeEL3oQOrFc69YRAikto9jTKa5n7QaX6nkzZaH04dMG
-         /Kkwk34cl9BDmFIfJg9XRni4Qo8z3YM10s16+wF7IBqeaAGYbAfvR4uF1mgTQUt+VCUk
-         JNfkMxauM0kWVmOd/nhtZ65BRuvrKL8yXxafKLbdN/cPj8WSDbLXgj7DaCFKNUP+4vag
-         OZfTARhoXxcb1AvwVTUjlYcYtIke/qT5kk6MFaI+9kKSkap21v2vtI8iyN/Ndb/GeaUI
-         elrg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=VENOP9kl7lg5KwAxIPCouDt1b8Ws7sAjlClYwMccvkk=;
-        b=tnn2U1BPIHnGsX35BNNfY8F8MTT9Py6tZCkWykF8oaNEHYhWk7KTtyQZPVdQiaIHmh
-         kSGbx5GoXUw1cijh6sT/BfRpUJPw3g3H9G0SA86/a1xwYAmsVcB187dzsF+iro2zAI+a
-         GTT/LAUa6kpvE0JdC8Pw9G4t5vPygTBGaV4FfuPGjV5HYYRpsj9GYEeRw9UYAeVfvhc+
-         auaQ9AzXmWn9YkWX3hSpqXG8DvaBS5FNQW/KIjxk9F1CVm0c20PeHOmyfLEiFxvtYOKp
-         +zz0rMw6Puuaf3x0drYM7ITCDzeFUdsy9kiKsVHS9ouws7tf0ehbFXVp+KxMKY+/MGYQ
-         TkNA==
-X-Gm-Message-State: APjAAAUvEY8927VCBvekud4Z9Wvf8jtZhAozs3kWcYssgBlQ5MCTrlRA
-        BKQ8EZd0GEGxPr2LQ452WWA8cnpxaqruwj5ECw==
-X-Google-Smtp-Source: APXvYqwXKEnifxG0ZulJwDSBVavjHGiiNqpCp4KHpEscPy7916h+xxeL2bSqWfzEtRZLpQ8+dBbewxnKzU3w1FUEGok=
-X-Received: by 2002:a2e:9e8e:: with SMTP id f14mr17661324ljk.120.1560297152242;
- Tue, 11 Jun 2019 16:52:32 -0700 (PDT)
+        id S2407565AbfFLBwA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Jun 2019 21:52:00 -0400
+Received: from szxga05-in.huawei.com ([45.249.212.191]:18132 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S2406607AbfFLBwA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 11 Jun 2019 21:52:00 -0400
+Received: from DGGEMS406-HUB.china.huawei.com (unknown [172.30.72.59])
+        by Forcepoint Email with ESMTP id 37B9F17F8941DD2D9381;
+        Wed, 12 Jun 2019 09:51:58 +0800 (CST)
+Received: from [127.0.0.1] (10.184.189.120) by DGGEMS406-HUB.china.huawei.com
+ (10.3.19.206) with Microsoft SMTP Server id 14.3.439.0; Wed, 12 Jun 2019
+ 09:51:54 +0800
+Subject: Re: [PATCH] futex: Fix futex lock the wrong page
+To:     <tglx@linutronix.de>, <mingo@redhat.com>, <peterz@infradead.org>,
+        <dvhart@infradead.org>, <linux-kernel@vger.kernel.org>,
+        <stable@vger.kernel.org>
+References: <1560304465-68966-1-git-send-email-zhangxiaoxu5@huawei.com>
+From:   "zhangxiaoxu (A)" <zhangxiaoxu5@huawei.com>
+Message-ID: <d00fc9d7-ea10-1577-40e9-03df1578acbe@huawei.com>
+Date:   Wed, 12 Jun 2019 09:50:25 +0800
+User-Agent: Mozilla/5.0 (Windows NT 6.1; WOW64; rv:60.0) Gecko/20100101
+ Thunderbird/60.6.1
 MIME-Version: 1.0
-References: <20190605001534.28278-1-lsahlber@redhat.com>
-In-Reply-To: <20190605001534.28278-1-lsahlber@redhat.com>
-From:   Pavel Shilovsky <piastryyy@gmail.com>
-Date:   Tue, 11 Jun 2019 16:52:21 -0700
-Message-ID: <CAKywueSpgeVf4cR+yeHxRHuzt5RV9p_1Vsea_jH_qH98-+EYhA@mail.gmail.com>
-Subject: Re: [PATCH] cifs: fix panic in smb2_reconnect
-To:     Ronnie Sahlberg <lsahlber@redhat.com>
-Cc:     linux-cifs <linux-cifs@vger.kernel.org>,
-        Steve French <smfrench@gmail.com>,
-        Stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <1560304465-68966-1-git-send-email-zhangxiaoxu5@huawei.com>
+Content-Type: text/plain; charset="gbk"; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.184.189.120]
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-=D0=B2=D1=82, 4 =D0=B8=D1=8E=D0=BD. 2019 =D0=B3. =D0=B2 17:16, Ronnie Sahlb=
-erg <lsahlber@redhat.com>:
->
-> RH Bugzilla: 1702264
->
-> We need to protect so that the call to smb2_reconnect() in
-> smb2_reconnect_server() does not end up freeing the session
-> because it can lead to a use after free and crash.
->
-> Reviewed-by: Aurelien Aptel <aaptel@suse.com>
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
+This patch is for stable branch linux-4.4-y.
+
+On 2019/6/12 9:54, ZhangXiaoxu wrote:
+> The upstram commit 65d8fc777f6d ("futex: Remove requirement
+> for lock_page() in get_futex_key()") use variable 'page' as
+> the page head, when merge it to stable branch, the variable
+> `page_head` is page head.
+> 
+> In the stable branch, the variable `page` not means the page
+> head, when lock the page head, we should lock 'page_head',
+> rather than 'page'.
+> 
+> It maybe lead a hung task problem.
+> 
+> Signed-off-by: ZhangXiaoxu <zhangxiaoxu5@huawei.com>
+> Cc: stable@vger.kernel.org
 > ---
->  fs/cifs/smb2pdu.c | 10 +++++++++-
->  1 file changed, 9 insertions(+), 1 deletion(-)
->
-> diff --git a/fs/cifs/smb2pdu.c b/fs/cifs/smb2pdu.c
-> index 565b60b62f4d..ab8dc73d2282 100644
-> --- a/fs/cifs/smb2pdu.c
-> +++ b/fs/cifs/smb2pdu.c
-> @@ -3113,9 +3113,14 @@ void smb2_reconnect_server(struct work_struct *wor=
-k)
->                                 tcon_exist =3D true;
->                         }
->                 }
-> +               /*
-> +                * IPC has the same lifetime as its session and uses its
-> +                * refcount.
-> +                */
->                 if (ses->tcon_ipc && ses->tcon_ipc->need_reconnect) {
->                         list_add_tail(&ses->tcon_ipc->rlist, &tmp_list);
->                         tcon_exist =3D true;
-> +                       ses->ses_count++;
->                 }
->         }
->         /*
-> @@ -3134,7 +3139,10 @@ void smb2_reconnect_server(struct work_struct *wor=
-k)
->                 else
->                         resched =3D true;
->                 list_del_init(&tcon->rlist);
-> -               cifs_put_tcon(tcon);
-> +               if (tcon->ipc)
-> +                       cifs_put_smb_ses(tcon->ses);
-> +               else
-> +                       cifs_put_tcon(tcon);
->         }
->
->         cifs_dbg(FYI, "Reconnecting tcons finished\n");
-> --
-> 2.13.6
->
+>   kernel/futex.c | 4 ++--
+>   1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/kernel/futex.c b/kernel/futex.c
+> index ec9df5b..15d850f 100644
+> --- a/kernel/futex.c
+> +++ b/kernel/futex.c
+> @@ -593,8 +593,8 @@ again:
+>   		 * applies. If this is really a shmem page then the page lock
+>   		 * will prevent unexpected transitions.
+>   		 */
+> -		lock_page(page);
+> -		shmem_swizzled = PageSwapCache(page) || page->mapping;
+> +		lock_page(page_head);
+> +		shmem_swizzled = PageSwapCache(page_head) || page_head->mapping;
+>   		unlock_page(page_head);
+>   		put_page(page_head);
+>   
+> 
 
-Reviewed-by: Pavel Shilovsky <pshilov@microsoft.com>
-
---
-Best regards,
-Pavel Shilovsky
