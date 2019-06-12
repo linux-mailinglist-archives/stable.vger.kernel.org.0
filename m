@@ -2,130 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A4F6B41E3B
-	for <lists+stable@lfdr.de>; Wed, 12 Jun 2019 09:51:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD63141F72
+	for <lists+stable@lfdr.de>; Wed, 12 Jun 2019 10:42:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2406162AbfFLHu4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Jun 2019 03:50:56 -0400
-Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:37803 "EHLO
-        wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S2405233AbfFLHu4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Jun 2019 03:50:56 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id E4B234DF;
-        Wed, 12 Jun 2019 03:50:51 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Wed, 12 Jun 2019 03:50:52 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm1; bh=ibnfl+8xKs40HASLH7el8ogm6D7
-        fXLbZYdTL2iD4vcQ=; b=NM/fZdYl0Cq1bfgm5IT3B33aeNuPMS9hmSYPmeq0S9j
-        w3BAbcmccRBUibbsCfiA5Tdp4C6nu95MLTuBhOfTWSY9Lxw4Pr01G/PXJ9BmHPTu
-        CZhHqKdfwZ48eA+TCne2DudbVUGFe98IBcb3ygWQDcNqNQkc1QPmftGP+1V41O9a
-        GEBR5r9w+2OOtrAiI3vIffymQfS1bbeTqY867is3nUUjYvAI3U3MryBcGgniMnDa
-        pg/15qArkkrq92CjbfLgaH57VpWgznJOqCb0hZyucjeh41Ag2TbuDDKpsGmwi2Y+
-        FMxDSQV0cTLc9EikIjFSIsUQqj5ayUUkFF33Mjiaf1w==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=ibnfl+
-        8xKs40HASLH7el8ogm6D7fXLbZYdTL2iD4vcQ=; b=IrsdjC7SrNhyzj+rtqjnqJ
-        pLm9ZNCrnbrm/xQrHkaXwGnkq87242dkM7dDNm0KjtOjvHyYyDHAi8OMvF3uY0Tk
-        AVgshoX3D7J1rZ5IV+6ADil6dU/RLEAEVDrdTWZfLd+FTJRsFHgC7jFKJWIWv+y6
-        mAYDmzL922KJaEdsHSAqrwR8Mq4LIjg/UfjoECWsNoBVFatWG2sQ2JwOqcpAHf0m
-        5lFyFF+AjgeBbYhajo83Z+hN/ZO6P8nPvflwOHkvuXz8fmENAgz9GLQHHEogkD9u
-        4EJUV+1n3xpJJCBTyRWYKHEZU4kWHfanfY1jLtjZBFK4jMSAXAznZjb6V+pxNWvw
-        ==
-X-ME-Sender: <xms:264AXXpbBEkp4MhaDU5UYOrIc7VBrG89WjfZtogX9pD5pE-ezWIrJQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrudehiedguddvgecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
-    enucfjughrpeffhffvuffkfhggtggujggfsehttdertddtredvnecuhfhrohhmpefirhgv
-    ghcumffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucfkphepkeefrdekiedrkeelrd
-    dutdejnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomhen
-    ucevlhhushhtvghrufhiiigvpedt
-X-ME-Proxy: <xmx:264AXcS-AqMVU-L3-qlnj37Yp41RRi-n5xkH4r_kvBsvf-y07KbSvg>
-    <xmx:264AXaMH4cXEa5APKJdr9xykdvrkr1u5RxiuTvvoUzy6_ROHiyqz-A>
-    <xmx:264AXaiu95q0rZ3GtK1OJjjvbubARo8dGhgeTBAHAqj0RNiZX_7IsA>
-    <xmx:264AXeBiKpIGaHkHLtj6qWbSf7hfvetUlu-XPhG9l3QX9E4b4YMSwg>
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id C27878005C;
-        Wed, 12 Jun 2019 03:50:50 -0400 (EDT)
-Date:   Wed, 12 Jun 2019 09:50:49 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Rolf Eike Beer <eb@emlix.com>
-Cc:     Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>,
-        stable@vger.kernel.org, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 4.9.180 build fails =?utf-8?Q?wi?=
- =?utf-8?Q?th_gcc_9_and_'cleanup=5Fmodule'_specifies_less_restrictive_attr?=
- =?utf-8?Q?ibute_than_its_target_=E2=80=A6?=
-Message-ID: <20190612075049.GB17662@kroah.com>
-References: <259986242.BvXPX32bHu@devpool35>
- <CANiq72nfFqYkiYgKJ1UZV3Mx2C3wzu_7TRtXFn=iafNt+Oc_2g@mail.gmail.com>
- <20190606185900.GA19937@kroah.com>
- <3659495.RxnUGBN4mp@devpool35>
+        id S1725938AbfFLImW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Jun 2019 04:42:22 -0400
+Received: from mail-wr1-f67.google.com ([209.85.221.67]:46800 "EHLO
+        mail-wr1-f67.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726000AbfFLImW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Jun 2019 04:42:22 -0400
+Received: by mail-wr1-f67.google.com with SMTP id n4so15872920wrw.13;
+        Wed, 12 Jun 2019 01:42:21 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=IfVZRhqj12lorlSiH6uWMXLG8YWDSUqzogRrWK/FINE=;
+        b=P4wGwS1yN5nTEa9Pgn2GKBnV6ajceweuaB9mQYYd1P79XeOnPSt8arslv/pSzyWCBg
+         1WQq2eVSYPin3lFnMMsmE0LruLnYfZynh7zYy3/DjuS4p2Xok6iQha98o7MHZULO0Fmx
+         OxweR5OUmQmzJ1TKNnZnQshrkRqtlqnI+QC9/qPEeCd0bL2wJt7CKxE1COgbkNDdhENG
+         KshRD1UlCSlKbEXM+Eh4DOV/2XzVBlaGsK2c2QehO3FGzieaRnr66UrZaZfzx4i1zADY
+         DJKBdgYk6jvb4iO8KD3JYITT3chpAJTQ9ebJor5qhraInIMxbP1rfr0g0ouMnt0tIQMT
+         TErQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=IfVZRhqj12lorlSiH6uWMXLG8YWDSUqzogRrWK/FINE=;
+        b=pdVP4avPxHr/jUMzA2iUYdCk8Hv9FOxQUX6oYG7fKBmUW+68wR1TRBpk7+a7BM1mBr
+         RzJ5lhdpAjcQbwBmsrvmE0Jkbk8x8xzOS3SY0pNYuHjJMG8tb9gJkJ8YaiAokV0VrfqI
+         3auAt0uMGDWlojKPBefkovKcp/czDr1L/MlevQZaePkihkbm7+WjEC5/4hazk+mYdJtg
+         Gcgj+YiVE8/7WKqgIlCZ/tk2ggjRAomzB9ozDw+USa9ZGQ4ey+ZrNOkukrVNXNVIHoCi
+         LGAJdZEWI0tOZ98etdhdNXdrMFC9RsxyDI3DUiRoJ1X16oKaitePqNJBkR2f+kJ0eCRA
+         jdxA==
+X-Gm-Message-State: APjAAAWYwLNrPWRZPO5/Y+eLMCmDoLsXiPNpv4NwjjkamxtTrYimAUsA
+        uwJDpfoZ2VWQKb/ULeOkdYxhBxmjuww=
+X-Google-Smtp-Source: APXvYqwyaArrhZrrMoKMd5qKAhAmt/z7B6na/1vwS/x83Dh0CUzmQFcQmpWvzxVoQClsNv4zvAP5Xw==
+X-Received: by 2002:adf:9dcc:: with SMTP id q12mr3396418wre.93.1560328940554;
+        Wed, 12 Jun 2019 01:42:20 -0700 (PDT)
+Received: from merlot.mazyland.net (nat-pool-brq-t.redhat.com. [213.175.37.10])
+        by smtp.googlemail.com with ESMTPSA id s9sm5052675wmc.11.2019.06.12.01.42.19
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Wed, 12 Jun 2019 01:42:19 -0700 (PDT)
+From:   Milan Broz <gmazyland@gmail.com>
+To:     linux-integrity@vger.kernel.org
+Cc:     Milan Broz <gmazyland@gmail.com>, stable@vger.kernel.org
+Subject: [PATCH] tpm: Fix null pointer dereference on chip register error path
+Date:   Wed, 12 Jun 2019 10:42:10 +0200
+Message-Id: <20190612084210.13562-1-gmazyland@gmail.com>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3659495.RxnUGBN4mp@devpool35>
-User-Agent: Mutt/1.12.0 (2019-05-25)
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jun 12, 2019 at 09:19:15AM +0200, Rolf Eike Beer wrote:
-> Am Donnerstag, 6. Juni 2019, 20:59:00 CEST schrieb Greg KH:
-> > On Thu, Jun 06, 2019 at 08:25:28PM +0200, Miguel Ojeda wrote:
-> > > On Thu, Jun 6, 2019 at 5:29 PM Greg KH <greg@kroah.com> wrote:
-> > > > And if you want this, you should look at how the backports to 4.14.y
-> > > > worked, they did not include a3f8a30f3f00 ("Compiler Attributes: use
-> > > > feature checks instead of version checks"), as that gets really messy...
-> > > 
-> > > I am confused -- I interpreted Rolf's message as reporting that he
-> > > already successfully built 4.9 by applying a6e60d84989f
-> > > ("include/linux/module.h: copy __init/__exit attrs to
-> > > init/cleanup_module") and manually fixing it up. But maybe I am
-> > > completely wrong... :-)
-> > 
-> > "manually fixing it up" means "hacked it to pieces" to me, I have no
-> > idea what the end result really was :)
-> > 
-> > If someone wants to send me some patches I can actually apply, that
-> > would be best...
-> 
-> Hi all,
-> 
-> the patch I actually used was this:
-> 
-> diff --git a/include/linux/module.h b/include/linux/module.h
-> index 8fa38d3e7538..f5bc4c046461 100644
-> --- a/include/linux/module.h
-> +++ b/include/linux/module.h
-> @@ -129,13 +129,13 @@ extern void cleanup_module(void);
->  #define module_init(initfn)					\
->  	static inline initcall_t __maybe_unused __inittest(void)		\
->  	{ return initfn; }					\
-> -	int init_module(void) __attribute__((alias(#initfn)));
-> +	int init_module(void) __attribute__((__copy__(initfn))) __attribute__((alias(#initfn)));
->  
->  /* This is only required if you want to be unloadable. */
->  #define module_exit(exitfn)					\
->  	static inline exitcall_t __maybe_unused __exittest(void)		\
->  	{ return exitfn; }					\
-> -	void cleanup_module(void) __attribute__((alias(#exitfn)));
-> +	void cleanup_module(void) __attribute__((__copy__(exitfn))) __attribute__((alias(#exitfn)));
->  
->  #endif
->  
-> 
-> So the final question is: do we want 4.9.x to be buildable with gcc 9.x? If
-> yes then we can probably get this patches into shape.
+If clk_enable is not defined and chip initialization
+is canceled code hits null dereference.
 
-Eventually, yes, we (or at least I) will want to build 4.9.x with gcc
-9.x.  We went through this same process for gcc 8.x as all of my builder
-test machines switched their default version of gcc...
+Easily reproducible with vTPM init fail:
+  swtpm chardev --tpmstate dir=nonexistent_dir --tpm2 --vtpm-proxy
 
-thanks,
+BUG: kernel NULL pointer dereference, address: 00000000
+...
+Call Trace:
+ tpm_chip_start+0x9d/0xa0 [tpm]
+ tpm_chip_register+0x10/0x1a0 [tpm]
+ vtpm_proxy_work+0x11/0x30 [tpm_vtpm_proxy]
+ process_one_work+0x214/0x5a0
+ worker_thread+0x134/0x3e0
+ ? process_one_work+0x5a0/0x5a0
+ kthread+0xd4/0x100
+ ? process_one_work+0x5a0/0x5a0
+ ? kthread_park+0x90/0x90
+ ret_from_fork+0x19/0x24
 
-greg k-h
+Signed-off-by: Milan Broz <gmazyland@gmail.com>
+Cc: stable@vger.kernel.org
+---
+ drivers/char/tpm/tpm-chip.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/char/tpm/tpm-chip.c b/drivers/char/tpm/tpm-chip.c
+index 90325e1749fb..4c2af643d698 100644
+--- a/drivers/char/tpm/tpm-chip.c
++++ b/drivers/char/tpm/tpm-chip.c
+@@ -95,7 +95,8 @@ int tpm_chip_start(struct tpm_chip *chip)
+ 	if (chip->locality == -1) {
+ 		ret = tpm_request_locality(chip);
+ 		if (ret) {
+-			chip->ops->clk_enable(chip, false);
++			if (chip->ops->clk_enable)
++				chip->ops->clk_enable(chip, false);
+ 			return ret;
+ 		}
+ 	}
+-- 
+2.20.1
+
