@@ -2,84 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EB4A4201D
-	for <lists+stable@lfdr.de>; Wed, 12 Jun 2019 10:57:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1586342111
+	for <lists+stable@lfdr.de>; Wed, 12 Jun 2019 11:39:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726778AbfFLI5i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Jun 2019 04:57:38 -0400
-Received: from mx2.suse.de ([195.135.220.15]:51982 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1726286AbfFLI5i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 Jun 2019 04:57:38 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 0BB60AF49;
-        Wed, 12 Jun 2019 08:57:37 +0000 (UTC)
-Subject: Re: [PATCH v2 1/3] fs/fuse, splice_write: Don't access pipe->buffers
- without pipe_lock()
-To:     Andrey Ryabinin <aryabinin@virtuozzo.com>,
-        Miklos Szeredi <miklos@szeredi.hu>
-Cc:     linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+        id S2436777AbfFLJjH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Jun 2019 05:39:07 -0400
+Received: from relay7-d.mail.gandi.net ([217.70.183.200]:57087 "EHLO
+        relay7-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2406059AbfFLJjH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Jun 2019 05:39:07 -0400
+X-Originating-IP: 83.155.44.161
+Received: from classic (mon69-7-83-155-44-161.fbx.proxad.net [83.155.44.161])
+        (Authenticated sender: hadess@hadess.net)
+        by relay7-d.mail.gandi.net (Postfix) with ESMTPSA id B12B42000B;
+        Wed, 12 Jun 2019 09:38:58 +0000 (UTC)
+Message-ID: <9ad95905975e09646f0f2aa967140881cbbe3477.camel@hadess.net>
+Subject: Re: [PATCH] Revert "Bluetooth: Align minimum encryption key size
+ for LE and BR/EDR connections"
+From:   Bastien Nocera <hadess@hadess.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Marcel Holtmann <marcel@holtmann.org>
+Cc:     Vasily Khoruzhick <anarsoul@gmail.com>,
+        Johan Hedberg <johan.hedberg@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        "open list:BLUETOOTH DRIVERS" <linux-bluetooth@vger.kernel.org>,
+        netdev <netdev@vger.kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
         stable@vger.kernel.org
-References: <CAJfpegvAAQTAjxLcQLefvFOQDJ6ug_G8Jggt=UZci+YnNP741A@mail.gmail.com>
- <20180717160035.9422-1-aryabinin@virtuozzo.com>
-From:   Vlastimil Babka <vbabka@suse.cz>
-Message-ID: <b7aceb99-9631-cbcf-fdec-3abef72c949d@suse.cz>
-Date:   Wed, 12 Jun 2019 10:57:35 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.0
+Date:   Wed, 12 Jun 2019 11:38:57 +0200
+In-Reply-To: <20190612070701.GA13320@kroah.com>
+References: <20190522052002.10411-1-anarsoul@gmail.com>
+         <6BD1D3F7-E2F2-4B2D-9479-06E27049133C@holtmann.org>
+         <7B7F362B-6C8B-4112-8772-FB6BC708ABF5@holtmann.org>
+         <CA+E=qVfopSA90vG2Kkh+XzdYdNn=M-hJN_AptW=R+B5v3HB9eA@mail.gmail.com>
+         <CA+E=qVdLOS9smt-nBxg9Lon0iTZr87kONSp-XPKj9tqB4bvnqw@mail.gmail.com>
+         <723142BB-8217-4A01-A2B9-F527174FDC0F@holtmann.org>
+         <20190612070701.GA13320@kroah.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.32.2 (3.32.2-1.fc30) 
 MIME-Version: 1.0
-In-Reply-To: <20180717160035.9422-1-aryabinin@virtuozzo.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 7/17/18 6:00 PM, Andrey Ryabinin wrote:
-> fuse_dev_splice_write() reads pipe->buffers to determine the size of
-> 'bufs' array before taking the pipe_lock(). This is not safe as
-> another thread might change the 'pipe->buffers' between the allocation
-> and taking the pipe_lock(). So we end up with too small 'bufs' array.
+On Wed, 2019-06-12 at 09:07 +0200, Greg Kroah-Hartman wrote:
+> On Tue, Jun 11, 2019 at 11:36:26PM +0200, Marcel Holtmann wrote:
+> > Hi Vasily,
+> > 
+> > > Can we get this revert merged into stable branches? Bluetooth HID
+> > > has
+> > > been broken for many devices for quite a while now and RFC patch
+> > > that
+> > > fixes the breakage hasn't seen any movement for almost a month.
+> > 
+> > lets send the RFC patch upstream since it got enough feedback that
+> > it fixes the issue.
 > 
-> Move the bufs allocations inside pipe_lock()/pipe_unlock() to fix this.
-> 
-> Fixes: dd3bb14f44a6 ("fuse: support splice() writing to fuse device")
-> Signed-off-by: Andrey Ryabinin <aryabinin@virtuozzo.com>
-> Cc: <stable@vger.kernel.org>
+> According to Hans, the workaround did not work.
 
-BTW, why don't we need to do the same in fuse_dev_splice_read()?
+Is it possible that those folks were running Fedora, and using a
+version of bluetoothd without a fix for using dbus-broker as the D-Bus
+daemon implementation?
 
-Thanks,
-Vlastimil
+I backported the fix in an update last week:
+https://bugzilla.redhat.com/show_bug.cgi?id=1711594
 
-> ---
->  fs/fuse/dev.c | 7 +++++--
->  1 file changed, 5 insertions(+), 2 deletions(-)
+> So can we just get this reverted so that people's machines go back to
+> working?
 > 
-> diff --git a/fs/fuse/dev.c b/fs/fuse/dev.c
-> index c6b88fa85e2e..702592cce546 100644
-> --- a/fs/fuse/dev.c
-> +++ b/fs/fuse/dev.c
-> @@ -1944,12 +1944,15 @@ static ssize_t fuse_dev_splice_write(struct pipe_inode_info *pipe,
->  	if (!fud)
->  		return -EPERM;
->  
-> +	pipe_lock(pipe);
-> +
->  	bufs = kmalloc_array(pipe->buffers, sizeof(struct pipe_buffer),
->  			     GFP_KERNEL);
-> -	if (!bufs)
-> +	if (!bufs) {
-> +		pipe_unlock(pipe);
->  		return -ENOMEM;
-> +	}
->  
-> -	pipe_lock(pipe);
->  	nbuf = 0;
->  	rem = 0;
->  	for (idx = 0; idx < pipe->nrbufs && rem < len; idx++)
+> thanks,
 > 
+> greg k-h
 
