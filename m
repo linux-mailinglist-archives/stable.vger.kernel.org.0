@@ -2,168 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 44D6242632
-	for <lists+stable@lfdr.de>; Wed, 12 Jun 2019 14:44:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D650D42670
+	for <lists+stable@lfdr.de>; Wed, 12 Jun 2019 14:49:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728693AbfFLMoz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Jun 2019 08:44:55 -0400
-Received: from foss.arm.com ([217.140.110.172]:52552 "EHLO foss.arm.com"
+        id S2409153AbfFLMsh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Jun 2019 08:48:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40540 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728606AbfFLMoy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 Jun 2019 08:44:54 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 525FD28;
-        Wed, 12 Jun 2019 05:44:54 -0700 (PDT)
-Received: from e103592.cambridge.arm.com (usa-sjc-imap-foss1.foss.arm.com [10.121.207.14])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPA id 68A863F246;
-        Wed, 12 Jun 2019 05:44:53 -0700 (PDT)
-From:   Dave Martin <Dave.Martin@arm.com>
-To:     kvmarm@lists.cs.columbia.edu
-Cc:     Marc Zyngier <marc.zyngier@arm.com>,
-        Christoffer Dall <christoffer.dall@arm.com>,
-        Peter Maydell <peter.maydell@linaro.org>,
-        linux-arm-kernel@lists.infradead.org,
-        Andrew Jones <drjones@redhat.com>, stable@vger.kernel.org
-Subject: [PATCH v4 REPOST] KVM: arm64: Filter out invalid core register IDs in KVM_GET_REG_LIST
-Date:   Wed, 12 Jun 2019 13:44:49 +0100
-Message-Id: <1560343489-22906-1-git-send-email-Dave.Martin@arm.com>
-X-Mailer: git-send-email 2.1.4
+        id S2404447AbfFLMsh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 12 Jun 2019 08:48:37 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2C059208C2;
+        Wed, 12 Jun 2019 12:48:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1560343716;
+        bh=T7e+N0eXDbEngt69yByxL9+F/rITTlRQEha/KbhDUzU=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=rnKLtEAxRvOXqVMO6zK2mIXacAPITo3KQhYEuhfGoWoMVunscMyXuGd7Nq5OXjggV
+         qBDRLNsev8IXy5q5A8Y7w8nTpJ1jCG3zSLPTeoslA8Uq0m8ajpYWmQ4wtt5/Qbeftm
+         d+TSHxnSvWhHAl4yYzos/HgVfRh+Hwgm3mg+5Zb8=
+Date:   Wed, 12 Jun 2019 14:48:34 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Guilherme Piccoli <gpiccoli@canonical.com>
+Cc:     stable@vger.kernel.org, sashal@kernel.org,
+        Song Liu <songliubraving@fb.com>,
+        linux-raid <linux-raid@vger.kernel.org>,
+        Jens Axboe <axboe@kernel.dk>, Ming Lei <ming.lei@redhat.com>,
+        Song Liu <liu.song.a23@gmail.com>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Subject: Re: [PATCH 2/2] md/raid0: Do not bypass blocking queue entered for
+ raid0 bios
+Message-ID: <20190612124834.GA27918@kroah.com>
+References: <20190523172345.1861077-1-songliubraving@fb.com>
+ <20190523172345.1861077-2-songliubraving@fb.com>
+ <CAHD1Q_wraiFkLP72pFfGhON+KZe7yo3ktXvsAA40QVcXvzviSA@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAHD1Q_wraiFkLP72pFfGhON+KZe7yo3ktXvsAA40QVcXvzviSA@mail.gmail.com>
+User-Agent: Mutt/1.12.0 (2019-05-25)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Since commit d26c25a9d19b ("arm64: KVM: Tighten guest core register
-access from userspace"), KVM_{GET,SET}_ONE_REG rejects register IDs
-that do not correspond to a single underlying architectural register.
+On Wed, Jun 12, 2019 at 09:40:17AM -0300, Guilherme Piccoli wrote:
+> Hi Greg and Sasha, is there any news about these patches?
 
-KVM_GET_REG_LIST was not changed to match however: instead, it
-simply yields a list of 32-bit register IDs that together cover the
-whole kvm_regs struct.  This means that if userspace tries to use
-the resulting list of IDs directly to drive calls to KVM_*_ONE_REG,
-some of those calls will now fail.
+What patches?
 
-This was not the intention.  Instead, iterating KVM_*_ONE_REG over
-the list of IDs returned by KVM_GET_REG_LIST should be guaranteed
-to work.
+> Just checked the stable branches 5.1.y and 5.0.y, they seem not merged.
 
-This patch fixes the problem by splitting validate_core_offset()
-into a backend core_reg_size_from_offset() which does all of the
-work except for checking that the size field in the register ID
-matches, and kvm_arm_copy_reg_indices() and num_core_regs() are
-converted to use this to enumerate the valid offsets.
+Are they merged in Linus's tree?  What are the git commit ids?
 
-kvm_arm_copy_reg_indices() now also sets the register ID size field
-appropriately based on the value returned, so the register ID
-supplied to userspace is fully qualified for use with the register
-access ioctls.
+I have no record of these patches in my queue at the moment, sorry.  If
+these were a backport, please resend them in the proper format.
 
-Cc: stable@vger.kernel.org
-Fixes: d26c25a9d19b ("arm64: KVM: Tighten guest core register access from userspace")
-Signed-off-by: Dave Martin <Dave.Martin@arm.com>
-Reviewed-by: Andrew Jones <drjones@redhat.com>
-Tested-by: Andrew Jones <drjones@redhat.com>
----
+thanks,
 
-This is just a repost of [1], with Andrew Jones' reviewer tags added.
-
-[1] [PATCH] KVM: arm64: Filter out invalid core register IDs in KVM_GET_REG_LIST
-https://lists.cs.columbia.edu/pipermail/kvmarm/2019-June/036093.html
-
- arch/arm64/kvm/guest.c | 53 +++++++++++++++++++++++++++++++++++++-------------
- 1 file changed, 40 insertions(+), 13 deletions(-)
-
-diff --git a/arch/arm64/kvm/guest.c b/arch/arm64/kvm/guest.c
-index 3ae2f82..6527c76 100644
---- a/arch/arm64/kvm/guest.c
-+++ b/arch/arm64/kvm/guest.c
-@@ -70,10 +70,8 @@ static u64 core_reg_offset_from_id(u64 id)
- 	return id & ~(KVM_REG_ARCH_MASK | KVM_REG_SIZE_MASK | KVM_REG_ARM_CORE);
- }
- 
--static int validate_core_offset(const struct kvm_vcpu *vcpu,
--				const struct kvm_one_reg *reg)
-+static int core_reg_size_from_offset(const struct kvm_vcpu *vcpu, u64 off)
- {
--	u64 off = core_reg_offset_from_id(reg->id);
- 	int size;
- 
- 	switch (off) {
-@@ -103,8 +101,7 @@ static int validate_core_offset(const struct kvm_vcpu *vcpu,
- 		return -EINVAL;
- 	}
- 
--	if (KVM_REG_SIZE(reg->id) != size ||
--	    !IS_ALIGNED(off, size / sizeof(__u32)))
-+	if (!IS_ALIGNED(off, size / sizeof(__u32)))
- 		return -EINVAL;
- 
- 	/*
-@@ -115,6 +112,21 @@ static int validate_core_offset(const struct kvm_vcpu *vcpu,
- 	if (vcpu_has_sve(vcpu) && core_reg_offset_is_vreg(off))
- 		return -EINVAL;
- 
-+	return size;
-+}
-+
-+static int validate_core_offset(const struct kvm_vcpu *vcpu,
-+				const struct kvm_one_reg *reg)
-+{
-+	u64 off = core_reg_offset_from_id(reg->id);
-+	int size = core_reg_size_from_offset(vcpu, off);
-+
-+	if (size < 0)
-+		return -EINVAL;
-+
-+	if (KVM_REG_SIZE(reg->id) != size)
-+		return -EINVAL;
-+
- 	return 0;
- }
- 
-@@ -453,19 +465,34 @@ static int copy_core_reg_indices(const struct kvm_vcpu *vcpu,
- {
- 	unsigned int i;
- 	int n = 0;
--	const u64 core_reg = KVM_REG_ARM64 | KVM_REG_SIZE_U64 | KVM_REG_ARM_CORE;
- 
- 	for (i = 0; i < sizeof(struct kvm_regs) / sizeof(__u32); i++) {
--		/*
--		 * The KVM_REG_ARM64_SVE regs must be used instead of
--		 * KVM_REG_ARM_CORE for accessing the FPSIMD V-registers on
--		 * SVE-enabled vcpus:
--		 */
--		if (vcpu_has_sve(vcpu) && core_reg_offset_is_vreg(i))
-+		u64 reg = KVM_REG_ARM64 | KVM_REG_ARM_CORE | i;
-+		int size = core_reg_size_from_offset(vcpu, i);
-+
-+		if (size < 0)
-+			continue;
-+
-+		switch (size) {
-+		case sizeof(__u32):
-+			reg |= KVM_REG_SIZE_U32;
-+			break;
-+
-+		case sizeof(__u64):
-+			reg |= KVM_REG_SIZE_U64;
-+			break;
-+
-+		case sizeof(__uint128_t):
-+			reg |= KVM_REG_SIZE_U128;
-+			break;
-+
-+		default:
-+			WARN_ON(1);
- 			continue;
-+		}
- 
- 		if (uindices) {
--			if (put_user(core_reg | i, uindices))
-+			if (put_user(reg, uindices))
- 				return -EFAULT;
- 			uindices++;
- 		}
--- 
-2.1.4
-
+greg k-h
