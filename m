@@ -2,124 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3731D426FB
-	for <lists+stable@lfdr.de>; Wed, 12 Jun 2019 15:08:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AFDE4270A
+	for <lists+stable@lfdr.de>; Wed, 12 Jun 2019 15:10:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731938AbfFLNIG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Jun 2019 09:08:06 -0400
-Received: from mga02.intel.com ([134.134.136.20]:16720 "EHLO mga02.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728322AbfFLNIG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 Jun 2019 09:08:06 -0400
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by orsmga101.jf.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 12 Jun 2019 06:08:05 -0700
-X-ExtLoop1: 1
-Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.174])
-  by orsmga008.jf.intel.com with SMTP; 12 Jun 2019 06:08:02 -0700
-Received: by stinkbox (sSMTP sendmail emulation); Wed, 12 Jun 2019 16:08:01 +0300
-From:   Ville Syrjala <ville.syrjala@linux.intel.com>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     stable@vger.kernel.org, Blubberbub@protonmail.com,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 1/4] drm/i915: Don't clobber M/N values during fastset check
-Date:   Wed, 12 Jun 2019 16:07:58 +0300
-Message-Id: <20190612130801.2085-1-ville.syrjala@linux.intel.com>
-X-Mailer: git-send-email 2.21.0
+        id S2438718AbfFLNJJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Jun 2019 09:09:09 -0400
+Received: from mail-lj1-f194.google.com ([209.85.208.194]:44879 "EHLO
+        mail-lj1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731950AbfFLNJG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Jun 2019 09:09:06 -0400
+Received: by mail-lj1-f194.google.com with SMTP id k18so15031284ljc.11
+        for <stable@vger.kernel.org>; Wed, 12 Jun 2019 06:09:05 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to:user-agent;
+        bh=MYYBvt30/Tw2U53d4ncQQ8BJSAS7aEExu9CI5ehaRYQ=;
+        b=fEIUYbESteaOEWXcp9jd1ip7LLMYbEGVOrQNAT3OqsOxsIPG6WVQwvCZE85HIg8FMU
+         oAJcpcWnWawsbblDgnVUPfBVy/MjKDQCYn+hVrC6aDbm7jmLJDDdOeYn7ovnkA3c95RJ
+         llSYqcqgco3znDjGJhQC/s0KMf/0CGgldGKLIZELciWkI5jAcYnilJXkUTuUj4XICqxS
+         27Zqa7abianHydTHDyrbogg/uHipI3Cn1g50hRO7vazuNTagb4IIWJANZlWyOrrQK89R
+         BzOEVtM4Gvmvr4sh93YP7UzMiZLLDbKCab70zFec3PK/DXbVmOUhA6hGuNvnRhjhsrJx
+         bIww==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=MYYBvt30/Tw2U53d4ncQQ8BJSAS7aEExu9CI5ehaRYQ=;
+        b=EhQst9bk1m6m0C6G8dKio7fLbSxa7FUg8zmiCS/9oi7ugB/wsJmd27Mvc+QZttTXas
+         /jlg9Z2uC4DmkD0QHC20kutYWzeU/uAQAg80uE7vG3LnqN7Gq+A2GD1C1OOLomMSS/Mh
+         fCftBEIJgpMPSJ2BDmwxoRXGpTmvGbfWORbBZLkGskj5tijAwqnz0NcmLAdkHAjTs4ad
+         1TxqJ9+ptQhGpXtSHvD9l3mKw3Achgh+tZ7W8eYTfrnvmcCIG69FWbJPsT3aSMuqqPqd
+         ogNoilV+EQP7kd1GO+HGb4Flv50M9OYgpjfljlcxU2A1fXURn+U+Wgu9ta99MO6VlOk/
+         bHmA==
+X-Gm-Message-State: APjAAAWBEbHoelWrJjjxxVaVG27GLtUJu5/GwihEbBNVkqLTErsT3pfU
+        SbmpCknsKRka3iaOwh9unknRyQ==
+X-Google-Smtp-Source: APXvYqzrSNdsWoOOTt2HzSZxGlgWX2BVIElZpnF0OUUPgprivZCkMq0Ej/jRwNVnwYyDfYkPbOohUw==
+X-Received: by 2002:a2e:a0cf:: with SMTP id f15mr13251760ljm.180.1560344944488;
+        Wed, 12 Jun 2019 06:09:04 -0700 (PDT)
+Received: from centauri (m83-185-80-163.cust.tele2.se. [83.185.80.163])
+        by smtp.gmail.com with ESMTPSA id s14sm905487ljd.88.2019.06.12.06.09.00
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Wed, 12 Jun 2019 06:09:01 -0700 (PDT)
+Date:   Wed, 12 Jun 2019 15:08:58 +0200
+From:   Niklas Cassel <niklas.cassel@linaro.org>
+To:     Bjorn Andersson <bjorn.andersson@linaro.org>
+Cc:     Kishon Vijay Abraham I <kishon@ti.com>,
+        linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Evan Green <evgreen@chromium.org>,
+        Marc Gonzalez <marc.w.gonzalez@free.fr>,
+        Vivek Gautam <vivek.gautam@codeaurora.org>
+Subject: Re: [PATCH] phy: qcom-qmp: Correct READY_STATUS poll break condition
+Message-ID: <20190612130858.GA11167@centauri>
+References: <20190604232443.3417-1-bjorn.andersson@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190604232443.3417-1-bjorn.andersson@linaro.org>
+User-Agent: Mutt/1.11.4 (2019-03-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+On Tue, Jun 04, 2019 at 04:24:43PM -0700, Bjorn Andersson wrote:
+> After issuing a PHY_START request to the QMP, the hardware documentation
+> states that the software should wait for the PCS_READY_STATUS to become
+> 1.
+> 
+> With the introduction of c9b589791fc1 ("phy: qcom: Utilize UFS reset
+> controller") an additional 1ms delay was introduced between the start
+> request and the check of the status bit. This greatly increases the
+> chances for the hardware to actually becoming ready before the status
+> bit is read.
+> 
+> The result can be seen in that UFS PHY enabling is now reported as a
+> failure in 10% of the boots on SDM845, which is a clear regression from
+> the previous rare/occasional failure.
+> 
+> This patch fixes the "break condition" of the poll to check for the
+> correct state of the status bit.
+> 
+> Unfortunately PCIe on 8996 and 8998 does not specify the mask_pcs_ready
+> register, which means that the code checks a bit that's always 0. So the
+> patch also fixes these, in order to not regress these targets.
+> 
+> Cc: stable@vger.kernel.org
+> Cc: Evan Green <evgreen@chromium.org>
+> Cc: Marc Gonzalez <marc.w.gonzalez@free.fr>
+> Cc: Vivek Gautam <vivek.gautam@codeaurora.org>
+> Fixes: 73d7ec899bd8 ("phy: qcom-qmp: Add msm8998 PCIe QMP PHY support")
+> Fixes: e78f3d15e115 ("phy: qcom-qmp: new qmp phy driver for qcom-chipsets")
+> Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+> ---
+> 
+> @Kishon, this is a regression spotted in v5.2-rc1, so please consider applying
+> this towards v5.2.
+> 
+>  drivers/phy/qualcomm/phy-qcom-qmp.c | 4 +++-
+>  1 file changed, 3 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/phy/qualcomm/phy-qcom-qmp.c b/drivers/phy/qualcomm/phy-qcom-qmp.c
+> index cd91b4179b10..43abdfd0deed 100644
+> --- a/drivers/phy/qualcomm/phy-qcom-qmp.c
+> +++ b/drivers/phy/qualcomm/phy-qcom-qmp.c
+> @@ -1074,6 +1074,7 @@ static const struct qmp_phy_cfg msm8996_pciephy_cfg = {
+>  
+>  	.start_ctrl		= PCS_START | PLL_READY_GATE_EN,
+>  	.pwrdn_ctrl		= SW_PWRDN | REFCLK_DRV_DSBL,
+> +	.mask_pcs_ready		= PHYSTATUS,
+>  	.mask_com_pcs_ready	= PCS_READY,
+>  
+>  	.has_phy_com_ctrl	= true,
+> @@ -1253,6 +1254,7 @@ static const struct qmp_phy_cfg msm8998_pciephy_cfg = {
+>  
+>  	.start_ctrl             = SERDES_START | PCS_START,
+>  	.pwrdn_ctrl		= SW_PWRDN | REFCLK_DRV_DSBL,
+> +	.mask_pcs_ready		= PHYSTATUS,
+>  	.mask_com_pcs_ready	= PCS_READY,
+>  };
+>  
+> @@ -1547,7 +1549,7 @@ static int qcom_qmp_phy_enable(struct phy *phy)
+>  	status = pcs + cfg->regs[QPHY_PCS_READY_STATUS];
+>  	mask = cfg->mask_pcs_ready;
+>  
+> -	ret = readl_poll_timeout(status, val, !(val & mask), 1,
+> +	ret = readl_poll_timeout(status, val, val & mask, 1,
+>  				 PHY_INIT_COMPLETE_TIMEOUT);
+>  	if (ret) {
+>  		dev_err(qmp->dev, "phy initialization timed-out\n");
+> -- 
+> 2.18.0
+> 
 
-We're now calling intel_pipe_config_compare(..., true) uncoditionally
-which means we're always going clobber the calculated M/N values with
-the old values if the fuzzy M/N check passes. That causes problems
-because the fuzzy check allows for a huge difference in the values.
+msm8996_pciephy_cfg and msm8998_pciephy_cfg not having a bit mask defined
+for PCS ready is really a separate bug, so personally I would have created
+two patches, one that adds the missing masks, and one patch that fixes the
+broken break condition.
 
-I'm actually tempted to just make the M/N checks exact, but that might
-prevent fastboot from kicking in when people want it. So for now let's
-overwrite the computed values with the old values only if decide to skip
-the modeset.
+Either way:
 
-Cc: stable@vger.kernel.org
-Cc: Blubberbub@protonmail.com
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Cc: Hans de Goede <hdegoede@redhat.com>
-Tested-by: Blubberbub@protonmail.com
-Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=110782
-Fixes: d19f958db23c ("drm/i915: Enable fastset for non-boot modesets.")
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
----
- drivers/gpu/drm/i915/intel_display.c | 35 +++++++++++++++++++++-------
- 1 file changed, 27 insertions(+), 8 deletions(-)
-
-diff --git a/drivers/gpu/drm/i915/intel_display.c b/drivers/gpu/drm/i915/intel_display.c
-index 1b1ddb48ca7a..73b3e92b7ed5 100644
---- a/drivers/gpu/drm/i915/intel_display.c
-+++ b/drivers/gpu/drm/i915/intel_display.c
-@@ -12299,9 +12299,6 @@ intel_compare_link_m_n(const struct intel_link_m_n *m_n,
- 			      m2_n2->gmch_m, m2_n2->gmch_n, !adjust) &&
- 	    intel_compare_m_n(m_n->link_m, m_n->link_n,
- 			      m2_n2->link_m, m2_n2->link_n, !adjust)) {
--		if (adjust)
--			*m2_n2 = *m_n;
--
- 		return true;
- 	}
- 
-@@ -13433,6 +13430,32 @@ static int calc_watermark_data(struct intel_atomic_state *state)
- 	return 0;
- }
- 
-+static void intel_crtc_check_fastset(struct intel_crtc_state *old_crtc_state,
-+				     struct intel_crtc_state *new_crtc_state)
-+{
-+	struct drm_i915_private *dev_priv =
-+		to_i915(new_crtc_state->base.crtc->dev);
-+
-+	if (!intel_pipe_config_compare(dev_priv, old_crtc_state,
-+				       new_crtc_state, true))
-+		return;
-+
-+	new_crtc_state->base.mode_changed = false;
-+	new_crtc_state->update_pipe = true;
-+
-+	/*
-+	 * If we're not doing the full modeset we want to
-+	 * keep the current M/N values as they may be
-+	 * sufficiently different to the computed values
-+	 * to cause problems.
-+	 *
-+	 * FIXME: should really copy more fuzzy state here
-+	 */
-+	new_crtc_state->fdi_m_n = old_crtc_state->fdi_m_n;
-+	new_crtc_state->dp_m_n = old_crtc_state->dp_m_n;
-+	new_crtc_state->dp_m2_n2 = old_crtc_state->dp_m2_n2;
-+}
-+
- /**
-  * intel_atomic_check - validate state object
-  * @dev: drm device
-@@ -13474,11 +13497,7 @@ static int intel_atomic_check(struct drm_device *dev,
- 		if (ret)
- 			goto fail;
- 
--		if (intel_pipe_config_compare(dev_priv, old_crtc_state,
--					      new_crtc_state, true)) {
--			new_crtc_state->base.mode_changed = false;
--			new_crtc_state->update_pipe = true;
--		}
-+		intel_crtc_check_fastset(old_crtc_state, new_crtc_state);
- 
- 		if (needs_modeset(&new_crtc_state->base))
- 			any_ms = true;
--- 
-2.21.0
-
+Reviewed-by: Niklas Cassel <niklas.cassel@linaro.org>
