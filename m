@@ -2,270 +2,341 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 98F5D4289E
-	for <lists+stable@lfdr.de>; Wed, 12 Jun 2019 16:20:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43E7E4292C
+	for <lists+stable@lfdr.de>; Wed, 12 Jun 2019 16:30:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729329AbfFLOUM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Jun 2019 10:20:12 -0400
-Received: from bhuna.collabora.co.uk ([46.235.227.227]:46392 "EHLO
-        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727738AbfFLOUM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Jun 2019 10:20:12 -0400
-Received: from localhost (unknown [IPv6:2a01:e0a:2c:6930:5cf4:84a1:2763:fe0d])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: bbrezillon)
-        by bhuna.collabora.co.uk (Postfix) with ESMTPSA id 1ECA9281DEE;
-        Wed, 12 Jun 2019 15:20:10 +0100 (BST)
-Date:   Wed, 12 Jun 2019 16:20:06 +0200
-From:   Boris Brezillon <boris.brezillon@collabora.com>
-To:     Vitor Soares <Vitor.Soares@synopsys.com>
-Cc:     "linux-i3c@lists.infradead.org" <linux-i3c@lists.infradead.org>,
-        "Joao.Pinto@synopsys.com" <Joao.Pinto@synopsys.com>,
-        Boris Brezillon <bbrezillon@kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH v3 1/3] i3c: fix i2c and i3c scl rate by bus mode
-Message-ID: <20190612162006.097db004@collabora.com>
-In-Reply-To: <13D59CF9CEBAF94592A12E8AE55501350AABECD8@DE02WEMBXB.internal.synopsys.com>
-References: <cover.1560261604.git.vitor.soares@synopsys.com>
-        <b39923bda3625a5c6874755ae81cdfe85fb5abef.1560261604.git.vitor.soares@synopsys.com>
-        <20190612081533.2cf9e12a@collabora.com>
-        <13D59CF9CEBAF94592A12E8AE55501350AABEC91@DE02WEMBXB.internal.synopsys.com>
-        <20190612133727.48f85060@collabora.com>
-        <13D59CF9CEBAF94592A12E8AE55501350AABECD8@DE02WEMBXB.internal.synopsys.com>
-Organization: Collabora
-X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+        id S2437653AbfFLO3z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Jun 2019 10:29:55 -0400
+Received: from mail-pl1-f195.google.com ([209.85.214.195]:37098 "EHLO
+        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2437420AbfFLO3z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Jun 2019 10:29:55 -0400
+Received: by mail-pl1-f195.google.com with SMTP id bh12so6712097plb.4
+        for <stable@vger.kernel.org>; Wed, 12 Jun 2019 07:29:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=joelfernandes.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=iCHx3T9palofJ5ufImfnh5SBUFj5ut7Ba3GPj9Vf5ZY=;
+        b=WaapcHLYnn8KZ0Lr8heBAQlJlNFE3HgxWjGBFUPjzoDGoC4S1GtN+nIy+tLvqWWLky
+         OxElrP5RWClFzJIYh3GA4NVx2QOBrH1j5IioJEs4fsIqXy5Z8vTv3WuSL6uKI2x53SVt
+         aE4iEQBLtDgE0bGdVbBjU6Z4bpfoCMxuneI5E=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=iCHx3T9palofJ5ufImfnh5SBUFj5ut7Ba3GPj9Vf5ZY=;
+        b=mj1Ia259u2xYPl9BQdES0SU78WLFCjWkXMIEkQoW9XVpbbV3YrxXPhqdjDugNmoP+i
+         8TBMdNqqLqvlfoJZwSCsXVmCapgdGTENp7auHO5tnG+NFl78zxQgDTa/mLQ/8K9rMMTQ
+         IygOpC+e/USuFih2OEMpFnZIhoT8WiFf4Rvde6NBt4GrGPqxXoUPPW2ABKfFYBk5Ymph
+         WVEsGUG7i6h3BShpoZN9XQB7yr7x16sASGme5UMWVQOd+3J5WxqTIyQPARyz5eP0kbMb
+         i5NcM20TAYDQ9tzI0YJq2GgWxSXQJnosJqSxuQXFPebI5SAob2SZbIb+gQamUTEYk+98
+         sWzw==
+X-Gm-Message-State: APjAAAUkBr5ZHGodWh2qYhHcTDvgXUKfBQJPWQt4yxu1WaD7XlNJmFcT
+        P2dAeKVLeVKzEvN+S4LH8Shr6A==
+X-Google-Smtp-Source: APXvYqysjXgN24E9kpl/sHL0aM/SlhKn92jleZoYpPMHrYiEBH1ShG3+dGGf1eFnSABr69oflL5xfw==
+X-Received: by 2002:a17:902:2bc5:: with SMTP id l63mr82055857plb.221.1560349794178;
+        Wed, 12 Jun 2019 07:29:54 -0700 (PDT)
+Received: from joelaf.cam.corp.google.com ([2620:15c:6:12:9c46:e0da:efbf:69cc])
+        by smtp.gmail.com with ESMTPSA id j2sm6822436pgq.13.2019.06.12.07.29.51
+        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
+        Wed, 12 Jun 2019 07:29:53 -0700 (PDT)
+From:   "Joel Fernandes (Google)" <joel@joelfernandes.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Joel Fernandes <joelaf@google.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
+        Bradley Bolen <bradleybolen@gmail.com>,
+        Vladimir Davydov <vdavydov@virtuozzo.com>,
+        Michal Hocko <mhocko@suse.cz>, stable@vger.kernel.org,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Brian Foster <bfoster@redhat.com>, cgroups@vger.kernel.org,
+        Daniel Jordan <daniel.m.jordan@oracle.com>,
+        Jan Kara <jack@suse.cz>, Johannes Weiner <hannes@cmpxchg.org>,
+        linux-mm@kvack.org, Michal Hocko <mhocko@kernel.org>,
+        Vladimir Davydov <vdavydov.dev@gmail.com>
+Subject: [PATCH BACKPORT Android 4.9]: mm: memcontrol: fix NULL pointer crash in test_clear_page_writeback()
+Date:   Wed, 12 Jun 2019 10:29:50 -0400
+Message-Id: <20190612142951.99559-1-joel@joelfernandes.org>
+X-Mailer: git-send-email 2.22.0.rc2.383.gf4fbbf30c2-goog
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 12 Jun 2019 13:37:53 +0000
-Vitor Soares <Vitor.Soares@synopsys.com> wrote:
+From: Joel Fernandes <joelaf@google.com>
 
-> From: Boris Brezillon <boris.brezillon@collabora.com>
-> Date: Wed, Jun 12, 2019 at 12:37:27
-> 
-> > On Wed, 12 Jun 2019 11:16:34 +0000
-> > Vitor Soares <Vitor.Soares@synopsys.com> wrote:
-> >   
-> > > From: Boris Brezillon <boris.brezillon@collabora.com>
-> > > Date: Wed, Jun 12, 2019 at 07:15:33
-> > >   
-> > > > On Tue, 11 Jun 2019 16:06:43 +0200
-> > > > Vitor Soares <Vitor.Soares@synopsys.com> wrote:
-> > > >     
-> > > > > Currently the I3C framework limits SCL frequency to FM speed when
-> > > > > dealing with a mixed slow bus, even if all I2C devices are FM+ capable.
-> > > > > 
-> > > > > The core was also not accounting for I3C speed limitations when
-> > > > > operating in mixed slow mode and was erroneously using FM+ speed as the
-> > > > > max I2C speed when operating in mixed fast mode.
-> > > > > 
-> > > > > Fixes: 3a379bbcea0a ("i3c: Add core I3C infrastructure")
-> > > > > Signed-off-by: Vitor Soares <vitor.soares@synopsys.com>
-> > > > > Cc: Boris Brezillon <bbrezillon@kernel.org>
-> > > > > Cc: <stable@vger.kernel.org>
-> > > > > Cc: <linux-kernel@vger.kernel.org>
-> > > > > ---
-> > > > > Changes in v3:
-> > > > >   Change dev_warn() to dev_dbg()
-> > > > > 
-> > > > > Changes in v2:
-> > > > >   Enhance commit message
-> > > > >   Add dev_warn() in case user-defined i2c rate doesn't match LVR constraint
-> > > > >   Add dev_warn() in case user-defined i3c rate lower than i2c rate
-> > > > > 
-> > > > >  drivers/i3c/master.c | 61 +++++++++++++++++++++++++++++++++++++++++-----------
-> > > > >  1 file changed, 48 insertions(+), 13 deletions(-)
-> > > > > 
-> > > > > diff --git a/drivers/i3c/master.c b/drivers/i3c/master.c
-> > > > > index 5f4bd52..f8e580e 100644
-> > > > > --- a/drivers/i3c/master.c
-> > > > > +++ b/drivers/i3c/master.c
-> > > > > @@ -91,6 +91,12 @@ void i3c_bus_normaluse_unlock(struct i3c_bus *bus)
-> > > > >  	up_read(&bus->lock);
-> > > > >  }
-> > > > >  
-> > > > > +static struct i3c_master_controller *
-> > > > > +i3c_bus_to_i3c_master(struct i3c_bus *i3cbus)
-> > > > > +{
-> > > > > +	return container_of(i3cbus, struct i3c_master_controller, bus);
-> > > > > +}
-> > > > > +
-> > > > >  static struct i3c_master_controller *dev_to_i3cmaster(struct device *dev)
-> > > > >  {
-> > > > >  	return container_of(dev, struct i3c_master_controller, dev);
-> > > > > @@ -565,20 +571,48 @@ static const struct device_type i3c_masterdev_type = {
-> > > > >  	.groups	= i3c_masterdev_groups,
-> > > > >  };
-> > > > >  
-> > > > > -int i3c_bus_set_mode(struct i3c_bus *i3cbus, enum i3c_bus_mode mode)
-> > > > > +int i3c_bus_set_mode(struct i3c_bus *i3cbus, enum i3c_bus_mode mode,
-> > > > > +		     unsigned long max_i2c_scl_rate)
-> > > > >  {
-> > > > > -	i3cbus->mode = mode;
-> > > > >  
-> > > > > -	if (!i3cbus->scl_rate.i3c)
-> > > > > -		i3cbus->scl_rate.i3c = I3C_BUS_TYP_I3C_SCL_RATE;
-> > > > > +	struct i3c_master_controller *master = i3c_bus_to_i3c_master(i3cbus);
-> > > > >  
-> > > > > -	if (!i3cbus->scl_rate.i2c) {
-> > > > > -		if (i3cbus->mode == I3C_BUS_MODE_MIXED_SLOW)
-> > > > > -			i3cbus->scl_rate.i2c = I3C_BUS_I2C_FM_SCL_RATE;
-> > > > > -		else
-> > > > > -			i3cbus->scl_rate.i2c = I3C_BUS_I2C_FM_PLUS_SCL_RATE;
-> > > > > +	i3cbus->mode = mode;
-> > > > > +
-> > > > > +	switch (i3cbus->mode) {
-> > > > > +	case I3C_BUS_MODE_PURE:
-> > > > > +		if (!i3cbus->scl_rate.i3c)
-> > > > > +			i3cbus->scl_rate.i3c = I3C_BUS_TYP_I3C_SCL_RATE;
-> > > > > +		break;
-> > > > > +	case I3C_BUS_MODE_MIXED_FAST:
-> > > > > +		if (!i3cbus->scl_rate.i3c)
-> > > > > +			i3cbus->scl_rate.i3c = I3C_BUS_TYP_I3C_SCL_RATE;
-> > > > > +		if (!i3cbus->scl_rate.i2c)
-> > > > > +			i3cbus->scl_rate.i2c = max_i2c_scl_rate;
-> > > > > +		break;
-> > > > > +	case I3C_BUS_MODE_MIXED_SLOW:
-> > > > > +		if (!i3cbus->scl_rate.i2c)
-> > > > > +			i3cbus->scl_rate.i2c = max_i2c_scl_rate;
-> > > > > +		if (!i3cbus->scl_rate.i3c ||
-> > > > > +		    i3cbus->scl_rate.i3c > i3cbus->scl_rate.i2c)
-> > > > > +			i3cbus->scl_rate.i3c = i3cbus->scl_rate.i2c;
-> > > > > +		break;
-> > > > > +	default:
-> > > > > +		return -EINVAL;
-> > > > >  	}
-> > > > >  
-> > > > > +	if (i3cbus->scl_rate.i3c < i3cbus->scl_rate.i2c)
-> > > > > +		dev_dbg(&master->dev,
-> > > > > +			"i3c-scl-hz=%ld lower than i2c-scl-hz=%ld\n",
-> > > > > +			i3cbus->scl_rate.i3c, i3cbus->scl_rate.i2c);
-> > > > > +
-> > > > > +	if (i3cbus->scl_rate.i2c != I3C_BUS_I2C_FM_SCL_RATE &&
-> > > > > +	    i3cbus->scl_rate.i2c != I3C_BUS_I2C_FM_PLUS_SCL_RATE &&
-> > > > > +	    i3cbus->mode != I3C_BUS_MODE_PURE)
-> > > > > +		dev_dbg(&master->dev,
-> > > > > +			"i2c-scl-hz=%ld not defined according MIPI I3C spec\n",
-> > > > > +			i3cbus->scl_rate.i2c);
-> > > > > +    
-> > > > 
-> > > > Again, that's not what I suggested, so I'll write it down:
-> > > > 
-> > > > 	dev_dbg(&master->dev, "i2c-scl = %ld Hz i3c-scl = %ld Hz\n",
-> > > > 		i3cbus->scl_rate.i2c, i3cbus->scl_rate.i3c);
-> > > >     
-> > > 
-> > > I'm not ok with that change. The reasons are:
-> > >   i3cbus->scl_rate.i3c < i3cbus->scl_rate.i2c is an abnormal use case. As 
-> > > discuss early it can be cause by a wrong DT definition or just for 
-> > > testing purposes.  
-> > 
-> > Is it buggy, and if it is, what are the symptoms? And I'm not talking
-> > about slow transfers here. Also, note that forcing the I2C/I3C rate
-> > through the DT already means you want to tweak the bus speed (either
-> > for debugging purposes or because slowing things down is needed to fix
-> > a HW bug).  
-> 
-> Does it need to be buggy to inform the user of such inconsistence?
+Johannes, all, could you take a look at the below backport of this fix
+which I am apply for our Android 4.9 kernel? Since lruvec stats are not
+present in the kernel and I did not want to backport that, I added my
+own mem_cgroup_update_stat functions which should be sufficient for this
+fix. Does this patch look good to you? Thanks for the help.
 
-It's something forced by the user through a DT property, why do you
-think he should be warned about something he decided to explicitly set
-to a lower value than what's supposed to be supported. Doesn't sound
-like an inconsistency to me.
+(Joel: Fixed conflicts and added new memcg stats functions)
+(Cherry-picked from 739f79fc9db1)
 
-> 
-> >   
-> > > 
-> > >   i3cbus->scl_rate.i2c != I3C_BUS_I2C_FM_SCL_RATE && i3cbus->scl_rate.i2c 
-> > > != I3C_BUS_I2C_FM_PLUS_SCL_RATE, the MIPI I3C Spec v1.0 clearly says that 
-> > > all I2C devices on the bus shall have a LVR register and thus support FM 
-> > > or FM+ modes.  
-> > 
-> > Yet, you might want to apply a lower I2C freq, and this sounds like a
-> > valid case that doesn't deserve a dev_warn().  
-> 
-> I already said that I'm ok to change the dev_warn(), you just have to 
-> tell me what is the best message level to use.
+Jaegeuk and Brad report a NULL pointer crash when writeback ending tries
+to update the memcg stats:
 
-It's simple: warn about things that can lead to undefined/weird
-behavior (rate higher than what the spec allows), do nothing otherwise.
-You can add a dev_dbg() message that prints both I3C and I2C rates
-unconditionally so that users can still see it in the kernel logs if
-they really want (that requires enabling dynamic-printk or compiling
-the core with -DDEBUG).
+    BUG: unable to handle kernel NULL pointer dereference at 00000000000003b0
+    IP: test_clear_page_writeback+0x12e/0x2c0
+    [...]
+    RIP: 0010:test_clear_page_writeback+0x12e/0x2c0
+    Call Trace:
+     <IRQ>
+     end_page_writeback+0x47/0x70
+     f2fs_write_end_io+0x76/0x180 [f2fs]
+     bio_endio+0x9f/0x120
+     blk_update_request+0xa8/0x2f0
+     scsi_end_request+0x39/0x1d0
+     scsi_io_completion+0x211/0x690
+     scsi_finish_command+0xd9/0x120
+     scsi_softirq_done+0x127/0x150
+     __blk_mq_complete_request_remote+0x13/0x20
+     flush_smp_call_function_queue+0x56/0x110
+     generic_smp_call_function_single_interrupt+0x13/0x30
+     smp_call_function_single_interrupt+0x27/0x40
+     call_function_single_interrupt+0x89/0x90
+    RIP: 0010:native_safe_halt+0x6/0x10
 
-> 
-> >   
-> > > By  definition a FM bus works at 400kHz and a FM+ bus 1MHz.
-> > > And for slaves, a FM device works up to 400kHz and a FM+ device works up 
-> > > to 1MHz respectively.  
-> > 
-> > *up to*, that's the important thing to keep in mind. There's no problem
-> > driving the SCL signal at a lower freq.  
-> 
-> We already know that a FM or FM+ supports lower frequencies due backyard 
-> capabilities.
+    (gdb) l *(test_clear_page_writeback+0x12e)
+    0xffffffff811bae3e is in test_clear_page_writeback (./include/linux/memcontrol.h:619).
+    614		mod_node_page_state(page_pgdat(page), idx, val);
+    615		if (mem_cgroup_disabled() || !page->mem_cgroup)
+    616			return;
+    617		mod_memcg_state(page->mem_cgroup, idx, val);
+    618		pn = page->mem_cgroup->nodeinfo[page_to_nid(page)];
+    619		this_cpu_add(pn->lruvec_stat->count[idx], val);
+    620	}
+    621
+    622	unsigned long mem_cgroup_soft_limit_reclaim(pg_data_t *pgdat, int order,
+    623							gfp_t gfp_mask,
 
-So, you agree that running at a lower freq is a valid use case.
+The issue is that writeback doesn't hold a page reference and the page
+might get freed after PG_writeback is cleared (and the mapping is
+unlocked) in test_clear_page_writeback().  The stat functions looking up
+the page's node or zone are safe, as those attributes are static across
+allocation and free cycles.  But page->mem_cgroup is not, and it will
+get cleared if we race with truncation or migration.
 
-> 
-> >   
-> > > 
-> > > Apart of that, if the I2C device support you can use a custom higher or 
-> > > lower rate, yet not defined according MIPI I3C spec.  
-> > 
-> > I'm not going to have this discussion again, sorry. I think I gave
-> > enough arguments to explain why having an I2C SLC rate that's slower
-> > than what I2C devices support is fine.  
-> 
-> It is clear to me that the I2C devices on I3C bus shall support FM or 
-> FM+.
-> If not they don't follow the MIPI I3C spec and for that reason I prefer 
-> to inform the user.
+It appears this race window has been around for a while, but less likely
+to trigger when the memcg stats were updated first thing after
+PG_writeback is cleared.  Recent changes reshuffled this code to update
+the global node stats before the memcg ones, though, stretching the race
+window out to an extent where people can reproduce the problem.
 
-I'll try to explain it again. It's not about what devices support but
-what the user decides to force. You can have super fast devs on a
-crappy bus that can't run at full speed because of X/Y reasons (can be
-some problems at the board level preventing it from running at full
-speed in a reliable way). In that case, the user forces a rate for
-I3C/I2C and there's nothing to complain about *unless* this new rate is
-above the max limit (or below the min limit, but I don't think there's
-a min in our case).
+Update test_clear_page_writeback() to look up and pin page->mem_cgroup
+before clearing PG_writeback, then not use that pointer afterward.  It
+is a partial revert of 62cccb8c8e7a ("mm: simplify lock_page_memcg()")
+but leaves the pageref-holding callsites that aren't affected alone.
 
-If things are well designed and/or you're not trying to artificially
-lower the bus speed (to probe it?), you shouldn't have the
-i3c/i2c-scl-hz props defined in the first place and all the things
-we're talking about are irrelevant.
+Change-Id: I692226d6f183c11c27ed096967e6a5face3b9741
+Link: http://lkml.kernel.org/r/20170809183825.GA26387@cmpxchg.org
+Fixes: 62cccb8c8e7a ("mm: simplify lock_page_memcg()")
+Signed-off-by: Johannes Weiner <hannes@cmpxchg.org>
+Reported-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Tested-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Reported-by: Bradley Bolen <bradleybolen@gmail.com>
+Tested-by: Brad Bolen <bradleybolen@gmail.com>
+Cc: Vladimir Davydov <vdavydov@virtuozzo.com>
+Cc: Michal Hocko <mhocko@suse.cz>
+Cc: <stable@vger.kernel.org>	[4.6+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Joel Fernandes <joelaf@google.com>
 
-> 
-> >   
-> > >   
-> > > > dev_dbg() is not printed by default, so it's just fine to have a trace
-> > > > that prints the I3C and I2C rate unconditionally.    
-> > > 
-> > > I'm ok to change the way that user is notified and I think that is here 
-> > > the problem.
-> > > Maybe the best is to change the first dev_dbg() to dev_warn() and the 
-> > > second dev_info().  
-> > 
-> > Same here. I'm fine having a dev_warn() when the rate is higher than
-> > what's supported by devices present on the bus (because that case is
-> > buggy), but not when it's lower and still in the valid range.  
-> 
-> Please take some time to analyze it again, my concern is only to inform 
-> the user about inconsistencies (forced or not) with the I3C specification 
-> and I already agreed to change the message levels.
+---
+ include/linux/memcontrol.h | 31 +++++++++++++++++++++++++--
+ mm/memcontrol.c            | 43 +++++++++++++++++++++++++++-----------
+ mm/page-writeback.c        | 14 ++++++++++---
+ 3 files changed, 71 insertions(+), 17 deletions(-)
 
-If you only want to inform the user about the selected rates, you
-should just print them unconditionally, and given that messages in the
-probe path are normally reserved for errors (see [1]), you should use
-dev_dbg() for that.
+diff --git a/include/linux/memcontrol.h b/include/linux/memcontrol.h
+index 8b35bdbdc214c..f9e02fd7e86b7 100644
+--- a/include/linux/memcontrol.h
++++ b/include/linux/memcontrol.h
+@@ -490,7 +490,8 @@ bool mem_cgroup_oom_synchronize(bool wait);
+ extern int do_swap_account;
+ #endif
+ 
+-void lock_page_memcg(struct page *page);
++struct mem_cgroup *lock_page_memcg(struct page *page);
++void __unlock_page_memcg(struct mem_cgroup *memcg);
+ void unlock_page_memcg(struct page *page);
+ 
+ /**
+@@ -529,6 +530,27 @@ static inline void mem_cgroup_dec_page_stat(struct page *page,
+ 	mem_cgroup_update_page_stat(page, idx, -1);
+ }
+ 
++static inline void mem_cgroup_update_stat(struct mem_cgroup *memcg,
++				 enum mem_cgroup_stat_index idx, int val)
++{
++	VM_BUG_ON(!(rcu_read_lock_held()));
++
++	if (memcg)
++		this_cpu_add(memcg->stat->count[idx], val);
++}
++
++static inline void mem_cgroup_inc_stat(struct mem_cgroup *memcg,
++					    enum mem_cgroup_stat_index idx)
++{
++	mem_cgroup_update_stat(memcg, idx, 1);
++}
++
++static inline void mem_cgroup_dec_stat(struct mem_cgroup *memcg,
++					    enum mem_cgroup_stat_index idx)
++{
++	mem_cgroup_update_stat(memcg, idx, -1);
++}
++
+ unsigned long mem_cgroup_soft_limit_reclaim(pg_data_t *pgdat, int order,
+ 						gfp_t gfp_mask,
+ 						unsigned long *total_scanned);
+@@ -709,7 +731,12 @@ mem_cgroup_print_oom_info(struct mem_cgroup *memcg, struct task_struct *p)
+ {
+ }
+ 
+-static inline void lock_page_memcg(struct page *page)
++static inline struct mem_cgroup *lock_page_memcg(struct page *page)
++{
++	return NULL;
++}
++
++static inline void __unlock_page_memcg(struct mem_cgroup *memcg)
+ {
+ }
+ 
+diff --git a/mm/memcontrol.c b/mm/memcontrol.c
+index 86a6b331b9648..8dfd048ca1602 100644
+--- a/mm/memcontrol.c
++++ b/mm/memcontrol.c
+@@ -1619,9 +1619,13 @@ bool mem_cgroup_oom_synchronize(bool handle)
+  * @page: the page
+  *
+  * This function protects unlocked LRU pages from being moved to
+- * another cgroup and stabilizes their page->mem_cgroup binding.
++ * another cgroup.
++ *
++ * It ensures lifetime of the returned memcg. Caller is responsible
++ * for the lifetime of the page; __unlock_page_memcg() is available
++ * when @page might get freed inside the locked section.
+  */
+-void lock_page_memcg(struct page *page)
++struct mem_cgroup *lock_page_memcg(struct page *page)
+ {
+ 	struct mem_cgroup *memcg;
+ 	unsigned long flags;
+@@ -1630,18 +1634,24 @@ void lock_page_memcg(struct page *page)
+ 	 * The RCU lock is held throughout the transaction.  The fast
+ 	 * path can get away without acquiring the memcg->move_lock
+ 	 * because page moving starts with an RCU grace period.
+-	 */
++	 *
++	 * The RCU lock also protects the memcg from being freed when
++	 * the page state that is going to change is the only thing
++	 * preventing the page itself from being freed. E.g. writeback
++	 * doesn't hold a page reference and relies on PG_writeback to
++	 * keep off truncation, migration and so forth.
++         */
+ 	rcu_read_lock();
+ 
+ 	if (mem_cgroup_disabled())
+-		return;
++		return NULL;
+ again:
+ 	memcg = page->mem_cgroup;
+ 	if (unlikely(!memcg))
+-		return;
++		return NULL;
+ 
+ 	if (atomic_read(&memcg->moving_account) <= 0)
+-		return;
++		return memcg;
+ 
+ 	spin_lock_irqsave(&memcg->move_lock, flags);
+ 	if (memcg != page->mem_cgroup) {
+@@ -1657,18 +1667,18 @@ void lock_page_memcg(struct page *page)
+ 	memcg->move_lock_task = current;
+ 	memcg->move_lock_flags = flags;
+ 
+-	return;
++	return memcg;
+ }
+ EXPORT_SYMBOL(lock_page_memcg);
+ 
+ /**
+- * unlock_page_memcg - unlock a page->mem_cgroup binding
+- * @page: the page
++ * __unlock_page_memcg - unlock and unpin a memcg
++ * @memcg: the memcg
++ *
++ * Unlock and unpin a memcg returned by lock_page_memcg().
+  */
+-void unlock_page_memcg(struct page *page)
++void __unlock_page_memcg(struct mem_cgroup *memcg)
+ {
+-	struct mem_cgroup *memcg = page->mem_cgroup;
+-
+ 	if (memcg && memcg->move_lock_task == current) {
+ 		unsigned long flags = memcg->move_lock_flags;
+ 
+@@ -1680,6 +1690,15 @@ void unlock_page_memcg(struct page *page)
+ 
+ 	rcu_read_unlock();
+ }
++
++/**
++ * unlock_page_memcg - unlock a page->mem_cgroup binding
++ * @page: the page
++ */
++void unlock_page_memcg(struct page *page)
++{
++	__unlock_page_memcg(page->mem_cgroup);
++}
+ EXPORT_SYMBOL(unlock_page_memcg);
+ 
+ /*
+diff --git a/mm/page-writeback.c b/mm/page-writeback.c
+index 46e36366a03a7..9225827230d8c 100644
+--- a/mm/page-writeback.c
++++ b/mm/page-writeback.c
+@@ -2704,9 +2704,10 @@ EXPORT_SYMBOL(clear_page_dirty_for_io);
+ int test_clear_page_writeback(struct page *page)
+ {
+ 	struct address_space *mapping = page_mapping(page);
++	struct mem_cgroup *memcg;
+ 	int ret;
+ 
+-	lock_page_memcg(page);
++	memcg = lock_page_memcg(page);
+ 	if (mapping && mapping_use_writeback_tags(mapping)) {
+ 		struct inode *inode = mapping->host;
+ 		struct backing_dev_info *bdi = inode_to_bdi(inode);
+@@ -2734,13 +2735,20 @@ int test_clear_page_writeback(struct page *page)
+ 	} else {
+ 		ret = TestClearPageWriteback(page);
+ 	}
++
++	/*
++	 * NOTE: Page might be free now! Writeback doesn't hold a page
++	 * reference on its own, it relies on truncation to wait for
++	 * the clearing of PG_writeback. The below can only access
++	 * page state that is static across allocation cycles.
++	 */
+ 	if (ret) {
+-		mem_cgroup_dec_page_stat(page, MEM_CGROUP_STAT_WRITEBACK);
++		mem_cgroup_dec_stat(memcg, MEM_CGROUP_STAT_WRITEBACK);
+ 		dec_node_page_state(page, NR_WRITEBACK);
+ 		dec_zone_page_state(page, NR_ZONE_WRITE_PENDING);
+ 		inc_node_page_state(page, NR_WRITTEN);
+ 	}
+-	unlock_page_memcg(page);
++	__unlock_page_memcg(memcg);
+ 	return ret;
+ }
+ 
+-- 
+2.22.0.rc2.383.gf4fbbf30c2-goog
 
-[1]https://lkml.org/lkml/2019/6/4/1053
