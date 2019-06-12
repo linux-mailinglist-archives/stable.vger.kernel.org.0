@@ -2,119 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F8B9425AA
-	for <lists+stable@lfdr.de>; Wed, 12 Jun 2019 14:27:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32C674261E
+	for <lists+stable@lfdr.de>; Wed, 12 Jun 2019 14:41:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732372AbfFLM0i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Jun 2019 08:26:38 -0400
-Received: from terminus.zytor.com ([198.137.202.136]:50905 "EHLO
-        terminus.zytor.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726941AbfFLM0h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Jun 2019 08:26:37 -0400
-Received: from terminus.zytor.com (localhost [127.0.0.1])
-        by terminus.zytor.com (8.15.2/8.15.2) with ESMTPS id x5CCQBEP684669
-        (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NO);
-        Wed, 12 Jun 2019 05:26:11 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 terminus.zytor.com x5CCQBEP684669
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-        s=2019051801; t=1560342372;
-        bh=RIOx94uVGjoMX+pwFiQ9jhG0RUv4R1Tnc+ptNY6+mmQ=;
-        h=Date:From:Cc:Reply-To:In-Reply-To:References:To:Subject:From;
-        b=Yy9qQOEplWOR/bXZYPlJ89855eIc8CdmWT/YoUm0lejePqc8Z4x0Jj+ieXVRvlCh+
-         DsnvTpbZQ7JEgodrT3QUhTnSg3Ue2hJUsUu4OqLcl9c1ne8h3thAOE06RMzr1i5ioN
-         4FwqohU8WVvMw/D+tKfxubB4dOCiACd2sJ483ZFGsbKWycehcc3Ik0a/NTgyjUhz6V
-         vCQc/e2BkOev7jvsVXcafwZWFnRMKajsl5w9ahOajQJJ9dTq05ewLaKE9VDSCpv8/6
-         Lz4XaRgO7Ex/RGpP1yjZUSi2bQMvfpJLwaQw8kohTRiajHJop67I5W5WcMdKvn/W5m
-         Edrqge3HwbHng==
-Received: (from tipbot@localhost)
-        by terminus.zytor.com (8.15.2/8.15.2/Submit) id x5CCQB5K684666;
-        Wed, 12 Jun 2019 05:26:11 -0700
-Date:   Wed, 12 Jun 2019 05:26:11 -0700
-X-Authentication-Warning: terminus.zytor.com: tipbot set sender to tipbot@zytor.com using -f
-From:   tip-bot for James Morse <tipbot@zytor.com>
-Message-ID: <tip-87d3aa28f345bea77c396855fa5d5fec4c24461f@git.kernel.org>
-Cc:     stable@vger.kernel.org, fenghua.yu@intel.com, james.morse@arm.com,
-        hpa@zytor.com, reinette.chatre@intel.com, mingo@kernel.org,
-        bp@alien8.de, tglx@linutronix.de, linux-kernel@vger.kernel.org
-Reply-To: tglx@linutronix.de, linux-kernel@vger.kernel.org,
-          mingo@kernel.org, bp@alien8.de, reinette.chatre@intel.com,
-          james.morse@arm.com, hpa@zytor.com, fenghua.yu@intel.com,
-          stable@vger.kernel.org
-In-Reply-To: <20190603172531.178830-1-james.morse@arm.com>
-References: <20190603172531.178830-1-james.morse@arm.com>
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip:x86/urgent] x86/resctrl: Don't stop walking closids when a
- locksetup group is found
-Git-Commit-ID: 87d3aa28f345bea77c396855fa5d5fec4c24461f
-X-Mailer: tip-git-log-daemon
-Robot-ID: <tip-bot.git.kernel.org>
-Robot-Unsubscribe: Contact <mailto:hpa@kernel.org> to get blacklisted from
- these emails
+        id S2409117AbfFLMk5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Jun 2019 08:40:57 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:46386 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S2408385AbfFLMk4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Jun 2019 08:40:56 -0400
+Received: from mail-wr1-f70.google.com ([209.85.221.70])
+        by youngberry.canonical.com with esmtps (TLS1.0:RSA_AES_128_CBC_SHA1:16)
+        (Exim 4.76)
+        (envelope-from <guilherme.piccoli@canonical.com>)
+        id 1hb2Yg-0006O8-Jb
+        for stable@vger.kernel.org; Wed, 12 Jun 2019 12:40:54 +0000
+Received: by mail-wr1-f70.google.com with SMTP id b14so7318885wrn.8
+        for <stable@vger.kernel.org>; Wed, 12 Jun 2019 05:40:54 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=VrK+5w6wVdk7h4HwgR7kIxMZIIwMUW/I2VBxJs4ejPI=;
+        b=CZgF61yw28q4yvq1mjZ/y+XNR6ARBkm6M7JX+xiNTXzaF4WOaLfJs9oUpeb1pgajCO
+         fmNbqlgsX7Ui+ccS6MvU+A4I0335//5hLyWtV6YP0TSvf0AXKUw/21dA0Mibj38nUn85
+         kmUu1n6t/XIoen7HoPafXwZ2x12EFsgBwmejruDImUKXIEyQiBL4/jUTNl0vtTzusRnm
+         oNT36PhCfSgm4/R3NSh0r8gFgdA5FAZwfEQvwdh3+LoSsIuOhJV84G5Tw5P366epMdlk
+         15AU4Md8/fBrzkwUjK6qp79u21AihwnXu8ii7Af2F/fGk3Y5OjlTZA4r/f+P4o0zZei8
+         S8fw==
+X-Gm-Message-State: APjAAAWbk9hQXTbIt+uefunaLiVx+fQMXlOTKcCj3HvvFOJYys2NOU9U
+        +uyjKNfBtc2d+Q+MICGjwDDWGguY84rCRl/SHoSFX/WZyCc8j/Gko30V5ZQMcFfskF331XJKqGw
+        3/SzxDDyG3Aaqin4xtHUSmEj3gkuvL8jrrzhTAR5rBaIsmMGoUA==
+X-Received: by 2002:a5d:53d2:: with SMTP id a18mr4871540wrw.98.1560343253834;
+        Wed, 12 Jun 2019 05:40:53 -0700 (PDT)
+X-Google-Smtp-Source: APXvYqyBvfuiEuBGRitbfJWHXkAkAE1jkdz65wRyMFsexu514qahpb7YWU71NUv1iIYi0hX0WSYub+LVT8liks8ZR0A=
+X-Received: by 2002:a5d:53d2:: with SMTP id a18mr4871531wrw.98.1560343253700;
+ Wed, 12 Jun 2019 05:40:53 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain; charset=UTF-8
-Content-Disposition: inline
-X-Spam-Status: No, score=-1.2 required=5.0 tests=ALL_TRUSTED,BAYES_00,
-        DATE_IN_FUTURE_96_Q,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF
-        autolearn=no autolearn_force=no version=3.4.2
-X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on terminus.zytor.com
+References: <20190523172345.1861077-1-songliubraving@fb.com> <20190523172345.1861077-2-songliubraving@fb.com>
+In-Reply-To: <20190523172345.1861077-2-songliubraving@fb.com>
+From:   Guilherme Piccoli <gpiccoli@canonical.com>
+Date:   Wed, 12 Jun 2019 09:40:17 -0300
+Message-ID: <CAHD1Q_wraiFkLP72pFfGhON+KZe7yo3ktXvsAA40QVcXvzviSA@mail.gmail.com>
+Subject: Re: [PATCH 2/2] md/raid0: Do not bypass blocking queue entered for
+ raid0 bios
+To:     stable@vger.kernel.org, gregkh@linuxfoundation.org,
+        sashal@kernel.org
+Cc:     Song Liu <songliubraving@fb.com>,
+        linux-raid <linux-raid@vger.kernel.org>,
+        Jens Axboe <axboe@kernel.dk>, Ming Lei <ming.lei@redhat.com>,
+        Song Liu <liu.song.a23@gmail.com>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit-ID:  87d3aa28f345bea77c396855fa5d5fec4c24461f
-Gitweb:     https://git.kernel.org/tip/87d3aa28f345bea77c396855fa5d5fec4c24461f
-Author:     James Morse <james.morse@arm.com>
-AuthorDate: Mon, 3 Jun 2019 18:25:31 +0100
-Committer:  Thomas Gleixner <tglx@linutronix.de>
-CommitDate: Wed, 12 Jun 2019 10:31:50 +0200
+Hi Greg and Sasha, is there any news about these patches?
+Just checked the stable branches 5.1.y and 5.0.y, they seem not merged.
 
-x86/resctrl: Don't stop walking closids when a locksetup group is found
+If there's anything pending from my side, let me know.
+Thanks in advance,
 
-When a new control group is created __init_one_rdt_domain() walks all
-the other closids to calculate the sets of used and unused bits.
 
-If it discovers a pseudo_locksetup group, it breaks out of the loop.  This
-means any later closid doesn't get its used bits added to used_b.  These
-bits will then get set in unused_b, and added to the new control group's
-configuration, even if they were marked as exclusive for a later closid.
-
-When encountering a pseudo_locksetup group, we should continue. This is
-because "a resource group enters 'pseudo-locked' mode after the schemata is
-written while the resource group is in 'pseudo-locksetup' mode." When we
-find a pseudo_locksetup group, its configuration is expected to be
-overwritten, we can skip it.
-
-Fixes: dfe9674b04ff6 ("x86/intel_rdt: Enable entering of pseudo-locksetup mode")
-Signed-off-by: James Morse <james.morse@arm.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: Reinette Chatre <reinette.chatre@intel.com>
-Cc: Fenghua Yu <fenghua.yu@intel.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: H Peter Avin <hpa@zytor.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20190603172531.178830-1-james.morse@arm.com
-
----
- arch/x86/kernel/cpu/resctrl/rdtgroup.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
-
-diff --git a/arch/x86/kernel/cpu/resctrl/rdtgroup.c b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-index 333c177a2471..869cbef5da81 100644
---- a/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-+++ b/arch/x86/kernel/cpu/resctrl/rdtgroup.c
-@@ -2542,7 +2542,12 @@ static int __init_one_rdt_domain(struct rdt_domain *d, struct rdt_resource *r,
- 		if (closid_allocated(i) && i != closid) {
- 			mode = rdtgroup_mode_by_closid(i);
- 			if (mode == RDT_MODE_PSEUDO_LOCKSETUP)
--				break;
-+				/*
-+				 * ctrl values for locksetup aren't relevant
-+				 * until the schemata is written, and the mode
-+				 * becomes RDT_MODE_PSEUDO_LOCKED.
-+				 */
-+				continue;
- 			/*
- 			 * If CDP is active include peer domain's
- 			 * usage to ensure there is no overlap
+Guilherme
