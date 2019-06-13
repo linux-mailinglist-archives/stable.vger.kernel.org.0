@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 13EB6442BC
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:25:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 527C0441A4
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:16:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391892AbfFMQZN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:25:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54192 "EHLO mail.kernel.org"
+        id S1726876AbfFMQPs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:15:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730980AbfFMIgq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:36:46 -0400
+        id S1731167AbfFMIlm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:41:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 780E620851;
-        Thu, 13 Jun 2019 08:36:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8262721479;
+        Thu, 13 Jun 2019 08:41:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415005;
-        bh=WWG29t6l9B1S5X0Ig0x7C6SGZJ4CFaWjnDt4Xe+nbD0=;
+        s=default; t=1560415302;
+        bh=32RJqGO3C8WFy8yJ+VFstTzfIIsdO5tnH9ziPinK1RI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JQJt3ecmj8nlRyspdoDsiae8ZNl0Crldti3+4+3PGCNdALxLoPoBHMhwGYumJwMdc
-         xacPaiH417SMP29OdkpGNKqZzqANVk0SL/ultIvNR2PpgsqBgJMaYU3Be8kQrE144k
-         7VwJz+WO1E6T8dLzsYUe1OkPre+Tp23My4Dmsh3A=
+        b=jHtQ1FHCZ/5Na3rrWsqCn2+xUaTASIPHjA4jDULhlkonrg+A4YwjYTUTBKEBRqx5t
+         s38SqA0JsNIpb/HLxt6voaiJaixuzJDFzAB9FFl2yZuacGJPP0kgzFmyV9g6hVgTmc
+         AwiCuzZUjQpbo4h1siFyMU2lV2v7l84kLCInHiok=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrey Smirnov <andrew.smirnov@gmail.com>,
-        "Angus Ainslie (Purism)" <angus@akkea.ca>,
-        Chris Healy <cphealy@gmail.com>,
-        Lucas Stach <l.stach@pengutronix.de>,
-        Fabio Estevam <fabio.estevam@nxp.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        linux-arm-kernel@lists.infradead.org,
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 52/81] ARM: dts: imx51: Specify IMX5_CLK_IPG as "ahb" clock to SDMA
+Subject: [PATCH 4.19 077/118] soc: mediatek: pwrap: Zero initialize rdata in pwrap_init_cipher
 Date:   Thu, 13 Jun 2019 10:33:35 +0200
-Message-Id: <20190613075653.058097260@linuxfoundation.org>
+Message-Id: <20190613075648.328559204@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075649.074682929@linuxfoundation.org>
-References: <20190613075649.074682929@linuxfoundation.org>
+In-Reply-To: <20190613075643.642092651@linuxfoundation.org>
+References: <20190613075643.642092651@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,43 +47,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 918bbde8085ae147a43dcb491953e0dd8f3e9d6a ]
+[ Upstream commit 89e28da82836530f1ac7a3a32fecc31f22d79b3e ]
 
-Since 25aaa75df1e6 SDMA driver uses clock rates of "ipg" and "ahb"
-clock to determine if it needs to configure the IP block as operating
-at 1:1 or 1:2 clock ratio (ACR bit in SDMAARM_CONFIG). Specifying both
-clocks as IMX5_CLK_SDMA results in driver incorrectly thinking that
-ratio is 1:1 which results in broken SDMA funtionality. Fix the code
-to specify IMX5_CLK_AHB as "ahb" clock for SDMA, to avoid detecting
-incorrect clock ratio.
+When building with -Wsometimes-uninitialized, Clang warns:
 
-Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
-Cc: Angus Ainslie (Purism) <angus@akkea.ca>
-Cc: Chris Healy <cphealy@gmail.com>
-Cc: Lucas Stach <l.stach@pengutronix.de>
-Cc: Fabio Estevam <fabio.estevam@nxp.com>
-Cc: Shawn Guo <shawnguo@kernel.org>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+drivers/soc/mediatek/mtk-pmic-wrap.c:1358:6: error: variable 'rdata' is
+used uninitialized whenever '||' condition is true
+[-Werror,-Wsometimes-uninitialized]
+
+If pwrap_write returns non-zero, pwrap_read will not be called to
+initialize rdata, meaning that we will use some random uninitialized
+stack value in our print statement. Zero initialize rdata in case this
+happens.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/401
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx51.dtsi | 2 +-
+ drivers/soc/mediatek/mtk-pmic-wrap.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/imx51.dtsi b/arch/arm/boot/dts/imx51.dtsi
-index 1ee1d542d9ad..29c965126817 100644
---- a/arch/arm/boot/dts/imx51.dtsi
-+++ b/arch/arm/boot/dts/imx51.dtsi
-@@ -476,7 +476,7 @@
- 				reg = <0x83fb0000 0x4000>;
- 				interrupts = <6>;
- 				clocks = <&clks IMX5_CLK_SDMA_GATE>,
--					 <&clks IMX5_CLK_SDMA_GATE>;
-+					 <&clks IMX5_CLK_AHB>;
- 				clock-names = "ipg", "ahb";
- 				#dma-cells = <3>;
- 				fsl,sdma-ram-script-name = "imx/sdma/sdma-imx51.bin";
+diff --git a/drivers/soc/mediatek/mtk-pmic-wrap.c b/drivers/soc/mediatek/mtk-pmic-wrap.c
+index 4e931fdf4d09..011a40b5fb49 100644
+--- a/drivers/soc/mediatek/mtk-pmic-wrap.c
++++ b/drivers/soc/mediatek/mtk-pmic-wrap.c
+@@ -1104,7 +1104,7 @@ static bool pwrap_is_pmic_cipher_ready(struct pmic_wrapper *wrp)
+ static int pwrap_init_cipher(struct pmic_wrapper *wrp)
+ {
+ 	int ret;
+-	u32 rdata;
++	u32 rdata = 0;
+ 
+ 	pwrap_writel(wrp, 0x1, PWRAP_CIPHER_SWRST);
+ 	pwrap_writel(wrp, 0x0, PWRAP_CIPHER_SWRST);
 -- 
 2.20.1
 
