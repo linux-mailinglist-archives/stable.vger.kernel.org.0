@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D080C43FB7
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:00:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5792B4416E
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:14:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389461AbfFMP7e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 11:59:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37212 "EHLO mail.kernel.org"
+        id S1726855AbfFMQO0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:14:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731476AbfFMIta (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:49:30 -0400
+        id S1731191AbfFMImZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:42:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EF06F206BA;
-        Thu, 13 Jun 2019 08:49:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4A9E32063F;
+        Thu, 13 Jun 2019 08:42:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415769;
-        bh=3H//TXWicvgD2rfLiPqxf/vl4tRM2FVw4ISUgdkNjuY=;
+        s=default; t=1560415344;
+        bh=gwdxi5AAuoYgp387IoGFEKVh/fyMbDmAvT1oM3iYpVg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ybbPVPxGesSF7ONcQW/wZgoJLKbeD+8BgLY/6wEF3ZgIt+PYLjPH9d8U1NIdOPXb4
-         6MwEaU80HvloTr3Q2OxJiQq1Q9B2l1NnkD3FRATJuQAe9+mcP5TX96l9yhSezmjB0e
-         06UNR3rX8YupX3joY43vKy/qsH5RkMdkEQFnp9Vk=
+        b=xuCYaYRIFn5Ls3DKSSdtVPltYNnS3UDuk9dgzzCkuTwzwXN0/0msSYL3DzRTjXnN+
+         CU/6rrqJmpA3v5JFPYYXEsknsJnIcEruxCB/yMGiXlSRVRl46S6aBDZrrFCw8UBaHM
+         seWpWnJnbUGVM6Q1Ps+SSffaMfZzwqA8cogNG+Bs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Sun peng Li <Sunpeng.Li@amd.com>,
-        Aric Cyr <Aric.Cyr@amd.com>, Leo Li <sunpeng.li@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 116/155] drm/amd/display: Use plane->color_space for dpp if specified
-Date:   Thu, 13 Jun 2019 10:33:48 +0200
-Message-Id: <20190613075659.406547890@linuxfoundation.org>
+        syzbot+e4c8abb920efa77bace9@syzkaller.appspotmail.com,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 091/118] ALSA: seq: Protect in-kernel ioctl calls with mutex
+Date:   Thu, 13 Jun 2019 10:33:49 +0200
+Message-Id: <20190613075649.164602254@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
-References: <20190613075652.691765927@linuxfoundation.org>
+In-Reply-To: <20190613075643.642092651@linuxfoundation.org>
+References: <20190613075643.642092651@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,69 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a1e07ba89d49581471d64c48152dbe03b42bd025 ]
+[ Upstream commit feb689025fbb6f0aa6297d3ddf97de945ea4ad32 ]
 
-[Why]
-The input color space for the plane was previously ignored even if it
-was set.
+ALSA OSS sequencer calls the ioctl function indirectly via
+snd_seq_kernel_client_ctl().  While we already applied the protection
+against races between the normal ioctls and writes via the client's
+ioctl_mutex, this code path was left untouched.  And this seems to be
+the cause of still remaining some rare UAF as spontaneously triggered
+by syzkaller.
 
-If a limited range YUV format was given to DC then the
-wrong color transformation matrix was being used since DC assumed that
-it was full range instead.
+For the sake of robustness, wrap the ioctl_mutex also for the call via
+snd_seq_kernel_client_ctl(), too.
 
-[How]
-Respect the given color_space format for the plane if it isn't
-COLOR_SPACE_UNKNOWN. Otherwise, use the implicit default since DM
-didn't specify.
-
-Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Reviewed-by: Sun peng Li <Sunpeng.Li@amd.com>
-Acked-by: Aric Cyr <Aric.Cyr@amd.com>
-Acked-by: Leo Li <sunpeng.li@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Reported-by: syzbot+e4c8abb920efa77bace9@syzkaller.appspotmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn10/dcn10_dpp.c          | 6 +++++-
- drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c | 2 +-
- 2 files changed, 6 insertions(+), 2 deletions(-)
+ sound/core/seq/seq_clientmgr.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_dpp.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_dpp.c
-index cd1ebe57ed59..1951f9276e41 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_dpp.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_dpp.c
-@@ -392,6 +392,10 @@ void dpp1_cnv_setup (
- 	default:
- 		break;
+diff --git a/sound/core/seq/seq_clientmgr.c b/sound/core/seq/seq_clientmgr.c
+index b55cb96d1fed..40ae8f67efde 100644
+--- a/sound/core/seq/seq_clientmgr.c
++++ b/sound/core/seq/seq_clientmgr.c
+@@ -2343,14 +2343,19 @@ int snd_seq_kernel_client_ctl(int clientid, unsigned int cmd, void *arg)
+ {
+ 	const struct ioctl_handler *handler;
+ 	struct snd_seq_client *client;
++	int err;
+ 
+ 	client = clientptr(clientid);
+ 	if (client == NULL)
+ 		return -ENXIO;
+ 
+ 	for (handler = ioctl_handlers; handler->cmd > 0; ++handler) {
+-		if (handler->cmd == cmd)
+-			return handler->func(client, arg);
++		if (handler->cmd == cmd) {
++			mutex_lock(&client->ioctl_mutex);
++			err = handler->func(client, arg);
++			mutex_unlock(&client->ioctl_mutex);
++			return err;
++		}
  	}
-+
-+	/* Set default color space based on format if none is given. */
-+	color_space = input_color_space ? input_color_space : color_space;
-+
- 	REG_SET(CNVC_SURFACE_PIXEL_FORMAT, 0,
- 			CNVC_SURFACE_PIXEL_FORMAT, pixel_format);
- 	REG_UPDATE(FORMAT_CONTROL, FORMAT_CONTROL__ALPHA_EN, alpha_en);
-@@ -403,7 +407,7 @@ void dpp1_cnv_setup (
- 		for (i = 0; i < 12; i++)
- 			tbl_entry.regval[i] = input_csc_color_matrix.matrix[i];
  
--		tbl_entry.color_space = input_color_space;
-+		tbl_entry.color_space = color_space;
- 
- 		if (color_space >= COLOR_SPACE_YCBCR601)
- 			select = INPUT_CSC_SELECT_ICSC;
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
-index 5b551a544e82..1fac86d3032d 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
-@@ -1936,7 +1936,7 @@ static void update_dpp(struct dpp *dpp, struct dc_plane_state *plane_state)
- 			plane_state->format,
- 			EXPANSION_MODE_ZERO,
- 			plane_state->input_csc_color_matrix,
--			COLOR_SPACE_YCBCR601_LIMITED);
-+			plane_state->color_space);
- 
- 	//set scale and bias registers
- 	build_prescale_params(&bns_params, plane_state);
+ 	pr_debug("ALSA: seq unknown ioctl() 0x%x (type='%c', number=0x%02x)\n",
 -- 
 2.20.1
 
