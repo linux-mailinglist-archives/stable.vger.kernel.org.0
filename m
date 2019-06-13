@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 69E2743FB4
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:00:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD28A44275
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:22:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390450AbfFMP7d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 11:59:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37240 "EHLO mail.kernel.org"
+        id S1726600AbfFMQWp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:22:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55580 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731479AbfFMItc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:49:32 -0400
+        id S1731039AbfFMIiJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:38:09 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A45F8206BA;
-        Thu, 13 Jun 2019 08:49:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 641412146F;
+        Thu, 13 Jun 2019 08:38:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415772;
-        bh=H5s03YtNMgZZCgh2/o5/ZQ9c/DeSnUl0LjC1EaxMO9U=;
+        s=default; t=1560415088;
+        bh=OwZ0qLFkEiHNIobShGBggg/4oh/hdfHyky43omuQniU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZHkQI93LkKnCmmP4Eenw8Aur/fuugwKtSBfXZSHSLl/VI7ivEqpCtBSXkwWi6FVmR
-         TN5NkUHbpIUXz0SoSugU7DNUP4qaUBrKyZcA0AvozsjjkgXtV1l8v3MAl6tT/KFJ3b
-         i7XzmDtnTIPUTv0Upm3JadDAy7omCvo2BGA1CJdI=
+        b=crWU+xNBkyEZeF0jAVTIS6/5jtRhlwm+l1VYnCcvPFIo0gWnZAN2UTOONuzzgSicy
+         LdyrX6GDeir7iGIz4hEg79tDNGS9EhAKb3FH2s9rBmhTTQq7crL7L0WdxO0XK4GDv3
+         AD5A3yypzroYLBOjHDcKs1Pzwbp5ItBIUnOH1xz4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+e4c8abb920efa77bace9@syzkaller.appspotmail.com,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 117/155] ALSA: seq: Protect in-kernel ioctl calls with mutex
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        Aditya Pakki <pakki001@umn.edu>,
+        Ferenc Bakonyi <fero@drama.obuda.kando.hu>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 66/81] video: hgafb: fix potential NULL pointer dereference
 Date:   Thu, 13 Jun 2019 10:33:49 +0200
-Message-Id: <20190613075659.456179743@linuxfoundation.org>
+Message-Id: <20190613075653.864033891@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
-References: <20190613075652.691765927@linuxfoundation.org>
+In-Reply-To: <20190613075649.074682929@linuxfoundation.org>
+References: <20190613075649.074682929@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,51 +46,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit feb689025fbb6f0aa6297d3ddf97de945ea4ad32 ]
+[ Upstream commit ec7f6aad57ad29e4e66cc2e18e1e1599ddb02542 ]
 
-ALSA OSS sequencer calls the ioctl function indirectly via
-snd_seq_kernel_client_ctl().  While we already applied the protection
-against races between the normal ioctls and writes via the client's
-ioctl_mutex, this code path was left untouched.  And this seems to be
-the cause of still remaining some rare UAF as spontaneously triggered
-by syzkaller.
+When ioremap fails, hga_vram should not be dereferenced. The fix
+check the failure to avoid NULL pointer dereference.
 
-For the sake of robustness, wrap the ioctl_mutex also for the call via
-snd_seq_kernel_client_ctl(), too.
-
-Reported-by: syzbot+e4c8abb920efa77bace9@syzkaller.appspotmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Kangjie Lu <kjlu@umn.edu>
+Cc: Aditya Pakki <pakki001@umn.edu>
+Cc: Ferenc Bakonyi <fero@drama.obuda.kando.hu>
+[b.zolnierkie: minor patch summary fixup]
+Signed-off-by: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/seq/seq_clientmgr.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/video/fbdev/hgafb.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/sound/core/seq/seq_clientmgr.c b/sound/core/seq/seq_clientmgr.c
-index 38e7deab6384..b3280e81bfd1 100644
---- a/sound/core/seq/seq_clientmgr.c
-+++ b/sound/core/seq/seq_clientmgr.c
-@@ -2343,14 +2343,19 @@ int snd_seq_kernel_client_ctl(int clientid, unsigned int cmd, void *arg)
- {
- 	const struct ioctl_handler *handler;
- 	struct snd_seq_client *client;
-+	int err;
+diff --git a/drivers/video/fbdev/hgafb.c b/drivers/video/fbdev/hgafb.c
+index 463028543173..59e1cae57948 100644
+--- a/drivers/video/fbdev/hgafb.c
++++ b/drivers/video/fbdev/hgafb.c
+@@ -285,6 +285,8 @@ static int hga_card_detect(void)
+ 	hga_vram_len  = 0x08000;
  
- 	client = clientptr(clientid);
- 	if (client == NULL)
- 		return -ENXIO;
+ 	hga_vram = ioremap(0xb0000, hga_vram_len);
++	if (!hga_vram)
++		goto error;
  
- 	for (handler = ioctl_handlers; handler->cmd > 0; ++handler) {
--		if (handler->cmd == cmd)
--			return handler->func(client, arg);
-+		if (handler->cmd == cmd) {
-+			mutex_lock(&client->ioctl_mutex);
-+			err = handler->func(client, arg);
-+			mutex_unlock(&client->ioctl_mutex);
-+			return err;
-+		}
- 	}
- 
- 	pr_debug("ALSA: seq unknown ioctl() 0x%x (type='%c', number=0x%02x)\n",
+ 	if (request_region(0x3b0, 12, "hgafb"))
+ 		release_io_ports = 1;
 -- 
 2.20.1
 
