@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E4E8043F80
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 17:58:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 291984412D
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:12:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729327AbfFMP6C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 11:58:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37972 "EHLO mail.kernel.org"
+        id S2390329AbfFMQL4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:11:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731500AbfFMIuY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:50:24 -0400
+        id S1731225AbfFMInQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:43:16 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0ABAC21473;
-        Thu, 13 Jun 2019 08:50:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6029B2063F;
+        Thu, 13 Jun 2019 08:43:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415823;
-        bh=dOXVFBwfFnjr6mtGpP9lPz0BOq2tVCzrhnbNIxx+j28=;
+        s=default; t=1560415395;
+        bh=QEZFKU/g/ch1pLN7vInXMfAeh/fGDxksb2zdlg6jy5c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fIIgD+IiixlMiT9Y3mxC9YdAqaPtUBl/Plp00WPPbV8b3JWaNPAmAmvt/hkAuGNCP
-         9DJQ18N7s7tpLJVaBneDB7uDhvylxMsyWik15fEW2M3UiGoT4Un1CQJf+roQ0wvpUV
-         Z2RyFmK2MQ9blu4chl/jW2QBGuDEoultW1orxsT4=
+        b=WhtWcyuz3o/LSXUSlLJFYx96dqsclVneHTkSWCPFoeHQyozhTDfAdOrZfYg5XlfPb
+         1n0cfQskmKlBwZbpM7K4j4x9YnEd1hmgkn5Mmot5ve4cXcYVnQqE39laaFa2k5uo2G
+         t7Lltiu6zPmvJWZYJuCkvn5PXKca4TXrZ6LJSkWg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brett Creeley <brett.creeley@intel.com>,
-        Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>,
-        Andrew Bowers <andrewx.bowers@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 136/155] ice: Add missing case in print_link_msg for printing flow control
+Subject: [PATCH 4.19 110/118] usb: typec: fusb302: Check vconn is off when we start toggling
 Date:   Thu, 13 Jun 2019 10:34:08 +0200
-Message-Id: <20190613075700.329220104@linuxfoundation.org>
+Message-Id: <20190613075650.543756529@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
-References: <20190613075652.691765927@linuxfoundation.org>
+In-Reply-To: <20190613075643.642092651@linuxfoundation.org>
+References: <20190613075643.642092651@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,36 +45,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 203a068ac9e2722e4d118116acaa3a5586f9468a ]
+[ Upstream commit 32a155b1a83d6659e2272e8e1eec199667b1897e ]
 
-Currently we aren't checking for the ICE_FC_NONE case for the current
-flow control mode. This is causing "Unknown" to be printed for the
-current flow control method if flow control is disabled. Fix this by
-adding the case for ICE_FC_NONE to print "None".
+The datasheet says the vconn MUST be off when we start toggling. The
+tcpm.c state-machine is responsible to make sure vconn is off, but lets
+add a WARN to catch any cases where vconn is not off for some reason.
 
-Signed-off-by: Brett Creeley <brett.creeley@intel.com>
-Signed-off-by: Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>
-Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_main.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/typec/fusb302/fusb302.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
-index 6ec73864019c..b562476b1251 100644
---- a/drivers/net/ethernet/intel/ice/ice_main.c
-+++ b/drivers/net/ethernet/intel/ice/ice_main.c
-@@ -528,6 +528,9 @@ void ice_print_link_msg(struct ice_vsi *vsi, bool isup)
- 	case ICE_FC_RX_PAUSE:
- 		fc = "RX";
- 		break;
-+	case ICE_FC_NONE:
-+		fc = "None";
-+		break;
- 	default:
- 		fc = "Unknown";
- 		break;
+diff --git a/drivers/usb/typec/fusb302/fusb302.c b/drivers/usb/typec/fusb302/fusb302.c
+index 82bed9810be6..62a0060d39d8 100644
+--- a/drivers/usb/typec/fusb302/fusb302.c
++++ b/drivers/usb/typec/fusb302/fusb302.c
+@@ -641,6 +641,8 @@ static int fusb302_set_toggling(struct fusb302_chip *chip,
+ 			return ret;
+ 		chip->intr_togdone = false;
+ 	} else {
++		/* Datasheet says vconn MUST be off when toggling */
++		WARN(chip->vconn_on, "Vconn is on during toggle start");
+ 		/* unmask TOGDONE interrupt */
+ 		ret = fusb302_i2c_clear_bits(chip, FUSB_REG_MASKA,
+ 					     FUSB_REG_MASKA_TOGDONE);
 -- 
 2.20.1
 
