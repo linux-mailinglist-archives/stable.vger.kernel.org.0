@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CF2CF441B5
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:16:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7233E442DB
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:26:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733106AbfFMQQW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:16:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58620 "EHLO mail.kernel.org"
+        id S2389953AbfFMQ0R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:26:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731151AbfFMIlX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:41:23 -0400
+        id S1730958AbfFMIgL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:36:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A6F2321479;
-        Thu, 13 Jun 2019 08:41:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A91052146F;
+        Thu, 13 Jun 2019 08:36:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415282;
-        bh=fAHFmWpy7DJEQLcgaUqGnW0UfQ15uY1xkUCH1UTMcn8=;
+        s=default; t=1560414970;
+        bh=WBnnoiV2xbfIcvYiH9S//5uTnemkNf6L1oc41kGnPM4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J+PczRLCT2mQvzsRRTfMEUYoCbVVFCOrZL83et5MZMMFANf4CQrEa9fpg2ks4aMBH
-         Vf0i1qzpWe9bIGbyvNju/06beUuZiGL+K6JBJcxEBZTZd792Fbr6HHQMWiC3yNk28v
-         VHCwj4w569LnWfQfEROpUGZRshdPvTky/U/3HESU=
+        b=KJ6DH0zAyYDGHFLcDKGCHv1cJK0snJESQWEKnDCF9ci+dBe9Qm2+97HQK2UVNfH8U
+         xBurJPcHh6TslUmmaEPKK8FSoZJFH0EJMUH5GhpU9A+l1L4Nd1l7IMxImGswut0zX2
+         7kAIoFi/vrmwWJDzsX88YF2GGHETG+sAEOt6O5fw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Amit Kucheria <amit.kucheria@linaro.org>,
+        Eduardo Valentin <edubezval@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 040/118] f2fs: fix to do sanity check on valid block count of segment
+Subject: [PATCH 4.14 15/81] drivers: thermal: tsens: Dont print error message on -EPROBE_DEFER
 Date:   Thu, 13 Jun 2019 10:32:58 +0200
-Message-Id: <20190613075645.912130539@linuxfoundation.org>
+Message-Id: <20190613075650.191146182@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075643.642092651@linuxfoundation.org>
-References: <20190613075643.642092651@linuxfoundation.org>
+In-Reply-To: <20190613075649.074682929@linuxfoundation.org>
+References: <20190613075649.074682929@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,91 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit e95bcdb2fefa129f37bd9035af1d234ca92ee4ef ]
+[ Upstream commit fc7d18cf6a923cde7f5e7ba2c1105bb106d3e29a ]
 
-As Jungyeon reported in bugzilla:
+We print a calibration failure message on -EPROBE_DEFER from
+nvmem/qfprom as follows:
+[    3.003090] qcom-tsens 4a9000.thermal-sensor: version: 1.4
+[    3.005376] qcom-tsens 4a9000.thermal-sensor: tsens calibration failed
+[    3.113248] qcom-tsens 4a9000.thermal-sensor: version: 1.4
 
-https://bugzilla.kernel.org/show_bug.cgi?id=203233
+This confuses people when, in fact, calibration succeeds later when
+nvmem/qfprom device is available. Don't print this message on a
+-EPROBE_DEFER.
 
-- Overview
-When mounting the attached crafted image and running program, following errors are reported.
-Additionally, it hangs on sync after running program.
-
-The image is intentionally fuzzed from a normal f2fs image for testing.
-Compile options for F2FS are as follows.
-CONFIG_F2FS_FS=y
-CONFIG_F2FS_STAT_FS=y
-CONFIG_F2FS_FS_XATTR=y
-CONFIG_F2FS_FS_POSIX_ACL=y
-CONFIG_F2FS_CHECK_FS=y
-
-- Reproduces
-cc poc_13.c
-mkdir test
-mount -t f2fs tmp.img test
-cp a.out test
-cd test
-sudo ./a.out
-sync
-
-- Kernel messages
- F2FS-fs (sdb): Bitmap was wrongly set, blk:4608
- kernel BUG at fs/f2fs/segment.c:2102!
- RIP: 0010:update_sit_entry+0x394/0x410
- Call Trace:
-  f2fs_allocate_data_block+0x16f/0x660
-  do_write_page+0x62/0x170
-  f2fs_do_write_node_page+0x33/0xa0
-  __write_node_page+0x270/0x4e0
-  f2fs_sync_node_pages+0x5df/0x670
-  f2fs_write_checkpoint+0x372/0x1400
-  f2fs_sync_fs+0xa3/0x130
-  f2fs_do_sync_file+0x1a6/0x810
-  do_fsync+0x33/0x60
-  __x64_sys_fsync+0xb/0x10
-  do_syscall_64+0x43/0xf0
-  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-sit.vblocks and sum valid block count in sit.valid_map may be
-inconsistent, segment w/ zero vblocks will be treated as free
-segment, while allocating in free segment, we may allocate a
-free block, if its bitmap is valid previously, it can cause
-kernel crash due to bitmap verification failure.
-
-Anyway, to avoid further serious metadata inconsistence and
-corruption, it is necessary and worth to detect SIT
-inconsistence. So let's enable check_block_count() to verify
-vblocks and valid_map all the time rather than do it only
-CONFIG_F2FS_CHECK_FS is enabled.
-
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Amit Kucheria <amit.kucheria@linaro.org>
+Signed-off-by: Eduardo Valentin <edubezval@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/segment.h | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/thermal/qcom/tsens.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/f2fs/segment.h b/fs/f2fs/segment.h
-index b3d9e317ff0c..5079532cb176 100644
---- a/fs/f2fs/segment.h
-+++ b/fs/f2fs/segment.h
-@@ -660,7 +660,6 @@ static inline void verify_block_addr(struct f2fs_io_info *fio, block_t blk_addr)
- static inline int check_block_count(struct f2fs_sb_info *sbi,
- 		int segno, struct f2fs_sit_entry *raw_sit)
- {
--#ifdef CONFIG_F2FS_CHECK_FS
- 	bool is_valid  = test_bit_le(0, raw_sit->valid_map) ? true : false;
- 	int valid_blocks = 0;
- 	int cur_pos = 0, next_pos;
-@@ -687,7 +686,7 @@ static inline int check_block_count(struct f2fs_sb_info *sbi,
- 		set_sbi_flag(sbi, SBI_NEED_FSCK);
- 		return -EINVAL;
+diff --git a/drivers/thermal/qcom/tsens.c b/drivers/thermal/qcom/tsens.c
+index 3f9fe6aa51cc..ebbe1ec7b9e8 100644
+--- a/drivers/thermal/qcom/tsens.c
++++ b/drivers/thermal/qcom/tsens.c
+@@ -162,7 +162,8 @@ static int tsens_probe(struct platform_device *pdev)
+ 	if (tmdev->ops->calibrate) {
+ 		ret = tmdev->ops->calibrate(tmdev);
+ 		if (ret < 0) {
+-			dev_err(dev, "tsens calibration failed\n");
++			if (ret != -EPROBE_DEFER)
++				dev_err(dev, "tsens calibration failed\n");
+ 			return ret;
+ 		}
  	}
--#endif
-+
- 	/* check segment usage, and check boundary of a given segment number */
- 	if (unlikely(GET_SIT_VBLOCKS(raw_sit) > sbi->blocks_per_seg
- 					|| segno > TOTAL_SEGS(sbi) - 1)) {
 -- 
 2.20.1
 
