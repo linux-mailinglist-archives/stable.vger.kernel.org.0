@@ -2,117 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C775943F3A
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 17:55:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51B364429C
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:24:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732270AbfFMPzb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 11:55:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39244 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731541AbfFMIv4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:51:56 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DE28120851;
-        Thu, 13 Jun 2019 08:51:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415915;
-        bh=0d8TI0j2ekShRSDHeOPaytIPYP4EAXukYrtUJzxK5FU=;
-        h=Subject:To:From:Date:From;
-        b=df62+liEde9fmi1pMCcl5AR9tUO46MhQLD9GvbXVTzUMSnDWJcm5hSiSZqRAlosqi
-         N/ruMECpLi4uXpJLVwp9amgpEbqAo8Tvq2zKn/2WbWoZsMEAeYtodwRuC0B9TyiSOm
-         SIbb7o9KwalztxFMoEiz7o4i8dtCHMIg0o8HE+oU=
-Subject: patch "binder: fix possible UAF when freeing buffer" added to char-misc-linus
-To:     tkjos@android.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org, tkjos@google.com
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 13 Jun 2019 10:36:21 +0200
-Message-ID: <15604149819585@kroah.com>
+        id S1727650AbfFMQYD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:24:03 -0400
+Received: from mail-yb1-f196.google.com ([209.85.219.196]:44042 "EHLO
+        mail-yb1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731006AbfFMIh2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Jun 2019 04:37:28 -0400
+Received: by mail-yb1-f196.google.com with SMTP id x187so7486998ybc.11
+        for <stable@vger.kernel.org>; Thu, 13 Jun 2019 01:37:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=Jt8gwpSgGmEBqY3kuALG8Z/2pn3kbQ8yLGHBD//9Zr8=;
+        b=bWb+JIHpMkpCkNYeoPhQvNX1kAb4lxRaLe+lScQkkZeFjthSq7Jj01tOO3VJITY/KB
+         1Z1r12KTt7Z6jcaNT/fGRkNUrWjVEqUpM4rwZ4D2LJYm2osXLTaSezouV0QNkrGTdF+H
+         19zd7bJWwZtynnVsSpJ33iCssIkqb0hiANg2Ts0WLjBTW9j0cRCeiXjfw6QGCOqf/pDD
+         2ZjiXEQws2DmIBFF6HiqpyXd0SopGqFH3Go+Mu7h6LJ+5XozQPT6RPuaC3gwMXD8uegH
+         Vsd4CckrgL5TooyLQzvarVKJmCVYc7ZGRoYRTRX7Pi9hTiYv5yMVlFOYPboPpbzlMl5i
+         SvOg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Jt8gwpSgGmEBqY3kuALG8Z/2pn3kbQ8yLGHBD//9Zr8=;
+        b=KoBpuRnXGij0OvjAdWfG8pOa0JGp/BLc8jH/QhaOXesjudAidu4aEZ6vwhY5pK36wz
+         KK5oTVrTTT3lGL+NI8eG8kIsv16A/Vxks1R/pCcDRUX2eeCb7Em8P69AV/90HzVcpj9T
+         ybeAj+rk1rfRejlE4HoXBXYHXYgSE3UuvTQefXAVvn15lonyhknUx00nsQE6J1KqDEiH
+         MOCW5kCZgFnaGYuDfVieBukxZjMrt2oyWpxQpQ0KTXn22L1x5qqyDYNBF1n89Rjdhe79
+         13FUwUH0nRsm3NlogaP/7VlEKXi+hkuVvo+WXCzFRDHQHgHop207rLhtg3BIqAiMvMv4
+         ixnw==
+X-Gm-Message-State: APjAAAXHrSfam1FEs+x8/a4B2RYyxzGw8rxOIh2PTKRfePTElDRZf5gB
+        /MfrRyhYcRTwYDih9wrijvR6mGmuMBXxg2hKzA8=
+X-Google-Smtp-Source: APXvYqxvK7E2VCEOlolHjd6fO3AROrzE/j5U5g5c1aso9yPU1oLBoqLXALa9+VzjLup09ZIYYzE/RT/73ll6tJhOdac=
+X-Received: by 2002:a25:8109:: with SMTP id o9mr38575853ybk.132.1560415047416;
+ Thu, 13 Jun 2019 01:37:27 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+References: <1558603746191117@kroah.com> <CAOQ4uxip8H45S-UmWhNowv9sQUTYzcDMVCZxw=6AvFN-4c1Uvw@mail.gmail.com>
+ <20190523195741.GA4436@kroah.com> <CAOQ4uxjKKJduAkomNHxo=T1i4-FVUJ_JABkXfpjz2qt=DAHTZA@mail.gmail.com>
+ <20190613074854.GC19685@kroah.com>
+In-Reply-To: <20190613074854.GC19685@kroah.com>
+From:   Amir Goldstein <amir73il@gmail.com>
+Date:   Thu, 13 Jun 2019 11:37:15 +0300
+Message-ID: <CAOQ4uxghRTP_bWYjikADGB0zTC83ThA=UK4a_thd_BdyMouf0A@mail.gmail.com>
+Subject: Re: Patch "ovl: fix missing upper fs freeze protection on copy up for
+ ioctl" has been added to the 4.19-stable tree
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Miklos Szeredi <mszeredi@redhat.com>,
+        Vivek Goyal <vgoyal@redhat.com>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, Jun 13, 2019 at 10:48 AM Greg KH <gregkh@linuxfoundation.org> wrote:
+>
+> On Mon, Jun 10, 2019 at 11:28:46PM +0300, Amir Goldstein wrote:
+> > > > This patch is fine for stable, but I have a process question.
+> > > > All these patches from overlayfs 5.2-rc1 are also v4.9 stable candidates:
+> > > >
+> > > > 1. acf3062a7e1c - ovl: relax WARN_ON() for overlapping layers use case
+> > > > 2. 98487de318a6 - ovl: check the capability before cred overridden
+> > > > 3. d989903058a8 - ovl: do not generate duplicate fsnotify events for "fake" path
+> > > > 4. 9e46b840c705 - ovl: support stacked SEEK_HOLE/SEEK_DATA
+> > > >
+> > > > #2 wasn't properly marked for stable, but the other are marked with
+> > > > Fixes: and Reported-by:
+> > > >
+> > > > Are those marks not sufficient to get selected for stable trees these days?
+> > >
+> > > Not by default, no.  Sometimes they might get picked up if we get bored,
+> > > or the auto-bot notices them.
+> > >
+> > > > I must admit that #1 in borderline stable. Not sure if eliminating an unjust
+> > > > WARN_ON qualified, but syzbot did report a bug..
+> > >
+> > > syzbot things are good to fix in stable kernels, so that syzbot can
+> > > continue to find real things in stable kernels.  So yes, that is fine to
+> > > backport.
+> > >
+> > > > Just asking in order to improve the process, but in any case,
+> > > > please pick those patches for v4.9+ (unless anyone objects?)
+> > > > They all already have LTP/xfstests/syzkaller tests that cover them.
+> > >
+> > > I'll queue them up for the next round after this, thanks.
+> > >
+> >
+> > Hi Greg,
+> >
+> > I forgot to follow up on those patches.
+> > Now I look at linux-4.19.y, I only see patch #1 (ovl: relax WARN_ON()..)
+> > and not the 3 other patches I listed as stable candidates.
+> > Was there any issue with those patches?
+>
+> Sorry, didn't get to them.
+>
+> I did now, and they all do not apply to all kernel versions.  Most of
+> them do not go back to 4.14 or 4.9 as the code just isn't there.
+>
+> So, after this next round of kernel releases, can you send backported
+> versions of any missing patches so that we are sure to apply them
+> correctly?
+>
 
-This is a note to let you know that I've just added the patch titled
+Is happens to be that all those patches you picked since 4.19
+most of the, whether tagged properly or not are:
+Fixes: d1d04ef8572b ("ovl: stack file ops")
+Cc: <stable@vger.kernel.org> # v4.19
 
-    binder: fix possible UAF when freeing buffer
+There was a very big change in v4.19 ("ovl: stack file ops")
+removing lots of "VFS hacks" and resulting in more than
+one behavior change. Things that used to work pre-4.19
+with the "VFS hacks" that do not work with "ovl: stack file ops".
 
-to my char-misc git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
-in the char-misc-linus branch.
+There have been very few overlayfs patches since v4.20,
+only a trickle of v4.19 stable fixes.
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+Also, the code has changes quite considerably since 4.14, so
+overlayfs patches that could be easily backported, even if
+applicable to 4.14 are rare these days.
 
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From a370003cc301d4361bae20c9ef615f89bf8d1e8a Mon Sep 17 00:00:00 2001
-From: Todd Kjos <tkjos@android.com>
-Date: Wed, 12 Jun 2019 13:29:27 -0700
-Subject: binder: fix possible UAF when freeing buffer
-
-There is a race between the binder driver cleaning
-up a completed transaction via binder_free_transaction()
-and a user calling binder_ioctl(BC_FREE_BUFFER) to
-release a buffer. It doesn't matter which is first but
-they need to be protected against running concurrently
-which can result in a UAF.
-
-Signed-off-by: Todd Kjos <tkjos@google.com>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/android/binder.c | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/android/binder.c b/drivers/android/binder.c
-index 748ac489ef7e..bc26b5511f0a 100644
---- a/drivers/android/binder.c
-+++ b/drivers/android/binder.c
-@@ -1941,8 +1941,18 @@ static void binder_free_txn_fixups(struct binder_transaction *t)
- 
- static void binder_free_transaction(struct binder_transaction *t)
- {
--	if (t->buffer)
--		t->buffer->transaction = NULL;
-+	struct binder_proc *target_proc = t->to_proc;
-+
-+	if (target_proc) {
-+		binder_inner_proc_lock(target_proc);
-+		if (t->buffer)
-+			t->buffer->transaction = NULL;
-+		binder_inner_proc_unlock(target_proc);
-+	}
-+	/*
-+	 * If the transaction has no target_proc, then
-+	 * t->buffer->transaction has already been cleared.
-+	 */
- 	binder_free_txn_fixups(t);
- 	kfree(t);
- 	binder_stats_deleted(BINDER_STAT_TRANSACTION);
-@@ -3551,10 +3561,12 @@ static void binder_transaction(struct binder_proc *proc,
- static void
- binder_free_buf(struct binder_proc *proc, struct binder_buffer *buffer)
- {
-+	binder_inner_proc_lock(proc);
- 	if (buffer->transaction) {
- 		buffer->transaction->buffer = NULL;
- 		buffer->transaction = NULL;
- 	}
-+	binder_inner_proc_unlock(proc);
- 	if (buffer->async_transaction && buffer->target_node) {
- 		struct binder_node *buf_node;
- 		struct binder_work *w;
--- 
-2.22.0
-
-
+Thanks!
+Amir.
