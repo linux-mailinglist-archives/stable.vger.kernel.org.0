@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D20F440E5
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:11:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B63A44277
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:22:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731359AbfFMQK2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:10:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32872 "EHLO mail.kernel.org"
+        id S2388350AbfFMQWp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:22:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55506 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731251AbfFMIny (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:43:54 -0400
+        id S1731037AbfFMIiE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:38:04 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 70F5C2063F;
-        Thu, 13 Jun 2019 08:43:52 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E513A2146F;
+        Thu, 13 Jun 2019 08:38:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415433;
-        bh=iQ2VT1anwge2rriW/Lu1HmpTUu/MZTagc0jkhnacppQ=;
+        s=default; t=1560415083;
+        bh=Zr+S9qszYm7Ysbhazh9Fs4RB+XQq43GARdQ5UwlRd6o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f+Ww15Qsxvxnfw15e5QHYdE6EbLqKixpLtS6SJpbWjabK3BTr1r6ZkyhYn/mepQtM
-         7UvZ5fyEqNycpE7fKZ0uBrQkkVT6uStkiTyahA2j0QoBTAhEan898n6lDShtI5DA6u
-         uecxdGfZdZlK24vl1cC2JNCaO7HWO9HSq35nlUvs=
+        b=aOhoKlqxGaVWWsK2OexL8hUUE49xfxtuUWHe7OkUp6jwCUMx0EHq/kbzaN42Z8hV7
+         Wm9sFOI4gApIJ93/4Pql1dZ6K6+rjii6WkoIU0ATSI6tdIfXWeRJLJx0tlkbxmZYN7
+         BmGmB9DOumqwigl6qMIMDPwV2Ir1XZCBrnKsgXHQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>, Vinod Koul <vkoul@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 105/118] dmaengine: idma64: Use actual device for DMA transfers
+        stable@vger.kernel.org, Sven Joachim <svenjoac@gmx.de>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Dave Airlie <airlied@redhat.com>,
+        Thomas Backlund <tmb@mageia.org>
+Subject: [PATCH 4.14 80/81] Revert "drm/nouveau: add kconfig option to turn off nouveau legacy contexts. (v3)"
 Date:   Thu, 13 Jun 2019 10:34:03 +0200
-Message-Id: <20190613075650.164719995@linuxfoundation.org>
+Message-Id: <20190613075654.899041011@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075643.642092651@linuxfoundation.org>
-References: <20190613075643.642092651@linuxfoundation.org>
+In-Reply-To: <20190613075649.074682929@linuxfoundation.org>
+References: <20190613075649.074682929@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,131 +45,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 5ba846b1ee0792f5a596b9b0b86d6e8cdebfab06 ]
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Intel IOMMU, when enabled, tries to find the domain of the device,
-assuming it's a PCI one, during DMA operations, such as mapping or
-unmapping. Since we are splitting the actual PCI device to couple of
-children via MFD framework (see drivers/mfd/intel-lpss.c for details),
-the DMA device appears to be a platform one, and thus not an actual one
-that performs DMA. In a such situation IOMMU can't find or allocate
-a proper domain for its operations. As a result, all DMA operations are
-failed.
+This reverts commit 140ae656e3b7476719a2b15b96527c73c5acf90b which is
+commit b30a43ac7132cdda833ac4b13dd1ebd35ace14b7 upstream.
 
-In order to fix this, supply parent of the platform device
-to the DMA engine framework and fix filter functions accordingly.
+Sven reports:
+	Commit 1e07d63749 ("drm/nouveau: add kconfig option to turn off nouveau
+	legacy contexts. (v3)") has caused a build failure for me when I
+	actually tried that option (CONFIG_NOUVEAU_LEGACY_CTX_SUPPORT=n):
 
-We may rely on the fact that parent is a real PCI device, because no
-other configuration is present in the wild.
+	,----
+	| Kernel: arch/x86/boot/bzImage is ready  (#1)
+	|   Building modules, stage 2.
+	|   MODPOST 290 modules
+	| ERROR: "drm_legacy_mmap" [drivers/gpu/drm/nouveau/nouveau.ko] undefined!
+	| scripts/Makefile.modpost:91: recipe for target '__modpost' failed
+	`----
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Acked-by: Mark Brown <broonie@kernel.org>
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org> [for tty parts]
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+	Upstream does not have that problem, as commit bed2dd8421 ("drm/ttm:
+	Quick-test mmap offset in ttm_bo_mmap()") has removed the use of
+	drm_legacy_mmap from nouveau_ttm.c.  Unfortunately that commit does not
+	apply in 5.1.9.
+
+The ensuing discussion proposed a number of one-off patches, but no
+solid agreement was made, so just revert the commit for now to get
+people's systems building again.
+
+Reported-by: Sven Joachim <svenjoac@gmx.de>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Dave Airlie <airlied@redhat.com>
+Cc: Thomas Backlund <tmb@mageia.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma/idma64.c              | 6 ++++--
- drivers/dma/idma64.h              | 2 ++
- drivers/spi/spi-pxa2xx.c          | 7 +------
- drivers/tty/serial/8250/8250_dw.c | 4 ++--
- 4 files changed, 9 insertions(+), 10 deletions(-)
+ drivers/gpu/drm/nouveau/Kconfig       |   13 +------------
+ drivers/gpu/drm/nouveau/nouveau_drm.c |    7 ++-----
+ 2 files changed, 3 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/dma/idma64.c b/drivers/dma/idma64.c
-index 1fbf9cb9b742..89c5e5b46068 100644
---- a/drivers/dma/idma64.c
-+++ b/drivers/dma/idma64.c
-@@ -597,7 +597,7 @@ static int idma64_probe(struct idma64_chip *chip)
- 	idma64->dma.directions = BIT(DMA_DEV_TO_MEM) | BIT(DMA_MEM_TO_DEV);
- 	idma64->dma.residue_granularity = DMA_RESIDUE_GRANULARITY_BURST;
- 
--	idma64->dma.dev = chip->dev;
-+	idma64->dma.dev = chip->sysdev;
- 
- 	dma_set_max_seg_size(idma64->dma.dev, IDMA64C_CTLH_BLOCK_TS_MASK);
- 
-@@ -637,6 +637,7 @@ static int idma64_platform_probe(struct platform_device *pdev)
- {
- 	struct idma64_chip *chip;
- 	struct device *dev = &pdev->dev;
-+	struct device *sysdev = dev->parent;
- 	struct resource *mem;
- 	int ret;
- 
-@@ -653,11 +654,12 @@ static int idma64_platform_probe(struct platform_device *pdev)
- 	if (IS_ERR(chip->regs))
- 		return PTR_ERR(chip->regs);
- 
--	ret = dma_coerce_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64));
-+	ret = dma_coerce_mask_and_coherent(sysdev, DMA_BIT_MASK(64));
- 	if (ret)
- 		return ret;
- 
- 	chip->dev = dev;
-+	chip->sysdev = sysdev;
- 
- 	ret = idma64_probe(chip);
- 	if (ret)
-diff --git a/drivers/dma/idma64.h b/drivers/dma/idma64.h
-index 6b816878e5e7..baa32e1425de 100644
---- a/drivers/dma/idma64.h
-+++ b/drivers/dma/idma64.h
-@@ -216,12 +216,14 @@ static inline void idma64_writel(struct idma64 *idma64, int offset, u32 value)
- /**
-  * struct idma64_chip - representation of iDMA 64-bit controller hardware
-  * @dev:		struct device of the DMA controller
-+ * @sysdev:		struct device of the physical device that does DMA
-  * @irq:		irq line
-  * @regs:		memory mapped I/O space
-  * @idma64:		struct idma64 that is filed by idma64_probe()
-  */
- struct idma64_chip {
- 	struct device	*dev;
-+	struct device	*sysdev;
- 	int		irq;
- 	void __iomem	*regs;
- 	struct idma64	*idma64;
-diff --git a/drivers/spi/spi-pxa2xx.c b/drivers/spi/spi-pxa2xx.c
-index 729be74621e3..f41333817c50 100644
---- a/drivers/spi/spi-pxa2xx.c
-+++ b/drivers/spi/spi-pxa2xx.c
-@@ -1416,12 +1416,7 @@ static const struct pci_device_id pxa2xx_spi_pci_compound_match[] = {
- 
- static bool pxa2xx_spi_idma_filter(struct dma_chan *chan, void *param)
- {
--	struct device *dev = param;
+--- a/drivers/gpu/drm/nouveau/Kconfig
++++ b/drivers/gpu/drm/nouveau/Kconfig
+@@ -16,20 +16,9 @@ config DRM_NOUVEAU
+ 	select INPUT if ACPI && X86
+ 	select THERMAL if ACPI && X86
+ 	select ACPI_VIDEO if ACPI && X86
+-	help
+-	  Choose this option for open-source NVIDIA support.
 -
--	if (dev != chan->device->dev->parent)
--		return false;
--
--	return true;
-+	return param == chan->device->dev;
- }
+-config NOUVEAU_LEGACY_CTX_SUPPORT
+-	bool "Nouveau legacy context support"
+-	depends on DRM_NOUVEAU
+ 	select DRM_VM
+-	default y
+ 	help
+-	  There was a version of the nouveau DDX that relied on legacy
+-	  ctx ioctls not erroring out. But that was back in time a long
+-	  ways, so offer a way to disable it now. For uapi compat with
+-	  old nouveau ddx this should be on by default, but modern distros
+-	  should consider turning it off.
++	  Choose this option for open-source NVIDIA support.
  
- static struct pxa2xx_spi_master *
-diff --git a/drivers/tty/serial/8250/8250_dw.c b/drivers/tty/serial/8250/8250_dw.c
-index d31b975dd3fd..284e8d052fc3 100644
---- a/drivers/tty/serial/8250/8250_dw.c
-+++ b/drivers/tty/serial/8250/8250_dw.c
-@@ -365,7 +365,7 @@ static bool dw8250_fallback_dma_filter(struct dma_chan *chan, void *param)
+ config NOUVEAU_PLATFORM_DRIVER
+ 	bool "Nouveau (NVIDIA) SoC GPUs"
+--- a/drivers/gpu/drm/nouveau/nouveau_drm.c
++++ b/drivers/gpu/drm/nouveau/nouveau_drm.c
+@@ -967,11 +967,8 @@ nouveau_driver_fops = {
+ static struct drm_driver
+ driver_stub = {
+ 	.driver_features =
+-		DRIVER_GEM | DRIVER_MODESET | DRIVER_PRIME | DRIVER_RENDER
+-#if defined(CONFIG_NOUVEAU_LEGACY_CTX_SUPPORT)
+-		| DRIVER_KMS_LEGACY_CONTEXT
+-#endif
+-		,
++		DRIVER_GEM | DRIVER_MODESET | DRIVER_PRIME | DRIVER_RENDER |
++		DRIVER_KMS_LEGACY_CONTEXT,
  
- static bool dw8250_idma_filter(struct dma_chan *chan, void *param)
- {
--	return param == chan->device->dev->parent;
-+	return param == chan->device->dev;
- }
- 
- /*
-@@ -434,7 +434,7 @@ static void dw8250_quirks(struct uart_port *p, struct dw8250_data *data)
- 		data->uart_16550_compatible = true;
- 	}
- 
--	/* Platforms with iDMA */
-+	/* Platforms with iDMA 64-bit */
- 	if (platform_get_resource_byname(to_platform_device(p->dev),
- 					 IORESOURCE_MEM, "lpss_priv")) {
- 		data->dma.rx_param = p->dev->parent;
--- 
-2.20.1
-
+ 	.load = nouveau_drm_load,
+ 	.unload = nouveau_drm_unload,
 
 
