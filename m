@@ -2,38 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E5EF7440A5
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:09:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D8B64425D
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:22:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727083AbfFMQIL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:08:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34008 "EHLO mail.kernel.org"
+        id S1731057AbfFMQVt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:21:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731293AbfFMIpQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:45:16 -0400
+        id S1731054AbfFMIik (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:38:40 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 6FC5020851;
-        Thu, 13 Jun 2019 08:45:15 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 49F0B2147A;
+        Thu, 13 Jun 2019 08:38:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415515;
-        bh=RyQfi8PifalqsZTXPrVVALQ1aLa+4Pwc5y07uBkObAM=;
+        s=default; t=1560415119;
+        bh=JpX2HqfV0kfphin4vUFM4wFsB69DCZ4xUn8eM4NjeXE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i+8S2E0Gr+a5W6xQ7ZEqFhD+poyJgE4wLMHm8cNdje6O0Alg36uGzudKMHzqqemZt
-         EFEEhgptgRqbLpUjZ2OgE6aPKRx7iNTBTMH+xQd2CtHuDBmPMPD6UtZdZNySLALsDy
-         g6SExICAZkt9b0UtU2glfJn2pOhPKA4RcTaefKf0=
+        b=bP58H/xn7K9cvw9hMgPeAkdAqTLiKCsQexxu41nm4DQ4vfb/r+nIN2QKihhg1GKQc
+         em7j9R/tCyzRCbfpo8svKvz2k32rXh0frDlwWRgXchZm+Yea7agMMM2hj9t1VPVZlU
+         z8uoGDxQqYUDLBmY4jsTZn8thDT6KydWNKnKNgmE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Skeggs <bskeggs@redhat.com>,
+        stable@vger.kernel.org, Christian Brauner <christian@brauner.io>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Joe Lawrence <joe.lawrence@redhat.com>,
+        Waiman Long <longman@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 029/155] drm/nouveau/disp/dp: respect sink limits when selecting failsafe link configuration
+Subject: [PATCH 4.19 003/118] sysctl: return -EINVAL if val violates minmax
 Date:   Thu, 13 Jun 2019 10:32:21 +0200
-Message-Id: <20190613075654.544378169@linuxfoundation.org>
+Message-Id: <20190613075643.856357641@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
-References: <20190613075652.691765927@linuxfoundation.org>
+In-Reply-To: <20190613075643.642092651@linuxfoundation.org>
+References: <20190613075643.642092651@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,43 +53,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 13d03e9daf70dab032c03dc172e75bb98ad899c4 ]
+[ Upstream commit e260ad01f0aa9e96b5386d5cd7184afd949dc457 ]
 
-Where possible, we want the failsafe link configuration (one which won't
-hang the OR during modeset because of not enough bandwidth for the mode)
-to also be supported by the sink.
+Currently when userspace gives us a values that overflow e.g.  file-max
+and other callers of __do_proc_doulongvec_minmax() we simply ignore the
+new value and leave the current value untouched.
 
-This prevents "link rate unsupported by sink" messages when link training
-fails.
+This can be problematic as it gives the illusion that the limit has
+indeed be bumped when in fact it failed.  This commit makes sure to
+return EINVAL when an overflow is detected.  Please note that this is a
+userspace facing change.
 
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+Link: http://lkml.kernel.org/r/20190210203943.8227-4-christian@brauner.io
+Signed-off-by: Christian Brauner <christian@brauner.io>
+Acked-by: Luis Chamberlain <mcgrof@kernel.org>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Dominik Brodowski <linux@dominikbrodowski.net>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Joe Lawrence <joe.lawrence@redhat.com>
+Cc: Waiman Long <longman@redhat.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/nouveau/nvkm/engine/disp/dp.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ kernel/sysctl.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/disp/dp.c b/drivers/gpu/drm/nouveau/nvkm/engine/disp/dp.c
-index 5f301e632599..818d21bd28d3 100644
---- a/drivers/gpu/drm/nouveau/nvkm/engine/disp/dp.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/engine/disp/dp.c
-@@ -365,8 +365,15 @@ nvkm_dp_train(struct nvkm_dp *dp, u32 dataKBps)
- 	 * and it's better to have a failed modeset than that.
- 	 */
- 	for (cfg = nvkm_dp_rates; cfg->rate; cfg++) {
--		if (cfg->nr <= outp_nr && cfg->nr <= outp_bw)
--			failsafe = cfg;
-+		if (cfg->nr <= outp_nr && cfg->nr <= outp_bw) {
-+			/* Try to respect sink limits too when selecting
-+			 * lowest link configuration.
-+			 */
-+			if (!failsafe ||
-+			    (cfg->nr <= sink_nr && cfg->bw <= sink_bw))
-+				failsafe = cfg;
-+		}
-+
- 		if (failsafe && cfg[1].rate < dataKBps)
- 			break;
- 	}
+diff --git a/kernel/sysctl.c b/kernel/sysctl.c
+index 9a85c7ae7362..f8576509c7be 100644
+--- a/kernel/sysctl.c
++++ b/kernel/sysctl.c
+@@ -2791,8 +2791,10 @@ static int __do_proc_doulongvec_minmax(void *data, struct ctl_table *table, int
+ 			if (neg)
+ 				continue;
+ 			val = convmul * val / convdiv;
+-			if ((min && val < *min) || (max && val > *max))
+-				continue;
++			if ((min && val < *min) || (max && val > *max)) {
++				err = -EINVAL;
++				break;
++			}
+ 			*i = val;
+ 		} else {
+ 			val = convdiv * (*i) / convmul;
 -- 
 2.20.1
 
