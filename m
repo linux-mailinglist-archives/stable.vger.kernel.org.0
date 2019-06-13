@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 00B3C4406E
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:06:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFA4244242
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:22:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731318AbfFMQGZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:06:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34768 "EHLO mail.kernel.org"
+        id S1732769AbfFMQUf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:20:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56714 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731324AbfFMIqJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:46:09 -0400
+        id S1731073AbfFMIjL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:39:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 626C121743;
-        Thu, 13 Jun 2019 08:46:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F13F321473;
+        Thu, 13 Jun 2019 08:39:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415567;
-        bh=YQUflJc2V7Jfp6P/IYbSYenUtJTG5Ea+WwpWolfry0Q=;
+        s=default; t=1560415151;
+        bh=qGO+q+JsVVgwAlTKu7uvOt2zufFjhDx4vTWoTvVnsxg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=acq09hVI5kdi3PiswDqJnX3pxxji9lBws3wnFjqPdrI4dawImRIqokJ1qRxaJHOuV
-         ocoatuQ116mz2umevpV53bJyMOHMQULtcUzVunfuZnDOxSNyUHNlqS4BnjAID8WwVI
-         qICf9uBFAAiYhXFfoX01gQaxbZdESIp9J1LGEGRU=
+        b=tvrPz7awDbudRsB+ZC7POLpppIhJ7gL0hi2NsJICqBzPnARcZdxyZmEvNqsXX2+JO
+         mecLlBYs0YVJq0Y8yEld4XFG+ez8lrMQPeZ71BVhMxT3DLL4oUQUOnCy0LOEUDovoy
+         Ymtl2l8b7ORPjSSwRmhxEYiA3VRL3aF7nienxMYQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
+        Peter Ujfalusi <peter.ujfalusi@ti.com>,
+        Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 048/155] f2fs: fix to avoid panic in dec_valid_block_count()
+Subject: [PATCH 4.19 022/118] mfd: twl6040: Fix device init errors for ACCCTL register
 Date:   Thu, 13 Jun 2019 10:32:40 +0200
-Message-Id: <20190613075655.817813091@linuxfoundation.org>
+Message-Id: <20190613075644.859029179@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
-References: <20190613075652.691765927@linuxfoundation.org>
+In-Reply-To: <20190613075643.642092651@linuxfoundation.org>
+References: <20190613075643.642092651@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,92 +45,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 5e159cd349bf3a31fb7e35c23a93308eb30f4f71 ]
+[ Upstream commit 48171d0ea7caccf21c9ee3ae75eb370f2a756062 ]
 
-As Jungyeon reported in bugzilla:
+I noticed that we can get a -EREMOTEIO errors on at least omap4 duovero:
 
-https://bugzilla.kernel.org/show_bug.cgi?id=203209
+twl6040 0-004b: Failed to write 2d = 19: -121
 
-- Overview
-When mounting the attached crafted image and running program, I got this error.
-Additionally, it hangs on sync after the this script.
+And then any following register access will produce errors.
 
-The image is intentionally fuzzed from a normal f2fs image for testing and I enabled option CONFIG_F2FS_CHECK_FS on.
+There 2d offset above is register ACCCTL that gets written on twl6040
+powerup. With error checking added to the related regcache_sync() call,
+the -EREMOTEIO error is reproducable on twl6040 powerup at least
+duovero.
 
-- Reproduces
-cc poc_01.c
-./run.sh f2fs
-sync
+To fix the error, we need to wait until twl6040 is accessible after the
+powerup. Based on tests on omap4 duovero, we need to wait over 8ms after
+powerup before register write will complete without failures. Let's also
+make sure we warn about possible errors too.
 
- kernel BUG at fs/f2fs/f2fs.h:1788!
- RIP: 0010:f2fs_truncate_data_blocks_range+0x342/0x350
- Call Trace:
-  f2fs_truncate_blocks+0x36d/0x3c0
-  f2fs_truncate+0x88/0x110
-  f2fs_setattr+0x3e1/0x460
-  notify_change+0x2da/0x400
-  do_truncate+0x6d/0xb0
-  do_sys_ftruncate+0xf1/0x160
-  do_syscall_64+0x43/0xf0
-  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+Note that we have twl6040_patch[] reg_sequence with the ACCCTL register
+configuration and regcache_sync() will write the new value to ACCCTL.
 
-The reason is dec_valid_block_count() will trigger kernel panic due to
-inconsistent count in between inode.i_blocks and actual block.
-
-To avoid panic, let's just print debug message and set SBI_NEED_FSCK to
-give a hint to fsck for latter repairing.
-
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-[Jaegeuk Kim: fix build warning and add unlikely]
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Acked-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/f2fs.h | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/mfd/twl6040.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
-index 7bea1bc6589f..74f06f12110f 100644
---- a/fs/f2fs/f2fs.h
-+++ b/fs/f2fs/f2fs.h
-@@ -1789,6 +1789,7 @@ enospc:
- 	return -ENOSPC;
- }
+diff --git a/drivers/mfd/twl6040.c b/drivers/mfd/twl6040.c
+index dd19f17a1b63..2b8c479dbfa6 100644
+--- a/drivers/mfd/twl6040.c
++++ b/drivers/mfd/twl6040.c
+@@ -322,8 +322,19 @@ int twl6040_power(struct twl6040 *twl6040, int on)
+ 			}
+ 		}
  
-+void f2fs_msg(struct super_block *sb, const char *level, const char *fmt, ...);
- static inline void dec_valid_block_count(struct f2fs_sb_info *sbi,
- 						struct inode *inode,
- 						block_t count)
-@@ -1797,13 +1798,21 @@ static inline void dec_valid_block_count(struct f2fs_sb_info *sbi,
++		/*
++		 * Register access can produce errors after power-up unless we
++		 * wait at least 8ms based on measurements on duovero.
++		 */
++		usleep_range(10000, 12000);
++
+ 		/* Sync with the HW */
+-		regcache_sync(twl6040->regmap);
++		ret = regcache_sync(twl6040->regmap);
++		if (ret) {
++			dev_err(twl6040->dev, "Failed to sync with the HW: %i\n",
++				ret);
++			goto out;
++		}
  
- 	spin_lock(&sbi->stat_lock);
- 	f2fs_bug_on(sbi, sbi->total_valid_block_count < (block_t) count);
--	f2fs_bug_on(sbi, inode->i_blocks < sectors);
- 	sbi->total_valid_block_count -= (block_t)count;
- 	if (sbi->reserved_blocks &&
- 		sbi->current_reserved_blocks < sbi->reserved_blocks)
- 		sbi->current_reserved_blocks = min(sbi->reserved_blocks,
- 					sbi->current_reserved_blocks + count);
- 	spin_unlock(&sbi->stat_lock);
-+	if (unlikely(inode->i_blocks < sectors)) {
-+		f2fs_msg(sbi->sb, KERN_WARNING,
-+			"Inconsistent i_blocks, ino:%lu, iblocks:%llu, sectors:%llu",
-+			inode->i_ino,
-+			(unsigned long long)inode->i_blocks,
-+			(unsigned long long)sectors);
-+		set_sbi_flag(sbi, SBI_NEED_FSCK);
-+		return;
-+	}
- 	f2fs_i_blocks_write(inode, count, false, true);
- }
- 
-@@ -2817,7 +2826,6 @@ static inline void f2fs_update_iostat(struct f2fs_sb_info *sbi,
- 
- bool f2fs_is_valid_blkaddr(struct f2fs_sb_info *sbi,
- 					block_t blkaddr, int type);
--void f2fs_msg(struct super_block *sb, const char *level, const char *fmt, ...);
- static inline void verify_blkaddr(struct f2fs_sb_info *sbi,
- 					block_t blkaddr, int type)
- {
+ 		/* Default PLL configuration after power up */
+ 		twl6040->pll = TWL6040_SYSCLK_SEL_LPPLL;
 -- 
 2.20.1
 
