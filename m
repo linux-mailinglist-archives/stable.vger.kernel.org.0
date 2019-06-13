@@ -2,46 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id F22264421F
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:20:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2386044096
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:07:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388614AbfFMQTf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:19:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57300 "EHLO mail.kernel.org"
+        id S1732061AbfFMQHJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:07:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731092AbfFMIjv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:39:51 -0400
+        id S1731305AbfFMIpg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:45:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 90FB520851;
-        Thu, 13 Jun 2019 08:39:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3597E2173C;
+        Thu, 13 Jun 2019 08:45:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415191;
-        bh=Oj9lC4E4fNDIiLHZLgNIyB1OHsCLkEcjAQZIg2Zh/UM=;
+        s=default; t=1560415535;
+        bh=DOgLhY7Ndb490Cu9eMS6Sn6ICuXyTtW1a/l7jx7auDc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PSvk08vYCjY+X83ni7p+IHZs53C7tmmJK/kXb1kLOJKrMqt0pPrQUkJfv8FnTcrdc
-         KNQIhB2e5YtE74a0erjZNUyttLe5k1fJvonchxvldgdfOqvMMucOHdPuGbnQoe+SdW
-         yNFqFCzyr9rIcKbc1T5D7oZQrVBW9i5G97uim3R0=
+        b=SPOCI251K3vX23EU++BOzlaX488YxQJgPsCb9OU85gc/9hPyZaJQaNxx/rqLM5Y6f
+         rut7eTunA9umPzcQOQ1iHLrH0Xmk/gA2Bi90RSrk0MidJOrYizny3r71EqTHqz1ONQ
+         nDCrn5ywhUJDYzkY9UO/IPpOyvpcT3nKhoaAW7F0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linxu Fang <fanglinxu@huawei.com>,
-        Taku Izumi <izumi.taku@jp.fujitsu.com>,
-        Xishi Qiu <qiuxishi@huawei.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Pavel Tatashin <pavel.tatashin@microsoft.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@redhat.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 009/118] mem-hotplug: fix node spanned pages when we have a node with only ZONE_MOVABLE
+        Peter Zijlstra <peterz@infradead.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 035/155] objtool: Dont use ignore flag for fake jumps
 Date:   Thu, 13 Jun 2019 10:32:27 +0200
-Message-Id: <20190613075644.223755562@linuxfoundation.org>
+Message-Id: <20190613075655.022431009@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075643.642092651@linuxfoundation.org>
-References: <20190613075643.642092651@linuxfoundation.org>
+In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
+References: <20190613075652.691765927@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,109 +46,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 299c83dce9ea3a79bb4b5511d2cb996b6b8e5111 ]
+[ Upstream commit e6da9567959e164f82bc81967e0d5b10dee870b4 ]
 
-342332e6a925 ("mm/page_alloc.c: introduce kernelcore=mirror option") and
-later patches rewrote the calculation of node spanned pages.
+The ignore flag is set on fake jumps in order to keep
+add_jump_destinations() from setting their jump_dest, since it already
+got set when the fake jump was created.
 
-e506b99696a2 ("mem-hotplug: fix node spanned pages when we have a movable
-node"), but the current code still has problems,
+But using the ignore flag is a bit of a hack.  It's normally used to
+skip validation of an instruction, which doesn't really make sense for
+fake jumps.
 
-When we have a node with only zone_movable and the node id is not zero,
-the size of node spanned pages is double added.
+Also, after the next patch, using the ignore flag for fake jumps can
+trigger a false "why am I validating an ignored function?" warning.
 
-That's because we have an empty normal zone, and zone_start_pfn or
-zone_end_pfn is not between arch_zone_lowest_possible_pfn and
-arch_zone_highest_possible_pfn, so we need to use clamp to constrain the
-range just like the commit <96e907d13602> (bootmem: Reimplement
-__absent_pages_in_range() using for_each_mem_pfn_range()).
+Instead just add an explicit check in add_jump_destinations() to skip
+fake jumps.
 
-e.g.
-Zone ranges:
-  DMA      [mem 0x0000000000001000-0x0000000000ffffff]
-  DMA32    [mem 0x0000000001000000-0x00000000ffffffff]
-  Normal   [mem 0x0000000100000000-0x000000023fffffff]
-Movable zone start for each node
-  Node 0: 0x0000000100000000
-  Node 1: 0x0000000140000000
-Early memory node ranges
-  node   0: [mem 0x0000000000001000-0x000000000009efff]
-  node   0: [mem 0x0000000000100000-0x00000000bffdffff]
-  node   0: [mem 0x0000000100000000-0x000000013fffffff]
-  node   1: [mem 0x0000000140000000-0x000000023fffffff]
-
-node 0 DMA	spanned:0xfff   present:0xf9e   absent:0x61
-node 0 DMA32	spanned:0xff000 present:0xbefe0	absent:0x40020
-node 0 Normal	spanned:0	present:0	absent:0
-node 0 Movable	spanned:0x40000 present:0x40000 absent:0
-On node 0 totalpages(node_present_pages): 1048446
-node_spanned_pages:1310719
-node 1 DMA	spanned:0	    present:0		absent:0
-node 1 DMA32	spanned:0	    present:0		absent:0
-node 1 Normal	spanned:0x100000    present:0x100000	absent:0
-node 1 Movable	spanned:0x100000    present:0x100000	absent:0
-On node 1 totalpages(node_present_pages): 2097152
-node_spanned_pages:2097152
-Memory: 6967796K/12582392K available (16388K kernel code, 3686K rwdata,
-4468K rodata, 2160K init, 10444K bss, 5614596K reserved, 0K
-cma-reserved)
-
-It shows that the current memory of node 1 is double added.
-After this patch, the problem is fixed.
-
-node 0 DMA	spanned:0xfff   present:0xf9e   absent:0x61
-node 0 DMA32	spanned:0xff000 present:0xbefe0	absent:0x40020
-node 0 Normal	spanned:0	present:0	absent:0
-node 0 Movable	spanned:0x40000 present:0x40000 absent:0
-On node 0 totalpages(node_present_pages): 1048446
-node_spanned_pages:1310719
-node 1 DMA	spanned:0	    present:0		absent:0
-node 1 DMA32	spanned:0	    present:0		absent:0
-node 1 Normal	spanned:0	    present:0		absent:0
-node 1 Movable	spanned:0x100000    present:0x100000	absent:0
-On node 1 totalpages(node_present_pages): 1048576
-node_spanned_pages:1048576
-memory: 6967796K/8388088K available (16388K kernel code, 3686K rwdata,
-4468K rodata, 2160K init, 10444K bss, 1420292K reserved, 0K
-cma-reserved)
-
-Link: http://lkml.kernel.org/r/1554178276-10372-1-git-send-email-fanglinxu@huawei.com
-Signed-off-by: Linxu Fang <fanglinxu@huawei.com>
-Cc: Taku Izumi <izumi.taku@jp.fujitsu.com>
-Cc: Xishi Qiu <qiuxishi@huawei.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Pavel Tatashin <pavel.tatashin@microsoft.com>
-Cc: Oscar Salvador <osalvador@suse.de>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Link: http://lkml.kernel.org/r/71abc072ff48b2feccc197723a9c52859476c068.1557766718.git.jpoimboe@redhat.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/page_alloc.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ tools/objtool/check.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 8e6932a140b8..2d04bd2e1ced 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -5937,13 +5937,15 @@ static unsigned long __meminit zone_spanned_pages_in_node(int nid,
- 					unsigned long *zone_end_pfn,
- 					unsigned long *ignored)
- {
-+	unsigned long zone_low = arch_zone_lowest_possible_pfn[zone_type];
-+	unsigned long zone_high = arch_zone_highest_possible_pfn[zone_type];
- 	/* When hotadd a new node from cpu_up(), the node should be empty */
- 	if (!node_start_pfn && !node_end_pfn)
- 		return 0;
+diff --git a/tools/objtool/check.c b/tools/objtool/check.c
+index 2cd57730381b..ecf5fc77f50b 100644
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -28,6 +28,8 @@
+ #include <linux/hashtable.h>
+ #include <linux/kernel.h>
  
- 	/* Get the start and end of the zone */
--	*zone_start_pfn = arch_zone_lowest_possible_pfn[zone_type];
--	*zone_end_pfn = arch_zone_highest_possible_pfn[zone_type];
-+	*zone_start_pfn = clamp(node_start_pfn, zone_low, zone_high);
-+	*zone_end_pfn = clamp(node_end_pfn, zone_low, zone_high);
- 	adjust_zone_range_for_zone_movable(nid, zone_type,
- 				node_start_pfn, node_end_pfn,
- 				zone_start_pfn, zone_end_pfn);
++#define FAKE_JUMP_OFFSET -1
++
+ struct alternative {
+ 	struct list_head list;
+ 	struct instruction *insn;
+@@ -501,7 +503,7 @@ static int add_jump_destinations(struct objtool_file *file)
+ 		    insn->type != INSN_JUMP_UNCONDITIONAL)
+ 			continue;
+ 
+-		if (insn->ignore)
++		if (insn->ignore || insn->offset == FAKE_JUMP_OFFSET)
+ 			continue;
+ 
+ 		rela = find_rela_by_dest_range(insn->sec, insn->offset,
+@@ -670,10 +672,10 @@ static int handle_group_alt(struct objtool_file *file,
+ 		clear_insn_state(&fake_jump->state);
+ 
+ 		fake_jump->sec = special_alt->new_sec;
+-		fake_jump->offset = -1;
++		fake_jump->offset = FAKE_JUMP_OFFSET;
+ 		fake_jump->type = INSN_JUMP_UNCONDITIONAL;
+ 		fake_jump->jump_dest = list_next_entry(last_orig_insn, list);
+-		fake_jump->ignore = true;
++		fake_jump->func = orig_insn->func;
+ 	}
+ 
+ 	if (!special_alt->new_len) {
 -- 
 2.20.1
 
