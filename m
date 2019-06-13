@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A00DD44355
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:30:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A357D44023
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:03:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389710AbfFMQ2o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:28:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53368 "EHLO mail.kernel.org"
+        id S1728985AbfFMQDQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:03:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35786 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730943AbfFMIfm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:35:42 -0400
+        id S1731387AbfFMIrf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:47:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 70D5220851;
-        Thu, 13 Jun 2019 08:35:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A93C1206BA;
+        Thu, 13 Jun 2019 08:47:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560414940;
-        bh=syq1Gx9UY15BZ1F/DXaJMoqRWfqNyuoQf1lqnzj7ODI=;
+        s=default; t=1560415655;
+        bh=pjnwfwGiJYutj18puiYrP3QmViEjlCpeHyEpfC+fZKo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HmAHqk+o2QISpn3CTT+qhPZ7tqohQ3DDd5Y+G7wTFR7o3hchoQ6eFJE1bx8h9Qt1m
-         53jlRsWWrd4WILrjPIDpeo/HCLHGYJCvCdjBxcBu4CFsNwsf71mR3Btqma0/1dwin5
-         o/gPtrNgbVD4dbUrycxKvoKk0GVHJkH989Rt93sA=
+        b=qJn24IPU06ukPgXuwepQoPELz4bz1aumLlEbVASaHK0w9UnD9ieydQqNBNswZpHcj
+         x3hGs6Bv3pYNonHVBOSz/9fAwdXe4qEMKLN7qzHXnlyNr08UnyZsAJC0yIaD323x+4
+         qn1RobflhphGHxYg0GStYNARgfhZoH/KZ0fXNwmI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 28/81] f2fs: fix to avoid panic in dec_valid_block_count()
+        stable@vger.kernel.org, Liwei Song <liwei.song@windriver.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 079/155] ALSA: hda - Register irq handler after the chip initialization
 Date:   Thu, 13 Jun 2019 10:33:11 +0200
-Message-Id: <20190613075651.205726912@linuxfoundation.org>
+Message-Id: <20190613075657.448190480@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075649.074682929@linuxfoundation.org>
-References: <20190613075649.074682929@linuxfoundation.org>
+In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
+References: <20190613075652.691765927@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,88 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 5e159cd349bf3a31fb7e35c23a93308eb30f4f71 ]
+[ Upstream commit f495222e28275222ab6fd93813bd3d462e16d340 ]
 
-As Jungyeon reported in bugzilla:
+Currently the IRQ handler in HD-audio controller driver is registered
+before the chip initialization.  That is, we have some window opened
+between the azx_acquire_irq() call and the CORB/RIRB setup.  If an
+interrupt is triggered in this small window, the IRQ handler may
+access to the uninitialized RIRB buffer, which leads to a NULL
+dereference Oops.
 
-https://bugzilla.kernel.org/show_bug.cgi?id=203209
+This is usually no big problem since most of Intel chips do register
+the IRQ via MSI, and we've already fixed the order of the IRQ
+enablement and the CORB/RIRB setup in the former commit b61749a89f82
+("sound: enable interrupt after dma buffer initialization"), hence the
+IRQ won't be triggered in that room.  However, some platforms use a
+shared IRQ, and this may allow the IRQ trigger by another source.
 
-- Overview
-When mounting the attached crafted image and running program, I got this error.
-Additionally, it hangs on sync after the this script.
+Another possibility is the kdump environment: a stale interrupt might
+be present in there, the IRQ handler can be falsely triggered as well.
 
-The image is intentionally fuzzed from a normal f2fs image for testing and I enabled option CONFIG_F2FS_CHECK_FS on.
+For covering this small race, let's move the azx_acquire_irq() call
+after hda_intel_init_chip() call.  Although this is a bit radical
+change, it can cover more widely than checking the CORB/RIRB setup
+locally in the callee side.
 
-- Reproduces
-cc poc_01.c
-./run.sh f2fs
-sync
-
- kernel BUG at fs/f2fs/f2fs.h:1788!
- RIP: 0010:f2fs_truncate_data_blocks_range+0x342/0x350
- Call Trace:
-  f2fs_truncate_blocks+0x36d/0x3c0
-  f2fs_truncate+0x88/0x110
-  f2fs_setattr+0x3e1/0x460
-  notify_change+0x2da/0x400
-  do_truncate+0x6d/0xb0
-  do_sys_ftruncate+0xf1/0x160
-  do_syscall_64+0x43/0xf0
-  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-The reason is dec_valid_block_count() will trigger kernel panic due to
-inconsistent count in between inode.i_blocks and actual block.
-
-To avoid panic, let's just print debug message and set SBI_NEED_FSCK to
-give a hint to fsck for latter repairing.
-
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-[Jaegeuk Kim: fix build warning and add unlikely]
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Reported-by: Liwei Song <liwei.song@windriver.com>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/f2fs.h | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ sound/pci/hda/hda_intel.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
-index 406d93b51a0b..6caae471c1a4 100644
---- a/fs/f2fs/f2fs.h
-+++ b/fs/f2fs/f2fs.h
-@@ -1550,6 +1550,7 @@ enospc:
- 	return -ENOSPC;
- }
+diff --git a/sound/pci/hda/hda_intel.c b/sound/pci/hda/hda_intel.c
+index 2ec91085fa3e..789308f54785 100644
+--- a/sound/pci/hda/hda_intel.c
++++ b/sound/pci/hda/hda_intel.c
+@@ -1788,9 +1788,6 @@ static int azx_first_init(struct azx *chip)
+ 			chip->msi = 0;
+ 	}
  
-+void f2fs_msg(struct super_block *sb, const char *level, const char *fmt, ...);
- static inline void dec_valid_block_count(struct f2fs_sb_info *sbi,
- 						struct inode *inode,
- 						block_t count)
-@@ -1558,9 +1559,17 @@ static inline void dec_valid_block_count(struct f2fs_sb_info *sbi,
+-	if (azx_acquire_irq(chip, 0) < 0)
+-		return -EBUSY;
+-
+ 	pci_set_master(pci);
+ 	synchronize_irq(bus->irq);
  
- 	spin_lock(&sbi->stat_lock);
- 	f2fs_bug_on(sbi, sbi->total_valid_block_count < (block_t) count);
--	f2fs_bug_on(sbi, inode->i_blocks < sectors);
- 	sbi->total_valid_block_count -= (block_t)count;
- 	spin_unlock(&sbi->stat_lock);
-+	if (unlikely(inode->i_blocks < sectors)) {
-+		f2fs_msg(sbi->sb, KERN_WARNING,
-+			"Inconsistent i_blocks, ino:%lu, iblocks:%llu, sectors:%llu",
-+			inode->i_ino,
-+			(unsigned long long)inode->i_blocks,
-+			(unsigned long long)sectors);
-+		set_sbi_flag(sbi, SBI_NEED_FSCK);
-+		return;
-+	}
- 	f2fs_i_blocks_write(inode, count, false, true);
- }
+@@ -1904,6 +1901,9 @@ static int azx_first_init(struct azx *chip)
+ 		return -ENODEV;
+ 	}
  
-@@ -2382,7 +2391,6 @@ static inline void f2fs_update_iostat(struct f2fs_sb_info *sbi,
- 
- bool f2fs_is_valid_blkaddr(struct f2fs_sb_info *sbi,
- 					block_t blkaddr, int type);
--void f2fs_msg(struct super_block *sb, const char *level, const char *fmt, ...);
- static inline void verify_blkaddr(struct f2fs_sb_info *sbi,
- 					block_t blkaddr, int type)
- {
++	if (azx_acquire_irq(chip, 0) < 0)
++		return -EBUSY;
++
+ 	strcpy(card->driver, "HDA-Intel");
+ 	strlcpy(card->shortname, driver_short_names[chip->driver_type],
+ 		sizeof(card->shortname));
 -- 
 2.20.1
 
