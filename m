@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E8614404A
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:05:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3C88442EA
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:27:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727721AbfFMQEg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:04:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35296 "EHLO mail.kernel.org"
+        id S1730965AbfFMQ1C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:27:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731353AbfFMIq4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:46:56 -0400
+        id S1730955AbfFMIgF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:36:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D86062173C;
-        Thu, 13 Jun 2019 08:46:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 710622146F;
+        Thu, 13 Jun 2019 08:36:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415615;
-        bh=VbiQpM1EDRF7mWpHDc7VlyU2NWnMot2MNCxyXyGDy2Q=;
+        s=default; t=1560414964;
+        bh=KFmKbMzbqMdgqSnxRIGjU1wMXvOhDCsWyJDQCxjA+KM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bfGeaXHtWWAFaIiCxVQxeWEySeIRnQW0w8AAVUB/owqvR82ZfUlRTLFrn4dME6YEV
-         AbZ/kr6lKPyXVKtBlFs1vZF+M48v/zBk7XL3fL+XGnJrqSD/l9C+W7YJpXhPnbjRyM
-         BASFlzmrIFmdtRO2QnjR5VSsoysLqsS2aTqlOtRU=
+        b=0CpMoadIFDbbr+w4pR0ax1HqWr7q83w6/6VS9l0oDbwYFLbr0+kDnitDF8FA/ZXoY
+         vD96Sm/RtW8JB7a7D8mtqwqXHRCFwfwNWm5Oa7HILI6etRaVzvgdV9CR6RGJMTM2zj
+         mLxGl8edBRB2Drcu8HJQsiJAsns8OyS5/0s0WQF4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Cyrill Gorcunov <gorcunov@gmail.com>,
+        Andrey Vagin <avagin@gmail.com>,
+        Dmitry Safonov <0x7f454c46@gmail.com>,
+        Pavel Emelyanov <xemul@virtuozzo.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 064/155] netfilter: nf_flow_table: fix missing error check for rhashtable_insert_fast
+Subject: [PATCH 4.14 13/81] kernel/sys.c: prctl: fix false positive in validate_prctl_map()
 Date:   Thu, 13 Jun 2019 10:32:56 +0200
-Message-Id: <20190613075656.612439190@linuxfoundation.org>
+Message-Id: <20190613075650.048932735@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
-References: <20190613075652.691765927@linuxfoundation.org>
+In-Reply-To: <20190613075649.074682929@linuxfoundation.org>
+References: <20190613075649.074682929@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,57 +48,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 43c8f131184faf20c07221f3e09724611c6525d8 ]
+[ Upstream commit a9e73998f9d705c94a8dca9687633adc0f24a19a ]
 
-rhashtable_insert_fast() may return an error value when memory
-allocation fails, but flow_offload_add() does not check for errors.
-This patch just adds missing error checking.
+While validating new map we require the @start_data to be strictly less
+than @end_data, which is fine for regular applications (this is why this
+nit didn't trigger for that long).  These members are set from executable
+loaders such as elf handers, still it is pretty valid to have a loadable
+data section with zero size in file, in such case the start_data is equal
+to end_data once kernel loader finishes.
 
-Fixes: ac2a66665e23 ("netfilter: add generic flow table infrastructure")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+As a result when we're trying to restore such programs the procedure fails
+and the kernel returns -EINVAL.  From the image dump of a program:
+
+ | "mm_start_code": "0x400000",
+ | "mm_end_code": "0x8f5fb4",
+ | "mm_start_data": "0xf1bfb0",
+ | "mm_end_data": "0xf1bfb0",
+
+Thus we need to change validate_prctl_map from strictly less to less or
+equal operator use.
+
+Link: http://lkml.kernel.org/r/20190408143554.GY1421@uranus.lan
+Fixes: f606b77f1a9e3 ("prctl: PR_SET_MM -- introduce PR_SET_MM_MAP operation")
+Signed-off-by: Cyrill Gorcunov <gorcunov@gmail.com>
+Cc: Andrey Vagin <avagin@gmail.com>
+Cc: Dmitry Safonov <0x7f454c46@gmail.com>
+Cc: Pavel Emelyanov <xemul@virtuozzo.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_flow_table_core.c | 25 ++++++++++++++++++-------
- 1 file changed, 18 insertions(+), 7 deletions(-)
+ kernel/sys.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/netfilter/nf_flow_table_core.c b/net/netfilter/nf_flow_table_core.c
-index 7aabfd4b1e50..a9e4f74b1ff6 100644
---- a/net/netfilter/nf_flow_table_core.c
-+++ b/net/netfilter/nf_flow_table_core.c
-@@ -185,14 +185,25 @@ static const struct rhashtable_params nf_flow_offload_rhash_params = {
- 
- int flow_offload_add(struct nf_flowtable *flow_table, struct flow_offload *flow)
- {
--	flow->timeout = (u32)jiffies;
-+	int err;
- 
--	rhashtable_insert_fast(&flow_table->rhashtable,
--			       &flow->tuplehash[FLOW_OFFLOAD_DIR_ORIGINAL].node,
--			       nf_flow_offload_rhash_params);
--	rhashtable_insert_fast(&flow_table->rhashtable,
--			       &flow->tuplehash[FLOW_OFFLOAD_DIR_REPLY].node,
--			       nf_flow_offload_rhash_params);
-+	err = rhashtable_insert_fast(&flow_table->rhashtable,
-+				     &flow->tuplehash[0].node,
-+				     nf_flow_offload_rhash_params);
-+	if (err < 0)
-+		return err;
-+
-+	err = rhashtable_insert_fast(&flow_table->rhashtable,
-+				     &flow->tuplehash[1].node,
-+				     nf_flow_offload_rhash_params);
-+	if (err < 0) {
-+		rhashtable_remove_fast(&flow_table->rhashtable,
-+				       &flow->tuplehash[0].node,
-+				       nf_flow_offload_rhash_params);
-+		return err;
-+	}
-+
-+	flow->timeout = (u32)jiffies;
- 	return 0;
- }
- EXPORT_SYMBOL_GPL(flow_offload_add);
+diff --git a/kernel/sys.c b/kernel/sys.c
+index e25ec93aea22..ab96b9882347 100644
+--- a/kernel/sys.c
++++ b/kernel/sys.c
+@@ -1861,7 +1861,7 @@ static int validate_prctl_map(struct prctl_mm_map *prctl_map)
+ 	((unsigned long)prctl_map->__m1 __op				\
+ 	 (unsigned long)prctl_map->__m2) ? 0 : -EINVAL
+ 	error  = __prctl_check_order(start_code, <, end_code);
+-	error |= __prctl_check_order(start_data, <, end_data);
++	error |= __prctl_check_order(start_data,<=, end_data);
+ 	error |= __prctl_check_order(start_brk, <=, brk);
+ 	error |= __prctl_check_order(arg_start, <=, arg_end);
+ 	error |= __prctl_check_order(env_start, <=, env_end);
 -- 
 2.20.1
 
