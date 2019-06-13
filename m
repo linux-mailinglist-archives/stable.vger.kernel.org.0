@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5969D43FA1
+	by mail.lfdr.de (Postfix) with ESMTP id C325E43FA2
 	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 17:59:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731490AbfFMP66 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 11:58:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37482 "EHLO mail.kernel.org"
+        id S2390385AbfFMP67 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 11:58:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37502 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731486AbfFMItu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:49:50 -0400
+        id S1731464AbfFMItw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:49:52 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B8B29206BA;
-        Thu, 13 Jun 2019 08:49:48 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7603A20851;
+        Thu, 13 Jun 2019 08:49:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415789;
-        bh=0w0J78bo621MnLl11JLDo21gEOwqJPVkpR5a3wuPRJk=;
+        s=default; t=1560415792;
+        bh=ryldr2psFlYiZJ0t5eCgHAxBDoQIdZlJKpr1Idj391M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eV32WQ/X8NWaqIFYnyBJcVrJIyBAuNa5XEe+jS+5t7vpb2VkMxVwqkRu4Ytb2P1ra
-         I3L46WWLeL9EmnqcHG7X9yi55XFxlTAtxsDbrCakPH8dTnkPFXgiTZ7JIpIanAsQvh
-         1mhiEVNB879gG0GrpBeTixX7d70bJfoetN4wIa9I=
+        b=URXPTJZaW26Zl8YjLkkkj6B36a8D/b0agU6b+Og9zvxE90Z2NznxrGwXqhnTehle/
+         F980/K+xZeVexOMIZGyFsqJqChFpyZOCqhYZpJke9DUSO3z51MEk7g972RkJZe2+ov
+         bDs7k1a4FuxjIgpxCGH7ENd/QDjZuOYcfk7LRK4A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        stable@vger.kernel.org,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 098/155] PCI: keystone: Prevent ARM32 specific code to be compiled for ARM64
-Date:   Thu, 13 Jun 2019 10:33:30 +0200
-Message-Id: <20190613075658.541457857@linuxfoundation.org>
+Subject: [PATCH 5.1 099/155] soc: mediatek: pwrap: Zero initialize rdata in pwrap_init_cipher
+Date:   Thu, 13 Jun 2019 10:33:31 +0200
+Message-Id: <20190613075658.586209565@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
 References: <20190613075652.691765927@linuxfoundation.org>
@@ -44,59 +47,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f316a2b53cd7f37963ae20ec7072eb27a349a4ce ]
+[ Upstream commit 89e28da82836530f1ac7a3a32fecc31f22d79b3e ]
 
-hook_fault_code() is an ARM32 specific API for hooking into data abort.
+When building with -Wsometimes-uninitialized, Clang warns:
 
-AM65X platforms (that integrate ARM v8 cores and select CONFIG_ARM64 as
-arch) rely on pci-keystone.c but on them the enumeration of a
-non-present BDF does not trigger a bus error, so the fixup exception
-provided by calling hook_fault_code() is not needed and can be guarded
-with CONFIG_ARM.
+drivers/soc/mediatek/mtk-pmic-wrap.c:1358:6: error: variable 'rdata' is
+used uninitialized whenever '||' condition is true
+[-Werror,-Wsometimes-uninitialized]
 
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
-[lorenzo.pieralisi@arm.com: commit log]
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+If pwrap_write returns non-zero, pwrap_read will not be called to
+initialize rdata, meaning that we will use some random uninitialized
+stack value in our print statement. Zero initialize rdata in case this
+happens.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/401
+Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/dwc/pci-keystone.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/soc/mediatek/mtk-pmic-wrap.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pci/controller/dwc/pci-keystone.c b/drivers/pci/controller/dwc/pci-keystone.c
-index 94bd31b255a4..ba6907af9dcb 100644
---- a/drivers/pci/controller/dwc/pci-keystone.c
-+++ b/drivers/pci/controller/dwc/pci-keystone.c
-@@ -705,6 +705,7 @@ static void ks_pcie_setup_interrupts(struct keystone_pcie *ks_pcie)
- 		ks_pcie_enable_error_irq(ks_pcie);
- }
- 
-+#ifdef CONFIG_ARM
- /*
-  * When a PCI device does not exist during config cycles, keystone host gets a
-  * bus error instead of returning 0xffffffff. This handler always returns 0
-@@ -724,6 +725,7 @@ static int ks_pcie_fault(unsigned long addr, unsigned int fsr,
- 
- 	return 0;
- }
-+#endif
- 
- static int __init ks_pcie_init_id(struct keystone_pcie *ks_pcie)
+diff --git a/drivers/soc/mediatek/mtk-pmic-wrap.c b/drivers/soc/mediatek/mtk-pmic-wrap.c
+index 8236a6c87e19..2f632e8790f7 100644
+--- a/drivers/soc/mediatek/mtk-pmic-wrap.c
++++ b/drivers/soc/mediatek/mtk-pmic-wrap.c
+@@ -1281,7 +1281,7 @@ static bool pwrap_is_pmic_cipher_ready(struct pmic_wrapper *wrp)
+ static int pwrap_init_cipher(struct pmic_wrapper *wrp)
  {
-@@ -766,12 +768,14 @@ static int __init ks_pcie_host_init(struct pcie_port *pp)
- 	if (ret < 0)
- 		return ret;
+ 	int ret;
+-	u32 rdata;
++	u32 rdata = 0;
  
-+#ifdef CONFIG_ARM
- 	/*
- 	 * PCIe access errors that result into OCP errors are caught by ARM as
- 	 * "External aborts"
- 	 */
- 	hook_fault_code(17, ks_pcie_fault, SIGBUS, 0,
- 			"Asynchronous external abort");
-+#endif
- 
- 	return 0;
- }
+ 	pwrap_writel(wrp, 0x1, PWRAP_CIPHER_SWRST);
+ 	pwrap_writel(wrp, 0x0, PWRAP_CIPHER_SWRST);
 -- 
 2.20.1
 
