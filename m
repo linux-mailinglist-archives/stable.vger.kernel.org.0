@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C131441D3
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:19:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E8614404A
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:05:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727668AbfFMQQ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:16:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58460 "EHLO mail.kernel.org"
+        id S1727721AbfFMQEg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:04:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731146AbfFMIlM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:41:12 -0400
+        id S1731353AbfFMIq4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:46:56 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B6A8121473;
-        Thu, 13 Jun 2019 08:41:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D86062173C;
+        Thu, 13 Jun 2019 08:46:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415271;
-        bh=MMu2sKMseQSw+TUl2Yw6NE1r/e8x0b/7CHCq+cul2ww=;
+        s=default; t=1560415615;
+        bh=VbiQpM1EDRF7mWpHDc7VlyU2NWnMot2MNCxyXyGDy2Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nhwPaCGEQpU5D+kh5cfGJX3j4LJWQbJMppg3Nr8N+l7pj3/Y0MSKdbYe1VyByvl57
-         gOAMNu+n6BWLuztf9lPSekXMJFesqp1/8Hj9nV9cG7IksZNYwcyDzd1XNRWoyqNS2e
-         HPy30EtezZOv4hSlhJ8dARWfORq/jGR3+RYKZkPQ=
+        b=bfGeaXHtWWAFaIiCxVQxeWEySeIRnQW0w8AAVUB/owqvR82ZfUlRTLFrn4dME6YEV
+         AbZ/kr6lKPyXVKtBlFs1vZF+M48v/zBk7XL3fL+XGnJrqSD/l9C+W7YJpXhPnbjRyM
+         BASFlzmrIFmdtRO2QnjR5VSsoysLqsS2aTqlOtRU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 038/118] f2fs: fix to avoid panic in dec_valid_block_count()
+Subject: [PATCH 5.1 064/155] netfilter: nf_flow_table: fix missing error check for rhashtable_insert_fast
 Date:   Thu, 13 Jun 2019 10:32:56 +0200
-Message-Id: <20190613075645.712097097@linuxfoundation.org>
+Message-Id: <20190613075656.612439190@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075643.642092651@linuxfoundation.org>
-References: <20190613075643.642092651@linuxfoundation.org>
+In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
+References: <20190613075652.691765927@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,92 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 5e159cd349bf3a31fb7e35c23a93308eb30f4f71 ]
+[ Upstream commit 43c8f131184faf20c07221f3e09724611c6525d8 ]
 
-As Jungyeon reported in bugzilla:
+rhashtable_insert_fast() may return an error value when memory
+allocation fails, but flow_offload_add() does not check for errors.
+This patch just adds missing error checking.
 
-https://bugzilla.kernel.org/show_bug.cgi?id=203209
-
-- Overview
-When mounting the attached crafted image and running program, I got this error.
-Additionally, it hangs on sync after the this script.
-
-The image is intentionally fuzzed from a normal f2fs image for testing and I enabled option CONFIG_F2FS_CHECK_FS on.
-
-- Reproduces
-cc poc_01.c
-./run.sh f2fs
-sync
-
- kernel BUG at fs/f2fs/f2fs.h:1788!
- RIP: 0010:f2fs_truncate_data_blocks_range+0x342/0x350
- Call Trace:
-  f2fs_truncate_blocks+0x36d/0x3c0
-  f2fs_truncate+0x88/0x110
-  f2fs_setattr+0x3e1/0x460
-  notify_change+0x2da/0x400
-  do_truncate+0x6d/0xb0
-  do_sys_ftruncate+0xf1/0x160
-  do_syscall_64+0x43/0xf0
-  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-The reason is dec_valid_block_count() will trigger kernel panic due to
-inconsistent count in between inode.i_blocks and actual block.
-
-To avoid panic, let's just print debug message and set SBI_NEED_FSCK to
-give a hint to fsck for latter repairing.
-
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-[Jaegeuk Kim: fix build warning and add unlikely]
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Fixes: ac2a66665e23 ("netfilter: add generic flow table infrastructure")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/f2fs.h | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ net/netfilter/nf_flow_table_core.c | 25 ++++++++++++++++++-------
+ 1 file changed, 18 insertions(+), 7 deletions(-)
 
-diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
-index a4b6eacf22ea..64f970cca1b4 100644
---- a/fs/f2fs/f2fs.h
-+++ b/fs/f2fs/f2fs.h
-@@ -1744,6 +1744,7 @@ enospc:
- 	return -ENOSPC;
- }
+diff --git a/net/netfilter/nf_flow_table_core.c b/net/netfilter/nf_flow_table_core.c
+index 7aabfd4b1e50..a9e4f74b1ff6 100644
+--- a/net/netfilter/nf_flow_table_core.c
++++ b/net/netfilter/nf_flow_table_core.c
+@@ -185,14 +185,25 @@ static const struct rhashtable_params nf_flow_offload_rhash_params = {
  
-+void f2fs_msg(struct super_block *sb, const char *level, const char *fmt, ...);
- static inline void dec_valid_block_count(struct f2fs_sb_info *sbi,
- 						struct inode *inode,
- 						block_t count)
-@@ -1752,13 +1753,21 @@ static inline void dec_valid_block_count(struct f2fs_sb_info *sbi,
- 
- 	spin_lock(&sbi->stat_lock);
- 	f2fs_bug_on(sbi, sbi->total_valid_block_count < (block_t) count);
--	f2fs_bug_on(sbi, inode->i_blocks < sectors);
- 	sbi->total_valid_block_count -= (block_t)count;
- 	if (sbi->reserved_blocks &&
- 		sbi->current_reserved_blocks < sbi->reserved_blocks)
- 		sbi->current_reserved_blocks = min(sbi->reserved_blocks,
- 					sbi->current_reserved_blocks + count);
- 	spin_unlock(&sbi->stat_lock);
-+	if (unlikely(inode->i_blocks < sectors)) {
-+		f2fs_msg(sbi->sb, KERN_WARNING,
-+			"Inconsistent i_blocks, ino:%lu, iblocks:%llu, sectors:%llu",
-+			inode->i_ino,
-+			(unsigned long long)inode->i_blocks,
-+			(unsigned long long)sectors);
-+		set_sbi_flag(sbi, SBI_NEED_FSCK);
-+		return;
-+	}
- 	f2fs_i_blocks_write(inode, count, false, true);
- }
- 
-@@ -2727,7 +2736,6 @@ static inline void f2fs_update_iostat(struct f2fs_sb_info *sbi,
- 
- bool f2fs_is_valid_blkaddr(struct f2fs_sb_info *sbi,
- 					block_t blkaddr, int type);
--void f2fs_msg(struct super_block *sb, const char *level, const char *fmt, ...);
- static inline void verify_blkaddr(struct f2fs_sb_info *sbi,
- 					block_t blkaddr, int type)
+ int flow_offload_add(struct nf_flowtable *flow_table, struct flow_offload *flow)
  {
+-	flow->timeout = (u32)jiffies;
++	int err;
+ 
+-	rhashtable_insert_fast(&flow_table->rhashtable,
+-			       &flow->tuplehash[FLOW_OFFLOAD_DIR_ORIGINAL].node,
+-			       nf_flow_offload_rhash_params);
+-	rhashtable_insert_fast(&flow_table->rhashtable,
+-			       &flow->tuplehash[FLOW_OFFLOAD_DIR_REPLY].node,
+-			       nf_flow_offload_rhash_params);
++	err = rhashtable_insert_fast(&flow_table->rhashtable,
++				     &flow->tuplehash[0].node,
++				     nf_flow_offload_rhash_params);
++	if (err < 0)
++		return err;
++
++	err = rhashtable_insert_fast(&flow_table->rhashtable,
++				     &flow->tuplehash[1].node,
++				     nf_flow_offload_rhash_params);
++	if (err < 0) {
++		rhashtable_remove_fast(&flow_table->rhashtable,
++				       &flow->tuplehash[0].node,
++				       nf_flow_offload_rhash_params);
++		return err;
++	}
++
++	flow->timeout = (u32)jiffies;
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(flow_offload_add);
 -- 
 2.20.1
 
