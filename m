@@ -2,39 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7233E442DB
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:26:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8436944025
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:03:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389953AbfFMQ0R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:26:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53734 "EHLO mail.kernel.org"
+        id S2391065AbfFMQDS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:03:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730958AbfFMIgL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:36:11 -0400
+        id S1731380AbfFMIrV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:47:21 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A91052146F;
-        Thu, 13 Jun 2019 08:36:09 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6C45020851;
+        Thu, 13 Jun 2019 08:47:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560414970;
-        bh=WBnnoiV2xbfIcvYiH9S//5uTnemkNf6L1oc41kGnPM4=;
+        s=default; t=1560415640;
+        bh=rhGaHDwv9dUaGCsFFnIec7tDiELzAKFONg2bR2RZwYc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KJ6DH0zAyYDGHFLcDKGCHv1cJK0snJESQWEKnDCF9ci+dBe9Qm2+97HQK2UVNfH8U
-         xBurJPcHh6TslUmmaEPKK8FSoZJFH0EJMUH5GhpU9A+l1L4Nd1l7IMxImGswut0zX2
-         7kAIoFi/vrmwWJDzsX88YF2GGHETG+sAEOt6O5fw=
+        b=115yItnlo6TdyWZarkFyT6JqJ+1neXO1BKqomSIj1KLog1dEd1Yx5mZkVWxvghzj1
+         pWeoMmL3HdxeP2GDDfki0H+zTmzd0L2/vwaUJuuFowIzoKhrVI4WQZGIsOXx7+nBIR
+         7IrZVi65a7tocb2RGOI59BvV8nmZKS8EAYY8f2Ew=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amit Kucheria <amit.kucheria@linaro.org>,
-        Eduardo Valentin <edubezval@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 15/81] drivers: thermal: tsens: Dont print error message on -EPROBE_DEFER
+        stable@vger.kernel.org, Serge Semin <fancer.lancer@gmail.com>,
+        Paul Burton <paul.burton@mips.com>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        James Hogan <jhogan@kernel.org>,
+        Mike Rapoport <rppt@linux.ibm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Michal Hocko <mhocko@suse.com>,
+        Thomas Bogendoerfer <tbogendoerfer@suse.de>,
+        Huacai Chen <chenhc@lemote.com>,
+        Stefan Agner <stefan@agner.ch>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Juergen Gross <jgross@suse.com>,
+        Serge Semin <Sergey.Semin@t-platforms.ru>,
+        linux-mips@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 066/155] mips: Make sure dt memory regions are valid
 Date:   Thu, 13 Jun 2019 10:32:58 +0200
-Message-Id: <20190613075650.191146182@linuxfoundation.org>
+Message-Id: <20190613075656.699404735@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075649.074682929@linuxfoundation.org>
-References: <20190613075649.074682929@linuxfoundation.org>
+In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
+References: <20190613075652.691765927@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,39 +56,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit fc7d18cf6a923cde7f5e7ba2c1105bb106d3e29a ]
+[ Upstream commit 93fa5b280761a4dbb14c5330f260380385ab2b49 ]
 
-We print a calibration failure message on -EPROBE_DEFER from
-nvmem/qfprom as follows:
-[    3.003090] qcom-tsens 4a9000.thermal-sensor: version: 1.4
-[    3.005376] qcom-tsens 4a9000.thermal-sensor: tsens calibration failed
-[    3.113248] qcom-tsens 4a9000.thermal-sensor: version: 1.4
+There are situations when memory regions coming from dts may be
+too big for the platform physical address space. This especially
+concerns XPA-capable systems. Bootloader may determine more than 4GB
+memory available and pass it to the kernel over dts memory node, while
+kernel is built without XPA/64BIT support. In this case the region
+may either simply be truncated by add_memory_region() method
+or by u64->phys_addr_t type casting. But in worst case the method
+can even drop the memory region if it exceeds PHYS_ADDR_MAX size.
+So lets make sure the retrieved from dts memory regions are valid,
+and if some of them aren't, just manually truncate them with a warning
+printed out.
 
-This confuses people when, in fact, calibration succeeds later when
-nvmem/qfprom device is available. Don't print this message on a
--EPROBE_DEFER.
-
-Signed-off-by: Amit Kucheria <amit.kucheria@linaro.org>
-Signed-off-by: Eduardo Valentin <edubezval@gmail.com>
+Signed-off-by: Serge Semin <fancer.lancer@gmail.com>
+Signed-off-by: Paul Burton <paul.burton@mips.com>
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Cc: James Hogan <jhogan@kernel.org>
+Cc: Mike Rapoport <rppt@linux.ibm.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Thomas Bogendoerfer <tbogendoerfer@suse.de>
+Cc: Huacai Chen <chenhc@lemote.com>
+Cc: Stefan Agner <stefan@agner.ch>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Juergen Gross <jgross@suse.com>
+Cc: Serge Semin <Sergey.Semin@t-platforms.ru>
+Cc: linux-mips@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/qcom/tsens.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/mips/kernel/prom.c | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/thermal/qcom/tsens.c b/drivers/thermal/qcom/tsens.c
-index 3f9fe6aa51cc..ebbe1ec7b9e8 100644
---- a/drivers/thermal/qcom/tsens.c
-+++ b/drivers/thermal/qcom/tsens.c
-@@ -162,7 +162,8 @@ static int tsens_probe(struct platform_device *pdev)
- 	if (tmdev->ops->calibrate) {
- 		ret = tmdev->ops->calibrate(tmdev);
- 		if (ret < 0) {
--			dev_err(dev, "tsens calibration failed\n");
-+			if (ret != -EPROBE_DEFER)
-+				dev_err(dev, "tsens calibration failed\n");
- 			return ret;
- 		}
- 	}
+diff --git a/arch/mips/kernel/prom.c b/arch/mips/kernel/prom.c
+index 93b8e0b4332f..b9d6c6ec4177 100644
+--- a/arch/mips/kernel/prom.c
++++ b/arch/mips/kernel/prom.c
+@@ -41,7 +41,19 @@ char *mips_get_machine_name(void)
+ #ifdef CONFIG_USE_OF
+ void __init early_init_dt_add_memory_arch(u64 base, u64 size)
+ {
+-	return add_memory_region(base, size, BOOT_MEM_RAM);
++	if (base >= PHYS_ADDR_MAX) {
++		pr_warn("Trying to add an invalid memory region, skipped\n");
++		return;
++	}
++
++	/* Truncate the passed memory region instead of type casting */
++	if (base + size - 1 >= PHYS_ADDR_MAX || base + size < base) {
++		pr_warn("Truncate memory region %llx @ %llx to size %llx\n",
++			size, base, PHYS_ADDR_MAX - base);
++		size = PHYS_ADDR_MAX - base;
++	}
++
++	add_memory_region(base, size, BOOT_MEM_RAM);
+ }
+ 
+ int __init early_init_dt_reserve_memory_arch(phys_addr_t base,
 -- 
 2.20.1
 
