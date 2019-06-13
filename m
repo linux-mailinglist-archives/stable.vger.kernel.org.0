@@ -2,50 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 65E8544385
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:30:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CEED844231
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:20:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731924AbfFMQaJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:30:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52834 "EHLO mail.kernel.org"
+        id S1733196AbfFMQT5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:19:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57190 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730917AbfFMIfE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:35:04 -0400
+        id S1731089AbfFMIjm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:39:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE96620B7C;
-        Thu, 13 Jun 2019 08:35:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id EE51621473;
+        Thu, 13 Jun 2019 08:39:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560414903;
-        bh=BNbxu4zfrw+e3UY+/tqBh1L4CBa6pxKcFjnrA7DapY4=;
+        s=default; t=1560415182;
+        bh=D80zUZagERK3VG96zY69ItG3mgc6LTMnoqeh+qlyOno=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m+Yj2Kg7n17EuyZyyv+O7Qnlok+lwD6LwyNgAZyyRFGV7AID8Z1x23v0f3jxIA9tS
-         6Mvy8I3kYxDJLbBjj0lT18qPAiGwLEdmyDHK2ixWtPLkaqah3p7tutRkWPHCJIxdVm
-         xh3zHhO2Vm+t9UmetJnK5t2awPMtEWCxOMiQq6Ho=
+        b=sJHxyxOldmLmsLuFYIeuFVDfLyTZp24lS8wNkWa3ikOBiz4R4aNleh2nRmQ7uD3dS
+         Gib2XpGUWmVrNojBY8Wd+F1PZW4EwGB5CJVT1cxgWwCM272JCD8wBsD95/IElEFswl
+         C4SBaZwRD/+MkChKci1vF9nz9ThHj6fe95L48tOw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>,
-        Balbir Singh <bsingharora@gmail.com>,
-        Ralph Campbell <rcampbell@nvidia.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Souptick Joarder <jrdr.linux@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>,
+        Miroslav Lichvar <mlichvar@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        John Stultz <john.stultz@linaro.org>,
+        Richard Cochran <richardcochran@gmail.com>,
+        Prarit Bhargava <prarit@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 06/81] mm/hmm: select mmu notifier when selecting HMM
-Date:   Thu, 13 Jun 2019 10:32:49 +0200
-Message-Id: <20190613075649.529301482@linuxfoundation.org>
+Subject: [PATCH 4.19 032/118] ntp: Allow TAI-UTC offset to be set to zero
+Date:   Thu, 13 Jun 2019 10:32:50 +0200
+Message-Id: <20190613075645.362258448@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075649.074682929@linuxfoundation.org>
-References: <20190613075649.074682929@linuxfoundation.org>
+In-Reply-To: <20190613075643.642092651@linuxfoundation.org>
+References: <20190613075643.642092651@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,48 +48,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 734fb89968900b5c5f8edd5038bd4cdeab8c61d2 ]
+[ Upstream commit fdc6bae940ee9eb869e493990540098b8c0fd6ab ]
 
-To avoid random config build issue, select mmu notifier when HMM is
-selected.  In any cases when HMM get selected it will be by users that
-will also wants the mmu notifier.
+The ADJ_TAI adjtimex mode sets the TAI-UTC offset of the system clock.
+It is typically set by NTP/PTP implementations and it is automatically
+updated by the kernel on leap seconds. The initial value is zero (which
+applications may interpret as unknown), but this value cannot be set by
+adjtimex. This limitation seems to go back to the original "nanokernel"
+implementation by David Mills.
 
-Link: http://lkml.kernel.org/r/20190403193318.16478-2-jglisse@redhat.com
-Signed-off-by: Jérôme Glisse <jglisse@redhat.com>
-Acked-by: Balbir Singh <bsingharora@gmail.com>
-Cc: Ralph Campbell <rcampbell@nvidia.com>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Ira Weiny <ira.weiny@intel.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Souptick Joarder <jrdr.linux@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Change the ADJ_TAI check to accept zero as a valid TAI-UTC offset in
+order to allow setting it back to the initial value.
+
+Fixes: 153b5d054ac2 ("ntp: support for TAI")
+Suggested-by: Ondrej Mosnacek <omosnace@redhat.com>
+Signed-off-by: Miroslav Lichvar <mlichvar@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: John Stultz <john.stultz@linaro.org>
+Cc: Richard Cochran <richardcochran@gmail.com>
+Cc: Prarit Bhargava <prarit@redhat.com>
+Link: https://lkml.kernel.org/r/20190417084833.7401-1-mlichvar@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/Kconfig | 2 +-
+ kernel/time/ntp.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/mm/Kconfig b/mm/Kconfig
-index 59efbd3337e0..cc4d633947bf 100644
---- a/mm/Kconfig
-+++ b/mm/Kconfig
-@@ -708,12 +708,12 @@ config MIGRATE_VMA_HELPER
+diff --git a/kernel/time/ntp.c b/kernel/time/ntp.c
+index c5e0cba3b39c..6b23cd584295 100644
+--- a/kernel/time/ntp.c
++++ b/kernel/time/ntp.c
+@@ -698,7 +698,7 @@ static inline void process_adjtimex_modes(const struct timex *txc, s32 *time_tai
+ 		time_constant = max(time_constant, 0l);
+ 	}
  
- config HMM
- 	bool
-+	select MMU_NOTIFIER
- 	select MIGRATE_VMA_HELPER
+-	if (txc->modes & ADJ_TAI && txc->constant > 0)
++	if (txc->modes & ADJ_TAI && txc->constant >= 0)
+ 		*time_tai = txc->constant;
  
- config HMM_MIRROR
- 	bool "HMM mirror CPU page table into a device page table"
- 	depends on ARCH_HAS_HMM
--	select MMU_NOTIFIER
- 	select HMM
- 	help
- 	  Select HMM_MIRROR if you want to mirror range of the CPU page table of a
+ 	if (txc->modes & ADJ_OFFSET)
 -- 
 2.20.1
 
