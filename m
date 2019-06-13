@@ -2,39 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 93EE344225
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:20:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4288544379
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:30:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726777AbfFMQTs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:19:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57224 "EHLO mail.kernel.org"
+        id S1731802AbfFMQ3t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:29:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731090AbfFMIjq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:39:46 -0400
+        id S1730920AbfFMIfK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:35:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DC13621479;
-        Thu, 13 Jun 2019 08:39:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3C54A2146F;
+        Thu, 13 Jun 2019 08:35:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415185;
-        bh=1PMS6hWWvz97HOrPx6qSXzxl5RAi/lk5B02P33A59Ms=;
+        s=default; t=1560414908;
+        bh=k4KIIKBmTdJpZsgj98E2YxWt84jw6FsN7REwjULm4SA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZZZiuinkxq8NEwTgJBtbmm/5qs1wTCQ8P1zAxTzX7HWSB2MNEInoDwmqfOSXwWjxh
-         rhsOCgipkwvW4CZSLRqHV/b+3gaZ20etQOzy/ITfMWnxn3/C7WnPuDttiR87AVtfws
-         Jct6+k0BFYL9c9NyTQy3dDIocQShWnbIw1i2ikPw=
+        b=tFdyArpRYQr9yC3OV6oXdloKjXlGYd96B94rjoM1nSUiGY7SlNtusGHMd5Eb3KpaH
+         /3WPhFK5MEZe9yAhHj0EK6DwKwsUc9TRnhY4RrlPgQYHOpJF98f21UYkuPiRvPPJMR
+         W2Xy6EW+FIlgg/XqgJGvfM8vnCRFJuPO/1X1COh4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Linxu Fang <fanglinxu@huawei.com>,
+        Taku Izumi <izumi.taku@jp.fujitsu.com>,
+        Xishi Qiu <qiuxishi@huawei.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Pavel Tatashin <pavel.tatashin@microsoft.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 033/118] f2fs: fix to avoid panic in do_recover_data()
+Subject: [PATCH 4.14 08/81] mem-hotplug: fix node spanned pages when we have a node with only ZONE_MOVABLE
 Date:   Thu, 13 Jun 2019 10:32:51 +0200
-Message-Id: <20190613075645.411184691@linuxfoundation.org>
+Message-Id: <20190613075649.663475244@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075643.642092651@linuxfoundation.org>
-References: <20190613075643.642092651@linuxfoundation.org>
+In-Reply-To: <20190613075649.074682929@linuxfoundation.org>
+References: <20190613075649.074682929@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,76 +51,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 22d61e286e2d9097dae36f75ed48801056b77cac ]
+[ Upstream commit 299c83dce9ea3a79bb4b5511d2cb996b6b8e5111 ]
 
-As Jungyeon reported in bugzilla:
+342332e6a925 ("mm/page_alloc.c: introduce kernelcore=mirror option") and
+later patches rewrote the calculation of node spanned pages.
 
-https://bugzilla.kernel.org/show_bug.cgi?id=203227
+e506b99696a2 ("mem-hotplug: fix node spanned pages when we have a movable
+node"), but the current code still has problems,
 
-- Overview
-When mounting the attached crafted image, following errors are reported.
-Additionally, it hangs on sync after trying to mount it.
+When we have a node with only zone_movable and the node id is not zero,
+the size of node spanned pages is double added.
 
-The image is intentionally fuzzed from a normal f2fs image for testing.
-Compile options for F2FS are as follows.
-CONFIG_F2FS_FS=y
-CONFIG_F2FS_STAT_FS=y
-CONFIG_F2FS_FS_XATTR=y
-CONFIG_F2FS_FS_POSIX_ACL=y
-CONFIG_F2FS_CHECK_FS=y
+That's because we have an empty normal zone, and zone_start_pfn or
+zone_end_pfn is not between arch_zone_lowest_possible_pfn and
+arch_zone_highest_possible_pfn, so we need to use clamp to constrain the
+range just like the commit <96e907d13602> (bootmem: Reimplement
+__absent_pages_in_range() using for_each_mem_pfn_range()).
 
-- Reproduces
-mkdir test
-mount -t f2fs tmp.img test
-sync
+e.g.
+Zone ranges:
+  DMA      [mem 0x0000000000001000-0x0000000000ffffff]
+  DMA32    [mem 0x0000000001000000-0x00000000ffffffff]
+  Normal   [mem 0x0000000100000000-0x000000023fffffff]
+Movable zone start for each node
+  Node 0: 0x0000000100000000
+  Node 1: 0x0000000140000000
+Early memory node ranges
+  node   0: [mem 0x0000000000001000-0x000000000009efff]
+  node   0: [mem 0x0000000000100000-0x00000000bffdffff]
+  node   0: [mem 0x0000000100000000-0x000000013fffffff]
+  node   1: [mem 0x0000000140000000-0x000000023fffffff]
 
-- Messages
- kernel BUG at fs/f2fs/recovery.c:549!
- RIP: 0010:recover_data+0x167a/0x1780
- Call Trace:
-  f2fs_recover_fsync_data+0x613/0x710
-  f2fs_fill_super+0x1043/0x1aa0
-  mount_bdev+0x16d/0x1a0
-  mount_fs+0x4a/0x170
-  vfs_kern_mount+0x5d/0x100
-  do_mount+0x200/0xcf0
-  ksys_mount+0x79/0xc0
-  __x64_sys_mount+0x1c/0x20
-  do_syscall_64+0x43/0xf0
-  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+node 0 DMA	spanned:0xfff   present:0xf9e   absent:0x61
+node 0 DMA32	spanned:0xff000 present:0xbefe0	absent:0x40020
+node 0 Normal	spanned:0	present:0	absent:0
+node 0 Movable	spanned:0x40000 present:0x40000 absent:0
+On node 0 totalpages(node_present_pages): 1048446
+node_spanned_pages:1310719
+node 1 DMA	spanned:0	    present:0		absent:0
+node 1 DMA32	spanned:0	    present:0		absent:0
+node 1 Normal	spanned:0x100000    present:0x100000	absent:0
+node 1 Movable	spanned:0x100000    present:0x100000	absent:0
+On node 1 totalpages(node_present_pages): 2097152
+node_spanned_pages:2097152
+Memory: 6967796K/12582392K available (16388K kernel code, 3686K rwdata,
+4468K rodata, 2160K init, 10444K bss, 5614596K reserved, 0K
+cma-reserved)
 
-During recovery, if ofs_of_node is inconsistent in between recovered
-node page and original checkpointed node page, let's just fail recovery
-instead of making kernel panic.
+It shows that the current memory of node 1 is double added.
+After this patch, the problem is fixed.
 
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+node 0 DMA	spanned:0xfff   present:0xf9e   absent:0x61
+node 0 DMA32	spanned:0xff000 present:0xbefe0	absent:0x40020
+node 0 Normal	spanned:0	present:0	absent:0
+node 0 Movable	spanned:0x40000 present:0x40000 absent:0
+On node 0 totalpages(node_present_pages): 1048446
+node_spanned_pages:1310719
+node 1 DMA	spanned:0	    present:0		absent:0
+node 1 DMA32	spanned:0	    present:0		absent:0
+node 1 Normal	spanned:0	    present:0		absent:0
+node 1 Movable	spanned:0x100000    present:0x100000	absent:0
+On node 1 totalpages(node_present_pages): 1048576
+node_spanned_pages:1048576
+memory: 6967796K/8388088K available (16388K kernel code, 3686K rwdata,
+4468K rodata, 2160K init, 10444K bss, 1420292K reserved, 0K
+cma-reserved)
+
+Link: http://lkml.kernel.org/r/1554178276-10372-1-git-send-email-fanglinxu@huawei.com
+Signed-off-by: Linxu Fang <fanglinxu@huawei.com>
+Cc: Taku Izumi <izumi.taku@jp.fujitsu.com>
+Cc: Xishi Qiu <qiuxishi@huawei.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Pavel Tatashin <pavel.tatashin@microsoft.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/recovery.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ mm/page_alloc.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/fs/f2fs/recovery.c b/fs/f2fs/recovery.c
-index ae0e5f2e67b4..bf5c5f4fa77e 100644
---- a/fs/f2fs/recovery.c
-+++ b/fs/f2fs/recovery.c
-@@ -485,7 +485,15 @@ retry_dn:
- 		goto err;
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index 923deb33bf34..6f71518a4558 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -5727,13 +5727,15 @@ static unsigned long __meminit zone_spanned_pages_in_node(int nid,
+ 					unsigned long *zone_end_pfn,
+ 					unsigned long *ignored)
+ {
++	unsigned long zone_low = arch_zone_lowest_possible_pfn[zone_type];
++	unsigned long zone_high = arch_zone_highest_possible_pfn[zone_type];
+ 	/* When hotadd a new node from cpu_up(), the node should be empty */
+ 	if (!node_start_pfn && !node_end_pfn)
+ 		return 0;
  
- 	f2fs_bug_on(sbi, ni.ino != ino_of_node(page));
--	f2fs_bug_on(sbi, ofs_of_node(dn.node_page) != ofs_of_node(page));
-+
-+	if (ofs_of_node(dn.node_page) != ofs_of_node(page)) {
-+		f2fs_msg(sbi->sb, KERN_WARNING,
-+			"Inconsistent ofs_of_node, ino:%lu, ofs:%u, %u",
-+			inode->i_ino, ofs_of_node(dn.node_page),
-+			ofs_of_node(page));
-+		err = -EFAULT;
-+		goto err;
-+	}
- 
- 	for (; start < end; start++, dn.ofs_in_node++) {
- 		block_t src, dest;
+ 	/* Get the start and end of the zone */
+-	*zone_start_pfn = arch_zone_lowest_possible_pfn[zone_type];
+-	*zone_end_pfn = arch_zone_highest_possible_pfn[zone_type];
++	*zone_start_pfn = clamp(node_start_pfn, zone_low, zone_high);
++	*zone_end_pfn = clamp(node_end_pfn, zone_low, zone_high);
+ 	adjust_zone_range_for_zone_movable(nid, zone_type,
+ 				node_start_pfn, node_end_pfn,
+ 				zone_start_pfn, zone_end_pfn);
 -- 
 2.20.1
 
