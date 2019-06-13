@@ -2,47 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A5144406F
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:06:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD214440B9
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:09:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731322AbfFMQGZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:06:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34702 "EHLO mail.kernel.org"
+        id S1731274AbfFMQIy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:08:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731321AbfFMIqD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:46:03 -0400
+        id S1731271AbfFMIoy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:44:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 05E722173C;
-        Thu, 13 Jun 2019 08:46:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F3829215EA;
+        Thu, 13 Jun 2019 08:44:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415562;
-        bh=2wol2PuCFvjV0G0iPAMvNKKiMoTyf9ad8KlBzdEMfJc=;
+        s=default; t=1560415493;
+        bh=haeOm/iHF6Ymi2w3NIruSHvEIpq/d+b10TKv8Coa/hM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bPQ7vCUfYIi5ne5OASvYhuWY8/9EIMqlW5lTRmjbSOQ3XieExPiESrHa2wWH5ksjs
-         H0mbuNFGsUmHHdt8JlTpGlbPx+glKDiR5LuAEASUXQp0+g8Q42fDk7VIOQJ/WqPZx1
-         UjOv3roAM5iaJuLp3AikZQmxwcgfnw1XAiVG8Ccw=
+        b=tYTin/SJPjnXwJ7yCVbbHvuBJwcvP86t0eXsHOGXQmx3xXHyfDTSjf0K8Wtg6jNMu
+         ACIiYq4RMz61hX+dMb36iOrxHBQQN1RzMSNjpCK6rMVRLK9zpKuhA5rxIxNIBcq7Qz
+         uRNvzlOOc90dIrabYrre1xsWGqVFXgVZD392aHiA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>,
-        Balbir Singh <bsingharora@gmail.com>,
-        Ralph Campbell <rcampbell@nvidia.com>,
-        John Hubbard <jhubbard@nvidia.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Ira Weiny <ira.weiny@intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Souptick Joarder <jrdr.linux@gmail.com>,
+        stable@vger.kernel.org, Mike Kravetz <mike.kravetz@oracle.com>,
+        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
+        Davidlohr Bueso <dave@stgolabs.net>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Michal Hocko <mhocko@kernel.org>,
+        "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 012/155] mm/hmm: select mmu notifier when selecting HMM
-Date:   Thu, 13 Jun 2019 10:32:04 +0200
-Message-Id: <20190613075653.438871567@linuxfoundation.org>
+Subject: [PATCH 5.1 013/155] hugetlbfs: on restore reserve error path retain subpool reservation
+Date:   Thu, 13 Jun 2019 10:32:05 +0200
+Message-Id: <20190613075653.507415166@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
 References: <20190613075652.691765927@linuxfoundation.org>
@@ -55,48 +50,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 734fb89968900b5c5f8edd5038bd4cdeab8c61d2 ]
+[ Upstream commit 0919e1b69ab459e06df45d3ba6658d281962db80 ]
 
-To avoid random config build issue, select mmu notifier when HMM is
-selected.  In any cases when HMM get selected it will be by users that
-will also wants the mmu notifier.
+When a huge page is allocated, PagePrivate() is set if the allocation
+consumed a reservation.  When freeing a huge page, PagePrivate is checked.
+If set, it indicates the reservation should be restored.  PagePrivate
+being set at free huge page time mostly happens on error paths.
 
-Link: http://lkml.kernel.org/r/20190403193318.16478-2-jglisse@redhat.com
-Signed-off-by: Jérôme Glisse <jglisse@redhat.com>
-Acked-by: Balbir Singh <bsingharora@gmail.com>
-Cc: Ralph Campbell <rcampbell@nvidia.com>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Ira Weiny <ira.weiny@intel.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Souptick Joarder <jrdr.linux@gmail.com>
+When huge page reservations are created, a check is made to determine if
+the mapping is associated with an explicitly mounted filesystem.  If so,
+pages are also reserved within the filesystem.  The default action when
+freeing a huge page is to decrement the usage count in any associated
+explicitly mounted filesystem.  However, if the reservation is to be
+restored the reservation/use count within the filesystem should not be
+decrementd.  Otherwise, a subsequent page allocation and free for the same
+mapping location will cause the file filesystem usage to go 'negative'.
+
+Filesystem                         Size  Used Avail Use% Mounted on
+nodev                              4.0G -4.0M  4.1G    - /opt/hugepool
+
+To fix, when freeing a huge page do not adjust filesystem usage if
+PagePrivate() is set to indicate the reservation should be restored.
+
+I did not cc stable as the problem has been around since reserves were
+added to hugetlbfs and nobody has noticed.
+
+Link: http://lkml.kernel.org/r/20190328234704.27083-2-mike.kravetz@oracle.com
+Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+Reviewed-by: Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>
+Cc: Davidlohr Bueso <dave@stgolabs.net>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: "Kirill A . Shutemov" <kirill.shutemov@linux.intel.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/hugetlb.c | 21 ++++++++++++++++-----
+ 1 file changed, 16 insertions(+), 5 deletions(-)
 
-diff --git a/mm/Kconfig b/mm/Kconfig
-index 25c71eb8a7db..2e6d24d783f7 100644
---- a/mm/Kconfig
-+++ b/mm/Kconfig
-@@ -694,12 +694,12 @@ config DEV_PAGEMAP_OPS
+diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+index 5baf1f00ad42..5b4f00be325d 100644
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -1258,12 +1258,23 @@ void free_huge_page(struct page *page)
+ 	ClearPagePrivate(page);
  
- config HMM
- 	bool
-+	select MMU_NOTIFIER
- 	select MIGRATE_VMA_HELPER
+ 	/*
+-	 * A return code of zero implies that the subpool will be under its
+-	 * minimum size if the reservation is not restored after page is free.
+-	 * Therefore, force restore_reserve operation.
++	 * If PagePrivate() was set on page, page allocation consumed a
++	 * reservation.  If the page was associated with a subpool, there
++	 * would have been a page reserved in the subpool before allocation
++	 * via hugepage_subpool_get_pages().  Since we are 'restoring' the
++	 * reservtion, do not call hugepage_subpool_put_pages() as this will
++	 * remove the reserved page from the subpool.
+ 	 */
+-	if (hugepage_subpool_put_pages(spool, 1) == 0)
+-		restore_reserve = true;
++	if (!restore_reserve) {
++		/*
++		 * A return code of zero implies that the subpool will be
++		 * under its minimum size if the reservation is not restored
++		 * after page is free.  Therefore, force restore_reserve
++		 * operation.
++		 */
++		if (hugepage_subpool_put_pages(spool, 1) == 0)
++			restore_reserve = true;
++	}
  
- config HMM_MIRROR
- 	bool "HMM mirror CPU page table into a device page table"
- 	depends on ARCH_HAS_HMM
--	select MMU_NOTIFIER
- 	select HMM
- 	help
- 	  Select HMM_MIRROR if you want to mirror range of the CPU page table of a
+ 	spin_lock(&hugetlb_lock);
+ 	clear_page_huge_active(page);
 -- 
 2.20.1
 
