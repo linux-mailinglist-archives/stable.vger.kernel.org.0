@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D746442C7
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:26:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3717543FAD
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:00:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392164AbfFMQZO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:25:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54130 "EHLO mail.kernel.org"
+        id S1731892AbfFMP66 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 11:58:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730977AbfFMIgl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:36:41 -0400
+        id S1731488AbfFMIt6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:49:58 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E9D6E21479;
-        Thu, 13 Jun 2019 08:36:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 21A0B20851;
+        Thu, 13 Jun 2019 08:49:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415000;
-        bh=g/FRRJPPCNqhXyggHd8GDOI6ndoEMD1BnIkosWh3KZw=;
+        s=default; t=1560415797;
+        bh=10hhf5jlLd5enhE6mKWF2OZXLM3UBbw9tq0YRKiuK2A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bCAQDbFOJrpozP/cEjtEOWo7EuGy8ACrOI6u8TsYA1lzNI2zlDr+LOapo7b+Arvsb
-         M1mQQpQoonyzalBeQLUlUJ1wTjfSHAP5g1xy7q/aonXVKbKEu9/3H51rUb06Zk9RWm
-         bIlwrtymmWoK0Mm54zhmx7KbggdS6rDhXQvnazEk=
+        b=oSbzNIMYLpClCeNgorQm5mzzW4WZoTynijndnqZ+DqfgjMcOfJOSBzLIIG+nJFmNv
+         HH7GuH51G8SRckSLikW/FSdom7AesUYGbnDvjxQdsZgmCGyTtWoSEFuMR3Nz6jcYXH
+         YZhfqiD/02YWj4PxWVHhnqq+xz3VSE7QjoCjykOQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Elaine Zhang <zhangqing@rock-chips.com>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 50/81] clk: rockchip: Turn on "aclk_dmac1" for suspend on rk3288
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        Sekhar Nori <nsekhar@ti.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 101/155] usb: ohci-da8xx: disable the regulator if the overcurrent irq fired
 Date:   Thu, 13 Jun 2019 10:33:33 +0200
-Message-Id: <20190613075652.945603002@linuxfoundation.org>
+Message-Id: <20190613075658.675810826@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075649.074682929@linuxfoundation.org>
-References: <20190613075649.074682929@linuxfoundation.org>
+In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
+References: <20190613075652.691765927@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,87 +44,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 57a20248ef3e429dc822f0774bc4e00136c46c83 ]
+[ Upstream commit d327330185f192411be80563a3c8398f4538cdb2 ]
 
-Experimentally it can be seen that going into deep sleep (specifically
-setting PMU_CLR_DMA and PMU_CLR_BUS in RK3288_PMU_PWRMODE_CON1)
-appears to fail unless "aclk_dmac1" is on.  The failure is that the
-system never signals that it made it into suspend on the GLOBAL_PWROFF
-pin and it just hangs.
+Historically the power supply management in this driver has been handled
+in two separate places in parallel. Device-tree users simply defined an
+appropriate regulator, while two boards with no DT support (da830-evm and
+omapl138-hawk) passed functions defined in their respective board files
+over platform data. These functions simply used legacy GPIO calls to
+watch the oc GPIO for interrupts and disable the vbus GPIO when the irq
+fires.
 
-NOTE that it's confirmed that it's the actual suspend that fails, not
-one of the earlier calls to read/write registers.  Specifically if you
-comment out the "PMU_GLOBAL_INT_DISABLE" setting in
-rk3288_slp_mode_set() and then comment out the "cpu_do_idle()" call in
-rockchip_lpmode_enter() then you can exercise the whole suspend path
-without any crashing.
+Commit d193abf1c913 ("usb: ohci-da8xx: add vbus and overcurrent gpios")
+updated these GPIO calls to the modern API and moved them inside the
+driver.
 
-This is currently not a problem with suspend upstream because there is
-no current way to exercise the deep suspend code.  However, anyone
-trying to make it work will run into this issue.
+This however is not the optimal solution for the vbus GPIO which should
+be modeled as a fixed regulator that can be controlled with a GPIO.
 
-This was not a problem on shipping rk3288-based Chromebooks because
-those devices all ran on an old kernel based on 3.14.  On that kernel
-"aclk_dmac1" appears to be left on all the time.
+In order to keep the overcurrent protection available once we move the
+board files to using fixed regulators we need to disable the enable_reg
+regulator when the overcurrent indicator interrupt fires. Since we
+cannot call regulator_disable() from interrupt context, we need to
+switch to using a oneshot threaded interrupt.
 
-There are several ways to skin this problem.
-
-A) We could add "aclk_dmac1" to the list of critical clocks and that
-apperas to work, but presumably that wastes power.
-
-B) We could keep a list of "struct clk" objects to enable at suspend
-time in clk-rk3288.c and use the standard clock APIs.
-
-C) We could make the rk3288-pmu driver keep a list of clocks to enable
-at suspend time.  Presumably this would require a dts and bindings
-change.
-
-D) We could just whack the clock on in the existing syscore suspend
-function where we whack a bunch of other clocks.  This is particularly
-easy because we know for sure that the clock's only parent
-("aclk_cpu") is a critical clock so we don't need to do anything more
-than ungate it.
-
-In this case I have chosen D) because it seemed like the least work,
-but any of the other options would presumably also work fine.
-
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Reviewed-by: Elaine Zhang <zhangqing@rock-chips.com>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Signed-off-by: Sekhar Nori <nsekhar@ti.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/rockchip/clk-rk3288.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/usb/host/ohci-da8xx.c | 22 +++++++++++++++++-----
+ 1 file changed, 17 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/clk/rockchip/clk-rk3288.c b/drivers/clk/rockchip/clk-rk3288.c
-index 64191694ff6e..9cfdbea493bb 100644
---- a/drivers/clk/rockchip/clk-rk3288.c
-+++ b/drivers/clk/rockchip/clk-rk3288.c
-@@ -835,6 +835,9 @@ static const int rk3288_saved_cru_reg_ids[] = {
- 	RK3288_CLKSEL_CON(10),
- 	RK3288_CLKSEL_CON(33),
- 	RK3288_CLKSEL_CON(37),
-+
-+	/* We turn aclk_dmac1 on for suspend; this will restore it */
-+	RK3288_CLKGATE_CON(10),
- };
+diff --git a/drivers/usb/host/ohci-da8xx.c b/drivers/usb/host/ohci-da8xx.c
+index ca8a94f15ac0..113401b7d70d 100644
+--- a/drivers/usb/host/ohci-da8xx.c
++++ b/drivers/usb/host/ohci-da8xx.c
+@@ -206,12 +206,23 @@ static int ohci_da8xx_regulator_event(struct notifier_block *nb,
+ 	return 0;
+ }
  
- static u32 rk3288_saved_cru_regs[ARRAY_SIZE(rk3288_saved_cru_reg_ids)];
-@@ -850,6 +853,14 @@ static int rk3288_clk_suspend(void)
- 				readl_relaxed(rk3288_cru_base + reg_id);
- 	}
+-static irqreturn_t ohci_da8xx_oc_handler(int irq, void *data)
++static irqreturn_t ohci_da8xx_oc_thread(int irq, void *data)
+ {
+ 	struct da8xx_ohci_hcd *da8xx_ohci = data;
++	struct device *dev = da8xx_ohci->hcd->self.controller;
++	int ret;
  
-+	/*
-+	 * Going into deep sleep (specifically setting PMU_CLR_DMA in
-+	 * RK3288_PMU_PWRMODE_CON1) appears to fail unless
-+	 * "aclk_dmac1" is on.
-+	 */
-+	writel_relaxed(1 << (12 + 16),
-+		       rk3288_cru_base + RK3288_CLKGATE_CON(10));
-+
- 	/*
- 	 * Switch PLLs other than DPLL (for SDRAM) to slow mode to
- 	 * avoid crashes on resume. The Mask ROM on the system will
+-	if (gpiod_get_value(da8xx_ohci->oc_gpio))
+-		gpiod_set_value(da8xx_ohci->vbus_gpio, 0);
++	if (gpiod_get_value_cansleep(da8xx_ohci->oc_gpio)) {
++		if (da8xx_ohci->vbus_gpio) {
++			gpiod_set_value_cansleep(da8xx_ohci->vbus_gpio, 0);
++		} else if (da8xx_ohci->vbus_reg) {
++			ret = regulator_disable(da8xx_ohci->vbus_reg);
++			if (ret)
++				dev_err(dev,
++					"Failed to disable regulator: %d\n",
++					ret);
++		}
++	}
+ 
+ 	return IRQ_HANDLED;
+ }
+@@ -438,8 +449,9 @@ static int ohci_da8xx_probe(struct platform_device *pdev)
+ 		if (oc_irq < 0)
+ 			goto err;
+ 
+-		error = devm_request_irq(dev, oc_irq, ohci_da8xx_oc_handler,
+-				IRQF_TRIGGER_RISING | IRQF_TRIGGER_FALLING,
++		error = devm_request_threaded_irq(dev, oc_irq, NULL,
++				ohci_da8xx_oc_thread, IRQF_TRIGGER_RISING |
++				IRQF_TRIGGER_FALLING | IRQF_ONESHOT,
+ 				"OHCI over-current indicator", da8xx_ohci);
+ 		if (error)
+ 			goto err;
 -- 
 2.20.1
 
