@@ -2,76 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9316C43E4E
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 17:49:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4423843E2C
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 17:48:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731727AbfFMPsp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 11:48:45 -0400
-Received: from mail-yb1-f193.google.com ([209.85.219.193]:46694 "EHLO
-        mail-yb1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731728AbfFMJSV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Jun 2019 05:18:21 -0400
-Received: by mail-yb1-f193.google.com with SMTP id p8so7530919ybo.13
-        for <stable@vger.kernel.org>; Thu, 13 Jun 2019 02:18:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=t0dHns27HFmxWDCAb9Jm++Mc8LpNUfnQOnC9cpmyGSw=;
-        b=UANnHxtgRBQ29wuYyyaqi7fPa1xDo/t6Ar45TfXkMhjZd6xaDuq44hLJ/ZHrybHXcT
-         MO1vOOdMrVUc9GIwIZeEQ8KvKJoMypFPPXh2E2Z9C2ih+TNNj1vicizRkYxed3EJXfUF
-         ZUfrBAg05w/sPJxRwMmovrb3wujaZhy9mIr/EOO3v4dg54Vfc+VBQzPX/dSRMjPwcfIi
-         mEu9euFNbeJSwDfMej/JenCdUOMHCAEsOeaoyJB6XYyHM1pzZjjxi0HcKt4SNSCHMVmk
-         XbEfsJy5I1Agp7hkh6rO70IO8VjizjrrDrSJxMZweu3FMrteT5ntm+5qu7zeFe1sp8nR
-         C5PQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=t0dHns27HFmxWDCAb9Jm++Mc8LpNUfnQOnC9cpmyGSw=;
-        b=S3+Z7WNxBwtLK/VHW4P27L3n9kE0gSrwUurXCvmVaQ3cLIA2lvbjopjIq5bJaDto+B
-         toaVbZm/K+I+tIuWy5ZhhwYBz/RcYFuHVo+jjnhjaXUssn29rymP/EWY2Gl+kO2tUbkx
-         XbHVxjNIkGs0xrBIeYLAxV3wPhWrQEO3I6DkfEZCiKsj5iYX7+50nxNllsp7pnXSRAlG
-         GT/jQVfuDtWOn3kL4PLA1ake9nWNi5bCkhFhOKhPjISz7MaAMgaBymiLGw7TfawBdbsb
-         cyeNJ3YxZj4OaS0nXSwmO812cUZh7MZT8fnqTsH4WHYw69R/9ZHUmt7ydtvkhPM046TP
-         WLHw==
-X-Gm-Message-State: APjAAAVclx28XrtxdUKckc4PXHP29H5lt8nD3o0uptsfVC2KCLAHKE1o
-        j1KVrXeua3Lcr79X6GWOcA5rRiVe5pO3UQOS
-X-Google-Smtp-Source: APXvYqwBpvLQDsuhL+iUb2TdIrLsAqF+AKXE1OsgryysOBdP+/hZ2Y0Ongjhea/62jtr+hsdGJjiOg==
-X-Received: by 2002:a25:d407:: with SMTP id m7mr40723607ybf.409.1560417500448;
-        Thu, 13 Jun 2019 02:18:20 -0700 (PDT)
-Received: from [172.20.10.3] (mobile-166-172-57-221.mycingular.net. [166.172.57.221])
-        by smtp.gmail.com with ESMTPSA id e77sm708106ywe.23.2019.06.13.02.18.18
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 13 Jun 2019 02:18:19 -0700 (PDT)
-Subject: Re: [PATCH] libata: Extend quirks for the ST1000LM024 drives with
- NOLPM quirk
-To:     Hans de Goede <hdegoede@redhat.com>
-Cc:     linux-ide@vger.kernel.org, stable@vger.kernel.org
-References: <20190611143259.28647-1-hdegoede@redhat.com>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <96b954ce-0c1d-7639-8b73-5dfc04b772b3@kernel.dk>
-Date:   Thu, 13 Jun 2019 03:18:15 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.0
+        id S1728654AbfFMPsA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 11:48:00 -0400
+Received: from mga01.intel.com ([192.55.52.88]:12151 "EHLO mga01.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1731743AbfFMJZE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 05:25:04 -0400
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 13 Jun 2019 02:25:03 -0700
+X-ExtLoop1: 1
+Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.174])
+  by orsmga001.jf.intel.com with SMTP; 13 Jun 2019 02:25:00 -0700
+Received: by stinkbox (sSMTP sendmail emulation); Thu, 13 Jun 2019 12:24:59 +0300
+Date:   Thu, 13 Jun 2019 12:24:59 +0300
+From:   Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     stable@vger.kernel.org, Blubberbub@protonmail.com,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [PATCH v2 1/4] drm/i915: Don't clobber M/N values during fastset
+ check
+Message-ID: <20190613092459.GV5942@intel.com>
+References: <20190612130801.2085-1-ville.syrjala@linux.intel.com>
+ <20190612172423.25231-1-ville.syrjala@linux.intel.com>
 MIME-Version: 1.0
-In-Reply-To: <20190611143259.28647-1-hdegoede@redhat.com>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190612172423.25231-1-ville.syrjala@linux.intel.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/11/19 8:32 AM, Hans de Goede wrote:
-> We've received a bugreport that using LPM with ST1000LM024 drives leads
-> to system lockups. So it seems that these models are buggy in more then
-> 1 way. Add NOLPM quirk to the existing quirks entry for BROKEN_FPDMA_AA.
+On Wed, Jun 12, 2019 at 08:24:23PM +0300, Ville Syrjala wrote:
+> From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> 
+> We're now calling intel_pipe_config_compare(..., true) uncoditionally
+> which means we're always going clobber the calculated M/N values with
+> the old values if the fuzzy M/N check passes. That causes problems
+> because the fuzzy check allows for a huge difference in the values.
+> 
+> I'm actually tempted to just make the M/N checks exact, but that might
+> prevent fastboot from kicking in when people want it. So for now let's
+> overwrite the computed values with the old values only if decide to skip
+> the modeset.
+> 
+> v2: Copy has_drrs along with M/N M2/N2 values
+> 
+> Cc: stable@vger.kernel.org
+> Cc: Blubberbub@protonmail.com
+> Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+> Cc: Hans de Goede <hdegoede@redhat.com>
+> Tested-by: Blubberbub@protonmail.com
+> Bugzilla: https://bugs.freedesktop.org/show_bug.cgi?id=110782
+> Fixes: d19f958db23c ("drm/i915: Enable fastset for non-boot modesets.")
+> Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-Applied, thanks.
+Looks like also
+https://bugs.freedesktop.org/show_bug.cgi?id=110675
+
+> ---
+>  drivers/gpu/drm/i915/intel_display.c | 36 +++++++++++++++++++++-------
+>  1 file changed, 28 insertions(+), 8 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/i915/intel_display.c b/drivers/gpu/drm/i915/intel_display.c
+> index 1b1ddb48ca7a..3d8ed1cf0ab7 100644
+> --- a/drivers/gpu/drm/i915/intel_display.c
+> +++ b/drivers/gpu/drm/i915/intel_display.c
+> @@ -12299,9 +12299,6 @@ intel_compare_link_m_n(const struct intel_link_m_n *m_n,
+>  			      m2_n2->gmch_m, m2_n2->gmch_n, !adjust) &&
+>  	    intel_compare_m_n(m_n->link_m, m_n->link_n,
+>  			      m2_n2->link_m, m2_n2->link_n, !adjust)) {
+> -		if (adjust)
+> -			*m2_n2 = *m_n;
+> -
+>  		return true;
+>  	}
+>  
+> @@ -13433,6 +13430,33 @@ static int calc_watermark_data(struct intel_atomic_state *state)
+>  	return 0;
+>  }
+>  
+> +static void intel_crtc_check_fastset(struct intel_crtc_state *old_crtc_state,
+> +				     struct intel_crtc_state *new_crtc_state)
+> +{
+> +	struct drm_i915_private *dev_priv =
+> +		to_i915(new_crtc_state->base.crtc->dev);
+> +
+> +	if (!intel_pipe_config_compare(dev_priv, old_crtc_state,
+> +				       new_crtc_state, true))
+> +		return;
+> +
+> +	new_crtc_state->base.mode_changed = false;
+> +	new_crtc_state->update_pipe = true;
+> +
+> +	/*
+> +	 * If we're not doing the full modeset we want to
+> +	 * keep the current M/N values as they may be
+> +	 * sufficiently different to the computed values
+> +	 * to cause problems.
+> +	 *
+> +	 * FIXME: should really copy more fuzzy state here
+> +	 */
+> +	new_crtc_state->fdi_m_n = old_crtc_state->fdi_m_n;
+> +	new_crtc_state->dp_m_n = old_crtc_state->dp_m_n;
+> +	new_crtc_state->dp_m2_n2 = old_crtc_state->dp_m2_n2;
+> +	new_crtc_state->has_drrs = old_crtc_state->has_drrs;
+> +}
+> +
+>  /**
+>   * intel_atomic_check - validate state object
+>   * @dev: drm device
+> @@ -13474,11 +13498,7 @@ static int intel_atomic_check(struct drm_device *dev,
+>  		if (ret)
+>  			goto fail;
+>  
+> -		if (intel_pipe_config_compare(dev_priv, old_crtc_state,
+> -					      new_crtc_state, true)) {
+> -			new_crtc_state->base.mode_changed = false;
+> -			new_crtc_state->update_pipe = true;
+> -		}
+> +		intel_crtc_check_fastset(old_crtc_state, new_crtc_state);
+>  
+>  		if (needs_modeset(&new_crtc_state->base))
+>  			any_ms = true;
+> -- 
+> 2.21.0
 
 -- 
-Jens Axboe
-
+Ville Syrjälä
+Intel
