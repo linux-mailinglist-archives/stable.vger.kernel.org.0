@@ -2,88 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DFB424438D
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:30:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDE01444AE
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:38:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392459AbfFMQaf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:30:35 -0400
-Received: from mail-wr1-f68.google.com ([209.85.221.68]:44603 "EHLO
-        mail-wr1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2392393AbfFMQa0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Jun 2019 12:30:26 -0400
-Received: by mail-wr1-f68.google.com with SMTP id r16so2335018wrl.11
-        for <stable@vger.kernel.org>; Thu, 13 Jun 2019 09:30:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:in-reply-to
-         :references:subject:to:from:cc;
-        bh=fbFJcCZogG4E0hVeCzNVPT+VFyUUm0Zv3ff/zggRHYY=;
-        b=nC26i9JZniQCZC/cxtHX3spCrKHdGQw/wG6eftGbeaFS50K26skje7xVYYal3QjLyy
-         hLPTDRtiG7DlPKoeF0lF9Er2i0uHz0iI2yNx+Av7Yo5iWpvLuFBDg6gl1/RPeIYTQScH
-         jm+6FxTaJ3K4otAkUwc4N3wDGrxixX0744FgmJbk7gkweXPsgWUu9UohbJ78CJAttij+
-         iq4WL7NW/oGdRcA1+xofjHY/zbBArzMk1Z87t421coV5fW0Q4O2XusJkXtXnm7A1p+EK
-         emVX2QhkmwlPGW841InmZBl/jmjOOUoF8u2cPvgoaDC9PCmj79rfozcL6jJbw5G7f5rh
-         cSSA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:in-reply-to:references:subject:to:from:cc;
-        bh=fbFJcCZogG4E0hVeCzNVPT+VFyUUm0Zv3ff/zggRHYY=;
-        b=nHYvVVT8mgiTlgHOl8hQE4RgV9pbfyxICC5JvlUITd9qj5ZzniOwM/JYllCO6YO7qM
-         uj4fQGoy8qbOE9iO6407oTIwvm+L6GEHV/AmBLkw1ZGf8zvxXnpZLuXeOUTjv2wr8vje
-         RubzjYJYek0FdxU28iNTehcVpEckqOfGX09gmmbBD7QFpyYWoxajM1gP6iicOmtbdVXO
-         RK7q3HkVk/jlYZUqJSejBA+ApivyaOGHMtlBSriiXcCxRf5BcJngMVjgSkWXKEjBtdid
-         B3YitpBvdqS1GxuqSWI1BEnqHrWeSsE8cENjRM504dPbE3QhorUHnrjWA9Tk06P4Zd99
-         BOtw==
-X-Gm-Message-State: APjAAAXQL1i7fVpBmaAKHm/rqB+HlF16SwoN72b6lcydMEkEdlrnk4WN
-        arvhtxcRxlM9Y58aR1HbP3CbpA==
-X-Google-Smtp-Source: APXvYqwNQCbkcJmm/T/NHKOZkmzfBzdL0AsrgI/bKFEd3JLelxC5l8wP46eIXBRintpzIwFqS6LM9Q==
-X-Received: by 2002:adf:fc91:: with SMTP id g17mr9205518wrr.194.1560443425582;
-        Thu, 13 Jun 2019 09:30:25 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id f1sm180193wml.28.2019.06.13.09.30.24
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 13 Jun 2019 09:30:24 -0700 (PDT)
-Message-ID: <5d027a20.1c69fb81.fcc4f.1023@mx.google.com>
-Date:   Thu, 13 Jun 2019 09:30:24 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.14.125-82-ge64912eac71b
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Tree: stable-rc
-In-Reply-To: <20190613075649.074682929@linuxfoundation.org>
-References: <20190613075649.074682929@linuxfoundation.org>
-Subject: Re: [PATCH 4.14 00/81] 4.14.126-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        id S1730615AbfFMQi2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:38:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57062 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727146AbfFMQi2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 12:38:28 -0400
+Received: from localhost (unknown [131.107.160.220])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5EBC021721;
+        Thu, 13 Jun 2019 16:38:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1560443907;
+        bh=47OI/WHldkELOJjKlPRNovd4Yofv6MNP01TzR/J0npI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Lihu3Zlw0OB/9SSzFrAE+wWU36whQ9I/K+rZDmeIeBbDu1A0G2K1owAQrTVl84Qzk
+         irQa+StqXFK8K4GgR/Ijo6LsxPSbAU6HBSU5lWF+QhBnulj+XEMXIb0M/z0IzJ5ckZ
+         17FS/YjkyITACL97QCtopfnoie56W/jMyEy6oDjA=
+Date:   Thu, 13 Jun 2019 12:38:27 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Guenter Roeck <linux@roeck-us.net>, linux-kernel@vger.kernel.org,
         torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        shuah@kernel.org, patches@kernelci.org,
         ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
         stable@vger.kernel.org
+Subject: Re: [PATCH 4.14 00/81] 4.14.126-stable review
+Message-ID: <20190613163827.GJ1513@sasha-vm>
+References: <20190613075649.074682929@linuxfoundation.org>
+ <1139f9d4-1a0a-b422-276d-546e7cb1bc85@roeck-us.net>
+ <20190613153744.GA15226@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20190613153744.GA15226@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y boot: 116 boots: 0 failed, 116 passed (v4.14.125-82-=
-ge64912eac71b)
+On Thu, Jun 13, 2019 at 05:37:44PM +0200, Greg Kroah-Hartman wrote:
+>On Thu, Jun 13, 2019 at 08:11:33AM -0700, Guenter Roeck wrote:
+>> On 6/13/19 1:32 AM, Greg Kroah-Hartman wrote:
+>> > This is the start of the stable review cycle for the 4.14.126 release.
+>> > There are 81 patches in this series, all will be posted as a response
+>> > to this one.  If anyone has any issues with these being applied, please
+>> > let me know.
+>> >
+>> > Responses should be made by Sat 15 Jun 2019 07:54:51 AM UTC.
+>> > Anything received after that time might be too late.
+>> >
+>>
+>> [early feedback]
+>>
+>> Building mips:nlm_xlp_defconfig ... failed (and other mips builds)
+>> --------------
+>> Error log:
+>> /opt/buildbot/slave/stable-queue-4.14/build/arch/mips/kernel/prom.c: In function 'early_init_dt_add_memory_arch':
+>> /opt/buildbot/slave/stable-queue-4.14/build/arch/mips/kernel/prom.c:44:14: error: 'PHYS_ADDR_MAX' undeclared
+>>
+>> The problem affects v4.14.y and all earlier branches.
+>> PHYS_ADDR_MAX is indeed undeclared in those branches. It was introduced
+>> with commit 1c4bc43ddfd52 ("mm/memblock: introduce PHYS_ADDR_MAX").
+>
+>Thanks, I've dropped the mips patch that caused this.  I'll also drop it
+>from the 4.4 and 4.9 trees.
+>
+>Sasha, I thought you had builders set up for stuff like this?
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.14.y/kernel/v4.14.125-82-ge64912eac71b/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.125-82-ge64912eac71b/
+Yes, and apparently I was naive thinking that
+'allmodconfig'/'allyesconfig' would catch these, but that's not the
+case.
 
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.125-82-ge64912eac71b
-Git Commit: e64912eac71ba57be3613c8fcc36e316fe8aa601
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 62 unique boards, 23 SoC families, 14 builds out of 201
-
----
-For more info write to <info@kernelci.org>
+--
+Thanks,
+Sasha
