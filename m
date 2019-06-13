@@ -2,352 +2,339 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BE20C43E18
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 17:47:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FF3643DFD
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 17:46:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732447AbfFMPrc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 11:47:32 -0400
-Received: from mail-ua1-f66.google.com ([209.85.222.66]:34515 "EHLO
-        mail-ua1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731757AbfFMJaJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Jun 2019 05:30:09 -0400
-Received: by mail-ua1-f66.google.com with SMTP id c4so2580818uad.1
-        for <stable@vger.kernel.org>; Thu, 13 Jun 2019 02:30:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=dPa72g8ADOpM0ZxpsGvqpjEmyUt4v+QjG+bVcORJbcI=;
-        b=qLFx15u1Yty0zsAzoUOq0rf+KbBHb5/in8gyY74bBSaTflA8E1Pusw0msCRxg1f37a
-         1QKQMOPIJTKglGICyyELfhUJ/wQ/1Lu8RDKEmjf7UMTZnBsPN1azkFifx1KhWnTIL42M
-         cgcLER0GvhMHygbruAWp0GVB+HnFgc8PN2NCjQdMVq69FXuORiXEJfQ6/LhEeUcTS/Gi
-         97HqN+ICIwUw12cipzcY25OdemnwpA8w03JFnD8SIfSrLpj0Ak8cqmZHiFLrbqCDU09Z
-         Rr1PGAzhqH98ZkTftSwWOUFua3NyrvM/SbTDB14/JxUhCg2GXQlfccA2H0JCfc/v5cEu
-         SrWw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=dPa72g8ADOpM0ZxpsGvqpjEmyUt4v+QjG+bVcORJbcI=;
-        b=JumBV+dGvNir2rddTOG9yT+htWlM8eQU444hHYCUoDApEDokvh546dDRrpmM4jy4I7
-         BmZ0eH/7SNdEiNrMm0MmbFE3qbdc0RWThzUtR7qzg0gJUTY+YC8XoxtOFA/0ZPHtMtDP
-         80ao5bI+8wV2EIXC+kQ4ruXVkBnh4hHBjCg5YRM5511CVy1breHSBKzwU7ZcFtcgHnIC
-         nrZv21JYp52KLlXmLS6xopAAWVjvWr2Ovcq4i37Yp6t91/U/CYRt58VMOhRdA8IKE9B8
-         4LzI4zn5eLZXpfXlhd/uuZurXBBD8d6I8jSekUjAzo1POaEovMwS/INZU90XkWLRBUAJ
-         2Zkw==
-X-Gm-Message-State: APjAAAU8smYiCHwkdjv446w5tpGsmpLJ6iR3BCwJWoNAugPxD1G7XiEA
-        gdSUua9eem0ZT3+YSkPkG546VJ89FmA+Vp95AzuNdg==
-X-Google-Smtp-Source: APXvYqysdwXSOCNEldjb5LKU+pKlg2cmkzbGg45GyytHDdl2rZ+Ospq2CWbdizDeVFbwhe4+AepHFd1wDztUHRyJBtE=
-X-Received: by 2002:ab0:1309:: with SMTP id g9mr17640889uae.129.1560418208288;
- Thu, 13 Jun 2019 02:30:08 -0700 (PDT)
+        id S1729003AbfFMPqs convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Thu, 13 Jun 2019 11:46:48 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:48606 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1731781AbfFMJf5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 05:35:57 -0400
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com [10.5.11.22])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id A90DC2CE945
+        for <stable@vger.kernel.org>; Thu, 13 Jun 2019 09:35:55 +0000 (UTC)
+Received: from [172.54.212.135] (cpt-0039.paas.prod.upshift.rdu2.redhat.com [10.0.18.123])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id D948C1001B10;
+        Thu, 13 Jun 2019 09:35:52 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-References: <20190611123221.11580-1-ulf.hansson@linaro.org> <CAD=FV=XBVRsdiOD0vhgTvMXmqm=fzy9Bzd_x=E1TNPBsT_D-tQ@mail.gmail.com>
-In-Reply-To: <CAD=FV=XBVRsdiOD0vhgTvMXmqm=fzy9Bzd_x=E1TNPBsT_D-tQ@mail.gmail.com>
-From:   Ulf Hansson <ulf.hansson@linaro.org>
-Date:   Thu, 13 Jun 2019 11:29:31 +0200
-Message-ID: <CAPDyKFqR-xSKdYZYBTK5kKOt1dk7dx_BjedHiDOKs7-X4od=dg@mail.gmail.com>
-Subject: Re: [PATCH] mmc: core: Prevent processing SDIO IRQs when the card is suspended
-To:     Doug Anderson <dianders@chromium.org>
-Cc:     Linux MMC List <linux-mmc@vger.kernel.org>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Brian Norris <briannorris@chromium.org>,
-        Shawn Lin <shawn.lin@rock-chips.com>,
-        Guenter Roeck <groeck@chromium.org>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        linux-wireless <linux-wireless@vger.kernel.org>,
-        "# 4.0+" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-5.1
+Message-ID: <cki.97519EA79F.O1BGVCR5DX@redhat.com>
+X-Gitlab-Pipeline-ID: 12153
+X-Gitlab-Pipeline: =?utf-8?q?https=3A//xci32=2Elab=2Eeng=2Erdu2=2Eredhat=2Ec?=
+ =?utf-8?q?om/cki-project/cki-pipeline/pipelines/12153?=
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.29]); Thu, 13 Jun 2019 09:35:55 +0000 (UTC)
+Date:   Thu, 13 Jun 2019 05:35:57 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 13 Jun 2019 at 00:20, Doug Anderson <dianders@chromium.org> wrote:
->
-> Hi,
->
-> On Tue, Jun 11, 2019 at 5:32 AM Ulf Hansson <ulf.hansson@linaro.org> wrote:
-> >
-> > Processing of SDIO IRQs must obviously be prevented while the card is
-> > system suspended, otherwise we may end up trying to communicate with an
-> > uninitialized SDIO card.
-> >
-> > Reports throughout the years shows that this is not only a theoretical
-> > problem, but a real issue. So, let's finally fix this problem, by keeping
-> > track of the state for the card and bail out before processing the SDIO
-> > IRQ, in case the card is suspended.
-> >
-> > Cc: stable@vger.kernel.org
-> > Reported-by: Douglas Anderson <dianders@chromium.org>
-> > Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-> > ---
-> >
-> > This has only been compile tested so far, any help for real test on HW is
-> > greatly appreciated.
->
-> Thanks for sending this!
+Hello,
 
-Thanks for you detailed reply - with a hole bunch of good thoughts and results!
+We ran automated tests on a patchset that was proposed for merging into this
+kernel tree. The patches were applied to:
 
->
->
-> > Note that, this is only the initial part of what is needed to make power
-> > management of SDIO card more robust, but let's start somewhere and continue to
-> > improve things.
-> >
-> > The next step I am looking at right now, is to make sure the SDIO IRQ is turned
-> > off during system suspend, unless it's supported as a system wakeup (and enabled
-> > to be used).
->
-> My gut says that the partway solution is going to be a problem on some
-> controllers / systems, even though it seems to work OK on mine.  See
-> my thoughts below and let me know what you think.
->
->
-> > ---
-> >  drivers/mmc/core/sdio.c     | 7 +++++++
-> >  drivers/mmc/core/sdio_irq.c | 4 ++++
-> >  2 files changed, 11 insertions(+)
-> >
-> > diff --git a/drivers/mmc/core/sdio.c b/drivers/mmc/core/sdio.c
-> > index d1aa1c7577bb..9951295d3220 100644
-> > --- a/drivers/mmc/core/sdio.c
-> > +++ b/drivers/mmc/core/sdio.c
-> > @@ -937,6 +937,10 @@ static int mmc_sdio_pre_suspend(struct mmc_host *host)
-> >   */
-> >  static int mmc_sdio_suspend(struct mmc_host *host)
-> >  {
-> > +       /* Prevent processing of SDIO IRQs in suspended state. */
-> > +       mmc_card_set_suspended(host->card);
->
-> Do you need to claim / release the host around the call to
-> mmc_card_set_suspended() to avoid races?
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+            Commit: 2df16141a2c4 - Linux 5.1.9
 
-The intent is that the races should be taken care of like this:
-1) In MMC_CAP2_SDIO_IRQ_NOTHREAD case, the call to
-cancel_delayed_work_sync() below, will make sure that if there are any
-new work scheduled beyond that point, mmc_card_suspended() will be set
-and process_sdio_pending_irqs() will bail out.
+The results of these automated tests are provided below.
 
-2. In the non MMC_CAP2_SDIO_IRQ_NOTHREAD case, the call to
-mmc_claim_host() below will make sure if there is any new attempt to
-claim the host from the kthread, mmc_card_suspended() will be set and
-process_sdio_pending_irqs() bails out.
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
 
-Ideally in the long run and want to remove the SDIO kthread, so
-perhaps this is good enough for now, what do you think?
 
-BTW, the important point is that the call to
-cancel_delayed_work_sync(), must not be done while keeping the host
-claimed, as then it could deadlock.
+We hope that these logs can help you find the problem quickly. For the full
+detail on our testing procedures, please scroll to the bottom of this message.
 
->
->
->
-> > +       cancel_delayed_work_sync(&host->sdio_irq_work);
-> > +
-> >         mmc_claim_host(host);
-> >
-> >         if (mmc_card_keep_power(host) && mmc_card_wake_sdio_irq(host))
-> > @@ -985,6 +989,9 @@ static int mmc_sdio_resume(struct mmc_host *host)
-> >                 err = sdio_enable_4bit_bus(host->card);
-> >         }
-> >
-> > +       /* Allow SDIO IRQs to be processed again. */
-> > +       mmc_card_clr_suspended(host->card);
-> > +
->
-> Do you need to check for "!err" before calling
-> mmc_card_clr_suspended()?  ...or add an "if (err) goto exit" type
-> thing and get rid of the "!err" check below?
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
 
-I was lazy. Good point!
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
 
->
->
-> >         if (!err && host->sdio_irqs) {
-> >                 if (!(host->caps2 & MMC_CAP2_SDIO_IRQ_NOTHREAD))
-> >                         wake_up_process(host->sdio_irq_thread);
-> > diff --git a/drivers/mmc/core/sdio_irq.c b/drivers/mmc/core/sdio_irq.c
-> > index 931e6226c0b3..9f54a259a1b3 100644
-> > --- a/drivers/mmc/core/sdio_irq.c
-> > +++ b/drivers/mmc/core/sdio_irq.c
-> > @@ -34,6 +34,10 @@ static int process_sdio_pending_irqs(struct mmc_host *host)
-> >         unsigned char pending;
-> >         struct sdio_func *func;
-> >
-> > +       /* Don't process SDIO IRQs if the card is suspended. */
-> > +       if (mmc_card_suspended(card))
-> > +               return 0;
-> > +
->
-> Is it really OK to just return like this?  I guess there are two
-> (somewhat opposite) worries I'd have.  See A) and B) below:
+Merge testing
+-------------
 
-Let me comment on A) and B) below, for sure there are more problems to address.
+We cloned this repository and checked out the following commit:
 
-The main reason to why I think it's okay to bail out here, is because
-I think it still improves the current behavior a lot. So, rather than
-solving all problems at once, I wanted to take a step by step
-approach.
+  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: 2df16141a2c4 - Linux 5.1.9
 
->
-> A) Do we need to do anything extra to make sure we actually call the
-> interrupt handler after we've resumed?  I guess we can't actually
-> "lose" the interrupt since it will be sitting asserted in CCCR_INTx
-> until we deal with it (right?), but maybe we need to do something to
-> ensure the handler gets called once we're done resuming?
 
-Good point!
+We then merged the patchset with `git am`:
 
-Although, it also depends on if we are going to power off the SDIO
-card or not. In other words, if the SDIO IRQ are configured as a
-system wakeup.
+  revert-drm-allow-render-capable-master-with-drm_auth.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  media-rockchip-vpu-fix-re-order-probe-error-remove-p.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  media-rockchip-vpu-add-missing-dont_use_autosuspend-.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  rapidio-fix-a-null-pointer-dereference-when-create_w.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  fs-fat-file.c-issue-flush-after-the-writeback-of-fat.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  sysctl-return-einval-if-val-violates-minmax.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  ipc-prevent-lockup-on-alloc_msg-and-free_msg.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  drm-msm-correct-attempted-null-pointer-dereference-i.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  drm-pl111-initialize-clock-spinlock-early.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  mm-mprotect.c-fix-compilation-warning-because-of-unu.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  arm-prevent-tracing-ipi_cpu_backtrace.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  mm-hmm-select-mmu-notifier-when-selecting-hmm.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  hugetlbfs-on-restore-reserve-error-path-retain-subpo.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  mm-memory_hotplug-release-memory-resource-after-arch.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  mem-hotplug-fix-node-spanned-pages-when-we-have-a-no.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  mm-cma.c-fix-crash-on-cma-allocation-if-bitmap-alloc.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  initramfs-free-initrd-memory-if-opening-initrd.image.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  mm-compaction.c-fix-an-undefined-behaviour.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  mm-memory_hotplug.c-fix-the-wrong-usage-of-n_high_me.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  mm-cma.c-fix-the-bitmap-status-to-show-failed-alloca.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  mm-page_mkclean-vs-madv_dontneed-race.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  mm-cma_debug.c-fix-the-break-condition-in-cma_maxchu.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  mm-slab.c-fix-an-infinite-loop-in-leaks_show.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  kernel-sys.c-prctl-fix-false-positive-in-validate_pr.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  thermal-rcar_gen3_thermal-disable-interrupt-in-.remo.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  drivers-thermal-tsens-don-t-print-error-message-on-e.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  mfd-tps65912-spi-add-missing-of-table-registration.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  mfd-intel-lpss-set-the-device-in-reset-state-when-in.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  drm-nouveau-disp-dp-respect-sink-limits-when-selecti.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  mfd-twl6040-fix-device-init-errors-for-accctl-regist.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  perf-x86-intel-allow-pebs-multi-entry-in-watermark-m.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  drm-nouveau-kms-gf119-gp10x-push-headsetcontroloutpu.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  drm-nouveau-fix-duplication-of-nv50_head_atom-struct.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  drm-bridge-adv7511-fix-low-refresh-rate-selection.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  objtool-don-t-use-ignore-flag-for-fake-jumps.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  drm-nouveau-kms-gv100-fix-spurious-window-immediate-.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  bpf-fix-undefined-behavior-in-narrow-load-handling.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  edac-mpc85xx-prevent-building-as-a-module.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  pwm-meson-use-the-spin-lock-only-to-protect-register.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  mailbox-stm32-ipcc-check-invalid-irq.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  ntp-allow-tai-utc-offset-to-be-set-to-zero.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  f2fs-fix-to-avoid-panic-in-do_recover_data.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  f2fs-fix-to-avoid-panic-in-f2fs_inplace_write_data.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  f2fs-fix-error-path-of-recovery.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  f2fs-fix-to-avoid-panic-in-f2fs_remove_inode_page.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  f2fs-fix-to-do-sanity-check-on-free-nid.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  f2fs-fix-to-clear-dirty-inode-in-error-path-of-f2fs_.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  f2fs-fix-to-avoid-panic-in-dec_valid_block_count.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  f2fs-fix-to-use-inline-space-only-if-inline_xattr-is.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  f2fs-fix-to-avoid-panic-in-dec_valid_node_count.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  f2fs-fix-to-do-sanity-check-on-valid-block-count-of-.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  f2fs-fix-to-avoid-deadloop-in-foreground-gc.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  f2fs-fix-to-retrieve-inline-xattr-space.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  f2fs-fix-to-do-checksum-even-if-inode-page-is-uptoda.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  media-atmel-atmel-isc-fix-asd-memory-allocation.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  percpu-remove-spurious-lock-dependency-between-percp.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  configfs-fix-possible-use-after-free-in-configfs_reg.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  uml-fix-a-boot-splat-wrt-use-of-cpu_all_mask.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  pci-dwc-free-msi-in-dw_pcie_host_init-error-path.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  pci-dwc-free-msi-irq-page-in-dw_pcie_free_msi.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  fbcon-don-t-reset-logo_shown-when-logo-is-currently-.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  ovl-do-not-generate-duplicate-fsnotify-events-for-fa.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  mmc-mmci-prevent-polling-for-busy-detection-in-irq-c.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  netfilter-nf_flow_table-fix-missing-error-check-for-.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  netfilter-nf_conntrack_h323-restore-boundary-check-c.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  mips-make-sure-dt-memory-regions-are-valid.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  netfilter-nf_tables-fix-base-chain-stat-rcu_derefere.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  watchdog-imx2_wdt-fix-set_timeout-for-big-timeout-va.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  watchdog-fix-compile-time-error-of-pretimeout-govern.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  blk-mq-move-cancel-of-requeue_work-into-blk_mq_relea.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  iommu-vt-d-set-intel_iommu_gfx_mapped-correctly.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  vfio-pci-nvlink2-fix-potential-vma-leak.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  misc-pci_endpoint_test-fix-test_reg_bar-to-be-update.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  pci-designware-ep-use-aligned-atu-window-for-raising.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  nvme-pci-unquiesce-admin-queue-on-shutdown.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  nvme-pci-shutdown-on-timeout-during-deletion.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  netfilter-nf_flow_table-check-ttl-value-in-flow-offl.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  netfilter-nf_flow_table-fix-netdev-refcnt-leak.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  alsa-hda-register-irq-handler-after-the-chip-initial.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  powerpc-pseries-track-lmb-nid-instead-of-using-devic.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  arm64-defconfig-update-ufshcd-for-hi3660-soc.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  iommu-vt-d-don-t-request-page-request-irq-under-dmar.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  nvmem-core-fix-read-buffer-in-place.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  nvmem-sunxi_sid-support-sid-on-a83t-and-h5.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  fuse-retrieve-cap-requested-size-to-negotiated-max_w.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  nfsd-allow-fh_want_write-to-be-called-twice.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  nfsd-avoid-uninitialized-variable-warning.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  vfio-fix-warning-do-not-call-blocking-ops-when-task_.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  iommu-arm-smmu-v3-don-t-disable-smmu-in-kdump-kernel.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  switchtec-fix-unintended-mask-of-mrpc-event.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  net-thunderbolt-unregister-thunderboltip-protocol-ha.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  x86-pci-fix-pci-irq-routing-table-memory-leak.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  soc-tegra-pmc-remove-reset-sysfs-entries-on-error.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  i40e-queues-are-reserved-despite-invalid-argument-er.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  power-supply-cpcap-battery-fix-signed-counter-sample.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  platform-chrome-cros_ec_proto-check-for-null-transfe.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  pci-keystone-invoke-phy_reset-api-before-enabling-ph.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  pci-keystone-prevent-arm32-specific-code-to-be-compi.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  soc-mediatek-pwrap-zero-initialize-rdata-in-pwrap_in.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  clk-rockchip-turn-on-aclk_dmac1-for-suspend-on-rk328.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  usb-ohci-da8xx-disable-the-regulator-if-the-overcurr.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  iommu-vt-d-flush-iotlb-for-untrusted-device-in-time.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  soc-rockchip-set-the-proper-pwm-for-rk3288.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  arm64-dts-imx8mq-mark-iomuxc_gpr-as-i.mx6q-compatibl.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  arm-dts-imx51-specify-imx5_clk_ipg-as-ahb-clock-to-s.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  arm-dts-imx50-specify-imx5_clk_ipg-as-ahb-clock-to-s.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  arm-dts-imx53-specify-imx5_clk_ipg-as-ahb-clock-to-s.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  arm-dts-imx6sx-specify-imx6sx_clk_ipg-as-ahb-clock-t.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  arm-dts-imx6sll-specify-imx6sll_clk_ipg-as-ipg-clock.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  arm-dts-imx7d-specify-imx7d_clk_ipg-as-ipg-clock-to-.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  arm-dts-imx6ul-specify-imx6ul_clk_ipg-as-ipg-clock-t.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  arm-dts-imx6sx-specify-imx6sx_clk_ipg-as-ipg-clock-t.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  arm-dts-imx6qdl-specify-imx6qdl_clk_ipg-as-ipg-clock.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  pci-rpadlpar-fix-leaked-device_node-references-in-ad.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  drm-amd-display-disable-link-before-changing-link-se.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  drm-amd-display-use-plane-color_space-for-dpp-if-spe.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  alsa-seq-protect-in-kernel-ioctl-calls-with-mutex.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  arm-omap2-pm33xx-core-do-not-turn-off-cefuse-as-ppa-.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  pinctrl-pinctrl-intel-move-gpio-suspend-resume-to-no.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  platform-x86-intel_pmc_ipc-adding-error-handling.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  power-supply-max14656-fix-potential-use-before-alloc.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  f2fs-fix-potential-recursive-call-when-enabling-data.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  net-hns3-return-0-and-print-warning-when-hit-duplica.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  pci-dwc-remove-default-msi-initialization-for-platfo.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  pci-rcar-fix-a-potential-null-pointer-dereference.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  pci-rcar-fix-64bit-msi-message-address-handling.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  scsi-qla2xxx-reset-the-fcf_async_-sent-active-flags.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  input-goodix-add-gt5663-ctp-support.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  video-hgafb-fix-potential-null-pointer-dereference.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  video-imsttfb-fix-potential-null-pointer-dereference.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  block-bfq-increase-idling-for-weight-raised-queues.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  pci-xilinx-check-for-__get_free_pages-failure.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  arm64-dts-qcom-qcs404-fix-regulator-supply-names.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  gpio-gpio-omap-add-check-for-off-wake-capable-gpios.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  gpio-gpio-omap-limit-errata-1.101-handling-to-wkup-d.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  ice-add-missing-case-in-print_link_msg-for-printing-.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  media-v4l2-ctrl-v4l2_ctrl_request_setup-returns-with.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  batman-adv-adjust-name-for-batadv_dat_send_data.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  ice-enable-lan_en-for-the-right-recipes.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  ice-do-not-set-lb_en-for-prune-switch-rules.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  dmaengine-idma64-use-actual-device-for-dma-transfers.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  pwm-tiehrpwm-update-shadow-register-for-disabling-pw.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  media-v4l2-fwnode-defaults-may-not-override-endpoint.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  arm-dts-exynos-always-enable-necessary-apio_1v8-and-.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  pwm-fix-deadlock-warning-when-removing-pwm-device.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  arm-exynos-fix-undefined-instruction-during-exynos54.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  usb-typec-fusb302-check-vconn-is-off-when-we-start-t.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  soc-renesas-identify-r-car-m3-w-es1.3.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  arm-shmobile-porter-enable-r-car-gen2-regulator-quir.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  gpio-vf610-do-not-share-irq_chip.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
+  percpu-do-not-search-past-bitmap-when-allocating-an-.patch?id=67c62f8dfe91c623f7105e941258790b2ac2b500
 
-Moreover there is another related problem, if the SDIO IRQ are
-configured as a system wakeup, and if there is an IRQ raised during
-the system suspend process, the system suspend process should be
-aborted but it may not. This is another issue that currently isn't
-supported. The PM core helps to deals with this, but to take advantage
-of that, the host controller device device must be configured via the
-common wakeup interfaces, such as the device_init_wakeup(), for
-example.
+Compile testing
+---------------
 
->
-> A1) old SDIO thread case
->
-> I think we'll be OK in the old SDIO thread case.  We'll call
-> wake_up_process() after we clear the suspended state and then we'll
-> either see "sdio_irq_pending" was set to true or we'll poll CCCR_INTx.
+We compiled the kernel for 4 architectures:
 
-Good point. I keep this observation in mind about the sdio_irq_pending
-flag, when going forward.
+  aarch64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-cc5ab787bf46febffe306ce77dd97e5b05a70ff9.config
+    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-cc5ab787bf46febffe306ce77dd97e5b05a70ff9.tar.gz
 
->
-> --
->
-> A2): new MMC_CAP2_SDIO_IRQ_NOTHREAD case
->
-> Should we do something to re-kick things?  We could call
-> sdio_signal_irq() in mmc_sdio_resume() I guess?  I was worried that
-> might conflict with those that call sdio_run_irqs() directly but it
-> seems like that's nobody as of commit 89f3c365f3e1 ("mmc: sdhci: Fix
-> SDIO IRQ thread deadlock").
+  ppc64le:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-cc5ab787bf46febffe306ce77dd97e5b05a70ff9.config
+    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-cc5ab787bf46febffe306ce77dd97e5b05a70ff9.tar.gz
 
-Good point!
+  s390x:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-cc5ab787bf46febffe306ce77dd97e5b05a70ff9.config
+    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-cc5ab787bf46febffe306ce77dd97e5b05a70ff9.tar.gz
 
-Again, whether we should re-kick things depends on if the SDIO IRQ is
-configured as wakeup, but in general using sdio_signal_irq() should
-work.
+  x86_64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-cc5ab787bf46febffe306ce77dd97e5b05a70ff9.config
+    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-cc5ab787bf46febffe306ce77dd97e5b05a70ff9.tar.gz
 
-The other part I am considering is to disable the SDIO irq, in case of
-"mmc_card_keep_power() && !mmc_card_wake_sdio_irq()".
 
-Moreover, if !mmc_card_keep_power(), then there really shouldn't be
-any IRQs registered so perhaps we should add a special check for that
-and return an error code.
+Hardware testing
+----------------
 
-In regards to other callers of sdio_run_irqs(). I have a patch that
-makes it this function static, as it really should not need to be used
-other than from the work queue path. Let me post it asap to cover that
-gap. Again, thanks for pointing this out!
+We booted each kernel and ran the following tests:
 
->
-> NOTE: I put a bunch of debug printouts and I'm fairly convinced that
-> this is a real problem.  Sort of.  Specifically I confirmed that in
-> dw_mmc the SDIO interrupt seems to be treated as an edge-triggered
-> interrupt.  AKA: in dw_mci_interrupt() when we write to "RINTSTS" as
-> we're handling the interrupt the interrupt immediately stops
-> asserting.  It doesn't actually fire again until the Marvell SDIO
-> resume functions run.  I didn't dig enough to figure out what
-> specifically makes the interrupt fire again in the Marvell resume
-> functions, but it seems a little concerning that we're relying on
-> something in that driver to re-kick the host controller interrupt.
+  aarch64:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ xfstests: xfs [1]
+       ✅ selinux-policy: serge-testsuite [2]
 
-I fully agree, the re-kick thingy is definitely needed.
+    Host 2:
+       ✅ Boot test [0]
+       ✅ LTP lite [3]
+       ✅ Loopdev Sanity [4]
+       ✅ AMTU (Abstract Machine Test Utility) [5]
+       ✅ Ethernet drivers sanity [6]
+       ✅ audit: audit testsuite test [7]
+       ✅ httpd: mod_ssl smoke sanity [8]
+       ✅ iotop: sanity [9]
+       ✅ tuned: tune-processes-through-perf [10]
+       ✅ Usex - version 1.9-29 [11]
+       ✅ lvm thinp sanity [12]
+       🚧 ✅ Networking socket: fuzz [13]
+       🚧 ✅ storage: SCSI VPD [14]
+       🚧 ✅ storage: software RAID testing [15]
+       🚧 ✅ Libhugetlbfs - version 2.2.1 [16]
 
->
-> ...side note: overall looking at this code path, two additional
-> questions come up for me.  One is why sdio_run_irqs() hardcodes
-> "sdio_irq_pending" as true.  That means we won't _ever_ poll CCCR_INTx
-> in the 1-function case, right?  That seems wrong.  The other is why
 
-In the 1-function case, the idea is that we don't have to read the
-CCCR_INTx to find out what func number the IRQ belongs to.
+  ppc64le:
 
-This is the same behavior consistent as with the kthread case, see
-mmc_signal_sdio_irq(), unless I am mistaken.
+    ⚡ Internal infrastructure issues prevented one or more tests from running
+    on this architecture. This is not the fault of the kernel that was tested.
 
-> mmc_sdio_resume() always calls host->ops->enable_sdio_irq(host, 1) at
-> resume time when nobody ever turned the IRQs off.
+  s390x:
 
-That's correct and it leads to unbalanced calls of
-host->ops->enable_sdio_irq(). This needs to be fixed as well.
+    ⚡ Internal infrastructure issues prevented one or more tests from running
+    on this architecture. This is not the fault of the kernel that was tested.
 
->
-> ===
->
-> B) Are there any instances where the interrupt will just keep firing
-> over and over again because we don't handle it?
->
-> As per above, this _isn't_ happening on dw_mmc on my setup because
-> dw_mmc seems to treat the SDIO interrupt as edge triggered.  ...but is
-> this true everywhere?  If we were using SDIO in 1-bit mode on dw_mmc,
-> would the interrupt re-assert right away?  If dw_mmc were configured
-> to use a dedicated pin would it re-assert right away?  What about
-> other host controllers?
->
-> If you're sure no host controllers will keep asserting the interrupt
-> over and over then I guess we don't need to worry about it?
-> ...otherwise we'd need to find some way to mask the interrupt and we'd
-> need to make sure whatever we do doesn't interfere with anyone who
-> supports the SDIO interrupt as a wake source, right?
+  x86_64:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ LTP lite [3]
+       ✅ Loopdev Sanity [4]
+       ✅ AMTU (Abstract Machine Test Utility) [5]
+       ✅ Ethernet drivers sanity [6]
+       ✅ audit: audit testsuite test [7]
+       ✅ httpd: mod_ssl smoke sanity [8]
+       ✅ iotop: sanity [9]
+       ✅ tuned: tune-processes-through-perf [10]
+       ✅ Usex - version 1.9-29 [11]
+       ✅ lvm thinp sanity [12]
+       🚧 ✅ Networking socket: fuzz [13]
+       🚧 ✅ storage: SCSI VPD [14]
+       🚧 ✅ storage: software RAID testing [15]
+       🚧 ✅ Libhugetlbfs - version 2.2.1 [16]
 
-For the MMC_CAP2_SDIO_IRQ_NOTHREAD case, the expected behavior by the
-host driver is to prior calling sdio_signal_irq(), is should temporary
-disable the SDIO IRQ. Then, when the host->ops->ack_sdio_irq is called
-from the work, the IRQ has been processed, which tells the host driver
-to re-enable the SDIO IRQ.
 
-In the kthread case, this is managed by mmc_signal_sdio_irq() and the
-sdio_irq_thread() that calls host->ops->enable_sdio_irq() both to
-enable/disable the IRQ (but there are other problems with that).
+  Test source:
+    💚 Pull requests are welcome for new tests or improvements to existing tests!
+    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
+    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/filesystems/xfs/xfstests
+    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
+    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
+    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
+    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
+    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
+    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
+    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
+    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
+    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
+    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
+    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/lvm/thinp/sanity
+    [13]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
+    [14]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/scsi/vpd
+    [15]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/swraid/trim
+    [16]: https://github.com/CKI-project/tests-beaker/archive/master.zip#vm/hugepage/libhugetlbfs
 
->
-> ======
->
-> Overall, I can confirm that on my system your patch actually does
-> work.  ...so if all of the above concerns are moot and won't cause
-> anyone else problems then I can say that they don't seem to cause any
-> problems on my system.  On rk3288-veyron-jerry:
->
-> - Before your patch, I got failures at iteration 18, then 32, then 55,
-> then 7, then 26.
->
-> - After your patch I could do 100 iterations of suspend/resume with no
-> failures.  I also put printouts to confirm your patch was having an
-> effect.
-
-Great news, thanks a lot for testing and sharing these result.
-
-One more thing to consider. After the system suspend callback have
-been called for the mmc host driver (assuming SDIO IRQ isn't
-configured as system wakeup), the host driver shouldn't really receive
-SDIO IRQs and nor should it signal them via sdio_signal_irq(), simply
-because it has suspended its device/controller and beyond that point,
-the behavior might be undefined. Can you check to see if this is
-happening, or possibly you already know that this is the case and that
-we are "lucky"?
-
->
->
-> I also confirmed that rk3288-veyron-minnie (which has Broadcom WiFi) I
-> could still suspend/resume fine with your patch.
-
-Great news, clearly we are moving forward. :-)
-
-Let me address your comment and post a new version.
-
-Kind regards
-Uffe
+Waived tests (marked with 🚧)
+-----------------------------
+This test run included waived tests. Such tests are executed but their results
+are not taken into account. Tests are waived when their results are not
+reliable enough, e.g. when they're just introduced or are being fixed.
