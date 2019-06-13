@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FF1943F4E
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 17:56:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27584440FF
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:11:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389826AbfFMP4H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 11:56:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38690 "EHLO mail.kernel.org"
+        id S2388954AbfFMQK6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:10:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731525AbfFMIvM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:51:12 -0400
+        id S1731245AbfFMInm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:43:42 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1BA8421473;
-        Thu, 13 Jun 2019 08:51:10 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A616820851;
+        Thu, 13 Jun 2019 08:43:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415871;
-        bh=T2SUF5nERlkCdOrURqPAw3KiYCcClNT45NcbR3pBk6o=;
+        s=default; t=1560415421;
+        bh=yi+fjWUmscelvyHfALO9LJMSSCu9NClaeSC5RKgES0g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mWSbm6cCJwur7h/IXipqJvpDL42ypNTnykE7B9A60b5tpCfXn+DK8HvJnt6L6rlnc
-         UlWito45sP9lFzve5G1d7bwYGG2kczpqb7k28cOB+/bh4wIblzmSPDUgRb/l8hMCHB
-         tX/y3y7QhyAv9rjxHBh1g7Mqz4B6/LvwC5xA2WOM=
+        b=d9IdPpdf5QERAAeTrWWffKaJEFHPxjpIojMqnijEKLHGs5+iyrSLh9wlJ/7vC8Y9A
+         9owj5LOx468SKLHKPRPvaMBr98u4P7+41iGhI3nLpBssXd9WOrGOP2APz2WXsdTmYh
+         IgRts5ohdhDmyM0lYGwn0mXsHeVMEwk2ggjCq64k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Giridhar Malavali <gmalavali@marvell.com>,
-        Himanshu Madhani <hmadhani@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 127/155] scsi: qla2xxx: Reset the FCF_ASYNC_{SENT|ACTIVE} flags
+        stable@vger.kernel.org,
+        =?UTF-8?q?Holger=20Hoffst=C3=A4tte?= 
+        <holger@applied-asynchrony.com>,
+        Oleksandr Natalenko <oleksandr@natalenko.name>,
+        Paolo Valente <paolo.valente@linaro.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 101/118] block, bfq: increase idling for weight-raised queues
 Date:   Thu, 13 Jun 2019 10:33:59 +0200
-Message-Id: <20190613075659.923182240@linuxfoundation.org>
+Message-Id: <20190613075649.877995756@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
-References: <20190613075652.691765927@linuxfoundation.org>
+In-Reply-To: <20190613075643.642092651@linuxfoundation.org>
+References: <20190613075643.642092651@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,44 +47,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 0257eda08e806b82ee1fc90ef73583b6f022845c ]
+[ Upstream commit 778c02a236a8728bb992de10ed1f12c0be5b7b0e ]
 
-Driver maintains state machine for processing and completing switch
-commands. This patch resets FCF_ASYNC_{SENT|ACTIVE} flag to indicate if the
-previous command is active or sent, in order for next GPSC command to
-advance the state machine.
+If a sync bfq_queue has a higher weight than some other queue, and
+remains temporarily empty while in service, then, to preserve the
+bandwidth share of the queue, it is necessary to plug I/O dispatching
+until a new request arrives for the queue. In addition, a timeout
+needs to be set, to avoid waiting for ever if the process associated
+with the queue has actually finished its I/O.
 
-[mkp: commit desc typo]
+Even with the above timeout, the device is however not fed with new
+I/O for a while, if the process has finished its I/O. If this happens
+often, then throughput drops and latencies grow. For this reason, the
+timeout is kept rather low: 8 ms is the current default.
 
-Signed-off-by: Giridhar Malavali <gmalavali@marvell.com>
-Signed-off-by: Himanshu Madhani <hmadhani@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Unfortunately, such a low value may cause, on the opposite end, a
+violation of bandwidth guarantees for a process that happens to issue
+new I/O too late. The higher the system load, the higher the
+probability that this happens to some process. This is a problem in
+scenarios where service guarantees matter more than throughput. One
+important case are weight-raised queues, which need to be granted a
+very high fraction of the bandwidth.
+
+To address this issue, this commit lower-bounds the plugging timeout
+for weight-raised queues to 20 ms. This simple change provides
+relevant benefits. For example, on a PLEXTOR PX-256M5S, with which
+gnome-terminal starts in 0.6 seconds if there is no other I/O in
+progress, the same applications starts in
+- 0.8 seconds, instead of 1.2 seconds, if ten files are being read
+  sequentially in parallel
+- 1 second, instead of 2 seconds, if, in parallel, five files are
+  being read sequentially, and five more files are being written
+  sequentially
+
+Tested-by: Holger Hoffstätte <holger@applied-asynchrony.com>
+Tested-by: Oleksandr Natalenko <oleksandr@natalenko.name>
+Signed-off-by: Paolo Valente <paolo.valente@linaro.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_gs.c | 3 +++
- 1 file changed, 3 insertions(+)
+ block/bfq-iosched.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/scsi/qla2xxx/qla_gs.c b/drivers/scsi/qla2xxx/qla_gs.c
-index c6fdad12428e..2e377814d7c1 100644
---- a/drivers/scsi/qla2xxx/qla_gs.c
-+++ b/drivers/scsi/qla2xxx/qla_gs.c
-@@ -3031,6 +3031,8 @@ static void qla24xx_async_gpsc_sp_done(void *s, int res)
- 	    "Async done-%s res %x, WWPN %8phC \n",
- 	    sp->name, res, fcport->port_name);
+diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
+index 15e8c9955b79..6bb397995610 100644
+--- a/block/bfq-iosched.c
++++ b/block/bfq-iosched.c
+@@ -2509,6 +2509,8 @@ static void bfq_arm_slice_timer(struct bfq_data *bfqd)
+ 	if (BFQQ_SEEKY(bfqq) && bfqq->wr_coeff == 1 &&
+ 	    bfq_symmetric_scenario(bfqd))
+ 		sl = min_t(u64, sl, BFQ_MIN_TT);
++	else if (bfqq->wr_coeff > 1)
++		sl = max_t(u32, sl, 20ULL * NSEC_PER_MSEC);
  
-+	fcport->flags &= ~(FCF_ASYNC_SENT | FCF_ASYNC_ACTIVE);
-+
- 	if (res == QLA_FUNCTION_TIMEOUT)
- 		return;
- 
-@@ -4370,6 +4372,7 @@ int qla24xx_async_gnnid(scsi_qla_host_t *vha, fc_port_t *fcport)
- 
- done_free_sp:
- 	sp->free(sp);
-+	fcport->flags &= ~FCF_ASYNC_SENT;
- done:
- 	return rval;
- }
+ 	bfqd->last_idling_start = ktime_get();
+ 	hrtimer_start(&bfqd->idle_slice_timer, ns_to_ktime(sl),
 -- 
 2.20.1
 
