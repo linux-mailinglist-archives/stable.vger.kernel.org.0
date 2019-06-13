@@ -2,130 +2,169 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 51B364429C
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:24:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F9904428E
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:24:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727650AbfFMQYD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:24:03 -0400
-Received: from mail-yb1-f196.google.com ([209.85.219.196]:44042 "EHLO
-        mail-yb1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1731006AbfFMIh2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Jun 2019 04:37:28 -0400
-Received: by mail-yb1-f196.google.com with SMTP id x187so7486998ybc.11
-        for <stable@vger.kernel.org>; Thu, 13 Jun 2019 01:37:27 -0700 (PDT)
+        id S1727256AbfFMQX3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:23:29 -0400
+Received: from mail-yb1-f194.google.com ([209.85.219.194]:40278 "EHLO
+        mail-yb1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1731024AbfFMIhk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Jun 2019 04:37:40 -0400
+Received: by mail-yb1-f194.google.com with SMTP id g62so7498614ybg.7
+        for <stable@vger.kernel.org>; Thu, 13 Jun 2019 01:37:39 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Jt8gwpSgGmEBqY3kuALG8Z/2pn3kbQ8yLGHBD//9Zr8=;
-        b=bWb+JIHpMkpCkNYeoPhQvNX1kAb4lxRaLe+lScQkkZeFjthSq7Jj01tOO3VJITY/KB
-         1Z1r12KTt7Z6jcaNT/fGRkNUrWjVEqUpM4rwZ4D2LJYm2osXLTaSezouV0QNkrGTdF+H
-         19zd7bJWwZtynnVsSpJ33iCssIkqb0hiANg2Ts0WLjBTW9j0cRCeiXjfw6QGCOqf/pDD
-         2ZjiXEQws2DmIBFF6HiqpyXd0SopGqFH3Go+Mu7h6LJ+5XozQPT6RPuaC3gwMXD8uegH
-         Vsd4CckrgL5TooyLQzvarVKJmCVYc7ZGRoYRTRX7Pi9hTiYv5yMVlFOYPboPpbzlMl5i
-         SvOg==
+        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=xQyhQbksvj61RPrZv6HE/27WZ2p7zM6vRmq6wqbq8Qs=;
+        b=Fx7IJ3Rn6+Ui58vZZjWSalUo87E2IkSKQDLMUtkgAPO4CmSr7POvW2xsqzpKzq5uhF
+         0f7g+rHnj3GBTKOCeRKhjRPPjQ4GVn+bwZdVpu+vrj/dOJr4Jj1ZIkTbJ3YLMTlyMxMN
+         dFMsKo5sE6beFBhyxH44nY5lY9n2acrQ4g7CdoyFqTBJVwOr6pTnEnT5NOllmkVF9RP6
+         IgCU7hIvmaN/Y+hE5quNLy9iXnlQ2onRzC1oZrgFYiPOaJytXxn79iHsne5eQcZMRhvR
+         OnUqbsrKe5fbWBuAfzOebwrdLBXouzVannJlsiiYbLyWJKuNqhB0elmrcQ+PNSaiuFsW
+         y3Vw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Jt8gwpSgGmEBqY3kuALG8Z/2pn3kbQ8yLGHBD//9Zr8=;
-        b=KoBpuRnXGij0OvjAdWfG8pOa0JGp/BLc8jH/QhaOXesjudAidu4aEZ6vwhY5pK36wz
-         KK5oTVrTTT3lGL+NI8eG8kIsv16A/Vxks1R/pCcDRUX2eeCb7Em8P69AV/90HzVcpj9T
-         ybeAj+rk1rfRejlE4HoXBXYHXYgSE3UuvTQefXAVvn15lonyhknUx00nsQE6J1KqDEiH
-         MOCW5kCZgFnaGYuDfVieBukxZjMrt2oyWpxQpQ0KTXn22L1x5qqyDYNBF1n89Rjdhe79
-         13FUwUH0nRsm3NlogaP/7VlEKXi+hkuVvo+WXCzFRDHQHgHop207rLhtg3BIqAiMvMv4
-         ixnw==
-X-Gm-Message-State: APjAAAXHrSfam1FEs+x8/a4B2RYyxzGw8rxOIh2PTKRfePTElDRZf5gB
-        /MfrRyhYcRTwYDih9wrijvR6mGmuMBXxg2hKzA8=
-X-Google-Smtp-Source: APXvYqxvK7E2VCEOlolHjd6fO3AROrzE/j5U5g5c1aso9yPU1oLBoqLXALa9+VzjLup09ZIYYzE/RT/73ll6tJhOdac=
-X-Received: by 2002:a25:8109:: with SMTP id o9mr38575853ybk.132.1560415047416;
- Thu, 13 Jun 2019 01:37:27 -0700 (PDT)
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=xQyhQbksvj61RPrZv6HE/27WZ2p7zM6vRmq6wqbq8Qs=;
+        b=OSCWHVKXNacJRhjZagoVnY/L7hDWI0TGDuw+HtPlx7upen6Kgkz0NxBoJl2j83yDBj
+         qPQwNq77RJjUJRbb5CYssXTGNUJpB7ZBlwwE0lYVC3uE3dONOX2xWbObToJkJjQ4V6Rs
+         clDqG9RhoWZ5vfZYTDgW2/SpBVHQphvrY7MP2JG8V+RxDgnoQXsSMrC+Yytn7a6+Jptu
+         EMmuvCmPOe4iYuYaHUOhfsXZ2/I849ADb7ZlHP/43lwcgi1QKH4vqWTXq4ghivPJU1xk
+         hRit4Le9UdFNLtx5pJ2/F2rJEO8oenrZf3cAn3eUxYJ5KhQQ+cQUqxM+SL28iTQFnaiU
+         BbDg==
+X-Gm-Message-State: APjAAAXY4O9SHXj7UAvwkezlsFIKHT5rDP90ojEL+qZCt5zL+42LvzUw
+        i0qaalaQ0AU3ve6matBD9XbDEjMt+/bvVRZa
+X-Google-Smtp-Source: APXvYqyCnK2ALhwLtTPvX0AEYshPEqUIKjRxcqh3pgRhqVo+A2spmhGkm2WC+o0o7oMW27T55jkwSw==
+X-Received: by 2002:a25:7413:: with SMTP id p19mr39487999ybc.310.1560415057147;
+        Thu, 13 Jun 2019 01:37:37 -0700 (PDT)
+Received: from ?IPv6:2600:380:9e2c:9b66:68e0:4c59:dc75:6d4b? ([2600:380:9e2c:9b66:68e0:4c59:dc75:6d4b])
+        by smtp.gmail.com with ESMTPSA id r6sm597826ywd.47.2019.06.13.01.37.30
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 13 Jun 2019 01:37:36 -0700 (PDT)
+Subject: Re: CFQ idling kills I/O performance on ext4 with blkio cgroup
+ controller
+To:     "Srivatsa S. Bhat" <srivatsa@csail.mit.edu>,
+        Jan Kara <jack@suse.cz>
+Cc:     Paolo Valente <paolo.valente@linaro.org>,
+        linux-fsdevel@vger.kernel.org,
+        linux-block <linux-block@vger.kernel.org>,
+        linux-ext4@vger.kernel.org, cgroups@vger.kernel.org,
+        kernel list <linux-kernel@vger.kernel.org>,
+        Jeff Moyer <jmoyer@redhat.com>, Theodore Ts'o <tytso@mit.edu>,
+        amakhalov@vmware.com, anishs@vmware.com, srivatsab@vmware.com,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Stable <stable@vger.kernel.org>
+References: <6FE0A98F-1E3D-4EF6-8B38-2C85741924A4@linaro.org>
+ <2A58C239-EF3F-422B-8D87-E7A3B500C57C@linaro.org>
+ <a04368ba-f1d5-8f2c-1279-a685a137d024@csail.mit.edu>
+ <E270AD92-943E-4529-8158-AB480D6D9DF8@linaro.org>
+ <5b71028c-72f0-73dd-0cd5-f28ff298a0a3@csail.mit.edu>
+ <FFA44D26-75FF-4A8E-A331-495349BE5FFC@linaro.org>
+ <0d6e3c02-1952-2177-02d7-10ebeb133940@csail.mit.edu>
+ <7B74A790-BD98-412B-ADAB-3B513FB1944E@linaro.org>
+ <6a6f4aa4-fc95-f132-55b2-224ff52bd2d8@csail.mit.edu>
+ <7c5e9d11-4a3d-7df4-c1e6-7c95919522ab@csail.mit.edu>
+ <20190612130446.GD14578@quack2.suse.cz>
+ <dd32ed59-a543-fc76-9a9a-2462f0119270@csail.mit.edu>
+From:   Jens Axboe <axboe@kernel.dk>
+Message-ID: <aca00f05-4d71-7db0-52d6-7aa0932cc5c0@kernel.dk>
+Date:   Thu, 13 Jun 2019 02:37:29 -0600
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.0
 MIME-Version: 1.0
-References: <1558603746191117@kroah.com> <CAOQ4uxip8H45S-UmWhNowv9sQUTYzcDMVCZxw=6AvFN-4c1Uvw@mail.gmail.com>
- <20190523195741.GA4436@kroah.com> <CAOQ4uxjKKJduAkomNHxo=T1i4-FVUJ_JABkXfpjz2qt=DAHTZA@mail.gmail.com>
- <20190613074854.GC19685@kroah.com>
-In-Reply-To: <20190613074854.GC19685@kroah.com>
-From:   Amir Goldstein <amir73il@gmail.com>
-Date:   Thu, 13 Jun 2019 11:37:15 +0300
-Message-ID: <CAOQ4uxghRTP_bWYjikADGB0zTC83ThA=UK4a_thd_BdyMouf0A@mail.gmail.com>
-Subject: Re: Patch "ovl: fix missing upper fs freeze protection on copy up for
- ioctl" has been added to the 4.19-stable tree
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Miklos Szeredi <mszeredi@redhat.com>,
-        Vivek Goyal <vgoyal@redhat.com>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <dd32ed59-a543-fc76-9a9a-2462f0119270@csail.mit.edu>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jun 13, 2019 at 10:48 AM Greg KH <gregkh@linuxfoundation.org> wrote:
->
-> On Mon, Jun 10, 2019 at 11:28:46PM +0300, Amir Goldstein wrote:
-> > > > This patch is fine for stable, but I have a process question.
-> > > > All these patches from overlayfs 5.2-rc1 are also v4.9 stable candidates:
-> > > >
-> > > > 1. acf3062a7e1c - ovl: relax WARN_ON() for overlapping layers use case
-> > > > 2. 98487de318a6 - ovl: check the capability before cred overridden
-> > > > 3. d989903058a8 - ovl: do not generate duplicate fsnotify events for "fake" path
-> > > > 4. 9e46b840c705 - ovl: support stacked SEEK_HOLE/SEEK_DATA
-> > > >
-> > > > #2 wasn't properly marked for stable, but the other are marked with
-> > > > Fixes: and Reported-by:
-> > > >
-> > > > Are those marks not sufficient to get selected for stable trees these days?
-> > >
-> > > Not by default, no.  Sometimes they might get picked up if we get bored,
-> > > or the auto-bot notices them.
-> > >
-> > > > I must admit that #1 in borderline stable. Not sure if eliminating an unjust
-> > > > WARN_ON qualified, but syzbot did report a bug..
-> > >
-> > > syzbot things are good to fix in stable kernels, so that syzbot can
-> > > continue to find real things in stable kernels.  So yes, that is fine to
-> > > backport.
-> > >
-> > > > Just asking in order to improve the process, but in any case,
-> > > > please pick those patches for v4.9+ (unless anyone objects?)
-> > > > They all already have LTP/xfstests/syzkaller tests that cover them.
-> > >
-> > > I'll queue them up for the next round after this, thanks.
-> > >
-> >
-> > Hi Greg,
-> >
-> > I forgot to follow up on those patches.
-> > Now I look at linux-4.19.y, I only see patch #1 (ovl: relax WARN_ON()..)
-> > and not the 3 other patches I listed as stable candidates.
-> > Was there any issue with those patches?
->
-> Sorry, didn't get to them.
->
-> I did now, and they all do not apply to all kernel versions.  Most of
-> them do not go back to 4.14 or 4.9 as the code just isn't there.
->
-> So, after this next round of kernel releases, can you send backported
-> versions of any missing patches so that we are sure to apply them
-> correctly?
->
+On 6/12/19 1:36 PM, Srivatsa S. Bhat wrote:
+> 
+> [ Adding Greg to CC ]
+> 
+> On 6/12/19 6:04 AM, Jan Kara wrote:
+>> On Tue 11-06-19 15:34:48, Srivatsa S. Bhat wrote:
+>>> On 6/2/19 12:04 AM, Srivatsa S. Bhat wrote:
+>>>> On 5/30/19 3:45 AM, Paolo Valente wrote:
+>>>>>
+>>> [...]
+>>>>> At any rate, since you pointed out that you are interested in
+>>>>> out-of-the-box performance, let me complete the context: in case
+>>>>> low_latency is left set, one gets, in return for this 12% loss,
+>>>>> a) at least 1000% higher responsiveness, e.g., 1000% lower start-up
+>>>>> times of applications under load [1];
+>>>>> b) 500-1000% higher throughput in multi-client server workloads, as I
+>>>>> already pointed out [2].
+>>>>>
+>>>>
+>>>> I'm very happy that you could solve the problem without having to
+>>>> compromise on any of the performance characteristics/features of BFQ!
+>>>>
+>>>>
+>>>>> I'm going to prepare complete patches.  In addition, if ok for you,
+>>>>> I'll report these results on the bug you created.  Then I guess we can
+>>>>> close it.
+>>>>>
+>>>>
+>>>> Sounds great!
+>>>>
+>>>
+>>> Hi Paolo,
+>>>
+>>> Hope you are doing great!
+>>>
+>>> I was wondering if you got a chance to post these patches to LKML for
+>>> review and inclusion... (No hurry, of course!)
+>>>
+>>> Also, since your fixes address the performance issues in BFQ, do you
+>>> have any thoughts on whether they can be adapted to CFQ as well, to
+>>> benefit the older stable kernels that still support CFQ?
+>>
+>> Since CFQ doesn't exist in current upstream kernel anymore, I seriously
+>> doubt you'll be able to get any performance improvements for it in the
+>> stable kernels...
+>>
+> 
+> I suspected as much, but that seems unfortunate though. The latest LTS
+> kernel is based on 4.19, which still supports CFQ. It would have been
+> great to have a process to address significant issues on older
+> kernels too.
+> 
+> Greg, do you have any thoughts on this? The context is that both CFQ
+> and BFQ I/O schedulers have issues that cause I/O throughput to suffer
+> upto 10x - 30x on certain workloads and system configurations, as
+> reported in [1].
+> 
+> In this thread, Paolo posted patches to fix BFQ performance on
+> mainline. However CFQ suffers from the same performance collapse, but
+> CFQ was removed from the kernel in v5.0. So obviously the usual stable
+> backporting path won't work here for several reasons:
+> 
+>    1. There won't be a mainline commit to backport from, as CFQ no
+>       longer exists in mainline.
+> 
+>    2. This is not a security/stability fix, and is likely to involve
+>       invasive changes.
+> 
+> I was wondering if there was a way to address the performance issues
+> in CFQ in the older stable kernels (including the latest LTS 4.19),
+> despite the above constraints, since the performance drop is much too
+> significant. I guess not, but thought I'd ask :-)
+> 
+> [1]. https://lore.kernel.org/lkml/8d72fcf7-bbb4-2965-1a06-e9fc177a8938@csail.mit.edu/
 
-Is happens to be that all those patches you picked since 4.19
-most of the, whether tagged properly or not are:
-Fixes: d1d04ef8572b ("ovl: stack file ops")
-Cc: <stable@vger.kernel.org> # v4.19
+This issue has always been there. There will be no specific patches made
+for stable for something that doesn't even exist in the newer kernels.
 
-There was a very big change in v4.19 ("ovl: stack file ops")
-removing lots of "VFS hacks" and resulting in more than
-one behavior change. Things that used to work pre-4.19
-with the "VFS hacks" that do not work with "ovl: stack file ops".
+-- 
+Jens Axboe
 
-There have been very few overlayfs patches since v4.20,
-only a trickle of v4.19 stable fixes.
-
-Also, the code has changes quite considerably since 4.14, so
-overlayfs patches that could be easily backported, even if
-applicable to 4.14 are rare these days.
-
-Thanks!
-Amir.
