@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 17233441D9
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:19:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D147B44348
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:30:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391993AbfFMQRA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:17:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58230 "EHLO mail.kernel.org"
+        id S1733169AbfFMQ2X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:28:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731135AbfFMIkx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:40:53 -0400
+        id S1730951AbfFMIf5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:35:57 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 24BE7215EA;
-        Thu, 13 Jun 2019 08:40:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B5B2B20851;
+        Thu, 13 Jun 2019 08:35:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415252;
-        bh=9+K28LnKTwYa0w8yt+lZqtuvr4ImY52KYUY9YD709j0=;
+        s=default; t=1560414957;
+        bh=KTYwFNXC65erFkC52u6lAn4MC/MEmY1aflFaJEosUxI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J/USIiRoUZj7gpWX4X2HF/1AAMAiXo5A61yEQMM7NIF7FMP8NnaIRHKevrs4p3sbP
-         RIfMJGI9lHicuq2GbocUAv8sXuRVxCb0snLPurAJPzILlPsUrbHjaszr5KjD7ltp0k
-         2j42sYdmUDdB0RG7v7H8UpmBW7n+8vIX5GpGpgyM=
+        b=fAFxCcGWNLnJX0dqQaGwIE/2WCGUbHJGYUHlwWI5F2kx9/gv1LXB/tLKV+kIbCULP
+         PY7zIJUyF79l1fc5H5SzXsaAyNvXBMpX5IJ+T2T+rVN7ZCkJW1TyMRqZDZ+dWYgG8B
+         Cwcg1wUDnPdkNsr4n2bBTKwA9S33/jCs/4+kOFy0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        stable@vger.kernel.org, Ludovic Barre <ludovic.barre@st.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 058/118] PCI: designware-ep: Use aligned ATU window for raising MSI interrupts
+Subject: [PATCH 4.14 33/81] mmc: mmci: Prevent polling for busy detection in IRQ context
 Date:   Thu, 13 Jun 2019 10:33:16 +0200
-Message-Id: <20190613075647.132827503@linuxfoundation.org>
+Message-Id: <20190613075651.591963361@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075643.642092651@linuxfoundation.org>
-References: <20190613075643.642092651@linuxfoundation.org>
+In-Reply-To: <20190613075649.074682929@linuxfoundation.org>
+References: <20190613075649.074682929@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,52 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 6b7330303a8186fb211357e6d379237fe9d2ece1 ]
+[ Upstream commit 8520ce1e17799b220ff421d4f39438c9c572ade3 ]
 
-Certain platforms like K2G reguires the outbound ATU window to be
-aligned. The alignment size is already present in mem->page_size.
-Use the alignment size present in mem->page_size to configure an
-aligned ATU window. In order to raise an interrupt, CPU has to write
-to address offset from the start of the window unlike before where
-writes were always to the beginning of the ATU window.
+The IRQ handler, mmci_irq(), loops until all status bits have been cleared.
+However, the status bit signaling busy in variant->busy_detect_flag, may be
+set even if busy detection isn't monitored for the current request.
 
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+This may be the case for the CMD11 when switching the I/O voltage, which
+leads to that mmci_irq() busy loops in IRQ context. Fix this problem, by
+clearing the status bit for busy, before continuing to validate the
+condition for the loop. This is safe, because the busy status detection has
+already been taken care of by mmci_cmd_irq().
+
+Signed-off-by: Ludovic Barre <ludovic.barre@st.com>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/dwc/pcie-designware-ep.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/mmc/host/mmci.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pci/controller/dwc/pcie-designware-ep.c b/drivers/pci/controller/dwc/pcie-designware-ep.c
-index de8635af4cde..739d97080d3b 100644
---- a/drivers/pci/controller/dwc/pcie-designware-ep.c
-+++ b/drivers/pci/controller/dwc/pcie-designware-ep.c
-@@ -385,6 +385,7 @@ int dw_pcie_ep_raise_msi_irq(struct dw_pcie_ep *ep, u8 func_no,
- {
- 	struct dw_pcie *pci = to_dw_pcie_from_ep(ep);
- 	struct pci_epc *epc = ep->epc;
-+	unsigned int aligned_offset;
- 	u16 msg_ctrl, msg_data;
- 	u32 msg_addr_lower, msg_addr_upper, reg;
- 	u64 msg_addr;
-@@ -410,13 +411,15 @@ int dw_pcie_ep_raise_msi_irq(struct dw_pcie_ep *ep, u8 func_no,
- 		reg = ep->msi_cap + PCI_MSI_DATA_32;
- 		msg_data = dw_pcie_readw_dbi(pci, reg);
- 	}
--	msg_addr = ((u64) msg_addr_upper) << 32 | msg_addr_lower;
-+	aligned_offset = msg_addr_lower & (epc->mem->page_size - 1);
-+	msg_addr = ((u64)msg_addr_upper) << 32 |
-+			(msg_addr_lower & ~aligned_offset);
- 	ret = dw_pcie_ep_map_addr(epc, func_no, ep->msi_mem_phys, msg_addr,
- 				  epc->mem->page_size);
- 	if (ret)
- 		return ret;
+diff --git a/drivers/mmc/host/mmci.c b/drivers/mmc/host/mmci.c
+index f1f54a818489..77f18729ee96 100644
+--- a/drivers/mmc/host/mmci.c
++++ b/drivers/mmc/host/mmci.c
+@@ -1320,9 +1320,10 @@ static irqreturn_t mmci_irq(int irq, void *dev_id)
+ 		}
  
--	writel(msg_data | (interrupt_num - 1), ep->msi_mem);
-+	writel(msg_data | (interrupt_num - 1), ep->msi_mem + aligned_offset);
+ 		/*
+-		 * Don't poll for busy completion in irq context.
++		 * Busy detection has been handled by mmci_cmd_irq() above.
++		 * Clear the status bit to prevent polling in IRQ context.
+ 		 */
+-		if (host->variant->busy_detect && host->busy_status)
++		if (host->variant->busy_detect_flag)
+ 			status &= ~host->variant->busy_detect_flag;
  
- 	dw_pcie_ep_unmap_addr(epc, func_no, ep->msi_mem_phys);
- 
+ 		ret = 1;
 -- 
 2.20.1
 
