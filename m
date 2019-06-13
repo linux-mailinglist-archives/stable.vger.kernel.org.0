@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 551BC44352
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:30:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1387F43EFD
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 17:54:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731104AbfFMQ2n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:28:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53394 "EHLO mail.kernel.org"
+        id S2390047AbfFMPyT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 11:54:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730944AbfFMIfo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:35:44 -0400
+        id S1731568AbfFMIxZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:53:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 07CA320B7C;
-        Thu, 13 Jun 2019 08:35:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E313120866;
+        Thu, 13 Jun 2019 08:53:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560414943;
-        bh=GtSWW75F0XdhVgcrmrN6VY/WoR8Vo3dIaE8DIRITH8w=;
+        s=default; t=1560416005;
+        bh=8G5MfffYqj/Seca9o+vYrMrouSvXWPcShxmiaV2MsiM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jlz/HWD0EySW5Tezm/4u6Jprnv/DhfgNmkbfJ585m6kzyL95Ex4C/fj6wcY+pqeWL
-         wNLkZ4/RvdB1hNyxeJ5WdO8b0B/2IcOQcT5RIOABQ99EYhpQSQv6o5ML4k6jCJLJ4k
-         wU3UqLpFFSRknoFvZz1h6CyiG2idwi2W8zY7mUFQ=
+        b=cgZGeDXP9qIl5m34+CvnyMmXMU7m/8BBLCZtTwhz85iyocw6Qslu/eD5POzCPRT87
+         KNYYWZDRvvbHkM2POp+1noBLGOlRQJHjhni8RVritEFu2ELVbqjW7xSv/rq3R243Pk
+         YhYa6WotkXupyJEcfS6XXBKX+ez965aIKYPd9Hno=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, "Kuo, Hsuan-Chi" <hckuo2@illinois.edu>,
+        Vladimir Zapolskiy <vz@mleia.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 29/81] f2fs: fix to do sanity check on valid block count of segment
+Subject: [PATCH 4.19 054/118] watchdog: fix compile time error of pretimeout governors
 Date:   Thu, 13 Jun 2019 10:33:12 +0200
-Message-Id: <20190613075651.277733724@linuxfoundation.org>
+Message-Id: <20190613075646.855692675@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075649.074682929@linuxfoundation.org>
-References: <20190613075649.074682929@linuxfoundation.org>
+In-Reply-To: <20190613075643.642092651@linuxfoundation.org>
+References: <20190613075643.642092651@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,91 +46,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit e95bcdb2fefa129f37bd9035af1d234ca92ee4ef ]
+[ Upstream commit a223770bfa7b6647f3a70983257bd89f9cafce46 ]
 
-As Jungyeon reported in bugzilla:
+CONFIG_WATCHDOG_PRETIMEOUT_GOV build symbol adds watchdog_pretimeout.o
+object to watchdog.o, the latter is compiled only if CONFIG_WATCHDOG_CORE
+is selected, so it rightfully makes sense to add it as a dependency.
 
-https://bugzilla.kernel.org/show_bug.cgi?id=203233
+The change fixes the next compilation errors, if CONFIG_WATCHDOG_CORE=n
+and CONFIG_WATCHDOG_PRETIMEOUT_GOV=y are selected:
 
-- Overview
-When mounting the attached crafted image and running program, following errors are reported.
-Additionally, it hangs on sync after running program.
+  drivers/watchdog/pretimeout_noop.o: In function `watchdog_gov_noop_register':
+  drivers/watchdog/pretimeout_noop.c:35: undefined reference to `watchdog_register_governor'
+  drivers/watchdog/pretimeout_noop.o: In function `watchdog_gov_noop_unregister':
+  drivers/watchdog/pretimeout_noop.c:40: undefined reference to `watchdog_unregister_governor'
 
-The image is intentionally fuzzed from a normal f2fs image for testing.
-Compile options for F2FS are as follows.
-CONFIG_F2FS_FS=y
-CONFIG_F2FS_STAT_FS=y
-CONFIG_F2FS_FS_XATTR=y
-CONFIG_F2FS_FS_POSIX_ACL=y
-CONFIG_F2FS_CHECK_FS=y
+  drivers/watchdog/pretimeout_panic.o: In function `watchdog_gov_panic_register':
+  drivers/watchdog/pretimeout_panic.c:35: undefined reference to `watchdog_register_governor'
+  drivers/watchdog/pretimeout_panic.o: In function `watchdog_gov_panic_unregister':
+  drivers/watchdog/pretimeout_panic.c:40: undefined reference to `watchdog_unregister_governor'
 
-- Reproduces
-cc poc_13.c
-mkdir test
-mount -t f2fs tmp.img test
-cp a.out test
-cd test
-sudo ./a.out
-sync
-
-- Kernel messages
- F2FS-fs (sdb): Bitmap was wrongly set, blk:4608
- kernel BUG at fs/f2fs/segment.c:2102!
- RIP: 0010:update_sit_entry+0x394/0x410
- Call Trace:
-  f2fs_allocate_data_block+0x16f/0x660
-  do_write_page+0x62/0x170
-  f2fs_do_write_node_page+0x33/0xa0
-  __write_node_page+0x270/0x4e0
-  f2fs_sync_node_pages+0x5df/0x670
-  f2fs_write_checkpoint+0x372/0x1400
-  f2fs_sync_fs+0xa3/0x130
-  f2fs_do_sync_file+0x1a6/0x810
-  do_fsync+0x33/0x60
-  __x64_sys_fsync+0xb/0x10
-  do_syscall_64+0x43/0xf0
-  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-sit.vblocks and sum valid block count in sit.valid_map may be
-inconsistent, segment w/ zero vblocks will be treated as free
-segment, while allocating in free segment, we may allocate a
-free block, if its bitmap is valid previously, it can cause
-kernel crash due to bitmap verification failure.
-
-Anyway, to avoid further serious metadata inconsistence and
-corruption, it is necessary and worth to detect SIT
-inconsistence. So let's enable check_block_count() to verify
-vblocks and valid_map all the time rather than do it only
-CONFIG_F2FS_CHECK_FS is enabled.
-
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Reported-by: Kuo, Hsuan-Chi <hckuo2@illinois.edu>
+Fixes: ff84136cb6a4 ("watchdog: add watchdog pretimeout governor framework")
+Signed-off-by: Vladimir Zapolskiy <vz@mleia.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/segment.h | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/watchdog/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/f2fs/segment.h b/fs/f2fs/segment.h
-index 47348d98165b..e3d8826c5113 100644
---- a/fs/f2fs/segment.h
-+++ b/fs/f2fs/segment.h
-@@ -641,7 +641,6 @@ static inline void verify_block_addr(struct f2fs_io_info *fio, block_t blk_addr)
- static inline int check_block_count(struct f2fs_sb_info *sbi,
- 		int segno, struct f2fs_sit_entry *raw_sit)
- {
--#ifdef CONFIG_F2FS_CHECK_FS
- 	bool is_valid  = test_bit_le(0, raw_sit->valid_map) ? true : false;
- 	int valid_blocks = 0;
- 	int cur_pos = 0, next_pos;
-@@ -668,7 +667,7 @@ static inline int check_block_count(struct f2fs_sb_info *sbi,
- 		set_sbi_flag(sbi, SBI_NEED_FSCK);
- 		return -EINVAL;
- 	}
--#endif
-+
- 	/* check segment usage, and check boundary of a given segment number */
- 	if (unlikely(GET_SIT_VBLOCKS(raw_sit) > sbi->blocks_per_seg
- 					|| segno > TOTAL_SEGS(sbi) - 1)) {
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index 8c9ea3cd9c60..b7914eb6a04b 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -1967,6 +1967,7 @@ comment "Watchdog Pretimeout Governors"
+ 
+ config WATCHDOG_PRETIMEOUT_GOV
+ 	bool "Enable watchdog pretimeout governors"
++	depends on WATCHDOG_CORE
+ 	help
+ 	  The option allows to select watchdog pretimeout governors.
+ 
 -- 
 2.20.1
 
