@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6494543FE9
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:01:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CF2CF441B5
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:16:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728429AbfFMQB1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:01:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36454 "EHLO mail.kernel.org"
+        id S1733106AbfFMQQW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:16:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58620 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731440AbfFMIsd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:48:33 -0400
+        id S1731151AbfFMIlX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:41:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C8F06206BA;
-        Thu, 13 Jun 2019 08:48:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A6F2321479;
+        Thu, 13 Jun 2019 08:41:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415713;
-        bh=7IybN8Nha+uXU8W7xnlveY2BYrbSDvSR5HmEzqawZPI=;
+        s=default; t=1560415282;
+        bh=fAHFmWpy7DJEQLcgaUqGnW0UfQ15uY1xkUCH1UTMcn8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1qD690R6YTM7Zy9J+qzIomdhSaw/Wg5ZBNjMJ7W1f6zdj3mryT9d+I0BpKh3AORs7
-         A4hJinAnR75ZuF27Woujbso7kScSnD01SRcDV4qaYsjpdKe6kNqZhTnoptdng/8xx9
-         7W9l/mQTMdKKZqP9jVPGAi/bgXhg5XeCw+/4h3qc=
+        b=J+PczRLCT2mQvzsRRTfMEUYoCbVVFCOrZL83et5MZMMFANf4CQrEa9fpg2ks4aMBH
+         Vf0i1qzpWe9bIGbyvNju/06beUuZiGL+K6JBJcxEBZTZd792Fbr6HHQMWiC3yNk28v
+         VHCwj4w569LnWfQfEROpUGZRshdPvTky/U/3HESU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Jankowski <shasta@toxcorp.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 065/155] netfilter: nf_conntrack_h323: restore boundary check correctness
-Date:   Thu, 13 Jun 2019 10:32:57 +0200
-Message-Id: <20190613075656.656317226@linuxfoundation.org>
+Subject: [PATCH 4.19 040/118] f2fs: fix to do sanity check on valid block count of segment
+Date:   Thu, 13 Jun 2019 10:32:58 +0200
+Message-Id: <20190613075645.912130539@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
-References: <20190613075652.691765927@linuxfoundation.org>
+In-Reply-To: <20190613075643.642092651@linuxfoundation.org>
+References: <20190613075643.642092651@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,41 +44,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f5e85ce8e733c2547827f6268136b70b802eabdb ]
+[ Upstream commit e95bcdb2fefa129f37bd9035af1d234ca92ee4ef ]
 
-Since commit bc7d811ace4a ("netfilter: nf_ct_h323: Convert
-CHECK_BOUND macro to function"), NAT traversal for H.323
-doesn't work, failing to parse H323-UserInformation.
-nf_h323_error_boundary() compares contents of the bitstring,
-not the addresses, preventing valid H.323 packets from being
-conntrack'd.
+As Jungyeon reported in bugzilla:
 
-This looks like an oversight from when CHECK_BOUND macro was
-converted to a function.
+https://bugzilla.kernel.org/show_bug.cgi?id=203233
 
-To fix it, stop dereferencing bs->cur and bs->end.
+- Overview
+When mounting the attached crafted image and running program, following errors are reported.
+Additionally, it hangs on sync after running program.
 
-Fixes: bc7d811ace4a ("netfilter: nf_ct_h323: Convert CHECK_BOUND macro to function")
-Signed-off-by: Jakub Jankowski <shasta@toxcorp.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+The image is intentionally fuzzed from a normal f2fs image for testing.
+Compile options for F2FS are as follows.
+CONFIG_F2FS_FS=y
+CONFIG_F2FS_STAT_FS=y
+CONFIG_F2FS_FS_XATTR=y
+CONFIG_F2FS_FS_POSIX_ACL=y
+CONFIG_F2FS_CHECK_FS=y
+
+- Reproduces
+cc poc_13.c
+mkdir test
+mount -t f2fs tmp.img test
+cp a.out test
+cd test
+sudo ./a.out
+sync
+
+- Kernel messages
+ F2FS-fs (sdb): Bitmap was wrongly set, blk:4608
+ kernel BUG at fs/f2fs/segment.c:2102!
+ RIP: 0010:update_sit_entry+0x394/0x410
+ Call Trace:
+  f2fs_allocate_data_block+0x16f/0x660
+  do_write_page+0x62/0x170
+  f2fs_do_write_node_page+0x33/0xa0
+  __write_node_page+0x270/0x4e0
+  f2fs_sync_node_pages+0x5df/0x670
+  f2fs_write_checkpoint+0x372/0x1400
+  f2fs_sync_fs+0xa3/0x130
+  f2fs_do_sync_file+0x1a6/0x810
+  do_fsync+0x33/0x60
+  __x64_sys_fsync+0xb/0x10
+  do_syscall_64+0x43/0xf0
+  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+sit.vblocks and sum valid block count in sit.valid_map may be
+inconsistent, segment w/ zero vblocks will be treated as free
+segment, while allocating in free segment, we may allocate a
+free block, if its bitmap is valid previously, it can cause
+kernel crash due to bitmap verification failure.
+
+Anyway, to avoid further serious metadata inconsistence and
+corruption, it is necessary and worth to detect SIT
+inconsistence. So let's enable check_block_count() to verify
+vblocks and valid_map all the time rather than do it only
+CONFIG_F2FS_CHECK_FS is enabled.
+
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_conntrack_h323_asn1.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/f2fs/segment.h | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/net/netfilter/nf_conntrack_h323_asn1.c b/net/netfilter/nf_conntrack_h323_asn1.c
-index 1601275efe2d..4c2ef42e189c 100644
---- a/net/netfilter/nf_conntrack_h323_asn1.c
-+++ b/net/netfilter/nf_conntrack_h323_asn1.c
-@@ -172,7 +172,7 @@ static int nf_h323_error_boundary(struct bitstr *bs, size_t bytes, size_t bits)
- 	if (bits % BITS_PER_BYTE > 0)
- 		bytes++;
- 
--	if (*bs->cur + bytes > *bs->end)
-+	if (bs->cur + bytes > bs->end)
- 		return 1;
- 
- 	return 0;
+diff --git a/fs/f2fs/segment.h b/fs/f2fs/segment.h
+index b3d9e317ff0c..5079532cb176 100644
+--- a/fs/f2fs/segment.h
++++ b/fs/f2fs/segment.h
+@@ -660,7 +660,6 @@ static inline void verify_block_addr(struct f2fs_io_info *fio, block_t blk_addr)
+ static inline int check_block_count(struct f2fs_sb_info *sbi,
+ 		int segno, struct f2fs_sit_entry *raw_sit)
+ {
+-#ifdef CONFIG_F2FS_CHECK_FS
+ 	bool is_valid  = test_bit_le(0, raw_sit->valid_map) ? true : false;
+ 	int valid_blocks = 0;
+ 	int cur_pos = 0, next_pos;
+@@ -687,7 +686,7 @@ static inline int check_block_count(struct f2fs_sb_info *sbi,
+ 		set_sbi_flag(sbi, SBI_NEED_FSCK);
+ 		return -EINVAL;
+ 	}
+-#endif
++
+ 	/* check segment usage, and check boundary of a given segment number */
+ 	if (unlikely(GET_SIT_VBLOCKS(raw_sit) > sbi->blocks_per_seg
+ 					|| segno > TOTAL_SEGS(sbi) - 1)) {
 -- 
 2.20.1
 
