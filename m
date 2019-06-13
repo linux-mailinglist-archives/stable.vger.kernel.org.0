@@ -2,82 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3302C44F19
-	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 00:31:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB53444F2E
+	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 00:38:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727159AbfFMWaz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 18:30:55 -0400
-Received: from mail-wr1-f54.google.com ([209.85.221.54]:35799 "EHLO
-        mail-wr1-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726958AbfFMWay (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Jun 2019 18:30:54 -0400
-Received: by mail-wr1-f54.google.com with SMTP id m3so442479wrv.2
-        for <stable@vger.kernel.org>; Thu, 13 Jun 2019 15:30:53 -0700 (PDT)
+        id S1725801AbfFMWiR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 18:38:17 -0400
+Received: from mail-pl1-f194.google.com ([209.85.214.194]:43282 "EHLO
+        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725798AbfFMWiR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Jun 2019 18:38:17 -0400
+Received: by mail-pl1-f194.google.com with SMTP id cl9so121837plb.10;
+        Thu, 13 Jun 2019 15:38:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=G1zfwNGyGsIR0bCob2h13qu32Wz3N/yO1T5W1D1pcY8=;
-        b=dfJ3cgC642eu9acBB5GSvZPCZzwibKIjBXh3qcWisa77v1RmKqXzDVenGQYgJu+egp
-         mMACO/pSL115dbzHUfXJr5tO+5/uvSrPqsAkl2b780fAcMsteeeYI/zmwAhPZcYlIZIP
-         Jau5Ohun0vcablUdsxAmaXMWugpowdXmeccpuFhbnydulmnSWBzV0EQWsYpmsZH5Nk+q
-         J6KtuNcAbY0GBgUyOvRFK2LnKzbMmNIhJncGBDt59hRuj/tHRssB6inoapSpjaw+1fhp
-         ptPf0hBQr6yXr9sI5zvxZWf+rtq7yXRMTbotwve6OQRTmAQQv0OY+F512ttSvVa9KlP9
-         llpQ==
+        d=gmail.com; s=20161025;
+        h=sender:subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=nBv/R182uhuCafyQYbQVEhkRbrB37kIxJPAogDFYLDo=;
+        b=C4ID1AGzLHSV4WlcejkSs+WUZYDDZRU0ceOadoCNvY5crkGII0Ax3BiBWFEJOs8hME
+         uVgrS0bHKHuYqU8df8ZqblmPhmwLmIAPEFU5ZHSxheIq/fR3jy8BhDdd/PeHjEw17kMK
+         NCqz2/0ApPegBel7QHf0YQUmUVl2+NdDeMfTJI8uVeEntD12dZqp9OsSIdhmp6S9pUS1
+         pEJ3vcXXX9oojFcIMuP7zA8Bio4TFasdMsKTY9ZvwsZqDGkYjvA8kYvQ5JOnJP0XOfgv
+         Ao9+JPkp2wbNRfh3Xgkw/ulzTy4JYtkxuUhmOHit+/SPQ63qmmDb6LzWP6peXEZKQjx6
+         qgOQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=G1zfwNGyGsIR0bCob2h13qu32Wz3N/yO1T5W1D1pcY8=;
-        b=qw51EgZ9gK4gyQEPrLsSB1ccARnRj73M7QvzJgJX3XWTX84XzwQDGKwczO40ruJIgF
-         SE0zWb2hkpNMm2tZvCaw68J08Sy8doyX/LaVPBnFbx533vxTFGe+Jole/NhZIdBcEyOZ
-         J+i4wLiEep03xG41Z/k5mlLQKmBGfm84hEInBax5RN/HXPv2QLcw2PjfFP46WskyYRGq
-         fYwi4HxbLtNIxVxheS9wLPE7RaQr0blYfNJIr6L4bAzGLjVU2diNo3MlbKCp8QreN3V5
-         haZdny/bwBb+TZQbj4h6L9n+3c7JXm8zcTgFXqYj7li6xDP/e+bav3XBe/n5vCH/t7GB
-         wKNw==
-X-Gm-Message-State: APjAAAV5ZIiRyNcVyPQlYWnXF06xmQBKXIbp+hHWThUPM31oX2poZnsr
-        mOi3iRNzJ5Nv7h2YWlqJICVfMEG0vTYFYA==
-X-Google-Smtp-Source: APXvYqxEVaKpgOB1tkC2ZfPsOhZztw4cCtbPnHS0MHSNsUHh66i7q1vlsoUt8emDkn7iP3I1VxtkMQ==
-X-Received: by 2002:adf:e841:: with SMTP id d1mr62107283wrn.204.1560465052615;
-        Thu, 13 Jun 2019 15:30:52 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id o4sm682814wmh.35.2019.06.13.15.30.51
-        for <stable@vger.kernel.org>
+        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=nBv/R182uhuCafyQYbQVEhkRbrB37kIxJPAogDFYLDo=;
+        b=RpNXXmueU1cYA0Gav6XJqSRFEW27MN8dSMZ1fU3QPKfckhNEG4jbyDSfxZRsFqCq14
+         9aGOvO1GdcfqFGv4AvgNirgDhbvPfjxM92P0DgAjAMpRhh5aTGuQaRRLrKM2Z1KrMW87
+         h2PcuMIS/GRFZDSoOZweGznsJ+8a8b8vy/A86ePUNnngVYM3HS9SzIwweQ/+7zo1Nozp
+         fGprOqG4q3hcDIuLNKBj6H5yrXK+EgL+ENzogBinn4hSGJ7TSqM1Vjw/y5Mbr2knu8KS
+         jRqvx/MpQsVDfIQU2DLCMrnkN2Re5Wk9J4pFJ8Y21o4g5iOS9TAYXSwTJxvI/xuf0yAD
+         kx1g==
+X-Gm-Message-State: APjAAAW7CNpH9YSwG5novLcEv0c9H0Q9w2tq9z9qc9tTR8NTWy+V+Jds
+        9TXcCkB7LifJBL7FPcJeKRIfHQRV
+X-Google-Smtp-Source: APXvYqwOYVT2Vf4vs1Ozh4HBWLARCY8WzAVyxtWkJRoaIjWdl2aQJIHePtegseZh1ArkIRkMH0Ia0A==
+X-Received: by 2002:a17:902:22e:: with SMTP id 43mr86565994plc.272.1560465496554;
+        Thu, 13 Jun 2019 15:38:16 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id p1sm693427pff.74.2019.06.13.15.38.14
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 13 Jun 2019 15:30:51 -0700 (PDT)
-Message-ID: <5d02ce9b.1c69fb81.54bd8.3b71@mx.google.com>
-Date:   Thu, 13 Jun 2019 15:30:51 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Thu, 13 Jun 2019 15:38:15 -0700 (PDT)
+Subject: Re: [PATCH 4.14 00/81] 4.14.126-stable review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        shuah@kernel.org, patches@kernelci.org,
+        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
+        stable@vger.kernel.org
+References: <20190613075649.074682929@linuxfoundation.org>
+From:   Guenter Roeck <linux@roeck-us.net>
+Message-ID: <39e4eba7-e40e-4e75-7c31-6e201980eaab@roeck-us.net>
+Date:   Thu, 13 Jun 2019 15:38:13 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.14.125-81-g743300ca6410
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.14.y boot: 116 boots: 0 failed,
- 116 passed (v4.14.125-81-g743300ca6410)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <20190613075649.074682929@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y boot: 116 boots: 0 failed, 116 passed (v4.14.125-81-=
-g743300ca6410)
+On 6/13/19 1:32 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.14.126 release.
+> There are 81 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sat 15 Jun 2019 07:54:51 AM UTC.
+> Anything received after that time might be too late.
+> 
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.14.y/kernel/v4.14.125-81-g743300ca6410/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
-y/kernel/v4.14.125-81-g743300ca6410/
+Build results:
+	total: 172 pass: 172 fail: 0
+Qemu test results:
+	total: 345 pass: 345 fail: 0
 
-Tree: stable-rc
-Branch: linux-4.14.y
-Git Describe: v4.14.125-81-g743300ca6410
-Git Commit: 743300ca6410e30133ce3d09a668fe6477d3a67f
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 63 unique boards, 24 SoC families, 15 builds out of 201
-
----
-For more info write to <info@kernelci.org>
+Guenter
