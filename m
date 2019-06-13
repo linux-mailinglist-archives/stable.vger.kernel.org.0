@@ -2,85 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AB53444F2E
-	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 00:38:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4075644FA9
+	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 00:55:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725801AbfFMWiR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 18:38:17 -0400
-Received: from mail-pl1-f194.google.com ([209.85.214.194]:43282 "EHLO
-        mail-pl1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725798AbfFMWiR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Jun 2019 18:38:17 -0400
-Received: by mail-pl1-f194.google.com with SMTP id cl9so121837plb.10;
-        Thu, 13 Jun 2019 15:38:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=nBv/R182uhuCafyQYbQVEhkRbrB37kIxJPAogDFYLDo=;
-        b=C4ID1AGzLHSV4WlcejkSs+WUZYDDZRU0ceOadoCNvY5crkGII0Ax3BiBWFEJOs8hME
-         uVgrS0bHKHuYqU8df8ZqblmPhmwLmIAPEFU5ZHSxheIq/fR3jy8BhDdd/PeHjEw17kMK
-         NCqz2/0ApPegBel7QHf0YQUmUVl2+NdDeMfTJI8uVeEntD12dZqp9OsSIdhmp6S9pUS1
-         pEJ3vcXXX9oojFcIMuP7zA8Bio4TFasdMsKTY9ZvwsZqDGkYjvA8kYvQ5JOnJP0XOfgv
-         Ao9+JPkp2wbNRfh3Xgkw/ulzTy4JYtkxuUhmOHit+/SPQ63qmmDb6LzWP6peXEZKQjx6
-         qgOQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:subject:to:cc:references:from:message-id
-         :date:user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=nBv/R182uhuCafyQYbQVEhkRbrB37kIxJPAogDFYLDo=;
-        b=RpNXXmueU1cYA0Gav6XJqSRFEW27MN8dSMZ1fU3QPKfckhNEG4jbyDSfxZRsFqCq14
-         9aGOvO1GdcfqFGv4AvgNirgDhbvPfjxM92P0DgAjAMpRhh5aTGuQaRRLrKM2Z1KrMW87
-         h2PcuMIS/GRFZDSoOZweGznsJ+8a8b8vy/A86ePUNnngVYM3HS9SzIwweQ/+7zo1Nozp
-         fGprOqG4q3hcDIuLNKBj6H5yrXK+EgL+ENzogBinn4hSGJ7TSqM1Vjw/y5Mbr2knu8KS
-         jRqvx/MpQsVDfIQU2DLCMrnkN2Re5Wk9J4pFJ8Y21o4g5iOS9TAYXSwTJxvI/xuf0yAD
-         kx1g==
-X-Gm-Message-State: APjAAAW7CNpH9YSwG5novLcEv0c9H0Q9w2tq9z9qc9tTR8NTWy+V+Jds
-        9TXcCkB7LifJBL7FPcJeKRIfHQRV
-X-Google-Smtp-Source: APXvYqwOYVT2Vf4vs1Ozh4HBWLARCY8WzAVyxtWkJRoaIjWdl2aQJIHePtegseZh1ArkIRkMH0Ia0A==
-X-Received: by 2002:a17:902:22e:: with SMTP id 43mr86565994plc.272.1560465496554;
-        Thu, 13 Jun 2019 15:38:16 -0700 (PDT)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id p1sm693427pff.74.2019.06.13.15.38.14
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 13 Jun 2019 15:38:15 -0700 (PDT)
-Subject: Re: [PATCH 4.14 00/81] 4.14.126-stable review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
-        ben.hutchings@codethink.co.uk, lkft-triage@lists.linaro.org,
-        stable@vger.kernel.org
-References: <20190613075649.074682929@linuxfoundation.org>
-From:   Guenter Roeck <linux@roeck-us.net>
-Message-ID: <39e4eba7-e40e-4e75-7c31-6e201980eaab@roeck-us.net>
-Date:   Thu, 13 Jun 2019 15:38:13 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.0
-MIME-Version: 1.0
-In-Reply-To: <20190613075649.074682929@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        id S1727130AbfFMWzv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 18:55:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39996 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1727024AbfFMWzv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 18:55:51 -0400
+Received: from akpm3.svl.corp.google.com (unknown [104.133.8.65])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id DDC522147A;
+        Thu, 13 Jun 2019 22:55:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1560466550;
+        bh=/9+QCQva/AbcIFuVg6Y1HF7/3gTtd1YcxwZ9pGpCTLc=;
+        h=Date:From:To:Subject:From;
+        b=ZIhUmn/gASzo0rRtOlgqkDHaNINQ+emgfr6yBWcH6wz6hgL9uVjnPAHpGgz0l7H+l
+         X4PtQgBjht3iiCxJq7bTnkPTKsWpIgxXYNmznAXJR+AzGJcI+ZPc6iJ376RdyCnXc2
+         mDwRyoBiKHkqnSF4PTK6LFTwUTbnTNpP9RZ7Xe68=
+Date:   Thu, 13 Jun 2019 15:55:49 -0700
+From:   akpm@linux-foundation.org
+To:     stable@vger.kernel.org, mhocko@suse.com, ktkhai@virtuozzo.com,
+        shakeelb@google.com, akpm@linux-foundation.org,
+        mm-commits@vger.kernel.org, torvalds@linux-foundation.org
+Subject:  [patch 02/16] mm/list_lru.c: fix memory leak in
+ __memcg_init_list_lru_node
+Message-ID: <20190613225549.xOZve%akpm@linux-foundation.org>
+User-Agent: s-nail v14.9.10
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/13/19 1:32 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.14.126 release.
-> There are 81 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sat 15 Jun 2019 07:54:51 AM UTC.
-> Anything received after that time might be too late.
-> 
+From: Shakeel Butt <shakeelb@google.com>
+Subject: mm/list_lru.c: fix memory leak in __memcg_init_list_lru_node
 
-Build results:
-	total: 172 pass: 172 fail: 0
-Qemu test results:
-	total: 345 pass: 345 fail: 0
+Syzbot reported following memory leak:
 
-Guenter
+ffffffffda RBX: 0000000000000003 RCX: 0000000000441f79
+BUG: memory leak
+unreferenced object 0xffff888114f26040 (size 32):
+  comm "syz-executor626", pid 7056, jiffies 4294948701 (age 39.410s)
+  hex dump (first 32 bytes):
+    40 60 f2 14 81 88 ff ff 40 60 f2 14 81 88 ff ff  @`......@`......
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<0000000018f36b56>] kmemleak_alloc_recursive include/linux/kmemleak.h:55 [inline]
+    [<0000000018f36b56>] slab_post_alloc_hook mm/slab.h:439 [inline]
+    [<0000000018f36b56>] slab_alloc mm/slab.c:3326 [inline]
+    [<0000000018f36b56>] kmem_cache_alloc_trace+0x13d/0x280 mm/slab.c:3553
+    [<0000000055b9a1a5>] kmalloc include/linux/slab.h:547 [inline]
+    [<0000000055b9a1a5>] __memcg_init_list_lru_node+0x58/0xf0 mm/list_lru.c:352
+    [<000000001356631d>] memcg_init_list_lru_node mm/list_lru.c:375 [inline]
+    [<000000001356631d>] memcg_init_list_lru mm/list_lru.c:459 [inline]
+    [<000000001356631d>] __list_lru_init+0x193/0x2a0 mm/list_lru.c:626
+    [<00000000ce062da3>] alloc_super+0x2e0/0x310 fs/super.c:269
+    [<000000009023adcf>] sget_userns+0x94/0x2a0 fs/super.c:609
+    [<0000000052182cd8>] sget+0x8d/0xb0 fs/super.c:660
+    [<0000000006c24238>] mount_nodev+0x31/0xb0 fs/super.c:1387
+    [<0000000006016a76>] fuse_mount+0x2d/0x40 fs/fuse/inode.c:1236
+    [<000000009a61ec1d>] legacy_get_tree+0x27/0x80 fs/fs_context.c:661
+    [<0000000096cd9ef8>] vfs_get_tree+0x2e/0x120 fs/super.c:1476
+    [<000000005b8f472d>] do_new_mount fs/namespace.c:2790 [inline]
+    [<000000005b8f472d>] do_mount+0x932/0xc50 fs/namespace.c:3110
+    [<00000000afb009b4>] ksys_mount+0xab/0x120 fs/namespace.c:3319
+    [<0000000018f8c8ee>] __do_sys_mount fs/namespace.c:3333 [inline]
+    [<0000000018f8c8ee>] __se_sys_mount fs/namespace.c:3330 [inline]
+    [<0000000018f8c8ee>] __x64_sys_mount+0x26/0x30 fs/namespace.c:3330
+    [<00000000f42066da>] do_syscall_64+0x76/0x1a0 arch/x86/entry/common.c:301
+    [<0000000043d74ca0>] entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+This is a simple off by one bug on the error path.
+
+Link: http://lkml.kernel.org/r/20190528043202.99980-1-shakeelb@google.com
+Fixes: 60d3fd32a7a9 ("list_lru: introduce per-memcg lists")
+Reported-by: syzbot+f90a420dfe2b1b03cb2c@syzkaller.appspotmail.com
+Signed-off-by: Shakeel Butt <shakeelb@google.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Reviewed-by: Kirill Tkhai <ktkhai@virtuozzo.com>
+Cc: <stable@vger.kernel.org>	[4.0+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/list_lru.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/mm/list_lru.c~list_lru-fix-memory-leak-in-__memcg_init_list_lru_node
++++ a/mm/list_lru.c
+@@ -354,7 +354,7 @@ static int __memcg_init_list_lru_node(st
+ 	}
+ 	return 0;
+ fail:
+-	__memcg_destroy_list_lru_node(memcg_lrus, begin, i - 1);
++	__memcg_destroy_list_lru_node(memcg_lrus, begin, i);
+ 	return -ENOMEM;
+ }
+ 
+_
