@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 87C75442BD
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:25:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CBFBE44145
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:13:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392169AbfFMQZO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:25:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54170 "EHLO mail.kernel.org"
+        id S2391505AbfFMQMg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:12:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730979AbfFMIgn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:36:43 -0400
+        id S1731217AbfFMInF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:43:05 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DA42D20851;
-        Thu, 13 Jun 2019 08:36:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 15CDB2063F;
+        Thu, 13 Jun 2019 08:43:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415003;
-        bh=Qp5Wd0ROX/RHBmbhi3RKPN5/Lw9BqNZEdXAlSwvVVNY=;
+        s=default; t=1560415384;
+        bh=uclTob9GQIPP+edHPJZx/gJnRps5nzkGS7uvws+ioa0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i2alHauzqkANmJO2yEZ3R4cUhtiJxwFrEJDQzuaqz7YA/F02xJlm6nXybEAeTfqlv
-         rmNdN4aWIJIgUt8h4MCg0f97wK2hHJz9NFudvmkbzAhu/+0HUehwVcvCVFGIsqcz8D
-         c9NaOU4PjBhkA6tddTBoGvS23hQ0NXtsUtJURmUk=
+        b=HAf1hfEGzqwPQ8tFYmxHs4WqxEZJPZbv+7f/vIvH/Em0922koj9SvxMDO39Od+GdH
+         yfccolNKoEWFit7yV497O7D9l/iEA2ZholZNRsy7T3GtCznYqKHxUGuQ+NVaioyP0m
+         g5/xCYmeuRtigy4Y6XPm3Ap1SZkhNdtuJ7UddFfE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
-        Heiko Stuebner <heiko@sntech.de>,
+        stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 51/81] soc: rockchip: Set the proper PWM for rk3288
+Subject: [PATCH 4.19 076/118] PCI: keystone: Prevent ARM32 specific code to be compiled for ARM64
 Date:   Thu, 13 Jun 2019 10:33:34 +0200
-Message-Id: <20190613075653.003195266@linuxfoundation.org>
+Message-Id: <20190613075648.289807017@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075649.074682929@linuxfoundation.org>
-References: <20190613075649.074682929@linuxfoundation.org>
+In-Reply-To: <20190613075643.642092651@linuxfoundation.org>
+References: <20190613075643.642092651@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,53 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit bbdc00a7de24cc90315b1775fb74841373fe12f7 ]
+[ Upstream commit f316a2b53cd7f37963ae20ec7072eb27a349a4ce ]
 
-The rk3288 SoC has two PWM implementations available, the "old"
-implementation and the "new" one.  You can switch between the two of
-them by flipping a bit in the grf.
+hook_fault_code() is an ARM32 specific API for hooking into data abort.
 
-The "old" implementation is the default at chip power up but isn't the
-one that's officially supposed to be used.  ...and, in fact, the
-driver that gets selected in Linux using the rk3288 device tree only
-supports the "new" implementation.
+AM65X platforms (that integrate ARM v8 cores and select CONFIG_ARM64 as
+arch) rely on pci-keystone.c but on them the enumeration of a
+non-present BDF does not trigger a bus error, so the fixup exception
+provided by calling hook_fault_code() is not needed and can be guarded
+with CONFIG_ARM.
 
-Long ago I tried to get a switch to the right IP block landed in the
-PWM driver (search for "rk3288: Switch to use the proper PWM IP") but
-that got rejected.  In the mean time the grf has grown a full-fledged
-driver that already sets other random bits like this.  That means we
-can now get the fix landed.
-
-For those wondering how things could have possibly worked for the last
-4.5 years, folks have mostly been relying on the bootloader to set
-this bit.  ...but occasionally folks have pointed back to my old patch
-series [1] in downstream kernels.
-
-[1] https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1391597.html
-
-Signed-off-by: Douglas Anderson <dianders@chromium.org>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+[lorenzo.pieralisi@arm.com: commit log]
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/rockchip/grf.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/pci/controller/dwc/pci-keystone.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/soc/rockchip/grf.c b/drivers/soc/rockchip/grf.c
-index 15e71fd6c513..0931ddb0b384 100644
---- a/drivers/soc/rockchip/grf.c
-+++ b/drivers/soc/rockchip/grf.c
-@@ -44,9 +44,11 @@ static const struct rockchip_grf_info rk3036_grf __initconst = {
- };
+diff --git a/drivers/pci/controller/dwc/pci-keystone.c b/drivers/pci/controller/dwc/pci-keystone.c
+index e88bd221fffe..5e199e7d2d4f 100644
+--- a/drivers/pci/controller/dwc/pci-keystone.c
++++ b/drivers/pci/controller/dwc/pci-keystone.c
+@@ -237,6 +237,7 @@ static void ks_pcie_setup_interrupts(struct keystone_pcie *ks_pcie)
+ 		ks_dw_pcie_enable_error_irq(ks_pcie);
+ }
  
- #define RK3288_GRF_SOC_CON0		0x244
-+#define RK3288_GRF_SOC_CON2		0x24c
++#ifdef CONFIG_ARM
+ /*
+  * When a PCI device does not exist during config cycles, keystone host gets a
+  * bus error instead of returning 0xffffffff. This handler always returns 0
+@@ -256,6 +257,7 @@ static int keystone_pcie_fault(unsigned long addr, unsigned int fsr,
  
- static const struct rockchip_grf_value rk3288_defaults[] __initconst = {
- 	{ "jtag switching", RK3288_GRF_SOC_CON0, HIWORD_UPDATE(0, 1, 12) },
-+	{ "pwm select", RK3288_GRF_SOC_CON2, HIWORD_UPDATE(1, 1, 0) },
- };
+ 	return 0;
+ }
++#endif
  
- static const struct rockchip_grf_info rk3288_grf __initconst = {
+ static int __init ks_pcie_host_init(struct pcie_port *pp)
+ {
+@@ -279,12 +281,14 @@ static int __init ks_pcie_host_init(struct pcie_port *pp)
+ 	val |= BIT(12);
+ 	writel(val, pci->dbi_base + PCIE_CAP_BASE + PCI_EXP_DEVCTL);
+ 
++#ifdef CONFIG_ARM
+ 	/*
+ 	 * PCIe access errors that result into OCP errors are caught by ARM as
+ 	 * "External aborts"
+ 	 */
+ 	hook_fault_code(17, keystone_pcie_fault, SIGBUS, 0,
+ 			"Asynchronous external abort");
++#endif
+ 
+ 	return 0;
+ }
 -- 
 2.20.1
 
