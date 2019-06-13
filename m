@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A7B1644177
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:14:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E5C043FBF
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:00:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391418AbfFMQO1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:14:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59518 "EHLO mail.kernel.org"
+        id S1732277AbfFMQAA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:00:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731189AbfFMImT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:42:19 -0400
+        id S1731473AbfFMIt1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:49:27 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7911120851;
-        Thu, 13 Jun 2019 08:42:18 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4ED1120851;
+        Thu, 13 Jun 2019 08:49:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415339;
-        bh=FqB2sW4I88mMRD+an2qENvPRlgF/xlPY1pCFRwpWm+Q=;
+        s=default; t=1560415766;
+        bh=gvNTGMetgZrxKRD7wjxmPiYEtOnGN4ElSH6eR00rTic=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CrB8PpycpjjV7wWB0Jm5FhiNwvVZa+4Ji9+Id3W9Z3jxapIevCpL3hRq461qkwN5F
-         9bZIbJ1UXGd6pM15BJK79tkD5SYagLl9zKDWtDooJGO+oDS7gRyEEKaq4vT0KN1rax
-         CUZBkP90CbQsweYfIyp6IaVCeZXZA4IbMaFP1NvM=
+        b=yviVbGCcCyfapYnTHmGyXKYjpK+xtIwxNFkN3PS+OVplUcnyo4o1U4Nsv05d5dMC9
+         q0rPN0J2kryHe629cLE5cIdRUqb+j2T8ZblOxWDczCJ1UvY1ih04chPnIjmHyt44ov
+         09sXvIgRMWVDvMD67WSCPJNAsv01l+lnepIAqM4Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tyrel Datwyler <tyreld@linux.vnet.ibm.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
+        stable@vger.kernel.org, Anthony Koo <Anthony.Koo@amd.com>,
+        Aric Cyr <Aric.Cyr@amd.com>, Leo Li <sunpeng.li@amd.com>,
+        Tony Cheng <Tony.Cheng@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 089/118] PCI: rpadlpar: Fix leaked device_node references in add/remove paths
+Subject: [PATCH 5.1 115/155] drm/amd/display: disable link before changing link settings
 Date:   Thu, 13 Jun 2019 10:33:47 +0200
-Message-Id: <20190613075649.034962170@linuxfoundation.org>
+Message-Id: <20190613075659.358473914@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075643.642092651@linuxfoundation.org>
-References: <20190613075643.642092651@linuxfoundation.org>
+In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
+References: <20190613075652.691765927@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,61 +46,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit fb26228bfc4ce3951544848555c0278e2832e618 ]
+[ Upstream commit 15ae3b28f8ca406b449d36d36021e96b66aedb5d ]
 
-The find_dlpar_node() helper returns a device node with its reference
-incremented.  Both the add and remove paths use this helper for find the
-appropriate node, but fail to release the reference when done.
+[Why]
+If link is already enabled at a different rate (for example 5.4 Gbps)
+then calling VBIOS command table to switch to a new rate
+(for example 2.7 Gbps) will not take effect.
+This can lead to link training failure to occur.
 
-Annotate the find_dlpar_node() helper with a comment about the incremented
-reference count and call of_node_put() on the obtained device_node in the
-add and remove paths.  Also, fixup a reference leak in the find_vio_slot()
-helper where we fail to call of_node_put() on the vdevice node after we
-iterate over its children.
+[How]
+If the requested link rate is different than the current link rate,
+the link must be disabled in order to re-enable at the new
+link rate.
 
-Signed-off-by: Tyrel Datwyler <tyreld@linux.vnet.ibm.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+In today's logic it is currently only impacting eDP since DP
+connection types will always disable the link during display
+detection, when initial link verification occurs.
+
+Signed-off-by: Anthony Koo <Anthony.Koo@amd.com>
+Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
+Acked-by: Leo Li <sunpeng.li@amd.com>
+Acked-by: Tony Cheng <Tony.Cheng@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/hotplug/rpadlpar_core.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/amd/display/dc/core/dc_link.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/pci/hotplug/rpadlpar_core.c b/drivers/pci/hotplug/rpadlpar_core.c
-index e2356a9c7088..182f9e3443ee 100644
---- a/drivers/pci/hotplug/rpadlpar_core.c
-+++ b/drivers/pci/hotplug/rpadlpar_core.c
-@@ -51,6 +51,7 @@ static struct device_node *find_vio_slot_node(char *drc_name)
- 		if (rc == 0)
- 			break;
- 	}
-+	of_node_put(parent);
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link.c b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
+index 419e8de8c0f4..6072636da388 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_link.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
+@@ -1399,6 +1399,15 @@ static enum dc_status enable_link_dp(
+ 	/* get link settings for video mode timing */
+ 	decide_link_settings(stream, &link_settings);
  
- 	return dn;
- }
-@@ -71,6 +72,7 @@ static struct device_node *find_php_slot_pci_node(char *drc_name,
- 	return np;
- }
- 
-+/* Returns a device_node with its reference count incremented */
- static struct device_node *find_dlpar_node(char *drc_name, int *node_type)
- {
- 	struct device_node *dn;
-@@ -306,6 +308,7 @@ int dlpar_add_slot(char *drc_name)
- 			rc = dlpar_add_phb(drc_name, dn);
- 			break;
- 	}
-+	of_node_put(dn);
- 
- 	printk(KERN_INFO "%s: slot %s added\n", DLPAR_MODULE_NAME, drc_name);
- exit:
-@@ -439,6 +442,7 @@ int dlpar_remove_slot(char *drc_name)
- 			rc = dlpar_remove_pci_slot(drc_name, dn);
- 			break;
- 	}
-+	of_node_put(dn);
- 	vm_unmap_aliases();
- 
- 	printk(KERN_INFO "%s: slot %s removed\n", DLPAR_MODULE_NAME, drc_name);
++	/* If link settings are different than current and link already enabled
++	 * then need to disable before programming to new rate.
++	 */
++	if (link->link_status.link_active &&
++		(link->cur_link_settings.lane_count != link_settings.lane_count ||
++		 link->cur_link_settings.link_rate != link_settings.link_rate)) {
++		dp_disable_link_phy(link, pipe_ctx->stream->signal);
++	}
++
+ 	pipe_ctx->stream_res.pix_clk_params.requested_sym_clk =
+ 			link_settings.link_rate * LINK_RATE_REF_FREQ_IN_KHZ;
+ 	state->dccg->funcs->update_clocks(state->dccg, state, false);
 -- 
 2.20.1
 
