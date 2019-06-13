@@ -2,57 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A1FA440D3
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:11:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A5144406F
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:06:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727161AbfFMQJp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:09:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33198 "EHLO mail.kernel.org"
+        id S1731322AbfFMQGZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:06:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34702 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731259AbfFMIoT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:44:19 -0400
+        id S1731321AbfFMIqD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:46:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C3A952063F;
-        Thu, 13 Jun 2019 08:44:17 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 05E722173C;
+        Thu, 13 Jun 2019 08:46:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415458;
-        bh=2sRyGT6WhhGD6b+fHn6Kn+9DOMFvsxq0SnHINw/ACOI=;
+        s=default; t=1560415562;
+        bh=2wol2PuCFvjV0G0iPAMvNKKiMoTyf9ad8KlBzdEMfJc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pkQbhLmDpp1GuRiEW9K0N8MPJPqQCFydunWpq8466kK4aPWQJ4jNQmtNTcwXPJZLZ
-         uP3/6SLiDMu+78Mk4WABhWvymKh6YHemuJhQYWFPibF4KXl0U9BSoLmMFooFsr5tmR
-         pGffNydsytGa9GvD1frOA/EvuWxn2/mR+9yh9e1s=
+        b=bPQ7vCUfYIi5ne5OASvYhuWY8/9EIMqlW5lTRmjbSOQ3XieExPiESrHa2wWH5ksjs
+         H0mbuNFGsUmHHdt8JlTpGlbPx+glKDiR5LuAEASUXQp0+g8Q42fDk7VIOQJ/WqPZx1
+         UjOv3roAM5iaJuLp3AikZQmxwcgfnw1XAiVG8Ccw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Christophe Leroy <christophe.leroy@c-s.fr>,
-        Mathieu Malaterre <malat@debian.org>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Stefan Agner <stefan@agner.ch>,
-        Boris Brezillon <bbrezillon@kernel.org>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Richard Weinberger <richard@nod.at>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Brian Norris <computersforpeace@gmail.com>,
-        Marek Vasut <marek.vasut@gmail.com>,
-        Russell King <rmk+kernel@arm.linux.org.uk>,
-        Borislav Petkov <bp@suse.de>,
-        Mark Rutland <mark.rutland@arm.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>,
+        Balbir Singh <bsingharora@gmail.com>,
+        Ralph Campbell <rcampbell@nvidia.com>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Ira Weiny <ira.weiny@intel.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Souptick Joarder <jrdr.linux@gmail.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 011/155] ARM: prevent tracing IPI_CPU_BACKTRACE
-Date:   Thu, 13 Jun 2019 10:32:03 +0200
-Message-Id: <20190613075653.376823259@linuxfoundation.org>
+Subject: [PATCH 5.1 012/155] mm/hmm: select mmu notifier when selecting HMM
+Date:   Thu, 13 Jun 2019 10:32:04 +0200
+Message-Id: <20190613075653.438871567@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
 References: <20190613075652.691765927@linuxfoundation.org>
@@ -65,104 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit be167862ae7dd85c56d385209a4890678e1b0488 ]
+[ Upstream commit 734fb89968900b5c5f8edd5038bd4cdeab8c61d2 ]
 
-Patch series "compiler: allow all arches to enable
-CONFIG_OPTIMIZE_INLINING", v3.
+To avoid random config build issue, select mmu notifier when HMM is
+selected.  In any cases when HMM get selected it will be by users that
+will also wants the mmu notifier.
 
-This patch (of 11):
-
-When function tracing for IPIs is enabled, we get a warning for an
-overflow of the ipi_types array with the IPI_CPU_BACKTRACE type as
-triggered by raise_nmi():
-
-  arch/arm/kernel/smp.c: In function 'raise_nmi':
-  arch/arm/kernel/smp.c:489:2: error: array subscript is above array bounds [-Werror=array-bounds]
-    trace_ipi_raise(target, ipi_types[ipinr]);
-
-This is a correct warning as we actually overflow the array here.
-
-This patch raise_nmi() to call __smp_cross_call() instead of
-smp_cross_call(), to avoid calling into ftrace.  For clarification, I'm
-also adding a two new code comments describing how this one is special.
-
-The warning appears to have shown up after commit e7273ff49acf ("ARM:
-8488/1: Make IPI_CPU_BACKTRACE a "non-secure" SGI"), which changed the
-number assignment from '15' to '8', but as far as I can tell has existed
-since the IPI tracepoints were first introduced.  If we decide to
-backport this patch to stable kernels, we probably need to backport
-e7273ff49acf as well.
-
-[yamada.masahiro@socionext.com: rebase on v5.1-rc1]
-Link: http://lkml.kernel.org/r/20190423034959.13525-2-yamada.masahiro@socionext.com
-Fixes: e7273ff49acf ("ARM: 8488/1: Make IPI_CPU_BACKTRACE a "non-secure" SGI")
-Fixes: 365ec7b17327 ("ARM: add IPI tracepoints") # v3.17
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Masahiro Yamada <yamada.masahiro@socionext.com>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Link: http://lkml.kernel.org/r/20190403193318.16478-2-jglisse@redhat.com
+Signed-off-by: Jérôme Glisse <jglisse@redhat.com>
+Acked-by: Balbir Singh <bsingharora@gmail.com>
+Cc: Ralph Campbell <rcampbell@nvidia.com>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
 Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Christophe Leroy <christophe.leroy@c-s.fr>
-Cc: Mathieu Malaterre <malat@debian.org>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: Stefan Agner <stefan@agner.ch>
-Cc: Boris Brezillon <bbrezillon@kernel.org>
-Cc: Miquel Raynal <miquel.raynal@bootlin.com>
-Cc: Richard Weinberger <richard@nod.at>
-Cc: David Woodhouse <dwmw2@infradead.org>
-Cc: Brian Norris <computersforpeace@gmail.com>
-Cc: Marek Vasut <marek.vasut@gmail.com>
-Cc: Russell King <rmk+kernel@arm.linux.org.uk>
-Cc: Borislav Petkov <bp@suse.de>
-Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Ira Weiny <ira.weiny@intel.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Souptick Joarder <jrdr.linux@gmail.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/include/asm/hardirq.h | 1 +
- arch/arm/kernel/smp.c          | 6 +++++-
- 2 files changed, 6 insertions(+), 1 deletion(-)
+ mm/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/include/asm/hardirq.h b/arch/arm/include/asm/hardirq.h
-index cba23eaa6072..7a88f160b1fb 100644
---- a/arch/arm/include/asm/hardirq.h
-+++ b/arch/arm/include/asm/hardirq.h
-@@ -6,6 +6,7 @@
- #include <linux/threads.h>
- #include <asm/irq.h>
+diff --git a/mm/Kconfig b/mm/Kconfig
+index 25c71eb8a7db..2e6d24d783f7 100644
+--- a/mm/Kconfig
++++ b/mm/Kconfig
+@@ -694,12 +694,12 @@ config DEV_PAGEMAP_OPS
  
-+/* number of IPIS _not_ including IPI_CPU_BACKTRACE */
- #define NR_IPI	7
+ config HMM
+ 	bool
++	select MMU_NOTIFIER
+ 	select MIGRATE_VMA_HELPER
  
- typedef struct {
-diff --git a/arch/arm/kernel/smp.c b/arch/arm/kernel/smp.c
-index facd4240ca02..c93fe0f256de 100644
---- a/arch/arm/kernel/smp.c
-+++ b/arch/arm/kernel/smp.c
-@@ -70,6 +70,10 @@ enum ipi_msg_type {
- 	IPI_CPU_STOP,
- 	IPI_IRQ_WORK,
- 	IPI_COMPLETION,
-+	/*
-+	 * CPU_BACKTRACE is special and not included in NR_IPI
-+	 * or tracable with trace_ipi_*
-+	 */
- 	IPI_CPU_BACKTRACE,
- 	/*
- 	 * SGI8-15 can be reserved by secure firmware, and thus may
-@@ -797,7 +801,7 @@ core_initcall(register_cpufreq_notifier);
- 
- static void raise_nmi(cpumask_t *mask)
- {
--	smp_cross_call(mask, IPI_CPU_BACKTRACE);
-+	__smp_cross_call(mask, IPI_CPU_BACKTRACE);
- }
- 
- void arch_trigger_cpumask_backtrace(const cpumask_t *mask, bool exclude_self)
+ config HMM_MIRROR
+ 	bool "HMM mirror CPU page table into a device page table"
+ 	depends on ARCH_HAS_HMM
+-	select MMU_NOTIFIER
+ 	select HMM
+ 	help
+ 	  Select HMM_MIRROR if you want to mirror range of the CPU page table of a
 -- 
 2.20.1
 
