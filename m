@@ -2,131 +2,224 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BBC944FAA
-	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 00:56:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57B0F44FAB
+	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 00:56:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727517AbfFMW4D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 18:56:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40112 "EHLO mail.kernel.org"
+        id S1727555AbfFMW4H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 18:56:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40158 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727024AbfFMW4D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 18:56:03 -0400
+        id S1727024AbfFMW4H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 18:56:07 -0400
 Received: from akpm3.svl.corp.google.com (unknown [104.133.8.65])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EE91F21537;
-        Thu, 13 Jun 2019 22:56:01 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A2E7421721;
+        Thu, 13 Jun 2019 22:56:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560466562;
-        bh=ABqERlwiOkfABdIZfLZuXH6xYN+lwL8wY19r9Ycs++g=;
+        s=default; t=1560466566;
+        bh=eWeQG6cDMVZKY/BzexfKXShTyijDAqE5rEfbrE+Ca2I=;
         h=Date:From:To:Subject:From;
-        b=fjmElQzXUmhOIenVlJBgukgxjQSrywcgRyP2KU6ZJrzl1mPPSr3JNinYrsK0WoCv9
-         UayapCzBtp3M5k9l8Jre6dGefx+rBo/tm7kOg1GYq4vmFsXKL4n8I3h+ell8k8Zbrm
-         mIV/zkVj8zaqXRcjqT+jmgIT8cG/0Sv9lT8nxqaE=
-Date:   Thu, 13 Jun 2019 15:56:01 -0700
+        b=H6v12Rof6oZ87y6LQ62mzQEv9ZLxcCPGdMuJfh3fs6PhAHN3xce3FS8W2YGOApTtw
+         DnKoj4uS1z7rbmgwkAiYNwv5+OuhZ6Ne/ksGq7aUspBnImxy9v1C+lPSwdjfGLw+tL
+         ggN2TsVp5xbp9QuapnzyTZ7PTaO7Ddykr8WoBAMA=
+Date:   Thu, 13 Jun 2019 15:56:05 -0700
 From:   akpm@linux-foundation.org
-To:     stable@vger.kernel.org, piaojun@huawei.com, mark@fasheh.com,
-        junxiao.bi@oracle.com, joseph.qi@linux.alibaba.com,
-        jlbec@evilplan.org, ghe@suse.com, gechangwei@live.cn,
-        daniel.sobe@nxp.com, wen.gang.wang@oracle.com,
-        akpm@linux-foundation.org, mm-commits@vger.kernel.org,
-        torvalds@linux-foundation.org
-Subject:  [patch 06/16] fs/ocfs2: fix race in
- ocfs2_dentry_attach_lock()
-Message-ID: <20190613225601.cvkqQ%akpm@linux-foundation.org>
+To:     will.deacon@arm.com, stable@vger.kernel.org, peterz@infradead.org,
+        npiggin@gmail.com, namit@vmware.com, minchan@kernel.org,
+        mgorman@suse.de, jstancek@redhat.com, aneesh.kumar@linux.ibm.com,
+        yang.shi@linux.alibaba.com, akpm@linux-foundation.org,
+        mm-commits@vger.kernel.org, torvalds@linux-foundation.org
+Subject:  [patch 07/16] mm: mmu_gather: remove __tlb_reset_range()
+ for force flush
+Message-ID: <20190613225605.p2r15%akpm@linux-foundation.org>
 User-Agent: s-nail v14.9.10
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wengang Wang <wen.gang.wang@oracle.com>
-Subject: fs/ocfs2: fix race in ocfs2_dentry_attach_lock()
+From: Yang Shi <yang.shi@linux.alibaba.com>
+Subject: mm: mmu_gather: remove __tlb_reset_range() for force flush
 
-ocfs2_dentry_attach_lock() can be executed in parallel threads against the
-same dentry.  Make that race safe.  The race is like this:
+A few new fields were added to mmu_gather to make TLB flush smarter for
+huge page by telling what level of page table is changed.
 
-            thread A                               thread B
+__tlb_reset_range() is used to reset all these page table state to
+unchanged, which is called by TLB flush for parallel mapping changes for
+the same range under non-exclusive lock (i.e.  read mmap_sem).  Before
+commit dd2283f2605e ("mm: mmap: zap pages with read mmap_sem in munmap"),
+the syscalls (e.g.  MADV_DONTNEED, MADV_FREE) which may update PTEs in
+parallel don't remove page tables.  But, the forementioned commit may do
+munmap() under read mmap_sem and free page tables.  This may result in
+program hang on aarch64 reported by Jan Stancek.  The problem could be
+reproduced by his test program with slightly modified below.
 
-(A1) enter ocfs2_dentry_attach_lock,
-seeing dentry->d_fsdata is NULL,
-and no alias found by
-ocfs2_find_local_alias, so kmalloc
-a new ocfs2_dentry_lock structure
-to local variable "dl", dl1
+---8<---
 
-               .....
+static int map_size = 4096;
+static int num_iter = 500;
+static long threads_total;
 
-                                    (B1) enter ocfs2_dentry_attach_lock,
-                                    seeing dentry->d_fsdata is NULL,
-                                    and no alias found by
-                                    ocfs2_find_local_alias so kmalloc
-                                    a new ocfs2_dentry_lock structure
-                                    to local variable "dl", dl2.
+static void *distant_area;
 
-                                                   ......
+void *map_write_unmap(void *ptr)
+{
+	int *fd = ptr;
+	unsigned char *map_address;
+	int i, j = 0;
 
-(A2) set dentry->d_fsdata with dl1,
-call ocfs2_dentry_lock() and increase
-dl1->dl_lockres.l_ro_holders to 1 on
-success.
-              ......
+	for (i = 0; i < num_iter; i++) {
+		map_address = mmap(distant_area, (size_t) map_size, PROT_WRITE | PROT_READ,
+			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+		if (map_address == MAP_FAILED) {
+			perror("mmap");
+			exit(1);
+		}
 
-                                    (B2) set dentry->d_fsdata with dl2
-                                    call ocfs2_dentry_lock() and increase
-				    dl2->dl_lockres.l_ro_holders to 1 on
-				    success.
+		for (j = 0; j < map_size; j++)
+			map_address[j] = 'b';
 
-                                                  ......
+		if (munmap(map_address, map_size) == -1) {
+			perror("munmap");
+			exit(1);
+		}
+	}
 
-(A3) call ocfs2_dentry_unlock()
-and decrease
-dl2->dl_lockres.l_ro_holders to 0
-on success.
-             ....
+	return NULL;
+}
 
-                                    (B3) call ocfs2_dentry_unlock(),
-                                    decreasing
-				    dl2->dl_lockres.l_ro_holders, but
-				    see it's zero now, panic
+void *dummy(void *ptr)
+{
+	return NULL;
+}
 
-Link: http://lkml.kernel.org/r/20190529174636.22364-1-wen.gang.wang@oracle.com
-Signed-off-by: Wengang Wang <wen.gang.wang@oracle.com>
-Reported-by: Daniel Sobe <daniel.sobe@nxp.com>
-Tested-by: Daniel Sobe <daniel.sobe@nxp.com>
-Reviewed-by: Changwei Ge <gechangwei@live.cn>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Cc: <stable@vger.kernel.org>
+int main(void)
+{
+	pthread_t thid[2];
+
+	/* hint for mmap in map_write_unmap() */
+	distant_area = mmap(0, DISTANT_MMAP_SIZE, PROT_WRITE | PROT_READ,
+			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	munmap(distant_area, (size_t)DISTANT_MMAP_SIZE);
+	distant_area += DISTANT_MMAP_SIZE / 2;
+
+	while (1) {
+		pthread_create(&thid[0], NULL, map_write_unmap, NULL);
+		pthread_create(&thid[1], NULL, dummy, NULL);
+
+		pthread_join(thid[0], NULL);
+		pthread_join(thid[1], NULL);
+	}
+}
+---8<---
+
+The program may bring in parallel execution like below:
+
+        t1                                        t2
+munmap(map_address)
+  downgrade_write(&mm->mmap_sem);
+  unmap_region()
+  tlb_gather_mmu()
+    inc_tlb_flush_pending(tlb->mm);
+  free_pgtables()
+    tlb->freed_tables = 1
+    tlb->cleared_pmds = 1
+
+                                        pthread_exit()
+                                        madvise(thread_stack, 8M, MADV_DONTNEED)
+                                          zap_page_range()
+                                            tlb_gather_mmu()
+                                              inc_tlb_flush_pending(tlb->mm);
+
+  tlb_finish_mmu()
+    if (mm_tlb_flush_nested(tlb->mm))
+      __tlb_reset_range()
+
+__tlb_reset_range() would reset freed_tables and cleared_* bits, but this
+may cause inconsistency for munmap() which do free page tables.  Then it
+may result in some architectures, e.g.  aarch64, may not flush TLB
+completely as expected to have stale TLB entries remained.
+
+Use fullmm flush since it yields much better performance on aarch64 and
+non-fullmm doesn't yields significant difference on x86.
+
+The original proposed fix came from Jan Stancek who mainly debugged this
+issue, I just wrapped up everything together.
+
+Jan's testing results:
+
+v5.2-rc2-24-gbec7550cca10
+--------------------------
+         mean     stddev
+real    37.382   2.780
+user     1.420   0.078
+sys     54.658   1.855
+
+v5.2-rc2-24-gbec7550cca10 + "mm: mmu_gather: remove __tlb_reset_range() for force flush"
+---------------------------------------------------------------------------------------_
+         mean     stddev
+real    37.119   2.105
+user     1.548   0.087
+sys     55.698   1.357
+
+[akpm@linux-foundation.org: coding-style fixes]
+Link: http://lkml.kernel.org/r/1558322252-113575-1-git-send-email-yang.shi@linux.alibaba.com
+Fixes: dd2283f2605e ("mm: mmap: zap pages with read mmap_sem in munmap")
+Signed-off-by: Yang Shi <yang.shi@linux.alibaba.com>
+Signed-off-by: Jan Stancek <jstancek@redhat.com>
+Reported-by: Jan Stancek <jstancek@redhat.com>
+Tested-by: Jan Stancek <jstancek@redhat.com>
+Suggested-by: Will Deacon <will.deacon@arm.com>
+Tested-by: Will Deacon <will.deacon@arm.com>
+Acked-by: Will Deacon <will.deacon@arm.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Nick Piggin <npiggin@gmail.com>
+Cc: "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>
+Cc: Nadav Amit <namit@vmware.com>
+Cc: Minchan Kim <minchan@kernel.org>
+Cc: Mel Gorman <mgorman@suse.de>
+Cc: <stable@vger.kernel.org>	[4.20+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- fs/ocfs2/dcache.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ mm/mmu_gather.c |   24 +++++++++++++++++++-----
+ 1 file changed, 19 insertions(+), 5 deletions(-)
 
---- a/fs/ocfs2/dcache.c~fs-ocfs2-fix-race-in-ocfs2_dentry_attach_lock
-+++ a/fs/ocfs2/dcache.c
-@@ -296,6 +296,18 @@ int ocfs2_dentry_attach_lock(struct dent
- 
- out_attach:
- 	spin_lock(&dentry_attach_lock);
-+	if (unlikely(dentry->d_fsdata && !alias)) {
-+		/* d_fsdata is set by a racing thread which is doing
-+		 * the same thing as this thread is doing. Leave the racing
-+		 * thread going ahead and we return here.
+--- a/mm/mmu_gather.c~mm-mmu_gather-remove-__tlb_reset_range-for-force-flush
++++ a/mm/mmu_gather.c
+@@ -245,14 +245,28 @@ void tlb_finish_mmu(struct mmu_gather *t
+ {
+ 	/*
+ 	 * If there are parallel threads are doing PTE changes on same range
+-	 * under non-exclusive lock(e.g., mmap_sem read-side) but defer TLB
+-	 * flush by batching, a thread has stable TLB entry can fail to flush
+-	 * the TLB by observing pte_none|!pte_dirty, for example so flush TLB
+-	 * forcefully if we detect parallel PTE batching threads.
++	 * under non-exclusive lock (e.g., mmap_sem read-side) but defer TLB
++	 * flush by batching, one thread may end up seeing inconsistent PTEs
++	 * and result in having stale TLB entries.  So flush TLB forcefully
++	 * if we detect parallel PTE batching threads.
++	 *
++	 * However, some syscalls, e.g. munmap(), may free page tables, this
++	 * needs force flush everything in the given range. Otherwise this
++	 * may result in having stale TLB entries for some architectures,
++	 * e.g. aarch64, that could specify flush what level TLB.
+ 	 */
+ 	if (mm_tlb_flush_nested(tlb->mm)) {
++		/*
++		 * The aarch64 yields better performance with fullmm by
++		 * avoiding multiple CPUs spamming TLBI messages at the
++		 * same time.
++		 *
++		 * On x86 non-fullmm doesn't yield significant difference
++		 * against fullmm.
 +		 */
-+		spin_unlock(&dentry_attach_lock);
-+		iput(dl->dl_inode);
-+		ocfs2_lock_res_free(&dl->dl_lockres);
-+		kfree(dl);
-+		return 0;
-+	}
-+
- 	dentry->d_fsdata = dl;
- 	dl->dl_count++;
- 	spin_unlock(&dentry_attach_lock);
++		tlb->fullmm = 1;
+ 		__tlb_reset_range(tlb);
+-		__tlb_adjust_range(tlb, start, end - start);
++		tlb->freed_tables = 1;
+ 	}
+ 
+ 	tlb_flush_mmu(tlb);
 _
