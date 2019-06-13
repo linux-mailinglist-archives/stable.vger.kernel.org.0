@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5984D44008
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:02:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BD4E441CA
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:19:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732984AbfFMQCZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:02:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35966 "EHLO mail.kernel.org"
+        id S1732424AbfFMQQW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:16:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731406AbfFMIrw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:47:52 -0400
+        id S1731152AbfFMIlZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:41:25 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9798F20851;
-        Thu, 13 Jun 2019 08:47:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5685920851;
+        Thu, 13 Jun 2019 08:41:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415672;
-        bh=6AsnjSp4I8XPLFUdtj4253p9jBp5YwDl72Dnx/K14u0=;
+        s=default; t=1560415284;
+        bh=ss0pxPaLLqpqYd7wUmzKeZFRvjvsi0CSNDrkeGQbD4E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=10pfZn07hOgHGbiE3LLTnBgAxAr5vUoUeP6WP31MQvq2CQgXd1rSE1FEQ7MTNuRHH
-         Og+CrBpye8N+c/u1/59rEKZ0RDe52UIffbXP2dA5BgwTi+0I1SAYsKdlKb+z0DzeZE
-         mvywfJQ8FQlB2KTe3Yr3fanaDxbdvnJiLSOMr80M=
+        b=a1YdIDAvY+Pm1p6Fyi2AV9e7hQIoAfMmi29wJ+Au7VsLT7x+dG1EYRTPE74SQOeHX
+         wxeXuNAsicI/0aPzWbxElR8BiMwz4ZnKHXKlA8XsEfL6kHjZJ6NjseELuAUa0/LgIm
+         nxYgS91n6DbkgvKlu4RZ6HcVTWhrQHnARp8b9r5k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 067/155] netfilter: nf_tables: fix base chain stat rcu_dereference usage
+Subject: [PATCH 4.19 041/118] f2fs: fix to do checksum even if inode page is uptodate
 Date:   Thu, 13 Jun 2019 10:32:59 +0200
-Message-Id: <20190613075656.746734042@linuxfoundation.org>
+Message-Id: <20190613075645.972616217@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
-References: <20190613075652.691765927@linuxfoundation.org>
+In-Reply-To: <20190613075643.642092651@linuxfoundation.org>
+References: <20190613075643.642092651@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,73 +44,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit edbd82c5fba009f68d20b5db585be1e667c605f6 ]
+[ Upstream commit b42b179bda9ff11075a6fc2bac4d9e400513679a ]
 
-Following splat gets triggered when nfnetlink monitor is running while
-xtables-nft selftests are running:
+As Jungyeon reported in bugzilla:
 
-net/netfilter/nf_tables_api.c:1272 suspicious rcu_dereference_check() usage!
-other info that might help us debug this:
+https://bugzilla.kernel.org/show_bug.cgi?id=203221
 
-1 lock held by xtables-nft-mul/27006:
- #0: 00000000e0f85be9 (&net->nft.commit_mutex){+.+.}, at: nf_tables_valid_genid+0x1a/0x50
-Call Trace:
- nf_tables_fill_chain_info.isra.45+0x6cc/0x6e0
- nf_tables_chain_notify+0xf8/0x1a0
- nf_tables_commit+0x165c/0x1740
+- Overview
+When mounting the attached crafted image and running program, this error is reported.
 
-nf_tables_fill_chain_info() can be called both from dumps (rcu read locked)
-or from the transaction path if a userspace process subscribed to nftables
-notifications.
+The image is intentionally fuzzed from a normal f2fs image for testing and I enabled option CONFIG_F2FS_CHECK_FS on.
 
-In the 'table dump' case, rcu_access_pointer() cannot be used: We do not
-hold transaction mutex so the pointer can be NULLed right after the check.
-Just unconditionally fetch the value, then have the helper return
-immediately if its NULL.
+- Reproduces
+cc poc_07.c
+mkdir test
+mount -t f2fs tmp.img test
+cp a.out test
+cd test
+sudo ./a.out
 
-In the notification case we don't hold the rcu read lock, but updates are
-prevented due to transaction mutex. Use rcu_dereference_check() to make lockdep
-aware of this.
+- Messages
+ kernel BUG at fs/f2fs/node.c:1279!
+ RIP: 0010:read_node_page+0xcf/0xf0
+ Call Trace:
+  __get_node_page+0x6b/0x2f0
+  f2fs_iget+0x8f/0xdf0
+  f2fs_lookup+0x136/0x320
+  __lookup_slow+0x92/0x140
+  lookup_slow+0x30/0x50
+  walk_component+0x1c1/0x350
+  path_lookupat+0x62/0x200
+  filename_lookup+0xb3/0x1a0
+  do_fchmodat+0x3e/0xa0
+  __x64_sys_chmod+0x12/0x20
+  do_syscall_64+0x43/0xf0
+  entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+On below paths, we can have opportunity to readahead inode page
+- gc_node_segment -> f2fs_ra_node_page
+- gc_data_segment -> f2fs_ra_node_page
+- f2fs_fill_dentries -> f2fs_ra_node_page
+
+Unlike synchronized read, on readahead path, we can set page uptodate
+before verifying page's checksum, then read_node_page() will trigger
+kernel panic once it encounters a uptodated page w/ incorrect checksum.
+
+So considering readahead scenario, we have to do checksum each time
+when loading inode page even if it is uptodated.
+
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_tables_api.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ fs/f2fs/inode.c | 4 ++--
+ fs/f2fs/node.c  | 7 ++++---
+ 2 files changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index 1606eaa5ae0d..aa5e7b00a581 100644
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -1190,6 +1190,9 @@ static int nft_dump_stats(struct sk_buff *skb, struct nft_stats __percpu *stats)
- 	u64 pkts, bytes;
- 	int cpu;
+diff --git a/fs/f2fs/inode.c b/fs/f2fs/inode.c
+index fae9570e6860..0f31df01e36c 100644
+--- a/fs/f2fs/inode.c
++++ b/fs/f2fs/inode.c
+@@ -179,8 +179,8 @@ bool f2fs_inode_chksum_verify(struct f2fs_sb_info *sbi, struct page *page)
  
-+	if (!stats)
-+		return 0;
-+
- 	memset(&total, 0, sizeof(total));
- 	for_each_possible_cpu(cpu) {
- 		cpu_stats = per_cpu_ptr(stats, cpu);
-@@ -1247,6 +1250,7 @@ static int nf_tables_fill_chain_info(struct sk_buff *skb, struct net *net,
- 	if (nft_is_base_chain(chain)) {
- 		const struct nft_base_chain *basechain = nft_base_chain(chain);
- 		const struct nf_hook_ops *ops = &basechain->ops;
-+		struct nft_stats __percpu *stats;
- 		struct nlattr *nest;
+ 	if (provided != calculated)
+ 		f2fs_msg(sbi->sb, KERN_WARNING,
+-			"checksum invalid, ino = %x, %x vs. %x",
+-			ino_of_node(page), provided, calculated);
++			"checksum invalid, nid = %lu, ino_of_node = %x, %x vs. %x",
++			page->index, ino_of_node(page), provided, calculated);
  
- 		nest = nla_nest_start(skb, NFTA_CHAIN_HOOK);
-@@ -1268,8 +1272,9 @@ static int nf_tables_fill_chain_info(struct sk_buff *skb, struct net *net,
- 		if (nla_put_string(skb, NFTA_CHAIN_TYPE, basechain->type->name))
- 			goto nla_put_failure;
+ 	return provided == calculated;
+ }
+diff --git a/fs/f2fs/node.c b/fs/f2fs/node.c
+index 34c3f732601c..e2d9edad758c 100644
+--- a/fs/f2fs/node.c
++++ b/fs/f2fs/node.c
+@@ -1282,9 +1282,10 @@ static int read_node_page(struct page *page, int op_flags)
+ 	int err;
  
--		if (rcu_access_pointer(basechain->stats) &&
--		    nft_dump_stats(skb, rcu_dereference(basechain->stats)))
-+		stats = rcu_dereference_check(basechain->stats,
-+					      lockdep_commit_lock_is_held(net));
-+		if (nft_dump_stats(skb, stats))
- 			goto nla_put_failure;
+ 	if (PageUptodate(page)) {
+-#ifdef CONFIG_F2FS_CHECK_FS
+-		f2fs_bug_on(sbi, !f2fs_inode_chksum_verify(sbi, page));
+-#endif
++		if (!f2fs_inode_chksum_verify(sbi, page)) {
++			ClearPageUptodate(page);
++			return -EBADMSG;
++		}
+ 		return LOCKED_PAGE;
  	}
  
 -- 
