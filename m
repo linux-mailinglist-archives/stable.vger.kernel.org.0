@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A33243F50
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 17:56:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A77CA44167
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:14:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389088AbfFMP4H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 11:56:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38804 "EHLO mail.kernel.org"
+        id S1732405AbfFMQN7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:13:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731529AbfFMIvU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:51:20 -0400
+        id S1731199AbfFMImd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:42:33 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D369A20851;
-        Thu, 13 Jun 2019 08:51:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8757921479;
+        Thu, 13 Jun 2019 08:42:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415880;
-        bh=JuA+z/E8J/GcS987WlH7req4HxY+VEuIEI+xBM47yDg=;
+        s=default; t=1560415353;
+        bh=ZPH16qG/Ca5t+j0juJTeNqQ9wDqZdh+nyOxINpzAyb4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qTseQMrNAVhEHbQ4M/oFJP7goWiyUu1E1pOWo+9MaSXHvWKFLxNchHho8UYsLpVUy
-         m9lHZhUr0G0q3gJm0/RwGdDICe0cdWYBJRYG1ojdtcRRAuQTNk2/rN+94hqTXhEydF
-         m6nC3XSTi4KxkU92fQIoWNJwJxR1v/4IxA15hG18=
+        b=tep264qEiFZ2fM9sRw7qG+CZG5uA477mnArmM2UuNUDtruv41QCvr/Kvioju/0VP9
+         peTuHbzUGSuanC8iRgB4i1fV7AHrZKNI58SVFIWRz3PVDiXrQLUflyID8roPdFAq5/
+         whVdQPBdiiISRRtnuGyetEtCVsGS8xnwIAZM4Hl8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Junxiao Chang <junxiao.chang@intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        stable@vger.kernel.org, Alexander Kurz <akurz@blala.de>,
+        Sven Van Asbroeck <TheSven73@gmail.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 120/155] platform/x86: intel_pmc_ipc: adding error handling
+Subject: [PATCH 4.19 094/118] power: supply: max14656: fix potential use-before-alloc
 Date:   Thu, 13 Jun 2019 10:33:52 +0200
-Message-Id: <20190613075659.589229049@linuxfoundation.org>
+Message-Id: <20190613075649.370367610@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
-References: <20190613075652.691765927@linuxfoundation.org>
+In-Reply-To: <20190613075643.642092651@linuxfoundation.org>
+References: <20190613075643.642092651@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit e61985d0550df8c2078310202aaad9b41049c36c ]
+[ Upstream commit 0cd0e49711556d2331a06b1117b68dd786cb54d2 ]
 
-If punit or telemetry device initialization fails, pmc driver should
-unregister and return failure.
+Call order on probe():
+- max14656_hw_init() enables interrupts on the chip
+- devm_request_irq() starts processing interrupts, isr
+  could be called immediately
+-    isr: schedules delayed work (irq_work)
+-    irq_work: calls power_supply_changed()
+- devm_power_supply_register() registers the power supply
 
-This change is to fix a kernel panic when removing kernel module
-intel_pmc_ipc.
+Depending on timing, it's possible that power_supply_changed()
+is called on an unregistered power supply structure.
 
-Fixes: 48c1917088ba ("platform:x86: Add Intel telemetry platform device")
-Signed-off-by: Junxiao Chang <junxiao.chang@intel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Fix by registering the power supply before requesting the irq.
+
+Cc: Alexander Kurz <akurz@blala.de>
+Signed-off-by: Sven Van Asbroeck <TheSven73@gmail.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/intel_pmc_ipc.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/power/supply/max14656_charger_detector.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/platform/x86/intel_pmc_ipc.c b/drivers/platform/x86/intel_pmc_ipc.c
-index 7964ba22ef8d..d37cbd1cf58c 100644
---- a/drivers/platform/x86/intel_pmc_ipc.c
-+++ b/drivers/platform/x86/intel_pmc_ipc.c
-@@ -771,13 +771,17 @@ static int ipc_create_pmc_devices(void)
- 	if (ret) {
- 		dev_err(ipcdev.dev, "Failed to add punit platform device\n");
- 		platform_device_unregister(ipcdev.tco_dev);
-+		return ret;
- 	}
+diff --git a/drivers/power/supply/max14656_charger_detector.c b/drivers/power/supply/max14656_charger_detector.c
+index b91b1d2999dc..d19307f791c6 100644
+--- a/drivers/power/supply/max14656_charger_detector.c
++++ b/drivers/power/supply/max14656_charger_detector.c
+@@ -280,6 +280,13 @@ static int max14656_probe(struct i2c_client *client,
  
- 	if (!ipcdev.telem_res_inval) {
- 		ret = ipc_create_telemetry_device();
--		if (ret)
-+		if (ret) {
- 			dev_warn(ipcdev.dev,
- 				"Failed to add telemetry platform device\n");
-+			platform_device_unregister(ipcdev.punit_dev);
-+			platform_device_unregister(ipcdev.tco_dev);
-+		}
- 	}
+ 	INIT_DELAYED_WORK(&chip->irq_work, max14656_irq_worker);
  
- 	return ret;
++	chip->detect_psy = devm_power_supply_register(dev,
++		       &chip->psy_desc, &psy_cfg);
++	if (IS_ERR(chip->detect_psy)) {
++		dev_err(dev, "power_supply_register failed\n");
++		return -EINVAL;
++	}
++
+ 	ret = devm_request_irq(dev, chip->irq, max14656_irq,
+ 			       IRQF_TRIGGER_FALLING,
+ 			       MAX14656_NAME, chip);
+@@ -289,13 +296,6 @@ static int max14656_probe(struct i2c_client *client,
+ 	}
+ 	enable_irq_wake(chip->irq);
+ 
+-	chip->detect_psy = devm_power_supply_register(dev,
+-		       &chip->psy_desc, &psy_cfg);
+-	if (IS_ERR(chip->detect_psy)) {
+-		dev_err(dev, "power_supply_register failed\n");
+-		return -EINVAL;
+-	}
+-
+ 	schedule_delayed_work(&chip->irq_work, msecs_to_jiffies(2000));
+ 
+ 	return 0;
 -- 
 2.20.1
 
