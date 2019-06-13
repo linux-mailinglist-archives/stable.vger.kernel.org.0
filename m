@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 274B543FE4
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:01:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13EB6442BC
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:25:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733105AbfFMQBO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:01:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36510 "EHLO mail.kernel.org"
+        id S2391892AbfFMQZN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:25:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731443AbfFMIsj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:48:39 -0400
+        id S1730980AbfFMIgq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:36:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1DC64206BA;
-        Thu, 13 Jun 2019 08:48:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 780E620851;
+        Thu, 13 Jun 2019 08:36:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415718;
-        bh=lCtMrz1Mq5QbCuKsABMwSIKB8Wsbk8DG8I3IpegZgsQ=;
+        s=default; t=1560415005;
+        bh=WWG29t6l9B1S5X0Ig0x7C6SGZJ4CFaWjnDt4Xe+nbD0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hGUOEpKcS7o9ZwUU8Vey5+mOhleQltgz5kmFGUOkZifY6Bh2p5kSqbBr9MlFxEI+I
-         JFbJSvLV6TwhP+NpZUVR4I6Zgaednxv3vJuAmubeJ1BuO0f4vRRNnwB9Ig2a26e1Hy
-         eoSN/vfdrF5sqiotHDUyr6kb84GVMlpH3gOU9xO4=
+        b=JQJt3ecmj8nlRyspdoDsiae8ZNl0Crldti3+4+3PGCNdALxLoPoBHMhwGYumJwMdc
+         xacPaiH417SMP29OdkpGNKqZzqANVk0SL/ultIvNR2PpgsqBgJMaYU3Be8kQrE144k
+         7VwJz+WO1E6T8dLzsYUe1OkPre+Tp23My4Dmsh3A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ashok Raj <ashok.raj@intel.com>,
-        Jacob Pan <jacob.jun.pan@linux.intel.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Xu Pengfei <pengfei.xu@intel.com>,
-        Mika Westerberg <mika.westerberg@intel.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 102/155] iommu/vt-d: Flush IOTLB for untrusted device in time
-Date:   Thu, 13 Jun 2019 10:33:34 +0200
-Message-Id: <20190613075658.741939038@linuxfoundation.org>
+        stable@vger.kernel.org, Andrey Smirnov <andrew.smirnov@gmail.com>,
+        "Angus Ainslie (Purism)" <angus@akkea.ca>,
+        Chris Healy <cphealy@gmail.com>,
+        Lucas Stach <l.stach@pengutronix.de>,
+        Fabio Estevam <fabio.estevam@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        linux-arm-kernel@lists.infradead.org,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 52/81] ARM: dts: imx51: Specify IMX5_CLK_IPG as "ahb" clock to SDMA
+Date:   Thu, 13 Jun 2019 10:33:35 +0200
+Message-Id: <20190613075653.058097260@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
-References: <20190613075652.691765927@linuxfoundation.org>
+In-Reply-To: <20190613075649.074682929@linuxfoundation.org>
+References: <20190613075649.074682929@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,54 +49,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f7b0c4ce8cb3c09cb3cbfc0c663268bf99e5fa9c ]
+[ Upstream commit 918bbde8085ae147a43dcb491953e0dd8f3e9d6a ]
 
-By default, for performance consideration, Intel IOMMU
-driver won't flush IOTLB immediately after a buffer is
-unmapped. It schedules a thread and flushes IOTLB in a
-batched mode. This isn't suitable for untrusted device
-since it still can access the memory even if it isn't
-supposed to do so.
+Since 25aaa75df1e6 SDMA driver uses clock rates of "ipg" and "ahb"
+clock to determine if it needs to configure the IP block as operating
+at 1:1 or 1:2 clock ratio (ACR bit in SDMAARM_CONFIG). Specifying both
+clocks as IMX5_CLK_SDMA results in driver incorrectly thinking that
+ratio is 1:1 which results in broken SDMA funtionality. Fix the code
+to specify IMX5_CLK_AHB as "ahb" clock for SDMA, to avoid detecting
+incorrect clock ratio.
 
-Cc: Ashok Raj <ashok.raj@intel.com>
-Cc: Jacob Pan <jacob.jun.pan@linux.intel.com>
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Tested-by: Xu Pengfei <pengfei.xu@intel.com>
-Tested-by: Mika Westerberg <mika.westerberg@intel.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
+Cc: Angus Ainslie (Purism) <angus@akkea.ca>
+Cc: Chris Healy <cphealy@gmail.com>
+Cc: Lucas Stach <l.stach@pengutronix.de>
+Cc: Fabio Estevam <fabio.estevam@nxp.com>
+Cc: Shawn Guo <shawnguo@kernel.org>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/intel-iommu.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/imx51.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
-index cb656f503604..0feb3f70da16 100644
---- a/drivers/iommu/intel-iommu.c
-+++ b/drivers/iommu/intel-iommu.c
-@@ -3736,6 +3736,7 @@ static void intel_unmap(struct device *dev, dma_addr_t dev_addr, size_t size)
- 	unsigned long iova_pfn;
- 	struct intel_iommu *iommu;
- 	struct page *freelist;
-+	struct pci_dev *pdev = NULL;
- 
- 	if (iommu_no_mapping(dev))
- 		return;
-@@ -3751,11 +3752,14 @@ static void intel_unmap(struct device *dev, dma_addr_t dev_addr, size_t size)
- 	start_pfn = mm_to_dma_pfn(iova_pfn);
- 	last_pfn = start_pfn + nrpages - 1;
- 
-+	if (dev_is_pci(dev))
-+		pdev = to_pci_dev(dev);
-+
- 	dev_dbg(dev, "Device unmapping: pfn %lx-%lx\n", start_pfn, last_pfn);
- 
- 	freelist = domain_unmap(domain, start_pfn, last_pfn);
- 
--	if (intel_iommu_strict) {
-+	if (intel_iommu_strict || (pdev && pdev->untrusted)) {
- 		iommu_flush_iotlb_psi(iommu, domain, start_pfn,
- 				      nrpages, !freelist, 0);
- 		/* free iova */
+diff --git a/arch/arm/boot/dts/imx51.dtsi b/arch/arm/boot/dts/imx51.dtsi
+index 1ee1d542d9ad..29c965126817 100644
+--- a/arch/arm/boot/dts/imx51.dtsi
++++ b/arch/arm/boot/dts/imx51.dtsi
+@@ -476,7 +476,7 @@
+ 				reg = <0x83fb0000 0x4000>;
+ 				interrupts = <6>;
+ 				clocks = <&clks IMX5_CLK_SDMA_GATE>,
+-					 <&clks IMX5_CLK_SDMA_GATE>;
++					 <&clks IMX5_CLK_AHB>;
+ 				clock-names = "ipg", "ahb";
+ 				#dma-cells = <3>;
+ 				fsl,sdma-ram-script-name = "imx/sdma/sdma-imx51.bin";
 -- 
 2.20.1
 
