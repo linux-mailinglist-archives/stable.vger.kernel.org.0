@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 73D614427F
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:24:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD04E43F49
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 17:56:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732826AbfFMQXD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:23:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55352 "EHLO mail.kernel.org"
+        id S2390272AbfFMP4I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 11:56:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731033AbfFMIh4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:37:56 -0400
+        id S1731523AbfFMIvP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:51:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D405B2146F;
-        Thu, 13 Jun 2019 08:37:54 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2250120851;
+        Thu, 13 Jun 2019 08:51:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415075;
-        bh=/a0mpmk+F++Irb56hdEMgOxXqHCddPGLkXPRjC/8KCM=;
+        s=default; t=1560415874;
+        bh=egVTssJezJuO5TTf/IN4qmOTXmAMMqK8Ii9LVI6I2sU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jZqhXu/lwICh17TQReV4DrsFmZDObQ2hjBAUQbh2ZUMMFF3ZuyTeOkCRYMQ+WmaBp
-         2ixYS/R7WYNIS0eb1C9gmxd4iP35wG7Dyia9N56MbcCkK5pFbKoBOKSAnZyy7HbhqP
-         XL4MZddvNqHcDKRI6MRpWAPEtlbflbD98Lp0aNws=
+        b=JwSiMmYZU0yT7dPqo1RMEWuysB3pn0qqn/Eenre/Rc0xDudMUYsqP8m5+SHjvsh+i
+         e4TKa/JJvETu0J1WNnr4m3J5VVdmy6GWj/P0YljKovx7JqITpYnHx/c/MuhqB7eRUM
+         7eQ8SZFCOXathOk4qiG8D7oHxOiDmDzTI4Gw+qMQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrey Smirnov <andrew.smirnov@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Chris Healy <cphealy@gmail.com>, Andrew Lunn <andrew@lunn.ch>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        Fabio Estevam <festevam@gmail.com>, linux-gpio@vger.kernel.org,
-        linux-imx@nxp.com, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 77/81] gpio: vf610: Do not share irq_chip
+        stable@vger.kernel.org, Jagan Teki <jagan@amarulasolutions.com>,
+        Rob Herring <robh@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 128/155] Input: goodix - add GT5663 CTP support
 Date:   Thu, 13 Jun 2019 10:34:00 +0200
-Message-Id: <20190613075654.646180331@linuxfoundation.org>
+Message-Id: <20190613075659.968440813@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075649.074682929@linuxfoundation.org>
-References: <20190613075649.074682929@linuxfoundation.org>
+In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
+References: <20190613075652.691765927@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,104 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 338aa10750ba24d04beeaf5dc5efc032e5cf343f ]
+[ Upstream commit a5f50c501321249d67611353dde6d68d48c5b959 ]
 
-Fix the warning produced by gpiochip_set_irq_hooks() by allocating a
-dedicated IRQ chip per GPIO chip/port.
+GT5663 is capacitive touch controller with customized smart
+wakeup gestures.
 
-Signed-off-by: Andrey Smirnov <andrew.smirnov@gmail.com>
-Cc: Linus Walleij <linus.walleij@linaro.org>
-Cc: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Cc: Chris Healy <cphealy@gmail.com>
-Cc: Andrew Lunn <andrew@lunn.ch>
-Cc: Heiner Kallweit <hkallweit1@gmail.com>
-Cc: Fabio Estevam <festevam@gmail.com>
-Cc: linux-gpio@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Cc: linux-imx@nxp.com
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Add support for it by adding compatible and supported chip data.
+
+The chip data on GT5663 is similar to GT1151, like
+- config data register has 0x8050 address
+- config data register max len is 240
+- config data checksum has 16-bit
+
+Signed-off-by: Jagan Teki <jagan@amarulasolutions.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-vf610.c | 26 ++++++++++++--------------
- 1 file changed, 12 insertions(+), 14 deletions(-)
+ Documentation/devicetree/bindings/input/touchscreen/goodix.txt | 1 +
+ drivers/input/touchscreen/goodix.c                             | 2 ++
+ 2 files changed, 3 insertions(+)
 
-diff --git a/drivers/gpio/gpio-vf610.c b/drivers/gpio/gpio-vf610.c
-index 1309b444720e..3210fba16a9b 100644
---- a/drivers/gpio/gpio-vf610.c
-+++ b/drivers/gpio/gpio-vf610.c
-@@ -37,6 +37,7 @@ struct fsl_gpio_soc_data {
+diff --git a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+index 8cf0b4d38a7e..109cc0cebaa2 100644
+--- a/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
++++ b/Documentation/devicetree/bindings/input/touchscreen/goodix.txt
+@@ -3,6 +3,7 @@ Device tree bindings for Goodix GT9xx series touchscreen controller
+ Required properties:
  
- struct vf610_gpio_port {
- 	struct gpio_chip gc;
-+	struct irq_chip ic;
- 	void __iomem *base;
- 	void __iomem *gpio_base;
- 	const struct fsl_gpio_soc_data *sdata;
-@@ -66,8 +67,6 @@ struct vf610_gpio_port {
- #define PORT_INT_EITHER_EDGE	0xb
- #define PORT_INT_LOGIC_ONE	0xc
- 
--static struct irq_chip vf610_gpio_irq_chip;
--
- static const struct fsl_gpio_soc_data imx_data = {
- 	.have_paddr = true,
- };
-@@ -243,15 +242,6 @@ static int vf610_gpio_irq_set_wake(struct irq_data *d, u32 enable)
- 	return 0;
- }
- 
--static struct irq_chip vf610_gpio_irq_chip = {
--	.name		= "gpio-vf610",
--	.irq_ack	= vf610_gpio_irq_ack,
--	.irq_mask	= vf610_gpio_irq_mask,
--	.irq_unmask	= vf610_gpio_irq_unmask,
--	.irq_set_type	= vf610_gpio_irq_set_type,
--	.irq_set_wake	= vf610_gpio_irq_set_wake,
--};
--
- static int vf610_gpio_probe(struct platform_device *pdev)
+  - compatible		: Should be "goodix,gt1151"
++				 or "goodix,gt5663"
+ 				 or "goodix,gt5688"
+ 				 or "goodix,gt911"
+ 				 or "goodix,gt9110"
+diff --git a/drivers/input/touchscreen/goodix.c b/drivers/input/touchscreen/goodix.c
+index f57d82220a88..dd029e689903 100644
+--- a/drivers/input/touchscreen/goodix.c
++++ b/drivers/input/touchscreen/goodix.c
+@@ -216,6 +216,7 @@ static const struct goodix_chip_data *goodix_get_chip_data(u16 id)
  {
- 	const struct of_device_id *of_id = of_match_device(vf610_gpio_dt_ids,
-@@ -261,6 +251,7 @@ static int vf610_gpio_probe(struct platform_device *pdev)
- 	struct vf610_gpio_port *port;
- 	struct resource *iores;
- 	struct gpio_chip *gc;
-+	struct irq_chip *ic;
- 	int i;
- 	int ret;
+ 	switch (id) {
+ 	case 1151:
++	case 5663:
+ 	case 5688:
+ 		return &gt1x_chip_data;
  
-@@ -297,6 +288,14 @@ static int vf610_gpio_probe(struct platform_device *pdev)
- 	gc->direction_output = vf610_gpio_direction_output;
- 	gc->set = vf610_gpio_set;
- 
-+	ic = &port->ic;
-+	ic->name = "gpio-vf610";
-+	ic->irq_ack = vf610_gpio_irq_ack;
-+	ic->irq_mask = vf610_gpio_irq_mask;
-+	ic->irq_unmask = vf610_gpio_irq_unmask;
-+	ic->irq_set_type = vf610_gpio_irq_set_type;
-+	ic->irq_set_wake = vf610_gpio_irq_set_wake;
-+
- 	ret = gpiochip_add_data(gc, port);
- 	if (ret < 0)
- 		return ret;
-@@ -308,14 +307,13 @@ static int vf610_gpio_probe(struct platform_device *pdev)
- 	/* Clear the interrupt status register for all GPIO's */
- 	vf610_gpio_writel(~0, port->base + PORT_ISFR);
- 
--	ret = gpiochip_irqchip_add(gc, &vf610_gpio_irq_chip, 0,
--				   handle_edge_irq, IRQ_TYPE_NONE);
-+	ret = gpiochip_irqchip_add(gc, ic, 0, handle_edge_irq, IRQ_TYPE_NONE);
- 	if (ret) {
- 		dev_err(dev, "failed to add irqchip\n");
- 		gpiochip_remove(gc);
- 		return ret;
- 	}
--	gpiochip_set_chained_irqchip(gc, &vf610_gpio_irq_chip, port->irq,
-+	gpiochip_set_chained_irqchip(gc, ic, port->irq,
- 				     vf610_gpio_irq_handler);
- 
- 	return 0;
+@@ -945,6 +946,7 @@ MODULE_DEVICE_TABLE(acpi, goodix_acpi_match);
+ #ifdef CONFIG_OF
+ static const struct of_device_id goodix_of_match[] = {
+ 	{ .compatible = "goodix,gt1151" },
++	{ .compatible = "goodix,gt5663" },
+ 	{ .compatible = "goodix,gt5688" },
+ 	{ .compatible = "goodix,gt911" },
+ 	{ .compatible = "goodix,gt9110" },
 -- 
 2.20.1
 
