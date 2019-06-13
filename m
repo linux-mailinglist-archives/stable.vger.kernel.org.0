@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A77CA44167
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:14:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20CEB4426F
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:22:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732405AbfFMQN7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:13:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59712 "EHLO mail.kernel.org"
+        id S2389608AbfFMQWY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:22:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731199AbfFMImd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:42:33 -0400
+        id S1731043AbfFMIiR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:38:17 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8757921479;
-        Thu, 13 Jun 2019 08:42:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BA1D421473;
+        Thu, 13 Jun 2019 08:38:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415353;
-        bh=ZPH16qG/Ca5t+j0juJTeNqQ9wDqZdh+nyOxINpzAyb4=;
+        s=default; t=1560415097;
+        bh=kUI4Ey98f9c4Iojg9qzUYMcrgvXf+9czDL3HOV3FGKQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tep264qEiFZ2fM9sRw7qG+CZG5uA477mnArmM2UuNUDtruv41QCvr/Kvioju/0VP9
-         peTuHbzUGSuanC8iRgB4i1fV7AHrZKNI58SVFIWRz3PVDiXrQLUflyID8roPdFAq5/
-         whVdQPBdiiISRRtnuGyetEtCVsGS8xnwIAZM4Hl8=
+        b=OUs73mncoQyV7kJx3tswNRZVJWvQQSe7SD4jAr+Jc2yvWNLC0Cpy28udhWmuA6q+N
+         8iiqU6ayy4s+PDQNm49QzwaAp3vnI1v8ObTFS1yOF/JMe3WUS1aPYM0wZ9HH67iRQf
+         IiazGqx7ws/3bp7kaTiAx35Qof3er07xjPhgrz+8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Kurz <akurz@blala.de>,
-        Sven Van Asbroeck <TheSven73@gmail.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Steven Price <steven.price@arm.com>,
+        Mukesh Ojha <mojha@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 094/118] power: supply: max14656: fix potential use-before-alloc
+Subject: [PATCH 4.14 69/81] PCI: xilinx: Check for __get_free_pages() failure
 Date:   Thu, 13 Jun 2019 10:33:52 +0200
-Message-Id: <20190613075649.370367610@linuxfoundation.org>
+Message-Id: <20190613075654.047460645@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075643.642092651@linuxfoundation.org>
-References: <20190613075643.642092651@linuxfoundation.org>
+In-Reply-To: <20190613075649.074682929@linuxfoundation.org>
+References: <20190613075649.074682929@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,59 +46,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 0cd0e49711556d2331a06b1117b68dd786cb54d2 ]
+[ Upstream commit 699ca30162686bf305cdf94861be02eb0cf9bda2 ]
 
-Call order on probe():
-- max14656_hw_init() enables interrupts on the chip
-- devm_request_irq() starts processing interrupts, isr
-  could be called immediately
--    isr: schedules delayed work (irq_work)
--    irq_work: calls power_supply_changed()
-- devm_power_supply_register() registers the power supply
+If __get_free_pages() fails, return -ENOMEM to avoid a NULL pointer
+dereference.
 
-Depending on timing, it's possible that power_supply_changed()
-is called on an unregistered power supply structure.
-
-Fix by registering the power supply before requesting the irq.
-
-Cc: Alexander Kurz <akurz@blala.de>
-Signed-off-by: Sven Van Asbroeck <TheSven73@gmail.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Kangjie Lu <kjlu@umn.edu>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Steven Price <steven.price@arm.com>
+Reviewed-by: Mukesh Ojha <mojha@codeaurora.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/max14656_charger_detector.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/pci/host/pcie-xilinx.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/power/supply/max14656_charger_detector.c b/drivers/power/supply/max14656_charger_detector.c
-index b91b1d2999dc..d19307f791c6 100644
---- a/drivers/power/supply/max14656_charger_detector.c
-+++ b/drivers/power/supply/max14656_charger_detector.c
-@@ -280,6 +280,13 @@ static int max14656_probe(struct i2c_client *client,
+diff --git a/drivers/pci/host/pcie-xilinx.c b/drivers/pci/host/pcie-xilinx.c
+index 29f024f0ed7f..a8a44afa81ec 100644
+--- a/drivers/pci/host/pcie-xilinx.c
++++ b/drivers/pci/host/pcie-xilinx.c
+@@ -338,14 +338,19 @@ static const struct irq_domain_ops msi_domain_ops = {
+  * xilinx_pcie_enable_msi - Enable MSI support
+  * @port: PCIe port information
+  */
+-static void xilinx_pcie_enable_msi(struct xilinx_pcie_port *port)
++static int xilinx_pcie_enable_msi(struct xilinx_pcie_port *port)
+ {
+ 	phys_addr_t msg_addr;
  
- 	INIT_DELAYED_WORK(&chip->irq_work, max14656_irq_worker);
- 
-+	chip->detect_psy = devm_power_supply_register(dev,
-+		       &chip->psy_desc, &psy_cfg);
-+	if (IS_ERR(chip->detect_psy)) {
-+		dev_err(dev, "power_supply_register failed\n");
-+		return -EINVAL;
-+	}
+ 	port->msi_pages = __get_free_pages(GFP_KERNEL, 0);
++	if (!port->msi_pages)
++		return -ENOMEM;
 +
- 	ret = devm_request_irq(dev, chip->irq, max14656_irq,
- 			       IRQF_TRIGGER_FALLING,
- 			       MAX14656_NAME, chip);
-@@ -289,13 +296,6 @@ static int max14656_probe(struct i2c_client *client,
- 	}
- 	enable_irq_wake(chip->irq);
+ 	msg_addr = virt_to_phys((void *)port->msi_pages);
+ 	pcie_write(port, 0x0, XILINX_PCIE_REG_MSIBASE1);
+ 	pcie_write(port, msg_addr, XILINX_PCIE_REG_MSIBASE2);
++
++	return 0;
+ }
  
--	chip->detect_psy = devm_power_supply_register(dev,
--		       &chip->psy_desc, &psy_cfg);
--	if (IS_ERR(chip->detect_psy)) {
--		dev_err(dev, "power_supply_register failed\n");
--		return -EINVAL;
--	}
--
- 	schedule_delayed_work(&chip->irq_work, msecs_to_jiffies(2000));
+ /* INTx Functions */
+@@ -500,6 +505,7 @@ static int xilinx_pcie_init_irq_domain(struct xilinx_pcie_port *port)
+ 	struct device *dev = port->dev;
+ 	struct device_node *node = dev->of_node;
+ 	struct device_node *pcie_intc_node;
++	int ret;
+ 
+ 	/* Setup INTx */
+ 	pcie_intc_node = of_get_next_child(node, NULL);
+@@ -528,7 +534,9 @@ static int xilinx_pcie_init_irq_domain(struct xilinx_pcie_port *port)
+ 			return -ENODEV;
+ 		}
+ 
+-		xilinx_pcie_enable_msi(port);
++		ret = xilinx_pcie_enable_msi(port);
++		if (ret)
++			return ret;
+ 	}
  
  	return 0;
 -- 
