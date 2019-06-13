@@ -2,70 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 095CA44413
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:36:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15FC844401
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:34:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730771AbfFMQeq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:34:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35220 "EHLO mail.kernel.org"
+        id S1726926AbfFMQe0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:34:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730762AbfFMHvP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 03:51:15 -0400
+        id S1730777AbfFMHw7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 03:52:59 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BB62E20851;
-        Thu, 13 Jun 2019 07:51:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DF9A92084D;
+        Thu, 13 Jun 2019 07:52:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560412275;
-        bh=07bkpKEzMR5J7jcewXkizrrcYdEWtLPi1MRpGfleZ6s=;
+        s=default; t=1560412378;
+        bh=ErpOgk7fEhPiiO2mVcvQu8m8IvLTzaheOWgRyHzLtC8=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=zxrTPABW1S+WfcBg2HM87A7hR+EswsuArXO1S7J5FhTJdewwfg7Zt19tGJPhUmevv
-         /TS4VgSYlBqPR+jQo5XHwtByyu2WiITcz1hUekXHyNudmSAM7LExXbfUFRikeztr2j
-         9tb/SIKDVIZdozTkJewVDLE/wCdQFKAa+7xoLtp8=
-Date:   Thu, 13 Jun 2019 09:51:12 +0200
+        b=Awdw8CPafTqx/hFkTbl8DsUSJN+xtq3Q1DW63w6WGQG5eI6ABRhoL+GP2RhRoWrat
+         Xc/+kL5na5U8sy62o6hL5QmiIHs/qW/mKleFhUBUFzKgpd1Ll5VE/2XVL7NNPDRnUa
+         nMrzUmULOTqwvfbCBfuXoQCtQ02JlI2ueiZKIwnI=
+Date:   Thu, 13 Jun 2019 09:52:56 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Helen Koike <helen.koike@collabora.com>
-Cc:     stable@vger.kernel.org, dri-devel@lists.freedesktop.org,
-        kernel@collabora.com
-Subject: Re: [PATCH v5] drm/vc4: fix fb references in async update
-Message-ID: <20190613075112.GE19685@kroah.com>
-References: <156007492924468@kroah.com>
- <20190610131859.7616-1-helen.koike@collabora.com>
+To:     Jian-Hong Pan <jian-hong@endlessm.com>
+Cc:     stable@vger.kernel.org, linux@endlessm.com, hui.wang@canonical.com
+Subject: Re: [PATCH stable-5.1 0/3] drm/i915: Prevent screen from flickering
+ when the CDCLK changes
+Message-ID: <20190613075256.GF19685@kroah.com>
+References: <20190603100938.5414-1-jian-hong@endlessm.com>
+ <20190610060141.5377-1-jian-hong@endlessm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20190610131859.7616-1-helen.koike@collabora.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20190610060141.5377-1-jian-hong@endlessm.com>
 User-Agent: Mutt/1.12.0 (2019-05-25)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jun 10, 2019 at 10:18:59AM -0300, Helen Koike wrote:
-> commit c16b85559dcfb5a348cc085a7b4c75ed49b05e2c upstream.
-> 
-> Async update callbacks are expected to set the old_fb in the new_state
-> so prepare/cleanup framebuffers are balanced.
-> 
-> Calling drm_atomic_set_fb_for_plane() (which gets a reference of the new
-> fb and put the old fb) is not required, as it's taken care by
-> drm_mode_cursor_universal() when calling drm_atomic_helper_update_plane().
-> 
-> Cc: <stable@vger.kernel.org> # v4.19+
-> Fixes: 539c320bfa97 ("drm/vc4: update cursors asynchronously through atomic")
-> Suggested-by: Boris Brezillon <boris.brezillon@collabora.com>
-> Signed-off-by: Helen Koike <helen.koike@collabora.com>
-> Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
-> Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
-> Link: https://patchwork.freedesktop.org/patch/msgid/20190603165610.24614-5-helen.koike@collabora.com
-> ---
-> 
+On Mon, Jun 10, 2019 at 02:01:39PM +0800, Jian-Hong Pan wrote:
 > Hi,
 > 
-> This patch failed to apply on kernel stable v4.19, I'm re-sending it
-> fixing the conflict.
+> After apply the commit "drm/i915: Force 2*96 MHz cdclk on glk/cnl when audio
+> power is enabled", it induces the screen to flicker when the CDCLK changes on
+> the laptop like ASUS E406MA. [1]
+> 
+> So, we need these commits to prevent that:
+> commit 48d9f87ddd21 drm/i915: Save the old CDCLK atomic state
+> commit 2b21dfbeee72 drm/i915: Remove redundant store of logical CDCLK state
+> commit 59f9e9cab3a1 drm/i915: Skip modeset for cdclk changes if possible
+> 
+> [1]: https://bugzilla.kernel.org/show_bug.cgi?id=203623#c12
+> 
+> Jian-Hong Pan
+> 
+> Imre Deak (2):
+>   drm/i915: Save the old CDCLK atomic state
+>   drm/i915: Remove redundant store of logical CDCLK state
+> 
+> Ville Syrjälä (1):
+>   drm/i915: Skip modeset for cdclk changes if possible
+> 
+>  drivers/gpu/drm/i915/i915_drv.h      |   3 +-
+>  drivers/gpu/drm/i915/intel_cdclk.c   | 155 ++++++++++++++++++++++-----
+>  drivers/gpu/drm/i915/intel_display.c |  48 +++++++--
+>  drivers/gpu/drm/i915/intel_drv.h     |  18 +++-
+>  4 files changed, 186 insertions(+), 38 deletions(-)
 
-Now applied, thanks.
+These are all big patches, I would like to get an ack from the i915
+developer(s) that these are acceptable for the stable tree before
+applying them...
+
+thanks,
 
 greg k-h
