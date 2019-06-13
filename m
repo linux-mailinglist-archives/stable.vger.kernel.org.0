@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 280DE43FF9
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:02:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1142D43F1E
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 17:55:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390271AbfFMQB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:01:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36068 "EHLO mail.kernel.org"
+        id S2390058AbfFMPyT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 11:54:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731409AbfFMIsB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:48:01 -0400
+        id S1731562AbfFMIxX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:53:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 78E6E21473;
-        Thu, 13 Jun 2019 08:48:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2AB5920665;
+        Thu, 13 Jun 2019 08:53:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415681;
-        bh=+YhvyYjFQkGYkxkG8w8hSniLgZgLFRrSUX4E0pMH/Zk=;
+        s=default; t=1560416002;
+        bh=AlZlKsmhQsq4o/ZmWMav4hd/Kvd45dIy6fRQvlukZmw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UnCvcjLD68V/O0zVtULw2v53QDYBuXd0PB4C0Yhr6SxFTvlwwCvExy/jyMbTn7Whi
-         9YVaJU3yS1fI+df4lhC+0dIptigUD95KqRab5NN7nevffDwlg8UMIrYpcOmpvB8A0d
-         uIXzWvzdmf5qCLvH4z75Hfiwl6WiSibZYJVAgT8U=
+        b=AwBtkIJKtJaWcts9zYcLU3IyDHoxSLDIo8wqTG42x5pV9MPlz+XA0j0N5l30yoWUH
+         NOtggWLD52WJ7mEVgLsORSRpmPb7m0kuxv7RJI1oVMMLf4KBCMO6RozrM01Yv0KRjw
+         FsqI+INrZuGPvtbriHonaA9SRRjbLw0aMYky/UZk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        "J. Bruce Fields" <bfields@redhat.com>,
+        stable@vger.kernel.org, "Kuo, Hsuan-Chi" <hckuo2@illinois.edu>,
+        Vladimir Zapolskiy <vz@mleia.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@linux-watchdog.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 087/155] nfsd: avoid uninitialized variable warning
+Subject: [PATCH 4.14 36/81] watchdog: fix compile time error of pretimeout governors
 Date:   Thu, 13 Jun 2019 10:33:19 +0200
-Message-Id: <20190613075657.970708807@linuxfoundation.org>
+Message-Id: <20190613075652.015332661@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
-References: <20190613075652.691765927@linuxfoundation.org>
+In-Reply-To: <20190613075649.074682929@linuxfoundation.org>
+References: <20190613075649.074682929@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,60 +46,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 0ab88ca4bcf18ba21058d8f19220f60afe0d34d8 ]
+[ Upstream commit a223770bfa7b6647f3a70983257bd89f9cafce46 ]
 
-clang warns that 'contextlen' may be accessed without an initialization:
+CONFIG_WATCHDOG_PRETIMEOUT_GOV build symbol adds watchdog_pretimeout.o
+object to watchdog.o, the latter is compiled only if CONFIG_WATCHDOG_CORE
+is selected, so it rightfully makes sense to add it as a dependency.
 
-fs/nfsd/nfs4xdr.c:2911:9: error: variable 'contextlen' is uninitialized when used here [-Werror,-Wuninitialized]
-                                                                contextlen);
-                                                                ^~~~~~~~~~
-fs/nfsd/nfs4xdr.c:2424:16: note: initialize the variable 'contextlen' to silence this warning
-        int contextlen;
-                      ^
-                       = 0
+The change fixes the next compilation errors, if CONFIG_WATCHDOG_CORE=n
+and CONFIG_WATCHDOG_PRETIMEOUT_GOV=y are selected:
 
-Presumably this cannot happen, as FATTR4_WORD2_SECURITY_LABEL is
-set if CONFIG_NFSD_V4_SECURITY_LABEL is enabled.
-Adding another #ifdef like the other two in this function
-avoids the warning.
+  drivers/watchdog/pretimeout_noop.o: In function `watchdog_gov_noop_register':
+  drivers/watchdog/pretimeout_noop.c:35: undefined reference to `watchdog_register_governor'
+  drivers/watchdog/pretimeout_noop.o: In function `watchdog_gov_noop_unregister':
+  drivers/watchdog/pretimeout_noop.c:40: undefined reference to `watchdog_unregister_governor'
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+  drivers/watchdog/pretimeout_panic.o: In function `watchdog_gov_panic_register':
+  drivers/watchdog/pretimeout_panic.c:35: undefined reference to `watchdog_register_governor'
+  drivers/watchdog/pretimeout_panic.o: In function `watchdog_gov_panic_unregister':
+  drivers/watchdog/pretimeout_panic.c:40: undefined reference to `watchdog_unregister_governor'
+
+Reported-by: Kuo, Hsuan-Chi <hckuo2@illinois.edu>
+Fixes: ff84136cb6a4 ("watchdog: add watchdog pretimeout governor framework")
+Signed-off-by: Vladimir Zapolskiy <vz@mleia.com>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Wim Van Sebroeck <wim@linux-watchdog.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4xdr.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/watchdog/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/nfsd/nfs4xdr.c b/fs/nfsd/nfs4xdr.c
-index 3de42a729093..a3a3455826aa 100644
---- a/fs/nfsd/nfs4xdr.c
-+++ b/fs/nfsd/nfs4xdr.c
-@@ -2420,8 +2420,10 @@ nfsd4_encode_fattr(struct xdr_stream *xdr, struct svc_fh *fhp,
- 	__be32 status;
- 	int err;
- 	struct nfs4_acl *acl = NULL;
-+#ifdef CONFIG_NFSD_V4_SECURITY_LABEL
- 	void *context = NULL;
- 	int contextlen;
-+#endif
- 	bool contextsupport = false;
- 	struct nfsd4_compoundres *resp = rqstp->rq_resp;
- 	u32 minorversion = resp->cstate.minorversion;
-@@ -2906,12 +2908,14 @@ out_acl:
- 			*p++ = cpu_to_be32(NFS4_CHANGE_TYPE_IS_TIME_METADATA);
- 	}
+diff --git a/drivers/watchdog/Kconfig b/drivers/watchdog/Kconfig
+index ddd4a06b2ab8..a2ac08f7be9c 100644
+--- a/drivers/watchdog/Kconfig
++++ b/drivers/watchdog/Kconfig
+@@ -1941,6 +1941,7 @@ comment "Watchdog Pretimeout Governors"
  
-+#ifdef CONFIG_NFSD_V4_SECURITY_LABEL
- 	if (bmval2 & FATTR4_WORD2_SECURITY_LABEL) {
- 		status = nfsd4_encode_security_label(xdr, rqstp, context,
- 								contextlen);
- 		if (status)
- 			goto out;
- 	}
-+#endif
+ config WATCHDOG_PRETIMEOUT_GOV
+ 	bool "Enable watchdog pretimeout governors"
++	depends on WATCHDOG_CORE
+ 	help
+ 	  The option allows to select watchdog pretimeout governors.
  
- 	attrlen = htonl(xdr->buf->len - attrlen_offset - 4);
- 	write_bytes_to_xdr_buf(xdr->buf, attrlen_offset, &attrlen, 4);
 -- 
 2.20.1
 
