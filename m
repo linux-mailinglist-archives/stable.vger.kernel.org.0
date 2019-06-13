@@ -2,191 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id EA1E243ECB
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 17:53:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D27CC43EDC
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 17:53:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390021AbfFMPxC convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Thu, 13 Jun 2019 11:53:02 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:41254 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S2390002AbfFMPxC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 11:53:02 -0400
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 51736307D986
-        for <stable@vger.kernel.org>; Thu, 13 Jun 2019 15:53:01 +0000 (UTC)
-Received: from [172.54.212.135] (cpt-0039.paas.prod.upshift.rdu2.redhat.com [10.0.18.123])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id C91F07C5B1;
-        Thu, 13 Jun 2019 15:52:57 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        id S1731660AbfFMPx2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 11:53:28 -0400
+Received: from hqemgate16.nvidia.com ([216.228.121.65]:9822 "EHLO
+        hqemgate16.nvidia.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1728558AbfFMPx2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Jun 2019 11:53:28 -0400
+Received: from hqpgpgate101.nvidia.com (Not Verified[216.228.121.13]) by hqemgate16.nvidia.com (using TLS: TLSv1.2, DES-CBC3-SHA)
+        id <B5d0271760001>; Thu, 13 Jun 2019 08:53:26 -0700
+Received: from hqmail.nvidia.com ([172.20.161.6])
+  by hqpgpgate101.nvidia.com (PGP Universal service);
+  Thu, 13 Jun 2019 08:53:26 -0700
+X-PGP-Universal: processed;
+        by hqpgpgate101.nvidia.com on Thu, 13 Jun 2019 08:53:26 -0700
+Received: from [10.21.132.148] (10.124.1.5) by HQMAIL107.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Thu, 13 Jun
+ 2019 15:53:24 +0000
+Subject: Re: [PATCH V2] clk: tegra210: Fix default rates for HDA clocks
+To:     Sasha Levin <sashal@kernel.org>,
+        Peter De Schrijver <pdeschrijver@nvidia.com>
+CC:     <linux-clk@vger.kernel.org>, <linux-tegra@vger.kernel.org>,
+        <stable@vger.kernel.org>
+References: <1559743299-11576-1-git-send-email-jonathanh@nvidia.com>
+ <20190607002314.4AEF321019@mail.kernel.org>
+From:   Jon Hunter <jonathanh@nvidia.com>
+Message-ID: <d69e549b-1509-b249-0a4e-16417b2ce3e8@nvidia.com>
+Date:   Thu, 13 Jun 2019 16:53:22 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.0
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4pyF?= PASS: Test report for kernel 4.19.51-rc1-.cki
- (stable)
-Message-ID: <cki.65887623DF.XVOWQV40WT@redhat.com>
-X-Gitlab-Pipeline-ID: 12247
-X-Gitlab-Pipeline: =?utf-8?q?https=3A//xci32=2Elab=2Eeng=2Erdu2=2Eredhat=2Ec?=
- =?utf-8?q?om/cki-project/cki-pipeline/pipelines/12247?=
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.48]); Thu, 13 Jun 2019 15:53:01 +0000 (UTC)
-Date:   Thu, 13 Jun 2019 11:53:02 -0400
+In-Reply-To: <20190607002314.4AEF321019@mail.kernel.org>
+X-Originating-IP: [10.124.1.5]
+X-ClientProxiedBy: HQMAIL101.nvidia.com (172.20.187.10) To
+ HQMAIL107.nvidia.com (172.20.187.13)
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nvidia.com; s=n1;
+        t=1560441206; bh=7kUpFFpRMuOMI9kyrgi28sxzCDqI4E0BfWOUhr+G4+s=;
+        h=X-PGP-Universal:Subject:To:CC:References:From:Message-ID:Date:
+         User-Agent:MIME-Version:In-Reply-To:X-Originating-IP:
+         X-ClientProxiedBy:Content-Type:Content-Language:
+         Content-Transfer-Encoding;
+        b=TecXneTy+K46gqE29Dgo0E0GKMaJ8/SpshUuqqkUGKwcN3k9hqz0IXjbNhAs/Uwzd
+         lRIAIQ8FRuiRw2iph+6kVxK9I30rMCshr3HPGBrlATXBAzfNdCUDQO9VTpkJRSl6tR
+         jv8ZvBmgXBVlgBtOhxVa1nPp+E0xSBNRr331fdNiftCeI7eiUz3yre07RrLTsL1CKx
+         xP9mpf8ijZ6c5fP3prwCBs0EhzAEtPEQ4vlFSp1jTcc1gX8+wen+NDcSYPhRV/YLnH
+         yeYp9asmz5K160Vtzi36kNqqUiH+tFcfy3f59IWCRueKyW5I88mgcewUtHnM3S1ZZa
+         DsnIWsmC5oJ3w==
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
 
-We ran automated tests on a recent commit from this kernel tree:
+On 07/06/2019 01:23, Sasha Levin wrote:
+> Hi,
+> 
+> [This is an automated email]
+> 
+> This commit has been processed because it contains a -stable tag.
+> The stable tag indicates that it's relevant for the following trees: all
+> 
+> The bot has tested the following trees: v5.1.7, v5.0.21, v4.19.48, v4.14.123, v4.9.180, v4.4.180.
+> 
+> v5.1.7: Build OK!
+> v5.0.21: Build OK!
+> v4.19.48: Failed to apply! Possible dependencies:
+>     845d782d9144 ("clk: tegra: Fix maximum audio sync clock for Tegra124/210")
+> 
+> v4.14.123: Failed to apply! Possible dependencies:
+>     26f8590c4a1f ("clk: tegra: Make vic03 a child of pll_c3")
+>     845d782d9144 ("clk: tegra: Fix maximum audio sync clock for Tegra124/210")
+>     c485ad63abb4 ("clk: tegra: Specify VDE clock rate")
+> 
+> v4.9.180: Failed to apply! Possible dependencies:
+>     24c3ebef1ab6 ("clk: tegra: Add aclk")
+>     26f8590c4a1f ("clk: tegra: Make vic03 a child of pll_c3")
+>     319af7975c9f ("clk: tegra: Define Tegra210 DMIC sync clocks")
+>     34ac2c278b30 ("clk: tegra: Fix ISP clock modelling")
+>     3843832fc8ca ("clk: tegra: Handle UTMIPLL IDDQ")
+>     845d782d9144 ("clk: tegra: Fix maximum audio sync clock for Tegra124/210")
+>     8dce89a1c2cf ("clk: tegra: Don't warn for PLL defaults unnecessarily")
+>     9326947f2215 ("clk: tegra: Fix pll_a1 iddq register, add pll_a1")
+>     bfa34832df1f ("clk: tegra: Add CEC clock")
+>     c485ad63abb4 ("clk: tegra: Specify VDE clock rate")
+>     e745f992cf4b ("clk: tegra: Rework pll_u")
+> 
+> v4.4.180: Failed to apply! Possible dependencies:
+>     26f8590c4a1f ("clk: tegra: Make vic03 a child of pll_c3")
+>     385f9adf625f ("clk: tegra: Constify pdiv-to-hw mappings")
+>     407254da291c ("clk: tegra: pll: Add logic for out-of-table rates for T210")
+>     6583a6309e83 ("clk: tegra: pll: Add tegra_pll_wait_for_lock to clk header")
+>     845d782d9144 ("clk: tegra: Fix maximum audio sync clock for Tegra124/210")
+>     86c679a52294 ("clk: tegra: pll: Fix _pll_ramp_calc_pll logic and _calc_dynamic_ramp_rate")
+>     8d99704fde54 ("clk: tegra: Format tables consistently")
+>     c485ad63abb4 ("clk: tegra: Specify VDE clock rate")
+>     c4947e364b50 ("clk: tegra: Fix 26 MHz oscillator frequency")
+>     d907f4b4a178 ("clk: tegra: pll: Add logic for handling SDM data")
+>     dd322f047d22 ("clk: tegra: pll: Add specialized logic for Tegra210")
+>     e52d7c04bb39 ("clk: tegra: Miscellaneous coding style cleanups")
+>     e745f992cf4b ("clk: tegra: Rework pll_u")
+> 
+> 
+> How should we proceed with this patch?
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-            Commit: 94ea812871ce - Linux 4.19.51-rc1
+I think that applying to 5.0 and 5.1 is fine for now.
 
-The results of these automated tests are provided below.
+Thanks
+Jon
 
-    Overall result: PASSED
-             Merge: OK
-           Compile: OK
-             Tests: OK
-
-
-We hope that these logs can help you find the problem quickly. For the full
-detail on our testing procedures, please scroll to the bottom of this message.
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-  aarch64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable-aarch64-94ea812871ceac0a190ded80c3272a779dfb101e.config
-    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable-aarch64-94ea812871ceac0a190ded80c3272a779dfb101e.tar.gz
-
-  ppc64le:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable-ppc64le-94ea812871ceac0a190ded80c3272a779dfb101e.config
-    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable-ppc64le-94ea812871ceac0a190ded80c3272a779dfb101e.tar.gz
-
-  s390x:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable-s390x-94ea812871ceac0a190ded80c3272a779dfb101e.config
-    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable-s390x-94ea812871ceac0a190ded80c3272a779dfb101e.tar.gz
-
-  x86_64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable-x86_64-94ea812871ceac0a190ded80c3272a779dfb101e.config
-    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable-x86_64-94ea812871ceac0a190ded80c3272a779dfb101e.tar.gz
-
-
-Hardware testing
-----------------
-
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ xfstests: ext4 [1]
-       ✅ xfstests: xfs [1]
-       ✅ selinux-policy: serge-testsuite [2]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [3]
-       ✅ Loopdev Sanity [4]
-       ✅ Memory function: memfd_create [5]
-       ✅ AMTU (Abstract Machine Test Utility) [6]
-       ✅ Ethernet drivers sanity [7]
-       ✅ audit: audit testsuite test [8]
-       ✅ httpd: mod_ssl smoke sanity [9]
-       ✅ iotop: sanity [10]
-       ✅ redhat-rpm-config: detect-kabi-provides sanity [11]
-       ✅ redhat-rpm-config: kabi-whitelist-not-found sanity [12]
-       ✅ tuned: tune-processes-through-perf [13]
-       ✅ Usex - version 1.9-29 [14]
-       ✅ lvm thinp sanity [15]
-       🚧 ✅ Networking socket: fuzz [16]
-       🚧 ✅ Networking sctp-auth: sockopts test [17]
-       🚧 ✅ Networking: igmp conformance test [18]
-       🚧 ✅ Networking route: pmtu [19]
-       🚧 ✅ Networking route_func: local [20]
-       🚧 ✅ Networking route_func: forward [20]
-       🚧 ✅ Networking TCP: keepalive test [21]
-       🚧 ✅ Networking UDP: socket [22]
-       🚧 ✅ Networking tunnel: gre basic [23]
-       🚧 ✅ Networking tunnel: vxlan basic [24]
-       🚧 ✅ Networking tunnel: geneve basic test [25]
-       🚧 ✅ Networking ipsec: basic netns transport [26]
-       🚧 ✅ Networking ipsec: basic netns tunnel [26]
-       🚧 ✅ storage: SCSI VPD [27]
-       🚧 ✅ storage: software RAID testing [28]
-       🚧 ✅ Libhugetlbfs - version 2.2.1 [29]
-
-
-  ppc64le:
-
-    ⚡ Internal infrastructure issues prevented one or more tests from running
-    on this architecture. This is not the fault of the kernel that was tested.
-
-  s390x:
-
-    ⚡ Internal infrastructure issues prevented one or more tests from running
-    on this architecture. This is not the fault of the kernel that was tested.
-
-  x86_64:
-
-    ⚡ Internal infrastructure issues prevented one or more tests from running
-    on this architecture. This is not the fault of the kernel that was tested.
-
-  Test source:
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/filesystems/xfs/xfstests
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/memory/function/memfd_create
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/redhat-rpm-config/detect-kabi-provides
-    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/redhat-rpm-config/kabi-whitelist-not-found
-    [13]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [14]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-    [15]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/lvm/thinp/sanity
-    [16]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
-    [17]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/sctp/auth/sockopts
-    [18]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/igmp/conformance
-    [19]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/route/pmtu
-    [20]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/route/route_func
-    [21]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/tcp/tcp_keepalive
-    [22]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/udp/udp_socket
-    [23]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/tunnel/gre/basic
-    [24]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/tunnel/vxlan/basic
-    [25]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/tunnel/geneve/basic
-    [26]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/ipsec/ipsec_basic/ipsec_basic_netns
-    [27]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/scsi/vpd
-    [28]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/swraid/trim
-    [29]: https://github.com/CKI-project/tests-beaker/archive/master.zip#vm/hugepage/libhugetlbfs
-
-Waived tests (marked with 🚧)
------------------------------
-This test run included waived tests. Such tests are executed but their results
-are not taken into account. Tests are waived when their results are not
-reliable enough, e.g. when they're just introduced or are being fixed.
+-- 
+nvpublic
