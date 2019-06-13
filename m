@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D7E243FC1
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:00:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7B1644177
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:14:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732361AbfFMQAB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:00:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37158 "EHLO mail.kernel.org"
+        id S2391418AbfFMQO1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:14:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59518 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731472AbfFMItY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:49:24 -0400
+        id S1731189AbfFMImT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:42:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 91ABB206BA;
-        Thu, 13 Jun 2019 08:49:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7911120851;
+        Thu, 13 Jun 2019 08:42:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415764;
+        s=default; t=1560415339;
         bh=FqB2sW4I88mMRD+an2qENvPRlgF/xlPY1pCFRwpWm+Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2DIlxt5Yb/5T5bNr4zLqKbqwS48ImRuiHMhrlznNYGZ4TXS1P1H6hybND11RtzOpb
-         nssQslR0R1P3pZTfsIwsEQsHmeg9H/zdyHAJK1NU0iTly88WKX4wW/KF8Q2JT/9n7g
-         INYJpjmYKgwRxb+WuHHm01NcYAX8YxkoXyC3DD4Y=
+        b=CrB8PpycpjjV7wWB0Jm5FhiNwvVZa+4Ji9+Id3W9Z3jxapIevCpL3hRq461qkwN5F
+         9bZIbJ1UXGd6pM15BJK79tkD5SYagLl9zKDWtDooJGO+oDS7gRyEEKaq4vT0KN1rax
+         CUZBkP90CbQsweYfIyp6IaVCeZXZA4IbMaFP1NvM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Tyrel Datwyler <tyreld@linux.vnet.ibm.com>,
         Bjorn Helgaas <bhelgaas@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 114/155] PCI: rpadlpar: Fix leaked device_node references in add/remove paths
-Date:   Thu, 13 Jun 2019 10:33:46 +0200
-Message-Id: <20190613075659.315771293@linuxfoundation.org>
+Subject: [PATCH 4.19 089/118] PCI: rpadlpar: Fix leaked device_node references in add/remove paths
+Date:   Thu, 13 Jun 2019 10:33:47 +0200
+Message-Id: <20190613075649.034962170@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
-References: <20190613075652.691765927@linuxfoundation.org>
+In-Reply-To: <20190613075643.642092651@linuxfoundation.org>
+References: <20190613075643.642092651@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
