@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 02962440DB
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:11:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A4E743F81
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 17:58:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389827AbfFMQJ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:09:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32974 "EHLO mail.kernel.org"
+        id S2390160AbfFMP6D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 11:58:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37838 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731254AbfFMIn7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:43:59 -0400
+        id S1731495AbfFMIuP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:50:15 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3A52F20851;
-        Thu, 13 Jun 2019 08:43:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 28982206BA;
+        Thu, 13 Jun 2019 08:50:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415438;
-        bh=28eVHXLvJ8YeIuBOVzAghHz7wISlWUKU1fbPZPzZv2o=;
+        s=default; t=1560415814;
+        bh=Ot4bg2E/0fMVA9DEsc0sW28rQgLbp+P61MuXrlfKVKA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lwhHDJjDGQEV1lD7QxP5sLExxw3g0qiwqQs2M23nyicq6ooQKEaHOEm/HncgvI4wt
-         lk11o/qUrOsfwdf+nceI5aXAULXEAWM7Mm3bLFrWtQIeb6435qggtx6SaN0nj3knRO
-         5RsNyCybMF+FD8N3yXAP7ZSLcRTkbaCaNavuqvfU=
+        b=LsdvNFccchZm9WPSOaW/bmpQASu3hile0rPBqA+aJnIXBHtSNT34xEYEQsLCJV8oS
+         jL5UAK9lXCvxZ8WQtq00jQJ6OY7G8tfG7EgXgXXl1gJ07Xhp3pdwFRO4C8T+Q2QWqk
+         LcY511YkZAEjd981GO+XMMBFKEUhnEUVYm0wXSak=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        stable@vger.kernel.org,
+        Nicolas Dechesne <nicolas.dechesne@linaro.org>,
+        Niklas Cassel <niklas.cassel@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Andy Gross <andy.gross@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 107/118] ARM: dts: exynos: Always enable necessary APIO_1V8 and ABB_1V8 regulators on Arndale Octa
+Subject: [PATCH 5.1 133/155] arm64: dts: qcom: qcs404: Fix regulator supply names
 Date:   Thu, 13 Jun 2019 10:34:05 +0200
-Message-Id: <20190613075650.299243446@linuxfoundation.org>
+Message-Id: <20190613075700.194975551@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075643.642092651@linuxfoundation.org>
-References: <20190613075643.642092651@linuxfoundation.org>
+In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
+References: <20190613075652.691765927@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,49 +47,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 5ab99cf7d5e96e3b727c30e7a8524c976bd3723d ]
+[ Upstream commit f95f57e4372207ede83ac28f300aba719b271ed5 ]
 
-The PVDD_APIO_1V8 (LDO2) and PVDD_ABB_1V8 (LDO8) regulators were turned
-off by Linux kernel as unused.  However they supply critical parts of
-SoC so they should be always on:
+The regulator definition got their supply names cleaned up during
+upstreaming, so they no longer match the driver defined names. Update
+the supply names.
 
-1. PVDD_APIO_1V8 supplies SYS pins (gpx[0-3], PSHOLD), HDMI level shift,
-   RTC, VDD1_12 (DRAM internal 1.8 V logic), pull-up for PMIC interrupt
-   lines, TTL/UARTR level shift, reset pins and SW-TACT1 button.
-   It also supplies unused blocks like VDDQ_SRAM (for SROM controller) and
-   VDDQ_GPIO (gpm7, gpy7).
-   The LDO2 cannot be turned off (S2MPS11 keeps it on anyway) so
-   marking it "always-on" only reflects its real status.
+Also fill out the missing voltage of SMPS 5.
 
-2. PVDD_ABB_1V8 supplies Adaptive Body Bias Generator for ARM cores,
-   memory and Mali (G3D).
-
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Fixes: 0b363f5b871c ("arm64: dts: qcom: qcs404: Add PMS405 RPM regulators")
+Reported-by: Nicolas Dechesne <nicolas.dechesne@linaro.org>
+Reviewed-by: Niklas Cassel <niklas.cassel@linaro.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Andy Gross <andy.gross@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/exynos5420-arndale-octa.dts | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm64/boot/dts/qcom/qcs404-evb.dtsi | 28 ++++++++++++------------
+ 1 file changed, 14 insertions(+), 14 deletions(-)
 
-diff --git a/arch/arm/boot/dts/exynos5420-arndale-octa.dts b/arch/arm/boot/dts/exynos5420-arndale-octa.dts
-index cdda614e417e..a370857beac0 100644
---- a/arch/arm/boot/dts/exynos5420-arndale-octa.dts
-+++ b/arch/arm/boot/dts/exynos5420-arndale-octa.dts
-@@ -106,6 +106,7 @@
- 				regulator-name = "PVDD_APIO_1V8";
- 				regulator-min-microvolt = <1800000>;
- 				regulator-max-microvolt = <1800000>;
-+				regulator-always-on;
- 			};
+diff --git a/arch/arm64/boot/dts/qcom/qcs404-evb.dtsi b/arch/arm64/boot/dts/qcom/qcs404-evb.dtsi
+index 50b3589c7f15..536f735243d2 100644
+--- a/arch/arm64/boot/dts/qcom/qcs404-evb.dtsi
++++ b/arch/arm64/boot/dts/qcom/qcs404-evb.dtsi
+@@ -37,18 +37,18 @@
+ 	pms405-regulators {
+ 		compatible = "qcom,rpm-pms405-regulators";
  
- 			ldo3_reg: LDO3 {
-@@ -144,6 +145,7 @@
- 				regulator-name = "PVDD_ABB_1V8";
- 				regulator-min-microvolt = <1800000>;
- 				regulator-max-microvolt = <1800000>;
-+				regulator-always-on;
- 			};
+-		vdd-s1-supply = <&vph_pwr>;
+-		vdd-s2-supply = <&vph_pwr>;
+-		vdd-s3-supply = <&vph_pwr>;
+-		vdd-s4-supply = <&vph_pwr>;
+-		vdd-s5-supply = <&vph_pwr>;
+-		vdd-l1-l2-supply = <&vreg_s5_1p35>;
+-		vdd-l3-l8-supply = <&vreg_s5_1p35>;
+-		vdd-l4-supply = <&vreg_s5_1p35>;
+-		vdd-l5-l6-supply = <&vreg_s4_1p8>;
+-		vdd-l7-supply = <&vph_pwr>;
+-		vdd-l9-supply = <&vreg_s5_1p35>;
+-		vdd-l10-l11-l12-l13-supply = <&vph_pwr>;
++		vdd_s1-supply = <&vph_pwr>;
++		vdd_s2-supply = <&vph_pwr>;
++		vdd_s3-supply = <&vph_pwr>;
++		vdd_s4-supply = <&vph_pwr>;
++		vdd_s5-supply = <&vph_pwr>;
++		vdd_l1_l2-supply = <&vreg_s5_1p35>;
++		vdd_l3_l8-supply = <&vreg_s5_1p35>;
++		vdd_l4-supply = <&vreg_s5_1p35>;
++		vdd_l5_l6-supply = <&vreg_s4_1p8>;
++		vdd_l7-supply = <&vph_pwr>;
++		vdd_l9-supply = <&vreg_s5_1p35>;
++		vdd_l10_l11_l12_l13-supply = <&vph_pwr>;
  
- 			ldo9_reg: LDO9 {
+ 		vreg_s4_1p8: s4 {
+ 			regulator-min-microvolt = <1728000>;
+@@ -56,8 +56,8 @@
+ 		};
+ 
+ 		vreg_s5_1p35: s5 {
+-			regulator-min-microvolt = <>;
+-			regulator-max-microvolt = <>;
++			regulator-min-microvolt = <1352000>;
++			regulator-max-microvolt = <1352000>;
+ 		};
+ 
+ 		vreg_l1_1p3: l1 {
 -- 
 2.20.1
 
