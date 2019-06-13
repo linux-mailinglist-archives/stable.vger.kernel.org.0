@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 079CF442DA
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:26:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64922441B4
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:16:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389900AbfFMQ0Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:26:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53800 "EHLO mail.kernel.org"
+        id S1731158AbfFMQQV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:16:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58686 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730962AbfFMIgQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:36:16 -0400
+        id S1731156AbfFMIl2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:41:28 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D267E2146F;
-        Thu, 13 Jun 2019 08:36:14 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7B3D621473;
+        Thu, 13 Jun 2019 08:41:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560414975;
-        bh=kE+uGtDQKW1Jj3Yciy+XjTzpwYjBRNkMuTsYOVYmenw=;
+        s=default; t=1560415288;
+        bh=RU0Dj0bLcsSY0WCp9Reg/k2K5zJQCM59YDxeeaSjJTI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YJF8EQjxvxnY+pm7Z5kkmz5OGnbSDaCGb+/QCmpgo+DmSUFrmILasfw4Ku8U5Obfw
-         ddGp295kVnLiz9fK6c5jkthrZ1BbrnLp13jHgVeFUjHnUgDDoblo0zmoKHCLxeM4UI
-         u/8764xMoLQPKchf2MDIJeO8dL8dheWNZYw0lxVk=
+        b=mxTze1vdlaHa/peARoTd+gJwOrh7XDeZYKfwULf1V+EriXFuLg28SbhhoOc2uYXY6
+         i5s4OGjmdX/D+V/uCZ748/PLmB2CjerbSe+52rU8SQ4fmf9ul6OeknsvrSdwbSEYQW
+         B1C5GXMaxdrcBllpAauvAXTPS2ul/J8jKQuS9NWE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Binbin Wu <binbin.wu@intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Lee Jones <lee.jones@linaro.org>,
+        stable@vger.kernel.org, John Sperbeck <jsperbeck@google.com>,
+        Dennis Zhou <dennis@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 17/81] mfd: intel-lpss: Set the device in reset state when init
+Subject: [PATCH 4.19 042/118] percpu: remove spurious lock dependency between percpu and sched
 Date:   Thu, 13 Jun 2019 10:33:00 +0200
-Message-Id: <20190613075650.334771159@linuxfoundation.org>
+Message-Id: <20190613075646.099950168@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075649.074682929@linuxfoundation.org>
-References: <20190613075649.074682929@linuxfoundation.org>
+In-Reply-To: <20190613075643.642092651@linuxfoundation.org>
+References: <20190613075643.642092651@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,68 +44,176 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit dad06532292d77f37fbe831a02948a593500f682 ]
+[ Upstream commit 198790d9a3aeaef5792d33a560020861126edc22 ]
 
-In virtualized setup, when system reboots due to warm
-reset interrupt storm is seen.
+In free_percpu() we sometimes call pcpu_schedule_balance_work() to
+queue a work item (which does a wakeup) while holding pcpu_lock.
+This creates an unnecessary lock dependency between pcpu_lock and
+the scheduler's pi_lock.  There are other places where we call
+pcpu_schedule_balance_work() without hold pcpu_lock, and this case
+doesn't need to be different.
 
+Moving the call outside the lock prevents the following lockdep splat
+when running tools/testing/selftests/bpf/{test_maps,test_progs} in
+sequence with lockdep enabled:
+
+======================================================
+WARNING: possible circular locking dependency detected
+5.1.0-dbg-DEV #1 Not tainted
+------------------------------------------------------
+kworker/23:255/18872 is trying to acquire lock:
+000000000bc79290 (&(&pool->lock)->rlock){-.-.}, at: __queue_work+0xb2/0x520
+
+but task is already holding lock:
+00000000e3e7a6aa (pcpu_lock){..-.}, at: free_percpu+0x36/0x260
+
+which lock already depends on the new lock.
+
+the existing dependency chain (in reverse order) is:
+
+-> #4 (pcpu_lock){..-.}:
+       lock_acquire+0x9e/0x180
+       _raw_spin_lock_irqsave+0x3a/0x50
+       pcpu_alloc+0xfa/0x780
+       __alloc_percpu_gfp+0x12/0x20
+       alloc_htab_elem+0x184/0x2b0
+       __htab_percpu_map_update_elem+0x252/0x290
+       bpf_percpu_hash_update+0x7c/0x130
+       __do_sys_bpf+0x1912/0x1be0
+       __x64_sys_bpf+0x1a/0x20
+       do_syscall_64+0x59/0x400
+       entry_SYSCALL_64_after_hwframe+0x49/0xbe
+
+-> #3 (&htab->buckets[i].lock){....}:
+       lock_acquire+0x9e/0x180
+       _raw_spin_lock_irqsave+0x3a/0x50
+       htab_map_update_elem+0x1af/0x3a0
+
+-> #2 (&rq->lock){-.-.}:
+       lock_acquire+0x9e/0x180
+       _raw_spin_lock+0x2f/0x40
+       task_fork_fair+0x37/0x160
+       sched_fork+0x211/0x310
+       copy_process.part.43+0x7b1/0x2160
+       _do_fork+0xda/0x6b0
+       kernel_thread+0x29/0x30
+       rest_init+0x22/0x260
+       arch_call_rest_init+0xe/0x10
+       start_kernel+0x4fd/0x520
+       x86_64_start_reservations+0x24/0x26
+       x86_64_start_kernel+0x6f/0x72
+       secondary_startup_64+0xa4/0xb0
+
+-> #1 (&p->pi_lock){-.-.}:
+       lock_acquire+0x9e/0x180
+       _raw_spin_lock_irqsave+0x3a/0x50
+       try_to_wake_up+0x41/0x600
+       wake_up_process+0x15/0x20
+       create_worker+0x16b/0x1e0
+       workqueue_init+0x279/0x2ee
+       kernel_init_freeable+0xf7/0x288
+       kernel_init+0xf/0x180
+       ret_from_fork+0x24/0x30
+
+-> #0 (&(&pool->lock)->rlock){-.-.}:
+       __lock_acquire+0x101f/0x12a0
+       lock_acquire+0x9e/0x180
+       _raw_spin_lock+0x2f/0x40
+       __queue_work+0xb2/0x520
+       queue_work_on+0x38/0x80
+       free_percpu+0x221/0x260
+       pcpu_freelist_destroy+0x11/0x20
+       stack_map_free+0x2a/0x40
+       bpf_map_free_deferred+0x3c/0x50
+       process_one_work+0x1f7/0x580
+       worker_thread+0x54/0x410
+       kthread+0x10f/0x150
+       ret_from_fork+0x24/0x30
+
+other info that might help us debug this:
+
+Chain exists of:
+  &(&pool->lock)->rlock --> &htab->buckets[i].lock --> pcpu_lock
+
+ Possible unsafe locking scenario:
+
+       CPU0                    CPU1
+       ----                    ----
+  lock(pcpu_lock);
+                               lock(&htab->buckets[i].lock);
+                               lock(pcpu_lock);
+  lock(&(&pool->lock)->rlock);
+
+ *** DEADLOCK ***
+
+3 locks held by kworker/23:255/18872:
+ #0: 00000000b36a6e16 ((wq_completion)events){+.+.},
+     at: process_one_work+0x17a/0x580
+ #1: 00000000dfd966f0 ((work_completion)(&map->work)){+.+.},
+     at: process_one_work+0x17a/0x580
+ #2: 00000000e3e7a6aa (pcpu_lock){..-.},
+     at: free_percpu+0x36/0x260
+
+stack backtrace:
+CPU: 23 PID: 18872 Comm: kworker/23:255 Not tainted 5.1.0-dbg-DEV #1
+Hardware name: ...
+Workqueue: events bpf_map_free_deferred
 Call Trace:
-<IRQ>
-dump_stack+0x70/0xa5
-__report_bad_irq+0x2e/0xc0
-note_interrupt+0x248/0x290
-? add_interrupt_randomness+0x30/0x220
-handle_irq_event_percpu+0x54/0x80
-handle_irq_event+0x39/0x60
-handle_fasteoi_irq+0x91/0x150
-handle_irq+0x108/0x180
-do_IRQ+0x52/0xf0
-common_interrupt+0xf/0xf
-</IRQ>
-RIP: 0033:0x76fc2cfabc1d
-Code: 24 28 bf 03 00 00 00 31 c0 48 8d 35 63 77 0e 00 48 8d 15 2e
-94 0e 00 4c 89 f9 49 89 d9 4c 89 d3 e8 b8 e2 01 00 48 8b 54 24 18
-<48> 89 ef 48 89 de 4c 89 e1 e8 d5 97 01 00 84 c0 74 2d 48 8b 04
-24
-RSP: 002b:00007ffd247c1fc0 EFLAGS: 00000293 ORIG_RAX: ffffffffffffffda
-RAX: 0000000000000000 RBX: 00007ffd247c1ff0 RCX: 000000000003d3ce
-RDX: 0000000000000000 RSI: 00007ffd247c1ff0 RDI: 000076fc2cbb6010
-RBP: 000076fc2cded010 R08: 00007ffd247c2210 R09: 00007ffd247c22a0
-R10: 000076fc29465470 R11: 0000000000000000 R12: 00007ffd247c1fc0
-R13: 000076fc2ce8e470 R14: 000076fc27ec9960 R15: 0000000000000414
-handlers:
-[<000000000d3fa913>] idma64_irq
-Disabling IRQ #27
+ dump_stack+0x67/0x95
+ print_circular_bug.isra.38+0x1c6/0x220
+ check_prev_add.constprop.50+0x9f6/0xd20
+ __lock_acquire+0x101f/0x12a0
+ lock_acquire+0x9e/0x180
+ _raw_spin_lock+0x2f/0x40
+ __queue_work+0xb2/0x520
+ queue_work_on+0x38/0x80
+ free_percpu+0x221/0x260
+ pcpu_freelist_destroy+0x11/0x20
+ stack_map_free+0x2a/0x40
+ bpf_map_free_deferred+0x3c/0x50
+ process_one_work+0x1f7/0x580
+ worker_thread+0x54/0x410
+ kthread+0x10f/0x150
+ ret_from_fork+0x24/0x30
 
-To avoid interrupt storm, set the device in reset state
-before bringing out the device from reset state.
-
-Changelog v2:
-- correct the subject line by adding "mfd: "
-
-Signed-off-by: Binbin Wu <binbin.wu@intel.com>
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: John Sperbeck <jsperbeck@google.com>
+Signed-off-by: Dennis Zhou <dennis@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/intel-lpss.c | 3 +++
- 1 file changed, 3 insertions(+)
+ mm/percpu.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mfd/intel-lpss.c b/drivers/mfd/intel-lpss.c
-index 40e8d9b59d07..b5c4f8f974aa 100644
---- a/drivers/mfd/intel-lpss.c
-+++ b/drivers/mfd/intel-lpss.c
-@@ -273,6 +273,9 @@ static void intel_lpss_init_dev(const struct intel_lpss *lpss)
- {
- 	u32 value = LPSS_PRIV_SSP_REG_DIS_DMA_FIN;
+diff --git a/mm/percpu.c b/mm/percpu.c
+index 41e58f3d8fbf..c66149ce1fe6 100644
+--- a/mm/percpu.c
++++ b/mm/percpu.c
+@@ -1721,6 +1721,7 @@ void free_percpu(void __percpu *ptr)
+ 	struct pcpu_chunk *chunk;
+ 	unsigned long flags;
+ 	int off;
++	bool need_balance = false;
  
-+	/* Set the device in reset state */
-+	writel(0, lpss->priv + LPSS_PRIV_RESETS);
+ 	if (!ptr)
+ 		return;
+@@ -1742,7 +1743,7 @@ void free_percpu(void __percpu *ptr)
+ 
+ 		list_for_each_entry(pos, &pcpu_slot[pcpu_nr_slots - 1], list)
+ 			if (pos != chunk) {
+-				pcpu_schedule_balance_work();
++				need_balance = true;
+ 				break;
+ 			}
+ 	}
+@@ -1750,6 +1751,9 @@ void free_percpu(void __percpu *ptr)
+ 	trace_percpu_free_percpu(chunk->base_addr, off, ptr);
+ 
+ 	spin_unlock_irqrestore(&pcpu_lock, flags);
 +
- 	intel_lpss_deassert_reset(lpss);
++	if (need_balance)
++		pcpu_schedule_balance_work();
+ }
+ EXPORT_SYMBOL_GPL(free_percpu);
  
- 	intel_lpss_set_remap_addr(lpss);
 -- 
 2.20.1
 
