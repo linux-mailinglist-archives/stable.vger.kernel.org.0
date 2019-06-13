@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AE95442B4
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:25:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F2BC44000
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:02:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732817AbfFMQYv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:24:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54400 "EHLO mail.kernel.org"
+        id S1732622AbfFMQBz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:01:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36166 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730984AbfFMIg6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:36:58 -0400
+        id S1731416AbfFMIsK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:48:10 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E4A282133D;
-        Thu, 13 Jun 2019 08:36:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C846F2173C;
+        Thu, 13 Jun 2019 08:48:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415017;
-        bh=Atz/PVqdX2JmNW5ZQGp5ovEwbyHfj5+/BdW0PF7Ct24=;
+        s=default; t=1560415689;
+        bh=XhiARO0SF7qEE7Hvfj1tJhp73yqlzo+pFRddRfLi7sw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HhXdZenD5Ov3Gdwx3K2BMkV2MImNjXBEtTdU7nH5fBnMVEmabRS5+i/Y4NDAgpueU
-         Rvth8CDc8iScu1+cfxGa76A8Lj/xuM6Ov+sW754Hn0aXTZKiXJPLESsGShRC3pwi3B
-         K7gTSDKlOKch0gYzxx7R1Mqeh85LA9s4pPG8Znz8=
+        b=DYaq8DTZM1NailC7qntJx/+eA/7+oUEmE9vYhYel8uKsracGSLuC2IKQyYuAp/dqP
+         AFXoTq/nyZRKh7+DojEAEi+6rb1lKfLavPhtuK9qvH4QmKEQ9LxB8sEV1JBlVDZHVX
+         cimGUlCfCtmMmRFnAg/XW3P4l6rg3XhVpP+QfZlE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ashok Raj <ashok.raj@intel.com>,
-        Jacob Pan <jacob.jun.pan@linux.intel.com>,
-        Kevin Tian <kevin.tian@intel.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 38/81] iommu/vt-d: Set intel_iommu_gfx_mapped correctly
-Date:   Thu, 13 Jun 2019 10:33:21 +0200
-Message-Id: <20190613075652.152591981@linuxfoundation.org>
+        stable@vger.kernel.org, Wesley Sheng <wesley.sheng@microchip.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Logan Gunthorpe <logang@deltatee.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 090/155] switchtec: Fix unintended mask of MRPC event
+Date:   Thu, 13 Jun 2019 10:33:22 +0200
+Message-Id: <20190613075658.131342524@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075649.074682929@linuxfoundation.org>
-References: <20190613075649.074682929@linuxfoundation.org>
+In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
+References: <20190613075652.691765927@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,52 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit cf1ec4539a50bdfe688caad4615ca47646884316 ]
+[ Upstream commit 083c1b5e50b701899dc32445efa8b153685260d5 ]
 
-The intel_iommu_gfx_mapped flag is exported by the Intel
-IOMMU driver to indicate whether an IOMMU is used for the
-graphic device. In a virtualized IOMMU environment (e.g.
-QEMU), an include-all IOMMU is used for graphic device.
-This flag is found to be clear even the IOMMU is used.
+When running application tool switchtec-user's `firmware update` and `event
+wait` commands concurrently, sometimes the firmware update speed reduced
+significantly.
 
-Cc: Ashok Raj <ashok.raj@intel.com>
-Cc: Jacob Pan <jacob.jun.pan@linux.intel.com>
-Cc: Kevin Tian <kevin.tian@intel.com>
-Reported-by: Zhenyu Wang <zhenyuw@linux.intel.com>
-Fixes: c0771df8d5297 ("intel-iommu: Export a flag indicating that the IOMMU is used for iGFX.")
-Suggested-by: Kevin Tian <kevin.tian@intel.com>
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+It is because when the MRPC event happened after MRPC event occurrence
+check but before the event mask loop reaches its header register in event
+ISR, the MRPC event would be masked unintentionally.  Since there's no
+chance to enable it again except for a module reload, all the following
+MRPC execution completion checks time out.
+
+Fix this bug by skipping the mask operation for MRPC event in event ISR,
+same as what we already do for LINK event.
+
+Fixes: 52eabba5bcdb ("switchtec: Add IOCTLs to the Switchtec driver")
+Signed-off-by: Wesley Sheng <wesley.sheng@microchip.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Logan Gunthorpe <logang@deltatee.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/intel-iommu.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/pci/switch/switchtec.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
-index fe935293fa7b..baa4c58e2736 100644
---- a/drivers/iommu/intel-iommu.c
-+++ b/drivers/iommu/intel-iommu.c
-@@ -4019,9 +4019,7 @@ static void __init init_no_remapping_devices(void)
+diff --git a/drivers/pci/switch/switchtec.c b/drivers/pci/switch/switchtec.c
+index e22766c79fe9..c2fa830b8ef5 100644
+--- a/drivers/pci/switch/switchtec.c
++++ b/drivers/pci/switch/switchtec.c
+@@ -1162,7 +1162,8 @@ static int mask_event(struct switchtec_dev *stdev, int eid, int idx)
+ 	if (!(hdr & SWITCHTEC_EVENT_OCCURRED && hdr & SWITCHTEC_EVENT_EN_IRQ))
+ 		return 0;
  
- 		/* This IOMMU has *only* gfx devices. Either bypass it or
- 		   set the gfx_mapped flag, as appropriate */
--		if (dmar_map_gfx) {
--			intel_iommu_gfx_mapped = 1;
--		} else {
-+		if (!dmar_map_gfx) {
- 			drhd->ignored = 1;
- 			for_each_active_dev_scope(drhd->devices,
- 						  drhd->devices_cnt, i, dev)
-@@ -4807,6 +4805,9 @@ int __init intel_iommu_init(void)
- 		goto out_free_reserved_range;
- 	}
+-	if (eid == SWITCHTEC_IOCTL_EVENT_LINK_STATE)
++	if (eid == SWITCHTEC_IOCTL_EVENT_LINK_STATE ||
++	    eid == SWITCHTEC_IOCTL_EVENT_MRPC_COMP)
+ 		return 0;
  
-+	if (dmar_map_gfx)
-+		intel_iommu_gfx_mapped = 1;
-+
- 	init_no_remapping_devices();
- 
- 	ret = init_dmars();
+ 	dev_dbg(&stdev->dev, "%s: %d %d %x\n", __func__, eid, idx, hdr);
 -- 
 2.20.1
 
