@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E62914424B
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:22:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0571944038
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:04:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733001AbfFMQVF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:21:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56482 "EHLO mail.kernel.org"
+        id S1727012AbfFMQEF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:04:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731065AbfFMIi5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:38:57 -0400
+        id S1731366AbfFMIrH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:47:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8B598215EA;
-        Thu, 13 Jun 2019 08:38:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 123CB2147A;
+        Thu, 13 Jun 2019 08:47:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415137;
-        bh=iHI+7P9vkUwbXg6pU2c4Nt3nfaT5GJVSazmp8sMxH+4=;
+        s=default; t=1560415626;
+        bh=D5FGKFwjFUH71ekrSHCtoUBX2CjewGvGL6JB0mWPcYE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LZXBRHCIjdY/3ipm91iFa9PpSClnFmKRUIXKA+Unt5ca6wW+IhtCETZXCgdTIxvh/
-         thtugXzgJOUEn2XHmlvprgD+kVDn38cNSvlmKLrW0ImTyYFhqZLrKIOFV2HjjsPU9I
-         q2k5C6A1KW/q7+u3vaMI1NZDq0ZQBItsDorLbm5U=
+        b=X/by3k3niQenfmhYmMIFQDLMfzeoTGPrhtikox1Hi2SX5UDg/M5Q+JlTqH7mT1PEN
+         069/OL+S1A48OGDaYCbtRvIujHX5G3yxhGscrGowlXz9QlT3iBecmy3MgTPftDnsEC
+         p4D8cQAWp4XqMylWTfxhZCRTn/zkjiaordbBBoik=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiada Wang <jiada_wang@mentor.com>,
-        Simon Horman <horms+renesas@verge.net.au>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Eduardo Valentin <edubezval@gmail.com>,
+        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 017/118] thermal: rcar_gen3_thermal: disable interrupt in .remove
-Date:   Thu, 13 Jun 2019 10:32:35 +0200
-Message-Id: <20190613075644.637943969@linuxfoundation.org>
+Subject: [PATCH 5.1 044/155] f2fs: fix error path of recovery
+Date:   Thu, 13 Jun 2019 10:32:36 +0200
+Message-Id: <20190613075655.585197106@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075643.642092651@linuxfoundation.org>
-References: <20190613075643.642092651@linuxfoundation.org>
+In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
+References: <20190613075652.691765927@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,38 +44,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 63f55fcea50c25ae5ad45af92d08dae3b84534c2 ]
+[ Upstream commit 988385795c7f46b231982d54750587f204bd558b ]
 
-Currently IRQ remains enabled after .remove, later if device is probed,
-IRQ is requested before .thermal_init, this may cause IRQ function be
-called before device is initialized.
+There are some places in where we missed to unlock page or unlock page
+incorrectly, fix them.
 
-this patch disables interrupt in .remove, to ensure irq function
-only be called after device is fully initialized.
-
-Signed-off-by: Jiada Wang <jiada_wang@mentor.com>
-Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
-Reviewed-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Signed-off-by: Eduardo Valentin <edubezval@gmail.com>
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/rcar_gen3_thermal.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/f2fs/recovery.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/thermal/rcar_gen3_thermal.c b/drivers/thermal/rcar_gen3_thermal.c
-index 7aed5337bdd3..704c8ad045bb 100644
---- a/drivers/thermal/rcar_gen3_thermal.c
-+++ b/drivers/thermal/rcar_gen3_thermal.c
-@@ -328,6 +328,9 @@ MODULE_DEVICE_TABLE(of, rcar_gen3_thermal_dt_ids);
- static int rcar_gen3_thermal_remove(struct platform_device *pdev)
- {
- 	struct device *dev = &pdev->dev;
-+	struct rcar_gen3_thermal_priv *priv = dev_get_drvdata(dev);
-+
-+	rcar_thermal_irq_set(priv, false);
+diff --git a/fs/f2fs/recovery.c b/fs/f2fs/recovery.c
+index 73338c432e7e..b14c718139a9 100644
+--- a/fs/f2fs/recovery.c
++++ b/fs/f2fs/recovery.c
+@@ -325,8 +325,10 @@ static int find_fsync_dnodes(struct f2fs_sb_info *sbi, struct list_head *head,
+ 			break;
+ 		}
  
- 	pm_runtime_put(dev);
- 	pm_runtime_disable(dev);
+-		if (!is_recoverable_dnode(page))
++		if (!is_recoverable_dnode(page)) {
++			f2fs_put_page(page, 1);
+ 			break;
++		}
+ 
+ 		if (!is_fsync_dnode(page))
+ 			goto next;
+@@ -338,8 +340,10 @@ static int find_fsync_dnodes(struct f2fs_sb_info *sbi, struct list_head *head,
+ 			if (!check_only &&
+ 					IS_INODE(page) && is_dent_dnode(page)) {
+ 				err = f2fs_recover_inode_page(sbi, page);
+-				if (err)
++				if (err) {
++					f2fs_put_page(page, 1);
+ 					break;
++				}
+ 				quota_inode = true;
+ 			}
+ 
+@@ -355,6 +359,7 @@ static int find_fsync_dnodes(struct f2fs_sb_info *sbi, struct list_head *head,
+ 					err = 0;
+ 					goto next;
+ 				}
++				f2fs_put_page(page, 1);
+ 				break;
+ 			}
+ 		}
+@@ -370,6 +375,7 @@ next:
+ 				"%s: detect looped node chain, "
+ 				"blkaddr:%u, next:%u",
+ 				__func__, blkaddr, next_blkaddr_of_node(page));
++			f2fs_put_page(page, 1);
+ 			err = -EINVAL;
+ 			break;
+ 		}
+@@ -380,7 +386,6 @@ next:
+ 
+ 		f2fs_ra_meta_pages_cond(sbi, blkaddr);
+ 	}
+-	f2fs_put_page(page, 1);
+ 	return err;
+ }
+ 
+@@ -674,8 +679,10 @@ static int recover_data(struct f2fs_sb_info *sbi, struct list_head *inode_list,
+ 		 */
+ 		if (IS_INODE(page)) {
+ 			err = recover_inode(entry->inode, page);
+-			if (err)
++			if (err) {
++				f2fs_put_page(page, 1);
+ 				break;
++			}
+ 		}
+ 		if (entry->last_dentry == blkaddr) {
+ 			err = recover_dentry(entry->inode, page, dir_list);
 -- 
 2.20.1
 
