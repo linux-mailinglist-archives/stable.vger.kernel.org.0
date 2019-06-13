@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B53D4425F
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:22:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 50F2E440A8
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:09:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389196AbfFMQVu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:21:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56064 "EHLO mail.kernel.org"
+        id S2387631AbfFMQIL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:08:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33952 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731052AbfFMIie (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:38:34 -0400
+        id S1731288AbfFMIpL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:45:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B32482147A;
-        Thu, 13 Jun 2019 08:38:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C56062147A;
+        Thu, 13 Jun 2019 08:45:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415114;
-        bh=HTx1fHVj5uezsO/DXs83fYpWV86qC1ZT8ZkQv5D7U4A=;
+        s=default; t=1560415510;
+        bh=V4eMEYHwbofiKkxkA3V3kHxUOdCXyPa4yfpH7qHKo4M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RtFcGM4ViSvrgMEx9zoWFeRvvRn5aP2UXfXO3tnN7PxxbeP3Y2xeHnibbp0N4boLj
-         NqxUQQMGWv0LOuTeMXwa3A2UCkGXLqUptgtIpYrxi+eRVEcRQFfEZKXLYeaq+M027Q
-         i6ry6pnfh7ISWbJE73DtNCBsY7ZXdjmWBV72D0eg=
+        b=UThQF/b7ogduRaGa9FuPefYnzlH6VmGPW4QOKArAa3EHbPm4gi6imVh0OrlzKhaEA
+         kADbsGKwT7tuUgvquo7mBPx4riZaZv93W3bdOizN8qg/Oo63Fii1HPWL4MSXvmUOgP
+         qMyFVOQBBa75MqzKdIzN+XTam0hrl+/httQ1wKZ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Alexandre Bounine <alex.bou9@gmail.com>,
-        Matt Porter <mporter@kernel.crashing.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org,
+        Javier Martinez Canillas <javier@dowhile0.org>,
+        Daniel Gomez <dagmcr@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 001/118] rapidio: fix a NULL pointer dereference when create_workqueue() fails
+Subject: [PATCH 5.1 027/155] mfd: tps65912-spi: Add missing of table registration
 Date:   Thu, 13 Jun 2019 10:32:19 +0200
-Message-Id: <20190613075643.733402894@linuxfoundation.org>
+Message-Id: <20190613075654.385515381@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075643.642092651@linuxfoundation.org>
-References: <20190613075643.642092651@linuxfoundation.org>
+In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
+References: <20190613075652.691765927@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -49,40 +46,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 23015b22e47c5409620b1726a677d69e5cd032ba ]
+[ Upstream commit 9e364e87ad7f2c636276c773d718cda29d62b741 ]
 
-In case create_workqueue fails, the fix releases resources and returns
--ENOMEM to avoid NULL pointer dereference.
+MODULE_DEVICE_TABLE(of, <of_match_table> should be called to complete DT
+OF mathing mechanism and register it.
 
-Signed-off-by: Kangjie Lu <kjlu@umn.edu>
-Acked-by: Alexandre Bounine <alex.bou9@gmail.com>
-Cc: Matt Porter <mporter@kernel.crashing.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Before this patch:
+modinfo drivers/mfd/tps65912-spi.ko | grep alias
+alias:          spi:tps65912
+
+After this patch:
+modinfo drivers/mfd/tps65912-spi.ko | grep alias
+alias:          of:N*T*Cti,tps65912C*
+alias:          of:N*T*Cti,tps65912
+alias:          spi:tps65912
+
+Reported-by: Javier Martinez Canillas <javier@dowhile0.org>
+Signed-off-by: Daniel Gomez <dagmcr@gmail.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rapidio/rio_cm.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/mfd/tps65912-spi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/rapidio/rio_cm.c b/drivers/rapidio/rio_cm.c
-index bad0e0ea4f30..ef989a15aefc 100644
---- a/drivers/rapidio/rio_cm.c
-+++ b/drivers/rapidio/rio_cm.c
-@@ -2145,6 +2145,14 @@ static int riocm_add_mport(struct device *dev,
- 	mutex_init(&cm->rx_lock);
- 	riocm_rx_fill(cm, RIOCM_RX_RING_SIZE);
- 	cm->rx_wq = create_workqueue(DRV_NAME "/rxq");
-+	if (!cm->rx_wq) {
-+		riocm_error("failed to allocate IBMBOX_%d on %s",
-+			    cmbox, mport->name);
-+		rio_release_outb_mbox(mport, cmbox);
-+		kfree(cm);
-+		return -ENOMEM;
-+	}
-+
- 	INIT_WORK(&cm->rx_work, rio_ibmsg_handler);
+diff --git a/drivers/mfd/tps65912-spi.c b/drivers/mfd/tps65912-spi.c
+index 3bd75061f777..f78be039e463 100644
+--- a/drivers/mfd/tps65912-spi.c
++++ b/drivers/mfd/tps65912-spi.c
+@@ -27,6 +27,7 @@ static const struct of_device_id tps65912_spi_of_match_table[] = {
+ 	{ .compatible = "ti,tps65912", },
+ 	{ /* sentinel */ }
+ };
++MODULE_DEVICE_TABLE(of, tps65912_spi_of_match_table);
  
- 	cm->tx_slot = 0;
+ static int tps65912_spi_probe(struct spi_device *spi)
+ {
 -- 
 2.20.1
 
