@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 49A7044071
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:06:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B83D74407E
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:07:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390408AbfFMQG0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1732283AbfFMQG0 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 13 Jun 2019 12:06:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34532 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:34584 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731312AbfFMIpw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:45:52 -0400
+        id S1731316AbfFMIpz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:45:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C8E4D21743;
-        Thu, 13 Jun 2019 08:45:51 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4B172215EA;
+        Thu, 13 Jun 2019 08:45:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415552;
-        bh=+EOijRYzI9FkbnvTNEtmNJ+L0BCsXTD1RgtsBpxrh8c=;
+        s=default; t=1560415554;
+        bh=7jtANu9nOjxLCoBnOdWXOj89ThgJw/5Uig2La2ne0tg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o4fwdlTRx/vk8tbdjtMllTHqZx4JD5suFp9Wxo2/orq2NlvzmqUZOCOFUhWPD5B86
-         zfqFpgkzsf01W/gdhaKTeuLxF+FiZV9+0xvtQS+ZDQA7b5SDEwlAezq/irCJzsDDoQ
-         173c8bq7Yh/yYujXhjixhEKLQfN1pcRlscB4rw60=
+        b=avL8xhnzKUD1lpfoIf2I6QDS5Nz7kf9vL5M32FIoabcqSl1eJWhscrirPcdU/FdK1
+         LQd4sxeX0m6SJsD0fMr1Vc3FXmz034WkKEAB17AlHAcFTGSijdUrWdAEhvTqh7wCiP
+         8iLpu7qP4K35RQ2zvnMNXAD+TP8/xAhSQJMgcjOU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Mel Gorman <mgorman@techsingularity.net>,
+        stable@vger.kernel.org, Baoquan He <bhe@redhat.com>,
+        David Hildenbrand <david@redhat.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Wei Yang <richard.weiyang@gmail.com>,
+        Mike Rapoport <rppt@linux.ibm.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 018/155] mm/compaction.c: fix an undefined behaviour
-Date:   Thu, 13 Jun 2019 10:32:10 +0200
-Message-Id: <20190613075653.778873177@linuxfoundation.org>
+Subject: [PATCH 5.1 019/155] mm/memory_hotplug.c: fix the wrong usage of N_HIGH_MEMORY
+Date:   Thu, 13 Jun 2019 10:32:11 +0200
+Message-Id: <20190613075653.828541511@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
 References: <20190613075652.691765927@linuxfoundation.org>
@@ -47,58 +50,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit dd7ef7bd14640f11763b54f55131000165f48321 ]
+[ Upstream commit d3ba3ae19751e476b0840a0c9a673a5766fa3219 ]
 
-In a low-memory situation, cc->fast_search_fail can keep increasing as it
-is unable to find an available page to isolate in
-fast_isolate_freepages().  As the result, it could trigger an error below,
-so just compare with the maximum bits can be shifted first.
+In node_states_check_changes_online(), N_HIGH_MEMORY is used to substitute
+ZONE_HIGHMEM directly.  This is not right.  N_HIGH_MEMORY is to mark the
+memory state of node.  Here zone index is checked, which should be
+compared with 'ZONE_HIGHMEM' accordingly.
 
-UBSAN: Undefined behaviour in mm/compaction.c:1160:30
-shift exponent 64 is too large for 64-bit type 'unsigned long'
-CPU: 131 PID: 1308 Comm: kcompactd1 Kdump: loaded Tainted: G
-W    L    5.0.0+ #17
-Call trace:
- dump_backtrace+0x0/0x450
- show_stack+0x20/0x2c
- dump_stack+0xc8/0x14c
- __ubsan_handle_shift_out_of_bounds+0x7e8/0x8c4
- compaction_alloc+0x2344/0x2484
- unmap_and_move+0xdc/0x1dbc
- migrate_pages+0x274/0x1310
- compact_zone+0x26ec/0x43bc
- kcompactd+0x15b8/0x1a24
- kthread+0x374/0x390
- ret_from_fork+0x10/0x18
+Replace it with ZONE_HIGHMEM.
 
-[akpm@linux-foundation.org: code cleanup]
-Link: http://lkml.kernel.org/r/20190320203338.53367-1-cai@lca.pw
-Fixes: 70b44595eafe ("mm, compaction: use free lists to quickly locate a migration source")
-Signed-off-by: Qian Cai <cai@lca.pw>
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
-Acked-by: Mel Gorman <mgorman@techsingularity.net>
+This is a code cleanup - no known runtime effects.
+
+Link: http://lkml.kernel.org/r/20190320080732.14933-1-bhe@redhat.com
+Fixes: 8efe33f40f3e ("mm/memory_hotplug.c: simplify node_states_check_changes_online")
+Signed-off-by: Baoquan He <bhe@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Cc: Wei Yang <richard.weiyang@gmail.com>
+Cc: Mike Rapoport <rppt@linux.ibm.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/compaction.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ mm/memory_hotplug.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/mm/compaction.c b/mm/compaction.c
-index 368445cc71cf..2d7bb9eb07cd 100644
---- a/mm/compaction.c
-+++ b/mm/compaction.c
-@@ -1164,7 +1164,9 @@ static bool suitable_migration_target(struct compact_control *cc,
- static inline unsigned int
- freelist_scan_limit(struct compact_control *cc)
- {
--	return (COMPACT_CLUSTER_MAX >> cc->fast_search_fail) + 1;
-+	unsigned short shift = BITS_PER_LONG - 1;
-+
-+	return (COMPACT_CLUSTER_MAX >> min(shift, cc->fast_search_fail)) + 1;
+diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+index 28587f290109..547e48addced 100644
+--- a/mm/memory_hotplug.c
++++ b/mm/memory_hotplug.c
+@@ -700,7 +700,7 @@ static void node_states_check_changes_online(unsigned long nr_pages,
+ 	if (zone_idx(zone) <= ZONE_NORMAL && !node_state(nid, N_NORMAL_MEMORY))
+ 		arg->status_change_nid_normal = nid;
+ #ifdef CONFIG_HIGHMEM
+-	if (zone_idx(zone) <= N_HIGH_MEMORY && !node_state(nid, N_HIGH_MEMORY))
++	if (zone_idx(zone) <= ZONE_HIGHMEM && !node_state(nid, N_HIGH_MEMORY))
+ 		arg->status_change_nid_high = nid;
+ #endif
  }
- 
- /*
 -- 
 2.20.1
 
