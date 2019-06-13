@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 851834403E
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:04:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1450444252
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:22:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733183AbfFMQEX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:04:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35362 "EHLO mail.kernel.org"
+        id S1727153AbfFMQVY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:21:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56442 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731358AbfFMIrB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:47:01 -0400
+        id S1731062AbfFMIiz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:38:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 78040215EA;
-        Thu, 13 Jun 2019 08:47:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DEC3921473;
+        Thu, 13 Jun 2019 08:38:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415621;
-        bh=O14EuGScVRRw8sDwQe7zivTNfu0JwiQRnOIzLkAJJkA=;
+        s=default; t=1560415134;
+        bh=kz+Dx1QcLiVBKSep2nqMa1r130ZcPuOW6wCiGMekHhs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=npG9AmhuGOE44Cmr64OhIoKejyef47r8MUr7iYvceETLZXflhqkHKdmukZR9DYXA4
-         5j33yOyVjxstdfs9zc3OzemVY6bSd3hGXLfLIpZNaBBerwhg3xubGWBMKFpR6Rfb/y
-         rMNPJyMcuzqSlajk11xj7rO6vI/pUPvngp96D1EY=
+        b=1Gtmr5L8SiqFhKGlw8u/xLFbhw3xxvLoWSPTSYdbsnimImPXcdDnt2On1MTWnko+G
+         /0HIhkHB4G6FmtuWy8EZ8E9h557dCF+uR0Zc7VxF21Cxwaa4kvW1oe//dM8PPovnjT
+         eRF/35jA7GPvIxy1I1R03pEg3/xi8osRlQXN/rZE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Cyrill Gorcunov <gorcunov@gmail.com>,
+        Andrey Vagin <avagin@gmail.com>,
+        Dmitry Safonov <0x7f454c46@gmail.com>,
+        Pavel Emelyanov <xemul@virtuozzo.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 042/155] f2fs: fix to avoid panic in do_recover_data()
+Subject: [PATCH 4.19 016/118] kernel/sys.c: prctl: fix false positive in validate_prctl_map()
 Date:   Thu, 13 Jun 2019 10:32:34 +0200
-Message-Id: <20190613075655.455891561@linuxfoundation.org>
+Message-Id: <20190613075644.582618602@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
-References: <20190613075652.691765927@linuxfoundation.org>
+In-Reply-To: <20190613075643.642092651@linuxfoundation.org>
+References: <20190613075643.642092651@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,76 +48,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 22d61e286e2d9097dae36f75ed48801056b77cac ]
+[ Upstream commit a9e73998f9d705c94a8dca9687633adc0f24a19a ]
 
-As Jungyeon reported in bugzilla:
+While validating new map we require the @start_data to be strictly less
+than @end_data, which is fine for regular applications (this is why this
+nit didn't trigger for that long).  These members are set from executable
+loaders such as elf handers, still it is pretty valid to have a loadable
+data section with zero size in file, in such case the start_data is equal
+to end_data once kernel loader finishes.
 
-https://bugzilla.kernel.org/show_bug.cgi?id=203227
+As a result when we're trying to restore such programs the procedure fails
+and the kernel returns -EINVAL.  From the image dump of a program:
 
-- Overview
-When mounting the attached crafted image, following errors are reported.
-Additionally, it hangs on sync after trying to mount it.
+ | "mm_start_code": "0x400000",
+ | "mm_end_code": "0x8f5fb4",
+ | "mm_start_data": "0xf1bfb0",
+ | "mm_end_data": "0xf1bfb0",
 
-The image is intentionally fuzzed from a normal f2fs image for testing.
-Compile options for F2FS are as follows.
-CONFIG_F2FS_FS=y
-CONFIG_F2FS_STAT_FS=y
-CONFIG_F2FS_FS_XATTR=y
-CONFIG_F2FS_FS_POSIX_ACL=y
-CONFIG_F2FS_CHECK_FS=y
+Thus we need to change validate_prctl_map from strictly less to less or
+equal operator use.
 
-- Reproduces
-mkdir test
-mount -t f2fs tmp.img test
-sync
-
-- Messages
- kernel BUG at fs/f2fs/recovery.c:549!
- RIP: 0010:recover_data+0x167a/0x1780
- Call Trace:
-  f2fs_recover_fsync_data+0x613/0x710
-  f2fs_fill_super+0x1043/0x1aa0
-  mount_bdev+0x16d/0x1a0
-  mount_fs+0x4a/0x170
-  vfs_kern_mount+0x5d/0x100
-  do_mount+0x200/0xcf0
-  ksys_mount+0x79/0xc0
-  __x64_sys_mount+0x1c/0x20
-  do_syscall_64+0x43/0xf0
-  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-During recovery, if ofs_of_node is inconsistent in between recovered
-node page and original checkpointed node page, let's just fail recovery
-instead of making kernel panic.
-
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Link: http://lkml.kernel.org/r/20190408143554.GY1421@uranus.lan
+Fixes: f606b77f1a9e3 ("prctl: PR_SET_MM -- introduce PR_SET_MM_MAP operation")
+Signed-off-by: Cyrill Gorcunov <gorcunov@gmail.com>
+Cc: Andrey Vagin <avagin@gmail.com>
+Cc: Dmitry Safonov <0x7f454c46@gmail.com>
+Cc: Pavel Emelyanov <xemul@virtuozzo.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/recovery.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ kernel/sys.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/f2fs/recovery.c b/fs/f2fs/recovery.c
-index e3883db868d8..73338c432e7e 100644
---- a/fs/f2fs/recovery.c
-+++ b/fs/f2fs/recovery.c
-@@ -546,7 +546,15 @@ retry_dn:
- 		goto err;
- 
- 	f2fs_bug_on(sbi, ni.ino != ino_of_node(page));
--	f2fs_bug_on(sbi, ofs_of_node(dn.node_page) != ofs_of_node(page));
-+
-+	if (ofs_of_node(dn.node_page) != ofs_of_node(page)) {
-+		f2fs_msg(sbi->sb, KERN_WARNING,
-+			"Inconsistent ofs_of_node, ino:%lu, ofs:%u, %u",
-+			inode->i_ino, ofs_of_node(dn.node_page),
-+			ofs_of_node(page));
-+		err = -EFAULT;
-+		goto err;
-+	}
- 
- 	for (; start < end; start++, dn.ofs_in_node++) {
- 		block_t src, dest;
+diff --git a/kernel/sys.c b/kernel/sys.c
+index 123bd73046ec..096932a45046 100644
+--- a/kernel/sys.c
++++ b/kernel/sys.c
+@@ -1919,7 +1919,7 @@ static int validate_prctl_map(struct prctl_mm_map *prctl_map)
+ 	((unsigned long)prctl_map->__m1 __op				\
+ 	 (unsigned long)prctl_map->__m2) ? 0 : -EINVAL
+ 	error  = __prctl_check_order(start_code, <, end_code);
+-	error |= __prctl_check_order(start_data, <, end_data);
++	error |= __prctl_check_order(start_data,<=, end_data);
+ 	error |= __prctl_check_order(start_brk, <=, brk);
+ 	error |= __prctl_check_order(arg_start, <=, arg_end);
+ 	error |= __prctl_check_order(env_start, <=, env_end);
 -- 
 2.20.1
 
