@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 35AAF4414A
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:13:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B702344149
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:13:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391415AbfFMQNN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2388348AbfFMQNN (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 13 Jun 2019 12:13:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60138 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:60174 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731215AbfFMIm7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:42:59 -0400
+        id S1731216AbfFMInC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:43:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4B4D920851;
-        Thu, 13 Jun 2019 08:42:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ECD582063F;
+        Thu, 13 Jun 2019 08:43:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415378;
-        bh=ZpGp6tbJ2PcTb+EL7CwaGJgp/iaU3PuVxwARLpJdHd8=;
+        s=default; t=1560415381;
+        bh=OlfFuwqkusPg47NaZV4i+qxupDmk6G6+k2SfXQaRtMc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FUbMywbeSwI5ron/WTjwEgD1+i74A8BEOmikm2swSpE6aEEvV85JjpWBS0NSfPiVV
-         P1I2CtcAyrTu2dIZqt2sV+g/N0H8UDyNOareLGFxC3pDcbgCZXT0xfayR9A6/iDmQk
-         lnPs93wUrpnRFj3dnw9DmwWjMEGkyH44KeqsmMwA=
+        b=WWTmjUbE9h9G1FDGlXi0LusETsZhyhGq/4RejdYfvOtW5X+BzmgLKr4Rg1wjkJxDD
+         PfKwIh538S0B1YX9tnww01DEbc4CLvFhbUL5Vz2NG1XtSFzoeMAHuAD/FqD08lT+ow
+         vvFEPtpD5uf1AvSlvt33JiXkBeQyjTqSo/SxLpKs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Adam Ludkiewicz <adam.ludkiewicz@intel.com>,
-        Andrew Bowers <andrewx.bowers@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        stable@vger.kernel.org, Enrico Granata <egranata@chromium.org>,
+        Jett Rink <jettrink@chromium.org>,
+        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 074/118] i40e: Queues are reserved despite "Invalid argument" error
-Date:   Thu, 13 Jun 2019 10:33:32 +0200
-Message-Id: <20190613075648.196535481@linuxfoundation.org>
+Subject: [PATCH 4.19 075/118] platform/chrome: cros_ec_proto: check for NULL transfer function
+Date:   Thu, 13 Jun 2019 10:33:33 +0200
+Message-Id: <20190613075648.247115542@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190613075643.642092651@linuxfoundation.org>
 References: <20190613075643.642092651@linuxfoundation.org>
@@ -46,48 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 3e957b377bf4262aec2dd424f28ece94e36814d4 ]
+[ Upstream commit 94d4e7af14a1170e34cf082d92e4c02de9e9fb88 ]
 
-Added a new local variable in the i40e_setup_tc function named
-old_queue_pairs so num_queue_pairs can be restored to the correct
-value in case configuring queue channels fails. Additionally, moved
-the exit label in the i40e_setup_tc function so the if (need_reset)
-block can be executed.
-Also, fixed data packing in the i40e_setup_tc function.
+As new transfer mechanisms are added to the EC codebase, they may
+not support v2 of the EC protocol.
 
-Signed-off-by: Adam Ludkiewicz <adam.ludkiewicz@intel.com>
-Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+If the v3 initial handshake transfer fails, the kernel will try
+and call cmd_xfer as a fallback. If v2 is not supported, cmd_xfer
+will be NULL, and the code will end up causing a kernel panic.
+
+Add a check for NULL before calling the transfer function, along
+with a helpful comment explaining how one might end up in this
+situation.
+
+Signed-off-by: Enrico Granata <egranata@chromium.org>
+Reviewed-by: Jett Rink <jettrink@chromium.org>
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_main.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/platform/chrome/cros_ec_proto.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
-index df8808cd7e11..4e04985fb430 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -6758,10 +6758,12 @@ static int i40e_setup_tc(struct net_device *netdev, void *type_data)
- 	struct i40e_pf *pf = vsi->back;
- 	u8 enabled_tc = 0, num_tc, hw;
- 	bool need_reset = false;
-+	int old_queue_pairs;
- 	int ret = -EINVAL;
- 	u16 mode;
- 	int i;
+diff --git a/drivers/platform/chrome/cros_ec_proto.c b/drivers/platform/chrome/cros_ec_proto.c
+index e5d5b1adb5a9..ac784ac66ac3 100644
+--- a/drivers/platform/chrome/cros_ec_proto.c
++++ b/drivers/platform/chrome/cros_ec_proto.c
+@@ -67,6 +67,17 @@ static int send_command(struct cros_ec_device *ec_dev,
+ 	else
+ 		xfer_fxn = ec_dev->cmd_xfer;
  
-+	old_queue_pairs = vsi->num_queue_pairs;
- 	num_tc = mqprio_qopt->qopt.num_tc;
- 	hw = mqprio_qopt->qopt.hw;
- 	mode = mqprio_qopt->mode;
-@@ -6862,6 +6864,7 @@ config_tc:
- 		}
- 		ret = i40e_configure_queue_channels(vsi);
- 		if (ret) {
-+			vsi->num_queue_pairs = old_queue_pairs;
- 			netdev_info(netdev,
- 				    "Failed configuring queue channels\n");
- 			need_reset = true;
++	if (!xfer_fxn) {
++		/*
++		 * This error can happen if a communication error happened and
++		 * the EC is trying to use protocol v2, on an underlying
++		 * communication mechanism that does not support v2.
++		 */
++		dev_err_once(ec_dev->dev,
++			     "missing EC transfer API, cannot send command\n");
++		return -EIO;
++	}
++
+ 	ret = (*xfer_fxn)(ec_dev, msg);
+ 	if (msg->result == EC_RES_IN_PROGRESS) {
+ 		int i;
 -- 
 2.20.1
 
