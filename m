@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 19EB244024
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:03:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0CD04435C
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:30:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391057AbfFMQDR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:03:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35662 "EHLO mail.kernel.org"
+        id S2392240AbfFMQ2y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:28:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53248 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731382AbfFMIrY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:47:24 -0400
+        id S1730937AbfFMIfa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:35:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 18F9A206BA;
-        Thu, 13 Jun 2019 08:47:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E05F820851;
+        Thu, 13 Jun 2019 08:35:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415643;
-        bh=LC8O5udZCLaZ8jZmYSRFYyGAk/b9k69zvK5jhojZ45M=;
+        s=default; t=1560414929;
+        bh=q0ijF/nYaXsphj7dn5HMBWMoIueBTlYTkoI+gx47HVY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=buU4YLTSt5zhyrfPOigYjvq4cRy9jWVYUoktXlHP5ptStykvBShpzNyHMAjMnkxNU
-         3/8K9dy6zfkZfavbRFdYoPW/BlEoUBY66nSNCV22Hp1uaLgvOgXTSzR+4e9uz+DaY0
-         2a+Yagf7TBSe0ClsuMPulcvoHuoPGQi9XZBoROps=
+        b=HZE5Q9Rkf3XFnY2CnpMWCAcxmhs6ALiuZuAfyoQ5yqaA2crI85LvZJLLN1lwJ4vjv
+         kbiN9HxiXTWCARMiupqTA19Y3qPU+iuwM1JMhV2bziF1yhvPXDmaXWdFebj1gl1rUH
+         2/4T1OBA0CgX5P1UMy/4bq32gJaKYM357yG7e7Bk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yufen Yu <yuyufen@huawei.com>,
-        Keith Busch <keith.busch@intel.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 075/155] nvme-pci: unquiesce admin queue on shutdown
+        stable@vger.kernel.org,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 24/81] pwm: meson: Use the spin-lock only to protect register modifications
 Date:   Thu, 13 Jun 2019 10:33:07 +0200
-Message-Id: <20190613075657.179216321@linuxfoundation.org>
+Message-Id: <20190613075650.918311631@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
-References: <20190613075652.691765927@linuxfoundation.org>
+In-Reply-To: <20190613075649.074682929@linuxfoundation.org>
+References: <20190613075649.074682929@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,37 +48,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c8e9e9b7646ebe1c5066ddc420d7630876277eb4 ]
+[ Upstream commit f173747fffdf037c791405ab4f1ec0eb392fc48e ]
 
-Just like IO queues, the admin queue also will not be restarted after a
-controller shutdown. Unquiesce this queue so that we do not block
-request dispatch on a permanently disabled controller.
+Holding the spin-lock for all of the code in meson_pwm_apply() can
+result in a "BUG: scheduling while atomic". This can happen because
+clk_get_rate() (which is called from meson_pwm_calc()) may sleep.
+Only hold the spin-lock when modifying registers to solve this.
 
-Reported-by: Yufen Yu <yuyufen@huawei.com>
-Signed-off-by: Keith Busch <keith.busch@intel.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+The reason why we need a spin-lock in the driver is because the
+REG_MISC_AB register is shared between the two channels provided by one
+PWM controller. The only functions where REG_MISC_AB is modified are
+meson_pwm_enable() and meson_pwm_disable() so the register reads/writes
+in there need to be protected by the spin-lock.
+
+The original code also used the spin-lock to protect the values in
+struct meson_pwm_channel. This could be necessary if two consumers can
+use the same PWM channel. However, PWM core doesn't allow this so we
+don't need to protect the values in struct meson_pwm_channel with a
+lock.
+
+Fixes: 211ed630753d2f ("pwm: Add support for Meson PWM Controller")
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/pci.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/pwm/pwm-meson.c | 25 +++++++++++++++++--------
+ 1 file changed, 17 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
-index a90cf5d63aac..e5dcc769ab8f 100644
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -2438,8 +2438,11 @@ static void nvme_dev_disable(struct nvme_dev *dev, bool shutdown)
- 	 * must flush all entered requests to their failed completion to avoid
- 	 * deadlocking blk-mq hot-cpu notifier.
- 	 */
--	if (shutdown)
-+	if (shutdown) {
- 		nvme_start_queues(&dev->ctrl);
-+		if (dev->ctrl.admin_q && !blk_queue_dying(dev->ctrl.admin_q))
-+			blk_mq_unquiesce_queue(dev->ctrl.admin_q);
-+	}
- 	mutex_unlock(&dev->shutdown_lock);
+diff --git a/drivers/pwm/pwm-meson.c b/drivers/pwm/pwm-meson.c
+index 3540d00425d0..9b79cbc7a715 100644
+--- a/drivers/pwm/pwm-meson.c
++++ b/drivers/pwm/pwm-meson.c
+@@ -111,6 +111,10 @@ struct meson_pwm {
+ 	const struct meson_pwm_data *data;
+ 	void __iomem *base;
+ 	u8 inverter_mask;
++	/*
++	 * Protects register (write) access to the REG_MISC_AB register
++	 * that is shared between the two PWMs.
++	 */
+ 	spinlock_t lock;
+ };
+ 
+@@ -235,6 +239,7 @@ static void meson_pwm_enable(struct meson_pwm *meson,
+ {
+ 	u32 value, clk_shift, clk_enable, enable;
+ 	unsigned int offset;
++	unsigned long flags;
+ 
+ 	switch (id) {
+ 	case 0:
+@@ -255,6 +260,8 @@ static void meson_pwm_enable(struct meson_pwm *meson,
+ 		return;
+ 	}
+ 
++	spin_lock_irqsave(&meson->lock, flags);
++
+ 	value = readl(meson->base + REG_MISC_AB);
+ 	value &= ~(MISC_CLK_DIV_MASK << clk_shift);
+ 	value |= channel->pre_div << clk_shift;
+@@ -267,11 +274,14 @@ static void meson_pwm_enable(struct meson_pwm *meson,
+ 	value = readl(meson->base + REG_MISC_AB);
+ 	value |= enable;
+ 	writel(value, meson->base + REG_MISC_AB);
++
++	spin_unlock_irqrestore(&meson->lock, flags);
  }
  
+ static void meson_pwm_disable(struct meson_pwm *meson, unsigned int id)
+ {
+ 	u32 value, enable;
++	unsigned long flags;
+ 
+ 	switch (id) {
+ 	case 0:
+@@ -286,9 +296,13 @@ static void meson_pwm_disable(struct meson_pwm *meson, unsigned int id)
+ 		return;
+ 	}
+ 
++	spin_lock_irqsave(&meson->lock, flags);
++
+ 	value = readl(meson->base + REG_MISC_AB);
+ 	value &= ~enable;
+ 	writel(value, meson->base + REG_MISC_AB);
++
++	spin_unlock_irqrestore(&meson->lock, flags);
+ }
+ 
+ static int meson_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
+@@ -296,19 +310,16 @@ static int meson_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
+ {
+ 	struct meson_pwm_channel *channel = pwm_get_chip_data(pwm);
+ 	struct meson_pwm *meson = to_meson_pwm(chip);
+-	unsigned long flags;
+ 	int err = 0;
+ 
+ 	if (!state)
+ 		return -EINVAL;
+ 
+-	spin_lock_irqsave(&meson->lock, flags);
+-
+ 	if (!state->enabled) {
+ 		meson_pwm_disable(meson, pwm->hwpwm);
+ 		channel->state.enabled = false;
+ 
+-		goto unlock;
++		return 0;
+ 	}
+ 
+ 	if (state->period != channel->state.period ||
+@@ -329,7 +340,7 @@ static int meson_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
+ 		err = meson_pwm_calc(meson, channel, pwm->hwpwm,
+ 				     state->duty_cycle, state->period);
+ 		if (err < 0)
+-			goto unlock;
++			return err;
+ 
+ 		channel->state.polarity = state->polarity;
+ 		channel->state.period = state->period;
+@@ -341,9 +352,7 @@ static int meson_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
+ 		channel->state.enabled = true;
+ 	}
+ 
+-unlock:
+-	spin_unlock_irqrestore(&meson->lock, flags);
+-	return err;
++	return 0;
+ }
+ 
+ static void meson_pwm_get_state(struct pwm_chip *chip, struct pwm_device *pwm,
 -- 
 2.20.1
 
