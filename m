@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A5537442D7
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:26:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BD6F943FAC
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:00:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730975AbfFMQZq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:25:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54064 "EHLO mail.kernel.org"
+        id S2389754AbfFMP66 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 11:58:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730973AbfFMIgf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:36:35 -0400
+        id S1731487AbfFMItz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:49:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 134042133D;
-        Thu, 13 Jun 2019 08:36:33 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 758E6206BA;
+        Thu, 13 Jun 2019 08:49:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560414994;
-        bh=Tzu9nVnELtW6QYt8Pc2RvRISPk+UT9MpiyAky8zDLVU=;
+        s=default; t=1560415795;
+        bh=IwLjCkQVR7JyIw0Tu6rfzQmaBLe/AQ7PaEB7IlDfThI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0NZiCbHXfz98BCZD+/SZfXS0u/3lQfRhwmx+NiJQ3LS3vXRaJ0nb0opee+3m1SYBH
-         nWWg3MuOZAIafl62kqTMF9o72am5SbsmxlkH/azxO2aY42rXR8lLHEEgti8qbU5NRb
-         AN6vD4YSKhQe7/UTgTRP7fUCBMyBunG0QXvZjhX8=
+        b=a1g/Wk/twBPOJPEuGuDyKecGTo82N+1WoubFY3mdnDkWNuo+HFEhyQpxgxkE5eWqZ
+         oZxHXQIcqfi76hNGkvHRGbkbqvw5yfFypBP+g9B6wR2rco7m4Sw6XdAXwbnnirKqz5
+         1fJAhWFMeX2pGyKsRdmAUkFQujKA5ejEuAAY0m/Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Elaine Zhang <zhangqing@rock-chips.com>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 48/81] PCI: keystone: Prevent ARM32 specific code to be compiled for ARM64
-Date:   Thu, 13 Jun 2019 10:33:31 +0200
-Message-Id: <20190613075652.808493848@linuxfoundation.org>
+Subject: [PATCH 5.1 100/155] clk: rockchip: Turn on "aclk_dmac1" for suspend on rk3288
+Date:   Thu, 13 Jun 2019 10:33:32 +0200
+Message-Id: <20190613075658.631320957@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075649.074682929@linuxfoundation.org>
-References: <20190613075649.074682929@linuxfoundation.org>
+In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
+References: <20190613075652.691765927@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,59 +45,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f316a2b53cd7f37963ae20ec7072eb27a349a4ce ]
+[ Upstream commit 57a20248ef3e429dc822f0774bc4e00136c46c83 ]
 
-hook_fault_code() is an ARM32 specific API for hooking into data abort.
+Experimentally it can be seen that going into deep sleep (specifically
+setting PMU_CLR_DMA and PMU_CLR_BUS in RK3288_PMU_PWRMODE_CON1)
+appears to fail unless "aclk_dmac1" is on.  The failure is that the
+system never signals that it made it into suspend on the GLOBAL_PWROFF
+pin and it just hangs.
 
-AM65X platforms (that integrate ARM v8 cores and select CONFIG_ARM64 as
-arch) rely on pci-keystone.c but on them the enumeration of a
-non-present BDF does not trigger a bus error, so the fixup exception
-provided by calling hook_fault_code() is not needed and can be guarded
-with CONFIG_ARM.
+NOTE that it's confirmed that it's the actual suspend that fails, not
+one of the earlier calls to read/write registers.  Specifically if you
+comment out the "PMU_GLOBAL_INT_DISABLE" setting in
+rk3288_slp_mode_set() and then comment out the "cpu_do_idle()" call in
+rockchip_lpmode_enter() then you can exercise the whole suspend path
+without any crashing.
 
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
-[lorenzo.pieralisi@arm.com: commit log]
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+This is currently not a problem with suspend upstream because there is
+no current way to exercise the deep suspend code.  However, anyone
+trying to make it work will run into this issue.
+
+This was not a problem on shipping rk3288-based Chromebooks because
+those devices all ran on an old kernel based on 3.14.  On that kernel
+"aclk_dmac1" appears to be left on all the time.
+
+There are several ways to skin this problem.
+
+A) We could add "aclk_dmac1" to the list of critical clocks and that
+apperas to work, but presumably that wastes power.
+
+B) We could keep a list of "struct clk" objects to enable at suspend
+time in clk-rk3288.c and use the standard clock APIs.
+
+C) We could make the rk3288-pmu driver keep a list of clocks to enable
+at suspend time.  Presumably this would require a dts and bindings
+change.
+
+D) We could just whack the clock on in the existing syscore suspend
+function where we whack a bunch of other clocks.  This is particularly
+easy because we know for sure that the clock's only parent
+("aclk_cpu") is a critical clock so we don't need to do anything more
+than ungate it.
+
+In this case I have chosen D) because it seemed like the least work,
+but any of the other options would presumably also work fine.
+
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Elaine Zhang <zhangqing@rock-chips.com>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/dwc/pci-keystone.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/clk/rockchip/clk-rk3288.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/pci/dwc/pci-keystone.c b/drivers/pci/dwc/pci-keystone.c
-index 39405598b22d..9bc52e4cf52a 100644
---- a/drivers/pci/dwc/pci-keystone.c
-+++ b/drivers/pci/dwc/pci-keystone.c
-@@ -240,6 +240,7 @@ static void ks_pcie_setup_interrupts(struct keystone_pcie *ks_pcie)
- 		ks_dw_pcie_enable_error_irq(ks_pcie);
- }
+diff --git a/drivers/clk/rockchip/clk-rk3288.c b/drivers/clk/rockchip/clk-rk3288.c
+index 355d6a3611db..18460e0993bc 100644
+--- a/drivers/clk/rockchip/clk-rk3288.c
++++ b/drivers/clk/rockchip/clk-rk3288.c
+@@ -856,6 +856,9 @@ static const int rk3288_saved_cru_reg_ids[] = {
+ 	RK3288_CLKSEL_CON(10),
+ 	RK3288_CLKSEL_CON(33),
+ 	RK3288_CLKSEL_CON(37),
++
++	/* We turn aclk_dmac1 on for suspend; this will restore it */
++	RK3288_CLKGATE_CON(10),
+ };
  
-+#ifdef CONFIG_ARM
- /*
-  * When a PCI device does not exist during config cycles, keystone host gets a
-  * bus error instead of returning 0xffffffff. This handler always returns 0
-@@ -259,6 +260,7 @@ static int keystone_pcie_fault(unsigned long addr, unsigned int fsr,
+ static u32 rk3288_saved_cru_regs[ARRAY_SIZE(rk3288_saved_cru_reg_ids)];
+@@ -871,6 +874,14 @@ static int rk3288_clk_suspend(void)
+ 				readl_relaxed(rk3288_cru_base + reg_id);
+ 	}
  
- 	return 0;
- }
-+#endif
- 
- static int __init ks_pcie_host_init(struct pcie_port *pp)
- {
-@@ -282,12 +284,14 @@ static int __init ks_pcie_host_init(struct pcie_port *pp)
- 	val |= BIT(12);
- 	writel(val, pci->dbi_base + PCIE_CAP_BASE + PCI_EXP_DEVCTL);
- 
-+#ifdef CONFIG_ARM
++	/*
++	 * Going into deep sleep (specifically setting PMU_CLR_DMA in
++	 * RK3288_PMU_PWRMODE_CON1) appears to fail unless
++	 * "aclk_dmac1" is on.
++	 */
++	writel_relaxed(1 << (12 + 16),
++		       rk3288_cru_base + RK3288_CLKGATE_CON(10));
++
  	/*
- 	 * PCIe access errors that result into OCP errors are caught by ARM as
- 	 * "External aborts"
- 	 */
- 	hook_fault_code(17, keystone_pcie_fault, SIGBUS, 0,
- 			"Asynchronous external abort");
-+#endif
- 
- 	return 0;
- }
+ 	 * Switch PLLs other than DPLL (for SDRAM) to slow mode to
+ 	 * avoid crashes on resume. The Mask ROM on the system will
 -- 
 2.20.1
 
