@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 67F894407B
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:07:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1CB0D4420C
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:20:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732761AbfFMQGZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:06:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34738 "EHLO mail.kernel.org"
+        id S2391630AbfFMQS7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:18:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731323AbfFMIqG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:46:06 -0400
+        id S1731097AbfFMIkC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:40:02 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ABB072147A;
-        Thu, 13 Jun 2019 08:46:04 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1C0912147A;
+        Thu, 13 Jun 2019 08:40:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415565;
-        bh=FvQTjxJPeshuZ1KAzJ1hsesVQI3nXOM1Gmj8owbogBE=;
+        s=default; t=1560415201;
+        bh=asG62Mef0WHuKCwIGIPnq42mA7jWZ29eLlSEWQ2ipYs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RecXHPATXR7t52svWHj7choQvNLHNkfyzNS6GrQv2EydHccyVYYoOW5468FzK2Pbs
-         3G5AMNOy3UoKUIt6Ix+b+LilyZ0DLP5nOpmTWETCGbvVsIj5prmGlIf2c/vMWDpnps
-         bniqmckg6veQgcnXSznaJ/f73rpvsBgSpbmVdhYk=
+        b=o3zqdn4F9AwXEFFsZMAVr5pWqsDVqljgItwq1qoYGIRC1EfaC0Xf74Yw10pmDrMOC
+         3ikqvSgp6x/UJ+gbl9MrIDYCUsXWCRPs25ck3is4YRxiwt0DDR4cQHqiLCPXJ4mS26
+         Pb0gHddnu3R7QO6WikmEpIiEkn5YBhuaMiZbnD0Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
-        <u.kleine-koenig@pengutronix.de>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Thierry Reding <thierry.reding@gmail.com>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Dan Williams <dan.j.williams@intel.com>,
+        "Kirill A . Shutemov" <kirill@shutemov.name>,
+        Andrea Arcangeli <aarcange@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 039/155] pwm: meson: Use the spin-lock only to protect register modifications
+Subject: [PATCH 4.19 013/118] mm: page_mkclean vs MADV_DONTNEED race
 Date:   Thu, 13 Jun 2019 10:32:31 +0200
-Message-Id: <20190613075655.284348683@linuxfoundation.org>
+Message-Id: <20190613075644.437057080@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
-References: <20190613075652.691765927@linuxfoundation.org>
+In-Reply-To: <20190613075643.642092651@linuxfoundation.org>
+References: <20190613075643.642092651@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,137 +49,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f173747fffdf037c791405ab4f1ec0eb392fc48e ]
+[ Upstream commit 024eee0e83f0df52317be607ca521e0fc572aa07 ]
 
-Holding the spin-lock for all of the code in meson_pwm_apply() can
-result in a "BUG: scheduling while atomic". This can happen because
-clk_get_rate() (which is called from meson_pwm_calc()) may sleep.
-Only hold the spin-lock when modifying registers to solve this.
+MADV_DONTNEED is handled with mmap_sem taken in read mode.  We call
+page_mkclean without holding mmap_sem.
 
-The reason why we need a spin-lock in the driver is because the
-REG_MISC_AB register is shared between the two channels provided by one
-PWM controller. The only functions where REG_MISC_AB is modified are
-meson_pwm_enable() and meson_pwm_disable() so the register reads/writes
-in there need to be protected by the spin-lock.
+MADV_DONTNEED implies that pages in the region are unmapped and subsequent
+access to the pages in that range is handled as a new page fault.  This
+implies that if we don't have parallel access to the region when
+MADV_DONTNEED is run we expect those range to be unallocated.
 
-The original code also used the spin-lock to protect the values in
-struct meson_pwm_channel. This could be necessary if two consumers can
-use the same PWM channel. However, PWM core doesn't allow this so we
-don't need to protect the values in struct meson_pwm_channel with a
-lock.
+w.r.t page_mkclean() we need to make sure that we don't break the
+MADV_DONTNEED semantics.  MADV_DONTNEED check for pmd_none without holding
+pmd_lock.  This implies we skip the pmd if we temporarily mark pmd none.
+Avoid doing that while marking the page clean.
 
-Fixes: 211ed630753d2f ("pwm: Add support for Meson PWM Controller")
-Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Reviewed-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+Keep the sequence same for dax too even though we don't support
+MADV_DONTNEED for dax mapping
+
+The bug was noticed by code review and I didn't observe any failures w.r.t
+test run.  This is similar to
+
+commit 58ceeb6bec86d9140f9d91d71a710e963523d063
+Author: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Date:   Thu Apr 13 14:56:26 2017 -0700
+
+    thp: fix MADV_DONTNEED vs. MADV_FREE race
+
+commit ced108037c2aa542b3ed8b7afd1576064ad1362a
+Author: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Date:   Thu Apr 13 14:56:20 2017 -0700
+
+    thp: fix MADV_DONTNEED vs. numa balancing race
+
+Link: http://lkml.kernel.org/r/20190321040610.14226-1-aneesh.kumar@linux.ibm.com
+Signed-off-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc:"Kirill A . Shutemov" <kirill@shutemov.name>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pwm/pwm-meson.c | 25 +++++++++++++++++--------
- 1 file changed, 17 insertions(+), 8 deletions(-)
+ fs/dax.c  | 2 +-
+ mm/rmap.c | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pwm/pwm-meson.c b/drivers/pwm/pwm-meson.c
-index c1ed641b3e26..f6e738ad7bd9 100644
---- a/drivers/pwm/pwm-meson.c
-+++ b/drivers/pwm/pwm-meson.c
-@@ -111,6 +111,10 @@ struct meson_pwm {
- 	const struct meson_pwm_data *data;
- 	void __iomem *base;
- 	u8 inverter_mask;
-+	/*
-+	 * Protects register (write) access to the REG_MISC_AB register
-+	 * that is shared between the two PWMs.
-+	 */
- 	spinlock_t lock;
- };
+diff --git a/fs/dax.c b/fs/dax.c
+index 004c8ac1117c..75a289c31c7e 100644
+--- a/fs/dax.c
++++ b/fs/dax.c
+@@ -908,7 +908,7 @@ static void dax_mapping_entry_mkclean(struct address_space *mapping,
+ 				goto unlock_pmd;
  
-@@ -235,6 +239,7 @@ static void meson_pwm_enable(struct meson_pwm *meson,
- {
- 	u32 value, clk_shift, clk_enable, enable;
- 	unsigned int offset;
-+	unsigned long flags;
+ 			flush_cache_page(vma, address, pfn);
+-			pmd = pmdp_huge_clear_flush(vma, address, pmdp);
++			pmd = pmdp_invalidate(vma, address, pmdp);
+ 			pmd = pmd_wrprotect(pmd);
+ 			pmd = pmd_mkclean(pmd);
+ 			set_pmd_at(vma->vm_mm, address, pmdp, pmd);
+diff --git a/mm/rmap.c b/mm/rmap.c
+index 85b7f9423352..f048c2651954 100644
+--- a/mm/rmap.c
++++ b/mm/rmap.c
+@@ -926,7 +926,7 @@ static bool page_mkclean_one(struct page *page, struct vm_area_struct *vma,
+ 				continue;
  
- 	switch (id) {
- 	case 0:
-@@ -255,6 +260,8 @@ static void meson_pwm_enable(struct meson_pwm *meson,
- 		return;
- 	}
- 
-+	spin_lock_irqsave(&meson->lock, flags);
-+
- 	value = readl(meson->base + REG_MISC_AB);
- 	value &= ~(MISC_CLK_DIV_MASK << clk_shift);
- 	value |= channel->pre_div << clk_shift;
-@@ -267,11 +274,14 @@ static void meson_pwm_enable(struct meson_pwm *meson,
- 	value = readl(meson->base + REG_MISC_AB);
- 	value |= enable;
- 	writel(value, meson->base + REG_MISC_AB);
-+
-+	spin_unlock_irqrestore(&meson->lock, flags);
- }
- 
- static void meson_pwm_disable(struct meson_pwm *meson, unsigned int id)
- {
- 	u32 value, enable;
-+	unsigned long flags;
- 
- 	switch (id) {
- 	case 0:
-@@ -286,9 +296,13 @@ static void meson_pwm_disable(struct meson_pwm *meson, unsigned int id)
- 		return;
- 	}
- 
-+	spin_lock_irqsave(&meson->lock, flags);
-+
- 	value = readl(meson->base + REG_MISC_AB);
- 	value &= ~enable;
- 	writel(value, meson->base + REG_MISC_AB);
-+
-+	spin_unlock_irqrestore(&meson->lock, flags);
- }
- 
- static int meson_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
-@@ -296,19 +310,16 @@ static int meson_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
- {
- 	struct meson_pwm_channel *channel = pwm_get_chip_data(pwm);
- 	struct meson_pwm *meson = to_meson_pwm(chip);
--	unsigned long flags;
- 	int err = 0;
- 
- 	if (!state)
- 		return -EINVAL;
- 
--	spin_lock_irqsave(&meson->lock, flags);
--
- 	if (!state->enabled) {
- 		meson_pwm_disable(meson, pwm->hwpwm);
- 		channel->state.enabled = false;
- 
--		goto unlock;
-+		return 0;
- 	}
- 
- 	if (state->period != channel->state.period ||
-@@ -329,7 +340,7 @@ static int meson_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
- 		err = meson_pwm_calc(meson, channel, pwm->hwpwm,
- 				     state->duty_cycle, state->period);
- 		if (err < 0)
--			goto unlock;
-+			return err;
- 
- 		channel->state.polarity = state->polarity;
- 		channel->state.period = state->period;
-@@ -341,9 +352,7 @@ static int meson_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
- 		channel->state.enabled = true;
- 	}
- 
--unlock:
--	spin_unlock_irqrestore(&meson->lock, flags);
--	return err;
-+	return 0;
- }
- 
- static void meson_pwm_get_state(struct pwm_chip *chip, struct pwm_device *pwm,
+ 			flush_cache_page(vma, address, page_to_pfn(page));
+-			entry = pmdp_huge_clear_flush(vma, address, pmd);
++			entry = pmdp_invalidate(vma, address, pmd);
+ 			entry = pmd_wrprotect(entry);
+ 			entry = pmd_mkclean(entry);
+ 			set_pmd_at(vma->vm_mm, address, pmd, entry);
 -- 
 2.20.1
 
