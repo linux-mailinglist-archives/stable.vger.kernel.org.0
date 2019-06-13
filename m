@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2386044096
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:07:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BE294421D
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:20:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732061AbfFMQHJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:07:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34304 "EHLO mail.kernel.org"
+        id S1729761AbfFMQTf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:19:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731305AbfFMIpg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:45:36 -0400
+        id S1731094AbfFMIjy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:39:54 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3597E2173C;
-        Thu, 13 Jun 2019 08:45:35 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1081821479;
+        Thu, 13 Jun 2019 08:39:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415535;
-        bh=DOgLhY7Ndb490Cu9eMS6Sn6ICuXyTtW1a/l7jx7auDc=;
+        s=default; t=1560415193;
+        bh=PuYNLRFYktJBwpfgdZA3wjG/njTMVcgHDj7Fu63EghY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SPOCI251K3vX23EU++BOzlaX488YxQJgPsCb9OU85gc/9hPyZaJQaNxx/rqLM5Y6f
-         rut7eTunA9umPzcQOQ1iHLrH0Xmk/gA2Bi90RSrk0MidJOrYizny3r71EqTHqz1ONQ
-         nDCrn5ywhUJDYzkY9UO/IPpOyvpcT3nKhoaAW7F0=
+        b=O2/oBkQms5RjQsbtIknObR49qRykjgUeYghBovCp3f5TagiU3hvxLp3J+aHyVCYUw
+         V7VlV+UtfnueDg6N8PvO1t63TG4Mj1j9iGCxbMGhu9phB3qjIhE030/2MpGWlFq2L7
+         FGNFBbkYN4rlGWnrsDISGerrJSEOdW0WzlDoCy3o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@redhat.com>,
+        stable@vger.kernel.org, Yue Hu <huyue2@yulong.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Laura Abbott <labbott@redhat.com>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 035/155] objtool: Dont use ignore flag for fake jumps
-Date:   Thu, 13 Jun 2019 10:32:27 +0200
-Message-Id: <20190613075655.022431009@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 010/118] mm/cma.c: fix crash on CMA allocation if bitmap allocation fails
+Date:   Thu, 13 Jun 2019 10:32:28 +0200
+Message-Id: <20190613075644.271087701@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
-References: <20190613075652.691765927@linuxfoundation.org>
+In-Reply-To: <20190613075643.642092651@linuxfoundation.org>
+References: <20190613075643.642092651@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,68 +50,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit e6da9567959e164f82bc81967e0d5b10dee870b4 ]
+[ Upstream commit 1df3a339074e31db95c4790ea9236874b13ccd87 ]
 
-The ignore flag is set on fake jumps in order to keep
-add_jump_destinations() from setting their jump_dest, since it already
-got set when the fake jump was created.
+f022d8cb7ec7 ("mm: cma: Don't crash on allocation if CMA area can't be
+activated") fixes the crash issue when activation fails via setting
+cma->count as 0, same logic exists if bitmap allocation fails.
 
-But using the ignore flag is a bit of a hack.  It's normally used to
-skip validation of an instruction, which doesn't really make sense for
-fake jumps.
-
-Also, after the next patch, using the ignore flag for fake jumps can
-trigger a false "why am I validating an ignored function?" warning.
-
-Instead just add an explicit check in add_jump_destinations() to skip
-fake jumps.
-
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: http://lkml.kernel.org/r/71abc072ff48b2feccc197723a9c52859476c068.1557766718.git.jpoimboe@redhat.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: http://lkml.kernel.org/r/20190325081309.6004-1-zbestahu@gmail.com
+Signed-off-by: Yue Hu <huyue2@yulong.com>
+Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: Laura Abbott <labbott@redhat.com>
+Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
+Cc: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/objtool/check.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ mm/cma.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/tools/objtool/check.c b/tools/objtool/check.c
-index 2cd57730381b..ecf5fc77f50b 100644
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -28,6 +28,8 @@
- #include <linux/hashtable.h>
- #include <linux/kernel.h>
+diff --git a/mm/cma.c b/mm/cma.c
+index bfe9f5397165..6ce6e22f82d9 100644
+--- a/mm/cma.c
++++ b/mm/cma.c
+@@ -106,8 +106,10 @@ static int __init cma_activate_area(struct cma *cma)
  
-+#define FAKE_JUMP_OFFSET -1
-+
- struct alternative {
- 	struct list_head list;
- 	struct instruction *insn;
-@@ -501,7 +503,7 @@ static int add_jump_destinations(struct objtool_file *file)
- 		    insn->type != INSN_JUMP_UNCONDITIONAL)
- 			continue;
+ 	cma->bitmap = kzalloc(bitmap_size, GFP_KERNEL);
  
--		if (insn->ignore)
-+		if (insn->ignore || insn->offset == FAKE_JUMP_OFFSET)
- 			continue;
+-	if (!cma->bitmap)
++	if (!cma->bitmap) {
++		cma->count = 0;
+ 		return -ENOMEM;
++	}
  
- 		rela = find_rela_by_dest_range(insn->sec, insn->offset,
-@@ -670,10 +672,10 @@ static int handle_group_alt(struct objtool_file *file,
- 		clear_insn_state(&fake_jump->state);
- 
- 		fake_jump->sec = special_alt->new_sec;
--		fake_jump->offset = -1;
-+		fake_jump->offset = FAKE_JUMP_OFFSET;
- 		fake_jump->type = INSN_JUMP_UNCONDITIONAL;
- 		fake_jump->jump_dest = list_next_entry(last_orig_insn, list);
--		fake_jump->ignore = true;
-+		fake_jump->func = orig_insn->func;
- 	}
- 
- 	if (!special_alt->new_len) {
+ 	WARN_ON_ONCE(!pfn_valid(pfn));
+ 	zone = page_zone(pfn_to_page(pfn));
 -- 
 2.20.1
 
