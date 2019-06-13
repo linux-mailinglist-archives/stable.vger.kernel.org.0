@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 59C724405A
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:05:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2902D44389
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:30:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732140AbfFMQFf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:05:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34916 "EHLO mail.kernel.org"
+        id S2392093AbfFMQaY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:30:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731333AbfFMIqW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:46:22 -0400
+        id S1730912AbfFMIex (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:34:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 822262147A;
-        Thu, 13 Jun 2019 08:46:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F2099206E0;
+        Thu, 13 Jun 2019 08:34:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415581;
-        bh=JHD8uJsrs9qSSu80/LOyMdWaKoSA5Gpaojx5hYUmXng=;
+        s=default; t=1560414892;
+        bh=wgZYSOSAN4HOEBQQVHeUrlpqH3CZZuKEdPfnDdhlo7I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RnjuxKMZxlTg4w7q1DFrqXjOqqRxymMCtQmW4KTm0QS5KBIFYvY6OJpqiYa74qTz6
-         cvWJpskLHqK83HRLaF2ISs806+MFkloJy8ThFumoWhPw3XdXq5+reDjK2l1JpR/88+
-         D1hY5UhsSOe44aZDZ9pOD5c7v1klipk4LhI748fU=
+        b=cc6DAzC7rD1ud2RbPeErMJQWieF6SACgMsFiyHxqdyf1pPjGR+YCRjjuxdhwTh62z
+         b4hvqEalDVNuiLR60fv0ImxVal0YyRodeFybcL53nuJNNmGyHYxKwl13DsHB46+SRC
+         +KSe08WMsHk8e/cdeJg/lCuj5FPp4iTrfuEk2d0Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Hou Tao <houtao1@huawei.com>,
+        OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+        Al Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 053/155] f2fs: fix to retrieve inline xattr space
+Subject: [PATCH 4.14 02/81] fs/fat/file.c: issue flush after the writeback of FAT
 Date:   Thu, 13 Jun 2019 10:32:45 +0200
-Message-Id: <20190613075656.096163738@linuxfoundation.org>
+Message-Id: <20190613075649.252328791@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
-References: <20190613075652.691765927@linuxfoundation.org>
+In-Reply-To: <20190613075649.074682929@linuxfoundation.org>
+References: <20190613075649.074682929@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,73 +47,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 45a746881576977f85504c21a75547f10c5c0a8e ]
+[ Upstream commit bd8309de0d60838eef6fb575b0c4c7e95841cf73 ]
 
-With below mkfs and mount option, generic/339 of fstest will report that
-scratch image becomes corrupted.
+fsync() needs to make sure the data & meta-data of file are persistent
+after the return of fsync(), even when a power-failure occurs later.  In
+the case of fat-fs, the FAT belongs to the meta-data of file, so we need
+to issue a flush after the writeback of FAT instead before.
 
-MKFS_OPTIONS  -- -O extra_attr -O project_quota -O inode_checksum -O flexible_inline_xattr -O inode_crtime -f /dev/zram1
-MOUNT_OPTIONS -- -o acl,user_xattr -o discard,noinline_xattr /dev/zram1 /mnt/scratch_f2fs
+Also bail out early when any stage of fsync fails.
 
-[ASSERT] (f2fs_check_dirent_position:1315)  --> Wrong position of dirent pino:1970, name: (...)
-level:8, dir_level:0, pgofs:951, correct range:[900, 901]
-
-In old kernel, inline data and directory always reserved 200 bytes in
-inode layout, even if inline_xattr is disabled, then new kernel tries
-to retrieve that space for non-inline xattr inode, but for inline dentry,
-its layout size should be fixed, so we just keep that reserved space.
-
-But the problem here is that, after inline dentry conversion, inline
-dentry layout no longer exists, if we still reserve inline xattr space,
-after dents updates, there will be a hole in inline xattr space, which
-can break hierarchy hash directory structure.
-
-This patch fixes this issue by retrieving inline xattr space after
-inline dentry conversion.
-
-Fixes: 6afc662e68b5 ("f2fs: support flexible inline xattr size")
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Link: http://lkml.kernel.org/r/20190409030158.136316-1-houtao1@huawei.com
+Signed-off-by: Hou Tao <houtao1@huawei.com>
+Acked-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Jan Kara <jack@suse.cz>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/inline.c | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ fs/fat/file.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/fs/f2fs/inline.c b/fs/f2fs/inline.c
-index bb6a152310ef..404d2462a0fe 100644
---- a/fs/f2fs/inline.c
-+++ b/fs/f2fs/inline.c
-@@ -420,6 +420,14 @@ static int f2fs_move_inline_dirents(struct inode *dir, struct page *ipage,
- 	stat_dec_inline_dir(dir);
- 	clear_inode_flag(dir, FI_INLINE_DENTRY);
+diff --git a/fs/fat/file.c b/fs/fat/file.c
+index 4724cc9ad650..62581de09bf1 100644
+--- a/fs/fat/file.c
++++ b/fs/fat/file.c
+@@ -160,12 +160,17 @@ static int fat_file_release(struct inode *inode, struct file *filp)
+ int fat_file_fsync(struct file *filp, loff_t start, loff_t end, int datasync)
+ {
+ 	struct inode *inode = filp->f_mapping->host;
+-	int res, err;
++	int err;
++
++	err = __generic_file_fsync(filp, start, end, datasync);
++	if (err)
++		return err;
  
-+	/*
-+	 * should retrieve reserved space which was used to keep
-+	 * inline_dentry's structure for backward compatibility.
-+	 */
-+	if (!f2fs_sb_has_flexible_inline_xattr(F2FS_I_SB(dir)) &&
-+			!f2fs_has_inline_xattr(dir))
-+		F2FS_I(dir)->i_inline_xattr_size = 0;
-+
- 	f2fs_i_depth_write(dir, 1);
- 	if (i_size_read(dir) < PAGE_SIZE)
- 		f2fs_i_size_write(dir, PAGE_SIZE);
-@@ -501,6 +509,15 @@ static int f2fs_move_rehashed_dirents(struct inode *dir, struct page *ipage,
+-	res = generic_file_fsync(filp, start, end, datasync);
+ 	err = sync_mapping_buffers(MSDOS_SB(inode->i_sb)->fat_inode->i_mapping);
++	if (err)
++		return err;
  
- 	stat_dec_inline_dir(dir);
- 	clear_inode_flag(dir, FI_INLINE_DENTRY);
-+
-+	/*
-+	 * should retrieve reserved space which was used to keep
-+	 * inline_dentry's structure for backward compatibility.
-+	 */
-+	if (!f2fs_sb_has_flexible_inline_xattr(F2FS_I_SB(dir)) &&
-+			!f2fs_has_inline_xattr(dir))
-+		F2FS_I(dir)->i_inline_xattr_size = 0;
-+
- 	kvfree(backup_dentry);
- 	return 0;
- recover:
+-	return res ? res : err;
++	return blkdev_issue_flush(inode->i_sb->s_bdev, GFP_KERNEL, NULL);
+ }
+ 
+ 
 -- 
 2.20.1
 
