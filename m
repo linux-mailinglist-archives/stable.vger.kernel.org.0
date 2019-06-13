@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B702344149
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:13:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D746442C7
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:26:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2388348AbfFMQNN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:13:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60174 "EHLO mail.kernel.org"
+        id S2392164AbfFMQZO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:25:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731216AbfFMInC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:43:02 -0400
+        id S1730977AbfFMIgl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:36:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id ECD582063F;
-        Thu, 13 Jun 2019 08:43:00 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E9D6E21479;
+        Thu, 13 Jun 2019 08:36:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415381;
-        bh=OlfFuwqkusPg47NaZV4i+qxupDmk6G6+k2SfXQaRtMc=;
+        s=default; t=1560415000;
+        bh=g/FRRJPPCNqhXyggHd8GDOI6ndoEMD1BnIkosWh3KZw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WWTmjUbE9h9G1FDGlXi0LusETsZhyhGq/4RejdYfvOtW5X+BzmgLKr4Rg1wjkJxDD
-         PfKwIh538S0B1YX9tnww01DEbc4CLvFhbUL5Vz2NG1XtSFzoeMAHuAD/FqD08lT+ow
-         vvFEPtpD5uf1AvSlvt33JiXkBeQyjTqSo/SxLpKs=
+        b=bCAQDbFOJrpozP/cEjtEOWo7EuGy8ACrOI6u8TsYA1lzNI2zlDr+LOapo7b+Arvsb
+         M1mQQpQoonyzalBeQLUlUJ1wTjfSHAP5g1xy7q/aonXVKbKEu9/3H51rUb06Zk9RWm
+         bIlwrtymmWoK0Mm54zhmx7KbggdS6rDhXQvnazEk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Enrico Granata <egranata@chromium.org>,
-        Jett Rink <jettrink@chromium.org>,
-        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        Elaine Zhang <zhangqing@rock-chips.com>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 075/118] platform/chrome: cros_ec_proto: check for NULL transfer function
+Subject: [PATCH 4.14 50/81] clk: rockchip: Turn on "aclk_dmac1" for suspend on rk3288
 Date:   Thu, 13 Jun 2019 10:33:33 +0200
-Message-Id: <20190613075648.247115542@linuxfoundation.org>
+Message-Id: <20190613075652.945603002@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075643.642092651@linuxfoundation.org>
-References: <20190613075643.642092651@linuxfoundation.org>
+In-Reply-To: <20190613075649.074682929@linuxfoundation.org>
+References: <20190613075649.074682929@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,49 +45,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 94d4e7af14a1170e34cf082d92e4c02de9e9fb88 ]
+[ Upstream commit 57a20248ef3e429dc822f0774bc4e00136c46c83 ]
 
-As new transfer mechanisms are added to the EC codebase, they may
-not support v2 of the EC protocol.
+Experimentally it can be seen that going into deep sleep (specifically
+setting PMU_CLR_DMA and PMU_CLR_BUS in RK3288_PMU_PWRMODE_CON1)
+appears to fail unless "aclk_dmac1" is on.  The failure is that the
+system never signals that it made it into suspend on the GLOBAL_PWROFF
+pin and it just hangs.
 
-If the v3 initial handshake transfer fails, the kernel will try
-and call cmd_xfer as a fallback. If v2 is not supported, cmd_xfer
-will be NULL, and the code will end up causing a kernel panic.
+NOTE that it's confirmed that it's the actual suspend that fails, not
+one of the earlier calls to read/write registers.  Specifically if you
+comment out the "PMU_GLOBAL_INT_DISABLE" setting in
+rk3288_slp_mode_set() and then comment out the "cpu_do_idle()" call in
+rockchip_lpmode_enter() then you can exercise the whole suspend path
+without any crashing.
 
-Add a check for NULL before calling the transfer function, along
-with a helpful comment explaining how one might end up in this
-situation.
+This is currently not a problem with suspend upstream because there is
+no current way to exercise the deep suspend code.  However, anyone
+trying to make it work will run into this issue.
 
-Signed-off-by: Enrico Granata <egranata@chromium.org>
-Reviewed-by: Jett Rink <jettrink@chromium.org>
-Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+This was not a problem on shipping rk3288-based Chromebooks because
+those devices all ran on an old kernel based on 3.14.  On that kernel
+"aclk_dmac1" appears to be left on all the time.
+
+There are several ways to skin this problem.
+
+A) We could add "aclk_dmac1" to the list of critical clocks and that
+apperas to work, but presumably that wastes power.
+
+B) We could keep a list of "struct clk" objects to enable at suspend
+time in clk-rk3288.c and use the standard clock APIs.
+
+C) We could make the rk3288-pmu driver keep a list of clocks to enable
+at suspend time.  Presumably this would require a dts and bindings
+change.
+
+D) We could just whack the clock on in the existing syscore suspend
+function where we whack a bunch of other clocks.  This is particularly
+easy because we know for sure that the clock's only parent
+("aclk_cpu") is a critical clock so we don't need to do anything more
+than ungate it.
+
+In this case I have chosen D) because it seemed like the least work,
+but any of the other options would presumably also work fine.
+
+Signed-off-by: Douglas Anderson <dianders@chromium.org>
+Reviewed-by: Elaine Zhang <zhangqing@rock-chips.com>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/chrome/cros_ec_proto.c | 11 +++++++++++
+ drivers/clk/rockchip/clk-rk3288.c | 11 +++++++++++
  1 file changed, 11 insertions(+)
 
-diff --git a/drivers/platform/chrome/cros_ec_proto.c b/drivers/platform/chrome/cros_ec_proto.c
-index e5d5b1adb5a9..ac784ac66ac3 100644
---- a/drivers/platform/chrome/cros_ec_proto.c
-+++ b/drivers/platform/chrome/cros_ec_proto.c
-@@ -67,6 +67,17 @@ static int send_command(struct cros_ec_device *ec_dev,
- 	else
- 		xfer_fxn = ec_dev->cmd_xfer;
- 
-+	if (!xfer_fxn) {
-+		/*
-+		 * This error can happen if a communication error happened and
-+		 * the EC is trying to use protocol v2, on an underlying
-+		 * communication mechanism that does not support v2.
-+		 */
-+		dev_err_once(ec_dev->dev,
-+			     "missing EC transfer API, cannot send command\n");
-+		return -EIO;
-+	}
+diff --git a/drivers/clk/rockchip/clk-rk3288.c b/drivers/clk/rockchip/clk-rk3288.c
+index 64191694ff6e..9cfdbea493bb 100644
+--- a/drivers/clk/rockchip/clk-rk3288.c
++++ b/drivers/clk/rockchip/clk-rk3288.c
+@@ -835,6 +835,9 @@ static const int rk3288_saved_cru_reg_ids[] = {
+ 	RK3288_CLKSEL_CON(10),
+ 	RK3288_CLKSEL_CON(33),
+ 	RK3288_CLKSEL_CON(37),
 +
- 	ret = (*xfer_fxn)(ec_dev, msg);
- 	if (msg->result == EC_RES_IN_PROGRESS) {
- 		int i;
++	/* We turn aclk_dmac1 on for suspend; this will restore it */
++	RK3288_CLKGATE_CON(10),
+ };
+ 
+ static u32 rk3288_saved_cru_regs[ARRAY_SIZE(rk3288_saved_cru_reg_ids)];
+@@ -850,6 +853,14 @@ static int rk3288_clk_suspend(void)
+ 				readl_relaxed(rk3288_cru_base + reg_id);
+ 	}
+ 
++	/*
++	 * Going into deep sleep (specifically setting PMU_CLR_DMA in
++	 * RK3288_PMU_PWRMODE_CON1) appears to fail unless
++	 * "aclk_dmac1" is on.
++	 */
++	writel_relaxed(1 << (12 + 16),
++		       rk3288_cru_base + RK3288_CLKGATE_CON(10));
++
+ 	/*
+ 	 * Switch PLLs other than DPLL (for SDRAM) to slow mode to
+ 	 * avoid crashes on resume. The Mask ROM on the system will
 -- 
 2.20.1
 
