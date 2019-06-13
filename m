@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D147B44348
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:30:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 538884400C
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:02:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1733169AbfFMQ2X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:28:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53558 "EHLO mail.kernel.org"
+        id S1731406AbfFMQCf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:02:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35940 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730951AbfFMIf5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:35:57 -0400
+        id S1731404AbfFMIru (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:47:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B5B2B20851;
-        Thu, 13 Jun 2019 08:35:56 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id F1051206BA;
+        Thu, 13 Jun 2019 08:47:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560414957;
-        bh=KTYwFNXC65erFkC52u6lAn4MC/MEmY1aflFaJEosUxI=;
+        s=default; t=1560415669;
+        bh=wxsC2Sqqr9JhCsUroZoSPwPTxcPD/QR0oQmnP/rs/0M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fAFxCcGWNLnJX0dqQaGwIE/2WCGUbHJGYUHlwWI5F2kx9/gv1LXB/tLKV+kIbCULP
-         PY7zIJUyF79l1fc5H5SzXsaAyNvXBMpX5IJ+T2T+rVN7ZCkJW1TyMRqZDZ+dWYgG8B
-         Cwcg1wUDnPdkNsr4n2bBTKwA9S33/jCs/4+kOFy0=
+        b=2SehRWT9iGGKKVPGG0orH7w5N/aa+HHceM9MuJ0XMAIBg/MyN1+vJkFg5TWlJbM8T
+         sGhOu7RvhrOGMc2SXPklg8kxzWEwlptMIDvyPuYHXrdXt21G4tqvD0ea7QjnD1cx9X
+         oF8lwY/NYjhZPBfg8DkZVaNwML8bzK5mEbKoeQLc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ludovic Barre <ludovic.barre@st.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
+        Maxime Ripard <maxime.ripard@bootlin.com>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 33/81] mmc: mmci: Prevent polling for busy detection in IRQ context
+Subject: [PATCH 5.1 084/155] nvmem: sunxi_sid: Support SID on A83T and H5
 Date:   Thu, 13 Jun 2019 10:33:16 +0200
-Message-Id: <20190613075651.591963361@linuxfoundation.org>
+Message-Id: <20190613075657.776381915@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075649.074682929@linuxfoundation.org>
-References: <20190613075649.074682929@linuxfoundation.org>
+In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
+References: <20190613075652.691765927@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,42 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 8520ce1e17799b220ff421d4f39438c9c572ade3 ]
+[ Upstream commit da75b8909756160b8e785104ba421a20b756c975 ]
 
-The IRQ handler, mmci_irq(), loops until all status bits have been cleared.
-However, the status bit signaling busy in variant->busy_detect_flag, may be
-set even if busy detection isn't monitored for the current request.
+The device tree binding already lists compatible strings for these two
+SoCs. They don't have the defect as seen on the H3, and the size and
+register layout is the same as the A64. Furthermore, the driver does
+not include nvmem cell definitions.
 
-This may be the case for the CMD11 when switching the I/O voltage, which
-leads to that mmci_irq() busy loops in IRQ context. Fix this problem, by
-clearing the status bit for busy, before continuing to validate the
-condition for the loop. This is safe, because the busy status detection has
-already been taken care of by mmci_cmd_irq().
+Add support for these two compatible strings, re-using the config for
+the A64.
 
-Signed-off-by: Ludovic Barre <ludovic.barre@st.com>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Chen-Yu Tsai <wens@csie.org>
+Acked-by: Maxime Ripard <maxime.ripard@bootlin.com>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/mmci.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/nvmem/sunxi_sid.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/mmc/host/mmci.c b/drivers/mmc/host/mmci.c
-index f1f54a818489..77f18729ee96 100644
---- a/drivers/mmc/host/mmci.c
-+++ b/drivers/mmc/host/mmci.c
-@@ -1320,9 +1320,10 @@ static irqreturn_t mmci_irq(int irq, void *dev_id)
- 		}
- 
- 		/*
--		 * Don't poll for busy completion in irq context.
-+		 * Busy detection has been handled by mmci_cmd_irq() above.
-+		 * Clear the status bit to prevent polling in IRQ context.
- 		 */
--		if (host->variant->busy_detect && host->busy_status)
-+		if (host->variant->busy_detect_flag)
- 			status &= ~host->variant->busy_detect_flag;
- 
- 		ret = 1;
+diff --git a/drivers/nvmem/sunxi_sid.c b/drivers/nvmem/sunxi_sid.c
+index 570a2e354f30..ef3d776bb16e 100644
+--- a/drivers/nvmem/sunxi_sid.c
++++ b/drivers/nvmem/sunxi_sid.c
+@@ -222,8 +222,10 @@ static const struct sunxi_sid_cfg sun50i_a64_cfg = {
+ static const struct of_device_id sunxi_sid_of_match[] = {
+ 	{ .compatible = "allwinner,sun4i-a10-sid", .data = &sun4i_a10_cfg },
+ 	{ .compatible = "allwinner,sun7i-a20-sid", .data = &sun7i_a20_cfg },
++	{ .compatible = "allwinner,sun8i-a83t-sid", .data = &sun50i_a64_cfg },
+ 	{ .compatible = "allwinner,sun8i-h3-sid", .data = &sun8i_h3_cfg },
+ 	{ .compatible = "allwinner,sun50i-a64-sid", .data = &sun50i_a64_cfg },
++	{ .compatible = "allwinner,sun50i-h5-sid", .data = &sun50i_a64_cfg },
+ 	{/* sentinel */},
+ };
+ MODULE_DEVICE_TABLE(of, sunxi_sid_of_match);
 -- 
 2.20.1
 
