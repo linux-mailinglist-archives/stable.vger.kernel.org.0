@@ -2,45 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8950C44270
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:22:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FC7843F9C
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 17:59:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731050AbfFMQWY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:22:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55804 "EHLO mail.kernel.org"
+        id S2389918AbfFMP6t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 11:58:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731044AbfFMIiV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:38:21 -0400
+        id S1731490AbfFMIuD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:50:03 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9753C20851;
-        Thu, 13 Jun 2019 08:38:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 918E3206BA;
+        Thu, 13 Jun 2019 08:50:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415100;
-        bh=/dHQldAbdnJrEc/3h2mQBWWH8i0MIkcdA6tz/exW4CM=;
+        s=default; t=1560415803;
+        bh=ZPH16qG/Ca5t+j0juJTeNqQ9wDqZdh+nyOxINpzAyb4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1G0Yzyu3vJKqSIMMDs3JXBuqnzrF2Occn2TEJmyu7HejTIvI11l5DQ4jigxk9s5FA
-         SMjgsyaoQNLseClYS4qG+W63+lu9LE1Q5akwe02iDkCp1Yb9qU9qa5uwyOFGI17zrA
-         X1bovhQUcFprs9v/ZkK/jST+hCwWMuYvMyuYYBZ8=
+        b=mpLuf2e9Gy74WOJUI6CVpfzXIsHjUOE26ypSv/R6Z/bKzs3rrjwRU3ahOK7bcfHV+
+         Dw035WfQqrmSrw85U83Dfh71HiOFNeYQTo8YvVpOmPChEbXn/OmqwYYJ8n7Nn15PhJ
+         YIAWAsIYwQuSE1r+gwm9xfynR4IwZM0hNY3Gtgic=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aaro Koskinen <aaro.koskinen@iki.fi>,
-        Grygorii Strashko <grygorii.strashko@ti.com>,
-        Keerthy <j-keerthy@ti.com>,
-        Peter Ujfalusi <peter.ujfalusi@ti.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Tero Kristo <t-kristo@ti.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+        stable@vger.kernel.org, Alexander Kurz <akurz@blala.de>,
+        Sven Van Asbroeck <TheSven73@gmail.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 70/81] gpio: gpio-omap: add check for off wake capable gpios
+Subject: [PATCH 5.1 121/155] power: supply: max14656: fix potential use-before-alloc
 Date:   Thu, 13 Jun 2019 10:33:53 +0200
-Message-Id: <20190613075654.106758634@linuxfoundation.org>
+Message-Id: <20190613075659.634549717@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075649.074682929@linuxfoundation.org>
-References: <20190613075649.074682929@linuxfoundation.org>
+In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
+References: <20190613075652.691765927@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,80 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit da38ef3ed10a09248e13ae16530c2c6d448dc47d ]
+[ Upstream commit 0cd0e49711556d2331a06b1117b68dd786cb54d2 ]
 
-We are currently assuming all GPIOs are non-wakeup capable GPIOs as we
-not configuring the bank->non_wakeup_gpios like we used to earlier with
-platform_data.
+Call order on probe():
+- max14656_hw_init() enables interrupts on the chip
+- devm_request_irq() starts processing interrupts, isr
+  could be called immediately
+-    isr: schedules delayed work (irq_work)
+-    irq_work: calls power_supply_changed()
+- devm_power_supply_register() registers the power supply
 
-Let's add omap_gpio_is_off_wakeup_capable() to make the handling clearer
-while considering that later patches may want to configure SoC specific
-bank->non_wakeup_gpios for the GPIOs in wakeup domain.
+Depending on timing, it's possible that power_supply_changed()
+is called on an unregistered power supply structure.
 
-Cc: Aaro Koskinen <aaro.koskinen@iki.fi>
-Cc: Grygorii Strashko <grygorii.strashko@ti.com>
-Cc: Keerthy <j-keerthy@ti.com>
-Cc: Peter Ujfalusi <peter.ujfalusi@ti.com>
-Cc: Russell King <rmk+kernel@armlinux.org.uk>
-Cc: Tero Kristo <t-kristo@ti.com>
-Reported-by: Grygorii Strashko <grygorii.strashko@ti.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Fix by registering the power supply before requesting the irq.
+
+Cc: Alexander Kurz <akurz@blala.de>
+Signed-off-by: Sven Van Asbroeck <TheSven73@gmail.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpio-omap.c | 25 +++++++++++++++++--------
- 1 file changed, 17 insertions(+), 8 deletions(-)
+ drivers/power/supply/max14656_charger_detector.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/gpio/gpio-omap.c b/drivers/gpio/gpio-omap.c
-index 148e81eea35a..83c6843db50c 100644
---- a/drivers/gpio/gpio-omap.c
-+++ b/drivers/gpio/gpio-omap.c
-@@ -296,6 +296,22 @@ static void omap_clear_gpio_debounce(struct gpio_bank *bank, unsigned offset)
- 	}
- }
+diff --git a/drivers/power/supply/max14656_charger_detector.c b/drivers/power/supply/max14656_charger_detector.c
+index b91b1d2999dc..d19307f791c6 100644
+--- a/drivers/power/supply/max14656_charger_detector.c
++++ b/drivers/power/supply/max14656_charger_detector.c
+@@ -280,6 +280,13 @@ static int max14656_probe(struct i2c_client *client,
  
-+/*
-+ * Off mode wake-up capable GPIOs in bank(s) that are in the wakeup domain.
-+ * See TRM section for GPIO for "Wake-Up Generation" for the list of GPIOs
-+ * in wakeup domain. If bank->non_wakeup_gpios is not configured, assume none
-+ * are capable waking up the system from off mode.
-+ */
-+static bool omap_gpio_is_off_wakeup_capable(struct gpio_bank *bank, u32 gpio_mask)
-+{
-+	u32 no_wake = bank->non_wakeup_gpios;
-+
-+	if (no_wake)
-+		return !!(~no_wake & gpio_mask);
-+
-+	return false;
-+}
-+
- static inline void omap_set_gpio_trigger(struct gpio_bank *bank, int gpio,
- 						unsigned trigger)
- {
-@@ -327,13 +343,7 @@ static inline void omap_set_gpio_trigger(struct gpio_bank *bank, int gpio,
- 	}
+ 	INIT_DELAYED_WORK(&chip->irq_work, max14656_irq_worker);
  
- 	/* This part needs to be executed always for OMAP{34xx, 44xx} */
--	if (!bank->regs->irqctrl) {
--		/* On omap24xx proceed only when valid GPIO bit is set */
--		if (bank->non_wakeup_gpios) {
--			if (!(bank->non_wakeup_gpios & gpio_bit))
--				goto exit;
--		}
++	chip->detect_psy = devm_power_supply_register(dev,
++		       &chip->psy_desc, &psy_cfg);
++	if (IS_ERR(chip->detect_psy)) {
++		dev_err(dev, "power_supply_register failed\n");
++		return -EINVAL;
++	}
++
+ 	ret = devm_request_irq(dev, chip->irq, max14656_irq,
+ 			       IRQF_TRIGGER_FALLING,
+ 			       MAX14656_NAME, chip);
+@@ -289,13 +296,6 @@ static int max14656_probe(struct i2c_client *client,
+ 	}
+ 	enable_irq_wake(chip->irq);
+ 
+-	chip->detect_psy = devm_power_supply_register(dev,
+-		       &chip->psy_desc, &psy_cfg);
+-	if (IS_ERR(chip->detect_psy)) {
+-		dev_err(dev, "power_supply_register failed\n");
+-		return -EINVAL;
+-	}
 -
-+	if (!bank->regs->irqctrl && !omap_gpio_is_off_wakeup_capable(bank, gpio)) {
- 		/*
- 		 * Log the edge gpio and manually trigger the IRQ
- 		 * after resume if the input level changes
-@@ -346,7 +356,6 @@ static inline void omap_set_gpio_trigger(struct gpio_bank *bank, int gpio,
- 			bank->enabled_non_wakeup_gpios &= ~gpio_bit;
- 	}
+ 	schedule_delayed_work(&chip->irq_work, msecs_to_jiffies(2000));
  
--exit:
- 	bank->level_mask =
- 		readl_relaxed(bank->base + bank->regs->leveldetect0) |
- 		readl_relaxed(bank->base + bank->regs->leveldetect1);
+ 	return 0;
 -- 
 2.20.1
 
