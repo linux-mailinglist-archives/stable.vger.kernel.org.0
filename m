@@ -2,46 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 873E0442D9
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:26:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B26A9441A7
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:16:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731018AbfFMQ0Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:26:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53908 "EHLO mail.kernel.org"
+        id S1731164AbfFMQP4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:15:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58796 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730966AbfFMIgY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:36:24 -0400
+        id S1731161AbfFMIlg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:41:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A3B2E21473;
-        Thu, 13 Jun 2019 08:36:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id ABFCF21479;
+        Thu, 13 Jun 2019 08:41:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560414983;
-        bh=JKOHjBpOtx5n8/pGbfgwP7plmKVezCRmbrMqW0XftzI=;
+        s=default; t=1560415296;
+        bh=C2G3XBftqxJ6JBS2JDLGHyQjkxPa8jx8MU6U5riIo/8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t40RP2/vijdjQEf1gReLvberDa7E1+9MqmI185sKCiW40BNL+oqbhgc5+YGVnTdgw
-         84MHVcdTm50xaC/Rvh2x/wM5YpsXqeg1blM6wXLncF9To7HmnQitAvVsCc9O1+2MWF
-         54UX080CVCHZkKqgoyFYpL1++dobnZbTJrW/9Ho4=
+        b=grdQjcGNX7JixlZd0PrH8YQLOJBNpp/3v7EHlV/gXvG8vALCgnvt2/R2W2g2+tTJY
+         dj8cTUXmfuK6Wnb0Ie3vrBJD+V9RwXxKWbdOeoMtA+9RSiwbm79DM0Xez6wx7d8Q1h
+         C/E7RkjKEJVJeDiZbU80EU8ywLWukKte9CQSqNrY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yue Hu <huyue2@yulong.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Mike Rapoport <rppt@linux.vnet.ibm.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Laura Abbott <labbott@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 10/81] mm/cma.c: fix the bitmap status to show failed allocation reason
+Subject: [PATCH 4.19 035/118] f2fs: fix to avoid panic in f2fs_remove_inode_page()
 Date:   Thu, 13 Jun 2019 10:32:53 +0200
-Message-Id: <20190613075649.824987090@linuxfoundation.org>
+Message-Id: <20190613075645.564896849@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075649.074682929@linuxfoundation.org>
-References: <20190613075649.074682929@linuxfoundation.org>
+In-Reply-To: <20190613075643.642092651@linuxfoundation.org>
+References: <20190613075643.642092651@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,83 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2b59e01a3aa665f751d1410b99fae9336bd424e1 ]
+[ Upstream commit 8b6810f8acfe429fde7c7dad4714692cc5f75651 ]
 
-Currently one bit in cma bitmap represents number of pages rather than
-one page, cma->count means cma size in pages. So to find available pages
-via find_next_zero_bit()/find_next_bit() we should use cma size not in
-pages but in bits although current free pages number is correct due to
-zero value of order_per_bit. Once order_per_bit is changed the bitmap
-status will be incorrect.
+As Jungyeon reported in bugzilla:
 
-The size input in cma_debug_show_areas() is not correct.  It will
-affect the available pages at some position to debug the failure issue.
+https://bugzilla.kernel.org/show_bug.cgi?id=203219
 
-This is an example with order_per_bit = 1
+- Overview
+When mounting the attached crafted image and running program, I got this error.
+Additionally, it hangs on sync after running the program.
 
-Before this change:
-[    4.120060] cma: number of available pages: 1@93+4@108+7@121+7@137+7@153+7@169+7@185+7@201+3@213+3@221+3@229+3@237+3@245+3@253+3@261+3@269+3@277+3@285+3@293+3@301+3@309+3@317+3@325+19@333+15@369+512@512=> 638 free of 1024 total pages
+The image is intentionally fuzzed from a normal f2fs image for testing and I enabled option CONFIG_F2FS_CHECK_FS on.
 
-After this change:
-[    4.143234] cma: number of available pages: 2@93+8@108+14@121+14@137+14@153+14@169+14@185+14@201+6@213+6@221+6@229+6@237+6@245+6@253+6@261+6@269+6@277+6@285+6@293+6@301+6@309+6@317+6@325+38@333+30@369=> 252 free of 1024 total pages
+- Reproduces
+cc poc_06.c
+mkdir test
+mount -t f2fs tmp.img test
+cp a.out test
+cd test
+sudo ./a.out
+sync
 
-Obviously the bitmap status before is incorrect.
+- Messages
+ kernel BUG at fs/f2fs/node.c:1183!
+ RIP: 0010:f2fs_remove_inode_page+0x294/0x2d0
+ Call Trace:
+  f2fs_evict_inode+0x2a3/0x3a0
+  evict+0xba/0x180
+  __dentry_kill+0xbe/0x160
+  dentry_kill+0x46/0x180
+  dput+0xbb/0x100
+  do_renameat2+0x3c9/0x550
+  __x64_sys_rename+0x17/0x20
+  do_syscall_64+0x43/0xf0
+  entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Link: http://lkml.kernel.org/r/20190320060829.9144-1-zbestahu@gmail.com
-Signed-off-by: Yue Hu <huyue2@yulong.com>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
-Cc: Randy Dunlap <rdunlap@infradead.org>
-Cc: Laura Abbott <labbott@redhat.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+The reason is f2fs_remove_inode_page() will trigger kernel panic due to
+inconsistent i_blocks value of inode.
+
+To avoid panic, let's just print debug message and set SBI_NEED_FSCK to
+give a hint to fsck for latter repairing of potential image corruption.
+
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
+[Jaegeuk Kim: fix build warning and add unlikely]
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/cma.c | 19 +++++++++++--------
- 1 file changed, 11 insertions(+), 8 deletions(-)
+ fs/f2fs/node.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/mm/cma.c b/mm/cma.c
-index cba4fe1b284c..56761e40d191 100644
---- a/mm/cma.c
-+++ b/mm/cma.c
-@@ -366,23 +366,26 @@ err:
- #ifdef CONFIG_CMA_DEBUG
- static void cma_debug_show_areas(struct cma *cma)
- {
--	unsigned long next_zero_bit, next_set_bit;
-+	unsigned long next_zero_bit, next_set_bit, nr_zero;
- 	unsigned long start = 0;
--	unsigned int nr_zero, nr_total = 0;
-+	unsigned long nr_part, nr_total = 0;
-+	unsigned long nbits = cma_bitmap_maxno(cma);
- 
- 	mutex_lock(&cma->lock);
- 	pr_info("number of available pages: ");
- 	for (;;) {
--		next_zero_bit = find_next_zero_bit(cma->bitmap, cma->count, start);
--		if (next_zero_bit >= cma->count)
-+		next_zero_bit = find_next_zero_bit(cma->bitmap, nbits, start);
-+		if (next_zero_bit >= nbits)
- 			break;
--		next_set_bit = find_next_bit(cma->bitmap, cma->count, next_zero_bit);
-+		next_set_bit = find_next_bit(cma->bitmap, nbits, next_zero_bit);
- 		nr_zero = next_set_bit - next_zero_bit;
--		pr_cont("%s%u@%lu", nr_total ? "+" : "", nr_zero, next_zero_bit);
--		nr_total += nr_zero;
-+		nr_part = nr_zero << cma->order_per_bit;
-+		pr_cont("%s%lu@%lu", nr_total ? "+" : "", nr_part,
-+			next_zero_bit);
-+		nr_total += nr_part;
- 		start = next_zero_bit + nr_zero;
+diff --git a/fs/f2fs/node.c b/fs/f2fs/node.c
+index 19a0d83aae65..807a77518a49 100644
+--- a/fs/f2fs/node.c
++++ b/fs/f2fs/node.c
+@@ -1180,8 +1180,14 @@ int f2fs_remove_inode_page(struct inode *inode)
+ 		f2fs_put_dnode(&dn);
+ 		return -EIO;
  	}
--	pr_cont("=> %u free of %lu total pages\n", nr_total, cma->count);
-+	pr_cont("=> %lu free of %lu total pages\n", nr_total, cma->count);
- 	mutex_unlock(&cma->lock);
- }
- #else
+-	f2fs_bug_on(F2FS_I_SB(inode),
+-			inode->i_blocks != 0 && inode->i_blocks != 8);
++
++	if (unlikely(inode->i_blocks != 0 && inode->i_blocks != 8)) {
++		f2fs_msg(F2FS_I_SB(inode)->sb, KERN_WARNING,
++			"Inconsistent i_blocks, ino:%lu, iblocks:%llu",
++			inode->i_ino,
++			(unsigned long long)inode->i_blocks);
++		set_sbi_flag(F2FS_I_SB(inode), SBI_NEED_FSCK);
++	}
+ 
+ 	/* will put inode & node pages */
+ 	err = truncate_node(&dn);
 -- 
 2.20.1
 
