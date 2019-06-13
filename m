@@ -2,85 +2,151 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 75310445BC
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:46:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EAE5445A6
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:45:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730310AbfFMQqT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:46:19 -0400
-Received: from mail-ua1-f66.google.com ([209.85.222.66]:38214 "EHLO
-        mail-ua1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730309AbfFMFee (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Jun 2019 01:34:34 -0400
-Received: by mail-ua1-f66.google.com with SMTP id j2so6849180uaq.5
-        for <stable@vger.kernel.org>; Wed, 12 Jun 2019 22:34:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:sender:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=rxGwl9brbbzNCTzS3nb+kHgPol3S82HiUdfpZte44UA=;
-        b=E2/U4d32qQOfM5zbvPkPG/XG5WkGxX2EmjQu8xFGY/eYUdWrbyOdh20Q9DbZ2e6xYX
-         Lgl+qohI//3veBkDReLp14GkGfMgbvr+OjtqfF0VmYFUbomjwbUcVowUQ2gT+ejXGzEw
-         IHk1nlRSOHw69IV71xhxJ63bvCeVqG+iAXV9qepoToW5Hp2NwY8kWpCuozP7S6Y52+iS
-         cSKvHs42EqtFAkzZPkH0Paz7UTzUTHcQrYPb8UozvhKjjfM2Llz4oJF5idWD4BmMos4e
-         O9IGW/lZW/KXaPVFbUXWE8qbamxjhSp1huAVC3LR63l5TXaDfG8heMa0TQ7xJQ5bmqZk
-         vBcA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:sender:from:date
-         :message-id:subject:to:content-transfer-encoding;
-        bh=rxGwl9brbbzNCTzS3nb+kHgPol3S82HiUdfpZte44UA=;
-        b=KtwKytIaRpAKVYuHoaknSN+JtKzEDkKPSNSGVB4KEW1XdlxfOH7y+uGFM4t1IvK4W0
-         Jqv3d3+wrcFdgjyLwYS+VxT8t06S1g0z+kVkufAZcYptcdAyvNo7kYbd9pyH5+Le+Lw3
-         lB/5Vszjpzr6sLkYx46OR+onWh3z4FauhQXt08xK+klw5Oj38UpYO8fxddnCdr1vEP9C
-         XtetHkez5XbNtvl3oLbc+7mKIJQPimzlNuKVg8k6imsVteieDFCWjJ6RBl2HrTq8Ukzw
-         nQYiYUBNFXNT9m6j2T9EIjM+iEk+pJdqfu1aQzbNmz3vThLuorDTCOnn48okn2+N1Viy
-         qmkA==
-X-Gm-Message-State: APjAAAX82Nk62T80KacvCGk4XtotbEQB014hUpwZ3ECwZKzdrassSAOd
-        KJE36D5BeWyaZrLxwXt6lzUqVVeFvSu/ctteA6c=
-X-Google-Smtp-Source: APXvYqwELHk8XcBBa1kCRVBDGNdIRpML8EcZ6K1cZDzIySD5KSC1nF4oNYs0y4Inv6gewTLLE3JYL3yQ0JaOhdSz6K4=
-X-Received: by 2002:ab0:2bc6:: with SMTP id s6mr7763208uar.86.1560404073210;
- Wed, 12 Jun 2019 22:34:33 -0700 (PDT)
+        id S2392618AbfFMQp0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:45:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54230 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1730370AbfFMGCI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 02:02:08 -0400
+Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 2075220896;
+        Thu, 13 Jun 2019 06:02:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1560405726;
+        bh=TXtG/kXxwoMwfJBQteqaS2UMIYCH5nRvTGbOqKyX0sI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Ty+bxaddMpURmOU3MOKTA0CE15kFYaX1d8Sgb2tvh2k8dT0S99hDihB3yk78N0LvD
+         yoy5OS4vp5RZT8LV8W4gFaNu+e3uUB7uWy99g429klyYh4Wf3DQDlKx05waunqBA3G
+         QwaSMR5S7z7gfHIBsthY0RR5J/QmUbCKMQrQvMBc=
+Date:   Thu, 13 Jun 2019 08:02:03 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     "Srivatsa S. Bhat" <srivatsa@csail.mit.edu>
+Cc:     Jan Kara <jack@suse.cz>, Paolo Valente <paolo.valente@linaro.org>,
+        linux-fsdevel@vger.kernel.org,
+        linux-block <linux-block@vger.kernel.org>,
+        linux-ext4@vger.kernel.org, cgroups@vger.kernel.org,
+        kernel list <linux-kernel@vger.kernel.org>,
+        Jens Axboe <axboe@kernel.dk>, Jeff Moyer <jmoyer@redhat.com>,
+        Theodore Ts'o <tytso@mit.edu>, amakhalov@vmware.com,
+        anishs@vmware.com, srivatsab@vmware.com,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Stable <stable@vger.kernel.org>
+Subject: Re: CFQ idling kills I/O performance on ext4 with blkio cgroup
+ controller
+Message-ID: <20190613060203.GA25205@kroah.com>
+References: <a04368ba-f1d5-8f2c-1279-a685a137d024@csail.mit.edu>
+ <E270AD92-943E-4529-8158-AB480D6D9DF8@linaro.org>
+ <5b71028c-72f0-73dd-0cd5-f28ff298a0a3@csail.mit.edu>
+ <FFA44D26-75FF-4A8E-A331-495349BE5FFC@linaro.org>
+ <0d6e3c02-1952-2177-02d7-10ebeb133940@csail.mit.edu>
+ <7B74A790-BD98-412B-ADAB-3B513FB1944E@linaro.org>
+ <6a6f4aa4-fc95-f132-55b2-224ff52bd2d8@csail.mit.edu>
+ <7c5e9d11-4a3d-7df4-c1e6-7c95919522ab@csail.mit.edu>
+ <20190612130446.GD14578@quack2.suse.cz>
+ <dd32ed59-a543-fc76-9a9a-2462f0119270@csail.mit.edu>
 MIME-Version: 1.0
-Reply-To: zongok96@gmail.com
-Received: by 2002:ab0:4602:0:0:0:0:0 with HTTP; Wed, 12 Jun 2019 22:34:32
- -0700 (PDT)
-From:   "Mr. Karim Zongo" <kzongo210@gmail.com>
-Date:   Thu, 13 Jun 2019 07:34:32 +0200
-X-Google-Sender-Auth: MgpIViHQf2eGWXBtGRrj7rdp0oo
-Message-ID: <CAPs1NftEbCeWgOL1Jij4C9VgrHx6ugox125tB+RhT7fgq094og@mail.gmail.com>
-Subject: PLEASE THIS IS VERY URGENT.
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <dd32ed59-a543-fc76-9a9a-2462f0119270@csail.mit.edu>
+User-Agent: Mutt/1.12.0 (2019-05-25)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Compliment of the day,
+On Wed, Jun 12, 2019 at 12:36:53PM -0700, Srivatsa S. Bhat wrote:
+> 
+> [ Adding Greg to CC ]
+> 
+> On 6/12/19 6:04 AM, Jan Kara wrote:
+> > On Tue 11-06-19 15:34:48, Srivatsa S. Bhat wrote:
+> >> On 6/2/19 12:04 AM, Srivatsa S. Bhat wrote:
+> >>> On 5/30/19 3:45 AM, Paolo Valente wrote:
+> >>>>
+> >> [...]
+> >>>> At any rate, since you pointed out that you are interested in
+> >>>> out-of-the-box performance, let me complete the context: in case
+> >>>> low_latency is left set, one gets, in return for this 12% loss,
+> >>>> a) at least 1000% higher responsiveness, e.g., 1000% lower start-up
+> >>>> times of applications under load [1];
+> >>>> b) 500-1000% higher throughput in multi-client server workloads, as I
+> >>>> already pointed out [2].
+> >>>>
+> >>>
+> >>> I'm very happy that you could solve the problem without having to
+> >>> compromise on any of the performance characteristics/features of BFQ!
+> >>>
+> >>>
+> >>>> I'm going to prepare complete patches.  In addition, if ok for you,
+> >>>> I'll report these results on the bug you created.  Then I guess we can
+> >>>> close it.
+> >>>>
+> >>>
+> >>> Sounds great!
+> >>>
+> >>
+> >> Hi Paolo,
+> >>
+> >> Hope you are doing great!
+> >>
+> >> I was wondering if you got a chance to post these patches to LKML for
+> >> review and inclusion... (No hurry, of course!)
+> >>
+> >> Also, since your fixes address the performance issues in BFQ, do you
+> >> have any thoughts on whether they can be adapted to CFQ as well, to
+> >> benefit the older stable kernels that still support CFQ?
+> > 
+> > Since CFQ doesn't exist in current upstream kernel anymore, I seriously
+> > doubt you'll be able to get any performance improvements for it in the
+> > stable kernels...
+> > 
+> 
+> I suspected as much, but that seems unfortunate though. The latest LTS
+> kernel is based on 4.19, which still supports CFQ. It would have been
+> great to have a process to address significant issues on older
+> kernels too.
+> 
+> Greg, do you have any thoughts on this? The context is that both CFQ
+> and BFQ I/O schedulers have issues that cause I/O throughput to suffer
+> upto 10x - 30x on certain workloads and system configurations, as
+> reported in [1].
+> 
+> In this thread, Paolo posted patches to fix BFQ performance on
+> mainline. However CFQ suffers from the same performance collapse, but
+> CFQ was removed from the kernel in v5.0. So obviously the usual stable
+> backporting path won't work here for several reasons:
+> 
+>   1. There won't be a mainline commit to backport from, as CFQ no
+>      longer exists in mainline.
+> 
+>   2. This is not a security/stability fix, and is likely to involve
+>      invasive changes.
+> 
+> I was wondering if there was a way to address the performance issues
+> in CFQ in the older stable kernels (including the latest LTS 4.19),
+> despite the above constraints, since the performance drop is much too
+> significant. I guess not, but thought I'd ask :-)
 
-I am Mr. Karim Zongo Have a Business Proposal of $5.3 million For You.
-I am aware of the unsafe nature of the internet, and was compelled to
-use this medium due to the nature of this project.
+If someone cares about something like this, then I strongly just
+recommend they move to the latest kernel version.  There should not be
+anything stoping them from doing that, right?  Nothing "forces" anyone
+to be on the 4.19.y release, especially when it really starts to show
+its age.
 
-I have access to very vital information that can be used to transfer
-this huge amount of money, which may culminate into the investment of
-the said funds into your company or any lucrative venture in your
-country.
+Don't ever treat the LTS releases as "the only thing someone can run, so
+we must backport huge things to it!"  Just use 5.1, and then move to 5.2
+when it is out and so on.  That's always the preferred way, you always
+get better support, faster kernels, newer features, better hardware
+support, and most importantly, more bugfixes.
 
-If you will like to assist me as a partner then indicate your
-interest, after which we shall both discuss the modalities and the
-sharing percentage.
+I wrote a whole essay on this thing, but no one ever seems to read it...
 
-Upon receipt of your reply on your expression of Interest I will give
-you full details,
-on how the business will be executed I am open for negotiation. You
-should forward your reply to this private email id
-(zongok96@gmail.com) Thanks for your anticipated cooperation.
+thanks,
 
-Note you might receive this message in your inbox or spam or junk
-folder, depends on your web host or server network.
-
-Thanks=E2=80=99
-Best Regards
-Mr. Karim Zongo
+greg k-h
