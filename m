@@ -2,46 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4288544379
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:30:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 869884421E
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:20:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731802AbfFMQ3t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:29:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52908 "EHLO mail.kernel.org"
+        id S2391883AbfFMQTf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:19:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57262 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730920AbfFMIfK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:35:10 -0400
+        id S1731091AbfFMIjs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:39:48 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 3C54A2146F;
-        Thu, 13 Jun 2019 08:35:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8512A215EA;
+        Thu, 13 Jun 2019 08:39:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560414908;
-        bh=k4KIIKBmTdJpZsgj98E2YxWt84jw6FsN7REwjULm4SA=;
+        s=default; t=1560415188;
+        bh=Ry5kG4LSs4ruJ5FzBDwBjnPwQQIugtZ+8jpOlOMdvQs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tFdyArpRYQr9yC3OV6oXdloKjXlGYd96B94rjoM1nSUiGY7SlNtusGHMd5Eb3KpaH
-         /3WPhFK5MEZe9yAhHj0EK6DwKwsUc9TRnhY4RrlPgQYHOpJF98f21UYkuPiRvPPJMR
-         W2Xy6EW+FIlgg/XqgJGvfM8vnCRFJuPO/1X1COh4=
+        b=KUxaPnMm9DkmT6BK7/BN0XiQKzJxYToYyYDVSerjWjUoK/egtD3aRcwNLO0eoSeMp
+         1NDqYYwElO4mIBioPtoRFINBrb9efZgVujK6vjvleprEeNxeyDWxTssUjTYk7Fgxok
+         NaXfyYVnfIDoTZEvjJ6zW0gNROUBczf1h4kwuMp4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linxu Fang <fanglinxu@huawei.com>,
-        Taku Izumi <izumi.taku@jp.fujitsu.com>,
-        Xishi Qiu <qiuxishi@huawei.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Pavel Tatashin <pavel.tatashin@microsoft.com>,
-        Oscar Salvador <osalvador@suse.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 08/81] mem-hotplug: fix node spanned pages when we have a node with only ZONE_MOVABLE
-Date:   Thu, 13 Jun 2019 10:32:51 +0200
-Message-Id: <20190613075649.663475244@linuxfoundation.org>
+Subject: [PATCH 4.19 034/118] f2fs: fix to avoid panic in f2fs_inplace_write_data()
+Date:   Thu, 13 Jun 2019 10:32:52 +0200
+Message-Id: <20190613075645.482628218@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075649.074682929@linuxfoundation.org>
-References: <20190613075649.074682929@linuxfoundation.org>
+In-Reply-To: <20190613075643.642092651@linuxfoundation.org>
+References: <20190613075643.642092651@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,109 +44,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 299c83dce9ea3a79bb4b5511d2cb996b6b8e5111 ]
+[ Upstream commit 05573d6ccf702df549a7bdeabef31e4753df1a90 ]
 
-342332e6a925 ("mm/page_alloc.c: introduce kernelcore=mirror option") and
-later patches rewrote the calculation of node spanned pages.
+As Jungyeon reported in bugzilla:
 
-e506b99696a2 ("mem-hotplug: fix node spanned pages when we have a movable
-node"), but the current code still has problems,
+https://bugzilla.kernel.org/show_bug.cgi?id=203239
 
-When we have a node with only zone_movable and the node id is not zero,
-the size of node spanned pages is double added.
+- Overview
+When mounting the attached crafted image and running program, following errors are reported.
+Additionally, it hangs on sync after running program.
 
-That's because we have an empty normal zone, and zone_start_pfn or
-zone_end_pfn is not between arch_zone_lowest_possible_pfn and
-arch_zone_highest_possible_pfn, so we need to use clamp to constrain the
-range just like the commit <96e907d13602> (bootmem: Reimplement
-__absent_pages_in_range() using for_each_mem_pfn_range()).
+The image is intentionally fuzzed from a normal f2fs image for testing.
+Compile options for F2FS are as follows.
+CONFIG_F2FS_FS=y
+CONFIG_F2FS_STAT_FS=y
+CONFIG_F2FS_FS_XATTR=y
+CONFIG_F2FS_FS_POSIX_ACL=y
+CONFIG_F2FS_CHECK_FS=y
 
-e.g.
-Zone ranges:
-  DMA      [mem 0x0000000000001000-0x0000000000ffffff]
-  DMA32    [mem 0x0000000001000000-0x00000000ffffffff]
-  Normal   [mem 0x0000000100000000-0x000000023fffffff]
-Movable zone start for each node
-  Node 0: 0x0000000100000000
-  Node 1: 0x0000000140000000
-Early memory node ranges
-  node   0: [mem 0x0000000000001000-0x000000000009efff]
-  node   0: [mem 0x0000000000100000-0x00000000bffdffff]
-  node   0: [mem 0x0000000100000000-0x000000013fffffff]
-  node   1: [mem 0x0000000140000000-0x000000023fffffff]
+- Reproduces
+cc poc_15.c
+./run.sh f2fs
+sync
 
-node 0 DMA	spanned:0xfff   present:0xf9e   absent:0x61
-node 0 DMA32	spanned:0xff000 present:0xbefe0	absent:0x40020
-node 0 Normal	spanned:0	present:0	absent:0
-node 0 Movable	spanned:0x40000 present:0x40000 absent:0
-On node 0 totalpages(node_present_pages): 1048446
-node_spanned_pages:1310719
-node 1 DMA	spanned:0	    present:0		absent:0
-node 1 DMA32	spanned:0	    present:0		absent:0
-node 1 Normal	spanned:0x100000    present:0x100000	absent:0
-node 1 Movable	spanned:0x100000    present:0x100000	absent:0
-On node 1 totalpages(node_present_pages): 2097152
-node_spanned_pages:2097152
-Memory: 6967796K/12582392K available (16388K kernel code, 3686K rwdata,
-4468K rodata, 2160K init, 10444K bss, 5614596K reserved, 0K
-cma-reserved)
+- Kernel messages
+ ------------[ cut here ]------------
+ kernel BUG at fs/f2fs/segment.c:3162!
+ RIP: 0010:f2fs_inplace_write_data+0x12d/0x160
+ Call Trace:
+  f2fs_do_write_data_page+0x3c1/0x820
+  __write_data_page+0x156/0x720
+  f2fs_write_cache_pages+0x20d/0x460
+  f2fs_write_data_pages+0x1b4/0x300
+  do_writepages+0x15/0x60
+  __filemap_fdatawrite_range+0x7c/0xb0
+  file_write_and_wait_range+0x2c/0x80
+  f2fs_do_sync_file+0x102/0x810
+  do_fsync+0x33/0x60
+  __x64_sys_fsync+0xb/0x10
+  do_syscall_64+0x43/0xf0
+  entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-It shows that the current memory of node 1 is double added.
-After this patch, the problem is fixed.
+The reason is f2fs_inplace_write_data() will trigger kernel panic due
+to data block locates in node type segment.
 
-node 0 DMA	spanned:0xfff   present:0xf9e   absent:0x61
-node 0 DMA32	spanned:0xff000 present:0xbefe0	absent:0x40020
-node 0 Normal	spanned:0	present:0	absent:0
-node 0 Movable	spanned:0x40000 present:0x40000 absent:0
-On node 0 totalpages(node_present_pages): 1048446
-node_spanned_pages:1310719
-node 1 DMA	spanned:0	    present:0		absent:0
-node 1 DMA32	spanned:0	    present:0		absent:0
-node 1 Normal	spanned:0	    present:0		absent:0
-node 1 Movable	spanned:0x100000    present:0x100000	absent:0
-On node 1 totalpages(node_present_pages): 1048576
-node_spanned_pages:1048576
-memory: 6967796K/8388088K available (16388K kernel code, 3686K rwdata,
-4468K rodata, 2160K init, 10444K bss, 1420292K reserved, 0K
-cma-reserved)
+To avoid panic, let's just return error code and set SBI_NEED_FSCK to
+give a hint to fsck for latter repairing.
 
-Link: http://lkml.kernel.org/r/1554178276-10372-1-git-send-email-fanglinxu@huawei.com
-Signed-off-by: Linxu Fang <fanglinxu@huawei.com>
-Cc: Taku Izumi <izumi.taku@jp.fujitsu.com>
-Cc: Xishi Qiu <qiuxishi@huawei.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Pavel Tatashin <pavel.tatashin@microsoft.com>
-Cc: Oscar Salvador <osalvador@suse.de>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/page_alloc.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/f2fs/segment.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 923deb33bf34..6f71518a4558 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -5727,13 +5727,15 @@ static unsigned long __meminit zone_spanned_pages_in_node(int nid,
- 					unsigned long *zone_end_pfn,
- 					unsigned long *ignored)
+diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
+index 03fa2c4d3d79..8fc3edb6760c 100644
+--- a/fs/f2fs/segment.c
++++ b/fs/f2fs/segment.c
+@@ -3069,13 +3069,18 @@ int f2fs_inplace_write_data(struct f2fs_io_info *fio)
  {
-+	unsigned long zone_low = arch_zone_lowest_possible_pfn[zone_type];
-+	unsigned long zone_high = arch_zone_highest_possible_pfn[zone_type];
- 	/* When hotadd a new node from cpu_up(), the node should be empty */
- 	if (!node_start_pfn && !node_end_pfn)
- 		return 0;
+ 	int err;
+ 	struct f2fs_sb_info *sbi = fio->sbi;
++	unsigned int segno;
  
- 	/* Get the start and end of the zone */
--	*zone_start_pfn = arch_zone_lowest_possible_pfn[zone_type];
--	*zone_end_pfn = arch_zone_highest_possible_pfn[zone_type];
-+	*zone_start_pfn = clamp(node_start_pfn, zone_low, zone_high);
-+	*zone_end_pfn = clamp(node_end_pfn, zone_low, zone_high);
- 	adjust_zone_range_for_zone_movable(nid, zone_type,
- 				node_start_pfn, node_end_pfn,
- 				zone_start_pfn, zone_end_pfn);
+ 	fio->new_blkaddr = fio->old_blkaddr;
+ 	/* i/o temperature is needed for passing down write hints */
+ 	__get_segment_type(fio);
+ 
+-	f2fs_bug_on(sbi, !IS_DATASEG(get_seg_entry(sbi,
+-			GET_SEGNO(sbi, fio->new_blkaddr))->type));
++	segno = GET_SEGNO(sbi, fio->new_blkaddr);
++
++	if (!IS_DATASEG(get_seg_entry(sbi, segno)->type)) {
++		set_sbi_flag(sbi, SBI_NEED_FSCK);
++		return -EFAULT;
++	}
+ 
+ 	stat_inc_inplace_blocks(fio->sbi);
+ 
 -- 
 2.20.1
 
