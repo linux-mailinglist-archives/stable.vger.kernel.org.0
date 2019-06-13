@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 62C95441EE
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:20:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FCCC4402E
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:04:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391463AbfFMQR5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:17:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57902 "EHLO mail.kernel.org"
+        id S2390087AbfFMQDR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:03:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731118AbfFMIk2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:40:28 -0400
+        id S1731385AbfFMIra (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:47:30 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 77B7021473;
-        Thu, 13 Jun 2019 08:40:27 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DAD54206BA;
+        Thu, 13 Jun 2019 08:47:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415228;
-        bh=7IybN8Nha+uXU8W7xnlveY2BYrbSDvSR5HmEzqawZPI=;
+        s=default; t=1560415649;
+        bh=DeNlzJLtA8Ej7mSRIV2Tc6d2E89fV2s+lRmEKvF1UQE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OxVHTLbb6OpkhB6jy0icvbSlV+dhNUjQKo2HfgYuv+1fC67GrILtIBE8zuVgK2MyP
-         eFHlcZzySCc8Hz7bjU5SCy/4VioggYFdrIpzFzMJA/w7ncSFfgFnT++gXIHMyTbwRE
-         lIW+zbX1RMjp5EE4/sI+UhGtuqMUmDbpH/oRbZhY=
+        b=DHdt8Ncit/0y0uNlqQ7ZudtzAY3DHPi2NeU6mQ5N0tEtG7aBz2fTon65VBePaQInI
+         0eFW/6f3SH0vEEX1DR0rYpl9qaw/oMsbhz41G+E6/CQkMw+mT4eHIPb8+/SpWhSNT+
+         K3Xba0Ag2O6ZT/gRAtvSIFhlqinQjaJQxa7oNB1Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Jankowski <shasta@toxcorp.com>,
+        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
         Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 050/118] netfilter: nf_conntrack_h323: restore boundary check correctness
-Date:   Thu, 13 Jun 2019 10:33:08 +0200
-Message-Id: <20190613075646.674221934@linuxfoundation.org>
+Subject: [PATCH 5.1 077/155] netfilter: nf_flow_table: check ttl value in flow offload data path
+Date:   Thu, 13 Jun 2019 10:33:09 +0200
+Message-Id: <20190613075657.315479856@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075643.642092651@linuxfoundation.org>
-References: <20190613075643.642092651@linuxfoundation.org>
+In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
+References: <20190613075652.691765927@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,41 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f5e85ce8e733c2547827f6268136b70b802eabdb ]
+[ Upstream commit 33cc3c0cfa64c86b6c4bbee86997aea638534931 ]
 
-Since commit bc7d811ace4a ("netfilter: nf_ct_h323: Convert
-CHECK_BOUND macro to function"), NAT traversal for H.323
-doesn't work, failing to parse H323-UserInformation.
-nf_h323_error_boundary() compares contents of the bitstring,
-not the addresses, preventing valid H.323 packets from being
-conntrack'd.
+nf_flow_offload_ip_hook() and nf_flow_offload_ipv6_hook() do not check
+ttl value. So, ttl value overflow may occur.
 
-This looks like an oversight from when CHECK_BOUND macro was
-converted to a function.
-
-To fix it, stop dereferencing bs->cur and bs->end.
-
-Fixes: bc7d811ace4a ("netfilter: nf_ct_h323: Convert CHECK_BOUND macro to function")
-Signed-off-by: Jakub Jankowski <shasta@toxcorp.com>
+Fixes: 97add9f0d66d ("netfilter: flow table support for IPv4")
+Fixes: 0995210753a2 ("netfilter: flow table support for IPv6")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
 Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_conntrack_h323_asn1.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/netfilter/nf_flow_table_ip.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/net/netfilter/nf_conntrack_h323_asn1.c b/net/netfilter/nf_conntrack_h323_asn1.c
-index 1601275efe2d..4c2ef42e189c 100644
---- a/net/netfilter/nf_conntrack_h323_asn1.c
-+++ b/net/netfilter/nf_conntrack_h323_asn1.c
-@@ -172,7 +172,7 @@ static int nf_h323_error_boundary(struct bitstr *bs, size_t bytes, size_t bits)
- 	if (bits % BITS_PER_BYTE > 0)
- 		bytes++;
+diff --git a/net/netfilter/nf_flow_table_ip.c b/net/netfilter/nf_flow_table_ip.c
+index 1d291a51cd45..46022a2867d7 100644
+--- a/net/netfilter/nf_flow_table_ip.c
++++ b/net/netfilter/nf_flow_table_ip.c
+@@ -181,6 +181,9 @@ static int nf_flow_tuple_ip(struct sk_buff *skb, const struct net_device *dev,
+ 	    iph->protocol != IPPROTO_UDP)
+ 		return -1;
  
--	if (*bs->cur + bytes > *bs->end)
-+	if (bs->cur + bytes > bs->end)
- 		return 1;
++	if (iph->ttl <= 1)
++		return -1;
++
+ 	thoff = iph->ihl * 4;
+ 	if (!pskb_may_pull(skb, thoff + sizeof(*ports)))
+ 		return -1;
+@@ -411,6 +414,9 @@ static int nf_flow_tuple_ipv6(struct sk_buff *skb, const struct net_device *dev,
+ 	    ip6h->nexthdr != IPPROTO_UDP)
+ 		return -1;
  
- 	return 0;
++	if (ip6h->hop_limit <= 1)
++		return -1;
++
+ 	thoff = sizeof(*ip6h);
+ 	if (!pskb_may_pull(skb, thoff + sizeof(*ports)))
+ 		return -1;
 -- 
 2.20.1
 
