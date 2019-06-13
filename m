@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CBFBE44145
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:13:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 274B543FE4
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:01:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391505AbfFMQMg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:12:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60210 "EHLO mail.kernel.org"
+        id S1733105AbfFMQBO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:01:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36510 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731217AbfFMInF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:43:05 -0400
+        id S1731443AbfFMIsj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:48:39 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 15CDB2063F;
-        Thu, 13 Jun 2019 08:43:03 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 1DC64206BA;
+        Thu, 13 Jun 2019 08:48:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415384;
-        bh=uclTob9GQIPP+edHPJZx/gJnRps5nzkGS7uvws+ioa0=;
+        s=default; t=1560415718;
+        bh=lCtMrz1Mq5QbCuKsABMwSIKB8Wsbk8DG8I3IpegZgsQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HAf1hfEGzqwPQ8tFYmxHs4WqxEZJPZbv+7f/vIvH/Em0922koj9SvxMDO39Od+GdH
-         yfccolNKoEWFit7yV497O7D9l/iEA2ZholZNRsy7T3GtCznYqKHxUGuQ+NVaioyP0m
-         g5/xCYmeuRtigy4Y6XPm3Ap1SZkhNdtuJ7UddFfE=
+        b=hGUOEpKcS7o9ZwUU8Vey5+mOhleQltgz5kmFGUOkZifY6Bh2p5kSqbBr9MlFxEI+I
+         JFbJSvLV6TwhP+NpZUVR4I6Zgaednxv3vJuAmubeJ1BuO0f4vRRNnwB9Ig2a26e1Hy
+         eoSN/vfdrF5sqiotHDUyr6kb84GVMlpH3gOU9xO4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 076/118] PCI: keystone: Prevent ARM32 specific code to be compiled for ARM64
+        stable@vger.kernel.org, Ashok Raj <ashok.raj@intel.com>,
+        Jacob Pan <jacob.jun.pan@linux.intel.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Xu Pengfei <pengfei.xu@intel.com>,
+        Mika Westerberg <mika.westerberg@intel.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 102/155] iommu/vt-d: Flush IOTLB for untrusted device in time
 Date:   Thu, 13 Jun 2019 10:33:34 +0200
-Message-Id: <20190613075648.289807017@linuxfoundation.org>
+Message-Id: <20190613075658.741939038@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075643.642092651@linuxfoundation.org>
-References: <20190613075643.642092651@linuxfoundation.org>
+In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
+References: <20190613075652.691765927@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,59 +47,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit f316a2b53cd7f37963ae20ec7072eb27a349a4ce ]
+[ Upstream commit f7b0c4ce8cb3c09cb3cbfc0c663268bf99e5fa9c ]
 
-hook_fault_code() is an ARM32 specific API for hooking into data abort.
+By default, for performance consideration, Intel IOMMU
+driver won't flush IOTLB immediately after a buffer is
+unmapped. It schedules a thread and flushes IOTLB in a
+batched mode. This isn't suitable for untrusted device
+since it still can access the memory even if it isn't
+supposed to do so.
 
-AM65X platforms (that integrate ARM v8 cores and select CONFIG_ARM64 as
-arch) rely on pci-keystone.c but on them the enumeration of a
-non-present BDF does not trigger a bus error, so the fixup exception
-provided by calling hook_fault_code() is not needed and can be guarded
-with CONFIG_ARM.
-
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
-[lorenzo.pieralisi@arm.com: commit log]
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Cc: Ashok Raj <ashok.raj@intel.com>
+Cc: Jacob Pan <jacob.jun.pan@linux.intel.com>
+Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+Tested-by: Xu Pengfei <pengfei.xu@intel.com>
+Tested-by: Mika Westerberg <mika.westerberg@intel.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/dwc/pci-keystone.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/iommu/intel-iommu.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pci/controller/dwc/pci-keystone.c b/drivers/pci/controller/dwc/pci-keystone.c
-index e88bd221fffe..5e199e7d2d4f 100644
---- a/drivers/pci/controller/dwc/pci-keystone.c
-+++ b/drivers/pci/controller/dwc/pci-keystone.c
-@@ -237,6 +237,7 @@ static void ks_pcie_setup_interrupts(struct keystone_pcie *ks_pcie)
- 		ks_dw_pcie_enable_error_irq(ks_pcie);
- }
+diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
+index cb656f503604..0feb3f70da16 100644
+--- a/drivers/iommu/intel-iommu.c
++++ b/drivers/iommu/intel-iommu.c
+@@ -3736,6 +3736,7 @@ static void intel_unmap(struct device *dev, dma_addr_t dev_addr, size_t size)
+ 	unsigned long iova_pfn;
+ 	struct intel_iommu *iommu;
+ 	struct page *freelist;
++	struct pci_dev *pdev = NULL;
  
-+#ifdef CONFIG_ARM
- /*
-  * When a PCI device does not exist during config cycles, keystone host gets a
-  * bus error instead of returning 0xffffffff. This handler always returns 0
-@@ -256,6 +257,7 @@ static int keystone_pcie_fault(unsigned long addr, unsigned int fsr,
+ 	if (iommu_no_mapping(dev))
+ 		return;
+@@ -3751,11 +3752,14 @@ static void intel_unmap(struct device *dev, dma_addr_t dev_addr, size_t size)
+ 	start_pfn = mm_to_dma_pfn(iova_pfn);
+ 	last_pfn = start_pfn + nrpages - 1;
  
- 	return 0;
- }
-+#endif
++	if (dev_is_pci(dev))
++		pdev = to_pci_dev(dev);
++
+ 	dev_dbg(dev, "Device unmapping: pfn %lx-%lx\n", start_pfn, last_pfn);
  
- static int __init ks_pcie_host_init(struct pcie_port *pp)
- {
-@@ -279,12 +281,14 @@ static int __init ks_pcie_host_init(struct pcie_port *pp)
- 	val |= BIT(12);
- 	writel(val, pci->dbi_base + PCIE_CAP_BASE + PCI_EXP_DEVCTL);
+ 	freelist = domain_unmap(domain, start_pfn, last_pfn);
  
-+#ifdef CONFIG_ARM
- 	/*
- 	 * PCIe access errors that result into OCP errors are caught by ARM as
- 	 * "External aborts"
- 	 */
- 	hook_fault_code(17, keystone_pcie_fault, SIGBUS, 0,
- 			"Asynchronous external abort");
-+#endif
- 
- 	return 0;
- }
+-	if (intel_iommu_strict) {
++	if (intel_iommu_strict || (pdev && pdev->untrusted)) {
+ 		iommu_flush_iotlb_psi(iommu, domain, start_pfn,
+ 				      nrpages, !freelist, 0);
+ 		/* free iova */
 -- 
 2.20.1
 
