@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B614441CF
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:19:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3A6744001
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:02:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391565AbfFMQQq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:16:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58502 "EHLO mail.kernel.org"
+        id S1731975AbfFMQBz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:01:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731148AbfFMIlO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:41:14 -0400
+        id S1731419AbfFMIsM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:48:12 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5225921479;
-        Thu, 13 Jun 2019 08:41:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id E096321743;
+        Thu, 13 Jun 2019 08:48:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415273;
-        bh=ca8hpd4iCLHcAhRM0DE9ZQQoexWnVF4x/YufQSM3HeU=;
+        s=default; t=1560415692;
+        bh=8M7Ht7uR3C8y+ng4cJglq02l4gO9fdwxHm6+doxQks8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FlYBAZlE7dPaQOvgb+aabNGv74RQXfQvndRZ9eM+nsuSws7mocZq9GcdfPyIPPrFA
-         cNCYDwUv73PLBSXTY7Ua9VFv51Zi5mv7tSQknYU3GGnz9w/EK3/hlwj1wndWDCGvfK
-         4dVZM2ghfL4l4FEcXAgEUaT1LoXInkysM4jBSoek=
+        b=xMYmxM+XYY5Ybg1TTGGmCUIyVNjP3/kViE+oEwBEpBbU+vxcCaYWqY5umGmW1dpYj
+         eUV5kYHClaShHcG/+1GRLPJ8S26TEpSkFxPwopHb/cKa3uglyfPeoMT58ChJU+W8ag
+         R3XOLft53yq4nW93Y7i6XWai7rlpwidtPx1Uy2jI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen-Yu Tsai <wens@csie.org>,
-        Maxime Ripard <maxime.ripard@bootlin.com>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        stable@vger.kernel.org,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 065/118] nvmem: sunxi_sid: Support SID on A83T and H5
+Subject: [PATCH 5.1 091/155] net: thunderbolt: Unregister ThunderboltIP protocol handler when suspending
 Date:   Thu, 13 Jun 2019 10:33:23 +0200
-Message-Id: <20190613075647.617270423@linuxfoundation.org>
+Message-Id: <20190613075658.184288472@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075643.642092651@linuxfoundation.org>
-References: <20190613075643.642092651@linuxfoundation.org>
+In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
+References: <20190613075652.691765927@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,40 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit da75b8909756160b8e785104ba421a20b756c975 ]
+[ Upstream commit 9872760eb7b1d4f6066ad8b560714a5d0a728fdb ]
 
-The device tree binding already lists compatible strings for these two
-SoCs. They don't have the defect as seen on the H3, and the size and
-register layout is the same as the A64. Furthermore, the driver does
-not include nvmem cell definitions.
+The XDomain protocol messages may start as soon as Thunderbolt control
+channel is started. This means that if the other host starts sending
+ThunderboltIP packets early enough they will be passed to the network
+driver which then gets confused because its resume hook is not called
+yet.
 
-Add support for these two compatible strings, re-using the config for
-the A64.
+Fix this by unregistering the ThunderboltIP protocol handler when
+suspending and registering it back on resume.
 
-Signed-off-by: Chen-Yu Tsai <wens@csie.org>
-Acked-by: Maxime Ripard <maxime.ripard@bootlin.com>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Acked-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvmem/sunxi_sid.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/thunderbolt.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/nvmem/sunxi_sid.c b/drivers/nvmem/sunxi_sid.c
-index d020f89248fd..69f8e972e29c 100644
---- a/drivers/nvmem/sunxi_sid.c
-+++ b/drivers/nvmem/sunxi_sid.c
-@@ -235,8 +235,10 @@ static const struct sunxi_sid_cfg sun50i_a64_cfg = {
- static const struct of_device_id sunxi_sid_of_match[] = {
- 	{ .compatible = "allwinner,sun4i-a10-sid", .data = &sun4i_a10_cfg },
- 	{ .compatible = "allwinner,sun7i-a20-sid", .data = &sun7i_a20_cfg },
-+	{ .compatible = "allwinner,sun8i-a83t-sid", .data = &sun50i_a64_cfg },
- 	{ .compatible = "allwinner,sun8i-h3-sid", .data = &sun8i_h3_cfg },
- 	{ .compatible = "allwinner,sun50i-a64-sid", .data = &sun50i_a64_cfg },
-+	{ .compatible = "allwinner,sun50i-h5-sid", .data = &sun50i_a64_cfg },
- 	{/* sentinel */},
- };
- MODULE_DEVICE_TABLE(of, sunxi_sid_of_match);
+diff --git a/drivers/net/thunderbolt.c b/drivers/net/thunderbolt.c
+index c48c3a1eb1f8..fcf31335a8b6 100644
+--- a/drivers/net/thunderbolt.c
++++ b/drivers/net/thunderbolt.c
+@@ -1282,6 +1282,7 @@ static int __maybe_unused tbnet_suspend(struct device *dev)
+ 		tbnet_tear_down(net, true);
+ 	}
+ 
++	tb_unregister_protocol_handler(&net->handler);
+ 	return 0;
+ }
+ 
+@@ -1290,6 +1291,8 @@ static int __maybe_unused tbnet_resume(struct device *dev)
+ 	struct tb_service *svc = tb_to_service(dev);
+ 	struct tbnet *net = tb_service_get_drvdata(svc);
+ 
++	tb_register_protocol_handler(&net->handler);
++
+ 	netif_carrier_off(net->dev);
+ 	if (netif_running(net->dev)) {
+ 		netif_device_attach(net->dev);
 -- 
 2.20.1
 
