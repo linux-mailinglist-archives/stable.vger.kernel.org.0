@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FCCC4402E
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:04:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CDFF04435A
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:30:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390087AbfFMQDR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:03:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35730 "EHLO mail.kernel.org"
+        id S1731095AbfFMQ2x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:28:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53312 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731385AbfFMIra (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:47:30 -0400
+        id S1730940AbfFMIff (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:35:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DAD54206BA;
-        Thu, 13 Jun 2019 08:47:28 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 9E4EC20851;
+        Thu, 13 Jun 2019 08:35:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415649;
-        bh=DeNlzJLtA8Ej7mSRIV2Tc6d2E89fV2s+lRmEKvF1UQE=;
+        s=default; t=1560414935;
+        bh=JOdPkZMXMgwO6O1h6lMEJ/M1YMy4O+fPqZFYh3kUhcE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DHdt8Ncit/0y0uNlqQ7ZudtzAY3DHPi2NeU6mQ5N0tEtG7aBz2fTon65VBePaQInI
-         0eFW/6f3SH0vEEX1DR0rYpl9qaw/oMsbhz41G+E6/CQkMw+mT4eHIPb8+/SpWhSNT+
-         K3Xba0Ag2O6ZT/gRAtvSIFhlqinQjaJQxa7oNB1Y=
+        b=NUMklaLukLVmjn92vD/Z5eNqSmtL5i+bP25M2Fgy5V7Jg7k8fBjEnRX4X/8oTnztK
+         nXk1uH7Nu4Cvjflv3VMM2EWfo5+REEiuQMkY5Hk7WpjcAVgLz4Dkga+22v9xUzmNt8
+         CRC+YQehYIJk0dsTfLKxon4HFPRFKwEaAvF7hHS4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 077/155] netfilter: nf_flow_table: check ttl value in flow offload data path
+Subject: [PATCH 4.14 26/81] f2fs: fix to avoid panic in do_recover_data()
 Date:   Thu, 13 Jun 2019 10:33:09 +0200
-Message-Id: <20190613075657.315479856@linuxfoundation.org>
+Message-Id: <20190613075651.058547062@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
-References: <20190613075652.691765927@linuxfoundation.org>
+In-Reply-To: <20190613075649.074682929@linuxfoundation.org>
+References: <20190613075649.074682929@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,44 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 33cc3c0cfa64c86b6c4bbee86997aea638534931 ]
+[ Upstream commit 22d61e286e2d9097dae36f75ed48801056b77cac ]
 
-nf_flow_offload_ip_hook() and nf_flow_offload_ipv6_hook() do not check
-ttl value. So, ttl value overflow may occur.
+As Jungyeon reported in bugzilla:
 
-Fixes: 97add9f0d66d ("netfilter: flow table support for IPv4")
-Fixes: 0995210753a2 ("netfilter: flow table support for IPv6")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+https://bugzilla.kernel.org/show_bug.cgi?id=203227
+
+- Overview
+When mounting the attached crafted image, following errors are reported.
+Additionally, it hangs on sync after trying to mount it.
+
+The image is intentionally fuzzed from a normal f2fs image for testing.
+Compile options for F2FS are as follows.
+CONFIG_F2FS_FS=y
+CONFIG_F2FS_STAT_FS=y
+CONFIG_F2FS_FS_XATTR=y
+CONFIG_F2FS_FS_POSIX_ACL=y
+CONFIG_F2FS_CHECK_FS=y
+
+- Reproduces
+mkdir test
+mount -t f2fs tmp.img test
+sync
+
+- Messages
+ kernel BUG at fs/f2fs/recovery.c:549!
+ RIP: 0010:recover_data+0x167a/0x1780
+ Call Trace:
+  f2fs_recover_fsync_data+0x613/0x710
+  f2fs_fill_super+0x1043/0x1aa0
+  mount_bdev+0x16d/0x1a0
+  mount_fs+0x4a/0x170
+  vfs_kern_mount+0x5d/0x100
+  do_mount+0x200/0xcf0
+  ksys_mount+0x79/0xc0
+  __x64_sys_mount+0x1c/0x20
+  do_syscall_64+0x43/0xf0
+  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+During recovery, if ofs_of_node is inconsistent in between recovered
+node page and original checkpointed node page, let's just fail recovery
+instead of making kernel panic.
+
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_flow_table_ip.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/f2fs/recovery.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/net/netfilter/nf_flow_table_ip.c b/net/netfilter/nf_flow_table_ip.c
-index 1d291a51cd45..46022a2867d7 100644
---- a/net/netfilter/nf_flow_table_ip.c
-+++ b/net/netfilter/nf_flow_table_ip.c
-@@ -181,6 +181,9 @@ static int nf_flow_tuple_ip(struct sk_buff *skb, const struct net_device *dev,
- 	    iph->protocol != IPPROTO_UDP)
- 		return -1;
+diff --git a/fs/f2fs/recovery.c b/fs/f2fs/recovery.c
+index 6ea445377767..65a82c5bafcb 100644
+--- a/fs/f2fs/recovery.c
++++ b/fs/f2fs/recovery.c
+@@ -445,7 +445,15 @@ retry_dn:
  
-+	if (iph->ttl <= 1)
-+		return -1;
+ 	get_node_info(sbi, dn.nid, &ni);
+ 	f2fs_bug_on(sbi, ni.ino != ino_of_node(page));
+-	f2fs_bug_on(sbi, ofs_of_node(dn.node_page) != ofs_of_node(page));
 +
- 	thoff = iph->ihl * 4;
- 	if (!pskb_may_pull(skb, thoff + sizeof(*ports)))
- 		return -1;
-@@ -411,6 +414,9 @@ static int nf_flow_tuple_ipv6(struct sk_buff *skb, const struct net_device *dev,
- 	    ip6h->nexthdr != IPPROTO_UDP)
- 		return -1;
++	if (ofs_of_node(dn.node_page) != ofs_of_node(page)) {
++		f2fs_msg(sbi->sb, KERN_WARNING,
++			"Inconsistent ofs_of_node, ino:%lu, ofs:%u, %u",
++			inode->i_ino, ofs_of_node(dn.node_page),
++			ofs_of_node(page));
++		err = -EFAULT;
++		goto err;
++	}
  
-+	if (ip6h->hop_limit <= 1)
-+		return -1;
-+
- 	thoff = sizeof(*ip6h);
- 	if (!pskb_may_pull(skb, thoff + sizeof(*ports)))
- 		return -1;
+ 	for (; start < end; start++, dn.ofs_in_node++) {
+ 		block_t src, dest;
 -- 
 2.20.1
 
