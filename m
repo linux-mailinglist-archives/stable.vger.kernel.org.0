@@ -2,97 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D412E44F21
-	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 00:31:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3302C44F19
+	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 00:31:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726999AbfFMWax (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 18:30:53 -0400
-Received: from mail-pf1-f196.google.com ([209.85.210.196]:40763 "EHLO
-        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725616AbfFMWaw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Jun 2019 18:30:52 -0400
-Received: by mail-pf1-f196.google.com with SMTP id p184so126627pfp.7;
-        Thu, 13 Jun 2019 15:30:52 -0700 (PDT)
+        id S1727159AbfFMWaz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 18:30:55 -0400
+Received: from mail-wr1-f54.google.com ([209.85.221.54]:35799 "EHLO
+        mail-wr1-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726958AbfFMWay (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Jun 2019 18:30:54 -0400
+Received: by mail-wr1-f54.google.com with SMTP id m3so442479wrv.2
+        for <stable@vger.kernel.org>; Thu, 13 Jun 2019 15:30:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:from:to:cc:subject:date:message-id:in-reply-to:references;
-        bh=le87mSroNc/vpZ1PXB7D9b7oXP9bRIOE/1No2nrz140=;
-        b=TcNfVaI7zCKBSfPScGJNIbpJxSZMkEGhfWZEvUL+iAPHzoim0WMMPifT02p1UMxqqJ
-         Nfk7NxYIuorNrCC/+A4aDXTVhvfAMXnicEKOQay0xtQayKkKPxxsg9F6Lolf1x6YMmQD
-         KnGOoP7L6tfcW3x2+i5l31yhe07mc9c1FNaYX6JC/dQ+h+yIXIkaGkxH1q4eAGoQLb69
-         NhhAqkIOn+H1/H0O+SsmXYGSN6to3fdZ/78WCSJkpx3+lHw1p3G39B3EiemW/D7fW4c+
-         UmA885xXs9ZEzMcGGsEiR5PWaoC07HZ63WfPntuz+sXaxrA2oH35tB2PpEbCXAqqbPpD
-         YP+Q==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=G1zfwNGyGsIR0bCob2h13qu32Wz3N/yO1T5W1D1pcY8=;
+        b=dfJ3cgC642eu9acBB5GSvZPCZzwibKIjBXh3qcWisa77v1RmKqXzDVenGQYgJu+egp
+         mMACO/pSL115dbzHUfXJr5tO+5/uvSrPqsAkl2b780fAcMsteeeYI/zmwAhPZcYlIZIP
+         Jau5Ohun0vcablUdsxAmaXMWugpowdXmeccpuFhbnydulmnSWBzV0EQWsYpmsZH5Nk+q
+         J6KtuNcAbY0GBgUyOvRFK2LnKzbMmNIhJncGBDt59hRuj/tHRssB6inoapSpjaw+1fhp
+         ptPf0hBQr6yXr9sI5zvxZWf+rtq7yXRMTbotwve6OQRTmAQQv0OY+F512ttSvVa9KlP9
+         llpQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:from:to:cc:subject:date:message-id
-         :in-reply-to:references;
-        bh=le87mSroNc/vpZ1PXB7D9b7oXP9bRIOE/1No2nrz140=;
-        b=rd8pyvEbdx1ClTjxBEWqC7TvNto7jhNQ2ZhdcUgcNGSleSCKrvotpUpnJcLz+VeQZ9
-         eHJ9UrFarHeBk59T8ivgEeO4JHtnGrSn/bqCO/duevaeBG/HZoPfVtRXD2TKjWhUn/Bz
-         HBtqL2kdwvTy60BV4b7wHGOpX749gaIXAOLHgy6QdVDEC4GsSNyhXYBlopooXs1YlNa5
-         UOCQcYYbuizVx0JHgeE/y2TxoIiVlS3CtlAnY1MRFvWctH1i4hJBjhSPyO58qt7y4QsV
-         vi8Jhygg1VI1ObSukfe+ulTyGQK21tJKqA2uvBodoncicnDASFCjzNuk1Zwx4Z7M0BWb
-         kVNA==
-X-Gm-Message-State: APjAAAWzBXu8ZXlewSvCQVC6ZZ3Ar9wvbfK+qPHnUEg8qeRHohpFEtD+
-        m2PpLOIqm8X4n7kQOSBVUpHBYJhy
-X-Google-Smtp-Source: APXvYqw4UvG2QfxpxlErOC18JBYhV4p5wHAymu+oqJ3TOV56Pu9bzZR+wv9jIIHxuWMpe9E0shGh+w==
-X-Received: by 2002:a63:511b:: with SMTP id f27mr16922684pgb.135.1560465051357;
-        Thu, 13 Jun 2019 15:30:51 -0700 (PDT)
-Received: from localhost ([2620:10d:c091:500::2:9d14])
-        by smtp.gmail.com with ESMTPSA id g5sm785427pfm.54.2019.06.13.15.30.50
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=G1zfwNGyGsIR0bCob2h13qu32Wz3N/yO1T5W1D1pcY8=;
+        b=qw51EgZ9gK4gyQEPrLsSB1ccARnRj73M7QvzJgJX3XWTX84XzwQDGKwczO40ruJIgF
+         SE0zWb2hkpNMm2tZvCaw68J08Sy8doyX/LaVPBnFbx533vxTFGe+Jole/NhZIdBcEyOZ
+         J+i4wLiEep03xG41Z/k5mlLQKmBGfm84hEInBax5RN/HXPv2QLcw2PjfFP46WskyYRGq
+         fYwi4HxbLtNIxVxheS9wLPE7RaQr0blYfNJIr6L4bAzGLjVU2diNo3MlbKCp8QreN3V5
+         haZdny/bwBb+TZQbj4h6L9n+3c7JXm8zcTgFXqYj7li6xDP/e+bav3XBe/n5vCH/t7GB
+         wKNw==
+X-Gm-Message-State: APjAAAV5ZIiRyNcVyPQlYWnXF06xmQBKXIbp+hHWThUPM31oX2poZnsr
+        mOi3iRNzJ5Nv7h2YWlqJICVfMEG0vTYFYA==
+X-Google-Smtp-Source: APXvYqxEVaKpgOB1tkC2ZfPsOhZztw4cCtbPnHS0MHSNsUHh66i7q1vlsoUt8emDkn7iP3I1VxtkMQ==
+X-Received: by 2002:adf:e841:: with SMTP id d1mr62107283wrn.204.1560465052615;
+        Thu, 13 Jun 2019 15:30:52 -0700 (PDT)
+Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
+        by smtp.gmail.com with ESMTPSA id o4sm682814wmh.35.2019.06.13.15.30.51
+        for <stable@vger.kernel.org>
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 13 Jun 2019 15:30:50 -0700 (PDT)
-From:   Tejun Heo <tj@kernel.org>
-To:     axboe@kernel.dk, jbacik@fb.com
-Cc:     linux-kernel@vger.kernel.org, linux-block@vger.kernel.org,
-        kernel-team@fb.com, dennis@kernel.org, jack@suse.cz,
-        Tejun Heo <tj@kernel.org>, stable@vger.kernel.org
-Subject: [PATCH 2/5] blkcg: update blkcg_print_stat() to handle larger outputs
-Date:   Thu, 13 Jun 2019 15:30:38 -0700
-Message-Id: <20190613223041.606735-3-tj@kernel.org>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20190613223041.606735-1-tj@kernel.org>
-References: <20190613223041.606735-1-tj@kernel.org>
+        Thu, 13 Jun 2019 15:30:51 -0700 (PDT)
+Message-ID: <5d02ce9b.1c69fb81.54bd8.3b71@mx.google.com>
+Date:   Thu, 13 Jun 2019 15:30:51 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: boot
+X-Kernelci-Kernel: v4.14.125-81-g743300ca6410
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Tree: stable-rc
+Subject: stable-rc/linux-4.14.y boot: 116 boots: 0 failed,
+ 116 passed (v4.14.125-81-g743300ca6410)
+To:     stable@vger.kernel.org
+From:   "kernelci.org bot" <bot@kernelci.org>
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Depending on the number of devices, blkcg stats can go over the
-default seqfile buf size.  seqfile normally retries with a larger
-buffer but since the ->pd_stat() addition, blkcg_print_stat() doesn't
-tell seqfile that overflow has happened and the output gets printed
-truncated.  Fix it by calling seq_commit() w/ -1 on possible
-overflows.
+stable-rc/linux-4.14.y boot: 116 boots: 0 failed, 116 passed (v4.14.125-81-=
+g743300ca6410)
 
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Fixes: 903d23f0a354 ("blk-cgroup: allow controllers to output their own stats")
-Cc: stable@vger.kernel.org # v4.19+
-Cc: Josef Bacik <jbacik@fb.com>
+Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
+-4.14.y/kernel/v4.14.125-81-g743300ca6410/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.14.=
+y/kernel/v4.14.125-81-g743300ca6410/
+
+Tree: stable-rc
+Branch: linux-4.14.y
+Git Describe: v4.14.125-81-g743300ca6410
+Git Commit: 743300ca6410e30133ce3d09a668fe6477d3a67f
+Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
+e-rc.git
+Tested: 63 unique boards, 24 SoC families, 15 builds out of 201
+
 ---
- block/blk-cgroup.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
-
-diff --git a/block/blk-cgroup.c b/block/blk-cgroup.c
-index 1f7127b03490..e4715b35d42c 100644
---- a/block/blk-cgroup.c
-+++ b/block/blk-cgroup.c
-@@ -1006,8 +1006,12 @@ static int blkcg_print_stat(struct seq_file *sf, void *v)
- 		}
- next:
- 		if (has_stats) {
--			off += scnprintf(buf+off, size-off, "\n");
--			seq_commit(sf, off);
-+			if (off < size - 1) {
-+				off += scnprintf(buf+off, size-off, "\n");
-+				seq_commit(sf, off);
-+			} else {
-+				seq_commit(sf, -1);
-+			}
- 		}
- 	}
- 
--- 
-2.17.1
-
+For more info write to <info@kernelci.org>
