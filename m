@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id BBD5144205
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:20:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B4D643FEF
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:02:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731469AbfFMQSk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:18:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57718 "EHLO mail.kernel.org"
+        id S2390810AbfFMQBg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:01:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731113AbfFMIkP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:40:15 -0400
+        id S1731422AbfFMIsX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:48:23 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E947620851;
-        Thu, 13 Jun 2019 08:40:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 4E73121473;
+        Thu, 13 Jun 2019 08:48:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415214;
-        bh=j5w28E3klWyw4CPlY2bADWeTaIatMocL/9pnRrsXdJo=;
+        s=default; t=1560415702;
+        bh=afCK5zGqqQpwxMEyM0aoB+zKHWuGKOMX0iofDcLVGJQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kVS+itW3LQf+lBcPQ/7WIxbnLYkMCkPcOu9jGw39hSNoocK5VFllaO1QzzdAgsGr/
-         7pDDJg1YBaEojsdK9bu8Tir5Rht4sdrrOMX73FVy0UQukgJww7MrOtWlQ7S7zkiEV5
-         rH0fpokJnGD9ARzmfOJhxL3jogj1o+ljaJd1g5JY=
+        b=zHv5+45D7uAf8RrMuxRiHfro3YG2ZUv3D0MTMS+vFz0rGMLacsnNSdBKqnch2z9T6
+         fxvgRIvNjTulIzngYa32oYUyJLqV/mzDTzgj99KKOk797fYsmvzU1n8gPJ7HKpPgGR
+         wVNuweEHHmuavrPZXbmRa4BbxYNVur9+Xqmew1Ng=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jisheng Zhang <Jisheng.Zhang@synaptics.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Gustavo Pimentel <gustavo.pimentel@synopsys.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 045/118] PCI: dwc: Free MSI in dw_pcie_host_init() error path
+        stable@vger.kernel.org, Ashok Raj <ashok.raj@intel.com>,
+        Jacob Pan <jacob.jun.pan@linux.intel.com>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 071/155] iommu/vt-d: Set intel_iommu_gfx_mapped correctly
 Date:   Thu, 13 Jun 2019 10:33:03 +0200
-Message-Id: <20190613075646.368348067@linuxfoundation.org>
+Message-Id: <20190613075656.952056366@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075643.642092651@linuxfoundation.org>
-References: <20190613075643.642092651@linuxfoundation.org>
+In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
+References: <20190613075652.691765927@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,64 +47,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 9e2b5de5604a6ff2626c51e77014d92c9299722c ]
+[ Upstream commit cf1ec4539a50bdfe688caad4615ca47646884316 ]
 
-If we ever did MSI-related initializations, we need to call
-dw_pcie_free_msi() in the error code path.
+The intel_iommu_gfx_mapped flag is exported by the Intel
+IOMMU driver to indicate whether an IOMMU is used for the
+graphic device. In a virtualized IOMMU environment (e.g.
+QEMU), an include-all IOMMU is used for graphic device.
+This flag is found to be clear even the IOMMU is used.
 
-Remove the IS_ENABLED(CONFIG_PCI_MSI) check for MSI init because
-pci_msi_enabled() already has a stub for !CONFIG_PCI_MSI.
-
-Signed-off-by: Jisheng Zhang <Jisheng.Zhang@synaptics.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Acked-by: Gustavo Pimentel <gustavo.pimentel@synopsys.com>
+Cc: Ashok Raj <ashok.raj@intel.com>
+Cc: Jacob Pan <jacob.jun.pan@linux.intel.com>
+Cc: Kevin Tian <kevin.tian@intel.com>
+Reported-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+Fixes: c0771df8d5297 ("intel-iommu: Export a flag indicating that the IOMMU is used for iGFX.")
+Suggested-by: Kevin Tian <kevin.tian@intel.com>
+Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/dwc/pcie-designware-host.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/iommu/intel-iommu.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/pci/controller/dwc/pcie-designware-host.c b/drivers/pci/controller/dwc/pcie-designware-host.c
-index b56e22262a77..4eedb2c54ab3 100644
---- a/drivers/pci/controller/dwc/pcie-designware-host.c
-+++ b/drivers/pci/controller/dwc/pcie-designware-host.c
-@@ -439,7 +439,7 @@ int dw_pcie_host_init(struct pcie_port *pp)
- 	if (ret)
- 		pci->num_viewport = 2;
+diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
+index 28cb713d728c..10a45092d062 100644
+--- a/drivers/iommu/intel-iommu.c
++++ b/drivers/iommu/intel-iommu.c
+@@ -4055,9 +4055,7 @@ static void __init init_no_remapping_devices(void)
  
--	if (IS_ENABLED(CONFIG_PCI_MSI) && pci_msi_enabled()) {
-+	if (pci_msi_enabled()) {
- 		/*
- 		 * If a specific SoC driver needs to change the
- 		 * default number of vectors, it needs to implement
-@@ -477,7 +477,7 @@ int dw_pcie_host_init(struct pcie_port *pp)
- 	if (pp->ops->host_init) {
- 		ret = pp->ops->host_init(pp);
- 		if (ret)
--			goto error;
-+			goto err_free_msi;
+ 		/* This IOMMU has *only* gfx devices. Either bypass it or
+ 		   set the gfx_mapped flag, as appropriate */
+-		if (dmar_map_gfx) {
+-			intel_iommu_gfx_mapped = 1;
+-		} else {
++		if (!dmar_map_gfx) {
+ 			drhd->ignored = 1;
+ 			for_each_active_dev_scope(drhd->devices,
+ 						  drhd->devices_cnt, i, dev)
+@@ -4896,6 +4894,9 @@ int __init intel_iommu_init(void)
+ 		goto out_free_reserved_range;
  	}
  
- 	pp->root_bus_nr = pp->busn->start;
-@@ -491,7 +491,7 @@ int dw_pcie_host_init(struct pcie_port *pp)
++	if (dmar_map_gfx)
++		intel_iommu_gfx_mapped = 1;
++
+ 	init_no_remapping_devices();
  
- 	ret = pci_scan_root_bus_bridge(bridge);
- 	if (ret)
--		goto error;
-+		goto err_free_msi;
- 
- 	bus = bridge->bus;
- 
-@@ -507,6 +507,9 @@ int dw_pcie_host_init(struct pcie_port *pp)
- 	pci_bus_add_devices(bus);
- 	return 0;
- 
-+err_free_msi:
-+	if (pci_msi_enabled() && !pp->ops->msi_host_init)
-+		dw_pcie_free_msi(pp);
- error:
- 	pci_free_host_bridge(bridge);
- 	return ret;
+ 	ret = init_dmars();
 -- 
 2.20.1
 
