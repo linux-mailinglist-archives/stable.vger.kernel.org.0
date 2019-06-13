@@ -2,45 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B1F594434A
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:30:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 984EC4404B
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:05:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2392150AbfFMQ2Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:28:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53424 "EHLO mail.kernel.org"
+        id S2388385AbfFMQEh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:04:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730945AbfFMIfr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:35:47 -0400
+        id S1731352AbfFMIqx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:46:53 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id C694620851;
-        Thu, 13 Jun 2019 08:35:45 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 22F12215EA;
+        Thu, 13 Jun 2019 08:46:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560414946;
-        bh=xIY3VIlTtPhkqtybP4/9ZX6GyFeCo7yhrVUEIdByHJI=;
+        s=default; t=1560415612;
+        bh=0BJ9BWZWGvCl48KDUGUcFoK6J8/arRVbphHRp2rdDD4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jg2UMoAm8Z7EdpSHxk4ZQn3uWbGry9yk+xtOwuYWfayYTGzUrkVEhyyqvw6KdMwst
-         24rjBVffxdYXdYRrn2jwGqYeL5X3vPyf5mVad/4u4+ylqGAo7QeJS2I7OfnvKldgML
-         9UzpXieYg00WeQADx5U+Cnq8P9ugyHrpj2niEFMY=
+        b=YinS7oja59qugWI9+mzmemdInBs+u31hImWabxPip3MECcr3MtGWNdrL1/qSGFp7J
+         jriDv1mXjrvY3csNqQoEuX+MW+WMlWmQ0O1sZ/nmsdWmVqs2xH0BMP41OrsH2f5k+d
+         NHDi5RuAccTMkJzabvKvzHi4z/gA9pZ84lUEPzxg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Christoph Lameter <cl@linux.com>,
-        Pekka Enberg <penberg@kernel.org>,
-        David Rientjes <rientjes@google.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Ludovic Barre <ludovic.barre@st.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 12/81] mm/slab.c: fix an infinite loop in leaks_show()
+Subject: [PATCH 5.1 063/155] mmc: mmci: Prevent polling for busy detection in IRQ context
 Date:   Thu, 13 Jun 2019 10:32:55 +0200
-Message-Id: <20190613075649.972724355@linuxfoundation.org>
+Message-Id: <20190613075656.568242115@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075649.074682929@linuxfoundation.org>
-References: <20190613075649.074682929@linuxfoundation.org>
+In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
+References: <20190613075652.691765927@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,83 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 745e10146c31b1c6ed3326286704ae251b17f663 ]
+[ Upstream commit 8520ce1e17799b220ff421d4f39438c9c572ade3 ]
 
-"cat /proc/slab_allocators" could hang forever on SMP machines with
-kmemleak or object debugging enabled due to other CPUs running do_drain()
-will keep making kmemleak_object or debug_objects_cache dirty and unable
-to escape the first loop in leaks_show(),
+The IRQ handler, mmci_irq(), loops until all status bits have been cleared.
+However, the status bit signaling busy in variant->busy_detect_flag, may be
+set even if busy detection isn't monitored for the current request.
 
-do {
-	set_store_user_clean(cachep);
-	drain_cpu_caches(cachep);
-	...
+This may be the case for the CMD11 when switching the I/O voltage, which
+leads to that mmci_irq() busy loops in IRQ context. Fix this problem, by
+clearing the status bit for busy, before continuing to validate the
+condition for the loop. This is safe, because the busy status detection has
+already been taken care of by mmci_cmd_irq().
 
-} while (!is_store_user_clean(cachep));
-
-For example,
-
-do_drain
-  slabs_destroy
-    slab_destroy
-      kmem_cache_free
-        __cache_free
-          ___cache_free
-            kmemleak_free_recursive
-              delete_object_full
-                __delete_object
-                  put_object
-                    free_object_rcu
-                      kmem_cache_free
-                        cache_free_debugcheck --> dirty kmemleak_object
-
-One approach is to check cachep->name and skip both kmemleak_object and
-debug_objects_cache in leaks_show().  The other is to set store_user_clean
-after drain_cpu_caches() which leaves a small window between
-drain_cpu_caches() and set_store_user_clean() where per-CPU caches could
-be dirty again lead to slightly wrong information has been stored but
-could also speed up things significantly which sounds like a good
-compromise.  For example,
-
- # cat /proc/slab_allocators
- 0m42.778s # 1st approach
- 0m0.737s  # 2nd approach
-
-[akpm@linux-foundation.org: tweak comment]
-Link: http://lkml.kernel.org/r/20190411032635.10325-1-cai@lca.pw
-Fixes: d31676dfde25 ("mm/slab: alternative implementation for DEBUG_SLAB_LEAK")
-Signed-off-by: Qian Cai <cai@lca.pw>
-Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Christoph Lameter <cl@linux.com>
-Cc: Pekka Enberg <penberg@kernel.org>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Ludovic Barre <ludovic.barre@st.com>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/slab.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/mmc/host/mmci.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/mm/slab.c b/mm/slab.c
-index 843ecea9e336..a04aeae42306 100644
---- a/mm/slab.c
-+++ b/mm/slab.c
-@@ -4320,8 +4320,12 @@ static int leaks_show(struct seq_file *m, void *p)
- 	 * whole processing.
- 	 */
- 	do {
--		set_store_user_clean(cachep);
- 		drain_cpu_caches(cachep);
-+		/*
-+		 * drain_cpu_caches() could make kmemleak_object and
-+		 * debug_objects_cache dirty, so reset afterwards.
-+		 */
-+		set_store_user_clean(cachep);
+diff --git a/drivers/mmc/host/mmci.c b/drivers/mmc/host/mmci.c
+index 387ff14587b8..e27978c47db7 100644
+--- a/drivers/mmc/host/mmci.c
++++ b/drivers/mmc/host/mmci.c
+@@ -1550,9 +1550,10 @@ static irqreturn_t mmci_irq(int irq, void *dev_id)
+ 		}
  
- 		x[1] = 0;
+ 		/*
+-		 * Don't poll for busy completion in irq context.
++		 * Busy detection has been handled by mmci_cmd_irq() above.
++		 * Clear the status bit to prevent polling in IRQ context.
+ 		 */
+-		if (host->variant->busy_detect && host->busy_status)
++		if (host->variant->busy_detect_flag)
+ 			status &= ~host->variant->busy_detect_flag;
  
+ 		ret = 1;
 -- 
 2.20.1
 
