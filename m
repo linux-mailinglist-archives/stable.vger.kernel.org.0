@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 50D5C44295
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:24:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0032D43FB3
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:00:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390295AbfFMQXm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:23:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55028 "EHLO mail.kernel.org"
+        id S1731484AbfFMP7d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 11:59:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37380 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731012AbfFMIhi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:37:38 -0400
+        id S1731483AbfFMItl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:49:41 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D96A720851;
-        Thu, 13 Jun 2019 08:37:36 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id DEB43206BA;
+        Thu, 13 Jun 2019 08:49:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415057;
-        bh=f/qvrBr26RcusG1yuVHygYjdApuT8X2YNkthe7HnCQA=;
+        s=default; t=1560415780;
+        bh=6qm8dsSAAvZzsQrVpV/U/Q9NvOzvbQ9vwMwJpnapczA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HWJUq5fKgeGCQX/oRMs10pwBxf7FnPPKcghyHESCNqoUkpVbFy8vkZLjMWWg2nwYq
-         kGhlqQWOmn3wV2opXS6CTsxkWr/4P2f6POdwnKq4UEmoawMk0dCbKPmuJAUjAc9j1p
-         dk2K1gFzZN5GY04pDYMIJEgedz7xRSFLkldi+PRY=
+        b=pFkjKCOcV5rWdFNQXlqpO5cEFuRW06wktti0gpjT/v3jZAzYuh8TFixA2XizVqDe1
+         lsR66u7QQ4wtNwgSE1N99ehnvlp37Js+y6OYBnfombmYm1uCPGXh3XfH9teApnE81X
+         j7761w6Ne+hmBjj8Pvu5b7DKe4ujBXXfIptrzGrg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "J. Bruce Fields" <bfields@redhat.com>,
+        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
+        Pavel Machek <pavel@ucw.cz>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 44/81] nfsd: allow fh_want_write to be called twice
+Subject: [PATCH 5.1 095/155] power: supply: cpcap-battery: Fix signed counter sample register
 Date:   Thu, 13 Jun 2019 10:33:27 +0200
-Message-Id: <20190613075652.537185641@linuxfoundation.org>
+Message-Id: <20190613075658.392164493@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075649.074682929@linuxfoundation.org>
-References: <20190613075649.074682929@linuxfoundation.org>
+In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
+References: <20190613075652.691765927@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,49 +45,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 0b8f62625dc309651d0efcb6a6247c933acd8b45 ]
+[ Upstream commit c68b901ac4fa969db8917b6a9f9b40524a690d20 ]
 
-A fuzzer recently triggered lockdep warnings about potential sb_writers
-deadlocks caused by fh_want_write().
+The accumulator sample register is signed 32-bits wide register on
+droid 4. And only the earlier version of cpcap has a signed 24-bits
+wide register. We're currently passing it around as unsigned, so
+let's fix that and use sign_extend32() for the earlier revision.
 
-Looks like we aren't careful to pair each fh_want_write() with an
-fh_drop_write().
-
-It's not normally a problem since fh_put() will call fh_drop_write() for
-us.  And was OK for NFSv3 where we'd do one operation that might call
-fh_want_write(), and then put the filehandle.
-
-But an NFSv4 protocol fuzzer can do weird things like call unlink twice
-in a compound, and then we get into trouble.
-
-I'm a little worried about this approach of just leaving everything to
-fh_put().  But I think there are probably a lot of
-fh_want_write()/fh_drop_write() imbalances so for now I think we need it
-to be more forgiving.
-
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Acked-by: Pavel Machek <pavel@ucw.cz>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/vfs.h | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/power/supply/cpcap-battery.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/fs/nfsd/vfs.h b/fs/nfsd/vfs.h
-index be6d8e00453f..85f544007311 100644
---- a/fs/nfsd/vfs.h
-+++ b/fs/nfsd/vfs.h
-@@ -117,8 +117,11 @@ void		nfsd_put_raparams(struct file *file, struct raparms *ra);
+diff --git a/drivers/power/supply/cpcap-battery.c b/drivers/power/supply/cpcap-battery.c
+index 6887870ba32c..453baa8f7d73 100644
+--- a/drivers/power/supply/cpcap-battery.c
++++ b/drivers/power/supply/cpcap-battery.c
+@@ -82,7 +82,7 @@ struct cpcap_battery_config {
+ };
  
- static inline int fh_want_write(struct svc_fh *fh)
+ struct cpcap_coulomb_counter_data {
+-	s32 sample;		/* 24-bits */
++	s32 sample;		/* 24 or 32 bits */
+ 	s32 accumulator;
+ 	s16 offset;		/* 10-bits */
+ };
+@@ -213,7 +213,7 @@ static int cpcap_battery_get_current(struct cpcap_battery_ddata *ddata)
+  * TI or ST coulomb counter in the PMIC.
+  */
+ static int cpcap_battery_cc_raw_div(struct cpcap_battery_ddata *ddata,
+-				    u32 sample, s32 accumulator,
++				    s32 sample, s32 accumulator,
+ 				    s16 offset, u32 divider)
  {
--	int ret = mnt_want_write(fh->fh_export->ex_path.mnt);
-+	int ret;
+ 	s64 acc;
+@@ -224,7 +224,6 @@ static int cpcap_battery_cc_raw_div(struct cpcap_battery_ddata *ddata,
+ 	if (!divider)
+ 		return 0;
  
-+	if (fh->fh_want_write)
-+		return 0;
-+	ret = mnt_want_write(fh->fh_export->ex_path.mnt);
- 	if (!ret)
- 		fh->fh_want_write = true;
- 	return ret;
+-	sample &= 0xffffff;		/* 24-bits, unsigned */
+ 	offset &= 0x7ff;		/* 10-bits, signed */
+ 
+ 	switch (ddata->vendor) {
+@@ -259,7 +258,7 @@ static int cpcap_battery_cc_raw_div(struct cpcap_battery_ddata *ddata,
+ 
+ /* 3600000μAms = 1μAh */
+ static int cpcap_battery_cc_to_uah(struct cpcap_battery_ddata *ddata,
+-				   u32 sample, s32 accumulator,
++				   s32 sample, s32 accumulator,
+ 				   s16 offset)
+ {
+ 	return cpcap_battery_cc_raw_div(ddata, sample,
+@@ -268,7 +267,7 @@ static int cpcap_battery_cc_to_uah(struct cpcap_battery_ddata *ddata,
+ }
+ 
+ static int cpcap_battery_cc_to_ua(struct cpcap_battery_ddata *ddata,
+-				  u32 sample, s32 accumulator,
++				  s32 sample, s32 accumulator,
+ 				  s16 offset)
+ {
+ 	return cpcap_battery_cc_raw_div(ddata, sample,
+@@ -312,6 +311,8 @@ cpcap_battery_read_accumulated(struct cpcap_battery_ddata *ddata,
+ 	/* Sample value CPCAP_REG_CCS1 & 2 */
+ 	ccd->sample = (buf[1] & 0x0fff) << 16;
+ 	ccd->sample |= buf[0];
++	if (ddata->vendor == CPCAP_VENDOR_TI)
++		ccd->sample = sign_extend32(24, ccd->sample);
+ 
+ 	/* Accumulator value CPCAP_REG_CCA1 & 2 */
+ 	ccd->accumulator = ((s16)buf[3]) << 16;
 -- 
 2.20.1
 
