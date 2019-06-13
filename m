@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DB6B43FC9
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:00:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC68C44294
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:24:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728066AbfFMQAW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:00:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36960 "EHLO mail.kernel.org"
+        id S1731026AbfFMQXm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:23:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731466AbfFMItG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:49:06 -0400
+        id S1731011AbfFMIhg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:37:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A9A8120851;
-        Thu, 13 Jun 2019 08:49:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3E9CC2064A;
+        Thu, 13 Jun 2019 08:37:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415746;
-        bh=XLkufEsEZBuRqb2pPmA7YNzFgIHzzj0W7dsrIzOrwAU=;
+        s=default; t=1560415054;
+        bh=JUTwg6JYVMcanXtm5O5FyNtXQi+NRAjPJmKWbUZPEa0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HdQo7HE+iwe2B3ksMi5GzZa6S1iFxRDxyl76pMsA3fcoemFze23RHixxCafB2JO+l
-         sZnrHxOPARnOLFbvTzB6wxpfu4YoiB69JJAE1HTf+ceQ0cPZRAsxmgxz56FwjIjCcc
-         eFanqgpW1wCwWTV7pHf3SF4G2ZNMhogYbRZ8CIR8=
+        b=WAqL5yGaOPZp4ECIXPbiO/qhy9EPBa/9JGPqjeA1H5k03KyXpy0b7g2T3kMyVnkcO
+         w5fpOjowoJnuvEomB0nPBurAEBxcYvr0OPzhxqmc/iM+XD2GPowSyDBhgWCcFVYAOO
+         eAQFwq9POwPglB70uRjIggZaJINUGB74Lv/tPvCs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Adam Ludkiewicz <adam.ludkiewicz@intel.com>,
-        Andrew Bowers <andrewx.bowers@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
+        stable@vger.kernel.org, Kirill Smelkov <kirr@nexedi.com>,
+        Han-Wen Nienhuys <hanwen@google.com>,
+        Jakob Unterwurzacher <jakobunt@gmail.com>,
+        Miklos Szeredi <mszeredi@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 094/155] i40e: Queues are reserved despite "Invalid argument" error
+Subject: [PATCH 4.14 43/81] fuse: retrieve: cap requested size to negotiated max_write
 Date:   Thu, 13 Jun 2019 10:33:26 +0200
-Message-Id: <20190613075658.342251502@linuxfoundation.org>
+Message-Id: <20190613075652.485457686@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
-References: <20190613075652.691765927@linuxfoundation.org>
+In-Reply-To: <20190613075649.074682929@linuxfoundation.org>
+References: <20190613075649.074682929@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,50 +46,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 3e957b377bf4262aec2dd424f28ece94e36814d4 ]
+[ Upstream commit 7640682e67b33cab8628729afec8ca92b851394f ]
 
-Added a new local variable in the i40e_setup_tc function named
-old_queue_pairs so num_queue_pairs can be restored to the correct
-value in case configuring queue channels fails. Additionally, moved
-the exit label in the i40e_setup_tc function so the if (need_reset)
-block can be executed.
-Also, fixed data packing in the i40e_setup_tc function.
+FUSE filesystem server and kernel client negotiate during initialization
+phase, what should be the maximum write size the client will ever issue.
+Correspondingly the filesystem server then queues sys_read calls to read
+requests with buffer capacity large enough to carry request header + that
+max_write bytes. A filesystem server is free to set its max_write in
+anywhere in the range between [1*page, fc->max_pages*page]. In particular
+go-fuse[2] sets max_write by default as 64K, wheres default fc->max_pages
+corresponds to 128K. Libfuse also allows users to configure max_write, but
+by default presets it to possible maximum.
 
-Signed-off-by: Adam Ludkiewicz <adam.ludkiewicz@intel.com>
-Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+If max_write is < fc->max_pages*page, and in NOTIFY_RETRIEVE handler we
+allow to retrieve more than max_write bytes, corresponding prepared
+NOTIFY_REPLY will be thrown away by fuse_dev_do_read, because the
+filesystem server, in full correspondence with server/client contract, will
+be only queuing sys_read with ~max_write buffer capacity, and
+fuse_dev_do_read throws away requests that cannot fit into server request
+buffer. In turn the filesystem server could get stuck waiting indefinitely
+for NOTIFY_REPLY since NOTIFY_RETRIEVE handler returned OK which is
+understood by clients as that NOTIFY_REPLY was queued and will be sent
+back.
+
+Cap requested size to negotiate max_write to avoid the problem.  This
+aligns with the way NOTIFY_RETRIEVE handler works, which already
+unconditionally caps requested retrieve size to fuse_conn->max_pages.  This
+way it should not hurt NOTIFY_RETRIEVE semantic if we return less data than
+was originally requested.
+
+Please see [1] for context where the problem of stuck filesystem was hit
+for real, how the situation was traced and for more involving patch that
+did not make it into the tree.
+
+[1] https://marc.info/?l=linux-fsdevel&m=155057023600853&w=2
+[2] https://github.com/hanwen/go-fuse
+
+Signed-off-by: Kirill Smelkov <kirr@nexedi.com>
+Cc: Han-Wen Nienhuys <hanwen@google.com>
+Cc: Jakob Unterwurzacher <jakobunt@gmail.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_main.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/fuse/dev.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
-index ac9fcb097689..133f5e008822 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -6854,10 +6854,12 @@ static int i40e_setup_tc(struct net_device *netdev, void *type_data)
- 	struct i40e_pf *pf = vsi->back;
- 	u8 enabled_tc = 0, num_tc, hw;
- 	bool need_reset = false;
-+	int old_queue_pairs;
- 	int ret = -EINVAL;
- 	u16 mode;
- 	int i;
+--- a/fs/fuse/dev.c
++++ b/fs/fuse/dev.c
+@@ -1678,7 +1678,7 @@ static int fuse_retrieve(struct fuse_con
+ 	offset = outarg->offset & ~PAGE_MASK;
+ 	file_size = i_size_read(inode);
  
-+	old_queue_pairs = vsi->num_queue_pairs;
- 	num_tc = mqprio_qopt->qopt.num_tc;
- 	hw = mqprio_qopt->qopt.hw;
- 	mode = mqprio_qopt->mode;
-@@ -6958,6 +6960,7 @@ config_tc:
- 		}
- 		ret = i40e_configure_queue_channels(vsi);
- 		if (ret) {
-+			vsi->num_queue_pairs = old_queue_pairs;
- 			netdev_info(netdev,
- 				    "Failed configuring queue channels\n");
- 			need_reset = true;
--- 
-2.20.1
-
+-	num = outarg->size;
++	num = min(outarg->size, fc->max_write);
+ 	if (outarg->offset > file_size)
+ 		num = 0;
+ 	else if (outarg->offset + num > file_size)
 
 
