@@ -2,39 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C171B44112
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:12:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F33A43F70
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 17:57:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391389AbfFMQLV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:11:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60720 "EHLO mail.kernel.org"
+        id S1731576AbfFMP51 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 11:57:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731242AbfFMInd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:43:33 -0400
+        id S1731507AbfFMIun (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:50:43 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B9AF2147A;
-        Thu, 13 Jun 2019 08:43:32 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B54F620851;
+        Thu, 13 Jun 2019 08:50:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415413;
-        bh=PH6dG94hNLWF7W1sTLFFWbqMCAI3bu5OdGA+wHUVEiA=;
+        s=default; t=1560415843;
+        bh=HbA5eCN6xurGIQ6BGkFFfMgHr7GRTlSAQnHbchCGmoY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tDAX8zpQNngusszD0XcthOBBZ28+2UfSSU/YjkFws+72+EucQrLbHjLFU39AA0j1j
-         Q6nry/WXOT5F/w4ejCc1gJOUGLP5v/J70Gp4QCfiEnk++hyOsanVrnd4Som62t5bTu
-         eBdVvJZvhYHFd6y2IPzeZvRyJheetsuh/UMsPE7I=
+        b=cCGZ2vPbRH9HwfS7IYH49f07rNYN+mK9rXsM1kranHgaGwYxcGnawiPjy/2iT2yaT
+         /MTI7OG/3bxK5biuXMEcU5+Lb6GISQGI26vMXjcOHRxsSv4yee1ebVgEAHYpxu8qkl
+         mcQozC20dumXHIkcgTt5s/IlG6/OWXlBnx7KN/bk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiufei Xue <jiufei.xue@linux.alibaba.com>,
-        Miklos Szeredi <mszeredi@redhat.com>,
-        Amir Goldstein <amir73il@gmail.com>
-Subject: [PATCH 4.19 116/118] ovl: check the capability before cred overridden
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christoph=20Vogtl=C3=A4nder?= 
+        <c.vogtlaender@sigma-surface-science.com>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        Thierry Reding <thierry.reding@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 142/155] pwm: tiehrpwm: Update shadow register for disabling PWMs
 Date:   Thu, 13 Jun 2019 10:34:14 +0200
-Message-Id: <20190613075651.066987620@linuxfoundation.org>
+Message-Id: <20190613075700.967702423@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075643.642092651@linuxfoundation.org>
-References: <20190613075643.642092651@linuxfoundation.org>
+In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
+References: <20190613075652.691765927@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,141 +47,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiufei Xue <jiufei.xue@linux.alibaba.com>
+[ Upstream commit b00ef53053191d3025c15e8041699f8c9d132daf ]
 
-commit 98487de318a6f33312471ae1e2afa16fbf8361fe upstream.
+It must be made sure that immediate mode is not already set, when
+modifying shadow register value in ehrpwm_pwm_disable(). Otherwise
+modifications to the action-qualifier continuous S/W force
+register(AQSFRC) will be done in the active register.
+This may happen when both channels are being disabled. In this case,
+only the first channel state will be recorded as disabled in the shadow
+register. Later, when enabling the first channel again, the second
+channel would be enabled as well. Setting RLDCSF to zero, first, ensures
+that the shadow register is updated as desired.
 
-We found that it return success when we set IMMUTABLE_FL flag to a file in
-docker even though the docker didn't have the capability
-CAP_LINUX_IMMUTABLE.
-
-The commit d1d04ef8572b ("ovl: stack file ops") and dab5ca8fd9dd ("ovl: add
-lsattr/chattr support") implemented chattr operations on a regular overlay
-file. ovl_real_ioctl() overridden the current process's subjective
-credentials with ofs->creator_cred which have the capability
-CAP_LINUX_IMMUTABLE so that it will return success in
-vfs_ioctl()->cap_capable().
-
-Fix this by checking the capability before cred overridden. And here we
-only care about APPEND_FL and IMMUTABLE_FL, so get these information from
-inode.
-
-[SzM: move check and call to underlying fs inside inode locked region to
-prevent two such calls from racing with each other]
-
-Signed-off-by: Jiufei Xue <jiufei.xue@linux.alibaba.com>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-Cc: Amir Goldstein <amir73il@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: 38dabd91ff0b ("pwm: tiehrpwm: Fix disabling of output of PWMs")
+Signed-off-by: Christoph Vogtländer <c.vogtlaender@sigma-surface-science.com>
+[vigneshr@ti.com: Improve commit message]
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/overlayfs/file.c |   79 ++++++++++++++++++++++++++++++++++++++++------------
- 1 file changed, 61 insertions(+), 18 deletions(-)
+ drivers/pwm/pwm-tiehrpwm.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/overlayfs/file.c
-+++ b/fs/overlayfs/file.c
-@@ -11,6 +11,7 @@
- #include <linux/mount.h>
- #include <linux/xattr.h>
- #include <linux/uio.h>
-+#include <linux/uaccess.h>
- #include "overlayfs.h"
+diff --git a/drivers/pwm/pwm-tiehrpwm.c b/drivers/pwm/pwm-tiehrpwm.c
+index f7b8a86fa5c5..ad4a40c0f27c 100644
+--- a/drivers/pwm/pwm-tiehrpwm.c
++++ b/drivers/pwm/pwm-tiehrpwm.c
+@@ -382,6 +382,8 @@ static void ehrpwm_pwm_disable(struct pwm_chip *chip, struct pwm_device *pwm)
+ 	}
  
- static char ovl_whatisit(struct inode *inode, struct inode *realinode)
-@@ -372,10 +373,68 @@ static long ovl_real_ioctl(struct file *
- 	return ret;
- }
- 
--static long ovl_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
-+static unsigned int ovl_get_inode_flags(struct inode *inode)
-+{
-+	unsigned int flags = READ_ONCE(inode->i_flags);
-+	unsigned int ovl_iflags = 0;
-+
-+	if (flags & S_SYNC)
-+		ovl_iflags |= FS_SYNC_FL;
-+	if (flags & S_APPEND)
-+		ovl_iflags |= FS_APPEND_FL;
-+	if (flags & S_IMMUTABLE)
-+		ovl_iflags |= FS_IMMUTABLE_FL;
-+	if (flags & S_NOATIME)
-+		ovl_iflags |= FS_NOATIME_FL;
-+
-+	return ovl_iflags;
-+}
-+
-+static long ovl_ioctl_set_flags(struct file *file, unsigned long arg)
- {
- 	long ret;
- 	struct inode *inode = file_inode(file);
-+	unsigned int flags;
-+	unsigned int old_flags;
-+
-+	if (!inode_owner_or_capable(inode))
-+		return -EACCES;
-+
-+	if (get_user(flags, (int __user *) arg))
-+		return -EFAULT;
-+
-+	ret = mnt_want_write_file(file);
-+	if (ret)
-+		return ret;
-+
-+	inode_lock(inode);
-+
-+	/* Check the capability before cred override */
-+	ret = -EPERM;
-+	old_flags = ovl_get_inode_flags(inode);
-+	if (((flags ^ old_flags) & (FS_APPEND_FL | FS_IMMUTABLE_FL)) &&
-+	    !capable(CAP_LINUX_IMMUTABLE))
-+		goto unlock;
-+
-+	ret = ovl_maybe_copy_up(file_dentry(file), O_WRONLY);
-+	if (ret)
-+		goto unlock;
-+
-+	ret = ovl_real_ioctl(file, FS_IOC_SETFLAGS, arg);
-+
-+	ovl_copyflags(ovl_inode_real(inode), inode);
-+unlock:
-+	inode_unlock(inode);
-+
-+	mnt_drop_write_file(file);
-+
-+	return ret;
-+
-+}
-+
-+static long ovl_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
-+{
-+	long ret;
- 
- 	switch (cmd) {
- 	case FS_IOC_GETFLAGS:
-@@ -383,23 +442,7 @@ static long ovl_ioctl(struct file *file,
- 		break;
- 
- 	case FS_IOC_SETFLAGS:
--		if (!inode_owner_or_capable(inode))
--			return -EACCES;
--
--		ret = mnt_want_write_file(file);
--		if (ret)
--			return ret;
--
--		ret = ovl_maybe_copy_up(file_dentry(file), O_WRONLY);
--		if (!ret) {
--			ret = ovl_real_ioctl(file, cmd, arg);
--
--			inode_lock(inode);
--			ovl_copyflags(ovl_inode_real(inode), inode);
--			inode_unlock(inode);
--		}
--
--		mnt_drop_write_file(file);
-+		ret = ovl_ioctl_set_flags(file, arg);
- 		break;
- 
- 	default:
+ 	/* Update shadow register first before modifying active register */
++	ehrpwm_modify(pc->mmio_base, AQSFRC, AQSFRC_RLDCSF_MASK,
++		      AQSFRC_RLDCSF_ZRO);
+ 	ehrpwm_modify(pc->mmio_base, AQCSFRC, aqcsfrc_mask, aqcsfrc_val);
+ 	/*
+ 	 * Changes to immediate action on Action Qualifier. This puts
+-- 
+2.20.1
+
 
 
