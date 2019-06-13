@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7224544237
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:20:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1D3C4439D
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:33:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731085AbfFMQUU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:20:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56978 "EHLO mail.kernel.org"
+        id S1727492AbfFMQao (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:30:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52604 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731078AbfFMIj0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:39:26 -0400
+        id S1730871AbfFMIeu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:34:50 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E05452173C;
-        Thu, 13 Jun 2019 08:39:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 592AE206E0;
+        Thu, 13 Jun 2019 08:34:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415165;
-        bh=H+5dwPgFB4MiHnOvTpStQdvAC/UlKgX1WYyo7jCx39M=;
+        s=default; t=1560414889;
+        bh=HTx1fHVj5uezsO/DXs83fYpWV86qC1ZT8ZkQv5D7U4A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WTrxoS+FFuyETFqOJ1K5stVmtam0dtctxHBfoe1z1dv226JtxRxbIp11TRdLENywF
-         AemfMGZop8mRcOyxX2OALUD0b+0lnQ4XuSQkMwq07X/75YShev9fgdTDCiCtbAs0r3
-         4QRS1xQOqvppEvdI6QJ2iMAKgMGllrwhoF9M1Ccw=
+        b=hop/hQfVKHHpr8J7TGCpXzVtonMfk7Ehc7ZhgydcmYyjsqQM2ek8pOd47/5ZP07VC
+         c2D3qqxt2u3wtUbj1WEwe+A235uBJduyrT/Y7Bt64qa1Ns7Oo7BZFQniLbAezW2mUw
+         QSw1LDWMGJDYRjLZSWlwTH1lbdEJneDX3fTPEO4o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josh Poimboeuf <jpoimboe@redhat.com>,
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        Alexandre Bounine <alex.bou9@gmail.com>,
+        Matt Porter <mporter@kernel.crashing.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 026/118] objtool: Dont use ignore flag for fake jumps
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 01/81] rapidio: fix a NULL pointer dereference when create_workqueue() fails
 Date:   Thu, 13 Jun 2019 10:32:44 +0200
-Message-Id: <20190613075645.065462393@linuxfoundation.org>
+Message-Id: <20190613075649.180044179@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075643.642092651@linuxfoundation.org>
-References: <20190613075643.642092651@linuxfoundation.org>
+In-Reply-To: <20190613075649.074682929@linuxfoundation.org>
+References: <20190613075649.074682929@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,68 +49,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit e6da9567959e164f82bc81967e0d5b10dee870b4 ]
+[ Upstream commit 23015b22e47c5409620b1726a677d69e5cd032ba ]
 
-The ignore flag is set on fake jumps in order to keep
-add_jump_destinations() from setting their jump_dest, since it already
-got set when the fake jump was created.
+In case create_workqueue fails, the fix releases resources and returns
+-ENOMEM to avoid NULL pointer dereference.
 
-But using the ignore flag is a bit of a hack.  It's normally used to
-skip validation of an instruction, which doesn't really make sense for
-fake jumps.
-
-Also, after the next patch, using the ignore flag for fake jumps can
-trigger a false "why am I validating an ignored function?" warning.
-
-Instead just add an explicit check in add_jump_destinations() to skip
-fake jumps.
-
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Link: http://lkml.kernel.org/r/71abc072ff48b2feccc197723a9c52859476c068.1557766718.git.jpoimboe@redhat.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Kangjie Lu <kjlu@umn.edu>
+Acked-by: Alexandre Bounine <alex.bou9@gmail.com>
+Cc: Matt Porter <mporter@kernel.crashing.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/objtool/check.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/rapidio/rio_cm.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/tools/objtool/check.c b/tools/objtool/check.c
-index 46be34576620..02a47e365e52 100644
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -28,6 +28,8 @@
- #include <linux/hashtable.h>
- #include <linux/kernel.h>
- 
-+#define FAKE_JUMP_OFFSET -1
+diff --git a/drivers/rapidio/rio_cm.c b/drivers/rapidio/rio_cm.c
+index bad0e0ea4f30..ef989a15aefc 100644
+--- a/drivers/rapidio/rio_cm.c
++++ b/drivers/rapidio/rio_cm.c
+@@ -2145,6 +2145,14 @@ static int riocm_add_mport(struct device *dev,
+ 	mutex_init(&cm->rx_lock);
+ 	riocm_rx_fill(cm, RIOCM_RX_RING_SIZE);
+ 	cm->rx_wq = create_workqueue(DRV_NAME "/rxq");
++	if (!cm->rx_wq) {
++		riocm_error("failed to allocate IBMBOX_%d on %s",
++			    cmbox, mport->name);
++		rio_release_outb_mbox(mport, cmbox);
++		kfree(cm);
++		return -ENOMEM;
++	}
 +
- struct alternative {
- 	struct list_head list;
- 	struct instruction *insn;
-@@ -501,7 +503,7 @@ static int add_jump_destinations(struct objtool_file *file)
- 		    insn->type != INSN_JUMP_UNCONDITIONAL)
- 			continue;
+ 	INIT_WORK(&cm->rx_work, rio_ibmsg_handler);
  
--		if (insn->ignore)
-+		if (insn->ignore || insn->offset == FAKE_JUMP_OFFSET)
- 			continue;
- 
- 		rela = find_rela_by_dest_range(insn->sec, insn->offset,
-@@ -670,10 +672,10 @@ static int handle_group_alt(struct objtool_file *file,
- 		clear_insn_state(&fake_jump->state);
- 
- 		fake_jump->sec = special_alt->new_sec;
--		fake_jump->offset = -1;
-+		fake_jump->offset = FAKE_JUMP_OFFSET;
- 		fake_jump->type = INSN_JUMP_UNCONDITIONAL;
- 		fake_jump->jump_dest = list_next_entry(last_orig_insn, list);
--		fake_jump->ignore = true;
-+		fake_jump->func = orig_insn->func;
- 	}
- 
- 	if (!special_alt->new_len) {
+ 	cm->tx_slot = 0;
 -- 
 2.20.1
 
