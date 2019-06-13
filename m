@@ -2,39 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 56957441E7
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:20:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1F594434A
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:30:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2387466AbfFMQRj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:17:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58078 "EHLO mail.kernel.org"
+        id S2392150AbfFMQ2Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:28:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53424 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731128AbfFMIkm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:40:42 -0400
+        id S1730945AbfFMIfr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:35:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9861D20851;
-        Thu, 13 Jun 2019 08:40:41 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C694620851;
+        Thu, 13 Jun 2019 08:35:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415242;
-        bh=Y15hjPBH+nSlxC4voQ82jeXo2L7vsIrjbrubboSV2WQ=;
+        s=default; t=1560414946;
+        bh=xIY3VIlTtPhkqtybP4/9ZX6GyFeCo7yhrVUEIdByHJI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qyt1E26F2Dfk1jfx6qu+0uUWhKjkhg7GuN/6RJnZLnMsaU//5yvmra0kDl12QMhil
-         HZcsV8bdHhg/ZBtm38Vid+ugcU0bw5bYjiArlyWGQX7BAXSZAhgaD1F9cQ5U7jy6tU
-         YcSpj0aHRT/smURsWXEABlEW2bQ2kTKeV8bApvAs=
+        b=jg2UMoAm8Z7EdpSHxk4ZQn3uWbGry9yk+xtOwuYWfayYTGzUrkVEhyyqvw6KdMwst
+         24rjBVffxdYXdYRrn2jwGqYeL5X3vPyf5mVad/4u4+ylqGAo7QeJS2I7OfnvKldgML
+         9UzpXieYg00WeQADx5U+Cnq8P9ugyHrpj2niEFMY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Qian Cai <cai@lca.pw>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Christoph Lameter <cl@linux.com>,
+        Pekka Enberg <penberg@kernel.org>,
+        David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 037/118] f2fs: fix to clear dirty inode in error path of f2fs_iget()
+Subject: [PATCH 4.14 12/81] mm/slab.c: fix an infinite loop in leaks_show()
 Date:   Thu, 13 Jun 2019 10:32:55 +0200
-Message-Id: <20190613075645.673000326@linuxfoundation.org>
+Message-Id: <20190613075649.972724355@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075643.642092651@linuxfoundation.org>
-References: <20190613075643.642092651@linuxfoundation.org>
+In-Reply-To: <20190613075649.074682929@linuxfoundation.org>
+References: <20190613075649.074682929@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,67 +50,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 546d22f070d64a7b96f57c93333772085d3a5e6d ]
+[ Upstream commit 745e10146c31b1c6ed3326286704ae251b17f663 ]
 
-As Jungyeon reported in bugzilla:
+"cat /proc/slab_allocators" could hang forever on SMP machines with
+kmemleak or object debugging enabled due to other CPUs running do_drain()
+will keep making kmemleak_object or debug_objects_cache dirty and unable
+to escape the first loop in leaks_show(),
 
-https://bugzilla.kernel.org/show_bug.cgi?id=203217
+do {
+	set_store_user_clean(cachep);
+	drain_cpu_caches(cachep);
+	...
 
-- Overview
-When mounting the attached crafted image and running program, I got this error.
-Additionally, it hangs on sync after running the program.
+} while (!is_store_user_clean(cachep));
 
-The image is intentionally fuzzed from a normal f2fs image for testing and I enabled option CONFIG_F2FS_CHECK_FS on.
+For example,
 
-- Reproduces
-cc poc_test_05.c
-mkdir test
-mount -t f2fs tmp.img test
-sudo ./a.out
-sync
+do_drain
+  slabs_destroy
+    slab_destroy
+      kmem_cache_free
+        __cache_free
+          ___cache_free
+            kmemleak_free_recursive
+              delete_object_full
+                __delete_object
+                  put_object
+                    free_object_rcu
+                      kmem_cache_free
+                        cache_free_debugcheck --> dirty kmemleak_object
 
-- Messages
- kernel BUG at fs/f2fs/inode.c:707!
- RIP: 0010:f2fs_evict_inode+0x33f/0x3a0
- Call Trace:
-  evict+0xba/0x180
-  f2fs_iget+0x598/0xdf0
-  f2fs_lookup+0x136/0x320
-  __lookup_slow+0x92/0x140
-  lookup_slow+0x30/0x50
-  walk_component+0x1c1/0x350
-  path_lookupat+0x62/0x200
-  filename_lookup+0xb3/0x1a0
-  do_readlinkat+0x56/0x110
-  __x64_sys_readlink+0x16/0x20
-  do_syscall_64+0x43/0xf0
-  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+One approach is to check cachep->name and skip both kmemleak_object and
+debug_objects_cache in leaks_show().  The other is to set store_user_clean
+after drain_cpu_caches() which leaves a small window between
+drain_cpu_caches() and set_store_user_clean() where per-CPU caches could
+be dirty again lead to slightly wrong information has been stored but
+could also speed up things significantly which sounds like a good
+compromise.  For example,
 
-During inode loading, __recover_inline_status() can recovery inode status
-and set inode dirty, once we failed in following process, it will fail
-the check in f2fs_evict_inode, result in trigger BUG_ON().
+ # cat /proc/slab_allocators
+ 0m42.778s # 1st approach
+ 0m0.737s  # 2nd approach
 
-Let's clear dirty inode in error path of f2fs_iget() to avoid panic.
-
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+[akpm@linux-foundation.org: tweak comment]
+Link: http://lkml.kernel.org/r/20190411032635.10325-1-cai@lca.pw
+Fixes: d31676dfde25 ("mm/slab: alternative implementation for DEBUG_SLAB_LEAK")
+Signed-off-by: Qian Cai <cai@lca.pw>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Christoph Lameter <cl@linux.com>
+Cc: Pekka Enberg <penberg@kernel.org>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/inode.c | 1 +
- 1 file changed, 1 insertion(+)
+ mm/slab.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/fs/f2fs/inode.c b/fs/f2fs/inode.c
-index dd608b819a3c..fae9570e6860 100644
---- a/fs/f2fs/inode.c
-+++ b/fs/f2fs/inode.c
-@@ -476,6 +476,7 @@ make_now:
- 	return inode;
+diff --git a/mm/slab.c b/mm/slab.c
+index 843ecea9e336..a04aeae42306 100644
+--- a/mm/slab.c
++++ b/mm/slab.c
+@@ -4320,8 +4320,12 @@ static int leaks_show(struct seq_file *m, void *p)
+ 	 * whole processing.
+ 	 */
+ 	do {
+-		set_store_user_clean(cachep);
+ 		drain_cpu_caches(cachep);
++		/*
++		 * drain_cpu_caches() could make kmemleak_object and
++		 * debug_objects_cache dirty, so reset afterwards.
++		 */
++		set_store_user_clean(cachep);
  
- bad_inode:
-+	f2fs_inode_synced(inode);
- 	iget_failed(inode);
- 	trace_f2fs_iget_exit(inode, ret);
- 	return ERR_PTR(ret);
+ 		x[1] = 0;
+ 
 -- 
 2.20.1
 
