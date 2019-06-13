@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 558F243FCF
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:01:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E350E44187
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:15:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728833AbfFMQAc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:00:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36938 "EHLO mail.kernel.org"
+        id S2391475AbfFMQPF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:15:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59298 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731465AbfFMItE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:49:04 -0400
+        id S1731182AbfFMImI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:42:08 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 07F7A206BA;
-        Thu, 13 Jun 2019 08:49:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 27CC721479;
+        Thu, 13 Jun 2019 08:42:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415743;
-        bh=JRsUTwz51DTYuVKxaSW4tNqWcZDbdHFid2P6ie/a+ss=;
+        s=default; t=1560415327;
+        bh=0NP3m5N8hUwnAnrMaptmgdmdiwHOiq/EkYyzRnMF+EQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TN0Me5dc2Wf6SU5zsr6mTz4Pt10R0nuT9fiTBaolIoWylzVQH6IHQfEO6td4lQ27C
-         gIvnsyvS+lplBTO/o5kEYB+B+XMIQ6aU5aISVssaoMSsTDcZHs0KTfAYaEkxTrykdk
-         SBjjWZ5L+0EpsCAlzhVwyy1FcQ3wFGU920Bi6KIs=
+        b=FXs/Pt9jPBNM+L0New346tz5qF88p/apT0U9fekGWOv3wkRnUCQfe6p246j6uKoVm
+         hcRuuFiZgKOeXvNdGBQ5IZz87dv+v7DprqmtS0fishys6HScoxj6/sucikdPNAh/dk
+         gAqSOehnqFP+rEspg6jjEJVFAJVnd/M2OxTD1R4o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -34,12 +34,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Shawn Guo <shawnguo@kernel.org>,
         linux-arm-kernel@lists.infradead.org,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 111/155] ARM: dts: imx6ul: Specify IMX6UL_CLK_IPG as "ipg" clock to SDMA
-Date:   Thu, 13 Jun 2019 10:33:43 +0200
-Message-Id: <20190613075659.178190351@linuxfoundation.org>
+Subject: [PATCH 4.19 086/118] ARM: dts: imx6ul: Specify IMX6UL_CLK_IPG as "ipg" clock to SDMA
+Date:   Thu, 13 Jun 2019 10:33:44 +0200
+Message-Id: <20190613075648.825619386@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
-References: <20190613075652.691765927@linuxfoundation.org>
+In-Reply-To: <20190613075643.642092651@linuxfoundation.org>
+References: <20190613075643.642092651@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -74,10 +74,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/arch/arm/boot/dts/imx6ul.dtsi b/arch/arm/boot/dts/imx6ul.dtsi
-index 62ed30c781ed..facd65602c2d 100644
+index 6dc0b569acdf..2366f093cc76 100644
 --- a/arch/arm/boot/dts/imx6ul.dtsi
 +++ b/arch/arm/boot/dts/imx6ul.dtsi
-@@ -708,7 +708,7 @@
+@@ -707,7 +707,7 @@
  					     "fsl,imx35-sdma";
  				reg = <0x020ec000 0x4000>;
  				interrupts = <GIC_SPI 2 IRQ_TYPE_LEVEL_HIGH>;
