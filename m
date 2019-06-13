@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A28D440F5
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:11:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CD7243F6B
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 17:57:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2390106AbfFMQK6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:10:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60850 "EHLO mail.kernel.org"
+        id S2390044AbfFMP5N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 11:57:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731244AbfFMInj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:43:39 -0400
+        id S1731511AbfFMIut (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:50:49 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0A07A21744;
-        Thu, 13 Jun 2019 08:43:37 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7125D206BA;
+        Thu, 13 Jun 2019 08:50:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415418;
-        bh=GXSsHoONhYs3v9VvIDnNur0FcJCX48oYI69FzwVuKns=;
+        s=default; t=1560415848;
+        bh=iPQyzFyu/DJUnD58qCjst1RdZFHsY0k4sa2RQWZzIdA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HoUEyvLYLpZZx2Hwo83WtNdmH+nCH+t0cZxLoomLadsbTPzWvOWdirDD3sP17t/Wy
-         3FqrKC9RVRpzwVfTHLflJ/2Mfn9840t963jC3JxZfHWOnab+6yo42ZCUYTs9w0HlIU
-         F+gFnp55uKHFRXTuj0dTBLDH3eufWJAqcs3ZmO1w=
+        b=WW/cxuPQBm4KfRb4+Yhcz4UV6+q+DoX8zKngqU1QpXqCcqeqYHNaqoLVZApD8INur
+         yf5SNa+bxaecLg+3DNlHr8AUgFH9iwwLV37rbFuasQZ2XsDVDJ9KnWBG81USq2BVWT
+         P00H3i/UnuacBVbhSp842KqphKeccB0ttXJSWlxc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Boris Brezillon <boris.brezillon@collabora.com>,
-        Helen Koike <helen.koike@collabora.com>
-Subject: [PATCH 4.19 118/118] drm/vc4: fix fb references in async update
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.1 144/155] ARM: dts: exynos: Always enable necessary APIO_1V8 and ABB_1V8 regulators on Arndale Octa
 Date:   Thu, 13 Jun 2019 10:34:16 +0200
-Message-Id: <20190613075651.218844366@linuxfoundation.org>
+Message-Id: <20190613075701.051910091@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075643.642092651@linuxfoundation.org>
-References: <20190613075643.642092651@linuxfoundation.org>
+In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
+References: <20190613075652.691765927@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,39 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helen Koike <helen.koike@collabora.com>
+[ Upstream commit 5ab99cf7d5e96e3b727c30e7a8524c976bd3723d ]
 
-commit c16b85559dcfb5a348cc085a7b4c75ed49b05e2c upstream.
+The PVDD_APIO_1V8 (LDO2) and PVDD_ABB_1V8 (LDO8) regulators were turned
+off by Linux kernel as unused.  However they supply critical parts of
+SoC so they should be always on:
 
-Async update callbacks are expected to set the old_fb in the new_state
-so prepare/cleanup framebuffers are balanced.
+1. PVDD_APIO_1V8 supplies SYS pins (gpx[0-3], PSHOLD), HDMI level shift,
+   RTC, VDD1_12 (DRAM internal 1.8 V logic), pull-up for PMIC interrupt
+   lines, TTL/UARTR level shift, reset pins and SW-TACT1 button.
+   It also supplies unused blocks like VDDQ_SRAM (for SROM controller) and
+   VDDQ_GPIO (gpm7, gpy7).
+   The LDO2 cannot be turned off (S2MPS11 keeps it on anyway) so
+   marking it "always-on" only reflects its real status.
 
-Calling drm_atomic_set_fb_for_plane() (which gets a reference of the new
-fb and put the old fb) is not required, as it's taken care by
-drm_mode_cursor_universal() when calling drm_atomic_helper_update_plane().
+2. PVDD_ABB_1V8 supplies Adaptive Body Bias Generator for ARM cores,
+   memory and Mali (G3D).
 
-Cc: <stable@vger.kernel.org> # v4.19+
-Fixes: 539c320bfa97 ("drm/vc4: update cursors asynchronously through atomic")
-Suggested-by: Boris Brezillon <boris.brezillon@collabora.com>
-Signed-off-by: Helen Koike <helen.koike@collabora.com>
-Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
-Signed-off-by: Boris Brezillon <boris.brezillon@collabora.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20190603165610.24614-5-helen.koike@collabora.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vc4/vc4_plane.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/boot/dts/exynos5420-arndale-octa.dts | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/gpu/drm/vc4/vc4_plane.c
-+++ b/drivers/gpu/drm/vc4/vc4_plane.c
-@@ -818,6 +818,7 @@ static void vc4_plane_atomic_async_updat
- 		drm_atomic_set_fb_for_plane(plane->state, state->fb);
- 	}
+diff --git a/arch/arm/boot/dts/exynos5420-arndale-octa.dts b/arch/arm/boot/dts/exynos5420-arndale-octa.dts
+index 3447160e1fbf..a0e27e1c0feb 100644
+--- a/arch/arm/boot/dts/exynos5420-arndale-octa.dts
++++ b/arch/arm/boot/dts/exynos5420-arndale-octa.dts
+@@ -107,6 +107,7 @@
+ 				regulator-name = "PVDD_APIO_1V8";
+ 				regulator-min-microvolt = <1800000>;
+ 				regulator-max-microvolt = <1800000>;
++				regulator-always-on;
+ 			};
  
-+	swap(plane->state->fb, state->fb);
- 	/* Set the cursor's position on the screen.  This is the
- 	 * expected change from the drm_mode_cursor_universal()
- 	 * helper.
+ 			ldo3_reg: LDO3 {
+@@ -145,6 +146,7 @@
+ 				regulator-name = "PVDD_ABB_1V8";
+ 				regulator-min-microvolt = <1800000>;
+ 				regulator-max-microvolt = <1800000>;
++				regulator-always-on;
+ 			};
+ 
+ 			ldo9_reg: LDO9 {
+-- 
+2.20.1
+
 
 
