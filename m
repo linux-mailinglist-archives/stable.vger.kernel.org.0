@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D1EA44178
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:14:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 73AB444281
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:24:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731255AbfFMQO1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:14:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59552 "EHLO mail.kernel.org"
+        id S2391905AbfFMQXD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:23:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55174 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731190AbfFMImX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:42:23 -0400
+        id S1731027AbfFMIhq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:37:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 37C7121479;
-        Thu, 13 Jun 2019 08:42:21 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 881B82064A;
+        Thu, 13 Jun 2019 08:37:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415341;
-        bh=1Xvyej120jzAEw8ZdqMdUjBYsdzqfM30Il+iZxiARLs=;
+        s=default; t=1560415065;
+        bh=oYqC04aPf7VZNvrzfJCBtCgxiTAbso4bcLVHXA6xQRo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EOY14euBJhXtewDfIbIfU+xom38quIE8JaHKMS90aLARBn4CSZiuGhI17/GrnUY0q
-         CATY5xoFzS3GHUgaUgP1HmcOvj28HpHMc5irXnw8Ib3Q/KQvwkKtAzBUA3vlyNuRPJ
-         MtKViDstmpsZKzbxwHJOxn6grE1RxdcC8LKae3Cg=
+        b=XCgDxRBUJ9eQy1/pzWM6tfGP8v7heiquWbgwsivFo8ZOk4eSuvguSMJe3j4Mgwu+y
+         QlvoOnkwF7GZ1+kan0ps3oPa6PyUcNVb9KlSWgeRx+QE8t00zzfCshH88tmLqEraHp
+         R2IG3+CE4BvDxRVDBDsYda4Xh3fOcBgWxoy68/J4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Sun peng Li <Sunpeng.Li@amd.com>,
-        Aric Cyr <Aric.Cyr@amd.com>, Leo Li <sunpeng.li@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 090/118] drm/amd/display: Use plane->color_space for dpp if specified
+        Marek Vasut <marek.vasut+renesas@gmail.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Simon Horman <horms+renesas@verge.net.au>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Phil Edworthy <phil.edworthy@renesas.com>,
+        Wolfram Sang <wsa@the-dreams.de>,
+        linux-renesas-soc@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 65/81] PCI: rcar: Fix 64bit MSI message address handling
 Date:   Thu, 13 Jun 2019 10:33:48 +0200
-Message-Id: <20190613075649.099323956@linuxfoundation.org>
+Message-Id: <20190613075653.797782757@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075643.642092651@linuxfoundation.org>
-References: <20190613075643.642092651@linuxfoundation.org>
+In-Reply-To: <20190613075649.074682929@linuxfoundation.org>
+References: <20190613075649.074682929@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,69 +49,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit a1e07ba89d49581471d64c48152dbe03b42bd025 ]
+[ Upstream commit 954b4b752a4c4e963b017ed8cef4c453c5ed308d ]
 
-[Why]
-The input color space for the plane was previously ignored even if it
-was set.
+The MSI message address in the RC address space can be 64 bit. The
+R-Car PCIe RC supports such a 64bit MSI message address as well.
+The code currently uses virt_to_phys(__get_free_pages()) to obtain
+a reserved page for the MSI message address, and the return value
+of which can be a 64 bit physical address on 64 bit system.
 
-If a limited range YUV format was given to DC then the
-wrong color transformation matrix was being used since DC assumed that
-it was full range instead.
+However, the driver only programs PCIEMSIALR register with the bottom
+32 bits of the virt_to_phys(__get_free_pages()) return value and does
+not program the top 32 bits into PCIEMSIAUR, but rather programs the
+PCIEMSIAUR register with 0x0. This worked fine on older 32 bit R-Car
+SoCs, however may fail on new 64 bit R-Car SoCs.
 
-[How]
-Respect the given color_space format for the plane if it isn't
-COLOR_SPACE_UNKNOWN. Otherwise, use the implicit default since DM
-didn't specify.
+Since from a PCIe controller perspective, an inbound MSI is a memory
+write to a special address (in case of this controller, defined by
+the value in PCIEMSIAUR:PCIEMSIALR), which triggers an interrupt, but
+never hits the DRAM _and_ because allocation of an MSI by a PCIe card
+driver obtains the MSI message address by reading PCIEMSIAUR:PCIEMSIALR
+in rcar_msi_setup_irqs(), incorrectly programmed PCIEMSIAUR cannot
+cause memory corruption or other issues.
 
-Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Reviewed-by: Sun peng Li <Sunpeng.Li@amd.com>
-Acked-by: Aric Cyr <Aric.Cyr@amd.com>
-Acked-by: Leo Li <sunpeng.li@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+There is however the possibility that if virt_to_phys(__get_free_pages())
+returned address above the 32bit boundary _and_ PCIEMSIAUR was programmed
+to 0x0 _and_ if the system had physical RAM at the address matching the
+value of PCIEMSIALR, a PCIe card driver could allocate a buffer with a
+physical address matching the value of PCIEMSIALR and a remote write to
+such a buffer by a PCIe card would trigger a spurious MSI.
+
+Fixes: e015f88c368d ("PCI: rcar: Add support for R-Car H3 to pcie-rcar")
+Signed-off-by: Marek Vasut <marek.vasut+renesas@gmail.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Simon Horman <horms+renesas@verge.net.au>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Cc: Geert Uytterhoeven <geert+renesas@glider.be>
+Cc: Phil Edworthy <phil.edworthy@renesas.com>
+Cc: Simon Horman <horms+renesas@verge.net.au>
+Cc: Wolfram Sang <wsa@the-dreams.de>
+Cc: linux-renesas-soc@vger.kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn10/dcn10_dpp.c          | 6 +++++-
- drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c | 2 +-
- 2 files changed, 6 insertions(+), 2 deletions(-)
+ drivers/pci/host/pcie-rcar.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_dpp.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_dpp.c
-index bf8b68f8db4f..bce5741f2952 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_dpp.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_dpp.c
-@@ -388,6 +388,10 @@ void dpp1_cnv_setup (
- 	default:
- 		break;
+diff --git a/drivers/pci/host/pcie-rcar.c b/drivers/pci/host/pcie-rcar.c
+index fad57d068db3..2b0a1f3b8265 100644
+--- a/drivers/pci/host/pcie-rcar.c
++++ b/drivers/pci/host/pcie-rcar.c
+@@ -849,7 +849,7 @@ static int rcar_pcie_enable_msi(struct rcar_pcie *pcie)
+ {
+ 	struct device *dev = pcie->dev;
+ 	struct rcar_msi *msi = &pcie->msi;
+-	unsigned long base;
++	phys_addr_t base;
+ 	int err, i;
+ 
+ 	mutex_init(&msi->lock);
+@@ -894,8 +894,8 @@ static int rcar_pcie_enable_msi(struct rcar_pcie *pcie)
  	}
-+
-+	/* Set default color space based on format if none is given. */
-+	color_space = input_color_space ? input_color_space : color_space;
-+
- 	REG_SET(CNVC_SURFACE_PIXEL_FORMAT, 0,
- 			CNVC_SURFACE_PIXEL_FORMAT, pixel_format);
- 	REG_UPDATE(FORMAT_CONTROL, FORMAT_CONTROL__ALPHA_EN, alpha_en);
-@@ -399,7 +403,7 @@ void dpp1_cnv_setup (
- 		for (i = 0; i < 12; i++)
- 			tbl_entry.regval[i] = input_csc_color_matrix.matrix[i];
+ 	base = virt_to_phys((void *)msi->pages);
  
--		tbl_entry.color_space = input_color_space;
-+		tbl_entry.color_space = color_space;
+-	rcar_pci_write_reg(pcie, base | MSIFE, PCIEMSIALR);
+-	rcar_pci_write_reg(pcie, 0, PCIEMSIAUR);
++	rcar_pci_write_reg(pcie, lower_32_bits(base) | MSIFE, PCIEMSIALR);
++	rcar_pci_write_reg(pcie, upper_32_bits(base), PCIEMSIAUR);
  
- 		if (color_space >= COLOR_SPACE_YCBCR601)
- 			select = INPUT_CSC_SELECT_ICSC;
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
-index a0355709abd1..7736ef123e9b 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_hw_sequencer.c
-@@ -1890,7 +1890,7 @@ static void update_dpp(struct dpp *dpp, struct dc_plane_state *plane_state)
- 			plane_state->format,
- 			EXPANSION_MODE_ZERO,
- 			plane_state->input_csc_color_matrix,
--			COLOR_SPACE_YCBCR601_LIMITED);
-+			plane_state->color_space);
- 
- 	//set scale and bias registers
- 	build_prescale_params(&bns_params, plane_state);
+ 	/* enable all MSI interrupts */
+ 	rcar_pci_write_reg(pcie, 0xffffffff, PCIEMSIIER);
 -- 
 2.20.1
 
