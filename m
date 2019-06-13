@@ -2,48 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D8B64425D
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:22:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30D47440A1
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:09:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1731057AbfFMQVt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:21:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56168 "EHLO mail.kernel.org"
+        id S2387913AbfFMQH7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:07:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731054AbfFMIik (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:38:40 -0400
+        id S1731296AbfFMIpT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:45:19 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 49F0B2147A;
-        Thu, 13 Jun 2019 08:38:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 22CB82147A;
+        Thu, 13 Jun 2019 08:45:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415119;
-        bh=JpX2HqfV0kfphin4vUFM4wFsB69DCZ4xUn8eM4NjeXE=;
+        s=default; t=1560415518;
+        bh=6Pl2YELMqvfQ506YA7yckZF0kG/a62hakzZ/rtHUEOg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bP58H/xn7K9cvw9hMgPeAkdAqTLiKCsQexxu41nm4DQ4vfb/r+nIN2QKihhg1GKQc
-         em7j9R/tCyzRCbfpo8svKvz2k32rXh0frDlwWRgXchZm+Yea7agMMM2hj9t1VPVZlU
-         z8uoGDxQqYUDLBmY4jsTZn8thDT6KydWNKnKNgmE=
+        b=lrHA0h/TEY3WsTmmtv7gVoOLtfiOfJ5P27CTAUFTO47k9q90zKJOncF11PKjMt+Op
+         /ulZxuS5pvqlXHUyAtK7GaM/SmVVR2Rwx5tJoiewhst8fEemYpJKzA8rayw7dEy9sf
+         10qdUv6crBACn4b2UmjMTiINZCkIlrvfIIszfA8I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christian Brauner <christian@brauner.io>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Alexey Dobriyan <adobriyan@gmail.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Joe Lawrence <joe.lawrence@redhat.com>,
-        Waiman Long <longman@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
+        Peter Ujfalusi <peter.ujfalusi@ti.com>,
+        Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 003/118] sysctl: return -EINVAL if val violates minmax
-Date:   Thu, 13 Jun 2019 10:32:21 +0200
-Message-Id: <20190613075643.856357641@linuxfoundation.org>
+Subject: [PATCH 5.1 030/155] mfd: twl6040: Fix device init errors for ACCCTL register
+Date:   Thu, 13 Jun 2019 10:32:22 +0200
+Message-Id: <20190613075654.640851531@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075643.642092651@linuxfoundation.org>
-References: <20190613075643.642092651@linuxfoundation.org>
+In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
+References: <20190613075652.691765927@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,51 +45,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit e260ad01f0aa9e96b5386d5cd7184afd949dc457 ]
+[ Upstream commit 48171d0ea7caccf21c9ee3ae75eb370f2a756062 ]
 
-Currently when userspace gives us a values that overflow e.g.  file-max
-and other callers of __do_proc_doulongvec_minmax() we simply ignore the
-new value and leave the current value untouched.
+I noticed that we can get a -EREMOTEIO errors on at least omap4 duovero:
 
-This can be problematic as it gives the illusion that the limit has
-indeed be bumped when in fact it failed.  This commit makes sure to
-return EINVAL when an overflow is detected.  Please note that this is a
-userspace facing change.
+twl6040 0-004b: Failed to write 2d = 19: -121
 
-Link: http://lkml.kernel.org/r/20190210203943.8227-4-christian@brauner.io
-Signed-off-by: Christian Brauner <christian@brauner.io>
-Acked-by: Luis Chamberlain <mcgrof@kernel.org>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Dominik Brodowski <linux@dominikbrodowski.net>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Joe Lawrence <joe.lawrence@redhat.com>
-Cc: Waiman Long <longman@redhat.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+And then any following register access will produce errors.
+
+There 2d offset above is register ACCCTL that gets written on twl6040
+powerup. With error checking added to the related regcache_sync() call,
+the -EREMOTEIO error is reproducable on twl6040 powerup at least
+duovero.
+
+To fix the error, we need to wait until twl6040 is accessible after the
+powerup. Based on tests on omap4 duovero, we need to wait over 8ms after
+powerup before register write will complete without failures. Let's also
+make sure we warn about possible errors too.
+
+Note that we have twl6040_patch[] reg_sequence with the ACCCTL register
+configuration and regcache_sync() will write the new value to ACCCTL.
+
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Acked-by: Peter Ujfalusi <peter.ujfalusi@ti.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sysctl.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/mfd/twl6040.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/sysctl.c b/kernel/sysctl.c
-index 9a85c7ae7362..f8576509c7be 100644
---- a/kernel/sysctl.c
-+++ b/kernel/sysctl.c
-@@ -2791,8 +2791,10 @@ static int __do_proc_doulongvec_minmax(void *data, struct ctl_table *table, int
- 			if (neg)
- 				continue;
- 			val = convmul * val / convdiv;
--			if ((min && val < *min) || (max && val > *max))
--				continue;
-+			if ((min && val < *min) || (max && val > *max)) {
-+				err = -EINVAL;
-+				break;
-+			}
- 			*i = val;
- 		} else {
- 			val = convdiv * (*i) / convmul;
+diff --git a/drivers/mfd/twl6040.c b/drivers/mfd/twl6040.c
+index 7c3c5fd5fcd0..86052c5c6069 100644
+--- a/drivers/mfd/twl6040.c
++++ b/drivers/mfd/twl6040.c
+@@ -322,8 +322,19 @@ int twl6040_power(struct twl6040 *twl6040, int on)
+ 			}
+ 		}
+ 
++		/*
++		 * Register access can produce errors after power-up unless we
++		 * wait at least 8ms based on measurements on duovero.
++		 */
++		usleep_range(10000, 12000);
++
+ 		/* Sync with the HW */
+-		regcache_sync(twl6040->regmap);
++		ret = regcache_sync(twl6040->regmap);
++		if (ret) {
++			dev_err(twl6040->dev, "Failed to sync with the HW: %i\n",
++				ret);
++			goto out;
++		}
+ 
+ 		/* Default PLL configuration after power up */
+ 		twl6040->pll = TWL6040_SYSCLK_SEL_LPPLL;
 -- 
 2.20.1
 
