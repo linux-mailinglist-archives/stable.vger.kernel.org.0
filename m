@@ -2,112 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B8633445E7
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:48:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75310445BC
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:46:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730249AbfFMQr0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:47:26 -0400
-Received: from mail-pg1-f194.google.com ([209.85.215.194]:35438 "EHLO
-        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1730259AbfFME7Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Jun 2019 00:59:25 -0400
-Received: by mail-pg1-f194.google.com with SMTP id s27so10203862pgl.2;
-        Wed, 12 Jun 2019 21:59:25 -0700 (PDT)
+        id S1730310AbfFMQqT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:46:19 -0400
+Received: from mail-ua1-f66.google.com ([209.85.222.66]:38214 "EHLO
+        mail-ua1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1730309AbfFMFee (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Jun 2019 01:34:34 -0400
+Received: by mail-ua1-f66.google.com with SMTP id j2so6849180uaq.5
+        for <stable@vger.kernel.org>; Wed, 12 Jun 2019 22:34:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:sender:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=rxGwl9brbbzNCTzS3nb+kHgPol3S82HiUdfpZte44UA=;
+        b=E2/U4d32qQOfM5zbvPkPG/XG5WkGxX2EmjQu8xFGY/eYUdWrbyOdh20Q9DbZ2e6xYX
+         Lgl+qohI//3veBkDReLp14GkGfMgbvr+OjtqfF0VmYFUbomjwbUcVowUQ2gT+ejXGzEw
+         IHk1nlRSOHw69IV71xhxJ63bvCeVqG+iAXV9qepoToW5Hp2NwY8kWpCuozP7S6Y52+iS
+         cSKvHs42EqtFAkzZPkH0Paz7UTzUTHcQrYPb8UozvhKjjfM2Llz4oJF5idWD4BmMos4e
+         O9IGW/lZW/KXaPVFbUXWE8qbamxjhSp1huAVC3LR63l5TXaDfG8heMa0TQ7xJQ5bmqZk
+         vBcA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=6wLiv6GN7xAd5Zv2tE3Uvom556HtPMdkccB9NZBaHbY=;
-        b=jltvVX7lsUUTKxPZyeSzWIf018y0fP8y5nQ+NWWAxnPTlVFWwLs85lF2YolJCJS9JB
-         6GloAfUF+sbPjORm1UzyH8hpS3h1/ZziR5WP5SbBW7RSiNryWvNK5TTpyEAZtDzVcwDM
-         Jyvj3Sa8zkG/rB4Yxzhunjsl2Gtx/p9bKlegqbW+fyXM7iOm8GN5wSnEDDWAokGaP1d3
-         zeIuD8gtOSYzJV701nDSid73biG0QmRa942s7I+/QMExM3u69N0Sf8+s6McWOW9EQdS7
-         raZAijhGdEkW7+klw/tN/7HfsI+wQnWGa4tbhVUkEGR3w57Xx6WK7X+XdGMJzs+/PTuo
-         F8ug==
-X-Gm-Message-State: APjAAAVxNAXmrCIkEsZovLXNNYZ9Lq2BGM9kPyKk3O0gKJLeIBst9zGs
-        4kineA8lkzGfyIFMHCRB8Ho=
-X-Google-Smtp-Source: APXvYqyRFetiSrVNAFOs+Vdat5g6tOVK6CHQ8Kpr4jVNenuu39OoAGQYcODaNP5cx3ByfK2aAkX8CQ==
-X-Received: by 2002:a63:4813:: with SMTP id v19mr2978773pga.124.1560401964368;
-        Wed, 12 Jun 2019 21:59:24 -0700 (PDT)
-Received: from htb-2n-eng-dhcp405.eng.vmware.com ([66.170.99.1])
-        by smtp.gmail.com with ESMTPSA id o66sm1215327pfb.86.2019.06.12.21.59.22
-        (version=TLS1_3 cipher=AEAD-AES256-GCM-SHA384 bits=256/256);
-        Wed, 12 Jun 2019 21:59:23 -0700 (PDT)
-From:   Nadav Amit <namit@vmware.com>
-To:     Andrew Morton <akpm@linux-foundation.org>
-Cc:     linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        Nadav Amit <namit@vmware.com>, stable@vger.kernel.org,
-        Borislav Petkov <bp@suse.de>, Toshi Kani <toshi.kani@hpe.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH 1/3] resource: Fix locking in find_next_iomem_res()
-Date:   Wed, 12 Jun 2019 21:59:01 -0700
-Message-Id: <20190613045903.4922-2-namit@vmware.com>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20190613045903.4922-1-namit@vmware.com>
-References: <20190613045903.4922-1-namit@vmware.com>
+        h=x-gm-message-state:mime-version:reply-to:sender:from:date
+         :message-id:subject:to:content-transfer-encoding;
+        bh=rxGwl9brbbzNCTzS3nb+kHgPol3S82HiUdfpZte44UA=;
+        b=KtwKytIaRpAKVYuHoaknSN+JtKzEDkKPSNSGVB4KEW1XdlxfOH7y+uGFM4t1IvK4W0
+         Jqv3d3+wrcFdgjyLwYS+VxT8t06S1g0z+kVkufAZcYptcdAyvNo7kYbd9pyH5+Le+Lw3
+         lB/5Vszjpzr6sLkYx46OR+onWh3z4FauhQXt08xK+klw5Oj38UpYO8fxddnCdr1vEP9C
+         XtetHkez5XbNtvl3oLbc+7mKIJQPimzlNuKVg8k6imsVteieDFCWjJ6RBl2HrTq8Ukzw
+         nQYiYUBNFXNT9m6j2T9EIjM+iEk+pJdqfu1aQzbNmz3vThLuorDTCOnn48okn2+N1Viy
+         qmkA==
+X-Gm-Message-State: APjAAAX82Nk62T80KacvCGk4XtotbEQB014hUpwZ3ECwZKzdrassSAOd
+        KJE36D5BeWyaZrLxwXt6lzUqVVeFvSu/ctteA6c=
+X-Google-Smtp-Source: APXvYqwELHk8XcBBa1kCRVBDGNdIRpML8EcZ6K1cZDzIySD5KSC1nF4oNYs0y4Inv6gewTLLE3JYL3yQ0JaOhdSz6K4=
+X-Received: by 2002:ab0:2bc6:: with SMTP id s6mr7763208uar.86.1560404073210;
+ Wed, 12 Jun 2019 22:34:33 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Reply-To: zongok96@gmail.com
+Received: by 2002:ab0:4602:0:0:0:0:0 with HTTP; Wed, 12 Jun 2019 22:34:32
+ -0700 (PDT)
+From:   "Mr. Karim Zongo" <kzongo210@gmail.com>
+Date:   Thu, 13 Jun 2019 07:34:32 +0200
+X-Google-Sender-Auth: MgpIViHQf2eGWXBtGRrj7rdp0oo
+Message-ID: <CAPs1NftEbCeWgOL1Jij4C9VgrHx6ugox125tB+RhT7fgq094og@mail.gmail.com>
+Subject: PLEASE THIS IS VERY URGENT.
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Since resources can be removed, locking should ensure that the resource
-is not removed while accessing it. However, find_next_iomem_res() does
-not hold the lock while copying the data of the resource.
+Compliment of the day,
 
-Keep holding the lock while the data is copied. While at it, change the
-return value to a more informative value. It is disregarded by the
-callers.
+I am Mr. Karim Zongo Have a Business Proposal of $5.3 million For You.
+I am aware of the unsafe nature of the internet, and was compelled to
+use this medium due to the nature of this project.
 
-Fixes: ff3cc952d3f00 ("resource: Add remove_resource interface")
-Cc: stable@vger.kernel.org
-Cc: Borislav Petkov <bp@suse.de>
-Cc: Toshi Kani <toshi.kani@hpe.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Bjorn Helgaas <bhelgaas@google.com>
-Cc: Ingo Molnar <mingo@kernel.org>
-Signed-off-by: Nadav Amit <namit@vmware.com>
----
- kernel/resource.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+I have access to very vital information that can be used to transfer
+this huge amount of money, which may culminate into the investment of
+the said funds into your company or any lucrative venture in your
+country.
 
-diff --git a/kernel/resource.c b/kernel/resource.c
-index 158f04ec1d4f..c0f7ba0ece52 100644
---- a/kernel/resource.c
-+++ b/kernel/resource.c
-@@ -365,16 +365,16 @@ static int find_next_iomem_res(resource_size_t start, resource_size_t end,
- 			break;
- 	}
- 
-+	if (p) {
-+		/* copy data */
-+		res->start = max(start, p->start);
-+		res->end = min(end, p->end);
-+		res->flags = p->flags;
-+		res->desc = p->desc;
-+	}
-+
- 	read_unlock(&resource_lock);
--	if (!p)
--		return -1;
--
--	/* copy data */
--	res->start = max(start, p->start);
--	res->end = min(end, p->end);
--	res->flags = p->flags;
--	res->desc = p->desc;
--	return 0;
-+	return p ? 0 : -ENODEV;
- }
- 
- static int __walk_iomem_res_desc(resource_size_t start, resource_size_t end,
--- 
-2.20.1
+If you will like to assist me as a partner then indicate your
+interest, after which we shall both discuss the modalities and the
+sharing percentage.
 
+Upon receipt of your reply on your expression of Interest I will give
+you full details,
+on how the business will be executed I am open for negotiation. You
+should forward your reply to this private email id
+(zongok96@gmail.com) Thanks for your anticipated cooperation.
+
+Note you might receive this message in your inbox or spam or junk
+folder, depends on your web host or server network.
+
+Thanks=E2=80=99
+Best Regards
+Mr. Karim Zongo
