@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3981844258
+	by mail.lfdr.de (Postfix) with ESMTP id A200444259
 	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:22:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2389052AbfFMQVi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2388456AbfFMQVi (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 13 Jun 2019 12:21:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56222 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:56260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731057AbfFMIio (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:38:44 -0400
+        id S1731058AbfFMIiq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:38:46 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7D519215EA;
-        Thu, 13 Jun 2019 08:38:42 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 3613B20851;
+        Thu, 13 Jun 2019 08:38:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415123;
-        bh=qDj9ldTHByvyM0A71wBggSecU2U7h5TvDHGsDMajQJo=;
+        s=default; t=1560415125;
+        bh=GSTTpigTR+QKB1kZBNgiJYTC8qGHTEziFPt1bj0+VAI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v2/sv8OQL76Nfo/KjPmxCxm8rhM5VaYHe/GwmuxlzZzWHLc0SzfHchbse3X5dEQ1F
-         AqtRp5eFli/iY9EwMgP0q4AdiU3G8JL3QTewRGf9eMiCKn/jXbbX4vg1e3k6fAC7N3
-         Svqk7UlKOha9p/lmH1M/NuTLmM11qKxpAW/vL7Oc=
+        b=a27DKpFSs9qZScUk+D9LaOSeU+PkDc8B9Pk19JkQoIo8HHEMxcnvuEQGlPEPNJYYY
+         cpS8Syd4uIJ2be9xm7OA9wtorAD1gdYAwQNsyTS87VY/L+9LVFQhNBkVZi5fnM82nN
+         MBYxI82QyrbDVIHhpALa67mFwWsEtQ5/Lqqrmn7Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Li RongQing <lirongqing@baidu.com>,
-        Zhang Yu <zhangyu31@baidu.com>,
-        Davidlohr Bueso <dbueso@suse.de>,
-        Manfred Spraul <manfred@colorfullife.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 004/118] ipc: prevent lockup on alloc_msg and free_msg
-Date:   Thu, 13 Jun 2019 10:32:22 +0200
-Message-Id: <20190613075643.935473121@linuxfoundation.org>
+Subject: [PATCH 4.19 005/118] drm/pl111: Initialize clock spinlock early
+Date:   Thu, 13 Jun 2019 10:32:23 +0200
+Message-Id: <20190613075643.985340438@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190613075643.642092651@linuxfoundation.org>
 References: <20190613075643.642092651@linuxfoundation.org>
@@ -49,157 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d6a2946a88f524a47cc9b79279667137899db807 ]
+[ Upstream commit 3e01ae2612bdd7975c74ec7123d7f8f5e6eed795 ]
 
-msgctl10 of ltp triggers the following lockup When CONFIG_KASAN is
-enabled on large memory SMP systems, the pages initialization can take a
-long time, if msgctl10 requests a huge block memory, and it will block
-rcu scheduler, so release cpu actively.
+The following warning is seen on systems with broken clock divider.
 
-After adding schedule() in free_msg, free_msg can not be called when
-holding spinlock, so adding msg to a tmp list, and free it out of
-spinlock
+INFO: trying to register non-static key.
+the code is fine but needs lockdep annotation.
+turning off the locking correctness validator.
+CPU: 0 PID: 1 Comm: swapper Not tainted 5.1.0-09698-g1fb3b52 #1
+Hardware name: ARM Integrator/CP (Device Tree)
+[<c0011be8>] (unwind_backtrace) from [<c000ebb8>] (show_stack+0x10/0x18)
+[<c000ebb8>] (show_stack) from [<c07d3fd0>] (dump_stack+0x18/0x24)
+[<c07d3fd0>] (dump_stack) from [<c0060d48>] (register_lock_class+0x674/0x6f8)
+[<c0060d48>] (register_lock_class) from [<c005de2c>]
+	(__lock_acquire+0x68/0x2128)
+[<c005de2c>] (__lock_acquire) from [<c0060408>] (lock_acquire+0x110/0x21c)
+[<c0060408>] (lock_acquire) from [<c07f755c>] (_raw_spin_lock+0x34/0x48)
+[<c07f755c>] (_raw_spin_lock) from [<c0536c8c>]
+	(pl111_display_enable+0xf8/0x5fc)
+[<c0536c8c>] (pl111_display_enable) from [<c0502f54>]
+	(drm_atomic_helper_commit_modeset_enables+0x1ec/0x244)
 
-  rcu: INFO: rcu_preempt detected stalls on CPUs/tasks:
-  rcu:     Tasks blocked on level-1 rcu_node (CPUs 16-31): P32505
-  rcu:     Tasks blocked on level-1 rcu_node (CPUs 48-63): P34978
-  rcu:     (detected by 11, t=35024 jiffies, g=44237529, q=16542267)
-  msgctl10        R  running task    21608 32505   2794 0x00000082
-  Call Trace:
-   preempt_schedule_irq+0x4c/0xb0
-   retint_kernel+0x1b/0x2d
-  RIP: 0010:__is_insn_slot_addr+0xfb/0x250
-  Code: 82 1d 00 48 8b 9b 90 00 00 00 4c 89 f7 49 c1 ee 03 e8 59 83 1d 00 48 b8 00 00 00 00 00 fc ff df 4c 39 eb 48 89 9d 58 ff ff ff <41> c6 04 06 f8 74 66 4c 8d 75 98 4c 89 f1 48 c1 e9 03 48 01 c8 48
-  RSP: 0018:ffff88bce041f758 EFLAGS: 00000246 ORIG_RAX: ffffffffffffff13
-  RAX: dffffc0000000000 RBX: ffffffff8471bc50 RCX: ffffffff828a2a57
-  RDX: dffffc0000000000 RSI: dffffc0000000000 RDI: ffff88bce041f780
-  RBP: ffff88bce041f828 R08: ffffed15f3f4c5b3 R09: ffffed15f3f4c5b3
-  R10: 0000000000000001 R11: ffffed15f3f4c5b2 R12: 000000318aee9b73
-  R13: ffffffff8471bc50 R14: 1ffff1179c083ef0 R15: 1ffff1179c083eec
-   kernel_text_address+0xc1/0x100
-   __kernel_text_address+0xe/0x30
-   unwind_get_return_address+0x2f/0x50
-   __save_stack_trace+0x92/0x100
-   create_object+0x380/0x650
-   __kmalloc+0x14c/0x2b0
-   load_msg+0x38/0x1a0
-   do_msgsnd+0x19e/0xcf0
-   do_syscall_64+0x117/0x400
-   entry_SYSCALL_64_after_hwframe+0x49/0xbe
+Since commit eedd6033b4c8 ("drm/pl111: Support variants with broken clock
+divider"), the spinlock is not initialized if the clock divider is broken.
+Initialize it earlier to fix the problem.
 
-  rcu: INFO: rcu_preempt detected stalls on CPUs/tasks:
-  rcu:     Tasks blocked on level-1 rcu_node (CPUs 0-15): P32170
-  rcu:     (detected by 14, t=35016 jiffies, g=44237525, q=12423063)
-  msgctl10        R  running task    21608 32170  32155 0x00000082
-  Call Trace:
-   preempt_schedule_irq+0x4c/0xb0
-   retint_kernel+0x1b/0x2d
-  RIP: 0010:lock_acquire+0x4d/0x340
-  Code: 48 81 ec c0 00 00 00 45 89 c6 4d 89 cf 48 8d 6c 24 20 48 89 3c 24 48 8d bb e4 0c 00 00 89 74 24 0c 48 c7 44 24 20 b3 8a b5 41 <48> c1 ed 03 48 c7 44 24 28 b4 25 18 84 48 c7 44 24 30 d0 54 7a 82
-  RSP: 0018:ffff88af83417738 EFLAGS: 00000282 ORIG_RAX: ffffffffffffff13
-  RAX: dffffc0000000000 RBX: ffff88bd335f3080 RCX: 0000000000000002
-  RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffff88bd335f3d64
-  RBP: ffff88af83417758 R08: 0000000000000000 R09: 0000000000000000
-  R10: 0000000000000001 R11: ffffed13f3f745b2 R12: 0000000000000000
-  R13: 0000000000000002 R14: 0000000000000000 R15: 0000000000000000
-   is_bpf_text_address+0x32/0xe0
-   kernel_text_address+0xec/0x100
-   __kernel_text_address+0xe/0x30
-   unwind_get_return_address+0x2f/0x50
-   __save_stack_trace+0x92/0x100
-   save_stack+0x32/0xb0
-   __kasan_slab_free+0x130/0x180
-   kfree+0xfa/0x2d0
-   free_msg+0x24/0x50
-   do_msgrcv+0x508/0xe60
-   do_syscall_64+0x117/0x400
-   entry_SYSCALL_64_after_hwframe+0x49/0xbe
-
-Davidlohr said:
- "So after releasing the lock, the msg rbtree/list is empty and new
-  calls will not see those in the newly populated tmp_msg list, and
-  therefore they cannot access the delayed msg freeing pointers, which
-  is good. Also the fact that the node_cache is now freed before the
-  actual messages seems to be harmless as this is wanted for
-  msg_insert() avoiding GFP_ATOMIC allocations, and after releasing the
-  info->lock the thing is freed anyway so it should not change things"
-
-Link: http://lkml.kernel.org/r/1552029161-4957-1-git-send-email-lirongqing@baidu.com
-Signed-off-by: Li RongQing <lirongqing@baidu.com>
-Signed-off-by: Zhang Yu <zhangyu31@baidu.com>
-Reviewed-by: Davidlohr Bueso <dbueso@suse.de>
-Cc: Manfred Spraul <manfred@colorfullife.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: eedd6033b4c8 ("drm/pl111: Support variants with broken clock divider")
+Cc: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/1557758781-23586-1-git-send-email-linux@roeck-us.net
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- ipc/mqueue.c  | 10 ++++++++--
- ipc/msgutil.c |  6 ++++++
- 2 files changed, 14 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/pl111/pl111_display.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/ipc/mqueue.c b/ipc/mqueue.c
-index c0d58f390c3b..bce7af1546d9 100644
---- a/ipc/mqueue.c
-+++ b/ipc/mqueue.c
-@@ -391,7 +391,8 @@ static void mqueue_evict_inode(struct inode *inode)
- 	struct user_struct *user;
- 	unsigned long mq_bytes, mq_treesize;
- 	struct ipc_namespace *ipc_ns;
--	struct msg_msg *msg;
-+	struct msg_msg *msg, *nmsg;
-+	LIST_HEAD(tmp_msg);
- 
- 	clear_inode(inode);
- 
-@@ -402,10 +403,15 @@ static void mqueue_evict_inode(struct inode *inode)
- 	info = MQUEUE_I(inode);
- 	spin_lock(&info->lock);
- 	while ((msg = msg_get(info)) != NULL)
--		free_msg(msg);
-+		list_add_tail(&msg->m_list, &tmp_msg);
- 	kfree(info->node_cache);
- 	spin_unlock(&info->lock);
- 
-+	list_for_each_entry_safe(msg, nmsg, &tmp_msg, m_list) {
-+		list_del(&msg->m_list);
-+		free_msg(msg);
-+	}
-+
- 	/* Total amount of bytes accounted for the mqueue */
- 	mq_treesize = info->attr.mq_maxmsg * sizeof(struct msg_msg) +
- 		min_t(unsigned int, info->attr.mq_maxmsg, MQ_PRIO_MAX) *
-diff --git a/ipc/msgutil.c b/ipc/msgutil.c
-index 84598025a6ad..e65593742e2b 100644
---- a/ipc/msgutil.c
-+++ b/ipc/msgutil.c
-@@ -18,6 +18,7 @@
- #include <linux/utsname.h>
- #include <linux/proc_ns.h>
- #include <linux/uaccess.h>
-+#include <linux/sched.h>
- 
- #include "util.h"
- 
-@@ -64,6 +65,9 @@ static struct msg_msg *alloc_msg(size_t len)
- 	pseg = &msg->next;
- 	while (len > 0) {
- 		struct msg_msgseg *seg;
-+
-+		cond_resched();
-+
- 		alen = min(len, DATALEN_SEG);
- 		seg = kmalloc(sizeof(*seg) + alen, GFP_KERNEL_ACCOUNT);
- 		if (seg == NULL)
-@@ -176,6 +180,8 @@ void free_msg(struct msg_msg *msg)
- 	kfree(msg);
- 	while (seg != NULL) {
- 		struct msg_msgseg *tmp = seg->next;
-+
-+		cond_resched();
- 		kfree(seg);
- 		seg = tmp;
+diff --git a/drivers/gpu/drm/pl111/pl111_display.c b/drivers/gpu/drm/pl111/pl111_display.c
+index 754f6b25f265..6d9f78612dee 100644
+--- a/drivers/gpu/drm/pl111/pl111_display.c
++++ b/drivers/gpu/drm/pl111/pl111_display.c
+@@ -531,14 +531,15 @@ pl111_init_clock_divider(struct drm_device *drm)
+ 		dev_err(drm->dev, "CLCD: unable to get clcdclk.\n");
+ 		return PTR_ERR(parent);
  	}
++
++	spin_lock_init(&priv->tim2_lock);
++
+ 	/* If the clock divider is broken, use the parent directly */
+ 	if (priv->variant->broken_clockdivider) {
+ 		priv->clk = parent;
+ 		return 0;
+ 	}
+ 	parent_name = __clk_get_name(parent);
+-
+-	spin_lock_init(&priv->tim2_lock);
+ 	div->init = &init;
+ 
+ 	ret = devm_clk_hw_register(drm->dev, div);
 -- 
 2.20.1
 
