@@ -2,124 +2,151 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6512C43F44
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 17:56:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22AE4442C5
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:26:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732439AbfFMPzn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 11:55:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39070 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731536AbfFMIvk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:51:40 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9686D2173C;
-        Thu, 13 Jun 2019 08:51:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415900;
-        bh=Y1WnJruasGRm3U9AQ0OHPrzS3NNHvnFoLXqzcfF6xUc=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bCjvZ1MYthnhtcslLp5cUd09V9fHFxJ4A/YMW8sVaKmrAZPh4h3+hLg1kpTcgU8MF
-         wbMKN1MGB2hiyudSoCtnvh8+KuNn1P/lO/Z1Gr6nJGXBCVg0Q43LHZK31fTXDczhsq
-         M21/fGu6z8bUc7j4pCWUxiHAxE0qWcz1I/m/4uak=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eddie Horng <eddiehorng.tw@gmail.com>,
-        Amir Goldstein <amir73il@gmail.com>,
-        Miklos Szeredi <mszeredi@redhat.com>
-Subject: [PATCH 5.1 155/155] ovl: support stacked SEEK_HOLE/SEEK_DATA
-Date:   Thu, 13 Jun 2019 10:34:27 +0200
-Message-Id: <20190613075701.414067445@linuxfoundation.org>
-X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
-References: <20190613075652.691765927@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S2392180AbfFMQZO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:25:14 -0400
+Received: from szxga04-in.huawei.com ([45.249.212.190]:18563 "EHLO huawei.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1730975AbfFMIgi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:36:38 -0400
+Received: from DGGEMS410-HUB.china.huawei.com (unknown [172.30.72.59])
+        by Forcepoint Email with ESMTP id 127CF796C4587A3FE713;
+        Thu, 13 Jun 2019 16:36:36 +0800 (CST)
+Received: from architecture4.huawei.com (10.140.130.215) by smtp.huawei.com
+ (10.3.19.210) with Microsoft SMTP Server (TLS) id 14.3.439.0; Thu, 13 Jun
+ 2019 16:36:25 +0800
+From:   Gao Xiang <gaoxiang25@huawei.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Chao Yu <yuchao0@huawei.com>, <devel@driverdev.osuosl.org>
+CC:     LKML <linux-kernel@vger.kernel.org>,
+        <linux-erofs@lists.ozlabs.org>, "Chao Yu" <chao@kernel.org>,
+        Miao Xie <miaoxie@huawei.com>, <weidu.du@huawei.com>,
+        Fang Wei <fangwei1@huawei.com>,
+        Gao Xiang <gaoxiang25@huawei.com>, <stable@vger.kernel.org>
+Subject: [PATCH v3 1/2] staging: erofs: add requirements field in superblock
+Date:   Thu, 13 Jun 2019 16:35:41 +0800
+Message-ID: <20190613083541.67091-1-gaoxiang25@huawei.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20190611024220.86121-1-gaoxiang25@huawei.com>
+References: <20190611024220.86121-1-gaoxiang25@huawei.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.140.130.215]
+X-CFilter-Loop: Reflected
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amir Goldstein <amir73il@gmail.com>
+There are some backward incompatible features pending
+for months, mainly due to on-disk format expensions.
 
-commit 9e46b840c7053b5f7a245e98cd239b60d189a96c upstream.
+However, we should ensure that it cannot be mounted with
+old kernels. Otherwise, it will causes unexpected behaviors.
 
-Overlay file f_pos is the master copy that is preserved
-through copy up and modified on read/write, but only real
-fs knows how to SEEK_HOLE/SEEK_DATA and real fs may impose
-limitations that are more strict than ->s_maxbytes for specific
-files, so we use the real file to perform seeks.
-
-We do not call real fs for SEEK_CUR:0 query and for SEEK_SET:0
-requests.
-
-Fixes: d1d04ef8572b ("ovl: stack file ops")
-Reported-by: Eddie Horng <eddiehorng.tw@gmail.com>
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
+Fixes: ba2b77a82022 ("staging: erofs: add super block operations")
+Cc: <stable@vger.kernel.org> # 4.19+
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Gao Xiang <gaoxiang25@huawei.com>
 ---
- fs/overlayfs/file.c |   44 ++++++++++++++++++++++++++++++++++++++++----
- 1 file changed, 40 insertions(+), 4 deletions(-)
+change log v3:
+ - record requirements in erofs_sb_info for runtime use as well;
 
---- a/fs/overlayfs/file.c
-+++ b/fs/overlayfs/file.c
-@@ -146,11 +146,47 @@ static int ovl_release(struct inode *ino
+change log v2:
+ - update printed message
+
+ drivers/staging/erofs/erofs_fs.h | 13 ++++++++++---
+ drivers/staging/erofs/internal.h |  2 ++
+ drivers/staging/erofs/super.c    | 19 +++++++++++++++++++
+ 3 files changed, 31 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/staging/erofs/erofs_fs.h b/drivers/staging/erofs/erofs_fs.h
+index fa52898df006..8ddb2b3e7d39 100644
+--- a/drivers/staging/erofs/erofs_fs.h
++++ b/drivers/staging/erofs/erofs_fs.h
+@@ -17,10 +17,16 @@
+ #define EROFS_SUPER_MAGIC_V1    0xE0F5E1E2
+ #define EROFS_SUPER_OFFSET      1024
  
- static loff_t ovl_llseek(struct file *file, loff_t offset, int whence)
- {
--	struct inode *realinode = ovl_inode_real(file_inode(file));
-+	struct inode *inode = file_inode(file);
-+	struct fd real;
-+	const struct cred *old_cred;
-+	ssize_t ret;
++/*
++ * Any bits that aren't in EROFS_ALL_REQUIREMENTS should be
++ * incompatible with this kernel version.
++ */
++#define EROFS_ALL_REQUIREMENTS  0
++
+ struct erofs_super_block {
+ /*  0 */__le32 magic;           /* in the little endian */
+ /*  4 */__le32 checksum;        /* crc32c(super_block) */
+-/*  8 */__le32 features;
++/*  8 */__le32 features;        /* (aka. feature_compat) */
+ /* 12 */__u8 blkszbits;         /* support block_size == PAGE_SIZE only */
+ /* 13 */__u8 reserved;
  
--	return generic_file_llseek_size(file, offset, whence,
--					realinode->i_sb->s_maxbytes,
--					i_size_read(realinode));
-+	/*
-+	 * The two special cases below do not need to involve real fs,
-+	 * so we can optimizing concurrent callers.
-+	 */
-+	if (offset == 0) {
-+		if (whence == SEEK_CUR)
-+			return file->f_pos;
+@@ -34,9 +40,10 @@ struct erofs_super_block {
+ /* 44 */__le32 xattr_blkaddr;
+ /* 48 */__u8 uuid[16];          /* 128-bit uuid for volume */
+ /* 64 */__u8 volume_name[16];   /* volume name */
++/* 80 */__le32 requirements;    /* (aka. feature_incompat) */
+ 
+-/* 80 */__u8 reserved2[48];     /* 128 bytes */
+-} __packed;
++/* 84 */__u8 reserved2[44];
++} __packed;                     /* 128 bytes */
+ 
+ /*
+  * erofs inode data mapping:
+diff --git a/drivers/staging/erofs/internal.h b/drivers/staging/erofs/internal.h
+index 911333cdeef4..fc732c86ecd8 100644
+--- a/drivers/staging/erofs/internal.h
++++ b/drivers/staging/erofs/internal.h
+@@ -115,6 +115,8 @@ struct erofs_sb_info {
+ 
+ 	u8 uuid[16];                    /* 128-bit uuid for volume */
+ 	u8 volume_name[16];             /* volume name */
++	u32 requirements;
 +
-+		if (whence == SEEK_SET)
-+			return vfs_setpos(file, 0, 0);
-+	}
-+
-+	ret = ovl_real_fdget(file, &real);
-+	if (ret)
-+		return ret;
-+
-+	/*
-+	 * Overlay file f_pos is the master copy that is preserved
-+	 * through copy up and modified on read/write, but only real
-+	 * fs knows how to SEEK_HOLE/SEEK_DATA and real fs may impose
-+	 * limitations that are more strict than ->s_maxbytes for specific
-+	 * files, so we use the real file to perform seeks.
-+	 */
-+	inode_lock(inode);
-+	real.file->f_pos = file->f_pos;
-+
-+	old_cred = ovl_override_creds(inode->i_sb);
-+	ret = vfs_llseek(real.file, offset, whence);
-+	revert_creds(old_cred);
-+
-+	file->f_pos = real.file->f_pos;
-+	inode_unlock(inode);
-+
-+	fdput(real);
-+
-+	return ret;
+ 	char *dev_name;
+ 
+ 	unsigned int mount_opt;
+diff --git a/drivers/staging/erofs/super.c b/drivers/staging/erofs/super.c
+index f580d4ef77a1..cadbcc11702a 100644
+--- a/drivers/staging/erofs/super.c
++++ b/drivers/staging/erofs/super.c
+@@ -71,6 +71,22 @@ static void free_inode(struct inode *inode)
+ 	kmem_cache_free(erofs_inode_cachep, vi);
  }
  
- static void ovl_file_accessed(struct file *file)
-
++static bool check_layout_compatibility(struct super_block *sb,
++				       struct erofs_super_block *layout)
++{
++	const unsigned int requirements = le32_to_cpu(layout->requirements);
++
++	EROFS_SB(sb)->requirements = requirements;
++
++	/* check if current kernel meets all mandatory requirements */
++	if (requirements & (~EROFS_ALL_REQUIREMENTS)) {
++		errln("unidentified requirements %x, please upgrade kernel version",
++		      requirements & ~EROFS_ALL_REQUIREMENTS);
++		return false;
++	}
++	return true;
++}
++
+ static int superblock_read(struct super_block *sb)
+ {
+ 	struct erofs_sb_info *sbi;
+@@ -104,6 +120,9 @@ static int superblock_read(struct super_block *sb)
+ 		goto out;
+ 	}
+ 
++	if (!check_layout_compatibility(sb, layout))
++		goto out;
++
+ 	sbi->blocks = le32_to_cpu(layout->blocks);
+ 	sbi->meta_blkaddr = le32_to_cpu(layout->meta_blkaddr);
+ #ifdef CONFIG_EROFS_FS_XATTR
+-- 
+2.17.1
 
