@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B9E3944296
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:24:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90D1D43FE5
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:01:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391421AbfFMQXn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:23:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54930 "EHLO mail.kernel.org"
+        id S1732656AbfFMQBO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:01:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731010AbfFMIhc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:37:32 -0400
+        id S1731445AbfFMIsg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:48:36 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1F69B2064A;
-        Thu, 13 Jun 2019 08:37:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 6F5B920851;
+        Thu, 13 Jun 2019 08:48:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415051;
-        bh=ZGndjzQpcAoCRxlon7DC+AkKBhels1jY8c0itpcF84g=;
+        s=default; t=1560415715;
+        bh=hb/yPd0jay9VD9wOzIBZBggrne/PATPTlnErEp2gjZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ln2ptqPeNxJqyuGDAXEaxAI8AJImNOK/ec2qB8w07BAkhEyPbyvxJ7BWycxm6zR44
-         g2+oZSO+n2BasIpdKpQcIfAYJlJEVg0oRecfKH+07B5u9RPQw8wTGZrYd4KLQPbcbd
-         1I0uaDjsFcwL0VNPzGMHISHgKeXD5K6rP8/MRABk=
+        b=xzMMQcoe32FF/oSzOS0av34IcHqw+Pa2SIp/C9iIxJtH7XABF4lhm7aeUYHcscoBs
+         YU2e2gDlbVdQe4PLbNVVXo9VnASXlVaHnMtZyTGyuuRwh2nyKKTvkWllJsARYEa+SX
+         8TfIbrH9iPhSmQ98D+atBnMKTw79TvQ7t7FdVwf4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
+        Thierry Reding <treding@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 42/81] nvmem: core: fix read buffer in place
+Subject: [PATCH 5.1 093/155] soc/tegra: pmc: Remove reset sysfs entries on error
 Date:   Thu, 13 Jun 2019 10:33:25 +0200
-Message-Id: <20190613075652.424569646@linuxfoundation.org>
+Message-Id: <20190613075658.287981807@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075649.074682929@linuxfoundation.org>
-References: <20190613075649.074682929@linuxfoundation.org>
+In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
+References: <20190613075652.691765927@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,61 +44,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 2fe518fecb3a4727393be286db9804cd82ee2d91 ]
+[ Upstream commit a46b51cd2a57d52d5047e1d48240536243eeab34 ]
 
-When the bit_offset in the cell is zero, the pointer to the msb will
-not be properly initialized (ie, will still be pointing to the first
-byte in the buffer).
+Commit 5f84bb1a4099 ("soc/tegra: pmc: Add sysfs entries for reset info")
+added sysfs entries for Tegra reset source and level. However, these
+sysfs are not removed on error and so if the registering of PMC device
+is probe deferred, then the next time we attempt to probe the PMC device
+warnings such as the following will be displayed on boot ...
 
-This being the case, if there are bits to clear in the msb, those will
-be left untouched while the mask will incorrectly clear bit positions
-on the first byte.
+  sysfs: cannot create duplicate filename '/devices/platform/7000e400.pmc/reset_reason'
 
-This commit also makes sure that any byte unused in the cell is
-cleared.
+Fix this by calling device_remove_file() for each sysfs entry added on
+failure. Note that we call device_remove_file() unconditionally without
+checking if the sysfs entry was created in the first place, but this
+should be OK because kernfs_remove_by_name_ns() will fail silently.
 
-Signed-off-by: Jorge Ramirez-Ortiz <jorge.ramirez-ortiz@linaro.org>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 5f84bb1a4099 ("soc/tegra: pmc: Add sysfs entries for reset info")
+Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvmem/core.c | 15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ drivers/soc/tegra/pmc.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
-index 635886e4835c..dba3f4d0a63d 100644
---- a/drivers/nvmem/core.c
-+++ b/drivers/nvmem/core.c
-@@ -954,7 +954,7 @@ static inline void nvmem_shift_read_buffer_in_place(struct nvmem_cell *cell,
- 						    void *buf)
- {
- 	u8 *p, *b;
--	int i, bit_offset = cell->bit_offset;
-+	int i, extra, bit_offset = cell->bit_offset;
- 
- 	p = b = buf;
- 	if (bit_offset) {
-@@ -969,11 +969,16 @@ static inline void nvmem_shift_read_buffer_in_place(struct nvmem_cell *cell,
- 			p = b;
- 			*b++ >>= bit_offset;
- 		}
--
--		/* result fits in less bytes */
--		if (cell->bytes != DIV_ROUND_UP(cell->nbits, BITS_PER_BYTE))
--			*p-- = 0;
-+	} else {
-+		/* point to the msb */
-+		p += cell->bytes - 1;
+diff --git a/drivers/soc/tegra/pmc.c b/drivers/soc/tegra/pmc.c
+index 0df258518693..2fba8cdbe3bd 100644
+--- a/drivers/soc/tegra/pmc.c
++++ b/drivers/soc/tegra/pmc.c
+@@ -1999,7 +1999,7 @@ static int tegra_pmc_probe(struct platform_device *pdev)
+ 	if (IS_ENABLED(CONFIG_DEBUG_FS)) {
+ 		err = tegra_powergate_debugfs_init();
+ 		if (err < 0)
+-			return err;
++			goto cleanup_sysfs;
  	}
-+
-+	/* result fits in less bytes */
-+	extra = cell->bytes - DIV_ROUND_UP(cell->nbits, BITS_PER_BYTE);
-+	while (--extra >= 0)
-+		*p-- = 0;
-+
- 	/* clear msb bits if any leftover in the last byte */
- 	*p &= GENMASK((cell->nbits%BITS_PER_BYTE) - 1, 0);
+ 
+ 	err = register_restart_handler(&tegra_pmc_restart_handler);
+@@ -2030,6 +2030,9 @@ cleanup_restart_handler:
+ 	unregister_restart_handler(&tegra_pmc_restart_handler);
+ cleanup_debugfs:
+ 	debugfs_remove(pmc->debugfs);
++cleanup_sysfs:
++	device_remove_file(&pdev->dev, &dev_attr_reset_reason);
++	device_remove_file(&pdev->dev, &dev_attr_reset_level);
+ 	return err;
  }
+ 
 -- 
 2.20.1
 
