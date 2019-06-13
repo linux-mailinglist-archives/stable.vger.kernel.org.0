@@ -2,51 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D746441F0
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:20:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EBDFF44358
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:30:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2391326AbfFMQR5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:17:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57944 "EHLO mail.kernel.org"
+        id S1731598AbfFMQ2x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:28:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731120AbfFMIkb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:40:31 -0400
+        id S1730942AbfFMIfi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:35:38 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 78C152147A;
-        Thu, 13 Jun 2019 08:40:30 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 65AF720B7C;
+        Thu, 13 Jun 2019 08:35:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415231;
-        bh=C6d/i0uXdJ8+nqPibNnQK8H7JqpkEK6lAr0XOumabc0=;
+        s=default; t=1560414937;
+        bh=bfjKRZ8PumLntFhqebr+c1LpFuDm8z5HRUJ1uSrw4WA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RkDmfAiQl2zvdOmbvh+fFQeAqNGbvXuW2k3TlpTqwvJKZDxmUSPt4bqysjDAULqcr
-         S7J0Cnf/dRL7QMv/C9uJm2zl5nZuE41rd7WUJj7KvpeudkpguZ8xBpcjJ22HX9G71W
-         /LFB/JvvZRUf2KNDJHTI8e0ocBqizgk8ZpifhZ0g=
+        b=mtu0MuR5id9nBw1mBWqJtxUVjErwU43zx83gjNGbdO+p5qna705a74KSE+Sen7afW
+         Hc3nAe7OEcOBS52j58KAEXLr297CWaqzaAnuRfGAGDvdq9hFzBI27jopetnNrU59nL
+         sthmkTV8IfHADSvLi0V5hib4uSKECy68sPM6QKyY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Serge Semin <fancer.lancer@gmail.com>,
-        Paul Burton <paul.burton@mips.com>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        James Hogan <jhogan@kernel.org>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Michal Hocko <mhocko@suse.com>,
-        Thomas Bogendoerfer <tbogendoerfer@suse.de>,
-        Huacai Chen <chenhc@lemote.com>,
-        Stefan Agner <stefan@agner.ch>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Juergen Gross <jgross@suse.com>,
-        Serge Semin <Sergey.Semin@t-platforms.ru>,
-        linux-mips@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 051/118] mips: Make sure dt memory regions are valid
-Date:   Thu, 13 Jun 2019 10:33:09 +0200
-Message-Id: <20190613075646.719848269@linuxfoundation.org>
+        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 27/81] f2fs: fix to clear dirty inode in error path of f2fs_iget()
+Date:   Thu, 13 Jun 2019 10:33:10 +0200
+Message-Id: <20190613075651.133506185@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075643.642092651@linuxfoundation.org>
-References: <20190613075643.642092651@linuxfoundation.org>
+In-Reply-To: <20190613075649.074682929@linuxfoundation.org>
+References: <20190613075649.074682929@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,67 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 93fa5b280761a4dbb14c5330f260380385ab2b49 ]
+[ Upstream commit 546d22f070d64a7b96f57c93333772085d3a5e6d ]
 
-There are situations when memory regions coming from dts may be
-too big for the platform physical address space. This especially
-concerns XPA-capable systems. Bootloader may determine more than 4GB
-memory available and pass it to the kernel over dts memory node, while
-kernel is built without XPA/64BIT support. In this case the region
-may either simply be truncated by add_memory_region() method
-or by u64->phys_addr_t type casting. But in worst case the method
-can even drop the memory region if it exceeds PHYS_ADDR_MAX size.
-So lets make sure the retrieved from dts memory regions are valid,
-and if some of them aren't, just manually truncate them with a warning
-printed out.
+As Jungyeon reported in bugzilla:
 
-Signed-off-by: Serge Semin <fancer.lancer@gmail.com>
-Signed-off-by: Paul Burton <paul.burton@mips.com>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Cc: James Hogan <jhogan@kernel.org>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Thomas Bogendoerfer <tbogendoerfer@suse.de>
-Cc: Huacai Chen <chenhc@lemote.com>
-Cc: Stefan Agner <stefan@agner.ch>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: Juergen Gross <jgross@suse.com>
-Cc: Serge Semin <Sergey.Semin@t-platforms.ru>
-Cc: linux-mips@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
+https://bugzilla.kernel.org/show_bug.cgi?id=203217
+
+- Overview
+When mounting the attached crafted image and running program, I got this error.
+Additionally, it hangs on sync after running the program.
+
+The image is intentionally fuzzed from a normal f2fs image for testing and I enabled option CONFIG_F2FS_CHECK_FS on.
+
+- Reproduces
+cc poc_test_05.c
+mkdir test
+mount -t f2fs tmp.img test
+sudo ./a.out
+sync
+
+- Messages
+ kernel BUG at fs/f2fs/inode.c:707!
+ RIP: 0010:f2fs_evict_inode+0x33f/0x3a0
+ Call Trace:
+  evict+0xba/0x180
+  f2fs_iget+0x598/0xdf0
+  f2fs_lookup+0x136/0x320
+  __lookup_slow+0x92/0x140
+  lookup_slow+0x30/0x50
+  walk_component+0x1c1/0x350
+  path_lookupat+0x62/0x200
+  filename_lookup+0xb3/0x1a0
+  do_readlinkat+0x56/0x110
+  __x64_sys_readlink+0x16/0x20
+  do_syscall_64+0x43/0xf0
+  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+During inode loading, __recover_inline_status() can recovery inode status
+and set inode dirty, once we failed in following process, it will fail
+the check in f2fs_evict_inode, result in trigger BUG_ON().
+
+Let's clear dirty inode in error path of f2fs_iget() to avoid panic.
+
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/kernel/prom.c | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ fs/f2fs/inode.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/mips/kernel/prom.c b/arch/mips/kernel/prom.c
-index 89950b7bf536..bdaf3536241a 100644
---- a/arch/mips/kernel/prom.c
-+++ b/arch/mips/kernel/prom.c
-@@ -41,7 +41,19 @@ char *mips_get_machine_name(void)
- #ifdef CONFIG_USE_OF
- void __init early_init_dt_add_memory_arch(u64 base, u64 size)
- {
--	return add_memory_region(base, size, BOOT_MEM_RAM);
-+	if (base >= PHYS_ADDR_MAX) {
-+		pr_warn("Trying to add an invalid memory region, skipped\n");
-+		return;
-+	}
-+
-+	/* Truncate the passed memory region instead of type casting */
-+	if (base + size - 1 >= PHYS_ADDR_MAX || base + size < base) {
-+		pr_warn("Truncate memory region %llx @ %llx to size %llx\n",
-+			size, base, PHYS_ADDR_MAX - base);
-+		size = PHYS_ADDR_MAX - base;
-+	}
-+
-+	add_memory_region(base, size, BOOT_MEM_RAM);
- }
+diff --git a/fs/f2fs/inode.c b/fs/f2fs/inode.c
+index 50818b519df8..e02ed16bc35c 100644
+--- a/fs/f2fs/inode.c
++++ b/fs/f2fs/inode.c
+@@ -397,6 +397,7 @@ make_now:
+ 	return inode;
  
- int __init early_init_dt_reserve_memory_arch(phys_addr_t base,
+ bad_inode:
++	f2fs_inode_synced(inode);
+ 	iget_failed(inode);
+ 	trace_f2fs_iget_exit(inode, ret);
+ 	return ERR_PTR(ret);
 -- 
 2.20.1
 
