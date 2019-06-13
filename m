@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BD4E441CA
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:19:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA964442E8
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:27:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1732424AbfFMQQW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:16:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58650 "EHLO mail.kernel.org"
+        id S2389926AbfFMQ0R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:26:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731152AbfFMIlZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:41:25 -0400
+        id S1730960AbfFMIgN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:36:13 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 5685920851;
-        Thu, 13 Jun 2019 08:41:24 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 433622146F;
+        Thu, 13 Jun 2019 08:36:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415284;
-        bh=ss0pxPaLLqpqYd7wUmzKeZFRvjvsi0CSNDrkeGQbD4E=;
+        s=default; t=1560414972;
+        bh=V4eMEYHwbofiKkxkA3V3kHxUOdCXyPa4yfpH7qHKo4M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a1YdIDAvY+Pm1p6Fyi2AV9e7hQIoAfMmi29wJ+Au7VsLT7x+dG1EYRTPE74SQOeHX
-         wxeXuNAsicI/0aPzWbxElR8BiMwz4ZnKHXKlA8XsEfL6kHjZJ6NjseELuAUa0/LgIm
-         nxYgS91n6DbkgvKlu4RZ6HcVTWhrQHnARp8b9r5k=
+        b=Uzwtm1a2W2O9VqLDgrE8nz1QwF06ZCxr3fXAP82lhCI2ER2WERL1S5Y8y83oIQUdT
+         RrJ83c3pTXcqW/R43MVmwhY3eUdJsCT57WPEKJy0Xd0zrs8wCkyNS1N/PO1SqiLVZx
+         hxlXMtbYPxmONIw69NW4Wy5olmop2EUY4kMlX2EQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org,
+        Javier Martinez Canillas <javier@dowhile0.org>,
+        Daniel Gomez <dagmcr@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 041/118] f2fs: fix to do checksum even if inode page is uptodate
+Subject: [PATCH 4.14 16/81] mfd: tps65912-spi: Add missing of table registration
 Date:   Thu, 13 Jun 2019 10:32:59 +0200
-Message-Id: <20190613075645.972616217@linuxfoundation.org>
+Message-Id: <20190613075650.266229836@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190613075643.642092651@linuxfoundation.org>
-References: <20190613075643.642092651@linuxfoundation.org>
+In-Reply-To: <20190613075649.074682929@linuxfoundation.org>
+References: <20190613075649.074682929@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,95 +46,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit b42b179bda9ff11075a6fc2bac4d9e400513679a ]
+[ Upstream commit 9e364e87ad7f2c636276c773d718cda29d62b741 ]
 
-As Jungyeon reported in bugzilla:
+MODULE_DEVICE_TABLE(of, <of_match_table> should be called to complete DT
+OF mathing mechanism and register it.
 
-https://bugzilla.kernel.org/show_bug.cgi?id=203221
+Before this patch:
+modinfo drivers/mfd/tps65912-spi.ko | grep alias
+alias:          spi:tps65912
 
-- Overview
-When mounting the attached crafted image and running program, this error is reported.
+After this patch:
+modinfo drivers/mfd/tps65912-spi.ko | grep alias
+alias:          of:N*T*Cti,tps65912C*
+alias:          of:N*T*Cti,tps65912
+alias:          spi:tps65912
 
-The image is intentionally fuzzed from a normal f2fs image for testing and I enabled option CONFIG_F2FS_CHECK_FS on.
-
-- Reproduces
-cc poc_07.c
-mkdir test
-mount -t f2fs tmp.img test
-cp a.out test
-cd test
-sudo ./a.out
-
-- Messages
- kernel BUG at fs/f2fs/node.c:1279!
- RIP: 0010:read_node_page+0xcf/0xf0
- Call Trace:
-  __get_node_page+0x6b/0x2f0
-  f2fs_iget+0x8f/0xdf0
-  f2fs_lookup+0x136/0x320
-  __lookup_slow+0x92/0x140
-  lookup_slow+0x30/0x50
-  walk_component+0x1c1/0x350
-  path_lookupat+0x62/0x200
-  filename_lookup+0xb3/0x1a0
-  do_fchmodat+0x3e/0xa0
-  __x64_sys_chmod+0x12/0x20
-  do_syscall_64+0x43/0xf0
-  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-On below paths, we can have opportunity to readahead inode page
-- gc_node_segment -> f2fs_ra_node_page
-- gc_data_segment -> f2fs_ra_node_page
-- f2fs_fill_dentries -> f2fs_ra_node_page
-
-Unlike synchronized read, on readahead path, we can set page uptodate
-before verifying page's checksum, then read_node_page() will trigger
-kernel panic once it encounters a uptodated page w/ incorrect checksum.
-
-So considering readahead scenario, we have to do checksum each time
-when loading inode page even if it is uptodated.
-
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Reported-by: Javier Martinez Canillas <javier@dowhile0.org>
+Signed-off-by: Daniel Gomez <dagmcr@gmail.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/inode.c | 4 ++--
- fs/f2fs/node.c  | 7 ++++---
- 2 files changed, 6 insertions(+), 5 deletions(-)
+ drivers/mfd/tps65912-spi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/f2fs/inode.c b/fs/f2fs/inode.c
-index fae9570e6860..0f31df01e36c 100644
---- a/fs/f2fs/inode.c
-+++ b/fs/f2fs/inode.c
-@@ -179,8 +179,8 @@ bool f2fs_inode_chksum_verify(struct f2fs_sb_info *sbi, struct page *page)
+diff --git a/drivers/mfd/tps65912-spi.c b/drivers/mfd/tps65912-spi.c
+index 3bd75061f777..f78be039e463 100644
+--- a/drivers/mfd/tps65912-spi.c
++++ b/drivers/mfd/tps65912-spi.c
+@@ -27,6 +27,7 @@ static const struct of_device_id tps65912_spi_of_match_table[] = {
+ 	{ .compatible = "ti,tps65912", },
+ 	{ /* sentinel */ }
+ };
++MODULE_DEVICE_TABLE(of, tps65912_spi_of_match_table);
  
- 	if (provided != calculated)
- 		f2fs_msg(sbi->sb, KERN_WARNING,
--			"checksum invalid, ino = %x, %x vs. %x",
--			ino_of_node(page), provided, calculated);
-+			"checksum invalid, nid = %lu, ino_of_node = %x, %x vs. %x",
-+			page->index, ino_of_node(page), provided, calculated);
- 
- 	return provided == calculated;
- }
-diff --git a/fs/f2fs/node.c b/fs/f2fs/node.c
-index 34c3f732601c..e2d9edad758c 100644
---- a/fs/f2fs/node.c
-+++ b/fs/f2fs/node.c
-@@ -1282,9 +1282,10 @@ static int read_node_page(struct page *page, int op_flags)
- 	int err;
- 
- 	if (PageUptodate(page)) {
--#ifdef CONFIG_F2FS_CHECK_FS
--		f2fs_bug_on(sbi, !f2fs_inode_chksum_verify(sbi, page));
--#endif
-+		if (!f2fs_inode_chksum_verify(sbi, page)) {
-+			ClearPageUptodate(page);
-+			return -EBADMSG;
-+		}
- 		return LOCKED_PAGE;
- 	}
- 
+ static int tps65912_spi_probe(struct spi_device *spi)
+ {
 -- 
 2.20.1
 
