@@ -2,72 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 46C2B4409B
-	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:07:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F09AD44083
+	for <lists+stable@lfdr.de>; Thu, 13 Jun 2019 18:07:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730427AbfFMQHt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 12:07:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34118 "EHLO mail.kernel.org"
+        id S1727032AbfFMQHI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 12:07:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1731300AbfFMIpZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jun 2019 04:45:25 -0400
+        id S1731309AbfFMIpp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jun 2019 04:45:45 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 9DFE72147A;
-        Thu, 13 Jun 2019 08:45:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id B8C082175B;
+        Thu, 13 Jun 2019 08:45:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560415524;
-        bh=m6ODw5BskUwFh1JO80IjSssuEvqA80Q7xvil16oRl/U=;
+        s=default; t=1560415544;
+        bh=OCgOXJAykaxpw9/xIwXFpkpV3yLlSkKdd+71zIGSmyM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DpDom5CzAgOwBtcy7OrNZj/sVw0R8Wq+SVruhE3Q/nGYHcQ7ivNJ/2C2uRf5s04vV
-         8i6k3SvxzTJrukyeBSmxiKCgfqZ8Bw3qRklTS50R/EqTeh93vfz+wLitfO+JzrAwk1
-         8igk5009d3aEc9k8l1BoD7iqexTV2gOUUofDEnoI=
+        b=WKqUoYiHh7dxPtl98KxS/drb4TGNyrhCwWUI8enObQSffrZqtRUTrDmXIbvh/ZqRa
+         yOmllm/jIGKJfcXuLTsro6WGYBT4didNyMOorSCwY9ZtoMRhIKgX8t9YhrDCCgVttE
+         XIQaL4YeYGKLAEhbStSaDt2KW25kCC7s2YYRmK40=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
-        Oscar Salvador <osalvador@suse.de>,
+        stable@vger.kernel.org, Linxu Fang <fanglinxu@huawei.com>,
+        Taku Izumi <izumi.taku@jp.fujitsu.com>,
+        Xishi Qiu <qiuxishi@huawei.com>,
         Michal Hocko <mhocko@suse.com>,
-        Pavel Tatashin <pasha.tatashin@soleen.com>,
-        Wei Yang <richard.weiyang@gmail.com>, Qian Cai <cai@lca.pw>,
-        Arun KS <arunks@codeaurora.org>,
-        Mathieu Malaterre <malat@debian.org>,
-        Andrew Banman <andrew.banman@hpe.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Borislav Petkov <bp@alien8.de>,
-        Christophe Leroy <christophe.leroy@c-s.fr>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Fenghua Yu <fenghua.yu@intel.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Heiko Carstens <heiko.carstens@de.ibm.com>,
-        "H. Peter Anvin" <hpa@zytor.com>, Ingo Molnar <mingo@kernel.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
-        Masahiro Yamada <yamada.masahiro@socionext.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Mike Travis <mike.travis@hpe.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Oscar Salvador <osalvador@suse.com>,
-        Paul Mackerras <paulus@samba.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Rich Felker <dalias@libc.org>, Rob Herring <robh@kernel.org>,
-        Stefan Agner <stefan@agner.ch>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Tony Luck <tony.luck@intel.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Yoshinori Sato <ysato@users.sourceforge.jp>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Pavel Tatashin <pavel.tatashin@microsoft.com>,
+        Oscar Salvador <osalvador@suse.de>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 014/155] mm/memory_hotplug: release memory resource after arch_remove_memory()
-Date:   Thu, 13 Jun 2019 10:32:06 +0200
-Message-Id: <20190613075653.563139293@linuxfoundation.org>
+Subject: [PATCH 5.1 015/155] mem-hotplug: fix node spanned pages when we have a node with only ZONE_MOVABLE
+Date:   Thu, 13 Jun 2019 10:32:07 +0200
+Message-Id: <20190613075653.624436735@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190613075652.691765927@linuxfoundation.org>
 References: <20190613075652.691765927@linuxfoundation.org>
@@ -80,176 +51,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d9eb1417c77df7ce19abd2e41619e9dceccbdf2a ]
+[ Upstream commit 299c83dce9ea3a79bb4b5511d2cb996b6b8e5111 ]
 
-Patch series "mm/memory_hotplug: Better error handling when removing
-memory", v1.
+342332e6a925 ("mm/page_alloc.c: introduce kernelcore=mirror option") and
+later patches rewrote the calculation of node spanned pages.
 
-Error handling when removing memory is somewhat messed up right now.  Some
-errors result in warnings, others are completely ignored.  Memory unplug
-code can essentially not deal with errors properly as of now.
-remove_memory() will never fail.
+e506b99696a2 ("mem-hotplug: fix node spanned pages when we have a movable
+node"), but the current code still has problems,
 
-We have basically two choices:
-1. Allow arch_remov_memory() and friends to fail, propagating errors via
-   remove_memory(). Might be problematic (e.g. DIMMs consisting of multiple
-   pieces added/removed separately).
-2. Don't allow the functions to fail, handling errors in a nicer way.
+When we have a node with only zone_movable and the node id is not zero,
+the size of node spanned pages is double added.
 
-It seems like most errors that can theoretically happen are really corner
-cases and mostly theoretical (e.g.  "section not valid").  However e.g.
-aborting removal of sections while all callers simply continue in case of
-errors is not nice.
+That's because we have an empty normal zone, and zone_start_pfn or
+zone_end_pfn is not between arch_zone_lowest_possible_pfn and
+arch_zone_highest_possible_pfn, so we need to use clamp to constrain the
+range just like the commit <96e907d13602> (bootmem: Reimplement
+__absent_pages_in_range() using for_each_mem_pfn_range()).
 
-If we can gurantee that removal of memory always works (and WARN/skip in
-case of theoretical errors so we can figure out what is going on), we can
-go ahead and implement better error handling when adding memory.
+e.g.
+Zone ranges:
+  DMA      [mem 0x0000000000001000-0x0000000000ffffff]
+  DMA32    [mem 0x0000000001000000-0x00000000ffffffff]
+  Normal   [mem 0x0000000100000000-0x000000023fffffff]
+Movable zone start for each node
+  Node 0: 0x0000000100000000
+  Node 1: 0x0000000140000000
+Early memory node ranges
+  node   0: [mem 0x0000000000001000-0x000000000009efff]
+  node   0: [mem 0x0000000000100000-0x00000000bffdffff]
+  node   0: [mem 0x0000000100000000-0x000000013fffffff]
+  node   1: [mem 0x0000000140000000-0x000000023fffffff]
 
-E.g. via add_memory():
+node 0 DMA	spanned:0xfff   present:0xf9e   absent:0x61
+node 0 DMA32	spanned:0xff000 present:0xbefe0	absent:0x40020
+node 0 Normal	spanned:0	present:0	absent:0
+node 0 Movable	spanned:0x40000 present:0x40000 absent:0
+On node 0 totalpages(node_present_pages): 1048446
+node_spanned_pages:1310719
+node 1 DMA	spanned:0	    present:0		absent:0
+node 1 DMA32	spanned:0	    present:0		absent:0
+node 1 Normal	spanned:0x100000    present:0x100000	absent:0
+node 1 Movable	spanned:0x100000    present:0x100000	absent:0
+On node 1 totalpages(node_present_pages): 2097152
+node_spanned_pages:2097152
+Memory: 6967796K/12582392K available (16388K kernel code, 3686K rwdata,
+4468K rodata, 2160K init, 10444K bss, 5614596K reserved, 0K
+cma-reserved)
 
-arch_add_memory()
-ret = do_stuff()
-if (ret) {
-	arch_remove_memory();
-	goto error;
-}
+It shows that the current memory of node 1 is double added.
+After this patch, the problem is fixed.
 
-Handling here that arch_remove_memory() might fail is basically
-impossible.  So I suggest, let's avoid reporting errors while removing
-memory, warning on theoretical errors instead and continuing instead of
-aborting.
+node 0 DMA	spanned:0xfff   present:0xf9e   absent:0x61
+node 0 DMA32	spanned:0xff000 present:0xbefe0	absent:0x40020
+node 0 Normal	spanned:0	present:0	absent:0
+node 0 Movable	spanned:0x40000 present:0x40000 absent:0
+On node 0 totalpages(node_present_pages): 1048446
+node_spanned_pages:1310719
+node 1 DMA	spanned:0	    present:0		absent:0
+node 1 DMA32	spanned:0	    present:0		absent:0
+node 1 Normal	spanned:0	    present:0		absent:0
+node 1 Movable	spanned:0x100000    present:0x100000	absent:0
+On node 1 totalpages(node_present_pages): 1048576
+node_spanned_pages:1048576
+memory: 6967796K/8388088K available (16388K kernel code, 3686K rwdata,
+4468K rodata, 2160K init, 10444K bss, 1420292K reserved, 0K
+cma-reserved)
 
-This patch (of 4):
-
-__add_pages() doesn't add the memory resource, so __remove_pages()
-shouldn't remove it.  Let's factor it out.  Especially as it is a special
-case for memory used as system memory, added via add_memory() and friends.
-
-We now remove the resource after removing the sections instead of doing it
-the other way around.  I don't think this change is problematic.
-
-add_memory()
-	register memory resource
-	arch_add_memory()
-
-remove_memory
-	arch_remove_memory()
-	release memory resource
-
-While at it, explain why we ignore errors and that it only happeny if
-we remove memory in a different granularity as we added it.
-
-[david@redhat.com: fix printk warning]
-  Link: http://lkml.kernel.org/r/20190417120204.6997-1-david@redhat.com
-Link: http://lkml.kernel.org/r/20190409100148.24703-2-david@redhat.com
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Link: http://lkml.kernel.org/r/1554178276-10372-1-git-send-email-fanglinxu@huawei.com
+Signed-off-by: Linxu Fang <fanglinxu@huawei.com>
+Cc: Taku Izumi <izumi.taku@jp.fujitsu.com>
+Cc: Xishi Qiu <qiuxishi@huawei.com>
 Cc: Michal Hocko <mhocko@suse.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
-Cc: Wei Yang <richard.weiyang@gmail.com>
-Cc: Qian Cai <cai@lca.pw>
-Cc: Arun KS <arunks@codeaurora.org>
-Cc: Mathieu Malaterre <malat@debian.org>
-Cc: Andrew Banman <andrew.banman@hpe.com>
-Cc: Andy Lutomirski <luto@kernel.org>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Christophe Leroy <christophe.leroy@c-s.fr>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Fenghua Yu <fenghua.yu@intel.com>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Cc: Mike Travis <mike.travis@hpe.com>
-Cc: Nicholas Piggin <npiggin@gmail.com>
-Cc: Oscar Salvador <osalvador@suse.com>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: Rich Felker <dalias@libc.org>
-Cc: Rob Herring <robh@kernel.org>
-Cc: Stefan Agner <stefan@agner.ch>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Tony Luck <tony.luck@intel.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Yoshinori Sato <ysato@users.sourceforge.jp>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Pavel Tatashin <pavel.tatashin@microsoft.com>
+Cc: Oscar Salvador <osalvador@suse.de>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/memory_hotplug.c | 35 +++++++++++++++++++++--------------
- 1 file changed, 21 insertions(+), 14 deletions(-)
+ mm/page_alloc.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index b236069ff0d8..28587f290109 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -561,20 +561,6 @@ int __remove_pages(struct zone *zone, unsigned long phys_start_pfn,
- 	if (is_dev_zone(zone)) {
- 		if (altmap)
- 			map_offset = vmem_altmap_offset(altmap);
--	} else {
--		resource_size_t start, size;
--
--		start = phys_start_pfn << PAGE_SHIFT;
--		size = nr_pages * PAGE_SIZE;
--
--		ret = release_mem_region_adjustable(&iomem_resource, start,
--					size);
--		if (ret) {
--			resource_size_t endres = start + size - 1;
--
--			pr_warn("Unable to release resource <%pa-%pa> (%d)\n",
--					&start, &endres, ret);
--		}
- 	}
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index c02cff1ed56e..475ca5b1a824 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -6244,13 +6244,15 @@ static unsigned long __init zone_spanned_pages_in_node(int nid,
+ 					unsigned long *zone_end_pfn,
+ 					unsigned long *ignored)
+ {
++	unsigned long zone_low = arch_zone_lowest_possible_pfn[zone_type];
++	unsigned long zone_high = arch_zone_highest_possible_pfn[zone_type];
+ 	/* When hotadd a new node from cpu_up(), the node should be empty */
+ 	if (!node_start_pfn && !node_end_pfn)
+ 		return 0;
  
- 	clear_zone_contiguous(zone);
-@@ -1843,6 +1829,26 @@ void try_offline_node(int nid)
- }
- EXPORT_SYMBOL(try_offline_node);
- 
-+static void __release_memory_resource(resource_size_t start,
-+				      resource_size_t size)
-+{
-+	int ret;
-+
-+	/*
-+	 * When removing memory in the same granularity as it was added,
-+	 * this function never fails. It might only fail if resources
-+	 * have to be adjusted or split. We'll ignore the error, as
-+	 * removing of memory cannot fail.
-+	 */
-+	ret = release_mem_region_adjustable(&iomem_resource, start, size);
-+	if (ret) {
-+		resource_size_t endres = start + size - 1;
-+
-+		pr_warn("Unable to release resource <%pa-%pa> (%d)\n",
-+			&start, &endres, ret);
-+	}
-+}
-+
- /**
-  * remove_memory
-  * @nid: the node ID
-@@ -1877,6 +1883,7 @@ void __ref __remove_memory(int nid, u64 start, u64 size)
- 	memblock_remove(start, size);
- 
- 	arch_remove_memory(nid, start, size, NULL);
-+	__release_memory_resource(start, size);
- 
- 	try_offline_node(nid);
- 
+ 	/* Get the start and end of the zone */
+-	*zone_start_pfn = arch_zone_lowest_possible_pfn[zone_type];
+-	*zone_end_pfn = arch_zone_highest_possible_pfn[zone_type];
++	*zone_start_pfn = clamp(node_start_pfn, zone_low, zone_high);
++	*zone_end_pfn = clamp(node_end_pfn, zone_low, zone_high);
+ 	adjust_zone_range_for_zone_movable(nid, zone_type,
+ 				node_start_pfn, node_end_pfn,
+ 				zone_start_pfn, zone_end_pfn);
 -- 
 2.20.1
 
