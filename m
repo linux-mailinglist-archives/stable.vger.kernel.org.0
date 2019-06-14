@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F8DF45277
-	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 05:12:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BA6145278
+	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 05:12:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726581AbfFNDM4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 23:12:56 -0400
-Received: from mail-pf1-f196.google.com ([209.85.210.196]:38713 "EHLO
-        mail-pf1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725819AbfFNDM4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Jun 2019 23:12:56 -0400
-Received: by mail-pf1-f196.google.com with SMTP id a186so496066pfa.5
-        for <stable@vger.kernel.org>; Thu, 13 Jun 2019 20:12:55 -0700 (PDT)
+        id S1726637AbfFNDM7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 23:12:59 -0400
+Received: from mail-pg1-f194.google.com ([209.85.215.194]:40821 "EHLO
+        mail-pg1-f194.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725819AbfFNDM6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Jun 2019 23:12:58 -0400
+Received: by mail-pg1-f194.google.com with SMTP id d30so672413pgm.7
+        for <stable@vger.kernel.org>; Thu, 13 Jun 2019 20:12:58 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=D7dDso9mEizkFlSNIpcQXEVsYMAg+0dXCi9osCif4dQ=;
-        b=fKikLlZuAQwMsJ7IxdZ8VaTDrZUxIEZ23eNY/ec3KB1TeAkqv+Dd8EAOX2jOAgTmRi
-         32CQuw+4/4j3eOkxgcDh29AnCQVRSZrT4BaN6E3Q39lYAZVbENVcOm8XPzsqNDaiE48y
-         yjndCGjmzUzdw5d/H8+50cc15w15uQ4VsI8t7/LuLjW0NAtRrsznKOzILwQEVq4JhUjr
-         9aQ/PnnP76FkI5bomv330zrABfuEa9DAwt+1oMCGWmv6zTrjBN546hhVvZvAlUFSoBok
-         bAHCvf9uNRrp3k106WZTFTQXDvkQwiI/2pA/ej7S7/AIrrelGoVgvs7PId7Mn6OcvKAI
-         j6mQ==
+        bh=y7D7di+hWLJT4S7T0euG3Tl4lwmsE/s4d/bbuco5Z4Y=;
+        b=tn9ttUjCo/EPvIMutHSe21ptFw26CO8lMLTifKPIv38gL7+JQt+HP8TJghUQmKKFpp
+         ZpLfHPaBsCa8fyB29TufhWsnLm1JxOkQqGXQjeEfNqHl3WjYf9Hi3tk2zMM/90BPaJCv
+         PK4MM1eqbM5VvFktAiQ4S8uIcW3nVE8Sb0TcB9CJLZ+2C9LNRmiSvf4Gcy/TutPKIDJO
+         6oRlTUHT+FdhBjMC+pgPt/ZadHh8hc8RVYcm5dPXTdWWLOaiaxFcRx7YhawcoLH7lJEs
+         Z1PptH6hyBln/IZcxEGZcPwBuo4jSo3oywpV2aRUTn9Gn40jGiSFEryl9gCr02qIa/Ut
+         I4ag==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=D7dDso9mEizkFlSNIpcQXEVsYMAg+0dXCi9osCif4dQ=;
-        b=DUpaEytSelEklmQ+XIR0XSNjmgwVJJdQ7xQy3I2TDrgF4Wyx+zxqSAfE1U9x2pBwHa
-         owuz89UNZmwvsHs2nSGbJPoorRwwXNLJmeL+9E+RSmhbkgVN8z0TWWYRWrXxQ8B4lOVK
-         DnvYZgnfIVOHLzOnwQid+YNEZ3q/m3r1Tw9+Zgil+n9SrtVUN1A8fDrfKaKmPzblkY/s
-         3PPS2F68qpzJiU1EAylS6QW+EY8RlplnDb+7s4VtKVLXB43kAY4KxW1Ki2hBDN/PBDuR
-         7T9+YUKBbP0cSIbSNFoGODk+yJ/U8ZsNix+SKLl3BV4hGwVBW9dAqHyc6T0yAc+sKiva
-         giBw==
-X-Gm-Message-State: APjAAAWL4uYBkKxE8iRSoA4W54VR9M2oRWBCxmcn1P3eJmrrK7NDoChV
-        14Pj4qqI/+Q/6abL4HT6QpGOmQ==
-X-Google-Smtp-Source: APXvYqxW3zGVG0I9OzIQ9niSlNH61hh4YIpqfv75eHxvSTKVVpPie3Lls43Fy6uold1oh56+3H7abA==
-X-Received: by 2002:a63:8249:: with SMTP id w70mr31527593pgd.33.1560481975265;
-        Thu, 13 Jun 2019 20:12:55 -0700 (PDT)
+        bh=y7D7di+hWLJT4S7T0euG3Tl4lwmsE/s4d/bbuco5Z4Y=;
+        b=pXXI+p3z0HMGKorA/P4d/o6AAYR3+vmDGdNkgnYlY0gtFkLsHM7ZO4eNSmlXKbgjaF
+         X/7xRpKQz6J/H6E6wLlHPz//cxBzSKJIAwxMxADK3gTjdN+6TZOsstTSy4ee4+ohu5J4
+         gHi0dfxreMukk219Jb8tGnyRx8E2nRPjaiEk4VlN0u4abYTDznfYrhwdUt71osPppckg
+         i/1GtDkmBmNxk+pTL+ZUncg3PXkjfPHV/ncX/ndRt+krrfAHaMDol+KOLjK/JLI/wF8R
+         +Vkc8ctQkoP2SUpmO38+oheYrhZQPRf9u+bvRpTqW6RlI3QismVOHK0ifRk/gLHOYO5C
+         pD6w==
+X-Gm-Message-State: APjAAAV47caU2BCdxfV0iLcVQiD1m2XdFBwtZ4qMYrU0JtoCUJCeDwOc
+        n4puwOVrCEwTugw1CJsq/TsxSQ==
+X-Google-Smtp-Source: APXvYqy1XoUqM5zu1PsPirXi5eV1NLgcorVG8nNQhT9EvyDCcgAzjv4/LVlEZkfFxuFNSqYr80p4Ew==
+X-Received: by 2002:a63:140c:: with SMTP id u12mr33588467pgl.378.1560481978109;
+        Thu, 13 Jun 2019 20:12:58 -0700 (PDT)
 Received: from localhost ([122.172.66.84])
-        by smtp.gmail.com with ESMTPSA id 11sm1046028pfo.19.2019.06.13.20.12.54
+        by smtp.gmail.com with ESMTPSA id g5sm1064300pjt.14.2019.06.13.20.12.57
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 13 Jun 2019 20:12:54 -0700 (PDT)
+        Thu, 13 Jun 2019 20:12:57 -0700 (PDT)
 From:   Viresh Kumar <viresh.kumar@linaro.org>
 To:     linux-arm-kernel@lists.infradead.org,
         Julien Thierry <Julien.Thierry@arm.com>
@@ -55,9 +55,9 @@ Cc:     Viresh Kumar <viresh.kumar@linaro.org>, stable@vger.kernel.org,
         Russell King <rmk+kernel@arm.linux.org.uk>,
         Vincent Guittot <vincent.guittot@linaro.org>,
         mark.brown@arm.com
-Subject: [PATCH v4.4 23/45] arm64: cputype: Add missing MIDR values for Cortex-A72 and Cortex-A75
-Date:   Fri, 14 Jun 2019 08:38:06 +0530
-Message-Id: <664f5eab4d993d056ab82bcfaf7037d538ee6095.1560480942.git.viresh.kumar@linaro.org>
+Subject: [PATCH v4.4 24/45] arm64: cpu_errata: Allow an erratum to be match for all revisions of a core
+Date:   Fri, 14 Jun 2019 08:38:07 +0530
+Message-Id: <1b836bac823d576986a9e893e2d2509776ff3565.1560480942.git.viresh.kumar@linaro.org>
 X-Mailer: git-send-email 2.21.0.rc0.269.g1a574e7a288b
 In-Reply-To: <cover.1560480942.git.viresh.kumar@linaro.org>
 References: <cover.1560480942.git.viresh.kumar@linaro.org>
@@ -68,46 +68,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will.deacon@arm.com>
+From: Marc Zyngier <marc.zyngier@arm.com>
 
-commit a65d219fe5dc7887fd5ca04c2ac3e9a34feb8dfc upstream.
+commit 06f1494f837da8997d670a1ba87add7963b08922 upstream.
 
-Hook up MIDR values for the Cortex-A72 and Cortex-A75 CPUs, since they
-will soon need MIDR matches for hardening the branch predictor.
+Some minor erratum may not be fixed in further revisions of a core,
+leading to a situation where the workaround needs to be updated each
+time an updated core is released.
 
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-[ v4.4: Add A73 values as well ]
+Introduce a MIDR_ALL_VERSIONS match helper that will work for all
+versions of that MIDR, once and for all.
+
+Acked-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+Acked-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
 Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 ---
- arch/arm64/include/asm/cputype.h | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/arm64/kernel/cpu_errata.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/arch/arm64/include/asm/cputype.h b/arch/arm64/include/asm/cputype.h
-index f43e10cfeda2..2a1f44646048 100644
---- a/arch/arm64/include/asm/cputype.h
-+++ b/arch/arm64/include/asm/cputype.h
-@@ -77,14 +77,20 @@
- #define ARM_CPU_PART_AEM_V8		0xD0F
- #define ARM_CPU_PART_FOUNDATION		0xD00
- #define ARM_CPU_PART_CORTEX_A57		0xD07
-+#define ARM_CPU_PART_CORTEX_A72		0xD08
- #define ARM_CPU_PART_CORTEX_A53		0xD03
- #define ARM_CPU_PART_CORTEX_A55		0xD05
-+#define ARM_CPU_PART_CORTEX_A73		0xD09
-+#define ARM_CPU_PART_CORTEX_A75		0xD0A
+diff --git a/arch/arm64/kernel/cpu_errata.c b/arch/arm64/kernel/cpu_errata.c
+index 6c5e9e462629..c05135cd53fe 100644
+--- a/arch/arm64/kernel/cpu_errata.c
++++ b/arch/arm64/kernel/cpu_errata.c
+@@ -124,6 +124,13 @@ static void  install_bp_hardening_cb(const struct arm64_cpu_capabilities *entry,
+ 	.midr_range_min = min, \
+ 	.midr_range_max = max
  
- #define APM_CPU_PART_POTENZA		0x000
- 
- #define CAVIUM_CPU_PART_THUNDERX	0x0A1
- 
- #define MIDR_CORTEX_A55 MIDR_CPU_PART(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A55)
-+#define MIDR_CORTEX_A72 MIDR_CPU_PART(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A72)
-+#define MIDR_CORTEX_A73 MIDR_CPU_PART(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A73)
-+#define MIDR_CORTEX_A75 MIDR_CPU_PART(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A75)
- 
- #ifndef __ASSEMBLY__
- 
++#define MIDR_ALL_VERSIONS(model) \
++	.def_scope = SCOPE_LOCAL_CPU, \
++	.matches = is_affected_midr_range, \
++	.midr_model = model, \
++	.midr_range_min = 0, \
++	.midr_range_max = (MIDR_VARIANT_MASK | MIDR_REVISION_MASK)
++
+ const struct arm64_cpu_capabilities arm64_errata[] = {
+ #if	defined(CONFIG_ARM64_ERRATUM_826319) || \
+ 	defined(CONFIG_ARM64_ERRATUM_827319) || \
 -- 
 2.21.0.rc0.269.g1a574e7a288b
 
