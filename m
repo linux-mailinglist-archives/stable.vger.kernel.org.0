@@ -2,125 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 06DE14611C
-	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 16:40:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA45746126
+	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 16:42:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728251AbfFNOk1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jun 2019 10:40:27 -0400
-Received: from terminus.zytor.com ([198.137.202.136]:37211 "EHLO
-        terminus.zytor.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1728210AbfFNOk0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Jun 2019 10:40:26 -0400
-Received: from terminus.zytor.com (localhost [127.0.0.1])
-        by terminus.zytor.com (8.15.2/8.15.2) with ESMTPS id x5EEeDX21735706
-        (version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NO);
-        Fri, 14 Jun 2019 07:40:13 -0700
-DKIM-Filter: OpenDKIM Filter v2.11.0 terminus.zytor.com x5EEeDX21735706
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zytor.com;
-        s=2019051801; t=1560523213;
-        bh=MTIomEjR0QGw2Y/B1esgMdBm8zLW2TjMINe9+/UbZw8=;
-        h=Date:From:Cc:Reply-To:In-Reply-To:References:To:Subject:From;
-        b=dKcaYIc8B3jJkXC26NehlU+BlKN/18Sn83o6rZT+Sgw0mA6B21TVcF3xeJu9xqNt2
-         LfszzEOdPOz2Ub7jkKtA1C9L1gPkForhBSv1j04JzzyHDnDovgEFpRASi9MagWMQ0R
-         OZpgbiqpQxXQu5CHeK/T6C3/blbi4xw3aZbhhjj6TYhKZtvjLQfOaEBTV6J2SoOw7B
-         2CtOKJrPTvdeZmo76nvX7VmG+oW3MGAD93Q8lSULAPl6tikwyaAEex6K95ibsGYFO2
-         nbKitfAqr+BrmYxOMPIMnkgM4PfThQdVM/ibfQJ2MDTJvVCcbY9yFQE8d4PaaJj80J
-         6noge/6ltFrFg==
-Received: (from tipbot@localhost)
-        by terminus.zytor.com (8.15.2/8.15.2/Submit) id x5EEeCAi1735701;
-        Fri, 14 Jun 2019 07:40:12 -0700
-Date:   Fri, 14 Jun 2019 07:40:12 -0700
-X-Authentication-Warning: terminus.zytor.com: tipbot set sender to tipbot@zytor.com using -f
-From:   tip-bot for Andrey Ryabinin <tipbot@zytor.com>
-Message-ID: <tip-f3176ec9420de0c385023afa3e4970129444ac2f@git.kernel.org>
-Cc:     bp@alien8.de, linux-kernel@vger.kernel.org, mingo@kernel.org,
-        dvyukov@google.com, tglx@linutronix.de, kirill@shutemov.name,
-        stable@vger.kernel.org, aryabinin@virtuozzo.com, glider@google.com,
-        hpa@zytor.com
-Reply-To: hpa@zytor.com, glider@google.com, stable@vger.kernel.org,
-          aryabinin@virtuozzo.com, kirill@shutemov.name,
-          tglx@linutronix.de, mingo@kernel.org, dvyukov@google.com,
-          linux-kernel@vger.kernel.org, bp@alien8.de
-In-Reply-To: <20190614143149.2227-1-aryabinin@virtuozzo.com>
-References: <20190614143149.2227-1-aryabinin@virtuozzo.com>
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip:x86/urgent] x86/kasan: Fix boot with 5-level paging and KASAN
-Git-Commit-ID: f3176ec9420de0c385023afa3e4970129444ac2f
-X-Mailer: tip-git-log-daemon
-Robot-ID: <tip-bot.git.kernel.org>
-Robot-Unsubscribe: Contact <mailto:hpa@kernel.org> to get blacklisted from
- these emails
+        id S1728246AbfFNOmZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jun 2019 10:42:25 -0400
+Received: from mail-eopbgr720064.outbound.protection.outlook.com ([40.107.72.64]:48082
+        "EHLO NAM05-CO1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1727560AbfFNOmZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Jun 2019 10:42:25 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vmware.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=hSS2WnNtLKX5nm9AtU2dd6wZz/T66Qzau2ddoL0MMuY=;
+ b=iU0D099Th3u0RUqj9wnhvXhe58BiJKlS1GagKx5JtOWXzX+tZ7w9uK0kRca2H4FpPjuBwEJsRHDfXK9sXYtfa3R2cfxMAmV6LJmSwjcbZlXbumGneJrcuRXlt7GxlbEGzU9U0Xpcz0mdhH3TKhB5s2m+yv+7CjbnSBIe9DgA16s=
+Received: from MN2PR05MB6208.namprd05.prod.outlook.com (20.178.241.91) by
+ MN2PR05MB6160.namprd05.prod.outlook.com (20.178.241.28) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.1987.10; Fri, 14 Jun 2019 14:41:39 +0000
+Received: from MN2PR05MB6208.namprd05.prod.outlook.com
+ ([fe80::ed54:e8f8:b67e:96]) by MN2PR05MB6208.namprd05.prod.outlook.com
+ ([fe80::ed54:e8f8:b67e:96%4]) with mapi id 15.20.2008.002; Fri, 14 Jun 2019
+ 14:41:39 +0000
+From:   Ajay Kaher <akaher@vmware.com>
+To:     "aarcange@redhat.com" <aarcange@redhat.com>,
+        "jannh@google.com" <jannh@google.com>,
+        "oleg@redhat.com" <oleg@redhat.com>,
+        "peterx@redhat.com" <peterx@redhat.com>,
+        "rppt@linux.ibm.com" <rppt@linux.ibm.com>,
+        "jgg@mellanox.com" <jgg@mellanox.com>,
+        "mhocko@suse.com" <mhocko@suse.com>
+CC:     "yishaih@mellanox.com" <yishaih@mellanox.com>,
+        "dledford@redhat.com" <dledford@redhat.com>,
+        "sean.hefty@intel.com" <sean.hefty@intel.com>,
+        "hal.rosenstock@gmail.com" <hal.rosenstock@gmail.com>,
+        "matanb@mellanox.com" <matanb@mellanox.com>,
+        "leonro@mellanox.com" <leonro@mellanox.com>,
+        "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Srivatsa Bhat <srivatsab@vmware.com>,
+        Alexey Makhalov <amakhalov@vmware.com>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [PATCH] [v4.14.y] infiniband: fix race condition between
+ infiniband mlx4, mlx5  driver and core dumping
+Thread-Topic: [PATCH] [v4.14.y] infiniband: fix race condition between
+ infiniband mlx4, mlx5  driver and core dumping
+Thread-Index: AQHVH4tRRHVVOX8JAkClk28/bWguy6abm6mA
+Date:   Fri, 14 Jun 2019 14:41:39 +0000
+Message-ID: <9C189085-083D-46EA-98DB-B11AD62051B6@vmware.com>
+References: <1560199937-23476-1-git-send-email-akaher@vmware.com>
+In-Reply-To: <1560199937-23476-1-git-send-email-akaher@vmware.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: spf=none (sender IP is )
+ smtp.mailfrom=akaher@vmware.com; 
+x-originating-ip: [103.19.212.1]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: ed3d0317-a463-4637-8d51-08d6f0d668ea
+x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600148)(711020)(4605104)(1401327)(2017052603328)(7193020);SRVR:MN2PR05MB6160;
+x-ms-traffictypediagnostic: MN2PR05MB6160:
+x-microsoft-antispam-prvs: <MN2PR05MB6160415D5AFAA7730EC7A709BBEE0@MN2PR05MB6160.namprd05.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:6790;
+x-forefront-prvs: 0068C7E410
+x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(39860400002)(366004)(396003)(136003)(346002)(376002)(189003)(199004)(6506007)(73956011)(2906002)(36756003)(186003)(14444005)(256004)(6512007)(25786009)(6246003)(91956017)(99286004)(7736002)(305945005)(6436002)(2616005)(476003)(6116002)(3846002)(4326008)(446003)(11346002)(102836004)(26005)(68736007)(81156014)(8676002)(110136005)(54906003)(76116006)(478600001)(316002)(229853002)(86362001)(2201001)(8936002)(71190400001)(71200400001)(14454004)(7416002)(5660300002)(66066001)(53936002)(66556008)(66446008)(64756008)(6486002)(66946007)(2501003)(33656002)(81166006)(486006)(76176011)(66476007);DIR:OUT;SFP:1101;SCL:1;SRVR:MN2PR05MB6160;H:MN2PR05MB6208.namprd05.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
+received-spf: None (protection.outlook.com: vmware.com does not designate
+ permitted sender hosts)
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam-message-info: H/PsLn65G6/iGZG0FErQsMPFAfh8AylKzUm3mw8BoE1NiDtuK/6M+MJO90yHGU1IuTlN8VVlalKxL7Ie9ua3VVmOOYPEC47s7Qrot0fNRLTQs/gmYnmK+D/uhw9em4YMF9HqmpHZ9e/jcpc7DhK9ASsjH4QYk7UVi6IASibZpLTBPKc2JHgvxbZwpJ87JDyaHcxm3FUFIWWvctvq1Ias03MqccBw/lRhiq2EVfUJNPDNQwt52PneGod6kSANLsGehcKbDada8LSAK5iLpLiCjz9h7bRK6DLCcjGh1+Yy534cFrRc+QtZz4ZZvqoRoUq4vhYdQk8AeGpRotVyI8PNhCh+YP4iLJDiwzpBX+rL2ns/LTF6YGOu+B14JELAIfFKxF/xWXSWrWsKaZ1xIbfrAULxlNLLaLRXdPLJXNg9mDM=
+Content-Type: text/plain; charset="utf-8"
+Content-ID: <13955127BE722040A2F36BA3306CE790@namprd05.prod.outlook.com>
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain; charset=UTF-8
-Content-Disposition: inline
-X-Spam-Status: No, score=-3.1 required=5.0 tests=ALL_TRUSTED,BAYES_00,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        T_DATE_IN_FUTURE_96_Q autolearn=ham autolearn_force=no version=3.4.2
-X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on terminus.zytor.com
+X-OriginatorOrg: vmware.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: ed3d0317-a463-4637-8d51-08d6f0d668ea
+X-MS-Exchange-CrossTenant-originalarrivaltime: 14 Jun 2019 14:41:39.1794
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: akaher@vmware.com
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR05MB6160
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit-ID:  f3176ec9420de0c385023afa3e4970129444ac2f
-Gitweb:     https://git.kernel.org/tip/f3176ec9420de0c385023afa3e4970129444ac2f
-Author:     Andrey Ryabinin <aryabinin@virtuozzo.com>
-AuthorDate: Fri, 14 Jun 2019 17:31:49 +0300
-Committer:  Thomas Gleixner <tglx@linutronix.de>
-CommitDate: Fri, 14 Jun 2019 16:37:30 +0200
-
-x86/kasan: Fix boot with 5-level paging and KASAN
-
-Since commit d52888aa2753 ("x86/mm: Move LDT remap out of KASLR region on
-5-level paging") kernel doesn't boot with KASAN on 5-level paging machines.
-The bug is actually in early_p4d_offset() and introduced by commit
-12a8cc7fcf54 ("x86/kasan: Use the same shadow offset for 4- and 5-level paging")
-
-early_p4d_offset() tries to convert pgd_val(*pgd) value to a physical
-address. This doesn't make sense because pgd_val() already contains the
-physical address.
-
-It did work prior to commit d52888aa2753 because the result of
-"__pa_nodebug(pgd_val(*pgd)) & PTE_PFN_MASK" was the same as "pgd_val(*pgd)
-& PTE_PFN_MASK". __pa_nodebug() just set some high bits which were masked
-out by applying PTE_PFN_MASK.
-
-After the change of the PAGE_OFFSET offset in commit d52888aa2753
-__pa_nodebug(pgd_val(*pgd)) started to return a value with more high bits
-set and PTE_PFN_MASK wasn't enough to mask out all of them. So it returns a
-wrong not even canonical address and crashes on the attempt to dereference
-it.
-
-Switch back to pgd_val() & PTE_PFN_MASK to cure the issue.
-
-Fixes: 12a8cc7fcf54 ("x86/kasan: Use the same shadow offset for 4- and 5-level paging")
-Reported-by: Kirill A. Shutemov <kirill@shutemov.name>
-Signed-off-by: Andrey Ryabinin <aryabinin@virtuozzo.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Alexander Potapenko <glider@google.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: kasan-dev@googlegroups.com
-Cc: stable@vger.kernel.org
-Cc: <stable@vger.kernel.org>
-Link: https://lkml.kernel.org/r/20190614143149.2227-1-aryabinin@virtuozzo.com
-
----
- arch/x86/mm/kasan_init_64.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/x86/mm/kasan_init_64.c b/arch/x86/mm/kasan_init_64.c
-index 8dc0fc0b1382..296da58f3013 100644
---- a/arch/x86/mm/kasan_init_64.c
-+++ b/arch/x86/mm/kasan_init_64.c
-@@ -199,7 +199,7 @@ static inline p4d_t *early_p4d_offset(pgd_t *pgd, unsigned long addr)
- 	if (!pgtable_l5_enabled())
- 		return (p4d_t *)pgd;
- 
--	p4d = __pa_nodebug(pgd_val(*pgd)) & PTE_PFN_MASK;
-+	p4d = pgd_val(*pgd) & PTE_PFN_MASK;
- 	p4d += __START_KERNEL_map - phys_base;
- 	return (p4d_t *)p4d + p4d_index(addr);
- }
+DQrvu79PbiAxMC8wNi8xOSwgNjoyMiBQTSwgIkFqYXkgS2FoZXIiIDxha2FoZXJAdm13YXJlLmNv
+bT4gd3JvdGU6DQoNCj4gVGhpcyBwYXRjaCBpcyB0aGUgZXh0ZW5zaW9uIG9mIGZvbGxvd2luZyB1
+cHN0cmVhbSBjb21taXQgdG8gZml4DQo+IHRoZSByYWNlIGNvbmRpdGlvbiBiZXR3ZWVuIGdldF90
+YXNrX21tKCkgYW5kIGNvcmUgZHVtcGluZw0KPiBmb3IgSUItPm1seDQgYW5kIElCLT5tbHg1IGRy
+aXZlcnM6DQo+IA0KPiBjb21taXQgMDRmNTg2NmU0MWZiICgiY29yZWR1bXA6IGZpeCByYWNlIGNv
+bmRpdGlvbiBiZXR3ZWVuDQo+IG1tZ2V0X25vdF96ZXJvKCkvZ2V0X3Rhc2tfbW0oKSBhbmQgY29y
+ZSBkdW1waW5nIiknDQo+ICAgIA0KPiBUaGFua3MgdG8gSmFzb24gZm9yIHBvaW50aW5nIHRoaXMu
+DQo+ICAgIA0KPiBTaWduZWQtb2ZmLWJ5OiBBamF5IEthaGVyIDxha2FoZXJAdm13YXJlLmNvbT4N
+Cj4gQWNrZWQtYnk6IEphc29uIEd1bnRob3JwZSA8amdnQG1lbGxhbm94LmNvbT4NCg0KR3JlZywg
+SSBob3BlIHlvdSB3b3VsZCBsaWtlIHRvIHJldmlldyBhbmQgcHJvY2VlZCBmdXJ0aGVyIHdpdGgg
+dGhpcyBwYXRjaC4gIA0KDQo+IC0tLQ0KPiBkcml2ZXJzL2luZmluaWJhbmQvaHcvbWx4NC9tYWlu
+LmMgfCA0ICsrKy0NCj4gZHJpdmVycy9pbmZpbmliYW5kL2h3L21seDUvbWFpbi5jIHwgMyArKysN
+Cj4gMiBmaWxlcyBjaGFuZ2VkLCA2IGluc2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkNCj4gICAg
+DQo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2luZmluaWJhbmQvaHcvbWx4NC9tYWluLmMgYi9kcml2
+ZXJzL2luZmluaWJhbmQvaHcvbWx4NC9tYWluLmMNCj4gaW5kZXggZTJiZWIxOC4uMDI5OWMwNiAx
+MDA2NDQNCj4gLS0tIGEvZHJpdmVycy9pbmZpbmliYW5kL2h3L21seDQvbWFpbi5jDQo+ICsrKyBi
+L2RyaXZlcnMvaW5maW5pYmFuZC9ody9tbHg0L21haW4uYw0KPiBAQCAtMTE5Nyw2ICsxMTk3LDgg
+QEAgc3RhdGljIHZvaWQgbWx4NF9pYl9kaXNhc3NvY2lhdGVfdWNvbnRleHQoc3RydWN0IGliX3Vj
+b250ZXh0ICppYmNvbnRleHQpDQo+ICAJICogbWx4NF9pYl92bWFfY2xvc2UoKS4NCj4gIAkgKi8N
+Cj4gIAlkb3duX3dyaXRlKCZvd25pbmdfbW0tPm1tYXBfc2VtKTsNCj4gKwlpZiAoIW1tZ2V0X3N0
+aWxsX3ZhbGlkKG93bmluZ19tbSkpDQo+ICsJCWdvdG8gc2tpcF9tbTsNCj4gIAlmb3IgKGkgPSAw
+OyBpIDwgSFdfQkFSX0NPVU5UOyBpKyspIHsNCj4gIAkJdm1hID0gY29udGV4dC0+aHdfYmFyX2lu
+Zm9baV0udm1hOw0KPiAgCQlpZiAoIXZtYSkNCj4gIEBAIC0xMjE1LDcgKzEyMTcsNyBAQCBzdGF0
+aWMgdm9pZCBtbHg0X2liX2Rpc2Fzc29jaWF0ZV91Y29udGV4dChzdHJ1Y3QgaWJfdWNvbnRleHQg
+KmliY29udGV4dCkNCj4gIAkJLyogY29udGV4dCBnb2luZyB0byBiZSBkZXN0cm95ZWQsIHNob3Vs
+ZCBub3QgYWNjZXNzIG9wcyBhbnkgbW9yZSAqLw0KPiAgCQljb250ZXh0LT5od19iYXJfaW5mb1tp
+XS52bWEtPnZtX29wcyA9IE5VTEw7DQo+ICAJfQ0KPiAtDQo+ICtza2lwX21tOg0KPiAJdXBfd3Jp
+dGUoJm93bmluZ19tbS0+bW1hcF9zZW0pOw0KPiAgCW1tcHV0KG93bmluZ19tbSk7DQo+IAlwdXRf
+dGFza19zdHJ1Y3Qob3duaW5nX3Byb2Nlc3MpOw0KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pbmZp
+bmliYW5kL2h3L21seDUvbWFpbi5jIGIvZHJpdmVycy9pbmZpbmliYW5kL2h3L21seDUvbWFpbi5j
+DQo+IGluZGV4IDEzYTkyMDYuLjNmYmUzOTYgMTAwNjQ0DQo+IC0tLSBhL2RyaXZlcnMvaW5maW5p
+YmFuZC9ody9tbHg1L21haW4uYw0KPiArKysgYi9kcml2ZXJzL2luZmluaWJhbmQvaHcvbWx4NS9t
+YWluLmMNCj4gQEAgLTE2NDYsNiArMTY0Niw4IEBAIHN0YXRpYyB2b2lkIG1seDVfaWJfZGlzYXNz
+b2NpYXRlX3Vjb250ZXh0KHN0cnVjdCBpYl91Y29udGV4dCAqaWJjb250ZXh0KQ0KPiAgCSAqIG1s
+eDVfaWJfdm1hX2Nsb3NlLg0KPiAgCSAqLw0KPiAgCWRvd25fd3JpdGUoJm93bmluZ19tbS0+bW1h
+cF9zZW0pOw0KPiArCWlmICghbW1nZXRfc3RpbGxfdmFsaWQob3duaW5nX21tKSkNCj4gKwkJZ290
+byBza2lwX21tOw0KPiAgCW11dGV4X2xvY2soJmNvbnRleHQtPnZtYV9wcml2YXRlX2xpc3RfbXV0
+ZXgpOw0KPiAgCWxpc3RfZm9yX2VhY2hfZW50cnlfc2FmZSh2bWFfcHJpdmF0ZSwgbiwgJmNvbnRl
+eHQtPnZtYV9wcml2YXRlX2xpc3QsDQo+ICAJCQkJIGxpc3QpIHsNCj4gQEAgLTE2NjIsNiArMTY2
+NCw3IEBAIHN0YXRpYyB2b2lkIG1seDVfaWJfZGlzYXNzb2NpYXRlX3Vjb250ZXh0KHN0cnVjdCBp
+Yl91Y29udGV4dCAqaWJjb250ZXh0KQ0KPiAgCQlrZnJlZSh2bWFfcHJpdmF0ZSk7DQo+ICAJfQ0K
+PiAgCW11dGV4X3VubG9jaygmY29udGV4dC0+dm1hX3ByaXZhdGVfbGlzdF9tdXRleCk7DQo+ICtz
+a2lwX21tOg0KPiAgCXVwX3dyaXRlKCZvd25pbmdfbW0tPm1tYXBfc2VtKTsNCj4gIAltbXB1dChv
+d25pbmdfbW0pOw0KPiAgCXB1dF90YXNrX3N0cnVjdChvd25pbmdfcHJvY2Vzcyk7DQo+IC0tIA0K
+PiAyLjcuNA0KICAgIA0KICAgIA0KDQo=
