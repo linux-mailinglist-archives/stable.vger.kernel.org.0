@@ -2,61 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 118BB465F9
-	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 19:43:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 510AE46614
+	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 19:48:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726325AbfFNRnn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jun 2019 13:43:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40842 "EHLO mail.kernel.org"
+        id S1726831AbfFNRsX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jun 2019 13:48:23 -0400
+Received: from smtp2.ono.com ([62.42.230.179]:38699 "EHLO smtp2.ono.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726082AbfFNRnn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Jun 2019 13:43:43 -0400
-Received: from kernel.org (unknown [104.132.0.74])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id DBED2217D6;
-        Fri, 14 Jun 2019 17:43:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560534223;
-        bh=BtDCf12TGdb1xn6LpgZ0JJLH/0SL+ngyj/+nSlrc6Es=;
-        h=In-Reply-To:References:To:From:Subject:Cc:Date:From;
-        b=vsFm6CaywHnFbxL0coOrDPK9iTyz03GVrC6NChXvyDD9cOdQMwR3X/S/mHfqsNA/E
-         K0NPrm27dMLVr8svfuhNq77NUgNETjucsJpVVW+xEO6k1RfnoI/ianDlZs5gVGtoo0
-         Bq2DRwEPGVfdXZGiVbq1pk5QV1CBPXydhxHUOuuo=
-Content-Type: text/plain; charset="utf-8"
+        id S1726082AbfFNRsW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Jun 2019 13:48:22 -0400
+X-Junkmail-Premium-Raw: score=26/50,refid=2.7.2:2019.6.14.164816:17:26.894,ip=62.42.230.134,rules=__HAS_MSGID,
+ __SANE_MSGID, MSGID_JMAIL_DEFAULT, INVALID_MSGID_NO_FQDN, __HAS_FROM,
+ FROM_NAME_PHRASE, FROM_NAME_ALLCAPS, __HAS_REPLYTO, __FRAUD_WEBMAIL_REPLYTO,
+ BLANK_SUBJECT, __MIME_VERSION, __CT, __CT_TEXT_PLAIN, __CTE, MISSING_HEADERS,
+ __ANY_URI, __FRAUD_BODY_WEBMAIL, __URI_NO_WWW, __NO_HTML_TAG_RAW,
+ BODYTEXTP_SIZE_400_LESS, BODY_SIZE_200_299, BODYTEXTP_SIZE_3000_LESS,
+ __MIME_TEXT_P1, __MIME_TEXT_ONLY, __URI_NS, HTML_00_01, HTML_00_10,
+ BODY_SIZE_5000_LESS, __FRAUD_WEBMAIL, WEBMAIL_REPLYTO_NOT_FROM,
+ FRAUD_WEBMAIL_R_NOT_F, __MIME_TEXT_P, FRAUD_LITTLE_BODY,
+ __PHISH_SPEAR_STRUCTURE_1, BODY_SIZE_1000_LESS, BODY_SIZE_2000_LESS,
+ SMALL_BODY, __PHISH_SPEAR_STRUCTURE_2, REPLYTO_FROM_DIFF_ADDY, NO_URI_HTTPS,
+ BODY_SIZE_7000_LESS, TO_MALFORMED
+Received: from resprs04 (62.42.230.134) by smtp2.ono.com (9.0.019.09-1)
+        id 5CAF0F5D033A9A92; Fri, 14 Jun 2019 19:48:18 +0200
+Received: from (149.126.75.1) by webmailcpr04n.ono.com;  Fri, 14 Jun 2019 19:48:17 +0200
+Message-ID: <33296203.262531560534497614.JavaMail.defaultUser@defaultHost>
+Date:   Fri, 14 Jun 2019 19:48:17 +0200 (CEST)
+From:   DR ALBERT ZONGO <rjpd@ono.com>
+Reply-To: dralbertddzongo@gmail.com
+Subject: 
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-In-Reply-To: <1559743299-11576-1-git-send-email-jonathanh@nvidia.com>
-References: <1559743299-11576-1-git-send-email-jonathanh@nvidia.com>
-To:     Jon Hunter <jonathanh@nvidia.com>,
-        Michael Turquette <mturquette@baylibre.com>,
-        Peter De Schrijver <pdeschrijver@nvidia.com>,
-        Thierry Reding <thierry.reding@gmail.com>
-From:   Stephen Boyd <sboyd@kernel.org>
-Subject: Re: [PATCH V2] clk: tegra210: Fix default rates for HDA clocks
-Cc:     linux-clk@vger.kernel.org, linux-tegra@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Sameer Pujar <spujar@nvidia.com>,
-        Jon Hunter <jonathanh@nvidia.com>, stable@vger.kernel.org
-User-Agent: alot/0.8.1
-Date:   Fri, 14 Jun 2019 10:43:42 -0700
-Message-Id: <20190614174342.DBED2217D6@mail.kernel.org>
+Content-Type: text/plain;charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+To:     unlisted-recipients:; (no To-header on input)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Quoting Jon Hunter (2019-06-05 07:01:39)
-> Currently the default clock rates for the HDA and HDA2CODEC_2X clocks
-> are both 19.2MHz. However, the default rates for these clocks should
-> actually be 51MHz and 48MHz, respectively. The current clock settings
-> results in a distorted output during audio playback. Correct the default
-> clock rates for these clocks by specifying them in the clock init table
-> for Tegra210.
->=20
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
-> Acked-by: Thierry Reding <treding@nvidia.com>
-> ---
 
-Applied to clk-fixes
+
+
+--
+Greetings,
+
+I have an intending proposal for you please i need you to contact my 
+private
+
+ E-mail (dralbertddzongo@gmail.com) for more updates,
+
+Best Wishes.
+
+DR ALBERT ZONGO
+
+--
 
