@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A10E1467B4
-	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 20:42:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C3A0467B5
+	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 20:42:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726264AbfFNSmH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jun 2019 14:42:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34512 "EHLO mail.kernel.org"
+        id S1726291AbfFNSmJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jun 2019 14:42:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34582 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726103AbfFNSmG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Jun 2019 14:42:06 -0400
+        id S1726103AbfFNSmJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Jun 2019 14:42:09 -0400
 Received: from localhost.localdomain (c-71-198-47-131.hsd1.ca.comcast.net [71.198.47.131])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 81A8221841;
-        Fri, 14 Jun 2019 18:42:05 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7F75021848;
+        Fri, 14 Jun 2019 18:42:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560537725;
-        bh=KvCBbaSfqp4klI6SvMn13j2vrcsewt30QIIXecxqo3o=;
+        s=default; t=1560537728;
+        bh=ZaDeOZfbicl8ZtTahr63oo/rIHByF8Xos1jeso5K9ow=;
         h=Date:From:To:Subject:From;
-        b=SIEojztP5ArPpzWXXJTaNkec/qIUJSPP/ekWGJ7TtrgNony5W11shNn2dvMtj5NQC
-         +hifW3LfeQVe1bfhB/QDhqoXuFEREGR+6BSM0NGqjpT+gTRLKzabzWDbIkDqSXZiYH
-         sIpzAk6xgMnYH2B5dC310hA+/FIAxgB0rRNV76oc=
-Date:   Fri, 14 Jun 2019 11:42:05 -0700
+        b=otWY7xnfA287Verbaic4h1PwaqRjnbZv9AVyF8/2rt6V0Sya9xvb36Fn2CmQTDx3U
+         /ZrAHaFwW/tv4yTrjzYNg0Ys69o0oPrrXwzKe+7SttkxlcKGYtLSXxW6QKl8kejj0+
+         0wHJ60y6AjsTQLncXF/5uvOxjBJ8eSICtVroZaBo=
+Date:   Fri, 14 Jun 2019 11:42:08 -0700
 From:   akpm@linux-foundation.org
-To:     aarcange@redhat.com, hughd@google.com, jannh@google.com,
-        jgg@mellanox.com, kirill.shutemov@linux.intel.com, mhocko@suse.com,
-        mike.kravetz@oracle.com, mm-commits@vger.kernel.org,
-        oleg@redhat.com, peterx@redhat.com, rppt@linux.vnet.ibm.com,
-        stable@vger.kernel.org
+To:     akpm@linux-foundation.org, fangsuowu@asrmicro.com, mhocko@suse.com,
+        minchan@kernel.org, mm-commits@vger.kernel.org,
+        pankaj.suryawanshi@einfochips.com, stable@vger.kernel.org
 Subject:  [merged]
- =?US-ASCII?Q?coredump-fix-race-condition-between-collapse=5Fhuge=5Fpag?=
- =?US-ASCII?Q?e-and-core-dumping.patch?= removed from -mm tree
-Message-ID: <20190614184205.kjeQstXAI%akpm@linux-foundation.org>
+ mm-fix-trying-to-reclaim-unevicable-lru-page.patch removed from -mm tree
+Message-ID: <20190614184208.PPRW4ngJk%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -44,104 +39,86 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: coredump: fix race condition between collapse_huge_page() and core dumping
+     Subject: mm/vmscan.c: fix trying to reclaim unevictable LRU page
 has been removed from the -mm tree.  Its filename was
-     coredump-fix-race-condition-between-collapse_huge_page-and-core-dumping.patch
+     mm-fix-trying-to-reclaim-unevicable-lru-page.patch
 
 This patch was dropped because it was merged into mainline or a subsystem tree
 
 ------------------------------------------------------
-From: Andrea Arcangeli <aarcange@redhat.com>
-Subject: coredump: fix race condition between collapse_huge_page() and core dumping
+From: Minchan Kim <minchan@kernel.org>
+Subject: mm/vmscan.c: fix trying to reclaim unevictable LRU page
 
-When fixing the race conditions between the coredump and the mmap_sem
-holders outside the context of the process, we focused on
-mmget_not_zero()/get_task_mm() callers in 04f5866e41fb70 ("coredump: fix
-race condition between mmget_not_zero()/get_task_mm() and core dumping"),
-but those aren't the only cases where the mmap_sem can be taken outside of
-the context of the process as Michal Hocko noticed while backporting that
-commit to older -stable kernels.
+There was the below bug report from Wu Fangsuo.
 
-If mmgrab() is called in the context of the process, but then the mm_count
-reference is transferred outside the context of the process, that can also
-be a problem if the mmap_sem has to be taken for writing through that
-mm_count reference.
+On the CMA allocation path, isolate_migratepages_range() could isolate
+unevictable LRU pages and reclaim_clean_page_from_list() can try to
+reclaim them if they are clean file-backed pages.
 
-khugepaged registration calls mmgrab() in the context of the process, but
-the mmap_sem for writing is taken later in the context of the khugepaged
-kernel thread.
+7200 [  680.491097] c4 7125 (syz-executor) page:ffffffbf02f33b40 count:86 mapcount:84 mapping:ffffffc08fa7a810 index:0x24
+7201 [  680.531186] c4 7125 (syz-executor) flags: 0x19040c(referenced|uptodate|arch_1|mappedtodisk|unevictable|mlocked)
+7202 [  680.544987] c0 7125 (syz-executor) raw: 000000000019040c ffffffc08fa7a810 0000000000000024 0000005600000053
+7203 [  680.556162] c0 7125 (syz-executor) raw: ffffffc009b05b20 ffffffc009b05b20 0000000000000000 ffffffc09bf3ee80
+7204 [  680.566860] c0 7125 (syz-executor) page dumped because: VM_BUG_ON_PAGE(PageLRU(page) || PageUnevictable(page))
+7205 [  680.578038] c0 7125 (syz-executor) page->mem_cgroup:ffffffc09bf3ee80
+7206 [  680.585467] c0 7125 (syz-executor) ------------[ cut here ]------------
+7207 [  680.592466] c0 7125 (syz-executor) kernel BUG at /home/build/farmland/adroid9.0/kernel/linux/mm/vmscan.c:1350!
+7223 [  680.603663] c0 7125 (syz-executor) Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
+7224 [  680.611436] c0 7125 (syz-executor) Modules linked in:
+7225 [  680.616769] c0 7125 (syz-executor) CPU: 0 PID: 7125 Comm: syz-executor Tainted: G S              4.14.81 #3
+7226 [  680.626826] c0 7125 (syz-executor) Hardware name: ASR AQUILAC EVB (DT)
+7227 [  680.633623] c0 7125 (syz-executor) task: ffffffc00a54cd00 task.stack: ffffffc009b00000
+7228 [  680.641917] c0 7125 (syz-executor) PC is at shrink_page_list+0x1998/0x3240
+7229 [  680.649144] c0 7125 (syz-executor) LR is at shrink_page_list+0x1998/0x3240
+7230 [  680.656303] c0 7125 (syz-executor) pc : [<ffffff90083a2158>] lr : [<ffffff90083a2158>] pstate: 60400045
+7231 [  680.666086] c0 7125 (syz-executor) sp : ffffffc009b05940
+..
+7342 [  681.671308] c0 7125 (syz-executor) [<ffffff90083a2158>] shrink_page_list+0x1998/0x3240
+7343 [  681.679567] c0 7125 (syz-executor) [<ffffff90083a3dc0>] reclaim_clean_pages_from_list+0x3c0/0x4f0
+7344 [  681.688793] c0 7125 (syz-executor) [<ffffff900837ed64>] alloc_contig_range+0x3bc/0x650
+7347 [  681.717421] c0 7125 (syz-executor) [<ffffff90084925cc>] cma_alloc+0x214/0x668
+7348 [  681.724892] c0 7125 (syz-executor) [<ffffff90091e4d78>] ion_cma_allocate+0x98/0x1d8
+7349 [  681.732872] c0 7125 (syz-executor) [<ffffff90091e0b20>] ion_alloc+0x200/0x7e0
+7350 [  681.740302] c0 7125 (syz-executor) [<ffffff90091e154c>] ion_ioctl+0x18c/0x378
+7351 [  681.747738] c0 7125 (syz-executor) [<ffffff90084c6824>] do_vfs_ioctl+0x17c/0x1780
+7352 [  681.755514] c0 7125 (syz-executor) [<ffffff90084c7ed4>] SyS_ioctl+0xac/0xc0
 
-collapse_huge_page() after taking the mmap_sem for writing doesn't modify
-any vma, so it's not obvious that it could cause a problem to the
-coredump, but it happens to modify the pmd in a way that breaks an
-invariant that pmd_trans_huge_lock() relies upon.  collapse_huge_page()
-needs the mmap_sem for writing just to block concurrent page faults that
-call pmd_trans_huge_lock().
+Wu found it's due to ad6b67041a45 ("mm: remove SWAP_MLOCK in ttu"). 
+Before that, unevictable pages go to cull_mlocked so that we can't reach
+the VM_BUG_ON_PAGE line.
 
-Specifically the invariant that "!pmd_trans_huge()" cannot become a
-"pmd_trans_huge()" doesn't hold while collapse_huge_page() runs.
+To fix the issue, this patch filters out unevictable LRU pages from the
+reclaim_clean_pages_from_list in CMA.
 
-The coredump will call __get_user_pages() without mmap_sem for reading,
-which eventually can invoke a lockless page fault which will need a
-functional pmd_trans_huge_lock().
-
-So collapse_huge_page() needs to use mmget_still_valid() to check it's not
-running concurrently with the coredump...  as long as the coredump can
-invoke page faults without holding the mmap_sem for reading.
-
-This has "Fixes: khugepaged" to facilitate backporting, but in my view
-it's more a bug in the coredump code that will eventually have to be
-rewritten to stop invoking page faults without the mmap_sem for reading. 
-So the long term plan is still to drop all mmget_still_valid().
-
-Link: http://lkml.kernel.org/r/20190607161558.32104-1-aarcange@redhat.com
-Fixes: ba76149f47d8 ("thp: khugepaged")
-Signed-off-by: Andrea Arcangeli <aarcange@redhat.com>
-Reported-by: Michal Hocko <mhocko@suse.com>
+Link: http://lkml.kernel.org/r/20190524071114.74202-1-minchan@kernel.org
+Fixes: ad6b67041a45 ("mm: remove SWAP_MLOCK in ttu")
+Signed-off-by: Minchan Kim <minchan@kernel.org>
+Reported-by: Wu Fangsuo <fangsuowu@asrmicro.com>
+Debugged-by: Wu Fangsuo <fangsuowu@asrmicro.com>
+Tested-by: Wu Fangsuo <fangsuowu@asrmicro.com>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
 Acked-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: Oleg Nesterov <oleg@redhat.com>
-Cc: Jann Horn <jannh@google.com>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Peter Xu <peterx@redhat.com>
-Cc: Jason Gunthorpe <jgg@mellanox.com>
-Cc: <stable@vger.kernel.org>
+Cc: Pankaj Suryawanshi <pankaj.suryawanshi@einfochips.com>
+Cc: <stable@vger.kernel.org>	[4.12+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- include/linux/sched/mm.h |    4 ++++
- mm/khugepaged.c          |    3 +++
- 2 files changed, 7 insertions(+)
+ mm/vmscan.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/linux/sched/mm.h~coredump-fix-race-condition-between-collapse_huge_page-and-core-dumping
-+++ a/include/linux/sched/mm.h
-@@ -54,6 +54,10 @@ static inline void mmdrop(struct mm_stru
-  * followed by taking the mmap_sem for writing before modifying the
-  * vmas or anything the coredump pretends not to change from under it.
-  *
-+ * It also has to be called when mmgrab() is used in the context of
-+ * the process, but then the mm_count refcount is transferred outside
-+ * the context of the process to run down_write() on that pinned mm.
-+ *
-  * NOTE: find_extend_vma() called from GUP context is the only place
-  * that can modify the "mm" (notably the vm_start/end) under mmap_sem
-  * for reading and outside the context of the process, so it is also
---- a/mm/khugepaged.c~coredump-fix-race-condition-between-collapse_huge_page-and-core-dumping
-+++ a/mm/khugepaged.c
-@@ -1004,6 +1004,9 @@ static void collapse_huge_page(struct mm
- 	 * handled by the anon_vma lock + PG_lock.
- 	 */
- 	down_write(&mm->mmap_sem);
-+	result = SCAN_ANY_PROCESS;
-+	if (!mmget_still_valid(mm))
-+		goto out;
- 	result = hugepage_vma_revalidate(mm, address, &vma);
- 	if (result)
- 		goto out;
+--- a/mm/vmscan.c~mm-fix-trying-to-reclaim-unevicable-lru-page
++++ a/mm/vmscan.c
+@@ -1505,7 +1505,7 @@ unsigned long reclaim_clean_pages_from_l
+ 
+ 	list_for_each_entry_safe(page, next, page_list, lru) {
+ 		if (page_is_file_cache(page) && !PageDirty(page) &&
+-		    !__PageMovable(page)) {
++		    !__PageMovable(page) && !PageUnevictable(page)) {
+ 			ClearPageActive(page);
+ 			list_move(&page->lru, &clean_pages);
+ 		}
 _
 
-Patches currently in -mm which might be from aarcange@redhat.com are
+Patches currently in -mm which might be from minchan@kernel.org are
 
 
