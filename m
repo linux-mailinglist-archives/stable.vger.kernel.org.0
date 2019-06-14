@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E18894692F
+	by mail.lfdr.de (Postfix) with ESMTP id 6E6BA4692E
 	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 22:32:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727832AbfFNUan (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727842AbfFNUan (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 14 Jun 2019 16:30:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53896 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:53932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726811AbfFNUan (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727824AbfFNUan (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 14 Jun 2019 16:30:43 -0400
 Received: from sasha-vm.mshome.net (unknown [131.107.159.134])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0F2F22184D;
+        by mail.kernel.org (Postfix) with ESMTPSA id 5D3BF2184B;
         Fri, 14 Jun 2019 20:30:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1560544242;
-        bh=2IeCWttRuelhrNLMfaIzHeLvwBBwnVANEz3e89O26I8=;
+        bh=RAAjmpNtKl3dcwPPtQ6DsSF5L3wkALcUxwx4JUzlU1s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HIdoLbL1lx052OWt3CtQLc5xpvdhkvnrRms744vN2twmpJGCbx+NF1kSd4LXKeIRs
-         wqHXJrnmxDKt0ywDjo4kExCwWA3JWsnUqbtaDbrUrSEZ3yRGDUwiB59AfEwYDEVW6u
-         1RgrEJm7IP5hszT9UeBrjkTDV/cWssNMHl41m+pg=
+        b=udXeWZK9sEu4BeeRvGcyPygKRolFsy94GFph6TIBhJirB+vxSl4VycdQvrke7j6/4
+         lSq6MUU2zcnBO6HT4gSJJ/Q9IIvwtvwEc6BQ3Gw69IQjKYlCoIf39p9EflYiG6FNnS
+         K0Az/u8uxUbSidKV86dZZcI3mV85D40FlXWdYrEQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     YueHaibing <yuehaibing@huawei.com>,
-        Paul Burton <paul.burton@mips.com>, ralf@linux-mips.org,
-        jhogan@kernel.org, linux-mips@vger.kernel.org,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.9 07/18] MIPS: uprobes: remove set but not used variable 'epc'
-Date:   Fri, 14 Jun 2019 16:30:23 -0400
-Message-Id: <20190614203037.27910-7-sashal@kernel.org>
+Cc:     Nikita Yushchenko <nikita.yoush@cogentembedded.com>,
+        Vivien Didelot <vivien.didelot@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 08/18] net: dsa: mv88e6xxx: avoid error message on remove from VLAN 0
+Date:   Fri, 14 Jun 2019 16:30:24 -0400
+Message-Id: <20190614203037.27910-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190614203037.27910-1-sashal@kernel.org>
 References: <20190614203037.27910-1-sashal@kernel.org>
@@ -44,43 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YueHaibing <yuehaibing@huawei.com>
+From: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
 
-[ Upstream commit f532beeeff0c0a3586cc15538bc52d249eb19e7c ]
+[ Upstream commit 62394708f3e01c9f2be6be74eb6305bae1ed924f ]
 
-Fixes gcc '-Wunused-but-set-variable' warning:
+When non-bridged, non-vlan'ed mv88e6xxx port is moving down, error
+message is logged:
 
-arch/mips/kernel/uprobes.c: In function 'arch_uprobe_pre_xol':
-arch/mips/kernel/uprobes.c:115:17: warning: variable 'epc' set but not used [-Wunused-but-set-variable]
+failed to kill vid 0081/0 for device eth_cu_1000_4
 
-It's never used since introduction in
-commit 40e084a506eb ("MIPS: Add uprobes support.")
+This is caused by call from __vlan_vid_del() with vin set to zero, over
+call chain this results into _mv88e6xxx_port_vlan_del() called with
+vid=0, and mv88e6xxx_vtu_get() called from there returns -EINVAL.
 
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Signed-off-by: Paul Burton <paul.burton@mips.com>
-Cc: <ralf@linux-mips.org>
-Cc: <jhogan@kernel.org>
-Cc: <linux-kernel@vger.kernel.org>
-Cc: <linux-mips@vger.kernel.org>
+On symmetric path moving port up, call goes through
+mv88e6xxx_port_vlan_prepare() that calls mv88e6xxx_port_check_hw_vlan()
+that returns -EOPNOTSUPP for zero vid.
+
+This patch changes mv88e6xxx_vtu_get() to also return -EOPNOTSUPP for
+zero vid, then this error code is explicitly cleared in
+dsa_slave_vlan_rx_kill_vid() and error message is no longer logged.
+
+Signed-off-by: Nikita Yushchenko <nikita.yoush@cogentembedded.com>
+Reviewed-by: Vivien Didelot <vivien.didelot@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/kernel/uprobes.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/net/dsa/mv88e6xxx/chip.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/mips/kernel/uprobes.c b/arch/mips/kernel/uprobes.c
-index dbb917403131..ec951dde0999 100644
---- a/arch/mips/kernel/uprobes.c
-+++ b/arch/mips/kernel/uprobes.c
-@@ -111,9 +111,6 @@ int arch_uprobe_pre_xol(struct arch_uprobe *aup, struct pt_regs *regs)
- 	 */
- 	aup->resume_epc = regs->cp0_epc + 4;
- 	if (insn_has_delay_slot((union mips_instruction) aup->insn[0])) {
--		unsigned long epc;
--
--		epc = regs->cp0_epc;
- 		__compute_return_epc_for_insn(regs,
- 			(union mips_instruction) aup->insn[0]);
- 		aup->resume_epc = regs->cp0_epc;
+diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
+index dc510069d37b..2edd193c96ab 100644
+--- a/drivers/net/dsa/mv88e6xxx/chip.c
++++ b/drivers/net/dsa/mv88e6xxx/chip.c
+@@ -1742,7 +1742,7 @@ static int _mv88e6xxx_vtu_get(struct mv88e6xxx_chip *chip, u16 vid,
+ 	int err;
+ 
+ 	if (!vid)
+-		return -EINVAL;
++		return -EOPNOTSUPP;
+ 
+ 	err = _mv88e6xxx_vtu_vid_write(chip, vid - 1);
+ 	if (err)
 -- 
 2.20.1
 
