@@ -2,83 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B163E45FAB
-	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 15:55:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 938CA4603A
+	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 16:12:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728251AbfFNNz0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jun 2019 09:55:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47870 "EHLO mail.kernel.org"
+        id S1728218AbfFNOMA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jun 2019 10:12:00 -0400
+Received: from mga14.intel.com ([192.55.52.115]:39727 "EHLO mga14.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727382AbfFNNzZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Jun 2019 09:55:25 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7043D20850;
-        Fri, 14 Jun 2019 13:55:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560520524;
-        bh=lx29tlqAuaVeeTpHAGAyie4v7VVjd5N0QwIzLnn3vXw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=zgB3gLXV3hSmed6kVh+AzNNMVm7LjSp5FQD93hDfx2rPVaKz1FSmXrC5nP42YlIF8
-         rU3F+fa+ISzujXFUuZWkf5SL55ZH3CHXR2sE26rM5C9feHMAhJ/d4o03fyvYUXZZpk
-         L3iiqWMu5RdwJ4E3747pH6ZlNfsrSOLOKoWDVpAM=
-Date:   Fri, 14 Jun 2019 15:55:22 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Jon Hunter <jonathanh@nvidia.com>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org,
-        linux-tegra <linux-tegra@vger.kernel.org>
-Subject: Re: [PATCH 5.1 000/155] 5.1.10-stable review
-Message-ID: <20190614135522.GA6498@kroah.com>
-References: <20190613075652.691765927@linuxfoundation.org>
- <80f289fa-2a01-7a88-eedf-82534ef265be@nvidia.com>
+        id S1727123AbfFNOL7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Jun 2019 10:11:59 -0400
+X-Amp-Result: UNKNOWN
+X-Amp-Original-Verdict: FILE UNKNOWN
+X-Amp-File-Uploaded: False
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 14 Jun 2019 07:11:58 -0700
+X-ExtLoop1: 1
+Received: from stinkbox.fi.intel.com (HELO stinkbox) ([10.237.72.174])
+  by fmsmga001.fm.intel.com with SMTP; 14 Jun 2019 07:11:55 -0700
+Received: by stinkbox (sSMTP sendmail emulation); Fri, 14 Jun 2019 17:11:55 +0300
+Date:   Fri, 14 Jun 2019 17:11:55 +0300
+From:   Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
+To:     Jian-Hong Pan <jian-hong@endlessm.com>
+Cc:     Abhay Kumar <abhay.kumar@intel.com>,
+        Imre Deak <imre.deak@intel.com>,
+        Clint Taylor <Clinton.A.Taylor@intel.com>,
+        stable@vger.kernel.org,
+        Linux Upstreaming Team <linux@endlessm.com>,
+        Hui Wang <hui.wang@canonical.com>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: Re: [PATCH stable-5.1 0/3] drm/i915: Prevent screen from flickering
+ when the CDCLK changes
+Message-ID: <20190614141155.GZ5942@intel.com>
+References: <20190603100938.5414-1-jian-hong@endlessm.com>
+ <20190610060141.5377-1-jian-hong@endlessm.com>
+ <20190613075256.GF19685@kroah.com>
+ <CAPpJ_ecg1ERjrSYoB_Abuf2oy_Nay4sr3Bpb15OXRFbrXUW=6Q@mail.gmail.com>
+ <20190613100547.GW5942@intel.com>
+ <CAPpJ_edxMP=uXCJxogsrKGMWmUy5G0u870_G9r-P7-i_0v9eWQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <80f289fa-2a01-7a88-eedf-82534ef265be@nvidia.com>
-User-Agent: Mutt/1.12.0 (2019-05-25)
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAPpJ_edxMP=uXCJxogsrKGMWmUy5G0u870_G9r-P7-i_0v9eWQ@mail.gmail.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jun 14, 2019 at 11:28:12AM +0100, Jon Hunter wrote:
+On Fri, Jun 14, 2019 at 01:59:51PM +0800, Jian-Hong Pan wrote:
+> Ville Syrjälä <ville.syrjala@linux.intel.com> 於 2019年6月13日 週四 下午6:05寫道：
+> >
+> > On Thu, Jun 13, 2019 at 04:37:48PM +0800, Jian-Hong Pan wrote:
+> > > Greg KH <gregkh@linuxfoundation.org> 於 2019年6月13日 週四 下午3:52寫道：
+> > > >
+> > > > On Mon, Jun 10, 2019 at 02:01:39PM +0800, Jian-Hong Pan wrote:
+> > > > > Hi,
+> > > > >
+> > > > > After apply the commit "drm/i915: Force 2*96 MHz cdclk on glk/cnl when audio
+> > > > > power is enabled", it induces the screen to flicker when the CDCLK changes on
+> > > > > the laptop like ASUS E406MA. [1]
+> > > > >
+> > > > > So, we need these commits to prevent that:
+> > > > > commit 48d9f87ddd21 drm/i915: Save the old CDCLK atomic state
+> > > > > commit 2b21dfbeee72 drm/i915: Remove redundant store of logical CDCLK state
+> > > > > commit 59f9e9cab3a1 drm/i915: Skip modeset for cdclk changes if possible
+> > > > >
+> > > > > [1]: https://bugzilla.kernel.org/show_bug.cgi?id=203623#c12
+> > > > >
+> > > > > Jian-Hong Pan
+> > > > >
+> > > > > Imre Deak (2):
+> > > > >   drm/i915: Save the old CDCLK atomic state
+> > > > >   drm/i915: Remove redundant store of logical CDCLK state
+> > > > >
+> > > > > Ville Syrjälä (1):
+> > > > >   drm/i915: Skip modeset for cdclk changes if possible
+> > > > >
+> > > > >  drivers/gpu/drm/i915/i915_drv.h      |   3 +-
+> > > > >  drivers/gpu/drm/i915/intel_cdclk.c   | 155 ++++++++++++++++++++++-----
+> > > > >  drivers/gpu/drm/i915/intel_display.c |  48 +++++++--
+> > > > >  drivers/gpu/drm/i915/intel_drv.h     |  18 +++-
+> > > > >  4 files changed, 186 insertions(+), 38 deletions(-)
+> > > >
+> > > > These are all big patches, I would like to get an ack from the i915
+> > > > developer(s) that these are acceptable for the stable tree before
+> > > > applying them...
+> > > >
+> > > > thanks,
+> > > >
+> > > > greg k-h
+> > >
+> > > Hi Intel friends,
+> > >
+> > > We have laptops like ASUS E406MA, which hits the issue: The audio
+> > > playback does not work anymore after suspend & resume [1]
+> > > Thanks for your contribution.  We found the commit "drm/i915: Force
+> > > 2*96 MHz cdclk on glk/cnl when audio power is enabled" can fix it.
+> > > But, it induces the screen to flicker when the CDCLK changes on.  So,
+> > > we need these commits to be back ported to Linux stable 5.1.x tree to
+> > > prevent flickering:
+> >
+> > Pardon the delay.
+> >
+> > Now that I refreshed my memory a bit I can't really see how
+> > this could fix anything, except by luck. Before these patches
+> > we always forced cdclk to be >=2*96 MHz so audio should never
+> > have hit this particular problem.
+> >
+> > The reason for adding this extra complexity was to claw back
+> > a few milliwatts of power by allowing cdclk to drop below that
+> > magic limit when audio isn't needed.
+> >
+> > I *think* these patches should probably work in 5.1, but for
+> > now I don't see this as anything more than bandaid for an
+> > unknown issue somewhere else. So I'd rather like a new bug
+> > filed at https://bugs.freedesktop.org/enter_bug.cgi?product=DRI&component=DRM/Intel
+> > with a full dmesg with drm.debug=0xe (+ some audio debug
+> > knob(s) which show when it's trying to poke the hw during
+> > suspend/resume) attached.
 > 
-> On 13/06/2019 09:31, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.1.10 release.
-> > There are 155 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Sat 15 Jun 2019 07:54:40 AM UTC.
-> > Anything received after that time might be too late.
-> > 
-> > The whole patch series can be found in one patch at:
-> > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.1.10-rc1.gz
-> > or in the git tree and branch at:
-> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.1.y
-> > and the diffstat can be found below.
-> > 
-> > thanks,
-> > 
-> > greg k-h
+> Thanks for your attention!
+> I have filed the bug on freedesktop's bugzilla.
+> https://bugs.freedesktop.org/show_bug.cgi?id=110916
 > 
-> All tests are passing for Tegra ...
-> 
-> Test results for stable-v5.1:
->     12 builds:	12 pass, 0 fail
->     22 boots:	22 pass, 0 fail
->     32 tests:	32 pass, 0 fail
-> 
-> Linux version:	5.1.10-rc2-gb7eabc3862b8
-> Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
->                 tegra194-p2972-0000, tegra20-ventana,
->                 tegra210-p2371-2180, tegra30-cardhu-a04
-> 
+> I can upload more log information with guidance.
 
-Wonderful, thanks for testing all of these and letting me know.
+OK, I think I see what's going on. We would just need to change a few 
+lines of code to fix that (basically just s/0/2*96000/ in two places)
+but we don't want that upstream anymore due to these patches.
 
-greg k-h
+So I guess we need to go ahead with the backport. I read through them
+and checked the 5.1 baseline and couldn't spot any problems. So for
+the backport to 5.1:
+Acked-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+
+-- 
+Ville Syrjälä
+Intel
