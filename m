@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C9B8468F5
-	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 22:29:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C367468F3
+	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 22:29:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726841AbfFNU3N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jun 2019 16:29:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51132 "EHLO mail.kernel.org"
+        id S1726891AbfFNU3R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jun 2019 16:29:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726835AbfFNU3M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Jun 2019 16:29:12 -0400
+        id S1726881AbfFNU3Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Jun 2019 16:29:16 -0400
 Received: from sasha-vm.mshome.net (unknown [131.107.159.134])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0A30B217F9;
-        Fri, 14 Jun 2019 20:29:12 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id D0C44217F9;
+        Fri, 14 Jun 2019 20:29:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560544152;
-        bh=71CBmJBELF6Up+VwLkK6W7S5mNrL7k+xdUVn+a4juUc=;
+        s=default; t=1560544155;
+        bh=eAsMLk2fEpyKxTf8PkrwhRvO+6PMw7w9PlfyCtWB2fM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DKeBk4IXTZlZ+wV1vog894twnyM99b7wLRYojkYhRr62xoPUBYCCbRtdzIgiuzeVT
-         AW6K5mnT8a3w0ILJzmeSNROpwsegP9tlEm2SwZsJwuYIza/Hz6+732qK1jzpRGLNJ5
-         H6pST7oCyHKHv6a+2Cf3C71qojFR5wnde2Pn0ptw=
+        b=ROEqEq8yQZ1I7tHCUk0YyOnUQe5qzCWeCPa6zXSvuFtWznkoj5k2Um23RL15q3L9h
+         PEugYzqHouRhhJncJaO++iZ1Tn3aUjgKwMc0GuC/7aUW4G6tIJmHmQte+JCHaY6MT2
+         G38jk3Atj6aKy9YHMIICQQa7IZbE/UE/MoBPqhJA=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Alex Shi <alex.shi@linux.alibaba.com>,
@@ -32,9 +32,9 @@ Cc:     Alex Shi <alex.shi@linux.alibaba.com>,
         linux-kselftest@vger.kernel.org,
         Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.1 29/59] kselftest/cgroup: fix unexpected testing failure on test_core
-Date:   Fri, 14 Jun 2019 16:28:13 -0400
-Message-Id: <20190614202843.26941-29-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 30/59] kselftest/cgroup: fix incorrect test_core skip
+Date:   Fri, 14 Jun 2019 16:28:14 -0400
+Message-Id: <20190614202843.26941-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190614202843.26941-1-sashal@kernel.org>
 References: <20190614202843.26941-1-sashal@kernel.org>
@@ -49,20 +49,17 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Alex Shi <alex.shi@linux.alibaba.com>
 
-[ Upstream commit 00e38a5d753d7788852f81703db804a60a84c26e ]
+[ Upstream commit f97f3f8839eb9de5843066d80819884f7722c8c5 ]
 
-The cgroup testing relys on the root cgroup's subtree_control setting,
-If the 'memory' controller isn't set, some test cases will be failed
-as following:
+The test_core will skip the
+test_cgcore_no_internal_process_constraint_on_threads test case if the
+'cpu' controller missing in root's subtree_control. In fact we need to
+set the 'cpu' in subtree_control, to make the testing meaningful.
 
-$sudo  ./test_core
-not ok 1 test_cgcore_internal_process_constraint
-ok 2 test_cgcore_top_down_constraint_enable
-not ok 3 test_cgcore_top_down_constraint_disable
+./test_core
 ...
-
-To correct this unexpected failure, this patch write the 'memory' to
-subtree_control of root to get a right result.
+ok 4 # skip test_cgcore_no_internal_process_constraint_on_threads
+...
 
 Signed-off-by: Alex Shi <alex.shi@linux.alibaba.com>
 Cc: Shuah Khan <shuah@kernel.org>
@@ -77,25 +74,22 @@ Acked-by: Tejun Heo <tj@kernel.org>
 Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/cgroup/test_core.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ tools/testing/selftests/cgroup/test_core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/tools/testing/selftests/cgroup/test_core.c b/tools/testing/selftests/cgroup/test_core.c
-index be59f9c34ea2..d78f1c5366d3 100644
+index d78f1c5366d3..79053a4f4783 100644
 --- a/tools/testing/selftests/cgroup/test_core.c
 +++ b/tools/testing/selftests/cgroup/test_core.c
-@@ -376,6 +376,11 @@ int main(int argc, char *argv[])
+@@ -198,7 +198,7 @@ static int test_cgcore_no_internal_process_constraint_on_threads(const char *roo
+ 	char *parent = NULL, *child = NULL;
  
- 	if (cg_find_unified_root(root, sizeof(root)))
- 		ksft_exit_skip("cgroup v2 isn't mounted\n");
-+
-+	if (cg_read_strstr(root, "cgroup.subtree_control", "memory"))
-+		if (cg_write(root, "cgroup.subtree_control", "+memory"))
-+			ksft_exit_skip("Failed to set memory controller\n");
-+
- 	for (i = 0; i < ARRAY_SIZE(tests); i++) {
- 		switch (tests[i].fn(root)) {
- 		case KSFT_PASS:
+ 	if (cg_read_strstr(root, "cgroup.controllers", "cpu") ||
+-	    cg_read_strstr(root, "cgroup.subtree_control", "cpu")) {
++	    cg_write(root, "cgroup.subtree_control", "+cpu")) {
+ 		ret = KSFT_SKIP;
+ 		goto cleanup;
+ 	}
 -- 
 2.20.1
 
