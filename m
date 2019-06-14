@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B1CA45279
-	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 05:13:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 508A24527A
+	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 05:13:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726649AbfFNDNB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 23:13:01 -0400
-Received: from mail-pg1-f193.google.com ([209.85.215.193]:36959 "EHLO
-        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725819AbfFNDNB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Jun 2019 23:13:01 -0400
-Received: by mail-pg1-f193.google.com with SMTP id 20so680597pgr.4
-        for <stable@vger.kernel.org>; Thu, 13 Jun 2019 20:13:01 -0700 (PDT)
+        id S1726652AbfFNDND (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 23:13:03 -0400
+Received: from mail-pg1-f196.google.com ([209.85.215.196]:45411 "EHLO
+        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725819AbfFNDND (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Jun 2019 23:13:03 -0400
+Received: by mail-pg1-f196.google.com with SMTP id s21so655987pga.12
+        for <stable@vger.kernel.org>; Thu, 13 Jun 2019 20:13:03 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=PiIAa6Q4cfsybCsVqpR97J+SEY4HmIlUIBQq6F4zyFg=;
-        b=txKgJlWMiGHcJGw4VtHy1MXtbdLzlj5qSPE6zgDUbNjqiezwxhLUSyFJQBD0qDIavp
-         il6QwxqKtZBTOapQ+t8jId90cX3QYH9CMIhyZ12r/0zXVstGgb0v1o5ka8WBCP2F1IXX
-         cbnQ61clKLXVh6/yaTS5eZRSydpb05F1jP0y4HGGhx3qH7rdhohpVNoEZMNqRJpxxB1i
-         XRCKWSRDqq1LUkv7Wqg+TQNa/x0STL9SEHqUQnqZpPVON3V44ncjPJ9FH8OO0z446OCw
-         SyjqExAqoPUBplTNnOFJDKhLK9kifjlBJDLeVAzcB+2Ifte8pApTfWm7rRkNuNed/S03
-         4gpg==
+        bh=s6UKYk23he3dGgebGJrG3RauZikPx4goXsUxb0kpSkg=;
+        b=zvCEroJYai18z93zM9pHqfeGsgfcnwFiyoZEI/5uUllBxZqQQE9aZbZ5rkjcYL+mu/
+         E2feYxj2JqPTTxe0pVL///P07AZgXGWknqiChAzY9DSg02c5z0e37gc46ggiAbNV5EQh
+         jhiHXo/WD6NMAEEJ/cEYyzytTfwHgsg+GQYggeevy4B3ivGcDNcOHmqYLWnigEtNuf37
+         p8/UOSxtcBVyPxDzoJM4qsUCLRXsuIkcl1BwrgMRwBaU5RH85Kb7dftoxbBdMV9vrYz6
+         XDHhdRGqvpS8q40H9UbOb4VsxaelFTcoDXqvOSBSzkrlUwbBOElF7vEa1sJwqse7SOTd
+         Bkog==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=PiIAa6Q4cfsybCsVqpR97J+SEY4HmIlUIBQq6F4zyFg=;
-        b=ZFh6Ux9Ul3mO4OMluWYB600gE0EV3YJutieZWk68ezEdeV653HBl1sv2wtZlz04IxL
-         Whg1tMzT/MxP1z/TVoG6Tm9VnN0vWD43Z+C8toHKJTOjQSlYkfwqHI4Ut7Oh4XTluvsk
-         jbq8QM9b7l7H3/DIDJHIF1GJAKj8r7J7HYY8Rhmm8JquQWefLQGOi3qV5HEPamY/mVLX
-         39fLWfliJdJtp+UblB0M4pbZE2YLFXhLX411XhXanptRgSThee8JuHOKjrxt0iAQmVc1
-         DZKppraUv8bruclT4aaxMTq68I2hjT3/7JeXZqSZj4Cm7CwdlBy8spFQWjKVvXxPvucr
-         1Qxg==
-X-Gm-Message-State: APjAAAWnOmbVzbC9M6Dl8t2pKacskT22nW6hZvOtJ/ajTaYDnadHwrlu
-        +KaanEvtdsVlsN5qDi2/fMf7Ww==
-X-Google-Smtp-Source: APXvYqw9wZ6D+N+hkuZvdTJLHEcZWbkJs2NOAiExTU2wqynPKyy1FERok1FIZGrWbwIW/iGlsSqEwg==
-X-Received: by 2002:a17:90a:cb87:: with SMTP id a7mr9021902pju.130.1560481980685;
-        Thu, 13 Jun 2019 20:13:00 -0700 (PDT)
+        bh=s6UKYk23he3dGgebGJrG3RauZikPx4goXsUxb0kpSkg=;
+        b=O1OmD4E5RCZqUAdCxwX3ksaMSdG7Y1uWet1m1d5f76xnA3vsryetlhrA9Z2e9JTn0W
+         LJ86whkBgwiF7vWMA5l/kSULzANScTkOwKliL0CsVwigUXv9JkEOJf7Y/mo7VuulHxe1
+         aGScGrgwEzYsiTUmPtf7wkniYMGi8UvgTe37hTOWJL0tXfK82aaz8yF4oAzBxxdxDBii
+         BY8URWu2GjuHoomNc6E9KPZdnTSXmFVGrJobUUbM71EC9SLGWZp37UXV9PS5Mzlg6P6v
+         aSp61dZaiABFPyDPsXb3xEXGkknH/jab3dLTT/rdeq15uABL4T4gIMq/+j3/UMTsSsFo
+         scbQ==
+X-Gm-Message-State: APjAAAUq+nFBanNBXJP0w6aI85q6xuRmMA+yDcZYBsjFwK4tN3mvaJcC
+        pxB6XCNKtiPHk+pJRmJKkA7GXeZrDN0=
+X-Google-Smtp-Source: APXvYqx+ra3YpKQWwoRa5iUExPJzGtThNQBAcoXTZoAe9nxiK6MaSF/dMW2wTNTLFt+Vb+aHjp9b0A==
+X-Received: by 2002:aa7:8b17:: with SMTP id f23mr61291788pfd.194.1560481983028;
+        Thu, 13 Jun 2019 20:13:03 -0700 (PDT)
 Received: from localhost ([122.172.66.84])
-        by smtp.gmail.com with ESMTPSA id 133sm1056831pfa.92.2019.06.13.20.12.59
+        by smtp.gmail.com with ESMTPSA id u11sm996131pfh.130.2019.06.13.20.13.02
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 13 Jun 2019 20:13:00 -0700 (PDT)
+        Thu, 13 Jun 2019 20:13:02 -0700 (PDT)
 From:   Viresh Kumar <viresh.kumar@linaro.org>
 To:     linux-arm-kernel@lists.infradead.org,
         Julien Thierry <Julien.Thierry@arm.com>
@@ -55,9 +55,9 @@ Cc:     Viresh Kumar <viresh.kumar@linaro.org>, stable@vger.kernel.org,
         Russell King <rmk+kernel@arm.linux.org.uk>,
         Vincent Guittot <vincent.guittot@linaro.org>,
         mark.brown@arm.com
-Subject: [PATCH v4.4 25/45] arm64: Implement branch predictor hardening for affected Cortex-A CPUs
-Date:   Fri, 14 Jun 2019 08:38:08 +0530
-Message-Id: <5c2d88d87e6639249d2cd58e359ce40613ee9aee.1560480942.git.viresh.kumar@linaro.org>
+Subject: [PATCH v4.4 26/45] arm64: cputype info for Broadcom Vulcan
+Date:   Fri, 14 Jun 2019 08:38:09 +0530
+Message-Id: <619a06ea39c6f159f0ca0c629eb3859dff1235d8.1560480942.git.viresh.kumar@linaro.org>
 X-Mailer: git-send-email 2.21.0.rc0.269.g1a574e7a288b
 In-Reply-To: <cover.1560480942.git.viresh.kumar@linaro.org>
 References: <cover.1560480942.git.viresh.kumar@linaro.org>
@@ -68,132 +68,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Will Deacon <will.deacon@arm.com>
+From: Jayachandran C <jchandra@broadcom.com>
 
-commit aa6acde65e03186b5add8151e1ffe36c3c62639b upstream.
+commit 9eb8a2cdf65ce47c3aa68f1297c84d8bcf5a7b3a upstream.
 
-Cortex-A57, A72, A73 and A75 are susceptible to branch predictor aliasing
-and can theoretically be attacked by malicious code.
+Add Broadcom Vulcan implementor ID and part ID in cputype.h. This is
+to document the values.
 
-This patch implements a PSCI-based mitigation for these CPUs when available.
-The call into firmware will invalidate the branch predictor state, preventing
-any malicious entries from affecting other victim contexts.
-
-Co-developed-by: Marc Zyngier <marc.zyngier@arm.com>
-Signed-off-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Jayachandran C <jchandra@broadcom.com>
+Acked-by: Will Deacon <will.deacon@arm.com>
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 ---
- arch/arm64/kernel/bpi.S        | 24 +++++++++++++++++++
- arch/arm64/kernel/cpu_errata.c | 42 ++++++++++++++++++++++++++++++++++
- 2 files changed, 66 insertions(+)
+ arch/arm64/include/asm/cputype.h | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/arm64/kernel/bpi.S b/arch/arm64/kernel/bpi.S
-index 06a931eb2673..dec95bd82e31 100644
---- a/arch/arm64/kernel/bpi.S
-+++ b/arch/arm64/kernel/bpi.S
-@@ -53,3 +53,27 @@ ENTRY(__bp_harden_hyp_vecs_start)
- 	vectors __kvm_hyp_vector
- 	.endr
- ENTRY(__bp_harden_hyp_vecs_end)
-+ENTRY(__psci_hyp_bp_inval_start)
-+	sub	sp, sp, #(8 * 18)
-+	stp	x16, x17, [sp, #(16 * 0)]
-+	stp	x14, x15, [sp, #(16 * 1)]
-+	stp	x12, x13, [sp, #(16 * 2)]
-+	stp	x10, x11, [sp, #(16 * 3)]
-+	stp	x8, x9, [sp, #(16 * 4)]
-+	stp	x6, x7, [sp, #(16 * 5)]
-+	stp	x4, x5, [sp, #(16 * 6)]
-+	stp	x2, x3, [sp, #(16 * 7)]
-+	stp	x0, x1, [sp, #(16 * 8)]
-+	mov	x0, #0x84000000
-+	smc	#0
-+	ldp	x16, x17, [sp, #(16 * 0)]
-+	ldp	x14, x15, [sp, #(16 * 1)]
-+	ldp	x12, x13, [sp, #(16 * 2)]
-+	ldp	x10, x11, [sp, #(16 * 3)]
-+	ldp	x8, x9, [sp, #(16 * 4)]
-+	ldp	x6, x7, [sp, #(16 * 5)]
-+	ldp	x4, x5, [sp, #(16 * 6)]
-+	ldp	x2, x3, [sp, #(16 * 7)]
-+	ldp	x0, x1, [sp, #(16 * 8)]
-+	add	sp, sp, #(8 * 18)
-+ENTRY(__psci_hyp_bp_inval_end)
-diff --git a/arch/arm64/kernel/cpu_errata.c b/arch/arm64/kernel/cpu_errata.c
-index c05135cd53fe..aa9cd47b5c6f 100644
---- a/arch/arm64/kernel/cpu_errata.c
-+++ b/arch/arm64/kernel/cpu_errata.c
-@@ -50,6 +50,8 @@ is_affected_midr_range(const struct arm64_cpu_capabilities *entry, int scope)
- DEFINE_PER_CPU_READ_MOSTLY(struct bp_hardening_data, bp_hardening_data);
+diff --git a/arch/arm64/include/asm/cputype.h b/arch/arm64/include/asm/cputype.h
+index 2a1f44646048..c6976dd6c32a 100644
+--- a/arch/arm64/include/asm/cputype.h
++++ b/arch/arm64/include/asm/cputype.h
+@@ -73,6 +73,7 @@
+ #define ARM_CPU_IMP_ARM			0x41
+ #define ARM_CPU_IMP_APM			0x50
+ #define ARM_CPU_IMP_CAVIUM		0x43
++#define ARM_CPU_IMP_BRCM		0x42
  
- #ifdef CONFIG_KVM
-+extern char __psci_hyp_bp_inval_start[], __psci_hyp_bp_inval_end[];
-+
- static void __copy_hyp_vect_bpi(int slot, const char *hyp_vecs_start,
- 				const char *hyp_vecs_end)
- {
-@@ -91,6 +93,9 @@ static void __install_bp_hardening_cb(bp_hardening_cb_t fn,
- 	spin_unlock(&bp_lock);
- }
- #else
-+#define __psci_hyp_bp_inval_start	NULL
-+#define __psci_hyp_bp_inval_end		NULL
-+
- static void __install_bp_hardening_cb(bp_hardening_cb_t fn,
- 				      const char *hyp_vecs_start,
- 				      const char *hyp_vecs_end)
-@@ -115,6 +120,21 @@ static void  install_bp_hardening_cb(const struct arm64_cpu_capabilities *entry,
+ #define ARM_CPU_PART_AEM_V8		0xD0F
+ #define ARM_CPU_PART_FOUNDATION		0xD00
+@@ -87,6 +88,8 @@
  
- 	__install_bp_hardening_cb(fn, hyp_vecs_start, hyp_vecs_end);
- }
-+
-+#include <linux/psci.h>
-+
-+static int enable_psci_bp_hardening(void *data)
-+{
-+	const struct arm64_cpu_capabilities *entry = data;
-+
-+	if (psci_ops.get_version)
-+		install_bp_hardening_cb(entry,
-+				       (bp_hardening_cb_t)psci_ops.get_version,
-+				       __psci_hyp_bp_inval_start,
-+				       __psci_hyp_bp_inval_end);
-+
-+	return 0;
-+}
- #endif	/* CONFIG_HARDEN_BRANCH_PREDICTOR */
+ #define CAVIUM_CPU_PART_THUNDERX	0x0A1
  
- #define MIDR_RANGE(model, min, max) \
-@@ -192,6 +212,28 @@ const struct arm64_cpu_capabilities arm64_errata[] = {
- 		MIDR_RANGE(MIDR_THUNDERX, 0x00,
- 			   (1 << MIDR_VARIANT_SHIFT) | 1),
- 	},
-+#endif
-+#ifdef CONFIG_HARDEN_BRANCH_PREDICTOR
-+	{
-+		.capability = ARM64_HARDEN_BRANCH_PREDICTOR,
-+		MIDR_ALL_VERSIONS(MIDR_CORTEX_A57),
-+		.enable = enable_psci_bp_hardening,
-+	},
-+	{
-+		.capability = ARM64_HARDEN_BRANCH_PREDICTOR,
-+		MIDR_ALL_VERSIONS(MIDR_CORTEX_A72),
-+		.enable = enable_psci_bp_hardening,
-+	},
-+	{
-+		.capability = ARM64_HARDEN_BRANCH_PREDICTOR,
-+		MIDR_ALL_VERSIONS(MIDR_CORTEX_A73),
-+		.enable = enable_psci_bp_hardening,
-+	},
-+	{
-+		.capability = ARM64_HARDEN_BRANCH_PREDICTOR,
-+		MIDR_ALL_VERSIONS(MIDR_CORTEX_A75),
-+		.enable = enable_psci_bp_hardening,
-+	},
- #endif
- 	{
- 	}
++#define BRCM_CPU_PART_VULCAN		0x516
++
+ #define MIDR_CORTEX_A55 MIDR_CPU_PART(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A55)
+ #define MIDR_CORTEX_A72 MIDR_CPU_PART(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A72)
+ #define MIDR_CORTEX_A73 MIDR_CPU_PART(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A73)
 -- 
 2.21.0.rc0.269.g1a574e7a288b
 
