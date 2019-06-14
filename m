@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3106F46961
-	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 22:33:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E18894692F
+	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 22:32:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726796AbfFNUci (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jun 2019 16:32:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53864 "EHLO mail.kernel.org"
+        id S1727832AbfFNUan (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jun 2019 16:30:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53896 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726779AbfFNUal (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Jun 2019 16:30:41 -0400
+        id S1726811AbfFNUan (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Jun 2019 16:30:43 -0400
 Received: from sasha-vm.mshome.net (unknown [131.107.159.134])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 739882186A;
-        Fri, 14 Jun 2019 20:30:40 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F2F22184D;
+        Fri, 14 Jun 2019 20:30:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560544240;
-        bh=FE+12g6ZJUC6swIQFvWgR1Ppf6wRJ7KMqJ61p+JFJ7w=;
+        s=default; t=1560544242;
+        bh=2IeCWttRuelhrNLMfaIzHeLvwBBwnVANEz3e89O26I8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lk/WDXosj/ykAvHLz+Pqqiqb0HM8NkIMheP5lPxypxBt4hqe9u3jdl/8Lnlm8yYwX
-         ocKL9hkonlIGjUXa1Cr8mj3kkLGTlZUvJrgPWiYeC0+54mnhtGPyLqRuzLN8/MCi0q
-         nqVN+iNxOlXvusaa/8vCdjXCRasrjKtkzeH1ocQA=
+        b=HIdoLbL1lx052OWt3CtQLc5xpvdhkvnrRms744vN2twmpJGCbx+NF1kSd4LXKeIRs
+         wqHXJrnmxDKt0ywDjo4kExCwWA3JWsnUqbtaDbrUrSEZ3yRGDUwiB59AfEwYDEVW6u
+         1RgrEJm7IP5hszT9UeBrjkTDV/cWssNMHl41m+pg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mike Marciniszyn <mike.marciniszyn@intel.com>,
-        Josh Collier <josh.d.collier@intel.com>,
-        Dennis Dalessandro <dennis.dalessandro@intel.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 06/18] IB/{qib, hfi1, rdmavt}: Correct ibv_devinfo max_mr value
-Date:   Fri, 14 Jun 2019 16:30:22 -0400
-Message-Id: <20190614203037.27910-6-sashal@kernel.org>
+Cc:     YueHaibing <yuehaibing@huawei.com>,
+        Paul Burton <paul.burton@mips.com>, ralf@linux-mips.org,
+        jhogan@kernel.org, linux-mips@vger.kernel.org,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 07/18] MIPS: uprobes: remove set but not used variable 'epc'
+Date:   Fri, 14 Jun 2019 16:30:23 -0400
+Message-Id: <20190614203037.27910-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190614203037.27910-1-sashal@kernel.org>
 References: <20190614203037.27910-1-sashal@kernel.org>
@@ -45,66 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Marciniszyn <mike.marciniszyn@intel.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 35164f5259a47ea756fa1deb3e463ac2a4f10dc9 ]
+[ Upstream commit f532beeeff0c0a3586cc15538bc52d249eb19e7c ]
 
-The command 'ibv_devinfo -v' reports 0 for max_mr.
+Fixes gcc '-Wunused-but-set-variable' warning:
 
-Fix by assigning the query values after the mr lkey_table has been built
-rather than early on in the driver.
+arch/mips/kernel/uprobes.c: In function 'arch_uprobe_pre_xol':
+arch/mips/kernel/uprobes.c:115:17: warning: variable 'epc' set but not used [-Wunused-but-set-variable]
 
-Fixes: 7b1e2099adc8 ("IB/rdmavt: Move memory registration into rdmavt")
-Reviewed-by: Josh Collier <josh.d.collier@intel.com>
-Signed-off-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+It's never used since introduction in
+commit 40e084a506eb ("MIPS: Add uprobes support.")
+
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: Paul Burton <paul.burton@mips.com>
+Cc: <ralf@linux-mips.org>
+Cc: <jhogan@kernel.org>
+Cc: <linux-kernel@vger.kernel.org>
+Cc: <linux-mips@vger.kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hfi1/verbs.c    | 2 --
- drivers/infiniband/hw/qib/qib_verbs.c | 2 --
- drivers/infiniband/sw/rdmavt/mr.c     | 2 ++
- 3 files changed, 2 insertions(+), 4 deletions(-)
+ arch/mips/kernel/uprobes.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hfi1/verbs.c b/drivers/infiniband/hw/hfi1/verbs.c
-index d9c71750e22d..15054a0cbf6d 100644
---- a/drivers/infiniband/hw/hfi1/verbs.c
-+++ b/drivers/infiniband/hw/hfi1/verbs.c
-@@ -1344,8 +1344,6 @@ static void hfi1_fill_device_attr(struct hfi1_devdata *dd)
- 	rdi->dparms.props.max_cq = hfi1_max_cqs;
- 	rdi->dparms.props.max_ah = hfi1_max_ahs;
- 	rdi->dparms.props.max_cqe = hfi1_max_cqes;
--	rdi->dparms.props.max_mr = rdi->lkey_table.max;
--	rdi->dparms.props.max_fmr = rdi->lkey_table.max;
- 	rdi->dparms.props.max_map_per_fmr = 32767;
- 	rdi->dparms.props.max_pd = hfi1_max_pds;
- 	rdi->dparms.props.max_qp_rd_atom = HFI1_MAX_RDMA_ATOMIC;
-diff --git a/drivers/infiniband/hw/qib/qib_verbs.c b/drivers/infiniband/hw/qib/qib_verbs.c
-index 954f15064514..d6e183775e24 100644
---- a/drivers/infiniband/hw/qib/qib_verbs.c
-+++ b/drivers/infiniband/hw/qib/qib_verbs.c
-@@ -1568,8 +1568,6 @@ static void qib_fill_device_attr(struct qib_devdata *dd)
- 	rdi->dparms.props.max_cq = ib_qib_max_cqs;
- 	rdi->dparms.props.max_cqe = ib_qib_max_cqes;
- 	rdi->dparms.props.max_ah = ib_qib_max_ahs;
--	rdi->dparms.props.max_mr = rdi->lkey_table.max;
--	rdi->dparms.props.max_fmr = rdi->lkey_table.max;
- 	rdi->dparms.props.max_map_per_fmr = 32767;
- 	rdi->dparms.props.max_qp_rd_atom = QIB_MAX_RDMA_ATOMIC;
- 	rdi->dparms.props.max_qp_init_rd_atom = 255;
-diff --git a/drivers/infiniband/sw/rdmavt/mr.c b/drivers/infiniband/sw/rdmavt/mr.c
-index 49d55a0322f6..dbd4c0d268e9 100644
---- a/drivers/infiniband/sw/rdmavt/mr.c
-+++ b/drivers/infiniband/sw/rdmavt/mr.c
-@@ -94,6 +94,8 @@ int rvt_driver_mr_init(struct rvt_dev_info *rdi)
- 	for (i = 0; i < rdi->lkey_table.max; i++)
- 		RCU_INIT_POINTER(rdi->lkey_table.table[i], NULL);
- 
-+	rdi->dparms.props.max_mr = rdi->lkey_table.max;
-+	rdi->dparms.props.max_fmr = rdi->lkey_table.max;
- 	return 0;
- }
- 
+diff --git a/arch/mips/kernel/uprobes.c b/arch/mips/kernel/uprobes.c
+index dbb917403131..ec951dde0999 100644
+--- a/arch/mips/kernel/uprobes.c
++++ b/arch/mips/kernel/uprobes.c
+@@ -111,9 +111,6 @@ int arch_uprobe_pre_xol(struct arch_uprobe *aup, struct pt_regs *regs)
+ 	 */
+ 	aup->resume_epc = regs->cp0_epc + 4;
+ 	if (insn_has_delay_slot((union mips_instruction) aup->insn[0])) {
+-		unsigned long epc;
+-
+-		epc = regs->cp0_epc;
+ 		__compute_return_epc_for_insn(regs,
+ 			(union mips_instruction) aup->insn[0]);
+ 		aup->resume_epc = regs->cp0_epc;
 -- 
 2.20.1
 
