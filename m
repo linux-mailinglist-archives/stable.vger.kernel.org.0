@@ -2,41 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AF4946911
-	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 22:30:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8C53469A7
+	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 22:34:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727519AbfFNUaV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jun 2019 16:30:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53194 "EHLO mail.kernel.org"
+        id S1726473AbfFNUeT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jun 2019 16:34:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727495AbfFNUaU (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727498AbfFNUaU (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 14 Jun 2019 16:30:20 -0400
 Received: from sasha-vm.mshome.net (unknown [131.107.159.134])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BA07221851;
-        Fri, 14 Jun 2019 20:30:19 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 182D821871;
+        Fri, 14 Jun 2019 20:30:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560544219;
-        bh=9OXucFdFEJyjkGzQ1m2CR757d22Ftz0mneQ19j/3lvY=;
+        s=default; t=1560544220;
+        bh=DkwTj3lGy+62IaL5sUSt22R/GkKUGMOQMc62lTrrUjc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1y3MHoiqut1o6vo+y47a8HwkhFIqfjY0/daYIrH3mP41e5mFrCgm+gv2cqNzAIxnr
-         1l3NsvdLhsnwCDPDZC0BLhBQdQk7uYUyflNkabEFPMUoqIRHKG3KwEu5l/fPId6b2D
-         /wSsuV74bLML4I6yrc4Hm3vcrmjyaDKpiZmvlenE=
+        b=vRKG+bhR+T/ykOyZ1Ajvid1yhNNhRSNXggSyAzZEUtrCm6pWxHPcYUGr08XMEIopa
+         lLNLBc73groYnSisaG1mrFPb6hWjqfOzY605ORmb8hwuSvShV/I3PDVxImmw4n6U0y
+         4wypAwx7Ir1j7MzZZ9b5HtQ/UA+VYEwuuAH3waCQ=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jose Abreu <joabreu@synopsys.com>,
-        Joao Pinto <jpinto@synopsys.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Vineet Gupta <vgupta@synopsys.com>,
-        Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>,
-        Alexey Brodkin <abrodkin@synopsys.com>,
-        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
-        linux-snps-arc@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 03/27] ARC: [plat-hsdk]: Add missing FIFO size entry in GMAC node
-Date:   Fri, 14 Jun 2019 16:29:52 -0400
-Message-Id: <20190614203018.27686-3-sashal@kernel.org>
+Cc:     YueHaibing <yuehaibing@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 04/27] parport: Fix mem leak in parport_register_dev_model
+Date:   Fri, 14 Jun 2019 16:29:53 -0400
+Message-Id: <20190614203018.27686-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190614203018.27686-1-sashal@kernel.org>
 References: <20190614203018.27686-1-sashal@kernel.org>
@@ -49,39 +43,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jose Abreu <joabreu@synopsys.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 4c70850aeb2e40016722cd1abd43c679666d3ca0 ]
+[ Upstream commit 1c7ebeabc9e5ee12e42075a597de40fdb9059530 ]
 
-Add the binding for RX/TX fifo size of GMAC node.
+BUG: memory leak
+unreferenced object 0xffff8881df48cda0 (size 16):
+  comm "syz-executor.0", pid 5077, jiffies 4295994670 (age 22.280s)
+  hex dump (first 16 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<00000000d2d0d5fe>] parport_register_dev_model+0x141/0x6e0 [parport]
+    [<00000000782f6dab>] 0xffffffffc15d1196
+    [<00000000d2ca6ae4>] platform_drv_probe+0x7e/0x100
+    [<00000000628c2a94>] really_probe+0x342/0x4d0
+    [<000000006874f5da>] driver_probe_device+0x8c/0x170
+    [<00000000424de37a>] __device_attach_driver+0xda/0x100
+    [<000000002acab09a>] bus_for_each_drv+0xfe/0x170
+    [<000000003d9e5f31>] __device_attach+0x190/0x230
+    [<0000000035d32f80>] bus_probe_device+0x123/0x140
+    [<00000000a05ba627>] device_add+0x7cc/0xce0
+    [<000000003f7560bf>] platform_device_add+0x230/0x3c0
+    [<000000002a0be07d>] 0xffffffffc15d0949
+    [<000000007361d8d2>] port_check+0x3b/0x50 [parport]
+    [<000000004d67200f>] bus_for_each_dev+0x115/0x180
+    [<000000003ccfd11c>] __parport_register_driver+0x1f0/0x210 [parport]
+    [<00000000987f06fc>] 0xffffffffc15d803e
 
-Cc: Joao Pinto <jpinto@synopsys.com>
-Cc: Rob Herring <robh+dt@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Vineet Gupta <vgupta@synopsys.com>
-Tested-by: Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
-Acked-by: Alexey Brodkin <abrodkin@synopsys.com>
-Signed-off-by: Jose Abreu <joabreu@synopsys.com>
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+After commit 4e5a74f1db8d ("parport: Revert "parport: fix
+memory leak""), free_pardevice do not free par_dev->state,
+we should free it in error path of parport_register_dev_model
+before return.
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Fixes: 4e5a74f1db8d ("parport: Revert "parport: fix memory leak"")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arc/boot/dts/hsdk.dts | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/parport/share.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arc/boot/dts/hsdk.dts b/arch/arc/boot/dts/hsdk.dts
-index c033ae45fe42..57d81c6aa379 100644
---- a/arch/arc/boot/dts/hsdk.dts
-+++ b/arch/arc/boot/dts/hsdk.dts
-@@ -170,6 +170,9 @@
- 			resets = <&cgu_rst HSDK_ETH_RESET>;
- 			reset-names = "stmmaceth";
- 
-+			tx-fifo-depth = <4096>;
-+			rx-fifo-depth = <4096>;
-+
- 			mdio {
- 				#address-cells = <1>;
- 				#size-cells = <0>;
+diff --git a/drivers/parport/share.c b/drivers/parport/share.c
+index 5dc53d420ca8..7b4ee33c1935 100644
+--- a/drivers/parport/share.c
++++ b/drivers/parport/share.c
+@@ -895,6 +895,7 @@ parport_register_dev_model(struct parport *port, const char *name,
+ 	par_dev->devmodel = true;
+ 	ret = device_register(&par_dev->dev);
+ 	if (ret) {
++		kfree(par_dev->state);
+ 		put_device(&par_dev->dev);
+ 		goto err_put_port;
+ 	}
+@@ -912,6 +913,7 @@ parport_register_dev_model(struct parport *port, const char *name,
+ 			spin_unlock(&port->physport->pardevice_lock);
+ 			pr_debug("%s: cannot grant exclusive access for device %s\n",
+ 				 port->name, name);
++			kfree(par_dev->state);
+ 			device_unregister(&par_dev->dev);
+ 			goto err_put_port;
+ 		}
 -- 
 2.20.1
 
