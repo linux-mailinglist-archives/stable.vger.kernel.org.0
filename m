@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ED439468DF
-	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 22:28:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 701F146AF8
+	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 22:39:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726468AbfFNU2y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1726444AbfFNU2y (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 14 Jun 2019 16:28:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50538 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:50544 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726429AbfFNU2x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Jun 2019 16:28:53 -0400
+        id S1726419AbfFNU2y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Jun 2019 16:28:54 -0400
 Received: from sasha-vm.mshome.net (unknown [131.107.159.134])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 517E52186A;
+        by mail.kernel.org (Postfix) with ESMTPSA id 993F02184C;
         Fri, 14 Jun 2019 20:28:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1560544131;
-        bh=v1aZ80rCPAZc/VTMHWYtYVRdyC/Tp44TTIvq+21x6MQ=;
+        bh=JH2Y3LOs44/U6E/fzy9F/QsnMjzWNWykjTN6GkdRAXo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YCngdZZ8qHpBjwTCDazCL8Zw8TYv5/1p00yWJuHjWAYAzPpnlnfhKbPBn0fvd/T4e
-         cW4XhwwE4ikP1ipHGmljzObY/YoE0QwNlp8cpXuUNMVXOHr3sbg1XzL1vspcQWYpM5
-         QKmysU5sWPaVL79vV6C5VJ0rBnH346Nu+klUCKGg=
+        b=JV6ohBqCr7nkk5eWfOkx3VPdf9Lwzn1jk23R1jmzF303dFLr4wVPaC2QEzaMF5VVX
+         tXWdCHuHbYoK1l7Obm2xzGCGTLzjEwGas75jTtASHfbQPDZ9p5Y4iu1t7VKdyG4Iie
+         OAOANKlmXS/KpqHhR1zD4WExirFeiQgk6feY1rj4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Eric Long <eric.long@unisoc.com>,
         Baolin Wang <baolin.wang@linaro.org>,
         Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
         dmaengine@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 09/59] dmaengine: sprd: Fix block length overflow
-Date:   Fri, 14 Jun 2019 16:27:53 -0400
-Message-Id: <20190614202843.26941-9-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 10/59] dmaengine: sprd: Fix the right place to configure 2-stage transfer
+Date:   Fri, 14 Jun 2019 16:27:54 -0400
+Message-Id: <20190614202843.26941-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190614202843.26941-1-sashal@kernel.org>
 References: <20190614202843.26941-1-sashal@kernel.org>
@@ -46,36 +46,50 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Eric Long <eric.long@unisoc.com>
 
-[ Upstream commit 89d03b3c126d683f7b2cd5b07178493993d12448 ]
+[ Upstream commit c434e377dad1dec05cad1870ce21bc539e1e024f ]
 
-The maximum value of block length is 0xffff, so if the configured transfer length
-is more than 0xffff, that will cause block length overflow to lead a configuration
-error.
-
-Thus we can set block length as the maximum burst length to avoid this issue, since
-the maximum burst length will not be a big value which is more than 0xffff.
+Move the 2-stage configuration before configuring the link-list mode,
+since we will use some 2-stage configuration to fill the link-list
+configuration.
 
 Signed-off-by: Eric Long <eric.long@unisoc.com>
 Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/sprd-dma.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/dma/sprd-dma.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/dma/sprd-dma.c b/drivers/dma/sprd-dma.c
-index 0f92e60529d1..a01c23246632 100644
+index a01c23246632..01abed5cde49 100644
 --- a/drivers/dma/sprd-dma.c
 +++ b/drivers/dma/sprd-dma.c
-@@ -778,7 +778,7 @@ static int sprd_dma_fill_desc(struct dma_chan *chan,
- 	temp |= slave_cfg->src_maxburst & SPRD_DMA_FRG_LEN_MASK;
- 	hw->frg_len = temp;
+@@ -911,6 +911,12 @@ sprd_dma_prep_slave_sg(struct dma_chan *chan, struct scatterlist *sgl,
+ 		schan->linklist.virt_addr = 0;
+ 	}
  
--	hw->blk_len = len & SPRD_DMA_BLK_LEN_MASK;
-+	hw->blk_len = slave_cfg->src_maxburst & SPRD_DMA_BLK_LEN_MASK;
- 	hw->trsc_len = len & SPRD_DMA_TRSC_LEN_MASK;
++	/* Set channel mode and trigger mode for 2-stage transfer */
++	schan->chn_mode =
++		(flags >> SPRD_DMA_CHN_MODE_SHIFT) & SPRD_DMA_CHN_MODE_MASK;
++	schan->trg_mode =
++		(flags >> SPRD_DMA_TRG_MODE_SHIFT) & SPRD_DMA_TRG_MODE_MASK;
++
+ 	sdesc = kzalloc(sizeof(*sdesc), GFP_NOWAIT);
+ 	if (!sdesc)
+ 		return NULL;
+@@ -944,12 +950,6 @@ sprd_dma_prep_slave_sg(struct dma_chan *chan, struct scatterlist *sgl,
+ 		}
+ 	}
  
- 	temp = (dst_step & SPRD_DMA_TRSF_STEP_MASK) << SPRD_DMA_DEST_TRSF_STEP_OFFSET;
+-	/* Set channel mode and trigger mode for 2-stage transfer */
+-	schan->chn_mode =
+-		(flags >> SPRD_DMA_CHN_MODE_SHIFT) & SPRD_DMA_CHN_MODE_MASK;
+-	schan->trg_mode =
+-		(flags >> SPRD_DMA_TRG_MODE_SHIFT) & SPRD_DMA_TRG_MODE_MASK;
+-
+ 	ret = sprd_dma_fill_desc(chan, &sdesc->chn_hw, 0, 0, src, dst, len,
+ 				 dir, flags, slave_cfg);
+ 	if (ret) {
 -- 
 2.20.1
 
