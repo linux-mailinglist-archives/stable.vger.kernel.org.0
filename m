@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 269A7469B3
-	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 22:34:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62ED0469BE
+	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 22:35:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727304AbfFNUet (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1726926AbfFNUet (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 14 Jun 2019 16:34:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53042 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:53060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727405AbfFNUaP (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727411AbfFNUaP (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 14 Jun 2019 16:30:15 -0400
 Received: from sasha-vm.mshome.net (unknown [131.107.159.134])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 1488421871;
+        by mail.kernel.org (Postfix) with ESMTPSA id 5AD9C21881;
         Fri, 14 Jun 2019 20:30:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1560544215;
-        bh=/edHFZvVZoybWG8IEgaHCnxRgLMyf1pUbhW3uxJpgOE=;
+        bh=0awjjDISCV5dpj8oChr0b5tFIrJsFYnpiFShWEVzs58=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XQ8qppp/CE5WcUBAiXo3W7ETk8YYzAnL8cYUWV4vLRfuZEOUvzD39hZYUoY0/FTeZ
-         Z3UGiPA1TDW8ERe5BQaxQ6b1WsanrRsXBK42TlzN905C+eCVFiTYSw295w1przL5rF
-         WmnWWxudQ5eutIVhUGIgI5xTBboRgLJ8livp+HkM=
+        b=Dm72p/10MOyOEWumVxbVab+V0LBjYNdHurNLCZEa0Dj33d3os3J+zCSXhW7oWZLmg
+         VZMlgbr/pUZ1FW1pDNSAnVv6KgBi2FGWC0nSb+BXvvRpeGa23BAgwfow1Z2JTuUljU
+         KiWpWb4kROy6/wG5ZLxIa7ofxPNpBsnq3cQ7yd/4=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Young Xiao <92siuyang@gmail.com>,
+Cc:     Sean Wang <sean.wang@mediatek.com>,
+        Mark Lee <mark-mc.lee@mediatek.com>,
         "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, sparclinux@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 24/39] sparc: perf: fix updated event period in response to PERF_EVENT_IOC_PERIOD
-Date:   Fri, 14 Jun 2019 16:29:29 -0400
-Message-Id: <20190614202946.27385-24-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 25/39] net: ethernet: mediatek: Use hw_feature to judge if HWLRO is supported
+Date:   Fri, 14 Jun 2019 16:29:30 -0400
+Message-Id: <20190614202946.27385-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190614202946.27385-1-sashal@kernel.org>
 References: <20190614202946.27385-1-sashal@kernel.org>
@@ -43,43 +44,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Young Xiao <92siuyang@gmail.com>
+From: Sean Wang <sean.wang@mediatek.com>
 
-[ Upstream commit 56cd0aefa475079e9613085b14a0f05037518fed ]
+[ Upstream commit 9e4f56f1a7f3287718d0083b5cb85298dc05a5fd ]
 
-The PERF_EVENT_IOC_PERIOD ioctl command can be used to change the
-sample period of a running perf_event. Consequently, when calculating
-the next event period, the new period will only be considered after the
-previous one has overflowed.
+Should hw_feature as hardware capability flags to check if hardware LRO
+got support.
 
-This patch changes the calculation of the remaining event ticks so that
-they are offset if the period has changed.
-
-See commit 3581fe0ef37c ("ARM: 7556/1: perf: fix updated event period in
-response to PERF_EVENT_IOC_PERIOD") for details.
-
-Signed-off-by: Young Xiao <92siuyang@gmail.com>
+Signed-off-by: Mark Lee <mark-mc.lee@mediatek.com>
+Signed-off-by: Sean Wang <sean.wang@mediatek.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/sparc/kernel/perf_event.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/ethernet/mediatek/mtk_eth_soc.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/arch/sparc/kernel/perf_event.c b/arch/sparc/kernel/perf_event.c
-index 67b3e6b3ce5d..1ad5911f62b4 100644
---- a/arch/sparc/kernel/perf_event.c
-+++ b/arch/sparc/kernel/perf_event.c
-@@ -891,6 +891,10 @@ static int sparc_perf_event_set_period(struct perf_event *event,
- 	s64 period = hwc->sample_period;
- 	int ret = 0;
+diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.c b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
+index 6e6abdc399de..0c70fb345f83 100644
+--- a/drivers/net/ethernet/mediatek/mtk_eth_soc.c
++++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
+@@ -2304,13 +2304,13 @@ static int mtk_get_rxnfc(struct net_device *dev, struct ethtool_rxnfc *cmd,
  
-+	/* The period may have been changed by PERF_EVENT_IOC_PERIOD */
-+	if (unlikely(period != hwc->last_period))
-+		left = period - (hwc->last_period - left);
-+
- 	if (unlikely(left <= -period)) {
- 		left = period;
- 		local64_set(&hwc->period_left, left);
+ 	switch (cmd->cmd) {
+ 	case ETHTOOL_GRXRINGS:
+-		if (dev->features & NETIF_F_LRO) {
++		if (dev->hw_features & NETIF_F_LRO) {
+ 			cmd->data = MTK_MAX_RX_RING_NUM;
+ 			ret = 0;
+ 		}
+ 		break;
+ 	case ETHTOOL_GRXCLSRLCNT:
+-		if (dev->features & NETIF_F_LRO) {
++		if (dev->hw_features & NETIF_F_LRO) {
+ 			struct mtk_mac *mac = netdev_priv(dev);
+ 
+ 			cmd->rule_cnt = mac->hwlro_ip_cnt;
+@@ -2318,11 +2318,11 @@ static int mtk_get_rxnfc(struct net_device *dev, struct ethtool_rxnfc *cmd,
+ 		}
+ 		break;
+ 	case ETHTOOL_GRXCLSRULE:
+-		if (dev->features & NETIF_F_LRO)
++		if (dev->hw_features & NETIF_F_LRO)
+ 			ret = mtk_hwlro_get_fdir_entry(dev, cmd);
+ 		break;
+ 	case ETHTOOL_GRXCLSRLALL:
+-		if (dev->features & NETIF_F_LRO)
++		if (dev->hw_features & NETIF_F_LRO)
+ 			ret = mtk_hwlro_get_fdir_all(dev, cmd,
+ 						     rule_locs);
+ 		break;
+@@ -2339,11 +2339,11 @@ static int mtk_set_rxnfc(struct net_device *dev, struct ethtool_rxnfc *cmd)
+ 
+ 	switch (cmd->cmd) {
+ 	case ETHTOOL_SRXCLSRLINS:
+-		if (dev->features & NETIF_F_LRO)
++		if (dev->hw_features & NETIF_F_LRO)
+ 			ret = mtk_hwlro_add_ipaddr(dev, cmd);
+ 		break;
+ 	case ETHTOOL_SRXCLSRLDEL:
+-		if (dev->features & NETIF_F_LRO)
++		if (dev->hw_features & NETIF_F_LRO)
+ 			ret = mtk_hwlro_del_ipaddr(dev, cmd);
+ 		break;
+ 	default:
 -- 
 2.20.1
 
