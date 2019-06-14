@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D88145287
-	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 05:13:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DED4D45288
+	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 05:13:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726743AbfFNDNf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 23:13:35 -0400
-Received: from mail-pf1-f195.google.com ([209.85.210.195]:39758 "EHLO
-        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726705AbfFNDNf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Jun 2019 23:13:35 -0400
-Received: by mail-pf1-f195.google.com with SMTP id j2so494514pfe.6
-        for <stable@vger.kernel.org>; Thu, 13 Jun 2019 20:13:34 -0700 (PDT)
+        id S1726750AbfFNDNh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 23:13:37 -0400
+Received: from mail-pf1-f193.google.com ([209.85.210.193]:42971 "EHLO
+        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726705AbfFNDNh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Jun 2019 23:13:37 -0400
+Received: by mail-pf1-f193.google.com with SMTP id q10so487408pff.9
+        for <stable@vger.kernel.org>; Thu, 13 Jun 2019 20:13:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=Jfnhx8qRw0jZ5LbGeW1WuYGyQJR2HfAomwQkRmg+oIk=;
-        b=qJNBo0b4V/Cci6PjOFqtp7KxCk67ZIcnOyB16a8gon1qTpdr5xVxqrLnuWhqdFNwaM
-         4IEiF02Kn66h2IT/dqtvYoVprY7kDlQ3auUSd+gCtWOisbg3BgIPgILlxtw7cDwDr6+5
-         g3nUolw2TIhK6XAkhpzGrNxgTZe7gE4zG9rEHDINQZN8VA4O0bincWY61fE2whJrQnSy
-         lLQ/VStv4avbGajJPyQab9L+Oae6AfdvNq2E4BHs1JvdYc45Qqpn5w+RI8Lr12aKqcpx
-         jFPB4dwrBlFEulIsMgEH65dAPjlFyGx0mSWMJ2ZfixT02mGRRFp71hURgCO3Re6U5FoX
-         6WNA==
+        bh=lhetsf/v1WHqsODDPiuS8lCaAlBwJqZTnWnIuf4OhuE=;
+        b=dzAIXfjMtBl0yLP99Ks992Mq6IPJZ1HUk7Cbh9sMLFPdCk0tjIbGqG2zuQ02QyxMll
+         jM+kUdcPwm9JdTju9yvrbg8ThgOP88bOWYBqRNTKKJVn7ijo43+wsVsQbqUJItl1uuqC
+         kl9DITbxr1DjaaV0vry/PlU/VBmSmjfWu86CuurkeLAk6rmmhbUx61UfBSdkvXJWnXHx
+         w4RX182pDEgAvFqcb21IReDHbX6IVx3u7uvXz5GUI3/M3RcKN1eDoJ1I7TfEw5jqHGKc
+         445EMtA6G9UfW0AnEtq03m5nA8StW9sR8G/tiN2bQeZCRzDw4CNP02qyubxU8Axkf4CU
+         WLmg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=Jfnhx8qRw0jZ5LbGeW1WuYGyQJR2HfAomwQkRmg+oIk=;
-        b=mqbVeCwaen30ubVDCShVLTX+d4MPcYCUBe9Zl9itXg9ujtLvE5DY/h/1x/tUhxYbyS
-         ePBGxDr22SQkiy6wyWZ2VMGVhuwM3GVt3Qlfc9Se/7BhxUzMPBwt3FaU3u4qJCQ83Pzx
-         jXw/c2Hqegd9N/IbkH2+e7tSEFqEtezTnYtoHB/pWsckm/DPW0ZB5qd4hmcfJ8LJCpGD
-         YpNMvPEtK9LUiowP9XWo1cNL9PqY5tmIr9+kT8x8oFeKQUoOc5nf904Qd7UYJgNwNCqS
-         LgCnde6OEoswQch43exegc0y4DZEvG00xBLFNedIaT5LWQFIwkQxcu0ccV+nQ8W6/dOu
-         fnVQ==
-X-Gm-Message-State: APjAAAWandQJpw6BwlDWT5wPrFPX/JNvRbaQ5e8uRwJ0HUavOKDvXESY
-        1KpcWlTmGSnZoRA+BrsXtXgU9A==
-X-Google-Smtp-Source: APXvYqy15f2JPOdFqBo2EZqq1Wijt1qcjXvFmXzWd9/Lc9RNPpfHv8WWo29ohtqmAJjjp8ci4qcIow==
-X-Received: by 2002:a65:6295:: with SMTP id f21mr34672569pgv.416.1560482014249;
-        Thu, 13 Jun 2019 20:13:34 -0700 (PDT)
+        bh=lhetsf/v1WHqsODDPiuS8lCaAlBwJqZTnWnIuf4OhuE=;
+        b=a/g0MvTqDO5O8CY6JbnXhaaVSyCY4mEnUWuQ4AtYSdMZfBzIE9jfaqk5cJhA7uHd3u
+         q6fmrspFlNic2z++DTBDsqHan1/r2G3ie+bB2yb3vDRXG2Rgx5i4PdGWSsxOTyDdCLmR
+         qzM6G7zUN8qCUh2oBg9qlqDWWJvg/ZJlDIwBl+houpTxnrr79WBEzg5uT+KJAF6QABYV
+         LxIo1KAAhoT5IgU9o912zu/snvf4C7np1QC5XQph+I2VF9HPJ9QOrvsMzyC+dPFlAXRe
+         aquxVjOirdc6jRqOLq1spzyDf3kmWf9jvOl6t+5sDOPl8uAao4jLwaijzdkeD6KAkiW1
+         hFBQ==
+X-Gm-Message-State: APjAAAU314s1CYPWV4Fu0Bvtqj0BQ+ekT1HSiEFCp0GY3c7zXf6uFO1g
+        c1nf+wN359duPsxV4wNlA+LdDH5FEEY=
+X-Google-Smtp-Source: APXvYqymprJXCY9sWZAo+ui3FwuWMtd42W1wCE4AxPI6bvvdcG3IBLtauENKMMN6WtacSFzztkW8Fg==
+X-Received: by 2002:a63:1b56:: with SMTP id b22mr32193643pgm.87.1560482016730;
+        Thu, 13 Jun 2019 20:13:36 -0700 (PDT)
 Received: from localhost ([122.172.66.84])
-        by smtp.gmail.com with ESMTPSA id j8sm999110pfi.148.2019.06.13.20.13.32
+        by smtp.gmail.com with ESMTPSA id e22sm1107255pgb.9.2019.06.13.20.13.35
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 13 Jun 2019 20:13:33 -0700 (PDT)
+        Thu, 13 Jun 2019 20:13:36 -0700 (PDT)
 From:   Viresh Kumar <viresh.kumar@linaro.org>
 To:     linux-arm-kernel@lists.infradead.org,
         Julien Thierry <Julien.Thierry@arm.com>
@@ -55,9 +55,9 @@ Cc:     Viresh Kumar <viresh.kumar@linaro.org>, stable@vger.kernel.org,
         Russell King <rmk+kernel@arm.linux.org.uk>,
         Vincent Guittot <vincent.guittot@linaro.org>,
         mark.brown@arm.com
-Subject: [PATCH v4.4 38/45] arm64: KVM: Add SMCCC_ARCH_WORKAROUND_1 fast handling
-Date:   Fri, 14 Jun 2019 08:38:21 +0530
-Message-Id: <d46e18606161998259bad6926ffb0f388ebf9c27.1560480942.git.viresh.kumar@linaro.org>
+Subject: [PATCH v4.4 39/45] firmware/psci: Expose PSCI conduit
+Date:   Fri, 14 Jun 2019 08:38:22 +0530
+Message-Id: <8b5c248d26b432206c3e019d8630da59e18dfb3d.1560480942.git.viresh.kumar@linaro.org>
 X-Mailer: git-send-email 2.21.0.rc0.269.g1a574e7a288b
 In-Reply-To: <cover.1560480942.git.viresh.kumar@linaro.org>
 References: <cover.1560480942.git.viresh.kumar@linaro.org>
@@ -70,70 +70,110 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Marc Zyngier <marc.zyngier@arm.com>
 
-commit f72af90c3783d924337624659b43e2d36f1b36b4 upstream.
+commit 09a8d6d48499f93e2abde691f5800081cd858726 upstream.
 
-We want SMCCC_ARCH_WORKAROUND_1 to be fast. As fast as possible.
-So let's intercept it as early as we can by testing for the
-function call number as soon as we've identified a HVC call
-coming from the guest.
+In order to call into the firmware to apply workarounds, it is
+useful to find out whether we're using HVC or SMC. Let's expose
+this through the psci_ops.
 
+Acked-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Robin Murphy <robin.murphy@arm.com>
 Tested-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Reviewed-by: Christoffer Dall <christoffer.dall@linaro.org>
 Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
 Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-[ v4.4: Made changes to hyp.S instead and fixed registers ]
 Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 ---
- arch/arm64/kvm/hyp.S | 20 ++++++++++++++++++--
- 1 file changed, 18 insertions(+), 2 deletions(-)
+ drivers/firmware/psci.c | 28 +++++++++++++++++++++++-----
+ include/linux/psci.h    |  7 +++++++
+ 2 files changed, 30 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm64/kvm/hyp.S b/arch/arm64/kvm/hyp.S
-index 8d3da858c257..8aa2ede8c999 100644
---- a/arch/arm64/kvm/hyp.S
-+++ b/arch/arm64/kvm/hyp.S
-@@ -15,6 +15,7 @@
-  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-  */
+diff --git a/drivers/firmware/psci.c b/drivers/firmware/psci.c
+index 290f8982e7b3..7b2665f6b38d 100644
+--- a/drivers/firmware/psci.c
++++ b/drivers/firmware/psci.c
+@@ -54,7 +54,9 @@ bool psci_tos_resident_on(int cpu)
+ 	return cpu == resident_cpu;
+ }
  
-+#include <linux/arm-smccc.h>
- #include <linux/linkage.h>
+-struct psci_operations psci_ops;
++struct psci_operations psci_ops = {
++	.conduit = PSCI_CONDUIT_NONE,
++};
  
- #include <asm/alternative.h>
-@@ -974,10 +975,11 @@ el1_sync:					// Guest trapped into EL2
- 	lsr	x2, x1, #ESR_ELx_EC_SHIFT
+ typedef unsigned long (psci_fn)(unsigned long, unsigned long,
+ 				unsigned long, unsigned long);
+@@ -187,6 +189,22 @@ static unsigned long psci_migrate_info_up_cpu(void)
+ 			      0, 0, 0);
+ }
  
- 	cmp	x2, #ESR_ELx_EC_HVC64
-+	ccmp    x2, #ESR_ELx_EC_HVC32, #4, ne
- 	b.ne	el1_trap
- 
--	mrs	x3, vttbr_el2			// If vttbr is valid, the 64bit guest
--	cbnz	x3, el1_trap			// called HVC
-+	mrs     x3, vttbr_el2           // If vttbr is valid, the guest
-+	cbnz    x3, el1_hvc_guest       // called HVC
- 
- 	/* Here, we're pretty sure the host called HVC. */
- 	pop	x2, x3
-@@ -1003,6 +1005,20 @@ el1_sync:					// Guest trapped into EL2
- 	pop	lr, xzr
- 2:	eret
- 
-+el1_hvc_guest:
-+	/*
-+	 * Fastest possible path for ARM_SMCCC_ARCH_WORKAROUND_1.
-+	 * The workaround has already been applied on the host,
-+	 * so let's quickly get back to the guest. We don't bother
-+	 * restoring x1, as it can be clobbered anyway.
-+	 */
-+	ldr     x1, [sp]                                // Guest's x0
-+	eor     w1, w1, #ARM_SMCCC_ARCH_WORKAROUND_1
-+	cbnz    w1, el1_trap
-+	mov     x0, x1
-+	add     sp, sp, #16
-+	eret
++static void set_conduit(enum psci_conduit conduit)
++{
++	switch (conduit) {
++	case PSCI_CONDUIT_HVC:
++		invoke_psci_fn = __invoke_psci_fn_hvc;
++		break;
++	case PSCI_CONDUIT_SMC:
++		invoke_psci_fn = __invoke_psci_fn_smc;
++		break;
++	default:
++		WARN(1, "Unexpected PSCI conduit %d\n", conduit);
++	}
 +
- el1_trap:
- 	/*
- 	 * x1: ESR
++	psci_ops.conduit = conduit;
++}
++
+ static int get_set_conduit_method(struct device_node *np)
+ {
+ 	const char *method;
+@@ -199,9 +217,9 @@ static int get_set_conduit_method(struct device_node *np)
+ 	}
+ 
+ 	if (!strcmp("hvc", method)) {
+-		invoke_psci_fn = __invoke_psci_fn_hvc;
++		set_conduit(PSCI_CONDUIT_HVC);
+ 	} else if (!strcmp("smc", method)) {
+-		invoke_psci_fn = __invoke_psci_fn_smc;
++		set_conduit(PSCI_CONDUIT_SMC);
+ 	} else {
+ 		pr_warn("invalid \"method\" property: %s\n", method);
+ 		return -EINVAL;
+@@ -463,9 +481,9 @@ int __init psci_acpi_init(void)
+ 	pr_info("probing for conduit method from ACPI.\n");
+ 
+ 	if (acpi_psci_use_hvc())
+-		invoke_psci_fn = __invoke_psci_fn_hvc;
++		set_conduit(PSCI_CONDUIT_HVC);
+ 	else
+-		invoke_psci_fn = __invoke_psci_fn_smc;
++		set_conduit(PSCI_CONDUIT_SMC);
+ 
+ 	return psci_probe();
+ }
+diff --git a/include/linux/psci.h b/include/linux/psci.h
+index 04b4d92c7791..e071a1b8ddb5 100644
+--- a/include/linux/psci.h
++++ b/include/linux/psci.h
+@@ -24,6 +24,12 @@ bool psci_tos_resident_on(int cpu);
+ bool psci_power_state_loses_context(u32 state);
+ bool psci_power_state_is_valid(u32 state);
+ 
++enum psci_conduit {
++	PSCI_CONDUIT_NONE,
++	PSCI_CONDUIT_SMC,
++	PSCI_CONDUIT_HVC,
++};
++
+ struct psci_operations {
+ 	u32 (*get_version)(void);
+ 	int (*cpu_suspend)(u32 state, unsigned long entry_point);
+@@ -33,6 +39,7 @@ struct psci_operations {
+ 	int (*affinity_info)(unsigned long target_affinity,
+ 			unsigned long lowest_affinity_level);
+ 	int (*migrate_info_type)(void);
++	enum psci_conduit conduit;
+ };
+ 
+ extern struct psci_operations psci_ops;
 -- 
 2.21.0.rc0.269.g1a574e7a288b
 
