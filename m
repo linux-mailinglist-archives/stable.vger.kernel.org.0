@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 701F146AF8
-	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 22:39:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8854B46AF6
+	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 22:39:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726444AbfFNU2y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1726319AbfFNU2y (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 14 Jun 2019 16:28:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50544 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:50550 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726419AbfFNU2y (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726435AbfFNU2y (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 14 Jun 2019 16:28:54 -0400
 Received: from sasha-vm.mshome.net (unknown [131.107.159.134])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 993F02184C;
+        by mail.kernel.org (Postfix) with ESMTPSA id DE7FE21874;
         Fri, 14 Jun 2019 20:28:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560544131;
-        bh=JH2Y3LOs44/U6E/fzy9F/QsnMjzWNWykjTN6GkdRAXo=;
+        s=default; t=1560544132;
+        bh=1HGdhCg+X7QjWZ0ru0HNK30pWjUIRmD03jsKByQxeyA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JV6ohBqCr7nkk5eWfOkx3VPdf9Lwzn1jk23R1jmzF303dFLr4wVPaC2QEzaMF5VVX
-         tXWdCHuHbYoK1l7Obm2xzGCGTLzjEwGas75jTtASHfbQPDZ9p5Y4iu1t7VKdyG4Iie
-         OAOANKlmXS/KpqHhR1zD4WExirFeiQgk6feY1rj4=
+        b=watoa0adhB72GAKmPX2HmYoQBKX8oMBiLM2dxHEfslhPBUqQXbdAoOlT3ij4N1H/F
+         9pDEJdpzKhKmqJPKd0ZAVPLMC5x19S7TdjS6vE+TKvJxiG2Rp/nMKwD6ry1+yo2H19
+         9ks64aJoETzFVfP5BDv/BABKiPiGRTdwbbm1jcKM=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eric Long <eric.long@unisoc.com>,
-        Baolin Wang <baolin.wang@linaro.org>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        dmaengine@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 10/59] dmaengine: sprd: Fix the right place to configure 2-stage transfer
-Date:   Fri, 14 Jun 2019 16:27:54 -0400
-Message-Id: <20190614202843.26941-10-sashal@kernel.org>
+Cc:     Jose Abreu <joabreu@synopsys.com>,
+        Joao Pinto <jpinto@synopsys.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>,
+        Alexey Brodkin <abrodkin@synopsys.com>,
+        Vineet Gupta <vgupta@synopsys.com>,
+        Sasha Levin <sashal@kernel.org>, devicetree@vger.kernel.org,
+        linux-snps-arc@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.1 11/59] ARC: [plat-hsdk]: Add missing multicast filter bins number to GMAC node
+Date:   Fri, 14 Jun 2019 16:27:55 -0400
+Message-Id: <20190614202843.26941-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190614202843.26941-1-sashal@kernel.org>
 References: <20190614202843.26941-1-sashal@kernel.org>
@@ -44,52 +49,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Long <eric.long@unisoc.com>
+From: Jose Abreu <joabreu@synopsys.com>
 
-[ Upstream commit c434e377dad1dec05cad1870ce21bc539e1e024f ]
+[ Upstream commit ecc906a11c2a0940e1a380debd8bd5bc09faf454 ]
 
-Move the 2-stage configuration before configuring the link-list mode,
-since we will use some 2-stage configuration to fill the link-list
-configuration.
+GMAC controller on HSDK boards supports 256 Hash Table size so we need to
+add the multicast filter bins property. This allows for the Hash filter
+to work properly using stmmac driver.
 
-Signed-off-by: Eric Long <eric.long@unisoc.com>
-Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Cc: Joao Pinto <jpinto@synopsys.com>
+Cc: Rob Herring <robh+dt@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Eugeniy Paltsev <Eugeniy.Paltsev@synopsys.com>
+Acked-by: Alexey Brodkin <abrodkin@synopsys.com>
+Signed-off-by: Jose Abreu <joabreu@synopsys.com>
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/sprd-dma.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ arch/arc/boot/dts/hsdk.dts | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/dma/sprd-dma.c b/drivers/dma/sprd-dma.c
-index a01c23246632..01abed5cde49 100644
---- a/drivers/dma/sprd-dma.c
-+++ b/drivers/dma/sprd-dma.c
-@@ -911,6 +911,12 @@ sprd_dma_prep_slave_sg(struct dma_chan *chan, struct scatterlist *sgl,
- 		schan->linklist.virt_addr = 0;
- 	}
- 
-+	/* Set channel mode and trigger mode for 2-stage transfer */
-+	schan->chn_mode =
-+		(flags >> SPRD_DMA_CHN_MODE_SHIFT) & SPRD_DMA_CHN_MODE_MASK;
-+	schan->trg_mode =
-+		(flags >> SPRD_DMA_TRG_MODE_SHIFT) & SPRD_DMA_TRG_MODE_MASK;
-+
- 	sdesc = kzalloc(sizeof(*sdesc), GFP_NOWAIT);
- 	if (!sdesc)
- 		return NULL;
-@@ -944,12 +950,6 @@ sprd_dma_prep_slave_sg(struct dma_chan *chan, struct scatterlist *sgl,
- 		}
- 	}
- 
--	/* Set channel mode and trigger mode for 2-stage transfer */
--	schan->chn_mode =
--		(flags >> SPRD_DMA_CHN_MODE_SHIFT) & SPRD_DMA_CHN_MODE_MASK;
--	schan->trg_mode =
--		(flags >> SPRD_DMA_TRG_MODE_SHIFT) & SPRD_DMA_TRG_MODE_MASK;
--
- 	ret = sprd_dma_fill_desc(chan, &sdesc->chn_hw, 0, 0, src, dst, len,
- 				 dir, flags, slave_cfg);
- 	if (ret) {
+diff --git a/arch/arc/boot/dts/hsdk.dts b/arch/arc/boot/dts/hsdk.dts
+index 7425bb0f2d1b..699f372b2a6f 100644
+--- a/arch/arc/boot/dts/hsdk.dts
++++ b/arch/arc/boot/dts/hsdk.dts
+@@ -187,6 +187,7 @@
+ 			interrupt-names = "macirq";
+ 			phy-mode = "rgmii";
+ 			snps,pbl = <32>;
++			snps,multicast-filter-bins = <256>;
+ 			clocks = <&gmacclk>;
+ 			clock-names = "stmmaceth";
+ 			phy-handle = <&phy0>;
 -- 
 2.20.1
 
