@@ -2,85 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 58DF445509
-	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 08:52:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB907457CD
+	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 10:44:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725852AbfFNGwm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jun 2019 02:52:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38084 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725834AbfFNGwm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Jun 2019 02:52:42 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D89B020851;
-        Fri, 14 Jun 2019 06:52:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560495161;
-        bh=R4X8COWC1IjTnrCoyuvTCqVCIcLZQttphX3oh+/aZCc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=kmTgm4uaLp/K8o9EZ7PRMk/HOcaQIY7RepsXIwwOikxbRgkdcWXeb9T4UUHkGjsMQ
-         u+yAUWJa3cwKRSAf4Go65XfDozHoYJclrhf4hcqmnkain4fA11GHkQiAmp0aOPiSqI
-         ILKuKugEUTImd3m2iT51xrt/vl5RihZTqKoZIK7o=
-Date:   Fri, 14 Jun 2019 08:52:38 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Jiunn Chang <c0d1n61at3@gmail.com>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, ben.hutchings@codethink.co.uk,
-        lkft-triage@lists.linaro.org, stable@vger.kernel.org
-Subject: Re: [PATCH 5.1 000/155] 5.1.10-stable review
-Message-ID: <20190614065238.GA21447@kroah.com>
-References: <20190613075652.691765927@linuxfoundation.org>
- <20190613200849.veuc5crfejlcepgh@rYz3n>
- <20190614055040.GD27319@kroah.com>
- <20190614064454.qqvgqsqm6u535qeq@rYz3n>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20190614064454.qqvgqsqm6u535qeq@rYz3n>
-User-Agent: Mutt/1.12.0 (2019-05-25)
+        id S1726432AbfFNIob (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jun 2019 04:44:31 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:42111 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726255AbfFNIob (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Jun 2019 04:44:31 -0400
+Received: from [222.130.132.197] (helo=localhost.localdomain)
+        by youngberry.canonical.com with esmtpsa (TLS1.0:DHE_RSA_AES_256_CBC_SHA1:32)
+        (Exim 4.76)
+        (envelope-from <hui.wang@canonical.com>)
+        id 1hbhoy-0008JJ-6D; Fri, 14 Jun 2019 08:44:28 +0000
+From:   Hui Wang <hui.wang@canonical.com>
+To:     alsa-devel@alsa-project.org, tiwai@suse.de
+Cc:     stable@vger.kernel.org
+Subject: [PATCH] Revert "ALSA: hda/realtek - Improve the headset mic for Acer Aspire laptops"
+Date:   Fri, 14 Jun 2019 16:44:12 +0800
+Message-Id: <20190614084412.9834-1-hui.wang@canonical.com>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jun 14, 2019 at 01:44:56AM -0500, Jiunn Chang wrote:
-> On Fri, Jun 14, 2019 at 07:50:40AM +0200, Greg Kroah-Hartman wrote:
-> > On Thu, Jun 13, 2019 at 03:08:49PM -0500, Jiunn Chang wrote:
-> > > On Thu, Jun 13, 2019 at 10:31:52AM +0200, Greg Kroah-Hartman wrote:
-> > > > This is the start of the stable review cycle for the 5.1.10 release.
-> > > > There are 155 patches in this series, all will be posted as a response
-> > > > to this one.  If anyone has any issues with these being applied, please
-> > > > let me know.
-> > > > 
-> > > > Responses should be made by Sat 15 Jun 2019 07:54:40 AM UTC.
-> > > > Anything received after that time might be too late.
-> > > > 
-> > > > The whole patch series can be found in one patch at:
-> > > > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.1.10-rc1.gz
-> > > > or in the git tree and branch at:
-> > > > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.1.y
-> > > > and the diffstat can be found below.
-> > > > 
-> > > > thanks,
-> > > > 
-> > > > greg k-h
-> > > > 
-> > > > -------------
-> > > Compiled and booted.  No regressions on x86_64.
-> > > 
-> > > This is for 5.1.10-rc2 from git --no-pager log --oneline -1.
-> > 
-> > What do you mean by 'git --no-pager log --oneline -1' ?
-> 
-> Hello.  I must have missed an email somewhere.  The review request was for 5.1.10-rc1
-> but I only had 5.1.10-rc2 from the logs.  Sorry for the confusion.
+This reverts commit 9cb40eb184c4220d244a532bd940c6345ad9dbd9.
 
-Ah, thanks, that made sense.  I pushed out a -rc2 because of some missed
-patches and dropping one as well.
+This patch introduces noise and headphone playback issue after
+rebooting or suspending/resuming. Let us revert it.
 
-thanks,
+https://bugzilla.kernel.org/show_bug.cgi?id=203831
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+---
+ sound/pci/hda/patch_realtek.c | 16 +++++-----------
+ 1 file changed, 5 insertions(+), 11 deletions(-)
 
-greg k-h
+diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
+index 1afb268f3da0..179e4be1f747 100644
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -6268,15 +6268,13 @@ static const struct hda_fixup alc269_fixups[] = {
+ 		.chain_id = ALC269_FIXUP_THINKPAD_ACPI,
+ 	},
+ 	[ALC255_FIXUP_ACER_MIC_NO_PRESENCE] = {
+-		.type = HDA_FIXUP_VERBS,
+-		.v.verbs = (const struct hda_verb[]) {
+-			/* Enable the Mic */
+-			{ 0x20, AC_VERB_SET_COEF_INDEX, 0x45 },
+-			{ 0x20, AC_VERB_SET_PROC_COEF, 0x5089 },
+-			{}
++		.type = HDA_FIXUP_PINS,
++		.v.pins = (const struct hda_pintbl[]) {
++			{ 0x19, 0x01a1913c }, /* use as headset mic, without its own jack detect */
++			{ }
+ 		},
+ 		.chained = true,
+-		.chain_id = ALC269_FIXUP_LIFEBOOK_EXTMIC
++		.chain_id = ALC255_FIXUP_HEADSET_MODE
+ 	},
+ 	[ALC255_FIXUP_ASUS_MIC_NO_PRESENCE] = {
+ 		.type = HDA_FIXUP_PINS,
+@@ -7320,10 +7318,6 @@ static const struct snd_hda_pin_quirk alc269_pin_fixup_tbl[] = {
+ 		{0x18, 0x02a11030},
+ 		{0x19, 0x0181303F},
+ 		{0x21, 0x0221102f}),
+-	SND_HDA_PIN_QUIRK(0x10ec0255, 0x1025, "Acer", ALC255_FIXUP_ACER_MIC_NO_PRESENCE,
+-		{0x12, 0x90a60140},
+-		{0x14, 0x90170120},
+-		{0x21, 0x02211030}),
+ 	SND_HDA_PIN_QUIRK(0x10ec0255, 0x1025, "Acer", ALC255_FIXUP_ACER_MIC_NO_PRESENCE,
+ 		{0x12, 0x90a601c0},
+ 		{0x14, 0x90171120},
+-- 
+2.17.1
+
