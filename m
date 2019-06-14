@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 508A24527A
-	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 05:13:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34EA54527B
+	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 05:13:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726652AbfFNDND (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 23:13:03 -0400
-Received: from mail-pg1-f196.google.com ([209.85.215.196]:45411 "EHLO
-        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725819AbfFNDND (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Jun 2019 23:13:03 -0400
-Received: by mail-pg1-f196.google.com with SMTP id s21so655987pga.12
-        for <stable@vger.kernel.org>; Thu, 13 Jun 2019 20:13:03 -0700 (PDT)
+        id S1726653AbfFNDNG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 23:13:06 -0400
+Received: from mail-pl1-f196.google.com ([209.85.214.196]:42219 "EHLO
+        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725819AbfFNDNG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Jun 2019 23:13:06 -0400
+Received: by mail-pl1-f196.google.com with SMTP id go2so371380plb.9
+        for <stable@vger.kernel.org>; Thu, 13 Jun 2019 20:13:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=s6UKYk23he3dGgebGJrG3RauZikPx4goXsUxb0kpSkg=;
-        b=zvCEroJYai18z93zM9pHqfeGsgfcnwFiyoZEI/5uUllBxZqQQE9aZbZ5rkjcYL+mu/
-         E2feYxj2JqPTTxe0pVL///P07AZgXGWknqiChAzY9DSg02c5z0e37gc46ggiAbNV5EQh
-         jhiHXo/WD6NMAEEJ/cEYyzytTfwHgsg+GQYggeevy4B3ivGcDNcOHmqYLWnigEtNuf37
-         p8/UOSxtcBVyPxDzoJM4qsUCLRXsuIkcl1BwrgMRwBaU5RH85Kb7dftoxbBdMV9vrYz6
-         XDHhdRGqvpS8q40H9UbOb4VsxaelFTcoDXqvOSBSzkrlUwbBOElF7vEa1sJwqse7SOTd
-         Bkog==
+        bh=sBbWRB3LgLlv2c3U4FxHDhn97v+yXFInuDLMYZ1aFeE=;
+        b=yCjy6+SN414F35JKkNjFkyRAIf7YsFvNN+Kz/Mi8AgDN22LOTkEocDlKSGJU+7VWoT
+         rd7H6Kwo6rDofcCHG0iiog2QNhUUG793KzKoX2APLWphCziQ9Z0/xaLtnBnUYuMK7Z3A
+         YetcuPTD3IMuzeKAl2gn5/DadaRWJl5utXEgxSmdTugAcYNH3N9NfiJ/JOqN1fumuopz
+         cSs5wtE9I3gwI3CwTLfm8welw4DW0VNoCNIc3JfQ6880amhcfnmyEuyQYBPf651aQbcO
+         554KdaFth8cW5dCOUl05t7MeAl6hsjFFLJvqfZsKX4U3BqTDiEFM/mrfOuo9c+OoANQn
+         NYsQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=s6UKYk23he3dGgebGJrG3RauZikPx4goXsUxb0kpSkg=;
-        b=O1OmD4E5RCZqUAdCxwX3ksaMSdG7Y1uWet1m1d5f76xnA3vsryetlhrA9Z2e9JTn0W
-         LJ86whkBgwiF7vWMA5l/kSULzANScTkOwKliL0CsVwigUXv9JkEOJf7Y/mo7VuulHxe1
-         aGScGrgwEzYsiTUmPtf7wkniYMGi8UvgTe37hTOWJL0tXfK82aaz8yF4oAzBxxdxDBii
-         BY8URWu2GjuHoomNc6E9KPZdnTSXmFVGrJobUUbM71EC9SLGWZp37UXV9PS5Mzlg6P6v
-         aSp61dZaiABFPyDPsXb3xEXGkknH/jab3dLTT/rdeq15uABL4T4gIMq/+j3/UMTsSsFo
-         scbQ==
-X-Gm-Message-State: APjAAAUq+nFBanNBXJP0w6aI85q6xuRmMA+yDcZYBsjFwK4tN3mvaJcC
-        pxB6XCNKtiPHk+pJRmJKkA7GXeZrDN0=
-X-Google-Smtp-Source: APXvYqx+ra3YpKQWwoRa5iUExPJzGtThNQBAcoXTZoAe9nxiK6MaSF/dMW2wTNTLFt+Vb+aHjp9b0A==
-X-Received: by 2002:aa7:8b17:: with SMTP id f23mr61291788pfd.194.1560481983028;
-        Thu, 13 Jun 2019 20:13:03 -0700 (PDT)
+        bh=sBbWRB3LgLlv2c3U4FxHDhn97v+yXFInuDLMYZ1aFeE=;
+        b=VyjW9p8s7E0y7IB2b2bawUSJu3tGIGA23PrnL1p2xVejU6B3xyrCGZghZngx3/vRZI
+         Y6B7RoEvKAIBYbrEJND27KyvTrMa5VwSIha4ewhFRG9dAbbKGTaheAQL9iyvp+XhTbqa
+         h8Z1C3HIMvxBIY4Q2me1zS9tB0hjQIJxWqlhutjNMmh8C3vZ2ehlUs2njvbW6iMW9cGT
+         p6YjYwePxE6t2EL3My+4gXPUVxEFno1qpzPYl/gv/2MTj1aT2lbt6mXmFnWQh+Tk1YLD
+         6+xNMLLrNcViwvQcWLfvO7utLr54zy6n2XvZo1REpL+sEBHgTOh6Q++7z5rD3KvJyFjP
+         yjUw==
+X-Gm-Message-State: APjAAAUYSxTqw2OPkBJkhyDUpC44wxKhwEqa5X4unXDqikPWCqH4o0wD
+        Nc7l7qeMPjKjRZf2JhAhHbtOZQ==
+X-Google-Smtp-Source: APXvYqz8IKb1jUFIGu4BsXINQ7hYd13qL7tcvHzLmwIW0Blq8lVI06hDyZgfCOfPA73tJ87WnHnC8A==
+X-Received: by 2002:a17:902:121:: with SMTP id 30mr87000779plb.314.1560481985859;
+        Thu, 13 Jun 2019 20:13:05 -0700 (PDT)
 Received: from localhost ([122.172.66.84])
-        by smtp.gmail.com with ESMTPSA id u11sm996131pfh.130.2019.06.13.20.13.02
+        by smtp.gmail.com with ESMTPSA id o26sm1106132pgv.47.2019.06.13.20.13.04
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 13 Jun 2019 20:13:02 -0700 (PDT)
+        Thu, 13 Jun 2019 20:13:05 -0700 (PDT)
 From:   Viresh Kumar <viresh.kumar@linaro.org>
 To:     linux-arm-kernel@lists.infradead.org,
         Julien Thierry <Julien.Thierry@arm.com>
@@ -55,9 +55,9 @@ Cc:     Viresh Kumar <viresh.kumar@linaro.org>, stable@vger.kernel.org,
         Russell King <rmk+kernel@arm.linux.org.uk>,
         Vincent Guittot <vincent.guittot@linaro.org>,
         mark.brown@arm.com
-Subject: [PATCH v4.4 26/45] arm64: cputype info for Broadcom Vulcan
-Date:   Fri, 14 Jun 2019 08:38:09 +0530
-Message-Id: <619a06ea39c6f159f0ca0c629eb3859dff1235d8.1560480942.git.viresh.kumar@linaro.org>
+Subject: [PATCH v4.4 27/45] arm64: cputype: Add MIDR values for Cavium ThunderX2 CPUs
+Date:   Fri, 14 Jun 2019 08:38:10 +0530
+Message-Id: <92556442f96e9f150663637c363eb892731327b1.1560480942.git.viresh.kumar@linaro.org>
 X-Mailer: git-send-email 2.21.0.rc0.269.g1a574e7a288b
 In-Reply-To: <cover.1560480942.git.viresh.kumar@linaro.org>
 References: <cover.1560480942.git.viresh.kumar@linaro.org>
@@ -68,43 +68,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jayachandran C <jchandra@broadcom.com>
+From: Jayachandran C <jnair@caviumnetworks.com>
 
-commit 9eb8a2cdf65ce47c3aa68f1297c84d8bcf5a7b3a upstream.
+commit 0d90718871fe80f019b7295ec9d2b23121e396fb upstream.
 
-Add Broadcom Vulcan implementor ID and part ID in cputype.h. This is
-to document the values.
+Add the older Broadcom ID as well as the new Cavium ID for ThunderX2
+CPUs.
 
-Signed-off-by: Jayachandran C <jchandra@broadcom.com>
-Acked-by: Will Deacon <will.deacon@arm.com>
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Jayachandran C <jnair@caviumnetworks.com>
+Signed-off-by: Will Deacon <will.deacon@arm.com>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 ---
  arch/arm64/include/asm/cputype.h | 3 +++
  1 file changed, 3 insertions(+)
 
 diff --git a/arch/arm64/include/asm/cputype.h b/arch/arm64/include/asm/cputype.h
-index 2a1f44646048..c6976dd6c32a 100644
+index c6976dd6c32a..9cc7d485c812 100644
 --- a/arch/arm64/include/asm/cputype.h
 +++ b/arch/arm64/include/asm/cputype.h
-@@ -73,6 +73,7 @@
- #define ARM_CPU_IMP_ARM			0x41
- #define ARM_CPU_IMP_APM			0x50
- #define ARM_CPU_IMP_CAVIUM		0x43
-+#define ARM_CPU_IMP_BRCM		0x42
- 
- #define ARM_CPU_PART_AEM_V8		0xD0F
- #define ARM_CPU_PART_FOUNDATION		0xD00
-@@ -87,6 +88,8 @@
+@@ -87,6 +87,7 @@
+ #define APM_CPU_PART_POTENZA		0x000
  
  #define CAVIUM_CPU_PART_THUNDERX	0x0A1
++#define CAVIUM_CPU_PART_THUNDERX2	0x0AF
  
-+#define BRCM_CPU_PART_VULCAN		0x516
-+
- #define MIDR_CORTEX_A55 MIDR_CPU_PART(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A55)
+ #define BRCM_CPU_PART_VULCAN		0x516
+ 
+@@ -94,6 +95,8 @@
  #define MIDR_CORTEX_A72 MIDR_CPU_PART(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A72)
  #define MIDR_CORTEX_A73 MIDR_CPU_PART(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A73)
+ #define MIDR_CORTEX_A75 MIDR_CPU_PART(ARM_CPU_IMP_ARM, ARM_CPU_PART_CORTEX_A75)
++#define MIDR_CAVIUM_THUNDERX2 MIDR_CPU_PART(ARM_CPU_IMP_CAVIUM, CAVIUM_CPU_PART_THUNDERX2)
++#define MIDR_BRCM_VULCAN MIDR_CPU_PART(ARM_CPU_IMP_BRCM, BRCM_CPU_PART_VULCAN)
+ 
+ #ifndef __ASSEMBLY__
+ 
 -- 
 2.21.0.rc0.269.g1a574e7a288b
 
