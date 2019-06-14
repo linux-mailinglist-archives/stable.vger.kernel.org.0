@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A1B545282
-	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 05:13:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BDC145283
+	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 05:13:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726701AbfFNDNW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 23:13:22 -0400
-Received: from mail-pl1-f195.google.com ([209.85.214.195]:33548 "EHLO
-        mail-pl1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725819AbfFNDNW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Jun 2019 23:13:22 -0400
-Received: by mail-pl1-f195.google.com with SMTP id c14so386346plo.0
-        for <stable@vger.kernel.org>; Thu, 13 Jun 2019 20:13:21 -0700 (PDT)
+        id S1726707AbfFNDNZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 23:13:25 -0400
+Received: from mail-pf1-f195.google.com ([209.85.210.195]:34885 "EHLO
+        mail-pf1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725819AbfFNDNY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Jun 2019 23:13:24 -0400
+Received: by mail-pf1-f195.google.com with SMTP id d126so503961pfd.2
+        for <stable@vger.kernel.org>; Thu, 13 Jun 2019 20:13:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=yC2M+WqtpDn8WEqkn0+0Dw3Z53HTrfg3c6ZZe0WXdnU=;
-        b=WmcnbRBlcrJ3IY9xi/BpOaVweisIwA209RaPUwI7iSrlOTsC7QIVtv11a++G0ymVy7
-         7/d/e7VeS1Blvy4ln/zT1GMlpYXFOnxjRGhRK46l6U0++5CH5OxVJgM3nYwedYcr1Sle
-         oDzoFzaqUV04aFnHFxAXamISMuLuvK/1aD7zUY4r9+NCaMrNwNb4wlkrxzVumU0D9+Z6
-         T2iUSYDPHRgTLloTFhTVt6JlnrJ6q1Xqtd4HeF1lDvu2En8MYfAfcVMV7OrT0F4SZaXu
-         mxcZPmSigde4P5X5BaV8Lxqw5wOkLPQPbd9ia1kHlKJKVZ0Xf1lGzFRtTLUs0my/AxvO
-         T4Pw==
+        bh=4cjUvWF1fG1uJf64DV9LIZ2qblEK4Qh4cwDlO2OXHlc=;
+        b=sFWQWr9WQVIoODnq13osUci8fXXwEGt2JIkyrqUTrbBm4bd7VB/u8y0UxppVd+BeiR
+         UtJXoGi1ehpyDUqs0e+ubar9YWT057q4MMJ/bKxw+xgLk1CyMMDO7hhq1T1pBX5UmLjs
+         B5rQdnQ1JEvgyyBHk/Gy2qptGPg2I94HqYxOjVeSouPZN5f/0YJc8VbqPpFuDDEwW3Lt
+         aQBgpKRwEs98T1ALDuHy0H2ZWiKHpgj0p91BRIyGEptiEu7RGwz9vWTkk6cvMhx/7lzq
+         lBYMXv4P2NwEPJa9GKD61+FgGjo/iIZK/QRSGYBghxS5ZCiizlV5quX9rJ+mM5Fkq6M+
+         e5Ww==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=yC2M+WqtpDn8WEqkn0+0Dw3Z53HTrfg3c6ZZe0WXdnU=;
-        b=JuD2gmjpPVLqEku5hc3W27LrZGTNJr/TlMzQeUnSRFcDVk+zdH9o89jkAk2DEznPJU
-         lSE9Eday7AjHCctkSNSLCrH4DE+XglYpc1G0s7hjJt98G7IJLCeNnimzFe3eqixyW24D
-         GDq0nw02CelWmXU+9zMOxQhKytTEXISHHJ0Gbh81mmAlqhQsLCU4tlfDmMHSSqaEpP9Y
-         IAfV8eZp8NU1NUFYo7YsuQK5Ool4Lkkk9fPEQHV8u9FWUT6fzh5zx0cVxehiou6rfr0m
-         umJq5ASPmrJC2OxI+hXIB7LhjLNfKrg0Wf92ZbzsLoje3VWimHfoHoNwd51X/akqQJRz
-         clcg==
-X-Gm-Message-State: APjAAAXeRUnPuraxwxrY9pqTX1XGe69NS6L/BUxhCXnjNQI5Odle1q7V
-        nQmv0oI5RjFtJAXROOgE0II43w==
-X-Google-Smtp-Source: APXvYqzUJl9Sg4Y4+3JJovtQD1uCkXXEmQspFedgwUHEnuiI9WeCF8uwvGONeY8SRIc2tPUgt/E34A==
-X-Received: by 2002:a17:902:7007:: with SMTP id y7mr36617088plk.28.1560482001151;
-        Thu, 13 Jun 2019 20:13:21 -0700 (PDT)
+        bh=4cjUvWF1fG1uJf64DV9LIZ2qblEK4Qh4cwDlO2OXHlc=;
+        b=ZJrDPzYSB+izyqsOUlKSqeh6AFSI/6IT7BTbEDlDo73GW+fOkHulzHZCcyyW9ydfCq
+         IUJhGenpfVqqVxgwMIYuRT9U0c862mMoLJi2X8ywpWklbtdY1vG4XRKHaPEAm7H+K3Bw
+         q9fH4dzXlKOuqw3YGh/LwsfsrdmpFL0FuRP6adbsPCLjPV2k4MhVetV8PLYTYLvadZNU
+         zT8VoThUavVPu3dAr3hmYzpldvLU5Qap+7n0tToBtoC7rBX/UpAd4oUBeAuve1MieUxJ
+         ZVUSNFKWpzPpd8CLimNn3MDVOySw+rMhSFUFrlo+zN9N25OMEvy7x0VjTvPjg8hg0vTI
+         WxOQ==
+X-Gm-Message-State: APjAAAVKTVvK07rpkJxZGlkHCaXzsn/4pUA9N902G0TFNL1woBJ/Pmx0
+        3knUlEC6VKQGIF+OuImREdGgFg==
+X-Google-Smtp-Source: APXvYqzlH0OcxsgdIzwPZqpnKGrcfCU430u+ms0DTeK9I3s4ge2lcX/vcnViYs4es5GBTSoBrl9MOA==
+X-Received: by 2002:a63:f146:: with SMTP id o6mr32948616pgk.179.1560482003778;
+        Thu, 13 Jun 2019 20:13:23 -0700 (PDT)
 Received: from localhost ([122.172.66.84])
-        by smtp.gmail.com with ESMTPSA id r88sm1527732pjb.8.2019.06.13.20.13.20
+        by smtp.gmail.com with ESMTPSA id m2sm1083791pgq.48.2019.06.13.20.13.22
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 13 Jun 2019 20:13:20 -0700 (PDT)
+        Thu, 13 Jun 2019 20:13:23 -0700 (PDT)
 From:   Viresh Kumar <viresh.kumar@linaro.org>
 To:     linux-arm-kernel@lists.infradead.org,
         Julien Thierry <Julien.Thierry@arm.com>
@@ -55,9 +55,9 @@ Cc:     Viresh Kumar <viresh.kumar@linaro.org>, stable@vger.kernel.org,
         Russell King <rmk+kernel@arm.linux.org.uk>,
         Vincent Guittot <vincent.guittot@linaro.org>,
         mark.brown@arm.com
-Subject: [PATCH v4.4 33/45] ARM: 8478/2: arm/arm64: add arm-smccc
-Date:   Fri, 14 Jun 2019 08:38:16 +0530
-Message-Id: <d96f0b5549581dbcc095f61d3dcc0163f8043470.1560480942.git.viresh.kumar@linaro.org>
+Subject: [PATCH v4.4 34/45] arm/arm64: KVM: Implement PSCI 1.0 support
+Date:   Fri, 14 Jun 2019 08:38:17 +0530
+Message-Id: <673b7f2b7b85c228bf5136a273da7fc97d43c4d8.1560480942.git.viresh.kumar@linaro.org>
 X-Mailer: git-send-email 2.21.0.rc0.269.g1a574e7a288b
 In-Reply-To: <cover.1560480942.git.viresh.kumar@linaro.org>
 References: <cover.1560480942.git.viresh.kumar@linaro.org>
@@ -68,157 +68,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Wiklander <jens.wiklander@linaro.org>
+From: Marc Zyngier <marc.zyngier@arm.com>
 
-commit 98dd64f34f47ce19b388d9015f767f48393a81eb upstream.
+commit 58e0b2239a4d997094ba63986ef4de29ddc91d87 upstream.
 
-Adds helpers to do SMC and HVC based on ARM SMC Calling Convention.
-CONFIG_HAVE_ARM_SMCCC is enabled for architectures that may support the
-SMC or HVC instruction. It's the responsibility of the caller to know if
-the SMC instruction is supported by the platform.
+PSCI 1.0 can be trivially implemented by providing the FEATURES
+call on top of PSCI 0.2 and returning 1.0 as the PSCI version.
 
-This patch doesn't provide an implementation of the declared functions.
-Later patches will bring in implementations and set
-CONFIG_HAVE_ARM_SMCCC for ARM and ARM64 respectively.
+We happily ignore everything else, as they are either optional or
+are clarifications that do not require any additional change.
 
-Reviewed-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
-Signed-off-by: Russell King <rmk+kernel@arm.linux.org.uk>
-[ v4.4: Added #ifndef __ASSEMBLY__ section to fix compilation issues ]
+PSCI 1.0 is now the default until we decide to add a userspace
+selection API.
+
+Reviewed-by: Christoffer Dall <christoffer.dall@linaro.org>
+Tested-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Signed-off-by: Marc Zyngier <marc.zyngier@arm.com>
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+[ v4.4: account for files moved to virt/ upstream ]
 Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 ---
- drivers/firmware/Kconfig  |   3 ++
- include/linux/arm-smccc.h | 107 ++++++++++++++++++++++++++++++++++++++
- 2 files changed, 110 insertions(+)
- create mode 100644 include/linux/arm-smccc.h
+ arch/arm/kvm/psci.c    | 45 +++++++++++++++++++++++++++++++++++++++++-
+ include/kvm/arm_psci.h |  3 +++
+ 2 files changed, 47 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/firmware/Kconfig b/drivers/firmware/Kconfig
-index cf478fe6b335..49a3a1185bb6 100644
---- a/drivers/firmware/Kconfig
-+++ b/drivers/firmware/Kconfig
-@@ -173,6 +173,9 @@ config QCOM_SCM_64
- 	def_bool y
- 	depends on QCOM_SCM && ARM64
+diff --git a/arch/arm/kvm/psci.c b/arch/arm/kvm/psci.c
+index 7ef6cdd22163..23428a3ac69b 100644
+--- a/arch/arm/kvm/psci.c
++++ b/arch/arm/kvm/psci.c
+@@ -232,7 +232,7 @@ static void kvm_psci_system_reset(struct kvm_vcpu *vcpu)
+ int kvm_psci_version(struct kvm_vcpu *vcpu)
+ {
+ 	if (test_bit(KVM_ARM_VCPU_PSCI_0_2, vcpu->arch.features))
+-		return KVM_ARM_PSCI_0_2;
++		return KVM_ARM_PSCI_LATEST;
  
-+config HAVE_ARM_SMCCC
-+	bool
+ 	return KVM_ARM_PSCI_0_1;
+ }
+@@ -311,6 +311,47 @@ static int kvm_psci_0_2_call(struct kvm_vcpu *vcpu)
+ 	return ret;
+ }
+ 
++static int kvm_psci_1_0_call(struct kvm_vcpu *vcpu)
++{
++	u32 psci_fn = smccc_get_function(vcpu);
++	u32 feature;
++	unsigned long val;
++	int ret = 1;
 +
- source "drivers/firmware/broadcom/Kconfig"
- source "drivers/firmware/google/Kconfig"
- source "drivers/firmware/efi/Kconfig"
-diff --git a/include/linux/arm-smccc.h b/include/linux/arm-smccc.h
-new file mode 100644
-index 000000000000..611d10580340
---- /dev/null
-+++ b/include/linux/arm-smccc.h
-@@ -0,0 +1,107 @@
-+/*
-+ * Copyright (c) 2015, Linaro Limited
-+ *
-+ * This software is licensed under the terms of the GNU General Public
-+ * License version 2, as published by the Free Software Foundation, and
-+ * may be copied, distributed, and modified under those terms.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ */
-+#ifndef __LINUX_ARM_SMCCC_H
-+#define __LINUX_ARM_SMCCC_H
++	switch(psci_fn) {
++	case PSCI_0_2_FN_PSCI_VERSION:
++		val = KVM_ARM_PSCI_1_0;
++		break;
++	case PSCI_1_0_FN_PSCI_FEATURES:
++		feature = smccc_get_arg1(vcpu);
++		switch(feature) {
++		case PSCI_0_2_FN_PSCI_VERSION:
++		case PSCI_0_2_FN_CPU_SUSPEND:
++		case PSCI_0_2_FN64_CPU_SUSPEND:
++		case PSCI_0_2_FN_CPU_OFF:
++		case PSCI_0_2_FN_CPU_ON:
++		case PSCI_0_2_FN64_CPU_ON:
++		case PSCI_0_2_FN_AFFINITY_INFO:
++		case PSCI_0_2_FN64_AFFINITY_INFO:
++		case PSCI_0_2_FN_MIGRATE_INFO_TYPE:
++		case PSCI_0_2_FN_SYSTEM_OFF:
++		case PSCI_0_2_FN_SYSTEM_RESET:
++		case PSCI_1_0_FN_PSCI_FEATURES:
++			val = 0;
++			break;
++		default:
++			val = PSCI_RET_NOT_SUPPORTED;
++			break;
++		}
++		break;
++	default:
++		return kvm_psci_0_2_call(vcpu);
++	}
 +
-+#include <linux/linkage.h>
-+#include <linux/types.h>
++	smccc_set_retval(vcpu, val, 0, 0, 0);
++	return ret;
++}
 +
-+/*
-+ * This file provides common defines for ARM SMC Calling Convention as
-+ * specified in
-+ * http://infocenter.arm.com/help/topic/com.arm.doc.den0028a/index.html
-+ */
+ static int kvm_psci_0_1_call(struct kvm_vcpu *vcpu)
+ {
+ 	struct kvm *kvm = vcpu->kvm;
+@@ -353,6 +394,8 @@ static int kvm_psci_0_1_call(struct kvm_vcpu *vcpu)
+ int kvm_psci_call(struct kvm_vcpu *vcpu)
+ {
+ 	switch (kvm_psci_version(vcpu)) {
++	case KVM_ARM_PSCI_1_0:
++		return kvm_psci_1_0_call(vcpu);
+ 	case KVM_ARM_PSCI_0_2:
+ 		return kvm_psci_0_2_call(vcpu);
+ 	case KVM_ARM_PSCI_0_1:
+diff --git a/include/kvm/arm_psci.h b/include/kvm/arm_psci.h
+index 5659343580a3..32360432cff5 100644
+--- a/include/kvm/arm_psci.h
++++ b/include/kvm/arm_psci.h
+@@ -22,6 +22,9 @@
+ 
+ #define KVM_ARM_PSCI_0_1	PSCI_VERSION(0, 1)
+ #define KVM_ARM_PSCI_0_2	PSCI_VERSION(0, 2)
++#define KVM_ARM_PSCI_1_0	PSCI_VERSION(1, 0)
 +
-+#define ARM_SMCCC_STD_CALL		0
-+#define ARM_SMCCC_FAST_CALL		1
-+#define ARM_SMCCC_TYPE_SHIFT		31
-+
-+#define ARM_SMCCC_SMC_32		0
-+#define ARM_SMCCC_SMC_64		1
-+#define ARM_SMCCC_CALL_CONV_SHIFT	30
-+
-+#define ARM_SMCCC_OWNER_MASK		0x3F
-+#define ARM_SMCCC_OWNER_SHIFT		24
-+
-+#define ARM_SMCCC_FUNC_MASK		0xFFFF
-+
-+#define ARM_SMCCC_IS_FAST_CALL(smc_val)	\
-+	((smc_val) & (ARM_SMCCC_FAST_CALL << ARM_SMCCC_TYPE_SHIFT))
-+#define ARM_SMCCC_IS_64(smc_val) \
-+	((smc_val) & (ARM_SMCCC_SMC_64 << ARM_SMCCC_CALL_CONV_SHIFT))
-+#define ARM_SMCCC_FUNC_NUM(smc_val)	((smc_val) & ARM_SMCCC_FUNC_MASK)
-+#define ARM_SMCCC_OWNER_NUM(smc_val) \
-+	(((smc_val) >> ARM_SMCCC_OWNER_SHIFT) & ARM_SMCCC_OWNER_MASK)
-+
-+#define ARM_SMCCC_CALL_VAL(type, calling_convention, owner, func_num) \
-+	(((type) << ARM_SMCCC_TYPE_SHIFT) | \
-+	((calling_convention) << ARM_SMCCC_CALL_CONV_SHIFT) | \
-+	(((owner) & ARM_SMCCC_OWNER_MASK) << ARM_SMCCC_OWNER_SHIFT) | \
-+	((func_num) & ARM_SMCCC_FUNC_MASK))
-+
-+#define ARM_SMCCC_OWNER_ARCH		0
-+#define ARM_SMCCC_OWNER_CPU		1
-+#define ARM_SMCCC_OWNER_SIP		2
-+#define ARM_SMCCC_OWNER_OEM		3
-+#define ARM_SMCCC_OWNER_STANDARD	4
-+#define ARM_SMCCC_OWNER_TRUSTED_APP	48
-+#define ARM_SMCCC_OWNER_TRUSTED_APP_END	49
-+#define ARM_SMCCC_OWNER_TRUSTED_OS	50
-+#define ARM_SMCCC_OWNER_TRUSTED_OS_END	63
-+
-+#ifndef __ASSEMBLY__
-+
-+/**
-+ * struct arm_smccc_res - Result from SMC/HVC call
-+ * @a0-a3 result values from registers 0 to 3
-+ */
-+struct arm_smccc_res {
-+	unsigned long a0;
-+	unsigned long a1;
-+	unsigned long a2;
-+	unsigned long a3;
-+};
-+
-+/**
-+ * arm_smccc_smc() - make SMC calls
-+ * @a0-a7: arguments passed in registers 0 to 7
-+ * @res: result values from registers 0 to 3
-+ *
-+ * This function is used to make SMC calls following SMC Calling Convention.
-+ * The content of the supplied param are copied to registers 0 to 7 prior
-+ * to the SMC instruction. The return values are updated with the content
-+ * from register 0 to 3 on return from the SMC instruction.
-+ */
-+asmlinkage void arm_smccc_smc(unsigned long a0, unsigned long a1,
-+			unsigned long a2, unsigned long a3, unsigned long a4,
-+			unsigned long a5, unsigned long a6, unsigned long a7,
-+			struct arm_smccc_res *res);
-+
-+/**
-+ * arm_smccc_hvc() - make HVC calls
-+ * @a0-a7: arguments passed in registers 0 to 7
-+ * @res: result values from registers 0 to 3
-+ *
-+ * This function is used to make HVC calls following SMC Calling
-+ * Convention.  The content of the supplied param are copied to registers 0
-+ * to 7 prior to the HVC instruction. The return values are updated with
-+ * the content from register 0 to 3 on return from the HVC instruction.
-+ */
-+asmlinkage void arm_smccc_hvc(unsigned long a0, unsigned long a1,
-+			unsigned long a2, unsigned long a3, unsigned long a4,
-+			unsigned long a5, unsigned long a6, unsigned long a7,
-+			struct arm_smccc_res *res);
-+
-+#endif /*__ASSEMBLY__*/
-+#endif /*__LINUX_ARM_SMCCC_H*/
++#define KVM_ARM_PSCI_LATEST	KVM_ARM_PSCI_1_0
+ 
+ int kvm_psci_version(struct kvm_vcpu *vcpu);
+ int kvm_psci_call(struct kvm_vcpu *vcpu);
 -- 
 2.21.0.rc0.269.g1a574e7a288b
 
