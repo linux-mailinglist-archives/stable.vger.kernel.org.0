@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 594774526C
-	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 05:12:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A0514526D
+	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 05:12:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726370AbfFNDM3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 23:12:29 -0400
-Received: from mail-pf1-f193.google.com ([209.85.210.193]:38683 "EHLO
-        mail-pf1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725819AbfFNDM3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Jun 2019 23:12:29 -0400
-Received: by mail-pf1-f193.google.com with SMTP id a186so495527pfa.5
-        for <stable@vger.kernel.org>; Thu, 13 Jun 2019 20:12:29 -0700 (PDT)
+        id S1726429AbfFNDMc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 23:12:32 -0400
+Received: from mail-pl1-f196.google.com ([209.85.214.196]:41526 "EHLO
+        mail-pl1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725819AbfFNDMc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Jun 2019 23:12:32 -0400
+Received: by mail-pl1-f196.google.com with SMTP id s24so372145plr.8
+        for <stable@vger.kernel.org>; Thu, 13 Jun 2019 20:12:31 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=+VnHrOqiLyuTpal1o2zRenzQv7xKEdgOssME91mwrbo=;
-        b=Tb47hPFhrekRIM/B4VddOaEWndYWU2Mpfbs111lRorm/o8pnyAoKX5rwgAtdbh9Ccw
-         fwb7GLYKgWUtNl8cQJpMYeOvZoNMd7Wu5qd7n6wAz1atAQo8t+VQSLxOEhz9562am+vj
-         VWg/seVR9qMm30yB3daUKfVvrwvi/YkYDymDHYZ4mYYiUQZPdeBSQdGrFz/nxMizP2tH
-         yYxcEWqg/Jga4CVq0WCtbo1VV+7l2YAP2pyZw6FikYnWiH76f1YfzGyFVJNfVMaAVbWA
-         Y3N6VH6UYvlE9futQG+BB1WPjVZ3xk0qI+pY+L/tJrJ2Z6UndfT1oaEkJe4T3EbTckEH
-         vF3w==
+        bh=tUK8ETga6k61l9Q+/z8rY6SIV6XG+DcjRuCd/1NWAIQ=;
+        b=G2wmSB0wl3ZSst3wBKM0lmkGVB3EAHRbdwUzF55iA5Zc7PyVUPSzOlglM3cYPWwRdH
+         kG5s+Oc45ZUBoFc7mYCpXBsXAu5XGmy/7ktcJKN5fvs5gGGo+RUG59zBtu0U0c7OD1G5
+         rCdw3QRLYuHQN2CR2z5SNEW280SeN+8hmo3JnWq17WmQ0XAbAnBQB+8kSzeiv2GOos6N
+         i3DZfvNnVkzqtXL9ayx0CfRlKWcSGFcOx2QhOmHPWcoJi1efyzQBp+8/rbWneAGyAo7p
+         6b75570FcqLite+nlTb86LYO3NmyJ9+l6P9/g2w84R7+Ws1R4y+j1181T/YYXzDR4xsa
+         qF2w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=+VnHrOqiLyuTpal1o2zRenzQv7xKEdgOssME91mwrbo=;
-        b=rfbRmarPQuM3S3wsZpoyOI/Pz8aBcFPoha/Kx4Pe+FxW5+EgjSmtDqrFYA12bkJIIW
-         nrBg9pa/lt8EMKdwhy7jyiKGMMHeGti/X1kEr6xxu+zRrWFmzImWcYNNGx7s9abK81sW
-         dfPqvO03aBYe0KFlMXegFua1IH9Gv11dTrhxp1HIhWin8KZ58XqRKxGcIiu37qnOYx/d
-         JHsHgHYgvxeadwKywLfgg9mVoLVP/G3XoLdd0dlvJ/JY4nsL/KGIGjMlxTQFsjJeJzov
-         rbJutFt7Yn3CkrfOqY7FBlDM7dTOEpLgWXbd/4/3heyT4NfHdSYt/cpCmeQREMhMk0/d
-         ntVg==
-X-Gm-Message-State: APjAAAWCHtLSZ0WLAcNlGbu1DeCKzhJ6o8jwLj4cStJnpBXAJf8/YZFU
-        +w6aqoGZJZrGRcHu3Ts4vejq5A==
-X-Google-Smtp-Source: APXvYqxB1kT4JeouoUecMrtwQioocrM699/ETpWT/9TwmrlHZEVVfCDOCCQfYKs58tBjEcSSaW4k0g==
-X-Received: by 2002:a65:4209:: with SMTP id c9mr34462297pgq.111.1560481948541;
-        Thu, 13 Jun 2019 20:12:28 -0700 (PDT)
+        bh=tUK8ETga6k61l9Q+/z8rY6SIV6XG+DcjRuCd/1NWAIQ=;
+        b=rFT4DWeanzrXN6Ghm8M0Y4Ne7Lw35GQxAVDj5ZqeqC5QlMSBi0Un+k30Pt8Cai/LMv
+         XjAbOm63q0ruZ34vtm4hWqDl7Mfbs6WPYtXt39jMFB5bT9JT/mXlnWKfszUlUQoQjXif
+         2sLng9nRRnMMzbO3/OUzsopi35+sH44HQ83hnC9+CPBN2+HdDdhXavPpAKUalBonVhYX
+         JhCG0Bc3PTNqVIcDPpMGAAwBlWlUOOcnw1gYdFyt77BZwGU5R+hbQlkhbY7PTqedxQ11
+         XonOhV+h00A2XjzPDmB2A193eR4XekrgIh0ykaxH1UAx7efwtmOHbJC/SIXpb0UtATrA
+         uBNw==
+X-Gm-Message-State: APjAAAUVFiHnTvjGKjGWPSau1J7rT4+OWWuWcBh29kyAf2lYZbAfB+bA
+        EgJi19+rAvmxoqUe/qjl/faqRA==
+X-Google-Smtp-Source: APXvYqy0h/l06dEAqb68tyJjmoqTO4IsmomXMrOr3ePgip3/iFchSjUdjaq0IfSo5o/2v8S6XIqJCw==
+X-Received: by 2002:a17:902:522:: with SMTP id 31mr86143113plf.296.1560481951066;
+        Thu, 13 Jun 2019 20:12:31 -0700 (PDT)
 Received: from localhost ([122.172.66.84])
-        by smtp.gmail.com with ESMTPSA id g2sm1165232pfb.95.2019.06.13.20.12.27
+        by smtp.gmail.com with ESMTPSA id p68sm1036348pfb.80.2019.06.13.20.12.30
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 13 Jun 2019 20:12:28 -0700 (PDT)
+        Thu, 13 Jun 2019 20:12:30 -0700 (PDT)
 From:   Viresh Kumar <viresh.kumar@linaro.org>
 To:     linux-arm-kernel@lists.infradead.org,
         Julien Thierry <Julien.Thierry@arm.com>
@@ -55,9 +55,9 @@ Cc:     Viresh Kumar <viresh.kumar@linaro.org>, stable@vger.kernel.org,
         Russell King <rmk+kernel@arm.linux.org.uk>,
         Vincent Guittot <vincent.guittot@linaro.org>,
         mark.brown@arm.com
-Subject: [PATCH v4.4 13/45] arm64: cpufeature: Pass capability structure to ->enable callback
-Date:   Fri, 14 Jun 2019 08:37:56 +0530
-Message-Id: <16cc80ceb76db7e889b16a3d9b8c45ae821087de.1560480942.git.viresh.kumar@linaro.org>
+Subject: [PATCH v4.4 14/45] drivers/firmware: Expose psci_get_version through psci_ops structure
+Date:   Fri, 14 Jun 2019 08:37:57 +0530
+Message-Id: <5f5b6ed2828ebd885fa4bc8e764483d81f419bc5.1560480942.git.viresh.kumar@linaro.org>
 X-Mailer: git-send-email 2.21.0.rc0.269.g1a574e7a288b
 In-Reply-To: <cover.1560480942.git.viresh.kumar@linaro.org>
 References: <cover.1560480942.git.viresh.kumar@linaro.org>
@@ -70,46 +70,48 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Will Deacon <will.deacon@arm.com>
 
-commit 0a0d111d40fd1dc588cc590fab6b55d86ddc71d3 upstream.
+commit d68e3ba5303f7e1099f51fdcd155f5263da8569b upstream.
 
-In order to invoke the CPU capability ->matches callback from the ->enable
-callback for applying local-CPU workarounds, we need a handle on the
-capability structure.
+Entry into recent versions of ARM Trusted Firmware will invalidate the CPU
+branch predictor state in order to protect against aliasing attacks.
 
-This patch passes a pointer to the capability structure to the ->enable
-callback.
+This patch exposes the PSCI "VERSION" function via psci_ops, so that it
+can be invoked outside of the PSCI driver where necessary.
 
-Reviewed-by: Suzuki K Poulose <suzuki.poulose@arm.com>
+Acked-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Signed-off-by: Will Deacon <will.deacon@arm.com>
 Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-[ v4.4: Use &caps[i] instead as caps isn't incremented ]
 Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 ---
- arch/arm64/kernel/cpufeature.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/firmware/psci.c | 2 ++
+ include/linux/psci.h    | 1 +
+ 2 files changed, 3 insertions(+)
 
-diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
-index c1eddc07d996..c7a2827658fd 100644
---- a/arch/arm64/kernel/cpufeature.c
-+++ b/arch/arm64/kernel/cpufeature.c
-@@ -780,7 +780,7 @@ static void enable_cpu_capabilities(const struct arm64_cpu_capabilities *caps)
- 			 * uses an IPI, giving us a PSTATE that disappears when
- 			 * we return.
- 			 */
--			stop_machine(caps[i].enable, NULL, cpu_online_mask);
-+			stop_machine(caps[i].enable, (void *)&caps[i], cpu_online_mask);
- }
+diff --git a/drivers/firmware/psci.c b/drivers/firmware/psci.c
+index ae70d2485ca1..290f8982e7b3 100644
+--- a/drivers/firmware/psci.c
++++ b/drivers/firmware/psci.c
+@@ -305,6 +305,8 @@ static void __init psci_init_migrate(void)
+ static void __init psci_0_2_set_functions(void)
+ {
+ 	pr_info("Using standard PSCI v0.2 function IDs\n");
++	psci_ops.get_version = psci_get_version;
++
+ 	psci_function_id[PSCI_FN_CPU_SUSPEND] =
+ 					PSCI_FN_NATIVE(0_2, CPU_SUSPEND);
+ 	psci_ops.cpu_suspend = psci_cpu_suspend;
+diff --git a/include/linux/psci.h b/include/linux/psci.h
+index 12c4865457ad..04b4d92c7791 100644
+--- a/include/linux/psci.h
++++ b/include/linux/psci.h
+@@ -25,6 +25,7 @@ bool psci_power_state_loses_context(u32 state);
+ bool psci_power_state_is_valid(u32 state);
  
- #ifdef CONFIG_HOTPLUG_CPU
-@@ -894,7 +894,7 @@ void verify_local_cpu_capabilities(void)
- 		if (!feature_matches(__raw_read_system_reg(caps[i].sys_reg), &caps[i]))
- 			fail_incapable_cpu("arm64_features", &caps[i]);
- 		if (caps[i].enable)
--			caps[i].enable(NULL);
-+			caps[i].enable((void *)&caps[i]);
- 	}
- 
- 	for (i = 0, caps = arm64_hwcaps; caps[i].desc; i++) {
+ struct psci_operations {
++	u32 (*get_version)(void);
+ 	int (*cpu_suspend)(u32 state, unsigned long entry_point);
+ 	int (*cpu_off)(u32 state);
+ 	int (*cpu_on)(unsigned long cpuid, unsigned long entry_point);
 -- 
 2.21.0.rc0.269.g1a574e7a288b
 
