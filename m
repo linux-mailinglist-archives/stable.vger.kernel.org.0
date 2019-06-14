@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E2FCE469BD
-	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 22:35:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB93F46910
+	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 22:30:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727398AbfFNUaP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jun 2019 16:30:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52978 "EHLO mail.kernel.org"
+        id S1727422AbfFNUaQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jun 2019 16:30:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53030 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727385AbfFNUaO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Jun 2019 16:30:14 -0400
+        id S1727394AbfFNUaP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Jun 2019 16:30:15 -0400
 Received: from sasha-vm.mshome.net (unknown [131.107.159.134])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 493F82184C;
-        Fri, 14 Jun 2019 20:30:13 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C0EFF2184E;
+        Fri, 14 Jun 2019 20:30:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560544213;
-        bh=Tv5YnLzcv10gj7+ERvoSbSS8XUpgwminviMYIS8JRwk=;
+        s=default; t=1560544214;
+        bh=4ap3G6QYA0AlbM7TFNTIg90RS+nGkjFkZ491krXxId0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v3RV9TRPhsFkFl1+koZ7D6vu1bK9MZjT1brbCo8lbZyKYzw1fyl26v7zpP/C6B406
-         h4FMtpeQlfJzE2C5qdeT80eiGs8Dlg8AsnvKwKjA5n/xY9Zwk27EG/BjKRJvH5CUrT
-         KReGWmGVBhzdtQrz0RufQ/tXWKZr4ybbbwcJqJMo=
+        b=n0GhUcSU5rjzmnEOgAE+K5BHfUw7uQBzetPwXqZPF2Ywj7R7+W7NBW+VOwbRacY4F
+         9uQagZ2ACtGbeETSefi/hp6kAGsRlA6zq4T6HmcHupMHLPLS9pyLc0JDv0/QU7I+fA
+         UgPszQauhLrhdV4OLcf2PuetHK9YrBu/629CghSw=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yonglong Liu <liuyonglong@huawei.com>,
+Cc:     Gen Zhang <blackgod016574@gmail.com>,
         "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 22/39] net: hns: Fix loopback test failed at copper ports
-Date:   Fri, 14 Jun 2019 16:29:27 -0400
-Message-Id: <20190614202946.27385-22-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, sparclinux@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 23/39] mdesc: fix a missing-check bug in get_vdev_port_node_info()
+Date:   Fri, 14 Jun 2019 16:29:28 -0400
+Message-Id: <20190614202946.27385-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190614202946.27385-1-sashal@kernel.org>
 References: <20190614202946.27385-1-sashal@kernel.org>
@@ -43,45 +43,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yonglong Liu <liuyonglong@huawei.com>
+From: Gen Zhang <blackgod016574@gmail.com>
 
-[ Upstream commit 2e1f164861e500f4e068a9d909bbd3fcc7841483 ]
+[ Upstream commit 80caf43549e7e41a695c6d1e11066286538b336f ]
 
-When doing a loopback test at copper ports, the serdes loopback
-and the phy loopback will fail, because of the adjust link had
-not finished, and phy not ready.
+In get_vdev_port_node_info(), 'node_info->vdev_port.name' is allcoated
+by kstrdup_const(), and it returns NULL when fails. So
+'node_info->vdev_port.name' should be checked.
 
-Adds sleep between adjust link and test process to fix it.
-
-Signed-off-by: Yonglong Liu <liuyonglong@huawei.com>
+Signed-off-by: Gen Zhang <blackgod016574@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns/hns_ethtool.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/sparc/kernel/mdesc.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns/hns_ethtool.c b/drivers/net/ethernet/hisilicon/hns/hns_ethtool.c
-index e2710ff48fb0..1fa0cd527ead 100644
---- a/drivers/net/ethernet/hisilicon/hns/hns_ethtool.c
-+++ b/drivers/net/ethernet/hisilicon/hns/hns_ethtool.c
-@@ -339,6 +339,7 @@ static int __lb_setup(struct net_device *ndev,
- static int __lb_up(struct net_device *ndev,
- 		   enum hnae_loop loop_mode)
- {
-+#define NIC_LB_TEST_WAIT_PHY_LINK_TIME 300
- 	struct hns_nic_priv *priv = netdev_priv(ndev);
- 	struct hnae_handle *h = priv->ae_handle;
- 	int speed, duplex;
-@@ -365,6 +366,9 @@ static int __lb_up(struct net_device *ndev,
+diff --git a/arch/sparc/kernel/mdesc.c b/arch/sparc/kernel/mdesc.c
+index 39a2503fa3e1..51028abe5e90 100644
+--- a/arch/sparc/kernel/mdesc.c
++++ b/arch/sparc/kernel/mdesc.c
+@@ -357,6 +357,8 @@ static int get_vdev_port_node_info(struct mdesc_handle *md, u64 node,
  
- 	h->dev->ops->adjust_link(h, speed, duplex);
+ 	node_info->vdev_port.id = *idp;
+ 	node_info->vdev_port.name = kstrdup_const(name, GFP_KERNEL);
++	if (!node_info->vdev_port.name)
++		return -1;
+ 	node_info->vdev_port.parent_cfg_hdl = *parent_cfg_hdlp;
  
-+	/* wait adjust link done and phy ready */
-+	msleep(NIC_LB_TEST_WAIT_PHY_LINK_TIME);
-+
  	return 0;
- }
- 
 -- 
 2.20.1
 
