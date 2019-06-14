@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C9CE246A80
-	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 22:38:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91FD146A36
+	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 22:37:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727237AbfFNUhr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jun 2019 16:37:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51002 "EHLO mail.kernel.org"
+        id S1727018AbfFNU3h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jun 2019 16:29:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726771AbfFNU3H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Jun 2019 16:29:07 -0400
+        id S1726792AbfFNU3I (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Jun 2019 16:29:08 -0400
 Received: from sasha-vm.mshome.net (unknown [131.107.159.134])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 4250D2184E;
-        Fri, 14 Jun 2019 20:29:06 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id C1390217F9;
+        Fri, 14 Jun 2019 20:29:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560544146;
-        bh=m79AlYi3re8rFJQ1KfyQmZFmj5NMIiRS/z9ktijr5tk=;
+        s=default; t=1560544147;
+        bh=fBomxnnpTQhou0FHVuASFGMxuW+Dxcx9mP4d2DjZGAc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Egdn3e9nFEjR/XfcOQJkxCzxYsvM913x5zYgjhwSNST0sLZ8HEdMk+ZugTyrHxkWy
-         bt2O+fiIvrWafiSYgo5lunCu79FJ7aQjgECnBjJXI1y31xd7KSTbQVv1xHl+CD3gGS
-         +x4+MW+ZTC7cDn5S7qb4PdPnQgdXThCXp9WIRzHM=
+        b=spyPYdM0af+Stnh/IP9R0F5n/3pTdXld2VEvXFrwpit1HUJZW0mIS8cpdWSz1bdmo
+         Zq8khSqpGzjCFtwm3+BOgTlO+0nNM0GFuI4W67jKOyz/M1GUzxOxY+Pc4fvTVVALZH
+         lBWfCXQ8pKb6LLmo0usQV4HreveioAnL6Z0iHWPE=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Guenter Roeck <linux@roeck-us.net>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, linux-xtensa@linux-xtensa.org
-Subject: [PATCH AUTOSEL 5.1 27/59] xtensa: Fix section mismatch between memblock_reserve and mem_reserve
-Date:   Fri, 14 Jun 2019 16:28:11 -0400
-Message-Id: <20190614202843.26941-27-sashal@kernel.org>
+Cc:     Alex Shi <alex.shi@linux.alibaba.com>,
+        Shuah Khan <shuah@kernel.org>, Roman Gushchin <guro@fb.com>,
+        Tejun Heo <tj@kernel.org>,
+        Mike Rapoport <rppt@linux.vnet.ibm.com>,
+        Jay Kamat <jgkamat@fb.com>, linux-kselftest@vger.kernel.org,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 28/59] kselftest/cgroup: fix unexpected testing failure on test_memcontrol
+Date:   Fri, 14 Jun 2019 16:28:12 -0400
+Message-Id: <20190614202843.26941-28-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190614202843.26941-1-sashal@kernel.org>
 References: <20190614202843.26941-1-sashal@kernel.org>
@@ -43,50 +47,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guenter Roeck <linux@roeck-us.net>
+From: Alex Shi <alex.shi@linux.alibaba.com>
 
-[ Upstream commit adefd051a6707a6ca0ebad278d3c1c05c960fc3b ]
+[ Upstream commit f6131f28057d4fd8922599339e701a2504e0f23d ]
 
-Since commit 9012d011660ea5cf2 ("compiler: allow all arches to enable
-CONFIG_OPTIMIZE_INLINING"), xtensa:tinyconfig fails to build with section
-mismatch errors.
+The cgroup testing relies on the root cgroup's subtree_control setting,
+If the 'memory' controller isn't set, all test cases will be failed
+as following:
 
-WARNING: vmlinux.o(.text.unlikely+0x68): Section mismatch in reference
-	from the function ___pa()
-	to the function .meminit.text:memblock_reserve()
-WARNING: vmlinux.o(.text.unlikely+0x74): Section mismatch in reference
-	from the function mem_reserve()
-	to the function .meminit.text:memblock_reserve()
-FATAL: modpost: Section mismatches detected.
+$ sudo ./test_memcontrol
+not ok 1 test_memcg_subtree_control
+not ok 2 test_memcg_current
+ok 3 # skip test_memcg_min
+not ok 4 test_memcg_low
+not ok 5 test_memcg_high
+not ok 6 test_memcg_max
+not ok 7 test_memcg_oom_events
+ok 8 # skip test_memcg_swap_max
+not ok 9 test_memcg_sock
+not ok 10 test_memcg_oom_group_leaf_events
+not ok 11 test_memcg_oom_group_parent_events
+not ok 12 test_memcg_oom_group_score_events
 
-This was not seen prior to the above mentioned commit because mem_reserve()
-was always inlined.
+To correct this unexpected failure, this patch write the 'memory' to
+subtree_control of root to get a right result.
 
-Mark mem_reserve(() as __init_memblock to have it reside in the same
-section as memblock_reserve().
-
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Message-Id: <1559220098-9955-1-git-send-email-linux@roeck-us.net>
-Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
+Signed-off-by: Alex Shi <alex.shi@linux.alibaba.com>
+Cc: Shuah Khan <shuah@kernel.org>
+Cc: Roman Gushchin <guro@fb.com>
+Cc: Tejun Heo <tj@kernel.org>
+Cc: Mike Rapoport <rppt@linux.vnet.ibm.com>
+Cc: Jay Kamat <jgkamat@fb.com>
+Cc: linux-kselftest@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Reviewed-by: Roman Gushchin <guro@fb.com>
+Acked-by: Tejun Heo <tj@kernel.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/xtensa/kernel/setup.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ tools/testing/selftests/cgroup/test_memcontrol.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/xtensa/kernel/setup.c b/arch/xtensa/kernel/setup.c
-index 4ec6fbb696bf..a5139f1d9220 100644
---- a/arch/xtensa/kernel/setup.c
-+++ b/arch/xtensa/kernel/setup.c
-@@ -310,7 +310,8 @@ extern char _SecondaryResetVector_text_start;
- extern char _SecondaryResetVector_text_end;
- #endif
+diff --git a/tools/testing/selftests/cgroup/test_memcontrol.c b/tools/testing/selftests/cgroup/test_memcontrol.c
+index 6f339882a6ca..c19a97dd02d4 100644
+--- a/tools/testing/selftests/cgroup/test_memcontrol.c
++++ b/tools/testing/selftests/cgroup/test_memcontrol.c
+@@ -1205,6 +1205,10 @@ int main(int argc, char **argv)
+ 	if (cg_read_strstr(root, "cgroup.controllers", "memory"))
+ 		ksft_exit_skip("memory controller isn't available\n");
  
--static inline int mem_reserve(unsigned long start, unsigned long end)
-+static inline int __init_memblock mem_reserve(unsigned long start,
-+					      unsigned long end)
- {
- 	return memblock_reserve(start, end - start);
- }
++	if (cg_read_strstr(root, "cgroup.subtree_control", "memory"))
++		if (cg_write(root, "cgroup.subtree_control", "+memory"))
++			ksft_exit_skip("Failed to set memory controller\n");
++
+ 	for (i = 0; i < ARRAY_SIZE(tests); i++) {
+ 		switch (tests[i].fn(root)) {
+ 		case KSFT_PASS:
 -- 
 2.20.1
 
