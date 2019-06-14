@@ -2,138 +2,191 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id DA45746126
-	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 16:42:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E09B6461AD
+	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 16:52:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728246AbfFNOmZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jun 2019 10:42:25 -0400
-Received: from mail-eopbgr720064.outbound.protection.outlook.com ([40.107.72.64]:48082
-        "EHLO NAM05-CO1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727560AbfFNOmZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Jun 2019 10:42:25 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vmware.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=hSS2WnNtLKX5nm9AtU2dd6wZz/T66Qzau2ddoL0MMuY=;
- b=iU0D099Th3u0RUqj9wnhvXhe58BiJKlS1GagKx5JtOWXzX+tZ7w9uK0kRca2H4FpPjuBwEJsRHDfXK9sXYtfa3R2cfxMAmV6LJmSwjcbZlXbumGneJrcuRXlt7GxlbEGzU9U0Xpcz0mdhH3TKhB5s2m+yv+7CjbnSBIe9DgA16s=
-Received: from MN2PR05MB6208.namprd05.prod.outlook.com (20.178.241.91) by
- MN2PR05MB6160.namprd05.prod.outlook.com (20.178.241.28) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.1987.10; Fri, 14 Jun 2019 14:41:39 +0000
-Received: from MN2PR05MB6208.namprd05.prod.outlook.com
- ([fe80::ed54:e8f8:b67e:96]) by MN2PR05MB6208.namprd05.prod.outlook.com
- ([fe80::ed54:e8f8:b67e:96%4]) with mapi id 15.20.2008.002; Fri, 14 Jun 2019
- 14:41:39 +0000
-From:   Ajay Kaher <akaher@vmware.com>
-To:     "aarcange@redhat.com" <aarcange@redhat.com>,
-        "jannh@google.com" <jannh@google.com>,
-        "oleg@redhat.com" <oleg@redhat.com>,
-        "peterx@redhat.com" <peterx@redhat.com>,
-        "rppt@linux.ibm.com" <rppt@linux.ibm.com>,
-        "jgg@mellanox.com" <jgg@mellanox.com>,
-        "mhocko@suse.com" <mhocko@suse.com>
-CC:     "yishaih@mellanox.com" <yishaih@mellanox.com>,
-        "dledford@redhat.com" <dledford@redhat.com>,
-        "sean.hefty@intel.com" <sean.hefty@intel.com>,
-        "hal.rosenstock@gmail.com" <hal.rosenstock@gmail.com>,
-        "matanb@mellanox.com" <matanb@mellanox.com>,
-        "leonro@mellanox.com" <leonro@mellanox.com>,
-        "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Srivatsa Bhat <srivatsab@vmware.com>,
-        Alexey Makhalov <amakhalov@vmware.com>,
-        Greg KH <gregkh@linuxfoundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PATCH] [v4.14.y] infiniband: fix race condition between
- infiniband mlx4, mlx5  driver and core dumping
-Thread-Topic: [PATCH] [v4.14.y] infiniband: fix race condition between
- infiniband mlx4, mlx5  driver and core dumping
-Thread-Index: AQHVH4tRRHVVOX8JAkClk28/bWguy6abm6mA
-Date:   Fri, 14 Jun 2019 14:41:39 +0000
-Message-ID: <9C189085-083D-46EA-98DB-B11AD62051B6@vmware.com>
-References: <1560199937-23476-1-git-send-email-akaher@vmware.com>
-In-Reply-To: <1560199937-23476-1-git-send-email-akaher@vmware.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=akaher@vmware.com; 
-x-originating-ip: [103.19.212.1]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: ed3d0317-a463-4637-8d51-08d6f0d668ea
-x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600148)(711020)(4605104)(1401327)(2017052603328)(7193020);SRVR:MN2PR05MB6160;
-x-ms-traffictypediagnostic: MN2PR05MB6160:
-x-microsoft-antispam-prvs: <MN2PR05MB6160415D5AFAA7730EC7A709BBEE0@MN2PR05MB6160.namprd05.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:6790;
-x-forefront-prvs: 0068C7E410
-x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(39860400002)(366004)(396003)(136003)(346002)(376002)(189003)(199004)(6506007)(73956011)(2906002)(36756003)(186003)(14444005)(256004)(6512007)(25786009)(6246003)(91956017)(99286004)(7736002)(305945005)(6436002)(2616005)(476003)(6116002)(3846002)(4326008)(446003)(11346002)(102836004)(26005)(68736007)(81156014)(8676002)(110136005)(54906003)(76116006)(478600001)(316002)(229853002)(86362001)(2201001)(8936002)(71190400001)(71200400001)(14454004)(7416002)(5660300002)(66066001)(53936002)(66556008)(66446008)(64756008)(6486002)(66946007)(2501003)(33656002)(81166006)(486006)(76176011)(66476007);DIR:OUT;SFP:1101;SCL:1;SRVR:MN2PR05MB6160;H:MN2PR05MB6208.namprd05.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
-received-spf: None (protection.outlook.com: vmware.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam-message-info: H/PsLn65G6/iGZG0FErQsMPFAfh8AylKzUm3mw8BoE1NiDtuK/6M+MJO90yHGU1IuTlN8VVlalKxL7Ie9ua3VVmOOYPEC47s7Qrot0fNRLTQs/gmYnmK+D/uhw9em4YMF9HqmpHZ9e/jcpc7DhK9ASsjH4QYk7UVi6IASibZpLTBPKc2JHgvxbZwpJ87JDyaHcxm3FUFIWWvctvq1Ias03MqccBw/lRhiq2EVfUJNPDNQwt52PneGod6kSANLsGehcKbDada8LSAK5iLpLiCjz9h7bRK6DLCcjGh1+Yy534cFrRc+QtZz4ZZvqoRoUq4vhYdQk8AeGpRotVyI8PNhCh+YP4iLJDiwzpBX+rL2ns/LTF6YGOu+B14JELAIfFKxF/xWXSWrWsKaZ1xIbfrAULxlNLLaLRXdPLJXNg9mDM=
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <13955127BE722040A2F36BA3306CE790@namprd05.prod.outlook.com>
-Content-Transfer-Encoding: base64
+        id S1728074AbfFNOwh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jun 2019 10:52:37 -0400
+Received: from mail-lj1-f196.google.com ([209.85.208.196]:32922 "EHLO
+        mail-lj1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727560AbfFNOwh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Jun 2019 10:52:37 -0400
+Received: by mail-lj1-f196.google.com with SMTP id h10so2726532ljg.0;
+        Fri, 14 Jun 2019 07:52:35 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to:user-agent;
+        bh=Ox1ytek2Ewr6dIgPAIgjaAwtpKDa4UCju/I1aR8SGC8=;
+        b=K4Zl6pB5KcMOkSf0hS+dXlXms6JErmD8lBB5hfdkDwOg8I2EWA3jf5Jx3B3PWUxHw+
+         zv1TFZnXydUuiCiExvUVe7kmmKjAi0krzQEdEZY6CvZriVTmmfFCdifcec3S8wEpMKOs
+         osofm0NN+Jl9wdIWq/ke8v8/VnqVMQ5+L/8KUWADqvSDZeGtKvI6tyNNvGXAzDS8vGPB
+         dXy/YjcKIXWmifdJBcUjU7pBtr/3iNSgG/Fo2a2jgUm3KpSCKeQ0re+gFpdL0MIcosUk
+         qWOfOetJayzCJ53+cWMIrgxqnGVwbN4Cq+8P+6aua111b4qb0GXOP7ykUax/zKdgw96K
+         V91A==
+X-Gm-Message-State: APjAAAX5VQByCvqVYFUKph2Iv5BSLwD8AWApIjap2R7CbBHcgCvLPSMl
+        0VFy96e6NVNuJDJ8ALX4P0i6Y5vcGIE=
+X-Google-Smtp-Source: APXvYqzi8mp1xBpe/3MMqx4IaSv42a1ZGuCA3mbhUUdKaf/FjOTqtisMwkcFTMpfkcdgsiOVoylYUA==
+X-Received: by 2002:a2e:868e:: with SMTP id l14mr10036799lji.16.1560523954447;
+        Fri, 14 Jun 2019 07:52:34 -0700 (PDT)
+Received: from xi.terra (c-74bee655.07-184-6d6c6d4.bbcust.telenor.se. [85.230.190.116])
+        by smtp.gmail.com with ESMTPSA id d16sm521155lfl.26.2019.06.14.07.52.33
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 14 Jun 2019 07:52:33 -0700 (PDT)
+Received: from johan by xi.terra with local (Exim 4.92)
+        (envelope-from <johan@kernel.org>)
+        id 1hbnZE-0003Ct-UA; Fri, 14 Jun 2019 16:52:36 +0200
+Date:   Fri, 14 Jun 2019 16:52:36 +0200
+From:   Johan Hovold <johan@kernel.org>
+To:     Felipe Balbi <felipe.balbi@linux.intel.com>
+Cc:     Mathias Nyman <mathias.nyman@linux.intel.com>,
+        linux-usb@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] usb: xhci: dbc: get rid of global pointer
+Message-ID: <20190614145236.GB3849@localhost>
+References: <20190611172416.12473-1-felipe.balbi@linux.intel.com>
 MIME-Version: 1.0
-X-OriginatorOrg: vmware.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: ed3d0317-a463-4637-8d51-08d6f0d668ea
-X-MS-Exchange-CrossTenant-originalarrivaltime: 14 Jun 2019 14:41:39.1794
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: akaher@vmware.com
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR05MB6160
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20190611172416.12473-1-felipe.balbi@linux.intel.com>
+User-Agent: Mutt/1.12.0 (2019-05-25)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-DQrvu79PbiAxMC8wNi8xOSwgNjoyMiBQTSwgIkFqYXkgS2FoZXIiIDxha2FoZXJAdm13YXJlLmNv
-bT4gd3JvdGU6DQoNCj4gVGhpcyBwYXRjaCBpcyB0aGUgZXh0ZW5zaW9uIG9mIGZvbGxvd2luZyB1
-cHN0cmVhbSBjb21taXQgdG8gZml4DQo+IHRoZSByYWNlIGNvbmRpdGlvbiBiZXR3ZWVuIGdldF90
-YXNrX21tKCkgYW5kIGNvcmUgZHVtcGluZw0KPiBmb3IgSUItPm1seDQgYW5kIElCLT5tbHg1IGRy
-aXZlcnM6DQo+IA0KPiBjb21taXQgMDRmNTg2NmU0MWZiICgiY29yZWR1bXA6IGZpeCByYWNlIGNv
-bmRpdGlvbiBiZXR3ZWVuDQo+IG1tZ2V0X25vdF96ZXJvKCkvZ2V0X3Rhc2tfbW0oKSBhbmQgY29y
-ZSBkdW1waW5nIiknDQo+ICAgIA0KPiBUaGFua3MgdG8gSmFzb24gZm9yIHBvaW50aW5nIHRoaXMu
-DQo+ICAgIA0KPiBTaWduZWQtb2ZmLWJ5OiBBamF5IEthaGVyIDxha2FoZXJAdm13YXJlLmNvbT4N
-Cj4gQWNrZWQtYnk6IEphc29uIEd1bnRob3JwZSA8amdnQG1lbGxhbm94LmNvbT4NCg0KR3JlZywg
-SSBob3BlIHlvdSB3b3VsZCBsaWtlIHRvIHJldmlldyBhbmQgcHJvY2VlZCBmdXJ0aGVyIHdpdGgg
-dGhpcyBwYXRjaC4gIA0KDQo+IC0tLQ0KPiBkcml2ZXJzL2luZmluaWJhbmQvaHcvbWx4NC9tYWlu
-LmMgfCA0ICsrKy0NCj4gZHJpdmVycy9pbmZpbmliYW5kL2h3L21seDUvbWFpbi5jIHwgMyArKysN
-Cj4gMiBmaWxlcyBjaGFuZ2VkLCA2IGluc2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkNCj4gICAg
-DQo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2luZmluaWJhbmQvaHcvbWx4NC9tYWluLmMgYi9kcml2
-ZXJzL2luZmluaWJhbmQvaHcvbWx4NC9tYWluLmMNCj4gaW5kZXggZTJiZWIxOC4uMDI5OWMwNiAx
-MDA2NDQNCj4gLS0tIGEvZHJpdmVycy9pbmZpbmliYW5kL2h3L21seDQvbWFpbi5jDQo+ICsrKyBi
-L2RyaXZlcnMvaW5maW5pYmFuZC9ody9tbHg0L21haW4uYw0KPiBAQCAtMTE5Nyw2ICsxMTk3LDgg
-QEAgc3RhdGljIHZvaWQgbWx4NF9pYl9kaXNhc3NvY2lhdGVfdWNvbnRleHQoc3RydWN0IGliX3Vj
-b250ZXh0ICppYmNvbnRleHQpDQo+ICAJICogbWx4NF9pYl92bWFfY2xvc2UoKS4NCj4gIAkgKi8N
-Cj4gIAlkb3duX3dyaXRlKCZvd25pbmdfbW0tPm1tYXBfc2VtKTsNCj4gKwlpZiAoIW1tZ2V0X3N0
-aWxsX3ZhbGlkKG93bmluZ19tbSkpDQo+ICsJCWdvdG8gc2tpcF9tbTsNCj4gIAlmb3IgKGkgPSAw
-OyBpIDwgSFdfQkFSX0NPVU5UOyBpKyspIHsNCj4gIAkJdm1hID0gY29udGV4dC0+aHdfYmFyX2lu
-Zm9baV0udm1hOw0KPiAgCQlpZiAoIXZtYSkNCj4gIEBAIC0xMjE1LDcgKzEyMTcsNyBAQCBzdGF0
-aWMgdm9pZCBtbHg0X2liX2Rpc2Fzc29jaWF0ZV91Y29udGV4dChzdHJ1Y3QgaWJfdWNvbnRleHQg
-KmliY29udGV4dCkNCj4gIAkJLyogY29udGV4dCBnb2luZyB0byBiZSBkZXN0cm95ZWQsIHNob3Vs
-ZCBub3QgYWNjZXNzIG9wcyBhbnkgbW9yZSAqLw0KPiAgCQljb250ZXh0LT5od19iYXJfaW5mb1tp
-XS52bWEtPnZtX29wcyA9IE5VTEw7DQo+ICAJfQ0KPiAtDQo+ICtza2lwX21tOg0KPiAJdXBfd3Jp
-dGUoJm93bmluZ19tbS0+bW1hcF9zZW0pOw0KPiAgCW1tcHV0KG93bmluZ19tbSk7DQo+IAlwdXRf
-dGFza19zdHJ1Y3Qob3duaW5nX3Byb2Nlc3MpOw0KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy9pbmZp
-bmliYW5kL2h3L21seDUvbWFpbi5jIGIvZHJpdmVycy9pbmZpbmliYW5kL2h3L21seDUvbWFpbi5j
-DQo+IGluZGV4IDEzYTkyMDYuLjNmYmUzOTYgMTAwNjQ0DQo+IC0tLSBhL2RyaXZlcnMvaW5maW5p
-YmFuZC9ody9tbHg1L21haW4uYw0KPiArKysgYi9kcml2ZXJzL2luZmluaWJhbmQvaHcvbWx4NS9t
-YWluLmMNCj4gQEAgLTE2NDYsNiArMTY0Niw4IEBAIHN0YXRpYyB2b2lkIG1seDVfaWJfZGlzYXNz
-b2NpYXRlX3Vjb250ZXh0KHN0cnVjdCBpYl91Y29udGV4dCAqaWJjb250ZXh0KQ0KPiAgCSAqIG1s
-eDVfaWJfdm1hX2Nsb3NlLg0KPiAgCSAqLw0KPiAgCWRvd25fd3JpdGUoJm93bmluZ19tbS0+bW1h
-cF9zZW0pOw0KPiArCWlmICghbW1nZXRfc3RpbGxfdmFsaWQob3duaW5nX21tKSkNCj4gKwkJZ290
-byBza2lwX21tOw0KPiAgCW11dGV4X2xvY2soJmNvbnRleHQtPnZtYV9wcml2YXRlX2xpc3RfbXV0
-ZXgpOw0KPiAgCWxpc3RfZm9yX2VhY2hfZW50cnlfc2FmZSh2bWFfcHJpdmF0ZSwgbiwgJmNvbnRl
-eHQtPnZtYV9wcml2YXRlX2xpc3QsDQo+ICAJCQkJIGxpc3QpIHsNCj4gQEAgLTE2NjIsNiArMTY2
-NCw3IEBAIHN0YXRpYyB2b2lkIG1seDVfaWJfZGlzYXNzb2NpYXRlX3Vjb250ZXh0KHN0cnVjdCBp
-Yl91Y29udGV4dCAqaWJjb250ZXh0KQ0KPiAgCQlrZnJlZSh2bWFfcHJpdmF0ZSk7DQo+ICAJfQ0K
-PiAgCW11dGV4X3VubG9jaygmY29udGV4dC0+dm1hX3ByaXZhdGVfbGlzdF9tdXRleCk7DQo+ICtz
-a2lwX21tOg0KPiAgCXVwX3dyaXRlKCZvd25pbmdfbW0tPm1tYXBfc2VtKTsNCj4gIAltbXB1dChv
-d25pbmdfbW0pOw0KPiAgCXB1dF90YXNrX3N0cnVjdChvd25pbmdfcHJvY2Vzcyk7DQo+IC0tIA0K
-PiAyLjcuNA0KICAgIA0KICAgIA0KDQo=
+On Tue, Jun 11, 2019 at 08:24:16PM +0300, Felipe Balbi wrote:
+> If we happen to have two XHCI controllers with DbC capability, then
+> there's no hope this will ever work as the global pointer will be
+> overwritten by the controller that probes last.
+> 
+> Avoid this problem by keeping the tty_driver struct pointer inside
+> struct xhci_dbc.
+
+How did you test this patch?
+
+> Fixes: dfba2174dc42 usb: xhci: Add DbC support in xHCI driver
+> Cc: <stable@vger.kernel.org> # v4.16+
+> Signed-off-by: Felipe Balbi <felipe.balbi@linux.intel.com>
+> ---
+>  drivers/usb/host/xhci-dbgcap.c |  4 +--
+>  drivers/usb/host/xhci-dbgcap.h |  3 +-
+>  drivers/usb/host/xhci-dbgtty.c | 54 +++++++++++++++++-----------------
+>  3 files changed, 31 insertions(+), 30 deletions(-)
+> 
+> diff --git a/drivers/usb/host/xhci-dbgcap.c b/drivers/usb/host/xhci-dbgcap.c
+> index 52e32644a4b2..5f56b650c0ea 100644
+> --- a/drivers/usb/host/xhci-dbgcap.c
+> +++ b/drivers/usb/host/xhci-dbgcap.c
+> @@ -948,7 +948,7 @@ int xhci_dbc_init(struct xhci_hcd *xhci)
+>  	return 0;
+>  
+>  init_err1:
+> -	xhci_dbc_tty_unregister_driver();
+> +	xhci_dbc_tty_unregister_driver(xhci);
+>  init_err2:
+>  	xhci_do_dbc_exit(xhci);
+>  init_err3:
+> @@ -963,7 +963,7 @@ void xhci_dbc_exit(struct xhci_hcd *xhci)
+>  		return;
+>  
+>  	device_remove_file(dev, &dev_attr_dbc);
+> -	xhci_dbc_tty_unregister_driver();
+> +	xhci_dbc_tty_unregister_driver(xhci);
+>  	xhci_dbc_stop(xhci);
+>  	xhci_do_dbc_exit(xhci);
+>  }
+> diff --git a/drivers/usb/host/xhci-dbgcap.h b/drivers/usb/host/xhci-dbgcap.h
+> index ce0c6072bd48..30dedf36c566 100644
+> --- a/drivers/usb/host/xhci-dbgcap.h
+> +++ b/drivers/usb/host/xhci-dbgcap.h
+> @@ -151,6 +151,7 @@ struct xhci_dbc {
+>  	struct dbc_ep			eps[2];
+>  
+>  	struct dbc_port			port;
+> +	struct tty_driver		*tty_driver;
+>  };
+>  
+>  #define dbc_bulkout_ctx(d)		\
+> @@ -196,7 +197,7 @@ static inline struct dbc_ep *get_out_ep(struct xhci_hcd *xhci)
+>  int xhci_dbc_init(struct xhci_hcd *xhci);
+>  void xhci_dbc_exit(struct xhci_hcd *xhci);
+>  int xhci_dbc_tty_register_driver(struct xhci_hcd *xhci);
+> -void xhci_dbc_tty_unregister_driver(void);
+> +void xhci_dbc_tty_unregister_driver(struct xhci_hcd *xhci);
+>  int xhci_dbc_tty_register_device(struct xhci_hcd *xhci);
+>  void xhci_dbc_tty_unregister_device(struct xhci_hcd *xhci);
+>  struct dbc_request *dbc_alloc_request(struct dbc_ep *dep, gfp_t gfp_flags);
+> diff --git a/drivers/usb/host/xhci-dbgtty.c b/drivers/usb/host/xhci-dbgtty.c
+> index aff79ff5aba4..300fc770a0d5 100644
+> --- a/drivers/usb/host/xhci-dbgtty.c
+> +++ b/drivers/usb/host/xhci-dbgtty.c
+> @@ -279,52 +279,52 @@ static const struct tty_operations dbc_tty_ops = {
+>  	.unthrottle		= dbc_tty_unthrottle,
+>  };
+>  
+> -static struct tty_driver *dbc_tty_driver;
+> -
+>  int xhci_dbc_tty_register_driver(struct xhci_hcd *xhci)
+>  {
+>  	int			status;
+>  	struct xhci_dbc		*dbc = xhci->dbc;
+>  
+> -	dbc_tty_driver = tty_alloc_driver(1, TTY_DRIVER_REAL_RAW |
+> +	dbc->tty_driver = tty_alloc_driver(1, TTY_DRIVER_REAL_RAW |
+>  					  TTY_DRIVER_DYNAMIC_DEV);
+> -	if (IS_ERR(dbc_tty_driver)) {
+> -		status = PTR_ERR(dbc_tty_driver);
+> -		dbc_tty_driver = NULL;
+> +	if (IS_ERR(dbc->tty_driver)) {
+> +		status = PTR_ERR(dbc->tty_driver);
+> +		dbc->tty_driver = NULL;
+>  		return status;
+>  	}
+>  
+> -	dbc_tty_driver->driver_name = "dbc_serial";
+> -	dbc_tty_driver->name = "ttyDBC";
+> +	dbc->tty_driver->driver_name = "dbc_serial";
+> +	dbc->tty_driver->name = "ttyDBC";
+
+You're now registering multiple drivers for the same thing (and wasting
+a major number for each) and specifically using the same name, which
+should lead to name clashes when registering the second port.
+
+Possibly better than the current situation, but why not fix this
+properly instead? Register the driver once, and just pick a new minor
+number for each controller.
+
+> -	dbc_tty_driver->type = TTY_DRIVER_TYPE_SERIAL;
+> -	dbc_tty_driver->subtype = SERIAL_TYPE_NORMAL;
+> -	dbc_tty_driver->init_termios = tty_std_termios;
+> -	dbc_tty_driver->init_termios.c_cflag =
+> +	dbc->tty_driver->type = TTY_DRIVER_TYPE_SERIAL;
+> +	dbc->tty_driver->subtype = SERIAL_TYPE_NORMAL;
+> +	dbc->tty_driver->init_termios = tty_std_termios;
+> +	dbc->tty_driver->init_termios.c_cflag =
+>  			B9600 | CS8 | CREAD | HUPCL | CLOCAL;
+> -	dbc_tty_driver->init_termios.c_ispeed = 9600;
+> -	dbc_tty_driver->init_termios.c_ospeed = 9600;
+> -	dbc_tty_driver->driver_state = &dbc->port;
+> +	dbc->tty_driver->init_termios.c_ispeed = 9600;
+> +	dbc->tty_driver->init_termios.c_ospeed = 9600;
+> +	dbc->tty_driver->driver_state = &dbc->port;
+>  
+> -	tty_set_operations(dbc_tty_driver, &dbc_tty_ops);
+> +	tty_set_operations(dbc->tty_driver, &dbc_tty_ops);
+>  
+> -	status = tty_register_driver(dbc_tty_driver);
+> +	status = tty_register_driver(dbc->tty_driver);
+>  	if (status) {
+>  		xhci_err(xhci,
+>  			 "can't register dbc tty driver, err %d\n", status);
+> -		put_tty_driver(dbc_tty_driver);
+> -		dbc_tty_driver = NULL;
+> +		put_tty_driver(dbc->tty_driver);
+> +		dbc->tty_driver = NULL;
+>  	}
+>  
+>  	return status;
+>  }
+
+Johan
