@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BAC24698D
-	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 22:34:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B202D4698A
+	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 22:34:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727565AbfFNUaY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1727569AbfFNUaY (ORCPT <rfc822;lists+stable@lfdr.de>);
         Fri, 14 Jun 2019 16:30:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53298 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:53308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727544AbfFNUaX (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1727546AbfFNUaX (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 14 Jun 2019 16:30:23 -0400
 Received: from sasha-vm.mshome.net (unknown [131.107.159.134])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8D8AB21874;
+        by mail.kernel.org (Postfix) with ESMTPSA id D862621851;
         Fri, 14 Jun 2019 20:30:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=default; t=1560544222;
-        bh=cQ3VaTLg3+vEm1IPPPlsDN4PJOfib1Gp9Y5tmbYJhXM=;
+        bh=b4B2B2FBeblgf04rcejeh3Qcw4zIHtGN/AIfvoR/y/8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DKUx12uBbepnFKjRwKzojp1ldd8TEwC4tZcPSlitUi73qlB1S0pizJCUs8mUJ+9xp
-         vkf5s8pKdfEeaFPjqoemWE+nloChQuGIkaJg+N/jsev0FsTS7vbYeviX6FYf4VdvWf
-         APcJtiA49CDntBmmYepRSN759JhiE8H1i+DttkMs=
+        b=1iGqqqsg0i1GDTuRuAOP2vBBwKX1RwRHI8HImN7s4vRIGO/XMa10iHaYao78+0+Qp
+         oWOJ+cPJMJfgoN6rghCR+80pwhtj0EMGxVdQ9+Kor5z3ZXTe3sP5+fOTgAHY73H76N
+         HwZ9D55Aln02fhanix+EfNNJQSiQxwRFGUl32FZs=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mike Marciniszyn <mike.marciniszyn@intel.com>,
-        Josh Collier <josh.d.collier@intel.com>,
+Cc:     Kamenee Arumugam <kamenee.arumugam@intel.com>,
+        "Michael J . Ruhl" <michael.j.ruhl@intel.com>,
         Dennis Dalessandro <dennis.dalessandro@intel.com>,
         Jason Gunthorpe <jgg@mellanox.com>,
         Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 08/27] IB/{qib, hfi1, rdmavt}: Correct ibv_devinfo max_mr value
-Date:   Fri, 14 Jun 2019 16:29:57 -0400
-Message-Id: <20190614203018.27686-8-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 09/27] IB/hfi1: Validate page aligned for a given virtual address
+Date:   Fri, 14 Jun 2019 16:29:58 -0400
+Message-Id: <20190614203018.27686-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190614203018.27686-1-sashal@kernel.org>
 References: <20190614203018.27686-1-sashal@kernel.org>
@@ -45,66 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Marciniszyn <mike.marciniszyn@intel.com>
+From: Kamenee Arumugam <kamenee.arumugam@intel.com>
 
-[ Upstream commit 35164f5259a47ea756fa1deb3e463ac2a4f10dc9 ]
+[ Upstream commit 97736f36dbebf2cda2799db3b54717ba5b388255 ]
 
-The command 'ibv_devinfo -v' reports 0 for max_mr.
+User applications can register memory regions for TID buffers that are not
+aligned on page boundaries. Hfi1 is expected to pin those pages in memory
+and cache the pages with mmu_rb. The rb tree will fail to insert pages
+that are not aligned correctly.
 
-Fix by assigning the query values after the mr lkey_table has been built
-rather than early on in the driver.
+Validate whether a given virtual address is page aligned before pinning.
 
-Fixes: 7b1e2099adc8 ("IB/rdmavt: Move memory registration into rdmavt")
-Reviewed-by: Josh Collier <josh.d.collier@intel.com>
-Signed-off-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
+Fixes: 7e7a436ecb6e ("staging/hfi1: Add TID entry program function body")
+Reviewed-by: Michael J. Ruhl <michael.j.ruhl@intel.com>
+Signed-off-by: Kamenee Arumugam <kamenee.arumugam@intel.com>
 Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
 Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hfi1/verbs.c    | 2 --
- drivers/infiniband/hw/qib/qib_verbs.c | 2 --
- drivers/infiniband/sw/rdmavt/mr.c     | 2 ++
- 3 files changed, 2 insertions(+), 4 deletions(-)
+ drivers/infiniband/hw/hfi1/user_exp_rcv.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/infiniband/hw/hfi1/verbs.c b/drivers/infiniband/hw/hfi1/verbs.c
-index 2e8854ba18cf..f4372afa0e81 100644
---- a/drivers/infiniband/hw/hfi1/verbs.c
-+++ b/drivers/infiniband/hw/hfi1/verbs.c
-@@ -1400,8 +1400,6 @@ static void hfi1_fill_device_attr(struct hfi1_devdata *dd)
- 	rdi->dparms.props.max_cq = hfi1_max_cqs;
- 	rdi->dparms.props.max_ah = hfi1_max_ahs;
- 	rdi->dparms.props.max_cqe = hfi1_max_cqes;
--	rdi->dparms.props.max_mr = rdi->lkey_table.max;
--	rdi->dparms.props.max_fmr = rdi->lkey_table.max;
- 	rdi->dparms.props.max_map_per_fmr = 32767;
- 	rdi->dparms.props.max_pd = hfi1_max_pds;
- 	rdi->dparms.props.max_qp_rd_atom = HFI1_MAX_RDMA_ATOMIC;
-diff --git a/drivers/infiniband/hw/qib/qib_verbs.c b/drivers/infiniband/hw/qib/qib_verbs.c
-index 9d92aeb8d9a1..350bc29a066f 100644
---- a/drivers/infiniband/hw/qib/qib_verbs.c
-+++ b/drivers/infiniband/hw/qib/qib_verbs.c
-@@ -1495,8 +1495,6 @@ static void qib_fill_device_attr(struct qib_devdata *dd)
- 	rdi->dparms.props.max_cq = ib_qib_max_cqs;
- 	rdi->dparms.props.max_cqe = ib_qib_max_cqes;
- 	rdi->dparms.props.max_ah = ib_qib_max_ahs;
--	rdi->dparms.props.max_mr = rdi->lkey_table.max;
--	rdi->dparms.props.max_fmr = rdi->lkey_table.max;
- 	rdi->dparms.props.max_map_per_fmr = 32767;
- 	rdi->dparms.props.max_qp_rd_atom = QIB_MAX_RDMA_ATOMIC;
- 	rdi->dparms.props.max_qp_init_rd_atom = 255;
-diff --git a/drivers/infiniband/sw/rdmavt/mr.c b/drivers/infiniband/sw/rdmavt/mr.c
-index e7013d2d4f0e..d5b51f4cb49a 100644
---- a/drivers/infiniband/sw/rdmavt/mr.c
-+++ b/drivers/infiniband/sw/rdmavt/mr.c
-@@ -96,6 +96,8 @@ int rvt_driver_mr_init(struct rvt_dev_info *rdi)
- 	for (i = 0; i < rdi->lkey_table.max; i++)
- 		RCU_INIT_POINTER(rdi->lkey_table.table[i], NULL);
+diff --git a/drivers/infiniband/hw/hfi1/user_exp_rcv.c b/drivers/infiniband/hw/hfi1/user_exp_rcv.c
+index 6f6c14df383e..b38e3808836c 100644
+--- a/drivers/infiniband/hw/hfi1/user_exp_rcv.c
++++ b/drivers/infiniband/hw/hfi1/user_exp_rcv.c
+@@ -324,6 +324,9 @@ int hfi1_user_exp_rcv_setup(struct hfi1_filedata *fd,
+ 	u32 *tidlist = NULL;
+ 	struct tid_user_buf *tidbuf;
  
-+	rdi->dparms.props.max_mr = rdi->lkey_table.max;
-+	rdi->dparms.props.max_fmr = rdi->lkey_table.max;
- 	return 0;
- }
- 
++	if (!PAGE_ALIGNED(tinfo->vaddr))
++		return -EINVAL;
++
+ 	tidbuf = kzalloc(sizeof(*tidbuf), GFP_KERNEL);
+ 	if (!tidbuf)
+ 		return -ENOMEM;
 -- 
 2.20.1
 
