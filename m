@@ -2,34 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B685F468D8
-	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 22:28:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 351A2468DB
+	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 22:28:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726028AbfFNU2o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jun 2019 16:28:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50198 "EHLO mail.kernel.org"
+        id S1726293AbfFNU2s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jun 2019 16:28:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725991AbfFNU2o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Jun 2019 16:28:44 -0400
+        id S1725991AbfFNU2s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Jun 2019 16:28:48 -0400
 Received: from sasha-vm.mshome.net (unknown [131.107.159.134])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 168A2217F9;
-        Fri, 14 Jun 2019 20:28:44 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A061521841;
+        Fri, 14 Jun 2019 20:28:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560544124;
-        bh=94ECcV6dTx0xMKW52GxZHCimBf4x1MEXzsL6Zr2qNAc=;
-        h=From:To:Cc:Subject:Date:From;
-        b=hBijiaGH3A/Rs5sPj2DV+lkVp/wiL0V2sMx43NUwmOhbL2IYW6K/DYgTRt2/SO53a
-         j4g38R6cBVlnv+1TX41IVuPzoD38imzFrv7sXmqY7GmUry2buu055w6oHLruwUVK0H
-         qOaof/OUE6h9oQOCf41jrTVdffGd43lGudt1vvjA=
+        s=default; t=1560544127;
+        bh=l+rTMnFPCsw32TVa9pqRNQKLqnxtdHDYtV8BGIzK+k0=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=aAT0TIRDr7QiPHGp7QYW3zAZLUrj428eKWm9xZauNnWKpUKjt9yXkXq8VA4tcbq2L
+         bfHmrm95dHz+NUJXLTYIGiUfUNxYgFsaXaelXilDqB3PfBC4H0FP2kzlPsWeydoh0B
+         qCPU8Z582zdYpDR3dGocwXS77vvIPNOejjc62ZAg=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kees Cook <keescook@chromium.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.1 01/59] lkdtm/usercopy: Moves the KERNEL_DS test to non-canonical
-Date:   Fri, 14 Jun 2019 16:27:45 -0400
-Message-Id: <20190614202843.26941-1-sashal@kernel.org>
+Cc:     Vineet Gupta <vgupta@synopsys.com>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-snps-arc@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.1 02/59] ARC: fix build warnings
+Date:   Fri, 14 Jun 2019 16:27:46 -0400
+Message-Id: <20190614202843.26941-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20190614202843.26941-1-sashal@kernel.org>
+References: <20190614202843.26941-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -39,45 +43,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Vineet Gupta <vgupta@synopsys.com>
 
-[ Upstream commit 2bf8496f6e9b7e9a557f65eb95eab16fea7958c7 ]
+[ Upstream commit 89c92142f75eb80064f5b9f1111484b1b4d81790 ]
 
-The prior implementation of the KERNEL_DS fault checking would work on
-any unmapped kernel address, but this was narrowed to the non-canonical
-range instead. This adjusts the LKDTM test to match.
+| arch/arc/mm/tlb.c:914:2: warning: variable length array 'pd0' is used [-Wvla]
+| arch/arc/include/asm/cmpxchg.h:95:29: warning: value computed is not used [-Wunused-value]
 
-Fixes: 00c42373d397 ("x86-64: add warning for non-canonical user access address dereferences")
-Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/lkdtm/usercopy.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ arch/arc/include/asm/cmpxchg.h | 14 ++++++++++----
+ arch/arc/mm/tlb.c              | 13 ++++++++-----
+ 2 files changed, 18 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/misc/lkdtm/usercopy.c b/drivers/misc/lkdtm/usercopy.c
-index d5a0e7f1813b..e172719dd86d 100644
---- a/drivers/misc/lkdtm/usercopy.c
-+++ b/drivers/misc/lkdtm/usercopy.c
-@@ -324,14 +324,16 @@ void lkdtm_USERCOPY_KERNEL(void)
+diff --git a/arch/arc/include/asm/cmpxchg.h b/arch/arc/include/asm/cmpxchg.h
+index d819de1c5d10..3ea4112c8302 100644
+--- a/arch/arc/include/asm/cmpxchg.h
++++ b/arch/arc/include/asm/cmpxchg.h
+@@ -92,8 +92,11 @@ __cmpxchg(volatile void *ptr, unsigned long expected, unsigned long new)
  
- void lkdtm_USERCOPY_KERNEL_DS(void)
- {
--	char __user *user_ptr = (char __user *)ERR_PTR(-EINVAL);
-+	char __user *user_ptr =
-+		(char __user *)(0xFUL << (sizeof(unsigned long) * 8 - 4));
- 	mm_segment_t old_fs = get_fs();
- 	char buf[10] = {0};
+ #endif /* CONFIG_ARC_HAS_LLSC */
  
--	pr_info("attempting copy_to_user on unmapped kernel address\n");
-+	pr_info("attempting copy_to_user() to noncanonical address: %px\n",
-+		user_ptr);
- 	set_fs(KERNEL_DS);
--	if (copy_to_user(user_ptr, buf, sizeof(buf)))
--		pr_info("copy_to_user un unmapped kernel address failed\n");
-+	if (copy_to_user(user_ptr, buf, sizeof(buf)) == 0)
-+		pr_err("copy_to_user() to noncanonical address succeeded!?\n");
- 	set_fs(old_fs);
+-#define cmpxchg(ptr, o, n) ((typeof(*(ptr)))__cmpxchg((ptr), \
+-				(unsigned long)(o), (unsigned long)(n)))
++#define cmpxchg(ptr, o, n) ({				\
++	(typeof(*(ptr)))__cmpxchg((ptr),		\
++				  (unsigned long)(o),	\
++				  (unsigned long)(n));	\
++})
+ 
+ /*
+  * atomic_cmpxchg is same as cmpxchg
+@@ -198,8 +201,11 @@ static inline unsigned long __xchg(unsigned long val, volatile void *ptr,
+ 	return __xchg_bad_pointer();
  }
+ 
+-#define xchg(ptr, with) ((typeof(*(ptr)))__xchg((unsigned long)(with), (ptr), \
+-						 sizeof(*(ptr))))
++#define xchg(ptr, with) ({				\
++	(typeof(*(ptr)))__xchg((unsigned long)(with),	\
++			       (ptr),			\
++			       sizeof(*(ptr)));		\
++})
+ 
+ #endif /* CONFIG_ARC_PLAT_EZNPS */
+ 
+diff --git a/arch/arc/mm/tlb.c b/arch/arc/mm/tlb.c
+index 4097764fea23..fa18c00b0cfd 100644
+--- a/arch/arc/mm/tlb.c
++++ b/arch/arc/mm/tlb.c
+@@ -911,9 +911,11 @@ void do_tlb_overlap_fault(unsigned long cause, unsigned long address,
+ 			  struct pt_regs *regs)
+ {
+ 	struct cpuinfo_arc_mmu *mmu = &cpuinfo_arc700[smp_processor_id()].mmu;
+-	unsigned int pd0[mmu->ways];
+ 	unsigned long flags;
+-	int set;
++	int set, n_ways = mmu->ways;
++
++	n_ways = min(n_ways, 4);
++	BUG_ON(mmu->ways > 4);
+ 
+ 	local_irq_save(flags);
+ 
+@@ -921,9 +923,10 @@ void do_tlb_overlap_fault(unsigned long cause, unsigned long address,
+ 	for (set = 0; set < mmu->sets; set++) {
+ 
+ 		int is_valid, way;
++		unsigned int pd0[4];
+ 
+ 		/* read out all the ways of current set */
+-		for (way = 0, is_valid = 0; way < mmu->ways; way++) {
++		for (way = 0, is_valid = 0; way < n_ways; way++) {
+ 			write_aux_reg(ARC_REG_TLBINDEX,
+ 					  SET_WAY_TO_IDX(mmu, set, way));
+ 			write_aux_reg(ARC_REG_TLBCOMMAND, TLBRead);
+@@ -937,14 +940,14 @@ void do_tlb_overlap_fault(unsigned long cause, unsigned long address,
+ 			continue;
+ 
+ 		/* Scan the set for duplicate ways: needs a nested loop */
+-		for (way = 0; way < mmu->ways - 1; way++) {
++		for (way = 0; way < n_ways - 1; way++) {
+ 
+ 			int n;
+ 
+ 			if (!pd0[way])
+ 				continue;
+ 
+-			for (n = way + 1; n < mmu->ways; n++) {
++			for (n = way + 1; n < n_ways; n++) {
+ 				if (pd0[way] != pd0[n])
+ 					continue;
  
 -- 
 2.20.1
