@@ -2,81 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 23B0145DB9
-	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 15:14:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 621AD45E31
+	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 15:30:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727973AbfFNNOs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jun 2019 09:14:48 -0400
-Received: from mx2.suse.de ([195.135.220.15]:45800 "EHLO mx1.suse.de"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1727766AbfFNNOs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Jun 2019 09:14:48 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.220.254])
-        by mx1.suse.de (Postfix) with ESMTP id 4267AAE07;
-        Fri, 14 Jun 2019 13:14:47 +0000 (UTC)
-From:   Coly Li <colyli@suse.de>
-To:     linux-bcache@vger.kernel.org
-Cc:     linux-block@vger.kernel.org, Coly Li <colyli@suse.de>,
-        stable@vger.kernel.org
-Subject: [PATCH 11/29] bcache: ignore read-ahead request failure on backing device
-Date:   Fri, 14 Jun 2019 21:13:40 +0800
-Message-Id: <20190614131358.2771-12-colyli@suse.de>
-X-Mailer: git-send-email 2.16.4
-In-Reply-To: <20190614131358.2771-1-colyli@suse.de>
-References: <20190614131358.2771-1-colyli@suse.de>
+        id S1728089AbfFNN3l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jun 2019 09:29:41 -0400
+Received: from mail-qt1-f195.google.com ([209.85.160.195]:46840 "EHLO
+        mail-qt1-f195.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727970AbfFNN3l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Jun 2019 09:29:41 -0400
+Received: by mail-qt1-f195.google.com with SMTP id h21so2363853qtn.13
+        for <stable@vger.kernel.org>; Fri, 14 Jun 2019 06:29:40 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=IHyZjXMqJlpbjocW6TRirsZ/j5VR+yIzk8AHQxGtp30=;
+        b=g4hs1OP2uDlLbZeo37qYhFEsYkA67xbY1oBaLarYfol3QE6uBpZ0bN43SttWSNn7Xd
+         s8tEjtB91Sb1ozB0XfRTvOMvksmM+U0YUu0AURghG/3sT6Xfz5flIygezBKXmw60feLN
+         M9taP+cfm4NvUwWN02U693+ILEQcCTqfgRB82B2eZaIGoFnBxIdPNP5iyFHRxXLKLGQx
+         eew76+ep0YB1Zh2qJdC4JGTe3Gtb4x3JT8rLi3XZoqwd3TIyCTkVNJanDDplfFWAJXvO
+         wKr/V36z6V1g6U0CWGIJfIUh6Kd92SIIHLk6JWPTz6JIFzDZC+ry+wh4XizUjWvrJckQ
+         KgZA==
+X-Gm-Message-State: APjAAAVYxU/6kPGAYZR1HACo5UdBG+vQr+RjkCQKy6jyxKABNiMMbpjT
+        XYDQvbBq3UdKoh0Ei2adXTMsvl3Y
+X-Google-Smtp-Source: APXvYqxAQWGBjmM6LjfEEzZrC8V8WYcp7ExN8XPZ1Xq30Vseb2p3huYqpI+wrrB5OQ37ZIu99FJXgg==
+X-Received: by 2002:ac8:252e:: with SMTP id 43mr73187916qtm.61.1560518980286;
+        Fri, 14 Jun 2019 06:29:40 -0700 (PDT)
+Received: from [192.168.15.185] ([4.15.170.198])
+        by smtp.gmail.com with ESMTPSA id q36sm1944911qtc.12.2019.06.14.06.29.39
+        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 14 Jun 2019 06:29:39 -0700 (PDT)
+Subject: Re: [PATCH stable-5.0+ 3/3] nvme-tcp: fix queue mapping when queue
+ count is limited
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org
+References: <20190610045826.13176-1-sagi@grimberg.me>
+ <20190610045826.13176-3-sagi@grimberg.me> <20190613074516.GB19685@kroah.com>
+From:   Sagi Grimberg <sagi@grimberg.me>
+Message-ID: <2efe1238-b183-6a70-25a5-d31666a1df17@grimberg.me>
+Date:   Fri, 14 Jun 2019 06:29:39 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.0
+MIME-Version: 1.0
+In-Reply-To: <20190613074516.GB19685@kroah.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When md raid device (e.g. raid456) is used as backing device, read-ahead
-requests on a degrading and recovering md raid device might be failured
-immediately by md raid code, but indeed this md raid array can still be
-read or write for normal I/O requests. Therefore such failed read-ahead
-request are not real hardware failure. Further more, after degrading and
-recovering accomplished, read-ahead requests will be handled by md raid
-array again.
+Its on its way to Linus...
 
-For such condition, I/O failures of read-ahead requests don't indicate
-real health status (because normal I/O still be served), they should not
-be counted into I/O error counter dc->io_errors.
-
-Since there is no simple way to detect whether the backing divice is a
-md raid device, this patch simply ignores I/O failures for read-ahead
-bios on backing device, to avoid bogus backing device failure on a
-degrading md raid array.
-
-Suggested-and-tested-by: Thorsten Knabe <linux@thorsten-knabe.de>
-Signed-off-by: Coly Li <colyli@suse.de>
-Cc: stable@vger.kernel.org
----
- drivers/md/bcache/io.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
-
-diff --git a/drivers/md/bcache/io.c b/drivers/md/bcache/io.c
-index c25097968319..4d93f07f63e5 100644
---- a/drivers/md/bcache/io.c
-+++ b/drivers/md/bcache/io.c
-@@ -58,6 +58,18 @@ void bch_count_backing_io_errors(struct cached_dev *dc, struct bio *bio)
- 
- 	WARN_ONCE(!dc, "NULL pointer of struct cached_dev");
- 
-+	/*
-+	 * Read-ahead requests on a degrading and recovering md raid
-+	 * (e.g. raid6) device might be failured immediately by md
-+	 * raid code, which is not a real hardware media failure. So
-+	 * we shouldn't count failed REQ_RAHEAD bio to dc->io_errors.
-+	 */
-+	if (bio->bi_opf & REQ_RAHEAD) {
-+		pr_warn_ratelimited("%s: Read-ahead I/O failed on backing device, ignore",
-+				    dc->backing_dev_name);
-+		return;
-+	}
-+
- 	errors = atomic_add_return(1, &dc->io_errors);
- 	if (errors < dc->error_limit)
- 		pr_err("%s: IO error on backing device, unrecoverable",
--- 
-2.16.4
-
+Should I just respin again once it lands there?
