@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id A6A4E45260
-	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 05:12:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B4C2345261
+	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 05:12:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725838AbfFNDMA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jun 2019 23:12:00 -0400
-Received: from mail-pg1-f196.google.com ([209.85.215.196]:43793 "EHLO
-        mail-pg1-f196.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725819AbfFNDMA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Jun 2019 23:12:00 -0400
-Received: by mail-pg1-f196.google.com with SMTP id f25so661562pgv.10
-        for <stable@vger.kernel.org>; Thu, 13 Jun 2019 20:12:00 -0700 (PDT)
+        id S1725864AbfFNDMD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jun 2019 23:12:03 -0400
+Received: from mail-pg1-f193.google.com ([209.85.215.193]:38055 "EHLO
+        mail-pg1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725819AbfFNDMD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Jun 2019 23:12:03 -0400
+Received: by mail-pg1-f193.google.com with SMTP id v11so676599pgl.5
+        for <stable@vger.kernel.org>; Thu, 13 Jun 2019 20:12:02 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=from:to:cc:subject:date:message-id:in-reply-to:references
          :mime-version:content-transfer-encoding;
-        bh=QZmd1kVLh8a0enxFfoIC/p5hW82ft4CjkM7ASI4iKD4=;
-        b=EvZ8YJG4wMc9LRAO6zkuZDB6vSMjpc5gH6HrZCzProPQlk2T5U44R+xBWLpmPhGOl1
-         EYtvILwKXnEhHhYC4hhnw0FLXZWT16beuQnjDfHqyhxbcF1goUL0Fu4gXpO1oNVzy5gi
-         2gzTcM/BWmzycyhn5rSzl9dP8Jkw9xDSdvIMLeHKQVYMDAgVH/bo2yXFqIYo8r3Ixml5
-         HVm8knVEon61EpTiy1YxUfObhlo4wvz+shhRrnO5/g3U6lYwZV/lODFQCepgLvFqGced
-         AO1fcHmxMHwR4NplGJhXum/Ogb6ZdMDHtvWtC0uAePx4nzM2LU2xR6nIFcuf7NdLI1SF
-         z5sg==
+        bh=q2UDagaQQzh/lIVkivR+vaM0gPa+GGbgrufLmqcYVmM=;
+        b=z3CUixoaajCn7ukcAhM7vkUe1zw7MOgiuw2Yef1G/TazLJGzHQAa4ZoBlMwRUSAVfL
+         PfJPSuV4wbp5CAeEtjL34L+ogPzomyWYKTmVBJt0BL7qU3BxUINc0UIEseTbWjNsGYPv
+         P3oKFJanLdaBaPZdNokLjFrQTZ65RGkSFmelnFN5ycYOEOXsSD0CiFz0u8Bji79hnW6e
+         ne7WJ2kUmZSMvQKp/F7I7BrGpSRUBVpIjcMBJGESvXsfNOVx440zFhkywbsKP9fvJI0f
+         mWWiFnykxAGVuYgqhbzMe+ENGiY9PnMZMfudq6xxIoRW0OrCE3I6qZgy7fqigeaGtuYQ
+         9FVQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=QZmd1kVLh8a0enxFfoIC/p5hW82ft4CjkM7ASI4iKD4=;
-        b=iY6Wp0H4FBE13PrTnxf2+ScDbuHVm314LkdNS9fboLe6zWo8sU+VtpGhq7Js/rGKpP
-         LHS0o/hH7PJNTkFk4R/O9BN0Qh1UICMJMNpk6NKO90TPYI9U81msb50b5FoYcbFhBkdD
-         W7tkzF4PjHNmaC5dp26lcwPWARbKvKWWI+AvnigroOedsqtV3ffJk4n3Aj3AXwoO49Wi
-         3kLeJnh47NDYF/c6qf5RgAWquE0gOkq8XdOSGo22v7GahWfPZ4JR5ZWGiRrkJk6eHP5T
-         kH+xTwISYOQEeRjIA5xMXN3uz3X+PikoiJ0HXXd9y47uK3q/YJQu7YG4+zGZhCOOStJt
-         odZA==
-X-Gm-Message-State: APjAAAVJBB7KeiWw9M2myZB4QsFAeZTLEruJrWaVxSXEEk+gvuHoVEp6
-        yG/Yyj9e1P4KElumJs3YtJtL6Q==
-X-Google-Smtp-Source: APXvYqx3siDfJdE96lBsZdB9DtFQr1ZpNWzKGo5dP44HA8C8Ry/tMqyMeRfDgDx8gJYyYbwGnrGPXg==
-X-Received: by 2002:a17:90a:8902:: with SMTP id u2mr8561016pjn.96.1560481919775;
-        Thu, 13 Jun 2019 20:11:59 -0700 (PDT)
+        bh=q2UDagaQQzh/lIVkivR+vaM0gPa+GGbgrufLmqcYVmM=;
+        b=Ep6UqtkN8zyf8Iy3sKmw14/KVz7it+gsoi/QW3U0l46D/tEgMCfwqsTQssbgiAOWrd
+         mhhcMOuItg/Nn5DddW9aGRMb/OQifrpVOX02wcQH9iJ/8mJCJA7A+Bq5fhSScH4LET1y
+         FPSel1mRB60cDt7ad8o4Vaa/P0l5TW7T674KAunH4tG+HcZIxql9ocQTVCCd7D13wZuc
+         rouhUPtJbfwfO4+tY48g/qgp24UIZPcrHRCZCwChNwmHxa/T/rBc3/heVr/aqn0iu0kW
+         zpY/cwdFi8slmLbb3LoFuEnIfPjBGSfcw1TnHH8tshpHhyi1X53f9/fpTVf1v09vy0z9
+         c7NA==
+X-Gm-Message-State: APjAAAVDh+gD12gaVFRl0G8U94dnLeTi7YnEGQiVOhXRMZRoAMAgdVO4
+        a3xHeDosbp3VOGjqYkdnWaDslA==
+X-Google-Smtp-Source: APXvYqw0YdgiXz5axjmwP8zKQfiE6/6qJ1tgfUBgYclyADpY01E8vwVgnU4EZUdMf24QwT3WxVf5hg==
+X-Received: by 2002:a62:78c2:: with SMTP id t185mr27057268pfc.142.1560481922495;
+        Thu, 13 Jun 2019 20:12:02 -0700 (PDT)
 Received: from localhost ([122.172.66.84])
-        by smtp.gmail.com with ESMTPSA id e127sm1035402pfe.98.2019.06.13.20.11.58
+        by smtp.gmail.com with ESMTPSA id 23sm1006127pfn.176.2019.06.13.20.12.01
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 13 Jun 2019 20:11:59 -0700 (PDT)
+        Thu, 13 Jun 2019 20:12:02 -0700 (PDT)
 From:   Viresh Kumar <viresh.kumar@linaro.org>
 To:     linux-arm-kernel@lists.infradead.org,
         Julien Thierry <Julien.Thierry@arm.com>
@@ -55,9 +55,9 @@ Cc:     Viresh Kumar <viresh.kumar@linaro.org>, stable@vger.kernel.org,
         Russell King <rmk+kernel@arm.linux.org.uk>,
         Vincent Guittot <vincent.guittot@linaro.org>,
         mark.brown@arm.com
-Subject: [PATCH v4.4 02/45] arm64: Implement array_index_mask_nospec()
-Date:   Fri, 14 Jun 2019 08:37:45 +0530
-Message-Id: <3f1bc5e6cfd1d72a2e3612aca52a3811f38332cf.1560480942.git.viresh.kumar@linaro.org>
+Subject: [PATCH v4.4 03/45] arm64: remove duplicate macro __KERNEL__ check
+Date:   Fri, 14 Jun 2019 08:37:46 +0530
+Message-Id: <397130f9dfb4aa9a600872fb5ed66c90664b830f.1560480942.git.viresh.kumar@linaro.org>
 X-Mailer: git-send-email 2.21.0.rc0.269.g1a574e7a288b
 In-Reply-To: <cover.1560480942.git.viresh.kumar@linaro.org>
 References: <cover.1560480942.git.viresh.kumar@linaro.org>
@@ -68,59 +68,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Murphy <robin.murphy@arm.com>
+From: zijun_hu <zijun_hu@htc.com>
 
-commit 022620eed3d0bc4bf2027326f599f5ad71c2ea3f upstream.
+commit a842789837c0e3734357c6b4c54d39d60a1d24b1 upstream.
 
-Provide an optimised, assembly implementation of array_index_mask_nospec()
-for arm64 so that the compiler is not in a position to transform the code
-in ways which affect its ability to inhibit speculation (e.g. by introducing
-conditional branches).
+remove duplicate macro __KERNEL__ check
 
-This is similar to the sequence used by x86, modulo architectural differences
-in the carry/borrow flags.
-
-Reviewed-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
+Signed-off-by: zijun_hu <zijun_hu@htc.com>
 Signed-off-by: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 ---
- arch/arm64/include/asm/barrier.h | 21 +++++++++++++++++++++
- 1 file changed, 21 insertions(+)
+ arch/arm64/include/asm/processor.h | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/arch/arm64/include/asm/barrier.h b/arch/arm64/include/asm/barrier.h
-index 574486634c62..7c25e3e11b6d 100644
---- a/arch/arm64/include/asm/barrier.h
-+++ b/arch/arm64/include/asm/barrier.h
-@@ -37,6 +37,27 @@
- #define dma_rmb()	dmb(oshld)
- #define dma_wmb()	dmb(oshst)
+diff --git a/arch/arm64/include/asm/processor.h b/arch/arm64/include/asm/processor.h
+index d08559528927..b1126eea73ae 100644
+--- a/arch/arm64/include/asm/processor.h
++++ b/arch/arm64/include/asm/processor.h
+@@ -35,7 +35,6 @@
+ #include <asm/ptrace.h>
+ #include <asm/types.h>
  
-+/*
-+ * Generate a mask for array_index__nospec() that is ~0UL when 0 <= idx < sz
-+ * and 0 otherwise.
-+ */
-+#define array_index_mask_nospec array_index_mask_nospec
-+static inline unsigned long array_index_mask_nospec(unsigned long idx,
-+						    unsigned long sz)
-+{
-+	unsigned long mask;
-+
-+	asm volatile(
-+	"	cmp	%1, %2\n"
-+	"	sbc	%0, xzr, xzr\n"
-+	: "=r" (mask)
-+	: "r" (idx), "Ir" (sz)
-+	: "cc");
-+
-+	csdb();
-+	return mask;
-+}
-+
- #define smp_mb()	dmb(ish)
- #define smp_rmb()	dmb(ishld)
- #define smp_wmb()	dmb(ishst)
+-#ifdef __KERNEL__
+ #define STACK_TOP_MAX		TASK_SIZE_64
+ #ifdef CONFIG_COMPAT
+ #define AARCH32_VECTORS_BASE	0xffff0000
+@@ -47,7 +46,6 @@
+ 
+ extern phys_addr_t arm64_dma_phys_limit;
+ #define ARCH_LOW_ADDRESS_LIMIT	(arm64_dma_phys_limit - 1)
+-#endif /* __KERNEL__ */
+ 
+ struct debug_info {
+ 	/* Have we suspended stepping by a debugger? */
 -- 
 2.21.0.rc0.269.g1a574e7a288b
 
