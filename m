@@ -2,109 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B21E4631F
-	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 17:42:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B33146432
+	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 18:32:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726177AbfFNPmN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jun 2019 11:42:13 -0400
-Received: from mail-io1-f66.google.com ([209.85.166.66]:42504 "EHLO
-        mail-io1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726556AbfFNPmM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Jun 2019 11:42:12 -0400
-Received: by mail-io1-f66.google.com with SMTP id u19so6663688ior.9
-        for <stable@vger.kernel.org>; Fri, 14 Jun 2019 08:42:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=rhlu0KMAQ48ehIhdtg955Nb+uyGa0rTx6PsvOc4/bWs=;
-        b=eVt6qzm9nXevPTFXbZgxmAtEkvXaLkUjLCMRS4NRFw5E8bHPugqIBKw2Zy8f76G3gc
-         XgjLXpt7x5FC/qIUqfcQRTLtWsacsFnyMv13TjVo6utfbQdrb6D1XNxWphsmrSZXIYoI
-         7Sd75nVsRAhaKiAuHkiKmZDt4T+nRWyKal/ZA=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=rhlu0KMAQ48ehIhdtg955Nb+uyGa0rTx6PsvOc4/bWs=;
-        b=f3zMeO8W9UTz1XfiPnijNGP6efpvgNSe+/Q/XCTtf0qifCYMKfVarlV2AvRfjpD/OA
-         8MI6ISNPnfnOVBl3I+CaLNxoyuGlbx9acnTbwR8wWz5ivR7wuK8ZEB/kxvUAq+qXgH9A
-         FQ134c6xK9RMLi6ZgHV8fOaBrvQuZk4HytSEFEc4+j8iEq6c4dKviwKxadlJH6FgEDdo
-         6vjO3NUTj35zl3UzObC9YC41LYoV21u+/x3R5u7JEmCUILM67cBen4ht2DsgD/ZC1Lvz
-         BpVYFucMmArgGayu5i9ORHqXGsYubQBIJJj6Izf6lvqvPp5nRRk3mYwt+iqF5miIuMfL
-         cGHg==
-X-Gm-Message-State: APjAAAXD58JdUbyTTeZNE1ozCpJ/P4fKb3mWcBfdv/6HcOXZKGmmjgxk
-        OGSqFYzxcpDa9I5ShJZVV7vlsLs+Xxg=
-X-Google-Smtp-Source: APXvYqzKu1LZSJQ4YiMivqMX3paOC24lQNw4LUpCyeUxFH7e+hjwEpmsj/tymVhu+gceDeYWsNT3dQ==
-X-Received: by 2002:a6b:f114:: with SMTP id e20mr52709229iog.169.1560526931762;
-        Fri, 14 Jun 2019 08:42:11 -0700 (PDT)
-Received: from mail-io1-f54.google.com (mail-io1-f54.google.com. [209.85.166.54])
-        by smtp.gmail.com with ESMTPSA id e5sm3489095ioq.22.2019.06.14.08.42.09
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
-        Fri, 14 Jun 2019 08:42:09 -0700 (PDT)
-Received: by mail-io1-f54.google.com with SMTP id s7so6643479iob.11
-        for <stable@vger.kernel.org>; Fri, 14 Jun 2019 08:42:09 -0700 (PDT)
-X-Received: by 2002:a5d:885a:: with SMTP id t26mr3842557ios.218.1560526928935;
- Fri, 14 Jun 2019 08:42:08 -0700 (PDT)
+        id S1726071AbfFNQc3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jun 2019 12:32:29 -0400
+Received: from mga11.intel.com ([192.55.52.93]:4453 "EHLO mga11.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725859AbfFNQc2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Jun 2019 12:32:28 -0400
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/DHE-RSA-AES256-GCM-SHA384; 14 Jun 2019 09:32:28 -0700
+X-ExtLoop1: 1
+Received: from sedona.ch.intel.com ([10.2.136.157])
+  by orsmga005.jf.intel.com with ESMTP; 14 Jun 2019 09:32:27 -0700
+Received: from awfm-01.aw.intel.com (awfm-01.aw.intel.com [10.228.212.213])
+        by sedona.ch.intel.com (8.14.3/8.14.3/Standard MailSET/Hub) with ESMTP id x5EGWRp1060957;
+        Fri, 14 Jun 2019 09:32:27 -0700
+Received: from awfm-01.aw.intel.com (localhost [127.0.0.1])
+        by awfm-01.aw.intel.com (8.14.7/8.14.7) with ESMTP id x5EGWQeK045017;
+        Fri, 14 Jun 2019 12:32:26 -0400
+Subject: [PATCH for-rc 1/7] IB/hfi1: Avoid hardlockup with flushlist_lock
+From:   Dennis Dalessandro <dennis.dalessandro@intel.com>
+To:     jgg@ziepe.ca, dledford@redhat.com
+Cc:     linux-rdma@vger.kernel.org,
+        Mike Marciniszyn <mike.marciniszyn@intel.com>,
+        stable@vger.kernel.org
+Date:   Fri, 14 Jun 2019 12:32:26 -0400
+Message-ID: <20190614163225.44927.41903.stgit@awfm-01.aw.intel.com>
+In-Reply-To: <20190614163146.44927.95985.stgit@awfm-01.aw.intel.com>
+References: <20190614163146.44927.95985.stgit@awfm-01.aw.intel.com>
+User-Agent: StGit/0.17.1-dirty
 MIME-Version: 1.0
-References: <20190611123221.11580-1-ulf.hansson@linaro.org>
- <CAD=FV=XBVRsdiOD0vhgTvMXmqm=fzy9Bzd_x=E1TNPBsT_D-tQ@mail.gmail.com>
- <CAPDyKFqR-xSKdYZYBTK5kKOt1dk7dx_BjedHiDOKs7-X4od=dg@mail.gmail.com>
- <CAD=FV=WODbZa1fBrLbJBsd77xn5ekHWjks-ydxOSzjdBK83Rmg@mail.gmail.com> <CAPDyKFpqk4ZcVTqifnbnW1WgNfx9ZNebCttUPcK_e9KWqpDMjQ@mail.gmail.com>
-In-Reply-To: <CAPDyKFpqk4ZcVTqifnbnW1WgNfx9ZNebCttUPcK_e9KWqpDMjQ@mail.gmail.com>
-From:   Doug Anderson <dianders@chromium.org>
-Date:   Fri, 14 Jun 2019 08:41:58 -0700
-X-Gmail-Original-Message-ID: <CAD=FV=Ujb=_jEFMdxLPW6tYwb9DZo5-RZ8BVuyq5DdFQ5jJbQw@mail.gmail.com>
-Message-ID: <CAD=FV=Ujb=_jEFMdxLPW6tYwb9DZo5-RZ8BVuyq5DdFQ5jJbQw@mail.gmail.com>
-Subject: Re: [PATCH] mmc: core: Prevent processing SDIO IRQs when the card is suspended
-To:     Ulf Hansson <ulf.hansson@linaro.org>
-Cc:     Linux MMC List <linux-mmc@vger.kernel.org>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Brian Norris <briannorris@chromium.org>,
-        Shawn Lin <shawn.lin@rock-chips.com>,
-        Guenter Roeck <groeck@chromium.org>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        linux-wireless <linux-wireless@vger.kernel.org>,
-        "# 4.0+" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+From: Mike Marciniszyn <mike.marciniszyn@intel.com>
 
-On Fri, Jun 14, 2019 at 4:56 AM Ulf Hansson <ulf.hansson@linaro.org> wrote:
->
-> > I was more worried about the safety of mmc_card_set_suspended()
-> > itself.  That is:
-> >
-> > #define mmc_card_set_suspended(c) ((c)->state |= MMC_STATE_SUSPENDED)
-> >
-> > ...so it's doing a read-modify-write of "state".  Is that safe to do
-> > without any type of locking?
->
-> In this case, yes I think so.
->
-> The point is, it really doesn't matter if the reader (work or thread),
-> reads a non-updated value, because the synchronization is managed by
-> the later mmc_claim_host() and the cancel_delayed_work_sync().
+Heavy contention of the sde flushlist_lock can cause hard lockups at
+extreme scale when the flushing logic is under stress.
 
-If this were just an "int" then perhaps, but this is a bitfield.  So
-if someone else updates the bitfield at the same time then we can
-fully clobber their modification or they can clobber ours, right?
+Mitigate by replacing the item at a time copy to the local list with
+an O(1) list_splice_init() and using the high priority work queue to
+do the flushes.
 
-task 1: load "state" from memory into CPU register on cpu0
-task 2: load "state" from memory into CPU register on cpu1
-task 1: OR in MMC_CARD_REMOVED
-task 1: write "state" from CPU register on cpu0
-task 2: OR in MMC_STATE_SUSPENDED
-task 2: write "state" from CPU register on cpu1
+Fixes: 7724105686e7 ("IB/hfi1: add driver files")
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
+Signed-off-by: Mike Marciniszyn <mike.marciniszyn@intel.com>
+Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
+---
+ drivers/infiniband/hw/hfi1/sdma.c |    9 +++------
+ 1 file changed, 3 insertions(+), 6 deletions(-)
 
-...so now we've clobbered MMC_CARD_REMOVED.  ...or am I just being
-paranoid here and everything else in "state" is somehow guaranteed to
-not be touched at the same time this function is running?
+diff --git a/drivers/infiniband/hw/hfi1/sdma.c b/drivers/infiniband/hw/hfi1/sdma.c
+index b011072..70828de 100644
+--- a/drivers/infiniband/hw/hfi1/sdma.c
++++ b/drivers/infiniband/hw/hfi1/sdma.c
+@@ -410,10 +410,7 @@ static void sdma_flush(struct sdma_engine *sde)
+ 	sdma_flush_descq(sde);
+ 	spin_lock_irqsave(&sde->flushlist_lock, flags);
+ 	/* copy flush list */
+-	list_for_each_entry_safe(txp, txp_next, &sde->flushlist, list) {
+-		list_del_init(&txp->list);
+-		list_add_tail(&txp->list, &flushlist);
+-	}
++	list_splice_init(&sde->flushlist, &flushlist);
+ 	spin_unlock_irqrestore(&sde->flushlist_lock, flags);
+ 	/* flush from flush list */
+ 	list_for_each_entry_safe(txp, txp_next, &flushlist, list)
+@@ -2413,7 +2410,7 @@ int sdma_send_txreq(struct sdma_engine *sde,
+ 	list_add_tail(&tx->list, &sde->flushlist);
+ 	spin_unlock(&sde->flushlist_lock);
+ 	iowait_inc_wait_count(wait, tx->num_desc);
+-	schedule_work(&sde->flush_worker);
++	queue_work_on(sde->cpu, system_highpri_wq, &sde->flush_worker);
+ 	ret = -ECOMM;
+ 	goto unlock;
+ nodesc:
+@@ -2511,7 +2508,7 @@ int sdma_send_txlist(struct sdma_engine *sde, struct iowait_work *wait,
+ 		iowait_inc_wait_count(wait, tx->num_desc);
+ 	}
+ 	spin_unlock(&sde->flushlist_lock);
+-	schedule_work(&sde->flush_worker);
++	queue_work_on(sde->cpu, system_highpri_wq, &sde->flush_worker);
+ 	ret = -ECOMM;
+ 	goto update_tail;
+ nodesc:
 
-
--Doug
