@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B202D4698A
-	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 22:34:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96E144699D
+	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 22:34:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727569AbfFNUaY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jun 2019 16:30:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53308 "EHLO mail.kernel.org"
+        id S1726855AbfFNUdv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jun 2019 16:33:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53358 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727546AbfFNUaX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 14 Jun 2019 16:30:23 -0400
+        id S1727580AbfFNUaZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Jun 2019 16:30:25 -0400
 Received: from sasha-vm.mshome.net (unknown [131.107.159.134])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id D862621851;
-        Fri, 14 Jun 2019 20:30:22 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id AFD452184B;
+        Fri, 14 Jun 2019 20:30:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560544222;
-        bh=b4B2B2FBeblgf04rcejeh3Qcw4zIHtGN/AIfvoR/y/8=;
+        s=default; t=1560544224;
+        bh=Dy6eUm5cbhEYolxaCO9G//UJ5BGE2fKiiJeMoK9YS4Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1iGqqqsg0i1GDTuRuAOP2vBBwKX1RwRHI8HImN7s4vRIGO/XMa10iHaYao78+0+Qp
-         oWOJ+cPJMJfgoN6rghCR+80pwhtj0EMGxVdQ9+Kor5z3ZXTe3sP5+fOTgAHY73H76N
-         HwZ9D55Aln02fhanix+EfNNJQSiQxwRFGUl32FZs=
+        b=BNFz6se88/gQROWydZMrUQR7MqJmAeLra9OTZpD1htIB6Mlebib0CqKCsIrC/l4xG
+         VhRdfp0cyCxcX1kMo4Sc9MB625+NmOwVUFeNlnT5Y2qEMNj6KVunVlfvSp8fxAoYpn
+         C5j0JZLcyl4ne5mbJUq8NVJaJDGlq05an2AMPX9g=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kamenee Arumugam <kamenee.arumugam@intel.com>,
-        "Michael J . Ruhl" <michael.j.ruhl@intel.com>,
-        Dennis Dalessandro <dennis.dalessandro@intel.com>,
-        Jason Gunthorpe <jgg@mellanox.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 09/27] IB/hfi1: Validate page aligned for a given virtual address
-Date:   Fri, 14 Jun 2019 16:29:58 -0400
-Message-Id: <20190614203018.27686-9-sashal@kernel.org>
+Cc:     YueHaibing <yuehaibing@huawei.com>,
+        Paul Burton <paul.burton@mips.com>, ralf@linux-mips.org,
+        jhogan@kernel.org, linux-mips@vger.kernel.org,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 10/27] MIPS: uprobes: remove set but not used variable 'epc'
+Date:   Fri, 14 Jun 2019 16:29:59 -0400
+Message-Id: <20190614203018.27686-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190614203018.27686-1-sashal@kernel.org>
 References: <20190614203018.27686-1-sashal@kernel.org>
@@ -45,41 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kamenee Arumugam <kamenee.arumugam@intel.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 97736f36dbebf2cda2799db3b54717ba5b388255 ]
+[ Upstream commit f532beeeff0c0a3586cc15538bc52d249eb19e7c ]
 
-User applications can register memory regions for TID buffers that are not
-aligned on page boundaries. Hfi1 is expected to pin those pages in memory
-and cache the pages with mmu_rb. The rb tree will fail to insert pages
-that are not aligned correctly.
+Fixes gcc '-Wunused-but-set-variable' warning:
 
-Validate whether a given virtual address is page aligned before pinning.
+arch/mips/kernel/uprobes.c: In function 'arch_uprobe_pre_xol':
+arch/mips/kernel/uprobes.c:115:17: warning: variable 'epc' set but not used [-Wunused-but-set-variable]
 
-Fixes: 7e7a436ecb6e ("staging/hfi1: Add TID entry program function body")
-Reviewed-by: Michael J. Ruhl <michael.j.ruhl@intel.com>
-Signed-off-by: Kamenee Arumugam <kamenee.arumugam@intel.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@mellanox.com>
+It's never used since introduction in
+commit 40e084a506eb ("MIPS: Add uprobes support.")
+
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Signed-off-by: Paul Burton <paul.burton@mips.com>
+Cc: <ralf@linux-mips.org>
+Cc: <jhogan@kernel.org>
+Cc: <linux-kernel@vger.kernel.org>
+Cc: <linux-mips@vger.kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hfi1/user_exp_rcv.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/mips/kernel/uprobes.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hfi1/user_exp_rcv.c b/drivers/infiniband/hw/hfi1/user_exp_rcv.c
-index 6f6c14df383e..b38e3808836c 100644
---- a/drivers/infiniband/hw/hfi1/user_exp_rcv.c
-+++ b/drivers/infiniband/hw/hfi1/user_exp_rcv.c
-@@ -324,6 +324,9 @@ int hfi1_user_exp_rcv_setup(struct hfi1_filedata *fd,
- 	u32 *tidlist = NULL;
- 	struct tid_user_buf *tidbuf;
- 
-+	if (!PAGE_ALIGNED(tinfo->vaddr))
-+		return -EINVAL;
-+
- 	tidbuf = kzalloc(sizeof(*tidbuf), GFP_KERNEL);
- 	if (!tidbuf)
- 		return -ENOMEM;
+diff --git a/arch/mips/kernel/uprobes.c b/arch/mips/kernel/uprobes.c
+index f7a0645ccb82..6305e91ffc44 100644
+--- a/arch/mips/kernel/uprobes.c
++++ b/arch/mips/kernel/uprobes.c
+@@ -112,9 +112,6 @@ int arch_uprobe_pre_xol(struct arch_uprobe *aup, struct pt_regs *regs)
+ 	 */
+ 	aup->resume_epc = regs->cp0_epc + 4;
+ 	if (insn_has_delay_slot((union mips_instruction) aup->insn[0])) {
+-		unsigned long epc;
+-
+-		epc = regs->cp0_epc;
+ 		__compute_return_epc_for_insn(regs,
+ 			(union mips_instruction) aup->insn[0]);
+ 		aup->resume_epc = regs->cp0_epc;
 -- 
 2.20.1
 
