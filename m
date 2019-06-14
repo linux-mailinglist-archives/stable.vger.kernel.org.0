@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id ADECD46AD2
-	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 22:39:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C9BE46ABE
+	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 22:39:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726688AbfFNUiq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jun 2019 16:38:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50744 "EHLO mail.kernel.org"
+        id S1726686AbfFNU3B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jun 2019 16:29:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50756 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726637AbfFNU3A (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726649AbfFNU3A (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 14 Jun 2019 16:29:00 -0400
 Received: from sasha-vm.mshome.net (unknown [131.107.159.134])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 936222186A;
+        by mail.kernel.org (Postfix) with ESMTPSA id EBCC021850;
         Fri, 14 Jun 2019 20:28:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560544139;
-        bh=6BVu7bzRZMrsY8cN3BN2v7SQDyHq/7qlDh9aorjpeaA=;
+        s=default; t=1560544140;
+        bh=DkwTj3lGy+62IaL5sUSt22R/GkKUGMOQMc62lTrrUjc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E+y5V9i5WqXOqxR+WSvWNw3HoAyso9XLO96nZ3mt/XWRWMP2Ujh/rxqFUx0uSifzP
-         mErsImUWUq1woEa9HSTduCirQWRH6wgPu/ZTr2Ym4OMkqIffEJMCn0x3/dYZk2myu6
-         Mney8H36tpjSFz9+oqkzEbe9x14wMOjg5etyZ1yo=
+        b=VcH/ToUZ1UIIL4mXEmxV1+GXMxxyxkcScWFsWF/rx/ti2K7L31AU3uegRpej1uujn
+         BQ1j/pDSxs1bv/FrTnaJT7/R2YRFGC9mqIVnUDzfSXQlY0XwGNL32LKCf5EQqb9OM4
+         QsO4gY04Xq7stZT3jWZPtlvCos6fUIhlBhRM2zX0=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chengguang Xu <cgxu519@gmx.com>, Wu Hao <hao.wu@intel.com>,
-        Alan Tull <atull@kernel.org>,
+Cc:     YueHaibing <yuehaibing@huawei.com>, Hulk Robot <hulkci@huawei.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-fpga@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 17/59] fpga: dfl: expand minor range when registering chrdev region
-Date:   Fri, 14 Jun 2019 16:28:01 -0400
-Message-Id: <20190614202843.26941-17-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 18/59] parport: Fix mem leak in parport_register_dev_model
+Date:   Fri, 14 Jun 2019 16:28:02 -0400
+Message-Id: <20190614202843.26941-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190614202843.26941-1-sashal@kernel.org>
 References: <20190614202843.26941-1-sashal@kernel.org>
@@ -44,47 +43,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengguang Xu <cgxu519@gmx.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit de9a7f6f5f1967d275311cca9163b4a3ffe9b0ae ]
+[ Upstream commit 1c7ebeabc9e5ee12e42075a597de40fdb9059530 ]
 
-Actually, total amount of available minor number
-for a single major is MINORMASK + 1. So expand
-minor range when registering chrdev region.
+BUG: memory leak
+unreferenced object 0xffff8881df48cda0 (size 16):
+  comm "syz-executor.0", pid 5077, jiffies 4295994670 (age 22.280s)
+  hex dump (first 16 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<00000000d2d0d5fe>] parport_register_dev_model+0x141/0x6e0 [parport]
+    [<00000000782f6dab>] 0xffffffffc15d1196
+    [<00000000d2ca6ae4>] platform_drv_probe+0x7e/0x100
+    [<00000000628c2a94>] really_probe+0x342/0x4d0
+    [<000000006874f5da>] driver_probe_device+0x8c/0x170
+    [<00000000424de37a>] __device_attach_driver+0xda/0x100
+    [<000000002acab09a>] bus_for_each_drv+0xfe/0x170
+    [<000000003d9e5f31>] __device_attach+0x190/0x230
+    [<0000000035d32f80>] bus_probe_device+0x123/0x140
+    [<00000000a05ba627>] device_add+0x7cc/0xce0
+    [<000000003f7560bf>] platform_device_add+0x230/0x3c0
+    [<000000002a0be07d>] 0xffffffffc15d0949
+    [<000000007361d8d2>] port_check+0x3b/0x50 [parport]
+    [<000000004d67200f>] bus_for_each_dev+0x115/0x180
+    [<000000003ccfd11c>] __parport_register_driver+0x1f0/0x210 [parport]
+    [<00000000987f06fc>] 0xffffffffc15d803e
 
-Signed-off-by: Chengguang Xu <cgxu519@gmx.com>
-Acked-by: Wu Hao <hao.wu@intel.com>
-Acked-by: Alan Tull <atull@kernel.org>
+After commit 4e5a74f1db8d ("parport: Revert "parport: fix
+memory leak""), free_pardevice do not free par_dev->state,
+we should free it in error path of parport_register_dev_model
+before return.
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Fixes: 4e5a74f1db8d ("parport: Revert "parport: fix memory leak"")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/fpga/dfl.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/parport/share.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/fpga/dfl.c b/drivers/fpga/dfl.c
-index c25217cde5ca..4b66aaa32b5a 100644
---- a/drivers/fpga/dfl.c
-+++ b/drivers/fpga/dfl.c
-@@ -322,7 +322,7 @@ static void dfl_chardev_uinit(void)
- 	for (i = 0; i < DFL_FPGA_DEVT_MAX; i++)
- 		if (MAJOR(dfl_chrdevs[i].devt)) {
- 			unregister_chrdev_region(dfl_chrdevs[i].devt,
--						 MINORMASK);
-+						 MINORMASK + 1);
- 			dfl_chrdevs[i].devt = MKDEV(0, 0);
- 		}
- }
-@@ -332,8 +332,8 @@ static int dfl_chardev_init(void)
- 	int i, ret;
- 
- 	for (i = 0; i < DFL_FPGA_DEVT_MAX; i++) {
--		ret = alloc_chrdev_region(&dfl_chrdevs[i].devt, 0, MINORMASK,
--					  dfl_chrdevs[i].name);
-+		ret = alloc_chrdev_region(&dfl_chrdevs[i].devt, 0,
-+					  MINORMASK + 1, dfl_chrdevs[i].name);
- 		if (ret)
- 			goto exit;
+diff --git a/drivers/parport/share.c b/drivers/parport/share.c
+index 5dc53d420ca8..7b4ee33c1935 100644
+--- a/drivers/parport/share.c
++++ b/drivers/parport/share.c
+@@ -895,6 +895,7 @@ parport_register_dev_model(struct parport *port, const char *name,
+ 	par_dev->devmodel = true;
+ 	ret = device_register(&par_dev->dev);
+ 	if (ret) {
++		kfree(par_dev->state);
+ 		put_device(&par_dev->dev);
+ 		goto err_put_port;
  	}
+@@ -912,6 +913,7 @@ parport_register_dev_model(struct parport *port, const char *name,
+ 			spin_unlock(&port->physport->pardevice_lock);
+ 			pr_debug("%s: cannot grant exclusive access for device %s\n",
+ 				 port->name, name);
++			kfree(par_dev->state);
+ 			device_unregister(&par_dev->dev);
+ 			goto err_put_port;
+ 		}
 -- 
 2.20.1
 
