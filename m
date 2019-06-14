@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 48CAF46B01
-	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 22:39:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EB9946B08
+	for <lists+stable@lfdr.de>; Fri, 14 Jun 2019 22:39:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726432AbfFNUjV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jun 2019 16:39:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50434 "EHLO mail.kernel.org"
+        id S1727755AbfFNUjW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jun 2019 16:39:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50466 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726392AbfFNU2v (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1726393AbfFNU2v (ORCPT <rfc822;stable@vger.kernel.org>);
         Fri, 14 Jun 2019 16:28:51 -0400
 Received: from sasha-vm.mshome.net (unknown [131.107.159.134])
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id AE17121850;
-        Fri, 14 Jun 2019 20:28:50 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 05B4421848;
+        Fri, 14 Jun 2019 20:28:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560544130;
-        bh=kOj2ED/pks+yCY9Anj6LUlMl2iZ4JhcYhRf7j7D8cwc=;
+        s=default; t=1560544131;
+        bh=EGJ5b7wgv3N9IuHk6sFXpBIJQl97aOdOMqmObwWV09w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gcuvFwGBOVKYpzwc8HQVfWCan9JVm3+UIl4rHWNMIj3YB0p4ewOIFgTiG5lXg1u3a
-         0sd1io1M6CAYW1FPQRE2xzBX0IvArtsuSNyq/S64v8ntPiGSNx2C18oVbWZ8aCtFnR
-         RMeqFxOqDcby5yHrthXrM1iZPzgRH42GRGfU3wms=
+        b=Y6t2HJuM+I+Dis0ZYLVJhftx49RhgShdMwPJ6yLg2W2iZb9S2hfstsfIJazHRaVmn
+         8m+nqWGDGExnBmKbqk7yWp8YAMp2XSDKlygfY68AbJl8peis0j+BJ5PMyGwKIJMpxh
+         97NwiGBqGm2ayKSoca50lznF7n85wEaZ59S18IYk=
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Baolin Wang <baolin.wang@linaro.org>,
+Cc:     Eric Long <eric.long@unisoc.com>,
+        Baolin Wang <baolin.wang@linaro.org>,
         Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
         dmaengine@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.1 07/59] dmaengine: sprd: Add validation of current descriptor in irq handler
-Date:   Fri, 14 Jun 2019 16:27:51 -0400
-Message-Id: <20190614202843.26941-7-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.1 08/59] dmaengine: sprd: Fix the incorrect start for 2-stage destination channels
+Date:   Fri, 14 Jun 2019 16:27:52 -0400
+Message-Id: <20190614202843.26941-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.20.1
 In-Reply-To: <20190614202843.26941-1-sashal@kernel.org>
 References: <20190614202843.26941-1-sashal@kernel.org>
@@ -43,46 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baolin Wang <baolin.wang@linaro.org>
+From: Eric Long <eric.long@unisoc.com>
 
-[ Upstream commit 58152b0e573e5581c4b9ef7cf06d2e9fafae27d4 ]
+[ Upstream commit 3d626a97f0303e9c30d063434b749de3f0f91fb5 ]
 
-When user terminates one DMA channel to free all its descriptors, but
-at the same time one transaction interrupt was triggered possibly, now
-we should not handle this interrupt by validating if the 'schan->cur_desc'
-was set as NULL to avoid crashing the kernel.
+The 2-stage destination channel will be triggered by source channel
+automatically, which means we should not trigger it by software request.
 
+Signed-off-by: Eric Long <eric.long@unisoc.com>
 Signed-off-by: Baolin Wang <baolin.wang@linaro.org>
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/sprd-dma.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/dma/sprd-dma.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/dma/sprd-dma.c b/drivers/dma/sprd-dma.c
-index e29342ab85f6..431e289d59a5 100644
+index 431e289d59a5..0f92e60529d1 100644
 --- a/drivers/dma/sprd-dma.c
 +++ b/drivers/dma/sprd-dma.c
-@@ -552,12 +552,17 @@ static irqreturn_t dma_irq_handle(int irq, void *dev_id)
- 		schan = &sdev->channels[i];
+@@ -510,7 +510,9 @@ static void sprd_dma_start(struct sprd_dma_chn *schan)
+ 	sprd_dma_set_uid(schan);
+ 	sprd_dma_enable_chn(schan);
  
- 		spin_lock(&schan->vc.lock);
-+
-+		sdesc = schan->cur_desc;
-+		if (!sdesc) {
-+			spin_unlock(&schan->vc.lock);
-+			return IRQ_HANDLED;
-+		}
-+
- 		int_type = sprd_dma_get_int_type(schan);
- 		req_type = sprd_dma_get_req_type(schan);
- 		sprd_dma_clear_int(schan);
+-	if (schan->dev_id == SPRD_DMA_SOFTWARE_UID)
++	if (schan->dev_id == SPRD_DMA_SOFTWARE_UID &&
++	    schan->chn_mode != SPRD_DMA_DST_CHN0 &&
++	    schan->chn_mode != SPRD_DMA_DST_CHN1)
+ 		sprd_dma_soft_request(schan);
+ }
  
--		sdesc = schan->cur_desc;
--
- 		/* cyclic mode schedule callback */
- 		cyclic = schan->linklist.phy_addr ? true : false;
- 		if (cyclic == true) {
 -- 
 2.20.1
 
