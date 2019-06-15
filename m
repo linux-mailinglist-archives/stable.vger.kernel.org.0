@@ -2,59 +2,208 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 15C9847166
-	for <lists+stable@lfdr.de>; Sat, 15 Jun 2019 19:30:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13EDA4716D
+	for <lists+stable@lfdr.de>; Sat, 15 Jun 2019 19:36:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725535AbfFORa6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 15 Jun 2019 13:30:58 -0400
-Received: from smtp2.ono.com ([62.42.230.179]:36508 "EHLO smtp2.ono.com"
+        id S1725535AbfFORf7 convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Sat, 15 Jun 2019 13:35:59 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:60038 "EHLO mx1.redhat.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725270AbfFORa6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 15 Jun 2019 13:30:58 -0400
-X-Junkmail-Premium-Raw: score=35/50,refid=2.7.2:2019.6.15.165116:17:35.434,ip=62.42.230.134,rules=__HAS_MSGID,
- __SANE_MSGID, MSGID_JMAIL_DEFAULT, INVALID_MSGID_NO_FQDN, __HAS_FROM,
- FROM_NAME_PHRASE, __HAS_REPLYTO, __FRAUD_WEBMAIL_REPLYTO,
- __PHISH_SPEAR_SUBJ_ALERT, __MIME_VERSION, __CT, __CT_TEXT_PLAIN, __CTE,
- MISSING_HEADERS, __ANY_URI, __FRAUD_BODY_WEBMAIL, __URI_NO_WWW,
- __FRAUD_INTRO, __STOCK_PHRASE_7, __FRAUD_MONEY_BIG_COIN_DIG, __OEM_PRICE,
- __FRAUD_MONEY_CURRENCY_DOLLAR, __NO_HTML_TAG_RAW, BODYTEXTP_SIZE_400_LESS,
- BODYTEXTP_SIZE_3000_LESS, BODY_SIZE_300_399, __MIME_TEXT_P1,
- __MIME_TEXT_ONLY, __URI_NS, HTML_00_01, HTML_00_10, __FRAUD_MONEY_CURRENCY,
- __FRAUD_MONEY_BIG_COIN, __FRAUD_MONEY_VALUE, __PHISH_SPEAR_GREETING,
- __FRAUD_MONEY, FRAUD_X3, BODY_SIZE_5000_LESS, __FRAUD_WEBMAIL,
- WEBMAIL_REPLYTO_NOT_FROM, FRAUD_WEBMAIL_R_NOT_F, __MIME_TEXT_P,
- FRAUD_LITTLE_BODY, __PHISH_SPEAR_STRUCTURE_1, BODY_SIZE_1000_LESS,
- BODY_SIZE_2000_LESS, __PHISH_SPEAR_STRUCTURE_2, REPLYTO_FROM_DIFF_ADDY,
- NO_URI_HTTPS, BODY_SIZE_7000_LESS, TO_MALFORMED
-Received: from resprs04 (62.42.230.134) by smtp2.ono.com (9.0.019.09-1)
-        id 5CAF0F5D03498083; Sat, 15 Jun 2019 19:30:07 +0200
-Received: from (149.126.75.14) by webmailcpr04n.ono.com;  Sat, 15 Jun 2019 19:30:06 +0200
-Message-ID: <30982576.313201560619806891.JavaMail.defaultUser@defaultHost>
-Date:   Sat, 15 Jun 2019 19:30:06 +0200 (CEST)
-From:   Mrs Alice Johnson <pasaca@ono.com>
-Reply-To: mrsalicejohnson4@gmail.com
-Subject: Dear Friend,
+        id S1725270AbfFORf7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 15 Jun 2019 13:35:59 -0400
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id B86093091755
+        for <stable@vger.kernel.org>; Sat, 15 Jun 2019 17:35:58 +0000 (UTC)
+Received: from [172.54.212.135] (cpt-0039.paas.prod.upshift.rdu2.redhat.com [10.0.18.123])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 2B27D5B2F9;
+        Sat, 15 Jun 2019 17:35:56 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 MIME-Version: 1.0
-Content-Type: text/plain;charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-To:     unlisted-recipients:; (no To-header on input)
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4p2O?= FAIL: Stable queue: queue-4.19
+CC:     Petr Sklenar <psklenar@redhat.com>
+Message-ID: <cki.005BE294DD.6A6VCIVMNR@redhat.com>
+X-Gitlab-Pipeline-ID: 12440
+X-Gitlab-Pipeline: =?utf-8?q?https=3A//xci32=2Elab=2Eeng=2Erdu2=2Eredhat=2Ec?=
+ =?utf-8?q?om/cki-project/cki-pipeline/pipelines/12440?=
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.41]); Sat, 15 Jun 2019 17:35:58 +0000 (UTC)
+Date:   Sat, 15 Jun 2019 13:35:59 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hello,
+
+We ran automated tests on a patchset that was proposed for merging into this
+kernel tree. The patches were applied to:
+
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+            Commit: 7aa823a959e1 - Linux 4.19.51
+
+The results of these automated tests are provided below.
+
+    Overall result: FAILED (see details below)
+             Merge: OK
+           Compile: OK
+             Tests: FAILED
 
 
---
-Dear Friend,
+One or more kernel tests failed:
 
-I am Mrs Alice Johnson.am sending you this brief letter to solicit your
-partnership to transfer $18.5 million US Dollars.I shall send you more
-information and procedures when I receive positive response from you.
-please send me a message in my Email box (mrsalicejohnson4@gmail.com)
-as i wait to hear from you.
+  aarch64:
+    ❎ tuned: tune-processes-through-perf
 
-Best regard
-Mrs Alice Johnson
---
+  ppc64le:
+    ❎ tuned: tune-processes-through-perf
+
+  s390x:
+    ❎ tuned: tune-processes-through-perf
+
+  x86_64:
+    ❎ tuned: tune-processes-through-perf
+
+We hope that these logs can help you find the problem quickly. For the full
+detail on our testing procedures, please scroll to the bottom of this message.
+
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Merge testing
+-------------
+
+We cloned this repository and checked out the following commit:
+
+  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: 7aa823a959e1 - Linux 4.19.51
+
+
+We then merged the patchset with `git am`:
+
+  drm-nouveau-add-kconfig-option-to-turn-off-nouveau-legacy-contexts.-v3.patch
+  nouveau-fix-build-with-config_nouveau_legacy_ctx_support-disabled.patch
+  hid-multitouch-handle-faulty-elo-touch-device.patch
+  hid-wacom-don-t-set-tool-type-until-we-re-in-range.patch
+  hid-wacom-don-t-report-anything-prior-to-the-tool-entering-range.patch
+  hid-wacom-send-btn_touch-in-response-to-intuosp2_bt-eraser-contact.patch
+  hid-wacom-correct-button-numbering-2nd-gen-intuos-pro-over-bluetooth.patch
+  hid-wacom-sync-intuosp2_bt-touch-state-after-each-frame-if-necessary.patch
+  revert-alsa-hda-realtek-improve-the-headset-mic-for-acer-aspire-laptops.patch
+  alsa-oxfw-allow-pcm-capture-for-stanton-scs.1m.patch
+  alsa-hda-realtek-update-headset-mode-for-alc256.patch
+  alsa-firewire-motu-fix-destruction-of-data-for-isochronous-resources.patch
+  libata-extend-quirks-for-the-st1000lm024-drives-with-nolpm-quirk.patch
+
+Compile testing
+---------------
+
+We compiled the kernel for 4 architectures:
+
+  aarch64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-e21aac1282457dc7676ad110df5fc329496eb63b.config
+    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-e21aac1282457dc7676ad110df5fc329496eb63b.tar.gz
+
+  ppc64le:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-e21aac1282457dc7676ad110df5fc329496eb63b.config
+    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-e21aac1282457dc7676ad110df5fc329496eb63b.tar.gz
+
+  s390x:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-e21aac1282457dc7676ad110df5fc329496eb63b.config
+    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-e21aac1282457dc7676ad110df5fc329496eb63b.tar.gz
+
+  x86_64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-e21aac1282457dc7676ad110df5fc329496eb63b.config
+    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-e21aac1282457dc7676ad110df5fc329496eb63b.tar.gz
+
+
+Hardware testing
+----------------
+
+We booted each kernel and ran the following tests:
+
+  aarch64:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ AMTU (Abstract Machine Test Utility) [2]
+       ✅ audit: audit testsuite test [3]
+       ✅ httpd: mod_ssl smoke sanity [4]
+       ✅ iotop: sanity [5]
+       ❎ tuned: tune-processes-through-perf [6]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [7]
+
+
+  ppc64le:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ AMTU (Abstract Machine Test Utility) [2]
+       ✅ audit: audit testsuite test [3]
+       ✅ httpd: mod_ssl smoke sanity [4]
+       ✅ iotop: sanity [5]
+       ❎ tuned: tune-processes-through-perf [6]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [7]
+
+
+  s390x:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [7]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ audit: audit testsuite test [3]
+       ✅ httpd: mod_ssl smoke sanity [4]
+       ✅ iotop: sanity [5]
+       ❎ tuned: tune-processes-through-perf [6]
+
+
+  x86_64:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ AMTU (Abstract Machine Test Utility) [2]
+       ✅ audit: audit testsuite test [3]
+       ✅ httpd: mod_ssl smoke sanity [4]
+       ✅ iotop: sanity [5]
+       ❎ tuned: tune-processes-through-perf [6]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [7]
+
+
+  Test source:
+    💚 Pull requests are welcome for new tests or improvements to existing tests!
+    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
+    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
+    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
+    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
+    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
+    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
+    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
+    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
 
