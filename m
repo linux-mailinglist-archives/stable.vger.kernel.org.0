@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 53D29470F2
-	for <lists+stable@lfdr.de>; Sat, 15 Jun 2019 17:34:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41BFF470F3
+	for <lists+stable@lfdr.de>; Sat, 15 Jun 2019 17:34:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726827AbfFOPeA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 15 Jun 2019 11:34:00 -0400
-Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:40255 "EHLO
+        id S1726591AbfFOPeH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 15 Jun 2019 11:34:07 -0400
+Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:33181 "EHLO
         wout3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725944AbfFOPeA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 15 Jun 2019 11:34:00 -0400
+        by vger.kernel.org with ESMTP id S1725944AbfFOPeH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 15 Jun 2019 11:34:07 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id E25D0436;
-        Sat, 15 Jun 2019 11:33:58 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Sat, 15 Jun 2019 11:33:59 -0400
+        by mailout.west.internal (Postfix) with ESMTP id 8948B435;
+        Sat, 15 Jun 2019 11:34:06 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Sat, 15 Jun 2019 11:34:06 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=1ALULs
-        g/dyt0kcjOQZpJysj/03xMfQCQNGwwEN1pNkc=; b=mB1zOTxrSDGOL1vS71VNSG
-        p9GAzr5IurCDAMGvE0ySRfXeFSxQG3awKuhR9KZygT9NYr8I1o17zTAXufKDmRp6
-        rtXyFXdrZZIat9pTKvAN3zOLRf4+wAiRPBcpde1LZi3bxRxZLbeieNES3oYCf/jf
-        GQHtrPCFMQvPID+5EL1l0wpmWqa1oEbCQUt1fGqgybhrBz3cRKw+CMNVnGb/1JTQ
-        MK0EGoBVd8c3yXNN1wjRO8kP/W55CcSC66t0Kl1Zz4MzdIK+SjtAji9Y2W5svYZK
-        mL3cZzyyYe4ygz4wsCarsmzGicYeD+0kmB9tZXFmgtMHojE5yJZIHoLWX+oHifgQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=XlxDxt
+        sE3AY0E5M/QMjsBpYjrqYRT6Os2rakBbx2+JQ=; b=QdfI85ncecNLYeKnMFGZYw
+        eo6qMuepebhWDL5BMI7F3W3r1p7lWEjTUEOfOmPkIoWvcOhbpnwKYDKDI5Rb6eJt
+        YgCwQLAABC4AFIz9fJRYB815LXAYyO2FuSStzUdbevPEWCf0PVMi0ZtuGb3X97NT
+        WnQBBxxVf5PFRbPHMTKrsxLYKf8I7TEBHCptnYbLalfPbzkoUhMQWs0nWj6B8mv9
+        7vNj3L8uQpvhA/qiqUBdXUaKlSySBxhsAtP7ibOQCUG5o7x3YZHE6KfORukEKZw6
+        xg2WK/TvKeJ4T4O/hcqE3Trf7A3jDVV12MMDg56xnieefpLag1NminXAQJ38HfFA
         ==
-X-ME-Sender: <xms:5Q8FXZW_WhYdgYiY6PSdydqJQTr9P0Gika7glEnQJOyibfVzuo4y3Q>
+X-ME-Sender: <xms:7Q8FXU9FGfyCllnkZjgt9CmtXPzmjTmGvSvWMcUat806x-3DaQFyUg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrudeifedgleduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepfe
-X-ME-Proxy: <xmx:5Q8FXWuGlOo8VKpjkWtdD5KysLfApLHk1tFkRXg_XXuzkHDV-z4M0w>
-    <xmx:5Q8FXV1FFqXYAYTPZ2qszyrTHQkdH3Lh67Luy0-rWbRISNaIAefvXw>
-    <xmx:5Q8FXdWXYoDf4nUMGZUHmldra-RmBX-aE2yDkj7AnzRyvc5yNyBm5g>
-    <xmx:5g8FXcGCKZCes0q-1xRmnNNmRsKIgXM0TOeI9bzUfxatVcz2elksgg>
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgepge
+X-ME-Proxy: <xmx:7Q8FXfyHIHm7G_VwzLVlpKPeKLUconsWL_t2cmP3zTSDIa2-bERwOw>
+    <xmx:7Q8FXYFycqQU9sTMasDxcZsJD_pvNM2P7lvorsUF-pCteHkS7RKU-Q>
+    <xmx:7Q8FXX7nzuq54mXWx1DPTqeOyxNShI12VF0Wy2_dBRT7rvTcxPBMKg>
+    <xmx:7g8FXYNKx2tD0e_C7rgKM7-XpxxDrI4fv8sZqGYa2FUoIpOzBqxSUA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 517D58005C;
-        Sat, 15 Jun 2019 11:33:57 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] ALSA: hda/realtek - Update headset mode for ALC256" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 6F671380086;
+        Sat, 15 Jun 2019 11:34:05 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] ALSA: hda/realtek - Update headset mode for ALC256" failed to apply to 4.4-stable tree
 To:     kailang@realtek.com, stable@vger.kernel.org, tiwai@suse.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 15 Jun 2019 17:33:55 +0200
-Message-ID: <156061283538164@kroah.com>
+Date:   Sat, 15 Jun 2019 17:33:56 +0200
+Message-ID: <1560612836584@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +56,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
