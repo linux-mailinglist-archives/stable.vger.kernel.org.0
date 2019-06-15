@@ -2,193 +2,320 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C95547035
-	for <lists+stable@lfdr.de>; Sat, 15 Jun 2019 15:38:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46F2147065
+	for <lists+stable@lfdr.de>; Sat, 15 Jun 2019 16:19:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726366AbfFONij (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 15 Jun 2019 09:38:39 -0400
-Received: from fllv0015.ext.ti.com ([198.47.19.141]:50108 "EHLO
-        fllv0015.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726236AbfFONij (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 15 Jun 2019 09:38:39 -0400
-Received: from fllv0034.itg.ti.com ([10.64.40.246])
-        by fllv0015.ext.ti.com (8.15.2/8.15.2) with ESMTP id x5FDcIfo025942;
-        Sat, 15 Jun 2019 08:38:18 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
-        s=ti-com-17Q1; t=1560605898;
-        bh=jG30qgGpq/bk2ABZUC+ssLvWf4/8PdOBz3ejL1zU8Fo=;
-        h=Subject:To:CC:References:From:Date:In-Reply-To;
-        b=dCa2Y4I964IewnU84FGjRSh2iJCi/xJxkk22jm1ymvnuGRlrJlGo1OoOexHTas/0h
-         3kOuKR1JcKUjNvJCiKY0cWDOkmwuBnlkG2kgKPAh7zvAH1S0FW9ZDlu76bBtECEbAh
-         EJ25gjOEDd0FXlmzyhs3krybI9oAG/h6e6OxfxVY=
-Received: from DLEE115.ent.ti.com (dlee115.ent.ti.com [157.170.170.26])
-        by fllv0034.itg.ti.com (8.15.2/8.15.2) with ESMTPS id x5FDcI9D110452
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Sat, 15 Jun 2019 08:38:18 -0500
-Received: from DLEE105.ent.ti.com (157.170.170.35) by DLEE115.ent.ti.com
- (157.170.170.26) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1713.5; Sat, 15
- Jun 2019 08:38:17 -0500
-Received: from lelv0327.itg.ti.com (10.180.67.183) by DLEE105.ent.ti.com
- (157.170.170.35) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.1713.5 via
- Frontend Transport; Sat, 15 Jun 2019 08:38:18 -0500
-Received: from [10.250.133.146] (ileax41-snat.itg.ti.com [10.172.224.153])
-        by lelv0327.itg.ti.com (8.15.2/8.15.2) with ESMTP id x5FDcFWO048302;
-        Sat, 15 Jun 2019 08:38:16 -0500
-Subject: Re: [PATCH v6 01/11] mtd: cfi_cmdset_0002: Use chip_good() to retry
- in do_write_oneword()
-To:     Tokunori Ikegami <ikegami.t@gmail.com>
-CC:     Felix Fietkau <nbd@nbd.name>,
-        Chris Packham <chris.packham@alliedtelesis.co.nz>,
-        Joakim Tjernlund <Joakim.Tjernlund@infinera.com>,
-        <linux-mtd@lists.infradead.org>, <stable@vger.kernel.org>
-References: <20190526153904.28871-1-ikegami.t@gmail.com>
- <20190526153904.28871-2-ikegami.t@gmail.com>
-From:   Vignesh Raghavendra <vigneshr@ti.com>
-Message-ID: <60d3389a-2e56-5993-b115-e74f4c6d7f67@ti.com>
-Date:   Sat, 15 Jun 2019 19:08:15 +0530
-User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:60.0) Gecko/20100101
- Thunderbird/60.7.0
-MIME-Version: 1.0
-In-Reply-To: <20190526153904.28871-2-ikegami.t@gmail.com>
+        id S1726881AbfFOOTN convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Sat, 15 Jun 2019 10:19:13 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:49460 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726400AbfFOOTN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 15 Jun 2019 10:19:13 -0400
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com [10.5.11.16])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id 9B535C04AC69
+        for <stable@vger.kernel.org>; Sat, 15 Jun 2019 14:19:12 +0000 (UTC)
+Received: from [172.54.212.135] (cpt-0039.paas.prod.upshift.rdu2.redhat.com [10.0.18.123])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 16CD567277;
+        Sat, 15 Jun 2019 14:19:10 +0000 (UTC)
 Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
+Content-Transfer-Encoding: 8BIT
+MIME-Version: 1.0
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4p2O?= FAIL: Test report for kernel 5.1.10-rc2-.cki
+ (stable)
+CC:     Petr Sklenar <psklenar@redhat.com>
+Message-ID: <cki.79D0DEA818.07P3YVDQUN@redhat.com>
+X-Gitlab-Pipeline-ID: 12426
+X-Gitlab-Pipeline: =?utf-8?q?https=3A//xci32=2Elab=2Eeng=2Erdu2=2Eredhat=2Ec?=
+ =?utf-8?q?om/cki-project/cki-pipeline/pipelines/12426?=
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.31]); Sat, 15 Jun 2019 14:19:12 +0000 (UTC)
+Date:   Sat, 15 Jun 2019 10:19:13 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hello,
+
+We ran automated tests on a recent commit from this kernel tree:
+
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+            Commit: c0526f889a23 - Linux 5.1.10-rc2
+
+The results of these automated tests are provided below.
+
+    Overall result: FAILED (see details below)
+             Merge: OK
+           Compile: OK
+             Tests: FAILED
 
 
-On 26-May-19 9:08 PM, Tokunori Ikegami wrote:
-> As reported by the OpenWRT team, write requests sometimes fail on some
-> platforms.
-> Currently to check the state chip_ready() is used correctly as described by
-> the flash memory S29GL256P11TFI01 datasheet.
-> Also chip_good() is used to check if the write is succeeded and it was
-> implemented by the commit fb4a90bfcd6d8 ("[MTD] CFI-0002 - Improve error
-> checking").
-> But actually the write failure is caused on some platforms and also it can
-> be fixed by using chip_good() to check the state and retry instead.
-> Also it seems that it is caused after repeated about 1,000 times to retry
-> the write one word with the reset command.
-> By using chip_good() to check the state to be done it can be reduced the
-> retry with reset.
-> It is depended on the actual flash chip behavior so the root cause is
-> unknown.
-> 
-> Signed-off-by: Tokunori Ikegami <ikegami.t@gmail.com>
-> Signed-off-by: Felix Fietkau <nbd@nbd.name>
-> Co-Developed-by: Hauke Mehrtens <hauke@hauke-m.de>
+One or more kernel tests failed:
 
-I need sign of all co-developers before applying the patch.
-Please run ./scripts/checkpatch.pl --strict on all patches and address
-all the issues.
+  aarch64:
+    ❎ tuned: tune-processes-through-perf
 
-Regards
-Vignesh
+  ppc64le:
+    ❎ tuned: tune-processes-through-perf
 
-> Co-Developed-by: Koen Vandeputte <koen.vandeputte@ncentric.com>
-> Reported-by: Fabio Bettoni <fbettoni@gmail.com>
-> Cc: Chris Packham <chris.packham@alliedtelesis.co.nz>
-> Cc: Joakim Tjernlund <Joakim.Tjernlund@infinera.com>
-> Cc: linux-mtd@lists.infradead.org
-> Cc: stable@vger.kernel.org
-> ---
-> Changes since v5:
-> - Rebased on top of Liu Jian's fixes in master.
-> - Change to follow Liu Jian's fixes in master for the write buffer.
-> - Change the email address of Tokunori Ikegami to ikegami.t@gmail.com.
-> 
-> Changes since v4:
-> - None.
-> 
-> Changes since v3:
-> - Update the commit message for the comments.
-> - Drop the addition of blanks lines around xip_enable().
-> - Delete unnecessary setting the ret variable to -EIO.
-> - Change the email address of Tokunori Ikegami to ikegami_to@yahoo.co.jp.
-> 
-> Changes since v2:
-> - Just update the commit message for the comment.
-> 
-> Changes since v1:
-> - Just update the commit message.
-> 
-> Background:
-> This is required for OpenWrt Project to result the flash write issue as
-> below patche.
-> <https://git.openwrt.org/?p=openwrt/openwrt.git;a=commitdiff;h=ddc11c3932c7b7b7df7d5fbd48f207e77619eaa7>
-> 
-> Also the original patch in OpenWRT is below.
-> <https://github.com/openwrt/openwrt/blob/v18.06.0/target/linux/ar71xx/patches-4.9/403-mtd_fix_cfi_cmdset_0002_status_check.patch>
-> 
-> The reason to use chip_good() is that just actually fix the issue.
-> And also in the past I had fixed the erase function also as same way by the
-> patch below.
->   <https://patchwork.ozlabs.org/patch/922656/>
->     Note: The reason for the patch for erase is same.
-> 
-> In my understanding the chip_ready() is just checked the value twice from
-> flash.
-> So I think that sometimes incorrect value is read twice and it is depended
-> on the flash device behavior but not sure..
-> 
-> So change to use chip_good() instead of chip_ready().
-> 
->  drivers/mtd/chips/cfi_cmdset_0002.c | 18 ++++++++++++------
->  1 file changed, 12 insertions(+), 6 deletions(-)
->  mode change 100644 => 100755 drivers/mtd/chips/cfi_cmdset_0002.c
-> 
-> diff --git a/drivers/mtd/chips/cfi_cmdset_0002.c b/drivers/mtd/chips/cfi_cmdset_0002.c
-> old mode 100644
-> new mode 100755
-> index c8fa5906bdf9..348b54820e4c
-> --- a/drivers/mtd/chips/cfi_cmdset_0002.c
-> +++ b/drivers/mtd/chips/cfi_cmdset_0002.c
-> @@ -1628,29 +1628,35 @@ static int __xipram do_write_oneword(struct map_info *map, struct flchip *chip,
->  			continue;
->  		}
->  
-> -		if (time_after(jiffies, timeo) && !chip_ready(map, adr)){
-> +		/*
-> +		 * We check "time_after" and "!chip_good" before checking "chip_good" to avoid
-> +		 * the failure due to scheduling.
-> +		 */
-> +		if (time_after(jiffies, timeo) && !chip_good(map, adr, datum)){
->  			xip_enable(map, chip, adr);
->  			printk(KERN_WARNING "MTD %s(): software timeout\n", __func__);
->  			xip_disable(map, chip, adr);
-> +			ret = -EIO;
->  			break;
->  		}
->  
-> -		if (chip_ready(map, adr))
-> +		if (chip_good(map, adr, datum))
->  			break;
->  
->  		/* Latency issues. Drop the lock, wait a while and retry */
->  		UDELAY(map, chip, adr, 1);
->  	}
-> +
->  	/* Did we succeed? */
-> -	if (!chip_good(map, adr, datum)) {
-> +	if (ret) {
->  		/* reset on all failures. */
->  		map_write(map, CMD(0xF0), chip->start);
->  		/* FIXME - should have reset delay before continuing */
->  
-> -		if (++retry_cnt <= MAX_RETRIES)
-> +		if (++retry_cnt <= MAX_RETRIES) {
-> +			ret = 0;
->  			goto retry;
-> -
-> -		ret = -EIO;
-> +		}
->  	}
->  	xip_enable(map, chip, adr);
->   op_done:
-> 
+  s390x:
+    ❎ tuned: tune-processes-through-perf
+
+  x86_64:
+    ❎ tuned: tune-processes-through-perf
+
+We hope that these logs can help you find the problem quickly. For the full
+detail on our testing procedures, please scroll to the bottom of this message.
+
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Compile testing
+---------------
+
+We compiled the kernel for 4 architectures:
+
+  aarch64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable-aarch64-c0526f889a2319307baf75fb8f24569348501907.config
+    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable-aarch64-c0526f889a2319307baf75fb8f24569348501907.tar.gz
+
+  ppc64le:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable-ppc64le-c0526f889a2319307baf75fb8f24569348501907.config
+    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable-ppc64le-c0526f889a2319307baf75fb8f24569348501907.tar.gz
+
+  s390x:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable-s390x-c0526f889a2319307baf75fb8f24569348501907.config
+    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable-s390x-c0526f889a2319307baf75fb8f24569348501907.tar.gz
+
+  x86_64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable-x86_64-c0526f889a2319307baf75fb8f24569348501907.config
+    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable-x86_64-c0526f889a2319307baf75fb8f24569348501907.tar.gz
+
+
+Hardware testing
+----------------
+
+We booted each kernel and ran the following tests:
+
+  aarch64:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ Loopdev Sanity [2]
+       ✅ Memory function: memfd_create [3]
+       ✅ AMTU (Abstract Machine Test Utility) [4]
+       ✅ Ethernet drivers sanity [5]
+       ✅ audit: audit testsuite test [6]
+       ✅ httpd: mod_ssl smoke sanity [7]
+       ✅ iotop: sanity [8]
+       ✅ redhat-rpm-config: detect-kabi-provides sanity [9]
+       ✅ redhat-rpm-config: kabi-whitelist-not-found sanity [10]
+       ❎ tuned: tune-processes-through-perf [11]
+       ✅ Usex - version 1.9-29 [12]
+       ✅ lvm thinp sanity [13]
+       🚧 ✅ Networking socket: fuzz [14]
+       🚧 ✅ Networking sctp-auth: sockopts test [15]
+       🚧 ✅ Networking: igmp conformance test [16]
+       🚧 ✅ Networking route: pmtu [17]
+       🚧 ✅ Networking route_func: local [18]
+       🚧 ✅ Networking route_func: forward [18]
+       🚧 ✅ Networking TCP: keepalive test [19]
+       🚧 ✅ Networking UDP: socket [20]
+       🚧 ✅ Networking tunnel: gre basic [21]
+       🚧 ✅ Networking tunnel: vxlan basic [22]
+       🚧 ✅ Networking tunnel: geneve basic test [23]
+       🚧 ✅ Networking ipsec: basic netns transport [24]
+       🚧 ✅ Networking ipsec: basic netns tunnel [24]
+       🚧 ✅ storage: SCSI VPD [25]
+       🚧 ✅ storage: software RAID testing [26]
+       🚧 ✅ Libhugetlbfs - version 2.2.1 [27]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ xfstests: ext4 [28]
+       ✅ xfstests: xfs [28]
+       ✅ selinux-policy: serge-testsuite [29]
+
+
+  ppc64le:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ xfstests: ext4 [28]
+       ✅ xfstests: xfs [28]
+       ✅ selinux-policy: serge-testsuite [29]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ Loopdev Sanity [2]
+       ✅ Memory function: memfd_create [3]
+       ✅ AMTU (Abstract Machine Test Utility) [4]
+       ✅ Ethernet drivers sanity [5]
+       ✅ audit: audit testsuite test [6]
+       ✅ httpd: mod_ssl smoke sanity [7]
+       ✅ iotop: sanity [8]
+       ✅ redhat-rpm-config: detect-kabi-provides sanity [9]
+       ✅ redhat-rpm-config: kabi-whitelist-not-found sanity [10]
+       ❎ tuned: tune-processes-through-perf [11]
+       ✅ Usex - version 1.9-29 [12]
+       ✅ lvm thinp sanity [13]
+       🚧 ✅ Networking socket: fuzz [14]
+       🚧 ✅ Networking sctp-auth: sockopts test [15]
+       🚧 ✅ Networking route: pmtu [17]
+       🚧 ✅ Networking route_func: local [18]
+       🚧 ✅ Networking route_func: forward [18]
+       🚧 ✅ Networking TCP: keepalive test [19]
+       🚧 ✅ Networking UDP: socket [20]
+       🚧 ✅ Networking tunnel: gre basic [21]
+       🚧 ✅ Networking tunnel: vxlan basic [22]
+       🚧 ✅ Networking tunnel: geneve basic test [23]
+       🚧 ✅ Networking ipsec: basic netns tunnel [24]
+       🚧 ✅ storage: software RAID testing [26]
+       🚧 ✅ Libhugetlbfs - version 2.2.1 [27]
+
+
+  s390x:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ Loopdev Sanity [2]
+       ✅ Memory function: memfd_create [3]
+       ✅ Ethernet drivers sanity [5]
+       ✅ audit: audit testsuite test [6]
+       ✅ httpd: mod_ssl smoke sanity [7]
+       ✅ iotop: sanity [8]
+       ✅ redhat-rpm-config: detect-kabi-provides sanity [9]
+       ✅ redhat-rpm-config: kabi-whitelist-not-found sanity [10]
+       ❎ tuned: tune-processes-through-perf [11]
+       ✅ lvm thinp sanity [13]
+       🚧 ✅ Networking socket: fuzz [14]
+       🚧 ✅ Networking sctp-auth: sockopts test [15]
+       🚧 ✅ Networking: igmp conformance test [16]
+       🚧 ✅ Networking route: pmtu [17]
+       🚧 ✅ Networking route_func: local [18]
+       🚧 ✅ Networking route_func: forward [18]
+       🚧 ✅ Networking TCP: keepalive test [19]
+       🚧 ✅ Networking UDP: socket [20]
+       🚧 ✅ Networking tunnel: gre basic [21]
+       🚧 ✅ Networking tunnel: vxlan basic [22]
+       🚧 ✅ Networking tunnel: geneve basic test [23]
+       🚧 ✅ Networking ipsec: basic netns transport [24]
+       🚧 ✅ Networking ipsec: basic netns tunnel [24]
+       🚧 ✅ storage: software RAID testing [26]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ kdump: sysrq-c [30]
+
+    Host 3:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [29]
+
+
+  x86_64:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ kdump: sysrq-c - megaraid_sas [30]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ Loopdev Sanity [2]
+       ✅ Memory function: memfd_create [3]
+       ✅ AMTU (Abstract Machine Test Utility) [4]
+       ✅ Ethernet drivers sanity [5]
+       ✅ audit: audit testsuite test [6]
+       ✅ httpd: mod_ssl smoke sanity [7]
+       ✅ iotop: sanity [8]
+       ✅ redhat-rpm-config: detect-kabi-provides sanity [9]
+       ✅ redhat-rpm-config: kabi-whitelist-not-found sanity [10]
+       ❎ tuned: tune-processes-through-perf [11]
+       ✅ Usex - version 1.9-29 [12]
+       ✅ lvm thinp sanity [13]
+       🚧 ✅ Networking socket: fuzz [14]
+       🚧 ✅ Networking sctp-auth: sockopts test [15]
+       🚧 ✅ Networking: igmp conformance test [16]
+       🚧 ✅ Networking route: pmtu [17]
+       🚧 ✅ Networking route_func: local [18]
+       🚧 ✅ Networking route_func: forward [18]
+       🚧 ✅ Networking TCP: keepalive test [19]
+       🚧 ✅ Networking UDP: socket [20]
+       🚧 ✅ Networking tunnel: gre basic [21]
+       🚧 ✅ Networking tunnel: vxlan basic [22]
+       🚧 ✅ Networking tunnel: geneve basic test [23]
+       🚧 ✅ Networking ipsec: basic netns transport [24]
+       🚧 ✅ Networking ipsec: basic netns tunnel [24]
+       🚧 ✅ storage: SCSI VPD [25]
+       🚧 ✅ storage: software RAID testing [26]
+       🚧 ✅ Libhugetlbfs - version 2.2.1 [27]
+
+    Host 3:
+       ✅ Boot test [0]
+       ✅ kdump: sysrq-c [30]
+
+    Host 4:
+       ✅ Boot test [0]
+       🚧 ✅ Storage SAN device stress [31]
+
+    Host 5:
+       ✅ Boot test [0]
+       ✅ xfstests: ext4 [28]
+       ✅ xfstests: xfs [28]
+       ✅ selinux-policy: serge-testsuite [29]
+
+
+  Test source:
+    💚 Pull requests are welcome for new tests or improvements to existing tests!
+    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
+    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
+    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
+    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/memory/function/memfd_create
+    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
+    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
+    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
+    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
+    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
+    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/redhat-rpm-config/detect-kabi-provides
+    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/redhat-rpm-config/kabi-whitelist-not-found
+    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
+    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
+    [13]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/lvm/thinp/sanity
+    [14]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
+    [15]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/sctp/auth/sockopts
+    [16]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/igmp/conformance
+    [17]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/route/pmtu
+    [18]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/route/route_func
+    [19]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/tcp/tcp_keepalive
+    [20]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/udp/udp_socket
+    [21]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/tunnel/gre/basic
+    [22]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/tunnel/vxlan/basic
+    [23]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/tunnel/geneve/basic
+    [24]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/ipsec/ipsec_basic/ipsec_basic_netns
+    [25]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/scsi/vpd
+    [26]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/swraid/trim
+    [27]: https://github.com/CKI-project/tests-beaker/archive/master.zip#vm/hugepage/libhugetlbfs
+    [28]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/filesystems/xfs/xfstests
+    [29]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
+    [30]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/kdump/kdump-sysrq-c
+    [31]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/hba/san-device-stress
+
+Waived tests (marked with 🚧)
+-----------------------------
+This test run included waived tests. Such tests are executed but their results
+are not taken into account. Tests are waived when their results are not
+reliable enough, e.g. when they're just introduced or are being fixed.
