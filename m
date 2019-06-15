@@ -2,320 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0259C47274
-	for <lists+stable@lfdr.de>; Sun, 16 Jun 2019 00:41:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4935747276
+	for <lists+stable@lfdr.de>; Sun, 16 Jun 2019 00:42:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727045AbfFOWls convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Sat, 15 Jun 2019 18:41:48 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:40634 "EHLO mx1.redhat.com"
+        id S1727052AbfFOWmD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 15 Jun 2019 18:42:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1726891AbfFOWls (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 15 Jun 2019 18:41:48 -0400
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.11])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S1726891AbfFOWmD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 15 Jun 2019 18:42:03 -0400
+Received: from localhost (unknown [107.242.116.137])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id A63CC3DE10
-        for <stable@vger.kernel.org>; Sat, 15 Jun 2019 22:41:46 +0000 (UTC)
-Received: from [172.54.212.135] (cpt-0039.paas.prod.upshift.rdu2.redhat.com [10.0.18.123])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 17ECE60570;
-        Sat, 15 Jun 2019 22:41:44 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        by mail.kernel.org (Postfix) with ESMTPSA id C977E2073F;
+        Sat, 15 Jun 2019 22:42:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1560638522;
+        bh=bK4+s0djJGQnmw6T9pHXoYkujguqBM61XaXWJTptQ+o=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=2LG8flrZ0J2cwyuXaGg+dRS2BG5ro3YlAN70RYuXfZiL5rZSK4yniu9CrlAUJKTBw
+         5xVVmlkPOJmj6AVRS2dA707itkcq8mvAn5wO5dmtN4zT4E7AJxXiLGCVElxGivWon3
+         6sCH/xF+uGz95qbaQZzHMEvSYTO6EzTukAobXoaE=
+Date:   Sat, 15 Jun 2019 18:41:59 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Scott Wood <swood@redhat.com>, Wu Hao <hao.wu@intel.com>,
+        Alan Tull <atull@kernel.org>, linux-fpga@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.1 16/59] fpga: dfl: Add lockdep classes for
+ pdata->lock
+Message-ID: <20190615224159.GU1513@sasha-vm>
+References: <20190614202843.26941-1-sashal@kernel.org>
+ <20190614202843.26941-16-sashal@kernel.org>
+ <20190615054739.GA23883@kroah.com>
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4p2O?= FAIL: Test report for kernel 5.1.10-.cki (stable)
-CC:     Jianlin Shi <jishi@redhat.com>, Hangbin Liu <haliu@redhat.com>,
-        Petr Sklenar <psklenar@redhat.com>
-Message-ID: <cki.1A843935AD.Z0NDS672E8@redhat.com>
-X-Gitlab-Pipeline-ID: 12442
-X-Gitlab-Pipeline: =?utf-8?q?https=3A//xci32=2Elab=2Eeng=2Erdu2=2Eredhat=2Ec?=
- =?utf-8?q?om/cki-project/cki-pipeline/pipelines/12442?=
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.29]); Sat, 15 Jun 2019 22:41:46 +0000 (UTC)
-Date:   Sat, 15 Jun 2019 18:41:48 -0400
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20190615054739.GA23883@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+On Sat, Jun 15, 2019 at 07:47:39AM +0200, Greg Kroah-Hartman wrote:
+>On Fri, Jun 14, 2019 at 04:28:00PM -0400, Sasha Levin wrote:
+>> From: Scott Wood <swood@redhat.com>
+>>
+>> [ Upstream commit dfe3de8d397bf878b31864d4e489d41118ec475f ]
+>>
+>> struct dfl_feature_platform_data (and it's mutex) is used
+>> by both fme and port devices, and when lockdep is enabled it
+>> complains about nesting between these locks.  Tell lockdep about
+>> the difference so it can track each class separately.
+>>
+>> Here's the lockdep complaint:
+>> [  409.680668] WARNING: possible recursive locking detected
+>> [  409.685983] 5.1.0-rc3.fpga+ #1 Tainted: G            E
+>> [  409.691469] --------------------------------------------
+>> [  409.696779] fpgaconf/9348 is trying to acquire lock:
+>> [  409.701746] 00000000a443fe2e (&pdata->lock){+.+.}, at: port_enable_set+0x24/0x60 [dfl_afu]
+>> [  409.710006]
+>> [  409.710006] but task is already holding lock:
+>> [  409.715837] 0000000063b78782 (&pdata->lock){+.+.}, at: fme_pr_ioctl+0x21d/0x330 [dfl_fme]
+>> [  409.724012]
+>> [  409.724012] other info that might help us debug this:
+>> [  409.730535]  Possible unsafe locking scenario:
+>> [  409.730535]
+>> [  409.736457]        CPU0
+>> [  409.738910]        ----
+>> [  409.741360]   lock(&pdata->lock);
+>> [  409.744679]   lock(&pdata->lock);
+>> [  409.747999]
+>> [  409.747999]  *** DEADLOCK ***
+>> [  409.747999]
+>> [  409.753920]  May be due to missing lock nesting notation
+>> [  409.753920]
+>> [  409.760704] 4 locks held by fpgaconf/9348:
+>> [  409.764805]  #0: 0000000063b78782 (&pdata->lock){+.+.}, at: fme_pr_ioctl+0x21d/0x330 [dfl_fme]
+>> [  409.773408]  #1: 00000000213c8a66 (&region->mutex){+.+.}, at: fpga_region_program_fpga+0x24/0x200 [fpga_region]
+>> [  409.783489]  #2: 00000000fe63afb9 (&mgr->ref_mutex){+.+.}, at: fpga_mgr_lock+0x15/0x40 [fpga_mgr]
+>> [  409.792354]  #3: 000000000b2285c5 (&bridge->mutex){+.+.}, at: __fpga_bridge_get+0x26/0xa0 [fpga_bridge]
+>> [  409.801740]
+>> [  409.801740] stack backtrace:
+>> [  409.806102] CPU: 45 PID: 9348 Comm: fpgaconf Kdump: loaded Tainted: G            E     5.1.0-rc3.fpga+ #1
+>> [  409.815658] Hardware name: Intel Corporation S2600BT/S2600BT, BIOS SE5C620.86B.01.00.0763.022420181017 02/24/2018
+>> [  409.825911] Call Trace:
+>> [  409.828369]  dump_stack+0x5e/0x8b
+>> [  409.831686]  __lock_acquire+0xf3d/0x10e0
+>> [  409.835612]  ? find_held_lock+0x3c/0xa0
+>> [  409.839451]  lock_acquire+0xbc/0x1d0
+>> [  409.843030]  ? port_enable_set+0x24/0x60 [dfl_afu]
+>> [  409.847823]  ? port_enable_set+0x24/0x60 [dfl_afu]
+>> [  409.852616]  __mutex_lock+0x86/0x970
+>> [  409.856195]  ? port_enable_set+0x24/0x60 [dfl_afu]
+>> [  409.860989]  ? port_enable_set+0x24/0x60 [dfl_afu]
+>> [  409.865777]  ? __mutex_unlock_slowpath+0x4b/0x290
+>> [  409.870486]  port_enable_set+0x24/0x60 [dfl_afu]
+>> [  409.875106]  fpga_bridges_disable+0x36/0x50 [fpga_bridge]
+>> [  409.880502]  fpga_region_program_fpga+0xea/0x200 [fpga_region]
+>> [  409.886338]  fme_pr_ioctl+0x13e/0x330 [dfl_fme]
+>> [  409.890870]  fme_ioctl+0x66/0xe0 [dfl_fme]
+>> [  409.894973]  do_vfs_ioctl+0xa9/0x720
+>> [  409.898548]  ? lockdep_hardirqs_on+0xf0/0x1a0
+>> [  409.902907]  ksys_ioctl+0x60/0x90
+>> [  409.906225]  __x64_sys_ioctl+0x16/0x20
+>> [  409.909981]  do_syscall_64+0x5a/0x220
+>> [  409.913644]  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+>> [  409.918698] RIP: 0033:0x7f9d31b9b8d7
+>> [  409.922276] Code: 44 00 00 48 8b 05 b9 15 2d 00 64 c7 00 26 00 00 00 48 c7 c0 ff ff ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 b8 10 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 89 15 2d 00 f7 d8 64 89 01 48
+>> [  409.941020] RSP: 002b:00007ffe4cae0d68 EFLAGS: 00000202 ORIG_RAX: 0000000000000010
+>> [  409.948588] RAX: ffffffffffffffda RBX: 00007f9d32ade6a0 RCX: 00007f9d31b9b8d7
+>> [  409.955719] RDX: 00007ffe4cae0df0 RSI: 000000000000b680 RDI: 0000000000000003
+>> [  409.962852] RBP: 0000000000000003 R08: 00007f9d2b70a177 R09: 00007ffe4cae0e40
+>> [  409.969984] R10: 00007ffe4cae0160 R11: 0000000000000202 R12: 00007ffe4cae0df0
+>> [  409.977115] R13: 000000000000b680 R14: 0000000000000000 R15: 00007ffe4cae0f60
+>>
+>> Signed-off-by: Scott Wood <swood@redhat.com>
+>> Acked-by: Wu Hao <hao.wu@intel.com>
+>> Acked-by: Alan Tull <atull@kernel.org>
+>> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+>> Signed-off-by: Sasha Levin <sashal@kernel.org>
+>> ---
+>>  drivers/fpga/dfl.c | 16 +++++++++++++++-
+>>  1 file changed, 15 insertions(+), 1 deletion(-)
+>
+>Adding lockdep stuff is not really needed for stable kernels, please
+>drop this from all trees.
 
-We ran automated tests on a recent commit from this kernel tree:
+For actual splats? Why? I treat them as compiler warnings. Keeping these
+around will just make them show up over and over in testing (at least
+until we unify our testing story...).
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-            Commit: 7e1bdd68ffee - Linux 5.1.10
-
-The results of these automated tests are provided below.
-
-    Overall result: FAILED (see details below)
-             Merge: OK
-           Compile: OK
-             Tests: FAILED
-
-
-One or more kernel tests failed:
-
-  aarch64:
-    ❎ tuned: tune-processes-through-perf
-
-  ppc64le:
-    ❎ tuned: tune-processes-through-perf
-
-  s390x:
-    ❎ tuned: tune-processes-through-perf
-
-  x86_64:
-    ❎ tuned: tune-processes-through-perf
-
-We hope that these logs can help you find the problem quickly. For the full
-detail on our testing procedures, please scroll to the bottom of this message.
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-  aarch64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable-aarch64-7e1bdd68ffeecb9ef476f87b791b61910e8c853c.config
-    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable-aarch64-7e1bdd68ffeecb9ef476f87b791b61910e8c853c.tar.gz
-
-  ppc64le:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable-ppc64le-7e1bdd68ffeecb9ef476f87b791b61910e8c853c.config
-    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable-ppc64le-7e1bdd68ffeecb9ef476f87b791b61910e8c853c.tar.gz
-
-  s390x:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable-s390x-7e1bdd68ffeecb9ef476f87b791b61910e8c853c.config
-    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable-s390x-7e1bdd68ffeecb9ef476f87b791b61910e8c853c.tar.gz
-
-  x86_64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable-x86_64-7e1bdd68ffeecb9ef476f87b791b61910e8c853c.config
-    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable-x86_64-7e1bdd68ffeecb9ef476f87b791b61910e8c853c.tar.gz
-
-
-Hardware testing
-----------------
-
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ xfstests: ext4 [1]
-       ✅ xfstests: xfs [1]
-       ✅ selinux-policy: serge-testsuite [2]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [3]
-       ✅ Loopdev Sanity [4]
-       ✅ Memory function: memfd_create [5]
-       ✅ AMTU (Abstract Machine Test Utility) [6]
-       ✅ Ethernet drivers sanity [7]
-       ✅ audit: audit testsuite test [8]
-       ✅ httpd: mod_ssl smoke sanity [9]
-       ✅ iotop: sanity [10]
-       ✅ redhat-rpm-config: detect-kabi-provides sanity [11]
-       ✅ redhat-rpm-config: kabi-whitelist-not-found sanity [12]
-       ❎ tuned: tune-processes-through-perf [13]
-       ✅ Usex - version 1.9-29 [14]
-       ✅ lvm thinp sanity [15]
-       🚧 ✅ Networking socket: fuzz [16]
-       🚧 ✅ Networking sctp-auth: sockopts test [17]
-       🚧 ✅ Networking: igmp conformance test [18]
-       🚧 ✅ Networking route: pmtu [19]
-       🚧 ✅ Networking route_func: local [20]
-       🚧 ✅ Networking route_func: forward [20]
-       🚧 ✅ Networking TCP: keepalive test [21]
-       🚧 ✅ Networking UDP: socket [22]
-       🚧 ✅ Networking tunnel: gre basic [23]
-       🚧 ✅ Networking tunnel: vxlan basic [24]
-       🚧 ✅ Networking tunnel: geneve basic test [25]
-       🚧 ✅ Networking ipsec: basic netns transport [26]
-       🚧 ✅ Networking ipsec: basic netns tunnel [26]
-       🚧 ✅ storage: SCSI VPD [27]
-       🚧 ✅ storage: software RAID testing [28]
-       🚧 ✅ Libhugetlbfs - version 2.2.1 [29]
-
-
-  ppc64le:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ xfstests: ext4 [1]
-       ✅ xfstests: xfs [1]
-       ✅ selinux-policy: serge-testsuite [2]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [3]
-       ✅ Loopdev Sanity [4]
-       ✅ Memory function: memfd_create [5]
-       ✅ AMTU (Abstract Machine Test Utility) [6]
-       ✅ Ethernet drivers sanity [7]
-       ✅ audit: audit testsuite test [8]
-       ✅ httpd: mod_ssl smoke sanity [9]
-       ✅ iotop: sanity [10]
-       ✅ redhat-rpm-config: detect-kabi-provides sanity [11]
-       ✅ redhat-rpm-config: kabi-whitelist-not-found sanity [12]
-       ❎ tuned: tune-processes-through-perf [13]
-       ✅ Usex - version 1.9-29 [14]
-       ✅ lvm thinp sanity [15]
-       🚧 ✅ Networking socket: fuzz [16]
-       🚧 ✅ Networking sctp-auth: sockopts test [17]
-       🚧 ✅ Networking route: pmtu [19]
-       🚧 ✅ Networking route_func: local [20]
-       🚧 ✅ Networking route_func: forward [20]
-       🚧 ✅ Networking TCP: keepalive test [21]
-       🚧 ✅ Networking UDP: socket [22]
-       🚧 ✅ Networking tunnel: gre basic [23]
-       🚧 ✅ Networking tunnel: vxlan basic [24]
-       🚧 ✅ Networking tunnel: geneve basic test [25]
-       🚧 ✅ Networking ipsec: basic netns tunnel [26]
-       🚧 ✅ storage: software RAID testing [28]
-       🚧 ✅ Libhugetlbfs - version 2.2.1 [29]
-
-
-  s390x:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [3]
-       ✅ Loopdev Sanity [4]
-       ✅ Memory function: memfd_create [5]
-       ✅ Ethernet drivers sanity [7]
-       ✅ audit: audit testsuite test [8]
-       ✅ httpd: mod_ssl smoke sanity [9]
-       ✅ iotop: sanity [10]
-       ✅ redhat-rpm-config: detect-kabi-provides sanity [11]
-       ✅ redhat-rpm-config: kabi-whitelist-not-found sanity [12]
-       ❎ tuned: tune-processes-through-perf [13]
-       ✅ lvm thinp sanity [15]
-       🚧 ✅ Networking socket: fuzz [16]
-       🚧 ✅ Networking sctp-auth: sockopts test [17]
-       🚧 ✅ Networking: igmp conformance test [18]
-       🚧 ✅ Networking route: pmtu [19]
-       🚧 ✅ Networking route_func: local [20]
-       🚧 ✅ Networking route_func: forward [20]
-       🚧 ✅ Networking TCP: keepalive test [21]
-       🚧 ✅ Networking UDP: socket [22]
-       🚧 ✅ Networking tunnel: gre basic [23]
-       🚧 ✅ Networking tunnel: vxlan basic [24]
-       🚧 ❎ Networking tunnel: geneve basic test [25]
-       🚧 ✅ Networking ipsec: basic netns transport [26]
-       🚧 ✅ Networking ipsec: basic netns tunnel [26]
-       🚧 ✅ storage: software RAID testing [28]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [2]
-
-    Host 3:
-       ✅ Boot test [0]
-       ✅ kdump: sysrq-c [30]
-
-
-  x86_64:
-    Host 1:
-       ✅ Boot test [0]
-       🚧 ✅ Storage SAN device stress [31]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ kdump: sysrq-c [30]
-
-    Host 3:
-       ✅ Boot test [0]
-       ✅ xfstests: ext4 [1]
-       ✅ xfstests: xfs [1]
-       ✅ selinux-policy: serge-testsuite [2]
-
-    Host 4:
-       ✅ Boot test [0]
-       ✅ kdump: sysrq-c - megaraid_sas [30]
-
-    Host 5:
-       ✅ Boot test [0]
-       ✅ LTP lite [3]
-       ✅ Loopdev Sanity [4]
-       ✅ Memory function: memfd_create [5]
-       ✅ AMTU (Abstract Machine Test Utility) [6]
-       ✅ Ethernet drivers sanity [7]
-       ✅ audit: audit testsuite test [8]
-       ✅ httpd: mod_ssl smoke sanity [9]
-       ✅ iotop: sanity [10]
-       ✅ redhat-rpm-config: detect-kabi-provides sanity [11]
-       ✅ redhat-rpm-config: kabi-whitelist-not-found sanity [12]
-       ❎ tuned: tune-processes-through-perf [13]
-       ✅ Usex - version 1.9-29 [14]
-       ✅ lvm thinp sanity [15]
-       🚧 ✅ Networking socket: fuzz [16]
-       🚧 ✅ Networking sctp-auth: sockopts test [17]
-       🚧 ✅ Networking: igmp conformance test [18]
-       🚧 ✅ Networking route: pmtu [19]
-       🚧 ✅ Networking route_func: local [20]
-       🚧 ✅ Networking route_func: forward [20]
-       🚧 ✅ Networking TCP: keepalive test [21]
-       🚧 ✅ Networking UDP: socket [22]
-       🚧 ✅ Networking tunnel: gre basic [23]
-       🚧 ✅ Networking tunnel: vxlan basic [24]
-       🚧 ✅ Networking tunnel: geneve basic test [25]
-       🚧 ✅ Networking ipsec: basic netns transport [26]
-       🚧 ✅ Networking ipsec: basic netns tunnel [26]
-       🚧 ✅ storage: SCSI VPD [27]
-       🚧 ✅ storage: software RAID testing [28]
-       🚧 ✅ Libhugetlbfs - version 2.2.1 [29]
-
-
-  Test source:
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/filesystems/xfs/xfstests
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/memory/function/memfd_create
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/redhat-rpm-config/detect-kabi-provides
-    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/redhat-rpm-config/kabi-whitelist-not-found
-    [13]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [14]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-    [15]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/lvm/thinp/sanity
-    [16]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
-    [17]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/sctp/auth/sockopts
-    [18]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/igmp/conformance
-    [19]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/route/pmtu
-    [20]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/route/route_func
-    [21]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/tcp/tcp_keepalive
-    [22]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/udp/udp_socket
-    [23]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/tunnel/gre/basic
-    [24]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/tunnel/vxlan/basic
-    [25]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/tunnel/geneve/basic
-    [26]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/ipsec/ipsec_basic/ipsec_basic_netns
-    [27]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/scsi/vpd
-    [28]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/swraid/trim
-    [29]: https://github.com/CKI-project/tests-beaker/archive/master.zip#vm/hugepage/libhugetlbfs
-    [30]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/kdump/kdump-sysrq-c
-    [31]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/hba/san-device-stress
-
-Waived tests (marked with 🚧)
------------------------------
-This test run included waived tests. Such tests are executed but their results
-are not taken into account. Tests are waived when their results are not
-reliable enough, e.g. when they're just introduced or are being fixed.
+--
+Thanks,
+Sasha
