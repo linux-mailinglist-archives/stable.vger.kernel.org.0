@@ -2,208 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 13EDA4716D
-	for <lists+stable@lfdr.de>; Sat, 15 Jun 2019 19:36:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 939F747175
+	for <lists+stable@lfdr.de>; Sat, 15 Jun 2019 19:44:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725535AbfFORf7 convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Sat, 15 Jun 2019 13:35:59 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:60038 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725270AbfFORf7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 15 Jun 2019 13:35:59 -0400
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com [10.5.11.23])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id B86093091755
-        for <stable@vger.kernel.org>; Sat, 15 Jun 2019 17:35:58 +0000 (UTC)
-Received: from [172.54.212.135] (cpt-0039.paas.prod.upshift.rdu2.redhat.com [10.0.18.123])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 2B27D5B2F9;
-        Sat, 15 Jun 2019 17:35:56 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4p2O?= FAIL: Stable queue: queue-4.19
-CC:     Petr Sklenar <psklenar@redhat.com>
-Message-ID: <cki.005BE294DD.6A6VCIVMNR@redhat.com>
-X-Gitlab-Pipeline-ID: 12440
-X-Gitlab-Pipeline: =?utf-8?q?https=3A//xci32=2Elab=2Eeng=2Erdu2=2Eredhat=2Ec?=
- =?utf-8?q?om/cki-project/cki-pipeline/pipelines/12440?=
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.41]); Sat, 15 Jun 2019 17:35:58 +0000 (UTC)
-Date:   Sat, 15 Jun 2019 13:35:59 -0400
+        id S1725796AbfFORoM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 15 Jun 2019 13:44:12 -0400
+Received: from heliosphere.sirena.org.uk ([172.104.155.198]:48742 "EHLO
+        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725535AbfFORoL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 15 Jun 2019 13:44:11 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=sirena.org.uk; s=20170815-heliosphere; h=Date:Message-Id:Subject:To:From:
+        Sender:Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:References:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=yVyZ9p9b8gYlYeeAQyREAYNwnYFTCAuhhLyQXnj6bew=; b=Ayb7aTSuyBDEaqnuf+RpSE4vu
+        RfOgWWRG1QAieFipmsHqsItYyJhohQeYXSEd/9hKwBzhf2liRps9O7j+QYtkRqeLMrD3xCXF9QfbG
+        iYw+U/8oz8Tjd7UVRrr2Vj+zTd/u/5pR8B9k6tLY7v9G7oy5uadFpmSK6CA/ThjCzKkHs=;
+Received: from cpc102320-sgyl38-2-0-cust46.18-2.cable.virginm.net ([82.37.168.47] helo=optimist)
+        by heliosphere.sirena.org.uk with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.89)
+        (envelope-from <broonie@sirena.org.uk>)
+        id 1hcCio-0004Gj-RG; Sat, 15 Jun 2019 17:44:10 +0000
+Received: from broonie by optimist with local (Exim 4.89)
+        (envelope-from <broonie@sirena.org.uk>)
+        id 1hcCin-0007A8-MR; Sat, 15 Jun 2019 18:44:09 +0100
+From:   Build bot for Mark Brown <broonie@kernel.org>
+To:     kernel-build-reports@lists.linaro.org,
+        linaro-kernel@lists.linaro.org, stable@vger.kernel.org
+Subject: v4.4.181 build: 0 failures 1 warnings (v4.4.181)
+Message-Id: <E1hcCin-0007A8-MR@optimist>
+Date:   Sat, 15 Jun 2019 18:44:09 +0100
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+Tree/Branch: v4.4.181
+Git describe: v4.4.181
+Commit: d7b7345c3a Linux 4.4.181
 
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
+Build Time: 67 min 57 sec
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: 7aa823a959e1 - Linux 4.19.51
+Passed:   10 / 10   (100.00 %)
+Failed:    0 / 10   (  0.00 %)
 
-The results of these automated tests are provided below.
+Errors: 0
+Warnings: 1
+Section Mismatches: 0
 
-    Overall result: FAILED (see details below)
-             Merge: OK
-           Compile: OK
-             Tests: FAILED
+-------------------------------------------------------------------------------
+defconfigs with issues (other than build errors):
+      3 warnings    0 mismatches  : arm64-allmodconfig
 
+-------------------------------------------------------------------------------
 
-One or more kernel tests failed:
-
-  aarch64:
-    ❎ tuned: tune-processes-through-perf
-
-  ppc64le:
-    ❎ tuned: tune-processes-through-perf
-
-  s390x:
-    ❎ tuned: tune-processes-through-perf
-
-  x86_64:
-    ❎ tuned: tune-processes-through-perf
-
-We hope that these logs can help you find the problem quickly. For the full
-detail on our testing procedures, please scroll to the bottom of this message.
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Merge testing
--------------
-
-We cloned this repository and checked out the following commit:
-
-  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: 7aa823a959e1 - Linux 4.19.51
+Warnings Summary: 1
+	  3 warning: (IMA) selects TCG_CRB which has unmet direct dependencies (TCG_TPM && X86 && ACPI)
 
 
-We then merged the patchset with `git am`:
 
-  drm-nouveau-add-kconfig-option-to-turn-off-nouveau-legacy-contexts.-v3.patch
-  nouveau-fix-build-with-config_nouveau_legacy_ctx_support-disabled.patch
-  hid-multitouch-handle-faulty-elo-touch-device.patch
-  hid-wacom-don-t-set-tool-type-until-we-re-in-range.patch
-  hid-wacom-don-t-report-anything-prior-to-the-tool-entering-range.patch
-  hid-wacom-send-btn_touch-in-response-to-intuosp2_bt-eraser-contact.patch
-  hid-wacom-correct-button-numbering-2nd-gen-intuos-pro-over-bluetooth.patch
-  hid-wacom-sync-intuosp2_bt-touch-state-after-each-frame-if-necessary.patch
-  revert-alsa-hda-realtek-improve-the-headset-mic-for-acer-aspire-laptops.patch
-  alsa-oxfw-allow-pcm-capture-for-stanton-scs.1m.patch
-  alsa-hda-realtek-update-headset-mode-for-alc256.patch
-  alsa-firewire-motu-fix-destruction-of-data-for-isochronous-resources.patch
-  libata-extend-quirks-for-the-st1000lm024-drives-with-nolpm-quirk.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-  aarch64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-e21aac1282457dc7676ad110df5fc329496eb63b.config
-    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-e21aac1282457dc7676ad110df5fc329496eb63b.tar.gz
-
-  ppc64le:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-e21aac1282457dc7676ad110df5fc329496eb63b.config
-    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-e21aac1282457dc7676ad110df5fc329496eb63b.tar.gz
-
-  s390x:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-e21aac1282457dc7676ad110df5fc329496eb63b.config
-    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-e21aac1282457dc7676ad110df5fc329496eb63b.tar.gz
-
-  x86_64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-e21aac1282457dc7676ad110df5fc329496eb63b.config
-    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-e21aac1282457dc7676ad110df5fc329496eb63b.tar.gz
+===============================================================================
+Detailed per-defconfig build reports below:
 
 
-Hardware testing
-----------------
+-------------------------------------------------------------------------------
+arm64-allmodconfig : PASS, 0 errors, 3 warnings, 0 section mismatches
 
-We booted each kernel and ran the following tests:
+Warnings:
+	warning: (IMA) selects TCG_CRB which has unmet direct dependencies (TCG_TPM && X86 && ACPI)
+	warning: (IMA) selects TCG_CRB which has unmet direct dependencies (TCG_TPM && X86 && ACPI)
+	warning: (IMA) selects TCG_CRB which has unmet direct dependencies (TCG_TPM && X86 && ACPI)
+-------------------------------------------------------------------------------
 
-  aarch64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ AMTU (Abstract Machine Test Utility) [2]
-       ✅ audit: audit testsuite test [3]
-       ✅ httpd: mod_ssl smoke sanity [4]
-       ✅ iotop: sanity [5]
-       ❎ tuned: tune-processes-through-perf [6]
+Passed with no errors, warnings or mismatches:
 
-    Host 2:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [7]
-
-
-  ppc64le:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ AMTU (Abstract Machine Test Utility) [2]
-       ✅ audit: audit testsuite test [3]
-       ✅ httpd: mod_ssl smoke sanity [4]
-       ✅ iotop: sanity [5]
-       ❎ tuned: tune-processes-through-perf [6]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [7]
-
-
-  s390x:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [7]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ audit: audit testsuite test [3]
-       ✅ httpd: mod_ssl smoke sanity [4]
-       ✅ iotop: sanity [5]
-       ❎ tuned: tune-processes-through-perf [6]
-
-
-  x86_64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ AMTU (Abstract Machine Test Utility) [2]
-       ✅ audit: audit testsuite test [3]
-       ✅ httpd: mod_ssl smoke sanity [4]
-       ✅ iotop: sanity [5]
-       ❎ tuned: tune-processes-through-perf [6]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [7]
-
-
-  Test source:
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-
+arm64-allnoconfig
+arm-multi_v5_defconfig
+arm-multi_v7_defconfig
+x86_64-defconfig
+arm-allmodconfig
+arm-allnoconfig
+x86_64-allnoconfig
+x86_64-allmodconfig
+arm64-defconfig
