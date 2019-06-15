@@ -2,71 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C05546E84
-	for <lists+stable@lfdr.de>; Sat, 15 Jun 2019 07:50:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E10746E99
+	for <lists+stable@lfdr.de>; Sat, 15 Jun 2019 08:28:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725830AbfFOFuW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 15 Jun 2019 01:50:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43334 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725786AbfFOFuW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 15 Jun 2019 01:50:22 -0400
-Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7B71C2084D;
-        Sat, 15 Jun 2019 05:50:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560577822;
-        bh=ZGVEz5W7fSK9yM6g3HmG8Fd2s6oQWJL4f41cyscrD40=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=D9lcxTas7YscTCGetZere7/h4KQYBnkc+2EK+zLtB/bLZTnCo154dl2Xvlta07i8X
-         iqFKZEVjxhdK7z6a9Me4HznGJm3h3NMTq4wj25Ji2B9XHP6E/CIjg5bcyyL0cVGk3T
-         s+y0FtO1jGG925SUYmRrL4YBxswq7Lj+3j4+PzSI=
-Date:   Sat, 15 Jun 2019 07:50:19 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     James Feeney <james@nurealm.net>
-Cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Peter Hutterer <peter.hutterer@who-t.net>,
-        Sasha Levin <sashal@kernel.org>,
-        Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 1/2] HID: input: make sure the wheel high resolution
- multiplier is set
-Message-ID: <20190615055019.GC23883@kroah.com>
-References: <20190423154615.18257-1-benjamin.tissoires@redhat.com>
- <CAO-hwJLCL95pAzO9kco2jo2_uCV2=3f5OEf=P=AoB9EpEjFTAw@mail.gmail.com>
- <43a56e9b-6e44-76b7-efff-fa8996183fbc@nurealm.net>
- <CAO-hwJK614pzseUsGqH65fCnrm=N7970i4_mqi0m1gdkY=J0ag@mail.gmail.com>
- <b6410e5d-b165-7a9b-2ef5-eb44c8de7753@nurealm.net>
+        id S1725847AbfFOG2y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 15 Jun 2019 02:28:54 -0400
+Received: from mail-wm1-f68.google.com ([209.85.128.68]:39008 "EHLO
+        mail-wm1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725828AbfFOG2y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 15 Jun 2019 02:28:54 -0400
+Received: by mail-wm1-f68.google.com with SMTP id z23so4218951wma.4;
+        Fri, 14 Jun 2019 23:28:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:openpgp:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=3zLySgCclFnvuNTV15P6TA3DxfDKWG9jw7Y0vYK7J1Q=;
+        b=o09zssjCRBBimQ6/BNdXPY/DozFzaYTRjxHgnUrOeK6avOcGfo8g8b0G71c+4BuXDG
+         tYRgLXUdZSUOFY2dnsC4rH6O6DKv0NsGFCa37xaaBWgHyu8vBgtjDDpW3Wx+Wzf4kec+
+         FTGlpmrsaiJd1dcCzCeFLI5b+mgn96bRU0ip5vAbwE/EuWPa+aR5z20NSJCz7odIBJuJ
+         whi4+Pp6HdDuZXQ8L5CQ/BXpiX+9N3VkYBDnOiY6BaeHRtlvpYEgmx9ttP+TYM+PAMLc
+         3Ny+fbxlBzyZghsuN15DT0+RYj2J6uYBCsaw9QmzvBiI/GZtgVhGTTuT1h8mOEEQ591z
+         1GCA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:openpgp:message-id
+         :date:user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=3zLySgCclFnvuNTV15P6TA3DxfDKWG9jw7Y0vYK7J1Q=;
+        b=Gyyua74nRYfYnbuJPfy9TowuXeaqBiy/MyIurtjbPTkzpOvDTXepVRnG0TvnYzyo8q
+         DnXaPH9toQzfDRxy8Q07fCbTE4vUjid5vhxsBKt4TTe8lwEB4aIN/0w2hxh3gZHrvNxQ
+         9W5m/KA+dbpPCJmnsoY2WSELbihLbKuRHMXUUXt1bDpWX1OOcxieDqTkw7qS6WnJP5jH
+         IKtVugx3fFfGHcJ3Q+/KrRROPy5qPI4bk47PcrC4UtF0zHNk8dVE2ADBOb8qvQ4gTxw8
+         uuPY03zePX6XrKFUrw2n+5lpzG4zczi57l1msO8GUzsEEGg+i6EFvPFWEJ10wpSaYKBi
+         VI+Q==
+X-Gm-Message-State: APjAAAW19uK9Wltg86WtqvlKXU+Q/aLfsvUteLkH+xFsRamfvGhg+VHH
+        SgJBDkLdzBzRuY6RYNjT1rX9GTceOuHdxA==
+X-Google-Smtp-Source: APXvYqzFMXUG7FDAKz7YOvOYfDx0LdUjaKO3QWNufslY/7C+5+Oh+Hv0ZtRgOAg0LGIOeWfKmmPllA==
+X-Received: by 2002:a1c:c8:: with SMTP id 191mr10552594wma.6.1560580132093;
+        Fri, 14 Jun 2019 23:28:52 -0700 (PDT)
+Received: from [192.168.2.27] (39.35.broadband4.iol.cz. [85.71.35.39])
+        by smtp.gmail.com with ESMTPSA id f197sm6027911wme.39.2019.06.14.23.28.51
+        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
+        Fri, 14 Jun 2019 23:28:51 -0700 (PDT)
+Subject: Re: [PATCH] tpm: Fix null pointer dereference on chip register error
+ path
+To:     Sasha Levin <sashal@kernel.org>, linux-integrity@vger.kernel.org
+Cc:     stable@vger.kernel.org, Peter Huewe <peterhuewe@gmx.de>,
+        Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>,
+        James Morris <jmorris@namei.org>,
+        Jason Gunthorpe <jgg@ziepe.ca>
+References: <20190612084210.13562-1-gmazyland@gmail.com>
+ <20190614215635.2D9BD2184E@mail.kernel.org>
+From:   Milan Broz <gmazyland@gmail.com>
+Openpgp: preference=signencrypt
+Message-ID: <251208d1-96f9-1fab-3fee-4a216ff87f5e@gmail.com>
+Date:   Sat, 15 Jun 2019 08:28:50 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b6410e5d-b165-7a9b-2ef5-eb44c8de7753@nurealm.net>
-User-Agent: Mutt/1.12.0 (2019-05-25)
+In-Reply-To: <20190614215635.2D9BD2184E@mail.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jun 14, 2019 at 04:09:35PM -0600, James Feeney wrote:
-> Hey Everyone
+On 14/06/2019 23:56, Sasha Levin wrote:
+> Hi,
 > 
-> On 4/24/19 10:41 AM, Benjamin Tissoires wrote:
-> >>> For a patch to be picked up by stable, it first needs to go in Linus'
-> >>> tree. Currently we are working on 5.1, so any stable patches need to
-> >>> go in 5.1 first. Then, once they hit Linus' tree, the stable team will
-> >>> pick them and backport them in the appropriate stable tree.
+> [This is an automated email]
 > 
-> Hmm - so, I just booted linux 5.1.9, and this patch set is *still* missing from the kernel.
-> 
-> Is there anything that we can do about this?
+> This commit has been processed because it contains a -stable tag.
+> The stable tag indicates that it's relevant for the following trees: all
 
-What is the git commit id of the patch in Linus's tree?
+It should be only # v5.1+
 
-As I said before, it can not be backported until it shows up there
-first.
+And seems I also forgot to add some cc for the original patch, sorry.
 
-thanks,
+The referenced patch is here
+https://lore.kernel.org/linux-integrity/20190612084210.13562-1-gmazyland@gmail.com/
 
-greg k-h
+Milan
