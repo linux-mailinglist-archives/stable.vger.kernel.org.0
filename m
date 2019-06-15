@@ -2,84 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id C618D470D0
-	for <lists+stable@lfdr.de>; Sat, 15 Jun 2019 17:29:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 863C1470E1
+	for <lists+stable@lfdr.de>; Sat, 15 Jun 2019 17:31:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726906AbfFOP3V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 15 Jun 2019 11:29:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44610 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725944AbfFOP3V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 15 Jun 2019 11:29:21 -0400
+        id S1727107AbfFOPbI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 15 Jun 2019 11:31:08 -0400
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:43919 "EHLO
+        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1726934AbfFOPbI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 15 Jun 2019 11:31:08 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id F232C21E56;
+        Sat, 15 Jun 2019 11:31:06 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Sat, 15 Jun 2019 11:31:06 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=OanErY
+        Ny5FH9Om+qSG7uofvmQ+oCy7zkEULUfvQnfVo=; b=HJo6tKpEGZuOfwgHU+vWjl
+        UpQK6Jm8LHAxwSD778+PT4c3T7vYU7lGVCFiac1CsM8mfgllgY9sxB2oo3jW3cbe
+        +ki1odVVbSW+mAYaKBNcIL7g3A0SzA25qLJXG6iFz6dnummKfymOsPF8yW4XS2KE
+        CiZNx/X9B51tgVttUdHuvaNbxX5mHb4iQcjkDIKB9COI1MpQs4naZQFSXQY80iM6
+        8irJ7mcuYDrieq740FSf67kBe2Kcf2Jih3YvhLUAcaZlQFa2nPrWld13WbmsTcwL
+        wsIojVxmGidLfxxc4KT0pOS73VlLPIePPv3JswqTiqWBxVBTPXenX5upnYDR0suA
+        ==
+X-ME-Sender: <xms:Og8FXbJsobjABez9-GDAP0XYKDAc0EBeJ1oFTHIrgOCQJsZEj1KLyQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrudeifedgleduucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
+    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
+X-ME-Proxy: <xmx:Og8FXRsUL2ezNqX_s94JptZNxzvCpjMMinmxmHJwFT1JfOmSeIllEw>
+    <xmx:Og8FXXWmHbWcWJrsDBHliBrYgFxXMjsVU3xi-IDnxpb5d_0h8jEDHA>
+    <xmx:Og8FXUizlbitF9SbMW9l0d6Sd1lRPt3DTq-4_d9sxcSW_gftZAszVg>
+    <xmx:Og8FXZGCTpMdPSllXP6vaw8ihntdsxZ5fOuWIxeaRfMX-4KLrT_Hug>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id A42742183F;
-        Sat, 15 Jun 2019 15:29:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560612561;
-        bh=6r8X5Y8c5o2dB1cxuJv4bl3Dlu6Tth2OeiBXjX1xsMY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Ir+VzFWn5s8dU9FR221rJfZ1zUKfybWUaBCZ7JziBAoWma5UndHpd/68Tl6xZsO+z
-         KDk5Optu/s5JZM7bX1VxcWfkXlZNSjbECKCDZbucwnTDWVHh/2joMS+Yg5dz2AiCZG
-         8dEhKD6cahHD1OEESroqERnoTH/lLtxXJ9L8Kn7Y=
-Date:   Sat, 15 Jun 2019 17:29:18 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Thomas Backlund <tmb@mageia.org>
-Cc:     James Feeney <james@nurealm.net>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Peter Hutterer <peter.hutterer@who-t.net>,
-        Sasha Levin <sashal@kernel.org>,
-        Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 1/2] HID: input: make sure the wheel high resolution
- multiplier is set
-Message-ID: <20190615152918.GB5171@kroah.com>
-References: <20190423154615.18257-1-benjamin.tissoires@redhat.com>
- <CAO-hwJLCL95pAzO9kco2jo2_uCV2=3f5OEf=P=AoB9EpEjFTAw@mail.gmail.com>
- <43a56e9b-6e44-76b7-efff-fa8996183fbc@nurealm.net>
- <CAO-hwJK614pzseUsGqH65fCnrm=N7970i4_mqi0m1gdkY=J0ag@mail.gmail.com>
- <b6410e5d-b165-7a9b-2ef5-eb44c8de7753@nurealm.net>
- <20190615055019.GC23883@kroah.com>
- <e158e981-47e6-a7f8-6416-4eff7af2c5d0@mageia.org>
+        by mail.messagingengine.com (Postfix) with ESMTPA id C33BD8005B;
+        Sat, 15 Jun 2019 11:31:05 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] HID: wacom: Don't set tool type until we're in range" failed to apply to 4.14-stable tree
+To:     jason.gerecke@wacom.com, aaron.skomra@wacom.com,
+        benjamin.tissoires@redhat.com, stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sat, 15 Jun 2019 17:31:04 +0200
+Message-ID: <15606126649212@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <e158e981-47e6-a7f8-6416-4eff7af2c5d0@mageia.org>
-User-Agent: Mutt/1.12.0 (2019-05-25)
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Jun 15, 2019 at 12:03:04PM +0300, Thomas Backlund wrote:
-> Den 15-06-2019 kl. 08:50, skrev Greg KH:
-> > On Fri, Jun 14, 2019 at 04:09:35PM -0600, James Feeney wrote:
-> > > Hey Everyone
-> > > 
-> > > On 4/24/19 10:41 AM, Benjamin Tissoires wrote:
-> > > > > > For a patch to be picked up by stable, it first needs to go in Linus'
-> > > > > > tree. Currently we are working on 5.1, so any stable patches need to
-> > > > > > go in 5.1 first. Then, once they hit Linus' tree, the stable team will
-> > > > > > pick them and backport them in the appropriate stable tree.
-> > > 
-> > > Hmm - so, I just booted linux 5.1.9, and this patch set is *still* missing from the kernel.
-> > > 
-> > > Is there anything that we can do about this?
-> > 
-> > What is the git commit id of the patch in Linus's tree?
-> > 
-> > As I said before, it can not be backported until it shows up there
-> > first.
-> > 
-> 
-> That would be:
-> d43c17ead879ba7c076dc2f5fd80cd76047c9ff4
-> 
-> and
-> 
-> 39b3c3a5fbc5d744114e497d35bf0c12f798c134
 
-Thanks, now queued up.
+The patch below does not apply to the 4.14-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 2cc08800a6b9fcda7c7afbcf2da1a6e8808da725 Mon Sep 17 00:00:00 2001
+From: Jason Gerecke <jason.gerecke@wacom.com>
+Date: Wed, 24 Apr 2019 15:12:57 -0700
+Subject: [PATCH] HID: wacom: Don't set tool type until we're in range
+
+The serial number and tool type information that is reported by the tablet
+while a pen is merely "in prox" instead of fully "in range" can be stale
+and cause us to report incorrect tool information. Serial number, tool
+type, and other information is only valid once the pen comes fully in range
+so we should be careful to not use this information until that point.
+
+In particular, this issue may cause the driver to incorectly report
+BTN_TOOL_RUBBER after switching from the eraser tool back to the pen.
+
+Fixes: a48324de6d4d ("HID: wacom: Bluetooth IRQ for Intuos Pro should handle prox/range")
+Cc: <stable@vger.kernel.org> # 4.11+
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+Reviewed-by: Aaron Armstrong Skomra <aaron.skomra@wacom.com>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index 747730d32ab6..4c1bc239207e 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -1236,13 +1236,13 @@ static void wacom_intuos_pro2_bt_pen(struct wacom_wac *wacom)
+ 		/* Add back in missing bits of ID for non-USI pens */
+ 		wacom->id[0] |= (wacom->serial[0] >> 32) & 0xFFFFF;
+ 	}
+-	wacom->tool[0]   = wacom_intuos_get_tool_type(wacom_intuos_id_mangle(wacom->id[0]));
+ 
+ 	for (i = 0; i < pen_frames; i++) {
+ 		unsigned char *frame = &data[i*pen_frame_len + 1];
+ 		bool valid = frame[0] & 0x80;
+ 		bool prox = frame[0] & 0x40;
+ 		bool range = frame[0] & 0x20;
++		bool invert = frame[0] & 0x10;
+ 
+ 		if (!valid)
+ 			continue;
+@@ -1251,9 +1251,24 @@ static void wacom_intuos_pro2_bt_pen(struct wacom_wac *wacom)
+ 			wacom->shared->stylus_in_proximity = false;
+ 			wacom_exit_report(wacom);
+ 			input_sync(pen_input);
++
++			wacom->tool[0] = 0;
++			wacom->id[0] = 0;
++			wacom->serial[0] = 0;
+ 			return;
+ 		}
++
+ 		if (range) {
++			if (!wacom->tool[0]) { /* first in range */
++				/* Going into range select tool */
++				if (invert)
++					wacom->tool[0] = BTN_TOOL_RUBBER;
++				else if (wacom->id[0])
++					wacom->tool[0] = wacom_intuos_get_tool_type(wacom->id[0]);
++				else
++					wacom->tool[0] = BTN_TOOL_PEN;
++			}
++
+ 			input_report_abs(pen_input, ABS_X, get_unaligned_le16(&frame[1]));
+ 			input_report_abs(pen_input, ABS_Y, get_unaligned_le16(&frame[3]));
+ 
+
