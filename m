@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B7E3647130
-	for <lists+stable@lfdr.de>; Sat, 15 Jun 2019 18:09:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C66447131
+	for <lists+stable@lfdr.de>; Sat, 15 Jun 2019 18:09:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726703AbfFOQJt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 15 Jun 2019 12:09:49 -0400
-Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:33035 "EHLO
+        id S1726857AbfFOQJv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 15 Jun 2019 12:09:51 -0400
+Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:57627 "EHLO
         wout3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1726405AbfFOQJt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 15 Jun 2019 12:09:49 -0400
+        by vger.kernel.org with ESMTP id S1726405AbfFOQJu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 15 Jun 2019 12:09:50 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 326DF443;
-        Sat, 15 Jun 2019 12:09:48 -0400 (EDT)
+        by mailout.west.internal (Postfix) with ESMTP id C3682447;
+        Sat, 15 Jun 2019 12:09:49 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sat, 15 Jun 2019 12:09:48 -0400
+  by compute6.internal (MEProxy); Sat, 15 Jun 2019 12:09:50 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=QT95QN
-        CZwqXyU5Xpi2BzYqq/8zn8Pmq7gyflSDACwiA=; b=J1AT8Qpy5lntaeudUkqoqS
-        5yuFsVNrt6pBaiICfsQrW5UTc0tBzAqFnEnnzfZzRht3QbrxjU6kb0jPSSZJLGao
-        SZzxAWhucn/mVlaod+OcLh0zd1rWe7I9WkGEquysd0SONSeDyP4aSEpKNhn4y/BC
-        +IfGRhyIQ7POEj+in2YdU3OA7YGU0C2dtQI/n5m1R5bUdhUvQ3m8cOjkk3cqtZEg
-        /I8ZmlyAFJWHEosSl5auAFTCi5odTSx/V58pZx2caVfHfLl4exoLezqCtxUr0072
-        aVC3o/w3BJ52HKrcoBz50KztCUxJpmKXNAckfLDb1piOZS2jGvS+qqka56tieGGw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=FwY2r2
+        v1JJUlv4UhwylNJutJcmMv7PbVButOjd2lmck=; b=gwWNSHIj8gPQRr3IVTbipM
+        dSf7Zb3bSPZn7Cpdocdi8CnVp5WTI/lbqcuMJXcC4PXfUlsq+DibyZNVzFCZ2VAn
+        I/ucOiQQOGYOnccPp4uNdyTfYZoIChZMpfUeGQvXjnyqQ6hmNcB+Pvr9k6JddRQx
+        WIWVklAnFq9OmyinauP91TJOsWJI8gX3YMgNVw+uMwg86geeKQ3lYmW8bzW71XKw
+        SRsauj1wlBBtUdnMRt1ngw5qjSOH9CvQb1aBRLECO4Om64CPXL2H8AkU/+LF7g4u
+        8s7E8yB1mbGiQ/ZNQTgQPm9v9Nj1YUZAf2DHkPXoNoBR4zV1KrF0dhnt4bVMUGEA
         ==
-X-ME-Sender: <xms:SxgFXY2Akw4-JfLNkUmpbv5q2LO1j7k6QrGJmW21o4DTlSf9z30AIw>
+X-ME-Sender: <xms:TRgFXT74f0FDMPGB3g2JbpC9E16EpykLdWVHBwSkcbjKZAVXScSWTQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrudeifedgleekucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -35,20 +35,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrudeifedgleekucetufdoteggod
     gheqnecuffhomhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhgpdhkvghrnhgvlhdroh
     hrghenucfkphepkeefrdekiedrkeelrddutdejnecurfgrrhgrmhepmhgrihhlfhhrohhm
     pehgrhgvgheskhhrohgrhhdrtghomhenucevlhhushhtvghrufhiiigvpedu
-X-ME-Proxy: <xmx:SxgFXc4uqK5l3-fIyoniHec-kmEQETDkgMTsJx8AfMEi_Gv27i9cag>
-    <xmx:SxgFXdeJ8k2LPXjI-nEfT_EPZH889dcbsU3R7kqbQ0JsPP0CcXhk9Q>
-    <xmx:SxgFXfNUmLQ9GdmuWUZ-ciLaF_x5KnarwVmlK1i6ed1rp17Vr0z2Eg>
-    <xmx:SxgFXXjzMm7BRsJ2fEN-vGsWZ7ckOJbGXXXKF2LuDkjhmbJkEgay_A>
+X-ME-Proxy: <xmx:TRgFXbv1MFNhechAnWOVSP9-XBaR9tk8RGuWYusWZFKLVmaTsXKSfQ>
+    <xmx:TRgFXf3base4GhBT_pW5knUGGSklqlqJKlo3G_0VYP733bWIpaypuQ>
+    <xmx:TRgFXR54squNQdoelQQZux96kJEfyAems3F9KGxFLdusYc-BSDWuXg>
+    <xmx:TRgFXcXdUFb4vD-dSgcdcWwycq5HUfLujKH11vuB0ieuof4RdLRWtg>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 1F6A4380083;
-        Sat, 15 Jun 2019 12:09:47 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] drm/i915/dmc: protect against reading random memory" failed to apply to 4.9-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id B10B8380084;
+        Sat, 15 Jun 2019 12:09:48 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] drm/i915/dmc: protect against reading random memory" failed to apply to 4.4-stable tree
 To:     lucas.demarchi@intel.com, jani.nikula@intel.com,
         rodrigo.vivi@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sat, 15 Jun 2019 18:09:43 +0200
-Message-ID: <1560614983271@kroah.com>
+Message-ID: <1560614983163119@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -58,7 +58,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
