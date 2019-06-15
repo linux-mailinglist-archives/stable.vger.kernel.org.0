@@ -2,91 +2,71 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 432F946E80
-	for <lists+stable@lfdr.de>; Sat, 15 Jun 2019 07:48:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C05546E84
+	for <lists+stable@lfdr.de>; Sat, 15 Jun 2019 07:50:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726222AbfFOFsJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 15 Jun 2019 01:48:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41680 "EHLO mail.kernel.org"
+        id S1725830AbfFOFuW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 15 Jun 2019 01:50:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43334 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725786AbfFOFsJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 15 Jun 2019 01:48:09 -0400
+        id S1725786AbfFOFuW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 15 Jun 2019 01:50:22 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E73742084D;
-        Sat, 15 Jun 2019 05:48:07 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 7B71C2084D;
+        Sat, 15 Jun 2019 05:50:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560577688;
-        bh=3DxSOYcYTiNCBZltQK+f/JE8TaouzRRdRIXug1AbTS4=;
+        s=default; t=1560577822;
+        bh=ZGVEz5W7fSK9yM6g3HmG8Fd2s6oQWJL4f41cyscrD40=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=SSCcHS8Ad7sK9BOGqENrENG9D/84/1dvBCklCyS2jgSP9VLo03lON6ojHV2bZtLTv
-         3I88mNwtafte2QTZuVd0ogzkpitbnQyA7sBpX/k6WIITqxZjyIzjHKXnfTDvoAwzes
-         te2urnXh1Bcewp2SxwKWDYRbQ2qjVZi62wsgxf9I=
-Date:   Sat, 15 Jun 2019 07:48:06 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Chengguang Xu <cgxu519@gmx.com>, Wu Hao <hao.wu@intel.com>,
-        Alan Tull <atull@kernel.org>, linux-fpga@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.1 17/59] fpga: dfl: expand minor range when
- registering chrdev region
-Message-ID: <20190615054806.GB23883@kroah.com>
-References: <20190614202843.26941-1-sashal@kernel.org>
- <20190614202843.26941-17-sashal@kernel.org>
+        b=D9lcxTas7YscTCGetZere7/h4KQYBnkc+2EK+zLtB/bLZTnCo154dl2Xvlta07i8X
+         iqFKZEVjxhdK7z6a9Me4HznGJm3h3NMTq4wj25Ji2B9XHP6E/CIjg5bcyyL0cVGk3T
+         s+y0FtO1jGG925SUYmRrL4YBxswq7Lj+3j4+PzSI=
+Date:   Sat, 15 Jun 2019 07:50:19 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     James Feeney <james@nurealm.net>
+Cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Peter Hutterer <peter.hutterer@who-t.net>,
+        Sasha Levin <sashal@kernel.org>,
+        Jiri Kosina <jikos@kernel.org>, linux-input@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH 1/2] HID: input: make sure the wheel high resolution
+ multiplier is set
+Message-ID: <20190615055019.GC23883@kroah.com>
+References: <20190423154615.18257-1-benjamin.tissoires@redhat.com>
+ <CAO-hwJLCL95pAzO9kco2jo2_uCV2=3f5OEf=P=AoB9EpEjFTAw@mail.gmail.com>
+ <43a56e9b-6e44-76b7-efff-fa8996183fbc@nurealm.net>
+ <CAO-hwJK614pzseUsGqH65fCnrm=N7970i4_mqi0m1gdkY=J0ag@mail.gmail.com>
+ <b6410e5d-b165-7a9b-2ef5-eb44c8de7753@nurealm.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20190614202843.26941-17-sashal@kernel.org>
+In-Reply-To: <b6410e5d-b165-7a9b-2ef5-eb44c8de7753@nurealm.net>
 User-Agent: Mutt/1.12.0 (2019-05-25)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jun 14, 2019 at 04:28:01PM -0400, Sasha Levin wrote:
-> From: Chengguang Xu <cgxu519@gmx.com>
+On Fri, Jun 14, 2019 at 04:09:35PM -0600, James Feeney wrote:
+> Hey Everyone
 > 
-> [ Upstream commit de9a7f6f5f1967d275311cca9163b4a3ffe9b0ae ]
+> On 4/24/19 10:41 AM, Benjamin Tissoires wrote:
+> >>> For a patch to be picked up by stable, it first needs to go in Linus'
+> >>> tree. Currently we are working on 5.1, so any stable patches need to
+> >>> go in 5.1 first. Then, once they hit Linus' tree, the stable team will
+> >>> pick them and backport them in the appropriate stable tree.
 > 
-> Actually, total amount of available minor number
-> for a single major is MINORMASK + 1. So expand
-> minor range when registering chrdev region.
+> Hmm - so, I just booted linux 5.1.9, and this patch set is *still* missing from the kernel.
 > 
-> Signed-off-by: Chengguang Xu <cgxu519@gmx.com>
-> Acked-by: Wu Hao <hao.wu@intel.com>
-> Acked-by: Alan Tull <atull@kernel.org>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/fpga/dfl.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/fpga/dfl.c b/drivers/fpga/dfl.c
-> index c25217cde5ca..4b66aaa32b5a 100644
-> --- a/drivers/fpga/dfl.c
-> +++ b/drivers/fpga/dfl.c
-> @@ -322,7 +322,7 @@ static void dfl_chardev_uinit(void)
->  	for (i = 0; i < DFL_FPGA_DEVT_MAX; i++)
->  		if (MAJOR(dfl_chrdevs[i].devt)) {
->  			unregister_chrdev_region(dfl_chrdevs[i].devt,
-> -						 MINORMASK);
-> +						 MINORMASK + 1);
->  			dfl_chrdevs[i].devt = MKDEV(0, 0);
->  		}
->  }
-> @@ -332,8 +332,8 @@ static int dfl_chardev_init(void)
->  	int i, ret;
->  
->  	for (i = 0; i < DFL_FPGA_DEVT_MAX; i++) {
-> -		ret = alloc_chrdev_region(&dfl_chrdevs[i].devt, 0, MINORMASK,
-> -					  dfl_chrdevs[i].name);
-> +		ret = alloc_chrdev_region(&dfl_chrdevs[i].devt, 0,
-> +					  MINORMASK + 1, dfl_chrdevs[i].name);
->  		if (ret)
->  			goto exit;
->  	}
+> Is there anything that we can do about this?
 
-Not a bugfix, so not needed for stable kernels, thanks.
+What is the git commit id of the patch in Linus's tree?
+
+As I said before, it can not be backported until it shows up there
+first.
+
+thanks,
 
 greg k-h
