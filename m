@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0572847152
-	for <lists+stable@lfdr.de>; Sat, 15 Jun 2019 18:52:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8083F47153
+	for <lists+stable@lfdr.de>; Sat, 15 Jun 2019 18:52:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726523AbfFOQwt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 15 Jun 2019 12:52:49 -0400
-Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:50027 "EHLO
+        id S1726688AbfFOQwx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 15 Jun 2019 12:52:53 -0400
+Received: from wout3-smtp.messagingengine.com ([64.147.123.19]:51149 "EHLO
         wout3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725944AbfFOQwt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 15 Jun 2019 12:52:49 -0400
+        by vger.kernel.org with ESMTP id S1725944AbfFOQww (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 15 Jun 2019 12:52:52 -0400
 Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 4B83C41E;
-        Sat, 15 Jun 2019 12:52:47 -0400 (EDT)
+        by mailout.west.internal (Postfix) with ESMTP id 46C61402;
+        Sat, 15 Jun 2019 12:52:51 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Sat, 15 Jun 2019 12:52:47 -0400
+  by compute6.internal (MEProxy); Sat, 15 Jun 2019 12:52:51 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=QrNt4Q
-        yPIwZuCMQ3QSQIPaVbAm+OABA/OGkdwEPLWrU=; b=uwxnyMOs86Xbw7cbeUL4uw
-        mIc3L3tzjo4i2gUuhfeEqZCfTH0RQZttcjRN8ProC4QsHOUtbNpwh1KIOyq541lZ
-        z6TG9OyWXY5Na+a9ahBoZ7aVF0fzFSDqUdu8pbwyVoTQPf7VYCOKy4AM4DM/5iN9
-        /LYgTsREpPFu/XYclc+stp/lja0DMm7b3HZKrQDYOYaUIpDyRs4DZIWgdnWWsheT
-        FvDbnuGcAi2bEfAJeeYaxe5uiFFvnqhj6g4lG0K/4h3cs8n1RpVFefm6YFfx9kFd
-        LNWeI42WxSDYwmySn7jMCNKUXnYSJPN6/SfC+JvTKqZxu2+UdqUGxVx1ArwtU6kA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=yjgnxr
+        tSkkI7M0oP5aylFJC6qs+EOuvqMCX11Qf+ah4=; b=jt07n8GLWbMl0EMPhSi9BJ
+        zHJMvqpw7O7Bc6hb+YOIcjmNMNJMNbNx70EcBQjvvhLSkkDdUbeYLAiguZxps6s4
+        SR/kmIEp6iAgKuM9REYJ8ijUVTSV/tz+riK/rJaJTzPuIwbkV2VMWp1+rPwK2ZSh
+        8mFP1Cxo/fyhVJvVVw7fNmRKMDvrCGotWAv59x+zNXgDlB0ZuxR0pa4pMEUNuXsk
+        3n1LEIWKsVR52kKMqU4lw8bVMa0H7mWKJpFxk0/LpIW9Us9j+ohMdpsgzTpEVgeL
+        sNeFBev8pu9WB3alKRlnWb99AcKl3E8bkaF7AymytbKasmDnoo9OzctbEhXwynSg
         ==
-X-ME-Sender: <xms:XiIFXUxK04bjUie14_UbmEmS1KRNVdPE-LMCgxUlRcrutUqOtBuWfg>
+X-ME-Sender: <xms:YiIFXQJubcloHr4gYB-pmSI_rWJZgEv_wN97414L6-6AiNL-vNFf3g>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrudeifedguddtjecutefuodetggdotefrod
     ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
     necuuegrihhlohhuthemuceftddtnecunecujfgurhepuffvhfffkfggtgfgsehtkeertd
@@ -35,23 +35,23 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrudeifedguddtjecutefuodetgg
     rhhgqeenucffohhmrghinhepfhhrvggvuggvshhkthhophdrohhrghdpmhgrihhlqdgrrh
     gthhhivhgvrdgtohhmnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehm
     rghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivg
-    epud
-X-ME-Proxy: <xmx:XiIFXc9td8JK3KVuvDn9M5NYZmMJJSGMDDCpM_LrKmXmIrE3NIEhEQ>
-    <xmx:XiIFXWkjRDm5qS0Ia6-nH1VDTy8mWC0nQ4cYHyahQr-NJzR8qvWchA>
-    <xmx:XiIFXWqmX1c0DId0Bltu8HSwSPgvTQtR5nZMBDWfZIg5rfHUGFH4nQ>
-    <xmx:XiIFXUTBvrUuD73JuyN36Bjba6pwovwbmMjvBJOaH937NopVLBtXKg>
+    epvd
+X-ME-Proxy: <xmx:YiIFXS0sYuGYmNZs7J_cECTauTdCtJT3l3X_AxIh4A80umYinp4sVA>
+    <xmx:YiIFXcggHR0g1ogbLurAlJNxpWE1eU1uq_r1OwNQ08XqGqHDhc00eQ>
+    <xmx:YiIFXT2xAYs3BBdK-TARPBrfd2a85h0D0_G4gdWvEyEDAFpGZ-a1TQ>
+    <xmx:YiIFXWVNKFXr4l7ML55GceACYZO_E332gAGg3sKabT8sp4PYqJGwPA>
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id 247AE80064;
-        Sat, 15 Jun 2019 12:52:46 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] drm: add fallback override/firmware EDID modes workaround" failed to apply to 4.19-stable tree
+        by mail.messagingengine.com (Postfix) with ESMTPA id 2312B80065;
+        Sat, 15 Jun 2019 12:52:50 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] drm: add fallback override/firmware EDID modes workaround" failed to apply to 4.14-stable tree
 To:     jani.nikula@intel.com, daniel.vetter@ffwll.ch,
         harish.chegondi@intel.com, ilpo.jarvinen@cs.helsinki.fi,
         pabs3@bonedaddy.net, stable@vger.kernel.org,
         ville.syrjala@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 15 Jun 2019 18:52:43 +0200
-Message-ID: <156061756338243@kroah.com>
+Date:   Sat, 15 Jun 2019 18:52:48 +0200
+Message-ID: <1560617568146199@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -61,7 +61,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
