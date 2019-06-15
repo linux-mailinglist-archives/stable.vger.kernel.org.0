@@ -2,91 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3717E46CF7
-	for <lists+stable@lfdr.de>; Sat, 15 Jun 2019 01:34:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20FC446D2C
+	for <lists+stable@lfdr.de>; Sat, 15 Jun 2019 02:24:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725837AbfFNXeB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jun 2019 19:34:01 -0400
-Received: from userp2130.oracle.com ([156.151.31.86]:44682 "EHLO
-        userp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725812AbfFNXeB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Jun 2019 19:34:01 -0400
-Received: from pps.filterd (userp2130.oracle.com [127.0.0.1])
-        by userp2130.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x5ENXaBH134612;
-        Fri, 14 Jun 2019 23:33:57 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=corp-2018-07-02;
- bh=xC57jn87JyXy7UEJGYT3I0BpBDnQuaSrP5i3P1QlI6I=;
- b=fteRuujufu3CmIQ0hpxr3+DyF3Am163I32ktIzUzd9sOepWWRmqepsAtq8Gxt4y4VAog
- LM2vzoQo1R5A/xCc7g6UYg0Q4MATHrE8QxJ6wLY2uu5nhFEZ/G/LZOgDkYOMtF7OFpZ9
- 1ixxkQkAA0WPyqDBLwCYi0TktWyxmkGyOhPBL2JbS142d+gNM+gVbRvH2zIMyW3c1S01
- oQFRK0HZS3jkXyMKG4wQjuSD2eOZoUx5c+PvJXBvlxFZYpjdzHUq52EZYK6QaurDHB5h
- 0vd5nkpD5p4NYWyj4QcAjFe30PQNSHNx/1oFZuDMchT0o+UNU6VZGKOZp8BWI/1PzvWw Iw== 
-Received: from aserp3020.oracle.com (aserp3020.oracle.com [141.146.126.70])
-        by userp2130.oracle.com with ESMTP id 2t04eu9srg-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 14 Jun 2019 23:33:57 +0000
-Received: from pps.filterd (aserp3020.oracle.com [127.0.0.1])
-        by aserp3020.oracle.com (8.16.0.27/8.16.0.27) with SMTP id x5ENWsED162221;
-        Fri, 14 Jun 2019 23:33:56 GMT
-Received: from aserv0121.oracle.com (aserv0121.oracle.com [141.146.126.235])
-        by aserp3020.oracle.com with ESMTP id 2t0p9t7n0b-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 14 Jun 2019 23:33:56 +0000
-Received: from abhmp0018.oracle.com (abhmp0018.oracle.com [141.146.116.24])
-        by aserv0121.oracle.com (8.14.4/8.13.8) with ESMTP id x5ENXtO0029569;
-        Fri, 14 Jun 2019 23:33:55 GMT
-Received: from [192.168.1.222] (/71.63.128.209)
-        by default (Oracle Beehive Gateway v4.0)
-        with ESMTP ; Fri, 14 Jun 2019 16:33:55 -0700
-Subject: Re: [PATCH 2/3] hugetlbfs: Use i_mmap_rwsem to fix page
- fault/truncate race
-To:     Sasha Levin <sashal@kernel.org>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org
-Cc:     Michal Hocko <mhocko@kernel.org>, Hugh Dickins <hughd@google.com>,
-        stable@vger.kernel.org
-References: <20181203200850.6460-3-mike.kravetz@oracle.com>
- <20190614215632.BF5F721473@mail.kernel.org>
-From:   Mike Kravetz <mike.kravetz@oracle.com>
-Message-ID: <f8cea651-8052-4109-ea9b-dee3fbfc81d1@oracle.com>
-Date:   Fri, 14 Jun 2019 16:33:53 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.6.1
+        id S1725999AbfFOAY3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jun 2019 20:24:29 -0400
+Received: from mail-lj1-f193.google.com ([209.85.208.193]:39783 "EHLO
+        mail-lj1-f193.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725942AbfFOAY3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Jun 2019 20:24:29 -0400
+Received: by mail-lj1-f193.google.com with SMTP id v18so4039587ljh.6
+        for <stable@vger.kernel.org>; Fri, 14 Jun 2019 17:24:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=aK7lUvYVYd4MHzc03gl18he+PgV3Hkk9KuzGz+vIyo4=;
+        b=e5ZS2eb2pZskGk1t2DAfftIR2H6ohKVnchU3giQkQVAHGxWxwBW20eLh5ZsUiCGGME
+         6sw8frLd89Po3z4XAfZ9MbD/TJit973JCdkHd51Y1T1Uq4vgc81VpJT6f+zyKtfC0mDs
+         rLEOUzr6pgcKa2PubqoFxZV/FYtmA1r3D0rKA=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=aK7lUvYVYd4MHzc03gl18he+PgV3Hkk9KuzGz+vIyo4=;
+        b=FRIH4EpFH3ytKeMtCEyKWhQQX99n9dkNHJ/0lsr3TjiqLBcuXjjn/VnAqJTDNqD3OZ
+         RHDbAOSLxNiWk9Re4WTxgPSI4AXjtl4pYUR/NsKRomJDwQJyVYXvVELYkxQh1s9CjV8p
+         no04iABZV7cKwMjV1Ln85jMrIA/HjJDnzDoK7FcBeZUw+kzDAvwvO48aDqyBuHGr4LFs
+         YhpHQA71PpZV2JZGq2dfKb0vhXx8XfohWo8SCbpLDJN4uZcUgN8zNWHNZx8hY1AlPPo/
+         pxgrCCwQYDliMTeR2jRtT+LWd8rkrHxxRXhMLuYcD+KINbFZaYxgOGSL4kFF6BSa1T/y
+         /yig==
+X-Gm-Message-State: APjAAAVAQDVQrncMZwXXqIu+sgdSDGbYUVZw6ZR0Nr3MOqJ4L9SqDlB4
+        LTb/PG0FSVNxeMqC9y51hjeYEDiMojk=
+X-Google-Smtp-Source: APXvYqw6BerSsie359La7PAB5PgPDtvoGbv4Zi996dqorKNcgX0EdQIkeVFeaQI85sYXNqyvyD7ngg==
+X-Received: by 2002:a2e:9bc6:: with SMTP id w6mr9217877ljj.156.1560558266924;
+        Fri, 14 Jun 2019 17:24:26 -0700 (PDT)
+Received: from mail-lf1-f47.google.com (mail-lf1-f47.google.com. [209.85.167.47])
+        by smtp.gmail.com with ESMTPSA id d5sm667900lfc.96.2019.06.14.17.24.25
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=AEAD-AES128-GCM-SHA256 bits=128/128);
+        Fri, 14 Jun 2019 17:24:25 -0700 (PDT)
+Received: by mail-lf1-f47.google.com with SMTP id y13so2827444lfh.9
+        for <stable@vger.kernel.org>; Fri, 14 Jun 2019 17:24:25 -0700 (PDT)
+X-Received: by 2002:ac2:4565:: with SMTP id k5mr45739644lfm.170.1560558265318;
+ Fri, 14 Jun 2019 17:24:25 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20190614215632.BF5F721473@mail.kernel.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9288 signatures=668687
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0 malwarescore=0
- phishscore=0 bulkscore=0 spamscore=0 mlxscore=0 mlxlogscore=999
- adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.0.1-1810050000 definitions=main-1906140187
-X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9288 signatures=668687
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 priorityscore=1501 malwarescore=0
- suspectscore=0 phishscore=0 bulkscore=0 spamscore=0 clxscore=1011
- lowpriorityscore=0 mlxscore=0 impostorscore=0 mlxlogscore=999 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.0.1-1810050000
- definitions=main-1906140187
+References: <155930001303.17253.2447519598157285098.stgit@warthog.procyon.org.uk>
+ <17467.1559300202@warthog.procyon.org.uk> <alpine.LRH.2.21.1906040842110.13657@namei.org>
+ <6cfd5113-8473-f962-dee7-e490e6f76f9c@schaufler-ca.com> <cb3749a6-e45b-3e07-27f9-841adf6f4640@schaufler-ca.com>
+In-Reply-To: <cb3749a6-e45b-3e07-27f9-841adf6f4640@schaufler-ca.com>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Fri, 14 Jun 2019 14:24:09 -1000
+X-Gmail-Original-Message-ID: <CAHk-=wj8VCxjwyd_BDgRtDigik5UdizCZP7PU4wUtj4vHsEWNw@mail.gmail.com>
+Message-ID: <CAHk-=wj8VCxjwyd_BDgRtDigik5UdizCZP7PU4wUtj4vHsEWNw@mail.gmail.com>
+Subject: Re: [PATCH] Smack: Restore the smackfsdef mount option and add
+ missing prefixes
+To:     Casey Schaufler <casey@schaufler-ca.com>
+Cc:     James Morris <jmorris@namei.org>,
+        David Howells <dhowells@redhat.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        stable <stable@vger.kernel.org>, Jose Bollo <jose.bollo@iot.bzh>,
+        LSM List <linux-security-module@vger.kernel.org>,
+        Linux List Kernel Mailing <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/14/19 2:56 PM, Sasha Levin wrote:
-> Hi,
-> 
-> [This is an automated email]
-> 
-> This commit has been processed because it contains a "Fixes:" tag,
-> fixing commit: ebed4bfc8da8 [PATCH] hugetlb: fix absurd HugePages_Rsvd.
-<snip>
-> 
-> How should we proceed with this patch?
-> 
+On Fri, Jun 14, 2019 at 1:08 PM Casey Schaufler <casey@schaufler-ca.com> wrote:
+>
+> Al, are you going to take this, or should I find another way
+> to get it in for 5.2?
 
-I hope you do nothing with this as the patch is not upstream.
+I guess I can take it directly.
 
--- 
-Mike Kravetz
+I was assuming it would come through either Al (which is how I got the
+commit it fixes) or Casey (as smack maintainer), so I ignored the
+patch.
+
+                 Linus
