@@ -2,127 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id AA1B646FDF
-	for <lists+stable@lfdr.de>; Sat, 15 Jun 2019 14:13:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CEFB346FFE
+	for <lists+stable@lfdr.de>; Sat, 15 Jun 2019 14:43:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726658AbfFOMNN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 15 Jun 2019 08:13:13 -0400
-Received: from mail-wr1-f47.google.com ([209.85.221.47]:33037 "EHLO
-        mail-wr1-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725446AbfFOMNN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 15 Jun 2019 08:13:13 -0400
-Received: by mail-wr1-f47.google.com with SMTP id n9so5198096wru.0
-        for <stable@vger.kernel.org>; Sat, 15 Jun 2019 05:13:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=yupTmkmwb2bbbGrsudPw2ftlvzvNHeDdMTqyxhSLBRU=;
-        b=gGvrPt9ANhIZk5I+EeWKtLMRu6jGi8DL5dGOKEZNlE1NdfAFKgt3erS+CwT7U/JvaB
-         jjGAV2Te6oL2e1EDczNUDeQxH8aJrIl/lTEXaN1J+n0kQ3nqgFl2v/pwsBn0fcTE44kN
-         MSHkJdZ47oTB9gRW7RjZNEyV7T1cyWN98Jm+iuXNdZwUrpMicdrusDtyU2/o2jAsfcC1
-         QrDNGzJQ0pruYOrg1/C61H3iVSo2oOVmIJA/U6vHmNGEcmgeoHQqlAmcTwsMRxOG5hA6
-         hQKMOXo9+acuMKuvpVUIssOo8QwasweAdc3lL2Ou+9Er31cIKShJ8rgffcUbw4Mb+i8f
-         1GwQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=yupTmkmwb2bbbGrsudPw2ftlvzvNHeDdMTqyxhSLBRU=;
-        b=TNLB8WLZBz7G//F6vyLmwR3UyZr/5hg0jUezyv1Q0dVRUyWaJLDNULNjEIIyfgvU3Y
-         DZA8M4lXF9QfMgy+SrU9RYsCXJzyzygx+Qz3K+wb0owcbshwt388VZmrSACx1RiLgsuO
-         xxjRG2XHF8etdsGUdv+qwJUs84hkJ7U29kElz5dBuVF7PY51nRBrVERkN86J3DDOoYQG
-         hGJVrrYUrtZ5kMfnLjAgKsf37AzMj9xeV8NkQsk4o8kgGH1R9RDoV7E9hpWiv3iEPR8s
-         EXjWXH29NtYiRnM3O1JqwWCbO34ityGYhXvj1JTD9e/265xxhJXu+zbzImNK01FKL/+m
-         wzKg==
-X-Gm-Message-State: APjAAAV4zRMmAccJEDlpUg8wsAY95wmqGYHFXDFEQ2UiLAcBGt37sn0m
-        X3/CTVC+CSJ27mV/q5A6y2F5FAoYRae+fw==
-X-Google-Smtp-Source: APXvYqwEK19z71tpdMr7ZeyNapoBTz7Il1bJO8kuhkxJX35QXSUaUQCl+32LJn8aHff5AQhMLHgmAw==
-X-Received: by 2002:adf:dd51:: with SMTP id u17mr52461120wrm.218.1560600790690;
-        Sat, 15 Jun 2019 05:13:10 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id v27sm7952854wrv.45.2019.06.15.05.13.10
-        for <stable@vger.kernel.org>
-        (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 15 Jun 2019 05:13:10 -0700 (PDT)
-Message-ID: <5d04e0d6.1c69fb81.fcfac.9927@mx.google.com>
-Date:   Sat, 15 Jun 2019 05:13:10 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1726236AbfFOMnP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 15 Jun 2019 08:43:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33128 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1726700AbfFOMnO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 15 Jun 2019 08:43:14 -0400
+Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com [66.24.58.225])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 11DDD2184C;
+        Sat, 15 Jun 2019 12:43:14 +0000 (UTC)
+Received: from rostedt by gandalf.local.home with local (Exim 4.92)
+        (envelope-from <rostedt@goodmis.org>)
+        id 1hc81Z-0006de-5P; Sat, 15 Jun 2019 08:43:13 -0400
+Message-Id: <20190615124313.055864181@goodmis.org>
+User-Agent: quilt/0.65
+Date:   Sat, 15 Jun 2019 08:42:20 -0400
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Ingo Molnar <mingo@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org,
+        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
+        Eiichi Tsukata <devel@etsukata.com>
+Subject: [for-linus][PATCH 4/7] tracing/uprobe: Fix NULL pointer dereference in trace_uprobe_create()
+References: <20190615124216.188179157@goodmis.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v5.1.9-157-gf8eff223138d
-X-Kernelci-Branch: linux-5.1.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-5.1.y boot: 118 boots: 1 failed,
- 105 passed with 12 offline (v5.1.9-157-gf8eff223138d)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=ISO-8859-15
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.1.y boot: 118 boots: 1 failed, 105 passed with 12 offline=
- (v5.1.9-157-gf8eff223138d)
+From: Eiichi Tsukata <devel@etsukata.com>
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--5.1.y/kernel/v5.1.9-157-gf8eff223138d/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-5.1.y=
-/kernel/v5.1.9-157-gf8eff223138d/
+Just like the case of commit 8b05a3a7503c ("tracing/kprobes: Fix NULL
+pointer dereference in trace_kprobe_create()"), writing an incorrectly
+formatted string to uprobe_events can trigger NULL pointer dereference.
 
-Tree: stable-rc
-Branch: linux-5.1.y
-Git Describe: v5.1.9-157-gf8eff223138d
-Git Commit: f8eff223138d119472359fbf24b6318f5cbc0f74
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 70 unique boards, 24 SoC families, 15 builds out of 209
+Reporeducer:
 
-Boot Failure Detected:
+  # echo r > /sys/kernel/debug/tracing/uprobe_events
 
-arm:
-    multi_v7_defconfig:
-        gcc-8:
-            bcm4708-smartrg-sr400ac: 1 failed lab
+dmesg:
 
-Offline Platforms:
+  BUG: kernel NULL pointer dereference, address: 0000000000000000
+  #PF: supervisor read access in kernel mode
+  #PF: error_code(0x0000) - not-present page
+  PGD 8000000079d12067 P4D 8000000079d12067 PUD 7b7ab067 PMD 0
+  Oops: 0000 [#1] PREEMPT SMP PTI
+  CPU: 0 PID: 1903 Comm: bash Not tainted 5.2.0-rc3+ #15
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.12.0-2.fc30 04/01/2014
+  RIP: 0010:strchr+0x0/0x30
+  Code: c0 eb 0d 84 c9 74 18 48 83 c0 01 48 39 d0 74 0f 0f b6 0c 07 3a 0c 06 74 ea 19 c0 83 c8 01 c3 31 c0 c3 0f 1f 84 00 00 00 00 00 <0f> b6 07 89 f2 40 38 f0 75 0e eb 13 0f b6 47 01 48 83 c
+  RSP: 0018:ffffb55fc0403d10 EFLAGS: 00010293
 
-arm:
+  RAX: ffff993ffb793400 RBX: 0000000000000000 RCX: ffffffffa4852625
+  RDX: 0000000000000000 RSI: 000000000000002f RDI: 0000000000000000
+  RBP: ffffb55fc0403dd0 R08: ffff993ffb793400 R09: 0000000000000000
+  R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000000
+  R13: ffff993ff9cc1668 R14: 0000000000000001 R15: 0000000000000000
+  FS:  00007f30c5147700(0000) GS:ffff993ffda00000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 0000000000000000 CR3: 000000007b628000 CR4: 00000000000006f0
+  Call Trace:
+   trace_uprobe_create+0xe6/0xb10
+   ? __kmalloc_track_caller+0xe6/0x1c0
+   ? __kmalloc+0xf0/0x1d0
+   ? trace_uprobe_create+0xb10/0xb10
+   create_or_delete_trace_uprobe+0x35/0x90
+   ? trace_uprobe_create+0xb10/0xb10
+   trace_run_command+0x9c/0xb0
+   trace_parse_run_command+0xf9/0x1eb
+   ? probes_open+0x80/0x80
+   __vfs_write+0x43/0x90
+   vfs_write+0x14a/0x2a0
+   ksys_write+0xa2/0x170
+   do_syscall_64+0x7f/0x200
+   entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-    bcm2835_defconfig:
-        gcc-8
-            bcm2835-rpi-b: 1 offline lab
+Link: http://lkml.kernel.org/r/20190614074026.8045-1-devel@etsukata.com
 
-    sama5_defconfig:
-        gcc-8
-            at91-sama5d4_xplained: 1 offline lab
-            at91-sama5d4ek: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            alpine-db: 1 offline lab
-            at91-sama5d4_xplained: 1 offline lab
-            at91-sama5d4ek: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
-
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
-
-arm64:
-
-    defconfig:
-        gcc-8
-            apq8016-sbc: 1 offline lab
-            juno-r2: 1 offline lab
-            mt7622-rfb1: 1 offline lab
-
-mips:
-
-    pistachio_defconfig:
-        gcc-8
-            pistachio_marduk: 1 offline lab
-
+Cc: stable@vger.kernel.org
+Fixes: 0597c49c69d5 ("tracing/uprobes: Use dyn_event framework for uprobe events")
+Reviewed-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Signed-off-by: Eiichi Tsukata <devel@etsukata.com>
+Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
 ---
-For more info write to <info@kernelci.org>
+ kernel/trace/trace_uprobe.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
+
+diff --git a/kernel/trace/trace_uprobe.c b/kernel/trace/trace_uprobe.c
+index eb7e06b54741..a88c692e3b8a 100644
+--- a/kernel/trace/trace_uprobe.c
++++ b/kernel/trace/trace_uprobe.c
+@@ -443,10 +443,17 @@ static int trace_uprobe_create(int argc, const char **argv)
+ 	ret = 0;
+ 	ref_ctr_offset = 0;
+ 
+-	/* argc must be >= 1 */
+-	if (argv[0][0] == 'r')
++	switch (argv[0][0]) {
++	case 'r':
+ 		is_return = true;
+-	else if (argv[0][0] != 'p' || argc < 2)
++		break;
++	case 'p':
++		break;
++	default:
++		return -ECANCELED;
++	}
++
++	if (argc < 2)
+ 		return -ECANCELED;
+ 
+ 	if (argv[0][1] == ':')
+-- 
+2.20.1
+
+
