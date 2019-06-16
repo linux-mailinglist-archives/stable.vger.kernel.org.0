@@ -2,344 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id CE3D747614
-	for <lists+stable@lfdr.de>; Sun, 16 Jun 2019 19:28:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A05247696
+	for <lists+stable@lfdr.de>; Sun, 16 Jun 2019 21:42:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726012AbfFPR2h convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Sun, 16 Jun 2019 13:28:37 -0400
-Received: from mx1.redhat.com ([209.132.183.28]:46302 "EHLO mx1.redhat.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1725920AbfFPR2g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 16 Jun 2019 13:28:36 -0400
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mx1.redhat.com (Postfix) with ESMTPS id 1959A307CDF2
-        for <stable@vger.kernel.org>; Sun, 16 Jun 2019 17:28:36 +0000 (UTC)
-Received: from [172.54.212.135] (cpt-0039.paas.prod.upshift.rdu2.redhat.com [10.0.18.123])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 7C1AD8093F;
-        Sun, 16 Jun 2019 17:28:33 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+        id S1727361AbfFPTmj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Jun 2019 15:42:39 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.26.193]:54628 "EHLO
+        atrey.karlin.mff.cuni.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1726411AbfFPTmj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Jun 2019 15:42:39 -0400
+Received: by atrey.karlin.mff.cuni.cz (Postfix, from userid 512)
+        id 1F4B580204; Sun, 16 Jun 2019 21:42:26 +0200 (CEST)
+Date:   Sun, 16 Jun 2019 21:42:36 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        "Leizhen (ThunderTown)" <thunder.leizhen@huawei.com>,
+        Bhupesh Sharma <bhsharma@redhat.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.19 070/118] iommu/arm-smmu-v3: Dont disable SMMU in
+ kdump kernel
+Message-ID: <20190616194236.GB6676@amd>
+References: <20190613075643.642092651@linuxfoundation.org>
+ <20190613075647.892923884@linuxfoundation.org>
 MIME-Version: 1.0
-From:   CKI Project <cki-project@redhat.com>
-To:     Linux Stable maillist <stable@vger.kernel.org>
-Subject: =?utf-8?b?4p2O?= FAIL: Stable queue: queue-5.1
-CC:     Petr Sklenar <psklenar@redhat.com>
-Message-ID: <cki.9084B90931.ZOU8AGH4AX@redhat.com>
-X-Gitlab-Pipeline-ID: 12471
-X-Gitlab-Pipeline: =?utf-8?q?https=3A//xci32=2Elab=2Eeng=2Erdu2=2Eredhat=2Ec?=
- =?utf-8?q?om/cki-project/cki-pipeline/pipelines/12471?=
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.49]); Sun, 16 Jun 2019 17:28:36 +0000 (UTC)
-Date:   Sun, 16 Jun 2019 13:28:36 -0400
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="5/uDoXvLw7AC5HRs"
+Content-Disposition: inline
+In-Reply-To: <20190613075647.892923884@linuxfoundation.org>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
 
-We ran automated tests on a patchset that was proposed for merging into this
-kernel tree. The patches were applied to:
+--5/uDoXvLw7AC5HRs
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-            Commit: 7e1bdd68ffee - Linux 5.1.10
+Hi!
 
-The results of these automated tests are provided below.
+> [ Upstream commit 3f54c447df34ff9efac7809a4a80fd3208efc619 ]
+>=20
+> Disabling the SMMU when probing from within a kdump kernel so that all
+> incoming transactions are terminated can prevent the core of the crashed
+> kernel from being transferred off the machine if all I/O devices are
+> behind the SMMU.
+>=20
+> Instead, continue to probe the SMMU after it is disabled so that we can
+> reinitialise it entirely and re-attach the DMA masters as they are reset.
+> Since the kdump kernel may not have drivers for all of the active DMA
+> masters, we suppress fault reporting to avoid spamming the console and
+> swamping the IRQ threads.
 
-    Overall result: FAILED (see details below)
-             Merge: OK
-           Compile: OK
-             Tests: FAILED
+> +++ b/drivers/iommu/arm-smmu-v3.c
+> @@ -2414,13 +2414,9 @@ static int arm_smmu_device_reset(struct arm_smmu_d=
+evice *smmu, bool bypass)
+>  	/* Clear CR0 and sync (disables SMMU and queue processing) */
+>  	reg =3D readl_relaxed(smmu->base + ARM_SMMU_CR0);
+>  	if (reg & CR0_SMMUEN) {
+> -		if (is_kdump_kernel()) {
+> -			arm_smmu_update_gbpa(smmu, GBPA_ABORT, 0);
+> -			arm_smmu_device_disable(smmu);
+> -			return -EBUSY;
+> -		}
+> -
+>  		dev_warn(smmu->dev, "SMMU currently enabled! Resetting...\n");
+> +		WARN_ON(is_kdump_kernel() && !disable_bypass);
+> +		arm_smmu_update_gbpa(smmu, GBPA_ABORT, 0);
+>  	}
+>
 
+This changes behaviour in !is_kdump_kernel() case. Is that
+ok/intended?
 
-One or more kernel tests failed:
+Best regards,
+     								Pavel
+							=09
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
 
-  aarch64:
-    ❎ tuned: tune-processes-through-perf
+--5/uDoXvLw7AC5HRs
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-  ppc64le:
-    ❎ tuned: tune-processes-through-perf
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
-  s390x:
-    ❎ tuned: tune-processes-through-perf
+iEYEARECAAYFAl0Gm6wACgkQMOfwapXb+vL0pQCgqLA/bem8NVC1lT8LN2u7MclX
+Is0AoKmqyUk8s8kGfeLWjcW57gvEPwyL
+=LnpM
+-----END PGP SIGNATURE-----
 
-  x86_64:
-    ❎ tuned: tune-processes-through-perf
-
-We hope that these logs can help you find the problem quickly. For the full
-detail on our testing procedures, please scroll to the bottom of this message.
-
-Please reply to this email if you have any questions about the tests that we
-ran or if you have any suggestions on how to make future tests more effective.
-
-        ,-.   ,-.
-       ( C ) ( K )  Continuous
-        `-',-.`-'   Kernel
-          ( I )     Integration
-           `-'
-______________________________________________________________________________
-
-Merge testing
--------------
-
-We cloned this repository and checked out the following commit:
-
-  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
-  Commit: 7e1bdd68ffee - Linux 5.1.10
-
-
-We then merged the patchset with `git am`:
-
-  drm-nouveau-add-kconfig-option-to-turn-off-nouveau-legacy-contexts.-v3.patch
-  nouveau-fix-build-with-config_nouveau_legacy_ctx_support-disabled.patch
-  hid-input-make-sure-the-wheel-high-resolution-multiplier-is-set.patch
-  hid-input-fix-assignment-of-.value.patch
-  revert-hid-increase-maximum-report-size-allowed-by-hid_field_extract.patch
-  hid-multitouch-handle-faulty-elo-touch-device.patch
-  hid-wacom-don-t-set-tool-type-until-we-re-in-range.patch
-  hid-wacom-don-t-report-anything-prior-to-the-tool-entering-range.patch
-  hid-wacom-send-btn_touch-in-response-to-intuosp2_bt-eraser-contact.patch
-  hid-wacom-correct-button-numbering-2nd-gen-intuos-pro-over-bluetooth.patch
-  hid-wacom-sync-intuosp2_bt-touch-state-after-each-frame-if-necessary.patch
-  revert-alsa-hda-realtek-improve-the-headset-mic-for-acer-aspire-laptops.patch
-  alsa-oxfw-allow-pcm-capture-for-stanton-scs.1m.patch
-  alsa-ice1712-check-correct-return-value-to-snd_i2c_sendbytes-ews-dmx-6fire.patch
-  alsa-hda-realtek-update-headset-mode-for-alc256.patch
-  alsa-firewire-motu-fix-destruction-of-data-for-isochronous-resources.patch
-  selinux-log-raw-contexts-as-untrusted-strings.patch
-  selinux-fix-a-missing-check-bug-in-selinux_add_mnt_opt.patch
-  selinux-fix-a-missing-check-bug-in-selinux_sb_eat_lsm_opts.patch
-  libata-extend-quirks-for-the-st1000lm024-drives-with-nolpm-quirk.patch
-  io_uring-fix-memory-leak-of-unix-domain-socket-inode.patch
-  mm-list_lru.c-fix-memory-leak-in-__memcg_init_list_lru_node.patch
-  fs-ocfs2-fix-race-in-ocfs2_dentry_attach_lock.patch
-  mm-vmscan.c-fix-trying-to-reclaim-unevictable-lru-page.patch
-  signal-ptrace-don-t-leak-unitialized-kernel-memory-with-ptrace_peek_siginfo.patch
-  ptrace-restore-smp_rmb-in-__ptrace_may_access.patch
-  media-dvb-warning-about-dvb-frequency-limits-produces-too-much-noise.patch
-  iommu-arm-smmu-avoid-constant-zero-in-tlbi-writes.patch
-  smack-restore-the-smackfsdef-mount-option-and-add-missing-prefixes.patch
-  i2c-acorn-fix-i2c-warning.patch
-  bcache-fix-stack-corruption-by-preceding_key.patch
-  bcache-only-set-bcache_dev_wb_running-when-cached-device-attached.patch
-  cgroup-use-css_tryget-instead-of-css_tryget_online-in-task_get_css.patch
-  asoc-cs42xx8-add-regcache-mask-dirty.patch
-  asoc-fsl_asrc-fix-the-issue-about-unsupported-rate.patch
-  asoc-soc-core-fixup-references-at-soc_cleanup_card_resources.patch
-  drm-amdgpu-uvd-vcn-fetch-ring-s-read_ptr-after-alloc.patch
-  drm-i915-sdvo-implement-proper-hdmi-audio-support-for-sdvo.patch
-  drm-i915-dsi-use-a-fuzzy-check-for-burst-mode-clock-check.patch
-  drm-i915-fix-per-pixel-alpha-with-ccs.patch
-  drm-i915-dmc-protect-against-reading-random-memory.patch
-  x86-uaccess-kcov-disable-stack-protector.patch
-  alsa-seq-protect-in-kernel-ioctl-calls-with-mutex.patch
-  alsa-seq-fix-race-of-get-subscription-call-vs-port-d.patch
-  revert-alsa-seq-protect-in-kernel-ioctl-calls-with-m.patch
-  drivers-misc-fix-out-of-bounds-access-in-function-pa.patch
-  f2fs-fix-to-avoid-accessing-xattr-across-the-boundar.patch
-  drivers-perf-arm_spe-don-t-error-on-high-order-pages.patch
-  bpf-sockmap-only-stop-flush-strp-if-it-was-enabled-a.patch
-  bpf-sockmap-remove-duplicate-queue-free.patch
-  bpf-sockmap-fix-msg-sg.size-account-on-ingress-skb.patch
-  scsi-qla2xxx-add-cleanup-for-pci-eeh-recovery.patch
-  scsi-qedi-remove-memset-memcpy-to-nfunc-and-use-func.patch
-  scsi-qedi-remove-set-but-not-used-variables-cdev-and.patch
-  scsi-lpfc-resolve-lockdep-warnings.patch
-  scsi-lpfc-correct-rcu-unlock-issue-in-lpfc_nvme_info.patch
-  scsi-lpfc-add-check-for-loss-of-ndlp-when-sending-rr.patch
-  arm64-print-physical-address-of-page-table-base-in-s.patch
-  net-macb-fix-error-format-in-dev_err.patch
-  enetc-fix-null-dma-address-unmap-for-tx-bd-extension.patch
-  bpf-tcp-correctly-handle-dont_wait-flags-and-timeo-0.patch
-  arm64-mm-inhibit-huge-vmap-with-ptdump.patch
-  tools-bpftool-move-set_max_rlimit-before-__bpf_objec.patch
-  selftests-bpf-fix-bpf_get_current_task.patch
-  nvme-pci-fix-controller-freeze-wait-disabling.patch
-  nvme-fix-srcu-locking-on-error-return-in-nvme_get_ns.patch
-  nvme-remove-the-ifdef-around-nvme_nvm_ioctl.patch
-  nvme-merge-nvme_ns_ioctl-into-nvme_ioctl.patch
-  nvme-release-namespace-srcu-protection-before-perfor.patch
-  nvme-fix-memory-leak-for-power-latency-tolerance.patch
-  platform-x86-pmc_atom-add-lex-3i380d-industrial-pc-t.patch
-  platform-x86-pmc_atom-add-several-beckhoff-automatio.patch
-  scsi-myrs-fix-uninitialized-variable.patch
-  scsi-bnx2fc-fix-incorrect-cast-to-u64-on-shift-opera.patch
-  drm-amdgpu-keep-stolen-memory-on-picasso.patch
-  libnvdimm-fix-compilation-warnings-with-w-1.patch
-  selftests-fib_rule_tests-fix-local-ipv4-address-typo.patch
-  selftests-timers-add-missing-fflush-stdout-calls.patch
-  tracing-prevent-hist_field_var_ref-from-accessing-nu.patch
-  usbnet-ipheth-fix-racing-condition.patch
-  nvme-pci-use-blk-mq-mapping-for-unmanaged-irqs.patch
-  tools-io_uring-fix-makefile-for-pthread-library-link.patch
-  kvm-arm-arm64-move-cc-it-checks-under-hyp-s-makefile.patch
-  kvm-nvmx-really-fix-the-size-checks-on-kvm_set_neste.patch
-  kvm-selftests-fix-a-condition-in-test_hv_cpuid.patch
-  kvm-vmx-fix-wmissing-prototypes-warnings.patch
-  kvm-lapic-fix-lapic_timer_advance_ns-parameter-overf.patch
-  kvm-x86-do-not-spam-dmesg-with-vmcs-vmcb-dumps.patch
-  kvm-x86-pmu-mask-the-result-of-rdpmc-according-to-th.patch
-  kvm-x86-pmu-do-not-mask-the-value-that-is-written-to.patch
-  kvm-s390-fix-memory-slot-handling-for-kvm_set_user_m.patch
-  kvm-selftests-aarch64-dirty_log_test-fix-unaligned-m.patch
-  kvm-selftests-aarch64-fix-default-vm-mode.patch
-  tools-kvm_stat-fix-fields-filter-for-child-events.patch
-  drm-vmwgfx-integer-underflow-in-vmw_cmd_dx_set_shader-leading-to-an-invalid-read.patch
-  drm-vmwgfx-null-pointer-dereference-from-vmw_cmd_dx_view_define.patch
-  usb-dwc2-fix-dma-cache-alignment-issues.patch
-  usb-dwc2-host-fix-wmaxpacketsize-handling-fix-webcam-regression.patch
-  usb-fix-chipmunk-like-voice-when-using-logitech-c270-for-recording-audio.patch
-  usb-usb-storage-add-new-id-to-ums-realtek.patch
-  usb-serial-pl2303-add-allied-telesis-vt-kit3.patch
-  usb-serial-option-add-support-for-simcom-sim7500-sim7600-rndis-mode.patch
-  usb-serial-option-add-telit-0x1260-and-0x1261-compositions.patch
-
-Compile testing
----------------
-
-We compiled the kernel for 4 architectures:
-
-  aarch64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-51127af3db7c046f6d92407f73f42e722f0778c8.config
-    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_5.1-aarch64-51127af3db7c046f6d92407f73f42e722f0778c8.tar.gz
-
-  ppc64le:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-51127af3db7c046f6d92407f73f42e722f0778c8.config
-    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_5.1-ppc64le-51127af3db7c046f6d92407f73f42e722f0778c8.tar.gz
-
-  s390x:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-51127af3db7c046f6d92407f73f42e722f0778c8.config
-    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_5.1-s390x-51127af3db7c046f6d92407f73f42e722f0778c8.tar.gz
-
-  x86_64:
-    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
-    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-51127af3db7c046f6d92407f73f42e722f0778c8.config
-    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_5.1-x86_64-51127af3db7c046f6d92407f73f42e722f0778c8.tar.gz
-
-
-Hardware testing
-----------------
-
-We booted each kernel and ran the following tests:
-
-  aarch64:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ Ethernet drivers sanity [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ❎ tuned: tune-processes-through-perf [8]
-       ✅ Usex - version 1.9-29 [9]
-       🚧 ✅ Networking socket: fuzz [10]
-       🚧 ✅ Networking TCP: keepalive test [11]
-       🚧 ✅ storage: SCSI VPD [12]
-       🚧 ✅ storage: software RAID testing [13]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ xfstests: xfs [14]
-       ✅ selinux-policy: serge-testsuite [15]
-
-
-  ppc64le:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ Ethernet drivers sanity [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ❎ tuned: tune-processes-through-perf [8]
-       ✅ Usex - version 1.9-29 [9]
-       🚧 ✅ Networking socket: fuzz [10]
-       🚧 ✅ Networking TCP: keepalive test [11]
-       🚧 ✅ storage: software RAID testing [13]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ xfstests: xfs [14]
-       ✅ selinux-policy: serge-testsuite [15]
-
-
-  s390x:
-    Host 1:
-       ✅ Boot test [0]
-       ✅ selinux-policy: serge-testsuite [15]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ Ethernet drivers sanity [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ❎ tuned: tune-processes-through-perf [8]
-       🚧 ✅ Networking socket: fuzz [10]
-       🚧 ✅ Networking TCP: keepalive test [11]
-       🚧 ✅ storage: software RAID testing [13]
-
-
-  x86_64:
-    Host 1:
-       ✅ Boot test [0]
-       🚧 ✅ Storage SAN device stress [16]
-
-    Host 2:
-       ✅ Boot test [0]
-       ✅ LTP lite [1]
-       ✅ Loopdev Sanity [2]
-       ✅ AMTU (Abstract Machine Test Utility) [3]
-       ✅ Ethernet drivers sanity [4]
-       ✅ audit: audit testsuite test [5]
-       ✅ httpd: mod_ssl smoke sanity [6]
-       ✅ iotop: sanity [7]
-       ❎ tuned: tune-processes-through-perf [8]
-       ✅ Usex - version 1.9-29 [9]
-       🚧 ✅ Networking socket: fuzz [10]
-       🚧 ✅ Networking TCP: keepalive test [11]
-       🚧 ✅ storage: SCSI VPD [12]
-       🚧 ✅ storage: software RAID testing [13]
-
-    Host 3:
-       ✅ Boot test [0]
-       ✅ xfstests: xfs [14]
-       ✅ selinux-policy: serge-testsuite [15]
-
-
-  Test source:
-    💚 Pull requests are welcome for new tests or improvements to existing tests!
-    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
-    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
-    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
-    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
-    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/driver/sanity
-    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
-    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
-    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
-    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
-    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
-    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/networking/socket/fuzz
-    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#networking/tcp/tcp_keepalive
-    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/scsi/vpd
-    [13]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/swraid/trim
-    [14]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/filesystems/xfs/xfstests
-    [15]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
-    [16]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/hba/san-device-stress
-
-Waived tests (marked with 🚧)
------------------------------
-This test run included waived tests. Such tests are executed but their results
-are not taken into account. Tests are waived when their results are not
-reliable enough, e.g. when they're just introduced or are being fixed.
+--5/uDoXvLw7AC5HRs--
