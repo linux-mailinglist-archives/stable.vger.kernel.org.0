@@ -2,118 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A87B474E1
-	for <lists+stable@lfdr.de>; Sun, 16 Jun 2019 16:00:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EA5B474E6
+	for <lists+stable@lfdr.de>; Sun, 16 Jun 2019 16:02:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726698AbfFPOAk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Jun 2019 10:00:40 -0400
-Received: from mail-wr1-f65.google.com ([209.85.221.65]:34700 "EHLO
-        mail-wr1-f65.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1725874AbfFPOAk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Jun 2019 10:00:40 -0400
-Received: by mail-wr1-f65.google.com with SMTP id k11so7124483wrl.1
-        for <stable@vger.kernel.org>; Sun, 16 Jun 2019 07:00:38 -0700 (PDT)
+        id S1727238AbfFPOCB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Jun 2019 10:02:01 -0400
+Received: from mail-pf1-f171.google.com ([209.85.210.171]:40054 "EHLO
+        mail-pf1-f171.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1727229AbfFPOCB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Jun 2019 10:02:01 -0400
+Received: by mail-pf1-f171.google.com with SMTP id p184so4191977pfp.7
+        for <stable@vger.kernel.org>; Sun, 16 Jun 2019 07:02:01 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=7fViJ59P67jvZYu/iDnNCPpnY+8fuCDNOaiLU2uSe5k=;
-        b=RAG8Xdo8sXxNlyS7YzMMYSL3tb/NwWORq+DqbSbKnaKGCHJusvz29QAZc1Bb05vd3j
-         B6mD5HPoFpd2xJo5pgFDxCAm7Vf63mI/Sb5bpeSKEn1UuYPxsXEhiTA7oNN+PvyeVbi3
-         QeDa1CphwemcE2LYshUDLccKBbHMwu/sfYew2qM4q6GO4zOv8TobLzd1jJq0EkSqBoqe
-         ulRFRB6ouQrTdoSO9WnDv9FksrXDwyjIZNa5qwLvR61AxHblt0re3nDk31bSSXxqlsCE
-         OF07WrI/cwmt6n70cFXZhQgarpvlUvlhIZbhoRiE4LipDTcJyW+XG/O0i+glUBPBNENX
-         q+cg==
+        d=gmail.com; s=20161025;
+        h=sender:to:from:subject:message-id:date:user-agent:mime-version
+         :content-language:content-transfer-encoding;
+        bh=+9SY9UOrDIgSOiRuzYvNv9Ju+E2lb6ombWx2jui4xSo=;
+        b=kznWOIYCpwvnC8buTa7Qqx4mrfx2f2AATurC2AYDxNELO9pkt4lshkwY9KaKA4bPw8
+         NVTT//RwVPK4m4V7SdgvDsIkOGhXsYFJ5DQuX71dC14/rdoqbI6J9APJjmomf408WyXV
+         5999ftF2MPF9G77hW9EGixfFartnhiivohz05p5oZbwIVNMxkZ4PWMNlL8mtu+hE9kBn
+         3oU7vNOlxc8FkEBlj2DyrSgflvbZ3EjX/FpSxfwTZT56YgqOm3jxdYUIuF67h3sy7NN5
+         UAzyGCAWqPHc1ofE/K4wx9CkOOwV7H/V2Cv9I6zf4hFXNWjuAtH8GafVbsu+AqT8bzV4
+         4LNA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=7fViJ59P67jvZYu/iDnNCPpnY+8fuCDNOaiLU2uSe5k=;
-        b=Tl7I06Gak8ZPpJtwEvZ99PaetFCeSyRiaVgmkLEYqMGhAN9BJIbzKPBzVnHG1WnwjQ
-         KAlBg5/pnqrwDJ72N2yZuIfIV6wMss88LuO3JecVMsDdc5sAA9r1CtOXx2kAg6jGbHcO
-         N1hAmXf0L6AW3YftPRsY4sYCjXj7D9vmqymq8DJfAwuFDdM3OvMccg5z72g9k1tYLFJm
-         9+RiaaHYgdBmUgxTLR9djgo6oDy9S2n/mcKmzB0v0m1CqsFHYuwvxQvh7AgUP26aHl7o
-         w8ulWoO7C+CThInoBT9HmsdeKotgkuuZIv/6x6a3d54Ag4aZMScnG1b4+od7IxFp1v8a
-         zQ1Q==
-X-Gm-Message-State: APjAAAXwSHfNhjZN2MtlfODUHr1m2bPAMatwxARrS6JdgWvqZjJGsfU7
-        Qh+pE+MSspIBTmvHmk6Y3PJ58JmXvWo=
-X-Google-Smtp-Source: APXvYqyd7W9lMqnWfegL7dnCB7tTT4o9fse15RkbyKxtm1SAsBh7mWl94ettGcECZR7J1HqNgwrNsQ==
-X-Received: by 2002:adf:e8cb:: with SMTP id k11mr70773412wrn.244.1560693637862;
-        Sun, 16 Jun 2019 07:00:37 -0700 (PDT)
-Received: from [148.251.42.114] ([2a01:4f8:201:9271::2])
-        by smtp.gmail.com with ESMTPSA id i188sm13576864wma.27.2019.06.16.07.00.36
-        for <stable@vger.kernel.org>
+        h=x-gm-message-state:sender:to:from:subject:message-id:date
+         :user-agent:mime-version:content-language:content-transfer-encoding;
+        bh=+9SY9UOrDIgSOiRuzYvNv9Ju+E2lb6ombWx2jui4xSo=;
+        b=JWopKilNfoMfXbVqrfukTR99aS+y8E05kTETTszJPqmw3Bdu8/9s4TTJDVy0ZooAJ9
+         ckE0cTOXiTF4Q94Cy/1Y2qq3kty32TDSOP5MFZnczSh3i++KWgHZNhoUFc9BWjVACAx2
+         qy13Rne1zP58aAUmEj1b9DnZjxpclQmTdzQ/ObFqaLzdTP4wUvHPdD+vdD1AdepcjUb0
+         BQfMTgt8jlDGB+zLMcaTqlcPA1aZrpYQ98GUy9pLsF/eqAVAbyA7Ro99GIxrXMfP+6//
+         MzN5Md1m9pKaay0khcgLlRYANa0mhTI87J+d3daY05i5oTSn2dFb9VYygq237ZWS4iKY
+         pqsw==
+X-Gm-Message-State: APjAAAXdOwwFWQ7VFQF+xpLKOYvfdRz9Y2f6SkVpUs5LmrsbEnm7P1Z4
+        CGnwnz8Eb04pwobwTUre13U=
+X-Google-Smtp-Source: APXvYqx+b3NLBe9C2gxl5QSxqlfLG86QUWzWc9gx8UXwmSUn15uVgnKd/0ID7WamvxeZQC1ttR/2GA==
+X-Received: by 2002:a63:d006:: with SMTP id z6mr34063645pgf.364.1560693720498;
+        Sun, 16 Jun 2019 07:02:00 -0700 (PDT)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id 30sm10459347pjk.17.2019.06.16.07.01.58
         (version=TLS1_2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128/128);
-        Sun, 16 Jun 2019 07:00:36 -0700 (PDT)
-Message-ID: <5d064b84.1c69fb81.b98da.87a6@mx.google.com>
-Date:   Sun, 16 Jun 2019 07:00:36 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Sun, 16 Jun 2019 07:01:59 -0700 (PDT)
+To:     stable <stable@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+From:   Guenter Roeck <linux@roeck-us.net>
+Subject: Build failure in v4.4.y-queue
+Message-ID: <88e25ca4-9e77-74b7-4466-2477cb07ce20@roeck-us.net>
+Date:   Sun, 16 Jun 2019 07:01:57 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.7.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: boot
-X-Kernelci-Kernel: v4.4.181-64-g66b52acfda6f
-X-Kernelci-Branch: linux-4.4.y
-X-Kernelci-Tree: stable-rc
-Subject: stable-rc/linux-4.4.y boot: 75 boots: 1 failed,
- 66 passed with 8 offline (v4.4.181-64-g66b52acfda6f)
-To:     stable@vger.kernel.org
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y boot: 75 boots: 1 failed, 66 passed with 8 offline (v=
-4.4.181-64-g66b52acfda6f)
+Building um:defconfig ... failed
+--------------
+Error log:
+kernel/time/Kconfig:155:warning: range is invalid
+/opt/buildbot/slave/stable-queue-4.4/build/arch/um/kernel/time.c:59:14: error: initializer element is not constant
+   .cpumask  = cpu_possible_mask,
 
-Full Boot Summary: https://kernelci.org/boot/all/job/stable-rc/branch/linux=
--4.4.y/kernel/v4.4.181-64-g66b52acfda6f/
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.181-64-g66b52acfda6f/
+Caused by commit 502482cde8ab ("uml: fix a boot splat wrt use of cpu_all_mask"),
+which fixes a problem which does not exist in v4.4.y.
 
-Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.181-64-g66b52acfda6f
-Git Commit: 66b52acfda6f0ff2ee1fde91985acf267e14af17
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Tested: 40 unique boards, 19 SoC families, 14 builds out of 190
-
-Boot Failure Detected:
-
-arm64:
-    defconfig:
-        gcc-8:
-            qcom-qdf2400: 1 failed lab
-
-Offline Platforms:
-
-arm:
-
-    bcm2835_defconfig:
-        gcc-8
-            bcm2835-rpi-b: 1 offline lab
-
-    sama5_defconfig:
-        gcc-8
-            at91-sama5d4_xplained: 1 offline lab
-
-    multi_v7_defconfig:
-        gcc-8
-            alpine-db: 1 offline lab
-            at91-sama5d4_xplained: 1 offline lab
-            socfpga_cyclone5_de0_sockit: 1 offline lab
-            sun5i-r8-chip: 1 offline lab
-
-    sunxi_defconfig:
-        gcc-8
-            sun5i-r8-chip: 1 offline lab
-
-arm64:
-
-    defconfig:
-        gcc-8
-            apq8016-sbc: 1 offline lab
-
----
-For more info write to <info@kernelci.org>
+Guenter
