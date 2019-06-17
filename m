@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B32A74937D
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:31:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5312493A9
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:32:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730649AbfFQV3I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:29:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56230 "EHLO mail.kernel.org"
+        id S1730342AbfFQV1G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:27:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730368AbfFQV3E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:29:04 -0400
+        id S1730341AbfFQV1G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:27:06 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E1CC9204FD;
-        Mon, 17 Jun 2019 21:29:02 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0F8C920B1F;
+        Mon, 17 Jun 2019 21:27:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806943;
-        bh=yv8DkqJKU8fMiKq+QS+HdTSIP2OK3r2/FzT0dXNjYZI=;
+        s=default; t=1560806825;
+        bh=LoHlJZBEv0RrFbmc7NuM7XQI0oTKz8RtuWr9Qov2/a8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qZIa19YS/shfdaqDH7A2sVuMhYZmaG8+m3NNGHpPWnHEsb4+hgqE5yNogylcEgNiZ
-         sja/Kf9h8/PcBkSMrwgm/Jw43yI4bWWyODsXjj0MqFv000ap0c2uwk/h79oXYRYr2V
-         Gi33AahHeQsiV0XLiW7pNmVjKOAzGLdzewaEi3jQ=
+        b=yYrs1vgFDblZKJyi7idaz72Punntdn0IXe0n3poAhL0/wpwTw8iuFIisfWDNohu5u
+         C4I8JJCRoP6ww47xzq4R9/wrD8LcatiA/fSnZfJ9lUK5BS50ahFEvI+xA3N629NXM1
+         Zy93g1XFvZy4Y5mIkv2NxBpOlNdyHwF25tRl5LVw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vishal Verma <vishal.l.verma@intel.com>,
-        Qian Cai <cai@lca.pw>, Dan Williams <dan.j.williams@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 36/53] libnvdimm: Fix compilation warnings with W=1
+        stable@vger.kernel.org, Cong Wang <xiyou.wangcong@gmail.com>,
+        Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>,
+        linux-edac <linux-edac@vger.kernel.org>
+Subject: [PATCH 4.19 68/75] RAS/CEC: Fix binary search function
 Date:   Mon, 17 Jun 2019 23:10:19 +0200
-Message-Id: <20190617210751.496808847@linuxfoundation.org>
+Message-Id: <20190617210755.803827591@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190617210745.104187490@linuxfoundation.org>
-References: <20190617210745.104187490@linuxfoundation.org>
+In-Reply-To: <20190617210752.799453599@linuxfoundation.org>
+References: <20190617210752.799453599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,86 +44,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit c01dafad77fea8d64c4fdca0a6031c980842ad65 ]
+From: Borislav Petkov <bp@suse.de>
 
-Several places (dimm_devs.c, core.c etc) include label.h but only
-label.c uses NSINDEX_SIGNATURE, so move its definition to label.c
-instead.
+commit f3c74b38a55aefe1004200d15a83f109b510068c upstream.
 
-In file included from drivers/nvdimm/dimm_devs.c:23:
-drivers/nvdimm/label.h:41:19: warning: 'NSINDEX_SIGNATURE' defined but
-not used [-Wunused-const-variable=]
+Switch to using Donald Knuth's binary search algorithm (The Art of
+Computer Programming, vol. 3, section 6.2.1). This should've been done
+from the very beginning but the author must've been smoking something
+very potent at the time.
 
-Also, some places abuse "/**" which is only reserved for the kernel-doc.
+The problem with the current one was that it would return the wrong
+element index in certain situations:
 
-drivers/nvdimm/bus.c:648: warning: cannot understand function prototype:
-'struct attribute_group nd_device_attribute_group = '
-drivers/nvdimm/bus.c:677: warning: cannot understand function prototype:
-'struct attribute_group nd_numa_attribute_group = '
+  https://lkml.kernel.org/r/CAM_iQpVd02zkVJ846cj-Fg1yUNuz6tY5q1Vpj4LrXmE06dPYYg@mail.gmail.com
 
-Those are just some member assignments for the "struct attribute_group"
-instances and it can't be expressed in the kernel-doc.
+and the noodling code after the loop was fishy at best.
 
-Reviewed-by: Vishal Verma <vishal.l.verma@intel.com>
-Signed-off-by: Qian Cai <cai@lca.pw>
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+So switch to using Knuth's binary search. The final result is much
+cleaner and straightforward.
+
+Fixes: 011d82611172 ("RAS: Add a Corrected Errors Collector")
+Reported-by: Cong Wang <xiyou.wangcong@gmail.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: Tony Luck <tony.luck@intel.com>
+Cc: linux-edac <linux-edac@vger.kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/nvdimm/bus.c   | 4 ++--
- drivers/nvdimm/label.c | 2 ++
- drivers/nvdimm/label.h | 2 --
- 3 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/ras/cec.c |   34 ++++++++++++++++++++--------------
+ 1 file changed, 20 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/nvdimm/bus.c b/drivers/nvdimm/bus.c
-index a6746a1f20ae..2f1b54fab399 100644
---- a/drivers/nvdimm/bus.c
-+++ b/drivers/nvdimm/bus.c
-@@ -608,7 +608,7 @@ static struct attribute *nd_device_attributes[] = {
- 	NULL,
- };
- 
--/**
-+/*
-  * nd_device_attribute_group - generic attributes for all devices on an nd bus
+--- a/drivers/ras/cec.c
++++ b/drivers/ras/cec.c
+@@ -181,32 +181,38 @@ static void cec_work_fn(struct work_stru
   */
- struct attribute_group nd_device_attribute_group = {
-@@ -637,7 +637,7 @@ static umode_t nd_numa_attr_visible(struct kobject *kobj, struct attribute *a,
- 	return a->mode;
+ static int __find_elem(struct ce_array *ca, u64 pfn, unsigned int *to)
+ {
++	int min = 0, max = ca->n - 1;
+ 	u64 this_pfn;
+-	int min = 0, max = ca->n;
+ 
+-	while (min < max) {
+-		int tmp = (max + min) >> 1;
++	while (min <= max) {
++		int i = (min + max) >> 1;
+ 
+-		this_pfn = PFN(ca->array[tmp]);
++		this_pfn = PFN(ca->array[i]);
+ 
+ 		if (this_pfn < pfn)
+-			min = tmp + 1;
++			min = i + 1;
+ 		else if (this_pfn > pfn)
+-			max = tmp;
+-		else {
+-			min = tmp;
+-			break;
++			max = i - 1;
++		else if (this_pfn == pfn) {
++			if (to)
++				*to = i;
++
++			return i;
+ 		}
+ 	}
+ 
++	/*
++	 * When the loop terminates without finding @pfn, min has the index of
++	 * the element slot where the new @pfn should be inserted. The loop
++	 * terminates when min > max, which means the min index points to the
++	 * bigger element while the max index to the smaller element, in-between
++	 * which the new @pfn belongs to.
++	 *
++	 * For more details, see exercise 1, Section 6.2.1 in TAOCP, vol. 3.
++	 */
+ 	if (to)
+ 		*to = min;
+ 
+-	this_pfn = PFN(ca->array[min]);
+-
+-	if (this_pfn == pfn)
+-		return min;
+-
+ 	return -ENOKEY;
  }
  
--/**
-+/*
-  * nd_numa_attribute_group - NUMA attributes for all devices on an nd bus
-  */
- struct attribute_group nd_numa_attribute_group = {
-diff --git a/drivers/nvdimm/label.c b/drivers/nvdimm/label.c
-index 6a16017cc0d9..1fb3a2491131 100644
---- a/drivers/nvdimm/label.c
-+++ b/drivers/nvdimm/label.c
-@@ -25,6 +25,8 @@ static guid_t nvdimm_btt2_guid;
- static guid_t nvdimm_pfn_guid;
- static guid_t nvdimm_dax_guid;
- 
-+static const char NSINDEX_SIGNATURE[] = "NAMESPACE_INDEX\0";
-+
- static u32 best_seq(u32 a, u32 b)
- {
- 	a &= NSINDEX_SEQ_MASK;
-diff --git a/drivers/nvdimm/label.h b/drivers/nvdimm/label.h
-index 1ebf4d3d01ba..9ed772db6900 100644
---- a/drivers/nvdimm/label.h
-+++ b/drivers/nvdimm/label.h
-@@ -38,8 +38,6 @@ enum {
- 	ND_NSINDEX_INIT = 0x1,
- };
- 
--static const char NSINDEX_SIGNATURE[] = "NAMESPACE_INDEX\0";
--
- /**
-  * struct nd_namespace_index - label set superblock
-  * @sig: NAMESPACE_INDEX\0
--- 
-2.20.1
-
 
 
