@@ -2,206 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B88D04782F
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 04:30:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88E3847954
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 06:26:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727482AbfFQCaa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Jun 2019 22:30:30 -0400
-Received: from mail-lf1-f66.google.com ([209.85.167.66]:37006 "EHLO
-        mail-lf1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1727322AbfFQCaa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Jun 2019 22:30:30 -0400
-Received: by mail-lf1-f66.google.com with SMTP id d11so5318286lfb.4
-        for <stable@vger.kernel.org>; Sun, 16 Jun 2019 19:30:28 -0700 (PDT)
+        id S1725815AbfFQE0b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 00:26:31 -0400
+Received: from mail-wm1-f66.google.com ([209.85.128.66]:40296 "EHLO
+        mail-wm1-f66.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725813AbfFQE0b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jun 2019 00:26:31 -0400
+Received: by mail-wm1-f66.google.com with SMTP id v19so7492450wmj.5
+        for <stable@vger.kernel.org>; Sun, 16 Jun 2019 21:26:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
+        d=sifive.com; s=google;
         h=mime-version:from:date:message-id:subject:to:cc;
-        bh=DGmSRiaozDL/dTempqHSPFFhsp5hMg0xq639rw6BjeY=;
-        b=HQwUO17hmToC7W5MJWHwjEL3kKgwSpD9H94bMlM/Ta41otpJp+QAnmEbS3xNNMVyN9
-         9z5rFGH7Vflg30fxYnokeMOG8wGGM7bxoS5sgNeSPRXHkxQ59ME3/CbJjSX4iVsgIuV8
-         lZg7Fs7A+3bVyzWbqBP/oQQYUA2OHZeniUqWhaUKskMm3GUw/1kgzltMpQLiR0N2X6T3
-         rSbtCWiw+m+AOG7pQz6D2X8IzJS8V9aKFi1PKuwSrKMdHKDhotsdup4n1JaZfdFB64em
-         SNxuPeBBUA69FmE6YwOGW0qfSxYXv0qJjrCWiC7jz7sF8Jr4NEdBKG6Lz9doH5YaljeJ
-         gaBg==
+        bh=RBNiMJD5FfAdQuk6MMHusz66jclF3VVqDvwsCd1pAGg=;
+        b=H6vLyzbInHCY1xUpkq913lfehoCeZL9Ch5xgudduOvc8T5PqPja1Hb8gEDsgfgBsB4
+         WBi2Ug5Z85Vp5bxFQX+9Nt7eZ73zO/5dMkuxaBzTFhaWScMjyzGmviDHhdVS306UPlfj
+         87wBVYmFZuKRfMDyGs7+vPIP1sjfubEv3tyks8akIhAFz9sy3jdjLUoTzSGI7BW3TY6z
+         eQv6Ynnd+z4reEF2/vn1NNTZbCsoRHhnhgCZFrA8ReRWBDle0zkTXHHnH0SbYYY+BpOd
+         IcWWjpGSrLv6kP8Vl2kYtynWMsl19mcCuhtUqCYSIseX4olXR2oKohc151ETXlJBiA12
+         HCRg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=DGmSRiaozDL/dTempqHSPFFhsp5hMg0xq639rw6BjeY=;
-        b=NA11mxjH2ZrxUsoZ0ZKW0Q2LYKzqwvpUW8MZwISPPwuE4+FNaMf4V2LWN5Sd94oKEK
-         JKCI3HixgNp/nKGmApizJXIgVOcXYdj9w7hrhYP6mBHVBlRgkEticatwa25s41lIE0mA
-         TePxkcsvzItSQAvJQ0iBorFAkNZX+gnCu3K6q9MFZ3ytz9HK+EqlOuyri3SteK5Edw7u
-         B4awTskDclbp2bEh4h5L0MIFkwgc2HVnYIDPYp8pDE2wGgzXteN6bxKIcSGzdZacIKkR
-         g2qskl8ngUNK2yytlTcdBEDfDC1eAH9SS8tGrIe2T2DZchXDLJigCdH+cOXKAjweVxo4
-         8zIA==
-X-Gm-Message-State: APjAAAWVtcIajwXvBtW//ojsrJw4wEZ27hMWtIdBc18lP5ZqJda3haCq
-        bp9SU79bNJZj59a1NY54D3S1aOg1UiuRYy9DEyKynw==
-X-Google-Smtp-Source: APXvYqwFlpSmLZPWiJg2WPhlYlFtfj/+EcdKnMcnlOd66/vAgtevltcMhNg0YOTqz2tnYdteWzStXhs7/XBbhRqm7vQ=
-X-Received: by 2002:ac2:482d:: with SMTP id 13mr10070457lft.132.1560738627381;
- Sun, 16 Jun 2019 19:30:27 -0700 (PDT)
+        bh=RBNiMJD5FfAdQuk6MMHusz66jclF3VVqDvwsCd1pAGg=;
+        b=WYpu9JxFkFLAtjAZj9KrRYSQJgQpuLfSBW3BYDt/64gpHVdh5Rge+n6lJT6VHHO/sC
+         T58dDLuwHw+H0TqufgJiIOc/xPvXL2C45fVUTIAhssjjX/Wtfu2Bm74cGrGiWV8c+3m8
+         GBcpEbwD7f4JA72Ojf4vhiV4sBoCREZtyjeK6Dsr6TrtnTgch/bHDpsXZyVgkMtISuv5
+         UkV+v/QJBFHbxs8iIJGsnnWnLi/oU7foWkWAJzbk5TyRkJK5buMnY8MR5j0kfelEaS1w
+         bI1jRBcGNR4KDmG4XMW2z56kEfJzVNEhZLhxOYeV9+eiovYinAZ4LaXn1FTW32LNkU2W
+         IICw==
+X-Gm-Message-State: APjAAAVnmmxL5RylJGhAvW++LrB16IBmFbZF1h06YSnvSNVUv00yOePp
+        VovIqBoiygLXiuJbHecxTfOAyxLLidNrPZLbOz5KdQ==
+X-Google-Smtp-Source: APXvYqzSynzNpnyLa4q/HvjF2nFLmH+26Y/dpEk9qn5KN4b9maokmZAJwlsF3d2RvAldzwhucwcvBCwose0vo0Qg5F4=
+X-Received: by 2002:a1c:b604:: with SMTP id g4mr17371456wmf.111.1560745588799;
+ Sun, 16 Jun 2019 21:26:28 -0700 (PDT)
 MIME-Version: 1.0
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Mon, 17 Jun 2019 08:00:00 +0530
-Message-ID: <CA+G9fYsr_YW7PSoP+ew60TfNOj885y6j-e2weuWBuU1ccKcAAg@mail.gmail.com>
-Subject: kernel/workqueue.c:3030 __flush_work+0x2c2/0x2d0
-To:     Netdev <netdev@vger.kernel.org>,
-        linux- stable <stable@vger.kernel.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        "David S. Miller" <davem@davemloft.net>, sgarzare@redhat.com,
-        Daniel Borkmann <daniel@iogearbox.net>, kafai@fb.com,
-        jakub@cloudflare.com, lkft-triage@lists.linaro.org,
-        "open list:KERNEL SELFTEST FRAMEWORK" 
-        <linux-kselftest@vger.kernel.org>
+From:   ShihPo Hung <shihpo.hung@sifive.com>
+Date:   Mon, 17 Jun 2019 12:26:17 +0800
+Message-ID: <CALoQrwdLANaOaYiGvFxt23PBdHcgcc_LWVFORNwrAXWBhOyJsA@mail.gmail.com>
+Subject: [PATCH v2] riscv: mm: synchronize MMU after pte change
+To:     linux-riscv@lists.infradead.org
+Cc:     stable@vger.kernel.org, Palmer Dabbelt <palmer@sifive.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Albert Ou <aou@eecs.berkeley.edu>
 Content-Type: text/plain; charset="UTF-8"
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Kernel warning while running kernel selftest bpf test_sockmap test case on
-x86_64 and arm64.
-The kernel warning log pops up continuously.
+Because RISC-V compliant implementations can cache invalid entries
+in TLB, an SFENCE.VMA is necessary after changes to the page table.
+This patch adds an SFENCE.vma for the vmalloc_fault path.
 
-Linux version 5.1.10-rc2
+Signed-off-by: ShihPo Hung <shihpo.hung@sifive.com>
+Cc: Palmer Dabbelt <palmer@sifive.com>
+Cc: Albert Ou <aou@eecs.berkeley.edu>
+Cc: Paul Walmsley <paul.walmsley@sifive.com>
+Cc: linux-riscv@lists.infradead.org
+Cc: stable@vger.kernel.org
+---
+ arch/riscv/mm/fault.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-Steps to reproduce:
-Boot stable rc 5.1.10-rc2 kernel on x86_64 or arm64
-cd selftests/bpf
-./test_sockmap
+diff --git a/arch/riscv/mm/fault.c b/arch/riscv/mm/fault.c
+index 88401d5..a1c7b39 100644
+--- a/arch/riscv/mm/fault.c
++++ b/arch/riscv/mm/fault.c
+@@ -29,6 +29,7 @@
 
-[   37.600406] WARNING: CPU: 3 PID: 57 at
-/usr/src/kernel/kernel/workqueue.c:3030 __flush_work+0x2c2/0x2d0
-[   37.610034] Modules linked in: x86_pkg_temp_thermal fuse
-[   37.615371] CPU: 3 PID: 57 Comm: kworker/3:1 Not tainted 5.1.10-rc2 #1
-[   37.615454] WARNING: CPU: 0 PID: 5 at
-/usr/src/kernel/kernel/workqueue.c:3030 __flush_work+0x2c2/0x2d0
-[   37.621892] Hardware name: Supermicro SYS-5019S-ML/X11SSH-F, BIOS
-2.0b 07/27/2017
-[   37.621895] Workqueue: events sk_psock_destroy_deferred
-[   37.631183] Modules linked in: x86_pkg_temp_thermal fuse
-[   37.638654] RIP: 0010:__flush_work+0x2c2/0x2d0
-[   37.638655] Code: c6 00 31 c0 e9 71 ff ff ff 41 8b 0c 24 49 8b 54
-24 08 83 e1 08 49 0f ba 2c 24 03 80 c9 f0 e9 d2 fe ff ff 0f 0b e9 50
-ff ff ff <0f> 0b 31 c0 e9 47 ff ff ff e8 90 9d fd ff 0f 1f 44 00 00 55
-31 f6
-[   37.643879] CPU: 0 PID: 5 Comm: kworker/0:0 Not tainted 5.1.10-rc2 #1
-[   37.643880] Hardware name: Supermicro SYS-5019S-ML/X11SSH-F, BIOS
-2.0b 07/27/2017
-[   37.649183] RSP: 0018:ffffb038c1a23ca0 EFLAGS: 00010246
-[   37.653630] Workqueue: events sk_psock_destroy_deferred
-[   37.672375] RAX: 0000000000000000 RBX: ffff9e73d9492068 RCX: 0000000000000006
-[   37.672376] RDX: 0000000000000006 RSI: 0000000000000001 RDI: ffff9e73d9492068
-[   37.678805] RIP: 0010:__flush_work+0x2c2/0x2d0
-[   37.678807] Code: c6 00 31 c0 e9 71 ff ff ff 41 8b 0c 24 49 8b 54
-24 08 83 e1 08 49 0f ba 2c 24 03 80 c9 f0 e9 d2 fe ff ff 0f 0b e9 50
-ff ff ff <0f> 0b 31 c0 e9 47 ff ff ff e8 90 9d fd ff 0f 1f 44 00 00 55
-31 f6
-[   37.686274] RBP: ffffb038c1a23d68 R08: 0000000000000000 R09: 0000000000000000
-[   37.686275] R10: 0000000000000000 R11: 0000000000000000 R12: ffff9e73d9492068
-[   37.691494] RSP: 0018:ffffb038c18fbca0 EFLAGS: 00010246
-[   37.696720] R13: 0000000000000001 R14: ffffb038c1a23d98 R15: ffffffff9a490d40
-[   37.696721] FS:  0000000000000000(0000) GS:ffff9e73dfb80000(0000)
-knlGS:0000000000000000
-[   37.703851] RAX: 0000000000000000 RBX: ffff9e73d9490868 RCX: 0000000000000006
-[   37.703852] RDX: 0000000000000006 RSI: 0000000000000001 RDI: ffff9e73d9490868
-[   37.710976] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   37.710977] CR2: 00007f38680ca8a0 CR3: 00000002ee614006 CR4: 00000000003606e0
-[   37.715419] RBP: ffffb038c18fbd68 R08: 0000000000000000 R09: 0000000000000000
-[   37.715420] R10: 0000000000000000 R11: 0000000000000000 R12: ffff9e73d9490868
-[   37.734156] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[   37.734157] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[   37.741282] R13: 0000000000000001 R14: ffffb038c18fbd98 R15: ffffffff9a490d40
-[   37.741283] FS:  0000000000000000(0000) GS:ffff9e73dfa00000(0000)
-knlGS:0000000000000000
-[   37.748405] Call Trace:
-[   37.748410]  ? work_busy+0xc0/0xc0
-[   37.753621] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[   37.753622] CR2: 00007f38680c9788 CR3: 000000045454a004 CR4: 00000000003606f0
-[   37.760746]  ? mark_held_locks+0x4d/0x80
-[   37.768823] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[   37.768824] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[   37.775946]  ? __cancel_work_timer+0x11a/0x1d0
-[   37.783071] Call Trace:
-[   37.783075]  ? work_busy+0xc0/0xc0
-[   37.788808]  ? cancel_delayed_work_sync+0x13/0x20
-[   37.788810]  ? lockdep_hardirqs_on+0xf6/0x190
-[   37.795934]  ? mark_held_locks+0x4d/0x80
-[   37.803055]  ? __cancel_work_timer+0x11a/0x1d0
-[   37.803057]  ? work_busy+0xc0/0xc0
-[   37.810179]  ? __cancel_work_timer+0x11a/0x1d0
-[   37.817303]  __cancel_work_timer+0x134/0x1d0
-[   37.824453]  ? cancel_delayed_work_sync+0x13/0x20
-[   37.824455]  ? lockdep_hardirqs_on+0xf6/0x190
-[   37.831579]  cancel_delayed_work_sync+0x13/0x20
-[   37.839654]  ? __cancel_work_timer+0x11a/0x1d0
-[   37.839657]  ? work_busy+0xc0/0xc0
-[   37.842100]  strp_done+0x1c/0x50
-[   37.845497]  __cancel_work_timer+0x134/0x1d0
-[   37.851242]  sk_psock_destroy_deferred+0x34/0x1c0
-[   37.858372]  cancel_delayed_work_sync+0x13/0x20
-[   37.862292]  process_one_work+0x281/0x610
-[   37.869415]  strp_done+0x1c/0x50
-[   37.876540]  worker_thread+0x3c/0x3f0
-[   37.880975]  sk_psock_destroy_deferred+0x34/0x1c0
-[   37.883419]  ? __kthread_parkme+0x61/0x90
-[   37.886819]  process_one_work+0x281/0x610
-[   37.891514]  kthread+0x12c/0x150
-[   37.895868]  worker_thread+0x3c/0x3f0
-[   37.899783]  ? process_one_work+0x610/0x610
-[   37.904221]  kthread+0x12c/0x150
-[   37.907615]  ? kthread_park+0x90/0x90
-[   37.907618]  ret_from_fork+0x3a/0x50
-[   37.912052]  ? process_one_work+0x610/0x610
-[   37.916355] irq event stamp: 57860
-[   37.921058]  ? kthread_park+0x90/0x90
-[   37.921060]  ret_from_fork+0x3a/0x50
-[   37.925407] hardirqs last  enabled at (57859): [<ffffffff9a4949ba>]
-__cancel_work_timer+0x11a/0x1d0
-[   37.925409] hardirqs last disabled at (57860): [<ffffffff9a401bab>]
-trace_hardirqs_off_thunk+0x1a/0x1c
-[   37.929944] irq event stamp: 47474
-[   37.934378] softirqs last  enabled at (57812): [<ffffffff9add14d5>]
-release_sock+0x85/0xb0
-[   37.934379] softirqs last disabled at (57810): [<ffffffff9add140a>]
-__release_sock+0xda/0x120
-[   37.937773] hardirqs last  enabled at (47473): [<ffffffff9a4949ba>]
-__cancel_work_timer+0x11a/0x1d0
-[   37.937775] hardirqs last disabled at (47474): [<ffffffff9a401bab>]
-trace_hardirqs_off_thunk+0x1a/0x1c
-[   37.940998] ---[ end trace ae349dc9a55c8bc8 ]---
-[   37.941056] WARNING: CPU: 3 PID: 57 at
-/usr/src/kernel/kernel/workqueue.c:3030 __flush_work+0x2c2/0x2d0
-[   37.945263] softirqs last  enabled at (47440): [<ffffffff9add14d5>]
-release_sock+0x85/0xb0
-[   37.945264] softirqs last disabled at (47438): [<ffffffff9add140a>]
-__release_sock+0xda/0x120
-[   37.949968] Modules linked in: x86_pkg_temp_thermal fuse
-[   37.954493] ---[ end trace ae349dc9a55c8bc9 ]---
-[   37.954522] WARNING: CPU: 0 PID: 5 at
-/usr/src/kernel/kernel/workqueue.c:3030 __flush_work+0x2c2/0x2d0
-[...]
+ #include <asm/pgalloc.h>
+ #include <asm/ptrace.h>
++#include <asm/tlbflush.h>
 
-metadata:
-  git branch: linux-5.1.y
-  git repo: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-  git commit: b7eabc3862b8717f2bcc47f3f3830ec575423c8c
-  git describe: v5.1.9-157-gb7eabc3862b8
-  make_kernelversion: 5.1.10-rc2
-  kernel-config:
-http://snapshots.linaro.org/openembedded/lkft/lkft/sumo/intel-corei7-64/lkft/linux-stable-rc-5.1/33/config
-  kernel-defconfig:
-http://snapshots.linaro.org/openembedded/lkft/lkft/sumo/intel-corei7-64/lkft/linux-stable-rc-5.1/33/defconfig
-  build-url: https://ci.linaro.org/job/openembedded-lkft-linux-stable-rc-5.1/DISTRO=lkft,MACHINE=intel-corei7-64,label=docker-lkft/33/
-  build-location:
-http://snapshots.linaro.org/openembedded/lkft/lkft/sumo/intel-corei7-64/lkft/linux-stable-rc-5.1/33
-  toolchain: x86_64-linaro-linux 7.%
-  series: lkft
-  email-notification: ''
-  kselftest__url: https://www.kernel.org/pub/linux/kernel/v5.x/linux-5.1.tar.xz
-  kselftest__version: '5.1'
-  kselftest__revision: '5.1'
-
-Full test log,
-https://lkft.validation.linaro.org/scheduler/job/775857#L1114
-
-Best regards
-Naresh Kamboju
+ /*
+  * This routine handles page faults.  It determines the address and the
+@@ -281,6 +282,16 @@ asmlinkage void do_page_fault(struct pt_regs *regs)
+        pte_k = pte_offset_kernel(pmd_k, addr);
+        if (!pte_present(*pte_k))
+            goto no_context;
++
++       /*
++        * The kernel assumes that TLBs don't cache invalid entries, but
++        * in RISC-V, SFENCE.VMA specifies an ordering constraint, not a
++        * cache flush; it is necessary even after writing invalid entries.
++        * Relying on flush_tlb_fix_spurious_fault would suffice, but
++        * the extra traps reduce performance.  So, eagerly SFENCE.VMA.
++        */
++       local_flush_tlb_page(addr);
++
+        return;
+    }
+ }
+--
+2.7.4
