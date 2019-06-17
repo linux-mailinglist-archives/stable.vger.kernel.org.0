@@ -2,121 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id E71B94818C
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 14:09:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 234FB48190
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 14:11:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1725962AbfFQMJp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 08:09:45 -0400
-Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:53599 "EHLO
-        wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1725906AbfFQMJp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jun 2019 08:09:45 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.west.internal (Postfix) with ESMTP id 8DE89557;
-        Mon, 17 Jun 2019 08:09:41 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Mon, 17 Jun 2019 08:09:41 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=5R7A3G
-        hFB+HfYNX7NzyEVpMPXFS4XuYhm/NiWtAhbRo=; b=dTIhEOJXVoblwvA1jSrHTj
-        8Y5GcPuwxwn9tFJooufUhFOkNoLj6GgR8CX0KUdRBD4aZEJew8ghbzkKFyIO7ERK
-        +BWeGNV2X+jB9W/+asE7a4GDKDD4xCj5De70ro0qtJz9k0uAlU2e1jEfO5TaCrUk
-        g4lWffrZ9qhgTUZArknqSlhl0nes6EoqW1K2jmNaqV2NmP1xZX6ku7TpgnPPt0iC
-        3Wjk0F7gmdYjmOlS8I0zoOZrzNWxrfm8DrEyezcv71tkUyEbuGCy4klKCxGJLJ3S
-        0D47pwLGeFhF3ULw96SR9XI+RpsP/ejoz2r8e5VDyutwcTU1ClwLHvuFcU8VeZuA
-        ==
-X-ME-Sender: <xms:BIMHXdsF6Wfd0o65dLm5P0Q2qJW2zvtsV7icMQecLS6l5eJDRvHoiA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduuddrudeijedggeelucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecukfhppeekfedrkeeirdekledruddtjeenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhmnecuvehluhhsthgvrhfuihiivgeptd
-X-ME-Proxy: <xmx:BIMHXbb4ED8T4g-EYs8hkuuKTpMClpUgnLRF29OaD3UBN4TNtgbBjg>
-    <xmx:BIMHXcRGyh3PltjFJkQPW56VZ-7xNUi5iHio7-f_wJ1zOVYSVV7ycQ>
-    <xmx:BIMHXXU_if699k773PiUYUIXnowfWy8Ig2zitgshM58W9gysd-EzWA>
-    <xmx:BYMHXaIi35TJmyjLq8lV44hMBAoNGd_Do_6Qn8oPQ4TR3aQq2Q_-ug>
+        id S1725973AbfFQMKz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 08:10:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37792 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725906AbfFQMKz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 08:10:55 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
-        by mail.messagingengine.com (Postfix) with ESMTPA id BA3EB380085;
-        Mon, 17 Jun 2019 08:09:39 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] powerpc/64s: __find_linux_pte() synchronization vs" failed to apply to 5.1-stable tree
-To:     npiggin@gmail.com, aneesh.kumar@linux.ibm.com, mpe@ellerman.id.au
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 17 Jun 2019 14:09:37 +0200
-Message-ID: <15607733777254@kroah.com>
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 252A82084D;
+        Mon, 17 Jun 2019 12:10:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=default; t=1560773454;
+        bh=pAmixHP+Rk/P6yHQsB5WBMUJpjuBXLP2sDa10q1VBvg=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=VLSgi0WWOgH2nFbVnYYt/lXpgkDb+uTU8eZqxnOpmplQHYTfIcK2lhQW4F8DPqFxc
+         r0kDm9Xm+SmXBVKUhQV3iFbCpWM7lBbGy5v4L2BdzCE/KX+4bDd+KP2pA3/lw0t/sI
+         GzKguTF/VdGVAhiGIb2FOBoxFZT4pdFconoseSaM=
+Date:   Mon, 17 Jun 2019 14:10:52 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Viresh Kumar <viresh.kumar@linaro.org>
+Cc:     linux-arm-kernel@lists.infradead.org,
+        Julien Thierry <Julien.Thierry@arm.com>,
+        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        Marc Zyngier <marc.zyngier@arm.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Russell King <rmk+kernel@arm.linux.org.uk>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        mark.brown@arm.com
+Subject: Re: [PATCH v4.4 00/45] V4.4 backport of arm64 Spectre patches
+Message-ID: <20190617121052.GA1456@kroah.com>
+References: <cover.1560480942.git.viresh.kumar@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <cover.1560480942.git.viresh.kumar@linaro.org>
+User-Agent: Mutt/1.12.1 (2019-06-15)
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, Jun 14, 2019 at 08:37:43AM +0530, Viresh Kumar wrote:
+> Hello,
+> 
+> Here is an attempt to backport arm64 spectre patches to v4.4 stable
+> tree.
+> 
+> I have started this backport with Mark Rutland's backport of Spectre to
+> 4.9 [1] and tried applying the upstream version of them over 4.4 and
+> resolved conflicts by checking how they have been resolved in 4.9.
+> 
+> I had to pick few extra upstream patches to avoid unnecessary conflicts
+> (upstream commit ids mentioned):
+> 
+>   a842789837c0 arm64: remove duplicate macro __KERNEL__ check
+>   64f8ebaf115b mm/kasan: add API to check memory regions
+>   bffe1baff5d5 arm64: kasan: instrument user memory access API
+>   92406f0cc9e3 arm64: cpufeature: Add scope for capability check
+>   9eb8a2cdf65c arm64: cputype info for Broadcom Vulcan
+>   0d90718871fe arm64: cputype: Add MIDR values for Cavium ThunderX2 CPUs
+>   98dd64f34f47 ARM: 8478/2: arm/arm64: add arm-smccc
+> 
+> 
+> I had to drop few patches as well as they weren't getting applied
+> properly due to missing files/features (upstream commit id mentioned):
+> 
+>   93f339ef4175 arm64: cpufeature: __this_cpu_has_cap() shouldn't stop early
+>   3c31fa5a06b4 arm64: Run enable method for errata work arounds on late CPUs
+>   6840bdd73d07 arm64: KVM: Use per-CPU vector when BP hardening is enabled
+>   90348689d500 arm64: KVM: Make PSCI_VERSION a fast path
+> 
+> 
+> Since v4.4 doesn't contain arch/arm/kvm/hyp/switch.c file, changes for
+> it are dropped from some of the patches. The commit log of specific
+> patches are updated with this information.
+> 
+> Also for commit id (from 4.9 stable):
+>   c24c205d2528 arm64: Add ARM_SMCCC_ARCH_WORKAROUND_1 BP hardening support
+> 
+> I have dropped arch/arm64/crypto/sha256-core.S and sha512-core.S files
+> as they weren't part of the upstream commit. Not sure why it was
+> included by Mark as the commit log doesn't provide any reasoning for it.
+> 
+> The patches in this series are pushed here [2].
+> 
+> This is only build/boot tested by me as I don't have access to the
+> required test-suite which can verify spectre mitigations.
 
-The patch below does not apply to the 5.1-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Thanks for doing this work.
+
+> @Julien: Can you please help reviewing / testing them ? Thanks.
+
+Julien, I need yours, or someone from ARM to sign off on these patches
+as working properly before I can accept them.
 
 thanks,
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From a00196a272161338d4b1d66ec69e3d57c6b280e0 Mon Sep 17 00:00:00 2001
-From: Nicholas Piggin <npiggin@gmail.com>
-Date: Fri, 7 Jun 2019 13:56:36 +1000
-Subject: [PATCH] powerpc/64s: __find_linux_pte() synchronization vs
- pmdp_invalidate()
-
-The change to pmdp_invalidate() to mark the pmd with _PAGE_INVALID
-broke the synchronisation against lock free lookups,
-__find_linux_pte()'s pmd_none() check no longer returns true for such
-cases.
-
-Fix this by adding a check for this condition as well.
-
-Fixes: da7ad366b497 ("powerpc/mm/book3s: Update pmd_present to look at _PAGE_PRESENT bit")
-Cc: stable@vger.kernel.org # v4.20+
-Suggested-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Reviewed-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-
-diff --git a/arch/powerpc/mm/pgtable.c b/arch/powerpc/mm/pgtable.c
-index db4a6253df92..533fc6fa6726 100644
---- a/arch/powerpc/mm/pgtable.c
-+++ b/arch/powerpc/mm/pgtable.c
-@@ -372,13 +372,25 @@ pte_t *__find_linux_pte(pgd_t *pgdir, unsigned long ea,
- 	pdshift = PMD_SHIFT;
- 	pmdp = pmd_offset(&pud, ea);
- 	pmd  = READ_ONCE(*pmdp);
-+
- 	/*
--	 * A hugepage collapse is captured by pmd_none, because
--	 * it mark the pmd none and do a hpte invalidate.
-+	 * A hugepage collapse is captured by this condition, see
-+	 * pmdp_collapse_flush.
- 	 */
- 	if (pmd_none(pmd))
- 		return NULL;
- 
-+#ifdef CONFIG_PPC_BOOK3S_64
-+	/*
-+	 * A hugepage split is captured by this condition, see
-+	 * pmdp_invalidate.
-+	 *
-+	 * Huge page modification can be caught here too.
-+	 */
-+	if (pmd_is_serializing(pmd))
-+		return NULL;
-+#endif
-+
- 	if (pmd_trans_huge(pmd) || pmd_devmap(pmd)) {
- 		if (is_thp)
- 			*is_thp = true;
-
