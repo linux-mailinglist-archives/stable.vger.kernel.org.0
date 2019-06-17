@@ -2,175 +2,277 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B41E648A2F
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 19:33:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1EB5548A46
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 19:37:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726121AbfFQRd4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 13:33:56 -0400
-Received: from bombadil.infradead.org ([198.137.202.133]:59450 "EHLO
-        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1726238AbfFQRd4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jun 2019 13:33:56 -0400
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=bombadil.20170209; h=References:In-Reply-To:Message-Id:
-        Date:Subject:To:From:Sender:Reply-To:Cc:MIME-Version:Content-Type:
-        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
-        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
-        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
-         bh=i0On/ZmY+jXtqXfUDqMmRWOfT/xflqFPbkAjpXMl+E0=; b=fYVt1Z+fzn5rZhifeJIHqTiAR
-        LkpFb4ru+JgcUh4bHX+RlFr4jUX37yWOi6/bprImPL131zb+rlKaHUHTt8sI2ti35AdjezXUeW9mO
-        LFkruHSiAk3gapzZHZyMY5x2PhHkCFf8cbQS4HMN6hDHyzH0ZG+uBne9PtgFQVBthKB83YnvO9GVH
-        K9otL1K1A2RUizFJ/HQkJKx6f6ye/ZDyoZkCudKM5Tg0syuJ1ozXsGLEW+PZxG/7SZM8EO0tlAhCW
-        ZP0ZaT1N+32dOi3bHocU4KDWRMgbO1m1j82hIw1h8IbBA461jw2ZtdfnAOMy86iQ74CMMCf1VgYoO
-        YjZ/ec1WA==;
-Received: from [2600:1700:65a0:78e0:514:7862:1503:8e4d] (helo=sagi-Latitude-E7470.lbits)
-        by bombadil.infradead.org with esmtpsa (Exim 4.92 #3 (Red Hat Linux))
-        id 1hcvW0-0001jN-2f
-        for stable@vger.kernel.org; Mon, 17 Jun 2019 17:33:56 +0000
-From:   Sagi Grimberg <sagi@grimberg.me>
-To:     stable@vger.kernel.org
-Subject: [PATCH stable-5.0+ v2 3/3] nvme-tcp: fix queue mapping when queue count is limited
-Date:   Mon, 17 Jun 2019 10:33:52 -0700
-Message-Id: <20190617173352.1902-3-sagi@grimberg.me>
-X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20190617173352.1902-1-sagi@grimberg.me>
-References: <20190617173352.1902-1-sagi@grimberg.me>
+        id S1726047AbfFQRhV convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 17 Jun 2019 13:37:21 -0400
+Received: from mx1.redhat.com ([209.132.183.28]:58738 "EHLO mx1.redhat.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S1725995AbfFQRhV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 13:37:21 -0400
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mx1.redhat.com (Postfix) with ESMTPS id DAA5E2E97C8
+        for <stable@vger.kernel.org>; Mon, 17 Jun 2019 17:37:19 +0000 (UTC)
+Received: from [172.54.67.194] (cpt-large-cpu-02.paas.prod.upshift.rdu2.redhat.com [10.0.18.84])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 76E17989C;
+        Mon, 17 Jun 2019 17:37:17 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+MIME-Version: 1.0
+From:   CKI Project <cki-project@redhat.com>
+To:     Linux Stable maillist <stable@vger.kernel.org>
+Subject: =?utf-8?b?4pyF?= PASS: Stable queue: queue-4.19
+Message-ID: <cki.5E470A3B37.7LBI1FZCOJ@redhat.com>
+X-Gitlab-Pipeline-ID: 12508
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-4.5.16 (mx1.redhat.com [10.5.110.29]); Mon, 17 Jun 2019 17:37:19 +0000 (UTC)
+Date:   Mon, 17 Jun 2019 13:37:21 -0400
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Upstream commit: 6486199378a5 ("nvme-tcp: fix queue mapping when queue
-count is limited")
+Hello,
 
-When the controller supports less queues than requested, we
-should make sure that queue mapping does the right thing and
-not assume that all queues are available. This fixes a crash
-when the controller supports less queues than requested.
+We ran automated tests on a patchset that was proposed for merging into this
+kernel tree. The patches were applied to:
 
-The rules are:
-1. if no write queues are requested, we assign the available queues
-   to the default queue map. The default and read queue maps share the
-   existing queues.
-2. if write queues are requested:
-  - first make sure that read queue map gets the requested
-    nr_io_queues count
-  - then grant the default queue map the minimum between the requested
-    nr_write_queues and the remaining queues. If there are no available
-    queues to dedicate to the default queue map, fallback to (1) and
-    share all the queues in the existing queue map.
+       Kernel repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+            Commit: 7aa823a959e1 - Linux 4.19.51
 
-Also, provide a log indication on how we constructed the different
-queue maps.
+The results of these automated tests are provided below.
 
-Reported-by: Harris, James R <james.r.harris@intel.com>
-Tested-by: Jim Harris <james.r.harris@intel.com>
-Cc: <stable@vger.kernel.org> # v5.0+
-Suggested-by: Roy Shterman <roys@lightbitslabs.com>
-Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
----
- drivers/nvme/host/tcp.c | 57 ++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 50 insertions(+), 7 deletions(-)
+    Overall result: PASSED
+             Merge: OK
+           Compile: OK
+             Tests: OK
 
-diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
-index 2b107a1d152b..08a2501b9357 100644
---- a/drivers/nvme/host/tcp.c
-+++ b/drivers/nvme/host/tcp.c
-@@ -111,6 +111,7 @@ struct nvme_tcp_ctrl {
- 	struct work_struct	err_work;
- 	struct delayed_work	connect_work;
- 	struct nvme_tcp_request async_req;
-+	u32			io_queues[HCTX_MAX_TYPES];
- };
- 
- static LIST_HEAD(nvme_tcp_ctrl_list);
-@@ -1564,6 +1565,35 @@ static unsigned int nvme_tcp_nr_io_queues(struct nvme_ctrl *ctrl)
- 	return nr_io_queues;
- }
- 
-+static void nvme_tcp_set_io_queues(struct nvme_ctrl *nctrl,
-+		unsigned int nr_io_queues)
-+{
-+	struct nvme_tcp_ctrl *ctrl = to_tcp_ctrl(nctrl);
-+	struct nvmf_ctrl_options *opts = nctrl->opts;
-+
-+	if (opts->nr_write_queues && opts->nr_io_queues < nr_io_queues) {
-+		/*
-+		 * separate read/write queues
-+		 * hand out dedicated default queues only after we have
-+		 * sufficient read queues.
-+		 */
-+		ctrl->io_queues[HCTX_TYPE_READ] = opts->nr_io_queues;
-+		nr_io_queues -= ctrl->io_queues[HCTX_TYPE_READ];
-+		ctrl->io_queues[HCTX_TYPE_DEFAULT] =
-+			min(opts->nr_write_queues, nr_io_queues);
-+		nr_io_queues -= ctrl->io_queues[HCTX_TYPE_DEFAULT];
-+	} else {
-+		/*
-+		 * shared read/write queues
-+		 * either no write queues were requested, or we don't have
-+		 * sufficient queue count to have dedicated default queues.
-+		 */
-+		ctrl->io_queues[HCTX_TYPE_DEFAULT] =
-+			min(opts->nr_io_queues, nr_io_queues);
-+		nr_io_queues -= ctrl->io_queues[HCTX_TYPE_DEFAULT];
-+	}
-+}
-+
- static int nvme_tcp_alloc_io_queues(struct nvme_ctrl *ctrl)
- {
- 	unsigned int nr_io_queues;
-@@ -1581,6 +1611,8 @@ static int nvme_tcp_alloc_io_queues(struct nvme_ctrl *ctrl)
- 	dev_info(ctrl->device,
- 		"creating %d I/O queues.\n", nr_io_queues);
- 
-+	nvme_tcp_set_io_queues(ctrl, nr_io_queues);
-+
- 	return __nvme_tcp_alloc_io_queues(ctrl);
- }
- 
-@@ -2089,23 +2121,34 @@ static blk_status_t nvme_tcp_queue_rq(struct blk_mq_hw_ctx *hctx,
- static int nvme_tcp_map_queues(struct blk_mq_tag_set *set)
- {
- 	struct nvme_tcp_ctrl *ctrl = set->driver_data;
-+	struct nvmf_ctrl_options *opts = ctrl->ctrl.opts;
- 
--	set->map[HCTX_TYPE_DEFAULT].queue_offset = 0;
--	set->map[HCTX_TYPE_READ].nr_queues = ctrl->ctrl.opts->nr_io_queues;
--	if (ctrl->ctrl.opts->nr_write_queues) {
-+	if (opts->nr_write_queues && ctrl->io_queues[HCTX_TYPE_READ]) {
- 		/* separate read/write queues */
- 		set->map[HCTX_TYPE_DEFAULT].nr_queues =
--				ctrl->ctrl.opts->nr_write_queues;
-+			ctrl->io_queues[HCTX_TYPE_DEFAULT];
-+		set->map[HCTX_TYPE_DEFAULT].queue_offset = 0;
-+		set->map[HCTX_TYPE_READ].nr_queues =
-+			ctrl->io_queues[HCTX_TYPE_READ];
- 		set->map[HCTX_TYPE_READ].queue_offset =
--				ctrl->ctrl.opts->nr_write_queues;
-+			ctrl->io_queues[HCTX_TYPE_DEFAULT];
- 	} else {
--		/* mixed read/write queues */
-+		/* shared read/write queues */
- 		set->map[HCTX_TYPE_DEFAULT].nr_queues =
--				ctrl->ctrl.opts->nr_io_queues;
-+			ctrl->io_queues[HCTX_TYPE_DEFAULT];
-+		set->map[HCTX_TYPE_DEFAULT].queue_offset = 0;
-+		set->map[HCTX_TYPE_READ].nr_queues =
-+			ctrl->io_queues[HCTX_TYPE_DEFAULT];
- 		set->map[HCTX_TYPE_READ].queue_offset = 0;
- 	}
- 	blk_mq_map_queues(&set->map[HCTX_TYPE_DEFAULT]);
- 	blk_mq_map_queues(&set->map[HCTX_TYPE_READ]);
-+
-+	dev_info(ctrl->ctrl.device,
-+		"mapped %d/%d default/read queues.\n",
-+		ctrl->io_queues[HCTX_TYPE_DEFAULT],
-+		ctrl->io_queues[HCTX_TYPE_READ]);
-+
- 	return 0;
- }
- 
--- 
-2.17.1
 
+Please reply to this email if you have any questions about the tests that we
+ran or if you have any suggestions on how to make future tests more effective.
+
+        ,-.   ,-.
+       ( C ) ( K )  Continuous
+        `-',-.`-'   Kernel
+          ( I )     Integration
+           `-'
+______________________________________________________________________________
+
+Merge testing
+-------------
+
+We cloned this repository and checked out the following commit:
+
+  Repo: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git
+  Commit: 7aa823a959e1 - Linux 4.19.51
+
+
+We then merged the patchset with `git am`:
+
+  drm-nouveau-add-kconfig-option-to-turn-off-nouveau-legacy-contexts.-v3.patch
+  nouveau-fix-build-with-config_nouveau_legacy_ctx_support-disabled.patch
+  hid-multitouch-handle-faulty-elo-touch-device.patch
+  hid-wacom-don-t-set-tool-type-until-we-re-in-range.patch
+  hid-wacom-don-t-report-anything-prior-to-the-tool-entering-range.patch
+  hid-wacom-send-btn_touch-in-response-to-intuosp2_bt-eraser-contact.patch
+  hid-wacom-correct-button-numbering-2nd-gen-intuos-pro-over-bluetooth.patch
+  hid-wacom-sync-intuosp2_bt-touch-state-after-each-frame-if-necessary.patch
+  revert-alsa-hda-realtek-improve-the-headset-mic-for-acer-aspire-laptops.patch
+  alsa-oxfw-allow-pcm-capture-for-stanton-scs.1m.patch
+  alsa-hda-realtek-update-headset-mode-for-alc256.patch
+  alsa-firewire-motu-fix-destruction-of-data-for-isochronous-resources.patch
+  libata-extend-quirks-for-the-st1000lm024-drives-with-nolpm-quirk.patch
+  mm-list_lru.c-fix-memory-leak-in-__memcg_init_list_lru_node.patch
+  fs-ocfs2-fix-race-in-ocfs2_dentry_attach_lock.patch
+  mm-vmscan.c-fix-trying-to-reclaim-unevictable-lru-page.patch
+  signal-ptrace-don-t-leak-unitialized-kernel-memory-with-ptrace_peek_siginfo.patch
+  ptrace-restore-smp_rmb-in-__ptrace_may_access.patch
+  iommu-arm-smmu-avoid-constant-zero-in-tlbi-writes.patch
+  i2c-acorn-fix-i2c-warning.patch
+  bcache-fix-stack-corruption-by-preceding_key.patch
+  bcache-only-set-bcache_dev_wb_running-when-cached-device-attached.patch
+  cgroup-use-css_tryget-instead-of-css_tryget_online-in-task_get_css.patch
+  asoc-cs42xx8-add-regcache-mask-dirty.patch
+  asoc-fsl_asrc-fix-the-issue-about-unsupported-rate.patch
+  drm-i915-sdvo-implement-proper-hdmi-audio-support-for-sdvo.patch
+  x86-uaccess-kcov-disable-stack-protector.patch
+  alsa-seq-protect-in-kernel-ioctl-calls-with-mutex.patch
+  alsa-seq-fix-race-of-get-subscription-call-vs-port-d.patch
+  revert-alsa-seq-protect-in-kernel-ioctl-calls-with-m.patch
+  s390-kasan-fix-strncpy_from_user-kasan-checks.patch
+  drivers-misc-fix-out-of-bounds-access-in-function-pa.patch
+  f2fs-fix-to-avoid-accessing-xattr-across-the-boundar.patch
+  scsi-qedi-remove-memset-memcpy-to-nfunc-and-use-func.patch
+  scsi-qedi-remove-set-but-not-used-variables-cdev-and.patch
+  scsi-lpfc-correct-rcu-unlock-issue-in-lpfc_nvme_info.patch
+  scsi-lpfc-add-check-for-loss-of-ndlp-when-sending-rr.patch
+  arm64-mm-inhibit-huge-vmap-with-ptdump.patch
+  nvme-fix-srcu-locking-on-error-return-in-nvme_get_ns.patch
+  nvme-remove-the-ifdef-around-nvme_nvm_ioctl.patch
+  nvme-merge-nvme_ns_ioctl-into-nvme_ioctl.patch
+  nvme-release-namespace-srcu-protection-before-perfor.patch
+  nvme-fix-memory-leak-for-power-latency-tolerance.patch
+  platform-x86-pmc_atom-add-lex-3i380d-industrial-pc-t.patch
+  platform-x86-pmc_atom-add-several-beckhoff-automatio.patch
+  scsi-bnx2fc-fix-incorrect-cast-to-u64-on-shift-opera.patch
+  libnvdimm-fix-compilation-warnings-with-w-1.patch
+  selftests-fib_rule_tests-fix-local-ipv4-address-typo.patch
+  selftests-timers-add-missing-fflush-stdout-calls.patch
+  tracing-prevent-hist_field_var_ref-from-accessing-nu.patch
+  usbnet-ipheth-fix-racing-condition.patch
+  kvm-arm-arm64-move-cc-it-checks-under-hyp-s-makefile.patch
+  kvm-x86-pmu-mask-the-result-of-rdpmc-according-to-th.patch
+  kvm-x86-pmu-do-not-mask-the-value-that-is-written-to.patch
+  kvm-s390-fix-memory-slot-handling-for-kvm_set_user_m.patch
+  tools-kvm_stat-fix-fields-filter-for-child-events.patch
+  drm-vmwgfx-integer-underflow-in-vmw_cmd_dx_set_shader-leading-to-an-invalid-read.patch
+  drm-vmwgfx-null-pointer-dereference-from-vmw_cmd_dx_view_define.patch
+  usb-dwc2-fix-dma-cache-alignment-issues.patch
+  usb-dwc2-host-fix-wmaxpacketsize-handling-fix-webcam-regression.patch
+  usb-fix-chipmunk-like-voice-when-using-logitech-c270-for-recording-audio.patch
+  usb-usb-storage-add-new-id-to-ums-realtek.patch
+  usb-serial-pl2303-add-allied-telesis-vt-kit3.patch
+  usb-serial-option-add-support-for-simcom-sim7500-sim7600-rndis-mode.patch
+  usb-serial-option-add-telit-0x1260-and-0x1261-compositions.patch
+  timekeeping-repair-ktime_get_coarse-granularity.patch
+  ras-cec-convert-the-timer-callback-to-a-workqueue.patch
+  ras-cec-fix-binary-search-function.patch
+  x86-microcode-cpuhotplug-add-a-microcode-loader-cpu-hotplug-callback.patch
+  x86-kasan-fix-boot-with-5-level-paging-and-kasan.patch
+  x86-mm-kaslr-compute-the-size-of-the-vmemmap-section-properly.patch
+  x86-resctrl-prevent-null-pointer-dereference-when-local-mbm-is-disabled.patch
+  drm-edid-abstract-override-firmware-edid-retrieval.patch
+  drm-add-fallback-override-firmware-edid-modes-workaround.patch
+  rtc-pcf8523-don-t-return-invalid-date-when-battery-is-low.patch
+
+Compile testing
+---------------
+
+We compiled the kernel for 4 architectures:
+
+  aarch64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-284bebdd5c683e7aa1ebfaeba8460b37dda7dad4.config
+    kernel build: https://artifacts.cki-project.org/builds/aarch64/kernel-stable_queue_4.19-aarch64-284bebdd5c683e7aa1ebfaeba8460b37dda7dad4.tar.gz
+
+  ppc64le:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-284bebdd5c683e7aa1ebfaeba8460b37dda7dad4.config
+    kernel build: https://artifacts.cki-project.org/builds/ppc64le/kernel-stable_queue_4.19-ppc64le-284bebdd5c683e7aa1ebfaeba8460b37dda7dad4.tar.gz
+
+  s390x:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-284bebdd5c683e7aa1ebfaeba8460b37dda7dad4.config
+    kernel build: https://artifacts.cki-project.org/builds/s390x/kernel-stable_queue_4.19-s390x-284bebdd5c683e7aa1ebfaeba8460b37dda7dad4.tar.gz
+
+  x86_64:
+    build options: -j20 INSTALL_MOD_STRIP=1 targz-pkg
+    configuration: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-284bebdd5c683e7aa1ebfaeba8460b37dda7dad4.config
+    kernel build: https://artifacts.cki-project.org/builds/x86_64/kernel-stable_queue_4.19-x86_64-284bebdd5c683e7aa1ebfaeba8460b37dda7dad4.tar.gz
+
+
+Hardware testing
+----------------
+
+We booted each kernel and ran the following tests:
+
+  aarch64:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ Loopdev Sanity [2]
+       ✅ AMTU (Abstract Machine Test Utility) [3]
+       ✅ audit: audit testsuite test [4]
+       ✅ httpd: mod_ssl smoke sanity [5]
+       ✅ iotop: sanity [6]
+       ✅ Usex - version 1.9-29 [7]
+       🚧 ✅ tuned: tune-processes-through-perf [8]
+       🚧 ✅ storage: SCSI VPD [9]
+       🚧 ✅ storage: software RAID testing [10]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [11]
+
+
+  ppc64le:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [11]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ Loopdev Sanity [2]
+       ✅ AMTU (Abstract Machine Test Utility) [3]
+       ✅ audit: audit testsuite test [4]
+       ✅ httpd: mod_ssl smoke sanity [5]
+       ✅ iotop: sanity [6]
+       ✅ Usex - version 1.9-29 [7]
+       🚧 ✅ tuned: tune-processes-through-perf [8]
+       🚧 ✅ storage: software RAID testing [10]
+
+
+  s390x:
+    Host 1:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [11]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ Loopdev Sanity [2]
+       ✅ audit: audit testsuite test [4]
+       ✅ httpd: mod_ssl smoke sanity [5]
+       ✅ iotop: sanity [6]
+       🚧 ✅ tuned: tune-processes-through-perf [8]
+       🚧 ✅ storage: software RAID testing [10]
+
+
+  x86_64:
+    Host 1:
+       ✅ Boot test [0]
+       🚧 ✅ Storage SAN device stress [12]
+
+    Host 2:
+       ✅ Boot test [0]
+       ✅ LTP lite [1]
+       ✅ Loopdev Sanity [2]
+       ✅ AMTU (Abstract Machine Test Utility) [3]
+       ✅ audit: audit testsuite test [4]
+       ✅ httpd: mod_ssl smoke sanity [5]
+       ✅ iotop: sanity [6]
+       ✅ Usex - version 1.9-29 [7]
+       🚧 ✅ tuned: tune-processes-through-perf [8]
+       🚧 ✅ storage: SCSI VPD [9]
+       🚧 ✅ storage: software RAID testing [10]
+
+    Host 3:
+       ✅ Boot test [0]
+       ✅ selinux-policy: serge-testsuite [11]
+
+
+  Test source:
+    💚 Pull requests are welcome for new tests or improvements to existing tests!
+    [0]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/kpkginstall
+    [1]: https://github.com/CKI-project/tests-beaker/archive/master.zip#distribution/ltp/lite
+    [2]: https://github.com/CKI-project/tests-beaker/archive/master.zip#filesystems/loopdev/sanity
+    [3]: https://github.com/CKI-project/tests-beaker/archive/master.zip#misc/amtu
+    [4]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/audit/audit-testsuite
+    [5]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/httpd/mod_ssl-smoke
+    [6]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/iotop/sanity
+    [7]: https://github.com/CKI-project/tests-beaker/archive/master.zip#standards/usex/1.9-29
+    [8]: https://github.com/CKI-project/tests-beaker/archive/master.zip#packages/tuned/tune-processes-through-perf
+    [9]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/scsi/vpd
+    [10]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/swraid/trim
+    [11]: https://github.com/CKI-project/tests-beaker/archive/master.zip#/packages/selinux-policy/serge-testsuite
+    [12]: https://github.com/CKI-project/tests-beaker/archive/master.zip#storage/hba/san-device-stress
+
+Waived tests (marked with 🚧)
+-----------------------------
+This test run included waived tests. Such tests are executed but their results
+are not taken into account. Tests are waived when their results are not
+reliable enough, e.g. when they're just introduced or are being fixed.
