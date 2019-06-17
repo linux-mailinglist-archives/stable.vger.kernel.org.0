@@ -2,124 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BC0A489EF
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 19:20:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4344048A2C
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 19:33:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1726173AbfFQRUx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 13:20:53 -0400
-Received: from mail-eopbgr820073.outbound.protection.outlook.com ([40.107.82.73]:55360
-        "EHLO NAM01-SN1-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1725995AbfFQRUw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 13:20:52 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=vmware.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=MqaJrCrgxnuP9FTTiF6b+cE/nLHB0A2RzP/qo3U1IHg=;
- b=0VHjZjnBANeb/w95G5I4u/F8mI6XdaGx/ooExrQjTuq5TDk9eK2kRkRbh9BZ7t8YHjyQmhrX8NAXGHQI0mRRKJjGHJyAuswraNyFY2FS/9k5AtfLwEpZQoHRQ78TC72BVMskpE3K8tMLzWL2WpGln3VVVObFrpJhsUTk15mjPUk=
-Received: from BYAPR05MB4776.namprd05.prod.outlook.com (52.135.233.146) by
- BYAPR05MB5303.namprd05.prod.outlook.com (20.177.127.20) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.2008.12; Mon, 17 Jun 2019 17:20:48 +0000
-Received: from BYAPR05MB4776.namprd05.prod.outlook.com
- ([fe80::f493:3bba:aabf:dd58]) by BYAPR05MB4776.namprd05.prod.outlook.com
- ([fe80::f493:3bba:aabf:dd58%7]) with mapi id 15.20.2008.007; Mon, 17 Jun 2019
- 17:20:48 +0000
-From:   Nadav Amit <namit@vmware.com>
-To:     Sasha Levin <sashal@kernel.org>
-CC:     Andrew Morton <akpm@linux-foundation.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Linux-MM <linux-mm@kvack.org>, Borislav Petkov <bp@suse.de>,
-        Toshi Kani <toshi.kani@hpe.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH 3/3] resource: Introduce resource cache
-Thread-Topic: [PATCH 3/3] resource: Introduce resource cache
-Thread-Index: AQHVJTEB4XE0tBkHtk2lJa7fZ26NHA==
-Date:   Mon, 17 Jun 2019 17:20:48 +0000
-Message-ID: <11F97160-C769-461F-ADE8-70D4A2A7A071@vmware.com>
-References: <20190613045903.4922-4-namit@vmware.com>
- <20190615221607.4B44521841@mail.kernel.org>
-In-Reply-To: <20190615221607.4B44521841@mail.kernel.org>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: spf=none (sender IP is )
- smtp.mailfrom=namit@vmware.com; 
-x-originating-ip: [66.170.99.1]
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: a704e7df-9b53-4be6-fcbf-08d6f34823de
-x-microsoft-antispam: BCL:0;PCL:0;RULEID:(2390118)(7020095)(4652040)(8989299)(4534185)(4627221)(201703031133081)(201702281549075)(8990200)(5600148)(711020)(4605104)(1401327)(2017052603328)(7193020);SRVR:BYAPR05MB5303;
-x-ms-traffictypediagnostic: BYAPR05MB5303:
-x-microsoft-antispam-prvs: <BYAPR05MB5303E3EBAE721E55CCF845B3D0EB0@BYAPR05MB5303.namprd05.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:10000;
-x-forefront-prvs: 0071BFA85B
-x-forefront-antispam-report: SFV:NSPM;SFS:(10009020)(366004)(396003)(39860400002)(136003)(376002)(346002)(189003)(199004)(6512007)(8676002)(11346002)(3846002)(86362001)(81156014)(76176011)(2616005)(446003)(486006)(2906002)(186003)(26005)(476003)(6116002)(54906003)(256004)(53546011)(6506007)(25786009)(53936002)(7416002)(6246003)(4326008)(76116006)(73956011)(66946007)(7736002)(66446008)(305945005)(71190400001)(71200400001)(36756003)(64756008)(66476007)(66556008)(66066001)(6916009)(316002)(6486002)(5660300002)(99286004)(102836004)(81166006)(478600001)(8936002)(33656002)(14454004)(6436002)(229853002)(68736007);DIR:OUT;SFP:1101;SCL:1;SRVR:BYAPR05MB5303;H:BYAPR05MB4776.namprd05.prod.outlook.com;FPR:;SPF:None;LANG:en;PTR:InfoNoRecords;MX:1;A:1;
-received-spf: None (protection.outlook.com: vmware.com does not designate
- permitted sender hosts)
-x-ms-exchange-senderadcheck: 1
-x-microsoft-antispam-message-info: c0xtzHxGc//Ba5vScAd1vLJiGHgeZNx61W7wQFdC6Oe/dkp3xjgMkZ6Be2KqYy1N/9V38F16z/p/D5JnQZRA7Q72YSPn4qxqwjkHa9Yhllr01Qf+UILx7nhRBD3NJ7nZhdAE+MbWL6OV6w/wShoCe8sJ28cjStnx7OEEAnU41ckqdS+qiAThcJl501Lfy3Xw4bmeZUDs/X7IFb0Ea7Bi5vWvb55vD7xY8xQCitgoeNZ+0M9Czp34mdbVHZHNbAHggmeVQ6mNhTXneDtno0neH5gr3/7NvUaGE1YvWJBSvbsPFUOInstFjrTQNZEnZEzbvl9YDpJhuvUqEFbRxenIPvOny4yaxQuJ1AIpXvPO5p2ZGXZZv4b2WGH9ZD5EYzPZoYmKkfhxt0uXpjtdwh3uIgy6B/V/2ztFy5mVKB+C6CA=
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <7FDAAD65E28C72469E1292356FAF4612@namprd05.prod.outlook.com>
-Content-Transfer-Encoding: base64
-MIME-Version: 1.0
-X-OriginatorOrg: vmware.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: a704e7df-9b53-4be6-fcbf-08d6f34823de
-X-MS-Exchange-CrossTenant-originalarrivaltime: 17 Jun 2019 17:20:48.3625
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: b39138ca-3cee-4b4a-a4d6-cd83d9dd62f0
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: namit@vmware.com
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR05MB5303
+        id S1726336AbfFQRd4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 13:33:56 -0400
+Received: from bombadil.infradead.org ([198.137.202.133]:59446 "EHLO
+        bombadil.infradead.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1725995AbfFQRd4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jun 2019 13:33:56 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=bombadil.20170209; h=Message-Id:Date:Subject:To:From:
+        Sender:Reply-To:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:In-Reply-To:References:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+         bh=0hoblZWnjYfWTi9C9CpVJqVOYHQcuzYUJp1/ITBN2Qw=; b=hePsem6vKrVBgdFFcKZ6+HCx5
+        eBJ/gW0BBKW9+A/6dwlOrdfJvEALroNL74TJOet8VVuxOSEIYOqWixXWhfmjzwcmeXJ6bTemBquqN
+        DQrxg50vJljAhsOP0XRZALI+Awyy6uFY3rMjxWGLnDTBWzevaSNr61nr1CxqN64Ae8YtC0Nc6Nhpu
+        /bUoY4kDhk8YmC9GlPfv/uiUnbtEysstybNc/IgMcsrVbE/hxSRqva1+azlF5Og0MM/3qoYpZAJy6
+        Dz54VVTt/EBw7GyoOicO6K+OD/F4EXzDTHWFsho5dTrve5M/EFflSmMsPEJvbfhGDGKwSD/ETm9f+
+        tNnbzWPJg==;
+Received: from [2600:1700:65a0:78e0:514:7862:1503:8e4d] (helo=sagi-Latitude-E7470.lbits)
+        by bombadil.infradead.org with esmtpsa (Exim 4.92 #3 (Red Hat Linux))
+        id 1hcvVz-0001jN-Qt
+        for stable@vger.kernel.org; Mon, 17 Jun 2019 17:33:55 +0000
+From:   Sagi Grimberg <sagi@grimberg.me>
+To:     stable@vger.kernel.org
+Subject: [PATCH stable-5.0+ v2 1/3] nvme-tcp: rename function to have nvme_tcp prefix
+Date:   Mon, 17 Jun 2019 10:33:50 -0700
+Message-Id: <20190617173352.1902-1-sagi@grimberg.me>
+X-Mailer: git-send-email 2.17.1
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-PiBPbiBKdW4gMTUsIDIwMTksIGF0IDM6MTYgUE0sIFNhc2hhIExldmluIDxzYXNoYWxAa2VybmVs
-Lm9yZz4gd3JvdGU6DQo+IA0KPiBIaSwNCj4gDQo+IFtUaGlzIGlzIGFuIGF1dG9tYXRlZCBlbWFp
-bF0NCj4gDQo+IFRoaXMgY29tbWl0IGhhcyBiZWVuIHByb2Nlc3NlZCBiZWNhdXNlIGl0IGNvbnRh
-aW5zIGEgIkZpeGVzOiIgdGFnLA0KPiBmaXhpbmcgY29tbWl0OiBmZjNjYzk1MmQzZjAgcmVzb3Vy
-Y2U6IEFkZCByZW1vdmVfcmVzb3VyY2UgaW50ZXJmYWNlLg0KDQpUaGlzIGNvbW1pdCAoUGF0Y2gg
-My8zKSBkb2VzIG5vdCBoYXZlIHRoZSDigJxGaXhlczrigJ0gdGFnIChhbmQgaXQgaXMgYQ0KcGVy
-Zm9ybWFuY2UgZW5oYW5jZW1lbnQpLCBzbyBJIGRvbuKAmXQga25vdyB3aHkgaXQgd2FzIHByb2Nl
-c3NlZC4NCg0KSU9XOiBwbGVhc2UgZG8gbm90IGJhY2twb3J0IGl0Lg0KDQo+IFRoZSBib3QgaGFz
-IHRlc3RlZCB0aGUgZm9sbG93aW5nIHRyZWVzOiB2NS4xLjksIHY0LjE5LjUwLCB2NC4xNC4xMjUs
-IHY0LjkuMTgxLg0KPiANCj4gdjUuMS45OiBCdWlsZCBPSyENCj4gdjQuMTkuNTA6IEZhaWxlZCB0
-byBhcHBseSEgUG9zc2libGUgZGVwZW5kZW5jaWVzOg0KPiAgICAwMTBhOTNiZjk3YzcgKCJyZXNv
-dXJjZTogRml4IGZpbmRfbmV4dF9pb21lbV9yZXMoKSBpdGVyYXRpb24gaXNzdWUiKQ0KPiAgICA3
-YTUzYmIzMDllYjMgKCJyZXNvdXJjZTogRml4IGxvY2tpbmcgaW4gZmluZF9uZXh0X2lvbWVtX3Jl
-cygpIikNCj4gICAgYTk4OTU5ZmRiZGExICgicmVzb3VyY2U6IEluY2x1ZGUgcmVzb3VyY2UgZW5k
-IGluIHdhbGtfKigpIGludGVyZmFjZXMiKQ0KPiANCj4gdjQuMTQuMTI1OiBGYWlsZWQgdG8gYXBw
-bHkhIFBvc3NpYmxlIGRlcGVuZGVuY2llczoNCj4gICAgMDEwYTkzYmY5N2M3ICgicmVzb3VyY2U6
-IEZpeCBmaW5kX25leHRfaW9tZW1fcmVzKCkgaXRlcmF0aW9uIGlzc3VlIikNCj4gICAgMGU0YzEy
-YjQ1YWE4ICgieDg2L21tLCByZXNvdXJjZTogVXNlIFBBR0VfS0VSTkVMIHByb3RlY3Rpb24gZm9y
-IGlvcmVtYXAgb2YgbWVtb3J5IHBhZ2VzIikNCj4gICAgMWQyZTczM2IxM2I0ICgicmVzb3VyY2U6
-IFByb3ZpZGUgcmVzb3VyY2Ugc3RydWN0IGluIHJlc291cmNlIHdhbGsgY2FsbGJhY2siKQ0KPiAg
-ICA0YWMyYWVkODM3Y2IgKCJyZXNvdXJjZTogQ29uc29saWRhdGUgcmVzb3VyY2Ugd2Fsa2luZyBj
-b2RlIikNCj4gICAgN2E1M2JiMzA5ZWIzICgicmVzb3VyY2U6IEZpeCBsb2NraW5nIGluIGZpbmRf
-bmV4dF9pb21lbV9yZXMoKSIpDQo+ICAgIGE5ODk1OWZkYmRhMSAoInJlc291cmNlOiBJbmNsdWRl
-IHJlc291cmNlIGVuZCBpbiB3YWxrXyooKSBpbnRlcmZhY2VzIikNCj4gDQo+IHY0LjkuMTgxOiBG
-YWlsZWQgdG8gYXBwbHkhIFBvc3NpYmxlIGRlcGVuZGVuY2llczoNCj4gICAgMDEwYTkzYmY5N2M3
-ICgicmVzb3VyY2U6IEZpeCBmaW5kX25leHRfaW9tZW1fcmVzKCkgaXRlcmF0aW9uIGlzc3VlIikN
-Cj4gICAgMGU0YzEyYjQ1YWE4ICgieDg2L21tLCByZXNvdXJjZTogVXNlIFBBR0VfS0VSTkVMIHBy
-b3RlY3Rpb24gZm9yIGlvcmVtYXAgb2YgbWVtb3J5IHBhZ2VzIikNCj4gICAgMWQyZTczM2IxM2I0
-ICgicmVzb3VyY2U6IFByb3ZpZGUgcmVzb3VyY2Ugc3RydWN0IGluIHJlc291cmNlIHdhbGsgY2Fs
-bGJhY2siKQ0KPiAgICA0YWMyYWVkODM3Y2IgKCJyZXNvdXJjZTogQ29uc29saWRhdGUgcmVzb3Vy
-Y2Ugd2Fsa2luZyBjb2RlIikNCj4gICAgNjBmZTM5MTBiYjAyICgia2V4ZWNfZmlsZTogQWxsb3cg
-YXJjaC1zcGVjaWZpYyBtZW1vcnkgd2Fsa2luZyBmb3Iga2V4ZWNfYWRkX2J1ZmZlciIpDQo+ICAg
-IDdhNTNiYjMwOWViMyAoInJlc291cmNlOiBGaXggbG9ja2luZyBpbiBmaW5kX25leHRfaW9tZW1f
-cmVzKCkiKQ0KPiAgICBhMDQ1ODI4NGYwNjIgKCJwb3dlcnBjOiBBZGQgc3VwcG9ydCBjb2RlIGZv
-ciBrZXhlY19maWxlX2xvYWQoKSIpDQo+ICAgIGE5ODk1OWZkYmRhMSAoInJlc291cmNlOiBJbmNs
-dWRlIHJlc291cmNlIGVuZCBpbiB3YWxrXyooKSBpbnRlcmZhY2VzIikNCj4gICAgZGE2NjU4ODU5
-YjljICgicG93ZXJwYzogQ2hhbmdlIHBsYWNlcyB1c2luZyBDT05GSUdfS0VYRUMgdG8gdXNlIENP
-TkZJR19LRVhFQ19DT1JFIGluc3RlYWQuIikNCj4gICAgZWMyYjliZmFhYzQ0ICgia2V4ZWNfZmls
-ZTogQ2hhbmdlIGtleGVjX2FkZF9idWZmZXIgdG8gdGFrZSBrZXhlY19idWYgYXMgYXJndW1lbnQu
-IikNCj4gDQo+IA0KPiBIb3cgc2hvdWxkIHdlIHByb2NlZWQgd2l0aCB0aGlzIHBhdGNoPw0KPiAN
-Cj4gLS0NCj4gVGhhbmtzLA0KPiBTYXNoYQ0KDQoNCg==
+Upstream commit: efb973b19b88 ("nvme-tcp: rename function to have
+nvme_tcp prefix")
+
+usually nvme_ prefix is for core functions.
+While we're cleaning up, remove redundant empty lines
+
+Signed-off-by: Sagi Grimberg <sagi@grimberg.me>
+Reviewed-by: Minwoo Im <minwoo.im@samsung.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+---
+ drivers/nvme/host/tcp.c | 10 ++++------
+ 1 file changed, 4 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
+index aae5374d2b93..2405bb9c63cc 100644
+--- a/drivers/nvme/host/tcp.c
++++ b/drivers/nvme/host/tcp.c
+@@ -473,7 +473,6 @@ static int nvme_tcp_handle_c2h_data(struct nvme_tcp_queue *queue,
+ 	}
+ 
+ 	return 0;
+-
+ }
+ 
+ static int nvme_tcp_handle_comp(struct nvme_tcp_queue *queue,
+@@ -634,7 +633,6 @@ static inline void nvme_tcp_end_request(struct request *rq, u16 status)
+ 	nvme_end_request(rq, cpu_to_le16(status << 1), res);
+ }
+ 
+-
+ static int nvme_tcp_recv_data(struct nvme_tcp_queue *queue, struct sk_buff *skb,
+ 			      unsigned int *offset, size_t *len)
+ {
+@@ -1535,7 +1533,7 @@ static int nvme_tcp_alloc_admin_queue(struct nvme_ctrl *ctrl)
+ 	return ret;
+ }
+ 
+-static int nvme_tcp_alloc_io_queues(struct nvme_ctrl *ctrl)
++static int __nvme_tcp_alloc_io_queues(struct nvme_ctrl *ctrl)
+ {
+ 	int i, ret;
+ 
+@@ -1565,7 +1563,7 @@ static unsigned int nvme_tcp_nr_io_queues(struct nvme_ctrl *ctrl)
+ 	return nr_io_queues;
+ }
+ 
+-static int nvme_alloc_io_queues(struct nvme_ctrl *ctrl)
++static int nvme_tcp_alloc_io_queues(struct nvme_ctrl *ctrl)
+ {
+ 	unsigned int nr_io_queues;
+ 	int ret;
+@@ -1582,7 +1580,7 @@ static int nvme_alloc_io_queues(struct nvme_ctrl *ctrl)
+ 	dev_info(ctrl->device,
+ 		"creating %d I/O queues.\n", nr_io_queues);
+ 
+-	return nvme_tcp_alloc_io_queues(ctrl);
++	return __nvme_tcp_alloc_io_queues(ctrl);
+ }
+ 
+ static void nvme_tcp_destroy_io_queues(struct nvme_ctrl *ctrl, bool remove)
+@@ -1599,7 +1597,7 @@ static int nvme_tcp_configure_io_queues(struct nvme_ctrl *ctrl, bool new)
+ {
+ 	int ret;
+ 
+-	ret = nvme_alloc_io_queues(ctrl);
++	ret = nvme_tcp_alloc_io_queues(ctrl);
+ 	if (ret)
+ 		return ret;
+ 
+-- 
+2.17.1
+
