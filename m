@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id B300749275
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:20:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8814D49466
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:38:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729100AbfFQVU0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:20:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44602 "EHLO mail.kernel.org"
+        id S1726898AbfFQVSg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:18:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729093AbfFQVUY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:20:24 -0400
+        id S1725839AbfFQVSf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:18:35 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 93B5F21881;
-        Mon, 17 Jun 2019 21:20:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 57920208CB;
+        Mon, 17 Jun 2019 21:18:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806424;
-        bh=fwr27nbyLR8cixJMufn3KrmACVWcc6NROmLVUchmjQA=;
+        s=default; t=1560806314;
+        bh=loqM1FvE8p0d5XRVN46uVoBtpy2yvMzgd4zOq2yJjDs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R4cFRTjS/SGtsMJRkBRM5LcV4kzSh/6GVz6Ra4z4F/vbA2Nj6aV0143ss0NjTcCPk
-         CIGSeK2JBypf1w3NmDo8HKfgcWJQ05vsVDHLx3OzhkWqegK/OyOnQgBzFj6SvJCVwP
-         Au8W/dJfMv0reugYWrk54DaQlZEC+s33ffEvkOZw=
+        b=GRB4q/SVrC1utdHxszvGjG9LpcyVHKxcIpK9vHhE7wsqo7vxzOhhSkpfiWxacF2zr
+         cFYH1XLOI2Cskr9CIHM0KMgEkrOI73gY7NBghDu+t0Ob0pI47+Xsev7klonyDkHt58
+         Lvj0nH3q5BaG97WzzvsYooe4ucScrCpTFVWTwlL8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>,
         Aaron Skomra <aaron.skomra@wacom.com>,
         Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Subject: [PATCH 5.1 009/115] HID: wacom: Send BTN_TOUCH in response to INTUOSP2_BT eraser contact
-Date:   Mon, 17 Jun 2019 23:08:29 +0200
-Message-Id: <20190617210800.382847392@linuxfoundation.org>
+Subject: [PATCH 5.1 010/115] HID: wacom: Correct button numbering 2nd-gen Intuos Pro over Bluetooth
+Date:   Mon, 17 Jun 2019 23:08:30 +0200
+Message-Id: <20190617210800.444784204@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190617210759.929316339@linuxfoundation.org>
 References: <20190617210759.929316339@linuxfoundation.org>
@@ -46,15 +46,22 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jason Gerecke <jason.gerecke@wacom.com>
 
-commit fe7f8d73d1af19b678171170e4e5384deb57833d upstream.
+commit 6441fc781c344df61402be1fde582c4491fa35fa upstream.
 
-The Bluetooth reports from the 2nd-gen Intuos Pro have separate bits for
-indicating if the tip or eraser is in contact with the tablet. At the
-moment, only the tip contact bit controls the state of the BTN_TOUCH
-event. This prevents the eraser from working as expected. This commit
-changes the driver to send BTN_TOUCH whenever either the tip or eraser
-contact bit is set.
+The button numbering of the 2nd-gen Intuos Pro is not consistent between
+the USB and Bluetooth interfaces. Over USB, the HID_GENERIC codepath
+enumerates the eight ExpressKeys first (BTN_0 - BTN_7) followed by the
+center modeswitch button (BTN_8). The Bluetooth codepath, however, has
+the center modeswitch button as BTN_0 and the the eight ExpressKeys as
+BTN_1 - BTN_8. To ensure userspace button mappings do not change
+depending on how the tablet is connected, modify the Bluetooth codepath
+to report buttons in the same order as USB.
 
+To ensure the mode switch LED continues to toggle in response to the
+mode switch button, the `wacom_is_led_toggled` function also requires
+a small update.
+
+Link: https://github.com/linuxwacom/input-wacom/pull/79
 Fixes: 4922cd26f03c ("HID: wacom: Support 2nd-gen Intuos Pro's Bluetooth classic interface")
 Cc: <stable@vger.kernel.org> # 4.11+
 Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
@@ -63,19 +70,43 @@ Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/hid/wacom_wac.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/wacom_wac.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
 --- a/drivers/hid/wacom_wac.c
 +++ b/drivers/hid/wacom_wac.c
-@@ -1301,7 +1301,7 @@ static void wacom_intuos_pro2_bt_pen(str
- 						 range ? frame[7] : wacom->features.distance_max);
- 			}
+@@ -1383,7 +1383,7 @@ static void wacom_intuos_pro2_bt_pad(str
+ 	struct input_dev *pad_input = wacom->pad_input;
+ 	unsigned char *data = wacom->data;
  
--			input_report_key(pen_input, BTN_TOUCH, frame[0] & 0x01);
-+			input_report_key(pen_input, BTN_TOUCH, frame[0] & 0x09);
- 			input_report_key(pen_input, BTN_STYLUS, frame[0] & 0x02);
- 			input_report_key(pen_input, BTN_STYLUS2, frame[0] & 0x04);
+-	int buttons = (data[282] << 1) | ((data[281] >> 6) & 0x01);
++	int buttons = data[282] | ((data[281] & 0x40) << 2);
+ 	int ring = data[285] & 0x7F;
+ 	bool ringstatus = data[285] & 0x80;
+ 	bool prox = buttons || ringstatus;
+@@ -3832,7 +3832,7 @@ static void wacom_24hd_update_leds(struc
+ static bool wacom_is_led_toggled(struct wacom *wacom, int button_count,
+ 				 int mask, int group)
+ {
+-	int button_per_group;
++	int group_button;
  
+ 	/*
+ 	 * 21UX2 has LED group 1 to the left and LED group 0
+@@ -3842,9 +3842,12 @@ static bool wacom_is_led_toggled(struct
+ 	if (wacom->wacom_wac.features.type == WACOM_21UX2)
+ 		group = 1 - group;
+ 
+-	button_per_group = button_count/wacom->led.count;
++	group_button = group * (button_count/wacom->led.count);
+ 
+-	return mask & (1 << (group * button_per_group));
++	if (wacom->wacom_wac.features.type == INTUOSP2_BT)
++		group_button = 8;
++
++	return mask & (1 << group_button);
+ }
+ 
+ static void wacom_update_led(struct wacom *wacom, int button_count, int mask,
 
 
