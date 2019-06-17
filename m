@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E16A4937E
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:31:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DC3B493A6
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:32:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728934AbfFQVbM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:31:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56328 "EHLO mail.kernel.org"
+        id S1729646AbfFQV1O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:27:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54078 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730129AbfFQV3J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:29:09 -0400
+        id S1730020AbfFQV1L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:27:11 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 7CA39204FD;
-        Mon, 17 Jun 2019 21:29:08 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 8331E20673;
+        Mon, 17 Jun 2019 21:27:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806949;
-        bh=eoircKri8yZq6TBBlqggoJktGga+3JD24JCOXyw7Q5Y=;
+        s=default; t=1560806831;
+        bh=DVGuKqqoeaNYdJr7IUL6NDCwqpGr5Pq/T3n4rVcY34Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cJSYzBz+F7zIYIT6azmVS+fz2gndgzvgsPudy8yurAfg6uKo3+JR8sZK8eR4PpAqQ
-         4M+7XeecaowjRuAyTMBg/n7ySjkgOzfnlhePu9JWQPw18zA0uaWq9f9ptSv69FDJsG
-         TpPA0J/ytwkCg/3kYuADWJLTWPHMnAAH2Dd/Lw4s=
+        b=uQoY7v5MVPw9vZ5y59EKlDzCCZN0TVs68jtIbJVYOk1A04L8RwWvM0mxCQ7XgD0Bd
+         kRbmrA9l1Q3UQ7c+hVdIBko6QAxB6Er1Bl1CjKWsofUN+YnozRJjBNb6mONtwargB0
+         t7UNvFg8QizxdHTv0LB3S16pgFJO1GR1z5Z8Dj/A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Zweigle <Oliver.Zweigle@faro.com>,
-        Bernd Eckstein <3ernd.Eckstein@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 38/53] usbnet: ipheth: fix racing condition
+        stable@vger.kernel.org,
+        "Kirill A. Shutemov" <kirill@shutemov.name>,
+        Andrey Ryabinin <aryabinin@virtuozzo.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Borislav Petkov <bp@alien8.de>,
+        "H. Peter Anvin" <hpa@zytor.com>,
+        Alexander Potapenko <glider@google.com>,
+        Dmitry Vyukov <dvyukov@google.com>, kasan-dev@googlegroups.com
+Subject: [PATCH 4.19 70/75] x86/kasan: Fix boot with 5-level paging and KASAN
 Date:   Mon, 17 Jun 2019 23:10:21 +0200
-Message-Id: <20190617210751.822790637@linuxfoundation.org>
+Message-Id: <20190617210755.943656383@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190617210745.104187490@linuxfoundation.org>
-References: <20190617210745.104187490@linuxfoundation.org>
+In-Reply-To: <20190617210752.799453599@linuxfoundation.org>
+References: <20190617210752.799453599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,62 +49,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 94d250fae48e6f873d8362308f5c4d02cd1b1fd2 ]
+From: Andrey Ryabinin <aryabinin@virtuozzo.com>
 
-Fix a racing condition in ipheth.c that can lead to slow performance.
+commit f3176ec9420de0c385023afa3e4970129444ac2f upstream.
 
-Bug: In ipheth_tx(), netif_wake_queue() may be called on the callback
-ipheth_sndbulk_callback(), _before_ netif_stop_queue() is called.
-When this happens, the queue is stopped longer than it needs to be,
-thus reducing network performance.
+Since commit d52888aa2753 ("x86/mm: Move LDT remap out of KASLR region on
+5-level paging") kernel doesn't boot with KASAN on 5-level paging machines.
+The bug is actually in early_p4d_offset() and introduced by commit
+12a8cc7fcf54 ("x86/kasan: Use the same shadow offset for 4- and 5-level paging")
 
-Fix: Move netif_stop_queue() in front of usb_submit_urb(). Now the order
-is always correct. In case, usb_submit_urb() fails, the queue is woken up
-again as callback will not fire.
+early_p4d_offset() tries to convert pgd_val(*pgd) value to a physical
+address. This doesn't make sense because pgd_val() already contains the
+physical address.
 
-Testing: This racing condition is usually not noticeable, as it has to
-occur very frequently to slowdown the network. The callback from the USB
-is usually triggered slow enough, so the situation does not appear.
-However, on a Ubuntu Linux on VMWare Workstation, running on Windows 10,
-the we loose the race quite often and the following speedup can be noticed:
+It did work prior to commit d52888aa2753 because the result of
+"__pa_nodebug(pgd_val(*pgd)) & PTE_PFN_MASK" was the same as "pgd_val(*pgd)
+& PTE_PFN_MASK". __pa_nodebug() just set some high bits which were masked
+out by applying PTE_PFN_MASK.
 
-Without this patch: Download:  4.10 Mbit/s, Upload:  4.01 Mbit/s
-With this patch:    Download: 36.23 Mbit/s, Upload: 17.61 Mbit/s
+After the change of the PAGE_OFFSET offset in commit d52888aa2753
+__pa_nodebug(pgd_val(*pgd)) started to return a value with more high bits
+set and PTE_PFN_MASK wasn't enough to mask out all of them. So it returns a
+wrong not even canonical address and crashes on the attempt to dereference
+it.
 
-Signed-off-by: Oliver Zweigle <Oliver.Zweigle@faro.com>
-Signed-off-by: Bernd Eckstein <3ernd.Eckstein@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Switch back to pgd_val() & PTE_PFN_MASK to cure the issue.
+
+Fixes: 12a8cc7fcf54 ("x86/kasan: Use the same shadow offset for 4- and 5-level paging")
+Reported-by: Kirill A. Shutemov <kirill@shutemov.name>
+Signed-off-by: Andrey Ryabinin <aryabinin@virtuozzo.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: Alexander Potapenko <glider@google.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: kasan-dev@googlegroups.com
+Cc: stable@vger.kernel.org
+Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20190614143149.2227-1-aryabinin@virtuozzo.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/net/usb/ipheth.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/x86/mm/kasan_init_64.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/usb/ipheth.c b/drivers/net/usb/ipheth.c
-index 3d8a70d3ea9b..3d71f1716390 100644
---- a/drivers/net/usb/ipheth.c
-+++ b/drivers/net/usb/ipheth.c
-@@ -437,17 +437,18 @@ static int ipheth_tx(struct sk_buff *skb, struct net_device *net)
- 			  dev);
- 	dev->tx_urb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;
+--- a/arch/x86/mm/kasan_init_64.c
++++ b/arch/x86/mm/kasan_init_64.c
+@@ -198,7 +198,7 @@ static inline p4d_t *early_p4d_offset(pg
+ 	if (!pgtable_l5_enabled())
+ 		return (p4d_t *)pgd;
  
-+	netif_stop_queue(net);
- 	retval = usb_submit_urb(dev->tx_urb, GFP_ATOMIC);
- 	if (retval) {
- 		dev_err(&dev->intf->dev, "%s: usb_submit_urb: %d\n",
- 			__func__, retval);
- 		dev->net->stats.tx_errors++;
- 		dev_kfree_skb_any(skb);
-+		netif_wake_queue(net);
- 	} else {
- 		dev->net->stats.tx_packets++;
- 		dev->net->stats.tx_bytes += skb->len;
- 		dev_consume_skb_any(skb);
--		netif_stop_queue(net);
- 	}
- 
- 	return NETDEV_TX_OK;
--- 
-2.20.1
-
+-	p4d = __pa_nodebug(pgd_val(*pgd)) & PTE_PFN_MASK;
++	p4d = pgd_val(*pgd) & PTE_PFN_MASK;
+ 	p4d += __START_KERNEL_map - phys_base;
+ 	return (p4d_t *)p4d + p4d_index(addr);
+ }
 
 
