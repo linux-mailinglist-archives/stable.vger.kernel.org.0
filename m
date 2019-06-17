@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 8211D4929D
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:22:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 436DE493AF
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:33:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729448AbfFQVWA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:22:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46540 "EHLO mail.kernel.org"
+        id S1730294AbfFQV0w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:26:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729446AbfFQVV7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:21:59 -0400
+        id S1730279AbfFQV0v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:26:51 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id E1F5C20652;
-        Mon, 17 Jun 2019 21:21:58 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 5FBAA20673;
+        Mon, 17 Jun 2019 21:26:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806519;
-        bh=oiaXuwdwqq/GHNRR2Kmron3M687TpMIX5+ylb2xkcXY=;
+        s=default; t=1560806810;
+        bh=gwdxi5AAuoYgp387IoGFEKVh/fyMbDmAvT1oM3iYpVg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D5FkdBUUazlJ4ozwMyo9QjQ2lFvaLCEFWIeLT9fD8G6Vx+WunqK9gwiel6nyMJvug
-         hbmZHwO0L3V+36xl9iHnCE14m/60mBvkeB3l9IKQifd0I+EjuqIno6mnDvXt593XZ2
-         CLt6+9hgxnu20/J6fE8EM54MsdoGVYpW5IV3IdMg=
+        b=px31JVjqlYRBkNLL3Fv5O+gpg65f5TVg7pKTYQyY1b6sKaeSYAbgjafgPZz9WbF24
+         w5JqZ9xkZsBQLrPcxiP5ZxQ4oCLAu3foVUXTYIfzRiVZNFTP7UJm23Om4SRsCPQCvk
+         3CyRLvNtz06y+6ug835Zqtpk06YixvQIMpdyPApM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vincent Bernat <vincent@bernat.ch>,
-        Tom Zanussi <tom.zanussi@linux.intel.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 079/115] tracing: Prevent hist_field_var_ref() from accessing NULL tracing_map_elts
+        stable@vger.kernel.org,
+        syzbot+e4c8abb920efa77bace9@syzkaller.appspotmail.com,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 28/75] ALSA: seq: Protect in-kernel ioctl calls with mutex
 Date:   Mon, 17 Jun 2019 23:09:39 +0200
-Message-Id: <20190617210804.026342755@linuxfoundation.org>
+Message-Id: <20190617210753.921547314@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190617210759.929316339@linuxfoundation.org>
-References: <20190617210759.929316339@linuxfoundation.org>
+In-Reply-To: <20190617210752.799453599@linuxfoundation.org>
+References: <20190617210752.799453599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,47 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 55267c88c003a3648567beae7c90512d3e2ab15e ]
+[ Upstream commit feb689025fbb6f0aa6297d3ddf97de945ea4ad32 ]
 
-hist_field_var_ref() is an implementation of hist_field_fn_t(), which
-can be called with a null tracing_map_elt elt param when assembling a
-key in event_hist_trigger().
+ALSA OSS sequencer calls the ioctl function indirectly via
+snd_seq_kernel_client_ctl().  While we already applied the protection
+against races between the normal ioctls and writes via the client's
+ioctl_mutex, this code path was left untouched.  And this seems to be
+the cause of still remaining some rare UAF as spontaneously triggered
+by syzkaller.
 
-In the case of hist_field_var_ref() this doesn't make sense, because a
-variable can only be resolved by looking it up using an already
-assembled key i.e. a variable can't be used to assemble a key since
-the key is required in order to access the variable.
+For the sake of robustness, wrap the ioctl_mutex also for the call via
+snd_seq_kernel_client_ctl(), too.
 
-Upper layers should prevent the user from constructing a key using a
-variable in the first place, but in case one slips through, it
-shouldn't cause a NULL pointer dereference.  Also if one does slip
-through, we want to know about it, so emit a one-time warning in that
-case.
-
-Link: http://lkml.kernel.org/r/64ec8dc15c14d305295b64cdfcc6b2b9dd14753f.1555597045.git.tom.zanussi@linux.intel.com
-
-Reported-by: Vincent Bernat <vincent@bernat.ch>
-Signed-off-by: Tom Zanussi <tom.zanussi@linux.intel.com>
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Reported-by: syzbot+e4c8abb920efa77bace9@syzkaller.appspotmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace_events_hist.c | 3 +++
- 1 file changed, 3 insertions(+)
+ sound/core/seq/seq_clientmgr.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/trace/trace_events_hist.c b/kernel/trace/trace_events_hist.c
-index 0a200d42fa96..f50d57eac875 100644
---- a/kernel/trace/trace_events_hist.c
-+++ b/kernel/trace/trace_events_hist.c
-@@ -1815,6 +1815,9 @@ static u64 hist_field_var_ref(struct hist_field *hist_field,
- 	struct hist_elt_data *elt_data;
- 	u64 var_val = 0;
+diff --git a/sound/core/seq/seq_clientmgr.c b/sound/core/seq/seq_clientmgr.c
+index b55cb96d1fed..40ae8f67efde 100644
+--- a/sound/core/seq/seq_clientmgr.c
++++ b/sound/core/seq/seq_clientmgr.c
+@@ -2343,14 +2343,19 @@ int snd_seq_kernel_client_ctl(int clientid, unsigned int cmd, void *arg)
+ {
+ 	const struct ioctl_handler *handler;
+ 	struct snd_seq_client *client;
++	int err;
  
-+	if (WARN_ON_ONCE(!elt))
-+		return var_val;
-+
- 	elt_data = elt->private_data;
- 	var_val = elt_data->var_ref_vals[hist_field->var_ref_idx];
+ 	client = clientptr(clientid);
+ 	if (client == NULL)
+ 		return -ENXIO;
  
+ 	for (handler = ioctl_handlers; handler->cmd > 0; ++handler) {
+-		if (handler->cmd == cmd)
+-			return handler->func(client, arg);
++		if (handler->cmd == cmd) {
++			mutex_lock(&client->ioctl_mutex);
++			err = handler->func(client, arg);
++			mutex_unlock(&client->ioctl_mutex);
++			return err;
++		}
+ 	}
+ 
+ 	pr_debug("ALSA: seq unknown ioctl() 0x%x (type='%c', number=0x%02x)\n",
 -- 
 2.20.1
 
