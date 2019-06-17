@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id D861C49279
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:20:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42D8E493F5
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:34:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728478AbfFQVUh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:20:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44882 "EHLO mail.kernel.org"
+        id S1729488AbfFQVYI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:24:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1729157AbfFQVUg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:20:36 -0400
+        id S1729849AbfFQVYH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:24:07 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id EA2B020861;
-        Mon, 17 Jun 2019 21:20:34 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id BF0182063F;
+        Mon, 17 Jun 2019 21:24:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806435;
-        bh=HCezjMQjWUHojgI7GRlZ24BxBV9CBvXrMfU/Ay8TccQ=;
+        s=default; t=1560806646;
+        bh=1c+o3/7V0O751Ht5MWn9iPWJGyCBzUlkNbK9RaDe2H8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rFPa+wyC3jJ0bjG0aAEgbBfOLtgpCS9cstDrDDyekjAl54j+SPTFVc2SIovNFHLo+
-         g0A3LwrhkwDWcFzduIM0OQOwQA63ZJqHLU8o8jrVIJiMMSLVDBpaiF7MUIvkVAuB/t
-         4t+gZ6o9SpKH6FOqX0FzP0fL4RNDG8xnkHBURdkI=
+        b=zl+vA9bebhDW1ybBurKXUlooj/giXKsGI2DlaftExi4P8xxdB/R5KxZR4s9a/CS6o
+         B/VH0P77dlKWvLeZF/674sK6V36fee1vGreDvZUArOTGhYO7PwGAVd47FFiEEElUED
+         uDX6hAXb7EG8+AY9PZLscHz/Y5CtWcWaSZ0w0sRY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Quinn Tran <qutran@marvell.com>,
-        Himanshu Madhani <hmadhani@marvell.com>,
-        "Ewan D. Milne" <emilne@redhat.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 052/115] scsi: qla2xxx: Add cleanup for PCI EEH recovery
+        stable@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Dave Airlie <airlied@redhat.com>
+Subject: [PATCH 4.19 01/75] drm/nouveau: add kconfig option to turn off nouveau legacy contexts. (v3)
 Date:   Mon, 17 Jun 2019 23:09:12 +0200
-Message-Id: <20190617210803.104970120@linuxfoundation.org>
+Message-Id: <20190617210752.863086389@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190617210759.929316339@linuxfoundation.org>
-References: <20190617210759.929316339@linuxfoundation.org>
+In-Reply-To: <20190617210752.799453599@linuxfoundation.org>
+References: <20190617210752.799453599@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,304 +45,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 5386a4e6c7fecd282d265a24d930a74ba3c5917b ]
+From: Dave Airlie <airlied@redhat.com>
 
-During EEH error recovery testing it was discovered that driver's reset()
-callback partially frees resources used by driver, leaving some stale
-memory.  After reset() is done and when resume() callback in driver uses
-old data which results into error leaving adapter disabled due to PCIe
-error.
+commit b30a43ac7132cdda833ac4b13dd1ebd35ace14b7 upstream.
 
-This patch does cleanup for EEH recovery code path and prevents adapter
-from getting disabled.
+There was a nouveau DDX that relied on legacy context ioctls to work,
+but we fixed it years ago, give distros that have a modern DDX the
+option to break the uAPI and close the mess of holes that legacy
+context support is.
 
-Signed-off-by: Quinn Tran <qutran@marvell.com>
-Signed-off-by: Himanshu Madhani <hmadhani@marvell.com>
-Reviewed-by: Ewan D. Milne <emilne@redhat.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Full context of the story:
+
+commit 0e975980d435d58df2d430d688b8c18778b42218
+Author: Peter Antoine <peter.antoine@intel.com>
+Date:   Tue Jun 23 08:18:49 2015 +0100
+
+    drm: Turn off Legacy Context Functions
+
+    The context functions are not used by the i915 driver and should not
+    be used by modeset drivers. These driver functions contain several bugs
+    and security holes. This change makes these functions optional can be
+    turned on by a setting, they are turned off by default for modeset
+    driver with the exception of the nouvea driver that may require them with
+    an old version of libdrm.
+
+    The previous attempt was
+
+    commit 7c510133d93dd6f15ca040733ba7b2891ed61fd1
+    Author: Daniel Vetter <daniel.vetter@ffwll.ch>
+    Date:   Thu Aug 8 15:41:21 2013 +0200
+
+        drm: mark context support as a legacy subsystem
+
+    but this had to be reverted
+
+    commit c21eb21cb50d58e7cbdcb8b9e7ff68b85cfa5095
+    Author: Dave Airlie <airlied@redhat.com>
+    Date:   Fri Sep 20 08:32:59 2013 +1000
+
+        Revert "drm: mark context support as a legacy subsystem"
+
+    v2: remove returns from void function, and formatting (Daniel Vetter)
+
+    v3:
+    - s/Nova/nouveau/ in the commit message, and add references to the
+      previous attempts
+    - drop the part touching the drm hw lock, that should be a separate
+      patch.
+
+    Signed-off-by: Peter Antoine <peter.antoine@intel.com> (v2)
+    Cc: Peter Antoine <peter.antoine@intel.com> (v2)
+    Reviewed-by: Peter Antoine <peter.antoine@intel.com>
+    Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+
+v2: move DRM_VM dependency into legacy config.
+v3: fix missing dep (kbuild robot)
+
+Cc: stable@vger.kernel.org
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Signed-off-by: Dave Airlie <airlied@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/scsi/qla2xxx/qla_os.c | 221 +++++++++++++---------------------
- 1 file changed, 82 insertions(+), 139 deletions(-)
+ drivers/gpu/drm/nouveau/Kconfig       |   13 ++++++++++++-
+ drivers/gpu/drm/nouveau/nouveau_drm.c |    7 +++++--
+ 2 files changed, 17 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_os.c b/drivers/scsi/qla2xxx/qla_os.c
-index 91f576d743fe..d377e50a6c19 100644
---- a/drivers/scsi/qla2xxx/qla_os.c
-+++ b/drivers/scsi/qla2xxx/qla_os.c
-@@ -6838,6 +6838,78 @@ qla2x00_release_firmware(void)
- 	mutex_unlock(&qla_fw_lock);
- }
+--- a/drivers/gpu/drm/nouveau/Kconfig
++++ b/drivers/gpu/drm/nouveau/Kconfig
+@@ -16,10 +16,21 @@ config DRM_NOUVEAU
+ 	select INPUT if ACPI && X86
+ 	select THERMAL if ACPI && X86
+ 	select ACPI_VIDEO if ACPI && X86
+-	select DRM_VM
+ 	help
+ 	  Choose this option for open-source NVIDIA support.
  
-+static void qla_pci_error_cleanup(scsi_qla_host_t *vha)
-+{
-+	struct qla_hw_data *ha = vha->hw;
-+	scsi_qla_host_t *base_vha = pci_get_drvdata(ha->pdev);
-+	struct qla_qpair *qpair = NULL;
-+	struct scsi_qla_host *vp;
-+	fc_port_t *fcport;
-+	int i;
-+	unsigned long flags;
++config NOUVEAU_LEGACY_CTX_SUPPORT
++	bool "Nouveau legacy context support"
++	depends on DRM_NOUVEAU
++	select DRM_VM
++	default y
++	help
++	  There was a version of the nouveau DDX that relied on legacy
++	  ctx ioctls not erroring out. But that was back in time a long
++	  ways, so offer a way to disable it now. For uapi compat with
++	  old nouveau ddx this should be on by default, but modern distros
++	  should consider turning it off.
 +
-+	ha->chip_reset++;
-+
-+	ha->base_qpair->chip_reset = ha->chip_reset;
-+	for (i = 0; i < ha->max_qpairs; i++) {
-+		if (ha->queue_pair_map[i])
-+			ha->queue_pair_map[i]->chip_reset =
-+			    ha->base_qpair->chip_reset;
-+	}
-+
-+	/* purge MBox commands */
-+	if (atomic_read(&ha->num_pend_mbx_stage3)) {
-+		clear_bit(MBX_INTR_WAIT, &ha->mbx_cmd_flags);
-+		complete(&ha->mbx_intr_comp);
-+	}
-+
-+	i = 0;
-+
-+	while (atomic_read(&ha->num_pend_mbx_stage3) ||
-+	    atomic_read(&ha->num_pend_mbx_stage2) ||
-+	    atomic_read(&ha->num_pend_mbx_stage1)) {
-+		msleep(20);
-+		i++;
-+		if (i > 50)
-+			break;
-+	}
-+
-+	ha->flags.purge_mbox = 0;
-+
-+	mutex_lock(&ha->mq_lock);
-+	list_for_each_entry(qpair, &base_vha->qp_list, qp_list_elem)
-+		qpair->online = 0;
-+	mutex_unlock(&ha->mq_lock);
-+
-+	qla2x00_mark_all_devices_lost(vha, 0);
-+
-+	spin_lock_irqsave(&ha->vport_slock, flags);
-+	list_for_each_entry(vp, &ha->vp_list, list) {
-+		atomic_inc(&vp->vref_count);
-+		spin_unlock_irqrestore(&ha->vport_slock, flags);
-+		qla2x00_mark_all_devices_lost(vp, 0);
-+		spin_lock_irqsave(&ha->vport_slock, flags);
-+		atomic_dec(&vp->vref_count);
-+	}
-+	spin_unlock_irqrestore(&ha->vport_slock, flags);
-+
-+	/* Clear all async request states across all VPs. */
-+	list_for_each_entry(fcport, &vha->vp_fcports, list)
-+		fcport->flags &= ~(FCF_LOGIN_NEEDED | FCF_ASYNC_SENT);
-+
-+	spin_lock_irqsave(&ha->vport_slock, flags);
-+	list_for_each_entry(vp, &ha->vp_list, list) {
-+		atomic_inc(&vp->vref_count);
-+		spin_unlock_irqrestore(&ha->vport_slock, flags);
-+		list_for_each_entry(fcport, &vp->vp_fcports, list)
-+			fcport->flags &= ~(FCF_LOGIN_NEEDED | FCF_ASYNC_SENT);
-+		spin_lock_irqsave(&ha->vport_slock, flags);
-+		atomic_dec(&vp->vref_count);
-+	}
-+	spin_unlock_irqrestore(&ha->vport_slock, flags);
-+}
-+
-+
- static pci_ers_result_t
- qla2xxx_pci_error_detected(struct pci_dev *pdev, pci_channel_state_t state)
- {
-@@ -6863,20 +6935,7 @@ qla2xxx_pci_error_detected(struct pci_dev *pdev, pci_channel_state_t state)
- 		return PCI_ERS_RESULT_CAN_RECOVER;
- 	case pci_channel_io_frozen:
- 		ha->flags.eeh_busy = 1;
--		/* For ISP82XX complete any pending mailbox cmd */
--		if (IS_QLA82XX(ha)) {
--			ha->flags.isp82xx_fw_hung = 1;
--			ql_dbg(ql_dbg_aer, vha, 0x9001, "Pci channel io frozen\n");
--			qla82xx_clear_pending_mbx(vha);
--		}
--		qla2x00_free_irqs(vha);
--		pci_disable_device(pdev);
--		/* Return back all IOs */
--		qla2x00_abort_all_cmds(vha, DID_RESET << 16);
--		if (ql2xmqsupport || ql2xnvmeenable) {
--			set_bit(QPAIR_ONLINE_CHECK_NEEDED, &vha->dpc_flags);
--			qla2xxx_wake_dpc(vha);
--		}
-+		qla_pci_error_cleanup(vha);
- 		return PCI_ERS_RESULT_NEED_RESET;
- 	case pci_channel_io_perm_failure:
- 		ha->flags.pci_channel_io_perm_failure = 1;
-@@ -6930,122 +6989,14 @@ qla2xxx_pci_mmio_enabled(struct pci_dev *pdev)
- 		return PCI_ERS_RESULT_RECOVERED;
- }
+ config NOUVEAU_PLATFORM_DRIVER
+ 	bool "Nouveau (NVIDIA) SoC GPUs"
+ 	depends on DRM_NOUVEAU && ARCH_TEGRA
+--- a/drivers/gpu/drm/nouveau/nouveau_drm.c
++++ b/drivers/gpu/drm/nouveau/nouveau_drm.c
+@@ -1015,8 +1015,11 @@ nouveau_driver_fops = {
+ static struct drm_driver
+ driver_stub = {
+ 	.driver_features =
+-		DRIVER_GEM | DRIVER_MODESET | DRIVER_PRIME | DRIVER_RENDER |
+-		DRIVER_KMS_LEGACY_CONTEXT,
++		DRIVER_GEM | DRIVER_MODESET | DRIVER_PRIME | DRIVER_RENDER
++#if defined(CONFIG_NOUVEAU_LEGACY_CTX_SUPPORT)
++		| DRIVER_KMS_LEGACY_CONTEXT
++#endif
++		,
  
--static uint32_t
--qla82xx_error_recovery(scsi_qla_host_t *base_vha)
--{
--	uint32_t rval = QLA_FUNCTION_FAILED;
--	uint32_t drv_active = 0;
--	struct qla_hw_data *ha = base_vha->hw;
--	int fn;
--	struct pci_dev *other_pdev = NULL;
--
--	ql_dbg(ql_dbg_aer, base_vha, 0x9006,
--	    "Entered %s.\n", __func__);
--
--	set_bit(ABORT_ISP_ACTIVE, &base_vha->dpc_flags);
--
--	if (base_vha->flags.online) {
--		/* Abort all outstanding commands,
--		 * so as to be requeued later */
--		qla2x00_abort_isp_cleanup(base_vha);
--	}
--
--
--	fn = PCI_FUNC(ha->pdev->devfn);
--	while (fn > 0) {
--		fn--;
--		ql_dbg(ql_dbg_aer, base_vha, 0x9007,
--		    "Finding pci device at function = 0x%x.\n", fn);
--		other_pdev =
--		    pci_get_domain_bus_and_slot(pci_domain_nr(ha->pdev->bus),
--		    ha->pdev->bus->number, PCI_DEVFN(PCI_SLOT(ha->pdev->devfn),
--		    fn));
--
--		if (!other_pdev)
--			continue;
--		if (atomic_read(&other_pdev->enable_cnt)) {
--			ql_dbg(ql_dbg_aer, base_vha, 0x9008,
--			    "Found PCI func available and enable at 0x%x.\n",
--			    fn);
--			pci_dev_put(other_pdev);
--			break;
--		}
--		pci_dev_put(other_pdev);
--	}
--
--	if (!fn) {
--		/* Reset owner */
--		ql_dbg(ql_dbg_aer, base_vha, 0x9009,
--		    "This devfn is reset owner = 0x%x.\n",
--		    ha->pdev->devfn);
--		qla82xx_idc_lock(ha);
--
--		qla82xx_wr_32(ha, QLA82XX_CRB_DEV_STATE,
--		    QLA8XXX_DEV_INITIALIZING);
--
--		qla82xx_wr_32(ha, QLA82XX_CRB_DRV_IDC_VERSION,
--		    QLA82XX_IDC_VERSION);
--
--		drv_active = qla82xx_rd_32(ha, QLA82XX_CRB_DRV_ACTIVE);
--		ql_dbg(ql_dbg_aer, base_vha, 0x900a,
--		    "drv_active = 0x%x.\n", drv_active);
--
--		qla82xx_idc_unlock(ha);
--		/* Reset if device is not already reset
--		 * drv_active would be 0 if a reset has already been done
--		 */
--		if (drv_active)
--			rval = qla82xx_start_firmware(base_vha);
--		else
--			rval = QLA_SUCCESS;
--		qla82xx_idc_lock(ha);
--
--		if (rval != QLA_SUCCESS) {
--			ql_log(ql_log_info, base_vha, 0x900b,
--			    "HW State: FAILED.\n");
--			qla82xx_clear_drv_active(ha);
--			qla82xx_wr_32(ha, QLA82XX_CRB_DEV_STATE,
--			    QLA8XXX_DEV_FAILED);
--		} else {
--			ql_log(ql_log_info, base_vha, 0x900c,
--			    "HW State: READY.\n");
--			qla82xx_wr_32(ha, QLA82XX_CRB_DEV_STATE,
--			    QLA8XXX_DEV_READY);
--			qla82xx_idc_unlock(ha);
--			ha->flags.isp82xx_fw_hung = 0;
--			rval = qla82xx_restart_isp(base_vha);
--			qla82xx_idc_lock(ha);
--			/* Clear driver state register */
--			qla82xx_wr_32(ha, QLA82XX_CRB_DRV_STATE, 0);
--			qla82xx_set_drv_active(base_vha);
--		}
--		qla82xx_idc_unlock(ha);
--	} else {
--		ql_dbg(ql_dbg_aer, base_vha, 0x900d,
--		    "This devfn is not reset owner = 0x%x.\n",
--		    ha->pdev->devfn);
--		if ((qla82xx_rd_32(ha, QLA82XX_CRB_DEV_STATE) ==
--		    QLA8XXX_DEV_READY)) {
--			ha->flags.isp82xx_fw_hung = 0;
--			rval = qla82xx_restart_isp(base_vha);
--			qla82xx_idc_lock(ha);
--			qla82xx_set_drv_active(base_vha);
--			qla82xx_idc_unlock(ha);
--		}
--	}
--	clear_bit(ABORT_ISP_ACTIVE, &base_vha->dpc_flags);
--
--	return rval;
--}
--
- static pci_ers_result_t
- qla2xxx_pci_slot_reset(struct pci_dev *pdev)
- {
- 	pci_ers_result_t ret = PCI_ERS_RESULT_DISCONNECT;
- 	scsi_qla_host_t *base_vha = pci_get_drvdata(pdev);
- 	struct qla_hw_data *ha = base_vha->hw;
--	struct rsp_que *rsp;
--	int rc, retries = 10;
-+	int rc;
-+	struct qla_qpair *qpair = NULL;
- 
- 	ql_dbg(ql_dbg_aer, base_vha, 0x9004,
- 	    "Slot Reset.\n");
-@@ -7074,24 +7025,16 @@ qla2xxx_pci_slot_reset(struct pci_dev *pdev)
- 		goto exit_slot_reset;
- 	}
- 
--	rsp = ha->rsp_q_map[0];
--	if (qla2x00_request_irqs(ha, rsp))
--		goto exit_slot_reset;
- 
- 	if (ha->isp_ops->pci_config(base_vha))
- 		goto exit_slot_reset;
- 
--	if (IS_QLA82XX(ha)) {
--		if (qla82xx_error_recovery(base_vha) == QLA_SUCCESS) {
--			ret = PCI_ERS_RESULT_RECOVERED;
--			goto exit_slot_reset;
--		} else
--			goto exit_slot_reset;
--	}
--
--	while (ha->flags.mbox_busy && retries--)
--		msleep(1000);
-+	mutex_lock(&ha->mq_lock);
-+	list_for_each_entry(qpair, &base_vha->qp_list, qp_list_elem)
-+		qpair->online = 1;
-+	mutex_unlock(&ha->mq_lock);
- 
-+	base_vha->flags.online = 1;
- 	set_bit(ABORT_ISP_ACTIVE, &base_vha->dpc_flags);
- 	if (ha->isp_ops->abort_isp(base_vha) == QLA_SUCCESS)
- 		ret =  PCI_ERS_RESULT_RECOVERED;
-@@ -7115,13 +7058,13 @@ qla2xxx_pci_resume(struct pci_dev *pdev)
- 	ql_dbg(ql_dbg_aer, base_vha, 0x900f,
- 	    "pci_resume.\n");
- 
-+	ha->flags.eeh_busy = 0;
-+
- 	ret = qla2x00_wait_for_hba_online(base_vha);
- 	if (ret != QLA_SUCCESS) {
- 		ql_log(ql_log_fatal, base_vha, 0x9002,
- 		    "The device failed to resume I/O from slot/link_reset.\n");
- 	}
--
--	ha->flags.eeh_busy = 0;
- }
- 
- static void
--- 
-2.20.1
-
+ 	.load = nouveau_drm_load,
+ 	.unload = nouveau_drm_unload,
 
 
