@@ -2,65 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A3244776E
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 01:58:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 707A3477C4
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 03:47:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1727382AbfFPX6B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Jun 2019 19:58:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54646 "EHLO mail.kernel.org"
+        id S1727515AbfFQBrX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Jun 2019 21:47:23 -0400
+Received: from inva021.nxp.com ([92.121.34.21]:35748 "EHLO inva021.nxp.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727225AbfFPX6B (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 16 Jun 2019 19:58:01 -0400
-Received: from localhost (c-73-47-72-35.hsd1.nh.comcast.net [73.47.72.35])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 425F920818;
-        Sun, 16 Jun 2019 23:57:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560729480;
-        bh=cHNxvIRxlvAU4gIUpeSeC7yOO23JD08MUbqzWbKc62M=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=JbY6T0tYa7GS/QgTebatIMbUl7K0CPFFLZFIwZ09kxDqWdiIkh/2WuE2TO3KAarUm
-         Knlvim0KllnjmeRRY5LC0tRCJZ01K2FBBy1TQdgerh0IlgKiUM+KSRupGf5ef7qX6h
-         HQ00RtrORG7zqKdRjKH+JIvfovORnjY/QAW2DaOU=
-Date:   Sun, 16 Jun 2019 19:57:57 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Murray McAllister <murray.mcallister@gmail.com>
-Cc:     stable@vger.kernel.org, linux-graphics-maintainer@vmware.com,
-        thellstrom@vmware.com
-Subject: Re: [PATCH] Backport commit 5ed7f4b5eca1 ("drm/vmwgfx: integer
- underflow in vmw_cmd_dx_set_shader() leading to an invalid read") to
- linux-5.1-stable
-Message-ID: <20190616235757.GA2226@sasha-vm>
-References: <20190616055740.4055-1-murray.mcallister@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20190616055740.4055-1-murray.mcallister@gmail.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+        id S1727481AbfFQBrW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 16 Jun 2019 21:47:22 -0400
+Received: from inva021.nxp.com (localhost [127.0.0.1])
+        by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id F3651200B3A;
+        Mon, 17 Jun 2019 03:47:20 +0200 (CEST)
+Received: from invc005.ap-rdc01.nxp.com (invc005.ap-rdc01.nxp.com [165.114.16.14])
+        by inva021.eu-rdc02.nxp.com (Postfix) with ESMTP id 9BDA5200B38;
+        Mon, 17 Jun 2019 03:47:17 +0200 (CEST)
+Received: from localhost.localdomain (mega.ap.freescale.net [10.192.208.232])
+        by invc005.ap-rdc01.nxp.com (Postfix) with ESMTP id 87604402D6;
+        Mon, 17 Jun 2019 09:47:13 +0800 (SGT)
+From:   Peter Chen <peter.chen@nxp.com>
+To:     gregkh@linuxfoundation.org
+Cc:     linux-usb@vger.kernel.org, Peter Chen <peter.chen@nxp.com>,
+        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
+        Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>,
+        Jun Li <jun.li@nxp.com>
+Subject: [PATCH 1/1] usb: chipidea: udc: workaround for endpoint conflict issue
+Date:   Mon, 17 Jun 2019 09:49:07 +0800
+Message-Id: <20190617014907.9184-2-peter.chen@nxp.com>
+X-Mailer: git-send-email 2.17.1
+In-Reply-To: <20190617014907.9184-1-peter.chen@nxp.com>
+References: <20190617014907.9184-1-peter.chen@nxp.com>
+X-Virus-Scanned: ClamAV using ClamSMTP
 Sender: stable-owner@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Jun 16, 2019 at 05:57:40PM +1200, Murray McAllister wrote:
->Commit 5ed7f4b5eca1 ("drm/vmwgfx: integer underflow in
->vmw_cmd_dx_set_shader() leading to an invalid read") upstream.
->
->Commit 5ed7f4b5eca1 ("drm/vmwgfx: integer underflow in
->vmw_cmd_dx_set_shader() leading to an invalid read") resolved
->an integer underflow when SVGA_3D_CMD_DX_SET_SHADER was called
->with a shader ID of SVGA3D_INVALID_ID, and a shader type of
->SVGA3D_SHADERTYPE_INVALID.
->
->(The original patch failed to apply cleanly in 5.1-stable
->as VMW_DEBUG_USER does not exist here.)
+An endpoint conflict occurs when the USB is working in device mode
+during an isochronous communication. When the endpointA IN direction
+is an isochronous IN endpoint, and the host sends an IN token to
+endpointA on another device, then the OUT transaction may be missed
+regardless the OUT endpoint number. Generally, this occurs when the
+device is connected to the host through a hub and other devices are
+connected to the same hub.
 
-What about 4.19 and 4.14?
+The affected OUT endpoint can be either control, bulk, isochronous, or
+an interrupt endpoint. After the OUT endpoint is primed, if an IN token
+to the same endpoint number on another device is received, then the OUT
+endpoint may be unprimed (cannot be detected by software), which causes
+this endpoint to no longer respond to the host OUT token, and thus, no
+corresponding interrupt occurs.
 
-Also, don't modify the commit message/subject, just add your backporting
-notes to the original commit message.
+There is no good workaround for this issue, the only thing the software
+could do is numbering isochronous IN from the highest endpoint since we
+have observed most of device number endpoint from the lowest.
 
---
-Thanks,
-Sasha
+Cc: <stable@vger.kernel.org> #v3.14+
+Cc: Fabio Estevam <festevam@gmail.com>
+Cc: Greg KH <gregkh@linuxfoundation.org>
+Cc: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>
+Cc: Jun Li <jun.li@nxp.com>
+Signed-off-by: Peter Chen <peter.chen@nxp.com>
+---
+ drivers/usb/chipidea/udc.c | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
+
+diff --git a/drivers/usb/chipidea/udc.c b/drivers/usb/chipidea/udc.c
+index 829e947cabf5..6a5ee8e6da10 100644
+--- a/drivers/usb/chipidea/udc.c
++++ b/drivers/usb/chipidea/udc.c
+@@ -1622,6 +1622,25 @@ static int ci_udc_pullup(struct usb_gadget *_gadget, int is_on)
+ static int ci_udc_start(struct usb_gadget *gadget,
+ 			 struct usb_gadget_driver *driver);
+ static int ci_udc_stop(struct usb_gadget *gadget);
++
++/* Match ISOC IN from the highest endpoint */
++static struct usb_ep *ci_udc_match_ep(struct usb_gadget *gadget,
++			      struct usb_endpoint_descriptor *desc,
++			      struct usb_ss_ep_comp_descriptor *comp_desc)
++{
++	struct ci_hdrc *ci = container_of(gadget, struct ci_hdrc, gadget);
++	struct usb_ep *ep;
++
++	if (usb_endpoint_xfer_isoc(desc) && usb_endpoint_dir_in(desc)) {
++		list_for_each_entry_reverse(ep, &ci->gadget.ep_list, ep_list) {
++			if (ep->caps.dir_in && !ep->claimed)
++				return ep;
++		}
++	}
++
++	return NULL;
++}
++
+ /**
+  * Device operations part of the API to the USB controller hardware,
+  * which don't involve endpoints (or i/o)
+@@ -1635,6 +1654,7 @@ static const struct usb_gadget_ops usb_gadget_ops = {
+ 	.vbus_draw	= ci_udc_vbus_draw,
+ 	.udc_start	= ci_udc_start,
+ 	.udc_stop	= ci_udc_stop,
++	.match_ep 	= ci_udc_match_ep,
+ };
+ 
+ static int init_eps(struct ci_hdrc *ci)
+-- 
+2.14.1
+
