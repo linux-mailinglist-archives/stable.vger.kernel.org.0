@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 42C88493B8
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:33:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD53B493B7
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:33:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1730210AbfFQV0Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:26:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52990 "EHLO mail.kernel.org"
+        id S1729926AbfFQV03 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:26:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1730206AbfFQV0Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:26:25 -0400
+        id S1729266AbfFQV03 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:26:29 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0EC5E208E4;
-        Mon, 17 Jun 2019 21:26:23 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id A7C9020657;
+        Mon, 17 Jun 2019 21:26:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806784;
-        bh=PYGiTt8MpIDsZNgyoWFGVDQh32OC3KrOSb8YjtYAEOM=;
+        s=default; t=1560806788;
+        bh=oF9suLnqZQ9gBdYVunJ7VyARLD44xus73sHTu7hwBmc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nbRoq3KKjKe1ohyZhNJNAfzdWA5nnTi0n28szepM1hsJw0sNwFNq5EsFP12yAp/fS
-         4tY89aVFwEkLOMoUNH8dFUXVL8QUdsoN20yt+blIkh46WHkbGkquoTa6CO8Tz2Eb87
-         3mL21Ed6ohYoTqlryIKaF5tDttA46/PuwOlgjMbc=
+        b=SVPJp96qvLlYVRPsTneP7cPSR/odxIu+IYvCH9mDySrxDDf3Van85PxrXlsgWO6ro
+         xde3o5esY0BCoULQ1/ZdKs6B3xNsagaMvR9MxQ6nSNIErHdIFRoWRQTr+FLFQsGe9h
+         QRwQbqUjT5EJjFBtAzFz3dkN9ajtiKstWhbIfx48=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
+        stable@vger.kernel.org, Stefan Raspl <raspl@linux.ibm.com>,
         Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 55/75] KVM: s390: fix memory slot handling for KVM_SET_USER_MEMORY_REGION
-Date:   Mon, 17 Jun 2019 23:10:06 +0200
-Message-Id: <20190617210754.921362750@linuxfoundation.org>
+Subject: [PATCH 4.19 56/75] tools/kvm_stat: fix fields filter for child events
+Date:   Mon, 17 Jun 2019 23:10:07 +0200
+Message-Id: <20190617210754.977526241@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
 In-Reply-To: <20190617210752.799453599@linuxfoundation.org>
 References: <20190617210752.799453599@linuxfoundation.org>
@@ -45,67 +44,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 19ec166c3f39fe1d3789888a74cc95544ac266d4 ]
+[ Upstream commit 883d25e70b2f699fed9017e509d1ef8e36229b89 ]
 
-kselftests exposed a problem in the s390 handling for memory slots.
-Right now we only do proper memory slot handling for creation of new
-memory slots. Neither MOVE, nor DELETION are handled properly. Let us
-implement those.
+The fields filter would not work with child fields, as the respective
+parents would not be included. No parents displayed == no childs displayed.
+To reproduce, run on s390 (would work on other platforms, too, but would
+require a different filter name):
+- Run 'kvm_stat -d'
+- Press 'f'
+- Enter 'instruct'
+Notice that events like instruction_diag_44 or instruction_diag_500 are not
+displayed - the output remains empty.
+With this patch, we will filter by matching events and their parents.
+However, consider the following example where we filter by
+instruction_diag_44:
 
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+  kvm statistics - summary
+                   regex filter: instruction_diag_44
+   Event                                         Total %Total CurAvg/s
+   exit_instruction                                276  100.0       12
+     instruction_diag_44                           256   92.8       11
+   Total                                           276              12
+
+Note that the parent ('exit_instruction') displays the total events, but
+the childs listed do not match its total (256 instead of 276). This is
+intended (since we're filtering all but one child), but might be confusing
+on first sight.
+
+Signed-off-by: Stefan Raspl <raspl@linux.ibm.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kvm/kvm-s390.c | 35 +++++++++++++++++++++--------------
- 1 file changed, 21 insertions(+), 14 deletions(-)
+ tools/kvm/kvm_stat/kvm_stat     | 16 ++++++++++++----
+ tools/kvm/kvm_stat/kvm_stat.txt |  2 ++
+ 2 files changed, 14 insertions(+), 4 deletions(-)
 
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index f538e3fac7ad..fc7de27960e7 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -4156,21 +4156,28 @@ void kvm_arch_commit_memory_region(struct kvm *kvm,
- 				const struct kvm_memory_slot *new,
- 				enum kvm_mr_change change)
- {
--	int rc;
--
--	/* If the basics of the memslot do not change, we do not want
--	 * to update the gmap. Every update causes several unnecessary
--	 * segment translation exceptions. This is usually handled just
--	 * fine by the normal fault handler + gmap, but it will also
--	 * cause faults on the prefix page of running guest CPUs.
--	 */
--	if (old->userspace_addr == mem->userspace_addr &&
--	    old->base_gfn * PAGE_SIZE == mem->guest_phys_addr &&
--	    old->npages * PAGE_SIZE == mem->memory_size)
--		return;
-+	int rc = 0;
+diff --git a/tools/kvm/kvm_stat/kvm_stat b/tools/kvm/kvm_stat/kvm_stat
+index 195ba486640f..ba7ee74ee533 100755
+--- a/tools/kvm/kvm_stat/kvm_stat
++++ b/tools/kvm/kvm_stat/kvm_stat
+@@ -575,8 +575,12 @@ class TracepointProvider(Provider):
+     def update_fields(self, fields_filter):
+         """Refresh fields, applying fields_filter"""
+         self.fields = [field for field in self._get_available_fields()
+-                       if self.is_field_wanted(fields_filter, field) or
+-                       ARCH.tracepoint_is_child(field)]
++                       if self.is_field_wanted(fields_filter, field)]
++        # add parents for child fields - otherwise we won't see any output!
++        for field in self._fields:
++            parent = ARCH.tracepoint_is_child(field)
++            if (parent and parent not in self._fields):
++                self.fields.append(parent)
  
--	rc = gmap_map_segment(kvm->arch.gmap, mem->userspace_addr,
--		mem->guest_phys_addr, mem->memory_size);
-+	switch (change) {
-+	case KVM_MR_DELETE:
-+		rc = gmap_unmap_segment(kvm->arch.gmap, old->base_gfn * PAGE_SIZE,
-+					old->npages * PAGE_SIZE);
-+		break;
-+	case KVM_MR_MOVE:
-+		rc = gmap_unmap_segment(kvm->arch.gmap, old->base_gfn * PAGE_SIZE,
-+					old->npages * PAGE_SIZE);
-+		if (rc)
-+			break;
-+		/* FALLTHROUGH */
-+	case KVM_MR_CREATE:
-+		rc = gmap_map_segment(kvm->arch.gmap, mem->userspace_addr,
-+				      mem->guest_phys_addr, mem->memory_size);
-+		break;
-+	case KVM_MR_FLAGS_ONLY:
-+		break;
-+	default:
-+		WARN(1, "Unknown KVM MR CHANGE: %d\n", change);
-+	}
- 	if (rc)
- 		pr_warn("failed to commit memory region\n");
- 	return;
+     @staticmethod
+     def _get_online_cpus():
+@@ -735,8 +739,12 @@ class DebugfsProvider(Provider):
+     def update_fields(self, fields_filter):
+         """Refresh fields, applying fields_filter"""
+         self._fields = [field for field in self._get_available_fields()
+-                        if self.is_field_wanted(fields_filter, field) or
+-                        ARCH.debugfs_is_child(field)]
++                        if self.is_field_wanted(fields_filter, field)]
++        # add parents for child fields - otherwise we won't see any output!
++        for field in self._fields:
++            parent = ARCH.debugfs_is_child(field)
++            if (parent and parent not in self._fields):
++                self.fields.append(parent)
+ 
+     @property
+     def fields(self):
+diff --git a/tools/kvm/kvm_stat/kvm_stat.txt b/tools/kvm/kvm_stat/kvm_stat.txt
+index 0811d860fe75..c057ba52364e 100644
+--- a/tools/kvm/kvm_stat/kvm_stat.txt
++++ b/tools/kvm/kvm_stat/kvm_stat.txt
+@@ -34,6 +34,8 @@ INTERACTIVE COMMANDS
+ *c*::	clear filter
+ 
+ *f*::	filter by regular expression
++ ::     *Note*: Child events pull in their parents, and parents' stats summarize
++                all child events, not just the filtered ones
+ 
+ *g*::	filter by guest name/PID
+ 
 -- 
 2.20.1
 
