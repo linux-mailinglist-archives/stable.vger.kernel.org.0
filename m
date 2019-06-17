@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F81E492ED
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:25:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA5EE4932E
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:28:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1728911AbfFQVZX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:25:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51440 "EHLO mail.kernel.org"
+        id S1730549AbfFQV20 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:28:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1727523AbfFQVZW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:25:22 -0400
+        id S1728930AbfFQV20 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:28:26 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id B3070206B7;
-        Mon, 17 Jun 2019 21:25:20 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 030642063F;
+        Mon, 17 Jun 2019 21:28:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806721;
-        bh=mKtyJluVbixW8qvdlr8Grs/hbKxOyEeZGEwPJY1SwsA=;
+        s=default; t=1560806905;
+        bh=B+A0jrXQLUwkgQ3OicSor+/qD60JiGZS8SZX+l/RJbs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DysEY6XRkD7jHWqSguX3rGeS5eoKcuzqR0nOOWVvPvf0Db7BaifyVz+Xdz1Y6BqxS
-         WFUFS80BnrmEZwS0SZ4YW7V2iRzwEIDRYUeAvLj6pe+6Na88PGbiJV48PeHxBkTRi+
-         nz+mhW0yPBCu2S0vh1LRw2f8h7i7zmayjvd9mJyc=
+        b=hHLoWuqfU4am+FXvA+Dg3jDYWpoHMWQZi7wGLhSHiguoSEEyTaAHIoNqoovFpKqH1
+         LneNq+uXxftgXORSfNw16sLNyckKMF572NinvIZy1LdnM8dyyign20YcA5lb3vxDSE
+         5RwEttkxA/WArBaWq44+0s7Qhx0lEmykoSRnK9E4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
-        Manish Rangankar <mrangankar@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 35/75] scsi: qedi: remove set but not used variables cdev and udev
+        stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>,
+        Aaron Skomra <aaron.skomra@wacom.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH 4.14 03/53] HID: wacom: Correct button numbering 2nd-gen Intuos Pro over Bluetooth
 Date:   Mon, 17 Jun 2019 23:09:46 +0200
-Message-Id: <20190617210754.141452451@linuxfoundation.org>
+Message-Id: <20190617210745.732538492@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190617210752.799453599@linuxfoundation.org>
-References: <20190617210752.799453599@linuxfoundation.org>
+In-Reply-To: <20190617210745.104187490@linuxfoundation.org>
+References: <20190617210745.104187490@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,48 +44,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d0adee5d12752256ff0c87ad7f002f21fe49d618 ]
+From: Jason Gerecke <jason.gerecke@wacom.com>
 
-Fixes gcc '-Wunused-but-set-variable' warning:
+commit 6441fc781c344df61402be1fde582c4491fa35fa upstream.
 
-drivers/scsi/qedi/qedi_iscsi.c: In function 'qedi_ep_connect':
-drivers/scsi/qedi/qedi_iscsi.c:813:23: warning: variable 'udev' set but not used [-Wunused-but-set-variable]
-drivers/scsi/qedi/qedi_iscsi.c:812:18: warning: variable 'cdev' set but not used [-Wunused-but-set-variable]
+The button numbering of the 2nd-gen Intuos Pro is not consistent between
+the USB and Bluetooth interfaces. Over USB, the HID_GENERIC codepath
+enumerates the eight ExpressKeys first (BTN_0 - BTN_7) followed by the
+center modeswitch button (BTN_8). The Bluetooth codepath, however, has
+the center modeswitch button as BTN_0 and the the eight ExpressKeys as
+BTN_1 - BTN_8. To ensure userspace button mappings do not change
+depending on how the tablet is connected, modify the Bluetooth codepath
+to report buttons in the same order as USB.
 
-These have never been used since introduction.
+To ensure the mode switch LED continues to toggle in response to the
+mode switch button, the `wacom_is_led_toggled` function also requires
+a small update.
 
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Acked-by: Manish Rangankar <mrangankar@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://github.com/linuxwacom/input-wacom/pull/79
+Fixes: 4922cd26f03c ("HID: wacom: Support 2nd-gen Intuos Pro's Bluetooth classic interface")
+Cc: <stable@vger.kernel.org> # 4.11+
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+Reviewed-by: Aaron Skomra <aaron.skomra@wacom.com>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/scsi/qedi/qedi_iscsi.c | 4 ----
- 1 file changed, 4 deletions(-)
+ drivers/hid/wacom_wac.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/scsi/qedi/qedi_iscsi.c b/drivers/scsi/qedi/qedi_iscsi.c
-index 4130b9117055..1b7049dce169 100644
---- a/drivers/scsi/qedi/qedi_iscsi.c
-+++ b/drivers/scsi/qedi/qedi_iscsi.c
-@@ -810,8 +810,6 @@ qedi_ep_connect(struct Scsi_Host *shost, struct sockaddr *dst_addr,
- 	struct qedi_endpoint *qedi_ep;
- 	struct sockaddr_in *addr;
- 	struct sockaddr_in6 *addr6;
--	struct qed_dev *cdev  =  NULL;
--	struct qedi_uio_dev *udev = NULL;
- 	struct iscsi_path path_req;
- 	u32 msg_type = ISCSI_KEVENT_IF_DOWN;
- 	u32 iscsi_cid = QEDI_CID_RESERVED;
-@@ -831,8 +829,6 @@ qedi_ep_connect(struct Scsi_Host *shost, struct sockaddr *dst_addr,
- 	}
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -1340,7 +1340,7 @@ static void wacom_intuos_pro2_bt_pad(str
+ 	struct input_dev *pad_input = wacom->pad_input;
+ 	unsigned char *data = wacom->data;
  
- 	qedi = iscsi_host_priv(shost);
--	cdev = qedi->cdev;
--	udev = qedi->udev;
+-	int buttons = (data[282] << 1) | ((data[281] >> 6) & 0x01);
++	int buttons = data[282] | ((data[281] & 0x40) << 2);
+ 	int ring = data[285] & 0x7F;
+ 	bool ringstatus = data[285] & 0x80;
+ 	bool prox = buttons || ringstatus;
+@@ -3650,7 +3650,7 @@ static void wacom_24hd_update_leds(struc
+ static bool wacom_is_led_toggled(struct wacom *wacom, int button_count,
+ 				 int mask, int group)
+ {
+-	int button_per_group;
++	int group_button;
  
- 	if (test_bit(QEDI_IN_OFFLINE, &qedi->flags) ||
- 	    test_bit(QEDI_IN_RECOVERY, &qedi->flags)) {
--- 
-2.20.1
-
+ 	/*
+ 	 * 21UX2 has LED group 1 to the left and LED group 0
+@@ -3660,9 +3660,12 @@ static bool wacom_is_led_toggled(struct
+ 	if (wacom->wacom_wac.features.type == WACOM_21UX2)
+ 		group = 1 - group;
+ 
+-	button_per_group = button_count/wacom->led.count;
++	group_button = group * (button_count/wacom->led.count);
+ 
+-	return mask & (1 << (group * button_per_group));
++	if (wacom->wacom_wac.features.type == INTUOSP2_BT)
++		group_button = 8;
++
++	return mask & (1 << group_button);
+ }
+ 
+ static void wacom_update_led(struct wacom *wacom, int button_count, int mask,
 
 
