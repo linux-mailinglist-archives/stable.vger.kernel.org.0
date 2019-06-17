@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [209.132.180.67])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C9FB4942C
-	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:36:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77892492E0
+	for <lists+stable@lfdr.de>; Mon, 17 Jun 2019 23:25:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1729401AbfFQVVl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jun 2019 17:21:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46200 "EHLO mail.kernel.org"
+        id S1729993AbfFQVYr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jun 2019 17:24:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1728943AbfFQVVl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 Jun 2019 17:21:41 -0400
+        id S1729592AbfFQVYr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jun 2019 17:24:47 -0400
 Received: from localhost (83-86-89-107.cable.dynamic.v4.ziggo.nl [83.86.89.107])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 8BD7B21655;
-        Mon, 17 Jun 2019 21:21:39 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 43C602063F;
+        Mon, 17 Jun 2019 21:24:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=default; t=1560806500;
-        bh=RWS4ypcpewR1dccRFjGV9Y/7aVml2BDNYi2XHtLitoo=;
+        s=default; t=1560806686;
+        bh=8AZXDN5az/P3ZHNDwkQykMB35CKW4NUB8QoKxRQ8Qrk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MVpQyb3LXMT62IF/UqhscIqRvqGV9NIq8yJVIFUcilNABnTyg6RrquwuHaeYJRt7Q
-         NSSYw95KcDzVSLCaQIqbdk0Zw/JddZs8RpxMdCGL0Sejb6kcTb14jqGTfBsjGBkmT/
-         7GbKhfGuiTHEqKZ/hxzEE0rRgbpAH4S0C/1mNU2o=
+        b=cxt9Xi6iiWiK+GB04B0uN/gXEFcef2DVe8aCEnL+9/NjrXBozsPE0vVcmBFOTQHNR
+         CNf2F9ZdHYZNP+9wHU4YMkmimX12t2twD5JRizsWcyTmaMRzFyStIcNkmgg1cLSqNf
+         Ho161SJEx8zYRI7ufpgsIcq+WJTbQEAJfWsgmwJ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Steffen Dirkwinkel <s.dirkwinkel@beckhoff.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.1 072/115] platform/x86: pmc_atom: Add several Beckhoff Automation boards to critclk_systems DMI table
-Date:   Mon, 17 Jun 2019 23:09:32 +0200
-Message-Id: <20190617210803.729611238@linuxfoundation.org>
+        =?UTF-8?q?Bj=C3=B8rn=20Forsman?= <bjorn.forsman@gmail.com>,
+        Coly Li <colyli@suse.de>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.19 22/75] bcache: only set BCACHE_DEV_WB_RUNNING when cached device attached
+Date:   Mon, 17 Jun 2019 23:09:33 +0200
+Message-Id: <20190617210753.709500958@linuxfoundation.org>
 X-Mailer: git-send-email 2.22.0
-In-Reply-To: <20190617210759.929316339@linuxfoundation.org>
-References: <20190617210759.929316339@linuxfoundation.org>
+In-Reply-To: <20190617210752.799453599@linuxfoundation.org>
+References: <20190617210752.799453599@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,58 +44,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit d6423bd03031c020121da26c41a26bd5cc6d0da3 ]
+From: Coly Li <colyli@suse.de>
 
-There are several Beckhoff Automation industrial PC boards which use
-pmc_plt_clk* clocks for ethernet controllers. This adds affected boards
-to critclk_systems DMI table so the clocks are marked as CLK_CRITICAL and
-not turned off.
+commit 1f0ffa67349c56ea54c03ccfd1e073c990e7411e upstream.
 
-Fixes: 648e921888ad ("clk: x86: Stop marking clocks as CLK_IS_CRITICAL")
-Signed-off-by: Steffen Dirkwinkel <s.dirkwinkel@beckhoff.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+When people set a writeback percent via sysfs file,
+  /sys/block/bcache<N>/bcache/writeback_percent
+current code directly sets BCACHE_DEV_WB_RUNNING to dc->disk.flags
+and schedules kworker dc->writeback_rate_update.
+
+If there is no cache set attached to, the writeback kernel thread is
+not running indeed, running dc->writeback_rate_update does not make
+sense and may cause NULL pointer deference when reference cache set
+pointer inside update_writeback_rate().
+
+This patch checks whether the cache set point (dc->disk.c) is NULL in
+sysfs interface handler, and only set BCACHE_DEV_WB_RUNNING and
+schedule dc->writeback_rate_update when dc->disk.c is not NULL (it
+means the cache device is attached to a cache set).
+
+This problem might be introduced from initial bcache commit, but
+commit 3fd47bfe55b0 ("bcache: stop dc->writeback_rate_update properly")
+changes part of the original code piece, so I add 'Fixes: 3fd47bfe55b0'
+to indicate from which commit this patch can be applied.
+
+Fixes: 3fd47bfe55b0 ("bcache: stop dc->writeback_rate_update properly")
+Reported-by: Bjørn Forsman <bjorn.forsman@gmail.com>
+Signed-off-by: Coly Li <colyli@suse.de>
+Reviewed-by: Bjørn Forsman <bjorn.forsman@gmail.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
 ---
- drivers/platform/x86/pmc_atom.c | 24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+ drivers/md/bcache/sysfs.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/platform/x86/pmc_atom.c b/drivers/platform/x86/pmc_atom.c
-index a311f48ce7c9..b1d804376237 100644
---- a/drivers/platform/x86/pmc_atom.c
-+++ b/drivers/platform/x86/pmc_atom.c
-@@ -413,6 +413,30 @@ static const struct dmi_system_id critclk_systems[] = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "3I380D"),
- 		},
- 	},
-+	{
-+		/* pmc_plt_clk* - are used for ethernet controllers */
-+		.ident = "Beckhoff CB3163",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Beckhoff Automation"),
-+			DMI_MATCH(DMI_BOARD_NAME, "CB3163"),
-+		},
-+	},
-+	{
-+		/* pmc_plt_clk* - are used for ethernet controllers */
-+		.ident = "Beckhoff CB6263",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Beckhoff Automation"),
-+			DMI_MATCH(DMI_BOARD_NAME, "CB6263"),
-+		},
-+	},
-+	{
-+		/* pmc_plt_clk* - are used for ethernet controllers */
-+		.ident = "Beckhoff CB6363",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "Beckhoff Automation"),
-+			DMI_MATCH(DMI_BOARD_NAME, "CB6363"),
-+		},
-+	},
- 	{ /*sentinel*/ }
- };
+--- a/drivers/md/bcache/sysfs.c
++++ b/drivers/md/bcache/sysfs.c
+@@ -393,8 +393,13 @@ STORE(bch_cached_dev)
+ 	if (attr == &sysfs_writeback_running)
+ 		bch_writeback_queue(dc);
  
--- 
-2.20.1
-
++	/*
++	 * Only set BCACHE_DEV_WB_RUNNING when cached device attached to
++	 * a cache set, otherwise it doesn't make sense.
++	 */
+ 	if (attr == &sysfs_writeback_percent)
+-		if (!test_and_set_bit(BCACHE_DEV_WB_RUNNING, &dc->disk.flags))
++		if ((dc->disk.c != NULL) &&
++		    (!test_and_set_bit(BCACHE_DEV_WB_RUNNING, &dc->disk.flags)))
+ 			schedule_delayed_work(&dc->writeback_rate_update,
+ 				      dc->writeback_rate_update_seconds * HZ);
+ 
 
 
